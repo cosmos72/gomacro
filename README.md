@@ -32,16 +32,16 @@ As a free bonus, we get support for Eval()
 
 ALPHA.
 
-The intepreter works for simple variable definitions
-and unary/binary expressions using booleans, integers,
+The intepreter works for simple variable definitions,
+simple function calls (no imports yet, so builtins only)
+and unary/binary expressions using strings, booleans, integers,
 floats and complex numbers.
 
 A lot of things are still missing:
-* support for strings, arrays, slices, maps, channels
+* support for arrays, slices, maps, channels
 * fields access (a.b)
-* function calls
 * function definitions
 * struct and interface definitions
-* packages
+* packages and imports
 * macros
 
