@@ -39,7 +39,7 @@ func (ir *Interpreter) evalDecl(node ast.Decl) (r.Value, error) {
 	case *ast.FuncDecl:
 		return ir.evalDeclFunc(node)
 	default:
-		return Nil, errors.New(fmt.Sprintf("unsupported declaration: %#v", node))
+		return Nil, errors.New(fmt.Sprintf("unimplemented declaration: %#v", node))
 	}
 }
 
@@ -58,7 +58,7 @@ func (ir *Interpreter) evalDeclGen(node *ast.GenDecl) (r.Value, error) {
 		case token.VAR:
 			ret, err = ir.evalDeclVar(decl)
 		default:
-			return Nil, errors.New(fmt.Sprintf("unsupported declaration: %#v", decl))
+			return Nil, errors.New(fmt.Sprintf("unimplemented declaration: %#v", decl))
 		}
 		if err != nil {
 			ir.PopEnv()
@@ -71,21 +71,21 @@ func (ir *Interpreter) evalDeclGen(node *ast.GenDecl) (r.Value, error) {
 func (ir *Interpreter) evalImport(node ast.Spec) (r.Value, error) {
 	switch node := node.(type) {
 	default:
-		return Nil, errors.New(fmt.Sprintf("unsupported import %#v", node))
+		return Nil, errors.New(fmt.Sprintf("unimplemented import %#v", node))
 	}
 }
 
 func (ir *Interpreter) evalDeclConst(node ast.Spec) (r.Value, error) {
 	switch node := node.(type) {
 	default:
-		return Nil, errors.New(fmt.Sprintf("unsupported constant declaration %#v", node))
+		return Nil, errors.New(fmt.Sprintf("unimplemented constant declaration %#v", node))
 	}
 }
 
 func (ir *Interpreter) evalDeclType(node ast.Spec) (r.Value, error) {
 	switch node := node.(type) {
 	default:
-		return Nil, errors.New(fmt.Sprintf("unsupported type declaration %#v", node))
+		return Nil, errors.New(fmt.Sprintf("unimplemented type declaration %#v", node))
 	}
 }
 
@@ -123,7 +123,7 @@ func (ir *Interpreter) evalDeclVar(node ast.Spec) (r.Value, error) {
 			}
 		}
 	default:
-		return Nil, errors.New(fmt.Sprintf("unsupported variable declaration: %#v", node))
+		return Nil, errors.New(fmt.Sprintf("unimplemented variable declaration: %#v", node))
 	}
 	return ret, nil
 }
@@ -137,7 +137,10 @@ func (ir *Interpreter) defineVarConvert(name string, t r.Type, value r.Value) (r
 }
 
 func (ir *Interpreter) defineVar(name string, t r.Type, value r.Value) (r.Value, error) {
-
+	if name == "_" {
+		// never define bindings for "_"
+		return value, nil
+	}
 	if t == nil {
 		t = value.Type()
 		// fmt.Printf("debug: defineVar() type inference: var %s <%v> = %#v\n", name, t, value.Interface())
@@ -152,5 +155,5 @@ func (ir *Interpreter) defineVar(name string, t r.Type, value r.Value) (r.Value,
 	}
 	ir.Binds[name] = addr.Elem()
 	// fmt.Printf("debug: defineVar() added %#v to %#v\n", name, ir.Binds)
-	return r.ValueOf(name), nil
+	return value, nil
 }

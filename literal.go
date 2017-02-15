@@ -108,7 +108,7 @@ func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
 		return unescapeString(str)
 
 	default:
-		return nil, errors.New(fmt.Sprintf("unsupported literal Kind = %s, r.Value = %#v", kind, str))
+		return nil, errors.New(fmt.Sprintf("unimplemented literal Kind = %s, r.Value = %#v", kind, str))
 
 	}
 	return ret, nil

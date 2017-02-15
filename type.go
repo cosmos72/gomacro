@@ -42,7 +42,7 @@ func (ir *Interpreter) evalType(node ast.Expr) (r.Type, error) {
 			// type can be omitted in many case - then we must perform type inference
 			return nil, nil
 		}
-		return nil, errors.New(fmt.Sprintf("unsupported type: %#v", node))
+		return nil, errors.New(fmt.Sprintf("unimplemented type: %#v", node))
 	}
 }
 
@@ -82,7 +82,7 @@ func (ir *Interpreter) evalTypeIdentifier(name string) (t r.Type, err error) {
 	case "complex128":
 		v = complex(float64(0), float64(0))
 	default:
-		return nil, errors.New(fmt.Sprintf("unsupported type identifier: %v", name))
+		return nil, errors.New(fmt.Sprintf("unimplemented type identifier: %v", name))
 	}
 	return r.TypeOf(v), nil
 }

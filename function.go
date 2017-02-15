@@ -39,5 +39,5 @@ func (ir *Interpreter) evalDeclFunc(node *ast.FuncDecl) (r.Value, error) {
 		return ir.evalStatements(node.Body.List)
 	}
 	// TODO
-	return Nil, errors.New(fmt.Sprintf("unsupported function declaration: %#v", node))
+	return Nil, errors.New(fmt.Sprintf("unimplemented function declaration: %#v", node))
 }

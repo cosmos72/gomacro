@@ -41,5 +41,5 @@ func (ir *Interpreter) Eval(node ast.Node) (r.Value, error) {
 	if node, ok := node.(*ast.File); ok {
 		return ir.evalFile(node)
 	}
-	return Nil, errors.New(fmt.Sprintf("unsupported ast.Node: %#v\n", node))
+	return Nil, errors.New(fmt.Sprintf("unimplemented Eval for %#v\n", node))
 }
