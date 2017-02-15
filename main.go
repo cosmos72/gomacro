@@ -67,6 +67,7 @@ func New() *Interpreter {
 	ir.Filename = "main.go"
 	ir.Fileset = token.NewFileSet()
 	ir.iotaOffset = 1
+	addBuiltins(ir.Binds)
 	return &ir
 }
 

@@ -31,6 +31,19 @@ import (
 	r "reflect"
 )
 
+func (ir *Interpreter) evalExprs(nodes []ast.Expr) ([]r.Value, error) {
+	n := len(nodes)
+	rets := make([]r.Value, n)
+	for i, node := range nodes {
+		ret, err := ir.evalExpr(node)
+		if err != nil {
+			return nil, err
+		}
+		rets[i] = ret
+	}
+	return rets, nil
+}
+
 func (ir *Interpreter) evalExpr(node ast.Expr) (r.Value, error) {
 	// fmt.Printf("debug: evalExpr() %#v\n", node)
 
@@ -41,6 +54,9 @@ func (ir *Interpreter) evalExpr(node ast.Expr) (r.Value, error) {
 	case *ast.BinaryExpr:
 		return ir.evalBinaryExpr(node)
 
+	case *ast.CallExpr:
+		return ir.evalCall(node)
+
 	case *ast.Ident:
 		return ir.evalIdentifier(node)
 
@@ -50,7 +66,7 @@ func (ir *Interpreter) evalExpr(node ast.Expr) (r.Value, error) {
 	case *ast.UnaryExpr:
 		return ir.evalUnaryExpr(node)
 
-	case *ast.CallExpr, *ast.CompositeLit, *ast.FuncLit, *ast.IndexExpr, *ast.KeyValueExpr,
+	case *ast.CompositeLit, *ast.FuncLit, *ast.IndexExpr, *ast.KeyValueExpr,
 		*ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
 
 		// TODO

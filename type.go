@@ -35,8 +35,9 @@ func (ir *Interpreter) evalType(node ast.Expr) (r.Type, error) {
 
 	switch node := node.(type) {
 	case *ast.Ident:
-		return ir.evalSimpleType(node.Name)
+		return ir.evalTypeIdentifier(node.Name)
 	default:
+		// TODO *ast.InterfaceType and many others
 		if node == nil {
 			// type can be omitted in many case - then we must perform type inference
 			return nil, nil
@@ -45,7 +46,7 @@ func (ir *Interpreter) evalType(node ast.Expr) (r.Type, error) {
 	}
 }
 
-func (ir *Interpreter) evalSimpleType(name string) (t r.Type, err error) {
+func (ir *Interpreter) evalTypeIdentifier(name string) (t r.Type, err error) {
 	var v interface{}
 	switch name {
 	case "bool":
@@ -81,7 +82,7 @@ func (ir *Interpreter) evalSimpleType(name string) (t r.Type, err error) {
 	case "complex128":
 		v = complex(float64(0), float64(0))
 	default:
-		return nil, errors.New(fmt.Sprintf("unsupported type: %v", name))
+		return nil, errors.New(fmt.Sprintf("unsupported type identifier: %v", name))
 	}
 	return r.TypeOf(v), nil
 }

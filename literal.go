@@ -66,7 +66,6 @@ func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
 			}
 			return i64, nil
 		} else {
-			fmt.Printf("debug: n_ = <%T> %#v\n", n_, n_)
 			u64, err := strconv.ParseUint(str, 0, 0)
 			if err != nil {
 				return nil, err
