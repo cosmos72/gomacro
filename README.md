@@ -5,7 +5,7 @@ Go source code from some kind of description - usually an interface
 specifications as WSDL, XSD, JSON...
 
 Typically such specification is **NOT** written in Go, and typically
-external tools are needed to convert it to Go source code.
+a variety of external tools are needed to convert it to Go source code.
 
 Also, Go is currently lacking generics (read: C++-like templates)
 because of the rationale "we do not yet know how to do them right,
@@ -16,7 +16,10 @@ while compiling, **in particular** to generate source code.
 
 This makes them very well suited (although arguably a bit low level)
 for both purposes: code generation and C++-like templates, which
-are a special case of code generation.
+are a special case of code generation - for a demonstration of how
+to implement C++-like templates on top of Lisp-like macros,
+see for example the project https://github.com/cosmos72/cl-parametric-types
+from the same author.
 
 Building a Go interpreter that supports Lisp-like macros,
 allows to embed all these code-generation activities
