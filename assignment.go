@@ -2,17 +2,17 @@
  * gomacro - A Go intepreter with Lisp-like macros
  *
  * Copyright (C) 2017 Massimiliano Ghilardi
- * 
+ *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     This program is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -48,17 +48,27 @@ func (ir *Interpreter) evalAssignments(node *ast.AssignStmt) (r.Value, error) {
 }
 
 func (ir *Interpreter) evalAssignment(lhs ast.Expr, op token.Token, rhs ast.Expr) (r.Value, error) {
-	// fmt.Printf("debug: evalAssignment() [%v] %s [%v]\n", lhs, op, rhs)
+	// fmt.Printf("debug: evalAssignment() %v %s %v\n", lhs, op, rhs)
+
+	value, err := ir.Eval(rhs)
+	if err != nil {
+		return Nil, err
+	}
+
+	if op == token.DEFINE {
+		// fmt.Printf("debug: evalAssignment() DEFINE %v %#v\n", lhs, value)
+		ident, ok := lhs.(*ast.Ident)
+		if ok {
+			return ir.defineVar(ident.Name, nil, value)
+		}
+	}
+
 	place, err := ir.Eval(lhs)
 	if err != nil {
 		return Nil, err
 	}
 	if !place.CanSet() {
 		return Nil, errors.New(fmt.Sprintf("cannot assign to read-only location: %#v %s %#v", lhs, op, rhs))
-	}
-	value, err := ir.Eval(rhs)
-	if err != nil {
-		return Nil, err
 	}
 	return ir.assign(place, token.ASSIGN, value)
 }

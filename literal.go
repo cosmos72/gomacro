@@ -2,17 +2,17 @@
  * gomacro - A Go intepreter with Lisp-like macros
  *
  * Copyright (C) 2017 Massimiliano Ghilardi
- * 
+ *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     This program is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -54,9 +54,38 @@ func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
 
 	case token.INT:
 		if strings.HasPrefix(str, "-") {
-			return strconv.ParseInt(str, 0, 0)
+			i64, err := strconv.ParseInt(str, 0, 0)
+			if err != nil {
+				return nil, err
+			}
+			// prefer int to int64. reason: in compiled Go,
+			// type inference deduces int for all constants representable by an int
+			i := int(i64)
+			if int64(i) == i64 {
+				return i, nil
+			}
+			return i64, nil
 		} else {
-			return strconv.ParseUint(str, 0, 0)
+			fmt.Printf("debug: n_ = <%T> %#v\n", n_, n_)
+			u64, err := strconv.ParseUint(str, 0, 0)
+			if err != nil {
+				return nil, err
+			}
+			// prefer, in order: int, int64, uint, uint64. reason: in compiled Go,
+			// type inference deduces int for all constants representable by an int
+			i := int(u64)
+			if i >= 0 && uint64(i) == u64 {
+				return i, nil
+			}
+			i64 := int64(u64)
+			if i64 >= 0 && uint64(i64) == u64 {
+				return i64, nil
+			}
+			u := uint(u64)
+			if uint64(u) == u64 {
+				return u, nil
+			}
+			return u64, nil
 		}
 
 	case token.FLOAT:

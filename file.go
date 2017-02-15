@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * eval.go
+ * declaration.go
  *
  *  Created on: Feb 13, 2015
  *      Author: Massimiliano Ghilardi
@@ -25,21 +25,22 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
 
-func (ir *Interpreter) Eval(node ast.Node) (r.Value, error) {
-	if node, ok := node.(ast.Expr); ok {
-		return ir.evalExpr(node)
+func (ir *Interpreter) evalFile(node *ast.File) (r.Value, error) {
+	ir.Packagename = node.Name.Name
+
+	// eval node.Imports
+	var ret r.Value
+	var err error
+
+	for _, decl := range node.Decls {
+		ret, err = ir.evalDecl(decl)
+		if err != nil {
+			return Nil, err
+		}
 	}
-	if node, ok := node.(ast.Decl); ok {
-		return ir.evalDecl(node)
-	}
-	if node, ok := node.(*ast.File); ok {
-		return ir.evalFile(node)
-	}
-	return Nil, errors.New(fmt.Sprintf("unsupported ast.Node: %#v\n", node))
+	return ret, nil
 }

@@ -2,17 +2,17 @@
  * gomacro - A Go intepreter with Lisp-like macros
  *
  * Copyright (C) 2017 Massimiliano Ghilardi
- * 
+ *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
- * 
+ *
  *     This program is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU General Public License for more details.
- * 
+ *
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -159,7 +159,7 @@ func unescapeRunes(rs []rune) []rune {
 
 func parseOctal(rs []rune) rune {
 	octal := ((rs[0] - '0') << 6) | ((rs[1] - '0') << 3) | (rs[2] - '0')
-	fmt.Printf("debug: parseOctal(%#v) -> %#v\n", string(rs), octal)
+	// fmt.Printf("debug: parseOctal(%#v) -> %#v\n", string(rs), octal)
 	return octal
 }
 
@@ -168,7 +168,7 @@ func parseHex(rs []rune) rune {
 	for _, ch := range rs {
 		hex = hex<<4 | parseHexChar(ch)
 	}
-	fmt.Printf("debug: parseHex(%#v) -> %#v\n", string(rs), hex)
+	// fmt.Printf("debug: parseHex(%#v) -> %#v\n", string(rs), hex)
 	return hex
 }
 

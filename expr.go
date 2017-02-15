@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * eval.go
+ * unaryexpr.go
  *
  *  Created on: Feb 13, 2015
  *      Author: Massimiliano Ghilardi
@@ -31,15 +31,32 @@ import (
 	r "reflect"
 )
 
-func (ir *Interpreter) Eval(node ast.Node) (r.Value, error) {
-	if node, ok := node.(ast.Expr); ok {
-		return ir.evalExpr(node)
+func (ir *Interpreter) evalExpr(node ast.Expr) (r.Value, error) {
+	// fmt.Printf("debug: evalExpr() %#v\n", node)
+
+	switch node := node.(type) {
+	case *ast.BasicLit:
+		return ir.evalLiteral(node)
+
+	case *ast.BinaryExpr:
+		return ir.evalBinaryExpr(node)
+
+	case *ast.Ident:
+		return ir.evalIdentifier(node)
+
+	case *ast.ParenExpr:
+		return ir.evalExpr(node.X)
+
+	case *ast.UnaryExpr:
+		return ir.evalUnaryExpr(node)
+
+	case *ast.CallExpr, *ast.CompositeLit, *ast.FuncLit, *ast.IndexExpr, *ast.KeyValueExpr,
+		*ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
+
+		// TODO
+		return Nil, errors.New(fmt.Sprintf("unimplemented expression %#v\n", node))
+
+	default:
+		return Nil, errors.New(fmt.Sprintf("unimplemented expression %#v\n", node))
 	}
-	if node, ok := node.(ast.Decl); ok {
-		return ir.evalDecl(node)
-	}
-	if node, ok := node.(*ast.File); ok {
-		return ir.evalFile(node)
-	}
-	return Nil, errors.New(fmt.Sprintf("unsupported ast.Node: %#v\n", node))
 }
