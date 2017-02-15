@@ -1,4 +1,4 @@
-## gomacro - A Go interpreter with eval and Lisp-like macros
+## gomacro - A Go interpreter with Lisp-like macros
 
 Problem: "go generate" and many other Go tools automatically create
 Go source code from some kind of description - usually an interface
@@ -25,7 +25,7 @@ into regular Go source code, without the need for external tools
 
 As a free bonus, we get support for Eval()
 
-## current status
+## Current Status
 
 ALPHA.
 
@@ -34,10 +34,11 @@ and unary/binary expressions using booleans, integers,
 floats and complex numbers.
 
 A lot of things are still missing:
-* support for strings
+* support for strings, arrays, slices, maps, channels
 * fields access (a.b)
 * function calls
 * function definitions
 * struct and interface definitions
+* packages
 * macros
 
