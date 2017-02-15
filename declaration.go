@@ -1,3 +1,27 @@
+/*
+ * gomacro - A Go intepreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ * 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * declaration.go
+ *
+ *  Created on: Feb 13, 2015
+ *      Author: Massimiliano Ghilardi
+ */
+
 package main
 
 import (
@@ -5,12 +29,12 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"reflect"
+	r "reflect"
 )
 
-func (ir *Interpreter) evalDecl(node *ast.GenDecl) (reflect.Value, error) {
+func (ir *Interpreter) evalDecl(node *ast.GenDecl) (r.Value, error) {
 	tok := node.Tok
-	var ret reflect.Value
+	var ret r.Value
 	var err error
 	for _, decl := range node.Specs {
 		switch tok {
@@ -33,29 +57,29 @@ func (ir *Interpreter) evalDecl(node *ast.GenDecl) (reflect.Value, error) {
 	return ret, nil
 }
 
-func (ir *Interpreter) evalImport(node ast.Spec) (reflect.Value, error) {
+func (ir *Interpreter) evalImport(node ast.Spec) (r.Value, error) {
 	switch node := node.(type) {
 	default:
 		return Nil, errors.New(fmt.Sprintf("unsupported import %#v", node))
 	}
 }
 
-func (ir *Interpreter) evalDeclConst(node ast.Spec) (reflect.Value, error) {
+func (ir *Interpreter) evalDeclConst(node ast.Spec) (r.Value, error) {
 	switch node := node.(type) {
 	default:
 		return Nil, errors.New(fmt.Sprintf("unsupported constant declaration %#v", node))
 	}
 }
 
-func (ir *Interpreter) evalDeclType(node ast.Spec) (reflect.Value, error) {
+func (ir *Interpreter) evalDeclType(node ast.Spec) (r.Value, error) {
 	switch node := node.(type) {
 	default:
 		return Nil, errors.New(fmt.Sprintf("unsupported type declaration %#v", node))
 	}
 }
 
-func (ir *Interpreter) evalDeclVar(node ast.Spec) (reflect.Value, error) {
-	var ret reflect.Value
+func (ir *Interpreter) evalDeclVar(node ast.Spec) (r.Value, error) {
+	var ret r.Value
 	switch node := node.(type) {
 	case *ast.ValueSpec:
 		idents := node.Names
@@ -64,7 +88,7 @@ func (ir *Interpreter) evalDeclVar(node ast.Spec) (reflect.Value, error) {
 		if err != nil {
 			return Nil, err
 		}
-		zero := reflect.Zero(t)
+		zero := r.Zero(t)
 		for i, ident := range idents {
 			if values != nil && len(values) >= i {
 				value, err := ir.Eval(values[i])
@@ -87,7 +111,7 @@ func (ir *Interpreter) evalDeclVar(node ast.Spec) (reflect.Value, error) {
 	return ret, nil
 }
 
-func (ir *Interpreter) defineVarConvert(name string, t reflect.Type, value reflect.Value) (reflect.Value, error) {
+func (ir *Interpreter) defineVarConvert(name string, t r.Type, value r.Value) (r.Value, error) {
 	value_as_t, ok := toType(value, t)
 	if !ok {
 		return Nil, errors.New(fmt.Sprintf("failed to cast %#v to %v in variable declaration: var %s %v = %#v", value, t, name, t, value))
@@ -95,16 +119,15 @@ func (ir *Interpreter) defineVarConvert(name string, t reflect.Type, value refle
 	return ir.defineVar(name, t, value_as_t)
 }
 
-func (ir *Interpreter) defineVar(name string, t reflect.Type, value reflect.Value) (reflect.Value, error) {
+func (ir *Interpreter) defineVar(name string, t r.Type, value r.Value) (r.Value, error) {
 	// fmt.Printf("debug: defineVar() var %s %v = %#v\n", name, t, value.Interface())
 
-	addr := reflect.New(t)
-	place := addr.Elem()
+	addr := r.New(t)
 
-	_, err := ir.assign(place, token.ASSIGN, value)
+	_, err := ir.assign(addr.Elem(), token.ASSIGN, value)
 	if err != nil {
 		return Nil, err
 	}
-	ir.Binds[name] = place
-	return reflect.ValueOf(name), nil
+	ir.Binds[name] = addr.Elem()
+	return r.ValueOf(name), nil
 }

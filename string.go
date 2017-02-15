@@ -1,8 +1,33 @@
+/*
+ * gomacro - A Go intepreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ * 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * string.go
+ *
+ *  Created on: Feb 13, 2015
+ *      Author: Massimiliano Ghilardi
+ */
+
 package main
 
 import (
-	"errors"
-	"fmt"
+	// "errors"
+	// "fmt"
+	"strconv"
 )
 
 const (
@@ -21,22 +46,33 @@ func unescapeChar(str string) (rune, error) {
 	if n >= 2 && rs[0] == '\'' && rs[n-1] == '\'' {
 		rs = rs[1 : n-1]
 	}
-	rs = unescapeRunes(rs)
-	if len(rs) != 1 {
-		return 0, errors.New(fmt.Sprintf("invalid rune literal %#v, expecting exactly ONE rune", string(rs)))
+	/*
+		rs = unescapeRunes(rs)
+		if len(rs) != 1 {
+			return 0, errors.New(fmt.Sprintf("invalid rune literal %#v, expecting exactly ONE rune", string(rs)))
+		}
+		return rs[0], nil
+	*/
+	ret, _, _, err := strconv.UnquoteChar(string(rs), '\'')
+	if err != nil {
+		return 0, err
 	}
-	return rs[0], nil
+	return ret, nil
 }
 
-func unescapeString(str string) string {
-	rs := []rune(str)
-	n := len(rs)
-	if n >= 2 && rs[0] == '"' && rs[n-1] == '"' {
-		rs = rs[1 : n-1]
-	}
-	return string(unescapeRunes(rs))
+func unescapeString(str string) (string, error) {
+	/*
+		rs := []rune(str)
+		n := len(rs)
+		if n >= 2 && rs[0] == '"' && rs[n-1] == '"' {
+			rs = rs[1 : n-1]
+		}
+		return string(unescapeRunes(rs))
+	*/
+	return strconv.Unquote(str)
 }
 
+/*
 func unescapeRunes(rs []rune) []rune {
 	j := 0
 	mode := eNormal
@@ -148,3 +184,4 @@ func parseHexChar(ch rune) rune {
 	}
 	return ch
 }
+*/

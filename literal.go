@@ -1,21 +1,48 @@
+/*
+ * gomacro - A Go intepreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ * 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * literal.go
+ *
+ *  Created on: Feb 13, 2015
+ *      Author: Massimiliano Ghilardi
+ */
+
 package main
 
 import (
 	"errors"
 	"fmt"
 	"go/ast"
+	"go/constant"
 	"go/token"
-	"reflect"
+	r "reflect"
 	"strconv"
 	"strings"
 )
 
-func (ir *Interpreter) evalLiteral(expr *ast.BasicLit) (reflect.Value, error) {
+var Unknown = constant.MakeUnknown()
+
+func (ir *Interpreter) evalLiteral(expr *ast.BasicLit) (r.Value, error) {
 	ret, err := ir.evalLiteral0(expr)
 	if err != nil {
 		return Nil, err
 	}
-	return reflect.ValueOf(ret), nil
+	return r.ValueOf(ret), nil
 }
 
 func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
@@ -50,10 +77,10 @@ func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
 		return unescapeChar(str)
 
 	case token.STRING:
-		ret = unescapeString(str)
+		return unescapeString(str)
 
 	default:
-		return nil, errors.New(fmt.Sprintf("unsupported literal Kind = %s, reflect.Value = %#v", kind, str))
+		return nil, errors.New(fmt.Sprintf("unsupported literal Kind = %s, r.Value = %#v", kind, str))
 
 	}
 	return ret, nil

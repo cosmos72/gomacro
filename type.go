@@ -1,13 +1,37 @@
+/*
+ * gomacro - A Go intepreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ * 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * type.go
+ *
+ *  Created on: Feb 13, 2015
+ *      Author: Massimiliano Ghilardi
+ */
+
 package main
 
 import (
 	"errors"
 	"fmt"
 	"go/ast"
-	"reflect"
+	r "reflect"
 )
 
-func (ir *Interpreter) evalType(node ast.Expr) (reflect.Type, error) {
+func (ir *Interpreter) evalType(node ast.Expr) (r.Type, error) {
 
 	switch node := node.(type) {
 	case *ast.Ident:
@@ -17,7 +41,7 @@ func (ir *Interpreter) evalType(node ast.Expr) (reflect.Type, error) {
 	}
 }
 
-func (ir *Interpreter) evalSimpleType(name string) (t reflect.Type, err error) {
+func (ir *Interpreter) evalSimpleType(name string) (t r.Type, err error) {
 	var v interface{}
 	switch name {
 	case "bool":
@@ -55,17 +79,17 @@ func (ir *Interpreter) evalSimpleType(name string) (t reflect.Type, err error) {
 	default:
 		return nil, errors.New(fmt.Sprintf("unsupported type: %v", name))
 	}
-	return reflect.TypeOf(v), nil
+	return r.TypeOf(v), nil
 }
 
-func toType(value reflect.Value, t reflect.Type) (reflect.Value, bool) {
+func toType(value r.Value, t r.Type) (r.Value, bool) {
 	if value.Type().ConvertibleTo(t) {
 		return value.Convert(t), true
 	}
 	return Nil, false
 }
 
-func primitiveTypeOverflows(value reflect.Value, place reflect.Value) bool {
+func primitiveTypeOverflows(value r.Value, place r.Value) bool {
 	kv, kp := value.Type().Kind(), place.Type().Kind()
 	if isIntKind(kv) {
 		v := value.Int()
@@ -125,40 +149,40 @@ func primitiveTypeOverflows(value reflect.Value, place reflect.Value) bool {
 	return false
 }
 
-func isPrimitiveKind(kind reflect.Kind) bool {
+func isPrimitiveKind(kind r.Kind) bool {
 	return isIntKind(kind) || isUintKind(kind) || isFloatKind(kind) || isComplexKind(kind)
 }
 
-func isIntKind(kind reflect.Kind) bool {
+func isIntKind(kind r.Kind) bool {
 	switch kind {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 		return true
 	default:
 		return false
 	}
 }
 
-func isUintKind(kind reflect.Kind) bool {
+func isUintKind(kind r.Kind) bool {
 	switch kind {
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 		return true
 	default:
 		return false
 	}
 }
 
-func isFloatKind(kind reflect.Kind) bool {
+func isFloatKind(kind r.Kind) bool {
 	switch kind {
-	case reflect.Float32, reflect.Float64:
+	case r.Float32, r.Float64:
 		return true
 	default:
 		return false
 	}
 }
 
-func isComplexKind(kind reflect.Kind) bool {
+func isComplexKind(kind r.Kind) bool {
 	switch kind {
-	case reflect.Complex64, reflect.Complex128:
+	case r.Complex64, r.Complex128:
 		return true
 	default:
 		return false

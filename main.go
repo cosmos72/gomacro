@@ -1,3 +1,27 @@
+/*
+ * gomacro - A Go intepreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ * 
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * main.go
+ *
+ *  Created on: Feb 13, 2015
+ *      Author: Massimiliano Ghilardi
+ */
+
 package main
 
 import (
@@ -9,15 +33,15 @@ import (
 	"go/token"
 	"io"
 	"os"
-	"reflect"
+	r "reflect"
 	"strings"
 )
 
 const TemporaryFunctionName = "gorepl_temporary_function"
 
-var Nil reflect.Value = reflect.ValueOf(nil)
+var Nil r.Value = r.ValueOf(nil)
 
-type Binds map[string]reflect.Value
+type Binds map[string]r.Value
 
 type Env struct {
 	Binds
@@ -31,6 +55,9 @@ type Interpreter struct {
 	Fileset     *token.FileSet
 	Parsermode  parser.Mode
 	iotaOffset  int
+	In          *bufio.Reader
+	Out         io.Writer
+	Eout        io.Writer
 }
 
 func New() *Interpreter {
@@ -88,13 +115,13 @@ func (ir *Interpreter) PrintAst(out io.Writer, prefix string, node ast.Node) {
 	fmt.Fprintln(out)
 }
 
-func (ir *Interpreter) Print(out io.Writer, value reflect.Value) {
+func (ir *Interpreter) Print(out io.Writer, value r.Value) {
 	v := value.Interface()
-	switch v := v.(type) {
-	case uint64:
-		fmt.Fprintf(out, "%d\n", v)
+	switch v.(type) {
+	case uint, uint8, uint32, uint64, uintptr:
+		fmt.Fprintf(out, "%d <%T>\n", v, v)
 	default:
-		fmt.Fprintf(out, "%#v\n", v)
+		fmt.Fprintf(out, "%#v <%T>\n", v, v)
 	}
 }
 
@@ -112,6 +139,9 @@ func (ir *Interpreter) Loop2(in *bufio.Reader, out_and_err io.Writer) {
 }
 
 func (ir *Interpreter) Loop3(in *bufio.Reader, out io.Writer, eout io.Writer) {
+	ir.In = in
+	ir.Out = out
+	ir.Eout = eout
 	for {
 		line, err := in.ReadString('\n')
 		if err != nil {
