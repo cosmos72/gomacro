@@ -147,6 +147,9 @@ func (ir *Interpreter) defineVar(name string, t r.Type, value r.Value) (r.Value,
 	} else {
 		// fmt.Printf("debug: defineVar() var %s %v = %#v\n", name, t, value.Interface())
 	}
+	if _, exists := ir.Binds[name]; exists {
+		fmt.Fprintf(ir.Eout, "warning: redefining identifier: %v\n", name)
+	}
 	addr := r.New(t)
 
 	_, err := ir.assign(addr.Elem(), token.ASSIGN, value)

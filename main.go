@@ -119,6 +119,10 @@ func (ir *Interpreter) PrintAst(out io.Writer, prefix string, node ast.Node) {
 }
 
 func (ir *Interpreter) Print(out io.Writer, value r.Value) {
+	if value == Nil {
+		fmt.Fprint(out, "// no values\n")
+		return
+	}
 	v := value.Interface()
 	switch v.(type) {
 	case uint, uint8, uint32, uint64, uintptr:

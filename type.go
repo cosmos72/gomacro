@@ -36,6 +36,8 @@ func (ir *Interpreter) evalType(node ast.Expr) (r.Type, error) {
 	switch node := node.(type) {
 	case *ast.Ident:
 		return ir.evalTypeIdentifier(node.Name)
+	case *ast.FuncType:
+		return ir.evalTypeFunction(node)
 	default:
 		// TODO *ast.InterfaceType and many others
 		if node == nil {
@@ -46,7 +48,52 @@ func (ir *Interpreter) evalType(node ast.Expr) (r.Type, error) {
 	}
 }
 
-func (ir *Interpreter) evalTypeIdentifier(name string) (t r.Type, err error) {
+func (ir *Interpreter) evalTypeFunction(node *ast.FuncType) (r.Type, error) {
+
+	params, err := ir.evalTypeFields(node.Params)
+	if err != nil {
+		return nil, err
+	}
+	results, err := ir.evalTypeFields(node.Results)
+	if err != nil {
+		return nil, err
+	}
+	return r.FuncOf(params, results, false /* TODO variadic*/), nil
+}
+
+func (ir *Interpreter) evalTypeFields(fields *ast.FieldList) ([]r.Type, error) {
+	ts := make([]r.Type, 0)
+	if fields == nil || len(fields.List) == 0 {
+		return ts, nil
+	}
+	for _, f := range fields.List {
+
+		t, err := ir.evalType(f.Type)
+		if err != nil {
+			return nil, err
+		}
+		for range f.Names {
+			ts = append(ts, t)
+			// fmt.Printf("debug: evalTypeFields() %v %v -> %v\n", f.Names[i], f.Type, t)
+		}
+	}
+	return ts, nil
+}
+
+func (ir *Interpreter) evalTypeFieldsNames(fields *ast.FieldList) []string {
+	names := make([]string, 0)
+	if fields == nil || len(fields.List) == 0 {
+		return names
+	}
+	for _, f := range fields.List {
+		for _, ident := range f.Names {
+			names = append(names, ident.Name)
+		}
+	}
+	return names
+}
+
+func (ir *Interpreter) evalTypeIdentifier(name string) (r.Type, error) {
 	var v interface{}
 	switch name {
 	case "bool":

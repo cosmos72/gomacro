@@ -25,11 +25,13 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
+
+type Return struct {
+	Values []r.Value
+}
 
 func (ir *Interpreter) evalDeclFunc(node *ast.FuncDecl) (r.Value, error) {
 	name := node.Name.Name
@@ -38,6 +40,42 @@ func (ir *Interpreter) evalDeclFunc(node *ast.FuncDecl) (r.Value, error) {
 		// in its block scope -> they are lost after ir.evalBlock() returns
 		return ir.evalStatements(node.Body.List)
 	}
-	// TODO
-	return Nil, errors.New(fmt.Sprintf("unimplemented function declaration: %#v", node))
+
+	// TODO methods also use node.Recv
+	t, err := ir.evalType(node.Type)
+	if err != nil {
+		return Nil, err
+	}
+	argNames := ir.evalTypeFieldsNames(node.Type.Params)
+
+	closure := func(args []r.Value) (results []r.Value) {
+		return ir.evalFunc(node.Body, t, argNames, args)
+	}
+	fun := r.MakeFunc(t, closure)
+
+	return ir.defineVar(name, t, fun)
+}
+
+// eval an interpreted function
+func (ir *Interpreter) evalFunc(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value) (results []r.Value) {
+	ir.PushEnv()
+	defer ir.PopEnv()
+	defer func() {
+		if rec := recover(); rec != nil {
+			if ret, ok := rec.(Return); ok {
+				results = ret.Values
+			} else {
+				panic(rec)
+			}
+		}
+	}()
+
+	for i, argName := range argNames {
+		ir.defineVar(argName, t.In(i), args[i])
+	}
+	value, err := ir.evalBlock(body)
+	if err != nil {
+		panic(err)
+	}
+	return []r.Value{value}
 }

@@ -47,7 +47,7 @@ func (ir *Interpreter) evalCall(node *ast.CallExpr) (r.Value, error) {
 	if len(rets) == 0 {
 		return Nil, nil
 	}
-	// TODO return multiple values
+	// TODO return function return Type and multiple values (with their types)
 	return rets[0], nil
 	// return Nil, errors.New(fmt.Sprintf("unsupported function call: %#v", node))
 }
