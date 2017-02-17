@@ -72,9 +72,13 @@ func (ir *Interpreter) evalTypeFields(fields *ast.FieldList) ([]r.Type, error) {
 		if err != nil {
 			return nil, err
 		}
-		for range f.Names {
+		if len(f.Names) == 0 {
 			ts = append(ts, t)
-			// fmt.Printf("debug: evalTypeFields() %v %v -> %v\n", f.Names[i], f.Type, t)
+		} else {
+			for range f.Names {
+				ts = append(ts, t)
+				// fmt.Printf("debug: evalTypeFields() %v %v -> %v\n", f.Names[i], f.Type, t)
+			}
 		}
 	}
 	return ts, nil
@@ -86,8 +90,12 @@ func (ir *Interpreter) evalTypeFieldsNames(fields *ast.FieldList) []string {
 		return names
 	}
 	for _, f := range fields.List {
-		for _, ident := range f.Names {
-			names = append(names, ident.Name)
+		if len(f.Names) == 0 {
+			names = append(names, "_")
+		} else {
+			for _, ident := range f.Names {
+				names = append(names, ident.Name)
+			}
 		}
 	}
 	return names

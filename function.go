@@ -77,5 +77,8 @@ func (ir *Interpreter) evalFunc(body *ast.BlockStmt, t r.Type, argNames []string
 	if err != nil {
 		panic(err)
 	}
-	return []r.Value{value}
+	if value != Nil && t.NumOut() > 0 {
+		results = append(results, value.Convert(t.Out(0)))
+	}
+	return results
 }
