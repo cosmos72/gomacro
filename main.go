@@ -29,20 +29,13 @@ import (
 	"fmt"
 	"go/ast"
 	"go/parser"
-	"go/printer"
 	"go/token"
-	"io"
 	"os"
 	r "reflect"
 	"strings"
 )
 
 const TemporaryFunctionName = "gorepl_temporary_function"
-
-var Nil r.Value = r.ValueOf(nil)
-
-var Stdout = os.Stdout
-var Stderr = os.Stderr
 
 type Binds map[string]r.Value
 
@@ -54,9 +47,9 @@ type Parser struct {
 }
 
 type Env struct {
-	Binds
+	*Parser
+	binds      Binds
 	Outer      *Env
-	Parser     *Parser
 	iotaOffset int
 }
 
@@ -70,21 +63,29 @@ func NewParser() *Parser {
 
 func NewEnv(outer *Env) *Env {
 	env := Env{}
-	env.Binds = make(map[string]r.Value)
-	if outer == nil {
-		env.addBuiltins()
-		env.Parser = NewParser()
-	} else {
-		env.Outer = outer
-		env.Parser = outer.Parser
-	}
+	env.binds = make(map[string]r.Value)
 	env.iotaOffset = 1
+	if outer == nil {
+		env.Parser = NewParser()
+		env.addBuiltins()
+		env.addInterpretedBuiltins()
+	} else {
+		env.Parser = outer.Parser
+		env.Outer = outer
+	}
 	return &env
 }
 
-func (env *Env) Parse(src interface{}) (ast.Node, error) {
-	p := env.Parser
+func (p *Parser) Parse(src interface{}) ast.Node {
+	node, err := p.parseOrError(src)
+	if err != nil {
+		Errore(err)
+		return nil
+	}
+	return node
+}
 
+func (p *Parser) parseOrError(src interface{}) (ast.Node, error) {
 	expr, err := parser.ParseExprFrom(p.Fileset, p.Filename, src, 0)
 	if err == nil {
 		if p.Parsermode == 0 {
@@ -95,6 +96,7 @@ func (env *Env) Parse(src interface{}) (ast.Node, error) {
 	str, ok := src.(string)
 	if ok {
 		str = strings.TrimSpace(str)
+		str = skipComments(str)
 		firstWord := str
 		space := strings.IndexAny(str, " \f\t\r\n\v")
 		if space >= 0 {
@@ -111,34 +113,6 @@ func (env *Env) Parse(src interface{}) (ast.Node, error) {
 		src = str
 	}
 	return parser.ParseFile(p.Fileset, p.Filename, src, p.Parsermode)
-}
-
-func (env *Env) PrintAst(out io.Writer, prefix string, node ast.Node) {
-	fmt.Fprint(out, prefix)
-	printer.Fprint(out, env.Parser.Fileset, node)
-	fmt.Fprintln(out)
-}
-
-func (env *Env) Print(out io.Writer, values ...r.Value) {
-	if out == nil {
-		out = Stdout
-	}
-	if len(values) == 0 || values[0] == Nil {
-		fmt.Fprint(out, "// no values\n")
-		return
-	}
-	comma := ""
-	for _, value := range values {
-		v := value.Interface()
-		switch v.(type) {
-		case uint, uint8, uint32, uint64, uintptr:
-			fmt.Fprintf(out, "%s%d <%T>", comma, v, v)
-		default:
-			fmt.Fprintf(out, "%s%#v <%T>", comma, v, v)
-		}
-		comma = ", "
-	}
-	fmt.Fprintln(out)
 }
 
 func (env *Env) Repl() {
@@ -168,20 +142,19 @@ func (env *Env) ReadEvalPrint(in *bufio.Reader) (ret bool) {
 	if line == ":quit" {
 		return false
 	}
-	ast, err := env.Parse(line)
-	if err != nil {
-		fmt.Fprintln(Stderr, err)
-		return true
-	}
-	// env.PrintAst(Stdout, "parsed: ", ast)
+	ast := env.Parse(line)
+	env.FprintMultipleValues(Stdout, r.ValueOf(ast))
 	value, values := env.Eval(ast)
 	if len(values) != 0 {
-		env.Print(Stdout, values...)
+		env.FprintMultipleValues(Stdout, values...)
 	} else {
-		env.Print(Stdout, value)
+		env.FprintMultipleValues(Stdout, value)
 	}
 	return true
 }
+
+// func pair(a, b int) (int, int) { return a, b }
+// var a, b, c = pair(1, 2), 3, 4
 
 func main() {
 	env := NewEnv(nil)

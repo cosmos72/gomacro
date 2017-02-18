@@ -36,7 +36,7 @@ func (env *Env) evalBlock(block *ast.BlockStmt) (r.Value, []r.Value) {
 }
 
 func (env *Env) evalStatements(list []ast.Stmt) (r.Value, []r.Value) {
-	var ret r.Value
+	ret := None
 	var rets []r.Value
 
 	for _, stmt := range list {
@@ -62,7 +62,7 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 	case *ast.IfStmt:
 		return env.evalIf(node)
 	case *ast.EmptyStmt:
-		return Nil, nil
+		return None, nil
 	case *ast.ReturnStmt:
 		return env.evalReturn(node)
 
@@ -70,8 +70,8 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		*ast.GoStmt, *ast.IncDecStmt, *ast.LabeledStmt, *ast.RangeStmt,
 		*ast.SelectStmt, *ast.SendStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
 		// TODO
-		return Errorf("unimplemented statement: %#v", node)
+		return env.Errorf("unimplemented statement: %#v", node)
 	default:
-		return Errorf("unimplemented statement: %#v", node)
+		return env.Errorf("unimplemented statement: %#v", node)
 	}
 }

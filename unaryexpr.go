@@ -31,7 +31,7 @@ import (
 )
 
 func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, []r.Value) {
-	return Errorf("unsupported unary expression %s on %T: %s %#v", op, xf, op, xf)
+	return env.Errorf("unsupported unary expression %s on %T: %s %#v", op, xf, op, xf)
 }
 
 func (env *Env) evalUnaryExpr(expr *ast.UnaryExpr) (r.Value, []r.Value) {

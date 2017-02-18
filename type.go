@@ -35,59 +35,58 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 	case *ast.Ident:
 		return env.evalTypeIdentifier(node.Name)
 	case *ast.FuncType:
-		return env.evalTypeFunction(node)
+		t, _, _ := env.evalTypeFunction(node)
+		return t
+	case *ast.InterfaceType:
+		t, _ := env.evalTypeInterface(node)
+		return t
 	default:
-		// TODO *ast.InterfaceType and many others
+		// TODO *ast.StructType and many others
 		if node == nil {
 			// type can be omitted in many case - then we must perform type inference
 			return nil
 		}
-		Errorf("unimplemented type: %#v", node)
+		env.Errorf("unimplemented type: %v", node)
 		return nil
 	}
 }
 
-func (env *Env) evalTypeFunction(node *ast.FuncType) r.Type {
-	params := env.evalTypeFields(node.Params)
-	results := env.evalTypeFields(node.Results)
-	return r.FuncOf(params, results, false /* TODO variadic*/)
+func (env *Env) evalTypeFunction(node *ast.FuncType) (t r.Type, argNames []string, resultNames []string) {
+	argTypes, argNames := env.evalTypeFields(node.Params)
+	resultTypes, resultNames := env.evalTypeFields(node.Results)
+	return r.FuncOf(argTypes, resultTypes, false /* TODO variadic*/), argNames, resultNames
 }
 
-func (env *Env) evalTypeFields(fields *ast.FieldList) []r.Type {
-	ts := make([]r.Type, 0)
+func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodNames []string) {
+	if node.Methods != nil && len(node.Methods.List) != 0 {
+		env.Errorf("unimplemented interface { /*methods*/ }: %#v", node.Methods.List)
+		return nil, nil
+	}
+	return typeOfInterface, zeroStrings
+}
+
+func (env *Env) evalTypeFields(fields *ast.FieldList) ([]r.Type, []string) {
+	types := make([]r.Type, 0)
+	names := zeroStrings
 	if fields == nil || len(fields.List) == 0 {
-		return ts
+		return types, names
 	}
 	for _, f := range fields.List {
 
 		t := env.evalType(f.Type)
 		if len(f.Names) == 0 {
-			ts = append(ts, t)
-		} else {
-			for range f.Names {
-				ts = append(ts, t)
-				// fmt.Printf("debug: evalTypeFields() %v %v -> %v\n", f.Names[i], f.Type, t)
-			}
-		}
-	}
-	return ts
-}
-
-func (env *Env) evalTypeFieldsNames(fields *ast.FieldList) []string {
-	names := make([]string, 0)
-	if fields == nil || len(fields.List) == 0 {
-		return names
-	}
-	for _, f := range fields.List {
-		if len(f.Names) == 0 {
+			types = append(types, t)
 			names = append(names, "_")
+			// env.Debugf("evalTypeFields() %v -> %v", f.Type, t)
 		} else {
 			for _, ident := range f.Names {
+				types = append(types, t)
 				names = append(names, ident.Name)
+				// Debugf("evalTypeFields() %v %v -> %v", ident.Name, f.Type, t)
 			}
 		}
 	}
-	return names
+	return types, names
 }
 
 func (env *Env) evalTypeIdentifier(name string) r.Type {
@@ -126,115 +125,77 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 	case "complex128":
 		v = complex(float64(0), float64(0))
 	default:
-		Errorf("unimplemented type identifier: %v", name)
+		env.Errorf("unimplemented type identifier: %v", name)
 		return nil
 	}
 	return r.TypeOf(v)
 }
 
-func toType(value r.Value, t r.Type) (r.Value, bool) {
-	if value.Type().ConvertibleTo(t) {
-		return value.Convert(t), true
+func (env *Env) toType(value r.Value, t r.Type) r.Value {
+	if value.Type().AssignableTo(t) {
+		return value
 	}
-	return Nil, false
-}
-
-func primitiveTypeOverflows(value r.Value, place r.Value) bool {
-	kv, kp := value.Type().Kind(), place.Type().Kind()
-	if isIntKind(kv) {
-		v := value.Int()
-		if isIntKind(kp) {
-			return place.OverflowInt(v)
-		} else if isUintKind(kp) {
-			return v < 0 || place.OverflowUint(uint64(v))
-		} else if isFloatKind(kp) {
-			return place.OverflowFloat(float64(v))
-		} else if isComplexKind(kp) {
-			return place.OverflowComplex(complex(float64(v), 0.0))
-		} else {
-			return false
-		}
-	} else if isUintKind(kv) {
-		v := value.Uint()
-		if isIntKind(kp) {
-			return v > 0x7fffffffffffffff || place.OverflowInt(int64(v))
-		} else if isUintKind(kp) {
-			return place.OverflowUint(v)
-		} else if isFloatKind(kp) {
-			return place.OverflowFloat(float64(v))
-		} else if isComplexKind(kp) {
-			return place.OverflowComplex(complex(float64(v), 0.0))
-		} else {
-			return false
-		}
-	} else if isFloatKind(kv) {
-		v := value.Float()
-		if isIntKind(kp) {
-			return float64(int64(v)) != v || place.OverflowInt(int64(v))
-		} else if isUintKind(kp) {
-			return float64(int64(v)) != v || place.OverflowUint(uint64(v))
-		} else if isFloatKind(kp) {
-			return place.OverflowFloat(v)
-		} else if isComplexKind(kp) {
-			return place.OverflowComplex(complex(v, 0.0))
-		} else {
-			return false
-		}
-	} else if isComplexKind(kv) {
-		v := value.Complex()
-		re := real(v)
-		im := imag(v)
-		if isIntKind(kp) {
-			return im != 0.0 || float64(int64(re)) != re || place.OverflowInt(int64(re))
-		} else if isUintKind(kp) {
-			return im != 0.0 || float64(uint64(re)) != re || place.OverflowUint(uint64(re))
-		} else if isFloatKind(kp) {
-			return im != 0.0 || place.OverflowFloat(re)
-		} else if isComplexKind(kp) {
-			return place.OverflowComplex(v)
-		} else {
-			return false
-		}
+	if !value.Type().ConvertibleTo(t) {
+		ret, _ := env.Errorf("failed to convert %#v to %v", value, t)
+		return ret
 	}
-	return false
+	newValue := value.Convert(t)
+	if differentIntegerValues(value, newValue) {
+		env.Warnf("value %d overflows %v, truncated to %d", value, t, newValue)
+	}
+	return newValue
 }
 
-func isPrimitiveKind(kind r.Kind) bool {
-	return isIntKind(kind) || isUintKind(kind) || isFloatKind(kind) || isComplexKind(kind)
-}
-
-func isIntKind(kind r.Kind) bool {
-	switch kind {
+func differentIntegerValues(v1 r.Value, v2 r.Value) bool {
+	k1, k2 := v1.Type().Kind(), v2.Type().Kind()
+	switch k1 {
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
-		return true
-	default:
-		return false
-	}
-}
-
-func isUintKind(kind r.Kind) bool {
-	switch kind {
+		n1 := v1.Int()
+		switch k2 {
+		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+			return n1 != v2.Int()
+		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+			return n1 < 0 || uint64(n1) != v2.Uint()
+		default:
+			return false
+		}
 	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
-		return true
+		n1 := v1.Uint()
+		switch k2 {
+		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+			n2 := v2.Int()
+			return n2 < 0 || uint64(n2) != n1
+		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+			return n1 != v2.Uint()
+		default:
+			return false
+		}
 	default:
 		return false
 	}
 }
 
-func isFloatKind(kind r.Kind) bool {
-	switch kind {
-	case r.Float32, r.Float64:
-		return true
-	default:
-		return false
+func toValues(args []interface{}) []r.Value {
+	n := len(args)
+	values := make([]r.Value, n)
+	for i := 0; i < n; i++ {
+		values[i] = r.ValueOf(args[i])
 	}
+	return values
 }
 
-func isComplexKind(kind r.Kind) bool {
-	switch kind {
-	case r.Complex64, r.Complex128:
-		return true
-	default:
-		return false
+func toInterfaces(values []r.Value) []interface{} {
+	n := len(values)
+	rets := make([]interface{}, n)
+	for i := 0; i < n; i++ {
+		rets[i] = toInterface(values[i])
 	}
+	return rets
+}
+
+func toInterface(value r.Value) interface{} {
+	if value != Nil && value != None {
+		return value.Interface()
+	}
+	return nil
 }

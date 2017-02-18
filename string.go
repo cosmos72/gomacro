@@ -25,18 +25,8 @@
 package main
 
 import (
-	// "errors"
-	// "fmt"
+	"regexp"
 	"strconv"
-)
-
-const (
-	eNormal = iota
-	eBackslash
-	eHex
-	eOctal
-	eUni4
-	eUni8
 )
 
 func unescapeChar(str string) rune {
@@ -48,7 +38,7 @@ func unescapeChar(str string) rune {
 	}
 	ret, _, _, err := strconv.UnquoteChar(string(rs), '\'')
 	if err != nil {
-		Error(err)
+		Errore(err)
 	}
 	return ret
 }
@@ -56,7 +46,15 @@ func unescapeChar(str string) rune {
 func unescapeString(str string) string {
 	ret, err := strconv.Unquote(str)
 	if err != nil {
-		Error(err)
+		Errore(err)
 	}
 	return ret
+}
+
+var lineComment = regexp.MustCompile("//.*\n")
+var multiLineComment = regexp.MustCompile("/*(?s:.*?)*/")
+
+func skipComments(str string) string {
+	// TODO
+	return str
 }

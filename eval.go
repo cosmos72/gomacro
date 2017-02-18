@@ -39,5 +39,13 @@ func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 	if node, ok := node.(*ast.File); ok {
 		return env.evalFile(node)
 	}
-	return Errorf("unimplemented Eval for %#v", node)
+	return env.Errorf("unimplemented Eval for %#v", node)
+}
+
+func (env *Env) Eval1(node ast.Node) r.Value {
+	value, extraValues := env.Eval(node)
+	if len(extraValues) > 1 {
+		env.Warnf("function returned %d values, only the first one will be used: %v %s %v", len(extraValues), node)
+	}
+	return value
 }

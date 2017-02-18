@@ -32,17 +32,16 @@ import (
 func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	fun, _ := env.evalExpr(node.Fun)
 	if fun.Kind() != r.Func {
-		return Errorf("call of non-function %#v", node)
+		return env.Errorf("call of non-function %#v", node)
 	}
-	args := env.evalExprs(node.Args)
 	// TODO support the special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )
-	rets := fun.Call(args)
-	switch len(rets) {
-	case 0:
-		return Nil, nil
-	case 1:
-		return rets[0], nil
-	default:
-		return rets[0], rets
+	args := env.evalExprs(node.Args)
+	if !fun.Type().IsVariadic() {
+		argTypes := fun.Type()
+		for i, arg := range args {
+			args[i] = env.toType(arg, argTypes.In(i))
+		}
 	}
+	rets := fun.Call(args)
+	return unpackValues(rets)
 }

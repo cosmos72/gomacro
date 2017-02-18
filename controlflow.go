@@ -38,8 +38,12 @@ type Continue struct {
 	Label string
 }
 
+type Panic struct {
+	Arg interface{}
+}
+
 type Return struct {
-	Values []r.Value
+	Results []r.Value
 }
 
 func (_ Break) Error() string {
@@ -65,11 +69,11 @@ func (env *Env) evalBranch(node *ast.BranchStmt) (r.Value, []r.Value) {
 	case token.CONTINUE:
 		panic(Continue{label})
 	case token.GOTO:
-		return Errorf("unimplemented: goto")
+		return env.Errorf("unimplemented: goto")
 	case token.FALLTHROUGH:
-		return Errorf("unimplemented: fallthrough")
+		return env.Errorf("unimplemented: fallthrough")
 	default:
-		return Errorf("unimplemented branch: %#v", node)
+		return env.Errorf("unimplemented branch: %#v", node)
 	}
 }
 
@@ -86,7 +90,7 @@ func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 	cond, _ := env.Eval(node.Cond)
 	if cond.Kind() != r.Bool {
 		cf := cond.Interface()
-		return Errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
+		return env.Errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
 	}
 	if cond.Bool() {
 		return env.evalBlock(node.Body)
@@ -98,7 +102,7 @@ func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 }
 
 func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
-	// fmt.Printf("debug: evalFor() init = %#v, cond = %#v, post = %#v, body = %#v\n", node.Init, node.Cond, node.Post, node.Body)
+	// Debugf("evalFor() init = %#v, cond = %#v, post = %#v, body = %#v", node.Init, node.Cond, node.Post, node.Body)
 
 	if node.Init != nil {
 		env = NewEnv(env)
@@ -109,7 +113,7 @@ func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 			cond, _ := env.evalExpr(node.Cond)
 			if cond.Kind() != r.Bool {
 				cf := cond.Interface()
-				return Errorf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
+				return env.Errorf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
 			}
 			if !cond.Bool() {
 				break
@@ -122,7 +126,7 @@ func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 			env.evalStatement(node.Post)
 		}
 	}
-	return Nil, nil
+	return None, nil
 }
 
 func (env *Env) evalForBodyOnce(node *ast.BlockStmt) (cont bool) {

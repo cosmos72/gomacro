@@ -25,18 +25,17 @@
 package main
 
 import (
+	"go/ast"
+	"io/ioutil"
 	r "reflect"
 )
 
 func callAppend(slice interface{}, elems ...interface{}) interface{} {
-	var elemsv []r.Value
-	for i := range elems {
-		elemsv[i] = r.ValueOf(elems[i])
-	}
+	elemsv := toValues(elems)
 	return r.Append(r.ValueOf(slice), elemsv...)
 }
 
-func callCap(arg interface{}) interface{} {
+func callCap(arg interface{}) int {
 	return r.ValueOf(arg).Cap()
 }
 
@@ -52,28 +51,74 @@ func callDelete(m interface{}, key interface{}) {
 	r.ValueOf(m).SetMapIndex(r.ValueOf(key), Nil)
 }
 
-func callLen(arg interface{}) interface{} {
+func callLen(arg interface{}) int {
 	return r.ValueOf(arg).Len()
 }
 
 func callPanic(arg interface{}) {
-	panic(arg)
+	panic(Panic{arg})
+}
+
+func callReadFile(filename string) string {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		callPanic(err)
+	}
+	return string(bytes)
+}
+
+func callReadDir(dirname string) []string {
+	files, err := ioutil.ReadDir(dirname)
+	if err != nil {
+		callPanic(err)
+	}
+	n := len(files)
+	names := make([]string, n)
+	for i := 0; i < n; i++ {
+		names[i] = files[i].Name()
+	}
+	return names
 }
 
 func callRecover() interface{} {
 	return recover()
 }
 
+func callSlice(args ...interface{}) []interface{} {
+	return args
+}
+
 func (env *Env) addBuiltins() {
-	binds := env.Binds
+	binds := env.binds
 
 	binds["append"] = r.ValueOf(callAppend)
 	binds["cap"] = r.ValueOf(callCap)
 	binds["close"] = r.ValueOf(callClose)
 	binds["copy"] = r.ValueOf(callCopy)
+	binds["DeepEqual"] = r.ValueOf(r.DeepEqual)
 	binds["delete"] = r.ValueOf(callDelete)
 	binds["len"] = r.ValueOf(callLen)
 	// binds["new"] = r.ValueOf(callNew) // should be handled specially, its argument is a type
+	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
+	binds["ReadDir"] = r.ValueOf(callReadDir)
+	binds["ReadFile"] = r.ValueOf(callReadFile)
+	binds["String"] = r.ValueOf(func(args ...interface{}) string {
+		return env.toString("", args...)
+	})
+	binds["Parse"] = r.ValueOf(func(src interface{}) ast.Node {
+		return env.Parse(src)
+	})
+	binds["println"] = r.ValueOf(func(args ...interface{}) {
+		values := toValues(args)
+		env.FprintMultipleValues(Stdout, values...)
+	})
+	binds["Slice"] = r.ValueOf(callSlice)
 	// binds["recover"] = r.ValueOf(callRecover) // does not work! recover() works only inside a deferred function (but not any function called by it)
+}
+
+func (env *Env) addInterpretedBuiltins() {
+	line := "func not(flag bool) bool { if flag { return false } else { return true } }"
+	ast := env.Parse(line)
+	env.Eval(ast)
 }

@@ -42,12 +42,12 @@ func (env *Env) evalIdentifier(expr *ast.Ident) (r.Value, []r.Value) {
 		return r.ValueOf(pos.Line - env.iotaOffset), nil
 	default:
 		for e := env; e != nil; e = e.Outer {
-			// fmt.Printf("debug: evalIdentifier() looking up %#v in %#v\n", name, env.Binds)
-			bind, exists := e.Binds[name]
+			// Debugf("evalIdentifier() looking up %#v in %#v", name, env.Binds)
+			bind, exists := e.binds[name]
 			if exists {
 				return bind, nil
 			}
 		}
-		return Errorf("undefined identifier: %s", name)
+		return env.Errorf("undefined identifier: %s", name)
 	}
 }

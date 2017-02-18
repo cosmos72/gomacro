@@ -37,7 +37,7 @@ func (env *Env) evalDecl(node ast.Decl) (r.Value, []r.Value) {
 	case *ast.FuncDecl:
 		return env.evalDeclFunc(node)
 	default:
-		return Errorf("unimplemented declaration: %#v", node)
+		return env.Errorf("unimplemented declaration: %#v", node)
 	}
 }
 
@@ -48,96 +48,105 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 	for _, decl := range node.Specs {
 		switch tok {
 		case token.IMPORT:
-			ret, rets = env.evalImport(decl)
+			ret, rets = env.evalImports(decl)
 		case token.CONST:
-			ret, rets = env.evalDeclConst(decl)
+			ret, rets = env.evalDeclConsts(decl)
 		case token.TYPE:
-			ret, rets = env.evalDeclType(decl)
+			ret, rets = env.evalDeclTypes(decl)
 		case token.VAR:
-			ret, rets = env.evalDeclVar(decl)
+			ret, rets = env.evalDeclVars(decl)
 		default:
-			return Errorf("unimplemented declaration: %#v", decl)
+			return env.Errorf("unimplemented declaration: %v", decl)
 		}
 	}
 	return ret, rets
 }
 
-func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
+func (env *Env) evalImports(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return Errorf("unimplemented import %#v", node)
+		return env.Errorf("unimplemented: import: %v", node)
 	}
 }
 
-func (env *Env) evalDeclConst(node ast.Spec) (r.Value, []r.Value) {
+func (env *Env) evalDeclConsts(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return Errorf("unimplemented constant declaration %#v", node)
+		return env.Errorf("unimplemented constant declaration %#v", node)
 	}
 }
 
-func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
+func (env *Env) evalDeclTypes(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return Errorf("unimplemented type declaration %#v", node)
+		return env.Errorf("unimplemented type declaration %#v", node)
 	}
 }
 
-func (env *Env) evalDeclVar(node ast.Spec) (r.Value, []r.Value) {
+func (env *Env) evalDeclVars(node ast.Spec) (r.Value, []r.Value) {
 	var ret r.Value
 	var rets []r.Value
 	switch node := node.(type) {
 	case *ast.ValueSpec:
-		idents := node.Names
-		values := node.Values
-		t := env.evalType(node.Type)
-		var zero r.Value
-		if t != nil {
-			// t can be nil when inferring types
-			zero = r.Zero(t)
-		}
-		for i, ident := range idents {
-			if values != nil && len(values) >= i {
-				value, _ := env.Eval(values[i])
-				ret, rets = env.defineVar(ident.Name, t, value)
-			} else if t == nil {
-				return Errorf("invalid variable declaration, type OR initializer required: %#v", node)
-			} else {
-				ret, rets = env.defineVar(ident.Name, t, zero)
-			}
-		}
+		return env.evalDeclVarsExpr(node.Names, node.Type, node.Values)
 	default:
-		return Errorf("unimplemented variable declaration: %#v", node)
+		return env.Errorf("unimplemented variable declaration: %v", node)
 	}
 	return ret, rets
 }
 
-func (env *Env) defineVarConvert(name string, t r.Type, value r.Value) (r.Value, []r.Value) {
-	value_as_t, ok := toType(value, t)
-	if !ok {
-		return Errorf("failed to cast %#v to %v in variable declaration: var %s %v = %#v", value, t, name, t, value)
+func (env *Env) evalDeclVarsExpr(idents []*ast.Ident, typ ast.Expr, exprs []ast.Expr) (r.Value, []r.Value) {
+	n := len(idents)
+	names := make([]string, n)
+	for i, ident := range idents {
+		names[i] = ident.Name
 	}
-	return env.defineVar(name, t, value_as_t)
+	t := env.evalType(typ)
+
+	var values []r.Value
+	if exprs != nil {
+		values = env.evalExprsMultipleValues(exprs, n)
+	}
+	return env.defineVars(names, t, values)
 }
 
-func (env *Env) defineVar(name string, t r.Type, value r.Value) (r.Value, []r.Value) {
+func (env *Env) defineVars(names []string, t r.Type, values []r.Value) (r.Value, []r.Value) {
+	n := len(names)
+	if values == nil {
+		values = make([]r.Value, n)
+		zero := r.Zero(t)
+		for i := 0; i < n; i++ {
+			values[i] = env.defineVar(names[i], t, zero)
+		}
+	} else {
+		for i := 0; i < n; i++ {
+			values[i] = env.defineVar(names[i], t, values[i])
+		}
+	}
+	return unpackValues(values)
+}
+
+func (env *Env) defineVar(name string, t r.Type, value r.Value) r.Value {
 	if name == "_" {
 		// never define bindings for "_"
-		return value, nil
+		if t != nil {
+			value = env.toType(value, t)
+		}
+		return value
 	}
 	if t == nil {
 		t = value.Type()
-		// fmt.Printf("debug: defineVar() type inference: var %s <%v> = %#v\n", name, t, value.Interface())
+		// Debugf("defineVar() type inference: var %s <%v> = %#v", name, t, value.Interface())
 	} else {
-		// fmt.Printf("debug: defineVar() var %s %v = %#v\n", name, t, value.Interface())
+		// Debugf("defineVar() var %s %v = %#v", name, t, value.Interface())
 	}
-	if _, exists := env.Binds[name]; exists {
-		Warnf("redefined identifier: %v\n", name)
+	if _, exists := env.binds[name]; exists {
+		env.Warnf("redefined identifier: %v", name)
 	}
 	addr := r.New(t)
 
-	env.assign(addr.Elem(), token.ASSIGN, value)
-	env.Binds[name] = addr.Elem()
-	// fmt.Printf("debug: defineVar() added %#v to %#v\n", name, env.Binds)
-	return value, nil
+	value = env.assignPlace(addr.Elem(), token.ASSIGN, value)
+	env.binds[name] = addr.Elem()
+	// Debugf("defineVar() added %#v to %#v", name, env.Binds)
+	return value
 }

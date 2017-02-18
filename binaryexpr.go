@@ -30,8 +30,8 @@ import (
 	r "reflect"
 )
 
-func (env *Env) unsupportedBinaryExpr(xf interface{}, op token.Token, yf interface{}) (r.Value, []r.Value) {
-	return Errorf("unsupported binary operation %s between %T and %T: %#v %s %#v", op, xf, yf, xf, op, yf)
+func (env *Env) unsupportedBinaryExpr(xv r.Value, op token.Token, yv r.Value) (r.Value, []r.Value) {
+	return env.Errorf("unsupported binary operation %s between %v and %v: %v %s %v", op, xv.Type(), yv.Type(), xv, op, yv)
 }
 
 func (env *Env) evalBinaryExpr(expr *ast.BinaryExpr) (r.Value, []r.Value) {
@@ -52,7 +52,7 @@ func (env *Env) evalBinaryExpr(expr *ast.BinaryExpr) (r.Value, []r.Value) {
 	case r.String:
 		return env.evalBinaryExprString(xv.String(), op, yv)
 	default:
-		return env.unsupportedBinaryExpr(xv.Interface(), op, yv.Interface())
+		return env.unsupportedBinaryExpr(xv, op, yv)
 	}
 }
 
@@ -67,11 +67,11 @@ func (env *Env) evalBinaryExprBool(x bool, op token.Token, yv r.Value) (r.Value,
 		case token.NEQ:
 			ret = x != y
 		default:
-			env.unsupportedBinaryExpr(x, op, y)
+			env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
 		return r.ValueOf(ret), nil
 	default:
-		return env.unsupportedBinaryExpr(x, op, yv.Interface())
+		return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 	}
 }
 
@@ -118,7 +118,7 @@ func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) (r.Valu
 		case token.GEQ:
 			ret = x >= y
 		default:
-			return env.unsupportedBinaryExpr(x, op, yv.Interface())
+			return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
 		return r.ValueOf(ret), nil
 
@@ -132,7 +132,7 @@ func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) (r.Valu
 		return env.evalBinaryExprComplex(complex(float64(x), 0.0), op, yv)
 
 	default:
-		return env.unsupportedBinaryExpr(x, op, yv.Interface())
+		return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 	}
 }
 
@@ -147,7 +147,7 @@ func (env *Env) evalBinaryExprInt(x int64, op token.Token, yv r.Value) (r.Value,
 	case r.Complex64, r.Complex128:
 		return env.evalBinaryExprComplex(complex(float64(x), 0.0), op, yv)
 	default:
-		return env.unsupportedBinaryExpr(x, op, yv.Interface())
+		return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 	}
 }
 
@@ -190,14 +190,14 @@ func (env *Env) evalBinaryExprIntInt(x int64, op token.Token, y int64) (r.Value,
 	case token.GEQ:
 		ret = x >= y
 	default:
-		return env.unsupportedBinaryExpr(x, op, y)
+		return env.unsupportedBinaryExpr(r.ValueOf(x), op, r.ValueOf(y))
 	}
 	return r.ValueOf(ret), nil
 }
 
 func (env *Env) evalBinaryExprFloat(x float64, op token.Token, yv r.Value) (r.Value, []r.Value) {
 	var ret interface{}
-	if y, ok := toFloat(yv); ok {
+	if y, ok := env.toFloat(yv); ok {
 		switch op {
 		case token.ADD:
 			ret = x + y
@@ -220,19 +220,19 @@ func (env *Env) evalBinaryExprFloat(x float64, op token.Token, yv r.Value) (r.Va
 		case token.GEQ:
 			ret = x >= y
 		default:
-			return env.unsupportedBinaryExpr(x, op, yv.Interface())
+			return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
 		return r.ValueOf(ret), nil
 	}
 	if k := yv.Kind(); k == r.Complex64 || k == r.Complex128 {
 		return env.evalBinaryExprComplex(complex(x, 0.0), op, yv)
 	}
-	return env.unsupportedBinaryExpr(x, op, yv.Interface())
+	return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 }
 
 func (env *Env) evalBinaryExprComplex(x complex128, op token.Token, yv r.Value) (r.Value, []r.Value) {
 	var ret interface{}
-	if y, ok := toComplex(yv); ok {
+	if y, ok := env.toComplex(yv); ok {
 		switch op {
 		case token.ADD:
 			ret = x + y
@@ -247,16 +247,16 @@ func (env *Env) evalBinaryExprComplex(x complex128, op token.Token, yv r.Value) 
 		case token.NEQ:
 			ret = x != y
 		default:
-			return env.unsupportedBinaryExpr(x, op, yv.Interface())
+			return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
 		return r.ValueOf(ret), nil
 	}
-	return env.unsupportedBinaryExpr(x, op, yv.Interface())
+	return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 }
 
 func (env *Env) evalBinaryExprString(x string, op token.Token, yv r.Value) (r.Value, []r.Value) {
 	if yv.Kind() == r.String && op == token.ADD {
 		return r.ValueOf(x + yv.String()), nil
 	}
-	return env.unsupportedBinaryExpr(x, op, yv.Interface())
+	return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 }

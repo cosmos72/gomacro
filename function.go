@@ -30,14 +30,14 @@ import (
 )
 
 func packValues(val0 r.Value, vals []r.Value) []r.Value {
-	if len(vals) == 0 && val0 != Nil {
+	if len(vals) == 0 && val0 != None {
 		vals = []r.Value{val0}
 	}
 	return vals
 }
 
 func unpackValues(vals []r.Value) (r.Value, []r.Value) {
-	val0 := Nil
+	val0 := None
 	if len(vals) > 0 {
 		val0 = vals[0]
 	}
@@ -53,30 +53,32 @@ func (env *Env) evalDeclFunc(node *ast.FuncDecl) (r.Value, []r.Value) {
 	}
 
 	// TODO methods also use node.Recv
-	t := env.evalType(node.Type)
-	argNames := env.evalTypeFieldsNames(node.Type.Params)
+	t, argNames, resultNames := env.evalTypeFunction(node.Type)
 
 	closure := func(args []r.Value) (results []r.Value) {
-		return env.evalFunc(node.Body, t, argNames, args)
+		return env.evalFunc(node.Body, t, argNames, args, resultNames)
 	}
 	fun := r.MakeFunc(t, closure)
-
-	return env.defineVar(name, t, fun)
+	ret := env.defineVar(name, t, fun)
+	return ret, nil
 }
 
 // eval an interpreted function
-func (env *Env) evalFunc(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value) (results []r.Value) {
+func (env *Env) evalFunc(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value, resultNames []string) (results []r.Value) {
 	env = NewEnv(env)
 	defer func() {
 		if rec := recover(); rec != nil {
 			if ret, ok := rec.(Return); ok {
-				results = ret.Values
+				results = ret.Results
 			} else {
 				panic(rec)
 			}
 		}
 	}()
 
+	for i, resultName := range resultNames {
+		env.defineVar(resultName, t.Out(i), r.Zero(t.Out(i)))
+	}
 	for i, argName := range argNames {
 		env.defineVar(argName, t.In(i), args[i])
 	}
