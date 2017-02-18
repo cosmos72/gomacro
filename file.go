@@ -29,18 +29,15 @@ import (
 	r "reflect"
 )
 
-func (ir *Interpreter) evalFile(node *ast.File) (r.Value, error) {
-	ir.Packagename = node.Name.Name
+func (env *Env) evalFile(node *ast.File) (r.Value, []r.Value) {
+	env.Parser.Packagename = node.Name.Name
 
 	// eval node.Imports
 	var ret r.Value
-	var err error
+	var rets []r.Value
 
 	for _, decl := range node.Decls {
-		ret, err = ir.evalDecl(decl)
-		if err != nil {
-			return Nil, err
-		}
+		ret, rets = env.evalDecl(decl)
 	}
-	return ret, nil
+	return ret, rets
 }

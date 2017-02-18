@@ -25,53 +25,42 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
 
-func (ir *Interpreter) evalType(node ast.Expr) (r.Type, error) {
+func (env *Env) evalType(node ast.Expr) r.Type {
 
 	switch node := node.(type) {
 	case *ast.Ident:
-		return ir.evalTypeIdentifier(node.Name)
+		return env.evalTypeIdentifier(node.Name)
 	case *ast.FuncType:
-		return ir.evalTypeFunction(node)
+		return env.evalTypeFunction(node)
 	default:
 		// TODO *ast.InterfaceType and many others
 		if node == nil {
 			// type can be omitted in many case - then we must perform type inference
-			return nil, nil
+			return nil
 		}
-		return nil, errors.New(fmt.Sprintf("unimplemented type: %#v", node))
+		Errorf("unimplemented type: %#v", node)
+		return nil
 	}
 }
 
-func (ir *Interpreter) evalTypeFunction(node *ast.FuncType) (r.Type, error) {
-
-	params, err := ir.evalTypeFields(node.Params)
-	if err != nil {
-		return nil, err
-	}
-	results, err := ir.evalTypeFields(node.Results)
-	if err != nil {
-		return nil, err
-	}
-	return r.FuncOf(params, results, false /* TODO variadic*/), nil
+func (env *Env) evalTypeFunction(node *ast.FuncType) r.Type {
+	params := env.evalTypeFields(node.Params)
+	results := env.evalTypeFields(node.Results)
+	return r.FuncOf(params, results, false /* TODO variadic*/)
 }
 
-func (ir *Interpreter) evalTypeFields(fields *ast.FieldList) ([]r.Type, error) {
+func (env *Env) evalTypeFields(fields *ast.FieldList) []r.Type {
 	ts := make([]r.Type, 0)
 	if fields == nil || len(fields.List) == 0 {
-		return ts, nil
+		return ts
 	}
 	for _, f := range fields.List {
 
-		t, err := ir.evalType(f.Type)
-		if err != nil {
-			return nil, err
-		}
+		t := env.evalType(f.Type)
 		if len(f.Names) == 0 {
 			ts = append(ts, t)
 		} else {
@@ -81,10 +70,10 @@ func (ir *Interpreter) evalTypeFields(fields *ast.FieldList) ([]r.Type, error) {
 			}
 		}
 	}
-	return ts, nil
+	return ts
 }
 
-func (ir *Interpreter) evalTypeFieldsNames(fields *ast.FieldList) []string {
+func (env *Env) evalTypeFieldsNames(fields *ast.FieldList) []string {
 	names := make([]string, 0)
 	if fields == nil || len(fields.List) == 0 {
 		return names
@@ -101,7 +90,7 @@ func (ir *Interpreter) evalTypeFieldsNames(fields *ast.FieldList) []string {
 	return names
 }
 
-func (ir *Interpreter) evalTypeIdentifier(name string) (r.Type, error) {
+func (env *Env) evalTypeIdentifier(name string) r.Type {
 	var v interface{}
 	switch name {
 	case "bool":
@@ -137,9 +126,10 @@ func (ir *Interpreter) evalTypeIdentifier(name string) (r.Type, error) {
 	case "complex128":
 		v = complex(float64(0), float64(0))
 	default:
-		return nil, errors.New(fmt.Sprintf("unimplemented type identifier: %v", name))
+		Errorf("unimplemented type identifier: %v", name)
+		return nil
 	}
-	return r.TypeOf(v), nil
+	return r.TypeOf(v)
 }
 
 func toType(value r.Value, t r.Type) (r.Value, bool) {

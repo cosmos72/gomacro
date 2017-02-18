@@ -25,29 +25,24 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
 
-func (ir *Interpreter) evalCall(node *ast.CallExpr) (r.Value, error) {
-	fun, err := ir.evalExpr(node.Fun)
-	if err != nil {
-		return Nil, err
-	}
+func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
+	fun, _ := env.evalExpr(node.Fun)
 	if fun.Kind() != r.Func {
-		return Nil, errors.New(fmt.Sprintf("call of non-function %#v", node))
+		return Errorf("call of non-function %#v", node)
 	}
-	args, err := ir.evalExprs(node.Args)
-	if err != nil {
-		return Nil, err
-	}
+	args := env.evalExprs(node.Args)
+	// TODO support the special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )
 	rets := fun.Call(args)
-	if len(rets) == 0 {
+	switch len(rets) {
+	case 0:
 		return Nil, nil
+	case 1:
+		return rets[0], nil
+	default:
+		return rets[0], rets
 	}
-	// TODO return function return Type and multiple values (with their types)
-	return rets[0], nil
-	// return Nil, errors.New(fmt.Sprintf("unsupported function call: %#v", node))
 }

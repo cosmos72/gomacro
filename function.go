@@ -29,37 +29,44 @@ import (
 	r "reflect"
 )
 
-type Return struct {
-	Values []r.Value
+func packValues(val0 r.Value, vals []r.Value) []r.Value {
+	if len(vals) == 0 && val0 != Nil {
+		vals = []r.Value{val0}
+	}
+	return vals
 }
 
-func (ir *Interpreter) evalDeclFunc(node *ast.FuncDecl) (r.Value, error) {
+func unpackValues(vals []r.Value) (r.Value, []r.Value) {
+	val0 := Nil
+	if len(vals) > 0 {
+		val0 = vals[0]
+	}
+	return val0, vals
+}
+
+func (env *Env) evalDeclFunc(node *ast.FuncDecl) (r.Value, []r.Value) {
 	name := node.Name.Name
 	if name == TemporaryFunctionName {
-		// do *NOT* use ir.evalBlock(), because it would create all bindings
-		// in its block scope -> they are lost after ir.evalBlock() returns
-		return ir.evalStatements(node.Body.List)
+		// do *NOT* use env.evalBlock(), because it would create all bindings
+		// in its block scope -> they are lost after env.evalBlock() returns
+		return env.evalStatements(node.Body.List)
 	}
 
 	// TODO methods also use node.Recv
-	t, err := ir.evalType(node.Type)
-	if err != nil {
-		return Nil, err
-	}
-	argNames := ir.evalTypeFieldsNames(node.Type.Params)
+	t := env.evalType(node.Type)
+	argNames := env.evalTypeFieldsNames(node.Type.Params)
 
 	closure := func(args []r.Value) (results []r.Value) {
-		return ir.evalFunc(node.Body, t, argNames, args)
+		return env.evalFunc(node.Body, t, argNames, args)
 	}
 	fun := r.MakeFunc(t, closure)
 
-	return ir.defineVar(name, t, fun)
+	return env.defineVar(name, t, fun)
 }
 
 // eval an interpreted function
-func (ir *Interpreter) evalFunc(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value) (results []r.Value) {
-	ir.PushEnv()
-	defer ir.PopEnv()
+func (env *Env) evalFunc(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value) (results []r.Value) {
+	env = NewEnv(env)
 	defer func() {
 		if rec := recover(); rec != nil {
 			if ret, ok := rec.(Return); ok {
@@ -71,14 +78,12 @@ func (ir *Interpreter) evalFunc(body *ast.BlockStmt, t r.Type, argNames []string
 	}()
 
 	for i, argName := range argNames {
-		ir.defineVar(argName, t.In(i), args[i])
+		env.defineVar(argName, t.In(i), args[i])
 	}
-	value, err := ir.evalBlock(body)
-	if err != nil {
-		panic(err)
+	rets := packValues(env.evalBlock(body))
+	for i := range rets {
+		rets[i] = rets[i].Convert(t.Out(i))
 	}
-	if value != Nil && t.NumOut() > 0 {
-		results = append(results, value.Convert(t.Out(0)))
-	}
+	results = rets
 	return results
 }

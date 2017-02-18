@@ -25,54 +25,53 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
 
-func (ir *Interpreter) evalBlock(block *ast.BlockStmt) (r.Value, error) {
-	ir.PushEnv()
-	defer ir.PopEnv()
+func (env *Env) evalBlock(block *ast.BlockStmt) (r.Value, []r.Value) {
+	env = NewEnv(env)
 
-	return ir.evalStatements(block.List)
+	return env.evalStatements(block.List)
 }
 
-func (ir *Interpreter) evalStatements(list []ast.Stmt) (r.Value, error) {
+func (env *Env) evalStatements(list []ast.Stmt) (r.Value, []r.Value) {
 	var ret r.Value
-	var err error
+	var rets []r.Value
 
 	for _, stmt := range list {
-		ret, err = ir.evalStatement(stmt)
-		if err != nil {
-			return Nil, err
-		}
+		ret, rets = env.evalStatement(stmt)
 	}
-	return ret, nil
+	return ret, rets
 }
 
-func (ir *Interpreter) evalStatement(node ast.Stmt) (r.Value, error) {
+func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case *ast.AssignStmt:
-		return ir.evalAssignments(node)
+		return env.evalAssignments(node)
 	case *ast.BlockStmt:
-		return ir.evalBlock(node)
+		return env.evalBlock(node)
+	case *ast.BranchStmt:
+		return env.evalBranch(node)
 	case *ast.DeclStmt:
-		return ir.evalDecl(node.Decl)
+		return env.evalDecl(node.Decl)
 	case *ast.ExprStmt:
-		return ir.evalExpr(node.X)
+		return env.evalExpr(node.X)
 	case *ast.ForStmt:
-		return ir.evalFor(node)
+		return env.evalFor(node)
 	case *ast.IfStmt:
-		return ir.evalIf(node)
+		return env.evalIf(node)
 	case *ast.EmptyStmt:
 		return Nil, nil
-	case *ast.BranchStmt, *ast.CaseClause, *ast.CommClause, *ast.DeferStmt,
-		*ast.GoStmt, *ast.IncDecStmt, *ast.LabeledStmt, *ast.RangeStmt, *ast.ReturnStmt,
+	case *ast.ReturnStmt:
+		return env.evalReturn(node)
+
+	case *ast.CaseClause, *ast.CommClause, *ast.DeferStmt,
+		*ast.GoStmt, *ast.IncDecStmt, *ast.LabeledStmt, *ast.RangeStmt,
 		*ast.SelectStmt, *ast.SendStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
 		// TODO
-		return Nil, errors.New(fmt.Sprintf("unimplemented statement: %#v", node))
+		return Errorf("unimplemented statement: %#v", node)
 	default:
-		return Nil, errors.New(fmt.Sprintf("unimplemented statement: %#v", node))
+		return Errorf("unimplemented statement: %#v", node)
 	}
 }

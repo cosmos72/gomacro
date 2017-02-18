@@ -25,62 +25,50 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
 )
 
-func (ir *Interpreter) evalAssignments(node *ast.AssignStmt) (r.Value, error) {
+func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 	lhs := node.Lhs
 	rhs := node.Rhs
 	op := node.Tok
 	var ret r.Value
-	var err error
+	var rets []r.Value
 	for i, n := 0, len(lhs); i < n; i++ {
-		ret, err = ir.evalAssignment(lhs[i], op, rhs[i])
-		if err != nil {
-			return Nil, err
-		}
+		ret, rets = env.evalAssignment(lhs[i], op, rhs[i])
 	}
-	return ret, nil
+	return ret, rets
 }
 
-func (ir *Interpreter) evalAssignment(lhs ast.Expr, op token.Token, rhs ast.Expr) (r.Value, error) {
+func (env *Env) evalAssignment(lhs ast.Expr, op token.Token, rhs ast.Expr) (r.Value, []r.Value) {
 	// fmt.Printf("debug: evalAssignment() %v %s %v\n", lhs, op, rhs)
 
-	value, err := ir.Eval(rhs)
-	if err != nil {
-		return Nil, err
-	}
+	value, _ := env.Eval(rhs)
 
 	if op == token.DEFINE {
 		// fmt.Printf("debug: evalAssignment() DEFINE %v %#v\n", lhs, value)
 		ident, ok := lhs.(*ast.Ident)
 		if ok {
-			return ir.defineVar(ident.Name, nil, value)
+			return env.defineVar(ident.Name, nil, value)
 		}
 	}
-
-	place, err := ir.Eval(lhs)
-	if err != nil {
-		return Nil, err
-	}
+	place, _ := env.Eval(lhs)
 	if !place.CanSet() {
-		return Nil, errors.New(fmt.Sprintf("cannot assign to read-only location: %#v %s %#v", lhs, op, rhs))
+		return Errorf("cannot assign to read-only location: %#v %s %#v", lhs, op, rhs)
 	}
-	return ir.assign(place, token.ASSIGN, value)
+	return env.assign(place, token.ASSIGN, value)
 }
 
-func (ir *Interpreter) assign(place r.Value, op token.Token, value r.Value) (r.Value, error) {
+func (env *Env) assign(place r.Value, op token.Token, value r.Value) (r.Value, []r.Value) {
 	t := place.Type()
 	if !value.Type().AssignableTo(t) {
 		if !value.Type().ConvertibleTo(t) {
-			return Nil, errors.New(fmt.Sprintf("failed to convert %#v to %v", value, t))
+			return Errorf("failed to convert %#v to %v", value, t)
 		}
 		if primitiveTypeOverflows(value, place) {
-			fmt.Fprintf(ir.Eout, "warning: value %#v overflows %v, truncating to %#v\n", value, t, value.Convert(t))
+			Warnf("value %#v overflows %v, truncating to %#v\n", value, t, value.Convert(t))
 		}
 		value = value.Convert(t)
 	}

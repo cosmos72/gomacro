@@ -25,13 +25,11 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
 
-func (ir *Interpreter) evalIdentifier(expr *ast.Ident) (r.Value, error) {
+func (env *Env) evalIdentifier(expr *ast.Ident) (r.Value, []r.Value) {
 	name := expr.Name
 
 	switch name {
@@ -40,16 +38,16 @@ func (ir *Interpreter) evalIdentifier(expr *ast.Ident) (r.Value, error) {
 	case "true":
 		return r.ValueOf(true), nil
 	case "iota":
-		pos := ir.Fileset.Position(expr.NamePos)
-		return r.ValueOf(pos.Line - ir.iotaOffset), nil
+		pos := env.Parser.Fileset.Position(expr.NamePos)
+		return r.ValueOf(pos.Line - env.iotaOffset), nil
 	default:
-		for env := ir.Env; env != nil; env = env.Outer {
+		for e := env; e != nil; e = e.Outer {
 			// fmt.Printf("debug: evalIdentifier() looking up %#v in %#v\n", name, env.Binds)
-			bind, exists := env.Binds[name]
+			bind, exists := e.Binds[name]
 			if exists {
 				return bind, nil
 			}
 		}
-		return Nil, errors.New(fmt.Sprintf("undefined identifier: %s", name))
+		return Errorf("undefined identifier: %s", name)
 	}
 }

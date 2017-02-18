@@ -25,8 +25,6 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	"go/constant"
 	"go/token"
@@ -37,15 +35,12 @@ import (
 
 var Unknown = constant.MakeUnknown()
 
-func (ir *Interpreter) evalLiteral(expr *ast.BasicLit) (r.Value, error) {
-	ret, err := ir.evalLiteral0(expr)
-	if err != nil {
-		return Nil, err
-	}
+func (env *Env) evalLiteral(expr *ast.BasicLit) (r.Value, []r.Value) {
+	ret := env.evalLiteral0(expr)
 	return r.ValueOf(ret), nil
 }
 
-func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
+func (env *Env) evalLiteral0(expr *ast.BasicLit) interface{} {
 	kind := expr.Kind
 	str := expr.Value
 	var ret interface{}
@@ -56,39 +51,45 @@ func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
 		if strings.HasPrefix(str, "-") {
 			i64, err := strconv.ParseInt(str, 0, 0)
 			if err != nil {
-				return nil, err
+				Error(err)
+				return nil
 			}
 			// prefer int to int64. reason: in compiled Go,
 			// type inference deduces int for all constants representable by an int
 			i := int(i64)
 			if int64(i) == i64 {
-				return i, nil
+				return i
 			}
-			return i64, nil
+			return i64
 		} else {
 			u64, err := strconv.ParseUint(str, 0, 0)
 			if err != nil {
-				return nil, err
+				Error(err)
 			}
 			// prefer, in order: int, int64, uint, uint64. reason: in compiled Go,
 			// type inference deduces int for all constants representable by an int
 			i := int(u64)
 			if i >= 0 && uint64(i) == u64 {
-				return i, nil
+				return i
 			}
 			i64 := int64(u64)
 			if i64 >= 0 && uint64(i64) == u64 {
-				return i64, nil
+				return i64
 			}
 			u := uint(u64)
 			if uint64(u) == u64 {
-				return u, nil
+				return u
 			}
-			return u64, nil
+			return u64
 		}
 
 	case token.FLOAT:
-		return strconv.ParseFloat(str, 64)
+		f, err := strconv.ParseFloat(str, 64)
+		if err != nil {
+			Error(err)
+			return nil
+		}
+		ret = f
 
 	case token.IMAG:
 		if strings.HasSuffix(str, "i") {
@@ -96,7 +97,8 @@ func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
 		}
 		im, err := strconv.ParseFloat(str, 64)
 		if err != nil {
-			return nil, err
+			Error(err)
+			return nil
 		}
 		ret = complex(0.0, im)
 		// fmt.Printf("debug evalLiteral(): parsed IMAG %s -> %T %#v -> %T %#v\n", str, im, im, ret, ret)
@@ -108,8 +110,9 @@ func (ir *Interpreter) evalLiteral0(expr *ast.BasicLit) (interface{}, error) {
 		return unescapeString(str)
 
 	default:
-		return nil, errors.New(fmt.Sprintf("unimplemented literal Kind = %s, r.Value = %#v", kind, str))
+		Errorf("unimplemented literal Kind = %s, r.Value = %#v", kind, str)
+		return nil
 
 	}
-	return ret, nil
+	return ret
 }

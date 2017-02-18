@@ -25,21 +25,19 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
 
-func (ir *Interpreter) Eval(node ast.Node) (r.Value, error) {
+func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 	if node, ok := node.(ast.Expr); ok {
-		return ir.evalExpr(node)
+		return env.evalExpr(node)
 	}
 	if node, ok := node.(ast.Decl); ok {
-		return ir.evalDecl(node)
+		return env.evalDecl(node)
 	}
 	if node, ok := node.(*ast.File); ok {
-		return ir.evalFile(node)
+		return env.evalFile(node)
 	}
-	return Nil, errors.New(fmt.Sprintf("unimplemented Eval for %#v\n", node))
+	return Errorf("unimplemented Eval for %#v", node)
 }

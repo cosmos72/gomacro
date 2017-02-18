@@ -25,76 +25,119 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
-
+	"go/token"
 	r "reflect"
 )
 
-func (ir *Interpreter) evalIf(node *ast.IfStmt) (r.Value, error) {
-	if node.Init != nil {
-		ir.PushEnv()
-		defer ir.PopEnv()
+type Break struct {
+	Label string
+}
 
-		_, err := ir.evalStatement(node.Init)
-		if err != nil {
-			return Nil, err
-		}
+type Continue struct {
+	Label string
+}
+
+type Return struct {
+	Values []r.Value
+}
+
+func (_ Break) Error() string {
+	return "break outside for or switch"
+}
+
+func (_ Continue) Error() string {
+	return "continue outside for"
+}
+
+func (_ Return) Error() string {
+	return "return outside function"
+}
+
+func (env *Env) evalBranch(node *ast.BranchStmt) (r.Value, []r.Value) {
+	var label string
+	if node.Label != nil {
+		label = node.Label.Name
 	}
-	cond, err := ir.Eval(node.Cond)
-	if err != nil {
-		return Nil, err
+	switch node.Tok {
+	case token.BREAK:
+		panic(Break{label})
+	case token.CONTINUE:
+		panic(Continue{label})
+	case token.GOTO:
+		return Errorf("unimplemented: goto")
+	case token.FALLTHROUGH:
+		return Errorf("unimplemented: fallthrough")
+	default:
+		return Errorf("unimplemented branch: %#v", node)
 	}
+}
+
+func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
+	rets := env.evalExprs(node.Results)
+	panic(Return{rets})
+}
+
+func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
+	if node.Init != nil {
+		env = NewEnv(env)
+		_, _ = env.evalStatement(node.Init)
+	}
+	cond, _ := env.Eval(node.Cond)
 	if cond.Kind() != r.Bool {
 		cf := cond.Interface()
-		return Nil, errors.New(fmt.Sprintf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf))
+		return Errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
 	}
 	if cond.Bool() {
-		return ir.evalBlock(node.Body)
+		return env.evalBlock(node.Body)
 	} else if node.Else != nil {
-		return ir.evalStatement(node.Else)
+		return env.evalStatement(node.Else)
 	} else {
 		return Nil, nil
 	}
 }
 
-func (ir *Interpreter) evalFor(node *ast.ForStmt) (r.Value, error) {
+func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 	// fmt.Printf("debug: evalFor() init = %#v, cond = %#v, post = %#v, body = %#v\n", node.Init, node.Cond, node.Post, node.Body)
 
 	if node.Init != nil {
-		ir.PushEnv()
-		defer ir.PopEnv()
-
-		_, err := ir.evalStatement(node.Init)
-		if err != nil {
-			return Nil, err
-		}
+		env = NewEnv(env)
+		env.evalStatement(node.Init)
 	}
 	for {
 		if node.Cond != nil {
-			cond, err := ir.evalExpr(node.Cond)
-			if err != nil {
-				return Nil, err
-			}
+			cond, _ := env.evalExpr(node.Cond)
 			if cond.Kind() != r.Bool {
 				cf := cond.Interface()
-				return Nil, errors.New(fmt.Sprintf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf))
+				return Errorf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
 			}
 			if !cond.Bool() {
 				break
 			}
 		}
-		_, err := ir.evalBlock(node.Body)
-		if err != nil {
-			return Nil, err
+		if !env.evalForBodyOnce(node.Body) {
+			break
 		}
 		if node.Post != nil {
-			_, err := ir.evalStatement(node.Post)
-			if err != nil {
-				return Nil, err
-			}
+			env.evalStatement(node.Post)
 		}
 	}
 	return Nil, nil
+}
+
+func (env *Env) evalForBodyOnce(node *ast.BlockStmt) (cont bool) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			switch rec := rec.(type) {
+			case Break:
+				cont = false
+			case Continue:
+				cont = true
+			default:
+				panic(rec)
+			}
+		}
+	}()
+	env.evalBlock(node)
+	return true
 }

@@ -64,7 +64,9 @@ func callRecover() interface{} {
 	return recover()
 }
 
-func addBuiltins(binds Binds) {
+func (env *Env) addBuiltins() {
+	binds := env.Binds
+
 	binds["append"] = r.ValueOf(callAppend)
 	binds["cap"] = r.ValueOf(callCap)
 	binds["close"] = r.ValueOf(callClose)

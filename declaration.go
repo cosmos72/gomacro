@@ -25,80 +25,72 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
 )
 
-func (ir *Interpreter) evalDecl(node ast.Decl) (r.Value, error) {
+func (env *Env) evalDecl(node ast.Decl) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case *ast.GenDecl:
-		return ir.evalDeclGen(node)
+		return env.evalDeclGen(node)
 	case *ast.FuncDecl:
-		return ir.evalDeclFunc(node)
+		return env.evalDeclFunc(node)
 	default:
-		return Nil, errors.New(fmt.Sprintf("unimplemented declaration: %#v", node))
+		return Errorf("unimplemented declaration: %#v", node)
 	}
 }
 
-func (ir *Interpreter) evalDeclGen(node *ast.GenDecl) (r.Value, error) {
+func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 	tok := node.Tok
 	var ret r.Value
-	var err error
+	var rets []r.Value
 	for _, decl := range node.Specs {
 		switch tok {
 		case token.IMPORT:
-			ret, err = ir.evalImport(decl)
+			ret, rets = env.evalImport(decl)
 		case token.CONST:
-			ret, err = ir.evalDeclConst(decl)
+			ret, rets = env.evalDeclConst(decl)
 		case token.TYPE:
-			ret, err = ir.evalDeclType(decl)
+			ret, rets = env.evalDeclType(decl)
 		case token.VAR:
-			ret, err = ir.evalDeclVar(decl)
+			ret, rets = env.evalDeclVar(decl)
 		default:
-			return Nil, errors.New(fmt.Sprintf("unimplemented declaration: %#v", decl))
-		}
-		if err != nil {
-			ir.PopEnv()
-			return Nil, err
+			return Errorf("unimplemented declaration: %#v", decl)
 		}
 	}
-	return ret, nil
+	return ret, rets
 }
 
-func (ir *Interpreter) evalImport(node ast.Spec) (r.Value, error) {
+func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return Nil, errors.New(fmt.Sprintf("unimplemented import %#v", node))
+		return Errorf("unimplemented import %#v", node)
 	}
 }
 
-func (ir *Interpreter) evalDeclConst(node ast.Spec) (r.Value, error) {
+func (env *Env) evalDeclConst(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return Nil, errors.New(fmt.Sprintf("unimplemented constant declaration %#v", node))
+		return Errorf("unimplemented constant declaration %#v", node)
 	}
 }
 
-func (ir *Interpreter) evalDeclType(node ast.Spec) (r.Value, error) {
+func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return Nil, errors.New(fmt.Sprintf("unimplemented type declaration %#v", node))
+		return Errorf("unimplemented type declaration %#v", node)
 	}
 }
 
-func (ir *Interpreter) evalDeclVar(node ast.Spec) (r.Value, error) {
+func (env *Env) evalDeclVar(node ast.Spec) (r.Value, []r.Value) {
 	var ret r.Value
+	var rets []r.Value
 	switch node := node.(type) {
 	case *ast.ValueSpec:
 		idents := node.Names
 		values := node.Values
-		t, err := ir.evalType(node.Type)
-		if err != nil {
-			return Nil, err
-		}
+		t := env.evalType(node.Type)
 		var zero r.Value
 		if t != nil {
 			// t can be nil when inferring types
@@ -106,37 +98,29 @@ func (ir *Interpreter) evalDeclVar(node ast.Spec) (r.Value, error) {
 		}
 		for i, ident := range idents {
 			if values != nil && len(values) >= i {
-				value, err := ir.Eval(values[i])
-				if err == nil {
-					ret, err = ir.defineVar(ident.Name, t, value)
-				}
-				if err != nil {
-					return Nil, err
-				}
+				value, _ := env.Eval(values[i])
+				ret, rets = env.defineVar(ident.Name, t, value)
 			} else if t == nil {
-				return Nil, errors.New(fmt.Sprintf("invalid variable declaration, type OR initializer required: %#v", node))
+				return Errorf("invalid variable declaration, type OR initializer required: %#v", node)
 			} else {
-				ret, err = ir.defineVar(ident.Name, t, zero)
-				if err != nil {
-					return Nil, err
-				}
+				ret, rets = env.defineVar(ident.Name, t, zero)
 			}
 		}
 	default:
-		return Nil, errors.New(fmt.Sprintf("unimplemented variable declaration: %#v", node))
+		return Errorf("unimplemented variable declaration: %#v", node)
 	}
-	return ret, nil
+	return ret, rets
 }
 
-func (ir *Interpreter) defineVarConvert(name string, t r.Type, value r.Value) (r.Value, error) {
+func (env *Env) defineVarConvert(name string, t r.Type, value r.Value) (r.Value, []r.Value) {
 	value_as_t, ok := toType(value, t)
 	if !ok {
-		return Nil, errors.New(fmt.Sprintf("failed to cast %#v to %v in variable declaration: var %s %v = %#v", value, t, name, t, value))
+		return Errorf("failed to cast %#v to %v in variable declaration: var %s %v = %#v", value, t, name, t, value)
 	}
-	return ir.defineVar(name, t, value_as_t)
+	return env.defineVar(name, t, value_as_t)
 }
 
-func (ir *Interpreter) defineVar(name string, t r.Type, value r.Value) (r.Value, error) {
+func (env *Env) defineVar(name string, t r.Type, value r.Value) (r.Value, []r.Value) {
 	if name == "_" {
 		// never define bindings for "_"
 		return value, nil
@@ -147,16 +131,13 @@ func (ir *Interpreter) defineVar(name string, t r.Type, value r.Value) (r.Value,
 	} else {
 		// fmt.Printf("debug: defineVar() var %s %v = %#v\n", name, t, value.Interface())
 	}
-	if _, exists := ir.Binds[name]; exists {
-		fmt.Fprintf(ir.Eout, "warning: redefining identifier: %v\n", name)
+	if _, exists := env.Binds[name]; exists {
+		Warnf("redefined identifier: %v\n", name)
 	}
 	addr := r.New(t)
 
-	_, err := ir.assign(addr.Elem(), token.ASSIGN, value)
-	if err != nil {
-		return Nil, err
-	}
-	ir.Binds[name] = addr.Elem()
-	// fmt.Printf("debug: defineVar() added %#v to %#v\n", name, ir.Binds)
+	env.assign(addr.Elem(), token.ASSIGN, value)
+	env.Binds[name] = addr.Elem()
+	// fmt.Printf("debug: defineVar() added %#v to %#v\n", name, env.Binds)
 	return value, nil
 }

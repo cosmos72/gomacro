@@ -25,54 +25,56 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
 
-func (ir *Interpreter) evalExprs(nodes []ast.Expr) ([]r.Value, error) {
-	n := len(nodes)
-	rets := make([]r.Value, n)
-	for i, node := range nodes {
-		ret, err := ir.evalExpr(node)
-		if err != nil {
-			return nil, err
+func (env *Env) evalExprs(nodes []ast.Expr) []r.Value {
+	switch n := len(nodes); n {
+	case 0:
+		return nil
+	case 1:
+		ret, _ := env.evalExpr(nodes[0])
+		return []r.Value{ret}
+	default:
+		rets := make([]r.Value, n)
+		for i, node := range nodes {
+			ret, _ := env.evalExpr(node)
+			rets[i] = ret
 		}
-		rets[i] = ret
+		return rets
 	}
-	return rets, nil
 }
 
-func (ir *Interpreter) evalExpr(node ast.Expr) (r.Value, error) {
+func (env *Env) evalExpr(node ast.Expr) (r.Value, []r.Value) {
 	// fmt.Printf("debug: evalExpr() %#v\n", node)
 
 	switch node := node.(type) {
 	case *ast.BasicLit:
-		return ir.evalLiteral(node)
+		return env.evalLiteral(node)
 
 	case *ast.BinaryExpr:
-		return ir.evalBinaryExpr(node)
+		return env.evalBinaryExpr(node)
 
 	case *ast.CallExpr:
-		return ir.evalCall(node)
+		return env.evalCall(node)
 
 	case *ast.Ident:
-		return ir.evalIdentifier(node)
+		return env.evalIdentifier(node)
 
 	case *ast.ParenExpr:
-		return ir.evalExpr(node.X)
+		return env.evalExpr(node.X)
 
 	case *ast.UnaryExpr:
-		return ir.evalUnaryExpr(node)
+		return env.evalUnaryExpr(node)
 
 	case *ast.CompositeLit, *ast.FuncLit, *ast.IndexExpr, *ast.KeyValueExpr,
 		*ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
 
 		// TODO
-		return Nil, errors.New(fmt.Sprintf("unimplemented expression %#v\n", node))
+		return Errorf("unimplemented expression %#v", node)
 
 	default:
-		return Nil, errors.New(fmt.Sprintf("unimplemented expression %#v\n", node))
+		return Errorf("unimplemented expression %#v", node)
 	}
 }
