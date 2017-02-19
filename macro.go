@@ -5,24 +5,15 @@ import (
 	r "reflect"
 )
 
-func (env *Env) evalQuote(nodes []ast.Expr) (r.Value, []r.Value) {
-	switch n := len(nodes); n {
+func (env *Env) evalQuote(node *ast.BlockStmt) (r.Value, []r.Value) {
+	var ret ast.Node
+	switch len(node.List) {
 	case 0:
-		return None, nil
+		ret = nil
 	case 1:
-		return r.ValueOf(&nodes[0]).Elem(), nil
+		ret = node.List[0]
 	default:
-		stmts := make([]ast.Stmt, n)
-		for i := 0; i < n; i++ {
-			stmts[i] = &ast.ExprStmt{X: nodes[i]}
-		}
-
-		var block ast.Node = &ast.BlockStmt{
-			Lbrace: nodes[0].Pos(),
-			List:   stmts,
-			Rbrace: nodes[n-1].End(),
-		}
-
-		return r.ValueOf(&block).Elem(), nil
+		ret = node
 	}
+	return r.ValueOf(&ret).Elem(), nil
 }

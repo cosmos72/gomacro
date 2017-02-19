@@ -18,7 +18,7 @@
  *
  * literal.go
  *
- *  Created on: Feb 13, 2015
+ *  Created on: Feb 13, 2017
  *      Author: Massimiliano Ghilardi
  */
 
@@ -114,15 +114,14 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 }
 
 func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value) {
-	prefix := node.Type
-
-	switch prefix := prefix.(type) {
-	case *ast.Ident:
-		switch prefix.Name {
-		case "Quote":
-			return env.evalQuote(node.Elts)
-		}
-	}
+	//	prefix := node.Type
 	// t := env.evalType(prefix)
 	return env.Errorf("unimplemented composite literal %#v", node)
+}
+
+// lambda()
+func (env *Env) evalFunctionLiteral(node *ast.FuncLit) (r.Value, []r.Value) {
+	env.Debugf("func() at position %v", node.Type.Func)
+
+	return env.evalQuote(node.Body)
 }

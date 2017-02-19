@@ -18,16 +18,37 @@
  *
  * string.go
  *
- *  Created on: Feb 13, 2015
+ *  Created on: Feb 13, 2017
  *      Author: Massimiliano Ghilardi
  */
 
 package main
 
 import (
-	"regexp"
+	"io"
+	"io/ioutil"
+	r "reflect"
 	"strconv"
 )
+
+func (p *Parser) ReadFromSource(src interface{}) string {
+	switch src := src.(type) {
+	case string:
+		return src
+	case []byte:
+		return string(src)
+	default:
+		if reader, ok := src.(io.Reader); ok {
+			bytes, err := ioutil.ReadAll(reader)
+			if err != nil {
+				Errore(err)
+			}
+			return string(bytes)
+		}
+		p.Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
+	}
+	return ""
+}
 
 func unescapeChar(str string) rune {
 	// fmt.Printf("debug unescapeChar(): parsing CHAR %#v", str)
@@ -51,10 +72,62 @@ func unescapeString(str string) string {
 	return ret
 }
 
-var lineComment = regexp.MustCompile("//.*\n")
-var multiLineComment = regexp.MustCompile("/*(?s:.*?)*/")
+func skipCommentsAndSpaces(str string) int {
+	n := len(str)
+	const (
+		Normal = iota
+		Slash
+		LineComment
+		MultiLineComment
+		MultiLineCommentStar
+	)
+	mode := Normal
+	for i := 0; i < n; i++ {
+		ch := str[i]
+		switch mode {
+		case Normal:
+			if ch == '/' {
+				mode = Slash
+			} else if ch > ' ' {
+				return i
+			}
+		case Slash:
+			if ch == '/' {
+				mode = LineComment
+			} else if ch == '*' {
+				mode = MultiLineComment
+			} else {
+				return i - 1
+			}
+		case LineComment:
+			if ch == '\n' {
+				mode = Normal
+			}
+		case MultiLineComment:
+			if ch == '*' {
+				mode = MultiLineCommentStar
+			}
+		case MultiLineCommentStar:
+			if ch == '/' {
+				mode = Normal
+			} else {
+				mode = MultiLineComment
+			}
+		}
+	}
+	return n
+}
 
-func skipComments(str string) string {
-	// TODO
+func extractFirstIdentifier(str string) string {
+	n := len(str)
+	for i := 0; i < n; i++ {
+		ch := str[i]
+		if (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') ||
+			ch == '_' || ch >= 128 ||
+			(i != 0 && (ch >= '0' && ch <= '9')) {
+		} else {
+			return str[:i]
+		}
+	}
 	return str
 }

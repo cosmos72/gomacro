@@ -18,7 +18,7 @@
  *
  * unaryexpr.go
  *
- *  Created on: Feb 13, 2015
+ *  Created on: Feb 13, 2017
  *      Author: Massimiliano Ghilardi
  */
 
@@ -96,6 +96,9 @@ func (env *Env) evalExpr(expr ast.Expr) (r.Value, []r.Value) {
 		case *ast.CompositeLit:
 			return env.evalCompositeLiteral(node)
 
+		case *ast.FuncLit:
+			return env.evalFunctionLiteral(node)
+
 		case *ast.Ident:
 			return env.evalIdentifier(node)
 
@@ -109,8 +112,7 @@ func (env *Env) evalExpr(expr ast.Expr) (r.Value, []r.Value) {
 		case *ast.UnaryExpr:
 			return env.evalUnaryExpr(node)
 
-		case *ast.FuncLit, *ast.KeyValueExpr,
-			*ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
+		case *ast.KeyValueExpr, *ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
 
 			// TODO
 			return env.Errorf("unimplemented expression %#v", node)

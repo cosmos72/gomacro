@@ -18,7 +18,7 @@
  *
  * main.go
  *
- *  Created on: Feb 13, 2015
+ *  Created on: Feb 13, 2017
  *      Author: Massimiliano Ghilardi
  */
 
@@ -32,7 +32,6 @@ import (
 	"go/token"
 	"os"
 	r "reflect"
-	"strings"
 )
 
 const TemporaryFunctionName = "gorepl_temporary_function"
@@ -77,7 +76,8 @@ func NewEnv(outer *Env) *Env {
 }
 
 func (p *Parser) Parse(src interface{}) ast.Node {
-	node, err := p.parseOrError(src)
+	str := p.ReadFromSource(src)
+	node, err := p.parseOrError(str)
 	if err != nil {
 		Errore(err)
 		return nil
@@ -85,34 +85,26 @@ func (p *Parser) Parse(src interface{}) ast.Node {
 	return node
 }
 
-func (p *Parser) parseOrError(src interface{}) (ast.Node, error) {
-	expr, err := parser.ParseExprFrom(p.Fileset, p.Filename, src, 0)
+func (p *Parser) parseOrError(str string) (ast.Node, error) {
+	pos := skipCommentsAndSpaces(str)
+	str = str[pos:]
+	expr, err := parser.ParseExprFrom(p.Fileset, p.Filename, str, 0)
 	if err == nil {
 		if p.Parsermode == 0 {
 			return expr, nil
 		}
-		return parser.ParseExprFrom(p.Fileset, p.Filename, src, p.Parsermode)
+		return parser.ParseExprFrom(p.Fileset, p.Filename, str, p.Parsermode)
 	}
-	str, ok := src.(string)
-	if ok {
-		str = strings.TrimSpace(str)
-		str = skipComments(str)
-		firstWord := str
-		space := strings.IndexAny(str, " \f\t\r\n\v")
-		if space >= 0 {
-			firstWord = str[:space]
-		}
-		switch firstWord {
-		case "package":
-			/* nothing to do */
-		case "func", "var", "const", "type":
-			str = fmt.Sprintf("package %s; %s", p.Packagename, str)
-		default:
-			str = fmt.Sprintf("package %s; func %s() { %s }", p.Packagename, TemporaryFunctionName, str)
-		}
-		src = str
+	firstIdent := extractFirstIdentifier(str)
+	switch firstIdent {
+	case "package":
+		/* nothing to do */
+	case "func", "var", "const", "type":
+		str = fmt.Sprintf("package %s; %s", p.Packagename, str)
+	default:
+		str = fmt.Sprintf("package %s; func %s() { %s }", p.Packagename, TemporaryFunctionName, str)
 	}
-	return parser.ParseFile(p.Fileset, p.Filename, src, p.Parsermode)
+	return parser.ParseFile(p.Fileset, p.Filename, str, p.Parsermode)
 }
 
 func (env *Env) Repl() {
@@ -138,7 +130,9 @@ func (env *Env) ReadEvalPrint(in *bufio.Reader) (ret bool) {
 		fmt.Fprintln(Stderr, err)
 		return false
 	}
-	line = strings.TrimSpace(line)
+
+	pos := skipCommentsAndSpaces(line)
+	line = line[pos:]
 	if line == ":quit" {
 		return false
 	}
