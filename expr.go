@@ -93,6 +93,9 @@ func (env *Env) evalExpr(expr ast.Expr) (r.Value, []r.Value) {
 		case *ast.CallExpr:
 			return env.evalCall(node)
 
+		case *ast.CompositeLit:
+			return env.evalCompositeLiteral(node)
+
 		case *ast.Ident:
 			return env.evalIdentifier(node)
 
@@ -106,7 +109,7 @@ func (env *Env) evalExpr(expr ast.Expr) (r.Value, []r.Value) {
 		case *ast.UnaryExpr:
 			return env.evalUnaryExpr(node)
 
-		case *ast.CompositeLit, *ast.FuncLit, *ast.KeyValueExpr,
+		case *ast.FuncLit, *ast.KeyValueExpr,
 			*ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
 
 			// TODO

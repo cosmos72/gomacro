@@ -143,7 +143,7 @@ func (env *Env) ReadEvalPrint(in *bufio.Reader) (ret bool) {
 		return false
 	}
 	ast := env.Parse(line)
-	env.FprintMultipleValues(Stdout, r.ValueOf(ast))
+	// env.FprintMultipleValues(Stdout, r.ValueOf(ast))
 	value, values := env.Eval(ast)
 	if len(values) != 0 {
 		env.FprintMultipleValues(Stdout, values...)

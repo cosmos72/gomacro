@@ -97,15 +97,16 @@ func (env *Env) addBuiltins() {
 	binds["copy"] = r.ValueOf(callCopy)
 	binds["DeepEqual"] = r.ValueOf(r.DeepEqual)
 	binds["delete"] = r.ValueOf(callDelete)
+	binds["Eval"] = r.ValueOf(func(node ast.Node) interface{} {
+		return toInterface(env.Eval1(node))
+	})
+	binds["EvalN"] = r.ValueOf(func(node ast.Node) []interface{} {
+		return toInterfaces(packValues(env.Eval(node)))
+	})
 	binds["len"] = r.ValueOf(callLen)
 	// binds["new"] = r.ValueOf(callNew) // should be handled specially, its argument is a type
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
-	binds["ReadDir"] = r.ValueOf(callReadDir)
-	binds["ReadFile"] = r.ValueOf(callReadFile)
-	binds["String"] = r.ValueOf(func(args ...interface{}) string {
-		return env.toString("", args...)
-	})
 	binds["Parse"] = r.ValueOf(func(src interface{}) ast.Node {
 		return env.Parse(src)
 	})
@@ -113,8 +114,13 @@ func (env *Env) addBuiltins() {
 		values := toValues(args)
 		env.FprintMultipleValues(Stdout, values...)
 	})
-	binds["Slice"] = r.ValueOf(callSlice)
+	binds["ReadDir"] = r.ValueOf(callReadDir)
+	binds["ReadFile"] = r.ValueOf(callReadFile)
 	// binds["recover"] = r.ValueOf(callRecover) // does not work! recover() works only inside a deferred function (but not any function called by it)
+	binds["Slice"] = r.ValueOf(callSlice)
+	binds["String"] = r.ValueOf(func(args ...interface{}) string {
+		return env.toString("", args...)
+	})
 }
 
 func (env *Env) addInterpretedBuiltins() {

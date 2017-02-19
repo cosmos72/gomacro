@@ -66,10 +66,12 @@ func (p *Parser) FprintMultipleValues(out io.Writer, values ...r.Value) {
 		switch vi := vi.(type) {
 		case uint, uint8, uint32, uint64, uintptr:
 			fmt.Fprintf(out, "%d <%v>\n", vi, vt)
-		case string:
-			fmt.Fprintf(out, "%#v <%v>\n", vi, vt)
 		default:
-			fmt.Fprintf(out, "%v <%v>\n", vi, vt)
+			if vt == typeOfString {
+				fmt.Fprintf(out, "%#v <%v>\n", vi, vt)
+			} else {
+				fmt.Fprintf(out, "%v <%v>\n", vi, vt)
+			}
 		}
 	}
 }

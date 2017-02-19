@@ -26,6 +26,7 @@ package main
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
 )
 
@@ -42,6 +43,11 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 			args[i] = env.toType(arg, argTypes.In(i))
 		}
 	}
-	rets := fun.Call(args)
+	var rets []r.Value
+	if node.Ellipsis == token.NoPos {
+		rets = fun.Call(args)
+	} else {
+		rets = fun.CallSlice(args)
+	}
 	return unpackValues(rets)
 }
