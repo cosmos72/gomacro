@@ -72,7 +72,7 @@ func unescapeString(str string) string {
 	return ret
 }
 
-func skipCommentsAndSpaces(str string) int {
+func findFirstToken(str string) int {
 	n := len(str)
 	const (
 		Normal = iota

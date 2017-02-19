@@ -112,7 +112,7 @@ func (env *Env) addBuiltins() {
 	})
 	binds["println"] = r.ValueOf(func(args ...interface{}) {
 		values := toValues(args)
-		env.FprintMultipleValues(Stdout, values...)
+		env.FprintValues(env.Stdout, values...)
 	})
 	binds["ReadDir"] = r.ValueOf(callReadDir)
 	binds["ReadFile"] = r.ValueOf(callReadFile)

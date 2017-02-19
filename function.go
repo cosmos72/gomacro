@@ -46,7 +46,7 @@ func unpackValues(vals []r.Value) (r.Value, []r.Value) {
 
 func (env *Env) evalDeclFunc(node *ast.FuncDecl) (r.Value, []r.Value) {
 	name := node.Name.Name
-	if name == TemporaryFunctionName {
+	if name == temporaryFunctionName {
 		// do *NOT* use env.evalBlock(), because it would create all bindings
 		// in its block scope -> they are lost after env.evalBlock() returns
 		return env.evalStatements(node.Body.List)

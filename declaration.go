@@ -65,7 +65,7 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 func (env *Env) evalImports(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return env.Errorf("unimplemented: import: %v", node)
+		return env.Errorf("unimplemented: import %v", node)
 	}
 }
 

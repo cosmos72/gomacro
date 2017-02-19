@@ -32,7 +32,7 @@ import (
 func (env *Env) evalFile(node *ast.File) (r.Value, []r.Value) {
 	env.Parser.Packagename = node.Name.Name
 
-	// eval node.Imports
+	// TODO eval node.Imports
 	var ret r.Value
 	var rets []r.Value
 
