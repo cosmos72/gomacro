@@ -107,7 +107,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		return unescapeString(str)
 
 	default:
-		env.Errorf("unimplemented simple literal Kind = %s, r.Value = %#v", kind, str)
+		env.Errorf("unimplemented basic literal: %v", node)
 		ret = nil
 	}
 	return ret
@@ -116,12 +116,13 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value) {
 	//	prefix := node.Type
 	// t := env.evalType(prefix)
-	return env.Errorf("unimplemented composite literal %#v", node)
+	return env.Errorf("unimplemented composite literal: %v", node)
 }
 
 // lambda()
 func (env *Env) evalFunctionLiteral(node *ast.FuncLit) (r.Value, []r.Value) {
-	env.Debugf("func() at position %v", node.Type.Func)
+	// env.Debugf("func() at position %v", node.Type.Func)
 
-	return env.evalQuote(node.Body)
+	ret, _ := env.evalDeclFunction(nil, node.Type, node.Body)
+	return ret, nil
 }

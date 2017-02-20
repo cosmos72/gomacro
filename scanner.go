@@ -16,28 +16,36 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * file.go
+ * scanner.go
  *
- *  Created on: Feb 15, 2017
+ *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi
  */
 
 package main
 
 import (
-	"go/ast"
-	r "reflect"
+	"fmt"
+	"go/scanner"
+	"go/token"
 )
 
-func (env *Env) evalFile(node *ast.File) (r.Value, []r.Value) {
-	env.Packagename = node.Name.Name
+func testScanner(env *Env) {
+	src := []byte(" Quote { /*foo*/ x } y")
 
-	// TODO eval node.Imports
-	var ret r.Value
-	var rets []r.Value
+	var s scanner.Scanner
+	var errs scanner.ErrorList
 
-	for _, decl := range node.Decls {
-		ret, rets = env.evalDecl(decl)
+	pos0 := env.Fileset.Base()
+	file := env.Fileset.AddFile("temp.go", pos0, len(src))
+
+	s.Init(file, src, errs.Add, 0 /*scanner.ScanComments*/)
+
+	for {
+		pos, tok, str := s.Scan()
+		fmt.Printf("%v\t%v\t%#v\n", pos, tok, str)
+		if tok == token.EOF {
+			break
+		}
 	}
-	return ret, rets
 }

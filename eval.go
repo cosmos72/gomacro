@@ -30,16 +30,17 @@ import (
 )
 
 func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
-	if node, ok := node.(ast.Expr); ok {
+	switch node := node.(type) {
+	case ast.Expr:
 		return env.evalExpr(node)
-	}
-	if node, ok := node.(ast.Decl); ok {
+	case ast.Decl:
 		return env.evalDecl(node)
-	}
-	if node, ok := node.(*ast.File); ok {
+	case ast.Stmt:
+		return env.evalStatement(node)
+	case *ast.File:
 		return env.evalFile(node)
 	}
-	return env.Errorf("unimplemented Eval for %#v", node)
+	return env.Errorf("unimplemented Eval for %v <%v>", node, r.TypeOf(node))
 }
 
 func (env *Env) Eval1(node ast.Node) r.Value {

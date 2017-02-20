@@ -124,7 +124,9 @@ func (env *Env) addBuiltins() {
 }
 
 func (env *Env) addInterpretedBuiltins() {
-	line := "func not(flag bool) bool { if flag { return false } else { return true } }"
-	ast := env.Parse(line)
-	env.Eval(ast)
+	if false {
+		line := "func not(flag bool) bool { if flag { return false } else { return true } }"
+		ast := env.Parse(line)
+		env.Eval(ast)
+	}
 }

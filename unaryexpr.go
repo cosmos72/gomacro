@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	mp "github.com/cosmos72/gomacro/macroparser"
 )
 
 func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, []r.Value) {
@@ -35,6 +37,12 @@ func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, [
 }
 
 func (env *Env) evalUnaryExpr(expr *ast.UnaryExpr) (r.Value, []r.Value) {
+	switch op := expr.Op; op {
+	case mp.QUOTE, mp.QUASIQUOTE, mp.UNQUOTE, mp.UNQUOTE_SPLICE:
+		return env.evalQuote(op, expr.X.(*ast.FuncLit).Body)
+	default:
+		break
+	}
 	xv, _ := env.Eval(expr.X)
 	op := expr.Op
 	switch xv.Kind() {

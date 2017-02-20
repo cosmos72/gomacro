@@ -44,7 +44,7 @@ func unpackValues(vals []r.Value) (r.Value, []r.Value) {
 	return val0, vals
 }
 
-func (env *Env) evalDeclFunc(node *ast.FuncDecl) (r.Value, []r.Value) {
+func (env *Env) evalDeclNamedFunction(node *ast.FuncDecl) (r.Value, []r.Value) {
 	name := node.Name.Name
 	if name == temporaryFunctionName {
 		// do *NOT* use env.evalBlock(), because it would create all bindings
@@ -52,19 +52,40 @@ func (env *Env) evalDeclFunc(node *ast.FuncDecl) (r.Value, []r.Value) {
 		return env.evalStatements(node.Body.List)
 	}
 
-	// TODO methods also use node.Recv
-	t, argNames, resultNames := env.evalTypeFunction(node.Type)
-
-	closure := func(args []r.Value) (results []r.Value) {
-		return env.evalFunc(node.Body, t, argNames, args, resultNames)
-	}
-	fun := r.MakeFunc(t, closure)
+	fun, t := env.evalDeclFunction(node, node.Type, node.Body)
 	ret := env.defineVar(name, t, fun)
 	return ret, nil
 }
 
+func (env *Env) evalDeclFunction(nodeForReceiver *ast.FuncDecl, funcType *ast.FuncType, body *ast.BlockStmt) (r.Value, r.Type) {
+	var ret r.Value
+	isMacro := false
+	if nodeForReceiver != nil && nodeForReceiver.Recv != nil {
+		recvList := nodeForReceiver.Recv.List
+		if recvList != nil && len(recvList) == 0 {
+			isMacro = true
+		} else {
+			// TODO implement receiver
+			env.Errorf("unimplemented: method declarations (i.e. functions with receiver): %v", nodeForReceiver)
+			return ret, nil
+		}
+	}
+	t, argNames, resultNames := env.evalTypeFunction(funcType)
+
+	closure := func(args []r.Value) (results []r.Value) {
+		return env.evalFuncCall(body, t, argNames, args, resultNames)
+	}
+	if isMacro {
+		ret = r.ValueOf(Macro{Closure: closure, ArgN: len(argNames)})
+		t = ret.Type()
+	} else {
+		ret = r.MakeFunc(t, closure)
+	}
+	return ret, t
+}
+
 // eval an interpreted function
-func (env *Env) evalFunc(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value, resultNames []string) (results []r.Value) {
+func (env *Env) evalFuncCall(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value, resultNames []string) (results []r.Value) {
 	env = NewEnv(env)
 	defer func() {
 		if rec := recover(); rec != nil {

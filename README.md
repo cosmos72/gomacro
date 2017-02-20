@@ -37,6 +37,8 @@ The intepreter supports:
 * variable and function definitions
 * function calls (no imports yet, so builtins only)
 * strings, booleans, integers, floats, complex numbers and interface{}
+* quote and quasiquote. they take a single argument in curly braces, for example:
+  `quote { x }`
 
 A lot of things are still missing:
 * support to create arrays, slices, maps, channels, pointers

@@ -25,29 +25,34 @@
 package main
 
 import (
+	"bytes"
 	"io"
-	"io/ioutil"
 	r "reflect"
 	"strconv"
 )
 
-func (p *Parser) ReadFromSource(src interface{}) string {
-	switch src := src.(type) {
-	case string:
-		return src
-	case []byte:
-		return string(src)
-	default:
-		if reader, ok := src.(io.Reader); ok {
-			bytes, err := ioutil.ReadAll(reader)
-			if err != nil {
+func (p *Interpreter) ReadFromSource(src interface{}) []byte {
+	if src != nil {
+		switch s := src.(type) {
+		case string:
+			return []byte(s)
+		case []byte:
+			return s
+		case *bytes.Buffer:
+			// is io.Reader, but src is already available in []byte form
+			if s != nil {
+				return s.Bytes()
+			}
+		case io.Reader:
+			var buf bytes.Buffer
+			if _, err := io.Copy(&buf, s); err != nil {
 				Errore(err)
 			}
-			return string(bytes)
+			return buf.Bytes()
 		}
-		p.Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
 	}
-	return ""
+	p.Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
+	return nil
 }
 
 func unescapeChar(str string) rune {
@@ -72,8 +77,8 @@ func unescapeString(str string) string {
 	return ret
 }
 
-func findFirstToken(str string) int {
-	n := len(str)
+func findFirstToken(src []byte) int {
+	n := len(src)
 	const (
 		Normal = iota
 		Slash
@@ -83,7 +88,7 @@ func findFirstToken(str string) int {
 	)
 	mode := Normal
 	for i := 0; i < n; i++ {
-		ch := str[i]
+		ch := src[i]
 		switch mode {
 		case Normal:
 			if ch == '/' {
@@ -118,16 +123,16 @@ func findFirstToken(str string) int {
 	return n
 }
 
-func extractFirstIdentifier(str string) string {
-	n := len(str)
+func extractFirstIdentifier(src []byte) []byte {
+	n := len(src)
 	for i := 0; i < n; i++ {
-		ch := str[i]
+		ch := src[i]
 		if (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') ||
 			ch == '_' || ch >= 128 ||
 			(i != 0 && (ch >= '0' && ch <= '9')) {
 		} else {
-			return str[:i]
+			return src[:i]
 		}
 	}
-	return str
+	return src
 }

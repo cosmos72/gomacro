@@ -38,7 +38,7 @@ func (env *Env) evalIdentifier(expr *ast.Ident) (r.Value, []r.Value) {
 	case "true":
 		return r.ValueOf(true), nil
 	case "iota":
-		pos := env.Parser.Fileset.Position(expr.NamePos)
+		pos := env.Fileset.Position(expr.NamePos)
 		return r.ValueOf(pos.Line - env.iotaOffset), nil
 	default:
 		for e := env; e != nil; e = e.Outer {

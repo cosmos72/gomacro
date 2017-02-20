@@ -24,11 +24,26 @@
 
 package main
 
+import (
+	"go/parser"
+	"os"
+	"strings"
+)
+
 // func pair(a, b int) (int, int) { return a, b }
 // var a, b, c = pair(1, 2), 3, 4
 
 func main() {
 	env := NewEnv(nil)
-	// env.Parser.Parsermode = parser.Trace
-	env.Repl()
+	env.Parsermode = parser.Trace
+
+	args := os.Args
+	// args = []string{"gomacro", "macro foo() { }"}
+	if len(args) > 1 {
+		str := strings.Join(args[1:], " ")
+		env.ParseEvalPrint(str)
+	} else {
+		// testScanner(env)
+		env.Repl()
+	}
 }

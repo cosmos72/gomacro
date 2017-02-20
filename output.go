@@ -1,3 +1,27 @@
+/*
+ * gomacro - A Go intepreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * output.go
+ *
+ *  Created on: Feb 19, 2017
+ *      Author: Massimiliano Ghilardi
+ */
+
 package main
 
 import (
@@ -11,7 +35,7 @@ import (
 )
 
 type RuntimeError struct {
-	*Parser
+	*Interpreter
 	Format string
 	Args   []interface{}
 }
@@ -24,25 +48,25 @@ func Errore(err error) interface{} {
 	panic(err)
 }
 
-func (p *Parser) Errorf(format string, args ...interface{}) (r.Value, []r.Value) {
+func (p *Interpreter) Errorf(format string, args ...interface{}) (r.Value, []r.Value) {
 	panic(RuntimeError{p, format, args})
 }
 
-func (p *Parser) PackErrorf(format string, args ...interface{}) []r.Value {
+func (p *Interpreter) PackErrorf(format string, args ...interface{}) []r.Value {
 	panic(RuntimeError{p, format, args})
 }
 
-func (p *Parser) Warnf(format string, args ...interface{}) {
+func (p *Interpreter) Warnf(format string, args ...interface{}) {
 	str := p.Sprintf(format, args...)
 	fmt.Fprintf(p.Stderr, "warning: %s\n", str)
 }
 
-func (p *Parser) Debugf(format string, args ...interface{}) {
+func (p *Interpreter) Debugf(format string, args ...interface{}) {
 	str := p.Sprintf(format, args...)
 	fmt.Fprintf(p.Stdout, "debug: %s\n", str)
 }
 
-func (p *Parser) FprintValues(out io.Writer, values ...r.Value) {
+func (p *Interpreter) FprintValues(out io.Writer, values ...r.Value) {
 	if len(values) == 0 {
 		fmt.Fprint(out, "// no value\n")
 		return
@@ -52,7 +76,7 @@ func (p *Parser) FprintValues(out io.Writer, values ...r.Value) {
 	}
 }
 
-func (p *Parser) FprintValue(out io.Writer, v r.Value) {
+func (p *Interpreter) FprintValue(out io.Writer, v r.Value) {
 	var vi interface{}
 	var vt r.Type
 	if v == None {
@@ -82,12 +106,12 @@ func (p *Parser) FprintValue(out io.Writer, v r.Value) {
 	}
 }
 
-func (p *Parser) Sprintf(format string, values ...interface{}) string {
+func (p *Interpreter) Sprintf(format string, values ...interface{}) string {
 	values = p.toPrintables(values)
 	return fmt.Sprintf(format, values...)
 }
 
-func (p *Parser) toString(separator string, values ...interface{}) string {
+func (p *Interpreter) toString(separator string, values ...interface{}) string {
 	if len(values) == 0 {
 		return ""
 	}
@@ -102,14 +126,14 @@ func (p *Parser) toString(separator string, values ...interface{}) string {
 	return buf.String()
 }
 
-func (p *Parser) toPrintables(values []interface{}) []interface{} {
+func (p *Interpreter) toPrintables(values []interface{}) []interface{} {
 	for i, vi := range values {
 		values[i] = p.toPrintable(vi)
 	}
 	return values
 }
 
-func (p *Parser) toPrintable(value interface{}) interface{} {
+func (p *Interpreter) toPrintable(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
@@ -132,7 +156,7 @@ func (p *Parser) toPrintable(value interface{}) interface{} {
 	return value
 }
 
-func (p *Parser) valueToPrintable(value r.Value) interface{} {
+func (p *Interpreter) valueToPrintable(value r.Value) interface{} {
 	if value == None {
 		return "/*no value*/"
 	} else if value == Nil {
@@ -142,7 +166,7 @@ func (p *Parser) valueToPrintable(value r.Value) interface{} {
 	}
 }
 
-func (p *Parser) nodeToPrintable(node ast.Node) interface{} {
+func (p *Interpreter) nodeToPrintable(node ast.Node) interface{} {
 	var buf bytes.Buffer
 	err := format.Node(&buf, p.Fileset, node)
 	if err != nil {
@@ -151,7 +175,7 @@ func (p *Parser) nodeToPrintable(node ast.Node) interface{} {
 	return buf.String()
 }
 
-func (p *Parser) showHelp(out io.Writer) {
+func (p *Interpreter) showHelp(out io.Writer) {
 	fmt.Fprint(out, `// interpreter commands:
 :env    show available functions, variables and constants
 :help   show this help

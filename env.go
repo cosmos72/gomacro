@@ -1,3 +1,27 @@
+/*
+ * gomacro - A Go intepreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * env.go
+ *
+ *  Created on: Feb 19, 2017
+ *      Author: Massimiliano Ghilardi
+ */
+
 package main
 
 import (
@@ -11,7 +35,7 @@ import (
 type Binds map[string]r.Value
 
 type Env struct {
-	*Parser
+	*Interpreter
 	binds      Binds
 	Outer      *Env
 	iotaOffset int
@@ -22,11 +46,11 @@ func NewEnv(outer *Env) *Env {
 	env.binds = make(map[string]r.Value)
 	env.iotaOffset = 1
 	if outer == nil {
-		env.Parser = NewParser()
+		env.Interpreter = NewInterpreter()
 		env.addBuiltins()
 		env.addInterpretedBuiltins()
 	} else {
-		env.Parser = outer.Parser
+		env.Interpreter = outer.Interpreter
 		env.Outer = outer
 	}
 	return &env
@@ -40,11 +64,11 @@ func (env *Env) Repl() {
 func (env *Env) Repl1(in *bufio.Reader) {
 	fmt.Fprint(env.Stdout, "// Welcome to gomacro. Type :help for help\n")
 
-	for env.ReadEvalPrint(in) {
+	for env.ReadParseEvalPrint(in) {
 	}
 }
 
-func (env *Env) ReadEvalPrint(in *bufio.Reader) (ret bool) {
+func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (ret bool) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			fmt.Fprintln(env.Stderr, rec)
@@ -59,23 +83,32 @@ func (env *Env) ReadEvalPrint(in *bufio.Reader) (ret bool) {
 		fmt.Fprintln(env.Stderr, err)
 		return false
 	}
+	return env.ParseEvalPrint(line)
+}
 
-	pos := findFirstToken(line)
-	line = strings.TrimSpace(line[pos:])
+func (env *Env) ParseEvalPrint(str string) (ret bool) {
+	src := []byte(strings.TrimSpace(str))
+	pos := findFirstToken(src)
+	trimmed := src[pos:]
+	ntrimmed := len(trimmed)
 
-	if len(line) > 0 && line[0] == ':' {
-		if line == ":quit" {
+	if ntrimmed == 0 {
+		env.FprintValues(env.Stdout) // no value
+		return true
+	} else if ntrimmed > 0 && trimmed[0] == ':' {
+		_cmd := string(extractFirstIdentifier(trimmed[1:]))
+		if _cmd == "quit" {
 			return false
-		} else if line == ":env" {
+		} else if _cmd == "env" {
 			env.showEnv(env.Stdout)
 			return true
-		} else if line == ":help" {
+		} else if _cmd == "help" {
 			env.showHelp(env.Stdout)
 			return true
 		}
 	}
-	ast := env.Parse(line)
-	// env.FprintValue(Stdout, r.ValueOf(ast))
+	ast := env.Parse(src)
+	// env.FprintValue(env.Stdout, r.ValueOf(ast))
 	value, values := env.Eval(ast)
 	if len(values) != 0 {
 		env.FprintValues(env.Stdout, values...)
