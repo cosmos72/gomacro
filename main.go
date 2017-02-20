@@ -35,7 +35,7 @@ import (
 
 func main() {
 	env := NewEnv(nil)
-	env.Parsermode = parser.Trace
+	env.Parsermode = parser.Trace & 0
 
 	args := os.Args
 	// args = []string{"gomacro", "macro foo() { }"}
