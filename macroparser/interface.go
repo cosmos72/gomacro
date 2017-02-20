@@ -61,6 +61,11 @@ func TokenString(tok token.Token) string {
 	return tok.String()
 }
 
+func TokenIsMacroKeyword(tok token.Token) bool {
+	_, ok := tokens[tok]
+	return ok
+}
+
 func Parse(fileset *token.FileSet, filename string, src []byte, mode Mode) (node ast.Node, err error) {
 	var p MacroParser
 	defer func() {

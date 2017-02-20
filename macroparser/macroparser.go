@@ -68,10 +68,6 @@ type MacroParser struct {
 	// (maintained by open/close LabelScope)
 	labelScope  *ast.Scope     // label scope for current function
 	targetStack [][]*ast.Ident // stack of unresolved labels
-
-	quoteCache int
-	quoteTok   token.Token
-	quoteLit   string
 }
 
 func (p *MacroParser) init(fset *token.FileSet, filename string, src []byte, mode Mode) {
@@ -249,41 +245,26 @@ func (p *MacroParser) next0() {
 	// very first token (!p.pos.IsValid()) is not initialized
 	// (it is token.ILLEGAL), so don't print it .
 	if p.trace && p.pos.IsValid() {
-		s := p.tok.String()
+		s := TokenString(p.tok) // patch: support macro-related keywords
 		switch {
 		case p.tok.IsLiteral():
 			p.printTrace(s, p.lit)
-		case p.tok.IsOperator(), p.tok.IsKeyword():
+		case p.tok.IsOperator(), p.tok.IsKeyword(),
+			TokenIsMacroKeyword(p.tok): // patch: support macro-related keywords
+
 			p.printTrace("\"" + s + "\"")
 		default:
 			p.printTrace(s)
 		}
 	}
 
-	// patch: recognize the new macro-related keywords QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICE and parse them as func().
-	// reason: it's the simplest way to stuff an arbitrary ast.Stmt where the parse expects an expression
-
-	if p.quoteCache > 0 {
-		p.quoteCache--
-		p.tok = quotePrefix[p.quoteCache]
-		p.lit = ""
-		return
-	}
-
 	p.pos, p.tok, p.lit = p.scanner.Scan()
-	p.quoteTok = token.ILLEGAL
 
-	if p.tok != token.IDENT {
-		return
-	}
-	if tok, ok := keywords[p.lit]; ok {
-		if tok == MACRO {
+	// patch: recognize the new macro-related keywords
+	if p.tok == token.IDENT {
+		if tok, ok := keywords[p.lit]; ok {
 			p.tok = tok
-			return
 		}
-		p.quoteTok = tok
-		p.quoteCache = len(quotePrefix) - 1
-		p.tok = quotePrefix[p.quoteCache]
 	}
 }
 
@@ -409,7 +390,7 @@ func (p *MacroParser) errorExpected(pos token.Pos, msg string) {
 		if p.tok == token.SEMICOLON && p.lit == "\n" {
 			msg += ", found newline"
 		} else {
-			msg += ", found '" + p.tok.String() + "'"
+			msg += ", found '" + TokenString(p.tok) + "'"
 			if p.tok.IsLiteral() {
 				msg += " " + p.lit
 			}
@@ -421,7 +402,7 @@ func (p *MacroParser) errorExpected(pos token.Pos, msg string) {
 func (p *MacroParser) expect(tok token.Token) token.Pos {
 	pos := p.pos
 	if p.tok != tok {
-		p.errorExpected(pos, "'"+tok.String()+"'")
+		p.errorExpected(pos, "'"+TokenString(tok)+"'")
 	}
 	p.next() // make progress
 	return pos
@@ -1139,9 +1120,6 @@ func (p *MacroParser) parseFuncTypeOrLit() ast.Expr {
 		defer un(trace(p, "FuncTypeOrLit"))
 	}
 
-	// patch: quote and friends are parsed as func() { ... }
-	quoteTok := p.quoteTok
-
 	typ, scope := p.parseFuncType()
 	if p.tok != token.LBRACE {
 		// function type only
@@ -1152,18 +1130,28 @@ func (p *MacroParser) parseFuncTypeOrLit() ast.Expr {
 	body := p.parseBody(scope)
 	p.exprLev--
 
-	// patch: quote and friends are parsed as functions.
-	// wrap them into a UnaryExpr to distinguish them from regular functions
-	var expr ast.Expr = &ast.FuncLit{Type: typ, Body: body}
-	if quoteTok != token.ILLEGAL {
-		if len(body.List) == 1 {
-			expr = &ast.UnaryExpr{OpPos: typ.Func, Op: quoteTok, X: expr}
-		} else {
-			p.error(body.Lbrace, fmt.Sprintf("invalid %s body: found %d statements, expecting 1", TokenString(quoteTok), len(body.List)))
-			expr = &ast.BadExpr{From: body.Lbrace, To: body.Rbrace}
-		}
+	return &ast.FuncLit{Type: typ, Body: body}
+}
+
+// patch: quote and friends
+func (p *MacroParser) parseQuote() ast.Expr {
+	if p.trace {
+		defer un(trace(p, "Quote"))
 	}
-	return expr
+
+	pos := p.pos
+	tok := p.tok
+	p.next()
+	if p.tok != token.LBRACE {
+		// no braces, return the identifier "quote"
+		return &ast.Ident{NamePos: pos, Name: TokenString(tok)}
+	}
+
+	body := p.parseBlockStmt()
+
+	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
+	fun := &ast.FuncLit{Type: typ, Body: body}
+	return &ast.UnaryExpr{OpPos: pos, Op: tok, X: fun}
 }
 
 // parseOperand may return an expression or a raw type (incl. array
@@ -1199,6 +1187,9 @@ func (p *MacroParser) parseOperand(lhs bool) ast.Expr {
 
 	case token.FUNC:
 		return p.parseFuncTypeOrLit()
+
+	case QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICE:
+		return p.parseQuote()
 	}
 
 	if typ := p.tryIdentOrType(); typ != nil {
