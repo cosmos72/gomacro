@@ -63,7 +63,7 @@ func (p *Interpreter) Warnf(format string, args ...interface{}) {
 
 func (p *Interpreter) Debugf(format string, args ...interface{}) {
 	str := p.Sprintf(format, args...)
-	fmt.Fprintf(p.Stdout, "debug: %s\n", str)
+	fmt.Fprintf(p.Stdout, "// debug: %s\n", str)
 }
 
 func (p *Interpreter) FprintValues(out io.Writer, values ...r.Value) {

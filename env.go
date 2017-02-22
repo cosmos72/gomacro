@@ -30,6 +30,7 @@ import (
 	"os"
 	r "reflect"
 	"strings"
+	"time"
 )
 
 type Binds map[string]r.Value
@@ -87,6 +88,12 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (ret bool) {
 }
 
 func (env *Env) ParseEvalPrint(str string) (ret bool) {
+	t1 := time.Now()
+	defer func() {
+		delta := time.Now().Sub(t1)
+		env.Debugf("eval() elapsed time: %g s", float64(delta)/float64(time.Second))
+	}()
+
 	src := []byte(strings.TrimSpace(str))
 	pos := findFirstToken(src)
 	trimmed := src[pos:]
@@ -109,7 +116,7 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 	}
 	ast := env.Parse(src)
 	// env.FprintValue(env.Stdout, r.ValueOf(ast))
-	value, values := env.Eval(ast)
+	value, values := env.EvalList(ast)
 	if len(values) != 0 {
 		env.FprintValues(env.Stdout, values...)
 	} else {

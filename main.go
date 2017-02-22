@@ -30,12 +30,9 @@ import (
 	"strings"
 )
 
-// func pair(a, b int) (int, int) { return a, b }
-// var a, b, c = pair(1, 2), 3, 4
-
 func main() {
 	env := NewEnv(nil)
-	env.Parsermode = parser.Trace & 0
+	env.Parsermode = parser.Trace // & 0
 
 	args := os.Args
 	// args = []string{"gomacro", "macro foo() { }"}

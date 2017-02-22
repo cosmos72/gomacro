@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package MacroParser implements a MacroParser for Go source files. Input may be
+// Package Parser implements a Parser for Go source files. Input may be
 // provided in a variety of forms (see the various Parse* functions); the
 // output is an abstract syntax tree (AST) representing the Go source. The
-// MacroParser is invoked through one of the Parse* functions.
+// Parser is invoked through one of the Parse* functions.
 //
-// The MacroParser accepts a larger language than is syntactically permitted by
+// The Parser accepts a larger language than is syntactically permitted by
 // the Go spec, for simplicity, and for improved robustness in the presence
 // of syntax errors. For instance, in method declarations, the receiver is
 // treated like an ordinary parameter list and thus may contain multiple
@@ -26,8 +26,8 @@ import (
 	"unicode"
 )
 
-// The MacroParser structure holds the parser's internal state.
-type MacroParser struct {
+// The Parser structure holds the parser's internal state.
+type Parser struct {
 	file    *token.File
 	errors  scanner.ErrorList
 	scanner scanner.Scanner
@@ -50,13 +50,13 @@ type MacroParser struct {
 	// Error recovery
 	// (used to limit the number of calls to syncXXX functions
 	// w/o making scanning progress - avoids potential endless
-	// loops across multiple MacroParser functions during error recovery)
+	// loops across multiple Parser functions during error recovery)
 	syncPos token.Pos // last synchronization position
 	syncCnt int       // number of calls to syncXXX without progress
 
-	// Non-syntactic MacroParser control
+	// Non-syntactic Parser control
 	exprLev int  // < 0: in control clause, >= 0: in expression
-	inRhs   bool // if set, the MacroParser is parsing a rhs expression
+	inRhs   bool // if set, the Parser is parsing a rhs expression
 
 	// Ordinary identifier scopes
 	pkgScope   *ast.Scope        // pkgScope.Outer == nil
@@ -70,7 +70,7 @@ type MacroParser struct {
 	targetStack [][]*ast.Ident // stack of unresolved labels
 }
 
-func (p *MacroParser) init(fset *token.FileSet, filename string, src []byte, mode Mode) {
+func (p *Parser) init(fset *token.FileSet, filename string, src []byte, mode Mode) {
 	p.file = fset.AddFile(filename, -1, len(src))
 	var m scanner.Mode
 	if mode&ParseComments != 0 {
@@ -88,20 +88,20 @@ func (p *MacroParser) init(fset *token.FileSet, filename string, src []byte, mod
 // ----------------------------------------------------------------------------
 // Scoping support
 
-func (p *MacroParser) openScope() {
+func (p *Parser) openScope() {
 	p.topScope = ast.NewScope(p.topScope)
 }
 
-func (p *MacroParser) closeScope() {
+func (p *Parser) closeScope() {
 	p.topScope = p.topScope.Outer
 }
 
-func (p *MacroParser) openLabelScope() {
+func (p *Parser) openLabelScope() {
 	p.labelScope = ast.NewScope(p.labelScope)
 	p.targetStack = append(p.targetStack, nil)
 }
 
-func (p *MacroParser) closeLabelScope() {
+func (p *Parser) closeLabelScope() {
 	// resolve labels
 	n := len(p.targetStack) - 1
 	scope := p.labelScope
@@ -116,7 +116,7 @@ func (p *MacroParser) closeLabelScope() {
 	p.labelScope = p.labelScope.Outer
 }
 
-func (p *MacroParser) declare(decl, data interface{}, scope *ast.Scope, kind ast.ObjKind, idents ...*ast.Ident) {
+func (p *Parser) declare(decl, data interface{}, scope *ast.Scope, kind ast.ObjKind, idents ...*ast.Ident) {
 	for _, ident := range idents {
 		assert(ident.Obj == nil, "identifier already declared or resolved")
 		obj := ast.NewObj(kind, ident.Name)
@@ -137,7 +137,7 @@ func (p *MacroParser) declare(decl, data interface{}, scope *ast.Scope, kind ast
 	}
 }
 
-func (p *MacroParser) shortVarDecl(decl *ast.AssignStmt, list []ast.Expr) {
+func (p *Parser) shortVarDecl(decl *ast.AssignStmt, list []ast.Expr) {
 	// Go spec: A short variable declaration may redeclare variables
 	// provided they were originally declared in the same block with
 	// the same type, and at least one of the non-blank variables is new.
@@ -175,7 +175,7 @@ var unresolved = new(ast.Object)
 // set, x is marked as unresolved and collected in the list of unresolved
 // identifiers.
 //
-func (p *MacroParser) tryResolve(x ast.Expr, collectUnresolved bool) {
+func (p *Parser) tryResolve(x ast.Expr, collectUnresolved bool) {
 	// nothing to do if x is not an identifier or the blank identifier
 	ident, _ := x.(*ast.Ident)
 	if ident == nil {
@@ -202,14 +202,14 @@ func (p *MacroParser) tryResolve(x ast.Expr, collectUnresolved bool) {
 	}
 }
 
-func (p *MacroParser) resolve(x ast.Expr) {
+func (p *Parser) resolve(x ast.Expr) {
 	p.tryResolve(x, true)
 }
 
 // ----------------------------------------------------------------------------
 // Parsing support
 
-func (p *MacroParser) printTrace(a ...interface{}) {
+func (p *Parser) printTrace(a ...interface{}) {
 	const dots = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
 	const n = len(dots)
 	pos := p.file.Position(p.pos)
@@ -224,14 +224,14 @@ func (p *MacroParser) printTrace(a ...interface{}) {
 	fmt.Println(a...)
 }
 
-func trace(p *MacroParser, msg string) *MacroParser {
+func trace(p *Parser, msg string) *Parser {
 	p.printTrace(msg, "(")
 	p.indent++
 	return p
 }
 
 // Usage pattern: defer un(trace(p, "..."))
-func un(p *MacroParser) {
+func un(p *Parser) {
 	p.indent--
 	p.printTrace(")")
 }
@@ -239,7 +239,7 @@ func un(p *MacroParser) {
 var quotePrefix = [...]token.Token{token.RPAREN, token.LPAREN, token.FUNC}
 
 // Advance to the next token.
-func (p *MacroParser) next0() {
+func (p *Parser) next0() {
 	// Because of one-token look-ahead, print the previous token
 	// when tracing as it provides a more readable output. The
 	// very first token (!p.pos.IsValid()) is not initialized
@@ -269,7 +269,7 @@ func (p *MacroParser) next0() {
 }
 
 // Consume a comment and return it and the line on which it ends.
-func (p *MacroParser) consumeComment() (comment *ast.Comment, endline int) {
+func (p *Parser) consumeComment() (comment *ast.Comment, endline int) {
 	// /*-style comments may end on a different line than where they start.
 	// Scan the comment for '\n' chars and adjust endline accordingly.
 	endline = p.file.Line(p.pos)
@@ -288,12 +288,12 @@ func (p *MacroParser) consumeComment() (comment *ast.Comment, endline int) {
 	return
 }
 
-// Consume a group of adjacent comments, add it to the MacroParser's
+// Consume a group of adjacent comments, add it to the Parser's
 // comments list, and return it together with the line at which
 // the last comment in the group ends. A non-comment token or n
 // empty lines terminate a comment group.
 //
-func (p *MacroParser) consumeCommentGroup(n int) (comments *ast.CommentGroup, endline int) {
+func (p *Parser) consumeCommentGroup(n int) (comments *ast.CommentGroup, endline int) {
 	var list []*ast.Comment
 	endline = p.file.Line(p.pos)
 	for p.tok == token.COMMENT && p.file.Line(p.pos) <= endline+n {
@@ -324,7 +324,7 @@ func (p *MacroParser) consumeCommentGroup(n int) (comments *ast.CommentGroup, en
 // Lead and line comments may be considered documentation that is
 // stored in the AST.
 //
-func (p *MacroParser) next() {
+func (p *Parser) next() {
 	p.leadComment = nil
 	p.lineComment = nil
 	prev := p.pos
@@ -363,7 +363,7 @@ func (p *MacroParser) next() {
 // A bailout panic is raised to indicate early termination.
 type Bailout struct{}
 
-func (p *MacroParser) error(pos token.Pos, msg string) {
+func (p *Parser) error(pos token.Pos, msg string) {
 	epos := p.file.Position(pos)
 
 	// If AllErrors is not set, discard errors reported on the same line
@@ -382,7 +382,7 @@ func (p *MacroParser) error(pos token.Pos, msg string) {
 	p.errors.Add(epos, msg)
 }
 
-func (p *MacroParser) errorExpected(pos token.Pos, msg string) {
+func (p *Parser) errorExpected(pos token.Pos, msg string) {
 	msg = "expected " + msg
 	if pos == p.pos {
 		// the error happened at the current position;
@@ -399,7 +399,7 @@ func (p *MacroParser) errorExpected(pos token.Pos, msg string) {
 	p.error(pos, msg)
 }
 
-func (p *MacroParser) expect(tok token.Token) token.Pos {
+func (p *Parser) expect(tok token.Token) token.Pos {
 	pos := p.pos
 	if p.tok != tok {
 		p.errorExpected(pos, "'"+TokenString(tok)+"'")
@@ -411,7 +411,7 @@ func (p *MacroParser) expect(tok token.Token) token.Pos {
 // expectClosing is like expect but provides a better error message
 // for the common case of a missing comma before a newline.
 //
-func (p *MacroParser) expectClosing(tok token.Token, context string) token.Pos {
+func (p *Parser) expectClosing(tok token.Token, context string) token.Pos {
 	if p.tok != tok && p.tok == token.SEMICOLON && p.lit == "\n" {
 		p.error(p.pos, "missing ',' before newline in "+context)
 		p.next()
@@ -419,7 +419,7 @@ func (p *MacroParser) expectClosing(tok token.Token, context string) token.Pos {
 	return p.expect(tok)
 }
 
-func (p *MacroParser) expectSemi() {
+func (p *Parser) expectSemi() {
 	// semicolon is optional before a closing ')' or '}'
 	if p.tok != token.RPAREN && p.tok != token.RBRACE {
 		switch p.tok {
@@ -436,7 +436,7 @@ func (p *MacroParser) expectSemi() {
 	}
 }
 
-func (p *MacroParser) atComma(context string, follow token.Token) bool {
+func (p *Parser) atComma(context string, follow token.Token) bool {
 	if p.tok == token.COMMA {
 		return true
 	}
@@ -453,24 +453,24 @@ func (p *MacroParser) atComma(context string, follow token.Token) bool {
 
 func assert(cond bool, msg string) {
 	if !cond {
-		panic("go/MacroParser internal error: " + msg)
+		panic("go/Parser internal error: " + msg)
 	}
 }
 
 // syncStmt advances to the next statement.
 // Used for synchronization after an error.
 //
-func syncStmt(p *MacroParser) {
+func syncStmt(p *Parser) {
 	for {
 		switch p.tok {
 		case token.BREAK, token.CONST, token.CONTINUE, token.DEFER,
 			token.FALLTHROUGH, token.FOR, token.GO, token.GOTO,
 			token.IF, token.RETURN, token.SELECT, token.SWITCH,
 			token.TYPE, token.VAR:
-			// Return only if MacroParser made some progress since last
+			// Return only if Parser made some progress since last
 			// sync or if it has not reached 10 sync calls without
 			// progress. Otherwise consume at least one token to
-			// avoid an endless MacroParser loop (it is possible that
+			// avoid an endless Parser loop (it is possible that
 			// both parseOperand and parseStmt call syncStmt and
 			// correctly do not advance, thus the need for the
 			// invocation limit p.syncCnt).
@@ -483,7 +483,7 @@ func syncStmt(p *MacroParser) {
 				p.syncCnt = 0
 				return
 			}
-			// Reaching here indicates a MacroParser bug, likely an
+			// Reaching here indicates a Parser bug, likely an
 			// incorrect token list in this function, but it only
 			// leads to skipping of possibly correct code if a
 			// previous error is present, and thus is preferred
@@ -498,7 +498,7 @@ func syncStmt(p *MacroParser) {
 // syncDecl advances to the next declaration.
 // Used for synchronization after an error.
 //
-func syncDecl(p *MacroParser) {
+func syncDecl(p *Parser) {
 	for {
 		switch p.tok {
 		case token.CONST, token.TYPE, token.VAR:
@@ -529,7 +529,7 @@ func syncDecl(p *MacroParser) {
 // may be past the file's EOF position, which would lead to panics if used
 // later on.
 //
-func (p *MacroParser) safePos(pos token.Pos) (res token.Pos) {
+func (p *Parser) safePos(pos token.Pos) (res token.Pos) {
 	defer func() {
 		if recover() != nil {
 			res = token.Pos(p.file.Base() + p.file.Size()) // EOF position
@@ -542,7 +542,7 @@ func (p *MacroParser) safePos(pos token.Pos) (res token.Pos) {
 // ----------------------------------------------------------------------------
 // Identifiers
 
-func (p *MacroParser) parseIdent() *ast.Ident {
+func (p *Parser) parseIdent() *ast.Ident {
 	pos := p.pos
 	name := "_"
 	if p.tok == token.IDENT {
@@ -554,7 +554,7 @@ func (p *MacroParser) parseIdent() *ast.Ident {
 	return &ast.Ident{NamePos: pos, Name: name}
 }
 
-func (p *MacroParser) parseIdentList() (list []*ast.Ident) {
+func (p *Parser) parseIdentList() (list []*ast.Ident) {
 	if p.trace {
 		defer un(trace(p, "IdentList"))
 	}
@@ -572,7 +572,7 @@ func (p *MacroParser) parseIdentList() (list []*ast.Ident) {
 // Common productions
 
 // If lhs is set, result list elements which are identifiers are not resolved.
-func (p *MacroParser) parseExprList(lhs bool) (list []ast.Expr) {
+func (p *Parser) parseExprList(lhs bool) (list []ast.Expr) {
 	if p.trace {
 		defer un(trace(p, "ExpressionList"))
 	}
@@ -586,7 +586,7 @@ func (p *MacroParser) parseExprList(lhs bool) (list []ast.Expr) {
 	return
 }
 
-func (p *MacroParser) parseLhsList() []ast.Expr {
+func (p *Parser) parseLhsList() []ast.Expr {
 	old := p.inRhs
 	p.inRhs = false
 	list := p.parseExprList(true)
@@ -614,7 +614,7 @@ func (p *MacroParser) parseLhsList() []ast.Expr {
 	return list
 }
 
-func (p *MacroParser) parseRhsList() []ast.Expr {
+func (p *Parser) parseRhsList() []ast.Expr {
 	old := p.inRhs
 	p.inRhs = true
 	list := p.parseExprList(false)
@@ -625,7 +625,7 @@ func (p *MacroParser) parseRhsList() []ast.Expr {
 // ----------------------------------------------------------------------------
 // Types
 
-func (p *MacroParser) parseType() ast.Expr {
+func (p *Parser) parseType() ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Type"))
 	}
@@ -643,7 +643,7 @@ func (p *MacroParser) parseType() ast.Expr {
 }
 
 // If the result is an identifier, it is not resolved.
-func (p *MacroParser) parseTypeName() ast.Expr {
+func (p *Parser) parseTypeName() ast.Expr {
 	if p.trace {
 		defer un(trace(p, "TypeName"))
 	}
@@ -662,7 +662,7 @@ func (p *MacroParser) parseTypeName() ast.Expr {
 	return ident
 }
 
-func (p *MacroParser) parseArrayType() ast.Expr {
+func (p *Parser) parseArrayType() ast.Expr {
 	if p.trace {
 		defer un(trace(p, "ArrayType"))
 	}
@@ -684,7 +684,7 @@ func (p *MacroParser) parseArrayType() ast.Expr {
 	return &ast.ArrayType{Lbrack: lbrack, Len: len, Elt: elt}
 }
 
-func (p *MacroParser) makeIdentList(list []ast.Expr) []*ast.Ident {
+func (p *Parser) makeIdentList(list []ast.Expr) []*ast.Ident {
 	idents := make([]*ast.Ident, len(list))
 	for i, x := range list {
 		ident, isIdent := x.(*ast.Ident)
@@ -700,7 +700,7 @@ func (p *MacroParser) makeIdentList(list []ast.Expr) []*ast.Ident {
 	return idents
 }
 
-func (p *MacroParser) parseFieldDecl(scope *ast.Scope) *ast.Field {
+func (p *Parser) parseFieldDecl(scope *ast.Scope) *ast.Field {
 	if p.trace {
 		defer un(trace(p, "FieldDecl"))
 	}
@@ -753,7 +753,7 @@ func (p *MacroParser) parseFieldDecl(scope *ast.Scope) *ast.Field {
 	return field
 }
 
-func (p *MacroParser) parseStructType() *ast.StructType {
+func (p *Parser) parseStructType() *ast.StructType {
 	if p.trace {
 		defer un(trace(p, "StructType"))
 	}
@@ -780,7 +780,7 @@ func (p *MacroParser) parseStructType() *ast.StructType {
 	}
 }
 
-func (p *MacroParser) parsePointerType() *ast.StarExpr {
+func (p *Parser) parsePointerType() *ast.StarExpr {
 	if p.trace {
 		defer un(trace(p, "PointerType"))
 	}
@@ -792,7 +792,7 @@ func (p *MacroParser) parsePointerType() *ast.StarExpr {
 }
 
 // If the result is an identifier, it is not resolved.
-func (p *MacroParser) tryVarType(isParam bool) ast.Expr {
+func (p *Parser) tryVarType(isParam bool) ast.Expr {
 	if isParam && p.tok == token.ELLIPSIS {
 		pos := p.pos
 		p.next()
@@ -809,7 +809,7 @@ func (p *MacroParser) tryVarType(isParam bool) ast.Expr {
 }
 
 // If the result is an identifier, it is not resolved.
-func (p *MacroParser) parseVarType(isParam bool) ast.Expr {
+func (p *Parser) parseVarType(isParam bool) ast.Expr {
 	typ := p.tryVarType(isParam)
 	if typ == nil {
 		pos := p.pos
@@ -820,7 +820,7 @@ func (p *MacroParser) parseVarType(isParam bool) ast.Expr {
 	return typ
 }
 
-func (p *MacroParser) parseParameterList(scope *ast.Scope, ellipsisOk bool) (params []*ast.Field) {
+func (p *Parser) parseParameterList(scope *ast.Scope, ellipsisOk bool) (params []*ast.Field) {
 	if p.trace {
 		defer un(trace(p, "ParameterList"))
 	}
@@ -879,7 +879,7 @@ func (p *MacroParser) parseParameterList(scope *ast.Scope, ellipsisOk bool) (par
 	return
 }
 
-func (p *MacroParser) parseParameters(scope *ast.Scope, ellipsisOk bool) *ast.FieldList {
+func (p *Parser) parseParameters(scope *ast.Scope, ellipsisOk bool) *ast.FieldList {
 	if p.trace {
 		defer un(trace(p, "Parameters"))
 	}
@@ -894,7 +894,7 @@ func (p *MacroParser) parseParameters(scope *ast.Scope, ellipsisOk bool) *ast.Fi
 	return &ast.FieldList{Opening: lparen, List: params, Closing: rparen}
 }
 
-func (p *MacroParser) parseResult(scope *ast.Scope) *ast.FieldList {
+func (p *Parser) parseResult(scope *ast.Scope) *ast.FieldList {
 	if p.trace {
 		defer un(trace(p, "Result"))
 	}
@@ -913,7 +913,7 @@ func (p *MacroParser) parseResult(scope *ast.Scope) *ast.FieldList {
 	return nil
 }
 
-func (p *MacroParser) parseSignature(scope *ast.Scope) (params, results *ast.FieldList) {
+func (p *Parser) parseSignature(scope *ast.Scope) (params, results *ast.FieldList) {
 	if p.trace {
 		defer un(trace(p, "Signature"))
 	}
@@ -924,7 +924,7 @@ func (p *MacroParser) parseSignature(scope *ast.Scope) (params, results *ast.Fie
 	return
 }
 
-func (p *MacroParser) parseFuncType() (*ast.FuncType, *ast.Scope) {
+func (p *Parser) parseFuncType() (*ast.FuncType, *ast.Scope) {
 	if p.trace {
 		defer un(trace(p, "FuncType"))
 	}
@@ -936,7 +936,7 @@ func (p *MacroParser) parseFuncType() (*ast.FuncType, *ast.Scope) {
 	return &ast.FuncType{Func: pos, Params: params, Results: results}, scope
 }
 
-func (p *MacroParser) parseMethodSpec(scope *ast.Scope) *ast.Field {
+func (p *Parser) parseMethodSpec(scope *ast.Scope) *ast.Field {
 	if p.trace {
 		defer un(trace(p, "MethodSpec"))
 	}
@@ -964,7 +964,7 @@ func (p *MacroParser) parseMethodSpec(scope *ast.Scope) *ast.Field {
 	return spec
 }
 
-func (p *MacroParser) parseInterfaceType() *ast.InterfaceType {
+func (p *Parser) parseInterfaceType() *ast.InterfaceType {
 	if p.trace {
 		defer un(trace(p, "InterfaceType"))
 	}
@@ -988,7 +988,7 @@ func (p *MacroParser) parseInterfaceType() *ast.InterfaceType {
 	}
 }
 
-func (p *MacroParser) parseMapType() *ast.MapType {
+func (p *Parser) parseMapType() *ast.MapType {
 	if p.trace {
 		defer un(trace(p, "MapType"))
 	}
@@ -1002,7 +1002,7 @@ func (p *MacroParser) parseMapType() *ast.MapType {
 	return &ast.MapType{Map: pos, Key: key, Value: value}
 }
 
-func (p *MacroParser) parseChanType() *ast.ChanType {
+func (p *Parser) parseChanType() *ast.ChanType {
 	if p.trace {
 		defer un(trace(p, "ChanType"))
 	}
@@ -1028,7 +1028,7 @@ func (p *MacroParser) parseChanType() *ast.ChanType {
 }
 
 // If the result is an identifier, it is not resolved.
-func (p *MacroParser) tryIdentOrType() ast.Expr {
+func (p *Parser) tryIdentOrType() ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		return p.parseTypeName()
@@ -1059,7 +1059,7 @@ func (p *MacroParser) tryIdentOrType() ast.Expr {
 	return nil
 }
 
-func (p *MacroParser) tryType() ast.Expr {
+func (p *Parser) tryType() ast.Expr {
 	typ := p.tryIdentOrType()
 	if typ != nil {
 		p.resolve(typ)
@@ -1070,7 +1070,7 @@ func (p *MacroParser) tryType() ast.Expr {
 // ----------------------------------------------------------------------------
 // Blocks
 
-func (p *MacroParser) parseStmtList() (list []ast.Stmt) {
+func (p *Parser) parseStmtList() (list []ast.Stmt) {
 	if p.trace {
 		defer un(trace(p, "StatementList"))
 	}
@@ -1082,7 +1082,7 @@ func (p *MacroParser) parseStmtList() (list []ast.Stmt) {
 	return
 }
 
-func (p *MacroParser) parseBody(scope *ast.Scope) *ast.BlockStmt {
+func (p *Parser) parseBody(scope *ast.Scope) *ast.BlockStmt {
 	if p.trace {
 		defer un(trace(p, "Body"))
 	}
@@ -1098,7 +1098,7 @@ func (p *MacroParser) parseBody(scope *ast.Scope) *ast.BlockStmt {
 	return &ast.BlockStmt{Lbrace: lbrace, List: list, Rbrace: rbrace}
 }
 
-func (p *MacroParser) parseBlockStmt() *ast.BlockStmt {
+func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 	if p.trace {
 		defer un(trace(p, "BlockStmt"))
 	}
@@ -1115,7 +1115,7 @@ func (p *MacroParser) parseBlockStmt() *ast.BlockStmt {
 // ----------------------------------------------------------------------------
 // Expressions
 
-func (p *MacroParser) parseFuncTypeOrLit() ast.Expr {
+func (p *Parser) parseFuncTypeOrLit() ast.Expr {
 	if p.trace {
 		defer un(trace(p, "FuncTypeOrLit"))
 	}
@@ -1133,32 +1133,11 @@ func (p *MacroParser) parseFuncTypeOrLit() ast.Expr {
 	return &ast.FuncLit{Type: typ, Body: body}
 }
 
-// patch: quote and friends
-func (p *MacroParser) parseQuote() ast.Expr {
-	if p.trace {
-		defer un(trace(p, "Quote"))
-	}
-
-	pos := p.pos
-	tok := p.tok
-	p.next()
-	if p.tok != token.LBRACE {
-		// no braces, return the identifier "quote"
-		return &ast.Ident{NamePos: pos, Name: TokenString(tok)}
-	}
-
-	body := p.parseBlockStmt()
-
-	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
-	fun := &ast.FuncLit{Type: typ, Body: body}
-	return &ast.UnaryExpr{OpPos: pos, Op: tok, X: fun}
-}
-
 // parseOperand may return an expression or a raw type (incl. array
 // types of the form [...]T. Callers must verify the result.
 // If lhs is set and the result is an identifier, it is not resolved.
 //
-func (p *MacroParser) parseOperand(lhs bool) ast.Expr {
+func (p *Parser) parseOperand(lhs bool) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Operand"))
 	}
@@ -1188,6 +1167,8 @@ func (p *MacroParser) parseOperand(lhs bool) ast.Expr {
 	case token.FUNC:
 		return p.parseFuncTypeOrLit()
 
+	// patch: quote and friends
+	// TODO: accept MACRO here and use as local macro? (i.e. Common Lisp macrolet)
 	case QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICE:
 		return p.parseQuote()
 	}
@@ -1206,7 +1187,7 @@ func (p *MacroParser) parseOperand(lhs bool) ast.Expr {
 	return &ast.BadExpr{From: pos, To: p.pos}
 }
 
-func (p *MacroParser) parseSelector(x ast.Expr) ast.Expr {
+func (p *Parser) parseSelector(x ast.Expr) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Selector"))
 	}
@@ -1216,7 +1197,7 @@ func (p *MacroParser) parseSelector(x ast.Expr) ast.Expr {
 	return &ast.SelectorExpr{X: x, Sel: sel}
 }
 
-func (p *MacroParser) parseTypeAssertion(x ast.Expr) ast.Expr {
+func (p *Parser) parseTypeAssertion(x ast.Expr) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "TypeAssertion"))
 	}
@@ -1234,7 +1215,7 @@ func (p *MacroParser) parseTypeAssertion(x ast.Expr) ast.Expr {
 	return &ast.TypeAssertExpr{X: x, Type: typ, Lparen: lparen, Rparen: rparen}
 }
 
-func (p *MacroParser) parseIndexOrSlice(x ast.Expr) ast.Expr {
+func (p *Parser) parseIndexOrSlice(x ast.Expr) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "IndexOrSlice"))
 	}
@@ -1281,7 +1262,7 @@ func (p *MacroParser) parseIndexOrSlice(x ast.Expr) ast.Expr {
 	return &ast.IndexExpr{X: x, Lbrack: lbrack, Index: index[0], Rbrack: rbrack}
 }
 
-func (p *MacroParser) parseCallOrConversion(fun ast.Expr) *ast.CallExpr {
+func (p *Parser) parseCallOrConversion(fun ast.Expr) *ast.CallExpr {
 	if p.trace {
 		defer un(trace(p, "CallOrConversion"))
 	}
@@ -1307,7 +1288,7 @@ func (p *MacroParser) parseCallOrConversion(fun ast.Expr) *ast.CallExpr {
 	return &ast.CallExpr{Fun: fun, Lparen: lparen, Args: list, Ellipsis: ellipsis, Rparen: rparen}
 }
 
-func (p *MacroParser) parseValue(keyOk bool) ast.Expr {
+func (p *Parser) parseValue(keyOk bool) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Element"))
 	}
@@ -1316,9 +1297,9 @@ func (p *MacroParser) parseValue(keyOk bool) ast.Expr {
 		return p.parseLiteralValue(nil)
 	}
 
-	// Because the MacroParser doesn't know the composite literal type, it cannot
+	// Because the Parser doesn't know the composite literal type, it cannot
 	// know if a key that's an identifier is a struct field name or a name
-	// denoting a value. The former is not resolved by the MacroParser or the
+	// denoting a value. The former is not resolved by the Parser or the
 	// resolver.
 	//
 	// Instead, _try_ to resolve such a key if possible. If it resolves,
@@ -1349,7 +1330,7 @@ func (p *MacroParser) parseValue(keyOk bool) ast.Expr {
 	return x
 }
 
-func (p *MacroParser) parseElement() ast.Expr {
+func (p *Parser) parseElement() ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Element"))
 	}
@@ -1364,7 +1345,7 @@ func (p *MacroParser) parseElement() ast.Expr {
 	return x
 }
 
-func (p *MacroParser) parseElementList() (list []ast.Expr) {
+func (p *Parser) parseElementList() (list []ast.Expr) {
 	if p.trace {
 		defer un(trace(p, "ElementList"))
 	}
@@ -1380,7 +1361,7 @@ func (p *MacroParser) parseElementList() (list []ast.Expr) {
 	return
 }
 
-func (p *MacroParser) parseLiteralValue(typ ast.Expr) ast.Expr {
+func (p *Parser) parseLiteralValue(typ ast.Expr) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "LiteralValue"))
 	}
@@ -1397,7 +1378,7 @@ func (p *MacroParser) parseLiteralValue(typ ast.Expr) ast.Expr {
 }
 
 // checkExpr checks that x is an expression (and not a type).
-func (p *MacroParser) checkExpr(x ast.Expr) ast.Expr {
+func (p *Parser) checkExpr(x ast.Expr) ast.Expr {
 	switch unparen(x).(type) {
 	case *ast.BadExpr:
 	case *ast.Ident:
@@ -1477,7 +1458,7 @@ func unparen(x ast.Expr) ast.Expr {
 // checkExprOrType checks that x is an expression or a type
 // (and not a raw type such as [...]T).
 //
-func (p *MacroParser) checkExprOrType(x ast.Expr) ast.Expr {
+func (p *Parser) checkExprOrType(x ast.Expr) ast.Expr {
 	switch t := unparen(x).(type) {
 	case *ast.ParenExpr:
 		panic("unreachable")
@@ -1494,7 +1475,7 @@ func (p *MacroParser) checkExprOrType(x ast.Expr) ast.Expr {
 }
 
 // If lhs is set and the result is an identifier, it is not resolved.
-func (p *MacroParser) parsePrimaryExpr(lhs bool) ast.Expr {
+func (p *Parser) parsePrimaryExpr(lhs bool) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "PrimaryExpr"))
 	}
@@ -1549,7 +1530,7 @@ L:
 }
 
 // If lhs is set and the result is an identifier, it is not resolved.
-func (p *MacroParser) parseUnaryExpr(lhs bool) ast.Expr {
+func (p *Parser) parseUnaryExpr(lhs bool) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "UnaryExpr"))
 	}
@@ -1618,7 +1599,7 @@ func (p *MacroParser) parseUnaryExpr(lhs bool) ast.Expr {
 	return p.parsePrimaryExpr(lhs)
 }
 
-func (p *MacroParser) tokPrec() (token.Token, int) {
+func (p *Parser) tokPrec() (token.Token, int) {
 	tok := p.tok
 	if p.inRhs && tok == token.ASSIGN {
 		tok = token.EQL
@@ -1627,7 +1608,7 @@ func (p *MacroParser) tokPrec() (token.Token, int) {
 }
 
 // If lhs is set and the result is an identifier, it is not resolved.
-func (p *MacroParser) parseBinaryExpr(lhs bool, prec1 int) ast.Expr {
+func (p *Parser) parseBinaryExpr(lhs bool, prec1 int) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "BinaryExpr"))
 	}
@@ -1652,7 +1633,7 @@ func (p *MacroParser) parseBinaryExpr(lhs bool, prec1 int) ast.Expr {
 // The result may be a type or even a raw type ([...]int). Callers must
 // check the result (using checkExpr or checkExprOrType), depending on
 // context.
-func (p *MacroParser) parseExpr(lhs bool) ast.Expr {
+func (p *Parser) parseExpr(lhs bool) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Expression"))
 	}
@@ -1660,7 +1641,7 @@ func (p *MacroParser) parseExpr(lhs bool) ast.Expr {
 	return p.parseBinaryExpr(lhs, token.LowestPrec+1)
 }
 
-func (p *MacroParser) parseRhs() ast.Expr {
+func (p *Parser) parseRhs() ast.Expr {
 	old := p.inRhs
 	p.inRhs = true
 	x := p.checkExpr(p.parseExpr(false))
@@ -1668,7 +1649,7 @@ func (p *MacroParser) parseRhs() ast.Expr {
 	return x
 }
 
-func (p *MacroParser) parseRhsOrType() ast.Expr {
+func (p *Parser) parseRhsOrType() ast.Expr {
 	old := p.inRhs
 	p.inRhs = true
 	x := p.checkExprOrType(p.parseExpr(false))
@@ -1690,7 +1671,7 @@ const (
 // of a range clause (with mode == rangeOk). The returned statement is an
 // assignment with a right-hand side that is a single unary expression of
 // the form "range x". No guarantees are given for the left-hand side.
-func (p *MacroParser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
+func (p *Parser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
 	if p.trace {
 		defer un(trace(p, "SimpleStmt"))
 	}
@@ -1768,7 +1749,7 @@ func (p *MacroParser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
 	return &ast.ExprStmt{X: x[0]}, false
 }
 
-func (p *MacroParser) parseCallExpr(callType string) *ast.CallExpr {
+func (p *Parser) parseCallExpr(callType string) *ast.CallExpr {
 	x := p.parseRhsOrType() // could be a conversion: (some type)(x)
 	if call, isCall := x.(*ast.CallExpr); isCall {
 		return call
@@ -1780,7 +1761,7 @@ func (p *MacroParser) parseCallExpr(callType string) *ast.CallExpr {
 	return nil
 }
 
-func (p *MacroParser) parseGoStmt() ast.Stmt {
+func (p *Parser) parseGoStmt() ast.Stmt {
 	if p.trace {
 		defer un(trace(p, "GoStmt"))
 	}
@@ -1795,7 +1776,7 @@ func (p *MacroParser) parseGoStmt() ast.Stmt {
 	return &ast.GoStmt{Go: pos, Call: call}
 }
 
-func (p *MacroParser) parseDeferStmt() ast.Stmt {
+func (p *Parser) parseDeferStmt() ast.Stmt {
 	if p.trace {
 		defer un(trace(p, "DeferStmt"))
 	}
@@ -1810,7 +1791,7 @@ func (p *MacroParser) parseDeferStmt() ast.Stmt {
 	return &ast.DeferStmt{Defer: pos, Call: call}
 }
 
-func (p *MacroParser) parseReturnStmt() *ast.ReturnStmt {
+func (p *Parser) parseReturnStmt() *ast.ReturnStmt {
 	if p.trace {
 		defer un(trace(p, "ReturnStmt"))
 	}
@@ -1826,7 +1807,7 @@ func (p *MacroParser) parseReturnStmt() *ast.ReturnStmt {
 	return &ast.ReturnStmt{Return: pos, Results: x}
 }
 
-func (p *MacroParser) parseBranchStmt(tok token.Token) *ast.BranchStmt {
+func (p *Parser) parseBranchStmt(tok token.Token) *ast.BranchStmt {
 	if p.trace {
 		defer un(trace(p, "BranchStmt"))
 	}
@@ -1844,7 +1825,7 @@ func (p *MacroParser) parseBranchStmt(tok token.Token) *ast.BranchStmt {
 	return &ast.BranchStmt{TokPos: pos, Tok: tok, Label: label}
 }
 
-func (p *MacroParser) makeExpr(s ast.Stmt, kind string) ast.Expr {
+func (p *Parser) makeExpr(s ast.Stmt, kind string) ast.Expr {
 	if s == nil {
 		return nil
 	}
@@ -1855,7 +1836,7 @@ func (p *MacroParser) makeExpr(s ast.Stmt, kind string) ast.Expr {
 	return &ast.BadExpr{From: s.Pos(), To: p.safePos(s.End())}
 }
 
-func (p *MacroParser) parseIfStmt() *ast.IfStmt {
+func (p *Parser) parseIfStmt() *ast.IfStmt {
 	if p.trace {
 		defer un(trace(p, "IfStmt"))
 	}
@@ -1906,7 +1887,7 @@ func (p *MacroParser) parseIfStmt() *ast.IfStmt {
 	return &ast.IfStmt{If: pos, Init: s, Cond: x, Body: body, Else: else_}
 }
 
-func (p *MacroParser) parseTypeList() (list []ast.Expr) {
+func (p *Parser) parseTypeList() (list []ast.Expr) {
 	if p.trace {
 		defer un(trace(p, "TypeList"))
 	}
@@ -1920,7 +1901,7 @@ func (p *MacroParser) parseTypeList() (list []ast.Expr) {
 	return
 }
 
-func (p *MacroParser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
+func (p *Parser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
 	if p.trace {
 		defer un(trace(p, "CaseClause"))
 	}
@@ -1951,7 +1932,7 @@ func isTypeSwitchAssert(x ast.Expr) bool {
 	return ok && a.Type == nil
 }
 
-func (p *MacroParser) isTypeSwitchGuard(s ast.Stmt) bool {
+func (p *Parser) isTypeSwitchGuard(s ast.Stmt) bool {
 	switch t := s.(type) {
 	case *ast.ExprStmt:
 		// x.(type)
@@ -1972,7 +1953,7 @@ func (p *MacroParser) isTypeSwitchGuard(s ast.Stmt) bool {
 	return false
 }
 
-func (p *MacroParser) parseSwitchStmt() ast.Stmt {
+func (p *Parser) parseSwitchStmt() ast.Stmt {
 	if p.trace {
 		defer un(trace(p, "SwitchStmt"))
 	}
@@ -2030,7 +2011,7 @@ func (p *MacroParser) parseSwitchStmt() ast.Stmt {
 	return &ast.SwitchStmt{Switch: pos, Init: s1, Tag: p.makeExpr(s2, "switch expression"), Body: body}
 }
 
-func (p *MacroParser) parseCommClause() *ast.CommClause {
+func (p *Parser) parseCommClause() *ast.CommClause {
 	if p.trace {
 		defer un(trace(p, "CommClause"))
 	}
@@ -2088,7 +2069,7 @@ func (p *MacroParser) parseCommClause() *ast.CommClause {
 	return &ast.CommClause{Case: pos, Comm: comm, Colon: colon, Body: body}
 }
 
-func (p *MacroParser) parseSelectStmt() *ast.SelectStmt {
+func (p *Parser) parseSelectStmt() *ast.SelectStmt {
 	if p.trace {
 		defer un(trace(p, "SelectStmt"))
 	}
@@ -2106,7 +2087,7 @@ func (p *MacroParser) parseSelectStmt() *ast.SelectStmt {
 	return &ast.SelectStmt{Select: pos, Body: body}
 }
 
-func (p *MacroParser) parseForStmt() ast.Stmt {
+func (p *Parser) parseForStmt() ast.Stmt {
 	if p.trace {
 		defer un(trace(p, "ForStmt"))
 	}
@@ -2189,7 +2170,7 @@ func (p *MacroParser) parseForStmt() ast.Stmt {
 	}
 }
 
-func (p *MacroParser) parseStmt() (s ast.Stmt) {
+func (p *Parser) parseStmt() (s ast.Stmt) {
 	if p.trace {
 		defer un(trace(p, "Statement"))
 	}
@@ -2202,7 +2183,15 @@ func (p *MacroParser) parseStmt() (s ast.Stmt) {
 		token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING, token.FUNC, token.LPAREN, // operands
 		token.LBRACK, token.STRUCT, token.MAP, token.CHAN, token.INTERFACE, // composite types
 		token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT, // unary operators
-		MACRO, QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICE: // patch: macro
+		// patch: macro, quote and friends
+		MACRO, QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICE:
+
+		if p.tok == token.IDENT {
+			s = p.tryParseMacroStmt()
+			if s != nil {
+				break
+			}
+		}
 		s, _ = p.parseSimpleStmt(labelOk)
 		// because of the required look-ahead, labeled statements are
 		// parsed by parseSimpleStmt - don't expect a semicolon after
@@ -2265,7 +2254,7 @@ func isValidImport(lit string) bool {
 	return s != ""
 }
 
-func (p *MacroParser) parseImportSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.Spec {
+func (p *Parser) parseImportSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.Spec {
 	if p.trace {
 		defer un(trace(p, "ImportSpec"))
 	}
@@ -2304,7 +2293,7 @@ func (p *MacroParser) parseImportSpec(doc *ast.CommentGroup, _ token.Token, _ in
 	return spec
 }
 
-func (p *MacroParser) parseValueSpec(doc *ast.CommentGroup, keyword token.Token, iota int) ast.Spec {
+func (p *Parser) parseValueSpec(doc *ast.CommentGroup, keyword token.Token, iota int) ast.Spec {
 	if p.trace {
 		defer un(trace(p, keyword.String()+"Spec"))
 	}
@@ -2351,7 +2340,7 @@ func (p *MacroParser) parseValueSpec(doc *ast.CommentGroup, keyword token.Token,
 	return spec
 }
 
-func (p *MacroParser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.Spec {
+func (p *Parser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.Spec {
 	if p.trace {
 		defer un(trace(p, "TypeSpec"))
 	}
@@ -2372,7 +2361,7 @@ func (p *MacroParser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int)
 	return spec
 }
 
-func (p *MacroParser) parseGenDecl(keyword token.Token, f parseSpecFunction) *ast.GenDecl {
+func (p *Parser) parseGenDecl(keyword token.Token, f parseSpecFunction) *ast.GenDecl {
 	if p.trace {
 		defer un(trace(p, "GenDecl("+keyword.String()+")"))
 	}
@@ -2403,7 +2392,7 @@ func (p *MacroParser) parseGenDecl(keyword token.Token, f parseSpecFunction) *as
 	}
 }
 
-func (p *MacroParser) parseFuncDecl() *ast.FuncDecl {
+func (p *Parser) parseFuncDecl() *ast.FuncDecl {
 	if p.trace {
 		defer un(trace(p, "FunctionDecl"))
 	}
@@ -2420,7 +2409,8 @@ func (p *MacroParser) parseFuncDecl() *ast.FuncDecl {
 	return decl
 }
 
-func (p *MacroParser) parseMacroDecl() *ast.FuncDecl {
+// patch: parse a macro declaration
+func (p *Parser) parseMacroDecl() *ast.FuncDecl {
 	if p.trace {
 		defer un(trace(p, "MacroDecl"))
 	}
@@ -2430,7 +2420,7 @@ func (p *MacroParser) parseMacroDecl() *ast.FuncDecl {
 	return decl
 }
 
-func (p *MacroParser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
+func (p *Parser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 
 	doc := p.leadComment
 	pos := p.expect(tok)
@@ -2478,7 +2468,7 @@ func (p *MacroParser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 	return decl
 }
 
-func (p *MacroParser) parseDecl(sync func(*MacroParser)) ast.Decl {
+func (p *Parser) parseDecl(sync func(*Parser)) ast.Decl {
 	if p.trace {
 		defer un(trace(p, "Declaration"))
 	}
@@ -2510,7 +2500,7 @@ func (p *MacroParser) parseDecl(sync func(*MacroParser)) ast.Decl {
 // ----------------------------------------------------------------------------
 // Source files
 
-func (p *MacroParser) parseFile() *ast.File {
+func (p *Parser) parseFile() *ast.File {
 	if p.trace {
 		defer un(trace(p, "File"))
 	}

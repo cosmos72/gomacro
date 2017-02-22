@@ -21,7 +21,7 @@ import (
 	"go/token"
 )
 
-func (p *MacroParser) parseAny() ast.Node {
+func (p *Parser) parseAny() ast.Node {
 	var node ast.Node
 
 	if p.tok == token.COMMENT {
@@ -43,4 +43,104 @@ func (p *MacroParser) parseAny() ast.Node {
 		}
 	}
 	return node
+}
+
+// patch: quote and friends
+func (p *Parser) parseQuote() ast.Expr {
+	if p.trace {
+		defer un(trace(p, "Quote"))
+	}
+
+	tok := p.tok
+	pos := p.pos
+	name := p.lit
+	p.next()
+	if p.tok != token.LBRACE {
+		// no braces, return the identifier itself
+		return &ast.Ident{NamePos: pos, Name: name}
+	}
+
+	body := p.parseBlockStmt()
+
+	// due to go/ast strictly typed model, there is only one mechanism to insert
+	// a statement inside an expression: use a closure. so we return a unary expression:
+	// QUOTE (func() { /*block*/ })
+	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
+	fun := &ast.FuncLit{Type: typ, Body: body}
+	return &ast.UnaryExpr{OpPos: pos, Op: tok, X: fun}
+}
+
+func isMacroDecl(decl *ast.FuncDecl) bool {
+	return decl != nil && decl.Recv != nil && decl.Recv.List != nil && len(decl.Recv.List) == 0
+}
+
+func funcDeclNumParams(decl *ast.FuncDecl) int {
+	ret := 0
+	if params := decl.Type.Params; params != nil {
+		ret = params.NumFields()
+	}
+	return ret
+}
+
+func (p *Parser) tryParseMacroStmt() ast.Stmt {
+	if p.trace {
+		defer un(trace(p, "tryMacroStmt"))
+	}
+	if expr := p.tryParseMacroExpr(); expr != nil {
+		return &ast.ExprStmt{X: expr}
+	}
+	return nil
+}
+
+// if current token is an identifier currently defined as a macro,
+// retrieve the number of arguments it expects and parse it accordingly
+func (p *Parser) tryParseMacroExpr() ast.Expr {
+	if p.trace {
+		defer un(trace(p, "tryMacroExpr"))
+	}
+	pos := p.pos
+	if p.tok != token.IDENT {
+		p.errorExpected(pos, "'"+TokenString(token.IDENT)+"'")
+		return nil
+	}
+	name := p.lit
+	ident := &ast.Ident{NamePos: pos, Name: name}
+
+	p.tryResolve(ident, false)
+	if ident.Obj == nil || ident.Obj.Decl == nil {
+		return nil
+	}
+	switch decl := ident.Obj.Decl.(type) {
+	case *ast.FuncDecl:
+		if isMacroDecl(decl) {
+			n := funcDeclNumParams(decl)
+			return p.parseMacro(ident, n)
+		}
+	}
+	return nil
+}
+
+func (p *Parser) parseMacro(ident *ast.Ident, numParams int) ast.Expr {
+	if p.trace {
+		defer un(trace(p, "Macro"))
+	}
+	p.expect(token.IDENT)
+
+	list := make([]ast.Stmt, numParams)
+	lbrace := p.pos
+	for i := 0; i < numParams; i++ {
+		list[i] = p.parseStmt() // rely on parseStmt() error and EOF detection
+	}
+	rbrace := p.pos
+
+	// TODO we could execute the macro here, or wait for the interpreter to convert the AST to a friendlier version
+
+	body := &ast.BlockStmt{Lbrace: lbrace, List: list, Rbrace: rbrace}
+
+	// due to go/ast strictly typed model, there is only one mechanism to insert
+	// a statement inside an expression: use a closure. so we return a binary expression:
+	// ident MACRO (func() { /*block*/ })
+	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
+	fun := &ast.FuncLit{Type: typ, Body: body}
+	return &ast.BinaryExpr{X: ident, OpPos: ident.Pos(), Op: MACRO, Y: fun}
 }

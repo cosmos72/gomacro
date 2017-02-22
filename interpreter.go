@@ -57,7 +57,7 @@ func NewInterpreter() *Interpreter {
 	return &p
 }
 
-func (p *Interpreter) Parse(src interface{}) ast.Node {
+func (p *Interpreter) Parse(src interface{}) []ast.Node {
 	bytes := p.ReadFromSource(src)
 	node, err := p.parseOrError(bytes)
 	if err != nil {
@@ -67,7 +67,12 @@ func (p *Interpreter) Parse(src interface{}) ast.Node {
 	return node
 }
 
-func (p *Interpreter) parseOrError_OrigVersion(src []byte) (ast.Node, error) {
+func (p *Interpreter) parseOrError_OrigVersion(src []byte) ([]ast.Node, error) {
+	node, err := p.parseOrError1_OrigVersion(src)
+	return []ast.Node{node}, err
+}
+
+func (p *Interpreter) parseOrError1_OrigVersion(src []byte) (ast.Node, error) {
 	pos := findFirstToken(src)
 	src = src[pos:]
 	expr, err := parser.ParseExprFrom(p.Fileset, p.Filename, src, 0)
@@ -96,7 +101,7 @@ func (p *Interpreter) parseOrError_OrigVersion(src []byte) (ast.Node, error) {
 	return parser.ParseFile(p.Fileset, p.Filename, src, p.Parsermode)
 }
 
-func (ir *Interpreter) parseOrError(src []byte) (node ast.Node, err error) {
+func (ir *Interpreter) parseOrError(src []byte) (node []ast.Node, err error) {
 
 	return mp.Parse(ir.Fileset, ir.Filename, src, mp.Mode(ir.Parsermode))
 }

@@ -107,7 +107,7 @@ func (env *Env) addBuiltins() {
 	// binds["new"] = r.ValueOf(callNew) // should be handled specially, its argument is a type
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
-	binds["Parse"] = r.ValueOf(func(src interface{}) ast.Node {
+	binds["Parse"] = r.ValueOf(func(src interface{}) []ast.Node {
 		return env.Parse(src)
 	})
 	binds["println"] = r.ValueOf(func(args ...interface{}) {
@@ -126,7 +126,11 @@ func (env *Env) addBuiltins() {
 func (env *Env) addInterpretedBuiltins() {
 	if false {
 		line := "func not(flag bool) bool { if flag { return false } else { return true } }"
-		ast := env.Parse(line)
-		env.Eval(ast)
+		env.EvalList(env.Parse(line))
+	}
+	if false {
+		// Factorial(1000000): eval() elapsed time: 1.233714899 s
+		line := "func Factorial(n int) int { t := 1; for i := 2; i <= n; i=i+1 { t = t * i }; t }"
+		env.EvalList(env.Parse(line))
 	}
 }

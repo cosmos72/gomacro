@@ -29,6 +29,15 @@ import (
 	r "reflect"
 )
 
+func (env *Env) EvalList(nodes []ast.Node) (r.Value, []r.Value) {
+	var ret r.Value
+	var rets []r.Value
+	for _, node := range nodes {
+		ret, rets = env.Eval(node)
+	}
+	return ret, rets
+}
+
 func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case ast.Expr:

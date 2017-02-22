@@ -66,8 +66,8 @@ func TokenIsMacroKeyword(tok token.Token) bool {
 	return ok
 }
 
-func Parse(fileset *token.FileSet, filename string, src []byte, mode Mode) (node ast.Node, err error) {
-	var p MacroParser
+func Parse(fileset *token.FileSet, filename string, src []byte, mode Mode) (node []ast.Node, err error) {
+	var p Parser
 	defer func() {
 		if e := recover(); e != nil {
 			// resume same panic if it's not a bailout
@@ -87,7 +87,10 @@ func Parse(fileset *token.FileSet, filename string, src []byte, mode Mode) (node
 	// in case of an erroneous x.
 	p.openScope()
 	p.pkgScope = p.topScope
-	node = p.parseAny()
+	list := make([]ast.Node, 0)
+	for p.tok != token.EOF {
+		list = append(list, p.parseAny())
+	}
 	p.closeScope()
 	assert(p.topScope == nil, "unbalanced scopes")
 
@@ -95,5 +98,5 @@ func Parse(fileset *token.FileSet, filename string, src []byte, mode Mode) (node
 		p.errors.Sort()
 		err = p.errors.Err()
 	}
-	return node, err
+	return list, err
 }
