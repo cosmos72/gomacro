@@ -70,8 +70,8 @@ func (env *Env) evalStatement(node *ast.Stmt) (r.Value, []r.Value) {
 		*ast.GoStmt, *ast.IncDecStmt, *ast.LabeledStmt, *ast.RangeStmt,
 		*ast.SelectStmt, *ast.SendStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
 		// TODO
-		return env.Errorf("unimplemented statement: %#v", node)
+		return env.Errorf("unimplemented statement: %v", node)
 	default:
-		return env.Errorf("unimplemented statement: %#v", node)
+		return env.Errorf("unimplemented statement: %v", node)
 	}
 }

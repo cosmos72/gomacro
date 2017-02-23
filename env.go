@@ -57,12 +57,12 @@ func NewEnv(outer *Env) *Env {
 	return &env
 }
 
-func (env *Env) Repl() {
+func (env *Env) ReplStdin() {
 	in := bufio.NewReader(os.Stdin)
-	env.Repl1(in)
+	env.Repl(in)
 }
 
-func (env *Env) Repl1(in *bufio.Reader) {
+func (env *Env) Repl(in *bufio.Reader) {
 	fmt.Fprint(env.Stdout, "// Welcome to gomacro. Type :help for help\n")
 
 	for env.ReadParseEvalPrint(in) {

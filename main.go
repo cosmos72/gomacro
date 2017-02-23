@@ -25,12 +25,16 @@
 package main
 
 import (
+	"fmt"
 	"go/parser"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
+	// factorialBenchmark(1000000000)
+
 	env := NewEnv(nil)
 	env.ParserMode = parser.Trace & 0
 	env.Options = OptShowEvalDuration & 0
@@ -42,6 +46,24 @@ func main() {
 		env.ParseEvalPrint(str)
 	} else {
 		// testScanner(env)
-		env.Repl()
+		env.ReplStdin()
 	}
 }
+
+func factorial(n int) int {
+	t := 1
+	for i := 2; i <= n; i = i + 1 {
+		t = t * i
+	}
+	return t
+}
+
+func factorialBenchmark(n int) {
+	t1 := time.Now()
+	result := factorial(n)
+	delta := time.Now().Sub(t1)
+	fmt.Printf("factorial(%d) = %d, elapsed time: %g s\n", n, result, float64(delta)/float64(time.Second))
+}
+
+// output: factorial(1000000000) = 0, elapsed time: 0.771520347 s
+// the interpreter is 1600 times slower than compiled code...
