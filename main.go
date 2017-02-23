@@ -32,10 +32,11 @@ import (
 
 func main() {
 	env := NewEnv(nil)
-	env.Parsermode = parser.Trace // & 0
+	env.ParserMode = parser.Trace & 0
+	env.Options = OptShowEvalDuration & 0
 
 	args := os.Args
-	// args = []string{"gomacro", "macro foo() { }"}
+	// args = []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { b }\nMacroExpand1(quote{foo x; y; z})"}
 	if len(args) > 1 {
 		str := strings.Join(args[1:], " ")
 		env.ParseEvalPrint(str)

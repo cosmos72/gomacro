@@ -85,7 +85,7 @@ func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
 func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 	if node.Init != nil {
 		env = NewEnv(env)
-		_, _ = env.evalStatement(node.Init)
+		_, _ = env.evalStatement(&node.Init)
 	}
 	cond, _ := env.Eval(node.Cond)
 	if cond.Kind() != r.Bool {
@@ -95,7 +95,7 @@ func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 	if cond.Bool() {
 		return env.evalBlock(node.Body)
 	} else if node.Else != nil {
-		return env.evalStatement(node.Else)
+		return env.evalStatement(&node.Else)
 	} else {
 		return Nil, nil
 	}
@@ -106,11 +106,11 @@ func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 
 	if node.Init != nil {
 		env = NewEnv(env)
-		env.evalStatement(node.Init)
+		env.evalStatement(&node.Init)
 	}
 	for {
 		if node.Cond != nil {
-			cond, _ := env.evalExpr(node.Cond)
+			cond := env.evalExpr1(&node.Cond)
 			if cond.Kind() != r.Bool {
 				cf := cond.Interface()
 				return env.Errorf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
@@ -123,7 +123,7 @@ func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 			break
 		}
 		if node.Post != nil {
-			env.evalStatement(node.Post)
+			env.evalStatement(&node.Post)
 		}
 	}
 	return None, nil

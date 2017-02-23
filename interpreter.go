@@ -40,26 +40,29 @@ type Interpreter struct {
 	Packagename string
 	Filename    string
 	Fileset     *token.FileSet
-	Parsermode  parser.Mode
+	Options     Options
+	ParserMode  parser.Mode
+	ParserScope *ast.Scope
+	Parser      mp.Parser
 	Stdout      io.Writer
 	Stderr      io.Writer
 }
 
 func NewInterpreter() *Interpreter {
-	p := Interpreter{}
-	p.Packagename = "main"
-	p.Filename = "main.go"
-	p.Fileset = token.NewFileSet()
+	ir := Interpreter{}
+	ir.Packagename = "main"
+	ir.Filename = "main.go"
+	ir.Fileset = token.NewFileSet()
 	// using both os.Stdout and os.Stderr can interleave impredictably
 	// normal output and diagnostic messages - ugly in interactive use
-	p.Stdout = os.Stdout
-	p.Stderr = os.Stdout
-	return &p
+	ir.Stdout = os.Stdout
+	ir.Stderr = os.Stdout
+	return &ir
 }
 
-func (p *Interpreter) Parse(src interface{}) []ast.Node {
-	bytes := p.ReadFromSource(src)
-	node, err := p.parseOrError(bytes)
+func (ir *Interpreter) ParseN(src interface{}) []ast.Node {
+	bytes := ir.ReadFromSource(src)
+	node, err := ir.parseOrError(bytes)
 	if err != nil {
 		Errore(err)
 		return nil
@@ -67,20 +70,32 @@ func (p *Interpreter) Parse(src interface{}) []ast.Node {
 	return node
 }
 
-func (p *Interpreter) parseOrError_OrigVersion(src []byte) ([]ast.Node, error) {
-	node, err := p.parseOrError1_OrigVersion(src)
+func (ir *Interpreter) parseOrError(src []byte) (node []ast.Node, err error) {
+	ir.ParserScope = ir.Parser.Init(ir.Fileset, ir.Filename, src, mp.Mode(ir.ParserMode), ir.ParserScope)
+
+	return ir.Parser.Parse()
+}
+
+//
+//
+// no longer used:
+//
+//
+
+func (ir *Interpreter) parseOrError_OrigVersion(src []byte) ([]ast.Node, error) {
+	node, err := ir.parseOrError1_OrigVersion(src)
 	return []ast.Node{node}, err
 }
 
-func (p *Interpreter) parseOrError1_OrigVersion(src []byte) (ast.Node, error) {
+func (ir *Interpreter) parseOrError1_OrigVersion(src []byte) (ast.Node, error) {
 	pos := findFirstToken(src)
 	src = src[pos:]
-	expr, err := parser.ParseExprFrom(p.Fileset, p.Filename, src, 0)
+	expr, err := parser.ParseExprFrom(ir.Fileset, ir.Filename, src, 0)
 	if err == nil {
-		if p.Parsermode == 0 {
+		if ir.ParserMode == 0 {
 			return expr, nil
 		}
-		return parser.ParseExprFrom(p.Fileset, p.Filename, src, p.Parsermode)
+		return parser.ParseExprFrom(ir.Fileset, ir.Filename, src, ir.ParserMode)
 	}
 	firstIdent := string(extractFirstIdentifier(src))
 	switch firstIdent {
@@ -88,20 +103,15 @@ func (p *Interpreter) parseOrError1_OrigVersion(src []byte) (ast.Node, error) {
 		// nothing to do
 	case "const", "func", "import", "type", "var":
 		var buf bytes.Buffer
-		fmt.Fprintf(&buf, "package %s; ", p.Packagename)
+		fmt.Fprintf(&buf, "package %s; ", ir.Packagename)
 		buf.Write(src)
 		src = buf.Bytes()
 	default:
 		var buf bytes.Buffer
-		fmt.Fprintf(&buf, "package %s; func %s() { ", p.Packagename, temporaryFunctionName)
+		fmt.Fprintf(&buf, "package %s; func %s() { ", ir.Packagename, temporaryFunctionName)
 		buf.Write(src)
 		buf.WriteString(" }")
 		src = buf.Bytes()
 	}
-	return parser.ParseFile(p.Fileset, p.Filename, src, p.Parsermode)
-}
-
-func (ir *Interpreter) parseOrError(src []byte) (node []ast.Node, err error) {
-
-	return mp.Parse(ir.Fileset, ir.Filename, src, mp.Mode(ir.Parsermode))
+	return parser.ParseFile(ir.Fileset, ir.Filename, src, ir.ParserMode)
 }

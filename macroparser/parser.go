@@ -70,8 +70,11 @@ type Parser struct {
 	targetStack [][]*ast.Ident // stack of unresolved labels
 }
 
-func (p *Parser) init(fset *token.FileSet, filename string, src []byte, mode Mode) {
+func (p *Parser) Init(fset *token.FileSet, filename string, src []byte, mode Mode, scope *ast.Scope) *ast.Scope {
+	// Explicitly initialize all fields since a Parser may be reused.
 	p.file = fset.AddFile(filename, -1, len(src))
+	p.errors = nil
+
 	var m scanner.Mode
 	if mode&ParseComments != 0 {
 		m = scanner.ScanComments
@@ -81,8 +84,37 @@ func (p *Parser) init(fset *token.FileSet, filename string, src []byte, mode Mod
 
 	p.mode = mode
 	p.trace = mode&Trace != 0 // for convenience (p.trace is used frequently)
+	p.indent = 0
+
+	p.comments = nil
+	p.leadComment = nil
+	p.lineComment = nil
+
+	p.pos = token.NoPos
+	p.tok = token.ILLEGAL
+	p.lit = ""
+
+	p.syncPos = token.NoPos
+	p.syncCnt = 0
+
+	p.exprLev = 0
+	p.inRhs = false
+
+	p.topScope = scope
+	if scope == nil {
+		p.openScope()
+	}
+	p.pkgScope = p.topScope
+
+	p.unresolved = nil
+	p.imports = nil
+
+	p.labelScope = nil
+	p.targetStack = nil
 
 	p.next()
+
+	return p.topScope
 }
 
 // ----------------------------------------------------------------------------
@@ -1168,7 +1200,7 @@ func (p *Parser) parseOperand(lhs bool) ast.Expr {
 		return p.parseFuncTypeOrLit()
 
 	// patch: quote and friends
-	// TODO: accept MACRO here and use as local macro? (i.e. Common Lisp macrolet)
+	// TODO: accept MACRO here and interpret as local macro definition? (i.e. Common Lisp macrolet)
 	case QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICE:
 		return p.parseQuote()
 	}

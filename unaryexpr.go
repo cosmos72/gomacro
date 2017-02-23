@@ -33,13 +33,20 @@ import (
 )
 
 func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, []r.Value) {
-	return env.Errorf("unsupported unary expression %s on %T: %s %#v", op, xf, op, xf)
+	opstr := mp.TokenString(op)
+	return env.Errorf("unsupported unary expression %s on %T: %s %#v", opstr, xf, opstr, xf)
 }
 
 func (env *Env) evalUnaryExpr(expr *ast.UnaryExpr) (r.Value, []r.Value) {
 	switch op := expr.Op; op {
+	case mp.MACRO:
+		// result of macroexpansion: a statement wrapped in a closure
+		return env.evalBlock(expr.X.(*ast.FuncLit).Body)
+
 	case mp.QUOTE, mp.QUASIQUOTE, mp.UNQUOTE, mp.UNQUOTE_SPLICE:
+		// result of quote and friends: a statement wrapped in a closure
 		return env.evalQuote(op, expr.X.(*ast.FuncLit).Body)
+
 	default:
 		break
 	}

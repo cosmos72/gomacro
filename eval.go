@@ -41,11 +41,13 @@ func (env *Env) EvalList(nodes []ast.Node) (r.Value, []r.Value) {
 func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case ast.Expr:
-		return env.evalExpr(node)
+		temp := node
+		return env.evalExpr(&temp)
 	case ast.Decl:
 		return env.evalDecl(node)
 	case ast.Stmt:
-		return env.evalStatement(node)
+		temp := node
+		return env.evalStatement(&temp)
 	case *ast.File:
 		return env.evalFile(node)
 	}
@@ -55,7 +57,7 @@ func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 func (env *Env) Eval1(node ast.Node) r.Value {
 	value, extraValues := env.Eval(node)
 	if len(extraValues) > 1 {
-		env.Warnf("function returned %d values, only the first one will be used: %v %s %v", len(extraValues), node)
+		env.Warnf("function returned %d values, only the first one will be used: %v", len(extraValues), node)
 	}
 	return value
 }

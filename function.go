@@ -27,6 +27,7 @@ package main
 import (
 	"go/ast"
 	r "reflect"
+	// "strings"
 )
 
 func packValues(val0 r.Value, vals []r.Value) []r.Value {
@@ -71,26 +72,31 @@ func (env *Env) evalDeclFunction(nodeForReceiver *ast.FuncDecl, funcType *ast.Fu
 		}
 	}
 	t, argNames, resultNames := env.evalTypeFunction(funcType)
+	tret := t
 
 	closure := func(args []r.Value) (results []r.Value) {
 		return env.evalFuncCall(body, t, argNames, args, resultNames)
 	}
 	if isMacro {
-		ret = r.ValueOf(Macro{Closure: closure, ArgN: len(argNames)})
-		t = ret.Type()
+		// env.Debugf("defined macro %v, type %v, args (%v), returns (%v)", nodeForReceiver.Name.Name, t, strings.Join(argNames, ", "), strings.Join(resultNames, ", "))
+		ret = r.ValueOf(Macro{Closure: closure, ArgNum: len(argNames)})
+		tret = ret.Type() // do NOT change t, is needed by the closure above
 	} else {
 		ret = r.MakeFunc(t, closure)
 	}
-	return ret, t
+	return ret, tret
 }
 
 // eval an interpreted function
 func (env *Env) evalFuncCall(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value, resultNames []string) (results []r.Value) {
+	if t.Kind() != r.Func {
+		return env.PackErrorf("call of non-function type %v", t)
+	}
 	env = NewEnv(env)
 	defer func() {
 		if rec := recover(); rec != nil {
 			if ret, ok := rec.(Return); ok {
-				results = ret.Results
+				results = env.convertFuncCallResults(t, ret.Results, true)
 			} else {
 				panic(rec)
 			}
@@ -103,10 +109,30 @@ func (env *Env) evalFuncCall(body *ast.BlockStmt, t r.Type, argNames []string, a
 	for i, argName := range argNames {
 		env.defineVar(argName, t.In(i), args[i])
 	}
-	rets := packValues(env.evalBlock(body))
+	// not env.evalBlock(): in Go, the function arguments and body are in the same scope
+	rets := packValues(env.evalStatements(body.List))
+	results = env.convertFuncCallResults(t, rets, false)
+	return results
+}
+
+func (env *Env) convertFuncCallResults(t r.Type, rets []r.Value, warn bool) []r.Value {
+	retsN := len(rets)
+	expectedN := t.NumOut()
+	if retsN < expectedN {
+		if warn {
+			env.Warnf("not enough return values: expected %d, found %d: %v", expectedN, retsN, rets)
+		}
+		tmp := make([]r.Value, expectedN)
+		copy(tmp, rets)
+		rets = tmp
+	} else if retsN > expectedN {
+		if warn {
+			env.Warnf("too many return values: expected %d, found %d: %v", expectedN, retsN, rets)
+		}
+		rets = rets[:expectedN]
+	}
 	for i := range rets {
 		rets[i] = rets[i].Convert(t.Out(i))
 	}
-	results = rets
-	return results
+	return rets
 }

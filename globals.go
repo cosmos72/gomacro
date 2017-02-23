@@ -30,8 +30,14 @@ import (
 
 type Macro struct {
 	Closure func(args []r.Value) (results []r.Value)
-	ArgN    int
+	ArgNum  int
 }
+
+type Options uint
+
+const (
+	OptShowEvalDuration Options = 1 << iota
+)
 
 var Nil = r.ValueOf(nil)
 

@@ -31,9 +31,9 @@ import (
 )
 
 func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
-	fun, _ := env.evalExpr(node.Fun)
-	if fun.Kind() != r.Func {
-		return env.Errorf("call of non-function %#v", node)
+	fun := env.evalExpr1(&node.Fun)
+	if fun == Nil || fun == None || fun.Kind() != r.Func {
+		return env.Errorf("call of non-function %v", node)
 	}
 	// TODO support the special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )
 	args := env.evalExprs(node.Args)

@@ -55,16 +55,19 @@ func (p *Parser) parseQuote() ast.Expr {
 	pos := p.pos
 	name := p.lit
 	p.next()
-	if p.tok != token.LBRACE {
-		// no braces, return the identifier itself
+	switch p.tok {
+	case token.EOF, token.RPAREN, token.RBRACK, token.RBRACE,
+		token.COMMA, token.PERIOD, token.SEMICOLON, token.COLON:
+
+		// no applicable expression after QUOTE: just return the QUOTE identifier itself
 		return &ast.Ident{NamePos: pos, Name: name}
 	}
 
 	body := p.parseBlockStmt()
 
-	// due to go/ast strictly typed model, there is only one mechanism to insert
-	// a statement inside an expression: use a closure. so we return a unary expression:
-	// QUOTE (func() { /*block*/ })
+	// due to go/ast strictly typed model, there is only one mechanism
+	// to insert a statement inside an expression: use a closure.
+	// so we return a unary expression: QUOTE (func() { /*block*/ })
 	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
 	fun := &ast.FuncLit{Type: typ, Body: body}
 	return &ast.UnaryExpr{OpPos: pos, Op: tok, X: fun}
@@ -100,7 +103,7 @@ func (p *Parser) tryParseMacroExpr() ast.Expr {
 	}
 	pos := p.pos
 	if p.tok != token.IDENT {
-		p.errorExpected(pos, "'"+TokenString(token.IDENT)+"'")
+		p.errorExpected(pos, "'"+token.IDENT.String()+"'")
 		return nil
 	}
 	name := p.lit
@@ -126,20 +129,25 @@ func (p *Parser) parseMacro(ident *ast.Ident, numParams int) ast.Expr {
 	}
 	p.expect(token.IDENT)
 
-	list := make([]ast.Stmt, numParams)
+	// we could execute the macro here - but this is a parser, not an interpreter.
+	// Also, before executing it, we would also need to parse its arguments
+	// WHILE DISABLING macro execution... and after the macro executed,
+	// walk through its output to find and execute all macro calls found.
+	// Considering all of these points, the task is definitely beyond MacroParser objective,
+	// so we just insert the macro call into the generated AST
+
 	lbrace := p.pos
+	list := make([]ast.Stmt, numParams)
 	for i := 0; i < numParams; i++ {
 		list[i] = p.parseStmt() // rely on parseStmt() error and EOF detection
 	}
 	rbrace := p.pos
 
-	// TODO we could execute the macro here, or wait for the interpreter to convert the AST to a friendlier version
-
 	body := &ast.BlockStmt{Lbrace: lbrace, List: list, Rbrace: rbrace}
 
-	// due to go/ast strictly typed model, there is only one mechanism to insert
-	// a statement inside an expression: use a closure. so we return a binary expression:
-	// ident MACRO (func() { /*block*/ })
+	// due to go/ast strictly typed model, there is only one mechanism
+	// to insert a statement inside an expression: use a closure.
+	// so we return a binary expression: ident MACRO (func() { /*block*/ })
 	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
 	fun := &ast.FuncLit{Type: typ, Body: body}
 	return &ast.BinaryExpr{X: ident, OpPos: ident.Pos(), Op: MACRO, Y: fun}

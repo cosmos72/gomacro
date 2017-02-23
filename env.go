@@ -88,11 +88,13 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (ret bool) {
 }
 
 func (env *Env) ParseEvalPrint(str string) (ret bool) {
-	t1 := time.Now()
-	defer func() {
-		delta := time.Now().Sub(t1)
-		env.Debugf("eval() elapsed time: %g s", float64(delta)/float64(time.Second))
-	}()
+	if env.Options&OptShowEvalDuration != 0 {
+		t1 := time.Now()
+		defer func() {
+			delta := time.Now().Sub(t1)
+			env.Debugf("eval() elapsed time: %g s", float64(delta)/float64(time.Second))
+		}()
+	}
 
 	src := []byte(strings.TrimSpace(str))
 	pos := findFirstToken(src)
@@ -114,9 +116,9 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 			return true
 		}
 	}
-	ast := env.Parse(src)
+	list := env.ParseN(src)
 	// env.FprintValue(env.Stdout, r.ValueOf(ast))
-	value, values := env.EvalList(ast)
+	value, values := env.EvalList(list)
 	if len(values) != 0 {
 		env.FprintValues(env.Stdout, values...)
 	} else {

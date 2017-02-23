@@ -39,14 +39,14 @@ func (env *Env) evalStatements(list []ast.Stmt) (r.Value, []r.Value) {
 	ret := None
 	var rets []r.Value
 
-	for _, stmt := range list {
-		ret, rets = env.evalStatement(stmt)
+	for i := range list {
+		ret, rets = env.evalStatement(&list[i])
 	}
 	return ret, rets
 }
 
-func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
-	switch node := node.(type) {
+func (env *Env) evalStatement(node *ast.Stmt) (r.Value, []r.Value) {
+	switch node := (*node).(type) {
 	case *ast.AssignStmt:
 		return env.evalAssignments(node)
 	case *ast.BlockStmt:
@@ -56,7 +56,7 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 	case *ast.DeclStmt:
 		return env.evalDecl(node.Decl)
 	case *ast.ExprStmt:
-		return env.evalExpr(node.X)
+		return env.evalExpr(&node.X)
 	case *ast.ForStmt:
 		return env.evalFor(node)
 	case *ast.IfStmt:

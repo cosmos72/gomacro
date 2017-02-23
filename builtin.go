@@ -105,10 +105,28 @@ func (env *Env) addBuiltins() {
 	})
 	binds["len"] = r.ValueOf(callLen)
 	// binds["new"] = r.ValueOf(callNew) // should be handled specially, its argument is a type
+	binds["MacroExpand"] = r.ValueOf(func(node ast.Node) ast.Node {
+		return env.MacroExpand(node)
+	})
+	binds["MacroExpand1"] = r.ValueOf(func(node ast.Node) ast.Node {
+		return env.MacroExpand1(node)
+	})
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
-	binds["Parse"] = r.ValueOf(func(src interface{}) []ast.Node {
-		return env.Parse(src)
+	binds["ParseN"] = r.ValueOf(func(src interface{}) []ast.Node {
+		return env.ParseN(src)
+	})
+	binds["Parse"] = r.ValueOf(func(src interface{}) ast.Node {
+		ret := env.ParseN(src)
+		switch len(ret) {
+		default:
+			env.Warnf("parse returned %d values, only the first one will be used", len(ret))
+			fallthrough
+		case 1:
+			return ret[0]
+		case 0:
+			return nil
+		}
 	})
 	binds["println"] = r.ValueOf(func(args ...interface{}) {
 		values := toValues(args)
@@ -126,11 +144,11 @@ func (env *Env) addBuiltins() {
 func (env *Env) addInterpretedBuiltins() {
 	if false {
 		line := "func not(flag bool) bool { if flag { return false } else { return true } }"
-		env.EvalList(env.Parse(line))
+		env.EvalList(env.ParseN(line))
 	}
 	if false {
 		// Factorial(1000000): eval() elapsed time: 1.233714899 s
 		line := "func Factorial(n int) int { t := 1; for i := 2; i <= n; i=i+1 { t = t * i }; t }"
-		env.EvalList(env.Parse(line))
+		env.EvalList(env.ParseN(line))
 	}
 }

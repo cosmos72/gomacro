@@ -59,18 +59,18 @@ func (env *Env) evalExprs(nodes []ast.Expr) []r.Value {
 	case 0:
 		return nil
 	case 1:
-		ret := env.evalExpr1(nodes[0])
+		ret := env.evalExpr1(&nodes[0])
 		return []r.Value{ret}
 	default:
 		rets := make([]r.Value, n)
-		for i, node := range nodes {
-			rets[i] = env.evalExpr1(node)
+		for i := range nodes {
+			rets[i] = env.evalExpr1(&nodes[i])
 		}
 		return rets
 	}
 }
 
-func (env *Env) evalExpr1(expr ast.Expr) r.Value {
+func (env *Env) evalExpr1(expr *ast.Expr) r.Value {
 	value, extraValues := env.evalExpr(expr)
 	if len(extraValues) > 1 {
 		env.Warnf("function returned %d values, using only the first one: %v returned %v",
@@ -79,15 +79,24 @@ func (env *Env) evalExpr1(expr ast.Expr) r.Value {
 	return value
 }
 
-func (env *Env) evalExpr(expr ast.Expr) (r.Value, []r.Value) {
-	// Debugf("evalExpr() %#v", node)
+func (env *Env) evalExpr(expr *ast.Expr) (r.Value, []r.Value) {
+	// Debugf("evalExprNoRewrite() %#v", node)
 
 	for {
-		switch node := expr.(type) {
+		switch node := (*expr).(type) {
 		case *ast.BasicLit:
 			return env.evalLiteral(node)
 
 		case *ast.BinaryExpr:
+			if isMacroCall(node) {
+				expanded := env.nodeToExpr(env.MacroExpand(node))
+				if expanded == nil || expanded == node {
+					return r.ValueOf(expanded), nil
+				} else {
+					*expr = expanded
+					continue
+				}
+			}
 			return env.evalBinaryExpr(node)
 
 		case *ast.CallExpr:
@@ -106,26 +115,27 @@ func (env *Env) evalExpr(expr ast.Expr) (r.Value, []r.Value) {
 			return env.evalIndexExpr(node)
 
 		case *ast.ParenExpr:
-			expr = node.X
+			expr = &node.X
 			continue
 
 		case *ast.UnaryExpr:
 			return env.evalUnaryExpr(node)
 
 		case *ast.KeyValueExpr, *ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
-
 			// TODO
 			return env.Errorf("unimplemented expression %#v", node)
 
 		default:
 			return env.Errorf("unimplemented expression %#v", node)
 		}
+		// unreachable
+		return env.Errorf("internal error evaluating %#v", *expr)
 	}
 }
 
 func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
-	index := env.evalExpr1(node.Index)
-	container := env.evalExpr1(node.X)
+	index := env.evalExpr1(&node.Index)
+	container := env.evalExpr1(&node.X)
 
 	switch container.Kind() {
 	case r.Map:

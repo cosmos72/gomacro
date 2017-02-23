@@ -28,15 +28,18 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	mp "github.com/cosmos72/gomacro/macroparser"
 )
 
 func (env *Env) unsupportedBinaryExpr(xv r.Value, op token.Token, yv r.Value) (r.Value, []r.Value) {
-	return env.Errorf("unsupported binary operation %s between %v and %v: %v %s %v", op, xv.Type(), yv.Type(), xv, op, yv)
+	opstr := mp.TokenString(op)
+	return env.Errorf("unsupported binary operation %s between %v <%v> and %v <%v>: %v %s %v", opstr, xv.Kind(), xv.Type(), yv.Kind(), yv.Type(), xv, opstr, yv)
 }
 
 func (env *Env) evalBinaryExpr(expr *ast.BinaryExpr) (r.Value, []r.Value) {
-	xv, _ := env.Eval(expr.X)
-	yv, _ := env.Eval(expr.Y)
+	xv := env.Eval1(expr.X)
+	yv := env.Eval1(expr.Y)
 	op := expr.Op
 	switch xv.Kind() {
 	case r.Bool:

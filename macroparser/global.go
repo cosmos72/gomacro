@@ -66,8 +66,11 @@ func TokenIsMacroKeyword(tok token.Token) bool {
 	return ok
 }
 
-func Parse(fileset *token.FileSet, filename string, src []byte, mode Mode) (node []ast.Node, err error) {
-	var p Parser
+func (p *Parser) Parse() (node []ast.Node, err error) {
+	if p.file == nil || p.pkgScope == nil {
+		panic("Parser.Parse(): parser is not initialized, call Parser.Init() first")
+	}
+
 	defer func() {
 		if e := recover(); e != nil {
 			// resume same panic if it's not a bailout
@@ -77,22 +80,18 @@ func Parse(fileset *token.FileSet, filename string, src []byte, mode Mode) (node
 		}
 		p.errors.Sort()
 		err = p.errors.Err()
+		p.file = nil
+		p.pkgScope = nil
 	}()
 
-	// parse expr
-	p.init(fileset, filename, src, mode)
-	// Set up pkg-level scopes to avoid nil-pointer errors.
-	// This is not needed for a correct expression x as the
-	// parser will be ok with a nil topScope, but be cautious
-	// in case of an erroneous x.
-	p.openScope()
-	p.pkgScope = p.topScope
+	topScope := p.topScope
+
 	list := make([]ast.Node, 0)
 	for p.tok != token.EOF {
 		list = append(list, p.parseAny())
 	}
-	p.closeScope()
-	assert(p.topScope == nil, "unbalanced scopes")
+
+	assert(topScope == p.topScope, "unbalanced scopes")
 
 	if p.errors.Len() > 0 {
 		p.errors.Sort()
