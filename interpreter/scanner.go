@@ -16,36 +16,36 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * globals.go
+ * scanner.go
  *
  *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
-	r "reflect"
+	"fmt"
+	"go/scanner"
+	"go/token"
 )
 
-type Macro struct {
-	Closure func(args []r.Value) (results []r.Value)
-	ArgNum  int
+func testScanner(env *Env) {
+	src := []byte(" Quote { /*foo*/ x } y")
+
+	var s scanner.Scanner
+	var errs scanner.ErrorList
+
+	pos0 := env.Fileset.Base()
+	file := env.Fileset.AddFile("temp.go", pos0, len(src))
+
+	s.Init(file, src, errs.Add, 0 /*scanner.ScanComments*/)
+
+	for {
+		pos, tok, str := s.Scan()
+		fmt.Printf("%v\t%v\t%#v\n", pos, tok, str)
+		if tok == token.EOF {
+			break
+		}
+	}
 }
-
-type Options uint
-
-const (
-	OptShowEvalDuration Options = 1 << iota
-)
-
-var Nil = r.ValueOf(nil)
-
-var none struct{}
-var None = r.ValueOf(none)
-
-var typeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
-var typeOfString = r.TypeOf("")
-var zeroStrings = []string{}
-
-const temporaryFunctionName = "gorepl_temporary_function"

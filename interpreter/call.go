@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"
@@ -40,7 +40,7 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	if !fun.Type().IsVariadic() {
 		argTypes := fun.Type()
 		for i, arg := range args {
-			args[i] = env.toType(arg, argTypes.In(i))
+			args[i] = env.valueToType(arg, argTypes.In(i))
 		}
 	}
 	var rets []r.Value

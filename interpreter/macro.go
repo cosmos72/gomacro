@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"
@@ -36,10 +36,16 @@ func (env *Env) evalQuote(op token.Token, node *ast.BlockStmt) (r.Value, []r.Val
 	var ret ast.Node
 	switch op {
 	case mp.QUOTE, mp.QUASIQUOTE:
-		if len(node.List) != 1 {
-			return env.Errorf("invalid %s: contains %d statements, expecting exactly one: %v", mp.TokenString(op), len(node.List), node)
+		if len(node.List) == 1 {
+			ret = node.List[0]
+			if ret2, ok := ret.(*ast.ExprStmt); ok {
+				// unwrap expressions... they fit in more places and make the life easier to MacroExpand
+				ret = ret2
+			}
+		} else {
+			// be lenient, and accept quote{a;b;c} as nicer alias for quote{{a;b;c}}
+			ret = node
 		}
-		ret = node.List[0]
 	case mp.UNQUOTE, mp.UNQUOTE_SPLICE:
 		return env.Errorf("unimplemented %s: %v", mp.TokenString(op), node)
 	}
@@ -50,9 +56,23 @@ func isMacroCall(node *ast.BinaryExpr) bool {
 	return node.Op == mp.MACRO
 }
 
-func (env *Env) MacroExpand(node ast.Node) ast.Node {
+// MacroExpandCodewalk traverses the whole AST tree using pre-order traversal,
+// and replaces each node with the result of MacroExpand(node).
+// It implements the macroexpansion phase
+// Warning: it modifies the AST tree in place!
+func (env *Env) MacroExpandCodewalk(node ast.Node) ast.Node {
+	return env.Walk(env.macroExpandReturnNilOnQuote, node)
+}
+
+// MacroExpand repeatedly invokes MacroExpand1
+// as long as the node represents a macro call.
+// it returns the resulting node.
+func (env *Env) macroExpandReturnNilOnQuote(node ast.Node) ast.Node {
+	if node == nil {
+		return nil
+	}
 	for {
-		ret := env.MacroExpand1(node)
+		ret := env.macroExpand1(node, true)
 		if ret == nil || ret == node {
 			return ret
 		}
@@ -60,9 +80,60 @@ func (env *Env) MacroExpand(node ast.Node) ast.Node {
 	}
 }
 
-func (env *Env) MacroExpand1(node ast.Node) ast.Node {
-	expr := env.extractMacroExpr(node)
-	if expr == nil {
+// MacroExpand repeatedly invokes MacroExpand1
+// as long as the node represents a macro call.
+// it returns the resulting node.
+func (env *Env) MacroExpand(node ast.Node) (ast.Node, bool) {
+	if node == nil {
+		return nil, false
+	}
+	save := node
+	for {
+		ret := env.macroExpand1(node, false)
+		if ret == nil || ret == node {
+			return ret, ret != save
+		}
+		node = ret
+	}
+}
+
+// if node represents a macro call, MacroExpand1 executes it
+// and returns the resulting node.
+// Otherwise returns the node argument unchanged
+func (env *Env) MacroExpand1(node ast.Node) (ast.Node, bool) {
+	ret := env.macroExpand1(node, false)
+	// if ret == node {
+	//    env.Debugf("MacroExpand1() not a macro: %v <%v>", node, r.TypeOf(node))
+	//}
+	return ret, ret != node
+}
+
+func (env *Env) macroExpand1(node ast.Node, returnNilOnQuote bool) ast.Node {
+	var expr *ast.BinaryExpr
+Again:
+	switch x := node.(type) {
+	case *ast.BinaryExpr:
+		if x.Op != mp.MACRO {
+			// not a macro call, return unchanged
+			return node
+		}
+		expr = x
+		// env.Debugf("macroExpand1() found macro call: %v", expr)
+
+	case *ast.UnaryExpr:
+		// not a macro. maybe it's a QUOTE ?
+		if returnNilOnQuote && x.Op == mp.QUOTE {
+			// env.Debugf("macroExpand1() found QUOTE, returning nil")
+			return nil
+		}
+		return node
+
+	case *ast.ExprStmt:
+		// expressions are sometimes wrapped in statements... unwrap them
+		node = x.X
+		goto Again
+
+	default:
 		return node
 	}
 
@@ -116,47 +187,7 @@ func (env *Env) MacroExpand1(node ast.Node) ast.Node {
 	}
 }
 
-func (env *Env) extractMacroExpr(node ast.Node) *ast.BinaryExpr {
-	for {
-		switch x := node.(type) {
-		case *ast.BinaryExpr:
-			return x
-		case *ast.ExprStmt:
-			node = x.X
-			continue
-		default:
-			break
-		}
-		return nil
-	}
-}
-
 func (env *Env) badMacro(node *ast.BinaryExpr) ast.Expr {
 	env.Errorf("macroexpansion of non-macro: %v", node)
 	return nil
-}
-
-func (env *Env) nodeToExpr(node ast.Node) ast.Expr {
-	switch node := node.(type) {
-	case ast.Expr:
-		return node
-	case *ast.BlockStmt:
-		return env.blockStmtToExpr(node)
-	case ast.Stmt:
-		list := []ast.Stmt{node}
-		block := &ast.BlockStmt{List: list}
-		return env.blockStmtToExpr(block)
-	default:
-		env.Errorf("macroexpansion returned a <%T>: unimplemented conversion to ast.Expr", node)
-		return nil
-	}
-}
-
-func (env *Env) blockStmtToExpr(node *ast.BlockStmt) ast.Expr {
-	// due to go/ast strictly typed model, there is only one mechanism
-	// to insert a statement inside an expression: use a closure.
-	// so we return a unary expression: MACRO (func() { /*block*/ })
-	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
-	fun := &ast.FuncLit{Type: typ, Body: node}
-	return &ast.UnaryExpr{Op: mp.MACRO, X: fun}
 }

@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"
@@ -88,15 +88,6 @@ func (env *Env) evalExpr(expr *ast.Expr) (r.Value, []r.Value) {
 			return env.evalLiteral(node)
 
 		case *ast.BinaryExpr:
-			if isMacroCall(node) {
-				expanded := env.nodeToExpr(env.MacroExpand(node))
-				if expanded == nil || expanded == node {
-					return r.ValueOf(expanded), nil
-				} else {
-					*expr = expanded
-					continue
-				}
-			}
 			return env.evalBinaryExpr(node)
 
 		case *ast.CallExpr:

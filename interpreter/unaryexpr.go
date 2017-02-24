@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"

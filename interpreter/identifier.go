@@ -16,36 +16,38 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * scanner.go
+ * identifier.go
  *
- *  Created on: Feb 19, 2017
+ *  Created on: Feb 13, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
-	"fmt"
-	"go/scanner"
-	"go/token"
+	"go/ast"
+	r "reflect"
 )
 
-func testScanner(env *Env) {
-	src := []byte(" Quote { /*foo*/ x } y")
+func (env *Env) evalIdentifier(expr *ast.Ident) (r.Value, []r.Value) {
+	name := expr.Name
 
-	var s scanner.Scanner
-	var errs scanner.ErrorList
-
-	pos0 := env.Fileset.Base()
-	file := env.Fileset.AddFile("temp.go", pos0, len(src))
-
-	s.Init(file, src, errs.Add, 0 /*scanner.ScanComments*/)
-
-	for {
-		pos, tok, str := s.Scan()
-		fmt.Printf("%v\t%v\t%#v\n", pos, tok, str)
-		if tok == token.EOF {
-			break
+	switch name {
+	case "false":
+		return r.ValueOf(false), nil
+	case "true":
+		return r.ValueOf(true), nil
+	case "iota":
+		pos := env.Fileset.Position(expr.NamePos)
+		return r.ValueOf(pos.Line - env.iotaOffset), nil
+	default:
+		for e := env; e != nil; e = e.Outer {
+			// Debugf("evalIdentifier() looking up %#v in %#v", name, env.Binds)
+			bind, exists := e.binds[name]
+			if exists {
+				return bind, nil
+			}
 		}
+		return env.Errorf("undefined identifier: %s", name)
 	}
 }

@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"bytes"
@@ -104,6 +104,11 @@ func (p *Interpreter) FprintValue(out io.Writer, v r.Value) {
 			fmt.Fprintf(out, "%v <%v>\n", vi, vt)
 		}
 	}
+}
+
+func (p *Interpreter) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
+	values = p.toPrintables(values)
+	return fmt.Fprintf(out, format, values...)
 }
 
 func (p *Interpreter) Sprintf(format string, values ...interface{}) string {

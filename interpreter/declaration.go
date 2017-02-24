@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"
@@ -127,7 +127,7 @@ func (env *Env) defineVar(name string, t r.Type, value r.Value) r.Value {
 	if name == "_" {
 		// never define bindings for "_"
 		if t != nil {
-			value = env.toType(value, t)
+			value = env.valueToType(value, t)
 		}
 		return value
 	}

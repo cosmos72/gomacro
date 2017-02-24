@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"
@@ -105,11 +105,14 @@ func (env *Env) addBuiltins() {
 	})
 	binds["len"] = r.ValueOf(callLen)
 	// binds["new"] = r.ValueOf(callNew) // should be handled specially, its argument is a type
-	binds["MacroExpand"] = r.ValueOf(func(node ast.Node) ast.Node {
+	binds["MacroExpand"] = r.ValueOf(func(node ast.Node) (ast.Node, bool) {
 		return env.MacroExpand(node)
 	})
-	binds["MacroExpand1"] = r.ValueOf(func(node ast.Node) ast.Node {
+	binds["MacroExpand1"] = r.ValueOf(func(node ast.Node) (ast.Node, bool) {
 		return env.MacroExpand1(node)
+	})
+	binds["MacroExpandCodewalk"] = r.ValueOf(func(node ast.Node) ast.Node {
+		return env.MacroExpandCodewalk(node)
 	})
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)

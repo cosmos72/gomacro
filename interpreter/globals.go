@@ -16,28 +16,38 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * file.go
+ * globals.go
  *
- *  Created on: Feb 15, 2017
+ *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
-	"go/ast"
 	r "reflect"
 )
 
-func (env *Env) evalFile(node *ast.File) (r.Value, []r.Value) {
-	env.Packagename = node.Name.Name
-
-	// TODO eval node.Imports
-	var ret r.Value
-	var rets []r.Value
-
-	for _, decl := range node.Decls {
-		ret, rets = env.evalDecl(decl)
-	}
-	return ret, rets
+type Macro struct {
+	Closure func(args []r.Value) (results []r.Value)
+	ArgNum  int
 }
+
+type Options uint
+
+const (
+	OptShowEvalDuration Options = 1 << iota
+	OptShowAfterParse
+	OptShowAfterMacroExpandCodewalk
+)
+
+var Nil = r.ValueOf(nil)
+
+var none struct{}
+var None = r.ValueOf(none)
+
+var typeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
+var typeOfString = r.TypeOf("")
+var zeroStrings = []string{}
+
+const temporaryFunctionName = "gorepl_temporary_function"

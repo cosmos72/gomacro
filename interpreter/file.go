@@ -16,38 +16,28 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * identifier.go
+ * file.go
  *
- *  Created on: Feb 13, 2017
+ *  Created on: Feb 15, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"
 	r "reflect"
 )
 
-func (env *Env) evalIdentifier(expr *ast.Ident) (r.Value, []r.Value) {
-	name := expr.Name
+func (env *Env) evalFile(node *ast.File) (r.Value, []r.Value) {
+	env.Packagename = node.Name.Name
 
-	switch name {
-	case "false":
-		return r.ValueOf(false), nil
-	case "true":
-		return r.ValueOf(true), nil
-	case "iota":
-		pos := env.Fileset.Position(expr.NamePos)
-		return r.ValueOf(pos.Line - env.iotaOffset), nil
-	default:
-		for e := env; e != nil; e = e.Outer {
-			// Debugf("evalIdentifier() looking up %#v in %#v", name, env.Binds)
-			bind, exists := e.binds[name]
-			if exists {
-				return bind, nil
-			}
-		}
-		return env.Errorf("undefined identifier: %s", name)
+	// TODO eval node.Imports
+	var ret r.Value
+	var rets []r.Value
+
+	for _, decl := range node.Decls {
+		ret, rets = env.evalDecl(decl)
 	}
+	return ret, rets
 }

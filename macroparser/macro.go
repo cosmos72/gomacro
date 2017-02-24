@@ -129,12 +129,20 @@ func (p *Parser) parseMacro(ident *ast.Ident, numParams int) ast.Expr {
 	}
 	p.expect(token.IDENT)
 
-	// we could execute the macro here - but this is a parser, not an interpreter.
-	// Also, before executing it, we would also need to parse its arguments
-	// WHILE DISABLING macro execution... and after the macro executed,
-	// walk through its output to find and execute all macro calls found.
-	// Considering all of these points, the task is definitely beyond MacroParser objective,
-	// so we just insert the macro call into the generated AST
+	// we could try to execute the macro here - but there are two issues:
+	//
+	// the first is stylistic: this is a parser, not an interpreter.
+	// the second is technical: a recursive-descent parser like this
+	// builds the AST built bottom-up: first creates the leaves,
+	// then the internal nodes pointing to the leaves, and so on up to the root.
+	// On the other hand, macroexpansion with lisp-like semantics is top-down:
+	// it starts with the *whole* AST tree, and recursively descends it
+	// expanding macros on the way. Trying to mix the two approaches
+	// is likely to introduce *exponential* slowdowns due to the same AST fragments
+	// being macroexpanded again and again while the parser builds AST nodes
+	// progressively farther away from the leaves.
+	//
+	// TL;DR: performing macroexpansion here is a mess. Let the interpreter do it.
 
 	lbrace := p.pos
 	list := make([]ast.Stmt, numParams)

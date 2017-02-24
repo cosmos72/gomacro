@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"
@@ -131,7 +131,7 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 	return r.TypeOf(v)
 }
 
-func (env *Env) toType(value r.Value, t r.Type) r.Value {
+func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 	if value.Type().AssignableTo(t) {
 		return value
 	}

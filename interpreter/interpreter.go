@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"bytes"
@@ -43,7 +43,6 @@ type Interpreter struct {
 	Options     Options
 	ParserMode  parser.Mode
 	ParserScope *ast.Scope
-	Parser      mp.Parser
 	Stdout      io.Writer
 	Stderr      io.Writer
 }
@@ -62,18 +61,19 @@ func NewInterpreter() *Interpreter {
 
 func (ir *Interpreter) ParseN(src interface{}) []ast.Node {
 	bytes := ir.ReadFromSource(src)
-	node, err := ir.parseOrError(bytes)
+	nodes, err := ir.parseOrError(bytes)
 	if err != nil {
 		Errore(err)
 		return nil
 	}
-	return node
+	return nodes
 }
 
-func (ir *Interpreter) parseOrError(src []byte) (node []ast.Node, err error) {
-	ir.ParserScope = ir.Parser.Init(ir.Fileset, ir.Filename, src, mp.Mode(ir.ParserMode), ir.ParserScope)
+func (ir *Interpreter) parseOrError(src []byte) ([]ast.Node, error) {
+	var parser mp.Parser
+	ir.ParserScope = parser.Init(ir.Fileset, ir.Filename, src, mp.Mode(ir.ParserMode), ir.ParserScope)
 
-	return ir.Parser.Parse()
+	return parser.Parse()
 }
 
 //

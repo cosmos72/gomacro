@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"bufio"
@@ -92,7 +92,7 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 		t1 := time.Now()
 		defer func() {
 			delta := time.Now().Sub(t1)
-			env.Debugf("eval() elapsed time: %g s", float64(delta)/float64(time.Second))
+			env.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
 		}()
 	}
 
@@ -116,9 +116,24 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 			return true
 		}
 	}
+	// parse phase
 	list := env.ParseN(src)
-	// env.FprintValue(env.Stdout, r.ValueOf(ast))
+	if env.Options&OptShowAfterParse != 0 {
+		env.Debugf("after parse: %v", list)
+	}
+
+	// macroexpansion phase
+	for i, elt := range list {
+		list[i] = env.MacroExpandCodewalk(elt)
+	}
+	if env.Options&OptShowAfterMacroExpandCodewalk != 0 {
+		env.Debugf("after macroexpand: %v", list)
+	}
+
+	// eval phase
 	value, values := env.EvalList(list)
+
+	// print phase
 	if len(values) != 0 {
 		env.FprintValues(env.Stdout, values...)
 	} else {

@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package interpreter
 
 import (
 	"go/ast"
@@ -87,7 +87,7 @@ func (env *Env) assignPlaces(places []r.Value, op token.Token, values []r.Value)
 
 func (env *Env) assignPlace(place r.Value, op token.Token, value r.Value) r.Value {
 	t := place.Type()
-	value = env.toType(value, t)
+	value = env.valueToType(value, t)
 	// TODO op can be = += -= *= ...
 	place.Set(value)
 	return value
