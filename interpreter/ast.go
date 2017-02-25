@@ -33,8 +33,8 @@ type (
 	Ast interface {
 		Op() token.Token
 		Size() int
-		// Get(i int) Ast
-		// Set(child Ast, i int)
+		Get(i int) Ast
+		Set(i int, child Ast)
 	}
 	AstWithNode interface {
 		Ast

@@ -71,7 +71,7 @@ func (p *Interpreter) Debugf(format string, args ...interface{}) {
 	fmt.Fprintf(p.Stdout, "// debug: %s\n", str)
 }
 
-func BadIndex(index int, size int) Ast {
+func BadIndex(index int, size int) AstWithNode {
 	if size > 0 {
 		Errorf("index out of range: %d not in 0...%d", index, size-1)
 	} else {

@@ -64,43 +64,77 @@ func (env *Env) evalQuote(node *ast.BlockStmt) ast.Node {
 	return simplifyNodeForQuote(node)
 }
 
-// evalQuasiquote evaluates the body of a quasiquote{}.
-func (env *Env) evalQuasiquote(in ast.Node) ast.Node {
-	if node, ok := in.(*ast.UnaryExpr); ok {
-		if node.Op == mt.UNQUOTE {
-			return node.X.(*ast.FuncLit).Body
+// evalQuasiquote evaluates the body of a quasiquote{} represented as ast.Node
+func (env *Env) evalQuasiquote(node ast.Node) ast.Node {
+	// use unified API to traverse ast.Node... every other solution is a nightmare
+	in := ToAst(node)
+	out := env.evalQuasiquoteAst(in)
+	return ToNode(out)
+}
+
+// evalQuasiquoteAst evaluates the body of a quasiquote{} represented as Ast
+func (env *Env) evalQuasiquoteAst(in Ast) Ast {
+	switch ast := in.(type) {
+	case nil:
+		return nil
+	case UnaryExpr:
+		switch ast.Op() {
+		case mt.UNQUOTE:
+			return getQuoteContent(ast)
+		case mt.UNQUOTE_SPLICE:
+			env.Errorf("quasiquote(): cannot splice in single-statement context: %#v %<v>", ast, r.TypeOf(ast))
 		}
 	}
-	/*
-		ast := ToAst(in)
 
-		case *ast.BlockStmt:
-			list := node.List
-			rets := make([]ast.Stmt, 0, len(list))
-			for _, stmt := range list {
-				if expr, ok := stmt.(*ast.ExprStmt); ok {
-					switch node := expr.X.(type) {
-					case *ast.Ident, *ast.BasicLit:
-						rets = append(rets, env.ToStmt(expr))
-						continue
-					case *ast.UnaryExpr:
-						if node.Op == mt.UNQUOTE_SPLICE {
-							rets = append(rets, node.X.(*ast.FuncLit).Body.List...)
-							continue
-						}
-					default:
-						rets = append(rets, env.ToStmt(env.evalQuasiquote(node)))
-					}
+	ast := in
+	ni := ast.Size()
+	if ni == 0 {
+		return ast
+	}
+	astWithResize, canResize := ast.(AstWithResize)
+	rets := make([]Ast, 0, ni)
+	for i := 0; i < ni; i++ {
+		child := ast.Get(i)
+		switch child := child.(type) {
+		case UnaryExpr:
+			switch child.Op() {
+			case mt.UNQUOTE:
+				toInsert := getQuoteContent(child)
+				rets = append(rets, toInsert)
+				continue
+			case mt.UNQUOTE_SPLICE:
+				if !canResize {
+					env.Errorf("quasiquote(): cannot splice in fixed-length context: %#v %<v>", child, r.TypeOf(child))
+					return nil
 				}
+				toSplice := getQuoteContent(child)
+				nj := toSplice.Size()
+				for j := 0; j < nj; j++ {
+					rets = append(rets, toSplice.Get(j))
+				}
+				continue
 			}
-			node.List = rets
-			return node
-		default:
-			break
 		}
-	*/
-	// TODO we must traverse node... but no uniform API to do it
-	return in
+		// general case: recurse on child
+		child = env.evalQuasiquoteAst(child)
+		rets = append(rets, child)
+	}
+	if len(rets) != ni {
+		if !canResize {
+			env.Errorf("quasiquote() internal error: attempt to splice in fixed-length context: %#v %<v>", ast, r.TypeOf(ast))
+			return nil
+		}
+		astWithResize.Resize(len(rets))
+	}
+	for i, r := range rets {
+		ast.Set(i, r)
+	}
+	return ast
+}
+
+// getQuoteContent returns the content of a QUOTE, QUASIQUOTE, UNQUOTE or UNQUOTE_SPLICE Ast
+func getQuoteContent(ast UnaryExpr) Ast {
+	return ast.Get(0).(FuncLit).Get(1)
 }
 
 func isMacroCall(node *ast.BinaryExpr) bool {

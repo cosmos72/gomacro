@@ -33,7 +33,7 @@ import (
 )
 
 // ToAst2 returns either n0 (if i == 0) or n1, converted to Ast
-func ToAst1(i int, node ast.Node) Ast {
+func ToAst1(i int, node ast.Node) AstWithNode {
 	if i == 0 {
 		return ToAst(node)
 	} else {
@@ -42,7 +42,7 @@ func ToAst1(i int, node ast.Node) Ast {
 }
 
 // ToAst2 returns either n0 (if i == 0) or n1, converted to Ast
-func ToAst2(i int, n0 ast.Node, n1 ast.Node) Ast {
+func ToAst2(i int, n0 ast.Node, n1 ast.Node) AstWithNode {
 	var n ast.Node
 	if i == 0 {
 		n = n0
@@ -54,7 +54,7 @@ func ToAst2(i int, n0 ast.Node, n1 ast.Node) Ast {
 	return ToAst(n)
 }
 
-func ToAst3(i int, n0 ast.Node, n1 ast.Node, n2 *ast.BlockStmt) Ast {
+func ToAst3(i int, n0 ast.Node, n1 ast.Node, n2 *ast.BlockStmt) AstWithNode {
 	var n ast.Node
 	switch i {
 	case 0:
@@ -71,8 +71,8 @@ func ToAst3(i int, n0 ast.Node, n1 ast.Node, n2 *ast.BlockStmt) Ast {
 
 // ToAst converts an ast.Node to Ast, providing uniform access to the node contents
 //
-func ToAst(node ast.Node) Ast {
-	var x Ast
+func ToAst(node ast.Node) AstWithNode {
+	var x AstWithNode
 	switch node := node.(type) {
 	case *ast.ArrayType:
 		x = ArrayType{node}
