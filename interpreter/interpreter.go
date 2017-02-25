@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * parser.go
+ * interpreter.go
  *
  *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi

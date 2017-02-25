@@ -16,9 +16,9 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * ast.go
+ * ast_slice.go
  *
- *  Created on Feb 24, 2017
+ *  Created on Feb 25, 2017
  *      Author Massimiliano Ghilardi
  */
 
