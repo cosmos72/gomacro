@@ -262,7 +262,7 @@ func ToExpr(x Ast) ast.Expr {
 }
 
 func ToExprSlice(x Ast) []ast.Expr {
-	return *x.(ExprSlice).P
+	return *x.(ExprSlice).p
 }
 
 func ToField(x Ast) *ast.Field {
@@ -336,7 +336,7 @@ func ToIdent(x Ast) *ast.Ident {
 }
 
 func ToIdentSlice(x Ast) []*ast.Ident {
-	return *x.(IdentSlice).P
+	return *x.(IdentSlice).p
 }
 
 func ToSpec(x Ast) ast.Spec {
@@ -368,7 +368,7 @@ func ToStmt(x Ast) ast.Stmt {
 }
 
 func ToStmtSlice(x Ast) []ast.Stmt {
-	return *x.(StmtSlice).P
+	return *x.(StmtSlice).p
 }
 
 func BlockStmtToExpr(node *ast.BlockStmt) ast.Expr {

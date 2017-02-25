@@ -70,12 +70,14 @@ func (env *Env) Repl(in *bufio.Reader) {
 }
 
 func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (ret bool) {
-	defer func() {
-		if rec := recover(); rec != nil {
-			fmt.Fprintln(env.Stderr, rec)
-			ret = true
-		}
-	}()
+	if env.Options&OptTrapPanic != 0 {
+		defer func() {
+			if rec := recover(); rec != nil {
+				fmt.Fprintln(env.Stderr, rec)
+				ret = true
+			}
+		}()
+	}
 
 	fmt.Fprint(env.Stdout, "go> ")
 
@@ -126,8 +128,8 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 	for i, elt := range list {
 		list[i] = env.MacroExpandCodewalk(elt)
 	}
-	if env.Options&OptShowAfterMacroExpandCodewalk != 0 {
-		env.Debugf("after macroexpand: %v", list)
+	if env.Options&OptShowAfterMacroExpansion != 0 {
+		env.Debugf("after macroexpansion: %v", list)
 	}
 
 	// eval phase

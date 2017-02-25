@@ -25,13 +25,11 @@
 package main
 
 import (
-	_ "fmt"
 	"go/parser"
 	"os"
 	"strings"
-	_ "time"
 
-	"github.com/cosmos72/gomacro/interpreter"
+	gmi "github.com/cosmos72/gomacro/interpreter"
 )
 
 func main() {
@@ -43,9 +41,9 @@ func main() {
 
 func Main(args []string) {
 
-	env := interpreter.NewEnv(nil)
+	env := gmi.NewEnv(nil)
 	env.ParserMode = parser.Trace & 0
-	// env.Options = gmi.OptShowAfterParse | gmi.OptShowAfterMacroExpandCodewalk | gmi.OptShowEvalDuration
+	env.Options = gmi.OptTrapPanic // gmi.OptDebugQuasiquote | gmi.OptShowAfterParse | gmi.OptShowAfterMacroExpansion | gmi.OptShowEvalDuration
 
 	if len(args) > 1 {
 		str := strings.Join(args[1:], " ")

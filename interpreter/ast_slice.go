@@ -31,6 +31,13 @@ import (
 
 // Ast wrappers for variable-length fragments of ast.Nodes - they are not full-blown ast.Nodes
 
+func (x ExprSlice) Interface() interface{}  { return *x.p }
+func (x FieldSlice) Interface() interface{} { return *x.p }
+func (x DeclSlice) Interface() interface{}  { return *x.p }
+func (x IdentSlice) Interface() interface{} { return *x.p }
+func (x SpecSlice) Interface() interface{}  { return *x.p }
+func (x StmtSlice) Interface() interface{}  { return *x.p }
+
 func (x ExprSlice) Op() token.Token  { return token.COMMA }     // FIXME
 func (x FieldSlice) Op() token.Token { return token.SEMICOLON } // FIXME
 func (x DeclSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
@@ -38,68 +45,74 @@ func (x IdentSlice) Op() token.Token { return token.COMMA }     // FIXME
 func (x SpecSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 func (x StmtSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 
-func (x ExprSlice) Size() int  { return len(*x.P) }
-func (x FieldSlice) Size() int { return len(*x.P) }
-func (x DeclSlice) Size() int  { return len(*x.P) }
-func (x IdentSlice) Size() int { return len(*x.P) }
-func (x SpecSlice) Size() int  { return len(*x.P) }
-func (x StmtSlice) Size() int  { return len(*x.P) }
+func (x ExprSlice) Size() int  { return len(*x.p) }
+func (x FieldSlice) Size() int { return len(*x.p) }
+func (x DeclSlice) Size() int  { return len(*x.p) }
+func (x IdentSlice) Size() int { return len(*x.p) }
+func (x SpecSlice) Size() int  { return len(*x.p) }
+func (x StmtSlice) Size() int  { return len(*x.p) }
 
-func (x ExprSlice) Get(i int) Ast  { return ToAst((*x.P)[i]) }
-func (x FieldSlice) Get(i int) Ast { return ToAst((*x.P)[i]) }
-func (x DeclSlice) Get(i int) Ast  { return ToAst((*x.P)[i]) }
-func (x IdentSlice) Get(i int) Ast { return ToAst((*x.P)[i]) }
-func (x SpecSlice) Get(i int) Ast  { return ToAst((*x.P)[i]) }
-func (x StmtSlice) Get(i int) Ast  { return ToAst((*x.P)[i]) }
+func (x ExprSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
+func (x FieldSlice) Get(i int) Ast { return ToAst((*x.p)[i]) }
+func (x DeclSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
+func (x IdentSlice) Get(i int) Ast { return ToAst((*x.p)[i]) }
+func (x SpecSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
+func (x StmtSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
 
-func (x ExprSlice) Set(i int, child Ast)  { (*x.P)[i] = ToExpr(child) }
-func (x FieldSlice) Set(i int, child Ast) { (*x.P)[i] = ToField(child) }
-func (x DeclSlice) Set(i int, child Ast)  { (*x.P)[i] = ToDecl(child) }
-func (x IdentSlice) Set(i int, child Ast) { (*x.P)[i] = ToIdent(child) }
-func (x SpecSlice) Set(i int, child Ast)  { (*x.P)[i] = ToSpec(child) }
-func (x StmtSlice) Set(i int, child Ast)  { (*x.P)[i] = ToStmt(child) }
+func (x ExprSlice) Set(i int, child Ast)  { (*x.p)[i] = ToExpr(child) }
+func (x FieldSlice) Set(i int, child Ast) { (*x.p)[i] = ToField(child) }
+func (x DeclSlice) Set(i int, child Ast)  { (*x.p)[i] = ToDecl(child) }
+func (x IdentSlice) Set(i int, child Ast) { (*x.p)[i] = ToIdent(child) }
+func (x SpecSlice) Set(i int, child Ast)  { (*x.p)[i] = ToSpec(child) }
+func (x StmtSlice) Set(i int, child Ast)  { (*x.p)[i] = ToStmt(child) }
 
-func (x ExprSlice) Resize(n int)  { s := make([]ast.Expr, n); copy(s, *x.P); *x.P = s }
-func (x FieldSlice) Resize(n int) { s := make([]*ast.Field, n); copy(s, *x.P); *x.P = s }
-func (x DeclSlice) Resize(n int)  { s := make([]ast.Decl, n); copy(s, *x.P); *x.P = s }
-func (x IdentSlice) Resize(n int) { s := make([]*ast.Ident, n); copy(s, *x.P); *x.P = s }
-func (x SpecSlice) Resize(n int)  { s := make([]ast.Spec, n); copy(s, *x.P); *x.P = s }
-func (x StmtSlice) Resize(n int)  { s := make([]ast.Stmt, n); copy(s, *x.P); *x.P = s }
+func (x ExprSlice) Resize(n int)  { s := make([]ast.Expr, n); copy(s, *x.p); *x.p = s }
+func (x FieldSlice) Resize(n int) { s := make([]*ast.Field, n); copy(s, *x.p); *x.p = s }
+func (x DeclSlice) Resize(n int)  { s := make([]ast.Decl, n); copy(s, *x.p); *x.p = s }
+func (x IdentSlice) Resize(n int) { s := make([]*ast.Ident, n); copy(s, *x.p); *x.p = s }
+func (x SpecSlice) Resize(n int)  { s := make([]ast.Spec, n); copy(s, *x.p); *x.p = s }
+func (x StmtSlice) Resize(n int)  { s := make([]ast.Stmt, n); copy(s, *x.p); *x.p = s }
 
 // variable-length ast.Nodes
 
-func (x BlockStmt) Node() ast.Node  { return x }
-func (x FieldList) Node() ast.Node  { return x }
-func (x File) Node() ast.Node       { return x }
-func (x GenDecl) Node() ast.Node    { return x }
-func (x ReturnStmt) Node() ast.Node { return x }
+func (x BlockStmt) Interface() interface{}  { return x.p }
+func (x FieldList) Interface() interface{}  { return x.p }
+func (x File) Interface() interface{}       { return x.p }
+func (x GenDecl) Interface() interface{}    { return x.p }
+func (x ReturnStmt) Interface() interface{} { return x.p }
+
+func (x BlockStmt) Node() ast.Node  { return x.p }
+func (x FieldList) Node() ast.Node  { return x.p }
+func (x File) Node() ast.Node       { return x.p }
+func (x GenDecl) Node() ast.Node    { return x.p }
+func (x ReturnStmt) Node() ast.Node { return x.p }
 
 func (x BlockStmt) Op() token.Token  { return token.LBRACE }
 func (x FieldList) Op() token.Token  { return token.ELLIPSIS }
 func (x File) Op() token.Token       { return token.EOF }
-func (x GenDecl) Op() token.Token    { return x.Tok }
+func (x GenDecl) Op() token.Token    { return x.p.Tok }
 func (x ReturnStmt) Op() token.Token { return token.RETURN }
 
-func (x BlockStmt) Size() int  { return len(x.List) }
-func (x FieldList) Size() int  { return len(x.List) }
-func (x File) Size() int       { return len(x.Decls) }
-func (x GenDecl) Size() int    { return len(x.Specs) }
-func (x ReturnStmt) Size() int { return len(x.Results) }
+func (x BlockStmt) Size() int  { return len(x.p.List) }
+func (x FieldList) Size() int  { return len(x.p.List) }
+func (x File) Size() int       { return len(x.p.Decls) }
+func (x GenDecl) Size() int    { return len(x.p.Specs) }
+func (x ReturnStmt) Size() int { return len(x.p.Results) }
 
-func (x BlockStmt) Get(i int) Ast  { return ToAst(x.List[i]) }
-func (x FieldList) Get(i int) Ast  { return ToAst(x.List[i]) }
-func (x File) Get(i int) Ast       { return ToAst(x.Decls[i]) }
-func (x GenDecl) Get(i int) Ast    { return ToAst(x.Specs[i]) }
-func (x ReturnStmt) Get(i int) Ast { return ToAst(x.Results[i]) }
+func (x BlockStmt) Get(i int) Ast  { return ToAst(x.p.List[i]) }
+func (x FieldList) Get(i int) Ast  { return ToAst(x.p.List[i]) }
+func (x File) Get(i int) Ast       { return ToAst(x.p.Decls[i]) }
+func (x GenDecl) Get(i int) Ast    { return ToAst(x.p.Specs[i]) }
+func (x ReturnStmt) Get(i int) Ast { return ToAst(x.p.Results[i]) }
 
-func (x BlockStmt) Set(i int, child Ast)  { x.List[i] = ToStmt(child) }
-func (x FieldList) Set(i int, child Ast)  { x.List[i] = ToField(child) }
-func (x File) Set(i int, child Ast)       { x.Decls[i] = ToDecl(child) }
-func (x GenDecl) Set(i int, child Ast)    { x.Specs[i] = ToSpec(child) }
-func (x ReturnStmt) Set(i int, child Ast) { x.Results[i] = ToExpr(child) }
+func (x BlockStmt) Set(i int, child Ast)  { x.p.List[i] = ToStmt(child) }
+func (x FieldList) Set(i int, child Ast)  { x.p.List[i] = ToField(child) }
+func (x File) Set(i int, child Ast)       { x.p.Decls[i] = ToDecl(child) }
+func (x GenDecl) Set(i int, child Ast)    { x.p.Specs[i] = ToSpec(child) }
+func (x ReturnStmt) Set(i int, child Ast) { x.p.Results[i] = ToExpr(child) }
 
-func (x BlockStmt) Resize(n int)  { s := make([]ast.Stmt, n); copy(s, x.List); x.List = s }
-func (x FieldList) Resize(n int)  { s := make([]*ast.Field, n); copy(s, x.List); x.List = s }
-func (x File) Resize(n int)       { s := make([]ast.Decl, n); copy(s, x.Decls); x.Decls = s }
-func (x GenDecl) Resize(n int)    { s := make([]ast.Spec, n); copy(s, x.Specs); x.Specs = s }
-func (x ReturnStmt) Resize(n int) { s := make([]ast.Expr, n); copy(s, x.Results); x.Results = s }
+func (x BlockStmt) Resize(n int)  { s := make([]ast.Stmt, n); copy(s, x.p.List); x.p.List = s }
+func (x FieldList) Resize(n int)  { s := make([]*ast.Field, n); copy(s, x.p.List); x.p.List = s }
+func (x File) Resize(n int)       { s := make([]ast.Decl, n); copy(s, x.p.Decls); x.p.Decls = s }
+func (x GenDecl) Resize(n int)    { s := make([]ast.Spec, n); copy(s, x.p.Specs); x.p.Specs = s }
+func (x ReturnStmt) Resize(n int) { s := make([]ast.Expr, n); copy(s, x.p.Results); x.p.Results = s }

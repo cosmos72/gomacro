@@ -29,66 +29,115 @@ import (
 	"go/token"
 )
 
-func (x ArrayType) Node() ast.Node      { return x }
-func (x AssignStmt) Node() ast.Node     { return x }
-func (x BadDecl) Node() ast.Node        { return x }
-func (x BadExpr) Node() ast.Node        { return x }
-func (x BadStmt) Node() ast.Node        { return x }
-func (x BasicLit) Node() ast.Node       { return x }
-func (x BinaryExpr) Node() ast.Node     { return x }
-func (x BranchStmt) Node() ast.Node     { return x }
-func (x CallExpr) Node() ast.Node       { return x }
-func (x CaseClause) Node() ast.Node     { return x }
-func (x ChanType) Node() ast.Node       { return x }
-func (x CommClause) Node() ast.Node     { return x }
-func (x CompositeLit) Node() ast.Node   { return x }
-func (x DeclStmt) Node() ast.Node       { return x }
-func (x DeferStmt) Node() ast.Node      { return x }
-func (x Ellipsis) Node() ast.Node       { return x }
-func (x EmptyStmt) Node() ast.Node      { return x }
-func (x ExprStmt) Node() ast.Node       { return x }
-func (x Field) Node() ast.Node          { return x }
-func (x ForStmt) Node() ast.Node        { return x }
-func (x FuncDecl) Node() ast.Node       { return x }
-func (x FuncLit) Node() ast.Node        { return x }
-func (x FuncType) Node() ast.Node       { return x }
-func (x GoStmt) Node() ast.Node         { return x }
-func (x Ident) Node() ast.Node          { return x }
-func (x IfStmt) Node() ast.Node         { return x }
-func (x ImportSpec) Node() ast.Node     { return x }
-func (x IncDecStmt) Node() ast.Node     { return x }
-func (x IndexExpr) Node() ast.Node      { return x }
-func (x InterfaceType) Node() ast.Node  { return x }
-func (x KeyValueExpr) Node() ast.Node   { return x }
-func (x LabeledStmt) Node() ast.Node    { return x }
-func (x MapType) Node() ast.Node        { return x }
-func (x Package) Node() ast.Node        { return x }
-func (x ParenExpr) Node() ast.Node      { return x }
-func (x RangeStmt) Node() ast.Node      { return x }
-func (x SelectStmt) Node() ast.Node     { return x }
-func (x SelectorExpr) Node() ast.Node   { return x }
-func (x SendStmt) Node() ast.Node       { return x }
-func (x SliceExpr) Node() ast.Node      { return x }
-func (x StarExpr) Node() ast.Node       { return x }
-func (x StructType) Node() ast.Node     { return x }
-func (x SwitchStmt) Node() ast.Node     { return x }
-func (x TypeAssertExpr) Node() ast.Node { return x }
-func (x TypeSpec) Node() ast.Node       { return x }
-func (x TypeSwitchStmt) Node() ast.Node { return x }
-func (x UnaryExpr) Node() ast.Node      { return x }
-func (x ValueSpec) Node() ast.Node      { return x }
+func (x ArrayType) Interface() interface{}      { return x.p }
+func (x AssignStmt) Interface() interface{}     { return x.p }
+func (x BadDecl) Interface() interface{}        { return x.p }
+func (x BadExpr) Interface() interface{}        { return x.p }
+func (x BadStmt) Interface() interface{}        { return x.p }
+func (x BasicLit) Interface() interface{}       { return x.p }
+func (x BinaryExpr) Interface() interface{}     { return x.p }
+func (x BranchStmt) Interface() interface{}     { return x.p }
+func (x CallExpr) Interface() interface{}       { return x.p }
+func (x CaseClause) Interface() interface{}     { return x.p }
+func (x ChanType) Interface() interface{}       { return x.p }
+func (x CommClause) Interface() interface{}     { return x.p }
+func (x CompositeLit) Interface() interface{}   { return x.p }
+func (x DeclStmt) Interface() interface{}       { return x.p }
+func (x DeferStmt) Interface() interface{}      { return x.p }
+func (x Ellipsis) Interface() interface{}       { return x.p }
+func (x EmptyStmt) Interface() interface{}      { return x.p }
+func (x ExprStmt) Interface() interface{}       { return x.p }
+func (x Field) Interface() interface{}          { return x.p }
+func (x ForStmt) Interface() interface{}        { return x.p }
+func (x FuncDecl) Interface() interface{}       { return x.p }
+func (x FuncLit) Interface() interface{}        { return x.p }
+func (x FuncType) Interface() interface{}       { return x.p }
+func (x GoStmt) Interface() interface{}         { return x.p }
+func (x Ident) Interface() interface{}          { return x.p }
+func (x IfStmt) Interface() interface{}         { return x.p }
+func (x ImportSpec) Interface() interface{}     { return x.p }
+func (x IncDecStmt) Interface() interface{}     { return x.p }
+func (x IndexExpr) Interface() interface{}      { return x.p }
+func (x InterfaceType) Interface() interface{}  { return x.p }
+func (x KeyValueExpr) Interface() interface{}   { return x.p }
+func (x LabeledStmt) Interface() interface{}    { return x.p }
+func (x MapType) Interface() interface{}        { return x.p }
+func (x Package) Interface() interface{}        { return x.p }
+func (x ParenExpr) Interface() interface{}      { return x.p }
+func (x RangeStmt) Interface() interface{}      { return x.p }
+func (x SelectStmt) Interface() interface{}     { return x.p }
+func (x SelectorExpr) Interface() interface{}   { return x.p }
+func (x SendStmt) Interface() interface{}       { return x.p }
+func (x SliceExpr) Interface() interface{}      { return x.p }
+func (x StarExpr) Interface() interface{}       { return x.p }
+func (x StructType) Interface() interface{}     { return x.p }
+func (x SwitchStmt) Interface() interface{}     { return x.p }
+func (x TypeAssertExpr) Interface() interface{} { return x.p }
+func (x TypeSpec) Interface() interface{}       { return x.p }
+func (x TypeSwitchStmt) Interface() interface{} { return x.p }
+func (x UnaryExpr) Interface() interface{}      { return x.p }
+func (x ValueSpec) Interface() interface{}      { return x.p }
+
+func (x ArrayType) Node() ast.Node      { return x.p }
+func (x AssignStmt) Node() ast.Node     { return x.p }
+func (x BadDecl) Node() ast.Node        { return x.p }
+func (x BadExpr) Node() ast.Node        { return x.p }
+func (x BadStmt) Node() ast.Node        { return x.p }
+func (x BasicLit) Node() ast.Node       { return x.p }
+func (x BinaryExpr) Node() ast.Node     { return x.p }
+func (x BranchStmt) Node() ast.Node     { return x.p }
+func (x CallExpr) Node() ast.Node       { return x.p }
+func (x CaseClause) Node() ast.Node     { return x.p }
+func (x ChanType) Node() ast.Node       { return x.p }
+func (x CommClause) Node() ast.Node     { return x.p }
+func (x CompositeLit) Node() ast.Node   { return x.p }
+func (x DeclStmt) Node() ast.Node       { return x.p }
+func (x DeferStmt) Node() ast.Node      { return x.p }
+func (x Ellipsis) Node() ast.Node       { return x.p }
+func (x EmptyStmt) Node() ast.Node      { return x.p }
+func (x ExprStmt) Node() ast.Node       { return x.p }
+func (x Field) Node() ast.Node          { return x.p }
+func (x ForStmt) Node() ast.Node        { return x.p }
+func (x FuncDecl) Node() ast.Node       { return x.p }
+func (x FuncLit) Node() ast.Node        { return x.p }
+func (x FuncType) Node() ast.Node       { return x.p }
+func (x GoStmt) Node() ast.Node         { return x.p }
+func (x Ident) Node() ast.Node          { return x.p }
+func (x IfStmt) Node() ast.Node         { return x.p }
+func (x ImportSpec) Node() ast.Node     { return x.p }
+func (x IncDecStmt) Node() ast.Node     { return x.p }
+func (x IndexExpr) Node() ast.Node      { return x.p }
+func (x InterfaceType) Node() ast.Node  { return x.p }
+func (x KeyValueExpr) Node() ast.Node   { return x.p }
+func (x LabeledStmt) Node() ast.Node    { return x.p }
+func (x MapType) Node() ast.Node        { return x.p }
+func (x Package) Node() ast.Node        { return x.p }
+func (x ParenExpr) Node() ast.Node      { return x.p }
+func (x RangeStmt) Node() ast.Node      { return x.p }
+func (x SelectStmt) Node() ast.Node     { return x.p }
+func (x SelectorExpr) Node() ast.Node   { return x.p }
+func (x SendStmt) Node() ast.Node       { return x.p }
+func (x SliceExpr) Node() ast.Node      { return x.p }
+func (x StarExpr) Node() ast.Node       { return x.p }
+func (x StructType) Node() ast.Node     { return x.p }
+func (x SwitchStmt) Node() ast.Node     { return x.p }
+func (x TypeAssertExpr) Node() ast.Node { return x.p }
+func (x TypeSpec) Node() ast.Node       { return x.p }
+func (x TypeSwitchStmt) Node() ast.Node { return x.p }
+func (x UnaryExpr) Node() ast.Node      { return x.p }
+func (x ValueSpec) Node() ast.Node      { return x.p }
 
 func (x ArrayType) Op() token.Token  { return token.LBRACK }
 func (x AssignStmt) Op() token.Token { return x.Op() }
 func (x BadDecl) Op() token.Token    { return token.ILLEGAL }
 func (x BadExpr) Op() token.Token    { return token.ILLEGAL }
 func (x BadStmt) Op() token.Token    { return token.ILLEGAL }
-func (x BasicLit) Op() token.Token   { return x.Kind }
-func (x BinaryExpr) Op() token.Token { return x.BinaryExpr.Op }
-func (x BranchStmt) Op() token.Token { return x.Tok }
+func (x BasicLit) Op() token.Token   { return x.p.Kind }
+func (x BinaryExpr) Op() token.Token { return x.p.Op }
+func (x BranchStmt) Op() token.Token { return x.p.Tok }
 func (x CallExpr) Op() token.Token   { return token.RPAREN }
 func (x CaseClause) Op() token.Token {
-	if len(x.List) != 0 {
+	if len(x.p.List) != 0 {
 		return token.CASE
 	} else {
 		return token.DEFAULT
@@ -96,7 +145,7 @@ func (x CaseClause) Op() token.Token {
 }
 func (x ChanType) Op() token.Token { return token.CHAN }
 func (x CommClause) Op() token.Token {
-	if x.Comm != nil {
+	if x.p.Comm != nil {
 		return token.CASE
 	} else {
 		return token.DEFAULT
@@ -104,7 +153,7 @@ func (x CommClause) Op() token.Token {
 }
 
 func (x CompositeLit) Op() token.Token   { return token.RBRACE }
-func (x DeclStmt) Op() token.Token       { return x.Decl.(*GenDecl).Tok }
+func (x DeclStmt) Op() token.Token       { return x.p.Decl.(*ast.GenDecl).Tok }
 func (x DeferStmt) Op() token.Token      { return token.DEFER }
 func (x Ellipsis) Op() token.Token       { return token.ELLIPSIS }
 func (x EmptyStmt) Op() token.Token      { return token.SEMICOLON }
@@ -118,7 +167,7 @@ func (x GoStmt) Op() token.Token         { return token.GO }
 func (x Ident) Op() token.Token          { return token.IDENT }
 func (x IfStmt) Op() token.Token         { return token.IF }
 func (x ImportSpec) Op() token.Token     { return token.IMPORT }
-func (x IncDecStmt) Op() token.Token     { return x.Tok }
+func (x IncDecStmt) Op() token.Token     { return x.p.Tok }
 func (x IndexExpr) Op() token.Token      { return token.RBRACK }
 func (x InterfaceType) Op() token.Token  { return token.INTERFACE }
 func (x KeyValueExpr) Op() token.Token   { return token.COLON } // FIXME
@@ -137,7 +186,7 @@ func (x SwitchStmt) Op() token.Token     { return token.SWITCH }
 func (x TypeAssertExpr) Op() token.Token { return token.TYPE } // FIXME
 func (x TypeSpec) Op() token.Token       { return token.TYPE }
 func (x TypeSwitchStmt) Op() token.Token { return token.SWITCH } // FIXME
-func (x UnaryExpr) Op() token.Token      { return x.UnaryExpr.Op }
+func (x UnaryExpr) Op() token.Token      { return x.p.Op }
 func (x ValueSpec) Op() token.Token      { return token.VAR } // can be VAR or CONST
 
 func (x ArrayType) Size() int      { return 2 }
@@ -145,7 +194,7 @@ func (x AssignStmt) Size() int     { return 2 }
 func (x BadDecl) Size() int        { return 0 }
 func (x BadExpr) Size() int        { return 0 }
 func (x BadStmt) Size() int        { return 0 }
-func (x BasicLit) Size() int       { return 1 }
+func (x BasicLit) Size() int       { return 0 }
 func (x BinaryExpr) Size() int     { return 2 }
 func (x BranchStmt) Size() int     { return 1 }
 func (x CallExpr) Size() int       { return 2 }
@@ -189,13 +238,13 @@ func (x TypeSwitchStmt) Size() int { return 3 }
 func (x UnaryExpr) Size() int      { return 1 }
 func (x ValueSpec) Size() int      { return 3 }
 
-func (x ArrayType) Get(i int) Ast { return ToAst2(i, x.Len, x.Elt) }
+func (x ArrayType) Get(i int) Ast { return ToAst2(i, x.p.Len, x.p.Elt) }
 func (x AssignStmt) Get(i int) Ast {
 	var addr *[]ast.Expr
 	if i == 0 {
-		addr = &x.Lhs
+		addr = &x.p.Lhs
 	} else if i == 1 {
-		addr = &x.Rhs
+		addr = &x.p.Rhs
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -205,55 +254,55 @@ func (x BadDecl) Get(i int) Ast    { return BadIndex(i, 0) }
 func (x BadExpr) Get(i int) Ast    { return BadIndex(i, 0) }
 func (x BadStmt) Get(i int) Ast    { return BadIndex(i, 0) }
 func (x BasicLit) Get(i int) Ast   { return BadIndex(i, 0) }
-func (x BinaryExpr) Get(i int) Ast { return ToAst2(i, x.X, x.Y) }
-func (x BranchStmt) Get(i int) Ast { return Ident{x.Label} }
+func (x BinaryExpr) Get(i int) Ast { return ToAst2(i, x.p.X, x.p.Y) }
+func (x BranchStmt) Get(i int) Ast { return Ident{x.p.Label} }
 func (x CallExpr) Get(i int) Ast {
 	if i == 0 {
-		return ToAst(x.Fun)
+		return ToAst(x.p.Fun)
 	} else if i == 1 {
-		return ExprSlice{&x.Args}
+		return ExprSlice{&x.p.Args}
 	} else {
 		return BadIndex(i, 2)
 	}
 }
 func (x CaseClause) Get(i int) Ast {
 	if i == 0 {
-		return ExprSlice{&x.List}
+		return ExprSlice{&x.p.List}
 	} else if i == 1 {
-		return StmtSlice{&x.Body}
+		return StmtSlice{&x.p.Body}
 	} else {
 		return BadIndex(i, 2)
 	}
 }
-func (x ChanType) Get(i int) Ast { return ToAst1(i, x.Value) }
+func (x ChanType) Get(i int) Ast { return ToAst1(i, x.p.Value) }
 func (x CommClause) Get(i int) Ast {
 	if i == 0 {
-		return ToAst(x.Comm)
+		return ToAst(x.p.Comm)
 	} else if i == 1 {
-		return StmtSlice{&x.Body}
+		return StmtSlice{&x.p.Body}
 	} else {
 		return BadIndex(i, 2)
 	}
 }
 func (x CompositeLit) Get(i int) Ast {
 	if i == 0 {
-		return ToAst(x.Type)
+		return ToAst(x.p.Type)
 	} else if i == 1 {
-		return ExprSlice{&x.Elts}
+		return ExprSlice{&x.p.Elts}
 	} else {
 		return BadIndex(i, 2)
 	}
 }
-func (x DeclStmt) Get(i int) Ast  { return ToAst1(i, x.Decl) }
-func (x DeferStmt) Get(i int) Ast { return CallExpr{x.Call} }
-func (x Ellipsis) Get(i int) Ast  { return ToAst1(i, x.Elt) }
+func (x DeclStmt) Get(i int) Ast  { return ToAst1(i, x.p.Decl) }
+func (x DeferStmt) Get(i int) Ast { return CallExpr{x.p.Call} }
+func (x Ellipsis) Get(i int) Ast  { return ToAst1(i, x.p.Elt) }
 func (x EmptyStmt) Get(i int) Ast { return BadIndex(i, 0) }
-func (x ExprStmt) Get(i int) Ast  { return ToAst1(i, x.X) }
+func (x ExprStmt) Get(i int) Ast  { return ToAst1(i, x.p.X) }
 func (x Field) Get(i int) Ast {
 	if i == 0 {
-		return IdentSlice{&x.Names}
+		return IdentSlice{&x.p.Names}
 	} else if i == 1 {
-		return ToAst(x.Type)
+		return ToAst(x.p.Type)
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -262,13 +311,13 @@ func (x ForStmt) Get(i int) Ast {
 	var node ast.Node
 	switch i {
 	case 0:
-		node = x.Init
+		node = x.p.Init
 	case 1:
-		node = x.Cond
+		node = x.p.Cond
 	case 2:
-		node = x.Post
+		node = x.p.Post
 	case 3:
-		return BlockStmt{x.Body}
+		return BlockStmt{x.p.Body}
 	default:
 		return BadIndex(i, 4)
 	}
@@ -278,13 +327,13 @@ func (x FuncDecl) Get(i int) Ast {
 	var node ast.Node
 	switch i {
 	case 0:
-		node = x.Recv
+		node = x.p.Recv
 	case 1:
-		return Ident{x.Name}
+		return Ident{x.p.Name}
 	case 2:
-		node = x.Type
+		node = x.p.Type
 	case 3:
-		return BlockStmt{x.Body}
+		return BlockStmt{x.p.Body}
 	default:
 		return BadIndex(i, 4)
 	}
@@ -292,9 +341,9 @@ func (x FuncDecl) Get(i int) Ast {
 }
 func (x FuncLit) Get(i int) Ast {
 	if i == 0 {
-		return FuncType{x.Type}
+		return FuncType{x.p.Type}
 	} else if i == 1 {
-		return BlockStmt{x.Body}
+		return BlockStmt{x.p.Body}
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -302,27 +351,27 @@ func (x FuncLit) Get(i int) Ast {
 func (x FuncType) Get(i int) Ast {
 	var ret *ast.FieldList
 	if i == 0 {
-		ret = x.Params
+		ret = x.p.Params
 	} else if i == 1 {
-		ret = x.Results
+		ret = x.p.Results
 	} else {
 		return BadIndex(i, 2)
 	}
 	return FieldList{ret}
 }
-func (x GoStmt) Get(i int) Ast { return CallExpr{x.Call} }
+func (x GoStmt) Get(i int) Ast { return CallExpr{x.p.Call} }
 func (x Ident) Get(i int) Ast  { return BadIndex(i, 0) }
 func (x IfStmt) Get(i int) Ast {
 	var node ast.Node
 	switch i {
 	case 0:
-		node = x.Init
+		node = x.p.Init
 	case 1:
-		node = x.Cond
+		node = x.p.Cond
 	case 2:
-		return BlockStmt{x.Body}
+		return BlockStmt{x.p.Body}
 	case 3:
-		node = x.Else
+		node = x.p.Else
 	default:
 		return BadIndex(i, 4)
 	}
@@ -331,73 +380,73 @@ func (x IfStmt) Get(i int) Ast {
 
 func (x ImportSpec) Get(i int) Ast {
 	if i == 0 {
-		return Ident{x.Name}
+		return Ident{x.p.Name}
 	} else if i == 1 {
-		return BasicLit{x.Path}
+		return BasicLit{x.p.Path}
 	} else {
 		return BadIndex(i, 2)
 	}
 }
-func (x IncDecStmt) Get(i int) Ast    { return ToAst1(i, x.X) }
-func (x IndexExpr) Get(i int) Ast     { return ToAst2(i, x.X, x.Index) }
-func (x InterfaceType) Get(i int) Ast { return FieldList{x.Methods} }
-func (x KeyValueExpr) Get(i int) Ast  { return ToAst2(i, x.Key, x.Value) }
+func (x IncDecStmt) Get(i int) Ast    { return ToAst1(i, x.p.X) }
+func (x IndexExpr) Get(i int) Ast     { return ToAst2(i, x.p.X, x.p.Index) }
+func (x InterfaceType) Get(i int) Ast { return FieldList{x.p.Methods} }
+func (x KeyValueExpr) Get(i int) Ast  { return ToAst2(i, x.p.Key, x.p.Value) }
 func (x LabeledStmt) Get(i int) Ast {
 	if i == 0 {
-		return Ident{x.Label}
+		return Ident{x.p.Label}
 	} else if i == 1 {
-		return ToAst(x.Stmt)
+		return ToAst(x.p.Stmt)
 	} else {
 		return BadIndex(i, 2)
 	}
 }
-func (x MapType) Get(i int) Ast   { return ToAst2(i, x.Key, x.Value) }
+func (x MapType) Get(i int) Ast   { return ToAst2(i, x.p.Key, x.p.Value) }
 func (x Package) Get(i int) Ast   { return nil } // TODO
-func (x ParenExpr) Get(i int) Ast { return ToAst1(i, x.X) }
+func (x ParenExpr) Get(i int) Ast { return ToAst1(i, x.p.X) }
 func (x RangeStmt) Get(i int) Ast {
 	var node ast.Node
 	switch i {
 	case 0:
-		node = x.Key
+		node = x.p.Key
 	case 1:
-		node = x.Value
+		node = x.p.Value
 	case 2:
-		node = x.X
+		node = x.p.X
 	case 3:
-		return BlockStmt{x.Body}
+		return BlockStmt{x.p.Body}
 	default:
 		BadIndex(i, 4)
 	}
 	return ToAst(node)
 }
-func (x SelectStmt) Get(i int) Ast   { return BlockStmt{x.Body} }
-func (x SelectorExpr) Get(i int) Ast { return ToAst2(i, x.X, x.Sel) }
-func (x SendStmt) Get(i int) Ast     { return ToAst2(i, x.Chan, x.Value) }
+func (x SelectStmt) Get(i int) Ast   { return BlockStmt{x.p.Body} }
+func (x SelectorExpr) Get(i int) Ast { return ToAst2(i, x.p.X, x.p.Sel) }
+func (x SendStmt) Get(i int) Ast     { return ToAst2(i, x.p.Chan, x.p.Value) }
 func (x SliceExpr) Get(i int) Ast {
 	var node ast.Node
 	switch i {
 	case 0:
-		node = x.X
+		node = x.p.X
 	case 1:
-		node = x.Low
+		node = x.p.Low
 	case 2:
-		node = x.High
+		node = x.p.High
 	case 3:
-		node = x.Max
+		node = x.p.Max
 	default:
 		BadIndex(i, 4)
 	}
 	return ToAst(node)
 }
-func (x StarExpr) Get(i int) Ast       { return ToAst1(i, x.X) }
-func (x StructType) Get(i int) Ast     { return FieldList{x.Fields} }
-func (x SwitchStmt) Get(i int) Ast     { return ToAst3(i, x.Init, x.Tag, x.Body) }
-func (x TypeAssertExpr) Get(i int) Ast { return ToAst2(i, x.X, x.Type) }
+func (x StarExpr) Get(i int) Ast       { return ToAst1(i, x.p.X) }
+func (x StructType) Get(i int) Ast     { return FieldList{x.p.Fields} }
+func (x SwitchStmt) Get(i int) Ast     { return ToAst3(i, x.p.Init, x.p.Tag, x.p.Body) }
+func (x TypeAssertExpr) Get(i int) Ast { return ToAst2(i, x.p.X, x.p.Type) }
 func (x TypeSpec) Get(i int) Ast {
 	if i == 0 {
-		return Ident{x.Name}
+		return Ident{x.p.Name}
 	} else if i == 1 {
-		return ToAst(x.Type)
+		return ToAst(x.p.Type)
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -406,25 +455,25 @@ func (x TypeSwitchStmt) Get(i int) Ast {
 	var node ast.Node
 	switch i {
 	case 0:
-		node = x.Init
+		node = x.p.Init
 	case 1:
-		node = x.Assign
+		node = x.p.Assign
 	case 2:
-		return BlockStmt{x.Body}
+		return BlockStmt{x.p.Body}
 	default:
 		BadIndex(i, 3)
 	}
 	return ToAst(node)
 }
-func (x UnaryExpr) Get(i int) Ast { return ToAst1(i, x.X) }
+func (x UnaryExpr) Get(i int) Ast { return ToAst1(i, x.p.X) }
 func (x ValueSpec) Get(i int) Ast {
 	switch i {
 	case 0:
-		return IdentSlice{&x.Names}
+		return IdentSlice{&x.p.Names}
 	case 1:
-		return ToAst(x.Type)
+		return ToAst(x.p.Type)
 	case 2:
-		return ExprSlice{&x.Values}
+		return ExprSlice{&x.p.Values}
 	default:
 		return BadIndex(i, 3)
 	}
@@ -433,9 +482,9 @@ func (x ValueSpec) Get(i int) Ast {
 func (x ArrayType) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
-		x.Len = expr
+		x.p.Len = expr
 	} else if i == 1 {
-		x.Elt = expr
+		x.p.Elt = expr
 	} else {
 		BadIndex(i, 2)
 	}
@@ -443,9 +492,9 @@ func (x ArrayType) Set(i int, child Ast) {
 func (x AssignStmt) Set(i int, child Ast) {
 	exprs := ToExprSlice(child)
 	if i == 0 {
-		x.Lhs = exprs
+		x.p.Lhs = exprs
 	} else if i == 1 {
-		x.Rhs = exprs
+		x.p.Rhs = exprs
 	} else {
 		BadIndex(i, 2)
 	}
@@ -457,61 +506,61 @@ func (x BasicLit) Set(i int, child Ast) { BadIndex(i, 0) }
 func (x BinaryExpr) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
-		x.X = expr
+		x.p.X = expr
 	} else if i == 1 {
-		x.Y = expr
+		x.p.Y = expr
 	} else {
 		BadIndex(i, 2)
 	}
 }
-func (x BranchStmt) Set(i int, child Ast) { x.Label = ToIdent(child) }
+func (x BranchStmt) Set(i int, child Ast) { x.p.Label = ToIdent(child) }
 func (x CallExpr) Set(i int, child Ast) {
 	if i == 0 {
-		x.Fun = ToExpr(child)
+		x.p.Fun = ToExpr(child)
 	} else if i == 1 {
-		x.Args = ToExprSlice(child)
+		x.p.Args = ToExprSlice(child)
 	} else {
 		BadIndex(i, 2)
 	}
 }
 func (x CaseClause) Set(i int, child Ast) {
 	if i == 0 {
-		x.List = ToExprSlice(child)
+		x.p.List = ToExprSlice(child)
 	} else if i == 1 {
-		x.Body = ToStmtSlice(child)
+		x.p.Body = ToStmtSlice(child)
 	} else {
 		BadIndex(i, 2)
 	}
 }
-func (x ChanType) Set(i int, child Ast) { x.Value = ToExpr(child) }
+func (x ChanType) Set(i int, child Ast) { x.p.Value = ToExpr(child) }
 func (x CommClause) Set(i int, child Ast) {
 	if i == 0 {
-		x.Comm = ToStmt(child)
+		x.p.Comm = ToStmt(child)
 	} else if i == 1 {
-		x.Body = ToStmtSlice(child)
+		x.p.Body = ToStmtSlice(child)
 	} else {
 		BadIndex(i, 2)
 	}
 }
 func (x CompositeLit) Set(i int, child Ast) {
 	if i == 0 {
-		x.Type = ToExpr(child)
+		x.p.Type = ToExpr(child)
 	} else if i == 1 {
-		x.Elts = ToExprSlice(child)
+		x.p.Elts = ToExprSlice(child)
 	} else {
 		BadIndex(i, 2)
 	}
 }
-func (x DeclStmt) Set(i int, child Ast)  { x.Decl = ToDecl(child) }
-func (x DeferStmt) Set(i int, child Ast) { x.Call = ToCallExpr(child) }
-func (x Ellipsis) Set(i int, child Ast)  { x.Elt = ToExpr(child) }
+func (x DeclStmt) Set(i int, child Ast)  { x.p.Decl = ToDecl(child) }
+func (x DeferStmt) Set(i int, child Ast) { x.p.Call = ToCallExpr(child) }
+func (x Ellipsis) Set(i int, child Ast)  { x.p.Elt = ToExpr(child) }
 func (x EmptyStmt) Set(i int, child Ast) { BadIndex(i, 0) }
-func (x ExprStmt) Set(i int, child Ast)  { x.X = ToExpr(child) }
+func (x ExprStmt) Set(i int, child Ast)  { x.p.X = ToExpr(child) }
 func (x Field) Set(i int, child Ast) {
 	if i == 0 {
-		x.Names = ToIdentSlice(child)
+		x.p.Names = ToIdentSlice(child)
 	} else if i == 1 {
-		x.Type = ToExpr(child)
+		x.p.Type = ToExpr(child)
 	} else {
 		BadIndex(i, 2)
 	}
@@ -519,13 +568,13 @@ func (x Field) Set(i int, child Ast) {
 func (x ForStmt) Set(i int, child Ast) {
 	switch i {
 	case 0:
-		x.Init = ToStmt(child)
+		x.p.Init = ToStmt(child)
 	case 1:
-		x.Cond = ToExpr(child)
+		x.p.Cond = ToExpr(child)
 	case 2:
-		x.Post = ToStmt(child)
+		x.p.Post = ToStmt(child)
 	case 3:
-		x.Body = ToBlockStmt(child)
+		x.p.Body = ToBlockStmt(child)
 	default:
 		BadIndex(i, 4)
 	}
@@ -533,22 +582,22 @@ func (x ForStmt) Set(i int, child Ast) {
 func (x FuncDecl) Set(i int, child Ast) {
 	switch i {
 	case 0:
-		x.Recv = ToFieldList(child)
+		x.p.Recv = ToFieldList(child)
 	case 1:
-		x.Name = ToIdent(child)
+		x.p.Name = ToIdent(child)
 	case 2:
-		x.Type = ToFuncType(child)
+		x.p.Type = ToFuncType(child)
 	case 3:
-		x.Body = ToBlockStmt(child)
+		x.p.Body = ToBlockStmt(child)
 	default:
 		BadIndex(i, 4)
 	}
 }
 func (x FuncLit) Set(i int, child Ast) {
 	if i == 0 {
-		x.Type = ToFuncType(child)
+		x.p.Type = ToFuncType(child)
 	} else if i == 1 {
-		x.Body = ToBlockStmt(child)
+		x.p.Body = ToBlockStmt(child)
 	} else {
 		BadIndex(i, 2)
 	}
@@ -556,65 +605,65 @@ func (x FuncLit) Set(i int, child Ast) {
 func (x FuncType) Set(i int, child Ast) {
 	list := ToFieldList(child)
 	if i == 0 {
-		x.Params = list
+		x.p.Params = list
 	} else if i == 1 {
-		x.Results = list
+		x.p.Results = list
 	} else {
 		BadIndex(i, 2)
 	}
 }
-func (x GoStmt) Set(i int, child Ast) { x.Call = ToCallExpr(child) }
+func (x GoStmt) Set(i int, child Ast) { x.p.Call = ToCallExpr(child) }
 func (x Ident) Set(i int, child Ast)  { BadIndex(i, 0) }
 func (x IfStmt) Set(i int, child Ast) {
 	switch i {
 	case 0:
-		x.Init = ToStmt(child)
+		x.p.Init = ToStmt(child)
 	case 1:
-		x.Cond = ToExpr(child)
+		x.p.Cond = ToExpr(child)
 	case 2:
-		x.Body = ToBlockStmt(child)
+		x.p.Body = ToBlockStmt(child)
 	case 3:
-		x.Else = ToStmt(child)
+		x.p.Else = ToStmt(child)
 	default:
 		BadIndex(i, 4)
 	}
 }
 func (x ImportSpec) Set(i int, child Ast) {
 	if i == 0 {
-		x.Name = ToIdent(child)
+		x.p.Name = ToIdent(child)
 	} else if i == 1 {
-		x.Path = ToBasicLit(child)
+		x.p.Path = ToBasicLit(child)
 	} else {
 		BadIndex(i, 2)
 	}
 }
-func (x IncDecStmt) Set(i int, child Ast) { x.X = ToExpr(child) }
+func (x IncDecStmt) Set(i int, child Ast) { x.p.X = ToExpr(child) }
 func (x IndexExpr) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
-		x.X = expr
+		x.p.X = expr
 	} else if i == 1 {
-		x.Index = expr
+		x.p.Index = expr
 	} else {
 		BadIndex(i, 2)
 	}
 }
-func (x InterfaceType) Set(i int, child Ast) { x.Methods = ToFieldList(child) }
+func (x InterfaceType) Set(i int, child Ast) { x.p.Methods = ToFieldList(child) }
 func (x KeyValueExpr) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
-		x.Key = expr
+		x.p.Key = expr
 	} else if i == 1 {
-		x.Value = expr
+		x.p.Value = expr
 	} else {
 		BadIndex(i, 2)
 	}
 }
 func (x LabeledStmt) Set(i int, child Ast) {
 	if i == 0 {
-		x.Label = ToIdent(child)
+		x.p.Label = ToIdent(child)
 	} else if i == 1 {
-		x.Stmt = ToStmt(child)
+		x.p.Stmt = ToStmt(child)
 	} else {
 		BadIndex(i, 2)
 	}
@@ -622,43 +671,43 @@ func (x LabeledStmt) Set(i int, child Ast) {
 func (x MapType) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
-		x.Key = expr
+		x.p.Key = expr
 	} else if i == 1 {
-		x.Value = expr
+		x.p.Value = expr
 	} else {
 		BadIndex(i, 2)
 	}
 }
 func (x Package) Set(i int, child Ast)   {} // TODO
-func (x ParenExpr) Set(i int, child Ast) { x.X = ToExpr(child) }
+func (x ParenExpr) Set(i int, child Ast) { x.p.X = ToExpr(child) }
 func (x RangeStmt) Set(i int, child Ast) {
 	switch i {
 	case 0:
-		x.Key = ToExpr(child)
+		x.p.Key = ToExpr(child)
 	case 1:
-		x.Value = ToExpr(child)
+		x.p.Value = ToExpr(child)
 	case 2:
-		x.X = ToExpr(child)
+		x.p.X = ToExpr(child)
 	case 3:
-		x.Body = ToBlockStmt(child)
+		x.p.Body = ToBlockStmt(child)
 	default:
 		BadIndex(i, 4)
 	}
 }
-func (x SelectStmt) Set(i int, child Ast) { x.Body = ToBlockStmt(child) }
+func (x SelectStmt) Set(i int, child Ast) { x.p.Body = ToBlockStmt(child) }
 func (x SelectorExpr) Set(i int, child Ast) {
 	if i == 0 {
-		x.X = ToExpr(child)
+		x.p.X = ToExpr(child)
 	} else if i == 1 {
-		x.Sel = ToIdent(child)
+		x.p.Sel = ToIdent(child)
 	}
 }
 func (x SendStmt) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
-		x.Chan = expr
+		x.p.Chan = expr
 	} else if i == 1 {
-		x.Chan = expr
+		x.p.Chan = expr
 	} else {
 		BadIndex(i, 2)
 	}
@@ -667,46 +716,46 @@ func (x SliceExpr) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	switch i {
 	case 0:
-		x.X = expr
+		x.p.X = expr
 	case 1:
-		x.Low = expr
+		x.p.Low = expr
 	case 2:
-		x.High = expr
+		x.p.High = expr
 	case 3:
-		x.Max = expr
-		x.Slice3 = expr != nil
+		x.p.Max = expr
+		x.p.Slice3 = expr != nil
 	default:
 		BadIndex(i, 4)
 	}
 }
-func (x StarExpr) Set(i int, child Ast)   { x.X = ToExpr(child) }
-func (x StructType) Set(i int, child Ast) { x.Fields = ToFieldList(child) }
+func (x StarExpr) Set(i int, child Ast)   { x.p.X = ToExpr(child) }
+func (x StructType) Set(i int, child Ast) { x.p.Fields = ToFieldList(child) }
 func (x SwitchStmt) Set(i int, child Ast) {
 	switch i {
 	case 0:
-		x.Init = ToStmt(child)
+		x.p.Init = ToStmt(child)
 	case 1:
-		x.Tag = ToExpr(child)
+		x.p.Tag = ToExpr(child)
 	case 2:
-		x.Body = ToBlockStmt(child)
+		x.p.Body = ToBlockStmt(child)
 	default:
 		BadIndex(i, 3)
 	}
 }
 func (x TypeAssertExpr) Set(i int, child Ast) {
 	if i == 0 {
-		x.X = ToExpr(child)
+		x.p.X = ToExpr(child)
 	} else if i == 1 {
-		x.Type = ToExpr(child)
+		x.p.Type = ToExpr(child)
 	} else {
 		BadIndex(i, 2)
 	}
 }
 func (x TypeSpec) Set(i int, child Ast) {
 	if i == 0 {
-		x.Name = ToIdent(child)
+		x.p.Name = ToIdent(child)
 	} else if i == 1 {
-		x.Type = ToExpr(child)
+		x.p.Type = ToExpr(child)
 	} else {
 		BadIndex(i, 2)
 	}
@@ -714,24 +763,24 @@ func (x TypeSpec) Set(i int, child Ast) {
 func (x TypeSwitchStmt) Set(i int, child Ast) {
 	switch i {
 	case 0:
-		x.Init = ToStmt(child)
+		x.p.Init = ToStmt(child)
 	case 1:
-		x.Assign = ToStmt(child)
+		x.p.Assign = ToStmt(child)
 	case 2:
-		x.Body = ToBlockStmt(child)
+		x.p.Body = ToBlockStmt(child)
 	default:
 		BadIndex(i, 3)
 	}
 }
-func (x UnaryExpr) Set(i int, child Ast) { x.X = ToExpr(child) }
+func (x UnaryExpr) Set(i int, child Ast) { x.p.X = ToExpr(child) }
 func (x ValueSpec) Set(i int, child Ast) {
 	switch i {
 	case 0:
-		x.Names = ToIdentSlice(child)
+		x.p.Names = ToIdentSlice(child)
 	case 1:
-		x.Type = ToExpr(child)
+		x.p.Type = ToExpr(child)
 	case 2:
-		x.Values = ToExprSlice(child)
+		x.p.Values = ToExprSlice(child)
 	default:
 		BadIndex(i, 3)
 	}

@@ -31,6 +31,7 @@ import (
 
 type (
 	Ast interface {
+		Interface() interface{}
 		Op() token.Token
 		Size() int
 		Get(i int) Ast
@@ -45,64 +46,64 @@ type (
 		Resize(n int)
 	}
 
-	ExprSlice  struct{ P *[]ast.Expr }
-	FieldSlice struct{ P *[]*ast.Field }
-	DeclSlice  struct{ P *[]ast.Decl }
-	IdentSlice struct{ P *[]*ast.Ident }
-	StmtSlice  struct{ P *[]ast.Stmt }
-	SpecSlice  struct{ P *[]ast.Spec }
+	ExprSlice  struct{ p *[]ast.Expr }
+	FieldSlice struct{ p *[]*ast.Field }
+	DeclSlice  struct{ p *[]ast.Decl }
+	IdentSlice struct{ p *[]*ast.Ident }
+	StmtSlice  struct{ p *[]ast.Stmt }
+	SpecSlice  struct{ p *[]ast.Spec }
 
-	ArrayType      struct{ *ast.ArrayType }
-	AssignStmt     struct{ *ast.AssignStmt }
-	BadDecl        struct{ *ast.BadDecl }
-	BadExpr        struct{ *ast.BadExpr }
-	BadStmt        struct{ *ast.BadStmt }
-	BasicLit       struct{ *ast.BasicLit }
-	BinaryExpr     struct{ *ast.BinaryExpr }
-	BlockStmt      struct{ *ast.BlockStmt }
-	BranchStmt     struct{ *ast.BranchStmt }
-	CallExpr       struct{ *ast.CallExpr }
-	CaseClause     struct{ *ast.CaseClause }
-	ChanType       struct{ *ast.ChanType }
-	CommClause     struct{ *ast.CommClause }
-	CompositeLit   struct{ *ast.CompositeLit }
-	DeclStmt       struct{ *ast.DeclStmt }
-	DeferStmt      struct{ *ast.DeferStmt }
-	Ellipsis       struct{ *ast.Ellipsis }
-	EmptyStmt      struct{ *ast.EmptyStmt }
-	ExprStmt       struct{ *ast.ExprStmt }
-	Field          struct{ *ast.Field }
-	FieldList      struct{ *ast.FieldList }
-	File           struct{ *ast.File }
-	ForStmt        struct{ *ast.ForStmt }
-	FuncDecl       struct{ *ast.FuncDecl }
-	FuncLit        struct{ *ast.FuncLit }
-	FuncType       struct{ *ast.FuncType }
-	GenDecl        struct{ *ast.GenDecl }
-	GoStmt         struct{ *ast.GoStmt }
-	Ident          struct{ *ast.Ident }
-	IfStmt         struct{ *ast.IfStmt }
-	ImportSpec     struct{ *ast.ImportSpec }
-	IncDecStmt     struct{ *ast.IncDecStmt }
-	IndexExpr      struct{ *ast.IndexExpr }
-	InterfaceType  struct{ *ast.InterfaceType }
-	KeyValueExpr   struct{ *ast.KeyValueExpr }
-	LabeledStmt    struct{ *ast.LabeledStmt }
-	MapType        struct{ *ast.MapType }
-	Package        struct{ *ast.Package }
-	ParenExpr      struct{ *ast.ParenExpr }
-	RangeStmt      struct{ *ast.RangeStmt }
-	ReturnStmt     struct{ *ast.ReturnStmt }
-	SelectStmt     struct{ *ast.SelectStmt }
-	SelectorExpr   struct{ *ast.SelectorExpr }
-	SendStmt       struct{ *ast.SendStmt }
-	SliceExpr      struct{ *ast.SliceExpr }
-	StarExpr       struct{ *ast.StarExpr }
-	StructType     struct{ *ast.StructType }
-	SwitchStmt     struct{ *ast.SwitchStmt }
-	TypeAssertExpr struct{ *ast.TypeAssertExpr }
-	TypeSpec       struct{ *ast.TypeSpec }
-	TypeSwitchStmt struct{ *ast.TypeSwitchStmt }
-	UnaryExpr      struct{ *ast.UnaryExpr }
-	ValueSpec      struct{ *ast.ValueSpec }
+	ArrayType      struct{ p *ast.ArrayType }
+	AssignStmt     struct{ p *ast.AssignStmt }
+	BadDecl        struct{ p *ast.BadDecl }
+	BadExpr        struct{ p *ast.BadExpr }
+	BadStmt        struct{ p *ast.BadStmt }
+	BasicLit       struct{ p *ast.BasicLit }
+	BinaryExpr     struct{ p *ast.BinaryExpr }
+	BlockStmt      struct{ p *ast.BlockStmt }
+	BranchStmt     struct{ p *ast.BranchStmt }
+	CallExpr       struct{ p *ast.CallExpr }
+	CaseClause     struct{ p *ast.CaseClause }
+	ChanType       struct{ p *ast.ChanType }
+	CommClause     struct{ p *ast.CommClause }
+	CompositeLit   struct{ p *ast.CompositeLit }
+	DeclStmt       struct{ p *ast.DeclStmt }
+	DeferStmt      struct{ p *ast.DeferStmt }
+	Ellipsis       struct{ p *ast.Ellipsis }
+	EmptyStmt      struct{ p *ast.EmptyStmt }
+	ExprStmt       struct{ p *ast.ExprStmt }
+	Field          struct{ p *ast.Field }
+	FieldList      struct{ p *ast.FieldList }
+	File           struct{ p *ast.File }
+	ForStmt        struct{ p *ast.ForStmt }
+	FuncDecl       struct{ p *ast.FuncDecl }
+	FuncLit        struct{ p *ast.FuncLit }
+	FuncType       struct{ p *ast.FuncType }
+	GenDecl        struct{ p *ast.GenDecl }
+	GoStmt         struct{ p *ast.GoStmt }
+	Ident          struct{ p *ast.Ident }
+	IfStmt         struct{ p *ast.IfStmt }
+	ImportSpec     struct{ p *ast.ImportSpec }
+	IncDecStmt     struct{ p *ast.IncDecStmt }
+	IndexExpr      struct{ p *ast.IndexExpr }
+	InterfaceType  struct{ p *ast.InterfaceType }
+	KeyValueExpr   struct{ p *ast.KeyValueExpr }
+	LabeledStmt    struct{ p *ast.LabeledStmt }
+	MapType        struct{ p *ast.MapType }
+	Package        struct{ p *ast.Package }
+	ParenExpr      struct{ p *ast.ParenExpr }
+	RangeStmt      struct{ p *ast.RangeStmt }
+	ReturnStmt     struct{ p *ast.ReturnStmt }
+	SelectStmt     struct{ p *ast.SelectStmt }
+	SelectorExpr   struct{ p *ast.SelectorExpr }
+	SendStmt       struct{ p *ast.SendStmt }
+	SliceExpr      struct{ p *ast.SliceExpr }
+	StarExpr       struct{ p *ast.StarExpr }
+	StructType     struct{ p *ast.StructType }
+	SwitchStmt     struct{ p *ast.SwitchStmt }
+	TypeAssertExpr struct{ p *ast.TypeAssertExpr }
+	TypeSpec       struct{ p *ast.TypeSpec }
+	TypeSwitchStmt struct{ p *ast.TypeSwitchStmt }
+	UnaryExpr      struct{ p *ast.UnaryExpr }
+	ValueSpec      struct{ p *ast.ValueSpec }
 )

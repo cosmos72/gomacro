@@ -36,9 +36,11 @@ type Macro struct {
 type Options uint
 
 const (
-	OptShowEvalDuration Options = 1 << iota
+	OptTrapPanic Options = 1 << iota
+	OptShowEvalDuration
 	OptShowAfterParse
-	OptShowAfterMacroExpandCodewalk
+	OptShowAfterMacroExpansion
+	OptDebugQuasiquote
 )
 
 var Nil = r.ValueOf(nil)

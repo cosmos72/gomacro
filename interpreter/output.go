@@ -75,7 +75,7 @@ func BadIndex(index int, size int) AstWithNode {
 	if size > 0 {
 		Errorf("index out of range: %d not in 0...%d", index, size-1)
 	} else {
-		Errorf("index out of range: %d, slice is empty")
+		Errorf("index out of range: %d, slice is empty", index)
 	}
 	return nil
 }
@@ -152,10 +152,15 @@ func (f FileSet) toPrintables(values []interface{}) []interface{} {
 	return values
 }
 
-func (f FileSet) toPrintable(value interface{}) interface{} {
+func (f FileSet) toPrintable(value interface{}) (ret interface{}) {
 	if value == nil {
 		return nil
 	}
+	defer func() {
+		if rec := recover(); rec != nil {
+			ret = fmt.Sprintf("error pretty-printing %#v <%v>", value, r.TypeOf(value))
+		}
+	}()
 	if v, ok := value.(r.Value); ok {
 		return f.valueToPrintable(v)
 	}
@@ -169,8 +174,13 @@ func (f FileSet) toPrintable(value interface{}) interface{} {
 		}
 		return values
 	}
-	if node, ok := value.(ast.Node); ok {
-		return f.nodeToPrintable(node)
+	switch v := value.(type) {
+	case AstWithNode:
+		return f.nodeToPrintable(v.Node())
+	case Ast:
+		return f.toPrintable(v.Interface())
+	case ast.Node:
+		return f.nodeToPrintable(v)
 	}
 	return value
 }
@@ -186,6 +196,9 @@ func (f FileSet) valueToPrintable(value r.Value) interface{} {
 }
 
 func (f FileSet) nodeToPrintable(node ast.Node) interface{} {
+	if node == nil {
+		return nil
+	}
 	fset := f.Fileset
 	if fset == nil {
 		fset = token.NewFileSet()

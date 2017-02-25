@@ -40,18 +40,17 @@ func (env *Env) EvalList(nodes []ast.Node) (r.Value, []r.Value) {
 
 func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 	switch node := node.(type) {
-	case ast.Expr:
-		temp := node
-		return env.evalExpr(&temp)
 	case ast.Decl:
 		return env.evalDecl(node)
+	case ast.Expr:
+		return env.evalExpr(node)
 	case ast.Stmt:
-		temp := node
-		return env.evalStatement(&temp)
+		return env.evalStatement(node)
 	case *ast.File:
 		return env.evalFile(node)
+	default:
+		return env.Errorf("unimplemented Eval for %v <%v>", node, r.TypeOf(node))
 	}
-	return env.Errorf("unimplemented Eval for %v <%v>", node, r.TypeOf(node))
 }
 
 func (env *Env) Eval1(node ast.Node) r.Value {

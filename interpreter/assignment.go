@@ -68,7 +68,7 @@ func (env *Env) evalPlaces(node []ast.Expr) []r.Value {
 	n := len(node)
 	places := make([]r.Value, n)
 	for i := 0; i < n; i++ {
-		place := env.evalExpr1(&node[i])
+		place := env.evalExpr1(node[i])
 		if !place.CanSet() {
 			return env.PackErrorf("cannot assign to read-only location: %v", node[i])
 		}

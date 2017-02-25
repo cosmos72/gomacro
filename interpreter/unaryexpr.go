@@ -37,34 +37,31 @@ func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, [
 	return env.Errorf("unsupported unary expression %s on %T: %s %#v", opstr, xf, opstr, xf)
 }
 
-func (env *Env) evalUnaryExpr(expr *ast.UnaryExpr) (r.Value, []r.Value) {
-	switch op := expr.Op; op {
-	case mt.MACRO, mt.QUOTE, mt.QUASIQUOTE:
-		// the various *QUOTE* special forms and the result of macroexpansion
+func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
+	op := node.Op
+	switch op {
+	case mt.MACRO:
+		// the various QUOTE special forms and the result of macroexpansion
 		// are statements wrapped in a closure
-		block := expr.X.(*ast.FuncLit).Body
-		var ret r.Value
-		var rets []r.Value
-		switch op {
-		case mt.MACRO:
-			ret, rets = env.evalBlock(block)
-		case mt.QUOTE:
-			node := env.evalQuote(block)
-			ret = r.ValueOf(&node).Elem()
-		case mt.QUASIQUOTE:
-			node := env.evalQuasiquote(block)
-			ret = r.ValueOf(&node).Elem()
-		}
-		return ret, rets
+		block := node.X.(*ast.FuncLit).Body
+		return env.evalBlock(block)
+
+	case mt.QUOTE:
+		block := node.X.(*ast.FuncLit).Body
+		node := env.evalQuote(block)
+		// force type to ast.Node...
+		// the simpler r.ValueOf(node) would have the concrete type of node
+		return r.ValueOf(&node).Elem(), nil
+
+	case mt.QUASIQUOTE:
+		block := node.X.(*ast.FuncLit).Body
+		ret := env.evalQuasiquote(block)
+		return r.ValueOf(&ret).Elem(), nil
 
 	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
-		return env.Errorf("%s outside quasiquote", mt.String(op))
-
-	default:
-		break
+		return env.Errorf("%s not inside quasiquote: %v %<v>", mt.String(op), node, r.TypeOf(node))
 	}
-	xv, _ := env.Eval(expr.X)
-	op := expr.Op
+	xv, _ := env.Eval(node.X)
 	switch xv.Kind() {
 	case r.Bool:
 		return env.evalUnaryExprBool(xv.Bool(), op)

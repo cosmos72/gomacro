@@ -59,31 +59,30 @@ func (env *Env) evalExprs(nodes []ast.Expr) []r.Value {
 	case 0:
 		return nil
 	case 1:
-		ret := env.evalExpr1(&nodes[0])
+		ret := env.evalExpr1(nodes[0])
 		return []r.Value{ret}
 	default:
 		rets := make([]r.Value, n)
 		for i := range nodes {
-			rets[i] = env.evalExpr1(&nodes[i])
+			rets[i] = env.evalExpr1(nodes[i])
 		}
 		return rets
 	}
 }
 
-func (env *Env) evalExpr1(expr *ast.Expr) r.Value {
-	value, extraValues := env.evalExpr(expr)
+func (env *Env) evalExpr1(node ast.Expr) r.Value {
+	value, extraValues := env.evalExpr(node)
 	if len(extraValues) > 1 {
 		env.Warnf("function returned %d values, using only the first one: %v returned %v",
-			len(extraValues), expr, extraValues)
+			len(extraValues), node, extraValues)
 	}
 	return value
 }
 
-func (env *Env) evalExpr(expr *ast.Expr) (r.Value, []r.Value) {
-	// Debugf("evalExprNoRewrite() %#v", node)
-
+func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 	for {
-		switch node := (*expr).(type) {
+		// Debugf("evalExpr() %v", node)
+		switch node := in.(type) {
 		case *ast.BasicLit:
 			return env.evalLiteral(node)
 
@@ -106,7 +105,7 @@ func (env *Env) evalExpr(expr *ast.Expr) (r.Value, []r.Value) {
 			return env.evalIndexExpr(node)
 
 		case *ast.ParenExpr:
-			expr = &node.X
+			in = node.X
 			continue
 
 		case *ast.UnaryExpr:
@@ -114,19 +113,14 @@ func (env *Env) evalExpr(expr *ast.Expr) (r.Value, []r.Value) {
 
 		case *ast.KeyValueExpr, *ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
 			// TODO
-			return env.Errorf("unimplemented expression %#v", node)
-
-		default:
-			return env.Errorf("unimplemented expression %#v", node)
 		}
-		// unreachable
-		return env.Errorf("internal error evaluating %#v", *expr)
+		return env.Errorf("unimplemented Eval() for: %v <%v>", in, r.TypeOf(in))
 	}
 }
 
 func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
-	index := env.evalExpr1(&node.Index)
-	container := env.evalExpr1(&node.X)
+	index := env.evalExpr1(node.Index)
+	container := env.evalExpr1(node.X)
 
 	switch container.Kind() {
 	case r.Map:
