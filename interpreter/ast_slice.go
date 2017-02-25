@@ -31,6 +31,7 @@ import (
 
 // Ast wrappers for variable-length fragments of ast.Nodes - they are not full-blown ast.Nodes
 
+func (x NodeSlice) Interface() interface{}  { return *x.p }
 func (x ExprSlice) Interface() interface{}  { return *x.p }
 func (x FieldSlice) Interface() interface{} { return *x.p }
 func (x DeclSlice) Interface() interface{}  { return *x.p }
@@ -38,6 +39,7 @@ func (x IdentSlice) Interface() interface{} { return *x.p }
 func (x SpecSlice) Interface() interface{}  { return *x.p }
 func (x StmtSlice) Interface() interface{}  { return *x.p }
 
+func (x NodeSlice) Op() token.Token  { return token.COMMA }     // FIXME
 func (x ExprSlice) Op() token.Token  { return token.COMMA }     // FIXME
 func (x FieldSlice) Op() token.Token { return token.SEMICOLON } // FIXME
 func (x DeclSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
@@ -45,6 +47,7 @@ func (x IdentSlice) Op() token.Token { return token.COMMA }     // FIXME
 func (x SpecSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 func (x StmtSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 
+func (x NodeSlice) Size() int  { return len(*x.p) }
 func (x ExprSlice) Size() int  { return len(*x.p) }
 func (x FieldSlice) Size() int { return len(*x.p) }
 func (x DeclSlice) Size() int  { return len(*x.p) }
@@ -52,6 +55,7 @@ func (x IdentSlice) Size() int { return len(*x.p) }
 func (x SpecSlice) Size() int  { return len(*x.p) }
 func (x StmtSlice) Size() int  { return len(*x.p) }
 
+func (x NodeSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
 func (x ExprSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
 func (x FieldSlice) Get(i int) Ast { return ToAst((*x.p)[i]) }
 func (x DeclSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
@@ -59,6 +63,7 @@ func (x IdentSlice) Get(i int) Ast { return ToAst((*x.p)[i]) }
 func (x SpecSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
 func (x StmtSlice) Get(i int) Ast  { return ToAst((*x.p)[i]) }
 
+func (x NodeSlice) Set(i int, child Ast)  { (*x.p)[i] = ToNode(child) }
 func (x ExprSlice) Set(i int, child Ast)  { (*x.p)[i] = ToExpr(child) }
 func (x FieldSlice) Set(i int, child Ast) { (*x.p)[i] = ToField(child) }
 func (x DeclSlice) Set(i int, child Ast)  { (*x.p)[i] = ToDecl(child) }
@@ -66,6 +71,7 @@ func (x IdentSlice) Set(i int, child Ast) { (*x.p)[i] = ToIdent(child) }
 func (x SpecSlice) Set(i int, child Ast)  { (*x.p)[i] = ToSpec(child) }
 func (x StmtSlice) Set(i int, child Ast)  { (*x.p)[i] = ToStmt(child) }
 
+func (x NodeSlice) Resize(n int)  { s := make([]ast.Node, n); copy(s, *x.p); *x.p = s }
 func (x ExprSlice) Resize(n int)  { s := make([]ast.Expr, n); copy(s, *x.p); *x.p = s }
 func (x FieldSlice) Resize(n int) { s := make([]*ast.Field, n); copy(s, *x.p); *x.p = s }
 func (x DeclSlice) Resize(n int)  { s := make([]ast.Decl, n); copy(s, *x.p); *x.p = s }

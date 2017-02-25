@@ -46,6 +46,7 @@ type (
 		Resize(n int)
 	}
 
+	NodeSlice  struct{ p *[]ast.Node }
 	ExprSlice  struct{ p *[]ast.Expr }
 	FieldSlice struct{ p *[]*ast.Field }
 	DeclSlice  struct{ p *[]ast.Decl }

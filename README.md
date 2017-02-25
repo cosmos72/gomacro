@@ -37,11 +37,12 @@ The intepreter supports:
 * variable and function definitions
 * function calls (no imports yet, so builtins only)
 * strings, booleans, integers, floats, complex numbers and interface{}
-* macro definitions 
+* macro definitions
 * macro calls, including MacroExpand and MacroExpand1
 * code walking
 * quote and quasiquote. they take any number of arguments in curly braces, for example:
   `quote { x; y; z }`
+* unquote and unquote_splice
 
 A lot of things are still missing:
 * support to create arrays, slices, maps, channels, pointers
@@ -49,6 +50,5 @@ A lot of things are still missing:
 * method calls (i.e. functions with receivers)
 * struct and interface definitions
 * packages and imports
-* unquote and unquote_splice
 * multiline input, history/readline
 

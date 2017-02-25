@@ -96,7 +96,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 	form := inout
 	if env.Options&OptDebugQuasiquote != 0 {
 		x := form.Interface()
-		env.Debugf("quasiquote(): evaluating %v <%v> (canSplice = %v)", x, r.TypeOf(x), canSplice)
+		env.Debugf("quasiquote: evaluating %v <%v> (canSplice = %v)", x, r.TypeOf(x), canSplice)
 	}
 	if form == nil {
 		return nil
@@ -110,7 +110,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 				return env.evalUnquote(form)
 			case mt.UNQUOTE_SPLICE:
 				x := form.Interface()
-				env.Errorf("quasiquote(): cannot splice in single-statement context: %v <%v>", x, r.TypeOf(x))
+				env.Errorf("quasiquote: cannot splice in single-statement context: %v <%v>", x, r.TypeOf(x))
 			}
 		}
 		for i := 0; i < ni; i++ {
@@ -130,7 +130,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 			ni = form.Size()
 			if env.Options&OptDebugQuasiquote != 0 {
 				x := form.Interface()
-				env.Debugf("quasiquote(): simplified to %v <%v> (canSplice = %v)", x, r.TypeOf(x), canSplice)
+				env.Debugf("quasiquote: simplified to %v <%v> (canSplice = %v)", x, r.TypeOf(x), canSplice)
 			}
 		} else {
 			break
@@ -151,7 +151,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 				rets = append(rets, toInsert)
 				if env.Options&OptDebugQuasiquote != 0 {
 					y := child.Interface()
-					env.Debugf("quasiquote(): accumulated expansion after unquote(%v <%v>) is: %v <%v> (canSplice = %v)",
+					env.Debugf("quasiquote: accumulated expansion after unquote(%v <%v>) is: %v <%v> (canSplice = %v)",
 						y, r.TypeOf(y), rets, r.TypeOf(rets), canSplice)
 				}
 				continue
@@ -159,7 +159,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 				toSplice := env.evalUnquote(child)
 				if _, isSlice := toSplice.(AstWithResize); !isSlice {
 					y := toSplice.Interface()
-					env.Errorf("unquote_splice(): not a slice: %v <%v>", y, r.TypeOf(y))
+					env.Errorf("unquote_splice: not a slice of ast.Node: %v <%v>", y, r.TypeOf(y))
 					return nil
 				}
 				nj := toSplice.Size()
@@ -168,7 +168,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 				}
 				if env.Options&OptDebugQuasiquote != 0 {
 					y := child.Interface()
-					env.Debugf("quasiquote(): accumulated expansion after unquote_splice(%v <%v>) is: %v <%v> (canSplice = %v)",
+					env.Debugf("quasiquote: accumulated expansion after unquote_splice(%v <%v>) is: %v <%v> (canSplice = %v)",
 						y, r.TypeOf(y), rets, r.TypeOf(rets), canSplice)
 				}
 				continue
@@ -179,7 +179,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 		rets = append(rets, child)
 		if env.Options&OptDebugQuasiquote != 0 {
 			y := child.Interface()
-			env.Debugf("quasiquote(): accumulated expansion after quasiquote(%v <%v>) is: %v <%v> (canSplice = %v)",
+			env.Debugf("quasiquote: accumulated expansion after quasiquote(%v <%v>) is: %v <%v> (canSplice = %v)",
 				y, r.TypeOf(y), rets, r.TypeOf(rets), canSplice)
 		}
 	}
@@ -219,7 +219,7 @@ func (env *Env) evalUnquote(in UnaryExpr) Ast {
 	case ast.Node:
 		return ToAst(node)
 	default:
-		env.Errorf("quasiquote(): not an ast.Node: %v <%v>", node, r.TypeOf(node))
+		env.Errorf("quasiquote: not an ast.Node: %v <%v>", node, r.TypeOf(node))
 		return nil
 	}
 }

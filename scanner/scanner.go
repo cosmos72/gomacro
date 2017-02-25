@@ -759,21 +759,22 @@ scanAgain:
 			// quasiquote      #`
 			// unquote         #,
 			// unquote_splice  #,@
-			if s.ch == '\'' {
+			switch s.ch {
+			case '\'':
 				s.next()
 				tok = mt.QUOTE
-			} else if ch == '`' {
+			case '`':
 				s.next()
 				tok = mt.QUASIQUOTE
-			} else if ch == ',' {
+			case ',':
 				s.next()
-				if ch != '@' {
-					tok = mt.UNQUOTE
-				} else {
+				if s.ch == '@' {
 					s.next()
 					tok = mt.UNQUOTE_SPLICE
+				} else {
+					tok = mt.UNQUOTE
 				}
-			} else {
+			default:
 				tok = mt.INTERPRET_ONLY
 			}
 		default:
