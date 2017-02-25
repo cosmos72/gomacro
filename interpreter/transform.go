@@ -32,385 +32,221 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-// Transform traverses the whole AST tree using pre-order traversal,
-// and replaces each node with the result of tranformer(node).
-// If tranformer(node) returns nil, Transform stops the traversal and immediately returns node (not nil)
-// Warning: it modifies the AST tree in place!
-func (ir *Interpreter) Transform(transformer func(in ast.Node) (out ast.Node, traverseOut bool), node ast.Node) ast.Node {
-	if node == nil {
-		return nil
-	}
-	//ir.Debugf("Transform() %v", node)
-	t := transformer
-	out, traverseOut := t(node)
-	if !traverseOut {
-		return out
-	}
-	//if out != node {
-	//	ir.Debugf("Transform() transformed %v to %v", node, out)
-	//}
-	switch node := out.(type) {
-	case *ast.ArrayType:
-		ir.transExpr(t, &node.Len)
-		ir.transExpr(t, &node.Elt)
-	case *ast.AssignStmt:
-		ir.transExprs(t, node.Lhs)
-		ir.transExprs(t, node.Rhs)
-	case *ast.BadDecl, *ast.BadExpr, *ast.BadStmt, *ast.BasicLit:
-		// nothing to do
-	case *ast.BinaryExpr:
-		ir.transExpr(t, &node.X)
-		ir.transExpr(t, &node.Y)
-	case *ast.BlockStmt:
-		ir.transStmts(t, node.List)
-	case *ast.BranchStmt:
-		ir.transIdent(t, &node.Label)
-	case *ast.CallExpr:
-		ir.transExpr(t, &node.Fun)
-		ir.transExprs(t, node.Args)
-	case *ast.CaseClause:
-		ir.transExprs(t, node.List)
-		ir.transStmts(t, node.Body)
-	case *ast.ChanType:
-		ir.transExpr(t, &node.Value)
-	case *ast.CommClause:
-		ir.transStmt(t, &node.Comm)
-		ir.transStmts(t, node.Body)
-	case *ast.CompositeLit:
-		ir.transExpr(t, &node.Type)
-		ir.transExprs(t, node.Elts)
-	case *ast.DeclStmt:
-		ir.transDecl(t, &node.Decl)
-	case *ast.DeferStmt:
-		ir.transExpr(t, &node.Call.Fun)
-		ir.transExprs(t, node.Call.Args)
-	case *ast.Ellipsis:
-		ir.transExpr(t, &node.Elt)
-	case *ast.EmptyStmt:
-		// nothing to do
-	case *ast.ExprStmt:
-		ir.transExpr(t, &node.X)
-	case *ast.Field:
-		ir.transIdents(t, node.Names)
-		ir.transExpr(t, &node.Type)
-	case *ast.FieldList:
-		ir.transFields(t, node.List)
-	case *ast.File:
-		ir.transIdent(t, &node.Name)
-		ir.transImports(t, node.Imports)
-		ir.transDecls(t, node.Decls)
-	case *ast.ForStmt:
-		ir.transStmt(t, &node.Init)
-		ir.transExpr(t, &node.Cond)
-		ir.transStmt(t, &node.Post)
-		ir.transBlock(t, &node.Body)
-	case *ast.FuncDecl:
-		ir.transFieldList(t, &node.Recv)
-		ir.transIdent(t, &node.Name)
-		ir.transFuncType(t, &node.Type)
-		ir.transBlock(t, &node.Body)
-	case *ast.FuncLit:
-		ir.transFuncType(t, &node.Type)
-		ir.transBlock(t, &node.Body)
-	case *ast.FuncType:
-		ir.transFieldList(t, &node.Params)
-		ir.transFieldList(t, &node.Results)
-	case *ast.GenDecl:
-		ir.transSpecs(t, node.Specs)
-	case *ast.GoStmt:
-		ir.transExpr(t, &node.Call.Fun)
-		ir.transExprs(t, node.Call.Args)
-	case *ast.Ident:
-		/* nothing to do */
-	case *ast.IfStmt:
-		ir.transStmt(t, &node.Init)
-		ir.transExpr(t, &node.Cond)
-		ir.transBlock(t, &node.Body)
-		ir.transStmt(t, &node.Else)
-	case *ast.ImportSpec:
-		ir.transIdent(t, &node.Name)
-	case *ast.IncDecStmt:
-		ir.transExpr(t, &node.X)
-	case *ast.IndexExpr:
-		ir.transExpr(t, &node.X)
-		ir.transExpr(t, &node.Index)
-	case *ast.InterfaceType:
-		ir.transFieldList(t, &node.Methods)
-	case *ast.KeyValueExpr:
-		ir.transExpr(t, &node.Key)
-		ir.transExpr(t, &node.Value)
-	case *ast.LabeledStmt:
-		ir.transIdent(t, &node.Label)
-		ir.transStmt(t, &node.Stmt)
-	case *ast.MapType:
-		ir.transExpr(t, &node.Key)
-		ir.transExpr(t, &node.Value)
-	case *ast.Package:
-		ir.TransformFiles(t, node.Files)
-	case *ast.ParenExpr:
-		ir.transExpr(t, &node.X)
-	case *ast.RangeStmt:
-		ir.transExpr(t, &node.Key)
-		ir.transExpr(t, &node.Value)
-		ir.transExpr(t, &node.X)
-		ir.transBlock(t, &node.Body)
-	case *ast.ReturnStmt:
-		ir.transExprs(t, node.Results)
-	case *ast.SelectStmt:
-		ir.transBlock(t, &node.Body)
-	case *ast.SelectorExpr:
-		ir.transExpr(t, &node.X)
-		ir.transIdent(t, &node.Sel)
-	case *ast.SendStmt:
-		ir.transExpr(t, &node.Chan)
-		ir.transExpr(t, &node.Value)
-	case *ast.SliceExpr:
-		ir.transExpr(t, &node.X)
-		ir.transExpr(t, &node.Low)
-		ir.transExpr(t, &node.High)
-		if node.Slice3 {
-			ir.transExpr(t, &node.Max)
-		}
-	case *ast.StarExpr:
-		ir.transExpr(t, &node.X)
-	case *ast.StructType:
-		ir.transFieldList(t, &node.Fields)
-	case *ast.SwitchStmt:
-		ir.transStmt(t, &node.Init)
-		ir.transExpr(t, &node.Tag)
-		ir.transBlock(t, &node.Body)
-	case *ast.TypeAssertExpr:
-		ir.transExpr(t, &node.X)
-		ir.transExpr(t, &node.Type)
-	case *ast.TypeSpec:
-		ir.transIdent(t, &node.Name)
-		ir.transExpr(t, &node.Type)
-	case *ast.TypeSwitchStmt:
-		ir.transStmt(t, &node.Init)
-		ir.transStmt(t, &node.Assign)
-		ir.transBlock(t, &node.Body)
-	case *ast.UnaryExpr:
-		ir.transExpr(t, &node.X)
-	case *ast.ValueSpec:
-		ir.transIdents(t, node.Names)
-		ir.transExpr(t, &node.Type)
-		ir.transExprs(t, node.Values)
-	}
-	return out
-}
-
-func (ir *Interpreter) transDecls(t func(ast.Node) (ast.Node, bool), list []ast.Decl) {
-	for i := range list {
-		ir.transDecl(t, &list[i])
+// ToAst2 returns either n0 (if i == 0) or n1, converted to Ast
+func ToAst1(i int, node ast.Node) Ast {
+	if i == 0 {
+		return ToAst(node)
+	} else {
+		return BadIndex(i, 2)
 	}
 }
 
-func (ir *Interpreter) transExprs(t func(ast.Node) (ast.Node, bool), list []ast.Expr) {
-	for i := range list {
-		ir.transExpr(t, &list[i])
+// ToAst2 returns either n0 (if i == 0) or n1, converted to Ast
+func ToAst2(i int, n0 ast.Node, n1 ast.Node) Ast {
+	var n ast.Node
+	if i == 0 {
+		n = n0
+	} else if i == 1 {
+		n = n1
+	} else {
+		return BadIndex(i, 2)
 	}
+	return ToAst(n)
 }
 
-func (ir *Interpreter) transFields(t func(ast.Node) (ast.Node, bool), list []*ast.Field) {
-	for i := range list {
-		ir.transField(t, &list[i])
+func ToAst3(i int, n0 ast.Node, n1 ast.Node, n2 *ast.BlockStmt) Ast {
+	var n ast.Node
+	switch i {
+	case 0:
+		n = n0
+	case 1:
+		n1 = n1
+	case 2:
+		return BlockStmt{n2}
+	default:
+		return BadIndex(i, 3)
 	}
+	return ToAst(n)
 }
 
-func (ir *Interpreter) TransformFiles(t func(ast.Node) (ast.Node, bool), files map[string]*ast.File) {
-	for name, file := range files {
-		file2 := ir.ToFile(ir.Transform(t, file))
-		if file2 != nil && file2 != file {
-			files[name] = file2
-		}
-	}
-}
-
-func (ir *Interpreter) transImports(t func(ast.Node) (ast.Node, bool), list []*ast.ImportSpec) {
-	for i := range list {
-		ir.transImport(t, &list[i])
-	}
-}
-
-func (ir *Interpreter) transIdents(t func(ast.Node) (ast.Node, bool), list []*ast.Ident) {
-	for i := range list {
-		ir.transIdent(t, &list[i])
-	}
-}
-
-func (ir *Interpreter) transSpecs(t func(ast.Node) (ast.Node, bool), list []ast.Spec) {
-	for i := range list {
-		ir.transSpec(t, &list[i])
-	}
-}
-
-func (ir *Interpreter) transStmts(t func(ast.Node) (ast.Node, bool), list []ast.Stmt) {
-	for i := range list {
-		ir.transStmt(t, &list[i])
-	}
-}
-
-func (ir *Interpreter) transDecl(t func(ast.Node) (ast.Node, bool), ptr *ast.Decl) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToDecl(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transBlock(t func(ast.Node) (ast.Node, bool), ptr **ast.BlockStmt) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToBlockStmt(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transExpr(t func(ast.Node) (ast.Node, bool), ptr *ast.Expr) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToExpr(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transField(t func(ast.Node) (ast.Node, bool), ptr **ast.Field) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToField(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transFuncType(t func(ast.Node) (ast.Node, bool), ptr **ast.FuncType) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToFuncType(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transFieldList(t func(ast.Node) (ast.Node, bool), ptr **ast.FieldList) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToFieldList(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transImport(t func(ast.Node) (ast.Node, bool), ptr **ast.ImportSpec) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToImportSpec(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transIdent(t func(ast.Node) (ast.Node, bool), ptr **ast.Ident) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToIdent(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transSpec(t func(ast.Node) (ast.Node, bool), ptr *ast.Spec) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToSpec(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) transStmt(t func(ast.Node) (ast.Node, bool), ptr *ast.Stmt) {
-	if ptr != nil && *ptr != nil {
-		if node := ir.ToStmt(ir.Transform(t, *ptr)); node != nil && node != *ptr {
-			*ptr = node
-		}
-	}
-}
-
-func (ir *Interpreter) ToBlockStmt(node ast.Node) *ast.BlockStmt {
+// ToAst converts an ast.Node to Ast, providing uniform access to the node contents
+//
+func ToAst(node ast.Node) Ast {
+	var x Ast
 	switch node := node.(type) {
+	case *ast.ArrayType:
+		x = ArrayType{node}
+	case *ast.AssignStmt:
+		x = AssignStmt{node}
+	case *ast.BadDecl:
+		x = BadDecl{node}
+	case *ast.BadExpr:
+		x = BadExpr{node}
+	case *ast.BadStmt:
+		x = BadStmt{node}
+	case *ast.BasicLit:
+		x = BasicLit{node}
+	case *ast.BinaryExpr:
+		x = BinaryExpr{node}
 	case *ast.BlockStmt:
+		x = BlockStmt{node}
+	case *ast.BranchStmt:
+		x = BranchStmt{node}
+	case *ast.CallExpr:
+		x = CallExpr{node}
+	case *ast.CaseClause:
+		x = CaseClause{node}
+	case *ast.ChanType:
+		x = ChanType{node}
+	case *ast.CommClause:
+		x = CommClause{node}
+	case *ast.CompositeLit:
+		x = CompositeLit{node}
+	case *ast.DeclStmt:
+		x = DeclStmt{node}
+	case *ast.DeferStmt:
+		x = DeferStmt{node}
+	case *ast.Ellipsis:
+		x = Ellipsis{node}
+	case *ast.EmptyStmt:
+		x = EmptyStmt{node}
+	case *ast.ExprStmt:
+		x = ExprStmt{node}
+	case *ast.Field:
+		x = Field{node}
+	case *ast.FieldList:
+		x = FieldList{node}
+	case *ast.File:
+		x = File{node}
+	case *ast.ForStmt:
+		x = ForStmt{node}
+	case *ast.FuncDecl:
+		x = FuncDecl{node}
+	case *ast.FuncLit:
+		x = FuncLit{node}
+	case *ast.FuncType:
+		x = FuncType{node}
+	case *ast.GenDecl:
+		x = GenDecl{node}
+	case *ast.GoStmt:
+		x = GoStmt{node}
+	case *ast.Ident:
+		x = Ident{node}
+	case *ast.IfStmt:
+		x = IfStmt{node}
+	case *ast.ImportSpec:
+		x = ImportSpec{node}
+	case *ast.IncDecStmt:
+		x = IncDecStmt{node}
+	case *ast.IndexExpr:
+		x = IndexExpr{node}
+	case *ast.InterfaceType:
+		x = InterfaceType{node}
+	case *ast.KeyValueExpr:
+		x = KeyValueExpr{node}
+	case *ast.LabeledStmt:
+		x = LabeledStmt{node}
+	case *ast.MapType:
+		x = MapType{node}
+	case *ast.Package:
+		x = Package{node}
+	case *ast.ParenExpr:
+		x = ParenExpr{node}
+	case *ast.RangeStmt:
+		x = RangeStmt{node}
+	case *ast.ReturnStmt:
+		x = ReturnStmt{node}
+	case *ast.SelectStmt:
+		x = SelectStmt{node}
+	case *ast.SelectorExpr:
+		x = SelectorExpr{node}
+	case *ast.SendStmt:
+		x = SendStmt{node}
+	case *ast.SliceExpr:
+		x = SliceExpr{node}
+	case *ast.StarExpr:
+		x = StarExpr{node}
+	case *ast.StructType:
+		x = StructType{node}
+	case *ast.SwitchStmt:
+		x = SwitchStmt{node}
+	case *ast.TypeAssertExpr:
+		x = TypeAssertExpr{node}
+	case *ast.TypeSpec:
+		x = TypeSpec{node}
+	case *ast.TypeSwitchStmt:
+		x = TypeSwitchStmt{node}
+	case *ast.UnaryExpr:
+		x = UnaryExpr{node}
+	case *ast.ValueSpec:
+		x = ValueSpec{node}
+	case nil:
+		break
+	default:
+		Errorf("unsupported node type <%v>", r.TypeOf(node))
+	}
+	return x
+}
+
+// ToNode converts Ast to ast.Node, or panics on failure
+// (it fails if the argument is not AstWithNode)
+func ToNode(x Ast) ast.Node {
+	return x.(AstWithNode).Node()
+}
+
+func ToBasicLit(x Ast) *ast.BasicLit {
+	switch node := ToNode(x).(type) {
+	case *ast.BasicLit:
 		return node
 	case nil:
 		break
 	default:
-		stmt := ir.ToStmt(node)
+		Errorf("cannot convert %v <%v> to *ast.BasicLit", node, r.TypeOf(node))
+	}
+	return nil
+}
+
+func ToBlockStmt(x Ast) *ast.BlockStmt {
+	switch node := ToNode(x).(type) {
+	case nil:
+	case *ast.BlockStmt:
+		return node
+	default:
+		stmt := ToStmt(x)
 		return &ast.BlockStmt{Lbrace: stmt.Pos(), List: []ast.Stmt{stmt}, Rbrace: stmt.End()}
 	}
 	return nil
 }
 
-func (ir *Interpreter) ToDecl(node ast.Node) ast.Decl {
-	switch node := node.(type) {
+func ToCallExpr(x Ast) *ast.CallExpr {
+	switch node := ToNode(x).(type) {
+	case nil:
+	case *ast.CallExpr:
+		return node
+	default:
+		Errorf("cannot convert %v <%v> to *ast.CallExpr", node, r.TypeOf(node))
+	}
+	return nil
+}
+
+func ToDecl(x Ast) ast.Decl {
+	switch node := ToNode(x).(type) {
+	case nil:
 	case ast.Decl:
 		return node
-	case nil:
-		break
 	default:
-		ir.Errorf("cannot use %v <%v> as type ast.Decl", node, r.TypeOf(node))
+		Errorf("cannot convert %v <%v> to ast.Decl", node, r.TypeOf(node))
 	}
 	return nil
 }
 
-func (ir *Interpreter) ToField(node ast.Node) *ast.Field {
-	switch node := node.(type) {
-	case *ast.Field:
-		return node
+func ToExpr(x Ast) ast.Expr {
+	switch node := ToNode(x).(type) {
 	case nil:
-		break
-	default:
-		ir.Errorf("cannot use %v <%v> as type *ast.Field", node, r.TypeOf(node))
-	}
-	return nil
-}
-
-func (ir *Interpreter) ToFile(node ast.Node) *ast.File {
-	switch node := node.(type) {
-	case *ast.File:
-		return node
-	case nil:
-		break
-	default:
-		ir.Errorf("cannot use %v <%v> as type *ast.File", node, r.TypeOf(node))
-	}
-	return nil
-}
-
-func (ir *Interpreter) ToFieldList(node ast.Node) *ast.FieldList {
-	switch node := node.(type) {
-	case *ast.FieldList:
-		return node
-	case *ast.Field:
-		return &ast.FieldList{Opening: node.Pos(), List: []*ast.Field{node}, Closing: node.End()}
-	case nil:
-		break
-	default:
-		ir.Errorf("cannot use %v <%v> as type *ast.Field", node, r.TypeOf(node))
-	}
-	return nil
-}
-
-func (ir *Interpreter) ToFuncType(node ast.Node) *ast.FuncType {
-	switch node := node.(type) {
-	case *ast.FuncType:
-		return node
-	case nil:
-		break
-	default:
-		ir.Errorf("cannot use %v <%v> as type *ast.FuncType", node, r.TypeOf(node))
-	}
-	return nil
-}
-
-func (ir *Interpreter) ToExpr(node ast.Node) ast.Expr {
-	switch node := node.(type) {
 	case ast.Expr:
 		return node
 	case *ast.BlockStmt:
-		return ir.BlockStmtToExpr(node)
+		return BlockStmtToExpr(node)
 	case *ast.EmptyStmt:
 		return &ast.Ident{NamePos: node.Semicolon, Name: "nil"}
 	case *ast.ExprStmt:
@@ -418,53 +254,105 @@ func (ir *Interpreter) ToExpr(node ast.Node) ast.Expr {
 	case ast.Stmt:
 		list := []ast.Stmt{node}
 		block := &ast.BlockStmt{List: list}
-		return ir.BlockStmtToExpr(block)
-	case nil:
-		break
+		return BlockStmtToExpr(block)
 	default:
-		ir.Errorf("unimplemented conversion from <%v> to ast.Expr", r.TypeOf(node))
+		Errorf("unimplemented conversion from %v <%v> to ast.Expr", node, r.TypeOf(node))
 	}
 	return nil
 }
 
-func (ir *Interpreter) ToImportSpec(node ast.Node) *ast.ImportSpec {
-	switch node := node.(type) {
+func ToExprSlice(x Ast) []ast.Expr {
+	return *x.(ExprSlice).P
+}
+
+func ToField(x Ast) *ast.Field {
+	switch node := ToNode(x).(type) {
+	case nil:
+	case *ast.Field:
+		return node
+	default:
+		Errorf("cannot convert %v <%v> to *ast.Field", node, r.TypeOf(node))
+	}
+	return nil
+}
+
+func ToFile(x Ast) *ast.File {
+	switch node := ToNode(x).(type) {
+	case nil:
+	case *ast.File:
+		return node
+	default:
+		Errorf("cannot convert %v <%v> to *ast.File", node, r.TypeOf(node))
+	}
+	return nil
+}
+
+func ToFieldList(x Ast) *ast.FieldList {
+	switch node := ToNode(x).(type) {
+	case nil:
+	case *ast.FieldList:
+		return node
+	case *ast.Field:
+		return &ast.FieldList{Opening: node.Pos(), List: []*ast.Field{node}, Closing: node.End()}
+	default:
+		Errorf("cannot convert %v <%v> to *ast.Field", node, r.TypeOf(node))
+	}
+	return nil
+}
+
+func ToFuncType(x Ast) *ast.FuncType {
+	switch node := ToNode(x).(type) {
+	case nil:
+	case *ast.FuncType:
+		return node
+	default:
+		Errorf("cannot convert %v <%v> to *ast.FuncType", node, r.TypeOf(node))
+	}
+	return nil
+}
+
+func ToImportSpec(x Ast) *ast.ImportSpec {
+	switch node := ToNode(x).(type) {
 	case *ast.ImportSpec:
 		return node
 	case nil:
 		break
 	default:
-		ir.Errorf("cannot use %v <%v> as type *ast.ImportSpec", node, r.TypeOf(node))
+		Errorf("cannot convert %v <%v> to *ast.ImportSpec", node, r.TypeOf(node))
 	}
 	return nil
 }
 
-func (ir *Interpreter) ToIdent(node ast.Node) *ast.Ident {
-	switch node := node.(type) {
+func ToIdent(x Ast) *ast.Ident {
+	switch node := ToNode(x).(type) {
 	case *ast.Ident:
 		return node
 	case nil:
 		break
 	default:
-		ir.Errorf("cannot use %v <%v> as type *ast.Ident", node, r.TypeOf(node))
+		Errorf("cannot convert %v <%v> to *ast.Ident", node, r.TypeOf(node))
 	}
 	return nil
 }
 
-func (ir *Interpreter) ToSpec(node ast.Node) ast.Spec {
-	switch node := node.(type) {
+func ToIdentSlice(x Ast) []*ast.Ident {
+	return *x.(IdentSlice).P
+}
+
+func ToSpec(x Ast) ast.Spec {
+	switch node := ToNode(x).(type) {
 	case ast.Spec:
 		return node
 	case nil:
 		break
 	default:
-		ir.Errorf("cannot use %v <%v> as type ast.Spec", node, r.TypeOf(node))
+		Errorf("cannot convert %v <%v> to ast.Spec", node, r.TypeOf(node))
 	}
 	return nil
 }
 
-func (ir *Interpreter) ToStmt(node ast.Node) ast.Stmt {
-	switch node := node.(type) {
+func ToStmt(x Ast) ast.Stmt {
+	switch node := ToNode(x).(type) {
 	case ast.Stmt:
 		return node
 	case ast.Decl:
@@ -474,12 +362,16 @@ func (ir *Interpreter) ToStmt(node ast.Node) ast.Stmt {
 	case nil:
 		break
 	default:
-		ir.Errorf("unimplemented conversion from <%v> to ast.Stmt", r.TypeOf(node))
+		Errorf("unimplemented conversion from %v <%v> to ast.Stmt", node, r.TypeOf(node))
 	}
 	return nil
 }
 
-func (ir *Interpreter) BlockStmtToExpr(node *ast.BlockStmt) ast.Expr {
+func ToStmtSlice(x Ast) []ast.Stmt {
+	return *x.(StmtSlice).P
+}
+
+func BlockStmtToExpr(node *ast.BlockStmt) ast.Expr {
 	if node == nil {
 		return nil
 	}

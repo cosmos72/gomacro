@@ -25,24 +25,28 @@
 package main
 
 import (
-	"fmt"
+	_ "fmt"
 	"go/parser"
 	"os"
 	"strings"
-	"time"
+	_ "time"
 
 	"github.com/cosmos72/gomacro/interpreter"
 )
 
 func main() {
-	// factorialBenchmark(1000000000)
+	args := os.Args
+	// args := []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { b }\nMacroExpand1(quote{foo x; y; z})"}
+
+	Main(args)
+}
+
+func Main(args []string) {
 
 	env := interpreter.NewEnv(nil)
 	env.ParserMode = parser.Trace & 0
 	// env.Options = gmi.OptShowAfterParse | gmi.OptShowAfterMacroExpandCodewalk | gmi.OptShowEvalDuration
 
-	args := os.Args
-	// args = []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { b }\nMacroExpand1(quote{foo x; y; z})"}
 	if len(args) > 1 {
 		str := strings.Join(args[1:], " ")
 		env.ParseEvalPrint(str)
@@ -51,6 +55,7 @@ func main() {
 	}
 }
 
+/*
 func factorial(n int) int {
 	t := 1
 	for i := 2; i <= n; i = i + 1 {
@@ -65,6 +70,8 @@ func factorialBenchmark(n int) {
 	delta := time.Now().Sub(t1)
 	fmt.Printf("factorial(%d) = %d, elapsed time: %g s\n", n, result, float64(delta)/float64(time.Second))
 }
+*/
 
-// output: factorial(1000000000) = 0, elapsed time: 0.771520347 s
+// factorial(1000000000):
+// output: 0, elapsed time: 0.771520347 s
 // the interpreter is 1600 times slower than compiled code...

@@ -46,7 +46,7 @@ func (p *Interpreter) ReadFromSource(src interface{}) []byte {
 		case io.Reader:
 			var buf bytes.Buffer
 			if _, err := io.Copy(&buf, s); err != nil {
-				Errore(err)
+				Error(err)
 			}
 			return buf.Bytes()
 		}
@@ -64,7 +64,7 @@ func unescapeChar(str string) rune {
 	}
 	ret, _, _, err := strconv.UnquoteChar(string(rs), '\'')
 	if err != nil {
-		Errore(err)
+		Error(err)
 	}
 	return ret
 }
@@ -72,7 +72,7 @@ func unescapeChar(str string) rune {
 func unescapeString(str string) string {
 	ret, err := strconv.Unquote(str)
 	if err != nil {
-		Errore(err)
+		Error(err)
 	}
 	return ret
 }

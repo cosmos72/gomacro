@@ -36,10 +36,14 @@ import (
 	mp "github.com/cosmos72/gomacro/parser"
 )
 
+type FileSet struct {
+	Fileset *token.FileSet
+}
+
 type Interpreter struct {
+	FileSet
 	Packagename string
 	Filename    string
-	Fileset     *token.FileSet
 	Options     Options
 	ParserMode  parser.Mode
 	ParserScope *ast.Scope
@@ -63,7 +67,7 @@ func (ir *Interpreter) ParseN(src interface{}) []ast.Node {
 	bytes := ir.ReadFromSource(src)
 	nodes, err := ir.parseOrError(bytes)
 	if err != nil {
-		Errore(err)
+		Error(err)
 		return nil
 	}
 	return nodes

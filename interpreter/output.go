@@ -29,13 +29,14 @@ import (
 	"fmt"
 	"go/ast"
 	"go/format"
+	"go/token"
 	"io"
 	r "reflect"
 	"sort"
 )
 
 type RuntimeError struct {
-	*Interpreter
+	FileSet
 	Format string
 	Args   []interface{}
 }
@@ -44,16 +45,20 @@ func (err RuntimeError) Error() string {
 	return fmt.Sprintf(err.Format, err.toPrintables(err.Args)...)
 }
 
-func Errore(err error) interface{} {
+func Error(err error) interface{} {
 	panic(err)
 }
 
-func (p *Interpreter) Errorf(format string, args ...interface{}) (r.Value, []r.Value) {
-	panic(RuntimeError{p, format, args})
+func Errorf(format string, args ...interface{}) {
+	panic(RuntimeError{FileSet{nil}, format, args})
 }
 
-func (p *Interpreter) PackErrorf(format string, args ...interface{}) []r.Value {
-	panic(RuntimeError{p, format, args})
+func (f FileSet) Errorf(format string, args ...interface{}) (r.Value, []r.Value) {
+	panic(RuntimeError{f, format, args})
+}
+
+func (f FileSet) PackErrorf(format string, args ...interface{}) []r.Value {
+	panic(RuntimeError{f, format, args})
 }
 
 func (p *Interpreter) Warnf(format string, args ...interface{}) {
@@ -66,17 +71,26 @@ func (p *Interpreter) Debugf(format string, args ...interface{}) {
 	fmt.Fprintf(p.Stdout, "// debug: %s\n", str)
 }
 
-func (p *Interpreter) FprintValues(out io.Writer, values ...r.Value) {
+func BadIndex(index int, size int) Ast {
+	if size > 0 {
+		Errorf("index out of range: %d not in 0...%d", index, size-1)
+	} else {
+		Errorf("index out of range: %d, slice is empty")
+	}
+	return nil
+}
+
+func (f FileSet) FprintValues(out io.Writer, values ...r.Value) {
 	if len(values) == 0 {
 		fmt.Fprint(out, "// no value\n")
 		return
 	}
 	for _, v := range values {
-		p.FprintValue(out, v)
+		f.FprintValue(out, v)
 	}
 }
 
-func (p *Interpreter) FprintValue(out io.Writer, v r.Value) {
+func (f FileSet) FprintValue(out io.Writer, v r.Value) {
 	var vi interface{}
 	var vt r.Type
 	if v == None {
@@ -89,7 +103,7 @@ func (p *Interpreter) FprintValue(out io.Writer, v r.Value) {
 		vi = v.Interface()
 		vt = v.Type()
 	}
-	vi = p.toPrintable(vi)
+	vi = f.toPrintable(vi)
 	if vi == nil && vt == nil {
 		fmt.Fprint(out, "<nil>\n")
 		return
@@ -106,21 +120,21 @@ func (p *Interpreter) FprintValue(out io.Writer, v r.Value) {
 	}
 }
 
-func (p *Interpreter) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
-	values = p.toPrintables(values)
+func (f FileSet) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
+	values = f.toPrintables(values)
 	return fmt.Fprintf(out, format, values...)
 }
 
-func (p *Interpreter) Sprintf(format string, values ...interface{}) string {
-	values = p.toPrintables(values)
+func (f FileSet) Sprintf(format string, values ...interface{}) string {
+	values = f.toPrintables(values)
 	return fmt.Sprintf(format, values...)
 }
 
-func (p *Interpreter) toString(separator string, values ...interface{}) string {
+func (f FileSet) toString(separator string, values ...interface{}) string {
 	if len(values) == 0 {
 		return ""
 	}
-	values = p.toPrintables(values)
+	values = f.toPrintables(values)
 	var buf bytes.Buffer
 	for i, value := range values {
 		if i != 0 {
@@ -131,19 +145,19 @@ func (p *Interpreter) toString(separator string, values ...interface{}) string {
 	return buf.String()
 }
 
-func (p *Interpreter) toPrintables(values []interface{}) []interface{} {
+func (f FileSet) toPrintables(values []interface{}) []interface{} {
 	for i, vi := range values {
-		values[i] = p.toPrintable(vi)
+		values[i] = f.toPrintable(vi)
 	}
 	return values
 }
 
-func (p *Interpreter) toPrintable(value interface{}) interface{} {
+func (f FileSet) toPrintable(value interface{}) interface{} {
 	if value == nil {
 		return nil
 	}
 	if v, ok := value.(r.Value); ok {
-		return p.valueToPrintable(v)
+		return f.valueToPrintable(v)
 	}
 	v := r.ValueOf(value)
 	k := v.Kind()
@@ -151,36 +165,40 @@ func (p *Interpreter) toPrintable(value interface{}) interface{} {
 		n := v.Len()
 		values := make([]interface{}, n)
 		for i := 0; i < n; i++ {
-			values[i] = p.toPrintable(v.Index(i))
+			values[i] = f.toPrintable(v.Index(i))
 		}
 		return values
 	}
 	if node, ok := value.(ast.Node); ok {
-		return p.nodeToPrintable(node)
+		return f.nodeToPrintable(node)
 	}
 	return value
 }
 
-func (p *Interpreter) valueToPrintable(value r.Value) interface{} {
+func (f FileSet) valueToPrintable(value r.Value) interface{} {
 	if value == None {
 		return "/*no value*/"
 	} else if value == Nil {
 		return nil
 	} else {
-		return p.toPrintable(value.Interface())
+		return f.toPrintable(value.Interface())
 	}
 }
 
-func (p *Interpreter) nodeToPrintable(node ast.Node) interface{} {
+func (f FileSet) nodeToPrintable(node ast.Node) interface{} {
+	fset := f.Fileset
+	if fset == nil {
+		fset = token.NewFileSet()
+	}
 	var buf bytes.Buffer
-	err := format.Node(&buf, p.Fileset, node)
+	err := format.Node(&buf, fset, node)
 	if err != nil {
 		return err
 	}
 	return buf.String()
 }
 
-func (p *Interpreter) showHelp(out io.Writer) {
+func (f FileSet) showHelp(out io.Writer) {
 	fmt.Fprint(out, `// interpreter commands:
 :env    show available functions, variables and constants
 :help   show this help

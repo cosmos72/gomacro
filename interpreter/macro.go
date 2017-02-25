@@ -117,8 +117,8 @@ type macroExpandCtx struct {
 // It implements the macroexpansion phase
 // Warning: it modifies the AST tree in place!
 func (env *Env) MacroExpandCodewalk(node ast.Node) ast.Node {
-	ctx := macroExpandCtx{env: env, traverseQuote: false}
-	return env.Transform(ctx.macroExpand1, node)
+	// TODO
+	return node
 }
 
 // MacroExpand repeatedly invokes MacroExpand1
