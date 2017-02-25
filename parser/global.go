@@ -4,7 +4,7 @@
 
 // This file contains the exported entry points for invoking the parser.
 
-package macroparser
+package parser
 
 import (
 	"go/ast"
@@ -26,45 +26,6 @@ const (
 	SpuriousErrors                                 // same as AllErrors, for backward-compatibility
 	AllErrors         = SpuriousErrors             // report all errors (not just the first 10 on different lines)
 )
-
-const (
-	MACRO token.Token = token.VAR + 101 + iota
-	QUOTE
-	QUASIQUOTE
-	UNQUOTE
-	UNQUOTE_SPLICE
-)
-
-var tokens map[token.Token]string
-
-var keywords map[string]token.Token
-
-func init() {
-	tokens = make(map[token.Token]string)
-	keywords = make(map[string]token.Token)
-
-	tokens[MACRO] = "macro"
-	tokens[QUOTE] = "quote"
-	tokens[QUASIQUOTE] = "quasiquote"
-	tokens[UNQUOTE] = "unquote"
-	tokens[UNQUOTE_SPLICE] = "unquote_splice"
-
-	for k, v := range tokens {
-		keywords[v] = k
-	}
-}
-
-func TokenString(tok token.Token) string {
-	if str, ok := tokens[tok]; ok {
-		return str
-	}
-	return tok.String()
-}
-
-func TokenIsMacroKeyword(tok token.Token) bool {
-	_, ok := tokens[tok]
-	return ok
-}
 
 func (p *Parser) Parse() (node []ast.Node, err error) {
 	if p.file == nil || p.pkgScope == nil {

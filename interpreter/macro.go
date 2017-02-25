@@ -26,34 +26,90 @@ package interpreter
 
 import (
 	"go/ast"
-	"go/token"
+	_ "go/token"
 	r "reflect"
 
-	mp "github.com/cosmos72/gomacro/macroparser"
+	mt "github.com/cosmos72/gomacro/token"
 )
 
-func (env *Env) evalQuote(op token.Token, node *ast.BlockStmt) (r.Value, []r.Value) {
-	var ret ast.Node
-	switch op {
-	case mp.QUOTE, mp.QUASIQUOTE:
-		if len(node.List) == 1 {
-			ret = node.List[0]
-			if ret2, ok := ret.(*ast.ExprStmt); ok {
-				// unwrap expressions... they fit in more places and make the life easier to MacroExpand
-				ret = ret2
+func simplifyNodeForQuote(in ast.Node) ast.Node {
+	for {
+		switch node := in.(type) {
+		case *ast.BlockStmt:
+			list := node.List
+			if len(list) == 1 {
+				in = list[0]
+				continue
 			}
-		} else {
-			// be lenient, and accept quote{a;b;c} as nicer alias for quote{{a;b;c}}
-			ret = node
+		case *ast.ExprStmt:
+			return node.X
 		}
-	case mp.UNQUOTE, mp.UNQUOTE_SPLICE:
-		return env.Errorf("unimplemented %s: %v", mp.TokenString(op), node)
+		return in
 	}
-	return r.ValueOf(&ret).Elem(), nil
+}
+
+func isLeaf(node ast.Node) bool {
+	switch node.(type) {
+	case *ast.Ident, *ast.BasicLit:
+		return true
+	default:
+		return false
+	}
+}
+
+func (env *Env) evalQuote(node *ast.BlockStmt) ast.Node {
+	// unwrap expressions... they fit in more places and make the life easier
+	// to MacroExpand and evalQuasiquote
+	// also be lenient, and accept quote{a;b;c} as nicer alias for quote{{a;b;c}}
+	return simplifyNodeForQuote(node)
+}
+
+// evalQuasiquote evaluates the body of a quasiquote{}.
+func (env *Env) evalQuasiquote(in ast.Node) ast.Node {
+	if node, ok := in.(*ast.UnaryExpr); ok {
+		if node.Op == mt.UNQUOTE {
+			return node.X.(*ast.FuncLit).Body
+		}
+	}
+	/*
+		ast := ToAst(in)
+
+		case *ast.BlockStmt:
+			list := node.List
+			rets := make([]ast.Stmt, 0, len(list))
+			for _, stmt := range list {
+				if expr, ok := stmt.(*ast.ExprStmt); ok {
+					switch node := expr.X.(type) {
+					case *ast.Ident, *ast.BasicLit:
+						rets = append(rets, env.ToStmt(expr))
+						continue
+					case *ast.UnaryExpr:
+						if node.Op == mt.UNQUOTE_SPLICE {
+							rets = append(rets, node.X.(*ast.FuncLit).Body.List...)
+							continue
+						}
+					default:
+						rets = append(rets, env.ToStmt(env.evalQuasiquote(node)))
+					}
+				}
+			}
+			node.List = rets
+			return node
+		default:
+			break
+		}
+	*/
+	// TODO we must traverse node... but no uniform API to do it
+	return in
 }
 
 func isMacroCall(node *ast.BinaryExpr) bool {
-	return node.Op == mp.MACRO
+	return node.Op == mt.MACRO
+}
+
+type macroExpandCtx struct {
+	env           *Env
+	traverseQuote bool
 }
 
 // MacroExpandCodewalk traverses the whole AST tree using pre-order traversal,
@@ -61,23 +117,8 @@ func isMacroCall(node *ast.BinaryExpr) bool {
 // It implements the macroexpansion phase
 // Warning: it modifies the AST tree in place!
 func (env *Env) MacroExpandCodewalk(node ast.Node) ast.Node {
-	return env.Walk(env.macroExpandReturnNilOnQuote, node)
-}
-
-// MacroExpand repeatedly invokes MacroExpand1
-// as long as the node represents a macro call.
-// it returns the resulting node.
-func (env *Env) macroExpandReturnNilOnQuote(node ast.Node) ast.Node {
-	if node == nil {
-		return nil
-	}
-	for {
-		ret := env.macroExpand1(node, true)
-		if ret == nil || ret == node {
-			return ret
-		}
-		node = ret
-	}
+	ctx := macroExpandCtx{env: env, traverseQuote: false}
+	return env.Transform(ctx.macroExpand1, node)
 }
 
 // MacroExpand repeatedly invokes MacroExpand1
@@ -88,8 +129,9 @@ func (env *Env) MacroExpand(node ast.Node) (ast.Node, bool) {
 		return nil, false
 	}
 	save := node
+	ctx := macroExpandCtx{env: env}
 	for {
-		ret := env.macroExpand1(node, false)
+		ret, _ := ctx.macroExpand1(node)
 		if ret == nil || ret == node {
 			return ret, ret != save
 		}
@@ -101,64 +143,70 @@ func (env *Env) MacroExpand(node ast.Node) (ast.Node, bool) {
 // and returns the resulting node.
 // Otherwise returns the node argument unchanged
 func (env *Env) MacroExpand1(node ast.Node) (ast.Node, bool) {
-	ret := env.macroExpand1(node, false)
+	ctx := macroExpandCtx{env: env}
+	ret, _ := ctx.macroExpand1(node)
 	// if ret == node {
 	//    env.Debugf("MacroExpand1() not a macro: %v <%v>", node, r.TypeOf(node))
 	//}
 	return ret, ret != node
 }
 
-func (env *Env) macroExpand1(node ast.Node, returnNilOnQuote bool) ast.Node {
+func (ctx *macroExpandCtx) macroExpand1(in ast.Node) (out ast.Node, traverseOut bool) {
 	var expr *ast.BinaryExpr
 Again:
-	switch x := node.(type) {
+	switch node := in.(type) {
 	case *ast.BinaryExpr:
-		if x.Op != mp.MACRO {
+		if node.Op != mt.MACRO {
 			// not a macro call, return unchanged
-			return node
+			return node, true
 		}
-		expr = x
+		expr = node
 		// env.Debugf("macroExpand1() found macro call: %v", expr)
 
 	case *ast.UnaryExpr:
-		// not a macro. maybe it's a QUOTE ?
-		if returnNilOnQuote && x.Op == mp.QUOTE {
-			// env.Debugf("macroExpand1() found QUOTE, returning nil")
-			return nil
+		// not a macro. it could be QUOTE/QUASIQUOTE/UNQUOTE/UNQUOTE_SPLICE
+		switch node.Op {
+		case mt.QUOTE:
+			return node, ctx.traverseQuote
+		case mt.QUASIQUOTE:
+			return ctx.env.evalQuasiquote(node.X.(*ast.FuncLit).Body), true
+		case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+			ctx.env.Errorf("%s not inside quasiquote", mt.String(node.Op))
 		}
-		return node
+		return node, true
 
 	case *ast.ExprStmt:
 		// expressions are sometimes wrapped in statements... unwrap them
-		node = x.X
+		in = node.X
 		goto Again
 
 	default:
-		return node
+		return node, true
 	}
 
 	// retrieve and validate the macro
+	env := ctx.env
 	macro := env.Eval1(expr.X)
 	if macro == Nil || macro == None || macro.Kind() != r.Struct {
-		return env.badMacro(expr)
+		return env.badMacro(expr), false
 	}
 	m, ok := macro.Interface().(Macro)
 	if !ok || m.Closure == nil {
-		return env.badMacro(expr)
+		return env.badMacro(expr), false
 	}
 	// validate the macroexpansion arguments
 	fun, ok := expr.Y.(*ast.FuncLit)
 	if !ok || len(fun.Type.Params.List) != 0 {
-		return env.badMacro(expr)
+		return env.badMacro(expr), false
 	}
 	args := fun.Body.List
 	n := len(args)
 	if n > m.ArgNum {
-		env.Errorf("too many arguments in macroexpansion of %v", node)
-		return nil
+		env.Errorf("too many arguments in macroexpansion of %v", expr)
+		return expr, false
 	} else if n > m.ArgNum {
-		env.Errorf("not enough arguments in macroexpansion of %v", node)
-		return nil
+		env.Errorf("not enough arguments in macroexpansion of %v", expr)
+		return expr, false
 	}
 	// wrap each ast.Stmt into a reflect.Value
 	argsv := make([]r.Value, n)
@@ -170,20 +218,20 @@ Again:
 	// validate the results
 	switch n = len(results); n {
 	default:
-		env.Warnf("macroexpansion returned %d values, only the first one will be used: %v", n, node)
+		env.Warnf("macroexpansion returned %d values, only the first one will be used: %v", n, expr)
 		fallthrough
 	case 1:
 		result := results[0]
 		if result != Nil && result != None {
 			ret, ok := result.Interface().(ast.Node)
 			if ok {
-				return ret
+				return ret, true
 			}
-			env.Errorf("macroexpansion returned a <%v>, not an <ast.Node>: %v", result.Type(), node)
+			env.Errorf("macroexpansion returned a <%v>, not an <ast.Node>: %v", result.Type(), expr)
 		}
 		fallthrough
 	case 0:
-		return nil
+		return expr, false
 	}
 }
 

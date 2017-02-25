@@ -31,15 +31,15 @@ import (
 	"strings"
 	"time"
 
-	gmi "github.com/cosmos72/gomacro/interpreter"
+	"github.com/cosmos72/gomacro/interpreter"
 )
 
 func main() {
 	// factorialBenchmark(1000000000)
 
-	env := gmi.NewEnv(nil)
+	env := interpreter.NewEnv(nil)
 	env.ParserMode = parser.Trace & 0
-	env.Options = gmi.OptShowAfterParse | gmi.OptShowAfterMacroExpandCodewalk | gmi.OptShowEvalDuration
+	// env.Options = gmi.OptShowAfterParse | gmi.OptShowAfterMacroExpandCodewalk | gmi.OptShowEvalDuration
 
 	args := os.Args
 	// args = []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { b }\nMacroExpand1(quote{foo x; y; z})"}

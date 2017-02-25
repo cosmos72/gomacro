@@ -33,7 +33,7 @@ import (
 	"io"
 	"os"
 
-	mp "github.com/cosmos72/gomacro/macroparser"
+	mp "github.com/cosmos72/gomacro/parser"
 )
 
 type Interpreter struct {

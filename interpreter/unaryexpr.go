@@ -29,23 +29,36 @@ import (
 	"go/token"
 	r "reflect"
 
-	mp "github.com/cosmos72/gomacro/macroparser"
+	mt "github.com/cosmos72/gomacro/token"
 )
 
 func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, []r.Value) {
-	opstr := mp.TokenString(op)
+	opstr := mt.String(op)
 	return env.Errorf("unsupported unary expression %s on %T: %s %#v", opstr, xf, opstr, xf)
 }
 
 func (env *Env) evalUnaryExpr(expr *ast.UnaryExpr) (r.Value, []r.Value) {
 	switch op := expr.Op; op {
-	case mp.MACRO:
-		// result of macroexpansion: a statement wrapped in a closure
-		return env.evalBlock(expr.X.(*ast.FuncLit).Body)
+	case mt.MACRO, mt.QUOTE, mt.QUASIQUOTE:
+		// the various *QUOTE* special forms and the result of macroexpansion
+		// are statements wrapped in a closure
+		block := expr.X.(*ast.FuncLit).Body
+		var ret r.Value
+		var rets []r.Value
+		switch op {
+		case mt.MACRO:
+			ret, rets = env.evalBlock(block)
+		case mt.QUOTE:
+			node := env.evalQuote(block)
+			ret = r.ValueOf(&node).Elem()
+		case mt.QUASIQUOTE:
+			node := env.evalQuasiquote(block)
+			ret = r.ValueOf(&node).Elem()
+		}
+		return ret, rets
 
-	case mp.QUOTE, mp.QUASIQUOTE, mp.UNQUOTE, mp.UNQUOTE_SPLICE:
-		// result of quote and friends: a statement wrapped in a closure
-		return env.evalQuote(op, expr.X.(*ast.FuncLit).Body)
+	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+		return env.Errorf("%s outside quasiquote", mt.String(op))
 
 	default:
 		break

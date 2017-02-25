@@ -14,11 +14,13 @@
 // entries where the spec permits exactly one. Consequently, the corresponding
 // field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.
 //
-package macroparser
+package parser
 
 import (
 	"go/ast"
 	"go/token"
+
+	mt "github.com/cosmos72/gomacro/token"
 )
 
 func (p *Parser) parseAny() ast.Node {
@@ -33,7 +35,7 @@ func (p *Parser) parseAny() ast.Node {
 		node = p.parseFile()
 	case token.IMPORT:
 		node = p.parseGenDecl(token.IMPORT, p.parseImportSpec)
-	case token.CONST, token.FUNC, token.TYPE, token.VAR, MACRO:
+	case token.CONST, token.FUNC, token.TYPE, token.VAR, mt.MACRO:
 		node = p.parseDecl(syncDecl)
 	default:
 		node = p.parseStmt()
@@ -51,26 +53,48 @@ func (p *Parser) parseQuote() ast.Expr {
 		defer un(trace(p, "Quote"))
 	}
 
-	tok := p.tok
-	pos := p.pos
-	name := p.lit
+	op := p.tok
+	opPos := p.pos
+	opName := p.lit
 	p.next()
+
+	var expr ast.Expr
+	var body *ast.BlockStmt
+
+	// QUOTE, QUASIQUOTE, UNQUOTE and UNQUOTE_SLICE must be followed by one of:
+	// * a block statement
+	// * an identifier
+	// * a basic literal
 	switch p.tok {
 	case token.EOF, token.RPAREN, token.RBRACK, token.RBRACE,
 		token.COMMA, token.PERIOD, token.SEMICOLON, token.COLON:
 
-		// no applicable expression after QUOTE: just return the QUOTE identifier itself
-		return &ast.Ident{NamePos: pos, Name: name}
+		// no applicable expression after QUOTE/QUASIQUOTE/...: just return the keyword itself
+		return &ast.Ident{NamePos: opPos, Name: opName}
+
+	case token.IDENT:
+		expr = &ast.Ident{NamePos: p.pos, Name: p.lit}
+		p.next()
+
+	case token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
+		expr = &ast.BasicLit{ValuePos: p.pos, Kind: p.tok, Value: p.lit}
+		p.next()
+
+	default:
+		body = p.parseBlockStmt()
 	}
 
-	body := p.parseBlockStmt()
+	if expr != nil {
+		stmt := &ast.ExprStmt{X: expr}
+		body = &ast.BlockStmt{Lbrace: expr.Pos(), List: []ast.Stmt{stmt}, Rbrace: expr.End()}
+	}
 
 	// due to go/ast strictly typed model, there is only one mechanism
 	// to insert a statement inside an expression: use a closure.
 	// so we return a unary expression: QUOTE (func() { /*block*/ })
 	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
 	fun := &ast.FuncLit{Type: typ, Body: body}
-	return &ast.UnaryExpr{OpPos: pos, Op: tok, X: fun}
+	return &ast.UnaryExpr{OpPos: opPos, Op: op, X: fun}
 }
 
 func isMacroDecl(decl *ast.FuncDecl) bool {
@@ -78,11 +102,7 @@ func isMacroDecl(decl *ast.FuncDecl) bool {
 }
 
 func funcDeclNumParams(decl *ast.FuncDecl) int {
-	ret := 0
-	if params := decl.Type.Params; params != nil {
-		ret = params.NumFields()
-	}
-	return ret
+	return decl.Type.Params.NumFields()
 }
 
 func (p *Parser) tryParseMacroStmt() ast.Stmt {
@@ -158,5 +178,5 @@ func (p *Parser) parseMacro(ident *ast.Ident, numParams int) ast.Expr {
 	// so we return a binary expression: ident MACRO (func() { /*block*/ })
 	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
 	fun := &ast.FuncLit{Type: typ, Body: body}
-	return &ast.BinaryExpr{X: ident, OpPos: ident.Pos(), Op: MACRO, Y: fun}
+	return &ast.BinaryExpr{X: ident, OpPos: ident.Pos(), Op: mt.MACRO, Y: fun}
 }

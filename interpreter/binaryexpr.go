@@ -29,11 +29,11 @@ import (
 	"go/token"
 	r "reflect"
 
-	mp "github.com/cosmos72/gomacro/macroparser"
+	mt "github.com/cosmos72/gomacro/token"
 )
 
 func (env *Env) unsupportedBinaryExpr(xv r.Value, op token.Token, yv r.Value) (r.Value, []r.Value) {
-	opstr := mp.TokenString(op)
+	opstr := mt.String(op)
 	return env.Errorf("unsupported binary operation %s between %v <%v> and %v <%v>: %v %s %v", opstr, xv.Kind(), xv.Type(), yv.Kind(), yv.Type(), xv, opstr, yv)
 }
 

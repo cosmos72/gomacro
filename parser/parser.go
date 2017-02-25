@@ -2,31 +2,33 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package Parser implements a Parser for Go source files. Input may be
+// Package parser implements a parser for Go source files. Input may be
 // provided in a variety of forms (see the various Parse* functions); the
 // output is an abstract syntax tree (AST) representing the Go source. The
-// Parser is invoked through one of the Parse* functions.
+// parser is invoked through one of the Parse* functions.
 //
-// The Parser accepts a larger language than is syntactically permitted by
+// The parser accepts a larger language than is syntactically permitted by
 // the Go spec, for simplicity, and for improved robustness in the presence
 // of syntax errors. For instance, in method declarations, the receiver is
 // treated like an ordinary parameter list and thus may contain multiple
 // entries where the spec permits exactly one. Consequently, the corresponding
 // field in the AST (ast.FuncDecl.Recv) field is not restricted to one entry.
 //
-package macroparser
+package parser
 
 import (
 	"fmt"
 	"go/ast"
-	"go/scanner"
 	"go/token"
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/cosmos72/gomacro/scanner"
+	mt "github.com/cosmos72/gomacro/token"
 )
 
-// The Parser structure holds the parser's internal state.
+// The parser structure holds the parser's internal state.
 type Parser struct {
 	file    *token.File
 	errors  scanner.ErrorList
@@ -50,13 +52,13 @@ type Parser struct {
 	// Error recovery
 	// (used to limit the number of calls to syncXXX functions
 	// w/o making scanning progress - avoids potential endless
-	// loops across multiple Parser functions during error recovery)
+	// loops across multiple parser functions during error recovery)
 	syncPos token.Pos // last synchronization position
 	syncCnt int       // number of calls to syncXXX without progress
 
-	// Non-syntactic Parser control
+	// Non-syntactic parser control
 	exprLev int  // < 0: in control clause, >= 0: in expression
-	inRhs   bool // if set, the Parser is parsing a rhs expression
+	inRhs   bool // if set, the parser is parsing a rhs expression
 
 	// Ordinary identifier scopes
 	pkgScope   *ast.Scope        // pkgScope.Outer == nil
@@ -71,7 +73,7 @@ type Parser struct {
 }
 
 func (p *Parser) Init(fset *token.FileSet, filename string, src []byte, mode Mode, scope *ast.Scope) *ast.Scope {
-	// Explicitly initialize all fields since a Parser may be reused.
+	// Explicitly initialize all fields since a parser may be reused.
 	p.file = fset.AddFile(filename, -1, len(src))
 	p.errors = nil
 
@@ -268,8 +270,6 @@ func un(p *Parser) {
 	p.printTrace(")")
 }
 
-var quotePrefix = [...]token.Token{token.RPAREN, token.LPAREN, token.FUNC}
-
 // Advance to the next token.
 func (p *Parser) next0() {
 	// Because of one-token look-ahead, print the previous token
@@ -277,12 +277,12 @@ func (p *Parser) next0() {
 	// very first token (!p.pos.IsValid()) is not initialized
 	// (it is token.ILLEGAL), so don't print it .
 	if p.trace && p.pos.IsValid() {
-		s := TokenString(p.tok) // patch: support macro-related keywords
+		s := mt.String(p.tok) // patch: support macro-related keywords
 		switch {
 		case p.tok.IsLiteral():
 			p.printTrace(s, p.lit)
 		case p.tok.IsOperator(), p.tok.IsKeyword(),
-			TokenIsMacroKeyword(p.tok): // patch: support macro-related keywords
+			mt.IsMacroKeyword(p.tok): // patch: support macro-related keywords
 
 			p.printTrace("\"" + s + "\"")
 		default:
@@ -291,13 +291,6 @@ func (p *Parser) next0() {
 	}
 
 	p.pos, p.tok, p.lit = p.scanner.Scan()
-
-	// patch: recognize the new macro-related keywords
-	if p.tok == token.IDENT {
-		if tok, ok := keywords[p.lit]; ok {
-			p.tok = tok
-		}
-	}
 }
 
 // Consume a comment and return it and the line on which it ends.
@@ -320,7 +313,7 @@ func (p *Parser) consumeComment() (comment *ast.Comment, endline int) {
 	return
 }
 
-// Consume a group of adjacent comments, add it to the Parser's
+// Consume a group of adjacent comments, add it to the parser's
 // comments list, and return it together with the line at which
 // the last comment in the group ends. A non-comment token or n
 // empty lines terminate a comment group.
@@ -422,7 +415,7 @@ func (p *Parser) errorExpected(pos token.Pos, msg string) {
 		if p.tok == token.SEMICOLON && p.lit == "\n" {
 			msg += ", found newline"
 		} else {
-			msg += ", found '" + TokenString(p.tok) + "'"
+			msg += ", found '" + mt.String(p.tok) + "'"
 			if p.tok.IsLiteral() {
 				msg += " " + p.lit
 			}
@@ -434,7 +427,7 @@ func (p *Parser) errorExpected(pos token.Pos, msg string) {
 func (p *Parser) expect(tok token.Token) token.Pos {
 	pos := p.pos
 	if p.tok != tok {
-		p.errorExpected(pos, "'"+TokenString(tok)+"'")
+		p.errorExpected(pos, "'"+mt.String(tok)+"'")
 	}
 	p.next() // make progress
 	return pos
@@ -499,10 +492,10 @@ func syncStmt(p *Parser) {
 			token.FALLTHROUGH, token.FOR, token.GO, token.GOTO,
 			token.IF, token.RETURN, token.SELECT, token.SWITCH,
 			token.TYPE, token.VAR:
-			// Return only if Parser made some progress since last
+			// Return only if parser made some progress since last
 			// sync or if it has not reached 10 sync calls without
 			// progress. Otherwise consume at least one token to
-			// avoid an endless Parser loop (it is possible that
+			// avoid an endless parser loop (it is possible that
 			// both parseOperand and parseStmt call syncStmt and
 			// correctly do not advance, thus the need for the
 			// invocation limit p.syncCnt).
@@ -515,7 +508,7 @@ func syncStmt(p *Parser) {
 				p.syncCnt = 0
 				return
 			}
-			// Reaching here indicates a Parser bug, likely an
+			// Reaching here indicates a parser bug, likely an
 			// incorrect token list in this function, but it only
 			// leads to skipping of possibly correct code if a
 			// previous error is present, and thus is preferred
@@ -1200,8 +1193,8 @@ func (p *Parser) parseOperand(lhs bool) ast.Expr {
 		return p.parseFuncTypeOrLit()
 
 	// patch: quote and friends
-	// TODO: accept MACRO here and interpret as local macro definition? (i.e. Common Lisp macrolet)
-	case QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICE:
+	// TODO: accept ms.MACRO here and interpret as local macro definition? (i.e. Common Lisp macrolet)
+	case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
 		return p.parseQuote()
 	}
 
@@ -1329,9 +1322,9 @@ func (p *Parser) parseValue(keyOk bool) ast.Expr {
 		return p.parseLiteralValue(nil)
 	}
 
-	// Because the Parser doesn't know the composite literal type, it cannot
+	// Because the parser doesn't know the composite literal type, it cannot
 	// know if a key that's an identifier is a struct field name or a name
-	// denoting a value. The former is not resolved by the Parser or the
+	// denoting a value. The former is not resolved by the parser or the
 	// resolver.
 	//
 	// Instead, _try_ to resolve such a key if possible. If it resolves,
@@ -2216,7 +2209,7 @@ func (p *Parser) parseStmt() (s ast.Stmt) {
 		token.LBRACK, token.STRUCT, token.MAP, token.CHAN, token.INTERFACE, // composite types
 		token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT, // unary operators
 		// patch: macro, quote and friends
-		MACRO, QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICE:
+		mt.INTERPRET_ONLY, mt.MACRO, mt.SPLICE, mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
 
 		if p.tok == token.IDENT {
 			s = p.tryParseMacroStmt()
@@ -2446,7 +2439,7 @@ func (p *Parser) parseMacroDecl() *ast.FuncDecl {
 	if p.trace {
 		defer un(trace(p, "MacroDecl"))
 	}
-	decl := p.parseFuncOrMacroDecl(MACRO)
+	decl := p.parseFuncOrMacroDecl(mt.MACRO)
 	// add zero-length receiver list, to mark decl as a macro
 	decl.Recv = &ast.FieldList{List: []*ast.Field{}}
 	return decl
@@ -2516,7 +2509,7 @@ func (p *Parser) parseDecl(sync func(*Parser)) ast.Decl {
 	case token.FUNC:
 		return p.parseFuncDecl()
 
-	case MACRO: // patch: parse a macro declaration
+	case mt.MACRO: // patch: parse a macro declaration
 		return p.parseMacroDecl()
 
 	default:
