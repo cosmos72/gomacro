@@ -25,12 +25,76 @@
 package interpreter
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
 
 	mt "github.com/cosmos72/gomacro/token"
 )
+
+func AnyToAstWithSlice(any interface{}, caller string) AstWithSlice {
+	node := AnyToAst(any, caller)
+	switch node := node.(type) {
+	case AstWithSlice:
+		return node
+	default:
+		Errorf("%s: cannot convert to slice of ast.Node: %v <%v>", caller, any, r.TypeOf(any))
+		return nil
+	}
+}
+
+func AnyToAst(any interface{}, caller string) Ast {
+	var str string
+	var tok token.Token
+	switch node := any.(type) {
+	case Ast:
+		return node
+	case ast.Node:
+		return ToAst(node)
+	case []ast.Node:
+		return NodeSlice{p: node}
+	case []*ast.Field:
+		return FieldSlice{p: node}
+	case []ast.Decl:
+		return DeclSlice{p: node}
+	case []ast.Expr:
+		return ExprSlice{p: node}
+	case []*ast.Ident:
+		return IdentSlice{p: node}
+	case []ast.Stmt:
+		return StmtSlice{p: node}
+	case []ast.Spec:
+		return SpecSlice{p: node}
+	case bool:
+		if node {
+			str = "true"
+		} else {
+			str = "false"
+		}
+		return Ident{p: &ast.Ident{Name: str}}
+	/*
+		case rune: // Go cannot currently distinguish rune from int32
+			tok = token.CHAR
+			str = fmt.Sprintf("%q", node)
+	*/
+	case string:
+		tok = token.STRING
+		str = fmt.Sprintf("%q", node)
+	case int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64, uintptr:
+		tok = token.INT
+		str = fmt.Sprintf("%d", node)
+	case float32, float64:
+		tok = token.FLOAT
+		str = fmt.Sprintf("%g", node)
+	//case complex64, complex128:
+	default:
+		Errorf("%s: cannot convert to ast.Node: %v <%v>", caller, any, r.TypeOf(any))
+	}
+	return BasicLit{p: &ast.BasicLit{Kind: tok, Value: str}}
+
+}
 
 // ToAst2 returns either n0 (if i == 0) or n1, converted to Ast
 func ToAst1(i int, node ast.Node) AstWithNode {
@@ -262,7 +326,7 @@ func ToExpr(x Ast) ast.Expr {
 }
 
 func ToExprSlice(x Ast) []ast.Expr {
-	return *x.(ExprSlice).p
+	return x.(ExprSlice).p
 }
 
 func ToField(x Ast) *ast.Field {
@@ -336,7 +400,7 @@ func ToIdent(x Ast) *ast.Ident {
 }
 
 func ToIdentSlice(x Ast) []*ast.Ident {
-	return *x.(IdentSlice).p
+	return x.(IdentSlice).p
 }
 
 func ToSpec(x Ast) ast.Spec {
@@ -368,7 +432,7 @@ func ToStmt(x Ast) ast.Stmt {
 }
 
 func ToStmtSlice(x Ast) []ast.Stmt {
-	return *x.(StmtSlice).p
+	return x.(StmtSlice).p
 }
 
 func BlockStmtToExpr(node *ast.BlockStmt) ast.Expr {

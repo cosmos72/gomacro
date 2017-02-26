@@ -48,15 +48,13 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 
 	case mt.QUOTE:
 		block := node.X.(*ast.FuncLit).Body
-		node := env.evalQuote(block)
-		// force type to ast.Node...
-		// the simpler r.ValueOf(node) would have the concrete type of node
-		return r.ValueOf(&node).Elem(), nil
+		ret := env.evalQuote(block)
+		return r.ValueOf(ret), nil
 
 	case mt.QUASIQUOTE:
 		block := node.X.(*ast.FuncLit).Body
 		ret := env.evalQuasiquote(block)
-		return r.ValueOf(&ret).Elem(), nil
+		return r.ValueOf(ret), nil
 
 	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
 		return env.Errorf("%s not inside quasiquote: %v %<v>", mt.String(op), node, r.TypeOf(node))
@@ -90,22 +88,33 @@ func (env *Env) evalUnaryExprBool(x bool, op token.Token) (r.Value, []r.Value) {
 }
 
 func (env *Env) evalUnaryExprUint(x uint64, op token.Token) (r.Value, []r.Value) {
-	var ret interface{}
+	var ret uint64
 	switch op {
 	case token.ADD:
 		ret = x
 	case token.SUB:
-		ret = -int64(x)
+		iret := -int64(x)
+		iret2 := int(iret)
+		if int64(iret2) == iret {
+			return r.ValueOf(iret2), nil
+		} else {
+			return r.ValueOf(iret), nil
+		}
 	case token.XOR:
 		ret = ^x
 	default:
 		return env.unsupportedUnaryExpr(x, op)
 	}
-	return r.ValueOf(ret), nil
+	ret2 := uint(ret)
+	if uint64(ret2) == ret {
+		return r.ValueOf(ret2), nil
+	} else {
+		return r.ValueOf(ret), nil
+	}
 }
 
 func (env *Env) evalUnaryExprInt(x int64, op token.Token) (r.Value, []r.Value) {
-	var ret interface{}
+	var ret int64
 	switch op {
 	case token.ADD:
 		ret = x
@@ -116,7 +125,12 @@ func (env *Env) evalUnaryExprInt(x int64, op token.Token) (r.Value, []r.Value) {
 	default:
 		return env.unsupportedUnaryExpr(x, op)
 	}
-	return r.ValueOf(ret), nil
+	ret2 := int(ret)
+	if int64(ret2) == ret {
+		return r.ValueOf(ret2), nil
+	} else {
+		return r.ValueOf(ret), nil
+	}
 }
 
 func (env *Env) evalUnaryExprFloat(x float64, op token.Token) (r.Value, []r.Value) {

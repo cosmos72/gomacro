@@ -82,7 +82,7 @@ func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) (r.Valu
 	switch yv.Kind() {
 
 	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
-		var ret interface{}
+		var ret uint64
 		y := yv.Uint()
 
 		switch op {
@@ -108,22 +108,37 @@ func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) (r.Valu
 			ret = x >> y
 		case token.AND_NOT:
 			ret = x &^ y
+		default:
+			goto PART2
+		}
+
+		{
+			ret2 := uint(ret)
+			if uint64(ret2) == ret {
+				return r.ValueOf(ret2), nil
+			} else {
+				return r.ValueOf(ret), nil
+			}
+		}
+	PART2:
+		var b bool
+		switch op {
 		case token.EQL:
-			ret = x == y
+			b = x == y
 		case token.LSS:
-			ret = x < y
+			b = x < y
 		case token.GTR:
-			ret = x > y
+			b = x > y
 		case token.NEQ:
-			ret = x != y
+			b = x != y
 		case token.LEQ:
-			ret = x <= y
+			b = x <= y
 		case token.GEQ:
-			ret = x >= y
+			b = x >= y
 		default:
 			return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
-		return r.ValueOf(ret), nil
+		return r.ValueOf(b), nil
 
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 		return env.evalBinaryExprIntInt(int64(x), op, yv.Int())
@@ -155,7 +170,7 @@ func (env *Env) evalBinaryExprInt(x int64, op token.Token, yv r.Value) (r.Value,
 }
 
 func (env *Env) evalBinaryExprIntInt(x int64, op token.Token, y int64) (r.Value, []r.Value) {
-	var ret interface{}
+	var ret int64
 	switch op {
 	case token.ADD:
 		ret = x + y
@@ -180,22 +195,36 @@ func (env *Env) evalBinaryExprIntInt(x int64, op token.Token, y int64) (r.Value,
 		ret = x >> uint64(y)
 	case token.AND_NOT:
 		ret = x &^ y
+	default:
+		goto PART2
+	}
+	{
+		ret2 := int(ret)
+		if int64(ret2) == ret {
+			return r.ValueOf(ret2), nil
+		} else {
+			return r.ValueOf(ret), nil
+		}
+	}
+PART2:
+	var b bool
+	switch op {
 	case token.EQL:
-		ret = x == y
+		b = x == y
 	case token.LSS:
-		ret = x < y
+		b = x < y
 	case token.GTR:
-		ret = x > y
+		b = x > y
 	case token.NEQ:
-		ret = x != y
+		b = x != y
 	case token.LEQ:
-		ret = x <= y
+		b = x <= y
 	case token.GEQ:
-		ret = x >= y
+		b = x >= y
 	default:
 		return env.unsupportedBinaryExpr(r.ValueOf(x), op, r.ValueOf(y))
 	}
-	return r.ValueOf(ret), nil
+	return r.ValueOf(b), nil
 }
 
 func (env *Env) evalBinaryExprFloat(x float64, op token.Token, yv r.Value) (r.Value, []r.Value) {

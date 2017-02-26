@@ -240,15 +240,15 @@ func (x ValueSpec) Size() int      { return 3 }
 
 func (x ArrayType) Get(i int) Ast { return ToAst2(i, x.p.Len, x.p.Elt) }
 func (x AssignStmt) Get(i int) Ast {
-	var addr *[]ast.Expr
+	var slice []ast.Expr
 	if i == 0 {
-		addr = &x.p.Lhs
+		slice = x.p.Lhs
 	} else if i == 1 {
-		addr = &x.p.Rhs
+		slice = x.p.Rhs
 	} else {
 		return BadIndex(i, 2)
 	}
-	return ExprSlice{addr}
+	return ExprSlice{slice}
 }
 func (x BadDecl) Get(i int) Ast    { return BadIndex(i, 0) }
 func (x BadExpr) Get(i int) Ast    { return BadIndex(i, 0) }
@@ -260,16 +260,16 @@ func (x CallExpr) Get(i int) Ast {
 	if i == 0 {
 		return ToAst(x.p.Fun)
 	} else if i == 1 {
-		return ExprSlice{&x.p.Args}
+		return ExprSlice{x.p.Args}
 	} else {
 		return BadIndex(i, 2)
 	}
 }
 func (x CaseClause) Get(i int) Ast {
 	if i == 0 {
-		return ExprSlice{&x.p.List}
+		return ExprSlice{x.p.List}
 	} else if i == 1 {
-		return StmtSlice{&x.p.Body}
+		return StmtSlice{x.p.Body}
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -279,7 +279,7 @@ func (x CommClause) Get(i int) Ast {
 	if i == 0 {
 		return ToAst(x.p.Comm)
 	} else if i == 1 {
-		return StmtSlice{&x.p.Body}
+		return StmtSlice{x.p.Body}
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -288,7 +288,7 @@ func (x CompositeLit) Get(i int) Ast {
 	if i == 0 {
 		return ToAst(x.p.Type)
 	} else if i == 1 {
-		return ExprSlice{&x.p.Elts}
+		return ExprSlice{x.p.Elts}
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -300,7 +300,7 @@ func (x EmptyStmt) Get(i int) Ast { return BadIndex(i, 0) }
 func (x ExprStmt) Get(i int) Ast  { return ToAst1(i, x.p.X) }
 func (x Field) Get(i int) Ast {
 	if i == 0 {
-		return IdentSlice{&x.p.Names}
+		return IdentSlice{x.p.Names}
 	} else if i == 1 {
 		return ToAst(x.p.Type)
 	} else {
@@ -469,11 +469,11 @@ func (x UnaryExpr) Get(i int) Ast { return ToAst1(i, x.p.X) }
 func (x ValueSpec) Get(i int) Ast {
 	switch i {
 	case 0:
-		return IdentSlice{&x.p.Names}
+		return IdentSlice{x.p.Names}
 	case 1:
 		return ToAst(x.p.Type)
 	case 2:
-		return ExprSlice{&x.p.Values}
+		return ExprSlice{x.p.Values}
 	default:
 		return BadIndex(i, 3)
 	}

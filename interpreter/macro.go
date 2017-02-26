@@ -86,13 +86,12 @@ func (env *Env) evalQuasiquote(node ast.Node) ast.Node {
 	in := ToAst(node)
 	out := env.evalQuasiquoteAst(in)
 	node = ToNode(out)
-	node = simplifyNodeForQuote(node, toUnwrap)
-	return node
+	return simplifyNodeForQuote(node, toUnwrap)
 }
 
 // evalQuasiquoteAst evaluates the body of a quasiquote{} represented as Ast
 func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
-	withResize, canSplice := inout.(AstWithResize)
+	withSlice, canSplice := inout.(AstWithSlice)
 	form := inout
 	if env.Options&OptDebugQuasiquote != 0 {
 		x := form.Interface()
@@ -107,10 +106,11 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 		case UnaryExpr:
 			switch form.Op() {
 			case mt.UNQUOTE:
-				return env.evalUnquote(form)
+				y := env.evalUnquote(form)
+				return AnyToAst(y, "unquote")
 			case mt.UNQUOTE_SPLICE:
 				x := form.Interface()
-				env.Errorf("quasiquote: cannot splice in single-statement context: %v <%v>", x, r.TypeOf(x))
+				env.Errorf("quasiquote: cannot splice inout single-statement context: %v <%v>", x, r.TypeOf(x))
 			}
 		}
 		for i := 0; i < ni; i++ {
@@ -136,10 +136,10 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 			break
 		}
 	}
-	rets := make([]Ast, 0, ni)
+	ret := make([]Ast, 0, ni)
 	for i := 0; i < ni; i++ {
 		child := form.Get(i)
-		if isTrivialAst(child) {
+		for isTrivialAst(child) {
 			// drill through DeclStmt, ExprStmt, ParenExpr
 			child = child.Get(0)
 		}
@@ -147,49 +147,43 @@ func (env *Env) evalQuasiquoteAst(inout Ast) Ast {
 		case UnaryExpr:
 			switch child.Op() {
 			case mt.UNQUOTE:
-				toInsert := env.evalUnquote(child)
-				rets = append(rets, toInsert)
+				toInsert := AnyToAst(env.evalUnquote(child), "unquote")
+				ret = append(ret, toInsert)
 				if env.Options&OptDebugQuasiquote != 0 {
 					y := child.Interface()
 					env.Debugf("quasiquote: accumulated expansion after unquote(%v <%v>) is: %v <%v> (canSplice = %v)",
-						y, r.TypeOf(y), rets, r.TypeOf(rets), canSplice)
+						y, r.TypeOf(y), ret, r.TypeOf(ret), canSplice)
 				}
 				continue
 			case mt.UNQUOTE_SPLICE:
-				toSplice := env.evalUnquote(child)
-				if _, isSlice := toSplice.(AstWithResize); !isSlice {
-					y := toSplice.Interface()
-					env.Errorf("unquote_splice: not a slice of ast.Node: %v <%v>", y, r.TypeOf(y))
-					return nil
-				}
+				y := env.evalUnquote(child)
+				toSplice := AnyToAstWithSlice(y, "unquote_splice")
 				nj := toSplice.Size()
 				for j := 0; j < nj; j++ {
-					rets = append(rets, toSplice.Get(j))
+					ret = append(ret, toSplice.Get(j))
 				}
 				if env.Options&OptDebugQuasiquote != 0 {
 					y := child.Interface()
 					env.Debugf("quasiquote: accumulated expansion after unquote_splice(%v <%v>) is: %v <%v> (canSplice = %v)",
-						y, r.TypeOf(y), rets, r.TypeOf(rets), canSplice)
+						y, r.TypeOf(y), ret, r.TypeOf(ret), canSplice)
 				}
 				continue
 			}
 		}
 		// general case: recurse on child
 		child = env.evalQuasiquoteAst(child)
-		rets = append(rets, child)
+		ret = append(ret, child)
 		if env.Options&OptDebugQuasiquote != 0 {
 			y := child.Interface()
 			env.Debugf("quasiquote: accumulated expansion after quasiquote(%v <%v>) is: %v <%v> (canSplice = %v)",
-				y, r.TypeOf(y), rets, r.TypeOf(rets), canSplice)
+				y, r.TypeOf(y), ret, r.TypeOf(ret), canSplice)
 		}
 	}
-	if inout.Size() != len(rets) {
-		withResize.Resize(len(rets))
+	withSlice.Slice(0, 0)
+	for _, node := range ret {
+		withSlice.Append(node)
 	}
-	for i, r := range rets {
-		inout.Set(i, r)
-	}
-	return inout
+	return withSlice
 }
 
 // ParenExpr, ExprStmt, DeclStmt are trivial wrappers for their contents...
@@ -204,8 +198,8 @@ func isTrivialAst(form Ast) bool {
 }
 
 // evalUnquote performs expansion inside a QUASIQUOTE
-func (env *Env) evalUnquote(in UnaryExpr) Ast {
-	block := in.p.X.(*ast.FuncLit).Body
+func (env *Env) evalUnquote(inout UnaryExpr) interface{} {
+	block := inout.p.X.(*ast.FuncLit).Body
 
 	ret, extraValues := env.evalBlock(block)
 	if len(extraValues) > 1 {
@@ -214,14 +208,7 @@ func (env *Env) evalUnquote(in UnaryExpr) Ast {
 	if ret == None || ret == Nil {
 		return nil
 	}
-	// we expect Eval1() to return an ast.Node!
-	switch node := ret.Interface().(type) {
-	case ast.Node:
-		return ToAst(node)
-	default:
-		env.Errorf("quasiquote: not an ast.Node: %v <%v>", node, r.TypeOf(node))
-		return nil
-	}
+	return ret.Interface()
 }
 
 func isMacroCall(node *ast.BinaryExpr) bool {
@@ -236,7 +223,7 @@ type macroExpandCtx struct {
 // MacroExpandCodewalk traverses the whole AST tree using pre-order traversal,
 // and replaces each node with the result of MacroExpand(node).
 // It implements the macroexpansion phase
-// Warning: it modifies the AST tree in place!
+// Warning: it modifies the AST tree inout place!
 func (env *Env) MacroExpandCodewalk(node ast.Node) ast.Node {
 	// TODO
 	return node
@@ -272,10 +259,10 @@ func (env *Env) MacroExpand1(node ast.Node) (ast.Node, bool) {
 	return ret, ret != node
 }
 
-func (ctx *macroExpandCtx) macroExpand1(in ast.Node) (out ast.Node, traverseOut bool) {
+func (ctx *macroExpandCtx) macroExpand1(inout ast.Node) (out ast.Node, traverseOut bool) {
 	var expr *ast.BinaryExpr
 Again:
-	switch node := in.(type) {
+	switch node := inout.(type) {
 	case *ast.BinaryExpr:
 		if node.Op != mt.MACRO {
 			// not a macro call, return unchanged
@@ -297,8 +284,8 @@ Again:
 		return node, true
 
 	case *ast.ExprStmt:
-		// expressions are sometimes wrapped in statements... unwrap them
-		in = node.X
+		// expressions are sometimes wrapped inout statements... unwrap them
+		inout = node.X
 		goto Again
 
 	default:

@@ -41,18 +41,19 @@ type (
 		Ast
 		Node() ast.Node
 	}
-	AstWithResize interface {
+	AstWithSlice interface {
 		Ast
-		Resize(n int)
+		Slice(lo, hi int)
+		Append(child Ast)
 	}
 
-	NodeSlice  struct{ p *[]ast.Node }
-	ExprSlice  struct{ p *[]ast.Expr }
-	FieldSlice struct{ p *[]*ast.Field }
-	DeclSlice  struct{ p *[]ast.Decl }
-	IdentSlice struct{ p *[]*ast.Ident }
-	StmtSlice  struct{ p *[]ast.Stmt }
-	SpecSlice  struct{ p *[]ast.Spec }
+	NodeSlice  struct{ p []ast.Node }
+	ExprSlice  struct{ p []ast.Expr }
+	FieldSlice struct{ p []*ast.Field }
+	DeclSlice  struct{ p []ast.Decl }
+	IdentSlice struct{ p []*ast.Ident }
+	StmtSlice  struct{ p []ast.Stmt }
+	SpecSlice  struct{ p []ast.Spec }
 
 	ArrayType      struct{ p *ast.ArrayType }
 	AssignStmt     struct{ p *ast.AssignStmt }
