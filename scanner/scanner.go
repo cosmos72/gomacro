@@ -755,7 +755,7 @@ scanAgain:
 			// patch: support macro, quote and friends
 			tok = mt.SPLICE
 		case s.specialChar:
-			// patch: support macro, quote and friends
+			// patch: support macro, quote and friends. s.specialChar is configurable, default is '~'
 			// interpret_only  specialChar
 			// quote           specialChar '
 			// quasiquote      specialChar `
