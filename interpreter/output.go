@@ -199,6 +199,7 @@ func (f FileSet) nodeToPrintable(node ast.Node) interface{} {
 	if node == nil {
 		return nil
 	}
+
 	fset := f.Fileset
 	if fset == nil {
 		fset = token.NewFileSet()

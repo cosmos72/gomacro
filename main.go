@@ -40,10 +40,10 @@ func main() {
 }
 
 func Main(args []string) {
-
 	env := gmi.NewEnv(nil)
 	env.ParserMode = parser.Trace & 0
-	env.Options = gmi.OptTrapPanic // gmi.OptDebugQuasiquote | gmi.OptShowAfterParse | gmi.OptShowAfterMacroExpansion | gmi.OptShowEvalDuration
+	env.Options = gmi.OptDebugQuasiquote // | gmi.OptTrapPanic // | gmi.OptShowAfterParse | gmi.OptShowAfterMacroExpansion | gmi.OptShowEvalDuration
+	env.SpecialChar = '~'
 
 	if len(args) > 1 {
 		str := strings.Join(args[1:], " ")

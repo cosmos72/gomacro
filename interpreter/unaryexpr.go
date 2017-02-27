@@ -57,7 +57,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		return r.ValueOf(ret), nil
 
 	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
-		return env.Errorf("%s not inside quasiquote: %v %<v>", mt.String(op), node, r.TypeOf(node))
+		return env.Errorf("%s not inside quasiquote: %v <%v>", mt.String(op), node, r.TypeOf(node))
 	}
 	xv, _ := env.Eval(node.X)
 	switch xv.Kind() {

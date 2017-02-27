@@ -55,16 +55,17 @@ func (p *Parser) parseQuote() ast.Expr {
 
 	op := p.tok
 	opPos := p.pos
-	opName := p.lit
+	opName := mt.String(op) // use the actual name QUOTE/QUASIQUOTE/UNQUOTE/UNQUOTE_SPLICE even if we found ~' ~` ~, ~,@
 	p.next()
 
 	var expr ast.Expr
 	var body *ast.BlockStmt
 
 	// QUOTE, QUASIQUOTE, UNQUOTE and UNQUOTE_SLICE must be followed by one of:
-	// * a block statement
-	// * an identifier
 	// * a basic literal
+	// * an identifier
+	// * a block statement
+	// * another QUOTE, QUASIQUOTE or UNQUOTE (not UNQUOTE_SPLICE, it must be wrapped in {})
 	switch p.tok {
 	case token.EOF, token.RPAREN, token.RBRACK, token.RBRACE,
 		token.COMMA, token.PERIOD, token.SEMICOLON, token.COLON:
@@ -80,13 +81,27 @@ func (p *Parser) parseQuote() ast.Expr {
 		expr = &ast.BasicLit{ValuePos: p.pos, Kind: p.tok, Value: p.lit}
 		p.next()
 
+	case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+		expr = p.parseQuote()
+
 	default:
 		body = p.parseBlockStmt()
 	}
 
-	if expr != nil {
-		stmt := &ast.ExprStmt{X: expr}
-		body = &ast.BlockStmt{Lbrace: expr.Pos(), List: []ast.Stmt{stmt}, Rbrace: expr.End()}
+	expr, _ = MakeQuote(op, opPos, expr, body)
+	return expr
+}
+
+func MakeQuote(op token.Token, pos token.Pos, expr ast.Expr, body *ast.BlockStmt) (*ast.UnaryExpr, *ast.BlockStmt) {
+	if body == nil {
+		var list []ast.Stmt
+		epos, eend := pos, pos
+		if expr != nil {
+			list = append(list, &ast.ExprStmt{X: expr})
+			epos = expr.Pos()
+			eend = expr.End()
+		}
+		body = &ast.BlockStmt{Lbrace: epos, List: list, Rbrace: eend}
 	}
 
 	// due to go/ast strictly typed model, there is only one mechanism
@@ -94,7 +109,7 @@ func (p *Parser) parseQuote() ast.Expr {
 	// so we return a unary expression: QUOTE (func() { /*block*/ })
 	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
 	fun := &ast.FuncLit{Type: typ, Body: body}
-	return &ast.UnaryExpr{OpPos: opPos, Op: op, X: fun}
+	return &ast.UnaryExpr{OpPos: pos, Op: op, X: fun}, body
 }
 
 func isMacroDecl(decl *ast.FuncDecl) bool {
@@ -152,9 +167,10 @@ func (p *Parser) parseMacro(ident *ast.Ident, numParams int) ast.Expr {
 	// we could try to execute the macro here - but there are two issues:
 	//
 	// the first is stylistic: this is a parser, not an interpreter.
+	//
 	// the second is technical: a recursive-descent parser like this
 	// builds the AST built bottom-up: first creates the leaves,
-	// then the internal nodes pointing to the leaves, and so on up to the root.
+	// then the internal nodes pointing to the leaves, and continues up to the root.
 	// On the other hand, macroexpansion with lisp-like semantics is top-down:
 	// it starts with the *whole* AST tree, and recursively descends it
 	// expanding macros on the way. Trying to mix the two approaches

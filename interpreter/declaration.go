@@ -72,14 +72,14 @@ func (env *Env) evalImports(node ast.Spec) (r.Value, []r.Value) {
 func (env *Env) evalDeclConsts(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return env.Errorf("unimplemented constant declaration %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unimplemented: constant declaration %v <%v>", node, r.TypeOf(node))
 	}
 }
 
 func (env *Env) evalDeclTypes(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	default:
-		return env.Errorf("unimplemented type declaration %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unimplemented: type declaration %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -88,7 +88,7 @@ func (env *Env) evalDeclVars(node ast.Spec) (r.Value, []r.Value) {
 	case *ast.ValueSpec:
 		return env.evalDeclVarsExpr(node.Names, node.Type, node.Values)
 	default:
-		return env.Errorf("unimplemented variable declaration, expecting *ast.ValueSpec: %v %<v>", node, r.TypeOf(node))
+		return env.Errorf("unimplemented variable declaration, expecting *ast.ValueSpec: %v <%v>", node, r.TypeOf(node))
 	}
 }
 

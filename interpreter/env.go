@@ -126,7 +126,7 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 
 	// macroexpansion phase
 	for i, elt := range list {
-		list[i] = env.MacroExpandCodewalk(elt)
+		list[i], _ = env.MacroExpandCodewalk(elt)
 	}
 	if env.Options&OptShowAfterMacroExpansion != 0 {
 		env.Debugf("after macroexpansion: %v", list)

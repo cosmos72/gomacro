@@ -47,6 +47,7 @@ type Interpreter struct {
 	Options     Options
 	ParserMode  parser.Mode
 	ParserScope *ast.Scope
+	SpecialChar rune
 	Stdout      io.Writer
 	Stderr      io.Writer
 }
@@ -56,6 +57,7 @@ func NewInterpreter() *Interpreter {
 	ir.Packagename = "main"
 	ir.Filename = "main.go"
 	ir.Fileset = token.NewFileSet()
+	ir.SpecialChar = '~'
 	// using both os.Stdout and os.Stderr can interleave impredictably
 	// normal output and diagnostic messages - ugly in interactive use
 	ir.Stdout = os.Stdout
@@ -75,7 +77,12 @@ func (ir *Interpreter) ParseN(src interface{}) []ast.Node {
 
 func (ir *Interpreter) parseOrError(src []byte) ([]ast.Node, error) {
 	var parser mp.Parser
-	ir.ParserScope = parser.Init(ir.Fileset, ir.Filename, src, mp.Mode(ir.ParserMode), ir.ParserScope)
+
+	parser.Fileset = ir.Fileset
+	parser.Mode = mp.Mode(ir.ParserMode)
+	parser.SpecialChar = ir.SpecialChar
+
+	ir.ParserScope = parser.Init(ir.Filename, src, ir.ParserScope)
 
 	return parser.Parse()
 }

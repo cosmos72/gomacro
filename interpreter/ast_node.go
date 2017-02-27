@@ -29,6 +29,9 @@ import (
 	"go/token"
 )
 
+//
+// .................. functions Interface() interface{}
+//
 func (x ArrayType) Interface() interface{}      { return x.p }
 func (x AssignStmt) Interface() interface{}     { return x.p }
 func (x BadDecl) Interface() interface{}        { return x.p }
@@ -78,6 +81,9 @@ func (x TypeSwitchStmt) Interface() interface{} { return x.p }
 func (x UnaryExpr) Interface() interface{}      { return x.p }
 func (x ValueSpec) Interface() interface{}      { return x.p }
 
+//
+// .................. functions Node() ast.Node
+//
 func (x ArrayType) Node() ast.Node      { return x.p }
 func (x AssignStmt) Node() ast.Node     { return x.p }
 func (x BadDecl) Node() ast.Node        { return x.p }
@@ -127,6 +133,9 @@ func (x TypeSwitchStmt) Node() ast.Node { return x.p }
 func (x UnaryExpr) Node() ast.Node      { return x.p }
 func (x ValueSpec) Node() ast.Node      { return x.p }
 
+//
+// .................. functions Op() token.Token
+//
 func (x ArrayType) Op() token.Token  { return token.LBRACK }
 func (x AssignStmt) Op() token.Token { return x.Op() }
 func (x BadDecl) Op() token.Token    { return token.ILLEGAL }
@@ -151,7 +160,6 @@ func (x CommClause) Op() token.Token {
 		return token.DEFAULT
 	}
 }
-
 func (x CompositeLit) Op() token.Token   { return token.RBRACE }
 func (x DeclStmt) Op() token.Token       { return x.p.Decl.(*ast.GenDecl).Tok }
 func (x DeferStmt) Op() token.Token      { return token.DEFER }
@@ -189,6 +197,9 @@ func (x TypeSwitchStmt) Op() token.Token { return token.SWITCH } // FIXME
 func (x UnaryExpr) Op() token.Token      { return x.p.Op }
 func (x ValueSpec) Op() token.Token      { return token.VAR } // can be VAR or CONST
 
+//
+// .................. functions Size() int
+//
 func (x ArrayType) Size() int      { return 2 }
 func (x AssignStmt) Size() int     { return 2 }
 func (x BadDecl) Size() int        { return 0 }
@@ -238,17 +249,24 @@ func (x TypeSwitchStmt) Size() int { return 3 }
 func (x UnaryExpr) Size() int      { return 1 }
 func (x ValueSpec) Size() int      { return 3 }
 
+//
+// .................. functions Get(int) Ast
+//
 func (x ArrayType) Get(i int) Ast { return ToAst2(i, x.p.Len, x.p.Elt) }
 func (x AssignStmt) Get(i int) Ast {
 	var slice []ast.Expr
-	if i == 0 {
+	switch i {
+	case 0:
 		slice = x.p.Lhs
-	} else if i == 1 {
+	case 1:
 		slice = x.p.Rhs
-	} else {
+	default:
 		return BadIndex(i, 2)
 	}
-	return ExprSlice{slice}
+	if slice != nil {
+		return ExprSlice{slice}
+	}
+	return nil
 }
 func (x BadDecl) Get(i int) Ast    { return BadIndex(i, 0) }
 func (x BadExpr) Get(i int) Ast    { return BadIndex(i, 0) }
@@ -260,16 +278,25 @@ func (x CallExpr) Get(i int) Ast {
 	if i == 0 {
 		return ToAst(x.p.Fun)
 	} else if i == 1 {
-		return ExprSlice{x.p.Args}
+		if node := x.p.Args; node != nil {
+			return ExprSlice{node}
+		}
+		return nil
 	} else {
 		return BadIndex(i, 2)
 	}
 }
 func (x CaseClause) Get(i int) Ast {
 	if i == 0 {
-		return ExprSlice{x.p.List}
+		if node := x.p.List; node != nil {
+			return ExprSlice{node}
+		}
+		return nil
 	} else if i == 1 {
-		return StmtSlice{x.p.Body}
+		if node := x.p.Body; node != nil {
+			return StmtSlice{node}
+		}
+		return nil
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -279,7 +306,10 @@ func (x CommClause) Get(i int) Ast {
 	if i == 0 {
 		return ToAst(x.p.Comm)
 	} else if i == 1 {
-		return StmtSlice{x.p.Body}
+		if x.p.Body != nil {
+			return StmtSlice{x.p.Body}
+		}
+		return nil
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -288,7 +318,10 @@ func (x CompositeLit) Get(i int) Ast {
 	if i == 0 {
 		return ToAst(x.p.Type)
 	} else if i == 1 {
-		return ExprSlice{x.p.Elts}
+		if x.p.Elts != nil {
+			return ExprSlice{x.p.Elts}
+		}
+		return nil
 	} else {
 		return BadIndex(i, 2)
 	}
@@ -300,7 +333,10 @@ func (x EmptyStmt) Get(i int) Ast { return BadIndex(i, 0) }
 func (x ExprStmt) Get(i int) Ast  { return ToAst1(i, x.p.X) }
 func (x Field) Get(i int) Ast {
 	if i == 0 {
-		return IdentSlice{x.p.Names}
+		if x.p.Names != nil {
+			return IdentSlice{x.p.Names}
+		}
+		return nil
 	} else if i == 1 {
 		return ToAst(x.p.Type)
 	} else {
@@ -317,7 +353,7 @@ func (x ForStmt) Get(i int) Ast {
 	case 2:
 		node = x.p.Post
 	case 3:
-		return BlockStmt{x.p.Body}
+		node = x.p.Body
 	default:
 		return BadIndex(i, 4)
 	}
@@ -329,38 +365,20 @@ func (x FuncDecl) Get(i int) Ast {
 	case 0:
 		node = x.p.Recv
 	case 1:
-		return Ident{x.p.Name}
+		node = x.p.Name
 	case 2:
 		node = x.p.Type
 	case 3:
-		return BlockStmt{x.p.Body}
+		node = x.p.Body
 	default:
 		return BadIndex(i, 4)
 	}
 	return ToAst(node)
 }
-func (x FuncLit) Get(i int) Ast {
-	if i == 0 {
-		return FuncType{x.p.Type}
-	} else if i == 1 {
-		return BlockStmt{x.p.Body}
-	} else {
-		return BadIndex(i, 2)
-	}
-}
-func (x FuncType) Get(i int) Ast {
-	var ret *ast.FieldList
-	if i == 0 {
-		ret = x.p.Params
-	} else if i == 1 {
-		ret = x.p.Results
-	} else {
-		return BadIndex(i, 2)
-	}
-	return FieldList{ret}
-}
-func (x GoStmt) Get(i int) Ast { return CallExpr{x.p.Call} }
-func (x Ident) Get(i int) Ast  { return BadIndex(i, 0) }
+func (x FuncLit) Get(i int) Ast  { return ToAst2(i, x.p.Type, x.p.Body) }
+func (x FuncType) Get(i int) Ast { return ToAst2(i, x.p.Params, x.p.Results) }
+func (x GoStmt) Get(i int) Ast   { return CallExpr{x.p.Call} }
+func (x Ident) Get(i int) Ast    { return BadIndex(i, 0) }
 func (x IfStmt) Get(i int) Ast {
 	var node ast.Node
 	switch i {
@@ -369,7 +387,7 @@ func (x IfStmt) Get(i int) Ast {
 	case 1:
 		node = x.p.Cond
 	case 2:
-		return BlockStmt{x.p.Body}
+		node = x.p.Body
 	case 3:
 		node = x.p.Else
 	default:
@@ -378,107 +396,58 @@ func (x IfStmt) Get(i int) Ast {
 	return ToAst(node)
 }
 
-func (x ImportSpec) Get(i int) Ast {
+func (x ImportSpec) Get(i int) Ast { return ToAst2(i, x.p.Name, x.p.Path) }
+func (x IncDecStmt) Get(i int) Ast { return ToAst1(i, x.p.X) }
+func (x IndexExpr) Get(i int) Ast  { return ToAst2(i, x.p.X, x.p.Index) }
+func (x InterfaceType) Get(i int) Ast {
 	if i == 0 {
-		return Ident{x.p.Name}
-	} else if i == 1 {
-		return BasicLit{x.p.Path}
+		if x.p.Methods != nil {
+			return FieldList{x.p.Methods}
+		}
+		return nil
 	} else {
-		return BadIndex(i, 2)
+		return BadIndex(i, 1)
 	}
 }
-func (x IncDecStmt) Get(i int) Ast    { return ToAst1(i, x.p.X) }
-func (x IndexExpr) Get(i int) Ast     { return ToAst2(i, x.p.X, x.p.Index) }
-func (x InterfaceType) Get(i int) Ast { return FieldList{x.p.Methods} }
-func (x KeyValueExpr) Get(i int) Ast  { return ToAst2(i, x.p.Key, x.p.Value) }
-func (x LabeledStmt) Get(i int) Ast {
-	if i == 0 {
-		return Ident{x.p.Label}
-	} else if i == 1 {
-		return ToAst(x.p.Stmt)
-	} else {
-		return BadIndex(i, 2)
-	}
-}
-func (x MapType) Get(i int) Ast   { return ToAst2(i, x.p.Key, x.p.Value) }
-func (x Package) Get(i int) Ast   { return nil } // TODO
-func (x ParenExpr) Get(i int) Ast { return ToAst1(i, x.p.X) }
-func (x RangeStmt) Get(i int) Ast {
-	var node ast.Node
-	switch i {
-	case 0:
-		node = x.p.Key
-	case 1:
-		node = x.p.Value
-	case 2:
-		node = x.p.X
-	case 3:
-		return BlockStmt{x.p.Body}
-	default:
-		BadIndex(i, 4)
-	}
-	return ToAst(node)
-}
-func (x SelectStmt) Get(i int) Ast   { return BlockStmt{x.p.Body} }
-func (x SelectorExpr) Get(i int) Ast { return ToAst2(i, x.p.X, x.p.Sel) }
-func (x SendStmt) Get(i int) Ast     { return ToAst2(i, x.p.Chan, x.p.Value) }
-func (x SliceExpr) Get(i int) Ast {
-	var node ast.Node
-	switch i {
-	case 0:
-		node = x.p.X
-	case 1:
-		node = x.p.Low
-	case 2:
-		node = x.p.High
-	case 3:
-		node = x.p.Max
-	default:
-		BadIndex(i, 4)
-	}
-	return ToAst(node)
-}
+func (x KeyValueExpr) Get(i int) Ast   { return ToAst2(i, x.p.Key, x.p.Value) }
+func (x LabeledStmt) Get(i int) Ast    { return ToAst2(i, x.p.Label, x.p.Stmt) }
+func (x MapType) Get(i int) Ast        { return ToAst2(i, x.p.Key, x.p.Value) }
+func (x Package) Get(i int) Ast        { return nil } // TODO
+func (x ParenExpr) Get(i int) Ast      { return ToAst1(i, x.p.X) }
+func (x RangeStmt) Get(i int) Ast      { return ToAst4(i, x.p.Key, x.p.Value, x.p.X, x.p.Body) }
+func (x SelectStmt) Get(i int) Ast     { return BlockStmt{x.p.Body} }
+func (x SelectorExpr) Get(i int) Ast   { return ToAst2(i, x.p.X, x.p.Sel) }
+func (x SendStmt) Get(i int) Ast       { return ToAst2(i, x.p.Chan, x.p.Value) }
+func (x SliceExpr) Get(i int) Ast      { return ToAst4(i, x.p.X, x.p.Low, x.p.High, x.p.Max) }
 func (x StarExpr) Get(i int) Ast       { return ToAst1(i, x.p.X) }
 func (x StructType) Get(i int) Ast     { return FieldList{x.p.Fields} }
 func (x SwitchStmt) Get(i int) Ast     { return ToAst3(i, x.p.Init, x.p.Tag, x.p.Body) }
 func (x TypeAssertExpr) Get(i int) Ast { return ToAst2(i, x.p.X, x.p.Type) }
-func (x TypeSpec) Get(i int) Ast {
-	if i == 0 {
-		return Ident{x.p.Name}
-	} else if i == 1 {
-		return ToAst(x.p.Type)
-	} else {
-		return BadIndex(i, 2)
-	}
-}
-func (x TypeSwitchStmt) Get(i int) Ast {
-	var node ast.Node
-	switch i {
-	case 0:
-		node = x.p.Init
-	case 1:
-		node = x.p.Assign
-	case 2:
-		return BlockStmt{x.p.Body}
-	default:
-		BadIndex(i, 3)
-	}
-	return ToAst(node)
-}
-func (x UnaryExpr) Get(i int) Ast { return ToAst1(i, x.p.X) }
+func (x TypeSpec) Get(i int) Ast       { return ToAst2(i, x.p.Name, x.p.Type) }
+func (x TypeSwitchStmt) Get(i int) Ast { return ToAst3(i, x.p.Init, x.p.Assign, x.p.Body) }
+func (x UnaryExpr) Get(i int) Ast      { return ToAst1(i, x.p.X) }
 func (x ValueSpec) Get(i int) Ast {
 	switch i {
 	case 0:
-		return IdentSlice{x.p.Names}
+		if x.p.Names != nil {
+			return IdentSlice{x.p.Names}
+		}
+		return nil
 	case 1:
 		return ToAst(x.p.Type)
 	case 2:
-		return ExprSlice{x.p.Values}
+		if x.p.Values != nil {
+			return ExprSlice{x.p.Values}
+		}
+		return nil
 	default:
 		return BadIndex(i, 3)
 	}
 }
 
+//
+// .................. functions Set(int, Ast)
+//
 func (x ArrayType) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
@@ -513,7 +482,13 @@ func (x BinaryExpr) Set(i int, child Ast) {
 		BadIndex(i, 2)
 	}
 }
-func (x BranchStmt) Set(i int, child Ast) { x.p.Label = ToIdent(child) }
+func (x BranchStmt) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Label = ToIdent(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x CallExpr) Set(i int, child Ast) {
 	if i == 0 {
 		x.p.Fun = ToExpr(child)
@@ -532,7 +507,13 @@ func (x CaseClause) Set(i int, child Ast) {
 		BadIndex(i, 2)
 	}
 }
-func (x ChanType) Set(i int, child Ast) { x.p.Value = ToExpr(child) }
+func (x ChanType) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Value = ToExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x CommClause) Set(i int, child Ast) {
 	if i == 0 {
 		x.p.Comm = ToStmt(child)
@@ -551,11 +532,35 @@ func (x CompositeLit) Set(i int, child Ast) {
 		BadIndex(i, 2)
 	}
 }
-func (x DeclStmt) Set(i int, child Ast)  { x.p.Decl = ToDecl(child) }
-func (x DeferStmt) Set(i int, child Ast) { x.p.Call = ToCallExpr(child) }
-func (x Ellipsis) Set(i int, child Ast)  { x.p.Elt = ToExpr(child) }
+func (x DeclStmt) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Decl = ToDecl(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
+func (x DeferStmt) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Call = ToCallExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
+func (x Ellipsis) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Elt = ToExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x EmptyStmt) Set(i int, child Ast) { BadIndex(i, 0) }
-func (x ExprStmt) Set(i int, child Ast)  { x.p.X = ToExpr(child) }
+func (x ExprStmt) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.X = ToExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x Field) Set(i int, child Ast) {
 	if i == 0 {
 		x.p.Names = ToIdentSlice(child)
@@ -612,8 +617,14 @@ func (x FuncType) Set(i int, child Ast) {
 		BadIndex(i, 2)
 	}
 }
-func (x GoStmt) Set(i int, child Ast) { x.p.Call = ToCallExpr(child) }
-func (x Ident) Set(i int, child Ast)  { BadIndex(i, 0) }
+func (x GoStmt) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Call = ToCallExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
+func (x Ident) Set(i int, child Ast) { BadIndex(i, 0) }
 func (x IfStmt) Set(i int, child Ast) {
 	switch i {
 	case 0:
@@ -637,7 +648,13 @@ func (x ImportSpec) Set(i int, child Ast) {
 		BadIndex(i, 2)
 	}
 }
-func (x IncDecStmt) Set(i int, child Ast) { x.p.X = ToExpr(child) }
+func (x IncDecStmt) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.X = ToExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x IndexExpr) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
@@ -648,7 +665,13 @@ func (x IndexExpr) Set(i int, child Ast) {
 		BadIndex(i, 2)
 	}
 }
-func (x InterfaceType) Set(i int, child Ast) { x.p.Methods = ToFieldList(child) }
+func (x InterfaceType) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Methods = ToFieldList(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x KeyValueExpr) Set(i int, child Ast) {
 	expr := ToExpr(child)
 	if i == 0 {
@@ -678,8 +701,14 @@ func (x MapType) Set(i int, child Ast) {
 		BadIndex(i, 2)
 	}
 }
-func (x Package) Set(i int, child Ast)   {} // TODO
-func (x ParenExpr) Set(i int, child Ast) { x.p.X = ToExpr(child) }
+func (x Package) Set(i int, child Ast) {} // TODO
+func (x ParenExpr) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.X = ToExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x RangeStmt) Set(i int, child Ast) {
 	switch i {
 	case 0:
@@ -694,12 +723,20 @@ func (x RangeStmt) Set(i int, child Ast) {
 		BadIndex(i, 4)
 	}
 }
-func (x SelectStmt) Set(i int, child Ast) { x.p.Body = ToBlockStmt(child) }
+func (x SelectStmt) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Body = ToBlockStmt(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x SelectorExpr) Set(i int, child Ast) {
 	if i == 0 {
 		x.p.X = ToExpr(child)
 	} else if i == 1 {
 		x.p.Sel = ToIdent(child)
+	} else {
+		BadIndex(i, 2)
 	}
 }
 func (x SendStmt) Set(i int, child Ast) {
@@ -728,8 +765,20 @@ func (x SliceExpr) Set(i int, child Ast) {
 		BadIndex(i, 4)
 	}
 }
-func (x StarExpr) Set(i int, child Ast)   { x.p.X = ToExpr(child) }
-func (x StructType) Set(i int, child Ast) { x.p.Fields = ToFieldList(child) }
+func (x StarExpr) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.X = ToExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
+func (x StructType) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.Fields = ToFieldList(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x SwitchStmt) Set(i int, child Ast) {
 	switch i {
 	case 0:
@@ -772,7 +821,13 @@ func (x TypeSwitchStmt) Set(i int, child Ast) {
 		BadIndex(i, 3)
 	}
 }
-func (x UnaryExpr) Set(i int, child Ast) { x.p.X = ToExpr(child) }
+func (x UnaryExpr) Set(i int, child Ast) {
+	if i == 0 {
+		x.p.X = ToExpr(child)
+	} else {
+		BadIndex(i, 1)
+	}
+}
 func (x ValueSpec) Set(i int, child Ast) {
 	switch i {
 	case 0:

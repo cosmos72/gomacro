@@ -29,7 +29,7 @@ import (
 	"go/token"
 )
 
-// Ast wrappers for variable-length fragments of ast.Nodes - they are not full-blown ast.Nodes
+// Ast wrappers for variable-length slices of ast.Nodes - they are not full-blown ast.Node
 
 func (x NodeSlice) Interface() interface{}  { return x.p }
 func (x ExprSlice) Interface() interface{}  { return x.p }
