@@ -67,14 +67,9 @@ func NewInterpreter() *Interpreter {
 	return &ir
 }
 
-func (ir *Interpreter) ParseN(src interface{}) []ast.Node {
+func (ir *Interpreter) Parse(src interface{}) []ast.Node {
 	bytes := ir.ReadFromSource(src)
-	nodes, err := ir.parseOrError(bytes)
-	if err != nil {
-		Error(err)
-		return nil
-	}
-	return nodes
+	return ir.ParseBytes(bytes)
 }
 
 func (ir *Interpreter) parseOrError(src []byte) ([]ast.Node, error) {
@@ -86,7 +81,12 @@ func (ir *Interpreter) parseOrError(src []byte) ([]ast.Node, error) {
 
 	ir.ParserScope = parser.Init(ir.Filename, src, ir.ParserScope)
 
-	return parser.Parse()
+	nodes, err := parser.Parse()
+	if err != nil {
+		Error(err)
+		return nil
+	}
+	return nodes
 }
 
 //

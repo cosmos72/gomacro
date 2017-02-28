@@ -40,6 +40,7 @@ const (
 	OptShowEvalDuration
 	OptShowAfterParse
 	OptShowAfterMacroExpansion
+	OptDebugMacroExpandCodewalk
 	OptDebugQuasiquote
 )
 

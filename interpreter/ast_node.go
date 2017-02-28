@@ -359,43 +359,12 @@ func (x ForStmt) Get(i int) Ast {
 	}
 	return ToAst(node)
 }
-func (x FuncDecl) Get(i int) Ast {
-	var node ast.Node
-	switch i {
-	case 0:
-		node = x.p.Recv
-	case 1:
-		node = x.p.Name
-	case 2:
-		node = x.p.Type
-	case 3:
-		node = x.p.Body
-	default:
-		return BadIndex(i, 4)
-	}
-	return ToAst(node)
-}
-func (x FuncLit) Get(i int) Ast  { return ToAst2(i, x.p.Type, x.p.Body) }
-func (x FuncType) Get(i int) Ast { return ToAst2(i, x.p.Params, x.p.Results) }
-func (x GoStmt) Get(i int) Ast   { return CallExpr{x.p.Call} }
-func (x Ident) Get(i int) Ast    { return BadIndex(i, 0) }
-func (x IfStmt) Get(i int) Ast {
-	var node ast.Node
-	switch i {
-	case 0:
-		node = x.p.Init
-	case 1:
-		node = x.p.Cond
-	case 2:
-		node = x.p.Body
-	case 3:
-		node = x.p.Else
-	default:
-		return BadIndex(i, 4)
-	}
-	return ToAst(node)
-}
-
+func (x FuncDecl) Get(i int) Ast   { return ToAst4(i, x.p.Recv, x.p.Name, x.p.Type, x.p.Body) }
+func (x FuncLit) Get(i int) Ast    { return ToAst2(i, x.p.Type, x.p.Body) }
+func (x FuncType) Get(i int) Ast   { return ToAst2(i, x.p.Params, x.p.Results) }
+func (x GoStmt) Get(i int) Ast     { return CallExpr{x.p.Call} }
+func (x Ident) Get(i int) Ast      { return BadIndex(i, 0) }
+func (x IfStmt) Get(i int) Ast     { return ToAst4(i, x.p.Init, x.p.Cond, x.p.Body, x.p.Else) }
 func (x ImportSpec) Get(i int) Ast { return ToAst2(i, x.p.Name, x.p.Path) }
 func (x IncDecStmt) Get(i int) Ast { return ToAst1(i, x.p.X) }
 func (x IndexExpr) Get(i int) Ast  { return ToAst2(i, x.p.X, x.p.Index) }
@@ -415,12 +384,12 @@ func (x MapType) Get(i int) Ast        { return ToAst2(i, x.p.Key, x.p.Value) }
 func (x Package) Get(i int) Ast        { return nil } // TODO
 func (x ParenExpr) Get(i int) Ast      { return ToAst1(i, x.p.X) }
 func (x RangeStmt) Get(i int) Ast      { return ToAst4(i, x.p.Key, x.p.Value, x.p.X, x.p.Body) }
-func (x SelectStmt) Get(i int) Ast     { return BlockStmt{x.p.Body} }
+func (x SelectStmt) Get(i int) Ast     { return ToAst1(i, x.p.Body) }
 func (x SelectorExpr) Get(i int) Ast   { return ToAst2(i, x.p.X, x.p.Sel) }
 func (x SendStmt) Get(i int) Ast       { return ToAst2(i, x.p.Chan, x.p.Value) }
 func (x SliceExpr) Get(i int) Ast      { return ToAst4(i, x.p.X, x.p.Low, x.p.High, x.p.Max) }
 func (x StarExpr) Get(i int) Ast       { return ToAst1(i, x.p.X) }
-func (x StructType) Get(i int) Ast     { return FieldList{x.p.Fields} }
+func (x StructType) Get(i int) Ast     { return ToAst1(i, x.p.Fields) }
 func (x SwitchStmt) Get(i int) Ast     { return ToAst3(i, x.p.Init, x.p.Tag, x.p.Body) }
 func (x TypeAssertExpr) Get(i int) Ast { return ToAst2(i, x.p.X, x.p.Type) }
 func (x TypeSpec) Get(i int) Ast       { return ToAst2(i, x.p.Name, x.p.Type) }
@@ -432,17 +401,18 @@ func (x ValueSpec) Get(i int) Ast {
 		if x.p.Names != nil {
 			return IdentSlice{x.p.Names}
 		}
-		return nil
 	case 1:
-		return ToAst(x.p.Type)
+		if x.p.Type != nil {
+			return ToAst(x.p.Type)
+		}
 	case 2:
 		if x.p.Values != nil {
 			return ExprSlice{x.p.Values}
 		}
-		return nil
 	default:
 		return BadIndex(i, 3)
 	}
+	return nil
 }
 
 //

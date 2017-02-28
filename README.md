@@ -39,7 +39,7 @@ The intepreter supports:
 * strings, booleans, integers, floats, complex numbers and interface{}
 * macro definitions
 * macro calls, including MacroExpand and MacroExpand1
-* code walking
+* macroexpansion code walker
 * quote and quasiquote. they take any number of arguments in curly braces, for example:
   `quote { x; y; z }`
 * unquote and unquote_splice
@@ -52,3 +52,11 @@ A lot of things are still missing:
 * packages and imports
 * multiline input, history/readline
 
+* support to quote or quasiquote macro calls, i.e. `quasiquote{some_macro ...}`
+  it currently works only if some_macro is already defined (see also next point)
+
+* support to embed a variable number of spliced arguments in quoted calls to macros, i.e.
+    `quasiquote{some_macro unquote_splice{...} ...}`
+  or even in quoted calls to Go reserved keywords, i.e.
+	`quasiquote{for unquote_splice{...} ...}`
+  see parser/macro.go: Env.parseQuote() for details

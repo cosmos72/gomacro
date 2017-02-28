@@ -117,7 +117,7 @@ func ToAst1(i int, node ast.Node) AstWithNode {
 	if i == 0 {
 		return ToAst(node)
 	} else {
-		return BadIndex(i, 2)
+		return BadIndex(i, 1)
 	}
 }
 
@@ -176,7 +176,7 @@ func ToAst(node ast.Node) AstWithNode {
 	var x AstWithNode
 	switch node := node.(type) {
 	case nil:
-		break
+		return nil
 	case *ast.ArrayType:
 		x = ArrayType{node}
 	case *ast.AssignStmt:
@@ -192,7 +192,9 @@ func ToAst(node ast.Node) AstWithNode {
 	case *ast.BinaryExpr:
 		x = BinaryExpr{node}
 	case *ast.BlockStmt:
-		x = BlockStmt{node}
+		if node != nil { // we can get typed nil from many places
+			x = BlockStmt{node}
+		}
 	case *ast.BranchStmt:
 		x = BranchStmt{node}
 	case *ast.CallExpr:
@@ -218,7 +220,9 @@ func ToAst(node ast.Node) AstWithNode {
 	case *ast.Field:
 		x = Field{node}
 	case *ast.FieldList:
-		x = FieldList{node}
+		if node != nil { // we can get typed nil from many places
+			x = FieldList{node}
+		}
 	case *ast.File:
 		x = File{node}
 	case *ast.ForStmt:
@@ -230,7 +234,9 @@ func ToAst(node ast.Node) AstWithNode {
 	case *ast.FuncType:
 		x = FuncType{node}
 	case *ast.GenDecl:
-		x = GenDecl{node}
+		if node != nil {
+			x = GenDecl{node}
+		}
 	case *ast.GoStmt:
 		x = GoStmt{node}
 	case *ast.Ident:

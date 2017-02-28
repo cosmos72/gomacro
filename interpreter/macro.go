@@ -84,7 +84,6 @@ func (env *Env) evalQuasiquote(node *ast.BlockStmt) ast.Node {
 	// reason: to support quasiquote{unquote_splice ...}
 	toUnwrap := node != simplifyNodeForQuote(node, true)
 
-	// use unified API to traverse ast.Node... every other solution is a nightmare
 	in := ToAst(node)
 	out := env.evalQuasiquoteAst(in, 1)
 	ret := ToNode(out)
@@ -92,6 +91,7 @@ func (env *Env) evalQuasiquote(node *ast.BlockStmt) ast.Node {
 }
 
 // evalQuasiquoteAst evaluates the body of a quasiquote{} represented as Ast
+// use unified API to traverse ast.Node... every other solution is a nightmare
 func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 	if inout == nil {
 		return nil
@@ -99,10 +99,8 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 	withSlice, canSplice := inout.(AstWithSlice)
 	form := inout
 	env.debugQuasiQuote("evaluating", depth, canSplice, form.Interface())
-	for isTrivialAst(form) {
-		form = form.Get(0) // drill through DeclStmt, ExprStmt, ParenExpr
-	}
-	if form.Size() == 0 {
+	form = unwrapTrivialAst(form) // drill through DeclStmt, ExprStmt, ParenExpr
+	if form == nil || form.Size() == 0 {
 		return inout
 	}
 
@@ -127,8 +125,8 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 					return form
 				}
 			case mt.UNQUOTE_SPLICE:
-				x := form.Interface()
-				env.Errorf("quasiquote: cannot splice in single-statement context: %v <%v>", x, r.TypeOf(x))
+				y := form.Interface()
+				env.Errorf("quasiquote: cannot splice in single-statement context: %v <%v>", y, r.TypeOf(y))
 				return nil
 			}
 		}
@@ -147,10 +145,8 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 	ni := form.Size()
 	ret := make([]Ast, 0, ni)
 	for i := 0; i < ni; i++ {
-		child := form.Get(i)
-		for isTrivialAst(child) {
-			child = child.Get(0) // drill through DeclStmt, ExprStmt, ParenExpr
-		}
+		// drill through DeclStmt, ExprStmt, ParenExpr
+		child := unwrapTrivialAst(form.Get(i))
 		switch child := child.(type) {
 		case UnaryExpr:
 			switch child.Op() {
@@ -214,14 +210,16 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 	return withSlice
 }
 
-// ParenExpr, ExprStmt, DeclStmt are trivial wrappers for their contents...
-func isTrivialAst(form Ast) bool {
-	switch form.(type) {
-	case ParenExpr, ExprStmt, DeclStmt:
-		// TODO is InterfaceType trivial?
-		return true
-	default:
-		return false
+// unwrapTrivialAst extract the content from ParenExpr, ExprStmt, DeclStmt:
+// such nodes are trivial wrappers for their contents
+func unwrapTrivialAst(form Ast) Ast {
+	for {
+		switch form.(type) {
+		case ParenExpr, ExprStmt, DeclStmt: // TODO is InterfaceType trivial?
+			form = form.Get(0)
+		default:
+			return form
+		}
 	}
 }
 
@@ -248,18 +246,14 @@ func (env *Env) evalUnquote(inout UnaryExpr) interface{} {
 func (env *Env) descendNestedUnquotes(unquote UnaryExpr) (lastUnquote UnaryExpr, depth int) {
 	depth = 1
 	for {
-		x := unquote.Get(0).Get(1)
-		for isTrivialAst(x) {
-			x = x.Get(0)
-		}
-		if x != nil && x.Size() == 1 {
-			if block, ok := x.(BlockStmt); ok {
-				x = block.Get(0)
-				for isTrivialAst(x) {
-					x = x.Get(0)
-				}
-				if x != nil && x.Size() == 1 {
-					if expr, ok := x.(UnaryExpr); ok {
+		form := unquote.Get(0).Get(1)
+		form = unwrapTrivialAst(form)
+
+		if form != nil && form.Size() == 1 {
+			if block, ok := form.(BlockStmt); ok {
+				form = unwrapTrivialAst(block.Get(0))
+				if form != nil && form.Size() == 1 {
+					if expr, ok := form.(UnaryExpr); ok {
 						if op := expr.Op(); op == mt.UNQUOTE || op == mt.UNQUOTE_SPLICE {
 							unquote = expr
 							depth++
@@ -278,14 +272,13 @@ func duplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 		return content
 	}
 	head, tail := MakeQuote(src)
-	var x Ast = src
+	var form Ast = src
 
 	for ; depth > 1; depth-- {
-		x = x.Get(0).Get(1)
-		for isTrivialAst(x) {
-			x = x.Get(0)
-		}
-		src = x.(UnaryExpr)
+		form = form.Get(0).Get(1)
+		form = unwrapTrivialAst(form)
+
+		src = form.(UnaryExpr)
 		expr, newTail := MakeQuote(src)
 		tail.Append(expr)
 		tail = newTail
@@ -294,8 +287,10 @@ func duplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 	return head
 }
 
-func MakeQuote(x UnaryExpr) (UnaryExpr, BlockStmt) {
-	expr, block := mp.MakeQuote(x.p.Op, x.p.OpPos, nil, nil)
+// MakeQuote invokes parser.MakeQuote() and wraps the resulting ast.Node,
+// which represents quote{<form>}, into an Ast struct
+func MakeQuote(form UnaryExpr) (UnaryExpr, BlockStmt) {
+	expr, block := mp.MakeQuote(form.p.Op, form.p.OpPos, nil, nil)
 	return UnaryExpr{expr}, BlockStmt{block}
 }
 
@@ -312,9 +307,75 @@ type macroExpandCtx struct {
 // It implements the macroexpansion phase
 // Warning: it destructively modifies the ast.Node !
 func (env *Env) MacroExpandCodewalk(in ast.Node) (out ast.Node, anythingExpanded bool) {
-	// TODO
-	ast := ToAst(in)
-	return ToNode(ast), false
+	if in == nil {
+		return nil, false
+	}
+	var form Ast = ToAst(in)
+	form, anythingExpanded = env.macroExpandAstCodewalk(form, 0)
+	out = ToNode(form)
+	// if !anythingExpanded {
+	//    env.Debugf("MacroExpand1() nothing to expand: %v <%v>", out, r.TypeOf(out))
+	//}
+	return out, anythingExpanded
+}
+
+func (env *Env) macroExpandAstCodewalk(form Ast, quasiquoteDepth int) (out Ast, anythingExpanded bool) {
+	if form == nil || form.Size() == 0 {
+		return form, false
+	}
+	if quasiquoteDepth <= 0 {
+		form, anythingExpanded = env.macroExpandAst(form)
+	}
+	if form != nil {
+		form = unwrapTrivialAst(form)
+	}
+	if form == nil {
+		return form, anythingExpanded
+	}
+	saved := form
+	for expr, ok := form.(UnaryExpr); ok; {
+		switch expr.p.Op {
+		case mt.QUOTE:
+			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
+			if quasiquoteDepth == 0 {
+				return saved, anythingExpanded
+			}
+		case mt.QUASIQUOTE:
+			// extract the body of QUASIQUOTE
+			quasiquoteDepth++
+		case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+			// extract the body of UNQUOTE or UNQUOTE_SPLICE
+			quasiquoteDepth--
+		default:
+			goto Recurse
+		}
+		temp := unwrapTrivialAst(form.Get(0).Get(1))
+		if env.Options&OptDebugMacroExpandCodewalk != 0 {
+			env.Debugf("MacroExpandCodewalk: unwrapped %v to %v", form, temp)
+		}
+		form = temp
+	}
+Recurse:
+	if form == nil {
+		return saved, anythingExpanded
+	}
+	if env.Options&OptDebugMacroExpandCodewalk != 0 {
+		env.Debugf("MacroExpandCodewalk: recursing on %v", form)
+	}
+	n := form.Size()
+	var expanded bool
+	for i := 0; i < n; i++ {
+		child := unwrapTrivialAst(form.Get(i))
+		if child == nil || child.Size() == 0 {
+			continue
+		}
+		child, expanded = env.macroExpandAstCodewalk(child, quasiquoteDepth)
+		if expanded {
+			anythingExpanded = true
+			form.Set(i, child)
+		}
+	}
+	return saved, anythingExpanded
 }
 
 // MacroExpand repeatedly invokes MacroExpand1
@@ -324,26 +385,23 @@ func (env *Env) MacroExpand(in ast.Node) (out ast.Node, everExpanded bool) {
 	if in == nil {
 		return nil, false
 	}
-	var ast Ast = ToAst(in)
-	ctx := macroExpandCtx{env: env}
-	var expanded bool
-
-	ast, expanded = ctx.macroExpand1(ast)
-	out = ToNode(ast)
-	// if !expanded {
+	var form Ast = ToAst(in)
+	form, everExpanded = env.macroExpandAst(form)
+	out = ToNode(form)
+	// if !everExpanded {
 	//    env.Debugf("MacroExpand1() not a macro: %v <%v>", out, r.TypeOf(out))
 	//}
-	return out, expanded
+	return out, everExpanded
+}
 
+func (env *Env) macroExpandAst(form Ast) (out Ast, everExpanded bool) {
+	var expanded bool
 	for {
-		ast, expanded = ctx.macroExpand1(ast)
-		if expanded {
-			everExpanded = true
-		} else if ast == nil {
-			return nil, everExpanded
-		} else {
-			return ToNode(ast), everExpanded
+		form, expanded = env.macroExpandAstOnce(form)
+		if !expanded {
+			return form, everExpanded
 		}
+		everExpanded = true
 	}
 }
 
@@ -354,43 +412,39 @@ func (env *Env) MacroExpand1(in ast.Node) (out ast.Node, expanded bool) {
 	if in == nil {
 		return nil, false
 	}
-	var ast Ast = ToAst(in)
-	ctx := macroExpandCtx{env: env}
-	ast, expanded = ctx.macroExpand1(ast)
-	out = ToNode(ast)
+	var form Ast = ToAst(in)
+	form, expanded = env.macroExpandAstOnce(form)
+	out = ToNode(form)
 	// if !expanded {
 	//    env.Debugf("MacroExpand1() not a macro: %v <%v>", out, r.TypeOf(out))
 	//}
 	return out, expanded
 }
 
-func (ctx *macroExpandCtx) macroExpand1(in Ast) (out Ast, expanded bool) {
+func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 	if in == nil {
-		return in, false
+		return nil, false
 	}
 	saved := in
 
 	// unwrap trivial nodes: DeclStmt, ParenExpr, ExprStmt
-	for isTrivialAst(in) {
-		in = in.Get(0)
-	}
+	form := unwrapTrivialAst(in)
 
 	var expr *ast.BinaryExpr
-	switch ast := in.(type) {
+	switch form := form.(type) {
 	case BinaryExpr:
-		if ast.Op() != mt.MACRO {
+		if form.Op() != mt.MACRO {
 			// not a macro call, return unchanged
 			return saved, false
 		}
-		expr = ast.p
+		expr = form.p
 		// env.Debugf("macroExpand1() found macro call: %v", expr)
 
 	default:
 		return saved, false
 	}
 
-	// retrieve and validate the macro
-	env := ctx.env
+	// retrieve and validate the macro object
 	macro := env.Eval1(expr.X)
 	if macro == Nil || macro == None || macro.Kind() != r.Struct {
 		env.badMacro(expr)
@@ -401,7 +455,7 @@ func (ctx *macroExpandCtx) macroExpand1(in Ast) (out Ast, expanded bool) {
 		env.badMacro(expr)
 		return saved, false
 	}
-	// validate the macroexpansion arguments
+	// validate the arguments passed to the macro object
 	fun, ok := expr.Y.(*ast.FuncLit)
 	if !ok || len(fun.Type.Params.List) != 0 {
 		env.badMacro(expr)
