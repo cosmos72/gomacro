@@ -48,7 +48,7 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 	for _, decl := range node.Specs {
 		switch tok {
 		case token.IMPORT:
-			ret, rets = env.evalImports(decl)
+			ret, rets = env.evalImport(decl)
 		case token.CONST:
 			ret, rets = env.evalDeclConsts(decl)
 		case token.TYPE:
@@ -60,13 +60,6 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 		}
 	}
 	return ret, rets
-}
-
-func (env *Env) evalImports(node ast.Spec) (r.Value, []r.Value) {
-	switch node := node.(type) {
-	default:
-		return env.Errorf("unimplemented: import %v", node)
-	}
 }
 
 func (env *Env) evalDeclConsts(node ast.Spec) (r.Value, []r.Value) {
@@ -123,7 +116,19 @@ func (env *Env) defineVars(names []string, t r.Type, values []r.Value) (r.Value,
 	return unpackValues(values)
 }
 
+func (env *Env) defineConst(name string, t r.Type, value r.Value) r.Value {
+	return env.defineConstVarOrFunc(name, t, value, false)
+}
+
 func (env *Env) defineVar(name string, t r.Type, value r.Value) r.Value {
+	return env.defineConstVarOrFunc(name, t, value, true)
+}
+
+func (env *Env) defineFunc(name string, t r.Type, value r.Value) r.Value {
+	return env.defineConstVarOrFunc(name, t, value, false)
+}
+
+func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, canSet bool) r.Value {
 	if name == "_" {
 		// never define bindings for "_"
 		if t != nil {
@@ -137,13 +142,17 @@ func (env *Env) defineVar(name string, t r.Type, value r.Value) r.Value {
 	} else {
 		// Debugf("defineVar() var %s %v = %#v", name, t, value.Interface())
 	}
-	if _, exists := env.binds[name]; exists {
+	if _, exists := env.Binds[name]; exists {
 		env.Warnf("redefined identifier: %v", name)
 	}
-	addr := r.New(t)
-
-	value = env.assignPlace(addr.Elem(), token.ASSIGN, value)
-	env.binds[name] = addr.Elem()
+	if canSet {
+		addr := r.New(t)
+		value = env.assignPlace(addr.Elem(), token.ASSIGN, value)
+		env.Binds[name] = addr.Elem()
+	} else {
+		value = value.Convert(t)
+		env.Binds[name] = value
+	}
 	// Debugf("defineVar() added %#v to %#v", name, env.Binds)
 	return value
 }

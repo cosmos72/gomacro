@@ -221,7 +221,7 @@ func (f FileSet) showHelp(out io.Writer) {
 }
 
 func (env *Env) showEnv(out io.Writer) {
-	binds := env.binds
+	binds := env.Binds
 	keys := make([]string, len(binds))
 	i := 0
 	for k := range binds {

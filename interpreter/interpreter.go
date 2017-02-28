@@ -45,11 +45,12 @@ type Interpreter struct {
 	Packagename string
 	Filename    string
 	Options     Options
+	Importer    Importer
+	Stdout      io.Writer
+	Stderr      io.Writer
 	ParserMode  parser.Mode
 	ParserScope *ast.Scope
 	SpecialChar rune
-	Stdout      io.Writer
-	Stderr      io.Writer
 }
 
 func NewInterpreter() *Interpreter {
@@ -62,6 +63,7 @@ func NewInterpreter() *Interpreter {
 	// normal output and diagnostic messages - ugly in interactive use
 	ir.Stdout = os.Stdout
 	ir.Stderr = os.Stdout
+	ir.Importer = DefaultImporter()
 	return &ir
 }
 

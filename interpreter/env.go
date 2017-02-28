@@ -34,17 +34,20 @@ import (
 )
 
 type Binds map[string]r.Value
+type Types map[string]r.Type
 
 type Env struct {
 	*Interpreter
-	binds      Binds
+	Binds      Binds
+	Types      Types
 	Outer      *Env
 	iotaOffset int
 }
 
 func NewEnv(outer *Env) *Env {
 	env := Env{}
-	env.binds = make(map[string]r.Value)
+	env.Binds = make(map[string]r.Value)
+	env.Types = make(map[string]r.Type)
 	env.iotaOffset = 1
 	if outer == nil {
 		env.Interpreter = NewInterpreter()
@@ -55,6 +58,18 @@ func NewEnv(outer *Env) *Env {
 		env.Outer = outer
 	}
 	return &env
+}
+
+func (env *Env) TopEnv() *Env {
+	for outer := env.Outer; outer != nil; env = outer {
+	}
+	return env
+}
+
+func (env *Env) FileEnv() *Env {
+	for outer := env.Outer; outer != nil && outer.Outer != nil; env = outer {
+	}
+	return env
 }
 
 func (env *Env) ReplStdin() {

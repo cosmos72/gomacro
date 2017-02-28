@@ -89,7 +89,7 @@ func callSlice(args ...interface{}) []interface{} {
 }
 
 func (env *Env) addBuiltins() {
-	binds := env.binds
+	binds := env.Binds
 
 	binds["append"] = r.ValueOf(callAppend)
 	binds["cap"] = r.ValueOf(callCap)
