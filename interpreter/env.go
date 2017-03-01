@@ -94,7 +94,7 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (ret bool) {
 		}()
 	}
 
-	fmt.Fprint(env.Stdout, "go> ")
+	fmt.Fprint(env.Stdout, "gomacro> ")
 
 	line, err := in.ReadString('\n')
 	if err != nil {
