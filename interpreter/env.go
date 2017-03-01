@@ -134,7 +134,7 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 		}
 	}
 	// parse phase
-	list := env.ParseN(src)
+	list := env.Parse(src)
 	if env.Options&OptShowAfterParse != 0 {
 		env.Debugf("after parse: %v", list)
 	}

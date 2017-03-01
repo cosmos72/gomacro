@@ -72,7 +72,20 @@ func (ir *Interpreter) Parse(src interface{}) []ast.Node {
 	return ir.ParseBytes(bytes)
 }
 
-func (ir *Interpreter) parseOrError(src []byte) ([]ast.Node, error) {
+func (ir *Interpreter) Parse1(src interface{}) ast.Node {
+	ret := ir.Parse(src)
+	switch len(ret) {
+	default:
+		ir.Warnf("Interpreter.Parse() returned %d values, only the first one will be used", len(ret))
+		fallthrough
+	case 1:
+		return ret[0]
+	case 0:
+		return nil
+	}
+}
+
+func (ir *Interpreter) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 
 	parser.Fileset = ir.Fileset
@@ -95,20 +108,25 @@ func (ir *Interpreter) parseOrError(src []byte) ([]ast.Node, error) {
 //
 //
 
-func (ir *Interpreter) parseOrError_OrigVersion(src []byte) ([]ast.Node, error) {
-	node, err := ir.parseOrError1_OrigVersion(src)
-	return []ast.Node{node}, err
+func (ir *Interpreter) ParseBytes_OrigVersion(src []byte) []ast.Node {
+	node := ir.ParseBytes1_OrigVersion(src)
+	return []ast.Node{node}
 }
 
-func (ir *Interpreter) parseOrError1_OrigVersion(src []byte) (ast.Node, error) {
+func (ir *Interpreter) ParseBytes1_OrigVersion(src []byte) ast.Node {
 	pos := findFirstToken(src)
 	src = src[pos:]
 	expr, err := parser.ParseExprFrom(ir.Fileset, ir.Filename, src, 0)
 	if err == nil {
-		if ir.ParserMode == 0 {
-			return expr, nil
+		if ir.ParserMode != 0 {
+			// run again with user-specified ParserMode
+			expr, err = parser.ParseExprFrom(ir.Fileset, ir.Filename, src, ir.ParserMode)
+			if err != nil {
+				Error(err)
+				return nil
+			}
 		}
-		return parser.ParseExprFrom(ir.Fileset, ir.Filename, src, ir.ParserMode)
+		return expr
 	}
 	firstIdent := string(extractFirstIdentifier(src))
 	switch firstIdent {
@@ -126,5 +144,10 @@ func (ir *Interpreter) parseOrError1_OrigVersion(src []byte) (ast.Node, error) {
 		buf.WriteString(" }")
 		src = buf.Bytes()
 	}
-	return parser.ParseFile(ir.Fileset, ir.Filename, src, ir.ParserMode)
+	node, err := parser.ParseFile(ir.Fileset, ir.Filename, src, ir.ParserMode)
+	if err != nil {
+		Error(err)
+		return nil
+	}
+	return node
 }

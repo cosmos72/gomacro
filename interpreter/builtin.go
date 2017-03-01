@@ -116,20 +116,11 @@ func (env *Env) addBuiltins() {
 	})
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
-	binds["ParseN"] = r.ValueOf(func(src interface{}) []ast.Node {
-		return env.ParseN(src)
+	binds["Parse"] = r.ValueOf(func(src interface{}) []ast.Node {
+		return env.Parse(src)
 	})
-	binds["Parse"] = r.ValueOf(func(src interface{}) ast.Node {
-		ret := env.ParseN(src)
-		switch len(ret) {
-		default:
-			env.Warnf("parse returned %d values, only the first one will be used", len(ret))
-			fallthrough
-		case 1:
-			return ret[0]
-		case 0:
-			return nil
-		}
+	binds["Parse1"] = r.ValueOf(func(src interface{}) ast.Node {
+		return env.Parse1(src)
 	})
 	binds["println"] = r.ValueOf(func(args ...interface{}) {
 		values := toValues(args)
@@ -147,11 +138,11 @@ func (env *Env) addBuiltins() {
 func (env *Env) addInterpretedBuiltins() {
 	if false {
 		line := "func not(flag bool) bool { if flag { return false } else { return true } }"
-		env.EvalList(env.ParseN(line))
+		env.EvalList(env.Parse(line))
 	}
 	if false {
 		// Factorial(1000000): eval() elapsed time: 1.233714899 s
 		line := "func Factorial(n int) int { t := 1; for i := 2; i <= n; i=i+1 { t = t * i }; t }"
-		env.EvalList(env.ParseN(line))
+		env.EvalList(env.Parse(line))
 	}
 }
