@@ -8,22 +8,17 @@ import (
 	. "reflect"
 )
 
-func Package_net_smtp() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"CRAMMD5Auth": ValueOf(pkg.CRAMMD5Auth),
-			"Dial":        ValueOf(pkg.Dial),
-			"NewClient":   ValueOf(pkg.NewClient),
-			"PlainAuth":   ValueOf(pkg.PlainAuth),
-			"SendMail":    ValueOf(pkg.SendMail),
-		}, map[string]Type{
-			"Auth":       TypeOf((*pkg.Auth)(nil)).Elem(),
-			"Client":     TypeOf((*pkg.Client)(nil)).Elem(),
-			"ServerInfo": TypeOf((*pkg.ServerInfo)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_net_smtp()
-	Binds["net/smtp"] = binds
-	Types["net/smtp"] = types
+	Binds["net/smtp"] = map[string]Value{
+		"CRAMMD5Auth":	ValueOf(pkg.CRAMMD5Auth),
+		"Dial":	ValueOf(pkg.Dial),
+		"NewClient":	ValueOf(pkg.NewClient),
+		"PlainAuth":	ValueOf(pkg.PlainAuth),
+		"SendMail":	ValueOf(pkg.SendMail),
+	}
+	Types["net/smtp"] = map[string]Type{
+		"Auth":	TypeOf((*pkg.Auth)(nil)).Elem(),
+		"Client":	TypeOf((*pkg.Client)(nil)).Elem(),
+		"ServerInfo":	TypeOf((*pkg.ServerInfo)(nil)).Elem(),
+	}
 }

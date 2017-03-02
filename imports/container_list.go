@@ -8,17 +8,12 @@ import (
 	. "reflect"
 )
 
-func Package_container_list() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"New": ValueOf(pkg.New),
-		}, map[string]Type{
-			"Element": TypeOf((*pkg.Element)(nil)).Elem(),
-			"List":    TypeOf((*pkg.List)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_container_list()
-	Binds["container/list"] = binds
-	Types["container/list"] = types
+	Binds["container/list"] = map[string]Value{
+		"New":	ValueOf(pkg.New),
+	}
+	Types["container/list"] = map[string]Type{
+		"Element":	TypeOf((*pkg.Element)(nil)).Elem(),
+		"List":	TypeOf((*pkg.List)(nil)).Elem(),
+	}
 }

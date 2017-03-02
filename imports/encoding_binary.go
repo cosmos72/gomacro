@@ -8,29 +8,24 @@ import (
 	. "reflect"
 )
 
-func Package_encoding_binary() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BigEndian":      ValueOf(&pkg.BigEndian).Elem(),
-			"LittleEndian":   ValueOf(&pkg.LittleEndian).Elem(),
-			"MaxVarintLen16": ValueOf(pkg.MaxVarintLen16),
-			"MaxVarintLen32": ValueOf(pkg.MaxVarintLen32),
-			"MaxVarintLen64": ValueOf(pkg.MaxVarintLen64),
-			"PutUvarint":     ValueOf(pkg.PutUvarint),
-			"PutVarint":      ValueOf(pkg.PutVarint),
-			"Read":           ValueOf(pkg.Read),
-			"ReadUvarint":    ValueOf(pkg.ReadUvarint),
-			"ReadVarint":     ValueOf(pkg.ReadVarint),
-			"Size":           ValueOf(pkg.Size),
-			"Uvarint":        ValueOf(pkg.Uvarint),
-			"Varint":         ValueOf(pkg.Varint),
-			"Write":          ValueOf(pkg.Write),
-		}, map[string]Type{
-			"ByteOrder": TypeOf((*pkg.ByteOrder)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding_binary()
-	Binds["encoding/binary"] = binds
-	Types["encoding/binary"] = types
+	Binds["encoding/binary"] = map[string]Value{
+		"BigEndian":	ValueOf(&pkg.BigEndian).Elem(),
+		"LittleEndian":	ValueOf(&pkg.LittleEndian).Elem(),
+		"MaxVarintLen16":	ValueOf(pkg.MaxVarintLen16),
+		"MaxVarintLen32":	ValueOf(pkg.MaxVarintLen32),
+		"MaxVarintLen64":	ValueOf(pkg.MaxVarintLen64),
+		"PutUvarint":	ValueOf(pkg.PutUvarint),
+		"PutVarint":	ValueOf(pkg.PutVarint),
+		"Read":	ValueOf(pkg.Read),
+		"ReadUvarint":	ValueOf(pkg.ReadUvarint),
+		"ReadVarint":	ValueOf(pkg.ReadVarint),
+		"Size":	ValueOf(pkg.Size),
+		"Uvarint":	ValueOf(pkg.Uvarint),
+		"Varint":	ValueOf(pkg.Varint),
+		"Write":	ValueOf(pkg.Write),
+	}
+	Types["encoding/binary"] = map[string]Type{
+		"ByteOrder":	TypeOf((*pkg.ByteOrder)(nil)).Elem(),
+	}
 }

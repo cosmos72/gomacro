@@ -4,19 +4,15 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "runtime/trace"
+	. "reflect"
 )
 
-func Package_runtime_trace() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Start": ValueOf(pkg.Start),
-			"Stop":  ValueOf(pkg.Stop),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_runtime_trace()
-	Binds["runtime/trace"] = binds
-	Types["runtime/trace"] = types
+	Binds["runtime/trace"] = map[string]Value{
+		"Start":	ValueOf(pkg.Start),
+		"Stop":	ValueOf(pkg.Stop),
+	}
+	Types["runtime/trace"] = map[string]Type{
+	}
 }

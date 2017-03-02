@@ -8,28 +8,23 @@ import (
 	. "reflect"
 )
 
-func Package_net_textproto() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"CanonicalMIMEHeaderKey": ValueOf(pkg.CanonicalMIMEHeaderKey),
-			"Dial":       ValueOf(pkg.Dial),
-			"NewConn":    ValueOf(pkg.NewConn),
-			"NewReader":  ValueOf(pkg.NewReader),
-			"NewWriter":  ValueOf(pkg.NewWriter),
-			"TrimBytes":  ValueOf(pkg.TrimBytes),
-			"TrimString": ValueOf(pkg.TrimString),
-		}, map[string]Type{
-			"Conn":          TypeOf((*pkg.Conn)(nil)).Elem(),
-			"Error":         TypeOf((*pkg.Error)(nil)).Elem(),
-			"MIMEHeader":    TypeOf((*pkg.MIMEHeader)(nil)).Elem(),
-			"Pipeline":      TypeOf((*pkg.Pipeline)(nil)).Elem(),
-			"ProtocolError": TypeOf((*pkg.ProtocolError)(nil)).Elem(),
-			"Reader":        TypeOf((*pkg.Reader)(nil)).Elem(),
-			"Writer":        TypeOf((*pkg.Writer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_net_textproto()
-	Binds["net/textproto"] = binds
-	Types["net/textproto"] = types
+	Binds["net/textproto"] = map[string]Value{
+		"CanonicalMIMEHeaderKey":	ValueOf(pkg.CanonicalMIMEHeaderKey),
+		"Dial":	ValueOf(pkg.Dial),
+		"NewConn":	ValueOf(pkg.NewConn),
+		"NewReader":	ValueOf(pkg.NewReader),
+		"NewWriter":	ValueOf(pkg.NewWriter),
+		"TrimBytes":	ValueOf(pkg.TrimBytes),
+		"TrimString":	ValueOf(pkg.TrimString),
+	}
+	Types["net/textproto"] = map[string]Type{
+		"Conn":	TypeOf((*pkg.Conn)(nil)).Elem(),
+		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
+		"MIMEHeader":	TypeOf((*pkg.MIMEHeader)(nil)).Elem(),
+		"Pipeline":	TypeOf((*pkg.Pipeline)(nil)).Elem(),
+		"ProtocolError":	TypeOf((*pkg.ProtocolError)(nil)).Elem(),
+		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+	}
 }

@@ -8,23 +8,18 @@ import (
 	. "reflect"
 )
 
-func Package_image_draw() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Draw":           ValueOf(pkg.Draw),
-			"DrawMask":       ValueOf(pkg.DrawMask),
-			"FloydSteinberg": ValueOf(&pkg.FloydSteinberg).Elem(),
-			"Over":           ValueOf(pkg.Over),
-			"Src":            ValueOf(pkg.Src),
-		}, map[string]Type{
-			"Drawer":    TypeOf((*pkg.Drawer)(nil)).Elem(),
-			"Image":     TypeOf((*pkg.Image)(nil)).Elem(),
-			"Op":        TypeOf((*pkg.Op)(nil)).Elem(),
-			"Quantizer": TypeOf((*pkg.Quantizer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_image_draw()
-	Binds["image/draw"] = binds
-	Types["image/draw"] = types
+	Binds["image/draw"] = map[string]Value{
+		"Draw":	ValueOf(pkg.Draw),
+		"DrawMask":	ValueOf(pkg.DrawMask),
+		"FloydSteinberg":	ValueOf(&pkg.FloydSteinberg).Elem(),
+		"Over":	ValueOf(pkg.Over),
+		"Src":	ValueOf(pkg.Src),
+	}
+	Types["image/draw"] = map[string]Type{
+		"Drawer":	TypeOf((*pkg.Drawer)(nil)).Elem(),
+		"Image":	TypeOf((*pkg.Image)(nil)).Elem(),
+		"Op":	TypeOf((*pkg.Op)(nil)).Elem(),
+		"Quantizer":	TypeOf((*pkg.Quantizer)(nil)).Elem(),
+	}
 }

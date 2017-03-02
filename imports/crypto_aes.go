@@ -8,17 +8,12 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_aes() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BlockSize": ValueOf(pkg.BlockSize),
-			"NewCipher": ValueOf(pkg.NewCipher),
-		}, map[string]Type{
-			"KeySizeError": TypeOf((*pkg.KeySizeError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto_aes()
-	Binds["crypto/aes"] = binds
-	Types["crypto/aes"] = types
+	Binds["crypto/aes"] = map[string]Value{
+		"BlockSize":	ValueOf(pkg.BlockSize),
+		"NewCipher":	ValueOf(pkg.NewCipher),
+	}
+	Types["crypto/aes"] = map[string]Type{
+		"KeySizeError":	TypeOf((*pkg.KeySizeError)(nil)).Elem(),
+	}
 }

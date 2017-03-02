@@ -4,25 +4,21 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "testing/iotest"
+	. "reflect"
 )
 
-func Package_testing_iotest() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"DataErrReader":  ValueOf(pkg.DataErrReader),
-			"ErrTimeout":     ValueOf(&pkg.ErrTimeout).Elem(),
-			"HalfReader":     ValueOf(pkg.HalfReader),
-			"NewReadLogger":  ValueOf(pkg.NewReadLogger),
-			"NewWriteLogger": ValueOf(pkg.NewWriteLogger),
-			"OneByteReader":  ValueOf(pkg.OneByteReader),
-			"TimeoutReader":  ValueOf(pkg.TimeoutReader),
-			"TruncateWriter": ValueOf(pkg.TruncateWriter),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_testing_iotest()
-	Binds["testing/iotest"] = binds
-	Types["testing/iotest"] = types
+	Binds["testing/iotest"] = map[string]Value{
+		"DataErrReader":	ValueOf(pkg.DataErrReader),
+		"ErrTimeout":	ValueOf(&pkg.ErrTimeout).Elem(),
+		"HalfReader":	ValueOf(pkg.HalfReader),
+		"NewReadLogger":	ValueOf(pkg.NewReadLogger),
+		"NewWriteLogger":	ValueOf(pkg.NewWriteLogger),
+		"OneByteReader":	ValueOf(pkg.OneByteReader),
+		"TimeoutReader":	ValueOf(pkg.TimeoutReader),
+		"TruncateWriter":	ValueOf(pkg.TruncateWriter),
+	}
+	Types["testing/iotest"] = map[string]Type{
+	}
 }

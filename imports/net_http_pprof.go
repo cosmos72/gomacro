@@ -8,19 +8,15 @@ import (
 	. "reflect"
 )
 
-func Package_net_http_pprof() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Cmdline": ValueOf(pkg.Cmdline),
-			"Handler": ValueOf(pkg.Handler),
-			"Index":   ValueOf(pkg.Index),
-			"Profile": ValueOf(pkg.Profile),
-			"Symbol":  ValueOf(pkg.Symbol),
-			"Trace":   ValueOf(pkg.Trace),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_net_http_pprof()
-	Binds["net/http/pprof"] = binds
-	Types["net/http/pprof"] = types
+	Binds["net/http/pprof"] = map[string]Value{
+		"Cmdline":	ValueOf(pkg.Cmdline),
+		"Handler":	ValueOf(pkg.Handler),
+		"Index":	ValueOf(pkg.Index),
+		"Profile":	ValueOf(pkg.Profile),
+		"Symbol":	ValueOf(pkg.Symbol),
+		"Trace":	ValueOf(pkg.Trace),
+	}
+	Types["net/http/pprof"] = map[string]Type{
+	}
 }

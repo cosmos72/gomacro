@@ -8,15 +8,11 @@ import (
 	. "reflect"
 )
 
-func Package_go_format() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Node":   ValueOf(pkg.Node),
-			"Source": ValueOf(pkg.Source),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_go_format()
-	Binds["go/format"] = binds
-	Types["go/format"] = types
+	Binds["go/format"] = map[string]Value{
+		"Node":	ValueOf(pkg.Node),
+		"Source":	ValueOf(pkg.Source),
+	}
+	Types["go/format"] = map[string]Type{
+	}
 }

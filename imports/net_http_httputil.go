@@ -8,31 +8,26 @@ import (
 	. "reflect"
 )
 
-func Package_net_http_httputil() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"DumpRequest":               ValueOf(pkg.DumpRequest),
-			"DumpRequestOut":            ValueOf(pkg.DumpRequestOut),
-			"DumpResponse":              ValueOf(pkg.DumpResponse),
-			"ErrClosed":                 ValueOf(&pkg.ErrClosed).Elem(),
-			"ErrLineTooLong":            ValueOf(&pkg.ErrLineTooLong).Elem(),
-			"ErrPersistEOF":             ValueOf(&pkg.ErrPersistEOF).Elem(),
-			"ErrPipeline":               ValueOf(&pkg.ErrPipeline).Elem(),
-			"NewChunkedReader":          ValueOf(pkg.NewChunkedReader),
-			"NewChunkedWriter":          ValueOf(pkg.NewChunkedWriter),
-			"NewClientConn":             ValueOf(pkg.NewClientConn),
-			"NewProxyClientConn":        ValueOf(pkg.NewProxyClientConn),
-			"NewServerConn":             ValueOf(pkg.NewServerConn),
-			"NewSingleHostReverseProxy": ValueOf(pkg.NewSingleHostReverseProxy),
-		}, map[string]Type{
-			"BufferPool":   TypeOf((*pkg.BufferPool)(nil)).Elem(),
-			"ClientConn":   TypeOf((*pkg.ClientConn)(nil)).Elem(),
-			"ReverseProxy": TypeOf((*pkg.ReverseProxy)(nil)).Elem(),
-			"ServerConn":   TypeOf((*pkg.ServerConn)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_net_http_httputil()
-	Binds["net/http/httputil"] = binds
-	Types["net/http/httputil"] = types
+	Binds["net/http/httputil"] = map[string]Value{
+		"DumpRequest":	ValueOf(pkg.DumpRequest),
+		"DumpRequestOut":	ValueOf(pkg.DumpRequestOut),
+		"DumpResponse":	ValueOf(pkg.DumpResponse),
+		"ErrClosed":	ValueOf(&pkg.ErrClosed).Elem(),
+		"ErrLineTooLong":	ValueOf(&pkg.ErrLineTooLong).Elem(),
+		"ErrPersistEOF":	ValueOf(&pkg.ErrPersistEOF).Elem(),
+		"ErrPipeline":	ValueOf(&pkg.ErrPipeline).Elem(),
+		"NewChunkedReader":	ValueOf(pkg.NewChunkedReader),
+		"NewChunkedWriter":	ValueOf(pkg.NewChunkedWriter),
+		"NewClientConn":	ValueOf(pkg.NewClientConn),
+		"NewProxyClientConn":	ValueOf(pkg.NewProxyClientConn),
+		"NewServerConn":	ValueOf(pkg.NewServerConn),
+		"NewSingleHostReverseProxy":	ValueOf(pkg.NewSingleHostReverseProxy),
+	}
+	Types["net/http/httputil"] = map[string]Type{
+		"BufferPool":	TypeOf((*pkg.BufferPool)(nil)).Elem(),
+		"ClientConn":	TypeOf((*pkg.ClientConn)(nil)).Elem(),
+		"ReverseProxy":	TypeOf((*pkg.ReverseProxy)(nil)).Elem(),
+		"ServerConn":	TypeOf((*pkg.ServerConn)(nil)).Elem(),
+	}
 }

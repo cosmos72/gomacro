@@ -8,25 +8,20 @@ import (
 	. "reflect"
 )
 
-func Package_image_png() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BestCompression":    ValueOf(pkg.BestCompression),
-			"BestSpeed":          ValueOf(pkg.BestSpeed),
-			"Decode":             ValueOf(pkg.Decode),
-			"DecodeConfig":       ValueOf(pkg.DecodeConfig),
-			"DefaultCompression": ValueOf(pkg.DefaultCompression),
-			"Encode":             ValueOf(pkg.Encode),
-			"NoCompression":      ValueOf(pkg.NoCompression),
-		}, map[string]Type{
-			"CompressionLevel": TypeOf((*pkg.CompressionLevel)(nil)).Elem(),
-			"Encoder":          TypeOf((*pkg.Encoder)(nil)).Elem(),
-			"FormatError":      TypeOf((*pkg.FormatError)(nil)).Elem(),
-			"UnsupportedError": TypeOf((*pkg.UnsupportedError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_image_png()
-	Binds["image/png"] = binds
-	Types["image/png"] = types
+	Binds["image/png"] = map[string]Value{
+		"BestCompression":	ValueOf(pkg.BestCompression),
+		"BestSpeed":	ValueOf(pkg.BestSpeed),
+		"Decode":	ValueOf(pkg.Decode),
+		"DecodeConfig":	ValueOf(pkg.DecodeConfig),
+		"DefaultCompression":	ValueOf(pkg.DefaultCompression),
+		"Encode":	ValueOf(pkg.Encode),
+		"NoCompression":	ValueOf(pkg.NoCompression),
+	}
+	Types["image/png"] = map[string]Type{
+		"CompressionLevel":	TypeOf((*pkg.CompressionLevel)(nil)).Elem(),
+		"Encoder":	TypeOf((*pkg.Encoder)(nil)).Elem(),
+		"FormatError":	TypeOf((*pkg.FormatError)(nil)).Elem(),
+		"UnsupportedError":	TypeOf((*pkg.UnsupportedError)(nil)).Elem(),
+	}
 }

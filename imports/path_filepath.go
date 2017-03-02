@@ -8,37 +8,32 @@ import (
 	. "reflect"
 )
 
-func Package_path_filepath() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Abs":           ValueOf(pkg.Abs),
-			"Base":          ValueOf(pkg.Base),
-			"Clean":         ValueOf(pkg.Clean),
-			"Dir":           ValueOf(pkg.Dir),
-			"ErrBadPattern": ValueOf(&pkg.ErrBadPattern).Elem(),
-			"EvalSymlinks":  ValueOf(pkg.EvalSymlinks),
-			"Ext":           ValueOf(pkg.Ext),
-			"FromSlash":     ValueOf(pkg.FromSlash),
-			"Glob":          ValueOf(pkg.Glob),
-			"HasPrefix":     ValueOf(pkg.HasPrefix),
-			"IsAbs":         ValueOf(pkg.IsAbs),
-			"Join":          ValueOf(pkg.Join),
-			"ListSeparator": ValueOf(pkg.ListSeparator),
-			"Match":         ValueOf(pkg.Match),
-			"Rel":           ValueOf(pkg.Rel),
-			"Separator":     ValueOf(pkg.Separator),
-			"SkipDir":       ValueOf(&pkg.SkipDir).Elem(),
-			"Split":         ValueOf(pkg.Split),
-			"SplitList":     ValueOf(pkg.SplitList),
-			"ToSlash":       ValueOf(pkg.ToSlash),
-			"VolumeName":    ValueOf(pkg.VolumeName),
-			"Walk":          ValueOf(pkg.Walk),
-		}, map[string]Type{
-			"WalkFunc": TypeOf((*pkg.WalkFunc)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_path_filepath()
-	Binds["path/filepath"] = binds
-	Types["path/filepath"] = types
+	Binds["path/filepath"] = map[string]Value{
+		"Abs":	ValueOf(pkg.Abs),
+		"Base":	ValueOf(pkg.Base),
+		"Clean":	ValueOf(pkg.Clean),
+		"Dir":	ValueOf(pkg.Dir),
+		"ErrBadPattern":	ValueOf(&pkg.ErrBadPattern).Elem(),
+		"EvalSymlinks":	ValueOf(pkg.EvalSymlinks),
+		"Ext":	ValueOf(pkg.Ext),
+		"FromSlash":	ValueOf(pkg.FromSlash),
+		"Glob":	ValueOf(pkg.Glob),
+		"HasPrefix":	ValueOf(pkg.HasPrefix),
+		"IsAbs":	ValueOf(pkg.IsAbs),
+		"Join":	ValueOf(pkg.Join),
+		"ListSeparator":	ValueOf(pkg.ListSeparator),
+		"Match":	ValueOf(pkg.Match),
+		"Rel":	ValueOf(pkg.Rel),
+		"Separator":	ValueOf(pkg.Separator),
+		"SkipDir":	ValueOf(&pkg.SkipDir).Elem(),
+		"Split":	ValueOf(pkg.Split),
+		"SplitList":	ValueOf(pkg.SplitList),
+		"ToSlash":	ValueOf(pkg.ToSlash),
+		"VolumeName":	ValueOf(pkg.VolumeName),
+		"Walk":	ValueOf(pkg.Walk),
+	}
+	Types["path/filepath"] = map[string]Type{
+		"WalkFunc":	TypeOf((*pkg.WalkFunc)(nil)).Elem(),
+	}
 }

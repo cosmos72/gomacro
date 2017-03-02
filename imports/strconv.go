@@ -4,53 +4,48 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "strconv"
+	. "reflect"
 )
 
-func Package_strconv() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"AppendBool":               ValueOf(pkg.AppendBool),
-			"AppendFloat":              ValueOf(pkg.AppendFloat),
-			"AppendInt":                ValueOf(pkg.AppendInt),
-			"AppendQuote":              ValueOf(pkg.AppendQuote),
-			"AppendQuoteRune":          ValueOf(pkg.AppendQuoteRune),
-			"AppendQuoteRuneToASCII":   ValueOf(pkg.AppendQuoteRuneToASCII),
-			"AppendQuoteRuneToGraphic": ValueOf(pkg.AppendQuoteRuneToGraphic),
-			"AppendQuoteToASCII":       ValueOf(pkg.AppendQuoteToASCII),
-			"AppendQuoteToGraphic":     ValueOf(pkg.AppendQuoteToGraphic),
-			"AppendUint":               ValueOf(pkg.AppendUint),
-			"Atoi":                     ValueOf(pkg.Atoi),
-			"CanBackquote":             ValueOf(pkg.CanBackquote),
-			"ErrRange":                 ValueOf(&pkg.ErrRange).Elem(),
-			"ErrSyntax":                ValueOf(&pkg.ErrSyntax).Elem(),
-			"FormatBool":               ValueOf(pkg.FormatBool),
-			"FormatFloat":              ValueOf(pkg.FormatFloat),
-			"FormatInt":                ValueOf(pkg.FormatInt),
-			"FormatUint":               ValueOf(pkg.FormatUint),
-			"IntSize":                  ValueOf(pkg.IntSize),
-			"IsGraphic":                ValueOf(pkg.IsGraphic),
-			"IsPrint":                  ValueOf(pkg.IsPrint),
-			"Itoa":                     ValueOf(pkg.Itoa),
-			"ParseBool":                ValueOf(pkg.ParseBool),
-			"ParseFloat":               ValueOf(pkg.ParseFloat),
-			"ParseInt":                 ValueOf(pkg.ParseInt),
-			"ParseUint":                ValueOf(pkg.ParseUint),
-			"Quote":                    ValueOf(pkg.Quote),
-			"QuoteRune":                ValueOf(pkg.QuoteRune),
-			"QuoteRuneToASCII":         ValueOf(pkg.QuoteRuneToASCII),
-			"QuoteRuneToGraphic":       ValueOf(pkg.QuoteRuneToGraphic),
-			"QuoteToASCII":             ValueOf(pkg.QuoteToASCII),
-			"QuoteToGraphic":           ValueOf(pkg.QuoteToGraphic),
-			"Unquote":                  ValueOf(pkg.Unquote),
-			"UnquoteChar":              ValueOf(pkg.UnquoteChar),
-		}, map[string]Type{
-			"NumError": TypeOf((*pkg.NumError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_strconv()
-	Binds["strconv"] = binds
-	Types["strconv"] = types
+	Binds["strconv"] = map[string]Value{
+		"AppendBool":	ValueOf(pkg.AppendBool),
+		"AppendFloat":	ValueOf(pkg.AppendFloat),
+		"AppendInt":	ValueOf(pkg.AppendInt),
+		"AppendQuote":	ValueOf(pkg.AppendQuote),
+		"AppendQuoteRune":	ValueOf(pkg.AppendQuoteRune),
+		"AppendQuoteRuneToASCII":	ValueOf(pkg.AppendQuoteRuneToASCII),
+		"AppendQuoteRuneToGraphic":	ValueOf(pkg.AppendQuoteRuneToGraphic),
+		"AppendQuoteToASCII":	ValueOf(pkg.AppendQuoteToASCII),
+		"AppendQuoteToGraphic":	ValueOf(pkg.AppendQuoteToGraphic),
+		"AppendUint":	ValueOf(pkg.AppendUint),
+		"Atoi":	ValueOf(pkg.Atoi),
+		"CanBackquote":	ValueOf(pkg.CanBackquote),
+		"ErrRange":	ValueOf(&pkg.ErrRange).Elem(),
+		"ErrSyntax":	ValueOf(&pkg.ErrSyntax).Elem(),
+		"FormatBool":	ValueOf(pkg.FormatBool),
+		"FormatFloat":	ValueOf(pkg.FormatFloat),
+		"FormatInt":	ValueOf(pkg.FormatInt),
+		"FormatUint":	ValueOf(pkg.FormatUint),
+		"IntSize":	ValueOf(pkg.IntSize),
+		"IsGraphic":	ValueOf(pkg.IsGraphic),
+		"IsPrint":	ValueOf(pkg.IsPrint),
+		"Itoa":	ValueOf(pkg.Itoa),
+		"ParseBool":	ValueOf(pkg.ParseBool),
+		"ParseFloat":	ValueOf(pkg.ParseFloat),
+		"ParseInt":	ValueOf(pkg.ParseInt),
+		"ParseUint":	ValueOf(pkg.ParseUint),
+		"Quote":	ValueOf(pkg.Quote),
+		"QuoteRune":	ValueOf(pkg.QuoteRune),
+		"QuoteRuneToASCII":	ValueOf(pkg.QuoteRuneToASCII),
+		"QuoteRuneToGraphic":	ValueOf(pkg.QuoteRuneToGraphic),
+		"QuoteToASCII":	ValueOf(pkg.QuoteToASCII),
+		"QuoteToGraphic":	ValueOf(pkg.QuoteToGraphic),
+		"Unquote":	ValueOf(pkg.Unquote),
+		"UnquoteChar":	ValueOf(pkg.UnquoteChar),
+	}
+	Types["strconv"] = map[string]Type{
+		"NumError":	TypeOf((*pkg.NumError)(nil)).Elem(),
+	}
 }

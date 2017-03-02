@@ -8,15 +8,11 @@ import (
 	. "reflect"
 )
 
-func Package_image_color_palette() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Plan9":   ValueOf(&pkg.Plan9).Elem(),
-			"WebSafe": ValueOf(&pkg.WebSafe).Elem(),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_image_color_palette()
-	Binds["image/color/palette"] = binds
-	Types["image/color/palette"] = types
+	Binds["image/color/palette"] = map[string]Value{
+		"Plan9":	ValueOf(&pkg.Plan9).Elem(),
+		"WebSafe":	ValueOf(&pkg.WebSafe).Elem(),
+	}
+	Types["image/color/palette"] = map[string]Type{
+	}
 }

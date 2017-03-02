@@ -8,17 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_md5() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BlockSize": ValueOf(pkg.BlockSize),
-			"New":       ValueOf(pkg.New),
-			"Size":      ValueOf(pkg.Size),
-			"Sum":       ValueOf(pkg.Sum),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_crypto_md5()
-	Binds["crypto/md5"] = binds
-	Types["crypto/md5"] = types
+	Binds["crypto/md5"] = map[string]Value{
+		"BlockSize":	ValueOf(pkg.BlockSize),
+		"New":	ValueOf(pkg.New),
+		"Size":	ValueOf(pkg.Size),
+		"Sum":	ValueOf(pkg.Sum),
+	}
+	Types["crypto/md5"] = map[string]Type{
+	}
 }

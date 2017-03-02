@@ -8,22 +8,17 @@ import (
 	. "reflect"
 )
 
-func Package_go_printer() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Fprint":    ValueOf(pkg.Fprint),
-			"RawFormat": ValueOf(pkg.RawFormat),
-			"SourcePos": ValueOf(pkg.SourcePos),
-			"TabIndent": ValueOf(pkg.TabIndent),
-			"UseSpaces": ValueOf(pkg.UseSpaces),
-		}, map[string]Type{
-			"CommentedNode": TypeOf((*pkg.CommentedNode)(nil)).Elem(),
-			"Config":        TypeOf((*pkg.Config)(nil)).Elem(),
-			"Mode":          TypeOf((*pkg.Mode)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_go_printer()
-	Binds["go/printer"] = binds
-	Types["go/printer"] = types
+	Binds["go/printer"] = map[string]Value{
+		"Fprint":	ValueOf(pkg.Fprint),
+		"RawFormat":	ValueOf(pkg.RawFormat),
+		"SourcePos":	ValueOf(pkg.SourcePos),
+		"TabIndent":	ValueOf(pkg.TabIndent),
+		"UseSpaces":	ValueOf(pkg.UseSpaces),
+	}
+	Types["go/printer"] = map[string]Type{
+		"CommentedNode":	TypeOf((*pkg.CommentedNode)(nil)).Elem(),
+		"Config":	TypeOf((*pkg.Config)(nil)).Elem(),
+		"Mode":	TypeOf((*pkg.Mode)(nil)).Elem(),
+	}
 }

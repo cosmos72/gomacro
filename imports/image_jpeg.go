@@ -8,22 +8,17 @@ import (
 	. "reflect"
 )
 
-func Package_image_jpeg() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Decode":         ValueOf(pkg.Decode),
-			"DecodeConfig":   ValueOf(pkg.DecodeConfig),
-			"DefaultQuality": ValueOf(pkg.DefaultQuality),
-			"Encode":         ValueOf(pkg.Encode),
-		}, map[string]Type{
-			"FormatError":      TypeOf((*pkg.FormatError)(nil)).Elem(),
-			"Options":          TypeOf((*pkg.Options)(nil)).Elem(),
-			"Reader":           TypeOf((*pkg.Reader)(nil)).Elem(),
-			"UnsupportedError": TypeOf((*pkg.UnsupportedError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_image_jpeg()
-	Binds["image/jpeg"] = binds
-	Types["image/jpeg"] = types
+	Binds["image/jpeg"] = map[string]Value{
+		"Decode":	ValueOf(pkg.Decode),
+		"DecodeConfig":	ValueOf(pkg.DecodeConfig),
+		"DefaultQuality":	ValueOf(pkg.DefaultQuality),
+		"Encode":	ValueOf(pkg.Encode),
+	}
+	Types["image/jpeg"] = map[string]Type{
+		"FormatError":	TypeOf((*pkg.FormatError)(nil)).Elem(),
+		"Options":	TypeOf((*pkg.Options)(nil)).Elem(),
+		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
+		"UnsupportedError":	TypeOf((*pkg.UnsupportedError)(nil)).Elem(),
+	}
 }

@@ -8,20 +8,15 @@ import (
 	. "reflect"
 )
 
-func Package_encoding_ascii85() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Decode":        ValueOf(pkg.Decode),
-			"Encode":        ValueOf(pkg.Encode),
-			"MaxEncodedLen": ValueOf(pkg.MaxEncodedLen),
-			"NewDecoder":    ValueOf(pkg.NewDecoder),
-			"NewEncoder":    ValueOf(pkg.NewEncoder),
-		}, map[string]Type{
-			"CorruptInputError": TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding_ascii85()
-	Binds["encoding/ascii85"] = binds
-	Types["encoding/ascii85"] = types
+	Binds["encoding/ascii85"] = map[string]Value{
+		"Decode":	ValueOf(pkg.Decode),
+		"Encode":	ValueOf(pkg.Encode),
+		"MaxEncodedLen":	ValueOf(pkg.MaxEncodedLen),
+		"NewDecoder":	ValueOf(pkg.NewDecoder),
+		"NewEncoder":	ValueOf(pkg.NewEncoder),
+	}
+	Types["encoding/ascii85"] = map[string]Type{
+		"CorruptInputError":	TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
+	}
 }

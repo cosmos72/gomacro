@@ -4,27 +4,22 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "text/tabwriter"
+	. "reflect"
 )
 
-func Package_text_tabwriter() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"AlignRight":          ValueOf(pkg.AlignRight),
-			"Debug":               ValueOf(pkg.Debug),
-			"DiscardEmptyColumns": ValueOf(pkg.DiscardEmptyColumns),
-			"Escape":              ValueOf(pkg.Escape),
-			"FilterHTML":          ValueOf(pkg.FilterHTML),
-			"NewWriter":           ValueOf(pkg.NewWriter),
-			"StripEscape":         ValueOf(pkg.StripEscape),
-			"TabIndent":           ValueOf(pkg.TabIndent),
-		}, map[string]Type{
-			"Writer": TypeOf((*pkg.Writer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_text_tabwriter()
-	Binds["text/tabwriter"] = binds
-	Types["text/tabwriter"] = types
+	Binds["text/tabwriter"] = map[string]Value{
+		"AlignRight":	ValueOf(pkg.AlignRight),
+		"Debug":	ValueOf(pkg.Debug),
+		"DiscardEmptyColumns":	ValueOf(pkg.DiscardEmptyColumns),
+		"Escape":	ValueOf(pkg.Escape),
+		"FilterHTML":	ValueOf(pkg.FilterHTML),
+		"NewWriter":	ValueOf(pkg.NewWriter),
+		"StripEscape":	ValueOf(pkg.StripEscape),
+		"TabIndent":	ValueOf(pkg.TabIndent),
+	}
+	Types["text/tabwriter"] = map[string]Type{
+		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+	}
 }

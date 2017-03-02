@@ -35,6 +35,16 @@ import (
 	"sort"
 )
 
+type FileSet struct {
+	Fileset *token.FileSet
+}
+
+type Output struct {
+	FileSet
+	Stdout io.Writer
+	Stderr io.Writer
+}
+
 type RuntimeError struct {
 	FileSet
 	Format string
@@ -61,14 +71,14 @@ func (f FileSet) PackErrorf(format string, args ...interface{}) []r.Value {
 	panic(RuntimeError{f, format, args})
 }
 
-func (p *Interpreter) Warnf(format string, args ...interface{}) {
-	str := p.Sprintf(format, args...)
-	fmt.Fprintf(p.Stderr, "warning: %s\n", str)
+func (o Output) Warnf(format string, args ...interface{}) {
+	str := o.Sprintf(format, args...)
+	fmt.Fprintf(o.Stderr, "warning: %s\n", str)
 }
 
-func (p *Interpreter) Debugf(format string, args ...interface{}) {
-	str := p.Sprintf(format, args...)
-	fmt.Fprintf(p.Stdout, "// debug: %s\n", str)
+func (o Output) Debugf(format string, args ...interface{}) {
+	str := o.Sprintf(format, args...)
+	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
 
 func BadIndex(index int, size int) AstWithNode {
@@ -214,14 +224,28 @@ func (f FileSet) nodeToPrintable(node ast.Node) interface{} {
 
 func (f FileSet) showHelp(out io.Writer) {
 	fmt.Fprint(out, `// interpreter commands:
-:env    show available functions, variables and constants
-:help   show this help
-:quit   quit the interpreter
+:pkg [name] show available functions, variables and constants from imported package
+:help       print this help
+:quit       quit the interpreter
 `)
 }
 
-func (env *Env) showEnv(out io.Writer) {
+func (env *Env) showPackage(out io.Writer, packageName string) {
 	binds := env.Binds
+	if len(packageName) != 0 {
+		bind, ok := binds[packageName]
+		if !ok || bind == None || bind == Nil {
+			env.Warnf("import not loaded: %q", packageName)
+			return
+		}
+		switch val := bind.Interface().(type) {
+		case *Env:
+			binds = val.Binds
+		default:
+			env.Warnf("not an imported package: %q = %v <%v>", packageName, val, bind.Type())
+			return
+		}
+	}
 	keys := make([]string, len(binds))
 	i := 0
 	for k := range binds {

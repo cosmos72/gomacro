@@ -8,14 +8,10 @@ import (
 	. "reflect"
 )
 
-func Package_errors() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"New": ValueOf(pkg.New),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_errors()
-	Binds["errors"] = binds
-	Types["errors"] = types
+	Binds["errors"] = map[string]Value{
+		"New":	ValueOf(pkg.New),
+	}
+	Types["errors"] = map[string]Type{
+	}
 }

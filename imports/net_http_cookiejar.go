@@ -8,18 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_net_http_cookiejar() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"New": ValueOf(pkg.New),
-		}, map[string]Type{
-			"Jar":              TypeOf((*pkg.Jar)(nil)).Elem(),
-			"Options":          TypeOf((*pkg.Options)(nil)).Elem(),
-			"PublicSuffixList": TypeOf((*pkg.PublicSuffixList)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_net_http_cookiejar()
-	Binds["net/http/cookiejar"] = binds
-	Types["net/http/cookiejar"] = types
+	Binds["net/http/cookiejar"] = map[string]Value{
+		"New":	ValueOf(pkg.New),
+	}
+	Types["net/http/cookiejar"] = map[string]Type{
+		"Jar":	TypeOf((*pkg.Jar)(nil)).Elem(),
+		"Options":	TypeOf((*pkg.Options)(nil)).Elem(),
+		"PublicSuffixList":	TypeOf((*pkg.PublicSuffixList)(nil)).Elem(),
+	}
 }

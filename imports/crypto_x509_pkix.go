@@ -8,23 +8,19 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_x509_pkix() (map[string]Value, map[string]Type) {
-	return map[string]Value{}, map[string]Type{
-			"AlgorithmIdentifier":          TypeOf((*pkg.AlgorithmIdentifier)(nil)).Elem(),
-			"AttributeTypeAndValue":        TypeOf((*pkg.AttributeTypeAndValue)(nil)).Elem(),
-			"AttributeTypeAndValueSET":     TypeOf((*pkg.AttributeTypeAndValueSET)(nil)).Elem(),
-			"CertificateList":              TypeOf((*pkg.CertificateList)(nil)).Elem(),
-			"Extension":                    TypeOf((*pkg.Extension)(nil)).Elem(),
-			"Name":                         TypeOf((*pkg.Name)(nil)).Elem(),
-			"RDNSequence":                  TypeOf((*pkg.RDNSequence)(nil)).Elem(),
-			"RelativeDistinguishedNameSET": TypeOf((*pkg.RelativeDistinguishedNameSET)(nil)).Elem(),
-			"RevokedCertificate":           TypeOf((*pkg.RevokedCertificate)(nil)).Elem(),
-			"TBSCertificateList":           TypeOf((*pkg.TBSCertificateList)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto_x509_pkix()
-	Binds["crypto/x509/pkix"] = binds
-	Types["crypto/x509/pkix"] = types
+	Binds["crypto/x509/pkix"] = map[string]Value{
+	}
+	Types["crypto/x509/pkix"] = map[string]Type{
+		"AlgorithmIdentifier":	TypeOf((*pkg.AlgorithmIdentifier)(nil)).Elem(),
+		"AttributeTypeAndValue":	TypeOf((*pkg.AttributeTypeAndValue)(nil)).Elem(),
+		"AttributeTypeAndValueSET":	TypeOf((*pkg.AttributeTypeAndValueSET)(nil)).Elem(),
+		"CertificateList":	TypeOf((*pkg.CertificateList)(nil)).Elem(),
+		"Extension":	TypeOf((*pkg.Extension)(nil)).Elem(),
+		"Name":	TypeOf((*pkg.Name)(nil)).Elem(),
+		"RDNSequence":	TypeOf((*pkg.RDNSequence)(nil)).Elem(),
+		"RelativeDistinguishedNameSET":	TypeOf((*pkg.RelativeDistinguishedNameSET)(nil)).Elem(),
+		"RevokedCertificate":	TypeOf((*pkg.RevokedCertificate)(nil)).Elem(),
+		"TBSCertificateList":	TypeOf((*pkg.TBSCertificateList)(nil)).Elem(),
+	}
 }

@@ -8,22 +8,18 @@ import (
 	. "reflect"
 )
 
-func Package_path() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Base":          ValueOf(pkg.Base),
-			"Clean":         ValueOf(pkg.Clean),
-			"Dir":           ValueOf(pkg.Dir),
-			"ErrBadPattern": ValueOf(&pkg.ErrBadPattern).Elem(),
-			"Ext":           ValueOf(pkg.Ext),
-			"IsAbs":         ValueOf(pkg.IsAbs),
-			"Join":          ValueOf(pkg.Join),
-			"Match":         ValueOf(pkg.Match),
-			"Split":         ValueOf(pkg.Split),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_path()
-	Binds["path"] = binds
-	Types["path"] = types
+	Binds["path"] = map[string]Value{
+		"Base":	ValueOf(pkg.Base),
+		"Clean":	ValueOf(pkg.Clean),
+		"Dir":	ValueOf(pkg.Dir),
+		"ErrBadPattern":	ValueOf(&pkg.ErrBadPattern).Elem(),
+		"Ext":	ValueOf(pkg.Ext),
+		"IsAbs":	ValueOf(pkg.IsAbs),
+		"Join":	ValueOf(pkg.Join),
+		"Match":	ValueOf(pkg.Match),
+		"Split":	ValueOf(pkg.Split),
+	}
+	Types["path"] = map[string]Type{
+	}
 }

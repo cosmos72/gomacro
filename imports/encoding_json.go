@@ -8,38 +8,33 @@ import (
 	. "reflect"
 )
 
-func Package_encoding_json() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Compact":       ValueOf(pkg.Compact),
-			"HTMLEscape":    ValueOf(pkg.HTMLEscape),
-			"Indent":        ValueOf(pkg.Indent),
-			"Marshal":       ValueOf(pkg.Marshal),
-			"MarshalIndent": ValueOf(pkg.MarshalIndent),
-			"NewDecoder":    ValueOf(pkg.NewDecoder),
-			"NewEncoder":    ValueOf(pkg.NewEncoder),
-			"Unmarshal":     ValueOf(pkg.Unmarshal),
-		}, map[string]Type{
-			"Decoder":               TypeOf((*pkg.Decoder)(nil)).Elem(),
-			"Delim":                 TypeOf((*pkg.Delim)(nil)).Elem(),
-			"Encoder":               TypeOf((*pkg.Encoder)(nil)).Elem(),
-			"InvalidUTF8Error":      TypeOf((*pkg.InvalidUTF8Error)(nil)).Elem(),
-			"InvalidUnmarshalError": TypeOf((*pkg.InvalidUnmarshalError)(nil)).Elem(),
-			"Marshaler":             TypeOf((*pkg.Marshaler)(nil)).Elem(),
-			"MarshalerError":        TypeOf((*pkg.MarshalerError)(nil)).Elem(),
-			"Number":                TypeOf((*pkg.Number)(nil)).Elem(),
-			"RawMessage":            TypeOf((*pkg.RawMessage)(nil)).Elem(),
-			"SyntaxError":           TypeOf((*pkg.SyntaxError)(nil)).Elem(),
-			"Token":                 TypeOf((*pkg.Token)(nil)).Elem(),
-			"UnmarshalFieldError":   TypeOf((*pkg.UnmarshalFieldError)(nil)).Elem(),
-			"UnmarshalTypeError":    TypeOf((*pkg.UnmarshalTypeError)(nil)).Elem(),
-			"Unmarshaler":           TypeOf((*pkg.Unmarshaler)(nil)).Elem(),
-			"UnsupportedTypeError":  TypeOf((*pkg.UnsupportedTypeError)(nil)).Elem(),
-			"UnsupportedValueError": TypeOf((*pkg.UnsupportedValueError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding_json()
-	Binds["encoding/json"] = binds
-	Types["encoding/json"] = types
+	Binds["encoding/json"] = map[string]Value{
+		"Compact":	ValueOf(pkg.Compact),
+		"HTMLEscape":	ValueOf(pkg.HTMLEscape),
+		"Indent":	ValueOf(pkg.Indent),
+		"Marshal":	ValueOf(pkg.Marshal),
+		"MarshalIndent":	ValueOf(pkg.MarshalIndent),
+		"NewDecoder":	ValueOf(pkg.NewDecoder),
+		"NewEncoder":	ValueOf(pkg.NewEncoder),
+		"Unmarshal":	ValueOf(pkg.Unmarshal),
+	}
+	Types["encoding/json"] = map[string]Type{
+		"Decoder":	TypeOf((*pkg.Decoder)(nil)).Elem(),
+		"Delim":	TypeOf((*pkg.Delim)(nil)).Elem(),
+		"Encoder":	TypeOf((*pkg.Encoder)(nil)).Elem(),
+		"InvalidUTF8Error":	TypeOf((*pkg.InvalidUTF8Error)(nil)).Elem(),
+		"InvalidUnmarshalError":	TypeOf((*pkg.InvalidUnmarshalError)(nil)).Elem(),
+		"Marshaler":	TypeOf((*pkg.Marshaler)(nil)).Elem(),
+		"MarshalerError":	TypeOf((*pkg.MarshalerError)(nil)).Elem(),
+		"Number":	TypeOf((*pkg.Number)(nil)).Elem(),
+		"RawMessage":	TypeOf((*pkg.RawMessage)(nil)).Elem(),
+		"SyntaxError":	TypeOf((*pkg.SyntaxError)(nil)).Elem(),
+		"Token":	TypeOf((*pkg.Token)(nil)).Elem(),
+		"UnmarshalFieldError":	TypeOf((*pkg.UnmarshalFieldError)(nil)).Elem(),
+		"UnmarshalTypeError":	TypeOf((*pkg.UnmarshalTypeError)(nil)).Elem(),
+		"Unmarshaler":	TypeOf((*pkg.Unmarshaler)(nil)).Elem(),
+		"UnsupportedTypeError":	TypeOf((*pkg.UnsupportedTypeError)(nil)).Elem(),
+		"UnsupportedValueError":	TypeOf((*pkg.UnsupportedValueError)(nil)).Elem(),
+	}
 }

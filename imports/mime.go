@@ -8,23 +8,18 @@ import (
 	. "reflect"
 )
 
-func Package_mime() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"AddExtensionType": ValueOf(pkg.AddExtensionType),
-			"BEncoding":        ValueOf(pkg.BEncoding),
-			"ExtensionsByType": ValueOf(pkg.ExtensionsByType),
-			"FormatMediaType":  ValueOf(pkg.FormatMediaType),
-			"ParseMediaType":   ValueOf(pkg.ParseMediaType),
-			"QEncoding":        ValueOf(pkg.QEncoding),
-			"TypeByExtension":  ValueOf(pkg.TypeByExtension),
-		}, map[string]Type{
-			"WordDecoder": TypeOf((*pkg.WordDecoder)(nil)).Elem(),
-			"WordEncoder": TypeOf((*pkg.WordEncoder)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_mime()
-	Binds["mime"] = binds
-	Types["mime"] = types
+	Binds["mime"] = map[string]Value{
+		"AddExtensionType":	ValueOf(pkg.AddExtensionType),
+		"BEncoding":	ValueOf(pkg.BEncoding),
+		"ExtensionsByType":	ValueOf(pkg.ExtensionsByType),
+		"FormatMediaType":	ValueOf(pkg.FormatMediaType),
+		"ParseMediaType":	ValueOf(pkg.ParseMediaType),
+		"QEncoding":	ValueOf(pkg.QEncoding),
+		"TypeByExtension":	ValueOf(pkg.TypeByExtension),
+	}
+	Types["mime"] = map[string]Type{
+		"WordDecoder":	TypeOf((*pkg.WordDecoder)(nil)).Elem(),
+		"WordEncoder":	TypeOf((*pkg.WordEncoder)(nil)).Elem(),
+	}
 }

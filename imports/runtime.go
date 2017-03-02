@@ -4,64 +4,59 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "runtime"
+	. "reflect"
 )
 
-func Package_runtime() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BlockProfile":            ValueOf(pkg.BlockProfile),
-			"Breakpoint":              ValueOf(pkg.Breakpoint),
-			"CPUProfile":              ValueOf(pkg.CPUProfile),
-			"Caller":                  ValueOf(pkg.Caller),
-			"Callers":                 ValueOf(pkg.Callers),
-			"CallersFrames":           ValueOf(pkg.CallersFrames),
-			"Compiler":                ValueOf(pkg.Compiler),
-			"FuncForPC":               ValueOf(pkg.FuncForPC),
-			"GC":                      ValueOf(pkg.GC),
-			"GOARCH":                  ValueOf(pkg.GOARCH),
-			"GOMAXPROCS":              ValueOf(pkg.GOMAXPROCS),
-			"GOOS":                    ValueOf(pkg.GOOS),
-			"GOROOT":                  ValueOf(pkg.GOROOT),
-			"Goexit":                  ValueOf(pkg.Goexit),
-			"GoroutineProfile":        ValueOf(pkg.GoroutineProfile),
-			"Gosched":                 ValueOf(pkg.Gosched),
-			"KeepAlive":               ValueOf(pkg.KeepAlive),
-			"LockOSThread":            ValueOf(pkg.LockOSThread),
-			"MemProfile":              ValueOf(pkg.MemProfile),
-			"MemProfileRate":          ValueOf(&pkg.MemProfileRate).Elem(),
-			"MutexProfile":            ValueOf(pkg.MutexProfile),
-			"NumCPU":                  ValueOf(pkg.NumCPU),
-			"NumCgoCall":              ValueOf(pkg.NumCgoCall),
-			"NumGoroutine":            ValueOf(pkg.NumGoroutine),
-			"ReadMemStats":            ValueOf(pkg.ReadMemStats),
-			"ReadTrace":               ValueOf(pkg.ReadTrace),
-			"SetBlockProfileRate":     ValueOf(pkg.SetBlockProfileRate),
-			"SetCPUProfileRate":       ValueOf(pkg.SetCPUProfileRate),
-			"SetCgoTraceback":         ValueOf(pkg.SetCgoTraceback),
-			"SetFinalizer":            ValueOf(pkg.SetFinalizer),
-			"SetMutexProfileFraction": ValueOf(pkg.SetMutexProfileFraction),
-			"Stack":                   ValueOf(pkg.Stack),
-			"StartTrace":              ValueOf(pkg.StartTrace),
-			"StopTrace":               ValueOf(pkg.StopTrace),
-			"ThreadCreateProfile":     ValueOf(pkg.ThreadCreateProfile),
-			"UnlockOSThread":          ValueOf(pkg.UnlockOSThread),
-			"Version":                 ValueOf(pkg.Version),
-		}, map[string]Type{
-			"BlockProfileRecord": TypeOf((*pkg.BlockProfileRecord)(nil)).Elem(),
-			"Error":              TypeOf((*pkg.Error)(nil)).Elem(),
-			"Frame":              TypeOf((*pkg.Frame)(nil)).Elem(),
-			"Frames":             TypeOf((*pkg.Frames)(nil)).Elem(),
-			"Func":               TypeOf((*pkg.Func)(nil)).Elem(),
-			"MemProfileRecord":   TypeOf((*pkg.MemProfileRecord)(nil)).Elem(),
-			"MemStats":           TypeOf((*pkg.MemStats)(nil)).Elem(),
-			"StackRecord":        TypeOf((*pkg.StackRecord)(nil)).Elem(),
-			"TypeAssertionError": TypeOf((*pkg.TypeAssertionError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_runtime()
-	Binds["runtime"] = binds
-	Types["runtime"] = types
+	Binds["runtime"] = map[string]Value{
+		"BlockProfile":	ValueOf(pkg.BlockProfile),
+		"Breakpoint":	ValueOf(pkg.Breakpoint),
+		"CPUProfile":	ValueOf(pkg.CPUProfile),
+		"Caller":	ValueOf(pkg.Caller),
+		"Callers":	ValueOf(pkg.Callers),
+		"CallersFrames":	ValueOf(pkg.CallersFrames),
+		"Compiler":	ValueOf(pkg.Compiler),
+		"FuncForPC":	ValueOf(pkg.FuncForPC),
+		"GC":	ValueOf(pkg.GC),
+		"GOARCH":	ValueOf(pkg.GOARCH),
+		"GOMAXPROCS":	ValueOf(pkg.GOMAXPROCS),
+		"GOOS":	ValueOf(pkg.GOOS),
+		"GOROOT":	ValueOf(pkg.GOROOT),
+		"Goexit":	ValueOf(pkg.Goexit),
+		"GoroutineProfile":	ValueOf(pkg.GoroutineProfile),
+		"Gosched":	ValueOf(pkg.Gosched),
+		"KeepAlive":	ValueOf(pkg.KeepAlive),
+		"LockOSThread":	ValueOf(pkg.LockOSThread),
+		"MemProfile":	ValueOf(pkg.MemProfile),
+		"MemProfileRate":	ValueOf(&pkg.MemProfileRate).Elem(),
+		"MutexProfile":	ValueOf(pkg.MutexProfile),
+		"NumCPU":	ValueOf(pkg.NumCPU),
+		"NumCgoCall":	ValueOf(pkg.NumCgoCall),
+		"NumGoroutine":	ValueOf(pkg.NumGoroutine),
+		"ReadMemStats":	ValueOf(pkg.ReadMemStats),
+		"ReadTrace":	ValueOf(pkg.ReadTrace),
+		"SetBlockProfileRate":	ValueOf(pkg.SetBlockProfileRate),
+		"SetCPUProfileRate":	ValueOf(pkg.SetCPUProfileRate),
+		"SetCgoTraceback":	ValueOf(pkg.SetCgoTraceback),
+		"SetFinalizer":	ValueOf(pkg.SetFinalizer),
+		"SetMutexProfileFraction":	ValueOf(pkg.SetMutexProfileFraction),
+		"Stack":	ValueOf(pkg.Stack),
+		"StartTrace":	ValueOf(pkg.StartTrace),
+		"StopTrace":	ValueOf(pkg.StopTrace),
+		"ThreadCreateProfile":	ValueOf(pkg.ThreadCreateProfile),
+		"UnlockOSThread":	ValueOf(pkg.UnlockOSThread),
+		"Version":	ValueOf(pkg.Version),
+	}
+	Types["runtime"] = map[string]Type{
+		"BlockProfileRecord":	TypeOf((*pkg.BlockProfileRecord)(nil)).Elem(),
+		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
+		"Frame":	TypeOf((*pkg.Frame)(nil)).Elem(),
+		"Frames":	TypeOf((*pkg.Frames)(nil)).Elem(),
+		"Func":	TypeOf((*pkg.Func)(nil)).Elem(),
+		"MemProfileRecord":	TypeOf((*pkg.MemProfileRecord)(nil)).Elem(),
+		"MemStats":	TypeOf((*pkg.MemStats)(nil)).Elem(),
+		"StackRecord":	TypeOf((*pkg.StackRecord)(nil)).Elem(),
+		"TypeAssertionError":	TypeOf((*pkg.TypeAssertionError)(nil)).Elem(),
+	}
 }

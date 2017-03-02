@@ -4,22 +4,18 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "unicode/utf16"
+	. "reflect"
 )
 
-func Package_unicode_utf16() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Decode":      ValueOf(pkg.Decode),
-			"DecodeRune":  ValueOf(pkg.DecodeRune),
-			"Encode":      ValueOf(pkg.Encode),
-			"EncodeRune":  ValueOf(pkg.EncodeRune),
-			"IsSurrogate": ValueOf(pkg.IsSurrogate),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_unicode_utf16()
-	Binds["unicode/utf16"] = binds
-	Types["unicode/utf16"] = types
+	Binds["unicode/utf16"] = map[string]Value{
+		"Decode":	ValueOf(pkg.Decode),
+		"DecodeRune":	ValueOf(pkg.DecodeRune),
+		"Encode":	ValueOf(pkg.Encode),
+		"EncodeRune":	ValueOf(pkg.EncodeRune),
+		"IsSurrogate":	ValueOf(pkg.IsSurrogate),
+	}
+	Types["unicode/utf16"] = map[string]Type{
+	}
 }

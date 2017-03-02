@@ -8,45 +8,40 @@ import (
 	. "reflect"
 )
 
-func Package_database_sql() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Drivers":              ValueOf(pkg.Drivers),
-			"ErrNoRows":            ValueOf(&pkg.ErrNoRows).Elem(),
-			"ErrTxDone":            ValueOf(&pkg.ErrTxDone).Elem(),
-			"LevelDefault":         ValueOf(pkg.LevelDefault),
-			"LevelLinearizable":    ValueOf(pkg.LevelLinearizable),
-			"LevelReadCommitted":   ValueOf(pkg.LevelReadCommitted),
-			"LevelReadUncommitted": ValueOf(pkg.LevelReadUncommitted),
-			"LevelRepeatableRead":  ValueOf(pkg.LevelRepeatableRead),
-			"LevelSerializable":    ValueOf(pkg.LevelSerializable),
-			"LevelSnapshot":        ValueOf(pkg.LevelSnapshot),
-			"LevelWriteCommitted":  ValueOf(pkg.LevelWriteCommitted),
-			"Named":                ValueOf(pkg.Named),
-			"Open":                 ValueOf(pkg.Open),
-			"Register":             ValueOf(pkg.Register),
-		}, map[string]Type{
-			"ColumnType":     TypeOf((*pkg.ColumnType)(nil)).Elem(),
-			"DB":             TypeOf((*pkg.DB)(nil)).Elem(),
-			"DBStats":        TypeOf((*pkg.DBStats)(nil)).Elem(),
-			"IsolationLevel": TypeOf((*pkg.IsolationLevel)(nil)).Elem(),
-			"NamedArg":       TypeOf((*pkg.NamedArg)(nil)).Elem(),
-			"NullBool":       TypeOf((*pkg.NullBool)(nil)).Elem(),
-			"NullFloat64":    TypeOf((*pkg.NullFloat64)(nil)).Elem(),
-			"NullInt64":      TypeOf((*pkg.NullInt64)(nil)).Elem(),
-			"NullString":     TypeOf((*pkg.NullString)(nil)).Elem(),
-			"RawBytes":       TypeOf((*pkg.RawBytes)(nil)).Elem(),
-			"Result":         TypeOf((*pkg.Result)(nil)).Elem(),
-			"Row":            TypeOf((*pkg.Row)(nil)).Elem(),
-			"Rows":           TypeOf((*pkg.Rows)(nil)).Elem(),
-			"Scanner":        TypeOf((*pkg.Scanner)(nil)).Elem(),
-			"Stmt":           TypeOf((*pkg.Stmt)(nil)).Elem(),
-			"Tx":             TypeOf((*pkg.Tx)(nil)).Elem(),
-			"TxOptions":      TypeOf((*pkg.TxOptions)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_database_sql()
-	Binds["database/sql"] = binds
-	Types["database/sql"] = types
+	Binds["database/sql"] = map[string]Value{
+		"Drivers":	ValueOf(pkg.Drivers),
+		"ErrNoRows":	ValueOf(&pkg.ErrNoRows).Elem(),
+		"ErrTxDone":	ValueOf(&pkg.ErrTxDone).Elem(),
+		"LevelDefault":	ValueOf(pkg.LevelDefault),
+		"LevelLinearizable":	ValueOf(pkg.LevelLinearizable),
+		"LevelReadCommitted":	ValueOf(pkg.LevelReadCommitted),
+		"LevelReadUncommitted":	ValueOf(pkg.LevelReadUncommitted),
+		"LevelRepeatableRead":	ValueOf(pkg.LevelRepeatableRead),
+		"LevelSerializable":	ValueOf(pkg.LevelSerializable),
+		"LevelSnapshot":	ValueOf(pkg.LevelSnapshot),
+		"LevelWriteCommitted":	ValueOf(pkg.LevelWriteCommitted),
+		"Named":	ValueOf(pkg.Named),
+		"Open":	ValueOf(pkg.Open),
+		"Register":	ValueOf(pkg.Register),
+	}
+	Types["database/sql"] = map[string]Type{
+		"ColumnType":	TypeOf((*pkg.ColumnType)(nil)).Elem(),
+		"DB":	TypeOf((*pkg.DB)(nil)).Elem(),
+		"DBStats":	TypeOf((*pkg.DBStats)(nil)).Elem(),
+		"IsolationLevel":	TypeOf((*pkg.IsolationLevel)(nil)).Elem(),
+		"NamedArg":	TypeOf((*pkg.NamedArg)(nil)).Elem(),
+		"NullBool":	TypeOf((*pkg.NullBool)(nil)).Elem(),
+		"NullFloat64":	TypeOf((*pkg.NullFloat64)(nil)).Elem(),
+		"NullInt64":	TypeOf((*pkg.NullInt64)(nil)).Elem(),
+		"NullString":	TypeOf((*pkg.NullString)(nil)).Elem(),
+		"RawBytes":	TypeOf((*pkg.RawBytes)(nil)).Elem(),
+		"Result":	TypeOf((*pkg.Result)(nil)).Elem(),
+		"Row":	TypeOf((*pkg.Row)(nil)).Elem(),
+		"Rows":	TypeOf((*pkg.Rows)(nil)).Elem(),
+		"Scanner":	TypeOf((*pkg.Scanner)(nil)).Elem(),
+		"Stmt":	TypeOf((*pkg.Stmt)(nil)).Elem(),
+		"Tx":	TypeOf((*pkg.Tx)(nil)).Elem(),
+		"TxOptions":	TypeOf((*pkg.TxOptions)(nil)).Elem(),
+	}
 }

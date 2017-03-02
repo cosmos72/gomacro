@@ -8,21 +8,16 @@ import (
 	. "reflect"
 )
 
-func Package_go_scanner() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"PrintError":   ValueOf(pkg.PrintError),
-			"ScanComments": ValueOf(pkg.ScanComments),
-		}, map[string]Type{
-			"Error":        TypeOf((*pkg.Error)(nil)).Elem(),
-			"ErrorHandler": TypeOf((*pkg.ErrorHandler)(nil)).Elem(),
-			"ErrorList":    TypeOf((*pkg.ErrorList)(nil)).Elem(),
-			"Mode":         TypeOf((*pkg.Mode)(nil)).Elem(),
-			"Scanner":      TypeOf((*pkg.Scanner)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_go_scanner()
-	Binds["go/scanner"] = binds
-	Types["go/scanner"] = types
+	Binds["go/scanner"] = map[string]Value{
+		"PrintError":	ValueOf(pkg.PrintError),
+		"ScanComments":	ValueOf(pkg.ScanComments),
+	}
+	Types["go/scanner"] = map[string]Type{
+		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
+		"ErrorHandler":	TypeOf((*pkg.ErrorHandler)(nil)).Elem(),
+		"ErrorList":	TypeOf((*pkg.ErrorList)(nil)).Elem(),
+		"Mode":	TypeOf((*pkg.Mode)(nil)).Elem(),
+		"Scanner":	TypeOf((*pkg.Scanner)(nil)).Elem(),
+	}
 }

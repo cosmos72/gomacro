@@ -4,39 +4,34 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "text/scanner"
+	. "reflect"
 )
 
-func Package_text_scanner() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Char":           ValueOf(pkg.Char),
-			"Comment":        ValueOf(pkg.Comment),
-			"EOF":            ValueOf(pkg.EOF),
-			"Float":          ValueOf(pkg.Float),
-			"GoTokens":       ValueOf(pkg.GoTokens),
-			"GoWhitespace":   ValueOf(pkg.GoWhitespace),
-			"Ident":          ValueOf(pkg.Ident),
-			"Int":            ValueOf(pkg.Int),
-			"RawString":      ValueOf(pkg.RawString),
-			"ScanChars":      ValueOf(pkg.ScanChars),
-			"ScanComments":   ValueOf(pkg.ScanComments),
-			"ScanFloats":     ValueOf(pkg.ScanFloats),
-			"ScanIdents":     ValueOf(pkg.ScanIdents),
-			"ScanInts":       ValueOf(pkg.ScanInts),
-			"ScanRawStrings": ValueOf(pkg.ScanRawStrings),
-			"ScanStrings":    ValueOf(pkg.ScanStrings),
-			"SkipComments":   ValueOf(pkg.SkipComments),
-			"String":         ValueOf(pkg.String),
-			"TokenString":    ValueOf(pkg.TokenString),
-		}, map[string]Type{
-			"Position": TypeOf((*pkg.Position)(nil)).Elem(),
-			"Scanner":  TypeOf((*pkg.Scanner)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_text_scanner()
-	Binds["text/scanner"] = binds
-	Types["text/scanner"] = types
+	Binds["text/scanner"] = map[string]Value{
+		"Char":	ValueOf(pkg.Char),
+		"Comment":	ValueOf(pkg.Comment),
+		"EOF":	ValueOf(pkg.EOF),
+		"Float":	ValueOf(pkg.Float),
+		"GoTokens":	ValueOf(pkg.GoTokens),
+		"GoWhitespace":	ValueOf(pkg.GoWhitespace),
+		"Ident":	ValueOf(pkg.Ident),
+		"Int":	ValueOf(pkg.Int),
+		"RawString":	ValueOf(pkg.RawString),
+		"ScanChars":	ValueOf(pkg.ScanChars),
+		"ScanComments":	ValueOf(pkg.ScanComments),
+		"ScanFloats":	ValueOf(pkg.ScanFloats),
+		"ScanIdents":	ValueOf(pkg.ScanIdents),
+		"ScanInts":	ValueOf(pkg.ScanInts),
+		"ScanRawStrings":	ValueOf(pkg.ScanRawStrings),
+		"ScanStrings":	ValueOf(pkg.ScanStrings),
+		"SkipComments":	ValueOf(pkg.SkipComments),
+		"String":	ValueOf(pkg.String),
+		"TokenString":	ValueOf(pkg.TokenString),
+	}
+	Types["text/scanner"] = map[string]Type{
+		"Position":	TypeOf((*pkg.Position)(nil)).Elem(),
+		"Scanner":	TypeOf((*pkg.Scanner)(nil)).Elem(),
+	}
 }

@@ -8,17 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_sha1() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BlockSize": ValueOf(pkg.BlockSize),
-			"New":       ValueOf(pkg.New),
-			"Size":      ValueOf(pkg.Size),
-			"Sum":       ValueOf(pkg.Sum),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_crypto_sha1()
-	Binds["crypto/sha1"] = binds
-	Types["crypto/sha1"] = types
+	Binds["crypto/sha1"] = map[string]Value{
+		"BlockSize":	ValueOf(pkg.BlockSize),
+		"New":	ValueOf(pkg.New),
+		"Size":	ValueOf(pkg.Size),
+		"Sum":	ValueOf(pkg.Sum),
+	}
+	Types["crypto/sha1"] = map[string]Type{
+	}
 }

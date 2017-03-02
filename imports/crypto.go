@@ -8,37 +8,32 @@ import (
 	. "reflect"
 )
 
-func Package_crypto() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"MD4":          ValueOf(pkg.MD4),
-			"MD5":          ValueOf(pkg.MD5),
-			"MD5SHA1":      ValueOf(pkg.MD5SHA1),
-			"RIPEMD160":    ValueOf(pkg.RIPEMD160),
-			"RegisterHash": ValueOf(pkg.RegisterHash),
-			"SHA1":         ValueOf(pkg.SHA1),
-			"SHA224":       ValueOf(pkg.SHA224),
-			"SHA256":       ValueOf(pkg.SHA256),
-			"SHA384":       ValueOf(pkg.SHA384),
-			"SHA3_224":     ValueOf(pkg.SHA3_224),
-			"SHA3_256":     ValueOf(pkg.SHA3_256),
-			"SHA3_384":     ValueOf(pkg.SHA3_384),
-			"SHA3_512":     ValueOf(pkg.SHA3_512),
-			"SHA512":       ValueOf(pkg.SHA512),
-			"SHA512_224":   ValueOf(pkg.SHA512_224),
-			"SHA512_256":   ValueOf(pkg.SHA512_256),
-		}, map[string]Type{
-			"Decrypter":     TypeOf((*pkg.Decrypter)(nil)).Elem(),
-			"DecrypterOpts": TypeOf((*pkg.DecrypterOpts)(nil)).Elem(),
-			"Hash":          TypeOf((*pkg.Hash)(nil)).Elem(),
-			"PrivateKey":    TypeOf((*pkg.PrivateKey)(nil)).Elem(),
-			"PublicKey":     TypeOf((*pkg.PublicKey)(nil)).Elem(),
-			"Signer":        TypeOf((*pkg.Signer)(nil)).Elem(),
-			"SignerOpts":    TypeOf((*pkg.SignerOpts)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto()
-	Binds["crypto"] = binds
-	Types["crypto"] = types
+	Binds["crypto"] = map[string]Value{
+		"MD4":	ValueOf(pkg.MD4),
+		"MD5":	ValueOf(pkg.MD5),
+		"MD5SHA1":	ValueOf(pkg.MD5SHA1),
+		"RIPEMD160":	ValueOf(pkg.RIPEMD160),
+		"RegisterHash":	ValueOf(pkg.RegisterHash),
+		"SHA1":	ValueOf(pkg.SHA1),
+		"SHA224":	ValueOf(pkg.SHA224),
+		"SHA256":	ValueOf(pkg.SHA256),
+		"SHA384":	ValueOf(pkg.SHA384),
+		"SHA3_224":	ValueOf(pkg.SHA3_224),
+		"SHA3_256":	ValueOf(pkg.SHA3_256),
+		"SHA3_384":	ValueOf(pkg.SHA3_384),
+		"SHA3_512":	ValueOf(pkg.SHA3_512),
+		"SHA512":	ValueOf(pkg.SHA512),
+		"SHA512_224":	ValueOf(pkg.SHA512_224),
+		"SHA512_256":	ValueOf(pkg.SHA512_256),
+	}
+	Types["crypto"] = map[string]Type{
+		"Decrypter":	TypeOf((*pkg.Decrypter)(nil)).Elem(),
+		"DecrypterOpts":	TypeOf((*pkg.DecrypterOpts)(nil)).Elem(),
+		"Hash":	TypeOf((*pkg.Hash)(nil)).Elem(),
+		"PrivateKey":	TypeOf((*pkg.PrivateKey)(nil)).Elem(),
+		"PublicKey":	TypeOf((*pkg.PublicKey)(nil)).Elem(),
+		"Signer":	TypeOf((*pkg.Signer)(nil)).Elem(),
+		"SignerOpts":	TypeOf((*pkg.SignerOpts)(nil)).Elem(),
+	}
 }

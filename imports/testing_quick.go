@@ -4,26 +4,21 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "testing/quick"
+	. "reflect"
 )
 
-func Package_testing_quick() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Check":      ValueOf(pkg.Check),
-			"CheckEqual": ValueOf(pkg.CheckEqual),
-			"Value":      ValueOf(pkg.Value),
-		}, map[string]Type{
-			"CheckEqualError": TypeOf((*pkg.CheckEqualError)(nil)).Elem(),
-			"CheckError":      TypeOf((*pkg.CheckError)(nil)).Elem(),
-			"Config":          TypeOf((*pkg.Config)(nil)).Elem(),
-			"Generator":       TypeOf((*pkg.Generator)(nil)).Elem(),
-			"SetupError":      TypeOf((*pkg.SetupError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_testing_quick()
-	Binds["testing/quick"] = binds
-	Types["testing/quick"] = types
+	Binds["testing/quick"] = map[string]Value{
+		"Check":	ValueOf(pkg.Check),
+		"CheckEqual":	ValueOf(pkg.CheckEqual),
+		"Value":	ValueOf(pkg.Value),
+	}
+	Types["testing/quick"] = map[string]Type{
+		"CheckEqualError":	TypeOf((*pkg.CheckEqualError)(nil)).Elem(),
+		"CheckError":	TypeOf((*pkg.CheckError)(nil)).Elem(),
+		"Config":	TypeOf((*pkg.Config)(nil)).Elem(),
+		"Generator":	TypeOf((*pkg.Generator)(nil)).Elem(),
+		"SetupError":	TypeOf((*pkg.SetupError)(nil)).Elem(),
+	}
 }

@@ -8,27 +8,22 @@ import (
 	. "reflect"
 )
 
-func Package_compress_gzip() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BestCompression":    ValueOf(pkg.BestCompression),
-			"BestSpeed":          ValueOf(pkg.BestSpeed),
-			"DefaultCompression": ValueOf(pkg.DefaultCompression),
-			"ErrChecksum":        ValueOf(&pkg.ErrChecksum).Elem(),
-			"ErrHeader":          ValueOf(&pkg.ErrHeader).Elem(),
-			"HuffmanOnly":        ValueOf(pkg.HuffmanOnly),
-			"NewReader":          ValueOf(pkg.NewReader),
-			"NewWriter":          ValueOf(pkg.NewWriter),
-			"NewWriterLevel":     ValueOf(pkg.NewWriterLevel),
-			"NoCompression":      ValueOf(pkg.NoCompression),
-		}, map[string]Type{
-			"Header": TypeOf((*pkg.Header)(nil)).Elem(),
-			"Reader": TypeOf((*pkg.Reader)(nil)).Elem(),
-			"Writer": TypeOf((*pkg.Writer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_compress_gzip()
-	Binds["compress/gzip"] = binds
-	Types["compress/gzip"] = types
+	Binds["compress/gzip"] = map[string]Value{
+		"BestCompression":	ValueOf(pkg.BestCompression),
+		"BestSpeed":	ValueOf(pkg.BestSpeed),
+		"DefaultCompression":	ValueOf(pkg.DefaultCompression),
+		"ErrChecksum":	ValueOf(&pkg.ErrChecksum).Elem(),
+		"ErrHeader":	ValueOf(&pkg.ErrHeader).Elem(),
+		"HuffmanOnly":	ValueOf(pkg.HuffmanOnly),
+		"NewReader":	ValueOf(pkg.NewReader),
+		"NewWriter":	ValueOf(pkg.NewWriter),
+		"NewWriterLevel":	ValueOf(pkg.NewWriterLevel),
+		"NoCompression":	ValueOf(pkg.NoCompression),
+	}
+	Types["compress/gzip"] = map[string]Type{
+		"Header":	TypeOf((*pkg.Header)(nil)).Elem(),
+		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+	}
 }

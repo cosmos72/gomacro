@@ -30,24 +30,17 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io"
 	"os"
 
 	mp "github.com/cosmos72/gomacro/parser"
 )
 
-type FileSet struct {
-	Fileset *token.FileSet
-}
-
 type Interpreter struct {
-	FileSet
+	Output
 	Packagename string
 	Filename    string
 	Options     Options
 	Importer    Importer
-	Stdout      io.Writer
-	Stderr      io.Writer
 	ParserMode  parser.Mode
 	ParserScope *ast.Scope
 	SpecialChar rune

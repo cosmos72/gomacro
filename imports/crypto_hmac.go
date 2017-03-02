@@ -8,15 +8,11 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_hmac() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Equal": ValueOf(pkg.Equal),
-			"New":   ValueOf(pkg.New),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_crypto_hmac()
-	Binds["crypto/hmac"] = binds
-	Types["crypto/hmac"] = types
+	Binds["crypto/hmac"] = map[string]Value{
+		"Equal":	ValueOf(pkg.Equal),
+		"New":	ValueOf(pkg.New),
+	}
+	Types["crypto/hmac"] = map[string]Type{
+	}
 }

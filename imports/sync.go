@@ -4,26 +4,21 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "sync"
+	. "reflect"
 )
 
-func Package_sync() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"NewCond": ValueOf(pkg.NewCond),
-		}, map[string]Type{
-			"Cond":      TypeOf((*pkg.Cond)(nil)).Elem(),
-			"Locker":    TypeOf((*pkg.Locker)(nil)).Elem(),
-			"Mutex":     TypeOf((*pkg.Mutex)(nil)).Elem(),
-			"Once":      TypeOf((*pkg.Once)(nil)).Elem(),
-			"Pool":      TypeOf((*pkg.Pool)(nil)).Elem(),
-			"RWMutex":   TypeOf((*pkg.RWMutex)(nil)).Elem(),
-			"WaitGroup": TypeOf((*pkg.WaitGroup)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_sync()
-	Binds["sync"] = binds
-	Types["sync"] = types
+	Binds["sync"] = map[string]Value{
+		"NewCond":	ValueOf(pkg.NewCond),
+	}
+	Types["sync"] = map[string]Type{
+		"Cond":	TypeOf((*pkg.Cond)(nil)).Elem(),
+		"Locker":	TypeOf((*pkg.Locker)(nil)).Elem(),
+		"Mutex":	TypeOf((*pkg.Mutex)(nil)).Elem(),
+		"Once":	TypeOf((*pkg.Once)(nil)).Elem(),
+		"Pool":	TypeOf((*pkg.Pool)(nil)).Elem(),
+		"RWMutex":	TypeOf((*pkg.RWMutex)(nil)).Elem(),
+		"WaitGroup":	TypeOf((*pkg.WaitGroup)(nil)).Elem(),
+	}
 }

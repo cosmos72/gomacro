@@ -8,38 +8,33 @@ import (
 	. "reflect"
 )
 
-func Package_bufio() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"ErrAdvanceTooFar":     ValueOf(&pkg.ErrAdvanceTooFar).Elem(),
-			"ErrBufferFull":        ValueOf(&pkg.ErrBufferFull).Elem(),
-			"ErrFinalToken":        ValueOf(&pkg.ErrFinalToken).Elem(),
-			"ErrInvalidUnreadByte": ValueOf(&pkg.ErrInvalidUnreadByte).Elem(),
-			"ErrInvalidUnreadRune": ValueOf(&pkg.ErrInvalidUnreadRune).Elem(),
-			"ErrNegativeAdvance":   ValueOf(&pkg.ErrNegativeAdvance).Elem(),
-			"ErrNegativeCount":     ValueOf(&pkg.ErrNegativeCount).Elem(),
-			"ErrTooLong":           ValueOf(&pkg.ErrTooLong).Elem(),
-			"MaxScanTokenSize":     ValueOf(pkg.MaxScanTokenSize),
-			"NewReadWriter":        ValueOf(pkg.NewReadWriter),
-			"NewReader":            ValueOf(pkg.NewReader),
-			"NewReaderSize":        ValueOf(pkg.NewReaderSize),
-			"NewScanner":           ValueOf(pkg.NewScanner),
-			"NewWriter":            ValueOf(pkg.NewWriter),
-			"NewWriterSize":        ValueOf(pkg.NewWriterSize),
-			"ScanBytes":            ValueOf(pkg.ScanBytes),
-			"ScanLines":            ValueOf(pkg.ScanLines),
-			"ScanRunes":            ValueOf(pkg.ScanRunes),
-			"ScanWords":            ValueOf(pkg.ScanWords),
-		}, map[string]Type{
-			"ReadWriter": TypeOf((*pkg.ReadWriter)(nil)).Elem(),
-			"Reader":     TypeOf((*pkg.Reader)(nil)).Elem(),
-			"Scanner":    TypeOf((*pkg.Scanner)(nil)).Elem(),
-			"SplitFunc":  TypeOf((*pkg.SplitFunc)(nil)).Elem(),
-			"Writer":     TypeOf((*pkg.Writer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_bufio()
-	Binds["bufio"] = binds
-	Types["bufio"] = types
+	Binds["bufio"] = map[string]Value{
+		"ErrAdvanceTooFar":	ValueOf(&pkg.ErrAdvanceTooFar).Elem(),
+		"ErrBufferFull":	ValueOf(&pkg.ErrBufferFull).Elem(),
+		"ErrFinalToken":	ValueOf(&pkg.ErrFinalToken).Elem(),
+		"ErrInvalidUnreadByte":	ValueOf(&pkg.ErrInvalidUnreadByte).Elem(),
+		"ErrInvalidUnreadRune":	ValueOf(&pkg.ErrInvalidUnreadRune).Elem(),
+		"ErrNegativeAdvance":	ValueOf(&pkg.ErrNegativeAdvance).Elem(),
+		"ErrNegativeCount":	ValueOf(&pkg.ErrNegativeCount).Elem(),
+		"ErrTooLong":	ValueOf(&pkg.ErrTooLong).Elem(),
+		"MaxScanTokenSize":	ValueOf(pkg.MaxScanTokenSize),
+		"NewReadWriter":	ValueOf(pkg.NewReadWriter),
+		"NewReader":	ValueOf(pkg.NewReader),
+		"NewReaderSize":	ValueOf(pkg.NewReaderSize),
+		"NewScanner":	ValueOf(pkg.NewScanner),
+		"NewWriter":	ValueOf(pkg.NewWriter),
+		"NewWriterSize":	ValueOf(pkg.NewWriterSize),
+		"ScanBytes":	ValueOf(pkg.ScanBytes),
+		"ScanLines":	ValueOf(pkg.ScanLines),
+		"ScanRunes":	ValueOf(pkg.ScanRunes),
+		"ScanWords":	ValueOf(pkg.ScanWords),
+	}
+	Types["bufio"] = map[string]Type{
+		"ReadWriter":	TypeOf((*pkg.ReadWriter)(nil)).Elem(),
+		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
+		"Scanner":	TypeOf((*pkg.Scanner)(nil)).Elem(),
+		"SplitFunc":	TypeOf((*pkg.SplitFunc)(nil)).Elem(),
+		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+	}
 }

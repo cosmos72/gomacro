@@ -8,21 +8,16 @@ import (
 	. "reflect"
 )
 
-func Package_encoding_base32() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"HexEncoding": ValueOf(&pkg.HexEncoding).Elem(),
-			"NewDecoder":  ValueOf(pkg.NewDecoder),
-			"NewEncoder":  ValueOf(pkg.NewEncoder),
-			"NewEncoding": ValueOf(pkg.NewEncoding),
-			"StdEncoding": ValueOf(&pkg.StdEncoding).Elem(),
-		}, map[string]Type{
-			"CorruptInputError": TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
-			"Encoding":          TypeOf((*pkg.Encoding)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding_base32()
-	Binds["encoding/base32"] = binds
-	Types["encoding/base32"] = types
+	Binds["encoding/base32"] = map[string]Value{
+		"HexEncoding":	ValueOf(&pkg.HexEncoding).Elem(),
+		"NewDecoder":	ValueOf(pkg.NewDecoder),
+		"NewEncoder":	ValueOf(pkg.NewEncoder),
+		"NewEncoding":	ValueOf(pkg.NewEncoding),
+		"StdEncoding":	ValueOf(&pkg.StdEncoding).Elem(),
+	}
+	Types["encoding/base32"] = map[string]Type{
+		"CorruptInputError":	TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
+		"Encoding":	TypeOf((*pkg.Encoding)(nil)).Elem(),
+	}
 }

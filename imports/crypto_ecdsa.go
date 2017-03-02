@@ -8,19 +8,14 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_ecdsa() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"GenerateKey": ValueOf(pkg.GenerateKey),
-			"Sign":        ValueOf(pkg.Sign),
-			"Verify":      ValueOf(pkg.Verify),
-		}, map[string]Type{
-			"PrivateKey": TypeOf((*pkg.PrivateKey)(nil)).Elem(),
-			"PublicKey":  TypeOf((*pkg.PublicKey)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto_ecdsa()
-	Binds["crypto/ecdsa"] = binds
-	Types["crypto/ecdsa"] = types
+	Binds["crypto/ecdsa"] = map[string]Value{
+		"GenerateKey":	ValueOf(pkg.GenerateKey),
+		"Sign":	ValueOf(pkg.Sign),
+		"Verify":	ValueOf(pkg.Verify),
+	}
+	Types["crypto/ecdsa"] = map[string]Type{
+		"PrivateKey":	TypeOf((*pkg.PrivateKey)(nil)).Elem(),
+		"PublicKey":	TypeOf((*pkg.PublicKey)(nil)).Elem(),
+	}
 }

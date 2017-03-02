@@ -8,16 +8,11 @@ import (
 	. "reflect"
 )
 
-func Package_compress_bzip2() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"NewReader": ValueOf(pkg.NewReader),
-		}, map[string]Type{
-			"StructuralError": TypeOf((*pkg.StructuralError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_compress_bzip2()
-	Binds["compress/bzip2"] = binds
-	Types["compress/bzip2"] = types
+	Binds["compress/bzip2"] = map[string]Value{
+		"NewReader":	ValueOf(pkg.NewReader),
+	}
+	Types["compress/bzip2"] = map[string]Type{
+		"StructuralError":	TypeOf((*pkg.StructuralError)(nil)).Elem(),
+	}
 }

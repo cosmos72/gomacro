@@ -4,33 +4,28 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "text/template"
+	. "reflect"
 )
 
-func Package_text_template() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"HTMLEscape":       ValueOf(pkg.HTMLEscape),
-			"HTMLEscapeString": ValueOf(pkg.HTMLEscapeString),
-			"HTMLEscaper":      ValueOf(pkg.HTMLEscaper),
-			"IsTrue":           ValueOf(pkg.IsTrue),
-			"JSEscape":         ValueOf(pkg.JSEscape),
-			"JSEscapeString":   ValueOf(pkg.JSEscapeString),
-			"JSEscaper":        ValueOf(pkg.JSEscaper),
-			"Must":             ValueOf(pkg.Must),
-			"New":              ValueOf(pkg.New),
-			"ParseFiles":       ValueOf(pkg.ParseFiles),
-			"ParseGlob":        ValueOf(pkg.ParseGlob),
-			"URLQueryEscaper":  ValueOf(pkg.URLQueryEscaper),
-		}, map[string]Type{
-			"ExecError": TypeOf((*pkg.ExecError)(nil)).Elem(),
-			"FuncMap":   TypeOf((*pkg.FuncMap)(nil)).Elem(),
-			"Template":  TypeOf((*pkg.Template)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_text_template()
-	Binds["text/template"] = binds
-	Types["text/template"] = types
+	Binds["text/template"] = map[string]Value{
+		"HTMLEscape":	ValueOf(pkg.HTMLEscape),
+		"HTMLEscapeString":	ValueOf(pkg.HTMLEscapeString),
+		"HTMLEscaper":	ValueOf(pkg.HTMLEscaper),
+		"IsTrue":	ValueOf(pkg.IsTrue),
+		"JSEscape":	ValueOf(pkg.JSEscape),
+		"JSEscapeString":	ValueOf(pkg.JSEscapeString),
+		"JSEscaper":	ValueOf(pkg.JSEscaper),
+		"Must":	ValueOf(pkg.Must),
+		"New":	ValueOf(pkg.New),
+		"ParseFiles":	ValueOf(pkg.ParseFiles),
+		"ParseGlob":	ValueOf(pkg.ParseGlob),
+		"URLQueryEscaper":	ValueOf(pkg.URLQueryEscaper),
+	}
+	Types["text/template"] = map[string]Type{
+		"ExecError":	TypeOf((*pkg.ExecError)(nil)).Elem(),
+		"FuncMap":	TypeOf((*pkg.FuncMap)(nil)).Elem(),
+		"Template":	TypeOf((*pkg.Template)(nil)).Elem(),
+	}
 }

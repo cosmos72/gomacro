@@ -8,18 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_encoding_pem() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Decode":         ValueOf(pkg.Decode),
-			"Encode":         ValueOf(pkg.Encode),
-			"EncodeToMemory": ValueOf(pkg.EncodeToMemory),
-		}, map[string]Type{
-			"Block": TypeOf((*pkg.Block)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding_pem()
-	Binds["encoding/pem"] = binds
-	Types["encoding/pem"] = types
+	Binds["encoding/pem"] = map[string]Value{
+		"Decode":	ValueOf(pkg.Decode),
+		"Encode":	ValueOf(pkg.Encode),
+		"EncodeToMemory":	ValueOf(pkg.EncodeToMemory),
+	}
+	Types["encoding/pem"] = map[string]Type{
+		"Block":	TypeOf((*pkg.Block)(nil)).Elem(),
+	}
 }

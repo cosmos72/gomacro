@@ -8,21 +8,16 @@ import (
 	. "reflect"
 )
 
-func Package_os_exec() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Command":        ValueOf(pkg.Command),
-			"CommandContext": ValueOf(pkg.CommandContext),
-			"ErrNotFound":    ValueOf(&pkg.ErrNotFound).Elem(),
-			"LookPath":       ValueOf(pkg.LookPath),
-		}, map[string]Type{
-			"Cmd":       TypeOf((*pkg.Cmd)(nil)).Elem(),
-			"Error":     TypeOf((*pkg.Error)(nil)).Elem(),
-			"ExitError": TypeOf((*pkg.ExitError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_os_exec()
-	Binds["os/exec"] = binds
-	Types["os/exec"] = types
+	Binds["os/exec"] = map[string]Value{
+		"Command":	ValueOf(pkg.Command),
+		"CommandContext":	ValueOf(pkg.CommandContext),
+		"ErrNotFound":	ValueOf(&pkg.ErrNotFound).Elem(),
+		"LookPath":	ValueOf(pkg.LookPath),
+	}
+	Types["os/exec"] = map[string]Type{
+		"Cmd":	TypeOf((*pkg.Cmd)(nil)).Elem(),
+		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
+		"ExitError":	TypeOf((*pkg.ExitError)(nil)).Elem(),
+	}
 }

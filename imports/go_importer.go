@@ -8,17 +8,12 @@ import (
 	. "reflect"
 )
 
-func Package_go_importer() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Default": ValueOf(pkg.Default),
-			"For":     ValueOf(pkg.For),
-		}, map[string]Type{
-			"Lookup": TypeOf((*pkg.Lookup)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_go_importer()
-	Binds["go/importer"] = binds
-	Types["go/importer"] = types
+	Binds["go/importer"] = map[string]Value{
+		"Default":	ValueOf(pkg.Default),
+		"For":	ValueOf(pkg.For),
+	}
+	Types["go/importer"] = map[string]Type{
+		"Lookup":	TypeOf((*pkg.Lookup)(nil)).Elem(),
+	}
 }

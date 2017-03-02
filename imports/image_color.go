@@ -8,48 +8,43 @@ import (
 	. "reflect"
 )
 
-func Package_image_color() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Alpha16Model": ValueOf(&pkg.Alpha16Model).Elem(),
-			"AlphaModel":   ValueOf(&pkg.AlphaModel).Elem(),
-			"Black":        ValueOf(&pkg.Black).Elem(),
-			"CMYKModel":    ValueOf(&pkg.CMYKModel).Elem(),
-			"CMYKToRGB":    ValueOf(pkg.CMYKToRGB),
-			"Gray16Model":  ValueOf(&pkg.Gray16Model).Elem(),
-			"GrayModel":    ValueOf(&pkg.GrayModel).Elem(),
-			"ModelFunc":    ValueOf(pkg.ModelFunc),
-			"NRGBA64Model": ValueOf(&pkg.NRGBA64Model).Elem(),
-			"NRGBAModel":   ValueOf(&pkg.NRGBAModel).Elem(),
-			"NYCbCrAModel": ValueOf(&pkg.NYCbCrAModel).Elem(),
-			"Opaque":       ValueOf(&pkg.Opaque).Elem(),
-			"RGBA64Model":  ValueOf(&pkg.RGBA64Model).Elem(),
-			"RGBAModel":    ValueOf(&pkg.RGBAModel).Elem(),
-			"RGBToCMYK":    ValueOf(pkg.RGBToCMYK),
-			"RGBToYCbCr":   ValueOf(pkg.RGBToYCbCr),
-			"Transparent":  ValueOf(&pkg.Transparent).Elem(),
-			"White":        ValueOf(&pkg.White).Elem(),
-			"YCbCrModel":   ValueOf(&pkg.YCbCrModel).Elem(),
-			"YCbCrToRGB":   ValueOf(pkg.YCbCrToRGB),
-		}, map[string]Type{
-			"Alpha":   TypeOf((*pkg.Alpha)(nil)).Elem(),
-			"Alpha16": TypeOf((*pkg.Alpha16)(nil)).Elem(),
-			"CMYK":    TypeOf((*pkg.CMYK)(nil)).Elem(),
-			"Color":   TypeOf((*pkg.Color)(nil)).Elem(),
-			"Gray":    TypeOf((*pkg.Gray)(nil)).Elem(),
-			"Gray16":  TypeOf((*pkg.Gray16)(nil)).Elem(),
-			"Model":   TypeOf((*pkg.Model)(nil)).Elem(),
-			"NRGBA":   TypeOf((*pkg.NRGBA)(nil)).Elem(),
-			"NRGBA64": TypeOf((*pkg.NRGBA64)(nil)).Elem(),
-			"NYCbCrA": TypeOf((*pkg.NYCbCrA)(nil)).Elem(),
-			"Palette": TypeOf((*pkg.Palette)(nil)).Elem(),
-			"RGBA":    TypeOf((*pkg.RGBA)(nil)).Elem(),
-			"RGBA64":  TypeOf((*pkg.RGBA64)(nil)).Elem(),
-			"YCbCr":   TypeOf((*pkg.YCbCr)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_image_color()
-	Binds["image/color"] = binds
-	Types["image/color"] = types
+	Binds["image/color"] = map[string]Value{
+		"Alpha16Model":	ValueOf(&pkg.Alpha16Model).Elem(),
+		"AlphaModel":	ValueOf(&pkg.AlphaModel).Elem(),
+		"Black":	ValueOf(&pkg.Black).Elem(),
+		"CMYKModel":	ValueOf(&pkg.CMYKModel).Elem(),
+		"CMYKToRGB":	ValueOf(pkg.CMYKToRGB),
+		"Gray16Model":	ValueOf(&pkg.Gray16Model).Elem(),
+		"GrayModel":	ValueOf(&pkg.GrayModel).Elem(),
+		"ModelFunc":	ValueOf(pkg.ModelFunc),
+		"NRGBA64Model":	ValueOf(&pkg.NRGBA64Model).Elem(),
+		"NRGBAModel":	ValueOf(&pkg.NRGBAModel).Elem(),
+		"NYCbCrAModel":	ValueOf(&pkg.NYCbCrAModel).Elem(),
+		"Opaque":	ValueOf(&pkg.Opaque).Elem(),
+		"RGBA64Model":	ValueOf(&pkg.RGBA64Model).Elem(),
+		"RGBAModel":	ValueOf(&pkg.RGBAModel).Elem(),
+		"RGBToCMYK":	ValueOf(pkg.RGBToCMYK),
+		"RGBToYCbCr":	ValueOf(pkg.RGBToYCbCr),
+		"Transparent":	ValueOf(&pkg.Transparent).Elem(),
+		"White":	ValueOf(&pkg.White).Elem(),
+		"YCbCrModel":	ValueOf(&pkg.YCbCrModel).Elem(),
+		"YCbCrToRGB":	ValueOf(pkg.YCbCrToRGB),
+	}
+	Types["image/color"] = map[string]Type{
+		"Alpha":	TypeOf((*pkg.Alpha)(nil)).Elem(),
+		"Alpha16":	TypeOf((*pkg.Alpha16)(nil)).Elem(),
+		"CMYK":	TypeOf((*pkg.CMYK)(nil)).Elem(),
+		"Color":	TypeOf((*pkg.Color)(nil)).Elem(),
+		"Gray":	TypeOf((*pkg.Gray)(nil)).Elem(),
+		"Gray16":	TypeOf((*pkg.Gray16)(nil)).Elem(),
+		"Model":	TypeOf((*pkg.Model)(nil)).Elem(),
+		"NRGBA":	TypeOf((*pkg.NRGBA)(nil)).Elem(),
+		"NRGBA64":	TypeOf((*pkg.NRGBA64)(nil)).Elem(),
+		"NYCbCrA":	TypeOf((*pkg.NYCbCrA)(nil)).Elem(),
+		"Palette":	TypeOf((*pkg.Palette)(nil)).Elem(),
+		"RGBA":	TypeOf((*pkg.RGBA)(nil)).Elem(),
+		"RGBA64":	TypeOf((*pkg.RGBA64)(nil)).Elem(),
+		"YCbCr":	TypeOf((*pkg.YCbCr)(nil)).Elem(),
+	}
 }

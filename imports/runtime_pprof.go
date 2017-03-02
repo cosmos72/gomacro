@@ -4,25 +4,20 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "runtime/pprof"
+	. "reflect"
 )
 
-func Package_runtime_pprof() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Lookup":           ValueOf(pkg.Lookup),
-			"NewProfile":       ValueOf(pkg.NewProfile),
-			"Profiles":         ValueOf(pkg.Profiles),
-			"StartCPUProfile":  ValueOf(pkg.StartCPUProfile),
-			"StopCPUProfile":   ValueOf(pkg.StopCPUProfile),
-			"WriteHeapProfile": ValueOf(pkg.WriteHeapProfile),
-		}, map[string]Type{
-			"Profile": TypeOf((*pkg.Profile)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_runtime_pprof()
-	Binds["runtime/pprof"] = binds
-	Types["runtime/pprof"] = types
+	Binds["runtime/pprof"] = map[string]Value{
+		"Lookup":	ValueOf(pkg.Lookup),
+		"NewProfile":	ValueOf(pkg.NewProfile),
+		"Profiles":	ValueOf(pkg.Profiles),
+		"StartCPUProfile":	ValueOf(pkg.StartCPUProfile),
+		"StopCPUProfile":	ValueOf(pkg.StopCPUProfile),
+		"WriteHeapProfile":	ValueOf(pkg.WriteHeapProfile),
+	}
+	Types["runtime/pprof"] = map[string]Type{
+		"Profile":	TypeOf((*pkg.Profile)(nil)).Elem(),
+	}
 }

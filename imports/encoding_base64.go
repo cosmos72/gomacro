@@ -8,25 +8,20 @@ import (
 	. "reflect"
 )
 
-func Package_encoding_base64() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"NewDecoder":     ValueOf(pkg.NewDecoder),
-			"NewEncoder":     ValueOf(pkg.NewEncoder),
-			"NewEncoding":    ValueOf(pkg.NewEncoding),
-			"NoPadding":      ValueOf(pkg.NoPadding),
-			"RawStdEncoding": ValueOf(&pkg.RawStdEncoding).Elem(),
-			"RawURLEncoding": ValueOf(&pkg.RawURLEncoding).Elem(),
-			"StdEncoding":    ValueOf(&pkg.StdEncoding).Elem(),
-			"StdPadding":     ValueOf(pkg.StdPadding),
-			"URLEncoding":    ValueOf(&pkg.URLEncoding).Elem(),
-		}, map[string]Type{
-			"CorruptInputError": TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
-			"Encoding":          TypeOf((*pkg.Encoding)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding_base64()
-	Binds["encoding/base64"] = binds
-	Types["encoding/base64"] = types
+	Binds["encoding/base64"] = map[string]Value{
+		"NewDecoder":	ValueOf(pkg.NewDecoder),
+		"NewEncoder":	ValueOf(pkg.NewEncoder),
+		"NewEncoding":	ValueOf(pkg.NewEncoding),
+		"NoPadding":	ValueOf(pkg.NoPadding),
+		"RawStdEncoding":	ValueOf(&pkg.RawStdEncoding).Elem(),
+		"RawURLEncoding":	ValueOf(&pkg.RawURLEncoding).Elem(),
+		"StdEncoding":	ValueOf(&pkg.StdEncoding).Elem(),
+		"StdPadding":	ValueOf(pkg.StdPadding),
+		"URLEncoding":	ValueOf(&pkg.URLEncoding).Elem(),
+	}
+	Types["encoding/base64"] = map[string]Type{
+		"CorruptInputError":	TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
+		"Encoding":	TypeOf((*pkg.Encoding)(nil)).Elem(),
+	}
 }

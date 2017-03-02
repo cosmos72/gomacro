@@ -8,47 +8,42 @@ import (
 	. "reflect"
 )
 
-func Package_log_syslog() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Dial":         ValueOf(pkg.Dial),
-			"LOG_ALERT":    ValueOf(pkg.LOG_ALERT),
-			"LOG_AUTH":     ValueOf(pkg.LOG_AUTH),
-			"LOG_AUTHPRIV": ValueOf(pkg.LOG_AUTHPRIV),
-			"LOG_CRIT":     ValueOf(pkg.LOG_CRIT),
-			"LOG_CRON":     ValueOf(pkg.LOG_CRON),
-			"LOG_DAEMON":   ValueOf(pkg.LOG_DAEMON),
-			"LOG_DEBUG":    ValueOf(pkg.LOG_DEBUG),
-			"LOG_EMERG":    ValueOf(pkg.LOG_EMERG),
-			"LOG_ERR":      ValueOf(pkg.LOG_ERR),
-			"LOG_FTP":      ValueOf(pkg.LOG_FTP),
-			"LOG_INFO":     ValueOf(pkg.LOG_INFO),
-			"LOG_KERN":     ValueOf(pkg.LOG_KERN),
-			"LOG_LOCAL0":   ValueOf(pkg.LOG_LOCAL0),
-			"LOG_LOCAL1":   ValueOf(pkg.LOG_LOCAL1),
-			"LOG_LOCAL2":   ValueOf(pkg.LOG_LOCAL2),
-			"LOG_LOCAL3":   ValueOf(pkg.LOG_LOCAL3),
-			"LOG_LOCAL4":   ValueOf(pkg.LOG_LOCAL4),
-			"LOG_LOCAL5":   ValueOf(pkg.LOG_LOCAL5),
-			"LOG_LOCAL6":   ValueOf(pkg.LOG_LOCAL6),
-			"LOG_LOCAL7":   ValueOf(pkg.LOG_LOCAL7),
-			"LOG_LPR":      ValueOf(pkg.LOG_LPR),
-			"LOG_MAIL":     ValueOf(pkg.LOG_MAIL),
-			"LOG_NEWS":     ValueOf(pkg.LOG_NEWS),
-			"LOG_NOTICE":   ValueOf(pkg.LOG_NOTICE),
-			"LOG_SYSLOG":   ValueOf(pkg.LOG_SYSLOG),
-			"LOG_USER":     ValueOf(pkg.LOG_USER),
-			"LOG_UUCP":     ValueOf(pkg.LOG_UUCP),
-			"LOG_WARNING":  ValueOf(pkg.LOG_WARNING),
-			"New":          ValueOf(pkg.New),
-			"NewLogger":    ValueOf(pkg.NewLogger),
-		}, map[string]Type{
-			"Priority": TypeOf((*pkg.Priority)(nil)).Elem(),
-			"Writer":   TypeOf((*pkg.Writer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_log_syslog()
-	Binds["log/syslog"] = binds
-	Types["log/syslog"] = types
+	Binds["log/syslog"] = map[string]Value{
+		"Dial":	ValueOf(pkg.Dial),
+		"LOG_ALERT":	ValueOf(pkg.LOG_ALERT),
+		"LOG_AUTH":	ValueOf(pkg.LOG_AUTH),
+		"LOG_AUTHPRIV":	ValueOf(pkg.LOG_AUTHPRIV),
+		"LOG_CRIT":	ValueOf(pkg.LOG_CRIT),
+		"LOG_CRON":	ValueOf(pkg.LOG_CRON),
+		"LOG_DAEMON":	ValueOf(pkg.LOG_DAEMON),
+		"LOG_DEBUG":	ValueOf(pkg.LOG_DEBUG),
+		"LOG_EMERG":	ValueOf(pkg.LOG_EMERG),
+		"LOG_ERR":	ValueOf(pkg.LOG_ERR),
+		"LOG_FTP":	ValueOf(pkg.LOG_FTP),
+		"LOG_INFO":	ValueOf(pkg.LOG_INFO),
+		"LOG_KERN":	ValueOf(pkg.LOG_KERN),
+		"LOG_LOCAL0":	ValueOf(pkg.LOG_LOCAL0),
+		"LOG_LOCAL1":	ValueOf(pkg.LOG_LOCAL1),
+		"LOG_LOCAL2":	ValueOf(pkg.LOG_LOCAL2),
+		"LOG_LOCAL3":	ValueOf(pkg.LOG_LOCAL3),
+		"LOG_LOCAL4":	ValueOf(pkg.LOG_LOCAL4),
+		"LOG_LOCAL5":	ValueOf(pkg.LOG_LOCAL5),
+		"LOG_LOCAL6":	ValueOf(pkg.LOG_LOCAL6),
+		"LOG_LOCAL7":	ValueOf(pkg.LOG_LOCAL7),
+		"LOG_LPR":	ValueOf(pkg.LOG_LPR),
+		"LOG_MAIL":	ValueOf(pkg.LOG_MAIL),
+		"LOG_NEWS":	ValueOf(pkg.LOG_NEWS),
+		"LOG_NOTICE":	ValueOf(pkg.LOG_NOTICE),
+		"LOG_SYSLOG":	ValueOf(pkg.LOG_SYSLOG),
+		"LOG_USER":	ValueOf(pkg.LOG_USER),
+		"LOG_UUCP":	ValueOf(pkg.LOG_UUCP),
+		"LOG_WARNING":	ValueOf(pkg.LOG_WARNING),
+		"New":	ValueOf(pkg.New),
+		"NewLogger":	ValueOf(pkg.NewLogger),
+	}
+	Types["log/syslog"] = map[string]Type{
+		"Priority":	TypeOf((*pkg.Priority)(nil)).Elem(),
+		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+	}
 }

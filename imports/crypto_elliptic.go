@@ -8,23 +8,18 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_elliptic() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"GenerateKey": ValueOf(pkg.GenerateKey),
-			"Marshal":     ValueOf(pkg.Marshal),
-			"P224":        ValueOf(pkg.P224),
-			"P256":        ValueOf(pkg.P256),
-			"P384":        ValueOf(pkg.P384),
-			"P521":        ValueOf(pkg.P521),
-			"Unmarshal":   ValueOf(pkg.Unmarshal),
-		}, map[string]Type{
-			"Curve":       TypeOf((*pkg.Curve)(nil)).Elem(),
-			"CurveParams": TypeOf((*pkg.CurveParams)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto_elliptic()
-	Binds["crypto/elliptic"] = binds
-	Types["crypto/elliptic"] = types
+	Binds["crypto/elliptic"] = map[string]Value{
+		"GenerateKey":	ValueOf(pkg.GenerateKey),
+		"Marshal":	ValueOf(pkg.Marshal),
+		"P224":	ValueOf(pkg.P224),
+		"P256":	ValueOf(pkg.P256),
+		"P384":	ValueOf(pkg.P384),
+		"P521":	ValueOf(pkg.P521),
+		"Unmarshal":	ValueOf(pkg.Unmarshal),
+	}
+	Types["crypto/elliptic"] = map[string]Type{
+		"Curve":	TypeOf((*pkg.Curve)(nil)).Elem(),
+		"CurveParams":	TypeOf((*pkg.CurveParams)(nil)).Elem(),
+	}
 }

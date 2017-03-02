@@ -8,15 +8,11 @@ import (
 	. "reflect"
 )
 
-func Package_html() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"EscapeString":   ValueOf(pkg.EscapeString),
-			"UnescapeString": ValueOf(pkg.UnescapeString),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_html()
-	Binds["html"] = binds
-	Types["html"] = types
+	Binds["html"] = map[string]Value{
+		"EscapeString":	ValueOf(pkg.EscapeString),
+		"UnescapeString":	ValueOf(pkg.UnescapeString),
+	}
+	Types["html"] = map[string]Type{
+	}
 }

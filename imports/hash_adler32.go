@@ -8,16 +8,12 @@ import (
 	. "reflect"
 )
 
-func Package_hash_adler32() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Checksum": ValueOf(pkg.Checksum),
-			"New":      ValueOf(pkg.New),
-			"Size":     ValueOf(pkg.Size),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_hash_adler32()
-	Binds["hash/adler32"] = binds
-	Types["hash/adler32"] = types
+	Binds["hash/adler32"] = map[string]Value{
+		"Checksum":	ValueOf(pkg.Checksum),
+		"New":	ValueOf(pkg.New),
+		"Size":	ValueOf(pkg.Size),
+	}
+	Types["hash/adler32"] = map[string]Type{
+	}
 }

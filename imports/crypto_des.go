@@ -8,18 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_des() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BlockSize":          ValueOf(pkg.BlockSize),
-			"NewCipher":          ValueOf(pkg.NewCipher),
-			"NewTripleDESCipher": ValueOf(pkg.NewTripleDESCipher),
-		}, map[string]Type{
-			"KeySizeError": TypeOf((*pkg.KeySizeError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto_des()
-	Binds["crypto/des"] = binds
-	Types["crypto/des"] = types
+	Binds["crypto/des"] = map[string]Value{
+		"BlockSize":	ValueOf(pkg.BlockSize),
+		"NewCipher":	ValueOf(pkg.NewCipher),
+		"NewTripleDESCipher":	ValueOf(pkg.NewTripleDESCipher),
+	}
+	Types["crypto/des"] = map[string]Type{
+		"KeySizeError":	TypeOf((*pkg.KeySizeError)(nil)).Elem(),
+	}
 }

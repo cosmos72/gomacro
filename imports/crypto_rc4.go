@@ -8,17 +8,12 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_rc4() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"NewCipher": ValueOf(pkg.NewCipher),
-		}, map[string]Type{
-			"Cipher":       TypeOf((*pkg.Cipher)(nil)).Elem(),
-			"KeySizeError": TypeOf((*pkg.KeySizeError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto_rc4()
-	Binds["crypto/rc4"] = binds
-	Types["crypto/rc4"] = types
+	Binds["crypto/rc4"] = map[string]Value{
+		"NewCipher":	ValueOf(pkg.NewCipher),
+	}
+	Types["crypto/rc4"] = map[string]Type{
+		"Cipher":	TypeOf((*pkg.Cipher)(nil)).Elem(),
+		"KeySizeError":	TypeOf((*pkg.KeySizeError)(nil)).Elem(),
+	}
 }

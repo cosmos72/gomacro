@@ -8,31 +8,26 @@ import (
 	. "reflect"
 )
 
-func Package_go_doc() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"AllDecls":        ValueOf(pkg.AllDecls),
-			"AllMethods":      ValueOf(pkg.AllMethods),
-			"Examples":        ValueOf(pkg.Examples),
-			"IllegalPrefixes": ValueOf(&pkg.IllegalPrefixes).Elem(),
-			"IsPredeclared":   ValueOf(pkg.IsPredeclared),
-			"New":             ValueOf(pkg.New),
-			"Synopsis":        ValueOf(pkg.Synopsis),
-			"ToHTML":          ValueOf(pkg.ToHTML),
-			"ToText":          ValueOf(pkg.ToText),
-		}, map[string]Type{
-			"Example": TypeOf((*pkg.Example)(nil)).Elem(),
-			"Filter":  TypeOf((*pkg.Filter)(nil)).Elem(),
-			"Func":    TypeOf((*pkg.Func)(nil)).Elem(),
-			"Mode":    TypeOf((*pkg.Mode)(nil)).Elem(),
-			"Note":    TypeOf((*pkg.Note)(nil)).Elem(),
-			"Package": TypeOf((*pkg.Package)(nil)).Elem(),
-			"Type":    TypeOf((*pkg.Type)(nil)).Elem(),
-			"Value":   TypeOf((*pkg.Value)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_go_doc()
-	Binds["go/doc"] = binds
-	Types["go/doc"] = types
+	Binds["go/doc"] = map[string]Value{
+		"AllDecls":	ValueOf(pkg.AllDecls),
+		"AllMethods":	ValueOf(pkg.AllMethods),
+		"Examples":	ValueOf(pkg.Examples),
+		"IllegalPrefixes":	ValueOf(&pkg.IllegalPrefixes).Elem(),
+		"IsPredeclared":	ValueOf(pkg.IsPredeclared),
+		"New":	ValueOf(pkg.New),
+		"Synopsis":	ValueOf(pkg.Synopsis),
+		"ToHTML":	ValueOf(pkg.ToHTML),
+		"ToText":	ValueOf(pkg.ToText),
+	}
+	Types["go/doc"] = map[string]Type{
+		"Example":	TypeOf((*pkg.Example)(nil)).Elem(),
+		"Filter":	TypeOf((*pkg.Filter)(nil)).Elem(),
+		"Func":	TypeOf((*pkg.Func)(nil)).Elem(),
+		"Mode":	TypeOf((*pkg.Mode)(nil)).Elem(),
+		"Note":	TypeOf((*pkg.Note)(nil)).Elem(),
+		"Package":	TypeOf((*pkg.Package)(nil)).Elem(),
+		"Type":	TypeOf((*pkg.Type)(nil)).Elem(),
+		"Value":	TypeOf((*pkg.Value)(nil)).Elem(),
+	}
 }

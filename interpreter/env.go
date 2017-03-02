@@ -113,22 +113,25 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 		}()
 	}
 
-	src := []byte(strings.TrimSpace(str))
-	pos := findFirstToken(src)
-	trimmed := src[pos:]
-	ntrimmed := len(trimmed)
+	src := strings.TrimSpace(str)
+	n := len(src)
 
-	if ntrimmed == 0 {
+	if n == 0 {
 		env.FprintValues(env.Stdout) // no value
 		return true
-	} else if ntrimmed > 0 && trimmed[0] == ':' {
-		_cmd := string(extractFirstIdentifier(trimmed[1:]))
-		if _cmd == "quit" {
+	} else if n > 0 && src[0] == ':' {
+		args := strings.Split(src, " ")
+		cmd := args[0]
+		if cmd == ":quit" {
 			return false
-		} else if _cmd == "env" {
-			env.showEnv(env.Stdout)
+		} else if cmd == ":pkg" {
+			if len(args) <= 1 {
+				env.showPackage(env.Stdout, "")
+			} else {
+				env.showPackage(env.Stdout, args[1])
+			}
 			return true
-		} else if _cmd == "help" {
+		} else if cmd == ":help" {
 			env.showHelp(env.Stdout)
 			return true
 		}

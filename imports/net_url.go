@@ -8,29 +8,24 @@ import (
 	. "reflect"
 )
 
-func Package_net_url() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Parse":           ValueOf(pkg.Parse),
-			"ParseQuery":      ValueOf(pkg.ParseQuery),
-			"ParseRequestURI": ValueOf(pkg.ParseRequestURI),
-			"PathEscape":      ValueOf(pkg.PathEscape),
-			"PathUnescape":    ValueOf(pkg.PathUnescape),
-			"QueryEscape":     ValueOf(pkg.QueryEscape),
-			"QueryUnescape":   ValueOf(pkg.QueryUnescape),
-			"User":            ValueOf(pkg.User),
-			"UserPassword":    ValueOf(pkg.UserPassword),
-		}, map[string]Type{
-			"Error":            TypeOf((*pkg.Error)(nil)).Elem(),
-			"EscapeError":      TypeOf((*pkg.EscapeError)(nil)).Elem(),
-			"InvalidHostError": TypeOf((*pkg.InvalidHostError)(nil)).Elem(),
-			"URL":              TypeOf((*pkg.URL)(nil)).Elem(),
-			"Userinfo":         TypeOf((*pkg.Userinfo)(nil)).Elem(),
-			"Values":           TypeOf((*pkg.Values)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_net_url()
-	Binds["net/url"] = binds
-	Types["net/url"] = types
+	Binds["net/url"] = map[string]Value{
+		"Parse":	ValueOf(pkg.Parse),
+		"ParseQuery":	ValueOf(pkg.ParseQuery),
+		"ParseRequestURI":	ValueOf(pkg.ParseRequestURI),
+		"PathEscape":	ValueOf(pkg.PathEscape),
+		"PathUnescape":	ValueOf(pkg.PathUnescape),
+		"QueryEscape":	ValueOf(pkg.QueryEscape),
+		"QueryUnescape":	ValueOf(pkg.QueryUnescape),
+		"User":	ValueOf(pkg.User),
+		"UserPassword":	ValueOf(pkg.UserPassword),
+	}
+	Types["net/url"] = map[string]Type{
+		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
+		"EscapeError":	TypeOf((*pkg.EscapeError)(nil)).Elem(),
+		"InvalidHostError":	TypeOf((*pkg.InvalidHostError)(nil)).Elem(),
+		"URL":	TypeOf((*pkg.URL)(nil)).Elem(),
+		"Userinfo":	TypeOf((*pkg.Userinfo)(nil)).Elem(),
+		"Values":	TypeOf((*pkg.Values)(nil)).Elem(),
+	}
 }

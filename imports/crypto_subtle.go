@@ -8,19 +8,15 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_subtle() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"ConstantTimeByteEq":   ValueOf(pkg.ConstantTimeByteEq),
-			"ConstantTimeCompare":  ValueOf(pkg.ConstantTimeCompare),
-			"ConstantTimeCopy":     ValueOf(pkg.ConstantTimeCopy),
-			"ConstantTimeEq":       ValueOf(pkg.ConstantTimeEq),
-			"ConstantTimeLessOrEq": ValueOf(pkg.ConstantTimeLessOrEq),
-			"ConstantTimeSelect":   ValueOf(pkg.ConstantTimeSelect),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_crypto_subtle()
-	Binds["crypto/subtle"] = binds
-	Types["crypto/subtle"] = types
+	Binds["crypto/subtle"] = map[string]Value{
+		"ConstantTimeByteEq":	ValueOf(pkg.ConstantTimeByteEq),
+		"ConstantTimeCompare":	ValueOf(pkg.ConstantTimeCompare),
+		"ConstantTimeCopy":	ValueOf(pkg.ConstantTimeCopy),
+		"ConstantTimeEq":	ValueOf(pkg.ConstantTimeEq),
+		"ConstantTimeLessOrEq":	ValueOf(pkg.ConstantTimeLessOrEq),
+		"ConstantTimeSelect":	ValueOf(pkg.ConstantTimeSelect),
+	}
+	Types["crypto/subtle"] = map[string]Type{
+	}
 }

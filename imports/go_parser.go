@@ -8,26 +8,21 @@ import (
 	. "reflect"
 )
 
-func Package_go_parser() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"AllErrors":         ValueOf(pkg.AllErrors),
-			"DeclarationErrors": ValueOf(pkg.DeclarationErrors),
-			"ImportsOnly":       ValueOf(pkg.ImportsOnly),
-			"PackageClauseOnly": ValueOf(pkg.PackageClauseOnly),
-			"ParseComments":     ValueOf(pkg.ParseComments),
-			"ParseDir":          ValueOf(pkg.ParseDir),
-			"ParseExpr":         ValueOf(pkg.ParseExpr),
-			"ParseExprFrom":     ValueOf(pkg.ParseExprFrom),
-			"ParseFile":         ValueOf(pkg.ParseFile),
-			"SpuriousErrors":    ValueOf(pkg.SpuriousErrors),
-			"Trace":             ValueOf(pkg.Trace),
-		}, map[string]Type{
-			"Mode": TypeOf((*pkg.Mode)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_go_parser()
-	Binds["go/parser"] = binds
-	Types["go/parser"] = types
+	Binds["go/parser"] = map[string]Value{
+		"AllErrors":	ValueOf(pkg.AllErrors),
+		"DeclarationErrors":	ValueOf(pkg.DeclarationErrors),
+		"ImportsOnly":	ValueOf(pkg.ImportsOnly),
+		"PackageClauseOnly":	ValueOf(pkg.PackageClauseOnly),
+		"ParseComments":	ValueOf(pkg.ParseComments),
+		"ParseDir":	ValueOf(pkg.ParseDir),
+		"ParseExpr":	ValueOf(pkg.ParseExpr),
+		"ParseExprFrom":	ValueOf(pkg.ParseExprFrom),
+		"ParseFile":	ValueOf(pkg.ParseFile),
+		"SpuriousErrors":	ValueOf(pkg.SpuriousErrors),
+		"Trace":	ValueOf(pkg.Trace),
+	}
+	Types["go/parser"] = map[string]Type{
+		"Mode":	TypeOf((*pkg.Mode)(nil)).Elem(),
+	}
 }

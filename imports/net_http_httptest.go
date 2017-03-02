@@ -8,22 +8,17 @@ import (
 	. "reflect"
 )
 
-func Package_net_http_httptest() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"DefaultRemoteAddr":  ValueOf(pkg.DefaultRemoteAddr),
-			"NewRecorder":        ValueOf(pkg.NewRecorder),
-			"NewRequest":         ValueOf(pkg.NewRequest),
-			"NewServer":          ValueOf(pkg.NewServer),
-			"NewTLSServer":       ValueOf(pkg.NewTLSServer),
-			"NewUnstartedServer": ValueOf(pkg.NewUnstartedServer),
-		}, map[string]Type{
-			"ResponseRecorder": TypeOf((*pkg.ResponseRecorder)(nil)).Elem(),
-			"Server":           TypeOf((*pkg.Server)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_net_http_httptest()
-	Binds["net/http/httptest"] = binds
-	Types["net/http/httptest"] = types
+	Binds["net/http/httptest"] = map[string]Value{
+		"DefaultRemoteAddr":	ValueOf(pkg.DefaultRemoteAddr),
+		"NewRecorder":	ValueOf(pkg.NewRecorder),
+		"NewRequest":	ValueOf(pkg.NewRequest),
+		"NewServer":	ValueOf(pkg.NewServer),
+		"NewTLSServer":	ValueOf(pkg.NewTLSServer),
+		"NewUnstartedServer":	ValueOf(pkg.NewUnstartedServer),
+	}
+	Types["net/http/httptest"] = map[string]Type{
+		"ResponseRecorder":	TypeOf((*pkg.ResponseRecorder)(nil)).Elem(),
+		"Server":	TypeOf((*pkg.Server)(nil)).Elem(),
+	}
 }

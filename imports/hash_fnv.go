@@ -8,17 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_hash_fnv() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"New32":  ValueOf(pkg.New32),
-			"New32a": ValueOf(pkg.New32a),
-			"New64":  ValueOf(pkg.New64),
-			"New64a": ValueOf(pkg.New64a),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_hash_fnv()
-	Binds["hash/fnv"] = binds
-	Types["hash/fnv"] = types
+	Binds["hash/fnv"] = map[string]Value{
+		"New32":	ValueOf(pkg.New32),
+		"New32a":	ValueOf(pkg.New32a),
+		"New64":	ValueOf(pkg.New64),
+		"New64a":	ValueOf(pkg.New64a),
+	}
+	Types["hash/fnv"] = map[string]Type{
+	}
 }

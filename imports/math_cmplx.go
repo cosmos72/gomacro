@@ -8,40 +8,36 @@ import (
 	. "reflect"
 )
 
-func Package_math_cmplx() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Abs":   ValueOf(pkg.Abs),
-			"Acos":  ValueOf(pkg.Acos),
-			"Acosh": ValueOf(pkg.Acosh),
-			"Asin":  ValueOf(pkg.Asin),
-			"Asinh": ValueOf(pkg.Asinh),
-			"Atan":  ValueOf(pkg.Atan),
-			"Atanh": ValueOf(pkg.Atanh),
-			"Conj":  ValueOf(pkg.Conj),
-			"Cos":   ValueOf(pkg.Cos),
-			"Cosh":  ValueOf(pkg.Cosh),
-			"Cot":   ValueOf(pkg.Cot),
-			"Exp":   ValueOf(pkg.Exp),
-			"Inf":   ValueOf(pkg.Inf),
-			"IsInf": ValueOf(pkg.IsInf),
-			"IsNaN": ValueOf(pkg.IsNaN),
-			"Log":   ValueOf(pkg.Log),
-			"Log10": ValueOf(pkg.Log10),
-			"NaN":   ValueOf(pkg.NaN),
-			"Phase": ValueOf(pkg.Phase),
-			"Polar": ValueOf(pkg.Polar),
-			"Pow":   ValueOf(pkg.Pow),
-			"Rect":  ValueOf(pkg.Rect),
-			"Sin":   ValueOf(pkg.Sin),
-			"Sinh":  ValueOf(pkg.Sinh),
-			"Sqrt":  ValueOf(pkg.Sqrt),
-			"Tan":   ValueOf(pkg.Tan),
-			"Tanh":  ValueOf(pkg.Tanh),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_math_cmplx()
-	Binds["math/cmplx"] = binds
-	Types["math/cmplx"] = types
+	Binds["math/cmplx"] = map[string]Value{
+		"Abs":	ValueOf(pkg.Abs),
+		"Acos":	ValueOf(pkg.Acos),
+		"Acosh":	ValueOf(pkg.Acosh),
+		"Asin":	ValueOf(pkg.Asin),
+		"Asinh":	ValueOf(pkg.Asinh),
+		"Atan":	ValueOf(pkg.Atan),
+		"Atanh":	ValueOf(pkg.Atanh),
+		"Conj":	ValueOf(pkg.Conj),
+		"Cos":	ValueOf(pkg.Cos),
+		"Cosh":	ValueOf(pkg.Cosh),
+		"Cot":	ValueOf(pkg.Cot),
+		"Exp":	ValueOf(pkg.Exp),
+		"Inf":	ValueOf(pkg.Inf),
+		"IsInf":	ValueOf(pkg.IsInf),
+		"IsNaN":	ValueOf(pkg.IsNaN),
+		"Log":	ValueOf(pkg.Log),
+		"Log10":	ValueOf(pkg.Log10),
+		"NaN":	ValueOf(pkg.NaN),
+		"Phase":	ValueOf(pkg.Phase),
+		"Polar":	ValueOf(pkg.Polar),
+		"Pow":	ValueOf(pkg.Pow),
+		"Rect":	ValueOf(pkg.Rect),
+		"Sin":	ValueOf(pkg.Sin),
+		"Sinh":	ValueOf(pkg.Sinh),
+		"Sqrt":	ValueOf(pkg.Sqrt),
+		"Tan":	ValueOf(pkg.Tan),
+		"Tanh":	ValueOf(pkg.Tanh),
+	}
+	Types["math/cmplx"] = map[string]Type{
+	}
 }

@@ -8,22 +8,17 @@ import (
 	. "reflect"
 )
 
-func Package_hash_crc64() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Checksum":  ValueOf(pkg.Checksum),
-			"ECMA":      ValueOf(uint64(pkg.ECMA)),
-			"ISO":       ValueOf(uint64(pkg.ISO)),
-			"MakeTable": ValueOf(pkg.MakeTable),
-			"New":       ValueOf(pkg.New),
-			"Size":      ValueOf(pkg.Size),
-			"Update":    ValueOf(pkg.Update),
-		}, map[string]Type{
-			"Table": TypeOf((*pkg.Table)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_hash_crc64()
-	Binds["hash/crc64"] = binds
-	Types["hash/crc64"] = types
+	Binds["hash/crc64"] = map[string]Value{
+		"Checksum":	ValueOf(pkg.Checksum),
+		"ECMA":	ValueOf(uint64(pkg.ECMA)),
+		"ISO":	ValueOf(uint64(pkg.ISO)),
+		"MakeTable":	ValueOf(pkg.MakeTable),
+		"New":	ValueOf(pkg.New),
+		"Size":	ValueOf(pkg.Size),
+		"Update":	ValueOf(pkg.Update),
+	}
+	Types["hash/crc64"] = map[string]Type{
+		"Table":	TypeOf((*pkg.Table)(nil)).Elem(),
+	}
 }

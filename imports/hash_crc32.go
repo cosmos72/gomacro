@@ -8,26 +8,21 @@ import (
 	. "reflect"
 )
 
-func Package_hash_crc32() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Castagnoli":   ValueOf(pkg.Castagnoli),
-			"Checksum":     ValueOf(pkg.Checksum),
-			"ChecksumIEEE": ValueOf(pkg.ChecksumIEEE),
-			"IEEE":         ValueOf(pkg.IEEE),
-			"IEEETable":    ValueOf(&pkg.IEEETable).Elem(),
-			"Koopman":      ValueOf(pkg.Koopman),
-			"MakeTable":    ValueOf(pkg.MakeTable),
-			"New":          ValueOf(pkg.New),
-			"NewIEEE":      ValueOf(pkg.NewIEEE),
-			"Size":         ValueOf(pkg.Size),
-			"Update":       ValueOf(pkg.Update),
-		}, map[string]Type{
-			"Table": TypeOf((*pkg.Table)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_hash_crc32()
-	Binds["hash/crc32"] = binds
-	Types["hash/crc32"] = types
+	Binds["hash/crc32"] = map[string]Value{
+		"Castagnoli":	ValueOf(pkg.Castagnoli),
+		"Checksum":	ValueOf(pkg.Checksum),
+		"ChecksumIEEE":	ValueOf(pkg.ChecksumIEEE),
+		"IEEE":	ValueOf(pkg.IEEE),
+		"IEEETable":	ValueOf(&pkg.IEEETable).Elem(),
+		"Koopman":	ValueOf(pkg.Koopman),
+		"MakeTable":	ValueOf(pkg.MakeTable),
+		"New":	ValueOf(pkg.New),
+		"NewIEEE":	ValueOf(pkg.NewIEEE),
+		"Size":	ValueOf(pkg.Size),
+		"Update":	ValueOf(pkg.Update),
+	}
+	Types["hash/crc32"] = map[string]Type{
+		"Table":	TypeOf((*pkg.Table)(nil)).Elem(),
+	}
 }

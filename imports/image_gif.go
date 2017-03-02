@@ -8,24 +8,19 @@ import (
 	. "reflect"
 )
 
-func Package_image_gif() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Decode":             ValueOf(pkg.Decode),
-			"DecodeAll":          ValueOf(pkg.DecodeAll),
-			"DecodeConfig":       ValueOf(pkg.DecodeConfig),
-			"DisposalBackground": ValueOf(pkg.DisposalBackground),
-			"DisposalNone":       ValueOf(pkg.DisposalNone),
-			"DisposalPrevious":   ValueOf(pkg.DisposalPrevious),
-			"Encode":             ValueOf(pkg.Encode),
-			"EncodeAll":          ValueOf(pkg.EncodeAll),
-		}, map[string]Type{
-			"GIF":     TypeOf((*pkg.GIF)(nil)).Elem(),
-			"Options": TypeOf((*pkg.Options)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_image_gif()
-	Binds["image/gif"] = binds
-	Types["image/gif"] = types
+	Binds["image/gif"] = map[string]Value{
+		"Decode":	ValueOf(pkg.Decode),
+		"DecodeAll":	ValueOf(pkg.DecodeAll),
+		"DecodeConfig":	ValueOf(pkg.DecodeConfig),
+		"DisposalBackground":	ValueOf(pkg.DisposalBackground),
+		"DisposalNone":	ValueOf(pkg.DisposalNone),
+		"DisposalPrevious":	ValueOf(pkg.DisposalPrevious),
+		"Encode":	ValueOf(pkg.Encode),
+		"EncodeAll":	ValueOf(pkg.EncodeAll),
+	}
+	Types["image/gif"] = map[string]Type{
+		"GIF":	TypeOf((*pkg.GIF)(nil)).Elem(),
+		"Options":	TypeOf((*pkg.Options)(nil)).Elem(),
+	}
 }

@@ -8,18 +8,14 @@ import (
 	. "reflect"
 )
 
-func Package_net_rpc_jsonrpc() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Dial":           ValueOf(pkg.Dial),
-			"NewClient":      ValueOf(pkg.NewClient),
-			"NewClientCodec": ValueOf(pkg.NewClientCodec),
-			"NewServerCodec": ValueOf(pkg.NewServerCodec),
-			"ServeConn":      ValueOf(pkg.ServeConn),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_net_rpc_jsonrpc()
-	Binds["net/rpc/jsonrpc"] = binds
-	Types["net/rpc/jsonrpc"] = types
+	Binds["net/rpc/jsonrpc"] = map[string]Value{
+		"Dial":	ValueOf(pkg.Dial),
+		"NewClient":	ValueOf(pkg.NewClient),
+		"NewClientCodec":	ValueOf(pkg.NewClientCodec),
+		"NewServerCodec":	ValueOf(pkg.NewServerCodec),
+		"ServeConn":	ValueOf(pkg.ServeConn),
+	}
+	Types["net/rpc/jsonrpc"] = map[string]Type{
+	}
 }

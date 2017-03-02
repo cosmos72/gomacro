@@ -8,44 +8,39 @@ import (
 	. "reflect"
 )
 
-func Package_encoding_xml() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"CopyToken":     ValueOf(pkg.CopyToken),
-			"Escape":        ValueOf(pkg.Escape),
-			"EscapeText":    ValueOf(pkg.EscapeText),
-			"HTMLAutoClose": ValueOf(&pkg.HTMLAutoClose).Elem(),
-			"HTMLEntity":    ValueOf(&pkg.HTMLEntity).Elem(),
-			"Header":        ValueOf(pkg.Header),
-			"Marshal":       ValueOf(pkg.Marshal),
-			"MarshalIndent": ValueOf(pkg.MarshalIndent),
-			"NewDecoder":    ValueOf(pkg.NewDecoder),
-			"NewEncoder":    ValueOf(pkg.NewEncoder),
-			"Unmarshal":     ValueOf(pkg.Unmarshal),
-		}, map[string]Type{
-			"Attr":                 TypeOf((*pkg.Attr)(nil)).Elem(),
-			"CharData":             TypeOf((*pkg.CharData)(nil)).Elem(),
-			"Comment":              TypeOf((*pkg.Comment)(nil)).Elem(),
-			"Decoder":              TypeOf((*pkg.Decoder)(nil)).Elem(),
-			"Directive":            TypeOf((*pkg.Directive)(nil)).Elem(),
-			"Encoder":              TypeOf((*pkg.Encoder)(nil)).Elem(),
-			"EndElement":           TypeOf((*pkg.EndElement)(nil)).Elem(),
-			"Marshaler":            TypeOf((*pkg.Marshaler)(nil)).Elem(),
-			"MarshalerAttr":        TypeOf((*pkg.MarshalerAttr)(nil)).Elem(),
-			"Name":                 TypeOf((*pkg.Name)(nil)).Elem(),
-			"ProcInst":             TypeOf((*pkg.ProcInst)(nil)).Elem(),
-			"StartElement":         TypeOf((*pkg.StartElement)(nil)).Elem(),
-			"SyntaxError":          TypeOf((*pkg.SyntaxError)(nil)).Elem(),
-			"TagPathError":         TypeOf((*pkg.TagPathError)(nil)).Elem(),
-			"Token":                TypeOf((*pkg.Token)(nil)).Elem(),
-			"UnmarshalError":       TypeOf((*pkg.UnmarshalError)(nil)).Elem(),
-			"Unmarshaler":          TypeOf((*pkg.Unmarshaler)(nil)).Elem(),
-			"UnmarshalerAttr":      TypeOf((*pkg.UnmarshalerAttr)(nil)).Elem(),
-			"UnsupportedTypeError": TypeOf((*pkg.UnsupportedTypeError)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding_xml()
-	Binds["encoding/xml"] = binds
-	Types["encoding/xml"] = types
+	Binds["encoding/xml"] = map[string]Value{
+		"CopyToken":	ValueOf(pkg.CopyToken),
+		"Escape":	ValueOf(pkg.Escape),
+		"EscapeText":	ValueOf(pkg.EscapeText),
+		"HTMLAutoClose":	ValueOf(&pkg.HTMLAutoClose).Elem(),
+		"HTMLEntity":	ValueOf(&pkg.HTMLEntity).Elem(),
+		"Header":	ValueOf(pkg.Header),
+		"Marshal":	ValueOf(pkg.Marshal),
+		"MarshalIndent":	ValueOf(pkg.MarshalIndent),
+		"NewDecoder":	ValueOf(pkg.NewDecoder),
+		"NewEncoder":	ValueOf(pkg.NewEncoder),
+		"Unmarshal":	ValueOf(pkg.Unmarshal),
+	}
+	Types["encoding/xml"] = map[string]Type{
+		"Attr":	TypeOf((*pkg.Attr)(nil)).Elem(),
+		"CharData":	TypeOf((*pkg.CharData)(nil)).Elem(),
+		"Comment":	TypeOf((*pkg.Comment)(nil)).Elem(),
+		"Decoder":	TypeOf((*pkg.Decoder)(nil)).Elem(),
+		"Directive":	TypeOf((*pkg.Directive)(nil)).Elem(),
+		"Encoder":	TypeOf((*pkg.Encoder)(nil)).Elem(),
+		"EndElement":	TypeOf((*pkg.EndElement)(nil)).Elem(),
+		"Marshaler":	TypeOf((*pkg.Marshaler)(nil)).Elem(),
+		"MarshalerAttr":	TypeOf((*pkg.MarshalerAttr)(nil)).Elem(),
+		"Name":	TypeOf((*pkg.Name)(nil)).Elem(),
+		"ProcInst":	TypeOf((*pkg.ProcInst)(nil)).Elem(),
+		"StartElement":	TypeOf((*pkg.StartElement)(nil)).Elem(),
+		"SyntaxError":	TypeOf((*pkg.SyntaxError)(nil)).Elem(),
+		"TagPathError":	TypeOf((*pkg.TagPathError)(nil)).Elem(),
+		"Token":	TypeOf((*pkg.Token)(nil)).Elem(),
+		"UnmarshalError":	TypeOf((*pkg.UnmarshalError)(nil)).Elem(),
+		"Unmarshaler":	TypeOf((*pkg.Unmarshaler)(nil)).Elem(),
+		"UnmarshalerAttr":	TypeOf((*pkg.UnmarshalerAttr)(nil)).Elem(),
+		"UnsupportedTypeError":	TypeOf((*pkg.UnsupportedTypeError)(nil)).Elem(),
+	}
 }

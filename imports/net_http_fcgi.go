@@ -8,16 +8,12 @@ import (
 	. "reflect"
 )
 
-func Package_net_http_fcgi() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"ErrConnClosed":     ValueOf(&pkg.ErrConnClosed).Elem(),
-			"ErrRequestAborted": ValueOf(&pkg.ErrRequestAborted).Elem(),
-			"Serve":             ValueOf(pkg.Serve),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_net_http_fcgi()
-	Binds["net/http/fcgi"] = binds
-	Types["net/http/fcgi"] = types
+	Binds["net/http/fcgi"] = map[string]Value{
+		"ErrConnClosed":	ValueOf(&pkg.ErrConnClosed).Elem(),
+		"ErrRequestAborted":	ValueOf(&pkg.ErrRequestAborted).Elem(),
+		"Serve":	ValueOf(pkg.Serve),
+	}
+	Types["net/http/fcgi"] = map[string]Type{
+	}
 }

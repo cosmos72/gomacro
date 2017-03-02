@@ -8,26 +8,22 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_sha512() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BlockSize":  ValueOf(pkg.BlockSize),
-			"New":        ValueOf(pkg.New),
-			"New384":     ValueOf(pkg.New384),
-			"New512_224": ValueOf(pkg.New512_224),
-			"New512_256": ValueOf(pkg.New512_256),
-			"Size":       ValueOf(pkg.Size),
-			"Size224":    ValueOf(pkg.Size224),
-			"Size256":    ValueOf(pkg.Size256),
-			"Size384":    ValueOf(pkg.Size384),
-			"Sum384":     ValueOf(pkg.Sum384),
-			"Sum512":     ValueOf(pkg.Sum512),
-			"Sum512_224": ValueOf(pkg.Sum512_224),
-			"Sum512_256": ValueOf(pkg.Sum512_256),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_crypto_sha512()
-	Binds["crypto/sha512"] = binds
-	Types["crypto/sha512"] = types
+	Binds["crypto/sha512"] = map[string]Value{
+		"BlockSize":	ValueOf(pkg.BlockSize),
+		"New":	ValueOf(pkg.New),
+		"New384":	ValueOf(pkg.New384),
+		"New512_224":	ValueOf(pkg.New512_224),
+		"New512_256":	ValueOf(pkg.New512_256),
+		"Size":	ValueOf(pkg.Size),
+		"Size224":	ValueOf(pkg.Size224),
+		"Size256":	ValueOf(pkg.Size256),
+		"Size384":	ValueOf(pkg.Size384),
+		"Sum384":	ValueOf(pkg.Sum384),
+		"Sum512":	ValueOf(pkg.Sum512),
+		"Sum512_224":	ValueOf(pkg.Sum512_224),
+		"Sum512_256":	ValueOf(pkg.Sum512_256),
+	}
+	Types["crypto/sha512"] = map[string]Type{
+	}
 }

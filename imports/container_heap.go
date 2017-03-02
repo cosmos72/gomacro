@@ -8,20 +8,15 @@ import (
 	. "reflect"
 )
 
-func Package_container_heap() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Fix":    ValueOf(pkg.Fix),
-			"Init":   ValueOf(pkg.Init),
-			"Pop":    ValueOf(pkg.Pop),
-			"Push":   ValueOf(pkg.Push),
-			"Remove": ValueOf(pkg.Remove),
-		}, map[string]Type{
-			"Interface": TypeOf((*pkg.Interface)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_container_heap()
-	Binds["container/heap"] = binds
-	Types["container/heap"] = types
+	Binds["container/heap"] = map[string]Value{
+		"Fix":	ValueOf(pkg.Fix),
+		"Init":	ValueOf(pkg.Init),
+		"Pop":	ValueOf(pkg.Pop),
+		"Push":	ValueOf(pkg.Push),
+		"Remove":	ValueOf(pkg.Remove),
+	}
+	Types["container/heap"] = map[string]Type{
+		"Interface":	TypeOf((*pkg.Interface)(nil)).Elem(),
+	}
 }

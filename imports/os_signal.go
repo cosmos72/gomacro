@@ -8,17 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_os_signal() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Ignore": ValueOf(pkg.Ignore),
-			"Notify": ValueOf(pkg.Notify),
-			"Reset":  ValueOf(pkg.Reset),
-			"Stop":   ValueOf(pkg.Stop),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_os_signal()
-	Binds["os/signal"] = binds
-	Types["os/signal"] = types
+	Binds["os/signal"] = map[string]Value{
+		"Ignore":	ValueOf(pkg.Ignore),
+		"Notify":	ValueOf(pkg.Notify),
+		"Reset":	ValueOf(pkg.Reset),
+		"Stop":	ValueOf(pkg.Stop),
+	}
+	Types["os/signal"] = map[string]Type{
+	}
 }

@@ -8,18 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_mime_quotedprintable() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"NewReader": ValueOf(pkg.NewReader),
-			"NewWriter": ValueOf(pkg.NewWriter),
-		}, map[string]Type{
-			"Reader": TypeOf((*pkg.Reader)(nil)).Elem(),
-			"Writer": TypeOf((*pkg.Writer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_mime_quotedprintable()
-	Binds["mime/quotedprintable"] = binds
-	Types["mime/quotedprintable"] = types
+	Binds["mime/quotedprintable"] = map[string]Value{
+		"NewReader":	ValueOf(pkg.NewReader),
+		"NewWriter":	ValueOf(pkg.NewWriter),
+	}
+	Types["mime/quotedprintable"] = map[string]Type{
+		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+	}
 }

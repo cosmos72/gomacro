@@ -8,39 +8,34 @@ import (
 	. "reflect"
 )
 
-func Package_fmt() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Errorf":   ValueOf(pkg.Errorf),
-			"Fprint":   ValueOf(pkg.Fprint),
-			"Fprintf":  ValueOf(pkg.Fprintf),
-			"Fprintln": ValueOf(pkg.Fprintln),
-			"Fscan":    ValueOf(pkg.Fscan),
-			"Fscanf":   ValueOf(pkg.Fscanf),
-			"Fscanln":  ValueOf(pkg.Fscanln),
-			"Print":    ValueOf(pkg.Print),
-			"Printf":   ValueOf(pkg.Printf),
-			"Println":  ValueOf(pkg.Println),
-			"Scan":     ValueOf(pkg.Scan),
-			"Scanf":    ValueOf(pkg.Scanf),
-			"Scanln":   ValueOf(pkg.Scanln),
-			"Sprint":   ValueOf(pkg.Sprint),
-			"Sprintf":  ValueOf(pkg.Sprintf),
-			"Sprintln": ValueOf(pkg.Sprintln),
-			"Sscan":    ValueOf(pkg.Sscan),
-			"Sscanf":   ValueOf(pkg.Sscanf),
-			"Sscanln":  ValueOf(pkg.Sscanln),
-		}, map[string]Type{
-			"Formatter":  TypeOf((*pkg.Formatter)(nil)).Elem(),
-			"GoStringer": TypeOf((*pkg.GoStringer)(nil)).Elem(),
-			"ScanState":  TypeOf((*pkg.ScanState)(nil)).Elem(),
-			"Scanner":    TypeOf((*pkg.Scanner)(nil)).Elem(),
-			"State":      TypeOf((*pkg.State)(nil)).Elem(),
-			"Stringer":   TypeOf((*pkg.Stringer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_fmt()
-	Binds["fmt"] = binds
-	Types["fmt"] = types
+	Binds["fmt"] = map[string]Value{
+		"Errorf":	ValueOf(pkg.Errorf),
+		"Fprint":	ValueOf(pkg.Fprint),
+		"Fprintf":	ValueOf(pkg.Fprintf),
+		"Fprintln":	ValueOf(pkg.Fprintln),
+		"Fscan":	ValueOf(pkg.Fscan),
+		"Fscanf":	ValueOf(pkg.Fscanf),
+		"Fscanln":	ValueOf(pkg.Fscanln),
+		"Print":	ValueOf(pkg.Print),
+		"Printf":	ValueOf(pkg.Printf),
+		"Println":	ValueOf(pkg.Println),
+		"Scan":	ValueOf(pkg.Scan),
+		"Scanf":	ValueOf(pkg.Scanf),
+		"Scanln":	ValueOf(pkg.Scanln),
+		"Sprint":	ValueOf(pkg.Sprint),
+		"Sprintf":	ValueOf(pkg.Sprintf),
+		"Sprintln":	ValueOf(pkg.Sprintln),
+		"Sscan":	ValueOf(pkg.Sscan),
+		"Sscanf":	ValueOf(pkg.Sscanf),
+		"Sscanln":	ValueOf(pkg.Sscanln),
+	}
+	Types["fmt"] = map[string]Type{
+		"Formatter":	TypeOf((*pkg.Formatter)(nil)).Elem(),
+		"GoStringer":	TypeOf((*pkg.GoStringer)(nil)).Elem(),
+		"ScanState":	TypeOf((*pkg.ScanState)(nil)).Elem(),
+		"Scanner":	TypeOf((*pkg.Scanner)(nil)).Elem(),
+		"State":	TypeOf((*pkg.State)(nil)).Elem(),
+		"Stringer":	TypeOf((*pkg.Stringer)(nil)).Elem(),
+	}
 }

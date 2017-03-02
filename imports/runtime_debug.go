@@ -4,29 +4,24 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "runtime/debug"
+	. "reflect"
 )
 
-func Package_runtime_debug() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"FreeOSMemory":    ValueOf(pkg.FreeOSMemory),
-			"PrintStack":      ValueOf(pkg.PrintStack),
-			"ReadGCStats":     ValueOf(pkg.ReadGCStats),
-			"SetGCPercent":    ValueOf(pkg.SetGCPercent),
-			"SetMaxStack":     ValueOf(pkg.SetMaxStack),
-			"SetMaxThreads":   ValueOf(pkg.SetMaxThreads),
-			"SetPanicOnFault": ValueOf(pkg.SetPanicOnFault),
-			"SetTraceback":    ValueOf(pkg.SetTraceback),
-			"Stack":           ValueOf(pkg.Stack),
-			"WriteHeapDump":   ValueOf(pkg.WriteHeapDump),
-		}, map[string]Type{
-			"GCStats": TypeOf((*pkg.GCStats)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_runtime_debug()
-	Binds["runtime/debug"] = binds
-	Types["runtime/debug"] = types
+	Binds["runtime/debug"] = map[string]Value{
+		"FreeOSMemory":	ValueOf(pkg.FreeOSMemory),
+		"PrintStack":	ValueOf(pkg.PrintStack),
+		"ReadGCStats":	ValueOf(pkg.ReadGCStats),
+		"SetGCPercent":	ValueOf(pkg.SetGCPercent),
+		"SetMaxStack":	ValueOf(pkg.SetMaxStack),
+		"SetMaxThreads":	ValueOf(pkg.SetMaxThreads),
+		"SetPanicOnFault":	ValueOf(pkg.SetPanicOnFault),
+		"SetTraceback":	ValueOf(pkg.SetTraceback),
+		"Stack":	ValueOf(pkg.Stack),
+		"WriteHeapDump":	ValueOf(pkg.WriteHeapDump),
+	}
+	Types["runtime/debug"] = map[string]Type{
+		"GCStats":	TypeOf((*pkg.GCStats)(nil)).Elem(),
+	}
 }

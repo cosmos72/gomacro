@@ -4,63 +4,58 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "text/template/parse"
+	. "reflect"
 )
 
-func Package_text_template_parse() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"IsEmptyTree":    ValueOf(pkg.IsEmptyTree),
-			"New":            ValueOf(pkg.New),
-			"NewIdentifier":  ValueOf(pkg.NewIdentifier),
-			"NodeAction":     ValueOf(pkg.NodeAction),
-			"NodeBool":       ValueOf(pkg.NodeBool),
-			"NodeChain":      ValueOf(pkg.NodeChain),
-			"NodeCommand":    ValueOf(pkg.NodeCommand),
-			"NodeDot":        ValueOf(pkg.NodeDot),
-			"NodeField":      ValueOf(pkg.NodeField),
-			"NodeIdentifier": ValueOf(pkg.NodeIdentifier),
-			"NodeIf":         ValueOf(pkg.NodeIf),
-			"NodeList":       ValueOf(pkg.NodeList),
-			"NodeNil":        ValueOf(pkg.NodeNil),
-			"NodeNumber":     ValueOf(pkg.NodeNumber),
-			"NodePipe":       ValueOf(pkg.NodePipe),
-			"NodeRange":      ValueOf(pkg.NodeRange),
-			"NodeString":     ValueOf(pkg.NodeString),
-			"NodeTemplate":   ValueOf(pkg.NodeTemplate),
-			"NodeText":       ValueOf(pkg.NodeText),
-			"NodeVariable":   ValueOf(pkg.NodeVariable),
-			"NodeWith":       ValueOf(pkg.NodeWith),
-			"Parse":          ValueOf(pkg.Parse),
-		}, map[string]Type{
-			"ActionNode":     TypeOf((*pkg.ActionNode)(nil)).Elem(),
-			"BoolNode":       TypeOf((*pkg.BoolNode)(nil)).Elem(),
-			"BranchNode":     TypeOf((*pkg.BranchNode)(nil)).Elem(),
-			"ChainNode":      TypeOf((*pkg.ChainNode)(nil)).Elem(),
-			"CommandNode":    TypeOf((*pkg.CommandNode)(nil)).Elem(),
-			"DotNode":        TypeOf((*pkg.DotNode)(nil)).Elem(),
-			"FieldNode":      TypeOf((*pkg.FieldNode)(nil)).Elem(),
-			"IdentifierNode": TypeOf((*pkg.IdentifierNode)(nil)).Elem(),
-			"IfNode":         TypeOf((*pkg.IfNode)(nil)).Elem(),
-			"ListNode":       TypeOf((*pkg.ListNode)(nil)).Elem(),
-			"NilNode":        TypeOf((*pkg.NilNode)(nil)).Elem(),
-			"Node":           TypeOf((*pkg.Node)(nil)).Elem(),
-			"NodeType":       TypeOf((*pkg.NodeType)(nil)).Elem(),
-			"NumberNode":     TypeOf((*pkg.NumberNode)(nil)).Elem(),
-			"PipeNode":       TypeOf((*pkg.PipeNode)(nil)).Elem(),
-			"Pos":            TypeOf((*pkg.Pos)(nil)).Elem(),
-			"RangeNode":      TypeOf((*pkg.RangeNode)(nil)).Elem(),
-			"StringNode":     TypeOf((*pkg.StringNode)(nil)).Elem(),
-			"TemplateNode":   TypeOf((*pkg.TemplateNode)(nil)).Elem(),
-			"TextNode":       TypeOf((*pkg.TextNode)(nil)).Elem(),
-			"Tree":           TypeOf((*pkg.Tree)(nil)).Elem(),
-			"VariableNode":   TypeOf((*pkg.VariableNode)(nil)).Elem(),
-			"WithNode":       TypeOf((*pkg.WithNode)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_text_template_parse()
-	Binds["text/template/parse"] = binds
-	Types["text/template/parse"] = types
+	Binds["text/template/parse"] = map[string]Value{
+		"IsEmptyTree":	ValueOf(pkg.IsEmptyTree),
+		"New":	ValueOf(pkg.New),
+		"NewIdentifier":	ValueOf(pkg.NewIdentifier),
+		"NodeAction":	ValueOf(pkg.NodeAction),
+		"NodeBool":	ValueOf(pkg.NodeBool),
+		"NodeChain":	ValueOf(pkg.NodeChain),
+		"NodeCommand":	ValueOf(pkg.NodeCommand),
+		"NodeDot":	ValueOf(pkg.NodeDot),
+		"NodeField":	ValueOf(pkg.NodeField),
+		"NodeIdentifier":	ValueOf(pkg.NodeIdentifier),
+		"NodeIf":	ValueOf(pkg.NodeIf),
+		"NodeList":	ValueOf(pkg.NodeList),
+		"NodeNil":	ValueOf(pkg.NodeNil),
+		"NodeNumber":	ValueOf(pkg.NodeNumber),
+		"NodePipe":	ValueOf(pkg.NodePipe),
+		"NodeRange":	ValueOf(pkg.NodeRange),
+		"NodeString":	ValueOf(pkg.NodeString),
+		"NodeTemplate":	ValueOf(pkg.NodeTemplate),
+		"NodeText":	ValueOf(pkg.NodeText),
+		"NodeVariable":	ValueOf(pkg.NodeVariable),
+		"NodeWith":	ValueOf(pkg.NodeWith),
+		"Parse":	ValueOf(pkg.Parse),
+	}
+	Types["text/template/parse"] = map[string]Type{
+		"ActionNode":	TypeOf((*pkg.ActionNode)(nil)).Elem(),
+		"BoolNode":	TypeOf((*pkg.BoolNode)(nil)).Elem(),
+		"BranchNode":	TypeOf((*pkg.BranchNode)(nil)).Elem(),
+		"ChainNode":	TypeOf((*pkg.ChainNode)(nil)).Elem(),
+		"CommandNode":	TypeOf((*pkg.CommandNode)(nil)).Elem(),
+		"DotNode":	TypeOf((*pkg.DotNode)(nil)).Elem(),
+		"FieldNode":	TypeOf((*pkg.FieldNode)(nil)).Elem(),
+		"IdentifierNode":	TypeOf((*pkg.IdentifierNode)(nil)).Elem(),
+		"IfNode":	TypeOf((*pkg.IfNode)(nil)).Elem(),
+		"ListNode":	TypeOf((*pkg.ListNode)(nil)).Elem(),
+		"NilNode":	TypeOf((*pkg.NilNode)(nil)).Elem(),
+		"Node":	TypeOf((*pkg.Node)(nil)).Elem(),
+		"NodeType":	TypeOf((*pkg.NodeType)(nil)).Elem(),
+		"NumberNode":	TypeOf((*pkg.NumberNode)(nil)).Elem(),
+		"PipeNode":	TypeOf((*pkg.PipeNode)(nil)).Elem(),
+		"Pos":	TypeOf((*pkg.Pos)(nil)).Elem(),
+		"RangeNode":	TypeOf((*pkg.RangeNode)(nil)).Elem(),
+		"StringNode":	TypeOf((*pkg.StringNode)(nil)).Elem(),
+		"TemplateNode":	TypeOf((*pkg.TemplateNode)(nil)).Elem(),
+		"TextNode":	TypeOf((*pkg.TextNode)(nil)).Elem(),
+		"Tree":	TypeOf((*pkg.Tree)(nil)).Elem(),
+		"VariableNode":	TypeOf((*pkg.VariableNode)(nil)).Elem(),
+		"WithNode":	TypeOf((*pkg.WithNode)(nil)).Elem(),
+	}
 }

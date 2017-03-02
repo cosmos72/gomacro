@@ -8,29 +8,24 @@ import (
 	. "reflect"
 )
 
-func Package_go_build() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"AllowBinary":   ValueOf(pkg.AllowBinary),
-			"ArchChar":      ValueOf(pkg.ArchChar),
-			"Default":       ValueOf(&pkg.Default).Elem(),
-			"FindOnly":      ValueOf(pkg.FindOnly),
-			"IgnoreVendor":  ValueOf(pkg.IgnoreVendor),
-			"Import":        ValueOf(pkg.Import),
-			"ImportComment": ValueOf(pkg.ImportComment),
-			"ImportDir":     ValueOf(pkg.ImportDir),
-			"IsLocalImport": ValueOf(pkg.IsLocalImport),
-			"ToolDir":       ValueOf(&pkg.ToolDir).Elem(),
-		}, map[string]Type{
-			"Context":              TypeOf((*pkg.Context)(nil)).Elem(),
-			"ImportMode":           TypeOf((*pkg.ImportMode)(nil)).Elem(),
-			"MultiplePackageError": TypeOf((*pkg.MultiplePackageError)(nil)).Elem(),
-			"NoGoError":            TypeOf((*pkg.NoGoError)(nil)).Elem(),
-			"Package":              TypeOf((*pkg.Package)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_go_build()
-	Binds["go/build"] = binds
-	Types["go/build"] = types
+	Binds["go/build"] = map[string]Value{
+		"AllowBinary":	ValueOf(pkg.AllowBinary),
+		"ArchChar":	ValueOf(pkg.ArchChar),
+		"Default":	ValueOf(&pkg.Default).Elem(),
+		"FindOnly":	ValueOf(pkg.FindOnly),
+		"IgnoreVendor":	ValueOf(pkg.IgnoreVendor),
+		"Import":	ValueOf(pkg.Import),
+		"ImportComment":	ValueOf(pkg.ImportComment),
+		"ImportDir":	ValueOf(pkg.ImportDir),
+		"IsLocalImport":	ValueOf(pkg.IsLocalImport),
+		"ToolDir":	ValueOf(&pkg.ToolDir).Elem(),
+	}
+	Types["go/build"] = map[string]Type{
+		"Context":	TypeOf((*pkg.Context)(nil)).Elem(),
+		"ImportMode":	TypeOf((*pkg.ImportMode)(nil)).Elem(),
+		"MultiplePackageError":	TypeOf((*pkg.MultiplePackageError)(nil)).Elem(),
+		"NoGoError":	TypeOf((*pkg.NoGoError)(nil)).Elem(),
+		"Package":	TypeOf((*pkg.Package)(nil)).Elem(),
+	}
 }

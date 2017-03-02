@@ -4,39 +4,34 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "sort"
+	. "reflect"
 )
 
-func Package_sort() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Float64s":          ValueOf(pkg.Float64s),
-			"Float64sAreSorted": ValueOf(pkg.Float64sAreSorted),
-			"Ints":              ValueOf(pkg.Ints),
-			"IntsAreSorted":     ValueOf(pkg.IntsAreSorted),
-			"IsSorted":          ValueOf(pkg.IsSorted),
-			"Reverse":           ValueOf(pkg.Reverse),
-			"Search":            ValueOf(pkg.Search),
-			"SearchFloat64s":    ValueOf(pkg.SearchFloat64s),
-			"SearchInts":        ValueOf(pkg.SearchInts),
-			"SearchStrings":     ValueOf(pkg.SearchStrings),
-			"Slice":             ValueOf(pkg.Slice),
-			"SliceIsSorted":     ValueOf(pkg.SliceIsSorted),
-			"SliceStable":       ValueOf(pkg.SliceStable),
-			"Sort":              ValueOf(pkg.Sort),
-			"Stable":            ValueOf(pkg.Stable),
-			"Strings":           ValueOf(pkg.Strings),
-			"StringsAreSorted":  ValueOf(pkg.StringsAreSorted),
-		}, map[string]Type{
-			"Float64Slice": TypeOf((*pkg.Float64Slice)(nil)).Elem(),
-			"IntSlice":     TypeOf((*pkg.IntSlice)(nil)).Elem(),
-			"Interface":    TypeOf((*pkg.Interface)(nil)).Elem(),
-			"StringSlice":  TypeOf((*pkg.StringSlice)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_sort()
-	Binds["sort"] = binds
-	Types["sort"] = types
+	Binds["sort"] = map[string]Value{
+		"Float64s":	ValueOf(pkg.Float64s),
+		"Float64sAreSorted":	ValueOf(pkg.Float64sAreSorted),
+		"Ints":	ValueOf(pkg.Ints),
+		"IntsAreSorted":	ValueOf(pkg.IntsAreSorted),
+		"IsSorted":	ValueOf(pkg.IsSorted),
+		"Reverse":	ValueOf(pkg.Reverse),
+		"Search":	ValueOf(pkg.Search),
+		"SearchFloat64s":	ValueOf(pkg.SearchFloat64s),
+		"SearchInts":	ValueOf(pkg.SearchInts),
+		"SearchStrings":	ValueOf(pkg.SearchStrings),
+		"Slice":	ValueOf(pkg.Slice),
+		"SliceIsSorted":	ValueOf(pkg.SliceIsSorted),
+		"SliceStable":	ValueOf(pkg.SliceStable),
+		"Sort":	ValueOf(pkg.Sort),
+		"Stable":	ValueOf(pkg.Stable),
+		"Strings":	ValueOf(pkg.Strings),
+		"StringsAreSorted":	ValueOf(pkg.StringsAreSorted),
+	}
+	Types["sort"] = map[string]Type{
+		"Float64Slice":	TypeOf((*pkg.Float64Slice)(nil)).Elem(),
+		"IntSlice":	TypeOf((*pkg.IntSlice)(nil)).Elem(),
+		"Interface":	TypeOf((*pkg.Interface)(nil)).Elem(),
+		"StringSlice":	TypeOf((*pkg.StringSlice)(nil)).Elem(),
+	}
 }

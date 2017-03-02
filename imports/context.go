@@ -8,24 +8,19 @@ import (
 	. "reflect"
 )
 
-func Package_context() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Background":       ValueOf(pkg.Background),
-			"Canceled":         ValueOf(&pkg.Canceled).Elem(),
-			"DeadlineExceeded": ValueOf(&pkg.DeadlineExceeded).Elem(),
-			"TODO":             ValueOf(pkg.TODO),
-			"WithCancel":       ValueOf(pkg.WithCancel),
-			"WithDeadline":     ValueOf(pkg.WithDeadline),
-			"WithTimeout":      ValueOf(pkg.WithTimeout),
-			"WithValue":        ValueOf(pkg.WithValue),
-		}, map[string]Type{
-			"CancelFunc": TypeOf((*pkg.CancelFunc)(nil)).Elem(),
-			"Context":    TypeOf((*pkg.Context)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_context()
-	Binds["context"] = binds
-	Types["context"] = types
+	Binds["context"] = map[string]Value{
+		"Background":	ValueOf(pkg.Background),
+		"Canceled":	ValueOf(&pkg.Canceled).Elem(),
+		"DeadlineExceeded":	ValueOf(&pkg.DeadlineExceeded).Elem(),
+		"TODO":	ValueOf(pkg.TODO),
+		"WithCancel":	ValueOf(pkg.WithCancel),
+		"WithDeadline":	ValueOf(pkg.WithDeadline),
+		"WithTimeout":	ValueOf(pkg.WithTimeout),
+		"WithValue":	ValueOf(pkg.WithValue),
+	}
+	Types["context"] = map[string]Type{
+		"CancelFunc":	TypeOf((*pkg.CancelFunc)(nil)).Elem(),
+		"Context":	TypeOf((*pkg.Context)(nil)).Elem(),
+	}
 }

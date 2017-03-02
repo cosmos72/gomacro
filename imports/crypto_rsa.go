@@ -8,37 +8,32 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_rsa() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"DecryptOAEP":               ValueOf(pkg.DecryptOAEP),
-			"DecryptPKCS1v15":           ValueOf(pkg.DecryptPKCS1v15),
-			"DecryptPKCS1v15SessionKey": ValueOf(pkg.DecryptPKCS1v15SessionKey),
-			"EncryptOAEP":               ValueOf(pkg.EncryptOAEP),
-			"EncryptPKCS1v15":           ValueOf(pkg.EncryptPKCS1v15),
-			"ErrDecryption":             ValueOf(&pkg.ErrDecryption).Elem(),
-			"ErrMessageTooLong":         ValueOf(&pkg.ErrMessageTooLong).Elem(),
-			"ErrVerification":           ValueOf(&pkg.ErrVerification).Elem(),
-			"GenerateKey":               ValueOf(pkg.GenerateKey),
-			"GenerateMultiPrimeKey":     ValueOf(pkg.GenerateMultiPrimeKey),
-			"PSSSaltLengthAuto":         ValueOf(pkg.PSSSaltLengthAuto),
-			"PSSSaltLengthEqualsHash":   ValueOf(pkg.PSSSaltLengthEqualsHash),
-			"SignPKCS1v15":              ValueOf(pkg.SignPKCS1v15),
-			"SignPSS":                   ValueOf(pkg.SignPSS),
-			"VerifyPKCS1v15":            ValueOf(pkg.VerifyPKCS1v15),
-			"VerifyPSS":                 ValueOf(pkg.VerifyPSS),
-		}, map[string]Type{
-			"CRTValue":               TypeOf((*pkg.CRTValue)(nil)).Elem(),
-			"OAEPOptions":            TypeOf((*pkg.OAEPOptions)(nil)).Elem(),
-			"PKCS1v15DecryptOptions": TypeOf((*pkg.PKCS1v15DecryptOptions)(nil)).Elem(),
-			"PSSOptions":             TypeOf((*pkg.PSSOptions)(nil)).Elem(),
-			"PrecomputedValues":      TypeOf((*pkg.PrecomputedValues)(nil)).Elem(),
-			"PrivateKey":             TypeOf((*pkg.PrivateKey)(nil)).Elem(),
-			"PublicKey":              TypeOf((*pkg.PublicKey)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto_rsa()
-	Binds["crypto/rsa"] = binds
-	Types["crypto/rsa"] = types
+	Binds["crypto/rsa"] = map[string]Value{
+		"DecryptOAEP":	ValueOf(pkg.DecryptOAEP),
+		"DecryptPKCS1v15":	ValueOf(pkg.DecryptPKCS1v15),
+		"DecryptPKCS1v15SessionKey":	ValueOf(pkg.DecryptPKCS1v15SessionKey),
+		"EncryptOAEP":	ValueOf(pkg.EncryptOAEP),
+		"EncryptPKCS1v15":	ValueOf(pkg.EncryptPKCS1v15),
+		"ErrDecryption":	ValueOf(&pkg.ErrDecryption).Elem(),
+		"ErrMessageTooLong":	ValueOf(&pkg.ErrMessageTooLong).Elem(),
+		"ErrVerification":	ValueOf(&pkg.ErrVerification).Elem(),
+		"GenerateKey":	ValueOf(pkg.GenerateKey),
+		"GenerateMultiPrimeKey":	ValueOf(pkg.GenerateMultiPrimeKey),
+		"PSSSaltLengthAuto":	ValueOf(pkg.PSSSaltLengthAuto),
+		"PSSSaltLengthEqualsHash":	ValueOf(pkg.PSSSaltLengthEqualsHash),
+		"SignPKCS1v15":	ValueOf(pkg.SignPKCS1v15),
+		"SignPSS":	ValueOf(pkg.SignPSS),
+		"VerifyPKCS1v15":	ValueOf(pkg.VerifyPKCS1v15),
+		"VerifyPSS":	ValueOf(pkg.VerifyPSS),
+	}
+	Types["crypto/rsa"] = map[string]Type{
+		"CRTValue":	TypeOf((*pkg.CRTValue)(nil)).Elem(),
+		"OAEPOptions":	TypeOf((*pkg.OAEPOptions)(nil)).Elem(),
+		"PKCS1v15DecryptOptions":	TypeOf((*pkg.PKCS1v15DecryptOptions)(nil)).Elem(),
+		"PSSOptions":	TypeOf((*pkg.PSSOptions)(nil)).Elem(),
+		"PrecomputedValues":	TypeOf((*pkg.PrecomputedValues)(nil)).Elem(),
+		"PrivateKey":	TypeOf((*pkg.PrivateKey)(nil)).Elem(),
+		"PublicKey":	TypeOf((*pkg.PublicKey)(nil)).Elem(),
+	}
 }

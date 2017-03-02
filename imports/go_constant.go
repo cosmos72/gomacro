@@ -8,51 +8,46 @@ import (
 	. "reflect"
 )
 
-func Package_go_constant() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"BinaryOp":        ValueOf(pkg.BinaryOp),
-			"BitLen":          ValueOf(pkg.BitLen),
-			"Bool":            ValueOf(pkg.Bool),
-			"BoolVal":         ValueOf(pkg.BoolVal),
-			"Bytes":           ValueOf(pkg.Bytes),
-			"Compare":         ValueOf(pkg.Compare),
-			"Complex":         ValueOf(pkg.Complex),
-			"Denom":           ValueOf(pkg.Denom),
-			"Float":           ValueOf(pkg.Float),
-			"Float32Val":      ValueOf(pkg.Float32Val),
-			"Float64Val":      ValueOf(pkg.Float64Val),
-			"Imag":            ValueOf(pkg.Imag),
-			"Int":             ValueOf(pkg.Int),
-			"Int64Val":        ValueOf(pkg.Int64Val),
-			"MakeBool":        ValueOf(pkg.MakeBool),
-			"MakeFloat64":     ValueOf(pkg.MakeFloat64),
-			"MakeFromBytes":   ValueOf(pkg.MakeFromBytes),
-			"MakeFromLiteral": ValueOf(pkg.MakeFromLiteral),
-			"MakeImag":        ValueOf(pkg.MakeImag),
-			"MakeInt64":       ValueOf(pkg.MakeInt64),
-			"MakeString":      ValueOf(pkg.MakeString),
-			"MakeUint64":      ValueOf(pkg.MakeUint64),
-			"MakeUnknown":     ValueOf(pkg.MakeUnknown),
-			"Num":             ValueOf(pkg.Num),
-			"Real":            ValueOf(pkg.Real),
-			"Shift":           ValueOf(pkg.Shift),
-			"Sign":            ValueOf(pkg.Sign),
-			"String":          ValueOf(pkg.String),
-			"StringVal":       ValueOf(pkg.StringVal),
-			"ToComplex":       ValueOf(pkg.ToComplex),
-			"ToFloat":         ValueOf(pkg.ToFloat),
-			"ToInt":           ValueOf(pkg.ToInt),
-			"Uint64Val":       ValueOf(pkg.Uint64Val),
-			"UnaryOp":         ValueOf(pkg.UnaryOp),
-			"Unknown":         ValueOf(pkg.Unknown),
-		}, map[string]Type{
-			"Kind":  TypeOf((*pkg.Kind)(nil)).Elem(),
-			"Value": TypeOf((*pkg.Value)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_go_constant()
-	Binds["go/constant"] = binds
-	Types["go/constant"] = types
+	Binds["go/constant"] = map[string]Value{
+		"BinaryOp":	ValueOf(pkg.BinaryOp),
+		"BitLen":	ValueOf(pkg.BitLen),
+		"Bool":	ValueOf(pkg.Bool),
+		"BoolVal":	ValueOf(pkg.BoolVal),
+		"Bytes":	ValueOf(pkg.Bytes),
+		"Compare":	ValueOf(pkg.Compare),
+		"Complex":	ValueOf(pkg.Complex),
+		"Denom":	ValueOf(pkg.Denom),
+		"Float":	ValueOf(pkg.Float),
+		"Float32Val":	ValueOf(pkg.Float32Val),
+		"Float64Val":	ValueOf(pkg.Float64Val),
+		"Imag":	ValueOf(pkg.Imag),
+		"Int":	ValueOf(pkg.Int),
+		"Int64Val":	ValueOf(pkg.Int64Val),
+		"MakeBool":	ValueOf(pkg.MakeBool),
+		"MakeFloat64":	ValueOf(pkg.MakeFloat64),
+		"MakeFromBytes":	ValueOf(pkg.MakeFromBytes),
+		"MakeFromLiteral":	ValueOf(pkg.MakeFromLiteral),
+		"MakeImag":	ValueOf(pkg.MakeImag),
+		"MakeInt64":	ValueOf(pkg.MakeInt64),
+		"MakeString":	ValueOf(pkg.MakeString),
+		"MakeUint64":	ValueOf(pkg.MakeUint64),
+		"MakeUnknown":	ValueOf(pkg.MakeUnknown),
+		"Num":	ValueOf(pkg.Num),
+		"Real":	ValueOf(pkg.Real),
+		"Shift":	ValueOf(pkg.Shift),
+		"Sign":	ValueOf(pkg.Sign),
+		"String":	ValueOf(pkg.String),
+		"StringVal":	ValueOf(pkg.StringVal),
+		"ToComplex":	ValueOf(pkg.ToComplex),
+		"ToFloat":	ValueOf(pkg.ToFloat),
+		"ToInt":	ValueOf(pkg.ToInt),
+		"Uint64Val":	ValueOf(pkg.Uint64Val),
+		"UnaryOp":	ValueOf(pkg.UnaryOp),
+		"Unknown":	ValueOf(pkg.Unknown),
+	}
+	Types["go/constant"] = map[string]Type{
+		"Kind":	TypeOf((*pkg.Kind)(nil)).Elem(),
+		"Value":	TypeOf((*pkg.Value)(nil)).Elem(),
+	}
 }

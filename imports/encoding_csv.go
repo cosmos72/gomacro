@@ -8,23 +8,18 @@ import (
 	. "reflect"
 )
 
-func Package_encoding_csv() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"ErrBareQuote":     ValueOf(&pkg.ErrBareQuote).Elem(),
-			"ErrFieldCount":    ValueOf(&pkg.ErrFieldCount).Elem(),
-			"ErrQuote":         ValueOf(&pkg.ErrQuote).Elem(),
-			"ErrTrailingComma": ValueOf(&pkg.ErrTrailingComma).Elem(),
-			"NewReader":        ValueOf(pkg.NewReader),
-			"NewWriter":        ValueOf(pkg.NewWriter),
-		}, map[string]Type{
-			"ParseError": TypeOf((*pkg.ParseError)(nil)).Elem(),
-			"Reader":     TypeOf((*pkg.Reader)(nil)).Elem(),
-			"Writer":     TypeOf((*pkg.Writer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding_csv()
-	Binds["encoding/csv"] = binds
-	Types["encoding/csv"] = types
+	Binds["encoding/csv"] = map[string]Value{
+		"ErrBareQuote":	ValueOf(&pkg.ErrBareQuote).Elem(),
+		"ErrFieldCount":	ValueOf(&pkg.ErrFieldCount).Elem(),
+		"ErrQuote":	ValueOf(&pkg.ErrQuote).Elem(),
+		"ErrTrailingComma":	ValueOf(&pkg.ErrTrailingComma).Elem(),
+		"NewReader":	ValueOf(pkg.NewReader),
+		"NewWriter":	ValueOf(pkg.NewWriter),
+	}
+	Types["encoding/csv"] = map[string]Type{
+		"ParseError":	TypeOf((*pkg.ParseError)(nil)).Elem(),
+		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+	}
 }

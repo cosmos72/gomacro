@@ -4,41 +4,36 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "testing"
+	. "reflect"
 )
 
-func Package_testing() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"AllocsPerRun":  ValueOf(pkg.AllocsPerRun),
-			"Benchmark":     ValueOf(pkg.Benchmark),
-			"CoverMode":     ValueOf(pkg.CoverMode),
-			"Coverage":      ValueOf(pkg.Coverage),
-			"Main":          ValueOf(pkg.Main),
-			"MainStart":     ValueOf(pkg.MainStart),
-			"RegisterCover": ValueOf(pkg.RegisterCover),
-			"RunBenchmarks": ValueOf(pkg.RunBenchmarks),
-			"RunExamples":   ValueOf(pkg.RunExamples),
-			"RunTests":      ValueOf(pkg.RunTests),
-			"Short":         ValueOf(pkg.Short),
-			"Verbose":       ValueOf(pkg.Verbose),
-		}, map[string]Type{
-			"B":                 TypeOf((*pkg.B)(nil)).Elem(),
-			"BenchmarkResult":   TypeOf((*pkg.BenchmarkResult)(nil)).Elem(),
-			"Cover":             TypeOf((*pkg.Cover)(nil)).Elem(),
-			"CoverBlock":        TypeOf((*pkg.CoverBlock)(nil)).Elem(),
-			"InternalBenchmark": TypeOf((*pkg.InternalBenchmark)(nil)).Elem(),
-			"InternalExample":   TypeOf((*pkg.InternalExample)(nil)).Elem(),
-			"InternalTest":      TypeOf((*pkg.InternalTest)(nil)).Elem(),
-			"M":                 TypeOf((*pkg.M)(nil)).Elem(),
-			"PB":                TypeOf((*pkg.PB)(nil)).Elem(),
-			"T":                 TypeOf((*pkg.T)(nil)).Elem(),
-			"TB":                TypeOf((*pkg.TB)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_testing()
-	Binds["testing"] = binds
-	Types["testing"] = types
+	Binds["testing"] = map[string]Value{
+		"AllocsPerRun":	ValueOf(pkg.AllocsPerRun),
+		"Benchmark":	ValueOf(pkg.Benchmark),
+		"CoverMode":	ValueOf(pkg.CoverMode),
+		"Coverage":	ValueOf(pkg.Coverage),
+		"Main":	ValueOf(pkg.Main),
+		"MainStart":	ValueOf(pkg.MainStart),
+		"RegisterCover":	ValueOf(pkg.RegisterCover),
+		"RunBenchmarks":	ValueOf(pkg.RunBenchmarks),
+		"RunExamples":	ValueOf(pkg.RunExamples),
+		"RunTests":	ValueOf(pkg.RunTests),
+		"Short":	ValueOf(pkg.Short),
+		"Verbose":	ValueOf(pkg.Verbose),
+	}
+	Types["testing"] = map[string]Type{
+		"B":	TypeOf((*pkg.B)(nil)).Elem(),
+		"BenchmarkResult":	TypeOf((*pkg.BenchmarkResult)(nil)).Elem(),
+		"Cover":	TypeOf((*pkg.Cover)(nil)).Elem(),
+		"CoverBlock":	TypeOf((*pkg.CoverBlock)(nil)).Elem(),
+		"InternalBenchmark":	TypeOf((*pkg.InternalBenchmark)(nil)).Elem(),
+		"InternalExample":	TypeOf((*pkg.InternalExample)(nil)).Elem(),
+		"InternalTest":	TypeOf((*pkg.InternalTest)(nil)).Elem(),
+		"M":	TypeOf((*pkg.M)(nil)).Elem(),
+		"PB":	TypeOf((*pkg.PB)(nil)).Elem(),
+		"T":	TypeOf((*pkg.T)(nil)).Elem(),
+		"TB":	TypeOf((*pkg.TB)(nil)).Elem(),
+	}
 }

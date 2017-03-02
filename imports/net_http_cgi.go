@@ -8,18 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_net_http_cgi() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Request":        ValueOf(pkg.Request),
-			"RequestFromMap": ValueOf(pkg.RequestFromMap),
-			"Serve":          ValueOf(pkg.Serve),
-		}, map[string]Type{
-			"Handler": TypeOf((*pkg.Handler)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_net_http_cgi()
-	Binds["net/http/cgi"] = binds
-	Types["net/http/cgi"] = types
+	Binds["net/http/cgi"] = map[string]Value{
+		"Request":	ValueOf(pkg.Request),
+		"RequestFromMap":	ValueOf(pkg.RequestFromMap),
+		"Serve":	ValueOf(pkg.Serve),
+	}
+	Types["net/http/cgi"] = map[string]Type{
+		"Handler":	TypeOf((*pkg.Handler)(nil)).Elem(),
+	}
 }

@@ -8,16 +8,11 @@ import (
 	. "reflect"
 )
 
-func Package_index_suffixarray() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"New": ValueOf(pkg.New),
-		}, map[string]Type{
-			"Index": TypeOf((*pkg.Index)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_index_suffixarray()
-	Binds["index/suffixarray"] = binds
-	Types["index/suffixarray"] = types
+	Binds["index/suffixarray"] = map[string]Value{
+		"New":	ValueOf(pkg.New),
+	}
+	Types["index/suffixarray"] = map[string]Type{
+		"Index":	TypeOf((*pkg.Index)(nil)).Elem(),
+	}
 }

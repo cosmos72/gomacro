@@ -8,38 +8,33 @@ import (
 	. "reflect"
 )
 
-func Package_log() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Fatal":         ValueOf(pkg.Fatal),
-			"Fatalf":        ValueOf(pkg.Fatalf),
-			"Fatalln":       ValueOf(pkg.Fatalln),
-			"Flags":         ValueOf(pkg.Flags),
-			"LUTC":          ValueOf(pkg.LUTC),
-			"Ldate":         ValueOf(pkg.Ldate),
-			"Llongfile":     ValueOf(pkg.Llongfile),
-			"Lmicroseconds": ValueOf(pkg.Lmicroseconds),
-			"Lshortfile":    ValueOf(pkg.Lshortfile),
-			"LstdFlags":     ValueOf(pkg.LstdFlags),
-			"Ltime":         ValueOf(pkg.Ltime),
-			"New":           ValueOf(pkg.New),
-			"Output":        ValueOf(pkg.Output),
-			"Panic":         ValueOf(pkg.Panic),
-			"Panicf":        ValueOf(pkg.Panicf),
-			"Panicln":       ValueOf(pkg.Panicln),
-			"Prefix":        ValueOf(pkg.Prefix),
-			"Print":         ValueOf(pkg.Print),
-			"Printf":        ValueOf(pkg.Printf),
-			"Println":       ValueOf(pkg.Println),
-			"SetFlags":      ValueOf(pkg.SetFlags),
-			"SetOutput":     ValueOf(pkg.SetOutput),
-			"SetPrefix":     ValueOf(pkg.SetPrefix),
-		}, map[string]Type{
-			"Logger": TypeOf((*pkg.Logger)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_log()
-	Binds["log"] = binds
-	Types["log"] = types
+	Binds["log"] = map[string]Value{
+		"Fatal":	ValueOf(pkg.Fatal),
+		"Fatalf":	ValueOf(pkg.Fatalf),
+		"Fatalln":	ValueOf(pkg.Fatalln),
+		"Flags":	ValueOf(pkg.Flags),
+		"LUTC":	ValueOf(pkg.LUTC),
+		"Ldate":	ValueOf(pkg.Ldate),
+		"Llongfile":	ValueOf(pkg.Llongfile),
+		"Lmicroseconds":	ValueOf(pkg.Lmicroseconds),
+		"Lshortfile":	ValueOf(pkg.Lshortfile),
+		"LstdFlags":	ValueOf(pkg.LstdFlags),
+		"Ltime":	ValueOf(pkg.Ltime),
+		"New":	ValueOf(pkg.New),
+		"Output":	ValueOf(pkg.Output),
+		"Panic":	ValueOf(pkg.Panic),
+		"Panicf":	ValueOf(pkg.Panicf),
+		"Panicln":	ValueOf(pkg.Panicln),
+		"Prefix":	ValueOf(pkg.Prefix),
+		"Print":	ValueOf(pkg.Print),
+		"Printf":	ValueOf(pkg.Printf),
+		"Println":	ValueOf(pkg.Println),
+		"SetFlags":	ValueOf(pkg.SetFlags),
+		"SetOutput":	ValueOf(pkg.SetOutput),
+		"SetPrefix":	ValueOf(pkg.SetPrefix),
+	}
+	Types["log"] = map[string]Type{
+		"Logger":	TypeOf((*pkg.Logger)(nil)).Elem(),
+	}
 }

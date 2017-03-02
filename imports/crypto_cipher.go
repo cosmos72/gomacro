@@ -8,28 +8,23 @@ import (
 	. "reflect"
 )
 
-func Package_crypto_cipher() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"NewCBCDecrypter":     ValueOf(pkg.NewCBCDecrypter),
-			"NewCBCEncrypter":     ValueOf(pkg.NewCBCEncrypter),
-			"NewCFBDecrypter":     ValueOf(pkg.NewCFBDecrypter),
-			"NewCFBEncrypter":     ValueOf(pkg.NewCFBEncrypter),
-			"NewCTR":              ValueOf(pkg.NewCTR),
-			"NewGCM":              ValueOf(pkg.NewGCM),
-			"NewGCMWithNonceSize": ValueOf(pkg.NewGCMWithNonceSize),
-			"NewOFB":              ValueOf(pkg.NewOFB),
-		}, map[string]Type{
-			"AEAD":         TypeOf((*pkg.AEAD)(nil)).Elem(),
-			"Block":        TypeOf((*pkg.Block)(nil)).Elem(),
-			"BlockMode":    TypeOf((*pkg.BlockMode)(nil)).Elem(),
-			"Stream":       TypeOf((*pkg.Stream)(nil)).Elem(),
-			"StreamReader": TypeOf((*pkg.StreamReader)(nil)).Elem(),
-			"StreamWriter": TypeOf((*pkg.StreamWriter)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_crypto_cipher()
-	Binds["crypto/cipher"] = binds
-	Types["crypto/cipher"] = types
+	Binds["crypto/cipher"] = map[string]Value{
+		"NewCBCDecrypter":	ValueOf(pkg.NewCBCDecrypter),
+		"NewCBCEncrypter":	ValueOf(pkg.NewCBCEncrypter),
+		"NewCFBDecrypter":	ValueOf(pkg.NewCFBDecrypter),
+		"NewCFBEncrypter":	ValueOf(pkg.NewCFBEncrypter),
+		"NewCTR":	ValueOf(pkg.NewCTR),
+		"NewGCM":	ValueOf(pkg.NewGCM),
+		"NewGCMWithNonceSize":	ValueOf(pkg.NewGCMWithNonceSize),
+		"NewOFB":	ValueOf(pkg.NewOFB),
+	}
+	Types["crypto/cipher"] = map[string]Type{
+		"AEAD":	TypeOf((*pkg.AEAD)(nil)).Elem(),
+		"Block":	TypeOf((*pkg.Block)(nil)).Elem(),
+		"BlockMode":	TypeOf((*pkg.BlockMode)(nil)).Elem(),
+		"Stream":	TypeOf((*pkg.Stream)(nil)).Elem(),
+		"StreamReader":	TypeOf((*pkg.StreamReader)(nil)).Elem(),
+		"StreamWriter":	TypeOf((*pkg.StreamWriter)(nil)).Elem(),
+	}
 }

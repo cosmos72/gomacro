@@ -8,32 +8,27 @@ import (
 	. "reflect"
 )
 
-func Package_archive_zip() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Deflate":              ValueOf(pkg.Deflate),
-			"ErrAlgorithm":         ValueOf(&pkg.ErrAlgorithm).Elem(),
-			"ErrChecksum":          ValueOf(&pkg.ErrChecksum).Elem(),
-			"ErrFormat":            ValueOf(&pkg.ErrFormat).Elem(),
-			"FileInfoHeader":       ValueOf(pkg.FileInfoHeader),
-			"NewReader":            ValueOf(pkg.NewReader),
-			"NewWriter":            ValueOf(pkg.NewWriter),
-			"OpenReader":           ValueOf(pkg.OpenReader),
-			"RegisterCompressor":   ValueOf(pkg.RegisterCompressor),
-			"RegisterDecompressor": ValueOf(pkg.RegisterDecompressor),
-			"Store":                ValueOf(pkg.Store),
-		}, map[string]Type{
-			"Compressor":   TypeOf((*pkg.Compressor)(nil)).Elem(),
-			"Decompressor": TypeOf((*pkg.Decompressor)(nil)).Elem(),
-			"File":         TypeOf((*pkg.File)(nil)).Elem(),
-			"FileHeader":   TypeOf((*pkg.FileHeader)(nil)).Elem(),
-			"ReadCloser":   TypeOf((*pkg.ReadCloser)(nil)).Elem(),
-			"Reader":       TypeOf((*pkg.Reader)(nil)).Elem(),
-			"Writer":       TypeOf((*pkg.Writer)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_archive_zip()
-	Binds["archive/zip"] = binds
-	Types["archive/zip"] = types
+	Binds["archive/zip"] = map[string]Value{
+		"Deflate":	ValueOf(pkg.Deflate),
+		"ErrAlgorithm":	ValueOf(&pkg.ErrAlgorithm).Elem(),
+		"ErrChecksum":	ValueOf(&pkg.ErrChecksum).Elem(),
+		"ErrFormat":	ValueOf(&pkg.ErrFormat).Elem(),
+		"FileInfoHeader":	ValueOf(pkg.FileInfoHeader),
+		"NewReader":	ValueOf(pkg.NewReader),
+		"NewWriter":	ValueOf(pkg.NewWriter),
+		"OpenReader":	ValueOf(pkg.OpenReader),
+		"RegisterCompressor":	ValueOf(pkg.RegisterCompressor),
+		"RegisterDecompressor":	ValueOf(pkg.RegisterDecompressor),
+		"Store":	ValueOf(pkg.Store),
+	}
+	Types["archive/zip"] = map[string]Type{
+		"Compressor":	TypeOf((*pkg.Compressor)(nil)).Elem(),
+		"Decompressor":	TypeOf((*pkg.Decompressor)(nil)).Elem(),
+		"File":	TypeOf((*pkg.File)(nil)).Elem(),
+		"FileHeader":	TypeOf((*pkg.FileHeader)(nil)).Elem(),
+		"ReadCloser":	TypeOf((*pkg.ReadCloser)(nil)).Elem(),
+		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+	}
 }

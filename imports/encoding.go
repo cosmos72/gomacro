@@ -8,17 +8,13 @@ import (
 	. "reflect"
 )
 
-func Package_encoding() (map[string]Value, map[string]Type) {
-	return map[string]Value{}, map[string]Type{
-			"BinaryMarshaler":   TypeOf((*pkg.BinaryMarshaler)(nil)).Elem(),
-			"BinaryUnmarshaler": TypeOf((*pkg.BinaryUnmarshaler)(nil)).Elem(),
-			"TextMarshaler":     TypeOf((*pkg.TextMarshaler)(nil)).Elem(),
-			"TextUnmarshaler":   TypeOf((*pkg.TextUnmarshaler)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_encoding()
-	Binds["encoding"] = binds
-	Types["encoding"] = types
+	Binds["encoding"] = map[string]Value{
+	}
+	Types["encoding"] = map[string]Type{
+		"BinaryMarshaler":	TypeOf((*pkg.BinaryMarshaler)(nil)).Elem(),
+		"BinaryUnmarshaler":	TypeOf((*pkg.BinaryUnmarshaler)(nil)).Elem(),
+		"TextMarshaler":	TypeOf((*pkg.TextMarshaler)(nil)).Elem(),
+		"TextUnmarshaler":	TypeOf((*pkg.TextUnmarshaler)(nil)).Elem(),
+	}
 }

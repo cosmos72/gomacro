@@ -8,17 +8,12 @@ import (
 	. "reflect"
 )
 
-func Package_plugin() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"Open": ValueOf(pkg.Open),
-		}, map[string]Type{
-			"Plugin": TypeOf((*pkg.Plugin)(nil)).Elem(),
-			"Symbol": TypeOf((*pkg.Symbol)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_plugin()
-	Binds["plugin"] = binds
-	Types["plugin"] = types
+	Binds["plugin"] = map[string]Value{
+		"Open":	ValueOf(pkg.Open),
+	}
+	Types["plugin"] = map[string]Type{
+		"Plugin":	TypeOf((*pkg.Plugin)(nil)).Elem(),
+		"Symbol":	TypeOf((*pkg.Symbol)(nil)).Elem(),
+	}
 }

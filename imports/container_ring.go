@@ -8,16 +8,11 @@ import (
 	. "reflect"
 )
 
-func Package_container_ring() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"New": ValueOf(pkg.New),
-		}, map[string]Type{
-			"Ring": TypeOf((*pkg.Ring)(nil)).Elem(),
-		}
-}
-
 func init() {
-	binds, types := Package_container_ring()
-	Binds["container/ring"] = binds
-	Types["container/ring"] = types
+	Binds["container/ring"] = map[string]Value{
+		"New":	ValueOf(pkg.New),
+	}
+	Types["container/ring"] = map[string]Type{
+		"Ring":	TypeOf((*pkg.Ring)(nil)).Elem(),
+	}
 }

@@ -4,35 +4,31 @@
 package imports
 
 import (
-	. "reflect"
 	pkg "unicode/utf8"
+	. "reflect"
 )
 
-func Package_unicode_utf8() (map[string]Value, map[string]Type) {
-	return map[string]Value{
-			"DecodeLastRune":         ValueOf(pkg.DecodeLastRune),
-			"DecodeLastRuneInString": ValueOf(pkg.DecodeLastRuneInString),
-			"DecodeRune":             ValueOf(pkg.DecodeRune),
-			"DecodeRuneInString":     ValueOf(pkg.DecodeRuneInString),
-			"EncodeRune":             ValueOf(pkg.EncodeRune),
-			"FullRune":               ValueOf(pkg.FullRune),
-			"FullRuneInString":       ValueOf(pkg.FullRuneInString),
-			"MaxRune":                ValueOf(pkg.MaxRune),
-			"RuneCount":              ValueOf(pkg.RuneCount),
-			"RuneCountInString":      ValueOf(pkg.RuneCountInString),
-			"RuneError":              ValueOf(pkg.RuneError),
-			"RuneLen":                ValueOf(pkg.RuneLen),
-			"RuneSelf":               ValueOf(pkg.RuneSelf),
-			"RuneStart":              ValueOf(pkg.RuneStart),
-			"UTFMax":                 ValueOf(pkg.UTFMax),
-			"Valid":                  ValueOf(pkg.Valid),
-			"ValidRune":              ValueOf(pkg.ValidRune),
-			"ValidString":            ValueOf(pkg.ValidString),
-		}, map[string]Type{}
-}
-
 func init() {
-	binds, types := Package_unicode_utf8()
-	Binds["unicode/utf8"] = binds
-	Types["unicode/utf8"] = types
+	Binds["unicode/utf8"] = map[string]Value{
+		"DecodeLastRune":	ValueOf(pkg.DecodeLastRune),
+		"DecodeLastRuneInString":	ValueOf(pkg.DecodeLastRuneInString),
+		"DecodeRune":	ValueOf(pkg.DecodeRune),
+		"DecodeRuneInString":	ValueOf(pkg.DecodeRuneInString),
+		"EncodeRune":	ValueOf(pkg.EncodeRune),
+		"FullRune":	ValueOf(pkg.FullRune),
+		"FullRuneInString":	ValueOf(pkg.FullRuneInString),
+		"MaxRune":	ValueOf(pkg.MaxRune),
+		"RuneCount":	ValueOf(pkg.RuneCount),
+		"RuneCountInString":	ValueOf(pkg.RuneCountInString),
+		"RuneError":	ValueOf(pkg.RuneError),
+		"RuneLen":	ValueOf(pkg.RuneLen),
+		"RuneSelf":	ValueOf(pkg.RuneSelf),
+		"RuneStart":	ValueOf(pkg.RuneStart),
+		"UTFMax":	ValueOf(pkg.UTFMax),
+		"Valid":	ValueOf(pkg.Valid),
+		"ValidRune":	ValueOf(pkg.ValidRune),
+		"ValidString":	ValueOf(pkg.ValidString),
+	}
+	Types["unicode/utf8"] = map[string]Type{
+	}
 }
