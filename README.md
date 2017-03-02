@@ -37,6 +37,7 @@ The intepreter supports:
 * variable and function definitions
 * function calls (no imports yet, so builtins only)
 * strings, booleans, integers, floats, complex numbers and interface{}
+* imports: Go standard packages "just work", other packages work only on Linux
 * macro definitions
 * macro calls, including MacroExpand and MacroExpand1
 * macroexpansion code walker
@@ -49,7 +50,7 @@ A lot of things are still missing:
 * fields access (a.b)
 * method calls (i.e. functions with receivers)
 * struct and interface definitions
-* packages and imports
+* packages, i.e. switching to a different package
 * multiline input, history/readline
 
 * support to quote or quasiquote macro calls, i.e. `quasiquote{some_macro ...}`
