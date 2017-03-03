@@ -41,7 +41,7 @@ type Interpreter struct {
 	Filename    string
 	Options     Options
 	Importer    Importer
-	ParserMode  parser.Mode
+	ParserMode  mp.Mode
 	ParserScope *ast.Scope
 	SpecialChar rune
 }
@@ -113,7 +113,7 @@ func (ir *Interpreter) ParseBytes1_OrigVersion(src []byte) ast.Node {
 	if err == nil {
 		if ir.ParserMode != 0 {
 			// run again with user-specified ParserMode
-			expr, err = parser.ParseExprFrom(ir.Fileset, ir.Filename, src, ir.ParserMode)
+			expr, err = parser.ParseExprFrom(ir.Fileset, ir.Filename, src, parser.Mode(ir.ParserMode))
 			if err != nil {
 				Error(err)
 				return nil
@@ -137,7 +137,7 @@ func (ir *Interpreter) ParseBytes1_OrigVersion(src []byte) ast.Node {
 		buf.WriteString(" }")
 		src = buf.Bytes()
 	}
-	node, err := parser.ParseFile(ir.Fileset, ir.Filename, src, ir.ParserMode)
+	node, err := parser.ParseFile(ir.Fileset, ir.Filename, src, parser.Mode(ir.ParserMode))
 	if err != nil {
 		Error(err)
 		return nil

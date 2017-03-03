@@ -39,8 +39,10 @@ type Parser struct {
 	indent int  // indentation used for tracing output
 	Mode   Mode // parsing mode
 
-	SpecialChar rune
-	Fileset     *token.FileSet
+	quasiquoteDepth int  // patch: don't parse macros inside quasiquotes
+	quoteOrMacro    bool // patch: don't parse macros inside quotes or macros
+	SpecialChar     rune // patch: prefix for quote operators ' ` , ,@
+	Fileset         *token.FileSet
 
 	// Comments
 	comments    []*ast.CommentGroup
@@ -89,6 +91,8 @@ func (p *Parser) Init(filename string, src []byte, scope *ast.Scope) *ast.Scope 
 	if mode&ParseComments != 0 {
 		m = scanner.ScanComments
 	}
+	p.quasiquoteDepth = 0
+	p.quoteOrMacro = false
 	if p.SpecialChar == '\x00' {
 		p.SpecialChar = '~'
 	}
@@ -1105,13 +1109,13 @@ func (p *Parser) tryType() ast.Expr {
 // ----------------------------------------------------------------------------
 // Blocks
 
-func (p *Parser) parseStmtList() (list []ast.Stmt) {
+func (p *Parser) parseStmtList(directlyInsideParen bool) (list []ast.Stmt) {
 	if p.trace {
 		defer un(trace(p, "StatementList"))
 	}
 
 	for p.tok != token.CASE && p.tok != token.DEFAULT && p.tok != token.RBRACE && p.tok != token.EOF {
-		list = append(list, p.parseStmt())
+		list = append(list, p.parseStmt(directlyInsideParen))
 	}
 
 	return
@@ -1125,7 +1129,7 @@ func (p *Parser) parseBody(scope *ast.Scope) *ast.BlockStmt {
 	lbrace := p.expect(token.LBRACE)
 	p.topScope = scope // open function scope
 	p.openLabelScope()
-	list := p.parseStmtList()
+	list := p.parseStmtList(true)
 	p.closeLabelScope()
 	p.closeScope()
 	rbrace := p.expect(token.RBRACE)
@@ -1140,7 +1144,7 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 
 	lbrace := p.expect(token.LBRACE)
 	p.openScope()
-	list := p.parseStmtList()
+	list := p.parseStmtList(true)
 	p.closeScope()
 	rbrace := p.expect(token.RBRACE)
 
@@ -1753,7 +1757,7 @@ func (p *Parser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
 			// Go spec: The scope of a label is the body of the function
 			// in which it is declared and excludes the body of any nested
 			// function.
-			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
+			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt(false)}
 			p.declare(stmt, nil, p.labelScope, ast.Lbl, label)
 			return stmt, false
 		}
@@ -1956,7 +1960,7 @@ func (p *Parser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
 
 	colon := p.expect(token.COLON)
 	p.openScope()
-	body := p.parseStmtList()
+	body := p.parseStmtList(false)
 	p.closeScope()
 
 	return &ast.CaseClause{Case: pos, List: list, Colon: colon, Body: body}
@@ -2098,7 +2102,7 @@ func (p *Parser) parseCommClause() *ast.CommClause {
 	}
 
 	colon := p.expect(token.COLON)
-	body := p.parseStmtList()
+	body := p.parseStmtList(false)
 	p.closeScope()
 
 	return &ast.CommClause{Case: pos, Comm: comm, Colon: colon, Body: body}
@@ -2205,7 +2209,7 @@ func (p *Parser) parseForStmt() ast.Stmt {
 	}
 }
 
-func (p *Parser) parseStmt() (s ast.Stmt) {
+func (p *Parser) parseStmt(directlyInsideParen bool) (s ast.Stmt) {
 	if p.trace {
 		defer un(trace(p, "Statement"))
 	}
@@ -2232,7 +2236,18 @@ func (p *Parser) parseStmt() (s ast.Stmt) {
 		// parsed by parseSimpleStmt - don't expect a semicolon after
 		// them
 		if _, isLabeledStmt := s.(*ast.LabeledStmt); !isLabeledStmt {
-			p.expectSemi()
+			// patch: macro calls syntax is "foo bar [;] baz"... recognize and parse it
+			maybeMacro := p.expectSemiOrMacro()
+			if p.Mode&TraceMacro != 0 {
+				p.printTrace(fmt.Sprintf("<expectSemiOrMacro> returned %v, unknownMacrosAllowed = %v", maybeMacro, directlyInsideParen))
+			}
+			if !directlyInsideParen {
+				break
+			}
+			if maybeMacro {
+				expr := p.parseMacro(s, -1)
+				s = &ast.ExprStmt{X: expr}
+			}
 		}
 	case token.GO:
 		s = p.parseGoStmt()

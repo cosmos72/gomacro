@@ -38,9 +38,9 @@ The intepreter supports:
 * function calls (no imports yet, so builtins only)
 * strings, booleans, integers, floats, complex numbers and interface{}
 * imports: Go standard packages "just work", other packages work only on Linux
-* macro definitions
-* macro calls, including MacroExpand and MacroExpand1
-* macroexpansion code walker
+* macro definitions, for example `macro foo(a, b, c interface{}) interface{} { return b }`
+* macro calls, for example `foo x; y; z`
+* macroexpansion code walker, MacroExpand and MacroExpand1
 * quote and quasiquote. they take any number of arguments in curly braces, for example:
   `quote { x; y; z }`
 * unquote and unquote_splice
@@ -51,6 +51,12 @@ A lot of things are still missing:
 * method calls (i.e. functions with receivers)
 * struct and interface definitions
 * packages, i.e. switching to a different package
+* nested macro calls and quoted macros:
+  both `foo bar baz` and `quote{foo bar baz}` parse,
+  but `foo {bar baz}` and `quote{foo {bar baz}}` don't parse yet
+  because foo{bar /*...*/} is a Go composite literal
+  The case `foo 1; bar baz; 2` instead parses, but
+  all statements after `bar` are consumed by `bar`, not by `foo`
 * multiline input, history/readline
 
 * support to quote or quasiquote macro calls, i.e. `quasiquote{some_macro ...}`
