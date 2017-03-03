@@ -81,7 +81,7 @@ func (env *Env) evalExpr1(node ast.Expr) r.Value {
 
 func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 	for {
-		// Debugf("evalExpr() %v", node)
+		// env.Debugf("evalExpr() %v", node)
 		switch node := in.(type) {
 		case *ast.BasicLit:
 			return env.evalLiteral(node)
@@ -111,7 +111,13 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 		case *ast.UnaryExpr:
 			return env.evalUnaryExpr(node)
 
-		case *ast.KeyValueExpr, *ast.SelectorExpr, *ast.SliceExpr, *ast.TypeAssertExpr:
+		case *ast.SelectorExpr:
+			return env.evalSelectorExpr(node)
+
+		case *ast.TypeAssertExpr:
+			return env.evalTypeAssertExpr(node)
+
+		case *ast.KeyValueExpr, *ast.SliceExpr:
 			// TODO
 		}
 		return env.Errorf("unimplemented Eval() for: %v <%v>", in, r.TypeOf(in))
@@ -120,18 +126,51 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 
 func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 	index := env.evalExpr1(node.Index)
-	container := env.evalExpr1(node.X)
+	obj := env.evalExpr1(node.X)
 
-	switch container.Kind() {
+	switch obj.Kind() {
 	case r.Map:
-		return container.MapIndex(index), nil
+		return obj.MapIndex(index), nil
 	case r.Array, r.Slice, r.String:
 		i, ok := env.toInt(index)
 		if !ok {
 			return env.Errorf("invalid index, expecting an int: %v <%v>", index, index.Type())
 		}
-		return container.Index(int(i)), nil
+		return obj.Index(int(i)), nil
 	default:
-		return env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, container, container.Type())
+		return env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, obj, obj.Type())
 	}
+}
+
+func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
+	obj := env.evalExpr1(node.X)
+	name := node.Sel.Name
+	if obj.Kind() == r.Ptr {
+		obj = obj.Elem()
+	}
+	switch obj.Kind() {
+	case r.Struct:
+		val := obj.FieldByName(name)
+		if val == Nil {
+			val = obj.MethodByName(name)
+		}
+		if val == Nil {
+			return env.Errorf("%v <%v> has no field or method %s", obj.Interface(), obj.Type(), name)
+		}
+		return val, nil
+	default:
+		return env.Errorf("not a struct: %v <%v> has no field or method %s", obj.Interface(), obj.Type(), name)
+	}
+}
+
+func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr) (r.Value, []r.Value) {
+	val := env.evalExpr1(node.X)
+	fval := val.Interface()
+	t1 := r.TypeOf(fval) // extract the actual runtime type of fval
+
+	t2 := env.evalType(node.Type)
+	if t1.AssignableTo(t2) {
+		return r.ValueOf(fval).Convert(t2), nil
+	}
+	return env.Errorf("type assertion failed: %v <%v> is not a <%v>", fval, t1, t2)
 }

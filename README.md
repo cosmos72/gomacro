@@ -36,10 +36,10 @@ The intepreter supports:
 * type inference
 * variable and function definitions
 * strings, booleans, integers, floats, complex numbers and interface{}
-* function calls, including multiple return values
-  (no dotted notation `foo.bar` yet, so no method calls or imported symbols)
+* dotted notation i.e. `foo.bar` to access struct fields & methods and imported symbols
 * imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
-  (but they cannot be used yet, dotted notation `foo.bar` still unimplemented)
+  (but they cannot be used yet, dotted notation `foo.bar` currently implemented only for structs, not for packages)
+* function calls, including multiple return values
 * macro definitions, for example `macro foo(a, b, c interface{}) interface{} { return b }`
 * macro calls, for example `foo x; y; z`
 * macroexpansion code walker, MacroExpand and MacroExpand1
@@ -49,7 +49,6 @@ The intepreter supports:
 
 A lot of things are still missing:
 * support to create arrays, slices, maps, channels, pointers
-* dotted notation i.e. `foo.bar` for fields access and imported symbols 
 * method calls (i.e. functions with receivers)
 * struct and interface definitions
 * switching to a different package

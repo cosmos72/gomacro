@@ -48,8 +48,8 @@ func main() {
 func Main(args []string) {
 	env := gmi.NewEnv(nil)
 
-	env.ParserMode = mp.Trace      // Macro & 0 // mp.TraceMacro
-	env.Options = gmi.OptTrapPanic // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpandCodewalk // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote // | gmi.OptShowEvalDuration
+	env.ParserMode = mp.Trace                              // & 0 // | mp.TraceMacro
+	env.Options = gmi.OptTrapPanic | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpandCodewalk // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote // | gmi.OptShowEvalDuration
 	env.SpecialChar = '~'
 
 	if len(args) > 1 {
