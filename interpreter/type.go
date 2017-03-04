@@ -48,12 +48,27 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 	}
 	var t r.Type
 	switch node := node.(type) {
-	case *ast.Ident:
-		t = env.evalTypeIdentifier(node.Name)
+	case *ast.ArrayType:
+		t = env.evalTypeArray(node)
+	case *ast.ChanType:
+		t = env.evalType(node.Value)
+		dir := r.BothDir
+		if node.Dir == ast.SEND {
+			dir = r.SendDir
+		} else if node.Dir == ast.RECV {
+			dir = r.RecvDir
+		}
+		t = r.ChanOf(dir, t)
 	case *ast.FuncType:
 		t, _, _ = env.evalTypeFunction(node)
+	case *ast.Ident:
+		t = env.evalTypeIdentifier(node.Name)
 	case *ast.InterfaceType:
 		t, _ = env.evalTypeInterface(node)
+	case *ast.MapType:
+		kt := env.evalType(node.Key)
+		vt := env.evalType(node.Value)
+		t = r.MapOf(kt, vt)
 	case *ast.SelectorExpr:
 		if pkgIdent, ok := node.X.(*ast.Ident); ok {
 			pkgv := env.evalIdentifier(pkgIdent)
@@ -81,12 +96,19 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 	return t
 }
 
-func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodNames []string) {
-	if node.Methods != nil && len(node.Methods.List) != 0 {
-		env.Errorf("unimplemented interface { /*methods*/ }: %#v", node.Methods.List)
-		return nil, nil
+func (env *Env) evalTypeArray(node *ast.ArrayType) r.Type {
+	t := env.evalType(node.Elt)
+	n := node.Len
+	switch n := n.(type) {
+	case *ast.Ellipsis:
+		env.Errorf("evalType(): unimplemented array type with ellipsis: %v", node, r.TypeOf(node))
+	case nil:
+		t = r.SliceOf(t)
+	default:
+		count := env.evalExpr1(n).Int()
+		t = r.ArrayOf(int(count), t)
 	}
-	return typeOfInterface, zeroStrings
+	return t
 }
 
 func (env *Env) evalTypeFunction(node *ast.FuncType) (t r.Type, argNames []string, resultNames []string) {
@@ -161,7 +183,21 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 	return r.TypeOf(v)
 }
 
+func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodNames []string) {
+	if node.Methods != nil && len(node.Methods.List) != 0 {
+		env.Errorf("unimplemented interface { /*methods*/ }: %#v", node.Methods.List)
+		return nil, nil
+	}
+	return typeOfInterface, zeroStrings
+}
+
 func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
+	if value == None || value == Nil {
+		switch t.Kind() {
+		case r.Chan, r.Map, r.Slice, r.Ptr:
+			value = r.Zero(t)
+		}
+	}
 	vt := TypeOf(value)
 	if !vt.AssignableTo(t) && !vt.ConvertibleTo(t) {
 		ret, _ := env.Errorf("failed to convert %#v to %v", value, t)

@@ -30,9 +30,15 @@ import (
 	r "reflect"
 )
 
-func callAppend(slice interface{}, elems ...interface{}) interface{} {
-	elemsv := toValues(elems)
-	return r.Append(r.ValueOf(slice), elemsv...)
+type Builtin struct {
+	exec func(env *Env, args ...ast.Expr) (r.Value, []r.Value)
+}
+
+func builtinAppend(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	elems := env.evalExprs(args)
+	slice := elems[0]
+	elems = elems[1:]
+	return r.Append(slice, elems...), nil
 }
 
 func callCap(arg interface{}) int {
@@ -53,6 +59,38 @@ func callDelete(m interface{}, key interface{}) {
 
 func callLen(arg interface{}) int {
 	return r.ValueOf(arg).Len()
+}
+
+func builtinMake(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	n := len(args)
+	if n < 1 || n > 3 {
+		return env.Errorf("builtin make() wants one, two or three arguments, not %d", n)
+	}
+	t := env.evalType(args[0].(ast.Expr))
+	values := env.evalExprs(args[1:])
+	n--
+	ret := Nil
+	switch t.Kind() {
+	case r.Chan:
+		buffer := 0
+		if n > 0 {
+			buffer = int(values[0].Int())
+		}
+		ret = r.MakeChan(t, buffer)
+	case r.Map:
+		ret = r.MakeMap(t)
+	case r.Slice:
+		length := 0
+		if n > 0 {
+			length = int(values[0].Int())
+		}
+		capacity := length
+		if n > 1 {
+			capacity = int(values[1].Int())
+		}
+		ret = r.MakeSlice(t, length, capacity)
+	}
+	return ret, nil
 }
 
 func callPanic(arg interface{}) {
@@ -91,7 +129,7 @@ func callSlice(args ...interface{}) []interface{} {
 func (env *Env) addBuiltins() {
 	binds := env.Binds
 
-	binds["append"] = r.ValueOf(callAppend)
+	binds["append"] = r.ValueOf(Builtin{builtinAppend})
 	binds["cap"] = r.ValueOf(callCap)
 	binds["close"] = r.ValueOf(callClose)
 	binds["copy"] = r.ValueOf(callCopy)
@@ -114,6 +152,7 @@ func (env *Env) addBuiltins() {
 	binds["MacroExpandCodewalk"] = r.ValueOf(func(in ast.Node) (out ast.Node, expanded bool) {
 		return env.MacroExpandCodewalk(in)
 	})
+	binds["make"] = r.ValueOf(Builtin{builtinMake})
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
 	binds["Parse"] = r.ValueOf(func(src interface{}) []ast.Node {

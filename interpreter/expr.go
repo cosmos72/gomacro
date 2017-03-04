@@ -132,7 +132,15 @@ func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 
 	switch obj.Kind() {
 	case r.Map:
-		return obj.MapIndex(index), nil
+		ret := obj.MapIndex(index)
+		present := ret != Nil
+		if !present {
+			// reproduce the exact behaviour of the builtin:
+			// var x = map[ktype]vtype
+			// x[key] // if key is not present, returns the zero value of vtype
+			ret = r.Zero(obj.Type().Elem())
+		}
+		return ret, []r.Value{ret, r.ValueOf(present)}
 	case r.Array, r.Slice, r.String:
 		i, ok := env.toInt(index)
 		if !ok {

@@ -29,6 +29,7 @@ import (
 	r "reflect"
 )
 
+// EvalList calls Eval() on each node and returns the value of *last* node
 func (env *Env) EvalList(nodes []ast.Node) (r.Value, []r.Value) {
 	var ret r.Value
 	var rets []r.Value
