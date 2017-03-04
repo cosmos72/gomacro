@@ -25,22 +25,19 @@
 package interpreter
 
 import (
-	"go/ast"
 	"go/token"
 	r "reflect"
 
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-func (env *Env) unsupportedBinaryExpr(xv r.Value, op token.Token, yv r.Value) (r.Value, []r.Value) {
+func (env *Env) unsupportedBinaryExpr(xv r.Value, op token.Token, yv r.Value) r.Value {
 	opstr := mt.String(op)
-	return env.Errorf("unsupported binary operation %s between %v <%v> and %v <%v>: %v %s %v", opstr, xv.Kind(), xv.Type(), yv.Kind(), yv.Type(), xv, opstr, yv)
+	ret, _ := env.Errorf("unsupported binary operation %s between <%v> and <%v>: %v %s %v", opstr, TypeOf(xv), TypeOf(yv), xv, opstr, yv)
+	return ret
 }
 
-func (env *Env) evalBinaryExpr(expr *ast.BinaryExpr) (r.Value, []r.Value) {
-	xv := env.Eval1(expr.X)
-	yv := env.Eval1(expr.Y)
-	op := expr.Op
+func (env *Env) evalBinaryExpr(xv r.Value, op token.Token, yv r.Value) r.Value {
 	switch xv.Kind() {
 	case r.Bool:
 		return env.evalBinaryExprBool(xv.Bool(), op, yv)
@@ -59,7 +56,7 @@ func (env *Env) evalBinaryExpr(expr *ast.BinaryExpr) (r.Value, []r.Value) {
 	}
 }
 
-func (env *Env) evalBinaryExprBool(x bool, op token.Token, yv r.Value) (r.Value, []r.Value) {
+func (env *Env) evalBinaryExprBool(x bool, op token.Token, yv r.Value) r.Value {
 	var ret bool
 	switch yv.Kind() {
 	case r.Bool:
@@ -72,13 +69,13 @@ func (env *Env) evalBinaryExprBool(x bool, op token.Token, yv r.Value) (r.Value,
 		default:
 			env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
-		return r.ValueOf(ret), nil
+		return r.ValueOf(ret)
 	default:
 		return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 	}
 }
 
-func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) (r.Value, []r.Value) {
+func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) r.Value {
 	switch yv.Kind() {
 
 	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
@@ -115,9 +112,9 @@ func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) (r.Valu
 		{
 			ret2 := uint(ret)
 			if uint64(ret2) == ret {
-				return r.ValueOf(ret2), nil
+				return r.ValueOf(ret2)
 			} else {
-				return r.ValueOf(ret), nil
+				return r.ValueOf(ret)
 			}
 		}
 	PART2:
@@ -138,7 +135,7 @@ func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) (r.Valu
 		default:
 			return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
-		return r.ValueOf(b), nil
+		return r.ValueOf(b)
 
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 		return env.evalBinaryExprIntInt(int64(x), op, yv.Int())
@@ -154,7 +151,7 @@ func (env *Env) evalBinaryExprUint(x uint64, op token.Token, yv r.Value) (r.Valu
 	}
 }
 
-func (env *Env) evalBinaryExprInt(x int64, op token.Token, yv r.Value) (r.Value, []r.Value) {
+func (env *Env) evalBinaryExprInt(x int64, op token.Token, yv r.Value) r.Value {
 	switch yv.Kind() {
 	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 		return env.evalBinaryExprIntInt(x, op, int64(yv.Uint()))
@@ -169,31 +166,31 @@ func (env *Env) evalBinaryExprInt(x int64, op token.Token, yv r.Value) (r.Value,
 	}
 }
 
-func (env *Env) evalBinaryExprIntInt(x int64, op token.Token, y int64) (r.Value, []r.Value) {
+func (env *Env) evalBinaryExprIntInt(x int64, op token.Token, y int64) r.Value {
 	var ret int64
 	switch op {
-	case token.ADD:
+	case token.ADD, token.ADD_ASSIGN:
 		ret = x + y
-	case token.SUB:
+	case token.SUB, token.SUB_ASSIGN:
 		ret = x - y
-	case token.MUL:
+	case token.MUL, token.MUL_ASSIGN:
 		ret = x * y
-	case token.QUO:
+	case token.QUO, token.QUO_ASSIGN:
 		ret = x / y
-	case token.REM:
+	case token.REM, token.REM_ASSIGN:
 		ret = x % y
-	case token.AND:
+	case token.AND, token.AND_ASSIGN:
 		ret = x & y
-	case token.OR:
+	case token.OR, token.OR_ASSIGN:
 		ret = x | y
-	case token.XOR:
+	case token.XOR, token.XOR_ASSIGN:
 		ret = x ^ y
-	case token.SHL:
+	case token.SHL, token.SHL_ASSIGN:
 		// in Go, x << y and x >> y require y to be unsigned
 		ret = x << uint64(y)
-	case token.SHR:
+	case token.SHR, token.SHR_ASSIGN:
 		ret = x >> uint64(y)
-	case token.AND_NOT:
+	case token.AND_NOT, token.AND_NOT_ASSIGN:
 		ret = x &^ y
 	default:
 		goto PART2
@@ -201,9 +198,9 @@ func (env *Env) evalBinaryExprIntInt(x int64, op token.Token, y int64) (r.Value,
 	{
 		ret2 := int(ret)
 		if int64(ret2) == ret {
-			return r.ValueOf(ret2), nil
+			return r.ValueOf(ret2)
 		} else {
-			return r.ValueOf(ret), nil
+			return r.ValueOf(ret)
 		}
 	}
 PART2:
@@ -224,20 +221,20 @@ PART2:
 	default:
 		return env.unsupportedBinaryExpr(r.ValueOf(x), op, r.ValueOf(y))
 	}
-	return r.ValueOf(b), nil
+	return r.ValueOf(b)
 }
 
-func (env *Env) evalBinaryExprFloat(x float64, op token.Token, yv r.Value) (r.Value, []r.Value) {
+func (env *Env) evalBinaryExprFloat(x float64, op token.Token, yv r.Value) r.Value {
 	var ret interface{}
 	if y, ok := env.toFloat(yv); ok {
 		switch op {
-		case token.ADD:
+		case token.ADD, token.ADD_ASSIGN:
 			ret = x + y
-		case token.SUB:
+		case token.SUB, token.SUB_ASSIGN:
 			ret = x - y
-		case token.MUL:
+		case token.MUL, token.MUL_ASSIGN:
 			ret = x * y
-		case token.QUO:
+		case token.QUO, token.QUO_ASSIGN:
 			ret = x / y
 		case token.EQL:
 			ret = x == y
@@ -254,7 +251,7 @@ func (env *Env) evalBinaryExprFloat(x float64, op token.Token, yv r.Value) (r.Va
 		default:
 			return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
-		return r.ValueOf(ret), nil
+		return r.ValueOf(ret)
 	}
 	if k := yv.Kind(); k == r.Complex64 || k == r.Complex128 {
 		return env.evalBinaryExprComplex(complex(x, 0.0), op, yv)
@@ -262,17 +259,17 @@ func (env *Env) evalBinaryExprFloat(x float64, op token.Token, yv r.Value) (r.Va
 	return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 }
 
-func (env *Env) evalBinaryExprComplex(x complex128, op token.Token, yv r.Value) (r.Value, []r.Value) {
+func (env *Env) evalBinaryExprComplex(x complex128, op token.Token, yv r.Value) r.Value {
 	var ret interface{}
 	if y, ok := env.toComplex(yv); ok {
 		switch op {
-		case token.ADD:
+		case token.ADD, token.ADD_ASSIGN:
 			ret = x + y
-		case token.SUB:
+		case token.SUB, token.SUB_ASSIGN:
 			ret = x - y
-		case token.MUL:
+		case token.MUL, token.MUL_ASSIGN:
 			ret = x * y
-		case token.QUO:
+		case token.QUO, token.QUO_ASSIGN:
 			ret = x / y
 		case token.EQL:
 			ret = x == y
@@ -281,14 +278,14 @@ func (env *Env) evalBinaryExprComplex(x complex128, op token.Token, yv r.Value) 
 		default:
 			return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 		}
-		return r.ValueOf(ret), nil
+		return r.ValueOf(ret)
 	}
 	return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 }
 
-func (env *Env) evalBinaryExprString(x string, op token.Token, yv r.Value) (r.Value, []r.Value) {
+func (env *Env) evalBinaryExprString(x string, op token.Token, yv r.Value) r.Value {
 	if yv.Kind() == r.String && op == token.ADD {
-		return r.ValueOf(x + yv.String()), nil
+		return r.ValueOf(x + yv.String())
 	}
 	return env.unsupportedBinaryExpr(r.ValueOf(x), op, yv)
 }

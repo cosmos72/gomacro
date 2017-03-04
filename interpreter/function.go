@@ -80,7 +80,7 @@ func (env *Env) evalDeclFunction(nodeForReceiver *ast.FuncDecl, funcType *ast.Fu
 	if isMacro {
 		// env.Debugf("defined macro %v, type %v, args (%v), returns (%v)", nodeForReceiver.Name.Name, t, strings.Join(argNames, ", "), strings.Join(resultNames, ", "))
 		ret = r.ValueOf(Macro{Closure: closure, ArgNum: len(argNames)})
-		tret = ret.Type() // do NOT change t, is needed by the closure above
+		tret = TypeOf(ret) // do NOT change t, is needed by the closure above
 	} else {
 		ret = r.MakeFunc(t, closure)
 	}

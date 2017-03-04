@@ -87,7 +87,9 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 			return env.evalLiteral(node)
 
 		case *ast.BinaryExpr:
-			return env.evalBinaryExpr(node)
+			xv := env.evalExpr1(node.X)
+			yv := env.evalExpr1(node.Y)
+			return env.evalBinaryExpr(xv, node.Op, yv), nil
 
 		case *ast.CallExpr:
 			return env.evalCall(node)
@@ -99,7 +101,7 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 			return env.evalFunctionLiteral(node)
 
 		case *ast.Ident:
-			return env.evalIdentifier(node)
+			return env.evalIdentifier(node), nil
 
 		case *ast.IndexExpr:
 			return env.evalIndexExpr(node)
@@ -134,11 +136,11 @@ func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 	case r.Array, r.Slice, r.String:
 		i, ok := env.toInt(index)
 		if !ok {
-			return env.Errorf("invalid index, expecting an int: %v <%v>", index, index.Type())
+			return env.Errorf("invalid index, expecting an int: %v <%v>", index, TypeOf(index))
 		}
 		return obj.Index(int(i)), nil
 	default:
-		return env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, obj, obj.Type())
+		return env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, obj, TypeOf(obj))
 	}
 }
 
@@ -150,16 +152,24 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 	}
 	switch obj.Kind() {
 	case r.Struct:
+		// not (*Env), pointers are dereferenced above
+		if e, ok := obj.Interface().(Env); ok {
+			// access symbol from imported package, for example fmt.Printf
+			if bind, ok := e.Binds[name]; ok {
+				return bind, nil
+			}
+			return env.Errorf("package %v %#v has no symbol %s", e.Name, e.Path, name)
+		}
 		val := obj.FieldByName(name)
 		if val == Nil {
 			val = obj.MethodByName(name)
 		}
 		if val == Nil {
-			return env.Errorf("%v <%v> has no field or method %s", obj.Interface(), obj.Type(), name)
+			return env.Errorf("struct <%v> has no field or method %s", TypeOf(obj), name)
 		}
 		return val, nil
 	default:
-		return env.Errorf("not a struct: %v <%v> has no field or method %s", obj.Interface(), obj.Type(), name)
+		return env.Errorf("not a struct: <%v> has no field or method %s", TypeOf(obj), name)
 	}
 }
 

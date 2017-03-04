@@ -137,10 +137,7 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, canSe
 		return value
 	}
 	if t == nil {
-		t = value.Type()
-		// Debugf("defineVar() type inference: var %s <%v> = %#v", name, t, value.Interface())
-	} else {
-		// Debugf("defineVar() var %s %v = %#v", name, t, value.Interface())
+		t = TypeOf(value)
 	}
 	if _, exists := env.Binds[name]; exists {
 		env.Warnf("redefined identifier: %v", name)

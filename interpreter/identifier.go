@@ -29,25 +29,25 @@ import (
 	r "reflect"
 )
 
-func (env *Env) evalIdentifier(expr *ast.Ident) (r.Value, []r.Value) {
+func (env *Env) evalIdentifier(expr *ast.Ident) r.Value {
 	name := expr.Name
 
 	switch name {
 	case "false":
-		return r.ValueOf(false), nil
+		return r.ValueOf(false)
 	case "true":
-		return r.ValueOf(true), nil
+		return r.ValueOf(true)
 	case "iota":
 		pos := env.Fileset.Position(expr.NamePos)
-		return r.ValueOf(pos.Line - env.iotaOffset), nil
+		return r.ValueOf(pos.Line - env.iotaOffset)
 	default:
 		for e := env; e != nil; e = e.Outer {
 			// Debugf("evalIdentifier() looking up %#v in %#v", name, env.Binds)
-			bind, exists := e.Binds[name]
-			if exists {
-				return bind, nil
+			if bind, exists := e.Binds[name]; exists {
+				return bind
 			}
 		}
-		return env.Errorf("undefined identifier: %s", name)
+		ret, _ := env.Errorf("undefined identifier: %s", name)
+		return ret
 	}
 }

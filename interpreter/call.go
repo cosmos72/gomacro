@@ -37,10 +37,10 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	}
 	// TODO support the special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )
 	args := env.evalExprs(node.Args)
-	if !fun.Type().IsVariadic() {
-		argTypes := fun.Type()
+	funt := fun.Type()
+	if !funt.IsVariadic() {
 		for i, arg := range args {
-			args[i] = env.valueToType(arg, argTypes.In(i))
+			args[i] = env.valueToType(arg, funt.In(i))
 		}
 	}
 	var rets []r.Value

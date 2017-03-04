@@ -123,7 +123,7 @@ func (f FileSet) FprintValue(out io.Writer, v r.Value) {
 		fmt.Fprintf(out, "%d <%v>\n", vi, vt)
 	default:
 		if vt == typeOfString {
-			fmt.Fprintf(out, "%#v <%v>\n", vi, vt)
+			fmt.Fprintf(out, "%q <%v>\n", vi, vt)
 		} else {
 			fmt.Fprintf(out, "%v <%v>\n", vi, vt)
 		}
@@ -224,7 +224,8 @@ func (f FileSet) nodeToPrintable(node ast.Node) interface{} {
 
 func (f FileSet) showHelp(out io.Writer) {
 	fmt.Fprint(out, `// interpreter commands:
-:pkg [name] show available functions, variables and constants from imported package
+:env [name] show available functions, variables and constants
+            in current package, or from imported package "name"
 :help       print this help
 :quit       quit the interpreter
 `)
@@ -242,7 +243,7 @@ func (env *Env) showPackage(out io.Writer, packageName string) {
 		case *Env:
 			binds = val.Binds
 		default:
-			env.Warnf("not an imported package: %q = %v <%v>", packageName, val, bind.Type())
+			env.Warnf("not an imported package: %q = %v <%v>", packageName, val, TypeOf(bind))
 			return
 		}
 	}

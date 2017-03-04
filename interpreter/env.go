@@ -42,6 +42,7 @@ type Env struct {
 	Types      Types
 	Outer      *Env
 	iotaOffset int
+	Name, Path string
 }
 
 func NewEnv(outer *Env) *Env {
@@ -124,7 +125,7 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 		cmd := args[0]
 		if cmd == ":quit" {
 			return false
-		} else if cmd == ":pkg" {
+		} else if cmd == ":env" {
 			if len(args) <= 1 {
 				env.showPackage(env.Stdout, "")
 			} else {

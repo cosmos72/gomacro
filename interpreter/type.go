@@ -29,32 +29,56 @@ import (
 	r "reflect"
 )
 
-func (env *Env) evalType(node ast.Expr) r.Type {
-
-	switch node := node.(type) {
-	case *ast.Ident:
-		return env.evalTypeIdentifier(node.Name)
-	case *ast.FuncType:
-		t, _, _ := env.evalTypeFunction(node)
-		return t
-	case *ast.InterfaceType:
-		t, _ := env.evalTypeInterface(node)
-		return t
-	default:
-		// TODO *ast.StructType and many others
-		if node == nil {
-			// type can be omitted in many case - then we must perform type inference
-			return nil
-		}
-		env.Errorf("unimplemented type: %v", node)
-		return nil
+func TypeOf(value r.Value) r.Type {
+	if value == None || value == Nil {
+		return typeOfInterface
 	}
+	return value.Type()
 }
 
-func (env *Env) evalTypeFunction(node *ast.FuncType) (t r.Type, argNames []string, resultNames []string) {
-	argTypes, argNames := env.evalTypeFields(node.Params)
-	resultTypes, resultNames := env.evalTypeFields(node.Results)
-	return r.FuncOf(argTypes, resultTypes, false /* TODO variadic*/), argNames, resultNames
+func (env *Env) evalType(node ast.Expr) r.Type {
+	stars := 0
+	for {
+		if expr, ok := node.(*ast.StarExpr); ok {
+			stars++
+			node = expr.X
+		} else {
+			break
+		}
+	}
+	var t r.Type
+	switch node := node.(type) {
+	case *ast.Ident:
+		t = env.evalTypeIdentifier(node.Name)
+	case *ast.FuncType:
+		t, _, _ = env.evalTypeFunction(node)
+	case *ast.InterfaceType:
+		t, _ = env.evalTypeInterface(node)
+	case *ast.SelectorExpr:
+		if pkgIdent, ok := node.X.(*ast.Ident); ok {
+			pkgv := env.evalIdentifier(pkgIdent)
+			if pkg, ok := pkgv.Interface().(*Env); ok {
+				name := node.Sel.Name
+				if t, ok = pkg.Types[name]; !ok {
+					env.Errorf("not a type: %v <%v>", node, r.TypeOf(node))
+				}
+			} else {
+				env.Errorf("not a package: %v = %v <%v>", pkgIdent, pkgv, TypeOf(pkgv))
+			}
+		} else {
+			env.Errorf("unimplemented qualified type, expecting packageName.identifier: %v <%v>", node, r.TypeOf(node))
+		}
+	default:
+		// TODO *ast.StructType and many others
+		// type can be omitted in many case - then we must perform type inference
+		if node != nil {
+			env.Errorf("evalType(): unimplemented type: %v <%v>", node, r.TypeOf(node))
+		}
+	}
+	for i := 0; i < stars; i++ {
+		t = r.PtrTo(t)
+	}
+	return t
 }
 
 func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodNames []string) {
@@ -63,6 +87,12 @@ func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodName
 		return nil, nil
 	}
 	return typeOfInterface, zeroStrings
+}
+
+func (env *Env) evalTypeFunction(node *ast.FuncType) (t r.Type, argNames []string, resultNames []string) {
+	argTypes, argNames := env.evalTypeFields(node.Params)
+	resultTypes, resultNames := env.evalTypeFields(node.Results)
+	return r.FuncOf(argTypes, resultTypes, false /* TODO variadic*/), argNames, resultNames
 }
 
 func (env *Env) evalTypeFields(fields *ast.FieldList) ([]r.Type, []string) {
@@ -112,7 +142,7 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 		v = uint8(0)
 	case "uint16":
 		v = uint16(0)
-	case "rune", "uint32":
+	case "uint32", "rune":
 		v = uint32(0)
 	case "uint64":
 		v = uint64(0)
@@ -132,10 +162,8 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 }
 
 func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
-	if value.Type().AssignableTo(t) {
-		return value
-	}
-	if !value.Type().ConvertibleTo(t) {
+	vt := TypeOf(value)
+	if !vt.AssignableTo(t) && !vt.ConvertibleTo(t) {
 		ret, _ := env.Errorf("failed to convert %#v to %v", value, t)
 		return ret
 	}
@@ -147,7 +175,7 @@ func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 }
 
 func differentIntegerValues(v1 r.Value, v2 r.Value) bool {
-	k1, k2 := v1.Type().Kind(), v2.Type().Kind()
+	k1, k2 := v1.Kind(), v2.Kind()
 	switch k1 {
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 		n1 := v1.Int()

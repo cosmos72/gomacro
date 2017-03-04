@@ -86,13 +86,13 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 		} else {
 			name = path[1+strings.LastIndexByte(path, '/'):]
 		}
-		newEnv := env.ImportPackage(path)
+		newEnv := env.ImportPackage(name, path)
 		if newEnv != nil {
 			fileEnv := env.FileEnv()
 			newEnv.Outer = fileEnv.TopEnv()
 
 			value := r.ValueOf(newEnv)
-			fileEnv.defineConst(name, value.Type(), value)
+			fileEnv.defineConst(name, TypeOf(value), value)
 		}
 		return r.ValueOf(path), nil
 	default:
@@ -100,7 +100,7 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 	}
 }
 
-func (ir *Interpreter) ImportPackage(path string) *Env {
+func (ir *Interpreter) ImportPackage(name, path string) *Env {
 	if binds, ok := imports.Binds[path]; ok {
 		if types, ok := imports.Types[path]; ok {
 			return &Env{Binds: binds, Types: types}
@@ -118,14 +118,14 @@ func (ir *Interpreter) ImportPackage(path string) *Env {
 	}
 	if len(filename) == 0 {
 		// empty package
-		return &Env{Binds: map[string]r.Value{}, Types: map[string]r.Type{}}
+		return &Env{Binds: map[string]r.Value{}, Types: map[string]r.Type{}, Name: name, Path: path}
 	}
 
 	soname := ir.compilePlugin(filename, ir.Stdout, ir.Stderr)
 	ifun := loadPlugin(soname, "Package")
 	fun := ifun.(func() (map[string]r.Value, map[string]r.Type))
 	binds, types := fun()
-	return &Env{Binds: binds, Types: types}
+	return &Env{Binds: binds, Types: types, Name: name, Path: path}
 }
 
 func (ir *Interpreter) createImportFile(path string, pkg *types.Package, internal bool) string {

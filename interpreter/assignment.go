@@ -86,9 +86,11 @@ func (env *Env) assignPlaces(places []r.Value, op token.Token, values []r.Value)
 }
 
 func (env *Env) assignPlace(place r.Value, op token.Token, value r.Value) r.Value {
-	t := place.Type()
+	t := TypeOf(place)
 	value = env.valueToType(value, t)
-	// TODO op can be = += -= *= ...
+	if op != token.ASSIGN {
+		value = env.evalBinaryExpr(place, op, value)
+	}
 	place.Set(value)
 	return value
 }
