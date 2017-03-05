@@ -103,7 +103,7 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 func (ir *Interpreter) ImportPackage(name, path string) *Env {
 	if binds, ok := imports.Binds[path]; ok {
 		if types, ok := imports.Types[path]; ok {
-			return &Env{Binds: binds, Types: types}
+			return &Env{Binds: binds, Types: types, Name: name, Path: path}
 		}
 	}
 	pkg, err := ir.Importer.Import(path) // loads names and types, not the values!

@@ -84,7 +84,7 @@ func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
 
 func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 	if node.Init != nil {
-		env = NewEnv(env)
+		env = NewEnv(env, "if {}")
 		_, _ = env.evalStatement(node.Init)
 	}
 	cond, _ := env.Eval(node.Cond)
@@ -105,7 +105,7 @@ func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 	// Debugf("evalFor() init = %#v, cond = %#v, post = %#v, body = %#v", node.Init, node.Cond, node.Post, node.Body)
 
 	if node.Init != nil {
-		env = NewEnv(env)
+		env = NewEnv(env, "for {}")
 		env.evalStatement(node.Init)
 	}
 	for {

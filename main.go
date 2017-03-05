@@ -46,12 +46,11 @@ func main() {
 }
 
 func Main(args []string) {
-	env := gmi.NewEnv(nil) // builtin env
-	env = gmi.NewEnv(env)  // file env
-	env.Path = "main"
+	env := gmi.NewEnv(nil, "builtin")
+	env = gmi.NewEnv(env, "main")
 
-	env.ParserMode = mp.Trace & 0      // | mp.TraceMacro
-	env.Options = gmi.OptTrapPanic & 0 // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpandCodewalk // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote // | gmi.OptShowEvalDuration
+	env.ParserMode = mp.Trace & 0  // | mp.TraceMacro
+	env.Options = gmi.OptTrapPanic // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpandCodewalk // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote // | gmi.OptShowEvalDuration
 	env.SpecialChar = '~'
 
 	if len(args) > 1 {

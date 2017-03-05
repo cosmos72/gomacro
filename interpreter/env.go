@@ -45,17 +45,17 @@ type Env struct {
 	Name, Path string
 }
 
-func NewEnv(outer *Env) *Env {
+func NewEnv(outer *Env, path string) *Env {
 	env := Env{}
 	env.Binds = make(map[string]r.Value)
 	env.Types = make(map[string]r.Type)
 	env.iotaOffset = 1
 	env.Outer = outer
+	env.Path = path
 	if outer == nil {
 		env.Interpreter = NewInterpreter()
 		env.addBuiltins()
 		env.addInterpretedBuiltins()
-		env.Path = "builtin"
 	} else {
 		env.Interpreter = outer.Interpreter
 	}

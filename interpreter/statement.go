@@ -30,7 +30,7 @@ import (
 )
 
 func (env *Env) evalBlock(block *ast.BlockStmt) (r.Value, []r.Value) {
-	env = NewEnv(env)
+	env = NewEnv(env, "{}")
 
 	return env.evalStatements(block.List)
 }

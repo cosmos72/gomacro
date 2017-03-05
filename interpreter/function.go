@@ -61,6 +61,7 @@ func (env *Env) evalDeclNamedFunction(node *ast.FuncDecl) (r.Value, []r.Value) {
 func (env *Env) evalDeclFunction(nodeForReceiver *ast.FuncDecl, funcType *ast.FuncType, body *ast.BlockStmt) (r.Value, r.Type) {
 	var ret r.Value
 	isMacro := false
+
 	if nodeForReceiver != nil && nodeForReceiver.Recv != nil {
 		recvList := nodeForReceiver.Recv.List
 		if recvList != nil && len(recvList) == 0 {
@@ -73,9 +74,15 @@ func (env *Env) evalDeclFunction(nodeForReceiver *ast.FuncDecl, funcType *ast.Fu
 	}
 	t, argNames, resultNames := env.evalTypeFunction(funcType)
 	tret := t
+	funcName := nodeForReceiver.Name.Name
+	if isMacro {
+		funcName = "macro " + funcName
+	} else {
+		funcName = "func " + funcName
+	}
 
 	closure := func(args []r.Value) (results []r.Value) {
-		return env.evalFuncCall(body, t, argNames, args, resultNames)
+		return env.evalFuncCall(funcName, body, t, argNames, args, resultNames)
 	}
 	if isMacro {
 		// env.Debugf("defined macro %v, type %v, args (%v), returns (%v)", nodeForReceiver.Name.Name, t, strings.Join(argNames, ", "), strings.Join(resultNames, ", "))
@@ -88,11 +95,11 @@ func (env *Env) evalDeclFunction(nodeForReceiver *ast.FuncDecl, funcType *ast.Fu
 }
 
 // eval an interpreted function
-func (env *Env) evalFuncCall(body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value, resultNames []string) (results []r.Value) {
+func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value, resultNames []string) (results []r.Value) {
 	if t.Kind() != r.Func {
 		return env.PackErrorf("call of non-function type %v", t)
 	}
-	env = NewEnv(env)
+	env = NewEnv(env, envName)
 	defer func() {
 		if rec := recover(); rec != nil {
 			if ret, ok := rec.(Return); ok {
