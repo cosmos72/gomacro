@@ -61,6 +61,7 @@ func NewEnv(outer *Env, path string) *Env {
 	} else {
 		env.Interpreter = outer.Interpreter
 	}
+
 	// fmt.Printf("NewEnv(): env = %p %q, outer = %p\n", env, env.Path, env.Outer)
 	return env
 }

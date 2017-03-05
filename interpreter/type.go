@@ -142,45 +142,14 @@ func (env *Env) evalTypeFields(fields *ast.FieldList) ([]r.Type, []string) {
 }
 
 func (env *Env) evalTypeIdentifier(name string) r.Type {
-	var v interface{}
-	switch name {
-	case "bool":
-		v = false
-	case "string":
-		v = ""
-	case "int":
-		v = int(0)
-	case "int8":
-		v = int8(0)
-	case "int16":
-		v = int16(0)
-	case "int32":
-		v = int32(0)
-	case "int64":
-		v = int64(0)
-	case "uint":
-		v = uint(0)
-	case "uint8", "byte":
-		v = uint8(0)
-	case "uint16":
-		v = uint16(0)
-	case "uint32", "rune":
-		v = uint32(0)
-	case "uint64":
-		v = uint64(0)
-	case "float32":
-		v = float32(0)
-	case "float64":
-		v = float64(0)
-	case "complex64":
-		v = complex(float32(0), float32(0))
-	case "complex128":
-		v = complex(float64(0), float64(0))
-	default:
-		env.Errorf("unimplemented type identifier: %v", name)
-		return nil
+	for env != nil {
+		if t, ok := env.Types[name]; ok {
+			return t
+		}
+		env = env.Outer
 	}
-	return r.TypeOf(v)
+	env.Errorf("not a type: %v", name)
+	return nil
 }
 
 func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodNames []string) {
