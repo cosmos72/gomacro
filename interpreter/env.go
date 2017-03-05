@@ -50,25 +50,26 @@ func NewEnv(outer *Env) *Env {
 	env.Binds = make(map[string]r.Value)
 	env.Types = make(map[string]r.Type)
 	env.iotaOffset = 1
+	env.Outer = outer
 	if outer == nil {
 		env.Interpreter = NewInterpreter()
 		env.addBuiltins()
 		env.addInterpretedBuiltins()
+		env.Path = "builtin"
 	} else {
 		env.Interpreter = outer.Interpreter
-		env.Outer = outer
 	}
 	return &env
 }
 
 func (env *Env) TopEnv() *Env {
-	for outer := env.Outer; outer != nil; env = outer {
+	for outer := env.Outer; outer != nil && outer != env; env = outer {
 	}
 	return env
 }
 
 func (env *Env) FileEnv() *Env {
-	for outer := env.Outer; outer != nil && outer.Outer != nil; env = outer {
+	for outer := env.Outer; outer != nil && outer != env && outer.Outer != nil; env = outer {
 	}
 	return env
 }

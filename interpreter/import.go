@@ -143,6 +143,8 @@ func (ir *Interpreter) createImportFile(path string, pkg *types.Package, interna
 	}
 	if internal {
 		ir.Warnf("created file %q, recompile gomacro to use it", filename)
+	} else {
+		ir.Debugf("created file %q...", filename)
 	}
 	return filename
 }

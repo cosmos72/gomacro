@@ -232,32 +232,71 @@ func (f FileSet) showHelp(out io.Writer) {
 }
 
 func (env *Env) showPackage(out io.Writer, packageName string) {
-	binds := env.Binds
+	e := env
+	loop := true
 	if len(packageName) != 0 {
-		bind, ok := binds[packageName]
-		if !ok || bind == None || bind == Nil {
-			env.Warnf("import not loaded: %q", packageName)
+		bind := env.evalIdentifier(&ast.Ident{Name: packageName})
+		if bind == None || bind == Nil {
+			env.Warnf("not an imported package: %q", packageName)
 			return
 		}
 		switch val := bind.Interface().(type) {
 		case *Env:
-			binds = val.Binds
+			e = val
+			loop = false
 		default:
 			env.Warnf("not an imported package: %q = %v <%v>", packageName, val, TypeOf(bind))
 			return
 		}
 	}
-	keys := make([]string, len(binds))
-	i := 0
-	for k := range binds {
-		keys[i] = k
-		i++
-	}
-	sort.Strings(keys)
 	spaces15 := "               "
-	for _, k := range keys {
-		n := len(k) & 15
-		fmt.Fprintf(out, "%s%s = ", k, spaces15[n:])
-		env.FprintValue(out, binds[k])
+	for ; e != nil; e = e.Outer {
+		binds := e.Binds
+		if len(binds) > 0 {
+			fmt.Fprintf(out, "// ----- %s binds -----\n", e.Path)
+
+			keys := make([]string, len(binds))
+			i := 0
+			for k := range binds {
+				keys[i] = k
+				i++
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				n := len(k) & 15
+				fmt.Fprintf(out, "%s%s = ", k, spaces15[n:])
+				bind := binds[k]
+				if bind != Nil {
+					switch bind := bind.Interface().(type) {
+					case *Env:
+						fmt.Fprintf(out, "%p <%v>\n", bind, r.TypeOf(bind))
+						continue
+					}
+				}
+				env.FprintValue(out, bind)
+			}
+			fmt.Fprintln(out)
+		}
+		types := e.Types
+		if len(types) > 0 {
+			fmt.Fprintf(out, "// ----- %s types -----\n", e.Path)
+
+			keys := make([]string, len(types))
+			i := 0
+			for k := range types {
+				keys[i] = k
+				i++
+			}
+			sort.Strings(keys)
+			for _, k := range keys {
+				n := len(k) & 15
+				t := types[k]
+				fmt.Fprintf(out, "%s%s %v <%v>\n", k, spaces15[n:], t.Kind(), t)
+			}
+			fmt.Fprintln(out)
+		}
+		if !loop {
+			break
+		}
 	}
 }
