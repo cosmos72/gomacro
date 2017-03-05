@@ -30,6 +30,11 @@ import (
 	r "reflect"
 )
 
+type Place struct {
+	obj    r.Value // the map to modify, or a settable r.Value
+	mapkey r.Value // the map key to set, or Nil
+}
+
 func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 	left := node.Lhs
 	right := node.Rhs
@@ -64,20 +69,56 @@ func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 	}
 }
 
-func (env *Env) evalPlaces(node []ast.Expr) []r.Value {
+func (env *Env) evalPlaces(node []ast.Expr) []Place {
 	n := len(node)
-	places := make([]r.Value, n)
+	places := make([]Place, n)
 	for i := 0; i < n; i++ {
-		place := env.evalExpr1(node[i])
-		if !place.CanSet() {
-			return env.PackErrorf("cannot assign to read-only location: %v", node[i])
-		}
-		places[i] = place
+		places[i] = env.evalPlace(node[i])
 	}
 	return places
 }
 
-func (env *Env) assignPlaces(places []r.Value, op token.Token, values []r.Value) (r.Value, []r.Value) {
+func (env *Env) evalPlace(node ast.Expr) Place {
+	obj := Nil
+	// ignore parenthesis: (expr) = value is the same as expr = value
+	for {
+		if paren, ok := node.(*ast.ParenExpr); ok {
+			node = paren.X
+		} else {
+			break
+		}
+	}
+	switch node := node.(type) {
+	case *ast.IndexExpr:
+		obj = env.evalExpr1(node.X)
+		index := env.evalExpr1(node.Index)
+
+		switch obj.Kind() {
+		case r.Map:
+			return Place{obj, index}
+		case r.Array, r.Slice, r.String:
+			i, ok := env.toInt(index)
+			if !ok {
+				env.Errorf("invalid index, expecting an int: %v <%v>", index, TypeOf(index))
+				return Place{}
+			}
+			obj = obj.Index(int(i))
+		default:
+			env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>",
+				node.X, index, obj, TypeOf(obj))
+			return Place{}
+		}
+	default:
+		obj = env.evalExpr1(node)
+	}
+	if !obj.CanSet() {
+		env.Errorf("cannot assign to read-only location: %v", node)
+		return Place{}
+	}
+	return Place{obj, Nil}
+}
+
+func (env *Env) assignPlaces(places []Place, op token.Token, values []r.Value) (r.Value, []r.Value) {
 	n := len(places)
 	for i := 0; i < n; i++ {
 		values[i] = env.assignPlace(places[i], op, values[i])
@@ -85,12 +126,26 @@ func (env *Env) assignPlaces(places []r.Value, op token.Token, values []r.Value)
 	return unpackValues(values)
 }
 
-func (env *Env) assignPlace(place r.Value, op token.Token, value r.Value) r.Value {
-	t := TypeOf(place)
+func (env *Env) assignPlace(place Place, op token.Token, value r.Value) r.Value {
+	obj := place.obj
+	key := place.mapkey
+	if key == Nil {
+		t := TypeOf(obj)
+		value = env.valueToType(value, t)
+		if op != token.ASSIGN {
+			value = env.evalBinaryExpr(obj, op, value)
+		}
+		obj.Set(value)
+		return value
+	}
+	// map[key] OP value
+	env.Debugf("setting map[key]: %v <%v> [%v <%v>] %s %v <%v>",
+		obj, TypeOf(obj), key, TypeOf(key), op, value, TypeOf(value))
+	currValue, _, t := MapIndex(obj, key)
 	value = env.valueToType(value, t)
 	if op != token.ASSIGN {
-		value = env.evalBinaryExpr(place, op, value)
+		value = env.evalBinaryExpr(currValue, op, value)
 	}
-	place.Set(value)
+	obj.SetMapIndex(key, value)
 	return value
 }

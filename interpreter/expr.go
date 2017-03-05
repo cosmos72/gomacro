@@ -42,10 +42,10 @@ func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) [
 		values = packValues(env.Eval(node))
 		n = len(values)
 		if n < expectedValuesN {
-			return env.PackErrorf("value count mismatch: function returned %d values, cannot assign them to %d places: %v returned %v",
+			return env.PackErrorf("value count mismatch: expression returned %d values, cannot assign them to %d places: %v returned %v",
 				n, expectedValuesN, node, values)
 		} else if n > expectedValuesN {
-			env.Warnf("function returned %d values, using only %d of them: %v returned %v",
+			env.Warnf("expression returned %d values, using only %d of them: %v returned %v",
 				n, expectedValuesN, node, values)
 		}
 	} else {
@@ -73,7 +73,7 @@ func (env *Env) evalExprs(nodes []ast.Expr) []r.Value {
 func (env *Env) evalExpr1(node ast.Expr) r.Value {
 	value, extraValues := env.evalExpr(node)
 	if len(extraValues) > 1 {
-		env.Warnf("function returned %d values, using only the first one: %v returned %v",
+		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
 			len(extraValues), node, extraValues)
 	}
 	return value
@@ -135,29 +135,44 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 }
 
 func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
-	index := env.evalExpr1(node.Index)
+	// respect left-to-right order of evaluation
 	obj := env.evalExpr1(node.X)
+	index := env.evalExpr1(node.Index)
 
 	switch obj.Kind() {
+
 	case r.Map:
-		ret := obj.MapIndex(index)
-		present := ret != Nil
-		if !present {
-			// reproduce the exact behaviour of the builtin:
-			// var x = map[ktype]vtype
-			// x[key] // if key is not present, returns the zero value of vtype
-			ret = r.Zero(obj.Type().Elem())
-		}
+		ret, present, _ := MapIndex(obj, index)
 		return ret, []r.Value{ret, r.ValueOf(present)}
+
 	case r.Array, r.Slice, r.String:
 		i, ok := env.toInt(index)
 		if !ok {
 			return env.Errorf("invalid index, expecting an int: %v <%v>", index, TypeOf(index))
 		}
 		return obj.Index(int(i)), nil
+
 	default:
 		return env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, obj, TypeOf(obj))
 	}
+}
+
+// MapIndex reproduces the exact behaviour of the map[key] builtin. given:
+// var x = map[ktype]vtype
+// x[key] does the following:
+// 1. if key is present, return (the value associated to key, true, value.Type())
+// 2. otherwise, return (the zero value of vtype, false, vtype)
+func MapIndex(obj r.Value, key r.Value) (r.Value, bool, r.Type) {
+	value := obj.MapIndex(key)
+	present := value != Nil
+	var t r.Type
+	if present {
+		t = value.Type()
+	} else {
+		t = obj.Type().Elem()
+		value = r.Zero(t)
+	}
+	return value, present, t
 }
 
 func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {

@@ -144,7 +144,7 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, canSe
 	}
 	if canSet {
 		addr := r.New(t)
-		value = env.assignPlace(addr.Elem(), token.ASSIGN, value)
+		value = env.assignPlace(Place{addr.Elem(), Nil}, token.ASSIGN, value)
 		env.Binds[name] = addr.Elem()
 	} else {
 		value = value.Convert(t)

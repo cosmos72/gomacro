@@ -44,7 +44,7 @@ const (
 	OptDebugQuasiquote
 )
 
-var Nil = r.ValueOf(nil)
+var Nil = r.Value{}
 
 var none struct{}
 var None = r.ValueOf(none)

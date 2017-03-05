@@ -46,6 +46,9 @@ func main() {
 }
 
 func Main(args []string) {
+	m := make(map[int]int)
+	(m[0]) = 1
+
 	env := gmi.NewEnv(nil, "builtin")
 	env = gmi.NewEnv(env, "main")
 
