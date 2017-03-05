@@ -28,6 +28,12 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
+type ParserToken struct {
+	pos token.Pos   // token position
+	tok token.Token // one token look-ahead
+	lit string      // token literal
+}
+
 // The parser structure holds the parser's internal state.
 type Parser struct {
 	file    *token.File
@@ -50,9 +56,9 @@ type Parser struct {
 	lineComment *ast.CommentGroup // last line comment
 
 	// Next token
-	pos token.Pos   // token position
-	tok token.Token // one token look-ahead
-	lit string      // token literal
+	ParserToken
+	// and the token after next
+	lookAhead ParserToken
 
 	// Error recovery
 	// (used to limit the number of calls to syncXXX functions
@@ -129,6 +135,7 @@ func (p *Parser) Init(filename string, src []byte, scope *ast.Scope) *ast.Scope 
 	p.targetStack = nil
 
 	p.next()
+	p.next() // fill the two lookahead tokens
 
 	return p.topScope
 }
@@ -304,7 +311,10 @@ func (p *Parser) next0() {
 		}
 	}
 
-	p.pos, p.tok, p.lit = p.scanner.Scan()
+	// use a two token lookahead
+	q := &p.lookAhead
+	p.ParserToken = *q
+	q.pos, q.tok, q.lit = p.scanner.Scan()
 }
 
 // Consume a comment and return it and the line on which it ends.
@@ -324,7 +334,7 @@ func (p *Parser) consumeComment() (comment *ast.Comment, endline int) {
 	comment = &ast.Comment{Slash: p.pos, Text: p.lit}
 	p.next0()
 
-	return
+	return comment, endline
 }
 
 // Consume a group of adjacent comments, add it to the parser's

@@ -36,8 +36,17 @@ func (p *Parser) parseAny() ast.Node {
 		node = p.parseFile()
 	case token.IMPORT:
 		node = p.parseGenDecl(token.IMPORT, p.parseImportSpec)
-	case token.CONST, token.FUNC, token.TYPE, token.VAR, mt.MACRO:
+	case token.CONST, token.TYPE, token.VAR, mt.MACRO:
 		node = p.parseDecl(syncDecl)
+	case token.FUNC:
+		// either a function declaration: func foo(/*...s*/) /*...*/
+		// or a function literal, i.e. a closure: func(/*...s*/) /*...*/
+		if p.lookAhead.tok != token.LPAREN {
+			node = p.parseDecl(syncDecl)
+			break
+		}
+		// function literal is an expression... parse as a statement then unwrap it
+		fallthrough
 	default:
 		node = p.parseStmt(true)
 		if expr, ok := node.(*ast.ExprStmt); ok {

@@ -25,9 +25,9 @@
 package interpreter
 
 import (
+	"fmt"
 	"go/ast"
 	r "reflect"
-	// "strings"
 )
 
 func packValues(val0 r.Value, vals []r.Value) []r.Value {
@@ -58,40 +58,48 @@ func (env *Env) evalDeclNamedFunction(node *ast.FuncDecl) (r.Value, []r.Value) {
 	return ret, nil
 }
 
-func (env *Env) evalDeclFunction(nodeForReceiver *ast.FuncDecl, funcType *ast.FuncType, body *ast.BlockStmt) (r.Value, r.Type) {
+func (env *Env) evalDeclFunction(decl *ast.FuncDecl, funcType *ast.FuncType, body *ast.BlockStmt) (r.Value, r.Type) {
 	var ret r.Value
 	isMacro := false
 
-	if nodeForReceiver != nil && nodeForReceiver.Recv != nil {
-		recvList := nodeForReceiver.Recv.List
+	if decl != nil && decl.Recv != nil {
+		recvList := decl.Recv.List
 		if recvList != nil && len(recvList) == 0 {
 			isMacro = true
 		} else {
 			// TODO implement receiver
-			env.Errorf("unimplemented: method declarations (i.e. functions with receiver): %v", nodeForReceiver)
+			env.Errorf("unimplemented: method declarations (i.e. functions with receiver): %v", decl)
 			return ret, nil
 		}
 	}
 	t, argNames, resultNames := env.evalTypeFunction(funcType)
 	tret := t
-	funcName := nodeForReceiver.Name.Name
-	if isMacro {
-		funcName = "macro " + funcName
-	} else {
-		funcName = "func " + funcName
-	}
+
+	funcName := makeFuncNameForEnv(decl, isMacro)
 
 	closure := func(args []r.Value) (results []r.Value) {
 		return env.evalFuncCall(funcName, body, t, argNames, args, resultNames)
 	}
 	if isMacro {
-		// env.Debugf("defined macro %v, type %v, args (%v), returns (%v)", nodeForReceiver.Name.Name, t, strings.Join(argNames, ", "), strings.Join(resultNames, ", "))
+		// env.Debugf("defined macro %v, type %v, args (%v), returns (%v)", decl.Name.Name, t, strings.Join(argNames, ", "), strings.Join(resultNames, ", "))
 		ret = r.ValueOf(Macro{Closure: closure, ArgNum: len(argNames)})
 		tret = TypeOf(ret) // do NOT change t, is needed by the closure above
 	} else {
 		ret = r.MakeFunc(t, closure)
 	}
 	return ret, tret
+}
+
+func makeFuncNameForEnv(decl *ast.FuncDecl, isMacro bool) string {
+	var prefix, space, suffix string = "func", "", ""
+	if isMacro {
+		prefix = "macro"
+	}
+	if decl != nil {
+		space = " "
+		suffix = decl.Name.Name
+	}
+	return fmt.Sprintf("%s%s%s()", prefix, space, suffix)
 }
 
 // eval an interpreted function

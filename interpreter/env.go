@@ -58,6 +58,17 @@ func NewEnv(outer *Env, path string) *Env {
 		env.Interpreter = NewInterpreter()
 		env.addBuiltins()
 		env.addInterpretedBuiltins()
+
+		/*
+			type Foo struct{ a, b int }
+			type Bar struct{ a, b int }
+			var foo Foo
+			var bar Bar = Bar(foo)
+			t := r.TypeOf(bar)
+			var tf interface{} = t
+			fmt.Printf("typeof(bar) = %v - actually %#v\n", t, tf)
+			fmt.Printf("typeof(bar) Name = %v, Kind = %v\n", t.Name(), t.Kind())
+		*/
 	} else {
 		env.Interpreter = outer.Interpreter
 	}
