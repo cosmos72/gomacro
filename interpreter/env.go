@@ -46,12 +46,14 @@ type Env struct {
 }
 
 func NewEnv(outer *Env, path string) *Env {
-	env := Env{}
-	env.Binds = make(map[string]r.Value)
-	env.Types = make(map[string]r.Type)
-	env.iotaOffset = 1
-	env.Outer = outer
-	env.Path = path
+	env := &Env{
+		Binds:      make(map[string]r.Value),
+		Types:      make(map[string]r.Type),
+		iotaOffset: 1,
+		Outer:      outer,
+		Name:       path,
+		Path:       path,
+	}
 	if outer == nil {
 		env.Interpreter = NewInterpreter()
 		env.addBuiltins()
@@ -59,17 +61,32 @@ func NewEnv(outer *Env, path string) *Env {
 	} else {
 		env.Interpreter = outer.Interpreter
 	}
-	return &env
+	// fmt.Printf("NewEnv(): env = %p %q, outer = %p\n", env, env.Path, env.Outer)
+	return env
 }
 
 func (env *Env) TopEnv() *Env {
-	for outer := env.Outer; outer != nil && outer != env; env = outer {
+	for {
+		outer := env.Outer
+		// fmt.Printf("TopEnv(): env = %p %q, outer = %p\n", env, env.Path, outer)
+		// time.Sleep(time.Second)
+		if outer == nil {
+			break
+		}
+		env = outer
 	}
 	return env
 }
 
 func (env *Env) FileEnv() *Env {
-	for outer := env.Outer; outer != nil && outer != env && outer.Outer != nil; env = outer {
+	for {
+		outer := env.Outer
+		// fmt.Printf("FileEnv(): env = %p %q, outer = %p\n", env, env.Path, outer)
+		// time.Sleep(time.Second)
+		if outer == nil || outer.Outer == nil {
+			break
+		}
+		env = outer
 	}
 	return env
 }
