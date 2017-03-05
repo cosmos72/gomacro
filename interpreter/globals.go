@@ -49,6 +49,8 @@ var Nil = r.Value{}
 var none struct{}
 var None = r.ValueOf(none)
 
+var One = r.ValueOf(1)
+
 var typeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
 var typeOfString = r.TypeOf("")
 var zeroStrings = []string{}

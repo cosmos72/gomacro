@@ -26,6 +26,7 @@ package interpreter
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
 )
 
@@ -61,17 +62,33 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return env.evalFor(node)
 	case *ast.IfStmt:
 		return env.evalIf(node)
+	case *ast.IncDecStmt:
+		return env.evalIncDec(node)
 	case *ast.EmptyStmt:
 		return None, nil
 	case *ast.ReturnStmt:
 		return env.evalReturn(node)
 
 	case *ast.CaseClause, *ast.CommClause, *ast.DeferStmt,
-		*ast.GoStmt, *ast.IncDecStmt, *ast.LabeledStmt, *ast.RangeStmt,
+		*ast.GoStmt, *ast.LabeledStmt, *ast.RangeStmt,
 		*ast.SelectStmt, *ast.SendStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
 		// TODO
 		return env.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	default:
 		return env.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	}
+}
+
+func (env *Env) evalIncDec(node *ast.IncDecStmt) (r.Value, []r.Value) {
+	var op token.Token
+	switch node.Tok {
+	case token.INC:
+		op = token.ADD_ASSIGN
+	case token.DEC:
+		op = token.SUB_ASSIGN
+	default:
+		return env.Errorf("unsupported *ast.IncDecStmt operation, expecting ++ or -- : %v <%v>", node, r.TypeOf(node))
+	}
+	place := env.evalPlace(node.X)
+	return env.assignPlace(place, op, One), nil
 }

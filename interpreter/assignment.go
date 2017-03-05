@@ -139,12 +139,15 @@ func (env *Env) assignPlace(place Place, op token.Token, value r.Value) r.Value 
 		return value
 	}
 	// map[key] OP value
-	env.Debugf("setting map[key]: %v <%v> [%v <%v>] %s %v <%v>",
-		obj, TypeOf(obj), key, TypeOf(key), op, value, TypeOf(value))
-	currValue, _, t := MapIndex(obj, key)
+	key = env.valueToType(key, obj.Type().Key())
+
+	// env.Debugf("setting map[key]: %v <%v> [%v <%v>] %s %v <%v>", obj, TypeOf(obj), key, TypeOf(key), op, value, TypeOf(value))
+
+	currValue, _, t := env.mapIndex(obj, key)
 	value = env.valueToType(value, t)
 	if op != token.ASSIGN {
 		value = env.evalBinaryExpr(currValue, op, value)
+		value = env.valueToType(value, t) // in case evalBinaryExpr() converted it
 	}
 	obj.SetMapIndex(key, value)
 	return value

@@ -142,7 +142,9 @@ func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 	switch obj.Kind() {
 
 	case r.Map:
-		ret, present, _ := MapIndex(obj, index)
+		index = env.valueToType(index, obj.Type().Key())
+
+		ret, present, _ := env.mapIndex(obj, index)
 		return ret, []r.Value{ret, r.ValueOf(present)}
 
 	case r.Array, r.Slice, r.String:
@@ -157,12 +159,13 @@ func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 	}
 }
 
-// MapIndex reproduces the exact behaviour of the map[key] builtin. given:
+// mapIndex reproduces the exact behaviour of the map[key] builtin. given:
 // var x = map[ktype]vtype
 // x[key] does the following:
 // 1. if key is present, return (the value associated to key, true, value.Type())
 // 2. otherwise, return (the zero value of vtype, false, vtype)
-func MapIndex(obj r.Value, key r.Value) (r.Value, bool, r.Type) {
+// note: converting key to ktype is caller's responsibility
+func (env *Env) mapIndex(obj r.Value, key r.Value) (r.Value, bool, r.Type) {
 	value := obj.MapIndex(key)
 	present := value != Nil
 	var t r.Type
