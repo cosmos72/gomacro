@@ -84,7 +84,8 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 		// env.Debugf("evalExpr() %v", node)
 		switch node := in.(type) {
 		case *ast.BasicLit:
-			return env.evalLiteral(node)
+			ret := env.evalLiteral0(node)
+			return r.ValueOf(ret), nil
 
 		case *ast.BinaryExpr:
 			xv := env.evalExpr1(node.X)
@@ -115,6 +116,13 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 
 		case *ast.SelectorExpr:
 			return env.evalSelectorExpr(node)
+
+		case *ast.StarExpr:
+			val := env.evalExpr1(node.X)
+			if val.Kind() != r.Ptr {
+				return env.Errorf("dereference of non-pointer: %v <%v>", val, TypeOf(val))
+			}
+			return val.Elem(), nil
 
 		case *ast.TypeAssertExpr:
 			return env.evalTypeAssertExpr(node)

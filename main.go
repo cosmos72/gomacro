@@ -25,9 +25,7 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	r "reflect"
 	"strings"
 
 	gmi "github.com/cosmos72/gomacro/interpreter"
@@ -48,14 +46,6 @@ func main() {
 }
 
 func Main(args []string) {
-	var make int
-	x := make
-	v := r.ValueOf(x)
-	t := v.Type()
-	fmt.Printf("%v\n", t)
-	fmt.Printf("%v\n", v)
-	fmt.Printf("%v\n", r.Zero(t))
-
 	env := gmi.NewEnv(nil)
 
 	env.ParserMode = mp.Trace & 0      // | mp.TraceMacro

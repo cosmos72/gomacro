@@ -35,11 +35,6 @@ import (
 
 var Unknown = constant.MakeUnknown()
 
-func (env *Env) evalLiteral(node *ast.BasicLit) (r.Value, []r.Value) {
-	ret := env.evalLiteral0(node)
-	return r.ValueOf(ret), nil
-}
-
 func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 	kind := node.Kind
 	str := node.Value

@@ -121,18 +121,18 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 		env.FprintValues(env.Stdout) // no value
 		return true
 	} else if n > 0 && src[0] == ':' {
-		args := strings.Split(src, " ")
-		cmd := args[0]
-		if cmd == ":quit" {
+		args := strings.SplitN(src, " ", 2)
+		switch args[0] {
+		case ":q", ":quit":
 			return false
-		} else if cmd == ":env" {
+		case ":e", ":env":
 			if len(args) <= 1 {
 				env.showPackage(env.Stdout, "")
 			} else {
 				env.showPackage(env.Stdout, args[1])
 			}
 			return true
-		} else if cmd == ":help" {
+		case ":h", ":help":
 			env.showHelp(env.Stdout)
 			return true
 		}

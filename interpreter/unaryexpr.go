@@ -40,6 +40,13 @@ func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, [
 func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	op := node.Op
 	switch op {
+	case token.AND:
+		place := env.evalExpr1(node.X)
+		if place == Nil || !place.CanAddr() {
+			env.Errorf("cannot take the address of: %v = %v <%v>", node.X, place, TypeOf(place))
+		}
+		return place.Addr(), nil
+
 	case mt.MACRO:
 		// the various QUOTE special forms and the result of macroexpansion
 		// are statements wrapped in a closure

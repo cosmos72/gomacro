@@ -35,10 +35,13 @@ type Builtin struct {
 }
 
 func builtinAppend(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	n := len(args)
+	if n < 1 {
+		return env.Errorf("builtin append() expects at least one argument, found %d", n)
+	}
 	elems := env.evalExprs(args)
 	slice := elems[0]
-	elems = elems[1:]
-	return r.Append(slice, elems...), nil
+	return r.Append(slice, elems[1:]...), nil
 }
 
 func callCap(arg interface{}) int {
@@ -64,9 +67,9 @@ func callLen(arg interface{}) int {
 func builtinMake(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 3 {
-		return env.Errorf("builtin make() wants one, two or three arguments, not %d", n)
+		return env.Errorf("builtin make() expects one, two or three arguments, found %d", n)
 	}
-	t := env.evalType(args[0].(ast.Expr))
+	t := env.evalType(args[0])
 	values := env.evalExprs(args[1:])
 	n--
 	ret := Nil
@@ -91,6 +94,15 @@ func builtinMake(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
 		ret = r.MakeSlice(t, length, capacity)
 	}
 	return ret, nil
+}
+
+func builtinNew(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	n := len(args)
+	if n != 1 {
+		return env.Errorf("builtin new() expects exactly one argument, found %d", n)
+	}
+	t := env.evalType(args[0])
+	return r.New(t), nil
 }
 
 func callPanic(arg interface{}) {
@@ -142,7 +154,7 @@ func (env *Env) addBuiltins() {
 		return toInterfaces(packValues(env.Eval(node)))
 	})
 	binds["len"] = r.ValueOf(callLen)
-	// binds["new"] = r.ValueOf(callNew) // should be handled specially, its argument is a type
+	binds["new"] = r.ValueOf(Builtin{builtinNew})
 	binds["MacroExpand"] = r.ValueOf(func(in ast.Node) (out ast.Node, expanded bool) {
 		return env.MacroExpand(in)
 	})
