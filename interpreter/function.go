@@ -54,7 +54,7 @@ func (env *Env) evalDeclNamedFunction(node *ast.FuncDecl) (r.Value, []r.Value) {
 	}
 
 	fun, t := env.evalDeclFunction(node, node.Type, node.Body)
-	ret := env.defineVar(name, t, fun)
+	ret := env.defineFunc(name, t, fun)
 	return ret, nil
 }
 

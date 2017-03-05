@@ -186,25 +186,25 @@ func (env *Env) addBuiltins() {
 	})
 
 	types := env.Types
+	types["bool"] = r.TypeOf(false)
+	types["byte"] = r.TypeOf(byte(0))
+	types["complex64"] = r.TypeOf(complex(float32(0), float32(0)))
+	types["complex128"] = r.TypeOf(complex(float64(0), float64(0)))
+	types["float32"] = r.TypeOf(float32(0))
+	types["float64"] = r.TypeOf(float64(0))
 	types["int"] = r.TypeOf(int(0))
 	types["int8"] = r.TypeOf(int8(0))
 	types["int16"] = r.TypeOf(int16(0))
 	types["int32"] = r.TypeOf(int32(0))
 	types["int64"] = r.TypeOf(int64(0))
+	types["rune"] = r.TypeOf(rune(0))
+	types["string"] = r.TypeOf("")
 	types["uint"] = r.TypeOf(uint(0))
 	types["uint8"] = r.TypeOf(uint8(0))
 	types["uint16"] = r.TypeOf(uint16(0))
 	types["uint32"] = r.TypeOf(uint32(0))
 	types["uint64"] = r.TypeOf(uint64(0))
 	types["uintptr"] = r.TypeOf(uintptr(0))
-	types["rune"] = r.TypeOf(rune(0))
-
-	types["bool"] = r.TypeOf(false)
-	types["complex64"] = r.TypeOf(complex(float32(0), float32(0)))
-	types["complex128"] = r.TypeOf(complex(float64(0), float64(0)))
-	types["float32"] = r.TypeOf(float32(0))
-	types["float64"] = r.TypeOf(float64(0))
-	types["string"] = r.TypeOf("")
 }
 
 func (env *Env) addInterpretedBuiltins() {

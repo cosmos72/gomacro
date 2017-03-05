@@ -60,7 +60,7 @@ func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 			names[i] = ident.Name
 		}
 		values := env.evalExprsMultipleValues(right, nleft)
-		return env.defineVars(names, nil, values)
+		return env.defineConstsVarsOrFuncs(names, nil, values, false)
 
 	} else {
 		places := env.evalPlaces(left)

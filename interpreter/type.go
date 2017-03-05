@@ -163,7 +163,7 @@ func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodName
 func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 	if value == None || value == Nil {
 		switch t.Kind() {
-		case r.Chan, r.Map, r.Slice, r.Ptr:
+		case r.Chan, r.Map, r.Func, r.Interface, r.Slice, r.Ptr:
 			value = r.Zero(t)
 		}
 	}

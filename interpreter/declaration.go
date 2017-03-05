@@ -52,7 +52,7 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 		case token.CONST:
 			ret, rets = env.evalDeclConsts(decl)
 		case token.TYPE:
-			ret, rets = env.evalDeclTypes(decl)
+			return env.evalDeclType(decl)
 		case token.VAR:
 			ret, rets = env.evalDeclVars(decl)
 		default:
@@ -64,28 +64,39 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 
 func (env *Env) evalDeclConsts(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
+	case *ast.ValueSpec:
+		return env.evalDeclConstsOrVars(node.Names, node.Type, node.Values, true)
 	default:
-		return env.Errorf("unimplemented: constant declaration %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unexpected constant declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
-func (env *Env) evalDeclTypes(node ast.Spec) (r.Value, []r.Value) {
+func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
+	case *ast.TypeSpec:
+		name := node.Name.Name
+		t := env.evalType(node.Type)
+		if _, ok := env.Types[name]; ok {
+			env.Warnf("redefined type: %v", name)
+		}
+		env.Types[name] = t
+		return r.ValueOf(&t).Elem(), nil // always return a reflect.Type
+
 	default:
-		return env.Errorf("unimplemented: type declaration %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unexpected type declaration: expecting *ast.TypeSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
 func (env *Env) evalDeclVars(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case *ast.ValueSpec:
-		return env.evalDeclVarsExpr(node.Names, node.Type, node.Values)
+		return env.evalDeclConstsOrVars(node.Names, node.Type, node.Values, false)
 	default:
-		return env.Errorf("unimplemented variable declaration, expecting *ast.ValueSpec: %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unexpected variable declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
-func (env *Env) evalDeclVarsExpr(idents []*ast.Ident, typ ast.Expr, exprs []ast.Expr) (r.Value, []r.Value) {
+func (env *Env) evalDeclConstsOrVars(idents []*ast.Ident, typ ast.Expr, exprs []ast.Expr, constant bool) (r.Value, []r.Value) {
 	n := len(idents)
 	names := make([]string, n)
 	for i, ident := range idents {
@@ -97,38 +108,38 @@ func (env *Env) evalDeclVarsExpr(idents []*ast.Ident, typ ast.Expr, exprs []ast.
 	if exprs != nil {
 		values = env.evalExprsMultipleValues(exprs, n)
 	}
-	return env.defineVars(names, t, values)
+	return env.defineConstsVarsOrFuncs(names, t, values, constant)
 }
 
-func (env *Env) defineVars(names []string, t r.Type, values []r.Value) (r.Value, []r.Value) {
+func (env *Env) defineConstsVarsOrFuncs(names []string, t r.Type, values []r.Value, constant bool) (r.Value, []r.Value) {
 	n := len(names)
 	if values == nil {
 		values = make([]r.Value, n)
 		zero := r.Zero(t)
 		for i := 0; i < n; i++ {
-			values[i] = env.defineVar(names[i], t, zero)
+			values[i] = env.defineConstVarOrFunc(names[i], t, zero, constant)
 		}
 	} else {
 		for i := 0; i < n; i++ {
-			values[i] = env.defineVar(names[i], t, values[i])
+			values[i] = env.defineConstVarOrFunc(names[i], t, values[i], constant)
 		}
 	}
 	return unpackValues(values)
 }
 
 func (env *Env) defineConst(name string, t r.Type, value r.Value) r.Value {
-	return env.defineConstVarOrFunc(name, t, value, false)
-}
-
-func (env *Env) defineVar(name string, t r.Type, value r.Value) r.Value {
 	return env.defineConstVarOrFunc(name, t, value, true)
 }
 
-func (env *Env) defineFunc(name string, t r.Type, value r.Value) r.Value {
+func (env *Env) defineVar(name string, t r.Type, value r.Value) r.Value {
 	return env.defineConstVarOrFunc(name, t, value, false)
 }
 
-func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, canSet bool) r.Value {
+func (env *Env) defineFunc(name string, t r.Type, value r.Value) r.Value {
+	return env.defineConstVarOrFunc(name, t, value, true)
+}
+
+func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, constant bool) r.Value {
 	if name == "_" {
 		// never define bindings for "_"
 		if t != nil {
@@ -142,14 +153,14 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, canSe
 	if _, exists := env.Binds[name]; exists {
 		env.Warnf("redefined identifier: %v", name)
 	}
-	if canSet {
+	if constant {
+		value = value.Convert(t)
+		env.Binds[name] = value
+	} else {
 		addr := r.New(t)
 		value = env.assignPlace(Place{addr.Elem(), Nil}, token.ASSIGN, value)
 		env.Binds[name] = addr.Elem()
-	} else {
-		value = value.Convert(t)
-		env.Binds[name] = value
 	}
-	// Debugf("defineVar() added %#v to %#v", name, env.Binds)
+	// Debugf("defineConstVarOrFunc() added %#v to %#v", name, env.Binds)
 	return value
 }
