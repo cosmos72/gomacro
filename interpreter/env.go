@@ -69,6 +69,7 @@ func NewEnv(outer *Env, path string) *Env {
 			fmt.Printf("typeof(bar) = %v - actually %#v\n", t, tf)
 			fmt.Printf("typeof(bar) Name = %v, Kind = %v\n", t.Name(), t.Kind())
 		*/
+
 	} else {
 		env.Interpreter = outer.Interpreter
 	}

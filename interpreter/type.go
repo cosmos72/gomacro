@@ -83,12 +83,12 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 		} else {
 			env.Errorf("unimplemented qualified type, expecting packageName.identifier: %v <%v>", node, r.TypeOf(node))
 		}
+	case nil:
+		// type can be omitted in many case - then we must perform type inference
+		break
 	default:
 		// TODO *ast.StructType and many others
-		// type can be omitted in many case - then we must perform type inference
-		if node != nil {
-			env.Errorf("evalType(): unimplemented type: %v <%v>", node, r.TypeOf(node))
-		}
+		env.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 	}
 	for i := 0; i < stars; i++ {
 		t = r.PtrTo(t)
@@ -154,7 +154,7 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 
 func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodNames []string) {
 	if node.Methods != nil && len(node.Methods.List) != 0 {
-		env.Errorf("unimplemented interface { /*methods*/ }: %#v", node.Methods.List)
+		env.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 		return nil, nil
 	}
 	return typeOfInterface, zeroStrings
