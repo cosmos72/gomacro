@@ -26,7 +26,10 @@ package interpreter
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
+
+	mt "github.com/cosmos72/gomacro/token"
 )
 
 func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) []r.Value {
@@ -89,8 +92,26 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 
 		case *ast.BinaryExpr:
 			xv := env.evalExpr1(node.X)
-			yv := env.evalExpr1(node.Y)
-			return env.evalBinaryExpr(xv, node.Op, yv), nil
+			switch op := node.Op; op {
+			case token.LAND, token.LOR:
+				if xv.Kind() != r.Bool {
+					return env.unsupportedLogicalOperand(op, xv)
+				}
+				// implement short-circuit logic
+				if (op == token.LOR) == xv.Bool() {
+					// env.Debugf("evalExpr() %v: %v = %v, skipping %v...", node, node.X, xv, node.Y)
+					return xv, nil
+				}
+				// env.Debugf("evalExpr() %v: %v = %v, evaluating %v...", node, node.X, xv, node.Y)
+				yv := env.evalExpr1(node.Y)
+				if yv.Kind() != r.Bool {
+					return env.unsupportedLogicalOperand(op, yv)
+				}
+				return yv, nil
+			default:
+				yv := env.evalExpr1(node.Y)
+				return env.evalBinaryExpr(xv, node.Op, yv), nil
+			}
 
 		case *ast.CallExpr:
 			return env.evalCall(node)
@@ -132,6 +153,10 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 		}
 		return env.Errorf("unimplemented Eval() for: %v <%v>", in, r.TypeOf(in))
 	}
+}
+
+func (env *Env) unsupportedLogicalOperand(op token.Token, xv r.Value) (r.Value, []r.Value) {
+	return env.Errorf("unsupported type in logical operation %s: expecting bool, found %v <%v>", mt.String(op), xv, TypeOf(xv))
 }
 
 func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {

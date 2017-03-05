@@ -62,6 +62,10 @@ func (env *Env) evalBinaryExprBool(x bool, op token.Token, yv r.Value) r.Value {
 	case r.Bool:
 		y := yv.Bool()
 		switch op {
+		case token.LAND: // for a short-circuit implementation, see evalExpr
+			ret = x && y
+		case token.LOR: // for a short-circuit implementation, see evalExpr
+			ret = x || y
 		case token.EQL:
 			ret = x == y
 		case token.NEQ:

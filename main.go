@@ -33,6 +33,8 @@ import (
 )
 
 func main() {
+	benchmarks()
+
 	args := os.Args
 
 	// args := []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { b }\nMacroExpand1(quote{foo x; y; z})"}
@@ -50,7 +52,7 @@ func Main(args []string) {
 	env = gmi.NewEnv(env, "main")
 
 	env.ParserMode = mp.Trace & 0  // | mp.TraceMacro
-	env.Options = gmi.OptTrapPanic // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpandCodewalk // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote // | gmi.OptShowEvalDuration
+	env.Options = gmi.OptTrapPanic // | gmi.OptShowEvalDuration // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpandCodewalk // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote
 	env.SpecialChar = '~'
 
 	if len(args) > 1 {
@@ -60,24 +62,3 @@ func Main(args []string) {
 		env.ReplStdin()
 	}
 }
-
-/*
-func factorial(n int) int {
-	t := 1
-	for i := 2; i <= n; i = i + 1 {
-		t = t * i
-	}
-	return t
-}
-
-func factorialBenchmark(n int) {
-	t1 := time.Now()
-	result := factorial(n)
-	delta := time.Now().Sub(t1)
-	fmt.Printf("factorial(%d) = %d, elapsed time: %g s\n", n, result, float64(delta)/float64(time.Second))
-}
-*/
-
-// factorial(1000000000):
-// output: 0, elapsed time: 0.771520347 s
-// the interpreter is 1600 times slower than compiled code...
