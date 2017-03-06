@@ -25,8 +25,25 @@
 package interpreter
 
 import (
+	"go/ast"
 	r "reflect"
 )
+
+type Binds map[string]r.Value
+type Types map[string]r.Type
+
+type Env struct {
+	*Interpreter
+	Binds      Binds
+	Types      Types
+	Outer      *Env
+	iotaOffset int
+	Name, Path string
+}
+
+type Builtin struct {
+	Exec func(env *Env, args ...ast.Expr) (r.Value, []r.Value)
+}
 
 type Macro struct {
 	Closure func(args []r.Value) (results []r.Value)

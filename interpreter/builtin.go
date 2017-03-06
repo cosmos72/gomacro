@@ -30,10 +30,6 @@ import (
 	r "reflect"
 )
 
-type Builtin struct {
-	exec func(env *Env, args ...ast.Expr) (r.Value, []r.Value)
-}
-
 func builtinAppend(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 {

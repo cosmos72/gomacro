@@ -25,6 +25,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"go/ast"
 	r "reflect"
 )
@@ -48,7 +49,7 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 	}
 	var t r.Type
 	switch node := node.(type) {
-	case *ast.ArrayType:
+	case *ast.ArrayType: // also for slices
 		t = env.evalTypeArray(node)
 	case *ast.ChanType:
 		t = env.evalType(node.Value)
@@ -83,6 +84,13 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 		} else {
 			env.Errorf("unimplemented qualified type, expecting packageName.identifier: %v <%v>", node, r.TypeOf(node))
 		}
+	case *ast.StructType:
+		// env.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
+		types, names := env.evalTypeFields(node.Fields)
+		// env.Debugf("evalType() struct names and types: %v %v", types, names)
+		fields := makeStructFields(env.FileEnv().Path, names, types)
+		// env.Debugf("evalType() struct fields: %#v", fields)
+		t = r.StructOf(fields)
 	case nil:
 		// type can be omitted in many case - then we must perform type inference
 		break
@@ -158,6 +166,50 @@ func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodName
 		return nil, nil
 	}
 	return typeOfInterface, zeroStrings
+}
+
+func makeStructFields(pkgPath string, names []string, types []r.Type) []r.StructField {
+	// pkgIdentifier := sanitizeIdentifier(pkgPath)
+	fields := make([]r.StructField, len(names))
+	var offset, next uintptr
+	for i, name := range names {
+		t := types[i]
+		offset, next = alignStructField(next, t)
+		fields[i] = r.StructField{
+			Name:      toExportedName(name), // Go 1.8 reflect.StructOf() supports *only* exported fields
+			Type:      t,
+			Tag:       "",
+			Offset:    offset,
+			Index:     []int{i},
+			Anonymous: false,
+		}
+	}
+	return fields
+}
+
+func alignStructField(offset uintptr, t r.Type) (uintptr, uintptr) {
+	align := uintptr(t.FieldAlign())
+	// fmt.Printf("alignStructField(offset = %d, type = <%v>) -> align = %d", offset, t, align)
+	if align > 0 {
+		offset = (offset + align - 1) / align * align
+	}
+	// fmt.Printf(", offset = %d, next = %d\n", offset, offset+t.Size())
+	return offset, offset + t.Size()
+}
+
+func toExportedName(name string) string {
+	if len(name) == 0 {
+		return name
+	}
+	ch := name[0]
+	if ch >= 'a' && ch <= 'z' {
+		ch -= 'a' - 'A'
+	} else if ch == '_' {
+		ch = 'X'
+	} else {
+		return name
+	}
+	return fmt.Sprintf("%c%s", ch, name[1:])
 }
 
 func (env *Env) valueToType(value r.Value, t r.Type) r.Value {

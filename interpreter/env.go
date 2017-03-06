@@ -33,18 +33,6 @@ import (
 	"time"
 )
 
-type Binds map[string]r.Value
-type Types map[string]r.Type
-
-type Env struct {
-	*Interpreter
-	Binds      Binds
-	Types      Types
-	Outer      *Env
-	iotaOffset int
-	Name, Path string
-}
-
 func NewEnv(outer *Env, path string) *Env {
 	env := &Env{
 		Binds:      make(map[string]r.Value),
