@@ -4,145 +4,237 @@
 package imports
 
 import (
-	pkg "go/types"
 	. "reflect"
+	"go/token"
+	"go/types"
 )
 
 func init() {
 	Binds["go/types"] = map[string]Value{
-		"AssertableTo":	ValueOf(pkg.AssertableTo),
-		"AssignableTo":	ValueOf(pkg.AssignableTo),
-		"Bool":	ValueOf(pkg.Bool),
-		"Byte":	ValueOf(pkg.Byte),
-		"Comparable":	ValueOf(pkg.Comparable),
-		"Complex128":	ValueOf(pkg.Complex128),
-		"Complex64":	ValueOf(pkg.Complex64),
-		"ConvertibleTo":	ValueOf(pkg.ConvertibleTo),
-		"DefPredeclaredTestFuncs":	ValueOf(pkg.DefPredeclaredTestFuncs),
-		"Default":	ValueOf(pkg.Default),
-		"Eval":	ValueOf(pkg.Eval),
-		"ExprString":	ValueOf(pkg.ExprString),
-		"FieldVal":	ValueOf(pkg.FieldVal),
-		"Float32":	ValueOf(pkg.Float32),
-		"Float64":	ValueOf(pkg.Float64),
-		"Id":	ValueOf(pkg.Id),
-		"Identical":	ValueOf(pkg.Identical),
-		"IdenticalIgnoreTags":	ValueOf(pkg.IdenticalIgnoreTags),
-		"Implements":	ValueOf(pkg.Implements),
-		"Int":	ValueOf(pkg.Int),
-		"Int16":	ValueOf(pkg.Int16),
-		"Int32":	ValueOf(pkg.Int32),
-		"Int64":	ValueOf(pkg.Int64),
-		"Int8":	ValueOf(pkg.Int8),
-		"Invalid":	ValueOf(pkg.Invalid),
-		"IsBoolean":	ValueOf(pkg.IsBoolean),
-		"IsComplex":	ValueOf(pkg.IsComplex),
-		"IsConstType":	ValueOf(pkg.IsConstType),
-		"IsFloat":	ValueOf(pkg.IsFloat),
-		"IsInteger":	ValueOf(pkg.IsInteger),
-		"IsInterface":	ValueOf(pkg.IsInterface),
-		"IsNumeric":	ValueOf(pkg.IsNumeric),
-		"IsOrdered":	ValueOf(pkg.IsOrdered),
-		"IsString":	ValueOf(pkg.IsString),
-		"IsUnsigned":	ValueOf(pkg.IsUnsigned),
-		"IsUntyped":	ValueOf(pkg.IsUntyped),
-		"LookupFieldOrMethod":	ValueOf(pkg.LookupFieldOrMethod),
-		"MethodExpr":	ValueOf(pkg.MethodExpr),
-		"MethodVal":	ValueOf(pkg.MethodVal),
-		"MissingMethod":	ValueOf(pkg.MissingMethod),
-		"NewArray":	ValueOf(pkg.NewArray),
-		"NewChan":	ValueOf(pkg.NewChan),
-		"NewChecker":	ValueOf(pkg.NewChecker),
-		"NewConst":	ValueOf(pkg.NewConst),
-		"NewField":	ValueOf(pkg.NewField),
-		"NewFunc":	ValueOf(pkg.NewFunc),
-		"NewInterface":	ValueOf(pkg.NewInterface),
-		"NewLabel":	ValueOf(pkg.NewLabel),
-		"NewMap":	ValueOf(pkg.NewMap),
-		"NewMethodSet":	ValueOf(pkg.NewMethodSet),
-		"NewNamed":	ValueOf(pkg.NewNamed),
-		"NewPackage":	ValueOf(pkg.NewPackage),
-		"NewParam":	ValueOf(pkg.NewParam),
-		"NewPkgName":	ValueOf(pkg.NewPkgName),
-		"NewPointer":	ValueOf(pkg.NewPointer),
-		"NewScope":	ValueOf(pkg.NewScope),
-		"NewSignature":	ValueOf(pkg.NewSignature),
-		"NewSlice":	ValueOf(pkg.NewSlice),
-		"NewStruct":	ValueOf(pkg.NewStruct),
-		"NewTuple":	ValueOf(pkg.NewTuple),
-		"NewTypeName":	ValueOf(pkg.NewTypeName),
-		"NewVar":	ValueOf(pkg.NewVar),
-		"ObjectString":	ValueOf(pkg.ObjectString),
-		"RecvOnly":	ValueOf(pkg.RecvOnly),
-		"RelativeTo":	ValueOf(pkg.RelativeTo),
-		"Rune":	ValueOf(pkg.Rune),
-		"SelectionString":	ValueOf(pkg.SelectionString),
-		"SendOnly":	ValueOf(pkg.SendOnly),
-		"SendRecv":	ValueOf(pkg.SendRecv),
-		"String":	ValueOf(pkg.String),
-		"Typ":	ValueOf(&pkg.Typ).Elem(),
-		"TypeString":	ValueOf(pkg.TypeString),
-		"Uint":	ValueOf(pkg.Uint),
-		"Uint16":	ValueOf(pkg.Uint16),
-		"Uint32":	ValueOf(pkg.Uint32),
-		"Uint64":	ValueOf(pkg.Uint64),
-		"Uint8":	ValueOf(pkg.Uint8),
-		"Uintptr":	ValueOf(pkg.Uintptr),
-		"Universe":	ValueOf(&pkg.Universe).Elem(),
-		"Unsafe":	ValueOf(&pkg.Unsafe).Elem(),
-		"UnsafePointer":	ValueOf(pkg.UnsafePointer),
-		"UntypedBool":	ValueOf(pkg.UntypedBool),
-		"UntypedComplex":	ValueOf(pkg.UntypedComplex),
-		"UntypedFloat":	ValueOf(pkg.UntypedFloat),
-		"UntypedInt":	ValueOf(pkg.UntypedInt),
-		"UntypedNil":	ValueOf(pkg.UntypedNil),
-		"UntypedRune":	ValueOf(pkg.UntypedRune),
-		"UntypedString":	ValueOf(pkg.UntypedString),
-		"WriteExpr":	ValueOf(pkg.WriteExpr),
-		"WriteSignature":	ValueOf(pkg.WriteSignature),
-		"WriteType":	ValueOf(pkg.WriteType),
+		"AssertableTo":	ValueOf(types.AssertableTo),
+		"AssignableTo":	ValueOf(types.AssignableTo),
+		"Bool":	ValueOf(types.Bool),
+		"Byte":	ValueOf(types.Byte),
+		"Comparable":	ValueOf(types.Comparable),
+		"Complex128":	ValueOf(types.Complex128),
+		"Complex64":	ValueOf(types.Complex64),
+		"ConvertibleTo":	ValueOf(types.ConvertibleTo),
+		"DefPredeclaredTestFuncs":	ValueOf(types.DefPredeclaredTestFuncs),
+		"Default":	ValueOf(types.Default),
+		"Eval":	ValueOf(types.Eval),
+		"ExprString":	ValueOf(types.ExprString),
+		"FieldVal":	ValueOf(types.FieldVal),
+		"Float32":	ValueOf(types.Float32),
+		"Float64":	ValueOf(types.Float64),
+		"Id":	ValueOf(types.Id),
+		"Identical":	ValueOf(types.Identical),
+		"IdenticalIgnoreTags":	ValueOf(types.IdenticalIgnoreTags),
+		"Implements":	ValueOf(types.Implements),
+		"Int":	ValueOf(types.Int),
+		"Int16":	ValueOf(types.Int16),
+		"Int32":	ValueOf(types.Int32),
+		"Int64":	ValueOf(types.Int64),
+		"Int8":	ValueOf(types.Int8),
+		"Invalid":	ValueOf(types.Invalid),
+		"IsBoolean":	ValueOf(types.IsBoolean),
+		"IsComplex":	ValueOf(types.IsComplex),
+		"IsConstType":	ValueOf(types.IsConstType),
+		"IsFloat":	ValueOf(types.IsFloat),
+		"IsInteger":	ValueOf(types.IsInteger),
+		"IsInterface":	ValueOf(types.IsInterface),
+		"IsNumeric":	ValueOf(types.IsNumeric),
+		"IsOrdered":	ValueOf(types.IsOrdered),
+		"IsString":	ValueOf(types.IsString),
+		"IsUnsigned":	ValueOf(types.IsUnsigned),
+		"IsUntyped":	ValueOf(types.IsUntyped),
+		"LookupFieldOrMethod":	ValueOf(types.LookupFieldOrMethod),
+		"MethodExpr":	ValueOf(types.MethodExpr),
+		"MethodVal":	ValueOf(types.MethodVal),
+		"MissingMethod":	ValueOf(types.MissingMethod),
+		"NewArray":	ValueOf(types.NewArray),
+		"NewChan":	ValueOf(types.NewChan),
+		"NewChecker":	ValueOf(types.NewChecker),
+		"NewConst":	ValueOf(types.NewConst),
+		"NewField":	ValueOf(types.NewField),
+		"NewFunc":	ValueOf(types.NewFunc),
+		"NewInterface":	ValueOf(types.NewInterface),
+		"NewLabel":	ValueOf(types.NewLabel),
+		"NewMap":	ValueOf(types.NewMap),
+		"NewMethodSet":	ValueOf(types.NewMethodSet),
+		"NewNamed":	ValueOf(types.NewNamed),
+		"NewPackage":	ValueOf(types.NewPackage),
+		"NewParam":	ValueOf(types.NewParam),
+		"NewPkgName":	ValueOf(types.NewPkgName),
+		"NewPointer":	ValueOf(types.NewPointer),
+		"NewScope":	ValueOf(types.NewScope),
+		"NewSignature":	ValueOf(types.NewSignature),
+		"NewSlice":	ValueOf(types.NewSlice),
+		"NewStruct":	ValueOf(types.NewStruct),
+		"NewTuple":	ValueOf(types.NewTuple),
+		"NewTypeName":	ValueOf(types.NewTypeName),
+		"NewVar":	ValueOf(types.NewVar),
+		"ObjectString":	ValueOf(types.ObjectString),
+		"RecvOnly":	ValueOf(types.RecvOnly),
+		"RelativeTo":	ValueOf(types.RelativeTo),
+		"Rune":	ValueOf(types.Rune),
+		"SelectionString":	ValueOf(types.SelectionString),
+		"SendOnly":	ValueOf(types.SendOnly),
+		"SendRecv":	ValueOf(types.SendRecv),
+		"String":	ValueOf(types.String),
+		"Typ":	ValueOf(&types.Typ).Elem(),
+		"TypeString":	ValueOf(types.TypeString),
+		"Uint":	ValueOf(types.Uint),
+		"Uint16":	ValueOf(types.Uint16),
+		"Uint32":	ValueOf(types.Uint32),
+		"Uint64":	ValueOf(types.Uint64),
+		"Uint8":	ValueOf(types.Uint8),
+		"Uintptr":	ValueOf(types.Uintptr),
+		"Universe":	ValueOf(&types.Universe).Elem(),
+		"Unsafe":	ValueOf(&types.Unsafe).Elem(),
+		"UnsafePointer":	ValueOf(types.UnsafePointer),
+		"UntypedBool":	ValueOf(types.UntypedBool),
+		"UntypedComplex":	ValueOf(types.UntypedComplex),
+		"UntypedFloat":	ValueOf(types.UntypedFloat),
+		"UntypedInt":	ValueOf(types.UntypedInt),
+		"UntypedNil":	ValueOf(types.UntypedNil),
+		"UntypedRune":	ValueOf(types.UntypedRune),
+		"UntypedString":	ValueOf(types.UntypedString),
+		"WriteExpr":	ValueOf(types.WriteExpr),
+		"WriteSignature":	ValueOf(types.WriteSignature),
+		"WriteType":	ValueOf(types.WriteType),
 	}
 	Types["go/types"] = map[string]Type{
-		"Array":	TypeOf((*pkg.Array)(nil)).Elem(),
-		"Basic":	TypeOf((*pkg.Basic)(nil)).Elem(),
-		"BasicInfo":	TypeOf((*pkg.BasicInfo)(nil)).Elem(),
-		"BasicKind":	TypeOf((*pkg.BasicKind)(nil)).Elem(),
-		"Builtin":	TypeOf((*pkg.Builtin)(nil)).Elem(),
-		"Chan":	TypeOf((*pkg.Chan)(nil)).Elem(),
-		"ChanDir":	TypeOf((*pkg.ChanDir)(nil)).Elem(),
-		"Checker":	TypeOf((*pkg.Checker)(nil)).Elem(),
-		"Config":	TypeOf((*pkg.Config)(nil)).Elem(),
-		"Const":	TypeOf((*pkg.Const)(nil)).Elem(),
-		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
-		"Func":	TypeOf((*pkg.Func)(nil)).Elem(),
-		"ImportMode":	TypeOf((*pkg.ImportMode)(nil)).Elem(),
-		"Importer":	TypeOf((*pkg.Importer)(nil)).Elem(),
-		"ImporterFrom":	TypeOf((*pkg.ImporterFrom)(nil)).Elem(),
-		"Info":	TypeOf((*pkg.Info)(nil)).Elem(),
-		"Initializer":	TypeOf((*pkg.Initializer)(nil)).Elem(),
-		"Interface":	TypeOf((*pkg.Interface)(nil)).Elem(),
-		"Label":	TypeOf((*pkg.Label)(nil)).Elem(),
-		"Map":	TypeOf((*pkg.Map)(nil)).Elem(),
-		"MethodSet":	TypeOf((*pkg.MethodSet)(nil)).Elem(),
-		"Named":	TypeOf((*pkg.Named)(nil)).Elem(),
-		"Nil":	TypeOf((*pkg.Nil)(nil)).Elem(),
-		"Object":	TypeOf((*pkg.Object)(nil)).Elem(),
-		"Package":	TypeOf((*pkg.Package)(nil)).Elem(),
-		"PkgName":	TypeOf((*pkg.PkgName)(nil)).Elem(),
-		"Pointer":	TypeOf((*pkg.Pointer)(nil)).Elem(),
-		"Qualifier":	TypeOf((*pkg.Qualifier)(nil)).Elem(),
-		"Scope":	TypeOf((*pkg.Scope)(nil)).Elem(),
-		"Selection":	TypeOf((*pkg.Selection)(nil)).Elem(),
-		"SelectionKind":	TypeOf((*pkg.SelectionKind)(nil)).Elem(),
-		"Signature":	TypeOf((*pkg.Signature)(nil)).Elem(),
-		"Sizes":	TypeOf((*pkg.Sizes)(nil)).Elem(),
-		"Slice":	TypeOf((*pkg.Slice)(nil)).Elem(),
-		"StdSizes":	TypeOf((*pkg.StdSizes)(nil)).Elem(),
-		"Struct":	TypeOf((*pkg.Struct)(nil)).Elem(),
-		"Tuple":	TypeOf((*pkg.Tuple)(nil)).Elem(),
-		"Type":	TypeOf((*pkg.Type)(nil)).Elem(),
-		"TypeAndValue":	TypeOf((*pkg.TypeAndValue)(nil)).Elem(),
-		"TypeName":	TypeOf((*pkg.TypeName)(nil)).Elem(),
-		"Var":	TypeOf((*pkg.Var)(nil)).Elem(),
+		"Array":	TypeOf((*types.Array)(nil)).Elem(),
+		"Basic":	TypeOf((*types.Basic)(nil)).Elem(),
+		"BasicInfo":	TypeOf((*types.BasicInfo)(nil)).Elem(),
+		"BasicKind":	TypeOf((*types.BasicKind)(nil)).Elem(),
+		"Builtin":	TypeOf((*types.Builtin)(nil)).Elem(),
+		"Chan":	TypeOf((*types.Chan)(nil)).Elem(),
+		"ChanDir":	TypeOf((*types.ChanDir)(nil)).Elem(),
+		"Checker":	TypeOf((*types.Checker)(nil)).Elem(),
+		"Config":	TypeOf((*types.Config)(nil)).Elem(),
+		"Const":	TypeOf((*types.Const)(nil)).Elem(),
+		"Error":	TypeOf((*types.Error)(nil)).Elem(),
+		"Func":	TypeOf((*types.Func)(nil)).Elem(),
+		"ImportMode":	TypeOf((*types.ImportMode)(nil)).Elem(),
+		"Importer":	TypeOf((*types.Importer)(nil)).Elem(),
+		"ImporterFrom":	TypeOf((*types.ImporterFrom)(nil)).Elem(),
+		"Info":	TypeOf((*types.Info)(nil)).Elem(),
+		"Initializer":	TypeOf((*types.Initializer)(nil)).Elem(),
+		"Interface":	TypeOf((*types.Interface)(nil)).Elem(),
+		"Label":	TypeOf((*types.Label)(nil)).Elem(),
+		"Map":	TypeOf((*types.Map)(nil)).Elem(),
+		"MethodSet":	TypeOf((*types.MethodSet)(nil)).Elem(),
+		"Named":	TypeOf((*types.Named)(nil)).Elem(),
+		"Nil":	TypeOf((*types.Nil)(nil)).Elem(),
+		"Object":	TypeOf((*types.Object)(nil)).Elem(),
+		"Package":	TypeOf((*types.Package)(nil)).Elem(),
+		"PkgName":	TypeOf((*types.PkgName)(nil)).Elem(),
+		"Pointer":	TypeOf((*types.Pointer)(nil)).Elem(),
+		"Qualifier":	TypeOf((*types.Qualifier)(nil)).Elem(),
+		"Scope":	TypeOf((*types.Scope)(nil)).Elem(),
+		"Selection":	TypeOf((*types.Selection)(nil)).Elem(),
+		"SelectionKind":	TypeOf((*types.SelectionKind)(nil)).Elem(),
+		"Signature":	TypeOf((*types.Signature)(nil)).Elem(),
+		"Sizes":	TypeOf((*types.Sizes)(nil)).Elem(),
+		"Slice":	TypeOf((*types.Slice)(nil)).Elem(),
+		"StdSizes":	TypeOf((*types.StdSizes)(nil)).Elem(),
+		"Struct":	TypeOf((*types.Struct)(nil)).Elem(),
+		"Tuple":	TypeOf((*types.Tuple)(nil)).Elem(),
+		"Type":	TypeOf((*types.Type)(nil)).Elem(),
+		"TypeAndValue":	TypeOf((*types.TypeAndValue)(nil)).Elem(),
+		"TypeName":	TypeOf((*types.TypeName)(nil)).Elem(),
+		"Var":	TypeOf((*types.Var)(nil)).Elem(),
 	}
+	Proxies["go/types"] = map[string]Type{
+		"Importer":	TypeOf((*Importer_go_types)(nil)).Elem(),
+		"ImporterFrom":	TypeOf((*ImporterFrom_go_types)(nil)).Elem(),
+		"Object":	TypeOf((*Object_go_types)(nil)).Elem(),
+		"Sizes":	TypeOf((*Sizes_go_types)(nil)).Elem(),
+		"Type":	TypeOf((*Type_go_types)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for go/types.Importer ---------------
+type Importer_go_types struct {
+	Import_	func(path string) (*types.Package, error)
+}
+func (Obj Importer_go_types) Import(path string) (*types.Package, error) {
+	return Obj.Import_(path)
+}
+
+// --------------- proxy for go/types.ImporterFrom ---------------
+type ImporterFrom_go_types struct {
+	Import_	func(path string) (*types.Package, error)
+	ImportFrom_	func(path string, srcDir string, mode types.ImportMode) (*types.Package, error)
+}
+func (Obj ImporterFrom_go_types) Import(path string) (*types.Package, error) {
+	return Obj.Import_(path)
+}
+func (Obj ImporterFrom_go_types) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
+	return Obj.ImportFrom_(path, srcDir, mode)
+}
+
+// --------------- proxy for go/types.Object ---------------
+type Object_go_types struct {
+	Exported_	func() bool
+	Id_	func() string
+	Name_	func() string
+	Parent_	func() *types.Scope
+	Pkg_	func() *types.Package
+	Pos_	func() token.Pos
+	String_	func() string
+	Type_	func() types.Type
+}
+func (Obj Object_go_types) Exported() bool {
+	return Obj.Exported_()
+}
+func (Obj Object_go_types) Id() string {
+	return Obj.Id_()
+}
+func (Obj Object_go_types) Name() string {
+	return Obj.Name_()
+}
+func (Obj Object_go_types) Parent() *types.Scope {
+	return Obj.Parent_()
+}
+func (Obj Object_go_types) Pkg() *types.Package {
+	return Obj.Pkg_()
+}
+func (Obj Object_go_types) Pos() token.Pos {
+	return Obj.Pos_()
+}
+func (Obj Object_go_types) String() string {
+	return Obj.String_()
+}
+func (Obj Object_go_types) Type() types.Type {
+	return Obj.Type_()
+}
+
+// --------------- proxy for go/types.Sizes ---------------
+type Sizes_go_types struct {
+	Alignof_	func(T types.Type) int64
+	Offsetsof_	func(fields []*types.Var) []int64
+	Sizeof_	func(T types.Type) int64
+}
+func (Obj Sizes_go_types) Alignof(T types.Type) int64 {
+	return Obj.Alignof_(T)
+}
+func (Obj Sizes_go_types) Offsetsof(fields []*types.Var) []int64 {
+	return Obj.Offsetsof_(fields)
+}
+func (Obj Sizes_go_types) Sizeof(T types.Type) int64 {
+	return Obj.Sizeof_(T)
+}
+
+// --------------- proxy for go/types.Type ---------------
+type Type_go_types struct {
+	String_	func() string
+	Underlying_	func() types.Type
+}
+func (Obj Type_go_types) String() string {
+	return Obj.String_()
+}
+func (Obj Type_go_types) Underlying() types.Type {
+	return Obj.Underlying_()
 }

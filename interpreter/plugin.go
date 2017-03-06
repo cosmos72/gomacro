@@ -49,7 +49,7 @@ func getGoSrcPath() string {
 	return getGoPath() + "/src"
 }
 
-func (o Output) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
+func (o *Output) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := getGoSrcPath()
 	gosrclen := len(gosrcdir)
 	filelen := len(filename)

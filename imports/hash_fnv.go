@@ -4,17 +4,19 @@
 package imports
 
 import (
-	pkg "hash/fnv"
 	. "reflect"
+	"hash/fnv"
 )
 
 func init() {
 	Binds["hash/fnv"] = map[string]Value{
-		"New32":	ValueOf(pkg.New32),
-		"New32a":	ValueOf(pkg.New32a),
-		"New64":	ValueOf(pkg.New64),
-		"New64a":	ValueOf(pkg.New64a),
+		"New32":	ValueOf(fnv.New32),
+		"New32a":	ValueOf(fnv.New32a),
+		"New64":	ValueOf(fnv.New64),
+		"New64a":	ValueOf(fnv.New64a),
 	}
 	Types["hash/fnv"] = map[string]Type{
+	}
+	Proxies["hash/fnv"] = map[string]Type{
 	}
 }

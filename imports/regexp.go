@@ -4,22 +4,24 @@
 package imports
 
 import (
-	pkg "regexp"
 	. "reflect"
+	"regexp"
 )
 
 func init() {
 	Binds["regexp"] = map[string]Value{
-		"Compile":	ValueOf(pkg.Compile),
-		"CompilePOSIX":	ValueOf(pkg.CompilePOSIX),
-		"Match":	ValueOf(pkg.Match),
-		"MatchReader":	ValueOf(pkg.MatchReader),
-		"MatchString":	ValueOf(pkg.MatchString),
-		"MustCompile":	ValueOf(pkg.MustCompile),
-		"MustCompilePOSIX":	ValueOf(pkg.MustCompilePOSIX),
-		"QuoteMeta":	ValueOf(pkg.QuoteMeta),
+		"Compile":	ValueOf(regexp.Compile),
+		"CompilePOSIX":	ValueOf(regexp.CompilePOSIX),
+		"Match":	ValueOf(regexp.Match),
+		"MatchReader":	ValueOf(regexp.MatchReader),
+		"MatchString":	ValueOf(regexp.MatchString),
+		"MustCompile":	ValueOf(regexp.MustCompile),
+		"MustCompilePOSIX":	ValueOf(regexp.MustCompilePOSIX),
+		"QuoteMeta":	ValueOf(regexp.QuoteMeta),
 	}
 	Types["regexp"] = map[string]Type{
-		"Regexp":	TypeOf((*pkg.Regexp)(nil)).Elem(),
+		"Regexp":	TypeOf((*regexp.Regexp)(nil)).Elem(),
+	}
+	Proxies["regexp"] = map[string]Type{
 	}
 }

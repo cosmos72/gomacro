@@ -4,24 +4,26 @@
 package imports
 
 import (
-	pkg "debug/plan9obj"
 	. "reflect"
+	"debug/plan9obj"
 )
 
 func init() {
 	Binds["debug/plan9obj"] = map[string]Value{
-		"Magic386":	ValueOf(pkg.Magic386),
-		"Magic64":	ValueOf(pkg.Magic64),
-		"MagicAMD64":	ValueOf(pkg.MagicAMD64),
-		"MagicARM":	ValueOf(pkg.MagicARM),
-		"NewFile":	ValueOf(pkg.NewFile),
-		"Open":	ValueOf(pkg.Open),
+		"Magic386":	ValueOf(plan9obj.Magic386),
+		"Magic64":	ValueOf(plan9obj.Magic64),
+		"MagicAMD64":	ValueOf(plan9obj.MagicAMD64),
+		"MagicARM":	ValueOf(plan9obj.MagicARM),
+		"NewFile":	ValueOf(plan9obj.NewFile),
+		"Open":	ValueOf(plan9obj.Open),
 	}
 	Types["debug/plan9obj"] = map[string]Type{
-		"File":	TypeOf((*pkg.File)(nil)).Elem(),
-		"FileHeader":	TypeOf((*pkg.FileHeader)(nil)).Elem(),
-		"Section":	TypeOf((*pkg.Section)(nil)).Elem(),
-		"SectionHeader":	TypeOf((*pkg.SectionHeader)(nil)).Elem(),
-		"Sym":	TypeOf((*pkg.Sym)(nil)).Elem(),
+		"File":	TypeOf((*plan9obj.File)(nil)).Elem(),
+		"FileHeader":	TypeOf((*plan9obj.FileHeader)(nil)).Elem(),
+		"Section":	TypeOf((*plan9obj.Section)(nil)).Elem(),
+		"SectionHeader":	TypeOf((*plan9obj.SectionHeader)(nil)).Elem(),
+		"Sym":	TypeOf((*plan9obj.Sym)(nil)).Elem(),
+	}
+	Proxies["debug/plan9obj"] = map[string]Type{
 	}
 }

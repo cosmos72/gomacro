@@ -4,17 +4,32 @@
 package imports
 
 import (
-	pkg "net/http/cookiejar"
 	. "reflect"
+	"net/http/cookiejar"
 )
 
 func init() {
 	Binds["net/http/cookiejar"] = map[string]Value{
-		"New":	ValueOf(pkg.New),
+		"New":	ValueOf(cookiejar.New),
 	}
 	Types["net/http/cookiejar"] = map[string]Type{
-		"Jar":	TypeOf((*pkg.Jar)(nil)).Elem(),
-		"Options":	TypeOf((*pkg.Options)(nil)).Elem(),
-		"PublicSuffixList":	TypeOf((*pkg.PublicSuffixList)(nil)).Elem(),
+		"Jar":	TypeOf((*cookiejar.Jar)(nil)).Elem(),
+		"Options":	TypeOf((*cookiejar.Options)(nil)).Elem(),
+		"PublicSuffixList":	TypeOf((*cookiejar.PublicSuffixList)(nil)).Elem(),
 	}
+	Proxies["net/http/cookiejar"] = map[string]Type{
+		"PublicSuffixList":	TypeOf((*PublicSuffixList_net_http_cookiejar)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for net/http/cookiejar.PublicSuffixList ---------------
+type PublicSuffixList_net_http_cookiejar struct {
+	PublicSuffix_	func(domain string) string
+	String_	func() string
+}
+func (Obj PublicSuffixList_net_http_cookiejar) PublicSuffix(domain string) string {
+	return Obj.PublicSuffix_(domain)
+}
+func (Obj PublicSuffixList_net_http_cookiejar) String() string {
+	return Obj.String_()
 }

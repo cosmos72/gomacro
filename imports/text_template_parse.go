@@ -4,58 +4,81 @@
 package imports
 
 import (
-	pkg "text/template/parse"
 	. "reflect"
+	"text/template/parse"
 )
 
 func init() {
 	Binds["text/template/parse"] = map[string]Value{
-		"IsEmptyTree":	ValueOf(pkg.IsEmptyTree),
-		"New":	ValueOf(pkg.New),
-		"NewIdentifier":	ValueOf(pkg.NewIdentifier),
-		"NodeAction":	ValueOf(pkg.NodeAction),
-		"NodeBool":	ValueOf(pkg.NodeBool),
-		"NodeChain":	ValueOf(pkg.NodeChain),
-		"NodeCommand":	ValueOf(pkg.NodeCommand),
-		"NodeDot":	ValueOf(pkg.NodeDot),
-		"NodeField":	ValueOf(pkg.NodeField),
-		"NodeIdentifier":	ValueOf(pkg.NodeIdentifier),
-		"NodeIf":	ValueOf(pkg.NodeIf),
-		"NodeList":	ValueOf(pkg.NodeList),
-		"NodeNil":	ValueOf(pkg.NodeNil),
-		"NodeNumber":	ValueOf(pkg.NodeNumber),
-		"NodePipe":	ValueOf(pkg.NodePipe),
-		"NodeRange":	ValueOf(pkg.NodeRange),
-		"NodeString":	ValueOf(pkg.NodeString),
-		"NodeTemplate":	ValueOf(pkg.NodeTemplate),
-		"NodeText":	ValueOf(pkg.NodeText),
-		"NodeVariable":	ValueOf(pkg.NodeVariable),
-		"NodeWith":	ValueOf(pkg.NodeWith),
-		"Parse":	ValueOf(pkg.Parse),
+		"IsEmptyTree":	ValueOf(parse.IsEmptyTree),
+		"New":	ValueOf(parse.New),
+		"NewIdentifier":	ValueOf(parse.NewIdentifier),
+		"NodeAction":	ValueOf(parse.NodeAction),
+		"NodeBool":	ValueOf(parse.NodeBool),
+		"NodeChain":	ValueOf(parse.NodeChain),
+		"NodeCommand":	ValueOf(parse.NodeCommand),
+		"NodeDot":	ValueOf(parse.NodeDot),
+		"NodeField":	ValueOf(parse.NodeField),
+		"NodeIdentifier":	ValueOf(parse.NodeIdentifier),
+		"NodeIf":	ValueOf(parse.NodeIf),
+		"NodeList":	ValueOf(parse.NodeList),
+		"NodeNil":	ValueOf(parse.NodeNil),
+		"NodeNumber":	ValueOf(parse.NodeNumber),
+		"NodePipe":	ValueOf(parse.NodePipe),
+		"NodeRange":	ValueOf(parse.NodeRange),
+		"NodeString":	ValueOf(parse.NodeString),
+		"NodeTemplate":	ValueOf(parse.NodeTemplate),
+		"NodeText":	ValueOf(parse.NodeText),
+		"NodeVariable":	ValueOf(parse.NodeVariable),
+		"NodeWith":	ValueOf(parse.NodeWith),
+		"Parse":	ValueOf(parse.Parse),
 	}
 	Types["text/template/parse"] = map[string]Type{
-		"ActionNode":	TypeOf((*pkg.ActionNode)(nil)).Elem(),
-		"BoolNode":	TypeOf((*pkg.BoolNode)(nil)).Elem(),
-		"BranchNode":	TypeOf((*pkg.BranchNode)(nil)).Elem(),
-		"ChainNode":	TypeOf((*pkg.ChainNode)(nil)).Elem(),
-		"CommandNode":	TypeOf((*pkg.CommandNode)(nil)).Elem(),
-		"DotNode":	TypeOf((*pkg.DotNode)(nil)).Elem(),
-		"FieldNode":	TypeOf((*pkg.FieldNode)(nil)).Elem(),
-		"IdentifierNode":	TypeOf((*pkg.IdentifierNode)(nil)).Elem(),
-		"IfNode":	TypeOf((*pkg.IfNode)(nil)).Elem(),
-		"ListNode":	TypeOf((*pkg.ListNode)(nil)).Elem(),
-		"NilNode":	TypeOf((*pkg.NilNode)(nil)).Elem(),
-		"Node":	TypeOf((*pkg.Node)(nil)).Elem(),
-		"NodeType":	TypeOf((*pkg.NodeType)(nil)).Elem(),
-		"NumberNode":	TypeOf((*pkg.NumberNode)(nil)).Elem(),
-		"PipeNode":	TypeOf((*pkg.PipeNode)(nil)).Elem(),
-		"Pos":	TypeOf((*pkg.Pos)(nil)).Elem(),
-		"RangeNode":	TypeOf((*pkg.RangeNode)(nil)).Elem(),
-		"StringNode":	TypeOf((*pkg.StringNode)(nil)).Elem(),
-		"TemplateNode":	TypeOf((*pkg.TemplateNode)(nil)).Elem(),
-		"TextNode":	TypeOf((*pkg.TextNode)(nil)).Elem(),
-		"Tree":	TypeOf((*pkg.Tree)(nil)).Elem(),
-		"VariableNode":	TypeOf((*pkg.VariableNode)(nil)).Elem(),
-		"WithNode":	TypeOf((*pkg.WithNode)(nil)).Elem(),
+		"ActionNode":	TypeOf((*parse.ActionNode)(nil)).Elem(),
+		"BoolNode":	TypeOf((*parse.BoolNode)(nil)).Elem(),
+		"BranchNode":	TypeOf((*parse.BranchNode)(nil)).Elem(),
+		"ChainNode":	TypeOf((*parse.ChainNode)(nil)).Elem(),
+		"CommandNode":	TypeOf((*parse.CommandNode)(nil)).Elem(),
+		"DotNode":	TypeOf((*parse.DotNode)(nil)).Elem(),
+		"FieldNode":	TypeOf((*parse.FieldNode)(nil)).Elem(),
+		"IdentifierNode":	TypeOf((*parse.IdentifierNode)(nil)).Elem(),
+		"IfNode":	TypeOf((*parse.IfNode)(nil)).Elem(),
+		"ListNode":	TypeOf((*parse.ListNode)(nil)).Elem(),
+		"NilNode":	TypeOf((*parse.NilNode)(nil)).Elem(),
+		"Node":	TypeOf((*parse.Node)(nil)).Elem(),
+		"NodeType":	TypeOf((*parse.NodeType)(nil)).Elem(),
+		"NumberNode":	TypeOf((*parse.NumberNode)(nil)).Elem(),
+		"PipeNode":	TypeOf((*parse.PipeNode)(nil)).Elem(),
+		"Pos":	TypeOf((*parse.Pos)(nil)).Elem(),
+		"RangeNode":	TypeOf((*parse.RangeNode)(nil)).Elem(),
+		"StringNode":	TypeOf((*parse.StringNode)(nil)).Elem(),
+		"TemplateNode":	TypeOf((*parse.TemplateNode)(nil)).Elem(),
+		"TextNode":	TypeOf((*parse.TextNode)(nil)).Elem(),
+		"Tree":	TypeOf((*parse.Tree)(nil)).Elem(),
+		"VariableNode":	TypeOf((*parse.VariableNode)(nil)).Elem(),
+		"WithNode":	TypeOf((*parse.WithNode)(nil)).Elem(),
 	}
+	Proxies["text/template/parse"] = map[string]Type{
+		"Node":	TypeOf((*Node_text_template_parse)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for text/template/parse.Node ---------------
+type Node_text_template_parse struct {
+	Copy_	func() parse.Node
+	Position_	func() parse.Pos
+	String_	func() string
+	Type_	func() parse.NodeType
+}
+func (Obj Node_text_template_parse) Copy() parse.Node {
+	return Obj.Copy_()
+}
+func (Obj Node_text_template_parse) Position() parse.Pos {
+	return Obj.Position_()
+}
+func (Obj Node_text_template_parse) String() string {
+	return Obj.String_()
+}
+func (Obj Node_text_template_parse) Type() parse.NodeType {
+	return Obj.Type_()
 }

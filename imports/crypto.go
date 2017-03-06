@@ -4,36 +4,89 @@
 package imports
 
 import (
-	pkg "crypto"
 	. "reflect"
+	"crypto"
+	"io"
 )
 
 func init() {
 	Binds["crypto"] = map[string]Value{
-		"MD4":	ValueOf(pkg.MD4),
-		"MD5":	ValueOf(pkg.MD5),
-		"MD5SHA1":	ValueOf(pkg.MD5SHA1),
-		"RIPEMD160":	ValueOf(pkg.RIPEMD160),
-		"RegisterHash":	ValueOf(pkg.RegisterHash),
-		"SHA1":	ValueOf(pkg.SHA1),
-		"SHA224":	ValueOf(pkg.SHA224),
-		"SHA256":	ValueOf(pkg.SHA256),
-		"SHA384":	ValueOf(pkg.SHA384),
-		"SHA3_224":	ValueOf(pkg.SHA3_224),
-		"SHA3_256":	ValueOf(pkg.SHA3_256),
-		"SHA3_384":	ValueOf(pkg.SHA3_384),
-		"SHA3_512":	ValueOf(pkg.SHA3_512),
-		"SHA512":	ValueOf(pkg.SHA512),
-		"SHA512_224":	ValueOf(pkg.SHA512_224),
-		"SHA512_256":	ValueOf(pkg.SHA512_256),
+		"MD4":	ValueOf(crypto.MD4),
+		"MD5":	ValueOf(crypto.MD5),
+		"MD5SHA1":	ValueOf(crypto.MD5SHA1),
+		"RIPEMD160":	ValueOf(crypto.RIPEMD160),
+		"RegisterHash":	ValueOf(crypto.RegisterHash),
+		"SHA1":	ValueOf(crypto.SHA1),
+		"SHA224":	ValueOf(crypto.SHA224),
+		"SHA256":	ValueOf(crypto.SHA256),
+		"SHA384":	ValueOf(crypto.SHA384),
+		"SHA3_224":	ValueOf(crypto.SHA3_224),
+		"SHA3_256":	ValueOf(crypto.SHA3_256),
+		"SHA3_384":	ValueOf(crypto.SHA3_384),
+		"SHA3_512":	ValueOf(crypto.SHA3_512),
+		"SHA512":	ValueOf(crypto.SHA512),
+		"SHA512_224":	ValueOf(crypto.SHA512_224),
+		"SHA512_256":	ValueOf(crypto.SHA512_256),
 	}
 	Types["crypto"] = map[string]Type{
-		"Decrypter":	TypeOf((*pkg.Decrypter)(nil)).Elem(),
-		"DecrypterOpts":	TypeOf((*pkg.DecrypterOpts)(nil)).Elem(),
-		"Hash":	TypeOf((*pkg.Hash)(nil)).Elem(),
-		"PrivateKey":	TypeOf((*pkg.PrivateKey)(nil)).Elem(),
-		"PublicKey":	TypeOf((*pkg.PublicKey)(nil)).Elem(),
-		"Signer":	TypeOf((*pkg.Signer)(nil)).Elem(),
-		"SignerOpts":	TypeOf((*pkg.SignerOpts)(nil)).Elem(),
+		"Decrypter":	TypeOf((*crypto.Decrypter)(nil)).Elem(),
+		"DecrypterOpts":	TypeOf((*crypto.DecrypterOpts)(nil)).Elem(),
+		"Hash":	TypeOf((*crypto.Hash)(nil)).Elem(),
+		"PrivateKey":	TypeOf((*crypto.PrivateKey)(nil)).Elem(),
+		"PublicKey":	TypeOf((*crypto.PublicKey)(nil)).Elem(),
+		"Signer":	TypeOf((*crypto.Signer)(nil)).Elem(),
+		"SignerOpts":	TypeOf((*crypto.SignerOpts)(nil)).Elem(),
 	}
+	Proxies["crypto"] = map[string]Type{
+		"Decrypter":	TypeOf((*Decrypter_crypto)(nil)).Elem(),
+		"DecrypterOpts":	TypeOf((*DecrypterOpts_crypto)(nil)).Elem(),
+		"PrivateKey":	TypeOf((*PrivateKey_crypto)(nil)).Elem(),
+		"PublicKey":	TypeOf((*PublicKey_crypto)(nil)).Elem(),
+		"Signer":	TypeOf((*Signer_crypto)(nil)).Elem(),
+		"SignerOpts":	TypeOf((*SignerOpts_crypto)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for crypto.Decrypter ---------------
+type Decrypter_crypto struct {
+	Decrypt_	func(rand io.Reader, msg []byte, opts crypto.DecrypterOpts) (plaintext []byte, err error)
+	Public_	func() crypto.PublicKey
+}
+func (Obj Decrypter_crypto) Decrypt(rand io.Reader, msg []byte, opts crypto.DecrypterOpts) (plaintext []byte, err error) {
+	return Obj.Decrypt_(rand, msg, opts)
+}
+func (Obj Decrypter_crypto) Public() crypto.PublicKey {
+	return Obj.Public_()
+}
+
+// --------------- proxy for crypto.DecrypterOpts ---------------
+type DecrypterOpts_crypto struct {
+}
+
+// --------------- proxy for crypto.PrivateKey ---------------
+type PrivateKey_crypto struct {
+}
+
+// --------------- proxy for crypto.PublicKey ---------------
+type PublicKey_crypto struct {
+}
+
+// --------------- proxy for crypto.Signer ---------------
+type Signer_crypto struct {
+	Public_	func() crypto.PublicKey
+	Sign_	func(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error)
+}
+func (Obj Signer_crypto) Public() crypto.PublicKey {
+	return Obj.Public_()
+}
+func (Obj Signer_crypto) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error) {
+	return Obj.Sign_(rand, digest, opts)
+}
+
+// --------------- proxy for crypto.SignerOpts ---------------
+type SignerOpts_crypto struct {
+	HashFunc_	func() crypto.Hash
+}
+func (Obj SignerOpts_crypto) HashFunc() crypto.Hash {
+	return Obj.HashFunc_()
 }

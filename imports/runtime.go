@@ -4,59 +4,74 @@
 package imports
 
 import (
-	pkg "runtime"
 	. "reflect"
+	"runtime"
 )
 
 func init() {
 	Binds["runtime"] = map[string]Value{
-		"BlockProfile":	ValueOf(pkg.BlockProfile),
-		"Breakpoint":	ValueOf(pkg.Breakpoint),
-		"CPUProfile":	ValueOf(pkg.CPUProfile),
-		"Caller":	ValueOf(pkg.Caller),
-		"Callers":	ValueOf(pkg.Callers),
-		"CallersFrames":	ValueOf(pkg.CallersFrames),
-		"Compiler":	ValueOf(pkg.Compiler),
-		"FuncForPC":	ValueOf(pkg.FuncForPC),
-		"GC":	ValueOf(pkg.GC),
-		"GOARCH":	ValueOf(pkg.GOARCH),
-		"GOMAXPROCS":	ValueOf(pkg.GOMAXPROCS),
-		"GOOS":	ValueOf(pkg.GOOS),
-		"GOROOT":	ValueOf(pkg.GOROOT),
-		"Goexit":	ValueOf(pkg.Goexit),
-		"GoroutineProfile":	ValueOf(pkg.GoroutineProfile),
-		"Gosched":	ValueOf(pkg.Gosched),
-		"KeepAlive":	ValueOf(pkg.KeepAlive),
-		"LockOSThread":	ValueOf(pkg.LockOSThread),
-		"MemProfile":	ValueOf(pkg.MemProfile),
-		"MemProfileRate":	ValueOf(&pkg.MemProfileRate).Elem(),
-		"MutexProfile":	ValueOf(pkg.MutexProfile),
-		"NumCPU":	ValueOf(pkg.NumCPU),
-		"NumCgoCall":	ValueOf(pkg.NumCgoCall),
-		"NumGoroutine":	ValueOf(pkg.NumGoroutine),
-		"ReadMemStats":	ValueOf(pkg.ReadMemStats),
-		"ReadTrace":	ValueOf(pkg.ReadTrace),
-		"SetBlockProfileRate":	ValueOf(pkg.SetBlockProfileRate),
-		"SetCPUProfileRate":	ValueOf(pkg.SetCPUProfileRate),
-		"SetCgoTraceback":	ValueOf(pkg.SetCgoTraceback),
-		"SetFinalizer":	ValueOf(pkg.SetFinalizer),
-		"SetMutexProfileFraction":	ValueOf(pkg.SetMutexProfileFraction),
-		"Stack":	ValueOf(pkg.Stack),
-		"StartTrace":	ValueOf(pkg.StartTrace),
-		"StopTrace":	ValueOf(pkg.StopTrace),
-		"ThreadCreateProfile":	ValueOf(pkg.ThreadCreateProfile),
-		"UnlockOSThread":	ValueOf(pkg.UnlockOSThread),
-		"Version":	ValueOf(pkg.Version),
+		"BlockProfile":	ValueOf(runtime.BlockProfile),
+		"Breakpoint":	ValueOf(runtime.Breakpoint),
+		"CPUProfile":	ValueOf(runtime.CPUProfile),
+		"Caller":	ValueOf(runtime.Caller),
+		"Callers":	ValueOf(runtime.Callers),
+		"CallersFrames":	ValueOf(runtime.CallersFrames),
+		"Compiler":	ValueOf(runtime.Compiler),
+		"FuncForPC":	ValueOf(runtime.FuncForPC),
+		"GC":	ValueOf(runtime.GC),
+		"GOARCH":	ValueOf(runtime.GOARCH),
+		"GOMAXPROCS":	ValueOf(runtime.GOMAXPROCS),
+		"GOOS":	ValueOf(runtime.GOOS),
+		"GOROOT":	ValueOf(runtime.GOROOT),
+		"Goexit":	ValueOf(runtime.Goexit),
+		"GoroutineProfile":	ValueOf(runtime.GoroutineProfile),
+		"Gosched":	ValueOf(runtime.Gosched),
+		"KeepAlive":	ValueOf(runtime.KeepAlive),
+		"LockOSThread":	ValueOf(runtime.LockOSThread),
+		"MemProfile":	ValueOf(runtime.MemProfile),
+		"MemProfileRate":	ValueOf(&runtime.MemProfileRate).Elem(),
+		"MutexProfile":	ValueOf(runtime.MutexProfile),
+		"NumCPU":	ValueOf(runtime.NumCPU),
+		"NumCgoCall":	ValueOf(runtime.NumCgoCall),
+		"NumGoroutine":	ValueOf(runtime.NumGoroutine),
+		"ReadMemStats":	ValueOf(runtime.ReadMemStats),
+		"ReadTrace":	ValueOf(runtime.ReadTrace),
+		"SetBlockProfileRate":	ValueOf(runtime.SetBlockProfileRate),
+		"SetCPUProfileRate":	ValueOf(runtime.SetCPUProfileRate),
+		"SetCgoTraceback":	ValueOf(runtime.SetCgoTraceback),
+		"SetFinalizer":	ValueOf(runtime.SetFinalizer),
+		"SetMutexProfileFraction":	ValueOf(runtime.SetMutexProfileFraction),
+		"Stack":	ValueOf(runtime.Stack),
+		"StartTrace":	ValueOf(runtime.StartTrace),
+		"StopTrace":	ValueOf(runtime.StopTrace),
+		"ThreadCreateProfile":	ValueOf(runtime.ThreadCreateProfile),
+		"UnlockOSThread":	ValueOf(runtime.UnlockOSThread),
+		"Version":	ValueOf(runtime.Version),
 	}
 	Types["runtime"] = map[string]Type{
-		"BlockProfileRecord":	TypeOf((*pkg.BlockProfileRecord)(nil)).Elem(),
-		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
-		"Frame":	TypeOf((*pkg.Frame)(nil)).Elem(),
-		"Frames":	TypeOf((*pkg.Frames)(nil)).Elem(),
-		"Func":	TypeOf((*pkg.Func)(nil)).Elem(),
-		"MemProfileRecord":	TypeOf((*pkg.MemProfileRecord)(nil)).Elem(),
-		"MemStats":	TypeOf((*pkg.MemStats)(nil)).Elem(),
-		"StackRecord":	TypeOf((*pkg.StackRecord)(nil)).Elem(),
-		"TypeAssertionError":	TypeOf((*pkg.TypeAssertionError)(nil)).Elem(),
+		"BlockProfileRecord":	TypeOf((*runtime.BlockProfileRecord)(nil)).Elem(),
+		"Error":	TypeOf((*runtime.Error)(nil)).Elem(),
+		"Frame":	TypeOf((*runtime.Frame)(nil)).Elem(),
+		"Frames":	TypeOf((*runtime.Frames)(nil)).Elem(),
+		"Func":	TypeOf((*runtime.Func)(nil)).Elem(),
+		"MemProfileRecord":	TypeOf((*runtime.MemProfileRecord)(nil)).Elem(),
+		"MemStats":	TypeOf((*runtime.MemStats)(nil)).Elem(),
+		"StackRecord":	TypeOf((*runtime.StackRecord)(nil)).Elem(),
+		"TypeAssertionError":	TypeOf((*runtime.TypeAssertionError)(nil)).Elem(),
 	}
+	Proxies["runtime"] = map[string]Type{
+		"Error":	TypeOf((*Error_runtime)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for runtime.Error ---------------
+type Error_runtime struct {
+	Error_	func() string
+	RuntimeError_	func() 
+}
+func (Obj Error_runtime) Error() string {
+	return Obj.Error_()
+}
+func (Obj Error_runtime) RuntimeError()  {
+	Obj.RuntimeError_()
 }

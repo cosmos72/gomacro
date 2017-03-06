@@ -4,43 +4,45 @@
 package imports
 
 import (
-	pkg "sync/atomic"
 	. "reflect"
+	"sync/atomic"
 )
 
 func init() {
 	Binds["sync/atomic"] = map[string]Value{
-		"AddInt32":	ValueOf(pkg.AddInt32),
-		"AddInt64":	ValueOf(pkg.AddInt64),
-		"AddUint32":	ValueOf(pkg.AddUint32),
-		"AddUint64":	ValueOf(pkg.AddUint64),
-		"AddUintptr":	ValueOf(pkg.AddUintptr),
-		"CompareAndSwapInt32":	ValueOf(pkg.CompareAndSwapInt32),
-		"CompareAndSwapInt64":	ValueOf(pkg.CompareAndSwapInt64),
-		"CompareAndSwapPointer":	ValueOf(pkg.CompareAndSwapPointer),
-		"CompareAndSwapUint32":	ValueOf(pkg.CompareAndSwapUint32),
-		"CompareAndSwapUint64":	ValueOf(pkg.CompareAndSwapUint64),
-		"CompareAndSwapUintptr":	ValueOf(pkg.CompareAndSwapUintptr),
-		"LoadInt32":	ValueOf(pkg.LoadInt32),
-		"LoadInt64":	ValueOf(pkg.LoadInt64),
-		"LoadPointer":	ValueOf(pkg.LoadPointer),
-		"LoadUint32":	ValueOf(pkg.LoadUint32),
-		"LoadUint64":	ValueOf(pkg.LoadUint64),
-		"LoadUintptr":	ValueOf(pkg.LoadUintptr),
-		"StoreInt32":	ValueOf(pkg.StoreInt32),
-		"StoreInt64":	ValueOf(pkg.StoreInt64),
-		"StorePointer":	ValueOf(pkg.StorePointer),
-		"StoreUint32":	ValueOf(pkg.StoreUint32),
-		"StoreUint64":	ValueOf(pkg.StoreUint64),
-		"StoreUintptr":	ValueOf(pkg.StoreUintptr),
-		"SwapInt32":	ValueOf(pkg.SwapInt32),
-		"SwapInt64":	ValueOf(pkg.SwapInt64),
-		"SwapPointer":	ValueOf(pkg.SwapPointer),
-		"SwapUint32":	ValueOf(pkg.SwapUint32),
-		"SwapUint64":	ValueOf(pkg.SwapUint64),
-		"SwapUintptr":	ValueOf(pkg.SwapUintptr),
+		"AddInt32":	ValueOf(atomic.AddInt32),
+		"AddInt64":	ValueOf(atomic.AddInt64),
+		"AddUint32":	ValueOf(atomic.AddUint32),
+		"AddUint64":	ValueOf(atomic.AddUint64),
+		"AddUintptr":	ValueOf(atomic.AddUintptr),
+		"CompareAndSwapInt32":	ValueOf(atomic.CompareAndSwapInt32),
+		"CompareAndSwapInt64":	ValueOf(atomic.CompareAndSwapInt64),
+		"CompareAndSwapPointer":	ValueOf(atomic.CompareAndSwapPointer),
+		"CompareAndSwapUint32":	ValueOf(atomic.CompareAndSwapUint32),
+		"CompareAndSwapUint64":	ValueOf(atomic.CompareAndSwapUint64),
+		"CompareAndSwapUintptr":	ValueOf(atomic.CompareAndSwapUintptr),
+		"LoadInt32":	ValueOf(atomic.LoadInt32),
+		"LoadInt64":	ValueOf(atomic.LoadInt64),
+		"LoadPointer":	ValueOf(atomic.LoadPointer),
+		"LoadUint32":	ValueOf(atomic.LoadUint32),
+		"LoadUint64":	ValueOf(atomic.LoadUint64),
+		"LoadUintptr":	ValueOf(atomic.LoadUintptr),
+		"StoreInt32":	ValueOf(atomic.StoreInt32),
+		"StoreInt64":	ValueOf(atomic.StoreInt64),
+		"StorePointer":	ValueOf(atomic.StorePointer),
+		"StoreUint32":	ValueOf(atomic.StoreUint32),
+		"StoreUint64":	ValueOf(atomic.StoreUint64),
+		"StoreUintptr":	ValueOf(atomic.StoreUintptr),
+		"SwapInt32":	ValueOf(atomic.SwapInt32),
+		"SwapInt64":	ValueOf(atomic.SwapInt64),
+		"SwapPointer":	ValueOf(atomic.SwapPointer),
+		"SwapUint32":	ValueOf(atomic.SwapUint32),
+		"SwapUint64":	ValueOf(atomic.SwapUint64),
+		"SwapUintptr":	ValueOf(atomic.SwapUintptr),
 	}
 	Types["sync/atomic"] = map[string]Type{
-		"Value":	TypeOf((*pkg.Value)(nil)).Elem(),
+		"Value":	TypeOf((*atomic.Value)(nil)).Elem(),
+	}
+	Proxies["sync/atomic"] = map[string]Type{
 	}
 }

@@ -4,173 +4,297 @@
 package imports
 
 import (
-	pkg "net/http"
 	. "reflect"
+	"bufio"
+	"net"
+	"net/http"
+	"net/url"
+	"os"
 )
 
 func init() {
 	Binds["net/http"] = map[string]Value{
-		"CanonicalHeaderKey":	ValueOf(pkg.CanonicalHeaderKey),
-		"DefaultClient":	ValueOf(&pkg.DefaultClient).Elem(),
-		"DefaultMaxHeaderBytes":	ValueOf(pkg.DefaultMaxHeaderBytes),
-		"DefaultMaxIdleConnsPerHost":	ValueOf(pkg.DefaultMaxIdleConnsPerHost),
-		"DefaultServeMux":	ValueOf(&pkg.DefaultServeMux).Elem(),
-		"DefaultTransport":	ValueOf(&pkg.DefaultTransport).Elem(),
-		"DetectContentType":	ValueOf(pkg.DetectContentType),
-		"ErrAbortHandler":	ValueOf(&pkg.ErrAbortHandler).Elem(),
-		"ErrBodyNotAllowed":	ValueOf(&pkg.ErrBodyNotAllowed).Elem(),
-		"ErrBodyReadAfterClose":	ValueOf(&pkg.ErrBodyReadAfterClose).Elem(),
-		"ErrContentLength":	ValueOf(&pkg.ErrContentLength).Elem(),
-		"ErrHandlerTimeout":	ValueOf(&pkg.ErrHandlerTimeout).Elem(),
-		"ErrHeaderTooLong":	ValueOf(&pkg.ErrHeaderTooLong).Elem(),
-		"ErrHijacked":	ValueOf(&pkg.ErrHijacked).Elem(),
-		"ErrLineTooLong":	ValueOf(&pkg.ErrLineTooLong).Elem(),
-		"ErrMissingBoundary":	ValueOf(&pkg.ErrMissingBoundary).Elem(),
-		"ErrMissingContentLength":	ValueOf(&pkg.ErrMissingContentLength).Elem(),
-		"ErrMissingFile":	ValueOf(&pkg.ErrMissingFile).Elem(),
-		"ErrNoCookie":	ValueOf(&pkg.ErrNoCookie).Elem(),
-		"ErrNoLocation":	ValueOf(&pkg.ErrNoLocation).Elem(),
-		"ErrNotMultipart":	ValueOf(&pkg.ErrNotMultipart).Elem(),
-		"ErrNotSupported":	ValueOf(&pkg.ErrNotSupported).Elem(),
-		"ErrServerClosed":	ValueOf(&pkg.ErrServerClosed).Elem(),
-		"ErrShortBody":	ValueOf(&pkg.ErrShortBody).Elem(),
-		"ErrSkipAltProtocol":	ValueOf(&pkg.ErrSkipAltProtocol).Elem(),
-		"ErrUnexpectedTrailer":	ValueOf(&pkg.ErrUnexpectedTrailer).Elem(),
-		"ErrUseLastResponse":	ValueOf(&pkg.ErrUseLastResponse).Elem(),
-		"ErrWriteAfterFlush":	ValueOf(&pkg.ErrWriteAfterFlush).Elem(),
-		"Error":	ValueOf(pkg.Error),
-		"FileServer":	ValueOf(pkg.FileServer),
-		"Get":	ValueOf(pkg.Get),
-		"Handle":	ValueOf(pkg.Handle),
-		"HandleFunc":	ValueOf(pkg.HandleFunc),
-		"Head":	ValueOf(pkg.Head),
-		"ListenAndServe":	ValueOf(pkg.ListenAndServe),
-		"ListenAndServeTLS":	ValueOf(pkg.ListenAndServeTLS),
-		"LocalAddrContextKey":	ValueOf(&pkg.LocalAddrContextKey).Elem(),
-		"MaxBytesReader":	ValueOf(pkg.MaxBytesReader),
-		"MethodConnect":	ValueOf(pkg.MethodConnect),
-		"MethodDelete":	ValueOf(pkg.MethodDelete),
-		"MethodGet":	ValueOf(pkg.MethodGet),
-		"MethodHead":	ValueOf(pkg.MethodHead),
-		"MethodOptions":	ValueOf(pkg.MethodOptions),
-		"MethodPatch":	ValueOf(pkg.MethodPatch),
-		"MethodPost":	ValueOf(pkg.MethodPost),
-		"MethodPut":	ValueOf(pkg.MethodPut),
-		"MethodTrace":	ValueOf(pkg.MethodTrace),
-		"NewFileTransport":	ValueOf(pkg.NewFileTransport),
-		"NewRequest":	ValueOf(pkg.NewRequest),
-		"NewServeMux":	ValueOf(pkg.NewServeMux),
-		"NoBody":	ValueOf(&pkg.NoBody).Elem(),
-		"NotFound":	ValueOf(pkg.NotFound),
-		"NotFoundHandler":	ValueOf(pkg.NotFoundHandler),
-		"ParseHTTPVersion":	ValueOf(pkg.ParseHTTPVersion),
-		"ParseTime":	ValueOf(pkg.ParseTime),
-		"Post":	ValueOf(pkg.Post),
-		"PostForm":	ValueOf(pkg.PostForm),
-		"ProxyFromEnvironment":	ValueOf(pkg.ProxyFromEnvironment),
-		"ProxyURL":	ValueOf(pkg.ProxyURL),
-		"ReadRequest":	ValueOf(pkg.ReadRequest),
-		"ReadResponse":	ValueOf(pkg.ReadResponse),
-		"Redirect":	ValueOf(pkg.Redirect),
-		"RedirectHandler":	ValueOf(pkg.RedirectHandler),
-		"Serve":	ValueOf(pkg.Serve),
-		"ServeContent":	ValueOf(pkg.ServeContent),
-		"ServeFile":	ValueOf(pkg.ServeFile),
-		"ServerContextKey":	ValueOf(&pkg.ServerContextKey).Elem(),
-		"SetCookie":	ValueOf(pkg.SetCookie),
-		"StateActive":	ValueOf(pkg.StateActive),
-		"StateClosed":	ValueOf(pkg.StateClosed),
-		"StateHijacked":	ValueOf(pkg.StateHijacked),
-		"StateIdle":	ValueOf(pkg.StateIdle),
-		"StateNew":	ValueOf(pkg.StateNew),
-		"StatusAccepted":	ValueOf(pkg.StatusAccepted),
-		"StatusAlreadyReported":	ValueOf(pkg.StatusAlreadyReported),
-		"StatusBadGateway":	ValueOf(pkg.StatusBadGateway),
-		"StatusBadRequest":	ValueOf(pkg.StatusBadRequest),
-		"StatusConflict":	ValueOf(pkg.StatusConflict),
-		"StatusContinue":	ValueOf(pkg.StatusContinue),
-		"StatusCreated":	ValueOf(pkg.StatusCreated),
-		"StatusExpectationFailed":	ValueOf(pkg.StatusExpectationFailed),
-		"StatusFailedDependency":	ValueOf(pkg.StatusFailedDependency),
-		"StatusForbidden":	ValueOf(pkg.StatusForbidden),
-		"StatusFound":	ValueOf(pkg.StatusFound),
-		"StatusGatewayTimeout":	ValueOf(pkg.StatusGatewayTimeout),
-		"StatusGone":	ValueOf(pkg.StatusGone),
-		"StatusHTTPVersionNotSupported":	ValueOf(pkg.StatusHTTPVersionNotSupported),
-		"StatusIMUsed":	ValueOf(pkg.StatusIMUsed),
-		"StatusInsufficientStorage":	ValueOf(pkg.StatusInsufficientStorage),
-		"StatusInternalServerError":	ValueOf(pkg.StatusInternalServerError),
-		"StatusLengthRequired":	ValueOf(pkg.StatusLengthRequired),
-		"StatusLocked":	ValueOf(pkg.StatusLocked),
-		"StatusLoopDetected":	ValueOf(pkg.StatusLoopDetected),
-		"StatusMethodNotAllowed":	ValueOf(pkg.StatusMethodNotAllowed),
-		"StatusMovedPermanently":	ValueOf(pkg.StatusMovedPermanently),
-		"StatusMultiStatus":	ValueOf(pkg.StatusMultiStatus),
-		"StatusMultipleChoices":	ValueOf(pkg.StatusMultipleChoices),
-		"StatusNetworkAuthenticationRequired":	ValueOf(pkg.StatusNetworkAuthenticationRequired),
-		"StatusNoContent":	ValueOf(pkg.StatusNoContent),
-		"StatusNonAuthoritativeInfo":	ValueOf(pkg.StatusNonAuthoritativeInfo),
-		"StatusNotAcceptable":	ValueOf(pkg.StatusNotAcceptable),
-		"StatusNotExtended":	ValueOf(pkg.StatusNotExtended),
-		"StatusNotFound":	ValueOf(pkg.StatusNotFound),
-		"StatusNotImplemented":	ValueOf(pkg.StatusNotImplemented),
-		"StatusNotModified":	ValueOf(pkg.StatusNotModified),
-		"StatusOK":	ValueOf(pkg.StatusOK),
-		"StatusPartialContent":	ValueOf(pkg.StatusPartialContent),
-		"StatusPaymentRequired":	ValueOf(pkg.StatusPaymentRequired),
-		"StatusPermanentRedirect":	ValueOf(pkg.StatusPermanentRedirect),
-		"StatusPreconditionFailed":	ValueOf(pkg.StatusPreconditionFailed),
-		"StatusPreconditionRequired":	ValueOf(pkg.StatusPreconditionRequired),
-		"StatusProcessing":	ValueOf(pkg.StatusProcessing),
-		"StatusProxyAuthRequired":	ValueOf(pkg.StatusProxyAuthRequired),
-		"StatusRequestEntityTooLarge":	ValueOf(pkg.StatusRequestEntityTooLarge),
-		"StatusRequestHeaderFieldsTooLarge":	ValueOf(pkg.StatusRequestHeaderFieldsTooLarge),
-		"StatusRequestTimeout":	ValueOf(pkg.StatusRequestTimeout),
-		"StatusRequestURITooLong":	ValueOf(pkg.StatusRequestURITooLong),
-		"StatusRequestedRangeNotSatisfiable":	ValueOf(pkg.StatusRequestedRangeNotSatisfiable),
-		"StatusResetContent":	ValueOf(pkg.StatusResetContent),
-		"StatusSeeOther":	ValueOf(pkg.StatusSeeOther),
-		"StatusServiceUnavailable":	ValueOf(pkg.StatusServiceUnavailable),
-		"StatusSwitchingProtocols":	ValueOf(pkg.StatusSwitchingProtocols),
-		"StatusTeapot":	ValueOf(pkg.StatusTeapot),
-		"StatusTemporaryRedirect":	ValueOf(pkg.StatusTemporaryRedirect),
-		"StatusText":	ValueOf(pkg.StatusText),
-		"StatusTooManyRequests":	ValueOf(pkg.StatusTooManyRequests),
-		"StatusUnauthorized":	ValueOf(pkg.StatusUnauthorized),
-		"StatusUnavailableForLegalReasons":	ValueOf(pkg.StatusUnavailableForLegalReasons),
-		"StatusUnprocessableEntity":	ValueOf(pkg.StatusUnprocessableEntity),
-		"StatusUnsupportedMediaType":	ValueOf(pkg.StatusUnsupportedMediaType),
-		"StatusUpgradeRequired":	ValueOf(pkg.StatusUpgradeRequired),
-		"StatusUseProxy":	ValueOf(pkg.StatusUseProxy),
-		"StatusVariantAlsoNegotiates":	ValueOf(pkg.StatusVariantAlsoNegotiates),
-		"StripPrefix":	ValueOf(pkg.StripPrefix),
-		"TimeFormat":	ValueOf(pkg.TimeFormat),
-		"TimeoutHandler":	ValueOf(pkg.TimeoutHandler),
-		"TrailerPrefix":	ValueOf(pkg.TrailerPrefix),
+		"CanonicalHeaderKey":	ValueOf(http.CanonicalHeaderKey),
+		"DefaultClient":	ValueOf(&http.DefaultClient).Elem(),
+		"DefaultMaxHeaderBytes":	ValueOf(http.DefaultMaxHeaderBytes),
+		"DefaultMaxIdleConnsPerHost":	ValueOf(http.DefaultMaxIdleConnsPerHost),
+		"DefaultServeMux":	ValueOf(&http.DefaultServeMux).Elem(),
+		"DefaultTransport":	ValueOf(&http.DefaultTransport).Elem(),
+		"DetectContentType":	ValueOf(http.DetectContentType),
+		"ErrAbortHandler":	ValueOf(&http.ErrAbortHandler).Elem(),
+		"ErrBodyNotAllowed":	ValueOf(&http.ErrBodyNotAllowed).Elem(),
+		"ErrBodyReadAfterClose":	ValueOf(&http.ErrBodyReadAfterClose).Elem(),
+		"ErrContentLength":	ValueOf(&http.ErrContentLength).Elem(),
+		"ErrHandlerTimeout":	ValueOf(&http.ErrHandlerTimeout).Elem(),
+		"ErrHeaderTooLong":	ValueOf(&http.ErrHeaderTooLong).Elem(),
+		"ErrHijacked":	ValueOf(&http.ErrHijacked).Elem(),
+		"ErrLineTooLong":	ValueOf(&http.ErrLineTooLong).Elem(),
+		"ErrMissingBoundary":	ValueOf(&http.ErrMissingBoundary).Elem(),
+		"ErrMissingContentLength":	ValueOf(&http.ErrMissingContentLength).Elem(),
+		"ErrMissingFile":	ValueOf(&http.ErrMissingFile).Elem(),
+		"ErrNoCookie":	ValueOf(&http.ErrNoCookie).Elem(),
+		"ErrNoLocation":	ValueOf(&http.ErrNoLocation).Elem(),
+		"ErrNotMultipart":	ValueOf(&http.ErrNotMultipart).Elem(),
+		"ErrNotSupported":	ValueOf(&http.ErrNotSupported).Elem(),
+		"ErrServerClosed":	ValueOf(&http.ErrServerClosed).Elem(),
+		"ErrShortBody":	ValueOf(&http.ErrShortBody).Elem(),
+		"ErrSkipAltProtocol":	ValueOf(&http.ErrSkipAltProtocol).Elem(),
+		"ErrUnexpectedTrailer":	ValueOf(&http.ErrUnexpectedTrailer).Elem(),
+		"ErrUseLastResponse":	ValueOf(&http.ErrUseLastResponse).Elem(),
+		"ErrWriteAfterFlush":	ValueOf(&http.ErrWriteAfterFlush).Elem(),
+		"Error":	ValueOf(http.Error),
+		"FileServer":	ValueOf(http.FileServer),
+		"Get":	ValueOf(http.Get),
+		"Handle":	ValueOf(http.Handle),
+		"HandleFunc":	ValueOf(http.HandleFunc),
+		"Head":	ValueOf(http.Head),
+		"ListenAndServe":	ValueOf(http.ListenAndServe),
+		"ListenAndServeTLS":	ValueOf(http.ListenAndServeTLS),
+		"LocalAddrContextKey":	ValueOf(&http.LocalAddrContextKey).Elem(),
+		"MaxBytesReader":	ValueOf(http.MaxBytesReader),
+		"MethodConnect":	ValueOf(http.MethodConnect),
+		"MethodDelete":	ValueOf(http.MethodDelete),
+		"MethodGet":	ValueOf(http.MethodGet),
+		"MethodHead":	ValueOf(http.MethodHead),
+		"MethodOptions":	ValueOf(http.MethodOptions),
+		"MethodPatch":	ValueOf(http.MethodPatch),
+		"MethodPost":	ValueOf(http.MethodPost),
+		"MethodPut":	ValueOf(http.MethodPut),
+		"MethodTrace":	ValueOf(http.MethodTrace),
+		"NewFileTransport":	ValueOf(http.NewFileTransport),
+		"NewRequest":	ValueOf(http.NewRequest),
+		"NewServeMux":	ValueOf(http.NewServeMux),
+		"NoBody":	ValueOf(&http.NoBody).Elem(),
+		"NotFound":	ValueOf(http.NotFound),
+		"NotFoundHandler":	ValueOf(http.NotFoundHandler),
+		"ParseHTTPVersion":	ValueOf(http.ParseHTTPVersion),
+		"ParseTime":	ValueOf(http.ParseTime),
+		"Post":	ValueOf(http.Post),
+		"PostForm":	ValueOf(http.PostForm),
+		"ProxyFromEnvironment":	ValueOf(http.ProxyFromEnvironment),
+		"ProxyURL":	ValueOf(http.ProxyURL),
+		"ReadRequest":	ValueOf(http.ReadRequest),
+		"ReadResponse":	ValueOf(http.ReadResponse),
+		"Redirect":	ValueOf(http.Redirect),
+		"RedirectHandler":	ValueOf(http.RedirectHandler),
+		"Serve":	ValueOf(http.Serve),
+		"ServeContent":	ValueOf(http.ServeContent),
+		"ServeFile":	ValueOf(http.ServeFile),
+		"ServerContextKey":	ValueOf(&http.ServerContextKey).Elem(),
+		"SetCookie":	ValueOf(http.SetCookie),
+		"StateActive":	ValueOf(http.StateActive),
+		"StateClosed":	ValueOf(http.StateClosed),
+		"StateHijacked":	ValueOf(http.StateHijacked),
+		"StateIdle":	ValueOf(http.StateIdle),
+		"StateNew":	ValueOf(http.StateNew),
+		"StatusAccepted":	ValueOf(http.StatusAccepted),
+		"StatusAlreadyReported":	ValueOf(http.StatusAlreadyReported),
+		"StatusBadGateway":	ValueOf(http.StatusBadGateway),
+		"StatusBadRequest":	ValueOf(http.StatusBadRequest),
+		"StatusConflict":	ValueOf(http.StatusConflict),
+		"StatusContinue":	ValueOf(http.StatusContinue),
+		"StatusCreated":	ValueOf(http.StatusCreated),
+		"StatusExpectationFailed":	ValueOf(http.StatusExpectationFailed),
+		"StatusFailedDependency":	ValueOf(http.StatusFailedDependency),
+		"StatusForbidden":	ValueOf(http.StatusForbidden),
+		"StatusFound":	ValueOf(http.StatusFound),
+		"StatusGatewayTimeout":	ValueOf(http.StatusGatewayTimeout),
+		"StatusGone":	ValueOf(http.StatusGone),
+		"StatusHTTPVersionNotSupported":	ValueOf(http.StatusHTTPVersionNotSupported),
+		"StatusIMUsed":	ValueOf(http.StatusIMUsed),
+		"StatusInsufficientStorage":	ValueOf(http.StatusInsufficientStorage),
+		"StatusInternalServerError":	ValueOf(http.StatusInternalServerError),
+		"StatusLengthRequired":	ValueOf(http.StatusLengthRequired),
+		"StatusLocked":	ValueOf(http.StatusLocked),
+		"StatusLoopDetected":	ValueOf(http.StatusLoopDetected),
+		"StatusMethodNotAllowed":	ValueOf(http.StatusMethodNotAllowed),
+		"StatusMovedPermanently":	ValueOf(http.StatusMovedPermanently),
+		"StatusMultiStatus":	ValueOf(http.StatusMultiStatus),
+		"StatusMultipleChoices":	ValueOf(http.StatusMultipleChoices),
+		"StatusNetworkAuthenticationRequired":	ValueOf(http.StatusNetworkAuthenticationRequired),
+		"StatusNoContent":	ValueOf(http.StatusNoContent),
+		"StatusNonAuthoritativeInfo":	ValueOf(http.StatusNonAuthoritativeInfo),
+		"StatusNotAcceptable":	ValueOf(http.StatusNotAcceptable),
+		"StatusNotExtended":	ValueOf(http.StatusNotExtended),
+		"StatusNotFound":	ValueOf(http.StatusNotFound),
+		"StatusNotImplemented":	ValueOf(http.StatusNotImplemented),
+		"StatusNotModified":	ValueOf(http.StatusNotModified),
+		"StatusOK":	ValueOf(http.StatusOK),
+		"StatusPartialContent":	ValueOf(http.StatusPartialContent),
+		"StatusPaymentRequired":	ValueOf(http.StatusPaymentRequired),
+		"StatusPermanentRedirect":	ValueOf(http.StatusPermanentRedirect),
+		"StatusPreconditionFailed":	ValueOf(http.StatusPreconditionFailed),
+		"StatusPreconditionRequired":	ValueOf(http.StatusPreconditionRequired),
+		"StatusProcessing":	ValueOf(http.StatusProcessing),
+		"StatusProxyAuthRequired":	ValueOf(http.StatusProxyAuthRequired),
+		"StatusRequestEntityTooLarge":	ValueOf(http.StatusRequestEntityTooLarge),
+		"StatusRequestHeaderFieldsTooLarge":	ValueOf(http.StatusRequestHeaderFieldsTooLarge),
+		"StatusRequestTimeout":	ValueOf(http.StatusRequestTimeout),
+		"StatusRequestURITooLong":	ValueOf(http.StatusRequestURITooLong),
+		"StatusRequestedRangeNotSatisfiable":	ValueOf(http.StatusRequestedRangeNotSatisfiable),
+		"StatusResetContent":	ValueOf(http.StatusResetContent),
+		"StatusSeeOther":	ValueOf(http.StatusSeeOther),
+		"StatusServiceUnavailable":	ValueOf(http.StatusServiceUnavailable),
+		"StatusSwitchingProtocols":	ValueOf(http.StatusSwitchingProtocols),
+		"StatusTeapot":	ValueOf(http.StatusTeapot),
+		"StatusTemporaryRedirect":	ValueOf(http.StatusTemporaryRedirect),
+		"StatusText":	ValueOf(http.StatusText),
+		"StatusTooManyRequests":	ValueOf(http.StatusTooManyRequests),
+		"StatusUnauthorized":	ValueOf(http.StatusUnauthorized),
+		"StatusUnavailableForLegalReasons":	ValueOf(http.StatusUnavailableForLegalReasons),
+		"StatusUnprocessableEntity":	ValueOf(http.StatusUnprocessableEntity),
+		"StatusUnsupportedMediaType":	ValueOf(http.StatusUnsupportedMediaType),
+		"StatusUpgradeRequired":	ValueOf(http.StatusUpgradeRequired),
+		"StatusUseProxy":	ValueOf(http.StatusUseProxy),
+		"StatusVariantAlsoNegotiates":	ValueOf(http.StatusVariantAlsoNegotiates),
+		"StripPrefix":	ValueOf(http.StripPrefix),
+		"TimeFormat":	ValueOf(http.TimeFormat),
+		"TimeoutHandler":	ValueOf(http.TimeoutHandler),
+		"TrailerPrefix":	ValueOf(http.TrailerPrefix),
 	}
 	Types["net/http"] = map[string]Type{
-		"Client":	TypeOf((*pkg.Client)(nil)).Elem(),
-		"CloseNotifier":	TypeOf((*pkg.CloseNotifier)(nil)).Elem(),
-		"ConnState":	TypeOf((*pkg.ConnState)(nil)).Elem(),
-		"Cookie":	TypeOf((*pkg.Cookie)(nil)).Elem(),
-		"CookieJar":	TypeOf((*pkg.CookieJar)(nil)).Elem(),
-		"Dir":	TypeOf((*pkg.Dir)(nil)).Elem(),
-		"File":	TypeOf((*pkg.File)(nil)).Elem(),
-		"FileSystem":	TypeOf((*pkg.FileSystem)(nil)).Elem(),
-		"Flusher":	TypeOf((*pkg.Flusher)(nil)).Elem(),
-		"Handler":	TypeOf((*pkg.Handler)(nil)).Elem(),
-		"HandlerFunc":	TypeOf((*pkg.HandlerFunc)(nil)).Elem(),
-		"Header":	TypeOf((*pkg.Header)(nil)).Elem(),
-		"Hijacker":	TypeOf((*pkg.Hijacker)(nil)).Elem(),
-		"ProtocolError":	TypeOf((*pkg.ProtocolError)(nil)).Elem(),
-		"PushOptions":	TypeOf((*pkg.PushOptions)(nil)).Elem(),
-		"Pusher":	TypeOf((*pkg.Pusher)(nil)).Elem(),
-		"Request":	TypeOf((*pkg.Request)(nil)).Elem(),
-		"Response":	TypeOf((*pkg.Response)(nil)).Elem(),
-		"ResponseWriter":	TypeOf((*pkg.ResponseWriter)(nil)).Elem(),
-		"RoundTripper":	TypeOf((*pkg.RoundTripper)(nil)).Elem(),
-		"ServeMux":	TypeOf((*pkg.ServeMux)(nil)).Elem(),
-		"Server":	TypeOf((*pkg.Server)(nil)).Elem(),
-		"Transport":	TypeOf((*pkg.Transport)(nil)).Elem(),
+		"Client":	TypeOf((*http.Client)(nil)).Elem(),
+		"CloseNotifier":	TypeOf((*http.CloseNotifier)(nil)).Elem(),
+		"ConnState":	TypeOf((*http.ConnState)(nil)).Elem(),
+		"Cookie":	TypeOf((*http.Cookie)(nil)).Elem(),
+		"CookieJar":	TypeOf((*http.CookieJar)(nil)).Elem(),
+		"Dir":	TypeOf((*http.Dir)(nil)).Elem(),
+		"File":	TypeOf((*http.File)(nil)).Elem(),
+		"FileSystem":	TypeOf((*http.FileSystem)(nil)).Elem(),
+		"Flusher":	TypeOf((*http.Flusher)(nil)).Elem(),
+		"Handler":	TypeOf((*http.Handler)(nil)).Elem(),
+		"HandlerFunc":	TypeOf((*http.HandlerFunc)(nil)).Elem(),
+		"Header":	TypeOf((*http.Header)(nil)).Elem(),
+		"Hijacker":	TypeOf((*http.Hijacker)(nil)).Elem(),
+		"ProtocolError":	TypeOf((*http.ProtocolError)(nil)).Elem(),
+		"PushOptions":	TypeOf((*http.PushOptions)(nil)).Elem(),
+		"Pusher":	TypeOf((*http.Pusher)(nil)).Elem(),
+		"Request":	TypeOf((*http.Request)(nil)).Elem(),
+		"Response":	TypeOf((*http.Response)(nil)).Elem(),
+		"ResponseWriter":	TypeOf((*http.ResponseWriter)(nil)).Elem(),
+		"RoundTripper":	TypeOf((*http.RoundTripper)(nil)).Elem(),
+		"ServeMux":	TypeOf((*http.ServeMux)(nil)).Elem(),
+		"Server":	TypeOf((*http.Server)(nil)).Elem(),
+		"Transport":	TypeOf((*http.Transport)(nil)).Elem(),
 	}
+	Proxies["net/http"] = map[string]Type{
+		"CloseNotifier":	TypeOf((*CloseNotifier_net_http)(nil)).Elem(),
+		"CookieJar":	TypeOf((*CookieJar_net_http)(nil)).Elem(),
+		"File":	TypeOf((*File_net_http)(nil)).Elem(),
+		"FileSystem":	TypeOf((*FileSystem_net_http)(nil)).Elem(),
+		"Flusher":	TypeOf((*Flusher_net_http)(nil)).Elem(),
+		"Handler":	TypeOf((*Handler_net_http)(nil)).Elem(),
+		"Hijacker":	TypeOf((*Hijacker_net_http)(nil)).Elem(),
+		"Pusher":	TypeOf((*Pusher_net_http)(nil)).Elem(),
+		"ResponseWriter":	TypeOf((*ResponseWriter_net_http)(nil)).Elem(),
+		"RoundTripper":	TypeOf((*RoundTripper_net_http)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for net/http.CloseNotifier ---------------
+type CloseNotifier_net_http struct {
+	CloseNotify_	func() <-chan bool
+}
+func (Obj CloseNotifier_net_http) CloseNotify() <-chan bool {
+	return Obj.CloseNotify_()
+}
+
+// --------------- proxy for net/http.CookieJar ---------------
+type CookieJar_net_http struct {
+	Cookies_	func(u *url.URL) []*http.Cookie
+	SetCookies_	func(u *url.URL, cookies []*http.Cookie) 
+}
+func (Obj CookieJar_net_http) Cookies(u *url.URL) []*http.Cookie {
+	return Obj.Cookies_(u)
+}
+func (Obj CookieJar_net_http) SetCookies(u *url.URL, cookies []*http.Cookie)  {
+	Obj.SetCookies_(u, cookies)
+}
+
+// --------------- proxy for net/http.File ---------------
+type File_net_http struct {
+	Close_	func() error
+	Read_	func(p []byte) (n int, err error)
+	Readdir_	func(count int) ([]os.FileInfo, error)
+	Seek_	func(offset int64, whence int) (int64, error)
+	Stat_	func() (os.FileInfo, error)
+}
+func (Obj File_net_http) Close() error {
+	return Obj.Close_()
+}
+func (Obj File_net_http) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+func (Obj File_net_http) Readdir(count int) ([]os.FileInfo, error) {
+	return Obj.Readdir_(count)
+}
+func (Obj File_net_http) Seek(offset int64, whence int) (int64, error) {
+	return Obj.Seek_(offset, whence)
+}
+func (Obj File_net_http) Stat() (os.FileInfo, error) {
+	return Obj.Stat_()
+}
+
+// --------------- proxy for net/http.FileSystem ---------------
+type FileSystem_net_http struct {
+	Open_	func(name string) (http.File, error)
+}
+func (Obj FileSystem_net_http) Open(name string) (http.File, error) {
+	return Obj.Open_(name)
+}
+
+// --------------- proxy for net/http.Flusher ---------------
+type Flusher_net_http struct {
+	Flush_	func() 
+}
+func (Obj Flusher_net_http) Flush()  {
+	Obj.Flush_()
+}
+
+// --------------- proxy for net/http.Handler ---------------
+type Handler_net_http struct {
+	ServeHTTP_	func(http.ResponseWriter, *http.Request) 
+}
+func (Obj Handler_net_http) ServeHTTP(unnamed0 http.ResponseWriter, unnamed1 *http.Request)  {
+	Obj.ServeHTTP_(unnamed0, unnamed1)
+}
+
+// --------------- proxy for net/http.Hijacker ---------------
+type Hijacker_net_http struct {
+	Hijack_	func() (net.Conn, *bufio.ReadWriter, error)
+}
+func (Obj Hijacker_net_http) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return Obj.Hijack_()
+}
+
+// --------------- proxy for net/http.Pusher ---------------
+type Pusher_net_http struct {
+	Push_	func(target string, opts *http.PushOptions) error
+}
+func (Obj Pusher_net_http) Push(target string, opts *http.PushOptions) error {
+	return Obj.Push_(target, opts)
+}
+
+// --------------- proxy for net/http.ResponseWriter ---------------
+type ResponseWriter_net_http struct {
+	Header_	func() http.Header
+	Write_	func([]byte) (int, error)
+	WriteHeader_	func(int) 
+}
+func (Obj ResponseWriter_net_http) Header() http.Header {
+	return Obj.Header_()
+}
+func (Obj ResponseWriter_net_http) Write(unnamed0 []byte) (int, error) {
+	return Obj.Write_(unnamed0)
+}
+func (Obj ResponseWriter_net_http) WriteHeader(unnamed0 int)  {
+	Obj.WriteHeader_(unnamed0)
+}
+
+// --------------- proxy for net/http.RoundTripper ---------------
+type RoundTripper_net_http struct {
+	RoundTrip_	func(*http.Request) (*http.Response, error)
+}
+func (Obj RoundTripper_net_http) RoundTrip(unnamed0 *http.Request) (*http.Response, error) {
+	return Obj.RoundTrip_(unnamed0)
 }

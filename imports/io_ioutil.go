@@ -4,21 +4,23 @@
 package imports
 
 import (
-	pkg "io/ioutil"
 	. "reflect"
+	"io/ioutil"
 )
 
 func init() {
 	Binds["io/ioutil"] = map[string]Value{
-		"Discard":	ValueOf(&pkg.Discard).Elem(),
-		"NopCloser":	ValueOf(pkg.NopCloser),
-		"ReadAll":	ValueOf(pkg.ReadAll),
-		"ReadDir":	ValueOf(pkg.ReadDir),
-		"ReadFile":	ValueOf(pkg.ReadFile),
-		"TempDir":	ValueOf(pkg.TempDir),
-		"TempFile":	ValueOf(pkg.TempFile),
-		"WriteFile":	ValueOf(pkg.WriteFile),
+		"Discard":	ValueOf(&ioutil.Discard).Elem(),
+		"NopCloser":	ValueOf(ioutil.NopCloser),
+		"ReadAll":	ValueOf(ioutil.ReadAll),
+		"ReadDir":	ValueOf(ioutil.ReadDir),
+		"ReadFile":	ValueOf(ioutil.ReadFile),
+		"TempDir":	ValueOf(ioutil.TempDir),
+		"TempFile":	ValueOf(ioutil.TempFile),
+		"WriteFile":	ValueOf(ioutil.WriteFile),
 	}
 	Types["io/ioutil"] = map[string]Type{
+	}
+	Proxies["io/ioutil"] = map[string]Type{
 	}
 }

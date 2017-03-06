@@ -4,17 +4,19 @@
 package imports
 
 import (
-	pkg "os/signal"
 	. "reflect"
+	"os/signal"
 )
 
 func init() {
 	Binds["os/signal"] = map[string]Value{
-		"Ignore":	ValueOf(pkg.Ignore),
-		"Notify":	ValueOf(pkg.Notify),
-		"Reset":	ValueOf(pkg.Reset),
-		"Stop":	ValueOf(pkg.Stop),
+		"Ignore":	ValueOf(signal.Ignore),
+		"Notify":	ValueOf(signal.Notify),
+		"Reset":	ValueOf(signal.Reset),
+		"Stop":	ValueOf(signal.Stop),
 	}
 	Types["os/signal"] = map[string]Type{
+	}
+	Proxies["os/signal"] = map[string]Type{
 	}
 }

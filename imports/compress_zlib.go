@@ -4,28 +4,40 @@
 package imports
 
 import (
-	pkg "compress/zlib"
 	. "reflect"
+	"compress/zlib"
+	"io"
 )
 
 func init() {
 	Binds["compress/zlib"] = map[string]Value{
-		"BestCompression":	ValueOf(pkg.BestCompression),
-		"BestSpeed":	ValueOf(pkg.BestSpeed),
-		"DefaultCompression":	ValueOf(pkg.DefaultCompression),
-		"ErrChecksum":	ValueOf(&pkg.ErrChecksum).Elem(),
-		"ErrDictionary":	ValueOf(&pkg.ErrDictionary).Elem(),
-		"ErrHeader":	ValueOf(&pkg.ErrHeader).Elem(),
-		"HuffmanOnly":	ValueOf(pkg.HuffmanOnly),
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewReaderDict":	ValueOf(pkg.NewReaderDict),
-		"NewWriter":	ValueOf(pkg.NewWriter),
-		"NewWriterLevel":	ValueOf(pkg.NewWriterLevel),
-		"NewWriterLevelDict":	ValueOf(pkg.NewWriterLevelDict),
-		"NoCompression":	ValueOf(pkg.NoCompression),
+		"BestCompression":	ValueOf(zlib.BestCompression),
+		"BestSpeed":	ValueOf(zlib.BestSpeed),
+		"DefaultCompression":	ValueOf(zlib.DefaultCompression),
+		"ErrChecksum":	ValueOf(&zlib.ErrChecksum).Elem(),
+		"ErrDictionary":	ValueOf(&zlib.ErrDictionary).Elem(),
+		"ErrHeader":	ValueOf(&zlib.ErrHeader).Elem(),
+		"HuffmanOnly":	ValueOf(zlib.HuffmanOnly),
+		"NewReader":	ValueOf(zlib.NewReader),
+		"NewReaderDict":	ValueOf(zlib.NewReaderDict),
+		"NewWriter":	ValueOf(zlib.NewWriter),
+		"NewWriterLevel":	ValueOf(zlib.NewWriterLevel),
+		"NewWriterLevelDict":	ValueOf(zlib.NewWriterLevelDict),
+		"NoCompression":	ValueOf(zlib.NoCompression),
 	}
 	Types["compress/zlib"] = map[string]Type{
-		"Resetter":	TypeOf((*pkg.Resetter)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"Resetter":	TypeOf((*zlib.Resetter)(nil)).Elem(),
+		"Writer":	TypeOf((*zlib.Writer)(nil)).Elem(),
 	}
+	Proxies["compress/zlib"] = map[string]Type{
+		"Resetter":	TypeOf((*Resetter_compress_zlib)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for compress/zlib.Resetter ---------------
+type Resetter_compress_zlib struct {
+	Reset_	func(r io.Reader, dict []byte) error
+}
+func (Obj Resetter_compress_zlib) Reset(r io.Reader, dict []byte) error {
+	return Obj.Reset_(r, dict)
 }

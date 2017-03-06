@@ -4,15 +4,17 @@
 package imports
 
 import (
-	pkg "html"
 	. "reflect"
+	"html"
 )
 
 func init() {
 	Binds["html"] = map[string]Value{
-		"EscapeString":	ValueOf(pkg.EscapeString),
-		"UnescapeString":	ValueOf(pkg.UnescapeString),
+		"EscapeString":	ValueOf(html.EscapeString),
+		"UnescapeString":	ValueOf(html.UnescapeString),
 	}
 	Types["html"] = map[string]Type{
+	}
+	Proxies["html"] = map[string]Type{
 	}
 }

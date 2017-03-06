@@ -4,44 +4,68 @@
 package imports
 
 import (
-	pkg "database/sql"
 	. "reflect"
+	"database/sql"
 )
 
 func init() {
 	Binds["database/sql"] = map[string]Value{
-		"Drivers":	ValueOf(pkg.Drivers),
-		"ErrNoRows":	ValueOf(&pkg.ErrNoRows).Elem(),
-		"ErrTxDone":	ValueOf(&pkg.ErrTxDone).Elem(),
-		"LevelDefault":	ValueOf(pkg.LevelDefault),
-		"LevelLinearizable":	ValueOf(pkg.LevelLinearizable),
-		"LevelReadCommitted":	ValueOf(pkg.LevelReadCommitted),
-		"LevelReadUncommitted":	ValueOf(pkg.LevelReadUncommitted),
-		"LevelRepeatableRead":	ValueOf(pkg.LevelRepeatableRead),
-		"LevelSerializable":	ValueOf(pkg.LevelSerializable),
-		"LevelSnapshot":	ValueOf(pkg.LevelSnapshot),
-		"LevelWriteCommitted":	ValueOf(pkg.LevelWriteCommitted),
-		"Named":	ValueOf(pkg.Named),
-		"Open":	ValueOf(pkg.Open),
-		"Register":	ValueOf(pkg.Register),
+		"Drivers":	ValueOf(sql.Drivers),
+		"ErrNoRows":	ValueOf(&sql.ErrNoRows).Elem(),
+		"ErrTxDone":	ValueOf(&sql.ErrTxDone).Elem(),
+		"LevelDefault":	ValueOf(sql.LevelDefault),
+		"LevelLinearizable":	ValueOf(sql.LevelLinearizable),
+		"LevelReadCommitted":	ValueOf(sql.LevelReadCommitted),
+		"LevelReadUncommitted":	ValueOf(sql.LevelReadUncommitted),
+		"LevelRepeatableRead":	ValueOf(sql.LevelRepeatableRead),
+		"LevelSerializable":	ValueOf(sql.LevelSerializable),
+		"LevelSnapshot":	ValueOf(sql.LevelSnapshot),
+		"LevelWriteCommitted":	ValueOf(sql.LevelWriteCommitted),
+		"Named":	ValueOf(sql.Named),
+		"Open":	ValueOf(sql.Open),
+		"Register":	ValueOf(sql.Register),
 	}
 	Types["database/sql"] = map[string]Type{
-		"ColumnType":	TypeOf((*pkg.ColumnType)(nil)).Elem(),
-		"DB":	TypeOf((*pkg.DB)(nil)).Elem(),
-		"DBStats":	TypeOf((*pkg.DBStats)(nil)).Elem(),
-		"IsolationLevel":	TypeOf((*pkg.IsolationLevel)(nil)).Elem(),
-		"NamedArg":	TypeOf((*pkg.NamedArg)(nil)).Elem(),
-		"NullBool":	TypeOf((*pkg.NullBool)(nil)).Elem(),
-		"NullFloat64":	TypeOf((*pkg.NullFloat64)(nil)).Elem(),
-		"NullInt64":	TypeOf((*pkg.NullInt64)(nil)).Elem(),
-		"NullString":	TypeOf((*pkg.NullString)(nil)).Elem(),
-		"RawBytes":	TypeOf((*pkg.RawBytes)(nil)).Elem(),
-		"Result":	TypeOf((*pkg.Result)(nil)).Elem(),
-		"Row":	TypeOf((*pkg.Row)(nil)).Elem(),
-		"Rows":	TypeOf((*pkg.Rows)(nil)).Elem(),
-		"Scanner":	TypeOf((*pkg.Scanner)(nil)).Elem(),
-		"Stmt":	TypeOf((*pkg.Stmt)(nil)).Elem(),
-		"Tx":	TypeOf((*pkg.Tx)(nil)).Elem(),
-		"TxOptions":	TypeOf((*pkg.TxOptions)(nil)).Elem(),
+		"ColumnType":	TypeOf((*sql.ColumnType)(nil)).Elem(),
+		"DB":	TypeOf((*sql.DB)(nil)).Elem(),
+		"DBStats":	TypeOf((*sql.DBStats)(nil)).Elem(),
+		"IsolationLevel":	TypeOf((*sql.IsolationLevel)(nil)).Elem(),
+		"NamedArg":	TypeOf((*sql.NamedArg)(nil)).Elem(),
+		"NullBool":	TypeOf((*sql.NullBool)(nil)).Elem(),
+		"NullFloat64":	TypeOf((*sql.NullFloat64)(nil)).Elem(),
+		"NullInt64":	TypeOf((*sql.NullInt64)(nil)).Elem(),
+		"NullString":	TypeOf((*sql.NullString)(nil)).Elem(),
+		"RawBytes":	TypeOf((*sql.RawBytes)(nil)).Elem(),
+		"Result":	TypeOf((*sql.Result)(nil)).Elem(),
+		"Row":	TypeOf((*sql.Row)(nil)).Elem(),
+		"Rows":	TypeOf((*sql.Rows)(nil)).Elem(),
+		"Scanner":	TypeOf((*sql.Scanner)(nil)).Elem(),
+		"Stmt":	TypeOf((*sql.Stmt)(nil)).Elem(),
+		"Tx":	TypeOf((*sql.Tx)(nil)).Elem(),
+		"TxOptions":	TypeOf((*sql.TxOptions)(nil)).Elem(),
 	}
+	Proxies["database/sql"] = map[string]Type{
+		"Result":	TypeOf((*Result_database_sql)(nil)).Elem(),
+		"Scanner":	TypeOf((*Scanner_database_sql)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for database/sql.Result ---------------
+type Result_database_sql struct {
+	LastInsertId_	func() (int64, error)
+	RowsAffected_	func() (int64, error)
+}
+func (Obj Result_database_sql) LastInsertId() (int64, error) {
+	return Obj.LastInsertId_()
+}
+func (Obj Result_database_sql) RowsAffected() (int64, error) {
+	return Obj.RowsAffected_()
+}
+
+// --------------- proxy for database/sql.Scanner ---------------
+type Scanner_database_sql struct {
+	Scan_	func(src interface{}) error
+}
+func (Obj Scanner_database_sql) Scan(src interface{}) error {
+	return Obj.Scan_(src)
 }

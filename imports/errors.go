@@ -4,14 +4,16 @@
 package imports
 
 import (
-	pkg "errors"
 	. "reflect"
+	"errors"
 )
 
 func init() {
 	Binds["errors"] = map[string]Value{
-		"New":	ValueOf(pkg.New),
+		"New":	ValueOf(errors.New),
 	}
 	Types["errors"] = map[string]Type{
+	}
+	Proxies["errors"] = map[string]Type{
 	}
 }

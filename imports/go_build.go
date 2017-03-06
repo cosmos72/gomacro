@@ -4,28 +4,30 @@
 package imports
 
 import (
-	pkg "go/build"
 	. "reflect"
+	"go/build"
 )
 
 func init() {
 	Binds["go/build"] = map[string]Value{
-		"AllowBinary":	ValueOf(pkg.AllowBinary),
-		"ArchChar":	ValueOf(pkg.ArchChar),
-		"Default":	ValueOf(&pkg.Default).Elem(),
-		"FindOnly":	ValueOf(pkg.FindOnly),
-		"IgnoreVendor":	ValueOf(pkg.IgnoreVendor),
-		"Import":	ValueOf(pkg.Import),
-		"ImportComment":	ValueOf(pkg.ImportComment),
-		"ImportDir":	ValueOf(pkg.ImportDir),
-		"IsLocalImport":	ValueOf(pkg.IsLocalImport),
-		"ToolDir":	ValueOf(&pkg.ToolDir).Elem(),
+		"AllowBinary":	ValueOf(build.AllowBinary),
+		"ArchChar":	ValueOf(build.ArchChar),
+		"Default":	ValueOf(&build.Default).Elem(),
+		"FindOnly":	ValueOf(build.FindOnly),
+		"IgnoreVendor":	ValueOf(build.IgnoreVendor),
+		"Import":	ValueOf(build.Import),
+		"ImportComment":	ValueOf(build.ImportComment),
+		"ImportDir":	ValueOf(build.ImportDir),
+		"IsLocalImport":	ValueOf(build.IsLocalImport),
+		"ToolDir":	ValueOf(&build.ToolDir).Elem(),
 	}
 	Types["go/build"] = map[string]Type{
-		"Context":	TypeOf((*pkg.Context)(nil)).Elem(),
-		"ImportMode":	TypeOf((*pkg.ImportMode)(nil)).Elem(),
-		"MultiplePackageError":	TypeOf((*pkg.MultiplePackageError)(nil)).Elem(),
-		"NoGoError":	TypeOf((*pkg.NoGoError)(nil)).Elem(),
-		"Package":	TypeOf((*pkg.Package)(nil)).Elem(),
+		"Context":	TypeOf((*build.Context)(nil)).Elem(),
+		"ImportMode":	TypeOf((*build.ImportMode)(nil)).Elem(),
+		"MultiplePackageError":	TypeOf((*build.MultiplePackageError)(nil)).Elem(),
+		"NoGoError":	TypeOf((*build.NoGoError)(nil)).Elem(),
+		"Package":	TypeOf((*build.Package)(nil)).Elem(),
+	}
+	Proxies["go/build"] = map[string]Type{
 	}
 }

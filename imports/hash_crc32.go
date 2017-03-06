@@ -4,25 +4,27 @@
 package imports
 
 import (
-	pkg "hash/crc32"
 	. "reflect"
+	"hash/crc32"
 )
 
 func init() {
 	Binds["hash/crc32"] = map[string]Value{
-		"Castagnoli":	ValueOf(pkg.Castagnoli),
-		"Checksum":	ValueOf(pkg.Checksum),
-		"ChecksumIEEE":	ValueOf(pkg.ChecksumIEEE),
-		"IEEE":	ValueOf(pkg.IEEE),
-		"IEEETable":	ValueOf(&pkg.IEEETable).Elem(),
-		"Koopman":	ValueOf(pkg.Koopman),
-		"MakeTable":	ValueOf(pkg.MakeTable),
-		"New":	ValueOf(pkg.New),
-		"NewIEEE":	ValueOf(pkg.NewIEEE),
-		"Size":	ValueOf(pkg.Size),
-		"Update":	ValueOf(pkg.Update),
+		"Castagnoli":	ValueOf(crc32.Castagnoli),
+		"Checksum":	ValueOf(crc32.Checksum),
+		"ChecksumIEEE":	ValueOf(crc32.ChecksumIEEE),
+		"IEEE":	ValueOf(crc32.IEEE),
+		"IEEETable":	ValueOf(&crc32.IEEETable).Elem(),
+		"Koopman":	ValueOf(crc32.Koopman),
+		"MakeTable":	ValueOf(crc32.MakeTable),
+		"New":	ValueOf(crc32.New),
+		"NewIEEE":	ValueOf(crc32.NewIEEE),
+		"Size":	ValueOf(crc32.Size),
+		"Update":	ValueOf(crc32.Update),
 	}
 	Types["hash/crc32"] = map[string]Type{
-		"Table":	TypeOf((*pkg.Table)(nil)).Elem(),
+		"Table":	TypeOf((*crc32.Table)(nil)).Elem(),
+	}
+	Proxies["hash/crc32"] = map[string]Type{
 	}
 }

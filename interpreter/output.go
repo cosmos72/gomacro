@@ -71,12 +71,12 @@ func (f FileSet) PackErrorf(format string, args ...interface{}) []r.Value {
 	panic(RuntimeError{f, format, args})
 }
 
-func (o Output) Warnf(format string, args ...interface{}) {
+func (o *Output) Warnf(format string, args ...interface{}) {
 	str := o.Sprintf(format, args...)
 	fmt.Fprintf(o.Stderr, "warning: %s\n", str)
 }
 
-func (o Output) Debugf(format string, args ...interface{}) {
+func (o *Output) Debugf(format string, args ...interface{}) {
 	str := o.Sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }

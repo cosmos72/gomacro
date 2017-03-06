@@ -4,35 +4,67 @@
 package imports
 
 import (
-	pkg "math/rand"
 	. "reflect"
+	"math/rand"
 )
 
 func init() {
 	Binds["math/rand"] = map[string]Value{
-		"ExpFloat64":	ValueOf(pkg.ExpFloat64),
-		"Float32":	ValueOf(pkg.Float32),
-		"Float64":	ValueOf(pkg.Float64),
-		"Int":	ValueOf(pkg.Int),
-		"Int31":	ValueOf(pkg.Int31),
-		"Int31n":	ValueOf(pkg.Int31n),
-		"Int63":	ValueOf(pkg.Int63),
-		"Int63n":	ValueOf(pkg.Int63n),
-		"Intn":	ValueOf(pkg.Intn),
-		"New":	ValueOf(pkg.New),
-		"NewSource":	ValueOf(pkg.NewSource),
-		"NewZipf":	ValueOf(pkg.NewZipf),
-		"NormFloat64":	ValueOf(pkg.NormFloat64),
-		"Perm":	ValueOf(pkg.Perm),
-		"Read":	ValueOf(pkg.Read),
-		"Seed":	ValueOf(pkg.Seed),
-		"Uint32":	ValueOf(pkg.Uint32),
-		"Uint64":	ValueOf(pkg.Uint64),
+		"ExpFloat64":	ValueOf(rand.ExpFloat64),
+		"Float32":	ValueOf(rand.Float32),
+		"Float64":	ValueOf(rand.Float64),
+		"Int":	ValueOf(rand.Int),
+		"Int31":	ValueOf(rand.Int31),
+		"Int31n":	ValueOf(rand.Int31n),
+		"Int63":	ValueOf(rand.Int63),
+		"Int63n":	ValueOf(rand.Int63n),
+		"Intn":	ValueOf(rand.Intn),
+		"New":	ValueOf(rand.New),
+		"NewSource":	ValueOf(rand.NewSource),
+		"NewZipf":	ValueOf(rand.NewZipf),
+		"NormFloat64":	ValueOf(rand.NormFloat64),
+		"Perm":	ValueOf(rand.Perm),
+		"Read":	ValueOf(rand.Read),
+		"Seed":	ValueOf(rand.Seed),
+		"Uint32":	ValueOf(rand.Uint32),
+		"Uint64":	ValueOf(rand.Uint64),
 	}
 	Types["math/rand"] = map[string]Type{
-		"Rand":	TypeOf((*pkg.Rand)(nil)).Elem(),
-		"Source":	TypeOf((*pkg.Source)(nil)).Elem(),
-		"Source64":	TypeOf((*pkg.Source64)(nil)).Elem(),
-		"Zipf":	TypeOf((*pkg.Zipf)(nil)).Elem(),
+		"Rand":	TypeOf((*rand.Rand)(nil)).Elem(),
+		"Source":	TypeOf((*rand.Source)(nil)).Elem(),
+		"Source64":	TypeOf((*rand.Source64)(nil)).Elem(),
+		"Zipf":	TypeOf((*rand.Zipf)(nil)).Elem(),
 	}
+	Proxies["math/rand"] = map[string]Type{
+		"Source":	TypeOf((*Source_math_rand)(nil)).Elem(),
+		"Source64":	TypeOf((*Source64_math_rand)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for math/rand.Source ---------------
+type Source_math_rand struct {
+	Int63_	func() int64
+	Seed_	func(seed int64) 
+}
+func (Obj Source_math_rand) Int63() int64 {
+	return Obj.Int63_()
+}
+func (Obj Source_math_rand) Seed(seed int64)  {
+	Obj.Seed_(seed)
+}
+
+// --------------- proxy for math/rand.Source64 ---------------
+type Source64_math_rand struct {
+	Int63_	func() int64
+	Seed_	func(seed int64) 
+	Uint64_	func() uint64
+}
+func (Obj Source64_math_rand) Int63() int64 {
+	return Obj.Int63_()
+}
+func (Obj Source64_math_rand) Seed(seed int64)  {
+	Obj.Seed_(seed)
+}
+func (Obj Source64_math_rand) Uint64() uint64 {
+	return Obj.Uint64_()
 }

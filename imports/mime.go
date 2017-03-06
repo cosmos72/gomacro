@@ -4,22 +4,24 @@
 package imports
 
 import (
-	pkg "mime"
 	. "reflect"
+	"mime"
 )
 
 func init() {
 	Binds["mime"] = map[string]Value{
-		"AddExtensionType":	ValueOf(pkg.AddExtensionType),
-		"BEncoding":	ValueOf(pkg.BEncoding),
-		"ExtensionsByType":	ValueOf(pkg.ExtensionsByType),
-		"FormatMediaType":	ValueOf(pkg.FormatMediaType),
-		"ParseMediaType":	ValueOf(pkg.ParseMediaType),
-		"QEncoding":	ValueOf(pkg.QEncoding),
-		"TypeByExtension":	ValueOf(pkg.TypeByExtension),
+		"AddExtensionType":	ValueOf(mime.AddExtensionType),
+		"BEncoding":	ValueOf(mime.BEncoding),
+		"ExtensionsByType":	ValueOf(mime.ExtensionsByType),
+		"FormatMediaType":	ValueOf(mime.FormatMediaType),
+		"ParseMediaType":	ValueOf(mime.ParseMediaType),
+		"QEncoding":	ValueOf(mime.QEncoding),
+		"TypeByExtension":	ValueOf(mime.TypeByExtension),
 	}
 	Types["mime"] = map[string]Type{
-		"WordDecoder":	TypeOf((*pkg.WordDecoder)(nil)).Elem(),
-		"WordEncoder":	TypeOf((*pkg.WordEncoder)(nil)).Elem(),
+		"WordDecoder":	TypeOf((*mime.WordDecoder)(nil)).Elem(),
+		"WordEncoder":	TypeOf((*mime.WordEncoder)(nil)).Elem(),
+	}
+	Proxies["mime"] = map[string]Type{
 	}
 }

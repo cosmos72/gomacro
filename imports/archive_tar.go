@@ -4,37 +4,39 @@
 package imports
 
 import (
-	pkg "archive/tar"
 	. "reflect"
+	"archive/tar"
 )
 
 func init() {
 	Binds["archive/tar"] = map[string]Value{
-		"ErrFieldTooLong":	ValueOf(&pkg.ErrFieldTooLong).Elem(),
-		"ErrHeader":	ValueOf(&pkg.ErrHeader).Elem(),
-		"ErrWriteAfterClose":	ValueOf(&pkg.ErrWriteAfterClose).Elem(),
-		"ErrWriteTooLong":	ValueOf(&pkg.ErrWriteTooLong).Elem(),
-		"FileInfoHeader":	ValueOf(pkg.FileInfoHeader),
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewWriter":	ValueOf(pkg.NewWriter),
-		"TypeBlock":	ValueOf(pkg.TypeBlock),
-		"TypeChar":	ValueOf(pkg.TypeChar),
-		"TypeCont":	ValueOf(pkg.TypeCont),
-		"TypeDir":	ValueOf(pkg.TypeDir),
-		"TypeFifo":	ValueOf(pkg.TypeFifo),
-		"TypeGNULongLink":	ValueOf(pkg.TypeGNULongLink),
-		"TypeGNULongName":	ValueOf(pkg.TypeGNULongName),
-		"TypeGNUSparse":	ValueOf(pkg.TypeGNUSparse),
-		"TypeLink":	ValueOf(pkg.TypeLink),
-		"TypeReg":	ValueOf(pkg.TypeReg),
-		"TypeRegA":	ValueOf(pkg.TypeRegA),
-		"TypeSymlink":	ValueOf(pkg.TypeSymlink),
-		"TypeXGlobalHeader":	ValueOf(pkg.TypeXGlobalHeader),
-		"TypeXHeader":	ValueOf(pkg.TypeXHeader),
+		"ErrFieldTooLong":	ValueOf(&tar.ErrFieldTooLong).Elem(),
+		"ErrHeader":	ValueOf(&tar.ErrHeader).Elem(),
+		"ErrWriteAfterClose":	ValueOf(&tar.ErrWriteAfterClose).Elem(),
+		"ErrWriteTooLong":	ValueOf(&tar.ErrWriteTooLong).Elem(),
+		"FileInfoHeader":	ValueOf(tar.FileInfoHeader),
+		"NewReader":	ValueOf(tar.NewReader),
+		"NewWriter":	ValueOf(tar.NewWriter),
+		"TypeBlock":	ValueOf(tar.TypeBlock),
+		"TypeChar":	ValueOf(tar.TypeChar),
+		"TypeCont":	ValueOf(tar.TypeCont),
+		"TypeDir":	ValueOf(tar.TypeDir),
+		"TypeFifo":	ValueOf(tar.TypeFifo),
+		"TypeGNULongLink":	ValueOf(tar.TypeGNULongLink),
+		"TypeGNULongName":	ValueOf(tar.TypeGNULongName),
+		"TypeGNUSparse":	ValueOf(tar.TypeGNUSparse),
+		"TypeLink":	ValueOf(tar.TypeLink),
+		"TypeReg":	ValueOf(tar.TypeReg),
+		"TypeRegA":	ValueOf(tar.TypeRegA),
+		"TypeSymlink":	ValueOf(tar.TypeSymlink),
+		"TypeXGlobalHeader":	ValueOf(tar.TypeXGlobalHeader),
+		"TypeXHeader":	ValueOf(tar.TypeXHeader),
 	}
 	Types["archive/tar"] = map[string]Type{
-		"Header":	TypeOf((*pkg.Header)(nil)).Elem(),
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"Header":	TypeOf((*tar.Header)(nil)).Elem(),
+		"Reader":	TypeOf((*tar.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*tar.Writer)(nil)).Elem(),
+	}
+	Proxies["archive/tar"] = map[string]Type{
 	}
 }

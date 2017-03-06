@@ -4,81 +4,204 @@
 package imports
 
 import (
-	pkg "reflect"
 	. "reflect"
+	"reflect"
 )
 
 func init() {
 	Binds["reflect"] = map[string]Value{
-		"Append":	ValueOf(pkg.Append),
-		"AppendSlice":	ValueOf(pkg.AppendSlice),
-		"Array":	ValueOf(pkg.Array),
-		"ArrayOf":	ValueOf(pkg.ArrayOf),
-		"Bool":	ValueOf(pkg.Bool),
-		"BothDir":	ValueOf(pkg.BothDir),
-		"Chan":	ValueOf(pkg.Chan),
-		"ChanOf":	ValueOf(pkg.ChanOf),
-		"Complex128":	ValueOf(pkg.Complex128),
-		"Complex64":	ValueOf(pkg.Complex64),
-		"Copy":	ValueOf(pkg.Copy),
-		"DeepEqual":	ValueOf(pkg.DeepEqual),
-		"Float32":	ValueOf(pkg.Float32),
-		"Float64":	ValueOf(pkg.Float64),
-		"Func":	ValueOf(pkg.Func),
-		"FuncOf":	ValueOf(pkg.FuncOf),
-		"Indirect":	ValueOf(pkg.Indirect),
-		"Int":	ValueOf(pkg.Int),
-		"Int16":	ValueOf(pkg.Int16),
-		"Int32":	ValueOf(pkg.Int32),
-		"Int64":	ValueOf(pkg.Int64),
-		"Int8":	ValueOf(pkg.Int8),
-		"Interface":	ValueOf(pkg.Interface),
-		"Invalid":	ValueOf(pkg.Invalid),
-		"MakeChan":	ValueOf(pkg.MakeChan),
-		"MakeFunc":	ValueOf(pkg.MakeFunc),
-		"MakeMap":	ValueOf(pkg.MakeMap),
-		"MakeSlice":	ValueOf(pkg.MakeSlice),
-		"Map":	ValueOf(pkg.Map),
-		"MapOf":	ValueOf(pkg.MapOf),
-		"New":	ValueOf(pkg.New),
-		"NewAt":	ValueOf(pkg.NewAt),
-		"Ptr":	ValueOf(pkg.Ptr),
-		"PtrTo":	ValueOf(pkg.PtrTo),
-		"RecvDir":	ValueOf(pkg.RecvDir),
-		"Select":	ValueOf(pkg.Select),
-		"SelectDefault":	ValueOf(pkg.SelectDefault),
-		"SelectRecv":	ValueOf(pkg.SelectRecv),
-		"SelectSend":	ValueOf(pkg.SelectSend),
-		"SendDir":	ValueOf(pkg.SendDir),
-		"Slice":	ValueOf(pkg.Slice),
-		"SliceOf":	ValueOf(pkg.SliceOf),
-		"String":	ValueOf(pkg.String),
-		"Struct":	ValueOf(pkg.Struct),
-		"StructOf":	ValueOf(pkg.StructOf),
-		"Swapper":	ValueOf(pkg.Swapper),
-		"TypeOf":	ValueOf(pkg.TypeOf),
-		"Uint":	ValueOf(pkg.Uint),
-		"Uint16":	ValueOf(pkg.Uint16),
-		"Uint32":	ValueOf(pkg.Uint32),
-		"Uint64":	ValueOf(pkg.Uint64),
-		"Uint8":	ValueOf(pkg.Uint8),
-		"Uintptr":	ValueOf(pkg.Uintptr),
-		"UnsafePointer":	ValueOf(pkg.UnsafePointer),
-		"ValueOf":	ValueOf(pkg.ValueOf),
-		"Zero":	ValueOf(pkg.Zero),
+		"Append":	ValueOf(reflect.Append),
+		"AppendSlice":	ValueOf(reflect.AppendSlice),
+		"Array":	ValueOf(reflect.Array),
+		"ArrayOf":	ValueOf(reflect.ArrayOf),
+		"Bool":	ValueOf(reflect.Bool),
+		"BothDir":	ValueOf(reflect.BothDir),
+		"Chan":	ValueOf(reflect.Chan),
+		"ChanOf":	ValueOf(reflect.ChanOf),
+		"Complex128":	ValueOf(reflect.Complex128),
+		"Complex64":	ValueOf(reflect.Complex64),
+		"Copy":	ValueOf(reflect.Copy),
+		"DeepEqual":	ValueOf(reflect.DeepEqual),
+		"Float32":	ValueOf(reflect.Float32),
+		"Float64":	ValueOf(reflect.Float64),
+		"Func":	ValueOf(reflect.Func),
+		"FuncOf":	ValueOf(reflect.FuncOf),
+		"Indirect":	ValueOf(reflect.Indirect),
+		"Int":	ValueOf(reflect.Int),
+		"Int16":	ValueOf(reflect.Int16),
+		"Int32":	ValueOf(reflect.Int32),
+		"Int64":	ValueOf(reflect.Int64),
+		"Int8":	ValueOf(reflect.Int8),
+		"Interface":	ValueOf(reflect.Interface),
+		"Invalid":	ValueOf(reflect.Invalid),
+		"MakeChan":	ValueOf(reflect.MakeChan),
+		"MakeFunc":	ValueOf(reflect.MakeFunc),
+		"MakeMap":	ValueOf(reflect.MakeMap),
+		"MakeSlice":	ValueOf(reflect.MakeSlice),
+		"Map":	ValueOf(reflect.Map),
+		"MapOf":	ValueOf(reflect.MapOf),
+		"New":	ValueOf(reflect.New),
+		"NewAt":	ValueOf(reflect.NewAt),
+		"Ptr":	ValueOf(reflect.Ptr),
+		"PtrTo":	ValueOf(reflect.PtrTo),
+		"RecvDir":	ValueOf(reflect.RecvDir),
+		"Select":	ValueOf(reflect.Select),
+		"SelectDefault":	ValueOf(reflect.SelectDefault),
+		"SelectRecv":	ValueOf(reflect.SelectRecv),
+		"SelectSend":	ValueOf(reflect.SelectSend),
+		"SendDir":	ValueOf(reflect.SendDir),
+		"Slice":	ValueOf(reflect.Slice),
+		"SliceOf":	ValueOf(reflect.SliceOf),
+		"String":	ValueOf(reflect.String),
+		"Struct":	ValueOf(reflect.Struct),
+		"StructOf":	ValueOf(reflect.StructOf),
+		"Swapper":	ValueOf(reflect.Swapper),
+		"TypeOf":	ValueOf(reflect.TypeOf),
+		"Uint":	ValueOf(reflect.Uint),
+		"Uint16":	ValueOf(reflect.Uint16),
+		"Uint32":	ValueOf(reflect.Uint32),
+		"Uint64":	ValueOf(reflect.Uint64),
+		"Uint8":	ValueOf(reflect.Uint8),
+		"Uintptr":	ValueOf(reflect.Uintptr),
+		"UnsafePointer":	ValueOf(reflect.UnsafePointer),
+		"ValueOf":	ValueOf(reflect.ValueOf),
+		"Zero":	ValueOf(reflect.Zero),
 	}
 	Types["reflect"] = map[string]Type{
-		"ChanDir":	TypeOf((*pkg.ChanDir)(nil)).Elem(),
-		"Kind":	TypeOf((*pkg.Kind)(nil)).Elem(),
-		"Method":	TypeOf((*pkg.Method)(nil)).Elem(),
-		"SelectCase":	TypeOf((*pkg.SelectCase)(nil)).Elem(),
-		"SelectDir":	TypeOf((*pkg.SelectDir)(nil)).Elem(),
-		"SliceHeader":	TypeOf((*pkg.SliceHeader)(nil)).Elem(),
-		"StringHeader":	TypeOf((*pkg.StringHeader)(nil)).Elem(),
-		"StructField":	TypeOf((*pkg.StructField)(nil)).Elem(),
-		"StructTag":	TypeOf((*pkg.StructTag)(nil)).Elem(),
-		"Type":	TypeOf((*pkg.Type)(nil)).Elem(),
-		"Value":	TypeOf((*pkg.Value)(nil)).Elem(),
-		"ValueError":	TypeOf((*pkg.ValueError)(nil)).Elem(),
+		"ChanDir":	TypeOf((*reflect.ChanDir)(nil)).Elem(),
+		"Kind":	TypeOf((*reflect.Kind)(nil)).Elem(),
+		"Method":	TypeOf((*reflect.Method)(nil)).Elem(),
+		"SelectCase":	TypeOf((*reflect.SelectCase)(nil)).Elem(),
+		"SelectDir":	TypeOf((*reflect.SelectDir)(nil)).Elem(),
+		"SliceHeader":	TypeOf((*reflect.SliceHeader)(nil)).Elem(),
+		"StringHeader":	TypeOf((*reflect.StringHeader)(nil)).Elem(),
+		"StructField":	TypeOf((*reflect.StructField)(nil)).Elem(),
+		"StructTag":	TypeOf((*reflect.StructTag)(nil)).Elem(),
+		"Type":	TypeOf((*reflect.Type)(nil)).Elem(),
+		"Value":	TypeOf((*reflect.Value)(nil)).Elem(),
+		"ValueError":	TypeOf((*reflect.ValueError)(nil)).Elem(),
 	}
+	Proxies["reflect"] = map[string]Type{
+		"Type":	TypeOf((*Type_reflect)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for reflect.Type ---------------
+type Type_reflect struct {
+	Align_	func() int
+	AssignableTo_	func(u reflect.Type) bool
+	Bits_	func() int
+	ChanDir_	func() reflect.ChanDir
+	Comparable_	func() bool
+	ConvertibleTo_	func(u reflect.Type) bool
+	Elem_	func() reflect.Type
+	Field_	func(i int) reflect.StructField
+	FieldAlign_	func() int
+	FieldByIndex_	func(index []int) reflect.StructField
+	FieldByName_	func(name string) (reflect.StructField, bool)
+	FieldByNameFunc_	func(match func(string) bool) (reflect.StructField, bool)
+	Implements_	func(u reflect.Type) bool
+	In_	func(i int) reflect.Type
+	IsVariadic_	func() bool
+	Key_	func() reflect.Type
+	Kind_	func() reflect.Kind
+	Len_	func() int
+	Method_	func(int) reflect.Method
+	MethodByName_	func(string) (reflect.Method, bool)
+	Name_	func() string
+	NumField_	func() int
+	NumIn_	func() int
+	NumMethod_	func() int
+	NumOut_	func() int
+	Out_	func(i int) reflect.Type
+	PkgPath_	func() string
+	Size_	func() uintptr
+	String_	func() string
+}
+func (Obj Type_reflect) Align() int {
+	return Obj.Align_()
+}
+func (Obj Type_reflect) AssignableTo(u reflect.Type) bool {
+	return Obj.AssignableTo_(u)
+}
+func (Obj Type_reflect) Bits() int {
+	return Obj.Bits_()
+}
+func (Obj Type_reflect) ChanDir() reflect.ChanDir {
+	return Obj.ChanDir_()
+}
+func (Obj Type_reflect) Comparable() bool {
+	return Obj.Comparable_()
+}
+func (Obj Type_reflect) ConvertibleTo(u reflect.Type) bool {
+	return Obj.ConvertibleTo_(u)
+}
+func (Obj Type_reflect) Elem() reflect.Type {
+	return Obj.Elem_()
+}
+func (Obj Type_reflect) Field(i int) reflect.StructField {
+	return Obj.Field_(i)
+}
+func (Obj Type_reflect) FieldAlign() int {
+	return Obj.FieldAlign_()
+}
+func (Obj Type_reflect) FieldByIndex(index []int) reflect.StructField {
+	return Obj.FieldByIndex_(index)
+}
+func (Obj Type_reflect) FieldByName(name string) (reflect.StructField, bool) {
+	return Obj.FieldByName_(name)
+}
+func (Obj Type_reflect) FieldByNameFunc(match func(string) bool) (reflect.StructField, bool) {
+	return Obj.FieldByNameFunc_(match)
+}
+func (Obj Type_reflect) Implements(u reflect.Type) bool {
+	return Obj.Implements_(u)
+}
+func (Obj Type_reflect) In(i int) reflect.Type {
+	return Obj.In_(i)
+}
+func (Obj Type_reflect) IsVariadic() bool {
+	return Obj.IsVariadic_()
+}
+func (Obj Type_reflect) Key() reflect.Type {
+	return Obj.Key_()
+}
+func (Obj Type_reflect) Kind() reflect.Kind {
+	return Obj.Kind_()
+}
+func (Obj Type_reflect) Len() int {
+	return Obj.Len_()
+}
+func (Obj Type_reflect) Method(unnamed0 int) reflect.Method {
+	return Obj.Method_(unnamed0)
+}
+func (Obj Type_reflect) MethodByName(unnamed0 string) (reflect.Method, bool) {
+	return Obj.MethodByName_(unnamed0)
+}
+func (Obj Type_reflect) Name() string {
+	return Obj.Name_()
+}
+func (Obj Type_reflect) NumField() int {
+	return Obj.NumField_()
+}
+func (Obj Type_reflect) NumIn() int {
+	return Obj.NumIn_()
+}
+func (Obj Type_reflect) NumMethod() int {
+	return Obj.NumMethod_()
+}
+func (Obj Type_reflect) NumOut() int {
+	return Obj.NumOut_()
+}
+func (Obj Type_reflect) Out(i int) reflect.Type {
+	return Obj.Out_(i)
+}
+func (Obj Type_reflect) PkgPath() string {
+	return Obj.PkgPath_()
+}
+func (Obj Type_reflect) Size() uintptr {
+	return Obj.Size_()
+}
+func (Obj Type_reflect) String() string {
+	return Obj.String_()
 }

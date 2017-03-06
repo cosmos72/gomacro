@@ -4,28 +4,39 @@
 package imports
 
 import (
-	pkg "expvar"
 	. "reflect"
+	"expvar"
 )
 
 func init() {
 	Binds["expvar"] = map[string]Value{
-		"Do":	ValueOf(pkg.Do),
-		"Get":	ValueOf(pkg.Get),
-		"Handler":	ValueOf(pkg.Handler),
-		"NewFloat":	ValueOf(pkg.NewFloat),
-		"NewInt":	ValueOf(pkg.NewInt),
-		"NewMap":	ValueOf(pkg.NewMap),
-		"NewString":	ValueOf(pkg.NewString),
-		"Publish":	ValueOf(pkg.Publish),
+		"Do":	ValueOf(expvar.Do),
+		"Get":	ValueOf(expvar.Get),
+		"Handler":	ValueOf(expvar.Handler),
+		"NewFloat":	ValueOf(expvar.NewFloat),
+		"NewInt":	ValueOf(expvar.NewInt),
+		"NewMap":	ValueOf(expvar.NewMap),
+		"NewString":	ValueOf(expvar.NewString),
+		"Publish":	ValueOf(expvar.Publish),
 	}
 	Types["expvar"] = map[string]Type{
-		"Float":	TypeOf((*pkg.Float)(nil)).Elem(),
-		"Func":	TypeOf((*pkg.Func)(nil)).Elem(),
-		"Int":	TypeOf((*pkg.Int)(nil)).Elem(),
-		"KeyValue":	TypeOf((*pkg.KeyValue)(nil)).Elem(),
-		"Map":	TypeOf((*pkg.Map)(nil)).Elem(),
-		"String":	TypeOf((*pkg.String)(nil)).Elem(),
-		"Var":	TypeOf((*pkg.Var)(nil)).Elem(),
+		"Float":	TypeOf((*expvar.Float)(nil)).Elem(),
+		"Func":	TypeOf((*expvar.Func)(nil)).Elem(),
+		"Int":	TypeOf((*expvar.Int)(nil)).Elem(),
+		"KeyValue":	TypeOf((*expvar.KeyValue)(nil)).Elem(),
+		"Map":	TypeOf((*expvar.Map)(nil)).Elem(),
+		"String":	TypeOf((*expvar.String)(nil)).Elem(),
+		"Var":	TypeOf((*expvar.Var)(nil)).Elem(),
 	}
+	Proxies["expvar"] = map[string]Type{
+		"Var":	TypeOf((*Var_expvar)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for expvar.Var ---------------
+type Var_expvar struct {
+	String_	func() string
+}
+func (Obj Var_expvar) String() string {
+	return Obj.String_()
 }

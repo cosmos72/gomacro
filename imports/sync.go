@@ -4,21 +4,36 @@
 package imports
 
 import (
-	pkg "sync"
 	. "reflect"
+	"sync"
 )
 
 func init() {
 	Binds["sync"] = map[string]Value{
-		"NewCond":	ValueOf(pkg.NewCond),
+		"NewCond":	ValueOf(sync.NewCond),
 	}
 	Types["sync"] = map[string]Type{
-		"Cond":	TypeOf((*pkg.Cond)(nil)).Elem(),
-		"Locker":	TypeOf((*pkg.Locker)(nil)).Elem(),
-		"Mutex":	TypeOf((*pkg.Mutex)(nil)).Elem(),
-		"Once":	TypeOf((*pkg.Once)(nil)).Elem(),
-		"Pool":	TypeOf((*pkg.Pool)(nil)).Elem(),
-		"RWMutex":	TypeOf((*pkg.RWMutex)(nil)).Elem(),
-		"WaitGroup":	TypeOf((*pkg.WaitGroup)(nil)).Elem(),
+		"Cond":	TypeOf((*sync.Cond)(nil)).Elem(),
+		"Locker":	TypeOf((*sync.Locker)(nil)).Elem(),
+		"Mutex":	TypeOf((*sync.Mutex)(nil)).Elem(),
+		"Once":	TypeOf((*sync.Once)(nil)).Elem(),
+		"Pool":	TypeOf((*sync.Pool)(nil)).Elem(),
+		"RWMutex":	TypeOf((*sync.RWMutex)(nil)).Elem(),
+		"WaitGroup":	TypeOf((*sync.WaitGroup)(nil)).Elem(),
 	}
+	Proxies["sync"] = map[string]Type{
+		"Locker":	TypeOf((*Locker_sync)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for sync.Locker ---------------
+type Locker_sync struct {
+	Lock_	func() 
+	Unlock_	func() 
+}
+func (Obj Locker_sync) Lock()  {
+	Obj.Lock_()
+}
+func (Obj Locker_sync) Unlock()  {
+	Obj.Unlock_()
 }

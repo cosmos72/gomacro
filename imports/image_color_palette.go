@@ -4,15 +4,17 @@
 package imports
 
 import (
-	pkg "image/color/palette"
 	. "reflect"
+	"image/color/palette"
 )
 
 func init() {
 	Binds["image/color/palette"] = map[string]Value{
-		"Plan9":	ValueOf(&pkg.Plan9).Elem(),
-		"WebSafe":	ValueOf(&pkg.WebSafe).Elem(),
+		"Plan9":	ValueOf(&palette.Plan9).Elem(),
+		"WebSafe":	ValueOf(&palette.WebSafe).Elem(),
 	}
 	Types["image/color/palette"] = map[string]Type{
+	}
+	Proxies["image/color/palette"] = map[string]Type{
 	}
 }

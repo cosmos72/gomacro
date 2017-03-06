@@ -4,23 +4,25 @@
 package imports
 
 import (
-	pkg "encoding/hex"
 	. "reflect"
+	"encoding/hex"
 )
 
 func init() {
 	Binds["encoding/hex"] = map[string]Value{
-		"Decode":	ValueOf(pkg.Decode),
-		"DecodeString":	ValueOf(pkg.DecodeString),
-		"DecodedLen":	ValueOf(pkg.DecodedLen),
-		"Dump":	ValueOf(pkg.Dump),
-		"Dumper":	ValueOf(pkg.Dumper),
-		"Encode":	ValueOf(pkg.Encode),
-		"EncodeToString":	ValueOf(pkg.EncodeToString),
-		"EncodedLen":	ValueOf(pkg.EncodedLen),
-		"ErrLength":	ValueOf(&pkg.ErrLength).Elem(),
+		"Decode":	ValueOf(hex.Decode),
+		"DecodeString":	ValueOf(hex.DecodeString),
+		"DecodedLen":	ValueOf(hex.DecodedLen),
+		"Dump":	ValueOf(hex.Dump),
+		"Dumper":	ValueOf(hex.Dumper),
+		"Encode":	ValueOf(hex.Encode),
+		"EncodeToString":	ValueOf(hex.EncodeToString),
+		"EncodedLen":	ValueOf(hex.EncodedLen),
+		"ErrLength":	ValueOf(&hex.ErrLength).Elem(),
 	}
 	Types["encoding/hex"] = map[string]Type{
-		"InvalidByteError":	TypeOf((*pkg.InvalidByteError)(nil)).Elem(),
+		"InvalidByteError":	TypeOf((*hex.InvalidByteError)(nil)).Elem(),
+	}
+	Proxies["encoding/hex"] = map[string]Type{
 	}
 }

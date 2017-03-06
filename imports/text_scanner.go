@@ -4,34 +4,36 @@
 package imports
 
 import (
-	pkg "text/scanner"
 	. "reflect"
+	"text/scanner"
 )
 
 func init() {
 	Binds["text/scanner"] = map[string]Value{
-		"Char":	ValueOf(pkg.Char),
-		"Comment":	ValueOf(pkg.Comment),
-		"EOF":	ValueOf(pkg.EOF),
-		"Float":	ValueOf(pkg.Float),
-		"GoTokens":	ValueOf(pkg.GoTokens),
-		"GoWhitespace":	ValueOf(pkg.GoWhitespace),
-		"Ident":	ValueOf(pkg.Ident),
-		"Int":	ValueOf(pkg.Int),
-		"RawString":	ValueOf(pkg.RawString),
-		"ScanChars":	ValueOf(pkg.ScanChars),
-		"ScanComments":	ValueOf(pkg.ScanComments),
-		"ScanFloats":	ValueOf(pkg.ScanFloats),
-		"ScanIdents":	ValueOf(pkg.ScanIdents),
-		"ScanInts":	ValueOf(pkg.ScanInts),
-		"ScanRawStrings":	ValueOf(pkg.ScanRawStrings),
-		"ScanStrings":	ValueOf(pkg.ScanStrings),
-		"SkipComments":	ValueOf(pkg.SkipComments),
-		"String":	ValueOf(pkg.String),
-		"TokenString":	ValueOf(pkg.TokenString),
+		"Char":	ValueOf(scanner.Char),
+		"Comment":	ValueOf(scanner.Comment),
+		"EOF":	ValueOf(scanner.EOF),
+		"Float":	ValueOf(scanner.Float),
+		"GoTokens":	ValueOf(scanner.GoTokens),
+		"GoWhitespace":	ValueOf(scanner.GoWhitespace),
+		"Ident":	ValueOf(scanner.Ident),
+		"Int":	ValueOf(scanner.Int),
+		"RawString":	ValueOf(scanner.RawString),
+		"ScanChars":	ValueOf(scanner.ScanChars),
+		"ScanComments":	ValueOf(scanner.ScanComments),
+		"ScanFloats":	ValueOf(scanner.ScanFloats),
+		"ScanIdents":	ValueOf(scanner.ScanIdents),
+		"ScanInts":	ValueOf(scanner.ScanInts),
+		"ScanRawStrings":	ValueOf(scanner.ScanRawStrings),
+		"ScanStrings":	ValueOf(scanner.ScanStrings),
+		"SkipComments":	ValueOf(scanner.SkipComments),
+		"String":	ValueOf(scanner.String),
+		"TokenString":	ValueOf(scanner.TokenString),
 	}
 	Types["text/scanner"] = map[string]Type{
-		"Position":	TypeOf((*pkg.Position)(nil)).Elem(),
-		"Scanner":	TypeOf((*pkg.Scanner)(nil)).Elem(),
+		"Position":	TypeOf((*scanner.Position)(nil)).Elem(),
+		"Scanner":	TypeOf((*scanner.Scanner)(nil)).Elem(),
+	}
+	Proxies["text/scanner"] = map[string]Type{
 	}
 }

@@ -4,21 +4,34 @@
 package imports
 
 import (
-	pkg "testing/quick"
 	. "reflect"
+	"math/rand"
+	"reflect"
+	"testing/quick"
 )
 
 func init() {
 	Binds["testing/quick"] = map[string]Value{
-		"Check":	ValueOf(pkg.Check),
-		"CheckEqual":	ValueOf(pkg.CheckEqual),
-		"Value":	ValueOf(pkg.Value),
+		"Check":	ValueOf(quick.Check),
+		"CheckEqual":	ValueOf(quick.CheckEqual),
+		"Value":	ValueOf(quick.Value),
 	}
 	Types["testing/quick"] = map[string]Type{
-		"CheckEqualError":	TypeOf((*pkg.CheckEqualError)(nil)).Elem(),
-		"CheckError":	TypeOf((*pkg.CheckError)(nil)).Elem(),
-		"Config":	TypeOf((*pkg.Config)(nil)).Elem(),
-		"Generator":	TypeOf((*pkg.Generator)(nil)).Elem(),
-		"SetupError":	TypeOf((*pkg.SetupError)(nil)).Elem(),
+		"CheckEqualError":	TypeOf((*quick.CheckEqualError)(nil)).Elem(),
+		"CheckError":	TypeOf((*quick.CheckError)(nil)).Elem(),
+		"Config":	TypeOf((*quick.Config)(nil)).Elem(),
+		"Generator":	TypeOf((*quick.Generator)(nil)).Elem(),
+		"SetupError":	TypeOf((*quick.SetupError)(nil)).Elem(),
 	}
+	Proxies["testing/quick"] = map[string]Type{
+		"Generator":	TypeOf((*Generator_testing_quick)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for testing/quick.Generator ---------------
+type Generator_testing_quick struct {
+	Generate_	func(rand *rand.Rand, size int) reflect.Value
+}
+func (Obj Generator_testing_quick) Generate(rand *rand.Rand, size int) reflect.Value {
+	return Obj.Generate_(rand, size)
 }

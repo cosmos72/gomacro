@@ -4,20 +4,22 @@
 package imports
 
 import (
-	pkg "encoding/base32"
 	. "reflect"
+	"encoding/base32"
 )
 
 func init() {
 	Binds["encoding/base32"] = map[string]Value{
-		"HexEncoding":	ValueOf(&pkg.HexEncoding).Elem(),
-		"NewDecoder":	ValueOf(pkg.NewDecoder),
-		"NewEncoder":	ValueOf(pkg.NewEncoder),
-		"NewEncoding":	ValueOf(pkg.NewEncoding),
-		"StdEncoding":	ValueOf(&pkg.StdEncoding).Elem(),
+		"HexEncoding":	ValueOf(&base32.HexEncoding).Elem(),
+		"NewDecoder":	ValueOf(base32.NewDecoder),
+		"NewEncoder":	ValueOf(base32.NewEncoder),
+		"NewEncoding":	ValueOf(base32.NewEncoding),
+		"StdEncoding":	ValueOf(&base32.StdEncoding).Elem(),
 	}
 	Types["encoding/base32"] = map[string]Type{
-		"CorruptInputError":	TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
-		"Encoding":	TypeOf((*pkg.Encoding)(nil)).Elem(),
+		"CorruptInputError":	TypeOf((*base32.CorruptInputError)(nil)).Elem(),
+		"Encoding":	TypeOf((*base32.Encoding)(nil)).Elem(),
+	}
+	Proxies["encoding/base32"] = map[string]Type{
 	}
 }

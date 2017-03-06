@@ -4,34 +4,53 @@
 package imports
 
 import (
-	pkg "sort"
 	. "reflect"
+	"sort"
 )
 
 func init() {
 	Binds["sort"] = map[string]Value{
-		"Float64s":	ValueOf(pkg.Float64s),
-		"Float64sAreSorted":	ValueOf(pkg.Float64sAreSorted),
-		"Ints":	ValueOf(pkg.Ints),
-		"IntsAreSorted":	ValueOf(pkg.IntsAreSorted),
-		"IsSorted":	ValueOf(pkg.IsSorted),
-		"Reverse":	ValueOf(pkg.Reverse),
-		"Search":	ValueOf(pkg.Search),
-		"SearchFloat64s":	ValueOf(pkg.SearchFloat64s),
-		"SearchInts":	ValueOf(pkg.SearchInts),
-		"SearchStrings":	ValueOf(pkg.SearchStrings),
-		"Slice":	ValueOf(pkg.Slice),
-		"SliceIsSorted":	ValueOf(pkg.SliceIsSorted),
-		"SliceStable":	ValueOf(pkg.SliceStable),
-		"Sort":	ValueOf(pkg.Sort),
-		"Stable":	ValueOf(pkg.Stable),
-		"Strings":	ValueOf(pkg.Strings),
-		"StringsAreSorted":	ValueOf(pkg.StringsAreSorted),
+		"Float64s":	ValueOf(sort.Float64s),
+		"Float64sAreSorted":	ValueOf(sort.Float64sAreSorted),
+		"Ints":	ValueOf(sort.Ints),
+		"IntsAreSorted":	ValueOf(sort.IntsAreSorted),
+		"IsSorted":	ValueOf(sort.IsSorted),
+		"Reverse":	ValueOf(sort.Reverse),
+		"Search":	ValueOf(sort.Search),
+		"SearchFloat64s":	ValueOf(sort.SearchFloat64s),
+		"SearchInts":	ValueOf(sort.SearchInts),
+		"SearchStrings":	ValueOf(sort.SearchStrings),
+		"Slice":	ValueOf(sort.Slice),
+		"SliceIsSorted":	ValueOf(sort.SliceIsSorted),
+		"SliceStable":	ValueOf(sort.SliceStable),
+		"Sort":	ValueOf(sort.Sort),
+		"Stable":	ValueOf(sort.Stable),
+		"Strings":	ValueOf(sort.Strings),
+		"StringsAreSorted":	ValueOf(sort.StringsAreSorted),
 	}
 	Types["sort"] = map[string]Type{
-		"Float64Slice":	TypeOf((*pkg.Float64Slice)(nil)).Elem(),
-		"IntSlice":	TypeOf((*pkg.IntSlice)(nil)).Elem(),
-		"Interface":	TypeOf((*pkg.Interface)(nil)).Elem(),
-		"StringSlice":	TypeOf((*pkg.StringSlice)(nil)).Elem(),
+		"Float64Slice":	TypeOf((*sort.Float64Slice)(nil)).Elem(),
+		"IntSlice":	TypeOf((*sort.IntSlice)(nil)).Elem(),
+		"Interface":	TypeOf((*sort.Interface)(nil)).Elem(),
+		"StringSlice":	TypeOf((*sort.StringSlice)(nil)).Elem(),
 	}
+	Proxies["sort"] = map[string]Type{
+		"Interface":	TypeOf((*Interface_sort)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for sort.Interface ---------------
+type Interface_sort struct {
+	Len_	func() int
+	Less_	func(i int, j int) bool
+	Swap_	func(i int, j int) 
+}
+func (Obj Interface_sort) Len() int {
+	return Obj.Len_()
+}
+func (Obj Interface_sort) Less(i int, j int) bool {
+	return Obj.Less_(i, j)
+}
+func (Obj Interface_sort) Swap(i int, j int)  {
+	Obj.Swap_(i, j)
 }

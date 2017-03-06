@@ -4,24 +4,26 @@
 package imports
 
 import (
-	pkg "runtime/debug"
 	. "reflect"
+	"runtime/debug"
 )
 
 func init() {
 	Binds["runtime/debug"] = map[string]Value{
-		"FreeOSMemory":	ValueOf(pkg.FreeOSMemory),
-		"PrintStack":	ValueOf(pkg.PrintStack),
-		"ReadGCStats":	ValueOf(pkg.ReadGCStats),
-		"SetGCPercent":	ValueOf(pkg.SetGCPercent),
-		"SetMaxStack":	ValueOf(pkg.SetMaxStack),
-		"SetMaxThreads":	ValueOf(pkg.SetMaxThreads),
-		"SetPanicOnFault":	ValueOf(pkg.SetPanicOnFault),
-		"SetTraceback":	ValueOf(pkg.SetTraceback),
-		"Stack":	ValueOf(pkg.Stack),
-		"WriteHeapDump":	ValueOf(pkg.WriteHeapDump),
+		"FreeOSMemory":	ValueOf(debug.FreeOSMemory),
+		"PrintStack":	ValueOf(debug.PrintStack),
+		"ReadGCStats":	ValueOf(debug.ReadGCStats),
+		"SetGCPercent":	ValueOf(debug.SetGCPercent),
+		"SetMaxStack":	ValueOf(debug.SetMaxStack),
+		"SetMaxThreads":	ValueOf(debug.SetMaxThreads),
+		"SetPanicOnFault":	ValueOf(debug.SetPanicOnFault),
+		"SetTraceback":	ValueOf(debug.SetTraceback),
+		"Stack":	ValueOf(debug.Stack),
+		"WriteHeapDump":	ValueOf(debug.WriteHeapDump),
 	}
 	Types["runtime/debug"] = map[string]Type{
-		"GCStats":	TypeOf((*pkg.GCStats)(nil)).Elem(),
+		"GCStats":	TypeOf((*debug.GCStats)(nil)).Elem(),
+	}
+	Proxies["runtime/debug"] = map[string]Type{
 	}
 }

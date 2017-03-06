@@ -4,18 +4,20 @@
 package imports
 
 import (
-	pkg "compress/lzw"
 	. "reflect"
+	"compress/lzw"
 )
 
 func init() {
 	Binds["compress/lzw"] = map[string]Value{
-		"LSB":	ValueOf(pkg.LSB),
-		"MSB":	ValueOf(pkg.MSB),
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewWriter":	ValueOf(pkg.NewWriter),
+		"LSB":	ValueOf(lzw.LSB),
+		"MSB":	ValueOf(lzw.MSB),
+		"NewReader":	ValueOf(lzw.NewReader),
+		"NewWriter":	ValueOf(lzw.NewWriter),
 	}
 	Types["compress/lzw"] = map[string]Type{
-		"Order":	TypeOf((*pkg.Order)(nil)).Elem(),
+		"Order":	TypeOf((*lzw.Order)(nil)).Elem(),
+	}
+	Proxies["compress/lzw"] = map[string]Type{
 	}
 }

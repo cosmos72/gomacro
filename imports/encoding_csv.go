@@ -4,22 +4,24 @@
 package imports
 
 import (
-	pkg "encoding/csv"
 	. "reflect"
+	"encoding/csv"
 )
 
 func init() {
 	Binds["encoding/csv"] = map[string]Value{
-		"ErrBareQuote":	ValueOf(&pkg.ErrBareQuote).Elem(),
-		"ErrFieldCount":	ValueOf(&pkg.ErrFieldCount).Elem(),
-		"ErrQuote":	ValueOf(&pkg.ErrQuote).Elem(),
-		"ErrTrailingComma":	ValueOf(&pkg.ErrTrailingComma).Elem(),
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewWriter":	ValueOf(pkg.NewWriter),
+		"ErrBareQuote":	ValueOf(&csv.ErrBareQuote).Elem(),
+		"ErrFieldCount":	ValueOf(&csv.ErrFieldCount).Elem(),
+		"ErrQuote":	ValueOf(&csv.ErrQuote).Elem(),
+		"ErrTrailingComma":	ValueOf(&csv.ErrTrailingComma).Elem(),
+		"NewReader":	ValueOf(csv.NewReader),
+		"NewWriter":	ValueOf(csv.NewWriter),
 	}
 	Types["encoding/csv"] = map[string]Type{
-		"ParseError":	TypeOf((*pkg.ParseError)(nil)).Elem(),
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"ParseError":	TypeOf((*csv.ParseError)(nil)).Elem(),
+		"Reader":	TypeOf((*csv.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*csv.Writer)(nil)).Elem(),
+	}
+	Proxies["encoding/csv"] = map[string]Type{
 	}
 }

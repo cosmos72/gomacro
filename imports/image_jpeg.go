@@ -4,21 +4,36 @@
 package imports
 
 import (
-	pkg "image/jpeg"
 	. "reflect"
+	"image/jpeg"
 )
 
 func init() {
 	Binds["image/jpeg"] = map[string]Value{
-		"Decode":	ValueOf(pkg.Decode),
-		"DecodeConfig":	ValueOf(pkg.DecodeConfig),
-		"DefaultQuality":	ValueOf(pkg.DefaultQuality),
-		"Encode":	ValueOf(pkg.Encode),
+		"Decode":	ValueOf(jpeg.Decode),
+		"DecodeConfig":	ValueOf(jpeg.DecodeConfig),
+		"DefaultQuality":	ValueOf(jpeg.DefaultQuality),
+		"Encode":	ValueOf(jpeg.Encode),
 	}
 	Types["image/jpeg"] = map[string]Type{
-		"FormatError":	TypeOf((*pkg.FormatError)(nil)).Elem(),
-		"Options":	TypeOf((*pkg.Options)(nil)).Elem(),
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"UnsupportedError":	TypeOf((*pkg.UnsupportedError)(nil)).Elem(),
+		"FormatError":	TypeOf((*jpeg.FormatError)(nil)).Elem(),
+		"Options":	TypeOf((*jpeg.Options)(nil)).Elem(),
+		"Reader":	TypeOf((*jpeg.Reader)(nil)).Elem(),
+		"UnsupportedError":	TypeOf((*jpeg.UnsupportedError)(nil)).Elem(),
 	}
+	Proxies["image/jpeg"] = map[string]Type{
+		"Reader":	TypeOf((*Reader_image_jpeg)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for image/jpeg.Reader ---------------
+type Reader_image_jpeg struct {
+	Read_	func(p []byte) (n int, err error)
+	ReadByte_	func() (byte, error)
+}
+func (Obj Reader_image_jpeg) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+func (Obj Reader_image_jpeg) ReadByte() (byte, error) {
+	return Obj.ReadByte_()
 }

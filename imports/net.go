@@ -4,109 +4,229 @@
 package imports
 
 import (
-	pkg "net"
 	. "reflect"
+	"net"
+	"time"
 )
 
 func init() {
 	Binds["net"] = map[string]Value{
-		"CIDRMask":	ValueOf(pkg.CIDRMask),
-		"DefaultResolver":	ValueOf(&pkg.DefaultResolver).Elem(),
-		"Dial":	ValueOf(pkg.Dial),
-		"DialIP":	ValueOf(pkg.DialIP),
-		"DialTCP":	ValueOf(pkg.DialTCP),
-		"DialTimeout":	ValueOf(pkg.DialTimeout),
-		"DialUDP":	ValueOf(pkg.DialUDP),
-		"DialUnix":	ValueOf(pkg.DialUnix),
-		"ErrWriteToConnected":	ValueOf(&pkg.ErrWriteToConnected).Elem(),
-		"FileConn":	ValueOf(pkg.FileConn),
-		"FileListener":	ValueOf(pkg.FileListener),
-		"FilePacketConn":	ValueOf(pkg.FilePacketConn),
-		"FlagBroadcast":	ValueOf(pkg.FlagBroadcast),
-		"FlagLoopback":	ValueOf(pkg.FlagLoopback),
-		"FlagMulticast":	ValueOf(pkg.FlagMulticast),
-		"FlagPointToPoint":	ValueOf(pkg.FlagPointToPoint),
-		"FlagUp":	ValueOf(pkg.FlagUp),
-		"IPv4":	ValueOf(pkg.IPv4),
-		"IPv4Mask":	ValueOf(pkg.IPv4Mask),
-		"IPv4allrouter":	ValueOf(&pkg.IPv4allrouter).Elem(),
-		"IPv4allsys":	ValueOf(&pkg.IPv4allsys).Elem(),
-		"IPv4bcast":	ValueOf(&pkg.IPv4bcast).Elem(),
-		"IPv4len":	ValueOf(pkg.IPv4len),
-		"IPv4zero":	ValueOf(&pkg.IPv4zero).Elem(),
-		"IPv6interfacelocalallnodes":	ValueOf(&pkg.IPv6interfacelocalallnodes).Elem(),
-		"IPv6len":	ValueOf(pkg.IPv6len),
-		"IPv6linklocalallnodes":	ValueOf(&pkg.IPv6linklocalallnodes).Elem(),
-		"IPv6linklocalallrouters":	ValueOf(&pkg.IPv6linklocalallrouters).Elem(),
-		"IPv6loopback":	ValueOf(&pkg.IPv6loopback).Elem(),
-		"IPv6unspecified":	ValueOf(&pkg.IPv6unspecified).Elem(),
-		"IPv6zero":	ValueOf(&pkg.IPv6zero).Elem(),
-		"InterfaceAddrs":	ValueOf(pkg.InterfaceAddrs),
-		"InterfaceByIndex":	ValueOf(pkg.InterfaceByIndex),
-		"InterfaceByName":	ValueOf(pkg.InterfaceByName),
-		"Interfaces":	ValueOf(pkg.Interfaces),
-		"JoinHostPort":	ValueOf(pkg.JoinHostPort),
-		"Listen":	ValueOf(pkg.Listen),
-		"ListenIP":	ValueOf(pkg.ListenIP),
-		"ListenMulticastUDP":	ValueOf(pkg.ListenMulticastUDP),
-		"ListenPacket":	ValueOf(pkg.ListenPacket),
-		"ListenTCP":	ValueOf(pkg.ListenTCP),
-		"ListenUDP":	ValueOf(pkg.ListenUDP),
-		"ListenUnix":	ValueOf(pkg.ListenUnix),
-		"ListenUnixgram":	ValueOf(pkg.ListenUnixgram),
-		"LookupAddr":	ValueOf(pkg.LookupAddr),
-		"LookupCNAME":	ValueOf(pkg.LookupCNAME),
-		"LookupHost":	ValueOf(pkg.LookupHost),
-		"LookupIP":	ValueOf(pkg.LookupIP),
-		"LookupMX":	ValueOf(pkg.LookupMX),
-		"LookupNS":	ValueOf(pkg.LookupNS),
-		"LookupPort":	ValueOf(pkg.LookupPort),
-		"LookupSRV":	ValueOf(pkg.LookupSRV),
-		"LookupTXT":	ValueOf(pkg.LookupTXT),
-		"ParseCIDR":	ValueOf(pkg.ParseCIDR),
-		"ParseIP":	ValueOf(pkg.ParseIP),
-		"ParseMAC":	ValueOf(pkg.ParseMAC),
-		"Pipe":	ValueOf(pkg.Pipe),
-		"ResolveIPAddr":	ValueOf(pkg.ResolveIPAddr),
-		"ResolveTCPAddr":	ValueOf(pkg.ResolveTCPAddr),
-		"ResolveUDPAddr":	ValueOf(pkg.ResolveUDPAddr),
-		"ResolveUnixAddr":	ValueOf(pkg.ResolveUnixAddr),
-		"SplitHostPort":	ValueOf(pkg.SplitHostPort),
+		"CIDRMask":	ValueOf(net.CIDRMask),
+		"DefaultResolver":	ValueOf(&net.DefaultResolver).Elem(),
+		"Dial":	ValueOf(net.Dial),
+		"DialIP":	ValueOf(net.DialIP),
+		"DialTCP":	ValueOf(net.DialTCP),
+		"DialTimeout":	ValueOf(net.DialTimeout),
+		"DialUDP":	ValueOf(net.DialUDP),
+		"DialUnix":	ValueOf(net.DialUnix),
+		"ErrWriteToConnected":	ValueOf(&net.ErrWriteToConnected).Elem(),
+		"FileConn":	ValueOf(net.FileConn),
+		"FileListener":	ValueOf(net.FileListener),
+		"FilePacketConn":	ValueOf(net.FilePacketConn),
+		"FlagBroadcast":	ValueOf(net.FlagBroadcast),
+		"FlagLoopback":	ValueOf(net.FlagLoopback),
+		"FlagMulticast":	ValueOf(net.FlagMulticast),
+		"FlagPointToPoint":	ValueOf(net.FlagPointToPoint),
+		"FlagUp":	ValueOf(net.FlagUp),
+		"IPv4":	ValueOf(net.IPv4),
+		"IPv4Mask":	ValueOf(net.IPv4Mask),
+		"IPv4allrouter":	ValueOf(&net.IPv4allrouter).Elem(),
+		"IPv4allsys":	ValueOf(&net.IPv4allsys).Elem(),
+		"IPv4bcast":	ValueOf(&net.IPv4bcast).Elem(),
+		"IPv4len":	ValueOf(net.IPv4len),
+		"IPv4zero":	ValueOf(&net.IPv4zero).Elem(),
+		"IPv6interfacelocalallnodes":	ValueOf(&net.IPv6interfacelocalallnodes).Elem(),
+		"IPv6len":	ValueOf(net.IPv6len),
+		"IPv6linklocalallnodes":	ValueOf(&net.IPv6linklocalallnodes).Elem(),
+		"IPv6linklocalallrouters":	ValueOf(&net.IPv6linklocalallrouters).Elem(),
+		"IPv6loopback":	ValueOf(&net.IPv6loopback).Elem(),
+		"IPv6unspecified":	ValueOf(&net.IPv6unspecified).Elem(),
+		"IPv6zero":	ValueOf(&net.IPv6zero).Elem(),
+		"InterfaceAddrs":	ValueOf(net.InterfaceAddrs),
+		"InterfaceByIndex":	ValueOf(net.InterfaceByIndex),
+		"InterfaceByName":	ValueOf(net.InterfaceByName),
+		"Interfaces":	ValueOf(net.Interfaces),
+		"JoinHostPort":	ValueOf(net.JoinHostPort),
+		"Listen":	ValueOf(net.Listen),
+		"ListenIP":	ValueOf(net.ListenIP),
+		"ListenMulticastUDP":	ValueOf(net.ListenMulticastUDP),
+		"ListenPacket":	ValueOf(net.ListenPacket),
+		"ListenTCP":	ValueOf(net.ListenTCP),
+		"ListenUDP":	ValueOf(net.ListenUDP),
+		"ListenUnix":	ValueOf(net.ListenUnix),
+		"ListenUnixgram":	ValueOf(net.ListenUnixgram),
+		"LookupAddr":	ValueOf(net.LookupAddr),
+		"LookupCNAME":	ValueOf(net.LookupCNAME),
+		"LookupHost":	ValueOf(net.LookupHost),
+		"LookupIP":	ValueOf(net.LookupIP),
+		"LookupMX":	ValueOf(net.LookupMX),
+		"LookupNS":	ValueOf(net.LookupNS),
+		"LookupPort":	ValueOf(net.LookupPort),
+		"LookupSRV":	ValueOf(net.LookupSRV),
+		"LookupTXT":	ValueOf(net.LookupTXT),
+		"ParseCIDR":	ValueOf(net.ParseCIDR),
+		"ParseIP":	ValueOf(net.ParseIP),
+		"ParseMAC":	ValueOf(net.ParseMAC),
+		"Pipe":	ValueOf(net.Pipe),
+		"ResolveIPAddr":	ValueOf(net.ResolveIPAddr),
+		"ResolveTCPAddr":	ValueOf(net.ResolveTCPAddr),
+		"ResolveUDPAddr":	ValueOf(net.ResolveUDPAddr),
+		"ResolveUnixAddr":	ValueOf(net.ResolveUnixAddr),
+		"SplitHostPort":	ValueOf(net.SplitHostPort),
 	}
 	Types["net"] = map[string]Type{
-		"Addr":	TypeOf((*pkg.Addr)(nil)).Elem(),
-		"AddrError":	TypeOf((*pkg.AddrError)(nil)).Elem(),
-		"Buffers":	TypeOf((*pkg.Buffers)(nil)).Elem(),
-		"Conn":	TypeOf((*pkg.Conn)(nil)).Elem(),
-		"DNSConfigError":	TypeOf((*pkg.DNSConfigError)(nil)).Elem(),
-		"DNSError":	TypeOf((*pkg.DNSError)(nil)).Elem(),
-		"Dialer":	TypeOf((*pkg.Dialer)(nil)).Elem(),
-		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
-		"Flags":	TypeOf((*pkg.Flags)(nil)).Elem(),
-		"HardwareAddr":	TypeOf((*pkg.HardwareAddr)(nil)).Elem(),
-		"IP":	TypeOf((*pkg.IP)(nil)).Elem(),
-		"IPAddr":	TypeOf((*pkg.IPAddr)(nil)).Elem(),
-		"IPConn":	TypeOf((*pkg.IPConn)(nil)).Elem(),
-		"IPMask":	TypeOf((*pkg.IPMask)(nil)).Elem(),
-		"IPNet":	TypeOf((*pkg.IPNet)(nil)).Elem(),
-		"Interface":	TypeOf((*pkg.Interface)(nil)).Elem(),
-		"InvalidAddrError":	TypeOf((*pkg.InvalidAddrError)(nil)).Elem(),
-		"Listener":	TypeOf((*pkg.Listener)(nil)).Elem(),
-		"MX":	TypeOf((*pkg.MX)(nil)).Elem(),
-		"NS":	TypeOf((*pkg.NS)(nil)).Elem(),
-		"OpError":	TypeOf((*pkg.OpError)(nil)).Elem(),
-		"PacketConn":	TypeOf((*pkg.PacketConn)(nil)).Elem(),
-		"ParseError":	TypeOf((*pkg.ParseError)(nil)).Elem(),
-		"Resolver":	TypeOf((*pkg.Resolver)(nil)).Elem(),
-		"SRV":	TypeOf((*pkg.SRV)(nil)).Elem(),
-		"TCPAddr":	TypeOf((*pkg.TCPAddr)(nil)).Elem(),
-		"TCPConn":	TypeOf((*pkg.TCPConn)(nil)).Elem(),
-		"TCPListener":	TypeOf((*pkg.TCPListener)(nil)).Elem(),
-		"UDPAddr":	TypeOf((*pkg.UDPAddr)(nil)).Elem(),
-		"UDPConn":	TypeOf((*pkg.UDPConn)(nil)).Elem(),
-		"UnixAddr":	TypeOf((*pkg.UnixAddr)(nil)).Elem(),
-		"UnixConn":	TypeOf((*pkg.UnixConn)(nil)).Elem(),
-		"UnixListener":	TypeOf((*pkg.UnixListener)(nil)).Elem(),
-		"UnknownNetworkError":	TypeOf((*pkg.UnknownNetworkError)(nil)).Elem(),
+		"Addr":	TypeOf((*net.Addr)(nil)).Elem(),
+		"AddrError":	TypeOf((*net.AddrError)(nil)).Elem(),
+		"Buffers":	TypeOf((*net.Buffers)(nil)).Elem(),
+		"Conn":	TypeOf((*net.Conn)(nil)).Elem(),
+		"DNSConfigError":	TypeOf((*net.DNSConfigError)(nil)).Elem(),
+		"DNSError":	TypeOf((*net.DNSError)(nil)).Elem(),
+		"Dialer":	TypeOf((*net.Dialer)(nil)).Elem(),
+		"Error":	TypeOf((*net.Error)(nil)).Elem(),
+		"Flags":	TypeOf((*net.Flags)(nil)).Elem(),
+		"HardwareAddr":	TypeOf((*net.HardwareAddr)(nil)).Elem(),
+		"IP":	TypeOf((*net.IP)(nil)).Elem(),
+		"IPAddr":	TypeOf((*net.IPAddr)(nil)).Elem(),
+		"IPConn":	TypeOf((*net.IPConn)(nil)).Elem(),
+		"IPMask":	TypeOf((*net.IPMask)(nil)).Elem(),
+		"IPNet":	TypeOf((*net.IPNet)(nil)).Elem(),
+		"Interface":	TypeOf((*net.Interface)(nil)).Elem(),
+		"InvalidAddrError":	TypeOf((*net.InvalidAddrError)(nil)).Elem(),
+		"Listener":	TypeOf((*net.Listener)(nil)).Elem(),
+		"MX":	TypeOf((*net.MX)(nil)).Elem(),
+		"NS":	TypeOf((*net.NS)(nil)).Elem(),
+		"OpError":	TypeOf((*net.OpError)(nil)).Elem(),
+		"PacketConn":	TypeOf((*net.PacketConn)(nil)).Elem(),
+		"ParseError":	TypeOf((*net.ParseError)(nil)).Elem(),
+		"Resolver":	TypeOf((*net.Resolver)(nil)).Elem(),
+		"SRV":	TypeOf((*net.SRV)(nil)).Elem(),
+		"TCPAddr":	TypeOf((*net.TCPAddr)(nil)).Elem(),
+		"TCPConn":	TypeOf((*net.TCPConn)(nil)).Elem(),
+		"TCPListener":	TypeOf((*net.TCPListener)(nil)).Elem(),
+		"UDPAddr":	TypeOf((*net.UDPAddr)(nil)).Elem(),
+		"UDPConn":	TypeOf((*net.UDPConn)(nil)).Elem(),
+		"UnixAddr":	TypeOf((*net.UnixAddr)(nil)).Elem(),
+		"UnixConn":	TypeOf((*net.UnixConn)(nil)).Elem(),
+		"UnixListener":	TypeOf((*net.UnixListener)(nil)).Elem(),
+		"UnknownNetworkError":	TypeOf((*net.UnknownNetworkError)(nil)).Elem(),
 	}
+	Proxies["net"] = map[string]Type{
+		"Addr":	TypeOf((*Addr_net)(nil)).Elem(),
+		"Conn":	TypeOf((*Conn_net)(nil)).Elem(),
+		"Error":	TypeOf((*Error_net)(nil)).Elem(),
+		"Listener":	TypeOf((*Listener_net)(nil)).Elem(),
+		"PacketConn":	TypeOf((*PacketConn_net)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for net.Addr ---------------
+type Addr_net struct {
+	Network_	func() string
+	String_	func() string
+}
+func (Obj Addr_net) Network() string {
+	return Obj.Network_()
+}
+func (Obj Addr_net) String() string {
+	return Obj.String_()
+}
+
+// --------------- proxy for net.Conn ---------------
+type Conn_net struct {
+	Close_	func() error
+	LocalAddr_	func() net.Addr
+	Read_	func(b []byte) (n int, err error)
+	RemoteAddr_	func() net.Addr
+	SetDeadline_	func(t time.Time) error
+	SetReadDeadline_	func(t time.Time) error
+	SetWriteDeadline_	func(t time.Time) error
+	Write_	func(b []byte) (n int, err error)
+}
+func (Obj Conn_net) Close() error {
+	return Obj.Close_()
+}
+func (Obj Conn_net) LocalAddr() net.Addr {
+	return Obj.LocalAddr_()
+}
+func (Obj Conn_net) Read(b []byte) (n int, err error) {
+	return Obj.Read_(b)
+}
+func (Obj Conn_net) RemoteAddr() net.Addr {
+	return Obj.RemoteAddr_()
+}
+func (Obj Conn_net) SetDeadline(t time.Time) error {
+	return Obj.SetDeadline_(t)
+}
+func (Obj Conn_net) SetReadDeadline(t time.Time) error {
+	return Obj.SetReadDeadline_(t)
+}
+func (Obj Conn_net) SetWriteDeadline(t time.Time) error {
+	return Obj.SetWriteDeadline_(t)
+}
+func (Obj Conn_net) Write(b []byte) (n int, err error) {
+	return Obj.Write_(b)
+}
+
+// --------------- proxy for net.Error ---------------
+type Error_net struct {
+	Error_	func() string
+	Temporary_	func() bool
+	Timeout_	func() bool
+}
+func (Obj Error_net) Error() string {
+	return Obj.Error_()
+}
+func (Obj Error_net) Temporary() bool {
+	return Obj.Temporary_()
+}
+func (Obj Error_net) Timeout() bool {
+	return Obj.Timeout_()
+}
+
+// --------------- proxy for net.Listener ---------------
+type Listener_net struct {
+	Accept_	func() (net.Conn, error)
+	Addr_	func() net.Addr
+	Close_	func() error
+}
+func (Obj Listener_net) Accept() (net.Conn, error) {
+	return Obj.Accept_()
+}
+func (Obj Listener_net) Addr() net.Addr {
+	return Obj.Addr_()
+}
+func (Obj Listener_net) Close() error {
+	return Obj.Close_()
+}
+
+// --------------- proxy for net.PacketConn ---------------
+type PacketConn_net struct {
+	Close_	func() error
+	LocalAddr_	func() net.Addr
+	ReadFrom_	func(b []byte) (n int, addr net.Addr, err error)
+	SetDeadline_	func(t time.Time) error
+	SetReadDeadline_	func(t time.Time) error
+	SetWriteDeadline_	func(t time.Time) error
+	WriteTo_	func(b []byte, addr net.Addr) (n int, err error)
+}
+func (Obj PacketConn_net) Close() error {
+	return Obj.Close_()
+}
+func (Obj PacketConn_net) LocalAddr() net.Addr {
+	return Obj.LocalAddr_()
+}
+func (Obj PacketConn_net) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
+	return Obj.ReadFrom_(b)
+}
+func (Obj PacketConn_net) SetDeadline(t time.Time) error {
+	return Obj.SetDeadline_(t)
+}
+func (Obj PacketConn_net) SetReadDeadline(t time.Time) error {
+	return Obj.SetReadDeadline_(t)
+}
+func (Obj PacketConn_net) SetWriteDeadline(t time.Time) error {
+	return Obj.SetWriteDeadline_(t)
+}
+func (Obj PacketConn_net) WriteTo(b []byte, addr net.Addr) (n int, err error) {
+	return Obj.WriteTo_(b, addr)
 }

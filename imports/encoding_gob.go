@@ -4,22 +4,42 @@
 package imports
 
 import (
-	pkg "encoding/gob"
 	. "reflect"
+	"encoding/gob"
 )
 
 func init() {
 	Binds["encoding/gob"] = map[string]Value{
-		"NewDecoder":	ValueOf(pkg.NewDecoder),
-		"NewEncoder":	ValueOf(pkg.NewEncoder),
-		"Register":	ValueOf(pkg.Register),
-		"RegisterName":	ValueOf(pkg.RegisterName),
+		"NewDecoder":	ValueOf(gob.NewDecoder),
+		"NewEncoder":	ValueOf(gob.NewEncoder),
+		"Register":	ValueOf(gob.Register),
+		"RegisterName":	ValueOf(gob.RegisterName),
 	}
 	Types["encoding/gob"] = map[string]Type{
-		"CommonType":	TypeOf((*pkg.CommonType)(nil)).Elem(),
-		"Decoder":	TypeOf((*pkg.Decoder)(nil)).Elem(),
-		"Encoder":	TypeOf((*pkg.Encoder)(nil)).Elem(),
-		"GobDecoder":	TypeOf((*pkg.GobDecoder)(nil)).Elem(),
-		"GobEncoder":	TypeOf((*pkg.GobEncoder)(nil)).Elem(),
+		"CommonType":	TypeOf((*gob.CommonType)(nil)).Elem(),
+		"Decoder":	TypeOf((*gob.Decoder)(nil)).Elem(),
+		"Encoder":	TypeOf((*gob.Encoder)(nil)).Elem(),
+		"GobDecoder":	TypeOf((*gob.GobDecoder)(nil)).Elem(),
+		"GobEncoder":	TypeOf((*gob.GobEncoder)(nil)).Elem(),
 	}
+	Proxies["encoding/gob"] = map[string]Type{
+		"GobDecoder":	TypeOf((*GobDecoder_encoding_gob)(nil)).Elem(),
+		"GobEncoder":	TypeOf((*GobEncoder_encoding_gob)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for encoding/gob.GobDecoder ---------------
+type GobDecoder_encoding_gob struct {
+	GobDecode_	func([]byte) error
+}
+func (Obj GobDecoder_encoding_gob) GobDecode(unnamed0 []byte) error {
+	return Obj.GobDecode_(unnamed0)
+}
+
+// --------------- proxy for encoding/gob.GobEncoder ---------------
+type GobEncoder_encoding_gob struct {
+	GobEncode_	func() ([]byte, error)
+}
+func (Obj GobEncoder_encoding_gob) GobEncode() ([]byte, error) {
+	return Obj.GobEncode_()
 }

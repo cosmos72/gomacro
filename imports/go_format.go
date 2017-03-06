@@ -4,15 +4,17 @@
 package imports
 
 import (
-	pkg "go/format"
 	. "reflect"
+	"go/format"
 )
 
 func init() {
 	Binds["go/format"] = map[string]Value{
-		"Node":	ValueOf(pkg.Node),
-		"Source":	ValueOf(pkg.Source),
+		"Node":	ValueOf(format.Node),
+		"Source":	ValueOf(format.Source),
 	}
 	Types["go/format"] = map[string]Type{
+	}
+	Proxies["go/format"] = map[string]Type{
 	}
 }

@@ -4,21 +4,23 @@
 package imports
 
 import (
-	pkg "testing/iotest"
 	. "reflect"
+	"testing/iotest"
 )
 
 func init() {
 	Binds["testing/iotest"] = map[string]Value{
-		"DataErrReader":	ValueOf(pkg.DataErrReader),
-		"ErrTimeout":	ValueOf(&pkg.ErrTimeout).Elem(),
-		"HalfReader":	ValueOf(pkg.HalfReader),
-		"NewReadLogger":	ValueOf(pkg.NewReadLogger),
-		"NewWriteLogger":	ValueOf(pkg.NewWriteLogger),
-		"OneByteReader":	ValueOf(pkg.OneByteReader),
-		"TimeoutReader":	ValueOf(pkg.TimeoutReader),
-		"TruncateWriter":	ValueOf(pkg.TruncateWriter),
+		"DataErrReader":	ValueOf(iotest.DataErrReader),
+		"ErrTimeout":	ValueOf(&iotest.ErrTimeout).Elem(),
+		"HalfReader":	ValueOf(iotest.HalfReader),
+		"NewReadLogger":	ValueOf(iotest.NewReadLogger),
+		"NewWriteLogger":	ValueOf(iotest.NewWriteLogger),
+		"OneByteReader":	ValueOf(iotest.OneByteReader),
+		"TimeoutReader":	ValueOf(iotest.TimeoutReader),
+		"TruncateWriter":	ValueOf(iotest.TruncateWriter),
 	}
 	Types["testing/iotest"] = map[string]Type{
+	}
+	Proxies["testing/iotest"] = map[string]Type{
 	}
 }

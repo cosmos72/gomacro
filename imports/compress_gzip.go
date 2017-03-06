@@ -4,26 +4,28 @@
 package imports
 
 import (
-	pkg "compress/gzip"
 	. "reflect"
+	"compress/gzip"
 )
 
 func init() {
 	Binds["compress/gzip"] = map[string]Value{
-		"BestCompression":	ValueOf(pkg.BestCompression),
-		"BestSpeed":	ValueOf(pkg.BestSpeed),
-		"DefaultCompression":	ValueOf(pkg.DefaultCompression),
-		"ErrChecksum":	ValueOf(&pkg.ErrChecksum).Elem(),
-		"ErrHeader":	ValueOf(&pkg.ErrHeader).Elem(),
-		"HuffmanOnly":	ValueOf(pkg.HuffmanOnly),
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewWriter":	ValueOf(pkg.NewWriter),
-		"NewWriterLevel":	ValueOf(pkg.NewWriterLevel),
-		"NoCompression":	ValueOf(pkg.NoCompression),
+		"BestCompression":	ValueOf(gzip.BestCompression),
+		"BestSpeed":	ValueOf(gzip.BestSpeed),
+		"DefaultCompression":	ValueOf(gzip.DefaultCompression),
+		"ErrChecksum":	ValueOf(&gzip.ErrChecksum).Elem(),
+		"ErrHeader":	ValueOf(&gzip.ErrHeader).Elem(),
+		"HuffmanOnly":	ValueOf(gzip.HuffmanOnly),
+		"NewReader":	ValueOf(gzip.NewReader),
+		"NewWriter":	ValueOf(gzip.NewWriter),
+		"NewWriterLevel":	ValueOf(gzip.NewWriterLevel),
+		"NoCompression":	ValueOf(gzip.NoCompression),
 	}
 	Types["compress/gzip"] = map[string]Type{
-		"Header":	TypeOf((*pkg.Header)(nil)).Elem(),
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"Header":	TypeOf((*gzip.Header)(nil)).Elem(),
+		"Reader":	TypeOf((*gzip.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*gzip.Writer)(nil)).Elem(),
+	}
+	Proxies["compress/gzip"] = map[string]Type{
 	}
 }

@@ -4,50 +4,69 @@
 package imports
 
 import (
-	pkg "go/constant"
 	. "reflect"
+	"go/constant"
 )
 
 func init() {
 	Binds["go/constant"] = map[string]Value{
-		"BinaryOp":	ValueOf(pkg.BinaryOp),
-		"BitLen":	ValueOf(pkg.BitLen),
-		"Bool":	ValueOf(pkg.Bool),
-		"BoolVal":	ValueOf(pkg.BoolVal),
-		"Bytes":	ValueOf(pkg.Bytes),
-		"Compare":	ValueOf(pkg.Compare),
-		"Complex":	ValueOf(pkg.Complex),
-		"Denom":	ValueOf(pkg.Denom),
-		"Float":	ValueOf(pkg.Float),
-		"Float32Val":	ValueOf(pkg.Float32Val),
-		"Float64Val":	ValueOf(pkg.Float64Val),
-		"Imag":	ValueOf(pkg.Imag),
-		"Int":	ValueOf(pkg.Int),
-		"Int64Val":	ValueOf(pkg.Int64Val),
-		"MakeBool":	ValueOf(pkg.MakeBool),
-		"MakeFloat64":	ValueOf(pkg.MakeFloat64),
-		"MakeFromBytes":	ValueOf(pkg.MakeFromBytes),
-		"MakeFromLiteral":	ValueOf(pkg.MakeFromLiteral),
-		"MakeImag":	ValueOf(pkg.MakeImag),
-		"MakeInt64":	ValueOf(pkg.MakeInt64),
-		"MakeString":	ValueOf(pkg.MakeString),
-		"MakeUint64":	ValueOf(pkg.MakeUint64),
-		"MakeUnknown":	ValueOf(pkg.MakeUnknown),
-		"Num":	ValueOf(pkg.Num),
-		"Real":	ValueOf(pkg.Real),
-		"Shift":	ValueOf(pkg.Shift),
-		"Sign":	ValueOf(pkg.Sign),
-		"String":	ValueOf(pkg.String),
-		"StringVal":	ValueOf(pkg.StringVal),
-		"ToComplex":	ValueOf(pkg.ToComplex),
-		"ToFloat":	ValueOf(pkg.ToFloat),
-		"ToInt":	ValueOf(pkg.ToInt),
-		"Uint64Val":	ValueOf(pkg.Uint64Val),
-		"UnaryOp":	ValueOf(pkg.UnaryOp),
-		"Unknown":	ValueOf(pkg.Unknown),
+		"BinaryOp":	ValueOf(constant.BinaryOp),
+		"BitLen":	ValueOf(constant.BitLen),
+		"Bool":	ValueOf(constant.Bool),
+		"BoolVal":	ValueOf(constant.BoolVal),
+		"Bytes":	ValueOf(constant.Bytes),
+		"Compare":	ValueOf(constant.Compare),
+		"Complex":	ValueOf(constant.Complex),
+		"Denom":	ValueOf(constant.Denom),
+		"Float":	ValueOf(constant.Float),
+		"Float32Val":	ValueOf(constant.Float32Val),
+		"Float64Val":	ValueOf(constant.Float64Val),
+		"Imag":	ValueOf(constant.Imag),
+		"Int":	ValueOf(constant.Int),
+		"Int64Val":	ValueOf(constant.Int64Val),
+		"MakeBool":	ValueOf(constant.MakeBool),
+		"MakeFloat64":	ValueOf(constant.MakeFloat64),
+		"MakeFromBytes":	ValueOf(constant.MakeFromBytes),
+		"MakeFromLiteral":	ValueOf(constant.MakeFromLiteral),
+		"MakeImag":	ValueOf(constant.MakeImag),
+		"MakeInt64":	ValueOf(constant.MakeInt64),
+		"MakeString":	ValueOf(constant.MakeString),
+		"MakeUint64":	ValueOf(constant.MakeUint64),
+		"MakeUnknown":	ValueOf(constant.MakeUnknown),
+		"Num":	ValueOf(constant.Num),
+		"Real":	ValueOf(constant.Real),
+		"Shift":	ValueOf(constant.Shift),
+		"Sign":	ValueOf(constant.Sign),
+		"String":	ValueOf(constant.String),
+		"StringVal":	ValueOf(constant.StringVal),
+		"ToComplex":	ValueOf(constant.ToComplex),
+		"ToFloat":	ValueOf(constant.ToFloat),
+		"ToInt":	ValueOf(constant.ToInt),
+		"Uint64Val":	ValueOf(constant.Uint64Val),
+		"UnaryOp":	ValueOf(constant.UnaryOp),
+		"Unknown":	ValueOf(constant.Unknown),
 	}
 	Types["go/constant"] = map[string]Type{
-		"Kind":	TypeOf((*pkg.Kind)(nil)).Elem(),
-		"Value":	TypeOf((*pkg.Value)(nil)).Elem(),
+		"Kind":	TypeOf((*constant.Kind)(nil)).Elem(),
+		"Value":	TypeOf((*constant.Value)(nil)).Elem(),
 	}
+	Proxies["go/constant"] = map[string]Type{
+		"Value":	TypeOf((*Value_go_constant)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for go/constant.Value ---------------
+type Value_go_constant struct {
+	ExactString_	func() string
+	Kind_	func() constant.Kind
+	String_	func() string
+}
+func (Obj Value_go_constant) ExactString() string {
+	return Obj.ExactString_()
+}
+func (Obj Value_go_constant) Kind() constant.Kind {
+	return Obj.Kind_()
+}
+func (Obj Value_go_constant) String() string {
+	return Obj.String_()
 }

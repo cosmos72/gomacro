@@ -4,21 +4,23 @@
 package imports
 
 import (
-	pkg "hash/crc64"
 	. "reflect"
+	"hash/crc64"
 )
 
 func init() {
 	Binds["hash/crc64"] = map[string]Value{
-		"Checksum":	ValueOf(pkg.Checksum),
-		"ECMA":	ValueOf(uint64(pkg.ECMA)),
-		"ISO":	ValueOf(uint64(pkg.ISO)),
-		"MakeTable":	ValueOf(pkg.MakeTable),
-		"New":	ValueOf(pkg.New),
-		"Size":	ValueOf(pkg.Size),
-		"Update":	ValueOf(pkg.Update),
+		"Checksum":	ValueOf(crc64.Checksum),
+		"ECMA":	ValueOf(uint64(crc64.ECMA)),
+		"ISO":	ValueOf(uint64(crc64.ISO)),
+		"MakeTable":	ValueOf(crc64.MakeTable),
+		"New":	ValueOf(crc64.New),
+		"Size":	ValueOf(crc64.Size),
+		"Update":	ValueOf(crc64.Update),
 	}
 	Types["hash/crc64"] = map[string]Type{
-		"Table":	TypeOf((*pkg.Table)(nil)).Elem(),
+		"Table":	TypeOf((*crc64.Table)(nil)).Elem(),
+	}
+	Proxies["hash/crc64"] = map[string]Type{
 	}
 }

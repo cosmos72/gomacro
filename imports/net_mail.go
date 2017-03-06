@@ -4,22 +4,24 @@
 package imports
 
 import (
-	pkg "net/mail"
 	. "reflect"
+	"net/mail"
 )
 
 func init() {
 	Binds["net/mail"] = map[string]Value{
-		"ErrHeaderNotPresent":	ValueOf(&pkg.ErrHeaderNotPresent).Elem(),
-		"ParseAddress":	ValueOf(pkg.ParseAddress),
-		"ParseAddressList":	ValueOf(pkg.ParseAddressList),
-		"ParseDate":	ValueOf(pkg.ParseDate),
-		"ReadMessage":	ValueOf(pkg.ReadMessage),
+		"ErrHeaderNotPresent":	ValueOf(&mail.ErrHeaderNotPresent).Elem(),
+		"ParseAddress":	ValueOf(mail.ParseAddress),
+		"ParseAddressList":	ValueOf(mail.ParseAddressList),
+		"ParseDate":	ValueOf(mail.ParseDate),
+		"ReadMessage":	ValueOf(mail.ReadMessage),
 	}
 	Types["net/mail"] = map[string]Type{
-		"Address":	TypeOf((*pkg.Address)(nil)).Elem(),
-		"AddressParser":	TypeOf((*pkg.AddressParser)(nil)).Elem(),
-		"Header":	TypeOf((*pkg.Header)(nil)).Elem(),
-		"Message":	TypeOf((*pkg.Message)(nil)).Elem(),
+		"Address":	TypeOf((*mail.Address)(nil)).Elem(),
+		"AddressParser":	TypeOf((*mail.AddressParser)(nil)).Elem(),
+		"Header":	TypeOf((*mail.Header)(nil)).Elem(),
+		"Message":	TypeOf((*mail.Message)(nil)).Elem(),
+	}
+	Proxies["net/mail"] = map[string]Type{
 	}
 }

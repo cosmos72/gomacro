@@ -4,16 +4,18 @@
 package imports
 
 import (
-	pkg "container/list"
 	. "reflect"
+	"container/list"
 )
 
 func init() {
 	Binds["container/list"] = map[string]Value{
-		"New":	ValueOf(pkg.New),
+		"New":	ValueOf(list.New),
 	}
 	Types["container/list"] = map[string]Type{
-		"Element":	TypeOf((*pkg.Element)(nil)).Elem(),
-		"List":	TypeOf((*pkg.List)(nil)).Elem(),
+		"Element":	TypeOf((*list.Element)(nil)).Elem(),
+		"List":	TypeOf((*list.List)(nil)).Elem(),
+	}
+	Proxies["container/list"] = map[string]Type{
 	}
 }

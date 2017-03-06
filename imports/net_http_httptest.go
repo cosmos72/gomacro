@@ -4,21 +4,23 @@
 package imports
 
 import (
-	pkg "net/http/httptest"
 	. "reflect"
+	"net/http/httptest"
 )
 
 func init() {
 	Binds["net/http/httptest"] = map[string]Value{
-		"DefaultRemoteAddr":	ValueOf(pkg.DefaultRemoteAddr),
-		"NewRecorder":	ValueOf(pkg.NewRecorder),
-		"NewRequest":	ValueOf(pkg.NewRequest),
-		"NewServer":	ValueOf(pkg.NewServer),
-		"NewTLSServer":	ValueOf(pkg.NewTLSServer),
-		"NewUnstartedServer":	ValueOf(pkg.NewUnstartedServer),
+		"DefaultRemoteAddr":	ValueOf(httptest.DefaultRemoteAddr),
+		"NewRecorder":	ValueOf(httptest.NewRecorder),
+		"NewRequest":	ValueOf(httptest.NewRequest),
+		"NewServer":	ValueOf(httptest.NewServer),
+		"NewTLSServer":	ValueOf(httptest.NewTLSServer),
+		"NewUnstartedServer":	ValueOf(httptest.NewUnstartedServer),
 	}
 	Types["net/http/httptest"] = map[string]Type{
-		"ResponseRecorder":	TypeOf((*pkg.ResponseRecorder)(nil)).Elem(),
-		"Server":	TypeOf((*pkg.Server)(nil)).Elem(),
+		"ResponseRecorder":	TypeOf((*httptest.ResponseRecorder)(nil)).Elem(),
+		"Server":	TypeOf((*httptest.Server)(nil)).Elem(),
+	}
+	Proxies["net/http/httptest"] = map[string]Type{
 	}
 }

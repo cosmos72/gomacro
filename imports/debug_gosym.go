@@ -4,23 +4,25 @@
 package imports
 
 import (
-	pkg "debug/gosym"
 	. "reflect"
+	"debug/gosym"
 )
 
 func init() {
 	Binds["debug/gosym"] = map[string]Value{
-		"NewLineTable":	ValueOf(pkg.NewLineTable),
-		"NewTable":	ValueOf(pkg.NewTable),
+		"NewLineTable":	ValueOf(gosym.NewLineTable),
+		"NewTable":	ValueOf(gosym.NewTable),
 	}
 	Types["debug/gosym"] = map[string]Type{
-		"DecodingError":	TypeOf((*pkg.DecodingError)(nil)).Elem(),
-		"Func":	TypeOf((*pkg.Func)(nil)).Elem(),
-		"LineTable":	TypeOf((*pkg.LineTable)(nil)).Elem(),
-		"Obj":	TypeOf((*pkg.Obj)(nil)).Elem(),
-		"Sym":	TypeOf((*pkg.Sym)(nil)).Elem(),
-		"Table":	TypeOf((*pkg.Table)(nil)).Elem(),
-		"UnknownFileError":	TypeOf((*pkg.UnknownFileError)(nil)).Elem(),
-		"UnknownLineError":	TypeOf((*pkg.UnknownLineError)(nil)).Elem(),
+		"DecodingError":	TypeOf((*gosym.DecodingError)(nil)).Elem(),
+		"Func":	TypeOf((*gosym.Func)(nil)).Elem(),
+		"LineTable":	TypeOf((*gosym.LineTable)(nil)).Elem(),
+		"Obj":	TypeOf((*gosym.Obj)(nil)).Elem(),
+		"Sym":	TypeOf((*gosym.Sym)(nil)).Elem(),
+		"Table":	TypeOf((*gosym.Table)(nil)).Elem(),
+		"UnknownFileError":	TypeOf((*gosym.UnknownFileError)(nil)).Elem(),
+		"UnknownLineError":	TypeOf((*gosym.UnknownLineError)(nil)).Elem(),
+	}
+	Proxies["debug/gosym"] = map[string]Type{
 	}
 }

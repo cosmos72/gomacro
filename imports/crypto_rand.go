@@ -4,17 +4,19 @@
 package imports
 
 import (
-	pkg "crypto/rand"
 	. "reflect"
+	"crypto/rand"
 )
 
 func init() {
 	Binds["crypto/rand"] = map[string]Value{
-		"Int":	ValueOf(pkg.Int),
-		"Prime":	ValueOf(pkg.Prime),
-		"Read":	ValueOf(pkg.Read),
-		"Reader":	ValueOf(&pkg.Reader).Elem(),
+		"Int":	ValueOf(rand.Int),
+		"Prime":	ValueOf(rand.Prime),
+		"Read":	ValueOf(rand.Read),
+		"Reader":	ValueOf(&rand.Reader).Elem(),
 	}
 	Types["crypto/rand"] = map[string]Type{
+	}
+	Proxies["crypto/rand"] = map[string]Type{
 	}
 }

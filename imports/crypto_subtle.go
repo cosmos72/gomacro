@@ -4,19 +4,21 @@
 package imports
 
 import (
-	pkg "crypto/subtle"
 	. "reflect"
+	"crypto/subtle"
 )
 
 func init() {
 	Binds["crypto/subtle"] = map[string]Value{
-		"ConstantTimeByteEq":	ValueOf(pkg.ConstantTimeByteEq),
-		"ConstantTimeCompare":	ValueOf(pkg.ConstantTimeCompare),
-		"ConstantTimeCopy":	ValueOf(pkg.ConstantTimeCopy),
-		"ConstantTimeEq":	ValueOf(pkg.ConstantTimeEq),
-		"ConstantTimeLessOrEq":	ValueOf(pkg.ConstantTimeLessOrEq),
-		"ConstantTimeSelect":	ValueOf(pkg.ConstantTimeSelect),
+		"ConstantTimeByteEq":	ValueOf(subtle.ConstantTimeByteEq),
+		"ConstantTimeCompare":	ValueOf(subtle.ConstantTimeCompare),
+		"ConstantTimeCopy":	ValueOf(subtle.ConstantTimeCopy),
+		"ConstantTimeEq":	ValueOf(subtle.ConstantTimeEq),
+		"ConstantTimeLessOrEq":	ValueOf(subtle.ConstantTimeLessOrEq),
+		"ConstantTimeSelect":	ValueOf(subtle.ConstantTimeSelect),
 	}
 	Types["crypto/subtle"] = map[string]Type{
+	}
+	Proxies["crypto/subtle"] = map[string]Type{
 	}
 }

@@ -4,22 +4,24 @@
 package imports
 
 import (
-	pkg "text/tabwriter"
 	. "reflect"
+	"text/tabwriter"
 )
 
 func init() {
 	Binds["text/tabwriter"] = map[string]Value{
-		"AlignRight":	ValueOf(pkg.AlignRight),
-		"Debug":	ValueOf(pkg.Debug),
-		"DiscardEmptyColumns":	ValueOf(pkg.DiscardEmptyColumns),
-		"Escape":	ValueOf(pkg.Escape),
-		"FilterHTML":	ValueOf(pkg.FilterHTML),
-		"NewWriter":	ValueOf(pkg.NewWriter),
-		"StripEscape":	ValueOf(pkg.StripEscape),
-		"TabIndent":	ValueOf(pkg.TabIndent),
+		"AlignRight":	ValueOf(tabwriter.AlignRight),
+		"Debug":	ValueOf(tabwriter.Debug),
+		"DiscardEmptyColumns":	ValueOf(tabwriter.DiscardEmptyColumns),
+		"Escape":	ValueOf(tabwriter.Escape),
+		"FilterHTML":	ValueOf(tabwriter.FilterHTML),
+		"NewWriter":	ValueOf(tabwriter.NewWriter),
+		"StripEscape":	ValueOf(tabwriter.StripEscape),
+		"TabIndent":	ValueOf(tabwriter.TabIndent),
 	}
 	Types["text/tabwriter"] = map[string]Type{
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"Writer":	TypeOf((*tabwriter.Writer)(nil)).Elem(),
+	}
+	Proxies["text/tabwriter"] = map[string]Type{
 	}
 }

@@ -4,37 +4,39 @@
 package imports
 
 import (
-	pkg "log"
 	. "reflect"
+	"log"
 )
 
 func init() {
 	Binds["log"] = map[string]Value{
-		"Fatal":	ValueOf(pkg.Fatal),
-		"Fatalf":	ValueOf(pkg.Fatalf),
-		"Fatalln":	ValueOf(pkg.Fatalln),
-		"Flags":	ValueOf(pkg.Flags),
-		"LUTC":	ValueOf(pkg.LUTC),
-		"Ldate":	ValueOf(pkg.Ldate),
-		"Llongfile":	ValueOf(pkg.Llongfile),
-		"Lmicroseconds":	ValueOf(pkg.Lmicroseconds),
-		"Lshortfile":	ValueOf(pkg.Lshortfile),
-		"LstdFlags":	ValueOf(pkg.LstdFlags),
-		"Ltime":	ValueOf(pkg.Ltime),
-		"New":	ValueOf(pkg.New),
-		"Output":	ValueOf(pkg.Output),
-		"Panic":	ValueOf(pkg.Panic),
-		"Panicf":	ValueOf(pkg.Panicf),
-		"Panicln":	ValueOf(pkg.Panicln),
-		"Prefix":	ValueOf(pkg.Prefix),
-		"Print":	ValueOf(pkg.Print),
-		"Printf":	ValueOf(pkg.Printf),
-		"Println":	ValueOf(pkg.Println),
-		"SetFlags":	ValueOf(pkg.SetFlags),
-		"SetOutput":	ValueOf(pkg.SetOutput),
-		"SetPrefix":	ValueOf(pkg.SetPrefix),
+		"Fatal":	ValueOf(log.Fatal),
+		"Fatalf":	ValueOf(log.Fatalf),
+		"Fatalln":	ValueOf(log.Fatalln),
+		"Flags":	ValueOf(log.Flags),
+		"LUTC":	ValueOf(log.LUTC),
+		"Ldate":	ValueOf(log.Ldate),
+		"Llongfile":	ValueOf(log.Llongfile),
+		"Lmicroseconds":	ValueOf(log.Lmicroseconds),
+		"Lshortfile":	ValueOf(log.Lshortfile),
+		"LstdFlags":	ValueOf(log.LstdFlags),
+		"Ltime":	ValueOf(log.Ltime),
+		"New":	ValueOf(log.New),
+		"Output":	ValueOf(log.Output),
+		"Panic":	ValueOf(log.Panic),
+		"Panicf":	ValueOf(log.Panicf),
+		"Panicln":	ValueOf(log.Panicln),
+		"Prefix":	ValueOf(log.Prefix),
+		"Print":	ValueOf(log.Print),
+		"Printf":	ValueOf(log.Printf),
+		"Println":	ValueOf(log.Println),
+		"SetFlags":	ValueOf(log.SetFlags),
+		"SetOutput":	ValueOf(log.SetOutput),
+		"SetPrefix":	ValueOf(log.SetPrefix),
 	}
 	Types["log"] = map[string]Type{
-		"Logger":	TypeOf((*pkg.Logger)(nil)).Elem(),
+		"Logger":	TypeOf((*log.Logger)(nil)).Elem(),
+	}
+	Proxies["log"] = map[string]Type{
 	}
 }

@@ -4,16 +4,23 @@
 package imports
 
 import (
-	pkg "plugin"
 	. "reflect"
+	"plugin"
 )
 
 func init() {
 	Binds["plugin"] = map[string]Value{
-		"Open":	ValueOf(pkg.Open),
+		"Open":	ValueOf(plugin.Open),
 	}
 	Types["plugin"] = map[string]Type{
-		"Plugin":	TypeOf((*pkg.Plugin)(nil)).Elem(),
-		"Symbol":	TypeOf((*pkg.Symbol)(nil)).Elem(),
+		"Plugin":	TypeOf((*plugin.Plugin)(nil)).Elem(),
+		"Symbol":	TypeOf((*plugin.Symbol)(nil)).Elem(),
 	}
+	Proxies["plugin"] = map[string]Type{
+		"Symbol":	TypeOf((*Symbol_plugin)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for plugin.Symbol ---------------
+type Symbol_plugin struct {
 }

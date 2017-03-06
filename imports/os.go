@@ -4,112 +4,157 @@
 package imports
 
 import (
-	pkg "os"
 	. "reflect"
+	"os"
+	"time"
 )
 
 func init() {
 	Binds["os"] = map[string]Value{
-		"Args":	ValueOf(&pkg.Args).Elem(),
-		"Chdir":	ValueOf(pkg.Chdir),
-		"Chmod":	ValueOf(pkg.Chmod),
-		"Chown":	ValueOf(pkg.Chown),
-		"Chtimes":	ValueOf(pkg.Chtimes),
-		"Clearenv":	ValueOf(pkg.Clearenv),
-		"Create":	ValueOf(pkg.Create),
-		"DevNull":	ValueOf(pkg.DevNull),
-		"Environ":	ValueOf(pkg.Environ),
-		"ErrClosed":	ValueOf(&pkg.ErrClosed).Elem(),
-		"ErrExist":	ValueOf(&pkg.ErrExist).Elem(),
-		"ErrInvalid":	ValueOf(&pkg.ErrInvalid).Elem(),
-		"ErrNotExist":	ValueOf(&pkg.ErrNotExist).Elem(),
-		"ErrPermission":	ValueOf(&pkg.ErrPermission).Elem(),
-		"Executable":	ValueOf(pkg.Executable),
-		"Exit":	ValueOf(pkg.Exit),
-		"Expand":	ValueOf(pkg.Expand),
-		"ExpandEnv":	ValueOf(pkg.ExpandEnv),
-		"FindProcess":	ValueOf(pkg.FindProcess),
-		"Getegid":	ValueOf(pkg.Getegid),
-		"Getenv":	ValueOf(pkg.Getenv),
-		"Geteuid":	ValueOf(pkg.Geteuid),
-		"Getgid":	ValueOf(pkg.Getgid),
-		"Getgroups":	ValueOf(pkg.Getgroups),
-		"Getpagesize":	ValueOf(pkg.Getpagesize),
-		"Getpid":	ValueOf(pkg.Getpid),
-		"Getppid":	ValueOf(pkg.Getppid),
-		"Getuid":	ValueOf(pkg.Getuid),
-		"Getwd":	ValueOf(pkg.Getwd),
-		"Hostname":	ValueOf(pkg.Hostname),
-		"Interrupt":	ValueOf(&pkg.Interrupt).Elem(),
-		"IsExist":	ValueOf(pkg.IsExist),
-		"IsNotExist":	ValueOf(pkg.IsNotExist),
-		"IsPathSeparator":	ValueOf(pkg.IsPathSeparator),
-		"IsPermission":	ValueOf(pkg.IsPermission),
-		"Kill":	ValueOf(&pkg.Kill).Elem(),
-		"Lchown":	ValueOf(pkg.Lchown),
-		"Link":	ValueOf(pkg.Link),
-		"LookupEnv":	ValueOf(pkg.LookupEnv),
-		"Lstat":	ValueOf(pkg.Lstat),
-		"Mkdir":	ValueOf(pkg.Mkdir),
-		"MkdirAll":	ValueOf(pkg.MkdirAll),
-		"ModeAppend":	ValueOf(pkg.ModeAppend),
-		"ModeCharDevice":	ValueOf(pkg.ModeCharDevice),
-		"ModeDevice":	ValueOf(pkg.ModeDevice),
-		"ModeDir":	ValueOf(pkg.ModeDir),
-		"ModeExclusive":	ValueOf(pkg.ModeExclusive),
-		"ModeNamedPipe":	ValueOf(pkg.ModeNamedPipe),
-		"ModePerm":	ValueOf(pkg.ModePerm),
-		"ModeSetgid":	ValueOf(pkg.ModeSetgid),
-		"ModeSetuid":	ValueOf(pkg.ModeSetuid),
-		"ModeSocket":	ValueOf(pkg.ModeSocket),
-		"ModeSticky":	ValueOf(pkg.ModeSticky),
-		"ModeSymlink":	ValueOf(pkg.ModeSymlink),
-		"ModeTemporary":	ValueOf(pkg.ModeTemporary),
-		"ModeType":	ValueOf(pkg.ModeType),
-		"NewFile":	ValueOf(pkg.NewFile),
-		"NewSyscallError":	ValueOf(pkg.NewSyscallError),
-		"O_APPEND":	ValueOf(pkg.O_APPEND),
-		"O_CREATE":	ValueOf(pkg.O_CREATE),
-		"O_EXCL":	ValueOf(pkg.O_EXCL),
-		"O_RDONLY":	ValueOf(pkg.O_RDONLY),
-		"O_RDWR":	ValueOf(pkg.O_RDWR),
-		"O_SYNC":	ValueOf(pkg.O_SYNC),
-		"O_TRUNC":	ValueOf(pkg.O_TRUNC),
-		"O_WRONLY":	ValueOf(pkg.O_WRONLY),
-		"Open":	ValueOf(pkg.Open),
-		"OpenFile":	ValueOf(pkg.OpenFile),
-		"PathListSeparator":	ValueOf(pkg.PathListSeparator),
-		"PathSeparator":	ValueOf(pkg.PathSeparator),
-		"Pipe":	ValueOf(pkg.Pipe),
-		"Readlink":	ValueOf(pkg.Readlink),
-		"Remove":	ValueOf(pkg.Remove),
-		"RemoveAll":	ValueOf(pkg.RemoveAll),
-		"Rename":	ValueOf(pkg.Rename),
-		"SEEK_CUR":	ValueOf(pkg.SEEK_CUR),
-		"SEEK_END":	ValueOf(pkg.SEEK_END),
-		"SEEK_SET":	ValueOf(pkg.SEEK_SET),
-		"SameFile":	ValueOf(pkg.SameFile),
-		"Setenv":	ValueOf(pkg.Setenv),
-		"StartProcess":	ValueOf(pkg.StartProcess),
-		"Stat":	ValueOf(pkg.Stat),
-		"Stderr":	ValueOf(&pkg.Stderr).Elem(),
-		"Stdin":	ValueOf(&pkg.Stdin).Elem(),
-		"Stdout":	ValueOf(&pkg.Stdout).Elem(),
-		"Symlink":	ValueOf(pkg.Symlink),
-		"TempDir":	ValueOf(pkg.TempDir),
-		"Truncate":	ValueOf(pkg.Truncate),
-		"Unsetenv":	ValueOf(pkg.Unsetenv),
+		"Args":	ValueOf(&os.Args).Elem(),
+		"Chdir":	ValueOf(os.Chdir),
+		"Chmod":	ValueOf(os.Chmod),
+		"Chown":	ValueOf(os.Chown),
+		"Chtimes":	ValueOf(os.Chtimes),
+		"Clearenv":	ValueOf(os.Clearenv),
+		"Create":	ValueOf(os.Create),
+		"DevNull":	ValueOf(os.DevNull),
+		"Environ":	ValueOf(os.Environ),
+		"ErrClosed":	ValueOf(&os.ErrClosed).Elem(),
+		"ErrExist":	ValueOf(&os.ErrExist).Elem(),
+		"ErrInvalid":	ValueOf(&os.ErrInvalid).Elem(),
+		"ErrNotExist":	ValueOf(&os.ErrNotExist).Elem(),
+		"ErrPermission":	ValueOf(&os.ErrPermission).Elem(),
+		"Executable":	ValueOf(os.Executable),
+		"Exit":	ValueOf(os.Exit),
+		"Expand":	ValueOf(os.Expand),
+		"ExpandEnv":	ValueOf(os.ExpandEnv),
+		"FindProcess":	ValueOf(os.FindProcess),
+		"Getegid":	ValueOf(os.Getegid),
+		"Getenv":	ValueOf(os.Getenv),
+		"Geteuid":	ValueOf(os.Geteuid),
+		"Getgid":	ValueOf(os.Getgid),
+		"Getgroups":	ValueOf(os.Getgroups),
+		"Getpagesize":	ValueOf(os.Getpagesize),
+		"Getpid":	ValueOf(os.Getpid),
+		"Getppid":	ValueOf(os.Getppid),
+		"Getuid":	ValueOf(os.Getuid),
+		"Getwd":	ValueOf(os.Getwd),
+		"Hostname":	ValueOf(os.Hostname),
+		"Interrupt":	ValueOf(&os.Interrupt).Elem(),
+		"IsExist":	ValueOf(os.IsExist),
+		"IsNotExist":	ValueOf(os.IsNotExist),
+		"IsPathSeparator":	ValueOf(os.IsPathSeparator),
+		"IsPermission":	ValueOf(os.IsPermission),
+		"Kill":	ValueOf(&os.Kill).Elem(),
+		"Lchown":	ValueOf(os.Lchown),
+		"Link":	ValueOf(os.Link),
+		"LookupEnv":	ValueOf(os.LookupEnv),
+		"Lstat":	ValueOf(os.Lstat),
+		"Mkdir":	ValueOf(os.Mkdir),
+		"MkdirAll":	ValueOf(os.MkdirAll),
+		"ModeAppend":	ValueOf(os.ModeAppend),
+		"ModeCharDevice":	ValueOf(os.ModeCharDevice),
+		"ModeDevice":	ValueOf(os.ModeDevice),
+		"ModeDir":	ValueOf(os.ModeDir),
+		"ModeExclusive":	ValueOf(os.ModeExclusive),
+		"ModeNamedPipe":	ValueOf(os.ModeNamedPipe),
+		"ModePerm":	ValueOf(os.ModePerm),
+		"ModeSetgid":	ValueOf(os.ModeSetgid),
+		"ModeSetuid":	ValueOf(os.ModeSetuid),
+		"ModeSocket":	ValueOf(os.ModeSocket),
+		"ModeSticky":	ValueOf(os.ModeSticky),
+		"ModeSymlink":	ValueOf(os.ModeSymlink),
+		"ModeTemporary":	ValueOf(os.ModeTemporary),
+		"ModeType":	ValueOf(os.ModeType),
+		"NewFile":	ValueOf(os.NewFile),
+		"NewSyscallError":	ValueOf(os.NewSyscallError),
+		"O_APPEND":	ValueOf(os.O_APPEND),
+		"O_CREATE":	ValueOf(os.O_CREATE),
+		"O_EXCL":	ValueOf(os.O_EXCL),
+		"O_RDONLY":	ValueOf(os.O_RDONLY),
+		"O_RDWR":	ValueOf(os.O_RDWR),
+		"O_SYNC":	ValueOf(os.O_SYNC),
+		"O_TRUNC":	ValueOf(os.O_TRUNC),
+		"O_WRONLY":	ValueOf(os.O_WRONLY),
+		"Open":	ValueOf(os.Open),
+		"OpenFile":	ValueOf(os.OpenFile),
+		"PathListSeparator":	ValueOf(os.PathListSeparator),
+		"PathSeparator":	ValueOf(os.PathSeparator),
+		"Pipe":	ValueOf(os.Pipe),
+		"Readlink":	ValueOf(os.Readlink),
+		"Remove":	ValueOf(os.Remove),
+		"RemoveAll":	ValueOf(os.RemoveAll),
+		"Rename":	ValueOf(os.Rename),
+		"SEEK_CUR":	ValueOf(os.SEEK_CUR),
+		"SEEK_END":	ValueOf(os.SEEK_END),
+		"SEEK_SET":	ValueOf(os.SEEK_SET),
+		"SameFile":	ValueOf(os.SameFile),
+		"Setenv":	ValueOf(os.Setenv),
+		"StartProcess":	ValueOf(os.StartProcess),
+		"Stat":	ValueOf(os.Stat),
+		"Stderr":	ValueOf(&os.Stderr).Elem(),
+		"Stdin":	ValueOf(&os.Stdin).Elem(),
+		"Stdout":	ValueOf(&os.Stdout).Elem(),
+		"Symlink":	ValueOf(os.Symlink),
+		"TempDir":	ValueOf(os.TempDir),
+		"Truncate":	ValueOf(os.Truncate),
+		"Unsetenv":	ValueOf(os.Unsetenv),
 	}
 	Types["os"] = map[string]Type{
-		"File":	TypeOf((*pkg.File)(nil)).Elem(),
-		"FileInfo":	TypeOf((*pkg.FileInfo)(nil)).Elem(),
-		"FileMode":	TypeOf((*pkg.FileMode)(nil)).Elem(),
-		"LinkError":	TypeOf((*pkg.LinkError)(nil)).Elem(),
-		"PathError":	TypeOf((*pkg.PathError)(nil)).Elem(),
-		"ProcAttr":	TypeOf((*pkg.ProcAttr)(nil)).Elem(),
-		"Process":	TypeOf((*pkg.Process)(nil)).Elem(),
-		"ProcessState":	TypeOf((*pkg.ProcessState)(nil)).Elem(),
-		"Signal":	TypeOf((*pkg.Signal)(nil)).Elem(),
-		"SyscallError":	TypeOf((*pkg.SyscallError)(nil)).Elem(),
+		"File":	TypeOf((*os.File)(nil)).Elem(),
+		"FileInfo":	TypeOf((*os.FileInfo)(nil)).Elem(),
+		"FileMode":	TypeOf((*os.FileMode)(nil)).Elem(),
+		"LinkError":	TypeOf((*os.LinkError)(nil)).Elem(),
+		"PathError":	TypeOf((*os.PathError)(nil)).Elem(),
+		"ProcAttr":	TypeOf((*os.ProcAttr)(nil)).Elem(),
+		"Process":	TypeOf((*os.Process)(nil)).Elem(),
+		"ProcessState":	TypeOf((*os.ProcessState)(nil)).Elem(),
+		"Signal":	TypeOf((*os.Signal)(nil)).Elem(),
+		"SyscallError":	TypeOf((*os.SyscallError)(nil)).Elem(),
 	}
+	Proxies["os"] = map[string]Type{
+		"FileInfo":	TypeOf((*FileInfo_os)(nil)).Elem(),
+		"Signal":	TypeOf((*Signal_os)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for os.FileInfo ---------------
+type FileInfo_os struct {
+	IsDir_	func() bool
+	ModTime_	func() time.Time
+	Mode_	func() os.FileMode
+	Name_	func() string
+	Size_	func() int64
+	Sys_	func() interface{}
+}
+func (Obj FileInfo_os) IsDir() bool {
+	return Obj.IsDir_()
+}
+func (Obj FileInfo_os) ModTime() time.Time {
+	return Obj.ModTime_()
+}
+func (Obj FileInfo_os) Mode() os.FileMode {
+	return Obj.Mode_()
+}
+func (Obj FileInfo_os) Name() string {
+	return Obj.Name_()
+}
+func (Obj FileInfo_os) Size() int64 {
+	return Obj.Size_()
+}
+func (Obj FileInfo_os) Sys() interface{} {
+	return Obj.Sys_()
+}
+
+// --------------- proxy for os.Signal ---------------
+type Signal_os struct {
+	Signal_	func() 
+	String_	func() string
+}
+func (Obj Signal_os) Signal()  {
+	Obj.Signal_()
+}
+func (Obj Signal_os) String() string {
+	return Obj.String_()
 }

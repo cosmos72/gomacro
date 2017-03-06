@@ -4,36 +4,38 @@
 package imports
 
 import (
-	pkg "path/filepath"
 	. "reflect"
+	"path/filepath"
 )
 
 func init() {
 	Binds["path/filepath"] = map[string]Value{
-		"Abs":	ValueOf(pkg.Abs),
-		"Base":	ValueOf(pkg.Base),
-		"Clean":	ValueOf(pkg.Clean),
-		"Dir":	ValueOf(pkg.Dir),
-		"ErrBadPattern":	ValueOf(&pkg.ErrBadPattern).Elem(),
-		"EvalSymlinks":	ValueOf(pkg.EvalSymlinks),
-		"Ext":	ValueOf(pkg.Ext),
-		"FromSlash":	ValueOf(pkg.FromSlash),
-		"Glob":	ValueOf(pkg.Glob),
-		"HasPrefix":	ValueOf(pkg.HasPrefix),
-		"IsAbs":	ValueOf(pkg.IsAbs),
-		"Join":	ValueOf(pkg.Join),
-		"ListSeparator":	ValueOf(pkg.ListSeparator),
-		"Match":	ValueOf(pkg.Match),
-		"Rel":	ValueOf(pkg.Rel),
-		"Separator":	ValueOf(pkg.Separator),
-		"SkipDir":	ValueOf(&pkg.SkipDir).Elem(),
-		"Split":	ValueOf(pkg.Split),
-		"SplitList":	ValueOf(pkg.SplitList),
-		"ToSlash":	ValueOf(pkg.ToSlash),
-		"VolumeName":	ValueOf(pkg.VolumeName),
-		"Walk":	ValueOf(pkg.Walk),
+		"Abs":	ValueOf(filepath.Abs),
+		"Base":	ValueOf(filepath.Base),
+		"Clean":	ValueOf(filepath.Clean),
+		"Dir":	ValueOf(filepath.Dir),
+		"ErrBadPattern":	ValueOf(&filepath.ErrBadPattern).Elem(),
+		"EvalSymlinks":	ValueOf(filepath.EvalSymlinks),
+		"Ext":	ValueOf(filepath.Ext),
+		"FromSlash":	ValueOf(filepath.FromSlash),
+		"Glob":	ValueOf(filepath.Glob),
+		"HasPrefix":	ValueOf(filepath.HasPrefix),
+		"IsAbs":	ValueOf(filepath.IsAbs),
+		"Join":	ValueOf(filepath.Join),
+		"ListSeparator":	ValueOf(filepath.ListSeparator),
+		"Match":	ValueOf(filepath.Match),
+		"Rel":	ValueOf(filepath.Rel),
+		"Separator":	ValueOf(filepath.Separator),
+		"SkipDir":	ValueOf(&filepath.SkipDir).Elem(),
+		"Split":	ValueOf(filepath.Split),
+		"SplitList":	ValueOf(filepath.SplitList),
+		"ToSlash":	ValueOf(filepath.ToSlash),
+		"VolumeName":	ValueOf(filepath.VolumeName),
+		"Walk":	ValueOf(filepath.Walk),
 	}
 	Types["path/filepath"] = map[string]Type{
-		"WalkFunc":	TypeOf((*pkg.WalkFunc)(nil)).Elem(),
+		"WalkFunc":	TypeOf((*filepath.WalkFunc)(nil)).Elem(),
+	}
+	Proxies["path/filepath"] = map[string]Type{
 	}
 }

@@ -4,38 +4,82 @@
 package imports
 
 import (
-	pkg "net/rpc"
 	. "reflect"
+	"net/rpc"
 )
 
 func init() {
 	Binds["net/rpc"] = map[string]Value{
-		"Accept":	ValueOf(pkg.Accept),
-		"DefaultDebugPath":	ValueOf(pkg.DefaultDebugPath),
-		"DefaultRPCPath":	ValueOf(pkg.DefaultRPCPath),
-		"DefaultServer":	ValueOf(&pkg.DefaultServer).Elem(),
-		"Dial":	ValueOf(pkg.Dial),
-		"DialHTTP":	ValueOf(pkg.DialHTTP),
-		"DialHTTPPath":	ValueOf(pkg.DialHTTPPath),
-		"ErrShutdown":	ValueOf(&pkg.ErrShutdown).Elem(),
-		"HandleHTTP":	ValueOf(pkg.HandleHTTP),
-		"NewClient":	ValueOf(pkg.NewClient),
-		"NewClientWithCodec":	ValueOf(pkg.NewClientWithCodec),
-		"NewServer":	ValueOf(pkg.NewServer),
-		"Register":	ValueOf(pkg.Register),
-		"RegisterName":	ValueOf(pkg.RegisterName),
-		"ServeCodec":	ValueOf(pkg.ServeCodec),
-		"ServeConn":	ValueOf(pkg.ServeConn),
-		"ServeRequest":	ValueOf(pkg.ServeRequest),
+		"Accept":	ValueOf(rpc.Accept),
+		"DefaultDebugPath":	ValueOf(rpc.DefaultDebugPath),
+		"DefaultRPCPath":	ValueOf(rpc.DefaultRPCPath),
+		"DefaultServer":	ValueOf(&rpc.DefaultServer).Elem(),
+		"Dial":	ValueOf(rpc.Dial),
+		"DialHTTP":	ValueOf(rpc.DialHTTP),
+		"DialHTTPPath":	ValueOf(rpc.DialHTTPPath),
+		"ErrShutdown":	ValueOf(&rpc.ErrShutdown).Elem(),
+		"HandleHTTP":	ValueOf(rpc.HandleHTTP),
+		"NewClient":	ValueOf(rpc.NewClient),
+		"NewClientWithCodec":	ValueOf(rpc.NewClientWithCodec),
+		"NewServer":	ValueOf(rpc.NewServer),
+		"Register":	ValueOf(rpc.Register),
+		"RegisterName":	ValueOf(rpc.RegisterName),
+		"ServeCodec":	ValueOf(rpc.ServeCodec),
+		"ServeConn":	ValueOf(rpc.ServeConn),
+		"ServeRequest":	ValueOf(rpc.ServeRequest),
 	}
 	Types["net/rpc"] = map[string]Type{
-		"Call":	TypeOf((*pkg.Call)(nil)).Elem(),
-		"Client":	TypeOf((*pkg.Client)(nil)).Elem(),
-		"ClientCodec":	TypeOf((*pkg.ClientCodec)(nil)).Elem(),
-		"Request":	TypeOf((*pkg.Request)(nil)).Elem(),
-		"Response":	TypeOf((*pkg.Response)(nil)).Elem(),
-		"Server":	TypeOf((*pkg.Server)(nil)).Elem(),
-		"ServerCodec":	TypeOf((*pkg.ServerCodec)(nil)).Elem(),
-		"ServerError":	TypeOf((*pkg.ServerError)(nil)).Elem(),
+		"Call":	TypeOf((*rpc.Call)(nil)).Elem(),
+		"Client":	TypeOf((*rpc.Client)(nil)).Elem(),
+		"ClientCodec":	TypeOf((*rpc.ClientCodec)(nil)).Elem(),
+		"Request":	TypeOf((*rpc.Request)(nil)).Elem(),
+		"Response":	TypeOf((*rpc.Response)(nil)).Elem(),
+		"Server":	TypeOf((*rpc.Server)(nil)).Elem(),
+		"ServerCodec":	TypeOf((*rpc.ServerCodec)(nil)).Elem(),
+		"ServerError":	TypeOf((*rpc.ServerError)(nil)).Elem(),
 	}
+	Proxies["net/rpc"] = map[string]Type{
+		"ClientCodec":	TypeOf((*ClientCodec_net_rpc)(nil)).Elem(),
+		"ServerCodec":	TypeOf((*ServerCodec_net_rpc)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for net/rpc.ClientCodec ---------------
+type ClientCodec_net_rpc struct {
+	Close_	func() error
+	ReadResponseBody_	func(interface{}) error
+	ReadResponseHeader_	func(*rpc.Response) error
+	WriteRequest_	func(*rpc.Request, interface{}) error
+}
+func (Obj ClientCodec_net_rpc) Close() error {
+	return Obj.Close_()
+}
+func (Obj ClientCodec_net_rpc) ReadResponseBody(unnamed0 interface{}) error {
+	return Obj.ReadResponseBody_(unnamed0)
+}
+func (Obj ClientCodec_net_rpc) ReadResponseHeader(unnamed0 *rpc.Response) error {
+	return Obj.ReadResponseHeader_(unnamed0)
+}
+func (Obj ClientCodec_net_rpc) WriteRequest(unnamed0 *rpc.Request, unnamed1 interface{}) error {
+	return Obj.WriteRequest_(unnamed0, unnamed1)
+}
+
+// --------------- proxy for net/rpc.ServerCodec ---------------
+type ServerCodec_net_rpc struct {
+	Close_	func() error
+	ReadRequestBody_	func(interface{}) error
+	ReadRequestHeader_	func(*rpc.Request) error
+	WriteResponse_	func(*rpc.Response, interface{}) error
+}
+func (Obj ServerCodec_net_rpc) Close() error {
+	return Obj.Close_()
+}
+func (Obj ServerCodec_net_rpc) ReadRequestBody(unnamed0 interface{}) error {
+	return Obj.ReadRequestBody_(unnamed0)
+}
+func (Obj ServerCodec_net_rpc) ReadRequestHeader(unnamed0 *rpc.Request) error {
+	return Obj.ReadRequestHeader_(unnamed0)
+}
+func (Obj ServerCodec_net_rpc) WriteResponse(unnamed0 *rpc.Response, unnamed1 interface{}) error {
+	return Obj.WriteResponse_(unnamed0, unnamed1)
 }

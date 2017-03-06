@@ -4,24 +4,26 @@
 package imports
 
 import (
-	pkg "os/user"
 	. "reflect"
+	"os/user"
 )
 
 func init() {
 	Binds["os/user"] = map[string]Value{
-		"Current":	ValueOf(pkg.Current),
-		"Lookup":	ValueOf(pkg.Lookup),
-		"LookupGroup":	ValueOf(pkg.LookupGroup),
-		"LookupGroupId":	ValueOf(pkg.LookupGroupId),
-		"LookupId":	ValueOf(pkg.LookupId),
+		"Current":	ValueOf(user.Current),
+		"Lookup":	ValueOf(user.Lookup),
+		"LookupGroup":	ValueOf(user.LookupGroup),
+		"LookupGroupId":	ValueOf(user.LookupGroupId),
+		"LookupId":	ValueOf(user.LookupId),
 	}
 	Types["os/user"] = map[string]Type{
-		"Group":	TypeOf((*pkg.Group)(nil)).Elem(),
-		"UnknownGroupError":	TypeOf((*pkg.UnknownGroupError)(nil)).Elem(),
-		"UnknownGroupIdError":	TypeOf((*pkg.UnknownGroupIdError)(nil)).Elem(),
-		"UnknownUserError":	TypeOf((*pkg.UnknownUserError)(nil)).Elem(),
-		"UnknownUserIdError":	TypeOf((*pkg.UnknownUserIdError)(nil)).Elem(),
-		"User":	TypeOf((*pkg.User)(nil)).Elem(),
+		"Group":	TypeOf((*user.Group)(nil)).Elem(),
+		"UnknownGroupError":	TypeOf((*user.UnknownGroupError)(nil)).Elem(),
+		"UnknownGroupIdError":	TypeOf((*user.UnknownGroupIdError)(nil)).Elem(),
+		"UnknownUserError":	TypeOf((*user.UnknownUserError)(nil)).Elem(),
+		"UnknownUserIdError":	TypeOf((*user.UnknownUserIdError)(nil)).Elem(),
+		"User":	TypeOf((*user.User)(nil)).Elem(),
+	}
+	Proxies["os/user"] = map[string]Type{
 	}
 }

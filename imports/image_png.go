@@ -4,24 +4,26 @@
 package imports
 
 import (
-	pkg "image/png"
 	. "reflect"
+	"image/png"
 )
 
 func init() {
 	Binds["image/png"] = map[string]Value{
-		"BestCompression":	ValueOf(pkg.BestCompression),
-		"BestSpeed":	ValueOf(pkg.BestSpeed),
-		"Decode":	ValueOf(pkg.Decode),
-		"DecodeConfig":	ValueOf(pkg.DecodeConfig),
-		"DefaultCompression":	ValueOf(pkg.DefaultCompression),
-		"Encode":	ValueOf(pkg.Encode),
-		"NoCompression":	ValueOf(pkg.NoCompression),
+		"BestCompression":	ValueOf(png.BestCompression),
+		"BestSpeed":	ValueOf(png.BestSpeed),
+		"Decode":	ValueOf(png.Decode),
+		"DecodeConfig":	ValueOf(png.DecodeConfig),
+		"DefaultCompression":	ValueOf(png.DefaultCompression),
+		"Encode":	ValueOf(png.Encode),
+		"NoCompression":	ValueOf(png.NoCompression),
 	}
 	Types["image/png"] = map[string]Type{
-		"CompressionLevel":	TypeOf((*pkg.CompressionLevel)(nil)).Elem(),
-		"Encoder":	TypeOf((*pkg.Encoder)(nil)).Elem(),
-		"FormatError":	TypeOf((*pkg.FormatError)(nil)).Elem(),
-		"UnsupportedError":	TypeOf((*pkg.UnsupportedError)(nil)).Elem(),
+		"CompressionLevel":	TypeOf((*png.CompressionLevel)(nil)).Elem(),
+		"Encoder":	TypeOf((*png.Encoder)(nil)).Elem(),
+		"FormatError":	TypeOf((*png.FormatError)(nil)).Elem(),
+		"UnsupportedError":	TypeOf((*png.UnsupportedError)(nil)).Elem(),
+	}
+	Proxies["image/png"] = map[string]Type{
 	}
 }

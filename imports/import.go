@@ -30,3 +30,4 @@ import (
 
 var Binds = make(map[string]map[string]Value)
 var Types = make(map[string]map[string]Type)
+var Proxies = make(map[string]map[string]Type)

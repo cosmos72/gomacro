@@ -4,113 +4,190 @@
 package imports
 
 import (
-	pkg "go/ast"
 	. "reflect"
+	"go/ast"
+	"go/token"
 )
 
 func init() {
 	Binds["go/ast"] = map[string]Value{
-		"Bad":	ValueOf(pkg.Bad),
-		"Con":	ValueOf(pkg.Con),
-		"FileExports":	ValueOf(pkg.FileExports),
-		"FilterDecl":	ValueOf(pkg.FilterDecl),
-		"FilterFile":	ValueOf(pkg.FilterFile),
-		"FilterFuncDuplicates":	ValueOf(pkg.FilterFuncDuplicates),
-		"FilterImportDuplicates":	ValueOf(pkg.FilterImportDuplicates),
-		"FilterPackage":	ValueOf(pkg.FilterPackage),
-		"FilterUnassociatedComments":	ValueOf(pkg.FilterUnassociatedComments),
-		"Fprint":	ValueOf(pkg.Fprint),
-		"Fun":	ValueOf(pkg.Fun),
-		"Inspect":	ValueOf(pkg.Inspect),
-		"IsExported":	ValueOf(pkg.IsExported),
-		"Lbl":	ValueOf(pkg.Lbl),
-		"MergePackageFiles":	ValueOf(pkg.MergePackageFiles),
-		"NewCommentMap":	ValueOf(pkg.NewCommentMap),
-		"NewIdent":	ValueOf(pkg.NewIdent),
-		"NewObj":	ValueOf(pkg.NewObj),
-		"NewPackage":	ValueOf(pkg.NewPackage),
-		"NewScope":	ValueOf(pkg.NewScope),
-		"NotNilFilter":	ValueOf(pkg.NotNilFilter),
-		"PackageExports":	ValueOf(pkg.PackageExports),
-		"Pkg":	ValueOf(pkg.Pkg),
-		"Print":	ValueOf(pkg.Print),
-		"RECV":	ValueOf(pkg.RECV),
-		"SEND":	ValueOf(pkg.SEND),
-		"SortImports":	ValueOf(pkg.SortImports),
-		"Typ":	ValueOf(pkg.Typ),
-		"Var":	ValueOf(pkg.Var),
-		"Walk":	ValueOf(pkg.Walk),
+		"Bad":	ValueOf(ast.Bad),
+		"Con":	ValueOf(ast.Con),
+		"FileExports":	ValueOf(ast.FileExports),
+		"FilterDecl":	ValueOf(ast.FilterDecl),
+		"FilterFile":	ValueOf(ast.FilterFile),
+		"FilterFuncDuplicates":	ValueOf(ast.FilterFuncDuplicates),
+		"FilterImportDuplicates":	ValueOf(ast.FilterImportDuplicates),
+		"FilterPackage":	ValueOf(ast.FilterPackage),
+		"FilterUnassociatedComments":	ValueOf(ast.FilterUnassociatedComments),
+		"Fprint":	ValueOf(ast.Fprint),
+		"Fun":	ValueOf(ast.Fun),
+		"Inspect":	ValueOf(ast.Inspect),
+		"IsExported":	ValueOf(ast.IsExported),
+		"Lbl":	ValueOf(ast.Lbl),
+		"MergePackageFiles":	ValueOf(ast.MergePackageFiles),
+		"NewCommentMap":	ValueOf(ast.NewCommentMap),
+		"NewIdent":	ValueOf(ast.NewIdent),
+		"NewObj":	ValueOf(ast.NewObj),
+		"NewPackage":	ValueOf(ast.NewPackage),
+		"NewScope":	ValueOf(ast.NewScope),
+		"NotNilFilter":	ValueOf(ast.NotNilFilter),
+		"PackageExports":	ValueOf(ast.PackageExports),
+		"Pkg":	ValueOf(ast.Pkg),
+		"Print":	ValueOf(ast.Print),
+		"RECV":	ValueOf(ast.RECV),
+		"SEND":	ValueOf(ast.SEND),
+		"SortImports":	ValueOf(ast.SortImports),
+		"Typ":	ValueOf(ast.Typ),
+		"Var":	ValueOf(ast.Var),
+		"Walk":	ValueOf(ast.Walk),
 	}
 	Types["go/ast"] = map[string]Type{
-		"ArrayType":	TypeOf((*pkg.ArrayType)(nil)).Elem(),
-		"AssignStmt":	TypeOf((*pkg.AssignStmt)(nil)).Elem(),
-		"BadDecl":	TypeOf((*pkg.BadDecl)(nil)).Elem(),
-		"BadExpr":	TypeOf((*pkg.BadExpr)(nil)).Elem(),
-		"BadStmt":	TypeOf((*pkg.BadStmt)(nil)).Elem(),
-		"BasicLit":	TypeOf((*pkg.BasicLit)(nil)).Elem(),
-		"BinaryExpr":	TypeOf((*pkg.BinaryExpr)(nil)).Elem(),
-		"BlockStmt":	TypeOf((*pkg.BlockStmt)(nil)).Elem(),
-		"BranchStmt":	TypeOf((*pkg.BranchStmt)(nil)).Elem(),
-		"CallExpr":	TypeOf((*pkg.CallExpr)(nil)).Elem(),
-		"CaseClause":	TypeOf((*pkg.CaseClause)(nil)).Elem(),
-		"ChanDir":	TypeOf((*pkg.ChanDir)(nil)).Elem(),
-		"ChanType":	TypeOf((*pkg.ChanType)(nil)).Elem(),
-		"CommClause":	TypeOf((*pkg.CommClause)(nil)).Elem(),
-		"Comment":	TypeOf((*pkg.Comment)(nil)).Elem(),
-		"CommentGroup":	TypeOf((*pkg.CommentGroup)(nil)).Elem(),
-		"CommentMap":	TypeOf((*pkg.CommentMap)(nil)).Elem(),
-		"CompositeLit":	TypeOf((*pkg.CompositeLit)(nil)).Elem(),
-		"Decl":	TypeOf((*pkg.Decl)(nil)).Elem(),
-		"DeclStmt":	TypeOf((*pkg.DeclStmt)(nil)).Elem(),
-		"DeferStmt":	TypeOf((*pkg.DeferStmt)(nil)).Elem(),
-		"Ellipsis":	TypeOf((*pkg.Ellipsis)(nil)).Elem(),
-		"EmptyStmt":	TypeOf((*pkg.EmptyStmt)(nil)).Elem(),
-		"Expr":	TypeOf((*pkg.Expr)(nil)).Elem(),
-		"ExprStmt":	TypeOf((*pkg.ExprStmt)(nil)).Elem(),
-		"Field":	TypeOf((*pkg.Field)(nil)).Elem(),
-		"FieldFilter":	TypeOf((*pkg.FieldFilter)(nil)).Elem(),
-		"FieldList":	TypeOf((*pkg.FieldList)(nil)).Elem(),
-		"File":	TypeOf((*pkg.File)(nil)).Elem(),
-		"Filter":	TypeOf((*pkg.Filter)(nil)).Elem(),
-		"ForStmt":	TypeOf((*pkg.ForStmt)(nil)).Elem(),
-		"FuncDecl":	TypeOf((*pkg.FuncDecl)(nil)).Elem(),
-		"FuncLit":	TypeOf((*pkg.FuncLit)(nil)).Elem(),
-		"FuncType":	TypeOf((*pkg.FuncType)(nil)).Elem(),
-		"GenDecl":	TypeOf((*pkg.GenDecl)(nil)).Elem(),
-		"GoStmt":	TypeOf((*pkg.GoStmt)(nil)).Elem(),
-		"Ident":	TypeOf((*pkg.Ident)(nil)).Elem(),
-		"IfStmt":	TypeOf((*pkg.IfStmt)(nil)).Elem(),
-		"ImportSpec":	TypeOf((*pkg.ImportSpec)(nil)).Elem(),
-		"Importer":	TypeOf((*pkg.Importer)(nil)).Elem(),
-		"IncDecStmt":	TypeOf((*pkg.IncDecStmt)(nil)).Elem(),
-		"IndexExpr":	TypeOf((*pkg.IndexExpr)(nil)).Elem(),
-		"InterfaceType":	TypeOf((*pkg.InterfaceType)(nil)).Elem(),
-		"KeyValueExpr":	TypeOf((*pkg.KeyValueExpr)(nil)).Elem(),
-		"LabeledStmt":	TypeOf((*pkg.LabeledStmt)(nil)).Elem(),
-		"MapType":	TypeOf((*pkg.MapType)(nil)).Elem(),
-		"MergeMode":	TypeOf((*pkg.MergeMode)(nil)).Elem(),
-		"Node":	TypeOf((*pkg.Node)(nil)).Elem(),
-		"ObjKind":	TypeOf((*pkg.ObjKind)(nil)).Elem(),
-		"Object":	TypeOf((*pkg.Object)(nil)).Elem(),
-		"Package":	TypeOf((*pkg.Package)(nil)).Elem(),
-		"ParenExpr":	TypeOf((*pkg.ParenExpr)(nil)).Elem(),
-		"RangeStmt":	TypeOf((*pkg.RangeStmt)(nil)).Elem(),
-		"ReturnStmt":	TypeOf((*pkg.ReturnStmt)(nil)).Elem(),
-		"Scope":	TypeOf((*pkg.Scope)(nil)).Elem(),
-		"SelectStmt":	TypeOf((*pkg.SelectStmt)(nil)).Elem(),
-		"SelectorExpr":	TypeOf((*pkg.SelectorExpr)(nil)).Elem(),
-		"SendStmt":	TypeOf((*pkg.SendStmt)(nil)).Elem(),
-		"SliceExpr":	TypeOf((*pkg.SliceExpr)(nil)).Elem(),
-		"Spec":	TypeOf((*pkg.Spec)(nil)).Elem(),
-		"StarExpr":	TypeOf((*pkg.StarExpr)(nil)).Elem(),
-		"Stmt":	TypeOf((*pkg.Stmt)(nil)).Elem(),
-		"StructType":	TypeOf((*pkg.StructType)(nil)).Elem(),
-		"SwitchStmt":	TypeOf((*pkg.SwitchStmt)(nil)).Elem(),
-		"TypeAssertExpr":	TypeOf((*pkg.TypeAssertExpr)(nil)).Elem(),
-		"TypeSpec":	TypeOf((*pkg.TypeSpec)(nil)).Elem(),
-		"TypeSwitchStmt":	TypeOf((*pkg.TypeSwitchStmt)(nil)).Elem(),
-		"UnaryExpr":	TypeOf((*pkg.UnaryExpr)(nil)).Elem(),
-		"ValueSpec":	TypeOf((*pkg.ValueSpec)(nil)).Elem(),
-		"Visitor":	TypeOf((*pkg.Visitor)(nil)).Elem(),
+		"ArrayType":	TypeOf((*ast.ArrayType)(nil)).Elem(),
+		"AssignStmt":	TypeOf((*ast.AssignStmt)(nil)).Elem(),
+		"BadDecl":	TypeOf((*ast.BadDecl)(nil)).Elem(),
+		"BadExpr":	TypeOf((*ast.BadExpr)(nil)).Elem(),
+		"BadStmt":	TypeOf((*ast.BadStmt)(nil)).Elem(),
+		"BasicLit":	TypeOf((*ast.BasicLit)(nil)).Elem(),
+		"BinaryExpr":	TypeOf((*ast.BinaryExpr)(nil)).Elem(),
+		"BlockStmt":	TypeOf((*ast.BlockStmt)(nil)).Elem(),
+		"BranchStmt":	TypeOf((*ast.BranchStmt)(nil)).Elem(),
+		"CallExpr":	TypeOf((*ast.CallExpr)(nil)).Elem(),
+		"CaseClause":	TypeOf((*ast.CaseClause)(nil)).Elem(),
+		"ChanDir":	TypeOf((*ast.ChanDir)(nil)).Elem(),
+		"ChanType":	TypeOf((*ast.ChanType)(nil)).Elem(),
+		"CommClause":	TypeOf((*ast.CommClause)(nil)).Elem(),
+		"Comment":	TypeOf((*ast.Comment)(nil)).Elem(),
+		"CommentGroup":	TypeOf((*ast.CommentGroup)(nil)).Elem(),
+		"CommentMap":	TypeOf((*ast.CommentMap)(nil)).Elem(),
+		"CompositeLit":	TypeOf((*ast.CompositeLit)(nil)).Elem(),
+		"Decl":	TypeOf((*ast.Decl)(nil)).Elem(),
+		"DeclStmt":	TypeOf((*ast.DeclStmt)(nil)).Elem(),
+		"DeferStmt":	TypeOf((*ast.DeferStmt)(nil)).Elem(),
+		"Ellipsis":	TypeOf((*ast.Ellipsis)(nil)).Elem(),
+		"EmptyStmt":	TypeOf((*ast.EmptyStmt)(nil)).Elem(),
+		"Expr":	TypeOf((*ast.Expr)(nil)).Elem(),
+		"ExprStmt":	TypeOf((*ast.ExprStmt)(nil)).Elem(),
+		"Field":	TypeOf((*ast.Field)(nil)).Elem(),
+		"FieldFilter":	TypeOf((*ast.FieldFilter)(nil)).Elem(),
+		"FieldList":	TypeOf((*ast.FieldList)(nil)).Elem(),
+		"File":	TypeOf((*ast.File)(nil)).Elem(),
+		"Filter":	TypeOf((*ast.Filter)(nil)).Elem(),
+		"ForStmt":	TypeOf((*ast.ForStmt)(nil)).Elem(),
+		"FuncDecl":	TypeOf((*ast.FuncDecl)(nil)).Elem(),
+		"FuncLit":	TypeOf((*ast.FuncLit)(nil)).Elem(),
+		"FuncType":	TypeOf((*ast.FuncType)(nil)).Elem(),
+		"GenDecl":	TypeOf((*ast.GenDecl)(nil)).Elem(),
+		"GoStmt":	TypeOf((*ast.GoStmt)(nil)).Elem(),
+		"Ident":	TypeOf((*ast.Ident)(nil)).Elem(),
+		"IfStmt":	TypeOf((*ast.IfStmt)(nil)).Elem(),
+		"ImportSpec":	TypeOf((*ast.ImportSpec)(nil)).Elem(),
+		"Importer":	TypeOf((*ast.Importer)(nil)).Elem(),
+		"IncDecStmt":	TypeOf((*ast.IncDecStmt)(nil)).Elem(),
+		"IndexExpr":	TypeOf((*ast.IndexExpr)(nil)).Elem(),
+		"InterfaceType":	TypeOf((*ast.InterfaceType)(nil)).Elem(),
+		"KeyValueExpr":	TypeOf((*ast.KeyValueExpr)(nil)).Elem(),
+		"LabeledStmt":	TypeOf((*ast.LabeledStmt)(nil)).Elem(),
+		"MapType":	TypeOf((*ast.MapType)(nil)).Elem(),
+		"MergeMode":	TypeOf((*ast.MergeMode)(nil)).Elem(),
+		"Node":	TypeOf((*ast.Node)(nil)).Elem(),
+		"ObjKind":	TypeOf((*ast.ObjKind)(nil)).Elem(),
+		"Object":	TypeOf((*ast.Object)(nil)).Elem(),
+		"Package":	TypeOf((*ast.Package)(nil)).Elem(),
+		"ParenExpr":	TypeOf((*ast.ParenExpr)(nil)).Elem(),
+		"RangeStmt":	TypeOf((*ast.RangeStmt)(nil)).Elem(),
+		"ReturnStmt":	TypeOf((*ast.ReturnStmt)(nil)).Elem(),
+		"Scope":	TypeOf((*ast.Scope)(nil)).Elem(),
+		"SelectStmt":	TypeOf((*ast.SelectStmt)(nil)).Elem(),
+		"SelectorExpr":	TypeOf((*ast.SelectorExpr)(nil)).Elem(),
+		"SendStmt":	TypeOf((*ast.SendStmt)(nil)).Elem(),
+		"SliceExpr":	TypeOf((*ast.SliceExpr)(nil)).Elem(),
+		"Spec":	TypeOf((*ast.Spec)(nil)).Elem(),
+		"StarExpr":	TypeOf((*ast.StarExpr)(nil)).Elem(),
+		"Stmt":	TypeOf((*ast.Stmt)(nil)).Elem(),
+		"StructType":	TypeOf((*ast.StructType)(nil)).Elem(),
+		"SwitchStmt":	TypeOf((*ast.SwitchStmt)(nil)).Elem(),
+		"TypeAssertExpr":	TypeOf((*ast.TypeAssertExpr)(nil)).Elem(),
+		"TypeSpec":	TypeOf((*ast.TypeSpec)(nil)).Elem(),
+		"TypeSwitchStmt":	TypeOf((*ast.TypeSwitchStmt)(nil)).Elem(),
+		"UnaryExpr":	TypeOf((*ast.UnaryExpr)(nil)).Elem(),
+		"ValueSpec":	TypeOf((*ast.ValueSpec)(nil)).Elem(),
+		"Visitor":	TypeOf((*ast.Visitor)(nil)).Elem(),
 	}
+	Proxies["go/ast"] = map[string]Type{
+		"Decl":	TypeOf((*Decl_go_ast)(nil)).Elem(),
+		"Expr":	TypeOf((*Expr_go_ast)(nil)).Elem(),
+		"Node":	TypeOf((*Node_go_ast)(nil)).Elem(),
+		"Spec":	TypeOf((*Spec_go_ast)(nil)).Elem(),
+		"Stmt":	TypeOf((*Stmt_go_ast)(nil)).Elem(),
+		"Visitor":	TypeOf((*Visitor_go_ast)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for go/ast.Decl ---------------
+type Decl_go_ast struct {
+	End_	func() token.Pos
+	Pos_	func() token.Pos
+}
+func (Obj Decl_go_ast) End() token.Pos {
+	return Obj.End_()
+}
+func (Obj Decl_go_ast) Pos() token.Pos {
+	return Obj.Pos_()
+}
+
+// --------------- proxy for go/ast.Expr ---------------
+type Expr_go_ast struct {
+	End_	func() token.Pos
+	Pos_	func() token.Pos
+}
+func (Obj Expr_go_ast) End() token.Pos {
+	return Obj.End_()
+}
+func (Obj Expr_go_ast) Pos() token.Pos {
+	return Obj.Pos_()
+}
+
+// --------------- proxy for go/ast.Node ---------------
+type Node_go_ast struct {
+	End_	func() token.Pos
+	Pos_	func() token.Pos
+}
+func (Obj Node_go_ast) End() token.Pos {
+	return Obj.End_()
+}
+func (Obj Node_go_ast) Pos() token.Pos {
+	return Obj.Pos_()
+}
+
+// --------------- proxy for go/ast.Spec ---------------
+type Spec_go_ast struct {
+	End_	func() token.Pos
+	Pos_	func() token.Pos
+}
+func (Obj Spec_go_ast) End() token.Pos {
+	return Obj.End_()
+}
+func (Obj Spec_go_ast) Pos() token.Pos {
+	return Obj.Pos_()
+}
+
+// --------------- proxy for go/ast.Stmt ---------------
+type Stmt_go_ast struct {
+	End_	func() token.Pos
+	Pos_	func() token.Pos
+}
+func (Obj Stmt_go_ast) End() token.Pos {
+	return Obj.End_()
+}
+func (Obj Stmt_go_ast) Pos() token.Pos {
+	return Obj.Pos_()
+}
+
+// --------------- proxy for go/ast.Visitor ---------------
+type Visitor_go_ast struct {
+	Visit_	func(node ast.Node) (w ast.Visitor)
+}
+func (Obj Visitor_go_ast) Visit(node ast.Node) (w ast.Visitor) {
+	return Obj.Visit_(node)
 }

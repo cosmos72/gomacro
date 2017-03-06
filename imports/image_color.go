@@ -4,47 +4,67 @@
 package imports
 
 import (
-	pkg "image/color"
 	. "reflect"
+	"image/color"
 )
 
 func init() {
 	Binds["image/color"] = map[string]Value{
-		"Alpha16Model":	ValueOf(&pkg.Alpha16Model).Elem(),
-		"AlphaModel":	ValueOf(&pkg.AlphaModel).Elem(),
-		"Black":	ValueOf(&pkg.Black).Elem(),
-		"CMYKModel":	ValueOf(&pkg.CMYKModel).Elem(),
-		"CMYKToRGB":	ValueOf(pkg.CMYKToRGB),
-		"Gray16Model":	ValueOf(&pkg.Gray16Model).Elem(),
-		"GrayModel":	ValueOf(&pkg.GrayModel).Elem(),
-		"ModelFunc":	ValueOf(pkg.ModelFunc),
-		"NRGBA64Model":	ValueOf(&pkg.NRGBA64Model).Elem(),
-		"NRGBAModel":	ValueOf(&pkg.NRGBAModel).Elem(),
-		"NYCbCrAModel":	ValueOf(&pkg.NYCbCrAModel).Elem(),
-		"Opaque":	ValueOf(&pkg.Opaque).Elem(),
-		"RGBA64Model":	ValueOf(&pkg.RGBA64Model).Elem(),
-		"RGBAModel":	ValueOf(&pkg.RGBAModel).Elem(),
-		"RGBToCMYK":	ValueOf(pkg.RGBToCMYK),
-		"RGBToYCbCr":	ValueOf(pkg.RGBToYCbCr),
-		"Transparent":	ValueOf(&pkg.Transparent).Elem(),
-		"White":	ValueOf(&pkg.White).Elem(),
-		"YCbCrModel":	ValueOf(&pkg.YCbCrModel).Elem(),
-		"YCbCrToRGB":	ValueOf(pkg.YCbCrToRGB),
+		"Alpha16Model":	ValueOf(&color.Alpha16Model).Elem(),
+		"AlphaModel":	ValueOf(&color.AlphaModel).Elem(),
+		"Black":	ValueOf(&color.Black).Elem(),
+		"CMYKModel":	ValueOf(&color.CMYKModel).Elem(),
+		"CMYKToRGB":	ValueOf(color.CMYKToRGB),
+		"Gray16Model":	ValueOf(&color.Gray16Model).Elem(),
+		"GrayModel":	ValueOf(&color.GrayModel).Elem(),
+		"ModelFunc":	ValueOf(color.ModelFunc),
+		"NRGBA64Model":	ValueOf(&color.NRGBA64Model).Elem(),
+		"NRGBAModel":	ValueOf(&color.NRGBAModel).Elem(),
+		"NYCbCrAModel":	ValueOf(&color.NYCbCrAModel).Elem(),
+		"Opaque":	ValueOf(&color.Opaque).Elem(),
+		"RGBA64Model":	ValueOf(&color.RGBA64Model).Elem(),
+		"RGBAModel":	ValueOf(&color.RGBAModel).Elem(),
+		"RGBToCMYK":	ValueOf(color.RGBToCMYK),
+		"RGBToYCbCr":	ValueOf(color.RGBToYCbCr),
+		"Transparent":	ValueOf(&color.Transparent).Elem(),
+		"White":	ValueOf(&color.White).Elem(),
+		"YCbCrModel":	ValueOf(&color.YCbCrModel).Elem(),
+		"YCbCrToRGB":	ValueOf(color.YCbCrToRGB),
 	}
 	Types["image/color"] = map[string]Type{
-		"Alpha":	TypeOf((*pkg.Alpha)(nil)).Elem(),
-		"Alpha16":	TypeOf((*pkg.Alpha16)(nil)).Elem(),
-		"CMYK":	TypeOf((*pkg.CMYK)(nil)).Elem(),
-		"Color":	TypeOf((*pkg.Color)(nil)).Elem(),
-		"Gray":	TypeOf((*pkg.Gray)(nil)).Elem(),
-		"Gray16":	TypeOf((*pkg.Gray16)(nil)).Elem(),
-		"Model":	TypeOf((*pkg.Model)(nil)).Elem(),
-		"NRGBA":	TypeOf((*pkg.NRGBA)(nil)).Elem(),
-		"NRGBA64":	TypeOf((*pkg.NRGBA64)(nil)).Elem(),
-		"NYCbCrA":	TypeOf((*pkg.NYCbCrA)(nil)).Elem(),
-		"Palette":	TypeOf((*pkg.Palette)(nil)).Elem(),
-		"RGBA":	TypeOf((*pkg.RGBA)(nil)).Elem(),
-		"RGBA64":	TypeOf((*pkg.RGBA64)(nil)).Elem(),
-		"YCbCr":	TypeOf((*pkg.YCbCr)(nil)).Elem(),
+		"Alpha":	TypeOf((*color.Alpha)(nil)).Elem(),
+		"Alpha16":	TypeOf((*color.Alpha16)(nil)).Elem(),
+		"CMYK":	TypeOf((*color.CMYK)(nil)).Elem(),
+		"Color":	TypeOf((*color.Color)(nil)).Elem(),
+		"Gray":	TypeOf((*color.Gray)(nil)).Elem(),
+		"Gray16":	TypeOf((*color.Gray16)(nil)).Elem(),
+		"Model":	TypeOf((*color.Model)(nil)).Elem(),
+		"NRGBA":	TypeOf((*color.NRGBA)(nil)).Elem(),
+		"NRGBA64":	TypeOf((*color.NRGBA64)(nil)).Elem(),
+		"NYCbCrA":	TypeOf((*color.NYCbCrA)(nil)).Elem(),
+		"Palette":	TypeOf((*color.Palette)(nil)).Elem(),
+		"RGBA":	TypeOf((*color.RGBA)(nil)).Elem(),
+		"RGBA64":	TypeOf((*color.RGBA64)(nil)).Elem(),
+		"YCbCr":	TypeOf((*color.YCbCr)(nil)).Elem(),
 	}
+	Proxies["image/color"] = map[string]Type{
+		"Color":	TypeOf((*Color_image_color)(nil)).Elem(),
+		"Model":	TypeOf((*Model_image_color)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for image/color.Color ---------------
+type Color_image_color struct {
+	RGBA_	func() (r uint32, g uint32, b uint32, a uint32)
+}
+func (Obj Color_image_color) RGBA() (r uint32, g uint32, b uint32, a uint32) {
+	return Obj.RGBA_()
+}
+
+// --------------- proxy for image/color.Model ---------------
+type Model_image_color struct {
+	Convert_	func(c color.Color) color.Color
+}
+func (Obj Model_image_color) Convert(c color.Color) color.Color {
+	return Obj.Convert_(c)
 }

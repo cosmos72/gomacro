@@ -4,17 +4,19 @@
 package imports
 
 import (
-	pkg "encoding/pem"
 	. "reflect"
+	"encoding/pem"
 )
 
 func init() {
 	Binds["encoding/pem"] = map[string]Value{
-		"Decode":	ValueOf(pkg.Decode),
-		"Encode":	ValueOf(pkg.Encode),
-		"EncodeToMemory":	ValueOf(pkg.EncodeToMemory),
+		"Decode":	ValueOf(pem.Decode),
+		"Encode":	ValueOf(pem.Encode),
+		"EncodeToMemory":	ValueOf(pem.EncodeToMemory),
 	}
 	Types["encoding/pem"] = map[string]Type{
-		"Block":	TypeOf((*pkg.Block)(nil)).Elem(),
+		"Block":	TypeOf((*pem.Block)(nil)).Elem(),
+	}
+	Proxies["encoding/pem"] = map[string]Type{
 	}
 }

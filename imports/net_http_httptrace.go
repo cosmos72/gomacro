@@ -4,20 +4,22 @@
 package imports
 
 import (
-	pkg "net/http/httptrace"
 	. "reflect"
+	"net/http/httptrace"
 )
 
 func init() {
 	Binds["net/http/httptrace"] = map[string]Value{
-		"ContextClientTrace":	ValueOf(pkg.ContextClientTrace),
-		"WithClientTrace":	ValueOf(pkg.WithClientTrace),
+		"ContextClientTrace":	ValueOf(httptrace.ContextClientTrace),
+		"WithClientTrace":	ValueOf(httptrace.WithClientTrace),
 	}
 	Types["net/http/httptrace"] = map[string]Type{
-		"ClientTrace":	TypeOf((*pkg.ClientTrace)(nil)).Elem(),
-		"DNSDoneInfo":	TypeOf((*pkg.DNSDoneInfo)(nil)).Elem(),
-		"DNSStartInfo":	TypeOf((*pkg.DNSStartInfo)(nil)).Elem(),
-		"GotConnInfo":	TypeOf((*pkg.GotConnInfo)(nil)).Elem(),
-		"WroteRequestInfo":	TypeOf((*pkg.WroteRequestInfo)(nil)).Elem(),
+		"ClientTrace":	TypeOf((*httptrace.ClientTrace)(nil)).Elem(),
+		"DNSDoneInfo":	TypeOf((*httptrace.DNSDoneInfo)(nil)).Elem(),
+		"DNSStartInfo":	TypeOf((*httptrace.DNSStartInfo)(nil)).Elem(),
+		"GotConnInfo":	TypeOf((*httptrace.GotConnInfo)(nil)).Elem(),
+		"WroteRequestInfo":	TypeOf((*httptrace.WroteRequestInfo)(nil)).Elem(),
+	}
+	Proxies["net/http/httptrace"] = map[string]Type{
 	}
 }

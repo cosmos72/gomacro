@@ -4,17 +4,19 @@
 package imports
 
 import (
-	pkg "mime/quotedprintable"
 	. "reflect"
+	"mime/quotedprintable"
 )
 
 func init() {
 	Binds["mime/quotedprintable"] = map[string]Value{
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewWriter":	ValueOf(pkg.NewWriter),
+		"NewReader":	ValueOf(quotedprintable.NewReader),
+		"NewWriter":	ValueOf(quotedprintable.NewWriter),
 	}
 	Types["mime/quotedprintable"] = map[string]Type{
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"Reader":	TypeOf((*quotedprintable.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*quotedprintable.Writer)(nil)).Elem(),
+	}
+	Proxies["mime/quotedprintable"] = map[string]Type{
 	}
 }

@@ -4,18 +4,20 @@
 package imports
 
 import (
-	pkg "net/rpc/jsonrpc"
 	. "reflect"
+	"net/rpc/jsonrpc"
 )
 
 func init() {
 	Binds["net/rpc/jsonrpc"] = map[string]Value{
-		"Dial":	ValueOf(pkg.Dial),
-		"NewClient":	ValueOf(pkg.NewClient),
-		"NewClientCodec":	ValueOf(pkg.NewClientCodec),
-		"NewServerCodec":	ValueOf(pkg.NewServerCodec),
-		"ServeConn":	ValueOf(pkg.ServeConn),
+		"Dial":	ValueOf(jsonrpc.Dial),
+		"NewClient":	ValueOf(jsonrpc.NewClient),
+		"NewClientCodec":	ValueOf(jsonrpc.NewClientCodec),
+		"NewServerCodec":	ValueOf(jsonrpc.NewServerCodec),
+		"ServeConn":	ValueOf(jsonrpc.ServeConn),
 	}
 	Types["net/rpc/jsonrpc"] = map[string]Type{
+	}
+	Proxies["net/rpc/jsonrpc"] = map[string]Type{
 	}
 }

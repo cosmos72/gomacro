@@ -4,43 +4,45 @@
 package imports
 
 import (
-	pkg "encoding/asn1"
 	. "reflect"
+	"encoding/asn1"
 )
 
 func init() {
 	Binds["encoding/asn1"] = map[string]Value{
-		"ClassApplication":	ValueOf(pkg.ClassApplication),
-		"ClassContextSpecific":	ValueOf(pkg.ClassContextSpecific),
-		"ClassPrivate":	ValueOf(pkg.ClassPrivate),
-		"ClassUniversal":	ValueOf(pkg.ClassUniversal),
-		"Marshal":	ValueOf(pkg.Marshal),
-		"TagBitString":	ValueOf(pkg.TagBitString),
-		"TagBoolean":	ValueOf(pkg.TagBoolean),
-		"TagEnum":	ValueOf(pkg.TagEnum),
-		"TagGeneralString":	ValueOf(pkg.TagGeneralString),
-		"TagGeneralizedTime":	ValueOf(pkg.TagGeneralizedTime),
-		"TagIA5String":	ValueOf(pkg.TagIA5String),
-		"TagInteger":	ValueOf(pkg.TagInteger),
-		"TagOID":	ValueOf(pkg.TagOID),
-		"TagOctetString":	ValueOf(pkg.TagOctetString),
-		"TagPrintableString":	ValueOf(pkg.TagPrintableString),
-		"TagSequence":	ValueOf(pkg.TagSequence),
-		"TagSet":	ValueOf(pkg.TagSet),
-		"TagT61String":	ValueOf(pkg.TagT61String),
-		"TagUTCTime":	ValueOf(pkg.TagUTCTime),
-		"TagUTF8String":	ValueOf(pkg.TagUTF8String),
-		"Unmarshal":	ValueOf(pkg.Unmarshal),
-		"UnmarshalWithParams":	ValueOf(pkg.UnmarshalWithParams),
+		"ClassApplication":	ValueOf(asn1.ClassApplication),
+		"ClassContextSpecific":	ValueOf(asn1.ClassContextSpecific),
+		"ClassPrivate":	ValueOf(asn1.ClassPrivate),
+		"ClassUniversal":	ValueOf(asn1.ClassUniversal),
+		"Marshal":	ValueOf(asn1.Marshal),
+		"TagBitString":	ValueOf(asn1.TagBitString),
+		"TagBoolean":	ValueOf(asn1.TagBoolean),
+		"TagEnum":	ValueOf(asn1.TagEnum),
+		"TagGeneralString":	ValueOf(asn1.TagGeneralString),
+		"TagGeneralizedTime":	ValueOf(asn1.TagGeneralizedTime),
+		"TagIA5String":	ValueOf(asn1.TagIA5String),
+		"TagInteger":	ValueOf(asn1.TagInteger),
+		"TagOID":	ValueOf(asn1.TagOID),
+		"TagOctetString":	ValueOf(asn1.TagOctetString),
+		"TagPrintableString":	ValueOf(asn1.TagPrintableString),
+		"TagSequence":	ValueOf(asn1.TagSequence),
+		"TagSet":	ValueOf(asn1.TagSet),
+		"TagT61String":	ValueOf(asn1.TagT61String),
+		"TagUTCTime":	ValueOf(asn1.TagUTCTime),
+		"TagUTF8String":	ValueOf(asn1.TagUTF8String),
+		"Unmarshal":	ValueOf(asn1.Unmarshal),
+		"UnmarshalWithParams":	ValueOf(asn1.UnmarshalWithParams),
 	}
 	Types["encoding/asn1"] = map[string]Type{
-		"BitString":	TypeOf((*pkg.BitString)(nil)).Elem(),
-		"Enumerated":	TypeOf((*pkg.Enumerated)(nil)).Elem(),
-		"Flag":	TypeOf((*pkg.Flag)(nil)).Elem(),
-		"ObjectIdentifier":	TypeOf((*pkg.ObjectIdentifier)(nil)).Elem(),
-		"RawContent":	TypeOf((*pkg.RawContent)(nil)).Elem(),
-		"RawValue":	TypeOf((*pkg.RawValue)(nil)).Elem(),
-		"StructuralError":	TypeOf((*pkg.StructuralError)(nil)).Elem(),
-		"SyntaxError":	TypeOf((*pkg.SyntaxError)(nil)).Elem(),
+		"BitString":	TypeOf((*asn1.BitString)(nil)).Elem(),
+		"Enumerated":	TypeOf((*asn1.Enumerated)(nil)).Elem(),
+		"Flag":	TypeOf((*asn1.Flag)(nil)).Elem(),
+		"ObjectIdentifier":	TypeOf((*asn1.ObjectIdentifier)(nil)).Elem(),
+		"RawContent":	TypeOf((*asn1.RawContent)(nil)).Elem(),
+		"RawValue":	TypeOf((*asn1.RawValue)(nil)).Elem(),
+		"StructuralError":	TypeOf((*asn1.StructuralError)(nil)).Elem(),
+		"SyntaxError":	TypeOf((*asn1.SyntaxError)(nil)).Elem(),
+	}
+	Proxies["encoding/asn1"] = map[string]Type{
 	}
 }

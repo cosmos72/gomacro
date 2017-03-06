@@ -4,63 +4,104 @@
 package imports
 
 import (
-	pkg "image"
 	. "reflect"
+	"image"
+	"image/color"
 )
 
 func init() {
 	Binds["image"] = map[string]Value{
-		"Black":	ValueOf(&pkg.Black).Elem(),
-		"Decode":	ValueOf(pkg.Decode),
-		"DecodeConfig":	ValueOf(pkg.DecodeConfig),
-		"ErrFormat":	ValueOf(&pkg.ErrFormat).Elem(),
-		"NewAlpha":	ValueOf(pkg.NewAlpha),
-		"NewAlpha16":	ValueOf(pkg.NewAlpha16),
-		"NewCMYK":	ValueOf(pkg.NewCMYK),
-		"NewGray":	ValueOf(pkg.NewGray),
-		"NewGray16":	ValueOf(pkg.NewGray16),
-		"NewNRGBA":	ValueOf(pkg.NewNRGBA),
-		"NewNRGBA64":	ValueOf(pkg.NewNRGBA64),
-		"NewNYCbCrA":	ValueOf(pkg.NewNYCbCrA),
-		"NewPaletted":	ValueOf(pkg.NewPaletted),
-		"NewRGBA":	ValueOf(pkg.NewRGBA),
-		"NewRGBA64":	ValueOf(pkg.NewRGBA64),
-		"NewUniform":	ValueOf(pkg.NewUniform),
-		"NewYCbCr":	ValueOf(pkg.NewYCbCr),
-		"Opaque":	ValueOf(&pkg.Opaque).Elem(),
-		"Pt":	ValueOf(pkg.Pt),
-		"Rect":	ValueOf(pkg.Rect),
-		"RegisterFormat":	ValueOf(pkg.RegisterFormat),
-		"Transparent":	ValueOf(&pkg.Transparent).Elem(),
-		"White":	ValueOf(&pkg.White).Elem(),
-		"YCbCrSubsampleRatio410":	ValueOf(pkg.YCbCrSubsampleRatio410),
-		"YCbCrSubsampleRatio411":	ValueOf(pkg.YCbCrSubsampleRatio411),
-		"YCbCrSubsampleRatio420":	ValueOf(pkg.YCbCrSubsampleRatio420),
-		"YCbCrSubsampleRatio422":	ValueOf(pkg.YCbCrSubsampleRatio422),
-		"YCbCrSubsampleRatio440":	ValueOf(pkg.YCbCrSubsampleRatio440),
-		"YCbCrSubsampleRatio444":	ValueOf(pkg.YCbCrSubsampleRatio444),
-		"ZP":	ValueOf(&pkg.ZP).Elem(),
-		"ZR":	ValueOf(&pkg.ZR).Elem(),
+		"Black":	ValueOf(&image.Black).Elem(),
+		"Decode":	ValueOf(image.Decode),
+		"DecodeConfig":	ValueOf(image.DecodeConfig),
+		"ErrFormat":	ValueOf(&image.ErrFormat).Elem(),
+		"NewAlpha":	ValueOf(image.NewAlpha),
+		"NewAlpha16":	ValueOf(image.NewAlpha16),
+		"NewCMYK":	ValueOf(image.NewCMYK),
+		"NewGray":	ValueOf(image.NewGray),
+		"NewGray16":	ValueOf(image.NewGray16),
+		"NewNRGBA":	ValueOf(image.NewNRGBA),
+		"NewNRGBA64":	ValueOf(image.NewNRGBA64),
+		"NewNYCbCrA":	ValueOf(image.NewNYCbCrA),
+		"NewPaletted":	ValueOf(image.NewPaletted),
+		"NewRGBA":	ValueOf(image.NewRGBA),
+		"NewRGBA64":	ValueOf(image.NewRGBA64),
+		"NewUniform":	ValueOf(image.NewUniform),
+		"NewYCbCr":	ValueOf(image.NewYCbCr),
+		"Opaque":	ValueOf(&image.Opaque).Elem(),
+		"Pt":	ValueOf(image.Pt),
+		"Rect":	ValueOf(image.Rect),
+		"RegisterFormat":	ValueOf(image.RegisterFormat),
+		"Transparent":	ValueOf(&image.Transparent).Elem(),
+		"White":	ValueOf(&image.White).Elem(),
+		"YCbCrSubsampleRatio410":	ValueOf(image.YCbCrSubsampleRatio410),
+		"YCbCrSubsampleRatio411":	ValueOf(image.YCbCrSubsampleRatio411),
+		"YCbCrSubsampleRatio420":	ValueOf(image.YCbCrSubsampleRatio420),
+		"YCbCrSubsampleRatio422":	ValueOf(image.YCbCrSubsampleRatio422),
+		"YCbCrSubsampleRatio440":	ValueOf(image.YCbCrSubsampleRatio440),
+		"YCbCrSubsampleRatio444":	ValueOf(image.YCbCrSubsampleRatio444),
+		"ZP":	ValueOf(&image.ZP).Elem(),
+		"ZR":	ValueOf(&image.ZR).Elem(),
 	}
 	Types["image"] = map[string]Type{
-		"Alpha":	TypeOf((*pkg.Alpha)(nil)).Elem(),
-		"Alpha16":	TypeOf((*pkg.Alpha16)(nil)).Elem(),
-		"CMYK":	TypeOf((*pkg.CMYK)(nil)).Elem(),
-		"Config":	TypeOf((*pkg.Config)(nil)).Elem(),
-		"Gray":	TypeOf((*pkg.Gray)(nil)).Elem(),
-		"Gray16":	TypeOf((*pkg.Gray16)(nil)).Elem(),
-		"Image":	TypeOf((*pkg.Image)(nil)).Elem(),
-		"NRGBA":	TypeOf((*pkg.NRGBA)(nil)).Elem(),
-		"NRGBA64":	TypeOf((*pkg.NRGBA64)(nil)).Elem(),
-		"NYCbCrA":	TypeOf((*pkg.NYCbCrA)(nil)).Elem(),
-		"Paletted":	TypeOf((*pkg.Paletted)(nil)).Elem(),
-		"PalettedImage":	TypeOf((*pkg.PalettedImage)(nil)).Elem(),
-		"Point":	TypeOf((*pkg.Point)(nil)).Elem(),
-		"RGBA":	TypeOf((*pkg.RGBA)(nil)).Elem(),
-		"RGBA64":	TypeOf((*pkg.RGBA64)(nil)).Elem(),
-		"Rectangle":	TypeOf((*pkg.Rectangle)(nil)).Elem(),
-		"Uniform":	TypeOf((*pkg.Uniform)(nil)).Elem(),
-		"YCbCr":	TypeOf((*pkg.YCbCr)(nil)).Elem(),
-		"YCbCrSubsampleRatio":	TypeOf((*pkg.YCbCrSubsampleRatio)(nil)).Elem(),
+		"Alpha":	TypeOf((*image.Alpha)(nil)).Elem(),
+		"Alpha16":	TypeOf((*image.Alpha16)(nil)).Elem(),
+		"CMYK":	TypeOf((*image.CMYK)(nil)).Elem(),
+		"Config":	TypeOf((*image.Config)(nil)).Elem(),
+		"Gray":	TypeOf((*image.Gray)(nil)).Elem(),
+		"Gray16":	TypeOf((*image.Gray16)(nil)).Elem(),
+		"Image":	TypeOf((*image.Image)(nil)).Elem(),
+		"NRGBA":	TypeOf((*image.NRGBA)(nil)).Elem(),
+		"NRGBA64":	TypeOf((*image.NRGBA64)(nil)).Elem(),
+		"NYCbCrA":	TypeOf((*image.NYCbCrA)(nil)).Elem(),
+		"Paletted":	TypeOf((*image.Paletted)(nil)).Elem(),
+		"PalettedImage":	TypeOf((*image.PalettedImage)(nil)).Elem(),
+		"Point":	TypeOf((*image.Point)(nil)).Elem(),
+		"RGBA":	TypeOf((*image.RGBA)(nil)).Elem(),
+		"RGBA64":	TypeOf((*image.RGBA64)(nil)).Elem(),
+		"Rectangle":	TypeOf((*image.Rectangle)(nil)).Elem(),
+		"Uniform":	TypeOf((*image.Uniform)(nil)).Elem(),
+		"YCbCr":	TypeOf((*image.YCbCr)(nil)).Elem(),
+		"YCbCrSubsampleRatio":	TypeOf((*image.YCbCrSubsampleRatio)(nil)).Elem(),
 	}
+	Proxies["image"] = map[string]Type{
+		"Image":	TypeOf((*Image_image)(nil)).Elem(),
+		"PalettedImage":	TypeOf((*PalettedImage_image)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for image.Image ---------------
+type Image_image struct {
+	At_	func(x int, y int) color.Color
+	Bounds_	func() image.Rectangle
+	ColorModel_	func() color.Model
+}
+func (Obj Image_image) At(x int, y int) color.Color {
+	return Obj.At_(x, y)
+}
+func (Obj Image_image) Bounds() image.Rectangle {
+	return Obj.Bounds_()
+}
+func (Obj Image_image) ColorModel() color.Model {
+	return Obj.ColorModel_()
+}
+
+// --------------- proxy for image.PalettedImage ---------------
+type PalettedImage_image struct {
+	At_	func(x int, y int) color.Color
+	Bounds_	func() image.Rectangle
+	ColorIndexAt_	func(x int, y int) uint8
+	ColorModel_	func() color.Model
+}
+func (Obj PalettedImage_image) At(x int, y int) color.Color {
+	return Obj.At_(x, y)
+}
+func (Obj PalettedImage_image) Bounds() image.Rectangle {
+	return Obj.Bounds_()
+}
+func (Obj PalettedImage_image) ColorIndexAt(x int, y int) uint8 {
+	return Obj.ColorIndexAt_(x, y)
+}
+func (Obj PalettedImage_image) ColorModel() color.Model {
+	return Obj.ColorModel_()
 }

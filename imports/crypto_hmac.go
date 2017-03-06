@@ -4,15 +4,17 @@
 package imports
 
 import (
-	pkg "crypto/hmac"
 	. "reflect"
+	"crypto/hmac"
 )
 
 func init() {
 	Binds["crypto/hmac"] = map[string]Value{
-		"Equal":	ValueOf(pkg.Equal),
-		"New":	ValueOf(pkg.New),
+		"Equal":	ValueOf(hmac.Equal),
+		"New":	ValueOf(hmac.New),
 	}
 	Types["crypto/hmac"] = map[string]Type{
+	}
+	Proxies["crypto/hmac"] = map[string]Type{
 	}
 }

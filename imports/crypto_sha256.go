@@ -4,20 +4,22 @@
 package imports
 
 import (
-	pkg "crypto/sha256"
 	. "reflect"
+	"crypto/sha256"
 )
 
 func init() {
 	Binds["crypto/sha256"] = map[string]Value{
-		"BlockSize":	ValueOf(pkg.BlockSize),
-		"New":	ValueOf(pkg.New),
-		"New224":	ValueOf(pkg.New224),
-		"Size":	ValueOf(pkg.Size),
-		"Size224":	ValueOf(pkg.Size224),
-		"Sum224":	ValueOf(pkg.Sum224),
-		"Sum256":	ValueOf(pkg.Sum256),
+		"BlockSize":	ValueOf(sha256.BlockSize),
+		"New":	ValueOf(sha256.New),
+		"New224":	ValueOf(sha256.New224),
+		"Size":	ValueOf(sha256.Size),
+		"Size224":	ValueOf(sha256.Size224),
+		"Sum224":	ValueOf(sha256.Sum224),
+		"Sum256":	ValueOf(sha256.Sum256),
 	}
 	Types["crypto/sha256"] = map[string]Type{
+	}
+	Proxies["crypto/sha256"] = map[string]Type{
 	}
 }

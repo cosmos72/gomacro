@@ -4,22 +4,24 @@
 package imports
 
 import (
-	pkg "path"
 	. "reflect"
+	"path"
 )
 
 func init() {
 	Binds["path"] = map[string]Value{
-		"Base":	ValueOf(pkg.Base),
-		"Clean":	ValueOf(pkg.Clean),
-		"Dir":	ValueOf(pkg.Dir),
-		"ErrBadPattern":	ValueOf(&pkg.ErrBadPattern).Elem(),
-		"Ext":	ValueOf(pkg.Ext),
-		"IsAbs":	ValueOf(pkg.IsAbs),
-		"Join":	ValueOf(pkg.Join),
-		"Match":	ValueOf(pkg.Match),
-		"Split":	ValueOf(pkg.Split),
+		"Base":	ValueOf(path.Base),
+		"Clean":	ValueOf(path.Clean),
+		"Dir":	ValueOf(path.Dir),
+		"ErrBadPattern":	ValueOf(&path.ErrBadPattern).Elem(),
+		"Ext":	ValueOf(path.Ext),
+		"IsAbs":	ValueOf(path.IsAbs),
+		"Join":	ValueOf(path.Join),
+		"Match":	ValueOf(path.Match),
+		"Split":	ValueOf(path.Split),
 	}
 	Types["path"] = map[string]Type{
+	}
+	Proxies["path"] = map[string]Type{
 	}
 }

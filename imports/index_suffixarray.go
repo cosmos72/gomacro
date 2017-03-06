@@ -4,15 +4,17 @@
 package imports
 
 import (
-	pkg "index/suffixarray"
 	. "reflect"
+	"index/suffixarray"
 )
 
 func init() {
 	Binds["index/suffixarray"] = map[string]Value{
-		"New":	ValueOf(pkg.New),
+		"New":	ValueOf(suffixarray.New),
 	}
 	Types["index/suffixarray"] = map[string]Type{
-		"Index":	TypeOf((*pkg.Index)(nil)).Elem(),
+		"Index":	TypeOf((*suffixarray.Index)(nil)).Elem(),
+	}
+	Proxies["index/suffixarray"] = map[string]Type{
 	}
 }

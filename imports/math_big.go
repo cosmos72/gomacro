@@ -4,38 +4,40 @@
 package imports
 
 import (
-	pkg "math/big"
 	. "reflect"
+	"math/big"
 )
 
 func init() {
 	Binds["math/big"] = map[string]Value{
-		"Above":	ValueOf(pkg.Above),
-		"AwayFromZero":	ValueOf(pkg.AwayFromZero),
-		"Below":	ValueOf(pkg.Below),
-		"Exact":	ValueOf(pkg.Exact),
-		"Jacobi":	ValueOf(pkg.Jacobi),
-		"MaxBase":	ValueOf(pkg.MaxBase),
-		"MaxExp":	ValueOf(pkg.MaxExp),
-		"MaxPrec":	ValueOf(pkg.MaxPrec),
-		"MinExp":	ValueOf(pkg.MinExp),
-		"NewFloat":	ValueOf(pkg.NewFloat),
-		"NewInt":	ValueOf(pkg.NewInt),
-		"NewRat":	ValueOf(pkg.NewRat),
-		"ParseFloat":	ValueOf(pkg.ParseFloat),
-		"ToNearestAway":	ValueOf(pkg.ToNearestAway),
-		"ToNearestEven":	ValueOf(pkg.ToNearestEven),
-		"ToNegativeInf":	ValueOf(pkg.ToNegativeInf),
-		"ToPositiveInf":	ValueOf(pkg.ToPositiveInf),
-		"ToZero":	ValueOf(pkg.ToZero),
+		"Above":	ValueOf(big.Above),
+		"AwayFromZero":	ValueOf(big.AwayFromZero),
+		"Below":	ValueOf(big.Below),
+		"Exact":	ValueOf(big.Exact),
+		"Jacobi":	ValueOf(big.Jacobi),
+		"MaxBase":	ValueOf(big.MaxBase),
+		"MaxExp":	ValueOf(big.MaxExp),
+		"MaxPrec":	ValueOf(big.MaxPrec),
+		"MinExp":	ValueOf(big.MinExp),
+		"NewFloat":	ValueOf(big.NewFloat),
+		"NewInt":	ValueOf(big.NewInt),
+		"NewRat":	ValueOf(big.NewRat),
+		"ParseFloat":	ValueOf(big.ParseFloat),
+		"ToNearestAway":	ValueOf(big.ToNearestAway),
+		"ToNearestEven":	ValueOf(big.ToNearestEven),
+		"ToNegativeInf":	ValueOf(big.ToNegativeInf),
+		"ToPositiveInf":	ValueOf(big.ToPositiveInf),
+		"ToZero":	ValueOf(big.ToZero),
 	}
 	Types["math/big"] = map[string]Type{
-		"Accuracy":	TypeOf((*pkg.Accuracy)(nil)).Elem(),
-		"ErrNaN":	TypeOf((*pkg.ErrNaN)(nil)).Elem(),
-		"Float":	TypeOf((*pkg.Float)(nil)).Elem(),
-		"Int":	TypeOf((*pkg.Int)(nil)).Elem(),
-		"Rat":	TypeOf((*pkg.Rat)(nil)).Elem(),
-		"RoundingMode":	TypeOf((*pkg.RoundingMode)(nil)).Elem(),
-		"Word":	TypeOf((*pkg.Word)(nil)).Elem(),
+		"Accuracy":	TypeOf((*big.Accuracy)(nil)).Elem(),
+		"ErrNaN":	TypeOf((*big.ErrNaN)(nil)).Elem(),
+		"Float":	TypeOf((*big.Float)(nil)).Elem(),
+		"Int":	TypeOf((*big.Int)(nil)).Elem(),
+		"Rat":	TypeOf((*big.Rat)(nil)).Elem(),
+		"RoundingMode":	TypeOf((*big.RoundingMode)(nil)).Elem(),
+		"Word":	TypeOf((*big.Word)(nil)).Elem(),
+	}
+	Proxies["math/big"] = map[string]Type{
 	}
 }

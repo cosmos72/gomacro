@@ -4,31 +4,33 @@
 package imports
 
 import (
-	pkg "archive/zip"
 	. "reflect"
+	"archive/zip"
 )
 
 func init() {
 	Binds["archive/zip"] = map[string]Value{
-		"Deflate":	ValueOf(pkg.Deflate),
-		"ErrAlgorithm":	ValueOf(&pkg.ErrAlgorithm).Elem(),
-		"ErrChecksum":	ValueOf(&pkg.ErrChecksum).Elem(),
-		"ErrFormat":	ValueOf(&pkg.ErrFormat).Elem(),
-		"FileInfoHeader":	ValueOf(pkg.FileInfoHeader),
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewWriter":	ValueOf(pkg.NewWriter),
-		"OpenReader":	ValueOf(pkg.OpenReader),
-		"RegisterCompressor":	ValueOf(pkg.RegisterCompressor),
-		"RegisterDecompressor":	ValueOf(pkg.RegisterDecompressor),
-		"Store":	ValueOf(pkg.Store),
+		"Deflate":	ValueOf(zip.Deflate),
+		"ErrAlgorithm":	ValueOf(&zip.ErrAlgorithm).Elem(),
+		"ErrChecksum":	ValueOf(&zip.ErrChecksum).Elem(),
+		"ErrFormat":	ValueOf(&zip.ErrFormat).Elem(),
+		"FileInfoHeader":	ValueOf(zip.FileInfoHeader),
+		"NewReader":	ValueOf(zip.NewReader),
+		"NewWriter":	ValueOf(zip.NewWriter),
+		"OpenReader":	ValueOf(zip.OpenReader),
+		"RegisterCompressor":	ValueOf(zip.RegisterCompressor),
+		"RegisterDecompressor":	ValueOf(zip.RegisterDecompressor),
+		"Store":	ValueOf(zip.Store),
 	}
 	Types["archive/zip"] = map[string]Type{
-		"Compressor":	TypeOf((*pkg.Compressor)(nil)).Elem(),
-		"Decompressor":	TypeOf((*pkg.Decompressor)(nil)).Elem(),
-		"File":	TypeOf((*pkg.File)(nil)).Elem(),
-		"FileHeader":	TypeOf((*pkg.FileHeader)(nil)).Elem(),
-		"ReadCloser":	TypeOf((*pkg.ReadCloser)(nil)).Elem(),
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"Compressor":	TypeOf((*zip.Compressor)(nil)).Elem(),
+		"Decompressor":	TypeOf((*zip.Decompressor)(nil)).Elem(),
+		"File":	TypeOf((*zip.File)(nil)).Elem(),
+		"FileHeader":	TypeOf((*zip.FileHeader)(nil)).Elem(),
+		"ReadCloser":	TypeOf((*zip.ReadCloser)(nil)).Elem(),
+		"Reader":	TypeOf((*zip.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*zip.Writer)(nil)).Elem(),
+	}
+	Proxies["archive/zip"] = map[string]Type{
 	}
 }

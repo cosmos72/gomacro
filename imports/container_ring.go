@@ -4,15 +4,17 @@
 package imports
 
 import (
-	pkg "container/ring"
 	. "reflect"
+	"container/ring"
 )
 
 func init() {
 	Binds["container/ring"] = map[string]Value{
-		"New":	ValueOf(pkg.New),
+		"New":	ValueOf(ring.New),
 	}
 	Types["container/ring"] = map[string]Type{
-		"Ring":	TypeOf((*pkg.Ring)(nil)).Elem(),
+		"Ring":	TypeOf((*ring.Ring)(nil)).Elem(),
+	}
+	Proxies["container/ring"] = map[string]Type{
 	}
 }

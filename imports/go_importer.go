@@ -4,16 +4,18 @@
 package imports
 
 import (
-	pkg "go/importer"
 	. "reflect"
+	"go/importer"
 )
 
 func init() {
 	Binds["go/importer"] = map[string]Value{
-		"Default":	ValueOf(pkg.Default),
-		"For":	ValueOf(pkg.For),
+		"Default":	ValueOf(importer.Default),
+		"For":	ValueOf(importer.For),
 	}
 	Types["go/importer"] = map[string]Type{
-		"Lookup":	TypeOf((*pkg.Lookup)(nil)).Elem(),
+		"Lookup":	TypeOf((*importer.Lookup)(nil)).Elem(),
+	}
+	Proxies["go/importer"] = map[string]Type{
 	}
 }

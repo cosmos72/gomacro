@@ -4,16 +4,101 @@
 package imports
 
 import (
-	pkg "hash"
 	. "reflect"
+	"hash"
 )
 
 func init() {
 	Binds["hash"] = map[string]Value{
 	}
 	Types["hash"] = map[string]Type{
-		"Hash":	TypeOf((*pkg.Hash)(nil)).Elem(),
-		"Hash32":	TypeOf((*pkg.Hash32)(nil)).Elem(),
-		"Hash64":	TypeOf((*pkg.Hash64)(nil)).Elem(),
+		"Hash":	TypeOf((*hash.Hash)(nil)).Elem(),
+		"Hash32":	TypeOf((*hash.Hash32)(nil)).Elem(),
+		"Hash64":	TypeOf((*hash.Hash64)(nil)).Elem(),
 	}
+	Proxies["hash"] = map[string]Type{
+		"Hash":	TypeOf((*Hash_hash)(nil)).Elem(),
+		"Hash32":	TypeOf((*Hash32_hash)(nil)).Elem(),
+		"Hash64":	TypeOf((*Hash64_hash)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for hash.Hash ---------------
+type Hash_hash struct {
+	BlockSize_	func() int
+	Reset_	func() 
+	Size_	func() int
+	Sum_	func(b []byte) []byte
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj Hash_hash) BlockSize() int {
+	return Obj.BlockSize_()
+}
+func (Obj Hash_hash) Reset()  {
+	Obj.Reset_()
+}
+func (Obj Hash_hash) Size() int {
+	return Obj.Size_()
+}
+func (Obj Hash_hash) Sum(b []byte) []byte {
+	return Obj.Sum_(b)
+}
+func (Obj Hash_hash) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
+}
+
+// --------------- proxy for hash.Hash32 ---------------
+type Hash32_hash struct {
+	BlockSize_	func() int
+	Reset_	func() 
+	Size_	func() int
+	Sum_	func(b []byte) []byte
+	Sum32_	func() uint32
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj Hash32_hash) BlockSize() int {
+	return Obj.BlockSize_()
+}
+func (Obj Hash32_hash) Reset()  {
+	Obj.Reset_()
+}
+func (Obj Hash32_hash) Size() int {
+	return Obj.Size_()
+}
+func (Obj Hash32_hash) Sum(b []byte) []byte {
+	return Obj.Sum_(b)
+}
+func (Obj Hash32_hash) Sum32() uint32 {
+	return Obj.Sum32_()
+}
+func (Obj Hash32_hash) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
+}
+
+// --------------- proxy for hash.Hash64 ---------------
+type Hash64_hash struct {
+	BlockSize_	func() int
+	Reset_	func() 
+	Size_	func() int
+	Sum_	func(b []byte) []byte
+	Sum64_	func() uint64
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj Hash64_hash) BlockSize() int {
+	return Obj.BlockSize_()
+}
+func (Obj Hash64_hash) Reset()  {
+	Obj.Reset_()
+}
+func (Obj Hash64_hash) Size() int {
+	return Obj.Size_()
+}
+func (Obj Hash64_hash) Sum(b []byte) []byte {
+	return Obj.Sum_(b)
+}
+func (Obj Hash64_hash) Sum64() uint64 {
+	return Obj.Sum64_()
+}
+func (Obj Hash64_hash) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
 }

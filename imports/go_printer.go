@@ -4,21 +4,23 @@
 package imports
 
 import (
-	pkg "go/printer"
 	. "reflect"
+	"go/printer"
 )
 
 func init() {
 	Binds["go/printer"] = map[string]Value{
-		"Fprint":	ValueOf(pkg.Fprint),
-		"RawFormat":	ValueOf(pkg.RawFormat),
-		"SourcePos":	ValueOf(pkg.SourcePos),
-		"TabIndent":	ValueOf(pkg.TabIndent),
-		"UseSpaces":	ValueOf(pkg.UseSpaces),
+		"Fprint":	ValueOf(printer.Fprint),
+		"RawFormat":	ValueOf(printer.RawFormat),
+		"SourcePos":	ValueOf(printer.SourcePos),
+		"TabIndent":	ValueOf(printer.TabIndent),
+		"UseSpaces":	ValueOf(printer.UseSpaces),
 	}
 	Types["go/printer"] = map[string]Type{
-		"CommentedNode":	TypeOf((*pkg.CommentedNode)(nil)).Elem(),
-		"Config":	TypeOf((*pkg.Config)(nil)).Elem(),
-		"Mode":	TypeOf((*pkg.Mode)(nil)).Elem(),
+		"CommentedNode":	TypeOf((*printer.CommentedNode)(nil)).Elem(),
+		"Config":	TypeOf((*printer.Config)(nil)).Elem(),
+		"Mode":	TypeOf((*printer.Mode)(nil)).Elem(),
+	}
+	Proxies["go/printer"] = map[string]Type{
 	}
 }

@@ -4,31 +4,33 @@
 package imports
 
 import (
-	pkg "unicode/utf8"
 	. "reflect"
+	"unicode/utf8"
 )
 
 func init() {
 	Binds["unicode/utf8"] = map[string]Value{
-		"DecodeLastRune":	ValueOf(pkg.DecodeLastRune),
-		"DecodeLastRuneInString":	ValueOf(pkg.DecodeLastRuneInString),
-		"DecodeRune":	ValueOf(pkg.DecodeRune),
-		"DecodeRuneInString":	ValueOf(pkg.DecodeRuneInString),
-		"EncodeRune":	ValueOf(pkg.EncodeRune),
-		"FullRune":	ValueOf(pkg.FullRune),
-		"FullRuneInString":	ValueOf(pkg.FullRuneInString),
-		"MaxRune":	ValueOf(pkg.MaxRune),
-		"RuneCount":	ValueOf(pkg.RuneCount),
-		"RuneCountInString":	ValueOf(pkg.RuneCountInString),
-		"RuneError":	ValueOf(pkg.RuneError),
-		"RuneLen":	ValueOf(pkg.RuneLen),
-		"RuneSelf":	ValueOf(pkg.RuneSelf),
-		"RuneStart":	ValueOf(pkg.RuneStart),
-		"UTFMax":	ValueOf(pkg.UTFMax),
-		"Valid":	ValueOf(pkg.Valid),
-		"ValidRune":	ValueOf(pkg.ValidRune),
-		"ValidString":	ValueOf(pkg.ValidString),
+		"DecodeLastRune":	ValueOf(utf8.DecodeLastRune),
+		"DecodeLastRuneInString":	ValueOf(utf8.DecodeLastRuneInString),
+		"DecodeRune":	ValueOf(utf8.DecodeRune),
+		"DecodeRuneInString":	ValueOf(utf8.DecodeRuneInString),
+		"EncodeRune":	ValueOf(utf8.EncodeRune),
+		"FullRune":	ValueOf(utf8.FullRune),
+		"FullRuneInString":	ValueOf(utf8.FullRuneInString),
+		"MaxRune":	ValueOf(utf8.MaxRune),
+		"RuneCount":	ValueOf(utf8.RuneCount),
+		"RuneCountInString":	ValueOf(utf8.RuneCountInString),
+		"RuneError":	ValueOf(utf8.RuneError),
+		"RuneLen":	ValueOf(utf8.RuneLen),
+		"RuneSelf":	ValueOf(utf8.RuneSelf),
+		"RuneStart":	ValueOf(utf8.RuneStart),
+		"UTFMax":	ValueOf(utf8.UTFMax),
+		"Valid":	ValueOf(utf8.Valid),
+		"ValidRune":	ValueOf(utf8.ValidRune),
+		"ValidString":	ValueOf(utf8.ValidString),
 	}
 	Types["unicode/utf8"] = map[string]Type{
+	}
+	Proxies["unicode/utf8"] = map[string]Type{
 	}
 }

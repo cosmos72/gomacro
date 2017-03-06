@@ -4,16 +4,18 @@
 package imports
 
 import (
-	pkg "net/http/fcgi"
 	. "reflect"
+	"net/http/fcgi"
 )
 
 func init() {
 	Binds["net/http/fcgi"] = map[string]Value{
-		"ErrConnClosed":	ValueOf(&pkg.ErrConnClosed).Elem(),
-		"ErrRequestAborted":	ValueOf(&pkg.ErrRequestAborted).Elem(),
-		"Serve":	ValueOf(pkg.Serve),
+		"ErrConnClosed":	ValueOf(&fcgi.ErrConnClosed).Elem(),
+		"ErrRequestAborted":	ValueOf(&fcgi.ErrRequestAborted).Elem(),
+		"Serve":	ValueOf(fcgi.Serve),
 	}
 	Types["net/http/fcgi"] = map[string]Type{
+	}
+	Proxies["net/http/fcgi"] = map[string]Type{
 	}
 }

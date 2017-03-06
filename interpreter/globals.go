@@ -36,6 +36,7 @@ type Env struct {
 	*Interpreter
 	Binds      Binds
 	Types      Types
+	Proxies    Types
 	Outer      *Env
 	iotaOffset int
 	Name, Path string

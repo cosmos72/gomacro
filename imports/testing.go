@@ -4,36 +4,99 @@
 package imports
 
 import (
-	pkg "testing"
 	. "reflect"
+	"testing"
 )
 
 func init() {
 	Binds["testing"] = map[string]Value{
-		"AllocsPerRun":	ValueOf(pkg.AllocsPerRun),
-		"Benchmark":	ValueOf(pkg.Benchmark),
-		"CoverMode":	ValueOf(pkg.CoverMode),
-		"Coverage":	ValueOf(pkg.Coverage),
-		"Main":	ValueOf(pkg.Main),
-		"MainStart":	ValueOf(pkg.MainStart),
-		"RegisterCover":	ValueOf(pkg.RegisterCover),
-		"RunBenchmarks":	ValueOf(pkg.RunBenchmarks),
-		"RunExamples":	ValueOf(pkg.RunExamples),
-		"RunTests":	ValueOf(pkg.RunTests),
-		"Short":	ValueOf(pkg.Short),
-		"Verbose":	ValueOf(pkg.Verbose),
+		"AllocsPerRun":	ValueOf(testing.AllocsPerRun),
+		"Benchmark":	ValueOf(testing.Benchmark),
+		"CoverMode":	ValueOf(testing.CoverMode),
+		"Coverage":	ValueOf(testing.Coverage),
+		"Main":	ValueOf(testing.Main),
+		"MainStart":	ValueOf(testing.MainStart),
+		"RegisterCover":	ValueOf(testing.RegisterCover),
+		"RunBenchmarks":	ValueOf(testing.RunBenchmarks),
+		"RunExamples":	ValueOf(testing.RunExamples),
+		"RunTests":	ValueOf(testing.RunTests),
+		"Short":	ValueOf(testing.Short),
+		"Verbose":	ValueOf(testing.Verbose),
 	}
 	Types["testing"] = map[string]Type{
-		"B":	TypeOf((*pkg.B)(nil)).Elem(),
-		"BenchmarkResult":	TypeOf((*pkg.BenchmarkResult)(nil)).Elem(),
-		"Cover":	TypeOf((*pkg.Cover)(nil)).Elem(),
-		"CoverBlock":	TypeOf((*pkg.CoverBlock)(nil)).Elem(),
-		"InternalBenchmark":	TypeOf((*pkg.InternalBenchmark)(nil)).Elem(),
-		"InternalExample":	TypeOf((*pkg.InternalExample)(nil)).Elem(),
-		"InternalTest":	TypeOf((*pkg.InternalTest)(nil)).Elem(),
-		"M":	TypeOf((*pkg.M)(nil)).Elem(),
-		"PB":	TypeOf((*pkg.PB)(nil)).Elem(),
-		"T":	TypeOf((*pkg.T)(nil)).Elem(),
-		"TB":	TypeOf((*pkg.TB)(nil)).Elem(),
+		"B":	TypeOf((*testing.B)(nil)).Elem(),
+		"BenchmarkResult":	TypeOf((*testing.BenchmarkResult)(nil)).Elem(),
+		"Cover":	TypeOf((*testing.Cover)(nil)).Elem(),
+		"CoverBlock":	TypeOf((*testing.CoverBlock)(nil)).Elem(),
+		"InternalBenchmark":	TypeOf((*testing.InternalBenchmark)(nil)).Elem(),
+		"InternalExample":	TypeOf((*testing.InternalExample)(nil)).Elem(),
+		"InternalTest":	TypeOf((*testing.InternalTest)(nil)).Elem(),
+		"M":	TypeOf((*testing.M)(nil)).Elem(),
+		"PB":	TypeOf((*testing.PB)(nil)).Elem(),
+		"T":	TypeOf((*testing.T)(nil)).Elem(),
+		"TB":	TypeOf((*testing.TB)(nil)).Elem(),
 	}
+	Proxies["testing"] = map[string]Type{
+		"TB":	TypeOf((*TB_testing)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for testing.TB ---------------
+type TB_testing struct {
+	Error_	func(args []interface{}) 
+	Errorf_	func(format string, args []interface{}) 
+	Fail_	func() 
+	FailNow_	func() 
+	Failed_	func() bool
+	Fatal_	func(args []interface{}) 
+	Fatalf_	func(format string, args []interface{}) 
+	Log_	func(args []interface{}) 
+	Logf_	func(format string, args []interface{}) 
+	Name_	func() string
+	Skip_	func(args []interface{}) 
+	SkipNow_	func() 
+	Skipf_	func(format string, args []interface{}) 
+	Skipped_	func() bool
+}
+func (Obj TB_testing) Error(args []interface{})  {
+	Obj.Error_(args)
+}
+func (Obj TB_testing) Errorf(format string, args []interface{})  {
+	Obj.Errorf_(format, args)
+}
+func (Obj TB_testing) Fail()  {
+	Obj.Fail_()
+}
+func (Obj TB_testing) FailNow()  {
+	Obj.FailNow_()
+}
+func (Obj TB_testing) Failed() bool {
+	return Obj.Failed_()
+}
+func (Obj TB_testing) Fatal(args []interface{})  {
+	Obj.Fatal_(args)
+}
+func (Obj TB_testing) Fatalf(format string, args []interface{})  {
+	Obj.Fatalf_(format, args)
+}
+func (Obj TB_testing) Log(args []interface{})  {
+	Obj.Log_(args)
+}
+func (Obj TB_testing) Logf(format string, args []interface{})  {
+	Obj.Logf_(format, args)
+}
+func (Obj TB_testing) Name() string {
+	return Obj.Name_()
+}
+func (Obj TB_testing) Skip(args []interface{})  {
+	Obj.Skip_(args)
+}
+func (Obj TB_testing) SkipNow()  {
+	Obj.SkipNow_()
+}
+func (Obj TB_testing) Skipf(format string, args []interface{})  {
+	Obj.Skipf_(format, args)
+}
+func (Obj TB_testing) Skipped() bool {
+	return Obj.Skipped_()
 }

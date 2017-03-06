@@ -4,46 +4,48 @@
 package imports
 
 import (
-	pkg "html/template"
 	. "reflect"
+	"html/template"
 )
 
 func init() {
 	Binds["html/template"] = map[string]Value{
-		"ErrAmbigContext":	ValueOf(pkg.ErrAmbigContext),
-		"ErrBadHTML":	ValueOf(pkg.ErrBadHTML),
-		"ErrBranchEnd":	ValueOf(pkg.ErrBranchEnd),
-		"ErrEndContext":	ValueOf(pkg.ErrEndContext),
-		"ErrNoSuchTemplate":	ValueOf(pkg.ErrNoSuchTemplate),
-		"ErrOutputContext":	ValueOf(pkg.ErrOutputContext),
-		"ErrPartialCharset":	ValueOf(pkg.ErrPartialCharset),
-		"ErrPartialEscape":	ValueOf(pkg.ErrPartialEscape),
-		"ErrRangeLoopReentry":	ValueOf(pkg.ErrRangeLoopReentry),
-		"ErrSlashAmbig":	ValueOf(pkg.ErrSlashAmbig),
-		"HTMLEscape":	ValueOf(pkg.HTMLEscape),
-		"HTMLEscapeString":	ValueOf(pkg.HTMLEscapeString),
-		"HTMLEscaper":	ValueOf(pkg.HTMLEscaper),
-		"IsTrue":	ValueOf(pkg.IsTrue),
-		"JSEscape":	ValueOf(pkg.JSEscape),
-		"JSEscapeString":	ValueOf(pkg.JSEscapeString),
-		"JSEscaper":	ValueOf(pkg.JSEscaper),
-		"Must":	ValueOf(pkg.Must),
-		"New":	ValueOf(pkg.New),
-		"OK":	ValueOf(pkg.OK),
-		"ParseFiles":	ValueOf(pkg.ParseFiles),
-		"ParseGlob":	ValueOf(pkg.ParseGlob),
-		"URLQueryEscaper":	ValueOf(pkg.URLQueryEscaper),
+		"ErrAmbigContext":	ValueOf(template.ErrAmbigContext),
+		"ErrBadHTML":	ValueOf(template.ErrBadHTML),
+		"ErrBranchEnd":	ValueOf(template.ErrBranchEnd),
+		"ErrEndContext":	ValueOf(template.ErrEndContext),
+		"ErrNoSuchTemplate":	ValueOf(template.ErrNoSuchTemplate),
+		"ErrOutputContext":	ValueOf(template.ErrOutputContext),
+		"ErrPartialCharset":	ValueOf(template.ErrPartialCharset),
+		"ErrPartialEscape":	ValueOf(template.ErrPartialEscape),
+		"ErrRangeLoopReentry":	ValueOf(template.ErrRangeLoopReentry),
+		"ErrSlashAmbig":	ValueOf(template.ErrSlashAmbig),
+		"HTMLEscape":	ValueOf(template.HTMLEscape),
+		"HTMLEscapeString":	ValueOf(template.HTMLEscapeString),
+		"HTMLEscaper":	ValueOf(template.HTMLEscaper),
+		"IsTrue":	ValueOf(template.IsTrue),
+		"JSEscape":	ValueOf(template.JSEscape),
+		"JSEscapeString":	ValueOf(template.JSEscapeString),
+		"JSEscaper":	ValueOf(template.JSEscaper),
+		"Must":	ValueOf(template.Must),
+		"New":	ValueOf(template.New),
+		"OK":	ValueOf(template.OK),
+		"ParseFiles":	ValueOf(template.ParseFiles),
+		"ParseGlob":	ValueOf(template.ParseGlob),
+		"URLQueryEscaper":	ValueOf(template.URLQueryEscaper),
 	}
 	Types["html/template"] = map[string]Type{
-		"CSS":	TypeOf((*pkg.CSS)(nil)).Elem(),
-		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
-		"ErrorCode":	TypeOf((*pkg.ErrorCode)(nil)).Elem(),
-		"FuncMap":	TypeOf((*pkg.FuncMap)(nil)).Elem(),
-		"HTML":	TypeOf((*pkg.HTML)(nil)).Elem(),
-		"HTMLAttr":	TypeOf((*pkg.HTMLAttr)(nil)).Elem(),
-		"JS":	TypeOf((*pkg.JS)(nil)).Elem(),
-		"JSStr":	TypeOf((*pkg.JSStr)(nil)).Elem(),
-		"Template":	TypeOf((*pkg.Template)(nil)).Elem(),
-		"URL":	TypeOf((*pkg.URL)(nil)).Elem(),
+		"CSS":	TypeOf((*template.CSS)(nil)).Elem(),
+		"Error":	TypeOf((*template.Error)(nil)).Elem(),
+		"ErrorCode":	TypeOf((*template.ErrorCode)(nil)).Elem(),
+		"FuncMap":	TypeOf((*template.FuncMap)(nil)).Elem(),
+		"HTML":	TypeOf((*template.HTML)(nil)).Elem(),
+		"HTMLAttr":	TypeOf((*template.HTMLAttr)(nil)).Elem(),
+		"JS":	TypeOf((*template.JS)(nil)).Elem(),
+		"JSStr":	TypeOf((*template.JSStr)(nil)).Elem(),
+		"Template":	TypeOf((*template.Template)(nil)).Elem(),
+		"URL":	TypeOf((*template.URL)(nil)).Elem(),
+	}
+	Proxies["html/template"] = map[string]Type{
 	}
 }

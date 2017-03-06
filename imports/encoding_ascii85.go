@@ -4,19 +4,21 @@
 package imports
 
 import (
-	pkg "encoding/ascii85"
 	. "reflect"
+	"encoding/ascii85"
 )
 
 func init() {
 	Binds["encoding/ascii85"] = map[string]Value{
-		"Decode":	ValueOf(pkg.Decode),
-		"Encode":	ValueOf(pkg.Encode),
-		"MaxEncodedLen":	ValueOf(pkg.MaxEncodedLen),
-		"NewDecoder":	ValueOf(pkg.NewDecoder),
-		"NewEncoder":	ValueOf(pkg.NewEncoder),
+		"Decode":	ValueOf(ascii85.Decode),
+		"Encode":	ValueOf(ascii85.Encode),
+		"MaxEncodedLen":	ValueOf(ascii85.MaxEncodedLen),
+		"NewDecoder":	ValueOf(ascii85.NewDecoder),
+		"NewEncoder":	ValueOf(ascii85.NewEncoder),
 	}
 	Types["encoding/ascii85"] = map[string]Type{
-		"CorruptInputError":	TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
+		"CorruptInputError":	TypeOf((*ascii85.CorruptInputError)(nil)).Elem(),
+	}
+	Proxies["encoding/ascii85"] = map[string]Type{
 	}
 }

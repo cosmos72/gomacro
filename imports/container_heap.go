@@ -4,19 +4,46 @@
 package imports
 
 import (
-	pkg "container/heap"
 	. "reflect"
+	"container/heap"
 )
 
 func init() {
 	Binds["container/heap"] = map[string]Value{
-		"Fix":	ValueOf(pkg.Fix),
-		"Init":	ValueOf(pkg.Init),
-		"Pop":	ValueOf(pkg.Pop),
-		"Push":	ValueOf(pkg.Push),
-		"Remove":	ValueOf(pkg.Remove),
+		"Fix":	ValueOf(heap.Fix),
+		"Init":	ValueOf(heap.Init),
+		"Pop":	ValueOf(heap.Pop),
+		"Push":	ValueOf(heap.Push),
+		"Remove":	ValueOf(heap.Remove),
 	}
 	Types["container/heap"] = map[string]Type{
-		"Interface":	TypeOf((*pkg.Interface)(nil)).Elem(),
+		"Interface":	TypeOf((*heap.Interface)(nil)).Elem(),
 	}
+	Proxies["container/heap"] = map[string]Type{
+		"Interface":	TypeOf((*Interface_container_heap)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for container/heap.Interface ---------------
+type Interface_container_heap struct {
+	Len_	func() int
+	Less_	func(i int, j int) bool
+	Pop_	func() interface{}
+	Push_	func(x interface{}) 
+	Swap_	func(i int, j int) 
+}
+func (Obj Interface_container_heap) Len() int {
+	return Obj.Len_()
+}
+func (Obj Interface_container_heap) Less(i int, j int) bool {
+	return Obj.Less_(i, j)
+}
+func (Obj Interface_container_heap) Pop() interface{} {
+	return Obj.Pop_()
+}
+func (Obj Interface_container_heap) Push(x interface{})  {
+	Obj.Push_(x)
+}
+func (Obj Interface_container_heap) Swap(i int, j int)  {
+	Obj.Swap_(i, j)
 }

@@ -4,18 +4,20 @@
 package imports
 
 import (
-	pkg "crypto/ecdsa"
 	. "reflect"
+	"crypto/ecdsa"
 )
 
 func init() {
 	Binds["crypto/ecdsa"] = map[string]Value{
-		"GenerateKey":	ValueOf(pkg.GenerateKey),
-		"Sign":	ValueOf(pkg.Sign),
-		"Verify":	ValueOf(pkg.Verify),
+		"GenerateKey":	ValueOf(ecdsa.GenerateKey),
+		"Sign":	ValueOf(ecdsa.Sign),
+		"Verify":	ValueOf(ecdsa.Verify),
 	}
 	Types["crypto/ecdsa"] = map[string]Type{
-		"PrivateKey":	TypeOf((*pkg.PrivateKey)(nil)).Elem(),
-		"PublicKey":	TypeOf((*pkg.PublicKey)(nil)).Elem(),
+		"PrivateKey":	TypeOf((*ecdsa.PrivateKey)(nil)).Elem(),
+		"PublicKey":	TypeOf((*ecdsa.PublicKey)(nil)).Elem(),
+	}
+	Proxies["crypto/ecdsa"] = map[string]Type{
 	}
 }

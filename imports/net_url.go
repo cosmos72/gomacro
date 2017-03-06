@@ -4,28 +4,30 @@
 package imports
 
 import (
-	pkg "net/url"
 	. "reflect"
+	"net/url"
 )
 
 func init() {
 	Binds["net/url"] = map[string]Value{
-		"Parse":	ValueOf(pkg.Parse),
-		"ParseQuery":	ValueOf(pkg.ParseQuery),
-		"ParseRequestURI":	ValueOf(pkg.ParseRequestURI),
-		"PathEscape":	ValueOf(pkg.PathEscape),
-		"PathUnescape":	ValueOf(pkg.PathUnescape),
-		"QueryEscape":	ValueOf(pkg.QueryEscape),
-		"QueryUnescape":	ValueOf(pkg.QueryUnescape),
-		"User":	ValueOf(pkg.User),
-		"UserPassword":	ValueOf(pkg.UserPassword),
+		"Parse":	ValueOf(url.Parse),
+		"ParseQuery":	ValueOf(url.ParseQuery),
+		"ParseRequestURI":	ValueOf(url.ParseRequestURI),
+		"PathEscape":	ValueOf(url.PathEscape),
+		"PathUnescape":	ValueOf(url.PathUnescape),
+		"QueryEscape":	ValueOf(url.QueryEscape),
+		"QueryUnescape":	ValueOf(url.QueryUnescape),
+		"User":	ValueOf(url.User),
+		"UserPassword":	ValueOf(url.UserPassword),
 	}
 	Types["net/url"] = map[string]Type{
-		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
-		"EscapeError":	TypeOf((*pkg.EscapeError)(nil)).Elem(),
-		"InvalidHostError":	TypeOf((*pkg.InvalidHostError)(nil)).Elem(),
-		"URL":	TypeOf((*pkg.URL)(nil)).Elem(),
-		"Userinfo":	TypeOf((*pkg.Userinfo)(nil)).Elem(),
-		"Values":	TypeOf((*pkg.Values)(nil)).Elem(),
+		"Error":	TypeOf((*url.Error)(nil)).Elem(),
+		"EscapeError":	TypeOf((*url.EscapeError)(nil)).Elem(),
+		"InvalidHostError":	TypeOf((*url.InvalidHostError)(nil)).Elem(),
+		"URL":	TypeOf((*url.URL)(nil)).Elem(),
+		"Userinfo":	TypeOf((*url.Userinfo)(nil)).Elem(),
+		"Values":	TypeOf((*url.Values)(nil)).Elem(),
+	}
+	Proxies["net/url"] = map[string]Type{
 	}
 }

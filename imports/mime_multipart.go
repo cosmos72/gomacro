@@ -4,21 +4,44 @@
 package imports
 
 import (
-	pkg "mime/multipart"
 	. "reflect"
+	"mime/multipart"
 )
 
 func init() {
 	Binds["mime/multipart"] = map[string]Value{
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewWriter":	ValueOf(pkg.NewWriter),
+		"NewReader":	ValueOf(multipart.NewReader),
+		"NewWriter":	ValueOf(multipart.NewWriter),
 	}
 	Types["mime/multipart"] = map[string]Type{
-		"File":	TypeOf((*pkg.File)(nil)).Elem(),
-		"FileHeader":	TypeOf((*pkg.FileHeader)(nil)).Elem(),
-		"Form":	TypeOf((*pkg.Form)(nil)).Elem(),
-		"Part":	TypeOf((*pkg.Part)(nil)).Elem(),
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"File":	TypeOf((*multipart.File)(nil)).Elem(),
+		"FileHeader":	TypeOf((*multipart.FileHeader)(nil)).Elem(),
+		"Form":	TypeOf((*multipart.Form)(nil)).Elem(),
+		"Part":	TypeOf((*multipart.Part)(nil)).Elem(),
+		"Reader":	TypeOf((*multipart.Reader)(nil)).Elem(),
+		"Writer":	TypeOf((*multipart.Writer)(nil)).Elem(),
 	}
+	Proxies["mime/multipart"] = map[string]Type{
+		"File":	TypeOf((*File_mime_multipart)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for mime/multipart.File ---------------
+type File_mime_multipart struct {
+	Close_	func() error
+	Read_	func(p []byte) (n int, err error)
+	ReadAt_	func(p []byte, off int64) (n int, err error)
+	Seek_	func(offset int64, whence int) (int64, error)
+}
+func (Obj File_mime_multipart) Close() error {
+	return Obj.Close_()
+}
+func (Obj File_mime_multipart) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+func (Obj File_mime_multipart) ReadAt(p []byte, off int64) (n int, err error) {
+	return Obj.ReadAt_(p, off)
+}
+func (Obj File_mime_multipart) Seek(offset int64, whence int) (int64, error) {
+	return Obj.Seek_(offset, whence)
 }

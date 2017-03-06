@@ -4,15 +4,17 @@
 package imports
 
 import (
-	pkg "compress/bzip2"
 	. "reflect"
+	"compress/bzip2"
 )
 
 func init() {
 	Binds["compress/bzip2"] = map[string]Value{
-		"NewReader":	ValueOf(pkg.NewReader),
+		"NewReader":	ValueOf(bzip2.NewReader),
 	}
 	Types["compress/bzip2"] = map[string]Type{
-		"StructuralError":	TypeOf((*pkg.StructuralError)(nil)).Elem(),
+		"StructuralError":	TypeOf((*bzip2.StructuralError)(nil)).Elem(),
+	}
+	Proxies["compress/bzip2"] = map[string]Type{
 	}
 }

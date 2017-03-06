@@ -4,20 +4,22 @@
 package imports
 
 import (
-	pkg "os/exec"
 	. "reflect"
+	"os/exec"
 )
 
 func init() {
 	Binds["os/exec"] = map[string]Value{
-		"Command":	ValueOf(pkg.Command),
-		"CommandContext":	ValueOf(pkg.CommandContext),
-		"ErrNotFound":	ValueOf(&pkg.ErrNotFound).Elem(),
-		"LookPath":	ValueOf(pkg.LookPath),
+		"Command":	ValueOf(exec.Command),
+		"CommandContext":	ValueOf(exec.CommandContext),
+		"ErrNotFound":	ValueOf(&exec.ErrNotFound).Elem(),
+		"LookPath":	ValueOf(exec.LookPath),
 	}
 	Types["os/exec"] = map[string]Type{
-		"Cmd":	TypeOf((*pkg.Cmd)(nil)).Elem(),
-		"Error":	TypeOf((*pkg.Error)(nil)).Elem(),
-		"ExitError":	TypeOf((*pkg.ExitError)(nil)).Elem(),
+		"Cmd":	TypeOf((*exec.Cmd)(nil)).Elem(),
+		"Error":	TypeOf((*exec.Error)(nil)).Elem(),
+		"ExitError":	TypeOf((*exec.ExitError)(nil)).Elem(),
+	}
+	Proxies["os/exec"] = map[string]Type{
 	}
 }

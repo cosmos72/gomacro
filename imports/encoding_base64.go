@@ -4,24 +4,26 @@
 package imports
 
 import (
-	pkg "encoding/base64"
 	. "reflect"
+	"encoding/base64"
 )
 
 func init() {
 	Binds["encoding/base64"] = map[string]Value{
-		"NewDecoder":	ValueOf(pkg.NewDecoder),
-		"NewEncoder":	ValueOf(pkg.NewEncoder),
-		"NewEncoding":	ValueOf(pkg.NewEncoding),
-		"NoPadding":	ValueOf(pkg.NoPadding),
-		"RawStdEncoding":	ValueOf(&pkg.RawStdEncoding).Elem(),
-		"RawURLEncoding":	ValueOf(&pkg.RawURLEncoding).Elem(),
-		"StdEncoding":	ValueOf(&pkg.StdEncoding).Elem(),
-		"StdPadding":	ValueOf(pkg.StdPadding),
-		"URLEncoding":	ValueOf(&pkg.URLEncoding).Elem(),
+		"NewDecoder":	ValueOf(base64.NewDecoder),
+		"NewEncoder":	ValueOf(base64.NewEncoder),
+		"NewEncoding":	ValueOf(base64.NewEncoding),
+		"NoPadding":	ValueOf(base64.NoPadding),
+		"RawStdEncoding":	ValueOf(&base64.RawStdEncoding).Elem(),
+		"RawURLEncoding":	ValueOf(&base64.RawURLEncoding).Elem(),
+		"StdEncoding":	ValueOf(&base64.StdEncoding).Elem(),
+		"StdPadding":	ValueOf(base64.StdPadding),
+		"URLEncoding":	ValueOf(&base64.URLEncoding).Elem(),
 	}
 	Types["encoding/base64"] = map[string]Type{
-		"CorruptInputError":	TypeOf((*pkg.CorruptInputError)(nil)).Elem(),
-		"Encoding":	TypeOf((*pkg.Encoding)(nil)).Elem(),
+		"CorruptInputError":	TypeOf((*base64.CorruptInputError)(nil)).Elem(),
+		"Encoding":	TypeOf((*base64.Encoding)(nil)).Elem(),
+	}
+	Proxies["encoding/base64"] = map[string]Type{
 	}
 }

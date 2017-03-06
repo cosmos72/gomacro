@@ -4,22 +4,54 @@
 package imports
 
 import (
-	pkg "crypto/elliptic"
 	. "reflect"
+	"crypto/elliptic"
+	"math/big"
 )
 
 func init() {
 	Binds["crypto/elliptic"] = map[string]Value{
-		"GenerateKey":	ValueOf(pkg.GenerateKey),
-		"Marshal":	ValueOf(pkg.Marshal),
-		"P224":	ValueOf(pkg.P224),
-		"P256":	ValueOf(pkg.P256),
-		"P384":	ValueOf(pkg.P384),
-		"P521":	ValueOf(pkg.P521),
-		"Unmarshal":	ValueOf(pkg.Unmarshal),
+		"GenerateKey":	ValueOf(elliptic.GenerateKey),
+		"Marshal":	ValueOf(elliptic.Marshal),
+		"P224":	ValueOf(elliptic.P224),
+		"P256":	ValueOf(elliptic.P256),
+		"P384":	ValueOf(elliptic.P384),
+		"P521":	ValueOf(elliptic.P521),
+		"Unmarshal":	ValueOf(elliptic.Unmarshal),
 	}
 	Types["crypto/elliptic"] = map[string]Type{
-		"Curve":	TypeOf((*pkg.Curve)(nil)).Elem(),
-		"CurveParams":	TypeOf((*pkg.CurveParams)(nil)).Elem(),
+		"Curve":	TypeOf((*elliptic.Curve)(nil)).Elem(),
+		"CurveParams":	TypeOf((*elliptic.CurveParams)(nil)).Elem(),
 	}
+	Proxies["crypto/elliptic"] = map[string]Type{
+		"Curve":	TypeOf((*Curve_crypto_elliptic)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for crypto/elliptic.Curve ---------------
+type Curve_crypto_elliptic struct {
+	Add_	func(x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int)
+	Double_	func(x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int)
+	IsOnCurve_	func(x *big.Int, y *big.Int) bool
+	Params_	func() *elliptic.CurveParams
+	ScalarBaseMult_	func(k []byte) (x *big.Int, y *big.Int)
+	ScalarMult_	func(x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int)
+}
+func (Obj Curve_crypto_elliptic) Add(x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int) {
+	return Obj.Add_(x1, y1, x2, y2)
+}
+func (Obj Curve_crypto_elliptic) Double(x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int) {
+	return Obj.Double_(x1, y1)
+}
+func (Obj Curve_crypto_elliptic) IsOnCurve(x *big.Int, y *big.Int) bool {
+	return Obj.IsOnCurve_(x, y)
+}
+func (Obj Curve_crypto_elliptic) Params() *elliptic.CurveParams {
+	return Obj.Params_()
+}
+func (Obj Curve_crypto_elliptic) ScalarBaseMult(k []byte) (x *big.Int, y *big.Int) {
+	return Obj.ScalarBaseMult_(k)
+}
+func (Obj Curve_crypto_elliptic) ScalarMult(x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int) {
+	return Obj.ScalarMult_(x1, y1, k)
 }

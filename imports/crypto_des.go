@@ -4,17 +4,19 @@
 package imports
 
 import (
-	pkg "crypto/des"
 	. "reflect"
+	"crypto/des"
 )
 
 func init() {
 	Binds["crypto/des"] = map[string]Value{
-		"BlockSize":	ValueOf(pkg.BlockSize),
-		"NewCipher":	ValueOf(pkg.NewCipher),
-		"NewTripleDESCipher":	ValueOf(pkg.NewTripleDESCipher),
+		"BlockSize":	ValueOf(des.BlockSize),
+		"NewCipher":	ValueOf(des.NewCipher),
+		"NewTripleDESCipher":	ValueOf(des.NewTripleDESCipher),
 	}
 	Types["crypto/des"] = map[string]Type{
-		"KeySizeError":	TypeOf((*pkg.KeySizeError)(nil)).Elem(),
+		"KeySizeError":	TypeOf((*des.KeySizeError)(nil)).Elem(),
+	}
+	Proxies["crypto/des"] = map[string]Type{
 	}
 }

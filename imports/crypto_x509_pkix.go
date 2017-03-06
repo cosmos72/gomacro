@@ -4,23 +4,25 @@
 package imports
 
 import (
-	pkg "crypto/x509/pkix"
 	. "reflect"
+	"crypto/x509/pkix"
 )
 
 func init() {
 	Binds["crypto/x509/pkix"] = map[string]Value{
 	}
 	Types["crypto/x509/pkix"] = map[string]Type{
-		"AlgorithmIdentifier":	TypeOf((*pkg.AlgorithmIdentifier)(nil)).Elem(),
-		"AttributeTypeAndValue":	TypeOf((*pkg.AttributeTypeAndValue)(nil)).Elem(),
-		"AttributeTypeAndValueSET":	TypeOf((*pkg.AttributeTypeAndValueSET)(nil)).Elem(),
-		"CertificateList":	TypeOf((*pkg.CertificateList)(nil)).Elem(),
-		"Extension":	TypeOf((*pkg.Extension)(nil)).Elem(),
-		"Name":	TypeOf((*pkg.Name)(nil)).Elem(),
-		"RDNSequence":	TypeOf((*pkg.RDNSequence)(nil)).Elem(),
-		"RelativeDistinguishedNameSET":	TypeOf((*pkg.RelativeDistinguishedNameSET)(nil)).Elem(),
-		"RevokedCertificate":	TypeOf((*pkg.RevokedCertificate)(nil)).Elem(),
-		"TBSCertificateList":	TypeOf((*pkg.TBSCertificateList)(nil)).Elem(),
+		"AlgorithmIdentifier":	TypeOf((*pkix.AlgorithmIdentifier)(nil)).Elem(),
+		"AttributeTypeAndValue":	TypeOf((*pkix.AttributeTypeAndValue)(nil)).Elem(),
+		"AttributeTypeAndValueSET":	TypeOf((*pkix.AttributeTypeAndValueSET)(nil)).Elem(),
+		"CertificateList":	TypeOf((*pkix.CertificateList)(nil)).Elem(),
+		"Extension":	TypeOf((*pkix.Extension)(nil)).Elem(),
+		"Name":	TypeOf((*pkix.Name)(nil)).Elem(),
+		"RDNSequence":	TypeOf((*pkix.RDNSequence)(nil)).Elem(),
+		"RelativeDistinguishedNameSET":	TypeOf((*pkix.RelativeDistinguishedNameSET)(nil)).Elem(),
+		"RevokedCertificate":	TypeOf((*pkix.RevokedCertificate)(nil)).Elem(),
+		"TBSCertificateList":	TypeOf((*pkix.TBSCertificateList)(nil)).Elem(),
+	}
+	Proxies["crypto/x509/pkix"] = map[string]Type{
 	}
 }

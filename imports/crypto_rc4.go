@@ -4,16 +4,18 @@
 package imports
 
 import (
-	pkg "crypto/rc4"
 	. "reflect"
+	"crypto/rc4"
 )
 
 func init() {
 	Binds["crypto/rc4"] = map[string]Value{
-		"NewCipher":	ValueOf(pkg.NewCipher),
+		"NewCipher":	ValueOf(rc4.NewCipher),
 	}
 	Types["crypto/rc4"] = map[string]Type{
-		"Cipher":	TypeOf((*pkg.Cipher)(nil)).Elem(),
-		"KeySizeError":	TypeOf((*pkg.KeySizeError)(nil)).Elem(),
+		"Cipher":	TypeOf((*rc4.Cipher)(nil)).Elem(),
+		"KeySizeError":	TypeOf((*rc4.KeySizeError)(nil)).Elem(),
+	}
+	Proxies["crypto/rc4"] = map[string]Type{
 	}
 }

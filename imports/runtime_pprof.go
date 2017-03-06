@@ -4,20 +4,22 @@
 package imports
 
 import (
-	pkg "runtime/pprof"
 	. "reflect"
+	"runtime/pprof"
 )
 
 func init() {
 	Binds["runtime/pprof"] = map[string]Value{
-		"Lookup":	ValueOf(pkg.Lookup),
-		"NewProfile":	ValueOf(pkg.NewProfile),
-		"Profiles":	ValueOf(pkg.Profiles),
-		"StartCPUProfile":	ValueOf(pkg.StartCPUProfile),
-		"StopCPUProfile":	ValueOf(pkg.StopCPUProfile),
-		"WriteHeapProfile":	ValueOf(pkg.WriteHeapProfile),
+		"Lookup":	ValueOf(pprof.Lookup),
+		"NewProfile":	ValueOf(pprof.NewProfile),
+		"Profiles":	ValueOf(pprof.Profiles),
+		"StartCPUProfile":	ValueOf(pprof.StartCPUProfile),
+		"StopCPUProfile":	ValueOf(pprof.StopCPUProfile),
+		"WriteHeapProfile":	ValueOf(pprof.WriteHeapProfile),
 	}
 	Types["runtime/pprof"] = map[string]Type{
-		"Profile":	TypeOf((*pkg.Profile)(nil)).Elem(),
+		"Profile":	TypeOf((*pprof.Profile)(nil)).Elem(),
+	}
+	Proxies["runtime/pprof"] = map[string]Type{
 	}
 }

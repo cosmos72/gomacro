@@ -4,19 +4,21 @@
 package imports
 
 import (
-	pkg "net/http/pprof"
 	. "reflect"
+	"net/http/pprof"
 )
 
 func init() {
 	Binds["net/http/pprof"] = map[string]Value{
-		"Cmdline":	ValueOf(pkg.Cmdline),
-		"Handler":	ValueOf(pkg.Handler),
-		"Index":	ValueOf(pkg.Index),
-		"Profile":	ValueOf(pkg.Profile),
-		"Symbol":	ValueOf(pkg.Symbol),
-		"Trace":	ValueOf(pkg.Trace),
+		"Cmdline":	ValueOf(pprof.Cmdline),
+		"Handler":	ValueOf(pprof.Handler),
+		"Index":	ValueOf(pprof.Index),
+		"Profile":	ValueOf(pprof.Profile),
+		"Symbol":	ValueOf(pprof.Symbol),
+		"Trace":	ValueOf(pprof.Trace),
 	}
 	Types["net/http/pprof"] = map[string]Type{
+	}
+	Proxies["net/http/pprof"] = map[string]Type{
 	}
 }

@@ -4,37 +4,39 @@
 package imports
 
 import (
-	pkg "bufio"
 	. "reflect"
+	"bufio"
 )
 
 func init() {
 	Binds["bufio"] = map[string]Value{
-		"ErrAdvanceTooFar":	ValueOf(&pkg.ErrAdvanceTooFar).Elem(),
-		"ErrBufferFull":	ValueOf(&pkg.ErrBufferFull).Elem(),
-		"ErrFinalToken":	ValueOf(&pkg.ErrFinalToken).Elem(),
-		"ErrInvalidUnreadByte":	ValueOf(&pkg.ErrInvalidUnreadByte).Elem(),
-		"ErrInvalidUnreadRune":	ValueOf(&pkg.ErrInvalidUnreadRune).Elem(),
-		"ErrNegativeAdvance":	ValueOf(&pkg.ErrNegativeAdvance).Elem(),
-		"ErrNegativeCount":	ValueOf(&pkg.ErrNegativeCount).Elem(),
-		"ErrTooLong":	ValueOf(&pkg.ErrTooLong).Elem(),
-		"MaxScanTokenSize":	ValueOf(pkg.MaxScanTokenSize),
-		"NewReadWriter":	ValueOf(pkg.NewReadWriter),
-		"NewReader":	ValueOf(pkg.NewReader),
-		"NewReaderSize":	ValueOf(pkg.NewReaderSize),
-		"NewScanner":	ValueOf(pkg.NewScanner),
-		"NewWriter":	ValueOf(pkg.NewWriter),
-		"NewWriterSize":	ValueOf(pkg.NewWriterSize),
-		"ScanBytes":	ValueOf(pkg.ScanBytes),
-		"ScanLines":	ValueOf(pkg.ScanLines),
-		"ScanRunes":	ValueOf(pkg.ScanRunes),
-		"ScanWords":	ValueOf(pkg.ScanWords),
+		"ErrAdvanceTooFar":	ValueOf(&bufio.ErrAdvanceTooFar).Elem(),
+		"ErrBufferFull":	ValueOf(&bufio.ErrBufferFull).Elem(),
+		"ErrFinalToken":	ValueOf(&bufio.ErrFinalToken).Elem(),
+		"ErrInvalidUnreadByte":	ValueOf(&bufio.ErrInvalidUnreadByte).Elem(),
+		"ErrInvalidUnreadRune":	ValueOf(&bufio.ErrInvalidUnreadRune).Elem(),
+		"ErrNegativeAdvance":	ValueOf(&bufio.ErrNegativeAdvance).Elem(),
+		"ErrNegativeCount":	ValueOf(&bufio.ErrNegativeCount).Elem(),
+		"ErrTooLong":	ValueOf(&bufio.ErrTooLong).Elem(),
+		"MaxScanTokenSize":	ValueOf(bufio.MaxScanTokenSize),
+		"NewReadWriter":	ValueOf(bufio.NewReadWriter),
+		"NewReader":	ValueOf(bufio.NewReader),
+		"NewReaderSize":	ValueOf(bufio.NewReaderSize),
+		"NewScanner":	ValueOf(bufio.NewScanner),
+		"NewWriter":	ValueOf(bufio.NewWriter),
+		"NewWriterSize":	ValueOf(bufio.NewWriterSize),
+		"ScanBytes":	ValueOf(bufio.ScanBytes),
+		"ScanLines":	ValueOf(bufio.ScanLines),
+		"ScanRunes":	ValueOf(bufio.ScanRunes),
+		"ScanWords":	ValueOf(bufio.ScanWords),
 	}
 	Types["bufio"] = map[string]Type{
-		"ReadWriter":	TypeOf((*pkg.ReadWriter)(nil)).Elem(),
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"Scanner":	TypeOf((*pkg.Scanner)(nil)).Elem(),
-		"SplitFunc":	TypeOf((*pkg.SplitFunc)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
+		"ReadWriter":	TypeOf((*bufio.ReadWriter)(nil)).Elem(),
+		"Reader":	TypeOf((*bufio.Reader)(nil)).Elem(),
+		"Scanner":	TypeOf((*bufio.Scanner)(nil)).Elem(),
+		"SplitFunc":	TypeOf((*bufio.SplitFunc)(nil)).Elem(),
+		"Writer":	TypeOf((*bufio.Writer)(nil)).Elem(),
+	}
+	Proxies["bufio"] = map[string]Type{
 	}
 }

@@ -4,53 +4,390 @@
 package imports
 
 import (
-	pkg "database/sql/driver"
 	. "reflect"
+	"context"
+	"database/sql/driver"
+	"reflect"
 )
 
 func init() {
 	Binds["database/sql/driver"] = map[string]Value{
-		"Bool":	ValueOf(&pkg.Bool).Elem(),
-		"DefaultParameterConverter":	ValueOf(&pkg.DefaultParameterConverter).Elem(),
-		"ErrBadConn":	ValueOf(&pkg.ErrBadConn).Elem(),
-		"ErrSkip":	ValueOf(&pkg.ErrSkip).Elem(),
-		"Int32":	ValueOf(&pkg.Int32).Elem(),
-		"IsScanValue":	ValueOf(pkg.IsScanValue),
-		"IsValue":	ValueOf(pkg.IsValue),
-		"ResultNoRows":	ValueOf(&pkg.ResultNoRows).Elem(),
-		"String":	ValueOf(&pkg.String).Elem(),
+		"Bool":	ValueOf(&driver.Bool).Elem(),
+		"DefaultParameterConverter":	ValueOf(&driver.DefaultParameterConverter).Elem(),
+		"ErrBadConn":	ValueOf(&driver.ErrBadConn).Elem(),
+		"ErrSkip":	ValueOf(&driver.ErrSkip).Elem(),
+		"Int32":	ValueOf(&driver.Int32).Elem(),
+		"IsScanValue":	ValueOf(driver.IsScanValue),
+		"IsValue":	ValueOf(driver.IsValue),
+		"ResultNoRows":	ValueOf(&driver.ResultNoRows).Elem(),
+		"String":	ValueOf(&driver.String).Elem(),
 	}
 	Types["database/sql/driver"] = map[string]Type{
-		"ColumnConverter":	TypeOf((*pkg.ColumnConverter)(nil)).Elem(),
-		"Conn":	TypeOf((*pkg.Conn)(nil)).Elem(),
-		"ConnBeginTx":	TypeOf((*pkg.ConnBeginTx)(nil)).Elem(),
-		"ConnPrepareContext":	TypeOf((*pkg.ConnPrepareContext)(nil)).Elem(),
-		"Driver":	TypeOf((*pkg.Driver)(nil)).Elem(),
-		"Execer":	TypeOf((*pkg.Execer)(nil)).Elem(),
-		"ExecerContext":	TypeOf((*pkg.ExecerContext)(nil)).Elem(),
-		"IsolationLevel":	TypeOf((*pkg.IsolationLevel)(nil)).Elem(),
-		"NamedValue":	TypeOf((*pkg.NamedValue)(nil)).Elem(),
-		"NotNull":	TypeOf((*pkg.NotNull)(nil)).Elem(),
-		"Null":	TypeOf((*pkg.Null)(nil)).Elem(),
-		"Pinger":	TypeOf((*pkg.Pinger)(nil)).Elem(),
-		"Queryer":	TypeOf((*pkg.Queryer)(nil)).Elem(),
-		"QueryerContext":	TypeOf((*pkg.QueryerContext)(nil)).Elem(),
-		"Result":	TypeOf((*pkg.Result)(nil)).Elem(),
-		"Rows":	TypeOf((*pkg.Rows)(nil)).Elem(),
-		"RowsAffected":	TypeOf((*pkg.RowsAffected)(nil)).Elem(),
-		"RowsColumnTypeDatabaseTypeName":	TypeOf((*pkg.RowsColumnTypeDatabaseTypeName)(nil)).Elem(),
-		"RowsColumnTypeLength":	TypeOf((*pkg.RowsColumnTypeLength)(nil)).Elem(),
-		"RowsColumnTypeNullable":	TypeOf((*pkg.RowsColumnTypeNullable)(nil)).Elem(),
-		"RowsColumnTypePrecisionScale":	TypeOf((*pkg.RowsColumnTypePrecisionScale)(nil)).Elem(),
-		"RowsColumnTypeScanType":	TypeOf((*pkg.RowsColumnTypeScanType)(nil)).Elem(),
-		"RowsNextResultSet":	TypeOf((*pkg.RowsNextResultSet)(nil)).Elem(),
-		"Stmt":	TypeOf((*pkg.Stmt)(nil)).Elem(),
-		"StmtExecContext":	TypeOf((*pkg.StmtExecContext)(nil)).Elem(),
-		"StmtQueryContext":	TypeOf((*pkg.StmtQueryContext)(nil)).Elem(),
-		"Tx":	TypeOf((*pkg.Tx)(nil)).Elem(),
-		"TxOptions":	TypeOf((*pkg.TxOptions)(nil)).Elem(),
-		"Value":	TypeOf((*pkg.Value)(nil)).Elem(),
-		"ValueConverter":	TypeOf((*pkg.ValueConverter)(nil)).Elem(),
-		"Valuer":	TypeOf((*pkg.Valuer)(nil)).Elem(),
+		"ColumnConverter":	TypeOf((*driver.ColumnConverter)(nil)).Elem(),
+		"Conn":	TypeOf((*driver.Conn)(nil)).Elem(),
+		"ConnBeginTx":	TypeOf((*driver.ConnBeginTx)(nil)).Elem(),
+		"ConnPrepareContext":	TypeOf((*driver.ConnPrepareContext)(nil)).Elem(),
+		"Driver":	TypeOf((*driver.Driver)(nil)).Elem(),
+		"Execer":	TypeOf((*driver.Execer)(nil)).Elem(),
+		"ExecerContext":	TypeOf((*driver.ExecerContext)(nil)).Elem(),
+		"IsolationLevel":	TypeOf((*driver.IsolationLevel)(nil)).Elem(),
+		"NamedValue":	TypeOf((*driver.NamedValue)(nil)).Elem(),
+		"NotNull":	TypeOf((*driver.NotNull)(nil)).Elem(),
+		"Null":	TypeOf((*driver.Null)(nil)).Elem(),
+		"Pinger":	TypeOf((*driver.Pinger)(nil)).Elem(),
+		"Queryer":	TypeOf((*driver.Queryer)(nil)).Elem(),
+		"QueryerContext":	TypeOf((*driver.QueryerContext)(nil)).Elem(),
+		"Result":	TypeOf((*driver.Result)(nil)).Elem(),
+		"Rows":	TypeOf((*driver.Rows)(nil)).Elem(),
+		"RowsAffected":	TypeOf((*driver.RowsAffected)(nil)).Elem(),
+		"RowsColumnTypeDatabaseTypeName":	TypeOf((*driver.RowsColumnTypeDatabaseTypeName)(nil)).Elem(),
+		"RowsColumnTypeLength":	TypeOf((*driver.RowsColumnTypeLength)(nil)).Elem(),
+		"RowsColumnTypeNullable":	TypeOf((*driver.RowsColumnTypeNullable)(nil)).Elem(),
+		"RowsColumnTypePrecisionScale":	TypeOf((*driver.RowsColumnTypePrecisionScale)(nil)).Elem(),
+		"RowsColumnTypeScanType":	TypeOf((*driver.RowsColumnTypeScanType)(nil)).Elem(),
+		"RowsNextResultSet":	TypeOf((*driver.RowsNextResultSet)(nil)).Elem(),
+		"Stmt":	TypeOf((*driver.Stmt)(nil)).Elem(),
+		"StmtExecContext":	TypeOf((*driver.StmtExecContext)(nil)).Elem(),
+		"StmtQueryContext":	TypeOf((*driver.StmtQueryContext)(nil)).Elem(),
+		"Tx":	TypeOf((*driver.Tx)(nil)).Elem(),
+		"TxOptions":	TypeOf((*driver.TxOptions)(nil)).Elem(),
+		"Value":	TypeOf((*driver.Value)(nil)).Elem(),
+		"ValueConverter":	TypeOf((*driver.ValueConverter)(nil)).Elem(),
+		"Valuer":	TypeOf((*driver.Valuer)(nil)).Elem(),
 	}
+	Proxies["database/sql/driver"] = map[string]Type{
+		"ColumnConverter":	TypeOf((*ColumnConverter_database_sql_driver)(nil)).Elem(),
+		"Conn":	TypeOf((*Conn_database_sql_driver)(nil)).Elem(),
+		"ConnBeginTx":	TypeOf((*ConnBeginTx_database_sql_driver)(nil)).Elem(),
+		"ConnPrepareContext":	TypeOf((*ConnPrepareContext_database_sql_driver)(nil)).Elem(),
+		"Driver":	TypeOf((*Driver_database_sql_driver)(nil)).Elem(),
+		"Execer":	TypeOf((*Execer_database_sql_driver)(nil)).Elem(),
+		"ExecerContext":	TypeOf((*ExecerContext_database_sql_driver)(nil)).Elem(),
+		"Pinger":	TypeOf((*Pinger_database_sql_driver)(nil)).Elem(),
+		"Queryer":	TypeOf((*Queryer_database_sql_driver)(nil)).Elem(),
+		"QueryerContext":	TypeOf((*QueryerContext_database_sql_driver)(nil)).Elem(),
+		"Result":	TypeOf((*Result_database_sql_driver)(nil)).Elem(),
+		"Rows":	TypeOf((*Rows_database_sql_driver)(nil)).Elem(),
+		"RowsColumnTypeDatabaseTypeName":	TypeOf((*RowsColumnTypeDatabaseTypeName_database_sql_driver)(nil)).Elem(),
+		"RowsColumnTypeLength":	TypeOf((*RowsColumnTypeLength_database_sql_driver)(nil)).Elem(),
+		"RowsColumnTypeNullable":	TypeOf((*RowsColumnTypeNullable_database_sql_driver)(nil)).Elem(),
+		"RowsColumnTypePrecisionScale":	TypeOf((*RowsColumnTypePrecisionScale_database_sql_driver)(nil)).Elem(),
+		"RowsColumnTypeScanType":	TypeOf((*RowsColumnTypeScanType_database_sql_driver)(nil)).Elem(),
+		"RowsNextResultSet":	TypeOf((*RowsNextResultSet_database_sql_driver)(nil)).Elem(),
+		"Stmt":	TypeOf((*Stmt_database_sql_driver)(nil)).Elem(),
+		"StmtExecContext":	TypeOf((*StmtExecContext_database_sql_driver)(nil)).Elem(),
+		"StmtQueryContext":	TypeOf((*StmtQueryContext_database_sql_driver)(nil)).Elem(),
+		"Tx":	TypeOf((*Tx_database_sql_driver)(nil)).Elem(),
+		"Value":	TypeOf((*Value_database_sql_driver)(nil)).Elem(),
+		"ValueConverter":	TypeOf((*ValueConverter_database_sql_driver)(nil)).Elem(),
+		"Valuer":	TypeOf((*Valuer_database_sql_driver)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for database/sql/driver.ColumnConverter ---------------
+type ColumnConverter_database_sql_driver struct {
+	ColumnConverter_	func(idx int) driver.ValueConverter
+}
+func (Obj ColumnConverter_database_sql_driver) ColumnConverter(idx int) driver.ValueConverter {
+	return Obj.ColumnConverter_(idx)
+}
+
+// --------------- proxy for database/sql/driver.Conn ---------------
+type Conn_database_sql_driver struct {
+	Begin_	func() (driver.Tx, error)
+	Close_	func() error
+	Prepare_	func(query string) (driver.Stmt, error)
+}
+func (Obj Conn_database_sql_driver) Begin() (driver.Tx, error) {
+	return Obj.Begin_()
+}
+func (Obj Conn_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj Conn_database_sql_driver) Prepare(query string) (driver.Stmt, error) {
+	return Obj.Prepare_(query)
+}
+
+// --------------- proxy for database/sql/driver.ConnBeginTx ---------------
+type ConnBeginTx_database_sql_driver struct {
+	BeginTx_	func(ctx context.Context, opts driver.TxOptions) (driver.Tx, error)
+}
+func (Obj ConnBeginTx_database_sql_driver) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, error) {
+	return Obj.BeginTx_(ctx, opts)
+}
+
+// --------------- proxy for database/sql/driver.ConnPrepareContext ---------------
+type ConnPrepareContext_database_sql_driver struct {
+	PrepareContext_	func(ctx context.Context, query string) (driver.Stmt, error)
+}
+func (Obj ConnPrepareContext_database_sql_driver) PrepareContext(ctx context.Context, query string) (driver.Stmt, error) {
+	return Obj.PrepareContext_(ctx, query)
+}
+
+// --------------- proxy for database/sql/driver.Driver ---------------
+type Driver_database_sql_driver struct {
+	Open_	func(name string) (driver.Conn, error)
+}
+func (Obj Driver_database_sql_driver) Open(name string) (driver.Conn, error) {
+	return Obj.Open_(name)
+}
+
+// --------------- proxy for database/sql/driver.Execer ---------------
+type Execer_database_sql_driver struct {
+	Exec_	func(query string, args []driver.Value) (driver.Result, error)
+}
+func (Obj Execer_database_sql_driver) Exec(query string, args []driver.Value) (driver.Result, error) {
+	return Obj.Exec_(query, args)
+}
+
+// --------------- proxy for database/sql/driver.ExecerContext ---------------
+type ExecerContext_database_sql_driver struct {
+	ExecContext_	func(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error)
+}
+func (Obj ExecerContext_database_sql_driver) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
+	return Obj.ExecContext_(ctx, query, args)
+}
+
+// --------------- proxy for database/sql/driver.Pinger ---------------
+type Pinger_database_sql_driver struct {
+	Ping_	func(ctx context.Context) error
+}
+func (Obj Pinger_database_sql_driver) Ping(ctx context.Context) error {
+	return Obj.Ping_(ctx)
+}
+
+// --------------- proxy for database/sql/driver.Queryer ---------------
+type Queryer_database_sql_driver struct {
+	Query_	func(query string, args []driver.Value) (driver.Rows, error)
+}
+func (Obj Queryer_database_sql_driver) Query(query string, args []driver.Value) (driver.Rows, error) {
+	return Obj.Query_(query, args)
+}
+
+// --------------- proxy for database/sql/driver.QueryerContext ---------------
+type QueryerContext_database_sql_driver struct {
+	QueryContext_	func(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error)
+}
+func (Obj QueryerContext_database_sql_driver) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
+	return Obj.QueryContext_(ctx, query, args)
+}
+
+// --------------- proxy for database/sql/driver.Result ---------------
+type Result_database_sql_driver struct {
+	LastInsertId_	func() (int64, error)
+	RowsAffected_	func() (int64, error)
+}
+func (Obj Result_database_sql_driver) LastInsertId() (int64, error) {
+	return Obj.LastInsertId_()
+}
+func (Obj Result_database_sql_driver) RowsAffected() (int64, error) {
+	return Obj.RowsAffected_()
+}
+
+// --------------- proxy for database/sql/driver.Rows ---------------
+type Rows_database_sql_driver struct {
+	Close_	func() error
+	Columns_	func() []string
+	Next_	func(dest []driver.Value) error
+}
+func (Obj Rows_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj Rows_database_sql_driver) Columns() []string {
+	return Obj.Columns_()
+}
+func (Obj Rows_database_sql_driver) Next(dest []driver.Value) error {
+	return Obj.Next_(dest)
+}
+
+// --------------- proxy for database/sql/driver.RowsColumnTypeDatabaseTypeName ---------------
+type RowsColumnTypeDatabaseTypeName_database_sql_driver struct {
+	Close_	func() error
+	ColumnTypeDatabaseTypeName_	func(index int) string
+	Columns_	func() []string
+	Next_	func(dest []driver.Value) error
+}
+func (Obj RowsColumnTypeDatabaseTypeName_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj RowsColumnTypeDatabaseTypeName_database_sql_driver) ColumnTypeDatabaseTypeName(index int) string {
+	return Obj.ColumnTypeDatabaseTypeName_(index)
+}
+func (Obj RowsColumnTypeDatabaseTypeName_database_sql_driver) Columns() []string {
+	return Obj.Columns_()
+}
+func (Obj RowsColumnTypeDatabaseTypeName_database_sql_driver) Next(dest []driver.Value) error {
+	return Obj.Next_(dest)
+}
+
+// --------------- proxy for database/sql/driver.RowsColumnTypeLength ---------------
+type RowsColumnTypeLength_database_sql_driver struct {
+	Close_	func() error
+	ColumnTypeLength_	func(index int) (length int64, ok bool)
+	Columns_	func() []string
+	Next_	func(dest []driver.Value) error
+}
+func (Obj RowsColumnTypeLength_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj RowsColumnTypeLength_database_sql_driver) ColumnTypeLength(index int) (length int64, ok bool) {
+	return Obj.ColumnTypeLength_(index)
+}
+func (Obj RowsColumnTypeLength_database_sql_driver) Columns() []string {
+	return Obj.Columns_()
+}
+func (Obj RowsColumnTypeLength_database_sql_driver) Next(dest []driver.Value) error {
+	return Obj.Next_(dest)
+}
+
+// --------------- proxy for database/sql/driver.RowsColumnTypeNullable ---------------
+type RowsColumnTypeNullable_database_sql_driver struct {
+	Close_	func() error
+	ColumnTypeNullable_	func(index int) (nullable bool, ok bool)
+	Columns_	func() []string
+	Next_	func(dest []driver.Value) error
+}
+func (Obj RowsColumnTypeNullable_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj RowsColumnTypeNullable_database_sql_driver) ColumnTypeNullable(index int) (nullable bool, ok bool) {
+	return Obj.ColumnTypeNullable_(index)
+}
+func (Obj RowsColumnTypeNullable_database_sql_driver) Columns() []string {
+	return Obj.Columns_()
+}
+func (Obj RowsColumnTypeNullable_database_sql_driver) Next(dest []driver.Value) error {
+	return Obj.Next_(dest)
+}
+
+// --------------- proxy for database/sql/driver.RowsColumnTypePrecisionScale ---------------
+type RowsColumnTypePrecisionScale_database_sql_driver struct {
+	Close_	func() error
+	ColumnTypePrecisionScale_	func(index int) (precision int64, scale int64, ok bool)
+	Columns_	func() []string
+	Next_	func(dest []driver.Value) error
+}
+func (Obj RowsColumnTypePrecisionScale_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj RowsColumnTypePrecisionScale_database_sql_driver) ColumnTypePrecisionScale(index int) (precision int64, scale int64, ok bool) {
+	return Obj.ColumnTypePrecisionScale_(index)
+}
+func (Obj RowsColumnTypePrecisionScale_database_sql_driver) Columns() []string {
+	return Obj.Columns_()
+}
+func (Obj RowsColumnTypePrecisionScale_database_sql_driver) Next(dest []driver.Value) error {
+	return Obj.Next_(dest)
+}
+
+// --------------- proxy for database/sql/driver.RowsColumnTypeScanType ---------------
+type RowsColumnTypeScanType_database_sql_driver struct {
+	Close_	func() error
+	ColumnTypeScanType_	func(index int) reflect.Type
+	Columns_	func() []string
+	Next_	func(dest []driver.Value) error
+}
+func (Obj RowsColumnTypeScanType_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj RowsColumnTypeScanType_database_sql_driver) ColumnTypeScanType(index int) reflect.Type {
+	return Obj.ColumnTypeScanType_(index)
+}
+func (Obj RowsColumnTypeScanType_database_sql_driver) Columns() []string {
+	return Obj.Columns_()
+}
+func (Obj RowsColumnTypeScanType_database_sql_driver) Next(dest []driver.Value) error {
+	return Obj.Next_(dest)
+}
+
+// --------------- proxy for database/sql/driver.RowsNextResultSet ---------------
+type RowsNextResultSet_database_sql_driver struct {
+	Close_	func() error
+	Columns_	func() []string
+	HasNextResultSet_	func() bool
+	Next_	func(dest []driver.Value) error
+	NextResultSet_	func() error
+}
+func (Obj RowsNextResultSet_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj RowsNextResultSet_database_sql_driver) Columns() []string {
+	return Obj.Columns_()
+}
+func (Obj RowsNextResultSet_database_sql_driver) HasNextResultSet() bool {
+	return Obj.HasNextResultSet_()
+}
+func (Obj RowsNextResultSet_database_sql_driver) Next(dest []driver.Value) error {
+	return Obj.Next_(dest)
+}
+func (Obj RowsNextResultSet_database_sql_driver) NextResultSet() error {
+	return Obj.NextResultSet_()
+}
+
+// --------------- proxy for database/sql/driver.Stmt ---------------
+type Stmt_database_sql_driver struct {
+	Close_	func() error
+	Exec_	func(args []driver.Value) (driver.Result, error)
+	NumInput_	func() int
+	Query_	func(args []driver.Value) (driver.Rows, error)
+}
+func (Obj Stmt_database_sql_driver) Close() error {
+	return Obj.Close_()
+}
+func (Obj Stmt_database_sql_driver) Exec(args []driver.Value) (driver.Result, error) {
+	return Obj.Exec_(args)
+}
+func (Obj Stmt_database_sql_driver) NumInput() int {
+	return Obj.NumInput_()
+}
+func (Obj Stmt_database_sql_driver) Query(args []driver.Value) (driver.Rows, error) {
+	return Obj.Query_(args)
+}
+
+// --------------- proxy for database/sql/driver.StmtExecContext ---------------
+type StmtExecContext_database_sql_driver struct {
+	ExecContext_	func(ctx context.Context, args []driver.NamedValue) (driver.Result, error)
+}
+func (Obj StmtExecContext_database_sql_driver) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
+	return Obj.ExecContext_(ctx, args)
+}
+
+// --------------- proxy for database/sql/driver.StmtQueryContext ---------------
+type StmtQueryContext_database_sql_driver struct {
+	QueryContext_	func(ctx context.Context, args []driver.NamedValue) (driver.Rows, error)
+}
+func (Obj StmtQueryContext_database_sql_driver) QueryContext(ctx context.Context, args []driver.NamedValue) (driver.Rows, error) {
+	return Obj.QueryContext_(ctx, args)
+}
+
+// --------------- proxy for database/sql/driver.Tx ---------------
+type Tx_database_sql_driver struct {
+	Commit_	func() error
+	Rollback_	func() error
+}
+func (Obj Tx_database_sql_driver) Commit() error {
+	return Obj.Commit_()
+}
+func (Obj Tx_database_sql_driver) Rollback() error {
+	return Obj.Rollback_()
+}
+
+// --------------- proxy for database/sql/driver.Value ---------------
+type Value_database_sql_driver struct {
+}
+
+// --------------- proxy for database/sql/driver.ValueConverter ---------------
+type ValueConverter_database_sql_driver struct {
+	ConvertValue_	func(v interface{}) (driver.Value, error)
+}
+func (Obj ValueConverter_database_sql_driver) ConvertValue(v interface{}) (driver.Value, error) {
+	return Obj.ConvertValue_(v)
+}
+
+// --------------- proxy for database/sql/driver.Valuer ---------------
+type Valuer_database_sql_driver struct {
+	Value_	func() (driver.Value, error)
+}
+func (Obj Valuer_database_sql_driver) Value() (driver.Value, error) {
+	return Obj.Value_()
 }

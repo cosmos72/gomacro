@@ -4,25 +4,27 @@
 package imports
 
 import (
-	pkg "go/parser"
 	. "reflect"
+	"go/parser"
 )
 
 func init() {
 	Binds["go/parser"] = map[string]Value{
-		"AllErrors":	ValueOf(pkg.AllErrors),
-		"DeclarationErrors":	ValueOf(pkg.DeclarationErrors),
-		"ImportsOnly":	ValueOf(pkg.ImportsOnly),
-		"PackageClauseOnly":	ValueOf(pkg.PackageClauseOnly),
-		"ParseComments":	ValueOf(pkg.ParseComments),
-		"ParseDir":	ValueOf(pkg.ParseDir),
-		"ParseExpr":	ValueOf(pkg.ParseExpr),
-		"ParseExprFrom":	ValueOf(pkg.ParseExprFrom),
-		"ParseFile":	ValueOf(pkg.ParseFile),
-		"SpuriousErrors":	ValueOf(pkg.SpuriousErrors),
-		"Trace":	ValueOf(pkg.Trace),
+		"AllErrors":	ValueOf(parser.AllErrors),
+		"DeclarationErrors":	ValueOf(parser.DeclarationErrors),
+		"ImportsOnly":	ValueOf(parser.ImportsOnly),
+		"PackageClauseOnly":	ValueOf(parser.PackageClauseOnly),
+		"ParseComments":	ValueOf(parser.ParseComments),
+		"ParseDir":	ValueOf(parser.ParseDir),
+		"ParseExpr":	ValueOf(parser.ParseExpr),
+		"ParseExprFrom":	ValueOf(parser.ParseExprFrom),
+		"ParseFile":	ValueOf(parser.ParseFile),
+		"SpuriousErrors":	ValueOf(parser.SpuriousErrors),
+		"Trace":	ValueOf(parser.Trace),
 	}
 	Types["go/parser"] = map[string]Type{
-		"Mode":	TypeOf((*pkg.Mode)(nil)).Elem(),
+		"Mode":	TypeOf((*parser.Mode)(nil)).Elem(),
+	}
+	Proxies["go/parser"] = map[string]Type{
 	}
 }

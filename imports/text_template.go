@@ -4,28 +4,30 @@
 package imports
 
 import (
-	pkg "text/template"
 	. "reflect"
+	"text/template"
 )
 
 func init() {
 	Binds["text/template"] = map[string]Value{
-		"HTMLEscape":	ValueOf(pkg.HTMLEscape),
-		"HTMLEscapeString":	ValueOf(pkg.HTMLEscapeString),
-		"HTMLEscaper":	ValueOf(pkg.HTMLEscaper),
-		"IsTrue":	ValueOf(pkg.IsTrue),
-		"JSEscape":	ValueOf(pkg.JSEscape),
-		"JSEscapeString":	ValueOf(pkg.JSEscapeString),
-		"JSEscaper":	ValueOf(pkg.JSEscaper),
-		"Must":	ValueOf(pkg.Must),
-		"New":	ValueOf(pkg.New),
-		"ParseFiles":	ValueOf(pkg.ParseFiles),
-		"ParseGlob":	ValueOf(pkg.ParseGlob),
-		"URLQueryEscaper":	ValueOf(pkg.URLQueryEscaper),
+		"HTMLEscape":	ValueOf(template.HTMLEscape),
+		"HTMLEscapeString":	ValueOf(template.HTMLEscapeString),
+		"HTMLEscaper":	ValueOf(template.HTMLEscaper),
+		"IsTrue":	ValueOf(template.IsTrue),
+		"JSEscape":	ValueOf(template.JSEscape),
+		"JSEscapeString":	ValueOf(template.JSEscapeString),
+		"JSEscaper":	ValueOf(template.JSEscaper),
+		"Must":	ValueOf(template.Must),
+		"New":	ValueOf(template.New),
+		"ParseFiles":	ValueOf(template.ParseFiles),
+		"ParseGlob":	ValueOf(template.ParseGlob),
+		"URLQueryEscaper":	ValueOf(template.URLQueryEscaper),
 	}
 	Types["text/template"] = map[string]Type{
-		"ExecError":	TypeOf((*pkg.ExecError)(nil)).Elem(),
-		"FuncMap":	TypeOf((*pkg.FuncMap)(nil)).Elem(),
-		"Template":	TypeOf((*pkg.Template)(nil)).Elem(),
+		"ExecError":	TypeOf((*template.ExecError)(nil)).Elem(),
+		"FuncMap":	TypeOf((*template.FuncMap)(nil)).Elem(),
+		"Template":	TypeOf((*template.Template)(nil)).Elem(),
+	}
+	Proxies["text/template"] = map[string]Type{
 	}
 }

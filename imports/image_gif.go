@@ -4,23 +4,25 @@
 package imports
 
 import (
-	pkg "image/gif"
 	. "reflect"
+	"image/gif"
 )
 
 func init() {
 	Binds["image/gif"] = map[string]Value{
-		"Decode":	ValueOf(pkg.Decode),
-		"DecodeAll":	ValueOf(pkg.DecodeAll),
-		"DecodeConfig":	ValueOf(pkg.DecodeConfig),
-		"DisposalBackground":	ValueOf(pkg.DisposalBackground),
-		"DisposalNone":	ValueOf(pkg.DisposalNone),
-		"DisposalPrevious":	ValueOf(pkg.DisposalPrevious),
-		"Encode":	ValueOf(pkg.Encode),
-		"EncodeAll":	ValueOf(pkg.EncodeAll),
+		"Decode":	ValueOf(gif.Decode),
+		"DecodeAll":	ValueOf(gif.DecodeAll),
+		"DecodeConfig":	ValueOf(gif.DecodeConfig),
+		"DisposalBackground":	ValueOf(gif.DisposalBackground),
+		"DisposalNone":	ValueOf(gif.DisposalNone),
+		"DisposalPrevious":	ValueOf(gif.DisposalPrevious),
+		"Encode":	ValueOf(gif.Encode),
+		"EncodeAll":	ValueOf(gif.EncodeAll),
 	}
 	Types["image/gif"] = map[string]Type{
-		"GIF":	TypeOf((*pkg.GIF)(nil)).Elem(),
-		"Options":	TypeOf((*pkg.Options)(nil)).Elem(),
+		"GIF":	TypeOf((*gif.GIF)(nil)).Elem(),
+		"Options":	TypeOf((*gif.Options)(nil)).Elem(),
+	}
+	Proxies["image/gif"] = map[string]Type{
 	}
 }

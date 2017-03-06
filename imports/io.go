@@ -4,58 +4,284 @@
 package imports
 
 import (
-	pkg "io"
 	. "reflect"
+	"io"
 )
 
 func init() {
 	Binds["io"] = map[string]Value{
-		"Copy":	ValueOf(pkg.Copy),
-		"CopyBuffer":	ValueOf(pkg.CopyBuffer),
-		"CopyN":	ValueOf(pkg.CopyN),
-		"EOF":	ValueOf(&pkg.EOF).Elem(),
-		"ErrClosedPipe":	ValueOf(&pkg.ErrClosedPipe).Elem(),
-		"ErrNoProgress":	ValueOf(&pkg.ErrNoProgress).Elem(),
-		"ErrShortBuffer":	ValueOf(&pkg.ErrShortBuffer).Elem(),
-		"ErrShortWrite":	ValueOf(&pkg.ErrShortWrite).Elem(),
-		"ErrUnexpectedEOF":	ValueOf(&pkg.ErrUnexpectedEOF).Elem(),
-		"LimitReader":	ValueOf(pkg.LimitReader),
-		"MultiReader":	ValueOf(pkg.MultiReader),
-		"MultiWriter":	ValueOf(pkg.MultiWriter),
-		"NewSectionReader":	ValueOf(pkg.NewSectionReader),
-		"Pipe":	ValueOf(pkg.Pipe),
-		"ReadAtLeast":	ValueOf(pkg.ReadAtLeast),
-		"ReadFull":	ValueOf(pkg.ReadFull),
-		"SeekCurrent":	ValueOf(pkg.SeekCurrent),
-		"SeekEnd":	ValueOf(pkg.SeekEnd),
-		"SeekStart":	ValueOf(pkg.SeekStart),
-		"TeeReader":	ValueOf(pkg.TeeReader),
-		"WriteString":	ValueOf(pkg.WriteString),
+		"Copy":	ValueOf(io.Copy),
+		"CopyBuffer":	ValueOf(io.CopyBuffer),
+		"CopyN":	ValueOf(io.CopyN),
+		"EOF":	ValueOf(&io.EOF).Elem(),
+		"ErrClosedPipe":	ValueOf(&io.ErrClosedPipe).Elem(),
+		"ErrNoProgress":	ValueOf(&io.ErrNoProgress).Elem(),
+		"ErrShortBuffer":	ValueOf(&io.ErrShortBuffer).Elem(),
+		"ErrShortWrite":	ValueOf(&io.ErrShortWrite).Elem(),
+		"ErrUnexpectedEOF":	ValueOf(&io.ErrUnexpectedEOF).Elem(),
+		"LimitReader":	ValueOf(io.LimitReader),
+		"MultiReader":	ValueOf(io.MultiReader),
+		"MultiWriter":	ValueOf(io.MultiWriter),
+		"NewSectionReader":	ValueOf(io.NewSectionReader),
+		"Pipe":	ValueOf(io.Pipe),
+		"ReadAtLeast":	ValueOf(io.ReadAtLeast),
+		"ReadFull":	ValueOf(io.ReadFull),
+		"SeekCurrent":	ValueOf(io.SeekCurrent),
+		"SeekEnd":	ValueOf(io.SeekEnd),
+		"SeekStart":	ValueOf(io.SeekStart),
+		"TeeReader":	ValueOf(io.TeeReader),
+		"WriteString":	ValueOf(io.WriteString),
 	}
 	Types["io"] = map[string]Type{
-		"ByteReader":	TypeOf((*pkg.ByteReader)(nil)).Elem(),
-		"ByteScanner":	TypeOf((*pkg.ByteScanner)(nil)).Elem(),
-		"ByteWriter":	TypeOf((*pkg.ByteWriter)(nil)).Elem(),
-		"Closer":	TypeOf((*pkg.Closer)(nil)).Elem(),
-		"LimitedReader":	TypeOf((*pkg.LimitedReader)(nil)).Elem(),
-		"PipeReader":	TypeOf((*pkg.PipeReader)(nil)).Elem(),
-		"PipeWriter":	TypeOf((*pkg.PipeWriter)(nil)).Elem(),
-		"ReadCloser":	TypeOf((*pkg.ReadCloser)(nil)).Elem(),
-		"ReadSeeker":	TypeOf((*pkg.ReadSeeker)(nil)).Elem(),
-		"ReadWriteCloser":	TypeOf((*pkg.ReadWriteCloser)(nil)).Elem(),
-		"ReadWriteSeeker":	TypeOf((*pkg.ReadWriteSeeker)(nil)).Elem(),
-		"ReadWriter":	TypeOf((*pkg.ReadWriter)(nil)).Elem(),
-		"Reader":	TypeOf((*pkg.Reader)(nil)).Elem(),
-		"ReaderAt":	TypeOf((*pkg.ReaderAt)(nil)).Elem(),
-		"ReaderFrom":	TypeOf((*pkg.ReaderFrom)(nil)).Elem(),
-		"RuneReader":	TypeOf((*pkg.RuneReader)(nil)).Elem(),
-		"RuneScanner":	TypeOf((*pkg.RuneScanner)(nil)).Elem(),
-		"SectionReader":	TypeOf((*pkg.SectionReader)(nil)).Elem(),
-		"Seeker":	TypeOf((*pkg.Seeker)(nil)).Elem(),
-		"WriteCloser":	TypeOf((*pkg.WriteCloser)(nil)).Elem(),
-		"WriteSeeker":	TypeOf((*pkg.WriteSeeker)(nil)).Elem(),
-		"Writer":	TypeOf((*pkg.Writer)(nil)).Elem(),
-		"WriterAt":	TypeOf((*pkg.WriterAt)(nil)).Elem(),
-		"WriterTo":	TypeOf((*pkg.WriterTo)(nil)).Elem(),
+		"ByteReader":	TypeOf((*io.ByteReader)(nil)).Elem(),
+		"ByteScanner":	TypeOf((*io.ByteScanner)(nil)).Elem(),
+		"ByteWriter":	TypeOf((*io.ByteWriter)(nil)).Elem(),
+		"Closer":	TypeOf((*io.Closer)(nil)).Elem(),
+		"LimitedReader":	TypeOf((*io.LimitedReader)(nil)).Elem(),
+		"PipeReader":	TypeOf((*io.PipeReader)(nil)).Elem(),
+		"PipeWriter":	TypeOf((*io.PipeWriter)(nil)).Elem(),
+		"ReadCloser":	TypeOf((*io.ReadCloser)(nil)).Elem(),
+		"ReadSeeker":	TypeOf((*io.ReadSeeker)(nil)).Elem(),
+		"ReadWriteCloser":	TypeOf((*io.ReadWriteCloser)(nil)).Elem(),
+		"ReadWriteSeeker":	TypeOf((*io.ReadWriteSeeker)(nil)).Elem(),
+		"ReadWriter":	TypeOf((*io.ReadWriter)(nil)).Elem(),
+		"Reader":	TypeOf((*io.Reader)(nil)).Elem(),
+		"ReaderAt":	TypeOf((*io.ReaderAt)(nil)).Elem(),
+		"ReaderFrom":	TypeOf((*io.ReaderFrom)(nil)).Elem(),
+		"RuneReader":	TypeOf((*io.RuneReader)(nil)).Elem(),
+		"RuneScanner":	TypeOf((*io.RuneScanner)(nil)).Elem(),
+		"SectionReader":	TypeOf((*io.SectionReader)(nil)).Elem(),
+		"Seeker":	TypeOf((*io.Seeker)(nil)).Elem(),
+		"WriteCloser":	TypeOf((*io.WriteCloser)(nil)).Elem(),
+		"WriteSeeker":	TypeOf((*io.WriteSeeker)(nil)).Elem(),
+		"Writer":	TypeOf((*io.Writer)(nil)).Elem(),
+		"WriterAt":	TypeOf((*io.WriterAt)(nil)).Elem(),
+		"WriterTo":	TypeOf((*io.WriterTo)(nil)).Elem(),
 	}
+	Proxies["io"] = map[string]Type{
+		"ByteReader":	TypeOf((*ByteReader_io)(nil)).Elem(),
+		"ByteScanner":	TypeOf((*ByteScanner_io)(nil)).Elem(),
+		"ByteWriter":	TypeOf((*ByteWriter_io)(nil)).Elem(),
+		"Closer":	TypeOf((*Closer_io)(nil)).Elem(),
+		"ReadCloser":	TypeOf((*ReadCloser_io)(nil)).Elem(),
+		"ReadSeeker":	TypeOf((*ReadSeeker_io)(nil)).Elem(),
+		"ReadWriteCloser":	TypeOf((*ReadWriteCloser_io)(nil)).Elem(),
+		"ReadWriteSeeker":	TypeOf((*ReadWriteSeeker_io)(nil)).Elem(),
+		"ReadWriter":	TypeOf((*ReadWriter_io)(nil)).Elem(),
+		"Reader":	TypeOf((*Reader_io)(nil)).Elem(),
+		"ReaderAt":	TypeOf((*ReaderAt_io)(nil)).Elem(),
+		"ReaderFrom":	TypeOf((*ReaderFrom_io)(nil)).Elem(),
+		"RuneReader":	TypeOf((*RuneReader_io)(nil)).Elem(),
+		"RuneScanner":	TypeOf((*RuneScanner_io)(nil)).Elem(),
+		"Seeker":	TypeOf((*Seeker_io)(nil)).Elem(),
+		"WriteCloser":	TypeOf((*WriteCloser_io)(nil)).Elem(),
+		"WriteSeeker":	TypeOf((*WriteSeeker_io)(nil)).Elem(),
+		"Writer":	TypeOf((*Writer_io)(nil)).Elem(),
+		"WriterAt":	TypeOf((*WriterAt_io)(nil)).Elem(),
+		"WriterTo":	TypeOf((*WriterTo_io)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for io.ByteReader ---------------
+type ByteReader_io struct {
+	ReadByte_	func() (byte, error)
+}
+func (Obj ByteReader_io) ReadByte() (byte, error) {
+	return Obj.ReadByte_()
+}
+
+// --------------- proxy for io.ByteScanner ---------------
+type ByteScanner_io struct {
+	ReadByte_	func() (byte, error)
+	UnreadByte_	func() error
+}
+func (Obj ByteScanner_io) ReadByte() (byte, error) {
+	return Obj.ReadByte_()
+}
+func (Obj ByteScanner_io) UnreadByte() error {
+	return Obj.UnreadByte_()
+}
+
+// --------------- proxy for io.ByteWriter ---------------
+type ByteWriter_io struct {
+	WriteByte_	func(c byte) error
+}
+func (Obj ByteWriter_io) WriteByte(c byte) error {
+	return Obj.WriteByte_(c)
+}
+
+// --------------- proxy for io.Closer ---------------
+type Closer_io struct {
+	Close_	func() error
+}
+func (Obj Closer_io) Close() error {
+	return Obj.Close_()
+}
+
+// --------------- proxy for io.ReadCloser ---------------
+type ReadCloser_io struct {
+	Close_	func() error
+	Read_	func(p []byte) (n int, err error)
+}
+func (Obj ReadCloser_io) Close() error {
+	return Obj.Close_()
+}
+func (Obj ReadCloser_io) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+
+// --------------- proxy for io.ReadSeeker ---------------
+type ReadSeeker_io struct {
+	Read_	func(p []byte) (n int, err error)
+	Seek_	func(offset int64, whence int) (int64, error)
+}
+func (Obj ReadSeeker_io) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+func (Obj ReadSeeker_io) Seek(offset int64, whence int) (int64, error) {
+	return Obj.Seek_(offset, whence)
+}
+
+// --------------- proxy for io.ReadWriteCloser ---------------
+type ReadWriteCloser_io struct {
+	Close_	func() error
+	Read_	func(p []byte) (n int, err error)
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj ReadWriteCloser_io) Close() error {
+	return Obj.Close_()
+}
+func (Obj ReadWriteCloser_io) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+func (Obj ReadWriteCloser_io) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
+}
+
+// --------------- proxy for io.ReadWriteSeeker ---------------
+type ReadWriteSeeker_io struct {
+	Read_	func(p []byte) (n int, err error)
+	Seek_	func(offset int64, whence int) (int64, error)
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj ReadWriteSeeker_io) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+func (Obj ReadWriteSeeker_io) Seek(offset int64, whence int) (int64, error) {
+	return Obj.Seek_(offset, whence)
+}
+func (Obj ReadWriteSeeker_io) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
+}
+
+// --------------- proxy for io.ReadWriter ---------------
+type ReadWriter_io struct {
+	Read_	func(p []byte) (n int, err error)
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj ReadWriter_io) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+func (Obj ReadWriter_io) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
+}
+
+// --------------- proxy for io.Reader ---------------
+type Reader_io struct {
+	Read_	func(p []byte) (n int, err error)
+}
+func (Obj Reader_io) Read(p []byte) (n int, err error) {
+	return Obj.Read_(p)
+}
+
+// --------------- proxy for io.ReaderAt ---------------
+type ReaderAt_io struct {
+	ReadAt_	func(p []byte, off int64) (n int, err error)
+}
+func (Obj ReaderAt_io) ReadAt(p []byte, off int64) (n int, err error) {
+	return Obj.ReadAt_(p, off)
+}
+
+// --------------- proxy for io.ReaderFrom ---------------
+type ReaderFrom_io struct {
+	ReadFrom_	func(r io.Reader) (n int64, err error)
+}
+func (Obj ReaderFrom_io) ReadFrom(r io.Reader) (n int64, err error) {
+	return Obj.ReadFrom_(r)
+}
+
+// --------------- proxy for io.RuneReader ---------------
+type RuneReader_io struct {
+	ReadRune_	func() (r rune, size int, err error)
+}
+func (Obj RuneReader_io) ReadRune() (r rune, size int, err error) {
+	return Obj.ReadRune_()
+}
+
+// --------------- proxy for io.RuneScanner ---------------
+type RuneScanner_io struct {
+	ReadRune_	func() (r rune, size int, err error)
+	UnreadRune_	func() error
+}
+func (Obj RuneScanner_io) ReadRune() (r rune, size int, err error) {
+	return Obj.ReadRune_()
+}
+func (Obj RuneScanner_io) UnreadRune() error {
+	return Obj.UnreadRune_()
+}
+
+// --------------- proxy for io.Seeker ---------------
+type Seeker_io struct {
+	Seek_	func(offset int64, whence int) (int64, error)
+}
+func (Obj Seeker_io) Seek(offset int64, whence int) (int64, error) {
+	return Obj.Seek_(offset, whence)
+}
+
+// --------------- proxy for io.WriteCloser ---------------
+type WriteCloser_io struct {
+	Close_	func() error
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj WriteCloser_io) Close() error {
+	return Obj.Close_()
+}
+func (Obj WriteCloser_io) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
+}
+
+// --------------- proxy for io.WriteSeeker ---------------
+type WriteSeeker_io struct {
+	Seek_	func(offset int64, whence int) (int64, error)
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj WriteSeeker_io) Seek(offset int64, whence int) (int64, error) {
+	return Obj.Seek_(offset, whence)
+}
+func (Obj WriteSeeker_io) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
+}
+
+// --------------- proxy for io.Writer ---------------
+type Writer_io struct {
+	Write_	func(p []byte) (n int, err error)
+}
+func (Obj Writer_io) Write(p []byte) (n int, err error) {
+	return Obj.Write_(p)
+}
+
+// --------------- proxy for io.WriterAt ---------------
+type WriterAt_io struct {
+	WriteAt_	func(p []byte, off int64) (n int, err error)
+}
+func (Obj WriterAt_io) WriteAt(p []byte, off int64) (n int, err error) {
+	return Obj.WriteAt_(p, off)
+}
+
+// --------------- proxy for io.WriterTo ---------------
+type WriterTo_io struct {
+	WriteTo_	func(w io.Writer) (n int64, err error)
+}
+func (Obj WriterTo_io) WriteTo(w io.Writer) (n int64, err error) {
+	return Obj.WriteTo_(w)
 }

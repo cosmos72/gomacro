@@ -4,30 +4,45 @@
 package imports
 
 import (
-	pkg "net/http/httputil"
 	. "reflect"
+	"net/http/httputil"
 )
 
 func init() {
 	Binds["net/http/httputil"] = map[string]Value{
-		"DumpRequest":	ValueOf(pkg.DumpRequest),
-		"DumpRequestOut":	ValueOf(pkg.DumpRequestOut),
-		"DumpResponse":	ValueOf(pkg.DumpResponse),
-		"ErrClosed":	ValueOf(&pkg.ErrClosed).Elem(),
-		"ErrLineTooLong":	ValueOf(&pkg.ErrLineTooLong).Elem(),
-		"ErrPersistEOF":	ValueOf(&pkg.ErrPersistEOF).Elem(),
-		"ErrPipeline":	ValueOf(&pkg.ErrPipeline).Elem(),
-		"NewChunkedReader":	ValueOf(pkg.NewChunkedReader),
-		"NewChunkedWriter":	ValueOf(pkg.NewChunkedWriter),
-		"NewClientConn":	ValueOf(pkg.NewClientConn),
-		"NewProxyClientConn":	ValueOf(pkg.NewProxyClientConn),
-		"NewServerConn":	ValueOf(pkg.NewServerConn),
-		"NewSingleHostReverseProxy":	ValueOf(pkg.NewSingleHostReverseProxy),
+		"DumpRequest":	ValueOf(httputil.DumpRequest),
+		"DumpRequestOut":	ValueOf(httputil.DumpRequestOut),
+		"DumpResponse":	ValueOf(httputil.DumpResponse),
+		"ErrClosed":	ValueOf(&httputil.ErrClosed).Elem(),
+		"ErrLineTooLong":	ValueOf(&httputil.ErrLineTooLong).Elem(),
+		"ErrPersistEOF":	ValueOf(&httputil.ErrPersistEOF).Elem(),
+		"ErrPipeline":	ValueOf(&httputil.ErrPipeline).Elem(),
+		"NewChunkedReader":	ValueOf(httputil.NewChunkedReader),
+		"NewChunkedWriter":	ValueOf(httputil.NewChunkedWriter),
+		"NewClientConn":	ValueOf(httputil.NewClientConn),
+		"NewProxyClientConn":	ValueOf(httputil.NewProxyClientConn),
+		"NewServerConn":	ValueOf(httputil.NewServerConn),
+		"NewSingleHostReverseProxy":	ValueOf(httputil.NewSingleHostReverseProxy),
 	}
 	Types["net/http/httputil"] = map[string]Type{
-		"BufferPool":	TypeOf((*pkg.BufferPool)(nil)).Elem(),
-		"ClientConn":	TypeOf((*pkg.ClientConn)(nil)).Elem(),
-		"ReverseProxy":	TypeOf((*pkg.ReverseProxy)(nil)).Elem(),
-		"ServerConn":	TypeOf((*pkg.ServerConn)(nil)).Elem(),
+		"BufferPool":	TypeOf((*httputil.BufferPool)(nil)).Elem(),
+		"ClientConn":	TypeOf((*httputil.ClientConn)(nil)).Elem(),
+		"ReverseProxy":	TypeOf((*httputil.ReverseProxy)(nil)).Elem(),
+		"ServerConn":	TypeOf((*httputil.ServerConn)(nil)).Elem(),
 	}
+	Proxies["net/http/httputil"] = map[string]Type{
+		"BufferPool":	TypeOf((*BufferPool_net_http_httputil)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for net/http/httputil.BufferPool ---------------
+type BufferPool_net_http_httputil struct {
+	Get_	func() []byte
+	Put_	func([]byte) 
+}
+func (Obj BufferPool_net_http_httputil) Get() []byte {
+	return Obj.Get_()
+}
+func (Obj BufferPool_net_http_httputil) Put(unnamed0 []byte)  {
+	Obj.Put_(unnamed0)
 }

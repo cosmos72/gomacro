@@ -4,28 +4,63 @@
 package imports
 
 import (
-	pkg "encoding/binary"
 	. "reflect"
+	"encoding/binary"
 )
 
 func init() {
 	Binds["encoding/binary"] = map[string]Value{
-		"BigEndian":	ValueOf(&pkg.BigEndian).Elem(),
-		"LittleEndian":	ValueOf(&pkg.LittleEndian).Elem(),
-		"MaxVarintLen16":	ValueOf(pkg.MaxVarintLen16),
-		"MaxVarintLen32":	ValueOf(pkg.MaxVarintLen32),
-		"MaxVarintLen64":	ValueOf(pkg.MaxVarintLen64),
-		"PutUvarint":	ValueOf(pkg.PutUvarint),
-		"PutVarint":	ValueOf(pkg.PutVarint),
-		"Read":	ValueOf(pkg.Read),
-		"ReadUvarint":	ValueOf(pkg.ReadUvarint),
-		"ReadVarint":	ValueOf(pkg.ReadVarint),
-		"Size":	ValueOf(pkg.Size),
-		"Uvarint":	ValueOf(pkg.Uvarint),
-		"Varint":	ValueOf(pkg.Varint),
-		"Write":	ValueOf(pkg.Write),
+		"BigEndian":	ValueOf(&binary.BigEndian).Elem(),
+		"LittleEndian":	ValueOf(&binary.LittleEndian).Elem(),
+		"MaxVarintLen16":	ValueOf(binary.MaxVarintLen16),
+		"MaxVarintLen32":	ValueOf(binary.MaxVarintLen32),
+		"MaxVarintLen64":	ValueOf(binary.MaxVarintLen64),
+		"PutUvarint":	ValueOf(binary.PutUvarint),
+		"PutVarint":	ValueOf(binary.PutVarint),
+		"Read":	ValueOf(binary.Read),
+		"ReadUvarint":	ValueOf(binary.ReadUvarint),
+		"ReadVarint":	ValueOf(binary.ReadVarint),
+		"Size":	ValueOf(binary.Size),
+		"Uvarint":	ValueOf(binary.Uvarint),
+		"Varint":	ValueOf(binary.Varint),
+		"Write":	ValueOf(binary.Write),
 	}
 	Types["encoding/binary"] = map[string]Type{
-		"ByteOrder":	TypeOf((*pkg.ByteOrder)(nil)).Elem(),
+		"ByteOrder":	TypeOf((*binary.ByteOrder)(nil)).Elem(),
 	}
+	Proxies["encoding/binary"] = map[string]Type{
+		"ByteOrder":	TypeOf((*ByteOrder_encoding_binary)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for encoding/binary.ByteOrder ---------------
+type ByteOrder_encoding_binary struct {
+	PutUint16_	func([]byte, uint16) 
+	PutUint32_	func([]byte, uint32) 
+	PutUint64_	func([]byte, uint64) 
+	String_	func() string
+	Uint16_	func([]byte) uint16
+	Uint32_	func([]byte) uint32
+	Uint64_	func([]byte) uint64
+}
+func (Obj ByteOrder_encoding_binary) PutUint16(unnamed0 []byte, unnamed1 uint16)  {
+	Obj.PutUint16_(unnamed0, unnamed1)
+}
+func (Obj ByteOrder_encoding_binary) PutUint32(unnamed0 []byte, unnamed1 uint32)  {
+	Obj.PutUint32_(unnamed0, unnamed1)
+}
+func (Obj ByteOrder_encoding_binary) PutUint64(unnamed0 []byte, unnamed1 uint64)  {
+	Obj.PutUint64_(unnamed0, unnamed1)
+}
+func (Obj ByteOrder_encoding_binary) String() string {
+	return Obj.String_()
+}
+func (Obj ByteOrder_encoding_binary) Uint16(unnamed0 []byte) uint16 {
+	return Obj.Uint16_(unnamed0)
+}
+func (Obj ByteOrder_encoding_binary) Uint32(unnamed0 []byte) uint32 {
+	return Obj.Uint32_(unnamed0)
+}
+func (Obj ByteOrder_encoding_binary) Uint64(unnamed0 []byte) uint64 {
+	return Obj.Uint64_(unnamed0)
 }

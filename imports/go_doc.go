@@ -4,30 +4,32 @@
 package imports
 
 import (
-	pkg "go/doc"
 	. "reflect"
+	"go/doc"
 )
 
 func init() {
 	Binds["go/doc"] = map[string]Value{
-		"AllDecls":	ValueOf(pkg.AllDecls),
-		"AllMethods":	ValueOf(pkg.AllMethods),
-		"Examples":	ValueOf(pkg.Examples),
-		"IllegalPrefixes":	ValueOf(&pkg.IllegalPrefixes).Elem(),
-		"IsPredeclared":	ValueOf(pkg.IsPredeclared),
-		"New":	ValueOf(pkg.New),
-		"Synopsis":	ValueOf(pkg.Synopsis),
-		"ToHTML":	ValueOf(pkg.ToHTML),
-		"ToText":	ValueOf(pkg.ToText),
+		"AllDecls":	ValueOf(doc.AllDecls),
+		"AllMethods":	ValueOf(doc.AllMethods),
+		"Examples":	ValueOf(doc.Examples),
+		"IllegalPrefixes":	ValueOf(&doc.IllegalPrefixes).Elem(),
+		"IsPredeclared":	ValueOf(doc.IsPredeclared),
+		"New":	ValueOf(doc.New),
+		"Synopsis":	ValueOf(doc.Synopsis),
+		"ToHTML":	ValueOf(doc.ToHTML),
+		"ToText":	ValueOf(doc.ToText),
 	}
 	Types["go/doc"] = map[string]Type{
-		"Example":	TypeOf((*pkg.Example)(nil)).Elem(),
-		"Filter":	TypeOf((*pkg.Filter)(nil)).Elem(),
-		"Func":	TypeOf((*pkg.Func)(nil)).Elem(),
-		"Mode":	TypeOf((*pkg.Mode)(nil)).Elem(),
-		"Note":	TypeOf((*pkg.Note)(nil)).Elem(),
-		"Package":	TypeOf((*pkg.Package)(nil)).Elem(),
-		"Type":	TypeOf((*pkg.Type)(nil)).Elem(),
-		"Value":	TypeOf((*pkg.Value)(nil)).Elem(),
+		"Example":	TypeOf((*doc.Example)(nil)).Elem(),
+		"Filter":	TypeOf((*doc.Filter)(nil)).Elem(),
+		"Func":	TypeOf((*doc.Func)(nil)).Elem(),
+		"Mode":	TypeOf((*doc.Mode)(nil)).Elem(),
+		"Note":	TypeOf((*doc.Note)(nil)).Elem(),
+		"Package":	TypeOf((*doc.Package)(nil)).Elem(),
+		"Type":	TypeOf((*doc.Type)(nil)).Elem(),
+		"Value":	TypeOf((*doc.Value)(nil)).Elem(),
+	}
+	Proxies["go/doc"] = map[string]Type{
 	}
 }

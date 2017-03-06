@@ -4,15 +4,17 @@
 package imports
 
 import (
-	pkg "runtime/trace"
 	. "reflect"
+	"runtime/trace"
 )
 
 func init() {
 	Binds["runtime/trace"] = map[string]Value{
-		"Start":	ValueOf(pkg.Start),
-		"Stop":	ValueOf(pkg.Stop),
+		"Start":	ValueOf(trace.Start),
+		"Stop":	ValueOf(trace.Stop),
 	}
 	Types["runtime/trace"] = map[string]Type{
+	}
+	Proxies["runtime/trace"] = map[string]Type{
 	}
 }

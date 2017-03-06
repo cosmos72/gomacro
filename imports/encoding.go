@@ -4,17 +4,55 @@
 package imports
 
 import (
-	pkg "encoding"
 	. "reflect"
+	"encoding"
 )
 
 func init() {
 	Binds["encoding"] = map[string]Value{
 	}
 	Types["encoding"] = map[string]Type{
-		"BinaryMarshaler":	TypeOf((*pkg.BinaryMarshaler)(nil)).Elem(),
-		"BinaryUnmarshaler":	TypeOf((*pkg.BinaryUnmarshaler)(nil)).Elem(),
-		"TextMarshaler":	TypeOf((*pkg.TextMarshaler)(nil)).Elem(),
-		"TextUnmarshaler":	TypeOf((*pkg.TextUnmarshaler)(nil)).Elem(),
+		"BinaryMarshaler":	TypeOf((*encoding.BinaryMarshaler)(nil)).Elem(),
+		"BinaryUnmarshaler":	TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem(),
+		"TextMarshaler":	TypeOf((*encoding.TextMarshaler)(nil)).Elem(),
+		"TextUnmarshaler":	TypeOf((*encoding.TextUnmarshaler)(nil)).Elem(),
 	}
+	Proxies["encoding"] = map[string]Type{
+		"BinaryMarshaler":	TypeOf((*BinaryMarshaler_encoding)(nil)).Elem(),
+		"BinaryUnmarshaler":	TypeOf((*BinaryUnmarshaler_encoding)(nil)).Elem(),
+		"TextMarshaler":	TypeOf((*TextMarshaler_encoding)(nil)).Elem(),
+		"TextUnmarshaler":	TypeOf((*TextUnmarshaler_encoding)(nil)).Elem(),
+	}
+}
+
+// --------------- proxy for encoding.BinaryMarshaler ---------------
+type BinaryMarshaler_encoding struct {
+	MarshalBinary_	func() (data []byte, err error)
+}
+func (Obj BinaryMarshaler_encoding) MarshalBinary() (data []byte, err error) {
+	return Obj.MarshalBinary_()
+}
+
+// --------------- proxy for encoding.BinaryUnmarshaler ---------------
+type BinaryUnmarshaler_encoding struct {
+	UnmarshalBinary_	func(data []byte) error
+}
+func (Obj BinaryUnmarshaler_encoding) UnmarshalBinary(data []byte) error {
+	return Obj.UnmarshalBinary_(data)
+}
+
+// --------------- proxy for encoding.TextMarshaler ---------------
+type TextMarshaler_encoding struct {
+	MarshalText_	func() (text []byte, err error)
+}
+func (Obj TextMarshaler_encoding) MarshalText() (text []byte, err error) {
+	return Obj.MarshalText_()
+}
+
+// --------------- proxy for encoding.TextUnmarshaler ---------------
+type TextUnmarshaler_encoding struct {
+	UnmarshalText_	func(text []byte) error
+}
+func (Obj TextUnmarshaler_encoding) UnmarshalText(text []byte) error {
+	return Obj.UnmarshalText_(text)
 }

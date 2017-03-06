@@ -4,14 +4,16 @@
 package imports
 
 import (
-	pkg "unsafe"
 	. "reflect"
+	"unsafe"
 )
 
 func init() {
 	Binds["unsafe"] = map[string]Value{
 	}
 	Types["unsafe"] = map[string]Type{
-		"Pointer":	TypeOf((*pkg.Pointer)(nil)).Elem(),
+		"Pointer":	TypeOf((*unsafe.Pointer)(nil)).Elem(),
+	}
+	Proxies["unsafe"] = map[string]Type{
 	}
 }

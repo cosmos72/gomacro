@@ -4,17 +4,19 @@
 package imports
 
 import (
-	pkg "net/http/cgi"
 	. "reflect"
+	"net/http/cgi"
 )
 
 func init() {
 	Binds["net/http/cgi"] = map[string]Value{
-		"Request":	ValueOf(pkg.Request),
-		"RequestFromMap":	ValueOf(pkg.RequestFromMap),
-		"Serve":	ValueOf(pkg.Serve),
+		"Request":	ValueOf(cgi.Request),
+		"RequestFromMap":	ValueOf(cgi.RequestFromMap),
+		"Serve":	ValueOf(cgi.Serve),
 	}
 	Types["net/http/cgi"] = map[string]Type{
-		"Handler":	TypeOf((*pkg.Handler)(nil)).Elem(),
+		"Handler":	TypeOf((*cgi.Handler)(nil)).Elem(),
+	}
+	Proxies["net/http/cgi"] = map[string]Type{
 	}
 }
