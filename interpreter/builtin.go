@@ -48,12 +48,56 @@ func callClose(channel interface{}) {
 	r.ValueOf(channel).Close()
 }
 
+func builtinComplex(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	n := len(args)
+	if n != 2 {
+		return env.Errorf("builtin complex() expects exactly two arguments, found %d", n)
+	}
+	rv, iv := env.Eval1(args[0]), env.Eval1(args[1])
+	r_, rok := env.toFloat(rv)
+	i_, iok := env.toFloat(iv)
+	if !rok {
+		return env.Errorf("builtin complex(): not a float: %v <%v>", rv, TypeOf(rv))
+	}
+	if !iok {
+		return env.Errorf("builtin complex(): not a float: %v <%v>", iv, TypeOf(iv))
+	}
+	cplx := complex(r_, i_)
+	var ret interface{}
+	if rv.Kind() == r.Float32 && iv.Kind() == r.Float32 {
+		ret = complex64(cplx)
+	} else {
+		ret = cplx
+	}
+	return r.ValueOf(ret), nil
+}
+
 func callCopy(dst, src interface{}) int {
 	return r.Copy(r.ValueOf(dst), r.ValueOf(src))
 }
 
 func callDelete(m interface{}, key interface{}) {
 	r.ValueOf(m).SetMapIndex(r.ValueOf(key), Nil)
+}
+
+func builtinImag(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	n := len(args)
+	if n != 1 {
+		return env.Errorf("builtin imag() expects exactly one argument, found %d", n)
+	}
+	cv := env.Eval1(args[0])
+	c_, ok := env.toComplex(cv)
+	if !ok {
+		return env.Errorf("builtin imag(): not a complex: %v <%v>", cv, TypeOf(cv))
+	}
+	i_ := imag(c_)
+	var ret interface{}
+	if cv.Kind() == r.Complex64 {
+		ret = float32(i_)
+	} else {
+		ret = i_
+	}
+	return r.ValueOf(ret), nil
 }
 
 func callLen(arg interface{}) int {
@@ -105,6 +149,26 @@ func callPanic(arg interface{}) {
 	panic(Panic{arg})
 }
 
+func builtinReal(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	n := len(args)
+	if n != 1 {
+		return env.Errorf("builtin real() expects exactly one argument, found %d", n)
+	}
+	cv := env.Eval1(args[0])
+	c_, ok := env.toComplex(cv)
+	if !ok {
+		return env.Errorf("builtin real(): not a complex: %v <%v>", cv, TypeOf(cv))
+	}
+	i_ := real(c_)
+	var ret interface{}
+	if cv.Kind() == r.Complex64 {
+		ret = float32(i_)
+	} else {
+		ret = i_
+	}
+	return r.ValueOf(ret), nil
+}
+
 func callReadFile(filename string) string {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -137,20 +201,12 @@ func callSlice(args ...interface{}) []interface{} {
 func (env *Env) addBuiltins() {
 	binds := env.Binds
 
-	binds["append"] = r.ValueOf(Builtin{builtinAppend})
-	binds["cap"] = r.ValueOf(callCap)
-	binds["close"] = r.ValueOf(callClose)
-	binds["copy"] = r.ValueOf(callCopy)
-	binds["DeepEqual"] = r.ValueOf(r.DeepEqual)
-	binds["delete"] = r.ValueOf(callDelete)
 	binds["Eval"] = r.ValueOf(func(node ast.Node) interface{} {
 		return toInterface(env.Eval1(node))
 	})
 	binds["EvalN"] = r.ValueOf(func(node ast.Node) []interface{} {
 		return toInterfaces(packValues(env.Eval(node)))
 	})
-	binds["len"] = r.ValueOf(callLen)
-	binds["new"] = r.ValueOf(Builtin{builtinNew})
 	binds["MacroExpand"] = r.ValueOf(func(in ast.Node) (out ast.Node, expanded bool) {
 		return env.MacroExpand(in)
 	})
@@ -160,32 +216,44 @@ func (env *Env) addBuiltins() {
 	binds["MacroExpandCodewalk"] = r.ValueOf(func(in ast.Node) (out ast.Node, expanded bool) {
 		return env.MacroExpandCodewalk(in)
 	})
-	binds["make"] = r.ValueOf(Builtin{builtinMake})
-	binds["nil"] = Nil
-	binds["panic"] = r.ValueOf(callPanic)
 	binds["Parse"] = r.ValueOf(func(src interface{}) []ast.Node {
 		return env.Parse(src)
 	})
 	binds["Parse1"] = r.ValueOf(func(src interface{}) ast.Node {
 		return env.Parse1(src)
 	})
-	binds["println"] = r.ValueOf(func(args ...interface{}) {
-		values := toValues(args)
-		env.FprintValues(env.Stdout, values...)
-	})
 	binds["ReadDir"] = r.ValueOf(callReadDir)
 	binds["ReadFile"] = r.ValueOf(callReadFile)
-	// binds["recover"] = r.ValueOf(callRecover) // does not work! recover() works only inside a deferred function (but not any function called by it)
 	binds["Slice"] = r.ValueOf(callSlice)
 	binds["String"] = r.ValueOf(func(args ...interface{}) string {
 		return env.toString("", args...)
 	})
+
+	binds["append"] = r.ValueOf(Builtin{builtinAppend})
+	binds["cap"] = r.ValueOf(callCap)
+	binds["close"] = r.ValueOf(callClose)
+	binds["complex"] = r.ValueOf(Builtin{builtinComplex})
+	binds["copy"] = r.ValueOf(callCopy)
+	binds["delete"] = r.ValueOf(callDelete)
+	binds["imag"] = r.ValueOf(Builtin{builtinImag})
+	binds["len"] = r.ValueOf(callLen)
+	binds["make"] = r.ValueOf(Builtin{builtinMake})
+	binds["new"] = r.ValueOf(Builtin{builtinNew})
+	binds["nil"] = Nil
+	binds["panic"] = r.ValueOf(callPanic)
+	binds["println"] = r.ValueOf(func(args ...interface{}) {
+		values := toValues(args)
+		env.FprintValues(env.Stdout, values...)
+	})
+	binds["real"] = r.ValueOf(Builtin{builtinReal})
+	// binds["recover"] = r.ValueOf(callRecover) // does not work! recover() works only inside a deferred function (but not any function called by it)
 
 	types := env.Types
 	types["bool"] = r.TypeOf(false)
 	types["byte"] = r.TypeOf(byte(0))
 	types["complex64"] = r.TypeOf(complex(float32(0), float32(0)))
 	types["complex128"] = r.TypeOf(complex(float64(0), float64(0)))
+	types["error"] = r.TypeOf((*error)(nil)).Elem()
 	types["float32"] = r.TypeOf(float32(0))
 	types["float64"] = r.TypeOf(float64(0))
 	types["int"] = r.TypeOf(int(0))
