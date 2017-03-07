@@ -37,16 +37,36 @@ func TypeOf(value r.Value) r.Type {
 	return value.Type()
 }
 
+func (env *Env) evalExpr1OrType(node ast.Expr) (val r.Value, t r.Type) {
+	defer func() {
+		if r := recover(); r != nil {
+			switch r.(type) {
+			case RuntimeError:
+				t = env.evalType(node)
+			default:
+				panic(r)
+			}
+		}
+	}()
+	val = env.evalExpr1(node)
+	return val, nil
+}
+
 func (env *Env) evalType(node ast.Expr) r.Type {
 	stars := 0
 	for {
-		if expr, ok := node.(*ast.StarExpr); ok {
+		switch expr := node.(type) {
+		case *ast.StarExpr:
 			stars++
 			node = expr.X
-		} else {
-			break
+			continue
+		case *ast.ParenExpr:
+			node = expr.X
+			continue
 		}
+		break
 	}
+
 	var t r.Type
 	switch node := node.(type) {
 	case *ast.ArrayType: // also for slices
@@ -95,7 +115,7 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 		// type can be omitted in many case - then we must perform type inference
 		break
 	default:
-		// TODO *ast.StructType and many others
+		// TODO which types are still missing?
 		env.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 	}
 	for i := 0; i < stars; i++ {
@@ -215,13 +235,13 @@ func toExportedName(name string) string {
 func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 	if value == None || value == Nil {
 		switch t.Kind() {
-		case r.Chan, r.Map, r.Func, r.Interface, r.Slice, r.Ptr:
-			value = r.Zero(t)
+		case r.Chan, r.Func, r.Interface, r.Map, r.Ptr, r.Slice:
+			return r.Zero(t)
 		}
 	}
 	vt := TypeOf(value)
 	if !vt.AssignableTo(t) && !vt.ConvertibleTo(t) {
-		ret, _ := env.Errorf("failed to convert %#v to %v", value, t)
+		ret, _ := env.Errorf("failed to convert %v <%v> to <%v>", value, vt, t)
 		return ret
 	}
 	newValue := value.Convert(t)

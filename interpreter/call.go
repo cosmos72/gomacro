@@ -31,30 +31,43 @@ import (
 )
 
 func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
-	fun := env.evalExpr1(node.Fun)
-	switch fun.Kind() {
-	case r.Struct:
-		if builtin, ok := fun.Interface().(Builtin); ok {
-			return builtin.Exec(env, node.Args...)
-		}
-	case r.Func:
-		// TODO support the special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )
-		args := env.evalExprs(node.Args)
-		funt := fun.Type()
-		if !funt.IsVariadic() {
-			for i, arg := range args {
-				args[i] = env.valueToType(arg, funt.In(i))
+	var fun r.Value
+	var t r.Type
+	if len(node.Args) == 1 {
+		// may be a type conversion
+		fun, t = env.evalExpr1OrType(node.Fun)
+	} else {
+		fun = env.evalExpr1(node.Fun)
+	}
+
+	if t != nil {
+		val := env.evalExpr1(node.Args[0])
+		return env.valueToType(val, t), nil
+	} else {
+		switch fun.Kind() {
+		case r.Struct:
+			if builtin, ok := fun.Interface().(Builtin); ok {
+				return builtin.Exec(env, node.Args...)
 			}
+		case r.Func:
+			// TODO support the special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )
+			args := env.evalExprs(node.Args)
+			funt := fun.Type()
+			if !funt.IsVariadic() {
+				for i, arg := range args {
+					args[i] = env.valueToType(arg, funt.In(i))
+				}
+			}
+			var rets []r.Value
+			if node.Ellipsis == token.NoPos {
+				rets = fun.Call(args)
+			} else {
+				rets = fun.CallSlice(args)
+			}
+			return unpackValues(rets)
+		default:
+			break
 		}
-		var rets []r.Value
-		if node.Ellipsis == token.NoPos {
-			rets = fun.Call(args)
-		} else {
-			rets = fun.CallSlice(args)
-		}
-		return unpackValues(rets)
-	default:
-		break
 	}
 	return env.Errorf("call of non-function %v", node)
 }
