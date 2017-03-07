@@ -32,6 +32,8 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
+// TODO preserve types as evalBinaryExpr() does
+
 func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, []r.Value) {
 	opstr := mt.String(op)
 	return env.Errorf("unsupported unary expression %s on %T: %s %#v", opstr, xf, opstr, xf)
