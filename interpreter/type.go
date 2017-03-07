@@ -170,13 +170,12 @@ func (env *Env) evalTypeFields(fields *ast.FieldList) ([]r.Type, []string) {
 }
 
 func (env *Env) evalTypeIdentifier(name string) r.Type {
-	for env != nil {
-		if t, ok := env.Types[name]; ok {
+	for e := env; e != nil; e = e.Outer {
+		if t, ok := e.Types[name]; ok {
 			return t
 		}
-		env = env.Outer
 	}
-	env.Errorf("not a type: %v", name)
+	env.Errorf("undefined identifier: %v", name)
 	return nil
 }
 
