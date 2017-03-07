@@ -33,6 +33,12 @@ import (
 	"time"
 )
 
+func New() *Env {
+	env := NewEnv(nil, "builtin")
+	env = NewEnv(env, "main")
+	return env
+}
+
 func NewEnv(outer *Env, path string) *Env {
 	env := &Env{
 		Binds:      make(map[string]r.Value),
@@ -46,23 +52,9 @@ func NewEnv(outer *Env, path string) *Env {
 		env.Interpreter = NewInterpreter()
 		env.addBuiltins()
 		env.addInterpretedBuiltins()
-
-		/*
-			type Foo struct{ a, b int }
-			type Bar struct{ a, b int }
-			var foo Foo
-			var bar Bar = Bar(foo)
-			t := r.TypeOf(bar)
-			var tf interface{} = t
-			fmt.Printf("typeof(bar) = %v - actually %#v\n", t, tf)
-			fmt.Printf("typeof(bar) Name = %v, Kind = %v\n", t.Name(), t.Kind())
-		*/
-
 	} else {
 		env.Interpreter = outer.Interpreter
 	}
-
-	// fmt.Printf("NewEnv(): env = %p %q, outer = %p\n", env, env.Path, env.Outer)
 	return env
 }
 

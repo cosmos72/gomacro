@@ -30,15 +30,15 @@ As a free bonus, we get support for Eval()
 
 ## Current Status
 
-ALPHA.
+BETA.
 
 The intepreter supports:
-* type inference
-* variable and function definitions
-* strings, booleans, integers, floats, complex numbers, interface{}, pointers
-* dotted notation i.e. `foo.bar` to access struct fields & methods, imported symbols
-* imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
+* constant, variable, function and type definitions
+* primitive types: booleans, integers, floats, complex numbers
+* composite types: arrays, channels, maps, pointers, slices, strings, structs
+* the empty interface, i.e. interface{} - other interfaces not implemented yet
 * function and method calls, including multiple return values
+* imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
 * macro definitions, for example `macro foo(a, b, c interface{}) interface{} { return b }`
 * macro calls, for example `foo x; y; z`
 * macroexpansion code walker, MacroExpand and MacroExpand1
@@ -46,9 +46,9 @@ The intepreter supports:
   `quote { x; y; z }`
 * unquote and unquote_splice
 
-A lot of things are still missing:
-* support to create arrays, slices, maps, channels, pointers
-* struct and interface definitions
+Several things are still missing:
+* the keywords "go" and "defer"
+* composite literals
 * switching to a different package
 * multiline input, history/readline
 * nested macro calls and quoted macros:

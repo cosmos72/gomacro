@@ -51,6 +51,7 @@ func NewInterpreter() *Interpreter {
 	ir.Packagename = "main"
 	ir.Filename = "main.go"
 	ir.Fileset = token.NewFileSet()
+	ir.Options = OptTrapPanic // set by default
 	ir.SpecialChar = '~'
 	// using both os.Stdout and os.Stderr can interleave impredictably
 	// normal output and diagnostic messages - ugly in interactive use

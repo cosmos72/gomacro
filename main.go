@@ -33,8 +33,6 @@ import (
 )
 
 func main() {
-	benchmarks()
-
 	args := os.Args
 
 	// args := []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { b }\nMacroExpand1(quote{foo x; y; z})"}
@@ -48,12 +46,10 @@ func main() {
 }
 
 func Main(args []string) {
-	env := gmi.NewEnv(nil, "builtin")
-	env = gmi.NewEnv(env, "main")
+	env := gmi.New()
 
 	env.ParserMode = mp.Trace & 0  // | mp.TraceMacro
 	env.Options = gmi.OptTrapPanic // | gmi.OptShowEvalDuration // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpandCodewalk // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote
-	env.SpecialChar = '~'
 
 	if len(args) > 1 {
 		str := strings.Join(args[1:], " ")
