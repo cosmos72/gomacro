@@ -7,8 +7,11 @@
 package parser
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
+
+	mt "github.com/cosmos72/gomacro/token"
 )
 
 // A Mode value is a set of flags (or 0).
@@ -48,9 +51,18 @@ func (p *Parser) Parse() (node []ast.Node, err error) {
 
 	topScope := p.topScope
 
+	var lastpos1, lastpos2 token.Pos
 	list := make([]ast.Node, 0)
-	for p.tok != token.EOF {
+	for p.tok != token.EOF && p.errors.Len() < 10 {
 		list = append(list, p.parseAny())
+
+		if p.pos == lastpos1 {
+			p.error(p.pos, fmt.Sprintf("skipping '%s' to continue", mt.String(p.tok)))
+			p.next()
+		} else {
+			lastpos1 = lastpos2
+			lastpos2 = p.pos
+		}
 	}
 
 	assert(topScope == p.topScope, "unbalanced scopes")

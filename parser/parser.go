@@ -1498,10 +1498,13 @@ func deref(x ast.Expr) ast.Expr {
 
 // If x is of the form (T), unparen returns unparen(T), otherwise it returns x.
 func unparen(x ast.Expr) ast.Expr {
-	if p, isParen := x.(*ast.ParenExpr); isParen {
-		x = unparen(p.X)
+	for {
+		if p, ok := x.(*ast.ParenExpr); ok {
+			x = p.X
+			continue
+		}
+		return x
 	}
-	return x
 }
 
 // checkExprOrType checks that x is an expression or a type
@@ -2288,7 +2291,6 @@ func (p *Parser) parseStmt(directlyInsideParen bool) (s ast.Stmt) {
 		// a semicolon may be omitted before a closing "}"
 		s = &ast.EmptyStmt{Semicolon: p.pos, Implicit: true}
 	default:
-		// no statement found
 		pos := p.pos
 		p.errorExpected(pos, "statement")
 		syncStmt(p)
