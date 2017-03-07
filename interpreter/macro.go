@@ -215,10 +215,27 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 func unwrapTrivialAst(form Ast) Ast {
 	for {
 		switch form.(type) {
-		case ParenExpr, ExprStmt, DeclStmt: // TODO is InterfaceType trivial?
+		case ParenExpr, ExprStmt, DeclStmt:
 			form = form.Get(0)
 		default:
 			return form
+		}
+	}
+}
+
+// unwrapTrivialNode is equivalent to unwrapTrivialAst,
+// except it works on ast.Node instead of our Ast
+func unwrapTrivialNode(in ast.Node) ast.Node {
+	for {
+		switch node := in.(type) {
+		case *ast.ParenExpr:
+			in = node.X
+		case *ast.ExprStmt:
+			in = node.X
+		case *ast.DeclStmt:
+			in = node.Decl
+		default:
+			return in
 		}
 	}
 }
@@ -294,10 +311,6 @@ func MakeQuote(form UnaryExpr) (UnaryExpr, BlockStmt) {
 	return UnaryExpr{expr}, BlockStmt{block}
 }
 
-func isMacroCall(node *ast.BinaryExpr) bool {
-	return node.Op == mt.MACRO
-}
-
 type macroExpandCtx struct {
 	env *Env
 }
@@ -350,7 +363,7 @@ func (env *Env) macroExpandAstCodewalk(form Ast, quasiquoteDepth int) (out Ast, 
 			goto Recurse
 		}
 		temp := unwrapTrivialAst(form.Get(0).Get(1))
-		if env.Options&OptDebugMacroExpandCodewalk != 0 {
+		if env.Options&OptDebugMacroExpand != 0 {
 			env.Debugf("MacroExpandCodewalk: unwrapped %v to %v", form, temp)
 		}
 		form = temp
@@ -359,7 +372,7 @@ Recurse:
 	if form == nil {
 		return saved, anythingExpanded
 	}
-	if env.Options&OptDebugMacroExpandCodewalk != 0 {
+	if env.Options&OptDebugMacroExpand != 0 {
 		env.Debugf("MacroExpandCodewalk: recursing on %v", form)
 	}
 	n := form.Size()
@@ -416,9 +429,31 @@ func (env *Env) MacroExpand1(in ast.Node) (out ast.Node, expanded bool) {
 	form, expanded = env.macroExpandAstOnce(form)
 	out = ToNode(form)
 	// if !expanded {
-	//    env.Debugf("MacroExpand1() not a macro: %v <%v>", out, r.TypeOf(out))
+	//    env.Debugf("MacroExpand1: not a macro: %v <%v>", out, r.TypeOf(out))
 	//}
 	return out, expanded
+}
+
+//
+func (env *Env) extractMacroCall(stmt ast.Stmt) Macro {
+	first := unwrapTrivialNode(stmt)
+	switch first := first.(type) {
+	case *ast.Ident:
+		name := first.Name
+		// we cannot use env.evalIdentifier() because it panics on failure
+		for e := env; e != nil; e = e.Outer {
+			if bind, exists := e.Binds[name]; exists {
+				if bind.Kind() == r.Struct {
+					switch value := bind.Interface().(type) {
+					case Macro:
+						return value
+					}
+				}
+				break
+			}
+		}
+	}
+	return Macro{}
 }
 
 func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
@@ -426,73 +461,73 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		return nil, false
 	}
 	saved := in
-
 	// unwrap trivial nodes: DeclStmt, ParenExpr, ExprStmt
 	form := unwrapTrivialAst(in)
+	block, ok := form.(BlockStmt)
+	if !ok {
+		return saved, false
+	}
+	if env.Options&OptDebugMacroExpand != 0 {
+		env.Debugf("MacroExpand1: found block: %v", block)
+	}
+	list := block.p.List
+	n := len(list)
+	rets := make([]ast.Stmt, 0, n)
 
-	var expr *ast.BinaryExpr
-	switch form := form.(type) {
-	case BinaryExpr:
-		if form.Op() != mt.MACRO {
-			// not a macro call, return unchanged
+	// since macro calls are sequences of statements,
+	// we must scan the whole statement list,
+	// consume it as needed by the macros we find,
+	// and build a new list accumulating the results of macroexpansion
+	for i := 0; i < n; i++ {
+		stmt := list[i]
+		macro := env.extractMacroCall(stmt)
+		if macro.Closure == nil {
+			rets = append(rets, stmt)
+			continue
+		}
+		argn := macro.ArgNum
+		if argn > n-i-1 {
+			env.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", list[i:], macro.ArgNum, n-i-1)
 			return saved, false
 		}
-		expr = form.p
-		// env.Debugf("macroExpand1() found macro call: %v", expr)
-
-	default:
+		if env.Options&OptDebugMacroExpand != 0 {
+			env.Debugf("MacroExpand1: found macro call: %v", list[i:i+1+argn])
+		}
+		// wrap each ast.Stmt into a reflect.Value
+		args := make([]r.Value, argn)
+		for j := 0; j < argn; j++ {
+			args[j] = r.ValueOf(list[i+j+1])
+		}
+		// invoke the macro
+		results := macro.Closure(args)
+		if env.Options&OptDebugMacroExpand != 0 {
+			env.Debugf("MacroExpand1: macro expanded to: %v", results)
+		}
+		// convert and accumulate the results
+		for _, result := range results {
+			if result != None {
+				ret := AnyToAst(result.Interface(), "macroexpansion")
+				if ret == nil {
+					// do not insert nil nodes... they would wreak havok, convert them to the identifier nil
+					ret = Ident{&ast.Ident{Name: "nil"}}
+				}
+				rets = append(rets, ToStmt(ret))
+			}
+		}
+		i += argn
+		expanded = true
+	}
+	if !expanded {
 		return saved, false
 	}
-
-	// retrieve and validate the macro object
-	macro := env.Eval1(expr.X)
-	if macro == Nil || macro == None || macro.Kind() != r.Struct {
-		env.badMacro(expr)
-		return saved, false
-	}
-	m, ok := macro.Interface().(Macro)
-	if !ok || m.Closure == nil {
-		env.badMacro(expr)
-		return saved, false
-	}
-	// validate the arguments passed to the macro object
-	fun, ok := expr.Y.(*ast.FuncLit)
-	if !ok || len(fun.Type.Params.List) != 0 {
-		env.badMacro(expr)
-		return saved, false
-	}
-	args := fun.Body.List
-	n := len(args)
-	if n > m.ArgNum {
-		env.Errorf("too many arguments in macroexpansion of %v", expr)
-		return saved, false
-	} else if n > m.ArgNum {
-		env.Errorf("not enough arguments in macroexpansion of %v", expr)
-		return saved, false
-	}
-	// wrap each ast.Stmt into a reflect.Value
-	argsv := make([]r.Value, n)
-	for i := 0; i < n; i++ {
-		argsv[i] = r.ValueOf(args[i])
-	}
-	// invoke the macro
-	results := m.Closure(argsv)
-	// validate the results
-	switch n = len(results); n {
-	default:
-		env.Warnf("macroexpansion returned %d values, only the first one will be used: %v", n, expr)
-		fallthrough
-	case 1:
-		result := results[0].Interface()
-		ret := AnyToAst(result, "macroexpansion")
-		return ret, true
+	switch len(rets) {
 	case 0:
-		env.Warnf("macroexpansion returned no values, inserting empty statement: %v", expr)
-		return EmptyStmt{&ast.EmptyStmt{}}, true
+		form = EmptyStmt{&ast.EmptyStmt{}}
+	case 1:
+		form = ToAst(unwrapTrivialNode(rets[0]))
+	default:
+		block.p.List = rets
+		form = block
 	}
-}
-
-func (env *Env) badMacro(node *ast.BinaryExpr) ast.Expr {
-	env.Errorf("macroexpansion of non-macro: %v", node)
-	return nil
+	return form, true
 }

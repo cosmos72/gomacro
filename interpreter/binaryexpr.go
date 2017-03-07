@@ -62,7 +62,11 @@ func (env *Env) evalBinaryExpr(xv r.Value, op token.Token, yv r.Value) r.Value {
 		x := xv.Uint()
 		switch yv.Kind() {
 		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
-			return env.evalBinaryExprIntInt(r.ValueOf(int64(x)), op, yv)
+			if yv.Int() < 0 {
+				return env.evalBinaryExprIntInt(r.ValueOf(int64(x)), op, yv)
+			} else {
+				return env.evalBinaryExprUintUint(xv, op, r.ValueOf(uint64(yv.Int())))
+			}
 		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			return env.evalBinaryExprUintUint(xv, op, yv)
 		case r.Float32, r.Float64:

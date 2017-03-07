@@ -149,21 +149,20 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 		}
 	}
 	// parse phase
-	list := env.Parse(src)
+	node := env.Parse(src)
 	if env.Options&OptShowAfterParse != 0 {
-		env.Debugf("after parse: %v", list)
+		env.Debugf("after parse: %v", node)
 	}
 
-	// macroexpansion phase
-	for i, elt := range list {
-		list[i], _ = env.MacroExpandCodewalk(elt)
-	}
+	// macroexpansion phase.
+	node, _ = env.MacroExpandCodewalk(node)
+
 	if env.Options&OptShowAfterMacroExpansion != 0 {
-		env.Debugf("after macroexpansion: %v", list)
+		env.Debugf("after macroexpansion: %v", node)
 	}
 
 	// eval phase
-	value, values := env.EvalList(list)
+	value, values := env.Eval(node)
 
 	// print phase
 	if len(values) != 0 {

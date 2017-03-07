@@ -245,7 +245,7 @@ func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 	}
 	newValue := value.Convert(t)
 	if differentIntegerValues(value, newValue) {
-		env.Warnf("value %d overflows %v, truncated to %d", value, t, newValue)
+		env.Warnf("value %d overflows <%v>, truncated to %d", value, t, newValue)
 	}
 	return newValue
 }

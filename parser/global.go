@@ -31,7 +31,11 @@ const (
 	TraceMacro                                     // print debug statements while parsing macro invokations
 )
 
-func (p *Parser) Parse() (node []ast.Node, err error) {
+type Parser struct {
+	parser
+}
+
+func (p *parser) Parse() (node []ast.Node, err error) {
 	if p.file == nil || p.pkgScope == nil {
 		panic("Parser.Parse(): parser is not initialized, call Parser.Init() first")
 	}

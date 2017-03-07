@@ -24,7 +24,7 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-func (p *Parser) parseAny() ast.Node {
+func (p *parser) parseAny() ast.Node {
 	var node ast.Node
 
 	if p.tok == token.COMMENT {
@@ -39,14 +39,17 @@ func (p *Parser) parseAny() ast.Node {
 	case token.CONST, token.TYPE, token.VAR, mt.MACRO:
 		node = p.parseDecl(syncDecl)
 	case token.FUNC:
-		// either a function declaration: func foo(/*...s*/) /*...*/
-		// or a function literal, i.e. a closure: func(/*...s*/) /*...*/
-		if p.lookAhead.tok != token.LPAREN {
-			node = p.parseDecl(syncDecl)
-			break
-		}
-		// function literal is an expression... parse as a statement then unwrap it
-		fallthrough
+		// either a function declaration: func foo(args) /*...*/
+		// or a method declaration: func (receiver) foo(args) /*...*/
+		// or a function literal, i.e. a closure: func(args) /*...*/
+		// since method declaration and function literal are so similar,
+		// there is no reasonable way to distinguish them here.
+		//
+		// decision: always parse as a declaration.
+		// function literals at top level will have to come after
+		// some other token: a variable declaration, an expression,
+		// or at least a '('
+		node = p.parseDecl(syncDecl)
 	default:
 		node = p.parseStmt(true)
 		if expr, ok := node.(*ast.ExprStmt); ok {
@@ -58,17 +61,17 @@ func (p *Parser) parseAny() ast.Node {
 }
 
 // patch: quote and friends
-func (p *Parser) parseQuote() ast.Expr {
+func (p *parser) parseQuote() ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Quote"))
 	}
 
 	saveDepth := p.quasiquoteDepth
-	saveQuote := p.quoteOrMacro
+	saveQuote := p.quote
 
 	switch p.tok {
 	case mt.QUOTE:
-		p.quoteOrMacro = true
+		p.quote = true
 	case mt.QUASIQUOTE:
 		p.quasiquoteDepth++
 	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
@@ -76,7 +79,7 @@ func (p *Parser) parseQuote() ast.Expr {
 	}
 	defer func() {
 		p.quasiquoteDepth = saveDepth
-		p.quoteOrMacro = saveQuote
+		p.quote = saveQuote
 	}()
 
 	op := p.tok
@@ -131,7 +134,7 @@ func (p *Parser) parseQuote() ast.Expr {
 
 // MakeQuote creates an ast.UnaryExpr representing quote{node}.
 // Returns both the unaryexpr and the blockstmt containing its body
-func (p *Parser) MakeQuote(op token.Token, pos token.Pos, node ast.Node) (*ast.UnaryExpr, *ast.BlockStmt) {
+func (p *parser) MakeQuote(op token.Token, pos token.Pos, node ast.Node) (*ast.UnaryExpr, *ast.BlockStmt) {
 	var body *ast.BlockStmt
 	var stmt ast.Stmt
 	switch node := node.(type) {
@@ -167,9 +170,10 @@ func (p *Parser) MakeQuote(op token.Token, pos token.Pos, node ast.Node) (*ast.U
 	return &ast.UnaryExpr{OpPos: pos, Op: op, X: fun}, body
 }
 
-// macro calls syntax is "foo bar [;] baz"... recognize and report it even if "foo" is not defined
-func (p *Parser) expectSemiOrMacro() (maybeMacro bool) {
+// macro calls syntax is "foo [;] bar [;] baz"... recognize it
+func (p *parser) expectSemiOrSpace() {
 	// semicolon is optional before a closing ')' or '}'
+	// we make it optional also between two identifiers
 	switch p.tok {
 	case token.RPAREN, token.RBRACK, token.RBRACE:
 		break
@@ -180,129 +184,28 @@ func (p *Parser) expectSemiOrMacro() (maybeMacro bool) {
 	case token.SEMICOLON:
 		p.next()
 	default:
-		return true
-	}
-	return false
-}
-
-func isMacroDecl(decl *ast.FuncDecl) bool {
-	return decl != nil && decl.Recv != nil && decl.Recv.List != nil && len(decl.Recv.List) == 0
-}
-
-func funcDeclNumParams(decl *ast.FuncDecl) int {
-	return decl.Type.Params.NumFields()
-}
-
-func (p *Parser) tryParseMacroStmt() ast.Stmt {
-	if expr := p.tryParseMacroExpr(); expr != nil {
-		return &ast.ExprStmt{X: expr}
-	}
-	return nil
-}
-
-// if current token is an identifier currently defined as a macro,
-// retrieve the number of arguments it expects and parse it accordingly
-func (p *Parser) tryParseMacroExpr() ast.Expr {
-	if p.quasiquoteDepth > 0 || p.quoteOrMacro {
-		return nil
-	}
-	pos := p.pos
-	if p.tok != token.IDENT {
-		p.errorExpected(pos, "'"+token.IDENT.String()+"'")
-		return nil
-	}
-	name := p.lit
-	ident := &ast.Ident{NamePos: pos, Name: name}
-
-	p.tryResolve(ident, false)
-	if ident.Obj == nil || ident.Obj.Decl == nil {
-		return nil
-	}
-	switch decl := ident.Obj.Decl.(type) {
-	case *ast.FuncDecl:
-		if isMacroDecl(decl) {
-			n := funcDeclNumParams(decl)
-			return p.parseMacro(ident, n)
+		if p.tok == token.IDENT && p.tok0 == token.IDENT {
+			break
 		}
+		p.errorExpected(p.pos, "';'")
+		syncStmt(p)
 	}
-	return nil
 }
 
-// parseMacro parses a macro accepting numParams parameters
-// or until RPAREN, RBRACK or RBRACE if numParams < 0
-func (p *Parser) parseMacro(node ast.Node, numParams int) ast.Expr {
+// parseExprBlock parses a block statement inside an expression.
+func (p *parser) parseExprBlock() ast.Expr {
 	if p.trace {
-		defer un(trace(p, "Macro"))
-	}
-	assert(numParams < 0 || !p.quoteOrMacro, "parseMacro invoked with p.quoteOrMacro == true and numParams >= 0")
-	if !p.quoteOrMacro {
-		p.quoteOrMacro = true
-		defer func() {
-			p.quoteOrMacro = false
-		}()
+		defer un(trace(p, "ExprBlock"))
 	}
 
-	if numParams >= 0 {
-		p.expect(token.IDENT)
-	} else if p.trace {
-		p.printTrace("<stealing last node>", node)
-	}
-	// we could try to execute the macro here - but there are two issues:
-	//
-	// the first is stylistic: this is a parser, not an interpreter.
-	//
-	// the second is technical: a recursive-descent parser like this
-	// builds the AST built bottom-up: first creates the leaves,
-	// then the internal nodes pointing to the leaves, and continues up to the root.
-	// On the other hand, macroexpansion with lisp-like semantics is top-down:
-	// it starts with the *whole* AST tree, and recursively descends it
-	// expanding macros on the way. Trying to mix the two approaches
-	// is likely to introduce *exponential* slowdowns due to the same AST fragments
-	// being macroexpanded again and again while the parser builds AST nodes
-	// progressively farther away from the leaves.
-	//
-	// TL;DR: performing macroexpansion here is a mess. Let the interpreter do it.
-
-	var first ast.Expr
-	switch node := node.(type) {
-	case ast.Expr:
-		first = node
-	case *ast.ExprStmt:
-		first = node.X
-	default:
-		// the macro name is itself a statement? then wrap in a unary expression MACRO func() { /*...*/ }
-		// as we do for QUOTE and friends
-		first, _ = p.MakeQuote(mt.MACRO, node.Pos(), node)
-	}
-
-	var list []ast.Stmt
-	lbrace := p.pos
-	if numParams >= 0 {
-		// number of parameters is known
-		list = make([]ast.Stmt, numParams)
-		for i := 0; i < numParams; i++ {
-			list[i] = p.parseStmt(true) // rely on parseStmt() error and EOF detection
-			if p.Mode&TraceMacro != 0 {
-				p.printTrace("<macro with", numParams, "arguments> parsed", list[len(list)-1])
-			}
-		}
-	} else {
-		// number of parameters is unknown, continue until EOF, RPAREN, RBRACK or RBRACE
-		for p.tok != token.EOF && p.tok != token.RPAREN && p.tok != token.RBRACK && p.tok != token.RBRACE {
-			list = append(list, p.parseStmt(true))
-			if p.Mode&TraceMacro != 0 {
-				p.printTrace("<macro with unknown arguments> parsed", list[len(list)-1])
-			}
-		}
-	}
-	rbrace := p.pos
-
-	body := &ast.BlockStmt{Lbrace: lbrace, List: list, Rbrace: rbrace}
+	pos := p.pos
+	block := p.parseBlockStmt()
 
 	// due to go/ast strictly typed model, there is only one mechanism
-	// to insert a statement inside an expression: use a closure.
-	// so we return a binary expression: ident MACRO (func() { /*block*/ })
-	typ := &ast.FuncType{Func: token.NoPos, Params: &ast.FieldList{}}
-	fun := &ast.FuncLit{Type: typ, Body: body}
-	return &ast.BinaryExpr{X: first, OpPos: first.Pos(), Op: mt.MACRO, Y: fun}
+	// to insert a block statement (or any statement) inside an expression:
+	// use a closure. so we return the unary expression:
+	// MACRO func() { /*block*/ }
+	typ := &ast.FuncType{Params: &ast.FieldList{}}
+	fun := &ast.FuncLit{Type: typ, Body: block}
+	return &ast.UnaryExpr{OpPos: pos, Op: mt.MACRO, X: fun}
 }

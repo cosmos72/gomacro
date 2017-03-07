@@ -25,6 +25,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
@@ -32,11 +33,21 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-// TODO preserve types as evalBinaryExpr() does
-
-func (env *Env) unsupportedUnaryExpr(xf interface{}, op token.Token) (r.Value, []r.Value) {
+func (env *Env) unsupportedUnaryExpr(xv r.Value, op token.Token) (r.Value, []r.Value) {
 	opstr := mt.String(op)
-	return env.Errorf("unsupported unary expression %s on %T: %s %#v", opstr, xf, opstr, xf)
+	return env.Errorf("unsupported unary expression %s on <%v>: %s %v", opstr, TypeOf(xv), opstr, xv)
+}
+
+func (env *Env) warnOverflowSignedMinus(x interface{}, ret interface{}) {
+	str := fmt.Sprintf("%d", x)
+	if len(str) > 0 && str[0] == '-' {
+		str = str[1:]
+	}
+	env.Warnf("value %s overflows <%v>, result truncated to %d", str, r.TypeOf(x), ret)
+}
+
+func (env *Env) warnUnderflowUnsignedMinus(x interface{}, ret interface{}) {
+	env.Warnf("value -%d underflows <%v>, result truncated to %d", x, r.TypeOf(x), ret)
 }
 
 func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
@@ -45,13 +56,15 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	case token.AND:
 		place := env.evalExpr1(node.X)
 		if place == Nil || !place.CanAddr() {
-			env.Errorf("cannot take the address of: %v = %v <%v>", node.X, place, TypeOf(place))
+			return env.Errorf("cannot take the address of: %v = %v <%v>", node.X, place, TypeOf(place))
 		}
 		return place.Addr(), nil
 
+	// the various QUOTE special forms, the result of macroexpansion,
+	// and our extension "block statement inside expression" are:
+	// a block statements, wrapped in a closure, wrapped in a unary expression "MACRO", i.e.:
+	// MACRO func() { /*block*/ }
 	case mt.MACRO:
-		// the various QUOTE special forms and the result of macroexpansion
-		// are statements wrapped in a closure
 		block := node.X.(*ast.FuncLit).Body
 		return env.evalBlock(block)
 
@@ -68,102 +81,179 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
 		return env.Errorf("%s not inside quasiquote: %v <%v>", mt.String(op), node, r.TypeOf(node))
 	}
+
 	xv, _ := env.Eval(node.X)
-	switch xv.Kind() {
-	case r.Bool:
-		return env.evalUnaryExprBool(xv.Bool(), op)
-	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
-		return env.evalUnaryExprInt(xv.Int(), op)
-	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
-		return env.evalUnaryExprUint(xv.Uint(), op)
-	case r.Float32, r.Float64:
-		return env.evalUnaryExprFloat(xv.Float(), op)
-	case r.Complex64, r.Complex128:
-		return env.evalUnaryExprComplex(xv.Complex(), op)
-	default:
-		return env.unsupportedUnaryExpr(xv.Interface(), op)
+	if xv == Nil || xv == None {
+		return env.unsupportedUnaryExpr(xv, op)
 	}
-}
-
-func (env *Env) evalUnaryExprBool(x bool, op token.Token) (r.Value, []r.Value) {
 	var ret interface{}
-	switch op {
-	case token.NOT:
-		ret = !x
-	default:
-		return env.unsupportedUnaryExpr(x, op)
-	}
-	return r.ValueOf(ret), nil
-}
 
-func (env *Env) evalUnaryExprUint(x uint64, op token.Token) (r.Value, []r.Value) {
-	var ret uint64
-	switch op {
-	case token.ADD:
-		ret = x
-	case token.SUB:
-		iret := -int64(x)
-		iret2 := int(iret)
-		if int64(iret2) == iret {
-			return r.ValueOf(iret2), nil
-		} else {
-			return r.ValueOf(iret), nil
+	switch x := xv.Interface().(type) {
+	case bool:
+		if op == token.NOT {
+			ret = !x
 		}
-	case token.XOR:
-		ret = ^x
-	default:
-		return env.unsupportedUnaryExpr(x, op)
+	case int:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x == -x {
+				env.warnOverflowSignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case int8:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x == -x {
+				env.warnOverflowSignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case int16:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x == -x {
+				env.warnOverflowSignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case int32:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x == -x {
+				env.warnOverflowSignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case int64:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x == -x {
+				env.warnOverflowSignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case uint:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x != 0 {
+				env.warnUnderflowUnsignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case uint8:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x != 0 {
+				env.warnUnderflowUnsignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case uint16:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x != 0 {
+				env.warnUnderflowUnsignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case uint32:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x != 0 {
+				env.warnUnderflowUnsignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case uint64:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			if x != 0 {
+				env.warnUnderflowUnsignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case uintptr:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+			env.warnUnderflowUnsignedMinus(x, ret)
+		case token.XOR:
+			ret = ^x
+		}
+	case float32:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+		}
+	case float64:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+		}
+	case complex64:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+		}
+	case complex128:
+		switch op {
+		case token.ADD:
+			ret = x
+		case token.SUB:
+			ret = -x
+		}
 	}
-	ret2 := uint(ret)
-	if uint64(ret2) == ret {
-		return r.ValueOf(ret2), nil
-	} else {
-		return r.ValueOf(ret), nil
-	}
-}
-
-func (env *Env) evalUnaryExprInt(x int64, op token.Token) (r.Value, []r.Value) {
-	var ret int64
-	switch op {
-	case token.ADD:
-		ret = x
-	case token.SUB:
-		ret = -x
-	case token.XOR:
-		ret = ^x
-	default:
-		return env.unsupportedUnaryExpr(x, op)
-	}
-	ret2 := int(ret)
-	if int64(ret2) == ret {
-		return r.ValueOf(ret2), nil
-	} else {
-		return r.ValueOf(ret), nil
-	}
-}
-
-func (env *Env) evalUnaryExprFloat(x float64, op token.Token) (r.Value, []r.Value) {
-	var ret interface{}
-	switch op {
-	case token.ADD:
-		ret = x
-	case token.SUB:
-		ret = -x
-	default:
-		return env.unsupportedUnaryExpr(x, op)
-	}
-	return r.ValueOf(ret), nil
-}
-
-func (env *Env) evalUnaryExprComplex(x complex128, op token.Token) (r.Value, []r.Value) {
-	var ret interface{}
-	switch op {
-	case token.ADD:
-		ret = x
-	case token.SUB:
-		ret = -x
-	default:
-		return env.unsupportedUnaryExpr(x, op)
+	if ret == nil {
+		return env.unsupportedUnaryExpr(xv, op)
 	}
 	return r.ValueOf(ret), nil
 }

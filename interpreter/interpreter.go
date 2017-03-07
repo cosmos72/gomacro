@@ -61,25 +61,12 @@ func NewInterpreter() *Interpreter {
 	return &ir
 }
 
-func (ir *Interpreter) Parse(src interface{}) []ast.Node {
+func (ir *Interpreter) Parse(src interface{}) ast.Node {
 	bytes := ir.ReadFromSource(src)
 	return ir.ParseBytes(bytes)
 }
 
-func (ir *Interpreter) Parse1(src interface{}) ast.Node {
-	ret := ir.Parse(src)
-	switch len(ret) {
-	default:
-		ir.Warnf("Interpreter.Parse() returned %d values, only the first one will be used", len(ret))
-		fallthrough
-	case 1:
-		return ret[0]
-	case 0:
-		return nil
-	}
-}
-
-func (ir *Interpreter) ParseBytes(src []byte) []ast.Node {
+func (ir *Interpreter) ParseBytes(src []byte) ast.Node {
 	var parser mp.Parser
 
 	parser.Fileset = ir.Fileset
@@ -93,7 +80,18 @@ func (ir *Interpreter) ParseBytes(src []byte) []ast.Node {
 		Error(err)
 		return nil
 	}
-	return nodes
+	switch n := len(nodes); n {
+	case 0:
+		return nil
+	case 1:
+		return nodes[0]
+	default:
+		list := make([]ast.Stmt, n)
+		for i, node := range nodes {
+			list[i] = ToStmt(ToAst(node))
+		}
+		return &ast.BlockStmt{Lbrace: nodes[0].Pos(), List: list, Rbrace: nodes[n-1].End()}
+	}
 }
 
 //

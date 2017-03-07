@@ -80,6 +80,10 @@ func callDelete(m interface{}, key interface{}) {
 	r.ValueOf(m).SetMapIndex(r.ValueOf(key), Nil)
 }
 
+func builtinEnv(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	return r.ValueOf(env), nil
+}
+
 func builtinImag(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
@@ -201,26 +205,34 @@ func callSlice(args ...interface{}) []interface{} {
 func (env *Env) addBuiltins() {
 	binds := env.Binds
 
+	binds["Env"] = r.ValueOf(Builtin{builtinEnv})
 	binds["Eval"] = r.ValueOf(func(node ast.Node) interface{} {
 		return toInterface(env.Eval1(node))
 	})
 	binds["EvalN"] = r.ValueOf(func(node ast.Node) []interface{} {
 		return toInterfaces(packValues(env.Eval(node)))
 	})
-	binds["MacroExpand"] = r.ValueOf(func(in ast.Node) (out ast.Node, expanded bool) {
-		return env.MacroExpand(in)
+	// FIXME implement MacroExpand* functions with a Builtin or an EnvFunction, to remove the explicit argument *Env
+	binds["MacroExpand"] = r.ValueOf(func(in ast.Node, e *Env) (out ast.Node, expanded bool) {
+		if e == nil {
+			e = env
+		}
+		return e.MacroExpand(in)
 	})
-	binds["MacroExpand1"] = r.ValueOf(func(in ast.Node) (out ast.Node, expanded bool) {
-		return env.MacroExpand1(in)
+	binds["MacroExpand1"] = r.ValueOf(func(in ast.Node, e *Env) (out ast.Node, expanded bool) {
+		if e == nil {
+			e = env
+		}
+		return e.MacroExpand1(in)
 	})
-	binds["MacroExpandCodewalk"] = r.ValueOf(func(in ast.Node) (out ast.Node, expanded bool) {
-		return env.MacroExpandCodewalk(in)
+	binds["MacroExpandCodewalk"] = r.ValueOf(func(in ast.Node, e *Env) (out ast.Node, expanded bool) {
+		if e == nil {
+			e = env
+		}
+		return e.MacroExpandCodewalk(in)
 	})
-	binds["Parse"] = r.ValueOf(func(src interface{}) []ast.Node {
+	binds["Parse"] = r.ValueOf(func(src interface{}) ast.Node {
 		return env.Parse(src)
-	})
-	binds["Parse1"] = r.ValueOf(func(src interface{}) ast.Node {
-		return env.Parse1(src)
 	})
 	binds["ReadDir"] = r.ValueOf(callReadDir)
 	binds["ReadFile"] = r.ValueOf(callReadFile)
@@ -235,6 +247,7 @@ func (env *Env) addBuiltins() {
 	binds["complex"] = r.ValueOf(Builtin{builtinComplex})
 	binds["copy"] = r.ValueOf(callCopy)
 	binds["delete"] = r.ValueOf(callDelete)
+	binds["false"] = r.ValueOf(false)
 	binds["imag"] = r.ValueOf(Builtin{builtinImag})
 	binds["len"] = r.ValueOf(callLen)
 	binds["make"] = r.ValueOf(Builtin{builtinMake})
@@ -247,7 +260,9 @@ func (env *Env) addBuiltins() {
 	})
 	binds["real"] = r.ValueOf(Builtin{builtinReal})
 	// binds["recover"] = r.ValueOf(callRecover) // does not work! recover() works only inside a deferred function (but not any function called by it)
+	binds["true"] = r.ValueOf(true)
 
+	// --------- types ---------
 	types := env.Types
 	types["bool"] = r.TypeOf(false)
 	types["byte"] = r.TypeOf(byte(0))
@@ -274,11 +289,11 @@ func (env *Env) addBuiltins() {
 func (env *Env) addInterpretedBuiltins() {
 	if false {
 		line := "func not(flag bool) bool { if flag { return false } else { return true } }"
-		env.EvalList(env.Parse(line))
+		env.Eval(env.Parse(line))
 	}
 	if false {
 		// Factorial(1000000): eval() elapsed time: 1.233714899 s
 		line := "func Factorial(n int) int { t := 1; for i := 2; i <= n; i=i+1 { t = t * i }; t }"
-		env.EvalList(env.Parse(line))
+		env.Eval(env.Parse(line))
 	}
 }

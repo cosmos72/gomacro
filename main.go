@@ -35,7 +35,7 @@ import (
 func main() {
 	args := os.Args
 
-	// args := []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { b }\nMacroExpand1(quote{foo x; y; z})"}
+	// args := []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { b }\nMacroExpand1(quote{foo x; y; z}, Env())"}
 
 	// generated with: find [a-u]* -type f -name \*.go | grep -v internal | grep -v testdata | grep -v cmd/ | grep -v builtin | xargs -d'\n' dirname | sort -u | while read i; do echo -n "\"$i\"; "; done
 	// plus some hand-made tweaks
@@ -49,7 +49,7 @@ func Main(args []string) {
 	env := gmi.New()
 
 	env.ParserMode = mp.Trace & 0  // | mp.TraceMacro
-	env.Options = gmi.OptTrapPanic // | gmi.OptShowEvalDuration // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpandCodewalk // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote
+	env.Options = gmi.OptTrapPanic // | gmi.OptDebugMacroExpand // | gmi.OptShowAfterMacroExpansion  // | gmi.OptShowEvalDuration // | gmi.OptShowAfterParse // | gmi.OptDebugQuasiquote
 
 	if len(args) > 1 {
 		str := strings.Join(args[1:], " ")

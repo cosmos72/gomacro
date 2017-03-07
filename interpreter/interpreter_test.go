@@ -59,8 +59,8 @@ func TestInterpreter(t *testing.T) {
 }
 
 func (c *TestCase) run(t *testing.T, env *Env) {
-	nodes := env.Parse(c.program)
-	rets := packValues(env.EvalList(nodes))
+	node := env.Parse(c.program)
+	rets := packValues(env.Eval(node))
 	c.compareResults(t, rets)
 }
 
@@ -97,9 +97,9 @@ func (c *TestCase) compareResult(t *testing.T, actual r.Value, expected interfac
 
 func BenchmarkFibonacciInterpreter(b *testing.B) {
 	env := New()
-	node := env.Parse1(fib_s)
+	node := env.Parse(fib_s)
 	env.Eval1(node)
-	node = env.Parse1("fibonacci(30)")
+	node = env.Parse("fibonacci(30)")
 
 	b.ResetTimer()
 	var total uint
@@ -117,9 +117,9 @@ func BenchmarkFibonacciCompiler(b *testing.B) {
 
 func BenchmarkSumInterpreter(b *testing.B) {
 	env := New()
-	node := env.Parse1(sum_s)
+	node := env.Parse(sum_s)
 	env.Eval1(node)
-	node = env.Parse1("sum(10000)")
+	node = env.Parse("sum(10000)")
 
 	b.ResetTimer()
 	var total int

@@ -33,10 +33,6 @@ func (env *Env) evalIdentifier(expr *ast.Ident) r.Value {
 	name := expr.Name
 
 	switch name {
-	case "false":
-		return r.ValueOf(false)
-	case "true":
-		return r.ValueOf(true)
 	case "iota":
 		pos := env.Fileset.Position(expr.NamePos)
 		return r.ValueOf(pos.Line - env.iotaOffset)
