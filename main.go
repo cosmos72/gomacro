@@ -48,8 +48,8 @@ func main() {
 func Main(args []string) {
 	env := gmi.New()
 
-	env.ParserMode = mp.Trace & 0  // | mp.TraceMacro
-	env.Options = gmi.OptTrapPanic // | gmi.OptDebugMacroExpand // | gmi.OptShowAfterMacroExpansion  // | gmi.OptShowEvalDuration // | gmi.OptShowAfterParse // | gmi.OptDebugQuasiquote
+	env.ParserMode = mp.Trace & 0      // | mp.TraceMacro
+	env.Options = gmi.OptTrapPanic & 0 // | gmi.OptDebugMacroExpand // | gmi.OptShowAfterMacroExpansion  // | gmi.OptShowEvalDuration // | gmi.OptShowAfterParse // | gmi.OptDebugQuasiquote
 
 	if len(args) > 1 {
 		str := strings.Join(args[1:], " ")

@@ -24,42 +24,6 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-func (p *parser) parseAny() ast.Node {
-	var node ast.Node
-
-	if p.tok == token.COMMENT {
-		// advance to the next non-comment token
-		p.next()
-	}
-	switch p.tok {
-	case token.PACKAGE:
-		node = p.parseFile()
-	case token.IMPORT:
-		node = p.parseGenDecl(token.IMPORT, p.parseImportSpec)
-	case token.CONST, token.TYPE, token.VAR, mt.MACRO:
-		node = p.parseDecl(syncDecl)
-	case token.FUNC:
-		// either a function declaration: func foo(args) /*...*/
-		// or a method declaration: func (receiver) foo(args) /*...*/
-		// or a function literal, i.e. a closure: func(args) /*...*/
-		// since method declaration and function literal are so similar,
-		// there is no reasonable way to distinguish them here.
-		//
-		// decision: always parse as a declaration.
-		// function literals at top level will have to come after
-		// some other token: a variable declaration, an expression,
-		// or at least a '('
-		node = p.parseDecl(syncDecl)
-	default:
-		node = p.parseStmt(true)
-		if expr, ok := node.(*ast.ExprStmt); ok {
-			// unwrap expressions
-			node = expr.X
-		}
-	}
-	return node
-}
-
 // patch: quote and friends
 func (p *parser) parseQuote() ast.Expr {
 	if p.trace {
