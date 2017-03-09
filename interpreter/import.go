@@ -117,7 +117,7 @@ func (ir *Interpreter) ImportPackage(name, path string) *Env {
 	}
 	if len(filename) == 0 {
 		// empty package
-		return &Env{Binds: map[string]r.Value{}, Types: map[string]r.Type{}, Name: name, Path: path}
+		return &Env{Binds: map[string]r.Value{}, Types: map[string]r.Type{}, Proxies: map[string]r.Type{}, Name: name, Path: path}
 	}
 
 	soname := ir.compilePlugin(filename, ir.Stdout, ir.Stderr)

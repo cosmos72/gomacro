@@ -108,15 +108,15 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (ret bool) {
 
 	fmt.Fprint(env.Stdout, "gomacro> ")
 
-	line, err := in.ReadString('\n')
+	str, err := in.ReadString('\n')
 	if err != nil {
 		fmt.Fprintln(env.Stderr, err)
 		return false
 	}
-	return env.ParseEvalPrint(line)
+	return env.ParseEvalPrint(str, in)
 }
 
-func (env *Env) ParseEvalPrint(str string) (ret bool) {
+func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) bool {
 	if env.Options&OptShowEvalDuration != 0 {
 		t1 := time.Now()
 		defer func() {
@@ -133,17 +133,27 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 		return true
 	} else if n > 0 && src[0] == ':' {
 		args := strings.SplitN(src, " ", 2)
-		switch args[0] {
-		case ":q", ":quit":
+		cmd := args[0]
+		switch {
+		case isPrefix(cmd, ":quit"):
 			return false
-		case ":e", ":env":
+		case isPrefix(cmd, ":inspect"):
+			if in == nil {
+				fmt.Fprint(env.Stdout, "// not connected to user input, cannot :inspect\n")
+			} else if len(args) == 1 {
+				fmt.Fprint(env.Stdout, "// inspect: missing argument\n")
+			} else {
+				env.Inspect(in, args[1])
+			}
+			return true
+		case isPrefix(cmd, ":env"):
 			if len(args) <= 1 {
 				env.showPackage(env.Stdout, "")
 			} else {
 				env.showPackage(env.Stdout, args[1])
 			}
 			return true
-		case ":h", ":help":
+		case isPrefix(cmd, ":help"):
 			env.showHelp(env.Stdout)
 			return true
 		}
@@ -171,4 +181,9 @@ func (env *Env) ParseEvalPrint(str string) (ret bool) {
 		env.FprintValues(env.Stdout, value)
 	}
 	return true
+}
+
+func isPrefix(prefix, str string) bool {
+	n := len(prefix)
+	return n <= len(str) && prefix == str[:n]
 }

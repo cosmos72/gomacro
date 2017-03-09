@@ -224,10 +224,11 @@ func (f FileSet) nodeToPrintable(node ast.Node) interface{} {
 
 func (f FileSet) showHelp(out io.Writer) {
 	fmt.Fprint(out, `// interpreter commands:
-:env [name] show available functions, variables and constants
-            in current package, or from imported package "name"
-:help       print this help
-:quit       quit the interpreter
+:env [name]     show available functions, variables and constants
+                in current package, or from imported package "name"
+:help           print this help
+:inspect [expr] inspect expression interactively
+:quit           quit the interpreter
 `)
 }
 

@@ -194,6 +194,16 @@ func callReadDir(dirname string) []string {
 	return names
 }
 
+func builtinTyped(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	rets := make([]r.Value, len(args))
+	for i, arg := range args {
+		// go through interface{} to forget any "static" compile-time type information
+		ret := env.Eval1(arg).Interface()
+		rets[i] = r.ValueOf(ret)
+	}
+	return unpackValues(rets)
+}
+
 func callRecover() interface{} {
 	return recover()
 }
@@ -240,6 +250,7 @@ func (env *Env) addBuiltins() {
 	binds["String"] = r.ValueOf(func(args ...interface{}) string {
 		return env.toString("", args...)
 	})
+	binds["Typed"] = r.ValueOf(Builtin{builtinTyped})
 
 	binds["append"] = r.ValueOf(Builtin{builtinAppend})
 	binds["cap"] = r.ValueOf(callCap)

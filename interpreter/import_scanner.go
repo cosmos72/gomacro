@@ -90,7 +90,7 @@ func (o *Output) traverseType(name string, in types.Type, visitor TypeVisitor) {
 				// the receiver is often the interface containing this signature...
 				// avoid infinite recursion!
 				if in != u {
-					if u, ok := u.(*types.Interface); !ok {
+					if _, ok := u.(*types.Interface); !ok {
 						o.traverseType(recv.Name(), u, visitor)
 					}
 				}

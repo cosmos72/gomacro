@@ -27,7 +27,7 @@ package interpreter
 import (
 	"fmt"
 	"go/ast"
-	_ "go/token"
+	"go/token"
 	r "reflect"
 
 	mp "github.com/cosmos72/gomacro/parser"
@@ -212,13 +212,37 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 
 // unwrapTrivialAst extract the content from ParenExpr, ExprStmt, DeclStmt:
 // such nodes are trivial wrappers for their contents
-func unwrapTrivialAst(form Ast) Ast {
+func unwrapTrivialAst(in Ast) Ast {
 	for {
-		switch form.(type) {
-		case ParenExpr, ExprStmt, DeclStmt:
-			form = form.Get(0)
-		default:
+		switch form := in.(type) {
+		case BlockStmt:
+			// a one-element block is trivial UNLESS it contains a declaration.
+			// reason: the declaration alters its scope with new bindings.
+			// unwrapping it would alters the OUTER scope.
+			// i.e. { var x = foo() } and var x = foo() give different scopes
+			// to the variable 'x' so they are not equivalent.
+			//
+			// same reasoning for { x := foo() } versus x := foo()
+			if form.Size() == 1 {
+				child := form.Get(0)
+				switch child := child.(type) {
+				case DeclStmt:
+					return in
+				case AssignStmt:
+					if child.Op() == token.DEFINE {
+						return in
+					}
+				}
+				// fmt.Printf("// debug: unwrapTrivialAst(block) unwrapping %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
+				in = child
+			}
 			return form
+		case ParenExpr, ExprStmt, DeclStmt:
+			child := form.Get(0)
+			// fmt.Printf("// debug: unwrapTrivialAst(1) unwrapped %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
+			in = child
+		default:
+			return in
 		}
 	}
 }
@@ -509,18 +533,14 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 	if !expanded {
 		return in, false
 	}
-	switch len(rets) {
-	case 0:
+	if n = len(rets); n == 0 {
 		form = EmptyStmt{&ast.EmptyStmt{}}
-	case 1:
-		form = unwrapTrivialAst(rets[0])
-	default:
-		n = len(rets)
+	} else {
 		list.Slice(0, n)
 		for i, ret := range rets {
 			list.Set(i, ret)
 		}
 		form = list
 	}
-	return form, true
+	return unwrapTrivialAst(form), true
 }
