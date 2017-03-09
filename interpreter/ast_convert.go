@@ -312,6 +312,8 @@ func ToNode(x Ast) ast.Node {
 	switch x := x.(type) {
 	case AstWithNode:
 		return x.Node()
+	case nil:
+		return nil
 	default:
 		y := x.Interface()
 		Errorf("cannot convert to ast.Node: %v <%v>", y, r.TypeOf(y))

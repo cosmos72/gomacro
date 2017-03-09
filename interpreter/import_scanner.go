@@ -69,7 +69,6 @@ func un(o *Output) {
 func (o *Output) traverseType(name string, in types.Type, visitor TypeVisitor) {
 	for {
 		// defer un(trace(o, "traverseType", name, r.TypeOf(in)))
-		// time.Sleep(time.Second / 10)
 
 		if !visitor(name, in) {
 			return

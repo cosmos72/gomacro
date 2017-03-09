@@ -108,6 +108,52 @@ func callLen(arg interface{}) int {
 	return r.ValueOf(arg).Len()
 }
 
+//
+// --------- macroexpansion ----------
+//
+
+func builtinMacroExpand(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	return callMacroExpand(env, args, cMacroExpand)
+}
+
+func builtinMacroExpand1(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	return callMacroExpand(env, args, cMacroExpand1)
+}
+
+func builtinMacroExpandCodewalk(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+	return callMacroExpand(env, args, cMacroExpandCodewalk)
+}
+
+func callMacroExpand(env *Env, args []ast.Expr, which whichMacroExpand) (r.Value, []r.Value) {
+	n := len(args)
+	if n < 1 || n > 2 {
+		return env.Errorf("builtin %v() expect one or two arguments, found %d", which, n)
+	}
+	val := env.evalExpr1(args[0])
+	if val == Nil || val == None {
+		return val, nil
+	}
+	node := AnyToAstWithNode(val.Interface(), which.String()).Node()
+	if n == 2 {
+		e := env.evalExpr1(args[1])
+		if e != Nil && e != None {
+			env = e.Interface().(*Env)
+		}
+	}
+	var expanded bool
+	switch which {
+	case cMacroExpand1:
+		node, expanded = env.MacroExpand1(node)
+	case cMacroExpandCodewalk:
+		node, expanded = env.MacroExpandCodewalk(node)
+	default:
+		node, expanded = env.MacroExpand(node)
+	}
+	nodev := r.ValueOf(node)
+	expandedv := r.ValueOf(expanded)
+	return nodev, []r.Value{nodev, expandedv}
+}
+
 func builtinMake(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 3 {
@@ -222,25 +268,9 @@ func (env *Env) addBuiltins() {
 	binds["EvalN"] = r.ValueOf(func(node ast.Node) []interface{} {
 		return toInterfaces(packValues(env.Eval(node)))
 	})
-	// FIXME implement MacroExpand* functions with a Builtin or an EnvFunction, to remove the explicit argument *Env
-	binds["MacroExpand"] = r.ValueOf(func(in ast.Node, e *Env) (out ast.Node, expanded bool) {
-		if e == nil {
-			e = env
-		}
-		return e.MacroExpand(in)
-	})
-	binds["MacroExpand1"] = r.ValueOf(func(in ast.Node, e *Env) (out ast.Node, expanded bool) {
-		if e == nil {
-			e = env
-		}
-		return e.MacroExpand1(in)
-	})
-	binds["MacroExpandCodewalk"] = r.ValueOf(func(in ast.Node, e *Env) (out ast.Node, expanded bool) {
-		if e == nil {
-			e = env
-		}
-		return e.MacroExpandCodewalk(in)
-	})
+	binds["MacroExpand"] = r.ValueOf(Builtin{builtinMacroExpand})
+	binds["MacroExpand1"] = r.ValueOf(Builtin{builtinMacroExpand1})
+	binds["MacroExpandCodewalk"] = r.ValueOf(Builtin{builtinMacroExpandCodewalk})
 	binds["Parse"] = r.ValueOf(func(src interface{}) ast.Node {
 		return env.Parse(src)
 	})
@@ -274,7 +304,8 @@ func (env *Env) addBuiltins() {
 	binds["true"] = r.ValueOf(true)
 
 	// --------- types ---------
-	types := env.Types
+	types := make(map[string]r.Type)
+	env.Types = types
 	types["bool"] = r.TypeOf(false)
 	types["byte"] = r.TypeOf(byte(0))
 	types["complex64"] = r.TypeOf(complex(float32(0), float32(0)))

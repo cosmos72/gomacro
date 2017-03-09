@@ -52,6 +52,7 @@ type Macro struct {
 }
 
 type Options uint
+type whichMacroExpand uint
 
 const (
 	OptTrapPanic Options = 1 << iota
@@ -60,7 +61,22 @@ const (
 	OptShowAfterMacroExpansion
 	OptDebugMacroExpand
 	OptDebugQuasiquote
+
+	cMacroExpand1 whichMacroExpand = iota
+	cMacroExpand
+	cMacroExpandCodewalk
 )
+
+func (m whichMacroExpand) String() string {
+	switch m {
+	case cMacroExpand1:
+		return "MacroExpand1"
+	case cMacroExpandCodewalk:
+		return "MacroExpandCodewalk"
+	default:
+		return "MacroExpand"
+	}
+}
 
 var Nil = r.Value{}
 

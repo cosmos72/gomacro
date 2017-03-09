@@ -99,7 +99,11 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 	withSlice, canSplice := inout.(AstWithSlice)
 	form := inout
 	env.debugQuasiQuote("evaluating", depth, canSplice, form.Interface())
-	form = unwrapTrivialAst(form) // drill through DeclStmt, ExprStmt, ParenExpr
+	if canSplice {
+		form = unwrapTrivialAstPreserveBlockStmt(form) // drill through DeclStmt, ExprStmt, ParenExpr
+	} else {
+		form = unwrapTrivialAst(form) // drill through DeclStmt, ExprStmt, ParenExpr, one-element BlockStmt
+	}
 	if form == nil || form.Size() == 0 {
 		return inout
 	}
@@ -110,6 +114,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 			case mt.QUASIQUOTE:
 				// equivalent to ToAst(form.p.X.(*ast.FuncLit).Body)
 				toexpand := form.Get(0).Get(1)
+				env.debugQuasiQuote("recursing inside QUASIQUOTE", depth+1, canSplice, toexpand.Interface())
 				expansion := env.evalQuasiquoteAst(toexpand, depth+1)
 				form.Get(0).Set(1, expansion)
 				return form
@@ -120,6 +125,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 				} else {
 					// equivalent to ToAst(form.p.X.(*ast.FuncLit).Body)
 					toexpand := form.Get(0).Get(1)
+					env.debugQuasiQuote("recursing inside UNQUOTE", depth-1, canSplice, toexpand.Interface())
 					expansion := env.evalQuasiquoteAst(toexpand, depth-1)
 					form.Get(0).Set(1, expansion)
 					return form
@@ -133,10 +139,14 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 
 		ni := form.Size()
 		for i := 0; i < ni; i++ {
-			// general case: recurse on child
 			child := form.Get(i)
-			child = env.evalQuasiquoteAst(child, depth)
-			form.Set(i, child)
+			if child == nil {
+				env.debugQuasiQuote("child is nil", depth, canSplice, child)
+			} else {
+				env.debugQuasiQuote("general case: recurse on child", depth, canSplice, child.Interface())
+				child = env.evalQuasiquoteAst(child, depth)
+				form.Set(i, child)
+			}
 		}
 		// we modified form destructively... return form, not inout!
 		return form
@@ -153,6 +163,7 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 			case mt.QUASIQUOTE:
 				// equivalent to ToAst(form.p.X.(*ast.FuncLit).Body)
 				toexpand := child.Get(0).Get(1)
+				env.debugQuasiQuote("recursing inside QUASIQUOTE", depth+1, canSplice, toexpand.Interface())
 				expansion := env.evalQuasiquoteAst(toexpand, depth+1)
 				child.Get(0).Set(1, expansion)
 				ret = append(ret, child)
@@ -168,19 +179,23 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 				//   quasiquote{1; unquote{2}; unquote{7}; unquote{8}}
 				lastUnquote, unquoteDepth := env.descendNestedUnquotes(child)
 
-				env.debugQuasiQuote(fmt.Sprintf("found %s (unquoteDepth = %d)", mt.String(lastUnquote.Op()), unquoteDepth),
-					depth, canSplice, child)
-
 				op := lastUnquote.Op()
+
+				env.debugQuasiQuote(fmt.Sprintf("inside %s, lastUnquote is %s (unquoteDepth = %d)",
+					mt.String(child.Op()), mt.String(op), unquoteDepth), depth, canSplice, child)
+
 				if unquoteDepth > depth {
 					env.Errorf("%s not inside quasiquote: %v <%v>", mt.String(op), lastUnquote, r.TypeOf(lastUnquote))
 					return nil
 				} else if unquoteDepth < depth {
 					toexpand := child.Get(0).Get(1)
+					env.debugQuasiQuote(fmt.Sprintf("recursing inside %s, lastUnquote is %s", mt.String(child.Op()), mt.String(op)),
+						depth-1, canSplice, toexpand.Interface())
 					expansion := env.evalQuasiquoteAst(toexpand, depth-1)
 					child.Get(0).Set(1, expansion)
 					ret = append(ret, child)
 				} else {
+					env.debugQuasiQuote("calling unquote on", depth-unquoteDepth, canSplice, lastUnquote.Interface())
 					toInsert := AnyToAst(env.evalUnquote(lastUnquote), mt.String(op))
 					if op == mt.UNQUOTE {
 						stack := duplicateNestedUnquotes(child, unquoteDepth-1, toInsert)
@@ -197,8 +212,12 @@ func (env *Env) evalQuasiquoteAst(inout Ast, depth int) Ast {
 				goto PrintDebug
 			}
 		}
-		// general case: recurse on child
-		child = env.evalQuasiquoteAst(child, depth)
+		if child == nil {
+			env.debugQuasiQuote("child is nil", depth, canSplice, child)
+		} else {
+			env.debugQuasiQuote("general case: recurse on child", depth, canSplice, child.Interface())
+			child = env.evalQuasiquoteAst(child, depth)
+		}
 		ret = append(ret, child)
 	PrintDebug:
 		env.debugQuasiQuote("accumulated", depth, canSplice, ret)
@@ -216,6 +235,9 @@ func unwrapTrivialAst(in Ast) Ast {
 	for {
 		switch form := in.(type) {
 		case BlockStmt:
+			if form.Size() != 1 {
+				return form
+			}
 			// a one-element block is trivial UNLESS it contains a declaration.
 			// reason: the declaration alters its scope with new bindings.
 			// unwrapping it would alters the OUTER scope.
@@ -223,24 +245,34 @@ func unwrapTrivialAst(in Ast) Ast {
 			// to the variable 'x' so they are not equivalent.
 			//
 			// same reasoning for { x := foo() } versus x := foo()
-			if form.Size() == 1 {
-				child := form.Get(0)
-				switch child := child.(type) {
-				case DeclStmt:
+			child := form.Get(0)
+			switch child := child.(type) {
+			case DeclStmt:
+				return in
+			case AssignStmt:
+				if child.Op() == token.DEFINE {
 					return in
-				case AssignStmt:
-					if child.Op() == token.DEFINE {
-						return in
-					}
 				}
-				// fmt.Printf("// debug: unwrapTrivialAst(block) unwrapping %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
-				in = child
 			}
-			return form
+			// fmt.Printf("// debug: unwrapTrivialAst(block) unwrapping %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
+			in = child
 		case ParenExpr, ExprStmt, DeclStmt:
 			child := form.Get(0)
 			// fmt.Printf("// debug: unwrapTrivialAst(1) unwrapped %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
 			in = child
+		default:
+			return in
+		}
+	}
+}
+
+// unwrapTrivialAst extract the content from ParenExpr, ExprStmt, DeclStmt:
+// such nodes are trivial wrappers for their contents
+func unwrapTrivialAstPreserveBlockStmt(in Ast) Ast {
+	for {
+		switch form := in.(type) {
+		case ParenExpr, ExprStmt, DeclStmt:
+			in = form.Get(0)
 		default:
 			return in
 		}
@@ -344,6 +376,9 @@ func (env *Env) macroExpandAstCodewalk(form Ast, quasiquoteDepth int) (out Ast, 
 		return form, false
 	}
 	if quasiquoteDepth <= 0 {
+		if env.Options&OptDebugMacroExpand != 0 {
+			env.Debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, form.Interface())
+		}
 		form, anythingExpanded = env.macroExpandAst(form)
 	}
 	if form != nil {
@@ -353,7 +388,12 @@ func (env *Env) macroExpandAstCodewalk(form Ast, quasiquoteDepth int) (out Ast, 
 		return form, anythingExpanded
 	}
 	saved := form
-	for expr, ok := form.(UnaryExpr); ok; {
+
+	for {
+		expr, ok := form.(UnaryExpr)
+		if !ok {
+			break
+		}
 		switch expr.p.Op {
 		case mt.QUOTE:
 			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
@@ -371,7 +411,7 @@ func (env *Env) macroExpandAstCodewalk(form Ast, quasiquoteDepth int) (out Ast, 
 		}
 		temp := unwrapTrivialAst(form.Get(0).Get(1))
 		if env.Options&OptDebugMacroExpand != 0 {
-			env.Debugf("MacroExpandCodewalk: unwrapped %v to %v", form, temp)
+			env.Debugf("MacroExpandCodewalk: qq = %d, unwrapped %v to %v", quasiquoteDepth, form.Interface(), temp.Interface())
 		}
 		form = temp
 	}
@@ -380,7 +420,7 @@ Recurse:
 		return saved, anythingExpanded
 	}
 	if env.Options&OptDebugMacroExpand != 0 {
-		env.Debugf("MacroExpandCodewalk: recursing on %v", form)
+		env.Debugf("MacroExpandCodewalk: qq = %d, recursing on %v", quasiquoteDepth, form)
 	}
 	n := form.Size()
 	var expanded bool

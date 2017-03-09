@@ -34,15 +34,15 @@ import (
 )
 
 func New() *Env {
-	env := NewEnv(nil, "builtin")
-	env = NewEnv(env, "main")
-	return env
+	top := NewEnv(nil, "builtin")
+	return NewEnv(top, "main")
 }
 
 func NewEnv(outer *Env, path string) *Env {
 	env := &Env{
 		Binds:      make(map[string]r.Value),
-		Types:      make(map[string]r.Type),
+		Types:      nil,
+		Proxies:    nil,
 		iotaOffset: 1,
 		Outer:      outer,
 		Name:       path,
@@ -61,8 +61,6 @@ func NewEnv(outer *Env, path string) *Env {
 func (env *Env) TopEnv() *Env {
 	for {
 		outer := env.Outer
-		// fmt.Printf("TopEnv(): env = %p %q, outer = %p\n", env, env.Path, outer)
-		// time.Sleep(time.Second)
 		if outer == nil {
 			break
 		}
@@ -74,8 +72,6 @@ func (env *Env) TopEnv() *Env {
 func (env *Env) FileEnv() *Env {
 	for {
 		outer := env.Outer
-		// fmt.Printf("FileEnv(): env = %p %q, outer = %p\n", env, env.Path, outer)
-		// time.Sleep(time.Second)
 		if outer == nil || outer.Outer == nil {
 			break
 		}

@@ -78,6 +78,8 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 		t := env.evalType(node.Type)
 		if _, ok := env.Types[name]; ok {
 			env.Warnf("redefined type: %v", name)
+		} else if env.Types == nil {
+			env.Types = make(map[string]r.Type)
 		}
 		env.Types[name] = t
 		return r.ValueOf(&t).Elem(), nil // always return a reflect.Type
