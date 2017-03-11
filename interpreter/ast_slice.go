@@ -47,6 +47,14 @@ func (x IdentSlice) Op() token.Token { return token.COMMA }     // FIXME
 func (x SpecSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 func (x StmtSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 
+func (x NodeSlice) New() Ast  { return NodeSlice{p: []ast.Node{}} }
+func (x ExprSlice) New() Ast  { return ExprSlice{p: []ast.Expr{}} }
+func (x FieldSlice) New() Ast { return FieldSlice{p: []*ast.Field{}} }
+func (x DeclSlice) New() Ast  { return DeclSlice{p: []ast.Decl{}} }
+func (x IdentSlice) New() Ast { return IdentSlice{p: []*ast.Ident{}} }
+func (x SpecSlice) New() Ast  { return SpecSlice{p: []ast.Spec{}} }
+func (x StmtSlice) New() Ast  { return StmtSlice{p: []ast.Stmt{}} }
+
 func (x NodeSlice) Size() int  { return len(x.p) }
 func (x ExprSlice) Size() int  { return len(x.p) }
 func (x FieldSlice) Size() int { return len(x.p) }
@@ -71,21 +79,21 @@ func (x IdentSlice) Set(i int, child Ast) { x.p[i] = ToIdent(child) }
 func (x SpecSlice) Set(i int, child Ast)  { x.p[i] = ToSpec(child) }
 func (x StmtSlice) Set(i int, child Ast)  { x.p[i] = ToStmt(child) }
 
-func (x NodeSlice) Slice(lo, hi int)  { x.p = x.p[lo:hi] }
-func (x ExprSlice) Slice(lo, hi int)  { x.p = x.p[lo:hi] }
-func (x FieldSlice) Slice(lo, hi int) { x.p = x.p[lo:hi] }
-func (x DeclSlice) Slice(lo, hi int)  { x.p = x.p[lo:hi] }
-func (x IdentSlice) Slice(lo, hi int) { x.p = x.p[lo:hi] }
-func (x SpecSlice) Slice(lo, hi int)  { x.p = x.p[lo:hi] }
-func (x StmtSlice) Slice(lo, hi int)  { x.p = x.p[lo:hi] }
+func (x NodeSlice) Slice(lo, hi int) AstWithSlice  { x.p = x.p[lo:hi]; return x }
+func (x ExprSlice) Slice(lo, hi int) AstWithSlice  { x.p = x.p[lo:hi]; return x }
+func (x FieldSlice) Slice(lo, hi int) AstWithSlice { x.p = x.p[lo:hi]; return x }
+func (x DeclSlice) Slice(lo, hi int) AstWithSlice  { x.p = x.p[lo:hi]; return x }
+func (x IdentSlice) Slice(lo, hi int) AstWithSlice { x.p = x.p[lo:hi]; return x }
+func (x SpecSlice) Slice(lo, hi int) AstWithSlice  { x.p = x.p[lo:hi]; return x }
+func (x StmtSlice) Slice(lo, hi int) AstWithSlice  { x.p = x.p[lo:hi]; return x }
 
-func (x NodeSlice) Append(child Ast)  { x.p = append(x.p, ToNode(child)) }
-func (x ExprSlice) Append(child Ast)  { x.p = append(x.p, ToExpr(child)) }
-func (x FieldSlice) Append(child Ast) { x.p = append(x.p, ToField(child)) }
-func (x DeclSlice) Append(child Ast)  { x.p = append(x.p, ToDecl(child)) }
-func (x IdentSlice) Append(child Ast) { x.p = append(x.p, ToIdent(child)) }
-func (x SpecSlice) Append(child Ast)  { x.p = append(x.p, ToSpec(child)) }
-func (x StmtSlice) Append(child Ast)  { x.p = append(x.p, ToStmt(child)) }
+func (x NodeSlice) Append(child Ast) AstWithSlice  { x.p = append(x.p, ToNode(child)); return x }
+func (x ExprSlice) Append(child Ast) AstWithSlice  { x.p = append(x.p, ToExpr(child)); return x }
+func (x FieldSlice) Append(child Ast) AstWithSlice { x.p = append(x.p, ToField(child)); return x }
+func (x DeclSlice) Append(child Ast) AstWithSlice  { x.p = append(x.p, ToDecl(child)); return x }
+func (x IdentSlice) Append(child Ast) AstWithSlice { x.p = append(x.p, ToIdent(child)); return x }
+func (x SpecSlice) Append(child Ast) AstWithSlice  { x.p = append(x.p, ToSpec(child)); return x }
+func (x StmtSlice) Append(child Ast) AstWithSlice  { x.p = append(x.p, ToStmt(child)); return x }
 
 // variable-length ast.Nodes
 
@@ -107,6 +115,16 @@ func (x File) Op() token.Token       { return token.EOF }
 func (x GenDecl) Op() token.Token    { return x.p.Tok }
 func (x ReturnStmt) Op() token.Token { return token.RETURN }
 
+func (x BlockStmt) New() Ast { return BlockStmt{&ast.BlockStmt{Lbrace: x.p.Lbrace, Rbrace: x.p.Rbrace}} }
+func (x FieldList) New() Ast { return FieldList{&ast.FieldList{}} }
+func (x File) New() Ast {
+	return File{&ast.File{Doc: x.p.Doc, Package: x.p.Package, Name: x.p.Name, Scope: x.p.Scope, Imports: x.p.Imports, Comments: x.p.Comments}}
+}
+func (x GenDecl) New() Ast {
+	return GenDecl{&ast.GenDecl{Doc: x.p.Doc, TokPos: x.p.TokPos, Tok: x.p.Tok, Lparen: x.p.Lparen, Rparen: x.p.Rparen}}
+}
+func (x ReturnStmt) New() Ast { return ReturnStmt{&ast.ReturnStmt{Return: x.p.Return}} }
+
 func (x BlockStmt) Size() int  { return len(x.p.List) }
 func (x FieldList) Size() int  { return len(x.p.List) }
 func (x File) Size() int       { return len(x.p.Decls) }
@@ -125,14 +143,29 @@ func (x File) Set(i int, child Ast)       { x.p.Decls[i] = ToDecl(child) }
 func (x GenDecl) Set(i int, child Ast)    { x.p.Specs[i] = ToSpec(child) }
 func (x ReturnStmt) Set(i int, child Ast) { x.p.Results[i] = ToExpr(child) }
 
-func (x BlockStmt) Slice(lo, hi int)  { x.p.List = x.p.List[lo:hi] }
-func (x FieldList) Slice(lo, hi int)  { x.p.List = x.p.List[lo:hi] }
-func (x File) Slice(lo, hi int)       { x.p.Decls = x.p.Decls[lo:hi] }
-func (x GenDecl) Slice(lo, hi int)    { x.p.Specs = x.p.Specs[lo:hi] }
-func (x ReturnStmt) Slice(lo, hi int) { x.p.Results = x.p.Results[lo:hi] }
+func (x BlockStmt) Slice(lo, hi int) AstWithSlice  { x.p.List = x.p.List[lo:hi]; return x }
+func (x FieldList) Slice(lo, hi int) AstWithSlice  { x.p.List = x.p.List[lo:hi]; return x }
+func (x File) Slice(lo, hi int) AstWithSlice       { x.p.Decls = x.p.Decls[lo:hi]; return x }
+func (x GenDecl) Slice(lo, hi int) AstWithSlice    { x.p.Specs = x.p.Specs[lo:hi]; return x }
+func (x ReturnStmt) Slice(lo, hi int) AstWithSlice { x.p.Results = x.p.Results[lo:hi]; return x }
 
-func (x BlockStmt) Append(child Ast)  { x.p.List = append(x.p.List, ToStmt(child)) }
-func (x FieldList) Append(child Ast)  { x.p.List = append(x.p.List, ToField(child)) }
-func (x File) Append(child Ast)       { x.p.Decls = append(x.p.Decls, ToDecl(child)) }
-func (x GenDecl) Append(child Ast)    { x.p.Specs = append(x.p.Specs, ToSpec(child)) }
-func (x ReturnStmt) Append(child Ast) { x.p.Results = append(x.p.Results, ToExpr(child)) }
+func (x BlockStmt) Append(child Ast) AstWithSlice {
+	x.p.List = append(x.p.List, ToStmt(child))
+	return x
+}
+func (x FieldList) Append(child Ast) AstWithSlice {
+	x.p.List = append(x.p.List, ToField(child))
+	return x
+}
+func (x File) Append(child Ast) AstWithSlice {
+	x.p.Decls = append(x.p.Decls, ToDecl(child))
+	return x
+}
+func (x GenDecl) Append(child Ast) AstWithSlice {
+	x.p.Specs = append(x.p.Specs, ToSpec(child))
+	return x
+}
+func (x ReturnStmt) Append(child Ast) AstWithSlice {
+	x.p.Results = append(x.p.Results, ToExpr(child))
+	return x
+}

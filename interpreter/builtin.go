@@ -30,7 +30,7 @@ import (
 	r "reflect"
 )
 
-func builtinAppend(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinAppend(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 {
 		return env.Errorf("builtin append() expects at least one argument, found %d", n)
@@ -48,7 +48,7 @@ func callClose(channel interface{}) {
 	r.ValueOf(channel).Close()
 }
 
-func builtinComplex(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinComplex(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 2 {
 		return env.Errorf("builtin complex() expects exactly two arguments, found %d", n)
@@ -80,11 +80,11 @@ func callDelete(m interface{}, key interface{}) {
 	r.ValueOf(m).SetMapIndex(r.ValueOf(key), Nil)
 }
 
-func builtinEnv(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinEnv(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	return r.ValueOf(env), nil
 }
 
-func builtinImag(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinImag(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
 		return env.Errorf("builtin imag() expects exactly one argument, found %d", n)
@@ -112,22 +112,22 @@ func callLen(arg interface{}) int {
 // --------- macroexpansion ----------
 //
 
-func builtinMacroExpand(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinMacroExpand(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	return callMacroExpand(env, args, cMacroExpand)
 }
 
-func builtinMacroExpand1(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinMacroExpand1(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	return callMacroExpand(env, args, cMacroExpand1)
 }
 
-func builtinMacroExpandCodewalk(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinMacroExpandCodewalk(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	return callMacroExpand(env, args, cMacroExpandCodewalk)
 }
 
 func callMacroExpand(env *Env, args []ast.Expr, which whichMacroExpand) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 2 {
-		return env.Errorf("builtin %v() expect one or two arguments, found %d", which, n)
+		return env.Errorf("builtin %v() expects one or two arguments, found %d: %v", which, n, args)
 	}
 	val := env.evalExpr1(args[0])
 	if val == Nil || val == None {
@@ -154,7 +154,7 @@ func callMacroExpand(env *Env, args []ast.Expr, which whichMacroExpand) (r.Value
 	return nodev, []r.Value{nodev, expandedv}
 }
 
-func builtinMake(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 3 {
 		return env.Errorf("builtin make() expects one, two or three arguments, found %d", n)
@@ -186,7 +186,7 @@ func builtinMake(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
 	return ret, nil
 }
 
-func builtinNew(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinNew(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
 		return env.Errorf("builtin new() expects exactly one argument, found %d", n)
@@ -199,7 +199,7 @@ func callPanic(arg interface{}) {
 	panic(Panic{arg})
 }
 
-func builtinReal(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinReal(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
 		return env.Errorf("builtin real() expects exactly one argument, found %d", n)
@@ -240,7 +240,7 @@ func callReadDir(dirname string) []string {
 	return names
 }
 
-func builtinTyped(env *Env, args ...ast.Expr) (r.Value, []r.Value) {
+func builtinTyped(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	rets := make([]r.Value, len(args))
 	for i, arg := range args {
 		// go through interface{} to forget any "static" compile-time type information

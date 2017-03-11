@@ -116,6 +116,9 @@ func (env *Env) evalDeclConstsOrVars(idents []*ast.Ident, typ ast.Expr, exprs []
 func (env *Env) defineConstsVarsOrFuncs(names []string, t r.Type, values []r.Value, constant bool) (r.Value, []r.Value) {
 	n := len(names)
 	if values == nil {
+		if t == nil {
+			return env.Errorf("no values and no type: cannot define %v", names)
+		}
 		values = make([]r.Value, n)
 		zero := r.Zero(t)
 		for i := 0; i < n; i++ {

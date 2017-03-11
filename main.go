@@ -35,7 +35,7 @@ import (
 func main() {
 	args := os.Args
 
-	// args := []string{"gomacro", "macro foo(a, b, c interface{}) interface{} { ~`{~,a + ~,b + ~,c } }\nMacroExpand1(quote{foo;1;2;3}, Env())"}
+	// args := []string{"gomacro", "macro add3(a, b, c interface{}) interface{} { ~`{~,a + ~,b + ~,c } }\nMacroExpand1(quote{add3;1;2;3})\nadd3;4;5;6"}
 
 	// args := []string{"gomacro", "x:=~'{var z interface{} = 42}"}
 
@@ -51,7 +51,7 @@ func Main(args []string) {
 	env := gmi.New()
 
 	env.ParserMode = mp.Trace & 0  // | mp.TraceMacro
-	env.Options = gmi.OptTrapPanic // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote // | gmi.OptDebugMacroExpand //  // | gmi.OptShowEvalDuration // | gmi.OptShowAfterParse
+	env.Options = gmi.OptTrapPanic // | gmi.OptDebugMacroExpand // | gmi.OptShowAfterMacroExpansion // | gmi.OptDebugQuasiquote  // | gmi.OptShowEvalDuration // | gmi.OptShowAfterParse
 
 	if len(args) > 1 {
 		str := strings.Join(args[1:], " ")

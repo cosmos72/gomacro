@@ -198,6 +198,78 @@ func (x UnaryExpr) Op() token.Token      { return x.p.Op }
 func (x ValueSpec) Op() token.Token      { return token.VAR } // can be VAR or CONST
 
 //
+// .................. functions New() Ast
+//
+func (x ArrayType) New() Ast  { return ArrayType{&ast.ArrayType{Lbrack: x.p.Lbrack}} }
+func (x AssignStmt) New() Ast { return AssignStmt{&ast.AssignStmt{TokPos: x.p.TokPos, Tok: x.p.Tok}} }
+func (x BadDecl) New() Ast    { return BadDecl{&ast.BadDecl{From: x.p.From, To: x.p.To}} }
+func (x BadExpr) New() Ast    { return BadExpr{&ast.BadExpr{From: x.p.From, To: x.p.To}} }
+func (x BadStmt) New() Ast    { return BadStmt{&ast.BadStmt{From: x.p.From, To: x.p.To}} }
+func (x BasicLit) New() Ast {
+	return BasicLit{&ast.BasicLit{ValuePos: x.p.ValuePos, Value: x.p.Value, Kind: x.p.Kind}}
+}
+func (x BinaryExpr) New() Ast { return BinaryExpr{&ast.BinaryExpr{OpPos: x.p.OpPos, Op: x.p.Op}} }
+func (x BranchStmt) New() Ast { return BranchStmt{&ast.BranchStmt{TokPos: x.p.TokPos, Tok: x.p.Tok}} }
+func (x CallExpr) New() Ast {
+	return CallExpr{&ast.CallExpr{Lparen: x.p.Lparen, Ellipsis: x.p.Ellipsis, Rparen: x.p.Rparen}}
+}
+func (x CaseClause) New() Ast { return CaseClause{&ast.CaseClause{Case: x.p.Case, Colon: x.p.Colon}} }
+func (x ChanType) New() Ast {
+	return ChanType{&ast.ChanType{Begin: x.p.Begin, Arrow: x.p.Arrow, Dir: x.p.Dir}}
+}
+func (x CommClause) New() Ast { return CommClause{&ast.CommClause{Case: x.p.Case, Colon: x.p.Colon}} }
+func (x CompositeLit) New() Ast {
+	return CompositeLit{&ast.CompositeLit{Lbrace: x.p.Lbrace, Rbrace: x.p.Rbrace}}
+}
+func (x DeclStmt) New() Ast  { return DeclStmt{&ast.DeclStmt{}} }
+func (x DeferStmt) New() Ast { return DeferStmt{&ast.DeferStmt{Defer: x.p.Defer}} }
+func (x Ellipsis) New() Ast  { return Ellipsis{&ast.Ellipsis{Ellipsis: x.p.Ellipsis}} }
+func (x EmptyStmt) New() Ast {
+	return EmptyStmt{&ast.EmptyStmt{Semicolon: x.p.Semicolon, Implicit: x.p.Implicit}}
+}
+func (x ExprStmt) New() Ast { return ExprStmt{&ast.ExprStmt{}} }
+func (x Field) New() Ast    { return Field{&ast.Field{Doc: x.p.Doc, Comment: x.p.Comment}} }
+func (x ForStmt) New() Ast  { return ForStmt{&ast.ForStmt{For: x.p.For}} }
+func (x FuncDecl) New() Ast { return FuncDecl{&ast.FuncDecl{Doc: x.p.Doc}} }
+func (x FuncLit) New() Ast  { return FuncLit{&ast.FuncLit{}} }
+func (x FuncType) New() Ast { return FuncType{&ast.FuncType{Func: x.p.Func}} }
+func (x GoStmt) New() Ast   { return GoStmt{&ast.GoStmt{Go: x.p.Go}} }
+func (x Ident) New() Ast    { return Ident{&ast.Ident{NamePos: x.p.NamePos, Name: x.p.Name}} }
+func (x IfStmt) New() Ast   { return IfStmt{&ast.IfStmt{If: x.p.If}} }
+func (x ImportSpec) New() Ast {
+	return ImportSpec{&ast.ImportSpec{Doc: x.p.Doc, Comment: x.p.Comment, EndPos: x.p.EndPos}}
+}
+func (x IncDecStmt) New() Ast { return IncDecStmt{&ast.IncDecStmt{TokPos: x.p.TokPos, Tok: x.p.Tok}} }
+func (x IndexExpr) New() Ast  { return IndexExpr{&ast.IndexExpr{Lbrack: x.p.Lbrack, Rbrack: x.p.Rbrack}} }
+func (x InterfaceType) New() Ast {
+	return InterfaceType{&ast.InterfaceType{Interface: x.p.Interface, Incomplete: x.p.Incomplete}}
+}
+func (x KeyValueExpr) New() Ast { return KeyValueExpr{&ast.KeyValueExpr{Colon: x.p.Colon}} }
+func (x LabeledStmt) New() Ast  { return LabeledStmt{&ast.LabeledStmt{Colon: x.p.Colon}} }
+func (x MapType) New() Ast      { return MapType{&ast.MapType{Map: x.p.Map}} }
+func (x Package) New() Ast {
+	return Package{&ast.Package{Name: x.p.Name, Scope: x.p.Scope, Imports: x.p.Imports}}
+}
+func (x ParenExpr) New() Ast { return ParenExpr{&ast.ParenExpr{Lparen: x.p.Lparen, Rparen: x.p.Rparen}} }
+func (x RangeStmt) New() Ast {
+	return RangeStmt{&ast.RangeStmt{For: x.p.For, TokPos: x.p.TokPos, Tok: x.p.Tok}}
+}
+func (x SelectStmt) New() Ast   { return SelectStmt{&ast.SelectStmt{Select: x.p.Select}} }
+func (x SelectorExpr) New() Ast { return SelectorExpr{&ast.SelectorExpr{}} }
+func (x SendStmt) New() Ast     { return SendStmt{&ast.SendStmt{Arrow: x.p.Arrow}} }
+func (x SliceExpr) New() Ast    { return SliceExpr{&ast.SliceExpr{Lbrack: x.p.Lbrack, Rbrack: x.p.Rbrack}} }
+func (x StarExpr) New() Ast     { return StarExpr{&ast.StarExpr{Star: x.p.Star}} }
+func (x StructType) New() Ast   { return StructType{&ast.StructType{Incomplete: x.p.Incomplete}} }
+func (x SwitchStmt) New() Ast   { return SwitchStmt{&ast.SwitchStmt{Switch: x.p.Switch}} }
+func (x TypeAssertExpr) New() Ast {
+	return TypeAssertExpr{&ast.TypeAssertExpr{Lparen: x.p.Lparen, Rparen: x.p.Rparen}}
+}
+func (x TypeSpec) New() Ast       { return TypeSpec{&ast.TypeSpec{Doc: x.p.Doc, Comment: x.p.Comment}} }
+func (x TypeSwitchStmt) New() Ast { return TypeSwitchStmt{&ast.TypeSwitchStmt{Switch: x.p.Switch}} }
+func (x UnaryExpr) New() Ast      { return UnaryExpr{&ast.UnaryExpr{OpPos: x.p.OpPos, Op: x.p.Op}} }
+func (x ValueSpec) New() Ast      { return ValueSpec{&ast.ValueSpec{Doc: x.p.Doc, Comment: x.p.Comment}} }
+
+//
 // .................. functions Size() int
 //
 func (x ArrayType) Size() int      { return 2 }
@@ -218,7 +290,7 @@ func (x DeferStmt) Size() int      { return 1 }
 func (x Ellipsis) Size() int       { return 2 }
 func (x EmptyStmt) Size() int      { return 0 }
 func (x ExprStmt) Size() int       { return 1 }
-func (x Field) Size() int          { return 2 }
+func (x Field) Size() int          { return 3 }
 func (x ForStmt) Size() int        { return 4 }
 func (x FuncDecl) Size() int       { return 4 }
 func (x FuncLit) Size() int        { return 2 }
@@ -339,8 +411,10 @@ func (x Field) Get(i int) Ast {
 		return nil
 	} else if i == 1 {
 		return ToAst(x.p.Type)
+	} else if i == 2 {
+		return ToAst(x.p.Tag)
 	} else {
-		return BadIndex(i, 2)
+		return BadIndex(i, 3)
 	}
 }
 func (x ForStmt) Get(i int) Ast {
@@ -536,8 +610,10 @@ func (x Field) Set(i int, child Ast) {
 		x.p.Names = ToIdentSlice(child)
 	} else if i == 1 {
 		x.p.Type = ToExpr(child)
+	} else if i == 2 {
+		x.p.Tag = ToBasicLit(child)
 	} else {
-		BadIndex(i, 2)
+		BadIndex(i, 3)
 	}
 }
 func (x ForStmt) Set(i int, child Ast) {

@@ -47,7 +47,7 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 		switch fun.Kind() {
 		case r.Struct:
 			if builtin, ok := fun.Interface().(Builtin); ok {
-				return builtin.Exec(env, node.Args...)
+				return builtin.Exec(env, node.Args)
 			}
 		case r.Func:
 			// TODO support the special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )

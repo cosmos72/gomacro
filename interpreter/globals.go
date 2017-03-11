@@ -43,7 +43,7 @@ type Env struct {
 }
 
 type Builtin struct {
-	Exec func(env *Env, args ...ast.Expr) (r.Value, []r.Value)
+	Exec func(env *Env, args []ast.Expr) (r.Value, []r.Value)
 }
 
 type Macro struct {

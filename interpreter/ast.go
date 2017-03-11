@@ -36,6 +36,7 @@ type (
 		Size() int
 		Get(i int) Ast
 		Set(i int, child Ast)
+		New() Ast // returns a copy of Ast. the children are not copied
 	}
 	AstWithNode interface {
 		Ast
@@ -43,8 +44,8 @@ type (
 	}
 	AstWithSlice interface {
 		Ast
-		Slice(lo, hi int)
-		Append(child Ast)
+		Slice(lo, hi int) AstWithSlice
+		Append(child Ast) AstWithSlice
 	}
 
 	NodeSlice  struct{ p []ast.Node }
