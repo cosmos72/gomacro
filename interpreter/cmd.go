@@ -121,7 +121,7 @@ func (cmd *Cmd) EvalDirs(dirnames ...string) error {
 		for _, file := range files {
 			filename := file.Name()
 			l := len(filename)
-			if l > 3 && filename[l-3:] == ".go" {
+			if l > 3 && filename[l-3:] == ".go" || l > 8 && filename[l-8] == ".gomacro" {
 				filenames = append(filenames, filename)
 			}
 		}
