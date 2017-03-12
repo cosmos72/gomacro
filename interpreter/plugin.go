@@ -34,15 +34,15 @@ import (
 )
 
 func getGoPath() string {
-	envdir := os.Getenv("GOPATH")
-	if len(envdir) == 0 {
-		envdir := os.Getenv("HOME")
-		if len(envdir) == 0 {
+	dir := os.Getenv("GOPATH")
+	if len(dir) == 0 {
+		dir = os.Getenv("HOME")
+		if len(dir) == 0 {
 			Errorf("cannot determine go source directory: both $GOPATH and $HOME are unset or empty")
 		}
-		envdir += "/go"
+		dir += "/go"
 	}
-	return envdir
+	return dir
 }
 
 func getGoSrcPath() string {

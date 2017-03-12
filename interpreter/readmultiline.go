@@ -41,6 +41,10 @@ func ReadMultiline(in *bufio.Reader, out io.Writer, prompt string) (string, erro
 		mRuneEscape
 		mStringEscape
 		mRawString
+		mSlash
+		mLineComment
+		mComment
+		mCommentStar
 		mTilde
 	)
 	mode := mNormal
@@ -66,6 +70,8 @@ func ReadMultiline(in *bufio.Reader, out io.Writer, prompt string) (string, erro
 					mode = mString
 				case '`':
 					mode = mRawString
+				case '/':
+					mode = mSlash
 				case '~':
 					mode = mTilde
 				}
@@ -105,6 +111,32 @@ func ReadMultiline(in *bufio.Reader, out io.Writer, prompt string) (string, erro
 				switch ch {
 				case '`':
 					mode = mNormal
+				}
+			case mSlash:
+				switch ch {
+				case '/':
+					mode = mLineComment
+				case '*':
+					mode = mComment
+				default:
+					mode = mNormal
+				}
+			case mLineComment:
+				switch ch {
+				case '\n':
+					mode = mNormal
+				}
+			case mComment:
+				switch ch {
+				case '*':
+					mode = mCommentStar
+				}
+			case mCommentStar:
+				switch ch {
+				case '/':
+					mode = mNormal
+				default:
+					mode = mComment
 				}
 			case mTilde:
 				mode = mNormal

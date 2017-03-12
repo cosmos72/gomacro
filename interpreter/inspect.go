@@ -86,7 +86,7 @@ func (stack *Stack) Show() {
 
 func (stack *Stack) Repl() error {
 	for len(stack.names) > 0 {
-		fmt.Printf("goinspect %s> ", strings.Join(stack.names, "."))
+		fmt.Fprintf(stack.env.Stdout, "goinspect %s> ", strings.Join(stack.names, "."))
 		cmd, err := stack.in.ReadString('\n')
 		if err != nil {
 			return err
@@ -145,7 +145,7 @@ func (stack *Stack) showFields(v r.Value) {
 		f := v.Field(i)
 		t := TypeOf(f)
 		f = dereferenceValue(f)
-		fmt.Printf("    %d. ", i)
+		fmt.Fprintf(stack.env.Stdout, "    %d. ", i)
 		stack.env.showVar(v.Type().Field(i).Name, f, t)
 	}
 }
@@ -156,7 +156,7 @@ func (stack *Stack) showIndexes(v r.Value) {
 		f := v.Index(i)
 		t := TypeOf(f)
 		f = dereferenceValue(f)
-		fmt.Printf("    %d. ", i)
+		fmt.Fprintf(stack.env.Stdout, "    %d. ", i)
 		stack.env.showVar("", f, t)
 	}
 }
