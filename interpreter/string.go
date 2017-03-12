@@ -31,19 +31,21 @@ import (
 	"strconv"
 )
 
-func (p *Interpreter) ReadFromSource(src interface{}) []byte {
-	if src != nil {
-		switch s := src.(type) {
-		case string:
-			return []byte(s)
-		case []byte:
+func Read(src interface{}) []byte {
+	switch s := src.(type) {
+	case []byte:
+		if s != nil {
 			return s
-		case *bytes.Buffer:
-			// is io.Reader, but src is already available in []byte form
-			if s != nil {
-				return s.Bytes()
-			}
-		case io.Reader:
+		}
+	case string:
+		return []byte(s)
+	case *bytes.Buffer:
+		// is io.Reader, but src is already available in []byte form
+		if s != nil {
+			return s.Bytes()
+		}
+	case io.Reader:
+		if s != nil {
 			var buf bytes.Buffer
 			if _, err := io.Copy(&buf, s); err != nil {
 				Error(err)
@@ -51,7 +53,7 @@ func (p *Interpreter) ReadFromSource(src interface{}) []byte {
 			return buf.Bytes()
 		}
 	}
-	p.Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
+	Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
 	return nil
 }
 

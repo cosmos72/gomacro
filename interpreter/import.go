@@ -233,6 +233,9 @@ func init() {
 		fmt.Fprint(out, `
 )
 
+func main() {
+}
+
 func Package() (map[string]Value, map[string]Type, map[string]Type) {
 	return map[string]Value{`)
 	}

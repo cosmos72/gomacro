@@ -55,7 +55,7 @@ func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
 			return ret, rets
 		}
 	case nil:
-		break
+		return None, nil
 	default:
 		return env.Errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: %v <%v>",
 			in, r.TypeOf(in))

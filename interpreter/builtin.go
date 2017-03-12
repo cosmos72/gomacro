@@ -282,6 +282,7 @@ func (env *Env) addBuiltins() {
 		}
 		return out.Interface()
 	})
+	binds["Read"] = r.ValueOf(Read)
 	binds["ReadDir"] = r.ValueOf(callReadDir)
 	binds["ReadFile"] = r.ValueOf(callReadFile)
 	binds["Slice"] = r.ValueOf(callSlice)

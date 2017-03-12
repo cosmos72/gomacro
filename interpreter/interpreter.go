@@ -62,7 +62,7 @@ func NewInterpreter() *Interpreter {
 }
 
 func (ir *Interpreter) ParseAst(src interface{}) Ast {
-	bytes := ir.ReadFromSource(src)
+	bytes := Read(src)
 	nodes := ir.ParseBytes(bytes)
 	switch len(nodes) {
 	case 0:
