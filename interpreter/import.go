@@ -183,7 +183,6 @@ func computeImportFilename(path string, internal bool) string {
 	}
 
 	srcdirname := getGoSrcPath()
-	fmt.Printf("computeImportFilename(): srcdirname = %q", srcdirname)
 
 	filename := path[1+strings.LastIndexByte(path, '/'):]
 	filename = fmt.Sprintf("%s/gomacro_imports/%s/%s.go", srcdirname, path, filename)

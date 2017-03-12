@@ -1,6 +1,4 @@
 
-import "fmt"
-
 func fibonacci(n uint) uint {
 	if n <= 2 {
 		return 1
@@ -8,5 +6,5 @@ func fibonacci(n uint) uint {
 	return fibonacci(n-1) + fibonacci(n-2)
 }
 
-fmt.Println(fibonacci(30))
+println(fibonacci(30))
 

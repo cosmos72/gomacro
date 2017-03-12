@@ -47,8 +47,8 @@ func main() {
 	var cmd gmi.Cmd
 	cmd.Init()
 
-	cmd.ParserMode = mp.Trace & 0  // | mp.TraceMacro
-	cmd.Options = gmi.OptTrapPanic // | gmi.OptShowAfterParse // |gmi.OptShowAfterMacroExpansion // | gmi.OptDebugMacroExpand // |  gmi.OptDebugQuasiquote  // | gmi.OptShowEvalDuration
+	cmd.ParserMode = mp.Trace & 0   // | mp.TraceMacro
+	cmd.Options |= gmi.OptTrapPanic // | gmi.OptShowAfterParse // |gmi.OptShowAfterMacroExpansion // | gmi.OptDebugMacroExpand // |  gmi.OptDebugQuasiquote  // | gmi.OptShowEvalDuration
 
 	err := cmd.Main(args)
 	if err != nil {

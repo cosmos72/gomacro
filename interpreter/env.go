@@ -105,7 +105,7 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 	if env.Options&OptTrapPanic != 0 {
 		defer func() {
 			if rec := recover(); rec != nil {
-				fmt.Println(env.Stderr, rec)
+				fmt.Fprintln(env.Stderr, rec)
 				callAgain = true
 			}
 		}()
