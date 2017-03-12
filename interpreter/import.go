@@ -79,6 +79,7 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case *ast.ImportSpec:
 		path := unescapeString(node.Path.Value)
+		path = env.sanitizeImportPath(path)
 		var name string
 		if node.Name != nil {
 			name = node.Name.Name
@@ -97,6 +98,18 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 	default:
 		return env.Errorf("unimplemented import: %v", node)
 	}
+}
+
+func (env *Env) sanitizeImportPath(path string) string {
+	path = strings.Replace(path, "\\", "/", -1)
+	l := len(path)
+	if path == ".." || l >= 3 && (path[:3] == "../" || path[l-3:] == "/..") || strings.Contains(path, "/../") {
+		env.Errorf("invalid import %q: contains \"..\"", path)
+	}
+	if path == "." || l >= 2 && (path[:2] == "./" || path[l-2:] == "/.") || strings.Contains(path, "/./") {
+		env.Errorf("invalid import %q: contains \".\"", path)
+	}
+	return path
 }
 
 func (ir *Interpreter) ImportPackage(name, path string) *Env {
