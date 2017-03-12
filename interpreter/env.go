@@ -27,6 +27,7 @@ package interpreter
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	r "reflect"
 	"strings"
@@ -92,25 +93,27 @@ func (env *Env) Repl(in *bufio.Reader) {
 	}
 }
 
-func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (ret bool) {
+func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
+	str, err := ReadMultiline(in, env.Options&OptShowPrompt != 0, env.Stdout, "gomacro> ")
+	if err != nil {
+		if err != io.EOF {
+			fmt.Fprintln(env.Stderr, err)
+		}
+		return false
+	}
+
 	if env.Options&OptTrapPanic != 0 {
 		defer func() {
 			if rec := recover(); rec != nil {
-				fmt.Fprintln(env.Stderr, rec)
-				ret = true
+				fmt.Println(env.Stderr, rec)
+				callAgain = true
 			}
 		}()
-	}
-
-	str, err := ReadMultiline(in, env.Stdout, "gomacro> ")
-	if err != nil {
-		fmt.Fprintln(env.Stderr, str)
-		return false
 	}
 	return env.ParseEvalPrint(str, in)
 }
 
-func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) bool {
+func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 	if env.Options&OptShowEvalDuration != 0 {
 		t1 := time.Now()
 		defer func() {
@@ -123,7 +126,9 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) bool {
 	n := len(src)
 
 	if n == 0 {
-		env.FprintValues(env.Stdout) // no value
+		if env.Options&OptShowAfterEval != 0 {
+			env.FprintValues(env.Stdout) // no value
+		}
 		return true
 	} else if n > 0 && src[0] == ':' {
 		args := strings.SplitN(src, " ", 2)
@@ -169,10 +174,12 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) bool {
 	value, values := env.EvalAst(ast)
 
 	// print phase
-	if len(values) != 0 {
-		env.FprintValues(env.Stdout, values...)
-	} else {
-		env.FprintValues(env.Stdout, value)
+	if env.Options&OptShowAfterEval != 0 {
+		if len(values) != 0 {
+			env.FprintValues(env.Stdout, values...)
+		} else {
+			env.FprintValues(env.Stdout, value)
+		}
 	}
 	return true
 }

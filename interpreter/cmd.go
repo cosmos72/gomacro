@@ -25,9 +25,13 @@
 package interpreter
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 
@@ -41,8 +45,8 @@ type Cmd struct {
 func (cmd *Cmd) Init() {
 	cmd.Env = New()
 
-	cmd.ParserMode = mp.Trace & 0 // | mp.TraceMacro
-	cmd.Options = OptTrapPanic    // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
+	cmd.ParserMode = mp.Trace & 0                                 // | mp.TraceMacro
+	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowAfterEval // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 }
 
 func (cmd *Cmd) Main(args []string) (err error) {
@@ -55,20 +59,53 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		env.ReplStdin()
 		return nil
 	}
+	silent := false
+	verbose := false
 
-	switch args[0] {
-	case "-h":
-		return cmd.Usage()
-	case "-f":
-		return cmd.EvalFiles(args[1:]...)
-	case "-d":
-		return cmd.EvalDirs(args[1:]...)
-	case ".":
-		return cmd.EvalDirs(".")
-	default:
-		return cmd.EvalString(strings.Join(args, " "))
+	env.Options &^= OptShowPrompt | OptShowAfterEval
+
+	for len(args) > 0 {
+		switch args[0] {
+		case "-h":
+			return cmd.Usage()
+		case "-f":
+			env.Options = applyOptions(env.Options, silent, verbose)
+			return cmd.EvalFiles(args[1:]...)
+		case "-d":
+			env.Options = applyOptions(env.Options, silent, verbose)
+			return cmd.EvalDirs(args[1:]...)
+		case "-s":
+			silent = true
+			verbose = false
+			args = args[1:]
+			continue
+		case "-v":
+			verbose = true
+			silent = false
+			args = args[1:]
+			continue
+		case ".":
+			return cmd.EvalDirs(".")
+		default:
+			env.Options |= OptShowAfterEval
+			env.Options = applyOptions(env.Options, silent, verbose)
+
+			buf := bytes.NewBufferString(strings.Join(args, " "))
+			buf.WriteByte('\n') // because ReadMultiLine() needs a final '\n'
+			return cmd.EvalReader(buf)
+		}
+		break
 	}
 	return nil
+}
+
+func applyOptions(opts Options, silent bool, verbose bool) Options {
+	if silent {
+		opts &^= OptShowAfterEval
+	} else if verbose {
+		opts |= OptShowAfterEval
+	}
+	return opts
 }
 
 func (cmd *Cmd) Usage() error {
@@ -80,7 +117,7 @@ func (cmd *Cmd) Usage() error {
 	return nil
 }
 
-func (cmd *Cmd) EvalString(str string) (err error) {
+func (cmd *Cmd) EvalReader(src io.Reader) (err error) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			switch rec := rec.(type) {
@@ -91,19 +128,23 @@ func (cmd *Cmd) EvalString(str string) (err error) {
 			}
 		}
 	}()
+	in := bufio.NewReader(src)
 
-	cmd.Env.ParseEvalPrint(str, nil)
+	for cmd.Env.ReadParseEvalPrint(in) {
+	}
 	return nil
 }
 
 func (cmd *Cmd) EvalFiles(filenames ...string) (err error) {
 	for _, filename := range filenames {
-		bytes, err := ioutil.ReadFile(filename)
+		f, err := os.Open(filename)
 		if err != nil {
 			return err
 		}
-		str := string(bytes)
-		err = cmd.EvalString(str)
+		defer func() {
+			f.Close()
+		}()
+		err = cmd.EvalReader(f)
 		if err != nil {
 			return err
 		}

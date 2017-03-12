@@ -25,6 +25,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"go/ast"
 	"io/ioutil"
 	r "reflect"
@@ -305,8 +306,9 @@ func (env *Env) addBuiltins() {
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
 	binds["println"] = r.ValueOf(func(args ...interface{}) {
-		values := toValues(args)
-		env.FprintValues(env.Stdout, values...)
+		// values := toValues(args)
+		// env.FprintValues(env.Stdout, values...)
+		fmt.Fprintln(env.Stdout, args...)
 	})
 	binds["real"] = r.ValueOf(Builtin{builtinReal})
 	// binds["recover"] = r.ValueOf(callRecover) // does not work! recover() works only inside a deferred function (but not any function called by it)

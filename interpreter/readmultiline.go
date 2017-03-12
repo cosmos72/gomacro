@@ -31,7 +31,7 @@ import (
 	"io"
 )
 
-func ReadMultiline(in *bufio.Reader, out io.Writer, prompt string) (string, error) {
+func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt string) (string, error) {
 	var buf []byte
 	type Mode int
 	const (
@@ -50,7 +50,9 @@ func ReadMultiline(in *bufio.Reader, out io.Writer, prompt string) (string, erro
 	mode := mNormal
 	paren := 0
 
-	fmt.Fprint(out, prompt)
+	if showPrompt {
+		fmt.Fprint(out, prompt)
+	}
 	for {
 		line, err := in.ReadBytes('\n')
 		if err != nil {
@@ -146,7 +148,9 @@ func ReadMultiline(in *bufio.Reader, out io.Writer, prompt string) (string, erro
 		if paren <= 0 && mode == mNormal {
 			break
 		}
-		printDots(out, 4+2*paren)
+		if showPrompt {
+			printDots(out, 4+2*paren)
+		}
 	}
 	return string(buf), nil
 }

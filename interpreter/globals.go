@@ -56,9 +56,11 @@ type whichMacroExpand uint
 
 const (
 	OptTrapPanic Options = 1 << iota
-	OptShowEvalDuration
+	OptShowPrompt
+	OptShowAfterEval
 	OptShowAfterParse
 	OptShowAfterMacroExpansion
+	OptShowEvalDuration
 	OptDebugMacroExpand
 	OptDebugQuasiquote
 
