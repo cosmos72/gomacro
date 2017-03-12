@@ -24,6 +24,9 @@
 package interpreter
 
 import (
+	"fmt"
+	"go/ast"
+	"go/token"
 	r "reflect"
 	"testing"
 )
@@ -42,12 +45,36 @@ var testcases = []TestCase{
 	TestCase{"1+1", "1+1", 2, nil},
 	TestCase{"int8+1", "int8(1)+1", int8(2), nil},
 	TestCase{"int8(128)", "int8(64)+64", int8(-128), nil},
+	TestCase{"var", "var v uint32 = 99", uint32(99), nil},
 	TestCase{"struct", "var pair struct { A, B int }; pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
 	TestCase{"pointer", "var x = 1.25; if *&x != x { x = -1 }; x", 1.25, nil},
 	TestCase{"function", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
 	TestCase{"sum", sum_s + "; sum(100)", 5050, nil},
 	TestCase{"fibonacci", fib_s + "; fibonacci(13)", uint(233), nil},
-	TestCase{"multiple-values", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
+	TestCase{"multiple_values", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
+	TestCase{"quote", "quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
+	TestCase{"quote", "quote{x}", &ast.Ident{Name: "x"}, nil},
+	TestCase{"quote", "ab:=quote{a;b}", &ast.BlockStmt{List: []ast.Stmt{
+		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
+		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
+	}}, nil},
+	TestCase{"quote", "quote{\"foo\"+\"bar\"}", &ast.BinaryExpr{
+		Op: token.ADD,
+		X:  &ast.BasicLit{Kind: token.STRING, Value: "\"foo\""},
+		Y:  &ast.BasicLit{Kind: token.STRING, Value: "\"bar\""},
+	}, nil},
+	TestCase{"quasiquote", "~`{1+~,{2+3}}", &ast.BinaryExpr{
+		Op: token.ADD,
+		X:  &ast.BasicLit{Kind: token.INT, Value: "1"},
+		Y:  &ast.BasicLit{Kind: token.INT, Value: "5"},
+	}, nil},
+	TestCase{"unquote_splice", "~`{~,@ab ; c}", &ast.BlockStmt{List: []ast.Stmt{
+		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
+		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
+		&ast.ExprStmt{X: &ast.Ident{Name: "c"}},
+	}}, nil},
+	TestCase{"macro", "macro second_arg(a,b,c interface{}) interface{} { return b }; 0", 0, nil},
+	TestCase{"macro_call", "second_arg;1;v;3", uint32(99), nil},
 }
 
 func TestInterpreter(t *testing.T) {
@@ -59,8 +86,13 @@ func TestInterpreter(t *testing.T) {
 }
 
 func (c *TestCase) run(t *testing.T, env *Env) {
-	node := env.Parse(c.program)
-	rets := packValues(env.Eval(node))
+	// parse phase
+	form := env.ParseAst(c.program)
+	// macroexpansion phase
+	form, _ = env.MacroExpandAstCodewalk(form)
+	// eval phase
+	rets := packValues(env.EvalAst(form))
+
 	c.compareResults(t, rets)
 }
 
@@ -70,7 +102,7 @@ func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
 		expected = []interface{}{c.result0}
 	}
 	if len(actual) != len(expected) {
-		t.Fail()
+		c.fail(t, actual, expected)
 		return
 	}
 	for i := range actual {
@@ -78,16 +110,59 @@ func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
 	}
 }
 
-func (c *TestCase) compareResult(t *testing.T, actual r.Value, expected interface{}) {
-	if actual == Nil || actual == None {
+func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interface{}) {
+	if actualv == Nil || actualv == None {
 		if expected != nil {
-			t.Fail()
+			c.fail(t, nil, expected)
 		}
 		return
 	}
-	if !r.DeepEqual(actual.Interface(), expected) {
-		t.Fail()
+	actual := actualv.Interface()
+	if !r.DeepEqual(actual, expected) {
+		if r.TypeOf(actual) == r.TypeOf(expected) {
+			if actualNode, ok := actual.(ast.Node); ok {
+				if expectedNode, ok := expected.(ast.Node); ok {
+					c.compareAst(t, ToAst(actualNode), ToAst(expectedNode))
+					return
+				}
+			}
+		}
+		c.fail(t, actual, expected)
 	}
+}
+
+func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
+	if r.TypeOf(actual) == r.TypeOf(expected) {
+		switch actual := actual.(type) {
+		case BadDecl, BadExpr, BadStmt:
+			return
+		case Ident:
+			if actual.p.Name == expected.(Ident).p.Name {
+				return
+			}
+		case BasicLit:
+			actualp := actual.p
+			expectedp := expected.(BasicLit).p
+			if actualp.Kind == expectedp.Kind && actualp.Value == expectedp.Value {
+				return
+			}
+		default:
+			na := actual.Size()
+			ne := expected.Size()
+			if actual.Op() == expected.Op() && na == ne {
+				for i := 0; i < na; i++ {
+					c.compareAst(t, actual.Get(i), expected.Get(i))
+				}
+				return
+			}
+		}
+	}
+	c.fail(t, actual, expected)
+}
+
+func (c *TestCase) fail(t *testing.T, actual interface{}, expected interface{}) {
+	fmt.Printf("%s: expected %#v, found %#v\n", t.Name(), expected, actual)
+	t.Fail()
 }
 
 // fibonacci(30):
@@ -97,14 +172,13 @@ func (c *TestCase) compareResult(t *testing.T, actual r.Value, expected interfac
 
 func BenchmarkFibonacciInterpreter(b *testing.B) {
 	env := New()
-	node := env.Parse(fib_s)
-	env.Eval1(node)
-	node = env.Parse("fibonacci(30)")
+	env.EvalAst(env.ParseAst(fib_s))
+	form := env.ParseAst("fibonacci(30)")
 
 	b.ResetTimer()
 	var total uint
 	for i := 0; i < b.N; i++ {
-		total += uint(env.Eval1(node).Uint())
+		total += uint(env.EvalAst1(form).Uint())
 	}
 }
 
@@ -117,14 +191,13 @@ func BenchmarkFibonacciCompiler(b *testing.B) {
 
 func BenchmarkSumInterpreter(b *testing.B) {
 	env := New()
-	node := env.Parse(sum_s)
-	env.Eval1(node)
-	node = env.Parse("sum(10000)")
+	env.EvalAst(env.ParseAst(sum_s))
+	form := env.ParseAst("sum(10000)")
 
 	b.ResetTimer()
 	var total int
 	for i := 0; i < b.N; i++ {
-		total += int(env.Eval1(node).Int())
+		total += int(env.EvalAst1(form).Int())
 	}
 }
 

@@ -137,7 +137,7 @@ func (x ValueSpec) Node() ast.Node      { return x.p }
 // .................. functions Op() token.Token
 //
 func (x ArrayType) Op() token.Token  { return token.LBRACK }
-func (x AssignStmt) Op() token.Token { return x.Op() }
+func (x AssignStmt) Op() token.Token { return x.p.Tok }
 func (x BadDecl) Op() token.Token    { return token.ILLEGAL }
 func (x BadExpr) Op() token.Token    { return token.ILLEGAL }
 func (x BadStmt) Op() token.Token    { return token.ILLEGAL }

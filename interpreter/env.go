@@ -155,20 +155,20 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) bool {
 		}
 	}
 	// parse phase
-	node := env.Parse(src)
+	ast := env.ParseAst(src)
 	if env.Options&OptShowAfterParse != 0 {
-		env.Debugf("after parse: %v", node)
+		env.Debugf("after parse: %v", ast.Interface())
 	}
 
 	// macroexpansion phase.
-	node, _ = env.MacroExpandCodewalk(node)
+	ast, _ = env.MacroExpandAstCodewalk(ast)
 
 	if env.Options&OptShowAfterMacroExpansion != 0 {
-		env.Debugf("after macroexpansion: %v", node)
+		env.Debugf("after macroexpansion: %v", ast.Interface())
 	}
 
 	// eval phase
-	value, values := env.Eval(node)
+	value, values := env.EvalAst(ast)
 
 	// print phase
 	if len(values) != 0 {

@@ -151,7 +151,7 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 	ni := inSlice.Size()
 	for i := 0; i < ni; i++ {
 		// drill through DeclStmt, ExprStmt, ParenExpr
-		child := unwrapTrivialAst(inSlice.Get(i))
+		child := unwrapTrivialAstKeepBlocks(inSlice.Get(i))
 		switch child := child.(type) {
 		case UnaryExpr:
 			switch child.Op() {
@@ -192,6 +192,7 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 				} else {
 					env.debugQuasiQuote("calling unquote on", depth-unquoteDepth, canSplice, lastUnquote.Interface())
 					toInsert := AnyToAst(env.evalUnquote(lastUnquote), mt.String(op))
+					env.debugQuasiQuote("unquote returned", depth-unquoteDepth, canSplice, toInsert.Interface())
 					if op == mt.UNQUOTE {
 						stack := duplicateNestedUnquotes(child, unquoteDepth-1, toInsert)
 						outSlice = outSlice.Append(stack)
@@ -223,10 +224,18 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 // unwrapTrivialAst extract the content from ParenExpr, ExprStmt, DeclStmt:
 // such nodes are trivial wrappers for their contents
 func unwrapTrivialAst(in Ast) Ast {
+	return unwrapTrivialAst2(in, true)
+}
+
+func unwrapTrivialAstKeepBlocks(in Ast) Ast {
+	return unwrapTrivialAst2(in, false)
+}
+
+func unwrapTrivialAst2(in Ast, unwrapTrivialBlockStmt bool) Ast {
 	for {
 		switch form := in.(type) {
 		case BlockStmt:
-			if form.Size() != 1 {
+			if !unwrapTrivialBlockStmt || form.Size() != 1 {
 				return form
 			}
 			// a one-element block is trivial UNLESS it contains a declaration.
@@ -354,12 +363,16 @@ func (env *Env) MacroExpandCodewalk(in ast.Node) (out ast.Node, anythingExpanded
 		return nil, false
 	}
 	var form Ast = ToAst(in)
-	form, anythingExpanded = env.macroExpandAstCodewalk(form, 0)
+	form, anythingExpanded = env.MacroExpandAstCodewalk(form)
 	out = ToNode(form)
 	// if !anythingExpanded {
 	//    env.Debugf("MacroExpand1() nothing to expand: %v <%v>", out, r.TypeOf(out))
 	//}
 	return out, anythingExpanded
+}
+
+func (env *Env) MacroExpandAstCodewalk(in Ast) (out Ast, anythingExpanded bool) {
+	return env.macroExpandAstCodewalk(in, 0)
 }
 
 func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythingExpanded bool) {

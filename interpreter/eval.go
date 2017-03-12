@@ -29,8 +29,43 @@ import (
 	r "reflect"
 )
 
+func (env *Env) EvalAst1(in Ast) r.Value {
+	value, extraValues := env.EvalAst(in)
+	if len(extraValues) > 1 {
+		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
+			len(extraValues), in.Interface(), extraValues)
+	}
+	return value
+}
+
+func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
+	switch in := in.(type) {
+	case AstWithNode:
+		if in == nil {
+			return env.Errorf("evalAst(): expecting <AstWithNode> or <AstWithSlice>, found: %v <%v>",
+				in, r.TypeOf(in))
+		}
+		return env.Eval(in.Node())
+	case AstWithSlice:
+		if in == nil {
+			return env.Errorf("evalAst(): expecting <AstWithNode> or <AstWithSlice>, found: %v <%v>",
+				in, r.TypeOf(in))
+		}
+		var ret r.Value
+		var rets []r.Value
+		n := in.Size()
+		for i := 0; i < n; i++ {
+			ret, rets = env.Eval(ToNode(in.Get(i)))
+		}
+		return ret, rets
+	default:
+		return env.Errorf("evalAst(): expecting <AstWithNode> or <AstWithSlice>, found: %v <%v>",
+			in, r.TypeOf(in))
+	}
+}
+
 // EvalList calls Eval() on each node and returns the value of *last* node
-func (env *Env) EvalList(nodes []ast.Node) (r.Value, []r.Value) {
+func (env *Env) EvalNodes(nodes []ast.Node) (r.Value, []r.Value) {
 	var ret r.Value
 	var rets []r.Value
 	for _, node := range nodes {

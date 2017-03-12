@@ -262,17 +262,25 @@ func (env *Env) addBuiltins() {
 	binds := env.Binds
 
 	binds["Env"] = r.ValueOf(Builtin{builtinEnv})
-	binds["Eval"] = r.ValueOf(func(node ast.Node) interface{} {
-		return toInterface(env.Eval1(node))
+	binds["Eval"] = r.ValueOf(func(node interface{}) interface{} {
+		in := AnyToAst(node, "Eval")
+		out := env.EvalAst1(in)
+		return toInterface(out)
 	})
-	binds["EvalN"] = r.ValueOf(func(node ast.Node) []interface{} {
-		return toInterfaces(packValues(env.Eval(node)))
+	binds["EvalN"] = r.ValueOf(func(node interface{}) []interface{} {
+		in := AnyToAst(node, "EvalN")
+		outs := packValues(env.EvalAst(in))
+		return toInterfaces(outs)
 	})
 	binds["MacroExpand"] = r.ValueOf(Builtin{builtinMacroExpand})
 	binds["MacroExpand1"] = r.ValueOf(Builtin{builtinMacroExpand1})
 	binds["MacroExpandCodewalk"] = r.ValueOf(Builtin{builtinMacroExpandCodewalk})
-	binds["Parse"] = r.ValueOf(func(src interface{}) ast.Node {
-		return env.Parse(src)
+	binds["Parse"] = r.ValueOf(func(src interface{}) interface{} {
+		out := env.ParseAst(src)
+		if out == nil {
+			return nil
+		}
+		return out.Interface()
 	})
 	binds["ReadDir"] = r.ValueOf(callReadDir)
 	binds["ReadFile"] = r.ValueOf(callReadFile)
@@ -331,11 +339,11 @@ func (env *Env) addBuiltins() {
 func (env *Env) addInterpretedBuiltins() {
 	if false {
 		line := "func not(flag bool) bool { if flag { return false } else { return true } }"
-		env.Eval(env.Parse(line))
+		env.EvalAst(env.ParseAst(line))
 	}
 	if false {
 		// Factorial(1000000): eval() elapsed time: 1.233714899 s
 		line := "func Factorial(n int) int { t := 1; for i := 2; i <= n; i=i+1 { t = t * i }; t }"
-		env.Eval(env.Parse(line))
+		env.EvalAst(env.ParseAst(line))
 	}
 }

@@ -42,8 +42,8 @@ type Stack struct {
 }
 
 func (env *Env) Inspect(in *bufio.Reader, name string) {
-	node := env.Parse(name)
-	v := env.Eval1(node)
+	ast := env.ParseAst(name)
+	v := env.EvalAst1(ast)
 	var t r.Type
 	if v != Nil && v != None {
 		t = r.TypeOf(v.Interface()) // show concrete type
