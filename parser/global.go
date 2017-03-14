@@ -28,7 +28,6 @@ const (
 	DeclarationErrors                              // report declaration errors
 	SpuriousErrors                                 // same as AllErrors, for backward-compatibility
 	AllErrors         = SpuriousErrors             // report all errors (not just the first 10 on different lines)
-	TraceMacro                                     // print debug statements while parsing macro invokations
 )
 
 type Parser struct {
@@ -90,10 +89,8 @@ func (p *parser) parseAny() ast.Node {
 		node = p.parseFile()
 	case token.IMPORT:
 		node = p.parseGenDecl(token.IMPORT, p.parseImportSpec)
-	case token.CONST, token.TYPE, token.VAR, mt.MACRO:
-		node = p.parseDecl(syncDecl)
-	case token.FUNC:
-		// either a function declaration: func foo(args) /*...*/
+	case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.MACRO:
+		// a "func" at top level can be either a function declaration: func foo(args) /*...*/
 		// or a method declaration: func (receiver) foo(args) /*...*/
 		// or a function literal, i.e. a closure: func(args) /*...*/
 		// since method declaration and function literal are so similar,

@@ -42,7 +42,6 @@ type Interpreter struct {
 	Options     Options
 	Importer    Importer
 	ParserMode  mp.Mode
-	ParserScope *ast.Scope
 	SpecialChar rune
 }
 
@@ -81,7 +80,7 @@ func (ir *Interpreter) ParseBytes(src []byte) []ast.Node {
 	parser.Mode = mp.Mode(ir.ParserMode)
 	parser.SpecialChar = ir.SpecialChar
 
-	ir.ParserScope = parser.Init(ir.Filename, src, ir.ParserScope)
+	parser.Init(ir.Filename, src)
 
 	nodes, err := parser.Parse()
 	if err != nil {

@@ -80,7 +80,7 @@ type parser struct {
 	targetStack [][]*ast.Ident // stack of unresolved labels
 }
 
-func (p *parser) Init(filename string, src []byte, scope *ast.Scope) *ast.Scope {
+func (p *parser) Init(filename string, src []byte) {
 
 	// Explicitly initialize all private fields since a parser may be reused.
 	if p.Fileset == nil {
@@ -119,10 +119,8 @@ func (p *parser) Init(filename string, src []byte, scope *ast.Scope) *ast.Scope 
 	p.exprLev = 0
 	p.inRhs = false
 
-	p.topScope = scope
-	if scope == nil {
-		p.openScope()
-	}
+	p.topScope = nil
+	p.openScope()
 	p.pkgScope = p.topScope
 
 	p.unresolved = nil
@@ -132,8 +130,6 @@ func (p *parser) Init(filename string, src []byte, scope *ast.Scope) *ast.Scope 
 	p.targetStack = nil
 
 	p.next()
-
-	return p.topScope
 }
 
 // ----------------------------------------------------------------------------
@@ -2568,8 +2564,11 @@ func (p *parser) parseFile() *ast.File {
 		return nil
 	}
 
-	p.openScope()
-	p.pkgScope = p.topScope
+	topScope := p.topScope
+	labelScope := p.labelScope
+	if topScope == nil {
+		p.openScope()
+	}
 	var decls []ast.Decl
 	if p.Mode&PackageClauseOnly == 0 {
 		// import decls
@@ -2584,9 +2583,11 @@ func (p *parser) parseFile() *ast.File {
 			}
 		}
 	}
-	p.closeScope()
-	assert(p.topScope == nil, "unbalanced scopes")
-	assert(p.labelScope == nil, "unbalanced label scopes")
+	if topScope == nil {
+		p.closeScope()
+	}
+	assert(p.topScope == topScope, "unbalanced scopes")
+	assert(p.labelScope == labelScope, "unbalanced label scopes")
 
 	// resolve global identifiers within the same file
 	i := 0

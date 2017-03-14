@@ -45,7 +45,7 @@ type Cmd struct {
 func (cmd *Cmd) Init() {
 	cmd.Env = New()
 
-	cmd.ParserMode = mp.Trace & 0                                 // | mp.TraceMacro
+	cmd.ParserMode = mp.Trace & 0
 	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowAfterEval // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 }
 
