@@ -44,14 +44,25 @@ const fib_s = "func fibonacci(n uint) uint { if n <= 2 { return 1 }; return fibo
 var testcases = []TestCase{
 	TestCase{"1+1", "1+1", 2, nil},
 	TestCase{"int8+1", "int8(1)+1", int8(2), nil},
-	TestCase{"int8(128)", "int8(64)+64", int8(-128), nil},
+	TestCase{"int8_overflow", "int8(64)+64", int8(-128), nil},
+	TestCase{"string", "\"foobar\"", "foobar", nil},
 	TestCase{"var", "var v uint32 = 99", uint32(99), nil},
-	TestCase{"struct", "var pair struct { A, B int }; pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
-	TestCase{"pointer", "var x = 1.25; if *&x != x { x = -1 }; x", 1.25, nil},
+	TestCase{"pointer", "var p = 1.25; if *&p != p { p = -1 }; p", 1.25, nil},
+	TestCase{"struct", "type Pair struct { A, B int }; var pair Pair; pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
+	TestCase{"literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},
+	TestCase{"literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
+	TestCase{"literal_map", "map[int]string{1: \"foo\", 2: \"bar\"}", map[int]string{1: "foo", 2: "bar"}, nil},
+	TestCase{"literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
+	TestCase{"make_chan", "c := make(chan interface{}, 2)", make(chan interface{}, 2), nil},
+	TestCase{"make_map", "m := make(map[rune]bool)", make(map[rune]bool), nil},
+	TestCase{"make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
+	TestCase{"expr_slice", "y = y[:4]", []uint8{100, 0, 0, 103}, nil},
+	TestCase{"expr_slice3", "y = y[:3:4]", []uint8{100, 0, 0}, nil},
 	TestCase{"function", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
 	TestCase{"sum", sum_s + "; sum(100)", 5050, nil},
 	TestCase{"fibonacci", fib_s + "; fibonacci(13)", uint(233), nil},
 	TestCase{"multiple_values", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
+	TestCase{"import", "import \"fmt\"", "fmt", nil},
 	TestCase{"quote", "quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
 	TestCase{"quote", "quote{x}", &ast.Ident{Name: "x"}, nil},
 	TestCase{"quote", "ab:=quote{a;b}", &ast.BlockStmt{List: []ast.Stmt{
@@ -124,6 +135,12 @@ func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interfa
 			if actualNode, ok := actual.(ast.Node); ok {
 				if expectedNode, ok := expected.(ast.Node); ok {
 					c.compareAst(t, ToAst(actualNode), ToAst(expectedNode))
+					return
+				}
+			} else if actualv.Kind() == r.Chan {
+				// for channels just check the type, length and capacity
+				expectedv := r.ValueOf(expected)
+				if actualv.Len() == expectedv.Len() && actualv.Cap() == expectedv.Cap() {
 					return
 				}
 			}

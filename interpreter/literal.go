@@ -127,7 +127,6 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 			}
 		}
 	case r.Array, r.Slice:
-		kt := r.TypeOf(int(0))
 		vt := t.Elem()
 		idx := -1
 		val := Nil
@@ -141,7 +140,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 		for _, elt := range node.Elts {
 			switch elt := elt.(type) {
 			case *ast.KeyValueExpr:
-				idx = int(env.valueToType(env.evalExpr1(elt.Key), kt).Int())
+				idx = int(env.valueToType(env.evalExpr1(elt.Key), typeOfInt).Int())
 				val = env.valueToType(env.evalExpr1(elt.Value), vt)
 			default:
 				// golang specs:

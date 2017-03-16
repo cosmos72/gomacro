@@ -138,6 +138,9 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 		case *ast.SelectorExpr:
 			return env.evalSelectorExpr(node)
 
+		case *ast.SliceExpr:
+			return env.evalSliceExpr(node)
+
 		case *ast.StarExpr:
 			val := env.evalExpr1(node.X)
 			if val.Kind() != r.Ptr {
@@ -148,8 +151,7 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 		case *ast.TypeAssertExpr:
 			return env.evalTypeAssertExpr(node)
 
-		case *ast.KeyValueExpr, *ast.SliceExpr:
-			// TODO
+			// case *ast.KeyValueExpr:
 		}
 		return env.Errorf("unimplemented Eval() for: %v <%v>", in, r.TypeOf(in))
 	}
@@ -159,11 +161,42 @@ func (env *Env) unsupportedLogicalOperand(op token.Token, xv r.Value) (r.Value, 
 	return env.Errorf("unsupported type in logical operation %s: expecting bool, found %v <%v>", mt.String(op), xv, TypeOf(xv))
 }
 
+func (env *Env) evalSliceExpr(node *ast.SliceExpr) (r.Value, []r.Value) {
+	obj := env.evalExpr1(node.X)
+	if obj.Kind() == r.Ptr {
+		obj = obj.Elem()
+	}
+	switch obj.Kind() {
+	case r.Array, r.Slice, r.String:
+		// ok
+	default:
+		return env.Errorf("slice operation %v expects array, slice or string. found: %v <%v>", node, obj, TypeOf(obj))
+	}
+	lo, hi := 0, obj.Len()
+	if node.Low != nil {
+		lo = int(env.valueToType(env.evalExpr1(node.Low), typeOfInt).Int())
+	}
+	if node.High != nil {
+		hi = int(env.valueToType(env.evalExpr1(node.High), typeOfInt).Int())
+	}
+	if node.Slice3 {
+		max := hi
+		if node.Max != nil {
+			max = int(env.valueToType(env.evalExpr1(node.Max), typeOfInt).Int())
+		}
+		return obj.Slice3(lo, hi, max), nil
+	} else {
+		return obj.Slice(lo, hi), nil
+	}
+}
+
 func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 	// respect left-to-right order of evaluation
 	obj := env.evalExpr1(node.X)
 	index := env.evalExpr1(node.Index)
-
+	if obj.Kind() == r.Ptr {
+		obj = obj.Elem()
+	}
 	switch obj.Kind() {
 
 	case r.Map:

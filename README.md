@@ -51,6 +51,7 @@ The intepreter supports:
 
 Several things are still missing:
 * the keywords "go" and "defer"
+* recover() builtin
 * interfaces definition
 * methods definition
 * switching to a different package
