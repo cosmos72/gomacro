@@ -75,6 +75,7 @@ var testcases = []TestCase{
 	}}, nil},
 	TestCase{"macro", "macro second_arg(a,b,c interface{}) interface{} { return b }; 0", 0, nil},
 	TestCase{"macro_call", "second_arg;1;v;3", uint32(99), nil},
+	TestCase{"macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
 }
 
 func TestInterpreter(t *testing.T) {
