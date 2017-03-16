@@ -102,7 +102,7 @@ func (p *parser) parseAny() ast.Node {
 		// or at least a '('
 		node = p.parseDecl(syncDecl)
 	default:
-		node = p.parseStmt(true)
+		node = p.parseStmt()
 		if expr, ok := node.(*ast.ExprStmt); ok {
 			// unwrap expressions
 			node = expr.X

@@ -1108,13 +1108,13 @@ func (p *parser) tryType() ast.Expr {
 // ----------------------------------------------------------------------------
 // Blocks
 
-func (p *parser) parseStmtList(directlyInsideParen bool) (list []ast.Stmt) {
+func (p *parser) parseStmtList() (list []ast.Stmt) {
 	if p.trace {
 		defer un(trace(p, "StatementList"))
 	}
 
 	for p.tok != token.CASE && p.tok != token.DEFAULT && p.tok != token.RBRACE && p.tok != token.EOF {
-		list = append(list, p.parseStmt(directlyInsideParen))
+		list = append(list, p.parseStmt())
 	}
 
 	return
@@ -1128,7 +1128,7 @@ func (p *parser) parseBody(scope *ast.Scope) *ast.BlockStmt {
 	lbrace := p.expect(token.LBRACE)
 	p.topScope = scope // open function scope
 	p.openLabelScope()
-	list := p.parseStmtList(true)
+	list := p.parseStmtList()
 	p.closeLabelScope()
 	p.closeScope()
 	rbrace := p.expect(token.RBRACE)
@@ -1143,7 +1143,7 @@ func (p *parser) parseBlockStmt() *ast.BlockStmt {
 
 	lbrace := p.expect(token.LBRACE)
 	p.openScope()
-	list := p.parseStmtList(true)
+	list := p.parseStmtList()
 	p.closeScope()
 	rbrace := p.expect(token.RBRACE)
 
@@ -1764,7 +1764,11 @@ func (p *parser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
 			// Go spec: The scope of a label is the body of the function
 			// in which it is declared and excludes the body of any nested
 			// function.
-			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt(false)}
+			if p.labelScope == nil {
+				p.error(label.Pos(), fmt.Sprintf("cannot define label outside block: %s", label.Name))
+				return p.parseStmt(), false
+			}
+			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
 			p.declare(stmt, nil, p.labelScope, ast.Lbl, label)
 			return stmt, false
 		}
@@ -1967,7 +1971,7 @@ func (p *parser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
 
 	colon := p.expect(token.COLON)
 	p.openScope()
-	body := p.parseStmtList(false)
+	body := p.parseStmtList()
 	p.closeScope()
 
 	return &ast.CaseClause{Case: pos, List: list, Colon: colon, Body: body}
@@ -2109,7 +2113,7 @@ func (p *parser) parseCommClause() *ast.CommClause {
 	}
 
 	colon := p.expect(token.COLON)
-	body := p.parseStmtList(false)
+	body := p.parseStmtList()
 	p.closeScope()
 
 	return &ast.CommClause{Case: pos, Comm: comm, Colon: colon, Body: body}
@@ -2216,7 +2220,7 @@ func (p *parser) parseForStmt() ast.Stmt {
 	}
 }
 
-func (p *parser) parseStmt(directlyInsideParen bool) (s ast.Stmt) {
+func (p *parser) parseStmt() (s ast.Stmt) {
 	if p.trace {
 		defer un(trace(p, "Statement"))
 	}
