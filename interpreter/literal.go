@@ -109,9 +109,84 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 }
 
 func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value) {
-	//	prefix := node.Type
-	// t := env.evalType(prefix)
-	return env.Errorf("unimplemented composite literal: %v", node)
+	t := env.evalType(node.Type)
+	obj := Nil
+	switch t.Kind() {
+	case r.Map:
+		obj = r.MakeMap(t)
+		kt := t.Key()
+		vt := t.Elem()
+		for _, elt := range node.Elts {
+			switch elt := elt.(type) {
+			case *ast.KeyValueExpr:
+				key := env.valueToType(env.evalExpr1(elt.Key), kt)
+				val := env.valueToType(env.evalExpr1(elt.Value), vt)
+				obj.SetMapIndex(key, val)
+			default:
+				env.Errorf("map literal: invalid element, expecting <*ast.KeyValueExpr>, found: %v <%v>", elt, r.TypeOf(elt))
+			}
+		}
+	case r.Array, r.Slice:
+		kt := r.TypeOf(int(0))
+		vt := t.Elem()
+		idx := -1
+		val := Nil
+		zero := Nil
+		if t.Kind() == r.Array {
+			obj = r.New(t).Elem()
+		} else {
+			zero = r.Zero(vt)
+			obj = r.MakeSlice(t, 0, len(node.Elts))
+		}
+		for _, elt := range node.Elts {
+			switch elt := elt.(type) {
+			case *ast.KeyValueExpr:
+				idx = int(env.valueToType(env.evalExpr1(elt.Key), kt).Int())
+				val = env.valueToType(env.evalExpr1(elt.Value), vt)
+			default:
+				// golang specs:
+				// "An element without a key uses the previous element's index plus one.
+				// If the first element has no key, its index is zero."
+				idx++
+				val = env.valueToType(env.evalExpr1(elt), vt)
+			}
+			if zero != Nil { // is slice
+				for obj.Len() <= idx {
+					obj = r.Append(obj, zero)
+				}
+			}
+			obj.Index(idx).Set(val)
+		}
+	case r.Struct:
+		obj = r.New(t).Elem()
+		var pairs, elts bool
+		var field r.Value
+		var expr ast.Expr
+		for idx, elt := range node.Elts {
+			switch elt := elt.(type) {
+			case *ast.KeyValueExpr:
+				if elts {
+					return env.Errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
+				}
+				pairs = true
+				name := elt.Key.(*ast.Ident).Name
+				field = obj.FieldByName(name)
+				expr = elt.Value
+			default:
+				if pairs {
+					return env.Errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
+				}
+				elts = true
+				field = obj.Field(idx)
+				expr = elt
+			}
+			val := env.valueToType(env.evalExpr1(expr), field.Type())
+			field.Set(val)
+		}
+	default:
+		env.Errorf("unexpected composite literal: %v", node)
+	}
+	return obj, nil
 }
 
 // lambda()
