@@ -1765,7 +1765,7 @@ func (p *parser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
 			// in which it is declared and excludes the body of any nested
 			// function.
 			if p.labelScope == nil {
-				p.error(label.Pos(), fmt.Sprintf("cannot define label outside block: %s", label.Name))
+				p.error(label.Pos(), fmt.Sprintf("syntax error: label outside block: %s", label.Name))
 				return p.parseStmt(), false
 			}
 			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
