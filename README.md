@@ -33,9 +33,11 @@ As a free bonus, we get support for Eval()
 BETA.
 
 The intepreter supports:
+* multiline input
 * constant, variable, function and type definitions
 * primitive types: booleans, integers, floats, complex numbers
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
+* composite literals
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
 * function and method calls, including multiple return values
 * imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
@@ -45,26 +47,11 @@ The intepreter supports:
 * quote and quasiquote. they take any number of arguments in curly braces, for example:
   `quote { x; y; z }`
 * unquote and unquote_splice
+* nesting macros, quotes and unquotes
 
 Several things are still missing:
 * the keywords "go" and "defer"
-* composite literals
 * interfaces definition
 * methods definition
 * switching to a different package
-* multiline input, history/readline
-* nested macro calls and quoted macros:
-  both `foo bar baz` and `quote{foo bar baz}` parse,
-  but `foo {bar baz}` and `quote{foo {bar baz}}` don't parse yet
-  because foo{bar /*...*/} is a Go composite literal
-  The case `foo 1; bar baz; 2` instead parses, but
-  all statements after `bar` are consumed by `bar`, not by `foo`
-
-* support to quote or quasiquote macro calls, i.e. `quasiquote{some_macro ...}`
-  it currently works only if some_macro is already defined (see also next point)
-
-* support to embed a variable number of spliced arguments in quoted calls to macros, i.e.
-    `quasiquote{some_macro unquote_splice{...} ...}`
-  or even in quoted calls to Go reserved keywords, i.e.
-	`quasiquote{for unquote_splice{...} ...}`
-  see parser/macro.go: Env.parseQuote() for details
+* history/readline
