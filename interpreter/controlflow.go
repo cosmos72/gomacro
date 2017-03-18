@@ -74,7 +74,13 @@ func (env *Env) evalBranch(node *ast.BranchStmt) (r.Value, []r.Value) {
 }
 
 func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
-	rets := env.evalExprs(node.Results)
+	var rets []r.Value
+	if len(node.Results) == 1 {
+		// return foo() returns *all* the values returned by foo, not just the first one
+		rets = packValues(env.evalExpr(node.Results[0]))
+	} else {
+		rets = env.evalExprs(node.Results)
+	}
 	panic(Return{rets})
 }
 
