@@ -9,9 +9,10 @@ import (
 )
 
 func init() {
-	Binds["crypto/x509/pkix"] = map[string]Value{
-	}
-	Types["crypto/x509/pkix"] = map[string]Type{
+	Packages["crypto/x509/pkix"] = Package{
+	Binds: map[string]Value{
+	},
+	Types: map[string]Type{
 		"AlgorithmIdentifier":	TypeOf((*pkix.AlgorithmIdentifier)(nil)).Elem(),
 		"AttributeTypeAndValue":	TypeOf((*pkix.AttributeTypeAndValue)(nil)).Elem(),
 		"AttributeTypeAndValueSET":	TypeOf((*pkix.AttributeTypeAndValueSET)(nil)).Elem(),
@@ -22,7 +23,7 @@ func init() {
 		"RelativeDistinguishedNameSET":	TypeOf((*pkix.RelativeDistinguishedNameSET)(nil)).Elem(),
 		"RevokedCertificate":	TypeOf((*pkix.RevokedCertificate)(nil)).Elem(),
 		"TBSCertificateList":	TypeOf((*pkix.TBSCertificateList)(nil)).Elem(),
-	}
-	Proxies["crypto/x509/pkix"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

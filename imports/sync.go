@@ -9,10 +9,11 @@ import (
 )
 
 func init() {
-	Binds["sync"] = map[string]Value{
+	Packages["sync"] = Package{
+	Binds: map[string]Value{
 		"NewCond":	ValueOf(sync.NewCond),
-	}
-	Types["sync"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Cond":	TypeOf((*sync.Cond)(nil)).Elem(),
 		"Locker":	TypeOf((*sync.Locker)(nil)).Elem(),
 		"Mutex":	TypeOf((*sync.Mutex)(nil)).Elem(),
@@ -20,10 +21,10 @@ func init() {
 		"Pool":	TypeOf((*sync.Pool)(nil)).Elem(),
 		"RWMutex":	TypeOf((*sync.RWMutex)(nil)).Elem(),
 		"WaitGroup":	TypeOf((*sync.WaitGroup)(nil)).Elem(),
-	}
-	Proxies["sync"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Locker":	TypeOf((*Locker_sync)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for sync.Locker ---------------

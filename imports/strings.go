@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["strings"] = map[string]Value{
+	Packages["strings"] = Package{
+	Binds: map[string]Value{
 		"Compare":	ValueOf(strings.Compare),
 		"Contains":	ValueOf(strings.Contains),
 		"ContainsAny":	ValueOf(strings.ContainsAny),
@@ -55,11 +56,11 @@ func init() {
 		"TrimRightFunc":	ValueOf(strings.TrimRightFunc),
 		"TrimSpace":	ValueOf(strings.TrimSpace),
 		"TrimSuffix":	ValueOf(strings.TrimSuffix),
-	}
-	Types["strings"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Reader":	TypeOf((*strings.Reader)(nil)).Elem(),
 		"Replacer":	TypeOf((*strings.Replacer)(nil)).Elem(),
-	}
-	Proxies["strings"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

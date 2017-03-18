@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["os"] = map[string]Value{
+	Packages["os"] = Package{
+	Binds: map[string]Value{
 		"Args":	ValueOf(&os.Args).Elem(),
 		"Chdir":	ValueOf(os.Chdir),
 		"Chmod":	ValueOf(os.Chmod),
@@ -100,8 +101,8 @@ func init() {
 		"TempDir":	ValueOf(os.TempDir),
 		"Truncate":	ValueOf(os.Truncate),
 		"Unsetenv":	ValueOf(os.Unsetenv),
-	}
-	Types["os"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"File":	TypeOf((*os.File)(nil)).Elem(),
 		"FileInfo":	TypeOf((*os.FileInfo)(nil)).Elem(),
 		"FileMode":	TypeOf((*os.FileMode)(nil)).Elem(),
@@ -112,11 +113,11 @@ func init() {
 		"ProcessState":	TypeOf((*os.ProcessState)(nil)).Elem(),
 		"Signal":	TypeOf((*os.Signal)(nil)).Elem(),
 		"SyscallError":	TypeOf((*os.SyscallError)(nil)).Elem(),
-	}
-	Proxies["os"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"FileInfo":	TypeOf((*FileInfo_os)(nil)).Elem(),
 		"Signal":	TypeOf((*Signal_os)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for os.FileInfo ---------------

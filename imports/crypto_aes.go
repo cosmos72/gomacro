@@ -9,13 +9,14 @@ import (
 )
 
 func init() {
-	Binds["crypto/aes"] = map[string]Value{
+	Packages["crypto/aes"] = Package{
+	Binds: map[string]Value{
 		"BlockSize":	ValueOf(aes.BlockSize),
 		"NewCipher":	ValueOf(aes.NewCipher),
-	}
-	Types["crypto/aes"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"KeySizeError":	TypeOf((*aes.KeySizeError)(nil)).Elem(),
-	}
-	Proxies["crypto/aes"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

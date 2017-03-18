@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["html/template"] = map[string]Value{
+	Packages["html/template"] = Package{
+	Binds: map[string]Value{
 		"ErrAmbigContext":	ValueOf(template.ErrAmbigContext),
 		"ErrBadHTML":	ValueOf(template.ErrBadHTML),
 		"ErrBranchEnd":	ValueOf(template.ErrBranchEnd),
@@ -33,8 +34,8 @@ func init() {
 		"ParseFiles":	ValueOf(template.ParseFiles),
 		"ParseGlob":	ValueOf(template.ParseGlob),
 		"URLQueryEscaper":	ValueOf(template.URLQueryEscaper),
-	}
-	Types["html/template"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CSS":	TypeOf((*template.CSS)(nil)).Elem(),
 		"Error":	TypeOf((*template.Error)(nil)).Elem(),
 		"ErrorCode":	TypeOf((*template.ErrorCode)(nil)).Elem(),
@@ -45,7 +46,7 @@ func init() {
 		"JSStr":	TypeOf((*template.JSStr)(nil)).Elem(),
 		"Template":	TypeOf((*template.Template)(nil)).Elem(),
 		"URL":	TypeOf((*template.URL)(nil)).Elem(),
-	}
-	Proxies["html/template"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

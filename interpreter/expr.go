@@ -239,25 +239,45 @@ func (env *Env) mapIndex(obj r.Value, key r.Value) (r.Value, bool, r.Type) {
 func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 	obj := env.evalExpr1(node.X)
 	name := node.Sel.Name
-	if obj.Kind() == r.Ptr {
-		obj = obj.Elem()
-	}
+
 	switch obj.Kind() {
-	case r.Struct:
-		// not (*Env), pointers are dereferenced above
-		if e, ok := obj.Interface().(Env); ok {
+	case r.Ptr:
+		if pkg, ok := obj.Interface().(*PackageRef); ok {
 			// access symbol from imported package, for example fmt.Printf
-			if bind, ok := e.Binds[name]; ok {
+			if bind, ok := pkg.Binds[name]; ok {
 				return bind, nil
 			}
-			return env.errorf("package %v %#v has no symbol %s", e.Name, e.Path, name)
+			return env.errorf("package %v %#v has no symbol %s", pkg.Name, pkg.Path, name)
 		}
+		elem := obj.Elem()
+		val := Nil
+		if elem.Kind() == r.Struct {
+			val = elem.FieldByName(name)
+		}
+		if val == Nil {
+			// search for methods with pointer receiver first
+			val = obj.MethodByName(name)
+			if val == Nil {
+				val = elem.MethodByName(name)
+			}
+		}
+		if val == Nil {
+			return env.errorf("pointer to struct <%v> has no field or method %s", typeOf(elem), name)
+		}
+		return val, nil
+	case r.Struct:
 		val := obj.FieldByName(name)
 		if val == Nil {
 			val = obj.MethodByName(name)
 		}
 		if val == Nil {
 			return env.errorf("struct <%v> has no field or method %s", typeOf(obj), name)
+		}
+		return val, nil
+	case r.Interface:
+		val := obj.MethodByName(name)
+		if val == Nil {
+			return env.errorf("interface <%v> has no method %s", typeOf(obj), name)
 		}
 		return val, nil
 	default:

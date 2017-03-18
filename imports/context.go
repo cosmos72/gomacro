@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["context"] = map[string]Value{
+	Packages["context"] = Package{
+	Binds: map[string]Value{
 		"Background":	ValueOf(context.Background),
 		"Canceled":	ValueOf(&context.Canceled).Elem(),
 		"DeadlineExceeded":	ValueOf(&context.DeadlineExceeded).Elem(),
@@ -19,14 +20,14 @@ func init() {
 		"WithDeadline":	ValueOf(context.WithDeadline),
 		"WithTimeout":	ValueOf(context.WithTimeout),
 		"WithValue":	ValueOf(context.WithValue),
-	}
-	Types["context"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CancelFunc":	TypeOf((*context.CancelFunc)(nil)).Elem(),
 		"Context":	TypeOf((*context.Context)(nil)).Elem(),
-	}
-	Proxies["context"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Context":	TypeOf((*Context_context)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for context.Context ---------------

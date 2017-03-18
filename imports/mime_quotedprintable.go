@@ -9,14 +9,15 @@ import (
 )
 
 func init() {
-	Binds["mime/quotedprintable"] = map[string]Value{
+	Packages["mime/quotedprintable"] = Package{
+	Binds: map[string]Value{
 		"NewReader":	ValueOf(quotedprintable.NewReader),
 		"NewWriter":	ValueOf(quotedprintable.NewWriter),
-	}
-	Types["mime/quotedprintable"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Reader":	TypeOf((*quotedprintable.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*quotedprintable.Writer)(nil)).Elem(),
-	}
-	Proxies["mime/quotedprintable"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

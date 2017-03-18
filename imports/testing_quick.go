@@ -11,21 +11,22 @@ import (
 )
 
 func init() {
-	Binds["testing/quick"] = map[string]Value{
+	Packages["testing/quick"] = Package{
+	Binds: map[string]Value{
 		"Check":	ValueOf(quick.Check),
 		"CheckEqual":	ValueOf(quick.CheckEqual),
 		"Value":	ValueOf(quick.Value),
-	}
-	Types["testing/quick"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CheckEqualError":	TypeOf((*quick.CheckEqualError)(nil)).Elem(),
 		"CheckError":	TypeOf((*quick.CheckError)(nil)).Elem(),
 		"Config":	TypeOf((*quick.Config)(nil)).Elem(),
 		"Generator":	TypeOf((*quick.Generator)(nil)).Elem(),
 		"SetupError":	TypeOf((*quick.SetupError)(nil)).Elem(),
-	}
-	Proxies["testing/quick"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Generator":	TypeOf((*Generator_testing_quick)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for testing/quick.Generator ---------------

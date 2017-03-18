@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["debug/macho"] = map[string]Value{
+	Packages["debug/macho"] = Package{
+	Binds: map[string]Value{
 		"Cpu386":	ValueOf(macho.Cpu386),
 		"CpuAmd64":	ValueOf(macho.CpuAmd64),
 		"CpuArm":	ValueOf(macho.CpuArm),
@@ -35,8 +36,8 @@ func init() {
 		"TypeDylib":	ValueOf(macho.TypeDylib),
 		"TypeExec":	ValueOf(macho.TypeExec),
 		"TypeObj":	ValueOf(macho.TypeObj),
-	}
-	Types["debug/macho"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Cpu":	TypeOf((*macho.Cpu)(nil)).Elem(),
 		"Dylib":	TypeOf((*macho.Dylib)(nil)).Elem(),
 		"DylibCmd":	TypeOf((*macho.DylibCmd)(nil)).Elem(),
@@ -68,10 +69,10 @@ func init() {
 		"SymtabCmd":	TypeOf((*macho.SymtabCmd)(nil)).Elem(),
 		"Thread":	TypeOf((*macho.Thread)(nil)).Elem(),
 		"Type":	TypeOf((*macho.Type)(nil)).Elem(),
-	}
-	Proxies["debug/macho"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Load":	TypeOf((*Load_debug_macho)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for debug/macho.Load ---------------

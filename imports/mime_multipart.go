@@ -9,21 +9,22 @@ import (
 )
 
 func init() {
-	Binds["mime/multipart"] = map[string]Value{
+	Packages["mime/multipart"] = Package{
+	Binds: map[string]Value{
 		"NewReader":	ValueOf(multipart.NewReader),
 		"NewWriter":	ValueOf(multipart.NewWriter),
-	}
-	Types["mime/multipart"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"File":	TypeOf((*multipart.File)(nil)).Elem(),
 		"FileHeader":	TypeOf((*multipart.FileHeader)(nil)).Elem(),
 		"Form":	TypeOf((*multipart.Form)(nil)).Elem(),
 		"Part":	TypeOf((*multipart.Part)(nil)).Elem(),
 		"Reader":	TypeOf((*multipart.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*multipart.Writer)(nil)).Elem(),
-	}
-	Proxies["mime/multipart"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"File":	TypeOf((*File_mime_multipart)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for mime/multipart.File ---------------

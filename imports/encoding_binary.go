@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["encoding/binary"] = map[string]Value{
+	Packages["encoding/binary"] = Package{
+	Binds: map[string]Value{
 		"BigEndian":	ValueOf(&binary.BigEndian).Elem(),
 		"LittleEndian":	ValueOf(&binary.LittleEndian).Elem(),
 		"MaxVarintLen16":	ValueOf(binary.MaxVarintLen16),
@@ -24,13 +25,13 @@ func init() {
 		"Uvarint":	ValueOf(binary.Uvarint),
 		"Varint":	ValueOf(binary.Varint),
 		"Write":	ValueOf(binary.Write),
-	}
-	Types["encoding/binary"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ByteOrder":	TypeOf((*binary.ByteOrder)(nil)).Elem(),
-	}
-	Proxies["encoding/binary"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"ByteOrder":	TypeOf((*ByteOrder_encoding_binary)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for encoding/binary.ByteOrder ---------------

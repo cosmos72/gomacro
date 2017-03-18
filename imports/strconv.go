@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["strconv"] = map[string]Value{
+	Packages["strconv"] = Package{
+	Binds: map[string]Value{
 		"AppendBool":	ValueOf(strconv.AppendBool),
 		"AppendFloat":	ValueOf(strconv.AppendFloat),
 		"AppendInt":	ValueOf(strconv.AppendInt),
@@ -44,10 +45,10 @@ func init() {
 		"QuoteToGraphic":	ValueOf(strconv.QuoteToGraphic),
 		"Unquote":	ValueOf(strconv.Unquote),
 		"UnquoteChar":	ValueOf(strconv.UnquoteChar),
-	}
-	Types["strconv"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"NumError":	TypeOf((*strconv.NumError)(nil)).Elem(),
-	}
-	Proxies["strconv"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

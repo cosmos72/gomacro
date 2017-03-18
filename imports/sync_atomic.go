@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["sync/atomic"] = map[string]Value{
+	Packages["sync/atomic"] = Package{
+	Binds: map[string]Value{
 		"AddInt32":	ValueOf(atomic.AddInt32),
 		"AddInt64":	ValueOf(atomic.AddInt64),
 		"AddUint32":	ValueOf(atomic.AddUint32),
@@ -39,10 +40,10 @@ func init() {
 		"SwapUint32":	ValueOf(atomic.SwapUint32),
 		"SwapUint64":	ValueOf(atomic.SwapUint64),
 		"SwapUintptr":	ValueOf(atomic.SwapUintptr),
-	}
-	Types["sync/atomic"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Value":	TypeOf((*atomic.Value)(nil)).Elem(),
-	}
-	Proxies["sync/atomic"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

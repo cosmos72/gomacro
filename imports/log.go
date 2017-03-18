@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["log"] = map[string]Value{
+	Packages["log"] = Package{
+	Binds: map[string]Value{
 		"Fatal":	ValueOf(log.Fatal),
 		"Fatalf":	ValueOf(log.Fatalf),
 		"Fatalln":	ValueOf(log.Fatalln),
@@ -33,10 +34,10 @@ func init() {
 		"SetFlags":	ValueOf(log.SetFlags),
 		"SetOutput":	ValueOf(log.SetOutput),
 		"SetPrefix":	ValueOf(log.SetPrefix),
-	}
-	Types["log"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Logger":	TypeOf((*log.Logger)(nil)).Elem(),
-	}
-	Proxies["log"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

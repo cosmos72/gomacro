@@ -9,12 +9,13 @@ import (
 )
 
 func init() {
-	Binds["runtime/trace"] = map[string]Value{
+	Packages["runtime/trace"] = Package{
+	Binds: map[string]Value{
 		"Start":	ValueOf(trace.Start),
 		"Stop":	ValueOf(trace.Stop),
-	}
-	Types["runtime/trace"] = map[string]Type{
-	}
-	Proxies["runtime/trace"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

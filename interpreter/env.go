@@ -32,6 +32,8 @@ import (
 	r "reflect"
 	"strings"
 	"time"
+
+	"github.com/cosmos72/gomacro/imports"
 )
 
 func New() *Env {
@@ -41,9 +43,11 @@ func New() *Env {
 
 func NewEnv(outer *Env, path string) *Env {
 	env := &Env{
-		Binds:      make(map[string]r.Value),
-		Types:      nil,
-		Proxies:    nil,
+		Package: imports.Package{
+			Binds:   make(map[string]r.Value),
+			Types:   nil,
+			Proxies: nil,
+		},
 		iotaOffset: 1,
 		Outer:      outer,
 		Name:       path,

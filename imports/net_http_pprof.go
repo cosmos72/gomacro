@@ -9,16 +9,17 @@ import (
 )
 
 func init() {
-	Binds["net/http/pprof"] = map[string]Value{
+	Packages["net/http/pprof"] = Package{
+	Binds: map[string]Value{
 		"Cmdline":	ValueOf(pprof.Cmdline),
 		"Handler":	ValueOf(pprof.Handler),
 		"Index":	ValueOf(pprof.Index),
 		"Profile":	ValueOf(pprof.Profile),
 		"Symbol":	ValueOf(pprof.Symbol),
 		"Trace":	ValueOf(pprof.Trace),
-	}
-	Types["net/http/pprof"] = map[string]Type{
-	}
-	Proxies["net/http/pprof"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

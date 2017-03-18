@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["go/parser"] = map[string]Value{
+	Packages["go/parser"] = Package{
+	Binds: map[string]Value{
 		"AllErrors":	ValueOf(parser.AllErrors),
 		"DeclarationErrors":	ValueOf(parser.DeclarationErrors),
 		"ImportsOnly":	ValueOf(parser.ImportsOnly),
@@ -21,10 +22,10 @@ func init() {
 		"ParseFile":	ValueOf(parser.ParseFile),
 		"SpuriousErrors":	ValueOf(parser.SpuriousErrors),
 		"Trace":	ValueOf(parser.Trace),
-	}
-	Types["go/parser"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Mode":	TypeOf((*parser.Mode)(nil)).Elem(),
-	}
-	Proxies["go/parser"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["image/color"] = map[string]Value{
+	Packages["image/color"] = Package{
+	Binds: map[string]Value{
 		"Alpha16Model":	ValueOf(&color.Alpha16Model).Elem(),
 		"AlphaModel":	ValueOf(&color.AlphaModel).Elem(),
 		"Black":	ValueOf(&color.Black).Elem(),
@@ -30,8 +31,8 @@ func init() {
 		"White":	ValueOf(&color.White).Elem(),
 		"YCbCrModel":	ValueOf(&color.YCbCrModel).Elem(),
 		"YCbCrToRGB":	ValueOf(color.YCbCrToRGB),
-	}
-	Types["image/color"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Alpha":	TypeOf((*color.Alpha)(nil)).Elem(),
 		"Alpha16":	TypeOf((*color.Alpha16)(nil)).Elem(),
 		"CMYK":	TypeOf((*color.CMYK)(nil)).Elem(),
@@ -46,11 +47,11 @@ func init() {
 		"RGBA":	TypeOf((*color.RGBA)(nil)).Elem(),
 		"RGBA64":	TypeOf((*color.RGBA64)(nil)).Elem(),
 		"YCbCr":	TypeOf((*color.YCbCr)(nil)).Elem(),
-	}
-	Proxies["image/color"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Color":	TypeOf((*Color_image_color)(nil)).Elem(),
 		"Model":	TypeOf((*Model_image_color)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for image/color.Color ---------------

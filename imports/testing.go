@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["testing"] = map[string]Value{
+	Packages["testing"] = Package{
+	Binds: map[string]Value{
 		"AllocsPerRun":	ValueOf(testing.AllocsPerRun),
 		"Benchmark":	ValueOf(testing.Benchmark),
 		"CoverMode":	ValueOf(testing.CoverMode),
@@ -22,8 +23,8 @@ func init() {
 		"RunTests":	ValueOf(testing.RunTests),
 		"Short":	ValueOf(testing.Short),
 		"Verbose":	ValueOf(testing.Verbose),
-	}
-	Types["testing"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"B":	TypeOf((*testing.B)(nil)).Elem(),
 		"BenchmarkResult":	TypeOf((*testing.BenchmarkResult)(nil)).Elem(),
 		"Cover":	TypeOf((*testing.Cover)(nil)).Elem(),
@@ -35,10 +36,10 @@ func init() {
 		"PB":	TypeOf((*testing.PB)(nil)).Elem(),
 		"T":	TypeOf((*testing.T)(nil)).Elem(),
 		"TB":	TypeOf((*testing.TB)(nil)).Elem(),
-	}
-	Proxies["testing"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"TB":	TypeOf((*TB_testing)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for testing.TB ---------------

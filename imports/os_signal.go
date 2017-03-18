@@ -9,14 +9,15 @@ import (
 )
 
 func init() {
-	Binds["os/signal"] = map[string]Value{
+	Packages["os/signal"] = Package{
+	Binds: map[string]Value{
 		"Ignore":	ValueOf(signal.Ignore),
 		"Notify":	ValueOf(signal.Notify),
 		"Reset":	ValueOf(signal.Reset),
 		"Stop":	ValueOf(signal.Stop),
-	}
-	Types["os/signal"] = map[string]Type{
-	}
-	Proxies["os/signal"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

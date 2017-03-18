@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["net/textproto"] = map[string]Value{
+	Packages["net/textproto"] = Package{
+	Binds: map[string]Value{
 		"CanonicalMIMEHeaderKey":	ValueOf(textproto.CanonicalMIMEHeaderKey),
 		"Dial":	ValueOf(textproto.Dial),
 		"NewConn":	ValueOf(textproto.NewConn),
@@ -17,8 +18,8 @@ func init() {
 		"NewWriter":	ValueOf(textproto.NewWriter),
 		"TrimBytes":	ValueOf(textproto.TrimBytes),
 		"TrimString":	ValueOf(textproto.TrimString),
-	}
-	Types["net/textproto"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Conn":	TypeOf((*textproto.Conn)(nil)).Elem(),
 		"Error":	TypeOf((*textproto.Error)(nil)).Elem(),
 		"MIMEHeader":	TypeOf((*textproto.MIMEHeader)(nil)).Elem(),
@@ -26,7 +27,7 @@ func init() {
 		"ProtocolError":	TypeOf((*textproto.ProtocolError)(nil)).Elem(),
 		"Reader":	TypeOf((*textproto.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*textproto.Writer)(nil)).Elem(),
-	}
-	Proxies["net/textproto"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["math"] = map[string]Value{
+	Packages["math"] = Package{
+	Binds: map[string]Value{
 		"Abs":	ValueOf(math.Abs),
 		"Acos":	ValueOf(math.Acos),
 		"Acosh":	ValueOf(math.Acosh),
@@ -99,9 +100,9 @@ func init() {
 		"Y0":	ValueOf(math.Y0),
 		"Y1":	ValueOf(math.Y1),
 		"Yn":	ValueOf(math.Yn),
-	}
-	Types["math"] = map[string]Type{
-	}
-	Proxies["math"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

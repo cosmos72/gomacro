@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["net"] = map[string]Value{
+	Packages["net"] = Package{
+	Binds: map[string]Value{
 		"CIDRMask":	ValueOf(net.CIDRMask),
 		"DefaultResolver":	ValueOf(&net.DefaultResolver).Elem(),
 		"Dial":	ValueOf(net.Dial),
@@ -73,8 +74,8 @@ func init() {
 		"ResolveUDPAddr":	ValueOf(net.ResolveUDPAddr),
 		"ResolveUnixAddr":	ValueOf(net.ResolveUnixAddr),
 		"SplitHostPort":	ValueOf(net.SplitHostPort),
-	}
-	Types["net"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Addr":	TypeOf((*net.Addr)(nil)).Elem(),
 		"AddrError":	TypeOf((*net.AddrError)(nil)).Elem(),
 		"Buffers":	TypeOf((*net.Buffers)(nil)).Elem(),
@@ -109,14 +110,14 @@ func init() {
 		"UnixConn":	TypeOf((*net.UnixConn)(nil)).Elem(),
 		"UnixListener":	TypeOf((*net.UnixListener)(nil)).Elem(),
 		"UnknownNetworkError":	TypeOf((*net.UnknownNetworkError)(nil)).Elem(),
-	}
-	Proxies["net"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Addr":	TypeOf((*Addr_net)(nil)).Elem(),
 		"Conn":	TypeOf((*Conn_net)(nil)).Elem(),
 		"Error":	TypeOf((*Error_net)(nil)).Elem(),
 		"Listener":	TypeOf((*Listener_net)(nil)).Elem(),
 		"PacketConn":	TypeOf((*PacketConn_net)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for net.Addr ---------------

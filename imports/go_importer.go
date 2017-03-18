@@ -9,13 +9,14 @@ import (
 )
 
 func init() {
-	Binds["go/importer"] = map[string]Value{
+	Packages["go/importer"] = Package{
+	Binds: map[string]Value{
 		"Default":	ValueOf(importer.Default),
 		"For":	ValueOf(importer.For),
-	}
-	Types["go/importer"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Lookup":	TypeOf((*importer.Lookup)(nil)).Elem(),
-	}
-	Proxies["go/importer"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

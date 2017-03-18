@@ -9,14 +9,15 @@ import (
 )
 
 func init() {
-	Binds["crypto/des"] = map[string]Value{
+	Packages["crypto/des"] = Package{
+	Binds: map[string]Value{
 		"BlockSize":	ValueOf(des.BlockSize),
 		"NewCipher":	ValueOf(des.NewCipher),
 		"NewTripleDESCipher":	ValueOf(des.NewTripleDESCipher),
-	}
-	Types["crypto/des"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"KeySizeError":	TypeOf((*des.KeySizeError)(nil)).Elem(),
-	}
-	Proxies["crypto/des"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

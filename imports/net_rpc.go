@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["net/rpc"] = map[string]Value{
+	Packages["net/rpc"] = Package{
+	Binds: map[string]Value{
 		"Accept":	ValueOf(rpc.Accept),
 		"DefaultDebugPath":	ValueOf(rpc.DefaultDebugPath),
 		"DefaultRPCPath":	ValueOf(rpc.DefaultRPCPath),
@@ -27,8 +28,8 @@ func init() {
 		"ServeCodec":	ValueOf(rpc.ServeCodec),
 		"ServeConn":	ValueOf(rpc.ServeConn),
 		"ServeRequest":	ValueOf(rpc.ServeRequest),
-	}
-	Types["net/rpc"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Call":	TypeOf((*rpc.Call)(nil)).Elem(),
 		"Client":	TypeOf((*rpc.Client)(nil)).Elem(),
 		"ClientCodec":	TypeOf((*rpc.ClientCodec)(nil)).Elem(),
@@ -37,11 +38,11 @@ func init() {
 		"Server":	TypeOf((*rpc.Server)(nil)).Elem(),
 		"ServerCodec":	TypeOf((*rpc.ServerCodec)(nil)).Elem(),
 		"ServerError":	TypeOf((*rpc.ServerError)(nil)).Elem(),
-	}
-	Proxies["net/rpc"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"ClientCodec":	TypeOf((*ClientCodec_net_rpc)(nil)).Elem(),
 		"ServerCodec":	TypeOf((*ServerCodec_net_rpc)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for net/rpc.ClientCodec ---------------

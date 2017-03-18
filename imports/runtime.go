@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["runtime"] = map[string]Value{
+	Packages["runtime"] = Package{
+	Binds: map[string]Value{
 		"BlockProfile":	ValueOf(runtime.BlockProfile),
 		"Breakpoint":	ValueOf(runtime.Breakpoint),
 		"CPUProfile":	ValueOf(runtime.CPUProfile),
@@ -47,8 +48,8 @@ func init() {
 		"ThreadCreateProfile":	ValueOf(runtime.ThreadCreateProfile),
 		"UnlockOSThread":	ValueOf(runtime.UnlockOSThread),
 		"Version":	ValueOf(runtime.Version),
-	}
-	Types["runtime"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"BlockProfileRecord":	TypeOf((*runtime.BlockProfileRecord)(nil)).Elem(),
 		"Error":	TypeOf((*runtime.Error)(nil)).Elem(),
 		"Frame":	TypeOf((*runtime.Frame)(nil)).Elem(),
@@ -58,10 +59,10 @@ func init() {
 		"MemStats":	TypeOf((*runtime.MemStats)(nil)).Elem(),
 		"StackRecord":	TypeOf((*runtime.StackRecord)(nil)).Elem(),
 		"TypeAssertionError":	TypeOf((*runtime.TypeAssertionError)(nil)).Elem(),
-	}
-	Proxies["runtime"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Error":	TypeOf((*Error_runtime)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for runtime.Error ---------------

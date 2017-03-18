@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["math/cmplx"] = map[string]Value{
+	Packages["math/cmplx"] = Package{
+	Binds: map[string]Value{
 		"Abs":	ValueOf(cmplx.Abs),
 		"Acos":	ValueOf(cmplx.Acos),
 		"Acosh":	ValueOf(cmplx.Acosh),
@@ -37,9 +38,9 @@ func init() {
 		"Sqrt":	ValueOf(cmplx.Sqrt),
 		"Tan":	ValueOf(cmplx.Tan),
 		"Tanh":	ValueOf(cmplx.Tanh),
-	}
-	Types["math/cmplx"] = map[string]Type{
-	}
-	Proxies["math/cmplx"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

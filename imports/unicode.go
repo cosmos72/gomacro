@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["unicode"] = map[string]Value{
+	Packages["unicode"] = Package{
+	Binds: map[string]Value{
 		"ASCII_Hex_Digit":	ValueOf(&unicode.ASCII_Hex_Digit).Elem(),
 		"Adlam":	ValueOf(&unicode.Adlam).Elem(),
 		"Ahom":	ValueOf(&unicode.Ahom).Elem(),
@@ -269,14 +270,14 @@ func init() {
 		"Zl":	ValueOf(&unicode.Zl).Elem(),
 		"Zp":	ValueOf(&unicode.Zp).Elem(),
 		"Zs":	ValueOf(&unicode.Zs).Elem(),
-	}
-	Types["unicode"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CaseRange":	TypeOf((*unicode.CaseRange)(nil)).Elem(),
 		"Range16":	TypeOf((*unicode.Range16)(nil)).Elem(),
 		"Range32":	TypeOf((*unicode.Range32)(nil)).Elem(),
 		"RangeTable":	TypeOf((*unicode.RangeTable)(nil)).Elem(),
 		"SpecialCase":	TypeOf((*unicode.SpecialCase)(nil)).Elem(),
-	}
-	Proxies["unicode"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

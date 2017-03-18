@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["compress/gzip"] = map[string]Value{
+	Packages["compress/gzip"] = Package{
+	Binds: map[string]Value{
 		"BestCompression":	ValueOf(gzip.BestCompression),
 		"BestSpeed":	ValueOf(gzip.BestSpeed),
 		"DefaultCompression":	ValueOf(gzip.DefaultCompression),
@@ -20,12 +21,12 @@ func init() {
 		"NewWriter":	ValueOf(gzip.NewWriter),
 		"NewWriterLevel":	ValueOf(gzip.NewWriterLevel),
 		"NoCompression":	ValueOf(gzip.NoCompression),
-	}
-	Types["compress/gzip"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Header":	TypeOf((*gzip.Header)(nil)).Elem(),
 		"Reader":	TypeOf((*gzip.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*gzip.Writer)(nil)).Elem(),
-	}
-	Proxies["compress/gzip"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

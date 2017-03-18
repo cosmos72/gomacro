@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["unicode/utf8"] = map[string]Value{
+	Packages["unicode/utf8"] = Package{
+	Binds: map[string]Value{
 		"DecodeLastRune":	ValueOf(utf8.DecodeLastRune),
 		"DecodeLastRuneInString":	ValueOf(utf8.DecodeLastRuneInString),
 		"DecodeRune":	ValueOf(utf8.DecodeRune),
@@ -28,9 +29,9 @@ func init() {
 		"Valid":	ValueOf(utf8.Valid),
 		"ValidRune":	ValueOf(utf8.ValidRune),
 		"ValidString":	ValueOf(utf8.ValidString),
-	}
-	Types["unicode/utf8"] = map[string]Type{
-	}
-	Proxies["unicode/utf8"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

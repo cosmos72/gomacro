@@ -9,17 +9,18 @@ import (
 )
 
 func init() {
-	Binds["net/http/httptrace"] = map[string]Value{
+	Packages["net/http/httptrace"] = Package{
+	Binds: map[string]Value{
 		"ContextClientTrace":	ValueOf(httptrace.ContextClientTrace),
 		"WithClientTrace":	ValueOf(httptrace.WithClientTrace),
-	}
-	Types["net/http/httptrace"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ClientTrace":	TypeOf((*httptrace.ClientTrace)(nil)).Elem(),
 		"DNSDoneInfo":	TypeOf((*httptrace.DNSDoneInfo)(nil)).Elem(),
 		"DNSStartInfo":	TypeOf((*httptrace.DNSStartInfo)(nil)).Elem(),
 		"GotConnInfo":	TypeOf((*httptrace.GotConnInfo)(nil)).Elem(),
 		"WroteRequestInfo":	TypeOf((*httptrace.WroteRequestInfo)(nil)).Elem(),
-	}
-	Proxies["net/http/httptrace"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

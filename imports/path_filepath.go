@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["path/filepath"] = map[string]Value{
+	Packages["path/filepath"] = Package{
+	Binds: map[string]Value{
 		"Abs":	ValueOf(filepath.Abs),
 		"Base":	ValueOf(filepath.Base),
 		"Clean":	ValueOf(filepath.Clean),
@@ -32,10 +33,10 @@ func init() {
 		"ToSlash":	ValueOf(filepath.ToSlash),
 		"VolumeName":	ValueOf(filepath.VolumeName),
 		"Walk":	ValueOf(filepath.Walk),
-	}
-	Types["path/filepath"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"WalkFunc":	TypeOf((*filepath.WalkFunc)(nil)).Elem(),
-	}
-	Proxies["path/filepath"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["crypto/elliptic"] = map[string]Value{
+	Packages["crypto/elliptic"] = Package{
+	Binds: map[string]Value{
 		"GenerateKey":	ValueOf(elliptic.GenerateKey),
 		"Marshal":	ValueOf(elliptic.Marshal),
 		"P224":	ValueOf(elliptic.P224),
@@ -18,14 +19,14 @@ func init() {
 		"P384":	ValueOf(elliptic.P384),
 		"P521":	ValueOf(elliptic.P521),
 		"Unmarshal":	ValueOf(elliptic.Unmarshal),
-	}
-	Types["crypto/elliptic"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Curve":	TypeOf((*elliptic.Curve)(nil)).Elem(),
 		"CurveParams":	TypeOf((*elliptic.CurveParams)(nil)).Elem(),
-	}
-	Proxies["crypto/elliptic"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Curve":	TypeOf((*Curve_crypto_elliptic)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for crypto/elliptic.Curve ---------------

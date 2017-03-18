@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["text/template"] = map[string]Value{
+	Packages["text/template"] = Package{
+	Binds: map[string]Value{
 		"HTMLEscape":	ValueOf(template.HTMLEscape),
 		"HTMLEscapeString":	ValueOf(template.HTMLEscapeString),
 		"HTMLEscaper":	ValueOf(template.HTMLEscaper),
@@ -22,12 +23,12 @@ func init() {
 		"ParseFiles":	ValueOf(template.ParseFiles),
 		"ParseGlob":	ValueOf(template.ParseGlob),
 		"URLQueryEscaper":	ValueOf(template.URLQueryEscaper),
-	}
-	Types["text/template"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ExecError":	TypeOf((*template.ExecError)(nil)).Elem(),
 		"FuncMap":	TypeOf((*template.FuncMap)(nil)).Elem(),
 		"Template":	TypeOf((*template.Template)(nil)).Elem(),
-	}
-	Proxies["text/template"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

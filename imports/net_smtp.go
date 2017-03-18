@@ -9,21 +9,22 @@ import (
 )
 
 func init() {
-	Binds["net/smtp"] = map[string]Value{
+	Packages["net/smtp"] = Package{
+	Binds: map[string]Value{
 		"CRAMMD5Auth":	ValueOf(smtp.CRAMMD5Auth),
 		"Dial":	ValueOf(smtp.Dial),
 		"NewClient":	ValueOf(smtp.NewClient),
 		"PlainAuth":	ValueOf(smtp.PlainAuth),
 		"SendMail":	ValueOf(smtp.SendMail),
-	}
-	Types["net/smtp"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Auth":	TypeOf((*smtp.Auth)(nil)).Elem(),
 		"Client":	TypeOf((*smtp.Client)(nil)).Elem(),
 		"ServerInfo":	TypeOf((*smtp.ServerInfo)(nil)).Elem(),
-	}
-	Proxies["net/smtp"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Auth":	TypeOf((*Auth_net_smtp)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for net/smtp.Auth ---------------

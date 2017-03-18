@@ -9,17 +9,18 @@ import (
 )
 
 func init() {
-	Binds["os/exec"] = map[string]Value{
+	Packages["os/exec"] = Package{
+	Binds: map[string]Value{
 		"Command":	ValueOf(exec.Command),
 		"CommandContext":	ValueOf(exec.CommandContext),
 		"ErrNotFound":	ValueOf(&exec.ErrNotFound).Elem(),
 		"LookPath":	ValueOf(exec.LookPath),
-	}
-	Types["os/exec"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Cmd":	TypeOf((*exec.Cmd)(nil)).Elem(),
 		"Error":	TypeOf((*exec.Error)(nil)).Elem(),
 		"ExitError":	TypeOf((*exec.ExitError)(nil)).Elem(),
-	}
-	Proxies["os/exec"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["debug/pe"] = map[string]Value{
+	Packages["debug/pe"] = Package{
+	Binds: map[string]Value{
 		"COFFSymbolSize":	ValueOf(pe.COFFSymbolSize),
 		"IMAGE_FILE_MACHINE_AM33":	ValueOf(pe.IMAGE_FILE_MACHINE_AM33),
 		"IMAGE_FILE_MACHINE_AMD64":	ValueOf(pe.IMAGE_FILE_MACHINE_AMD64),
@@ -33,8 +34,8 @@ func init() {
 		"IMAGE_FILE_MACHINE_WCEMIPSV2":	ValueOf(pe.IMAGE_FILE_MACHINE_WCEMIPSV2),
 		"NewFile":	ValueOf(pe.NewFile),
 		"Open":	ValueOf(pe.Open),
-	}
-	Types["debug/pe"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"COFFSymbol":	TypeOf((*pe.COFFSymbol)(nil)).Elem(),
 		"DataDirectory":	TypeOf((*pe.DataDirectory)(nil)).Elem(),
 		"File":	TypeOf((*pe.File)(nil)).Elem(),
@@ -49,7 +50,7 @@ func init() {
 		"SectionHeader32":	TypeOf((*pe.SectionHeader32)(nil)).Elem(),
 		"StringTable":	TypeOf((*pe.StringTable)(nil)).Elem(),
 		"Symbol":	TypeOf((*pe.Symbol)(nil)).Elem(),
-	}
-	Proxies["debug/pe"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

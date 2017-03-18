@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["encoding/asn1"] = map[string]Value{
+	Packages["encoding/asn1"] = Package{
+	Binds: map[string]Value{
 		"ClassApplication":	ValueOf(asn1.ClassApplication),
 		"ClassContextSpecific":	ValueOf(asn1.ClassContextSpecific),
 		"ClassPrivate":	ValueOf(asn1.ClassPrivate),
@@ -32,8 +33,8 @@ func init() {
 		"TagUTF8String":	ValueOf(asn1.TagUTF8String),
 		"Unmarshal":	ValueOf(asn1.Unmarshal),
 		"UnmarshalWithParams":	ValueOf(asn1.UnmarshalWithParams),
-	}
-	Types["encoding/asn1"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"BitString":	TypeOf((*asn1.BitString)(nil)).Elem(),
 		"Enumerated":	TypeOf((*asn1.Enumerated)(nil)).Elem(),
 		"Flag":	TypeOf((*asn1.Flag)(nil)).Elem(),
@@ -42,7 +43,7 @@ func init() {
 		"RawValue":	TypeOf((*asn1.RawValue)(nil)).Elem(),
 		"StructuralError":	TypeOf((*asn1.StructuralError)(nil)).Elem(),
 		"SyntaxError":	TypeOf((*asn1.SyntaxError)(nil)).Elem(),
-	}
-	Proxies["encoding/asn1"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

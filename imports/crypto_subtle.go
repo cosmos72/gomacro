@@ -9,16 +9,17 @@ import (
 )
 
 func init() {
-	Binds["crypto/subtle"] = map[string]Value{
+	Packages["crypto/subtle"] = Package{
+	Binds: map[string]Value{
 		"ConstantTimeByteEq":	ValueOf(subtle.ConstantTimeByteEq),
 		"ConstantTimeCompare":	ValueOf(subtle.ConstantTimeCompare),
 		"ConstantTimeCopy":	ValueOf(subtle.ConstantTimeCopy),
 		"ConstantTimeEq":	ValueOf(subtle.ConstantTimeEq),
 		"ConstantTimeLessOrEq":	ValueOf(subtle.ConstantTimeLessOrEq),
 		"ConstantTimeSelect":	ValueOf(subtle.ConstantTimeSelect),
-	}
-	Types["crypto/subtle"] = map[string]Type{
-	}
-	Proxies["crypto/subtle"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

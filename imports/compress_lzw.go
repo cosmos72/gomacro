@@ -9,15 +9,16 @@ import (
 )
 
 func init() {
-	Binds["compress/lzw"] = map[string]Value{
+	Packages["compress/lzw"] = Package{
+	Binds: map[string]Value{
 		"LSB":	ValueOf(lzw.LSB),
 		"MSB":	ValueOf(lzw.MSB),
 		"NewReader":	ValueOf(lzw.NewReader),
 		"NewWriter":	ValueOf(lzw.NewWriter),
-	}
-	Types["compress/lzw"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Order":	TypeOf((*lzw.Order)(nil)).Elem(),
-	}
-	Proxies["compress/lzw"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

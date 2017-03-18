@@ -9,14 +9,15 @@ import (
 )
 
 func init() {
-	Binds["encoding/pem"] = map[string]Value{
+	Packages["encoding/pem"] = Package{
+	Binds: map[string]Value{
 		"Decode":	ValueOf(pem.Decode),
 		"Encode":	ValueOf(pem.Encode),
 		"EncodeToMemory":	ValueOf(pem.EncodeToMemory),
-	}
-	Types["encoding/pem"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Block":	TypeOf((*pem.Block)(nil)).Elem(),
-	}
-	Proxies["encoding/pem"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

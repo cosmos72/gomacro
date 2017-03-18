@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["debug/dwarf"] = map[string]Value{
+	Packages["debug/dwarf"] = Package{
+	Binds: map[string]Value{
 		"AttrAbstractOrigin":	ValueOf(dwarf.AttrAbstractOrigin),
 		"AttrAccessibility":	ValueOf(dwarf.AttrAccessibility),
 		"AttrAddrClass":	ValueOf(dwarf.AttrAddrClass),
@@ -160,8 +161,8 @@ func init() {
 		"TagVariantPart":	ValueOf(dwarf.TagVariantPart),
 		"TagVolatileType":	ValueOf(dwarf.TagVolatileType),
 		"TagWithStmt":	ValueOf(dwarf.TagWithStmt),
-	}
-	Types["debug/dwarf"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"AddrType":	TypeOf((*dwarf.AddrType)(nil)).Elem(),
 		"ArrayType":	TypeOf((*dwarf.ArrayType)(nil)).Elem(),
 		"Attr":	TypeOf((*dwarf.Attr)(nil)).Elem(),
@@ -198,10 +199,10 @@ func init() {
 		"UintType":	TypeOf((*dwarf.UintType)(nil)).Elem(),
 		"UnspecifiedType":	TypeOf((*dwarf.UnspecifiedType)(nil)).Elem(),
 		"VoidType":	TypeOf((*dwarf.VoidType)(nil)).Elem(),
-	}
-	Proxies["debug/dwarf"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Type":	TypeOf((*Type_debug_dwarf)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for debug/dwarf.Type ---------------

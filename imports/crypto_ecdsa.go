@@ -9,15 +9,16 @@ import (
 )
 
 func init() {
-	Binds["crypto/ecdsa"] = map[string]Value{
+	Packages["crypto/ecdsa"] = Package{
+	Binds: map[string]Value{
 		"GenerateKey":	ValueOf(ecdsa.GenerateKey),
 		"Sign":	ValueOf(ecdsa.Sign),
 		"Verify":	ValueOf(ecdsa.Verify),
-	}
-	Types["crypto/ecdsa"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"PrivateKey":	TypeOf((*ecdsa.PrivateKey)(nil)).Elem(),
 		"PublicKey":	TypeOf((*ecdsa.PublicKey)(nil)).Elem(),
-	}
-	Proxies["crypto/ecdsa"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

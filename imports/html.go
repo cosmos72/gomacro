@@ -9,12 +9,13 @@ import (
 )
 
 func init() {
-	Binds["html"] = map[string]Value{
+	Packages["html"] = Package{
+	Binds: map[string]Value{
 		"EscapeString":	ValueOf(html.EscapeString),
 		"UnescapeString":	ValueOf(html.UnescapeString),
-	}
-	Types["html"] = map[string]Type{
-	}
-	Proxies["html"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

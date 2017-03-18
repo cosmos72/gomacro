@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["crypto/x509"] = map[string]Value{
+	Packages["crypto/x509"] = Package{
+	Binds: map[string]Value{
 		"CANotAuthorizedForThisName":	ValueOf(x509.CANotAuthorizedForThisName),
 		"CreateCertificate":	ValueOf(x509.CreateCertificate),
 		"CreateCertificateRequest":	ValueOf(x509.CreateCertificateRequest),
@@ -83,8 +84,8 @@ func init() {
 		"TooManyIntermediates":	ValueOf(x509.TooManyIntermediates),
 		"UnknownPublicKeyAlgorithm":	ValueOf(x509.UnknownPublicKeyAlgorithm),
 		"UnknownSignatureAlgorithm":	ValueOf(x509.UnknownSignatureAlgorithm),
-	}
-	Types["crypto/x509"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CertPool":	TypeOf((*x509.CertPool)(nil)).Elem(),
 		"Certificate":	TypeOf((*x509.Certificate)(nil)).Elem(),
 		"CertificateInvalidError":	TypeOf((*x509.CertificateInvalidError)(nil)).Elem(),
@@ -102,7 +103,7 @@ func init() {
 		"UnhandledCriticalExtension":	TypeOf((*x509.UnhandledCriticalExtension)(nil)).Elem(),
 		"UnknownAuthorityError":	TypeOf((*x509.UnknownAuthorityError)(nil)).Elem(),
 		"VerifyOptions":	TypeOf((*x509.VerifyOptions)(nil)).Elem(),
-	}
-	Proxies["crypto/x509"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,18 +9,19 @@ import (
 )
 
 func init() {
-	Binds["hash"] = map[string]Value{
-	}
-	Types["hash"] = map[string]Type{
+	Packages["hash"] = Package{
+	Binds: map[string]Value{
+	},
+	Types: map[string]Type{
 		"Hash":	TypeOf((*hash.Hash)(nil)).Elem(),
 		"Hash32":	TypeOf((*hash.Hash32)(nil)).Elem(),
 		"Hash64":	TypeOf((*hash.Hash64)(nil)).Elem(),
-	}
-	Proxies["hash"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Hash":	TypeOf((*Hash_hash)(nil)).Elem(),
 		"Hash32":	TypeOf((*Hash32_hash)(nil)).Elem(),
 		"Hash64":	TypeOf((*Hash64_hash)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for hash.Hash ---------------

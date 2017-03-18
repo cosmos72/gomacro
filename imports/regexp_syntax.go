@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["regexp/syntax"] = map[string]Value{
+	Packages["regexp/syntax"] = Package{
+	Binds: map[string]Value{
 		"ClassNL":	ValueOf(syntax.ClassNL),
 		"Compile":	ValueOf(syntax.Compile),
 		"DotNL":	ValueOf(syntax.DotNL),
@@ -77,8 +78,8 @@ func init() {
 		"Simple":	ValueOf(syntax.Simple),
 		"UnicodeGroups":	ValueOf(syntax.UnicodeGroups),
 		"WasDollar":	ValueOf(syntax.WasDollar),
-	}
-	Types["regexp/syntax"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"EmptyOp":	TypeOf((*syntax.EmptyOp)(nil)).Elem(),
 		"Error":	TypeOf((*syntax.Error)(nil)).Elem(),
 		"ErrorCode":	TypeOf((*syntax.ErrorCode)(nil)).Elem(),
@@ -88,7 +89,7 @@ func init() {
 		"Op":	TypeOf((*syntax.Op)(nil)).Elem(),
 		"Prog":	TypeOf((*syntax.Prog)(nil)).Elem(),
 		"Regexp":	TypeOf((*syntax.Regexp)(nil)).Elem(),
-	}
-	Proxies["regexp/syntax"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

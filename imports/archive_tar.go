@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["archive/tar"] = map[string]Value{
+	Packages["archive/tar"] = Package{
+	Binds: map[string]Value{
 		"ErrFieldTooLong":	ValueOf(&tar.ErrFieldTooLong).Elem(),
 		"ErrHeader":	ValueOf(&tar.ErrHeader).Elem(),
 		"ErrWriteAfterClose":	ValueOf(&tar.ErrWriteAfterClose).Elem(),
@@ -31,12 +32,12 @@ func init() {
 		"TypeSymlink":	ValueOf(tar.TypeSymlink),
 		"TypeXGlobalHeader":	ValueOf(tar.TypeXGlobalHeader),
 		"TypeXHeader":	ValueOf(tar.TypeXHeader),
-	}
-	Types["archive/tar"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Header":	TypeOf((*tar.Header)(nil)).Elem(),
 		"Reader":	TypeOf((*tar.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*tar.Writer)(nil)).Elem(),
-	}
-	Proxies["archive/tar"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

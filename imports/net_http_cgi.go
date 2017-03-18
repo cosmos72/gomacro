@@ -9,14 +9,15 @@ import (
 )
 
 func init() {
-	Binds["net/http/cgi"] = map[string]Value{
+	Packages["net/http/cgi"] = Package{
+	Binds: map[string]Value{
 		"Request":	ValueOf(cgi.Request),
 		"RequestFromMap":	ValueOf(cgi.RequestFromMap),
 		"Serve":	ValueOf(cgi.Serve),
-	}
-	Types["net/http/cgi"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Handler":	TypeOf((*cgi.Handler)(nil)).Elem(),
-	}
-	Proxies["net/http/cgi"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

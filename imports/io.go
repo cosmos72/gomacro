@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["io"] = map[string]Value{
+	Packages["io"] = Package{
+	Binds: map[string]Value{
 		"Copy":	ValueOf(io.Copy),
 		"CopyBuffer":	ValueOf(io.CopyBuffer),
 		"CopyN":	ValueOf(io.CopyN),
@@ -31,8 +32,8 @@ func init() {
 		"SeekStart":	ValueOf(io.SeekStart),
 		"TeeReader":	ValueOf(io.TeeReader),
 		"WriteString":	ValueOf(io.WriteString),
-	}
-	Types["io"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ByteReader":	TypeOf((*io.ByteReader)(nil)).Elem(),
 		"ByteScanner":	TypeOf((*io.ByteScanner)(nil)).Elem(),
 		"ByteWriter":	TypeOf((*io.ByteWriter)(nil)).Elem(),
@@ -57,8 +58,8 @@ func init() {
 		"Writer":	TypeOf((*io.Writer)(nil)).Elem(),
 		"WriterAt":	TypeOf((*io.WriterAt)(nil)).Elem(),
 		"WriterTo":	TypeOf((*io.WriterTo)(nil)).Elem(),
-	}
-	Proxies["io"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"ByteReader":	TypeOf((*ByteReader_io)(nil)).Elem(),
 		"ByteScanner":	TypeOf((*ByteScanner_io)(nil)).Elem(),
 		"ByteWriter":	TypeOf((*ByteWriter_io)(nil)).Elem(),
@@ -79,7 +80,7 @@ func init() {
 		"Writer":	TypeOf((*Writer_io)(nil)).Elem(),
 		"WriterAt":	TypeOf((*WriterAt_io)(nil)).Elem(),
 		"WriterTo":	TypeOf((*WriterTo_io)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for io.ByteReader ---------------

@@ -27,13 +27,13 @@ package interpreter
 import (
 	"go/ast"
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/imports"
 )
 
 type Env struct {
 	*Interpreter
-	Binds      map[string]r.Value
-	Types      map[string]r.Type
-	Proxies    map[string]r.Type
+	imports.Package
 	Outer      *Env
 	funcData   *funcData
 	iotaOffset int
@@ -52,6 +52,11 @@ type Builtin struct {
 type Macro struct {
 	Closure func(args []r.Value) (results []r.Value)
 	ArgNum  int
+}
+
+type PackageRef struct {
+	imports.Package
+	Name, Path string
 }
 
 type Options uint

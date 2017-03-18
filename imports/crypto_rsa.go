@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["crypto/rsa"] = map[string]Value{
+	Packages["crypto/rsa"] = Package{
+	Binds: map[string]Value{
 		"DecryptOAEP":	ValueOf(rsa.DecryptOAEP),
 		"DecryptPKCS1v15":	ValueOf(rsa.DecryptPKCS1v15),
 		"DecryptPKCS1v15SessionKey":	ValueOf(rsa.DecryptPKCS1v15SessionKey),
@@ -26,8 +27,8 @@ func init() {
 		"SignPSS":	ValueOf(rsa.SignPSS),
 		"VerifyPKCS1v15":	ValueOf(rsa.VerifyPKCS1v15),
 		"VerifyPSS":	ValueOf(rsa.VerifyPSS),
-	}
-	Types["crypto/rsa"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CRTValue":	TypeOf((*rsa.CRTValue)(nil)).Elem(),
 		"OAEPOptions":	TypeOf((*rsa.OAEPOptions)(nil)).Elem(),
 		"PKCS1v15DecryptOptions":	TypeOf((*rsa.PKCS1v15DecryptOptions)(nil)).Elem(),
@@ -35,7 +36,7 @@ func init() {
 		"PrecomputedValues":	TypeOf((*rsa.PrecomputedValues)(nil)).Elem(),
 		"PrivateKey":	TypeOf((*rsa.PrivateKey)(nil)).Elem(),
 		"PublicKey":	TypeOf((*rsa.PublicKey)(nil)).Elem(),
-	}
-	Proxies["crypto/rsa"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

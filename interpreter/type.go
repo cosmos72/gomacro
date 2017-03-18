@@ -93,7 +93,7 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 	case *ast.SelectorExpr:
 		if pkgIdent, ok := node.X.(*ast.Ident); ok {
 			pkgv := env.evalIdentifier(pkgIdent)
-			if pkg, ok := pkgv.Interface().(*Env); ok {
+			if pkg, ok := pkgv.Interface().(*PackageRef); ok {
 				name := node.Sel.Name
 				if t, ok = pkg.Types[name]; !ok {
 					env.errorf("not a type: %v <%v>", node, r.TypeOf(node))

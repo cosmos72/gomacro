@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["image/gif"] = map[string]Value{
+	Packages["image/gif"] = Package{
+	Binds: map[string]Value{
 		"Decode":	ValueOf(gif.Decode),
 		"DecodeAll":	ValueOf(gif.DecodeAll),
 		"DecodeConfig":	ValueOf(gif.DecodeConfig),
@@ -18,11 +19,11 @@ func init() {
 		"DisposalPrevious":	ValueOf(gif.DisposalPrevious),
 		"Encode":	ValueOf(gif.Encode),
 		"EncodeAll":	ValueOf(gif.EncodeAll),
-	}
-	Types["image/gif"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"GIF":	TypeOf((*gif.GIF)(nil)).Elem(),
 		"Options":	TypeOf((*gif.Options)(nil)).Elem(),
-	}
-	Proxies["image/gif"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,18 +9,19 @@ import (
 )
 
 func init() {
-	Binds["net/http/httptest"] = map[string]Value{
+	Packages["net/http/httptest"] = Package{
+	Binds: map[string]Value{
 		"DefaultRemoteAddr":	ValueOf(httptest.DefaultRemoteAddr),
 		"NewRecorder":	ValueOf(httptest.NewRecorder),
 		"NewRequest":	ValueOf(httptest.NewRequest),
 		"NewServer":	ValueOf(httptest.NewServer),
 		"NewTLSServer":	ValueOf(httptest.NewTLSServer),
 		"NewUnstartedServer":	ValueOf(httptest.NewUnstartedServer),
-	}
-	Types["net/http/httptest"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ResponseRecorder":	TypeOf((*httptest.ResponseRecorder)(nil)).Elem(),
 		"Server":	TypeOf((*httptest.Server)(nil)).Elem(),
-	}
-	Proxies["net/http/httptest"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

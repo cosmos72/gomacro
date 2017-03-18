@@ -9,12 +9,13 @@ import (
 )
 
 func init() {
-	Binds["compress/bzip2"] = map[string]Value{
+	Packages["compress/bzip2"] = Package{
+	Binds: map[string]Value{
 		"NewReader":	ValueOf(bzip2.NewReader),
-	}
-	Types["compress/bzip2"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"StructuralError":	TypeOf((*bzip2.StructuralError)(nil)).Elem(),
-	}
-	Proxies["compress/bzip2"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,12 +9,13 @@ import (
 )
 
 func init() {
-	Binds["index/suffixarray"] = map[string]Value{
+	Packages["index/suffixarray"] = Package{
+	Binds: map[string]Value{
 		"New":	ValueOf(suffixarray.New),
-	}
-	Types["index/suffixarray"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Index":	TypeOf((*suffixarray.Index)(nil)).Elem(),
-	}
-	Proxies["index/suffixarray"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

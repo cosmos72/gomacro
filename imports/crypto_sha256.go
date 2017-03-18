@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["crypto/sha256"] = map[string]Value{
+	Packages["crypto/sha256"] = Package{
+	Binds: map[string]Value{
 		"BlockSize":	ValueOf(sha256.BlockSize),
 		"New":	ValueOf(sha256.New),
 		"New224":	ValueOf(sha256.New224),
@@ -17,9 +18,9 @@ func init() {
 		"Size224":	ValueOf(sha256.Size224),
 		"Sum224":	ValueOf(sha256.Sum224),
 		"Sum256":	ValueOf(sha256.Sum256),
-	}
-	Types["crypto/sha256"] = map[string]Type{
-	}
-	Proxies["crypto/sha256"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

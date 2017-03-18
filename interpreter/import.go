@@ -86,13 +86,10 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 		} else {
 			name = path[1+strings.LastIndexByte(path, '/'):]
 		}
-		newEnv := env.ImportPackage(name, path)
-		if newEnv != nil {
+		pkg := env.ImportPackage(name, path)
+		if pkg != nil {
 			fileEnv := env.FileEnv()
-			newEnv.Outer = fileEnv.TopEnv()
-
-			value := r.ValueOf(newEnv)
-			fileEnv.defineConst(name, typeOf(value), value)
+			fileEnv.defineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
 		}
 		return r.ValueOf(path), nil
 	default:
@@ -112,11 +109,9 @@ func (env *Env) sanitizeImportPath(path string) string {
 	return path
 }
 
-func (ir *Interpreter) ImportPackage(name, path string) *Env {
-	if binds, ok := imports.Binds[path]; ok {
-		if types, ok := imports.Types[path]; ok {
-			return &Env{Binds: binds, Types: types, Name: name, Path: path}
-		}
+func (ir *Interpreter) ImportPackage(name, path string) *PackageRef {
+	if pkg, ok := imports.Packages[path]; ok {
+		return &PackageRef{Package: pkg, Name: name, Path: path}
 	}
 	pkg, err := ir.Importer.Import(path) // loads names and types, not the values!
 	if err != nil {
@@ -130,14 +125,16 @@ func (ir *Interpreter) ImportPackage(name, path string) *Env {
 	}
 	if len(filename) == 0 {
 		// empty package
-		return &Env{Binds: map[string]r.Value{}, Types: map[string]r.Type{}, Proxies: map[string]r.Type{}, Name: name, Path: path}
+		return &PackageRef{Name: name, Path: path}
 	}
 
 	soname := ir.compilePlugin(filename, ir.Stdout, ir.Stderr)
 	ifun := loadPlugin(soname, "Exports")
 	fun := ifun.(func() (map[string]r.Value, map[string]r.Type, map[string]r.Type))
 	binds, types, proxies := fun()
-	return &Env{Binds: binds, Types: types, Proxies: proxies, Name: name, Path: path}
+	return &PackageRef{
+		Package: imports.Package{Binds: binds, Types: types, Proxies: proxies},
+		Name:    name, Path: path}
 }
 
 func (ir *Interpreter) createImportFile(path string, pkg *types.Package, internal bool) string {
@@ -242,7 +239,8 @@ import (
 )
 
 func init() {
-	Binds[%q] = map[string]Value{`, path)
+	Packages[%q] = Package{
+	Binds: map[string]Value{`, path)
 	} else {
 		fmt.Fprint(out, `
 )
@@ -283,7 +281,7 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 	}
 
 	if internal {
-		fmt.Fprintf(out, "\n\t}\n\tTypes[%q] = map[string]Type{", path)
+		fmt.Fprint(out, "\n\t},\n\tTypes: map[string]Type{")
 	} else {
 		fmt.Fprint(out, "\n\t}, map[string]Type{")
 	}
@@ -298,7 +296,7 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 	}
 
 	if internal {
-		fmt.Fprintf(out, "\n\t}\n\tProxies[%q] = map[string]Type{", path)
+		fmt.Fprint(out, "\n\t},\n\tProxies: map[string]Type{")
 	} else {
 		fmt.Fprint(out, "\n\t}, map[string]Type{")
 	}
@@ -310,7 +308,11 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 		}
 	}
 
-	fmt.Fprint(out, "\n\t}\n}\n")
+	if internal {
+		fmt.Fprint(out, "\n\t} }\n}\n")
+	} else {
+		fmt.Fprint(out, "\n\t}\n}\n")
+	}
 
 	for _, name := range names {
 		obj := scope.Lookup(name)

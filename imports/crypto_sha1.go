@@ -9,14 +9,15 @@ import (
 )
 
 func init() {
-	Binds["crypto/sha1"] = map[string]Value{
+	Packages["crypto/sha1"] = Package{
+	Binds: map[string]Value{
 		"BlockSize":	ValueOf(sha1.BlockSize),
 		"New":	ValueOf(sha1.New),
 		"Size":	ValueOf(sha1.Size),
 		"Sum":	ValueOf(sha1.Sum),
-	}
-	Types["crypto/sha1"] = map[string]Type{
-	}
-	Proxies["crypto/sha1"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

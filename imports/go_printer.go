@@ -9,18 +9,19 @@ import (
 )
 
 func init() {
-	Binds["go/printer"] = map[string]Value{
+	Packages["go/printer"] = Package{
+	Binds: map[string]Value{
 		"Fprint":	ValueOf(printer.Fprint),
 		"RawFormat":	ValueOf(printer.RawFormat),
 		"SourcePos":	ValueOf(printer.SourcePos),
 		"TabIndent":	ValueOf(printer.TabIndent),
 		"UseSpaces":	ValueOf(printer.UseSpaces),
-	}
-	Types["go/printer"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CommentedNode":	TypeOf((*printer.CommentedNode)(nil)).Elem(),
 		"Config":	TypeOf((*printer.Config)(nil)).Elem(),
 		"Mode":	TypeOf((*printer.Mode)(nil)).Elem(),
-	}
-	Proxies["go/printer"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

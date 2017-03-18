@@ -9,13 +9,14 @@ import (
 )
 
 func init() {
-	Binds["container/list"] = map[string]Value{
+	Packages["container/list"] = Package{
+	Binds: map[string]Value{
 		"New":	ValueOf(list.New),
-	}
-	Types["container/list"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Element":	TypeOf((*list.Element)(nil)).Elem(),
 		"List":	TypeOf((*list.List)(nil)).Elem(),
-	}
-	Proxies["container/list"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

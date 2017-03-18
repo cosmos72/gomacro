@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["debug/elf"] = map[string]Value{
+	Packages["debug/elf"] = Package{
+	Binds: map[string]Value{
 		"ARM_MAGIC_TRAMP_NUMBER":	ValueOf(elf.ARM_MAGIC_TRAMP_NUMBER),
 		"COMPRESS_HIOS":	ValueOf(elf.COMPRESS_HIOS),
 		"COMPRESS_HIPROC":	ValueOf(elf.COMPRESS_HIPROC),
@@ -821,8 +822,8 @@ func init() {
 		"ST_VISIBILITY":	ValueOf(elf.ST_VISIBILITY),
 		"Sym32Size":	ValueOf(elf.Sym32Size),
 		"Sym64Size":	ValueOf(elf.Sym64Size),
-	}
-	Types["debug/elf"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Chdr32":	TypeOf((*elf.Chdr32)(nil)).Elem(),
 		"Chdr64":	TypeOf((*elf.Chdr64)(nil)).Elem(),
 		"Class":	TypeOf((*elf.Class)(nil)).Elem(),
@@ -876,7 +877,7 @@ func init() {
 		"Symbol":	TypeOf((*elf.Symbol)(nil)).Elem(),
 		"Type":	TypeOf((*elf.Type)(nil)).Elem(),
 		"Version":	TypeOf((*elf.Version)(nil)).Elem(),
-	}
-	Proxies["debug/elf"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

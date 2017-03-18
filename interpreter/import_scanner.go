@@ -36,8 +36,9 @@ import (
 
 type typeVisitor func(name string, t types.Type) bool
 
+// implemented by *types.Pointer, *types.Array, *types.Slice, *types.Chan
 type typeWithElem interface {
-	elem() types.Type
+	Elem() types.Type
 }
 
 var depth int = 0
@@ -121,7 +122,7 @@ func (o *output) traverseType(name string, in types.Type, visitor typeVisitor) {
 			continue
 		case typeWithElem: // *types.Pointer, *types.Array, *types.Slice, *types.Chan
 			name = ""
-			in = t.elem()
+			in = t.Elem()
 			continue
 		default:
 			o.warnf("traverseType: unimplemented %#v <%v>", t, r.TypeOf(t))

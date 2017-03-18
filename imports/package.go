@@ -28,17 +28,23 @@ import (
 	. "reflect"
 )
 
-var Binds = make(map[string]map[string]Value)
-var Types = make(map[string]map[string]Type)
-var Proxies = make(map[string]map[string]Type)
+type Package struct {
+	Binds   map[string]Value
+	Types   map[string]Type
+	Proxies map[string]Type
+}
+
+var Packages = make(map[string]Package)
 
 // inception: allow interpreted code to import "github.com/cosmos72/gomacro/imports"
 func init() {
-	Binds["github.com/cosmos72/gomacro/imports"] = map[string]Value{
-		"Binds":   ValueOf(&Binds).Elem(),
-		"Types":   ValueOf(&Types).Elem(),
-		"Proxies": ValueOf(&Proxies).Elem(),
+	Packages["github.com/cosmos72/gomacro/imports"] = Package{
+		map[string]Value{
+			"Packages": ValueOf(&Packages).Elem(),
+		},
+		map[string]Type{
+			"Package": TypeOf((*Package)(nil)).Elem(),
+		},
+		map[string]Type{},
 	}
-	Types["github.com/cosmos72/gomacro/imports"] = map[string]Type{}
-	Proxies["github.com/cosmos72/gomacro/imports"] = map[string]Type{}
 }

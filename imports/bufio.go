@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["bufio"] = map[string]Value{
+	Packages["bufio"] = Package{
+	Binds: map[string]Value{
 		"ErrAdvanceTooFar":	ValueOf(&bufio.ErrAdvanceTooFar).Elem(),
 		"ErrBufferFull":	ValueOf(&bufio.ErrBufferFull).Elem(),
 		"ErrFinalToken":	ValueOf(&bufio.ErrFinalToken).Elem(),
@@ -29,14 +30,14 @@ func init() {
 		"ScanLines":	ValueOf(bufio.ScanLines),
 		"ScanRunes":	ValueOf(bufio.ScanRunes),
 		"ScanWords":	ValueOf(bufio.ScanWords),
-	}
-	Types["bufio"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ReadWriter":	TypeOf((*bufio.ReadWriter)(nil)).Elem(),
 		"Reader":	TypeOf((*bufio.Reader)(nil)).Elem(),
 		"Scanner":	TypeOf((*bufio.Scanner)(nil)).Elem(),
 		"SplitFunc":	TypeOf((*bufio.SplitFunc)(nil)).Elem(),
 		"Writer":	TypeOf((*bufio.Writer)(nil)).Elem(),
-	}
-	Proxies["bufio"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

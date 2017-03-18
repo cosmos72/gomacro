@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["hash/crc32"] = map[string]Value{
+	Packages["hash/crc32"] = Package{
+	Binds: map[string]Value{
 		"Castagnoli":	ValueOf(crc32.Castagnoli),
 		"Checksum":	ValueOf(crc32.Checksum),
 		"ChecksumIEEE":	ValueOf(crc32.ChecksumIEEE),
@@ -21,10 +22,10 @@ func init() {
 		"NewIEEE":	ValueOf(crc32.NewIEEE),
 		"Size":	ValueOf(crc32.Size),
 		"Update":	ValueOf(crc32.Update),
-	}
-	Types["hash/crc32"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Table":	TypeOf((*crc32.Table)(nil)).Elem(),
-	}
-	Proxies["hash/crc32"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

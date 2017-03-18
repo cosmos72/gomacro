@@ -9,17 +9,18 @@ import (
 )
 
 func init() {
-	Binds["runtime/pprof"] = map[string]Value{
+	Packages["runtime/pprof"] = Package{
+	Binds: map[string]Value{
 		"Lookup":	ValueOf(pprof.Lookup),
 		"NewProfile":	ValueOf(pprof.NewProfile),
 		"Profiles":	ValueOf(pprof.Profiles),
 		"StartCPUProfile":	ValueOf(pprof.StartCPUProfile),
 		"StopCPUProfile":	ValueOf(pprof.StopCPUProfile),
 		"WriteHeapProfile":	ValueOf(pprof.WriteHeapProfile),
-	}
-	Types["runtime/pprof"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Profile":	TypeOf((*pprof.Profile)(nil)).Elem(),
-	}
-	Proxies["runtime/pprof"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["flag"] = map[string]Value{
+	Packages["flag"] = Package{
+	Binds: map[string]Value{
 		"Arg":	ValueOf(flag.Arg),
 		"Args":	ValueOf(flag.Args),
 		"Bool":	ValueOf(flag.Bool),
@@ -46,18 +47,18 @@ func init() {
 		"Var":	ValueOf(flag.Var),
 		"Visit":	ValueOf(flag.Visit),
 		"VisitAll":	ValueOf(flag.VisitAll),
-	}
-	Types["flag"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ErrorHandling":	TypeOf((*flag.ErrorHandling)(nil)).Elem(),
 		"Flag":	TypeOf((*flag.Flag)(nil)).Elem(),
 		"FlagSet":	TypeOf((*flag.FlagSet)(nil)).Elem(),
 		"Getter":	TypeOf((*flag.Getter)(nil)).Elem(),
 		"Value":	TypeOf((*flag.Value)(nil)).Elem(),
-	}
-	Proxies["flag"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Getter":	TypeOf((*Getter_flag)(nil)).Elem(),
 		"Value":	TypeOf((*Value_flag)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for flag.Getter ---------------

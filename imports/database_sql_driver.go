@@ -11,7 +11,8 @@ import (
 )
 
 func init() {
-	Binds["database/sql/driver"] = map[string]Value{
+	Packages["database/sql/driver"] = Package{
+	Binds: map[string]Value{
 		"Bool":	ValueOf(&driver.Bool).Elem(),
 		"DefaultParameterConverter":	ValueOf(&driver.DefaultParameterConverter).Elem(),
 		"ErrBadConn":	ValueOf(&driver.ErrBadConn).Elem(),
@@ -21,8 +22,8 @@ func init() {
 		"IsValue":	ValueOf(driver.IsValue),
 		"ResultNoRows":	ValueOf(&driver.ResultNoRows).Elem(),
 		"String":	ValueOf(&driver.String).Elem(),
-	}
-	Types["database/sql/driver"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ColumnConverter":	TypeOf((*driver.ColumnConverter)(nil)).Elem(),
 		"Conn":	TypeOf((*driver.Conn)(nil)).Elem(),
 		"ConnBeginTx":	TypeOf((*driver.ConnBeginTx)(nil)).Elem(),
@@ -54,8 +55,8 @@ func init() {
 		"Value":	TypeOf((*driver.Value)(nil)).Elem(),
 		"ValueConverter":	TypeOf((*driver.ValueConverter)(nil)).Elem(),
 		"Valuer":	TypeOf((*driver.Valuer)(nil)).Elem(),
-	}
-	Proxies["database/sql/driver"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"ColumnConverter":	TypeOf((*ColumnConverter_database_sql_driver)(nil)).Elem(),
 		"Conn":	TypeOf((*Conn_database_sql_driver)(nil)).Elem(),
 		"ConnBeginTx":	TypeOf((*ConnBeginTx_database_sql_driver)(nil)).Elem(),
@@ -81,7 +82,7 @@ func init() {
 		"Value":	TypeOf((*Value_database_sql_driver)(nil)).Elem(),
 		"ValueConverter":	TypeOf((*ValueConverter_database_sql_driver)(nil)).Elem(),
 		"Valuer":	TypeOf((*Valuer_database_sql_driver)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for database/sql/driver.ColumnConverter ---------------

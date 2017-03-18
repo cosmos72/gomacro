@@ -9,23 +9,24 @@ import (
 )
 
 func init() {
-	Binds["encoding/gob"] = map[string]Value{
+	Packages["encoding/gob"] = Package{
+	Binds: map[string]Value{
 		"NewDecoder":	ValueOf(gob.NewDecoder),
 		"NewEncoder":	ValueOf(gob.NewEncoder),
 		"Register":	ValueOf(gob.Register),
 		"RegisterName":	ValueOf(gob.RegisterName),
-	}
-	Types["encoding/gob"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CommonType":	TypeOf((*gob.CommonType)(nil)).Elem(),
 		"Decoder":	TypeOf((*gob.Decoder)(nil)).Elem(),
 		"Encoder":	TypeOf((*gob.Encoder)(nil)).Elem(),
 		"GobDecoder":	TypeOf((*gob.GobDecoder)(nil)).Elem(),
 		"GobEncoder":	TypeOf((*gob.GobEncoder)(nil)).Elem(),
-	}
-	Proxies["encoding/gob"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"GobDecoder":	TypeOf((*GobDecoder_encoding_gob)(nil)).Elem(),
 		"GobEncoder":	TypeOf((*GobEncoder_encoding_gob)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for encoding/gob.GobDecoder ---------------

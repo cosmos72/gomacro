@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["time"] = map[string]Value{
+	Packages["time"] = Package{
+	Binds: map[string]Value{
 		"ANSIC":	ValueOf(time.ANSIC),
 		"After":	ValueOf(time.After),
 		"AfterFunc":	ValueOf(time.AfterFunc),
@@ -68,8 +69,8 @@ func init() {
 		"UnixDate":	ValueOf(time.UnixDate),
 		"Until":	ValueOf(time.Until),
 		"Wednesday":	ValueOf(time.Wednesday),
-	}
-	Types["time"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Duration":	TypeOf((*time.Duration)(nil)).Elem(),
 		"Location":	TypeOf((*time.Location)(nil)).Elem(),
 		"Month":	TypeOf((*time.Month)(nil)).Elem(),
@@ -78,7 +79,7 @@ func init() {
 		"Time":	TypeOf((*time.Time)(nil)).Elem(),
 		"Timer":	TypeOf((*time.Timer)(nil)).Elem(),
 		"Weekday":	TypeOf((*time.Weekday)(nil)).Elem(),
-	}
-	Proxies["time"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

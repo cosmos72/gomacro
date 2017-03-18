@@ -9,11 +9,12 @@ import (
 )
 
 func init() {
-	Binds["errors"] = map[string]Value{
+	Packages["errors"] = Package{
+	Binds: map[string]Value{
 		"New":	ValueOf(errors.New),
-	}
-	Types["errors"] = map[string]Type{
-	}
-	Proxies["errors"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["regexp"] = map[string]Value{
+	Packages["regexp"] = Package{
+	Binds: map[string]Value{
 		"Compile":	ValueOf(regexp.Compile),
 		"CompilePOSIX":	ValueOf(regexp.CompilePOSIX),
 		"Match":	ValueOf(regexp.Match),
@@ -18,10 +19,10 @@ func init() {
 		"MustCompile":	ValueOf(regexp.MustCompile),
 		"MustCompilePOSIX":	ValueOf(regexp.MustCompilePOSIX),
 		"QuoteMeta":	ValueOf(regexp.QuoteMeta),
-	}
-	Types["regexp"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Regexp":	TypeOf((*regexp.Regexp)(nil)).Elem(),
-	}
-	Proxies["regexp"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

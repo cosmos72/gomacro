@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["text/template/parse"] = map[string]Value{
+	Packages["text/template/parse"] = Package{
+	Binds: map[string]Value{
 		"IsEmptyTree":	ValueOf(parse.IsEmptyTree),
 		"New":	ValueOf(parse.New),
 		"NewIdentifier":	ValueOf(parse.NewIdentifier),
@@ -32,8 +33,8 @@ func init() {
 		"NodeVariable":	ValueOf(parse.NodeVariable),
 		"NodeWith":	ValueOf(parse.NodeWith),
 		"Parse":	ValueOf(parse.Parse),
-	}
-	Types["text/template/parse"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ActionNode":	TypeOf((*parse.ActionNode)(nil)).Elem(),
 		"BoolNode":	TypeOf((*parse.BoolNode)(nil)).Elem(),
 		"BranchNode":	TypeOf((*parse.BranchNode)(nil)).Elem(),
@@ -57,10 +58,10 @@ func init() {
 		"Tree":	TypeOf((*parse.Tree)(nil)).Elem(),
 		"VariableNode":	TypeOf((*parse.VariableNode)(nil)).Elem(),
 		"WithNode":	TypeOf((*parse.WithNode)(nil)).Elem(),
-	}
-	Proxies["text/template/parse"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Node":	TypeOf((*Node_text_template_parse)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for text/template/parse.Node ---------------

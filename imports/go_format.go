@@ -9,12 +9,13 @@ import (
 )
 
 func init() {
-	Binds["go/format"] = map[string]Value{
+	Packages["go/format"] = Package{
+	Binds: map[string]Value{
 		"Node":	ValueOf(format.Node),
 		"Source":	ValueOf(format.Source),
-	}
-	Types["go/format"] = map[string]Type{
-	}
-	Proxies["go/format"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

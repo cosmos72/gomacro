@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["runtime/debug"] = map[string]Value{
+	Packages["runtime/debug"] = Package{
+	Binds: map[string]Value{
 		"FreeOSMemory":	ValueOf(debug.FreeOSMemory),
 		"PrintStack":	ValueOf(debug.PrintStack),
 		"ReadGCStats":	ValueOf(debug.ReadGCStats),
@@ -20,10 +21,10 @@ func init() {
 		"SetTraceback":	ValueOf(debug.SetTraceback),
 		"Stack":	ValueOf(debug.Stack),
 		"WriteHeapDump":	ValueOf(debug.WriteHeapDump),
-	}
-	Types["runtime/debug"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"GCStats":	TypeOf((*debug.GCStats)(nil)).Elem(),
-	}
-	Proxies["runtime/debug"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

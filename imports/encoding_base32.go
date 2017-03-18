@@ -9,17 +9,18 @@ import (
 )
 
 func init() {
-	Binds["encoding/base32"] = map[string]Value{
+	Packages["encoding/base32"] = Package{
+	Binds: map[string]Value{
 		"HexEncoding":	ValueOf(&base32.HexEncoding).Elem(),
 		"NewDecoder":	ValueOf(base32.NewDecoder),
 		"NewEncoder":	ValueOf(base32.NewEncoder),
 		"NewEncoding":	ValueOf(base32.NewEncoding),
 		"StdEncoding":	ValueOf(&base32.StdEncoding).Elem(),
-	}
-	Types["encoding/base32"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CorruptInputError":	TypeOf((*base32.CorruptInputError)(nil)).Elem(),
 		"Encoding":	TypeOf((*base32.Encoding)(nil)).Elem(),
-	}
-	Proxies["encoding/base32"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

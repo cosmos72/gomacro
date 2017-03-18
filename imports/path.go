@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["path"] = map[string]Value{
+	Packages["path"] = Package{
+	Binds: map[string]Value{
 		"Base":	ValueOf(path.Base),
 		"Clean":	ValueOf(path.Clean),
 		"Dir":	ValueOf(path.Dir),
@@ -19,9 +20,9 @@ func init() {
 		"Join":	ValueOf(path.Join),
 		"Match":	ValueOf(path.Match),
 		"Split":	ValueOf(path.Split),
-	}
-	Types["path"] = map[string]Type{
-	}
-	Proxies["path"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

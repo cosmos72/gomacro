@@ -9,16 +9,17 @@ import (
 )
 
 func init() {
-	Binds["encoding/ascii85"] = map[string]Value{
+	Packages["encoding/ascii85"] = Package{
+	Binds: map[string]Value{
 		"Decode":	ValueOf(ascii85.Decode),
 		"Encode":	ValueOf(ascii85.Encode),
 		"MaxEncodedLen":	ValueOf(ascii85.MaxEncodedLen),
 		"NewDecoder":	ValueOf(ascii85.NewDecoder),
 		"NewEncoder":	ValueOf(ascii85.NewEncoder),
-	}
-	Types["encoding/ascii85"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CorruptInputError":	TypeOf((*ascii85.CorruptInputError)(nil)).Elem(),
-	}
-	Proxies["encoding/ascii85"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

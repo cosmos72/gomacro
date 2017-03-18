@@ -9,21 +9,22 @@ import (
 )
 
 func init() {
-	Binds["image/jpeg"] = map[string]Value{
+	Packages["image/jpeg"] = Package{
+	Binds: map[string]Value{
 		"Decode":	ValueOf(jpeg.Decode),
 		"DecodeConfig":	ValueOf(jpeg.DecodeConfig),
 		"DefaultQuality":	ValueOf(jpeg.DefaultQuality),
 		"Encode":	ValueOf(jpeg.Encode),
-	}
-	Types["image/jpeg"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"FormatError":	TypeOf((*jpeg.FormatError)(nil)).Elem(),
 		"Options":	TypeOf((*jpeg.Options)(nil)).Elem(),
 		"Reader":	TypeOf((*jpeg.Reader)(nil)).Elem(),
 		"UnsupportedError":	TypeOf((*jpeg.UnsupportedError)(nil)).Elem(),
-	}
-	Proxies["image/jpeg"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Reader":	TypeOf((*Reader_image_jpeg)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for image/jpeg.Reader ---------------

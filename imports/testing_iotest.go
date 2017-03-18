@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["testing/iotest"] = map[string]Value{
+	Packages["testing/iotest"] = Package{
+	Binds: map[string]Value{
 		"DataErrReader":	ValueOf(iotest.DataErrReader),
 		"ErrTimeout":	ValueOf(&iotest.ErrTimeout).Elem(),
 		"HalfReader":	ValueOf(iotest.HalfReader),
@@ -18,9 +19,9 @@ func init() {
 		"OneByteReader":	ValueOf(iotest.OneByteReader),
 		"TimeoutReader":	ValueOf(iotest.TimeoutReader),
 		"TruncateWriter":	ValueOf(iotest.TruncateWriter),
-	}
-	Types["testing/iotest"] = map[string]Type{
-	}
-	Proxies["testing/iotest"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

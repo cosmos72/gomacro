@@ -9,19 +9,20 @@ import (
 )
 
 func init() {
-	Binds["encoding/csv"] = map[string]Value{
+	Packages["encoding/csv"] = Package{
+	Binds: map[string]Value{
 		"ErrBareQuote":	ValueOf(&csv.ErrBareQuote).Elem(),
 		"ErrFieldCount":	ValueOf(&csv.ErrFieldCount).Elem(),
 		"ErrQuote":	ValueOf(&csv.ErrQuote).Elem(),
 		"ErrTrailingComma":	ValueOf(&csv.ErrTrailingComma).Elem(),
 		"NewReader":	ValueOf(csv.NewReader),
 		"NewWriter":	ValueOf(csv.NewWriter),
-	}
-	Types["encoding/csv"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ParseError":	TypeOf((*csv.ParseError)(nil)).Elem(),
 		"Reader":	TypeOf((*csv.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*csv.Writer)(nil)).Elem(),
-	}
-	Proxies["encoding/csv"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

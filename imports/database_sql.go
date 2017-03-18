@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["database/sql"] = map[string]Value{
+	Packages["database/sql"] = Package{
+	Binds: map[string]Value{
 		"Drivers":	ValueOf(sql.Drivers),
 		"ErrNoRows":	ValueOf(&sql.ErrNoRows).Elem(),
 		"ErrTxDone":	ValueOf(&sql.ErrTxDone).Elem(),
@@ -24,8 +25,8 @@ func init() {
 		"Named":	ValueOf(sql.Named),
 		"Open":	ValueOf(sql.Open),
 		"Register":	ValueOf(sql.Register),
-	}
-	Types["database/sql"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ColumnType":	TypeOf((*sql.ColumnType)(nil)).Elem(),
 		"DB":	TypeOf((*sql.DB)(nil)).Elem(),
 		"DBStats":	TypeOf((*sql.DBStats)(nil)).Elem(),
@@ -43,11 +44,11 @@ func init() {
 		"Stmt":	TypeOf((*sql.Stmt)(nil)).Elem(),
 		"Tx":	TypeOf((*sql.Tx)(nil)).Elem(),
 		"TxOptions":	TypeOf((*sql.TxOptions)(nil)).Elem(),
-	}
-	Proxies["database/sql"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Result":	TypeOf((*Result_database_sql)(nil)).Elem(),
 		"Scanner":	TypeOf((*Scanner_database_sql)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for database/sql.Result ---------------

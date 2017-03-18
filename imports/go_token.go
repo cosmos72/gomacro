@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["go/token"] = map[string]Value{
+	Packages["go/token"] = Package{
+	Binds: map[string]Value{
 		"ADD":	ValueOf(token.ADD),
 		"ADD_ASSIGN":	ValueOf(token.ADD_ASSIGN),
 		"AND":	ValueOf(token.AND),
@@ -97,14 +98,14 @@ func init() {
 		"VAR":	ValueOf(token.VAR),
 		"XOR":	ValueOf(token.XOR),
 		"XOR_ASSIGN":	ValueOf(token.XOR_ASSIGN),
-	}
-	Types["go/token"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"File":	TypeOf((*token.File)(nil)).Elem(),
 		"FileSet":	TypeOf((*token.FileSet)(nil)).Elem(),
 		"Pos":	TypeOf((*token.Pos)(nil)).Elem(),
 		"Position":	TypeOf((*token.Position)(nil)).Elem(),
 		"Token":	TypeOf((*token.Token)(nil)).Elem(),
-	}
-	Proxies["go/token"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["text/tabwriter"] = map[string]Value{
+	Packages["text/tabwriter"] = Package{
+	Binds: map[string]Value{
 		"AlignRight":	ValueOf(tabwriter.AlignRight),
 		"Debug":	ValueOf(tabwriter.Debug),
 		"DiscardEmptyColumns":	ValueOf(tabwriter.DiscardEmptyColumns),
@@ -18,10 +19,10 @@ func init() {
 		"NewWriter":	ValueOf(tabwriter.NewWriter),
 		"StripEscape":	ValueOf(tabwriter.StripEscape),
 		"TabIndent":	ValueOf(tabwriter.TabIndent),
-	}
-	Types["text/tabwriter"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Writer":	TypeOf((*tabwriter.Writer)(nil)).Elem(),
-	}
-	Proxies["text/tabwriter"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

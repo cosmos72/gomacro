@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["reflect"] = map[string]Value{
+	Packages["reflect"] = Package{
+	Binds: map[string]Value{
 		"Append":	ValueOf(reflect.Append),
 		"AppendSlice":	ValueOf(reflect.AppendSlice),
 		"Array":	ValueOf(reflect.Array),
@@ -66,8 +67,8 @@ func init() {
 		"UnsafePointer":	ValueOf(reflect.UnsafePointer),
 		"ValueOf":	ValueOf(reflect.ValueOf),
 		"Zero":	ValueOf(reflect.Zero),
-	}
-	Types["reflect"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ChanDir":	TypeOf((*reflect.ChanDir)(nil)).Elem(),
 		"Kind":	TypeOf((*reflect.Kind)(nil)).Elem(),
 		"Method":	TypeOf((*reflect.Method)(nil)).Elem(),
@@ -80,10 +81,10 @@ func init() {
 		"Type":	TypeOf((*reflect.Type)(nil)).Elem(),
 		"Value":	TypeOf((*reflect.Value)(nil)).Elem(),
 		"ValueError":	TypeOf((*reflect.ValueError)(nil)).Elem(),
-	}
-	Proxies["reflect"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Type":	TypeOf((*Type_reflect)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for reflect.Type ---------------

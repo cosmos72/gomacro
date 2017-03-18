@@ -9,12 +9,13 @@ import (
 )
 
 func init() {
-	Binds["crypto/hmac"] = map[string]Value{
+	Packages["crypto/hmac"] = Package{
+	Binds: map[string]Value{
 		"Equal":	ValueOf(hmac.Equal),
 		"New":	ValueOf(hmac.New),
-	}
-	Types["crypto/hmac"] = map[string]Type{
-	}
-	Proxies["crypto/hmac"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

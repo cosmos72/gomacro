@@ -9,11 +9,12 @@ import (
 )
 
 func init() {
-	Binds["unsafe"] = map[string]Value{
-	}
-	Types["unsafe"] = map[string]Type{
+	Packages["unsafe"] = Package{
+	Binds: map[string]Value{
+	},
+	Types: map[string]Type{
 		"Pointer":	TypeOf((*unsafe.Pointer)(nil)).Elem(),
-	}
-	Proxies["unsafe"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

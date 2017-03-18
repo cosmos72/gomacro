@@ -9,13 +9,14 @@ import (
 )
 
 func init() {
-	Binds["net/http/fcgi"] = map[string]Value{
+	Packages["net/http/fcgi"] = Package{
+	Binds: map[string]Value{
 		"ErrConnClosed":	ValueOf(&fcgi.ErrConnClosed).Elem(),
 		"ErrRequestAborted":	ValueOf(&fcgi.ErrRequestAborted).Elem(),
 		"Serve":	ValueOf(fcgi.Serve),
-	}
-	Types["net/http/fcgi"] = map[string]Type{
-	}
-	Proxies["net/http/fcgi"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

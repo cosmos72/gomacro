@@ -9,14 +9,15 @@ import (
 )
 
 func init() {
-	Binds["crypto/rand"] = map[string]Value{
+	Packages["crypto/rand"] = Package{
+	Binds: map[string]Value{
 		"Int":	ValueOf(rand.Int),
 		"Prime":	ValueOf(rand.Prime),
 		"Read":	ValueOf(rand.Read),
 		"Reader":	ValueOf(&rand.Reader).Elem(),
-	}
-	Types["crypto/rand"] = map[string]Type{
-	}
-	Proxies["crypto/rand"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

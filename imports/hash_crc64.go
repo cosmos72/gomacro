@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["hash/crc64"] = map[string]Value{
+	Packages["hash/crc64"] = Package{
+	Binds: map[string]Value{
 		"Checksum":	ValueOf(crc64.Checksum),
 		"ECMA":	ValueOf(uint64(crc64.ECMA)),
 		"ISO":	ValueOf(uint64(crc64.ISO)),
@@ -17,10 +18,10 @@ func init() {
 		"New":	ValueOf(crc64.New),
 		"Size":	ValueOf(crc64.Size),
 		"Update":	ValueOf(crc64.Update),
-	}
-	Types["hash/crc64"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Table":	TypeOf((*crc64.Table)(nil)).Elem(),
-	}
-	Proxies["hash/crc64"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

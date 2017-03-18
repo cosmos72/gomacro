@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["syscall"] = map[string]Value{
+	Packages["syscall"] = Package{
+	Binds: map[string]Value{
 		"AF_ALG":	ValueOf(syscall.AF_ALG),
 		"AF_APPLETALK":	ValueOf(syscall.AF_APPLETALK),
 		"AF_ASH":	ValueOf(syscall.AF_ASH),
@@ -2116,8 +2117,8 @@ func init() {
 		"Wait4":	ValueOf(syscall.Wait4),
 		"Write":	ValueOf(syscall.Write),
 		"XCASE":	ValueOf(syscall.XCASE),
-	}
-	Types["syscall"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Cmsghdr":	TypeOf((*syscall.Cmsghdr)(nil)).Elem(),
 		"Credential":	TypeOf((*syscall.Credential)(nil)).Elem(),
 		"Dirent":	TypeOf((*syscall.Dirent)(nil)).Elem(),
@@ -2187,10 +2188,10 @@ func init() {
 		"Utimbuf":	TypeOf((*syscall.Utimbuf)(nil)).Elem(),
 		"Utsname":	TypeOf((*syscall.Utsname)(nil)).Elem(),
 		"WaitStatus":	TypeOf((*syscall.WaitStatus)(nil)).Elem(),
-	}
-	Proxies["syscall"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Sockaddr":	TypeOf((*Sockaddr_syscall)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for syscall.Sockaddr ---------------

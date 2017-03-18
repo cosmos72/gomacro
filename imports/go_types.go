@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["go/types"] = map[string]Value{
+	Packages["go/types"] = Package{
+	Binds: map[string]Value{
 		"AssertableTo":	ValueOf(types.AssertableTo),
 		"AssignableTo":	ValueOf(types.AssignableTo),
 		"Bool":	ValueOf(types.Bool),
@@ -102,8 +103,8 @@ func init() {
 		"WriteExpr":	ValueOf(types.WriteExpr),
 		"WriteSignature":	ValueOf(types.WriteSignature),
 		"WriteType":	ValueOf(types.WriteType),
-	}
-	Types["go/types"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Array":	TypeOf((*types.Array)(nil)).Elem(),
 		"Basic":	TypeOf((*types.Basic)(nil)).Elem(),
 		"BasicInfo":	TypeOf((*types.BasicInfo)(nil)).Elem(),
@@ -145,14 +146,14 @@ func init() {
 		"TypeAndValue":	TypeOf((*types.TypeAndValue)(nil)).Elem(),
 		"TypeName":	TypeOf((*types.TypeName)(nil)).Elem(),
 		"Var":	TypeOf((*types.Var)(nil)).Elem(),
-	}
-	Proxies["go/types"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Importer":	TypeOf((*Importer_go_types)(nil)).Elem(),
 		"ImporterFrom":	TypeOf((*ImporterFrom_go_types)(nil)).Elem(),
 		"Object":	TypeOf((*Object_go_types)(nil)).Elem(),
 		"Sizes":	TypeOf((*Sizes_go_types)(nil)).Elem(),
 		"Type":	TypeOf((*Type_go_types)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for go/types.Importer ---------------

@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["crypto/tls"] = map[string]Value{
+	Packages["crypto/tls"] = Package{
+	Binds: map[string]Value{
 		"Client":	ValueOf(tls.Client),
 		"CurveP256":	ValueOf(tls.CurveP256),
 		"CurveP384":	ValueOf(tls.CurveP384),
@@ -68,8 +69,8 @@ func init() {
 		"VersionTLS12":	ValueOf(tls.VersionTLS12),
 		"X25519":	ValueOf(tls.X25519),
 		"X509KeyPair":	ValueOf(tls.X509KeyPair),
-	}
-	Types["crypto/tls"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Certificate":	TypeOf((*tls.Certificate)(nil)).Elem(),
 		"CertificateRequestInfo":	TypeOf((*tls.CertificateRequestInfo)(nil)).Elem(),
 		"ClientAuthType":	TypeOf((*tls.ClientAuthType)(nil)).Elem(),
@@ -83,10 +84,10 @@ func init() {
 		"RecordHeaderError":	TypeOf((*tls.RecordHeaderError)(nil)).Elem(),
 		"RenegotiationSupport":	TypeOf((*tls.RenegotiationSupport)(nil)).Elem(),
 		"SignatureScheme":	TypeOf((*tls.SignatureScheme)(nil)).Elem(),
-	}
-	Proxies["crypto/tls"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"ClientSessionCache":	TypeOf((*ClientSessionCache_crypto_tls)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for crypto/tls.ClientSessionCache ---------------

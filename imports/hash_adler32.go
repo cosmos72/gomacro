@@ -9,13 +9,14 @@ import (
 )
 
 func init() {
-	Binds["hash/adler32"] = map[string]Value{
+	Packages["hash/adler32"] = Package{
+	Binds: map[string]Value{
 		"Checksum":	ValueOf(adler32.Checksum),
 		"New":	ValueOf(adler32.New),
 		"Size":	ValueOf(adler32.Size),
-	}
-	Types["hash/adler32"] = map[string]Type{
-	}
-	Proxies["hash/adler32"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

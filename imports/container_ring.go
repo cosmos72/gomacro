@@ -9,12 +9,13 @@ import (
 )
 
 func init() {
-	Binds["container/ring"] = map[string]Value{
+	Packages["container/ring"] = Package{
+	Binds: map[string]Value{
 		"New":	ValueOf(ring.New),
-	}
-	Types["container/ring"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Ring":	TypeOf((*ring.Ring)(nil)).Elem(),
-	}
-	Proxies["container/ring"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

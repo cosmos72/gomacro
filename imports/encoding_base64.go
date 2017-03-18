@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["encoding/base64"] = map[string]Value{
+	Packages["encoding/base64"] = Package{
+	Binds: map[string]Value{
 		"NewDecoder":	ValueOf(base64.NewDecoder),
 		"NewEncoder":	ValueOf(base64.NewEncoder),
 		"NewEncoding":	ValueOf(base64.NewEncoding),
@@ -19,11 +20,11 @@ func init() {
 		"StdEncoding":	ValueOf(&base64.StdEncoding).Elem(),
 		"StdPadding":	ValueOf(base64.StdPadding),
 		"URLEncoding":	ValueOf(&base64.URLEncoding).Elem(),
-	}
-	Types["encoding/base64"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CorruptInputError":	TypeOf((*base64.CorruptInputError)(nil)).Elem(),
 		"Encoding":	TypeOf((*base64.Encoding)(nil)).Elem(),
-	}
-	Proxies["encoding/base64"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

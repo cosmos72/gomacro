@@ -227,7 +227,8 @@ func (f fileSet) showHelp(out io.Writer) {
 
 func (env *Env) showPackage(out io.Writer, packageName string) {
 	e := env
-	loop := true
+	path := env.Path
+	pkg := &env.Package
 	if len(packageName) != 0 {
 		bind := env.evalIdentifier(&ast.Ident{Name: packageName})
 		if bind == None || bind == Nil {
@@ -235,62 +236,66 @@ func (env *Env) showPackage(out io.Writer, packageName string) {
 			return
 		}
 		switch val := bind.Interface().(type) {
-		case *Env:
-			e = val
-			loop = false
+		case *PackageRef:
+			e = nil
+			pkg = &val.Package
+			path = packageName
 		default:
 			env.warnf("not an imported package: %q = %v <%v>", packageName, val, typeOf(bind))
 			return
 		}
 	}
 	spaces15 := "               "
-	for ; e != nil; e = e.Outer {
-		binds := e.Binds
-		if len(binds) > 0 {
-			fmt.Fprintf(out, "// ----- %s binds -----\n", e.Path)
+Loop:
+	binds := pkg.Binds
+	if len(binds) > 0 {
+		fmt.Fprintf(out, "// ----- %s binds -----\n", path)
 
-			keys := make([]string, len(binds))
-			i := 0
-			for k := range binds {
-				keys[i] = k
-				i++
-			}
-			sort.Strings(keys)
-			for _, k := range keys {
-				n := len(k) & 15
-				fmt.Fprintf(out, "%s%s = ", k, spaces15[n:])
-				bind := binds[k]
-				if bind != Nil {
-					switch bind := bind.Interface().(type) {
-					case *Env:
-						fmt.Fprintf(out, "%p <%v>\n", bind, r.TypeOf(bind))
-						continue
-					}
+		keys := make([]string, len(binds))
+		i := 0
+		for k := range binds {
+			keys[i] = k
+			i++
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			n := len(k) & 15
+			fmt.Fprintf(out, "%s%s = ", k, spaces15[n:])
+			bind := binds[k]
+			if bind != Nil {
+				switch bind := bind.Interface().(type) {
+				case *Env:
+					fmt.Fprintf(out, "%p <%v>\n", bind, r.TypeOf(bind))
+					continue
 				}
-				env.fprintValue(out, bind)
 			}
-			fmt.Fprintln(out)
+			env.fprintValue(out, bind)
 		}
-		types := e.Types
-		if len(types) > 0 {
-			fmt.Fprintf(out, "// ----- %s types -----\n", e.Path)
+		fmt.Fprintln(out)
+	}
+	types := pkg.Types
+	if len(types) > 0 {
+		fmt.Fprintf(out, "// ----- %s types -----\n", path)
 
-			keys := make([]string, len(types))
-			i := 0
-			for k := range types {
-				keys[i] = k
-				i++
-			}
-			sort.Strings(keys)
-			for _, k := range keys {
-				n := len(k) & 15
-				t := types[k]
-				fmt.Fprintf(out, "%s%s %v <%v>\n", k, spaces15[n:], t.Kind(), t)
-			}
-			fmt.Fprintln(out)
+		keys := make([]string, len(types))
+		i := 0
+		for k := range types {
+			keys[i] = k
+			i++
 		}
-		if !loop {
-			break
+		sort.Strings(keys)
+		for _, k := range keys {
+			n := len(k) & 15
+			t := types[k]
+			fmt.Fprintf(out, "%s%s %v <%v>\n", k, spaces15[n:], t.Kind(), t)
+		}
+		fmt.Fprintln(out)
+	}
+	if e != nil {
+		if e = e.Outer; e != nil {
+			path = e.Path
+			pkg = &e.Package
+			goto Loop
 		}
 	}
 }

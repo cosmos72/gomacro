@@ -9,13 +9,14 @@ import (
 )
 
 func init() {
-	Binds["crypto/rc4"] = map[string]Value{
+	Packages["crypto/rc4"] = Package{
+	Binds: map[string]Value{
 		"NewCipher":	ValueOf(rc4.NewCipher),
-	}
-	Types["crypto/rc4"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Cipher":	TypeOf((*rc4.Cipher)(nil)).Elem(),
 		"KeySizeError":	TypeOf((*rc4.KeySizeError)(nil)).Elem(),
-	}
-	Proxies["crypto/rc4"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

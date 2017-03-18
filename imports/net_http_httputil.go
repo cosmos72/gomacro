@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["net/http/httputil"] = map[string]Value{
+	Packages["net/http/httputil"] = Package{
+	Binds: map[string]Value{
 		"DumpRequest":	ValueOf(httputil.DumpRequest),
 		"DumpRequestOut":	ValueOf(httputil.DumpRequestOut),
 		"DumpResponse":	ValueOf(httputil.DumpResponse),
@@ -23,16 +24,16 @@ func init() {
 		"NewProxyClientConn":	ValueOf(httputil.NewProxyClientConn),
 		"NewServerConn":	ValueOf(httputil.NewServerConn),
 		"NewSingleHostReverseProxy":	ValueOf(httputil.NewSingleHostReverseProxy),
-	}
-	Types["net/http/httputil"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"BufferPool":	TypeOf((*httputil.BufferPool)(nil)).Elem(),
 		"ClientConn":	TypeOf((*httputil.ClientConn)(nil)).Elem(),
 		"ReverseProxy":	TypeOf((*httputil.ReverseProxy)(nil)).Elem(),
 		"ServerConn":	TypeOf((*httputil.ServerConn)(nil)).Elem(),
-	}
-	Proxies["net/http/httputil"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"BufferPool":	TypeOf((*BufferPool_net_http_httputil)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for net/http/httputil.BufferPool ---------------

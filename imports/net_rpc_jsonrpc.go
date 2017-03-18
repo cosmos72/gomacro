@@ -9,15 +9,16 @@ import (
 )
 
 func init() {
-	Binds["net/rpc/jsonrpc"] = map[string]Value{
+	Packages["net/rpc/jsonrpc"] = Package{
+	Binds: map[string]Value{
 		"Dial":	ValueOf(jsonrpc.Dial),
 		"NewClient":	ValueOf(jsonrpc.NewClient),
 		"NewClientCodec":	ValueOf(jsonrpc.NewClientCodec),
 		"NewServerCodec":	ValueOf(jsonrpc.NewServerCodec),
 		"ServeConn":	ValueOf(jsonrpc.ServeConn),
-	}
-	Types["net/rpc/jsonrpc"] = map[string]Type{
-	}
-	Proxies["net/rpc/jsonrpc"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

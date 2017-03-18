@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["image/png"] = map[string]Value{
+	Packages["image/png"] = Package{
+	Binds: map[string]Value{
 		"BestCompression":	ValueOf(png.BestCompression),
 		"BestSpeed":	ValueOf(png.BestSpeed),
 		"Decode":	ValueOf(png.Decode),
@@ -17,13 +18,13 @@ func init() {
 		"DefaultCompression":	ValueOf(png.DefaultCompression),
 		"Encode":	ValueOf(png.Encode),
 		"NoCompression":	ValueOf(png.NoCompression),
-	}
-	Types["image/png"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CompressionLevel":	TypeOf((*png.CompressionLevel)(nil)).Elem(),
 		"Encoder":	TypeOf((*png.Encoder)(nil)).Elem(),
 		"FormatError":	TypeOf((*png.FormatError)(nil)).Elem(),
 		"UnsupportedError":	TypeOf((*png.UnsupportedError)(nil)).Elem(),
-	}
-	Proxies["image/png"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

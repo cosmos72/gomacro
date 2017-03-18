@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["io/ioutil"] = map[string]Value{
+	Packages["io/ioutil"] = Package{
+	Binds: map[string]Value{
 		"Discard":	ValueOf(&ioutil.Discard).Elem(),
 		"NopCloser":	ValueOf(ioutil.NopCloser),
 		"ReadAll":	ValueOf(ioutil.ReadAll),
@@ -18,9 +19,9 @@ func init() {
 		"TempDir":	ValueOf(ioutil.TempDir),
 		"TempFile":	ValueOf(ioutil.TempFile),
 		"WriteFile":	ValueOf(ioutil.WriteFile),
-	}
-	Types["io/ioutil"] = map[string]Type{
-	}
-	Proxies["io/ioutil"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

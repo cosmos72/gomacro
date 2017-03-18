@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["archive/zip"] = map[string]Value{
+	Packages["archive/zip"] = Package{
+	Binds: map[string]Value{
 		"Deflate":	ValueOf(zip.Deflate),
 		"ErrAlgorithm":	ValueOf(&zip.ErrAlgorithm).Elem(),
 		"ErrChecksum":	ValueOf(&zip.ErrChecksum).Elem(),
@@ -21,8 +22,8 @@ func init() {
 		"RegisterCompressor":	ValueOf(zip.RegisterCompressor),
 		"RegisterDecompressor":	ValueOf(zip.RegisterDecompressor),
 		"Store":	ValueOf(zip.Store),
-	}
-	Types["archive/zip"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Compressor":	TypeOf((*zip.Compressor)(nil)).Elem(),
 		"Decompressor":	TypeOf((*zip.Decompressor)(nil)).Elem(),
 		"File":	TypeOf((*zip.File)(nil)).Elem(),
@@ -30,7 +31,7 @@ func init() {
 		"ReadCloser":	TypeOf((*zip.ReadCloser)(nil)).Elem(),
 		"Reader":	TypeOf((*zip.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*zip.Writer)(nil)).Elem(),
-	}
-	Proxies["archive/zip"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

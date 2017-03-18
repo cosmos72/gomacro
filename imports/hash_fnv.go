@@ -9,14 +9,15 @@ import (
 )
 
 func init() {
-	Binds["hash/fnv"] = map[string]Value{
+	Packages["hash/fnv"] = Package{
+	Binds: map[string]Value{
 		"New32":	ValueOf(fnv.New32),
 		"New32a":	ValueOf(fnv.New32a),
 		"New64":	ValueOf(fnv.New64),
 		"New64a":	ValueOf(fnv.New64a),
-	}
-	Types["hash/fnv"] = map[string]Type{
-	}
-	Proxies["hash/fnv"] = map[string]Type{
-	}
+	},
+	Types: map[string]Type{
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["expvar"] = map[string]Value{
+	Packages["expvar"] = Package{
+	Binds: map[string]Value{
 		"Do":	ValueOf(expvar.Do),
 		"Get":	ValueOf(expvar.Get),
 		"Handler":	ValueOf(expvar.Handler),
@@ -18,8 +19,8 @@ func init() {
 		"NewMap":	ValueOf(expvar.NewMap),
 		"NewString":	ValueOf(expvar.NewString),
 		"Publish":	ValueOf(expvar.Publish),
-	}
-	Types["expvar"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Float":	TypeOf((*expvar.Float)(nil)).Elem(),
 		"Func":	TypeOf((*expvar.Func)(nil)).Elem(),
 		"Int":	TypeOf((*expvar.Int)(nil)).Elem(),
@@ -27,10 +28,10 @@ func init() {
 		"Map":	TypeOf((*expvar.Map)(nil)).Elem(),
 		"String":	TypeOf((*expvar.String)(nil)).Elem(),
 		"Var":	TypeOf((*expvar.Var)(nil)).Elem(),
-	}
-	Proxies["expvar"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Var":	TypeOf((*Var_expvar)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for expvar.Var ---------------

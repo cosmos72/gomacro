@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["text/scanner"] = map[string]Value{
+	Packages["text/scanner"] = Package{
+	Binds: map[string]Value{
 		"Char":	ValueOf(scanner.Char),
 		"Comment":	ValueOf(scanner.Comment),
 		"EOF":	ValueOf(scanner.EOF),
@@ -29,11 +30,11 @@ func init() {
 		"SkipComments":	ValueOf(scanner.SkipComments),
 		"String":	ValueOf(scanner.String),
 		"TokenString":	ValueOf(scanner.TokenString),
-	}
-	Types["text/scanner"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Position":	TypeOf((*scanner.Position)(nil)).Elem(),
 		"Scanner":	TypeOf((*scanner.Scanner)(nil)).Elem(),
-	}
-	Proxies["text/scanner"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

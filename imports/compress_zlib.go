@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["compress/zlib"] = map[string]Value{
+	Packages["compress/zlib"] = Package{
+	Binds: map[string]Value{
 		"BestCompression":	ValueOf(zlib.BestCompression),
 		"BestSpeed":	ValueOf(zlib.BestSpeed),
 		"DefaultCompression":	ValueOf(zlib.DefaultCompression),
@@ -24,14 +25,14 @@ func init() {
 		"NewWriterLevel":	ValueOf(zlib.NewWriterLevel),
 		"NewWriterLevelDict":	ValueOf(zlib.NewWriterLevelDict),
 		"NoCompression":	ValueOf(zlib.NoCompression),
-	}
-	Types["compress/zlib"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Resetter":	TypeOf((*zlib.Resetter)(nil)).Elem(),
 		"Writer":	TypeOf((*zlib.Writer)(nil)).Elem(),
-	}
-	Proxies["compress/zlib"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Resetter":	TypeOf((*Resetter_compress_zlib)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for compress/zlib.Resetter ---------------

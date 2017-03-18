@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["sort"] = map[string]Value{
+	Packages["sort"] = Package{
+	Binds: map[string]Value{
 		"Float64s":	ValueOf(sort.Float64s),
 		"Float64sAreSorted":	ValueOf(sort.Float64sAreSorted),
 		"Ints":	ValueOf(sort.Ints),
@@ -27,16 +28,16 @@ func init() {
 		"Stable":	ValueOf(sort.Stable),
 		"Strings":	ValueOf(sort.Strings),
 		"StringsAreSorted":	ValueOf(sort.StringsAreSorted),
-	}
-	Types["sort"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Float64Slice":	TypeOf((*sort.Float64Slice)(nil)).Elem(),
 		"IntSlice":	TypeOf((*sort.IntSlice)(nil)).Elem(),
 		"Interface":	TypeOf((*sort.Interface)(nil)).Elem(),
 		"StringSlice":	TypeOf((*sort.StringSlice)(nil)).Elem(),
-	}
-	Proxies["sort"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Interface":	TypeOf((*Interface_sort)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for sort.Interface ---------------

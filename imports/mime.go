@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["mime"] = map[string]Value{
+	Packages["mime"] = Package{
+	Binds: map[string]Value{
 		"AddExtensionType":	ValueOf(mime.AddExtensionType),
 		"BEncoding":	ValueOf(mime.BEncoding),
 		"ExtensionsByType":	ValueOf(mime.ExtensionsByType),
@@ -17,11 +18,11 @@ func init() {
 		"ParseMediaType":	ValueOf(mime.ParseMediaType),
 		"QEncoding":	ValueOf(mime.QEncoding),
 		"TypeByExtension":	ValueOf(mime.TypeByExtension),
-	}
-	Types["mime"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"WordDecoder":	TypeOf((*mime.WordDecoder)(nil)).Elem(),
 		"WordEncoder":	TypeOf((*mime.WordEncoder)(nil)).Elem(),
-	}
-	Proxies["mime"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

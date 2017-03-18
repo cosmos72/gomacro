@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["compress/flate"] = map[string]Value{
+	Packages["compress/flate"] = Package{
+	Binds: map[string]Value{
 		"BestCompression":	ValueOf(flate.BestCompression),
 		"BestSpeed":	ValueOf(flate.BestSpeed),
 		"DefaultCompression":	ValueOf(flate.DefaultCompression),
@@ -20,8 +21,8 @@ func init() {
 		"NewWriter":	ValueOf(flate.NewWriter),
 		"NewWriterDict":	ValueOf(flate.NewWriterDict),
 		"NoCompression":	ValueOf(flate.NoCompression),
-	}
-	Types["compress/flate"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"CorruptInputError":	TypeOf((*flate.CorruptInputError)(nil)).Elem(),
 		"InternalError":	TypeOf((*flate.InternalError)(nil)).Elem(),
 		"ReadError":	TypeOf((*flate.ReadError)(nil)).Elem(),
@@ -29,11 +30,11 @@ func init() {
 		"Resetter":	TypeOf((*flate.Resetter)(nil)).Elem(),
 		"WriteError":	TypeOf((*flate.WriteError)(nil)).Elem(),
 		"Writer":	TypeOf((*flate.Writer)(nil)).Elem(),
-	}
-	Proxies["compress/flate"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Reader":	TypeOf((*Reader_compress_flate)(nil)).Elem(),
 		"Resetter":	TypeOf((*Resetter_compress_flate)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for compress/flate.Reader ---------------

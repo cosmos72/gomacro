@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["log/syslog"] = map[string]Value{
+	Packages["log/syslog"] = Package{
+	Binds: map[string]Value{
 		"Dial":	ValueOf(syslog.Dial),
 		"LOG_ALERT":	ValueOf(syslog.LOG_ALERT),
 		"LOG_AUTH":	ValueOf(syslog.LOG_AUTH),
@@ -41,11 +42,11 @@ func init() {
 		"LOG_WARNING":	ValueOf(syslog.LOG_WARNING),
 		"New":	ValueOf(syslog.New),
 		"NewLogger":	ValueOf(syslog.NewLogger),
-	}
-	Types["log/syslog"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Priority":	TypeOf((*syslog.Priority)(nil)).Elem(),
 		"Writer":	TypeOf((*syslog.Writer)(nil)).Elem(),
-	}
-	Proxies["log/syslog"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

@@ -11,24 +11,25 @@ import (
 )
 
 func init() {
-	Binds["image/draw"] = map[string]Value{
+	Packages["image/draw"] = Package{
+	Binds: map[string]Value{
 		"Draw":	ValueOf(draw.Draw),
 		"DrawMask":	ValueOf(draw.DrawMask),
 		"FloydSteinberg":	ValueOf(&draw.FloydSteinberg).Elem(),
 		"Over":	ValueOf(draw.Over),
 		"Src":	ValueOf(draw.Src),
-	}
-	Types["image/draw"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Drawer":	TypeOf((*draw.Drawer)(nil)).Elem(),
 		"Image":	TypeOf((*draw.Image)(nil)).Elem(),
 		"Op":	TypeOf((*draw.Op)(nil)).Elem(),
 		"Quantizer":	TypeOf((*draw.Quantizer)(nil)).Elem(),
-	}
-	Proxies["image/draw"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Drawer":	TypeOf((*Drawer_image_draw)(nil)).Elem(),
 		"Image":	TypeOf((*Image_image_draw)(nil)).Elem(),
 		"Quantizer":	TypeOf((*Quantizer_image_draw)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for image/draw.Drawer ---------------

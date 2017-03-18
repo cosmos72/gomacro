@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["encoding/hex"] = map[string]Value{
+	Packages["encoding/hex"] = Package{
+	Binds: map[string]Value{
 		"Decode":	ValueOf(hex.Decode),
 		"DecodeString":	ValueOf(hex.DecodeString),
 		"DecodedLen":	ValueOf(hex.DecodedLen),
@@ -19,10 +20,10 @@ func init() {
 		"EncodeToString":	ValueOf(hex.EncodeToString),
 		"EncodedLen":	ValueOf(hex.EncodedLen),
 		"ErrLength":	ValueOf(&hex.ErrLength).Elem(),
-	}
-	Types["encoding/hex"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"InvalidByteError":	TypeOf((*hex.InvalidByteError)(nil)).Elem(),
-	}
-	Proxies["encoding/hex"] = map[string]Type{
-	}
+	},
+	Proxies: map[string]Type{
+	} }
 }

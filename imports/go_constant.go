@@ -9,7 +9,8 @@ import (
 )
 
 func init() {
-	Binds["go/constant"] = map[string]Value{
+	Packages["go/constant"] = Package{
+	Binds: map[string]Value{
 		"BinaryOp":	ValueOf(constant.BinaryOp),
 		"BitLen":	ValueOf(constant.BitLen),
 		"Bool":	ValueOf(constant.Bool),
@@ -45,14 +46,14 @@ func init() {
 		"Uint64Val":	ValueOf(constant.Uint64Val),
 		"UnaryOp":	ValueOf(constant.UnaryOp),
 		"Unknown":	ValueOf(constant.Unknown),
-	}
-	Types["go/constant"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Kind":	TypeOf((*constant.Kind)(nil)).Elem(),
 		"Value":	TypeOf((*constant.Value)(nil)).Elem(),
-	}
-	Proxies["go/constant"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Value":	TypeOf((*Value_go_constant)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for go/constant.Value ---------------

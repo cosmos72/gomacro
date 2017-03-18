@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["image"] = map[string]Value{
+	Packages["image"] = Package{
+	Binds: map[string]Value{
 		"Black":	ValueOf(&image.Black).Elem(),
 		"Decode":	ValueOf(image.Decode),
 		"DecodeConfig":	ValueOf(image.DecodeConfig),
@@ -42,8 +43,8 @@ func init() {
 		"YCbCrSubsampleRatio444":	ValueOf(image.YCbCrSubsampleRatio444),
 		"ZP":	ValueOf(&image.ZP).Elem(),
 		"ZR":	ValueOf(&image.ZR).Elem(),
-	}
-	Types["image"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Alpha":	TypeOf((*image.Alpha)(nil)).Elem(),
 		"Alpha16":	TypeOf((*image.Alpha16)(nil)).Elem(),
 		"CMYK":	TypeOf((*image.CMYK)(nil)).Elem(),
@@ -63,11 +64,11 @@ func init() {
 		"Uniform":	TypeOf((*image.Uniform)(nil)).Elem(),
 		"YCbCr":	TypeOf((*image.YCbCr)(nil)).Elem(),
 		"YCbCrSubsampleRatio":	TypeOf((*image.YCbCrSubsampleRatio)(nil)).Elem(),
-	}
-	Proxies["image"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Image":	TypeOf((*Image_image)(nil)).Elem(),
 		"PalettedImage":	TypeOf((*PalettedImage_image)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for image.Image ---------------

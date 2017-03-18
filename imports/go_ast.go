@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	Binds["go/ast"] = map[string]Value{
+	Packages["go/ast"] = Package{
+	Binds: map[string]Value{
 		"Bad":	ValueOf(ast.Bad),
 		"Con":	ValueOf(ast.Con),
 		"FileExports":	ValueOf(ast.FileExports),
@@ -41,8 +42,8 @@ func init() {
 		"Typ":	ValueOf(ast.Typ),
 		"Var":	ValueOf(ast.Var),
 		"Walk":	ValueOf(ast.Walk),
-	}
-	Types["go/ast"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"ArrayType":	TypeOf((*ast.ArrayType)(nil)).Elem(),
 		"AssignStmt":	TypeOf((*ast.AssignStmt)(nil)).Elem(),
 		"BadDecl":	TypeOf((*ast.BadDecl)(nil)).Elem(),
@@ -113,15 +114,15 @@ func init() {
 		"UnaryExpr":	TypeOf((*ast.UnaryExpr)(nil)).Elem(),
 		"ValueSpec":	TypeOf((*ast.ValueSpec)(nil)).Elem(),
 		"Visitor":	TypeOf((*ast.Visitor)(nil)).Elem(),
-	}
-	Proxies["go/ast"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Decl":	TypeOf((*Decl_go_ast)(nil)).Elem(),
 		"Expr":	TypeOf((*Expr_go_ast)(nil)).Elem(),
 		"Node":	TypeOf((*Node_go_ast)(nil)).Elem(),
 		"Spec":	TypeOf((*Spec_go_ast)(nil)).Elem(),
 		"Stmt":	TypeOf((*Stmt_go_ast)(nil)).Elem(),
 		"Visitor":	TypeOf((*Visitor_go_ast)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for go/ast.Decl ---------------

@@ -9,16 +9,17 @@ import (
 )
 
 func init() {
-	Binds["plugin"] = map[string]Value{
+	Packages["plugin"] = Package{
+	Binds: map[string]Value{
 		"Open":	ValueOf(plugin.Open),
-	}
-	Types["plugin"] = map[string]Type{
+	},
+	Types: map[string]Type{
 		"Plugin":	TypeOf((*plugin.Plugin)(nil)).Elem(),
 		"Symbol":	TypeOf((*plugin.Symbol)(nil)).Elem(),
-	}
-	Proxies["plugin"] = map[string]Type{
+	},
+	Proxies: map[string]Type{
 		"Symbol":	TypeOf((*Symbol_plugin)(nil)).Elem(),
-	}
+	} }
 }
 
 // --------------- proxy for plugin.Symbol ---------------
