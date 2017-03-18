@@ -87,6 +87,17 @@ func builtinEnv(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	return r.ValueOf(env), nil
 }
 
+func builtinEval(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+	n := len(args)
+	if n != 1 {
+		return env.errorf("builtin Eval() expects exactly one argument, found %d", n)
+	}
+	nodev := env.evalExpr1(args[0])
+	node := toInterface(nodev)
+	form := AnyToAst(node, "Eval")
+	return env.EvalAst(form)
+}
+
 func builtinImag(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
@@ -283,16 +294,7 @@ func (env *Env) addBuiltins() {
 	binds := env.Binds
 
 	binds["Env"] = r.ValueOf(Builtin{builtinEnv})
-	binds["Eval"] = r.ValueOf(func(node interface{}) interface{} {
-		in := AnyToAst(node, "Eval")
-		out := env.EvalAst1(in)
-		return toInterface(out)
-	})
-	binds["EvalN"] = r.ValueOf(func(node interface{}) []interface{} {
-		in := AnyToAst(node, "EvalN")
-		outs := packValues(env.EvalAst(in))
-		return toInterfaces(outs)
-	})
+	binds["Eval"] = r.ValueOf(Builtin{builtinEval})
 	binds["MacroExpand"] = r.ValueOf(Builtin{builtinMacroExpand})
 	binds["MacroExpand1"] = r.ValueOf(Builtin{builtinMacroExpand1})
 	binds["MacroExpandCodewalk"] = r.ValueOf(Builtin{builtinMacroExpandCodewalk})
