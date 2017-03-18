@@ -76,9 +76,9 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 	case *ast.CaseClause, *ast.CommClause, *ast.GoStmt, *ast.LabeledStmt,
 		*ast.RangeStmt, *ast.SelectStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
 		// TODO
-		return env.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	default:
-		return env.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -90,7 +90,7 @@ func (env *Env) evalIncDec(node *ast.IncDecStmt) (r.Value, []r.Value) {
 	case token.DEC:
 		op = token.SUB_ASSIGN
 	default:
-		return env.Errorf("unsupported *ast.IncDecStmt operation, expecting ++ or -- : %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unsupported *ast.IncDecStmt operation, expecting ++ or -- : %v <%v>", node, r.TypeOf(node))
 	}
 	place := env.evalPlace(node.X)
 	return env.assignPlace(place, op, One), nil
@@ -99,7 +99,7 @@ func (env *Env) evalIncDec(node *ast.IncDecStmt) (r.Value, []r.Value) {
 func (env *Env) evalSend(node *ast.SendStmt) (r.Value, []r.Value) {
 	channel := env.evalExpr1(node.Chan)
 	if channel.Kind() != r.Chan {
-		return env.Errorf("<- invoked on non-channel: %v evaluated to %v <%v>", node.Chan, channel, typeOf(channel))
+		return env.errorf("<- invoked on non-channel: %v evaluated to %v <%v>", node.Chan, channel, typeOf(channel))
 	}
 	value := env.evalExpr1(node.Value)
 	channel.Send(value)

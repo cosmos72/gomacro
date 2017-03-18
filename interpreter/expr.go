@@ -37,7 +37,7 @@ func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) [
 	var values []r.Value
 	if n != expectedValuesN {
 		if n != 1 {
-			return env.PackErrorf("value count mismatch: cannot assign %d values to %d places: %v",
+			return env.packErrorf("value count mismatch: cannot assign %d values to %d places: %v",
 				n, expectedValuesN, nodes)
 		}
 		node := nodes[0]
@@ -45,10 +45,10 @@ func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) [
 		values = packValues(env.Eval(node))
 		n = len(values)
 		if n < expectedValuesN {
-			return env.PackErrorf("value count mismatch: expression returned %d values, cannot assign them to %d places: %v returned %v",
+			return env.packErrorf("value count mismatch: expression returned %d values, cannot assign them to %d places: %v returned %v",
 				n, expectedValuesN, node, values)
 		} else if n > expectedValuesN {
-			env.Warnf("expression returned %d values, using only %d of them: %v returned %v",
+			env.warnf("expression returned %d values, using only %d of them: %v returned %v",
 				n, expectedValuesN, node, values)
 		}
 	} else {
@@ -76,7 +76,7 @@ func (env *Env) evalExprs(nodes []ast.Expr) []r.Value {
 func (env *Env) evalExpr1(node ast.Expr) r.Value {
 	value, extraValues := env.evalExpr(node)
 	if len(extraValues) > 1 {
-		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
+		env.warnf("expression returned %d values, using only the first one: %v returned %v",
 			len(extraValues), node, extraValues)
 	}
 	return value
@@ -144,7 +144,7 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 		case *ast.StarExpr:
 			val := env.evalExpr1(node.X)
 			if val.Kind() != r.Ptr {
-				return env.Errorf("dereference of non-pointer: %v <%v>", val, typeOf(val))
+				return env.errorf("dereference of non-pointer: %v <%v>", val, typeOf(val))
 			}
 			return val.Elem(), nil
 
@@ -153,12 +153,12 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 
 			// case *ast.KeyValueExpr:
 		}
-		return env.Errorf("unimplemented Eval() for: %v <%v>", in, r.TypeOf(in))
+		return env.errorf("unimplemented Eval() for: %v <%v>", in, r.TypeOf(in))
 	}
 }
 
 func (env *Env) unsupportedLogicalOperand(op token.Token, xv r.Value) (r.Value, []r.Value) {
-	return env.Errorf("unsupported type in logical operation %s: expecting bool, found %v <%v>", mt.String(op), xv, typeOf(xv))
+	return env.errorf("unsupported type in logical operation %s: expecting bool, found %v <%v>", mt.String(op), xv, typeOf(xv))
 }
 
 func (env *Env) evalSliceExpr(node *ast.SliceExpr) (r.Value, []r.Value) {
@@ -170,7 +170,7 @@ func (env *Env) evalSliceExpr(node *ast.SliceExpr) (r.Value, []r.Value) {
 	case r.Array, r.Slice, r.String:
 		// ok
 	default:
-		return env.Errorf("slice operation %v expects array, slice or string. found: %v <%v>", node, obj, typeOf(obj))
+		return env.errorf("slice operation %v expects array, slice or string. found: %v <%v>", node, obj, typeOf(obj))
 	}
 	lo, hi := 0, obj.Len()
 	if node.Low != nil {
@@ -208,12 +208,12 @@ func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 	case r.Array, r.Slice, r.String:
 		i, ok := env.toInt(index)
 		if !ok {
-			return env.Errorf("invalid index, expecting an int: %v <%v>", index, typeOf(index))
+			return env.errorf("invalid index, expecting an int: %v <%v>", index, typeOf(index))
 		}
 		return obj.Index(int(i)), nil
 
 	default:
-		return env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, obj, typeOf(obj))
+		return env.errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, obj, typeOf(obj))
 	}
 }
 
@@ -250,18 +250,18 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 			if bind, ok := e.Binds[name]; ok {
 				return bind, nil
 			}
-			return env.Errorf("package %v %#v has no symbol %s", e.Name, e.Path, name)
+			return env.errorf("package %v %#v has no symbol %s", e.Name, e.Path, name)
 		}
 		val := obj.FieldByName(name)
 		if val == Nil {
 			val = obj.MethodByName(name)
 		}
 		if val == Nil {
-			return env.Errorf("struct <%v> has no field or method %s", typeOf(obj), name)
+			return env.errorf("struct <%v> has no field or method %s", typeOf(obj), name)
 		}
 		return val, nil
 	default:
-		return env.Errorf("not a struct: <%v> has no field or method %s", typeOf(obj), name)
+		return env.errorf("not a struct: <%v> has no field or method %s", typeOf(obj), name)
 	}
 }
 
@@ -274,5 +274,5 @@ func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr) (r.Value, []r.Value
 	if t1.AssignableTo(t2) {
 		return r.ValueOf(fval).Convert(t2), nil
 	}
-	return env.Errorf("type assertion failed: %v <%v> is not a <%v>", fval, t1, t2)
+	return env.errorf("type assertion failed: %v <%v> is not a <%v>", fval, t1, t2)
 }

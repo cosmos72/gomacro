@@ -128,7 +128,7 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 		t1 := time.Now()
 		defer func() {
 			delta := time.Now().Sub(t1)
-			env.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
+			env.debugf("eval time %.6f s", float32(delta)/float32(time.Second))
 		}()
 	}
 
@@ -137,7 +137,7 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 
 	if n == 0 {
 		if env.Options&OptShowAfterEval != 0 {
-			env.FprintValues(env.Stdout) // no value
+			env.fprintValues(env.Stdout) // no value
 		}
 		return true
 	} else if n > 0 && src[0] == ':' {
@@ -170,14 +170,14 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 	// parse phase
 	ast := env.ParseAst(src)
 	if env.Options&OptShowAfterParse != 0 {
-		env.Debugf("after parse: %v", ast.Interface())
+		env.debugf("after parse: %v", ast.Interface())
 	}
 
 	// macroexpansion phase.
 	ast, _ = env.MacroExpandAstCodewalk(ast)
 
 	if env.Options&OptShowAfterMacroExpansion != 0 {
-		env.Debugf("after macroexpansion: %v", ast.Interface())
+		env.debugf("after macroexpansion: %v", ast.Interface())
 	}
 
 	// eval phase
@@ -186,9 +186,9 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 	// print phase
 	if env.Options&OptShowAfterEval != 0 {
 		if len(values) != 0 {
-			env.FprintValues(env.Stdout, values...)
+			env.fprintValues(env.Stdout, values...)
 		} else {
-			env.FprintValues(env.Stdout, value)
+			env.fprintValues(env.Stdout, value)
 		}
 	}
 	return true

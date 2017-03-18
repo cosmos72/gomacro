@@ -35,7 +35,7 @@ import (
 
 func (env *Env) unsupportedUnaryExpr(xv r.Value, op token.Token) (r.Value, []r.Value) {
 	opstr := mt.String(op)
-	return env.Errorf("unsupported unary expression %s on <%v>: %s %v", opstr, typeOf(xv), opstr, xv)
+	return env.errorf("unsupported unary expression %s on <%v>: %s %v", opstr, typeOf(xv), opstr, xv)
 }
 
 func (env *Env) warnOverflowSignedMinus(x interface{}, ret interface{}) {
@@ -43,11 +43,11 @@ func (env *Env) warnOverflowSignedMinus(x interface{}, ret interface{}) {
 	if len(str) > 0 && str[0] == '-' {
 		str = str[1:]
 	}
-	env.Warnf("value %s overflows <%v>, result truncated to %d", str, r.TypeOf(x), ret)
+	env.warnf("value %s overflows <%v>, result truncated to %d", str, r.TypeOf(x), ret)
 }
 
 func (env *Env) warnUnderflowUnsignedMinus(x interface{}, ret interface{}) {
-	env.Warnf("value -%d underflows <%v>, result truncated to %d", x, r.TypeOf(x), ret)
+	env.warnf("value -%d underflows <%v>, result truncated to %d", x, r.TypeOf(x), ret)
 }
 
 func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
@@ -56,7 +56,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	case token.AND:
 		place := env.evalExpr1(node.X)
 		if place == Nil || !place.CanAddr() {
-			return env.Errorf("cannot take the address of: %v = %v <%v>", node.X, place, typeOf(place))
+			return env.errorf("cannot take the address of: %v = %v <%v>", node.X, place, typeOf(place))
 		}
 		return place.Addr(), nil
 
@@ -79,7 +79,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		return r.ValueOf(ret), nil
 
 	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
-		return env.Errorf("%s not inside quasiquote: %v <%v>", mt.String(op), node, r.TypeOf(node))
+		return env.errorf("%s not inside quasiquote: %v <%v>", mt.String(op), node, r.TypeOf(node))
 	}
 
 	xv, _ := env.Eval(node.X)

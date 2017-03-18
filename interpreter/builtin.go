@@ -36,7 +36,7 @@ import (
 func builtinAppend(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 {
-		return env.Errorf("builtin append() expects at least one argument, found %d", n)
+		return env.errorf("builtin append() expects at least one argument, found %d", n)
 	}
 	elems := env.evalExprs(args)
 	slice := elems[0]
@@ -54,16 +54,16 @@ func callClose(channel interface{}) {
 func builtinComplex(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 2 {
-		return env.Errorf("builtin complex() expects exactly two arguments, found %d", n)
+		return env.errorf("builtin complex() expects exactly two arguments, found %d", n)
 	}
 	rv, iv := env.Eval1(args[0]), env.Eval1(args[1])
 	r_, rok := env.toFloat(rv)
 	i_, iok := env.toFloat(iv)
 	if !rok {
-		return env.Errorf("builtin complex(): not a float: %v <%v>", rv, typeOf(rv))
+		return env.errorf("builtin complex(): not a float: %v <%v>", rv, typeOf(rv))
 	}
 	if !iok {
-		return env.Errorf("builtin complex(): not a float: %v <%v>", iv, typeOf(iv))
+		return env.errorf("builtin complex(): not a float: %v <%v>", iv, typeOf(iv))
 	}
 	cplx := complex(r_, i_)
 	var ret interface{}
@@ -90,12 +90,12 @@ func builtinEnv(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 func builtinImag(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
-		return env.Errorf("builtin imag() expects exactly one argument, found %d", n)
+		return env.errorf("builtin imag() expects exactly one argument, found %d", n)
 	}
 	cv := env.Eval1(args[0])
 	c_, ok := env.toComplex(cv)
 	if !ok {
-		return env.Errorf("builtin imag(): not a complex: %v <%v>", cv, typeOf(cv))
+		return env.errorf("builtin imag(): not a complex: %v <%v>", cv, typeOf(cv))
 	}
 	i_ := imag(c_)
 	var ret interface{}
@@ -130,7 +130,7 @@ func builtinMacroExpandCodewalk(env *Env, args []ast.Expr) (r.Value, []r.Value) 
 func callMacroExpand(env *Env, args []ast.Expr, which whichMacroExpand) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 2 {
-		return env.Errorf("builtin %v() expects one or two arguments, found %d: %v", which, n, args)
+		return env.errorf("builtin %v() expects one or two arguments, found %d: %v", which, n, args)
 	}
 	val := env.evalExpr1(args[0])
 	if val == Nil || val == None {
@@ -160,7 +160,7 @@ func callMacroExpand(env *Env, args []ast.Expr, which whichMacroExpand) (r.Value
 func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 3 {
-		return env.Errorf("builtin make() expects one, two or three arguments, found %d", n)
+		return env.errorf("builtin make() expects one, two or three arguments, found %d", n)
 	}
 	t := env.evalType(args[0])
 	values := env.evalExprs(args[1:])
@@ -192,7 +192,7 @@ func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 func builtinNew(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
-		return env.Errorf("builtin new() expects exactly one argument, found %d", n)
+		return env.errorf("builtin new() expects exactly one argument, found %d", n)
 	}
 	t := env.evalType(args[0])
 	return r.New(t), nil
@@ -205,12 +205,12 @@ func callPanic(arg interface{}) {
 func builtinReal(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
-		return env.Errorf("builtin real() expects exactly one argument, found %d", n)
+		return env.errorf("builtin real() expects exactly one argument, found %d", n)
 	}
 	cv := env.Eval1(args[0])
 	c_, ok := env.toComplex(cv)
 	if !ok {
-		return env.Errorf("builtin real(): not a complex: %v <%v>", cv, typeOf(cv))
+		return env.errorf("builtin real(): not a complex: %v <%v>", cv, typeOf(cv))
 	}
 	i_ := real(c_)
 	var ret interface{}
@@ -255,7 +255,7 @@ func builtinValues(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 
 func builtinRecover(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	if len(args) != 0 {
-		return env.Errorf("builtin recover() expects exactly zero arguments, found %d", len(args))
+		return env.errorf("builtin recover() expects exactly zero arguments, found %d", len(args))
 	}
 	// Go specs: "Executing a call to recover inside a deferred function
 	// (but not any function called by it) stops the panicking sequence

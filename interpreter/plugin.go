@@ -38,7 +38,7 @@ func getGoPath() string {
 	if len(dir) == 0 {
 		dir = os.Getenv("HOME")
 		if len(dir) == 0 {
-			Errorf("cannot determine go source directory: both $GOPATH and $HOME are unset or empty")
+			errorf("cannot determine go source directory: both $GOPATH and $HOME are unset or empty")
 		}
 		dir += "/go"
 	}
@@ -49,12 +49,12 @@ func getGoSrcPath() string {
 	return getGoPath() + "/src"
 }
 
-func (o *Output) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
+func (o *output) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := getGoSrcPath()
 	gosrclen := len(gosrcdir)
 	filelen := len(filename)
 	if filelen < gosrclen || filename[0:gosrclen] != gosrcdir {
-		Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filename, gosrcdir)
+		errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filename, gosrcdir)
 	}
 
 	cmd := exec.Command("go", "build", "-buildmode=plugin")
@@ -63,10 +63,10 @@ func (o *Output) compilePlugin(filename string, stdout io.Writer, stderr io.Writ
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	o.Debugf("compiling %q ...", filename)
+	o.debugf("compiling %q ...", filename)
 	err := cmd.Run()
 	if err != nil {
-		Errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
+		errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
 	}
 
 	dirname := filename[:strings.LastIndexByte(filename, '/')]
@@ -80,11 +80,11 @@ func (o *Output) compilePlugin(filename string, stdout io.Writer, stderr io.Writ
 func loadPlugin(soname string, symbolName string) interface{} {
 	pkg, err := plugin.Open(soname)
 	if err != nil {
-		Errorf("error loading plugin %q: %v", soname, err)
+		errorf("error loading plugin %q: %v", soname, err)
 	}
 	val, err := pkg.Lookup(symbolName)
 	if err != nil {
-		Errorf("error loading symbol %q from plugin %q: %v", symbolName, soname, err)
+		errorf("error loading symbol %q from plugin %q: %v", symbolName, soname, err)
 	}
 	return val
 }

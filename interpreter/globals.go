@@ -29,21 +29,18 @@ import (
 	r "reflect"
 )
 
-type Binds map[string]r.Value
-type Types map[string]r.Type
-
 type Env struct {
 	*Interpreter
-	Binds      Binds
-	Types      Types
-	Proxies    Types
+	Binds      map[string]r.Value
+	Types      map[string]r.Type
+	Proxies    map[string]r.Type
 	Outer      *Env
-	funcData   *FuncData
+	funcData   *funcData
 	iotaOffset int
 	Name, Path string
 }
 
-type FuncData struct {
+type funcData struct {
 	defers    []func()
 	panicking *interface{} // current panic
 }

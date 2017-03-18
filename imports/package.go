@@ -31,3 +31,14 @@ import (
 var Binds = make(map[string]map[string]Value)
 var Types = make(map[string]map[string]Type)
 var Proxies = make(map[string]map[string]Type)
+
+// inception: allow interpreted code to import "github.com/cosmos72/gomacro/imports"
+func init() {
+	Binds["github.com/cosmos72/gomacro/imports"] = map[string]Value{
+		"Binds":   ValueOf(&Binds).Elem(),
+		"Types":   ValueOf(&Types).Elem(),
+		"Proxies": ValueOf(&Proxies).Elem(),
+	}
+	Types["github.com/cosmos72/gomacro/imports"] = map[string]Type{}
+	Proxies["github.com/cosmos72/gomacro/imports"] = map[string]Type{}
+}

@@ -34,7 +34,7 @@ import (
 func (env *Env) EvalAst1(in Ast) r.Value {
 	value, extraValues := env.EvalAst(in)
 	if len(extraValues) > 1 {
-		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
+		env.warnf("expression returned %d values, using only the first one: %v returned %v",
 			len(extraValues), in.Interface(), extraValues)
 	}
 	return value
@@ -59,10 +59,10 @@ func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
 	case nil:
 		return None, nil
 	default:
-		return env.Errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: %v <%v>",
+		return env.errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: %v <%v>",
 			in, r.TypeOf(in))
 	}
-	return env.Errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: nil")
+	return env.errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: nil")
 }
 
 func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
@@ -76,14 +76,14 @@ func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 	case *ast.File:
 		return env.evalFile(node)
 	default:
-		return env.Errorf("unimplemented Eval for %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unimplemented Eval for %v <%v>", node, r.TypeOf(node))
 	}
 }
 
 func (env *Env) Eval1(node ast.Node) r.Value {
 	value, extraValues := env.Eval(node)
 	if len(extraValues) > 1 {
-		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
+		env.warnf("expression returned %d values, using only the first one: %v returned %v",
 			len(extraValues), node, extraValues)
 	}
 	return value

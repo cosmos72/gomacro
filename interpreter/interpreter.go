@@ -37,7 +37,7 @@ import (
 )
 
 type Interpreter struct {
-	Output
+	output
 	Packagename string
 	Filename    string
 	Options     Options
@@ -85,7 +85,7 @@ func (ir *Interpreter) ParseBytes(src []byte) []ast.Node {
 
 	nodes, err := parser.Parse()
 	if err != nil {
-		Error(err)
+		error_(err)
 		return nil
 	}
 	return nodes
@@ -111,7 +111,7 @@ func (ir *Interpreter) ParseBytes1_OrigVersion(src []byte) ast.Node {
 			// run again with user-specified ParserMode
 			expr, err = parser.ParseExprFrom(ir.Fileset, ir.Filename, src, parser.Mode(ir.ParserMode))
 			if err != nil {
-				Error(err)
+				error_(err)
 				return nil
 			}
 		}
@@ -135,7 +135,7 @@ func (ir *Interpreter) ParseBytes1_OrigVersion(src []byte) ast.Node {
 	}
 	node, err := parser.ParseFile(ir.Fileset, ir.Filename, src, parser.Mode(ir.ParserMode))
 	if err != nil {
-		Error(err)
+		error_(err)
 		return nil
 	}
 	return node

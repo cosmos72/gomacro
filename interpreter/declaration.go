@@ -37,7 +37,7 @@ func (env *Env) evalDecl(node ast.Decl) (r.Value, []r.Value) {
 	case *ast.FuncDecl:
 		return env.evalDeclNamedFunction(node)
 	default:
-		return env.Errorf("unimplemented declaration: %v", node)
+		return env.errorf("unimplemented declaration: %v", node)
 	}
 }
 
@@ -56,7 +56,7 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 		case token.VAR:
 			ret, rets = env.evalDeclVars(decl)
 		default:
-			return env.Errorf("unimplemented declaration: %v", decl)
+			return env.errorf("unimplemented declaration: %v", decl)
 		}
 	}
 	return ret, rets
@@ -67,7 +67,7 @@ func (env *Env) evalDeclConsts(node ast.Spec) (r.Value, []r.Value) {
 	case *ast.ValueSpec:
 		return env.evalDeclConstsOrVars(node.Names, node.Type, node.Values, true)
 	default:
-		return env.Errorf("unexpected constant declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unexpected constant declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -77,7 +77,7 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 		name := node.Name.Name
 		t := env.evalType(node.Type)
 		if _, ok := env.Types[name]; ok {
-			env.Warnf("redefined type: %v", name)
+			env.warnf("redefined type: %v", name)
 		} else if env.Types == nil {
 			env.Types = make(map[string]r.Type)
 		}
@@ -85,7 +85,7 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 		return r.ValueOf(&t).Elem(), nil // always return a reflect.Type
 
 	default:
-		return env.Errorf("unexpected type declaration: expecting *ast.TypeSpec, found: %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unexpected type declaration: expecting *ast.TypeSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -94,7 +94,7 @@ func (env *Env) evalDeclVars(node ast.Spec) (r.Value, []r.Value) {
 	case *ast.ValueSpec:
 		return env.evalDeclConstsOrVars(node.Names, node.Type, node.Values, false)
 	default:
-		return env.Errorf("unexpected variable declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unexpected variable declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -117,7 +117,7 @@ func (env *Env) defineConstsVarsOrFuncs(names []string, t r.Type, values []r.Val
 	n := len(names)
 	if values == nil {
 		if t == nil {
-			return env.Errorf("no values and no type: cannot define %v", names)
+			return env.errorf("no values and no type: cannot define %v", names)
 		}
 		values = make([]r.Value, n)
 		zero := r.Zero(t)
@@ -156,14 +156,14 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, const
 		t = typeOf(value)
 	}
 	if _, exists := env.Binds[name]; exists {
-		env.Warnf("redefined identifier: %v", name)
+		env.warnf("redefined identifier: %v", name)
 	}
 	if constant {
 		value = value.Convert(t)
 		env.Binds[name] = value
 	} else {
 		addr := r.New(t)
-		value = env.assignPlace(Place{addr.Elem(), Nil}, token.ASSIGN, value)
+		value = env.assignPlace(placeType{addr.Elem(), Nil}, token.ASSIGN, value)
 		env.Binds[name] = addr.Elem()
 	}
 	// Debugf("defineConstVarOrFunc() added %#v to %#v", name, env.Binds)

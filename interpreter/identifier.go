@@ -32,7 +32,7 @@ import (
 func (env *Env) evalIdentifier(ident *ast.Ident) r.Value {
 	value, found := env.resolveIdentifier(ident)
 	if !found {
-		env.Errorf("undefined identifier: %s", ident.Name)
+		env.errorf("undefined identifier: %s", ident.Name)
 	}
 	return value
 }

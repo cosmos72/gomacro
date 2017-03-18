@@ -25,37 +25,8 @@
 package interpreter
 
 import (
-	"bytes"
-	"io"
-	r "reflect"
 	"strconv"
 )
-
-func Read(src interface{}) []byte {
-	switch s := src.(type) {
-	case []byte:
-		if s != nil {
-			return s
-		}
-	case string:
-		return []byte(s)
-	case *bytes.Buffer:
-		// is io.Reader, but src is already available in []byte form
-		if s != nil {
-			return s.Bytes()
-		}
-	case io.Reader:
-		if s != nil {
-			var buf bytes.Buffer
-			if _, err := io.Copy(&buf, s); err != nil {
-				Error(err)
-			}
-			return buf.Bytes()
-		}
-	}
-	Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
-	return nil
-}
 
 func unescapeChar(str string) rune {
 	// fmt.Printf("debug unescapeChar(): parsing CHAR %#v", str)
@@ -66,7 +37,7 @@ func unescapeChar(str string) rune {
 	}
 	ret, _, _, err := strconv.UnquoteChar(string(rs), '\'')
 	if err != nil {
-		Error(err)
+		error_(err)
 	}
 	return ret
 }
@@ -74,7 +45,7 @@ func unescapeChar(str string) rune {
 func unescapeString(str string) string {
 	ret, err := strconv.Unquote(str)
 	if err != nil {
-		Error(err)
+		error_(err)
 	}
 	return ret
 }

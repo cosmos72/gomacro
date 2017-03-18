@@ -68,7 +68,7 @@ func (env *Env) evalDeclFunction(decl *ast.FuncDecl, funcType *ast.FuncType, bod
 			isMacro = true
 		} else {
 			// TODO implement receiver
-			env.Errorf("unimplemented: method declarations (i.e. functions with receiver): %v", decl)
+			env.errorf("unimplemented: method declarations (i.e. functions with receiver): %v", decl)
 			return ret, nil
 		}
 	}
@@ -105,19 +105,19 @@ func makeFuncNameForEnv(decl *ast.FuncDecl, isMacro bool) string {
 // eval an interpreted function
 func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value, resultNames []string) (results []r.Value) {
 	if t.Kind() != r.Func {
-		return env.PackErrorf("call of non-function type %v", t)
+		return env.packErrorf("call of non-function type %v", t)
 	}
 	env = NewEnv(env, envName)
-	env.funcData = &FuncData{}
+	env.funcData = &funcData{}
 	panicking := true // use a flag to distinguish non-panic from panic(nil)
 	defer func() {
 		f := env.funcData
 		if panicking {
 			pan := recover()
 			switch p := pan.(type) {
-			case Return:
+			case eReturn:
 				// return is implemented with a panic(Return{})
-				results = env.convertFuncCallResults(t, p.Results, true)
+				results = env.convertFuncCallResults(t, p.results, true)
 			default: // some interpreted or compiled code invoked panic()
 				f.panicking = &p
 			}
@@ -148,14 +148,14 @@ func (env *Env) convertFuncCallResults(t r.Type, rets []r.Value, warn bool) []r.
 	expectedN := t.NumOut()
 	if retsN < expectedN {
 		if warn {
-			env.Warnf("not enough return values: expected %d, found %d: %v", expectedN, retsN, rets)
+			env.warnf("not enough return values: expected %d, found %d: %v", expectedN, retsN, rets)
 		}
 		tmp := make([]r.Value, expectedN)
 		copy(tmp, rets)
 		rets = tmp
 	} else if retsN > expectedN {
 		if warn {
-			env.Warnf("too many return values: expected %d, found %d: %v", expectedN, retsN, rets)
+			env.warnf("too many return values: expected %d, found %d: %v", expectedN, retsN, rets)
 		}
 		rets = rets[:expectedN]
 	}

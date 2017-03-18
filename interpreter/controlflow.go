@@ -30,27 +30,27 @@ import (
 	r "reflect"
 )
 
-type Break struct {
-	Label string
+type eBreak struct {
+	label string
 }
 
-type Continue struct {
-	Label string
+type eContinue struct {
+	label string
 }
 
-type Return struct {
-	Results []r.Value
+type eReturn struct {
+	results []r.Value
 }
 
-func (_ Break) Error() string {
+func (_ eBreak) Error() string {
 	return "break outside for or switch"
 }
 
-func (_ Continue) Error() string {
+func (_ eContinue) Error() string {
 	return "continue outside for"
 }
 
-func (_ Return) Error() string {
+func (_ eReturn) Error() string {
 	return "return outside function"
 }
 
@@ -61,15 +61,15 @@ func (env *Env) evalBranch(node *ast.BranchStmt) (r.Value, []r.Value) {
 	}
 	switch node.Tok {
 	case token.BREAK:
-		panic(Break{label})
+		panic(eBreak{label})
 	case token.CONTINUE:
-		panic(Continue{label})
+		panic(eContinue{label})
 	case token.GOTO:
-		return env.Errorf("unimplemented: goto")
+		return env.errorf("unimplemented: goto")
 	case token.FALLTHROUGH:
-		return env.Errorf("unimplemented: fallthrough")
+		return env.errorf("unimplemented: fallthrough")
 	default:
-		return env.Errorf("unimplemented branch: %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unimplemented branch: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -81,7 +81,7 @@ func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
 	} else {
 		rets = env.evalExprs(node.Results)
 	}
-	panic(Return{rets})
+	panic(eReturn{rets})
 }
 
 func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
@@ -92,7 +92,7 @@ func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 	cond, _ := env.Eval(node.Cond)
 	if cond.Kind() != r.Bool {
 		cf := cond.Interface()
-		return env.Errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
+		return env.errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
 	}
 	if cond.Bool() {
 		return env.evalBlock(node.Body)
@@ -115,7 +115,7 @@ func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 			cond := env.evalExpr1(node.Cond)
 			if cond.Kind() != r.Bool {
 				cf := cond.Interface()
-				return env.Errorf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
+				return env.errorf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
 			}
 			if !cond.Bool() {
 				break
@@ -135,9 +135,9 @@ func (env *Env) evalForBodyOnce(node *ast.BlockStmt) (cont bool) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			switch rec := rec.(type) {
-			case Break:
+			case eBreak:
 				cont = false
-			case Continue:
+			case eContinue:
 				cont = true
 			default:
 				panic(rec)

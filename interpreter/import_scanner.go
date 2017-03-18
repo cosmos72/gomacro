@@ -34,15 +34,15 @@ import (
 	// "time"
 )
 
-type TypeVisitor func(name string, t types.Type) bool
+type typeVisitor func(name string, t types.Type) bool
 
-type TypeWithElem interface {
-	Elem() types.Type
+type typeWithElem interface {
+	elem() types.Type
 }
 
 var depth int = 0
 
-func (o *Output) Trace(msg ...interface{}) {
+func (o *output) Trace(msg ...interface{}) {
 	const dots = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
 	const n = len(dots)
 	i := 2 * depth
@@ -55,18 +55,18 @@ func (o *Output) Trace(msg ...interface{}) {
 	fmt.Fprintln(o.Stdout, msg...)
 }
 
-func trace(o *Output, caller string, name string, x interface{}) *Output {
+func trace(o *output, caller string, name string, x interface{}) *output {
 	o.Trace(caller, "(", name, x)
 	depth++
 	return o
 }
 
-func un(o *Output) {
+func un(o *output) {
 	depth--
 	o.Trace(")")
 }
 
-func (o *Output) traverseType(name string, in types.Type, visitor TypeVisitor) {
+func (o *output) traverseType(name string, in types.Type, visitor typeVisitor) {
 	for {
 		// defer un(trace(o, "traverseType", name, r.TypeOf(in)))
 
@@ -119,24 +119,24 @@ func (o *Output) traverseType(name string, in types.Type, visitor TypeVisitor) {
 			name = ""
 			in = t.Elem()
 			continue
-		case TypeWithElem: // *types.Pointer, *types.Array, *types.Slice, *types.Chan
+		case typeWithElem: // *types.Pointer, *types.Array, *types.Slice, *types.Chan
 			name = ""
-			in = t.Elem()
+			in = t.elem()
 			continue
 		default:
-			o.Warnf("traverseType: unimplemented %#v <%v>", t, r.TypeOf(t))
+			o.warnf("traverseType: unimplemented %#v <%v>", t, r.TypeOf(t))
 		}
 		break
 	}
 }
 
-type ImportExtractor struct {
+type importExtractor struct {
 	imports map[string]bool
 	seen    map[types.Type]bool
-	o       *Output
+	o       *output
 }
 
-func (ie *ImportExtractor) visitPackage(pkg *types.Package) {
+func (ie *importExtractor) visitPackage(pkg *types.Package) {
 	scope := pkg.Scope()
 	for _, name := range scope.Names() {
 		obj := scope.Lookup(name)
@@ -148,7 +148,7 @@ func (ie *ImportExtractor) visitPackage(pkg *types.Package) {
 	}
 }
 
-func (ie *ImportExtractor) visitType(name string, t types.Type) bool {
+func (ie *importExtractor) visitType(name string, t types.Type) bool {
 	if ie.seen[t] {
 		return false
 	}
@@ -182,8 +182,8 @@ func extractTypeObjectInterface(obj types.Object) *types.Interface {
 
 // we need to collect only the imports that actually appear in package's interfaces methods
 // because Go rejects programs with unused imports
-func (o *Output) collectPackageImports(pkg *types.Package) []string {
-	ie := ImportExtractor{
+func (o *output) collectPackageImports(pkg *types.Package) []string {
+	ie := importExtractor{
 		// we always need to import the package itself
 		imports: map[string]bool{pkg.Path(): true},
 		o:       o,

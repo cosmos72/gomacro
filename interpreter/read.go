@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * readline.go
+ * readmultiline.go
  *
  *  Created on: Mar 12, 2017
  *      Author: Massimiliano Ghilardi
@@ -26,10 +26,38 @@ package interpreter
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
+	r "reflect"
 )
+
+func Read(src interface{}) []byte {
+	switch s := src.(type) {
+	case []byte:
+		if s != nil {
+			return s
+		}
+	case string:
+		return []byte(s)
+	case *bytes.Buffer:
+		// is io.Reader, but src is already available in []byte form
+		if s != nil {
+			return s.Bytes()
+		}
+	case io.Reader:
+		if s != nil {
+			var buf bytes.Buffer
+			if _, err := io.Copy(&buf, s); err != nil {
+				error_(err)
+			}
+			return buf.Bytes()
+		}
+	}
+	errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
+	return nil
+}
 
 func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt string) (string, error) {
 	var buf []byte

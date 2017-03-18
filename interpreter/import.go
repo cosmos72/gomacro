@@ -96,7 +96,7 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 		}
 		return r.ValueOf(path), nil
 	default:
-		return env.Errorf("unimplemented import: %v", node)
+		return env.errorf("unimplemented import: %v", node)
 	}
 }
 
@@ -104,10 +104,10 @@ func (env *Env) sanitizeImportPath(path string) string {
 	path = strings.Replace(path, "\\", "/", -1)
 	l := len(path)
 	if path == ".." || l >= 3 && (path[:3] == "../" || path[l-3:] == "/..") || strings.Contains(path, "/../") {
-		env.Errorf("invalid import %q: contains \"..\"", path)
+		env.errorf("invalid import %q: contains \"..\"", path)
 	}
 	if path == "." || l >= 2 && (path[:2] == "./" || path[l-2:] == "/.") || strings.Contains(path, "/./") {
-		env.Errorf("invalid import %q: contains \".\"", path)
+		env.errorf("invalid import %q: contains \".\"", path)
 	}
 	return path
 }
@@ -120,10 +120,10 @@ func (ir *Interpreter) ImportPackage(name, path string) *Env {
 	}
 	pkg, err := ir.Importer.Import(path) // loads names and types, not the values!
 	if err != nil {
-		ir.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
+		ir.errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
 		return nil
 	}
-	internal := true
+	internal := false
 	filename := ir.createImportFile(path, pkg, internal)
 	if internal {
 		return nil
@@ -134,7 +134,7 @@ func (ir *Interpreter) ImportPackage(name, path string) *Env {
 	}
 
 	soname := ir.compilePlugin(filename, ir.Stdout, ir.Stderr)
-	ifun := loadPlugin(soname, "Package")
+	ifun := loadPlugin(soname, "Exports")
 	fun := ifun.(func() (map[string]r.Value, map[string]r.Type, map[string]r.Type))
 	binds, types, proxies := fun()
 	return &Env{Binds: binds, Types: types, Proxies: proxies, Name: name, Path: path}
@@ -144,19 +144,19 @@ func (ir *Interpreter) createImportFile(path string, pkg *types.Package, interna
 	buf := bytes.Buffer{}
 	isEmpty := ir.writeImportFile(&buf, path, pkg, internal)
 	if isEmpty {
-		ir.Warnf("package %q exports zero constants, functions, types and variables", path)
+		ir.warnf("package %q exports zero constants, functions, types and variables", path)
 		return ""
 	}
 
 	filename := computeImportFilename(path, internal)
 	err := ioutil.WriteFile(filename, buf.Bytes(), os.FileMode(0666))
 	if err != nil {
-		Errorf("error writing file %q: %v", filename, err)
+		errorf("error writing file %q: %v", filename, err)
 	}
 	if internal {
-		ir.Warnf("created file %q, recompile gomacro to use it", filename)
+		ir.warnf("created file %q, recompile gomacro to use it", filename)
 	} else {
-		ir.Debugf("created file %q...", filename)
+		ir.debugf("created file %q...", filename)
 	}
 	return filename
 }
@@ -189,7 +189,7 @@ func computeImportFilename(path string, internal bool) string {
 	dirname := filename[0 : 1+strings.LastIndexByte(filename, '/')]
 	err := os.MkdirAll(dirname, 0700)
 	if err != nil {
-		Errorf("error creating directory %q: %v", dirname, err)
+		errorf("error creating directory %q: %v", dirname, err)
 	}
 	return filename
 }
@@ -250,7 +250,7 @@ func init() {
 func main() {
 }
 
-func Package() (map[string]Value, map[string]Type, map[string]Type) {
+func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 	return map[string]Value{`)
 	}
 
@@ -269,7 +269,7 @@ func Package() (map[string]Value, map[string]Type, map[string]Type) {
 							prefix = "uint64("
 							suffix = ")"
 						} else {
-							ir.Warnf("package %q: integer constant %s = %s overflows both int64 and uint64, expect compile errors", path, name, str)
+							ir.warnf("package %q: integer constant %s = %s overflows both int64 and uint64, expect compile errors", path, name, str)
 						}
 					}
 				}

@@ -114,7 +114,7 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 				toexpand := in.Get(0).Get(1)
 				env.debugQuasiQuote("recursing inside QUASIQUOTE", depth+1, canSplice, toexpand.Interface())
 				expansion := env.evalQuasiquoteAst(toexpand, depth+1)
-				return MakeQuote2(in, expansion.(AstWithNode))
+				return makeQuote2(in, expansion.(AstWithNode))
 			case mt.UNQUOTE:
 				if depth <= 1 {
 					y := env.evalUnquote(in)
@@ -124,11 +124,11 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 					toexpand := in.Get(0).Get(1)
 					env.debugQuasiQuote("recursing inside UNQUOTE", depth-1, canSplice, toexpand.Interface())
 					expansion := env.evalQuasiquoteAst(toexpand, depth-1)
-					return MakeQuote2(in, expansion.(AstWithNode))
+					return makeQuote2(in, expansion.(AstWithNode))
 				}
 			case mt.UNQUOTE_SPLICE:
 				y := in.Interface()
-				env.Errorf("quasiquote: cannot splice in single-statement context: %v <%v>", y, r.TypeOf(y))
+				env.errorf("quasiquote: cannot splice in single-statement context: %v <%v>", y, r.TypeOf(y))
 				return nil
 			}
 		}
@@ -161,7 +161,7 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 				toexpand := child.Get(0).Get(1)
 				env.debugQuasiQuote("recursing inside QUASIQUOTE", depth+1, canSplice, toexpand.Interface())
 				expansion := env.evalQuasiquoteAst(toexpand, depth+1)
-				child = MakeQuote2(child, expansion.(AstWithNode))
+				child = makeQuote2(child, expansion.(AstWithNode))
 				outSlice = outSlice.Append(child)
 				goto Next
 			case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
@@ -181,14 +181,14 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 					mt.String(child.Op()), mt.String(op), unquoteDepth), depth, canSplice, child)
 
 				if unquoteDepth > depth {
-					env.Errorf("%s not inside quasiquote: %v <%v>", mt.String(op), lastUnquote, r.TypeOf(lastUnquote))
+					env.errorf("%s not inside quasiquote: %v <%v>", mt.String(op), lastUnquote, r.TypeOf(lastUnquote))
 					return nil
 				} else if unquoteDepth < depth {
 					toexpand := child.Get(0).Get(1)
 					env.debugQuasiQuote(fmt.Sprintf("recursing inside %s, lastUnquote is %s", mt.String(child.Op()), mt.String(op)),
 						depth-1, canSplice, toexpand.Interface())
 					expansion := env.evalQuasiquoteAst(toexpand, depth-1)
-					child = MakeQuote2(child, expansion.(AstWithNode))
+					child = makeQuote2(child, expansion.(AstWithNode))
 					outSlice = outSlice.Append(child)
 				} else {
 					env.debugQuasiQuote("calling unquote on", depth-unquoteDepth, canSplice, lastUnquote.Interface())
@@ -269,7 +269,7 @@ func unwrapTrivialAst2(in Ast, unwrapTrivialBlockStmt bool) Ast {
 
 func (env *Env) debugQuasiQuote(msg string, depth int, canSplice bool, x interface{}) {
 	if env.Options&OptDebugQuasiquote != 0 {
-		env.Debugf("quasiquote: %s (depth = %d, canSplice = %v)\n%v <%v>", msg, depth, canSplice, x, r.TypeOf(x))
+		env.debugf("quasiquote: %s (depth = %d, canSplice = %v)\n%v <%v>", msg, depth, canSplice, x, r.TypeOf(x))
 	}
 }
 
@@ -279,7 +279,7 @@ func (env *Env) evalUnquote(inout UnaryExpr) interface{} {
 
 	ret, extraValues := env.evalBlock(block)
 	if len(extraValues) > 1 {
-		env.Warnf("unquote returned %d values, only the first one will be used: %v", len(extraValues), block)
+		env.warnf("unquote returned %d values, only the first one will be used: %v", len(extraValues), block)
 	}
 	if ret == None || ret == Nil {
 		return nil
@@ -315,7 +315,7 @@ func duplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 	if depth == 0 {
 		return content
 	}
-	head, tail := MakeQuote(src)
+	head, tail := makeQuote(src)
 	var form Ast = src
 
 	for ; depth > 1; depth-- {
@@ -323,7 +323,7 @@ func duplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 		form = unwrapTrivialAst(form)
 
 		src = form.(UnaryExpr)
-		expr, newTail := MakeQuote(src)
+		expr, newTail := makeQuote(src)
 		// cheat: we know that BlockStmt.Append() always returns the receiver unmodified
 		tail.Append(expr)
 		tail = newTail
@@ -335,14 +335,14 @@ func duplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 
 // MakeQuote invokes parser.MakeQuote() and wraps the resulting ast.Node,
 // which represents quote{<form>}, into an Ast struct
-func MakeQuote(form UnaryExpr) (UnaryExpr, BlockStmt) {
+func makeQuote(form UnaryExpr) (UnaryExpr, BlockStmt) {
 	expr, block := (*mp.Parser)(nil).MakeQuote(form.X.Op, form.X.OpPos, nil)
 	return UnaryExpr{expr}, BlockStmt{block}
 }
 
-// MakeQuote3 invokes parser.MakeQuote() and wraps the resulting ast.Node,
+// MakeQuote2 invokes parser.MakeQuote() and wraps the resulting ast.Node,
 // which represents quote{<form>}, into an Ast struct
-func MakeQuote2(form UnaryExpr, toQuote AstWithNode) UnaryExpr {
+func makeQuote2(form UnaryExpr, toQuote AstWithNode) UnaryExpr {
 	var node ast.Node
 	if toQuote != nil {
 		node = toQuote.Node()
@@ -382,7 +382,7 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 	}
 	if quasiquoteDepth <= 0 {
 		if env.Options&OptDebugMacroExpand != 0 {
-			env.Debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, in.Interface())
+			env.debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, in.Interface())
 		}
 		in, anythingExpanded = env.macroExpandAst(in)
 	}
@@ -415,14 +415,14 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 		if !expanded {
 			return in, false
 		}
-		return MakeQuote2(expr, outChild.(AstWithNode)), true
+		return makeQuote2(expr, outChild.(AstWithNode)), true
 	}
 Recurse:
 	if in == nil {
 		return saved, anythingExpanded
 	}
 	if env.Options&OptDebugMacroExpand != 0 {
-		env.Debugf("MacroExpandCodewalk: qq = %d, recursing on %v", quasiquoteDepth, in)
+		env.debugf("MacroExpandCodewalk: qq = %d, recursing on %v", quasiquoteDepth, in)
 	}
 	out = in.New()
 	n := in.Size()
@@ -447,7 +447,7 @@ Recurse:
 		out.Set(i, child)
 	}
 	if env.Options&OptDebugMacroExpand != 0 {
-		env.Debugf("MacroExpandCodewalk: qq = %d, expanded to %v", quasiquoteDepth, out)
+		env.debugf("MacroExpandCodewalk: qq = %d, expanded to %v", quasiquoteDepth, out)
 	}
 	return out, anythingExpanded
 }
@@ -522,7 +522,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		return in, false
 	}
 	if env.Options&OptDebugMacroExpand != 0 {
-		env.Debugf("MacroExpand1: found list: %v", ins.Interface())
+		env.debugf("MacroExpand1: found list: %v", ins.Interface())
 	}
 	outs := ins.New().(AstWithSlice)
 	n := ins.Size()
@@ -546,11 +546,11 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 			for j := 0; j <= leftn; j++ {
 				args[j] = r.ValueOf(ins.Get(i + j).Interface())
 			}
-			env.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.ArgNum, leftn)
+			env.errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.ArgNum, leftn)
 			return in, false
 		}
 		if env.Options&OptDebugMacroExpand != 0 {
-			env.Debugf("MacroExpand1: found macro call %v at %d-th position of %v", elt.Interface(), i, ins.Interface())
+			env.debugf("MacroExpand1: found macro call %v at %d-th position of %v", elt.Interface(), i, ins.Interface())
 		}
 		// wrap each ast.Node into a reflect.Value
 		args = make([]r.Value, argn)
@@ -560,13 +560,13 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		// invoke the macro
 		results := macro.Closure(args)
 		if env.Options&OptDebugMacroExpand != 0 {
-			env.Debugf("MacroExpand1: macro expanded to: %v", results)
+			env.debugf("MacroExpand1: macro expanded to: %v", results)
 		}
 		var out Ast
 		switch len(results) {
 		default:
 			args = append([]r.Value{r.ValueOf(elt.Interface())}, args...)
-			env.Warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
+			env.warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
 				len(results), args, results)
 			fallthrough
 		case 1:

@@ -176,13 +176,13 @@ func (x Ident) Op() token.Token          { return token.IDENT }
 func (x IfStmt) Op() token.Token         { return token.IF }
 func (x ImportSpec) Op() token.Token     { return token.IMPORT }
 func (x IncDecStmt) Op() token.Token     { return x.X.Tok }
-func (x IndexExpr) Op() token.Token      { return token.RBRACK }
+func (x IndexExpr) Op() token.Token      { return token.LBRACK }
 func (x InterfaceType) Op() token.Token  { return token.INTERFACE }
 func (x KeyValueExpr) Op() token.Token   { return token.COLON } // FIXME
 func (x LabeledStmt) Op() token.Token    { return token.COLON } // FIXME
 func (x MapType) Op() token.Token        { return token.MAP }
 func (x Package) Op() token.Token        { return token.PACKAGE }
-func (x ParenExpr) Op() token.Token      { return token.RPAREN }
+func (x ParenExpr) Op() token.Token      { return token.LPAREN }
 func (x RangeStmt) Op() token.Token      { return token.RANGE }
 func (x SelectStmt) Op() token.Token     { return token.SELECT }
 func (x SelectorExpr) Op() token.Token   { return token.CASE }

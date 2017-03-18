@@ -41,7 +41,7 @@ func (env *Env) evalExpr1OrType(node ast.Expr) (val r.Value, t r.Type) {
 	defer func() {
 		if r := recover(); r != nil {
 			switch r.(type) {
-			case RuntimeError:
+			case runtimeError:
 				t = env.evalType(node)
 			default:
 				panic(r)
@@ -96,13 +96,13 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 			if pkg, ok := pkgv.Interface().(*Env); ok {
 				name := node.Sel.Name
 				if t, ok = pkg.Types[name]; !ok {
-					env.Errorf("not a type: %v <%v>", node, r.TypeOf(node))
+					env.errorf("not a type: %v <%v>", node, r.TypeOf(node))
 				}
 			} else {
-				env.Errorf("not a package: %v = %v <%v>", pkgIdent, pkgv, typeOf(pkgv))
+				env.errorf("not a package: %v = %v <%v>", pkgIdent, pkgv, typeOf(pkgv))
 			}
 		} else {
-			env.Errorf("unimplemented qualified type, expecting packageName.identifier: %v <%v>", node, r.TypeOf(node))
+			env.errorf("unimplemented qualified type, expecting packageName.identifier: %v <%v>", node, r.TypeOf(node))
 		}
 	case *ast.StructType:
 		// env.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
@@ -116,7 +116,7 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 		break
 	default:
 		// TODO which types are still missing?
-		env.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
+		env.errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 	}
 	for i := 0; i < stars; i++ {
 		t = r.PtrTo(t)
@@ -129,7 +129,7 @@ func (env *Env) evalTypeArray(node *ast.ArrayType) r.Type {
 	n := node.Len
 	switch n := n.(type) {
 	case *ast.Ellipsis:
-		env.Errorf("evalType(): unimplemented array type with ellipsis: %v", node, r.TypeOf(node))
+		env.errorf("evalType(): unimplemented array type with ellipsis: %v", node, r.TypeOf(node))
 	case nil:
 		t = r.SliceOf(t)
 	default:
@@ -175,13 +175,13 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 			return t
 		}
 	}
-	env.Errorf("undefined identifier: %v", name)
+	env.errorf("undefined identifier: %v", name)
 	return nil
 }
 
 func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodNames []string) {
 	if node.Methods != nil && len(node.Methods.List) != 0 {
-		env.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
+		env.errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 		return nil, nil
 	}
 	return typeOfInterface, zeroStrings
@@ -240,12 +240,12 @@ func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 	}
 	vt := typeOf(value)
 	if !vt.AssignableTo(t) && !vt.ConvertibleTo(t) {
-		ret, _ := env.Errorf("failed to convert %v <%v> to <%v>", value, vt, t)
+		ret, _ := env.errorf("failed to convert %v <%v> to <%v>", value, vt, t)
 		return ret
 	}
 	newValue := value.Convert(t)
 	if differentIntegerValues(value, newValue) {
-		env.Warnf("value %d overflows <%v>, truncated to %d", value, t, newValue)
+		env.warnf("value %d overflows <%v>, truncated to %d", value, t, newValue)
 	}
 	return newValue
 }

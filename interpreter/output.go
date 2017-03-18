@@ -37,63 +37,63 @@ import (
 	. "github.com/cosmos72/gomacro/ast2"
 )
 
-type FileSet struct {
+type fileSet struct {
 	Fileset *token.FileSet
 }
 
-type Output struct {
-	FileSet
+type output struct {
+	fileSet
 	Stdout io.Writer
 	Stderr io.Writer
 }
 
-type RuntimeError struct {
-	FileSet
-	Format string
-	Args   []interface{}
+type runtimeError struct {
+	fileSet
+	format string
+	args   []interface{}
 }
 
-func (err RuntimeError) Error() string {
-	return fmt.Sprintf(err.Format, err.toPrintables(err.Args)...)
+func (err runtimeError) Error() string {
+	return fmt.Sprintf(err.format, err.toPrintables(err.args)...)
 }
 
-func Error(err error) interface{} {
+func error_(err error) interface{} {
 	panic(err)
 }
 
-func Errorf(format string, args ...interface{}) {
-	panic(RuntimeError{FileSet{nil}, format, args})
+func errorf(format string, args ...interface{}) {
+	panic(runtimeError{fileSet{nil}, format, args})
 }
 
-func (f FileSet) Errorf(format string, args ...interface{}) (r.Value, []r.Value) {
-	panic(RuntimeError{f, format, args})
+func (f fileSet) errorf(format string, args ...interface{}) (r.Value, []r.Value) {
+	panic(runtimeError{f, format, args})
 }
 
-func (f FileSet) PackErrorf(format string, args ...interface{}) []r.Value {
-	panic(RuntimeError{f, format, args})
+func (f fileSet) packErrorf(format string, args ...interface{}) []r.Value {
+	panic(runtimeError{f, format, args})
 }
 
-func (o *Output) Warnf(format string, args ...interface{}) {
-	str := o.Sprintf(format, args...)
+func (o *output) warnf(format string, args ...interface{}) {
+	str := o.sprintf(format, args...)
 	fmt.Fprintf(o.Stderr, "warning: %s\n", str)
 }
 
-func (o *Output) Debugf(format string, args ...interface{}) {
-	str := o.Sprintf(format, args...)
+func (o *output) debugf(format string, args ...interface{}) {
+	str := o.sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
 
-func (f FileSet) FprintValues(out io.Writer, values ...r.Value) {
+func (f fileSet) fprintValues(out io.Writer, values ...r.Value) {
 	if len(values) == 0 {
 		fmt.Fprint(out, "// no value\n")
 		return
 	}
 	for _, v := range values {
-		f.FprintValue(out, v)
+		f.fprintValue(out, v)
 	}
 }
 
-func (f FileSet) FprintValue(out io.Writer, v r.Value) {
+func (f fileSet) fprintValue(out io.Writer, v r.Value) {
 	var vi interface{}
 	var vt r.Type
 	if v == None {
@@ -123,17 +123,17 @@ func (f FileSet) FprintValue(out io.Writer, v r.Value) {
 	}
 }
 
-func (f FileSet) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
+func (f fileSet) fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
 	values = f.toPrintables(values)
 	return fmt.Fprintf(out, format, values...)
 }
 
-func (f FileSet) Sprintf(format string, values ...interface{}) string {
+func (f fileSet) sprintf(format string, values ...interface{}) string {
 	values = f.toPrintables(values)
 	return fmt.Sprintf(format, values...)
 }
 
-func (f FileSet) toString(separator string, values ...interface{}) string {
+func (f fileSet) toString(separator string, values ...interface{}) string {
 	if len(values) == 0 {
 		return ""
 	}
@@ -148,14 +148,14 @@ func (f FileSet) toString(separator string, values ...interface{}) string {
 	return buf.String()
 }
 
-func (f FileSet) toPrintables(values []interface{}) []interface{} {
+func (f fileSet) toPrintables(values []interface{}) []interface{} {
 	for i, vi := range values {
 		values[i] = f.toPrintable(vi)
 	}
 	return values
 }
 
-func (f FileSet) toPrintable(value interface{}) (ret interface{}) {
+func (f fileSet) toPrintable(value interface{}) (ret interface{}) {
 	if value == nil {
 		return nil
 	}
@@ -188,7 +188,7 @@ func (f FileSet) toPrintable(value interface{}) (ret interface{}) {
 	return value
 }
 
-func (f FileSet) valueToPrintable(value r.Value) interface{} {
+func (f fileSet) valueToPrintable(value r.Value) interface{} {
 	if value == None {
 		return "/*no value*/"
 	} else if value == Nil {
@@ -198,7 +198,7 @@ func (f FileSet) valueToPrintable(value r.Value) interface{} {
 	}
 }
 
-func (f FileSet) nodeToPrintable(node ast.Node) interface{} {
+func (f fileSet) nodeToPrintable(node ast.Node) interface{} {
 	if node == nil {
 		return nil
 	}
@@ -215,7 +215,7 @@ func (f FileSet) nodeToPrintable(node ast.Node) interface{} {
 	return buf.String()
 }
 
-func (f FileSet) showHelp(out io.Writer) {
+func (f fileSet) showHelp(out io.Writer) {
 	fmt.Fprint(out, `// interpreter commands:
 :env [name]     show available functions, variables and constants
                 in current package, or from imported package "name"
@@ -231,7 +231,7 @@ func (env *Env) showPackage(out io.Writer, packageName string) {
 	if len(packageName) != 0 {
 		bind := env.evalIdentifier(&ast.Ident{Name: packageName})
 		if bind == None || bind == Nil {
-			env.Warnf("not an imported package: %q", packageName)
+			env.warnf("not an imported package: %q", packageName)
 			return
 		}
 		switch val := bind.Interface().(type) {
@@ -239,7 +239,7 @@ func (env *Env) showPackage(out io.Writer, packageName string) {
 			e = val
 			loop = false
 		default:
-			env.Warnf("not an imported package: %q = %v <%v>", packageName, val, typeOf(bind))
+			env.warnf("not an imported package: %q = %v <%v>", packageName, val, typeOf(bind))
 			return
 		}
 	}
@@ -267,7 +267,7 @@ func (env *Env) showPackage(out io.Writer, packageName string) {
 						continue
 					}
 				}
-				env.FprintValue(out, bind)
+				env.fprintValue(out, bind)
 			}
 			fmt.Fprintln(out)
 		}

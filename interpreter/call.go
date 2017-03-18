@@ -62,7 +62,7 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 			break
 		}
 	}
-	return env.Errorf("call of non-function: %v", node)
+	return env.errorf("call of non-function: %v", node)
 }
 
 func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
@@ -71,7 +71,7 @@ func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
 	// TODO does Go have a special case fooAcceptsMultipleArgs( barReturnsMultipleValues() ) ???
 	if !funt.IsVariadic() {
 		if len(args) != funt.NumIn() {
-			env.Errorf("function %v expects %d arguments, found %d: %v", node.Fun, funt.NumIn(), len(args), args)
+			env.errorf("function %v expects %d arguments, found %d: %v", node.Fun, funt.NumIn(), len(args), args)
 			return nil
 		}
 		for i, arg := range args {
@@ -84,11 +84,11 @@ func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
 func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
 	funcEnv := env.FuncEnv()
 	if funcEnv == nil {
-		return env.Errorf("defer outside function: %v", node)
+		return env.errorf("defer outside function: %v", node)
 	}
 	fun := env.evalExpr1(node.Fun)
 	if fun.Kind() != r.Func {
-		return env.Errorf("defer of non-function: %v", node)
+		return env.errorf("defer of non-function: %v", node)
 	}
 	args := env.evalFuncArgs(fun, node)
 	closure := func() {
@@ -99,7 +99,7 @@ func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
 			rets = fun.CallSlice(args)
 		}
 		if len(rets) != 0 {
-			env.Warnf("call to deferred function %v returned %d values, expecting zero: %v", node, rets)
+			env.warnf("call to deferred function %v returned %d values, expecting zero: %v", node, rets)
 		}
 	}
 	funcEnv.funcData.defers = append(funcEnv.funcData.defers, closure)

@@ -46,7 +46,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		if strings.HasPrefix(str, "-") {
 			i64, err := strconv.ParseInt(str, 0, 0)
 			if err != nil {
-				return Error(err)
+				return error_(err)
 			}
 			// prefer int to int64. reason: in compiled Go,
 			// type inference deduces int for all constants representable by an int
@@ -58,7 +58,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		} else {
 			u64, err := strconv.ParseUint(str, 0, 0)
 			if err != nil {
-				return Error(err)
+				return error_(err)
 			}
 			// prefer, in order: int, int64, uint, uint64. reason: in compiled Go,
 			// type inference deduces int for all constants representable by an int
@@ -80,7 +80,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 	case token.FLOAT:
 		f, err := strconv.ParseFloat(str, 64)
 		if err != nil {
-			return Error(err)
+			return error_(err)
 		}
 		ret = f
 
@@ -90,7 +90,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		}
 		im, err := strconv.ParseFloat(str, 64)
 		if err != nil {
-			return Error(err)
+			return error_(err)
 		}
 		ret = complex(0.0, im)
 		// env.Debugf("evalLiteral(): parsed IMAG %s -> %T %#v -> %T %#v", str, im, im, ret, ret)
@@ -102,7 +102,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		return unescapeString(str)
 
 	default:
-		env.Errorf("unimplemented basic literal: %v", node)
+		env.errorf("unimplemented basic literal: %v", node)
 		ret = nil
 	}
 	return ret
@@ -123,7 +123,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 				val := env.valueToType(env.evalExpr1(elt.Value), vt)
 				obj.SetMapIndex(key, val)
 			default:
-				env.Errorf("map literal: invalid element, expecting <*ast.KeyValueExpr>, found: %v <%v>", elt, r.TypeOf(elt))
+				env.errorf("map literal: invalid element, expecting <*ast.KeyValueExpr>, found: %v <%v>", elt, r.TypeOf(elt))
 			}
 		}
 	case r.Array, r.Slice:
@@ -165,7 +165,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 			switch elt := elt.(type) {
 			case *ast.KeyValueExpr:
 				if elts {
-					return env.Errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
+					return env.errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
 				}
 				pairs = true
 				name := elt.Key.(*ast.Ident).Name
@@ -173,7 +173,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 				expr = elt.Value
 			default:
 				if pairs {
-					return env.Errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
+					return env.errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
 				}
 				elts = true
 				field = obj.Field(idx)
@@ -183,7 +183,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 			field.Set(val)
 		}
 	default:
-		env.Errorf("unexpected composite literal: %v", node)
+		env.errorf("unexpected composite literal: %v", node)
 	}
 	return obj, nil
 }

@@ -30,7 +30,7 @@ import (
 	r "reflect"
 )
 
-type Place struct {
+type placeType struct {
 	obj    r.Value // the map to modify, or a settable r.Value
 	mapkey r.Value // the map key to set, or Nil
 }
@@ -43,7 +43,7 @@ func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 	nright := len(right)
 
 	if nright != 1 && nleft != nright {
-		return env.Errorf("value count mismatch: cannot assign %d values to %d places: %v", nright, nleft, node)
+		return env.errorf("value count mismatch: cannot assign %d values to %d places: %v", nright, nleft, node)
 	}
 
 	// side effects happen left to right, with some unspecified cases,
@@ -55,7 +55,7 @@ func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 		for i := 0; i < nleft; i++ {
 			ident, ok := left[i].(*ast.Ident)
 			if !ok {
-				return env.Errorf("variable declaration: invalid identifier: %v", left[i])
+				return env.errorf("variable declaration: invalid identifier: %v", left[i])
 			}
 			names[i] = ident.Name
 		}
@@ -69,16 +69,16 @@ func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 	}
 }
 
-func (env *Env) evalPlaces(node []ast.Expr) []Place {
+func (env *Env) evalPlaces(node []ast.Expr) []placeType {
 	n := len(node)
-	places := make([]Place, n)
+	places := make([]placeType, n)
 	for i := 0; i < n; i++ {
 		places[i] = env.evalPlace(node[i])
 	}
 	return places
 }
 
-func (env *Env) evalPlace(node ast.Expr) Place {
+func (env *Env) evalPlace(node ast.Expr) placeType {
 	obj := Nil
 	// ignore parenthesis: (expr) = value is the same as expr = value
 	for {
@@ -95,30 +95,30 @@ func (env *Env) evalPlace(node ast.Expr) Place {
 
 		switch obj.Kind() {
 		case r.Map:
-			return Place{obj, index}
+			return placeType{obj, index}
 		case r.Array, r.Slice, r.String:
 			i, ok := env.toInt(index)
 			if !ok {
-				env.Errorf("invalid index, expecting an int: %v <%v>", index, typeOf(index))
-				return Place{}
+				env.errorf("invalid index, expecting an int: %v <%v>", index, typeOf(index))
+				return placeType{}
 			}
 			obj = obj.Index(int(i))
 		default:
-			env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>",
+			env.errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>",
 				node.X, index, obj, typeOf(obj))
-			return Place{}
+			return placeType{}
 		}
 	default:
 		obj = env.evalExpr1(node)
 	}
 	if !obj.CanSet() {
-		env.Errorf("cannot assign to read-only location: %v", node)
-		return Place{}
+		env.errorf("cannot assign to read-only location: %v", node)
+		return placeType{}
 	}
-	return Place{obj, Nil}
+	return placeType{obj, Nil}
 }
 
-func (env *Env) assignPlaces(places []Place, op token.Token, values []r.Value) (r.Value, []r.Value) {
+func (env *Env) assignPlaces(places []placeType, op token.Token, values []r.Value) (r.Value, []r.Value) {
 	n := len(places)
 	for i := 0; i < n; i++ {
 		values[i] = env.assignPlace(places[i], op, values[i])
@@ -126,7 +126,7 @@ func (env *Env) assignPlaces(places []Place, op token.Token, values []r.Value) (
 	return unpackValues(values)
 }
 
-func (env *Env) assignPlace(place Place, op token.Token, value r.Value) r.Value {
+func (env *Env) assignPlace(place placeType, op token.Token, value r.Value) r.Value {
 	obj := place.obj
 	key := place.mapkey
 	if key == Nil {
