@@ -197,7 +197,7 @@ func builtinNew(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 }
 
 func callPanic(arg interface{}) {
-	panic(Panic{arg})
+	panic(arg)
 }
 
 func builtinReal(env *Env, args []ast.Expr) (r.Value, []r.Value) {
@@ -241,7 +241,7 @@ func callReadDir(dirname string) []string {
 	return names
 }
 
-func builtinTyped(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+func builtinValues(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	rets := make([]r.Value, len(args))
 	for i, arg := range args {
 		// go through interface{} to forget any "static" compile-time type information
@@ -251,8 +251,26 @@ func builtinTyped(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	return unpackValues(rets)
 }
 
-func callRecover() interface{} {
-	return recover()
+func builtinRecover(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+	if len(args) != 0 {
+		return env.Errorf("builtin recover() expects exactly zero arguments, found %d", len(args))
+	}
+	// Go specs: "Executing a call to recover inside a deferred function
+	// (but not any function called by it) stops the panicking sequence
+	// by restoring normal execution and retrieves the error value passed to the call of panic"
+	//
+	// thus recover() is invoked inside deferred functions: find their caller's env
+	ret := Nil
+	env = env.CallerEnv()
+	if env != nil {
+		funcData := env.funcData
+		if funcData != nil && funcData.panicking != nil {
+			// consume current panic
+			ret = r.ValueOf(*funcData.panicking)
+			funcData.panicking = nil
+		}
+	}
+	return ret, nil
 }
 
 func callSlice(args ...interface{}) []interface{} {
@@ -290,7 +308,7 @@ func (env *Env) addBuiltins() {
 	binds["String"] = r.ValueOf(func(args ...interface{}) string {
 		return env.toString("", args...)
 	})
-	binds["Typed"] = r.ValueOf(Builtin{builtinTyped})
+	binds["Values"] = r.ValueOf(Builtin{builtinValues}) // return multiple values, extracting the concrete type of each interface
 
 	binds["append"] = r.ValueOf(Builtin{builtinAppend})
 	binds["cap"] = r.ValueOf(callCap)
@@ -311,7 +329,7 @@ func (env *Env) addBuiltins() {
 		fmt.Fprintln(env.Stdout, args...)
 	})
 	binds["real"] = r.ValueOf(Builtin{builtinReal})
-	// binds["recover"] = r.ValueOf(callRecover) // does not work! recover() works only inside a deferred function (but not any function called by it)
+	binds["recover"] = r.ValueOf(Builtin{builtinRecover})
 	binds["true"] = r.ValueOf(true)
 
 	// --------- types ---------

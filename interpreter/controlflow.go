@@ -38,10 +38,6 @@ type Continue struct {
 	Label string
 }
 
-type Panic struct {
-	Arg interface{}
-}
-
 type Return struct {
 	Results []r.Value
 }

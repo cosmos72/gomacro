@@ -23,3 +23,4 @@ func getGoPath() string {
 	}
 	return dir // inner "dir" is not seen -> always returns os.Getenv("GOPATH")
 }
+```

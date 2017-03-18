@@ -62,6 +62,43 @@ var testcases = []TestCase{
 	TestCase{"sum", sum_s + "; sum(100)", 5050, nil},
 	TestCase{"fibonacci", fib_s + "; fibonacci(13)", uint(233), nil},
 	TestCase{"multiple_values", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
+	TestCase{"defer", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
+	TestCase{"defer", "v = 12; testdefer(0); v", uint32(12), nil},
+	TestCase{"recover", `var vpanic interface{}
+		func test_recover(rec bool, panick interface{}) {
+			defer func() {
+				if rec {
+					vpanic = recover()
+				}
+			}()
+			panic(panick)
+		}
+		test_recover(true, -3)
+		vpanic
+		`, -3, nil},
+	TestCase{"nested_recover", `var vpanic2, vpanic3 interface{}
+		func test_nested_recover(repanic bool, panick interface{}) {
+			defer func() {
+				vpanic = recover()
+			}()
+			defer func() {
+				func() {
+					vpanic3 = recover()
+				}()
+				vpanic2 = recover()
+				if repanic {
+					panic(vpanic2)
+				}
+			}()
+			panic(panick)
+		}
+		test_nested_recover(false, -4)
+		Values(vpanic, vpanic2, vpanic3)
+		`, nil, []interface{}{nil, -4, nil}},
+	TestCase{"nested_recover", `vpanic, vpanic2, vpanic3 = nil, nil, nil
+		test_nested_recover(true, -5)
+		Values(vpanic, vpanic2, vpanic3)
+		`, nil, []interface{}{-5, -5, nil}},
 	TestCase{"import", "import \"fmt\"", "fmt", nil},
 	TestCase{"quote", "quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
 	TestCase{"quote", "quote{x}", &ast.Ident{Name: "x"}, nil},
@@ -85,7 +122,7 @@ var testcases = []TestCase{
 		&ast.ExprStmt{X: &ast.Ident{Name: "c"}},
 	}}, nil},
 	TestCase{"macro", "macro second_arg(a,b,c interface{}) interface{} { return b }; 0", 0, nil},
-	TestCase{"macro_call", "second_arg;1;v;3", uint32(99), nil},
+	TestCase{"macro_call", "v = 98; second_arg;1;v;3", uint32(98), nil},
 	TestCase{"macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
 }
 
@@ -179,7 +216,7 @@ func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 }
 
 func (c *TestCase) fail(t *testing.T, actual interface{}, expected interface{}) {
-	fmt.Printf("%s: expected %#v, found %#v\n", t.Name(), expected, actual)
+	fmt.Printf("--- FAIL: %s: expected %#v <%T>, found %#v <%T>\n", t.Name(), expected, expected, actual, actual)
 	t.Fail()
 }
 

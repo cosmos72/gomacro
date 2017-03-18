@@ -108,13 +108,25 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 		return env.PackErrorf("call of non-function type %v", t)
 	}
 	env = NewEnv(env, envName)
+	env.funcData = &FuncData{}
+	panicking := true // use a flag to distinguish non-panic from panic(nil)
 	defer func() {
-		if rec := recover(); rec != nil {
-			if ret, ok := rec.(Return); ok {
-				results = env.convertFuncCallResults(t, ret.Results, true)
-			} else {
-				panic(rec)
+		f := env.funcData
+		if panicking {
+			pan := recover()
+			switch p := pan.(type) {
+			case Return:
+				// return is implemented with a panic(Return{})
+				results = env.convertFuncCallResults(t, p.Results, true)
+			default: // some interpreted or compiled code invoked panic()
+				f.panicking = &p
 			}
+		}
+		if len(f.defers) != 0 {
+			env.runDefers()
+		}
+		if pp := f.panicking; pp != nil {
+			panic(*pp)
 		}
 	}()
 
@@ -124,9 +136,10 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 	for i, argName := range argNames {
 		env.defineVar(argName, t.In(i), args[i])
 	}
-	// not env.evalBlock(): in Go, the function arguments and body are in the same scope
+	// use evalStatements(), not evalBlock(): in Go, the function arguments and body are in the same scope
 	rets := packValues(env.evalStatements(body.List))
 	results = env.convertFuncCallResults(t, rets, false)
+	panicking = false
 	return results
 }
 
@@ -150,4 +163,28 @@ func (env *Env) convertFuncCallResults(t r.Type, rets []r.Value, warn bool) []r.
 		rets[i] = rets[i].Convert(t.Out(i))
 	}
 	return rets
+}
+
+func (env *Env) runDefers() {
+	// execute defers last-to-first
+	defers := env.funcData.defers
+	for i := len(defers) - 1; i >= 0; i-- {
+		env.runDefer(defers[i])
+	}
+}
+
+func (env *Env) runDefer(deferred func()) {
+	// invoking panic() inside a deferred function exits it with a panic,
+	// but the previously-installed deferred functions are still executed
+	// and can recover() such panic
+
+	panicking := true // use a flag to distinguish non-panic from panic(nil)
+	defer func() {
+		if panicking {
+			pan := recover()
+			env.funcData.panicking = &pan
+		}
+	}()
+	deferred()
+	panicking = false
 }

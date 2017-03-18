@@ -60,25 +60,35 @@ func NewEnv(outer *Env, path string) *Env {
 }
 
 func (env *Env) TopEnv() *Env {
-	for {
-		outer := env.Outer
-		if outer == nil {
+	for ; env != nil; env = env.Outer {
+		if env.Outer == nil {
 			break
 		}
-		env = outer
 	}
 	return env
 }
 
 func (env *Env) FileEnv() *Env {
-	for {
+	for ; env != nil; env = env.Outer {
 		outer := env.Outer
 		if outer == nil || outer.Outer == nil {
 			break
 		}
-		env = outer
 	}
 	return env
+}
+
+func (env *Env) FuncEnv() *Env {
+	for ; env != nil; env = env.Outer {
+		if env.funcData != nil {
+			break
+		}
+	}
+	return env
+}
+
+func (env *Env) CallerEnv() *Env {
+	return env.FuncEnv().Outer.FuncEnv()
 }
 
 func (env *Env) ReplStdin() {

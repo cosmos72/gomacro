@@ -38,8 +38,14 @@ type Env struct {
 	Types      Types
 	Proxies    Types
 	Outer      *Env
+	funcData   *FuncData
 	iotaOffset int
 	Name, Path string
+}
+
+type FuncData struct {
+	defers    []func()
+	panicking *interface{} // current panic
 }
 
 type Builtin struct {
@@ -90,6 +96,7 @@ var One = r.ValueOf(1)
 var typeOfInt = r.TypeOf(int(0))
 var typeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
 var typeOfString = r.TypeOf("")
+var typeOfDeferFunc = r.TypeOf(func() {})
 var zeroStrings = []string{}
 
 const temporaryFunctionName = "gorepl_temporary_function"

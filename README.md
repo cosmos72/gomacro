@@ -39,20 +39,24 @@ The intepreter supports:
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
 * composite literals
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
+* channel send and receive
 * function and method calls, including multiple return values
+* function definitions (cannot yet define variadic functions)
+* defer, panic and recover
 * imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
 * macro definitions, for example `macro foo(a, b, c interface{}) interface{} { return b }`
 * macro calls, for example `foo x; y; z`
-* macroexpansion code walker, MacroExpand and MacroExpand1
+* macroexpansion: code walker, MacroExpand and MacroExpand1
 * quote and quasiquote. they take any number of arguments in curly braces, for example:
   `quote { x; y; z }`
 * unquote and unquote_splice
 * nesting macros, quotes and unquotes
 
 Several things are still missing:
-* the keywords "go" and "defer"
-* recover() builtin
+* the keyword "go"
 * interfaces definition
 * methods definition
+* variadic functions definition
+* switch, type switch, select, labels, for-range
 * switching to a different package
 * history/readline

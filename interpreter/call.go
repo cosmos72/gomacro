@@ -50,14 +50,7 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 				return builtin.Exec(env, node.Args)
 			}
 		case r.Func:
-			// TODO support the special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )
-			args := env.evalExprs(node.Args)
-			funt := fun.Type()
-			if !funt.IsVariadic() {
-				for i, arg := range args {
-					args[i] = env.valueToType(arg, funt.In(i))
-				}
-			}
+			args := env.evalFuncArgs(fun, node)
 			var rets []r.Value
 			if node.Ellipsis == token.NoPos {
 				rets = fun.Call(args)
@@ -69,5 +62,46 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 			break
 		}
 	}
-	return env.Errorf("call of non-function %v", node)
+	return env.Errorf("call of non-function: %v", node)
+}
+
+func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
+	args := env.evalExprs(node.Args)
+	funt := fun.Type()
+	// TODO does Go have a special case fooAcceptsMultipleArgs( barReturnsMultipleValues() ) ???
+	if !funt.IsVariadic() {
+		if len(args) != funt.NumIn() {
+			env.Errorf("function %v expects %d arguments, found %d: %v", node.Fun, funt.NumIn(), len(args), args)
+			return nil
+		}
+		for i, arg := range args {
+			args[i] = env.valueToType(arg, funt.In(i))
+		}
+	}
+	return args
+}
+
+func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
+	funcEnv := env.FuncEnv()
+	if funcEnv == nil {
+		return env.Errorf("defer outside function: %v", node)
+	}
+	fun := env.evalExpr1(node.Fun)
+	if fun.Kind() != r.Func {
+		return env.Errorf("defer of non-function: %v", node)
+	}
+	args := env.evalFuncArgs(fun, node)
+	closure := func() {
+		var rets []r.Value
+		if node.Ellipsis == token.NoPos {
+			rets = fun.Call(args)
+		} else {
+			rets = fun.CallSlice(args)
+		}
+		if len(rets) != 0 {
+			env.Warnf("call to deferred function %v returned %d values, expecting zero: %v", node, rets)
+		}
+	}
+	funcEnv.funcData.defers = append(funcEnv.funcData.defers, closure)
+	return None, nil
 }

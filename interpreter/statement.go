@@ -56,6 +56,8 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return env.evalBranch(node)
 	case *ast.DeclStmt:
 		return env.evalDecl(node.Decl)
+	case *ast.DeferStmt:
+		return env.evalDefer(node.Call)
 	case *ast.ExprStmt:
 		return env.evalExpr(node.X)
 	case *ast.ForStmt:
@@ -71,9 +73,8 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 	case *ast.SendStmt:
 		return env.evalSend(node)
 
-	case *ast.CaseClause, *ast.CommClause, *ast.DeferStmt,
-		*ast.GoStmt, *ast.LabeledStmt, *ast.RangeStmt,
-		*ast.SelectStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
+	case *ast.CaseClause, *ast.CommClause, *ast.GoStmt, *ast.LabeledStmt,
+		*ast.RangeStmt, *ast.SelectStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
 		// TODO
 		return env.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	default:
