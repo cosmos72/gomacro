@@ -165,27 +165,27 @@ func (env *Env) evalBinaryExprUintUint(xv r.Value, op token.Token, yv r.Value) r
 	var ret uint64
 
 	switch op {
-	case token.ADD:
+	case token.ADD, token.ADD_ASSIGN:
 		ret = x + y
-	case token.SUB:
+	case token.SUB, token.SUB_ASSIGN:
 		ret = x - y
-	case token.MUL:
+	case token.MUL, token.MUL_ASSIGN:
 		ret = x * y
-	case token.QUO:
+	case token.QUO, token.QUO_ASSIGN:
 		ret = x / y
-	case token.REM:
+	case token.REM, token.REM_ASSIGN:
 		ret = x % y
-	case token.AND:
+	case token.AND, token.AND_ASSIGN:
 		ret = x & y
-	case token.OR:
+	case token.OR, token.OR_ASSIGN:
 		ret = x | y
-	case token.XOR:
+	case token.XOR, token.XOR_ASSIGN:
 		ret = x ^ y
-	case token.SHL:
+	case token.SHL, token.SHL_ASSIGN:
 		ret = x << y
-	case token.SHR:
+	case token.SHR, token.SHR_ASSIGN:
 		ret = x >> y
-	case token.AND_NOT:
+	case token.AND_NOT, token.AND_NOT_ASSIGN:
 		ret = x &^ y
 	default:
 		goto PART2
