@@ -33,6 +33,8 @@ import (
 	"io"
 	r "reflect"
 	"sort"
+
+	. "github.com/cosmos72/gomacro/ast2"
 )
 
 type FileSet struct {
@@ -79,15 +81,6 @@ func (o *Output) Warnf(format string, args ...interface{}) {
 func (o *Output) Debugf(format string, args ...interface{}) {
 	str := o.Sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
-}
-
-func BadIndex(index int, size int) AstWithNode {
-	if size > 0 {
-		Errorf("index out of range: %d not in 0...%d", index, size-1)
-	} else {
-		Errorf("index out of range: %d, slice is empty", index)
-	}
-	return nil
 }
 
 func (f FileSet) FprintValues(out io.Writer, values ...r.Value) {
@@ -246,7 +239,7 @@ func (env *Env) showPackage(out io.Writer, packageName string) {
 			e = val
 			loop = false
 		default:
-			env.Warnf("not an imported package: %q = %v <%v>", packageName, val, TypeOf(bind))
+			env.Warnf("not an imported package: %q = %v <%v>", packageName, val, typeOf(bind))
 			return
 		}
 	}

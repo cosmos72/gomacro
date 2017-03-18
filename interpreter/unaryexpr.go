@@ -35,7 +35,7 @@ import (
 
 func (env *Env) unsupportedUnaryExpr(xv r.Value, op token.Token) (r.Value, []r.Value) {
 	opstr := mt.String(op)
-	return env.Errorf("unsupported unary expression %s on <%v>: %s %v", opstr, TypeOf(xv), opstr, xv)
+	return env.Errorf("unsupported unary expression %s on <%v>: %s %v", opstr, typeOf(xv), opstr, xv)
 }
 
 func (env *Env) warnOverflowSignedMinus(x interface{}, ret interface{}) {
@@ -56,7 +56,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	case token.AND:
 		place := env.evalExpr1(node.X)
 		if place == Nil || !place.CanAddr() {
-			return env.Errorf("cannot take the address of: %v = %v <%v>", node.X, place, TypeOf(place))
+			return env.Errorf("cannot take the address of: %v = %v <%v>", node.X, place, typeOf(place))
 		}
 		return place.Addr(), nil
 

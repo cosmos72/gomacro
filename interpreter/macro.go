@@ -30,6 +30,7 @@ import (
 	"go/token"
 	r "reflect"
 
+	. "github.com/cosmos72/gomacro/ast2"
 	mp "github.com/cosmos72/gomacro/parser"
 	mt "github.com/cosmos72/gomacro/token"
 )
@@ -274,7 +275,7 @@ func (env *Env) debugQuasiQuote(msg string, depth int, canSplice bool, x interfa
 
 // evalUnquote performs expansion inside a QUASIQUOTE
 func (env *Env) evalUnquote(inout UnaryExpr) interface{} {
-	block := inout.p.X.(*ast.FuncLit).Body
+	block := inout.X.X.(*ast.FuncLit).Body
 
 	ret, extraValues := env.evalBlock(block)
 	if len(extraValues) > 1 {
@@ -335,7 +336,7 @@ func duplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 // MakeQuote invokes parser.MakeQuote() and wraps the resulting ast.Node,
 // which represents quote{<form>}, into an Ast struct
 func MakeQuote(form UnaryExpr) (UnaryExpr, BlockStmt) {
-	expr, block := (*mp.Parser)(nil).MakeQuote(form.p.Op, form.p.OpPos, nil)
+	expr, block := (*mp.Parser)(nil).MakeQuote(form.X.Op, form.X.OpPos, nil)
 	return UnaryExpr{expr}, BlockStmt{block}
 }
 
@@ -346,7 +347,7 @@ func MakeQuote2(form UnaryExpr, toQuote AstWithNode) UnaryExpr {
 	if toQuote != nil {
 		node = toQuote.Node()
 	}
-	expr, _ := (*mp.Parser)(nil).MakeQuote(form.p.Op, form.p.OpPos, node)
+	expr, _ := (*mp.Parser)(nil).MakeQuote(form.X.Op, form.X.OpPos, node)
 	return UnaryExpr{expr}
 }
 
@@ -394,7 +395,7 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 	saved := in
 
 	if expr, ok := in.(UnaryExpr); ok {
-		switch expr.p.Op {
+		switch expr.X.Op {
 		case mt.QUOTE:
 			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
 			if quasiquoteDepth == 0 {
@@ -499,7 +500,7 @@ func (env *Env) extractMacroCall(form Ast) Macro {
 	form = unwrapTrivialAst(form)
 	switch form := form.(type) {
 	case Ident:
-		bind, found := env.resolveIdentifier(form.p)
+		bind, found := env.resolveIdentifier(form.X)
 		if found && bind.Kind() == r.Struct {
 			switch value := bind.Interface().(type) {
 			case Macro:

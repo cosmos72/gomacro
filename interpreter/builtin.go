@@ -29,6 +29,8 @@ import (
 	"go/ast"
 	"io/ioutil"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/ast2"
 )
 
 func builtinAppend(env *Env, args []ast.Expr) (r.Value, []r.Value) {
@@ -58,10 +60,10 @@ func builtinComplex(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	r_, rok := env.toFloat(rv)
 	i_, iok := env.toFloat(iv)
 	if !rok {
-		return env.Errorf("builtin complex(): not a float: %v <%v>", rv, TypeOf(rv))
+		return env.Errorf("builtin complex(): not a float: %v <%v>", rv, typeOf(rv))
 	}
 	if !iok {
-		return env.Errorf("builtin complex(): not a float: %v <%v>", iv, TypeOf(iv))
+		return env.Errorf("builtin complex(): not a float: %v <%v>", iv, typeOf(iv))
 	}
 	cplx := complex(r_, i_)
 	var ret interface{}
@@ -93,7 +95,7 @@ func builtinImag(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	cv := env.Eval1(args[0])
 	c_, ok := env.toComplex(cv)
 	if !ok {
-		return env.Errorf("builtin imag(): not a complex: %v <%v>", cv, TypeOf(cv))
+		return env.Errorf("builtin imag(): not a complex: %v <%v>", cv, typeOf(cv))
 	}
 	i_ := imag(c_)
 	var ret interface{}
@@ -208,7 +210,7 @@ func builtinReal(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	cv := env.Eval1(args[0])
 	c_, ok := env.toComplex(cv)
 	if !ok {
-		return env.Errorf("builtin real(): not a complex: %v <%v>", cv, TypeOf(cv))
+		return env.Errorf("builtin real(): not a complex: %v <%v>", cv, typeOf(cv))
 	}
 	i_ := real(c_)
 	var ret interface{}

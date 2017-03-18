@@ -143,7 +143,7 @@ func (stack *Stack) showFields(v r.Value) {
 	n := v.NumField()
 	for i := 0; i < n; i++ {
 		f := v.Field(i)
-		t := TypeOf(f)
+		t := typeOf(f)
 		f = dereferenceValue(f)
 		fmt.Fprintf(stack.env.Stdout, "    %d. ", i)
 		stack.env.showVar(v.Type().Field(i).Name, f, t)
@@ -154,7 +154,7 @@ func (stack *Stack) showIndexes(v r.Value) {
 	n := v.Len()
 	for i := 0; i < n; i++ {
 		f := v.Index(i)
-		t := TypeOf(f)
+		t := typeOf(f)
 		f = dereferenceValue(f)
 		fmt.Fprintf(stack.env.Stdout, "    %d. ", i)
 		stack.env.showVar("", f, t)
@@ -188,7 +188,7 @@ func (stack *Stack) Enter(cmd string) {
 		fname = v.Type().Field(i).Name
 		f = v.Field(i)
 	default:
-		fmt.Fprintf(stack.env.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", TypeOf(v))
+		fmt.Fprintf(stack.env.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", typeOf(v))
 		return
 	}
 	var t r.Type

@@ -29,6 +29,8 @@ import (
 	"go/token"
 	r "reflect"
 	"testing"
+
+	. "github.com/cosmos72/gomacro/ast2"
 )
 
 type TestCase struct {
@@ -195,12 +197,12 @@ func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 		case BadDecl, BadExpr, BadStmt:
 			return
 		case Ident:
-			if actual.p.Name == expected.(Ident).p.Name {
+			if actual.X.Name == expected.(Ident).X.Name {
 				return
 			}
 		case BasicLit:
-			actualp := actual.p
-			expectedp := expected.(BasicLit).p
+			actualp := actual.X
+			expectedp := expected.(BasicLit).X
 			if actualp.Kind == expectedp.Kind && actualp.Value == expectedp.Value {
 				return
 			}

@@ -32,6 +32,7 @@ import (
 	"go/token"
 	"os"
 
+	. "github.com/cosmos72/gomacro/ast2"
 	mp "github.com/cosmos72/gomacro/parser"
 )
 
@@ -69,7 +70,7 @@ func (ir *Interpreter) ParseAst(src interface{}) Ast {
 	case 1:
 		return ToAst(nodes[0])
 	default:
-		return NodeSlice{p: nodes}
+		return NodeSlice{X: nodes}
 	}
 }
 

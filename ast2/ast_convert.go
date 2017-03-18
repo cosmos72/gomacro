@@ -22,7 +22,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package interpreter
+package ast2
 
 import (
 	"fmt"
@@ -39,7 +39,7 @@ func AnyToAstWithNode(any interface{}, caller string) AstWithNode {
 	case AstWithNode:
 		return node
 	default:
-		Errorf("%s: cannot convert to ast.Node: %v <%v>", caller, any, r.TypeOf(any))
+		errorf("%s: cannot convert to ast.Node: %v <%v>", caller, any, r.TypeOf(any))
 		return nil
 	}
 }
@@ -50,7 +50,7 @@ func AnyToAstWithSlice(any interface{}, caller string) AstWithSlice {
 	case AstWithSlice:
 		return node
 	default:
-		Errorf("%s: cannot convert to slice of ast.Node: %v <%v>", caller, any, r.TypeOf(any))
+		errorf("%s: cannot convert to slice of ast.Node: %v <%v>", caller, any, r.TypeOf(any))
 		return nil
 	}
 }
@@ -66,26 +66,26 @@ func AnyToAst(any interface{}, caller string) Ast {
 	case ast.Node:
 		return ToAst(node)
 	case []ast.Node:
-		return NodeSlice{p: node}
+		return NodeSlice{X: node}
 	case []*ast.Field:
-		return FieldSlice{p: node}
+		return FieldSlice{X: node}
 	case []ast.Decl:
-		return DeclSlice{p: node}
+		return DeclSlice{X: node}
 	case []ast.Expr:
-		return ExprSlice{p: node}
+		return ExprSlice{X: node}
 	case []*ast.Ident:
-		return IdentSlice{p: node}
+		return IdentSlice{X: node}
 	case []ast.Stmt:
-		return StmtSlice{p: node}
+		return StmtSlice{X: node}
 	case []ast.Spec:
-		return SpecSlice{p: node}
+		return SpecSlice{X: node}
 	case bool:
 		if node {
 			str = "true"
 		} else {
 			str = "false"
 		}
-		return Ident{p: &ast.Ident{Name: str}}
+		return Ident{X: &ast.Ident{Name: str}}
 	/*
 		case rune: // Go cannot currently distinguish rune from int32
 			tok = token.CHAR
@@ -99,16 +99,16 @@ func AnyToAst(any interface{}, caller string) Ast {
 		tok = token.FLOAT
 		str = fmt.Sprintf("%g", node)
 	case complex64, complex128:
-		Errorf("%s: unimplemented conversion of <%v> to ast.Node: %v", r.TypeOf(any), caller, any)
+		errorf("%s: unimplemented conversion of <%v> to ast.Node: %v", r.TypeOf(any), caller, any)
 		return nil
 	case string:
 		tok = token.STRING
 		str = fmt.Sprintf("%q", node)
 	default:
-		Errorf("%s: cannot convert to ast.Node: %v <%v>", caller, any, r.TypeOf(any))
+		errorf("%s: cannot convert to ast.Node: %v <%v>", caller, any, r.TypeOf(any))
 		return nil
 	}
-	return BasicLit{p: &ast.BasicLit{Kind: tok, Value: str}}
+	return BasicLit{X: &ast.BasicLit{Kind: tok, Value: str}}
 
 }
 
@@ -117,7 +117,7 @@ func ToAst1(i int, node ast.Node) AstWithNode {
 	if i == 0 {
 		return ToAst(node)
 	} else {
-		return BadIndex(i, 1)
+		return badIndex(i, 1)
 	}
 }
 
@@ -130,7 +130,7 @@ func ToAst2(i int, n0 ast.Node, n1 ast.Node) AstWithNode {
 	case 1:
 		n = n1
 	default:
-		return BadIndex(i, 2)
+		return badIndex(i, 2)
 	}
 	return ToAst(n)
 }
@@ -148,7 +148,7 @@ func ToAst3(i int, n0 ast.Node, n1 ast.Node, n2 *ast.BlockStmt) AstWithNode {
 		}
 		return BlockStmt{n2}
 	default:
-		return BadIndex(i, 3)
+		return badIndex(i, 3)
 	}
 	return ToAst(n)
 }
@@ -165,7 +165,7 @@ func ToAst4(i int, n0 ast.Node, n1 ast.Node, n2 ast.Node, n3 ast.Node) AstWithNo
 	case 3:
 		n = n3
 	default:
-		return BadIndex(i, 4)
+		return badIndex(i, 4)
 	}
 	return ToAst(n)
 }
@@ -290,7 +290,7 @@ func ToAst(node ast.Node) AstWithNode {
 	case *ast.ValueSpec:
 		x = ValueSpec{node}
 	default:
-		Errorf("unsupported node type <%v>", r.TypeOf(node))
+		errorf("unsupported node type <%v>", r.TypeOf(node))
 	}
 	return x
 }
@@ -301,7 +301,7 @@ func ToAstWithSlice(x Ast, caller string) AstWithSlice {
 		return x
 	default:
 		y := x.Interface()
-		Errorf("%s: cannot convert to slice of ast.Node: %v <%v>", caller, y, r.TypeOf(y))
+		errorf("%s: cannot convert to slice of ast.Node: %v <%v>", caller, y, r.TypeOf(y))
 		return nil
 	}
 }
@@ -316,7 +316,7 @@ func ToNode(x Ast) ast.Node {
 		return nil
 	default:
 		y := x.Interface()
-		Errorf("cannot convert to ast.Node: %v <%v>", y, r.TypeOf(y))
+		errorf("cannot convert to ast.Node: %v <%v>", y, r.TypeOf(y))
 		return nil
 	}
 }
@@ -326,10 +326,10 @@ func ToBasicLit(x Ast) *ast.BasicLit {
 	case nil:
 		break
 	case BasicLit:
-		return x.p
+		return x.X
 	default:
 		y := x.Interface()
-		Errorf("cannot convert to *ast.BasicLit: %v <%v>", y, r.TypeOf(y))
+		errorf("cannot convert to *ast.BasicLit: %v <%v>", y, r.TypeOf(y))
 	}
 	return nil
 }
@@ -339,7 +339,7 @@ func ToBlockStmt(x Ast) *ast.BlockStmt {
 	case nil:
 		break
 	case BlockStmt:
-		return x.p
+		return x.X
 	default:
 		stmt := ToStmt(x)
 		return &ast.BlockStmt{Lbrace: stmt.Pos(), List: []ast.Stmt{stmt}, Rbrace: stmt.End()}
@@ -352,10 +352,10 @@ func ToCallExpr(x Ast) *ast.CallExpr {
 	case nil:
 		break
 	case CallExpr:
-		return x.p
+		return x.X
 	default:
 		y := x.Interface()
-		Errorf("cannot convert to *ast.CallExpr: %v <%v>", y, r.TypeOf(y))
+		errorf("cannot convert to *ast.CallExpr: %v <%v>", y, r.TypeOf(y))
 	}
 	return nil
 }
@@ -367,7 +367,7 @@ func ToDecl(x Ast) ast.Decl {
 	case nil:
 	default:
 		y := x.Interface()
-		Errorf("cannot convert to ast.Decl: %v <%v>", y, r.TypeOf(y))
+		errorf("cannot convert to ast.Decl: %v <%v>", y, r.TypeOf(y))
 	}
 	return nil
 }
@@ -389,7 +389,7 @@ func ToExpr(x Ast) ast.Expr {
 		block := &ast.BlockStmt{List: list}
 		return BlockStmtToExpr(block)
 	default:
-		Errorf("unimplemented conversion from %v to ast.Expr: %v <%v>",
+		errorf("unimplemented conversion from %v to ast.Expr: %v <%v>",
 			r.TypeOf(node), node, r.TypeOf(node))
 	}
 	return nil
@@ -400,7 +400,7 @@ func ToExprSlice(x Ast) []ast.Expr {
 	case nil:
 		break
 	case ExprSlice:
-		return x.p
+		return x.X
 	case AstWithSlice:
 		n := x.Size()
 		ret := make([]ast.Expr, n)
@@ -409,7 +409,7 @@ func ToExprSlice(x Ast) []ast.Expr {
 		}
 		return ret
 	default:
-		Errorf("unimplemented conversion from %v <%v> to []ast.Expr", x, r.TypeOf(x))
+		errorf("unimplemented conversion from %v <%v> to []ast.Expr", x, r.TypeOf(x))
 	}
 	return nil
 }
@@ -421,7 +421,7 @@ func ToField(x Ast) *ast.Field {
 	case *ast.Field:
 		return node
 	default:
-		Errorf("cannot convert %v <%v> to *ast.Field", node, r.TypeOf(node))
+		errorf("cannot convert %v <%v> to *ast.Field", node, r.TypeOf(node))
 	}
 	return nil
 }
@@ -433,7 +433,7 @@ func ToFile(x Ast) *ast.File {
 	case *ast.File:
 		return node
 	default:
-		Errorf("cannot convert %v <%v> to *ast.File", node, r.TypeOf(node))
+		errorf("cannot convert %v <%v> to *ast.File", node, r.TypeOf(node))
 	}
 	return nil
 }
@@ -447,7 +447,7 @@ func ToFieldList(x Ast) *ast.FieldList {
 	case *ast.Field:
 		return &ast.FieldList{Opening: node.Pos(), List: []*ast.Field{node}, Closing: node.End()}
 	default:
-		Errorf("cannot convert %v <%v> to *ast.Field", node, r.TypeOf(node))
+		errorf("cannot convert %v <%v> to *ast.Field", node, r.TypeOf(node))
 	}
 	return nil
 }
@@ -459,7 +459,7 @@ func ToFuncType(x Ast) *ast.FuncType {
 	case *ast.FuncType:
 		return node
 	default:
-		Errorf("cannot convert %v <%v> to *ast.FuncType", node, r.TypeOf(node))
+		errorf("cannot convert %v <%v> to *ast.FuncType", node, r.TypeOf(node))
 	}
 	return nil
 }
@@ -471,7 +471,7 @@ func ToImportSpec(x Ast) *ast.ImportSpec {
 	case *ast.ImportSpec:
 		return node
 	default:
-		Errorf("cannot convert %v <%v> to *ast.ImportSpec", node, r.TypeOf(node))
+		errorf("cannot convert %v <%v> to *ast.ImportSpec", node, r.TypeOf(node))
 	}
 	return nil
 }
@@ -483,7 +483,7 @@ func ToIdent(x Ast) *ast.Ident {
 	case *ast.Ident:
 		return node
 	default:
-		Errorf("cannot convert %v <%v> to *ast.Ident", node, r.TypeOf(node))
+		errorf("cannot convert %v <%v> to *ast.Ident", node, r.TypeOf(node))
 	}
 	return nil
 }
@@ -493,7 +493,7 @@ func ToIdentSlice(x Ast) []*ast.Ident {
 	case nil:
 		break
 	case IdentSlice:
-		return x.p
+		return x.X
 	case AstWithSlice:
 		n := x.Size()
 		ret := make([]*ast.Ident, n)
@@ -502,7 +502,7 @@ func ToIdentSlice(x Ast) []*ast.Ident {
 		}
 		return ret
 	default:
-		Errorf("unimplemented conversion from %v <%v> to []*ast.Ident", x, r.TypeOf(x))
+		errorf("unimplemented conversion from %v <%v> to []*ast.Ident", x, r.TypeOf(x))
 	}
 	return nil
 }
@@ -514,7 +514,7 @@ func ToSpec(x Ast) ast.Spec {
 	case ast.Spec:
 		return node
 	default:
-		Errorf("cannot convert %v <%v> to ast.Spec", node, r.TypeOf(node))
+		errorf("cannot convert %v <%v> to ast.Spec", node, r.TypeOf(node))
 	}
 	return nil
 }
@@ -530,7 +530,7 @@ func ToStmt(x Ast) ast.Stmt {
 	case nil:
 		break
 	default:
-		Errorf("unimplemented conversion from %v <%v> to ast.Stmt", node, r.TypeOf(node))
+		errorf("unimplemented conversion from %v <%v> to ast.Stmt", node, r.TypeOf(node))
 	}
 	return nil
 }
@@ -540,7 +540,7 @@ func ToStmtSlice(x Ast) []ast.Stmt {
 	case nil:
 		break
 	case StmtSlice:
-		return x.p
+		return x.X
 	case AstWithSlice:
 		n := x.Size()
 		ret := make([]ast.Stmt, n)
@@ -549,7 +549,7 @@ func ToStmtSlice(x Ast) []ast.Stmt {
 		}
 		return ret
 	default:
-		Errorf("unimplemented conversion from %v <%v> to []ast.Stmt", x, r.TypeOf(x))
+		errorf("unimplemented conversion from %v <%v> to []ast.Stmt", x, r.TypeOf(x))
 	}
 	return nil
 }

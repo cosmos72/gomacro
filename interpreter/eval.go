@@ -27,6 +27,8 @@ package interpreter
 import (
 	"go/ast"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/ast2"
 )
 
 func (env *Env) EvalAst1(in Ast) r.Value {

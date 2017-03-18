@@ -153,7 +153,7 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, const
 		return value
 	}
 	if t == nil {
-		t = TypeOf(value)
+		t = typeOf(value)
 	}
 	if _, exists := env.Binds[name]; exists {
 		env.Warnf("redefined identifier: %v", name)

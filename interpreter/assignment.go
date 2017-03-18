@@ -99,13 +99,13 @@ func (env *Env) evalPlace(node ast.Expr) Place {
 		case r.Array, r.Slice, r.String:
 			i, ok := env.toInt(index)
 			if !ok {
-				env.Errorf("invalid index, expecting an int: %v <%v>", index, TypeOf(index))
+				env.Errorf("invalid index, expecting an int: %v <%v>", index, typeOf(index))
 				return Place{}
 			}
 			obj = obj.Index(int(i))
 		default:
 			env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>",
-				node.X, index, obj, TypeOf(obj))
+				node.X, index, obj, typeOf(obj))
 			return Place{}
 		}
 	default:
@@ -130,7 +130,7 @@ func (env *Env) assignPlace(place Place, op token.Token, value r.Value) r.Value 
 	obj := place.obj
 	key := place.mapkey
 	if key == Nil {
-		t := TypeOf(obj)
+		t := typeOf(obj)
 		value = env.valueToType(value, t)
 		if op != token.ASSIGN {
 			value = env.evalBinaryExpr(obj, op, value)

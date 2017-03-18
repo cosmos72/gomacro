@@ -30,7 +30,7 @@ import (
 	r "reflect"
 )
 
-func TypeOf(value r.Value) r.Type {
+func typeOf(value r.Value) r.Type {
 	if value == None || value == Nil {
 		return typeOfInterface
 	}
@@ -99,7 +99,7 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 					env.Errorf("not a type: %v <%v>", node, r.TypeOf(node))
 				}
 			} else {
-				env.Errorf("not a package: %v = %v <%v>", pkgIdent, pkgv, TypeOf(pkgv))
+				env.Errorf("not a package: %v = %v <%v>", pkgIdent, pkgv, typeOf(pkgv))
 			}
 		} else {
 			env.Errorf("unimplemented qualified type, expecting packageName.identifier: %v <%v>", node, r.TypeOf(node))
@@ -238,7 +238,7 @@ func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 			return r.Zero(t)
 		}
 	}
-	vt := TypeOf(value)
+	vt := typeOf(value)
 	if !vt.AssignableTo(t) && !vt.ConvertibleTo(t) {
 		ret, _ := env.Errorf("failed to convert %v <%v> to <%v>", value, vt, t)
 		return ret

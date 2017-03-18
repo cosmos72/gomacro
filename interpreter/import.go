@@ -92,7 +92,7 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 			newEnv.Outer = fileEnv.TopEnv()
 
 			value := r.ValueOf(newEnv)
-			fileEnv.defineConst(name, TypeOf(value), value)
+			fileEnv.defineConst(name, typeOf(value), value)
 		}
 		return r.ValueOf(path), nil
 	default:
@@ -123,7 +123,7 @@ func (ir *Interpreter) ImportPackage(name, path string) *Env {
 		ir.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
 		return nil
 	}
-	internal := false
+	internal := true
 	filename := ir.createImportFile(path, pkg, internal)
 	if internal {
 		return nil

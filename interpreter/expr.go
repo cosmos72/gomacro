@@ -144,7 +144,7 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 		case *ast.StarExpr:
 			val := env.evalExpr1(node.X)
 			if val.Kind() != r.Ptr {
-				return env.Errorf("dereference of non-pointer: %v <%v>", val, TypeOf(val))
+				return env.Errorf("dereference of non-pointer: %v <%v>", val, typeOf(val))
 			}
 			return val.Elem(), nil
 
@@ -158,7 +158,7 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 }
 
 func (env *Env) unsupportedLogicalOperand(op token.Token, xv r.Value) (r.Value, []r.Value) {
-	return env.Errorf("unsupported type in logical operation %s: expecting bool, found %v <%v>", mt.String(op), xv, TypeOf(xv))
+	return env.Errorf("unsupported type in logical operation %s: expecting bool, found %v <%v>", mt.String(op), xv, typeOf(xv))
 }
 
 func (env *Env) evalSliceExpr(node *ast.SliceExpr) (r.Value, []r.Value) {
@@ -170,7 +170,7 @@ func (env *Env) evalSliceExpr(node *ast.SliceExpr) (r.Value, []r.Value) {
 	case r.Array, r.Slice, r.String:
 		// ok
 	default:
-		return env.Errorf("slice operation %v expects array, slice or string. found: %v <%v>", node, obj, TypeOf(obj))
+		return env.Errorf("slice operation %v expects array, slice or string. found: %v <%v>", node, obj, typeOf(obj))
 	}
 	lo, hi := 0, obj.Len()
 	if node.Low != nil {
@@ -208,12 +208,12 @@ func (env *Env) evalIndexExpr(node *ast.IndexExpr) (r.Value, []r.Value) {
 	case r.Array, r.Slice, r.String:
 		i, ok := env.toInt(index)
 		if !ok {
-			return env.Errorf("invalid index, expecting an int: %v <%v>", index, TypeOf(index))
+			return env.Errorf("invalid index, expecting an int: %v <%v>", index, typeOf(index))
 		}
 		return obj.Index(int(i)), nil
 
 	default:
-		return env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, obj, TypeOf(obj))
+		return env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>", node.X, index, obj, typeOf(obj))
 	}
 }
 
@@ -257,11 +257,11 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 			val = obj.MethodByName(name)
 		}
 		if val == Nil {
-			return env.Errorf("struct <%v> has no field or method %s", TypeOf(obj), name)
+			return env.Errorf("struct <%v> has no field or method %s", typeOf(obj), name)
 		}
 		return val, nil
 	default:
-		return env.Errorf("not a struct: <%v> has no field or method %s", TypeOf(obj), name)
+		return env.Errorf("not a struct: <%v> has no field or method %s", typeOf(obj), name)
 	}
 }
 
