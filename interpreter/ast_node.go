@@ -790,7 +790,7 @@ func (x SendStmt) Set(i int, child Ast) {
 	if i == 0 {
 		x.p.Chan = expr
 	} else if i == 1 {
-		x.p.Chan = expr
+		x.p.Value = expr
 	} else {
 		BadIndex(i, 2)
 	}

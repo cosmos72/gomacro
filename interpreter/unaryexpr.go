@@ -253,8 +253,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		}
 	default:
 		if op == token.ARROW && xv.Kind() == r.Chan {
-			val, ok := xv.Recv()
-			ret := r.ValueOf(val)
+			ret, ok := xv.Recv()
 			return ret, []r.Value{ret, r.ValueOf(ok)}
 		}
 	}

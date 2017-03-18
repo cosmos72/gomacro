@@ -99,7 +99,7 @@ func (env *Env) evalIncDec(node *ast.IncDecStmt) (r.Value, []r.Value) {
 func (env *Env) evalSend(node *ast.SendStmt) (r.Value, []r.Value) {
 	channel := env.evalExpr1(node.Chan)
 	if channel.Kind() != r.Chan {
-		return env.Errorf("<- invoked on non-channel: %v evaluated to %v %<v>", node.Chan, channel, r.TypeOf(channel))
+		return env.Errorf("<- invoked on non-channel: %v evaluated to %v <%v>", node.Chan, channel, TypeOf(channel))
 	}
 	value := env.evalExpr1(node.Value)
 	channel.Send(value)

@@ -58,12 +58,14 @@ var testcases = []TestCase{
 	TestCase{"make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
 	TestCase{"expr_slice", "y = y[:4]", []uint8{100, 0, 0, 103}, nil},
 	TestCase{"expr_slice3", "y = y[:3:4]", []uint8{100, 0, 0}, nil},
+	TestCase{"send_recv", "c <- 'x'; <-c", nil, []interface{}{'x', true}},
 	TestCase{"function", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
 	TestCase{"sum", sum_s + "; sum(100)", 5050, nil},
 	TestCase{"fibonacci", fib_s + "; fibonacci(13)", uint(233), nil},
-	TestCase{"multiple_values", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
-	TestCase{"defer", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
-	TestCase{"defer", "v = 12; testdefer(0); v", uint32(12), nil},
+	TestCase{"multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
+	TestCase{"multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
+	TestCase{"defer_1", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
+	TestCase{"defer_2", "v = 12; testdefer(0); v", uint32(12), nil},
 	TestCase{"recover", `var vpanic interface{}
 		func test_recover(rec bool, panick interface{}) {
 			defer func() {
@@ -76,7 +78,7 @@ var testcases = []TestCase{
 		test_recover(true, -3)
 		vpanic
 		`, -3, nil},
-	TestCase{"nested_recover", `var vpanic2, vpanic3 interface{}
+	TestCase{"nested_recover_1", `var vpanic2, vpanic3 interface{}
 		func test_nested_recover(repanic bool, panick interface{}) {
 			defer func() {
 				vpanic = recover()
@@ -95,18 +97,18 @@ var testcases = []TestCase{
 		test_nested_recover(false, -4)
 		Values(vpanic, vpanic2, vpanic3)
 		`, nil, []interface{}{nil, -4, nil}},
-	TestCase{"nested_recover", `vpanic, vpanic2, vpanic3 = nil, nil, nil
+	TestCase{"nested_recover_2", `vpanic, vpanic2, vpanic3 = nil, nil, nil
 		test_nested_recover(true, -5)
 		Values(vpanic, vpanic2, vpanic3)
 		`, nil, []interface{}{-5, -5, nil}},
 	TestCase{"import", "import \"fmt\"", "fmt", nil},
-	TestCase{"quote", "quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
-	TestCase{"quote", "quote{x}", &ast.Ident{Name: "x"}, nil},
-	TestCase{"quote", "ab:=quote{a;b}", &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{"quote_1", "quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
+	TestCase{"quote_2", "quote{x}", &ast.Ident{Name: "x"}, nil},
+	TestCase{"quote_3", "ab:=quote{a;b}", &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 	}}, nil},
-	TestCase{"quote", "quote{\"foo\"+\"bar\"}", &ast.BinaryExpr{
+	TestCase{"quote_4", "quote{\"foo\"+\"bar\"}", &ast.BinaryExpr{
 		Op: token.ADD,
 		X:  &ast.BasicLit{Kind: token.STRING, Value: "\"foo\""},
 		Y:  &ast.BasicLit{Kind: token.STRING, Value: "\"bar\""},
@@ -127,6 +129,7 @@ var testcases = []TestCase{
 }
 
 func TestInterpreter(t *testing.T) {
+
 	env := New()
 	for _, testcase := range testcases {
 		c := testcase
