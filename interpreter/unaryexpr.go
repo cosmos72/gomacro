@@ -251,6 +251,12 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.SUB:
 			ret = -x
 		}
+	default:
+		if op == token.ARROW && xv.Kind() == r.Chan {
+			val, ok := xv.Recv()
+			ret := r.ValueOf(val)
+			return ret, []r.Value{ret, r.ValueOf(ok)}
+		}
 	}
 	if ret == nil {
 		return env.unsupportedUnaryExpr(xv, op)

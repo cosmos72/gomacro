@@ -68,10 +68,12 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return None, nil
 	case *ast.ReturnStmt:
 		return env.evalReturn(node)
+	case *ast.SendStmt:
+		return env.evalSend(node)
 
 	case *ast.CaseClause, *ast.CommClause, *ast.DeferStmt,
 		*ast.GoStmt, *ast.LabeledStmt, *ast.RangeStmt,
-		*ast.SelectStmt, *ast.SendStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
+		*ast.SelectStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
 		// TODO
 		return env.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	default:
@@ -91,4 +93,14 @@ func (env *Env) evalIncDec(node *ast.IncDecStmt) (r.Value, []r.Value) {
 	}
 	place := env.evalPlace(node.X)
 	return env.assignPlace(place, op, One), nil
+}
+
+func (env *Env) evalSend(node *ast.SendStmt) (r.Value, []r.Value) {
+	channel := env.evalExpr1(node.Chan)
+	if channel.Kind() != r.Chan {
+		return env.Errorf("<- invoked on non-channel: %v evaluated to %v %<v>", node.Chan, channel, r.TypeOf(channel))
+	}
+	value := env.evalExpr1(node.Value)
+	channel.Send(value)
+	return None, nil
 }
