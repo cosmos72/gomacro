@@ -128,6 +128,9 @@ var testcases = []TestCase{
 	TestCase{"macro", "macro second_arg(a,b,c interface{}) interface{} { return b }; 0", 0, nil},
 	TestCase{"macro_call", "v = 98; second_arg;1;v;3", uint32(98), nil},
 	TestCase{"macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
+	TestCase{"values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
+	TestCase{"eval", "Eval(Values(3,4,5))", 3, nil},
+	TestCase{"eval_quote", "Eval(quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
 }
 
 func TestInterpreter(t *testing.T) {
