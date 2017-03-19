@@ -136,7 +136,7 @@ var testcases = []TestCase{
 func TestInterpreter(t *testing.T) {
 
 	env := New()
-	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
+	env.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for _, testcase := range testcases {
 		c := testcase
 		t.Run(c.name, func(t *testing.T) { c.run(t, env) })

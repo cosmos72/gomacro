@@ -50,7 +50,7 @@ func NewEnv(outer *Env, path string) *Env {
 	}
 	if outer == nil {
 		env.InterpreterCommon = NewInterpreterCommon()
-		env.CallStack = &CallStack{}
+		env.CallStack = &CallStack{Frame: []CallFrame{CallFrame{}}}
 		env.addBuiltins()
 		env.addInterpretedBuiltins()
 	} else {
@@ -92,11 +92,11 @@ func (env *Env) FuncEnv() *Env {
 
 // CallerFuncEnv returns the Env representing the caller's function.
 // needed by recover()
-func (env *Env) CallerFuncCallerFuncEnv() *Env {
+func (env *Env) CallerFuncEnv() *Env {
 	if env != nil {
 		frame := env.CallStack.Frame
-		if n := len(frame); n > 2 {
-			return frame[n-3].FuncEnv
+		if n := len(frame); n > 1 {
+			return frame[n-2].FuncEnv
 		}
 	}
 	return nil

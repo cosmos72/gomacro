@@ -45,12 +45,12 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 		return env.valueToType(val, t), nil
 	}
 
-	// prepare the call stack for the new function being called
-	stack := env.CallStack
-	stack.Frame = append(stack.Frame, CallFrame{Call: node, CallerEnv: env})
-	defer func() {
-		stack.Frame = stack.Frame[0 : len(stack.Frame)-1]
-	}()
+	{
+		frames := env.CallStack.Frame
+		frame := &frames[len(frames)-1]
+		frame.CurrentCall = node
+		frame.InnerEnv = env // leaks a bit... should be cleared after the call
+	}
 
 	switch fun.Kind() {
 	case r.Struct:

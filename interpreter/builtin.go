@@ -244,7 +244,7 @@ func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 
 	save := env
 	trace := save.Options&OptDebugPanicRecover != 0
-	env = env.CallerFuncCallerFuncEnv()
+	env = env.CallerFuncEnv()
 	if trace {
 		save.debugf("recover(): env = %v, stack is:", save.Name)
 		save.showStack()
@@ -276,7 +276,7 @@ func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 			} else if !funcData.runningDefers {
 				save.debugf("           no panic to consume, funcData.runningDefers = false")
 			} else {
-				save.debugf("           no panic to consume, funcData.panicking = nil")
+				save.debugf("           no panic to consume, funcData.panick = nil")
 			}
 		}
 	}

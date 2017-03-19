@@ -84,8 +84,10 @@ func (o *output) debugf(format string, args ...interface{}) {
 }
 
 func (env *Env) showStack() {
-	for i, frame := range env.CallStack.Frame {
-		e := frame.FuncEnv
+	frames := env.CallStack.Frame
+	n := len(frames)
+	for i := 1; i < n; i++ {
+		e := frames[i].FuncEnv
 		if e == nil {
 			env.debugf("%d:\t     nil", i)
 		} else if e.funcData.panick == nil {

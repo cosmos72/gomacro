@@ -46,9 +46,9 @@ type CallStack struct {
 }
 
 type CallFrame struct {
-	FuncEnv   *Env
-	Call      *ast.CallExpr
-	CallerEnv *Env
+	FuncEnv     *Env
+	InnerEnv    *Env          // innermost Env
+	CurrentCall *ast.CallExpr // call currently in progress
 }
 
 type funcData struct {
@@ -117,6 +117,7 @@ var None = r.ValueOf(none)
 var One = r.ValueOf(1)
 
 var typeOfInt = r.TypeOf(int(0))
+var typeOfRune = r.TypeOf(rune(0))
 var typeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
 var typeOfString = r.TypeOf("")
 var typeOfDeferFunc = r.TypeOf(func() {})
