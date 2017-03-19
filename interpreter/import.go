@@ -109,7 +109,7 @@ func (env *Env) sanitizeImportPath(path string) string {
 	return path
 }
 
-func (ir *Interpreter) ImportPackage(name, path string) *PackageRef {
+func (ir *InterpreterCommon) ImportPackage(name, path string) *PackageRef {
 	if pkg, ok := imports.Packages[path]; ok {
 		return &PackageRef{Package: pkg, Name: name, Path: path}
 	}
@@ -137,7 +137,7 @@ func (ir *Interpreter) ImportPackage(name, path string) *PackageRef {
 		Name:    name, Path: path}
 }
 
-func (ir *Interpreter) createImportFile(path string, pkg *types.Package, internal bool) string {
+func (ir *InterpreterCommon) createImportFile(path string, pkg *types.Package, internal bool) string {
 	buf := bytes.Buffer{}
 	isEmpty := ir.writeImportFile(&buf, path, pkg, internal)
 	if isEmpty {
@@ -191,7 +191,7 @@ func computeImportFilename(path string, internal bool) string {
 	return filename
 }
 
-func (ir *Interpreter) writeImportFile(out *bytes.Buffer, path string, pkg *types.Package, internal bool) (isEmpty bool) {
+func (ir *InterpreterCommon) writeImportFile(out *bytes.Buffer, path string, pkg *types.Package, internal bool) (isEmpty bool) {
 	scope := pkg.Scope()
 	names := scope.Names()
 

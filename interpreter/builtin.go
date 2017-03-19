@@ -241,13 +241,43 @@ func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 	//
 	// thus recover() is invoked inside deferred functions: find their caller's env
 	ret := Nil
-	env = env.CallerEnv()
+
+	save := env
+	trace := save.Options&OptDebugPanicRecover != 0
+	env = env.CallerFuncCallerFuncEnv()
+	if trace {
+		save.debugf("recover(): env = %v, stack is:", save.Name)
+		save.showStack()
+		fun := save.FuncEnv()
+		if fun != nil {
+			save.debugf("           func env = %v, runningDefers = %v", fun.Name, fun.funcData.runningDefers)
+		} else {
+			save.debugf("           func env = nil")
+		}
+		if env != nil {
+			save.debugf("           caller's func env = %v, runningDefers = %v", env.Name, env.funcData.runningDefers)
+		} else {
+			save.debugf("           caller's func env = nil")
+		}
+	}
+
 	if env != nil {
 		funcData := env.funcData
-		if funcData != nil && funcData.panicking != nil {
+		if funcData != nil && funcData.runningDefers && funcData.panick != nil {
 			// consume current panic
-			ret = r.ValueOf(*funcData.panicking)
-			funcData.panicking = nil
+			if trace {
+				save.debugf("           consuming current panic = %#v", *funcData.panick)
+			}
+			ret = r.ValueOf(*funcData.panick)
+			funcData.panick = nil
+		} else if trace {
+			if funcData == nil {
+				save.debugf("           no panic to consume, funcData = nil")
+			} else if !funcData.runningDefers {
+				save.debugf("           no panic to consume, funcData.runningDefers = false")
+			} else {
+				save.debugf("           no panic to consume, funcData.panicking = nil")
+			}
 		}
 	}
 	return ret, nil
@@ -268,6 +298,9 @@ func funcValues(env *Env, args []r.Value) (r.Value, []r.Value) {
 }
 
 func (env *Env) addBuiltins() {
+	if env.Binds == nil {
+		env.Binds = make(map[string]r.Value)
+	}
 	binds := env.Binds
 
 	binds["Env"] = r.ValueOf(Function{funcEnv, 0})
@@ -316,8 +349,11 @@ func (env *Env) addBuiltins() {
 	binds["true"] = r.ValueOf(true)
 
 	// --------- types ---------
-	types := make(map[string]r.Type)
-	env.Types = types
+	if env.Types == nil {
+		env.Types = make(map[string]r.Type)
+	}
+	types := env.Types
+
 	types["bool"] = r.TypeOf(false)
 	types["byte"] = r.TypeOf(byte(0))
 	types["complex64"] = r.TypeOf(complex(float32(0), float32(0)))

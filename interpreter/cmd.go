@@ -109,7 +109,7 @@ func applyOptions(opts Options, silent bool, verbose bool) Options {
 }
 
 func (cmd *Cmd) Usage() error {
-	fmt.Print(`usage: gomacro [expression]
+	fmt.Print(`usage: gomacro [-s] [-v] [expression]
        gomacro -f [filenames...]
        gomacro -d [dirnames...]
        gomacro .

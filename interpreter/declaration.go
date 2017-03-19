@@ -158,6 +158,9 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, const
 	if _, exists := env.Binds[name]; exists {
 		env.warnf("redefined identifier: %v", name)
 	}
+	if env.Binds == nil {
+		env.Binds = make(map[string]r.Value)
+	}
 	if constant {
 		value = value.Convert(t)
 		env.Binds[name] = value

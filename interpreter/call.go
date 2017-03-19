@@ -43,36 +43,44 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	if t != nil {
 		val := env.evalExpr1(node.Args[0])
 		return env.valueToType(val, t), nil
-	} else {
-		switch fun.Kind() {
-		case r.Struct:
-			switch fun := fun.Interface().(type) {
-			case Builtin:
-				if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
-					return env.errorf("builtin %v expects %d arguments, found %d",
-						node.Fun, fun.ArgNum, len(node.Args))
-				}
-				return fun.Exec(env, node.Args)
-			case Function:
-				if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
-					return env.errorf("function %v expects %d arguments, found %d",
-						node.Fun, fun.ArgNum, len(node.Args))
-				}
-				args := env.evalExprs(node.Args)
-				return fun.Exec(env, args)
+	}
+
+	// prepare the call stack for the new function being called
+	stack := env.CallStack
+	stack.Frame = append(stack.Frame, CallFrame{Call: node, CallerEnv: env})
+	defer func() {
+		stack.Frame = stack.Frame[0 : len(stack.Frame)-1]
+	}()
+
+	switch fun.Kind() {
+	case r.Struct:
+		switch fun := fun.Interface().(type) {
+		case Builtin:
+			if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
+				return env.errorf("builtin %v expects %d arguments, found %d",
+					node.Fun, fun.ArgNum, len(node.Args))
 			}
-		case r.Func:
-			args := env.evalFuncArgs(fun, node)
-			var rets []r.Value
-			if node.Ellipsis == token.NoPos {
-				rets = fun.Call(args)
-			} else {
-				rets = fun.CallSlice(args)
+			return fun.Exec(env, node.Args)
+		case Function:
+			if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
+				return env.errorf("function %v expects %d arguments, found %d",
+					node.Fun, fun.ArgNum, len(node.Args))
 			}
-			return unpackValues(rets)
-		default:
-			break
+			args := env.evalExprs(node.Args)
+			return fun.Exec(env, args)
 		}
+	case r.Func:
+		args := env.evalFuncArgs(fun, node)
+		var rets []r.Value
+
+		if node.Ellipsis == token.NoPos {
+			rets = fun.Call(args)
+		} else {
+			rets = fun.CallSlice(args)
+		}
+		return unpackValues(rets)
+	default:
+		break
 	}
 	return env.errorf("call of non-function: %v", node)
 }

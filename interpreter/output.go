@@ -83,6 +83,19 @@ func (o *output) debugf(format string, args ...interface{}) {
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
 
+func (env *Env) showStack() {
+	for i, frame := range env.CallStack.Frame {
+		e := frame.FuncEnv
+		if e == nil {
+			env.debugf("%d:\t     nil", i)
+		} else if e.funcData.panick == nil {
+			env.debugf("%d:\t     %v, runningDefers = %v, panic = nil", i, e.Name, e.funcData.runningDefers)
+		} else {
+			env.debugf("%d:\t     %v, runningDefers = %v, panic = &%#v", i, e.Name, e.funcData.runningDefers, *e.funcData.panick)
+		}
+	}
+}
+
 func (f fileSet) fprintValues(out io.Writer, values ...r.Value) {
 	if len(values) == 0 {
 		fmt.Fprint(out, "// no value\n")

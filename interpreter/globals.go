@@ -32,17 +32,30 @@ import (
 )
 
 type Env struct {
-	*Interpreter
+	*InterpreterCommon
 	imports.Package
 	Outer      *Env
+	CallStack  *CallStack
 	funcData   *funcData
 	iotaOffset int
 	Name, Path string
 }
 
+type CallStack struct {
+	Frame []CallFrame
+}
+
+type CallFrame struct {
+	FuncEnv   *Env
+	Call      *ast.CallExpr
+	CallerEnv *Env
+}
+
 type funcData struct {
-	defers    []func()
-	panicking *interface{} // current panic
+	defers        []func()
+	panick        *interface{} // current panic
+	CallDepth     int
+	runningDefers bool
 }
 
 type Builtin struct {
@@ -77,6 +90,8 @@ const (
 	OptShowEvalDuration
 	OptDebugMacroExpand
 	OptDebugQuasiquote
+	OptDebugCallStack
+	OptDebugPanicRecover
 
 	cMacroExpand1 whichMacroExpand = iota
 	cMacroExpand

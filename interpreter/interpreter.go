@@ -36,7 +36,7 @@ import (
 	mp "github.com/cosmos72/gomacro/parser"
 )
 
-type Interpreter struct {
+type InterpreterCommon struct {
 	output
 	Packagename string
 	Filename    string
@@ -46,8 +46,8 @@ type Interpreter struct {
 	SpecialChar rune
 }
 
-func NewInterpreter() *Interpreter {
-	ir := Interpreter{}
+func NewInterpreterCommon() *InterpreterCommon {
+	ir := InterpreterCommon{}
 	ir.Packagename = "main"
 	ir.Filename = "main.go"
 	ir.Fileset = token.NewFileSet()
@@ -61,7 +61,7 @@ func NewInterpreter() *Interpreter {
 	return &ir
 }
 
-func (ir *Interpreter) ParseAst(src interface{}) Ast {
+func (ir *InterpreterCommon) ParseAst(src interface{}) Ast {
 	bytes := Read(src)
 	nodes := ir.ParseBytes(bytes)
 	switch len(nodes) {
@@ -74,7 +74,7 @@ func (ir *Interpreter) ParseAst(src interface{}) Ast {
 	}
 }
 
-func (ir *Interpreter) ParseBytes(src []byte) []ast.Node {
+func (ir *InterpreterCommon) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 
 	parser.Fileset = ir.Fileset
@@ -97,12 +97,12 @@ func (ir *Interpreter) ParseBytes(src []byte) []ast.Node {
 //
 //
 
-func (ir *Interpreter) ParseBytes_OrigVersion(src []byte) []ast.Node {
+func (ir *InterpreterCommon) ParseBytes_OrigVersion(src []byte) []ast.Node {
 	node := ir.ParseBytes1_OrigVersion(src)
 	return []ast.Node{node}
 }
 
-func (ir *Interpreter) ParseBytes1_OrigVersion(src []byte) ast.Node {
+func (ir *InterpreterCommon) ParseBytes1_OrigVersion(src []byte) ast.Node {
 	pos := findFirstToken(src)
 	src = src[pos:]
 	expr, err := parser.ParseExprFrom(ir.Fileset, ir.Filename, src, 0)

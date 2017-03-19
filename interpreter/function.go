@@ -108,9 +108,27 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 		return env.packErrorf("call of non-function type %v", t)
 	}
 	env = NewEnv(env, envName)
-	env.funcData = &funcData{}
+	debugCall := env.Options&OptDebugCallStack != 0
+	// register this function call in the call stack prepared by evalCall()
+	{
+		stack := env.CallStack.Frame
+		depth := len(stack) - 1
+		env.funcData = &funcData{CallDepth: depth}
+		if depth >= 0 {
+			stack[depth].FuncEnv = env
+		}
+		if debugCall {
+			env.debugf("func starting: %s, args = %v, call stack is:", envName, args)
+			env.showStack()
+		}
+	}
+
 	panicking := true // use a flag to distinguish non-panic from panic(nil)
 	defer func() {
+		if debugCall {
+			env.debugf("func exiting:  %s, panicking = %v, stack length = %d",
+				envName, panicking, len(env.CallStack.Frame))
+		}
 		f := env.funcData
 		if panicking {
 			pan := recover()
@@ -119,13 +137,20 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 				// return is implemented with a panic(Return{})
 				results = env.convertFuncCallResults(t, p.results, true)
 			default: // some interpreted or compiled code invoked panic()
-				f.panicking = &p
+				if env.Options&OptDebugPanicRecover != 0 {
+					env.debugf("captured panic for defers: env = %v, panic = %#v", env.Name, p)
+				}
+				f.panick = &p
 			}
 		}
 		if len(f.defers) != 0 {
 			env.runDefers()
 		}
-		if pp := f.panicking; pp != nil {
+		if debugCall {
+			env.debugf("func exited:   %s, panic     = %v, stack length = %d",
+				envName, f.panick, len(env.CallStack.Frame))
+		}
+		if pp := f.panick; pp != nil {
 			panic(*pp)
 		}
 	}()
@@ -167,6 +192,11 @@ func (env *Env) convertFuncCallResults(t r.Type, rets []r.Value, warn bool) []r.
 
 func (env *Env) runDefers() {
 	// execute defers last-to-first
+	env.funcData.runningDefers = true
+	if env.Options&OptDebugCallStack != 0 {
+		env.debugf("func defers:   %s, panic = %v, stack length = %d",
+			env.Name, env.funcData.panick, len(env.CallStack.Frame))
+	}
 	defers := env.funcData.defers
 	for i := len(defers) - 1; i >= 0; i-- {
 		env.runDefer(defers[i])
@@ -179,10 +209,12 @@ func (env *Env) runDefer(deferred func()) {
 	// and can recover() such panic
 
 	panicking := true // use a flag to distinguish non-panic from panic(nil)
+	env.CallStack.Frame = append(env.CallStack.Frame, CallFrame{CallerEnv: env})
 	defer func() {
+		env.CallStack.Frame = env.CallStack.Frame[0 : len(env.CallStack.Frame)-1]
 		if panicking {
 			pan := recover()
-			env.funcData.panicking = &pan
+			env.funcData.panick = &pan
 		}
 	}()
 	deferred()

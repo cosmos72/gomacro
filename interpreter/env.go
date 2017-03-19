@@ -29,7 +29,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	r "reflect"
 	"strings"
 	"time"
 
@@ -43,22 +42,20 @@ func New() *Env {
 
 func NewEnv(outer *Env, path string) *Env {
 	env := &Env{
-		Package: imports.Package{
-			Binds:   make(map[string]r.Value),
-			Types:   nil,
-			Proxies: nil,
-		},
+		Package:    imports.Package{},
 		iotaOffset: 1,
 		Outer:      outer,
 		Name:       path,
 		Path:       path,
 	}
 	if outer == nil {
-		env.Interpreter = NewInterpreter()
+		env.InterpreterCommon = NewInterpreterCommon()
+		env.CallStack = &CallStack{}
 		env.addBuiltins()
 		env.addInterpretedBuiltins()
 	} else {
-		env.Interpreter = outer.Interpreter
+		env.InterpreterCommon = outer.InterpreterCommon
+		env.CallStack = outer.CallStack
 	}
 	return env
 }
@@ -82,17 +79,27 @@ func (env *Env) FileEnv() *Env {
 	return env
 }
 
+// FuncEnv returns the Env representing the current function call
 func (env *Env) FuncEnv() *Env {
-	for ; env != nil; env = env.Outer {
-		if env.funcData != nil {
-			break
+	if env != nil {
+		frame := env.CallStack.Frame
+		if n := len(frame); n > 0 {
+			return frame[n-1].FuncEnv
 		}
 	}
-	return env
+	return nil
 }
 
-func (env *Env) CallerEnv() *Env {
-	return env.FuncEnv().Outer.FuncEnv()
+// CallerFuncEnv returns the Env representing the caller's function.
+// needed by recover()
+func (env *Env) CallerFuncCallerFuncEnv() *Env {
+	if env != nil {
+		frame := env.CallStack.Frame
+		if n := len(frame); n > 2 {
+			return frame[n-3].FuncEnv
+		}
+	}
+	return nil
 }
 
 func (env *Env) ReplStdin() {
