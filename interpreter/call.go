@@ -46,8 +46,20 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	} else {
 		switch fun.Kind() {
 		case r.Struct:
-			if builtin, ok := fun.Interface().(Builtin); ok {
-				return builtin.Exec(env, node.Args)
+			switch fun := fun.Interface().(type) {
+			case Builtin:
+				if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
+					return env.errorf("builtin %v expects %d arguments, found %d",
+						node.Fun, fun.ArgNum, len(node.Args))
+				}
+				return fun.Exec(env, node.Args)
+			case Function:
+				if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
+					return env.errorf("function %v expects %d arguments, found %d",
+						node.Fun, fun.ArgNum, len(node.Args))
+				}
+				args := env.evalExprs(node.Args)
+				return fun.Exec(env, args)
 			}
 		case r.Func:
 			args := env.evalFuncArgs(fun, node)

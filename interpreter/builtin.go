@@ -33,14 +33,12 @@ import (
 	. "github.com/cosmos72/gomacro/ast2"
 )
 
-func builtinAppend(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+func funcAppend(env *Env, args []r.Value) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 {
 		return env.errorf("builtin append() expects at least one argument, found %d", n)
 	}
-	elems := env.evalExprs(args)
-	slice := elems[0]
-	return r.Append(slice, elems[1:]...), nil
+	return r.Append(args[0], args[1:]...), nil
 }
 
 func callCap(arg interface{}) int {
@@ -51,12 +49,8 @@ func callClose(channel interface{}) {
 	r.ValueOf(channel).Close()
 }
 
-func builtinComplex(env *Env, args []ast.Expr) (r.Value, []r.Value) {
-	n := len(args)
-	if n != 2 {
-		return env.errorf("builtin complex() expects exactly two arguments, found %d", n)
-	}
-	rv, iv := env.Eval1(args[0]), env.Eval1(args[1])
+func funcComplex(env *Env, args []r.Value) (r.Value, []r.Value) {
+	rv, iv := args[0], args[1]
 	r_, rok := env.toFloat(rv)
 	i_, iok := env.toFloat(iv)
 	if !rok {
@@ -83,27 +77,18 @@ func callDelete(m interface{}, key interface{}) {
 	r.ValueOf(m).SetMapIndex(r.ValueOf(key), Nil)
 }
 
-func builtinEnv(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+func funcEnv(env *Env, args []r.Value) (r.Value, []r.Value) {
 	return r.ValueOf(env), nil
 }
 
-func builtinEval(env *Env, args []ast.Expr) (r.Value, []r.Value) {
-	n := len(args)
-	if n != 1 {
-		return env.errorf("builtin Eval() expects exactly one argument, found %d", n)
-	}
-	nodev := env.evalExpr1(args[0])
-	node := toInterface(nodev)
+func funcEval(env *Env, args []r.Value) (r.Value, []r.Value) {
+	node := toInterface(args[0])
 	form := AnyToAst(node, "Eval")
 	return env.EvalAst(form)
 }
 
-func builtinImag(env *Env, args []ast.Expr) (r.Value, []r.Value) {
-	n := len(args)
-	if n != 1 {
-		return env.errorf("builtin imag() expects exactly one argument, found %d", n)
-	}
-	cv := env.Eval1(args[0])
+func funcImag(env *Env, args []r.Value) (r.Value, []r.Value) {
+	cv := args[0]
 	c_, ok := env.toComplex(cv)
 	if !ok {
 		return env.errorf("builtin imag(): not a complex: %v <%v>", cv, typeOf(cv))
@@ -126,30 +111,30 @@ func callLen(arg interface{}) int {
 // --------- macroexpansion ----------
 //
 
-func builtinMacroExpand(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+func funcMacroExpand(env *Env, args []r.Value) (r.Value, []r.Value) {
 	return callMacroExpand(env, args, cMacroExpand)
 }
 
-func builtinMacroExpand1(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+func funcMacroExpand1(env *Env, args []r.Value) (r.Value, []r.Value) {
 	return callMacroExpand(env, args, cMacroExpand1)
 }
 
-func builtinMacroExpandCodewalk(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+func funcMacroExpandCodewalk(env *Env, args []r.Value) (r.Value, []r.Value) {
 	return callMacroExpand(env, args, cMacroExpandCodewalk)
 }
 
-func callMacroExpand(env *Env, args []ast.Expr, which whichMacroExpand) (r.Value, []r.Value) {
+func callMacroExpand(env *Env, args []r.Value, which whichMacroExpand) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 2 {
 		return env.errorf("builtin %v() expects one or two arguments, found %d: %v", which, n, args)
 	}
-	val := env.evalExpr1(args[0])
+	val := args[0]
 	if val == Nil || val == None {
 		return val, nil
 	}
 	node := AnyToAstWithNode(val.Interface(), which.String()).Node()
 	if n == 2 {
-		e := env.evalExpr1(args[1])
+		e := args[1]
 		if e != Nil && e != None {
 			env = e.Interface().(*Env)
 		}
@@ -164,8 +149,7 @@ func callMacroExpand(env *Env, args []ast.Expr, which whichMacroExpand) (r.Value
 		node, expanded = env.MacroExpand(node)
 	}
 	nodev := r.ValueOf(node)
-	expandedv := r.ValueOf(expanded)
-	return nodev, []r.Value{nodev, expandedv}
+	return nodev, []r.Value{nodev, r.ValueOf(expanded)}
 }
 
 func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
@@ -201,10 +185,6 @@ func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 }
 
 func builtinNew(env *Env, args []ast.Expr) (r.Value, []r.Value) {
-	n := len(args)
-	if n != 1 {
-		return env.errorf("builtin new() expects exactly one argument, found %d", n)
-	}
 	t := env.evalType(args[0])
 	return r.New(t), nil
 }
@@ -213,12 +193,12 @@ func callPanic(arg interface{}) {
 	panic(arg)
 }
 
-func builtinReal(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+func funcReal(env *Env, args []r.Value) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
 		return env.errorf("builtin real() expects exactly one argument, found %d", n)
 	}
-	cv := env.Eval1(args[0])
+	cv := args[0]
 	c_, ok := env.toComplex(cv)
 	if !ok {
 		return env.errorf("builtin real(): not a complex: %v <%v>", cv, typeOf(cv))
@@ -254,20 +234,7 @@ func callReadDir(dirname string) []string {
 	return names
 }
 
-func builtinValues(env *Env, args []ast.Expr) (r.Value, []r.Value) {
-	rets := make([]r.Value, len(args))
-	for i, arg := range args {
-		// go through interface{} to forget any "static" compile-time type information
-		ret := env.Eval1(arg).Interface()
-		rets[i] = r.ValueOf(ret)
-	}
-	return unpackValues(rets)
-}
-
-func builtinRecover(env *Env, args []ast.Expr) (r.Value, []r.Value) {
-	if len(args) != 0 {
-		return env.errorf("builtin recover() expects exactly zero arguments, found %d", len(args))
-	}
+func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 	// Go specs: "Executing a call to recover inside a deferred function
 	// (but not any function called by it) stops the panicking sequence
 	// by restoring normal execution and retrieves the error value passed to the call of panic"
@@ -290,14 +257,24 @@ func callSlice(args ...interface{}) []interface{} {
 	return args
 }
 
+func funcValues(env *Env, args []r.Value) (r.Value, []r.Value) {
+	for i, arg := range args {
+		// go through interface{} to forget any "static" compile-time type information
+		if arg != None && arg != Nil {
+			args[i] = r.ValueOf(arg.Interface())
+		}
+	}
+	return unpackValues(args)
+}
+
 func (env *Env) addBuiltins() {
 	binds := env.Binds
 
-	binds["Env"] = r.ValueOf(Builtin{builtinEnv})
-	binds["Eval"] = r.ValueOf(Builtin{builtinEval})
-	binds["MacroExpand"] = r.ValueOf(Builtin{builtinMacroExpand})
-	binds["MacroExpand1"] = r.ValueOf(Builtin{builtinMacroExpand1})
-	binds["MacroExpandCodewalk"] = r.ValueOf(Builtin{builtinMacroExpandCodewalk})
+	binds["Env"] = r.ValueOf(Function{funcEnv, 0})
+	binds["Eval"] = r.ValueOf(Function{funcEval, 1})
+	binds["MacroExpand"] = r.ValueOf(Function{funcMacroExpand, -1})
+	binds["MacroExpand1"] = r.ValueOf(Function{funcMacroExpand1, -1})
+	binds["MacroExpandCodewalk"] = r.ValueOf(Function{funcMacroExpandCodewalk, -1})
 	binds["Parse"] = r.ValueOf(func(src interface{}) interface{} {
 		out := env.ParseAst(src)
 		if out == nil {
@@ -308,23 +285,25 @@ func (env *Env) addBuiltins() {
 	binds["Read"] = r.ValueOf(Read)
 	binds["ReadDir"] = r.ValueOf(callReadDir)
 	binds["ReadFile"] = r.ValueOf(callReadFile)
+	binds["ReadMultiline"] = r.ValueOf(ReadMultiline)
 	binds["Slice"] = r.ValueOf(callSlice)
 	binds["String"] = r.ValueOf(func(args ...interface{}) string {
 		return env.toString("", args...)
 	})
-	binds["Values"] = r.ValueOf(Builtin{builtinValues}) // return multiple values, extracting the concrete type of each interface
+	// return multiple values, extracting the concrete type of each interface
+	binds["Values"] = r.ValueOf(Function{funcValues, -1})
 
-	binds["append"] = r.ValueOf(Builtin{builtinAppend})
+	binds["append"] = r.ValueOf(Function{funcAppend, -1})
 	binds["cap"] = r.ValueOf(callCap)
 	binds["close"] = r.ValueOf(callClose)
-	binds["complex"] = r.ValueOf(Builtin{builtinComplex})
+	binds["complex"] = r.ValueOf(Function{funcComplex, 2})
 	binds["copy"] = r.ValueOf(callCopy)
 	binds["delete"] = r.ValueOf(callDelete)
 	binds["false"] = r.ValueOf(false)
-	binds["imag"] = r.ValueOf(Builtin{builtinImag})
+	binds["imag"] = r.ValueOf(Function{funcImag, 1})
 	binds["len"] = r.ValueOf(callLen)
-	binds["make"] = r.ValueOf(Builtin{builtinMake})
-	binds["new"] = r.ValueOf(Builtin{builtinNew})
+	binds["make"] = r.ValueOf(Builtin{builtinMake, -1})
+	binds["new"] = r.ValueOf(Builtin{builtinNew, 1})
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
 	binds["println"] = r.ValueOf(func(args ...interface{}) {
@@ -332,8 +311,8 @@ func (env *Env) addBuiltins() {
 		// env.FprintValues(env.Stdout, values...)
 		fmt.Fprintln(env.Stdout, args...)
 	})
-	binds["real"] = r.ValueOf(Builtin{builtinReal})
-	binds["recover"] = r.ValueOf(Builtin{builtinRecover})
+	binds["real"] = r.ValueOf(Function{funcReal, 1})
+	binds["recover"] = r.ValueOf(Function{funcRecover, 0})
 	binds["true"] = r.ValueOf(true)
 
 	// --------- types ---------

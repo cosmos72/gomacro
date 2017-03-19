@@ -46,7 +46,13 @@ type funcData struct {
 }
 
 type Builtin struct {
-	Exec func(env *Env, args []ast.Expr) (r.Value, []r.Value)
+	Exec   func(env *Env, args []ast.Expr) (r.Value, []r.Value)
+	ArgNum int // if negative, do not check
+}
+
+type Function struct {
+	Exec   func(env *Env, args []r.Value) (r.Value, []r.Value)
+	ArgNum int // if negative, do not check
 }
 
 type Macro struct {

@@ -36,6 +36,7 @@ func init() {
 			"Builtin":     r.TypeOf((*Builtin)(nil)).Elem(),
 			"Cmd":         r.TypeOf((*Cmd)(nil)).Elem(),
 			"Env":         r.TypeOf((*Env)(nil)).Elem(),
+			"Function":    r.TypeOf((*Function)(nil)).Elem(),
 			"Importer":    r.TypeOf((*Importer)(nil)).Elem(),
 			"Inspector":   r.TypeOf((*Inspector)(nil)).Elem(),
 			"Interpreter": r.TypeOf((*Interpreter)(nil)).Elem(),
