@@ -119,7 +119,7 @@ func (ir *InterpreterCommon) ImportPackage(name, path string) *PackageRef {
 		ir.errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
 		return nil
 	}
-	internal := true
+	internal := name == "__"
 	filename := ir.createImportFile(path, pkg, internal)
 	if internal {
 		return nil
