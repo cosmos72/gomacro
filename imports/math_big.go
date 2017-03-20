@@ -18,7 +18,7 @@ func init() {
 		"Jacobi":	ValueOf(big.Jacobi),
 		"MaxBase":	ValueOf(big.MaxBase),
 		"MaxExp":	ValueOf(big.MaxExp),
-		"MaxPrec":	ValueOf(big.MaxPrec),
+		"MaxPrec":	ValueOf(uint32(big.MaxPrec)),
 		"MinExp":	ValueOf(big.MinExp),
 		"NewFloat":	ValueOf(big.NewFloat),
 		"NewInt":	ValueOf(big.NewInt),

@@ -32,6 +32,7 @@ import (
 	"go/importer"
 	"go/types"
 	"io/ioutil"
+	"math"
 	"os"
 	r "reflect"
 	"strconv"
@@ -118,7 +119,7 @@ func (ir *InterpreterCommon) ImportPackage(name, path string) *PackageRef {
 		ir.errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
 		return nil
 	}
-	internal := false
+	internal := true
 	filename := ir.createImportFile(path, pkg, internal)
 	if internal {
 		return nil
@@ -260,16 +261,7 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 				var prefix, suffix string
 				if val.Kind() == constant.Int {
 					str := val.ExactString()
-					_, err := strconv.ParseInt(str, 0, 0)
-					if err != nil {
-						_, err := strconv.ParseUint(str, 0, 0)
-						if err == nil {
-							prefix = "uint64("
-							suffix = ")"
-						} else {
-							ir.warnf("package %q: integer constant %s = %s overflows both int64 and uint64, expect compile errors", path, name, str)
-						}
-					}
+					prefix, suffix = ir.detectIntKind(path, name, str)
 				}
 				fmt.Fprintf(out, "\n\t\t%q:\tValueOf(%s%s.%s%s),", name, prefix, pkgName, name, suffix)
 			case *types.Var:
@@ -321,4 +313,38 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 		}
 	}
 	return isEmpty
+}
+
+func (ir *InterpreterCommon) detectIntKind(path, name, str string) (string, string) {
+	i, err := strconv.ParseInt(str, 0, 0)
+	if err == nil {
+		if i == int64(int32(i)) {
+			// constant fits int32. We can use the default (i.e. int)
+			// on both 32-bit and 64-bit platforms
+			return "", ""
+		} else if i == int64(uint32(i)) {
+			// constant fits uint32
+			return "uint32(", ")"
+		} else {
+			return "int64(", ")"
+		}
+	}
+	_, err = strconv.ParseUint(str, 0, 0)
+	if err == nil {
+		return "uint64(", ")"
+	}
+	f, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		// nothing fits... leave the default
+		return "", ""
+	} else {
+		prefix := "float64"
+		f = math.Abs(f)
+		if f == float64(float32(f)) && f <= math.MaxFloat32 && f >= math.SmallestNonzeroFloat32 {
+			// float32 loses no precision vs. float64
+			prefix = "float32"
+		}
+		ir.warnf("package %q: integer constant %s = %s overflows both int64 and uint64, converting to %s", path, name, str, prefix)
+		return prefix + "(", ")"
+	}
 }

@@ -16,7 +16,7 @@ func init() {
 		"EOF":	ValueOf(scanner.EOF),
 		"Float":	ValueOf(scanner.Float),
 		"GoTokens":	ValueOf(scanner.GoTokens),
-		"GoWhitespace":	ValueOf(scanner.GoWhitespace),
+		"GoWhitespace":	ValueOf(int64(scanner.GoWhitespace)),
 		"Ident":	ValueOf(scanner.Ident),
 		"Int":	ValueOf(scanner.Int),
 		"RawString":	ValueOf(scanner.RawString),

@@ -11,12 +11,12 @@ import (
 func init() {
 	Packages["hash/crc32"] = Package{
 	Binds: map[string]Value{
-		"Castagnoli":	ValueOf(crc32.Castagnoli),
+		"Castagnoli":	ValueOf(uint32(crc32.Castagnoli)),
 		"Checksum":	ValueOf(crc32.Checksum),
 		"ChecksumIEEE":	ValueOf(crc32.ChecksumIEEE),
-		"IEEE":	ValueOf(crc32.IEEE),
+		"IEEE":	ValueOf(uint32(crc32.IEEE)),
 		"IEEETable":	ValueOf(&crc32.IEEETable).Elem(),
-		"Koopman":	ValueOf(crc32.Koopman),
+		"Koopman":	ValueOf(uint32(crc32.Koopman)),
 		"MakeTable":	ValueOf(crc32.MakeTable),
 		"New":	ValueOf(crc32.New),
 		"NewIEEE":	ValueOf(crc32.NewIEEE),
