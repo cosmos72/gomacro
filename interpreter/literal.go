@@ -44,7 +44,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 
 	case token.INT:
 		if strings.HasPrefix(str, "-") {
-			i64, err := strconv.ParseInt(str, 0, 0)
+			i64, err := strconv.ParseInt(str, 0, 64)
 			if err != nil {
 				return error_(err)
 			}
@@ -56,7 +56,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 			}
 			return i64
 		} else {
-			u64, err := strconv.ParseUint(str, 0, 0)
+			u64, err := strconv.ParseUint(str, 0, 64)
 			if err != nil {
 				return error_(err)
 			}

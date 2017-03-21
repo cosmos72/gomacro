@@ -316,7 +316,7 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 }
 
 func (ir *InterpreterCommon) detectIntKind(path, name, str string) (string, string) {
-	i, err := strconv.ParseInt(str, 0, 0)
+	i, err := strconv.ParseInt(str, 0, 64)
 	if err == nil {
 		if i == int64(int32(i)) {
 			// constant fits int32. We can use the default (i.e. int)
@@ -329,7 +329,7 @@ func (ir *InterpreterCommon) detectIntKind(path, name, str string) (string, stri
 			return "int64(", ")"
 		}
 	}
-	_, err = strconv.ParseUint(str, 0, 0)
+	_, err = strconv.ParseUint(str, 0, 64)
 	if err == nil {
 		return "uint64(", ")"
 	}

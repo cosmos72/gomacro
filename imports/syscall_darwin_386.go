@@ -1002,7 +1002,7 @@ func init() {
 		"RLIMIT_FSIZE":	ValueOf(syscall.RLIMIT_FSIZE),
 		"RLIMIT_NOFILE":	ValueOf(syscall.RLIMIT_NOFILE),
 		"RLIMIT_STACK":	ValueOf(syscall.RLIMIT_STACK),
-		"RLIM_INFINITY":	ValueOf(float32(syscall.RLIM_INFINITY)),
+		"RLIM_INFINITY":	ValueOf(int64(syscall.RLIM_INFINITY)),
 		"RTAX_AUTHOR":	ValueOf(syscall.RTAX_AUTHOR),
 		"RTAX_BRD":	ValueOf(syscall.RTAX_BRD),
 		"RTAX_DST":	ValueOf(syscall.RTAX_DST),
