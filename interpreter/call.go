@@ -46,7 +46,7 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	}
 
 	{
-		frames := env.CallStack.Frame
+		frames := env.CallStack.Frames
 		frame := &frames[len(frames)-1]
 		frame.CurrentCall = node
 		frame.InnerEnv = env // leaks a bit... should be cleared after the call
@@ -102,8 +102,8 @@ func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
 }
 
 func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
-	funcEnv := env.FuncEnv()
-	if funcEnv == nil {
+	frame := env.CurrentFrame()
+	if frame == nil {
 		return env.errorf("defer outside function: %v", node)
 	}
 	fun := env.evalExpr1(node.Fun)
@@ -122,6 +122,6 @@ func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
 			env.warnf("call to deferred function %v returned %d values, expecting zero: %v", node, rets)
 		}
 	}
-	funcEnv.funcData.defers = append(funcEnv.funcData.defers, closure)
+	frame.defers = append(frame.defers, closure)
 	return None, nil
 }

@@ -36,25 +36,21 @@ type Env struct {
 	imports.Package
 	Outer      *Env
 	CallStack  *CallStack
-	funcData   *funcData
 	iotaOffset int
 	Name, Path string
 }
 
 type CallStack struct {
-	Frame []CallFrame
+	Frames []CallFrame
 }
 
 type CallFrame struct {
-	FuncEnv     *Env
-	InnerEnv    *Env          // innermost Env
-	CurrentCall *ast.CallExpr // call currently in progress
-}
-
-type funcData struct {
+	FuncEnv       *Env
+	InnerEnv      *Env          // innermost Env
+	CurrentCall   *ast.CallExpr // call currently in progress
 	defers        []func()
-	panick        *interface{} // current panic
-	CallDepth     int
+	panick        interface{} // current panic
+	panicking     bool
 	runningDefers bool
 }
 

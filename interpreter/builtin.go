@@ -242,42 +242,36 @@ func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 	// thus recover() is invoked inside deferred functions: find their caller's env
 	ret := Nil
 
-	save := env
-	trace := save.Options&OptDebugPanicRecover != 0
-	env = env.CallerFuncEnv()
+	trace := env.Options&OptDebugPanicRecover != 0
+	caller := env.CallerFrame()
 	if trace {
-		save.debugf("recover(): env = %v, stack is:", save.Name)
-		save.showStack()
-		fun := save.FuncEnv()
-		if fun != nil {
-			save.debugf("           func env = %v, runningDefers = %v", fun.Name, fun.funcData.runningDefers)
+		env.debugf("recover(): env = %v, stack is:", env.Name)
+		env.showStack()
+		curr := env.CurrentFrame()
+		if curr != nil {
+			env.debugf("           frame = %v, runningDefers = %v", curr.FuncEnv.Name, curr.runningDefers)
 		} else {
-			save.debugf("           func env = nil")
+			env.debugf("           frame = nil")
 		}
-		if env != nil {
-			save.debugf("           caller's func env = %v, runningDefers = %v", env.Name, env.funcData.runningDefers)
+		if caller != nil {
+			env.debugf("           caller = %v, runningDefers = %v", caller.FuncEnv.Name, caller.runningDefers)
 		} else {
-			save.debugf("           caller's func env = nil")
+			env.debugf("           caller = nil")
 		}
 	}
 
-	if env != nil {
-		funcData := env.funcData
-		if funcData != nil && funcData.runningDefers && funcData.panick != nil {
+	if caller != nil {
+		if caller.runningDefers && caller.panicking {
 			// consume current panic
 			if trace {
-				save.debugf("           consuming current panic = %#v", *funcData.panick)
+				env.debugf("           consuming current panic = %#v", caller.panick)
 			}
-			ret = r.ValueOf(*funcData.panick)
-			funcData.panick = nil
+			ret = r.ValueOf(caller.panick)
+			caller.panick = nil
+			caller.panicking = false
 		} else if trace {
-			if funcData == nil {
-				save.debugf("           no panic to consume, funcData = nil")
-			} else if !funcData.runningDefers {
-				save.debugf("           no panic to consume, funcData.runningDefers = false")
-			} else {
-				save.debugf("           no panic to consume, funcData.panick = nil")
-			}
+			env.debugf("           no panic to consume: caller.runningDefers = %q, caller.panicking = %q",
+				caller.runningDefers, caller.panicking)
 		}
 	}
 	return ret, nil

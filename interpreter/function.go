@@ -115,8 +115,7 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 	// register this function call in the call stack prepared by evalCall()
 	{
 		stack := env.CallStack
-		env.funcData = &funcData{CallDepth: len(stack.Frame)}
-		stack.Frame = append(stack.Frame, CallFrame{FuncEnv: env})
+		stack.Frames = append(stack.Frames, CallFrame{FuncEnv: env})
 		if debugCall {
 			env.debugf("func starting: %s, args = %v, call stack is:", envName, args)
 			env.showStack()
@@ -127,9 +126,9 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 	defer func() {
 		if debugCall {
 			env.debugf("func exiting:  %s, panicking = %v, stack length = %d",
-				envName, panicking, len(env.CallStack.Frame))
+				envName, panicking, len(env.CallStack.Frames))
 		}
-		f := env.funcData
+		frame := env.CurrentFrame()
 		if panicking {
 			pan := recover()
 			switch p := pan.(type) {
@@ -140,22 +139,27 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 				if env.Options&OptDebugPanicRecover != 0 {
 					env.debugf("captured panic for defers: env = %v, panic = %#v", env.Name, p)
 				}
-				f.panick = &p
+				frame.panick = p
+				frame.panicking = true
 			}
 		}
-		if len(f.defers) != 0 {
-			env.runDefers()
+		if len(frame.defers) != 0 {
+			frame.runDefers(env)
 		}
 		stack := env.CallStack
-		stack.Frame = stack.Frame[0 : len(stack.Frame)-1]
+		stack.Frames = stack.Frames[0 : len(stack.Frames)-1]
 
 		if debugCall {
-			env.debugf("func exited:   %s, panic     = %v, stack length = %d",
-				envName, f.panick, len(stack.Frame))
+			str := "is"
+			if frame.panicking {
+				str = "="
+			}
+			env.debugf("func exited:   %s, panic     %s %v, stack length = %d",
+				envName, str, frame.panick, len(stack.Frames))
 		}
 
-		if pp := f.panick; pp != nil {
-			panic(*pp)
+		if frame.panicking {
+			panic(frame.panick)
 		}
 	}()
 
@@ -194,20 +198,24 @@ func (env *Env) convertFuncCallResults(t r.Type, rets []r.Value, warn bool) []r.
 	return rets
 }
 
-func (env *Env) runDefers() {
+func (frame *CallFrame) runDefers(env *Env) {
 	// execute defers last-to-first
-	env.funcData.runningDefers = true
+	frame.runningDefers = true
 	if env.Options&OptDebugCallStack != 0 {
-		env.debugf("func defers:   %s, panic = %#v, stack length = %d",
-			env.Name, env.funcData.panick, len(env.CallStack.Frame))
+		str := "is"
+		if frame.panicking {
+			str = "="
+		}
+		env.debugf("func defers:   %s, panic %s %v, stack length = %d",
+			env.Name, str, frame.panick, len(env.CallStack.Frames))
 	}
-	defers := env.funcData.defers
+	defers := frame.defers
 	for i := len(defers) - 1; i >= 0; i-- {
-		env.runDefer(defers[i])
+		frame.runDefer(defers[i])
 	}
 }
 
-func (env *Env) runDefer(deferred func()) {
+func (frame *CallFrame) runDefer(deferred func()) {
 	// invoking panic() inside a deferred function exits it with a panic,
 	// but the previously-installed deferred functions are still executed
 	// and can recover() such panic
@@ -215,8 +223,8 @@ func (env *Env) runDefer(deferred func()) {
 	panicking := true // use a flag to distinguish non-panic from panic(nil)
 	defer func() {
 		if panicking {
-			pan := recover()
-			env.funcData.panick = &pan
+			frame.panick = recover()
+			frame.panicking = true
 		}
 	}()
 	deferred()

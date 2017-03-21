@@ -84,16 +84,18 @@ func (o *output) debugf(format string, args ...interface{}) {
 }
 
 func (env *Env) showStack() {
-	frames := env.CallStack.Frame
+	frames := env.CallStack.Frames
 	n := len(frames)
 	for i := 1; i < n; i++ {
-		e := frames[i].FuncEnv
-		if e == nil {
-			env.debugf("%d:\t     nil", i)
-		} else if e.funcData.panick == nil {
-			env.debugf("%d:\t     %v, runningDefers = %v, panic = nil", i, e.Name, e.funcData.runningDefers)
+		frame := &frames[i]
+		name := ""
+		if frame.FuncEnv != nil {
+			name = frame.FuncEnv.Name
+		}
+		if frame.panicking {
+			env.debugf("%d:\t     %v, runningDefers = %v, panic = %v", i, name, frame.runningDefers, frame.panick)
 		} else {
-			env.debugf("%d:\t     %v, runningDefers = %v, panic = &%#v", i, e.Name, e.funcData.runningDefers, *e.funcData.panick)
+			env.debugf("%d:\t     %v, runningDefers = %v, panic is nil", i, name, frame.runningDefers)
 		}
 	}
 }
