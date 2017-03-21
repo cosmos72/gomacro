@@ -189,6 +189,18 @@ func builtinNew(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	return r.New(t), nil
 }
 
+func funcParse(env *Env, args []r.Value) (r.Value, []r.Value) {
+	var in interface{}
+	if arg := args[0]; arg != Nil && arg != None {
+		in = arg.Interface()
+	}
+	out := env.ParseAst(in)
+	if out != nil {
+		return r.ValueOf(out.Interface()), nil
+	}
+	return Nil, nil
+}
+
 func callPanic(arg interface{}) {
 	panic(arg)
 }
@@ -302,14 +314,8 @@ func (env *Env) addBuiltins() {
 	binds["MacroExpand"] = r.ValueOf(Function{funcMacroExpand, -1})
 	binds["MacroExpand1"] = r.ValueOf(Function{funcMacroExpand1, -1})
 	binds["MacroExpandCodewalk"] = r.ValueOf(Function{funcMacroExpandCodewalk, -1})
-	binds["Parse"] = r.ValueOf(func(src interface{}) interface{} {
-		out := env.ParseAst(src)
-		if out == nil {
-			return nil
-		}
-		return out.Interface()
-	})
-	binds["Read"] = r.ValueOf(Read)
+	binds["Parse"] = r.ValueOf(Function{funcParse, 1})
+	binds["Read"] = r.ValueOf(ReadString)
 	binds["ReadDir"] = r.ValueOf(callReadDir)
 	binds["ReadFile"] = r.ValueOf(callReadFile)
 	binds["ReadMultiline"] = r.ValueOf(ReadMultiline)

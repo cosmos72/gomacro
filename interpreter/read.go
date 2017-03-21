@@ -33,7 +33,7 @@ import (
 	r "reflect"
 )
 
-func Read(src interface{}) []byte {
+func ReadBytes(src interface{}) []byte {
 	switch s := src.(type) {
 	case []byte:
 		if s != nil {
@@ -57,6 +57,32 @@ func Read(src interface{}) []byte {
 	}
 	errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
 	return nil
+}
+
+func ReadString(src interface{}) string {
+	switch s := src.(type) {
+	case []byte:
+		if s != nil {
+			return string(s)
+		}
+	case string:
+		return s
+	case *bytes.Buffer:
+		// is io.Reader, but src is already available in string form
+		if s != nil {
+			return s.String()
+		}
+	case io.Reader:
+		if s != nil {
+			var buf bytes.Buffer
+			if _, err := io.Copy(&buf, s); err != nil {
+				error_(err)
+			}
+			return buf.String()
+		}
+	}
+	errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
+	return ""
 }
 
 func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt string) (string, error) {
