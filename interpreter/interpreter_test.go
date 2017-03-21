@@ -24,7 +24,6 @@
 package interpreter
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
@@ -38,6 +37,27 @@ type TestCase struct {
 	program string
 	result0 interface{}
 	results []interface{}
+}
+
+func TestInterpreter(t *testing.T) {
+
+	env := New()
+	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
+	for _, testcase := range testcases {
+		c := testcase
+		t.Run(c.name, func(t *testing.T) { c.run(t, env) })
+	}
+}
+
+func (c *TestCase) run(t *testing.T, env *Env) {
+	// parse phase
+	form := env.ParseAst(c.program)
+	// macroexpansion phase
+	form, _ = env.MacroExpandAstCodewalk(form)
+	// eval phase
+	rets := packValues(env.EvalAst(form))
+
+	c.compareResults(t, rets)
 }
 
 const sum_s = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
@@ -133,27 +153,6 @@ var testcases = []TestCase{
 	TestCase{"eval_quote", "Eval(quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
 }
 
-func TestInterpreter(t *testing.T) {
-
-	env := New()
-	env.Options |= OptDebugCallStack | OptDebugPanicRecover
-	for _, testcase := range testcases {
-		c := testcase
-		t.Run(c.name, func(t *testing.T) { c.run(t, env) })
-	}
-}
-
-func (c *TestCase) run(t *testing.T, env *Env) {
-	// parse phase
-	form := env.ParseAst(c.program)
-	// macroexpansion phase
-	form, _ = env.MacroExpandAstCodewalk(form)
-	// eval phase
-	rets := packValues(env.EvalAst(form))
-
-	c.compareResults(t, rets)
-}
-
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
 	expected := c.results
 	if len(expected) == 0 {
@@ -225,8 +224,7 @@ func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 }
 
 func (c *TestCase) fail(t *testing.T, actual interface{}, expected interface{}) {
-	fmt.Printf("--- FAIL: %s: expected %#v <%T>, found %#v <%T>\n", t.Name(), expected, expected, actual, actual)
-	t.Fail()
+	t.Errorf("expected %#v <%T>, found %#v <%T>\n", expected, expected, actual, actual)
 }
 
 // fibonacci(30):
