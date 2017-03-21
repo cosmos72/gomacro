@@ -50,44 +50,50 @@ func init() {
 
 // --------------- proxy for crypto.Decrypter ---------------
 type Decrypter_crypto struct {
+	Object	interface{}
 	Decrypt_	func(rand io.Reader, msg []byte, opts crypto.DecrypterOpts) (plaintext []byte, err error)
 	Public_	func() crypto.PublicKey
 }
-func (Obj Decrypter_crypto) Decrypt(rand io.Reader, msg []byte, opts crypto.DecrypterOpts) (plaintext []byte, err error) {
-	return Obj.Decrypt_(rand, msg, opts)
+func (Proxy Decrypter_crypto) Decrypt(rand io.Reader, msg []byte, opts crypto.DecrypterOpts) (plaintext []byte, err error) {
+	return Proxy.Decrypt_(rand, msg, opts)
 }
-func (Obj Decrypter_crypto) Public() crypto.PublicKey {
-	return Obj.Public_()
+func (Proxy Decrypter_crypto) Public() crypto.PublicKey {
+	return Proxy.Public_()
 }
 
 // --------------- proxy for crypto.DecrypterOpts ---------------
 type DecrypterOpts_crypto struct {
+	Object	interface{}
 }
 
 // --------------- proxy for crypto.PrivateKey ---------------
 type PrivateKey_crypto struct {
+	Object	interface{}
 }
 
 // --------------- proxy for crypto.PublicKey ---------------
 type PublicKey_crypto struct {
+	Object	interface{}
 }
 
 // --------------- proxy for crypto.Signer ---------------
 type Signer_crypto struct {
+	Object	interface{}
 	Public_	func() crypto.PublicKey
 	Sign_	func(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error)
 }
-func (Obj Signer_crypto) Public() crypto.PublicKey {
-	return Obj.Public_()
+func (Proxy Signer_crypto) Public() crypto.PublicKey {
+	return Proxy.Public_()
 }
-func (Obj Signer_crypto) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error) {
-	return Obj.Sign_(rand, digest, opts)
+func (Proxy Signer_crypto) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error) {
+	return Proxy.Sign_(rand, digest, opts)
 }
 
 // --------------- proxy for crypto.SignerOpts ---------------
 type SignerOpts_crypto struct {
+	Object	interface{}
 	HashFunc_	func() crypto.Hash
 }
-func (Obj SignerOpts_crypto) HashFunc() crypto.Hash {
-	return Obj.HashFunc_()
+func (Proxy SignerOpts_crypto) HashFunc() crypto.Hash {
+	return Proxy.HashFunc_()
 }

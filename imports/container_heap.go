@@ -27,24 +27,25 @@ func init() {
 
 // --------------- proxy for container/heap.Interface ---------------
 type Interface_container_heap struct {
+	Object	interface{}
 	Len_	func() int
 	Less_	func(i int, j int) bool
 	Pop_	func() interface{}
 	Push_	func(x interface{}) 
 	Swap_	func(i int, j int) 
 }
-func (Obj Interface_container_heap) Len() int {
-	return Obj.Len_()
+func (Proxy Interface_container_heap) Len() int {
+	return Proxy.Len_()
 }
-func (Obj Interface_container_heap) Less(i int, j int) bool {
-	return Obj.Less_(i, j)
+func (Proxy Interface_container_heap) Less(i int, j int) bool {
+	return Proxy.Less_(i, j)
 }
-func (Obj Interface_container_heap) Pop() interface{} {
-	return Obj.Pop_()
+func (Proxy Interface_container_heap) Pop() interface{} {
+	return Proxy.Pop_()
 }
-func (Obj Interface_container_heap) Push(x interface{})  {
-	Obj.Push_(x)
+func (Proxy Interface_container_heap) Push(x interface{})  {
+	Proxy.Push_(x)
 }
-func (Obj Interface_container_heap) Swap(i int, j int)  {
-	Obj.Swap_(i, j)
+func (Proxy Interface_container_heap) Swap(i int, j int)  {
+	Proxy.Swap_(i, j)
 }

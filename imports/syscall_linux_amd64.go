@@ -2196,4 +2196,5 @@ func init() {
 
 // --------------- proxy for syscall.Sockaddr ---------------
 type Sockaddr_syscall struct {
+	Object	interface{}
 }

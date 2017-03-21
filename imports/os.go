@@ -122,6 +122,7 @@ func init() {
 
 // --------------- proxy for os.FileInfo ---------------
 type FileInfo_os struct {
+	Object	interface{}
 	IsDir_	func() bool
 	ModTime_	func() time.Time
 	Mode_	func() os.FileMode
@@ -129,33 +130,34 @@ type FileInfo_os struct {
 	Size_	func() int64
 	Sys_	func() interface{}
 }
-func (Obj FileInfo_os) IsDir() bool {
-	return Obj.IsDir_()
+func (Proxy FileInfo_os) IsDir() bool {
+	return Proxy.IsDir_()
 }
-func (Obj FileInfo_os) ModTime() time.Time {
-	return Obj.ModTime_()
+func (Proxy FileInfo_os) ModTime() time.Time {
+	return Proxy.ModTime_()
 }
-func (Obj FileInfo_os) Mode() os.FileMode {
-	return Obj.Mode_()
+func (Proxy FileInfo_os) Mode() os.FileMode {
+	return Proxy.Mode_()
 }
-func (Obj FileInfo_os) Name() string {
-	return Obj.Name_()
+func (Proxy FileInfo_os) Name() string {
+	return Proxy.Name_()
 }
-func (Obj FileInfo_os) Size() int64 {
-	return Obj.Size_()
+func (Proxy FileInfo_os) Size() int64 {
+	return Proxy.Size_()
 }
-func (Obj FileInfo_os) Sys() interface{} {
-	return Obj.Sys_()
+func (Proxy FileInfo_os) Sys() interface{} {
+	return Proxy.Sys_()
 }
 
 // --------------- proxy for os.Signal ---------------
 type Signal_os struct {
+	Object	interface{}
 	Signal_	func() 
 	String_	func() string
 }
-func (Obj Signal_os) Signal()  {
-	Obj.Signal_()
+func (Proxy Signal_os) Signal()  {
+	Proxy.Signal_()
 }
-func (Obj Signal_os) String() string {
-	return Obj.String_()
+func (Proxy Signal_os) String() string {
+	return Proxy.String_()
 }

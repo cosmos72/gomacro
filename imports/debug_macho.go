@@ -77,8 +77,9 @@ func init() {
 
 // --------------- proxy for debug/macho.Load ---------------
 type Load_debug_macho struct {
+	Object	interface{}
 	Raw_	func() []byte
 }
-func (Obj Load_debug_macho) Raw() []byte {
-	return Obj.Raw_()
+func (Proxy Load_debug_macho) Raw() []byte {
+	return Proxy.Raw_()
 }

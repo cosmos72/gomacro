@@ -58,16 +58,17 @@ func init() {
 
 // --------------- proxy for go/constant.Value ---------------
 type Value_go_constant struct {
+	Object	interface{}
 	ExactString_	func() string
 	Kind_	func() constant.Kind
 	String_	func() string
 }
-func (Obj Value_go_constant) ExactString() string {
-	return Obj.ExactString_()
+func (Proxy Value_go_constant) ExactString() string {
+	return Proxy.ExactString_()
 }
-func (Obj Value_go_constant) Kind() constant.Kind {
-	return Obj.Kind_()
+func (Proxy Value_go_constant) Kind() constant.Kind {
+	return Proxy.Kind_()
 }
-func (Obj Value_go_constant) String() string {
-	return Obj.String_()
+func (Proxy Value_go_constant) String() string {
+	return Proxy.String_()
 }

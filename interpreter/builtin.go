@@ -350,8 +350,8 @@ func (env *Env) addBuiltins() {
 
 	types["bool"] = r.TypeOf(false)
 	types["byte"] = r.TypeOf(byte(0))
-	types["complex64"] = r.TypeOf(complex(float32(0), float32(0)))
-	types["complex128"] = r.TypeOf(complex(float64(0), float64(0)))
+	types["complex64"] = r.TypeOf(complex64(0))
+	types["complex128"] = r.TypeOf(complex128(0))
 	types["error"] = r.TypeOf((*error)(nil)).Elem()
 	types["float32"] = r.TypeOf(float32(0))
 	types["float64"] = r.TypeOf(float64(0))
@@ -368,6 +368,23 @@ func (env *Env) addBuiltins() {
 	types["uint32"] = r.TypeOf(uint32(0))
 	types["uint64"] = r.TypeOf(uint64(0))
 	types["uintptr"] = r.TypeOf(uintptr(0))
+
+	// --------- proxies ---------
+	if env.Proxies == nil {
+		env.Proxies = make(map[string]r.Type)
+	}
+	proxies := env.Proxies
+
+	proxies["error"] = r.TypeOf((*Error_builtin)(nil)).Elem()
+}
+
+type Error_builtin struct {
+	Object interface{}
+	Error_ func() string
+}
+
+func (Proxy Error_builtin) Error() string {
+	return Proxy.Error_()
 }
 
 func (env *Env) addInterpretedBuiltins() {

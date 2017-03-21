@@ -158,26 +158,29 @@ func init() {
 
 // --------------- proxy for go/types.Importer ---------------
 type Importer_go_types struct {
+	Object	interface{}
 	Import_	func(path string) (*types.Package, error)
 }
-func (Obj Importer_go_types) Import(path string) (*types.Package, error) {
-	return Obj.Import_(path)
+func (Proxy Importer_go_types) Import(path string) (*types.Package, error) {
+	return Proxy.Import_(path)
 }
 
 // --------------- proxy for go/types.ImporterFrom ---------------
 type ImporterFrom_go_types struct {
+	Object	interface{}
 	Import_	func(path string) (*types.Package, error)
 	ImportFrom_	func(path string, srcDir string, mode types.ImportMode) (*types.Package, error)
 }
-func (Obj ImporterFrom_go_types) Import(path string) (*types.Package, error) {
-	return Obj.Import_(path)
+func (Proxy ImporterFrom_go_types) Import(path string) (*types.Package, error) {
+	return Proxy.Import_(path)
 }
-func (Obj ImporterFrom_go_types) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
-	return Obj.ImportFrom_(path, srcDir, mode)
+func (Proxy ImporterFrom_go_types) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
+	return Proxy.ImportFrom_(path, srcDir, mode)
 }
 
 // --------------- proxy for go/types.Object ---------------
 type Object_go_types struct {
+	Object	interface{}
 	Exported_	func() bool
 	Id_	func() string
 	Name_	func() string
@@ -187,55 +190,57 @@ type Object_go_types struct {
 	String_	func() string
 	Type_	func() types.Type
 }
-func (Obj Object_go_types) Exported() bool {
-	return Obj.Exported_()
+func (Proxy Object_go_types) Exported() bool {
+	return Proxy.Exported_()
 }
-func (Obj Object_go_types) Id() string {
-	return Obj.Id_()
+func (Proxy Object_go_types) Id() string {
+	return Proxy.Id_()
 }
-func (Obj Object_go_types) Name() string {
-	return Obj.Name_()
+func (Proxy Object_go_types) Name() string {
+	return Proxy.Name_()
 }
-func (Obj Object_go_types) Parent() *types.Scope {
-	return Obj.Parent_()
+func (Proxy Object_go_types) Parent() *types.Scope {
+	return Proxy.Parent_()
 }
-func (Obj Object_go_types) Pkg() *types.Package {
-	return Obj.Pkg_()
+func (Proxy Object_go_types) Pkg() *types.Package {
+	return Proxy.Pkg_()
 }
-func (Obj Object_go_types) Pos() token.Pos {
-	return Obj.Pos_()
+func (Proxy Object_go_types) Pos() token.Pos {
+	return Proxy.Pos_()
 }
-func (Obj Object_go_types) String() string {
-	return Obj.String_()
+func (Proxy Object_go_types) String() string {
+	return Proxy.String_()
 }
-func (Obj Object_go_types) Type() types.Type {
-	return Obj.Type_()
+func (Proxy Object_go_types) Type() types.Type {
+	return Proxy.Type_()
 }
 
 // --------------- proxy for go/types.Sizes ---------------
 type Sizes_go_types struct {
+	Object	interface{}
 	Alignof_	func(T types.Type) int64
 	Offsetsof_	func(fields []*types.Var) []int64
 	Sizeof_	func(T types.Type) int64
 }
-func (Obj Sizes_go_types) Alignof(T types.Type) int64 {
-	return Obj.Alignof_(T)
+func (Proxy Sizes_go_types) Alignof(T types.Type) int64 {
+	return Proxy.Alignof_(T)
 }
-func (Obj Sizes_go_types) Offsetsof(fields []*types.Var) []int64 {
-	return Obj.Offsetsof_(fields)
+func (Proxy Sizes_go_types) Offsetsof(fields []*types.Var) []int64 {
+	return Proxy.Offsetsof_(fields)
 }
-func (Obj Sizes_go_types) Sizeof(T types.Type) int64 {
-	return Obj.Sizeof_(T)
+func (Proxy Sizes_go_types) Sizeof(T types.Type) int64 {
+	return Proxy.Sizeof_(T)
 }
 
 // --------------- proxy for go/types.Type ---------------
 type Type_go_types struct {
+	Object	interface{}
 	String_	func() string
 	Underlying_	func() types.Type
 }
-func (Obj Type_go_types) String() string {
-	return Obj.String_()
+func (Proxy Type_go_types) String() string {
+	return Proxy.String_()
 }
-func (Obj Type_go_types) Underlying() types.Type {
-	return Obj.Underlying_()
+func (Proxy Type_go_types) Underlying() types.Type {
+	return Proxy.Underlying_()
 }

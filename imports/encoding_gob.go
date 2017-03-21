@@ -31,16 +31,18 @@ func init() {
 
 // --------------- proxy for encoding/gob.GobDecoder ---------------
 type GobDecoder_encoding_gob struct {
+	Object	interface{}
 	GobDecode_	func([]byte) error
 }
-func (Obj GobDecoder_encoding_gob) GobDecode(unnamed0 []byte) error {
-	return Obj.GobDecode_(unnamed0)
+func (Proxy GobDecoder_encoding_gob) GobDecode(unnamed0 []byte) error {
+	return Proxy.GobDecode_(unnamed0)
 }
 
 // --------------- proxy for encoding/gob.GobEncoder ---------------
 type GobEncoder_encoding_gob struct {
+	Object	interface{}
 	GobEncode_	func() ([]byte, error)
 }
-func (Obj GobEncoder_encoding_gob) GobEncode() ([]byte, error) {
-	return Obj.GobEncode_()
+func (Proxy GobEncoder_encoding_gob) GobEncode() ([]byte, error) {
+	return Proxy.GobEncode_()
 }

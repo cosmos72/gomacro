@@ -39,20 +39,22 @@ func init() {
 
 // --------------- proxy for compress/flate.Reader ---------------
 type Reader_compress_flate struct {
+	Object	interface{}
 	Read_	func(p []byte) (n int, err error)
 	ReadByte_	func() (byte, error)
 }
-func (Obj Reader_compress_flate) Read(p []byte) (n int, err error) {
-	return Obj.Read_(p)
+func (Proxy Reader_compress_flate) Read(p []byte) (n int, err error) {
+	return Proxy.Read_(p)
 }
-func (Obj Reader_compress_flate) ReadByte() (byte, error) {
-	return Obj.ReadByte_()
+func (Proxy Reader_compress_flate) ReadByte() (byte, error) {
+	return Proxy.ReadByte_()
 }
 
 // --------------- proxy for compress/flate.Resetter ---------------
 type Resetter_compress_flate struct {
+	Object	interface{}
 	Reset_	func(r io.Reader, dict []byte) error
 }
-func (Obj Resetter_compress_flate) Reset(r io.Reader, dict []byte) error {
-	return Obj.Reset_(r, dict)
+func (Proxy Resetter_compress_flate) Reset(r io.Reader, dict []byte) error {
+	return Proxy.Reset_(r, dict)
 }

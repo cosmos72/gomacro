@@ -47,20 +47,23 @@ func init() {
 
 // --------------- proxy for encoding/json.Marshaler ---------------
 type Marshaler_encoding_json struct {
+	Object	interface{}
 	MarshalJSON_	func() ([]byte, error)
 }
-func (Obj Marshaler_encoding_json) MarshalJSON() ([]byte, error) {
-	return Obj.MarshalJSON_()
+func (Proxy Marshaler_encoding_json) MarshalJSON() ([]byte, error) {
+	return Proxy.MarshalJSON_()
 }
 
 // --------------- proxy for encoding/json.Token ---------------
 type Token_encoding_json struct {
+	Object	interface{}
 }
 
 // --------------- proxy for encoding/json.Unmarshaler ---------------
 type Unmarshaler_encoding_json struct {
+	Object	interface{}
 	UnmarshalJSON_	func([]byte) error
 }
-func (Obj Unmarshaler_encoding_json) UnmarshalJSON(unnamed0 []byte) error {
-	return Obj.UnmarshalJSON_(unnamed0)
+func (Proxy Unmarshaler_encoding_json) UnmarshalJSON(unnamed0 []byte) error {
+	return Proxy.UnmarshalJSON_(unnamed0)
 }

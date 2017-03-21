@@ -2216,8 +2216,10 @@ func init() {
 
 // --------------- proxy for syscall.RoutingMessage ---------------
 type RoutingMessage_syscall struct {
+	Object	interface{}
 }
 
 // --------------- proxy for syscall.Sockaddr ---------------
 type Sockaddr_syscall struct {
+	Object	interface{}
 }

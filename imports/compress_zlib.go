@@ -37,8 +37,9 @@ func init() {
 
 // --------------- proxy for compress/zlib.Resetter ---------------
 type Resetter_compress_zlib struct {
+	Object	interface{}
 	Reset_	func(r io.Reader, dict []byte) error
 }
-func (Obj Resetter_compress_zlib) Reset(r io.Reader, dict []byte) error {
-	return Obj.Reset_(r, dict)
+func (Proxy Resetter_compress_zlib) Reset(r io.Reader, dict []byte) error {
+	return Proxy.Reset_(r, dict)
 }

@@ -42,16 +42,17 @@ func init() {
 
 // --------------- proxy for sort.Interface ---------------
 type Interface_sort struct {
+	Object	interface{}
 	Len_	func() int
 	Less_	func(i int, j int) bool
 	Swap_	func(i int, j int) 
 }
-func (Obj Interface_sort) Len() int {
-	return Obj.Len_()
+func (Proxy Interface_sort) Len() int {
+	return Proxy.Len_()
 }
-func (Obj Interface_sort) Less(i int, j int) bool {
-	return Obj.Less_(i, j)
+func (Proxy Interface_sort) Less(i int, j int) bool {
+	return Proxy.Less_(i, j)
 }
-func (Obj Interface_sort) Swap(i int, j int)  {
-	Obj.Swap_(i, j)
+func (Proxy Interface_sort) Swap(i int, j int)  {
+	Proxy.Swap_(i, j)
 }

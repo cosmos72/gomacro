@@ -55,36 +55,41 @@ func init() {
 
 // --------------- proxy for encoding/xml.Marshaler ---------------
 type Marshaler_encoding_xml struct {
+	Object	interface{}
 	MarshalXML_	func(e *xml.Encoder, start xml.StartElement) error
 }
-func (Obj Marshaler_encoding_xml) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	return Obj.MarshalXML_(e, start)
+func (Proxy Marshaler_encoding_xml) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	return Proxy.MarshalXML_(e, start)
 }
 
 // --------------- proxy for encoding/xml.MarshalerAttr ---------------
 type MarshalerAttr_encoding_xml struct {
+	Object	interface{}
 	MarshalXMLAttr_	func(name xml.Name) (xml.Attr, error)
 }
-func (Obj MarshalerAttr_encoding_xml) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
-	return Obj.MarshalXMLAttr_(name)
+func (Proxy MarshalerAttr_encoding_xml) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	return Proxy.MarshalXMLAttr_(name)
 }
 
 // --------------- proxy for encoding/xml.Token ---------------
 type Token_encoding_xml struct {
+	Object	interface{}
 }
 
 // --------------- proxy for encoding/xml.Unmarshaler ---------------
 type Unmarshaler_encoding_xml struct {
+	Object	interface{}
 	UnmarshalXML_	func(d *xml.Decoder, start xml.StartElement) error
 }
-func (Obj Unmarshaler_encoding_xml) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	return Obj.UnmarshalXML_(d, start)
+func (Proxy Unmarshaler_encoding_xml) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	return Proxy.UnmarshalXML_(d, start)
 }
 
 // --------------- proxy for encoding/xml.UnmarshalerAttr ---------------
 type UnmarshalerAttr_encoding_xml struct {
+	Object	interface{}
 	UnmarshalXMLAttr_	func(attr xml.Attr) error
 }
-func (Obj UnmarshalerAttr_encoding_xml) UnmarshalXMLAttr(attr xml.Attr) error {
-	return Obj.UnmarshalXMLAttr_(attr)
+func (Proxy UnmarshalerAttr_encoding_xml) UnmarshalXMLAttr(attr xml.Attr) error {
+	return Proxy.UnmarshalXMLAttr_(attr)
 }

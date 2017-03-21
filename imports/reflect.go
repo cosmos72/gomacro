@@ -89,6 +89,7 @@ func init() {
 
 // --------------- proxy for reflect.Type ---------------
 type Type_reflect struct {
+	Object	interface{}
 	Align_	func() int
 	AssignableTo_	func(u reflect.Type) bool
 	Bits_	func() int
@@ -119,90 +120,90 @@ type Type_reflect struct {
 	Size_	func() uintptr
 	String_	func() string
 }
-func (Obj Type_reflect) Align() int {
-	return Obj.Align_()
+func (Proxy Type_reflect) Align() int {
+	return Proxy.Align_()
 }
-func (Obj Type_reflect) AssignableTo(u reflect.Type) bool {
-	return Obj.AssignableTo_(u)
+func (Proxy Type_reflect) AssignableTo(u reflect.Type) bool {
+	return Proxy.AssignableTo_(u)
 }
-func (Obj Type_reflect) Bits() int {
-	return Obj.Bits_()
+func (Proxy Type_reflect) Bits() int {
+	return Proxy.Bits_()
 }
-func (Obj Type_reflect) ChanDir() reflect.ChanDir {
-	return Obj.ChanDir_()
+func (Proxy Type_reflect) ChanDir() reflect.ChanDir {
+	return Proxy.ChanDir_()
 }
-func (Obj Type_reflect) Comparable() bool {
-	return Obj.Comparable_()
+func (Proxy Type_reflect) Comparable() bool {
+	return Proxy.Comparable_()
 }
-func (Obj Type_reflect) ConvertibleTo(u reflect.Type) bool {
-	return Obj.ConvertibleTo_(u)
+func (Proxy Type_reflect) ConvertibleTo(u reflect.Type) bool {
+	return Proxy.ConvertibleTo_(u)
 }
-func (Obj Type_reflect) Elem() reflect.Type {
-	return Obj.Elem_()
+func (Proxy Type_reflect) Elem() reflect.Type {
+	return Proxy.Elem_()
 }
-func (Obj Type_reflect) Field(i int) reflect.StructField {
-	return Obj.Field_(i)
+func (Proxy Type_reflect) Field(i int) reflect.StructField {
+	return Proxy.Field_(i)
 }
-func (Obj Type_reflect) FieldAlign() int {
-	return Obj.FieldAlign_()
+func (Proxy Type_reflect) FieldAlign() int {
+	return Proxy.FieldAlign_()
 }
-func (Obj Type_reflect) FieldByIndex(index []int) reflect.StructField {
-	return Obj.FieldByIndex_(index)
+func (Proxy Type_reflect) FieldByIndex(index []int) reflect.StructField {
+	return Proxy.FieldByIndex_(index)
 }
-func (Obj Type_reflect) FieldByName(name string) (reflect.StructField, bool) {
-	return Obj.FieldByName_(name)
+func (Proxy Type_reflect) FieldByName(name string) (reflect.StructField, bool) {
+	return Proxy.FieldByName_(name)
 }
-func (Obj Type_reflect) FieldByNameFunc(match func(string) bool) (reflect.StructField, bool) {
-	return Obj.FieldByNameFunc_(match)
+func (Proxy Type_reflect) FieldByNameFunc(match func(string) bool) (reflect.StructField, bool) {
+	return Proxy.FieldByNameFunc_(match)
 }
-func (Obj Type_reflect) Implements(u reflect.Type) bool {
-	return Obj.Implements_(u)
+func (Proxy Type_reflect) Implements(u reflect.Type) bool {
+	return Proxy.Implements_(u)
 }
-func (Obj Type_reflect) In(i int) reflect.Type {
-	return Obj.In_(i)
+func (Proxy Type_reflect) In(i int) reflect.Type {
+	return Proxy.In_(i)
 }
-func (Obj Type_reflect) IsVariadic() bool {
-	return Obj.IsVariadic_()
+func (Proxy Type_reflect) IsVariadic() bool {
+	return Proxy.IsVariadic_()
 }
-func (Obj Type_reflect) Key() reflect.Type {
-	return Obj.Key_()
+func (Proxy Type_reflect) Key() reflect.Type {
+	return Proxy.Key_()
 }
-func (Obj Type_reflect) Kind() reflect.Kind {
-	return Obj.Kind_()
+func (Proxy Type_reflect) Kind() reflect.Kind {
+	return Proxy.Kind_()
 }
-func (Obj Type_reflect) Len() int {
-	return Obj.Len_()
+func (Proxy Type_reflect) Len() int {
+	return Proxy.Len_()
 }
-func (Obj Type_reflect) Method(unnamed0 int) reflect.Method {
-	return Obj.Method_(unnamed0)
+func (Proxy Type_reflect) Method(unnamed0 int) reflect.Method {
+	return Proxy.Method_(unnamed0)
 }
-func (Obj Type_reflect) MethodByName(unnamed0 string) (reflect.Method, bool) {
-	return Obj.MethodByName_(unnamed0)
+func (Proxy Type_reflect) MethodByName(unnamed0 string) (reflect.Method, bool) {
+	return Proxy.MethodByName_(unnamed0)
 }
-func (Obj Type_reflect) Name() string {
-	return Obj.Name_()
+func (Proxy Type_reflect) Name() string {
+	return Proxy.Name_()
 }
-func (Obj Type_reflect) NumField() int {
-	return Obj.NumField_()
+func (Proxy Type_reflect) NumField() int {
+	return Proxy.NumField_()
 }
-func (Obj Type_reflect) NumIn() int {
-	return Obj.NumIn_()
+func (Proxy Type_reflect) NumIn() int {
+	return Proxy.NumIn_()
 }
-func (Obj Type_reflect) NumMethod() int {
-	return Obj.NumMethod_()
+func (Proxy Type_reflect) NumMethod() int {
+	return Proxy.NumMethod_()
 }
-func (Obj Type_reflect) NumOut() int {
-	return Obj.NumOut_()
+func (Proxy Type_reflect) NumOut() int {
+	return Proxy.NumOut_()
 }
-func (Obj Type_reflect) Out(i int) reflect.Type {
-	return Obj.Out_(i)
+func (Proxy Type_reflect) Out(i int) reflect.Type {
+	return Proxy.Out_(i)
 }
-func (Obj Type_reflect) PkgPath() string {
-	return Obj.PkgPath_()
+func (Proxy Type_reflect) PkgPath() string {
+	return Proxy.PkgPath_()
 }
-func (Obj Type_reflect) Size() uintptr {
-	return Obj.Size_()
+func (Proxy Type_reflect) Size() uintptr {
+	return Proxy.Size_()
 }
-func (Obj Type_reflect) String() string {
-	return Obj.String_()
+func (Proxy Type_reflect) String() string {
+	return Proxy.String_()
 }

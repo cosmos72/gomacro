@@ -207,16 +207,17 @@ func init() {
 
 // --------------- proxy for debug/dwarf.Type ---------------
 type Type_debug_dwarf struct {
+	Object	interface{}
 	Common_	func() *dwarf.CommonType
 	Size_	func() int64
 	String_	func() string
 }
-func (Obj Type_debug_dwarf) Common() *dwarf.CommonType {
-	return Obj.Common_()
+func (Proxy Type_debug_dwarf) Common() *dwarf.CommonType {
+	return Proxy.Common_()
 }
-func (Obj Type_debug_dwarf) Size() int64 {
-	return Obj.Size_()
+func (Proxy Type_debug_dwarf) Size() int64 {
+	return Proxy.Size_()
 }
-func (Obj Type_debug_dwarf) String() string {
-	return Obj.String_()
+func (Proxy Type_debug_dwarf) String() string {
+	return Proxy.String_()
 }

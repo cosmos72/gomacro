@@ -73,36 +73,38 @@ func init() {
 
 // --------------- proxy for image.Image ---------------
 type Image_image struct {
+	Object	interface{}
 	At_	func(x int, y int) color.Color
 	Bounds_	func() image.Rectangle
 	ColorModel_	func() color.Model
 }
-func (Obj Image_image) At(x int, y int) color.Color {
-	return Obj.At_(x, y)
+func (Proxy Image_image) At(x int, y int) color.Color {
+	return Proxy.At_(x, y)
 }
-func (Obj Image_image) Bounds() image.Rectangle {
-	return Obj.Bounds_()
+func (Proxy Image_image) Bounds() image.Rectangle {
+	return Proxy.Bounds_()
 }
-func (Obj Image_image) ColorModel() color.Model {
-	return Obj.ColorModel_()
+func (Proxy Image_image) ColorModel() color.Model {
+	return Proxy.ColorModel_()
 }
 
 // --------------- proxy for image.PalettedImage ---------------
 type PalettedImage_image struct {
+	Object	interface{}
 	At_	func(x int, y int) color.Color
 	Bounds_	func() image.Rectangle
 	ColorIndexAt_	func(x int, y int) uint8
 	ColorModel_	func() color.Model
 }
-func (Obj PalettedImage_image) At(x int, y int) color.Color {
-	return Obj.At_(x, y)
+func (Proxy PalettedImage_image) At(x int, y int) color.Color {
+	return Proxy.At_(x, y)
 }
-func (Obj PalettedImage_image) Bounds() image.Rectangle {
-	return Obj.Bounds_()
+func (Proxy PalettedImage_image) Bounds() image.Rectangle {
+	return Proxy.Bounds_()
 }
-func (Obj PalettedImage_image) ColorIndexAt(x int, y int) uint8 {
-	return Obj.ColorIndexAt_(x, y)
+func (Proxy PalettedImage_image) ColorIndexAt(x int, y int) uint8 {
+	return Proxy.ColorIndexAt_(x, y)
 }
-func (Obj PalettedImage_image) ColorModel() color.Model {
-	return Obj.ColorModel_()
+func (Proxy PalettedImage_image) ColorModel() color.Model {
+	return Proxy.ColorModel_()
 }

@@ -44,28 +44,30 @@ func init() {
 
 // --------------- proxy for math/rand.Source ---------------
 type Source_math_rand struct {
+	Object	interface{}
 	Int63_	func() int64
 	Seed_	func(seed int64) 
 }
-func (Obj Source_math_rand) Int63() int64 {
-	return Obj.Int63_()
+func (Proxy Source_math_rand) Int63() int64 {
+	return Proxy.Int63_()
 }
-func (Obj Source_math_rand) Seed(seed int64)  {
-	Obj.Seed_(seed)
+func (Proxy Source_math_rand) Seed(seed int64)  {
+	Proxy.Seed_(seed)
 }
 
 // --------------- proxy for math/rand.Source64 ---------------
 type Source64_math_rand struct {
+	Object	interface{}
 	Int63_	func() int64
 	Seed_	func(seed int64) 
 	Uint64_	func() uint64
 }
-func (Obj Source64_math_rand) Int63() int64 {
-	return Obj.Int63_()
+func (Proxy Source64_math_rand) Int63() int64 {
+	return Proxy.Int63_()
 }
-func (Obj Source64_math_rand) Seed(seed int64)  {
-	Obj.Seed_(seed)
+func (Proxy Source64_math_rand) Seed(seed int64)  {
+	Proxy.Seed_(seed)
 }
-func (Obj Source64_math_rand) Uint64() uint64 {
-	return Obj.Uint64_()
+func (Proxy Source64_math_rand) Uint64() uint64 {
+	return Proxy.Uint64_()
 }

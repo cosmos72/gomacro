@@ -31,6 +31,7 @@ func init() {
 
 // --------------- proxy for crypto/elliptic.Curve ---------------
 type Curve_crypto_elliptic struct {
+	Object	interface{}
 	Add_	func(x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int)
 	Double_	func(x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int)
 	IsOnCurve_	func(x *big.Int, y *big.Int) bool
@@ -38,21 +39,21 @@ type Curve_crypto_elliptic struct {
 	ScalarBaseMult_	func(k []byte) (x *big.Int, y *big.Int)
 	ScalarMult_	func(x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int)
 }
-func (Obj Curve_crypto_elliptic) Add(x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int) {
-	return Obj.Add_(x1, y1, x2, y2)
+func (Proxy Curve_crypto_elliptic) Add(x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int) {
+	return Proxy.Add_(x1, y1, x2, y2)
 }
-func (Obj Curve_crypto_elliptic) Double(x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int) {
-	return Obj.Double_(x1, y1)
+func (Proxy Curve_crypto_elliptic) Double(x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int) {
+	return Proxy.Double_(x1, y1)
 }
-func (Obj Curve_crypto_elliptic) IsOnCurve(x *big.Int, y *big.Int) bool {
-	return Obj.IsOnCurve_(x, y)
+func (Proxy Curve_crypto_elliptic) IsOnCurve(x *big.Int, y *big.Int) bool {
+	return Proxy.IsOnCurve_(x, y)
 }
-func (Obj Curve_crypto_elliptic) Params() *elliptic.CurveParams {
-	return Obj.Params_()
+func (Proxy Curve_crypto_elliptic) Params() *elliptic.CurveParams {
+	return Proxy.Params_()
 }
-func (Obj Curve_crypto_elliptic) ScalarBaseMult(k []byte) (x *big.Int, y *big.Int) {
-	return Obj.ScalarBaseMult_(k)
+func (Proxy Curve_crypto_elliptic) ScalarBaseMult(k []byte) (x *big.Int, y *big.Int) {
+	return Proxy.ScalarBaseMult_(k)
 }
-func (Obj Curve_crypto_elliptic) ScalarMult(x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int) {
-	return Obj.ScalarMult_(x1, y1, k)
+func (Proxy Curve_crypto_elliptic) ScalarMult(x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int) {
+	return Proxy.ScalarMult_(x1, y1, k)
 }

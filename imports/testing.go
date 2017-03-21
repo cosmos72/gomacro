@@ -44,6 +44,7 @@ func init() {
 
 // --------------- proxy for testing.TB ---------------
 type TB_testing struct {
+	Object	interface{}
 	Error_	func(args []interface{}) 
 	Errorf_	func(format string, args []interface{}) 
 	Fail_	func() 
@@ -59,45 +60,45 @@ type TB_testing struct {
 	Skipf_	func(format string, args []interface{}) 
 	Skipped_	func() bool
 }
-func (Obj TB_testing) Error(args []interface{})  {
-	Obj.Error_(args)
+func (Proxy TB_testing) Error(args []interface{})  {
+	Proxy.Error_(args)
 }
-func (Obj TB_testing) Errorf(format string, args []interface{})  {
-	Obj.Errorf_(format, args)
+func (Proxy TB_testing) Errorf(format string, args []interface{})  {
+	Proxy.Errorf_(format, args)
 }
-func (Obj TB_testing) Fail()  {
-	Obj.Fail_()
+func (Proxy TB_testing) Fail()  {
+	Proxy.Fail_()
 }
-func (Obj TB_testing) FailNow()  {
-	Obj.FailNow_()
+func (Proxy TB_testing) FailNow()  {
+	Proxy.FailNow_()
 }
-func (Obj TB_testing) Failed() bool {
-	return Obj.Failed_()
+func (Proxy TB_testing) Failed() bool {
+	return Proxy.Failed_()
 }
-func (Obj TB_testing) Fatal(args []interface{})  {
-	Obj.Fatal_(args)
+func (Proxy TB_testing) Fatal(args []interface{})  {
+	Proxy.Fatal_(args)
 }
-func (Obj TB_testing) Fatalf(format string, args []interface{})  {
-	Obj.Fatalf_(format, args)
+func (Proxy TB_testing) Fatalf(format string, args []interface{})  {
+	Proxy.Fatalf_(format, args)
 }
-func (Obj TB_testing) Log(args []interface{})  {
-	Obj.Log_(args)
+func (Proxy TB_testing) Log(args []interface{})  {
+	Proxy.Log_(args)
 }
-func (Obj TB_testing) Logf(format string, args []interface{})  {
-	Obj.Logf_(format, args)
+func (Proxy TB_testing) Logf(format string, args []interface{})  {
+	Proxy.Logf_(format, args)
 }
-func (Obj TB_testing) Name() string {
-	return Obj.Name_()
+func (Proxy TB_testing) Name() string {
+	return Proxy.Name_()
 }
-func (Obj TB_testing) Skip(args []interface{})  {
-	Obj.Skip_(args)
+func (Proxy TB_testing) Skip(args []interface{})  {
+	Proxy.Skip_(args)
 }
-func (Obj TB_testing) SkipNow()  {
-	Obj.SkipNow_()
+func (Proxy TB_testing) SkipNow()  {
+	Proxy.SkipNow_()
 }
-func (Obj TB_testing) Skipf(format string, args []interface{})  {
-	Obj.Skipf_(format, args)
+func (Proxy TB_testing) Skipf(format string, args []interface{})  {
+	Proxy.Skipf_(format, args)
 }
-func (Obj TB_testing) Skipped() bool {
-	return Obj.Skipped_()
+func (Proxy TB_testing) Skipped() bool {
+	return Proxy.Skipped_()
 }

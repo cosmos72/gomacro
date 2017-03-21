@@ -36,8 +36,9 @@ func init() {
 
 // --------------- proxy for expvar.Var ---------------
 type Var_expvar struct {
+	Object	interface{}
 	String_	func() string
 }
-func (Obj Var_expvar) String() string {
-	return Obj.String_()
+func (Proxy Var_expvar) String() string {
+	return Proxy.String_()
 }

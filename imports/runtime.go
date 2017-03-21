@@ -67,12 +67,13 @@ func init() {
 
 // --------------- proxy for runtime.Error ---------------
 type Error_runtime struct {
+	Object	interface{}
 	Error_	func() string
 	RuntimeError_	func() 
 }
-func (Obj Error_runtime) Error() string {
-	return Obj.Error_()
+func (Proxy Error_runtime) Error() string {
+	return Proxy.Error_()
 }
-func (Obj Error_runtime) RuntimeError()  {
-	Obj.RuntimeError_()
+func (Proxy Error_runtime) RuntimeError()  {
+	Proxy.RuntimeError_()
 }

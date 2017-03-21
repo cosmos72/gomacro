@@ -26,30 +26,32 @@ func init() {
 
 // --------------- proxy for hash.Hash ---------------
 type Hash_hash struct {
+	Object	interface{}
 	BlockSize_	func() int
 	Reset_	func() 
 	Size_	func() int
 	Sum_	func(b []byte) []byte
 	Write_	func(p []byte) (n int, err error)
 }
-func (Obj Hash_hash) BlockSize() int {
-	return Obj.BlockSize_()
+func (Proxy Hash_hash) BlockSize() int {
+	return Proxy.BlockSize_()
 }
-func (Obj Hash_hash) Reset()  {
-	Obj.Reset_()
+func (Proxy Hash_hash) Reset()  {
+	Proxy.Reset_()
 }
-func (Obj Hash_hash) Size() int {
-	return Obj.Size_()
+func (Proxy Hash_hash) Size() int {
+	return Proxy.Size_()
 }
-func (Obj Hash_hash) Sum(b []byte) []byte {
-	return Obj.Sum_(b)
+func (Proxy Hash_hash) Sum(b []byte) []byte {
+	return Proxy.Sum_(b)
 }
-func (Obj Hash_hash) Write(p []byte) (n int, err error) {
-	return Obj.Write_(p)
+func (Proxy Hash_hash) Write(p []byte) (n int, err error) {
+	return Proxy.Write_(p)
 }
 
 // --------------- proxy for hash.Hash32 ---------------
 type Hash32_hash struct {
+	Object	interface{}
 	BlockSize_	func() int
 	Reset_	func() 
 	Size_	func() int
@@ -57,27 +59,28 @@ type Hash32_hash struct {
 	Sum32_	func() uint32
 	Write_	func(p []byte) (n int, err error)
 }
-func (Obj Hash32_hash) BlockSize() int {
-	return Obj.BlockSize_()
+func (Proxy Hash32_hash) BlockSize() int {
+	return Proxy.BlockSize_()
 }
-func (Obj Hash32_hash) Reset()  {
-	Obj.Reset_()
+func (Proxy Hash32_hash) Reset()  {
+	Proxy.Reset_()
 }
-func (Obj Hash32_hash) Size() int {
-	return Obj.Size_()
+func (Proxy Hash32_hash) Size() int {
+	return Proxy.Size_()
 }
-func (Obj Hash32_hash) Sum(b []byte) []byte {
-	return Obj.Sum_(b)
+func (Proxy Hash32_hash) Sum(b []byte) []byte {
+	return Proxy.Sum_(b)
 }
-func (Obj Hash32_hash) Sum32() uint32 {
-	return Obj.Sum32_()
+func (Proxy Hash32_hash) Sum32() uint32 {
+	return Proxy.Sum32_()
 }
-func (Obj Hash32_hash) Write(p []byte) (n int, err error) {
-	return Obj.Write_(p)
+func (Proxy Hash32_hash) Write(p []byte) (n int, err error) {
+	return Proxy.Write_(p)
 }
 
 // --------------- proxy for hash.Hash64 ---------------
 type Hash64_hash struct {
+	Object	interface{}
 	BlockSize_	func() int
 	Reset_	func() 
 	Size_	func() int
@@ -85,21 +88,21 @@ type Hash64_hash struct {
 	Sum64_	func() uint64
 	Write_	func(p []byte) (n int, err error)
 }
-func (Obj Hash64_hash) BlockSize() int {
-	return Obj.BlockSize_()
+func (Proxy Hash64_hash) BlockSize() int {
+	return Proxy.BlockSize_()
 }
-func (Obj Hash64_hash) Reset()  {
-	Obj.Reset_()
+func (Proxy Hash64_hash) Reset()  {
+	Proxy.Reset_()
 }
-func (Obj Hash64_hash) Size() int {
-	return Obj.Size_()
+func (Proxy Hash64_hash) Size() int {
+	return Proxy.Size_()
 }
-func (Obj Hash64_hash) Sum(b []byte) []byte {
-	return Obj.Sum_(b)
+func (Proxy Hash64_hash) Sum(b []byte) []byte {
+	return Proxy.Sum_(b)
 }
-func (Obj Hash64_hash) Sum64() uint64 {
-	return Obj.Sum64_()
+func (Proxy Hash64_hash) Sum64() uint64 {
+	return Proxy.Sum64_()
 }
-func (Obj Hash64_hash) Write(p []byte) (n int, err error) {
-	return Obj.Write_(p)
+func (Proxy Hash64_hash) Write(p []byte) (n int, err error) {
+	return Proxy.Write_(p)
 }

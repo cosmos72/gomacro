@@ -63,28 +63,30 @@ func init() {
 
 // --------------- proxy for flag.Getter ---------------
 type Getter_flag struct {
+	Object	interface{}
 	Get_	func() interface{}
 	Set_	func(string) error
 	String_	func() string
 }
-func (Obj Getter_flag) Get() interface{} {
-	return Obj.Get_()
+func (Proxy Getter_flag) Get() interface{} {
+	return Proxy.Get_()
 }
-func (Obj Getter_flag) Set(unnamed0 string) error {
-	return Obj.Set_(unnamed0)
+func (Proxy Getter_flag) Set(unnamed0 string) error {
+	return Proxy.Set_(unnamed0)
 }
-func (Obj Getter_flag) String() string {
-	return Obj.String_()
+func (Proxy Getter_flag) String() string {
+	return Proxy.String_()
 }
 
 // --------------- proxy for flag.Value ---------------
 type Value_flag struct {
+	Object	interface{}
 	Set_	func(string) error
 	String_	func() string
 }
-func (Obj Value_flag) Set(unnamed0 string) error {
-	return Obj.Set_(unnamed0)
+func (Proxy Value_flag) Set(unnamed0 string) error {
+	return Proxy.Set_(unnamed0)
 }
-func (Obj Value_flag) String() string {
-	return Obj.String_()
+func (Proxy Value_flag) String() string {
+	return Proxy.String_()
 }

@@ -194,108 +194,118 @@ func init() {
 
 // --------------- proxy for net/http.CloseNotifier ---------------
 type CloseNotifier_net_http struct {
+	Object	interface{}
 	CloseNotify_	func() <-chan bool
 }
-func (Obj CloseNotifier_net_http) CloseNotify() <-chan bool {
-	return Obj.CloseNotify_()
+func (Proxy CloseNotifier_net_http) CloseNotify() <-chan bool {
+	return Proxy.CloseNotify_()
 }
 
 // --------------- proxy for net/http.CookieJar ---------------
 type CookieJar_net_http struct {
+	Object	interface{}
 	Cookies_	func(u *url.URL) []*http.Cookie
 	SetCookies_	func(u *url.URL, cookies []*http.Cookie) 
 }
-func (Obj CookieJar_net_http) Cookies(u *url.URL) []*http.Cookie {
-	return Obj.Cookies_(u)
+func (Proxy CookieJar_net_http) Cookies(u *url.URL) []*http.Cookie {
+	return Proxy.Cookies_(u)
 }
-func (Obj CookieJar_net_http) SetCookies(u *url.URL, cookies []*http.Cookie)  {
-	Obj.SetCookies_(u, cookies)
+func (Proxy CookieJar_net_http) SetCookies(u *url.URL, cookies []*http.Cookie)  {
+	Proxy.SetCookies_(u, cookies)
 }
 
 // --------------- proxy for net/http.File ---------------
 type File_net_http struct {
+	Object	interface{}
 	Close_	func() error
 	Read_	func(p []byte) (n int, err error)
 	Readdir_	func(count int) ([]os.FileInfo, error)
 	Seek_	func(offset int64, whence int) (int64, error)
 	Stat_	func() (os.FileInfo, error)
 }
-func (Obj File_net_http) Close() error {
-	return Obj.Close_()
+func (Proxy File_net_http) Close() error {
+	return Proxy.Close_()
 }
-func (Obj File_net_http) Read(p []byte) (n int, err error) {
-	return Obj.Read_(p)
+func (Proxy File_net_http) Read(p []byte) (n int, err error) {
+	return Proxy.Read_(p)
 }
-func (Obj File_net_http) Readdir(count int) ([]os.FileInfo, error) {
-	return Obj.Readdir_(count)
+func (Proxy File_net_http) Readdir(count int) ([]os.FileInfo, error) {
+	return Proxy.Readdir_(count)
 }
-func (Obj File_net_http) Seek(offset int64, whence int) (int64, error) {
-	return Obj.Seek_(offset, whence)
+func (Proxy File_net_http) Seek(offset int64, whence int) (int64, error) {
+	return Proxy.Seek_(offset, whence)
 }
-func (Obj File_net_http) Stat() (os.FileInfo, error) {
-	return Obj.Stat_()
+func (Proxy File_net_http) Stat() (os.FileInfo, error) {
+	return Proxy.Stat_()
 }
 
 // --------------- proxy for net/http.FileSystem ---------------
 type FileSystem_net_http struct {
+	Object	interface{}
 	Open_	func(name string) (http.File, error)
 }
-func (Obj FileSystem_net_http) Open(name string) (http.File, error) {
-	return Obj.Open_(name)
+func (Proxy FileSystem_net_http) Open(name string) (http.File, error) {
+	return Proxy.Open_(name)
 }
 
 // --------------- proxy for net/http.Flusher ---------------
 type Flusher_net_http struct {
+	Object	interface{}
 	Flush_	func() 
 }
-func (Obj Flusher_net_http) Flush()  {
-	Obj.Flush_()
+func (Proxy Flusher_net_http) Flush()  {
+	Proxy.Flush_()
 }
 
 // --------------- proxy for net/http.Handler ---------------
 type Handler_net_http struct {
+	Object	interface{}
 	ServeHTTP_	func(http.ResponseWriter, *http.Request) 
 }
-func (Obj Handler_net_http) ServeHTTP(unnamed0 http.ResponseWriter, unnamed1 *http.Request)  {
-	Obj.ServeHTTP_(unnamed0, unnamed1)
+func (Proxy Handler_net_http) ServeHTTP(unnamed0 http.ResponseWriter, unnamed1 *http.Request)  {
+	Proxy.ServeHTTP_(unnamed0, unnamed1)
 }
 
 // --------------- proxy for net/http.Hijacker ---------------
 type Hijacker_net_http struct {
+	Object	interface{}
 	Hijack_	func() (net.Conn, *bufio.ReadWriter, error)
 }
-func (Obj Hijacker_net_http) Hijack() (net.Conn, *bufio.ReadWriter, error) {
-	return Obj.Hijack_()
+func (Proxy Hijacker_net_http) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return Proxy.Hijack_()
 }
 
 // --------------- proxy for net/http.Pusher ---------------
 type Pusher_net_http struct {
+	Object	interface{}
 	Push_	func(target string, opts *http.PushOptions) error
 }
-func (Obj Pusher_net_http) Push(target string, opts *http.PushOptions) error {
-	return Obj.Push_(target, opts)
+func (Proxy Pusher_net_http) Push(target string, opts *http.PushOptions) error {
+	return Proxy.Push_(target, opts)
 }
 
 // --------------- proxy for net/http.ResponseWriter ---------------
 type ResponseWriter_net_http struct {
+	Object	interface{}
 	Header_	func() http.Header
 	Write_	func([]byte) (int, error)
 	WriteHeader_	func(int) 
 }
-func (Obj ResponseWriter_net_http) Header() http.Header {
-	return Obj.Header_()
+func (Proxy ResponseWriter_net_http) Header() http.Header {
+	return Proxy.Header_()
 }
-func (Obj ResponseWriter_net_http) Write(unnamed0 []byte) (int, error) {
-	return Obj.Write_(unnamed0)
+func (Proxy ResponseWriter_net_http) Write(unnamed0 []byte) (int, error) {
+	return Proxy.Write_(unnamed0)
 }
-func (Obj ResponseWriter_net_http) WriteHeader(unnamed0 int)  {
-	Obj.WriteHeader_(unnamed0)
+func (Proxy ResponseWriter_net_http) WriteHeader(unnamed0 int)  {
+	Proxy.WriteHeader_(unnamed0)
 }
 
 // --------------- proxy for net/http.RoundTripper ---------------
 type RoundTripper_net_http struct {
+	Object	interface{}
 	RoundTrip_	func(*http.Request) (*http.Response, error)
 }
-func (Obj RoundTripper_net_http) RoundTrip(unnamed0 *http.Request) (*http.Response, error) {
-	return Obj.RoundTrip_(unnamed0)
+func (Proxy RoundTripper_net_http) RoundTrip(unnamed0 *http.Request) (*http.Response, error) {
+	return Proxy.RoundTrip_(unnamed0)
 }

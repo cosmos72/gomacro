@@ -24,4 +24,5 @@ func init() {
 
 // --------------- proxy for plugin.Symbol ---------------
 type Symbol_plugin struct {
+	Object	interface{}
 }

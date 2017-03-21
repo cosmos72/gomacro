@@ -108,9 +108,9 @@ func (m whichMacroExpand) String() string {
 var Nil = r.Value{}
 
 var none struct{}
-var None = r.ValueOf(none)
+var None = r.ValueOf(none) // used to indicate "no value"
 
-var One = r.ValueOf(1)
+var one = r.ValueOf(1)
 
 var typeOfInt = r.TypeOf(int(0))
 var typeOfRune = r.TypeOf(rune(0))

@@ -29,12 +29,13 @@ func init() {
 
 // --------------- proxy for image/jpeg.Reader ---------------
 type Reader_image_jpeg struct {
+	Object	interface{}
 	Read_	func(p []byte) (n int, err error)
 	ReadByte_	func() (byte, error)
 }
-func (Obj Reader_image_jpeg) Read(p []byte) (n int, err error) {
-	return Obj.Read_(p)
+func (Proxy Reader_image_jpeg) Read(p []byte) (n int, err error) {
+	return Proxy.Read_(p)
 }
-func (Obj Reader_image_jpeg) ReadByte() (byte, error) {
-	return Obj.ReadByte_()
+func (Proxy Reader_image_jpeg) ReadByte() (byte, error) {
+	return Proxy.ReadByte_()
 }

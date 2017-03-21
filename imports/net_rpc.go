@@ -47,40 +47,42 @@ func init() {
 
 // --------------- proxy for net/rpc.ClientCodec ---------------
 type ClientCodec_net_rpc struct {
+	Object	interface{}
 	Close_	func() error
 	ReadResponseBody_	func(interface{}) error
 	ReadResponseHeader_	func(*rpc.Response) error
 	WriteRequest_	func(*rpc.Request, interface{}) error
 }
-func (Obj ClientCodec_net_rpc) Close() error {
-	return Obj.Close_()
+func (Proxy ClientCodec_net_rpc) Close() error {
+	return Proxy.Close_()
 }
-func (Obj ClientCodec_net_rpc) ReadResponseBody(unnamed0 interface{}) error {
-	return Obj.ReadResponseBody_(unnamed0)
+func (Proxy ClientCodec_net_rpc) ReadResponseBody(unnamed0 interface{}) error {
+	return Proxy.ReadResponseBody_(unnamed0)
 }
-func (Obj ClientCodec_net_rpc) ReadResponseHeader(unnamed0 *rpc.Response) error {
-	return Obj.ReadResponseHeader_(unnamed0)
+func (Proxy ClientCodec_net_rpc) ReadResponseHeader(unnamed0 *rpc.Response) error {
+	return Proxy.ReadResponseHeader_(unnamed0)
 }
-func (Obj ClientCodec_net_rpc) WriteRequest(unnamed0 *rpc.Request, unnamed1 interface{}) error {
-	return Obj.WriteRequest_(unnamed0, unnamed1)
+func (Proxy ClientCodec_net_rpc) WriteRequest(unnamed0 *rpc.Request, unnamed1 interface{}) error {
+	return Proxy.WriteRequest_(unnamed0, unnamed1)
 }
 
 // --------------- proxy for net/rpc.ServerCodec ---------------
 type ServerCodec_net_rpc struct {
+	Object	interface{}
 	Close_	func() error
 	ReadRequestBody_	func(interface{}) error
 	ReadRequestHeader_	func(*rpc.Request) error
 	WriteResponse_	func(*rpc.Response, interface{}) error
 }
-func (Obj ServerCodec_net_rpc) Close() error {
-	return Obj.Close_()
+func (Proxy ServerCodec_net_rpc) Close() error {
+	return Proxy.Close_()
 }
-func (Obj ServerCodec_net_rpc) ReadRequestBody(unnamed0 interface{}) error {
-	return Obj.ReadRequestBody_(unnamed0)
+func (Proxy ServerCodec_net_rpc) ReadRequestBody(unnamed0 interface{}) error {
+	return Proxy.ReadRequestBody_(unnamed0)
 }
-func (Obj ServerCodec_net_rpc) ReadRequestHeader(unnamed0 *rpc.Request) error {
-	return Obj.ReadRequestHeader_(unnamed0)
+func (Proxy ServerCodec_net_rpc) ReadRequestHeader(unnamed0 *rpc.Request) error {
+	return Proxy.ReadRequestHeader_(unnamed0)
 }
-func (Obj ServerCodec_net_rpc) WriteResponse(unnamed0 *rpc.Response, unnamed1 interface{}) error {
-	return Obj.WriteResponse_(unnamed0, unnamed1)
+func (Proxy ServerCodec_net_rpc) WriteResponse(unnamed0 *rpc.Response, unnamed1 interface{}) error {
+	return Proxy.WriteResponse_(unnamed0, unnamed1)
 }

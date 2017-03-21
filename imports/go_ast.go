@@ -127,68 +127,74 @@ func init() {
 
 // --------------- proxy for go/ast.Decl ---------------
 type Decl_go_ast struct {
+	Object	interface{}
 	End_	func() token.Pos
 	Pos_	func() token.Pos
 }
-func (Obj Decl_go_ast) End() token.Pos {
-	return Obj.End_()
+func (Proxy Decl_go_ast) End() token.Pos {
+	return Proxy.End_()
 }
-func (Obj Decl_go_ast) Pos() token.Pos {
-	return Obj.Pos_()
+func (Proxy Decl_go_ast) Pos() token.Pos {
+	return Proxy.Pos_()
 }
 
 // --------------- proxy for go/ast.Expr ---------------
 type Expr_go_ast struct {
+	Object	interface{}
 	End_	func() token.Pos
 	Pos_	func() token.Pos
 }
-func (Obj Expr_go_ast) End() token.Pos {
-	return Obj.End_()
+func (Proxy Expr_go_ast) End() token.Pos {
+	return Proxy.End_()
 }
-func (Obj Expr_go_ast) Pos() token.Pos {
-	return Obj.Pos_()
+func (Proxy Expr_go_ast) Pos() token.Pos {
+	return Proxy.Pos_()
 }
 
 // --------------- proxy for go/ast.Node ---------------
 type Node_go_ast struct {
+	Object	interface{}
 	End_	func() token.Pos
 	Pos_	func() token.Pos
 }
-func (Obj Node_go_ast) End() token.Pos {
-	return Obj.End_()
+func (Proxy Node_go_ast) End() token.Pos {
+	return Proxy.End_()
 }
-func (Obj Node_go_ast) Pos() token.Pos {
-	return Obj.Pos_()
+func (Proxy Node_go_ast) Pos() token.Pos {
+	return Proxy.Pos_()
 }
 
 // --------------- proxy for go/ast.Spec ---------------
 type Spec_go_ast struct {
+	Object	interface{}
 	End_	func() token.Pos
 	Pos_	func() token.Pos
 }
-func (Obj Spec_go_ast) End() token.Pos {
-	return Obj.End_()
+func (Proxy Spec_go_ast) End() token.Pos {
+	return Proxy.End_()
 }
-func (Obj Spec_go_ast) Pos() token.Pos {
-	return Obj.Pos_()
+func (Proxy Spec_go_ast) Pos() token.Pos {
+	return Proxy.Pos_()
 }
 
 // --------------- proxy for go/ast.Stmt ---------------
 type Stmt_go_ast struct {
+	Object	interface{}
 	End_	func() token.Pos
 	Pos_	func() token.Pos
 }
-func (Obj Stmt_go_ast) End() token.Pos {
-	return Obj.End_()
+func (Proxy Stmt_go_ast) End() token.Pos {
+	return Proxy.End_()
 }
-func (Obj Stmt_go_ast) Pos() token.Pos {
-	return Obj.Pos_()
+func (Proxy Stmt_go_ast) Pos() token.Pos {
+	return Proxy.Pos_()
 }
 
 // --------------- proxy for go/ast.Visitor ---------------
 type Visitor_go_ast struct {
+	Object	interface{}
 	Visit_	func(node ast.Node) (w ast.Visitor)
 }
-func (Obj Visitor_go_ast) Visit(node ast.Node) (w ast.Visitor) {
-	return Obj.Visit_(node)
+func (Proxy Visitor_go_ast) Visit(node ast.Node) (w ast.Visitor) {
+	return Proxy.Visit_(node)
 }

@@ -218,6 +218,9 @@ func writeInterfaceProxy(out *bytes.Buffer, pkgPath string, pkgSuffix string, na
 }
 
 func writeInterfaceMethods(out *bytes.Buffer, pkgSuffix string, name string, t *types.Interface, opts writeTypeOpts) {
+	if opts&writeMethodsAsFields != 0 {
+		fmt.Fprint(out, "\n\tObject\tinterface{}") // will be used to retrieve object wrapped in the proxy
+	}
 	n := t.NumMethods()
 	for i := 0; i < n; i++ {
 		writeInterfaceMethod(out, pkgSuffix, name, t.Method(i), opts)
@@ -235,7 +238,7 @@ func writeInterfaceMethod(out *bytes.Buffer, pkgSuffix string, interfaceName str
 	if opts&writeMethodsAsFields != 0 {
 		fmt.Fprintf(out, "\n\t%s_\tfunc", method.Name())
 	} else {
-		fmt.Fprintf(out, "func (Obj %s%s) %s", interfaceName, pkgSuffix, method.Name())
+		fmt.Fprintf(out, "func (Proxy %s%s) %s", interfaceName, pkgSuffix, method.Name())
 	}
 	params := sig.Params()
 	results := sig.Results()
@@ -249,7 +252,7 @@ func writeInterfaceMethod(out *bytes.Buffer, pkgSuffix string, interfaceName str
 	if results != nil && results.Len() > 0 {
 		out.WriteString("return ")
 	}
-	fmt.Fprintf(out, "Obj.%s_(", method.Name())
+	fmt.Fprintf(out, "Proxy.%s_(", method.Name())
 	writeTypeTuple(out, params, writeForceParamNames)
 	out.WriteString(")\n}\n")
 }

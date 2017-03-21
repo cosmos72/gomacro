@@ -87,308 +87,333 @@ func init() {
 
 // --------------- proxy for database/sql/driver.ColumnConverter ---------------
 type ColumnConverter_database_sql_driver struct {
+	Object	interface{}
 	ColumnConverter_	func(idx int) driver.ValueConverter
 }
-func (Obj ColumnConverter_database_sql_driver) ColumnConverter(idx int) driver.ValueConverter {
-	return Obj.ColumnConverter_(idx)
+func (Proxy ColumnConverter_database_sql_driver) ColumnConverter(idx int) driver.ValueConverter {
+	return Proxy.ColumnConverter_(idx)
 }
 
 // --------------- proxy for database/sql/driver.Conn ---------------
 type Conn_database_sql_driver struct {
+	Object	interface{}
 	Begin_	func() (driver.Tx, error)
 	Close_	func() error
 	Prepare_	func(query string) (driver.Stmt, error)
 }
-func (Obj Conn_database_sql_driver) Begin() (driver.Tx, error) {
-	return Obj.Begin_()
+func (Proxy Conn_database_sql_driver) Begin() (driver.Tx, error) {
+	return Proxy.Begin_()
 }
-func (Obj Conn_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy Conn_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj Conn_database_sql_driver) Prepare(query string) (driver.Stmt, error) {
-	return Obj.Prepare_(query)
+func (Proxy Conn_database_sql_driver) Prepare(query string) (driver.Stmt, error) {
+	return Proxy.Prepare_(query)
 }
 
 // --------------- proxy for database/sql/driver.ConnBeginTx ---------------
 type ConnBeginTx_database_sql_driver struct {
+	Object	interface{}
 	BeginTx_	func(ctx context.Context, opts driver.TxOptions) (driver.Tx, error)
 }
-func (Obj ConnBeginTx_database_sql_driver) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, error) {
-	return Obj.BeginTx_(ctx, opts)
+func (Proxy ConnBeginTx_database_sql_driver) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, error) {
+	return Proxy.BeginTx_(ctx, opts)
 }
 
 // --------------- proxy for database/sql/driver.ConnPrepareContext ---------------
 type ConnPrepareContext_database_sql_driver struct {
+	Object	interface{}
 	PrepareContext_	func(ctx context.Context, query string) (driver.Stmt, error)
 }
-func (Obj ConnPrepareContext_database_sql_driver) PrepareContext(ctx context.Context, query string) (driver.Stmt, error) {
-	return Obj.PrepareContext_(ctx, query)
+func (Proxy ConnPrepareContext_database_sql_driver) PrepareContext(ctx context.Context, query string) (driver.Stmt, error) {
+	return Proxy.PrepareContext_(ctx, query)
 }
 
 // --------------- proxy for database/sql/driver.Driver ---------------
 type Driver_database_sql_driver struct {
+	Object	interface{}
 	Open_	func(name string) (driver.Conn, error)
 }
-func (Obj Driver_database_sql_driver) Open(name string) (driver.Conn, error) {
-	return Obj.Open_(name)
+func (Proxy Driver_database_sql_driver) Open(name string) (driver.Conn, error) {
+	return Proxy.Open_(name)
 }
 
 // --------------- proxy for database/sql/driver.Execer ---------------
 type Execer_database_sql_driver struct {
+	Object	interface{}
 	Exec_	func(query string, args []driver.Value) (driver.Result, error)
 }
-func (Obj Execer_database_sql_driver) Exec(query string, args []driver.Value) (driver.Result, error) {
-	return Obj.Exec_(query, args)
+func (Proxy Execer_database_sql_driver) Exec(query string, args []driver.Value) (driver.Result, error) {
+	return Proxy.Exec_(query, args)
 }
 
 // --------------- proxy for database/sql/driver.ExecerContext ---------------
 type ExecerContext_database_sql_driver struct {
+	Object	interface{}
 	ExecContext_	func(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error)
 }
-func (Obj ExecerContext_database_sql_driver) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
-	return Obj.ExecContext_(ctx, query, args)
+func (Proxy ExecerContext_database_sql_driver) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
+	return Proxy.ExecContext_(ctx, query, args)
 }
 
 // --------------- proxy for database/sql/driver.Pinger ---------------
 type Pinger_database_sql_driver struct {
+	Object	interface{}
 	Ping_	func(ctx context.Context) error
 }
-func (Obj Pinger_database_sql_driver) Ping(ctx context.Context) error {
-	return Obj.Ping_(ctx)
+func (Proxy Pinger_database_sql_driver) Ping(ctx context.Context) error {
+	return Proxy.Ping_(ctx)
 }
 
 // --------------- proxy for database/sql/driver.Queryer ---------------
 type Queryer_database_sql_driver struct {
+	Object	interface{}
 	Query_	func(query string, args []driver.Value) (driver.Rows, error)
 }
-func (Obj Queryer_database_sql_driver) Query(query string, args []driver.Value) (driver.Rows, error) {
-	return Obj.Query_(query, args)
+func (Proxy Queryer_database_sql_driver) Query(query string, args []driver.Value) (driver.Rows, error) {
+	return Proxy.Query_(query, args)
 }
 
 // --------------- proxy for database/sql/driver.QueryerContext ---------------
 type QueryerContext_database_sql_driver struct {
+	Object	interface{}
 	QueryContext_	func(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error)
 }
-func (Obj QueryerContext_database_sql_driver) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
-	return Obj.QueryContext_(ctx, query, args)
+func (Proxy QueryerContext_database_sql_driver) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
+	return Proxy.QueryContext_(ctx, query, args)
 }
 
 // --------------- proxy for database/sql/driver.Result ---------------
 type Result_database_sql_driver struct {
+	Object	interface{}
 	LastInsertId_	func() (int64, error)
 	RowsAffected_	func() (int64, error)
 }
-func (Obj Result_database_sql_driver) LastInsertId() (int64, error) {
-	return Obj.LastInsertId_()
+func (Proxy Result_database_sql_driver) LastInsertId() (int64, error) {
+	return Proxy.LastInsertId_()
 }
-func (Obj Result_database_sql_driver) RowsAffected() (int64, error) {
-	return Obj.RowsAffected_()
+func (Proxy Result_database_sql_driver) RowsAffected() (int64, error) {
+	return Proxy.RowsAffected_()
 }
 
 // --------------- proxy for database/sql/driver.Rows ---------------
 type Rows_database_sql_driver struct {
+	Object	interface{}
 	Close_	func() error
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Obj Rows_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy Rows_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj Rows_database_sql_driver) Columns() []string {
-	return Obj.Columns_()
+func (Proxy Rows_database_sql_driver) Columns() []string {
+	return Proxy.Columns_()
 }
-func (Obj Rows_database_sql_driver) Next(dest []driver.Value) error {
-	return Obj.Next_(dest)
+func (Proxy Rows_database_sql_driver) Next(dest []driver.Value) error {
+	return Proxy.Next_(dest)
 }
 
 // --------------- proxy for database/sql/driver.RowsColumnTypeDatabaseTypeName ---------------
 type RowsColumnTypeDatabaseTypeName_database_sql_driver struct {
+	Object	interface{}
 	Close_	func() error
 	ColumnTypeDatabaseTypeName_	func(index int) string
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Obj RowsColumnTypeDatabaseTypeName_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy RowsColumnTypeDatabaseTypeName_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj RowsColumnTypeDatabaseTypeName_database_sql_driver) ColumnTypeDatabaseTypeName(index int) string {
-	return Obj.ColumnTypeDatabaseTypeName_(index)
+func (Proxy RowsColumnTypeDatabaseTypeName_database_sql_driver) ColumnTypeDatabaseTypeName(index int) string {
+	return Proxy.ColumnTypeDatabaseTypeName_(index)
 }
-func (Obj RowsColumnTypeDatabaseTypeName_database_sql_driver) Columns() []string {
-	return Obj.Columns_()
+func (Proxy RowsColumnTypeDatabaseTypeName_database_sql_driver) Columns() []string {
+	return Proxy.Columns_()
 }
-func (Obj RowsColumnTypeDatabaseTypeName_database_sql_driver) Next(dest []driver.Value) error {
-	return Obj.Next_(dest)
+func (Proxy RowsColumnTypeDatabaseTypeName_database_sql_driver) Next(dest []driver.Value) error {
+	return Proxy.Next_(dest)
 }
 
 // --------------- proxy for database/sql/driver.RowsColumnTypeLength ---------------
 type RowsColumnTypeLength_database_sql_driver struct {
+	Object	interface{}
 	Close_	func() error
 	ColumnTypeLength_	func(index int) (length int64, ok bool)
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Obj RowsColumnTypeLength_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy RowsColumnTypeLength_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj RowsColumnTypeLength_database_sql_driver) ColumnTypeLength(index int) (length int64, ok bool) {
-	return Obj.ColumnTypeLength_(index)
+func (Proxy RowsColumnTypeLength_database_sql_driver) ColumnTypeLength(index int) (length int64, ok bool) {
+	return Proxy.ColumnTypeLength_(index)
 }
-func (Obj RowsColumnTypeLength_database_sql_driver) Columns() []string {
-	return Obj.Columns_()
+func (Proxy RowsColumnTypeLength_database_sql_driver) Columns() []string {
+	return Proxy.Columns_()
 }
-func (Obj RowsColumnTypeLength_database_sql_driver) Next(dest []driver.Value) error {
-	return Obj.Next_(dest)
+func (Proxy RowsColumnTypeLength_database_sql_driver) Next(dest []driver.Value) error {
+	return Proxy.Next_(dest)
 }
 
 // --------------- proxy for database/sql/driver.RowsColumnTypeNullable ---------------
 type RowsColumnTypeNullable_database_sql_driver struct {
+	Object	interface{}
 	Close_	func() error
 	ColumnTypeNullable_	func(index int) (nullable bool, ok bool)
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Obj RowsColumnTypeNullable_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy RowsColumnTypeNullable_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj RowsColumnTypeNullable_database_sql_driver) ColumnTypeNullable(index int) (nullable bool, ok bool) {
-	return Obj.ColumnTypeNullable_(index)
+func (Proxy RowsColumnTypeNullable_database_sql_driver) ColumnTypeNullable(index int) (nullable bool, ok bool) {
+	return Proxy.ColumnTypeNullable_(index)
 }
-func (Obj RowsColumnTypeNullable_database_sql_driver) Columns() []string {
-	return Obj.Columns_()
+func (Proxy RowsColumnTypeNullable_database_sql_driver) Columns() []string {
+	return Proxy.Columns_()
 }
-func (Obj RowsColumnTypeNullable_database_sql_driver) Next(dest []driver.Value) error {
-	return Obj.Next_(dest)
+func (Proxy RowsColumnTypeNullable_database_sql_driver) Next(dest []driver.Value) error {
+	return Proxy.Next_(dest)
 }
 
 // --------------- proxy for database/sql/driver.RowsColumnTypePrecisionScale ---------------
 type RowsColumnTypePrecisionScale_database_sql_driver struct {
+	Object	interface{}
 	Close_	func() error
 	ColumnTypePrecisionScale_	func(index int) (precision int64, scale int64, ok bool)
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Obj RowsColumnTypePrecisionScale_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy RowsColumnTypePrecisionScale_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj RowsColumnTypePrecisionScale_database_sql_driver) ColumnTypePrecisionScale(index int) (precision int64, scale int64, ok bool) {
-	return Obj.ColumnTypePrecisionScale_(index)
+func (Proxy RowsColumnTypePrecisionScale_database_sql_driver) ColumnTypePrecisionScale(index int) (precision int64, scale int64, ok bool) {
+	return Proxy.ColumnTypePrecisionScale_(index)
 }
-func (Obj RowsColumnTypePrecisionScale_database_sql_driver) Columns() []string {
-	return Obj.Columns_()
+func (Proxy RowsColumnTypePrecisionScale_database_sql_driver) Columns() []string {
+	return Proxy.Columns_()
 }
-func (Obj RowsColumnTypePrecisionScale_database_sql_driver) Next(dest []driver.Value) error {
-	return Obj.Next_(dest)
+func (Proxy RowsColumnTypePrecisionScale_database_sql_driver) Next(dest []driver.Value) error {
+	return Proxy.Next_(dest)
 }
 
 // --------------- proxy for database/sql/driver.RowsColumnTypeScanType ---------------
 type RowsColumnTypeScanType_database_sql_driver struct {
+	Object	interface{}
 	Close_	func() error
 	ColumnTypeScanType_	func(index int) reflect.Type
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Obj RowsColumnTypeScanType_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy RowsColumnTypeScanType_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj RowsColumnTypeScanType_database_sql_driver) ColumnTypeScanType(index int) reflect.Type {
-	return Obj.ColumnTypeScanType_(index)
+func (Proxy RowsColumnTypeScanType_database_sql_driver) ColumnTypeScanType(index int) reflect.Type {
+	return Proxy.ColumnTypeScanType_(index)
 }
-func (Obj RowsColumnTypeScanType_database_sql_driver) Columns() []string {
-	return Obj.Columns_()
+func (Proxy RowsColumnTypeScanType_database_sql_driver) Columns() []string {
+	return Proxy.Columns_()
 }
-func (Obj RowsColumnTypeScanType_database_sql_driver) Next(dest []driver.Value) error {
-	return Obj.Next_(dest)
+func (Proxy RowsColumnTypeScanType_database_sql_driver) Next(dest []driver.Value) error {
+	return Proxy.Next_(dest)
 }
 
 // --------------- proxy for database/sql/driver.RowsNextResultSet ---------------
 type RowsNextResultSet_database_sql_driver struct {
+	Object	interface{}
 	Close_	func() error
 	Columns_	func() []string
 	HasNextResultSet_	func() bool
 	Next_	func(dest []driver.Value) error
 	NextResultSet_	func() error
 }
-func (Obj RowsNextResultSet_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy RowsNextResultSet_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj RowsNextResultSet_database_sql_driver) Columns() []string {
-	return Obj.Columns_()
+func (Proxy RowsNextResultSet_database_sql_driver) Columns() []string {
+	return Proxy.Columns_()
 }
-func (Obj RowsNextResultSet_database_sql_driver) HasNextResultSet() bool {
-	return Obj.HasNextResultSet_()
+func (Proxy RowsNextResultSet_database_sql_driver) HasNextResultSet() bool {
+	return Proxy.HasNextResultSet_()
 }
-func (Obj RowsNextResultSet_database_sql_driver) Next(dest []driver.Value) error {
-	return Obj.Next_(dest)
+func (Proxy RowsNextResultSet_database_sql_driver) Next(dest []driver.Value) error {
+	return Proxy.Next_(dest)
 }
-func (Obj RowsNextResultSet_database_sql_driver) NextResultSet() error {
-	return Obj.NextResultSet_()
+func (Proxy RowsNextResultSet_database_sql_driver) NextResultSet() error {
+	return Proxy.NextResultSet_()
 }
 
 // --------------- proxy for database/sql/driver.Stmt ---------------
 type Stmt_database_sql_driver struct {
+	Object	interface{}
 	Close_	func() error
 	Exec_	func(args []driver.Value) (driver.Result, error)
 	NumInput_	func() int
 	Query_	func(args []driver.Value) (driver.Rows, error)
 }
-func (Obj Stmt_database_sql_driver) Close() error {
-	return Obj.Close_()
+func (Proxy Stmt_database_sql_driver) Close() error {
+	return Proxy.Close_()
 }
-func (Obj Stmt_database_sql_driver) Exec(args []driver.Value) (driver.Result, error) {
-	return Obj.Exec_(args)
+func (Proxy Stmt_database_sql_driver) Exec(args []driver.Value) (driver.Result, error) {
+	return Proxy.Exec_(args)
 }
-func (Obj Stmt_database_sql_driver) NumInput() int {
-	return Obj.NumInput_()
+func (Proxy Stmt_database_sql_driver) NumInput() int {
+	return Proxy.NumInput_()
 }
-func (Obj Stmt_database_sql_driver) Query(args []driver.Value) (driver.Rows, error) {
-	return Obj.Query_(args)
+func (Proxy Stmt_database_sql_driver) Query(args []driver.Value) (driver.Rows, error) {
+	return Proxy.Query_(args)
 }
 
 // --------------- proxy for database/sql/driver.StmtExecContext ---------------
 type StmtExecContext_database_sql_driver struct {
+	Object	interface{}
 	ExecContext_	func(ctx context.Context, args []driver.NamedValue) (driver.Result, error)
 }
-func (Obj StmtExecContext_database_sql_driver) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
-	return Obj.ExecContext_(ctx, args)
+func (Proxy StmtExecContext_database_sql_driver) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
+	return Proxy.ExecContext_(ctx, args)
 }
 
 // --------------- proxy for database/sql/driver.StmtQueryContext ---------------
 type StmtQueryContext_database_sql_driver struct {
+	Object	interface{}
 	QueryContext_	func(ctx context.Context, args []driver.NamedValue) (driver.Rows, error)
 }
-func (Obj StmtQueryContext_database_sql_driver) QueryContext(ctx context.Context, args []driver.NamedValue) (driver.Rows, error) {
-	return Obj.QueryContext_(ctx, args)
+func (Proxy StmtQueryContext_database_sql_driver) QueryContext(ctx context.Context, args []driver.NamedValue) (driver.Rows, error) {
+	return Proxy.QueryContext_(ctx, args)
 }
 
 // --------------- proxy for database/sql/driver.Tx ---------------
 type Tx_database_sql_driver struct {
+	Object	interface{}
 	Commit_	func() error
 	Rollback_	func() error
 }
-func (Obj Tx_database_sql_driver) Commit() error {
-	return Obj.Commit_()
+func (Proxy Tx_database_sql_driver) Commit() error {
+	return Proxy.Commit_()
 }
-func (Obj Tx_database_sql_driver) Rollback() error {
-	return Obj.Rollback_()
+func (Proxy Tx_database_sql_driver) Rollback() error {
+	return Proxy.Rollback_()
 }
 
 // --------------- proxy for database/sql/driver.Value ---------------
 type Value_database_sql_driver struct {
+	Object	interface{}
 }
 
 // --------------- proxy for database/sql/driver.ValueConverter ---------------
 type ValueConverter_database_sql_driver struct {
+	Object	interface{}
 	ConvertValue_	func(v interface{}) (driver.Value, error)
 }
-func (Obj ValueConverter_database_sql_driver) ConvertValue(v interface{}) (driver.Value, error) {
-	return Obj.ConvertValue_(v)
+func (Proxy ValueConverter_database_sql_driver) ConvertValue(v interface{}) (driver.Value, error) {
+	return Proxy.ConvertValue_(v)
 }
 
 // --------------- proxy for database/sql/driver.Valuer ---------------
 type Valuer_database_sql_driver struct {
+	Object	interface{}
 	Value_	func() (driver.Value, error)
 }
-func (Obj Valuer_database_sql_driver) Value() (driver.Value, error) {
-	return Obj.Value_()
+func (Proxy Valuer_database_sql_driver) Value() (driver.Value, error) {
+	return Proxy.Value_()
 }

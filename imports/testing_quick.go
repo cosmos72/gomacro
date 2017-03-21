@@ -31,8 +31,9 @@ func init() {
 
 // --------------- proxy for testing/quick.Generator ---------------
 type Generator_testing_quick struct {
+	Object	interface{}
 	Generate_	func(rand *rand.Rand, size int) reflect.Value
 }
-func (Obj Generator_testing_quick) Generate(rand *rand.Rand, size int) reflect.Value {
-	return Obj.Generate_(rand, size)
+func (Proxy Generator_testing_quick) Generate(rand *rand.Rand, size int) reflect.Value {
+	return Proxy.Generate_(rand, size)
 }

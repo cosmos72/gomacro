@@ -30,7 +30,10 @@ import (
 
 	gmi "github.com/cosmos72/gomacro/interpreter"
 	mp "github.com/cosmos72/gomacro/parser"
+	"github.com/cosmos72/gomacro/reflection"
 )
+
+var _ = (*reflection.Ast_github_com_cosmos72_gomacro_ast2)(nil) // force linking package "reflection"
 
 func main() {
 	args := os.Args[1:]

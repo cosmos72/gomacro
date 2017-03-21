@@ -51,22 +51,25 @@ func init() {
 
 // --------------- proxy for fmt.Formatter ---------------
 type Formatter_fmt struct {
+	Object	interface{}
 	Format_	func(f fmt.State, c rune) 
 }
-func (Obj Formatter_fmt) Format(f fmt.State, c rune)  {
-	Obj.Format_(f, c)
+func (Proxy Formatter_fmt) Format(f fmt.State, c rune)  {
+	Proxy.Format_(f, c)
 }
 
 // --------------- proxy for fmt.GoStringer ---------------
 type GoStringer_fmt struct {
+	Object	interface{}
 	GoString_	func() string
 }
-func (Obj GoStringer_fmt) GoString() string {
-	return Obj.GoString_()
+func (Proxy GoStringer_fmt) GoString() string {
+	return Proxy.GoString_()
 }
 
 // --------------- proxy for fmt.ScanState ---------------
 type ScanState_fmt struct {
+	Object	interface{}
 	Read_	func(buf []byte) (n int, err error)
 	ReadRune_	func() (r rune, size int, err error)
 	SkipSpace_	func() 
@@ -74,57 +77,60 @@ type ScanState_fmt struct {
 	UnreadRune_	func() error
 	Width_	func() (wid int, ok bool)
 }
-func (Obj ScanState_fmt) Read(buf []byte) (n int, err error) {
-	return Obj.Read_(buf)
+func (Proxy ScanState_fmt) Read(buf []byte) (n int, err error) {
+	return Proxy.Read_(buf)
 }
-func (Obj ScanState_fmt) ReadRune() (r rune, size int, err error) {
-	return Obj.ReadRune_()
+func (Proxy ScanState_fmt) ReadRune() (r rune, size int, err error) {
+	return Proxy.ReadRune_()
 }
-func (Obj ScanState_fmt) SkipSpace()  {
-	Obj.SkipSpace_()
+func (Proxy ScanState_fmt) SkipSpace()  {
+	Proxy.SkipSpace_()
 }
-func (Obj ScanState_fmt) Token(skipSpace bool, f func(rune) bool) (token []byte, err error) {
-	return Obj.Token_(skipSpace, f)
+func (Proxy ScanState_fmt) Token(skipSpace bool, f func(rune) bool) (token []byte, err error) {
+	return Proxy.Token_(skipSpace, f)
 }
-func (Obj ScanState_fmt) UnreadRune() error {
-	return Obj.UnreadRune_()
+func (Proxy ScanState_fmt) UnreadRune() error {
+	return Proxy.UnreadRune_()
 }
-func (Obj ScanState_fmt) Width() (wid int, ok bool) {
-	return Obj.Width_()
+func (Proxy ScanState_fmt) Width() (wid int, ok bool) {
+	return Proxy.Width_()
 }
 
 // --------------- proxy for fmt.Scanner ---------------
 type Scanner_fmt struct {
+	Object	interface{}
 	Scan_	func(state fmt.ScanState, verb rune) error
 }
-func (Obj Scanner_fmt) Scan(state fmt.ScanState, verb rune) error {
-	return Obj.Scan_(state, verb)
+func (Proxy Scanner_fmt) Scan(state fmt.ScanState, verb rune) error {
+	return Proxy.Scan_(state, verb)
 }
 
 // --------------- proxy for fmt.State ---------------
 type State_fmt struct {
+	Object	interface{}
 	Flag_	func(c int) bool
 	Precision_	func() (prec int, ok bool)
 	Width_	func() (wid int, ok bool)
 	Write_	func(b []byte) (n int, err error)
 }
-func (Obj State_fmt) Flag(c int) bool {
-	return Obj.Flag_(c)
+func (Proxy State_fmt) Flag(c int) bool {
+	return Proxy.Flag_(c)
 }
-func (Obj State_fmt) Precision() (prec int, ok bool) {
-	return Obj.Precision_()
+func (Proxy State_fmt) Precision() (prec int, ok bool) {
+	return Proxy.Precision_()
 }
-func (Obj State_fmt) Width() (wid int, ok bool) {
-	return Obj.Width_()
+func (Proxy State_fmt) Width() (wid int, ok bool) {
+	return Proxy.Width_()
 }
-func (Obj State_fmt) Write(b []byte) (n int, err error) {
-	return Obj.Write_(b)
+func (Proxy State_fmt) Write(b []byte) (n int, err error) {
+	return Proxy.Write_(b)
 }
 
 // --------------- proxy for fmt.Stringer ---------------
 type Stringer_fmt struct {
+	Object	interface{}
 	String_	func() string
 }
-func (Obj Stringer_fmt) String() string {
-	return Obj.String_()
+func (Proxy Stringer_fmt) String() string {
+	return Proxy.String_()
 }

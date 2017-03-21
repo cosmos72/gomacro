@@ -66,20 +66,21 @@ func init() {
 
 // --------------- proxy for text/template/parse.Node ---------------
 type Node_text_template_parse struct {
+	Object	interface{}
 	Copy_	func() parse.Node
 	Position_	func() parse.Pos
 	String_	func() string
 	Type_	func() parse.NodeType
 }
-func (Obj Node_text_template_parse) Copy() parse.Node {
-	return Obj.Copy_()
+func (Proxy Node_text_template_parse) Copy() parse.Node {
+	return Proxy.Copy_()
 }
-func (Obj Node_text_template_parse) Position() parse.Pos {
-	return Obj.Position_()
+func (Proxy Node_text_template_parse) Position() parse.Pos {
+	return Proxy.Position_()
 }
-func (Obj Node_text_template_parse) String() string {
-	return Obj.String_()
+func (Proxy Node_text_template_parse) String() string {
+	return Proxy.String_()
 }
-func (Obj Node_text_template_parse) Type() parse.NodeType {
-	return Obj.Type_()
+func (Proxy Node_text_template_parse) Type() parse.NodeType {
+	return Proxy.Type_()
 }
