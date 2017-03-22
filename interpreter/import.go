@@ -231,7 +231,7 @@ package %s
 import (
 	. "reflect"`, path, thisPkgName)
 
-	for _, str := range ir.collectPackageImports(pkg) {
+	for _, str := range ir.collectPackageImports(pkg, true) {
 		fmt.Fprintf(out, "\n\t%q", str)
 	}
 
@@ -295,7 +295,7 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 
 	for _, name := range names {
 		obj := scope.Lookup(name)
-		if t := extractTypeObjectInterface(obj); t != nil {
+		if t := extractInterface(obj, true); t != nil {
 			fmt.Fprintf(out, "\n\t\t%q:\tTypeOf((*%s%s)(nil)).Elem(),", name, name, pkgSuffix)
 		}
 	}
@@ -308,7 +308,7 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 
 	for _, name := range names {
 		obj := scope.Lookup(name)
-		if t := extractTypeObjectInterface(obj); t != nil {
+		if t := extractInterface(obj, true); t != nil {
 			writeInterfaceProxy(out, pkg.Path(), pkgSuffix, name, t)
 		}
 	}

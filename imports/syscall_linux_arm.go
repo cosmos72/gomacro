@@ -2243,11 +2243,5 @@ func init() {
 		"WaitStatus":	TypeOf((*syscall.WaitStatus)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
-		"Sockaddr":	TypeOf((*Sockaddr_syscall)(nil)).Elem(),
 	} }
-}
-
-// --------------- proxy for syscall.Sockaddr ---------------
-type Sockaddr_syscall struct {
-	Object	interface{}
 }

@@ -60,27 +60,5 @@ func init() {
 		"WithNode":	TypeOf((*parse.WithNode)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
-		"Node":	TypeOf((*Node_text_template_parse)(nil)).Elem(),
 	} }
-}
-
-// --------------- proxy for text/template/parse.Node ---------------
-type Node_text_template_parse struct {
-	Object	interface{}
-	Copy_	func() parse.Node
-	Position_	func() parse.Pos
-	String_	func() string
-	Type_	func() parse.NodeType
-}
-func (Proxy Node_text_template_parse) Copy() parse.Node {
-	return Proxy.Copy_()
-}
-func (Proxy Node_text_template_parse) Position() parse.Pos {
-	return Proxy.Position_()
-}
-func (Proxy Node_text_template_parse) String() string {
-	return Proxy.String_()
-}
-func (Proxy Node_text_template_parse) Type() parse.NodeType {
-	return Proxy.Type_()
 }

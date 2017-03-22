@@ -990,11 +990,5 @@ func init() {
 		"Win32finddata":	TypeOf((*syscall.Win32finddata)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
-		"Sockaddr":	TypeOf((*Sockaddr_syscall)(nil)).Elem(),
 	} }
-}
-
-// --------------- proxy for syscall.Sockaddr ---------------
-type Sockaddr_syscall struct {
-	Object	interface{}
 }

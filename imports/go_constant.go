@@ -52,23 +52,5 @@ func init() {
 		"Value":	TypeOf((*constant.Value)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
-		"Value":	TypeOf((*Value_go_constant)(nil)).Elem(),
 	} }
-}
-
-// --------------- proxy for go/constant.Value ---------------
-type Value_go_constant struct {
-	Object	interface{}
-	ExactString_	func() string
-	Kind_	func() constant.Kind
-	String_	func() string
-}
-func (Proxy Value_go_constant) ExactString() string {
-	return Proxy.ExactString_()
-}
-func (Proxy Value_go_constant) Kind() constant.Kind {
-	return Proxy.Kind_()
-}
-func (Proxy Value_go_constant) String() string {
-	return Proxy.String_()
 }

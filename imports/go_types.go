@@ -5,7 +5,6 @@ package imports
 
 import (
 	. "reflect"
-	"go/token"
 	"go/types"
 )
 
@@ -150,7 +149,6 @@ func init() {
 	Proxies: map[string]Type{
 		"Importer":	TypeOf((*Importer_go_types)(nil)).Elem(),
 		"ImporterFrom":	TypeOf((*ImporterFrom_go_types)(nil)).Elem(),
-		"Object":	TypeOf((*Object_go_types)(nil)).Elem(),
 		"Sizes":	TypeOf((*Sizes_go_types)(nil)).Elem(),
 		"Type":	TypeOf((*Type_go_types)(nil)).Elem(),
 	} }
@@ -176,43 +174,6 @@ func (Proxy ImporterFrom_go_types) Import(path string) (*types.Package, error) {
 }
 func (Proxy ImporterFrom_go_types) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
 	return Proxy.ImportFrom_(path, srcDir, mode)
-}
-
-// --------------- proxy for go/types.Object ---------------
-type Object_go_types struct {
-	Object	interface{}
-	Exported_	func() bool
-	Id_	func() string
-	Name_	func() string
-	Parent_	func() *types.Scope
-	Pkg_	func() *types.Package
-	Pos_	func() token.Pos
-	String_	func() string
-	Type_	func() types.Type
-}
-func (Proxy Object_go_types) Exported() bool {
-	return Proxy.Exported_()
-}
-func (Proxy Object_go_types) Id() string {
-	return Proxy.Id_()
-}
-func (Proxy Object_go_types) Name() string {
-	return Proxy.Name_()
-}
-func (Proxy Object_go_types) Parent() *types.Scope {
-	return Proxy.Parent_()
-}
-func (Proxy Object_go_types) Pkg() *types.Package {
-	return Proxy.Pkg_()
-}
-func (Proxy Object_go_types) Pos() token.Pos {
-	return Proxy.Pos_()
-}
-func (Proxy Object_go_types) String() string {
-	return Proxy.String_()
-}
-func (Proxy Object_go_types) Type() types.Type {
-	return Proxy.Type_()
 }
 
 // --------------- proxy for go/types.Sizes ---------------

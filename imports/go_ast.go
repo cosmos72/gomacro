@@ -116,39 +116,9 @@ func init() {
 		"Visitor":	TypeOf((*ast.Visitor)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
-		"Decl":	TypeOf((*Decl_go_ast)(nil)).Elem(),
-		"Expr":	TypeOf((*Expr_go_ast)(nil)).Elem(),
 		"Node":	TypeOf((*Node_go_ast)(nil)).Elem(),
-		"Spec":	TypeOf((*Spec_go_ast)(nil)).Elem(),
-		"Stmt":	TypeOf((*Stmt_go_ast)(nil)).Elem(),
 		"Visitor":	TypeOf((*Visitor_go_ast)(nil)).Elem(),
 	} }
-}
-
-// --------------- proxy for go/ast.Decl ---------------
-type Decl_go_ast struct {
-	Object	interface{}
-	End_	func() token.Pos
-	Pos_	func() token.Pos
-}
-func (Proxy Decl_go_ast) End() token.Pos {
-	return Proxy.End_()
-}
-func (Proxy Decl_go_ast) Pos() token.Pos {
-	return Proxy.Pos_()
-}
-
-// --------------- proxy for go/ast.Expr ---------------
-type Expr_go_ast struct {
-	Object	interface{}
-	End_	func() token.Pos
-	Pos_	func() token.Pos
-}
-func (Proxy Expr_go_ast) End() token.Pos {
-	return Proxy.End_()
-}
-func (Proxy Expr_go_ast) Pos() token.Pos {
-	return Proxy.Pos_()
 }
 
 // --------------- proxy for go/ast.Node ---------------
@@ -161,32 +131,6 @@ func (Proxy Node_go_ast) End() token.Pos {
 	return Proxy.End_()
 }
 func (Proxy Node_go_ast) Pos() token.Pos {
-	return Proxy.Pos_()
-}
-
-// --------------- proxy for go/ast.Spec ---------------
-type Spec_go_ast struct {
-	Object	interface{}
-	End_	func() token.Pos
-	Pos_	func() token.Pos
-}
-func (Proxy Spec_go_ast) End() token.Pos {
-	return Proxy.End_()
-}
-func (Proxy Spec_go_ast) Pos() token.Pos {
-	return Proxy.Pos_()
-}
-
-// --------------- proxy for go/ast.Stmt ---------------
-type Stmt_go_ast struct {
-	Object	interface{}
-	End_	func() token.Pos
-	Pos_	func() token.Pos
-}
-func (Proxy Stmt_go_ast) End() token.Pos {
-	return Proxy.End_()
-}
-func (Proxy Stmt_go_ast) Pos() token.Pos {
 	return Proxy.Pos_()
 }
 

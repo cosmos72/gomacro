@@ -137,15 +137,14 @@ type importExtractor struct {
 	o       *output
 }
 
-func (ie *importExtractor) visitPackage(pkg *types.Package) {
+func (ie *importExtractor) visitPackage(pkg *types.Package, requireAllInterfaceMethodsExported bool) {
 	scope := pkg.Scope()
 	for _, name := range scope.Names() {
 		obj := scope.Lookup(name)
-		t := extractTypeObjectInterface(obj)
-		if t == nil {
-			continue
+		t := extractInterface(obj, requireAllInterfaceMethodsExported)
+		if t != nil {
+			ie.o.traverseType("", t, ie.visitType)
 		}
-		ie.o.traverseType("", t, ie.visitType)
 	}
 }
 
@@ -167,7 +166,7 @@ func (ie *importExtractor) visitType(name string, t types.Type) bool {
 	}
 }
 
-func extractTypeObjectInterface(obj types.Object) *types.Interface {
+func extractInterface(obj types.Object, requireAllMethodsExported bool) *types.Interface {
 	if obj == nil || !obj.Exported() {
 		return nil
 	}
@@ -175,22 +174,34 @@ func extractTypeObjectInterface(obj types.Object) *types.Interface {
 	case *types.TypeName:
 		u := obj.Type().Underlying()
 		if u, ok := u.(*types.Interface); ok {
-			return u
+			if !requireAllMethodsExported || allMethodsExported(u) {
+				return u
+			}
 		}
 	}
 	return nil
 }
 
+func allMethodsExported(intf *types.Interface) bool {
+	n := intf.NumMethods()
+	for i := 0; i < n; i++ {
+		if !intf.Method(i).Exported() {
+			return false
+		}
+	}
+	return true
+}
+
 // we need to collect only the imports that actually appear in package's interfaces methods
 // because Go rejects programs with unused imports
-func (o *output) collectPackageImports(pkg *types.Package) []string {
+func (o *output) collectPackageImports(pkg *types.Package, requireAllInterfaceMethodsExported bool) []string {
 	ie := importExtractor{
 		// we always need to import the package itself
 		imports: map[string]bool{pkg.Path(): true},
 		o:       o,
 	}
 
-	ie.visitPackage(pkg)
+	ie.visitPackage(pkg, requireAllInterfaceMethodsExported)
 
 	strings := make([]string, len(ie.imports))
 	i := 0
