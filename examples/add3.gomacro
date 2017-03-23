@@ -1,3 +1,4 @@
+#!/usr/bin/env gomacro
 
 macro add3(a, b, c interface{}) interface{} {
 	quasiquote{unquote{a} + unquote{b} + unquote{c}}

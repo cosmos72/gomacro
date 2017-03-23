@@ -703,8 +703,14 @@ scanAgain:
 			}
 		case '*':
 			tok = s.switch2(token.MUL, token.MUL_ASSIGN)
-		case '/':
-			if s.ch == '/' || s.ch == '*' {
+		case '/', '#':
+			if ch == '/' && (s.ch == '/' || s.ch == '*') || ch == '#' && s.ch == '!' {
+				// accept both #! and // as line comments
+				// in this way, *.gomacro files can start with "#!/usr/bin/env gomacro"
+				// Unix-like systems will happily execute them directly
+				if s.ch == '!' {
+					s.ch = '/'
+				}
 				// comment
 				if s.insertSemi && s.findLineEnd() {
 					// reset position to the beginning of the comment
@@ -722,8 +728,13 @@ scanAgain:
 				}
 				tok = token.COMMENT
 				lit = comment
-			} else {
+			} else if ch == '/' {
 				tok = s.switch2(token.QUO, token.QUO_ASSIGN)
+			} else {
+				s.error(s.file.Offset(pos), fmt.Sprintf("illegal character %#U", ch))
+				insertSemi = s.insertSemi // preserve insertSemi info
+				tok = token.ILLEGAL
+				lit = string(ch)
 			}
 		case '%':
 			tok = s.switch2(token.REM, token.REM_ASSIGN)

@@ -32,7 +32,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"sort"
 	"strings"
 
 	mp "github.com/cosmos72/gomacro/parser"
@@ -59,7 +58,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		env.ReplStdin()
 		return nil
 	}
-	silent := false
+	quiet := false
 	verbose := false
 
 	env.Options &^= OptShowPrompt | OptShowAfterEval
@@ -68,31 +67,26 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		switch args[0] {
 		case "-h":
 			return cmd.Usage()
-		case "-f":
-			env.Options = applyOptions(env.Options, silent, verbose)
-			return cmd.EvalFiles(args[1:]...)
-		case "-d":
-			env.Options = applyOptions(env.Options, silent, verbose)
-			return cmd.EvalDirs(args[1:]...)
-		case "-s":
-			silent = true
+		case "-e":
+			env.Options |= OptShowAfterEval
+			env.Options = applyOptions(env.Options, quiet, verbose)
+
+			buf := bytes.NewBufferString(strings.Join(args[1:], " "))
+			buf.WriteByte('\n') // because ReadMultiLine() needs a final '\n'
+			return cmd.EvalReader(buf)
+		case "-q":
+			quiet = true
 			verbose = false
 			args = args[1:]
 			continue
 		case "-v":
 			verbose = true
-			silent = false
+			quiet = false
 			args = args[1:]
 			continue
-		case ".":
-			return cmd.EvalDirs(".")
 		default:
-			env.Options |= OptShowAfterEval
-			env.Options = applyOptions(env.Options, silent, verbose)
-
-			buf := bytes.NewBufferString(strings.Join(args, " "))
-			buf.WriteByte('\n') // because ReadMultiLine() needs a final '\n'
-			return cmd.EvalReader(buf)
+			env.Options = applyOptions(env.Options, quiet, verbose)
+			return cmd.EvalFilesAndDirs(args...)
 		}
 		break
 	}
@@ -109,11 +103,64 @@ func applyOptions(opts Options, silent bool, verbose bool) Options {
 }
 
 func (cmd *Cmd) Usage() error {
-	fmt.Print(`usage: gomacro [-s] [-v] [expression]
-       gomacro -f [filenames...]
-       gomacro -d [dirnames...]
-       gomacro .
+	fmt.Print(`usage: gomacro [-q] [-v] files-and-dirs
+       gomacro [-q] [-v] -e expression
 `)
+	return nil
+}
+
+func (cmd *Cmd) EvalFilesAndDirs(filesAndDirs ...string) error {
+	for _, fileOrDir := range filesAndDirs {
+		err := cmd.EvalFileOrDir(fileOrDir)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (cmd *Cmd) EvalFileOrDir(fileOrDir string) error {
+	info, err := os.Stat(fileOrDir)
+	if err != nil {
+		return err
+	}
+	if info.IsDir() {
+		return cmd.EvalDir(fileOrDir)
+	} else {
+		return cmd.EvalFile(fileOrDir)
+	}
+}
+
+func (cmd *Cmd) EvalDir(dirname string) error {
+	files, err := ioutil.ReadDir(dirname)
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		filename := file.Name()
+		l := len(filename)
+		if l > 3 && filename[l-3:] == ".go" || l > 8 && filename[l-8:] == ".gomacro" {
+			err := cmd.EvalFile(filename)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (cmd *Cmd) EvalFile(filename string) (err error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		f.Close()
+	}()
+	err = cmd.EvalReader(f)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -131,49 +178,6 @@ func (cmd *Cmd) EvalReader(src io.Reader) (err error) {
 	in := bufio.NewReader(src)
 
 	for cmd.Env.ReadParseEvalPrint(in) {
-	}
-	return nil
-}
-
-func (cmd *Cmd) EvalFiles(filenames ...string) (err error) {
-	for _, filename := range filenames {
-		f, err := os.Open(filename)
-		if err != nil {
-			return err
-		}
-		defer func() {
-			f.Close()
-		}()
-		err = cmd.EvalReader(f)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (cmd *Cmd) EvalDirs(dirnames ...string) error {
-	for _, dirname := range dirnames {
-		files, err := ioutil.ReadDir(dirname)
-		if err != nil {
-			return err
-		}
-		filenames := make([]string, 0, len(files))
-		for _, file := range files {
-			filename := file.Name()
-			l := len(filename)
-			if l > 3 && filename[l-3:] == ".go" || l > 8 && filename[l-8:] == ".gomacro" {
-				filenames = append(filenames, filename)
-			}
-		}
-		sort.Strings(filenames)
-
-		for _, filename := range filenames {
-			err := cmd.EvalFiles(filename)
-			if err != nil {
-				return err
-			}
-		}
 	}
 	return nil
 }

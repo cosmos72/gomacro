@@ -1,3 +1,4 @@
+#!/usr/bin/env gomacro
 
 func fibonacci(n uint) uint {
 	if n <= 2 {

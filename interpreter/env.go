@@ -145,13 +145,10 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 
 	src := strings.TrimSpace(str)
 	n := len(src)
-
 	if n == 0 {
-		if env.Options&OptShowAfterEval != 0 {
-			env.fprintValues(env.Stdout) // no value
-		}
-		return true
-	} else if n > 0 && src[0] == ':' {
+		return true // no input. don't print anything
+	}
+	if n > 0 && src[0] == ':' {
 		args := strings.SplitN(src, " ", 2)
 		cmd := args[0]
 		switch {
@@ -198,7 +195,7 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 	if env.Options&OptShowAfterEval != 0 {
 		if len(values) != 0 {
 			env.fprintValues(env.Stdout, values...)
-		} else {
+		} else if value != None {
 			env.fprintValues(env.Stdout, value)
 		}
 	}
