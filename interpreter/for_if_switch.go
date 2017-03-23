@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * controlflow.go
+ * for_if_switch.go
  *
  *  Created on: Feb 15, 2017
  *      Author: Massimiliano Ghilardi
@@ -328,4 +328,67 @@ func nilIfIdentUnderscore(node ast.Expr) ast.Expr {
 		}
 	}
 	return node
+}
+
+func (env *Env) evalSwitch(node *ast.SwitchStmt) (r.Value, []r.Value) {
+	if node.Init != nil {
+		// the scope of variables defined in the init statement of a switch
+		// is the switch itself
+		env = NewEnv(env, "switch")
+		env.evalStatement(node.Init)
+	}
+	var tag r.Value
+	if node.Tag == nil {
+		tag = valueOfTrue
+	} else {
+		tag = env.evalExpr1(node.Tag)
+	}
+	if node.Body == nil || len(node.Body.List) == 0 {
+		return None, nil
+	}
+	var default_ *ast.CaseClause
+	for _, stmt := range node.Body.List {
+		case_ := stmt.(*ast.CaseClause)
+		if case_.List == nil {
+			// default will be executed later, if no case matches
+			default_ = case_
+		} else if env.caseMatchesTag(tag, case_.List) {
+			return env.evalCaseBody("case:", case_)
+		}
+	}
+	return env.evalCaseBody("default:", default_)
+}
+
+func (env *Env) evalCaseBody(label string, case_ *ast.CaseClause) (r.Value, []r.Value) {
+	if case_ == nil || len(case_.Body) == 0 {
+		return None, nil
+	}
+	// each case body has its own environment
+	env = NewEnv(env, label)
+	return env.evalStatements(case_.Body)
+}
+
+func (env *Env) caseMatchesTag(tag r.Value, list []ast.Expr) bool {
+	var i interface{}
+	var t r.Type = nil
+	if tag != None && tag != Nil {
+		i = tag.Interface()
+		t = tag.Type()
+	}
+	for _, expr := range list {
+		v := env.evalExpr1(expr)
+		if t == nil {
+			if v == Nil || v == None {
+				return true
+			}
+		} else {
+			v = env.valueToType(v, t)
+			// https://golang.org/pkg/reflect
+			// "To compare two Values, compare the results of the Interface method"
+			if v.Interface() == i {
+				return true
+			}
+		}
+	}
+	return false
 }

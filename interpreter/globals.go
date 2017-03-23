@@ -117,6 +117,7 @@ var typeOfRune = r.TypeOf(rune(0))
 var typeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
 var typeOfString = r.TypeOf("")
 var typeOfDeferFunc = r.TypeOf(func() {})
+var valueOfTrue = r.ValueOf(true)
 var zeroStrings = []string{}
 
 const temporaryFunctionName = "gorepl_temporary_function"

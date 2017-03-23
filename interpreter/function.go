@@ -27,6 +27,7 @@ package interpreter
 import (
 	"fmt"
 	"go/ast"
+	"go/token"
 	r "reflect"
 )
 
@@ -229,4 +230,100 @@ func (frame *CallFrame) runDefer(deferred func()) {
 	}()
 	deferred()
 	panicking = false
+}
+
+func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
+	var fun r.Value
+	var t r.Type
+	if len(node.Args) == 1 {
+		// may be a type conversion
+		fun, t = env.evalExpr1OrType(node.Fun)
+	} else {
+		fun = env.evalExpr1(node.Fun)
+	}
+
+	if t != nil {
+		val := env.evalExpr1(node.Args[0])
+		return env.valueToType(val, t), nil
+	}
+
+	{
+		frames := env.CallStack.Frames
+		frame := &frames[len(frames)-1]
+		frame.CurrentCall = node
+		frame.InnerEnv = env // leaks a bit... should be cleared after the call
+	}
+
+	switch fun.Kind() {
+	case r.Struct:
+		switch fun := fun.Interface().(type) {
+		case Builtin:
+			if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
+				return env.errorf("builtin %v expects %d arguments, found %d",
+					node.Fun, fun.ArgNum, len(node.Args))
+			}
+			return fun.Exec(env, node.Args)
+		case Function:
+			if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
+				return env.errorf("function %v expects %d arguments, found %d",
+					node.Fun, fun.ArgNum, len(node.Args))
+			}
+			args := env.evalExprs(node.Args)
+			return fun.Exec(env, args)
+		}
+	case r.Func:
+		args := env.evalFuncArgs(fun, node)
+		var rets []r.Value
+
+		if node.Ellipsis == token.NoPos {
+			rets = fun.Call(args)
+		} else {
+			rets = fun.CallSlice(args)
+		}
+		return unpackValues(rets)
+	default:
+		break
+	}
+	return env.errorf("call of non-function: %v", node)
+}
+
+func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
+	args := env.evalExprs(node.Args)
+	funt := fun.Type()
+	// TODO does Go have a special case fooAcceptsMultipleArgs( barReturnsMultipleValues() ) ???
+	if !funt.IsVariadic() {
+		if len(args) != funt.NumIn() {
+			env.errorf("function %v expects %d arguments, found %d: %v", node.Fun, funt.NumIn(), len(args), args)
+			return nil
+		}
+		for i, arg := range args {
+			args[i] = env.valueToType(arg, funt.In(i))
+		}
+	}
+	return args
+}
+
+func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
+	frame := env.CurrentFrame()
+	if frame == nil {
+		return env.errorf("defer outside function: %v", node)
+	}
+	fun := env.evalExpr1(node.Fun)
+	if fun.Kind() != r.Func {
+		return env.errorf("defer of non-function: %v", node)
+	}
+	args := env.evalFuncArgs(fun, node)
+	closure := func() {
+		var rets []r.Value
+		if node.Ellipsis == token.NoPos {
+			rets = fun.Call(args)
+		} else {
+			rets = fun.CallSlice(args)
+		}
+		if len(rets) != 0 {
+			env.warnf("call to deferred function %v returned %d values, expecting zero: %v", node, rets)
+		}
+	}
+	frame.defers = append(frame.defers, closure)
+	return None, nil
 }

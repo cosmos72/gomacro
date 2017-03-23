@@ -31,6 +31,9 @@ import (
 )
 
 func (env *Env) evalBlock(block *ast.BlockStmt) (r.Value, []r.Value) {
+	if block == nil || len(block.List) == 0 {
+		return None, nil
+	}
 	env = NewEnv(env, "{}")
 
 	return env.evalStatements(block.List)
@@ -74,9 +77,11 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return env.evalReturn(node)
 	case *ast.SendStmt:
 		return env.evalSend(node)
+	case *ast.SwitchStmt:
+		return env.evalSwitch(node)
 
 	case *ast.CaseClause, *ast.CommClause, *ast.GoStmt, *ast.LabeledStmt,
-		*ast.SelectStmt, *ast.SwitchStmt, *ast.TypeSwitchStmt:
+		*ast.SelectStmt, *ast.TypeSwitchStmt:
 		// TODO
 		return env.errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	default:
