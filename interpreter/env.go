@@ -108,7 +108,9 @@ func (env *Env) ReplStdin() {
 }
 
 func (env *Env) Repl(in *bufio.Reader) {
-	fmt.Fprint(env.Stdout, "// Welcome to gomacro. Type :help for help\n")
+	if env.Options&OptShowPrompt != 0 {
+		fmt.Fprint(env.Stdout, "// Welcome to gomacro. Type :help for help\n")
+	}
 
 	for env.ReadParseEvalPrint(in) {
 	}

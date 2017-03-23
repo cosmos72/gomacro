@@ -78,18 +78,16 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			quiet = true
 			verbose = false
 			args = args[1:]
-			continue
 		case "-v":
 			verbose = true
 			quiet = false
 			args = args[1:]
-			continue
 		default:
 			env.Options = applyOptions(env.Options, quiet, verbose)
 			return cmd.EvalFilesAndDirs(args...)
 		}
-		break
 	}
+	env.ReplStdin()
 	return nil
 }
 
