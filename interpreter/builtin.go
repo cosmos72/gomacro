@@ -132,7 +132,7 @@ func callMacroExpand(env *Env, args []r.Value, which whichMacroExpand) (r.Value,
 	if val == Nil || val == None {
 		return val, nil
 	}
-	node := AnyToAstWithNode(val.Interface(), which.String()).Node()
+	form := AnyToAst(val.Interface(), which.String())
 	if n == 2 {
 		e := args[1]
 		if e != Nil && e != None {
@@ -142,14 +142,14 @@ func callMacroExpand(env *Env, args []r.Value, which whichMacroExpand) (r.Value,
 	var expanded bool
 	switch which {
 	case cMacroExpand1:
-		node, expanded = env.MacroExpand1(node)
+		form, expanded = env.macroExpandAstOnce(form)
 	case cMacroExpandCodewalk:
-		node, expanded = env.MacroExpandCodewalk(node)
+		form, expanded = env.MacroExpandAstCodewalk(form)
 	default:
-		node, expanded = env.MacroExpand(node)
+		form, expanded = env.macroExpandAst(form)
 	}
-	nodev := r.ValueOf(node)
-	return nodev, []r.Value{nodev, r.ValueOf(expanded)}
+	formv := r.ValueOf(form.Interface())
+	return formv, []r.Value{formv, r.ValueOf(expanded)}
 }
 
 func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
