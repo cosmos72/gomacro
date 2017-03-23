@@ -87,6 +87,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			return cmd.EvalFilesAndDirs(args...)
 		}
 	}
+	env.Options = applyOptions(env.Options, quiet, verbose)
 	env.ReplStdin()
 	return nil
 }
