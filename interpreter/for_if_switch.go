@@ -140,6 +140,8 @@ func (env *Env) evalForRange(node *ast.RangeStmt) (r.Value, []r.Value) {
 	}
 
 	switch container.Kind() {
+	case r.Chan:
+		return env.evalForRangeChannel(container, node)
 	case r.Map:
 		return env.evalForRangeMap(container, node)
 	case r.Slice, r.Array:
@@ -148,8 +150,6 @@ func (env *Env) evalForRange(node *ast.RangeStmt) (r.Value, []r.Value) {
 		// Golang specs https://golang.org/ref/spec#RangeClause
 		// "For a string value, the "range" clause iterates over the Unicode code points in the string"
 		return env.evalForRangeString(container.String(), node)
-	case r.Chan:
-		return env.evalForRangeChan(container, node)
 	case r.Ptr:
 		if container.Elem().Kind() == r.Array {
 			return env.evalForRangeSlice(container.Elem(), node)
@@ -165,7 +165,7 @@ func (env *Env) evalForRangeMap(obj r.Value, node *ast.RangeStmt) (r.Value, []r.
 	tok := node.Tok
 	switch tok {
 	case token.DEFINE:
-		env = NewEnv(env, "for range {}")
+		env = NewEnv(env, "range map {}")
 		t := obj.Type()
 		k := env.defineForIterVar(knode, t.Key())
 		v := env.defineForIterVar(vnode, t.Elem())
@@ -203,42 +203,43 @@ func (env *Env) evalForRangeMap(obj r.Value, node *ast.RangeStmt) (r.Value, []r.
 	return None, nil
 }
 
-func (env *Env) evalForRangeSlice(obj r.Value, node *ast.RangeStmt) (r.Value, []r.Value) {
+func (env *Env) evalForRangeChannel(obj r.Value, node *ast.RangeStmt) (r.Value, []r.Value) {
 	knode := nilIfIdentUnderscore(node.Key)
-	vnode := nilIfIdentUnderscore(node.Value)
+	if node.Value != nil {
+		return env.errorf("range expression is a channel: expecting at most one iteration variable, found two: %v %v", node.Key, node.Value)
+	}
+
 	tok := node.Tok
 	switch tok {
 	case token.DEFINE:
-		env = NewEnv(env, "for range {}")
-		k := env.defineForIterVar(knode, typeOfInt)
-		v := env.defineForIterVar(vnode, obj.Type().Elem())
+		env = NewEnv(env, "range channel {}")
+		k := env.defineForIterVar(knode, obj.Type().Elem())
 
-		n := obj.Len()
-		for i := 0; i < n; i++ {
-			if k != Nil {
-				k.Set(r.ValueOf(i))
+		for {
+			recv, ok := obj.Recv()
+			if !ok {
+				break
 			}
-			if v != Nil {
-				v.Set(obj.Index(i))
+			if k != Nil {
+				k.Set(recv)
 			}
 			if !env.evalForBodyOnce(node.Body) {
 				break
 			}
 		}
 	case token.ASSIGN:
-		n := obj.Len()
-		for i := 0; i < n; i++ {
+		for {
+			recv, ok := obj.Recv()
+			if !ok {
+				break
+			}
 			// Golang specs https://golang.org/ref/spec#RangeClause
 			// "Function calls on the left are evaluated once per iteration"
 			//
 			// we actually evaluate once per iteration the full expressions on the left
 			if knode != nil {
 				kplace := env.evalPlace(knode)
-				env.assignPlace(kplace, tok, r.ValueOf(i))
-			}
-			if vnode != nil {
-				vplace := env.evalPlace(vnode)
-				env.assignPlace(vplace, tok, obj.Index(i))
+				env.assignPlace(kplace, tok, recv)
 			}
 			if !env.evalForBodyOnce(node.Body) {
 				break
@@ -254,7 +255,7 @@ func (env *Env) evalForRangeString(str string, node *ast.RangeStmt) (r.Value, []
 	tok := node.Tok
 	switch tok {
 	case token.DEFINE:
-		env = NewEnv(env, "for range {}")
+		env = NewEnv(env, "range string {}")
 		k := env.defineForIterVar(knode, typeOfInt)
 		v := env.defineForIterVar(vnode, typeOfRune)
 
@@ -291,8 +292,49 @@ func (env *Env) evalForRangeString(str string, node *ast.RangeStmt) (r.Value, []
 	return None, nil
 }
 
-func (env *Env) evalForRangeChan(obj r.Value, node *ast.RangeStmt) (r.Value, []r.Value) {
-	return env.errorf("unimplemented for-range on channel")
+func (env *Env) evalForRangeSlice(obj r.Value, node *ast.RangeStmt) (r.Value, []r.Value) {
+	knode := nilIfIdentUnderscore(node.Key)
+	vnode := nilIfIdentUnderscore(node.Value)
+	tok := node.Tok
+	switch tok {
+	case token.DEFINE:
+		env = NewEnv(env, "range slice/array {}")
+		k := env.defineForIterVar(knode, typeOfInt)
+		v := env.defineForIterVar(vnode, obj.Type().Elem())
+
+		n := obj.Len()
+		for i := 0; i < n; i++ {
+			if k != Nil {
+				k.Set(r.ValueOf(i))
+			}
+			if v != Nil {
+				v.Set(obj.Index(i))
+			}
+			if !env.evalForBodyOnce(node.Body) {
+				break
+			}
+		}
+	case token.ASSIGN:
+		n := obj.Len()
+		for i := 0; i < n; i++ {
+			// Golang specs https://golang.org/ref/spec#RangeClause
+			// "Function calls on the left are evaluated once per iteration"
+			//
+			// we actually evaluate once per iteration the full expressions on the left
+			if knode != nil {
+				kplace := env.evalPlace(knode)
+				env.assignPlace(kplace, tok, r.ValueOf(i))
+			}
+			if vnode != nil {
+				vplace := env.evalPlace(vnode)
+				env.assignPlace(vplace, tok, obj.Index(i))
+			}
+			if !env.evalForBodyOnce(node.Body) {
+				break
+			}
+		}
+	}
+	return None, nil
 }
 
 func (env *Env) evalForBodyOnce(node *ast.BlockStmt) (cont bool) {

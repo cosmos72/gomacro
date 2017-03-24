@@ -125,11 +125,23 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 		return false
 	}
 
-	if env.Options&OptTrapPanic != 0 {
+	trap := env.Options&OptTrapPanic != 0
+	duration := env.Options&OptShowEvalDuration != 0
+	if trap || duration {
+		var t1 time.Time
+		if duration {
+			t1 = time.Now()
+		}
 		defer func() {
-			if rec := recover(); rec != nil {
-				fmt.Fprintln(env.Stderr, rec)
-				callAgain = true
+			if trap {
+				if rec := recover(); rec != nil {
+					fmt.Fprintln(env.Stderr, rec)
+					callAgain = true
+				}
+			}
+			if duration {
+				delta := time.Now().Sub(t1)
+				env.debugf("eval time %.6f s", float32(delta)/float32(time.Second))
 			}
 		}()
 	}
@@ -137,13 +149,6 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 }
 
 func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
-	if env.Options&OptShowEvalDuration != 0 {
-		t1 := time.Now()
-		defer func() {
-			delta := time.Now().Sub(t1)
-			env.debugf("eval time %.6f s", float32(delta)/float32(time.Second))
-		}()
-	}
 
 	src := strings.TrimSpace(str)
 	n := len(src)
@@ -154,17 +159,6 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 		args := strings.SplitN(src, " ", 2)
 		cmd := args[0]
 		switch {
-		case isPrefix(cmd, ":quit"):
-			return false
-		case isPrefix(cmd, ":inspect"):
-			if in == nil {
-				fmt.Fprint(env.Stdout, "// not connected to user input, cannot :inspect\n")
-			} else if len(args) == 1 {
-				fmt.Fprint(env.Stdout, "// inspect: missing argument\n")
-			} else {
-				env.Inspect(in, args[1])
-			}
-			return true
 		case isPrefix(cmd, ":env"):
 			if len(args) <= 1 {
 				env.showPackage(env.Stdout, "")
@@ -175,6 +169,20 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 		case isPrefix(cmd, ":help"):
 			env.showHelp(env.Stdout)
 			return true
+		case isPrefix(cmd, ":inspect"):
+			if in == nil {
+				fmt.Fprint(env.Stdout, "// not connected to user input, cannot :inspect\n")
+			} else if len(args) == 1 {
+				fmt.Fprint(env.Stdout, "// inspect: missing argument\n")
+			} else {
+				env.Inspect(in, args[1])
+			}
+			return true
+		case isPrefix(cmd, ":trap"):
+			env.Options ^= OptTrapPanic
+			return true
+		case isPrefix(cmd, ":quit"):
+			return false
 		}
 	}
 	// parse phase

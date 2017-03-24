@@ -78,13 +78,14 @@ var testcases = []TestCase{
 	TestCase{"literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
 	TestCase{"literal_map", "map[int]string{1: \"foo\", 2: \"bar\"}", map[int]string{1: "foo", 2: "bar"}, nil},
 	TestCase{"literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
-	TestCase{"make_chan", "c := make(chan interface{}, 2)", make(chan interface{}, 2), nil},
+	TestCase{"make_chan", "cx := make(chan interface{}, 2)", make(chan interface{}, 2), nil},
 	TestCase{"make_map", "m := make(map[rune]bool)", make(map[rune]bool), nil},
 	TestCase{"make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
 	TestCase{"multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{"multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
 	TestCase{"expr_slice", "y = y[:4]", []uint8{100, 0, 0, 103}, nil},
 	TestCase{"expr_slice3", "y = y[:3:4]", []uint8{100, 0, 0}, nil},
+	TestCase{"for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
 	TestCase{"function", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
 	TestCase{"fibonacci", fib_s + "; fibonacci(13)", uint(233), nil},
 	TestCase{"recover", `var vpanic interface{}
@@ -122,7 +123,7 @@ var testcases = []TestCase{
 		test_nested_recover(true, -5)
 		Values(vpanic, vpanic2, vpanic3)
 		`, nil, []interface{}{-5, -5, nil}},
-	TestCase{"send_recv", "c <- 'x'; <-c", nil, []interface{}{'x', true}},
+	TestCase{"send_recv", "cx <- \"x\"; <-cx", nil, []interface{}{"x", true}},
 	TestCase{"sum", sum_s + "; sum(100)", 5050, nil},
 	TestCase{"switch_1", "switch { case false: 0; default: 1 }", 1, nil},
 	TestCase{"switch_2", "switch v:=20; v { case 20: '@' }", '@', nil},
