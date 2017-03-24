@@ -287,7 +287,7 @@ func (x CommClause) Size() int     { return 2 }
 func (x CompositeLit) Size() int   { return 2 }
 func (x DeclStmt) Size() int       { return 1 }
 func (x DeferStmt) Size() int      { return 1 }
-func (x Ellipsis) Size() int       { return 2 }
+func (x Ellipsis) Size() int       { return 1 }
 func (x EmptyStmt) Size() int      { return 0 }
 func (x ExprStmt) Size() int       { return 1 }
 func (x Field) Size() int          { return 3 }

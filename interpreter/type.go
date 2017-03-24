@@ -53,6 +53,11 @@ func (env *Env) evalExpr1OrType(node ast.Expr) (val r.Value, t r.Type) {
 }
 
 func (env *Env) evalType(node ast.Expr) r.Type {
+	t, _ := env.evalTypeEllipsis(node, false)
+	return t
+}
+
+func (env *Env) evalTypeEllipsis(node ast.Expr, allowEllipsis bool) (t r.Type, ellipsis bool) {
 	stars := 0
 	for {
 		switch expr := node.(type) {
@@ -63,11 +68,16 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 		case *ast.ParenExpr:
 			node = expr.X
 			continue
+		case *ast.Ellipsis:
+			if allowEllipsis {
+				node = expr.Elt
+				ellipsis = true
+				continue
+			}
 		}
 		break
 	}
 
-	var t r.Type
 	switch node := node.(type) {
 	case *ast.ArrayType: // also for slices
 		t = env.evalTypeArray(node)
@@ -121,7 +131,10 @@ func (env *Env) evalType(node ast.Expr) r.Type {
 	for i := 0; i < stars; i++ {
 		t = r.PtrTo(t)
 	}
-	return t
+	if ellipsis {
+		t = r.SliceOf(t)
+	}
+	return t, ellipsis
 }
 
 func (env *Env) evalTypeArray(node *ast.ArrayType) r.Type {
@@ -140,20 +153,27 @@ func (env *Env) evalTypeArray(node *ast.ArrayType) r.Type {
 }
 
 func (env *Env) evalTypeFunction(node *ast.FuncType) (t r.Type, argNames []string, resultNames []string) {
-	argTypes, argNames := env.evalTypeFields(node.Params)
+	argTypes, argNames, variadic := env.evalTypeFieldsOrParams(node.Params, true)
 	resultTypes, resultNames := env.evalTypeFields(node.Results)
-	return r.FuncOf(argTypes, resultTypes, false /* TODO variadic*/), argNames, resultNames
+	return r.FuncOf(argTypes, resultTypes, variadic), argNames, resultNames
 }
 
-func (env *Env) evalTypeFields(fields *ast.FieldList) ([]r.Type, []string) {
-	types := make([]r.Type, 0)
-	names := zeroStrings
-	if fields == nil || len(fields.List) == 0 {
-		return types, names
-	}
-	for _, f := range fields.List {
+func (env *Env) evalTypeFields(fields *ast.FieldList) (types []r.Type, names []string) {
+	types, names, _ = env.evalTypeFieldsOrParams(fields, false)
+	return types, names
+}
 
-		t := env.evalType(f.Type)
+func (env *Env) evalTypeFieldsOrParams(fields *ast.FieldList, allowEllipsis bool) (types []r.Type, names []string, ellipsis bool) {
+	types = make([]r.Type, 0)
+	names = zeroStrings
+	if fields == nil || len(fields.List) == 0 {
+		return types, names, ellipsis
+	}
+	list := fields.List
+	n := len(list)
+	var t r.Type
+	for i, f := range list {
+		t, ellipsis = env.evalTypeEllipsis(f.Type, i == n-1)
 		if len(f.Names) == 0 {
 			types = append(types, t)
 			names = append(names, "_")
@@ -166,7 +186,7 @@ func (env *Env) evalTypeFields(fields *ast.FieldList) ([]r.Type, []string) {
 			}
 		}
 	}
-	return types, names
+	return types, names, ellipsis
 }
 
 func (env *Env) evalTypeIdentifier(name string) r.Type {

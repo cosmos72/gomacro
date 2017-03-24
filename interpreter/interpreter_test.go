@@ -87,6 +87,7 @@ var testcases = []TestCase{
 	TestCase{"expr_slice3", "y = y[:3:4]", []uint8{100, 0, 0}, nil},
 	TestCase{"for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
 	TestCase{"function", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
+	TestCase{"function_variadic", "func list_args(args ...interface{}) []interface{} { args }; list_args('x', 'y', 'z')", []interface{}{'x', 'y', 'z'}, nil},
 	TestCase{"fibonacci", fib_s + "; fibonacci(13)", uint(233), nil},
 	TestCase{"recover", `var vpanic interface{}
 		func test_recover(rec bool, panick interface{}) {
@@ -98,8 +99,7 @@ var testcases = []TestCase{
 			panic(panick)
 		}
 		test_recover(true, -3)
-		vpanic
-		`, -3, nil},
+		vpanic`, -3, nil},
 	TestCase{"recover_nested_1", `var vpanic2, vpanic3 interface{}
 		func test_nested_recover(repanic bool, panick interface{}) {
 			defer func() {

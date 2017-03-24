@@ -35,7 +35,7 @@ Fairly complete.
 The intepreter supports:
 * multiline input
 * line comments starting with #! in addition to //
-* constant, variable, function and type definitions (cannot yet define variadic functions)
+* constant, variable, type and function definitions (including variadic functions)
 * primitive types: booleans, integers, floats, complex numbers
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
 * composite literals
@@ -57,7 +57,6 @@ Several things are still missing:
 * the keyword "go"
 * interfaces definition
 * methods definition
-* variadic functions definition
 * type switch, select, labeled statements, goto
 * switching to a different package
 * history/readline (rlwrap does the job in most cases)
