@@ -74,6 +74,18 @@ func (env *Env) evalExprs(nodes []ast.Expr) []r.Value {
 }
 
 func (env *Env) evalExpr1(node ast.Expr) r.Value {
+	// treat failed type assertions specially: in compiled Go, they panic in single-value context
+	for {
+		switch expr := node.(type) {
+		case *ast.ParenExpr:
+			node = expr.X
+			continue
+		case *ast.TypeAssertExpr:
+			value, _ := env.evalTypeAssertExpr(expr, true)
+			return value
+		}
+		break
+	}
 	value, extraValues := env.evalExpr(node)
 	if len(extraValues) > 1 {
 		env.warnf("expression returned %d values, using only the first one: %v returned %v",
@@ -149,7 +161,7 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 			return val.Elem(), nil
 
 		case *ast.TypeAssertExpr:
-			return env.evalTypeAssertExpr(node)
+			return env.evalTypeAssertExpr(node, false)
 
 			// case *ast.KeyValueExpr:
 		}
@@ -285,14 +297,23 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 	}
 }
 
-func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr) (r.Value, []r.Value) {
+func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr, panicOnFail bool) (r.Value, []r.Value) {
 	val := env.evalExpr1(node.X)
-	fval := val.Interface()
-	t1 := r.TypeOf(fval) // extract the actual runtime type of fval
-
 	t2 := env.evalType(node.Type)
-	if t1.AssignableTo(t2) {
-		return r.ValueOf(fval).Convert(t2), nil
+	if val == None || val == Nil {
+		if panicOnFail {
+			return env.errorf("type assertion failed: %v <%v> is not a <%v>", val, nil, t2)
+		}
+	} else {
+		fval := val.Interface()
+		t1 := r.TypeOf(fval) // extract the actual runtime type of fval
+
+		if t1.AssignableTo(t2) {
+			return r.ValueOf(fval).Convert(t2), nil
+		} else if panicOnFail {
+			return env.errorf("type assertion failed: %v <%v> is not a <%v>", fval, t1, t2)
+		}
 	}
-	return env.errorf("type assertion failed: %v <%v> is not a <%v>", fval, t1, t2)
+	zero := r.Zero(t2)
+	return zero, []r.Value{zero, valueOfFalse}
 }

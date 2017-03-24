@@ -26,14 +26,11 @@ package interpreter
 
 import (
 	"go/ast"
-	"go/constant"
 	"go/token"
 	r "reflect"
 	"strconv"
 	"strings"
 )
-
-var Unknown = constant.MakeUnknown()
 
 func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 	kind := node.Kind

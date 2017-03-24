@@ -31,7 +31,6 @@ func init() {
 			"OptTrapPanic":               r.ValueOf(OptTrapPanic),
 			"Read":                       r.ValueOf(ReadBytes),
 			"ReadMultiline":              r.ValueOf(ReadMultiline),
-			"Unknown":                    r.ValueOf(&Unknown).Elem(),
 		},
 		Types: map[string]r.Type{
 			"Builtin":           r.TypeOf((*Builtin)(nil)).Elem(),
