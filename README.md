@@ -8,8 +8,11 @@ built on top of the go/ast and reflect packages.
 
 Gomacro can be used as:
 * a standalone executable with interactive Go REPL:
-  just run ```gomacro``` from your command line or, better, ```rlwrap gomacro```
+
+  just run `gomacro` from your command line or, better, `rlwrap gomacro`
+
   (rlwrap is a wrapper that adds history and line editing to terminal-based programs - available on many platforms)
+
   Available options:
 	-e EXPRESSIONS: evaluate the expressions, then exit
     -q: quiet. suppress startup message and prompt (default when executing a file)
@@ -19,11 +22,12 @@ Gomacro can be used as:
   to your Go programs - provided you comply with its GPL license
 
 * a way to execute Go source code on-the-fly without a Go compiler:
-  you can either run ```gomacro FILENAME.go``` (works on every supported platform)
 
-  or you can insert a line ```#!/usr/bin/env gomacro```
+  you can either run `gomacro FILENAME.go` (works on every supported platform)
+
+  or you can insert a line `#!/usr/bin/env gomacro`
   at the beginning of a Go source file, then mark the file as executable with
-  ```chmod +x FILENAME.go``` and finally execute it with ```./FILENAME.go```
+  `chmod +x FILENAME.go` and finally execute it with `./FILENAME.go`
   (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
 * a Go code generation tool (NOT IMPLEMENTED YET)
