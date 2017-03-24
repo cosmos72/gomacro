@@ -58,6 +58,8 @@ Several things are still missing:
 * interfaces definition
 * methods definition
 * type switch, select, labeled statements, goto
+* named return values
+* ellipsis in array literal
 * switching to a different package
 * history/readline (rlwrap does the job in most cases)
 

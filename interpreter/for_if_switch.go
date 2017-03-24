@@ -67,7 +67,7 @@ func (env *Env) evalBranch(node *ast.BranchStmt) (r.Value, []r.Value) {
 	case token.GOTO:
 		return env.errorf("unimplemented: goto")
 	case token.FALLTHROUGH:
-		return env.errorf("unimplemented: fallthrough")
+		return env.errorf("invalid fallthrough: not the last statement in a case")
 	default:
 		return env.errorf("unimplemented branch: %v <%v>", node, r.TypeOf(node))
 	}
