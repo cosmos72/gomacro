@@ -127,6 +127,7 @@ var testcases = []TestCase{
 	TestCase{"sum", sum_s + "; sum(100)", 5050, nil},
 	TestCase{"switch_1", "switch { case false: 0; default: 1 }", 1, nil},
 	TestCase{"switch_2", "switch v:=20; v { case 20: '@' }", '@', nil},
+	TestCase{"switch_fallthrough", "switch 0 { default: fallthrough; case 1: 10; fallthrough; case 2: 20 }", 20, nil},
 
 	TestCase{"quote_1", "quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
 	TestCase{"quote_2", "quote{x}", &ast.Ident{Name: "x"}, nil},

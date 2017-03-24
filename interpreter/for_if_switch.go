@@ -372,7 +372,7 @@ func nilIfIdentUnderscore(node ast.Expr) ast.Expr {
 	return node
 }
 
-func (env *Env) evalSwitch(node *ast.SwitchStmt) (r.Value, []r.Value) {
+func (env *Env) evalSwitch(node *ast.SwitchStmt) (ret r.Value, rets []r.Value) {
 	if node.Init != nil {
 		// the scope of variables defined in the init statement of a switch
 		// is the switch itself
@@ -388,26 +388,55 @@ func (env *Env) evalSwitch(node *ast.SwitchStmt) (r.Value, []r.Value) {
 	if node.Body == nil || len(node.Body.List) == 0 {
 		return None, nil
 	}
-	var default_ *ast.CaseClause
-	for _, stmt := range node.Body.List {
-		case_ := stmt.(*ast.CaseClause)
-		if case_.List == nil {
+	isFallthrough := false
+	cases := node.Body.List
+	n := len(cases)
+	default_i := n
+	for i := 0; i < n; i++ {
+		case_ := cases[i].(*ast.CaseClause)
+		if !isFallthrough && case_.List == nil {
 			// default will be executed later, if no case matches
-			default_ = case_
-		} else if env.caseMatchesTag(tag, case_.List) {
-			return env.evalCaseBody("case:", case_)
+			default_i = i
+		} else if isFallthrough || env.caseMatchesTag(tag, case_.List) {
+			ret, rets, isFallthrough = env.evalCaseBody(i == default_i, case_)
+			if !isFallthrough {
+				return ret, rets
+			}
 		}
 	}
-	return env.evalCaseBody("default:", default_)
+	// even "default:" can end with fallthrough...
+	for i := default_i; i < n; i++ {
+		case_ := cases[i].(*ast.CaseClause)
+		ret, rets, isFallthrough = env.evalCaseBody(i == default_i, case_)
+		if !isFallthrough {
+			return ret, rets
+		}
+	}
+	return None, nil
 }
 
-func (env *Env) evalCaseBody(label string, case_ *ast.CaseClause) (r.Value, []r.Value) {
+func (env *Env) evalCaseBody(isDefault bool, case_ *ast.CaseClause) (ret r.Value, rets []r.Value, isFallthrough bool) {
 	if case_ == nil || len(case_.Body) == 0 {
-		return None, nil
+		return None, nil, false
 	}
+	body := case_.Body
+	n := len(body)
+	// implement fallthrough
+	if last, ok := body[n-1].(*ast.BranchStmt); ok {
+		if last.Tok == token.FALLTHROUGH {
+			isFallthrough = true
+			body = body[0 : n-1]
+		}
+	}
+
 	// each case body has its own environment
+	label := "case:"
+	if isDefault {
+		label = "default:"
+	}
 	env = NewEnv(env, label)
-	return env.evalStatements(case_.Body)
+	ret, rets = env.evalStatements(body)
+	return ret, rets, isFallthrough
 }
 
 func (env *Env) caseMatchesTag(tag r.Value, list []ast.Expr) bool {
