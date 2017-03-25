@@ -30,6 +30,30 @@ import (
 	r "reflect"
 )
 
+type eBreak struct {
+	label string
+}
+
+type eContinue struct {
+	label string
+}
+
+func (_ eBreak) Error() string {
+	return "break outside for or switch"
+}
+
+func (_ eContinue) Error() string {
+	return "continue outside for"
+}
+
+type eReturn struct {
+	results []r.Value
+}
+
+func (_ eReturn) Error() string {
+	return "return outside function"
+}
+
 func (env *Env) evalBlock(block *ast.BlockStmt) (r.Value, []r.Value) {
 	if block == nil || len(block.List) == 0 {
 		return None, nil
@@ -57,6 +81,8 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return env.evalBlock(node)
 	case *ast.BranchStmt:
 		return env.evalBranch(node)
+	case *ast.CaseClause, *ast.CommClause:
+		return env.errorf("misplaced case: not inside switch or select: %v <%v>", node, r.TypeOf(node))
 	case *ast.DeclStmt:
 		return env.evalDecl(node.Decl)
 	case *ast.DeferStmt:
@@ -79,13 +105,48 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return env.evalSend(node)
 	case *ast.SwitchStmt:
 		return env.evalSwitch(node)
+	case *ast.TypeSwitchStmt:
+		return env.evalTypeSwitch(node)
+	default: // TODO:  *ast.GoStmt, *ast.LabeledStmt, *ast.SelectStmt:
+		return env.errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
+	}
+}
 
-	case *ast.CaseClause, *ast.CommClause, *ast.GoStmt, *ast.LabeledStmt,
-		*ast.SelectStmt, *ast.TypeSwitchStmt:
-		// TODO
-		return env.errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
+func (env *Env) evalBranch(node *ast.BranchStmt) (r.Value, []r.Value) {
+	var label string
+	if node.Label != nil {
+		label = node.Label.Name
+	}
+	switch node.Tok {
+	case token.BREAK:
+		panic(eBreak{label})
+	case token.CONTINUE:
+		panic(eContinue{label})
+	case token.GOTO:
+		return env.errorf("unimplemented: goto")
+	case token.FALLTHROUGH:
+		return env.errorf("invalid fallthrough: not the last statement in a case")
 	default:
-		return env.errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
+		return env.errorf("unimplemented branch: %v <%v>", node, r.TypeOf(node))
+	}
+}
+
+func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
+	if node.Init != nil {
+		env = NewEnv(env, "if {}")
+		_, _ = env.evalStatement(node.Init)
+	}
+	cond, _ := env.Eval(node.Cond)
+	if cond.Kind() != r.Bool {
+		cf := cond.Interface()
+		return env.errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
+	}
+	if cond.Bool() {
+		return env.evalBlock(node.Body)
+	} else if node.Else != nil {
+		return env.evalStatement(node.Else)
+	} else {
+		return Nil, nil
 	}
 }
 
@@ -111,4 +172,15 @@ func (env *Env) evalSend(node *ast.SendStmt) (r.Value, []r.Value) {
 	value := env.evalExpr1(node.Value)
 	channel.Send(value)
 	return None, nil
+}
+
+func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
+	var rets []r.Value
+	if len(node.Results) == 1 {
+		// return foo() returns *all* the values returned by foo, not just the first one
+		rets = packValues(env.evalExpr(node.Results[0]))
+	} else {
+		rets = env.evalExprs(node.Results)
+	}
+	panic(eReturn{rets})
 }

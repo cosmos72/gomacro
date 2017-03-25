@@ -52,7 +52,29 @@ func (env *Env) evalExpr1OrType(node ast.Expr) (val r.Value, t r.Type) {
 	return val, nil
 }
 
+// evalType evaluates a type
 func (env *Env) evalType(node ast.Expr) r.Type {
+	t, _ := env.evalTypeEllipsis(node, false)
+	return t
+}
+
+// evalTypeOrNil evaluates a type. as a special case used by type switch, evaluates *ast.Ident{Name:"nil"} to nil
+func (env *Env) evalTypeOrNil(node ast.Expr) r.Type {
+	for {
+		switch expr := node.(type) {
+		case *ast.ParenExpr:
+			node = expr.X
+			continue
+		case *ast.Ident:
+			if expr.Name == "nil" {
+				val, found := env.resolveIdentifier(expr)
+				if found && val == Nil {
+					return nil
+				}
+			}
+		}
+		break
+	}
 	t, _ := env.evalTypeEllipsis(node, false)
 	return t
 }

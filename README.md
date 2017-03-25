@@ -42,7 +42,7 @@ The intepreter supports:
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
 * channel send and receive
 * function and method calls, including multiple return values
-* if, for, for-range, switch, break, continue, fallthrough, return (unimplemented: goto)
+* if, for, for-range, switch, type switch, break, continue, fallthrough, return (unimplemented: goto)
 * defer, panic and recover
 * imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
 * macro definitions, for example `macro foo(a, b, c interface{}) interface{} { return b }`
@@ -57,7 +57,7 @@ Several things are still missing:
 * the keyword "go"
 * interfaces definition
 * methods definition
-* type switch, select, labeled statements, goto
+* select, labeled statements, goto
 * named return values
 * ellipsis in array literal
 * switching to a different package

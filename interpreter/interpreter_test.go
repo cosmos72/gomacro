@@ -128,6 +128,10 @@ var testcases = []TestCase{
 	TestCase{"switch_1", "switch { case false: 0; default: 1 }", 1, nil},
 	TestCase{"switch_2", "switch v:=20; v { case 20: '@' }", '@', nil},
 	TestCase{"switch_fallthrough", "switch 0 { default: fallthrough; case 1: 10; fallthrough; case 2: 20 }", 20, nil},
+	TestCase{"typeswitch_1", "var x interface{} = \"abc\"; switch y := x.(type) { default: 0; case string: 1 }", 1, nil},
+	TestCase{"typeswitch_2", "switch x.(type) { default: 0; case interface{}: 2 }", 2, nil},
+	TestCase{"typeswitch_3", "switch x.(type) { default: 0; case int: 3 }", 0, nil},
+	TestCase{"typeswitch_4", "switch nil.(type) { default: 0; case nil: 4 }", 4, nil},
 
 	TestCase{"quote_1", "quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
 	TestCase{"quote_2", "quote{x}", &ast.Ident{Name: "x"}, nil},
