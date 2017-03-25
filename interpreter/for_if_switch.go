@@ -434,9 +434,21 @@ func (env *Env) evalCaseBody(isDefault bool, case_ *ast.CaseClause) (ret r.Value
 	if isDefault {
 		label = "default:"
 	}
+	panicking := true
+	defer func() {
+		if panicking {
+			switch pan := recover().(type) {
+			case eBreak:
+				isFallthrough = false
+			default:
+				panic(pan)
+			}
+		}
+	}()
 	env = NewEnv(env, label)
 	ret, rets = env.evalStatements(body)
-	return ret, rets, isFallthrough
+	panicking = false
+	return
 }
 
 func (env *Env) caseMatchesTag(tag r.Value, list []ast.Expr) bool {
