@@ -88,6 +88,8 @@ const (
 	OptDebugQuasiquote
 	OptDebugCallStack
 	OptDebugPanicRecover
+	OptCollectDeclarations
+	OptCollectStatements
 
 	cMacroExpand1 whichMacroExpand = iota
 	cMacroExpand

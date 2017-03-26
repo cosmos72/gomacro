@@ -37,7 +37,7 @@ func main() {
 
 	// args := []string{"macro add3(a, b, c interface{}) interface{} { ~`{~,a + ~,b + ~,c } }\nMacroExpand1(quote{add3;1;2;3})\nadd3;4;5;6"}
 
-	// args := []string{""x:=~'{var z interface{} = 42}"}
+	// args := []string{"x:=~'{var z interface{} = 42}"}
 
 	// generated with: find [a-u]* -type f -name \*.go | grep -v internal | grep -v testdata | grep -v cmd/ | grep -v builtin | xargs -d'\n' dirname | sort -u | while read i; do echo -n "\"$i\"; "; done
 	// plus some hand-made tweaks

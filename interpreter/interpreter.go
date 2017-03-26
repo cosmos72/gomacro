@@ -25,11 +25,10 @@
 package interpreter
 
 import (
-	"bytes"
 	"fmt"
 	"go/ast"
-	"go/parser"
 	"go/token"
+	"io"
 	"os"
 
 	. "github.com/cosmos72/gomacro/ast2"
@@ -38,26 +37,30 @@ import (
 
 type InterpreterCommon struct {
 	output
-	Packagename string
-	Filename    string
 	Options     Options
 	Importer    Importer
+	Packagename string
+	Filename    string
+	Decls       []ast.Decl
+	Stmts       []ast.Stmt
 	ParserMode  mp.Mode
 	SpecialChar rune
 }
 
 func NewInterpreterCommon() *InterpreterCommon {
 	ir := InterpreterCommon{}
-	ir.Packagename = "main"
-	ir.Filename = "main.go"
-	ir.Fileset = token.NewFileSet()
-	ir.Options = OptTrapPanic // set by default
-	ir.SpecialChar = '~'
+
+	ir.output.Fileset = token.NewFileSet()
 	// using both os.Stdout and os.Stderr can interleave impredictably
 	// normal output and diagnostic messages - ugly in interactive use
-	ir.Stdout = os.Stdout
-	ir.Stderr = os.Stdout
+	ir.output.Stdout = os.Stdout
+	ir.output.Stderr = os.Stdout
+
+	ir.Options = OptTrapPanic // set by default
 	ir.Importer = DefaultImporter()
+	ir.Packagename = "main"
+	ir.Filename = "main.go"
+	ir.SpecialChar = '~'
 	return &ir
 }
 
@@ -88,55 +91,83 @@ func (ir *InterpreterCommon) ParseBytes(src []byte) []ast.Node {
 		error_(err)
 		return nil
 	}
+	if ir.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
+		for _, node := range nodes {
+			ir.collectDeclOrStmt(node)
+		}
+	}
 	return nodes
 }
 
-//
-//
-// no longer used:
-//
-//
+// accumulateDeclOrStmt accumulates declarations in ir.Decls and statements in ir.Stmts
+// allows generating a *.go file on user request
+func (ir *InterpreterCommon) collectDeclOrStmt(node ast.Node) {
+	collectDecl := ir.Options&OptCollectDeclarations != 0
+	collectStmt := ir.Options&OptCollectStatements != 0
 
-func (ir *InterpreterCommon) ParseBytes_OrigVersion(src []byte) []ast.Node {
-	node := ir.ParseBytes1_OrigVersion(src)
-	return []ast.Node{node}
-}
-
-func (ir *InterpreterCommon) ParseBytes1_OrigVersion(src []byte) ast.Node {
-	pos := findFirstToken(src)
-	src = src[pos:]
-	expr, err := parser.ParseExprFrom(ir.Fileset, ir.Filename, src, 0)
-	if err == nil {
-		if ir.ParserMode != 0 {
-			// run again with user-specified ParserMode
-			expr, err = parser.ParseExprFrom(ir.Fileset, ir.Filename, src, parser.Mode(ir.ParserMode))
-			if err != nil {
-				error_(err)
-				return nil
+	switch node := node.(type) {
+	case ast.Decl:
+		if collectDecl {
+			ir.Decls = append(ir.Decls, node)
+		}
+	case *ast.AssignStmt:
+		if node.Tok == token.DEFINE {
+			if collectDecl {
+				idents := make([]*ast.Ident, len(node.Lhs))
+				for i, lhs := range node.Lhs {
+					idents[i] = lhs.(*ast.Ident)
+				}
+				decl := &ast.GenDecl{
+					TokPos: node.Pos(),
+					Tok:    token.VAR,
+					Specs: []ast.Spec{
+						&ast.ValueSpec{
+							Names:  idents,
+							Type:   nil,
+							Values: node.Rhs,
+						},
+					},
+				}
+				ir.Decls = append(ir.Decls, decl)
+			}
+		} else {
+			if collectStmt {
+				ir.Stmts = append(ir.Stmts, node)
 			}
 		}
-		return expr
+	case ast.Stmt:
+		if collectStmt {
+			ir.Stmts = append(ir.Stmts, node)
+		}
+	case ast.Expr:
+		if collectStmt {
+			stmt := &ast.ExprStmt{X: node}
+			ir.Stmts = append(ir.Stmts, stmt)
+		}
 	}
-	firstIdent := string(extractFirstIdentifier(src))
-	switch firstIdent {
-	case "package":
-		// nothing to do
-	case "const", "func", "import", "type", "var":
-		var buf bytes.Buffer
-		fmt.Fprintf(&buf, "package %s; ", ir.Packagename)
-		buf.Write(src)
-		src = buf.Bytes()
-	default:
-		var buf bytes.Buffer
-		fmt.Fprintf(&buf, "package %s; func %s() { ", ir.Packagename, temporaryFunctionName)
-		buf.Write(src)
-		buf.WriteString(" }")
-		src = buf.Bytes()
+}
+
+func (ir *InterpreterCommon) writeDecls(out io.Writer, filename string) {
+	if out == nil {
+		f, err := os.Create(filename)
+		if err != nil {
+			ir.errorf("failed to create file %q: %v", filename, err)
+		}
+		out = f
 	}
-	node, err := parser.ParseFile(ir.Fileset, ir.Filename, src, parser.Mode(ir.ParserMode))
-	if err != nil {
-		error_(err)
-		return nil
+	for _, decl := range ir.Decls {
+		fmt.Fprintln(out, ir.toPrintable(decl))
 	}
-	return node
+	if len(ir.Stmts) == 0 {
+		return
+	}
+	fmt.Fprint(out, "\nfunc init() {\n")
+	config.Indent = 1
+	defer func() {
+		config.Indent = 0
+	}()
+	for _, stmt := range ir.Stmts {
+		fmt.Fprintln(out, ir.toPrintable(stmt))
+	}
+	fmt.Fprint(out, "}\n")
 }

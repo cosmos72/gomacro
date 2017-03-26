@@ -28,7 +28,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
-	"go/format"
+	"go/printer"
 	"go/token"
 	"io"
 	r "reflect"
@@ -215,6 +215,8 @@ func (f fileSet) valueToPrintable(value r.Value) interface{} {
 	}
 }
 
+var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
+
 func (f fileSet) nodeToPrintable(node ast.Node) interface{} {
 	if node == nil {
 		return nil
@@ -225,7 +227,7 @@ func (f fileSet) nodeToPrintable(node ast.Node) interface{} {
 		fset = token.NewFileSet()
 	}
 	var buf bytes.Buffer
-	err := format.Node(&buf, fset, node)
+	err := config.Fprint(&buf, fset, node)
 	if err != nil {
 		return err
 	}

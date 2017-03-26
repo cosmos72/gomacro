@@ -159,6 +159,10 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 		args := strings.SplitN(src, " ", 2)
 		cmd := args[0]
 		switch {
+		case isPrefix(cmd, ":decl"):
+			env.Options ^= OptCollectDeclarations
+			fmt.Fprintf(env.Stdout, "// option CollectDeclarations set to %t\n", env.Options&OptCollectDeclarations != 0)
+			return true
 		case isPrefix(cmd, ":env"):
 			if len(args) <= 1 {
 				env.showPackage(env.Stdout, "")
@@ -178,11 +182,23 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 				env.Inspect(in, args[1])
 			}
 			return true
+		case isPrefix(cmd, ":stmt"):
+			env.Options ^= OptCollectStatements
+			fmt.Fprintf(env.Stdout, "// option CollectStatements set to %t\n", env.Options&OptCollectStatements != 0)
+			return true
 		case isPrefix(cmd, ":trap"):
 			env.Options ^= OptTrapPanic
+			fmt.Fprintf(env.Stdout, "// option TrapPanic set to %t\n", env.Options&OptTrapPanic != 0)
 			return true
 		case isPrefix(cmd, ":quit"):
 			return false
+		case isPrefix(cmd, ":write"):
+			if len(args) <= 1 {
+				env.writeDecls(env.Stdout, "")
+			} else {
+				env.writeDecls(nil, args[1])
+			}
+			return true
 		}
 	}
 	// parse phase
