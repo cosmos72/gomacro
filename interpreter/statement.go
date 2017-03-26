@@ -101,13 +101,15 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return env.evalForRange(node)
 	case *ast.ReturnStmt:
 		return env.evalReturn(node)
+	case *ast.SelectStmt:
+		return env.evalSelect(node)
 	case *ast.SendStmt:
 		return env.evalSend(node)
 	case *ast.SwitchStmt:
 		return env.evalSwitch(node)
 	case *ast.TypeSwitchStmt:
 		return env.evalTypeSwitch(node)
-	default: // TODO:  *ast.GoStmt, *ast.LabeledStmt, *ast.SelectStmt:
+	default: // TODO:  *ast.GoStmt, *ast.LabeledStmt
 		return env.errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	}
 }

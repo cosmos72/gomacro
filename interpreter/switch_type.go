@@ -16,9 +16,9 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * switch.go
+ * switch_type.go
  *
- *  Created on: Feb 15, 2017
+ *  Created on: Mar 25, 2017
  *      Author: Massimiliano Ghilardi
  */
 
