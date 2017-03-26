@@ -48,6 +48,18 @@ func (cmd *Cmd) Init() {
 	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowAfterEval // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 }
 
+type Tristate int
+
+const (
+	tNochange Tristate = iota
+	tClear
+	tSet
+)
+
+type UserOptions struct {
+	verbose, collectDecls, collectStatements Tristate
+}
+
 func (cmd *Cmd) Main(args []string) (err error) {
 	if cmd.Env == nil {
 		cmd.Init()
@@ -58,52 +70,98 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		env.ReplStdin()
 		return nil
 	}
-	quiet := false
-	verbose := false
+	var opts UserOptions
 
 	env.Options &^= OptShowPrompt | OptShowAfterEval
 
 	for len(args) > 0 {
 		switch args[0] {
-		case "-h":
-			return cmd.Usage()
 		case "-e":
 			env.Options |= OptShowAfterEval
-			env.Options = applyOptions(env.Options, quiet, verbose)
+			env.Options = applyOptions(env.Options, opts)
 
 			buf := bytes.NewBufferString(strings.Join(args[1:], " "))
 			buf.WriteByte('\n') // because ReadMultiLine() needs a final '\n'
 			return cmd.EvalReader(buf)
+		case "-h":
+			return cmd.Usage()
+		case "-o":
+			args = args[1:]
+			if len(args) > 0 {
+				for _, str := range strings.Split(args[0], ",") {
+					switch str {
+					case "decl":
+						opts.collectDecls = tSet
+					case "^decl":
+						opts.collectDecls = tClear
+					case "stmt":
+						opts.collectStatements = tSet
+					case "^stmt":
+						opts.collectStatements = tClear
+					case "verbose":
+						opts.verbose = tSet
+					case "^verbose":
+						opts.verbose = tClear
+					}
+				}
+				args = args[1:]
+			}
 		case "-q":
-			quiet = true
-			verbose = false
+			opts.verbose = tClear
 			args = args[1:]
 		case "-v":
-			verbose = true
-			quiet = false
+			opts.verbose = tSet
 			args = args[1:]
 		default:
-			env.Options = applyOptions(env.Options, quiet, verbose)
+			env.Options = applyOptions(env.Options, opts)
 			return cmd.EvalFilesAndDirs(args...)
 		}
 	}
-	env.Options = applyOptions(env.Options, quiet, verbose)
+	env.Options = applyOptions(env.Options, opts)
 	env.ReplStdin()
 	return nil
 }
 
-func applyOptions(opts Options, silent bool, verbose bool) Options {
-	if silent {
+func applyOptions(opts Options, user UserOptions) Options {
+	switch user.verbose {
+	case tClear:
 		opts &^= OptShowAfterEval
-	} else if verbose {
+	case tSet:
 		opts |= OptShowAfterEval
+	}
+	switch user.collectDecls {
+	case tClear:
+		opts &^= OptCollectDeclarations
+	case tSet:
+		opts |= OptCollectDeclarations
+	}
+	switch user.collectStatements {
+	case tClear:
+		opts &^= OptCollectStatements
+	case tSet:
+		opts |= OptCollectStatements
 	}
 	return opts
 }
 
 func (cmd *Cmd) Usage() error {
-	fmt.Print(`usage: gomacro [-q] [-v] files-and-dirs
-       gomacro [-q] [-v] -e expression
+	fmt.Print(`usage: gomacro [OPTIONS] files-and-dirs
+       gomacro [OPTIONS] -e expressions
+
+       Recognized options:
+       -v      verbose. show startup message, prompt, and expressions result
+       -q      quiet. do NOT show startup message, prompt, and expressions result
+       -o LIST
+
+        LIST is a comma-separated list of one or more:
+         decl      collect declarations
+         ^decl     do NOT collect declarations
+         stmt      collect statements
+         ^stmt     do NOT collect statements
+         verbose   same as -v
+         ^verbose  same as -q
+       collected declarations and statements can be written to standard output
+       or to a file with the REPL command :write
 `)
 	return nil
 }
