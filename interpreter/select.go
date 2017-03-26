@@ -63,6 +63,7 @@ func (env *Env) mustBeSelectStatement(stmt ast.Stmt, lhs *selectLhsExpr, op *r.S
 	switch node := stmt.(type) {
 	case *ast.ExprStmt:
 		// <-ch
+		op.Dir = r.SelectRecv
 		op.Chan = env.mustBeSelectRecv(stmt, node.X)
 		return
 	case *ast.AssignStmt:

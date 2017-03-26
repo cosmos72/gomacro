@@ -125,9 +125,18 @@ var testcases = []TestCase{
 		`, nil, []interface{}{-5, -5, nil}},
 	TestCase{"send_recv", "cx <- \"x\"; <-cx", nil, []interface{}{"x", true}},
 	TestCase{"sum", sum_s + "; sum(100)", 5050, nil},
+
+	TestCase{"select_1", "cx <- 1; { var x interface{}; select { case x=<-cx: x; default: } }", 1, nil},
+	TestCase{"select_2", "cx <- m; select { case x:=<-cx: x; default: }", make(map[rune]bool), nil},
+	TestCase{"select_3", "select { case cx<-1: 1; default: 0 }", 1, nil},
+	TestCase{"select_4", "select { case cx<-2: 2; default: 0 }", 2, nil},
+	TestCase{"select_5", "select { case cx<-3: 3; default: 0 }", 0, nil},
+	TestCase{"select_6", "select { case cx<-4: 4; case x:=<-cx: x; default: 0 }", 1, nil},
+
 	TestCase{"switch_1", "switch { case false: 0; default: 1 }", 1, nil},
 	TestCase{"switch_2", "switch v:=20; v { case 20: '@' }", '@', nil},
 	TestCase{"switch_fallthrough", "switch 0 { default: fallthrough; case 1: 10; fallthrough; case 2: 20 }", 20, nil},
+
 	TestCase{"typeswitch_1", "var x interface{} = \"abc\"; switch y := x.(type) { default: 0; case string: 1 }", 1, nil},
 	TestCase{"typeswitch_2", "switch x.(type) { default: 0; case interface{}: 2 }", 2, nil},
 	TestCase{"typeswitch_3", "switch x.(type) { default: 0; case int: 3 }", 0, nil},
