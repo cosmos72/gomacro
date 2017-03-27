@@ -11,7 +11,7 @@ Gomacro can be used as:
   just run `gomacro` from your command line or, better, `rlwrap gomacro`
   (rlwrap is a wrapper that adds history and line editing to terminal-based programs - available on many platforms)
   Available options:  
-    -e EXPRESSIONS: evaluate the expressions
+    -e EXPRESSIONS: evaluate the expressions  
     -s: silent. suppress startup message and prompt (default when executing a file)  
     -v: verbose. show the result of expressions and statements (default for interactive REPL and -e EXPRESSIONS)
 
