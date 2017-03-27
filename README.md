@@ -13,7 +13,7 @@ Gomacro can be used as:
   Available options:  
     -e EXPRESSION: evaluate the expression  
     -s: silent. suppress startup message and prompt (default when executing a file)  
-    -v: verbose. show the result of expressions and statements (default for interactive REPL and -e EXPRESSIONS)
+    -v: verbose. show the result of expressions and statements (default for interactive REPL and -e EXPRESSION)
 
 * a library that adds Eval() and scripting capabilities
   to your Go programs - provided you comply with its GPL license
