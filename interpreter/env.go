@@ -32,6 +32,7 @@ import (
 	"strings"
 	"time"
 
+	. "github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/imports"
 )
 
@@ -221,4 +222,34 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 func isPrefix(prefix, str string) bool {
 	n := len(prefix)
 	return n <= len(str) && prefix == str[:n]
+}
+
+func (env *Env) ParseAst(src interface{}) Ast {
+	bytes := ReadBytes(src)
+	nodes := env.ParseBytes(bytes)
+
+	if env.Options&OptShowAfterParse != 0 {
+		env.debugf("after parse: %v", nodes)
+	}
+
+	var form Ast
+	switch len(nodes) {
+	case 0:
+		return nil
+	case 1:
+		form = ToAst(nodes[0])
+	default:
+		form = NodeSlice{X: nodes}
+	}
+
+	// macroexpansion phase.
+	form, _ = env.MacroExpandAstCodewalk(form)
+
+	if env.Options&OptShowAfterMacroExpansion != 0 {
+		env.debugf("after macroexpansion: %v", form.Interface())
+	}
+	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
+		env.collectAst(form)
+	}
+	return form
 }

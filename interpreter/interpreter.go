@@ -64,37 +64,6 @@ func NewInterpreterCommon() *InterpreterCommon {
 	}
 }
 
-func (ir *InterpreterCommon) ParseAst(src interface{}) Ast {
-	// parse phase
-	bytes := ReadBytes(src)
-	nodes := ir.ParseBytes(bytes)
-
-	if env.Options&OptShowAfterParse != 0 {
-		env.debugf("after parse: %v", ast.Interface())
-	}
-
-	var form Ast
-	switch len(nodes) {
-	case 0:
-		return nil
-	case 1:
-		form = ToAst(nodes[0])
-	default:
-		form = NodeSlice{X: nodes}
-	}
-
-	// macroexpansion phase.
-	form, _ = env.MacroExpandAstCodewalk(form)
-
-	if env.Options&OptShowAfterMacroExpansion != 0 {
-		env.debugf("after macroexpansion: %v", form.Interface())
-	}
-	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
-		env.collectAst(form)
-	}
-	return form
-}
-
 func (ir *InterpreterCommon) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 

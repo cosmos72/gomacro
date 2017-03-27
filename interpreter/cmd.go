@@ -72,10 +72,13 @@ func (cmd *Cmd) Main(args []string) (err error) {
 	}
 	var opts UserOptions
 
-	env.Options &^= OptShowPrompt | OptShowAfterEval
-
 	for len(args) > 0 {
 		switch args[0] {
+		case "-i":
+			env.Options |= OptShowPrompt | OptShowAfterEval
+			env.Options = applyOptions(env.Options, opts)
+			env.ReplStdin()
+			args = args[1:]
 		case "-e":
 			env.Options |= OptShowAfterEval
 			env.Options = applyOptions(env.Options, opts)
@@ -113,10 +116,12 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			opts.verbose = tSet
 			args = args[1:]
 		default:
+			env.Options &^= OptShowPrompt | OptShowAfterEval
 			env.Options = applyOptions(env.Options, opts)
 			return cmd.EvalFilesAndDirs(args...)
 		}
 	}
+	env.Options |= OptShowPrompt | OptShowAfterEval
 	env.Options = applyOptions(env.Options, opts)
 	env.ReplStdin()
 	return nil
@@ -149,6 +154,9 @@ func (cmd *Cmd) Usage() error {
        gomacro [OPTIONS] -e expressions
 
        Recognized options:
+       -h      show this help and exit
+       -i      interactive. immediately start a REPL, even in the middle
+	                        of executing files and dirs
        -v      verbose. show startup message, prompt, and expressions result
        -q      quiet. do NOT show startup message, prompt, and expressions result
        -o LIST
