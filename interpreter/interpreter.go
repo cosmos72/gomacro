@@ -48,33 +48,51 @@ type InterpreterCommon struct {
 }
 
 func NewInterpreterCommon() *InterpreterCommon {
-	ir := InterpreterCommon{}
-
-	ir.output.Fileset = token.NewFileSet()
-	// using both os.Stdout and os.Stderr can interleave impredictably
-	// normal output and diagnostic messages - ugly in interactive use
-	ir.output.Stdout = os.Stdout
-	ir.output.Stderr = os.Stdout
-
-	ir.Options = OptTrapPanic // set by default
-	ir.Importer = DefaultImporter()
-	ir.Packagename = "main"
-	ir.Filename = "main.go"
-	ir.SpecialChar = '~'
-	return &ir
+	return &InterpreterCommon{
+		output: output{
+			fileSet: fileSet{token.NewFileSet()},
+			// using both os.Stdout and os.Stderr can interleave impredictably
+			// normal output and diagnostic messages - ugly in interactive use
+			Stdout: os.Stdout,
+			Stderr: os.Stdout,
+		},
+		Options:     OptTrapPanic, // set by default
+		Importer:    DefaultImporter(),
+		Packagename: "main",
+		Filename:    "main.go",
+		SpecialChar: '~',
+	}
 }
 
 func (ir *InterpreterCommon) ParseAst(src interface{}) Ast {
+	// parse phase
 	bytes := ReadBytes(src)
 	nodes := ir.ParseBytes(bytes)
+
+	if env.Options&OptShowAfterParse != 0 {
+		env.debugf("after parse: %v", ast.Interface())
+	}
+
+	var form Ast
 	switch len(nodes) {
 	case 0:
 		return nil
 	case 1:
-		return ToAst(nodes[0])
+		form = ToAst(nodes[0])
 	default:
-		return NodeSlice{X: nodes}
+		form = NodeSlice{X: nodes}
 	}
+
+	// macroexpansion phase.
+	form, _ = env.MacroExpandAstCodewalk(form)
+
+	if env.Options&OptShowAfterMacroExpansion != 0 {
+		env.debugf("after macroexpansion: %v", form.Interface())
+	}
+	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
+		env.collectAst(form)
+	}
+	return form
 }
 
 func (ir *InterpreterCommon) ParseBytes(src []byte) []ast.Node {
@@ -91,21 +109,40 @@ func (ir *InterpreterCommon) ParseBytes(src []byte) []ast.Node {
 		error_(err)
 		return nil
 	}
-	if ir.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
-		for _, node := range nodes {
-			ir.collectDeclOrStmt(node)
-		}
-	}
 	return nodes
 }
 
-// accumulateDeclOrStmt accumulates declarations in ir.Decls and statements in ir.Stmts
+// collectAst accumulates declarations in ir.Decls and statements in ir.Stmts
 // allows generating a *.go file on user request
-func (ir *InterpreterCommon) collectDeclOrStmt(node ast.Node) {
+func (ir *InterpreterCommon) collectAst(form Ast) {
+	if ir.Options&(OptCollectDeclarations|OptCollectStatements) == 0 {
+		return
+	}
+
+	switch form := form.(type) {
+	case AstWithNode:
+		ir.collectNode(form.Node())
+	case AstWithSlice:
+		n := form.Size()
+		for i := 0; i < n; i++ {
+			ir.collectAst(form.Get(i))
+		}
+	}
+}
+
+func (ir *InterpreterCommon) collectNode(node ast.Node) {
 	collectDecl := ir.Options&OptCollectDeclarations != 0
 	collectStmt := ir.Options&OptCollectStatements != 0
 
 	switch node := node.(type) {
+	case *ast.FuncDecl:
+		if collectDecl {
+			if node.Recv == nil || len(node.Recv.List) != 0 {
+				// function or method declaration.
+				// skip macro declarations, Go compilers would choke on them
+				ir.Decls = append(ir.Decls, node)
+			}
+		}
 	case ast.Decl:
 		if collectDecl {
 			ir.Decls = append(ir.Decls, node)

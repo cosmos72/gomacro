@@ -201,18 +201,8 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 			return true
 		}
 	}
-	// parse phase
+	// parse + macroexpansion phase
 	ast := env.ParseAst(src)
-	if env.Options&OptShowAfterParse != 0 {
-		env.debugf("after parse: %v", ast.Interface())
-	}
-
-	// macroexpansion phase.
-	ast, _ = env.MacroExpandAstCodewalk(ast)
-
-	if env.Options&OptShowAfterMacroExpansion != 0 {
-		env.debugf("after macroexpansion: %v", ast.Interface())
-	}
 
 	// eval phase
 	value, values := env.EvalAst(ast)

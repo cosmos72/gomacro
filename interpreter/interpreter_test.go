@@ -50,10 +50,8 @@ func TestInterpreter(t *testing.T) {
 }
 
 func (c *TestCase) run(t *testing.T, env *Env) {
-	// parse phase
+	// parse + macroexpansion phase
 	form := env.ParseAst(c.program)
-	// macroexpansion phase
-	form, _ = env.MacroExpandAstCodewalk(form)
 	// eval phase
 	rets := packValues(env.EvalAst(form))
 

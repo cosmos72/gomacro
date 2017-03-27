@@ -112,15 +112,12 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 		return env.packErrorf("call of non-function type %v", t)
 	}
 	env = NewEnv(env, envName)
+	// register this function call in the call stack
+	env.CallStack.Frames = append(env.CallStack.Frames, CallFrame{FuncEnv: env})
 	debugCall := env.Options&OptDebugCallStack != 0
-	// register this function call in the call stack prepared by evalCall()
-	{
-		stack := env.CallStack
-		stack.Frames = append(stack.Frames, CallFrame{FuncEnv: env})
-		if debugCall {
-			env.debugf("func starting: %s, args = %v, call stack is:", envName, args)
-			env.showStack()
-		}
+	if debugCall {
+		env.debugf("func starting: %s, args = %v, call stack is:", envName, args)
+		env.showStack()
 	}
 
 	panicking := true // use a flag to distinguish non-panic from panic(nil)

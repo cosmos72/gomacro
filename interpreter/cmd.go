@@ -48,16 +48,16 @@ func (cmd *Cmd) Init() {
 	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowAfterEval // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 }
 
-type Tristate int
+type tristate int
 
 const (
-	tNochange Tristate = iota
+	tNochange tristate = iota
 	tClear
 	tSet
 )
 
 type UserOptions struct {
-	verbose, collectDecls, collectStatements Tristate
+	verbose, collectDecls, collectStatements tristate
 }
 
 func (cmd *Cmd) Main(args []string) (err error) {
