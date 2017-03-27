@@ -37,14 +37,15 @@ import (
 
 type InterpreterCommon struct {
 	output
-	Options     Options
-	Importer    Importer
-	Packagename string
-	Filename    string
-	Decls       []ast.Decl
-	Stmts       []ast.Stmt
-	ParserMode  mp.Mode
-	SpecialChar rune
+	Options      Options
+	Importer     Importer
+	Packagename  string
+	Filename     string
+	Imports      []*ast.GenDecl
+	Declarations []ast.Decl
+	Statements   []ast.Stmt
+	ParserMode   mp.Mode
+	SpecialChar  rune
 }
 
 func NewInterpreterCommon() *InterpreterCommon {
@@ -104,17 +105,25 @@ func (ir *InterpreterCommon) collectNode(node ast.Node) {
 	collectStmt := ir.Options&OptCollectStatements != 0
 
 	switch node := node.(type) {
+	case *ast.GenDecl:
+		if collectDecl {
+			if node.Tok == token.IMPORT {
+				ir.Imports = append(ir.Imports, node)
+			} else {
+				ir.Declarations = append(ir.Declarations, node)
+			}
+		}
 	case *ast.FuncDecl:
 		if collectDecl {
 			if node.Recv == nil || len(node.Recv.List) != 0 {
 				// function or method declaration.
 				// skip macro declarations, Go compilers would choke on them
-				ir.Decls = append(ir.Decls, node)
+				ir.Declarations = append(ir.Declarations, node)
 			}
 		}
 	case ast.Decl:
 		if collectDecl {
-			ir.Decls = append(ir.Decls, node)
+			ir.Declarations = append(ir.Declarations, node)
 		}
 	case *ast.AssignStmt:
 		if node.Tok == token.DEFINE {
@@ -134,21 +143,29 @@ func (ir *InterpreterCommon) collectNode(node ast.Node) {
 						},
 					},
 				}
-				ir.Decls = append(ir.Decls, decl)
+				ir.Declarations = append(ir.Declarations, decl)
 			}
 		} else {
 			if collectStmt {
-				ir.Stmts = append(ir.Stmts, node)
+				ir.Statements = append(ir.Statements, node)
 			}
 		}
 	case ast.Stmt:
 		if collectStmt {
-			ir.Stmts = append(ir.Stmts, node)
+			ir.Statements = append(ir.Statements, node)
 		}
 	case ast.Expr:
+		if unary, ok := node.(*ast.UnaryExpr); ok && collectDecl {
+			if unary.Op == token.PACKAGE && unary.X != nil {
+				if ident, ok := unary.X.(*ast.Ident); ok {
+					ir.Packagename = ident.Name
+					break
+				}
+			}
+		}
 		if collectStmt {
 			stmt := &ast.ExprStmt{X: node}
-			ir.Stmts = append(ir.Stmts, stmt)
+			ir.Statements = append(ir.Statements, stmt)
 		}
 	}
 }
@@ -163,19 +180,26 @@ func (ir *InterpreterCommon) writeDeclsToFile(filename string) {
 }
 
 func (ir *InterpreterCommon) writeDeclsToStream(out io.Writer) {
-	for _, decl := range ir.Decls {
+	fmt.Fprintf(out, "package %s\n\n", ir.Packagename)
+
+	for _, imp := range ir.Imports {
+		fmt.Fprintln(out, ir.toPrintable(imp))
+	}
+	if len(ir.Imports) != 0 {
+		fmt.Println()
+	}
+	for _, decl := range ir.Declarations {
 		fmt.Fprintln(out, ir.toPrintable(decl))
 	}
-	if len(ir.Stmts) == 0 {
-		return
+	if len(ir.Statements) != 0 {
+		fmt.Fprint(out, "\nfunc init() {\n")
+		config.Indent = 1
+		defer func() {
+			config.Indent = 0
+		}()
+		for _, stmt := range ir.Statements {
+			fmt.Fprintln(out, ir.toPrintable(stmt))
+		}
+		fmt.Fprint(out, "}\n")
 	}
-	fmt.Fprint(out, "\nfunc init() {\n")
-	config.Indent = 1
-	defer func() {
-		config.Indent = 0
-	}()
-	for _, stmt := range ir.Stmts {
-		fmt.Fprintln(out, ir.toPrintable(stmt))
-	}
-	fmt.Fprint(out, "}\n")
 }

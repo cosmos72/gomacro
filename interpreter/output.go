@@ -247,10 +247,8 @@ func (f fileSet) showHelp(out io.Writer) {
 `)
 }
 
-func (env *Env) showOptions(out io.Writer) {
-}
-
-func (env *Env) showPackage(out io.Writer, packageName string) {
+func (env *Env) showPackage(packageName string) {
+	out := env.Stdout
 	e := env
 	path := env.Path
 	pkg := &env.Package

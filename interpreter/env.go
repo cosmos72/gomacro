@@ -149,9 +149,9 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 	return env.ParseEvalPrint(str, in)
 }
 
-func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
+func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 
-	src := strings.TrimSpace(str)
+	src = strings.TrimSpace(src)
 	n := len(src)
 	if n == 0 {
 		return true // no input. don't print anything
@@ -162,9 +162,9 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 		switch {
 		case startsWith(":env", cmd):
 			if len(args) <= 1 {
-				env.showPackage(env.Stdout, "")
+				env.showPackage("")
 			} else {
-				env.showPackage(env.Stdout, args[1])
+				env.showPackage(args[1])
 			}
 			return true
 		case startsWith(":help", cmd):
@@ -197,6 +197,20 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 			return true
 		}
 	}
+	if src == "package" || startsWith(src, "package ") {
+		arg := ""
+		space := strings.IndexByte(src, ' ')
+		if space >= 0 {
+			arg = strings.TrimSpace(src[1+space:])
+		}
+		if len(arg) == 0 {
+			fmt.Fprintf(env.Stdout, "// current package: %v\n", env.Packagename)
+		} else {
+			env = env.ChangePackage(arg)
+		}
+		return true
+	}
+
 	// parse + macroexpansion phase
 	ast := env.ParseAst(src)
 

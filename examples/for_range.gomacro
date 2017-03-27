@@ -1,5 +1,7 @@
 #!/usr/bin/env gomacro
 
+import "fmt"
+
 type Entry struct {
 	Key int
 	Value string
@@ -17,7 +19,7 @@ func mapEntries(m map[int]string) []Entry {
 
 func printEntries(entries []Entry) {
 	for i, e := range entries {
-		println(i, ":", e)
+		fmt.Println(i, ":", e)
 	}
 }
 

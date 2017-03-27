@@ -48,3 +48,33 @@ func init() {
 		map[string]Type{},
 	}
 }
+
+func (pkg *Package) Init() {
+	pkg.Binds = make(map[string]Value)
+	pkg.Types = make(map[string]Type)
+	pkg.Proxies = make(map[string]Type)
+}
+
+func (pkg Package) SaveToPackages(path string) {
+	// exploit the fact that maps are actually handles
+	dst, ok := Packages[path]
+	if !ok {
+		dst = Package{}
+		dst.Init()
+		Packages[path] = dst
+	}
+	dst.Merge(pkg)
+}
+
+func (dst Package) Merge(src Package) {
+	// exploit the fact that maps are actually handles
+	for k, v := range src.Binds {
+		dst.Binds[k] = v
+	}
+	for k, v := range src.Types {
+		dst.Types[k] = v
+	}
+	for k, v := range src.Proxies {
+		dst.Proxies[k] = v
+	}
+}

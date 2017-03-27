@@ -49,3 +49,19 @@ func init() {
 		},
 		Proxies: map[string]r.Type{}}
 }
+
+func (env *Env) ChangePackage(name string) *Env {
+	fenv := env.FileEnv()
+	curr := fenv.InterpreterCommon.Packagename
+	if name == curr {
+		return env
+	}
+	fenv.Package.SaveToPackages(curr)
+
+	nenv := NewEnv(fenv.TopEnv(), name)
+	nenv.Package.Init()
+	nenv.Package.Merge(imports.Packages[name])
+	nenv.InterpreterCommon.Packagename = name
+
+	return nenv
+}

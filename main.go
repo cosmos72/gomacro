@@ -29,7 +29,7 @@ import (
 	"os"
 
 	gmi "github.com/cosmos72/gomacro/interpreter"
-	mp "github.com/cosmos72/gomacro/parser"
+	gmp "github.com/cosmos72/gomacro/parser"
 )
 
 func main() {
@@ -47,7 +47,7 @@ func main() {
 	var cmd gmi.Cmd
 	cmd.Init()
 
-	cmd.ParserMode |= mp.Trace & 0
+	cmd.ParserMode |= gmp.Trace & 0
 	cmd.Options |= gmi.OptTrapPanic // | gmi.OptShowAfterMacroExpansion // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpand // |  gmi.OptDebugQuasiquote  // | gmi.OptShowEvalDuration
 
 	err := cmd.Main(args)

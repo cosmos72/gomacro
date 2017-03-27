@@ -122,6 +122,8 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			env.Options &^= OptShowPrompt | OptShowEval
 			env.Options = (env.Options | set) &^ clear
 			cmd.EvalFileOrDir(args[0])
+
+			env.Imports, env.Declarations, env.Statements = nil, nil, nil
 		}
 		args = args[1:]
 	}
@@ -200,8 +202,8 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 
 func (cmd *Cmd) EvalFile(filename string) (err error) {
 	env := cmd.Env
-	env.Decls = nil
-	env.Stmts = nil
+	env.Declarations = nil
+	env.Statements = nil
 
 	f, err := os.Open(filename)
 	if err != nil {
@@ -231,6 +233,7 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 			}
 		}
 		env.writeDeclsToFile(outname)
+
 		if env.Options&OptShowEval != 0 {
 			fmt.Fprintf(env.Stdout, "// processed file: %v\t-> %v\n", filename, outname)
 		}
