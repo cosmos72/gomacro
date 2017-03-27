@@ -11,8 +11,8 @@ Gomacro can be used as:
   just run `gomacro` from your command line or, better, `rlwrap gomacro`
   (rlwrap is a wrapper that adds history and line editing to terminal-based programs - available on many platforms)
   Available options:  
-    -e EXPRESSIONS: evaluate the expressions, then exit  
-    -q: quiet. suppress startup message and prompt (default when executing a file)  
+    -e EXPRESSIONS: evaluate the expressions
+    -s: silent. suppress startup message and prompt (default when executing a file)  
     -v: verbose. show the result of expressions and statements (default for interactive REPL and -e EXPRESSIONS)
 
 * a library that adds Eval() and scripting capabilities
@@ -26,10 +26,12 @@ Gomacro can be used as:
   with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
 * a Go code generation tool:  
-  run `gomacro -w FILENAME.gomacro` to parse and execute the file. It will create FILENAME.go
-  with the parsed and macroexpanded imports, declarations and statements.
+  run `gomacro -w FILENAMES` to parse and execute one or more files.
+  For each filename on the command line, gomacro will parse and execute it,
+  then create a corresponding FILENAME.go with the parsed and macroexpanded
+  imports, declarations and statements.
 
-  To parse and execute all files in the current directory, run `gomacro -w .`
+  To parse and execute all *.gomacro files in a directory, run `gomacro -w DIRECTORY`
 
 ## Current Status
 
