@@ -153,14 +153,16 @@ func (ir *InterpreterCommon) collectNode(node ast.Node) {
 	}
 }
 
-func (ir *InterpreterCommon) writeDecls(out io.Writer, filename string) {
-	if out == nil {
-		f, err := os.Create(filename)
-		if err != nil {
-			ir.errorf("failed to create file %q: %v", filename, err)
-		}
-		out = f
+func (ir *InterpreterCommon) writeDeclsToFile(filename string) {
+	f, err := os.Create(filename)
+	if err != nil {
+		ir.errorf("failed to create file %q: %v", filename, err)
 	}
+	defer f.Close()
+	ir.writeDeclsToStream(f)
+}
+
+func (ir *InterpreterCommon) writeDeclsToStream(out io.Writer) {
 	for _, decl := range ir.Decls {
 		fmt.Fprintln(out, ir.toPrintable(decl))
 	}

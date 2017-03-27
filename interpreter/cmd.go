@@ -39,25 +39,15 @@ import (
 
 type Cmd struct {
 	*Env
+	WriteDeclsAndStmtsToFile, OverwriteFiles bool
 }
 
 func (cmd *Cmd) Init() {
 	cmd.Env = New()
-
 	cmd.ParserMode = mp.Trace & 0
-	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowAfterEval // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
-}
-
-type tristate int
-
-const (
-	tNochange tristate = iota
-	tClear
-	tSet
-)
-
-type UserOptions struct {
-	verbose, collectDecls, collectStatements tristate
+	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowEval // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
+	cmd.WriteDeclsAndStmtsToFile = false
+	cmd.OverwriteFiles = false
 }
 
 func (cmd *Cmd) Main(args []string) (err error) {
@@ -66,100 +56,95 @@ func (cmd *Cmd) Main(args []string) (err error) {
 	}
 	env := cmd.Env
 
-	if len(args) == 0 {
-		env.ReplStdin()
-		return nil
-	}
-	var opts UserOptions
+	var set, clear Options
+	repl := len(args) == 0
+	cmd.WriteDeclsAndStmtsToFile = false
+	cmd.OverwriteFiles = false
 
 	for len(args) > 0 {
 		switch args[0] {
-		case "-i":
-			env.Options |= OptShowPrompt | OptShowAfterEval
-			env.Options = applyOptions(env.Options, opts)
-			env.ReplStdin()
-			args = args[1:]
 		case "-e":
-			env.Options |= OptShowAfterEval
-			env.Options = applyOptions(env.Options, opts)
-
-			buf := bytes.NewBufferString(strings.Join(args[1:], " "))
-			buf.WriteByte('\n') // because ReadMultiLine() needs a final '\n'
-			return cmd.EvalReader(buf)
+			if len(args) > 1 {
+				buf := bytes.NewBufferString(args[1])
+				buf.WriteByte('\n') // because ReadMultiLine() needs a final '\n'
+				env.Options |= OptShowEval
+				env.Options = (env.Options | set) &^ clear
+				err := cmd.EvalReader(buf)
+				if err != nil {
+					return err
+				}
+				args = args[1:]
+			}
+		case "-f":
+			cmd.OverwriteFiles = true
 		case "-h":
 			return cmd.Usage()
+		case "-i":
+			repl = true
 		case "-o":
-			args = args[1:]
-			if len(args) > 0 {
-				for _, str := range strings.Split(args[0], ",") {
+			if len(args) > 1 {
+				for _, str := range strings.Split(args[1], ",") {
 					switch str {
 					case "decl":
-						opts.collectDecls = tSet
+						set |= OptCollectDeclarations
+						clear &^= OptCollectDeclarations
 					case "^decl":
-						opts.collectDecls = tClear
+						set &^= OptCollectDeclarations
+						clear |= OptCollectDeclarations
 					case "stmt":
-						opts.collectStatements = tSet
+						set |= OptCollectStatements
+						clear &^= OptCollectStatements
 					case "^stmt":
-						opts.collectStatements = tClear
+						set &^= OptCollectStatements
+						clear |= OptCollectStatements
 					case "verbose":
-						opts.verbose = tSet
+						set |= OptShowEval
+						clear &^= OptShowEval
 					case "^verbose":
-						opts.verbose = tClear
+						set &^= OptShowEval
+						clear |= OptShowEval
 					}
 				}
 				args = args[1:]
 			}
-		case "-q":
-			opts.verbose = tClear
-			args = args[1:]
+		case "-s":
+			set &^= OptShowEval
+			clear |= OptShowEval
 		case "-v":
-			opts.verbose = tSet
-			args = args[1:]
+			set |= OptShowEval
+			clear &^= OptShowEval
+		case "-w":
+			cmd.WriteDeclsAndStmtsToFile = true
 		default:
-			env.Options &^= OptShowPrompt | OptShowAfterEval
-			env.Options = applyOptions(env.Options, opts)
-			return cmd.EvalFilesAndDirs(args...)
+			if cmd.WriteDeclsAndStmtsToFile {
+				env.Options |= OptCollectDeclarations | OptCollectStatements
+			}
+			env.Options &^= OptShowPrompt | OptShowEval
+			env.Options = (env.Options | set) &^ clear
+			cmd.EvalFileOrDir(args[0])
 		}
+		args = args[1:]
 	}
-	env.Options |= OptShowPrompt | OptShowAfterEval
-	env.Options = applyOptions(env.Options, opts)
-	env.ReplStdin()
+	if repl {
+		env.Options |= OptShowPrompt | OptShowEval
+		env.Options = (env.Options | set) &^ clear
+		env.ReplStdin()
+	}
 	return nil
 }
 
-func applyOptions(opts Options, user UserOptions) Options {
-	switch user.verbose {
-	case tClear:
-		opts &^= OptShowAfterEval
-	case tSet:
-		opts |= OptShowAfterEval
-	}
-	switch user.collectDecls {
-	case tClear:
-		opts &^= OptCollectDeclarations
-	case tSet:
-		opts |= OptCollectDeclarations
-	}
-	switch user.collectStatements {
-	case tClear:
-		opts &^= OptCollectStatements
-	case tSet:
-		opts |= OptCollectStatements
-	}
-	return opts
-}
-
 func (cmd *Cmd) Usage() error {
-	fmt.Print(`usage: gomacro [OPTIONS] files-and-dirs
-       gomacro [OPTIONS] -e expressions
+	fmt.Print(`usage: gomacro [OPTIONS] [files-and-dirs]
 
        Recognized options:
+       -e EXPR evaluate expression
+       -f      force option -w to overwrite existing files
        -h      show this help and exit
-       -i      interactive. immediately start a REPL, even in the middle
-	                        of executing files and dirs
+       -i      interactive. start a REPL after evaluating expression, files and dirs.
+       -o LIST set/unset options, see below.
+       -s      silent. do NOT show startup message, prompt, and expressions result
        -v      verbose. show startup message, prompt, and expressions result
-       -q      quiet. do NOT show startup message, prompt, and expressions result
-       -o LIST
+       -w      write collected declarations and statements to *.go files
 
         LIST is a comma-separated list of one or more:
          decl      collect declarations
@@ -167,7 +152,7 @@ func (cmd *Cmd) Usage() error {
          stmt      collect statements
          ^stmt     do NOT collect statements
          verbose   same as -v
-         ^verbose  same as -q
+         ^verbose  same as -s
        collected declarations and statements can be written to standard output
        or to a file with the REPL command :write
 `)
@@ -203,8 +188,7 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 	}
 	for _, file := range files {
 		filename := file.Name()
-		l := len(filename)
-		if l > 3 && filename[l-3:] == ".go" || l > 8 && filename[l-8:] == ".gomacro" {
+		if endsWith(filename, ".gomacro") {
 			err := cmd.EvalFile(filename)
 			if err != nil {
 				return err
@@ -215,6 +199,10 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 }
 
 func (cmd *Cmd) EvalFile(filename string) (err error) {
+	env := cmd.Env
+	env.Decls = nil
+	env.Stmts = nil
+
 	f, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -225,6 +213,27 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 	err = cmd.EvalReader(f)
 	if err != nil {
 		return err
+	}
+
+	if cmd.WriteDeclsAndStmtsToFile {
+		outname := filename
+		if dot := strings.LastIndexByte(outname, '.'); dot >= 0 {
+			outname = outname[0:dot]
+		}
+		outname += ".go"
+		if cmd.OverwriteFiles {
+			os.Remove(outname)
+		} else {
+			_, err := os.Stat(outname)
+			if err == nil {
+				env.warnf("file exists already, use -f to force overwriting: %v", outname)
+				return nil
+			}
+		}
+		env.writeDeclsToFile(outname)
+		if env.Options&OptShowEval != 0 {
+			fmt.Fprintf(env.Stdout, "// processed file: %v\t-> %v\n", filename, outname)
+		}
 	}
 	return nil
 }

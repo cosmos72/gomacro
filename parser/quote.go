@@ -92,13 +92,13 @@ func (p *parser) parseQuote() ast.Expr {
 		p.errorExpected(p.pos, "one of: '{', 'IDENT', 'INT', 'STRING', 'QUOTE', 'QUASIQUOTE', 'UNQUOTE' or 'UNQUOTE_SPLICE'")
 	}
 
-	expr, _ := p.MakeQuote(op, opPos, node)
+	expr, _ := MakeQuote(p, op, opPos, node)
 	return expr
 }
 
 // MakeQuote creates an ast.UnaryExpr representing quote{node}.
 // Returns both the unaryexpr and the blockstmt containing its body
-func (p *parser) MakeQuote(op token.Token, pos token.Pos, node ast.Node) (*ast.UnaryExpr, *ast.BlockStmt) {
+func MakeQuote(p_or_nil *parser, op token.Token, pos token.Pos, node ast.Node) (*ast.UnaryExpr, *ast.BlockStmt) {
 	var body *ast.BlockStmt
 	var stmt ast.Stmt
 	switch node := node.(type) {
@@ -112,8 +112,8 @@ func (p *parser) MakeQuote(op token.Token, pos token.Pos, node ast.Node) (*ast.U
 		stmt = &ast.ExprStmt{X: node}
 	default:
 		msg := fmt.Sprintf("%v: expecting statement or expression, found %T %#v", op, node)
-		if p != nil {
-			p.error(node.Pos(), msg)
+		if p_or_nil != nil {
+			p_or_nil.error(node.Pos(), msg)
 		} else {
 			panic(msg)
 		}

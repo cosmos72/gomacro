@@ -27,6 +27,8 @@ package interpreter
 import (
 	"go/ast"
 	r "reflect"
+	"sort"
+	"strings"
 
 	"github.com/cosmos72/gomacro/imports"
 )
@@ -80,10 +82,10 @@ type whichMacroExpand uint
 const (
 	OptTrapPanic Options = 1 << iota
 	OptShowPrompt
-	OptShowAfterEval
-	OptShowAfterParse
-	OptShowAfterMacroExpansion
-	OptShowEvalDuration
+	OptShowEval
+	OptShowParse
+	OptShowMacroExpand
+	OptShowTime
 	OptDebugMacroExpand
 	OptDebugQuasiquote
 	OptDebugCallStack
@@ -95,6 +97,56 @@ const (
 	cMacroExpand
 	cMacroExpandCodewalk
 )
+
+var optNames = map[Options]string{
+	OptTrapPanic:           "TrapPanic",
+	OptShowPrompt:          "Prompt",
+	OptShowEval:            "Eval",
+	OptShowParse:           "Parse",
+	OptShowMacroExpand:     "MacroExpand",
+	OptShowTime:            "Time",
+	OptDebugMacroExpand:    "?MacroExpand",
+	OptDebugQuasiquote:     "?Quasiquote",
+	OptDebugCallStack:      "?CallStack",
+	OptDebugPanicRecover:   "?PanicRecover",
+	OptCollectDeclarations: "Declarations",
+	OptCollectStatements:   "Statements",
+}
+
+var optValues = map[string]Options{}
+
+func init() {
+	for k, v := range optNames {
+		optValues[v] = k
+	}
+}
+
+func (o Options) String() string {
+	names := make([]string, 0)
+	for k, v := range optNames {
+		if k&o != 0 {
+			names = append(names, v)
+		}
+	}
+	sort.Strings(names)
+	return strings.Join(names, " ")
+}
+
+func parseOptions(str string) Options {
+	var opts Options
+	for _, name := range strings.Split(str, " ") {
+		if opt, ok := optValues[name]; ok {
+			opts ^= opt
+		} else if len(name) != 0 {
+			for k, v := range optNames {
+				if startsWith(v, name) {
+					opts ^= k
+				}
+			}
+		}
+	}
+	return opts
+}
 
 func (m whichMacroExpand) String() string {
 	switch m {

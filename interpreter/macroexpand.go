@@ -75,7 +75,10 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 	saved := in
 
 	if expr, ok := in.(UnaryExpr); ok {
+		isBlockWithinExpr := false
 		switch expr.X.Op {
+		case mt.MACRO:
+			isBlockWithinExpr = true
 		case mt.QUOTE:
 			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
 			if quasiquoteDepth == 0 {
@@ -92,10 +95,15 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 		}
 		inChild := unwrapTrivialAst(in.Get(0).Get(1))
 		outChild, expanded := env.macroExpandAstCodewalk(inChild, quasiquoteDepth)
-		if !expanded {
-			return in, false
+		if isBlockWithinExpr {
+			return outChild, expanded
+		} else {
+			out := in
+			if expanded {
+				out = makeQuote2(expr, outChild.(AstWithNode))
+			}
+			return out, expanded
 		}
-		return makeQuote2(expr, outChild.(AstWithNode)), true
 	}
 Recurse:
 	if in == nil {

@@ -327,7 +327,7 @@ func duplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 // MakeQuote invokes parser.MakeQuote() and wraps the resulting ast.Node,
 // which represents quote{<form>}, into an Ast struct
 func makeQuote(form UnaryExpr) (UnaryExpr, BlockStmt) {
-	expr, block := (*mp.Parser)(nil).MakeQuote(form.X.Op, form.X.OpPos, nil)
+	expr, block := mp.MakeQuote(nil, form.X.Op, form.X.OpPos, nil)
 	return UnaryExpr{expr}, BlockStmt{block}
 }
 
@@ -338,7 +338,9 @@ func makeQuote2(form UnaryExpr, toQuote AstWithNode) UnaryExpr {
 	if toQuote != nil {
 		node = toQuote.Node()
 	}
-	expr, _ := (*mp.Parser)(nil).MakeQuote(form.X.Op, form.X.OpPos, node)
+	fmt.Printf("node   = %#v\n", node)
+	fmt.Printf("form   = %#v\n", form)
+	fmt.Printf("form.X = %#v\n", form.X)
+	expr, _ := mp.MakeQuote(nil, form.X.Op, form.X.OpPos, node)
 	return UnaryExpr{expr}
 }
-

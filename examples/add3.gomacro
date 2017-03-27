@@ -2,8 +2,9 @@
 
 macro add3(a, b, c interface{}) interface{} {
 	quasiquote{unquote{a} + unquote{b} + unquote{c}}
-	// ~`{ ~,a + ~,b + ~,c }
 }
+
+// macro add3(a, b, c interface{}) interface{} { ~`{ ~,a + ~,b + ~,c } }
 
 x := {add3;1;2;3}
 

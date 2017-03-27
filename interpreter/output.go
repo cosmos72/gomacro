@@ -239,9 +239,15 @@ func (f fileSet) showHelp(out io.Writer) {
 :env [name]     show available functions, variables and constants
                 in current package, or from imported package "name"
 :help           print this help
-:inspect [expr] inspect expression interactively
+:inspect EXPR   inspect expression interactively
+:options [OPTS] show or toggle interpreter options
 :quit           quit the interpreter
+:write [FILE]   write collected declarations and/or statements to standard output or to file
+                use :o Declarations and/or :o Statements to start collecting them
 `)
+}
+
+func (env *Env) showOptions(out io.Writer) {
 }
 
 func (env *Env) showPackage(out io.Writer, packageName string) {

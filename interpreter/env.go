@@ -127,7 +127,7 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 	}
 
 	trap := env.Options&OptTrapPanic != 0
-	duration := env.Options&OptShowEvalDuration != 0
+	duration := env.Options&OptShowTime != 0
 	if trap || duration {
 		var t1 time.Time
 		if duration {
@@ -160,21 +160,17 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 		args := strings.SplitN(src, " ", 2)
 		cmd := args[0]
 		switch {
-		case isPrefix(cmd, ":decl"):
-			env.Options ^= OptCollectDeclarations
-			fmt.Fprintf(env.Stdout, "// option CollectDeclarations set to %t\n", env.Options&OptCollectDeclarations != 0)
-			return true
-		case isPrefix(cmd, ":env"):
+		case startsWith(":env", cmd):
 			if len(args) <= 1 {
 				env.showPackage(env.Stdout, "")
 			} else {
 				env.showPackage(env.Stdout, args[1])
 			}
 			return true
-		case isPrefix(cmd, ":help"):
+		case startsWith(":help", cmd):
 			env.showHelp(env.Stdout)
 			return true
-		case isPrefix(cmd, ":inspect"):
+		case startsWith(":inspect", cmd):
 			if in == nil {
 				fmt.Fprint(env.Stdout, "// not connected to user input, cannot :inspect\n")
 			} else if len(args) == 1 {
@@ -183,21 +179,20 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 				env.Inspect(in, args[1])
 			}
 			return true
-		case isPrefix(cmd, ":stmt"):
-			env.Options ^= OptCollectStatements
-			fmt.Fprintf(env.Stdout, "// option CollectStatements set to %t\n", env.Options&OptCollectStatements != 0)
+		case startsWith(":options", cmd):
+			if len(args) > 1 {
+				env.Options ^= parseOptions(args[1])
+			}
+			fmt.Fprintf(env.Stdout, "// current options: %v\n", env.Options)
+			fmt.Fprintf(env.Stdout, "// unset   options: %v\n", ^env.Options)
 			return true
-		case isPrefix(cmd, ":trap"):
-			env.Options ^= OptTrapPanic
-			fmt.Fprintf(env.Stdout, "// option TrapPanic set to %t\n", env.Options&OptTrapPanic != 0)
-			return true
-		case isPrefix(cmd, ":quit"):
+		case startsWith(":quit", cmd):
 			return false
-		case isPrefix(cmd, ":write"):
+		case startsWith(":write", cmd):
 			if len(args) <= 1 {
-				env.writeDecls(env.Stdout, "")
+				env.writeDeclsToStream(env.Stdout)
 			} else {
-				env.writeDecls(nil, args[1])
+				env.writeDeclsToFile(args[1])
 			}
 			return true
 		}
@@ -209,7 +204,7 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 	value, values := env.EvalAst(ast)
 
 	// print phase
-	if env.Options&OptShowAfterEval != 0 {
+	if env.Options&OptShowEval != 0 {
 		if len(values) != 0 {
 			env.fprintValues(env.Stdout, values...)
 		} else if value != None {
@@ -219,16 +214,11 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 	return true
 }
 
-func isPrefix(prefix, str string) bool {
-	n := len(prefix)
-	return n <= len(str) && prefix == str[:n]
-}
-
 func (env *Env) ParseAst(src interface{}) Ast {
 	bytes := ReadBytes(src)
 	nodes := env.ParseBytes(bytes)
 
-	if env.Options&OptShowAfterParse != 0 {
+	if env.Options&OptShowParse != 0 {
 		env.debugf("after parse: %v", nodes)
 	}
 
@@ -245,7 +235,7 @@ func (env *Env) ParseAst(src interface{}) Ast {
 	// macroexpansion phase.
 	form, _ = env.MacroExpandAstCodewalk(form)
 
-	if env.Options&OptShowAfterMacroExpansion != 0 {
+	if env.Options&OptShowMacroExpand != 0 {
 		env.debugf("after macroexpansion: %v", form.Interface())
 	}
 	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
