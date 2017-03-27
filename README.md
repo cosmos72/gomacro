@@ -7,28 +7,29 @@ it is a fairly complete Go interpreter, implemented in pure Go,
 built on top of the go/ast and reflect packages.
 
 Gomacro can be used as:
-* a standalone executable with interactive Go REPL:
+* a standalone executable with interactive Go REPL:  
   just run `gomacro` from your command line or, better, `rlwrap gomacro`
   (rlwrap is a wrapper that adds history and line editing to terminal-based programs - available on many platforms)
-  Available options:
-    -e EXPRESSIONS: evaluate the expressions, then exit
-    -q: quiet. suppress startup message and prompt (default when executing a file)
+  Available options:  
+    -e EXPRESSIONS: evaluate the expressions, then exit  
+    -q: quiet. suppress startup message and prompt (default when executing a file)  
     -v: verbose. show the result of expressions and statements (default for interactive REPL and -e EXPRESSIONS)
 
 * a library that adds Eval() and scripting capabilities
   to your Go programs - provided you comply with its GPL license
 
-* a way to execute Go source code on-the-fly without a Go compiler:
+* a way to execute Go source code on-the-fly without a Go compiler:  
   you can either run `gomacro FILENAME.go` (works on every supported platform)
 
-  or you can insert a line `#!/usr/bin/env gomacro`
-  at the beginning of a Go source file, then mark the file as executable with
-  `chmod +x FILENAME.go` and finally execute it with `./FILENAME.go`
-  (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
+  or you can insert a line `#!/usr/bin/env gomacro` at the beginning of a Go source file,
+  then mark the file as executable with `chmod +x FILENAME.go` and finally execute it
+  with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
-* a Go code generation tool:
+* a Go code generation tool:  
   run `gomacro -w FILENAME.gomacro` to parse and execute the file. It will create FILENAME.go
-  with the parsed and macroexpanded imports, declarations and statements
+  with the parsed and macroexpanded imports, declarations and statements.
+
+  To parse and execute all files in the current directory, run `gomacro -w .`
 
 ## Current Status
 
