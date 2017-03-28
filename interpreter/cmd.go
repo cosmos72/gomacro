@@ -190,7 +190,8 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 	}
 	for _, file := range files {
 		filename := file.Name()
-		if endsWith(filename, ".gomacro") {
+		if !file.IsDir() && endsWith(filename, ".gomacro") {
+			filename = fmt.Sprintf("%s%c%s", dirname, os.PathSeparator, filename)
 			err := cmd.EvalFile(filename)
 			if err != nil {
 				return err
@@ -220,12 +221,13 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 	if cmd.WriteDeclsAndStmtsToFile {
 		outname := filename
 		if dot := strings.LastIndexByte(outname, '.'); dot >= 0 {
-			outname = outname[0:dot]
+			// sanity check: dot must be in the file name, NOT in its path
+			if slash := strings.LastIndexByte(outname, os.PathSeparator); slash < dot {
+				outname = outname[0:dot]
+			}
 		}
 		outname += ".go"
-		if cmd.OverwriteFiles {
-			os.Remove(outname)
-		} else {
+		if !cmd.OverwriteFiles {
 			_, err := os.Stat(outname)
 			if err == nil {
 				env.warnf("file exists already, use -f to force overwriting: %v", outname)

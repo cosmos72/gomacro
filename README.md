@@ -25,7 +25,7 @@ Gomacro can be used as:
   then mark the file as executable with `chmod +x FILENAME.go` and finally execute it
   with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
-* a Go code generation tool:  
+* a Go code generation tool (BETA):  
   run `gomacro -w FILENAMES` to parse and execute one or more files.
   For each filename on the command line, gomacro will parse and execute it,
   then create a corresponding FILENAME.go with the parsed and macroexpanded
