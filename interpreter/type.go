@@ -54,7 +54,7 @@ func (env *Env) evalExpr1OrType(node ast.Expr) (val r.Value, t r.Type) {
 
 // evalType evaluates a type
 func (env *Env) evalType(node ast.Expr) r.Type {
-	t, _ := env.evalTypeEllipsis(node, false)
+	t, _ := env.evalType2(node, false)
 	return t
 }
 
@@ -75,11 +75,15 @@ func (env *Env) evalTypeOrNil(node ast.Expr) r.Type {
 		}
 		break
 	}
-	t, _ := env.evalTypeEllipsis(node, false)
+	t, _ := env.evalType2(node, false)
 	return t
 }
 
-func (env *Env) evalTypeEllipsis(node ast.Expr, allowEllipsis bool) (t r.Type, ellipsis bool) {
+// evalType0 evaluates a type expression.
+// if allowEllipsis is true, it supports the special case &ast.Ellipsis{/*expression*/}
+// that represents ellipsis in the last argument of a function declaration.
+// The second return value is true both in the case above, and for array types whose length is [...]
+func (env *Env) evalType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellipsis bool) {
 	stars := 0
 	for {
 		switch expr := node.(type) {
@@ -102,7 +106,11 @@ func (env *Env) evalTypeEllipsis(node ast.Expr, allowEllipsis bool) (t r.Type, e
 
 	switch node := node.(type) {
 	case *ast.ArrayType: // also for slices
-		t = env.evalTypeArray(node)
+		var ellipsis2 bool
+		t, ellipsis2 = env.evalTypeArray(node)
+		if !ellipsis {
+			ellipsis = ellipsis2
+		}
 	case *ast.ChanType:
 		t = env.evalType(node.Value)
 		dir := r.BothDir
@@ -153,25 +161,26 @@ func (env *Env) evalTypeEllipsis(node ast.Expr, allowEllipsis bool) (t r.Type, e
 	for i := 0; i < stars; i++ {
 		t = r.PtrTo(t)
 	}
-	if ellipsis {
+	if allowEllipsis && ellipsis {
 		t = r.SliceOf(t)
 	}
 	return t, ellipsis
 }
 
-func (env *Env) evalTypeArray(node *ast.ArrayType) r.Type {
-	t := env.evalType(node.Elt)
+func (env *Env) evalTypeArray(node *ast.ArrayType) (t r.Type, ellipsis bool) {
+	t = env.evalType(node.Elt)
 	n := node.Len
 	switch n := n.(type) {
 	case *ast.Ellipsis:
-		env.errorf("evalType(): unimplemented array type with ellipsis: %v", node, r.TypeOf(node))
+		t = r.SliceOf(t)
+		ellipsis = true
 	case nil:
 		t = r.SliceOf(t)
 	default:
 		count := env.evalExpr1(n).Int()
 		t = r.ArrayOf(int(count), t)
 	}
-	return t
+	return t, ellipsis
 }
 
 func (env *Env) evalTypeFunction(node *ast.FuncType) (t r.Type, argNames []string, resultNames []string) {
@@ -195,7 +204,7 @@ func (env *Env) evalTypeFieldsOrParams(fields *ast.FieldList, allowEllipsis bool
 	n := len(list)
 	var t r.Type
 	for i, f := range list {
-		t, ellipsis = env.evalTypeEllipsis(f.Type, i == n-1)
+		t, ellipsis = env.evalType2(f.Type, i == n-1)
 		if len(f.Names) == 0 {
 			types = append(types, t)
 			names = append(names, "_")

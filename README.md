@@ -66,7 +66,6 @@ Several things are still missing:
 * methods definition
 * labeled statements, goto
 * named return values
-* ellipsis in array literal
 * history/readline (rlwrap does the job in most cases)
 
 ## Why it was created

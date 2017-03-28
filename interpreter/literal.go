@@ -106,7 +106,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 }
 
 func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value) {
-	t := env.evalType(node.Type)
+	t, ellipsis := env.evalType2(node.Type, false)
 	obj := Nil
 	switch t.Kind() {
 	case r.Map:
@@ -146,12 +146,23 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 				idx++
 				val = env.valueToType(env.evalExpr1(elt), vt)
 			}
-			if zero != Nil { // is slice
+			if zero != Nil { // is slice, or array with unknown size [...]T{}
 				for obj.Len() <= idx {
 					obj = r.Append(obj, zero)
 				}
 			}
 			obj.Index(idx).Set(val)
+		}
+		if ellipsis {
+			// we can finally compute the actual array length...
+			// too bad we have to copy the elements
+			n := obj.Len()
+			t = r.ArrayOf(n, vt)
+			array := r.New(t).Elem()
+			for i := 0; i < n; i++ {
+				array.Index(i).Set(obj.Index(i))
+			}
+			obj = array
 		}
 	case r.Struct:
 		obj = r.New(t).Elem()
