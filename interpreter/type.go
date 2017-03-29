@@ -125,7 +125,7 @@ func (env *Env) evalType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellipsis
 	case *ast.Ident:
 		t = env.evalTypeIdentifier(node.Name)
 	case *ast.InterfaceType:
-		t, _ = env.evalTypeInterface(node)
+		t = env.evalTypeInterface(node)
 	case *ast.MapType:
 		kt := env.evalType(node.Key)
 		vt := env.evalType(node.Value)
@@ -230,41 +230,18 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 	return nil
 }
 
-func (env *Env) evalTypeInterface(node *ast.InterfaceType) (t r.Type, methodNames []string) {
-	if node.Methods != nil && len(node.Methods.List) != 0 {
-		env.errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
-		return nil, nil
-	}
-	return typeOfInterface, zeroStrings
-}
-
 func makeStructFields(pkgPath string, names []string, types []r.Type) []r.StructField {
 	// pkgIdentifier := sanitizeIdentifier(pkgPath)
 	fields := make([]r.StructField, len(names))
-	var offset, next uintptr
 	for i, name := range names {
-		t := types[i]
-		offset, next = alignStructField(next, t)
 		fields[i] = r.StructField{
 			Name:      toExportedName(name), // Go 1.8 reflect.StructOf() supports *only* exported fields
-			Type:      t,
+			Type:      types[i],
 			Tag:       "",
-			Offset:    offset,
-			Index:     []int{i},
 			Anonymous: false,
 		}
 	}
 	return fields
-}
-
-func alignStructField(offset uintptr, t r.Type) (uintptr, uintptr) {
-	align := uintptr(t.FieldAlign())
-	// fmt.Printf("alignStructField(offset = %d, type = <%v>) -> align = %d", offset, t, align)
-	if align > 0 {
-		offset = (offset + align - 1) / align * align
-	}
-	// fmt.Printf(", offset = %d, next = %d\n", offset, offset+t.Size())
-	return offset, offset + t.Size()
 }
 
 func toExportedName(name string) string {

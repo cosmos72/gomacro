@@ -104,7 +104,7 @@ func (ip *Inspector) Eval(cmd string) error {
 	switch {
 	case cmd == "?", startsWith("help", cmd):
 		ip.Help()
-	case startsWith(cmd, "quit"):
+	case startsWith("quit", cmd):
 		return errors.New("user quit")
 	case startsWith("top", cmd):
 		ip.Top()

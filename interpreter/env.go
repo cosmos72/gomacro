@@ -198,12 +198,15 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 		default:
 			switch cmd {
 			case ":const", ":func", ":import", ":type", ":var":
-				// temporarily disable collecting declarations and statements
-				opts := env.Options
-				env.Options &^= OptCollectDeclarations | OptCollectStatements
-				defer func() {
-					env.Options = opts
-				}()
+				// temporarily disable collection of declarations and statements
+				saveOpts := env.Options
+				collect := OptCollectDeclarations | OptCollectStatements
+				if saveOpts&collect != 0 {
+					env.Options &^= collect
+					defer func() {
+						env.Options = saveOpts
+					}()
+				}
 				src = src[1:]
 			}
 		}

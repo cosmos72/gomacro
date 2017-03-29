@@ -61,10 +61,17 @@ func (c *TestCase) run(t *testing.T, env *Env) {
 const sum_s = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
 const fib_s = "func fibonacci(n uint) uint { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
 
+var ti = r.StructOf([]r.StructField{
+	r.StructField{Name: "\u0080", Type: typeOfInterface},
+	r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()}},
+)
+var si = r.Zero(ti).Interface()
+
 var testcases = []TestCase{
 	TestCase{"1+1", "1+1", 2, nil},
 	TestCase{"int8+1", "int8(1)+1", int8(2), nil},
 	TestCase{"int8_overflow", "int8(64)+64", int8(-128), nil},
+	TestCase{"interface", "type Stringer interface { String() string }; var s Stringer", si, nil},
 	TestCase{"string", "\"foobar\"", "foobar", nil},
 	TestCase{"var", "var v uint32 = 99", uint32(99), nil},
 	TestCase{"pointer", "var p = 1.25; if *&p != p { p = -1 }; p", 1.25, nil},
