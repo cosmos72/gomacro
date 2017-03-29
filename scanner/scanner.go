@@ -767,7 +767,6 @@ scanAgain:
 			tok = mt.SPLICE
 		case s.specialChar:
 			// patch: support macro, quote and friends. s.specialChar is configurable, default is '~'
-			// interpret_only  specialChar
 			// quote           specialChar '
 			// quasiquote      specialChar `
 			// unquote         specialChar ,
@@ -788,8 +787,12 @@ scanAgain:
 					tok = mt.UNQUOTE
 				}
 			default:
-				tok = mt.INTERPRET_ONLY
+				tok = token.ILLEGAL
 			}
+			if tok != token.ILLEGAL {
+				break
+			}
+			fallthrough
 		default:
 			// next reports unexpected BOMs - don't repeat
 			if ch != bom {

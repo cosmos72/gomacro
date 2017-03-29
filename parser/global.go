@@ -34,7 +34,7 @@ type Parser struct {
 	parser
 }
 
-func (p *parser) Parse() (node []ast.Node, err error) {
+func (p *parser) Parse() (list []ast.Node, err error) {
 	if p.file == nil || p.pkgScope == nil {
 		panic("Parser.Parse(): parser is not initialized, call Parser.Init() first")
 	}
@@ -55,10 +55,9 @@ func (p *parser) Parse() (node []ast.Node, err error) {
 	topScope := p.topScope
 
 	var lastpos1, lastpos2 token.Pos
-	list := make([]ast.Node, 0)
+	list = make([]ast.Node, 0)
 	for p.tok != token.EOF && p.errors.Len() < 10 {
 		list = append(list, p.parseAny())
-
 		if p.pos == lastpos1 {
 			p.error(p.pos, fmt.Sprintf("skipping '%s' to continue", mt.String(p.tok)))
 			p.next()
@@ -72,18 +71,17 @@ func (p *parser) Parse() (node []ast.Node, err error) {
 
 	if p.errors.Len() > 0 {
 		p.errors.Sort()
-		err = p.errors.Err()
+		return list, p.errors.Err()
 	}
-	return list, err
+	return list, nil
 }
 
 func (p *parser) parseAny() ast.Node {
-	var node ast.Node
-
 	if p.tok == token.COMMENT {
 		// advance to the next non-comment token
 		p.next()
 	}
+	var node ast.Node
 	switch p.tok {
 	case token.PACKAGE:
 		node = p.parseFile()

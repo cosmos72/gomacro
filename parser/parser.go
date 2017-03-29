@@ -2229,7 +2229,7 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING, token.FUNC, token.LPAREN, // operands
 		token.LBRACK, token.STRUCT, token.MAP, token.CHAN, token.INTERFACE, // composite types
 		token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT, // unary operators
-		mt.INTERPRET_ONLY, mt.MACRO, mt.SPLICE, mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE: // patch: macro, quote and friends
+		mt.MACRO, mt.SPLICE, mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE: // patch: macro, quote and friends
 
 		s, _ = p.parseSimpleStmt(labelOk)
 		// because of the required look-ahead, labeled statements are

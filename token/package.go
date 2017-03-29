@@ -13,7 +13,6 @@ import (
 func init() {
 	imports.Packages["github.com/cosmos72/gomacro/token"] = imports.Package{
 		Binds: map[string]r.Value{
-			"INTERPRET_ONLY": r.ValueOf(INTERPRET_ONLY),
 			"IsKeyword":      r.ValueOf(IsKeyword),
 			"IsLiteral":      r.ValueOf(IsLiteral),
 			"IsMacroKeyword": r.ValueOf(IsMacroKeyword),

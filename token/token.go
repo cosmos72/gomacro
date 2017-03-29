@@ -12,13 +12,12 @@ import (
 )
 
 const (
-	MACRO base.Token = base.VAR + 101 + iota
-	INTERPRET_ONLY
-	SPLICE
+	MACRO base.Token = (base.VAR+127)&^127 + iota
 	QUOTE
 	QUASIQUOTE
 	UNQUOTE
 	UNQUOTE_SPLICE
+	SPLICE
 )
 
 var tokens map[base.Token]string
@@ -28,7 +27,6 @@ var keywords map[string]base.Token
 func init() {
 	tokens = map[base.Token]string{
 		MACRO:          "macro",
-		INTERPRET_ONLY: "interpret_only",
 		SPLICE:         "splice",
 		QUOTE:          "quote",
 		QUASIQUOTE:     "quasiquote",

@@ -103,11 +103,14 @@ func MakeQuote(p_or_nil *parser, op token.Token, pos token.Pos, node ast.Node) (
 		}
 	}
 	if body == nil {
+		var pos, end token.Pos
 		list := make([]ast.Stmt, 0)
 		if stmt != nil {
 			list = append(list, stmt)
+			pos = stmt.Pos()
+			end = stmt.End()
 		}
-		body = &ast.BlockStmt{Lbrace: stmt.Pos(), List: list, Rbrace: stmt.End()}
+		body = &ast.BlockStmt{Lbrace: pos, List: list, Rbrace: end}
 	}
 
 	// due to go/ast strictly typed model, there is only one mechanism

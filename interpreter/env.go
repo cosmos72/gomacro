@@ -195,6 +195,17 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 				env.writeDeclsToFile(args[1])
 			}
 			return true
+		default:
+			switch cmd {
+			case ":const", ":func", ":import", ":type", ":var":
+				// temporarily disable collecting declarations and statements
+				opts := env.Options
+				env.Options &^= OptCollectDeclarations | OptCollectStatements
+				defer func() {
+					env.Options = opts
+				}()
+				src = src[1:]
+			}
 		}
 	}
 	if src == "package" || startsWith(src, "package ") {

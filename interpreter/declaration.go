@@ -45,19 +45,25 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 	tok := node.Tok
 	var ret r.Value
 	var rets []r.Value
-	for _, decl := range node.Specs {
-		switch tok {
-		case token.IMPORT:
+	switch tok {
+	case token.IMPORT:
+		for _, decl := range node.Specs {
 			ret, rets = env.evalImport(decl)
-		case token.CONST:
-			ret, rets = env.evalDeclConsts(decl)
-		case token.TYPE:
-			return env.evalDeclType(decl)
-		case token.VAR:
-			ret, rets = env.evalDeclVars(decl)
-		default:
-			return env.errorf("unimplemented declaration: %v", decl)
 		}
+	case token.CONST:
+		for _, decl := range node.Specs {
+			ret, rets = env.evalDeclConsts(decl)
+		}
+	case token.TYPE:
+		for _, decl := range node.Specs {
+			return env.evalDeclType(decl)
+		}
+	case token.VAR:
+		for _, decl := range node.Specs {
+			ret, rets = env.evalDeclVars(decl)
+		}
+	default:
+		return env.errorf("unimplemented declaration: %v", node)
 	}
 	return ret, rets
 }
