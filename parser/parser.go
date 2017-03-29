@@ -39,10 +39,8 @@ type parser struct {
 	trace  bool // == (mode & Trace != 0)
 	indent int  // indentation used for tracing output
 
-	quasiquoteDepth int  // patch: relax keywords syntax quasiquotes
-	quote           bool // patch: relax keywords syntax inside quotes
-	SpecialChar     rune // patch: prefix for quote operators ' ` , ,@
-	Fileset         *token.FileSet
+	SpecialChar rune // patch: prefix for quote operators ' ` , ,@
+	Fileset     *token.FileSet
 
 	// Comments
 	comments    []*ast.CommentGroup
@@ -94,8 +92,6 @@ func (p *parser) Init(filename string, src []byte) {
 	if mode&ParseComments != 0 {
 		m = scanner.ScanComments
 	}
-	p.quasiquoteDepth = 0
-	p.quote = false
 	if p.SpecialChar == '\x00' {
 		p.SpecialChar = '~'
 	}

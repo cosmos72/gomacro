@@ -30,22 +30,6 @@ func (p *parser) parseQuote() ast.Expr {
 		defer un(trace(p, "Quote"))
 	}
 
-	saveDepth := p.quasiquoteDepth
-	saveQuote := p.quote
-
-	switch p.tok {
-	case mt.QUOTE:
-		p.quote = true
-	case mt.QUASIQUOTE:
-		p.quasiquoteDepth++
-	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
-		p.quasiquoteDepth--
-	}
-	defer func() {
-		p.quasiquoteDepth = saveDepth
-		p.quote = saveQuote
-	}()
-
 	op := p.tok
 	opPos := p.pos
 	opName := mt.String(op) // use the actual name QUOTE/QUASIQUOTE/UNQUOTE/UNQUOTE_SPLICE even if we found ~' ~` ~, ~,@
