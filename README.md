@@ -69,6 +69,18 @@ Several things are still missing:
 * named return values
 * history/readline (rlwrap does the job in most cases)
 
+Limitations:
+* no distinction between named and unnamed types created by interpreted code.
+  For the interpreter, `struct { A, B int }` and `type Pair struct { A, B int }`
+  are exactly the same type. This has subtle consequences, including the risk
+  that two different packages define the same type and overwrite each other's methods.
+  
+  The reason for such limitation is simple: the interpreter uses `reflect.StructOf()`
+  to define new types, which can only create unnamed types.
+  The interpreter then defines named types as aliases for the underlying unnamed types.
+
+  
+
 ## Why it was created
 
 First of all, to experiment with Go :)
