@@ -69,12 +69,6 @@ func (ir *InterpreterCommon) ObjMethodByName(obj r.Value, name string) r.Value {
 		// search for methods known to the intepreter
 		t := obj.Type()
 		if method, ok := ir.AllMethods[t][name]; ok {
-			if obj.Kind() != r.Ptr && obj.CanSet() {
-				// make a copy of obj, to reproduce pass-by-value semantics
-				dup := r.New(t).Elem()
-				dup.Set(obj)
-				obj = dup
-			}
 			// cumbersome... we must create a closure on-the-fly
 			val = r.MakeFunc(method.Type, func(args []r.Value) []r.Value {
 				return method.Value.Call(append([]r.Value{obj}, args...))
