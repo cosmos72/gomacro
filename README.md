@@ -40,11 +40,13 @@ Fairly complete.
 The intepreter supports:
 * multiline input
 * line comments starting with #! in addition to //
-* constant, variable, type and function definitions (including variadic functions)
 * primitive types: booleans, integers, floats, complex numbers
+* the empty interface, i.e. interface{} - other interfaces not implemented yet
+* constant, variable and type definitions
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
 * composite literals
-* the empty interface, i.e. interface{} - other interfaces not implemented yet
+* function definitions (including variadic functions)
+* method definitions (including variadic methods and methods with pointer receiver)
 * channel send and receive
 * function and method calls, including multiple return values
 * if, for, for-range, break, continue, return (unimplemented: goto)
@@ -63,7 +65,6 @@ The intepreter supports:
 Several things are still missing:
 * the keyword "go"
 * interfaces definition
-* methods definition
 * labeled statements, goto
 * named return values
 * history/readline (rlwrap does the job in most cases)
