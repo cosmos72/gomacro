@@ -53,7 +53,10 @@ type InterpreterCommon struct {
 func NewInterpreterCommon() *InterpreterCommon {
 	return &InterpreterCommon{
 		output: output{
-			fileSet: fileSet{token.NewFileSet()},
+			stringer: stringer{
+				Fileset:    token.NewFileSet(),
+				NamedTypes: make(map[r.Type]string),
+			},
 			// using both os.Stdout and os.Stderr can interleave impredictably
 			// normal output and diagnostic messages - ugly in interactive use
 			Stdout: os.Stdout,

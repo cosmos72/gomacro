@@ -37,24 +37,25 @@ import (
 	. "github.com/cosmos72/gomacro/ast2"
 )
 
-type fileSet struct {
-	Fileset *token.FileSet
+type stringer struct {
+	Fileset    *token.FileSet
+	NamedTypes map[r.Type]string
 }
 
 type output struct {
-	fileSet
+	stringer
 	Stdout io.Writer
 	Stderr io.Writer
 }
 
 type runtimeError struct {
-	fileSet
+	st     *stringer
 	format string
 	args   []interface{}
 }
 
 func (err runtimeError) Error() string {
-	return fmt.Sprintf(err.format, err.toPrintables(err.args)...)
+	return fmt.Sprintf(err.format, err.st.toPrintables(err.args)...)
 }
 
 func error_(err error) interface{} {
@@ -62,15 +63,15 @@ func error_(err error) interface{} {
 }
 
 func errorf(format string, args ...interface{}) {
-	panic(runtimeError{fileSet{nil}, format, args})
+	panic(runtimeError{nil, format, args})
 }
 
-func (f fileSet) errorf(format string, args ...interface{}) (r.Value, []r.Value) {
-	panic(runtimeError{f, format, args})
+func (st *stringer) errorf(format string, args ...interface{}) (r.Value, []r.Value) {
+	panic(runtimeError{st, format, args})
 }
 
-func (f fileSet) packErrorf(format string, args ...interface{}) []r.Value {
-	panic(runtimeError{f, format, args})
+func (st *stringer) packErrorf(format string, args ...interface{}) []r.Value {
+	panic(runtimeError{st, format, args})
 }
 
 func (o *output) warnf(format string, args ...interface{}) {
@@ -100,19 +101,18 @@ func (env *Env) showStack() {
 	}
 }
 
-func (f fileSet) fprintValues(out io.Writer, values ...r.Value) {
+func (st *stringer) fprintValues(out io.Writer, values ...r.Value) {
 	if len(values) == 0 {
 		fmt.Fprint(out, "// no value\n")
 		return
 	}
 	for _, v := range values {
-		f.fprintValue(out, v)
+		st.fprintValue(out, v)
 	}
 }
 
-func (f fileSet) fprintValue(out io.Writer, v r.Value) {
-	var vi interface{}
-	var vt r.Type
+func (st *stringer) fprintValue(out io.Writer, v r.Value) {
+	var vi, vt interface{}
 	if v == None {
 		fmt.Fprint(out, "// no value\n")
 		return
@@ -123,11 +123,12 @@ func (f fileSet) fprintValue(out io.Writer, v r.Value) {
 		vi = v.Interface()
 		vt = v.Type()
 	}
-	vi = f.toPrintable(vi)
+	vi = st.toPrintable(vi)
 	if vi == nil && vt == nil {
 		fmt.Fprint(out, "<nil>\n")
 		return
 	}
+	vt = st.toPrintable(vt)
 	switch vi := vi.(type) {
 	case uint, uint8, uint32, uint64, uintptr:
 		fmt.Fprintf(out, "%d <%v>\n", vi, vt)
@@ -140,21 +141,21 @@ func (f fileSet) fprintValue(out io.Writer, v r.Value) {
 	}
 }
 
-func (f fileSet) fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
-	values = f.toPrintables(values)
+func (st *stringer) fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
+	values = st.toPrintables(values)
 	return fmt.Fprintf(out, format, values...)
 }
 
-func (f fileSet) sprintf(format string, values ...interface{}) string {
-	values = f.toPrintables(values)
+func (st *stringer) sprintf(format string, values ...interface{}) string {
+	values = st.toPrintables(values)
 	return fmt.Sprintf(format, values...)
 }
 
-func (f fileSet) toString(separator string, values ...interface{}) string {
+func (st *stringer) toString(separator string, values ...interface{}) string {
 	if len(values) == 0 {
 		return ""
 	}
-	values = f.toPrintables(values)
+	values = st.toPrintables(values)
 	var buf bytes.Buffer
 	for i, value := range values {
 		if i != 0 {
@@ -165,14 +166,14 @@ func (f fileSet) toString(separator string, values ...interface{}) string {
 	return buf.String()
 }
 
-func (f fileSet) toPrintables(values []interface{}) []interface{} {
+func (st *stringer) toPrintables(values []interface{}) []interface{} {
 	for i, vi := range values {
-		values[i] = f.toPrintable(vi)
+		values[i] = st.toPrintable(vi)
 	}
 	return values
 }
 
-func (f fileSet) toPrintable(value interface{}) (ret interface{}) {
+func (st *stringer) toPrintable(value interface{}) (ret interface{}) {
 	if value == nil {
 		return nil
 	}
@@ -182,7 +183,7 @@ func (f fileSet) toPrintable(value interface{}) (ret interface{}) {
 		}
 	}()
 	if v, ok := value.(r.Value); ok {
-		return f.valueToPrintable(v)
+		return st.valueToPrintable(v)
 	}
 	v := r.ValueOf(value)
 	k := v.Kind()
@@ -190,39 +191,55 @@ func (f fileSet) toPrintable(value interface{}) (ret interface{}) {
 		n := v.Len()
 		values := make([]interface{}, n)
 		for i := 0; i < n; i++ {
-			values[i] = f.toPrintable(v.Index(i))
+			values[i] = st.toPrintable(v.Index(i))
 		}
 		return values
 	}
 	switch v := value.(type) {
 	case AstWithNode:
-		return f.nodeToPrintable(v.Node())
+		return st.nodeToPrintable(v.Node())
 	case Ast:
-		return f.toPrintable(v.Interface())
+		return st.toPrintable(v.Interface())
 	case ast.Node:
-		return f.nodeToPrintable(v)
+		return st.nodeToPrintable(v)
+	case r.Type:
+		return st.typeToPrintable(v)
 	}
 	return value
 }
 
-func (f fileSet) valueToPrintable(value r.Value) interface{} {
+func (st *stringer) valueToPrintable(value r.Value) interface{} {
 	if value == None {
 		return "/*no value*/"
 	} else if value == Nil {
 		return nil
 	} else {
-		return f.toPrintable(value.Interface())
+		return st.toPrintable(value.Interface())
 	}
+}
+
+func (st *stringer) typeToPrintable(t r.Type) interface{} {
+	if t == nil {
+		return nil
+	}
+	if st != nil {
+		if name, ok := st.NamedTypes[t]; ok {
+			return name
+		}
+	}
+	return t
 }
 
 var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
 
-func (f fileSet) nodeToPrintable(node ast.Node) interface{} {
+func (st *stringer) nodeToPrintable(node ast.Node) interface{} {
 	if node == nil {
 		return nil
 	}
-
-	fset := f.Fileset
+	var fset *token.FileSet
+	if st != nil {
+		fset = st.Fileset
+	}
 	if fset == nil {
 		fset = token.NewFileSet()
 	}
@@ -234,7 +251,7 @@ func (f fileSet) nodeToPrintable(node ast.Node) interface{} {
 	return buf.String()
 }
 
-func (f fileSet) showHelp(out io.Writer) {
+func (st *stringer) showHelp(out io.Writer) {
 	fmt.Fprint(out, `// interpreter commands:
 :env [name]     show available functions, variables and constants
                 in current package, or from imported package "name"

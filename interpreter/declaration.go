@@ -25,6 +25,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
@@ -88,7 +89,10 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 			env.Types = make(map[string]r.Type)
 		}
 		env.Types[name] = t
-		return r.ValueOf(&t).Elem(), nil // always return a reflect.Type
+		if _, ok := env.NamedTypes[t]; !ok {
+			env.NamedTypes[t] = fmt.Sprintf("%s.%s", env.Packagename, name)
+		}
+		return r.ValueOf(&t).Elem(), nil // return a reflect.Type, not the concrete type
 
 	default:
 		return env.errorf("unexpected type declaration: expecting *ast.TypeSpec, found: %v <%v>", node, r.TypeOf(node))
