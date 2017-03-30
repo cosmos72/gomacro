@@ -33,15 +33,6 @@ import (
 	"github.com/cosmos72/gomacro/imports"
 )
 
-type Env struct {
-	*InterpreterCommon
-	imports.Package
-	Outer      *Env
-	CallStack  *CallStack
-	iotaOffset int
-	Name, Path string
-}
-
 type CallStack struct {
 	Frames []CallFrame
 }
@@ -75,6 +66,29 @@ type PackageRef struct {
 	imports.Package
 	Name, Path string
 }
+
+type TypedValue struct {
+	Type  r.Type
+	Value r.Value
+}
+
+/**
+ * inside Methods, each string is the method name
+ * and each TypedValue is {
+ *   Type: the method signature, i.e. the type of a func() *without* the receiver (to allow comparison with Interface methods)
+ *   Value: the method implementation, i.e. a func() whose first argument is the receiver,
+ * }
+ */
+type Methods map[string]TypedValue
+
+/**
+ * Interface is the interpreted version of Golang interface values.
+ * Each Interface contains {
+ *   Type:  the interface type. returned by Env.evalInterface(), i.e. the type of a struct {  interface{}; functions... }
+ *   Value: the datum implementing the interface. Value.Type() must be its concrete type, i.e. == r.TypeOf(Value.Interface())
+ * }
+ */
+type Interface TypedValue
 
 type Options uint
 type whichMacroExpand uint
@@ -176,5 +190,3 @@ var valueOfFalse = r.ValueOf(false)
 var valueOfTrue = r.ValueOf(true)
 
 var zeroStrings = []string{}
-
-const temporaryFunctionName = "gorepl_temporary_function"

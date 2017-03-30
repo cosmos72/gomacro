@@ -36,6 +36,15 @@ import (
 	"github.com/cosmos72/gomacro/imports"
 )
 
+type Env struct {
+	*InterpreterCommon
+	imports.Package
+	Outer      *Env
+	CallStack  *CallStack
+	iotaOffset int
+	Name, Path string
+}
+
 func New() *Env {
 	top := NewEnv(nil, "builtin")
 	return NewEnv(top, "main")

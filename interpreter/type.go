@@ -184,24 +184,46 @@ func (env *Env) evalTypeArray(node *ast.ArrayType) (t r.Type, ellipsis bool) {
 }
 
 func (env *Env) evalTypeFunction(node *ast.FuncType) (t r.Type, argNames []string, resultNames []string) {
-	argTypes, argNames, variadic := env.evalTypeFieldsOrParams(node.Params, true)
+	tFunc, _, argNames, resultNames := env.evalTypeFunctionOrMethod(nil, node)
+	return tFunc, argNames, resultNames
+}
+
+func (env *Env) evalTypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (tFunc r.Type, tFuncOrMethod r.Type, argNames []string, resultNames []string) {
+	argTypes, argNames, variadic := env.evalTypeFieldOrParamList(node.Params, true)
 	resultTypes, resultNames := env.evalTypeFields(node.Results)
-	return r.FuncOf(argTypes, resultTypes, variadic), argNames, resultNames
+	tFunc = r.FuncOf(argTypes, resultTypes, variadic)
+
+	if recv != nil {
+		recvTypes, recvNames, _ := env.evalTypeFieldsOrParams([]*ast.Field{recv}, false)
+		argTypes = append(recvTypes, argTypes...)
+		argNames = append(recvNames, argNames...)
+		tFuncOrMethod = r.FuncOf(argTypes, resultTypes, variadic)
+	} else {
+		tFuncOrMethod = tFunc
+	}
+	return tFunc, tFuncOrMethod, argNames, resultNames
 }
 
 func (env *Env) evalTypeFields(fields *ast.FieldList) (types []r.Type, names []string) {
-	types, names, _ = env.evalTypeFieldsOrParams(fields, false)
+	types, names, _ = env.evalTypeFieldOrParamList(fields, false)
 	return types, names
 }
 
-func (env *Env) evalTypeFieldsOrParams(fields *ast.FieldList, allowEllipsis bool) (types []r.Type, names []string, ellipsis bool) {
+func (env *Env) evalTypeFieldOrParamList(fields *ast.FieldList, allowEllipsis bool) (types []r.Type, names []string, ellipsis bool) {
+	var list []*ast.Field
+	if fields != nil {
+		list = fields.List
+	}
+	return env.evalTypeFieldsOrParams(list, allowEllipsis)
+}
+
+func (env *Env) evalTypeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (types []r.Type, names []string, ellipsis bool) {
 	types = make([]r.Type, 0)
 	names = zeroStrings
-	if fields == nil || len(fields.List) == 0 {
+	n := len(list)
+	if n == 0 {
 		return types, names, ellipsis
 	}
-	list := fields.List
-	n := len(list)
 	var t r.Type
 	for i, f := range list {
 		t, ellipsis = env.evalType2(f.Type, i == n-1)

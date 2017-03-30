@@ -195,11 +195,3 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 	}
 	return obj, nil
 }
-
-// lambda()
-func (env *Env) evalFunctionLiteral(node *ast.FuncLit) (r.Value, []r.Value) {
-	// env.Debugf("func() at position %v", node.Type.Func)
-
-	ret, _ := env.evalDeclFunction(nil, node.Type, node.Body)
-	return ret, nil
-}

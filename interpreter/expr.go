@@ -132,7 +132,7 @@ func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 			return env.evalCompositeLiteral(node)
 
 		case *ast.FuncLit:
-			return env.evalFunctionLiteral(node)
+			return env.evalDeclFunction(nil, node.Type, node.Body)
 
 		case *ast.Ident:
 			return env.evalIdentifier(node), nil
@@ -251,6 +251,7 @@ func (env *Env) mapIndex(obj r.Value, key r.Value) (r.Value, bool, r.Type) {
 func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 	obj := env.evalExpr1(node.X)
 	name := node.Sel.Name
+	var val r.Value
 
 	switch obj.Kind() {
 	case r.Ptr:
@@ -262,39 +263,49 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 			return env.errorf("package %v %#v has no symbol %s", pkg.Name, pkg.Path, name)
 		}
 		elem := obj.Elem()
-		val := Nil
 		if elem.Kind() == r.Struct {
-			val = elem.FieldByName(name)
-		}
-		if val == Nil {
-			// search for methods with pointer receiver first
-			val = obj.MethodByName(name)
-			if val == Nil {
-				val = elem.MethodByName(name)
+			if val = elem.FieldByName(name); val != Nil {
+				break
 			}
 		}
-		if val == Nil {
-			return env.errorf("pointer to struct <%v> has no field or method %s", typeOf(elem), name)
+		// search for methods with pointer receiver first
+		if val = env.ObjMethodByName(obj, name); val != Nil {
+			break
 		}
-		return val, nil
-	case r.Struct:
-		val := obj.FieldByName(name)
-		if val == Nil {
-			val = obj.MethodByName(name)
+		if val = env.ObjMethodByName(elem, name); val != Nil {
+			break
 		}
-		if val == Nil {
-			return env.errorf("struct <%v> has no field or method %s", typeOf(obj), name)
-		}
-		return val, nil
+		return env.errorf("pointer to struct <%v> has no field or method %s", typeOf(obj), name)
+
 	case r.Interface:
 		val := obj.MethodByName(name)
-		if val == Nil {
-			return env.errorf("interface <%v> has no method %s", typeOf(obj), name)
+		if val != Nil {
+			break
 		}
-		return val, nil
+		return env.errorf("interface <%v> has no method %s", typeOf(obj), name)
+
+	case r.Struct:
+		if val = obj.FieldByName(name); val != Nil {
+			break
+		}
+		fallthrough
 	default:
-		return env.errorf("not a struct: <%v> has no field or method %s", typeOf(obj), name)
+		// search for methods with pointer receiver first
+		if obj.CanAddr() {
+			if val = env.ObjMethodByName(obj.Addr(), name); val != Nil {
+				break
+			}
+		}
+		if val = env.ObjMethodByName(obj, name); val != Nil {
+			break
+		}
+		if obj.Kind() == r.Struct {
+			return env.errorf("struct <%v> has no field or method %s", typeOf(obj), name)
+		} else {
+			return env.errorf("value <%v> has no method %s", typeOf(obj), name)
+		}
 	}
+	return val, nil
 }
 
 func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr, panicOnFail bool) (r.Value, []r.Value) {

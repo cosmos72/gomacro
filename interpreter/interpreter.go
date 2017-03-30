@@ -30,6 +30,7 @@ import (
 	"go/token"
 	"io"
 	"os"
+	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
 	mp "github.com/cosmos72/gomacro/parser"
@@ -38,6 +39,7 @@ import (
 type InterpreterCommon struct {
 	output
 	Options      Options
+	AllMethods   map[r.Type]Methods // methods implemented by interpreted code
 	Importer     Importer
 	Packagename  string
 	Filename     string
@@ -58,6 +60,7 @@ func NewInterpreterCommon() *InterpreterCommon {
 			Stderr: os.Stdout,
 		},
 		Options:     OptTrapPanic, // set by default
+		AllMethods:  make(map[r.Type]Methods),
 		Importer:    DefaultImporter(),
 		Packagename: "main",
 		Filename:    "main.go",

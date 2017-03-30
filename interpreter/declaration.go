@@ -35,7 +35,7 @@ func (env *Env) evalDecl(node ast.Decl) (r.Value, []r.Value) {
 	case *ast.GenDecl:
 		return env.evalDeclGen(node)
 	case *ast.FuncDecl:
-		return env.evalDeclNamedFunction(node)
+		return env.evalDeclFunction(node, node.Type, node.Body)
 	default:
 		return env.errorf("unimplemented declaration: %v", node)
 	}
