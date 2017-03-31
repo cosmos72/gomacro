@@ -41,12 +41,11 @@ func endsWith(str, suffix string) bool {
 
 func unescapeChar(str string) rune {
 	// fmt.Printf("debug unescapeChar(): parsing CHAR %#v", str)
-	rs := []rune(str)
-	n := len(rs)
-	if n >= 2 && rs[0] == '\'' && rs[n-1] == '\'' {
-		rs = rs[1 : n-1]
+	n := len(str)
+	if n >= 2 && str[0] == '\'' && str[n-1] == '\'' {
+		str = str[1 : n-1]
 	}
-	ret, _, _, err := strconv.UnquoteChar(string(rs), '\'')
+	ret, _, _, err := strconv.UnquoteChar(str, '\'')
 	if err != nil {
 		error_(err)
 	}

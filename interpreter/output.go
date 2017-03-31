@@ -79,6 +79,11 @@ func (o *output) warnf(format string, args ...interface{}) {
 	fmt.Fprintf(o.Stderr, "warning: %s\n", str)
 }
 
+func (o *output) warnExtraValues(extraValues []r.Value) {
+	o.warnf("expression returned %d values, using only the first one: %v",
+		len(extraValues), extraValues)
+}
+
 func (o *output) debugf(format string, args ...interface{}) {
 	str := o.sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)

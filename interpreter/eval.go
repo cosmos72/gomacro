@@ -83,8 +83,7 @@ func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 func (env *Env) Eval1(node ast.Node) r.Value {
 	value, extraValues := env.Eval(node)
 	if len(extraValues) > 1 {
-		env.warnf("expression returned %d values, using only the first one: %v returned %v",
-			len(extraValues), node, extraValues)
+		env.warnExtraValues(extraValues)
 	}
 	return value
 }
