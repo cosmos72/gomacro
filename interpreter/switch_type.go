@@ -92,7 +92,7 @@ func (env *Env) mustBeTypeSwitchAssert(s ast.Stmt, x ast.Expr) (*ast.Ident, ast.
 }
 
 func (env *Env) badTypeSwitchStatement(s ast.Stmt) (*ast.Ident, ast.Expr) {
-	env.errorf("invalid type switch expression, expecting x.(type) or v := x.(type), found: %v <%v>",
+	env.Errorf("invalid type switch expression, expecting x.(type) or v := x.(type), found: %v <%v>",
 		s, r.TypeOf(s))
 	return nil, nil
 }
@@ -133,7 +133,7 @@ func (env *Env) evalTypecaseBody(varname *ast.Ident, t r.Type, val r.Value, case
 	}
 	env = NewEnv(env, label)
 	if varname != nil {
-		env.defineVar(varname.Name, t, val)
+		env.DefineVar(varname.Name, t, val)
 	}
 	ret, rets = env.evalStatements(case_.Body)
 	panicking = false

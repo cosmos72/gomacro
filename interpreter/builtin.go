@@ -36,7 +36,7 @@ import (
 func funcAppend(env *Env, args []r.Value) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 {
-		return env.errorf("builtin append() expects at least one argument, found %d", n)
+		return env.Errorf("builtin append() expects at least one argument, found %d", n)
 	}
 	return r.Append(args[0], args[1:]...), nil
 }
@@ -54,10 +54,10 @@ func funcComplex(env *Env, args []r.Value) (r.Value, []r.Value) {
 	r_, rok := env.toFloat(rv)
 	i_, iok := env.toFloat(iv)
 	if !rok {
-		return env.errorf("builtin complex(): not a float: %v <%v>", rv, typeOf(rv))
+		return env.Errorf("builtin complex(): not a float: %v <%v>", rv, typeOf(rv))
 	}
 	if !iok {
-		return env.errorf("builtin complex(): not a float: %v <%v>", iv, typeOf(iv))
+		return env.Errorf("builtin complex(): not a float: %v <%v>", iv, typeOf(iv))
 	}
 	cplx := complex(r_, i_)
 	var ret interface{}
@@ -91,7 +91,7 @@ func funcImag(env *Env, args []r.Value) (r.Value, []r.Value) {
 	cv := args[0]
 	c_, ok := env.toComplex(cv)
 	if !ok {
-		return env.errorf("builtin imag(): not a complex: %v <%v>", cv, typeOf(cv))
+		return env.Errorf("builtin imag(): not a complex: %v <%v>", cv, typeOf(cv))
 	}
 	i_ := imag(c_)
 	var ret interface{}
@@ -126,7 +126,7 @@ func funcMacroExpandCodewalk(env *Env, args []r.Value) (r.Value, []r.Value) {
 func callMacroExpand(env *Env, args []r.Value, which whichMacroExpand) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 2 {
-		return env.errorf("builtin %v() expects one or two arguments, found %d: %v", which, n, args)
+		return env.Errorf("builtin %v() expects one or two arguments, found %d: %v", which, n, args)
 	}
 	val := args[0]
 	if val == Nil || val == None {
@@ -155,7 +155,7 @@ func callMacroExpand(env *Env, args []r.Value, which whichMacroExpand) (r.Value,
 func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 3 {
-		return env.errorf("builtin make() expects one, two or three arguments, found %d", n)
+		return env.Errorf("builtin make() expects one, two or three arguments, found %d", n)
 	}
 	t := env.evalType(args[0])
 	values := env.evalExprs(args[1:])
@@ -208,12 +208,12 @@ func callPanic(arg interface{}) {
 func funcReal(env *Env, args []r.Value) (r.Value, []r.Value) {
 	n := len(args)
 	if n != 1 {
-		return env.errorf("builtin real() expects exactly one argument, found %d", n)
+		return env.Errorf("builtin real() expects exactly one argument, found %d", n)
 	}
 	cv := args[0]
 	c_, ok := env.toComplex(cv)
 	if !ok {
-		return env.errorf("builtin real(): not a complex: %v <%v>", cv, typeOf(cv))
+		return env.Errorf("builtin real(): not a complex: %v <%v>", cv, typeOf(cv))
 	}
 	i_ := real(c_)
 	var ret interface{}
@@ -257,18 +257,18 @@ func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 	trace := env.Options&OptDebugPanicRecover != 0
 	caller := env.CallerFrame()
 	if trace {
-		env.debugf("recover(): env = %v, stack is:", env.Name)
+		env.Debugf("recover(): env = %v, stack is:", env.Name)
 		env.showStack()
 		curr := env.CurrentFrame()
 		if curr != nil {
-			env.debugf("           frame = %v, runningDefers = %v", curr.FuncEnv.Name, curr.runningDefers)
+			env.Debugf("           frame = %v, runningDefers = %v", curr.FuncEnv.Name, curr.runningDefers)
 		} else {
-			env.debugf("           frame = nil")
+			env.Debugf("           frame = nil")
 		}
 		if caller != nil {
-			env.debugf("           caller = %v, runningDefers = %v", caller.FuncEnv.Name, caller.runningDefers)
+			env.Debugf("           caller = %v, runningDefers = %v", caller.FuncEnv.Name, caller.runningDefers)
 		} else {
-			env.debugf("           caller = nil")
+			env.Debugf("           caller = nil")
 		}
 	}
 
@@ -276,13 +276,13 @@ func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 		if caller.runningDefers && caller.panicking {
 			// consume current panic
 			if trace {
-				env.debugf("           consuming current panic = %#v", caller.panick)
+				env.Debugf("           consuming current panic = %#v", caller.panick)
 			}
 			ret = r.ValueOf(caller.panick)
 			caller.panick = nil
 			caller.panicking = false
 		} else if trace {
-			env.debugf("           no panic to consume: caller.runningDefers = %q, caller.panicking = %q",
+			env.Debugf("           no panic to consume: caller.runningDefers = %q, caller.panicking = %q",
 				caller.runningDefers, caller.panicking)
 		}
 	}
@@ -300,7 +300,7 @@ func funcValues(env *Env, args []r.Value) (r.Value, []r.Value) {
 			args[i] = r.ValueOf(arg.Interface())
 		}
 	}
-	return unpackValues(args)
+	return UnpackValues(args)
 }
 
 func (env *Env) addBuiltins() {

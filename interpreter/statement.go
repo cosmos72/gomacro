@@ -82,7 +82,7 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 	case *ast.BranchStmt:
 		return env.evalBranch(node)
 	case *ast.CaseClause, *ast.CommClause:
-		return env.errorf("misplaced case: not inside switch or select: %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("misplaced case: not inside switch or select: %v <%v>", node, r.TypeOf(node))
 	case *ast.DeclStmt:
 		return env.evalDecl(node.Decl)
 	case *ast.DeferStmt:
@@ -110,7 +110,7 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 	case *ast.TypeSwitchStmt:
 		return env.evalTypeSwitch(node)
 	default: // TODO:  *ast.GoStmt, *ast.LabeledStmt
-		return env.errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -125,11 +125,11 @@ func (env *Env) evalBranch(node *ast.BranchStmt) (r.Value, []r.Value) {
 	case token.CONTINUE:
 		panic(eContinue{label})
 	case token.GOTO:
-		return env.errorf("unimplemented: goto")
+		return env.Errorf("unimplemented: goto")
 	case token.FALLTHROUGH:
-		return env.errorf("invalid fallthrough: not the last statement in a case")
+		return env.Errorf("invalid fallthrough: not the last statement in a case")
 	default:
-		return env.errorf("unimplemented branch: %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unimplemented branch: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -141,7 +141,7 @@ func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 	cond, _ := env.Eval(node.Cond)
 	if cond.Kind() != r.Bool {
 		cf := cond.Interface()
-		return env.errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
+		return env.Errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
 	}
 	if cond.Bool() {
 		return env.evalBlock(node.Body)
@@ -160,7 +160,7 @@ func (env *Env) evalIncDec(node *ast.IncDecStmt) (r.Value, []r.Value) {
 	case token.DEC:
 		op = token.SUB_ASSIGN
 	default:
-		return env.errorf("unsupported *ast.IncDecStmt operation, expecting ++ or -- : %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unsupported *ast.IncDecStmt operation, expecting ++ or -- : %v <%v>", node, r.TypeOf(node))
 	}
 	place := env.evalPlace(node.X)
 	return env.assignPlace(place, op, one), nil
@@ -169,7 +169,7 @@ func (env *Env) evalIncDec(node *ast.IncDecStmt) (r.Value, []r.Value) {
 func (env *Env) evalSend(node *ast.SendStmt) (r.Value, []r.Value) {
 	channel := env.evalExpr1(node.Chan)
 	if channel.Kind() != r.Chan {
-		return env.errorf("<- invoked on non-channel: %v evaluated to %v <%v>", node.Chan, channel, typeOf(channel))
+		return env.Errorf("<- invoked on non-channel: %v evaluated to %v <%v>", node.Chan, channel, typeOf(channel))
 	}
 	value := env.evalExpr1(node.Value)
 	channel.Send(value)
@@ -180,7 +180,7 @@ func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
 	var rets []r.Value
 	if len(node.Results) == 1 {
 		// return foo() returns *all* the values returned by foo, not just the first one
-		rets = packValues(env.evalExpr(node.Results[0]))
+		rets = PackValues(env.evalExpr(node.Results[0]))
 	} else {
 		rets = env.evalExprs(node.Results)
 	}

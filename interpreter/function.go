@@ -30,21 +30,6 @@ import (
 	r "reflect"
 )
 
-func packValues(val0 r.Value, vals []r.Value) []r.Value {
-	if len(vals) == 0 && val0 != None {
-		vals = []r.Value{val0}
-	}
-	return vals
-}
-
-func unpackValues(vals []r.Value) (r.Value, []r.Value) {
-	val0 := None
-	if len(vals) > 0 {
-		val0 = vals[0]
-	}
-	return val0, vals
-}
-
 func (env *Env) evalDeclFunction(decl *ast.FuncDecl, funcType *ast.FuncType, body *ast.BlockStmt) (r.Value, []r.Value) {
 	isMacro := false
 	var recv *ast.Field
@@ -86,7 +71,7 @@ func (env *Env) evalDeclFunction(decl *ast.FuncDecl, funcType *ast.FuncType, bod
 	}
 	if decl != nil && recv == nil {
 		// register named functions and macros (NOT methods) in the current environment
-		ret = env.defineFunc(funcName, tret, ret)
+		ret = env.DefineFunc(funcName, tret, ret)
 	}
 	return ret, nil
 }

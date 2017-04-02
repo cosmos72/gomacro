@@ -66,7 +66,7 @@ func errorf(format string, args ...interface{}) {
 	panic(runtimeError{nil, format, args})
 }
 
-func (st *stringer) errorf(format string, args ...interface{}) (r.Value, []r.Value) {
+func (st *stringer) Errorf(format string, args ...interface{}) (r.Value, []r.Value) {
 	panic(runtimeError{st, format, args})
 }
 
@@ -84,7 +84,7 @@ func (o *output) warnExtraValues(extraValues []r.Value) {
 		len(extraValues), extraValues)
 }
 
-func (o *output) debugf(format string, args ...interface{}) {
+func (o *output) Debugf(format string, args ...interface{}) {
 	str := o.sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
@@ -99,9 +99,9 @@ func (env *Env) showStack() {
 			name = frame.FuncEnv.Name
 		}
 		if frame.panicking {
-			env.debugf("%d:\t     %v, runningDefers = %v, panic = %v", i, name, frame.runningDefers, frame.panick)
+			env.Debugf("%d:\t     %v, runningDefers = %v, panic = %v", i, name, frame.runningDefers, frame.panick)
 		} else {
-			env.debugf("%d:\t     %v, runningDefers = %v, panic is nil", i, name, frame.runningDefers)
+			env.Debugf("%d:\t     %v, runningDefers = %v, panic is nil", i, name, frame.runningDefers)
 		}
 	}
 }

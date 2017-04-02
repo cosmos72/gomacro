@@ -38,7 +38,7 @@ func (env *Env) evalDecl(node ast.Decl) (r.Value, []r.Value) {
 	case *ast.FuncDecl:
 		return env.evalDeclFunction(node, node.Type, node.Body)
 	default:
-		return env.errorf("unimplemented declaration: %v", node)
+		return env.Errorf("unimplemented declaration: %v", node)
 	}
 }
 
@@ -64,7 +64,7 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 			ret, rets = env.evalDeclVars(decl)
 		}
 	default:
-		return env.errorf("unimplemented declaration: %v", node)
+		return env.Errorf("unimplemented declaration: %v", node)
 	}
 	return ret, rets
 }
@@ -74,7 +74,7 @@ func (env *Env) evalDeclConsts(node ast.Spec) (r.Value, []r.Value) {
 	case *ast.ValueSpec:
 		return env.evalDeclConstsOrVars(node.Names, node.Type, node.Values, true)
 	default:
-		return env.errorf("unexpected constant declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unexpected constant declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -83,19 +83,22 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 	case *ast.TypeSpec:
 		name := node.Name.Name
 		t := env.evalType(node.Type)
-		if _, ok := env.Types[name]; ok {
-			env.warnf("redefined type: %v", name)
-		} else if env.Types == nil {
-			env.Types = make(map[string]r.Type)
-		}
-		env.Types[name] = t
-		if _, ok := env.NamedTypes[t]; !ok {
-			env.NamedTypes[t] = fmt.Sprintf("%s.%s", env.Packagename, name)
+		if name != "_" {
+			// never define bindings for "_"
+			if _, ok := env.Types[name]; ok {
+				env.warnf("redefined type: %v", name)
+			} else if env.Types == nil {
+				env.Types = make(map[string]r.Type)
+			}
+			env.Types[name] = t
+			if _, ok := env.NamedTypes[t]; !ok {
+				env.NamedTypes[t] = fmt.Sprintf("%s.%s", env.Packagename, name)
+			}
 		}
 		return r.ValueOf(&t).Elem(), nil // return a reflect.Type, not the concrete type
 
 	default:
-		return env.errorf("unexpected type declaration: expecting *ast.TypeSpec, found: %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unexpected type declaration: expecting *ast.TypeSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -104,7 +107,7 @@ func (env *Env) evalDeclVars(node ast.Spec) (r.Value, []r.Value) {
 	case *ast.ValueSpec:
 		return env.evalDeclConstsOrVars(node.Names, node.Type, node.Values, false)
 	default:
-		return env.errorf("unexpected variable declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unexpected variable declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -127,7 +130,7 @@ func (env *Env) defineConstsVarsOrFuncs(names []string, t r.Type, values []r.Val
 	n := len(names)
 	if values == nil {
 		if t == nil {
-			return env.errorf("no values and no type: cannot define %v", names)
+			return env.Errorf("no values and no type: cannot define %v", names)
 		}
 		values = make([]r.Value, n)
 		zero := r.Zero(t)
@@ -139,18 +142,18 @@ func (env *Env) defineConstsVarsOrFuncs(names []string, t r.Type, values []r.Val
 			values[i] = env.defineConstVarOrFunc(names[i], t, values[i], constant)
 		}
 	}
-	return unpackValues(values)
+	return UnpackValues(values)
 }
 
-func (env *Env) defineConst(name string, t r.Type, value r.Value) r.Value {
+func (env *Env) DefineConst(name string, t r.Type, value r.Value) r.Value {
 	return env.defineConstVarOrFunc(name, t, value, true)
 }
 
-func (env *Env) defineVar(name string, t r.Type, value r.Value) r.Value {
+func (env *Env) DefineVar(name string, t r.Type, value r.Value) r.Value {
 	return env.defineConstVarOrFunc(name, t, value, false)
 }
 
-func (env *Env) defineFunc(name string, t r.Type, value r.Value) r.Value {
+func (env *Env) DefineFunc(name string, t r.Type, value r.Value) r.Value {
 	return env.defineConstVarOrFunc(name, t, value, true)
 }
 

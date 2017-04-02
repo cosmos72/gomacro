@@ -62,7 +62,7 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 	}
 	if quasiquoteDepth <= 0 {
 		if env.Options&OptDebugMacroExpand != 0 {
-			env.debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, in.Interface())
+			env.Debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, in.Interface())
 		}
 		in, anythingExpanded = env.macroExpandAst(in)
 	}
@@ -110,7 +110,7 @@ Recurse:
 		return saved, anythingExpanded
 	}
 	if env.Options&OptDebugMacroExpand != 0 {
-		env.debugf("MacroExpandCodewalk: qq = %d, recursing on %v", quasiquoteDepth, in)
+		env.Debugf("MacroExpandCodewalk: qq = %d, recursing on %v", quasiquoteDepth, in)
 	}
 	out = in.New()
 	n := in.Size()
@@ -135,7 +135,7 @@ Recurse:
 		out.Set(i, child)
 	}
 	if env.Options&OptDebugMacroExpand != 0 {
-		env.debugf("MacroExpandCodewalk: qq = %d, expanded to %v", quasiquoteDepth, out)
+		env.Debugf("MacroExpandCodewalk: qq = %d, expanded to %v", quasiquoteDepth, out)
 	}
 	return out, anythingExpanded
 }
@@ -210,7 +210,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		return in, false
 	}
 	if env.Options&OptDebugMacroExpand != 0 {
-		env.debugf("MacroExpand1: found list: %v", ins.Interface())
+		env.Debugf("MacroExpand1: found list: %v", ins.Interface())
 	}
 	outs := ins.New().(AstWithSlice)
 	n := ins.Size()
@@ -234,11 +234,11 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 			for j := 0; j <= leftn; j++ {
 				args[j] = r.ValueOf(ins.Get(i + j).Interface())
 			}
-			env.errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.ArgNum, leftn)
+			env.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.ArgNum, leftn)
 			return in, false
 		}
 		if env.Options&OptDebugMacroExpand != 0 {
-			env.debugf("MacroExpand1: found macro call %v at %d-th position of %v", elt.Interface(), i, ins.Interface())
+			env.Debugf("MacroExpand1: found macro call %v at %d-th position of %v", elt.Interface(), i, ins.Interface())
 		}
 		// wrap each ast.Node into a reflect.Value
 		args = make([]r.Value, argn)
@@ -248,7 +248,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		// invoke the macro
 		results := macro.Closure(args)
 		if env.Options&OptDebugMacroExpand != 0 {
-			env.debugf("MacroExpand1: macro expanded to: %v", results)
+			env.Debugf("MacroExpand1: macro expanded to: %v", results)
 		}
 		var out Ast
 		switch len(results) {

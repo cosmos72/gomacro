@@ -136,13 +136,13 @@ func (env *Env) evalType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellipsis
 			if pkg, ok := pkgv.Interface().(*PackageRef); ok {
 				name := node.Sel.Name
 				if t, ok = pkg.Types[name]; !ok {
-					env.errorf("not a type: %v <%v>", node, r.TypeOf(node))
+					env.Errorf("not a type: %v <%v>", node, r.TypeOf(node))
 				}
 			} else {
-				env.errorf("not a package: %v = %v <%v>", pkgIdent, pkgv, typeOf(pkgv))
+				env.Errorf("not a package: %v = %v <%v>", pkgIdent, pkgv, typeOf(pkgv))
 			}
 		} else {
-			env.errorf("unimplemented qualified type, expecting packageName.identifier: %v <%v>", node, r.TypeOf(node))
+			env.Errorf("unimplemented qualified type, expecting packageName.identifier: %v <%v>", node, r.TypeOf(node))
 		}
 	case *ast.StructType:
 		// env.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
@@ -156,7 +156,7 @@ func (env *Env) evalType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellipsis
 		break
 	default:
 		// TODO which types are still missing?
-		env.errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
+		env.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 	}
 	for i := 0; i < stars; i++ {
 		t = r.PtrTo(t)
@@ -248,7 +248,7 @@ func (env *Env) evalTypeIdentifier(name string) r.Type {
 			return t
 		}
 	}
-	env.errorf("undefined identifier: %v", name)
+	env.Errorf("undefined identifier: %v", name)
 	return nil
 }
 
@@ -290,7 +290,7 @@ func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 	}
 	vt := typeOf(value)
 	if !vt.AssignableTo(t) && !vt.ConvertibleTo(t) {
-		ret, _ := env.errorf("failed to convert %v <%v> to <%v>", value, vt, t)
+		ret, _ := env.Errorf("failed to convert %v <%v> to <%v>", value, vt, t)
 		return ret
 	}
 	newValue := value.Convert(t)

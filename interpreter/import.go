@@ -90,11 +90,11 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 		pkg := env.ImportPackage(name, path)
 		if pkg != nil {
 			fileEnv := env.FileEnv()
-			fileEnv.defineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
+			fileEnv.DefineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
 		}
 		return r.ValueOf(path), nil
 	default:
-		return env.errorf("unimplemented import: %v", node)
+		return env.Errorf("unimplemented import: %v", node)
 	}
 }
 
@@ -102,10 +102,10 @@ func (env *Env) sanitizeImportPath(path string) string {
 	path = strings.Replace(path, "\\", "/", -1)
 	l := len(path)
 	if path == ".." || l >= 3 && (path[:3] == "../" || path[l-3:] == "/..") || strings.Contains(path, "/../") {
-		env.errorf("invalid import %q: contains \"..\"", path)
+		env.Errorf("invalid import %q: contains \"..\"", path)
 	}
 	if path == "." || l >= 2 && (path[:2] == "./" || path[l-2:] == "/.") || strings.Contains(path, "/./") {
-		env.errorf("invalid import %q: contains \".\"", path)
+		env.Errorf("invalid import %q: contains \".\"", path)
 	}
 	return path
 }
@@ -116,7 +116,7 @@ func (ir *InterpreterCommon) ImportPackage(name, path string) *PackageRef {
 	}
 	pkg, err := ir.Importer.Import(path) // loads names and types, not the values!
 	if err != nil {
-		ir.errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
+		ir.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
 		return nil
 	}
 	internal := name == "__"
@@ -154,7 +154,7 @@ func (ir *InterpreterCommon) createImportFile(path string, pkg *types.Package, i
 	if internal {
 		ir.warnf("created file %q, recompile gomacro to use it", filename)
 	} else {
-		ir.debugf("created file %q...", filename)
+		ir.Debugf("created file %q...", filename)
 	}
 	return filename
 }

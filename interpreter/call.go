@@ -40,14 +40,14 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 	env.CallStack.Frames = append(env.CallStack.Frames, CallFrame{FuncEnv: env})
 	debugCall := env.Options&OptDebugCallStack != 0
 	if debugCall {
-		env.debugf("func starting: %s, args = %v, call stack is:", envName, args)
+		env.Debugf("func starting: %s, args = %v, call stack is:", envName, args)
 		env.showStack()
 	}
 
 	panicking := true // use a flag to distinguish non-panic from panic(nil)
 	defer func() {
 		if debugCall {
-			env.debugf("func exiting:  %s, panicking = %v, stack length = %d",
+			env.Debugf("func exiting:  %s, panicking = %v, stack length = %d",
 				envName, panicking, len(env.CallStack.Frames))
 		}
 		frame := env.CurrentFrame()
@@ -59,7 +59,7 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 				results = env.convertFuncCallResults(t, p.results, true)
 			default: // some interpreted or compiled code invoked panic()
 				if env.Options&OptDebugPanicRecover != 0 {
-					env.debugf("captured panic for defers: env = %v, panic = %#v", env.Name, p)
+					env.Debugf("captured panic for defers: env = %v, panic = %#v", env.Name, p)
 				}
 				frame.panick = p
 				frame.panicking = true
@@ -76,7 +76,7 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 			if frame.panicking {
 				str = "="
 			}
-			env.debugf("func exited:   %s, panic     %s %v, stack length = %d",
+			env.Debugf("func exited:   %s, panic     %s %v, stack length = %d",
 				envName, str, frame.panick, len(stack.Frames))
 		}
 
@@ -86,13 +86,13 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 	}()
 
 	for i, resultName := range resultNames {
-		env.defineVar(resultName, t.Out(i), r.Zero(t.Out(i)))
+		env.DefineVar(resultName, t.Out(i), r.Zero(t.Out(i)))
 	}
 	for i, argName := range argNames {
-		env.defineVar(argName, t.In(i), args[i])
+		env.DefineVar(argName, t.In(i), args[i])
 	}
 	// use evalStatements(), not evalBlock(): in Go, the function arguments and body are in the same scope
-	rets := packValues(env.evalStatements(body.List))
+	rets := PackValues(env.evalStatements(body.List))
 	results = env.convertFuncCallResults(t, rets, false)
 	panicking = false
 	return results
@@ -128,7 +128,7 @@ func (frame *CallFrame) runDefers(env *Env) {
 		if frame.panicking {
 			str = "="
 		}
-		env.debugf("func defers:   %s, panic %s %v, stack length = %d",
+		env.Debugf("func defers:   %s, panic %s %v, stack length = %d",
 			env.Name, str, frame.panick, len(env.CallStack.Frames))
 	}
 	defers := frame.defers
@@ -180,13 +180,13 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 		switch fun := fun.Interface().(type) {
 		case Builtin:
 			if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
-				return env.errorf("builtin %v expects %d arguments, found %d",
+				return env.Errorf("builtin %v expects %d arguments, found %d",
 					node.Fun, fun.ArgNum, len(node.Args))
 			}
 			return fun.Exec(env, node.Args)
 		case Function:
 			if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
-				return env.errorf("function %v expects %d arguments, found %d",
+				return env.Errorf("function %v expects %d arguments, found %d",
 					node.Fun, fun.ArgNum, len(node.Args))
 			}
 			args := env.evalExprs(node.Args)
@@ -201,11 +201,11 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 		} else {
 			rets = fun.CallSlice(args)
 		}
-		return unpackValues(rets)
+		return UnpackValues(rets)
 	default:
 		break
 	}
-	return env.errorf("call of non-function: %v", node)
+	return env.Errorf("call of non-function: %v", node)
 }
 
 func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
@@ -214,7 +214,7 @@ func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
 	// TODO does Go have a special case fooAcceptsMultipleArgs( barReturnsMultipleValues() ) ???
 	if !funt.IsVariadic() {
 		if len(args) != funt.NumIn() {
-			env.errorf("function %v expects %d arguments, found %d: %v", node.Fun, funt.NumIn(), len(args), args)
+			env.Errorf("function %v expects %d arguments, found %d: %v", node.Fun, funt.NumIn(), len(args), args)
 			return nil
 		}
 		for i, arg := range args {
@@ -227,11 +227,11 @@ func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
 func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
 	frame := env.CurrentFrame()
 	if frame == nil {
-		return env.errorf("defer outside function: %v", node)
+		return env.Errorf("defer outside function: %v", node)
 	}
 	fun := env.evalExpr1(node.Fun)
 	if fun.Kind() != r.Func {
-		return env.errorf("defer of non-function: %v", node)
+		return env.Errorf("defer of non-function: %v", node)
 	}
 	args := env.evalFuncArgs(fun, node)
 	closure := func() {

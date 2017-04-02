@@ -28,12 +28,12 @@ import (
 	"strconv"
 )
 
-func startsWith(str, prefix string) bool {
+func hasPrefix(str, prefix string) bool {
 	np := len(prefix)
 	return len(str) >= np && str[:np] == prefix
 }
 
-func endsWith(str, suffix string) bool {
+func hasSuffix(str, suffix string) bool {
 	n := len(str)
 	ns := len(suffix)
 	return n >= ns && str[n-ns:n] == suffix

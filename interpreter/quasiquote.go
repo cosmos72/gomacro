@@ -119,7 +119,7 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 				}
 			case mt.UNQUOTE_SPLICE:
 				y := in.Interface()
-				env.errorf("quasiquote: cannot splice in single-statement context: %v <%v>", y, r.TypeOf(y))
+				env.Errorf("quasiquote: cannot splice in single-statement context: %v <%v>", y, r.TypeOf(y))
 				return nil
 			}
 		}
@@ -172,7 +172,7 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 					mt.String(child.Op()), mt.String(op), unquoteDepth), depth, canSplice, child)
 
 				if unquoteDepth > depth {
-					env.errorf("%s not inside quasiquote: %v <%v>", mt.String(op), lastUnquote, r.TypeOf(lastUnquote))
+					env.Errorf("%s not inside quasiquote: %v <%v>", mt.String(op), lastUnquote, r.TypeOf(lastUnquote))
 					return nil
 				} else if unquoteDepth < depth {
 					toexpand := child.Get(0).Get(1)
@@ -260,7 +260,7 @@ func unwrapTrivialAst2(in Ast, unwrapTrivialBlockStmt bool) Ast {
 
 func (env *Env) debugQuasiQuote(msg string, depth int, canSplice bool, x interface{}) {
 	if env.Options&OptDebugQuasiquote != 0 {
-		env.debugf("quasiquote: %s (depth = %d, canSplice = %v)\n%v <%v>", msg, depth, canSplice, x, r.TypeOf(x))
+		env.Debugf("quasiquote: %s (depth = %d, canSplice = %v)\n%v <%v>", msg, depth, canSplice, x, r.TypeOf(x))
 	}
 }
 

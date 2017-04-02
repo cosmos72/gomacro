@@ -190,7 +190,7 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 	}
 	for _, file := range files {
 		filename := file.Name()
-		if !file.IsDir() && endsWith(filename, ".gomacro") {
+		if !file.IsDir() && hasSuffix(filename, ".gomacro") {
 			filename = fmt.Sprintf("%s%c%s", dirname, os.PathSeparator, filename)
 			err := cmd.EvalFile(filename)
 			if err != nil {

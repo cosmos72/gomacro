@@ -151,7 +151,7 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 			}
 			if duration {
 				delta := time.Now().Sub(t1)
-				env.debugf("eval time %.6f s", float32(delta)/float32(time.Second))
+				env.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
 			}
 		}()
 	}
@@ -169,17 +169,22 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 		args := strings.SplitN(src, " ", 2)
 		cmd := args[0]
 		switch {
-		case startsWith(":env", cmd):
+		case hasPrefix(":compiler", cmd):
+			if len(args) > 1 {
+				env.compile(args[1])
+			}
+			return true
+		case hasPrefix(":env", cmd):
 			if len(args) <= 1 {
 				env.showPackage("")
 			} else {
 				env.showPackage(args[1])
 			}
 			return true
-		case startsWith(":help", cmd):
+		case hasPrefix(":help", cmd):
 			env.showHelp(env.Stdout)
 			return true
-		case startsWith(":inspect", cmd):
+		case hasPrefix(":inspect", cmd):
 			if in == nil {
 				fmt.Fprint(env.Stdout, "// not connected to user input, cannot :inspect\n")
 			} else if len(args) == 1 {
@@ -188,16 +193,16 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 				env.Inspect(in, args[1])
 			}
 			return true
-		case startsWith(":options", cmd):
+		case hasPrefix(":options", cmd):
 			if len(args) > 1 {
 				env.Options ^= parseOptions(args[1])
 			}
 			fmt.Fprintf(env.Stdout, "// current options: %v\n", env.Options)
 			fmt.Fprintf(env.Stdout, "// unset   options: %v\n", ^env.Options)
 			return true
-		case startsWith(":quit", cmd):
+		case hasPrefix(":quit", cmd):
 			return false
-		case startsWith(":write", cmd):
+		case hasPrefix(":write", cmd):
 			if len(args) <= 1 {
 				env.writeDeclsToStream(env.Stdout)
 			} else {
@@ -220,7 +225,7 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 			}
 		}
 	}
-	if src == "package" || startsWith(src, "package ") {
+	if src == "package" || hasPrefix(src, "package ") {
 		arg := ""
 		space := strings.IndexByte(src, ' ')
 		if space >= 0 {
@@ -256,7 +261,7 @@ func (env *Env) ParseAst(src interface{}) Ast {
 	nodes := env.ParseBytes(bytes)
 
 	if env.Options&OptShowParse != 0 {
-		env.debugf("after parse: %v", nodes)
+		env.Debugf("after parse: %v", nodes)
 	}
 
 	var form Ast
@@ -273,7 +278,7 @@ func (env *Env) ParseAst(src interface{}) Ast {
 	form, _ = env.MacroExpandAstCodewalk(form)
 
 	if env.Options&OptShowMacroExpand != 0 {
-		env.debugf("after macroexpansion: %v", form.Interface())
+		env.Debugf("after macroexpansion: %v", form.Interface())
 	}
 	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
 		env.collectAst(form)

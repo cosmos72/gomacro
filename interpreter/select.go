@@ -125,7 +125,7 @@ func (env *Env) mustBeSelectRecv(stmt ast.Stmt, node ast.Expr) r.Value {
 }
 
 func (env *Env) badSelectStatement(stmt ast.Stmt) r.Value {
-	env.errorf("invalid select case, expecting [ch <- val] or [<-ch] or [var := <-ch] or [place = <-ch], found: %v <%v>",
+	env.Errorf("invalid select case, expecting [ch <- val] or [<-ch] or [var := <-ch] or [place = <-ch], found: %v <%v>",
 		stmt, r.TypeOf(stmt))
 	return None
 }
@@ -163,7 +163,7 @@ func (env *Env) evalSelectBody(lhs selectLhsExpr, val [2]r.Value, case_ *ast.Com
 	for i := 0; i < 2; i++ {
 		if expr := lhs.lhs[i]; expr != nil {
 			if lhs.tok == token.DEFINE {
-				env2.defineVar(expr.(*ast.Ident).Name, nil, val[i])
+				env2.DefineVar(expr.(*ast.Ident).Name, nil, val[i])
 			} else {
 				place := env.evalPlace(expr)
 				env.assignPlace(place, token.ASSIGN, val[i])

@@ -33,6 +33,9 @@ import (
 )
 
 func main() {
+	//	x := [2][]rune{}
+	//	fmt.Printf("[4][]byte(nil) = %v <%T>\n", x, x)
+
 	args := os.Args[1:]
 
 	// generated with: find [a-u]* -type f -name \*.go | grep -v internal | grep -v testdata | grep -v cmd/ | grep -v builtin | xargs -d'\n' dirname | sort -u | while read i; do echo -n "\"$i\"; "; done

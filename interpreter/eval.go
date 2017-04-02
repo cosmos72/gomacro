@@ -59,10 +59,10 @@ func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
 	case nil:
 		return None, nil
 	default:
-		return env.errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: %v <%v>",
+		return env.Errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: %v <%v>",
 			in, r.TypeOf(in))
 	}
-	return env.errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: nil")
+	return env.Errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: nil")
 }
 
 func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
@@ -76,7 +76,7 @@ func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 	case *ast.File:
 		return env.evalFile(node)
 	default:
-		return env.errorf("unimplemented Eval for %v <%v>", node, r.TypeOf(node))
+		return env.Errorf("unimplemented Eval for %v <%v>", node, r.TypeOf(node))
 	}
 }
 

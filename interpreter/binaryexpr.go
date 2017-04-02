@@ -33,7 +33,7 @@ import (
 
 func (env *Env) unsupportedBinaryExpr(xv r.Value, op token.Token, yv r.Value) r.Value {
 	opstr := mt.String(op)
-	ret, _ := env.errorf("unsupported binary operation %s between <%v> and <%v>: %v %s %v", opstr, typeOf(xv), typeOf(yv), xv, opstr, yv)
+	ret, _ := env.Errorf("unsupported binary operation %s between <%v> and <%v>: %v %s %v", opstr, typeOf(xv), typeOf(yv), xv, opstr, yv)
 	return ret
 }
 
@@ -298,8 +298,33 @@ func (env *Env) evalBinaryExprComplex(xv r.Value, op token.Token, yv r.Value) r.
 }
 
 func (env *Env) evalBinaryExprString(xv r.Value, op token.Token, yv r.Value) r.Value {
-	if xv.Kind() == r.String && yv.Kind() == r.String && op == token.ADD {
-		return r.ValueOf(xv.String() + yv.String())
+	if xv.Kind() != r.String || yv.Kind() != r.String {
+		return env.unsupportedBinaryExpr(xv, op, yv)
 	}
-	return env.unsupportedBinaryExpr(xv, op, yv)
+	x, y := xv.String(), yv.String()
+	if op == token.ADD {
+		return r.ValueOf(x + y)
+	}
+	var b bool
+	switch op {
+	case token.EQL:
+		b = x == y
+	case token.LSS:
+		b = x < y
+	case token.GTR:
+		b = x > y
+	case token.NEQ:
+		b = x != y
+	case token.LEQ:
+		b = x <= y
+	case token.GEQ:
+		b = x >= y
+	default:
+		return env.unsupportedBinaryExpr(xv, op, yv)
+	}
+	if b {
+		return valueOfTrue
+	} else {
+		return valueOfFalse
+	}
 }

@@ -102,16 +102,16 @@ func (ip *Inspector) Repl() error {
 
 func (ip *Inspector) Eval(cmd string) error {
 	switch {
-	case cmd == "?", startsWith("help", cmd):
+	case cmd == "?", hasPrefix("help", cmd):
 		ip.Help()
-	case startsWith("quit", cmd):
+	case hasPrefix("quit", cmd):
 		return errors.New("user quit")
-	case startsWith("top", cmd):
+	case hasPrefix("top", cmd):
 		ip.Top()
 		ip.Show()
 	case cmd == "", cmd == ".":
 		ip.Show()
-	case cmd == "-", startsWith("up", cmd):
+	case cmd == "-", hasPrefix("up", cmd):
 		ip.Leave()
 	default:
 		ip.Enter(cmd)

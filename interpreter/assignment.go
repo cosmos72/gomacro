@@ -43,7 +43,7 @@ func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 	nright := len(right)
 
 	if nright != 1 && nleft != nright {
-		return env.errorf("value count mismatch: cannot assign %d values to %d places: %v", nright, nleft, node)
+		return env.Errorf("value count mismatch: cannot assign %d values to %d places: %v", nright, nleft, node)
 	}
 
 	// side effects happen left to right, with some unspecified cases,
@@ -55,7 +55,7 @@ func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 		for i := 0; i < nleft; i++ {
 			ident, ok := left[i].(*ast.Ident)
 			if !ok {
-				return env.errorf("variable declaration: invalid identifier: %v", left[i])
+				return env.Errorf("variable declaration: invalid identifier: %v", left[i])
 			}
 			names[i] = ident.Name
 		}
@@ -99,12 +99,12 @@ func (env *Env) evalPlace(node ast.Expr) placeType {
 		case r.Array, r.Slice, r.String:
 			i, ok := env.toInt(index)
 			if !ok {
-				env.errorf("invalid index, expecting an int: %v <%v>", index, typeOf(index))
+				env.Errorf("invalid index, expecting an int: %v <%v>", index, typeOf(index))
 				return placeType{}
 			}
 			obj = obj.Index(int(i))
 		default:
-			env.errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>",
+			env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>",
 				node.X, index, obj, typeOf(obj))
 			return placeType{}
 		}
@@ -112,7 +112,7 @@ func (env *Env) evalPlace(node ast.Expr) placeType {
 		obj = env.evalExpr1(node)
 	}
 	if !obj.CanSet() {
-		env.errorf("cannot assign to read-only location: %v", node)
+		env.Errorf("cannot assign to read-only location: %v", node)
 		return placeType{}
 	}
 	return placeType{obj, Nil}
@@ -123,7 +123,7 @@ func (env *Env) assignPlaces(places []placeType, op token.Token, values []r.Valu
 	for i := 0; i < n; i++ {
 		values[i] = env.assignPlace(places[i], op, values[i])
 	}
-	return unpackValues(values)
+	return UnpackValues(values)
 }
 
 func (env *Env) assignPlace(place placeType, op token.Token, value r.Value) r.Value {

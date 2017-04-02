@@ -99,7 +99,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		return unescapeString(str)
 
 	default:
-		env.errorf("unimplemented basic literal: %v", node)
+		env.Errorf("unimplemented basic literal: %v", node)
 		ret = nil
 	}
 	return ret
@@ -120,7 +120,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 				val := env.valueToType(env.evalExpr1(elt.Value), vt)
 				obj.SetMapIndex(key, val)
 			default:
-				env.errorf("map literal: invalid element, expecting <*ast.KeyValueExpr>, found: %v <%v>", elt, r.TypeOf(elt))
+				env.Errorf("map literal: invalid element, expecting <*ast.KeyValueExpr>, found: %v <%v>", elt, r.TypeOf(elt))
 			}
 		}
 	case r.Array, r.Slice:
@@ -173,7 +173,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 			switch elt := elt.(type) {
 			case *ast.KeyValueExpr:
 				if elts {
-					return env.errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
+					return env.Errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
 				}
 				pairs = true
 				name := elt.Key.(*ast.Ident).Name
@@ -181,7 +181,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 				expr = elt.Value
 			default:
 				if pairs {
-					return env.errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
+					return env.Errorf("cannot mix keyed and non-keyed initializers in struct composite literal: %v", node)
 				}
 				elts = true
 				field = obj.Field(idx)
@@ -191,7 +191,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 			field.Set(val)
 		}
 	default:
-		env.errorf("unexpected composite literal: %v", node)
+		env.Errorf("unexpected composite literal: %v", node)
 	}
 	return obj, nil
 }

@@ -33,6 +33,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	mc "github.com/cosmos72/gomacro/compiler"
 	mp "github.com/cosmos72/gomacro/parser"
 )
 
@@ -48,6 +49,7 @@ type InterpreterCommon struct {
 	Statements   []ast.Stmt
 	ParserMode   mp.Mode
 	SpecialChar  rune
+	CompEnv      *mc.CompEnv // temporary...
 }
 
 func NewInterpreterCommon() *InterpreterCommon {
@@ -179,7 +181,7 @@ func (ir *InterpreterCommon) collectNode(node ast.Node) {
 func (ir *InterpreterCommon) writeDeclsToFile(filename string) {
 	f, err := os.Create(filename)
 	if err != nil {
-		ir.errorf("failed to create file %q: %v", filename, err)
+		ir.Errorf("failed to create file %q: %v", filename, err)
 	}
 	defer f.Close()
 	ir.writeDeclsToStream(f)

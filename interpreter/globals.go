@@ -30,6 +30,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cosmos72/gomacro/constants"
 	"github.com/cosmos72/gomacro/imports"
 )
 
@@ -96,9 +97,10 @@ type whichMacroExpand uint
 const (
 	OptTrapPanic Options = 1 << iota
 	OptShowPrompt
-	OptShowEval
 	OptShowParse
 	OptShowMacroExpand
+	OptShowCompile
+	OptShowEval
 	OptShowTime
 	OptDebugMacroExpand
 	OptDebugQuasiquote
@@ -115,9 +117,10 @@ const (
 var optNames = map[Options]string{
 	OptTrapPanic:           "TrapPanic",
 	OptShowPrompt:          "Prompt",
-	OptShowEval:            "Eval",
 	OptShowParse:           "Parse",
 	OptShowMacroExpand:     "MacroExpand",
+	OptShowCompile:         "Compile",
+	OptShowEval:            "Eval",
 	OptShowTime:            "Time",
 	OptDebugMacroExpand:    "?MacroExpand",
 	OptDebugQuasiquote:     "?Quasiquote",
@@ -153,7 +156,7 @@ func parseOptions(str string) Options {
 			opts ^= opt
 		} else if len(name) != 0 {
 			for k, v := range optNames {
-				if startsWith(v, name) {
+				if hasPrefix(v, name) {
 					opts ^= k
 				}
 			}
@@ -173,10 +176,8 @@ func (m whichMacroExpand) String() string {
 	}
 }
 
-var Nil = r.Value{}
-
-var none struct{}
-var None = r.ValueOf(none) // used to indicate "no value"
+var Nil = constants.Nil
+var None = constants.None // used to indicate "no value"
 
 var one = r.ValueOf(1)
 

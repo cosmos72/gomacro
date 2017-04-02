@@ -42,7 +42,7 @@ func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
 			cond := env.evalExpr1(node.Cond)
 			if cond.Kind() != r.Bool {
 				cf := cond.Interface()
-				return env.errorf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
+				return env.Errorf("for: invalid condition type <%T> %#v, expecting <bool>", cf, cf)
 			}
 			if !cond.Bool() {
 				break
@@ -63,7 +63,7 @@ func (env *Env) evalForRange(node *ast.RangeStmt) (r.Value, []r.Value) {
 
 	container := env.evalExpr1(node.X)
 	if container == Nil || container == None {
-		return env.errorf("invalid for range: cannot iterate on nil: %v evaluated to %v", node.X, container)
+		return env.Errorf("invalid for range: cannot iterate on nil: %v evaluated to %v", node.X, container)
 	}
 
 	switch container.Kind() {
@@ -82,7 +82,7 @@ func (env *Env) evalForRange(node *ast.RangeStmt) (r.Value, []r.Value) {
 			return env.evalForRangeSlice(container.Elem(), node)
 		}
 	}
-	return env.errorf("invalid for range: expecting array, channel, map, slice, string, or pointer to array, found: %v <%v>",
+	return env.Errorf("invalid for range: expecting array, channel, map, slice, string, or pointer to array, found: %v <%v>",
 		container, typeOf(container))
 }
 
@@ -133,7 +133,7 @@ func (env *Env) evalForRangeMap(obj r.Value, node *ast.RangeStmt) (r.Value, []r.
 func (env *Env) evalForRangeChannel(obj r.Value, node *ast.RangeStmt) (r.Value, []r.Value) {
 	knode := nilIfIdentUnderscore(node.Key)
 	if node.Value != nil {
-		return env.errorf("range expression is a channel: expecting at most one iteration variable, found two: %v %v", node.Key, node.Value)
+		return env.Errorf("range expression is a channel: expecting at most one iteration variable, found two: %v %v", node.Key, node.Value)
 	}
 
 	tok := node.Tok
@@ -286,7 +286,7 @@ func (env *Env) defineForIterVar(node ast.Expr, t r.Type) r.Value {
 		return Nil
 	}
 	name := node.(*ast.Ident).Name
-	env.defineVar(name, t, r.Zero(t))
+	env.DefineVar(name, t, r.Zero(t))
 	return env.Binds[name]
 }
 

@@ -1,5 +1,5 @@
 /*
- * gomacro - A Go intepreter with Lisp-like macros
+ * gomacro - A Go interpreter with Lisp-like macros
  *
  * Copyright (C) 2017 Massimiliano Ghilardi
  *

@@ -65,7 +65,7 @@ func (o *output) compilePlugin(filename string, stdout io.Writer, stderr io.Writ
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	o.debugf("compiling %q ...", filename)
+	o.Debugf("compiling %q ...", filename)
 	err := cmd.Run()
 	if err != nil {
 		errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
