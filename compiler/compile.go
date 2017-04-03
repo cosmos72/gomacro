@@ -61,12 +61,12 @@ func (c *Comp) CompileAst(in Ast) X {
 	}
 }
 
-func (c *Comp) Compile(in ast.Node) I {
+func (c *Comp) Compile(in ast.Node) X {
 	switch node := in.(type) {
 	case ast.Decl:
 		return c.Decl(node)
 	case ast.Expr:
-		return c.Expr(node)
+		return ToX(c.Expr(node).WithFun())
 	case ast.Stmt:
 		// TODO return c.Statement(node)
 	case *ast.File:

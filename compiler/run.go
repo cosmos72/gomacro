@@ -35,14 +35,13 @@ func (c *CompEnv) Run(fun X) (r.Value, []r.Value) {
 
 // DefConst compiles a constant declaration, then executes it
 func (c *CompEnv) DefConst(name string, t r.Type, value I) (r.Value, []r.Value) {
-	fun := c.DeclConst0(name, t, value)
-	c.growEnv()
-	return fun(c.Env)
+	value = c.DeclConst0(name, t, value)
+	return r.ValueOf(value), nil
 }
 
 // DefVar compiles a variable declaration, then executes it
 func (c *CompEnv) DefVar(name string, t r.Type, value I) (r.Value, []r.Value) {
-	fun := c.DeclVar0(name, t, value)
+	fun := c.DeclVar0(name, t, ExprValue(value))
 	c.growEnv()
 	return fun(c.Env)
 }

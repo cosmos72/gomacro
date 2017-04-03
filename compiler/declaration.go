@@ -31,7 +31,7 @@ import (
 )
 
 // Decl compiles a constant, variable, function or type declaration - or an import
-func (c *Comp) Decl(node ast.Decl) I {
+func (c *Comp) Decl(node ast.Decl) X {
 	switch node := node.(type) {
 	case *ast.GenDecl:
 		return c.DeclGen(node)
@@ -44,8 +44,8 @@ func (c *Comp) Decl(node ast.Decl) I {
 }
 
 // Decl compiles a constant, variable or type declaration - or an import
-func (c *Comp) DeclGen(node *ast.GenDecl) I {
-	var ret I
+func (c *Comp) DeclGen(node *ast.GenDecl) X {
+	var ret X
 	switch node.Tok {
 	case token.IMPORT:
 		for _, decl := range node.Specs {
@@ -93,7 +93,7 @@ func (c *Comp) DeclVars(node ast.Spec) X {
 	}
 }
 
-func (c *Comp) prepareDeclConstsOrVars(idents []*ast.Ident, typ ast.Expr, exprs []ast.Expr) (names []string, t r.Type, inits []I) {
+func (c *Comp) prepareDeclConstsOrVars(idents []*ast.Ident, typ ast.Expr, exprs []ast.Expr) (names []string, t r.Type, inits []*Expr) {
 	n := len(idents)
 	names = make([]string, n)
 	for i, ident := range idents {
@@ -105,33 +105,39 @@ func (c *Comp) prepareDeclConstsOrVars(idents []*ast.Ident, typ ast.Expr, exprs 
 	if exprs != nil {
 		inits = c.ExprsMultipleValues(exprs, n)
 	}
-	if len(inits) == 0 && t == nil {
-		c.Errorf("no values and no type: cannot declare %v", names)
-	}
 	return names, t, inits
 }
 
-func (c *Comp) DeclConsts0(names []string, t r.Type, inits []I) X {
+func (c *Comp) DeclConsts0(names []string, t r.Type, inits []*Expr) X {
 	n := len(names)
-	funs := make([]X, n)
 	if inits == nil {
-		for i := 0; i < n; i++ {
-			funs[i] = c.DeclConst0(names[i], t, nil)
-		}
-	} else {
-		for i := 0; i < n; i++ {
-			funs[i] = c.DeclConst0(names[i], t, inits[i])
-		}
+		c.Errorf("constants without initialization: %v", names)
+	} else if len(inits) != n {
+		c.Errorf("cannot declare %d constants with %d initializers: %v", names)
 	}
-	return c.Block(funs...)
+	value0 := None
+	values := make([]r.Value, n)
+	for i, name := range names {
+		init := inits[i]
+		if !init.Const() {
+			c.Errorf("const initializer for %q is not a constant", name)
+		}
+		values[i] = r.ValueOf(c.DeclConst0(name, t, init.Value))
+	}
+	if n != 0 {
+		value0 = values[0]
+	}
+	return func(env *Env) (r.Value, []r.Value) {
+		return value0, values
+	}
 }
 
-func (c *Comp) DeclVars0(names []string, t r.Type, inits []I) X {
+func (c *Comp) DeclVars0(names []string, t r.Type, inits []*Expr) X {
 	n := len(names)
 	ni := len(inits)
 	funs := make([]X, n)
-
 	if ni == 0 {
+		inits = make([]*Expr, n)
 		for i := 0; i < n; i++ {
 			funs[i] = c.DeclVar0(names[i], t, nil)
 		}
@@ -140,48 +146,64 @@ func (c *Comp) DeclVars0(names []string, t r.Type, inits []I) X {
 			funs[i] = c.DeclVar0(names[i], t, inits[i])
 		}
 	} else if ni == 1 && n > 1 {
-		c.Errorf("unimplemented: multiple variable declarations from a single expression returning multiple values, found: %v", names)
+		return c.DeclMultiVar0(names, t, inits[0])
+	} else {
+		c.Errorf("cannot declare %d variables from %d expressions: %v", n, ni, names)
 	}
-	return c.Block(funs...)
+	return MultipleX(funs)
 }
 
 // DeclConst0 compiles a constant declaration
-func (c *Comp) DeclConst0(name string, t r.Type, value I) X {
+func (c *Comp) DeclConst0(name string, t r.Type, value I) I {
 	if !isLiteral(value) {
 		c.Errorf("const initializer for %q is not a constant", name)
 		return nil
 	}
-	v := r.ValueOf(value)
-	if t == nil {
-		t = r.TypeOf(value)
-	}
-	idx := c.AddBind(name, t)
-	if idx >= 0 {
-		return func(env *Env) (r.Value, []r.Value) {
-			env.Binds[idx] = v
-			return v, nil
-		}
+	bind := BindValue(value)
+	if t != nil {
+		value = bind.ConstTo(t)
 	}
 	// never define bindings for "_"
-	return func(env *Env) (r.Value, []r.Value) {
-		return v, nil
+	if name == "_" {
+		return value
 	}
+	if _, ok := c.Binds[name]; ok {
+		c.Warnf("redefined identifier: %v", name)
+	} else if c.Binds == nil {
+		c.Binds = make(map[string]Bind)
+	}
+	c.Binds[name] = bind
+	return value
 }
 
 // DeclVar0 compiles a variable declaration
-func (c *Comp) DeclVar0(name string, t r.Type, expr I) X {
+func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 	if t == nil {
-		t = RetOf(expr)
+		if init == nil {
+			c.Errorf("no value and no type, cannot declare variable: %v", name)
+		}
+		t = init.Type
+		if t == nil {
+			c.Errorf("cannot declare variable as untyped nil: %v", name)
+		}
+		n := init.NumOut()
+		if n == 0 {
+			c.Errorf("initializer returns no values, cannot declare variable: %v", name)
+		} else if n > 1 {
+			c.Errorf("initializer returns %d values, using only the first one to declare variable: %v", name)
+		}
 	}
 	idx := c.AddBind(name, t)
-	if isLiteral(expr) {
+	if init == nil || init.Const() {
 		var value r.Value
-		if expr == nil {
+		if init == nil || init.Value == nil {
 			// no initializer... use the zero-value of t
 			value = r.Zero(t)
 		} else {
-			expr = convertLiteral(expr, t)
-			value = r.ValueOf(expr)
+			if init.Type != t {
+				init.ConstTo(t)
+			}
+			value = r.ValueOf(init.Value)
 		}
 		// never define bindings for "_"
 		if idx >= 0 {
@@ -197,7 +219,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, expr I) X {
 			}
 		}
 	}
-	x := ToX(expr)
+	x := ToX(init.Fun)
 	// never define bindings for "_"
 	if idx >= 0 {
 		return func(env *Env) (r.Value, []r.Value) {
@@ -215,6 +237,44 @@ func (c *Comp) DeclVar0(name string, t r.Type, expr I) X {
 	}
 }
 
+// DeclMultiVar0 compiles multiple variable declarations from a single multi-valued expression
+func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
+	if t == nil {
+		if init == nil {
+			c.Errorf("no value and no type, cannot declare variables: %v", names)
+		}
+	}
+	n := len(names)
+	ni := init.NumOut()
+	if ni < n {
+		c.Errorf("cannot declare %d variables from expression returning %d values: %v", n, ni, names)
+	} else if ni > n {
+		c.Warnf("declaring %d variables from expression returning %d values: %v", n, ni, names)
+	}
+	indexes := make([]int, n)
+	ts := make([]r.Type, n)
+	for i, name := range names {
+		ts[i] = init.Out(i)
+		if t != nil && t != ts[i] {
+			c.Errorf("cannot use <%v> as <%v> in variable declaration: %v", ts[i], t, names)
+		}
+		indexes[i] = c.AddBind(name, ts[i])
+	}
+	init.WithFun()
+	fun := ToX(init.Fun)
+
+	return func(env *Env) (r.Value, []r.Value) {
+		ret, rets := fun(env)
+		values := PackValues(ret, rets)
+		for i, idx := range indexes {
+			place := r.New(ts[i]).Elem()
+			place.Set(values[i])
+			env.Binds[idx] = place
+		}
+		return ret, rets
+	}
+}
+
 // AddBind reserves space for a subsequent constant, variable or function declaration
 // returns < 0 if name == "_"
 func (c *Comp) AddBind(name string, t r.Type) int {
@@ -227,8 +287,9 @@ func (c *Comp) AddBind(name string, t r.Type) int {
 	} else if c.Binds == nil {
 		c.Binds = make(map[string]Bind)
 	}
-	idx := len(c.Binds)
-	c.Binds[name] = Bind{Index: idx, Type: t}
+	idx := c.BindNum
+	c.Binds[name] = Bind{Lit: Lit{Type: t}, Index: idx}
+	c.BindNum++
 	return idx
 }
 

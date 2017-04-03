@@ -195,9 +195,14 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t r.Type, ellipsis bool) {
 	case nil:
 		t = r.SliceOf(t)
 	default:
-		ni := c.Expr(n)
-		count := r.ValueOf(ni).Int()
-		t = r.ArrayOf(int(count), t)
+		init := c.Expr(n)
+		if !init.Const() {
+			c.Errorf("array length is not a constant: %v", node)
+			return
+		}
+		value := init.EvalConst()
+		count := int(r.ValueOf(value).Int())
+		t = r.ArrayOf(count, t)
 	}
 	return t, ellipsis
 }

@@ -27,11 +27,9 @@ package compiler
 import (
 	"go/ast"
 	r "reflect"
-
-	"github.com/cosmos72/gomacro/constants"
 )
 
-func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits []I) {
+func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits []*Expr) {
 	n := len(nodes)
 	if n != expectedValuesN {
 		if n != 1 {
@@ -40,7 +38,7 @@ func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits
 			return nil
 		}
 		node := nodes[0]
-		inits = []I{c.Expr(node)}
+		inits = []*Expr{c.Expr(node)}
 	} else {
 		inits = c.Exprs(nodes)
 	}
@@ -48,19 +46,19 @@ func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits
 }
 
 // Exprs compiles multiple expressions
-func (c *Comp) Exprs(nodes []ast.Expr) []I {
-	var rets []I
+func (c *Comp) Exprs(nodes []ast.Expr) []*Expr {
+	var inits []*Expr
 	if n := len(nodes); n != 0 {
-		rets = make([]I, n)
+		inits = make([]*Expr, n)
 		for i := range nodes {
-			rets[i] = c.Expr(nodes[i])
+			inits[i] = c.Expr(nodes[i])
 		}
 	}
-	return rets
+	return inits
 }
 
 // Expr compiles an expression
-func (c *Comp) Expr(in ast.Expr) I {
+func (c *Comp) Expr(in ast.Expr) *Expr {
 	for {
 		// env.Debugf("evalExpr() %v", node)
 		switch node := in.(type) {
@@ -99,23 +97,4 @@ func (c *Comp) CallInt(fun X, args ...X) func(*Env) int {
 		}
 		return f(values...)
 	}
-}
-
-func (c *Comp) evalConst(expr I) I {
-	if expr == nil {
-		return nil
-	}
-	exprv := r.ValueOf(expr)
-	if exprv.Kind() != r.Func {
-		return expr
-	}
-	rets := exprv.Call(NilEnv)
-	if len(rets) == 0 {
-		return nil
-	}
-	ret0 := rets[0]
-	if ret0 == constants.Nil || ret0 == None {
-		return nil
-	}
-	return ret0.Interface()
 }

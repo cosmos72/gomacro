@@ -48,8 +48,11 @@ func (c *Comp) tryResolve(name string) (upn int, bind Bind, ok bool) {
 }
 
 // Ident compiles a read operation on a constant, variable or function
-func (c *Comp) Ident(name string) I {
+func (c *Comp) Ident(name string) *Expr {
 	upn, bind := c.resolve(name)
+	if bind.Const() {
+		return ExprLit(bind.Lit)
+	}
 	idx := bind.Index
 	k := bind.Type.Kind()
 	// be clever and extract primitive values from r.Value
@@ -57,356 +60,356 @@ func (c *Comp) Ident(name string) I {
 	case 0:
 		switch k {
 		case r.Bool:
-			return func(env *Env) bool {
+			return ExprBool(func(env *Env) bool {
 				return env.Binds[idx].Bool()
-			}
+			})
 		case r.Int:
-			return func(env *Env) int {
+			return ExprInt(func(env *Env) int {
 				return int(env.Binds[idx].Int())
-			}
+			})
 		case r.Int8:
-			return func(env *Env) int8 {
+			return ExprInt8(func(env *Env) int8 {
 				return int8(env.Binds[idx].Int())
-			}
+			})
 		case r.Int16:
-			return func(env *Env) int16 {
+			return ExprInt16(func(env *Env) int16 {
 				return int16(env.Binds[idx].Int())
-			}
+			})
 		case r.Int32:
-			return func(env *Env) int32 {
+			return ExprInt32(func(env *Env) int32 {
 				return int32(env.Binds[idx].Int())
-			}
+			})
 		case r.Int64:
-			return func(env *Env) int64 {
+			return ExprInt64(func(env *Env) int64 {
 				return env.Binds[idx].Int()
-			}
+			})
 		case r.Uint:
-			return func(env *Env) uint {
+			return ExprUint(func(env *Env) uint {
 				return uint(env.Binds[idx].Uint())
-			}
+			})
 		case r.Uint8:
-			return func(env *Env) uint8 {
+			return ExprUint8(func(env *Env) uint8 {
 				return uint8(env.Binds[idx].Uint())
-			}
+			})
 		case r.Uint16:
-			return func(env *Env) uint16 {
+			return ExprUint16(func(env *Env) uint16 {
 				return uint16(env.Binds[idx].Uint())
-			}
+			})
 		case r.Uint32:
-			return func(env *Env) uint32 {
+			return ExprUint32(func(env *Env) uint32 {
 				return uint32(env.Binds[idx].Uint())
-			}
+			})
 		case r.Uint64:
-			return func(env *Env) uint64 {
+			return ExprUint64(func(env *Env) uint64 {
 				return env.Binds[idx].Uint()
-			}
+			})
 		case r.Uintptr:
-			return func(env *Env) uintptr {
+			return ExprUintptr(func(env *Env) uintptr {
 				return uintptr(env.Binds[idx].Uint())
-			}
+			})
 		case r.Float32:
-			return func(env *Env) float32 {
+			return ExprFloat32(func(env *Env) float32 {
 				return float32(env.Binds[idx].Float())
-			}
+			})
 		case r.Float64:
-			return func(env *Env) float64 {
+			return ExprFloat64(func(env *Env) float64 {
 				return env.Binds[idx].Float()
-			}
+			})
 		case r.Complex64:
-			return func(env *Env) complex64 {
+			return ExprComplex64(func(env *Env) complex64 {
 				return complex64(env.Binds[idx].Complex())
-			}
+			})
 		case r.Complex128:
-			return func(env *Env) complex128 {
+			return ExprComplex128(func(env *Env) complex128 {
 				return env.Binds[idx].Complex()
-			}
+			})
 		case r.String:
-			return func(env *Env) string {
+			return ExprString(func(env *Env) string {
 				return env.Binds[idx].String()
-			}
+			})
 		default:
-			return func(env *Env) (r.Value, []r.Value) {
+			return Expr1(bind.Type, func(env *Env) (r.Value, []r.Value) {
 				return env.Binds[idx], nil
-			}
+			})
 		}
 	case 1:
 		switch k {
 		case r.Bool:
-			return func(env *Env) bool {
+			return ExprBool(func(env *Env) bool {
 				return env.Outer.Binds[idx].Bool()
-			}
+			})
 		case r.Int:
-			return func(env *Env) int {
+			return ExprInt(func(env *Env) int {
 				return int(env.Outer.Binds[idx].Int())
-			}
+			})
 		case r.Int8:
-			return func(env *Env) int8 {
+			return ExprInt8(func(env *Env) int8 {
 				return int8(env.Outer.Binds[idx].Int())
-			}
+			})
 		case r.Int16:
-			return func(env *Env) int16 {
+			return ExprInt16(func(env *Env) int16 {
 				return int16(env.Outer.Binds[idx].Int())
-			}
+			})
 		case r.Int32:
-			return func(env *Env) int32 {
+			return ExprInt32(func(env *Env) int32 {
 				return int32(env.Outer.Binds[idx].Int())
-			}
+			})
 		case r.Int64:
-			return func(env *Env) int64 {
+			return ExprInt64(func(env *Env) int64 {
 				return env.Outer.Binds[idx].Int()
-			}
+			})
 		case r.Uint:
-			return func(env *Env) uint {
+			return ExprUint(func(env *Env) uint {
 				return uint(env.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Uint8:
-			return func(env *Env) uint8 {
+			return ExprUint8(func(env *Env) uint8 {
 				return uint8(env.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Uint16:
-			return func(env *Env) uint16 {
+			return ExprUint16(func(env *Env) uint16 {
 				return uint16(env.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Uint32:
-			return func(env *Env) uint32 {
+			return ExprUint32(func(env *Env) uint32 {
 				return uint32(env.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Uint64:
-			return func(env *Env) uint64 {
+			return ExprUint64(func(env *Env) uint64 {
 				return env.Outer.Binds[idx].Uint()
-			}
+			})
 		case r.Uintptr:
-			return func(env *Env) uintptr {
+			return ExprUintptr(func(env *Env) uintptr {
 				return uintptr(env.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Float32:
-			return func(env *Env) float32 {
+			return ExprFloat32(func(env *Env) float32 {
 				return float32(env.Outer.Binds[idx].Float())
-			}
+			})
 		case r.Float64:
-			return func(env *Env) float64 {
+			return ExprFloat64(func(env *Env) float64 {
 				return env.Outer.Binds[idx].Float()
-			}
+			})
 		case r.Complex64:
-			return func(env *Env) complex64 {
+			return ExprComplex64(func(env *Env) complex64 {
 				return complex64(env.Outer.Binds[idx].Complex())
-			}
+			})
 		case r.Complex128:
-			return func(env *Env) complex128 {
+			return ExprComplex128(func(env *Env) complex128 {
 				return env.Outer.Binds[idx].Complex()
-			}
+			})
 		case r.String:
-			return func(env *Env) string {
+			return ExprString(func(env *Env) string {
 				return env.Outer.Binds[idx].String()
-			}
+			})
 		default:
-			return func(env *Env) (r.Value, []r.Value) {
+			return Expr1(bind.Type, func(env *Env) (r.Value, []r.Value) {
 				return env.Outer.Binds[idx], nil
-			}
+			})
 		}
 	case 2:
 		switch k {
 		case r.Bool:
-			return func(env *Env) bool {
+			return ExprBool(func(env *Env) bool {
 				return env.Outer.Outer.Binds[idx].Bool()
-			}
+			})
 		case r.Int:
-			return func(env *Env) int {
+			return ExprInt(func(env *Env) int {
 				return int(env.Outer.Outer.Binds[idx].Int())
-			}
+			})
 		case r.Int8:
-			return func(env *Env) int8 {
+			return ExprInt8(func(env *Env) int8 {
 				return int8(env.Outer.Outer.Binds[idx].Int())
-			}
+			})
 		case r.Int16:
-			return func(env *Env) int16 {
+			return ExprInt16(func(env *Env) int16 {
 				return int16(env.Outer.Outer.Binds[idx].Int())
-			}
+			})
 		case r.Int32:
-			return func(env *Env) int32 {
+			return ExprInt32(func(env *Env) int32 {
 				return int32(env.Outer.Outer.Binds[idx].Int())
-			}
+			})
 		case r.Int64:
-			return func(env *Env) int64 {
+			return ExprInt64(func(env *Env) int64 {
 				return env.Outer.Outer.Binds[idx].Int()
-			}
+			})
 		case r.Uint:
-			return func(env *Env) uint {
+			return ExprUint(func(env *Env) uint {
 				return uint(env.Outer.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Uint8:
-			return func(env *Env) uint8 {
+			return ExprUint8(func(env *Env) uint8 {
 				return uint8(env.Outer.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Uint16:
-			return func(env *Env) uint16 {
+			return ExprUint16(func(env *Env) uint16 {
 				return uint16(env.Outer.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Uint32:
-			return func(env *Env) uint32 {
+			return ExprUint32(func(env *Env) uint32 {
 				return uint32(env.Outer.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Uint64:
-			return func(env *Env) uint64 {
+			return ExprUint64(func(env *Env) uint64 {
 				return env.Outer.Outer.Binds[idx].Uint()
-			}
+			})
 		case r.Uintptr:
-			return func(env *Env) uintptr {
+			return ExprUintptr(func(env *Env) uintptr {
 				return uintptr(env.Outer.Outer.Binds[idx].Uint())
-			}
+			})
 		case r.Float32:
-			return func(env *Env) float32 {
+			return ExprFloat32(func(env *Env) float32 {
 				return float32(env.Outer.Outer.Binds[idx].Float())
-			}
+			})
 		case r.Float64:
-			return func(env *Env) float64 {
+			return ExprFloat64(func(env *Env) float64 {
 				return env.Outer.Outer.Binds[idx].Float()
-			}
+			})
 		case r.Complex64:
-			return func(env *Env) complex64 {
+			return ExprComplex64(func(env *Env) complex64 {
 				return complex64(env.Outer.Outer.Binds[idx].Complex())
-			}
+			})
 		case r.Complex128:
-			return func(env *Env) complex128 {
+			return ExprComplex128(func(env *Env) complex128 {
 				return env.Outer.Outer.Binds[idx].Complex()
-			}
+			})
 		case r.String:
-			return func(env *Env) string {
+			return ExprString(func(env *Env) string {
 				return env.Outer.Outer.Binds[idx].String()
-			}
+			})
 		default:
-			return func(env *Env) (r.Value, []r.Value) {
+			return Expr1(bind.Type, func(env *Env) (r.Value, []r.Value) {
 				return env.Outer.Outer.Binds[idx], nil
-			}
+			})
 		}
 	default:
 		switch k {
 		case r.Bool:
-			return func(env *Env) bool {
-				for i := 0; i < upn; i++ {
+			return ExprBool(func(env *Env) bool {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return env.Binds[idx].Bool()
-			}
+				return env.Outer.Outer.Outer.Binds[idx].Bool()
+			})
 		case r.Int:
-			return func(env *Env) int {
-				for i := 0; i < upn; i++ {
+			return ExprInt(func(env *Env) int {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return int(env.Binds[idx].Int())
-			}
+				return int(env.Outer.Outer.Outer.Binds[idx].Int())
+			})
 		case r.Int8:
-			return func(env *Env) int8 {
-				for i := 0; i < upn; i++ {
+			return ExprInt8(func(env *Env) int8 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return int8(env.Binds[idx].Int())
-			}
+				return int8(env.Outer.Outer.Outer.Binds[idx].Int())
+			})
 		case r.Int16:
-			return func(env *Env) int16 {
-				for i := 0; i < upn; i++ {
+			return ExprInt16(func(env *Env) int16 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return int16(env.Binds[idx].Int())
-			}
+				return int16(env.Outer.Outer.Outer.Binds[idx].Int())
+			})
 		case r.Int32:
-			return func(env *Env) int32 {
-				for i := 0; i < upn; i++ {
+			return ExprInt32(func(env *Env) int32 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return int32(env.Binds[idx].Int())
-			}
+				return int32(env.Outer.Outer.Outer.Binds[idx].Int())
+			})
 		case r.Int64:
-			return func(env *Env) int64 {
-				for i := 0; i < upn; i++ {
+			return ExprInt64(func(env *Env) int64 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return env.Binds[idx].Int()
-			}
+				return env.Outer.Outer.Outer.Binds[idx].Int()
+			})
 		case r.Uint:
-			return func(env *Env) uint {
-				for i := 0; i < upn; i++ {
+			return ExprUint(func(env *Env) uint {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return uint(env.Binds[idx].Uint())
-			}
+				return uint(env.Outer.Outer.Outer.Binds[idx].Uint())
+			})
 		case r.Uint8:
-			return func(env *Env) uint8 {
-				for i := 0; i < upn; i++ {
+			return ExprUint8(func(env *Env) uint8 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return uint8(env.Binds[idx].Uint())
-			}
+				return uint8(env.Outer.Outer.Outer.Binds[idx].Uint())
+			})
 		case r.Uint16:
-			return func(env *Env) uint16 {
-				for i := 0; i < upn; i++ {
+			return ExprUint16(func(env *Env) uint16 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return uint16(env.Binds[idx].Uint())
-			}
+				return uint16(env.Outer.Outer.Outer.Binds[idx].Uint())
+			})
 		case r.Uint32:
-			return func(env *Env) uint32 {
-				for i := 0; i < upn; i++ {
+			return ExprUint32(func(env *Env) uint32 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return uint32(env.Binds[idx].Uint())
-			}
+				return uint32(env.Outer.Outer.Outer.Binds[idx].Uint())
+			})
 		case r.Uint64:
-			return func(env *Env) uint64 {
-				for i := 0; i < upn; i++ {
+			return ExprUint64(func(env *Env) uint64 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return env.Binds[idx].Uint()
-			}
+				return env.Outer.Outer.Outer.Binds[idx].Uint()
+			})
 		case r.Uintptr:
-			return func(env *Env) uintptr {
-				for i := 0; i < upn; i++ {
+			return ExprUintptr(func(env *Env) uintptr {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return uintptr(env.Binds[idx].Uint())
-			}
+				return uintptr(env.Outer.Outer.Outer.Binds[idx].Uint())
+			})
 		case r.Float32:
-			return func(env *Env) float32 {
-				for i := 0; i < upn; i++ {
+			return ExprFloat32(func(env *Env) float32 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return float32(env.Binds[idx].Float())
-			}
+				return float32(env.Outer.Outer.Outer.Binds[idx].Float())
+			})
 		case r.Float64:
-			return func(env *Env) float64 {
-				for i := 0; i < upn; i++ {
+			return ExprFloat64(func(env *Env) float64 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return env.Binds[idx].Float()
-			}
+				return env.Outer.Outer.Outer.Binds[idx].Float()
+			})
 		case r.Complex64:
-			return func(env *Env) complex64 {
-				for i := 0; i < upn; i++ {
+			return ExprComplex64(func(env *Env) complex64 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return complex64(env.Binds[idx].Complex())
-			}
+				return complex64(env.Outer.Outer.Outer.Binds[idx].Complex())
+			})
 		case r.Complex128:
-			return func(env *Env) complex128 {
-				for i := 0; i < upn; i++ {
+			return ExprComplex128(func(env *Env) complex128 {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return env.Binds[idx].Complex()
-			}
+				return env.Outer.Outer.Outer.Binds[idx].Complex()
+			})
 		case r.String:
-			return func(env *Env) string {
-				for i := 0; i < upn; i++ {
+			return ExprString(func(env *Env) string {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return env.Binds[idx].String()
-			}
+				return env.Outer.Outer.Outer.Binds[idx].String()
+			})
 		default:
-			return func(env *Env) (r.Value, []r.Value) {
-				for i := 0; i < upn; i++ {
+			return Expr1(bind.Type, func(env *Env) (r.Value, []r.Value) {
+				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-				return env.Binds[idx], nil
-			}
+				return env.Outer.Outer.Outer.Binds[idx], nil
+			})
 		}
 	}
 }

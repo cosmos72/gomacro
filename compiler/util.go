@@ -170,3 +170,35 @@ func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
 	}
 	return val0, vals
 }
+
+// MultipleX joins compiled statements into a single statement that returns the first value of each
+func MultipleX(funs []X) X {
+	return func(env *Env) (r.Value, []r.Value) {
+		n := len(funs)
+		rets := make([]r.Value, n)
+		for i, fun := range funs {
+			rets[i], _ = fun(env)
+		}
+		return UnpackValues(rets)
+	}
+}
+
+// MultipleValues joins compiled expressions into a single function that returns the first value of each
+func (c *Comp) MultipleValues(inits []*Expr) X {
+	funs := make([]X, len(inits))
+
+	for i, init := range inits {
+		nout := init.NumOut()
+		if nout == 0 {
+			c.Warnf("expression returns no value")
+		} else if nout > 1 {
+			c.Warnf("expression returns multiple values, using only the first one: ", init.Types)
+		}
+		if init.Const() {
+			funs[i] = ToX(init.Value)
+		} else {
+			funs[i] = ToX(init.Fun)
+		}
+	}
+	return MultipleX(funs)
+}

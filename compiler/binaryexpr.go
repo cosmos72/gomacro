@@ -25,95 +25,77 @@
 package compiler
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
+	r "reflect"
 
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-func (c *Comp) BinaryExpr(node *ast.BinaryExpr) I {
+func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 	x := c.Expr(node.X)
 	y := c.Expr(node.Y)
-	bothLiteral := isLiteral(x) && isLiteral(y)
-	var z I
+	bothConst := x.Const() && y.Const()
+	var z *Expr
 
 	switch op := node.Op; op {
-	case token.ADD, token.ADD_ASSIGN:
-		z = c.Add(op, x, y)
-	case token.SUB, token.SUB_ASSIGN:
-		z = c.Sub(op, x, y)
-	case token.MUL, token.MUL_ASSIGN:
-		z = c.Mul(op, x, y)
-	case token.QUO, token.QUO_ASSIGN:
-		z = c.Quo(op, x, y)
-	case token.REM, token.REM_ASSIGN:
-		z = c.Rem(op, x, y)
-	case token.AND, token.AND_ASSIGN:
-		z = c.And(op, x, y)
-	case token.OR, token.OR_ASSIGN:
-		z = c.Or(op, x, y)
-	case token.XOR, token.XOR_ASSIGN:
-		z = c.Xor(op, x, y)
-	case token.SHL, token.SHL_ASSIGN:
-		z = c.Shl(op, x, y)
-	case token.SHR, token.SHR_ASSIGN:
-		z = c.Shr(op, x, y)
-	case token.AND_NOT, token.AND_NOT_ASSIGN:
-		z = c.Andnot(op, x, y)
-	case token.LAND:
-		z = c.Land(op, x, y)
-	case token.LOR:
-		z = c.Lor(op, x, y)
-	case token.EQL:
-		z = c.Eql(op, x, y)
-	case token.LSS:
-		z = c.Lss(op, x, y)
-	case token.GTR:
-		z = c.Gtr(op, x, y)
-	case token.NEQ:
-		z = c.Neq(op, x, y)
-	case token.LEQ:
-		z = c.Leq(op, x, y)
-	case token.GEQ:
-		z = c.Geq(op, x, y)
+	/*
+		case token.ADD, token.ADD_ASSIGN:
+			z = c.Add(op, x, y)
+		case token.SUB, token.SUB_ASSIGN:
+			z = c.Sub(op, x, y)
+		case token.MUL, token.MUL_ASSIGN:
+			z = c.Mul(op, x, y)
+		case token.QUO, token.QUO_ASSIGN:
+			z = c.Quo(op, x, y)
+		case token.REM, token.REM_ASSIGN:
+			z = c.Rem(op, x, y)
+		case token.AND, token.AND_ASSIGN:
+			z = c.And(op, x, y)
+		case token.OR, token.OR_ASSIGN:
+			z = c.Or(op, x, y)
+		case token.XOR, token.XOR_ASSIGN:
+			z = c.Xor(op, x, y)
+		case token.SHL, token.SHL_ASSIGN:
+			z = c.Shl(op, x, y)
+		case token.SHR, token.SHR_ASSIGN:
+			z = c.Shr(op, x, y)
+		case token.AND_NOT, token.AND_NOT_ASSIGN:
+			z = c.Andnot(op, x, y)
+		case token.LAND:
+			z = c.Land(op, x, y)
+		case token.LOR:
+			z = c.Lor(op, x, y)
+		case token.EQL:
+			z = c.Eql(op, x, y)
+		case token.LSS:
+			z = c.Lss(op, x, y)
+		case token.GTR:
+			z = c.Gtr(op, x, y)
+		case token.NEQ:
+			z = c.Neq(op, x, y)
+		case token.LEQ:
+			z = c.Leq(op, x, y)
+		case token.GEQ:
+			z = c.Geq(op, x, y)
+	*/
 	default:
-		return c.unsupportedBinaryExpr(node.Op, x, y)
-	}
-	if bothLiteral {
-		// constant propagation
-		return c.evalConst(z)
-	} else {
+		c.unsupportedBinaryExpr(node.Op, x, y)
 		return z
 	}
-}
-
-// convert x and y to the same type. needed to emulate Go untyped constants
-func toSameFuncType(op token.Token, x, y I) (I, I) {
-	xlit, ylit := isLiteral(x), isLiteral(y)
-	if ylit {
-		if xlit {
-			x, y = literalsToSameType(op, x, y)
-			t := TypeOf(x)
-			return wrapLiteral(x, t), wrapLiteral(y, t)
-		} else {
-			xt := RetOf(x)
-			return x, wrapLiteral(y, xt)
-		}
-	} else {
-		if xlit {
-			yt := RetOf(y)
-			return wrapLiteral(x, yt), y
-		} else {
-			return x, y
-		}
+	if bothConst {
+		// constant propagation
+		z.EvalConst()
 	}
+	return z
 }
 
-func (c *Comp) Shl(op token.Token, x I, y I) I {
+func (c *Comp) Shl(op token.Token, x *Expr, y *Expr) I {
 	return c.unsupportedBinaryExpr(op, x, y)
 }
 
-func (c *Comp) Shr(op token.Token, x I, y I) I {
+func (c *Comp) Shr(op token.Token, x *Expr, y *Expr) I {
 	return c.unsupportedBinaryExpr(op, x, y)
 }
 
@@ -128,7 +110,7 @@ func toPred(expr I) (val bool, pred func(*Env) bool, err bool) {
 	}
 }
 
-func (c *Comp) Land(op token.Token, x I, y I) I {
+func (c *Comp) Land(op token.Token, x *Expr, y *Expr) I {
 	xval, xfun, xerr := toPred(x)
 	yval, yfun, yerr := toPred(y)
 	if xerr || yerr {
@@ -154,35 +136,140 @@ func (c *Comp) Land(op token.Token, x I, y I) I {
 	}
 }
 
-func (c *Comp) Lor(op token.Token, x I, y I) I {
+func (c *Comp) Lor(op token.Token, x *Expr, y *Expr) *Expr {
 	xval, xfun, xerr := toPred(x)
 	yval, yfun, yerr := toPred(y)
 	if xerr || yerr {
-		return c.unsupportedBinaryExpr(op, x, y)
+		c.unsupportedBinaryExpr(op, x, y)
+		return nil
 	}
 	// optimize short-circuit logic
 	if xfun == nil {
 		if xval {
-			return true
+			return ExprValue(true)
 		}
 		return y
 	}
 	if yfun == nil {
 		if yval {
-			return func(env *Env) bool {
+			return ExprBool(func(env *Env) bool {
 				return xfun(env) || true
-			}
+			})
 		}
 		return x
 	}
-	return func(env *Env) bool {
+	return ExprBool(func(env *Env) bool {
 		return xfun(env) || yfun(env)
+	})
+}
+
+func (c *Comp) unsupportedBinaryExpr(op token.Token, x *Expr, y *Expr) I {
+	opstr := mt.String(op)
+	xstr := "<expr>"
+	ystr := xstr
+	if x.Const() {
+		xstr = fmt.Sprintf("%v", x.Value)
+	}
+	if y.Const() {
+		ystr = fmt.Sprintf("%v", y.Value)
+	}
+	c.Errorf("unsupported binary operation <%v> %s <%v> in expression: %v %s %v",
+		x.Type, opstr, y.Type, xstr, opstr, ystr)
+	return nil
+}
+
+// convert x and y to the same type. needed to emulate Go untyped constants
+func toSameFuncType(op token.Token, x, y *Expr) {
+	xlit, ylit := x.Const(), y.Const()
+	if ylit {
+		if xlit {
+			xi, yi := constsToSameType(op, x.Value, y.Value)
+			x.SetWithFun(xi)
+			y.SetWithFun(yi)
+		} else {
+			y.ConstTo(x.Type)
+		}
+	} else {
+		if xlit {
+			x.ConstTo(y.Type)
+		} else {
+			if x.Type != y.Type {
+				errorf("unsupported binary operation <%v> %s <%v>", x.Type, mt.String(op), y.Type)
+			}
+		}
 	}
 }
 
-func (c *Comp) unsupportedBinaryExpr(op token.Token, x I, y I) I {
-	str := mt.String(op)
-	c.Errorf("unsupported binary operation <%v> %s <%v> in expression: %v %s %v",
-		RetOf(x), str, RetOf(y), x, str, y)
-	return nil
+func constsToSameType(op token.Token, x, y I) (I, I) {
+	if x == nil {
+		if y == nil {
+			return x, y
+		} else {
+			str := mt.String(op)
+			errorf("unsupported binary operation <%T> %s <%T>: %v %s %v",
+				x, str, y, x, str, y)
+		}
+	}
+	xt, yt := TypeOf(x), TypeOf(y)
+	xk, yk := xt.Kind(), yt.Kind()
+	if xk == yk {
+		return x, y
+	}
+	xc, yc := kindToClass(xk), kindToClass(yk)
+	if xc == yc {
+		// same class, only the number of bits differs
+		if xk < yk {
+			x = r.ValueOf(x).Convert(yt).Interface()
+		} else {
+			y = r.ValueOf(y).Convert(xt).Interface()
+		}
+		return x, y
+	}
+	if xc == r.Int && yc == r.Uint {
+		// mixing signed and unsigned integers
+		xi := r.ValueOf(x).Int()
+		yi := r.ValueOf(y).Uint()
+		return intsToSameType(xi, yi, xt, yt)
+	} else if xc == r.Uint && yc == r.Int {
+		// mixing signed and unsigned integers
+		xi := r.ValueOf(x).Uint()
+		yi := r.ValueOf(y).Int()
+		y, x = intsToSameType(yi, xi, yt, xt)
+		return x, y
+	}
+	// at least one is a float or complex... or a non-integer
+	if xc == r.Complex128 || yc == r.Complex128 {
+		if xc != r.Complex128 {
+			x = complex(r.ValueOf(x).Convert(typeOfFloat64).Float(), 0.0)
+		}
+		if yc != r.Complex128 {
+			y = complex(r.ValueOf(y).Convert(typeOfFloat64).Float(), 0.0)
+		}
+	} else if xc == r.Float64 || yc == r.Float64 {
+		x = r.ValueOf(x).Convert(typeOfFloat64).Float()
+		y = r.ValueOf(y).Convert(typeOfFloat64).Float()
+	} else {
+		errorf("cannot convert  to the same type: %v <%T> and %v <%T>", x, x, y, y)
+	}
+	return x, y
+}
+
+func intsToSameType(x int64, y uint64, xt r.Type, yt r.Type) (I, I) {
+	// try int for both
+	if x == int64(int(x)) && y == uint64(int(y)) {
+		return int(x), int(y)
+	}
+	// try uint for both
+	if x >= 0 && x == int64(uint(x)) && y == uint64(uint(y)) {
+		return uint(x), uint(y)
+	}
+	// try int64 for both
+	if y == uint64(int64(y)) {
+		return x, int64(y)
+	}
+	// try uint64 for both
+	if x >= 0 && x == int64(uint64(x)) {
+		return uint64(x), y
+	}
+	return float64(x), float64(y)
 }

@@ -32,9 +32,52 @@ import (
 	"github.com/cosmos72/gomacro/constants"
 )
 
-type Bind struct {
-	Index int
+// Lit represents a literal value, i.e. a constant
+type Lit struct {
 	Type  r.Type
+	Value I // may be nil when embedded in other structs that represent non-constants
+}
+
+// Expr represents an expression in the compiler
+type Expr struct {
+	Lit
+	Types []r.Type // in case the expression produces multiple values. if nil, use Lit.Type.
+	Fun   I        // function that evaluates the expression at runtime.
+	isNil bool
+}
+
+func (e *Expr) Const() bool {
+	return e.Value != nil || e.isNil
+}
+
+// NumOut returns the number of values that an expression will produce when evaluated
+func (e *Expr) NumOut() int {
+	if e.Types == nil {
+		return 1
+	}
+	return len(e.Types)
+}
+
+// Out returns the i-th type that an expression will produce when evaluated
+func (e *Expr) Out(i int) r.Type {
+	if e.Types == nil {
+		return e.Type
+	}
+	return e.Types[i]
+}
+
+// Bind represents a constant, variable, or function in the compiler
+type Bind struct {
+	Lit
+	Index int // < 0 for literals i.e. constants
+}
+
+func (b *Bind) Const() bool {
+	return b.Index < 0
+}
+
+func BindValue(value I) Bind {
+	return Bind{Lit: Lit{Type: r.TypeOf(value), Value: value}, Index: -1}
 }
 
 type NamedType struct {
@@ -43,6 +86,7 @@ type NamedType struct {
 
 type Comp struct {
 	Binds      map[string]Bind
+	BindNum    int // len(Binds) - # of constants
 	Types      map[string]r.Type
 	NamedTypes map[r.Type]NamedType
 	Outer      *Comp
@@ -121,6 +165,10 @@ func (comp *Comp) Errorf(format string, args ...interface{}) X {
 	panic(runtimeError{comp, format, args})
 }
 
+func (comp *Comp) Error(err error) interface{} {
+	panic(err)
+}
+
 func errorf(format string, args ...interface{}) X {
 	panic(runtimeError{nil, format, args})
 }
@@ -170,4 +218,5 @@ var (
 	typeOfError     = r.TypeOf((*error)(nil)).Elem()
 
 	zeroStrings = []string{}
+	zeroTypes   = []r.Type{}
 )
