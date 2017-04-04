@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * bench_test.go
+ * expr_test.go
  *
  *  Created on: Mar 06 2017
  *      Author: Massimiliano Ghilardi
