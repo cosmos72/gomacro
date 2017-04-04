@@ -119,7 +119,7 @@ func (expr *Expr) EvalConst() I {
 	if expr.Const() {
 		return expr.Value
 	}
-	ret, rets := ToX(expr.Fun)(nil)
+	ret, rets := ToXV(expr.Fun)(nil)
 	if ret == None {
 		errorf("constant should evaluate to a single value, found no values at all")
 		return nil

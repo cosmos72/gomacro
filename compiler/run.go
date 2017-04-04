@@ -28,28 +28,55 @@ import (
 	r "reflect"
 )
 
-func (c *CompEnv) Run(fun X) (r.Value, []r.Value) {
+func (c *CompEnv) Run(fun X) {
 	c.growEnv()
-	return fun(c.Env)
+	fun(c.Env)
 }
 
 // DefConst compiles a constant declaration, then executes it
-func (c *CompEnv) DefConst(name string, t r.Type, value I) (r.Value, []r.Value) {
-	value = c.DeclConst0(name, t, value)
-	return r.ValueOf(value), nil
+func (c *CompEnv) DefConst(name string, t r.Type, value I) {
+	c.DeclConst0(name, t, value)
+
 }
 
 // DefVar compiles a variable declaration, then executes it
-func (c *CompEnv) DefVar(name string, t r.Type, value I) (r.Value, []r.Value) {
+func (c *CompEnv) DefVar(name string, t r.Type, value I) {
 	fun := c.DeclVar0(name, t, ExprValue(value))
 	c.growEnv()
-	return fun(c.Env)
+	fun(c.Env)
 }
 
 func (c *CompEnv) growEnv() {
 	// usually we know at Env creation how many slots are needed in c.Env.Binds
 	// but here we are modifying an existing Env...
-	for len(c.Env.Binds) < len(c.Binds) {
-		c.Env.Binds = append(c.Env.Binds, None)
+	curr, min := cap(c.Env.Binds), c.BindNum
+	if curr < min {
+		if curr < min/2 {
+			curr = min
+		} else {
+			curr *= 2
+		}
+		binds := make([]r.Value, curr)
+		copy(binds, c.Env.Binds)
+		c.Env.Binds = binds
 	}
+	if len(c.Env.Binds) < min {
+		c.Env.Binds = c.Env.Binds[0:min]
+	}
+
+	curr, min = cap(c.Env.IntBinds), c.IntBindNum
+	if curr < min {
+		if curr < min/2 {
+			curr = min
+		} else {
+			curr *= 2
+		}
+		binds := make([]uint64, curr)
+		copy(binds, c.Env.IntBinds)
+		c.Env.IntBinds = binds
+	}
+	if len(c.Env.IntBinds) < min {
+		c.Env.IntBinds = c.Env.IntBinds[0:min]
+	}
+
 }

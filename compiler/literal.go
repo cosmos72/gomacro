@@ -242,7 +242,7 @@ func (e *Expr) SetWithFun(x I) {
 	e.WithFun()
 }
 
-// if Expr is a constant, WithFun sets Expr.Fun to a closure that will return such constant
+// if Expr is a constant, WithFun sets Expr.Fun to a closure that will return such constant.
 // in any case, it will then return Expr.Fun
 func (e *Expr) WithFun() I {
 	if !e.Const() {
@@ -251,7 +251,7 @@ func (e *Expr) WithFun() I {
 	var fun I
 	switch x := e.Value.(type) {
 	case nil:
-		fun = XNil
+		fun = XVNil
 	case bool:
 		if x {
 			fun = XTrue

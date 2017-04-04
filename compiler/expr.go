@@ -85,16 +85,3 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 		return nil
 	}
 }
-
-func (c *Comp) CallInt(fun X, args ...X) func(*Env) int {
-	return func(env *Env) int {
-		fvalue, _ := fun(env)
-		f := fvalue.Interface().(FuncInt)
-		n := len(args)
-		values := make([]r.Value, n)
-		for i, arg := range args {
-			values[i], _ = arg(env)
-		}
-		return f(values...)
-	}
-}

@@ -44,40 +44,165 @@ func ValueType(v r.Value) r.Type {
 	return v.Type()
 }
 
-func XNop(env *Env) (r.Value, []r.Value) {
-	return None, nil
+func PackValues(val0 r.Value, vals []r.Value) []r.Value {
+	if len(vals) == 0 && val0 != None {
+		vals = []r.Value{val0}
+	}
+	return vals
 }
 
-func XNil(env *Env) (r.Value, []r.Value) {
-	return Nil, nil
+func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
+	val0 := None
+	if len(vals) > 0 {
+		val0 = vals[0]
+	}
+	return val0, vals
 }
 
-func XTrue(env *Env) (r.Value, []r.Value) {
-	return True, nil
+func ExprsToX(inits []*Expr) X {
+	var funs []X
+
+	for _, init := range inits {
+		if !init.Const() {
+			funs = append(funs, ToX(init.Fun))
+		}
+	}
+	return ExprStmtsToX(funs)
 }
 
-func XFalse(env *Env) (r.Value, []r.Value) {
+func ExprStmtsToX(funs []X) X {
+	funs = RemoveNils(funs)
+	switch len(funs) {
+	case 0:
+		return nil
+	case 1:
+		return funs[0]
+	case 2:
+		return func(env *Env) {
+			funs[0](env)
+			funs[1](env)
+		}
+	default:
+		return func(env *Env) {
+			for _, fun := range funs {
+				fun(env)
+			}
+		}
+	}
+}
+
+func XFalse() bool {
+	return false
+}
+
+func XTrue() bool {
+	return true
+}
+
+func XVFalse() (r.Value, []r.Value) {
 	return False, nil
 }
 
+func XVTrue() (r.Value, []r.Value) {
+	return True, nil
+}
+
+func XVNil() (r.Value, []r.Value) {
+	return Nil, nil
+}
+
 func ToX(expr I) X {
+	if isLiteral(expr) {
+		return nil
+	}
 	switch x := expr.(type) {
-	case nil:
-		return XNil
-	case bool:
-		if x {
-			return XTrue
-		} else {
-			return XFalse
-		}
-	case int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64, uintptr,
-		float32, float64, complex64, complex128, string:
-		v := r.ValueOf(expr)
-		return func(env *Env) (r.Value, []r.Value) {
-			return v, nil
-		}
 	case X:
+		return x
+	case func(*Env):
+		return x
+	case func(*Env) bool:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) int:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) int8:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) int16:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) int32:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) int64:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) uint:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) uint8:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) uint16:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) uint32:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) uint64:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) uintptr:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) float32:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) float64:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) complex64:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) complex128:
+		return func(env *Env) {
+			x(env)
+		}
+	case func(*Env) string:
+		return func(env *Env) {
+			x(env)
+		}
+	default:
+		errorf("unsupported expression, cannot convert to func(*Env): %v <%T>",
+			expr, expr)
+		return nil
+	}
+}
+
+func ToXV(expr I) XV {
+	if isLiteral(expr) {
+		return func(*Env) (r.Value, []r.Value) {
+			return r.ValueOf(expr), nil
+		}
+	}
+	switch x := expr.(type) {
+	case XV:
 		return x
 	case func(*Env) (r.Value, []r.Value):
 		return x
@@ -150,55 +275,8 @@ func ToX(expr I) X {
 			return r.ValueOf(x(env)), nil
 		}
 	default:
-		errorf("unsupported expression, cannot convert to func(*Env) (r.Value[], []r.Value): %v <%T>",
+		errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%T>",
 			expr, expr)
 		return nil
 	}
-}
-
-func PackValues(val0 r.Value, vals []r.Value) []r.Value {
-	if len(vals) == 0 && val0 != None {
-		vals = []r.Value{val0}
-	}
-	return vals
-}
-
-func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
-	val0 := None
-	if len(vals) > 0 {
-		val0 = vals[0]
-	}
-	return val0, vals
-}
-
-// MultipleX joins compiled statements into a single statement that returns the first value of each
-func MultipleX(funs []X) X {
-	return func(env *Env) (r.Value, []r.Value) {
-		n := len(funs)
-		rets := make([]r.Value, n)
-		for i, fun := range funs {
-			rets[i], _ = fun(env)
-		}
-		return UnpackValues(rets)
-	}
-}
-
-// MultipleValues joins compiled expressions into a single function that returns the first value of each
-func (c *Comp) MultipleValues(inits []*Expr) X {
-	funs := make([]X, len(inits))
-
-	for i, init := range inits {
-		nout := init.NumOut()
-		if nout == 0 {
-			c.Warnf("expression returns no value")
-		} else if nout > 1 {
-			c.Warnf("expression returns multiple values, using only the first one: ", init.Types)
-		}
-		if init.Const() {
-			funs[i] = ToX(init.Value)
-		} else {
-			funs[i] = ToX(init.Fun)
-		}
-	}
-	return MultipleX(funs)
 }

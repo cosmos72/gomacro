@@ -31,20 +31,14 @@ import (
 )
 
 // DeclType compiles a type declaration.
-func (c *Comp) DeclType(node ast.Spec) X {
+func (c *Comp) DeclType(node ast.Spec) {
 	switch node := node.(type) {
 	case *ast.TypeSpec:
 		name := node.Name.Name
 		t := c.CompileType(node.Type)
 		c.DeclType0(name, t)
-
-		vt := r.ValueOf(&t).Elem() // return a reflect.Type, not the concrete type
-		return func(*Env) (r.Value, []r.Value) {
-			return vt, nil
-		}
-
 	default:
-		return c.Errorf("Compile: unexpected type declaration, expecting <*ast.TypeSpec>, found: %v <%v>", node, r.TypeOf(node))
+		c.Errorf("Compile: unexpected type declaration, expecting <*ast.TypeSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 

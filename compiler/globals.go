@@ -60,16 +60,43 @@ func (e *Expr) NumOut() int {
 
 // Out returns the i-th type that an expression will produce when evaluated
 func (e *Expr) Out(i int) r.Type {
-	if e.Types == nil {
+	if i == 0 && e.Types == nil {
 		return e.Type
 	}
 	return e.Types[i]
 }
 
+type BindIndex int
+
+const (
+	//	UintMax = ^uint(0)
+	//	IntMax  = int(UintMax / 2)
+	//	IntMin  = int(-IntMax - 1)
+
+	NoBind = -1
+)
+
+func MakeIntBindIndex(i int) BindIndex {
+	return BindIndex(^i) + NoBind
+}
+
+// IntBind returns true if BindIndex refers to a slot in Env.IntBinds (the default is a slot in Env.Binds)
+func (i BindIndex) IntBind() bool {
+	return i < NoBind
+}
+
+func (i BindIndex) Index() int {
+	if i >= NoBind {
+		return int(i)
+	} else {
+		return int(^i + NoBind)
+	}
+}
+
 // Bind represents a constant, variable, or function in the compiler
 type Bind struct {
 	Lit
-	Index int // < 0 for literals i.e. constants
+	Index BindIndex
 }
 
 func (b *Bind) Const() bool {
@@ -86,7 +113,8 @@ type NamedType struct {
 
 type Comp struct {
 	Binds      map[string]Bind
-	BindNum    int // len(Binds) - # of constants
+	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
+	IntBindNum int
 	Types      map[string]r.Type
 	NamedTypes map[r.Type]NamedType
 	Outer      *Comp
@@ -95,8 +123,9 @@ type Comp struct {
 }
 
 type Env struct {
-	Binds []r.Value
-	Outer *Env
+	Binds    []r.Value
+	IntBinds []uint64
+	Outer    *Env
 }
 
 type CompEnv struct {
@@ -111,7 +140,8 @@ type SReturn struct {
 
 type (
 	I     interface{}
-	X     func(*Env) (r.Value, []r.Value)
+	XV    func(*Env) (r.Value, []r.Value)
+	X     func(*Env)
 	XBool func(*Env) bool
 	/*
 		X1          func(*Env) r.Value

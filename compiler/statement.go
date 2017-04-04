@@ -28,38 +28,52 @@ import (
 	r "reflect"
 )
 
-func VarSet(idx int, expr X) X {
-	return func(env *Env) (r.Value, []r.Value) {
+func VarSet(idx int, expr XV) X {
+	return func(env *Env) {
 		val, _ := expr(env)
 		place := env.Binds[idx]
 		place.Set(val)
-		return place, nil
 	}
 }
 
 func VarIncInt(idx int) X {
-	return func(env *Env) (r.Value, []r.Value) {
+	return func(env *Env) {
 		v := env.Binds[idx]
 		v.SetInt(v.Int() + 1)
-		return v, nil
 	}
 }
 
-func If(pred XBool, then, els X) X {
-	if els != nil {
-		return func(env *Env) (r.Value, []r.Value) {
-			if pred(env) {
-				return then(env)
-			} else {
-				return els(env)
+func If(init X, pred XBool, then, els X) X {
+	if init != nil {
+		if els != nil {
+			return func(env *Env) {
+				if init(env); pred(env) {
+					then(env)
+				} else {
+					els(env)
+				}
+			}
+		} else {
+			return func(env *Env) {
+				if init(env); pred(env) {
+					then(env)
+				}
 			}
 		}
 	} else {
-		return func(env *Env) (r.Value, []r.Value) {
-			if pred(env) {
-				return then(env)
-			} else {
-				return None, nil
+		if els != nil {
+			return func(env *Env) {
+				if pred(env) {
+					then(env)
+				} else {
+					els(env)
+				}
+			}
+		} else {
+			return func(env *Env) {
+				if pred(env) {
+					then(env)
+				}
 			}
 		}
 	}
@@ -67,44 +81,53 @@ func If(pred XBool, then, els X) X {
 
 func For(init X, pred XBool, post X, body X) X {
 	if init == nil && post == nil {
-		return func(env *Env) (r.Value, []r.Value) {
+		return func(env *Env) {
 			for pred(env) {
 				body(env)
 			}
-			return None, nil
 		}
 
 	} else {
 		if init == nil || post == nil {
 			panic("invalid for(): init and post must be both present, or both omitted")
 		}
-		return func(env *Env) (r.Value, []r.Value) {
+		return func(env *Env) {
 			for init(env); pred(env); post(env) {
 				body(env)
 			}
-			return None, nil
 		}
 	}
 }
 
-func (c *Comp) Block(list ...X) X {
+func RemoveNils(list []X) []X {
+	j, n := 0, len(list)
+	for i := 0; i < n; i++ {
+		x := list[i]
+		if x != nil {
+			list[j] = x
+			j++
+		}
+	}
+	return list[0:j]
+}
+
+func Block(list ...X) X {
+	list = RemoveNils(list)
 	switch len(list) {
 	case 0:
-		return XNop
+		return nil
 	case 1:
 		return list[0]
 	case 2:
-		return func(env *Env) (r.Value, []r.Value) {
+		return func(env *Env) {
 			list[0](env)
-			return list[1](env)
+			list[1](env)
 		}
 	default:
-		return func(env *Env) (r.Value, []r.Value) {
-			n_1 := len(list) - 1
-			for i := 0; i < n_1; i++ {
-				list[i](env)
+		return func(env *Env) {
+			for _, x := range list {
+				x(env)
 			}
-			return list[n_1](env)
 		}
 	}
 }
@@ -112,21 +135,21 @@ func (c *Comp) Block(list ...X) X {
 func Return(exprs ...X) X {
 	switch n := len(exprs); n {
 	case 0:
-		return XNop
+		return nil
 	case 1:
-		expr := exprs[0]
+		// expr := exprs[0]
 		// return foo() returns *all* the values returned by foo, not just the first one
-		return func(env *Env) (r.Value, []r.Value) {
-			ret, rets := expr(env)
-			panic(SReturn{ret, rets})
+		return func(env *Env) {
+			// ret, rets := expr(env)
+			// panic(SReturn{ret, rets})
 		}
 	default:
-		return func(env *Env) (r.Value, []r.Value) {
+		return func(env *Env) {
 			n := len(exprs)
 			rets := make([]r.Value, n)
-			for i, value := range exprs {
-				rets[i], _ = value(env)
-			}
+			// for i, value := range exprs {
+			//	 rets[i], _ = value(env)
+			// }
 			ret0 := None
 			if len(rets) > 0 {
 				ret0 = rets[0]

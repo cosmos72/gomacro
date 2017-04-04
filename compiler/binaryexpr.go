@@ -180,9 +180,9 @@ func (c *Comp) unsupportedBinaryExpr(op token.Token, x *Expr, y *Expr) I {
 
 // convert x and y to the same type. needed to emulate Go untyped constants
 func toSameFuncType(op token.Token, x, y *Expr) {
-	xlit, ylit := x.Const(), y.Const()
-	if ylit {
-		if xlit {
+	xc, yc := x.Const(), y.Const()
+	if yc {
+		if xc {
 			xi, yi := constsToSameType(op, x.Value, y.Value)
 			x.SetWithFun(xi)
 			y.SetWithFun(yi)
@@ -190,7 +190,7 @@ func toSameFuncType(op token.Token, x, y *Expr) {
 			y.ConstTo(x.Type)
 		}
 	} else {
-		if xlit {
+		if xc {
 			x.ConstTo(y.Type)
 		} else {
 			if x.Type != y.Type {

@@ -34,7 +34,7 @@ import (
 func (c *Comp) Decl(node ast.Decl) X {
 	switch node := node.(type) {
 	case *ast.GenDecl:
-		return c.DeclGen(node)
+		return ExprStmtsToX(c.DeclGen(node))
 	case *ast.FuncDecl:
 		return c.DeclFunc(node, node.Type, node.Body)
 	default:
@@ -44,52 +44,52 @@ func (c *Comp) Decl(node ast.Decl) X {
 }
 
 // Decl compiles a constant, variable or type declaration - or an import
-func (c *Comp) DeclGen(node *ast.GenDecl) X {
-	var ret X
+func (c *Comp) DeclGen(node *ast.GenDecl) []X {
+	var funs []X
 	switch node.Tok {
 	case token.IMPORT:
 		for _, decl := range node.Specs {
-			ret = c.Import(decl)
+			c.Import(decl)
 		}
 	case token.CONST:
 		for _, decl := range node.Specs {
-			ret = c.DeclConsts(decl)
+			c.DeclConsts(decl)
 		}
 	case token.TYPE:
 		for _, decl := range node.Specs {
-			return c.DeclType(decl)
+			c.DeclType(decl)
 		}
 	case token.VAR:
 		for _, decl := range node.Specs {
-			ret = c.DeclVars(decl)
+			funs = append(funs, c.DeclVars(decl)...)
 		}
 	default:
 		c.Errorf("Compile: unsupported declaration kind, expecting token.IMPORT, token.CONST, token.TYPE or token.VAR, found %v: %v %<v>",
 			node.Tok, node, TypeOf(node))
-		return nil
 	}
-	return ret
+	return funs
 }
 
 // DeclConsts compiles a set of constant declarations
-func (c *Comp) DeclConsts(node ast.Spec) X {
+func (c *Comp) DeclConsts(node ast.Spec) {
 	switch node := node.(type) {
 	case *ast.ValueSpec:
 		names, t, inits := c.prepareDeclConstsOrVars(node.Names, node.Type, node.Values)
-		return c.DeclConsts0(names, t, inits)
+		c.DeclConsts0(names, t, inits)
 	default:
-		return c.Errorf("Compile: unsupported constant declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, TypeOf(node))
+		c.Errorf("Compile: unsupported constant declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, TypeOf(node))
 	}
 }
 
 // DeclConsts compiles a set of constant declarations
-func (c *Comp) DeclVars(node ast.Spec) X {
+func (c *Comp) DeclVars(node ast.Spec) []X {
 	switch node := node.(type) {
 	case *ast.ValueSpec:
 		names, t, inits := c.prepareDeclConstsOrVars(node.Names, node.Type, node.Values)
 		return c.DeclVars0(names, t, inits)
 	default:
-		return c.Errorf("Compile: unsupported variable declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, TypeOf(node))
+		c.Errorf("Compile: unsupported variable declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, TypeOf(node))
+		return nil
 	}
 }
 
@@ -108,56 +108,49 @@ func (c *Comp) prepareDeclConstsOrVars(idents []*ast.Ident, typ ast.Expr, exprs 
 	return names, t, inits
 }
 
-func (c *Comp) DeclConsts0(names []string, t r.Type, inits []*Expr) X {
+func (c *Comp) DeclConsts0(names []string, t r.Type, inits []*Expr) {
 	n := len(names)
 	if inits == nil {
 		c.Errorf("constants without initialization: %v", names)
 	} else if len(inits) != n {
 		c.Errorf("cannot declare %d constants with %d initializers: %v", names)
 	}
-	value0 := None
-	values := make([]r.Value, n)
 	for i, name := range names {
 		init := inits[i]
 		if !init.Const() {
 			c.Errorf("const initializer for %q is not a constant", name)
 		}
-		values[i] = r.ValueOf(c.DeclConst0(name, t, init.Value))
-	}
-	if n != 0 {
-		value0 = values[0]
-	}
-	return func(env *Env) (r.Value, []r.Value) {
-		return value0, values
+		c.DeclConst0(name, t, init.Value)
 	}
 }
 
-func (c *Comp) DeclVars0(names []string, t r.Type, inits []*Expr) X {
+func (c *Comp) DeclVars0(names []string, t r.Type, inits []*Expr) []X {
 	n := len(names)
 	ni := len(inits)
-	funs := make([]X, n)
+	var funs []X
 	if ni == 0 {
-		inits = make([]*Expr, n)
+		funs = make([]X, n)
 		for i := 0; i < n; i++ {
 			funs[i] = c.DeclVar0(names[i], t, nil)
 		}
 	} else if ni == n {
+		funs = make([]X, n)
 		for i := 0; i < n; i++ {
 			funs[i] = c.DeclVar0(names[i], t, inits[i])
 		}
 	} else if ni == 1 && n > 1 {
-		return c.DeclMultiVar0(names, t, inits[0])
+		funs = append(funs, c.DeclMultiVar0(names, t, inits[0]))
 	} else {
 		c.Errorf("cannot declare %d variables from %d expressions: %v", n, ni, names)
 	}
-	return MultipleX(funs)
+	return funs
 }
 
 // DeclConst0 compiles a constant declaration
-func (c *Comp) DeclConst0(name string, t r.Type, value I) I {
+func (c *Comp) DeclConst0(name string, t r.Type, value I) {
 	if !isLiteral(value) {
 		c.Errorf("const initializer for %q is not a constant", name)
-		return nil
+		return
 	}
 	bind := BindValue(value)
 	if t != nil {
@@ -165,7 +158,7 @@ func (c *Comp) DeclConst0(name string, t r.Type, value I) I {
 	}
 	// never define bindings for "_"
 	if name == "_" {
-		return value
+		return
 	}
 	if _, ok := c.Binds[name]; ok {
 		c.Warnf("redefined identifier: %v", name)
@@ -173,7 +166,6 @@ func (c *Comp) DeclConst0(name string, t r.Type, value I) I {
 		c.Binds = make(map[string]Bind)
 	}
 	c.Binds[name] = bind
-	return value
 }
 
 // DeclVar0 compiles a variable declaration
@@ -193,8 +185,9 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 			c.Errorf("initializer returns %d values, using only the first one to declare variable: %v", name)
 		}
 	}
-	idx := c.AddBind(name, t)
 	if init == nil || init.Const() {
+		idx := c.AddBind(name, t)
+		index := idx.Index()
 		var value r.Value
 		if init == nil || init.Value == nil {
 			// no initializer... use the zero-value of t
@@ -206,33 +199,106 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 			value = r.ValueOf(init.Value)
 		}
 		// never define bindings for "_"
-		if idx >= 0 {
-			return func(env *Env) (r.Value, []r.Value) {
-				place := r.New(t).Elem()
-				place.Set(value)
-				env.Binds[idx] = place
-				return value, nil
+		if idx == NoBind {
+			return nil
+		} else if idx.IntBind() {
+			var n uint64
+			switch kindToClass(t.Kind()) {
+			case r.Bool:
+				if value.Bool() {
+					n = 1
+				}
+			case r.Int:
+				n = uint64(value.Int())
+			case r.Uint:
+				n = value.Uint()
+			}
+			return func(env *Env) {
+				env.IntBinds[index] = n
 			}
 		} else {
-			return func(env *Env) (r.Value, []r.Value) {
-				return value, nil
+			return func(env *Env) {
+				place := r.New(t).Elem()
+				place.Set(value)
+				env.Binds[index] = place
 			}
 		}
 	}
-	x := ToX(init.Fun)
+	if t != init.Type {
+		c.Errorf("cannot initialize variable %v <%v> with <%v>", name, t, init.Type)
+	}
+	idx := c.AddBind(name, t)
+	index := idx.Index()
 	// never define bindings for "_"
-	if idx >= 0 {
-		return func(env *Env) (r.Value, []r.Value) {
+	if idx == NoBind {
+		return ToX(init.Fun)
+	}
+	if idx.IntBind() {
+		switch x := init.Fun.(type) {
+		case func(*Env) bool:
+			return func(env *Env) {
+				var n uint64
+				if x(env) {
+					n = 1
+				}
+				env.IntBinds[index] = n
+			}
+		case func(*Env) int:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) int8:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) int16:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) int32:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) int64:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) uint:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) uint8:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) uint16:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) uint32:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		case func(*Env) uint64:
+			return func(env *Env) {
+				env.IntBinds[index] = x(env)
+			}
+		case func(*Env) uintptr:
+			return func(env *Env) {
+				env.IntBinds[index] = uint64(x(env))
+			}
+		default:
+			c.Errorf("unsupported expression, cannot use as integer initializer: %v <%T>",
+				x, x)
+			return nil
+		}
+	} else {
+		x := ToXV(init.Fun)
+		return func(env *Env) {
 			value, _ := x(env)
 			place := r.New(t).Elem()
 			place.Set(value)
-			env.Binds[idx] = place
-			return value, nil
-		}
-	} else {
-		return func(env *Env) (r.Value, []r.Value) {
-			value, _ := x(env)
-			return value, nil
+			env.Binds[index] = place
 		}
 	}
 }
@@ -251,7 +317,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
 	} else if ni > n {
 		c.Warnf("declaring %d variables from expression returning %d values: %v", n, ni, names)
 	}
-	indexes := make([]int, n)
+	indexes := make([]BindIndex, n)
 	ts := make([]r.Type, n)
 	for i, name := range names {
 		ts[i] = init.Out(i)
@@ -261,25 +327,40 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
 		indexes[i] = c.AddBind(name, ts[i])
 	}
 	init.WithFun()
-	fun := ToX(init.Fun)
+	fun := ToXV(init.Fun)
 
-	return func(env *Env) (r.Value, []r.Value) {
-		ret, rets := fun(env)
-		values := PackValues(ret, rets)
+	return func(env *Env) {
+		values := PackValues(fun(env))
 		for i, idx := range indexes {
-			place := r.New(ts[i]).Elem()
-			place.Set(values[i])
-			env.Binds[idx] = place
+			v := values[i]
+			index := idx.Index()
+			if idx.IntBind() {
+				var n uint64
+				switch kindToClass(ts[i].Kind()) {
+				case r.Bool:
+					if v.Bool() {
+						n = 1
+					}
+				case r.Int:
+					n = uint64(v.Int())
+				case r.Uint:
+					n = v.Uint()
+				}
+				env.IntBinds[index] = n
+			} else {
+				place := r.New(ts[i]).Elem()
+				place.Set(v)
+				env.Binds[index] = place
+			}
 		}
-		return ret, rets
 	}
 }
 
 // AddBind reserves space for a subsequent constant, variable or function declaration
-// returns < 0 if name == "_"
-func (c *Comp) AddBind(name string, t r.Type) int {
+// returns NoBind if name == "_"
+func (c *Comp) AddBind(name string, t r.Type) BindIndex {
 	if name == "_" {
-		return -1
+		return NoBind
 	}
 	if bind, ok := c.Binds[name]; ok {
 		c.Warnf("redefined identifier: %v", name)
@@ -287,7 +368,15 @@ func (c *Comp) AddBind(name string, t r.Type) int {
 	} else if c.Binds == nil {
 		c.Binds = make(map[string]Bind)
 	}
-	idx := c.BindNum
+	var idx BindIndex
+	// allocate a slot either in IntBinds or in Binds
+	if isClass(t.Kind(), r.Bool, r.Int, r.Uint) {
+		idx = MakeIntBindIndex(c.IntBindNum)
+		c.IntBindNum++
+	} else {
+		idx = BindIndex(c.BindNum)
+		c.BindNum++
+	}
 	c.Binds[name] = Bind{Lit: Lit{Type: t}, Index: idx}
 	c.BindNum++
 	return idx

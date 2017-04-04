@@ -45,7 +45,7 @@ func (c *Comp) CompileAst(in Ast) X {
 		case AstWithSlice:
 			switch n := form.Size(); n {
 			case 0:
-				return XNop
+				return nil
 			case 1:
 				in = form.Get(0)
 				continue
@@ -54,7 +54,7 @@ func (c *Comp) CompileAst(in Ast) X {
 				for i := 0; i < n; i++ {
 					list[i] = c.CompileAst(form.Get(i))
 				}
-				return c.Block(list...)
+				return Block(list...)
 			}
 		}
 		c.Errorf("CompileAst: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, TypeOf(in))
@@ -138,9 +138,10 @@ func (c *Comp) File() *Comp {
 	return c
 }
 
-func NewEnv(outer *Env, n int) *Env {
+func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	return &Env{
-		Binds: make([]r.Value, n),
-		Outer: outer,
+		Binds:    make([]r.Value, nbinds),
+		IntBinds: make([]uint64, nintbinds),
+		Outer:    outer,
 	}
 }
