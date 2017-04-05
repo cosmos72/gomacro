@@ -49,7 +49,10 @@ func (env *Env) compile(src string) {
 	}
 
 	// eval phase
-	value, values := comp.Run(fun)
+	comp.Run(fun)
+
+	value := None // comp.Run() currently does not return anything
+	var values []r.Value
 
 	// print phase
 	if env.Options&OptShowEval != 0 {

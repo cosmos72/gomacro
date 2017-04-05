@@ -49,14 +49,14 @@ func (c *CompEnv) DefVar(name string, t r.Type, value I) {
 func (c *CompEnv) growEnv() {
 	// usually we know at Env creation how many slots are needed in c.Env.Binds
 	// but here we are modifying an existing Env...
-	curr, min := cap(c.Env.Binds), c.BindNum
-	if curr < min {
-		if curr < min/2 {
-			curr = min
+	capacity, min := cap(c.Env.Binds), c.BindNum
+	if capacity < min {
+		if capacity < min/2 {
+			capacity = min
 		} else {
-			curr *= 2
+			capacity *= 2
 		}
-		binds := make([]r.Value, curr)
+		binds := make([]r.Value, min, capacity)
 		copy(binds, c.Env.Binds)
 		c.Env.Binds = binds
 	}
@@ -64,19 +64,18 @@ func (c *CompEnv) growEnv() {
 		c.Env.Binds = c.Env.Binds[0:min]
 	}
 
-	curr, min = cap(c.Env.IntBinds), c.IntBindNum
-	if curr < min {
-		if curr < min/2 {
-			curr = min
+	capacity, min = cap(c.Env.IntBinds), c.IntBindNum
+	if capacity < min {
+		if capacity < min/2 {
+			capacity = min
 		} else {
-			curr *= 2
+			capacity *= 2
 		}
-		binds := make([]uint64, curr)
+		binds := make([]uint64, capacity)
 		copy(binds, c.Env.IntBinds)
 		c.Env.IntBinds = binds
 	}
 	if len(c.Env.IntBinds) < min {
 		c.Env.IntBinds = c.Env.IntBinds[0:min]
 	}
-
 }
