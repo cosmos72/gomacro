@@ -1,6 +1,6 @@
 ## gomacro - A Go interpreter with Lisp-like macros
 
-The package `compiler` contains a faster reimplementation of gomacro core interpreter.
+The package `fast_interpreter` contains a faster reimplementation of gomacro core interpreter.
 
 To learn about gomacro, download, compile and use it, please refer to the original implementation [README.md](../README.md)
 
@@ -13,7 +13,7 @@ ALPHA.
 The fast intepreter supports:
 * parsing - because it is shared with the original code
 * quote and quasiquote - because they are shared with the original code
-* binary expressions on bools, integers, floats, complex numbers, and strings
+* binary expressions (except comparisons) integers, floats, complex numbers, and strings
 * constant, variable and type declarations
 * incomplete: if and for, except for-range
 
