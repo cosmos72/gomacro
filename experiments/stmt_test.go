@@ -113,7 +113,13 @@ func NewEnv(outer *Env) *Env {
 	}
 }
 
+func foo() {
+
+}
+
 func BenchmarkThreadedStmtFunc0(b *testing.B) {
+
+	foo = func() {}
 
 	type Stmt func(env *Env, all []Stmt) Stmt
 

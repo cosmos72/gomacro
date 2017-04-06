@@ -16,47 +16,40 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * compile.go
+ * interface.go
  *
- *  Created on: Apr 02, 2017
+ *  Created on: Mar 29, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package interpreter
+package fast_interpreter
 
 import (
+	"go/ast"
 	r "reflect"
-
-	"github.com/cosmos72/gomacro/fast_interpreter"
 )
 
-// temporary helper to invoke the new closure compiler
-func (env *Env) compile(src string) {
-	// parse + macroexpansion phase
-	ast := env.ParseAst(src)
+// "\u0080" is Unicode codepoint: Padding Character.
+// reflect.StructOf() allows it as field name, while go/scanner forbids it in Go source code
+const nameOfInterfaceObject = "\u0080"
 
-	// compile phase
-	comp := env.CompEnv
-	if comp == nil {
-		comp = fast_interpreter.New()
-		env.CompEnv = comp
+func (c *Comp) TypeInterface(node *ast.InterfaceType) r.Type {
+	if node.Methods == nil || len(node.Methods.List) == 0 {
+		return typeOfInterface
 	}
-	fun := comp.CompileAst(ast)
+	types, names := c.TypeFields(node.Methods)
 
-	// print phase
-	if env.Options&OptShowCompile != 0 {
-		env.fprintValues(env.Stdout, r.ValueOf(fun))
+	types = append([]r.Type{typeOfInterface}, types...)
+	names = append([]string{nameOfInterfaceObject}, names...)
+
+	fields := makeStructFields(c.File().Path, names, types)
+	return r.StructOf(fields)
+}
+
+func isInterfaceType(t r.Type) bool {
+	if t.Kind() == r.Struct && t.NumField() > 0 {
+		field := t.Field(0)
+		return field.Name == nameOfInterfaceObject && field.Type == typeOfInterface
 	}
-
-	// eval phase
-	value, values := comp.Run(fun)
-
-	// print phase
-	if env.Options&OptShowEval != 0 {
-		if len(values) != 0 {
-			env.fprintValues(env.Stdout, values...)
-		} else if value != None {
-			env.fprintValues(env.Stdout, value)
-		}
-	}
+	return false
 }

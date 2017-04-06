@@ -33,7 +33,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	mc "github.com/cosmos72/gomacro/compiler"
+	"github.com/cosmos72/gomacro/fast_interpreter"
 	mp "github.com/cosmos72/gomacro/parser"
 )
 
@@ -49,7 +49,7 @@ type InterpreterCommon struct {
 	Statements   []ast.Stmt
 	ParserMode   mp.Mode
 	SpecialChar  rune
-	CompEnv      *mc.CompEnv // temporary...
+	CompEnv      *fast_interpreter.CompEnv // temporary...
 }
 
 func NewInterpreterCommon() *InterpreterCommon {

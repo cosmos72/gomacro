@@ -30,8 +30,8 @@ import (
 	"testing"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	"github.com/cosmos72/gomacro/compiler"
 	"github.com/cosmos72/gomacro/constants"
+	fast "github.com/cosmos72/gomacro/fast_interpreter"
 	ir "github.com/cosmos72/gomacro/interpreter"
 )
 
@@ -39,8 +39,9 @@ type TestFor int
 
 const (
 	I TestFor = 1 << iota
-	C TestFor = 0 // temporarily DISABLE compiler tests
+	C
 	A TestFor = I | C
+	B TestFor = I // temporarily disabled compiler test
 )
 
 type TestCase struct {
@@ -53,7 +54,7 @@ type TestCase struct {
 
 func TestCompiler(t *testing.T) {
 	env := ir.New()
-	comp := compiler.New()
+	comp := fast.New()
 	for _, test := range tests {
 		if test.testfor&C != 0 {
 			c := test
@@ -73,7 +74,7 @@ func TestInterpreter(t *testing.T) {
 	}
 }
 
-func (c *TestCase) compile(t *testing.T, comp *compiler.CompEnv, env *ir.Env) {
+func (c *TestCase) compile(t *testing.T, comp *fast.CompEnv, env *ir.Env) {
 	// parse + macroexpansion phase
 	form := env.ParseAst(c.program)
 
@@ -164,11 +165,11 @@ var tests = []TestCase{
 	TestCase{I, "method_on_value", "func (p Pair) SetLhs(a int) { p.A = a }; pair.SetLhs(11); pair.A", 8, nil}, // method on value gets a copy of the receiver - changes to not propagate
 	TestCase{I, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{I, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
-	TestCase{A, "pred_bool_1", "false==false && true==true && true!=false", true, nil},
-	TestCase{A, "pred_bool_2", "false!=false || true!=true || true==false", false, nil},
-	TestCase{A, "pred_int", "1==1 && 1<=1 && 1>=1 && 1!=2 && 1<2 && 2>1 || 0==1", true, nil},
-	TestCase{A, "pred_string_1", `"x"=="x" && "x"<="x" && "x">="x" && "x"!="y" && "x"<"y" && "y">"x"`, true, nil},
-	TestCase{A, "pred_string_2", `"x"!="x" || "y"!="y" || "x">="y" || "y"<="x"`, false, nil},
+	TestCase{B, "pred_bool_1", "false==false && true==true && true!=false", true, nil},
+	TestCase{B, "pred_bool_2", "false!=false || true!=true || true==false", false, nil},
+	TestCase{B, "pred_int", "1==1 && 1<=1 && 1>=1 && 1!=2 && 1<2 && 2>1 || 0==1", true, nil},
+	TestCase{B, "pred_string_1", `"x"=="x" && "x"<="x" && "x">="x" && "x"!="y" && "x"<"y" && "y">"x"`, true, nil},
+	TestCase{B, "pred_string_2", `"x"!="x" || "y"!="y" || "x">="y" || "y"<="x"`, false, nil},
 	TestCase{I, "recover", `var vpanic interface{}
 		func test_recover(rec bool, panick interface{}) {
 			defer func() {
