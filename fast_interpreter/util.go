@@ -105,6 +105,30 @@ func XVNil() (r.Value, []r.Value) {
 	return Nil, nil
 }
 
+func (e *Expr) AsPred() (flag bool, pred func(*Env) bool, err bool) {
+	if e.Type != TypeOfBool {
+		return false, nil, true
+	}
+	if value, ok := e.Value.(bool); ok {
+		return value, nil, false
+	}
+	switch fun := e.Fun.(type) {
+	case func(*Env) bool:
+		return false, fun, false
+	case func(*Env) (r.Value, []r.Value):
+		e.CheckX1()
+		return false, func(env *Env) bool {
+			ret, _ := fun(env)
+			return ret.Bool()
+		}, false
+	default:
+		fun1 := e.AsX1()
+		return false, func(env *Env) bool {
+			return fun1(env).Bool()
+		}, false
+	}
+}
+
 func (e *Expr) AsX() X {
 	if e == nil || e.Const() {
 		return nil

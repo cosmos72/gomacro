@@ -71,29 +71,24 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 		*/
 	case token.AND_NOT, token.AND_NOT_ASSIGN:
 		z = c.Andnot(op, x, y)
-		/*
-			case token.LAND:
-				z = c.Land(op, x, y)
-			case token.LOR:
-				z = c.Lor(op, x, y)
-		*/
+	case token.LAND:
+		z = c.Land(op, x, y)
+	case token.LOR:
+		z = c.Lor(op, x, y)
 	case token.EQL:
 		z = c.Eql(op, x, y)
-		/*
-			case token.LSS:
-				z = c.Lss(op, x, y)
-			case token.GTR:
-				z = c.Gtr(op, x, y)
-			case token.NEQ:
-				z = c.Neq(op, x, y)
-			case token.LEQ:
-				z = c.Leq(op, x, y)
-			case token.GEQ:
-				z = c.Geq(op, x, y)
-		*/
+	case token.LSS:
+		z = c.Lss(op, x, y)
+	case token.GTR:
+		z = c.Gtr(op, x, y)
+	case token.NEQ:
+		z = c.Neq(op, x, y)
+	case token.LEQ:
+		z = c.Leq(op, x, y)
+	case token.GEQ:
+		z = c.Geq(op, x, y)
 	default:
-		c.invalidBinaryExpr(node.Op, x, y)
-		return z
+		return c.unimplementedBinaryExpr(node.Op, x, y)
 	}
 	if bothConst {
 		// constant propagation
@@ -102,28 +97,17 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 	return z
 }
 
-func (c *Comp) Shl(op token.Token, x *Expr, y *Expr) I {
-	return c.invalidBinaryExpr(op, x, y)
+func (c *Comp) Shl(op token.Token, x *Expr, y *Expr) *Expr {
+	return c.unimplementedBinaryExpr(op, x, y)
 }
 
-func (c *Comp) Shr(op token.Token, x *Expr, y *Expr) I {
-	return c.invalidBinaryExpr(op, x, y)
+func (c *Comp) Shr(op token.Token, x *Expr, y *Expr) *Expr {
+	return c.unimplementedBinaryExpr(op, x, y)
 }
 
-func toPred(expr I) (val bool, pred func(*Env) bool, err bool) {
-	switch expr := expr.(type) {
-	case bool:
-		return expr, nil, false
-	case func(*Env) bool:
-		return false, expr, false
-	default:
-		return false, nil, true
-	}
-}
-
-func (c *Comp) Land(op token.Token, x *Expr, y *Expr) I {
-	xval, xfun, xerr := toPred(x)
-	yval, yfun, yerr := toPred(y)
+func (c *Comp) Land(op token.Token, x *Expr, y *Expr) *Expr {
+	xval, xfun, xerr := x.AsPred()
+	yval, yfun, yerr := y.AsPred()
 	if xerr || yerr {
 		return c.invalidBinaryExpr(op, x, y)
 	}
@@ -132,24 +116,24 @@ func (c *Comp) Land(op token.Token, x *Expr, y *Expr) I {
 		if xval {
 			return y
 		}
-		return false
+		return ExprValue(false)
 	}
 	if yfun == nil {
 		if yval {
 			return x
 		}
-		return func(env *Env) bool {
+		return ExprBool(func(env *Env) bool {
 			return xfun(env) && false
-		}
+		})
 	}
-	return func(env *Env) bool {
+	return ExprBool(func(env *Env) bool {
 		return xfun(env) && yfun(env)
-	}
+	})
 }
 
 func (c *Comp) Lor(op token.Token, x *Expr, y *Expr) *Expr {
-	xval, xfun, xerr := toPred(x)
-	yval, yfun, yerr := toPred(y)
+	xval, xfun, xerr := x.AsPred()
+	yval, yfun, yerr := y.AsPred()
 	if xerr || yerr {
 		return c.invalidBinaryExpr(op, x, y)
 	}
@@ -174,6 +158,14 @@ func (c *Comp) Lor(op token.Token, x *Expr, y *Expr) *Expr {
 }
 
 func (c *Comp) invalidBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
+	return c.badBinaryExpr("invalid", op, x, y)
+}
+
+func (c *Comp) unimplementedBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
+	return c.badBinaryExpr("unimplemented", op, x, y)
+}
+
+func (c *Comp) badBinaryExpr(reason string, op token.Token, x *Expr, y *Expr) *Expr {
 	opstr := mt.String(op)
 	xstr := "<expr>"
 	ystr := xstr
@@ -191,8 +183,8 @@ func (c *Comp) invalidBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
 			ystr = fmt.Sprintf("%v", y.Value)
 		}
 	}
-	c.Errorf("invalid binary operation <%v> %s <%v> in expression: %v %s %v",
-		x.Type, opstr, y.Type, xstr, opstr, ystr)
+	c.Errorf("%s binary operation <%v> %s <%v> in expression: %v %s %v",
+		reason, x.Type, opstr, y.Type, xstr, opstr, ystr)
 	return nil
 }
 
