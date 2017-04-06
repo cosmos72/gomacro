@@ -25,7 +25,6 @@
 package fast_interpreter
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
@@ -167,24 +166,23 @@ func (c *Comp) unimplementedBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
 
 func (c *Comp) badBinaryExpr(reason string, op token.Token, x *Expr, y *Expr) *Expr {
 	opstr := mt.String(op)
-	xstr := "<expr>"
-	ystr := xstr
+	var xi, yi interface{}
 	if x.Const() {
-		if x.IsNil {
-			xstr = "nil"
-		} else {
-			xstr = fmt.Sprintf("%v", x.Value)
-		}
+		xi = x.Value
+	} else if x.NumOut() == 1 {
+		xi = []interface{}{x.Fun, x.Type}
+	} else {
+		xi = []interface{}{x.Fun, x.Types}
 	}
 	if y.Const() {
-		if y.IsNil {
-			ystr = "nil"
-		} else {
-			ystr = fmt.Sprintf("%v", y.Value)
-		}
+		yi = y.Value
+	} else if y.NumOut() == 1 {
+		yi = []interface{}{y.Fun, y.Type}
+	} else {
+		yi = []interface{}{y.Fun, y.Types}
 	}
 	c.Errorf("%s binary operation <%v> %s <%v> in expression: %v %s %v",
-		reason, x.Type, opstr, y.Type, xstr, opstr, ystr)
+		reason, x.Type, opstr, y.Type, xi, opstr, yi)
 	return nil
 }
 

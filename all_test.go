@@ -135,6 +135,7 @@ var tests = []TestCase{
 	TestCase{A, "var_6", "var v6 float32; v6", float32(0), nil},
 	TestCase{A, "var_7", "var v7 complex64; v7", complex64(0), nil},
 	TestCase{A, "var_8", "var err error; err", nil, nil},
+	TestCase{A, "var_9", `var ve string = ""; ve`, "", nil},
 	TestCase{A, "var_pointer", "var vp *string; vp", (*string)(nil), nil},
 	TestCase{A, "var_map", "var vm *map[error]bool; vm", (*map[error]bool)(nil), nil},
 	TestCase{A, "var_slice", "var vs []byte; vs", ([]byte)(nil), nil},
@@ -175,8 +176,10 @@ var tests = []TestCase{
 	TestCase{A, "pred_bool_1", "false==false && true==true && true!=false", true, nil},
 	TestCase{A, "pred_bool_2", "false!=false || true!=true || true==false", false, nil},
 	TestCase{A, "pred_int", "1==1 && 1<=1 && 1>=1 && 1!=2 && 1<2 && 2>1 || 0==1", true, nil},
-	TestCase{B, "pred_string_1", `"x"=="x" && "x"<="x" && "x">="x" && "x"!="y" && "x"<"y" && "y">"x"`, true, nil},
-	TestCase{B, "pred_string_2", `"x"!="x" || "y"!="y" || "x">="y" || "y"<="x"`, false, nil},
+	TestCase{A, "pred_string_1", `""=="" && "">="" && ""<="" && ""<"a" && ""<="b" && "a">"" && "b">=""`, true, nil},
+	TestCase{A, "pred_string_2", `ve=="" && ve>="" && ve<="" && ve<"a" && ve<="b" && "a">ve && "b">=ve`, true, nil},
+	TestCase{A, "pred_string_3", `"x"=="x" && "x"<="x" && "x">="x" && "x"!="y" && "x"<"y" && "y">"x"`, true, nil},
+	TestCase{A, "pred_string_4", `"x"!="x" || "y"!="y" || "x">="y" || "y"<="x"`, false, nil},
 	TestCase{I, "recover", `var vpanic interface{}
 		func test_recover(rec bool, panick interface{}) {
 			defer func() {

@@ -223,10 +223,13 @@ func (c *Comp) Neq(op token.Token, xe *Expr, ye *Expr) *Expr {
 		case func(*Env) string:
 			y := y.(string)
 			if len(y) == 0 {
-				return xe
-			}
-			fun = func(env *Env) bool {
-				return x(env) != y
+				fun = func(env *Env) bool {
+					return len(x(env)) != 0
+				}
+			} else {
+				fun = func(env *Env) bool {
+					return x(env) != y
+				}
 			}
 		default:
 			return c.neqMisc(op, xe, ye)
@@ -313,10 +316,13 @@ func (c *Comp) Neq(op token.Token, xe *Expr, ye *Expr) *Expr {
 		case func(*Env) string:
 			x := x.(string)
 			if len(x) == 0 {
-				return ye
-			}
-			fun = func(env *Env) bool {
-				return x != y(env)
+				fun = func(env *Env) bool {
+					return len(y(env)) == 0
+				}
+			} else {
+				fun = func(env *Env) bool {
+					return x != y(env)
+				}
 			}
 		default:
 			return c.neqMisc(op, xe, ye)

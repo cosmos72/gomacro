@@ -65,25 +65,72 @@ func (c *Comp) Ident(name string) *Expr {
 func (c *Comp) identBind(name string, upn int, bind Bind) *Expr {
 	idx := bind.Desc.Index()
 	var fun I
-	switch upn {
-	case 0:
-		fun = func(env *Env) r.Value {
-			return env.Binds[idx]
+	switch bind.Type.Kind() {
+	case r.Complex128:
+		switch upn {
+		case 0:
+			fun = func(env *Env) complex128 {
+				return env.Binds[idx].Complex()
+			}
+		case 1:
+			fun = func(env *Env) complex128 {
+				return env.Outer.Binds[idx].Complex()
+			}
+		case 2:
+			fun = func(env *Env) complex128 {
+				return env.Outer.Outer.Binds[idx].Complex()
+			}
+		default:
+			fun = func(env *Env) complex128 {
+				for i := 3; i < upn; i++ {
+					env = env.Outer
+				}
+				return env.Outer.Outer.Outer.Binds[idx].Complex()
+			}
 		}
-	case 1:
-		fun = func(env *Env) r.Value {
-			return env.Outer.Binds[idx]
-		}
-	case 2:
-		fun = func(env *Env) r.Value {
-			return env.Outer.Outer.Binds[idx]
+	case r.String:
+		switch upn {
+		case 0:
+			fun = func(env *Env) string {
+				return env.Binds[idx].String()
+			}
+		case 1:
+			fun = func(env *Env) string {
+				return env.Outer.Binds[idx].String()
+			}
+		case 2:
+			fun = func(env *Env) string {
+				return env.Outer.Outer.Binds[idx].String()
+			}
+		default:
+			fun = func(env *Env) string {
+				for i := 3; i < upn; i++ {
+					env = env.Outer
+				}
+				return env.Outer.Outer.Outer.Binds[idx].String()
+			}
 		}
 	default:
-		fun = func(env *Env) r.Value {
-			for i := 3; i < upn; i++ {
-				env = env.Outer
+		switch upn {
+		case 0:
+			fun = func(env *Env) r.Value {
+				return env.Binds[idx]
 			}
-			return env.Outer.Outer.Outer.Binds[idx]
+		case 1:
+			fun = func(env *Env) r.Value {
+				return env.Outer.Binds[idx]
+			}
+		case 2:
+			fun = func(env *Env) r.Value {
+				return env.Outer.Outer.Binds[idx]
+			}
+		default:
+			fun = func(env *Env) r.Value {
+				for i := 3; i < upn; i++ {
+					env = env.Outer
+				}
+				return env.Outer.Outer.Outer.Binds[idx]
+			}
 		}
 	}
 	return &Expr{Lit: Lit{Type: bind.Type}, Fun: fun}
