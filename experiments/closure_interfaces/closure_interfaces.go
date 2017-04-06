@@ -28,7 +28,7 @@ import (
 	_ "errors"
 	_ "fmt"
 
-	"github.com/cosmos72/gomacro/constants"
+	"github.com/cosmos72/gomacro/base"
 )
 
 type Env struct {
@@ -113,7 +113,7 @@ func VarSetInt(idx int, expr XInt) X {
 	return func(env *Env) (interface{}, []interface{}) {
 		val := expr(env)
 		env.Binds[idx] = val
-		return constants.None, nil
+		return base.None, nil
 	}
 }
 
@@ -121,7 +121,7 @@ func VarIncInt(idx int) X {
 	return func(env *Env) (interface{}, []interface{}) {
 		v := env.Binds[idx]
 		env.Binds[idx] = v.(int) + 1
-		return constants.None, nil
+		return base.None, nil
 	}
 }
 
@@ -165,7 +165,7 @@ func For(init X, pred XBool, post X, body X) X {
 			for pred(env) {
 				body(env)
 			}
-			return constants.None, nil
+			return base.None, nil
 		}
 
 	} else {
@@ -176,13 +176,13 @@ func For(init X, pred XBool, post X, body X) X {
 			for init(env); pred(env); post(env) {
 				body(env)
 			}
-			return constants.None, nil
+			return base.None, nil
 		}
 	}
 }
 
 func Nop(env *Env) (interface{}, []interface{}) {
-	return constants.None, nil
+	return base.None, nil
 }
 
 func Block(list ...X) X {

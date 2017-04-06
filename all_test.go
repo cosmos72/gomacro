@@ -21,6 +21,7 @@
  *  Created on: Mar 06 2017
  *      Author: Massimiliano Ghilardi
  */
+
 package main
 
 import (
@@ -30,7 +31,7 @@ import (
 	"testing"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	"github.com/cosmos72/gomacro/constants"
+	. "github.com/cosmos72/gomacro/base"
 	fast "github.com/cosmos72/gomacro/fast_interpreter"
 	ir "github.com/cosmos72/gomacro/interpreter"
 )
@@ -80,18 +81,16 @@ func (c *TestCase) compile(t *testing.T, comp *fast.CompEnv, env *ir.Env) {
 
 	// compile phase
 	f := comp.CompileAst(form)
-	comp.Run(f)
+	rets := PackValues(comp.Run(f))
 
-	// problem: how do we extract the results computed by comp.Run(f) above
-	// to compare them with the expected values?
-	// c.compareResults(t, rets)
+	c.compareResults(t, rets)
 }
 
 func (c *TestCase) interpret(t *testing.T, env *ir.Env) {
 	// parse + macroexpansion phase
 	form := env.ParseAst(c.program)
 	// eval phase
-	rets := ir.PackValues(env.EvalAst(form))
+	rets := PackValues(env.EvalAst(form))
 
 	c.compareResults(t, rets)
 }
@@ -106,6 +105,8 @@ var ti = r.StructOf(
 	},
 )
 var si = r.Zero(ti).Interface()
+
+var zeroValues = []r.Value{}
 
 var tests = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
@@ -122,28 +123,33 @@ var tests = []TestCase{
 	TestCase{A, "complex_1", "7i", 7i, nil},
 	TestCase{A, "complex_2", "0.5+1.75i", 0.5 + 1.75i, nil},
 	TestCase{A, "complex_3", "1i * 2i", 1i * 2i, nil},
-	TestCase{A, "const_1", "const _ = 11", 11, nil},
-	TestCase{A, "const_2", "const c = 0xff&555+23/12.2", 0xff&555 + 23/12.2, nil},
-	TestCase{A, "const_3", "const c2 = 0.1+0.2", float64(0.1) + float64(0.2), nil},    // the interpreter is not accurate in this case... missing exact arithmetic on constants
-	TestCase{A, "const_4", "const c3 = c2/3", (float64(0.1) + float64(0.2)) / 3, nil}, // the interpreter is not accurate in this case... missing exact arithmetic on constants
-	TestCase{A, "var_1", "var _ bool", false, nil},
-	TestCase{A, "var_2", "var _ uint8 = 7", uint8(7), nil},
-	TestCase{A, "var_3", "var _ uint16 = 65535", uint16(65535), nil},
-	TestCase{A, "var_4", "var v uint32 = 99", uint32(99), nil},
-	TestCase{A, "var_5", "var _ string", "", nil},
-	TestCase{A, "var_6", "var _ float32", float32(0), nil},
-	TestCase{A, "var_7", "var _ complex64", complex64(0), nil},
-	TestCase{A, "var_8", "var err error", nil, nil},
-	TestCase{A, "var_pointer", "var _ *string", (*string)(nil), nil},
-	TestCase{A, "var_map", "var _ *map[error]bool", (*map[error]bool)(nil), nil},
-	TestCase{A, "var_slice", "var _ []byte", ([]byte)(nil), nil},
-	TestCase{A, "var_array", "var _ [2][]rune", [2][]rune{}, nil},
-	TestCase{A, "var_interface{}", "var _ interface{} = 1", 1, nil},
-	TestCase{A, "type_int8", "type _ int8", r.TypeOf(int8(0)), nil},
-	TestCase{A, "type_complicated", "type _ func(int,int) func(error, func(bool)) string", r.TypeOf((func(int, int) func(error, func(bool)) string)(nil)), nil},
-	TestCase{A, "type_struct", "type Pair struct { A, B int }", r.TypeOf(struct{ A, B int }{}), nil},
-	TestCase{A, "struct_1", "var pair Pair", struct{ A, B int }{0, 0}, nil},
-	TestCase{I, "struct_2", "pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
+	TestCase{A, "const_1", "const c1 = 11; c1", 11, nil},
+	TestCase{A, "const_2", "const c2 = 0xff&555+23/12.2; c2", 0xff&555 + 23/12.2, nil},
+	TestCase{A, "const_3", "const c3 = 0.1+0.2; c3", float64(0.1) + float64(0.2), nil},    // the interpreter is not accurate in this case... missing exact arithmetic on constants
+	TestCase{A, "const_4", "const c4 = c3/3; c4", (float64(0.1) + float64(0.2)) / 3, nil}, // the interpreter is not accurate in this case... missing exact arithmetic on constants
+	TestCase{A, "var_1", "var v1 bool; v1", false, nil},
+	TestCase{A, "var_2", "var v2 uint8 = 7; v2", uint8(7), nil},
+	TestCase{A, "var_3", "var v3 uint16 = 65535; v3", uint16(65535), nil},
+	TestCase{A, "var_4", "var v uint32 = 99; v", uint32(99), nil},
+	TestCase{A, "var_5", "var v5 string; v5", "", nil},
+	TestCase{A, "var_6", "var v6 float32; v6", float32(0), nil},
+	TestCase{A, "var_7", "var v7 complex64; v7", complex64(0), nil},
+	TestCase{A, "var_8", "var err error; err", nil, nil},
+	TestCase{A, "var_pointer", "var vp *string; vp", (*string)(nil), nil},
+	TestCase{A, "var_map", "var vm *map[error]bool; vm", (*map[error]bool)(nil), nil},
+	TestCase{A, "var_slice", "var vs []byte; vs", ([]byte)(nil), nil},
+	TestCase{A, "var_array", "var va [2][]rune; va", [2][]rune{}, nil},
+	TestCase{A, "var_interface{}", "var vi interface{} = 1; vi", 1, nil},
+	TestCase{A, "eql_nil_1", "err == nil", true, nil},
+	TestCase{A, "eql_nil_2", "vp == nil", true, nil},
+	TestCase{A, "eql_nil_3", "vm == nil", true, nil},
+	TestCase{A, "eql_nil_4", "vs == nil", true, nil},
+	TestCase{A, "eql_nil_5", "vi == nil", false, nil},
+	TestCase{A, "eql_halfnil", "var vhalfnil interface{} = vm; vhalfnil == nil", false, nil},
+	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
+	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
+	TestCase{A, "type_struct", "type Pair struct { A, B int }; var pair Pair; pair", struct{ A, B int }{}, nil},
+	TestCase{I, "struct", "pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
 	TestCase{I, "pointer", "var p = 1.25; if *&p != p { p = -1 }; p", 1.25, nil},
 	TestCase{I, "defer_1", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
 	TestCase{I, "defer_2", "v = 12; testdefer(0); v", uint32(12), nil},
@@ -267,7 +273,7 @@ func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
 }
 
 func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interface{}) {
-	if actualv == constants.Nil || actualv == constants.None {
+	if actualv == Nil || actualv == None {
 		if expected != nil {
 			c.fail(t, nil, expected)
 		}

@@ -31,6 +31,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	. "github.com/cosmos72/gomacro/base"
 	mp "github.com/cosmos72/gomacro/parser"
 	mt "github.com/cosmos72/gomacro/token"
 )
@@ -270,7 +271,7 @@ func (env *Env) evalUnquote(inout UnaryExpr) interface{} {
 
 	ret, extraValues := env.evalBlock(block)
 	if len(extraValues) > 1 {
-		env.warnf("unquote returned %d values, only the first one will be used: %v", len(extraValues), block)
+		env.Warnf("unquote returned %d values, only the first one will be used: %v", len(extraValues), block)
 	}
 	if ret == None || ret == Nil {
 		return nil

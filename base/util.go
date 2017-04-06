@@ -16,13 +16,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * globals.go
+ * util.go
  *
  *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package interpreter
+package base
 
 import (
 	r "reflect"
@@ -41,4 +41,12 @@ func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
 		val0 = vals[0]
 	}
 	return val0, vals
+}
+
+// ValueType() is a zero-value-safe version of reflect.Value.Type()
+func ValueType(v r.Value) r.Type {
+	if v == Nil || v == None {
+		return nil
+	}
+	return v.Type()
 }

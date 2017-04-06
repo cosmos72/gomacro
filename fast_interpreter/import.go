@@ -26,8 +26,9 @@ package fast_interpreter
 
 import (
 	"go/ast"
+	r "reflect"
 )
 
 func (c *Comp) Import(node ast.Spec) X {
-	return c.Errorf("import is not implemented, found: %v <%v>", node, TypeOf(node))
+	return c.Errorf("import is not implemented, found: %v <%v>", node, r.TypeOf(node))
 }

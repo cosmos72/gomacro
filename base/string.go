@@ -22,24 +22,13 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package interpreter
+package base
 
 import (
 	"strconv"
 )
 
-func hasPrefix(str, prefix string) bool {
-	np := len(prefix)
-	return len(str) >= np && str[:np] == prefix
-}
-
-func hasSuffix(str, suffix string) bool {
-	n := len(str)
-	ns := len(suffix)
-	return n >= ns && str[n-ns:n] == suffix
-}
-
-func unescapeChar(str string) rune {
+func UnescapeChar(str string) rune {
 	// fmt.Printf("debug unescapeChar(): parsing CHAR %#v", str)
 	n := len(str)
 	if n >= 2 && str[0] == '\'' && str[n-1] == '\'' {
@@ -47,20 +36,21 @@ func unescapeChar(str string) rune {
 	}
 	ret, _, _, err := strconv.UnquoteChar(str, '\'')
 	if err != nil {
-		error_(err)
+		Error(err)
 	}
 	return ret
 }
 
-func unescapeString(str string) string {
+func UnescapeString(str string) string {
 	ret, err := strconv.Unquote(str)
 	if err != nil {
-		error_(err)
+		Error(err)
 	}
 	return ret
 }
 
-func findFirstToken(src []byte) int {
+/*
+func FindFirstToken(src []byte) int {
 	n := len(src)
 	const (
 		Normal = iota
@@ -119,3 +109,4 @@ func extractFirstIdentifier(src []byte) []byte {
 	}
 	return src
 }
+*/

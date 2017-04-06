@@ -26,38 +26,9 @@ package fast_interpreter
 
 import (
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
-
-// TypeOf() is a nil-safe version of reflect.TypeOf()
-func TypeOf(i interface{}) r.Type {
-	if i == nil {
-		return nil
-	}
-	return r.TypeOf(i)
-}
-
-// ValueType() is a zero-value-safe version of reflect.Value.Type()
-func ValueType(v r.Value) r.Type {
-	if v == Nil || v == None {
-		return nil
-	}
-	return v.Type()
-}
-
-func PackValues(val0 r.Value, vals []r.Value) []r.Value {
-	if len(vals) == 0 && val0 != None {
-		vals = []r.Value{val0}
-	}
-	return vals
-}
-
-func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
-	val0 := None
-	if len(vals) > 0 {
-		val0 = vals[0]
-	}
-	return val0, vals
-}
 
 func ExprsToX(inits []*Expr) X {
 	var funs []X
@@ -135,7 +106,7 @@ func XVNil() (r.Value, []r.Value) {
 }
 
 func (e *Expr) AsX() X {
-	if e.Const() {
+	if e == nil || e.Const() {
 		return nil
 	}
 	return ToX(e.Fun)
@@ -237,14 +208,13 @@ func ToX(any I) X {
 // for example because it returns no value at all.
 // It just prints a warning if expression returns multiple values.
 func (e *Expr) CheckX1() {
-	if e.Const() {
+	if e != nil && e.Const() {
 		return
 	}
-	nout := e.NumOut()
-	if nout == 0 {
-		errorf("expression returns no values, cannot convert to func(env *Env) r.Value: %#v", e.Fun)
+	if e == nil || e.NumOut() == 0 {
+		errorf("expression returns no values, cannot convert to func(env *Env) r.Value")
 		return
-	} else if nout > 1 {
+	} else if e.NumOut() > 1 {
 		warnf("expression returns %d values, using only the first one: %v", e.Types)
 	}
 }

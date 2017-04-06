@@ -29,6 +29,7 @@ import (
 	"go/token"
 	r "reflect"
 
+	. "github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -37,18 +38,20 @@ func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) [
 	var values []r.Value
 	if n != expectedValuesN {
 		if n != 1 {
-			return env.packErrorf("value count mismatch: cannot assign %d values to %d places: %v",
+			env.Errorf("value count mismatch: cannot assign %d values to %d places: %v",
 				n, expectedValuesN, nodes)
+			return nil
 		}
 		node := nodes[0]
 		// collect multiple values
 		values = PackValues(env.Eval(node))
 		n = len(values)
 		if n < expectedValuesN {
-			return env.packErrorf("value count mismatch: expression returned %d values, cannot assign them to %d places: %v returned %v",
+			env.Errorf("value count mismatch: expression returned %d values, cannot assign them to %d places: %v returned %v",
 				n, expectedValuesN, node, values)
+			return nil
 		} else if n > expectedValuesN {
-			env.warnf("expression returned %d values, using only %d of them: %v returned %v",
+			env.Warnf("expression returned %d values, using only %d of them: %v returned %v",
 				n, expectedValuesN, node, values)
 		}
 	} else {
@@ -88,7 +91,7 @@ func (env *Env) evalExpr1(node ast.Expr) r.Value {
 	}
 	value, extraValues := env.evalExpr(node)
 	if len(extraValues) > 1 {
-		env.warnf("expression returned %d values, using only the first one: %v returned %v",
+		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
 			len(extraValues), node, extraValues)
 	}
 	return value
@@ -186,15 +189,15 @@ func (env *Env) evalSliceExpr(node *ast.SliceExpr) (r.Value, []r.Value) {
 	}
 	lo, hi := 0, obj.Len()
 	if node.Low != nil {
-		lo = int(env.valueToType(env.evalExpr1(node.Low), typeOfInt).Int())
+		lo = int(env.valueToType(env.evalExpr1(node.Low), TypeOfInt).Int())
 	}
 	if node.High != nil {
-		hi = int(env.valueToType(env.evalExpr1(node.High), typeOfInt).Int())
+		hi = int(env.valueToType(env.evalExpr1(node.High), TypeOfInt).Int())
 	}
 	if node.Slice3 {
 		max := hi
 		if node.Max != nil {
-			max = int(env.valueToType(env.evalExpr1(node.Max), typeOfInt).Int())
+			max = int(env.valueToType(env.evalExpr1(node.Max), TypeOfInt).Int())
 		}
 		return obj.Slice3(lo, hi, max), nil
 	} else {
@@ -326,5 +329,5 @@ func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr, panicOnFail bool) (
 		}
 	}
 	zero := r.Zero(t2)
-	return zero, []r.Value{zero, valueOfFalse}
+	return zero, []r.Value{zero, False}
 }

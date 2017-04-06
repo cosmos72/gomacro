@@ -26,6 +26,8 @@ package interpreter
 
 import (
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 // registerMethod registers a function value for the given receiver type recvType and method name.
@@ -34,7 +36,7 @@ import (
 // in particular, the equality recvType == val.Type().In(0) must be true
 func (ir *InterpreterCommon) registerMethod(recvType r.Type, name string, typ r.Type, val r.Value) {
 	if _, ok := ir.AllMethods[recvType][name]; ok {
-		ir.warnf("redefined method %s for <%v>", name, recvType)
+		ir.Warnf("redefined method %s for <%v>", name, recvType)
 	} else {
 		// do not allow duplicate methods, one with pointer receiver and one with value receiver
 		var altType r.Type
@@ -44,7 +46,7 @@ func (ir *InterpreterCommon) registerMethod(recvType r.Type, name string, typ r.
 			altType = r.PtrTo(recvType)
 		}
 		if _, ok := ir.AllMethods[altType][name]; ok {
-			ir.warnf("redefined method %s for <%v>", name, recvType)
+			ir.Warnf("redefined method %s for <%v>", name, recvType)
 			delete(ir.AllMethods[altType], name)
 		}
 	}

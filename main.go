@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/cosmos72/gomacro/base"
 	gmi "github.com/cosmos72/gomacro/interpreter"
 	gmp "github.com/cosmos72/gomacro/parser"
 )
@@ -50,7 +51,7 @@ func main() {
 	cmd.Init()
 
 	cmd.ParserMode |= gmp.Trace & 0
-	cmd.Options |= gmi.OptTrapPanic // | gmi.OptShowAfterMacroExpansion // | gmi.OptShowAfterParse // | gmi.OptDebugMacroExpand // |  gmi.OptDebugQuasiquote  // | gmi.OptShowEvalDuration
+	cmd.Options |= base.OptTrapPanic // | base.OptShowAfterMacroExpansion // | base.OptShowAfterParse // | base.OptDebugMacroExpand // |  base.OptDebugQuasiquote  // | base.OptShowEvalDuration
 
 	err := cmd.Main(args)
 	if err != nil {

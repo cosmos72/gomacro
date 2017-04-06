@@ -29,12 +29,13 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (env *Env) EvalAst1(in Ast) r.Value {
 	value, extraValues := env.EvalAst(in)
 	if len(extraValues) > 1 {
-		env.warnf("expression returned %d values, using only the first one: %v returned %v",
+		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
 			len(extraValues), in.Interface(), extraValues)
 	}
 	return value
@@ -83,7 +84,7 @@ func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 func (env *Env) Eval1(node ast.Node) r.Value {
 	value, extraValues := env.Eval(node)
 	if len(extraValues) > 1 {
-		env.warnExtraValues(extraValues)
+		env.WarnExtraValues(extraValues)
 	}
 	return value
 }

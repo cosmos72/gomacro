@@ -31,6 +31,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func funcAppend(env *Env, args []r.Value) (r.Value, []r.Value) {
@@ -112,18 +113,18 @@ func callLen(arg interface{}) int {
 //
 
 func funcMacroExpand(env *Env, args []r.Value) (r.Value, []r.Value) {
-	return callMacroExpand(env, args, cMacroExpand)
+	return callMacroExpand(env, args, CMacroExpand)
 }
 
 func funcMacroExpand1(env *Env, args []r.Value) (r.Value, []r.Value) {
-	return callMacroExpand(env, args, cMacroExpand1)
+	return callMacroExpand(env, args, CMacroExpand1)
 }
 
 func funcMacroExpandCodewalk(env *Env, args []r.Value) (r.Value, []r.Value) {
-	return callMacroExpand(env, args, cMacroExpandCodewalk)
+	return callMacroExpand(env, args, CMacroExpandCodewalk)
 }
 
-func callMacroExpand(env *Env, args []r.Value, which whichMacroExpand) (r.Value, []r.Value) {
+func callMacroExpand(env *Env, args []r.Value, which WhichMacroExpand) (r.Value, []r.Value) {
 	n := len(args)
 	if n < 1 || n > 2 {
 		return env.Errorf("builtin %v() expects one or two arguments, found %d: %v", which, n, args)
@@ -141,9 +142,9 @@ func callMacroExpand(env *Env, args []r.Value, which whichMacroExpand) (r.Value,
 	}
 	var expanded bool
 	switch which {
-	case cMacroExpand1:
+	case CMacroExpand1:
 		form, expanded = env.macroExpandAstOnce(form)
-	case cMacroExpandCodewalk:
+	case CMacroExpandCodewalk:
 		form, expanded = env.MacroExpandAstCodewalk(form)
 	default:
 		form, expanded = env.macroExpandAst(form)
@@ -321,7 +322,7 @@ func (env *Env) addBuiltins() {
 	binds["ReadMultiline"] = r.ValueOf(ReadMultiline)
 	binds["Slice"] = r.ValueOf(callSlice)
 	binds["String"] = r.ValueOf(func(args ...interface{}) string {
-		return env.toString("", args...)
+		return env.ToString("", args...)
 	})
 	// return multiple values, extracting the concrete type of each interface
 	binds["Values"] = r.ValueOf(Function{funcValues, -1})

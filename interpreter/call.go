@@ -28,12 +28,15 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 // eval an interpreted function
 func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argNames []string, args []r.Value, resultNames []string) (results []r.Value) {
 	if t.Kind() != r.Func {
-		return env.packErrorf("call of non-function type %v", t)
+		env.Errorf("call of non-function type %v", t)
+		return nil
 	}
 	env = NewEnv(env, envName)
 	// register this function call in the call stack
@@ -103,14 +106,14 @@ func (env *Env) convertFuncCallResults(t r.Type, rets []r.Value, warn bool) []r.
 	expectedN := t.NumOut()
 	if retsN < expectedN {
 		if warn {
-			env.warnf("not enough return values: expected %d, found %d: %v", expectedN, retsN, rets)
+			env.Warnf("not enough return values: expected %d, found %d: %v", expectedN, retsN, rets)
 		}
 		tmp := make([]r.Value, expectedN)
 		copy(tmp, rets)
 		rets = tmp
 	} else if retsN > expectedN {
 		if warn {
-			env.warnf("too many return values: expected %d, found %d: %v", expectedN, retsN, rets)
+			env.Warnf("too many return values: expected %d, found %d: %v", expectedN, retsN, rets)
 		}
 		rets = rets[:expectedN]
 	}
@@ -242,7 +245,7 @@ func (env *Env) evalDefer(node *ast.CallExpr) (r.Value, []r.Value) {
 			rets = fun.CallSlice(args)
 		}
 		if len(rets) != 0 {
-			env.warnf("call to deferred function %v returned %d values, expecting zero: %v", node, rets)
+			env.Warnf("call to deferred function %v returned %d values, expecting zero: %v", node, rets)
 		}
 	}
 	frame.defers = append(frame.defers, closure)

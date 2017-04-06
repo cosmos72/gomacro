@@ -24,6 +24,10 @@
 
 package fast_interpreter
 
+import (
+	. "github.com/cosmos72/gomacro/base"
+)
+
 func (c *CompEnv) addBuiltins() {
 	c.DefConst("false", nil, false)
 	c.DefConst("true", nil, true)
@@ -70,26 +74,26 @@ func (c *CompEnv) addBuiltins() {
 	*/
 
 	// --------- types ---------
-	c.DeclType0("bool", typeOfBool)
-	c.DeclType0("byte", typeOfByte)
-	c.DeclType0("complex64", typeOfComplex64)
-	c.DeclType0("complex128", typeOfComplex128)
-	c.DeclType0("error", typeOfError)
-	c.DeclType0("float32", typeOfFloat32)
-	c.DeclType0("float64", typeOfFloat64)
-	c.DeclType0("int", typeOfInt)
-	c.DeclType0("int8", typeOfInt8)
-	c.DeclType0("int16", typeOfInt16)
-	c.DeclType0("int32", typeOfInt32)
-	c.DeclType0("int64", typeOfInt64)
-	c.DeclType0("rune", typeOfRune)
-	c.DeclType0("string", typeOfString)
-	c.DeclType0("uint", typeOfUint)
-	c.DeclType0("uint8", typeOfUint8)
-	c.DeclType0("uint16", typeOfUint16)
-	c.DeclType0("uint32", typeOfUint32)
-	c.DeclType0("uint64", typeOfUint64)
-	c.DeclType0("uintptr", typeOfUintptr)
+	c.DefType("bool", TypeOfBool)
+	c.DefType("byte", TypeOfByte)
+	c.DefType("complex64", TypeOfComplex64)
+	c.DefType("complex128", TypeOfComplex128)
+	c.DefType("error", TypeOfError)
+	c.DefType("float32", TypeOfFloat32)
+	c.DefType("float64", TypeOfFloat64)
+	c.DefType("int", TypeOfInt)
+	c.DefType("int8", TypeOfInt8)
+	c.DefType("int16", TypeOfInt16)
+	c.DefType("int32", TypeOfInt32)
+	c.DefType("int64", TypeOfInt64)
+	c.DefType("rune", TypeOfRune)
+	c.DefType("string", TypeOfString)
+	c.DefType("uint", TypeOfUint)
+	c.DefType("uint8", TypeOfUint8)
+	c.DefType("uint16", TypeOfUint16)
+	c.DefType("uint32", TypeOfUint32)
+	c.DefType("uint64", TypeOfUint64)
+	c.DefType("uintptr", TypeOfUintptr)
 
 	/*
 		// --------- proxies ---------
@@ -98,6 +102,6 @@ func (c *CompEnv) addBuiltins() {
 		}
 		proxies := env.Proxies
 
-		proxies["error", typeOf(*Error_builtin)(nil)).Elem()
+		proxies["error", TypeOf(*Error_builtin)(nil)).Elem()
 	*/
 }

@@ -33,7 +33,7 @@ func (c *Comp) Add(op token.Token, xe *Expr, ye *Expr) *Expr {
 	xc, yc := xe.Const(), ye.Const()
 	toSameFuncType(op, xe, ye)
 	if !isCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.Complex128, r.String) {
-		return c.unsupportedBinaryExpr(op, xe, ye)
+		return c.invalidBinaryExpr(op, xe, ye)
 	}
 	// if both x and y are constants, BinaryExpr will invoke EvalConst()
 	// on our return value. no need to optimize that.
@@ -122,7 +122,7 @@ func (c *Comp) Add(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x(env) + y(env)
 			}
 		default:
-			return c.unsupportedBinaryExpr(op, xe, ye)
+			return c.invalidBinaryExpr(op, xe, ye)
 		}
 	} else if yc {
 		x := xe.Fun
@@ -215,7 +215,7 @@ func (c *Comp) Add(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x(env) + y
 			}
 		default:
-			return c.unsupportedBinaryExpr(op, xe, ye)
+			return c.invalidBinaryExpr(op, xe, ye)
 		}
 	} else {
 		x := xe.Value
@@ -308,7 +308,7 @@ func (c *Comp) Add(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x + y(env)
 			}
 		default:
-			return c.unsupportedBinaryExpr(op, xe, ye)
+			return c.invalidBinaryExpr(op, xe, ye)
 		}
 	}
 	return ExprFun(xe.Type, fun)

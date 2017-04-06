@@ -26,6 +26,8 @@ package fast_interpreter
 
 import (
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func LitValue(value I) Lit {
@@ -33,11 +35,11 @@ func LitValue(value I) Lit {
 }
 
 func ExprValue(value I) *Expr {
-	return &Expr{Lit: Lit{Type: r.TypeOf(value), Value: value}, isNil: value == nil}
+	return &Expr{Lit: Lit{Type: r.TypeOf(value), Value: value}, IsNil: value == nil}
 }
 
 func ExprLit(lit Lit) *Expr {
-	return &Expr{Lit: lit, isNil: lit.Value == nil}
+	return &Expr{Lit: lit, IsNil: lit.Value == nil}
 }
 
 func ExprFun(t r.Type, fun I) *Expr {
@@ -53,71 +55,71 @@ func ExprXV(t r.Type, fun func(env *Env) (r.Value, []r.Value)) *Expr {
 }
 
 func ExprBool(fun func(env *Env) bool) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfBool}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfBool}, Fun: fun}
 }
 
 func ExprInt(fun func(env *Env) int) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfInt}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfInt}, Fun: fun}
 }
 
 func ExprInt8(fun func(env *Env) int8) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfInt8}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfInt8}, Fun: fun}
 }
 
 func ExprInt16(fun func(env *Env) int16) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfInt16}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfInt16}, Fun: fun}
 }
 
 func ExprInt32(fun func(env *Env) int32) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfInt32}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfInt32}, Fun: fun}
 }
 
 func ExprInt64(fun func(env *Env) int64) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfInt64}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfInt64}, Fun: fun}
 }
 
 func ExprUint(fun func(env *Env) uint) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfUint}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfUint}, Fun: fun}
 }
 
 func ExprUint8(fun func(env *Env) uint8) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfUint8}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfUint8}, Fun: fun}
 }
 
 func ExprUint16(fun func(env *Env) uint16) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfUint16}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfUint16}, Fun: fun}
 }
 
 func ExprUint32(fun func(env *Env) uint32) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfUint32}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfUint32}, Fun: fun}
 }
 
 func ExprUint64(fun func(env *Env) uint64) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfUint64}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfUint64}, Fun: fun}
 }
 
 func ExprUintptr(fun func(env *Env) uintptr) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfUintptr}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfUintptr}, Fun: fun}
 }
 
 func ExprFloat32(fun func(env *Env) float32) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfFloat32}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfFloat32}, Fun: fun}
 }
 
 func ExprFloat64(fun func(env *Env) float64) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfFloat64}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfFloat64}, Fun: fun}
 }
 
 func ExprComplex64(fun func(env *Env) complex64) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfComplex64}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfComplex64}, Fun: fun}
 }
 
 func ExprComplex128(fun func(env *Env) complex128) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfComplex128}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfComplex128}, Fun: fun}
 }
 
 func ExprString(fun func(env *Env) string) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfString}, Fun: fun}
+	return &Expr{Lit: Lit{Type: TypeOfString}, Fun: fun}
 }
 
 func (expr *Expr) EvalConst() I {
@@ -147,7 +149,7 @@ func (expr *Expr) EvalConst() I {
 		value = ret.Interface()
 	}
 	expr.Value = value
-	expr.isNil = value == nil
+	expr.IsNil = value == nil
 	expr.Fun = nil // no longer needed.
 	return value
 }

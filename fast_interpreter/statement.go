@@ -26,6 +26,8 @@ package fast_interpreter
 
 import (
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func If(init X, pred func(*Env) bool, then, els X) X {

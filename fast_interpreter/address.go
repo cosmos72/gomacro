@@ -40,16 +40,13 @@ type Place struct {
 func (c *Comp) IdentAddress(name string) *Expr {
 	upn, bind := c.resolve(name)
 	switch bind.Desc.Class() {
-	case ConstBind:
-		c.Errorf("cannot take the address of a constant: %v", name)
+	default:
+		c.Errorf("cannot take the address of %v", name)
 		return nil
-	case FuncBind:
-		c.Errorf("cannot take the address of a function: %v", name)
-		return nil
+	case VarBind:
+		return c.identBindAddress(name, upn, bind)
 	case IntBind:
 		return c.identIntBindAddress(name, upn, bind)
-	default:
-		return c.identBindAddress(name, upn, bind)
 	}
 }
 

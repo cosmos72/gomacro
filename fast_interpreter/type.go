@@ -28,6 +28,8 @@ import (
 	"fmt"
 	"go/ast"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 // DeclType compiles a type declaration.
@@ -237,7 +239,7 @@ func (c *Comp) typeFieldOrParamList(fields *ast.FieldList, allowEllipsis bool) (
 
 func (c *Comp) typeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (types []r.Type, names []string, ellipsis bool) {
 	types = make([]r.Type, 0)
-	names = zeroStrings
+	names = ZeroStrings
 	n := len(list)
 	if n == 0 {
 		return types, names, ellipsis

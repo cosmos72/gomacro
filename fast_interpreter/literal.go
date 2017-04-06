@@ -30,6 +30,8 @@ import (
 	r "reflect"
 	"strconv"
 	"strings"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) BasicLit(node *ast.BasicLit) *Expr {
@@ -93,10 +95,10 @@ func (c *Comp) BasicLit(node *ast.BasicLit) *Expr {
 		// env.Debugf("evalLiteral(): parsed IMAG %s -> %T %#v -> %T %#v", str, im, im, ret, ret)
 
 	case token.CHAR:
-		return ExprValue(unescapeChar(str))
+		return ExprValue(UnescapeChar(str))
 
 	case token.STRING:
-		return ExprValue(unescapeString(str))
+		return ExprValue(UnescapeString(str))
 
 	default:
 		c.Errorf("unimplemented basic literal: %v", node)
@@ -154,6 +156,24 @@ func isCategory(k r.Kind, categories ...r.Kind) bool {
 		}
 	}
 	return false
+}
+
+func isNillable(k r.Kind) bool {
+	switch k {
+	case r.Invalid, // nil is nillable...
+		r.Chan, r.Func, r.Interface, r.Map, r.Ptr, r.Slice:
+		return true
+	default:
+		return false
+	}
+}
+
+// isNil is the reflect equivalent of == nil
+// it must reproduce Go's half-nil behaviour of interface{} :(
+// thus it need to know t, the compile-time type of v
+func isNil(t r.Type, v r.Value) bool {
+	// Debugf("isNil: v = %v, v == Nil: %v, isNillable: %v, t != TypeOfInterface: %v", v, v == Nil, isNillable(v.Kind()), t != TypeOfInterface)
+	return v == Nil || (isNillable(v.Kind()) && t != TypeOfInterface && v.IsNil())
 }
 
 // checkLiteralOverflow panics if the conversion from vsrc to vdst overflowed the destination type
@@ -226,7 +246,7 @@ func (e *Expr) Set(x I) {
 	e.Lit.Set(x)
 	e.Types = nil
 	e.Fun = nil
-	e.isNil = x == nil
+	e.IsNil = x == nil
 }
 
 // Set sets the Lit to the given constant

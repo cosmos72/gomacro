@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 type placeType struct {

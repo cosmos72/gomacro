@@ -33,6 +33,7 @@ import (
 	"time"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/imports"
 )
 
@@ -169,22 +170,22 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 		args := strings.SplitN(src, " ", 2)
 		cmd := args[0]
 		switch {
-		case hasPrefix(":compiler", cmd):
+		case strings.HasPrefix(":compiler", cmd):
 			if len(args) > 1 {
 				env.compile(args[1])
 			}
 			return true
-		case hasPrefix(":env", cmd):
+		case strings.HasPrefix(":env", cmd):
 			if len(args) <= 1 {
 				env.showPackage("")
 			} else {
 				env.showPackage(args[1])
 			}
 			return true
-		case hasPrefix(":help", cmd):
+		case strings.HasPrefix(":help", cmd):
 			env.showHelp(env.Stdout)
 			return true
-		case hasPrefix(":inspect", cmd):
+		case strings.HasPrefix(":inspect", cmd):
 			if in == nil {
 				fmt.Fprint(env.Stdout, "// not connected to user input, cannot :inspect\n")
 			} else if len(args) == 1 {
@@ -193,20 +194,20 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 				env.Inspect(in, args[1])
 			}
 			return true
-		case hasPrefix(":options", cmd):
+		case strings.HasPrefix(":options", cmd):
 			if len(args) > 1 {
-				env.Options ^= parseOptions(args[1])
+				env.Options ^= ParseOptions(args[1])
 			}
 			fmt.Fprintf(env.Stdout, "// current options: %v\n", env.Options)
 			fmt.Fprintf(env.Stdout, "// unset   options: %v\n", ^env.Options)
 			return true
-		case hasPrefix(":quit", cmd):
+		case strings.HasPrefix(":quit", cmd):
 			return false
-		case hasPrefix(":write", cmd):
+		case strings.HasPrefix(":write", cmd):
 			if len(args) <= 1 {
-				env.writeDeclsToStream(env.Stdout)
+				env.WriteDeclsToStream(env.Stdout)
 			} else {
-				env.writeDeclsToFile(args[1])
+				env.WriteDeclsToFile(args[1])
 			}
 			return true
 		default:
@@ -225,7 +226,7 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 			}
 		}
 	}
-	if src == "package" || hasPrefix(src, "package ") {
+	if src == "package" || strings.HasPrefix(src, "package ") {
 		arg := ""
 		space := strings.IndexByte(src, ' ')
 		if space >= 0 {
@@ -248,9 +249,9 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 	// print phase
 	if env.Options&OptShowEval != 0 {
 		if len(values) != 0 {
-			env.fprintValues(env.Stdout, values...)
+			env.FprintValues(env.Stdout, values...)
 		} else if value != None {
-			env.fprintValues(env.Stdout, value)
+			env.FprintValues(env.Stdout, value)
 		}
 	}
 	return true
@@ -281,7 +282,7 @@ func (env *Env) ParseAst(src interface{}) Ast {
 		env.Debugf("after macroexpansion: %v", form.Interface())
 	}
 	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
-		env.collectAst(form)
+		env.CollectAst(form)
 	}
 	return form
 }

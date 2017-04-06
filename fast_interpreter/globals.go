@@ -29,8 +29,10 @@ import (
 	"os"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/constants"
+	"github.com/cosmos72/gomacro/base"
 )
+
+// ================================= Lit, Expr =================================
 
 // Lit represents a literal value, i.e. a constant
 type Lit struct {
@@ -43,11 +45,11 @@ type Expr struct {
 	Lit
 	Types []r.Type // in case the expression produces multiple values. if nil, use Lit.Type.
 	Fun   I        // function that evaluates the expression at runtime.
-	isNil bool
+	IsNil bool
 }
 
 func (e *Expr) Const() bool {
-	return e.Value != nil || e.isNil
+	return e.Value != nil || e.IsNil
 }
 
 // NumOut returns the number of values that an expression will produce when evaluated
@@ -74,29 +76,44 @@ func (e *Expr) Outs() []r.Type {
 	return e.Types
 }
 
+// ================================= BindClass =================================
+
 type BindClass int
 
-// the zero value of BindDescriptor is a valid descriptor for variables or functions named "_", and also for all constants
-type BindDescriptor BindClass
-
 const (
-	ConstBind BindClass = iota
+	ConstBind = BindClass(iota)
 	FuncBind
 	VarBind
 	IntBind
-	NoBind           BindClass      = ConstBind // NoBind and ConstBind are aliases
-	bindClassMask    BindClass      = 0x3
-	bindIndexShift                  = 2
-	NoBindDescriptor BindDescriptor = 0
 )
+
+func (class BindClass) String() string {
+	switch class {
+	case ConstBind:
+		return "constant"
+	case FuncBind:
+		return "function"
+	default:
+		return "variable"
+	}
+}
+
+// ================================== BindDescriptor =================================
+
+const (
+	bindClassMask  = BindClass(0x3)
+	bindIndexShift = 2
+
+	NoIndex             = int(-1)                   // index of constants, functions and variables named "_"
+	ConstBindDescriptor = BindDescriptor(ConstBind) // bind descriptor for all constants
+)
+
+// the zero value of BindDescriptor is a valid descriptor for all constants
+type BindDescriptor BindClass
 
 func MakeBindDescriptor(class BindClass, index int) BindDescriptor {
 	class &= bindClassMask
-	// debugf("MakeBindDescriptor() class=%v index=%v", class, index)
-	if class != NoBind {
-		index++
-	}
-	return BindDescriptor(index<<bindIndexShift | int(class))
+	return BindDescriptor((index+1)<<bindIndexShift | int(class))
 }
 
 // IntBind returns true if BindIndex refers to a slot in Env.IntBinds (the default is a slot in Env.Binds)
@@ -104,6 +121,8 @@ func (desc BindDescriptor) Class() BindClass {
 	return BindClass(desc) & bindClassMask
 }
 
+// Index returns the slice index to use in Env.Binds or Env.IntBinds to access a variable or function.
+// returns NoIndex for variables and functions named "_"
 func (desc BindDescriptor) Index() int {
 	index := int(desc>>bindIndexShift) - 1
 	// debugf("BindDescriptor=%v, class=%v, index=%v", desc, desc.Class(), index)
@@ -115,6 +134,12 @@ func (desc BindDescriptor) Settable() bool {
 	return class == IntBind || class == VarBind
 }
 
+func (desc BindDescriptor) String() string {
+	return fmt.Sprintf("%s index=%d", desc.Class(), desc.Index())
+}
+
+// ================================== Bind =================================
+
 // Bind represents a constant, variable, or function in the compiler
 type Bind struct {
 	Lit
@@ -122,17 +147,21 @@ type Bind struct {
 }
 
 func (bind *Bind) Const() bool {
-	return bind.Desc == NoBindDescriptor
+	return bind.Desc.Class() == ConstBind
 }
 
-func BindValue(value I) Bind {
-	return Bind{Lit: Lit{Type: r.TypeOf(value), Value: value}, Desc: NoBindDescriptor}
+func BindConst(value I) Bind {
+	return Bind{Lit: Lit{Type: r.TypeOf(value), Value: value}, Desc: ConstBindDescriptor}
 }
 
 type NamedType struct {
 	Name, Path string
 }
 
+// ================================== Comp =================================
+
+// Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
+// for faster execution. Consider it as a poor man's compiler (hence the name)
 type Comp struct {
 	Binds      map[string]Bind
 	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
@@ -144,12 +173,16 @@ type Comp struct {
 	Path       string
 }
 
+// Env is the interpreter's runtime environment
 type Env struct {
 	Binds    []r.Value
 	IntBinds []uint64
 	Outer    *Env
+	*base.InterpreterBase
 }
 
+// CompEnv is the composition of both the tree-of-closures builder Comp
+// and the interpreter's runtime environment Env
 type CompEnv struct {
 	*Comp
 	Env *Env
@@ -185,27 +218,10 @@ type (
 	*/
 )
 
-type Func func(args ...r.Value) (r.Value, []r.Value)
-type FuncInt func(args ...r.Value) int
-
-type XFunc func(env *Env) Func
-type XFuncInt func(env *Env) FuncInt
-
 type runtimeError struct {
 	comp   *Comp
 	format string
 	args   []interface{}
-}
-
-func RetOf(expr I) r.Type {
-	t := TypeOf(expr)
-	if t == nil || t.Kind() != r.Func {
-		return t
-	}
-	if t.NumOut() == 1 {
-		return t.Out(0)
-	}
-	return typeOfInterface
 }
 
 func (err runtimeError) Error() string {
@@ -243,46 +259,7 @@ func (c *Comp) Debugf(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stdout, format, args...)
 }
 
-func debugf(format string, args ...interface{}) {
+func Debugf(format string, args ...interface{}) {
 	format = fmt.Sprintf("// debug: %s\n", format)
 	fmt.Fprintf(os.Stdout, format, args...)
 }
-
-var (
-	False = constants.False
-	True  = constants.True
-
-	Nil  = constants.Nil
-	None = constants.None
-
-	nilEnv *Env
-	NilEnv = []r.Value{r.ValueOf(nilEnv)}
-
-	typeOfInt   = r.TypeOf(int(0))
-	typeOfInt8  = r.TypeOf(int8(0))
-	typeOfInt16 = r.TypeOf(int16(0))
-	typeOfInt32 = r.TypeOf(int32(0))
-	typeOfInt64 = r.TypeOf(int64(0))
-
-	typeOfUint    = r.TypeOf(uint(0))
-	typeOfUint8   = r.TypeOf(uint8(0))
-	typeOfUint16  = r.TypeOf(uint16(0))
-	typeOfUint32  = r.TypeOf(uint32(0))
-	typeOfUint64  = r.TypeOf(uint64(0))
-	typeOfUintptr = r.TypeOf(uintptr(0))
-
-	typeOfFloat32    = r.TypeOf(float32(0))
-	typeOfFloat64    = r.TypeOf(float64(0))
-	typeOfComplex64  = r.TypeOf(complex64(0))
-	typeOfComplex128 = r.TypeOf(complex128(0))
-
-	typeOfBool      = r.TypeOf(bool(false))
-	typeOfByte      = r.TypeOf(byte(0))
-	typeOfRune      = r.TypeOf(rune(0))
-	typeOfString    = r.TypeOf("")
-	typeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
-	typeOfError     = r.TypeOf((*error)(nil)).Elem()
-
-	zeroStrings = []string{}
-	zeroTypes   = []r.Type{}
-)

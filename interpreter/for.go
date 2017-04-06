@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (env *Env) evalFor(node *ast.ForStmt) (r.Value, []r.Value) {
@@ -183,8 +185,8 @@ func (env *Env) evalForRangeString(str string, node *ast.RangeStmt) (r.Value, []
 	switch tok {
 	case token.DEFINE:
 		env = NewEnv(env, "range string {}")
-		k := env.defineForIterVar(knode, typeOfInt)
-		v := env.defineForIterVar(vnode, typeOfRune)
+		k := env.defineForIterVar(knode, TypeOfInt)
+		v := env.defineForIterVar(vnode, TypeOfRune)
 
 		for i, rune := range str {
 			if k != Nil {
@@ -226,7 +228,7 @@ func (env *Env) evalForRangeSlice(obj r.Value, node *ast.RangeStmt) (r.Value, []
 	switch tok {
 	case token.DEFINE:
 		env = NewEnv(env, "range slice/array {}")
-		k := env.defineForIterVar(knode, typeOfInt)
+		k := env.defineForIterVar(knode, TypeOfInt)
 		v := env.defineForIterVar(vnode, obj.Type().Elem())
 
 		n := obj.Len()

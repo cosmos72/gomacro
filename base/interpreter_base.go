@@ -16,13 +16,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * interpreter.go
+ * interpreter_common.go
  *
  *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package interpreter
+package base
 
 import (
 	"fmt"
@@ -33,27 +33,25 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	"github.com/cosmos72/gomacro/fast_interpreter"
 	mp "github.com/cosmos72/gomacro/parser"
 )
 
-type InterpreterCommon struct {
+type InterpreterBase struct {
 	output
 	Options      Options
-	AllMethods   map[r.Type]Methods // methods implemented by interpreted code
-	Importer     Importer
 	Packagename  string
 	Filename     string
+	Importer     Importer
 	Imports      []*ast.GenDecl
 	Declarations []ast.Decl
 	Statements   []ast.Stmt
 	ParserMode   mp.Mode
 	SpecialChar  rune
-	CompEnv      *fast_interpreter.CompEnv // temporary...
+	CompEnv      interface{} // *fast_interpreter.CompEnv // temporary...
 }
 
-func NewInterpreterCommon() *InterpreterCommon {
-	return &InterpreterCommon{
+func MakeInterpreterBase() InterpreterBase {
+	return InterpreterBase{
 		output: output{
 			stringer: stringer{
 				Fileset:    token.NewFileSet(),
@@ -65,15 +63,14 @@ func NewInterpreterCommon() *InterpreterCommon {
 			Stderr: os.Stdout,
 		},
 		Options:     OptTrapPanic, // set by default
-		AllMethods:  make(map[r.Type]Methods),
-		Importer:    DefaultImporter(),
 		Packagename: "main",
 		Filename:    "main.go",
+		Importer:    DefaultImporter(),
 		SpecialChar: '~',
 	}
 }
 
-func (ir *InterpreterCommon) ParseBytes(src []byte) []ast.Node {
+func (ir *InterpreterBase) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 
 	parser.Fileset = ir.Fileset
@@ -84,31 +81,31 @@ func (ir *InterpreterCommon) ParseBytes(src []byte) []ast.Node {
 
 	nodes, err := parser.Parse()
 	if err != nil {
-		error_(err)
+		Error(err)
 		return nil
 	}
 	return nodes
 }
 
-// collectAst accumulates declarations in ir.Decls and statements in ir.Stmts
+// CollectAst accumulates declarations in ir.Decls and statements in ir.Stmts
 // allows generating a *.go file on user request
-func (ir *InterpreterCommon) collectAst(form Ast) {
+func (ir *InterpreterBase) CollectAst(form Ast) {
 	if ir.Options&(OptCollectDeclarations|OptCollectStatements) == 0 {
 		return
 	}
 
 	switch form := form.(type) {
 	case AstWithNode:
-		ir.collectNode(form.Node())
+		ir.CollectNode(form.Node())
 	case AstWithSlice:
 		n := form.Size()
 		for i := 0; i < n; i++ {
-			ir.collectAst(form.Get(i))
+			ir.CollectAst(form.Get(i))
 		}
 	}
 }
 
-func (ir *InterpreterCommon) collectNode(node ast.Node) {
+func (ir *InterpreterBase) CollectNode(node ast.Node) {
 	collectDecl := ir.Options&OptCollectDeclarations != 0
 	collectStmt := ir.Options&OptCollectStatements != 0
 
@@ -178,16 +175,16 @@ func (ir *InterpreterCommon) collectNode(node ast.Node) {
 	}
 }
 
-func (ir *InterpreterCommon) writeDeclsToFile(filename string) {
+func (ir *InterpreterBase) WriteDeclsToFile(filename string) {
 	f, err := os.Create(filename)
 	if err != nil {
 		ir.Errorf("failed to create file %q: %v", filename, err)
 	}
 	defer f.Close()
-	ir.writeDeclsToStream(f)
+	ir.WriteDeclsToStream(f)
 }
 
-func (ir *InterpreterCommon) writeDeclsToStream(out io.Writer) {
+func (ir *InterpreterBase) WriteDeclsToStream(out io.Writer) {
 	fmt.Fprintf(out, "package %s\n\n", ir.Packagename)
 
 	for _, imp := range ir.Imports {

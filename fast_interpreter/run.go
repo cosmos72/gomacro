@@ -26,6 +26,8 @@ package fast_interpreter
 
 import (
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value) {
@@ -48,6 +50,11 @@ func (c *CompEnv) DefVar(name string, t r.Type, value I) {
 	fun := c.DeclVar0(name, t, ExprValue(value))
 	c.growEnv()
 	fun(c.Env)
+}
+
+// DefType compiles a type declaration
+func (c *CompEnv) DefType(name string, t r.Type) {
+	c.DeclType0(name, t)
 }
 
 func (c *CompEnv) growEnv() {

@@ -30,6 +30,8 @@ import (
 	r "reflect"
 	"strconv"
 	"strings"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
@@ -43,7 +45,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		if strings.HasPrefix(str, "-") {
 			i64, err := strconv.ParseInt(str, 0, 64)
 			if err != nil {
-				return error_(err)
+				return env.Error(err)
 			}
 			// prefer int to int64. reason: in compiled Go,
 			// type inference deduces int for all constants representable by an int
@@ -55,7 +57,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		} else {
 			u64, err := strconv.ParseUint(str, 0, 64)
 			if err != nil {
-				return error_(err)
+				return env.Error(err)
 			}
 			// prefer, in order: int, int64, uint, uint64. reason: in compiled Go,
 			// type inference deduces int for all constants representable by an int
@@ -77,7 +79,7 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 	case token.FLOAT:
 		f, err := strconv.ParseFloat(str, 64)
 		if err != nil {
-			return error_(err)
+			return env.Error(err)
 		}
 		ret = f
 
@@ -87,16 +89,16 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		}
 		im, err := strconv.ParseFloat(str, 64)
 		if err != nil {
-			return error_(err)
+			return env.Error(err)
 		}
 		ret = complex(0.0, im)
 		// env.Debugf("evalLiteral(): parsed IMAG %s -> %T %#v -> %T %#v", str, im, im, ret, ret)
 
 	case token.CHAR:
-		return unescapeChar(str)
+		return UnescapeChar(str)
 
 	case token.STRING:
-		return unescapeString(str)
+		return UnescapeString(str)
 
 	default:
 		env.Errorf("unimplemented basic literal: %v", node)
@@ -137,7 +139,7 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 		for _, elt := range node.Elts {
 			switch elt := elt.(type) {
 			case *ast.KeyValueExpr:
-				idx = int(env.valueToType(env.evalExpr1(elt.Key), typeOfInt).Int())
+				idx = int(env.valueToType(env.evalExpr1(elt.Key), TypeOfInt).Int())
 				val = env.valueToType(env.evalExpr1(elt.Value), vt)
 			default:
 				// golang specs:

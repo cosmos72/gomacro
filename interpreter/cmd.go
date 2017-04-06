@@ -34,6 +34,7 @@ import (
 	"os"
 	"strings"
 
+	. "github.com/cosmos72/gomacro/base"
 	mp "github.com/cosmos72/gomacro/parser"
 )
 
@@ -190,7 +191,7 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 	}
 	for _, file := range files {
 		filename := file.Name()
-		if !file.IsDir() && hasSuffix(filename, ".gomacro") {
+		if !file.IsDir() && strings.HasSuffix(filename, ".gomacro") {
 			filename = fmt.Sprintf("%s%c%s", dirname, os.PathSeparator, filename)
 			err := cmd.EvalFile(filename)
 			if err != nil {
@@ -230,11 +231,11 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 		if !cmd.OverwriteFiles {
 			_, err := os.Stat(outname)
 			if err == nil {
-				env.warnf("file exists already, use -f to force overwriting: %v", outname)
+				env.Warnf("file exists already, use -f to force overwriting: %v", outname)
 				return nil
 			}
 		}
-		env.writeDeclsToFile(outname)
+		env.WriteDeclsToFile(outname)
 
 		if env.Options&OptShowEval != 0 {
 			fmt.Fprintf(env.Stdout, "// processed file: %v\t-> %v\n", filename, outname)

@@ -34,7 +34,7 @@ func (env *Env) toInt(xv r.Value) (int64, bool) {
 		u := xv.Uint()
 		i := int64(u)
 		if uint64(i) != u {
-			env.warnf("value %d overflows int64, truncated to %d", u, i)
+			env.Warnf("value %d overflows int64, truncated to %d", u, i)
 		}
 		return i, true
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:

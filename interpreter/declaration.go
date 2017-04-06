@@ -29,6 +29,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (env *Env) evalDecl(node ast.Decl) (r.Value, []r.Value) {
@@ -86,7 +88,7 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 		if name != "_" {
 			// never define bindings for "_"
 			if _, ok := env.Types[name]; ok {
-				env.warnf("redefined type: %v", name)
+				env.Warnf("redefined type: %v", name)
 			} else if env.Types == nil {
 				env.Types = make(map[string]r.Type)
 			}
@@ -169,7 +171,7 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, const
 		t = typeOf(value)
 	}
 	if _, exists := env.Binds[name]; exists {
-		env.warnf("redefined identifier: %v", name)
+		env.Warnf("redefined identifier: %v", name)
 	}
 	if env.Binds == nil {
 		env.Binds = make(map[string]r.Value)

@@ -27,11 +27,6 @@ package interpreter
 import (
 	"go/ast"
 	r "reflect"
-	"sort"
-	"strings"
-
-	"github.com/cosmos72/gomacro/constants"
-	"github.com/cosmos72/gomacro/imports"
 )
 
 type CallStack struct {
@@ -63,11 +58,6 @@ type Macro struct {
 	ArgNum  int
 }
 
-type PackageRef struct {
-	imports.Package
-	Name, Path string
-}
-
 type TypedValue struct {
 	Type  r.Type
 	Value r.Value
@@ -90,104 +80,3 @@ type Methods map[string]TypedValue
  * }
  */
 type Interface TypedValue
-
-type Options uint
-type whichMacroExpand uint
-
-const (
-	OptTrapPanic Options = 1 << iota
-	OptShowPrompt
-	OptShowParse
-	OptShowMacroExpand
-	OptShowCompile
-	OptShowEval
-	OptShowTime
-	OptDebugMacroExpand
-	OptDebugQuasiquote
-	OptDebugCallStack
-	OptDebugPanicRecover
-	OptCollectDeclarations
-	OptCollectStatements
-
-	cMacroExpand1 whichMacroExpand = iota
-	cMacroExpand
-	cMacroExpandCodewalk
-)
-
-var optNames = map[Options]string{
-	OptTrapPanic:           "TrapPanic",
-	OptShowPrompt:          "Prompt",
-	OptShowParse:           "Parse",
-	OptShowMacroExpand:     "MacroExpand",
-	OptShowCompile:         "Compile",
-	OptShowEval:            "Eval",
-	OptShowTime:            "Time",
-	OptDebugMacroExpand:    "?MacroExpand",
-	OptDebugQuasiquote:     "?Quasiquote",
-	OptDebugCallStack:      "?CallStack",
-	OptDebugPanicRecover:   "?PanicRecover",
-	OptCollectDeclarations: "Declarations",
-	OptCollectStatements:   "Statements",
-}
-
-var optValues = map[string]Options{}
-
-func init() {
-	for k, v := range optNames {
-		optValues[v] = k
-	}
-}
-
-func (o Options) String() string {
-	names := make([]string, 0)
-	for k, v := range optNames {
-		if k&o != 0 {
-			names = append(names, v)
-		}
-	}
-	sort.Strings(names)
-	return strings.Join(names, " ")
-}
-
-func parseOptions(str string) Options {
-	var opts Options
-	for _, name := range strings.Split(str, " ") {
-		if opt, ok := optValues[name]; ok {
-			opts ^= opt
-		} else if len(name) != 0 {
-			for k, v := range optNames {
-				if hasPrefix(v, name) {
-					opts ^= k
-				}
-			}
-		}
-	}
-	return opts
-}
-
-func (m whichMacroExpand) String() string {
-	switch m {
-	case cMacroExpand1:
-		return "MacroExpand1"
-	case cMacroExpandCodewalk:
-		return "MacroExpandCodewalk"
-	default:
-		return "MacroExpand"
-	}
-}
-
-var Nil = constants.Nil
-var None = constants.None // used to indicate "no value"
-
-var one = r.ValueOf(1)
-
-var typeOfInt = r.TypeOf(int(0))
-var typeOfRune = r.TypeOf(rune(0))
-var typeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
-var typeOfString = r.TypeOf("")
-var typeOfDeferFunc = r.TypeOf(func() {})
-
-var valueOfFalse = r.ValueOf(false)
-var valueOfTrue = r.ValueOf(true)
-
-var zeroStrings = []string{}

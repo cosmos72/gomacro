@@ -27,6 +27,8 @@ package fast_interpreter
 import (
 	"go/ast"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 // "\u0080" is Unicode codepoint: Padding Character.
@@ -35,11 +37,11 @@ const nameOfInterfaceObject = "\u0080"
 
 func (c *Comp) TypeInterface(node *ast.InterfaceType) r.Type {
 	if node.Methods == nil || len(node.Methods.List) == 0 {
-		return typeOfInterface
+		return TypeOfInterface
 	}
 	types, names := c.TypeFields(node.Methods)
 
-	types = append([]r.Type{typeOfInterface}, types...)
+	types = append([]r.Type{TypeOfInterface}, types...)
 	names = append([]string{nameOfInterfaceObject}, names...)
 
 	fields := makeStructFields(c.File().Path, names, types)
@@ -49,7 +51,7 @@ func (c *Comp) TypeInterface(node *ast.InterfaceType) r.Type {
 func isInterfaceType(t r.Type) bool {
 	if t.Kind() == r.Struct && t.NumField() > 0 {
 		field := t.Field(0)
-		return field.Name == nameOfInterfaceObject && field.Type == typeOfInterface
+		return field.Name == nameOfInterfaceObject && field.Type == TypeOfInterface
 	}
 	return false
 }

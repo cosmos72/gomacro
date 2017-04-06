@@ -31,6 +31,8 @@ import (
 	r "reflect"
 	"strconv"
 	"strings"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 type Inspector struct {
@@ -61,7 +63,7 @@ func (env *Env) Inspect(in *bufio.Reader, name string) {
 }
 
 func (env *Env) showVar(name string, v r.Value, t r.Type) {
-	env.fprintf(env.Stdout, "%s\t= %v\t<%v>\n", name, v, t)
+	env.Fprintf(env.Stdout, "%s\t= %v\t<%v>\n", name, v, t)
 }
 
 func (*Inspector) Help() {
@@ -102,16 +104,16 @@ func (ip *Inspector) Repl() error {
 
 func (ip *Inspector) Eval(cmd string) error {
 	switch {
-	case cmd == "?", hasPrefix("help", cmd):
+	case cmd == "?", strings.HasPrefix("help", cmd):
 		ip.Help()
-	case hasPrefix("quit", cmd):
+	case strings.HasPrefix("quit", cmd):
 		return errors.New("user quit")
-	case hasPrefix("top", cmd):
+	case strings.HasPrefix("top", cmd):
 		ip.Top()
 		ip.Show()
 	case cmd == "", cmd == ".":
 		ip.Show()
-	case cmd == "-", hasPrefix("up", cmd):
+	case cmd == "-", strings.HasPrefix("up", cmd):
 		ip.Leave()
 	default:
 		ip.Enter(cmd)

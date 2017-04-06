@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (env *Env) evalSwitch(node *ast.SwitchStmt) (ret r.Value, rets []r.Value) {
@@ -39,7 +41,7 @@ func (env *Env) evalSwitch(node *ast.SwitchStmt) (ret r.Value, rets []r.Value) {
 	}
 	var tag r.Value
 	if node.Tag == nil {
-		tag = valueOfTrue
+		tag = True
 	} else {
 		tag = env.evalExpr1(node.Tag)
 	}

@@ -24,7 +24,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package interpreter
+package base
 
 import (
 	"fmt"
@@ -40,7 +40,7 @@ func getGoPath() string {
 	if len(dir) == 0 {
 		dir = os.Getenv("HOME")
 		if len(dir) == 0 {
-			errorf("cannot determine go source directory: both $GOPATH and $HOME are unset or empty")
+			Errorf("cannot determine go source directory: both $GOPATH and $HOME are unset or empty")
 		}
 		dir += "/go"
 	}
@@ -51,12 +51,12 @@ func getGoSrcPath() string {
 	return getGoPath() + "/src"
 }
 
-func (o *output) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
+func (ir *InterpreterBase) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := getGoSrcPath()
 	gosrclen := len(gosrcdir)
 	filelen := len(filename)
 	if filelen < gosrclen || filename[0:gosrclen] != gosrcdir {
-		errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filename, gosrcdir)
+		ir.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filename, gosrcdir)
 	}
 
 	cmd := exec.Command("go", "build", "-buildmode=plugin")
@@ -65,10 +65,10 @@ func (o *output) compilePlugin(filename string, stdout io.Writer, stderr io.Writ
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	o.Debugf("compiling %q ...", filename)
+	ir.Debugf("compiling %q ...", filename)
 	err := cmd.Run()
 	if err != nil {
-		errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
+		ir.Errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
 	}
 
 	dirname := filename[:strings.LastIndexByte(filename, '/')]
@@ -79,14 +79,14 @@ func (o *output) compilePlugin(filename string, stdout io.Writer, stderr io.Writ
 	return fmt.Sprintf("%s/%s.so", dirname, filename)
 }
 
-func loadPlugin(soname string, symbolName string) interface{} {
+func (ir *InterpreterBase) loadPlugin(soname string, symbolName string) interface{} {
 	pkg, err := plugin.Open(soname)
 	if err != nil {
-		errorf("error loading plugin %q: %v", soname, err)
+		ir.Errorf("error loading plugin %q: %v", soname, err)
 	}
 	val, err := pkg.Lookup(symbolName)
 	if err != nil {
-		errorf("error loading symbol %q from plugin %q: %v", symbolName, soname, err)
+		ir.Errorf("error loading symbol %q from plugin %q: %v", symbolName, soname, err)
 	}
 	return val
 }

@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (env *Env) evalTypeSwitch(node *ast.TypeSwitchStmt) (ret r.Value, rets []r.Value) {
@@ -59,7 +61,7 @@ func (env *Env) evalTypeSwitch(node *ast.TypeSwitchStmt) (ret r.Value, rets []r.
 		}
 	}
 	if default_ != nil {
-		return env.evalTypecaseBody(varname, typeOfInterface, val, default_, true)
+		return env.evalTypecaseBody(varname, TypeOfInterface, val, default_, true)
 	}
 	return None, nil
 }
@@ -102,7 +104,7 @@ func (env *Env) typecaseMatches(vt r.Type, list []ast.Expr) (r.Type, bool) {
 		t := env.evalTypeOrNil(expr)
 		if t == nil {
 			if vt == nil {
-				return typeOfInterface, true
+				return TypeOfInterface, true
 			}
 		} else if vt.AssignableTo(t) {
 			return t, true

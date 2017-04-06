@@ -31,6 +31,8 @@ import (
 	"fmt"
 	"io"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func ReadBytes(src interface{}) []byte {
@@ -50,12 +52,12 @@ func ReadBytes(src interface{}) []byte {
 		if s != nil {
 			var buf bytes.Buffer
 			if _, err := io.Copy(&buf, s); err != nil {
-				error_(err)
+				Error(err)
 			}
 			return buf.Bytes()
 		}
 	}
-	errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
+	Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
 	return nil
 }
 
@@ -76,12 +78,12 @@ func ReadString(src interface{}) string {
 		if s != nil {
 			var buf bytes.Buffer
 			if _, err := io.Copy(&buf, s); err != nil {
-				error_(err)
+				Error(err)
 			}
 			return buf.String()
 		}
 	}
-	errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
+	Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
 	return ""
 }
 

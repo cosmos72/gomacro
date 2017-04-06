@@ -22,19 +22,16 @@
  *      Author Massimiliano Ghilardi
  */
 
-package interpreter
+package base
 
 import (
-	"bytes"
 	"fmt"
 	"go/types"
 	r "reflect"
 	"sort"
-	"strings"
-	// "time"
 )
 
-type typeVisitor func(name string, t types.Type) bool
+type TypeVisitor func(name string, t types.Type) bool
 
 // implemented by *types.Pointer, *types.Array, *types.Slice, *types.Chan
 type typeWithElem interface {
@@ -43,7 +40,7 @@ type typeWithElem interface {
 
 var depth int = 0
 
-func (o *output) Trace(msg ...interface{}) {
+func (o *output) trace(msg ...interface{}) {
 	const dots = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
 	const n = len(dots)
 	i := 2 * depth
@@ -57,17 +54,17 @@ func (o *output) Trace(msg ...interface{}) {
 }
 
 func trace(o *output, caller string, name string, x interface{}) *output {
-	o.Trace(caller, "(", name, x)
+	o.trace(caller, "(", name, x)
 	depth++
 	return o
 }
 
 func un(o *output) {
 	depth--
-	o.Trace(")")
+	o.trace(")")
 }
 
-func (o *output) traverseType(name string, in types.Type, visitor typeVisitor) {
+func (o *output) traverseType(name string, in types.Type, visitor TypeVisitor) {
 	for {
 		// defer un(trace(o, "traverseType", name, r.TypeOf(in)))
 
@@ -125,7 +122,7 @@ func (o *output) traverseType(name string, in types.Type, visitor typeVisitor) {
 			in = t.Elem()
 			continue
 		default:
-			o.warnf("traverseType: unimplemented %#v <%v>", t, r.TypeOf(t))
+			o.Warnf("traverseType: unimplemented %#v <%v>", t, r.TypeOf(t))
 		}
 		break
 	}
@@ -194,7 +191,7 @@ func allMethodsExported(intf *types.Interface) bool {
 
 // we need to collect only the imports that actually appear in package's interfaces methods
 // because Go rejects programs with unused imports
-func (o *output) collectPackageImports(pkg *types.Package, requireAllInterfaceMethodsExported bool) []string {
+func (o *output) CollectPackageImports(pkg *types.Package, requireAllInterfaceMethodsExported bool) []string {
 	ie := importExtractor{
 		// we always need to import the package itself
 		imports: map[string]bool{pkg.Path(): true},
@@ -211,108 +208,4 @@ func (o *output) collectPackageImports(pkg *types.Package, requireAllInterfaceMe
 	}
 	sort.Strings(strings)
 	return strings
-}
-
-type writeTypeOpts int
-
-const (
-	writeMethodsAsFields writeTypeOpts = 1 << iota
-	writeForceParamNames
-	writeIncludeParamTypes
-)
-
-func writeInterfaceProxy(out *bytes.Buffer, pkgPath string, pkgSuffix string, name string, t *types.Interface) {
-	fmt.Fprintf(out, "\n// --------------- proxy for %s.%s ---------------\ntype %s%s struct {", pkgPath, name, name, pkgSuffix)
-	writeInterfaceMethods(out, pkgSuffix, name, t, writeMethodsAsFields)
-	out.WriteString("\n}\n")
-	writeInterfaceMethods(out, pkgSuffix, name, t, writeForceParamNames)
-}
-
-func writeInterfaceMethods(out *bytes.Buffer, pkgSuffix string, name string, t *types.Interface, opts writeTypeOpts) {
-	if opts&writeMethodsAsFields != 0 {
-		fmt.Fprint(out, "\n\tObject\tinterface{}") // will be used to retrieve object wrapped in the proxy
-	}
-	n := t.NumMethods()
-	for i := 0; i < n; i++ {
-		writeInterfaceMethod(out, pkgSuffix, name, t.Method(i), opts)
-	}
-}
-
-func writeInterfaceMethod(out *bytes.Buffer, pkgSuffix string, interfaceName string, method *types.Func, opts writeTypeOpts) {
-	if !method.Exported() {
-		return
-	}
-	sig, ok := method.Type().(*types.Signature)
-	if !ok {
-		return
-	}
-	if opts&writeMethodsAsFields != 0 {
-		fmt.Fprintf(out, "\n\t%s_\tfunc", method.Name())
-	} else {
-		fmt.Fprintf(out, "func (Proxy %s%s) %s", interfaceName, pkgSuffix, method.Name())
-	}
-	params := sig.Params()
-	results := sig.Results()
-	writeTypeTupleIn(out, params, opts)
-	out.WriteString(" ")
-	writeTypeTupleOut(out, results)
-	if opts&writeMethodsAsFields != 0 {
-		return
-	}
-	out.WriteString(" {\n\t")
-	if results != nil && results.Len() > 0 {
-		out.WriteString("return ")
-	}
-	fmt.Fprintf(out, "Proxy.%s_(", method.Name())
-	writeTypeTuple(out, params, writeForceParamNames)
-	out.WriteString(")\n}\n")
-}
-
-func writeTypeTupleIn(out *bytes.Buffer, tuple *types.Tuple, opts writeTypeOpts) {
-	out.WriteString("(")
-	writeTypeTuple(out, tuple, opts|writeIncludeParamTypes)
-	out.WriteString(")")
-}
-
-func writeTypeTupleOut(out *bytes.Buffer, tuple *types.Tuple) {
-	if tuple == nil || tuple.Len() == 0 {
-		return
-	}
-	ret0 := tuple.At(0)
-	if tuple.Len() > 1 || len(ret0.Name()) > 0 {
-		out.WriteString("(")
-		writeTypeTuple(out, tuple, writeIncludeParamTypes)
-		out.WriteString(")")
-	} else {
-		types.WriteType(out, ret0.Type(), packageNameQualifier)
-	}
-}
-
-func writeTypeTuple(out *bytes.Buffer, tuple *types.Tuple, opts writeTypeOpts) {
-	n := tuple.Len()
-	for i := 0; i < n; i++ {
-		if i != 0 {
-			out.WriteString(", ")
-		}
-		writeTypeVar(out, tuple.At(i), i, opts)
-	}
-}
-
-func writeTypeVar(out *bytes.Buffer, v *types.Var, index int, opts writeTypeOpts) {
-	name := v.Name()
-	if len(name) == 0 && opts&writeForceParamNames != 0 {
-		name = fmt.Sprintf("unnamed%d", index)
-	}
-	out.WriteString(name)
-	if opts&writeIncludeParamTypes != 0 {
-		if len(name) != 0 {
-			out.WriteString(" ")
-		}
-		types.WriteType(out, v.Type(), packageNameQualifier)
-	}
-}
-
-func packageNameQualifier(pkg *types.Package) string {
-	path := pkg.Path()
-	return path[1+strings.LastIndexByte(path, '/'):]
 }

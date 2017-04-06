@@ -29,7 +29,7 @@ import (
 	"fmt"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/constants"
+	"github.com/cosmos72/gomacro/base"
 )
 
 type Env struct {
@@ -143,7 +143,7 @@ func VarSetInt(name string, expr XInt) X {
 		for e := env; e != nil; e = e.Outer {
 			if v, ok := env.Binds[name]; ok {
 				v.SetInt(int64(val))
-				return constants.None, nil
+				return base.None, nil
 			}
 		}
 		return errorf("undefined identifier: %v", name)
@@ -155,7 +155,7 @@ func VarIncInt(name string) X {
 		for e := env; e != nil; e = e.Outer {
 			if v, ok := env.Binds[name]; ok {
 				v.SetInt(v.Int() + 1)
-				return constants.None, nil
+				return base.None, nil
 			}
 		}
 		return errorf("undefined identifier: %v", name)
@@ -202,7 +202,7 @@ func For(init X, pred XBool, post X, body X) X {
 			for pred(env) {
 				body(env)
 			}
-			return constants.None, nil
+			return base.None, nil
 		}
 
 	} else {
@@ -213,13 +213,13 @@ func For(init X, pred XBool, post X, body X) X {
 			for init(env); pred(env); post(env) {
 				body(env)
 			}
-			return constants.None, nil
+			return base.None, nil
 		}
 	}
 }
 
 func Nop(env *Env) (r.Value, []r.Value) {
-	return constants.None, nil
+	return base.None, nil
 }
 
 func Block(list ...X) X {
@@ -266,7 +266,7 @@ func Return(exprs ...X) X {
 					warnExtraValues(extra)
 				}
 			}
-			ret0 := constants.None
+			ret0 := base.None
 			if len(rets) > 0 {
 				ret0 = rets[0]
 			}
@@ -339,7 +339,7 @@ func CallInt(fun X, args ...X) XInt {
 		if len(extra) > 1 {
 			warnExtraValues(extra)
 		}
-		if fvalue == constants.Nil || fvalue == constants.None {
+		if fvalue == base.Nil || fvalue == base.None {
 			errorf("undefined identifier: %v", fun)
 		}
 		f := fvalue.Interface().(FuncInt)

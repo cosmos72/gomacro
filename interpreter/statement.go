@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 type eBreak struct {
@@ -163,7 +165,7 @@ func (env *Env) evalIncDec(node *ast.IncDecStmt) (r.Value, []r.Value) {
 		return env.Errorf("unsupported *ast.IncDecStmt operation, expecting ++ or -- : %v <%v>", node, r.TypeOf(node))
 	}
 	place := env.evalPlace(node.X)
-	return env.assignPlace(place, op, one), nil
+	return env.assignPlace(place, op, One), nil
 }
 
 func (env *Env) evalSend(node *ast.SendStmt) (r.Value, []r.Value) {

@@ -29,7 +29,7 @@ import (
 	r "reflect"
 	"time"
 
-	"github.com/cosmos72/gomacro/constants"
+	"github.com/cosmos72/gomacro/base"
 )
 
 type Env struct {
@@ -106,7 +106,7 @@ func VarSetInt(idx int, expr XInt) X {
 	return func(env *Env) (r.Value, []r.Value) {
 		val := expr(env)
 		env.Binds[idx].SetInt(int64(val))
-		return constants.None, nil
+		return base.None, nil
 	}
 }
 
@@ -114,7 +114,7 @@ func VarIncInt(idx int) X {
 	return func(env *Env) (r.Value, []r.Value) {
 		v := env.Binds[idx]
 		v.SetInt(v.Int() + 1)
-		return constants.None, nil
+		return base.None, nil
 	}
 }
 
@@ -189,7 +189,7 @@ func If(pred XBool, then, els X) X {
 			if pred(env) {
 				return then(env)
 			} else {
-				return constants.None, nil
+				return base.None, nil
 			}
 		}
 	}
@@ -201,7 +201,7 @@ func For(init X, pred XBool, post X, body X) X {
 			for pred(env) {
 				body(env)
 			}
-			return constants.None, nil
+			return base.None, nil
 		}
 
 	} else {
@@ -212,13 +212,13 @@ func For(init X, pred XBool, post X, body X) X {
 			for init(env); pred(env); post(env) {
 				body(env)
 			}
-			return constants.None, nil
+			return base.None, nil
 		}
 	}
 }
 
 func Nop(env *Env) (r.Value, []r.Value) {
-	return constants.None, nil
+	return base.None, nil
 }
 
 func Block(list ...X) X {
@@ -261,7 +261,7 @@ func Return(exprs ...X) X {
 			for i, value := range exprs {
 				rets[i], _ = value(env)
 			}
-			ret0 := constants.None
+			ret0 := base.None
 			if len(rets) > 0 {
 				ret0 = rets[0]
 			}

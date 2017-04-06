@@ -29,6 +29,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	. "github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -254,7 +255,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		switch len(results) {
 		default:
 			args = append([]r.Value{r.ValueOf(elt.Interface())}, args...)
-			env.warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
+			env.Warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
 				len(results), args, results)
 			fallthrough
 		case 1:

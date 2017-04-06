@@ -27,6 +27,7 @@ package interpreter
 import (
 	r "reflect"
 
+	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/fast_interpreter"
 )
 
@@ -36,16 +37,18 @@ func (env *Env) compile(src string) {
 	ast := env.ParseAst(src)
 
 	// compile phase
-	comp := env.CompEnv
-	if comp == nil {
+	var comp *fast_interpreter.CompEnv
+	if env.CompEnv == nil {
 		comp = fast_interpreter.New()
 		env.CompEnv = comp
+	} else {
+		comp = env.CompEnv.(*fast_interpreter.CompEnv)
 	}
 	fun := comp.CompileAst(ast)
 
 	// print phase
 	if env.Options&OptShowCompile != 0 {
-		env.fprintValues(env.Stdout, r.ValueOf(fun))
+		env.FprintValues(env.Stdout, r.ValueOf(fun))
 	}
 
 	// eval phase
@@ -54,9 +57,9 @@ func (env *Env) compile(src string) {
 	// print phase
 	if env.Options&OptShowEval != 0 {
 		if len(values) != 0 {
-			env.fprintValues(env.Stdout, values...)
+			env.FprintValues(env.Stdout, values...)
 		} else if value != None {
-			env.fprintValues(env.Stdout, value)
+			env.FprintValues(env.Stdout, value)
 		}
 	}
 }

@@ -28,11 +28,13 @@ import (
 	"fmt"
 	"go/ast"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func typeOf(value r.Value) r.Type {
 	if value == None || value == Nil {
-		return typeOfInterface
+		return TypeOfInterface
 	}
 	return value.Type()
 }
@@ -41,7 +43,7 @@ func (env *Env) evalExpr1OrType(node ast.Expr) (val r.Value, t r.Type) {
 	defer func() {
 		if r := recover(); r != nil {
 			switch r.(type) {
-			case runtimeError:
+			case RuntimeError:
 				t = env.evalType(node)
 			default:
 				panic(r)
@@ -219,7 +221,7 @@ func (env *Env) evalTypeFieldOrParamList(fields *ast.FieldList, allowEllipsis bo
 
 func (env *Env) evalTypeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (types []r.Type, names []string, ellipsis bool) {
 	types = make([]r.Type, 0)
-	names = zeroStrings
+	names = ZeroStrings
 	n := len(list)
 	if n == 0 {
 		return types, names, ellipsis
@@ -295,7 +297,7 @@ func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 	}
 	newValue := value.Convert(t)
 	if differentIntegerValues(value, newValue) {
-		env.warnf("value %d overflows <%v>, truncated to %d", value, t, newValue)
+		env.Warnf("value %d overflows <%v>, truncated to %d", value, t, newValue)
 	}
 	return newValue
 }

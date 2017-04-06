@@ -24,7 +24,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package interpreter
+package base
 
 import (
 	"io"
@@ -39,7 +39,7 @@ func getGoSrcPath() string {
 	return getGoPath() + "/src"
 }
 
-func (o *output) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
+func (ir *InterpreterCommon) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
 	errorf("gomacro compiled on Go version < 1.8. No support to load plugins - cannot import packages at runtime")
 	return ""
 }

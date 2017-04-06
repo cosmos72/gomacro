@@ -30,12 +30,19 @@ import (
 	"go/token"
 	r "reflect"
 
+	. "github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 	x := c.Expr(node.X)
 	y := c.Expr(node.Y)
+	if x.NumOut() == 0 {
+		c.Errorf("operand returns no values, cannot use in binary expression: %v", node.X)
+	} else if y.NumOut() == 0 {
+		c.Errorf("operand returns no values, cannot use in binary expression: %v", node.Y)
+	}
+
 	bothConst := x.Const() && y.Const()
 	var z *Expr
 
@@ -69,8 +76,10 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 				z = c.Land(op, x, y)
 			case token.LOR:
 				z = c.Lor(op, x, y)
-			case token.EQL:
-				z = c.Eql(op, x, y)
+		*/
+	case token.EQL:
+		z = c.Eql(op, x, y)
+		/*
 			case token.LSS:
 				z = c.Lss(op, x, y)
 			case token.GTR:
@@ -83,7 +92,7 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 				z = c.Geq(op, x, y)
 		*/
 	default:
-		c.unsupportedBinaryExpr(node.Op, x, y)
+		c.invalidBinaryExpr(node.Op, x, y)
 		return z
 	}
 	if bothConst {
@@ -94,11 +103,11 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 }
 
 func (c *Comp) Shl(op token.Token, x *Expr, y *Expr) I {
-	return c.unsupportedBinaryExpr(op, x, y)
+	return c.invalidBinaryExpr(op, x, y)
 }
 
 func (c *Comp) Shr(op token.Token, x *Expr, y *Expr) I {
-	return c.unsupportedBinaryExpr(op, x, y)
+	return c.invalidBinaryExpr(op, x, y)
 }
 
 func toPred(expr I) (val bool, pred func(*Env) bool, err bool) {
@@ -116,7 +125,7 @@ func (c *Comp) Land(op token.Token, x *Expr, y *Expr) I {
 	xval, xfun, xerr := toPred(x)
 	yval, yfun, yerr := toPred(y)
 	if xerr || yerr {
-		return c.unsupportedBinaryExpr(op, x, y)
+		return c.invalidBinaryExpr(op, x, y)
 	}
 	// optimize short-circuit logic
 	if xfun == nil {
@@ -142,7 +151,7 @@ func (c *Comp) Lor(op token.Token, x *Expr, y *Expr) *Expr {
 	xval, xfun, xerr := toPred(x)
 	yval, yfun, yerr := toPred(y)
 	if xerr || yerr {
-		return c.unsupportedBinaryExpr(op, x, y)
+		return c.invalidBinaryExpr(op, x, y)
 	}
 	// optimize short-circuit logic
 	if xfun == nil {
@@ -164,17 +173,25 @@ func (c *Comp) Lor(op token.Token, x *Expr, y *Expr) *Expr {
 	})
 }
 
-func (c *Comp) unsupportedBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
+func (c *Comp) invalidBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
 	opstr := mt.String(op)
 	xstr := "<expr>"
 	ystr := xstr
 	if x.Const() {
-		xstr = fmt.Sprintf("%v", x.Value)
+		if x.IsNil {
+			xstr = "nil"
+		} else {
+			xstr = fmt.Sprintf("%v", x.Value)
+		}
 	}
 	if y.Const() {
-		ystr = fmt.Sprintf("%v", y.Value)
+		if y.IsNil {
+			ystr = "nil"
+		} else {
+			ystr = fmt.Sprintf("%v", y.Value)
+		}
 	}
-	c.Errorf("unsupported binary operation <%v> %s <%v> in expression: %v %s %v",
+	c.Errorf("invalid binary operation <%v> %s <%v> in expression: %v %s %v",
 		x.Type, opstr, y.Type, xstr, opstr, ystr)
 	return nil
 }
@@ -213,7 +230,7 @@ func constsToSameType(op token.Token, x, y I) (I, I) {
 				x, str, y, x, str, y)
 		}
 	}
-	xt, yt := TypeOf(x), TypeOf(y)
+	xt, yt := r.TypeOf(x), r.TypeOf(y)
 	xk, yk := xt.Kind(), yt.Kind()
 	if xk == yk {
 		return x, y
@@ -243,14 +260,14 @@ func constsToSameType(op token.Token, x, y I) (I, I) {
 	// at least one is a float or complex... or a non-integer
 	if xc == r.Complex128 || yc == r.Complex128 {
 		if xc != r.Complex128 {
-			x = complex(r.ValueOf(x).Convert(typeOfFloat64).Float(), 0.0)
+			x = complex(r.ValueOf(x).Convert(TypeOfFloat64).Float(), 0.0)
 		}
 		if yc != r.Complex128 {
-			y = complex(r.ValueOf(y).Convert(typeOfFloat64).Float(), 0.0)
+			y = complex(r.ValueOf(y).Convert(TypeOfFloat64).Float(), 0.0)
 		}
 	} else if xc == r.Float64 || yc == r.Float64 {
-		x = r.ValueOf(x).Convert(typeOfFloat64).Float()
-		y = r.ValueOf(y).Convert(typeOfFloat64).Float()
+		x = r.ValueOf(x).Convert(TypeOfFloat64).Float()
+		y = r.ValueOf(y).Convert(TypeOfFloat64).Float()
 	} else {
 		errorf("cannot convert  to the same type: %v <%T> and %v <%T>", x, x, y, y)
 	}

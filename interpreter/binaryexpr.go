@@ -28,6 +28,7 @@ import (
 	"go/token"
 	r "reflect"
 
+	. "github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -82,6 +83,8 @@ func (env *Env) evalBinaryExpr(xv r.Value, op token.Token, yv r.Value) r.Value {
 		return env.evalBinaryExprComplex(xv, op, yv)
 	case r.String:
 		return env.evalBinaryExprString(xv, op, yv)
+	default:
+		return r.ValueOf(env.evalBinaryExprMisc(xv, op, yv))
 	}
 	return env.unsupportedBinaryExpr(xv, op, yv)
 }
@@ -100,7 +103,7 @@ func (env *Env) evalBinaryExprBoolBool(xv r.Value, op token.Token, yv r.Value) r
 	case token.NEQ:
 		b = x != y
 	default:
-		env.unsupportedBinaryExpr(xv, op, yv)
+		return env.unsupportedBinaryExpr(xv, op, yv)
 	}
 	return r.ValueOf(b)
 }
@@ -323,8 +326,29 @@ func (env *Env) evalBinaryExprString(xv r.Value, op token.Token, yv r.Value) r.V
 		return env.unsupportedBinaryExpr(xv, op, yv)
 	}
 	if b {
-		return valueOfTrue
+		return True
 	} else {
-		return valueOfFalse
+		return False
 	}
+}
+
+func (env *Env) evalBinaryExprMisc(xv r.Value, op token.Token, yv r.Value) bool {
+	eql := true
+	switch op {
+	case token.EQL:
+	case token.NEQ:
+		eql = false
+	default:
+		env.unsupportedBinaryExpr(xv, op, yv)
+		return false
+	}
+	if xv == yv {
+		return eql
+	}
+	xnil := xv == Nil || xv.IsNil()
+	ynil := yv == Nil || yv.IsNil()
+	if xnil || ynil {
+		return eql == (xnil == ynil)
+	}
+	return eql == (xv.Interface() == yv.Interface())
 }

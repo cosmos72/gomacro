@@ -30,6 +30,7 @@ import (
 	"go/token"
 	r "reflect"
 
+	. "github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -43,11 +44,11 @@ func (env *Env) warnOverflowSignedMinus(x interface{}, ret interface{}) {
 	if len(str) > 0 && str[0] == '-' {
 		str = str[1:]
 	}
-	env.warnf("value %s overflows <%v>, result truncated to %d", str, r.TypeOf(x), ret)
+	env.Warnf("value %s overflows <%v>, result truncated to %d", str, r.TypeOf(x), ret)
 }
 
 func (env *Env) warnUnderflowUnsignedMinus(x interface{}, ret interface{}) {
-	env.warnf("value -%d underflows <%v>, result truncated to %d", x, r.TypeOf(x), ret)
+	env.Warnf("value -%d underflows <%v>, result truncated to %d", x, r.TypeOf(x), ret)
 }
 
 func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
