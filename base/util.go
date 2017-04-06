@@ -50,3 +50,21 @@ func ValueType(v r.Value) r.Type {
 	}
 	return v.Type()
 }
+
+func IsNillableKind(k r.Kind) bool {
+	switch k {
+	case r.Invalid, // nil is nillable...
+		r.Chan, r.Func, r.Interface, r.Map, r.Ptr, r.Slice:
+		return true
+	default:
+		return false
+	}
+}
+
+// isNil is the reflect equivalent of == nil
+// it must reproduce Go's half-nil behaviour of interface{} :(
+// thus it need to know t, the compile-time type of v
+func IsNil(t r.Type, v r.Value) bool {
+	// Debugf("isNil: v = %v, v == Nil: %v, isNillable: %v, t != TypeOfInterface: %v", v, v == Nil, isNillable(v.Kind()), t != TypeOfInterface)
+	return v == Nil || (IsNillableKind(v.Kind()) && t != TypeOfInterface && v.IsNil())
+}

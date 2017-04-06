@@ -28,7 +28,7 @@ import (
 	"go/token"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) Eql(op token.Token, xe *Expr, ye *Expr) *Expr {
@@ -138,61 +138,12 @@ func (c *Comp) Eql(op token.Token, xe *Expr, ye *Expr) *Expr {
 			fun = func(env *Env) bool {
 				return x(env) == y(env)
 			}
-		case func(*Env) r.Value:
-			switch y := y.(type) {
-			case func(*Env) r.Value:
-				fun = func(env *Env) bool {
-					v1 := x(env)
-					v2 := y(env)
-					if v1 == base.Nil || v2 == base.Nil {
-						return v1 == v2
-					} else {
-						return v1.Interface() == v2.Interface()
-					}
-				}
-			case func(*Env) (r.Value, []r.Value):
-				fun = func(env *Env) bool {
-					v1 := x(env)
-					v2, _ := y(env)
-					if v1 == base.Nil || v2 == base.Nil {
-						return v1 == v2
-					} else {
-						return v1.Interface() == v2.Interface()
-					}
-				}
-			}
-		case func(*Env) (r.Value, []r.Value):
-			switch y := y.(type) {
-			case func(*Env) r.Value:
-				fun = func(env *Env) bool {
-					v1, _ := x(env)
-					v2 := y(env)
-					if v1 == base.Nil || v2 == base.Nil {
-						return v1 == v2
-					} else {
-						return v1.Interface() == v2.Interface()
-					}
-				}
-			case func(*Env) (r.Value, []r.Value):
-				fun = func(env *Env) bool {
-					v1, _ := x(env)
-					v2, _ := y(env)
-					if v1 == base.Nil || v2 == base.Nil {
-						return v1 == v2
-					} else {
-						return v1.Interface() == v2.Interface()
-					}
-				}
-			}
 		default:
-			return c.invalidBinaryExpr(op, xe, ye)
+			return c.eqlMisc(op, xe, ye)
 		}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
-		if isLiteralNumber(y, 0) {
-			return xe
-		}
 		switch x := x.(type) {
 		case func(*Env) int:
 			y := y.(int)
@@ -278,14 +229,11 @@ func (c *Comp) Eql(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x(env) == y
 			}
 		default:
-			return c.invalidBinaryExpr(op, xe, ye)
+			return c.eqlMisc(op, xe, ye)
 		}
 	} else {
 		x := xe.Value
 		y := ye.Fun
-		if isLiteralNumber(x, 0) {
-			return ye
-		}
 		switch y := y.(type) {
 		case func(*Env) int:
 			x := x.(int)
@@ -371,7 +319,71 @@ func (c *Comp) Eql(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x == y(env)
 			}
 		default:
-			return c.invalidBinaryExpr(op, xe, ye)
+			return c.eqlMisc(op, xe, ye)
+		}
+	}
+	return ExprBool(fun)
+}
+
+func (c *Comp) eqlMisc(op token.Token, xe *Expr, ye *Expr) *Expr {
+	var fun func(*Env) bool
+
+	if xe.Type.Kind() == r.Interface || ye.Type.Kind() == r.Interface {
+		// not checked yet that xe and ye return at least one value... check now
+		xe.CheckX1()
+		ye.CheckX1()
+	}
+
+	switch x := xe.Fun.(type) {
+	case func(*Env) (r.Value, []r.Value):
+		switch y := ye.Fun.(type) {
+		case func(*Env) (r.Value, []r.Value):
+			fun = func(env *Env) bool {
+				v1, _ := x(env)
+				v2, _ := y(env)
+				if v1 == Nil || v2 == Nil {
+					return v1 == v2
+				} else {
+					return v1.Interface() == v2.Interface()
+				}
+			}
+		default:
+			y1 := ye.AsX1()
+			fun = func(env *Env) bool {
+				v1, _ := x(env)
+				v2 := y1(env)
+				if v1 == Nil || v2 == Nil {
+					return v1 == v2
+				} else {
+					return v1.Interface() == v2.Interface()
+				}
+			}
+		}
+	default:
+		x1 := xe.AsX1()
+
+		switch y := ye.Fun.(type) {
+		case func(*Env) (r.Value, []r.Value):
+			fun = func(env *Env) bool {
+				v1 := x1(env)
+				v2, _ := y(env)
+				if v1 == Nil || v2 == Nil {
+					return v1 == v2
+				} else {
+					return v1.Interface() == v2.Interface()
+				}
+			}
+		default:
+			y1 := ye.AsX1()
+			fun = func(env *Env) bool {
+				v1 := x1(env)
+				v2 := y1(env)
+				if v1 == Nil || v2 == Nil {
+					return v1 == v2
+				} else {
+					return v1.Interface() == v2.Interface()
+				}
+			}
 		}
 	}
 	return ExprBool(fun)
@@ -386,7 +398,7 @@ func (c *Comp) eqlNil(op token.Token, xe *Expr, ye *Expr) *Expr {
 	}
 	t := e.Type
 	// e cannot be a constant (none of the nillable types support compile-time constants) but better safe than sorry
-	if e.Const() || !isNillable(t.Kind()) {
+	if e.Const() || !IsNillableKind(t.Kind()) {
 		return c.invalidBinaryExpr(op, xe, ye)
 	}
 
@@ -395,13 +407,13 @@ func (c *Comp) eqlNil(op token.Token, xe *Expr, ye *Expr) *Expr {
 		e.CheckX1() // to warn or error as appropriate
 		fun = func(env *Env) bool {
 			v, _ := f(env)
-			return isNil(t, v)
+			return IsNil(t, v)
 		}
 	} else {
 		f := e.AsX1()
 		fun = func(env *Env) bool {
 			v := f(env)
-			return isNil(t, v)
+			return IsNil(t, v)
 		}
 	}
 	return ExprBool(fun)

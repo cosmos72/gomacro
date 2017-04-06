@@ -158,24 +158,6 @@ func isCategory(k r.Kind, categories ...r.Kind) bool {
 	return false
 }
 
-func isNillable(k r.Kind) bool {
-	switch k {
-	case r.Invalid, // nil is nillable...
-		r.Chan, r.Func, r.Interface, r.Map, r.Ptr, r.Slice:
-		return true
-	default:
-		return false
-	}
-}
-
-// isNil is the reflect equivalent of == nil
-// it must reproduce Go's half-nil behaviour of interface{} :(
-// thus it need to know t, the compile-time type of v
-func isNil(t r.Type, v r.Value) bool {
-	// Debugf("isNil: v = %v, v == Nil: %v, isNillable: %v, t != TypeOfInterface: %v", v, v == Nil, isNillable(v.Kind()), t != TypeOfInterface)
-	return v == Nil || (isNillable(v.Kind()) && t != TypeOfInterface && v.IsNil())
-}
-
 // checkLiteralOverflow panics if the conversion from vsrc to vdst overflowed the destination type
 func checkLiteralOverflow(vsrc, vdst r.Value) {
 	k1, k2 := vsrc.Kind(), vdst.Kind()

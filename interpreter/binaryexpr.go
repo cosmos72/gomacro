@@ -345,8 +345,8 @@ func (env *Env) evalBinaryExprMisc(xv r.Value, op token.Token, yv r.Value) bool 
 	if xv == yv {
 		return eql
 	}
-	xnil := xv == Nil || xv.IsNil()
-	ynil := yv == Nil || yv.IsNil()
+	xnil := xv == Nil || IsNillableKind(xv.Kind()) && xv.IsNil()
+	ynil := yv == Nil || IsNillableKind(yv.Kind()) && yv.IsNil()
 	if xnil || ynil {
 		return eql == (xnil == ynil)
 	}

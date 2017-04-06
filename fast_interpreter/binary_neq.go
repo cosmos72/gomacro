@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * binary_eql.go
+ * binary_neq.go
  *
  *  Created on Apr 02, 2017
  *      Author Massimiliano Ghilardi
@@ -27,282 +27,394 @@ package fast_interpreter
 import (
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
-func (c *Comp) Neq(op token.Token, x I, y I) I {
-	xlit, ylit := isLiteral(x), isLiteral(y)
-	x, y = toSameFuncType(op, x, y)
-	if !isClass(RetOf(x).Kind(), r.Bool, r.Int, r.Uint, r.Float64, r.Complex128, r.String) {
-		return c.unsupportedBinaryExpr(op, x, y)
+func (c *Comp) Neq(op token.Token, xe *Expr, ye *Expr) *Expr {
+	if xe.IsNil {
+		if ye.IsNil {
+			return c.invalidBinaryExpr(op, xe, ye)
+		} else {
+			// nil != expr
+			return c.neqNil(op, xe, ye)
+		}
+	} else if ye.IsNil {
+		// expr != nil
+		return c.neqNil(op, xe, ye)
 	}
-	// if both x and y are literals, BinaryExpr will invoke evalConst()
+	if !xe.Type.Comparable() || !xe.Type.Comparable() {
+		return c.invalidBinaryExpr(op, xe, ye)
+	}
+	xc, yc := xe.Const(), ye.Const()
+	if xe.Type.Kind() != r.Interface && ye.Type.Kind() != r.Interface {
+		// comparison between different types is allowed only if at least one is an interface
+		toSameFuncType(op, xe, ye)
+	}
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
 	// on our return value. no need to optimize that.
-	if xlit == ylit {
+	var fun func(env *Env) bool
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
 		switch x := x.(type) {
-		case func(*Env) bool:
-			y := y.(func(*Env) bool)
-			return func(env *Env) bool {
-				return x(env) != y(env)
-			}
 		case func(*Env) int:
 			y := y.(func(*Env) int)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) int8:
 			y := y.(func(*Env) int8)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) int16:
 			y := y.(func(*Env) int16)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) int32:
 			y := y.(func(*Env) int32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) int64:
 			y := y.(func(*Env) int64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) uint:
 			y := y.(func(*Env) uint)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) uint8:
 			y := y.(func(*Env) uint8)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) uint16:
 			y := y.(func(*Env) uint16)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) uint32:
 			y := y.(func(*Env) uint32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) uint64:
 			y := y.(func(*Env) uint64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) uintptr:
 			y := y.(func(*Env) uintptr)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) float32:
 			y := y.(func(*Env) float32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) float64:
 			y := y.(func(*Env) float64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) complex64:
 			y := y.(func(*Env) complex64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) complex128:
 			y := y.(func(*Env) complex128)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		case func(*Env) string:
 			y := y.(func(*Env) string)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y(env)
 			}
 		default:
-			return c.unsupportedBinaryExpr(op, x, y)
+			return c.neqMisc(op, xe, ye)
 		}
-	} else if ylit {
-		y = c.evalConst(y)
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
 		switch x := x.(type) {
-		case func(*Env) bool:
-			y := y.(bool)
-			return func(env *Env) bool {
-				return x(env) != y
-			}
 		case func(*Env) int:
 			y := y.(int)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) int8:
 			y := y.(int8)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) int16:
 			y := y.(int16)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) int32:
 			y := y.(int32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) int64:
 			y := y.(int64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) uint:
 			y := y.(uint)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) uint8:
 			y := y.(uint8)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) uint16:
 			y := y.(uint16)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) uint32:
 			y := y.(uint32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) uint64:
 			y := y.(uint64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) uintptr:
 			y := y.(uintptr)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) float32:
 			y := y.(float32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) float64:
 			y := y.(float64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) complex64:
 			y := y.(complex64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) complex128:
 			y := y.(complex128)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		case func(*Env) string:
 			y := y.(string)
-			return func(env *Env) bool {
+			if len(y) == 0 {
+				return xe
+			}
+			fun = func(env *Env) bool {
 				return x(env) != y
 			}
 		default:
-			return c.unsupportedBinaryExpr(op, x, y)
+			return c.neqMisc(op, xe, ye)
 		}
 	} else {
-		x = c.evalConst(x)
+		x := xe.Value
+		y := ye.Fun
 		switch y := y.(type) {
-		case func(*Env) bool:
-			x := x.(bool)
-			return func(env *Env) bool {
+		case func(*Env) int:
+			x := x.(int)
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) int8:
 			x := x.(int8)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) int16:
 			x := x.(int16)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) int32:
 			x := x.(int32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) int64:
 			x := x.(int64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) uint:
 			x := x.(uint)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) uint8:
 			x := x.(uint8)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) uint16:
 			x := x.(uint16)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) uint32:
 			x := x.(uint32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) uint64:
 			x := x.(uint64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) uintptr:
 			x := x.(uintptr)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) float32:
 			x := x.(float32)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) float64:
 			x := x.(float64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) complex64:
 			x := x.(complex64)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) complex128:
 			x := x.(complex128)
-			return func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		case func(*Env) string:
 			x := x.(string)
-			return func(env *Env) bool {
+			if len(x) == 0 {
+				return ye
+			}
+			fun = func(env *Env) bool {
 				return x != y(env)
 			}
 		default:
-			return c.unsupportedBinaryExpr(op, x, y)
+			return c.neqMisc(op, xe, ye)
 		}
 	}
+	return ExprBool(fun)
+}
+
+func (c *Comp) neqMisc(op token.Token, xe *Expr, ye *Expr) *Expr {
+	var fun func(*Env) bool
+
+	if xe.Type.Kind() == r.Interface || ye.Type.Kind() == r.Interface {
+		// not checked yet that xe and ye return at least one value... check now
+		xe.CheckX1()
+		ye.CheckX1()
+	}
+
+	switch x := xe.Fun.(type) {
+	case func(*Env) (r.Value, []r.Value):
+		switch y := ye.Fun.(type) {
+		case func(*Env) (r.Value, []r.Value):
+			fun = func(env *Env) bool {
+				v1, _ := x(env)
+				v2, _ := y(env)
+				if v1 == Nil || v2 == Nil {
+					return v1 != v2
+				} else {
+					return v1.Interface() != v2.Interface()
+				}
+			}
+		default:
+			y1 := ye.AsX1()
+			fun = func(env *Env) bool {
+				v1, _ := x(env)
+				v2 := y1(env)
+				if v1 == Nil || v2 == Nil {
+					return v1 != v2
+				} else {
+					return v1.Interface() != v2.Interface()
+				}
+			}
+		}
+	default:
+		x1 := xe.AsX1()
+
+		switch y := ye.Fun.(type) {
+		case func(*Env) (r.Value, []r.Value):
+			fun = func(env *Env) bool {
+				v1 := x1(env)
+				v2, _ := y(env)
+				if v1 == Nil || v2 == Nil {
+					return v1 != v2
+				} else {
+					return v1.Interface() != v2.Interface()
+				}
+			}
+		default:
+			y1 := ye.AsX1()
+			fun = func(env *Env) bool {
+				v1 := x1(env)
+				v2 := y1(env)
+				if v1 == Nil || v2 == Nil {
+					return v1 != v2
+				} else {
+					return v1.Interface() != v2.Interface()
+				}
+			}
+		}
+	}
+	return ExprBool(fun)
+}
+
+func (c *Comp) neqNil(op token.Token, xe *Expr, ye *Expr) *Expr {
+	var e *Expr
+	if ye.IsNil {
+		e = xe
+	} else {
+		e = ye
+	}
+	t := e.Type
+	// e cannot be a constant (none of the nillable types support compile-time constants) but better safe than sorry
+	if e.Const() || !IsNillableKind(t.Kind()) {
+		return c.invalidBinaryExpr(op, xe, ye)
+	}
+
+	var fun func(env *Env) bool
+	if f, ok := e.Fun.(func(env *Env) (r.Value, []r.Value)); ok {
+		e.CheckX1() // to warn or error as appropriate
+		fun = func(env *Env) bool {
+			v, _ := f(env)
+			return !IsNil(t, v)
+		}
+	} else {
+		f := e.AsX1()
+		fun = func(env *Env) bool {
+			v := f(env)
+			return !IsNil(t, v)
+		}
+	}
+	return ExprBool(fun)
 }

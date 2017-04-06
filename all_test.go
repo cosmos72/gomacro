@@ -146,6 +146,7 @@ var tests = []TestCase{
 	TestCase{A, "eql_nil_4", "vs == nil", true, nil},
 	TestCase{A, "eql_nil_5", "vi == nil", false, nil},
 	TestCase{A, "eql_halfnil", "var vhalfnil interface{} = vm; vhalfnil == nil", false, nil},
+	TestCase{A, "eql_interface", "var vj interface{} = 1; vj == 1", true, nil},
 	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
 	TestCase{A, "type_struct", "type Pair struct { A, B int }; var pair Pair; pair", struct{ A, B int }{}, nil},
