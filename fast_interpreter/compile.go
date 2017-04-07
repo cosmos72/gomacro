@@ -30,6 +30,7 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func New() *CompEnv {
@@ -100,22 +101,29 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 	var namedTypes map[r.Type]NamedType
 	var outerComp *Comp
 	var outerEnv *Env
+	var base *InterpreterBase
 	if outer != nil {
 		outerComp = outer.Comp
 		outerEnv = outer.Env
 		if outerComp != nil {
 			namedTypes = outer.NamedTypes
 		}
+		base = outer.InterpreterBase
+	}
+	if base == nil {
+		b := MakeInterpreterBase()
+		base = &b
 	}
 	if namedTypes == nil {
 		namedTypes = make(map[r.Type]NamedType)
 	}
 	c := &CompEnv{
 		Comp: &Comp{
-			NamedTypes: namedTypes,
-			Outer:      outerComp,
-			Name:       name,
-			Path:       path,
+			NamedTypes:      namedTypes,
+			Outer:           outerComp,
+			Name:            name,
+			Path:            path,
+			InterpreterBase: base,
 		},
 		Env: &Env{Outer: outerEnv},
 	}

@@ -33,7 +33,7 @@ import (
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
 	fast "github.com/cosmos72/gomacro/fast_interpreter"
-	ir "github.com/cosmos72/gomacro/interpreter"
+	classic "github.com/cosmos72/gomacro/interpreter"
 )
 
 type TestFor int
@@ -54,7 +54,7 @@ type TestCase struct {
 }
 
 func TestCompiler(t *testing.T) {
-	env := ir.New()
+	env := classic.New()
 	comp := fast.New()
 	for _, test := range tests {
 		if test.testfor&C != 0 {
@@ -65,7 +65,7 @@ func TestCompiler(t *testing.T) {
 }
 
 func TestInterpreter(t *testing.T) {
-	env := ir.New()
+	env := classic.New()
 	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for _, test := range tests {
 		if test.testfor&I != 0 {
@@ -75,7 +75,7 @@ func TestInterpreter(t *testing.T) {
 	}
 }
 
-func (c *TestCase) compile(t *testing.T, comp *fast.CompEnv, env *ir.Env) {
+func (c *TestCase) compile(t *testing.T, comp *fast.CompEnv, env *classic.Env) {
 	// parse + macroexpansion phase
 	form := env.ParseAst(c.program)
 
@@ -86,7 +86,7 @@ func (c *TestCase) compile(t *testing.T, comp *fast.CompEnv, env *ir.Env) {
 	c.compareResults(t, rets)
 }
 
-func (c *TestCase) interpret(t *testing.T, env *ir.Env) {
+func (c *TestCase) interpret(t *testing.T, env *classic.Env) {
 	// parse + macroexpansion phase
 	form := env.ParseAst(c.program)
 	// eval phase

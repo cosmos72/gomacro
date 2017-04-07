@@ -28,12 +28,14 @@ import (
 	r "reflect"
 	"testing"
 
+	. "github.com/cosmos72/gomacro/base"
 	bi "github.com/cosmos72/gomacro/experiments/bytecode_interfaces"
 	bv "github.com/cosmos72/gomacro/experiments/bytecode_values"
 	ci "github.com/cosmos72/gomacro/experiments/closure_interfaces"
 	cm "github.com/cosmos72/gomacro/experiments/closure_maps"
 	cv "github.com/cosmos72/gomacro/experiments/closure_values"
-	ir "github.com/cosmos72/gomacro/interpreter"
+	fast "github.com/cosmos72/gomacro/fast_interpreter"
+	classic "github.com/cosmos72/gomacro/interpreter"
 )
 
 const (
@@ -41,6 +43,8 @@ const (
 	sum_n     = 1000
 	fib_n     = 12
 )
+
+var verbose = false
 
 /*
 	BenchmarkCollatzCompiler-2              	 1000000	      1948 ns/op
@@ -60,6 +64,79 @@ const (
 	BenchmarkFibonacciInterpreter-2         	     500	   2519917 ns/op
 */
 
+func arith(n int) int {
+	return ((n*2+3)&4 | 5 ^ 6) / (n | 1)
+}
+
+func BenchmarkArithCompiler1(b *testing.B) {
+	total := 0
+	for i := 0; i < b.N; i++ {
+		n := b.N
+		total += ((n*2+3)&4 | 5 ^ 6) / (n | 1)
+	}
+	if verbose {
+		println(total)
+	}
+}
+
+func BenchmarkArithCompiler2(b *testing.B) {
+	total := 0
+	for i := 0; i < b.N; i++ {
+		total += arith(b.N)
+	}
+	if verbose {
+		println(total)
+	}
+}
+
+func BenchmarkArithFastInterpreter(b *testing.B) {
+	c := fast.New()
+	c.DefVar("n", TypeOfInt, 0)
+
+	nodes := c.ParseBytes([]byte("((n*2+3)&4 | 5 ^ 6) / (n|1)"))
+	fun := c.Compile(nodes[0])
+
+	bind := c.Binds["n"]
+	assigner := c.AssignVar0Value("n", bind)
+	value := r.New(TypeOfInt).Elem()
+	var ret r.Value
+	c.Run(fun)
+
+	b.ResetTimer()
+	total := 0
+	for i := 0; i < b.N; i++ {
+		value.SetInt(int64(b.N))
+		assigner(c.Env, value)
+		ret, _ = c.Run(fun)
+		total += int(ret.Int())
+	}
+	if verbose {
+		println(total)
+	}
+}
+
+func BenchmarkArithClassicInterpreter(b *testing.B) {
+	ir := classic.New()
+	ir.EvalAst(ir.ParseAst("n:=0"))
+
+	ast := ir.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+
+	value := ir.Binds["n"]
+	var ret r.Value
+	ir.EvalAst(ast)
+
+	b.ResetTimer()
+	total := 0
+	for i := 0; i < b.N; i++ {
+		value.SetInt(int64(b.N))
+		ret, _ = ir.EvalAst(ast)
+		total += int(ret.Int())
+	}
+	if verbose {
+		println(total)
+	}
+}
+
 // collatz conjecture
 
 func collatz(n int) {
@@ -74,7 +151,7 @@ func collatz(n int) {
 
 func BenchmarkCollatzCompiler(b *testing.B) {
 	n := collatz_n
-	for i := 1; i < b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		collatz(n)
 	}
 }
@@ -173,7 +250,7 @@ func BenchmarkSumClosureMaps(b *testing.B) {
 }
 
 func BenchmarkSumInterpreter(b *testing.B) {
-	env := ir.New()
+	env := classic.New()
 	env.EvalAst(env.ParseAst(sum_s))
 	form := env.ParseAst(fmt.Sprintf("sum(%v)", sum_n))
 
@@ -238,7 +315,7 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 }
 
 func BenchmarkFibonacciInterpreter(b *testing.B) {
-	env := ir.New()
+	env := classic.New()
 	env.EvalAst(env.ParseAst(fib_s))
 	form := env.ParseAst(fmt.Sprintf("fibonacci(%v)", fib_n))
 

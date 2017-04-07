@@ -30,19 +30,21 @@ import (
 )
 
 // AssignVar0 compiles an assignment to a variable
-func (c *Comp) AssignVar0(name string, desc BindDescriptor, t r.Type, init *Expr) X {
+func (c *Comp) AssignVar0(name string, bind Bind, init *Expr) X {
 	if init.Const() {
-		return c.AssignVar0Const(name, desc, t, init)
+		return c.assignVar0Const(name, bind, init)
 	} else {
-		return c.AssignVar0Expr(name, desc, t, init)
+		return c.assignVar0Expr(name, bind, init)
 	}
 }
 
 // AssignVar0Const compiles an assignment to a variable with a value known at compile time
-func (c *Comp) AssignVar0Const(name string, desc BindDescriptor, t r.Type, init *Expr) X {
+func (c *Comp) assignVar0Const(name string, bind Bind, init *Expr) X {
+	t := bind.Type
 	if init.Type != t {
 		init.ConstTo(t)
 	}
+	desc := bind.Desc
 	switch desc.Class() {
 	default:
 		c.Errorf("cannot assign to %v", name)
@@ -132,11 +134,12 @@ func (c *Comp) AssignVar0Const(name string, desc BindDescriptor, t r.Type, init 
 }
 
 // AssignVar0Expr compiles an assignment to a variable with an expression
-func (c *Comp) AssignVar0Expr(name string, desc BindDescriptor, t r.Type, init *Expr) X {
+func (c *Comp) assignVar0Expr(name string, bind Bind, init *Expr) X {
+	t := bind.Type
 	if init.Type != t && !init.Type.AssignableTo(t) {
 		c.Errorf("cannot assign <%v> to <%v>", init.Type, t)
 	}
-
+	desc := bind.Desc
 	switch desc.Class() {
 	default:
 		c.Errorf("cannot assign to %v", name)
@@ -150,7 +153,7 @@ func (c *Comp) AssignVar0Expr(name string, desc BindDescriptor, t r.Type, init *
 		}
 		fun := init.AsX1()
 		return func(env *Env) {
-			env.Binds[index].Set(fun(env))
+			env.Binds[index].Set(fun(env).Convert(t))
 		}
 	case IntBind:
 		index := desc.Index()
@@ -231,7 +234,9 @@ func (c *Comp) AssignVar0Expr(name string, desc BindDescriptor, t r.Type, init *
 // AssignVar0Value compiles an assignment to a variable with a reflect.Value passed at runtime.
 // Used to initialize variables with multi-valued expressions
 // AssignVar0Expr compiles an assignment to a variable with an expression
-func (c *Comp) AssignVar0Value(name string, desc BindDescriptor, t r.Type) func(*Env, r.Value) {
+func (c *Comp) AssignVar0Value(name string, bind Bind) func(*Env, r.Value) {
+	desc := bind.Desc
+	t := bind.Type
 	switch desc.Class() {
 	default:
 		c.Errorf("cannot assign to %v", name)
@@ -243,7 +248,7 @@ func (c *Comp) AssignVar0Value(name string, desc BindDescriptor, t r.Type) func(
 			return nil
 		}
 		return func(env *Env, v r.Value) {
-			env.Binds[index].Set(v)
+			env.Binds[index].Set(v.Convert(t))
 		}
 	case IntBind:
 		index := desc.Index()

@@ -235,7 +235,8 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 			c.Errorf("initializer returns %d values, using only the first one to declare variable: %v", name)
 		}
 	}
-	desc := c.AddBind(name, VarBind, t).Desc
+	bind := c.AddBind(name, VarBind, t)
+	desc := bind.Desc
 	switch desc.Class() {
 	default:
 		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind ",
@@ -247,7 +248,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 			// no initializer... use the zero-value of t
 			init = ExprValue(r.Zero(t).Interface())
 		}
-		return c.AssignVar0(name, desc, t, init)
+		return c.AssignVar0(name, bind, init)
 	case VarBind:
 		index := desc.Index()
 		if index == NoIndex {
@@ -287,11 +288,13 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 }
 
 // DeclBind0Value compiles a variable, function or constant declaration with a reflect.Value passed at runtime
-func (c *Comp) DeclBindRuntimeValue(name string, desc BindDescriptor, t r.Type) func(*Env, r.Value) {
+func (c *Comp) DeclBindRuntimeValue(name string, bind Bind) func(*Env, r.Value) {
+	desc := bind.Desc
 	index := desc.Index()
 	if index == NoIndex {
 		return nil
 	}
+	t := bind.Type
 	switch desc.Class() {
 	default: // case ConstBind:
 		c.Errorf("cannot declare a constant with a value passed at runtime: %v <%v>", name, t)
@@ -299,20 +302,18 @@ func (c *Comp) DeclBindRuntimeValue(name string, desc BindDescriptor, t r.Type) 
 	case FuncBind:
 		// declaring a function in Env.Binds[], the reflect.Value must not be addressable or settable
 		return func(env *Env, v r.Value) {
-			place := r.New(t).Elem()
-			place.Set(v)
-			env.Binds[index] = place
+			env.Binds[index] = v.Convert(t)
 		}
 	case VarBind:
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		return func(env *Env, v r.Value) {
 			place := r.New(t).Elem()
-			place.Set(v)
+			place.Set(v.Convert(t))
 			env.Binds[index] = place
 		}
 	case IntBind:
 		// no difference between declaration and assignment for IntBind
-		return c.AssignVar0Value(name, desc, t)
+		return c.AssignVar0Value(name, bind)
 	}
 }
 
@@ -345,7 +346,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
 			}
 		}
 		bind := c.AddBind(name, VarBind, ti)
-		decls[i] = c.DeclBindRuntimeValue(name, bind.Desc, ti)
+		decls[i] = c.DeclBindRuntimeValue(name, bind)
 	}
 	fun := init.AsXV()
 	return func(env *Env) {
@@ -392,7 +393,7 @@ func (c *Comp) MakeFunc(paramTypes []r.Type, body X) XFunc {
 			}()
 			for i, paramType := range paramTypes {
 				place := r.New(paramType).Elem()
-				place.Set(args[i])
+				place.Set(args[i].convert(paramType))
 				fenv.Binds[i] = place
 			}
 			ret, rets = body(fenv)
@@ -421,7 +422,7 @@ func MakeFuncInt(paramTypes []r.Type, body X) XFuncInt {
 			}()
 			for i, paramType := range paramTypes {
 				place := r.New(paramType).Elem()
-				place.Set(args[i])
+				place.Set(args[i].convert(paramType))
 				fenv.Binds[i] = place
 			}
 			ret0, _ := body(fenv)
