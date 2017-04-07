@@ -131,17 +131,17 @@ func (expr *Expr) EvalConst() I {
 	}
 	ret, rets := ToXV(expr.Fun)(nil)
 	if ret == None {
-		errorf("constant should evaluate to a single value, found no values at all")
+		Errorf("constant should evaluate to a single value, found no values at all")
 		return nil
 	}
 	if len(rets) > 1 {
-		errorf("constant should evaluate to a single value, found %d values: %v", len(rets), rets)
+		Errorf("constant should evaluate to a single value, found %d values: %v", len(rets), rets)
 		return nil
 	}
 	t1 := expr.Type
 	t2 := ValueType(ret)
 	if t1 != t2 {
-		errorf("constant should evaluate to <%v>, found: %v <%v>", t1, t2, ret)
+		Errorf("constant should evaluate to <%v>, found: %v <%v>", t1, t2, ret)
 		return nil
 	}
 	var value I

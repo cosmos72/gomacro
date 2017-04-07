@@ -263,19 +263,24 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 			}
 		}
 		fun := init.AsX1() // AsX1() panics if init.NumOut() == 0, warns if init.NumOut() > 1
-		t := init.Out(0)
+		tfun := init.Out(0)
+		if tfun != t && !tfun.AssignableTo(t) {
+			c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v <%v>", tfun, t, name, t)
+			return nil
+		}
 		// optimization: no need to wrap multiple-valued function into a single-value function
 		if f, ok := init.Fun.(func(*Env) (r.Value, []r.Value)); ok {
 			return func(env *Env) {
 				ret, _ := f(env)
 				place := r.New(t).Elem()
-				place.Set(ret)
+				place.Set(ret.Convert(t))
 				env.Binds[index] = place
 			}
 		}
 		return func(env *Env) {
+			ret := fun(env)
 			place := r.New(t).Elem()
-			place.Set(fun(env))
+			place.Set(ret.Convert(t))
 			env.Binds[index] = place
 		}
 	}

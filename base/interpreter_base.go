@@ -37,7 +37,7 @@ import (
 )
 
 type InterpreterBase struct {
-	output
+	Output
 	Options      Options
 	Packagename  string
 	Filename     string
@@ -52,8 +52,8 @@ type InterpreterBase struct {
 
 func MakeInterpreterBase() InterpreterBase {
 	return InterpreterBase{
-		output: output{
-			stringer: stringer{
+		Output: Output{
+			Stringer: Stringer{
 				Fileset:    token.NewFileSet(),
 				NamedTypes: make(map[r.Type]string),
 			},

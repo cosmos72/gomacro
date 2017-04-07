@@ -223,7 +223,7 @@ func ToX(any I) X {
 			fun(env)
 		}
 	default:
-		errorf("unsupported expression, cannot convert to func(*Env): %v <%T>", any, any)
+		Errorf("unsupported expression, cannot convert to func(*Env): %v <%T>", any, any)
 	}
 	return nil
 }
@@ -236,10 +236,10 @@ func (e *Expr) CheckX1() {
 		return
 	}
 	if e == nil || e.NumOut() == 0 {
-		errorf("expression returns no values, cannot convert to func(env *Env) r.Value")
+		Errorf("expression returns no values, cannot convert to func(env *Env) r.Value")
 		return
 	} else if e.NumOut() > 1 {
-		warnf("expression returns %d values, using only the first one: %v", e.Types)
+		Warnf("expression returns %d values, using only the first one: %v", e.Types)
 	}
 }
 
@@ -353,7 +353,7 @@ func ToX1(any I) func(*Env) r.Value {
 			return r.ValueOf(fun(env))
 		}
 	default:
-		errorf("unsupported expression, cannot convert to func(*Env) r.Value: %v <%T>", fun, fun)
+		Errorf("unsupported expression, cannot convert to func(*Env) r.Value: %v <%T>", fun, fun)
 	}
 	return nil
 }
@@ -466,7 +466,7 @@ func ToXV(expr I) func(*Env) (r.Value, []r.Value) {
 			return r.ValueOf(fun(env)), nil
 		}
 	default:
-		errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%T>",
+		Errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%T>",
 			expr, expr)
 	}
 	return nil

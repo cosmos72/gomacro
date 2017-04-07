@@ -149,14 +149,8 @@ func (c *Comp) AssignVar0Expr(name string, desc BindDescriptor, t r.Type, init *
 			return init.AsX()
 		}
 		fun := init.AsX1()
-		if init.Type == t {
-			return func(env *Env) {
-				env.Binds[index] = fun(env)
-			}
-		} else {
-			return func(env *Env) {
-				env.Binds[index] = fun(env).Convert(t)
-			}
+		return func(env *Env) {
+			env.Binds[index].Set(fun(env))
 		}
 	case IntBind:
 		index := desc.Index()

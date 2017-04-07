@@ -26,7 +26,6 @@ package fast_interpreter
 
 import (
 	"fmt"
-	"os"
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
@@ -74,6 +73,24 @@ func (e *Expr) Outs() []r.Type {
 		return []r.Type{e.Type}
 	}
 	return e.Types
+}
+
+func (e *Expr) String() string {
+	if e == nil {
+		return "nil"
+	}
+	var str string
+	if e.Const() {
+		switch val := e.Value.(type) {
+		case string, nil:
+			str = fmt.Sprintf("const %#v", val)
+		default:
+			str = fmt.Sprintf("const %v", val)
+		}
+	} else {
+		str = fmt.Sprintf("%#v", e.Fun)
+	}
+	return str
 }
 
 // ================================= BindClass =================================
@@ -171,6 +188,7 @@ type Comp struct {
 	Outer      *Comp
 	Name       string
 	Path       string
+	*base.InterpreterBase
 }
 
 // Env is the interpreter's runtime environment
@@ -217,49 +235,3 @@ type (
 		XV          func(*Env) (r.Value, []r.Value)
 	*/
 )
-
-type runtimeError struct {
-	comp   *Comp
-	format string
-	args   []interface{}
-}
-
-func (err runtimeError) Error() string {
-	return fmt.Sprintf(err.format, err.args...)
-}
-
-func (c *Comp) Errorf(format string, args ...interface{}) X {
-	panic(runtimeError{c, format, args})
-}
-
-func (c *Comp) Error(err error) interface{} {
-	panic(err)
-}
-
-func errorf(format string, args ...interface{}) X {
-	panic(runtimeError{nil, format, args})
-}
-
-func error_(err error) interface{} {
-	panic(err)
-}
-
-func (c *Comp) Warnf(format string, args ...interface{}) {
-	format = fmt.Sprintf("// warning: %s\n", format)
-	fmt.Fprintf(os.Stdout, format, args...)
-}
-
-func warnf(format string, args ...interface{}) {
-	format = fmt.Sprintf("// warning: %s\n", format)
-	fmt.Fprintf(os.Stdout, format, args...)
-}
-
-func (c *Comp) Debugf(format string, args ...interface{}) {
-	format = fmt.Sprintf("// debug: %s\n", format)
-	fmt.Fprintf(os.Stdout, format, args...)
-}
-
-func Debugf(format string, args ...interface{}) {
-	format = fmt.Sprintf("// debug: %s\n", format)
-	fmt.Fprintf(os.Stdout, format, args...)
-}

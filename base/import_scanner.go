@@ -40,7 +40,7 @@ type typeWithElem interface {
 
 var depth int = 0
 
-func (o *output) trace(msg ...interface{}) {
+func (o *Output) trace(msg ...interface{}) {
 	const dots = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
 	const n = len(dots)
 	i := 2 * depth
@@ -53,18 +53,18 @@ func (o *output) trace(msg ...interface{}) {
 	fmt.Fprintln(o.Stdout, msg...)
 }
 
-func trace(o *output, caller string, name string, x interface{}) *output {
+func trace(o *Output, caller string, name string, x interface{}) *Output {
 	o.trace(caller, "(", name, x)
 	depth++
 	return o
 }
 
-func un(o *output) {
+func un(o *Output) {
 	depth--
 	o.trace(")")
 }
 
-func (o *output) traverseType(name string, in types.Type, visitor TypeVisitor) {
+func (o *Output) traverseType(name string, in types.Type, visitor TypeVisitor) {
 	for {
 		// defer un(trace(o, "traverseType", name, r.TypeOf(in)))
 
@@ -131,7 +131,7 @@ func (o *output) traverseType(name string, in types.Type, visitor TypeVisitor) {
 type importExtractor struct {
 	imports map[string]bool
 	seen    map[types.Type]bool
-	o       *output
+	o       *Output
 }
 
 func (ie *importExtractor) visitPackage(pkg *types.Package, requireAllInterfaceMethodsExported bool) {
@@ -191,7 +191,7 @@ func allMethodsExported(intf *types.Interface) bool {
 
 // we need to collect only the imports that actually appear in package's interfaces methods
 // because Go rejects programs with unused imports
-func (o *output) CollectPackageImports(pkg *types.Package, requireAllInterfaceMethodsExported bool) []string {
+func (o *Output) CollectPackageImports(pkg *types.Package, requireAllInterfaceMethodsExported bool) []string {
 	ie := importExtractor{
 		// we always need to import the package itself
 		imports: map[string]bool{pkg.Path(): true},

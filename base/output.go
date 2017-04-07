@@ -36,19 +36,19 @@ import (
 	. "github.com/cosmos72/gomacro/ast2"
 )
 
-type stringer struct {
+type Stringer struct {
 	Fileset    *token.FileSet
 	NamedTypes map[r.Type]string
 }
 
-type output struct {
-	stringer
+type Output struct {
+	Stringer
 	Stdout io.Writer
 	Stderr io.Writer
 }
 
 type RuntimeError struct {
-	st     *stringer
+	st     *Stringer
 	format string
 	args   []interface{}
 }
@@ -61,7 +61,7 @@ func Error(err error) interface{} {
 	panic(err)
 }
 
-func (o *output) Error(err error) interface{} {
+func (o *Output) Error(err error) interface{} {
 	panic(err)
 }
 
@@ -69,26 +69,36 @@ func Errorf(format string, args ...interface{}) {
 	panic(RuntimeError{nil, format, args})
 }
 
-func (st *stringer) Errorf(format string, args ...interface{}) (r.Value, []r.Value) {
+func (st *Stringer) Errorf(format string, args ...interface{}) (r.Value, []r.Value) {
 	panic(RuntimeError{st, format, args})
 }
 
-func (o *output) Warnf(format string, args ...interface{}) {
-	str := o.Sprintf(format, args...)
-	fmt.Fprintf(o.Stderr, "warning: %s\n", str)
+func Warnf(format string, args ...interface{}) {
+	str := fmt.Sprintf(format, args...)
+	fmt.Printf("// warning: %s\n", str)
 }
 
-func (o *output) WarnExtraValues(extraValues []r.Value) {
+func (o *Output) Warnf(format string, args ...interface{}) {
+	str := o.Sprintf(format, args...)
+	fmt.Fprintf(o.Stderr, "// warning: %s\n", str)
+}
+
+func (o *Output) WarnExtraValues(extraValues []r.Value) {
 	o.Warnf("expression returned %d values, using only the first one: %v",
 		len(extraValues), extraValues)
 }
 
-func (o *output) Debugf(format string, args ...interface{}) {
+func Debugf(format string, args ...interface{}) {
+	str := fmt.Sprintf(format, args...)
+	fmt.Printf("// debug: %s\n", str)
+}
+
+func (o *Output) Debugf(format string, args ...interface{}) {
 	str := o.Sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
 
-func (st *stringer) FprintValues(out io.Writer, values ...r.Value) {
+func (st *Stringer) FprintValues(out io.Writer, values ...r.Value) {
 	if len(values) == 0 {
 		fmt.Fprint(out, "// no value\n")
 		return
@@ -98,7 +108,7 @@ func (st *stringer) FprintValues(out io.Writer, values ...r.Value) {
 	}
 }
 
-func (st *stringer) FprintValue(out io.Writer, v r.Value) {
+func (st *Stringer) FprintValue(out io.Writer, v r.Value) {
 	var vi, vt interface{}
 	if v == None {
 		fmt.Fprint(out, "// no value\n")
@@ -128,17 +138,17 @@ func (st *stringer) FprintValue(out io.Writer, v r.Value) {
 	}
 }
 
-func (st *stringer) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
+func (st *Stringer) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
 	values = st.toPrintables(values)
 	return fmt.Fprintf(out, format, values...)
 }
 
-func (st *stringer) Sprintf(format string, values ...interface{}) string {
+func (st *Stringer) Sprintf(format string, values ...interface{}) string {
 	values = st.toPrintables(values)
 	return fmt.Sprintf(format, values...)
 }
 
-func (st *stringer) ToString(separator string, values ...interface{}) string {
+func (st *Stringer) ToString(separator string, values ...interface{}) string {
 	if len(values) == 0 {
 		return ""
 	}
@@ -153,14 +163,14 @@ func (st *stringer) ToString(separator string, values ...interface{}) string {
 	return buf.String()
 }
 
-func (st *stringer) toPrintables(values []interface{}) []interface{} {
+func (st *Stringer) toPrintables(values []interface{}) []interface{} {
 	for i, vi := range values {
 		values[i] = st.toPrintable(vi)
 	}
 	return values
 }
 
-func (st *stringer) toPrintable(value interface{}) (ret interface{}) {
+func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 	if value == nil {
 		return nil
 	}
@@ -195,7 +205,7 @@ func (st *stringer) toPrintable(value interface{}) (ret interface{}) {
 	return value
 }
 
-func (st *stringer) valueToPrintable(value r.Value) interface{} {
+func (st *Stringer) valueToPrintable(value r.Value) interface{} {
 	if value == None {
 		return "/*no value*/"
 	} else if value == Nil {
@@ -205,7 +215,7 @@ func (st *stringer) valueToPrintable(value r.Value) interface{} {
 	}
 }
 
-func (st *stringer) typeToPrintable(t r.Type) interface{} {
+func (st *Stringer) typeToPrintable(t r.Type) interface{} {
 	if t == nil {
 		return nil
 	}
@@ -219,7 +229,7 @@ func (st *stringer) typeToPrintable(t r.Type) interface{} {
 
 var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
 
-func (st *stringer) nodeToPrintable(node ast.Node) interface{} {
+func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
 	if node == nil {
 		return nil
 	}

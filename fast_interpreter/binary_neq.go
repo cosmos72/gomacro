@@ -402,9 +402,8 @@ func (c *Comp) neqNil(op token.Token, xe *Expr, ye *Expr) *Expr {
 	} else {
 		e = ye
 	}
-	t := e.Type
 	// e cannot be a constant (none of the nillable types support compile-time constants) but better safe than sorry
-	if e.Const() || !IsNillableKind(t.Kind()) {
+	if e.Const() || !IsNillableKind(e.Type.Kind()) {
 		return c.invalidBinaryExpr(op, xe, ye)
 	}
 
@@ -413,13 +412,15 @@ func (c *Comp) neqNil(op token.Token, xe *Expr, ye *Expr) *Expr {
 		e.CheckX1() // to warn or error as appropriate
 		fun = func(env *Env) bool {
 			v, _ := f(env)
-			return !IsNil(t, v)
+			vnil := v == Nil || IsNillableKind(v.Kind()) && v.IsNil()
+			return !vnil
 		}
 	} else {
 		f := e.AsX1()
 		fun = func(env *Env) bool {
 			v := f(env)
-			return !IsNil(t, v)
+			vnil := v == Nil || IsNillableKind(v.Kind()) && v.IsNil()
+			return !vnil
 		}
 	}
 	return ExprBool(fun)

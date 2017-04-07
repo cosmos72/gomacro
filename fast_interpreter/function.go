@@ -30,5 +30,6 @@ import (
 )
 
 func (c *Comp) DeclFunc(decl_or_nil *ast.FuncDecl, funcType *ast.FuncType, body *ast.BlockStmt) X {
-	return c.Errorf("function declaration is not implemented, found: %v <%v>", decl_or_nil, r.TypeOf(decl_or_nil))
+	c.Errorf("function declaration is not implemented, found: %v <%v>", decl_or_nil, r.TypeOf(decl_or_nil))
+	return nil
 }

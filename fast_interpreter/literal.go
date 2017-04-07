@@ -171,14 +171,14 @@ func checkLiteralOverflow(vsrc, vdst r.Value) {
 			t1 := ValueType(vsrc)
 			vback := vdst.Convert(t1)
 			if src := vsrc.Interface(); src != vback.Interface() {
-				errorf("constant %v truncated to %v", src, ValueType(vdst))
+				Errorf("constant %v truncated to %v", src, ValueType(vdst))
 			}
 		} else {
 			// integer-to-integer conversion. convert back and compare the interfaces for overflows
 			t1 := ValueType(vsrc)
 			vback := vdst.Convert(t1)
 			if src := vsrc.Interface(); src != vback.Interface() {
-				errorf("constant %v overflows %v", src, ValueType(vdst))
+				Errorf("constant %v overflows %v", src, ValueType(vdst))
 			}
 		}
 	}
@@ -188,7 +188,7 @@ func checkLiteralOverflow(vsrc, vdst r.Value) {
 // panics if not constant and on integer overflow.
 func (e *Expr) ConstTo(t r.Type) I {
 	if !e.Const() {
-		errorf("expression is not a constant, cannot convert from <%v> to <%v>", e.Type, t)
+		Errorf("expression is not a constant, cannot convert from <%v> to <%v>", e.Type, t)
 	}
 	return e.Lit.ConstTo(t)
 }
@@ -200,7 +200,7 @@ func (lit *Lit) ConstTo(t r.Type) I {
 	if t == nil {
 		// only literal nil has type nil
 		if x != nil {
-			errorf("cannot convert constant %v <%v> to <nil>", lit.Value, lit.Type)
+			Errorf("cannot convert constant %v <%v> to <nil>", lit.Value, lit.Type)
 		}
 		return nil
 	}
@@ -211,7 +211,7 @@ func (lit *Lit) ConstTo(t r.Type) I {
 	ok := false
 	defer func() {
 		if !ok {
-			errorf("cannot convert constant %v <%T> to <%v>", x, x, t)
+			Errorf("cannot convert constant %v <%T> to <%v>", x, x, t)
 		}
 	}()
 	v2 := v1.Convert(t)

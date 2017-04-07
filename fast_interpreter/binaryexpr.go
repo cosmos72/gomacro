@@ -166,23 +166,8 @@ func (c *Comp) unimplementedBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
 
 func (c *Comp) badBinaryExpr(reason string, op token.Token, x *Expr, y *Expr) *Expr {
 	opstr := mt.String(op)
-	var xi, yi interface{}
-	if x.Const() {
-		xi = x.Value
-	} else if x.NumOut() == 1 {
-		xi = []interface{}{x.Fun, x.Type}
-	} else {
-		xi = []interface{}{x.Fun, x.Types}
-	}
-	if y.Const() {
-		yi = y.Value
-	} else if y.NumOut() == 1 {
-		yi = []interface{}{y.Fun, y.Type}
-	} else {
-		yi = []interface{}{y.Fun, y.Types}
-	}
-	c.Errorf("%s binary operation <%v> %s <%v> in expression: %v %s %v",
-		reason, x.Type, opstr, y.Type, xi, opstr, yi)
+	c.Errorf("%s binary operation %s between <%v> and <%v>: %v %s %v",
+		reason, opstr, x.Type, y.Type, x, opstr, y)
 	return nil
 }
 
@@ -204,7 +189,7 @@ func toSameFuncType(op token.Token, x, y *Expr) {
 			x.ConstTo(y.Type)
 		} else {
 			if x.Type != y.Type {
-				errorf("unsupported binary operation <%v> %s <%v>", x.Type, mt.String(op), y.Type)
+				Errorf("unsupported binary operation <%v> %s <%v>", x.Type, mt.String(op), y.Type)
 			}
 		}
 	}
@@ -216,7 +201,7 @@ func constsToSameType(op token.Token, x, y I) (I, I) {
 			return x, y
 		} else {
 			str := mt.String(op)
-			errorf("unsupported binary operation <%T> %s <%T>: %v %s %v",
+			Errorf("unsupported binary operation <%T> %s <%T>: %v %s %v",
 				x, str, y, x, str, y)
 		}
 	}
@@ -259,7 +244,7 @@ func constsToSameType(op token.Token, x, y I) (I, I) {
 		x = r.ValueOf(x).Convert(TypeOfFloat64).Float()
 		y = r.ValueOf(y).Convert(TypeOfFloat64).Float()
 	} else {
-		errorf("cannot convert  to the same type: %v <%T> and %v <%T>", x, x, y, y)
+		Errorf("cannot convert to the same type: %v <%T> and %v <%T>", x, x, y, y)
 	}
 	return x, y
 }
