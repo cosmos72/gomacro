@@ -54,8 +54,12 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 			ret, rets = env.evalImport(decl)
 		}
 	case token.CONST:
+		top := env.TopEnv()
+		top.addIota()
+		defer top.removeIota()
 		for _, decl := range node.Specs {
 			ret, rets = env.evalDeclConsts(decl)
+			top.incrementIota()
 		}
 	case token.TYPE:
 		for _, decl := range node.Specs {

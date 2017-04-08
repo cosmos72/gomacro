@@ -41,10 +41,6 @@ func (env *Env) evalIdentifier(ident *ast.Ident) r.Value {
 
 func (env *Env) resolveIdentifier(ident *ast.Ident) (r.Value, bool) {
 	name := ident.Name
-	if name == "iota" {
-		pos := env.Fileset.Position(ident.NamePos)
-		return r.ValueOf(pos.Line - env.iotaOffset), true
-	}
 	value := Nil
 	found := false
 	for e := env; e != nil; e = e.Outer {

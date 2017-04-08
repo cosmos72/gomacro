@@ -304,6 +304,19 @@ func funcValues(env *Env, args []r.Value) (r.Value, []r.Value) {
 	return UnpackValues(args)
 }
 
+func (top *Env) addIota() {
+	top.Binds["iota"] = r.ValueOf(0)
+}
+
+func (top *Env) removeIota() {
+	delete(top.Binds, "iota")
+}
+
+func (top *Env) incrementIota() {
+	uIota := int(top.Binds["iota"].Int())
+	top.Binds["iota"] = r.ValueOf(uIota + 1)
+}
+
 func (env *Env) addBuiltins() {
 	if env.Binds == nil {
 		env.Binds = make(map[string]r.Value)
