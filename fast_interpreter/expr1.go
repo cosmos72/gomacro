@@ -127,14 +127,14 @@ func ExprString(fun func(env *Env) string) *Expr {
 	return &Expr{Lit: Lit{Type: TypeOfString}, Fun: fun}
 }
 
-func (expr *Expr) EvalConst() I {
+func (expr *Expr) EvalConst(opts CompileOptions) I {
 	if expr == nil {
 		return nil
 	}
 	if expr.Const() {
 		return expr.Value
 	}
-	ret, rets := ToXV(expr.Fun)(nil)
+	ret, rets := ToXV(expr.Fun, opts)(nil)
 	if ret == None {
 		Errorf("constant should evaluate to a single value, found no values at all")
 		return nil

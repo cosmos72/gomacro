@@ -42,7 +42,6 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 	} else if y.NumOut() == 0 {
 		c.Errorf("operand returns no values, cannot use in binary expression: %v", node.Y)
 	}
-
 	if x.Untyped() && y.Untyped() {
 		return c.BinaryExprUntyped(node, x.Value.(UntypedLit), y.Value.(UntypedLit))
 	}
@@ -95,7 +94,7 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 	}
 	if bothConst {
 		// constant propagation
-		z.EvalConst()
+		z.EvalConst(CompileKeepUntyped)
 	}
 	return z
 }
@@ -103,25 +102,29 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLit) *Expr {
 	op := node.Op
 	switch op {
-	case token.LAND, token.LOR, token.EQL, token.LSS, token.GTR, token.NEQ, token.LEQ, token.GEQ:
-		return ExprValue(constant.Compare(x.Obj, op, y.Obj))
-	case token.SHL_ASSIGN:
-		op = token.SHL
-	case token.SHR_ASSIGN:
-		op = token.SHL
-	case token.SHL, token.SHR:
+	case token.LAND, token.LOR:
+		xb, yb := x.ConstTo(TypeOfBool).(bool), y.ConstTo(TypeOfBool).(bool)
+		var flag bool
+		if op == token.LAND {
+			flag = xb && yb
+		} else {
+			flag = xb || yb
+		}
+		return ExprUntypedLit(r.Bool, constant.MakeBool(flag))
+	case token.EQL, token.LSS, token.GTR, token.NEQ, token.LEQ, token.GEQ:
+		// comparison gives an untyped bool
+		flag := constant.Compare(x.Obj, op, y.Obj)
+		return ExprUntypedLit(r.Bool, constant.MakeBool(flag))
+	case token.SHL, token.SHL_ASSIGN:
+		return c.ShiftUntyped(node, token.SHL, x, y)
+	case token.SHR, token.SHR_ASSIGN:
+		return c.ShiftUntyped(node, token.SHR, x, y)
 	default:
 		zobj := constant.BinaryOp(x.Obj, op, y.Obj)
 		var zkind r.Kind
-		if zobj.Kind() == constant.Int {
-			// reflect.Int32 (i.e. rune) has precedence over reflect.Int
-			if x.Kind != r.Int {
-				zkind = x.Kind
-			} else if y.Kind != r.Int {
-				zkind = y.Kind
-			} else {
-				zkind = r.Int
-			}
+		// reflect.Int32 (i.e. rune) has precedence over reflect.Int
+		if zobj.Kind() == constant.Int && (x.Kind == r.Int32 || y.Kind == r.Int32) {
+			zkind = r.Int32
 		} else {
 			zkind = constantKindToUntypedLitKind(zobj.Kind())
 		}
@@ -130,15 +133,22 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 		}
 		return ExprUntypedLit(zkind, zobj)
 	}
+}
+
+func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, y UntypedLit) *Expr {
 	if y.Obj.Kind() != constant.Int {
 		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
 	}
-	yi, exact := constant.Int64Val(y.Obj)
-	yn := uint(yi)
-	if !exact || yn < 0 || yi != int64(yn) {
+	yn64, exact := constant.Uint64Val(y.Obj)
+	yn := uint(yn64)
+	if !exact || uint64(yn) != yn64 {
 		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
 	}
-	return ExprValue(constant.Shift(x.Obj, op, yn))
+	zobj := constant.Shift(x.Obj, op, yn)
+	if zobj.Kind() == constant.Unknown {
+		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
+	}
+	return ExprUntypedLit(x.Kind, zobj)
 }
 
 func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
@@ -149,11 +159,11 @@ func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
 	case constant.String:
 		ret = r.String
 	case constant.Int:
-		ret = r.Int // actually ambiguous, could be a rune - thus r.Int64
+		ret = r.Int // actually ambiguous, could be a rune - thus r.Int32
 	case constant.Float:
 		ret = r.Float64
 	case constant.Complex:
-		ret = r.Complex64
+		ret = r.Complex128
 	}
 	return ret
 }
@@ -228,21 +238,28 @@ func (c *Comp) unimplementedBinaryExpr(node *ast.BinaryExpr, x *Expr, y *Expr) *
 
 func (c *Comp) badBinaryExpr(reason string, node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 	opstr := mt.String(node.Op)
-	c.Errorf("%s binary operation %s between <%v> and <%v>: %v %s %v",
-		reason, opstr, x.Type, y.Type, node.X, opstr, node.Y)
+	var xstr, ystr string
+	if x.Const() {
+		xstr = x.String() + " "
+	}
+	if y.Const() {
+		ystr = y.String() + " "
+	}
+	c.Errorf("%s binary operation %s between %s<%v> and %s<%v>: %v %s %v",
+		reason, opstr, xstr, x.Type, ystr, y.Type, node.X, opstr, node.Y)
 	return nil
 }
 
-// convert x and y to the same single-valued expression type. needed to emulate Go untyped constants
+// convert x and y to the same single-valued expression type. needed to convert untyped constants to regular Go types
 func (c *Comp) toSameFuncType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
 	xe.CheckX1()
 	ye.CheckX1()
 	xconst, yconst := xe.Const(), ye.Const()
 	if yconst {
 		if xconst {
-			x, y := c.constsToSameType(node, xe, ye)
-			xe.SetWithFun(x)
-			ye.SetWithFun(y)
+			c.constsToSameType(node, xe, ye)
+			xe.WithFun()
+			ye.WithFun()
 		} else {
 			ye.ConstTo(xe.Type)
 		}
@@ -257,75 +274,23 @@ func (c *Comp) toSameFuncType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
 	}
 }
 
-func (c *Comp) constsToSameType(node *ast.BinaryExpr, xe *Expr, ye *Expr) (I, I) {
+func (c *Comp) constsToSameType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
 	x, y := xe.Value, ye.Value
 	if x == nil {
 		if y == nil {
-			return x, y
+			return
 		} else {
 			c.invalidBinaryExpr(node, xe, ye)
 		}
 	}
-	xt, yt := r.TypeOf(x), r.TypeOf(y)
-	xk, yk := xt.Kind(), yt.Kind()
-	if xk == yk {
-		return x, y
+	xu, yu := xe.Untyped(), ye.Untyped()
+	if xu && yu {
+		c.badBinaryExpr("internal error, operation between untyped constants not optimized away in", node, xe, ye)
+	} else if xu {
+		xe.ConstTo(ye.Type)
+	} else if yu {
+		ye.ConstTo(ye.Type)
+	} else if r.TypeOf(x) != r.TypeOf(y) {
+		c.badBinaryExpr("constant operands have different types in", node, xe, ye)
 	}
-	xc, yc := kindToCategory(xk), kindToCategory(yk)
-	if xc == yc {
-		// same class, only the number of bits differs
-		if xk < yk {
-			x = r.ValueOf(x).Convert(yt).Interface()
-		} else {
-			y = r.ValueOf(y).Convert(xt).Interface()
-		}
-		return x, y
-	}
-	if xc == r.Int && yc == r.Uint {
-		// mixing signed and unsigned integers
-		xi := r.ValueOf(x).Int()
-		yi := r.ValueOf(y).Uint()
-		return intsToSameType(xi, yi, xt, yt)
-	} else if xc == r.Uint && yc == r.Int {
-		// mixing signed and unsigned integers
-		xi := r.ValueOf(x).Uint()
-		yi := r.ValueOf(y).Int()
-		y, x = intsToSameType(yi, xi, yt, xt)
-		return x, y
-	}
-	// at least one is a float or complex... or a non-integer
-	if xc == r.Complex128 || yc == r.Complex128 {
-		if xc != r.Complex128 {
-			x = complex(r.ValueOf(x).Convert(TypeOfFloat64).Float(), 0.0)
-		}
-		if yc != r.Complex128 {
-			y = complex(r.ValueOf(y).Convert(TypeOfFloat64).Float(), 0.0)
-		}
-	} else if xc == r.Float64 || yc == r.Float64 {
-		x = r.ValueOf(x).Convert(TypeOfFloat64).Float()
-		y = r.ValueOf(y).Convert(TypeOfFloat64).Float()
-	} else {
-		c.badBinaryExpr("cannot convert operands to the same type in", node, xe, ye)
-	}
-	return x, y
-}
-
-func intsToSameType(x int64, y uint64, xt r.Type, yt r.Type) (I, I) {
-	// try int for both
-	if x == int64(int(x)) && y == uint64(int(y)) {
-		return int(x), int(y)
-	}
-	// try uint for both
-	if x >= 0 && x == int64(uint(x)) && y == uint64(uint(y)) {
-		return uint(x), uint(y)
-	}
-	// try int64 for both
-	if y == uint64(int64(y)) {
-		return x, int64(y)
-	}
-	// try uint64 for both
-	if x >= 0 && x == int64(uint64(x)) {
-		return uint64(x), y
-	}
-	return float64(x), float64(y)
 }

@@ -40,6 +40,26 @@ type UntypedLit struct {
 	Obj  constant.Value
 }
 
+// pretty-print untyped constants
+func (untyp UntypedLit) String() string {
+	obj := untyp.Obj
+	var strkind, strobj interface{} = untyp.Kind, nil
+	if untyp.Kind == r.Int32 {
+		strkind = "rune"
+		if obj.Kind() == constant.Int {
+			if i, exact := constant.Int64Val(obj); exact {
+				if i >= 0 && i <= 0x10FFFF {
+					strobj = fmt.Sprintf("%q", i)
+				}
+			}
+		}
+	}
+	if strobj == nil {
+		strobj = obj.ExactString()
+	}
+	return fmt.Sprintf("{%v %v}", strkind, strobj)
+}
+
 // ================================= Lit =================================
 
 // Lit represents a literal value, i.e. a typed or untyped constant
@@ -76,6 +96,15 @@ func (lit *Lit) UntypedKind() r.Kind {
 		return untyp.Kind
 	} else {
 		return r.Invalid
+	}
+}
+
+func (lit Lit) String() string {
+	switch val := lit.Value.(type) {
+	case string, nil:
+		return fmt.Sprintf("%#v", val)
+	default:
+		return fmt.Sprintf("%v", val)
 	}
 }
 
@@ -123,12 +152,7 @@ func (e *Expr) String() string {
 	}
 	var str string
 	if e.Const() {
-		switch val := e.Value.(type) {
-		case string, nil:
-			str = fmt.Sprintf("const %#v", val)
-		default:
-			str = fmt.Sprintf("const %v", val)
-		}
+		str = e.Lit.String()
 	} else {
 		str = fmt.Sprintf("%#v", e.Fun)
 	}
@@ -217,19 +241,27 @@ type NamedType struct {
 	Name, Path string
 }
 
-// ================================== Comp =================================
+// ================================== Comp, Env =================================
+
+type CompileOptions int
+
+const (
+	CompileKeepUntyped CompileOptions = 1 << iota // if set, Compile() will keep all untyped constants as such (in expressions where Go compiler would compute an untyped constant too)
+	CompileDefaults    CompileOptions = 0
+)
 
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
 // for faster execution. Consider it as a poor man's compiler (hence the name)
 type Comp struct {
-	Binds      map[string]Bind
-	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
-	IntBindNum int
-	Types      map[string]r.Type
-	NamedTypes map[r.Type]NamedType
-	Outer      *Comp
-	Name       string
-	Path       string
+	Binds          map[string]Bind
+	BindNum        int // len(Binds) == BindNum + IntBindNum + # of constants
+	IntBindNum     int
+	Types          map[string]r.Type
+	NamedTypes     map[r.Type]NamedType
+	Outer          *Comp
+	Name           string
+	Path           string
+	CompileOptions CompileOptions
 	*base.InterpreterBase
 }
 

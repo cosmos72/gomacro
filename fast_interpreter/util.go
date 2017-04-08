@@ -245,14 +245,20 @@ func (e *Expr) CheckX1() {
 
 func (e *Expr) AsX1() func(*Env) r.Value {
 	if e.Const() {
-		return ToX1(e.Value)
+		return ToX1(e.Value, CompileDefaults)
 	}
 	e.CheckX1()
-	return ToX1(e.Fun)
+	return ToX1(e.Fun, CompileDefaults)
 }
 
-func ToX1(any I) func(*Env) r.Value {
+func ToX1(any I, opts CompileOptions) func(*Env) r.Value {
 	if isLiteral(any) {
+		if opts&CompileKeepUntyped == 0 {
+			if untyp, ok := any.(UntypedLit); ok {
+				// late conversion of untyped constants to their default type
+				any = untyp.ConstTo(untyp.DefaultType())
+			}
+		}
 		v := r.ValueOf(any)
 		return func(*Env) r.Value {
 			return v
@@ -358,22 +364,28 @@ func ToX1(any I) func(*Env) r.Value {
 	return nil
 }
 
-func (e *Expr) AsXV() func(*Env) (r.Value, []r.Value) {
+func (e *Expr) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 	if e.Const() {
-		return ToXV(e.Value)
+		return ToXV(e.Value, opts)
 	} else {
-		return ToXV(e.Fun)
+		return ToXV(e.Fun, opts)
 	}
 }
 
-func ToXV(expr I) func(*Env) (r.Value, []r.Value) {
-	if isLiteral(expr) {
-		v := r.ValueOf(expr)
+func ToXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
+	if isLiteral(any) {
+		if opts&CompileKeepUntyped == 0 {
+			if untyp, ok := any.(UntypedLit); ok {
+				// late conversion of untyped constants to their default type
+				any = untyp.ConstTo(untyp.DefaultType())
+			}
+		}
+		v := r.ValueOf(any)
 		return func(*Env) (r.Value, []r.Value) {
 			return v, nil
 		}
 	}
-	switch fun := expr.(type) {
+	switch fun := any.(type) {
 	case nil:
 	case X:
 		if fun == nil {
@@ -467,7 +479,7 @@ func ToXV(expr I) func(*Env) (r.Value, []r.Value) {
 		}
 	default:
 		Errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%T>",
-			expr, expr)
+			any, any)
 	}
 	return nil
 }

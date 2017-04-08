@@ -191,13 +191,22 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t r.Type, ellipsis bool) {
 	case nil:
 		t = r.SliceOf(t)
 	default:
+		// as stated by https://golang.org/ref/spec#Array_types
+		// "The length is part of the array's type; it must evaluate to a non-negative constant
+		// representable by a value of type int. "
+		var count int
 		init := c.Expr(n)
 		if !init.Const() {
 			c.Errorf("array length is not a constant: %v", node)
 			return
+		} else if init.Untyped() {
+			count = init.ConstTo(TypeOfInt).(int)
+		} else {
+			count = convertLiteralCheckOverflow(init.Value, TypeOfInt).(int)
 		}
-		value := init.EvalConst()
-		count := int(r.ValueOf(value).Int())
+		if count < 0 {
+			c.Errorf("array length [%v] is negative: %v", count, node)
+		}
 		t = r.ArrayOf(count, t)
 	}
 	return t, ellipsis

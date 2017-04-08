@@ -40,9 +40,10 @@ type TestFor int
 
 const (
 	I TestFor = 1 << iota
-	C         = 0 // temporarily disabled compiler test
+	C
 	A TestFor = I | C
 	B TestFor = I // temporarily disabled compiler test
+
 )
 
 type TestCase struct {
@@ -53,7 +54,7 @@ type TestCase struct {
 	results []interface{}
 }
 
-func TestCompiler(t *testing.T) {
+func TestFastInterp(t *testing.T) {
 	env := classic.New()
 	comp := fast.New()
 	for _, test := range tests {
@@ -64,7 +65,7 @@ func TestCompiler(t *testing.T) {
 	}
 }
 
-func TestInterpreter(t *testing.T) {
+func TestClassicInterp(t *testing.T) {
 	env := classic.New()
 	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for _, test := range tests {
@@ -110,8 +111,8 @@ var zeroValues = []r.Value{}
 
 var tests = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
-	TestCase{C, "1+'A'", "1+'A'", 'B', nil},
-	TestCase{I, "1+'A'", "1+'A'", 66, nil}, // interpreter is not accurate in this case... returns <int> instead of <int32>
+	TestCase{I, "1+'A'", "1+'A'", 66, nil},  // interpreter is not accurate in this case... returns <int> instead of <int32>
+	TestCase{C, "1+'A'", "1+'A'", 'B', nil}, // fast_interpreter instead *IS* accurate
 	TestCase{I, "int8+1", "int8(1)+1", int8(2), nil},
 	TestCase{I, "int8_overflow", "int8(64)+64", int8(-128), nil},
 	TestCase{I, "interface", "type Stringer interface { String() string }; var s Stringer", si, nil},
@@ -125,8 +126,15 @@ var tests = []TestCase{
 	TestCase{A, "complex_3", "1i * 2i", 1i * 2i, nil},
 	TestCase{A, "const_1", "const c1 = 11; c1", 11, nil},
 	TestCase{A, "const_2", "const c2 = 0xff&555+23/12.2; c2", 0xff&555 + 23/12.2, nil},
-	TestCase{A, "const_3", "const c3 = 0.1+0.2; c3", float64(0.1) + float64(0.2), nil},    // the interpreter is not accurate in this case... missing exact arithmetic on constants
-	TestCase{A, "const_4", "const c4 = c3/3; c4", (float64(0.1) + float64(0.2)) / 3, nil}, // the interpreter is not accurate in this case... missing exact arithmetic on constants
+
+	// the classic interpreter is not accurate in this cases... missing exact arithmetic on constants
+	TestCase{I, "const_3", "const c3 = 0.1+0.2; c3", float64(0.1) + float64(0.2), nil},
+	TestCase{I, "const_4", "const c4 = c3/3; c4", (float64(0.1) + float64(0.2)) / 3, nil},
+
+	// the fast_interpreter instead *IS* accurate, thanks to exact arithmetic on untyped constants
+	TestCase{C, "const_3", "const c3 = 0.1+0.2; c3", 0.1 + 0.2, nil},
+	TestCase{C, "const_4", "const c4 = c3/3; c4", (0.1 + 0.2) / 3, nil},
+
 	TestCase{A, "var_1", "var v1 bool; v1", false, nil},
 	TestCase{A, "var_2", "var v2 uint8 = 7; v2", uint8(7), nil},
 	TestCase{A, "var_3", "var v3 uint16 = 65535; v3", uint16(65535), nil},

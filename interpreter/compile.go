@@ -40,6 +40,7 @@ func (env *Env) compile(src string) {
 	var comp *fast_interpreter.CompEnv
 	if env.CompEnv == nil {
 		comp = fast_interpreter.New()
+		comp.CompileOptions |= fast_interpreter.CompileKeepUntyped
 		env.CompEnv = comp
 	} else {
 		comp = env.CompEnv.(*fast_interpreter.CompEnv)

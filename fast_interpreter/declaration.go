@@ -263,6 +263,9 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 				env.Binds[index] = r.New(t).Elem()
 			}
 		}
+		if init.Const() {
+			init.ConstTo(t) // convert untyped constants, check typed constants
+		}
 		fun := init.AsX1() // AsX1() panics if init.NumOut() == 0, warns if init.NumOut() > 1
 		tfun := init.Out(0)
 		if tfun != t && !tfun.AssignableTo(t) {
@@ -348,7 +351,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
 		bind := c.AddBind(name, VarBind, ti)
 		decls[i] = c.DeclBindRuntimeValue(name, bind)
 	}
-	fun := init.AsXV()
+	fun := init.AsXV(0)
 	return func(env *Env) {
 		// call the multi-valued function. we know ni > 1, so just use the []r.Value
 		_, rets := fun(env)
