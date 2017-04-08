@@ -135,6 +135,12 @@ var tests = []TestCase{
 	TestCase{F, "const_3", "const c3 = 0.1+0.2; c3", 0.1 + 0.2, nil},
 	TestCase{F, "const_4", "const c4 = c3/3; c4", (0.1 + 0.2) / 3, nil},
 
+	TestCase{A, "iota_1", "const c5 = iota^7; c5", 7, nil},
+	TestCase{A, "iota_2", "const ( c6 = iota+6; c7=iota+6 ); c6", 6, nil},
+	TestCase{A, "iota_3", "c7", 7, nil},
+	TestCase{A, "iota_implicit_1", "const ( c8 uint = iota+8; c9 ); c8", uint(8), nil},
+	TestCase{A, "iota_implicit_2", "c9", uint(9), nil},
+
 	TestCase{A, "var_1", "var v1 bool; v1", false, nil},
 	TestCase{A, "var_2", "var v2 uint8 = 7; v2", uint8(7), nil},
 	TestCase{A, "var_3", "var v3 uint16 = 65535; v3", uint16(65535), nil},

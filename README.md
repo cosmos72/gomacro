@@ -40,7 +40,7 @@ Fairly complete.
 The intepreter supports:
 * multiline input
 * line comments starting with #! in addition to //
-* primitive types: booleans, integers, floats, complex numbers (including iota)
+* primitive types: booleans, integers, floats, complex numbers (including io****ta)
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
 * constant, variable and type definitions
 * composite types: arrays, channels, maps, pointers, slices, strings, structs

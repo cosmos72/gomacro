@@ -54,11 +54,17 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 			ret, rets = env.evalImport(decl)
 		}
 	case token.CONST:
+		var defaultType ast.Expr
+		var defaultExprs []ast.Expr
 		top := env.TopEnv()
 		top.addIota()
 		defer top.removeIota()
 		for _, decl := range node.Specs {
-			ret, rets = env.evalDeclConsts(decl)
+			ret, rets = env.evalDeclConsts(decl, defaultType, defaultExprs)
+			if valueSpec, ok := decl.(*ast.ValueSpec); ok && valueSpec.Values != nil {
+				defaultType = valueSpec.Type
+				defaultExprs = valueSpec.Values
+			}
 			top.incrementIota()
 		}
 	case token.TYPE:
@@ -75,10 +81,14 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 	return ret, rets
 }
 
-func (env *Env) evalDeclConsts(node ast.Spec) (r.Value, []r.Value) {
+func (env *Env) evalDeclConsts(node ast.Spec, defaultType ast.Expr, defaultExprs []ast.Expr) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case *ast.ValueSpec:
-		return env.evalDeclConstsOrVars(node.Names, node.Type, node.Values, true)
+		if node.Type != nil || node.Values != nil {
+			defaultType = node.Type
+			defaultExprs = node.Values
+		}
+		return env.evalDeclConstsOrVars(node.Names, defaultType, defaultExprs, true)
 	default:
 		return env.Errorf("unexpected constant declaration: expecting *ast.ValueSpec, found: %v <%v>", node, r.TypeOf(node))
 	}

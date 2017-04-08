@@ -52,11 +52,17 @@ func (c *Comp) DeclGen(node *ast.GenDecl) []X {
 			c.Import(decl)
 		}
 	case token.CONST:
+		var defaultType ast.Expr
+		var defaultExprs []ast.Expr
 		top := c.Top()
 		top.addIota()
 		defer top.removeIota()
 		for _, decl := range node.Specs {
-			c.DeclConsts(decl)
+			c.DeclConsts(decl, defaultType, defaultExprs)
+			if valueSpec, ok := decl.(*ast.ValueSpec); ok && valueSpec.Values != nil {
+				defaultType = valueSpec.Type
+				defaultExprs = valueSpec.Values
+			}
 			top.incrementIota()
 		}
 	case token.TYPE:
@@ -75,10 +81,14 @@ func (c *Comp) DeclGen(node *ast.GenDecl) []X {
 }
 
 // DeclConsts compiles a set of constant declarations
-func (c *Comp) DeclConsts(node ast.Spec) {
+func (c *Comp) DeclConsts(node ast.Spec, defaultType ast.Expr, defaultExprs []ast.Expr) {
 	switch node := node.(type) {
 	case *ast.ValueSpec:
-		names, t, inits := c.prepareDeclConstsOrVars(node.Names, node.Type, node.Values)
+		if node.Type != nil || node.Values != nil {
+			defaultType = node.Type
+			defaultExprs = node.Values
+		}
+		names, t, inits := c.prepareDeclConstsOrVars(node.Names, defaultType, defaultExprs)
 		c.DeclConsts0(names, t, inits)
 	default:
 		c.Errorf("Compile: unsupported constant declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
