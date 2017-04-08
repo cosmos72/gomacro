@@ -13,7 +13,9 @@ ALPHA.
 The fast intepreter supports:
 * parsing - because it is shared with the original code
 * quote and quasiquote - because they are shared with the original code
-* binary expressions (except comparisons) integers, floats, complex numbers, and strings
+* iota
+***** untyped constants
+* binary expressions (except shifts) on untyped constants, booleans, integers, floats, complex numbers, and strings
 * constant, variable and type declarations
 * incomplete: if and for, except for-range
 

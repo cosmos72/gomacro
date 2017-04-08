@@ -52,8 +52,12 @@ func (c *Comp) DeclGen(node *ast.GenDecl) []X {
 			c.Import(decl)
 		}
 	case token.CONST:
+		top := c.Top()
+		top.addIota()
+		defer top.removeIota()
 		for _, decl := range node.Specs {
 			c.DeclConsts(decl)
+			top.incrementIota()
 		}
 	case token.TYPE:
 		for _, decl := range node.Specs {

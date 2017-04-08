@@ -35,7 +35,10 @@ import (
 
 func New() *CompEnv {
 	top := NewCompEnv(nil, "builtin")
-	return NewCompEnv(top, "main")
+	top.growEnv(128)
+	env := NewCompEnv(top, "main")
+	env.growEnv(1024)
+	return env
 }
 
 func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {

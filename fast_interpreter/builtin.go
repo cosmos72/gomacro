@@ -25,13 +25,42 @@
 package fast_interpreter
 
 import (
+	"go/constant"
+	"go/token"
+	r "reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 )
 
+var (
+	untypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(int64(0))}
+	untypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(int64(1))}
+)
+
+func (top *Comp) addIota() {
+	// https://golang.org/ref/spec#Constants
+	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
+	top.Binds["iota"] = BindConst(untypedZero)
+}
+
+func (top *Comp) removeIota() {
+	delete(top.Binds, "iota")
+}
+
+func (top *Comp) incrementIota() {
+	uIota := top.Binds["iota"].Lit.Value.(UntypedLit).Obj
+	uIota = constant.BinaryOp(uIota, token.ADD, untypedOne.Obj)
+	top.Binds["iota"] = BindConst(UntypedLit{Kind: r.Int, Obj: uIota})
+}
+
 func (c *CompEnv) addBuiltins() {
-	c.DefConst("false", nil, false)
-	c.DefConst("true", nil, true)
-	c.DefConst("nil", nil, nil)
+	// https://golang.org/ref/spec#Constants
+	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
+	c.DeclConst0("false", nil, UntypedLit{Kind: r.Bool, Obj: constant.MakeBool(false)})
+	c.DeclConst0("true", nil, UntypedLit{Kind: r.Bool, Obj: constant.MakeBool(true)})
+
+	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
+	c.DeclConst0("nil", nil, nil)
 
 	/*
 		binds["Env"] = r.ValueOf(Function{funcEnv, 0})

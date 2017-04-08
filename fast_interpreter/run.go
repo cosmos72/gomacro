@@ -31,7 +31,7 @@ import (
 )
 
 func (c *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value) {
-	c.growEnv()
+	c.growEnv(128)
 	if fun != nil {
 		return fun(c.Env)
 	} else {
@@ -48,7 +48,7 @@ func (c *CompEnv) DefConst(name string, t r.Type, value I) {
 // DefVar compiles a variable declaration, then executes it
 func (c *CompEnv) DefVar(name string, t r.Type, value I) {
 	fun := c.DeclVar0(name, t, ExprValue(value))
-	c.growEnv()
+	c.growEnv(128)
 	fun(c.Env)
 }
 
@@ -57,15 +57,21 @@ func (c *CompEnv) DefType(name string, t r.Type) {
 	c.DeclType0(name, t)
 }
 
-func (c *CompEnv) growEnv() {
+func (c *CompEnv) growEnv(minDelta int) {
 	// usually we know at Env creation how many slots are needed in c.Env.Binds
 	// but here we are modifying an existing Env...
+	if minDelta < 0 {
+		minDelta = 0
+	}
 	capacity, min := cap(c.Env.Binds), c.BindNum
 	if capacity < min {
 		if capacity <= min/2 {
 			capacity = min
 		} else {
 			capacity *= 2
+		}
+		if capacity-min < minDelta {
+			capacity = min + minDelta
 		}
 		binds := make([]r.Value, min, capacity)
 		copy(binds, c.Env.Binds)
@@ -81,6 +87,9 @@ func (c *CompEnv) growEnv() {
 			capacity = min
 		} else {
 			capacity *= 2
+		}
+		if capacity-min < minDelta {
+			capacity = min + minDelta
 		}
 		binds := make([]uint64, min, capacity)
 		copy(binds, c.Env.IntBinds)

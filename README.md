@@ -7,25 +7,25 @@ it is a fairly complete Go interpreter, implemented in pure Go,
 built on top of the go/ast and reflect packages.
 
 Gomacro can be used as:
-* a standalone executable with interactive Go REPL:  
+* a standalone executable with interactive Go REPL:
   just run `gomacro` from your command line or, better, `rlwrap gomacro`
-  (rlwrap is a wrapper that adds history and line editing to terminal-based programs - available on many platforms)  
-  Available options:  
-    -e EXPRESSION: evaluate the expression  
-    -s: silent. suppress startup message and prompt (default when executing a file)  
+  (rlwrap is a wrapper that adds history and line editing to terminal-based programs - available on many platforms)
+  Available options:
+    -e EXPRESSION: evaluate the expression
+    -s: silent. suppress startup message and prompt (default when executing a file)
     -v: verbose. show the result of expressions and statements (default for interactive REPL and -e EXPRESSION)
 
 * a library that adds Eval() and scripting capabilities
   to your Go programs - provided you comply with its GPL license
 
-* a way to execute Go source code on-the-fly without a Go compiler:  
+* a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
 
   or you can insert a line `#!/usr/bin/env gomacro` at the beginning of a Go source file,
   then mark the file as executable with `chmod +x FILENAME.go` and finally execute it
   with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
-* a Go code generation tool (BETA):  
+* a Go code generation tool (BETA):
   run `gomacro -w FILENAMES` to parse and execute one or more files.
   For each filename on the command line, gomacro will parse and execute it,
   then create a corresponding FILENAME.go with the parsed and macroexpanded
@@ -63,7 +63,8 @@ The intepreter supports:
 * nesting macros, quotes and unquotes
 
 Several things are still missing:
-* the keyword "go"
+* iota
+* goroutines i.e. the keyword "go"
 * interfaces definition
 * labeled statements, goto
 * named return values
@@ -74,12 +75,12 @@ Limitations:
   For the interpreter, `struct { A, B int }` and `type Pair struct { A, B int }`
   are exactly the same type. This has subtle consequences, including the risk
   that two different packages define the same type and overwrite each other's methods.
-  
+
   The reason for such limitation is simple: the interpreter uses `reflect.StructOf()`
   to define new types, which can only create unnamed types.
   The interpreter then defines named types as aliases for the underlying unnamed types.
 
-  
+
 
 ## Why it was created
 

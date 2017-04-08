@@ -40,8 +40,8 @@ type TestFor int
 
 const (
 	I TestFor = 1 << iota
-	C
-	A TestFor = I | C
+	F
+	A TestFor = I | F
 	B TestFor = I // temporarily disabled compiler test
 
 )
@@ -58,14 +58,14 @@ func TestFastInterp(t *testing.T) {
 	env := classic.New()
 	comp := fast.New()
 	for _, test := range tests {
-		if test.testfor&C != 0 {
+		if test.testfor&F != 0 {
 			c := test
 			t.Run(c.name, func(t *testing.T) { c.compile(t, comp, env) })
 		}
 	}
 }
 
-func TestClassicInterp(t *testing.T) {
+func TestInterpreter(t *testing.T) {
 	env := classic.New()
 	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for _, test := range tests {
@@ -112,7 +112,7 @@ var zeroValues = []r.Value{}
 var tests = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
 	TestCase{I, "1+'A'", "1+'A'", 66, nil},  // interpreter is not accurate in this case... returns <int> instead of <int32>
-	TestCase{C, "1+'A'", "1+'A'", 'B', nil}, // fast_interpreter instead *IS* accurate
+	TestCase{F, "1+'A'", "1+'A'", 'B', nil}, // fast_interpreter instead *IS* accurate
 	TestCase{I, "int8+1", "int8(1)+1", int8(2), nil},
 	TestCase{I, "int8_overflow", "int8(64)+64", int8(-128), nil},
 	TestCase{I, "interface", "type Stringer interface { String() string }; var s Stringer", si, nil},
@@ -132,8 +132,8 @@ var tests = []TestCase{
 	TestCase{I, "const_4", "const c4 = c3/3; c4", (float64(0.1) + float64(0.2)) / 3, nil},
 
 	// the fast_interpreter instead *IS* accurate, thanks to exact arithmetic on untyped constants
-	TestCase{C, "const_3", "const c3 = 0.1+0.2; c3", 0.1 + 0.2, nil},
-	TestCase{C, "const_4", "const c4 = c3/3; c4", (0.1 + 0.2) / 3, nil},
+	TestCase{F, "const_3", "const c3 = 0.1+0.2; c3", 0.1 + 0.2, nil},
+	TestCase{F, "const_4", "const c4 = c3/3; c4", (0.1 + 0.2) / 3, nil},
 
 	TestCase{A, "var_1", "var v1 bool; v1", false, nil},
 	TestCase{A, "var_2", "var v2 uint8 = 7; v2", uint8(7), nil},
