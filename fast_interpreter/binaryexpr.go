@@ -26,6 +26,7 @@ package fast_interpreter
 
 import (
 	"go/ast"
+	"go/constant"
 	"go/token"
 	r "reflect"
 
@@ -42,52 +43,55 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 		c.Errorf("operand returns no values, cannot use in binary expression: %v", node.Y)
 	}
 
+	if x.Untyped() && y.Untyped() {
+		return c.BinaryExprUntyped(node, x.Value.(UntypedLit), y.Value.(UntypedLit))
+	}
 	bothConst := x.Const() && y.Const()
 	var z *Expr
 
-	switch op := node.Op; op {
+	switch node.Op {
 	case token.ADD, token.ADD_ASSIGN:
-		z = c.Add(op, x, y)
+		z = c.Add(node, x, y)
 	case token.SUB, token.SUB_ASSIGN:
-		z = c.Sub(op, x, y)
+		z = c.Sub(node, x, y)
 	case token.MUL, token.MUL_ASSIGN:
-		z = c.Mul(op, x, y)
+		z = c.Mul(node, x, y)
 	case token.QUO, token.QUO_ASSIGN:
-		z = c.Quo(op, x, y)
+		z = c.Quo(node, x, y)
 	case token.REM, token.REM_ASSIGN:
-		z = c.Rem(op, x, y)
+		z = c.Rem(node, x, y)
 	case token.AND, token.AND_ASSIGN:
-		z = c.And(op, x, y)
+		z = c.And(node, x, y)
 	case token.OR, token.OR_ASSIGN:
-		z = c.Or(op, x, y)
+		z = c.Or(node, x, y)
 	case token.XOR, token.XOR_ASSIGN:
-		z = c.Xor(op, x, y)
+		z = c.Xor(node, x, y)
 		/*
 			case token.SHL, token.SHL_ASSIGN:
-				z = c.Shl(op, x, y)
+				z = c.Shl(node, x, y)
 			case token.SHR, token.SHR_ASSIGN:
-				z = c.Shr(op, x, y)
+				z = c.Shr(node, x, y)
 		*/
 	case token.AND_NOT, token.AND_NOT_ASSIGN:
-		z = c.Andnot(op, x, y)
+		z = c.Andnot(node, x, y)
 	case token.LAND:
-		z = c.Land(op, x, y)
+		z = c.Land(node, x, y)
 	case token.LOR:
-		z = c.Lor(op, x, y)
+		z = c.Lor(node, x, y)
 	case token.EQL:
-		z = c.Eql(op, x, y)
+		z = c.Eql(node, x, y)
 	case token.LSS:
-		z = c.Lss(op, x, y)
+		z = c.Lss(node, x, y)
 	case token.GTR:
-		z = c.Gtr(op, x, y)
+		z = c.Gtr(node, x, y)
 	case token.NEQ:
-		z = c.Neq(op, x, y)
+		z = c.Neq(node, x, y)
 	case token.LEQ:
-		z = c.Leq(op, x, y)
+		z = c.Leq(node, x, y)
 	case token.GEQ:
-		z = c.Geq(op, x, y)
+		z = c.Geq(node, x, y)
 	default:
-		return c.unimplementedBinaryExpr(node.Op, x, y)
+		return c.unimplementedBinaryExpr(node, x, y)
 	}
 	if bothConst {
 		// constant propagation
@@ -96,19 +100,77 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 	return z
 }
 
-func (c *Comp) Shl(op token.Token, x *Expr, y *Expr) *Expr {
-	return c.unimplementedBinaryExpr(op, x, y)
+func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLit) *Expr {
+	op := node.Op
+	switch op {
+	case token.LAND, token.LOR, token.EQL, token.LSS, token.GTR, token.NEQ, token.LEQ, token.GEQ:
+		return ExprValue(constant.Compare(x.Obj, op, y.Obj))
+	case token.SHL_ASSIGN:
+		op = token.SHL
+	case token.SHR_ASSIGN:
+		op = token.SHL
+	case token.SHL, token.SHR:
+	default:
+		zobj := constant.BinaryOp(x.Obj, op, y.Obj)
+		var zkind r.Kind
+		if zobj.Kind() == constant.Int {
+			// reflect.Int32 (i.e. rune) has precedence over reflect.Int
+			if x.Kind != r.Int {
+				zkind = x.Kind
+			} else if y.Kind != r.Int {
+				zkind = y.Kind
+			} else {
+				zkind = r.Int
+			}
+		} else {
+			zkind = constantKindToUntypedLitKind(zobj.Kind())
+		}
+		if zkind == r.Invalid {
+			c.Errorf("invalid binary operation: %v %v %v", x.Obj, op, y.Obj)
+		}
+		return ExprUntypedLit(zkind, zobj)
+	}
+	if y.Obj.Kind() != constant.Int {
+		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
+	}
+	yi, exact := constant.Int64Val(y.Obj)
+	yn := uint(yi)
+	if !exact || yn < 0 || yi != int64(yn) {
+		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
+	}
+	return ExprValue(constant.Shift(x.Obj, op, yn))
 }
 
-func (c *Comp) Shr(op token.Token, x *Expr, y *Expr) *Expr {
-	return c.unimplementedBinaryExpr(op, x, y)
+func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
+	ret := r.Invalid
+	switch ckind {
+	case constant.Bool:
+		ret = r.Bool
+	case constant.String:
+		ret = r.String
+	case constant.Int:
+		ret = r.Int // actually ambiguous, could be a rune - thus r.Int64
+	case constant.Float:
+		ret = r.Float64
+	case constant.Complex:
+		ret = r.Complex64
+	}
+	return ret
 }
 
-func (c *Comp) Land(op token.Token, x *Expr, y *Expr) *Expr {
+func (c *Comp) Shl(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
+	return c.unimplementedBinaryExpr(node, x, y)
+}
+
+func (c *Comp) Shr(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
+	return c.unimplementedBinaryExpr(node, x, y)
+}
+
+func (c *Comp) Land(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 	xval, xfun, xerr := x.AsPred()
 	yval, yfun, yerr := y.AsPred()
 	if xerr || yerr {
-		return c.invalidBinaryExpr(op, x, y)
+		return c.invalidBinaryExpr(node, x, y)
 	}
 	// optimize short-circuit logic
 	if xfun == nil {
@@ -130,11 +192,11 @@ func (c *Comp) Land(op token.Token, x *Expr, y *Expr) *Expr {
 	})
 }
 
-func (c *Comp) Lor(op token.Token, x *Expr, y *Expr) *Expr {
+func (c *Comp) Lor(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 	xval, xfun, xerr := x.AsPred()
 	yval, yfun, yerr := y.AsPred()
 	if xerr || yerr {
-		return c.invalidBinaryExpr(op, x, y)
+		return c.invalidBinaryExpr(node, x, y)
 	}
 	// optimize short-circuit logic
 	if xfun == nil {
@@ -156,53 +218,52 @@ func (c *Comp) Lor(op token.Token, x *Expr, y *Expr) *Expr {
 	})
 }
 
-func (c *Comp) invalidBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
-	return c.badBinaryExpr("invalid", op, x, y)
+func (c *Comp) invalidBinaryExpr(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
+	return c.badBinaryExpr("invalid", node, x, y)
 }
 
-func (c *Comp) unimplementedBinaryExpr(op token.Token, x *Expr, y *Expr) *Expr {
-	return c.badBinaryExpr("unimplemented", op, x, y)
+func (c *Comp) unimplementedBinaryExpr(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
+	return c.badBinaryExpr("unimplemented", node, x, y)
 }
 
-func (c *Comp) badBinaryExpr(reason string, op token.Token, x *Expr, y *Expr) *Expr {
-	opstr := mt.String(op)
+func (c *Comp) badBinaryExpr(reason string, node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
+	opstr := mt.String(node.Op)
 	c.Errorf("%s binary operation %s between <%v> and <%v>: %v %s %v",
-		reason, opstr, x.Type, y.Type, x, opstr, y)
+		reason, opstr, x.Type, y.Type, node.X, opstr, node.Y)
 	return nil
 }
 
 // convert x and y to the same single-valued expression type. needed to emulate Go untyped constants
-func toSameFuncType(op token.Token, x, y *Expr) {
-	x.CheckX1()
-	y.CheckX1()
-	xc, yc := x.Const(), y.Const()
-	if yc {
-		if xc {
-			xi, yi := constsToSameType(op, x.Value, y.Value)
-			x.SetWithFun(xi)
-			y.SetWithFun(yi)
+func (c *Comp) toSameFuncType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
+	xe.CheckX1()
+	ye.CheckX1()
+	xconst, yconst := xe.Const(), ye.Const()
+	if yconst {
+		if xconst {
+			x, y := c.constsToSameType(node, xe, ye)
+			xe.SetWithFun(x)
+			ye.SetWithFun(y)
 		} else {
-			y.ConstTo(x.Type)
+			ye.ConstTo(xe.Type)
 		}
 	} else {
-		if xc {
-			x.ConstTo(y.Type)
+		if xconst {
+			xe.ConstTo(ye.Type)
 		} else {
-			if x.Type != y.Type {
-				Errorf("unsupported binary operation <%v> %s <%v>", x.Type, mt.String(op), y.Type)
+			if xe.Type != ye.Type {
+				c.invalidBinaryExpr(node, xe, ye)
 			}
 		}
 	}
 }
 
-func constsToSameType(op token.Token, x, y I) (I, I) {
+func (c *Comp) constsToSameType(node *ast.BinaryExpr, xe *Expr, ye *Expr) (I, I) {
+	x, y := xe.Value, ye.Value
 	if x == nil {
 		if y == nil {
 			return x, y
 		} else {
-			str := mt.String(op)
-			Errorf("unsupported binary operation <%T> %s <%T>: %v %s %v",
-				x, str, y, x, str, y)
+			c.invalidBinaryExpr(node, xe, ye)
 		}
 	}
 	xt, yt := r.TypeOf(x), r.TypeOf(y)
@@ -244,7 +305,7 @@ func constsToSameType(op token.Token, x, y I) (I, I) {
 		x = r.ValueOf(x).Convert(TypeOfFloat64).Float()
 		y = r.ValueOf(y).Convert(TypeOfFloat64).Float()
 	} else {
-		Errorf("cannot convert to the same type: %v <%T> and %v <%T>", x, x, y, y)
+		c.badBinaryExpr("cannot convert operands to the same type in", node, xe, ye)
 	}
 	return x, y
 }

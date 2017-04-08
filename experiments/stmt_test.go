@@ -113,13 +113,14 @@ func NewEnv(outer *Env) *Env {
 	}
 }
 
-func foo() {
-
+func init() {
+	var a, b interface{}
+	a = 1
+	b = "foo"
+	println(a == b)
 }
 
 func BenchmarkThreadedStmtFunc0(b *testing.B) {
-
-	foo = func() {}
 
 	type Stmt func(env *Env, all []Stmt) Stmt
 

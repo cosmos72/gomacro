@@ -40,7 +40,7 @@ type TestFor int
 
 const (
 	I TestFor = 1 << iota
-	C
+	C         = 0 // temporarily disabled compiler test
 	A TestFor = I | C
 	B TestFor = I // temporarily disabled compiler test
 )

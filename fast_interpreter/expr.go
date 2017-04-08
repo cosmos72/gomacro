@@ -76,12 +76,13 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 			in = node.X
 			continue
 		case *ast.UnaryExpr:
+			return c.UnaryExpr(node)
 		case *ast.SelectorExpr:
 		case *ast.SliceExpr:
 		case *ast.StarExpr:
 		case *ast.TypeAssertExpr:
 		}
-		c.Errorf("unimplemented Compile() for: %#v <%v>", in, r.TypeOf(in))
+		c.Errorf("unimplemented Compile() for: %v <%v>", in, r.TypeOf(in))
 		return nil
 	}
 }

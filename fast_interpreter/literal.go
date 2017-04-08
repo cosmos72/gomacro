@@ -26,92 +26,46 @@ package fast_interpreter
 
 import (
 	"go/ast"
+	"go/constant"
 	"go/token"
 	r "reflect"
-	"strconv"
-	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) BasicLit(node *ast.BasicLit) *Expr {
 	str := node.Value
+	var kind r.Kind
+	var label string
 	switch node.Kind {
 	case token.INT:
-		if strings.HasPrefix(str, "-") {
-			i64, err := strconv.ParseInt(str, 0, 64)
-			if err != nil {
-				c.Error(err)
-				return nil
-			}
-			// prefer int to int64. reason: in compiled Go,
-			// type inference deduces int for all constants representable by an int
-			i := int(i64)
-			if int64(i) == i64 {
-				return ExprValue(i)
-			}
-			return ExprValue(i64)
-		} else {
-			u64, err := strconv.ParseUint(str, 0, 64)
-			if err != nil {
-				c.Error(err)
-				return nil
-			}
-			// prefer, in order: int, int64, uint, uint64. reason: in compiled Go,
-			// type inference deduces int for all constants representable by an int
-			i := int(u64)
-			if i >= 0 && uint64(i) == u64 {
-				return ExprValue(i)
-			}
-			i64 := int64(u64)
-			if i64 >= 0 && uint64(i64) == u64 {
-				return ExprValue(i64)
-			}
-			u := uint(u64)
-			if uint64(u) == u64 {
-				return ExprValue(u)
-			}
-			return ExprValue(u64)
-		}
-
+		kind, label = r.Int, "integer"
 	case token.FLOAT:
-		f, err := strconv.ParseFloat(str, 64)
-		if err != nil {
-			c.Error(err)
-			return nil
-		}
-		return ExprValue(f)
-
+		kind, label = r.Float64, "float"
 	case token.IMAG:
-		if strings.HasSuffix(str, "i") {
-			str = str[:len(str)-1]
-		}
-		im, err := strconv.ParseFloat(str, 64)
-		if err != nil {
-			c.Error(err)
-			return nil
-		}
-		return ExprValue(complex(0.0, im))
-		// env.Debugf("evalLiteral(): parsed IMAG %s -> %T %#v -> %T %#v", str, im, im, ret, ret)
-
+		kind, label = r.Complex128, "complex"
 	case token.CHAR:
-		return ExprValue(UnescapeChar(str))
-
+		kind, label = r.Int32, "rune"
 	case token.STRING:
-		return ExprValue(UnescapeString(str))
-
+		kind, label = r.String, "string"
 	default:
-		c.Errorf("unimplemented basic literal: %v", node)
+		c.Errorf("unsupported basic literal: %v", node)
 		return nil
 	}
+	obj := constant.MakeFromLiteral(str, node.Kind, 0)
+	if obj.Kind() == constant.Unknown {
+		c.Errorf("invalid %s literal: %v", label, str)
+		return nil
+	}
+	return ExprValue(UntypedLit{Kind: kind, Obj: obj})
 }
 
 func isLiteral(x I) bool {
 	switch x.(type) {
-	case nil, bool,
-		int, int8, int16, int32, int64,
+	case nil, bool, int, int8, int16, int32, int64,
 		uint, uint8, uint16, uint32, uint64, uintptr,
-		float32, float64, complex64, complex128, string:
+		float32, float64, complex64, complex128, string,
+		UntypedLit:
 		return true
 	default:
 		return false
@@ -119,7 +73,7 @@ func isLiteral(x I) bool {
 }
 
 func isLiteralNumber(x I, n int64) bool {
-	switch x.(type) {
+	switch x := x.(type) {
 	case int, int8, int16, int32, int64:
 		return r.ValueOf(x).Int() == n
 	case uint, uint8, uint16, uint32, uint64, uintptr:
@@ -128,6 +82,29 @@ func isLiteralNumber(x I, n int64) bool {
 		return r.ValueOf(x).Float() == float64(n)
 	case complex64, complex128:
 		return r.ValueOf(x).Complex() == complex(float64(n), 0)
+	case UntypedLit:
+		return x.IsLiteralNumber(n)
+	default:
+		return false
+	}
+}
+
+func (untyp *UntypedLit) IsLiteralNumber(n int64) bool {
+	obj := untyp.Obj
+	switch obj.Kind() {
+	case constant.Int:
+		m, exact := constant.Int64Val(obj)
+		return exact && m == n
+	case constant.Float:
+		m, exact := constant.Float64Val(obj)
+		return exact && float64(int64(m)) == m && int64(m) == n
+	case constant.Complex:
+		m, exact := constant.Float64Val(constant.Imag(obj))
+		if !exact || m != 0.0 {
+			return false
+		}
+		m, exact = constant.Float64Val(constant.Real(obj))
+		return exact && float64(int64(m)) == m && int64(m) == n
 	default:
 		return false
 	}

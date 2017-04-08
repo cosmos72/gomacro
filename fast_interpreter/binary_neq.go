@@ -25,31 +25,31 @@
 package fast_interpreter
 
 import (
-	"go/token"
+	"go/ast"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func (c *Comp) Neq(op token.Token, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	if xe.IsNil {
 		if ye.IsNil {
-			return c.invalidBinaryExpr(op, xe, ye)
+			return c.invalidBinaryExpr(node, xe, ye)
 		} else {
 			// nil != expr
-			return c.neqNil(op, xe, ye)
+			return c.neqNil(node, xe, ye)
 		}
 	} else if ye.IsNil {
 		// expr != nil
-		return c.neqNil(op, xe, ye)
+		return c.neqNil(node, xe, ye)
 	}
 	if !xe.Type.Comparable() || !xe.Type.Comparable() {
-		return c.invalidBinaryExpr(op, xe, ye)
+		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	xc, yc := xe.Const(), ye.Const()
 	if xe.Type.Kind() != r.Interface && ye.Type.Kind() != r.Interface {
 		// comparison between different types is allowed only if at least one is an interface
-		toSameFuncType(op, xe, ye)
+		c.toSameFuncType(node, xe, ye)
 	}
 
 	// if both x and y are constants, BinaryExpr will invoke EvalConst()
@@ -139,7 +139,7 @@ func (c *Comp) Neq(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x(env) != y(env)
 			}
 		default:
-			return c.neqMisc(op, xe, ye)
+			return c.neqMisc(node, xe, ye)
 		}
 	} else if yc {
 		x := xe.Fun
@@ -232,7 +232,7 @@ func (c *Comp) Neq(op token.Token, xe *Expr, ye *Expr) *Expr {
 				}
 			}
 		default:
-			return c.neqMisc(op, xe, ye)
+			return c.neqMisc(node, xe, ye)
 		}
 	} else {
 		x := xe.Value
@@ -325,13 +325,13 @@ func (c *Comp) Neq(op token.Token, xe *Expr, ye *Expr) *Expr {
 				}
 			}
 		default:
-			return c.neqMisc(op, xe, ye)
+			return c.neqMisc(node, xe, ye)
 		}
 	}
 	return ExprBool(fun)
 }
 
-func (c *Comp) neqMisc(op token.Token, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) neqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun func(*Env) bool
 
 	if xe.Type.Kind() == r.Interface || ye.Type.Kind() == r.Interface {
@@ -395,7 +395,7 @@ func (c *Comp) neqMisc(op token.Token, xe *Expr, ye *Expr) *Expr {
 	return ExprBool(fun)
 }
 
-func (c *Comp) neqNil(op token.Token, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) neqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var e *Expr
 	if ye.IsNil {
 		e = xe
@@ -404,7 +404,7 @@ func (c *Comp) neqNil(op token.Token, xe *Expr, ye *Expr) *Expr {
 	}
 	// e cannot be a constant (none of the nillable types support compile-time constants) but better safe than sorry
 	if e.Const() || !IsNillableKind(e.Type.Kind()) {
-		return c.invalidBinaryExpr(op, xe, ye)
+		return c.invalidBinaryExpr(node, xe, ye)
 	}
 
 	var fun func(env *Env) bool

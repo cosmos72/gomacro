@@ -25,6 +25,7 @@
 package fast_interpreter
 
 import (
+	"go/constant"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -32,6 +33,10 @@ import (
 
 func LitValue(value I) Lit {
 	return Lit{Type: r.TypeOf(value), Value: value}
+}
+
+func ExprUntypedLit(kind r.Kind, value constant.Value) *Expr {
+	return &Expr{Lit: Lit{Type: r.TypeOf(value), Value: UntypedLit{Kind: kind, Obj: value}}}
 }
 
 func ExprValue(value I) *Expr {

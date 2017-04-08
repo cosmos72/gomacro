@@ -28,7 +28,7 @@ import (
 	"strconv"
 )
 
-func UnescapeChar(str string) rune {
+func UnescapeChar(str string) (rune, error) {
 	// fmt.Printf("debug unescapeChar(): parsing CHAR %#v", str)
 	n := len(str)
 	if n >= 2 && str[0] == '\'' && str[n-1] == '\'' {
@@ -36,9 +36,9 @@ func UnescapeChar(str string) rune {
 	}
 	ret, _, _, err := strconv.UnquoteChar(str, '\'')
 	if err != nil {
-		Error(err)
+		return 0, err
 	}
-	return ret
+	return ret, nil
 }
 
 func UnescapeString(str string) string {

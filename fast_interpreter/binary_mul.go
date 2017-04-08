@@ -25,15 +25,15 @@
 package fast_interpreter
 
 import (
-	"go/token"
+	"go/ast"
 	r "reflect"
 )
 
-func (c *Comp) Mul(op token.Token, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) Mul(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	xc, yc := xe.Const(), ye.Const()
-	toSameFuncType(op, xe, ye)
+	c.toSameFuncType(node, xe, ye)
 	if !isCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.Complex128) {
-		return c.invalidBinaryExpr(op, xe, ye)
+		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	// if both x and y are constants, BinaryExpr will invoke EvalConst()
 	// on our return value. no need to optimize that.
@@ -117,7 +117,7 @@ func (c *Comp) Mul(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x(env) * y(env)
 			}
 		default:
-			return c.invalidBinaryExpr(op, xe, ye)
+			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	} else if yc {
 		x := xe.Fun
@@ -202,7 +202,7 @@ func (c *Comp) Mul(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x(env) * y
 			}
 		default:
-			return c.invalidBinaryExpr(op, xe, ye)
+			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	} else {
 		x := xe.Value
@@ -287,7 +287,7 @@ func (c *Comp) Mul(op token.Token, xe *Expr, ye *Expr) *Expr {
 				return x * y(env)
 			}
 		default:
-			return c.invalidBinaryExpr(op, xe, ye)
+			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	}
 	return ExprFun(xe.Type, fun)

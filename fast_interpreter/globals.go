@@ -26,18 +26,60 @@ package fast_interpreter
 
 import (
 	"fmt"
+	"go/constant"
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
 )
 
-// ================================= Lit, Expr =================================
+// ================================= Untyped =================================
 
-// Lit represents a literal value, i.e. a constant
-type Lit struct {
-	Type  r.Type
-	Value I // may be nil when embedded in other structs that represent non-constants
+// UntypedLit represents an untyped literal value, i.e. an untyped constant
+type UntypedLit struct {
+	Kind r.Kind // default type. matches Obj.Kind() except for rune literals, where Kind == reflect.Int32
+	Obj  constant.Value
 }
+
+// ================================= Lit =================================
+
+// Lit represents a literal value, i.e. a typed or untyped constant
+type Lit struct {
+
+	// Type is nil only for literal nils.
+	// for all other literals, it is reflect.TypeOf(Lit.Value)
+	//
+	// When Lit is embedded in other structs that represent non-constant expressions,
+	// Type is the first type returned by the expression (nil if returns no values)
+	Type r.Type
+
+	// Value is one of:
+	//   nil, bool, int, int8, int16, int32, int64,
+	//   uint, uint8, uint16, uint32, uint64, uintptr,
+	//   float32, float64, complex64, complex128, string,
+	//   UntypedLit
+	//
+	// When Lit is embedded in other structs that represent non-constant expressions,
+	// Value is usually nil
+	Value I
+}
+
+// Untyped returns true if Lit is an untyped constant
+func (lit *Lit) Untyped() bool {
+	_, ok := lit.Value.(UntypedLit)
+	return ok
+}
+
+// UntypedKind returns the reflect.Kind of untyped constants,
+// i.e. their "default type"
+func (lit *Lit) UntypedKind() r.Kind {
+	if untyp, ok := lit.Value.(UntypedLit); ok {
+		return untyp.Kind
+	} else {
+		return r.Invalid
+	}
+}
+
+// ================================= Expr =================================
 
 // Expr represents an expression in the compiler
 type Expr struct {

@@ -95,7 +95,12 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 		// env.Debugf("evalLiteral(): parsed IMAG %s -> %T %#v -> %T %#v", str, im, im, ret, ret)
 
 	case token.CHAR:
-		return UnescapeChar(str)
+		ch, err := UnescapeChar(str)
+		if err != nil {
+			env.Errorf("%v: invalid char literal: %s", err, str)
+			return nil
+		}
+		return ch
 
 	case token.STRING:
 		return UnescapeString(str)
