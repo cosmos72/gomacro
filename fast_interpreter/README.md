@@ -13,9 +13,8 @@ ALPHA.
 The fast intepreter supports:
 * parsing - because it is shared with the original code
 * quote and quasiquote - because they are shared with the original code
-* iota
-***** untyped constants
-* binary expressions (except shifts) on untyped constants, booleans, integers, floats, complex numbers, and strings
+* iota and untyped constants
+* binary expressions on untyped constants, booleans, integers, floats, complex numbers, and strings
 * constant, variable and type declarations
 * incomplete: if and for, except for-range
 
@@ -30,3 +29,12 @@ Limitations:
   The reason for such limitation is simple: the interpreter uses `reflect.StructOf()`
   to define new types, which can only create unnamed types.
   The interpreter then defines named types as aliases for the underlying unnamed types.
+* operators << and >> do not follow type deduction rules for untyped constants.
+  The implemented behavior is:
+  * an untyped constant shifted by a non-constant expression always returns an int
+  * an untyped floating point constant shifted by a constant expression returns an untyped integer constant,
+    but the interpreter signals an error during the precompile phase
+    if the left operand has a non-zero fractional or imaginary part,
+    or it overflows both int64 and uint64.
+  See [Go Language Specification](https://golang.org/ref/spec#Operators) for the correct behavior
+

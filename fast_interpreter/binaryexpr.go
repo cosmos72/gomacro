@@ -65,12 +65,10 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 		z = c.Or(node, x, y)
 	case token.XOR, token.XOR_ASSIGN:
 		z = c.Xor(node, x, y)
-		/*
-			case token.SHL, token.SHL_ASSIGN:
-				z = c.Shl(node, x, y)
-			case token.SHR, token.SHR_ASSIGN:
-				z = c.Shr(node, x, y)
-		*/
+	case token.SHL, token.SHL_ASSIGN:
+		z = c.Shl(node, x, y)
+	case token.SHR, token.SHR_ASSIGN:
+		z = c.Shr(node, x, y)
 	case token.AND_NOT, token.AND_NOT_ASSIGN:
 		z = c.Andnot(node, x, y)
 	case token.LAND:
@@ -120,7 +118,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 	case token.SHR, token.SHR_ASSIGN:
 		return c.ShiftUntyped(node, token.SHR, x, y)
 	default:
-		zobj := constant.BinaryOp(x.Obj, op, y.Obj)
+		zobj := constant.BinaryOp(x.Obj, tokenWithoutAssign(op), y.Obj)
 		var zkind r.Kind
 		// reflect.Int32 (i.e. rune) has precedence over reflect.Int
 		if zobj.Kind() == constant.Int && (x.Kind == r.Int32 || y.Kind == r.Int32) {
@@ -135,6 +133,36 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 	}
 }
 
+func tokenWithoutAssign(op token.Token) token.Token {
+	switch op {
+	case token.ADD_ASSIGN:
+		op = token.ADD
+	case token.SUB_ASSIGN:
+		op = token.SUB
+	case token.MUL_ASSIGN:
+		op = token.MUL
+	case token.QUO_ASSIGN:
+		op = token.QUO
+	case token.REM_ASSIGN:
+		op = token.REM
+	case token.AND_ASSIGN:
+		op = token.AND
+	case token.OR_ASSIGN:
+		op = token.OR
+	case token.XOR_ASSIGN:
+		op = token.XOR
+	case token.SHL_ASSIGN:
+		op = token.SHL
+	case token.SHR, token.SHR_ASSIGN:
+		op = token.SHR
+	case token.AND_NOT_ASSIGN:
+		op = token.AND_NOT
+	}
+	return op
+}
+
+var warnUntypedShift, warnUntypedShift2 = true, true
+
 func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, y UntypedLit) *Expr {
 	if y.Obj.Kind() != constant.Int {
 		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
@@ -144,11 +172,77 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 	if !exact || uint64(yn) != yn64 {
 		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
 	}
-	zobj := constant.Shift(x.Obj, op, yn)
+	xn := x.Obj
+	switch xn.Kind() {
+	case constant.Float, constant.Complex:
+		if warnUntypedShift {
+			c.Warnf("known limitation (warned only once): untyped floating point constant shifted by untyped constant. returning untyped integer instead of deducing the type from the surrounding context: %v",
+				node)
+			warnUntypedShift = false
+		}
+		sign := constant.Sign(xn)
+		if xn.Kind() == constant.Complex {
+			sign = constant.Sign(constant.Real(xn))
+		}
+		if sign >= 0 {
+			xn = constant.MakeUint64(x.ConstTo(TypeOfUint64).(uint64))
+		} else {
+			xn = constant.MakeInt64(x.ConstTo(TypeOfInt64).(int64))
+		}
+	}
+	zobj := constant.Shift(xn, op, yn)
 	if zobj.Kind() == constant.Unknown {
 		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
 	}
 	return ExprUntypedLit(x.Kind, zobj)
+}
+
+// prepareShift panics if the types of xe and ye are not valid for shifts i.e. << or >>
+// returns non-nil expression if it computes the shift operation itself
+func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	if xe.Untyped() && ye.Untyped() {
+		// untyped << untyped should not happen here, it's handled in Comp.BinaryExpr... but let's be safe
+		return c.ShiftUntyped(node, node.Op, xe.Value.(UntypedLit), ye.Value.(UntypedLit))
+	}
+	xt, yt := xe.DefaultType(), ye.DefaultType()
+	if !isCategory(xt.Kind(), r.Int, r.Uint) {
+		return c.invalidBinaryExpr(node, xe, ye)
+	}
+	if xe.Untyped() {
+		xuntyp := xe.Value.(UntypedLit)
+		if ye.Const() {
+			// untyped << typed
+			yuntyp := UntypedLit{Kind: r.Int, Obj: constant.MakeUint64(r.ValueOf(ye.Value).Uint())}
+			return c.ShiftUntyped(node, node.Op, xuntyp, yuntyp)
+		}
+		// untyped << expression
+		// BUG! we should deduce left operand type from its context, instead of assuming int
+		// see https://golang.org/ref/spec#Operators
+		//
+		// "If the left operand of a non-constant shift expression is an untyped constant,
+		// "it is first converted to the type it would assume if the shift expression
+		// "were replaced by its left operand alone."
+		if warnUntypedShift2 {
+			c.Warnf("known limitation (warned only once): untyped constant shifted by a non-constant expression. returning int instead of deducing the type from the surrounding context: %v",
+				node)
+			warnUntypedShift2 = false
+		}
+		xe.ConstTo(TypeOfInt)
+	}
+	if ye.Untyped() {
+		// untyped constants do not distinguish between int and uint
+		if !isCategory(yt.Kind(), r.Int) {
+			return c.invalidBinaryExpr(node, xe, ye)
+		}
+		ye.ConstTo(TypeOfUint64)
+	} else {
+		if !isCategory(yt.Kind(), r.Uint) {
+			return c.invalidBinaryExpr(node, xe, ye)
+		}
+	}
+	xe.WithFun()
+	ye.WithFun()
+	return nil
 }
 
 func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
@@ -166,14 +260,6 @@ func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
 		ret = r.Complex128
 	}
 	return ret
-}
-
-func (c *Comp) Shl(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
-	return c.unimplementedBinaryExpr(node, x, y)
-}
-
-func (c *Comp) Shr(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
-	return c.unimplementedBinaryExpr(node, x, y)
 }
 
 func (c *Comp) Land(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
@@ -268,7 +354,7 @@ func (c *Comp) toSameFuncType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
 			xe.ConstTo(ye.Type)
 		} else {
 			if xe.Type != ye.Type {
-				c.invalidBinaryExpr(node, xe, ye)
+				c.badBinaryExpr("operands have different types in", node, xe, ye)
 			}
 		}
 	}

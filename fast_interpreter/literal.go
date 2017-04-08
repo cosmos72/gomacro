@@ -187,7 +187,7 @@ again:
 		}
 		return constant.BoolVal(obj)
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
-		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uintptr,
+		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
 		r.Float32, r.Float64, r.Complex64, r.Complex128:
 
 		n := untyp.extractNumber(obj, t)

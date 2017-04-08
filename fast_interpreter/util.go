@@ -25,6 +25,7 @@
 package fast_interpreter
 
 import (
+	"go/constant"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -105,7 +106,14 @@ func XVNil() (r.Value, []r.Value) {
 	return Nil, nil
 }
 
-func (e *Expr) AsPred() (flag bool, pred func(*Env) bool, err bool) {
+func (e *Expr) AsPred() (value bool, fun func(*Env) bool, err bool) {
+	if e.Untyped() {
+		untyp := e.Value.(UntypedLit)
+		if untyp.Kind != r.Bool {
+			return false, nil, true
+		}
+		return constant.BoolVal(untyp.Obj), nil, false
+	}
 	if e.Type != TypeOfBool {
 		return false, nil, true
 	}
