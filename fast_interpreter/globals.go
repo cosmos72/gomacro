@@ -162,17 +162,21 @@ func (e *Expr) String() string {
 // ================================= Stmt =================================
 
 // Stmt represents a statement in the compiler
-type Stmt func(*Env) Stmt
+type Stmt struct {
+	Exec func(*Env) (Stmt, *Env)
+}
 
 func (s Stmt) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 	if opts&CompileStmtIsValue != 0 {
 		return func(env *Env) (r.Value, []r.Value) {
-			s(env)
-			return base.None, nil
+			next, nextenv := s.Exec(env)
+			ret0 := r.ValueOf(next)
+			return ret0, []r.Value{ret0, r.ValueOf(nextenv)}
 		}
 	} else {
 		return func(env *Env) (r.Value, []r.Value) {
-			return r.ValueOf(s(env)), nil
+			s.Exec(env)
+			return base.None, nil
 		}
 	}
 }

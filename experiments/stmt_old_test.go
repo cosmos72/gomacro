@@ -30,95 +30,24 @@ import (
 	"unsafe"
 )
 
-/*
-    -------- n =  5 --------
-	BenchmarkThreadedStmtFunc0-8            	100000000	        14.3 ns/op
-	BenchmarkThreadedStmtFunc1-8            	100000000	        14.8 ns/op
-	BenchmarkThreadedStmtFunc2-8            	100000000	        14.7 ns/op
-	BenchmarkThreadedStmtFunc3-8            	100000000	        13.4 ns/op
-	BenchmarkThreadedStmtFunc4-8            	100000000	        13.4 ns/op
-	BenchmarkThreadedStmtFunc4Unroll -8     	100000000	        12.5 ns/op
-	BenchmarkThreadedStmtFunc4Terminate-8   	50000000	        37.0 ns/op
-	BenchmarkThreadedStmtFunc4Panic-8       	10000000	       128 ns/op
-	BenchmarkThreadedStmtStruct1-8          	100000000	        14.9 ns/op
-	BenchmarkThreadedStmtStruct4-8          	100000000	        13.2 ns/op
-	BenchmarkThreadedStmtStruct4Unroll-8    	100000000	        12.4 ns/op
-
-    -------- n = 20 --------
-	BenchmarkThreadedStmtFunc0-8            	20000000	        69.7 ns/op
-	BenchmarkThreadedStmtFunc1-8            	30000000	        59.8 ns/op
-	BenchmarkThreadedStmtFunc2-8            	30000000	        59.0 ns/op
-	BenchmarkThreadedStmtFunc3-8            	30000000	        54.7 ns/op
-	BenchmarkThreadedStmtFunc4-8            	30000000	        48.6 ns/op
-	BenchmarkThreadedStmtFunc4Unroll -8     	30000000	        47.9 ns/op
-	BenchmarkThreadedStmtFunc4Terminate-8   	20000000	        74.6 ns/op
-	BenchmarkThreadedStmtFunc4Panic-8       	10000000	       161 ns/op
-	BenchmarkThreadedStmtStruct1-8          	30000000	        59.1 ns/op
-	BenchmarkThreadedStmtStruct4-8          	30000000	        48.8 ns/op
-	BenchmarkThreadedStmtStruct4Unroll-8    	30000000	        46.4 ns/op
-
-    -------- n = 100 --------
-	BenchmarkThreadedStmtFunc0-8            	 3000000	       418 ns/op
-	BenchmarkThreadedStmtFunc1-8            	 5000000	       313 ns/op
-	BenchmarkThreadedStmtFunc2-8            	 5000000	       303 ns/op
-	BenchmarkThreadedStmtFunc3-8            	 5000000	       295 ns/op
-	BenchmarkThreadedStmtFunc4-8            	 5000000	       250 ns/op
-	BenchmarkThreadedStmtFunc4Unroll -8     	 5000000	       242 ns/op
-	BenchmarkThreadedStmtFunc4Terminate-8   	10000000	       233 ns/op
-	BenchmarkThreadedStmtFunc4Panic-8       	 5000000	       345 ns/op
-	BenchmarkThreadedStmtStruct1-8          	 5000000	       304 ns/op
-	BenchmarkThreadedStmtStruct4-8          	 5000000	       248 ns/op
-	BenchmarkThreadedStmtStruct4Unroll-8    	 5000000	       247 ns/op
-
-    -------- n = 1000 --------
-	BenchmarkThreadedStmtFunc0-8            	  300000	      4205 ns/op
-	BenchmarkThreadedStmtFunc1-8            	  500000	      3031 ns/op
-	BenchmarkThreadedStmtFunc2-8            	  500000	      2996 ns/op
-	BenchmarkThreadedStmtFunc3-8            	  500000	      2875 ns/op
-	BenchmarkThreadedStmtFunc4-8            	  500000	      2406 ns/op
-	BenchmarkThreadedStmtFunc4Unroll -8     	 1000000	      2349 ns/op
-	BenchmarkThreadedStmtFunc4Terminate-8   	 1000000	      2177 ns/op
-	BenchmarkThreadedStmtFunc4Panic-8       	  500000	      2255 ns/op
-	BenchmarkThreadedStmtStruct1-8          	  500000	      2968 ns/op
-	BenchmarkThreadedStmtStruct4-8          	  500000	      2410 ns/op
-	BenchmarkThreadedStmtStruct4Unroll-8    	 1000000	      2282 ns/op
-
-    -------- n = 10000 --------
-	BenchmarkThreadedStmtFunc0-8            	   30000	     42124 ns/op
-	BenchmarkThreadedStmtFunc1-8            	   50000	     30382 ns/op
-	BenchmarkThreadedStmtFunc2-8            	   50000	     29695 ns/op
-	BenchmarkThreadedStmtFunc3-8            	   50000	     29007 ns/op
-	BenchmarkThreadedStmtFunc4-8            	   50000	     24040 ns/op
-	BenchmarkThreadedStmtFunc4Unroll -8     	  100000	     23418 ns/op
-	BenchmarkThreadedStmtFunc4Terminate-8   	  100000	     21372 ns/op
-	BenchmarkThreadedStmtFunc4Panic-8       	  100000	     21506 ns/op
-	BenchmarkThreadedStmtStruct1-8          	   50000	     29901 ns/op
-	BenchmarkThreadedStmtStruct4-8          	  100000	     24938 ns/op
-	BenchmarkThreadedStmtStruct4Unroll-8    	  100000	     22599 ns/op
-*/
-
-type Env_ struct {
-	Binds []r.Value
-	Outer *Env_
-}
-
-func NewEnv(outer *Env_) *Env_ {
-	return &Env_{
-		Binds: make([]r.Value, 10),
-		Outer: outer,
+type (
+	Env0 struct {
+		Binds []r.Value
+		Outer *Env0
 	}
-}
+	Stmt0 func(env *Env0, code []Stmt0) (Stmt0, *Env0)
+)
 
 func BenchmarkThreadedStmtFunc0(b *testing.B) {
 
-	type Stmt0 func(env *Env_, all []Stmt0) Stmt0
-
-	env := NewEnv(nil)
+	env := &Env0{
+		Binds: make([]r.Value, 10),
+	}
 	all := make([]Stmt0, n+1)
 	for i := 0; i < n; i++ {
 		i := i
-		all[i] = func(env *Env_, all []Stmt0) Stmt0 {
-			return all[i+1]
+		all[i] = func(env *Env0, code []Stmt0) (Stmt0, *Env0) {
+			return code[i+1], env
 		}
 	}
 	all[n] = nil
@@ -127,19 +56,30 @@ func BenchmarkThreadedStmtFunc0(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		stmt := all[0]
 		for stmt != nil {
-			stmt = stmt(env, all)
+			stmt, env = stmt(env, all)
 		}
 	}
 }
 
+type (
+	Env1 struct {
+		Binds []r.Value
+		Outer *Env1
+		IP    int
+	}
+	Stmt1 func(env *Env1, all []Stmt1) (Stmt1, *Env1)
+)
+
 func BenchmarkThreadedStmtFunc1(b *testing.B) {
 
-	type Stmt1 func(env *Env_, next *Stmt1, ip int, all []Stmt1) (Stmt1, int)
-	var nop Stmt1 = func(env *Env_, next *Stmt1, ip int, all []Stmt1) (Stmt1, int) {
-		return *next, ip
+	var nop Stmt1 = func(env *Env1, code []Stmt1) (Stmt1, *Env1) {
+		env.IP++
+		return code[env.IP], env
 	}
 
-	env := NewEnv(nil)
+	env := &Env1{
+		Binds: make([]r.Value, 10),
+	}
 	all := make([]Stmt1, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
@@ -148,36 +88,46 @@ func BenchmarkThreadedStmtFunc1(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ip := 0
-		stmt := all[ip]
+		env.IP = 0
+		stmt := all[0]
 		for stmt != nil {
-			ip++
-			stmt, ip = stmt(env, &all[ip], ip, all)
+			stmt, env = stmt(env, all)
 		}
 	}
 }
 
+type (
+	Env2 struct {
+		Binds []r.Value
+		Outer *Env2
+		Code  []Stmt2
+	}
+	Stmt2 func(env *Env2, ip int) (Stmt2, *Env2, int)
+)
+
 func BenchmarkThreadedStmtFunc2(b *testing.B) {
 
-	type Stmt2 func(env *Env_, ip int, all []Stmt2) (Stmt2, int)
-	var nop Stmt2 = func(env *Env_, ip int, all []Stmt2) (Stmt2, int) {
+	var nop Stmt2 = func(env *Env2, ip int) (Stmt2, *Env2, int) {
 		ip++
-		return all[ip], ip
+		return env.Code[ip], env, ip
 	}
 
-	env := NewEnv(nil)
+	env := &Env2{
+		Binds: make([]r.Value, 10),
+	}
 	all := make([]Stmt2, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
 	all[n] = nil
+	env.Code = all
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		ip := 0
 		stmt := all[ip]
 		for stmt != nil {
-			stmt, ip = stmt(env, ip, all)
+			stmt, env, ip = stmt(env, ip)
 		}
 	}
 }
@@ -185,7 +135,7 @@ func BenchmarkThreadedStmtFunc2(b *testing.B) {
 type (
 	Env3 struct {
 		Binds []r.Value
-		Outer *Env_
+		Outer *Env0
 		Code  []Stmt3
 	}
 	Stmt3 func(env *Env3, ip int) (Stmt3, int)
@@ -220,9 +170,9 @@ func BenchmarkThreadedStmtFunc3(b *testing.B) {
 type (
 	Env4 struct {
 		Binds     []r.Value
-		Outer     *Env_
-		Code      []Stmt4
+		Outer     *Env4
 		IP        int
+		Code      []Stmt4
 		Interrupt Stmt4
 	}
 	Stmt4 func(env *Env4) Stmt4
@@ -332,25 +282,24 @@ func BenchmarkThreadedStmtFunc4Terminate(b *testing.B) {
 		env.IP = 0
 		stmt := all[0]
 		for {
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-			stmt = stmt(env)
-
 			if x := stmt; *(**uintptr)(unsafe.Pointer(&x)) == unsafeInterrupt {
 				break
 			}
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
+			stmt = stmt(env)
 		}
 	}
 }
@@ -383,7 +332,7 @@ outer:
 		if stmt == nil {
 			continue outer
 		}
-		for j := 0; j < 10; j++ {
+		for j := 0; j < 5; j++ {
 			if stmt = stmt(env); stmt != nil {
 				if stmt = stmt(env); stmt != nil {
 					if stmt = stmt(env); stmt != nil {
@@ -398,7 +347,7 @@ outer:
 														if stmt = stmt(env); stmt != nil {
 															if stmt = stmt(env); stmt != nil {
 																if stmt = stmt(env); stmt != nil {
-																	break
+																	continue
 																}
 															}
 														}
@@ -491,123 +440,41 @@ func runThreadedStmtFunc4Panic(env *Env4) {
 	}
 }
 
-func BenchmarkThreadedStmtStruct1(b *testing.B) {
-
-	type Stmt struct {
-		Exec func(env *Env_, ip int, all []Stmt) (Stmt, int)
-	}
-	var nop = Stmt{func(env *Env_, ip int, all []Stmt) (Stmt, int) {
-		ip++
-		return all[ip], ip
-	}}
-
-	env := NewEnv(nil)
-	all := make([]Stmt, n+1)
-	for i := 0; i < n; i++ {
-		all[i] = nop
-	}
-	all[n] = Stmt{}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		ip := 0
-		stmt := all[ip]
-		for stmt.Exec != nil {
-			stmt, ip = stmt.Exec(env, ip, all)
-		}
-	}
-}
-
 type (
-	EnvS4 struct {
+	Env5 struct {
 		Binds []r.Value
-		Outer *Env_
-		Code  []StmtS4
 		IP    int
+		Code  []Stmt5
+		Outer *Env5
 	}
-	StmtS4 struct {
-		Exec func(env *EnvS4) StmtS4
-	}
+	Stmt5 func(**Env5) Stmt5
 )
 
-func BenchmarkThreadedStmtStruct4(b *testing.B) {
+func BenchmarkThreadedStmtFunc5(b *testing.B) {
 
-	var nop StmtS4 = StmtS4{func(env *EnvS4) StmtS4 {
+	var nop Stmt5 = func(penv **Env5) Stmt5 {
+		env := *penv
 		env.IP++
 		return env.Code[env.IP]
-	}}
-	env := &EnvS4{
+	}
+
+	env := &Env5{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]StmtS4, n+1)
+	all := make([]Stmt5, n+1)
 	for i := 0; i < n; i++ {
+		i := i
 		all[i] = nop
 	}
-	all[n] = StmtS4{}
+	all[n] = nil
 	env.Code = all
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		env.IP = 0
 		stmt := all[0]
-		for stmt.Exec != nil {
-			stmt = stmt.Exec(env)
-		}
-	}
-}
-
-func BenchmarkThreadedStmtStruct4Unroll(b *testing.B) {
-
-	var nop StmtS4 = StmtS4{func(env *EnvS4) StmtS4 {
-		env.IP++
-		return env.Code[env.IP]
-	}}
-	env := &EnvS4{
-		Binds: make([]r.Value, 10),
-	}
-	all := make([]StmtS4, n+1)
-	for i := 0; i < n; i++ {
-		all[i] = nop
-	}
-	all[n] = StmtS4{}
-	env.Code = all
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		env.IP = 0
-		stmt := all[0]
-		for stmt.Exec != nil {
-			stmt = stmt.Exec(env)
-			if stmt.Exec != nil {
-				stmt = stmt.Exec(env)
-				if stmt.Exec != nil {
-					stmt = stmt.Exec(env)
-					if stmt.Exec != nil {
-						stmt = stmt.Exec(env)
-						if stmt.Exec != nil {
-							stmt = stmt.Exec(env)
-							if stmt.Exec != nil {
-								stmt = stmt.Exec(env)
-								if stmt.Exec != nil {
-									stmt = stmt.Exec(env)
-									if stmt.Exec != nil {
-										stmt = stmt.Exec(env)
-										if stmt.Exec != nil {
-											stmt = stmt.Exec(env)
-											if stmt.Exec != nil {
-												stmt = stmt.Exec(env)
-												if stmt.Exec != nil {
-													stmt = stmt.Exec(env)
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+		for stmt != nil {
+			stmt = stmt(&env)
 		}
 	}
 }

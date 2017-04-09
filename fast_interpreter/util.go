@@ -149,7 +149,7 @@ func (c *Comp) badPred(reason string, node ast.Expr, x *Expr) Stmt {
 	}
 	c.Errorf("%s boolean predicate, expecting <bool> expression, found <%v>: %v",
 		reason, t, node)
-	return nil
+	return NilStmt
 }
 
 func (e *Expr) AsX() X {
@@ -509,145 +509,147 @@ func AsXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 
 func (e *Expr) AsStmt() Stmt {
 	if e == nil || e.Const() {
-		return nil
+		return NilStmt
 	}
 	return AsStmt(e.Fun)
 }
 
 func AsStmt(any I) Stmt {
 	if isLiteral(any) {
-		return nil
+		return NilStmt
 	}
+	var ret func(env *Env) (Stmt, *Env)
+
 	switch fun := any.(type) {
 	case nil:
 	case X:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env):
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) r.Value:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) (r.Value, []r.Value):
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) bool:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) int:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) int8:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) int16:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) int32:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) int64:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) uint:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) uint8:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) uint16:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) uint32:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) uint64:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) uintptr:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) float32:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) float64:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) complex64:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) complex128:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	case func(*Env) string:
-		return func(env *Env) Stmt {
+		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
 			env.IP++
-			return env.Code[env.IP]
+			return env.Code[env.IP], env
 		}
 	default:
 		Errorf("unsupported expression, cannot convert to Stmt: %v <%T>", any, any)
 	}
-	return nil
+	return Stmt{ret}
 }
