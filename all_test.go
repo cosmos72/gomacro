@@ -135,6 +135,8 @@ var tests = []TestCase{
 	// the fast_interpreter instead *IS* accurate, thanks to exact arithmetic on untyped constants
 	TestCase{F, "const_3", "const c3 = 0.1+0.2; c3", 0.1 + 0.2, nil},
 	TestCase{F, "const_4", "const c4 = c3/3; c4", (0.1 + 0.2) / 3, nil},
+	TestCase{F, "untyped_1", "2.0 >> 1", 1, nil},
+	TestCase{A, "untyped_2", "1/2", 0, nil},
 
 	TestCase{A, "iota_1", "const c5 = iota^7; c5", 7, nil},
 	TestCase{A, "iota_2", "const ( c6 = iota+6; c7=iota+6 ); c6", 6, nil},

@@ -118,13 +118,23 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 	case token.SHR, token.SHR_ASSIGN:
 		return c.ShiftUntyped(node, token.SHR, x, y)
 	default:
-		zobj := constant.BinaryOp(x.Obj, tokenWithoutAssign(op), y.Obj)
-		var zkind r.Kind
+		op2 := tokenWithoutAssign(op)
+		xint := kindToCategory(x.Kind) == r.Int
+		yint := kindToCategory(y.Kind) == r.Int
+		if op2 == token.QUO && xint && yint {
+			// untyped integer division
+			op2 = token.QUO_ASSIGN
+		}
+		zobj := constant.BinaryOp(x.Obj, op2, y.Obj)
+		zkind := constantKindToUntypedLitKind(zobj.Kind())
+		c.Debugf("untyped binary expression %v %s %v returned {%v %v}", x, op2, y, zkind, zobj)
 		// reflect.Int32 (i.e. rune) has precedence over reflect.Int
-		if zobj.Kind() == constant.Int && (x.Kind == r.Int32 || y.Kind == r.Int32) {
-			zkind = r.Int32
-		} else {
-			zkind = constantKindToUntypedLitKind(zobj.Kind())
+		if zobj.Kind() == constant.Int {
+			if xint && x.Kind != r.Int {
+				zkind = x.Kind
+			} else if yint && y.Kind != r.Int {
+				zkind = y.Kind
+			}
 		}
 		if zkind == r.Invalid {
 			c.Errorf("invalid binary operation: %v %v %v", x.Obj, op, y.Obj)
@@ -173,15 +183,18 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
 	}
 	xn := x.Obj
-	switch xn.Kind() {
-	case constant.Float, constant.Complex:
+	xkind := x.Kind
+	switch xkind {
+	case r.Int, r.Int32:
+		// nothing to do
+	case r.Float64, r.Complex128:
 		if warnUntypedShift {
 			c.Warnf("known limitation (warned only once): untyped floating point constant shifted by untyped constant. returning untyped integer instead of deducing the type from the surrounding context: %v",
 				node)
 			warnUntypedShift = false
 		}
 		sign := constant.Sign(xn)
-		if xn.Kind() == constant.Complex {
+		if xkind == r.Complex128 {
 			sign = constant.Sign(constant.Real(xn))
 		}
 		if sign >= 0 {
@@ -189,12 +202,15 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 		} else {
 			xn = constant.MakeInt64(x.ConstTo(TypeOfInt64).(int64))
 		}
+		xkind = r.Int
+	default:
+		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
 	}
 	zobj := constant.Shift(xn, op, yn)
 	if zobj.Kind() == constant.Unknown {
 		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
 	}
-	return ExprUntypedLit(x.Kind, zobj)
+	return ExprUntypedLit(xkind, zobj)
 }
 
 // prepareShift panics if the types of xe and ye are not valid for shifts i.e. << or >>
