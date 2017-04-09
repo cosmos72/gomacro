@@ -80,13 +80,14 @@ func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
 func (c *Comp) Compile(in ast.Node) func(*Env) (r.Value, []r.Value) {
 	switch node := in.(type) {
 	case ast.Decl:
-		return ToXV(c.Decl(node), c.CompileOptions)
+		return AsXV(c.Decl(node), c.CompileOptions)
 	case ast.Expr:
 		return c.Expr(node).AsXV(c.CompileOptions)
 	case *ast.ExprStmt:
 		// special case of statement
 		return c.Expr(node.X).AsXV(c.CompileOptions)
 	case ast.Stmt:
+		return c.Stmt(node).AsXV(c.CompileOptions)
 		// TODO return c.Statement(node)
 		c.Errorf("Compile: unimplemented <ast.Stmt>, found %v <%v>", in, r.TypeOf(in))
 	case *ast.File:

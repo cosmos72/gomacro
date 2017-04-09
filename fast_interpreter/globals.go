@@ -159,6 +159,24 @@ func (e *Expr) String() string {
 	return str
 }
 
+// ================================= Stmt =================================
+
+// Stmt represents a statement in the compiler
+type Stmt func(*Env) Stmt
+
+func (s Stmt) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
+	if opts&CompileStmtIsValue != 0 {
+		return func(env *Env) (r.Value, []r.Value) {
+			s(env)
+			return base.None, nil
+		}
+	} else {
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(s(env)), nil
+		}
+	}
+}
+
 // ================================= BindClass =================================
 
 type BindClass int
@@ -246,7 +264,8 @@ type NamedType struct {
 type CompileOptions int
 
 const (
-	CompileKeepUntyped CompileOptions = 1 << iota // if set, Compile() will keep all untyped constants as such (in expressions where Go compiler would compute an untyped constant too)
+	CompileKeepUntyped CompileOptions = 1 << iota // if set, Compile() on expressions will keep all untyped constants as such (in expressions where Go compiler would compute an untyped constant too)
+	CompileStmtIsValue CompileOptions = 1 << iota // if set, Compile() on statements will return statements as reflect.Value
 	CompileDefaults    CompileOptions = 0
 )
 
@@ -269,6 +288,8 @@ type Comp struct {
 type Env struct {
 	Binds    []r.Value
 	IntBinds []uint64
+	IP       int
+	Code     []Stmt
 	Outer    *Env
 	*base.InterpreterBase
 }

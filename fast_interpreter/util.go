@@ -25,6 +25,7 @@
 package fast_interpreter
 
 import (
+	"go/ast"
 	"go/constant"
 	r "reflect"
 
@@ -106,7 +107,7 @@ func XVNil() (r.Value, []r.Value) {
 	return Nil, nil
 }
 
-func (e *Expr) AsPred() (value bool, fun func(*Env) bool, err bool) {
+func (e *Expr) TryAsPred() (value bool, fun func(*Env) bool, err bool) {
 	if e.Untyped() {
 		untyp := e.Value.(UntypedLit)
 		if untyp.Kind != r.Bool {
@@ -137,14 +138,28 @@ func (e *Expr) AsPred() (value bool, fun func(*Env) bool, err bool) {
 	}
 }
 
+func (c *Comp) invalidPred(node ast.Expr, x *Expr) Stmt {
+	return c.badPred("invalid", node, x)
+}
+
+func (c *Comp) badPred(reason string, node ast.Expr, x *Expr) Stmt {
+	var t r.Type = nil
+	if x.NumOut() != 0 {
+		t = x.Out(0)
+	}
+	c.Errorf("%s boolean predicate, expecting <bool> expression, found <%v>: %v",
+		reason, t, node)
+	return nil
+}
+
 func (e *Expr) AsX() X {
 	if e == nil || e.Const() {
 		return nil
 	}
-	return ToX(e.Fun)
+	return AsX(e.Fun)
 }
 
-func ToX(any I) X {
+func AsX(any I) X {
 	if isLiteral(any) {
 		return nil
 	}
@@ -253,13 +268,13 @@ func (e *Expr) CheckX1() {
 
 func (e *Expr) AsX1() func(*Env) r.Value {
 	if e.Const() {
-		return ToX1(e.Value, CompileDefaults)
+		return AsX1(e.Value, CompileDefaults)
 	}
 	e.CheckX1()
-	return ToX1(e.Fun, CompileDefaults)
+	return AsX1(e.Fun, CompileDefaults)
 }
 
-func ToX1(any I, opts CompileOptions) func(*Env) r.Value {
+func AsX1(any I, opts CompileOptions) func(*Env) r.Value {
 	if isLiteral(any) {
 		if opts&CompileKeepUntyped == 0 {
 			if untyp, ok := any.(UntypedLit); ok {
@@ -374,13 +389,13 @@ func ToX1(any I, opts CompileOptions) func(*Env) r.Value {
 
 func (e *Expr) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 	if e.Const() {
-		return ToXV(e.Value, opts)
+		return AsXV(e.Value, opts)
 	} else {
-		return ToXV(e.Fun, opts)
+		return AsXV(e.Fun, opts)
 	}
 }
 
-func ToXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
+func AsXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 	if isLiteral(any) {
 		if opts&CompileKeepUntyped == 0 {
 			if untyp, ok := any.(UntypedLit); ok {
@@ -488,6 +503,151 @@ func ToXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 	default:
 		Errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%T>",
 			any, any)
+	}
+	return nil
+}
+
+func (e *Expr) AsStmt() Stmt {
+	if e == nil || e.Const() {
+		return nil
+	}
+	return AsStmt(e.Fun)
+}
+
+func AsStmt(any I) Stmt {
+	if isLiteral(any) {
+		return nil
+	}
+	switch fun := any.(type) {
+	case nil:
+	case X:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env):
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) r.Value:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) (r.Value, []r.Value):
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) bool:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) int:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) int8:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) int16:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) int32:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) int64:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) uint:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) uint8:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) uint16:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) uint32:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) uint64:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) uintptr:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) float32:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) float64:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) complex64:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) complex128:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	case func(*Env) string:
+		return func(env *Env) Stmt {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP]
+		}
+	default:
+		Errorf("unsupported expression, cannot convert to Stmt: %v <%T>", any, any)
 	}
 	return nil
 }

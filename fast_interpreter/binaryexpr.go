@@ -279,8 +279,8 @@ func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
 }
 
 func (c *Comp) Land(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
-	xval, xfun, xerr := x.AsPred()
-	yval, yfun, yerr := y.AsPred()
+	xval, xfun, xerr := x.TryAsPred()
+	yval, yfun, yerr := y.TryAsPred()
 	if xerr || yerr {
 		return c.invalidBinaryExpr(node, x, y)
 	}
@@ -305,8 +305,8 @@ func (c *Comp) Land(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 }
 
 func (c *Comp) Lor(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
-	xval, xfun, xerr := x.AsPred()
-	yval, yfun, yerr := y.AsPred()
+	xval, xfun, xerr := x.TryAsPred()
+	yval, yfun, yerr := y.TryAsPred()
 	if xerr || yerr {
 		return c.invalidBinaryExpr(node, x, y)
 	}
