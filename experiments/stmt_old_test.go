@@ -30,10 +30,6 @@ import (
 	"unsafe"
 )
 
-const (
-	n int = 10000
-)
-
 /*
     -------- n =  5 --------
 	BenchmarkThreadedStmtFunc0-8            	100000000	        14.3 ns/op
@@ -101,34 +97,27 @@ const (
 	BenchmarkThreadedStmtStruct4Unroll-8    	  100000	     22599 ns/op
 */
 
-type Env struct {
+type Env_ struct {
 	Binds []r.Value
-	Outer *Env
+	Outer *Env_
 }
 
-func NewEnv(outer *Env) *Env {
-	return &Env{
+func NewEnv(outer *Env_) *Env_ {
+	return &Env_{
 		Binds: make([]r.Value, 10),
 		Outer: outer,
 	}
 }
 
-func init() {
-	var a, b interface{}
-	a = 1
-	b = "foo"
-	println(a == b)
-}
-
 func BenchmarkThreadedStmtFunc0(b *testing.B) {
 
-	type Stmt func(env *Env, all []Stmt) Stmt
+	type Stmt0 func(env *Env_, all []Stmt0) Stmt0
 
 	env := NewEnv(nil)
-	all := make([]Stmt, n+1)
+	all := make([]Stmt0, n+1)
 	for i := 0; i < n; i++ {
 		i := i
-		all[i] = func(env *Env, all []Stmt) Stmt {
+		all[i] = func(env *Env_, all []Stmt0) Stmt0 {
 			return all[i+1]
 		}
 	}
@@ -145,13 +134,13 @@ func BenchmarkThreadedStmtFunc0(b *testing.B) {
 
 func BenchmarkThreadedStmtFunc1(b *testing.B) {
 
-	type Stmt func(env *Env, next *Stmt, ip int, all []Stmt) (Stmt, int)
-	var nop Stmt = func(env *Env, next *Stmt, ip int, all []Stmt) (Stmt, int) {
+	type Stmt1 func(env *Env_, next *Stmt1, ip int, all []Stmt1) (Stmt1, int)
+	var nop Stmt1 = func(env *Env_, next *Stmt1, ip int, all []Stmt1) (Stmt1, int) {
 		return *next, ip
 	}
 
 	env := NewEnv(nil)
-	all := make([]Stmt, n+1)
+	all := make([]Stmt1, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
@@ -170,14 +159,14 @@ func BenchmarkThreadedStmtFunc1(b *testing.B) {
 
 func BenchmarkThreadedStmtFunc2(b *testing.B) {
 
-	type Stmt func(env *Env, ip int, all []Stmt) (Stmt, int)
-	var nop Stmt = func(env *Env, ip int, all []Stmt) (Stmt, int) {
+	type Stmt2 func(env *Env_, ip int, all []Stmt2) (Stmt2, int)
+	var nop Stmt2 = func(env *Env_, ip int, all []Stmt2) (Stmt2, int) {
 		ip++
 		return all[ip], ip
 	}
 
 	env := NewEnv(nil)
-	all := make([]Stmt, n+1)
+	all := make([]Stmt2, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
@@ -194,24 +183,24 @@ func BenchmarkThreadedStmtFunc2(b *testing.B) {
 }
 
 type (
-	EnvF3 struct {
+	Env3 struct {
 		Binds []r.Value
-		Outer *Env
-		Code  []StmtF3
+		Outer *Env_
+		Code  []Stmt3
 	}
-	StmtF3 func(env *EnvF3, ip int) (StmtF3, int)
+	Stmt3 func(env *Env3, ip int) (Stmt3, int)
 )
 
 func BenchmarkThreadedStmtFunc3(b *testing.B) {
 
-	var nop StmtF3 = func(env *EnvF3, ip int) (StmtF3, int) {
+	var nop Stmt3 = func(env *Env3, ip int) (Stmt3, int) {
 		ip++
 		return env.Code[ip], ip
 	}
-	env := &EnvF3{
+	env := &Env3{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]StmtF3, n+1)
+	all := make([]Stmt3, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
@@ -229,25 +218,25 @@ func BenchmarkThreadedStmtFunc3(b *testing.B) {
 }
 
 type (
-	EnvF4 struct {
+	Env4 struct {
 		Binds     []r.Value
-		Outer     *Env
-		Code      []StmtF4
+		Outer     *Env_
+		Code      []Stmt4
 		IP        int
-		Interrupt StmtF4
+		Interrupt Stmt4
 	}
-	StmtF4 func(env *EnvF4) StmtF4
+	Stmt4 func(env *Env4) Stmt4
 )
 
 func BenchmarkThreadedStmtFunc4(b *testing.B) {
-	var nop StmtF4 = func(env *EnvF4) StmtF4 {
+	var nop Stmt4 = func(env *Env4) Stmt4 {
 		env.IP++
 		return env.Code[env.IP]
 	}
-	env := &EnvF4{
+	env := &Env4{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]StmtF4, n+1)
+	all := make([]Stmt4, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
@@ -265,14 +254,14 @@ func BenchmarkThreadedStmtFunc4(b *testing.B) {
 }
 
 func BenchmarkThreadedStmtFunc4Unroll(b *testing.B) {
-	var nop StmtF4 = func(env *EnvF4) StmtF4 {
+	var nop Stmt4 = func(env *Env4) Stmt4 {
 		env.IP++
 		return env.Code[env.IP]
 	}
-	env := &EnvF4{
+	env := &Env4{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]StmtF4, n+1)
+	all := make([]Stmt4, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
@@ -318,20 +307,20 @@ func BenchmarkThreadedStmtFunc4Unroll(b *testing.B) {
 }
 
 func BenchmarkThreadedStmtFunc4Terminate(b *testing.B) {
-	var interrupt StmtF4
-	interrupt = func(env *EnvF4) StmtF4 {
+	var interrupt Stmt4
+	interrupt = func(env *Env4) Stmt4 {
 		return interrupt
 	}
 	unsafeInterrupt := *(**uintptr)(unsafe.Pointer(&interrupt))
 
-	var nop StmtF4 = func(env *EnvF4) StmtF4 {
+	var nop Stmt4 = func(env *Env4) Stmt4 {
 		env.IP++
 		return env.Code[env.IP]
 	}
-	env := &EnvF4{
+	env := &Env4{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]StmtF4, n+1)
+	all := make([]Stmt4, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
@@ -367,19 +356,19 @@ func BenchmarkThreadedStmtFunc4Terminate(b *testing.B) {
 }
 
 func BenchmarkThreadedStmtFunc4Adaptive(b *testing.B) {
-	var nop StmtF4 = func(env *EnvF4) StmtF4 {
+	var nop Stmt4 = func(env *Env4) Stmt4 {
 		env.IP++
 		return env.Code[env.IP]
 	}
-	var interrupt StmtF4 = func(env *EnvF4) StmtF4 {
+	var interrupt Stmt4 = func(env *Env4) Stmt4 {
 		return env.Interrupt
 	}
 	unsafeInterrupt := *(**uintptr)(unsafe.Pointer(&interrupt))
 	_ = unsafeInterrupt
-	env := &EnvF4{
+	env := &Env4{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]StmtF4, n+1)
+	all := make([]Stmt4, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
@@ -453,18 +442,18 @@ outer:
 }
 
 func BenchmarkThreadedStmtFunc4Panic(b *testing.B) {
-	var terminate StmtF4 = func(env *EnvF4) StmtF4 {
+	var terminate Stmt4 = func(env *Env4) Stmt4 {
 		panic("end of code")
 	}
 
-	var nop StmtF4 = func(env *EnvF4) StmtF4 {
+	var nop Stmt4 = func(env *Env4) Stmt4 {
 		env.IP++
 		return env.Code[env.IP]
 	}
-	env := &EnvF4{
+	env := &Env4{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]StmtF4, n+1)
+	all := make([]Stmt4, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
@@ -477,7 +466,7 @@ func BenchmarkThreadedStmtFunc4Panic(b *testing.B) {
 	}
 }
 
-func runThreadedStmtFunc4Panic(env *EnvF4) {
+func runThreadedStmtFunc4Panic(env *Env4) {
 	env.IP = 0
 	stmt := env.Code[0]
 	defer func() {
@@ -505,9 +494,9 @@ func runThreadedStmtFunc4Panic(env *EnvF4) {
 func BenchmarkThreadedStmtStruct1(b *testing.B) {
 
 	type Stmt struct {
-		Exec func(env *Env, ip int, all []Stmt) (Stmt, int)
+		Exec func(env *Env_, ip int, all []Stmt) (Stmt, int)
 	}
-	var nop = Stmt{func(env *Env, ip int, all []Stmt) (Stmt, int) {
+	var nop = Stmt{func(env *Env_, ip int, all []Stmt) (Stmt, int) {
 		ip++
 		return all[ip], ip
 	}}
@@ -530,31 +519,31 @@ func BenchmarkThreadedStmtStruct1(b *testing.B) {
 }
 
 type (
-	Env4 struct {
+	EnvS4 struct {
 		Binds []r.Value
-		Outer *Env
-		Code  []Stmt4
+		Outer *Env_
+		Code  []StmtS4
 		IP    int
 	}
-	Stmt4 struct {
-		Exec func(env *Env4) Stmt4
+	StmtS4 struct {
+		Exec func(env *EnvS4) StmtS4
 	}
 )
 
 func BenchmarkThreadedStmtStruct4(b *testing.B) {
 
-	var nop Stmt4 = Stmt4{func(env *Env4) Stmt4 {
+	var nop StmtS4 = StmtS4{func(env *EnvS4) StmtS4 {
 		env.IP++
 		return env.Code[env.IP]
 	}}
-	env := &Env4{
+	env := &EnvS4{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]Stmt4, n+1)
+	all := make([]StmtS4, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
-	all[n] = Stmt4{}
+	all[n] = StmtS4{}
 	env.Code = all
 
 	b.ResetTimer()
@@ -569,18 +558,18 @@ func BenchmarkThreadedStmtStruct4(b *testing.B) {
 
 func BenchmarkThreadedStmtStruct4Unroll(b *testing.B) {
 
-	var nop Stmt4 = Stmt4{func(env *Env4) Stmt4 {
+	var nop StmtS4 = StmtS4{func(env *EnvS4) StmtS4 {
 		env.IP++
 		return env.Code[env.IP]
 	}}
-	env := &Env4{
+	env := &EnvS4{
 		Binds: make([]r.Value, 10),
 	}
-	all := make([]Stmt4, n+1)
+	all := make([]StmtS4, n+1)
 	for i := 0; i < n; i++ {
 		all[i] = nop
 	}
-	all[n] = Stmt4{}
+	all[n] = StmtS4{}
 	env.Code = all
 
 	b.ResetTimer()
