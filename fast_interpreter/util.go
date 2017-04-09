@@ -32,38 +32,6 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func ExprsToX(inits []*Expr) X {
-	var funs []X
-
-	for _, init := range inits {
-		if !init.Const() {
-			funs = append(funs, init.AsX())
-		}
-	}
-	return ExprStmtsToX(funs)
-}
-
-func ExprStmtsToX(funs []X) X {
-	funs = RemoveNils(funs)
-	switch len(funs) {
-	case 0:
-		return nil
-	case 1:
-		return funs[0]
-	case 2:
-		return func(env *Env) {
-			funs[0](env)
-			funs[1](env)
-		}
-	default:
-		return func(env *Env) {
-			for _, fun := range funs {
-				fun(env)
-			}
-		}
-	}
-}
-
 func IFalse() bool {
 	return false
 }

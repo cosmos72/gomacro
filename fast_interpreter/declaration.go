@@ -28,24 +28,24 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/base"
 )
 
 // Decl compiles a constant, variable, function or type declaration - or an import
-func (c *Comp) Decl(node ast.Decl) X {
+func (c *Comp) Decl(node ast.Decl) {
 	switch node := node.(type) {
 	case *ast.GenDecl:
-		return ExprStmtsToX(c.DeclGen(node))
+		c.DeclGen(node)
 	case *ast.FuncDecl:
-		return c.DeclFunc(node, node.Type, node.Body)
+		c.DeclFunc(node, node.Type, node.Body)
 	default:
 		c.Errorf("Compile: unsupported declaration, expecting <*ast.GenDecl> or <*ast.FuncDecl>, found: %v <%v>", node, r.TypeOf(node))
-		return nil
 	}
 }
 
 // Decl compiles a constant, variable or type declaration - or an import
-func (c *Comp) DeclGen(node *ast.GenDecl) []X {
-	var funs []X
+func (c *Comp) DeclGen(node *ast.GenDecl) {
 	switch node.Tok {
 	case token.IMPORT:
 		for _, decl := range node.Specs {
@@ -71,13 +71,12 @@ func (c *Comp) DeclGen(node *ast.GenDecl) []X {
 		}
 	case token.VAR:
 		for _, decl := range node.Specs {
-			funs = append(funs, c.DeclVars(decl)...)
+			c.DeclVars(decl)
 		}
 	default:
 		c.Errorf("Compile: unsupported declaration kind, expecting token.IMPORT, token.CONST, token.TYPE or token.VAR, found %v: %v %<v>",
 			node.Tok, node, r.TypeOf(node))
 	}
-	return funs
 }
 
 // DeclConsts compiles a set of constant declarations
@@ -96,14 +95,13 @@ func (c *Comp) DeclConsts(node ast.Spec, defaultType ast.Expr, defaultExprs []as
 }
 
 // DeclVars compiles a set of variable declarations
-func (c *Comp) DeclVars(node ast.Spec) []X {
+func (c *Comp) DeclVars(node ast.Spec) {
 	switch node := node.(type) {
 	case *ast.ValueSpec:
 		names, t, inits := c.prepareDeclConstsOrVars(node.Names, node.Type, node.Values)
-		return c.DeclVars0(names, t, inits)
+		c.DeclVars0(names, t, inits)
 	default:
 		c.Errorf("Compile: unsupported variable declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
-		return nil
 	}
 }
 
@@ -139,26 +137,22 @@ func (c *Comp) DeclConsts0(names []string, t r.Type, inits []*Expr) {
 }
 
 // DeclVars0 compiles a set of variable declarations
-func (c *Comp) DeclVars0(names []string, t r.Type, inits []*Expr) []X {
+func (c *Comp) DeclVars0(names []string, t r.Type, inits []*Expr) {
 	n := len(names)
 	ni := len(inits)
-	var funs []X
 	if ni == 0 {
-		funs = make([]X, n)
 		for i := 0; i < n; i++ {
-			funs[i] = c.DeclVar0(names[i], t, nil)
+			c.DeclVar0(names[i], t, nil)
 		}
 	} else if ni == n {
-		funs = make([]X, n)
 		for i := 0; i < n; i++ {
-			funs[i] = c.DeclVar0(names[i], t, inits[i])
+			c.DeclVar0(names[i], t, inits[i])
 		}
 	} else if ni == 1 && n > 1 {
-		funs = append(funs, c.DeclMultiVar0(names, t, inits[0]))
+		c.DeclMultiVar0(names, t, inits[0])
 	} else {
 		c.Errorf("cannot declare %d variables from %d expressions: %v", n, ni, names)
 	}
-	return funs
 }
 
 // DeclConst0 compiles a constant declaration
@@ -233,7 +227,7 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 }
 
 // DeclVar0 compiles a constant, variable or function declaration
-func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
+func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 	if t == nil {
 		if init == nil {
 			c.Errorf("no value and no type, cannot declare : %v", name)
@@ -255,27 +249,33 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 	default:
 		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind ",
 			name, t, desc.Class())
-		return nil
+		return
 	case IntBind:
 		// no difference between declaration and assignment for these classes
 		if init == nil {
 			// no initializer... use the zero-value of t
 			init = ExprValue(r.Zero(t).Interface())
 		}
-		return c.AssignVar0(name, bind, init)
+		c.AssignVar0(name, bind, init)
 	case VarBind:
 		index := desc.Index()
 		if index == NoIndex {
 			// assigning a constant or expression to _
 			// only keep the expression side effects
-			return init.AsX()
+			c.Code.Append(init.AsStmt())
 		}
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		if init == nil {
 			// no initializer... use the zero-value of t
-			return func(env *Env) {
+			c.Code.Append(Stmt{func(env *Env) (Stmt, *Env) {
 				env.Binds[index] = r.New(t).Elem()
-			}
+				env.IP++
+				if env.IP >= len(env.Code) {
+					base.Warnf("DeclVar0 runtime: env.IP out of range! env = %v", env)
+				}
+				return env.Code[env.IP], env
+			}})
+			return
 		}
 		if init.Const() {
 			init.ConstTo(t) // convert untyped constants, check typed constants
@@ -284,23 +284,30 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) X {
 		tfun := init.Out(0)
 		if tfun != t && !tfun.AssignableTo(t) {
 			c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v <%v>", tfun, t, name, t)
-			return nil
+			return
 		}
+		var ret func(env *Env) (Stmt, *Env)
 		// optimization: no need to wrap multiple-valued function into a single-value function
 		if f, ok := init.Fun.(func(*Env) (r.Value, []r.Value)); ok {
-			return func(env *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				ret, _ := f(env)
 				place := r.New(t).Elem()
 				place.Set(ret.Convert(t))
 				env.Binds[index] = place
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		} else {
+			ret = func(env *Env) (Stmt, *Env) {
+				ret := fun(env)
+				place := r.New(t).Elem()
+				place.Set(ret.Convert(t))
+				env.Binds[index] = place
+				env.IP++
+				return env.Code[env.IP], env
 			}
 		}
-		return func(env *Env) {
-			ret := fun(env)
-			place := r.New(t).Elem()
-			place.Set(ret.Convert(t))
-			env.Binds[index] = place
-		}
+		c.Code.Append(Stmt{ret})
 	}
 }
 
@@ -335,7 +342,7 @@ func (c *Comp) DeclBindRuntimeValue(name string, bind Bind) func(*Env, r.Value) 
 }
 
 // DeclMultiVar0 compiles multiple variable declarations from a single multi-valued expression
-func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
+func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
 	if t == nil {
 		if init == nil {
 			c.Errorf("no value and no type, cannot declare variables: %v", names)
@@ -343,7 +350,8 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
 	}
 	n := len(names)
 	if n == 1 {
-		return c.DeclVar0(names[0], t, init)
+		c.DeclVar0(names[0], t, init)
+		return
 	}
 	ni := init.NumOut()
 	if ni < n {
@@ -357,7 +365,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
 		if t != nil && t != ti {
 			if !ti.AssignableTo(t) {
 				c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v", ti, t, names)
-				return nil
+				return
 			} else {
 				ti = t // declared variable has type t, not the i-th type returned by multi-valued expression
 			}
@@ -366,7 +374,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
 		decls[i] = c.DeclBindRuntimeValue(name, bind)
 	}
 	fun := init.AsXV(0)
-	return func(env *Env) {
+	c.Code.Append(Stmt{func(env *Env) (Stmt, *Env) {
 		// call the multi-valued function. we know ni > 1, so just use the []r.Value
 		_, rets := fun(env)
 
@@ -376,7 +384,9 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) X {
 				decl(env, rets[i])
 			}
 		}
-	}
+		env.IP++
+		return env.Code[env.IP], env
+	}})
 }
 
 /*

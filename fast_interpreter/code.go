@@ -1,0 +1,141 @@
+/*
+ * gomacro - A Go intepreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * code.go
+ *
+ *  Created on Apr 09, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast_interpreter
+
+import (
+	r "reflect"
+	"unsafe"
+
+	. "github.com/cosmos72/gomacro/base"
+)
+
+func (code *Code) Clear() {
+	code.List = nil
+}
+
+func (code *Code) Len() int {
+	return len(code.List)
+}
+
+func (code *Code) Append(stmt Stmt) {
+	if stmt.Exec != nil {
+		code.List = append(code.List, stmt)
+	}
+}
+
+func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
+
+	if code.Len() == 0 {
+		code.Clear()
+		return nil
+	}
+	all := code.List
+	code.Clear()
+	all = append(all, NilStmt)
+
+	if len(all) == 2 {
+		return func(env *Env) (r.Value, []r.Value) {
+			env.Interrupt = NilStmt
+			env.IP = 0
+			env.Code = all
+			stmt := all[0]
+			all[1] = NilStmt
+			for stmt.Exec != nil {
+				stmt, env = stmt.Exec(env)
+			}
+			return None, nil
+		}
+	}
+	return func(env *Env) (r.Value, []r.Value) {
+		stmt := all[0]
+		if stmt.Exec == nil {
+			return None, nil
+		}
+
+		n := len(all) - 1
+		all[n] = NilStmt
+		env.Interrupt = NilStmt
+		env.IP = 0
+		env.Code = all
+
+		for j := 0; j < 5; j++ {
+			if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+				if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+					if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+						if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+							if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+								if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+									if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+										if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+											if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+												if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+													if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+														if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+															if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+																if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+																	continue
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			return None, nil
+		}
+
+		unsafeInterrupt := *(**uintptr)(unsafe.Pointer(&Interrupt))
+		all[n] = Interrupt
+		env.Interrupt = Interrupt
+		for {
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+			stmt, env = stmt.Exec(env)
+
+			if x := stmt; *(**uintptr)(unsafe.Pointer(&x)) == unsafeInterrupt {
+				return None, nil
+			}
+		}
+	}
+}

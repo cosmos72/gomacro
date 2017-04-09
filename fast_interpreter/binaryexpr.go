@@ -127,7 +127,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 		}
 		zobj := constant.BinaryOp(x.Obj, op2, y.Obj)
 		zkind := constantKindToUntypedLitKind(zobj.Kind())
-		c.Debugf("untyped binary expression %v %s %v returned {%v %v}", x, op2, y, zkind, zobj)
+		// c.Debugf("untyped binary expression %v %s %v returned {%v %v}", x, op2, y, zkind, zobj)
 		// reflect.Int32 (i.e. rune) has precedence over reflect.Int
 		if zobj.Kind() == constant.Int {
 			if xint && x.Kind != r.Int {

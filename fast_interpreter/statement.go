@@ -38,71 +38,74 @@ var Nop = Stmt{func(env *Env) (Stmt, *Env) {
 	return env.Code[env.IP], env
 }}
 
+var Interrupt = Stmt{func(env *Env) (Stmt, *Env) {
+	return env.Interrupt, env
+}}
+
 func (s Stmt) Nil() bool {
 	return s.Exec == nil
 }
 
-func (c *Comp) Stmt(node ast.Stmt) Stmt {
+func (c *Comp) Stmt(node ast.Stmt) {
 	switch node := node.(type) {
+	case nil:
 	case *ast.AssignStmt:
-		// return c.Assign(node)
+		// c.Assign(node)
 	case *ast.BlockStmt:
-		// return c.Block(node)
+		// c.Block(node)
 	case *ast.BranchStmt:
-		// return env.Branch(node)
+		// env.Branch(node)
 	case *ast.CaseClause, *ast.CommClause:
 		c.Errorf("misplaced case: not inside switch or select: %v <%v>", node, r.TypeOf(node))
-		return NilStmt
 	case *ast.DeclStmt:
-		// return c.DeclStmt(node.Decl)
+		// c.DeclStmt(node.Decl)
 	case *ast.DeferStmt:
-		// return c.DeferStmt(node.Call)
+		// c.DeferStmt(node.Call)
 	case *ast.EmptyStmt:
-		return NilStmt
 	case *ast.ExprStmt:
 		expr := c.Expr(node.X)
-		if expr.Const() {
-			return NilStmt
-		} else {
-			return expr.AsStmt()
+		if !expr.Const() {
+			c.Code.Append(expr.AsStmt())
 		}
 	case *ast.ForStmt:
-		// return c.For(node)
+		// c.For(node)
 	case *ast.GoStmt:
-		// return c.Go(node)
+		// c.Go(node)
 	case *ast.IfStmt:
-		return c.If(node)
+		c.If(node)
 	case *ast.IncDecStmt:
-		// return c.IncDec(node)
+		// c.IncDec(node)
 	case *ast.LabeledStmt:
-		// return c.Label(node)
+		// c.Label(node)
 	case *ast.RangeStmt:
-		// return c.Range(node)
+		// c.Range(node)
 	case *ast.ReturnStmt:
-		// return c.Return(node)
+		// c.Return(node)
 	case *ast.SelectStmt:
-		// return c.Select(node)
+		// c.Select(node)
 	case *ast.SendStmt:
-		// return c.Send(node)
+		// c.Send(node)
 	case *ast.SwitchStmt:
-		// return c.Switch(node)
+		// c.Switch(node)
 	case *ast.TypeSwitchStmt:
-		// return c.TypeSwitch(node)
+		// c.TypeSwitch(node)
 	default:
-		c.Errorf("invalid statement: %v <%v>", node, r.TypeOf(node))
-		return NilStmt
+		c.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	}
-	c.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
-	return NilStmt
 }
 
-func (c *Comp) Block(node *ast.BlockStmt) Stmt {
-	// TODO
-	return NilStmt
+func (c *Comp) Block(node *ast.BlockStmt) {
+	if node == nil || len(node.List) == 0 {
+		return
+	}
+	// TODO block creates a new environment
+	for _, stmt := range node.List {
+		c.Stmt(stmt)
+	}
 }
 
-func (c *Comp) If(node *ast.IfStmt) Stmt {
-	var then, els, ret Stmt
+func (c *Comp) If(node *ast.IfStmt) {
+	var ithen, ielse, iend int
 
 	if node.Init != nil {
 		c.Stmt(node.Init)
@@ -110,80 +113,48 @@ func (c *Comp) If(node *ast.IfStmt) Stmt {
 	pred := c.Expr(node.Cond)
 	flag, fun, err := pred.TryAsPred()
 	if err {
-		return c.invalidPred(node.Cond, pred)
-	}
-	then = c.Block(node.Body)
-	if node.Else != nil {
-		els = c.Stmt(node.Else)
+		c.invalidPred(node.Cond, pred)
+		return
 	}
 	// TODO "if" creates a new environment
 	if fun != nil {
-		ret = Stmt{func(env *Env) (Stmt, *Env) {
+		c.Code.Append(Stmt{func(env *Env) (Stmt, *Env) {
 			if fun(env) {
-				return then, env
+				env.IP = ithen
+				return env.Code[ithen], env
 			} else {
-				return els, env
+				env.IP = ielse
+				return env.Code[ielse], env
 			}
-		}}
-	} else if flag {
-		ret = then
-	} else {
-		ret = els
+		}})
 	}
-	return ret
-}
-
-func For(init X, pred func(*Env) bool, post X, body X) X {
-	if init == nil && post == nil {
-		return func(env *Env) {
-			for pred(env) {
-				body(env)
-			}
-		}
-
-	} else {
-		if init == nil || post == nil {
-			panic("invalid for(): init and post must be both present, or both omitted")
-		}
-		return func(env *Env) {
-			for init(env); pred(env); post(env) {
-				body(env)
-			}
-		}
+	// compile 'then' branch
+	ithen = c.Code.Len()
+	c.Block(node.Body)
+	if fun == nil && !flag {
+		// 'then' branch is never executed...
+		// still compiled above (to check for errors) but drop the generated code
+		c.Code.List = c.Code.List[0:ithen]
 	}
-}
-
-func RemoveNils(list []X) []X {
-	j, n := 0, len(list)
-	for i := 0; i < n; i++ {
-		x := list[i]
-		if x != nil {
-			list[j] = x
-			j++
+	// compile a 'goto' between 'then' and 'else' branches
+	if fun != nil && node.Else != nil {
+		c.Code.Append(Stmt{func(env *Env) (Stmt, *Env) {
+			// after executing 'then' branch, we must skip 'else' branch
+			env.IP = iend
+			return env.Code[iend], env
+		}})
+	}
+	// compile 'else' branch
+	ielse = c.Code.Len()
+	if node.Else != nil {
+		c.Stmt(node.Else)
+		if fun == nil && flag {
+			// 'else' branch is never executed...
+			// still compiled above (to check for errors) but drop the generated code
+			c.Code.List = c.Code.List[0:ielse]
 		}
 	}
-	return list[0:j]
-}
-
-func Block(list ...X) X {
-	list = RemoveNils(list)
-	switch len(list) {
-	case 0:
-		return nil
-	case 1:
-		return list[0]
-	case 2:
-		return func(env *Env) {
-			list[0](env)
-			list[1](env)
-		}
-	default:
-		return func(env *Env) {
-			for _, x := range list {
-				x(env)
-			}
-		}
-	}
+	iend = c.Code.Len()
 }
 
 func Return(exprs ...X) X {

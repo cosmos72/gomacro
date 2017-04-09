@@ -47,9 +47,13 @@ func (c *CompEnv) DefConst(name string, t r.Type, value I) {
 
 // DefVar compiles a variable declaration, then executes it
 func (c *CompEnv) DefVar(name string, t r.Type, value I) {
-	fun := c.DeclVar0(name, t, ExprValue(value))
-	c.growEnv(128)
-	fun(c.Env)
+	c.Code.Clear()
+	c.DeclVar0(name, t, ExprValue(value))
+	fun := c.Code.AsXV()
+	if fun != nil {
+		c.growEnv(128)
+		fun(c.Env)
+	}
 }
 
 // DefType compiles a type declaration

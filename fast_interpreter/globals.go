@@ -161,24 +161,9 @@ func (e *Expr) String() string {
 
 // ================================= Stmt =================================
 
-// Stmt represents a statement in the compiler
+// Stmt represents a statement in the fast interpreter
 type Stmt struct {
 	Exec func(*Env) (Stmt, *Env)
-}
-
-func (s Stmt) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
-	if opts&CompileStmtIsValue != 0 {
-		return func(env *Env) (r.Value, []r.Value) {
-			next, nextenv := s.Exec(env)
-			ret0 := r.ValueOf(next)
-			return ret0, []r.Value{ret0, r.ValueOf(nextenv)}
-		}
-	} else {
-		return func(env *Env) (r.Value, []r.Value) {
-			s.Exec(env)
-			return base.None, nil
-		}
-	}
 }
 
 // ================================= BindClass =================================
@@ -269,18 +254,22 @@ type CompileOptions int
 
 const (
 	CompileKeepUntyped CompileOptions = 1 << iota // if set, Compile() on expressions will keep all untyped constants as such (in expressions where Go compiler would compute an untyped constant too)
-	CompileStmtIsValue CompileOptions = 1 << iota // if set, Compile() on statements will return statements as reflect.Value
 	CompileDefaults    CompileOptions = 0
 )
 
+type Code struct {
+	List []Stmt
+}
+
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
-// for faster execution. Consider it as a poor man's compiler (hence the name)
+// for faster execution. Consider it a poor man's compiler (hence the name)
 type Comp struct {
 	Binds          map[string]Bind
 	BindNum        int // len(Binds) == BindNum + IntBindNum + # of constants
 	IntBindNum     int
 	Types          map[string]r.Type
 	NamedTypes     map[r.Type]NamedType
+	Code           Code // "compiled" code
 	Outer          *Comp
 	Name           string
 	Path           string
@@ -290,11 +279,12 @@ type Comp struct {
 
 // Env is the interpreter's runtime environment
 type Env struct {
-	Binds    []r.Value
-	IntBinds []uint64
-	IP       int
-	Code     []Stmt
-	Outer    *Env
+	Binds     []r.Value
+	IntBinds  []uint64
+	Outer     *Env
+	IP        int
+	Code      []Stmt
+	Interrupt Stmt
 	*base.InterpreterBase
 }
 

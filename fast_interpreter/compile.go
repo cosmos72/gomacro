@@ -41,64 +41,6 @@ func New() *CompEnv {
 	return env
 }
 
-func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
-	for {
-		switch form := in.(type) {
-		case nil:
-			return nil
-		case AstWithNode:
-			return c.Compile(form.Node())
-		case AstWithSlice:
-			switch n := form.Size(); n {
-			case 0:
-				return nil
-			case 1:
-				in = form.Get(0)
-				continue
-			default:
-				var list []func(*Env) (r.Value, []r.Value)
-				for i := 0; i < n; i++ {
-					fun := c.CompileAst(form.Get(i))
-					if fun != nil {
-						list = append(list, fun)
-					}
-				}
-				return func(env *Env) (r.Value, []r.Value) {
-					n_1 := len(list) - 1
-					for i := 0; i < n_1; i++ {
-						list[i](env)
-					}
-					return list[n_1](env)
-				}
-			}
-		}
-		c.Errorf("CompileAst: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
-		return nil
-	}
-}
-
-func (c *Comp) Compile(in ast.Node) func(*Env) (r.Value, []r.Value) {
-	switch node := in.(type) {
-	case ast.Decl:
-		return AsXV(c.Decl(node), c.CompileOptions)
-	case ast.Expr:
-		return c.Expr(node).AsXV(c.CompileOptions)
-	case *ast.ExprStmt:
-		// special case of statement
-		return c.Expr(node.X).AsXV(c.CompileOptions)
-	case ast.Stmt:
-		return c.Stmt(node).AsXV(c.CompileOptions)
-		// TODO return c.Statement(node)
-		c.Errorf("Compile: unimplemented <ast.Stmt>, found %v <%v>", in, r.TypeOf(in))
-	case *ast.File:
-		c.Errorf("Compile: unimplemented <*ast.File>, found %v <%v>", in, r.TypeOf(in))
-		// TODO return c.File(node)
-	default:
-	}
-	c.Errorf("Compile: unsupported expression, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", in, r.TypeOf(in))
-	return nil
-}
-
 func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
@@ -144,6 +86,7 @@ func NewComp(outer *Comp) *Comp {
 	}
 	return &Comp{
 		NamedTypes:     outer.NamedTypes,
+		Code:           outer.Code,
 		Outer:          outer,
 		CompileOptions: outer.CompileOptions,
 	}
@@ -174,4 +117,64 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 		IntBinds: make([]uint64, nintbinds),
 		Outer:    outer,
 	}
+}
+
+func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
+	for {
+		switch form := in.(type) {
+		case nil:
+			return nil
+		case AstWithNode:
+			return c.Compile(form.Node())
+		case AstWithSlice:
+			switch n := form.Size(); n {
+			case 0:
+				return nil
+			case 1:
+				in = form.Get(0)
+				continue
+			default:
+				var list []func(*Env) (r.Value, []r.Value)
+				for i := 0; i < n; i++ {
+					fun := c.CompileAst(form.Get(i))
+					if fun != nil {
+						list = append(list, fun)
+					}
+				}
+				return func(env *Env) (r.Value, []r.Value) {
+					n_1 := len(list) - 1
+					for i := 0; i < n_1; i++ {
+						list[i](env)
+					}
+					return list[n_1](env)
+				}
+			}
+		}
+		c.Errorf("CompileAst: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
+		return nil
+	}
+}
+
+func (c *Comp) Compile(in ast.Node) func(*Env) (r.Value, []r.Value) {
+	c.Code.Clear()
+	switch node := in.(type) {
+	case nil:
+		return nil
+	case ast.Decl:
+		c.Decl(node)
+	case ast.Expr:
+		return c.Expr(node).AsXV(c.CompileOptions)
+	case *ast.ExprStmt:
+		// special case of statement
+		return c.Expr(node.X).AsXV(c.CompileOptions)
+	case ast.Stmt:
+		c.Stmt(node)
+	case *ast.File:
+		c.Errorf("Compile: unimplemented <*ast.File>, found %v <%v>", in, r.TypeOf(in))
+		// TODO return c.File(node)
+	default:
+		c.Errorf("Compile: unsupported expression, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", in, r.TypeOf(in))
+		return nil
+	}
+	return c.Code.AsXV()
 }
