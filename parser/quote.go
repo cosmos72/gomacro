@@ -40,7 +40,7 @@ func (p *parser) parseQuote() ast.Expr {
 	// QUOTE, QUASIQUOTE, UNQUOTE and UNQUOTE_SLICE must be followed by one of:
 	// * a basic literal
 	// * an identifier
-	// * a block statement - containing relaxed syntax, see parseQuotedBlockStmt()
+	// * a block statement
 	// * another QUOTE, QUASIQUOTE or UNQUOTE (not UNQUOTE_SPLICE, it must be wrapped in {})
 	switch p.tok {
 	case token.EOF, token.RPAREN, token.RBRACK, token.RBRACE,

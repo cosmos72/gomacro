@@ -2242,6 +2242,8 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		if _, isLabeledStmt := s.(*ast.LabeledStmt); !isLabeledStmt {
 			p.expectSemiOrSpace()
 		}
+	case token.IMPORT: // patch: allow imports inside statements. useful for ~quote and ~quasiquote
+		s = &ast.DeclStmt{Decl: p.parseGenDecl(token.IMPORT, p.parseImportSpec)}
 	case token.GO:
 		s = p.parseGoStmt()
 	case token.DEFER:
