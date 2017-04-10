@@ -78,7 +78,7 @@ func (c *Comp) compileTypeOrNil(node ast.Expr) r.Type {
 			continue
 		case *ast.Ident:
 			if expr.Name == "nil" {
-				_, bind, ok := c.tryResolve(expr.Name)
+				_, bind, ok := c.TryResolve(expr.Name)
 				if ok && bind.Type == nil {
 					return nil
 				}

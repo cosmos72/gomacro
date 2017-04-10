@@ -29,16 +29,16 @@ import (
 	"unsafe"
 )
 
-func (c *Comp) resolve(name string) (upn int, bind Bind) {
+func (c *Comp) Resolve(name string) (upn int, bind Bind) {
 	ok := false
-	upn, bind, ok = c.tryResolve(name)
+	upn, bind, ok = c.TryResolve(name)
 	if !ok {
 		c.Errorf("undefined identifier: %v", name)
 	}
 	return upn, bind
 }
 
-func (c *Comp) tryResolve(name string) (upn int, bind Bind, ok bool) {
+func (c *Comp) TryResolve(name string) (upn int, bind Bind, ok bool) {
 	for ; c != nil; c = c.Outer {
 		if b, ok := c.Binds[name]; ok {
 			return upn, b, true
@@ -50,19 +50,19 @@ func (c *Comp) tryResolve(name string) (upn int, bind Bind, ok bool) {
 
 // Ident compiles a read operation on a constant, variable or function
 func (c *Comp) Ident(name string) *Expr {
-	upn, bind := c.resolve(name)
+	upn, bind := c.Resolve(name)
 	desc := bind.Desc
 	switch desc.Class() {
 	case ConstBind:
 		return ExprLit(bind.Lit)
 	case IntBind:
-		return c.identIntBind(name, upn, bind)
+		return c.identIntBind(upn, bind)
 	default:
-		return c.identBind(name, upn, bind)
+		return c.identBind(upn, bind)
 	}
 }
 
-func (c *Comp) identBind(name string, upn int, bind Bind) *Expr {
+func (c *Comp) identBind(upn int, bind Bind) *Expr {
 	idx := bind.Desc.Index()
 	var fun I
 	switch bind.Type.Kind() {
@@ -136,7 +136,7 @@ func (c *Comp) identBind(name string, upn int, bind Bind) *Expr {
 	return &Expr{Lit: Lit{Type: bind.Type}, Fun: fun}
 }
 
-func (c *Comp) identIntBind(name string, upn int, bind Bind) *Expr {
+func (c *Comp) identIntBind(upn int, bind Bind) *Expr {
 	k := bind.Type.Kind()
 	idx := bind.Desc.Index()
 	switch upn {
@@ -203,7 +203,7 @@ func (c *Comp) identIntBind(name string, upn int, bind Bind) *Expr {
 				return *(*complex64)(unsafe.Pointer(&env.IntBinds[idx]))
 			})
 		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: %v <%T>", name, bind.Type)
+			c.Errorf("unsupported variable type, cannot use for optimized read: <%v>", bind.Type)
 			return nil
 		}
 	case 1:
@@ -269,7 +269,7 @@ func (c *Comp) identIntBind(name string, upn int, bind Bind) *Expr {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
 			})
 		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: %v <%T>", name, bind.Type)
+			c.Errorf("unsupported variable type, cannot use for optimized read: <%v>", bind.Type)
 			return nil
 		}
 	case 2:
@@ -335,7 +335,7 @@ func (c *Comp) identIntBind(name string, upn int, bind Bind) *Expr {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
 			})
 		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: %v <%T>", name, bind.Type)
+			c.Errorf("unsupported variable type, cannot use for optimized read: <%v>", bind.Type)
 			return nil
 		}
 	default:
@@ -446,7 +446,7 @@ func (c *Comp) identIntBind(name string, upn int, bind Bind) *Expr {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
 			})
 		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: %v <%T>", name, bind.Type)
+			c.Errorf("unsupported variable type, cannot use for optimized read: <%v>", bind.Type)
 			return nil
 		}
 	}

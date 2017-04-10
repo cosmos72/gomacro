@@ -31,64 +31,58 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-var NilStmt = Stmt{}
-
-var Nop = Stmt{func(env *Env) (Stmt, *Env) {
+var Nop Stmt = func(env *Env) (Stmt, *Env) {
 	env.IP++
 	return env.Code[env.IP], env
-}}
+}
 
-var Interrupt = Stmt{func(env *Env) (Stmt, *Env) {
+var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
 	return env.Interrupt, env
-}}
-
-func (s Stmt) Nil() bool {
-	return s.Exec == nil
 }
 
 func (c *Comp) Stmt(node ast.Stmt) {
 	switch node := node.(type) {
 	case nil:
 	case *ast.AssignStmt:
-		// c.Assign(node)
+		c.Assign(node)
 	case *ast.BlockStmt:
-		// c.Block(node)
-	case *ast.BranchStmt:
-		// env.Branch(node)
+		c.Block(node)
+	// case *ast.BranchStmt:
+	//   c.Branch(node)
 	case *ast.CaseClause, *ast.CommClause:
 		c.Errorf("misplaced case: not inside switch or select: %v <%v>", node, r.TypeOf(node))
-	case *ast.DeclStmt:
-		// c.DeclStmt(node.Decl)
-	case *ast.DeferStmt:
-		// c.DeferStmt(node.Call)
+	// case *ast.DeclStmt:
+	//   c.DeclStmt(node.Decl)
+	// case *ast.DeferStmt:
+	//   c.DeferStmt(node.Call)
 	case *ast.EmptyStmt:
 	case *ast.ExprStmt:
 		expr := c.Expr(node.X)
 		if !expr.Const() {
 			c.Code.Append(expr.AsStmt())
 		}
-	case *ast.ForStmt:
-		// c.For(node)
-	case *ast.GoStmt:
-		// c.Go(node)
+	// case *ast.ForStmt:
+	//   c.For(node)
+	// case *ast.GoStmt:
+	//   c.Go(node)
 	case *ast.IfStmt:
 		c.If(node)
-	case *ast.IncDecStmt:
-		// c.IncDec(node)
-	case *ast.LabeledStmt:
-		// c.Label(node)
-	case *ast.RangeStmt:
-		// c.Range(node)
-	case *ast.ReturnStmt:
-		// c.Return(node)
-	case *ast.SelectStmt:
-		// c.Select(node)
-	case *ast.SendStmt:
-		// c.Send(node)
-	case *ast.SwitchStmt:
-		// c.Switch(node)
-	case *ast.TypeSwitchStmt:
-		// c.TypeSwitch(node)
+	// case *ast.IncDecStmt:
+	//   c.IncDec(node)
+	// case *ast.LabeledStmt:
+	//   c.Label(node)
+	// case *ast.RangeStmt:
+	//   c.Range(node)
+	// case *ast.ReturnStmt:
+	//   c.Return(node)
+	// case *ast.SelectStmt:
+	//   c.Select(node)
+	// case *ast.SendStmt:
+	//   c.Send(node)
+	// case *ast.SwitchStmt:
+	//   c.Switch(node)
+	// case *ast.TypeSwitchStmt:
+	//   c.TypeSwitch(node)
 	default:
 		c.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	}
@@ -118,7 +112,7 @@ func (c *Comp) If(node *ast.IfStmt) {
 	}
 	// TODO "if" creates a new environment
 	if fun != nil {
-		c.Code.Append(Stmt{func(env *Env) (Stmt, *Env) {
+		c.Code.Append(func(env *Env) (Stmt, *Env) {
 			if fun(env) {
 				env.IP = ithen
 				return env.Code[ithen], env
@@ -126,7 +120,7 @@ func (c *Comp) If(node *ast.IfStmt) {
 				env.IP = ielse
 				return env.Code[ielse], env
 			}
-		}})
+		})
 	}
 	// compile 'then' branch
 	ithen = c.Code.Len()
@@ -138,11 +132,11 @@ func (c *Comp) If(node *ast.IfStmt) {
 	}
 	// compile a 'goto' between 'then' and 'else' branches
 	if fun != nil && node.Else != nil {
-		c.Code.Append(Stmt{func(env *Env) (Stmt, *Env) {
+		c.Code.Append(func(env *Env) (Stmt, *Env) {
 			// after executing 'then' branch, we must skip 'else' branch
 			env.IP = iend
 			return env.Code[iend], env
-		}})
+		})
 	}
 	// compile 'else' branch
 	ielse = c.Code.Len()
@@ -173,7 +167,7 @@ func Return(exprs ...X) X {
 			n := len(exprs)
 			rets := make([]r.Value, n)
 			// for i, value := range exprs {
-			//	 rets[i], _ = value(env)
+			//  rets[i], _ = value(env)
 			// }
 			ret0 := None
 			if len(rets) > 0 {

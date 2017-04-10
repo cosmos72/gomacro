@@ -40,7 +40,7 @@ func (code *Code) Len() int {
 }
 
 func (code *Code) Append(stmt Stmt) {
-	if stmt.Exec != nil {
+	if stmt != nil {
 		code.List = append(code.List, stmt)
 	}
 }
@@ -53,48 +53,48 @@ func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
 	}
 	all := code.List
 	code.Clear()
-	all = append(all, NilStmt)
+	all = append(all, nil)
 
 	if len(all) == 2 {
 		return func(env *Env) (r.Value, []r.Value) {
-			env.Interrupt = NilStmt
+			env.Interrupt = nil
 			env.IP = 0
 			env.Code = all
 			stmt := all[0]
-			all[1] = NilStmt
-			for stmt.Exec != nil {
-				stmt, env = stmt.Exec(env)
+			all[1] = nil
+			for stmt != nil {
+				stmt, env = stmt(env)
 			}
 			return None, nil
 		}
 	}
 	return func(env *Env) (r.Value, []r.Value) {
 		stmt := all[0]
-		if stmt.Exec == nil {
+		if stmt == nil {
 			return None, nil
 		}
 
 		n := len(all) - 1
-		all[n] = NilStmt
-		env.Interrupt = NilStmt
+		all[n] = nil
+		env.Interrupt = nil
 		env.IP = 0
 		env.Code = all
 
 		for j := 0; j < 5; j++ {
-			if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-				if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-					if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-						if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-							if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-								if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-									if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-										if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-											if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-												if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-													if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-														if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-															if stmt, env = stmt.Exec(env); stmt.Exec != nil {
-																if stmt, env = stmt.Exec(env); stmt.Exec != nil {
+			if stmt, env = stmt(env); stmt != nil {
+				if stmt, env = stmt(env); stmt != nil {
+					if stmt, env = stmt(env); stmt != nil {
+						if stmt, env = stmt(env); stmt != nil {
+							if stmt, env = stmt(env); stmt != nil {
+								if stmt, env = stmt(env); stmt != nil {
+									if stmt, env = stmt(env); stmt != nil {
+										if stmt, env = stmt(env); stmt != nil {
+											if stmt, env = stmt(env); stmt != nil {
+												if stmt, env = stmt(env); stmt != nil {
+													if stmt, env = stmt(env); stmt != nil {
+														if stmt, env = stmt(env); stmt != nil {
+															if stmt, env = stmt(env); stmt != nil {
+																if stmt, env = stmt(env); stmt != nil {
 																	continue
 																}
 															}
@@ -117,21 +117,21 @@ func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
 		all[n] = Interrupt
 		env.Interrupt = Interrupt
 		for {
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
-			stmt, env = stmt.Exec(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
+			stmt, env = stmt(env)
 
 			if x := stmt; *(**uintptr)(unsafe.Pointer(&x)) == unsafeInterrupt {
 				return None, nil

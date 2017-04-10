@@ -28,8 +28,6 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
-
-	"github.com/cosmos72/gomacro/base"
 )
 
 // Decl compiles a constant, variable, function or type declaration - or an import
@@ -256,7 +254,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 			// no initializer... use the zero-value of t
 			init = ExprValue(r.Zero(t).Interface())
 		}
-		c.AssignVar0(name, bind, init)
+		c.AssignVar0(name, init)
 	case VarBind:
 		index := desc.Index()
 		if index == NoIndex {
@@ -267,14 +265,11 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		if init == nil {
 			// no initializer... use the zero-value of t
-			c.Code.Append(Stmt{func(env *Env) (Stmt, *Env) {
+			c.Code.Append(func(env *Env) (Stmt, *Env) {
 				env.Binds[index] = r.New(t).Elem()
 				env.IP++
-				if env.IP >= len(env.Code) {
-					base.Warnf("DeclVar0 runtime: env.IP out of range! env = %v", env)
-				}
 				return env.Code[env.IP], env
-			}})
+			})
 			return
 		}
 		if init.Const() {
@@ -307,11 +302,11 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 				return env.Code[env.IP], env
 			}
 		}
-		c.Code.Append(Stmt{ret})
+		c.Code.Append(ret)
 	}
 }
 
-// DeclBind0Value compiles a variable, function or constant declaration with a reflect.Value passed at runtime
+// DeclBindRuntimeValue compiles a variable, function or constant declaration with a reflect.Value passed at runtime
 func (c *Comp) DeclBindRuntimeValue(name string, bind Bind) func(*Env, r.Value) {
 	desc := bind.Desc
 	index := desc.Index()
@@ -337,7 +332,7 @@ func (c *Comp) DeclBindRuntimeValue(name string, bind Bind) func(*Env, r.Value) 
 		}
 	case IntBind:
 		// no difference between declaration and assignment for IntBind
-		return c.AssignVar0Value(name, bind)
+		return c.PlaceSetValue(&Place{Upn: 0, Desc: desc, Type: t})
 	}
 }
 
@@ -374,7 +369,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
 		decls[i] = c.DeclBindRuntimeValue(name, bind)
 	}
 	fun := init.AsXV(0)
-	c.Code.Append(Stmt{func(env *Env) (Stmt, *Env) {
+	c.Code.Append(func(env *Env) (Stmt, *Env) {
 		// call the multi-valued function. we know ni > 1, so just use the []r.Value
 		_, rets := fun(env)
 
@@ -386,7 +381,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
 		}
 		env.IP++
 		return env.Code[env.IP], env
-	}})
+	})
 }
 
 /*

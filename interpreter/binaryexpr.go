@@ -305,7 +305,7 @@ func (env *Env) evalBinaryExprString(xv r.Value, op token.Token, yv r.Value) r.V
 		return env.unsupportedBinaryExpr(xv, op, yv)
 	}
 	x, y := xv.String(), yv.String()
-	if op == token.ADD {
+	if op == token.ADD || op == token.ADD_ASSIGN {
 		return r.ValueOf(x + y)
 	}
 	var b bool

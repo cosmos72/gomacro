@@ -188,6 +188,25 @@ var tests = []TestCase{
 	TestCase{I, "make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
 	TestCase{I, "expr_slice", "y = y[:4]", []uint8{100, 0, 0, 103}, nil},
 	TestCase{I, "expr_slice3", "y = y[:3:4]", []uint8{100, 0, 0}, nil},
+
+	TestCase{A, "set_1", "v1 = true;    v1", true, nil},
+	TestCase{A, "set_2", "v2 = 9;       v2", uint8(9), nil},
+	TestCase{A, "set_3", "v3 = 60000;   v3", uint16(60000), nil},
+	TestCase{A, "set_4", "v  = 987;      v", uint32(987), nil},
+	TestCase{A, "set_5", `v5 = "8y57r"; v5`, "8y57r", nil},
+	TestCase{A, "set_6", "v6 = 0.12345678901234; v6", float32(0.12345678901234), nil},        // v6 is declared float32
+	TestCase{A, "set_7", "v7 = 0.98765432109i; v7", complex(0, float32(0.98765432109)), nil}, // v7 is declared complex64
+
+	TestCase{A, "add_2", "v2 += 250;    v2", uint8(3), nil}, // overflow
+	TestCase{A, "add_3", "v3 += 536;    v3", uint16(60000 + 536), nil},
+	TestCase{A, "add_4", "v  += 111;     v", uint32(987 + 111), nil},
+	TestCase{A, "add_5", `v5 += "iyug"; v5`, "8y57riyug", nil},
+	TestCase{A, "add_6", "v6 += 0.975319; v6", float32(0.12345678901234) + float32(0.975319), nil},         // v6 is declared float32
+	TestCase{A, "add_7", "v7 += 0.999999i; v7", complex(0, float32(0.98765432109)+float32(0.999999)), nil}, // v7 is declared complex64
+
+	TestCase{A, "if_1", "if v2 < 3 { v2 = v2-1 } else { v2 = v2+1 }; v2", uint8(4), nil},
+	TestCase{A, "if_2", "if v2 < 5 { v2 = v2+2 } else { v2 = v2-2 }; v2", uint8(6), nil},
+
 	TestCase{I, "for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
 	TestCase{I, "function", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
 	TestCase{I, "function_variadic", "func list_args(args ...interface{}) []interface{} { args }; list_args('x', 'y', 'z')", []interface{}{'x', 'y', 'z'}, nil},

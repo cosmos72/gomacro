@@ -29,16 +29,9 @@ import (
 	"unsafe"
 )
 
-type Place struct {
-	addr    *r.Value // the reflect.Value to modify, or nil
-	intaddr *uint64  // the int variable to modify, or nil
-	mapobj  r.Value  // the map to modify, or Nil
-	mapkey  r.Value  // the map key to set, or Nil
-}
-
 // IdentAddress compiles the expression "&name" where name is a variable
 func (c *Comp) IdentAddress(name string) *Expr {
-	upn, bind := c.resolve(name)
+	upn, bind := c.Resolve(name)
 	switch bind.Desc.Class() {
 	default:
 		c.Errorf("cannot take the address of %v", name)

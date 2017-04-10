@@ -106,7 +106,57 @@ type (
 		Interrupt Stmt6
 	}
 	Stmt6 func(*Env6) (Stmt6, *Env6)
+	X6    func(*Env6)
 )
+
+func BenchmarkThreadedFuncX6(b *testing.B) {
+
+	var nop X6 = func(env *Env6) {
+	}
+	env := &Env6{
+		Binds: make([]r.Value, 10),
+	}
+	all := make([]X6, n)
+	for i := 0; i < n; i++ {
+		all[i] = nop
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, x := range all {
+			x(env)
+		}
+	}
+}
+
+func BenchmarkThreadedStmtFuncX6(b *testing.B) {
+
+	var xnop X6 = func(env *Env6) {
+	}
+	var nop Stmt6 = func(env *Env6) (Stmt6, *Env6) {
+		xnop(env)
+		env.IP++
+		return env.Code[env.IP], env
+	}
+	env := &Env6{
+		Binds: make([]r.Value, 10),
+	}
+	all := make([]Stmt6, n+1)
+	for i := 0; i < n; i++ {
+		all[i] = nop
+	}
+	all[n] = nil
+	env.Code = all
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		env.IP = 0
+		stmt := all[0]
+		for stmt != nil {
+			stmt, env = stmt(env)
+		}
+	}
+}
 
 func BenchmarkThreadedStmtFunc6(b *testing.B) {
 
@@ -120,7 +170,6 @@ func BenchmarkThreadedStmtFunc6(b *testing.B) {
 	}
 	all := make([]Stmt6, n+1)
 	for i := 0; i < n; i++ {
-		i := i
 		all[i] = nop
 	}
 	all[n] = nil

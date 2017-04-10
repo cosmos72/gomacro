@@ -25,371 +25,103 @@
 package fast_interpreter
 
 import (
+	"go/ast"
+	"go/token"
 	r "reflect"
-	"unsafe"
 )
 
-// AssignVar0 compiles an assignment to a variable
-func (c *Comp) AssignVar0(name string, bind Bind, init *Expr) {
-	if init.Const() {
-		c.assignVar0Const(name, bind, init)
+// Assign compiles an *ast.AssignStmt into an assignment to one or more place
+func (c *Comp) Assign(node *ast.AssignStmt) {
+	lhs, rhs := node.Lhs, node.Rhs
+	ln, rn := len(lhs), len(rhs)
+	if ln > 1 && rn == 1 {
+		c.Errorf("unimplemented: assignment of multiple places with a single multi-valued expression: %v", node)
+	} else if ln != rn {
+		c.Errorf("invalid assignment, cannot assign %d values to %d places: %v", node)
 	} else {
-		c.assignVar0Expr(name, bind, init)
+		for i, l := range lhs {
+			c.Assign1(l, node.Tok, rhs[i])
+		}
 	}
 }
 
-// AssignVar0Const compiles an assignment to a variable with a value known at compile time
-func (c *Comp) assignVar0Const(name string, bind Bind, init *Expr) {
-	t := bind.Type
-	if init.Type != t {
-		init.ConstTo(t)
-	}
-	desc := bind.Desc
-	var ret func(env *Env) (Stmt, *Env)
-	switch desc.Class() {
-	default:
-		c.Errorf("cannot assign to %v", name)
-		return
-	case VarBind:
-		index := desc.Index()
-		if index == NoIndex {
-			// assigning a value to _ has no effect at all
-			return
-		}
-		v := r.ValueOf(init.Value)
-		ret = func(env *Env) (Stmt, *Env) {
-			env.Binds[index] = v
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case IntBind:
-		index := desc.Index()
-		if index == NoIndex {
-			// assigning a value to _ has no effect at all
-			return
-		}
-		switch value := init.Value.(type) {
-		case bool:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*bool)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case int:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case int8:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case int16:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case int32:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case int64:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case uint:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case uint8:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case uint16:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case uint32:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case uint64:
-			ret = func(env *Env) (Stmt, *Env) {
-				env.IntBinds[index] = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case uintptr:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case float32:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float32)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case float64:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float64)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case complex64:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*complex64)(unsafe.Pointer(&env.IntBinds[index])) = value
-				env.IP++
-				return env.Code[env.IP], env
-			}
+// Assign1 compiles a single assignment to a place
+func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
+	place := c.Place(lhs)
+	init := c.Expr(rhs)
+	if init.Const() {
+		switch op {
+		case token.ASSIGN:
+			c.placeSetConst(place, init)
+		case token.ADD, token.ADD_ASSIGN:
+			c.placeAddConst(place, init)
 		default:
-			c.Errorf("unsupported constant type, cannot use for optimized assignment: %v <%T>", value, value)
-			return
+			c.Errorf("unimplemented assignment operator '%v' : %v %v %v", op, lhs, op, rhs)
 		}
-	}
-	c.Code.Append(Stmt{ret})
-}
-
-// AssignVar0Expr compiles an assignment to a variable with an expression
-func (c *Comp) assignVar0Expr(name string, bind Bind, init *Expr) {
-	t := bind.Type
-	if init.Type != t && !init.Type.AssignableTo(t) {
-		c.Errorf("cannot assign <%v> to <%v>", init.Type, t)
-		return
-	}
-	desc := bind.Desc
-	var ret func(env *Env) (Stmt, *Env)
-	switch desc.Class() {
-	default:
-		c.Errorf("cannot assign to %v", name)
-		return
-	case VarBind:
-		index := desc.Index()
-		if index == NoIndex {
-			// assigning an expression to _
-			// only keep the expression side effects
-			c.Code.Append(init.AsStmt())
-			return
-		}
-		fun := init.AsX1()
-		ret = func(env *Env) (Stmt, *Env) {
-			env.Binds[index].Set(fun(env).Convert(t))
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case IntBind:
-		index := desc.Index()
-		if index == NoIndex {
-			// assigning an expression to _
-			// only keep the expression side effects
-			c.Code.Append(init.AsStmt())
-			return
-		}
-		switch fun := init.Fun.(type) {
-		case func(*Env) bool:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*bool)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) int:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) int8:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) int16:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) int32:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) int64:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) uint:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) uint8:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) uint16:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) uint32:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) uint64:
-			ret = func(env *Env) (Stmt, *Env) {
-				env.IntBinds[index] = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) uintptr:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) float32:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float32)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) float64:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float64)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case func(*Env) complex64:
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*complex64)(unsafe.Pointer(&env.IntBinds[index])) = fun(env)
-				env.IP++
-				return env.Code[env.IP], env
-			}
+	} else {
+		switch op {
+		case token.ASSIGN:
+			c.placeSetExpr(place, init)
+		case token.ADD, token.ADD_ASSIGN:
+			c.placeAddExpr(place, init)
 		default:
-			c.Errorf("unsupported expression type, cannot use for optimized assignment: %v <%T> returns %v",
-				fun, fun, init.Outs())
-			return
+			c.Errorf("unimplemented assignment operator '%v' : %v %v %v", op, lhs, op, rhs)
 		}
 	}
-	c.Code.Append(Stmt{ret})
 }
 
-// AssignVar0Value compiles an assignment to a variable with a reflect.Value passed at runtime.
-// Used to initialize variables with multi-valued expressions
-func (c *Comp) AssignVar0Value(name string, bind Bind) func(*Env, r.Value) {
-	desc := bind.Desc
-	t := bind.Type
-	switch desc.Class() {
+// AssignVar0 compiles an assignment to a variable.
+// not used by gomacro, provided as convenience for applications
+func (c *Comp) AssignVar0(name string, init *Expr) {
+	place := c.PlaceVar(name)
+	if init.Const() {
+		c.placeSetConst(place, init)
+	} else {
+		c.placeSetExpr(place, init)
+	}
+}
+
+type Place struct {
+	Upn  int
+	Desc BindDescriptor
+	Type r.Type
+	// Fun is nil for identifiers. returns settable reflect.Value
+	// (except for map[key], where it may be non-settable).
+	// call it only once, it may have side effects!
+	Fun func(*Env) r.Value
+	// used only for map[key], returns key. call it only once, it may have side effects!
+	MapKey func(*Env) r.Value
+}
+
+// Place compiles the left-hand-side of an assignment
+func (c *Comp) Place(lhs ast.Expr) *Place {
+	switch lhs := lhs.(type) {
+	case *ast.Ident:
+		name := lhs.Name
+		if name == "_" {
+			return &Place{}
+		}
+		upn, bind := c.Resolve(name)
+		class := bind.Desc.Class()
+		if class != VarBind && class != IntBind {
+			c.Errorf("cannot assign to: %v", name)
+		}
+		return &Place{Upn: upn, Desc: bind.Desc, Type: bind.Type}
 	default:
-		c.Errorf("cannot assign to %v", name)
+		c.Errorf("unimplemented: assignment of non-identifier: %v", lhs)
 		return nil
-	case VarBind:
-		index := desc.Index()
-		if index == NoIndex {
-			// assigning a value to _ has no effect at all
-			return nil
-		}
-		return func(env *Env, v r.Value) {
-			env.Binds[index].Set(v.Convert(t))
-		}
-	case IntBind:
-		index := desc.Index()
-		if index == NoIndex {
-			// assigning a value to _ has no effect at all
-			return nil
-		}
-		switch t.Kind() {
-		case r.Bool:
-			return func(env *Env, v r.Value) {
-				*(*bool)(unsafe.Pointer(&env.IntBinds[index])) = v.Bool()
-			}
-		case r.Int:
-			return func(env *Env, v r.Value) {
-				*(*int)(unsafe.Pointer(&env.IntBinds[index])) = int(v.Int())
-			}
-		case r.Int8:
-			return func(env *Env, v r.Value) {
-				*(*int8)(unsafe.Pointer(&env.IntBinds[index])) = int8(v.Int())
-			}
-		case r.Int16:
-			return func(env *Env, v r.Value) {
-				*(*int16)(unsafe.Pointer(&env.IntBinds[index])) = int16(v.Int())
-			}
-		case r.Int32:
-			return func(env *Env, v r.Value) {
-				*(*int32)(unsafe.Pointer(&env.IntBinds[index])) = int32(v.Int())
-			}
-		case r.Int64:
-			return func(env *Env, v r.Value) {
-				*(*int64)(unsafe.Pointer(&env.IntBinds[index])) = v.Int()
-			}
-		case r.Uint:
-			return func(env *Env, v r.Value) {
-				*(*uint)(unsafe.Pointer(&env.IntBinds[index])) = uint(v.Uint())
-			}
-		case r.Uint8:
-			return func(env *Env, v r.Value) {
-				*(*uint8)(unsafe.Pointer(&env.IntBinds[index])) = uint8(v.Uint())
-			}
-		case r.Uint16:
-			return func(env *Env, v r.Value) {
-				*(*uint16)(unsafe.Pointer(&env.IntBinds[index])) = uint16(v.Uint())
-			}
-		case r.Uint32:
-			return func(env *Env, v r.Value) {
-				*(*uint32)(unsafe.Pointer(&env.IntBinds[index])) = uint32(v.Uint())
-			}
-		case r.Uint64:
-			return func(env *Env, v r.Value) {
-				env.IntBinds[index] = v.Uint()
-			}
-		case r.Uintptr:
-			return func(env *Env, v r.Value) {
-				*(*uintptr)(unsafe.Pointer(&env.IntBinds[index])) = uintptr(v.Uint())
-			}
-		case r.Float32:
-			return func(env *Env, v r.Value) {
-				*(*float32)(unsafe.Pointer(&env.IntBinds[index])) = float32(v.Float())
-			}
-		case r.Float64:
-			return func(env *Env, v r.Value) {
-				*(*float64)(unsafe.Pointer(&env.IntBinds[index])) = v.Float()
-			}
-		case r.Complex64:
-			return func(env *Env, v r.Value) {
-				*(*complex64)(unsafe.Pointer(&env.IntBinds[index])) = complex64(v.Complex())
-			}
-		default:
-			c.Errorf("unsupported type, cannot use for optimized assignment: <%v>", t)
-			return nil
-		}
 	}
+}
+
+// PlaceVar compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
+func (c *Comp) PlaceVar(name string) *Place {
+	if name == "_" {
+		return &Place{}
+	}
+	upn, bind := c.Resolve(name)
+	class := bind.Desc.Class()
+	if class != VarBind && class != IntBind {
+		c.Errorf("cannot assign to %v: %v", class, name)
+	}
+	return &Place{Upn: upn, Desc: bind.Desc, Type: bind.Type}
 }

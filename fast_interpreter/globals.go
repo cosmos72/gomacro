@@ -162,9 +162,7 @@ func (e *Expr) String() string {
 // ================================= Stmt =================================
 
 // Stmt represents a statement in the fast interpreter
-type Stmt struct {
-	Exec func(*Env) (Stmt, *Env)
-}
+type Stmt func(*Env) (Stmt, *Env)
 
 // ================================= BindClass =================================
 

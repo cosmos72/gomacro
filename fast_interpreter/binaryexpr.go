@@ -42,6 +42,10 @@ func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
 	} else if y.NumOut() == 0 {
 		c.Errorf("operand returns no values, cannot use in binary expression: %v", node.Y)
 	}
+	return c.BinaryExpr1(node, x, y)
+}
+
+func (c *Comp) BinaryExpr1(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 	if x.Untyped() && y.Untyped() {
 		return c.BinaryExprUntyped(node, x.Value.(UntypedLit), y.Value.(UntypedLit))
 	}

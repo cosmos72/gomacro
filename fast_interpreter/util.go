@@ -117,7 +117,7 @@ func (c *Comp) badPred(reason string, node ast.Expr, x *Expr) Stmt {
 	}
 	c.Errorf("%s boolean predicate, expecting <bool> expression, found <%v>: %v",
 		reason, t, node)
-	return NilStmt
+	return nil
 }
 
 func (e *Expr) AsX() X {
@@ -477,14 +477,14 @@ func AsXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 
 func (e *Expr) AsStmt() Stmt {
 	if e == nil || e.Const() {
-		return NilStmt
+		return nil
 	}
 	return AsStmt(e.Fun)
 }
 
 func AsStmt(any I) Stmt {
 	if isLiteral(any) {
-		return NilStmt
+		return nil
 	}
 	var ret func(env *Env) (Stmt, *Env)
 
@@ -617,7 +617,7 @@ func AsStmt(any I) Stmt {
 			return env.Code[env.IP], env
 		}
 	default:
-		Errorf("unsupported expression, cannot convert to Stmt: %v <%T>", any, any)
+		Errorf("unsupported expression, cannot convert to Stmt: %v <%v>", any, r.TypeOf(any))
 	}
-	return Stmt{ret}
+	return ret
 }
