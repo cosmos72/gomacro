@@ -50,9 +50,9 @@ func (c *Comp) Stmt(node ast.Stmt) {
 	// case *ast.BranchStmt:
 	//   c.Branch(node)
 	case *ast.CaseClause, *ast.CommClause:
-		c.Errorf("misplaced case: not inside switch or select: %v <%v>", node, r.TypeOf(node))
-	// case *ast.DeclStmt:
-	//   c.DeclStmt(node.Decl)
+		c.Errorf("misplaced case/default: not inside switch or select: %v <%v>", node, r.TypeOf(node))
+	case *ast.DeclStmt:
+		c.Decl(node.Decl)
 	// case *ast.DeferStmt:
 	//   c.DeferStmt(node.Call)
 	case *ast.EmptyStmt:

@@ -37,7 +37,7 @@ func (c *Comp) placeAddConst(place *Place, init *Expr) {
 		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
 	}
 	t := place.Type
-	if t != nil && init.Type != t {
+	if t != nil {
 		init.ConstTo(t)
 	}
 	upn := place.Upn

@@ -68,7 +68,7 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 		in, anythingExpanded = env.macroExpandAst(in)
 	}
 	if in != nil {
-		in = unwrapTrivialAst(in)
+		in = UnwrapTrivialAst(in)
 	}
 	if in == nil {
 		return in, anythingExpanded
@@ -94,14 +94,14 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 		default:
 			goto Recurse
 		}
-		inChild := unwrapTrivialAst(in.Get(0).Get(1))
+		inChild := UnwrapTrivialAst(in.Get(0).Get(1))
 		outChild, expanded := env.macroExpandAstCodewalk(inChild, quasiquoteDepth)
 		if isBlockWithinExpr {
 			return outChild, expanded
 		} else {
 			out := in
 			if expanded {
-				out = makeQuote2(expr, outChild.(AstWithNode))
+				out = MakeQuote2(expr, outChild.(AstWithNode))
 			}
 			return out, expanded
 		}
@@ -123,7 +123,7 @@ Recurse:
 		out = outSlice
 	}
 	for i := 0; i < n; i++ {
-		child := unwrapTrivialAst(in.Get(i))
+		child := UnwrapTrivialAst(in.Get(i))
 		if child != nil {
 			expanded := false
 			if child.Size() != 0 {
@@ -186,7 +186,7 @@ func (env *Env) MacroExpand1(in ast.Node) (out ast.Node, expanded bool) {
 
 //
 func (env *Env) extractMacroCall(form Ast) Macro {
-	form = unwrapTrivialAst(form)
+	form = UnwrapTrivialAst(form)
 	switch form := form.(type) {
 	case Ident:
 		bind, found := env.resolveIdentifier(form.X)
@@ -205,7 +205,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		return nil, false
 	}
 	// unwrap trivial nodes: DeclStmt, ParenExpr, ExprStmt
-	in = unwrapTrivialAst(in)
+	in = UnwrapTrivialAst(in)
 	ins, ok := in.(AstWithSlice)
 	if !ok {
 		return in, false
@@ -279,5 +279,5 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 	if outs.Size() == 0 {
 		return EmptyStmt{&ast.EmptyStmt{}}, true
 	}
-	return unwrapTrivialAst(outs), true
+	return UnwrapTrivialAst(outs), true
 }

@@ -46,6 +46,7 @@ const (
 	OptShowMacroExpand
 	OptShowCompile
 	OptShowEval
+	OptShowEvalType
 	OptShowTime
 	OptDebugMacroExpand
 	OptDebugQuasiquote
@@ -61,12 +62,13 @@ const (
 
 var optNames = map[Options]string{
 	OptTrapPanic:           "TrapPanic",
-	OptShowPrompt:          "Prompt",
-	OptShowParse:           "Parse",
-	OptShowMacroExpand:     "MacroExpand",
-	OptShowCompile:         "Compile",
-	OptShowEval:            "Eval",
-	OptShowTime:            "Time",
+	OptShowPrompt:          "Prompt.Show",
+	OptShowParse:           "Parse.Show",
+	OptShowMacroExpand:     "MacroExpand.Show",
+	OptShowCompile:         "Compile.Show",
+	OptShowEval:            "Eval.Show",
+	OptShowEvalType:        "Type.Eval.Show",
+	OptShowTime:            "Time.Show",
 	OptDebugMacroExpand:    "?MacroExpand",
 	OptDebugQuasiquote:     "?Quasiquote",
 	OptDebugCallStack:      "?CallStack",

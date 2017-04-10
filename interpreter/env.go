@@ -249,9 +249,9 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 	// print phase
 	if env.Options&OptShowEval != 0 {
 		if len(values) != 0 {
-			env.FprintValues(env.Stdout, values...)
+			env.FprintValues(env.Options, env.Stdout, values...)
 		} else if value != None {
-			env.FprintValues(env.Stdout, value)
+			env.FprintValues(env.Options, env.Stdout, value)
 		}
 	}
 	return true

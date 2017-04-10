@@ -34,6 +34,9 @@ func (c *Comp) placeAddExpr(place *Place, init *Expr) {
 		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
 	}
 	t := place.Type
+	if init.Untyped() {
+		init.ConstTo(t)
+	}
 	if t != nil && init.Type != t {
 		if t.Kind() != init.Type.Kind() || !init.Type.AssignableTo(t) {
 			c.Errorf("cannot assign <%v> to <%v>", init.Type, t)

@@ -500,7 +500,7 @@ func syncStmt(p *parser) {
 		case token.BREAK, token.CONST, token.CONTINUE, token.DEFER,
 			token.FALLTHROUGH, token.FOR, token.GO, token.GOTO,
 			token.IF, token.RETURN, token.SELECT, token.SWITCH,
-			token.TYPE, token.VAR:
+			token.TYPE, token.VAR, mt.FUNCTION:
 			// Return only if parser made some progress since last
 			// sync or if it has not reached 10 sync calls without
 			// progress. Otherwise consume at least one token to
@@ -535,7 +535,7 @@ func syncStmt(p *parser) {
 func syncDecl(p *parser) {
 	for {
 		switch p.tok {
-		case token.CONST, token.TYPE, token.VAR:
+		case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.FUNCTION:
 			// see comments in syncStmt
 			if p.pos == p.syncPos && p.syncCnt < 10 {
 				p.syncCnt++
@@ -958,12 +958,12 @@ func (p *parser) parseSignature(scope *ast.Scope) (params, results *ast.FieldLis
 	return
 }
 
-func (p *parser) parseFuncType() (*ast.FuncType, *ast.Scope) {
+func (p *parser) parseFuncType(tok token.Token) (*ast.FuncType, *ast.Scope) {
 	if p.trace {
 		defer un(trace(p, "FuncType"))
 	}
 
-	pos := p.expect(token.FUNC)
+	pos := p.expect(tok)
 	scope := ast.NewScope(p.topScope) // function scope
 	params, results := p.parseSignature(scope)
 
@@ -1072,8 +1072,8 @@ func (p *parser) tryIdentOrType() ast.Expr {
 		return p.parseStructType()
 	case token.MUL:
 		return p.parsePointerType()
-	case token.FUNC:
-		typ, _ := p.parseFuncType()
+	case token.FUNC, mt.LAMBDA:
+		typ, _ := p.parseFuncType(p.tok)
 		return typ
 	case token.INTERFACE:
 		return p.parseInterfaceType()
@@ -1149,12 +1149,12 @@ func (p *parser) parseBlockStmt() *ast.BlockStmt {
 // ----------------------------------------------------------------------------
 // Expressions
 
-func (p *parser) parseFuncTypeOrLit() ast.Expr {
+func (p *parser) parseFuncTypeOrLit(tok token.Token) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "FuncTypeOrLit"))
 	}
 
-	typ, scope := p.parseFuncType()
+	typ, scope := p.parseFuncType(tok)
 	if p.tok != token.LBRACE {
 		// function type only
 		return typ
@@ -1198,8 +1198,10 @@ func (p *parser) parseOperand(lhs bool) ast.Expr {
 		rparen := p.expect(token.RPAREN)
 		return &ast.ParenExpr{Lparen: lparen, X: x, Rparen: rparen}
 
-	case token.FUNC:
-		return p.parseFuncTypeOrLit()
+	case token.FUNC, mt.LAMBDA:
+		// patch: lambda. equivalent to func, useful to resolve ambiguities between closures
+		// and function/method declarations
+		return p.parseFuncTypeOrLit(p.tok)
 
 	// patch: quote and friends
 	// TODO: accept ms.MACRO here and interpret as local macro definition? (i.e. Common Lisp macrolet)
@@ -2222,14 +2224,16 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 	}
 
 	switch p.tok {
-	case token.CONST, token.TYPE, token.VAR:
+	case token.CONST, token.TYPE, token.VAR,
+		mt.FUNCTION: // patch: allow function/method declarations inside statements. extremely useful for ~quote and ~quasiquote
 		s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
 	case
 		// tokens that may start an expression
 		token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING, token.FUNC, token.LPAREN, // operands
 		token.LBRACK, token.STRUCT, token.MAP, token.CHAN, token.INTERFACE, // composite types
 		token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT, // unary operators
-		mt.MACRO, mt.SPLICE, mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE: // patch: macro, quote and friends
+		mt.MACRO, mt.SPLICE, mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE, // patch: macro, quote and friends
+		mt.LAMBDA:
 
 		s, _ = p.parseSimpleStmt(labelOk)
 		// because of the required look-ahead, labeled statements are
@@ -2430,11 +2434,11 @@ func (p *parser) parseGenDecl(keyword token.Token, f parseSpecFunction) *ast.Gen
 	}
 }
 
-func (p *parser) parseFuncDecl() *ast.FuncDecl {
+func (p *parser) parseFuncDecl(tok token.Token) *ast.FuncDecl {
 	if p.trace {
 		defer un(trace(p, "FunctionDecl"))
 	}
-	decl := p.parseFuncOrMacroDecl(token.FUNC)
+	decl := p.parseFuncOrMacroDecl(tok)
 
 	// paranoia: empty receiver list is omitted. this should not happen,
 	// but we use it to distinguish functions from macros, so better safe than sorry.
@@ -2464,7 +2468,7 @@ func (p *parser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 
 	var recv *ast.FieldList
 	// patch: macros cannot have a receiver
-	if tok == token.FUNC && p.tok == token.LPAREN {
+	if tok != mt.MACRO && p.tok == token.LPAREN {
 		recv = p.parseParameters(scope, false)
 	}
 
@@ -2517,8 +2521,8 @@ func (p *parser) parseDecl(sync func(*parser)) ast.Decl {
 	case token.TYPE:
 		f = p.parseTypeSpec
 
-	case token.FUNC:
-		return p.parseFuncDecl()
+	case token.FUNC, mt.FUNCTION:
+		return p.parseFuncDecl(p.tok)
 
 	case mt.MACRO: // patch: parse a macro declaration
 		return p.parseMacroDecl()

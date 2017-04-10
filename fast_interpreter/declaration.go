@@ -230,7 +230,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 		if init == nil {
 			c.Errorf("no value and no type, cannot declare : %v", name)
 		}
-		t = init.Type
+		t = init.DefaultType()
 		if t == nil {
 			c.Errorf("cannot declare variable as untyped nil: %v", name)
 		}

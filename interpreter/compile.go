@@ -49,7 +49,7 @@ func (env *Env) compile(src string) {
 
 	// print phase
 	if env.Options&OptShowCompile != 0 {
-		env.FprintValues(env.Stdout, r.ValueOf(fun))
+		env.FprintValues(env.Options, env.Stdout, r.ValueOf(fun))
 	}
 
 	// eval phase
@@ -58,9 +58,9 @@ func (env *Env) compile(src string) {
 	// print phase
 	if env.Options&OptShowEval != 0 {
 		if len(values) != 0 {
-			env.FprintValues(env.Stdout, values...)
+			env.FprintValues(env.Options, env.Stdout, values...)
 		} else if value != None {
-			env.FprintValues(env.Stdout, value)
+			env.FprintValues(env.Options, env.Stdout, value)
 		}
 	}
 }

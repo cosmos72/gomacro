@@ -64,7 +64,7 @@ func MakeInterpreterBase() InterpreterBase {
 		},
 		Options:     OptTrapPanic, // set by default
 		Packagename: "main",
-		Filename:    "main.go",
+		Filename:    "repl.go",
 		Importer:    DefaultImporter(),
 		SpecialChar: '~',
 	}

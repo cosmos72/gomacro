@@ -357,26 +357,27 @@ func AsX1(any I, opts CompileOptions) func(*Env) r.Value {
 
 func (e *Expr) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 	if e.Const() {
-		return AsXV(e.Value, opts)
+		return ValueAsXV(e.Value, opts)
 	} else {
-		return AsXV(e.Fun, opts)
+		return FunAsXV(e.Fun, opts)
 	}
 }
 
-func AsXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
-	if isLiteral(any) {
-		if opts&CompileKeepUntyped == 0 {
-			if untyp, ok := any.(UntypedLit); ok {
-				// late conversion of untyped constants to their default type
-				any = untyp.ConstTo(untyp.DefaultType())
-			}
-		}
-		v := r.ValueOf(any)
-		return func(*Env) (r.Value, []r.Value) {
-			return v, nil
+func ValueAsXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
+	if opts&CompileKeepUntyped == 0 {
+		if untyp, ok := any.(UntypedLit); ok {
+			// late conversion of untyped constants to their default type
+			any = untyp.ConstTo(untyp.DefaultType())
 		}
 	}
-	switch fun := any.(type) {
+	v := r.ValueOf(any)
+	return func(*Env) (r.Value, []r.Value) {
+		return v, nil
+	}
+}
+
+func FunAsXV(fun I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
+	switch fun := fun.(type) {
 	case nil:
 	case X:
 		if fun == nil {
@@ -469,8 +470,8 @@ func AsXV(any I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 			return r.ValueOf(fun(env)), nil
 		}
 	default:
-		Errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%T>",
-			any, any)
+		Errorf("unsupported expression, cannot convert to func(*Env) (r.Value, []r.Value) : %v <%v>",
+			fun, r.TypeOf(fun))
 	}
 	return nil
 }

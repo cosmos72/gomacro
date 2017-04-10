@@ -134,7 +134,7 @@ func (expr *Expr) EvalConst(opts CompileOptions) I {
 	if expr.Const() {
 		return expr.Value
 	}
-	ret, rets := AsXV(expr.Fun, opts)(nil)
+	ret, rets := FunAsXV(expr.Fun, opts)(nil)
 	if ret == None {
 		Errorf("constant should evaluate to a single value, found no values at all")
 		return nil

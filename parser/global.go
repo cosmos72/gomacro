@@ -87,7 +87,7 @@ func (p *parser) parseAny() ast.Node {
 		node = p.parseFile()
 	case token.IMPORT:
 		node = p.parseGenDecl(token.IMPORT, p.parseImportSpec)
-	case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.MACRO:
+	case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.MACRO, mt.FUNCTION:
 		// a "func" at top level can be either a function declaration: func foo(args) /*...*/
 		// or a method declaration: func (receiver) foo(args) /*...*/
 		// or a function literal, i.e. a closure: func(args) /*...*/
@@ -95,8 +95,8 @@ func (p *parser) parseAny() ast.Node {
 		// there is no reasonable way to distinguish them here.
 		//
 		// decision: always parse as a declaration.
-		// function literals at top level will have to come after
-		// some other token: a variable declaration, an expression,
+		// function literals at top level must either be written ~lambda(args) /*...*/
+		// or come after some other token: a variable declaration, an expression,
 		// or at least a '('
 		node = p.parseDecl(syncDecl)
 	default:

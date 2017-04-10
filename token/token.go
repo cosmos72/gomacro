@@ -12,12 +12,14 @@ import (
 )
 
 const (
-	MACRO base.Token = (base.VAR+127)&^127 + iota
-	QUOTE
+	QUOTE base.Token = (base.VAR+127)&^127 + iota
 	QUASIQUOTE
 	UNQUOTE
 	UNQUOTE_SPLICE
 	SPLICE
+	MACRO
+	FUNCTION
+	LAMBDA
 )
 
 var tokens map[base.Token]string
@@ -26,27 +28,27 @@ var keywords map[string]base.Token
 
 func init() {
 	tokens = map[base.Token]string{
-		MACRO:          "macro",
-		SPLICE:         "splice",
-		QUOTE:          "quote",
-		QUASIQUOTE:     "quasiquote",
-		UNQUOTE:        "unquote",
-		UNQUOTE_SPLICE: "unquote_splice",
+		SPLICE:         "~splice",
+		QUOTE:          "~quote",
+		QUASIQUOTE:     "~quasiquote",
+		UNQUOTE:        "~unquote",
+		UNQUOTE_SPLICE: "~unquote_splice",
+		MACRO:          "~macro",
+		FUNCTION:       "~func",
+		LAMBDA:         "~lambda",
 	}
 
 	keywords = make(map[string]base.Token)
 	for k, v := range tokens {
-		keywords[v] = k
+		keywords[v[1:]] = k // skip ~ in lookup table
 	}
 }
 
-// Find maps an identifier to its keyword token or IDENT (if not a keyword).
+// LookupSpecial maps a identifier to its keyword token.
 //
-func Lookup(lit string) base.Token {
-	if tok, ok := keywords[lit]; ok {
-		return tok
-	}
-	return base.Lookup(lit)
+func LookupSpecial(lit string) base.Token {
+	tok, _ := keywords[lit]
+	return tok
 }
 
 func String(tok base.Token) string {

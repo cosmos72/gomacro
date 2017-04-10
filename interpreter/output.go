@@ -114,7 +114,7 @@ Loop:
 					continue
 				}
 			}
-			env.FprintValue(out, bind)
+			env.FprintValue(OptShowEvalType, out, bind)
 		}
 		fmt.Fprintln(out)
 	}

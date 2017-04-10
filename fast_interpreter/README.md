@@ -11,12 +11,13 @@ If you want to help with the reimplementation, or you are simply curious, read o
 ALPHA.
 
 The fast intepreter supports:
-* parsing - because it is shared with the original code
-* quote and quasiquote - because they are shared with the original code
+* parsing, including parsing macro-related syntax - shared with the classic interpreter
 * iota and untyped constants
 * binary expressions on untyped constants, booleans, integers, floats, complex numbers, and strings
 * constant, variable and type declarations
-* incomplete: if and for, except for-range
+* assignment to variables, i.e. 'variable = constant' and 'variable = expression'
+* if
+* ~quote
 
 Everything else is still missing. You are welcome to contribute.
 
@@ -32,8 +33,8 @@ Limitations:
 * operators << and >> do not follow type deduction rules for untyped constants.
   The implemented behavior is:
   * an untyped constant shifted by a non-constant expression always returns an int
-  * an untyped floating point constant shifted by a constant expression returns an untyped integer constant,
-    but the interpreter signals an error during the precompile phase
+  * an untyped floating point constant shifted by a constant expression returns an untyped integer constant.
+    the interpreter signals an error during the precompile phase
     if the left operand has a non-zero fractional or imaginary part,
     or it overflows both int64 and uint64.
   See [Go Language Specification](https://golang.org/ref/spec#Operators) for the correct behavior

@@ -280,33 +280,44 @@ var tests = []TestCase{
 	TestCase{I, "typeswitch_3", "switch x.(type) { default: 0; case int: 3 }", 0, nil},
 	TestCase{I, "typeswitch_4", "switch nil.(type) { default: 0; case nil: 4 }", 4, nil},
 
-	TestCase{I, "quote_1", "quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
-	TestCase{I, "quote_2", "quote{x}", &ast.Ident{Name: "x"}, nil},
-	TestCase{I, "quote_3", "ab:=quote{a;b}", &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{I, "quote_1", "~quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
+	TestCase{I, "quote_2", "~quote{x}", &ast.Ident{Name: "x"}, nil},
+	TestCase{I, "quote_3", "ab := ~quote{a;b}", &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 	}}, nil},
-	TestCase{I, "quote_4", "quote{\"foo\"+\"bar\"}", &ast.BinaryExpr{
+	TestCase{I, "quote_4", "~'{\"foo\"+\"bar\"}", &ast.BinaryExpr{
 		Op: token.ADD,
 		X:  &ast.BasicLit{Kind: token.STRING, Value: "\"foo\""},
 		Y:  &ast.BasicLit{Kind: token.STRING, Value: "\"bar\""},
 	}, nil},
-	TestCase{I, "quasiquote", "~`{1+~,{2+3}}", &ast.BinaryExpr{
+	TestCase{I, "quasiquote_1", "~quasiquote{1 + ~unquote{2+3}}", &ast.BinaryExpr{
 		Op: token.ADD,
 		X:  &ast.BasicLit{Kind: token.INT, Value: "1"},
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "5"},
 	}, nil},
-	TestCase{I, "unquote_splice", "~`{~,@ab ; c}", &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{I, "quasiquote_2", "~`{2 * ~,{3<<1}}", &ast.BinaryExpr{
+		Op: token.MUL,
+		X:  &ast.BasicLit{Kind: token.INT, Value: "2"},
+		Y:  &ast.BasicLit{Kind: token.INT, Value: "6"},
+	}, nil},
+	TestCase{I, "unquote_splice_1", "~quasiquote{~unquote_splice ab ; c}", &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "c"}},
 	}}, nil},
-	TestCase{I, "macro", "macro second_arg(a,b,c interface{}) interface{} { return b }; 0", 0, nil},
+	TestCase{I, "unquote_splice_2", "~`{zero ; ~,@ab ; one}", &ast.BlockStmt{List: []ast.Stmt{
+		&ast.ExprStmt{X: &ast.Ident{Name: "zero"}},
+		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
+		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
+		&ast.ExprStmt{X: &ast.Ident{Name: "one"}},
+	}}, nil},
+	TestCase{I, "macro", "~macro second_arg(a,b,c interface{}) interface{} { return b }; 0", 0, nil},
 	TestCase{I, "macro_call", "v = 98; second_arg;1;v;3", uint32(98), nil},
 	TestCase{I, "macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
 	TestCase{I, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
 	TestCase{I, "eval", "Eval(Values(3,4,5))", 3, nil},
-	TestCase{I, "eval_quote", "Eval(quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
+	TestCase{I, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {

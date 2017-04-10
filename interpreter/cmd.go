@@ -46,7 +46,7 @@ type Cmd struct {
 func (cmd *Cmd) Init() {
 	cmd.Env = New()
 	cmd.ParserMode = mp.Trace & 0
-	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowEval // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
+	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 	cmd.WriteDeclsAndStmtsToFile = false
 	cmd.OverwriteFiles = false
 }
@@ -67,8 +67,8 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		case "-e":
 			if len(args) > 1 {
 				buf := bytes.NewBufferString(args[1])
-				buf.WriteByte('\n') // because ReadMultiLine() needs a final '\n'
-				env.Options |= OptShowEval
+				buf.WriteByte('\n')        // because ReadMultiLine() needs a final '\n'
+				env.Options |= OptShowEval // set by default, overridden by -s, -v and -vv
 				env.Options = (env.Options | set) &^ clear
 				err := cmd.EvalReader(buf)
 				if err != nil {
@@ -104,23 +104,32 @@ func (cmd *Cmd) Main(args []string) (err error) {
 					case "^verbose":
 						set &^= OptShowEval
 						clear |= OptShowEval
+					case "type":
+						set |= OptShowEvalType
+						clear &^= OptShowEvalType
+					case "^type":
+						set &^= OptShowEvalType
+						clear |= OptShowEvalType
 					}
 				}
 				args = args[1:]
 			}
 		case "-s":
-			set &^= OptShowEval
-			clear |= OptShowEval
+			set &^= OptShowEval | OptShowEvalType
+			clear |= OptShowEval | OptShowEvalType
 		case "-v":
-			set |= OptShowEval
-			clear &^= OptShowEval
+			set = (set | OptShowEval) &^ OptShowEvalType
+			clear = (clear &^ OptShowEval) | OptShowEvalType
+		case "-vv":
+			set |= OptShowEval | OptShowEvalType
+			clear &^= OptShowEval | OptShowEvalType
 		case "-w":
 			cmd.WriteDeclsAndStmtsToFile = true
 		default:
 			if cmd.WriteDeclsAndStmtsToFile {
 				env.Options |= OptCollectDeclarations | OptCollectStatements
 			}
-			env.Options &^= OptShowPrompt | OptShowEval
+			env.Options &^= OptShowPrompt | OptShowEval | OptShowEvalType // cleared by default, overridden by -s, -v and -vv
 			env.Options = (env.Options | set) &^ clear
 			cmd.EvalFileOrDir(args[0])
 
@@ -129,7 +138,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		args = args[1:]
 	}
 	if repl {
-		env.Options |= OptShowPrompt | OptShowEval
+		env.Options |= OptShowPrompt | OptShowEval | OptShowEvalType // set by default, overridden by -s, -v and -vv
 		env.Options = (env.Options | set) &^ clear
 		env.ReplStdin()
 	}

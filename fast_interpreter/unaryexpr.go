@@ -28,10 +28,22 @@ import (
 	"go/ast"
 	"go/token"
 
+	. "github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
 func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
+	switch node.Op {
+	case mt.QUOTE:
+		// surprisingly easy :)
+		block := node.X.(*ast.FuncLit).Body
+		node := SimplifyNodeForQuote(block, true)
+		return ExprValue(node)
+
+	case mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+		return c.unimplementedUnaryExpr(node, nil)
+	}
+
 	x := c.Expr(node.X)
 	if x.NumOut() == 0 {
 		c.Errorf("operand returns no values, cannot use in unary expression: %v", node.X)
@@ -76,7 +88,12 @@ func (c *Comp) unimplementedUnaryExpr(node *ast.UnaryExpr, x *Expr) *Expr {
 
 func (c *Comp) badUnaryExpr(reason string, node *ast.UnaryExpr, x *Expr) *Expr {
 	opstr := mt.String(node.Op)
-	c.Errorf("%s unary operation %s on <%v>: %s %v",
-		reason, opstr, x.Type, opstr, node.X)
+	if x != nil {
+		c.Errorf("%s unary operation %s on <%v>: %s %v",
+			reason, opstr, x.Type, opstr, node.X)
+	} else {
+		c.Errorf("%s unary operation %s: %s %v",
+			reason, opstr, opstr, node.X)
+	}
 	return nil
 }

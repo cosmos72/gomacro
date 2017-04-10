@@ -617,7 +617,7 @@ scanAgain:
 		lit = s.scanIdentifier()
 		if len(lit) > 1 {
 			// keywords are longer than one letter - avoid lookup otherwise
-			tok = mt.Lookup(lit) // patch: support macro, quote and friends
+			tok = token.Lookup(lit)
 			switch tok {
 			case token.IDENT, token.BREAK, token.CONTINUE, token.FALLTHROUGH, token.RETURN:
 				insertSemi = true
@@ -787,12 +787,13 @@ scanAgain:
 					tok = mt.UNQUOTE
 				}
 			default:
-				tok = token.ILLEGAL
+				lit = s.scanIdentifier()
+				tok = mt.LookupSpecial(lit)
+				if tok == token.ILLEGAL {
+					s.error(s.file.Offset(pos), fmt.Sprintf("expected macro-related keyword after '%c', found '%c%s'", s.specialChar, s.specialChar, lit))
+					insertSemi = s.insertSemi // preserve insertSemi info
+				}
 			}
-			if tok != token.ILLEGAL {
-				break
-			}
-			fallthrough
 		default:
 			// next reports unexpected BOMs - don't repeat
 			if ch != bom {

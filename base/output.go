@@ -98,17 +98,17 @@ func (o *Output) Debugf(format string, args ...interface{}) {
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
 
-func (st *Stringer) FprintValues(out io.Writer, values ...r.Value) {
+func (st *Stringer) FprintValues(opts Options, out io.Writer, values ...r.Value) {
 	if len(values) == 0 {
 		fmt.Fprint(out, "// no value\n")
 		return
 	}
 	for _, v := range values {
-		st.FprintValue(out, v)
+		st.FprintValue(opts, out, v)
 	}
 }
 
-func (st *Stringer) FprintValue(out io.Writer, v r.Value) {
+func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
 	var vi, vt interface{}
 	if v == None {
 		fmt.Fprint(out, "// no value\n")
@@ -122,18 +122,33 @@ func (st *Stringer) FprintValue(out io.Writer, v r.Value) {
 	}
 	vi = st.toPrintable(vi)
 	if vi == nil && vt == nil {
-		fmt.Fprint(out, "<nil>\n")
+		if opts&OptShowEvalType != 0 {
+			fmt.Fprint(out, "<nil>\n")
+		}
 		return
 	}
-	vt = st.toPrintable(vt)
 	switch vi := vi.(type) {
 	case uint, uint8, uint32, uint64, uintptr:
-		fmt.Fprintf(out, "%d <%v>\n", vi, vt)
-	default:
-		if vt == TypeOfString {
-			fmt.Fprintf(out, "%q <%v>\n", vi, vt)
+		if opts&OptShowEvalType != 0 {
+			vt = st.toPrintable(vt)
+			fmt.Fprintf(out, "%d <%v>\n", vi, vt)
 		} else {
-			fmt.Fprintf(out, "%v <%v>\n", vi, vt)
+			fmt.Fprintf(out, "%d\n", vi)
+		}
+	default:
+		if opts&OptShowEvalType != 0 {
+			vt = st.toPrintable(vt)
+			if vt == TypeOfString {
+				fmt.Fprintf(out, "%q <%v>\n", vi, vt)
+			} else {
+				fmt.Fprintf(out, "%v <%v>\n", vi, vt)
+			}
+		} else {
+			if vt == TypeOfString {
+				fmt.Fprintf(out, "%q\n", vi)
+			} else {
+				fmt.Fprintf(out, "%v\n", vi)
+			}
 		}
 	}
 }
