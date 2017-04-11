@@ -147,19 +147,19 @@ func (cmd *Cmd) Usage() error {
     -f,   --force-overwrite  option -w will overwrite existing files
     -h,   --help             show this help and exit
     -i,   --repl             interactive. start a REPL after evaluating expression, files and dirs.
-	                         default: start a REPL only if no expressions, files or dirs are specified
-	-m,   --macro-only       do not execute code, only parse and macroexpand it.
-	                         useful to run gomacro as a Go preprocessor
+                             default: start a REPL only if no expressions, files or dirs are specified
+    -m,   --macro-only       do not execute code, only parse and macroexpand it.
+                             useful to run gomacro as a Go preprocessor
     -n,   --no-trap          do not trap panics in the interpreter
-	-t,   --trap             trap panics in the interpreter (default)
+    -t,   --trap             trap panics in the interpreter (default)
     -s,   --silent           silent. do NOT show startup message, prompt, and expressions results.
-	                         default when executing files and dirs.
+                             default when executing files and dirs.
     -v,   --verbose          verbose. show startup message, prompt, and expressions results.
-	                         default when executing an expression.
+                             default when executing an expression.
     -vv,  --very-verbose     as -v, and in addition show the type of expressions results.
-	                         default when executing a REPL
+                             default when executing a REPL
     -w,   --write-decls      write collected declarations and statements to *.go files.
-	                         implies -c
+                             implies -c
     -x,   --exec             execute parsed code (default). disabled by -m
 
     Options are processed in order, except for -i that is always processed as last.

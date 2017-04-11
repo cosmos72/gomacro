@@ -17,23 +17,23 @@ Gomacro can be used as:
     -f,   --force-overwrite  option -w will overwrite existing files
     -h,   --help             show this help and exit
     -i,   --repl             interactive. start a REPL after evaluating expression, files and dirs.
-	                         default: start a REPL only if no expressions, files or dirs are specified
-	-m,   --macro-only       do not execute code, only parse and macroexpand it.
-	                         useful to run gomacro as a Go preprocessor
+                             default: start a REPL only if no expressions, files or dirs are specified
+    -m,   --macro-only       do not execute code, only parse and macroexpand it.
+                             useful to run gomacro as a Go preprocessor
     -n,   --no-trap          do not trap panics in the interpreter
-	-t,   --trap             trap panics in the interpreter (default)
+    -t,   --trap             trap panics in the interpreter (default)
     -s,   --silent           silent. do NOT show startup message, prompt, and expressions results.
-	                         default when executing files and dirs.
+                             default when executing files and dirs.
     -v,   --verbose          verbose. show startup message, prompt, and expressions results.
-	                         default when executing an expression.
+                             default when executing an expression.
     -vv,  --very-verbose     as -v, and in addition show the type of expressions results.
-	                         default when executing a REPL
+                             default when executing a REPL
     -w,   --write-decls      write collected declarations and statements to *.go files.
-	                         implies -c
+                             implies -c
     -x,   --exec             execute parsed code (default). disabled by -m
     ```
 
-	Options are processed in order, except for -i that is always processed as last.
+    Options are processed in order, except for -i that is always processed as last.
 
     Collected declarations and statements can be also written to standard output
     or to a file with the REPL command :write
@@ -41,14 +41,14 @@ Gomacro can be used as:
 * a library that adds Eval() and scripting capabilities
   to your Go programs - provided you comply with its GPL license
 
-* a way to execute Go source code on-the-fly without a Go compiler:
+* a way to execute Go source code on-the-fly without a Go compiler:  
   you can either run `gomacro FILENAME.go` (works on every supported platform)
 
   or you can insert a line `#!/usr/bin/env gomacro` at the beginning of a Go source file,
   then mark the file as executable with `chmod +x FILENAME.go` and finally execute it
   with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
-* a Go code generation tool (BETA):
+* a Go code generation tool (BETA):  
   run `gomacro -m -w FILENAMES` to parse and expand macros in one or more files.
   For each filename on the command line, gomacro will parse it, expand macros,
   then create a corresponding FILENAME.go with the parsed and macroexpanded
