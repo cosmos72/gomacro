@@ -280,13 +280,13 @@ var tests = []TestCase{
 	TestCase{I, "typeswitch_3", "switch x.(type) { default: 0; case int: 3 }", 0, nil},
 	TestCase{I, "typeswitch_4", "switch nil.(type) { default: 0; case nil: 4 }", 4, nil},
 
-	TestCase{I, "quote_1", "~quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
-	TestCase{I, "quote_2", "~quote{x}", &ast.Ident{Name: "x"}, nil},
-	TestCase{I, "quote_3", "ab := ~quote{a;b}", &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{A, "quote_1", "~quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
+	TestCase{A, "quote_2", "~quote{x}", &ast.Ident{Name: "x"}, nil},
+	TestCase{A, "quote_3", "var ab = ~quote{a;b}; ab", &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 	}}, nil},
-	TestCase{I, "quote_4", "~'{\"foo\"+\"bar\"}", &ast.BinaryExpr{
+	TestCase{A, "quote_4", "~'{\"foo\"+\"bar\"}", &ast.BinaryExpr{
 		Op: token.ADD,
 		X:  &ast.BasicLit{Kind: token.STRING, Value: "\"foo\""},
 		Y:  &ast.BasicLit{Kind: token.STRING, Value: "\"bar\""},

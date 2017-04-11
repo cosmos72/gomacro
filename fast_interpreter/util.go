@@ -236,28 +236,28 @@ func (e *Expr) CheckX1() {
 
 func (e *Expr) AsX1() func(*Env) r.Value {
 	if e.Const() {
-		return AsX1(e.Value, CompileDefaults)
+		return ValueAsX1(e.Value, CompileDefaults)
 	}
 	e.CheckX1()
-	return AsX1(e.Fun, CompileDefaults)
+	return FunAsX1(e.Fun, CompileDefaults)
 }
 
-func AsX1(any I, opts CompileOptions) func(*Env) r.Value {
-	if isLiteral(any) {
-		if opts&CompileKeepUntyped == 0 {
-			if untyp, ok := any.(UntypedLit); ok {
-				// late conversion of untyped constants to their default type
-				any = untyp.ConstTo(untyp.DefaultType())
-			}
-		}
-		v := r.ValueOf(any)
-		return func(*Env) r.Value {
-			return v
+func ValueAsX1(any I, opts CompileOptions) func(*Env) r.Value {
+	if opts&CompileKeepUntyped == 0 {
+		if untyp, ok := any.(UntypedLit); ok {
+			// late conversion of untyped constants to their default type
+			any = untyp.ConstTo(untyp.DefaultType())
 		}
 	}
-	switch fun := any.(type) {
+	v := r.ValueOf(any)
+	return func(*Env) r.Value {
+		return v
+	}
+}
+
+func FunAsX1(fun I, opts CompileOptions) func(*Env) r.Value {
+	switch fun := fun.(type) {
 	case nil:
-		return nil
 	case X:
 		if fun == nil {
 			break
@@ -350,7 +350,7 @@ func AsX1(any I, opts CompileOptions) func(*Env) r.Value {
 			return r.ValueOf(fun(env))
 		}
 	default:
-		Errorf("unsupported expression, cannot convert to func(*Env) r.Value: %v <%T>", fun, fun)
+		Errorf("unsupported expression, cannot convert to func(*Env) r.Value: %v <%v>", fun, r.TypeOf(fun))
 	}
 	return nil
 }
@@ -480,16 +480,13 @@ func (e *Expr) AsStmt() Stmt {
 	if e == nil || e.Const() {
 		return nil
 	}
-	return AsStmt(e.Fun)
+	return FunAsStmt(e.Fun)
 }
 
-func AsStmt(any I) Stmt {
-	if isLiteral(any) {
-		return nil
-	}
+func FunAsStmt(fun I) Stmt {
 	var ret func(env *Env) (Stmt, *Env)
 
-	switch fun := any.(type) {
+	switch fun := fun.(type) {
 	case nil:
 	case X:
 		ret = func(env *Env) (Stmt, *Env) {
@@ -618,7 +615,7 @@ func AsStmt(any I) Stmt {
 			return env.Code[env.IP], env
 		}
 	default:
-		Errorf("unsupported expression, cannot convert to Stmt: %v <%v>", any, r.TypeOf(any))
+		Errorf("unsupported expression, cannot convert to Stmt: %v <%v>", fun, r.TypeOf(fun))
 	}
 	return ret
 }
