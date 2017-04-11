@@ -78,7 +78,7 @@ The intepreter supports:
 * imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
 * switching to a different package
 * macro definitions, for example `~macro foo(a, b, c interface{}) interface{} { return b }`
-* macro calls, for example `foo x; y; z`
+* macro calls, for example `foo; x; y; z`
 * macroexpansion: code walker, MacroExpand and MacroExpand1
 * ~quote and ~quasiquote. they take any number of arguments in curly braces, for example:
   `~quote { x; y; z }`
