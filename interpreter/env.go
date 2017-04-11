@@ -117,7 +117,12 @@ func (env *Env) CallerFrame() *CallFrame {
 
 func (env *Env) ReplStdin() {
 	if env.Options&OptShowPrompt != 0 {
-		fmt.Fprint(env.Stdout, "// Welcome to gomacro. Type :help for help\n")
+		fmt.Fprint(env.Stdout, `// Welcome to GOMACRO, a Go interpreter with macros <https://github.com/cosmos72/gomacro>
+// Copyright (C) 2016-2017 Massimiliano Ghilardi
+// License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+// This is free software with ABSOLUTELY NO WARRANTY.
+// Type :help for help
+`)
 	}
 	in := bufio.NewReader(os.Stdin)
 	env.Repl(in)
@@ -129,17 +134,17 @@ func (env *Env) Repl(in *bufio.Reader) {
 }
 
 func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
-	var readopts ReadOptions
+	var opts ReadOptions
 	if env.Options&OptShowPrompt != 0 {
-		readopts |= ReadOptShowPrompt
+		opts |= ReadOptShowPrompt
 	}
 
-	str, _ := env.ReadMultiline(in, readopts)
+	str, _ := env.ReadMultiline(in, opts)
 	return len(str) > 0 && env.ParseEvalPrintRecover(str, in)
 }
 
-func (env *Env) ReadMultiline(in *bufio.Reader, readopts ReadOptions) (str string, comments string) {
-	str, comments, err := ReadMultiline(in, readopts, env.Stdout, "gomacro> ")
+func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, comments string) {
+	str, comments, err := ReadMultiline(in, opts, env.Stdout, "gomacro> ")
 	if err != nil && err != io.EOF {
 		fmt.Fprintln(env.Stderr, err)
 	}

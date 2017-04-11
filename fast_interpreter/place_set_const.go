@@ -33,7 +33,6 @@ import (
 
 	"github.com/cosmos72/gomacro/base"
 )
-
 func (c *Comp) placeSetConst(place *Place, init *Expr) {
 	if place.Fun != nil {
 		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
