@@ -161,7 +161,9 @@ func DuplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 		tail = newTail
 	}
 	// cheat: we know that BlockStmt.Append() always returns the receiver unmodified
-	tail.Append(content)
+	if content != nil {
+		tail.Append(content)
+	}
 	return head
 }
 

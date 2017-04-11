@@ -41,6 +41,10 @@ type WhichMacroExpand uint
 
 const (
 	OptTrapPanic Options = 1 << iota
+	OptPanicStackTrace
+	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
+	OptCollectDeclarations
+	OptCollectStatements
 	OptShowPrompt
 	OptShowParse
 	OptShowMacroExpand
@@ -52,9 +56,9 @@ const (
 	OptDebugQuasiquote
 	OptDebugCallStack
 	OptDebugPanicRecover
-	OptCollectDeclarations
-	OptCollectStatements
+)
 
+const (
 	CMacroExpand1 WhichMacroExpand = iota
 	CMacroExpand
 	CMacroExpandCodewalk
@@ -62,6 +66,10 @@ const (
 
 var optNames = map[Options]string{
 	OptTrapPanic:           "TrapPanic",
+	OptPanicStackTrace:     "OptPanicStackTrace",
+	OptMacroExpandOnly:     "MacroExpandOnly",
+	OptCollectDeclarations: "Declarations",
+	OptCollectStatements:   "Statements",
 	OptShowPrompt:          "Prompt.Show",
 	OptShowParse:           "Parse.Show",
 	OptShowMacroExpand:     "MacroExpand.Show",
@@ -73,8 +81,6 @@ var optNames = map[Options]string{
 	OptDebugQuasiquote:     "?Quasiquote",
 	OptDebugCallStack:      "?CallStack",
 	OptDebugPanicRecover:   "?PanicRecover",
-	OptCollectDeclarations: "Declarations",
-	OptCollectStatements:   "Statements",
 }
 
 var optValues = map[string]Options{}

@@ -43,9 +43,17 @@ func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
 	return val0, vals
 }
 
+// ValueInterface() is a zero-value-safe version of reflect.Value.Interface()
+func ValueInterface(v r.Value) interface{} {
+	if v == Nil || v == None || !v.IsValid() || !v.CanInterface() {
+		return nil
+	}
+	return v.Interface()
+}
+
 // ValueType() is a zero-value-safe version of reflect.Value.Type()
 func ValueType(v r.Value) r.Type {
-	if v == Nil || v == None {
+	if v == Nil || v == None || !v.IsValid() {
 		return nil
 	}
 	return v.Type()

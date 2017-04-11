@@ -49,7 +49,6 @@ func UnescapeString(str string) string {
 	return ret
 }
 
-/*
 func FindFirstToken(src []byte) int {
 	n := len(src)
 	const (
@@ -96,6 +95,7 @@ func FindFirstToken(src []byte) int {
 	return n
 }
 
+/*
 func extractFirstIdentifier(src []byte) []byte {
 	n := len(src)
 	for i := 0; i < n; i++ {

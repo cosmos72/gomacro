@@ -152,11 +152,15 @@ func (env *Env) evalQuasiquoteAst(in Ast, depth int) (out Ast) {
 				} else {
 					env.debugQuasiQuote("calling unquote on", depth-unquoteDepth, canSplice, lastUnquote.Interface())
 					toInsert := AnyToAst(env.evalUnquote(lastUnquote), mt.String(op))
-					env.debugQuasiQuote("unquote returned", depth-unquoteDepth, canSplice, toInsert.Interface())
+					if toInsert == nil {
+						env.debugQuasiQuote("unquote returned", depth-unquoteDepth, canSplice, toInsert)
+					} else {
+						env.debugQuasiQuote("unquote returned", depth-unquoteDepth, canSplice, toInsert.Interface())
+					}
 					if op == mt.UNQUOTE {
 						stack := DuplicateNestedUnquotes(child, unquoteDepth-1, toInsert)
 						outSlice = outSlice.Append(stack)
-					} else {
+					} else if toInsert != nil {
 						toSplice := ToAstWithSlice(toInsert, "unquote_splice")
 						nj := toSplice.Size()
 						for j := 0; j < nj; j++ {

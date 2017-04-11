@@ -281,7 +281,7 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 		return env.Errorf("pointer to struct <%v> has no field or method %s", typeOf(obj), name)
 
 	case r.Interface:
-		val := obj.MethodByName(name)
+		val = obj.MethodByName(name)
 		if val != Nil {
 			break
 		}

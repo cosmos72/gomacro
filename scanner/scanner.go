@@ -617,7 +617,7 @@ scanAgain:
 		lit = s.scanIdentifier()
 		if len(lit) > 1 {
 			// keywords are longer than one letter - avoid lookup otherwise
-			tok = token.Lookup(lit)
+			tok = mt.Lookup(lit)
 			switch tok {
 			case token.IDENT, token.BREAK, token.CONTINUE, token.FALLTHROUGH, token.RETURN:
 				insertSemi = true
@@ -775,7 +775,7 @@ scanAgain:
 			case '\'':
 				s.next()
 				tok = mt.QUOTE
-			case '`':
+			case '`', '"': // accept both ~` and ~" as ~quasiquote, because ~` confuses syntax hilighting in IDEs
 				s.next()
 				tok = mt.QUASIQUOTE
 			case ',':

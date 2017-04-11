@@ -8,6 +8,7 @@
 package token
 
 import (
+	"go/token"
 	base "go/token"
 )
 
@@ -44,8 +45,17 @@ func init() {
 	}
 }
 
-// LookupSpecial maps a identifier to its keyword token.
-//
+// Lookup maps a identifier to its keyword token.
+func Lookup(lit string) base.Token {
+	if lit == "macro" {
+		// allow the spelling "macro" because "~macro" is really ugly in source code...
+		// especially when writing :~macro
+		return MACRO
+	}
+	return token.Lookup(lit)
+}
+
+// LookupSpecial maps a identifier starting with '~' to its keyword token.
 func LookupSpecial(lit string) base.Token {
 	tok, _ := keywords[lit]
 	return tok

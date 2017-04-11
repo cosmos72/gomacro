@@ -36,24 +36,32 @@ func (env *Env) compile(src string) {
 	// parse + macroexpansion phase
 	ast := env.ParseAst(src)
 
-	// compile phase
-	var comp *fast_interpreter.CompEnv
-	if env.CompEnv == nil {
-		comp = fast_interpreter.New()
-		comp.CompileOptions |= fast_interpreter.CompileKeepUntyped
-		env.CompEnv = comp
+	var value r.Value
+	var values []r.Value
+
+	if env.Options&OptMacroExpandOnly == 0 {
+		// compile phase
+
+		var comp *fast_interpreter.CompEnv
+		if env.CompEnv == nil {
+			comp = fast_interpreter.New()
+			comp.CompileOptions |= fast_interpreter.CompileKeepUntyped
+			env.CompEnv = comp
+		} else {
+			comp = env.CompEnv.(*fast_interpreter.CompEnv)
+		}
+		fun := comp.CompileAst(ast)
+
+		// print phase
+		if env.Options&OptShowCompile != 0 {
+			env.FprintValues(env.Options, env.Stdout, r.ValueOf(fun))
+		}
+
+		// eval phase
+		value, values = comp.Run(fun)
 	} else {
-		comp = env.CompEnv.(*fast_interpreter.CompEnv)
+		value = r.ValueOf(ast.Interface())
 	}
-	fun := comp.CompileAst(ast)
-
-	// print phase
-	if env.Options&OptShowCompile != 0 {
-		env.FprintValues(env.Options, env.Stdout, r.ValueOf(fun))
-	}
-
-	// eval phase
-	value, values := comp.Run(fun)
 
 	// print phase
 	if env.Options&OptShowEval != 0 {

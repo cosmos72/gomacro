@@ -310,10 +310,10 @@ func ToAstWithSlice(x Ast, caller string) AstWithSlice {
 // (it fails if the argument is not AstWithNode)
 func ToNode(x Ast) ast.Node {
 	switch x := x.(type) {
-	case AstWithNode:
-		return x.Node()
 	case nil:
 		return nil
+	case AstWithNode:
+		return x.Node()
 	default:
 		y := x.Interface()
 		errorf("cannot convert to ast.Node: %v <%v>", y, r.TypeOf(y))

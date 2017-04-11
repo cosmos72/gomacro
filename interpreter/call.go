@@ -208,7 +208,7 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	default:
 		break
 	}
-	return env.Errorf("call of non-function: %v", node)
+	return env.Errorf("call of non-function %v <%v>: %v", ValueInterface(fun), ValueType(fun), node)
 }
 
 func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {

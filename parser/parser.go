@@ -455,7 +455,7 @@ func (p *parser) expectClosing(tok token.Token, context string) token.Pos {
 
 func (p *parser) expectSemi() {
 	// semicolon is optional before a closing ')' or '}'
-	if p.tok != token.RPAREN && p.tok != token.RBRACE {
+	if p.tok != token.RPAREN && p.tok != token.RBRACE && p.tok != token.RBRACK { // patch: semicolon is optional also before a closing ']'
 		switch p.tok {
 		case token.COMMA:
 			// permit a ',' instead of a ';' but complain
@@ -2240,7 +2240,7 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		// parsed by parseSimpleStmt - don't expect a semicolon after
 		// them
 		if _, isLabeledStmt := s.(*ast.LabeledStmt); !isLabeledStmt {
-			p.expectSemiOrSpace()
+			p.expectSemi()
 		}
 	case token.IMPORT: // patch: allow imports inside statements. useful for ~quote and ~quasiquote
 		s = &ast.DeclStmt{Decl: p.parseGenDecl(token.IMPORT, p.parseImportSpec)}

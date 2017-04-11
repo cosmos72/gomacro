@@ -29,6 +29,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	r "reflect"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -114,27 +116,37 @@ func (env *Env) CallerFrame() *CallFrame {
 }
 
 func (env *Env) ReplStdin() {
+	if env.Options&OptShowPrompt != 0 {
+		fmt.Fprint(env.Stdout, "// Welcome to gomacro. Type :help for help\n")
+	}
 	in := bufio.NewReader(os.Stdin)
 	env.Repl(in)
 }
 
 func (env *Env) Repl(in *bufio.Reader) {
-	if env.Options&OptShowPrompt != 0 {
-		fmt.Fprint(env.Stdout, "// Welcome to gomacro. Type :help for help\n")
-	}
-
 	for env.ReadParseEvalPrint(in) {
 	}
 }
 
 func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
-	str, err := ReadMultiline(in, env.Options&OptShowPrompt != 0, env.Stdout, "gomacro> ")
-	if err != nil {
-		if err != io.EOF {
-			fmt.Fprintln(env.Stderr, err)
-		}
-		return false
+	var readopts ReadOptions
+	if env.Options&OptShowPrompt != 0 {
+		readopts |= ReadOptShowPrompt
 	}
+
+	str, _ := env.ReadMultiline(in, readopts)
+	return len(str) > 0 && env.ParseEvalPrintRecover(str, in)
+}
+
+func (env *Env) ReadMultiline(in *bufio.Reader, readopts ReadOptions) (str string, comments string) {
+	str, comments, err := ReadMultiline(in, readopts, env.Stdout, "gomacro> ")
+	if err != nil && err != io.EOF {
+		fmt.Fprintln(env.Stderr, err)
+	}
+	return str, comments
+}
+
+func (env *Env) ParseEvalPrintRecover(str string, in *bufio.Reader) (callAgain bool) {
 
 	trap := env.Options&OptTrapPanic != 0
 	duration := env.Options&OptShowTime != 0
@@ -146,7 +158,11 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 		defer func() {
 			if trap {
 				if rec := recover(); rec != nil {
-					fmt.Fprintln(env.Stderr, rec)
+					if env.Options&OptPanicStackTrace != 0 {
+						fmt.Fprintf(env.Stderr, "%s\n%s", rec, debug.Stack())
+					} else {
+						fmt.Fprintf(env.Stderr, "%s\n", rec)
+					}
 					callAgain = true
 				}
 			}
@@ -211,19 +227,17 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 			}
 			return true
 		default:
-			switch cmd {
-			case ":const", ":func", ":import", ":type", ":var":
-				// temporarily disable collection of declarations and statements
-				saveOpts := env.Options
-				collect := OptCollectDeclarations | OptCollectStatements
-				if saveOpts&collect != 0 {
-					env.Options &^= collect
-					defer func() {
-						env.Options = saveOpts
-					}()
-				}
-				src = src[1:]
+			// temporarily disable collection of declarations and statements,
+			// and temporarily disable macroexpandonly (i.e. re-enable eval)
+			saved := env.Options
+			todisable := OptMacroExpandOnly | OptCollectDeclarations | OptCollectStatements
+			if saved&todisable != 0 {
+				env.Options &^= todisable
+				defer func() {
+					env.Options = saved
+				}()
 			}
+			src = src[1:]
 		}
 	}
 	if src == "package" || strings.HasPrefix(src, "package ") {
@@ -243,8 +257,15 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 	// parse + macroexpansion phase
 	ast := env.ParseAst(src)
 
+	var value r.Value
+	var values []r.Value
+
 	// eval phase
-	value, values := env.EvalAst(ast)
+	if env.Options&OptMacroExpandOnly == 0 {
+		value, values = env.EvalAst(ast)
+	} else if ast != nil {
+		value = r.ValueOf(ast.Interface())
+	}
 
 	// print phase
 	if env.Options&OptShowEval != 0 {

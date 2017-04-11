@@ -112,10 +112,12 @@ func MakeQuote(p_or_nil *parser, op token.Token, pos token.Pos, node ast.Node) (
 	return &ast.UnaryExpr{OpPos: pos, Op: op, X: fun}, body
 }
 
-// macro calls syntax is "foo [;] bar [;] baz"... recognize it
+/*
+// macro calls syntax is "foo ; bar ; baz"... recognize it
 func (p *parser) expectSemiOrSpace() {
 	// semicolon is optional before a closing ')' or '}'
-	// we make it optional also between two identifiers
+	// make it optional also between identifiers and literals.
+	// allows to write {macro arg1 arg2} instead of the heavy {macro; arg1; arg2}
 	switch p.tok {
 	case token.RPAREN, token.RBRACK, token.RBRACE:
 		break
@@ -125,14 +127,18 @@ func (p *parser) expectSemiOrSpace() {
 		fallthrough
 	case token.SEMICOLON:
 		p.next()
-	default:
-		if p.tok == token.IDENT && p.tok0 == token.IDENT {
-			break
+	case token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
+		switch p.tok0 {
+		case token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING:
+			return
 		}
+		fallthrough
+	default:
 		p.errorExpected(p.pos, "';'")
 		syncStmt(p)
 	}
 }
+*/
 
 // parseExprBlock parses a block statement inside an expression.
 func (p *parser) parseExprBlock() ast.Expr {

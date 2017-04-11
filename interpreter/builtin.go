@@ -83,9 +83,35 @@ func funcEnv(env *Env, args []r.Value) (r.Value, []r.Value) {
 }
 
 func funcEval(env *Env, args []r.Value) (r.Value, []r.Value) {
-	node := toInterface(args[0])
-	form := AnyToAst(node, "Eval")
+	arg := args[0]
+	if arg == Nil || arg == None {
+		return arg, nil
+	}
+	x := toInterface(arg)
+	form := AnyToAst(x, "Eval")
 	return env.EvalAst(form)
+}
+
+func funcEvalType(env *Env, args []r.Value) (r.Value, []r.Value) {
+	arg := args[0]
+	if arg == Nil || arg == None {
+		return arg, nil
+	}
+	x := toInterface(arg)
+	form := UnwrapTrivialAst(AnyToAst(x, "EvalType"))
+
+	switch node := ToNode(form).(type) {
+	case ast.Expr:
+		// return nil for *ast.Ident{Name: "nil"}
+		t := env.evalTypeOrNil(node)
+		if t == nil {
+			return Nil, nil
+		}
+		// return as reflect.Type, not as the concrete struct *reflect.type
+		return r.ValueOf(&t).Elem(), nil
+	default:
+		return env.Errorf("EvalType: expecting <ast.Expr>, found: %v <%v>", node, r.TypeOf(node))
+	}
 }
 
 func funcImag(env *Env, args []r.Value) (r.Value, []r.Value) {
@@ -325,6 +351,7 @@ func (env *Env) addBuiltins() {
 
 	binds["Env"] = r.ValueOf(Function{funcEnv, 0})
 	binds["Eval"] = r.ValueOf(Function{funcEval, 1})
+	binds["EvalType"] = r.ValueOf(Function{funcEvalType, 1})
 	binds["MacroExpand"] = r.ValueOf(Function{funcMacroExpand, -1})
 	binds["MacroExpand1"] = r.ValueOf(Function{funcMacroExpand1, -1})
 	binds["MacroExpandCodewalk"] = r.ValueOf(Function{funcMacroExpandCodewalk, -1})

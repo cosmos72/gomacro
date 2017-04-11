@@ -87,8 +87,14 @@ func ReadString(src interface{}) string {
 	return ""
 }
 
-func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt string) (string, error) {
-	var buf []byte
+type ReadOptions int
+
+const (
+	ReadOptShowPrompt ReadOptions = 1 << iota
+	ReadOptCollectAllComments
+)
+
+func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt string) (src string, comments string, err error) {
 	type Mode int
 	const (
 		mNormal Mode = iota
@@ -98,6 +104,7 @@ func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt stri
 		mStringEscape
 		mRawString
 		mSlash
+		mHash
 		mLineComment
 		mComment
 		mCommentStar
@@ -105,16 +112,21 @@ func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt stri
 	)
 	mode := mNormal
 	paren := 0
+	tokens := false // true if some non-comment was found
+	var buf, commentbuf []byte
 
-	if showPrompt {
+	optPrompt := opts&ReadOptShowPrompt != 0
+	optAllComments := opts&ReadOptCollectAllComments != 0
+
+	if optPrompt {
 		fmt.Fprint(out, prompt)
 	}
 	for {
 		line, err := in.ReadBytes('\n')
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
-		for _, ch := range line {
+		for i, ch := range line {
 			switch mode {
 			case mNormal:
 				switch ch {
@@ -130,6 +142,10 @@ func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt stri
 					mode = mRawString
 				case '/':
 					mode = mSlash
+					continue
+				case '#':
+					mode = mHash // support #! line comments
+					continue
 				case '~':
 					mode = mTilde
 				}
@@ -174,8 +190,18 @@ func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt stri
 				switch ch {
 				case '/':
 					mode = mLineComment
+					continue
 				case '*':
 					mode = mComment
+					continue
+				default:
+					mode = mNormal
+				}
+			case mHash:
+				switch ch {
+				case '!':
+					mode = mLineComment
+					continue
 				default:
 					mode = mNormal
 				}
@@ -183,36 +209,47 @@ func ReadMultiline(in *bufio.Reader, showPrompt bool, out io.Writer, prompt stri
 				switch ch {
 				case '\n':
 					mode = mNormal
+				default:
+					continue
 				}
 			case mComment:
 				switch ch {
 				case '*':
 					mode = mCommentStar
 				}
+				continue
 			case mCommentStar:
 				switch ch {
 				case '/':
 					mode = mNormal
 				default:
 					mode = mComment
+					continue
 				}
 			case mTilde:
 				mode = mNormal
 			}
+			if !tokens && optAllComments {
+				commentbuf = append(commentbuf, line[:i+1]...)
+			}
+			tokens = true
+		}
+		if !tokens && optAllComments {
+			commentbuf = append(commentbuf, line...)
 		}
 		buf = append(buf, line...)
-		if paren <= 0 && mode == mNormal {
+		if paren <= 0 && mode == mNormal && (tokens || !optAllComments) {
 			break
 		}
-		if showPrompt {
+		if optPrompt {
 			printDots(out, 4+2*paren)
 		}
 	}
-	return string(buf), nil
+	return string(buf), string(commentbuf), nil
 }
 
-func invalidChar(ch byte, ctx string) (string, error) {
-	return "", errors.New(fmt.Sprintf("unexpected character %q inside %s literal", ch, ctx))
+func invalidChar(ch byte, ctx string) (string, string, error) {
+	return "\n", "", errors.New(fmt.Sprintf("unexpected character %q inside %s literal", ch, ctx))
 }
 
 func printDots(out io.Writer, count int) {

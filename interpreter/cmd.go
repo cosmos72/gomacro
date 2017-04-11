@@ -35,7 +35,7 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
-	mp "github.com/cosmos72/gomacro/parser"
+	// mp "github.com/cosmos72/gomacro/parser"
 )
 
 type Cmd struct {
@@ -45,7 +45,7 @@ type Cmd struct {
 
 func (cmd *Cmd) Init() {
 	cmd.Env = New()
-	cmd.ParserMode = mp.Trace & 0
+	cmd.ParserMode = 0
 	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 	cmd.WriteDeclsAndStmtsToFile = false
 	cmd.OverwriteFiles = false
@@ -58,80 +58,73 @@ func (cmd *Cmd) Main(args []string) (err error) {
 	env := cmd.Env
 
 	var set, clear Options
-	repl := len(args) == 0
+	var repl = true
 	cmd.WriteDeclsAndStmtsToFile = false
 	cmd.OverwriteFiles = false
 
 	for len(args) > 0 {
 		switch args[0] {
-		case "-e":
+		case "-c", "--collect":
+			env.Options |= OptCollectDeclarations | OptCollectStatements
+		case "-e", "--expr":
 			if len(args) > 1 {
+				repl = false
 				buf := bytes.NewBufferString(args[1])
 				buf.WriteByte('\n')        // because ReadMultiLine() needs a final '\n'
 				env.Options |= OptShowEval // set by default, overridden by -s, -v and -vv
 				env.Options = (env.Options | set) &^ clear
-				err := cmd.EvalReader(buf)
+				_, err := cmd.EvalReader(buf)
 				if err != nil {
 					return err
 				}
 				args = args[1:]
 			}
-		case "-f":
+		case "-f", "--force-overwrite":
 			cmd.OverwriteFiles = true
-		case "-h":
+		case "-h", "--help":
 			return cmd.Usage()
-		case "-i":
-			repl = true
-		case "-o":
-			if len(args) > 1 {
-				for _, str := range strings.Split(args[1], ",") {
-					switch str {
-					case "decl":
-						set |= OptCollectDeclarations
-						clear &^= OptCollectDeclarations
-					case "^decl":
-						set &^= OptCollectDeclarations
-						clear |= OptCollectDeclarations
-					case "stmt":
-						set |= OptCollectStatements
-						clear &^= OptCollectStatements
-					case "^stmt":
-						set &^= OptCollectStatements
-						clear |= OptCollectStatements
-					case "verbose":
-						set |= OptShowEval
-						clear &^= OptShowEval
-					case "^verbose":
-						set &^= OptShowEval
-						clear |= OptShowEval
-					case "type":
-						set |= OptShowEvalType
-						clear &^= OptShowEvalType
-					case "^type":
-						set &^= OptShowEvalType
-						clear |= OptShowEvalType
-					}
-				}
-				args = args[1:]
-			}
-		case "-s":
+		case "-i", "--repl":
+			repl = false
+			env.Options |= OptShowPrompt | OptShowEval | OptShowEvalType // set by default, overridden by -s, -v and -vv
+			env.Options = (env.Options | set) &^ clear
+			env.ReplStdin()
+
+		case "-m", "--macro-only":
+			set |= OptMacroExpandOnly
+			clear &^= OptMacroExpandOnly
+		case "-n", "--no-trap":
+			set &^= OptTrapPanic | OptPanicStackTrace
+			clear |= OptTrapPanic | OptPanicStackTrace
+		case "-t", "--trap":
+			set |= OptTrapPanic | OptPanicStackTrace
+			clear &= OptTrapPanic | OptPanicStackTrace
+		case "-s", "--silent":
 			set &^= OptShowEval | OptShowEvalType
 			clear |= OptShowEval | OptShowEvalType
-		case "-v":
+		case "-v", "--verbose":
 			set = (set | OptShowEval) &^ OptShowEvalType
 			clear = (clear &^ OptShowEval) | OptShowEvalType
-		case "-vv":
+		case "-vv", "--very-verbose":
 			set |= OptShowEval | OptShowEvalType
 			clear &^= OptShowEval | OptShowEvalType
-		case "-w":
+		case "-w", "--write-decls":
 			cmd.WriteDeclsAndStmtsToFile = true
+		case "-x", "--exec":
+			clear |= OptMacroExpandOnly
+			set &^= OptMacroExpandOnly
 		default:
+			arg := args[0]
+			if len(arg) > 0 && arg[0] == '-' {
+				fmt.Printf("gomacro: unrecognized option '%s'.\nTry 'gomacro --help' for more information\n", arg)
+				return nil
+			}
+			repl = false
 			if cmd.WriteDeclsAndStmtsToFile {
 				env.Options |= OptCollectDeclarations | OptCollectStatements
 			}
 			env.Options &^= OptShowPrompt | OptShowEval | OptShowEvalType // cleared by default, overridden by -s, -v and -vv
 			env.Options = (env.Options | set) &^ clear
-			cmd.EvalFileOrDir(args[0])
+			cmd.EvalFileOrDir(arg)
 
 			env.Imports, env.Declarations, env.Statements = nil, nil, nil
 		}
@@ -148,25 +141,31 @@ func (cmd *Cmd) Main(args []string) (err error) {
 func (cmd *Cmd) Usage() error {
 	fmt.Print(`usage: gomacro [OPTIONS] [files-and-dirs]
 
-       Recognized options:
-       -e EXPR evaluate expression
-       -f      force option -w to overwrite existing files
-       -h      show this help and exit
-       -i      interactive. start a REPL after evaluating expression, files and dirs.
-       -o LIST set/unset options, see below.
-       -s      silent. do NOT show startup message, prompt, and expressions result
-       -v      verbose. show startup message, prompt, and expressions result
-       -w      write collected declarations and statements to *.go files
+  Recognized options:
+    -c,   --collect          collect declarations and statements, to print them later
+    -e,   --expr EXPR        evaluate expression
+    -f,   --force-overwrite  option -w will overwrite existing files
+    -h,   --help             show this help and exit
+    -i,   --repl             interactive. start a REPL after evaluating expression, files and dirs.
+	                         default: start a REPL only if no expressions, files or dirs are specified
+	-m,   --macro-only       do not execute code, only parse and macroexpand it.
+	                         useful to run gomacro as a Go preprocessor
+    -n,   --no-trap          do not trap panics in the interpreter
+	-t,   --trap             trap panics in the interpreter (default)
+    -s,   --silent           silent. do NOT show startup message, prompt, and expressions results.
+	                         default when executing files and dirs.
+    -v,   --verbose          verbose. show startup message, prompt, and expressions results.
+	                         default when executing an expression.
+    -vv,  --very-verbose     as -v, and in addition show the type of expressions results.
+	                         default when executing a REPL
+    -w,   --write-decls      write collected declarations and statements to *.go files.
+	                         implies -c
+    -x,   --exec             execute parsed code (default). disabled by -m
 
-        LIST is a comma-separated list of one or more:
-         decl      collect declarations
-         ^decl     do NOT collect declarations
-         stmt      collect statements
-         ^stmt     do NOT collect statements
-         verbose   same as -v
-         ^verbose  same as -s
-       collected declarations and statements can be written to standard output
-       or to a file with the REPL command :write
+    Options are processed in order, except for -i that is always processed as last.
+
+    Collected declarations and statements can be also written to standard output
+    or to a file with the REPL command :write
 `)
 	return nil
 }
@@ -211,10 +210,16 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 	return nil
 }
 
+const disclaimer = `// DO NOT EDIT! this file was generated automatically by gomacro
+// Any change will be lost when the file is re-generated
+
+`
+
 func (cmd *Cmd) EvalFile(filename string) (err error) {
 	env := cmd.Env
 	env.Declarations = nil
 	env.Statements = nil
+	saveFilename := env.Filename
 
 	f, err := os.Open(filename)
 	if err != nil {
@@ -222,8 +227,11 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 	}
 	defer func() {
 		f.Close()
+		env.Filename = saveFilename
 	}()
-	err = cmd.EvalReader(f)
+	env.Filename = filename
+	var comments string
+	comments, err = cmd.EvalReader(f)
 	if err != nil {
 		return err
 	}
@@ -244,7 +252,7 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 				return nil
 			}
 		}
-		env.WriteDeclsToFile(outname)
+		env.WriteDeclsToFile(outname, disclaimer, comments, "\n\n")
 
 		if env.Options&OptShowEval != 0 {
 			fmt.Fprintf(env.Stdout, "// processed file: %v\t-> %v\n", filename, outname)
@@ -253,7 +261,7 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 	return nil
 }
 
-func (cmd *Cmd) EvalReader(src io.Reader) (err error) {
+func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			switch rec := rec.(type) {
@@ -265,8 +273,14 @@ func (cmd *Cmd) EvalReader(src io.Reader) (err error) {
 		}
 	}()
 	in := bufio.NewReader(src)
+	env := cmd.Env
+	env.Options &^= OptShowPrompt // parsing a file: suppress prompt
 
-	for cmd.Env.ReadParseEvalPrint(in) {
+	// perform the first iteration manually, to collect comments
+	str, comments := env.ReadMultiline(in, ReadOptCollectAllComments)
+	if len(str) > 0 && env.ParseEvalPrintRecover(str, in) {
+		for cmd.Env.ReadParseEvalPrint(in) {
+		}
 	}
-	return nil
+	return comments, nil
 }

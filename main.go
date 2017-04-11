@@ -51,7 +51,7 @@ func main() {
 	cmd.Init()
 
 	cmd.ParserMode |= gmp.Trace & 0
-	cmd.Options |= base.OptTrapPanic // | base.OptShowAfterMacroExpansion // | base.OptShowAfterParse // | base.OptDebugMacroExpand // |  base.OptDebugQuasiquote  // | base.OptShowEvalDuration
+	cmd.Options |= base.OptShowTime & 0 // base.OptTrapPanic // | base.OptShowAfterMacroExpansion // | base.OptShowAfterParse // | base.OptDebugMacroExpand // |  base.OptDebugQuasiquote
 
 	err := cmd.Main(args)
 	if err != nil {

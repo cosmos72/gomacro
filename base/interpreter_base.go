@@ -175,12 +175,15 @@ func (ir *InterpreterBase) CollectNode(node ast.Node) {
 	}
 }
 
-func (ir *InterpreterBase) WriteDeclsToFile(filename string) {
+func (ir *InterpreterBase) WriteDeclsToFile(filename string, prologue ...string) {
 	f, err := os.Create(filename)
 	if err != nil {
 		ir.Errorf("failed to create file %q: %v", filename, err)
 	}
 	defer f.Close()
+	for _, str := range prologue {
+		f.WriteString(str)
+	}
 	ir.WriteDeclsToStream(f)
 }
 
