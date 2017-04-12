@@ -26,6 +26,7 @@ package fast_interpreter
 
 import (
 	"go/ast"
+	"go/constant"
 	"go/token"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -42,34 +43,42 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 
 	case mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
 		return c.unimplementedUnaryExpr(node, nil)
+
+	case token.AND:
+		// c.Expr(node.X) is useless here... skip it
+		return c.AddressOf(node)
 	}
 
-	x := c.Expr(node.X)
-	if x.NumOut() == 0 {
-		c.Errorf("operand returns no values, cannot use in unary expression: %v", node.X)
+	xe := c.Expr(node.X)
+	if xe.NumOut() == 0 {
+		c.Errorf("operand of unary expression returns no values: %v", node)
 	}
-
-	isConst := x.Const()
+	if xe.Type == nil {
+		return c.unimplementedUnaryExpr(node, xe)
+	}
+	if xe.Untyped() {
+		return c.UnaryExprUntyped(node, xe)
+	}
+	isConst := xe.Const()
+	xe.WithFun()
 	var z *Expr
 
 	switch node.Op {
 	case token.ADD:
-		z = c.UnaryPlus(node, x) // only checks x type, returns x itself
-	/*
-		case token.SUB:
-			z = c.UnaryMinus(node, x)
-		case token.NOT:
-			z = c.UnaryNot(node, x)
-		case token.XOR:
-			z = c.UnaryXor()
-		case token.AND:
-			z = c.AddressOf(node, x)
-		case token.ARROW:
-			z = c.UnaryRecv(node, x)
-		// case token.MUL: // not seen, the parser produces *ast.StarExpr instead
-	*/
+		z = c.UnaryPlus(node, xe) // only checks xe type, returns xe itself
+	case token.SUB:
+		z = c.UnaryMinus(node, xe)
+	case token.NOT:
+		z = c.UnaryNot(node, xe)
+	case token.XOR:
+		z = c.UnaryXor(node, xe)
+	case token.ARROW:
+		z = c.UnaryRecv(node, xe)
+		// never returns a constant
+		isConst = false
+	// case token.MUL: // not seen, the parser produces *ast.StarExpr instead
 	default:
-		return c.unimplementedUnaryExpr(node, x)
+		return c.unimplementedUnaryExpr(node, xe)
 	}
 	if isConst {
 		// constant propagation
@@ -78,19 +87,33 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 	return z
 }
 
-func (c *Comp) invalidUnaryExpr(node *ast.UnaryExpr, x *Expr) *Expr {
-	return c.badUnaryExpr("invalid", node, x)
+func (c *Comp) UnaryExprUntyped(node *ast.UnaryExpr, xe *Expr) *Expr {
+	op := node.Op
+	switch op {
+	case token.ADD, token.SUB, token.XOR, token.NOT:
+		xlit := xe.Value.(UntypedLit)
+		ret := constant.UnaryOp(op, xlit.Obj, 0)
+		if ret == constant.MakeUnknown() {
+			return c.invalidUnaryExpr(node, xe)
+		}
+		return ExprUntypedLit(xlit.Kind, ret)
+	}
+	return c.invalidUnaryExpr(node, xe)
 }
 
-func (c *Comp) unimplementedUnaryExpr(node *ast.UnaryExpr, x *Expr) *Expr {
-	return c.badUnaryExpr("unimplemented", node, x)
+func (c *Comp) invalidUnaryExpr(node *ast.UnaryExpr, xe *Expr) *Expr {
+	return c.badUnaryExpr("invalid", node, xe)
 }
 
-func (c *Comp) badUnaryExpr(reason string, node *ast.UnaryExpr, x *Expr) *Expr {
+func (c *Comp) unimplementedUnaryExpr(node *ast.UnaryExpr, xe *Expr) *Expr {
+	return c.badUnaryExpr("unimplemented", node, xe)
+}
+
+func (c *Comp) badUnaryExpr(reason string, node *ast.UnaryExpr, xe *Expr) *Expr {
 	opstr := mt.String(node.Op)
-	if x != nil {
+	if xe != nil {
 		c.Errorf("%s unary operation %s on <%v>: %s %v",
-			reason, opstr, x.Type, opstr, node.X)
+			reason, opstr, xe.Type, opstr, node.X)
 	} else {
 		c.Errorf("%s unary operation %s: %s %v",
 			reason, opstr, opstr, node.X)

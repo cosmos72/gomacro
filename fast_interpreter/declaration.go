@@ -334,7 +334,7 @@ func (c *Comp) DeclBindRuntimeValue(name string, bind Bind) func(*Env, r.Value) 
 		}
 	case IntBind:
 		// no difference between declaration and assignment for IntBind
-		return c.PlaceSetValue(&Place{Upn: 0, Desc: desc, Type: t})
+		return c.PlaceSetValue(&Place{Var: Var{Upn: 0, Desc: desc, Type: t}})
 	}
 }
 

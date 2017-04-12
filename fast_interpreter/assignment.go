@@ -27,7 +27,6 @@ package fast_interpreter
 import (
 	"go/ast"
 	"go/token"
-	r "reflect"
 )
 
 // Assign compiles an *ast.AssignStmt into an assignment to one or more place
@@ -75,7 +74,7 @@ func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
 // AssignVar0 compiles an assignment to a variable.
 // not used by gomacro, provided as convenience for applications
 func (c *Comp) AssignVar0(name string, init *Expr) {
-	place := c.PlaceVar(name)
+	place := c.SettableVar(name)
 	if init.Const() {
 		c.placeSetConst(place, init)
 	} else {
@@ -83,49 +82,53 @@ func (c *Comp) AssignVar0(name string, init *Expr) {
 	}
 }
 
-type Place struct {
-	Upn  int
-	Desc BindDescriptor
-	Type r.Type
-	// Fun is nil for identifiers. returns address of place (for primitive types that fit uint64)
-	// otherwise returns a non-settable reflect.Value: the address of place
-	// (use r.Value.Elem() to access and modify its contents)
-	// For map[key], Fun returns the map itself wrapped in a reflect.Value (not its address).
-	// Call Fun only once, it may have side effects!
-	Fun I
-	// used only for map[key], returns key. call it only once, it may have side effects!
-	MapKey func(*Env) r.Value
-}
-
 // Place compiles the left-hand-side of an assignment
 func (c *Comp) Place(lhs ast.Expr) *Place {
+	return c.PlaceOrAddress(lhs, false)
+}
+
+// PlaceOrAddress compiles the left-hand-side of an assignment or the location of an address-of
+func (c *Comp) PlaceOrAddress(lhs ast.Expr, addressof bool) *Place {
 	switch lhs := lhs.(type) {
 	case *ast.Ident:
 		name := lhs.Name
 		if name == "_" {
+			if addressof {
+				c.Errorf("cannot take the address of _")
+				return nil
+			}
 			return &Place{}
 		}
 		upn, bind := c.Resolve(name)
 		class := bind.Desc.Class()
 		if class != VarBind && class != IntBind {
-			c.Errorf("cannot assign to: %v", name)
+			if addressof {
+				c.Errorf("cannot take the address of %s: %v", class, name)
+			} else {
+				c.Errorf("cannot assign to %s: %v", class, name)
+			}
+			return nil
 		}
-		return &Place{Upn: upn, Desc: bind.Desc, Type: bind.Type}
+		return &Place{Var: Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}}
 	default:
-		c.Errorf("unimplemented: assignment of non-identifier: %v", lhs)
+		if addressof {
+			c.Errorf("unimplemented: address of non-identifier: %v", lhs)
+		} else {
+			c.Errorf("unimplemented: assignment of non-identifier: %v", lhs)
+		}
 		return nil
 	}
 }
 
 // PlaceVar compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
-func (c *Comp) PlaceVar(name string) *Place {
+func (c *Comp) SettableVar(name string) *Place {
 	if name == "_" {
 		return &Place{}
 	}
 	upn, bind := c.Resolve(name)
 	class := bind.Desc.Class()
 	if class != VarBind && class != IntBind {
-		c.Errorf("cannot assign to %v: %v", class, name)
+		c.Errorf("cannot assign to %s: %v", class, name)
 	}
-	return &Place{Upn: upn, Desc: bind.Desc, Type: bind.Type}
+	return &Place{Var: Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}}
 }

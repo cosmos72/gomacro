@@ -96,7 +96,7 @@ func BenchmarkArithFastInterpreter(b *testing.B) {
 	nodes := c.ParseBytes([]byte("((n*2+3)&4 | 5 ^ 6) / (n|1)"))
 	fun := c.Compile(nodes[0])
 
-	place := c.PlaceVar("n")
+	place := c.SettableVar("n")
 	setvar := c.PlaceSetValue(place)
 	value := r.New(TypeOfInt).Elem()
 	var ret r.Value

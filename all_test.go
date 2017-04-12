@@ -122,6 +122,7 @@ var tests = []TestCase{
 	TestCase{A, "expr_xor", "0x1f ^ 0xf1", 0x1f ^ 0xf1, nil},
 	TestCase{A, "expr_arith", "((1+2)*3^4|99)%112", ((1+2)*3 ^ 4 | 99) % 112, nil},
 	TestCase{A, "expr_shift", "7<<(10>>1)", 7 << (10 >> 1), nil},
+
 	TestCase{A, "complex_1", "7i", 7i, nil},
 	TestCase{A, "complex_2", "0.5+1.75i", 0.5 + 1.75i, nil},
 	TestCase{A, "complex_3", "1i * 2i", 1i * 2i, nil},
@@ -137,6 +138,7 @@ var tests = []TestCase{
 	TestCase{F, "const_4", "const c4 = c3/3; c4", (0.1 + 0.2) / 3, nil},
 	TestCase{F, "untyped_1", "2.0 >> 1", 1, nil},
 	TestCase{A, "untyped_2", "1/2", 0, nil},
+	TestCase{A, "untyped_unary", "-+^6", -+^6, nil},
 
 	TestCase{A, "iota_1", "const c5 = iota^7; c5", 7, nil},
 	TestCase{A, "iota_2", "const ( c6 = iota+6; c7=iota+6 ); c6", 6, nil},
@@ -164,7 +166,7 @@ var tests = []TestCase{
 	TestCase{A, "var_shift_3", "v2 << 3", uint8(7) << 3, nil},
 	TestCase{A, "var_shift_4", "v2 >> 1", uint8(7) >> 1, nil},
 	TestCase{A, "var_shift_5", "0xff << v2", 0xff << 7, nil},
-	TestCase{A, "var_shift_6", "0x12345678 >> v2", 0x12345678 >> 7, nil},
+	TestCase{A, "var_shift_6", "0x12345678 >> v2", 0x12345678 >> uint8(7), nil},
 	TestCase{A, "var_shift_7", "v << v2", uint32(99) << uint8(7), nil},
 	TestCase{A, "var_shift_8", "v3 << v3 >> v2", uint16(12) << 12 >> uint8(7), nil},
 	TestCase{A, "var_shift_9", "v3 << 0", uint16(12), nil},
@@ -177,6 +179,11 @@ var tests = []TestCase{
 	TestCase{A, "eql_nil_6", "vnil == nil", true, nil},
 	TestCase{A, "eql_halfnil", "var vhalfnil interface{} = vm; vhalfnil == nil", false, nil},
 	TestCase{A, "eql_interface", "vi == 1", true, nil},
+	TestCase{A, "typed_unary_1", "!!!v1", true, nil},
+	TestCase{A, "typed_unary_2", "+-^v2", uint8(8), nil},
+	TestCase{A, "typed_unary_3", "+^-v3", uint16(11), nil},
+	TestCase{A, "typed_unary_4", "v7 = 2.5i; -v7", complex64(-2.5i), nil},
+
 	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
 	TestCase{A, "type_struct", "type Pair struct { A, B int }; var pair Pair; pair", struct{ A, B int }{}, nil},

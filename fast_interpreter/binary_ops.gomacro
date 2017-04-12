@@ -106,24 +106,24 @@ import (
 	for _, typ := range typelist {
 		t := EvalType(typ)
 		if t == nil {
-			caselist = append(caselist, ~"{default: binaryop ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+			caselist = append(caselist, ~"{default: binaryop; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 			foundnil = true
 
 		} else if t.Kind() == r.Int {
 			// shortcut for all int* types
 			for _, typ := range []ast.Expr{~'int, ~'int8, ~'int16, ~'int32, ~'int64} {
 				kind := makekind(typ)
-				caselist = append(caselist, ~"{case ~,kind: binaryop ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+				caselist = append(caselist, ~"{case ~,kind: binaryop; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 			}
 		} else if t.Kind() == r.Uint {
 			// shortcut for all uint* types
 			for _, typ := range []ast.Expr{~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr} {
 				kind := makekind(typ)
-				caselist = append(caselist, ~"{case ~,kind: binaryop ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+				caselist = append(caselist, ~"{case ~,kind: binaryop; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 			}
 		} else {
 			kind := makekind(typ)
-			caselist = append(caselist, ~"{case ~,kind: binaryop ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+			caselist = append(caselist, ~"{case ~,kind: binaryop; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 		}
 	}
 
@@ -145,21 +145,21 @@ func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.ADD ; false ; false; { int; uint; float32; float64; complex64; complex128; string }}
+		{binaryops; token.ADD; false; false; { int; uint; float32; float64; complex64; complex128; string }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
 		if isLiteralNumber(y, 0) || y == "" {
 			return xe
 		}
-		{binaryops ; token.ADD ; false ; true; { int; uint; float32; float64; complex64; complex128; string }}
+		{binaryops; token.ADD; false; true; { int; uint; float32; float64; complex64; complex128; string }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
 		if isLiteralNumber(x, 0) || x == "" {
 			return ye
 		}
-		{binaryops ; token.ADD ; true ; false; { int; uint; float32; float64; complex64; complex128; string }}
+		{binaryops; token.ADD; true; false; { int; uint; float32; float64; complex64; complex128; string }}
 	}
 	return ExprFun(xe.Type, fun)
 }
@@ -174,18 +174,18 @@ func (c *Comp) Sub(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.SUB ; false ; false; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.SUB; false; false; { int; uint; float32; float64; complex64; complex128 }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
 		if isLiteralNumber(y, 0) {
 			return xe
 		}
-		{binaryops ; token.SUB ; false ; true; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.SUB; false; true; { int; uint; float32; float64; complex64; complex128 }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
-		{binaryops ; token.SUB ; true ; false; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.SUB; true; false; { int; uint; float32; float64; complex64; complex128 }}
 	}
 	return ExprFun(xe.Type, fun)
 }
@@ -200,21 +200,21 @@ func (c *Comp) Mul(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.MUL ; false ; false; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.MUL; false; false; { int; uint; float32; float64; complex64; complex128 }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
 		if isLiteralNumber(y, 1) {
 			return xe
 		}
-		{binaryops ; token.MUL ; false ; true; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.MUL; false; true; { int; uint; float32; float64; complex64; complex128 }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
 		if isLiteralNumber(x, 1) {
 			return ye
 		}
-		{binaryops ; token.MUL ; true ; false; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.MUL; true; false; { int; uint; float32; float64; complex64; complex128 }}
 	}
 	return ExprFun(xe.Type, fun)
 }
@@ -229,7 +229,7 @@ func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.QUO ; false ; false; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.QUO; false; false; { int; uint; float32; float64; complex64; complex128 }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
@@ -240,11 +240,11 @@ func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 1) {
 			return xe
 		}
-		{binaryops ; token.QUO ; false ; true; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.QUO; false; true; { int; uint; float32; float64; complex64; complex128 }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
-		{binaryops ; token.QUO ; true ; false; { int; uint; float32; float64; complex64; complex128 }}
+		{binaryops; token.QUO; true; false; { int; uint; float32; float64; complex64; complex128 }}
 	}
 	return ExprFun(xe.Type, fun)
 }
@@ -259,7 +259,7 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.REM ; false ; false; { int; uint }}
+		{binaryops; token.REM; false; false; { int; uint }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
@@ -268,11 +268,11 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			c.Errorf("division by zero")
 			return nil
 		}
-		{binaryops ; token.REM ; false ; true; { int; uint }}
+		{binaryops; token.REM; false; true; { int; uint }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
-		{binaryops ; token.REM ; true ; false; { int; uint }}
+		{binaryops; token.REM; true; false; { int; uint }}
 	}
 	return ExprFun(xe.Type, fun)
 }
@@ -287,7 +287,7 @@ func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.AND ; false ; false; { int; uint }}
+		{binaryops; token.AND; false; false; { int; uint }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
@@ -295,7 +295,7 @@ func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, -1) {
 			return xe
 		}
-		{binaryops ; token.AND ; false ; true; { int; uint }}
+		{binaryops; token.AND; false; true; { int; uint }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
@@ -303,7 +303,7 @@ func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(x, -1) {
 			return ye
 		}
-		{binaryops ; token.AND ; true ; false; { int; uint }}
+		{binaryops; token.AND; true; false; { int; uint }}
 	}
 	return ExprFun(xe.Type, fun)
 }
@@ -318,7 +318,7 @@ func (c *Comp) Or(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.OR ; false ; false; { int; uint }}
+		{binaryops; token.OR; false; false; { int; uint }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
@@ -326,7 +326,7 @@ func (c *Comp) Or(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			return xe
 		}
-		{binaryops ; token.OR ; false ; true; { int; uint }}
+		{binaryops; token.OR; false; true; { int; uint }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
@@ -334,7 +334,7 @@ func (c *Comp) Or(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(x, 0) {
 			return ye
 		}
-		{binaryops ; token.OR ; true ; false; { int; uint }}
+		{binaryops; token.OR; true; false; { int; uint }}
 	}
 	return ExprFun(xe.Type, fun)
 }
@@ -349,21 +349,21 @@ func (c *Comp) Xor(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.XOR ; false ; false; { int; uint }}
+		{binaryops; token.XOR; false; false; { int; uint }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
 		if isLiteralNumber(y, 0) {
 			return xe
 		}
-		{binaryops ; token.XOR ; false ; true; { int; uint }}
+		{binaryops; token.XOR; false; true; { int; uint }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
 		if isLiteralNumber(x, 0) {
 			return ye
 		}
-		{binaryops ; token.XOR ; true ; false; { int; uint }}
+		{binaryops; token.XOR; true; false; { int; uint }}
 	}
 	return ExprFun(xe.Type, fun)
 }
@@ -378,7 +378,7 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.AND_NOT ; false ; false; { int; uint }}
+		{binaryops; token.AND_NOT; false; false; { int; uint }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
@@ -386,12 +386,12 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			return xe
 		}
-		{binaryops ; token.AND_NOT ; false ; true; { int; uint }}
+		{binaryops; token.AND_NOT; false; true; { int; uint }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
 		// cannot optimize 0 &^ y to 0 because y may have side effects
-		{binaryops ; token.AND_NOT ; true ; false; { int; uint }}
+		{binaryops; token.AND_NOT; true; false; { int; uint }}
 	}
 	return ExprFun(xe.Type, fun)
 }

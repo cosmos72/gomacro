@@ -14,6 +14,7 @@ The fast intepreter supports:
 * parsing, including parsing macro-related syntax - shared with the classic interpreter
 * iota and untyped constants
 * binary expressions on untyped constants, booleans, integers, floats, complex numbers, and strings
+* unary operators + - ^ ! <- (other unary operators: deref * is unimplemented, address-of & is implemented only for variables)
 * constant, variable and type declarations
 * assignment to variables, i.e. 'variable = constant' and 'variable = expression'
 * if

@@ -246,6 +246,28 @@ type NamedType struct {
 	Name, Path string
 }
 
+// ================================== Ident, Place =================================
+
+// Var represents a settable variable
+type Var struct {
+	Upn  int
+	Desc BindDescriptor
+	Type r.Type
+}
+
+// Place represents a settable place or, equivalently, its address
+type Place struct {
+	Var
+	// Fun is nil for variables. returns address of place (for primitive types that fit uint64)
+	// otherwise returns a non-settable reflect.Value: the address of place
+	// (use r.Value.Elem() to access and modify its contents)
+	// For map[key], Fun returns the map itself wrapped in a reflect.Value (not its address).
+	// Call Fun only once, it may have side effects!
+	Fun I
+	// used only for map[key], returns key. call it only once, it may have side effects!
+	MapKey func(*Env) r.Value
+}
+
 // ================================== Comp, Env =================================
 
 type CompileOptions int

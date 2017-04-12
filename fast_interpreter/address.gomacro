@@ -25,6 +25,7 @@
 package fast_interpreter
 
 import (
+	"go/ast"
 	r "reflect"
 	"unsafe"
 )
@@ -106,24 +107,39 @@ import (
 	}
 }
 
+// AddressOf compiles the unary operator &expression i.e. address of an expression
+func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
+	place := c.PlaceOrAddress(node.X, true)
+	if place.Fun != nil {
+		return c.badUnaryExpr("unimplemented: address of non-identifier", node, nil)
+	}
+	return c.AddressOfVar(&place.Var)
+}
 
-// IdentAddress compiles the expression "&name" where name is a variable
-func (c *Comp) IdentAddress(name string) *Expr {
+// AddressOfVar0 is a convenience for applications:
+// it compiles the operation &name, i.e. taking the address of a variable
+func (c *Comp) AddressOfVar0(name string) *Expr {
 	upn, bind := c.Resolve(name)
-	switch bind.Desc.Class() {
+	class := bind.Desc.Class()
+	switch class {
 	default:
-		c.Errorf("cannot take the address of %v", name)
+		c.Errorf("cannot take the address of %s: %v", class, name)
 		return nil
 	case VarBind, IntBind:
-		k := bind.Type.Kind()
-		index := bind.Desc.Index()
-		var ret I
-		switch upn {
-		case 0:  {addresses ; 0}
-		case 1:  {addresses ; 1}
-		case 2:  {addresses ; 2}
-		default: {addresses ; -1}
-		}
-		return &Expr{Lit: Lit{Type: r.PtrTo(bind.Type)}, Fun: ret}
+		return c.AddressOfVar(&Var{upn, bind.Desc, bind.Type})
 	}
+}
+
+func (c *Comp) AddressOfVar(v *Var) *Expr {
+	upn := v.Upn
+	k := v.Type.Kind()
+	index := v.Desc.Index()
+	var ret I
+	switch upn {
+	case 0:  {addresses ; 0}
+	case 1:  {addresses ; 1}
+	case 2:  {addresses ; 2}
+	default: {addresses ; -1}
+	}
+	return &Expr{Lit: Lit{Type: r.PtrTo(v.Type)}, Fun: ret}
 }

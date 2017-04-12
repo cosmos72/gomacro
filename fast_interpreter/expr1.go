@@ -55,8 +55,12 @@ func ExprX1(t r.Type, fun func(env *Env) r.Value) *Expr {
 	return &Expr{Lit: Lit{Type: t}, Fun: fun}
 }
 
-func ExprXV(t r.Type, fun func(env *Env) (r.Value, []r.Value)) *Expr {
-	return &Expr{Lit: Lit{Type: t}, Fun: fun}
+func ExprXV(types []r.Type, fun func(env *Env) (r.Value, []r.Value)) *Expr {
+	if len(types) == 1 {
+		return &Expr{Lit: Lit{Type: types[0]}, Fun: fun}
+	} else {
+		return &Expr{Types: types, Fun: fun}
+	}
 }
 
 func ExprBool(fun func(env *Env) bool) *Expr {
