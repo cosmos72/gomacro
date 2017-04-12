@@ -1,0 +1,387 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * binary_eql.go
+ *
+ *  Created on Apr 02, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast_interpreter
+
+import (
+	"go/token"
+	"go/ast"
+	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
+)
+
+:import (
+	"fmt"
+	"go/ast"
+	"go/token"
+	r "reflect"
+)
+
+:macro eqlneq(opnode, xconst, yconst, typ ast.Node) ast.Node {
+
+	// the return type of Eval() and EvalType() varies. better check early.
+	var xc, yc bool = Eval(xconst), Eval(yconst)
+	var optoken token.Token = Eval(opnode)
+
+	if xc == yc {
+		var expr *ast.BinaryExpr = ~"{x(env) && y(env)} // quasiquote, we modify it destructively
+		expr.Op = optoken
+
+		return ~"{
+			x := x.(func(*Env) ~,typ)
+			y := y.(func(*Env) ~,typ)
+			fun = func(env *Env) bool {
+				return ~,expr
+			}
+		}
+	} else if yc {
+		var expr *ast.BinaryExpr = ~"{x(env) && y} // quasiquote, we modify it destructively
+		expr.Op = optoken
+
+		return ~"{
+			x := x.(func(*Env) ~,typ)
+			y := y.(~,typ)
+			fun = func(env *Env) bool {
+				return ~,expr
+			}
+		}
+	} else {
+		var expr *ast.BinaryExpr = ~"{x && y(env)} // quasiquote, we modify it destructively
+		expr.Op = optoken
+
+		return ~"{
+			x := x.(~,typ)
+			y := y.(func(*Env) ~,typ)
+			fun = func(env *Env) bool {
+				return ~,expr
+			}
+		}
+	}
+}
+
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func makekind(typ ast.Node) ast.Node {
+	t := EvalType(typ)
+
+	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
+	kind := ~"{r . foo}
+	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
+	return kind
+}
+
+:macro eqlneqs(opnode, xconst, yconst, types ast.Node) ast.Node {
+	typelist := types.(*ast.BlockStmt).List
+	caselist := make([]ast.Stmt, 0, len(typelist))
+	foundnil := false
+	for _, typ := range typelist {
+		t := EvalType(typ)
+		if t == nil {
+			caselist = append(caselist, ~"{default: return c.eqlneqMisc(node, xe, ye)})
+			foundnil = true
+
+		} else if t.Kind() == r.Int {
+			// shortcut for all int* types
+			for _, typ := range []ast.Expr{~'int, ~'int8, ~'int16, ~'int32, ~'int64} {
+				kind := makekind(typ)
+				caselist = append(caselist, ~"{case ~,kind: eqlneq ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+			}
+		} else if t.Kind() == r.Uint {
+			// shortcut for all uint* types
+			for _, typ := range []ast.Expr{~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr} {
+				kind := makekind(typ)
+				caselist = append(caselist, ~"{case ~,kind: eqlneq ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+			}
+		} else {
+			kind := makekind(typ)
+			caselist = append(caselist, ~"{case ~,kind: eqlneq ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+		}
+	}
+
+	if !foundnil {
+		caselist = append(caselist, ~'{default: return c.invalidBinaryExpr(node, xe, ye)})
+	}
+	ret := ~"{ switch k { } } // modified parser does not yet support unquoting inside switch body
+	ret.Body = ~"{ ~,@caselist }
+	return ret
+}
+
+func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	if xe.IsNil {
+		if ye.IsNil {
+			return c.invalidBinaryExpr(node, xe, ye)
+		} else {
+			// nil == expr
+			return c.eqlneqNil(node, xe, ye)
+		}
+	} else if ye.IsNil {
+		// expr == nil
+		return c.eqlneqNil(node, xe, ye)
+	}
+	if !xe.Type.Comparable() || !xe.Type.Comparable() {
+		return c.invalidBinaryExpr(node, xe, ye)
+	}
+	xc, yc := xe.Const(), ye.Const()
+	if xe.Type.Kind() != r.Interface && ye.Type.Kind() != r.Interface {
+		// comparison between different types is allowed only if at least one is an interface
+		c.toSameFuncType(node, xe, ye)
+	}
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun func(env *Env) bool
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{eqlneqs; token.EQL; false; false; { bool; int; uint; float32; float64; complex64; complex128; string; nil } }
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		if y == true {
+			return xe
+		}
+		{eqlneqs; token.EQL; false; true; { bool; int; uint; float32; float64; complex64; complex128; string; nil } }
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		if x == true {
+			return ye
+		}
+		{eqlneqs; token.EQL; true; false; { bool; int; uint; float32; float64; complex64; complex128; string; nil } }
+	}
+	return ExprBool(fun)
+}
+
+func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	if xe.IsNil {
+		if ye.IsNil {
+			return c.invalidBinaryExpr(node, xe, ye)
+		} else {
+			// nil == expr
+			return c.eqlneqNil(node, xe, ye)
+		}
+	} else if ye.IsNil {
+		// expr == nil
+		return c.eqlneqNil(node, xe, ye)
+	}
+	if !xe.Type.Comparable() || !xe.Type.Comparable() {
+		return c.invalidBinaryExpr(node, xe, ye)
+	}
+	xc, yc := xe.Const(), ye.Const()
+	if xe.Type.Kind() != r.Interface && ye.Type.Kind() != r.Interface {
+		// comparison between different types is allowed only if at least one is an interface
+		c.toSameFuncType(node, xe, ye)
+	}
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun func(env *Env) bool
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{eqlneqs; token.NEQ; false; false; { int; uint; float32; float64; complex64; complex128; string; nil } }
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		if y == false {
+			return xe
+		}
+		{eqlneqs; token.NEQ; false; true; { int; uint; float32; float64; complex64; complex128; string; nil } }
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		if x == false {
+			return ye
+		}
+		{eqlneqs; token.NEQ; true; false; { int; uint; float32; float64; complex64; complex128; string; nil } }
+	}
+	return ExprBool(fun)
+}
+
+func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	var fun func(*Env) bool
+
+	if xe.Type.Kind() == r.Interface || ye.Type.Kind() == r.Interface {
+		// not checked yet that xe and ye return at least one value... check now
+		xe.CheckX1()
+		ye.CheckX1()
+	}
+
+	switch x := xe.Fun.(type) {
+	case func(*Env) (r.Value, []r.Value):
+		switch y := ye.Fun.(type) {
+		case func(*Env) (r.Value, []r.Value):
+			if node.Op == token.EQL {
+				fun = func(env *Env) bool {
+					v1, _ := x(env)
+					v2, _ := y(env)
+					if v1 == Nil || v2 == Nil {
+						return v1 == v2
+					} else {
+						return v1.Interface() == v2.Interface()
+					}
+				}
+			} else {
+				fun = func(env *Env) bool {
+					v1, _ := x(env)
+					v2, _ := y(env)
+					if v1 == Nil || v2 == Nil {
+						return v1 != v2
+					} else {
+						return v1.Interface() != v2.Interface()
+					}
+				}
+			}
+		default:
+			y1 := ye.AsX1()
+			if node.Op == token.EQL {
+				fun = func(env *Env) bool {
+					v1, _ := x(env)
+					v2 := y1(env)
+					if v1 == Nil || v2 == Nil {
+						return v1 == v2
+					} else {
+						return v1.Interface() == v2.Interface()
+					}
+				}
+			} else {
+				fun = func(env *Env) bool {
+					v1, _ := x(env)
+					v2 := y1(env)
+					if v1 == Nil || v2 == Nil {
+						return v1 != v2
+					} else {
+						return v1.Interface() != v2.Interface()
+					}
+				}
+			}
+		}
+	default:
+		x1 := xe.AsX1()
+
+		switch y := ye.Fun.(type) {
+		case func(*Env) (r.Value, []r.Value):
+			if node.Op == token.EQL {
+				fun = func(env *Env) bool {
+					v1 := x1(env)
+					v2, _ := y(env)
+					if v1 == Nil || v2 == Nil {
+						return v1 == v2
+					} else {
+						return v1.Interface() == v2.Interface()
+					}
+				}
+			} else {
+				fun = func(env *Env) bool {
+					v1 := x1(env)
+					v2, _ := y(env)
+					if v1 == Nil || v2 == Nil {
+						return v1 != v2
+					} else {
+						return v1.Interface() != v2.Interface()
+					}
+				}
+			}
+		default:
+			y1 := ye.AsX1()
+			if node.Op == token.EQL {
+				fun = func(env *Env) bool {
+					v1 := x1(env)
+					v2 := y1(env)
+					if v1 == Nil || v2 == Nil {
+						return v1 == v2
+					} else {
+						return v1.Interface() == v2.Interface()
+					}
+				}
+			} else {
+				fun = func(env *Env) bool {
+					v1 := x1(env)
+					v2 := y1(env)
+					if v1 == Nil || v2 == Nil {
+						return v1 != v2
+					} else {
+						return v1.Interface() != v2.Interface()
+					}
+				}
+			}
+		}
+	}
+	return ExprBool(fun)
+}
+
+func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	var e *Expr
+	if ye.IsNil {
+		e = xe
+	} else {
+		e = ye
+	}
+	// e cannot be a constant (none of the nillable types support compile-time constants) but better safe than sorry
+	if e.Const() || !IsNillableKind(e.Type.Kind()) {
+		return c.invalidBinaryExpr(node, xe, ye)
+	}
+
+	var fun func(env *Env) bool
+	if f, ok := e.Fun.(func(env *Env) (r.Value, []r.Value)); ok {
+		e.CheckX1() // to warn or error as appropriate
+		if node.Op == token.EQL {
+			fun = func(env *Env) bool {
+				v, _ := f(env)
+				vnil := v == Nil || IsNillableKind(v.Kind()) && v.IsNil()
+				return vnil
+			}
+		} else {
+			fun = func(env *Env) bool {
+				v, _ := f(env)
+				vnil := v == Nil || IsNillableKind(v.Kind()) && v.IsNil()
+				return !vnil
+			}
+		}
+	} else {
+		f := e.AsX1()
+		if node.Op == token.EQL {
+			fun = func(env *Env) bool {
+				v := f(env)
+				vnil := v == Nil || IsNillableKind(v.Kind()) && v.IsNil()
+				return vnil
+			}
+		} else {
+			fun = func(env *Env) bool {
+				v := f(env)
+				vnil := v == Nil || IsNillableKind(v.Kind()) && v.IsNil()
+				return !vnil
+			}
+		}
+	}
+	return ExprBool(fun)
+}

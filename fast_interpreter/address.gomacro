@@ -35,7 +35,7 @@ import (
 )
 
 
-:func fsetplace(upn int, typ ast.Node) ast.Node {
+:func faddress(upn int, typ ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
 	var t r.Type = EvalType(typ)
 	var loop, bind, rettype ast.Node
@@ -76,32 +76,32 @@ import (
 	}
 }
 
-:macro setplace(depth ast.Node, typ ast.Node) ast.Node {
+:macro address(depth ast.Node, typ ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
 	var upn int = Eval(depth)
 
-	return fsetplace(upn, typ)
+	return faddress(upn, typ)
 }
 
-:macro setplaces(depth ast.Node) ast.Node {
+:macro addresses(depth ast.Node) ast.Node {
 	return ~"{
 		switch k {
-		case r.Bool:       {setplace ; ~,depth ; bool}
-		case r.Int:        {setplace ; ~,depth ; int}
-		case r.Int8:       {setplace ; ~,depth ; int8}
-		case r.Int16:      {setplace ; ~,depth ; int16}
-		case r.Int32:      {setplace ; ~,depth ; int32}
-		case r.Int64:      {setplace ; ~,depth ; int64}
-		case r.Uint:       {setplace ; ~,depth ; uint}
-		case r.Uint8:      {setplace ; ~,depth ; uint8}
-		case r.Uint16:     {setplace ; ~,depth ; uint16}
-		case r.Uint32:     {setplace ; ~,depth ; uint32}
-		case r.Uint64:     {setplace ; ~,depth ; uint64}
-		case r.Uintptr:    {setplace ; ~,depth ; uintptr}
-		case r.Float32:    {setplace ; ~,depth ; float32}
-		case r.Float64:    {setplace ; ~,depth ; float64}
-		case r.Complex64:  {setplace ; ~,depth ; complex64}
-		default:           {setplace ; ~,depth ; nil}
+		case r.Bool:       {address ; ~,depth ; bool}
+		case r.Int:        {address ; ~,depth ; int}
+		case r.Int8:       {address ; ~,depth ; int8}
+		case r.Int16:      {address ; ~,depth ; int16}
+		case r.Int32:      {address ; ~,depth ; int32}
+		case r.Int64:      {address ; ~,depth ; int64}
+		case r.Uint:       {address ; ~,depth ; uint}
+		case r.Uint8:      {address ; ~,depth ; uint8}
+		case r.Uint16:     {address ; ~,depth ; uint16}
+		case r.Uint32:     {address ; ~,depth ; uint32}
+		case r.Uint64:     {address ; ~,depth ; uint64}
+		case r.Uintptr:    {address ; ~,depth ; uintptr}
+		case r.Float32:    {address ; ~,depth ; float32}
+		case r.Float64:    {address ; ~,depth ; float64}
+		case r.Complex64:  {address ; ~,depth ; complex64}
+		default:           {address ; ~,depth ; nil}
 		}
 	}
 }
@@ -119,10 +119,10 @@ func (c *Comp) IdentAddress(name string) *Expr {
 		index := bind.Desc.Index()
 		var ret I
 		switch upn {
-		case 0:  {setplaces ; 0}
-		case 1:  {setplaces ; 1}
-		case 2:  {setplaces ; 2}
-		default: {setplaces ; -1}
+		case 0:  {addresses ; 0}
+		case 1:  {addresses ; 1}
+		case 2:  {addresses ; 2}
+		default: {addresses ; -1}
 		}
 		return &Expr{Lit: Lit{Type: r.PtrTo(bind.Type)}, Fun: ret}
 	}

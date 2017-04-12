@@ -1965,8 +1965,12 @@ func (p *parser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
 		} else {
 			list = p.parseRhsList()
 		}
-	} else {
+	} else if p.tok == token.DEFAULT {
 		p.expect(token.DEFAULT)
+	} else {
+		// patch: support switch foo { ~,{bar} : baz }
+		// where bar will expand to case x, y, z
+		list = []ast.Expr{p.parseQuote()}
 	}
 
 	colon := p.expect(token.COLON)

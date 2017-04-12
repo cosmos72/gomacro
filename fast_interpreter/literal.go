@@ -84,7 +84,10 @@ func isLiteralNumber(x I, n int64) bool {
 		return r.ValueOf(x).Complex() == complex(float64(n), 0)
 	case UntypedLit:
 		return x.IsLiteralNumber(n)
+	case string, r.Value, nil:
+		return false
 	default:
+		Errorf("isLiteralNumber: unexpected literal type %v <%v>", x, r.TypeOf(x))
 		return false
 	}
 }
