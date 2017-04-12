@@ -27,10 +27,12 @@ package fast_interpreter
 import (
 	"go/ast"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) UnaryPlus(node *ast.UnaryExpr, xe *Expr) *Expr {
-	if !isCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.Complex128) {
+	if !IsCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.Complex128) {
 		return c.invalidUnaryExpr(node, xe)
 	}
 	return xe

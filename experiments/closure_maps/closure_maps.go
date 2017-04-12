@@ -65,7 +65,7 @@ func errorf(format string, args ...interface{}) (r.Value, []r.Value) {
 }
 
 func warnExtraValues(extraValues []r.Value) {
-	fmt.Printf("expression returned %d values, using only the first one: %v",
+	fmt.Printf("// warning: expression returned %d values, using only the first one: %v",
 		len(extraValues), extraValues)
 }
 

@@ -113,19 +113,15 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 	mode := mNormal
 	paren := 0
 	tokens := false // true if some non-comment was found
-	var buf, commentbuf []byte
-
 	optPrompt := opts&ReadOptShowPrompt != 0
 	optAllComments := opts&ReadOptCollectAllComments != 0
 
 	if optPrompt {
 		fmt.Fprint(out, prompt)
 	}
+	var line, buf, commentbuf []byte
 	for {
-		line, err := in.ReadBytes('\n')
-		if err != nil {
-			return "", "", err
-		}
+		line, err = in.ReadBytes('\n')
 		for i, ch := range line {
 			switch mode {
 			case mNormal:
@@ -201,6 +197,8 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 				switch ch {
 				case '!':
 					mode = mLineComment
+					line[i-1] = '/'
+					line[i] = '/'
 					continue
 				default:
 					mode = mNormal
@@ -238,12 +236,18 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 			commentbuf = append(commentbuf, line...)
 		}
 		buf = append(buf, line...)
-		if paren <= 0 && mode == mNormal && (tokens || !optAllComments) {
+		if err != nil || paren <= 0 && mode == mNormal && (tokens || !optAllComments) {
 			break
 		}
 		if optPrompt {
 			printDots(out, 4+2*paren)
 		}
+	}
+	if err != nil {
+		if err == io.EOF && paren > 0 {
+			err = errors.New("unexpected EOF")
+		}
+		return string(buf), string(commentbuf), err
 	}
 	return string(buf), string(commentbuf), nil
 }

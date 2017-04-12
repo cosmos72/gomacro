@@ -27,12 +27,14 @@ package fast_interpreter
 import (
 	"go/ast"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) Lss(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	xc, yc := xe.Const(), ye.Const()
 	c.toSameFuncType(node, xe, ye)
-	if !isCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.String) {
+	if !IsCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.String) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	// if both x and y are constants, BinaryExpr will invoke EvalConst()

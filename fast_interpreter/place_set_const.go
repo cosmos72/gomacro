@@ -33,15 +33,18 @@ import (
 
 	"github.com/cosmos72/gomacro/base"
 )
+
 func (c *Comp) placeSetConst(place *Place, init *Expr) {
 	if place.Fun != nil {
-		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
+		c.Errorf("unimplemented: assignment to place (only assignment to variable is currently implemented)")
 	}
 
 	t := place.Type
-	if t != nil && init.Type != t {
-		init.ConstTo(t)
+	if t == nil {
+		c.Errorf("invalid assignment: place has type <%v>", t)
 	}
+
+	init.ConstTo(t)
 
 	upn := place.Upn
 	desc := place.Desc
@@ -59,7 +62,9 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 		val := init.Value
 		v := r.ValueOf(val)
-		if t != nil && base.ValueType(v) != t {
+		if base.ValueType(v) == nil {
+			v = r.Zero(t)
+		} else {
 			v = v.Convert(t)
 		}
 

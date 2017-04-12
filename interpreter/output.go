@@ -40,7 +40,8 @@ var (
 )
 
 func (ir *InterpreterCommon) showHelp(out io.Writer) {
-	fmt.Fprint(out, `// interpreter commands:
+	fmt.Fprint(out, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
+// interpreter commands:
 :env [name]     show available functions, variables and constants
                 in current package, or from imported package "name"
 :help           print this help

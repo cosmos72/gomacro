@@ -25,7 +25,6 @@
 package compile_reflect_values
 
 import (
-	"fmt"
 	r "reflect"
 	"time"
 
@@ -146,7 +145,7 @@ func RshiftIntInt(lhs, rhs XInt) XInt {
 	if false {
 		return func(env *Env) int {
 			l, r := lhs(env), rhs(env)
-			fmt.Printf("rshift: lhs=%v, rhs=%v\n", l, r)
+			// Debugf("rshift: lhs=%v, rhs=%v\n", l, r)
 			time.Sleep(time.Second)
 			return l >> uint(r)
 		}

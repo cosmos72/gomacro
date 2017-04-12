@@ -60,7 +60,7 @@ func (c *Comp) BasicLit(node *ast.BasicLit) *Expr {
 	return ExprValue(UntypedLit{Kind: kind, Obj: obj})
 }
 
-func isLiteral(x I) bool {
+func isLiteral(x interface{}) bool {
 	switch x.(type) {
 	case nil, bool, int, int8, int16, int32, int64,
 		uint, uint8, uint16, uint32, uint64, uintptr,
@@ -108,31 +108,6 @@ func (untyp *UntypedLit) IsLiteralNumber(n int64) bool {
 	default:
 		return false
 	}
-}
-
-func kindToCategory(k r.Kind) r.Kind {
-	switch k {
-	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
-		return r.Int
-	case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
-		return r.Uint
-	case r.Float32, r.Float64:
-		return r.Float64
-	case r.Complex64, r.Complex128:
-		return r.Complex128
-	default:
-		return k
-	}
-}
-
-func isCategory(k r.Kind, categories ...r.Kind) bool {
-	k = kindToCategory(k)
-	for _, c := range categories {
-		if k == c {
-			return true
-		}
-	}
-	return false
 }
 
 // ================================= ConstTo =================================
@@ -290,35 +265,35 @@ func (untyp *UntypedLit) extractNumber(src constant.Value, t r.Type) interface{}
 
 // convertLiteralCheckOverflow converts a literal to type t and returns the converted value.
 // panics if the conversion overflows the given type
-func convertLiteralCheckOverflow(src interface{}, t r.Type) interface{} {
-	vsrc := r.ValueOf(src)
-	vdst := vsrc.Convert(t)
+func convertLiteralCheckOverflow(src interface{}, to r.Type) interface{} {
+	v := r.ValueOf(src)
+	vto := ConvertValue(v, to)
 
-	k1, k2 := vsrc.Kind(), vdst.Kind()
-	if k1 == k2 {
-		return vdst.Interface() // no conversion happened
+	k, kto := v.Kind(), vto.Kind()
+	if k == kto {
+		return vto.Interface() // no conversion happened
 	}
-	c1, c2 := kindToCategory(k1), kindToCategory(k2)
-	if c2 == r.Int || c2 == r.Uint {
-		if c1 == r.Float64 || c1 == r.Complex128 {
+	c, cto := KindToCategory(k), KindToCategory(kto)
+	if cto == r.Int || cto == r.Uint {
+		if c == r.Float64 || c == r.Complex128 {
 			// float-to-integer conversion. check for truncation
-			t1 := ValueType(vsrc)
-			vback := vdst.Convert(t1)
+			t1 := ValueType(v)
+			vback := ConvertValue(vto, t1)
 			if src != vback.Interface() {
-				Errorf("constant %v truncated to %v", src, t)
+				Errorf("constant %v truncated to %v", src, to)
 				return nil
 			}
 		} else {
 			// integer-to-integer conversion. convert back and compare the interfaces for overflows
-			t1 := ValueType(vsrc)
-			vback := vdst.Convert(t1)
+			t1 := ValueType(v)
+			vback := vto.Convert(t1)
 			if src != vback.Interface() {
-				Errorf("constant %v overflows %v", src, t)
+				Errorf("constant %v overflows %v", src, to)
 				return nil
 			}
 		}
 	}
-	return vdst.Interface()
+	return vto.Interface()
 }
 
 // Set sets the expression value to the given (typed or untyped) constant

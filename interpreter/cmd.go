@@ -115,7 +115,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		default:
 			arg := args[0]
 			if len(arg) > 0 && arg[0] == '-' {
-				fmt.Printf("gomacro: unrecognized option '%s'.\nTry 'gomacro --help' for more information\n", arg)
+				fmt.Fprintf(env.Stderr, "gomacro: unrecognized option '%s'.\nTry 'gomacro --help' for more information\n", arg)
 				return nil
 			}
 			repl = false
@@ -139,7 +139,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 }
 
 func (cmd *Cmd) Usage() error {
-	fmt.Print(`usage: gomacro [OPTIONS] [files-and-dirs]
+	fmt.Fprint(cmd.Env.Stdout, `usage: gomacro [OPTIONS] [files-and-dirs]
 
   Recognized options:
     -c,   --collect          collect declarations and statements, to print them later

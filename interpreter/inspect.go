@@ -66,8 +66,8 @@ func (env *Env) showVar(name string, v r.Value, t r.Type) {
 	env.Fprintf(env.Stdout, "%s\t= %v\t<%v>\n", name, v, t)
 }
 
-func (*Inspector) Help() {
-	fmt.Println("// inspect commands: <number> help quit top up")
+func (ip *Inspector) Help() {
+	fmt.Fprint(ip.env.Stdout, "// inspect commands: <number> help quit top up\n")
 }
 
 func (ip *Inspector) Show() {

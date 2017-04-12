@@ -25,7 +25,6 @@
 package bytecode_values
 
 import (
-	"fmt"
 	r "reflect"
 	"time"
 )
@@ -82,11 +81,11 @@ func (p *Prog) Exec(IP int) []r.Value {
 	vars := p.Vars
 	for {
 		if false {
-			fmt.Printf("fetching IP=%v\n", IP)
+			// Debugf("fetching IP=%v\n", IP)
 		}
 		i := code[IP]
 		if false {
-			fmt.Printf("IP=%v,\tinst=%v\tStack=%v\n", IP, i, vars)
+			// Debugf("IP=%v,\tinst=%v\tStack=%v\n", IP, i, vars)
 			time.Sleep(time.Second)
 		}
 		IP++

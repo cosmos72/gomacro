@@ -290,12 +290,7 @@ func (env *Env) valueToType(value r.Value, t r.Type) r.Value {
 			return r.Zero(t)
 		}
 	}
-	vt := typeOf(value)
-	if !vt.AssignableTo(t) && !vt.ConvertibleTo(t) {
-		ret, _ := env.Errorf("failed to convert %v <%v> to <%v>", value, vt, t)
-		return ret
-	}
-	newValue := value.Convert(t)
+	newValue := ConvertValue(value, t)
 	if differentIntegerValues(value, newValue) {
 		env.Warnf("value %d overflows <%v>, truncated to %d", value, t, newValue)
 	}

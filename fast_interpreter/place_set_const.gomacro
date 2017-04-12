@@ -33,8 +33,6 @@ import (
 )
 
 :import (
-	"errors"
-	"fmt"
 	"go/ast"
 	r "reflect"
 )
@@ -42,7 +40,7 @@ import (
 :func fsetconst(upn int, t r.Type) ast.Node {
 	var loop, bind ast.Node
 
-	if upn >= 0 && upn < 3 {
+	if upn >= 0 {
 		bind = ~'{env}
 		for i := 0; i < upn; i++ {
 			bind = ~"{~,bind . Outer}
@@ -94,7 +92,7 @@ import (
 :macro setconsts(depth ast.Node) ast.Node {
 	return ~"{
 		switch val := val.(type) {
-		case bool:       {setconst ; ~,depth ; bool} // ugly but needed. "setconst -1" is a binary expression
+		case bool:       {setconst ; ~,depth ; bool}
 		case int:        {setconst ; ~,depth ; int}
 		case int8:       {setconst ; ~,depth ; int8}
 		case int16:      {setconst ; ~,depth ; int16}
@@ -120,12 +118,14 @@ import (
 // placeSetConst compiles 'place = constant'
 func (c *Comp) placeSetConst(place *Place, init *Expr) {
 	if place.Fun != nil {
-		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
+		c.Errorf("unimplemented: assignment to place (only assignment to variable is currently implemented)")
 	}
 	t := place.Type
-	if t != nil && init.Type != t {
-		init.ConstTo(t)
+	if t == nil {
+		c.Errorf("invalid assignment: place has type <%v>", t)
 	}
+	init.ConstTo(t)
+
 	upn := place.Upn
 	desc := place.Desc
 	var ret func(env *Env) (Stmt, *Env)
@@ -142,18 +142,16 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 		}
 		val := init.Value
 		v := r.ValueOf(val)
-		if t != nil && base.ValueType(v) != t {
+		if base.ValueType(v) == nil {
+			v = r.Zero(t)
+		} else {
 			v = v.Convert(t)
 		}
 		switch upn {
-		case 0:
-			{setconsts ; 0}
-		case 1:
-			{setconsts ; 1}
-		case 2:
-			{setconsts ; 2}
-		default:
-			{setconsts ; -1} // ugly but needed. "setconsts -1" is a binary expression
+		case 0:  {setconsts ; 0}
+		case 1:  {setconsts ; 1}
+		case 2:  {setconsts ; 2}
+		default: {setconsts ; -1}
 		}
 	}
 	c.Code.Append(ret)

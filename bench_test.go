@@ -119,21 +119,40 @@ func BenchmarkArithClassicInterpreter(b *testing.B) {
 	ir := classic.New()
 	ir.EvalAst(ir.ParseAst("n:=0"))
 
-	ast := ir.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+	form := ir.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)")
 
 	value := ir.Binds["n"]
 	var ret r.Value
-	ir.EvalAst(ast)
+	ir.EvalAst(form)
 
 	b.ResetTimer()
 	total := 0
 	for i := 0; i < b.N; i++ {
 		value.SetInt(int64(b.N))
-		ret, _ = ir.EvalAst(ast)
+		ret, _ = ir.EvalAst(form)
 		total += int(ret.Int())
 	}
 	if verbose {
 		println(total)
+	}
+}
+
+func BenchmarkForClassicInterpreter(b *testing.B) {
+	ir := classic.New()
+	ir.EvalAst(ir.ParseAst("var n, total int"))
+
+	// interpreted code performs iteration and arithmetic
+	form := ir.ParseAst("total = 0; for i:= 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total")
+
+	value := ir.Binds["n"]
+	ir.EvalAst(form)
+
+	b.ResetTimer()
+	value.SetInt(int64(b.N))
+	ret, _ := ir.EvalAst(form)
+
+	if verbose {
+		println(ret.Int())
 	}
 }
 
@@ -175,6 +194,18 @@ func BenchmarkCollatzClosureValues(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += coll(n)
+	}
+}
+
+func BenchmarkCollatzClassicInterpreter(b *testing.B) {
+	ir := classic.New()
+	ir.EvalAst(ir.ParseAst("func collatz(n int) { for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } } }"))
+
+	form := ir.ParseAst(fmt.Sprintf("collatz(%d)", collatz_n))
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		ir.EvalAst(form)
 	}
 }
 
@@ -249,10 +280,10 @@ func BenchmarkSumClosureMaps(b *testing.B) {
 	}
 }
 
-func BenchmarkSumInterpreter(b *testing.B) {
+func BenchmarkSumClassicInterpreter(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst(sum_s))
-	form := env.ParseAst(fmt.Sprintf("sum(%v)", sum_n))
+	form := env.ParseAst(fmt.Sprintf("sum(%d)", sum_n))
 
 	b.ResetTimer()
 	var total int
@@ -314,10 +345,10 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 	}
 }
 
-func BenchmarkFibonacciInterpreter(b *testing.B) {
+func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst(fib_s))
-	form := env.ParseAst(fmt.Sprintf("fibonacci(%v)", fib_n))
+	form := env.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n))
 
 	b.ResetTimer()
 	var total int

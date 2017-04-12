@@ -61,7 +61,7 @@ func (p *parser) parseQuote() ast.Expr {
 		node = p.parseQuote()
 
 	case token.LBRACE:
-		node = p.parseBlockStmt()
+		node = p.parseBlockStmtQuoted()
 
 	default:
 		p.errorExpected(p.pos, "one of: '{', 'IDENT', 'INT', 'STRING', 'QUOTE', 'QUASIQUOTE', 'UNQUOTE' or 'UNQUOTE_SPLICE'")
@@ -69,6 +69,37 @@ func (p *parser) parseQuote() ast.Expr {
 
 	expr, _ := MakeQuote(p, op, opPos, node)
 	return expr
+}
+
+func (p *parser) parseBlockStmtQuoted() *ast.BlockStmt {
+	if p.trace {
+		defer un(trace(p, "BlockStmtQuoted"))
+	}
+
+	lbrace := p.expect(token.LBRACE)
+	p.openScope()
+	list := p.parseStmtListQuoted()
+	p.closeScope()
+	rbrace := p.expect(token.RBRACE)
+
+	return &ast.BlockStmt{Lbrace: lbrace, List: list, Rbrace: rbrace}
+}
+
+func (p *parser) parseStmtListQuoted() (list []ast.Stmt) {
+	if p.trace {
+		defer un(trace(p, "StatementListQuoted"))
+	}
+
+	var stmt ast.Stmt
+	for p.tok != token.RBRACE && p.tok != token.EOF {
+		if p.tok == token.CASE || p.tok == token.DEFAULT {
+			stmt = p.parseCaseClause(false)
+		} else {
+			stmt = p.parseStmt()
+		}
+		list = append(list, stmt)
+	}
+	return
 }
 
 // MakeQuote creates an ast.UnaryExpr representing quote{node}.

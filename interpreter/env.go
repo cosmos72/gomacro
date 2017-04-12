@@ -117,10 +117,11 @@ func (env *Env) CallerFrame() *CallFrame {
 
 func (env *Env) ReplStdin() {
 	if env.Options&OptShowPrompt != 0 {
-		fmt.Fprint(env.Stdout, `// Welcome to GOMACRO, a Go interpreter with macros <https://github.com/cosmos72/gomacro>
+		fmt.Fprint(env.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
 // Copyright (C) 2016-2017 Massimiliano Ghilardi
 // License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
 // This is free software with ABSOLUTELY NO WARRANTY.
+//
 // Type :help for help
 `)
 	}
@@ -146,7 +147,7 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, comments string) {
 	str, comments, err := ReadMultiline(in, opts, env.Stdout, "gomacro> ")
 	if err != nil && err != io.EOF {
-		fmt.Fprintln(env.Stderr, err)
+		fmt.Fprintf(env.Stderr, "// read error: %s\n", err)
 	}
 	return str, comments
 }

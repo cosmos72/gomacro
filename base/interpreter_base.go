@@ -194,7 +194,7 @@ func (ir *InterpreterBase) WriteDeclsToStream(out io.Writer) {
 		fmt.Fprintln(out, ir.toPrintable(imp))
 	}
 	if len(ir.Imports) != 0 {
-		fmt.Println()
+		fmt.Fprintln(out)
 	}
 	for _, decl := range ir.Declarations {
 		fmt.Fprintln(out, ir.toPrintable(decl))

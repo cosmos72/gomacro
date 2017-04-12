@@ -25,7 +25,6 @@
 package base
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
 
@@ -101,11 +100,11 @@ func unwrapTrivialAst2(in Ast, unwrapTrivialBlockStmt bool) Ast {
 					return in
 				}
 			}
-			// fmt.Printf("// debug: unwrapTrivialAst(block) unwrapping %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
+			// Debugf("unwrapTrivialAst(block) unwrapping %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
 			in = child
 		case ParenExpr, ExprStmt, DeclStmt:
 			child := form.Get(0)
-			// fmt.Printf("// debug: unwrapTrivialAst(1) unwrapped %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
+			// Debugf("unwrapTrivialAst(1) unwrapped %#v <%T>\n\tto %#v <%T>\n", form.Interface(), form.Interface(), child.Interface(), child.Interface())
 			in = child
 		default:
 			return in
@@ -127,9 +126,9 @@ func MakeQuote2(form UnaryExpr, toQuote AstWithNode) UnaryExpr {
 	if toQuote != nil {
 		node = toQuote.Node()
 	}
-	fmt.Printf("node   = %#v\n", node)
-	fmt.Printf("form   = %#v\n", form)
-	fmt.Printf("form.X = %#v\n", form.X)
+	// Debugf("node   = %#v\n", node)
+	// Debugf("form   = %#v\n", form)
+	// Debugf("form.X = %#v\n", form.X)
 	expr, _ := mp.MakeQuote(nil, form.X.Op, form.X.OpPos, node)
 	return UnaryExpr{expr}
 }

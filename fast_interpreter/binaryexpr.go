@@ -123,8 +123,8 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 		return c.ShiftUntyped(node, token.SHR, x, y)
 	default:
 		op2 := tokenWithoutAssign(op)
-		xint := kindToCategory(x.Kind) == r.Int
-		yint := kindToCategory(y.Kind) == r.Int
+		xint := KindToCategory(x.Kind) == r.Int
+		yint := KindToCategory(y.Kind) == r.Int
 		if op2 == token.QUO && xint && yint {
 			// untyped integer division
 			op2 = token.QUO_ASSIGN
@@ -225,7 +225,7 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return c.ShiftUntyped(node, node.Op, xe.Value.(UntypedLit), ye.Value.(UntypedLit))
 	}
 	xt, yt := xe.DefaultType(), ye.DefaultType()
-	if !isCategory(xt.Kind(), r.Int, r.Uint) {
+	if !IsCategory(xt.Kind(), r.Int, r.Uint) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	if xe.Untyped() {
@@ -251,12 +251,12 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	if ye.Untyped() {
 		// untyped constants do not distinguish between int and uint
-		if !isCategory(yt.Kind(), r.Int) {
+		if !IsCategory(yt.Kind(), r.Int) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 		ye.ConstTo(TypeOfUint64)
 	} else {
-		if !isCategory(yt.Kind(), r.Uint) {
+		if !IsCategory(yt.Kind(), r.Uint) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	}

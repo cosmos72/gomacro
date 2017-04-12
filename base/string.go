@@ -29,7 +29,7 @@ import (
 )
 
 func UnescapeChar(str string) (rune, error) {
-	// fmt.Printf("debug unescapeChar(): parsing CHAR %#v", str)
+	// Debugf("unescapeChar(): parsing CHAR %#v", str)
 	n := len(str)
 	if n >= 2 && str[0] == '\'' && str[n-1] == '\'' {
 		str = str[1 : n-1]

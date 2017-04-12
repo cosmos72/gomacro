@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 // Decl compiles a constant, variable, function or type declaration - or an import
@@ -178,7 +180,7 @@ func (c *Comp) DeclConst0(name string, t r.Type, value I) {
 // AddBind reserves space for a subsequent constant, function or variable declaration
 func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 	if class == IntBind || class == VarBind {
-		if isCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64 {
+		if IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64 {
 			class = IntBind
 		} else {
 			class = VarBind
