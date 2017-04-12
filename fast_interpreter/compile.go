@@ -82,13 +82,15 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 
 func NewComp(outer *Comp) *Comp {
 	if outer == nil {
-		return &Comp{}
+		return &Comp{UpCost: 1}
 	}
 	return &Comp{
-		NamedTypes:     outer.NamedTypes,
-		Code:           outer.Code,
-		Outer:          outer,
-		CompileOptions: outer.CompileOptions,
+		UpCost:          1,
+		NamedTypes:      outer.NamedTypes,
+		Code:            outer.Code,
+		Outer:           outer,
+		CompileOptions:  outer.CompileOptions,
+		InterpreterBase: outer.InterpreterBase,
 	}
 }
 
@@ -112,10 +114,20 @@ func (c *Comp) File() *Comp {
 }
 
 func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
+	if outer == nil {
+		return &Env{
+			Binds:    make([]r.Value, nbinds),
+			IntBinds: make([]uint64, nintbinds),
+		}
+	}
 	return &Env{
-		Binds:    make([]r.Value, nbinds),
-		IntBinds: make([]uint64, nintbinds),
-		Outer:    outer,
+		Binds:           make([]r.Value, nbinds),
+		IntBinds:        make([]uint64, nintbinds),
+		Outer:           outer,
+		IP:              outer.IP, // +1 ? usually needed, but will wreak havoc if not
+		Code:            outer.Code,
+		Interrupt:       outer.Interrupt,
+		InterpreterBase: outer.InterpreterBase,
 	}
 }
 

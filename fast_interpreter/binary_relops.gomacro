@@ -191,15 +191,15 @@ func (c *Comp) Leq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun func (*Env) bool
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.LEQ ; false ; false; { int; uint; float32; float64; string }}
+		{binaryops; token.LEQ; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
-		{binaryops ; token.LEQ ; false ; true; { int; uint; float32; float64; string }}
+		{binaryops; token.LEQ; false; true; { int; uint; float32; float64; string }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
-		{binaryops ; token.LEQ ; true ; false; { int; uint; float32; float64; string }}
+		{binaryops; token.LEQ; true; false; { int; uint; float32; float64; string }}
 	}
 	return ExprBool(fun)
 }
@@ -214,15 +214,15 @@ func (c *Comp) Geq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var fun func (*Env) bool
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		{binaryops ; token.GEQ ; false ; false; { int; uint; float32; float64; string }}
+		{binaryops; token.GEQ; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
-		{binaryops ; token.GEQ ; false ; true; { int; uint; float32; float64; string }}
+		{binaryops; token.GEQ; false; true; { int; uint; float32; float64; string }}
 	} else {
 		x := xe.Value
 		y := ye.Fun
-		{binaryops ; token.GEQ ; true ; false; { int; uint; float32; float64; string }}
+		{binaryops; token.GEQ; true; false; { int; uint; float32; float64; string }}
 	}
 	return ExprBool(fun)
 }

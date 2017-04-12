@@ -43,7 +43,7 @@ func (c *Comp) TryResolve(name string) (upn int, bind Bind, ok bool) {
 		if b, ok := c.Binds[name]; ok {
 			return upn, b, true
 		}
-		upn++
+		upn += c.UpCost // zero if *Comp has no local variables/functions so it will NOT have a corresponding *Env at runtime
 	}
 	return upn, bind, false
 }

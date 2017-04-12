@@ -26,18 +26,26 @@ package fast_interpreter
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
 )
 
-var Nop Stmt = func(env *Env) (Stmt, *Env) {
+func Nop(env *Env) (Stmt, *Env) {
 	env.IP++
 	return env.Code[env.IP], env
 }
 
+// code.go needs the address of Interrupt
 var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
 	return env.Interrupt, env
+}
+
+func PopEnv(env *Env) (Stmt, *Env) {
+	outer := env.Outer
+	outer.IP = env.IP + 1
+	return outer.Code[outer.IP], outer
 }
 
 func (c *Comp) Stmt(node ast.Stmt) {
@@ -88,20 +96,122 @@ func (c *Comp) Stmt(node ast.Stmt) {
 	}
 }
 
-func (c *Comp) Block(node *ast.BlockStmt) {
-	if node == nil || len(node.List) == 0 {
+// Block compiles a block statement, i.e. { ... }
+func (c *Comp) Block(block *ast.BlockStmt) {
+	if block == nil || len(block.List) == 0 {
 		return
 	}
-	// TODO block creates a new environment
-	for _, stmt := range node.List {
-		c.Stmt(stmt)
-	}
+	c.Block0(block.List)
 }
 
+// Block0 compiles a block statement, i.e. { ... }
+func (c *Comp) Block0(list []ast.Stmt) {
+	if len(list) == 0 {
+		return
+	}
+	var nbinds, nintbinds int // # of binds in the block
+
+	c2, locals := c.PushEnvIfLocalBinds(&nbinds, &nintbinds)
+
+	for _, node := range list {
+		c2.Stmt(node)
+	}
+
+	c2.PopEnvIfLocalBinds(locals, &nbinds, &nintbinds)
+
+	c.Debugf("Block compiled. inner *Comp = %#v", c2)
+}
+
+// containLocalBinds return true if one or more of the given statements (but not their contents:
+// blocks are not examined) contain some function/variable declaration.
+// ignores types, constants and anything named "_"
+func containLocalBinds(list ...ast.Stmt) bool {
+	for _, node := range list {
+		switch node := node.(type) {
+		case *ast.AssignStmt:
+			if node.Tok == token.DEFINE {
+				return true
+			}
+		case *ast.DeclStmt:
+			switch decl := node.Decl.(type) {
+			case *ast.FuncDecl:
+				// Go compiler forbids local functions... we allow them
+				if decl.Name != nil && decl.Name.Name != "_" {
+					return true
+				}
+			case *ast.GenDecl:
+				if decl.Tok != token.VAR {
+					continue
+				}
+				// found local variables... bail out unless they are all named "_"
+				for _, spec := range decl.Specs {
+					switch spec := spec.(type) {
+					case *ast.ValueSpec:
+						for _, ident := range spec.Names {
+							if ident.Name != "_" {
+								return true
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false
+}
+
+// PushEnvIfLocalBinds compiles a PushEnv statement if list contains local binds
+// returns the *Comp to use to compile statement list.
+func (c *Comp) PushEnvIfLocalBinds(nbinds *int, nintbinds *int, list ...ast.Stmt) (inner *Comp, locals bool) {
+	// optimization: examine statements. if none of them is a function/variable declaration,
+	// no need to create a new *Env at runtime
+	// note: we still create a new *Comp at compile time to handle constant/type declarations
+	locals = containLocalBinds(list...)
+	if locals {
+		// push new *Env at runtime. we will know # of binds in the block only later, so use a closure on them
+		c.Code.Append(func(env *Env) (Stmt, *Env) {
+			inner := NewEnv(env, *nbinds, *nintbinds)
+			inner.IP++
+			return inner.Code[inner.IP], inner
+		})
+	}
+	inner = NewComp(c)
+	if !locals {
+		inner.UpCost = 0
+	}
+	return inner, locals
+}
+
+// PopEnvIfLocalBinds compiles a PopEnv statement if locals is true. also sets *nbinds and *nintbinds
+func (inner *Comp) PopEnvIfLocalBinds(locals bool, nbinds *int, nintbinds *int, list ...ast.Stmt) *Comp {
+	c := inner.Outer
+	c.Code = inner.Code     // copy back accumulated code
+	*nbinds = inner.BindNum // we finally know these
+	*nintbinds = inner.IntBindNum
+
+	if locals != (inner.BindNum != 0 || inner.IntBindNum != 0) {
+		c.Errorf(`internal error: containLocalBinds() returned %t, but block actually defined %d Binds and %d IntBinds:
+	Binds = %v
+	Block = %v
+`, locals, inner.BindNum, inner.IntBindNum, inner.Binds, list)
+		return nil
+	}
+
+	if locals {
+		// pop *Env at runtime
+		c.Code.Append(PopEnv)
+	}
+	return c
+}
+
+// If compiles an "if" statement
 func (c *Comp) If(node *ast.IfStmt) {
 	var ithen, ielse, iend int
 
+	initLocals := false
+	var initBinds, initIntBinds int
 	if node.Init != nil {
+		c, initLocals = c.PushEnvIfLocalBinds(&initBinds, &initIntBinds, node.Init)
 		c.Stmt(node.Init)
 	}
 	pred := c.Expr(node.Cond)
@@ -110,7 +220,6 @@ func (c *Comp) If(node *ast.IfStmt) {
 		c.invalidPred(node.Cond, pred)
 		return
 	}
-	// TODO "if" creates a new environment
 	if fun != nil {
 		c.Code.Append(func(env *Env) (Stmt, *Env) {
 			if fun(env) {
@@ -141,7 +250,19 @@ func (c *Comp) If(node *ast.IfStmt) {
 	// compile 'else' branch
 	ielse = c.Code.Len()
 	if node.Else != nil {
-		c.Stmt(node.Else)
+		// parser should guarantee Else to be a block or another "if"
+		// but macroexpansion can optimize away the block if it contains no declarations.
+		// still, better be safe and wrap the Else again in a block because:
+		// 1) catches improper macroexpander optimizations
+		// 2) there is no runtime performance penalty
+		xelse := node.Else
+		_, ok1 := xelse.(*ast.BlockStmt)
+		_, ok2 := xelse.(*ast.IfStmt)
+		if ok1 || ok2 {
+			c.Stmt(xelse)
+		} else {
+			c.Block(&ast.BlockStmt{List: []ast.Stmt{xelse}})
+		}
 		if fun == nil && flag {
 			// 'else' branch is never executed...
 			// still compiled above (to check for errors) but drop the generated code
@@ -149,6 +270,10 @@ func (c *Comp) If(node *ast.IfStmt) {
 		}
 	}
 	iend = c.Code.Len()
+
+	if node.Init != nil {
+		c.PopEnvIfLocalBinds(initLocals, &initBinds, &initIntBinds)
+	}
 }
 
 func Return(exprs ...X) X {

@@ -284,9 +284,12 @@ type Code struct {
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
 // for faster execution. Consider it a poor man's compiler (hence the name)
 type Comp struct {
-	Binds          map[string]Bind
-	BindNum        int // len(Binds) == BindNum + IntBindNum + # of constants
-	IntBindNum     int
+	Binds      map[string]Bind
+	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
+	IntBindNum int
+	// UpCost is the number of *Env.Outer hops to perform at runtime to reach the *Env corresponding to *Comp.Outer
+	// usually equals one. will be zero if this *Comp defines no local variables/functions.
+	UpCost         int
 	Types          map[string]r.Type
 	NamedTypes     map[r.Type]NamedType
 	Code           Code // "compiled" code
