@@ -39,9 +39,9 @@ func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
 		return c.badUnaryExpr("unimplemented: address of non-identifier", node, nil)
 	}
 
-	return c.AddressOfVar(&place.Var)
+	return place.Var.Address()
 }
-func (c *Comp) AddressOfVar0(name string) *Expr {
+func (c *Comp) AddressOfVar(name string) *Expr {
 	upn, bind := c.Resolve(name)
 	class := bind.Desc.Class()
 	switch class {
@@ -49,10 +49,11 @@ func (c *Comp) AddressOfVar0(name string) *Expr {
 		c.Errorf("cannot take the address of %s: %v", class, name)
 		return nil
 	case VarBind, IntBind:
-		return c.AddressOfVar(&Var{upn, bind.Desc, bind.Type})
+		variable := Var{upn, bind.Desc, bind.Type}
+		return variable.Address()
 	}
 }
-func (c *Comp) AddressOfVar(v *Var) *Expr {
+func (v *Var) Address() *Expr {
 	upn := v.Upn
 	k := v.Type.Kind()
 	index := v.Desc.Index()

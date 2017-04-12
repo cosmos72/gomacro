@@ -30,6 +30,24 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
+func (c *CompEnv) Exec1(expr *Expr) r.Value {
+	c.growEnv(128)
+	if expr != nil {
+		return expr.AsX1()(c.Env)
+	} else {
+		return None
+	}
+}
+
+func (c *CompEnv) Exec(expr *Expr) (r.Value, []r.Value) {
+	c.growEnv(128)
+	if expr != nil {
+		return expr.AsXV(CompileDefaults)(c.Env)
+	} else {
+		return None, nil
+	}
+}
+
 func (c *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value) {
 	c.growEnv(128)
 	if fun != nil {

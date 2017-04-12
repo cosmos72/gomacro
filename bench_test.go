@@ -228,14 +228,14 @@ func BenchmarkCollatzFastInterpreter(b *testing.B) {
 	c := fast.New()
 	c.DefVar("n", TypeOfInt, 0)
 
-	variable := c.Var("n")
-	addr := c.AddressOfVar(variable).Fun.(func(*fast.Env) *int)
+	addr := c.Exec1(c.AddressOfVar("n")).Interface().(*int)
+
 	fun := c.CompileAst(c.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }"))
 	c.Run(fun)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		*addr(c.Env) = collatz_n
+		*addr = collatz_n
 		fun(c.Env)
 	}
 }
@@ -327,14 +327,14 @@ func BenchmarkSumFastInterpreter(b *testing.B) {
 	c := fast.New()
 	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
 
-	variable := c.Var("n")
-	addr := c.AddressOfVar(variable).Fun.(func(*fast.Env) *int)
+	addrexpr := c.Var("n").Address()
+	addr := c.Exec1(addrexpr).Interface().(*int)
 	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i=i+1 { total += i }; total"))
 	c.Run(fun)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		*addr(c.Env) = sum_n
+		*addr = sum_n
 		fun(c.Env)
 	}
 }
