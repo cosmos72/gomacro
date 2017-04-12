@@ -225,7 +225,7 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return c.ShiftUntyped(node, node.Op, xe.Value.(UntypedLit), ye.Value.(UntypedLit))
 	}
 	xt, yt := xe.DefaultType(), ye.DefaultType()
-	if !IsCategory(xt.Kind(), r.Int, r.Uint) {
+	if xt == nil || !IsCategory(xt.Kind(), r.Int, r.Uint) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	if xe.Untyped() {
@@ -251,12 +251,12 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	if ye.Untyped() {
 		// untyped constants do not distinguish between int and uint
-		if !IsCategory(yt.Kind(), r.Int) {
+		if yt == nil || !IsCategory(yt.Kind(), r.Int) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 		ye.ConstTo(TypeOfUint64)
 	} else {
-		if !IsCategory(yt.Kind(), r.Uint) {
+		if yt == nil || !IsCategory(yt.Kind(), r.Uint) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	}
