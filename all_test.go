@@ -223,6 +223,10 @@ var tests = []TestCase{
 	TestCase{A, "if_1", "if v2 < 1 { v2 = v2-1 } else { v2 = v2+1 }; v2", uint8(2), nil},
 	TestCase{A, "if_2", "if v2 < 5 { v2 = v2+2 } else { v2 = v2-2 }; v2", uint8(4), nil},
 
+	TestCase{A, "for_1", "var i, j, k int; for i = 1; i<=2; i=i+1 { if i<2 {j=i} else {k=i} }; i", 3, nil},
+	TestCase{A, "for_2", "j", 1, nil},
+	TestCase{A, "for_3", "k", 2, nil},
+
 	TestCase{I, "for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
 	TestCase{I, "function", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
 	TestCase{I, "function_variadic", "func list_args(args ...interface{}) []interface{} { args }; list_args('x', 'y', 'z')", []interface{}{'x', 'y', 'z'}, nil},

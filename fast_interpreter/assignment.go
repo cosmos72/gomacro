@@ -74,11 +74,11 @@ func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
 // AssignVar0 compiles an assignment to a variable.
 // not used by gomacro, provided as convenience for applications
 func (c *Comp) AssignVar0(name string, init *Expr) {
-	place := c.SettableVar(name)
+	var_ := c.Var(name)
 	if init.Const() {
-		c.placeSetConst(place, init)
+		c.placeSetConst(&Place{Var: *var_}, init)
 	} else {
-		c.placeSetExpr(place, init)
+		c.placeSetExpr(&Place{Var: *var_}, init)
 	}
 }
 
@@ -120,15 +120,15 @@ func (c *Comp) PlaceOrAddress(lhs ast.Expr, addressof bool) *Place {
 	}
 }
 
-// PlaceVar compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
-func (c *Comp) SettableVar(name string) *Place {
+// Var compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
+func (c *Comp) Var(name string) *Var {
 	if name == "_" {
-		return &Place{}
+		return &Var{}
 	}
 	upn, bind := c.Resolve(name)
 	class := bind.Desc.Class()
 	if class != VarBind && class != IntBind {
 		c.Errorf("cannot assign to %s: %v", class, name)
 	}
-	return &Place{Var: Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}}
+	return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
 }

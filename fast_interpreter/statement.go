@@ -45,6 +45,7 @@ var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
 func PopEnv(env *Env) (Stmt, *Env) {
 	outer := env.Outer
 	outer.IP = env.IP + 1
+	// Debugf("PopEnv, IP = %d of %d", outer.IP, len(outer.Code))
 	return outer.Code[outer.IP], outer
 }
 
@@ -69,8 +70,8 @@ func (c *Comp) Stmt(node ast.Stmt) {
 		if !expr.Const() {
 			c.Code.Append(expr.AsStmt())
 		}
-	// case *ast.ForStmt:
-	//   c.For(node)
+	case *ast.ForStmt:
+		c.For(node)
 	// case *ast.GoStmt:
 	//   c.Go(node)
 	case *ast.IfStmt:
@@ -109,17 +110,17 @@ func (c *Comp) Block0(list []ast.Stmt) {
 	if len(list) == 0 {
 		return
 	}
-	var nbinds, nintbinds int // # of binds in the block
+	var nbinds [2]int // # of binds in the block
 
-	c2, locals := c.PushEnvIfLocalBinds(&nbinds, &nintbinds)
+	c2, locals := c.PushEnvIfLocalBinds(&nbinds)
 
 	for _, node := range list {
 		c2.Stmt(node)
 	}
 
-	c2.PopEnvIfLocalBinds(locals, &nbinds, &nintbinds)
+	c2.PopEnvIfLocalBinds(locals, &nbinds)
 
-	c.Debugf("Block compiled. inner *Comp = %#v", c2)
+	// c.Debugf("Block compiled. inner *Comp = %#v", c2)
 }
 
 // containLocalBinds return true if one or more of the given statements (but not their contents:
@@ -162,7 +163,7 @@ func containLocalBinds(list ...ast.Stmt) bool {
 
 // PushEnvIfLocalBinds compiles a PushEnv statement if list contains local binds
 // returns the *Comp to use to compile statement list.
-func (c *Comp) PushEnvIfLocalBinds(nbinds *int, nintbinds *int, list ...ast.Stmt) (inner *Comp, locals bool) {
+func (c *Comp) PushEnvIfLocalBinds(nbinds *[2]int, list ...ast.Stmt) (inner *Comp, locals bool) {
 	// optimization: examine statements. if none of them is a function/variable declaration,
 	// no need to create a new *Env at runtime
 	// note: we still create a new *Comp at compile time to handle constant/type declarations
@@ -170,8 +171,9 @@ func (c *Comp) PushEnvIfLocalBinds(nbinds *int, nintbinds *int, list ...ast.Stmt
 	if locals {
 		// push new *Env at runtime. we will know # of binds in the block only later, so use a closure on them
 		c.Code.Append(func(env *Env) (Stmt, *Env) {
-			inner := NewEnv(env, *nbinds, *nintbinds)
+			inner := NewEnv(env, nbinds[0], nbinds[1])
 			inner.IP++
+			// Debugf("PushEnv, IP = %d of %d, pushed %d binds and %d intbinds", inner.IP, nbinds[0], nbinds[1])
 			return inner.Code[inner.IP], inner
 		})
 	}
@@ -183,11 +185,11 @@ func (c *Comp) PushEnvIfLocalBinds(nbinds *int, nintbinds *int, list ...ast.Stmt
 }
 
 // PopEnvIfLocalBinds compiles a PopEnv statement if locals is true. also sets *nbinds and *nintbinds
-func (inner *Comp) PopEnvIfLocalBinds(locals bool, nbinds *int, nintbinds *int, list ...ast.Stmt) *Comp {
+func (inner *Comp) PopEnvIfLocalBinds(locals bool, nbinds *[2]int, list ...ast.Stmt) *Comp {
 	c := inner.Outer
-	c.Code = inner.Code     // copy back accumulated code
-	*nbinds = inner.BindNum // we finally know these
-	*nintbinds = inner.IntBindNum
+	c.Code = inner.Code       // copy back accumulated code
+	nbinds[0] = inner.BindNum // we finally know these
+	nbinds[1] = inner.IntBindNum
 
 	if locals != (inner.BindNum != 0 || inner.IntBindNum != 0) {
 		c.Errorf(`internal error: containLocalBinds() returned %t, but block actually defined %d Binds and %d IntBinds:
@@ -209,9 +211,9 @@ func (c *Comp) If(node *ast.IfStmt) {
 	var ithen, ielse, iend int
 
 	initLocals := false
-	var initBinds, initIntBinds int
+	var initBinds [2]int
 	if node.Init != nil {
-		c, initLocals = c.PushEnvIfLocalBinds(&initBinds, &initIntBinds, node.Init)
+		c, initLocals = c.PushEnvIfLocalBinds(&initBinds, node.Init)
 		c.Stmt(node.Init)
 	}
 	pred := c.Expr(node.Cond)
@@ -222,13 +224,14 @@ func (c *Comp) If(node *ast.IfStmt) {
 	}
 	if fun != nil {
 		c.Code.Append(func(env *Env) (Stmt, *Env) {
+			var ip int
 			if fun(env) {
-				env.IP = ithen
-				return env.Code[ithen], env
+				ip = ithen
 			} else {
-				env.IP = ielse
-				return env.Code[ielse], env
+				ip = ielse
 			}
+			env.IP = ip
+			return env.Code[ip], env
 		})
 	}
 	// compile 'then' branch
@@ -272,7 +275,72 @@ func (c *Comp) If(node *ast.IfStmt) {
 	iend = c.Code.Len()
 
 	if node.Init != nil {
-		c.PopEnvIfLocalBinds(initLocals, &initBinds, &initIntBinds)
+		c = c.PopEnvIfLocalBinds(initLocals, &initBinds)
+	}
+}
+
+// For compiles a "for" statement
+func (c *Comp) For(node *ast.ForStmt) {
+	initLocals := false
+	var initBinds [2]int
+	if node.Init != nil {
+		c, initLocals = c.PushEnvIfLocalBinds(&initBinds, node.Init)
+		c.Stmt(node.Init)
+	}
+	flag, fun, err := true, (func(*Env) bool)(nil), false // "for { }" without a condition means "for true { }"
+	if node.Cond != nil {
+		pred := c.Expr(node.Cond)
+		flag, fun, err = pred.TryAsPred()
+		if err {
+			c.invalidPred(node.Cond, pred)
+			return
+		}
+	}
+	var ibody, ibreak int
+	// compile the condition, if not a constant
+	icond := c.Code.Len()
+	if fun != nil {
+		c.Code.Append(func(env *Env) (Stmt, *Env) {
+			var ip int
+			if fun(env) {
+				ip = ibody
+				// Debugf("for: condition = true, iterating. IntBinds = %v", env.IntBinds)
+			} else {
+				// Debugf("for: condition = false, exiting. IntBinds = %v", env.IntBinds)
+				ip = ibreak
+			}
+			env.IP = ip
+			return env.Code[ip], env
+		})
+	}
+	// compile the body
+	// TODO implement break and continue
+	ibody = c.Code.Len()
+	c.Block(node.Body)
+	if fun == nil && !flag {
+		// body is never executed...
+		// still compiled above (to check for errors) but drop the generated code
+		c.Code.List = c.Code.List[0:ibody]
+	}
+	// compile the post. trust it's not a declaration...
+	if node.Post != nil {
+		c.Stmt(node.Post)
+	}
+	c.Code.Append(func(env *Env) (Stmt, *Env) {
+		// jump back to the condition
+		// Debugf("for: body executed, jumping back to condition. IntBinds = %v", env.IntBinds)
+		// time.Sleep(time.Second / 10)
+		env.IP = icond
+		return env.Code[icond], env
+	})
+	if fun == nil && !flag {
+		// "for false { }" means that body, post and jump back to condition are never executed...
+		// still compiled above (to check for errors) but drop the generated code
+		c.Code.List = c.Code.List[0:icond]
+	}
+	ibreak = c.Code.Len()
+	if node.Init != nil {
+		c = c.PopEnvIfLocalBinds(initLocals, &initBinds, node.Init)
 	}
 }
 

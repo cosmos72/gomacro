@@ -131,6 +131,11 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	}
 }
 
+func (c *Comp) ParseAst(src string) Ast {
+	nodes := c.ParseBytes([]byte(src))
+	return AnyToAst(nodes, "ParseAst")
+}
+
 func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
 	for {
 		switch form := in.(type) {

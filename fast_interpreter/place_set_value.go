@@ -38,9 +38,13 @@ func (c *Comp) PlaceSetValue(place *Place) func(*Env, r.Value) {
 	if place.Fun != nil {
 		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
 	}
-	t := place.Type
-	upn := place.Upn
-	desc := place.Desc
+	return c.VarSetValue(&place.Var)
+}
+
+func (c *Comp) VarSetValue(variable *Var) func(*Env, r.Value) {
+	t := variable.Type
+	upn := variable.Upn
+	desc := variable.Desc
 	var ret func(env *Env, v r.Value)
 
 	switch desc.Class() {

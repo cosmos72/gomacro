@@ -93,11 +93,10 @@ func BenchmarkArithFastInterpreter(b *testing.B) {
 	c := fast.New()
 	c.DefVar("n", TypeOfInt, 0)
 
-	nodes := c.ParseBytes([]byte("((n*2+3)&4 | 5 ^ 6) / (n|1)"))
-	fun := c.Compile(nodes[0])
+	fun := c.CompileAst(c.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)"))
 
-	place := c.SettableVar("n")
-	setvar := c.PlaceSetValue(place)
+	variable := c.Var("n")
+	setvar := c.VarSetValue(variable)
 	value := r.New(TypeOfInt).Elem()
 	var ret r.Value
 	c.Run(fun)
@@ -132,6 +131,34 @@ func BenchmarkArithClassicInterpreter(b *testing.B) {
 		ret, _ = ir.EvalAst(form)
 		total += int(ret.Int())
 	}
+	if verbose {
+		println(total)
+	}
+}
+
+func BenchmarkForFastInterpreter(b *testing.B) {
+	c := fast.New()
+	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
+
+	// interpreted code performs iteration and arithmetic
+
+	fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i=i+1 { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total"))
+	// fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i=i+1 { }; total"))
+
+	variable := c.Var("n")
+	setvar := c.VarSetValue(variable)
+	value := r.New(TypeOfInt).Elem()
+	var ret r.Value
+	c.Run(fun)
+
+	b.ResetTimer()
+	total := 0
+
+	value.SetInt(int64(b.N))
+	setvar(c.Env, value)
+	ret, _ = c.Run(fun)
+	total += int(ret.Int())
+
 	if verbose {
 		println(total)
 	}
@@ -194,6 +221,22 @@ func BenchmarkCollatzClosureValues(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += coll(n)
+	}
+}
+
+func BenchmarkCollatzFastInterpreter(b *testing.B) {
+	c := fast.New()
+	c.DefVar("n", TypeOfInt, 0)
+
+	variable := c.Var("n")
+	addr := c.AddressOfVar(variable).Fun.(func(*fast.Env) *int)
+	fun := c.CompileAst(c.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }"))
+	c.Run(fun)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		*addr(c.Env) = collatz_n
+		fun(c.Env)
 	}
 }
 
@@ -277,6 +320,22 @@ func BenchmarkSumClosureMaps(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += sum(n)
+	}
+}
+
+func BenchmarkSumFastInterpreter(b *testing.B) {
+	c := fast.New()
+	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
+
+	variable := c.Var("n")
+	addr := c.AddressOfVar(variable).Fun.(func(*fast.Env) *int)
+	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i=i+1 { total += i }; total"))
+	c.Run(fun)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		*addr(c.Env) = sum_n
+		fun(c.Env)
 	}
 }
 
