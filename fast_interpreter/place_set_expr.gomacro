@@ -34,7 +34,7 @@ import (
 	r "reflect"
 )
 
-:func fxtype(upn int, t r.Type) ast.Node {
+:func fsetplace(upn int, t r.Type) ast.Node {
 	var loop, bind ast.Node
 
 	if upn >= 0 {
@@ -78,35 +78,35 @@ import (
 	}
 }
 
-:macro xtype(depth ast.Node, typ ast.Node) ast.Node {
+:macro setplace(depth ast.Node, typ ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
 	var upn int = Eval(depth)
 	var t r.Type = EvalType(typ)
 
-	return fxtype(upn, t)
+	return fsetplace(upn, t)
 }
 
-:macro xtypes(depth ast.Node) ast.Node {
+:macro setplaces(depth ast.Node) ast.Node {
 	return ~"{
 		switch fun := init.Fun.(type) {
-		case func(env *Env) bool:       {xtype ; ~,depth ; bool}
-		case func(env *Env) int:        {xtype ; ~,depth ; int}
-		case func(env *Env) int8:       {xtype ; ~,depth ; int8}
-		case func(env *Env) int16:      {xtype ; ~,depth ; int16}
-		case func(env *Env) int32:      {xtype ; ~,depth ; int32}
-		case func(env *Env) int64:      {xtype ; ~,depth ; int64}
-		case func(env *Env) uint:       {xtype ; ~,depth ; uint}
-		case func(env *Env) uint8:      {xtype ; ~,depth ; uint8}
-		case func(env *Env) uint16:     {xtype ; ~,depth ; uint16}
-		case func(env *Env) uint32:     {xtype ; ~,depth ; uint32}
-		case func(env *Env) uint64:     {xtype ; ~,depth ; uint64}
-		case func(env *Env) uintptr:    {xtype ; ~,depth ; uintptr}
-		case func(env *Env) float32:    {xtype ; ~,depth ; float32}
-		case func(env *Env) float64:    {xtype ; ~,depth ; float64}
-		case func(env *Env) complex64:  {xtype ; ~,depth ; complex64}
-		case func(env *Env) complex128: {xtype ; ~,depth ; complex128}
-		case func(env *Env) string:     {xtype ; ~,depth ; string}
-		case func(env *Env) r.Value:    {xtype ; ~,depth ; nil}
+		case func(env *Env) bool:       {setplace ; ~,depth ; bool}
+		case func(env *Env) int:        {setplace ; ~,depth ; int}
+		case func(env *Env) int8:       {setplace ; ~,depth ; int8}
+		case func(env *Env) int16:      {setplace ; ~,depth ; int16}
+		case func(env *Env) int32:      {setplace ; ~,depth ; int32}
+		case func(env *Env) int64:      {setplace ; ~,depth ; int64}
+		case func(env *Env) uint:       {setplace ; ~,depth ; uint}
+		case func(env *Env) uint8:      {setplace ; ~,depth ; uint8}
+		case func(env *Env) uint16:     {setplace ; ~,depth ; uint16}
+		case func(env *Env) uint32:     {setplace ; ~,depth ; uint32}
+		case func(env *Env) uint64:     {setplace ; ~,depth ; uint64}
+		case func(env *Env) uintptr:    {setplace ; ~,depth ; uintptr}
+		case func(env *Env) float32:    {setplace ; ~,depth ; float32}
+		case func(env *Env) float64:    {setplace ; ~,depth ; float64}
+		case func(env *Env) complex64:  {setplace ; ~,depth ; complex64}
+		case func(env *Env) complex128: {setplace ; ~,depth ; complex128}
+		case func(env *Env) string:     {setplace ; ~,depth ; string}
+		case func(env *Env) r.Value:    {setplace ; ~,depth ; nil}
 		default:
 			c.Errorf("unsupported expression type, cannot compile assignment: %v <%v> returns %v",
 				fun, r.TypeOf(fun), init.Outs())
@@ -149,10 +149,10 @@ func (c *Comp) placeSetExpr(place *Place, init *Expr) {
 			return
 		}
 		switch upn {
-		case 0:  {xtypes ; 0}
-		case 1:  {xtypes ; 1}
-		case 2:  {xtypes ; 2}
-		default: {xtypes ; -1}
+		case 0:  {setplaces ; 0}
+		case 1:  {setplaces ; 1}
+		case 2:  {setplaces ; 2}
+		default: {setplaces ; -1}
 		}
 	}
 	c.Code.Append(ret)

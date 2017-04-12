@@ -37,7 +37,7 @@ import (
 	r "reflect"
 )
 
-:func fxtype(upn int, t r.Type) ast.Node {
+:func fsetplace(upn int, t r.Type) ast.Node {
 	var loop, bind ast.Node
 
 	if upn >= 0 {
@@ -81,35 +81,35 @@ import (
 	}
 }
 
-:macro xtype(depth ast.Node, typ ast.Node) ast.Node {
+:macro setplace(depth ast.Node, typ ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
 	var upn int = Eval(depth)
 	var t r.Type = EvalType(typ)
 
-	return fxtype(upn, t)
+	return fsetplace(upn, t)
 }
 
-:macro xtypes(depth ast.Node) ast.Node {
+:macro setplaces(depth ast.Node) ast.Node {
 	return ~"{
 		switch val := val.(type) {
-		case bool:       {xtype ; ~,depth ; bool}
-		case int:        {xtype ; ~,depth ; int}
-		case int8:       {xtype ; ~,depth ; int8}
-		case int16:      {xtype ; ~,depth ; int16}
-		case int32:      {xtype ; ~,depth ; int32}
-		case int64:      {xtype ; ~,depth ; int64}
-		case uint:       {xtype ; ~,depth ; uint}
-		case uint8:      {xtype ; ~,depth ; uint8}
-		case uint16:     {xtype ; ~,depth ; uint16}
-		case uint32:     {xtype ; ~,depth ; uint32}
-		case uint64:     {xtype ; ~,depth ; uint64}
-		case uintptr:    {xtype ; ~,depth ; uintptr}
-		case float32:    {xtype ; ~,depth ; float32}
-		case float64:    {xtype ; ~,depth ; float64}
-		case complex64:  {xtype ; ~,depth ; complex64}
-		case complex128: {xtype ; ~,depth ; complex128}
-		case string:     {xtype ; ~,depth ; string}
-		default:         {xtype ; ~,depth ; nil}
+		case bool:       {setplace ; ~,depth ; bool}
+		case int:        {setplace ; ~,depth ; int}
+		case int8:       {setplace ; ~,depth ; int8}
+		case int16:      {setplace ; ~,depth ; int16}
+		case int32:      {setplace ; ~,depth ; int32}
+		case int64:      {setplace ; ~,depth ; int64}
+		case uint:       {setplace ; ~,depth ; uint}
+		case uint8:      {setplace ; ~,depth ; uint8}
+		case uint16:     {setplace ; ~,depth ; uint16}
+		case uint32:     {setplace ; ~,depth ; uint32}
+		case uint64:     {setplace ; ~,depth ; uint64}
+		case uintptr:    {setplace ; ~,depth ; uintptr}
+		case float32:    {setplace ; ~,depth ; float32}
+		case float64:    {setplace ; ~,depth ; float64}
+		case complex64:  {setplace ; ~,depth ; complex64}
+		case complex128: {setplace ; ~,depth ; complex128}
+		case string:     {setplace ; ~,depth ; string}
+		default:         {setplace ; ~,depth ; nil}
 		}
 	}
 }
@@ -148,10 +148,10 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 			v = v.Convert(t)
 		}
 		switch upn {
-		case 0:  {xtypes ; 0}
-		case 1:  {xtypes ; 1}
-		case 2:  {xtypes ; 2}
-		default: {xtypes ; -1}
+		case 0:  {setplaces ; 0}
+		case 1:  {setplaces ; 1}
+		case 2:  {setplaces ; 2}
+		default: {setplaces ; -1}
 		}
 	}
 	c.Code.Append(ret)

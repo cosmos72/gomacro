@@ -1,3 +1,6 @@
+// DO NOT EDIT! this file was generated automatically by gomacro
+// Any change will be lost when the file is re-generated
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -34,95 +37,165 @@ import (
 func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	xc, yc := xe.Const(), ye.Const()
 	c.toSameFuncType(node, xe, ye)
-	if !IsCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.Complex128, r.String) {
+	k := xe.Type.Kind()
+	if !IsCategory(k, r.Int, r.Uint, r.Float64, r.Complex128, r.String) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
-	// if both x and y are constants, BinaryExpr will invoke EvalConst()
-	// on our return value. no need to optimize that.
+
 	var fun I
 	if xc == yc {
 		x, y := xe.Fun, ye.Fun
-		switch x := x.(type) {
-		case func(*Env) int:
-			y := y.(func(*Env) int)
-			fun = func(env *Env) int {
-				return x(env) + y(env)
+		switch k {
+		case r.Int:
+			{
+				x := x.(func(*Env) int)
+				y := y.(func(*Env) int)
+				fun = func(env *Env) int {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) int8:
-			y := y.(func(*Env) int8)
-			fun = func(env *Env) int8 {
-				return x(env) + y(env)
+		case r.Int8:
+			{
+				x := x.(func(*Env) int8)
+				y := y.(func(*Env) int8)
+				fun = func(env *Env) int8 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) int16:
-			y := y.(func(*Env) int16)
-			fun = func(env *Env) int16 {
-				return x(env) + y(env)
+		case r.Int16:
+			{
+				x := x.(func(*Env) int16)
+				y := y.(func(*Env) int16)
+				fun = func(env *Env) int16 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) int32:
-			y := y.(func(*Env) int32)
-			fun = func(env *Env) int32 {
-				return x(env) + y(env)
+		case r.Int32:
+			{
+				x := x.(func(*Env) int32)
+				y := y.(func(*Env) int32)
+				fun = func(env *Env) int32 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) int64:
-			y := y.(func(*Env) int64)
-			fun = func(env *Env) int64 {
-				return x(env) + y(env)
+		case r.Int64:
+			{
+				x := x.(func(*Env) int64)
+				y := y.(func(*Env) int64)
+				fun = func(env *Env) int64 { return x(env) + y(env) }
+
 			}
-		case func(*Env) uint:
-			y := y.(func(*Env) uint)
-			fun = func(env *Env) uint {
-				return x(env) + y(env)
+		case r.Uint:
+			{
+				x := x.(func(*Env) uint)
+				y := y.(func(*Env) uint)
+				fun = func(env *Env) uint {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) uint8:
-			y := y.(func(*Env) uint8)
-			fun = func(env *Env) uint8 {
-				return x(env) + y(env)
+		case r.Uint8:
+			{
+				x := x.(func(*Env) uint8)
+				y := y.(func(*Env) uint8)
+				fun = func(env *Env) uint8 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) uint16:
-			y := y.(func(*Env) uint16)
-			fun = func(env *Env) uint16 {
-				return x(env) + y(env)
+		case r.Uint16:
+			{
+				x := x.(func(*Env) uint16)
+				y := y.(func(*Env) uint16)
+				fun = func(env *Env) uint16 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) uint32:
-			y := y.(func(*Env) uint32)
-			fun = func(env *Env) uint32 {
-				return x(env) + y(env)
+		case r.Uint32:
+			{
+				x := x.(func(*Env) uint32)
+				y := y.(func(*Env) uint32)
+				fun = func(env *Env) uint32 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) uint64:
-			y := y.(func(*Env) uint64)
-			fun = func(env *Env) uint64 {
-				return x(env) + y(env)
+
+		case r.Uint64:
+			{
+				x := x.(func(*Env) uint64)
+				y := y.(func(*Env) uint64)
+				fun = func(env *Env) uint64 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) uintptr:
-			y := y.(func(*Env) uintptr)
-			fun = func(env *Env) uintptr {
-				return x(env) + y(env)
+
+		case r.Uintptr:
+			{
+				x := x.(func(*Env) uintptr)
+				y := y.(func(*Env) uintptr)
+				fun = func(env *Env) uintptr {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) float32:
-			y := y.(func(*Env) float32)
-			fun = func(env *Env) float32 {
-				return x(env) + y(env)
+
+		case r.Float32:
+			{
+				x := x.(func(*Env) float32)
+				y := y.(func(*Env) float32)
+				fun = func(env *Env) float32 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) float64:
-			y := y.(func(*Env) float64)
-			fun = func(env *Env) float64 {
-				return x(env) + y(env)
+
+		case r.Float64:
+			{
+				x := x.(func(*Env) float64)
+				y := y.(func(*Env) float64)
+				fun = func(env *Env) float64 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) complex64:
-			y := y.(func(*Env) complex64)
-			fun = func(env *Env) complex64 {
-				return x(env) + y(env)
+
+		case r.Complex64:
+			{
+				x := x.(func(*Env) complex64)
+				y := y.(func(*Env) complex64)
+				fun = func(env *Env) complex64 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) complex128:
-			y := y.(func(*Env) complex128)
-			fun = func(env *Env) complex128 {
-				return x(env) + y(env)
+
+		case r.Complex128:
+			{
+				x := x.(func(*Env) complex128)
+				y := y.(func(*Env) complex128)
+				fun = func(env *Env) complex128 {
+					return x(env) + y(env)
+				}
+
 			}
-		case func(*Env) string:
-			y := y.(func(*Env) string)
-			fun = func(env *Env) string {
-				return x(env) + y(env)
+
+		case r.String:
+			{
+				x := x.(func(*Env) string)
+				y := y.(func(*Env) string)
+				fun = func(env *Env) string {
+					return x(env) + y(env)
+				}
+
 			}
+
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
@@ -132,89 +205,156 @@ func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			return xe
 		}
-		switch x := x.(type) {
-		case func(*Env) int:
-			y := y.(int)
-			fun = func(env *Env) int {
-				return x(env) + y
+		switch k {
+		case r.Int:
+
+			{
+				x := x.(func(*Env) int)
+				y := y.(int)
+				fun = func(env *Env) int {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) int8:
-			y := y.(int8)
-			fun = func(env *Env) int8 {
-				return x(env) + y
+		case r.Int8:
+
+			{
+				x := x.(func(*Env) int8)
+				y := y.(int8)
+				fun = func(env *Env) int8 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) int16:
-			y := y.(int16)
-			fun = func(env *Env) int16 {
-				return x(env) + y
+		case r.Int16:
+
+			{
+				x := x.(func(*Env) int16)
+				y := y.(int16)
+				fun = func(env *Env) int16 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) int32:
-			y := y.(int32)
-			fun = func(env *Env) int32 {
-				return x(env) + y
+		case r.Int32:
+
+			{
+				x := x.(func(*Env) int32)
+				y := y.(int32)
+				fun = func(env *Env) int32 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) int64:
-			y := y.(int64)
-			fun = func(env *Env) int64 {
-				return x(env) + y
+		case r.Int64:
+
+			{
+				x := x.(func(*Env) int64)
+				y := y.(int64)
+				fun = func(env *Env) int64 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) uint:
-			y := y.(uint)
-			fun = func(env *Env) uint {
-				return x(env) + y
+		case r.Uint:
+
+			{
+				x := x.(func(*Env) uint)
+				y := y.(uint)
+				fun = func(env *Env) uint {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) uint8:
-			y := y.(uint8)
-			fun = func(env *Env) uint8 {
-				return x(env) + y
+		case r.Uint8:
+
+			{
+				x := x.(func(*Env) uint8)
+				y := y.(uint8)
+				fun = func(env *Env) uint8 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) uint16:
-			y := y.(uint16)
-			fun = func(env *Env) uint16 {
-				return x(env) + y
+		case r.Uint16:
+
+			{
+				x := x.(func(*Env) uint16)
+				y := y.(uint16)
+				fun = func(env *Env) uint16 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) uint32:
-			y := y.(uint32)
-			fun = func(env *Env) uint32 {
-				return x(env) + y
+		case r.Uint32:
+			{
+				x := x.(func(*Env) uint32)
+				y := y.(uint32)
+				fun = func(env *Env) uint32 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) uint64:
-			y := y.(uint64)
-			fun = func(env *Env) uint64 {
-				return x(env) + y
+		case r.Uint64:
+			{
+				x := x.(func(*Env) uint64)
+				y := y.(uint64)
+				fun = func(env *Env) uint64 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) uintptr:
-			y := y.(uintptr)
-			fun = func(env *Env) uintptr {
-				return x(env) + y
+		case r.Uintptr:
+			{
+				x := x.(func(*Env) uintptr)
+				y := y.(uintptr)
+				fun = func(env *Env) uintptr {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) float32:
-			y := y.(float32)
-			fun = func(env *Env) float32 {
-				return x(env) + y
+		case r.Float32:
+			{
+				x := x.(func(*Env) float32)
+				y := y.(float32)
+				fun = func(env *Env) float32 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) float64:
-			y := y.(float64)
-			fun = func(env *Env) float64 {
-				return x(env) + y
+		case r.Float64:
+			{
+				x := x.(func(*Env) float64)
+				y := y.(float64)
+				fun = func(env *Env) float64 { return x(env) + y }
+
 			}
-		case func(*Env) complex64:
-			y := y.(complex64)
-			fun = func(env *Env) complex64 {
-				return x(env) + y
+		case r.Complex64:
+			{
+				x := x.(func(*Env) complex64)
+				y := y.(complex64)
+				fun = func(env *Env) complex64 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) complex128:
-			y := y.(complex128)
-			fun = func(env *Env) complex128 {
-				return x(env) + y
+		case r.Complex128:
+			{
+				x := x.(func(*Env) complex128)
+				y := y.(complex128)
+				fun = func(env *Env) complex128 {
+					return x(env) + y
+				}
+
 			}
-		case func(*Env) string:
-			y := y.(string)
-			if len(y) == 0 {
-				return xe
-			}
-			fun = func(env *Env) string {
-				return x(env) + y
+		case r.String:
+			{
+				x := x.(func(*Env) string)
+				y := y.(string)
+				fun = func(env *Env) string {
+					return x(env) + y
+				}
+
 			}
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
@@ -225,93 +365,171 @@ func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(x, 0) {
 			return ye
 		}
-		switch y := y.(type) {
-		case func(*Env) int:
-			x := x.(int)
-			fun = func(env *Env) int {
-				return x + y(env)
+		switch k {
+		case r.Int:
+
+			{
+				x := x.(int)
+				y := y.(func(*Env) int)
+				fun = func(env *Env) int {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) int8:
-			x := x.(int8)
-			fun = func(env *Env) int8 {
-				return x + y(env)
+		case r.Int8:
+
+			{
+				x := x.(int8)
+				y := y.(func(*Env) int8)
+				fun = func(env *Env) int8 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) int16:
-			x := x.(int16)
-			fun = func(env *Env) int16 {
-				return x + y(env)
+		case r.Int16:
+
+			{
+				x := x.(int16)
+				y := y.(func(*Env) int16)
+				fun = func(env *Env) int16 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) int32:
-			x := x.(int32)
-			fun = func(env *Env) int32 {
-				return x + y(env)
+		case r.Int32:
+
+			{
+				x := x.(int32)
+				y := y.(func(*Env) int32)
+				fun = func(env *Env) int32 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) int64:
-			x := x.(int64)
-			fun = func(env *Env) int64 {
-				return x + y(env)
+		case r.Int64:
+
+			{
+				x := x.(int64)
+				y := y.(func(*Env) int64)
+				fun = func(env *Env) int64 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) uint:
-			x := x.(uint)
-			fun = func(env *Env) uint {
-				return x + y(env)
+		case r.Uint:
+
+			{
+				x := x.(uint)
+				y := y.(func(*Env) uint)
+				fun = func(env *Env) uint {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) uint8:
-			x := x.(uint8)
-			fun = func(env *Env) uint8 {
-				return x + y(env)
+		case r.Uint8:
+
+			{
+				x := x.(uint8)
+				y := y.(func(*Env) uint8)
+				fun = func(env *Env) uint8 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) uint16:
-			x := x.(uint16)
-			fun = func(env *Env) uint16 {
-				return x + y(env)
+		case r.Uint16:
+
+			{
+				x := x.(uint16)
+				y := y.(func(*Env) uint16)
+				fun = func(env *Env) uint16 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) uint32:
-			x := x.(uint32)
-			fun = func(env *Env) uint32 {
-				return x + y(env)
+		case r.Uint32:
+
+			{
+				x := x.(uint32)
+				y := y.(func(*Env) uint32)
+				fun = func(env *Env) uint32 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) uint64:
-			x := x.(uint64)
-			fun = func(env *Env) uint64 {
-				return x + y(env)
+		case r.Uint64:
+
+			{
+				x := x.(uint64)
+				y := y.(func(*Env) uint64)
+				fun = func(env *Env) uint64 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) uintptr:
-			x := x.(uintptr)
-			fun = func(env *Env) uintptr {
-				return x + y(env)
+		case r.Uintptr:
+
+			{
+				x := x.(uintptr)
+				y := y.(func(*Env) uintptr)
+				fun = func(env *Env) uintptr {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) float32:
-			x := x.(float32)
-			fun = func(env *Env) float32 {
-				return x + y(env)
+		case r.Float32:
+
+			{
+				x := x.(float32)
+				y := y.(func(*Env) float32)
+				fun = func(env *Env) float32 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) float64:
-			x := x.(float64)
-			fun = func(env *Env) float64 {
-				return x + y(env)
+		case r.Float64:
+
+			{
+				x := x.(float64)
+				y := y.(func(*Env) float64)
+				fun = func(env *Env) float64 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) complex64:
-			x := x.(complex64)
-			fun = func(env *Env) complex64 {
-				return x + y(env)
+		case r.Complex64:
+
+			{
+				x := x.(complex64)
+				y := y.(func(*Env) complex64)
+				fun = func(env *Env) complex64 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) complex128:
-			x := x.(complex128)
-			fun = func(env *Env) complex128 {
-				return x + y(env)
+		case r.Complex128:
+
+			{
+				x := x.(complex128)
+				y := y.(func(*Env) complex128)
+				fun = func(env *Env) complex128 {
+					return x + y(env)
+				}
+
 			}
-		case func(*Env) string:
-			x := x.(string)
-			if len(x) == 0 {
-				return ye
-			}
-			fun = func(env *Env) string {
-				return x + y(env)
+		case r.String:
+
+			{
+				x := x.(string)
+				y := y.(func(*Env) string)
+				fun = func(env *Env) string {
+					return x + y(env)
+				}
+
 			}
 		default:
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
+
 	}
 	return ExprFun(xe.Type, fun)
 }
