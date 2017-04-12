@@ -1087,6 +1087,8 @@ func (p *parser) tryIdentOrType() ast.Expr {
 		typ := p.parseType()
 		rparen := p.expect(token.RPAREN)
 		return &ast.ParenExpr{Lparen: lparen, X: typ, Rparen: rparen}
+	case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE: // patch: support quote and friends inside types
+		return p.parseQuote()
 	}
 
 	// no type found

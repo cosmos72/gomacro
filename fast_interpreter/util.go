@@ -349,6 +349,67 @@ func FunAsX1(fun I, opts CompileOptions) func(*Env) r.Value {
 		return func(env *Env) r.Value {
 			return r.ValueOf(fun(env))
 		}
+
+	case func(*Env) *bool:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *int:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *int8:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *int16:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *int32:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *int64:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *uint:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *uint8:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *uint16:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *uint32:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *uint64:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *uintptr:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *float32:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *float64:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
+	case func(*Env) *complex64:
+		return func(env *Env) r.Value {
+			return r.ValueOf(fun(env))
+		}
 	default:
 		Errorf("unsupported expression, cannot convert to func(*Env) r.Value: %v <%v>", fun, r.TypeOf(fun))
 	}
@@ -466,6 +527,67 @@ func FunAsXV(fun I, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 			return r.ValueOf(fun(env)), nil
 		}
 	case func(*Env) string:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+
+	case func(*Env) *bool:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *int:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *int8:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *int16:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *int32:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *int64:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *uint:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *uint8:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *uint16:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *uint32:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *uint64:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *uintptr:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *float32:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *float64:
+		return func(env *Env) (r.Value, []r.Value) {
+			return r.ValueOf(fun(env)), nil
+		}
+	case func(*Env) *complex64:
 		return func(env *Env) (r.Value, []r.Value) {
 			return r.ValueOf(fun(env)), nil
 		}
@@ -614,8 +736,100 @@ func FunAsStmt(fun I) Stmt {
 			env.IP++
 			return env.Code[env.IP], env
 		}
+
+	case func(*Env) *bool:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *int:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *int8:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *int16:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *int32:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *int64:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *uint:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *uint8:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *uint16:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *uint32:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *uint64:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *uintptr:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *float32:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *float64:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	case func(*Env) *complex64:
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
 	default:
-		Errorf("unsupported expression, cannot convert to Stmt: %v <%v>", fun, r.TypeOf(fun))
+		Errorf("unsupported expression type, cannot convert to Stmt : %v <%v>",
+			fun, r.TypeOf(fun))
 	}
 	return ret
 }

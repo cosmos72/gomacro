@@ -41,7 +41,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 	t := place.Type
 	if t == nil {
-		c.Errorf("invalid assignment: place has type <%v>", t)
+		c.Errorf("invalid assignment: lhs has type <%v>", t)
 	}
 
 	init.ConstTo(t)

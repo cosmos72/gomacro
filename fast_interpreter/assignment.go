@@ -55,6 +55,8 @@ func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
 			c.placeSetConst(place, init)
 		case token.ADD, token.ADD_ASSIGN:
 			c.placeAddConst(place, init)
+		case token.SUB, token.SUB_ASSIGN:
+			c.placeSubConst(place, init)
 		default:
 			c.Errorf("unimplemented assignment operator '%v' : %v %v %v", op, lhs, op, rhs)
 		}
@@ -85,10 +87,12 @@ type Place struct {
 	Upn  int
 	Desc BindDescriptor
 	Type r.Type
-	// Fun is nil for identifiers. returns settable reflect.Value
-	// (except for map[key], where it may be non-settable).
-	// call it only once, it may have side effects!
-	Fun func(*Env) r.Value
+	// Fun is nil for identifiers. returns address of place (for primitive types that fit uint64)
+	// otherwise returns a non-settable reflect.Value: the address of place
+	// (use r.Value.Elem() to access and modify its contents)
+	// For map[key], Fun returns the map itself wrapped in a reflect.Value (not its address).
+	// Call Fun only once, it may have side effects!
+	Fun I
 	// used only for map[key], returns key. call it only once, it may have side effects!
 	MapKey func(*Env) r.Value
 }

@@ -1,0 +1,129 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * address.go
+ *
+ *  Created on Apr 05, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast_interpreter
+
+import (
+	r "reflect"
+	"unsafe"
+)
+
+:import (
+	"go/ast"
+	r "reflect"
+)
+
+
+:func fxtype(upn int, typ ast.Node) ast.Node {
+	// the return type of Eval() and EvalType() varies. better check early.
+	var t r.Type = EvalType(typ)
+	var loop, bind, rettype ast.Node
+
+	if upn >= 0 {
+		bind = ~'{env}
+		for i := 0; i < upn; i++ {
+			bind = ~"{~,bind . Outer}
+		}
+	} else {
+		loop = ~'{
+			o := env.Outer.Outer.Outer
+			for i := 3; i < upn; i++ {
+				o = o.Outer
+			}
+		}
+		bind = ~'o
+	}
+
+	if t == nil {
+		bind = ~"{~,bind . Binds[index] .Addr()}
+		rettype = ~'{r.Value}
+	} else {
+		rettype = ~"{* ~,typ}
+		switch t.Kind() {
+			case r.Uint64:
+				bind = ~"{& ~,bind . IntBinds[index]}
+			default:
+				bind = ~"{(*~,typ)(unsafe.Pointer(& ~,bind .IntBinds[index]))}
+		}
+	}
+
+	return ~"{
+		ret = func(env *Env) (~,rettype) {
+			~,@loop
+			return ~,bind
+		}
+	}
+}
+
+:macro xtype(depth ast.Node, typ ast.Node) ast.Node {
+	// the return type of Eval() and EvalType() varies. better check early.
+	var upn int = Eval(depth)
+
+	return fxtype(upn, typ)
+}
+
+:macro xtypes(depth ast.Node) ast.Node {
+	return ~"{
+		switch k {
+		case r.Bool:       {xtype ; ~,depth ; bool}
+		case r.Int:        {xtype ; ~,depth ; int}
+		case r.Int8:       {xtype ; ~,depth ; int8}
+		case r.Int16:      {xtype ; ~,depth ; int16}
+		case r.Int32:      {xtype ; ~,depth ; int32}
+		case r.Int64:      {xtype ; ~,depth ; int64}
+		case r.Uint:       {xtype ; ~,depth ; uint}
+		case r.Uint8:      {xtype ; ~,depth ; uint8}
+		case r.Uint16:     {xtype ; ~,depth ; uint16}
+		case r.Uint32:     {xtype ; ~,depth ; uint32}
+		case r.Uint64:     {xtype ; ~,depth ; uint64}
+		case r.Uintptr:    {xtype ; ~,depth ; uintptr}
+		case r.Float32:    {xtype ; ~,depth ; float32}
+		case r.Float64:    {xtype ; ~,depth ; float64}
+		case r.Complex64:  {xtype ; ~,depth ; complex64}
+		default:           {xtype ; ~,depth ; nil}
+		}
+	}
+}
+
+
+// IdentAddress compiles the expression "&name" where name is a variable
+func (c *Comp) IdentAddress(name string) *Expr {
+	upn, bind := c.Resolve(name)
+	switch bind.Desc.Class() {
+	default:
+		c.Errorf("cannot take the address of %v", name)
+		return nil
+	case VarBind, IntBind:
+		k := bind.Type.Kind()
+		index := bind.Desc.Index()
+		var ret I
+		switch upn {
+		case 0:  {xtypes ; 0}
+		case 1:  {xtypes ; 1}
+		case 2:  {xtypes ; 2}
+		default: {xtypes ; -1}
+		}
+		return &Expr{Lit: Lit{Type: r.PtrTo(bind.Type)}, Fun: ret}
+	}
+}
