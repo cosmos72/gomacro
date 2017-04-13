@@ -295,12 +295,16 @@ type Comp struct {
 	Types      map[string]r.Type
 	NamedTypes map[r.Type]NamedType
 	Code       Code // "compiled" code
-	Jump       struct {
+	Loop       struct {
 		Break     *int
 		Continue  *int
-		Return    *int
 		Labels    map[string]*int
 		ThisLabel string // for labeled "switch" and "for"
+	}
+	Func struct {
+		ParamNames  []string
+		ResultNames []string // for unnamed results, use "\x80"
+		Return      *int
 	}
 	Outer          *Comp
 	Name           string // set by "package" directive
@@ -308,11 +312,6 @@ type Comp struct {
 	CompileOptions CompileOptions
 	*base.InterpreterBase
 }
-
-const (
-	LabelBreak string = "\x80break"
-	LabelCont
-)
 
 // Env is the interpreter's runtime environment
 type Env struct {
@@ -330,11 +329,6 @@ type Env struct {
 type CompEnv struct {
 	*Comp
 	Env *Env
-}
-
-type SReturn struct {
-	result0 r.Value
-	results []r.Value
 }
 
 type (

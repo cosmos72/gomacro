@@ -41,6 +41,7 @@ type InterpreterBase struct {
 	Options      Options
 	Packagename  string
 	Filename     string
+	GensymN      uint
 	Importer     Importer
 	Imports      []*ast.GenDecl
 	Declarations []ast.Decl
@@ -85,6 +86,18 @@ func (ir *InterpreterBase) ParseBytes(src []byte) []ast.Node {
 		return nil
 	}
 	return nodes
+}
+
+func (ir *InterpreterBase) Gensym() string {
+	n := ir.GensymN
+	ir.GensymN++
+	return fmt.Sprintf("%s%d", PublicGensymPrefix, n)
+}
+
+func (ir *InterpreterBase) GensymUnnamed() string {
+	n := ir.GensymN
+	ir.GensymN++
+	return fmt.Sprintf("%s%d", UnnamedGensymPrefix, n)
 }
 
 // CollectAst accumulates declarations in ir.Decls and statements in ir.Stmts

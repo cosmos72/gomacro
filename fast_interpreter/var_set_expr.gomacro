@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * assign_set_expr.go
+ * var_set_expr.go
  *
  *  Created on Apr 09, 2017
  *      Author Massimiliano Ghilardi
@@ -115,25 +115,22 @@ import (
 	}
 }
 
-// placeSetExpr compiles 'place = expression'
-func (c *Comp) placeSetExpr(place *Place, init *Expr) {
-	if place.Fun != nil {
-		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
-	}
-	t := place.Type
+// varSetExpr compiles 'name = expression'
+func (c *Comp) varSetExpr(va *Var, init *Expr) {
+	t := va.Type
 	if t == nil {
-		c.Errorf("invalid assignment: lhs has type <%v>", t)
+		c.Errorf("invalid assignment: variable has type <%v>", t)
 	}
 	if init.Const() {
-		c.Errorf("internal error: placeSetExpr() invoked with constant expression. must call placeSetConst()")
+		c.Errorf("internal error: varSetExpr() invoked with constant expression. must call varSetConst() instead")
 	} else if init.Type != t {
 		if t.Kind() != init.Type.Kind() || !init.Type.AssignableTo(t) {
 			c.Errorf("incompatible types in assignment: <%v> = <%v>", t, init.Type)
 			return
 		}
 	}
-	upn := place.Upn
-	desc := place.Desc
+	upn := va.Upn
+	desc := va.Desc
 	var ret func(env *Env) (Stmt, *Env)
 
 	switch desc.Class() {

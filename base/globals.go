@@ -128,3 +128,15 @@ func (m WhichMacroExpand) String() string {
 		return "MacroExpand"
 	}
 }
+
+func IsUnnamedGensym(name string) bool {
+	return strings.HasPrefix(name, UnnamedGensymPrefix)
+}
+
+func IsReflectGensym(name string) bool {
+	return strings.HasPrefix(name, ReflectGensymPrefix)
+}
+
+func IsPublicGensym(name string) bool {
+	return strings.HasPrefix(name, PublicGensymPrefix)
+}

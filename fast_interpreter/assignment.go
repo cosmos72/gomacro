@@ -38,47 +38,64 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 	} else if ln != rn {
 		c.Errorf("invalid assignment, cannot assign %d values to %d places: %v", node)
 	} else {
-		for i, l := range lhs {
-			c.Assign1(l, node.Tok, rhs[i])
+		for i := range lhs {
+			c.Assign1(lhs[i], node.Tok, rhs[i])
 		}
 	}
 }
 
 // Assign1 compiles a single assignment to a place
 func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
+	node := &ast.AssignStmt{Lhs: []ast.Expr{lhs}, Tok: op, Rhs: []ast.Expr{rhs}} // only for nice error messages
+
 	place := c.Place(lhs)
-	init := c.Expr(rhs)
-	if init.Const() {
-		switch op {
-		case token.ASSIGN:
-			c.placeSetConst(place, init)
-		case token.ADD, token.ADD_ASSIGN:
-			c.placeAddConst(place, init)
-		case token.SUB, token.SUB_ASSIGN:
-			c.placeSubConst(place, init)
-		default:
-			c.Errorf("unimplemented assignment operator '%v' : %v %v %v", op, lhs, op, rhs)
-		}
-	} else {
-		switch op {
-		case token.ASSIGN:
-			c.placeSetExpr(place, init)
-		case token.ADD, token.ADD_ASSIGN:
-			c.placeAddExpr(place, init)
-		default:
-			c.Errorf("unimplemented assignment operator '%v' : %v %v %v", op, lhs, op, rhs)
-		}
+	if place.Fun != nil {
+		c.Errorf("unimplemented: assignment of composite place (only assignment of variables is implemented): %v", node)
 	}
+	va := &place.Var
+	init := c.Expr(rhs)
+
+	panicking := true
+	defer func() {
+		if !panicking {
+			return
+		}
+		c.Errorf("error compiling assignment: %v", node)
+	}()
+	c.SetVar(va, op, init)
+	panicking = false
 }
 
-// AssignVar0 compiles an assignment to a variable.
-// not used by gomacro, provided as convenience for applications
-func (c *Comp) AssignVar0(name string, init *Expr) {
-	var_ := c.Var(name)
+// SetVar0 compiles an assignment to a variable.
+// provided as convenience for applications
+func (c *Comp) SetVar0(name string, op token.Token, init *Expr) {
+	va := c.LookupVar(name)
+	c.SetVar(va, op, init)
+}
+
+// SetVar compiles an assignment to a variable.
+func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
+	if init.Type == nil {
+		c.Errorf("invalid operator %v on <%v>", op, init.Type)
+	}
 	if init.Const() {
-		c.placeSetConst(&Place{Var: *var_}, init)
+		switch op {
+		case token.ASSIGN:
+			c.varSetConst(va, init)
+		case token.ADD, token.ADD_ASSIGN:
+			c.varAddConst(va, init)
+		default:
+			c.Errorf("unimplemented assignment: variable %v constant", op)
+		}
 	} else {
-		c.placeSetExpr(&Place{Var: *var_}, init)
+		switch op {
+		case token.ASSIGN:
+			c.varSetExpr(va, init)
+		case token.ADD, token.ADD_ASSIGN:
+			c.varAddExpr(va, init)
+		default:
+			c.Errorf("unimplemented assignment: variable %v expression", op)
+		}
 	}
 }
 
@@ -121,7 +138,7 @@ func (c *Comp) PlaceOrAddress(lhs ast.Expr, addressof bool) *Place {
 }
 
 // Var compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
-func (c *Comp) Var(name string) *Var {
+func (c *Comp) LookupVar(name string) *Var {
 	if name == "_" {
 		return &Var{}
 	}

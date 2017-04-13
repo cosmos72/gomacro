@@ -19,7 +19,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * assign_add_expr.go
+ * var_add_expr.go
  *
  *  Created on Apr 09, 2017
  *      Author Massimiliano Ghilardi
@@ -31,18 +31,10 @@ import (
 	"unsafe"
 )
 
-func (c *Comp) placeAddExpr(place *Place, init *Expr) {
-	if place.Fun != nil {
-		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
-	}
-
-	t := place.Type
-	if t == nil {
-		c.Errorf("invalid operator += on <%v>", t)
-	}
-
+func (c *Comp) varAddExpr(va *Var, init *Expr) {
+	t := va.Type
 	if init.Const() {
-		c.Errorf("internal error: placeAddExpr() invoked with constant expression. must call placeAddConst()")
+		c.Errorf("internal error: varAddExpr() invoked with constant expression. must call varAddConst() instead")
 	} else if init.Type != t {
 		if t.Kind() != init.Type.Kind() || !init.Type.AssignableTo(t) {
 			c.Errorf("incompatible types in assignment: <%v> += <%v>", t, init.Type)
@@ -50,8 +42,8 @@ func (c *Comp) placeAddExpr(place *Place, init *Expr) {
 		}
 	}
 
-	upn := place.Upn
-	desc := place.Desc
+	upn := va.Upn
+	desc := va.Desc
 	var ret func(env *Env) (Stmt, *Env)
 
 	switch desc.Class() {

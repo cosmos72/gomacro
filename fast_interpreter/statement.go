@@ -150,11 +150,12 @@ func (c *Comp) Break(node *ast.BranchStmt) {
 		label = node.Label.Name
 	}
 	upn := 0
-	for o := c; o != nil; o = o.Outer {
-		if o.Jump.Break != nil {
-			if len(label) == 0 || o.Jump.ThisLabel == label {
+	// do not cross function boundaries
+	for o := c; o != nil && o.Func.Return == nil; o = o.Outer {
+		if o.Loop.Break != nil {
+			if len(label) == 0 || o.Loop.ThisLabel == label {
 				// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
-				c.compileJumpOut(upn, o.Jump.Break)
+				c.compileJumpOut(upn, o.Loop.Break)
 				return
 			}
 		}
@@ -174,11 +175,12 @@ func (c *Comp) Continue(node *ast.BranchStmt) {
 		label = node.Label.Name
 	}
 	upn := 0
-	for o := c; o != nil; o = o.Outer {
-		if o.Jump.Continue != nil {
-			if len(label) == 0 || o.Jump.ThisLabel == label {
+	// do not cross function boundaries
+	for o := c; o != nil && o.Func.Return == nil; o = o.Outer {
+		if o.Loop.Continue != nil {
+			if len(label) == 0 || o.Loop.ThisLabel == label {
 				// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
-				c.compileJumpOut(upn, o.Jump.Continue)
+				c.compileJumpOut(upn, o.Loop.Continue)
 				return
 			}
 		}
@@ -244,8 +246,8 @@ func (c *Comp) For(node *ast.ForStmt) {
 		}
 	}
 	var jump struct{ Cond, Post, Break int }
-	c.Jump.Continue = &jump.Post
-	c.Jump.Break = &jump.Break
+	c.Loop.Continue = &jump.Post
+	c.Loop.Break = &jump.Break
 
 	// compile the condition, if not a constant
 	jump.Cond = c.Code.Len()
@@ -366,31 +368,51 @@ func (c *Comp) If(node *ast.IfStmt) {
 	}
 }
 
-func Return(exprs ...X) X {
-	switch n := len(exprs); n {
-	case 0:
-		return nil
-	case 1:
-		// expr := exprs[0]
-		// return foo() returns *all* the values returned by foo, not just the first one
-		return func(env *Env) {
-			// ret, rets := expr(env)
-			// panic(SReturn{ret, rets})
+// Return compiles a "return" statement
+func (c *Comp) Return(node *ast.ReturnStmt) {
+	var ireturn *int
+	var upn int
+	var cret *Comp
+	for cret = c; cret != nil; cret = cret.Outer {
+		if cret.Func.Return != nil {
+			ireturn = cret.Func.Return
+			break
 		}
-	default:
-		return func(env *Env) {
-			n := len(exprs)
-			rets := make([]r.Value, n)
-			// for i, value := range exprs {
-			//  rets[i], _ = value(env)
-			// }
-			ret0 := None
-			if len(rets) > 0 {
-				ret0 = rets[0]
-			}
-			panic(SReturn{ret0, rets})
-		}
+		upn += cret.UpCost // count how many Env:s we must exit at runtime
 	}
+	if ireturn == nil {
+		c.Errorf("return outside function")
+		return
+	}
+
+	resultNames := cret.Func.ResultNames
+	resultExprs := node.Results
+	n := len(resultNames)
+	switch len(resultExprs) {
+	case n:
+		// ok
+	case 1:
+		c.Errorf("unimplemented: return of multi-valued expression: %v", node)
+	case 0:
+		for _, resultName := range resultNames {
+			if !IsUnnamedGensym(resultName) {
+				// naked return requires all results to have names
+				c.Errorf("return: expecting %d expressions, found %d: %v", n, len(node.Results), node)
+				return
+			}
+		}
+		n = 0 // naked return. results are already set
+	default:
+		c.Errorf("return: expecting %d expressions, found %d: %v", n, len(node.Results), node)
+		return
+	}
+
+	exprs := c.Exprs(resultExprs)
+	for i := 0; i < n; i++ {
+		c.SetVar0(resultNames[i], token.ASSIGN, exprs[i])
+	}
+
+	c.compileJumpOut(upn, ireturn)
 }
 
 // containLocalBinds return true if one or more of the given statements (but not their contents:

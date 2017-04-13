@@ -101,7 +101,7 @@ const fib_s = "func fibonacci(n uint) uint { if n <= 2 { return 1 }; return fibo
 
 var ti = r.StructOf(
 	[]r.StructField{
-		r.StructField{Name: "\u0080", Type: r.TypeOf((*interface{})(nil)).Elem()},
+		r.StructField{Name: ReflectGensymPrefix, Type: r.TypeOf((*interface{})(nil)).Elem()},
 		r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
 	},
 )

@@ -19,7 +19,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * place_set_const.gomacro
+ * var_add_const.go
  *
  *  Created on Apr 09, 2017
  *      Author Massimiliano Ghilardi
@@ -34,57 +34,42 @@ import (
 	"github.com/cosmos72/gomacro/base"
 )
 
-func (c *Comp) placeSetConst(place *Place, init *Expr) {
-	if place.Fun != nil {
-		c.Errorf("unimplemented: assignment to place (only assignment to variable is currently implemented)")
+func (c *Comp) varAddConst(va *Var, init *Expr) {
+	if !init.Const() {
+		c.Errorf("internal error: varAddConst() invoked with non-constant expression. must call varAddExpr() instead")
 	}
 
-	t := place.Type
-	if t == nil {
-		c.Errorf("invalid assignment: lhs has type <%v>", t)
-	}
-
+	t := va.Type
 	init.ConstTo(t)
 
-	upn := place.Upn
-	desc := place.Desc
+	upn := va.Upn
+	desc := va.Desc
 	var ret func(env *Env) (Stmt, *Env)
 
 	switch desc.Class() {
 	default:
-		c.Errorf("cannot assign to %v", desc.Class())
+		c.Errorf("invalid operator += on %v", desc.Class())
 		return
 	case VarBind, IntBind:
 		index := desc.Index()
 		if index == NoIndex {
+			c.Errorf("invalid operator += on _")
 			return
 		}
-
 		val := init.Value
 		v := r.ValueOf(val)
-		if base.ValueType(v) == nil {
-			v = r.Zero(t)
-		} else {
+		if base.ValueType(v) != t {
 			v = v.Convert(t)
 		}
 
 		switch upn {
 		case 0:
 			switch val := val.(type) {
-			case bool:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*bool)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			case int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -93,7 +78,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -102,7 +87,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int16)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -111,7 +96,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int32)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -120,7 +105,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -129,7 +114,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -138,7 +123,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -147,7 +132,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint16)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -156,7 +141,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -165,7 +150,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
-						IntBinds[index] = val
+						IntBinds[index] += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -174,7 +159,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -183,7 +168,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float32)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -192,7 +177,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float64)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -201,7 +186,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -209,8 +194,11 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 			case complex128:
 
 				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Binds[index].SetComplex(val)
+					{
+						lhs := env.
+							Binds[index]
+						lhs.SetComplex(lhs.Complex() + val)
+					}
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -218,41 +206,27 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 			case string:
 
 				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Binds[index].SetString(val)
+					{
+						lhs := env.
+							Binds[index]
+						lhs.SetString(lhs.String() + val)
+					}
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			default:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Binds[index].Set(v)
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
+				c.Errorf("invalid operator += on <%v>", t)
 			}
 
 		case 1:
 			switch val := val.(type) {
-			case bool:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*bool)(unsafe.Pointer(&env.
-						Outer.
-						IntBinds[index])) = val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			case int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -262,7 +236,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -272,7 +246,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int16)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -282,7 +256,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int32)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -292,7 +266,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -302,7 +276,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -312,7 +286,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -322,7 +296,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint16)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -332,7 +306,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -342,7 +316,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
 						Outer.
-						IntBinds[index] = val
+						IntBinds[index] += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -352,7 +326,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -362,7 +336,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float32)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -372,7 +346,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float64)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -382,7 +356,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.
 						Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -390,9 +364,12 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 			case complex128:
 
 				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Outer.
-						Binds[index].SetComplex(val)
+					{
+						lhs := env.
+							Outer.
+							Binds[index]
+						lhs.SetComplex(lhs.Complex() + val)
+					}
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -400,43 +377,28 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 			case string:
 
 				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Outer.
-						Binds[index].SetString(val)
+					{
+						lhs := env.
+							Outer.
+							Binds[index]
+						lhs.SetString(lhs.String() + val)
+					}
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			default:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Outer.
-						Binds[index].Set(v)
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
+				c.Errorf("invalid operator += on <%v>", t)
 			}
 
 		case 2:
 			switch val := val.(type) {
-			case bool:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*bool)(unsafe.Pointer(&env.
-						Outer.Outer.
-						IntBinds[index])) = val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			case int:
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -446,7 +408,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -456,7 +418,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int16)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -466,7 +428,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int32)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -476,7 +438,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -486,7 +448,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -496,7 +458,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -506,7 +468,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint16)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -516,7 +478,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -526,7 +488,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
 						Outer.Outer.
-						IntBinds[index] = val
+						IntBinds[index] += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -536,7 +498,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -546,7 +508,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float32)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -556,7 +518,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float64)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -566,7 +528,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.
 						Outer.Outer.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -574,9 +536,12 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 			case complex128:
 
 				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Outer.Outer.
-						Binds[index].SetComplex(val)
+					{
+						lhs := env.
+							Outer.Outer.
+							Binds[index]
+						lhs.SetComplex(lhs.Complex() + val)
+					}
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -584,41 +549,22 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 			case string:
 
 				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Outer.Outer.
-						Binds[index].SetString(val)
+					{
+						lhs := env.
+							Outer.Outer.
+							Binds[index]
+						lhs.SetString(lhs.String() + val)
+					}
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			default:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.
-						Outer.Outer.
-						Binds[index].Set(v)
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
+				c.Errorf("invalid operator += on <%v>", t)
 			}
 
 		default:
 			switch val := val.(type) {
-			case bool:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					o := env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						o = o.Outer
-					}
-
-					*(*bool)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			case int:
 
 				ret = func(env *Env) (Stmt, *Env) {
@@ -628,7 +574,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -642,7 +588,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -656,7 +602,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -670,7 +616,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -684,7 +630,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -698,7 +644,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -712,7 +658,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -726,7 +672,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -740,7 +686,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -754,7 +700,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					o.
-						IntBinds[index] = val
+						IntBinds[index] += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -768,7 +714,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -782,7 +728,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*float32)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -796,7 +742,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*float64)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -810,7 +756,7 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 					}
 
 					*(*complex64)(unsafe.Pointer(&o.
-						IntBinds[index])) = val
+						IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -823,8 +769,11 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 						o = o.Outer
 					}
 
-					o.
-						Binds[index].SetComplex(val)
+					{
+						lhs := o.
+							Binds[index]
+						lhs.SetComplex(lhs.Complex() + val)
+					}
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -837,26 +786,17 @@ func (c *Comp) placeSetConst(place *Place, init *Expr) {
 						o = o.Outer
 					}
 
-					o.
-						Binds[index].SetString(val)
+					{
+						lhs := o.
+							Binds[index]
+						lhs.SetString(lhs.String() + val)
+					}
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			default:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					o := env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						o = o.Outer
-					}
-
-					o.
-						Binds[index].Set(v)
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
+				c.Errorf("invalid operator += on <%v>", t)
 			}
 
 		}

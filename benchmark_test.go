@@ -95,8 +95,7 @@ func BenchmarkArithFastInterpreter(b *testing.B) {
 
 	fun := c.CompileAst(c.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)"))
 
-	variable := c.Var("n")
-	setvar := c.VarSetValue(variable)
+	setvar := c.SetVarValue0("n")
 	value := r.New(TypeOfInt).Elem()
 	var ret r.Value
 	c.Run(fun)
@@ -145,8 +144,7 @@ func BenchmarkForFastInterpreter(b *testing.B) {
 	fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i=i+1 { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total"))
 	// fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i=i+1 { }; total"))
 
-	variable := c.Var("n")
-	setvar := c.VarSetValue(variable)
+	setvar := c.SetVarValue0("n")
 	value := r.New(TypeOfInt).Elem()
 	var ret r.Value
 	c.Run(fun)
@@ -327,9 +325,9 @@ func BenchmarkSumFastInterpreter(b *testing.B) {
 	c := fast.New()
 	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
 
-	addrexpr := c.Var("n").Address()
+	addrexpr := c.LookupVar("n").Address()
 	addr := c.Exec1(addrexpr).Interface().(*int)
-	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i=i+1 { total += i }; total"))
+	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i+=1 { total += i }; total"))
 	c.Run(fun)
 
 	b.ResetTimer()

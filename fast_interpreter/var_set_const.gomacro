@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * place_set_const.gomacro
+ * var_set_const.gomacro
  *
  *  Created on Apr 09, 2017
  *      Author Massimiliano Ghilardi
@@ -115,19 +115,17 @@ import (
 }
 
 
-// placeSetConst compiles 'place = constant'
-func (c *Comp) placeSetConst(place *Place, init *Expr) {
-	if place.Fun != nil {
-		c.Errorf("unimplemented: assignment to place (only assignment to variable is currently implemented)")
+// varSetConst compiles 'name = constant'
+func (c *Comp) varSetConst(va *Var, init *Expr) {
+	t := va.Type
+	if !init.Const() {
+		c.Errorf("internal error: varSetConst() invoked with constant expression. must call varSetExpr() instead")
 	}
-	t := place.Type
-	if t == nil {
-		c.Errorf("invalid assignment: lhs has type <%v>", t)
-	}
+
 	init.ConstTo(t)
 
-	upn := place.Upn
-	desc := place.Desc
+	upn := va.Upn
+	desc := va.Desc
 	var ret func(env *Env) (Stmt, *Env)
 
 	switch desc.Class() {

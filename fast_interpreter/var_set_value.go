@@ -31,20 +31,31 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-// PlaceSetValue compiles 'place = value' where value is a reflect.Value passed at runtime.
+// SetPlaceValue compiles 'place = value' where value is a reflect.Value passed at runtime.
 // Used to assign places with the result of multi-valued expressions
 // Also handy for applications
-func (c *Comp) PlaceSetValue(place *Place) func(*Env, r.Value) {
+func (c *Comp) SetPlaceValue(place *Place) func(*Env, r.Value) {
 	if place.Fun != nil {
 		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
 	}
-	return c.VarSetValue(&place.Var)
+	return c.SetVarValue(&place.Var)
 }
 
-func (c *Comp) VarSetValue(variable *Var) func(*Env, r.Value) {
-	t := variable.Type
-	upn := variable.Upn
-	desc := variable.Desc
+// SetVarValue0 compiles 'name = value' where value is a reflect.Value passed at runtime.
+// Used to assign variables with the result of multi-valued expressions
+// Also handy for applications
+func (c *Comp) SetVarValue0(name string) func(*Env, r.Value) {
+	va := c.LookupVar(name)
+	return c.SetVarValue(va)
+}
+
+// SetVarValue compiles 'name = value' where value is a reflect.Value passed at runtime.
+// Used to assign variables with the result of multi-valued expressions
+// Also handy for applications
+func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
+	t := va.Type
+	upn := va.Upn
+	desc := va.Desc
 	var ret func(env *Env, v r.Value)
 
 	switch desc.Class() {

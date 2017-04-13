@@ -51,10 +51,27 @@ func (c *Comp) Exprs(nodes []ast.Expr) []*Expr {
 	if n := len(nodes); n != 0 {
 		inits = make([]*Expr, n)
 		for i := range nodes {
-			inits[i] = c.Expr(nodes[i])
+			inits[i] = c.Expr1(nodes[i])
 		}
 	}
 	return inits
+}
+
+// Expr compiles an expression that returns a single value
+func (c *Comp) Expr1(in ast.Expr) *Expr {
+	e := c.Expr(in)
+	nout := e.NumOut()
+	switch nout {
+	case 0:
+		c.Errorf("expression returns no values, expecting one: %v", in)
+		return nil
+	default:
+		c.Warnf("expression returns %d values %v, using only the first one: %v",
+			e.Types, in)
+		fallthrough
+	case 1:
+		return e
+	}
 }
 
 // Expr compiles an expression
