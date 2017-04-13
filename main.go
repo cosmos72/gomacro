@@ -34,7 +34,6 @@ import (
 )
 
 func main() {
-
 	args := os.Args[1:]
 
 	var cmd gmi.Cmd

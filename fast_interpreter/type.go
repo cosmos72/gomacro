@@ -57,9 +57,10 @@ func (c *Comp) DeclType0(name string, t r.Type) r.Type {
 		c.Types = make(map[string]r.Type)
 	}
 	c.Types[name] = t
-	if _, ok := c.NamedTypes[t]; !ok {
-		c.NamedTypes[t] = NamedType{Name: name, Path: c.Path}
+	if c.NamedTypes == nil {
+		c.NamedTypes = make(map[r.Type]NamedType)
 	}
+	c.NamedTypes[t] = NamedType{Name: name, Path: c.Path}
 	return t
 }
 

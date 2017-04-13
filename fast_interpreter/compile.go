@@ -44,28 +44,20 @@ func New() *CompEnv {
 func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
-	var namedTypes map[r.Type]NamedType
 	var outerComp *Comp
 	var outerEnv *Env
 	var base *InterpreterBase
 	if outer != nil {
 		outerComp = outer.Comp
 		outerEnv = outer.Env
-		if outerComp != nil {
-			namedTypes = outer.NamedTypes
-		}
 		base = outer.InterpreterBase
 	}
 	if base == nil {
 		b := MakeInterpreterBase()
 		base = &b
 	}
-	if namedTypes == nil {
-		namedTypes = make(map[r.Type]NamedType)
-	}
 	c := &CompEnv{
 		Comp: &Comp{
-			NamedTypes:      namedTypes,
 			Outer:           outerComp,
 			Name:            name,
 			Path:            path,
@@ -86,7 +78,6 @@ func NewComp(outer *Comp) *Comp {
 	}
 	return &Comp{
 		UpCost:          1,
-		NamedTypes:      outer.NamedTypes,
 		Code:            outer.Code,
 		Outer:           outer,
 		CompileOptions:  outer.CompileOptions,

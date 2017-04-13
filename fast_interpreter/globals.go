@@ -68,7 +68,7 @@ type Lit struct {
 	// Type is nil only for literal nils.
 	// for all other literals, it is reflect.TypeOf(Lit.Value)
 	//
-	// When Lit is embedded in other structs that represent non-constant expressions,
+	// when Lit is embedded in other structs that represent non-constant expressions,
 	// Type is the first type returned by the expression (nil if returns no values)
 	Type r.Type
 
@@ -78,7 +78,7 @@ type Lit struct {
 	//   float32, float64, complex64, complex128, string,
 	//   UntypedLit
 	//
-	// When Lit is embedded in other structs that represent non-constant expressions,
+	// when Lit is embedded in other structs that represent non-constant expressions,
 	// Value is usually nil
 	Value I
 }
@@ -246,10 +246,12 @@ type NamedType struct {
 	Name, Path string
 }
 
-// ================================== Ident, Place =================================
+// ================================== Var, Place =================================
 
 // Var represents a settable variable
 type Var struct {
+	// when Var is embedded in other structs that represent non-identifiers,
+	// Upn and Desc are usually the zero values
 	Upn  int
 	Desc BindDescriptor
 	Type r.Type
@@ -289,16 +291,28 @@ type Comp struct {
 	IntBindNum int
 	// UpCost is the number of *Env.Outer hops to perform at runtime to reach the *Env corresponding to *Comp.Outer
 	// usually equals one. will be zero if this *Comp defines no local variables/functions.
-	UpCost         int
-	Types          map[string]r.Type
-	NamedTypes     map[r.Type]NamedType
-	Code           Code // "compiled" code
+	UpCost     int
+	Types      map[string]r.Type
+	NamedTypes map[r.Type]NamedType
+	Code       Code // "compiled" code
+	Jump       struct {
+		Break     *int
+		Continue  *int
+		Return    *int
+		Labels    map[string]*int
+		ThisLabel string // for labeled "switch" and "for"
+	}
 	Outer          *Comp
-	Name           string
+	Name           string // set by "package" directive
 	Path           string
 	CompileOptions CompileOptions
 	*base.InterpreterBase
 }
+
+const (
+	LabelBreak string = "\x80break"
+	LabelCont
+)
 
 // Env is the interpreter's runtime environment
 type Env struct {
