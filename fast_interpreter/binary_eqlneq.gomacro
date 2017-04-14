@@ -113,26 +113,24 @@ import (
 			// shortcut for all int* types
 			for _, typ := range []ast.Expr{~'int, ~'int8, ~'int16, ~'int32, ~'int64} {
 				kind := makekind(typ)
-				caselist = append(caselist, ~"{case ~,kind: eqlneq ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+				caselist = append(caselist, ~"{case ~,kind: eqlneq; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 			}
 		} else if t.Kind() == r.Uint {
 			// shortcut for all uint* types
 			for _, typ := range []ast.Expr{~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr} {
 				kind := makekind(typ)
-				caselist = append(caselist, ~"{case ~,kind: eqlneq ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+				caselist = append(caselist, ~"{case ~,kind: eqlneq; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 			}
 		} else {
 			kind := makekind(typ)
-			caselist = append(caselist, ~"{case ~,kind: eqlneq ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ})
+			caselist = append(caselist, ~"{case ~,kind: eqlneq; ~,opnode; ~,xconst; ~,yconst; ~,typ})
 		}
 	}
 
 	if !foundnil {
 		caselist = append(caselist, ~'{default: return c.invalidBinaryExpr(node, xe, ye)})
 	}
-	ret := ~"{ switch k { } } // modified parser does not yet support unquoting inside switch body
-	ret.Body = ~"{ ~,@caselist }
-	return ret
+	return ~"{ switch k { ~,@caselist } }
 }
 
 func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {

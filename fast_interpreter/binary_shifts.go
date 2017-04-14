@@ -798,7 +798,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -861,7 +860,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -924,7 +922,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -987,7 +984,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -1050,7 +1046,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -1113,7 +1108,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -1176,7 +1170,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -1239,7 +1232,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -1302,7 +1294,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -1365,7 +1356,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -1428,7 +1418,6 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -2896,7 +2885,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -2959,7 +2947,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3022,7 +3009,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3085,7 +3071,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3148,7 +3133,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3211,7 +3195,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3274,7 +3257,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3337,7 +3319,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3400,7 +3381,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3463,7 +3443,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}
@@ -3526,7 +3505,6 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 						}
 
 					}
-
 				}
 
 			}

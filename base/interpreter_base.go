@@ -91,13 +91,7 @@ func (ir *InterpreterBase) ParseBytes(src []byte) []ast.Node {
 func (ir *InterpreterBase) Gensym() string {
 	n := ir.GensymN
 	ir.GensymN++
-	return fmt.Sprintf("%s%d", PublicGensymPrefix, n)
-}
-
-func (ir *InterpreterBase) GensymUnnamed() string {
-	n := ir.GensymN
-	ir.GensymN++
-	return fmt.Sprintf("%s%d", UnnamedGensymPrefix, n)
+	return fmt.Sprintf("%s%d", GensymPrefix, n)
 }
 
 // CollectAst accumulates declarations in ir.Decls and statements in ir.Stmts

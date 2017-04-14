@@ -130,9 +130,7 @@ import (
 	if !foundnil {
 		caselist = append(caselist, ~'{default: return c.invalidBinaryExpr(node, xe, ye)})
 	}
-	ret := ~"{ switch k { } } // modified parser does not yet support unquoting inside switch body
-	ret.Body = ~"{ ~,@caselist }
-	return ret
+	return ~"{ switch k { ~,@caselist } }
 }
 
 func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {

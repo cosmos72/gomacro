@@ -31,13 +31,12 @@ import (
 type none struct{}
 
 const (
-	UnnamedGensymPrefix = "\x00"       // prefix to generate names of unnamed function results
-	ReflectGensymPrefix = "\x80"       // prefix to generate names of extra struct fields needed by the interpreter in reflect.StructOf()
-	PublicGensymPrefix  = "\U000124AD" // prefix to generate names in macros - arbitrarily chosen U+124AD CUNEIFORM SIGN ERIN2 X - reasons:
-	// * accepted by Go compiler as identifier in source code;
-	// * belongs to a "dead" i.e. historical language, so hopefully low collision risk
+	ReflectGensymPrefix = "\u0080"     // prefix to generate names of extra struct fields needed by the interpreter in reflect.StructOf()
+	GensymPrefix        = "\U000124AD" // prefix to generate names in macros - arbitrarily chosen U+124AD CUNEIFORM SIGN ERIN2 X - reasons:
+	// * accepted by Go compiler identifier name in source code
+	// * belongs to an ancient language no longer spoken, so hopefully low collision risk
 	// * outside Unicode basic place, so hopefully lower collision risk
-	// * relatively simple glyph
+	// * relatively simple glyph picture
 )
 
 var (
@@ -68,7 +67,7 @@ var (
 	TypeOfComplex64  = r.TypeOf(complex64(0))
 	TypeOfComplex128 = r.TypeOf(complex128(0))
 
-	TypeOfBool      = r.TypeOf(bool(false))
+	TypeOfBool      = r.TypeOf(false)
 	TypeOfByte      = r.TypeOf(byte(0))
 	TypeOfRune      = r.TypeOf(rune(0))
 	TypeOfString    = r.TypeOf("")

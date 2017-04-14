@@ -92,24 +92,24 @@ import (
 :macro setplaces(depth ast.Node) ast.Node {
 	return ~"{
 		switch val := val.(type) {
-		case bool:       {setplace ; ~,depth ; bool}
-		case int:        {setplace ; ~,depth ; int}
-		case int8:       {setplace ; ~,depth ; int8}
-		case int16:      {setplace ; ~,depth ; int16}
-		case int32:      {setplace ; ~,depth ; int32}
-		case int64:      {setplace ; ~,depth ; int64}
-		case uint:       {setplace ; ~,depth ; uint}
-		case uint8:      {setplace ; ~,depth ; uint8}
-		case uint16:     {setplace ; ~,depth ; uint16}
-		case uint32:     {setplace ; ~,depth ; uint32}
-		case uint64:     {setplace ; ~,depth ; uint64}
-		case uintptr:    {setplace ; ~,depth ; uintptr}
-		case float32:    {setplace ; ~,depth ; float32}
-		case float64:    {setplace ; ~,depth ; float64}
-		case complex64:  {setplace ; ~,depth ; complex64}
-		case complex128: {setplace ; ~,depth ; complex128}
-		case string:     {setplace ; ~,depth ; string}
-		default:         {setplace ; ~,depth ; nil}
+		case bool:       setplace; ~,depth; bool
+		case int:        setplace; ~,depth; int
+		case int8:       setplace; ~,depth; int8
+		case int16:      setplace; ~,depth; int16
+		case int32:      setplace; ~,depth; int32
+		case int64:      setplace; ~,depth; int64
+		case uint:       setplace; ~,depth; uint
+		case uint8:      setplace; ~,depth; uint8
+		case uint16:     setplace; ~,depth; uint16
+		case uint32:     setplace; ~,depth; uint32
+		case uint64:     setplace; ~,depth; uint64
+		case uintptr:    setplace; ~,depth; uintptr
+		case float32:    setplace; ~,depth; float32
+		case float64:    setplace; ~,depth; float64
+		case complex64:  setplace; ~,depth; complex64
+		case complex128: setplace; ~,depth; complex128
+		case string:     setplace; ~,depth; string
+		default:         setplace; ~,depth; nil
 		}
 	}
 }
@@ -146,10 +146,10 @@ func (c *Comp) varSetConst(va *Var, init *Expr) {
 			v = v.Convert(t)
 		}
 		switch upn {
-		case 0:  {setplaces ; 0}
-		case 1:  {setplaces ; 1}
-		case 2:  {setplaces ; 2}
-		default: {setplaces ; -1}
+		case 0:  setplaces; 0
+		case 1:  setplaces; 1
+		case 2:  setplaces; 2
+		default: setplaces; -1
 		}
 	}
 	c.Code.Append(ret)

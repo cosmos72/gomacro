@@ -31,6 +31,8 @@ import (
 	"go/ast"
 	r "reflect"
 	"unsafe"
+
+	"github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
@@ -49,14 +51,18 @@ func (c *Comp) AddressOfVar(name string) *Expr {
 		c.Errorf("cannot take the address of %s: %v", class, name)
 		return nil
 	case VarBind, IntBind:
-		variable := Var{upn, bind.Desc, bind.Type}
-		return variable.Address()
+		va := bind.AsVar(upn)
+		return va.Address()
 	}
 }
-func (v *Var) Address() *Expr {
-	upn := v.Upn
-	k := v.Type.Kind()
-	index := v.Desc.Index()
+func (va *Var) Address() *Expr {
+	upn := va.Upn
+	k := va.Type.Kind()
+	index := va.Desc.Index()
+	if index == NoIndex {
+		base.Errorf("cannot take the address of %s: _", va.Desc.Class())
+		return nil
+	}
 	var ret I
 	switch upn {
 	case 0:
@@ -584,5 +590,5 @@ func (v *Var) Address() *Expr {
 			}
 		}
 	}
-	return &Expr{Lit: Lit{Type: r.PtrTo(v.Type)}, Fun: ret}
+	return &Expr{Lit: Lit{Type: r.PtrTo(va.Type)}, Fun: ret}
 }

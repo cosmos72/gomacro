@@ -1951,7 +1951,7 @@ func (p *parser) parseTypeList() (list []ast.Expr) {
 	return
 }
 
-func (p *parser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
+func (p *parser) parseCaseClause(typeSwitch bool) ast.Stmt {
 	if p.trace {
 		defer un(trace(p, "CaseClause"))
 	}
@@ -1968,12 +1968,12 @@ func (p *parser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
 	} else if p.tok == token.DEFAULT {
 		p.expect(token.DEFAULT)
 	} else {
-		// patch: support switch foo { ~,{bar} : baz }
-		// where bar will expand to case x, y, z
-		list = []ast.Expr{p.parseQuote()}
+		// patch: support switch foo { ~,{bar} }
+		// where bar will expand to case x, y, z: w
+		return p.parseStmt()
 	}
-
 	colon := p.expect(token.COLON)
+
 	p.openScope()
 	body := p.parseStmtList()
 	p.closeScope()
@@ -2051,7 +2051,8 @@ func (p *parser) parseSwitchStmt() ast.Stmt {
 	typeSwitch := p.isTypeSwitchGuard(s2)
 	lbrace := p.expect(token.LBRACE)
 	var list []ast.Stmt
-	for p.tok == token.CASE || p.tok == token.DEFAULT {
+	// patch: allow ~quote and friends in addition to case: and default:
+	for p.tok0 != token.EOF && p.tok != token.LPAREN && p.tok != token.RBRACK && p.tok != token.RBRACE {
 		list = append(list, p.parseCaseClause(typeSwitch))
 	}
 	rbrace := p.expect(token.RBRACE)

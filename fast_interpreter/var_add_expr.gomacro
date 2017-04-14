@@ -88,22 +88,22 @@ import (
 :macro setplaces(depth ast.Node) ast.Node {
 	return ~"{
 		switch fun := init.Fun.(type) {
-		case func(*Env) int:        {setplace ; ~,depth ; int}
-		case func(*Env) int8:       {setplace ; ~,depth ; int8}
-		case func(*Env) int16:      {setplace ; ~,depth ; int16}
-		case func(*Env) int32:      {setplace ; ~,depth ; int32}
-		case func(*Env) int64:      {setplace ; ~,depth ; int64}
-		case func(*Env) uint:       {setplace ; ~,depth ; uint}
-		case func(*Env) uint8:      {setplace ; ~,depth ; uint8}
-		case func(*Env) uint16:     {setplace ; ~,depth ; uint16}
-		case func(*Env) uint32:     {setplace ; ~,depth ; uint32}
-		case func(*Env) uint64:     {setplace ; ~,depth ; uint64}
-		case func(*Env) uintptr:    {setplace ; ~,depth ; uintptr}
-		case func(*Env) float32:    {setplace ; ~,depth ; float32}
-		case func(*Env) float64:    {setplace ; ~,depth ; float64}
-		case func(*Env) complex64:  {setplace ; ~,depth ; complex64}
-		case func(*Env) complex128: {setplace ; ~,depth ; complex128}
-		case func(*Env) string:     {setplace ; ~,depth ; string}
+		case func(*Env) int:        setplace; ~,depth; int
+		case func(*Env) int8:       setplace; ~,depth; int8
+		case func(*Env) int16:      setplace; ~,depth; int16
+		case func(*Env) int32:      setplace; ~,depth; int32
+		case func(*Env) int64:      setplace; ~,depth; int64
+		case func(*Env) uint:       setplace; ~,depth; uint
+		case func(*Env) uint8:      setplace; ~,depth; uint8
+		case func(*Env) uint16:     setplace; ~,depth; uint16
+		case func(*Env) uint32:     setplace; ~,depth; uint32
+		case func(*Env) uint64:     setplace; ~,depth; uint64
+		case func(*Env) uintptr:    setplace; ~,depth; uintptr
+		case func(*Env) float32:    setplace; ~,depth; float32
+		case func(*Env) float64:    setplace; ~,depth; float64
+		case func(*Env) complex64:  setplace; ~,depth; complex64
+		case func(*Env) complex128: setplace; ~,depth; complex128
+		case func(*Env) string:     setplace; ~,depth; string
 		default:
 			c.Errorf("invalid operator += on <%v>", t)
 		}
@@ -136,10 +136,10 @@ func (c *Comp) varAddExpr(va *Var, init *Expr) {
 			return
 		}
 		switch upn {
-		case 0:  {setplaces ; 0}
-		case 1:  {setplaces ; 1}
-		case 2:  {setplaces ; 2}
-		default: {setplaces ; -1}
+		case 0:  setplaces; 0
+		case 1:  setplaces; 1
+		case 2:  setplaces; 2
+		default: setplaces; -1
 		}
 	}
 	c.Code.Append(ret)

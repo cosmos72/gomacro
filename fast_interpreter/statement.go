@@ -37,7 +37,7 @@ func Nop(env *Env) (Stmt, *Env) {
 	return env.Code[env.IP], env
 }
 
-// code.go needs the address of Interrupt
+// use a var instead of function: code.go needs the address of Interrupt
 var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
 	return env.Interrupt, env
 }
@@ -71,7 +71,7 @@ func (c *Comp) Stmt(node ast.Stmt) {
 			c.Code.Append(expr.AsStmt())
 		}
 	case *ast.ForStmt:
-		c.For(node)
+		c.For(node, "")
 	// case *ast.GoStmt:
 	//   c.Go(node)
 	case *ast.IfStmt:
@@ -151,8 +151,8 @@ func (c *Comp) Break(node *ast.BranchStmt) {
 	}
 	upn := 0
 	// do not cross function boundaries
-	for o := c; o != nil && o.Func.Return == nil; o = o.Outer {
-		if o.Loop.Break != nil {
+	for o := c; o != nil && o.Func == nil; o = o.Outer {
+		if o.Loop != nil && o.Loop.Break != nil {
 			if len(label) == 0 || o.Loop.ThisLabel == label {
 				// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
 				c.compileJumpOut(upn, o.Loop.Break)
@@ -176,8 +176,8 @@ func (c *Comp) Continue(node *ast.BranchStmt) {
 	}
 	upn := 0
 	// do not cross function boundaries
-	for o := c; o != nil && o.Func.Return == nil; o = o.Outer {
-		if o.Loop.Continue != nil {
+	for o := c; o != nil && o.Func == nil; o = o.Outer {
+		if o.Loop != nil && o.Loop.Continue != nil {
 			if len(label) == 0 || o.Loop.ThisLabel == label {
 				// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
 				c.compileJumpOut(upn, o.Loop.Continue)
@@ -229,7 +229,7 @@ func (c *Comp) compileJumpOut(upn int, ip *int) {
 }
 
 // For compiles a "for" statement
-func (c *Comp) For(node *ast.ForStmt) {
+func (c *Comp) For(node *ast.ForStmt, label string) {
 	initLocals := false
 	var initBinds [2]int
 	if node.Init != nil {
@@ -246,8 +246,11 @@ func (c *Comp) For(node *ast.ForStmt) {
 		}
 	}
 	var jump struct{ Cond, Post, Break int }
-	c.Loop.Continue = &jump.Post
-	c.Loop.Break = &jump.Break
+	c.Loop = &LoopInfo{
+		Continue:  &jump.Post,
+		Break:     &jump.Break,
+		ThisLabel: label,
+	}
 
 	// compile the condition, if not a constant
 	jump.Cond = c.Code.Len()
@@ -370,49 +373,76 @@ func (c *Comp) If(node *ast.IfStmt) {
 
 // Return compiles a "return" statement
 func (c *Comp) Return(node *ast.ReturnStmt) {
-	var ireturn *int
+	var cinfo *FuncInfo
 	var upn int
-	var cret *Comp
-	for cret = c; cret != nil; cret = cret.Outer {
-		if cret.Func.Return != nil {
-			ireturn = cret.Func.Return
+	var cf *Comp
+	for cf = c; cf != nil; cf = cf.Outer {
+		if cf.Func != nil {
+			cinfo = cf.Func
 			break
 		}
-		upn += cret.UpCost // count how many Env:s we must exit at runtime
+		upn += cf.UpCost // count how many Env:s we must exit at runtime
 	}
-	if ireturn == nil {
+	if cinfo == nil {
 		c.Errorf("return outside function")
 		return
 	}
 
-	resultNames := cret.Func.ResultNames
+	resultBinds := cinfo.Results
 	resultExprs := node.Results
-	n := len(resultNames)
+	n := len(resultBinds)
 	switch len(resultExprs) {
 	case n:
 		// ok
 	case 1:
 		c.Errorf("unimplemented: return of multi-valued expression: %v", node)
 	case 0:
-		for _, resultName := range resultNames {
-			if !IsUnnamedGensym(resultName) {
-				// naked return requires all results to have names
-				c.Errorf("return: expecting %d expressions, found %d: %v", n, len(node.Results), node)
-				return
-			}
+		if !cinfo.NamedResults {
+			// naked return requires results to have names
+			c.Errorf("return: expecting %d expressions, found %d: %v", n, len(resultExprs), node)
+			return
 		}
 		n = 0 // naked return. results are already set
 	default:
-		c.Errorf("return: expecting %d expressions, found %d: %v", n, len(node.Results), node)
+		c.Errorf("return: expecting %d expressions, found %d: %v", n, len(resultExprs), node)
 		return
 	}
 
 	exprs := c.Exprs(resultExprs)
 	for i := 0; i < n; i++ {
-		c.SetVar0(resultNames[i], token.ASSIGN, exprs[i])
+		c.SetVar(resultBinds[i].AsVar(upn), token.ASSIGN, exprs[i])
 	}
 
-	c.compileJumpOut(upn, ireturn)
+	var stmt Stmt
+	switch upn {
+	case 0:
+		stmt = func(env *Env) (Stmt, *Env) {
+			env.Signal = SigReturn
+			return env.Interrupt, env
+		}
+	case 1:
+		stmt = func(env *Env) (Stmt, *Env) {
+			env = env.Outer
+			env.Signal = SigReturn
+			return env.Interrupt, env
+		}
+	case 2:
+		stmt = func(env *Env) (Stmt, *Env) {
+			env = env.Outer.Outer
+			env.Signal = SigReturn
+			return env.Interrupt, env
+		}
+	default:
+		stmt = func(env *Env) (Stmt, *Env) {
+			env = env.Outer.Outer.Outer
+			for i := 3; i < upn; i++ {
+				env = env.Outer
+			}
+			env.Signal = SigReturn
+			return env.Interrupt, env
+		}
+	}
+	c.Code.Append(stmt)
 }
 
 // containLocalBinds return true if one or more of the given statements (but not their contents:

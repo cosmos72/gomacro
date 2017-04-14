@@ -242,6 +242,17 @@ func BindConst(value I) Bind {
 	return Bind{Lit: Lit{Type: r.TypeOf(value), Value: value}, Desc: ConstBindDescriptor}
 }
 
+func (bind *Bind) AsVar(upn int) *Var {
+	class := bind.Desc.Class()
+	switch class {
+	case VarBind, IntBind:
+		return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
+	default:
+		base.Errorf("invalid assignment to %s", class)
+		return nil
+	}
+}
+
 type NamedType struct {
 	Name, Path string
 }
@@ -283,6 +294,19 @@ type Code struct {
 	List []Stmt
 }
 
+type LoopInfo struct {
+	Break     *int
+	Continue  *int
+	Labels    map[string]*int
+	ThisLabel string // for labeled "switch" and "for"
+}
+
+type FuncInfo struct {
+	Params       []Bind
+	Results      []Bind
+	NamedResults bool
+}
+
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
 // for faster execution. Consider it a poor man's compiler (hence the name)
 type Comp struct {
@@ -291,27 +315,26 @@ type Comp struct {
 	IntBindNum int
 	// UpCost is the number of *Env.Outer hops to perform at runtime to reach the *Env corresponding to *Comp.Outer
 	// usually equals one. will be zero if this *Comp defines no local variables/functions.
-	UpCost     int
-	Types      map[string]r.Type
-	NamedTypes map[r.Type]NamedType
-	Code       Code // "compiled" code
-	Loop       struct {
-		Break     *int
-		Continue  *int
-		Labels    map[string]*int
-		ThisLabel string // for labeled "switch" and "for"
-	}
-	Func struct {
-		ParamNames  []string
-		ResultNames []string // for unnamed results, use "\x80"
-		Return      *int
-	}
+	UpCost         int
+	Types          map[string]r.Type
+	NamedTypes     map[r.Type]NamedType
+	Code           Code // "compiled" code
+	Loop           *LoopInfo
+	Func           *FuncInfo
 	Outer          *Comp
 	Name           string // set by "package" directive
 	Path           string
 	CompileOptions CompileOptions
 	*base.InterpreterBase
 }
+
+type Signal int
+
+const (
+	SigUnknown Signal = iota
+	SigReturn
+	SigInstallDeferHandler
+)
 
 // Env is the interpreter's runtime environment
 type Env struct {
@@ -321,6 +344,7 @@ type Env struct {
 	IP        int
 	Code      []Stmt
 	Interrupt Stmt
+	Signal    Signal // set by interrupts: Return, Defer...
 	*base.InterpreterBase
 }
 

@@ -70,6 +70,7 @@ The intepreter supports:
 * composite literals
 * function definitions (including variadic functions)
 * method definitions (including variadic methods and methods with pointer receiver)
+* seamless invocation of compiled functions from interpreter, and vice-versa
 * channel send and receive
 * function and method calls, including multiple return values
 * if, for, for-range, break, continue, return (unimplemented: goto)
@@ -77,7 +78,7 @@ The intepreter supports:
 * defer, panic and recover
 * imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
 * switching to a different package
-* macro definitions, for example `~macro foo(a, b, c interface{}) interface{} { return b }`
+* macro definitions, for example `macro foo(a, b, c interface{}) interface{} { return b }`
 * macro calls, for example `foo; x; y; z`
 * macroexpansion: code walker, MacroExpand and MacroExpand1
 * ~quote and ~quasiquote. they take any number of arguments in curly braces, for example:

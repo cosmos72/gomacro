@@ -193,8 +193,12 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 		bind := Bind{Lit: Lit{Type: t}, Desc: desc}
 		return bind
 	}
-
-	if bind, ok := c.Binds[name]; ok {
+	if c.Binds == nil {
+		c.Binds = make(map[string]Bind)
+	}
+	if len(name) == 0 {
+		// unnamed function result
+	} else if bind, ok := c.Binds[name]; ok {
 		c.Warnf("redefined identifier: %v", name)
 		oldclass := bind.Desc.Class()
 		if (oldclass == IntBind) == (class == IntBind) {
@@ -202,8 +206,6 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 			// we can reuse the bind index
 			index = bind.Desc.Index()
 		}
-	} else if c.Binds == nil {
-		c.Binds = make(map[string]Bind)
 	}
 	// allocate a slot either in Binds or in IntBinds
 	switch class {
@@ -222,11 +224,14 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 	}
 	desc := MakeBindDescriptor(class, index)
 	bind := Bind{Lit: Lit{Type: t}, Desc: desc}
-	c.Binds[name] = bind
+	if len(name) != 0 {
+		// skip unnamed function results
+		c.Binds[name] = bind
+	}
 	return bind
 }
 
-// DeclVar0 compiles a constant, variable or function declaration
+// DeclVar0 compiles a variable declaration
 func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 	if t == nil {
 		if init == nil {
@@ -386,74 +391,3 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
 		return env.Code[env.IP], env
 	})
 }
-
-/*
-func (c *Comp) DeclFunc(name string, paramTypes []r.Type, body X) X {
-	idx := c.AddBind(name, typeOfInterface) // FIXME need accurate function type
-	xf := c.MakeFunc(paramTypes, body)
-	return func(env *Env) (r.Value, []r.Value) {
-		f := xf(env)
-		env.Binds[idx] = r.ValueOf(f)
-		return r.ValueOf(f), nil
-	}
-}
-
-func (c *Comp) MakeFunc(paramTypes []r.Type, body X) XFunc {
-	return func(env *Env) Func {
-		return func(args ...r.Value) (ret r.Value, rets []r.Value) {
-			fenv := NewEnv(env, 10)
-			panicking := true // use a flag to distinguish non-panic from panic(nil)
-			defer func() {
-				if panicking {
-					pan := recover()
-					switch p := pan.(type) {
-					case SReturn:
-						// return is implemented with a panic(SReturn{})
-						ret = p.result0
-						rets = p.results
-					default:
-						panic(pan)
-					}
-				}
-			}()
-			for i, paramType := range paramTypes {
-				place := r.New(paramType).Elem()
-				place.Set(args[i].convert(paramType))
-				fenv.Binds[i] = place
-			}
-			ret, rets = body(fenv)
-			panicking = false
-			return ret, rets
-		}
-	}
-}
-
-func MakeFuncInt(paramTypes []r.Type, body X) XFuncInt {
-	return func(env *Env) FuncInt {
-		return func(args ...r.Value) (ret int) {
-			fenv := NewEnv(env, 10)
-			panicking := true // use a flag to distinguish non-panic from panic(nil)
-			defer func() {
-				if panicking {
-					pan := recover()
-					switch p := pan.(type) {
-					case SReturn:
-						// return is implemented with a panic(cReturn{})
-						ret = int(p.result0.Int())
-					default:
-						panic(pan)
-					}
-				}
-			}()
-			for i, paramType := range paramTypes {
-				place := r.New(paramType).Elem()
-				place.Set(args[i].convert(paramType))
-				fenv.Binds[i] = place
-			}
-			ret0, _ := body(fenv)
-			panicking = false
-			return int(ret0.Int())
-		}
-	}
-}
-*/

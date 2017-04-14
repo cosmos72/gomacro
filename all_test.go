@@ -305,33 +305,33 @@ var tests = []TestCase{
 	TestCase{I, "typeswitch_3", "switch x.(type) { default: 0; case int: 3 }", 0, nil},
 	TestCase{I, "typeswitch_4", "switch nil.(type) { default: 0; case nil: 4 }", 4, nil},
 
-	TestCase{A, "quote_1", "~quote{7}", &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
-	TestCase{A, "quote_2", "~quote{x}", &ast.Ident{Name: "x"}, nil},
-	TestCase{A, "quote_3", "var ab = ~quote{a;b}; ab", &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{A, "quote_1", `~quote{7}`, &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
+	TestCase{A, "quote_2", `~quote{x}`, &ast.Ident{Name: "x"}, nil},
+	TestCase{A, "quote_3", `var ab = ~quote{a;b}; ab`, &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 	}}, nil},
-	TestCase{A, "quote_4", "~'{\"foo\"+\"bar\"}", &ast.BinaryExpr{
+	TestCase{A, "quote_4", `~'{"foo"+"bar"}`, &ast.BinaryExpr{
 		Op: token.ADD,
-		X:  &ast.BasicLit{Kind: token.STRING, Value: "\"foo\""},
-		Y:  &ast.BasicLit{Kind: token.STRING, Value: "\"bar\""},
+		X:  &ast.BasicLit{Kind: token.STRING, Value: `"foo"`},
+		Y:  &ast.BasicLit{Kind: token.STRING, Value: `"bar"`},
 	}, nil},
-	TestCase{I, "quasiquote_1", "~quasiquote{1 + ~unquote{2+3}}", &ast.BinaryExpr{
+	TestCase{I, "quasiquote_1", `~quasiquote{1 + ~unquote{2+3}}`, &ast.BinaryExpr{
 		Op: token.ADD,
 		X:  &ast.BasicLit{Kind: token.INT, Value: "1"},
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "5"},
 	}, nil},
-	TestCase{I, "quasiquote_2", "~`{2 * ~,{3<<1}}", &ast.BinaryExpr{
+	TestCase{I, "quasiquote_2", `~"{2 * ~,{3<<1}}`, &ast.BinaryExpr{
 		Op: token.MUL,
 		X:  &ast.BasicLit{Kind: token.INT, Value: "2"},
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "6"},
 	}, nil},
-	TestCase{I, "unquote_splice_1", "~quasiquote{~unquote_splice ab ; c}", &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{I, "unquote_splice_1", `~quasiquote{~unquote_splice ab ; c}`, &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "c"}},
 	}}, nil},
-	TestCase{I, "unquote_splice_2", "~`{zero ; ~,@ab ; one}", &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{I, "unquote_splice_2", `~"{zero ; ~,@ab ; one}`, &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "zero"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},

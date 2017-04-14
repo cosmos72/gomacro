@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	r "reflect"
 	"unsafe"
+	
+	"github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -87,22 +89,22 @@ import (
 :macro addresses(depth ast.Node) ast.Node {
 	return ~"{
 		switch k {
-		case r.Bool:       {address ; ~,depth ; bool}
-		case r.Int:        {address ; ~,depth ; int}
-		case r.Int8:       {address ; ~,depth ; int8}
-		case r.Int16:      {address ; ~,depth ; int16}
-		case r.Int32:      {address ; ~,depth ; int32}
-		case r.Int64:      {address ; ~,depth ; int64}
-		case r.Uint:       {address ; ~,depth ; uint}
-		case r.Uint8:      {address ; ~,depth ; uint8}
-		case r.Uint16:     {address ; ~,depth ; uint16}
-		case r.Uint32:     {address ; ~,depth ; uint32}
-		case r.Uint64:     {address ; ~,depth ; uint64}
-		case r.Uintptr:    {address ; ~,depth ; uintptr}
-		case r.Float32:    {address ; ~,depth ; float32}
-		case r.Float64:    {address ; ~,depth ; float64}
-		case r.Complex64:  {address ; ~,depth ; complex64}
-		default:           {address ; ~,depth ; nil}
+		case r.Bool:       address; ~,depth; bool
+		case r.Int:        address; ~,depth; int
+		case r.Int8:       address; ~,depth; int8
+		case r.Int16:      address; ~,depth; int16
+		case r.Int32:      address; ~,depth; int32
+		case r.Int64:      address; ~,depth; int64
+		case r.Uint:       address; ~,depth; uint
+		case r.Uint8:      address; ~,depth; uint8
+		case r.Uint16:     address; ~,depth; uint16
+		case r.Uint32:     address; ~,depth; uint32
+		case r.Uint64:     address; ~,depth; uint64
+		case r.Uintptr:    address; ~,depth; uintptr
+		case r.Float32:    address; ~,depth; float32
+		case r.Float64:    address; ~,depth; float64
+		case r.Complex64:  address; ~,depth; complex64
+		default:           address; ~,depth; nil
 		}
 	}
 }
@@ -126,21 +128,25 @@ func (c *Comp) AddressOfVar(name string) *Expr {
 		c.Errorf("cannot take the address of %s: %v", class, name)
 		return nil
 	case VarBind, IntBind:
-		variable := Var{upn, bind.Desc, bind.Type}
-		return variable.Address()
+		va := bind.AsVar(upn)
+		return va.Address()
 	}
 }
 
-func (v *Var) Address() *Expr {
-	upn := v.Upn
-	k := v.Type.Kind()
-	index := v.Desc.Index()
+func (va *Var) Address() *Expr {
+	upn := va.Upn
+	k := va.Type.Kind()
+	index := va.Desc.Index()
+	if index == NoIndex {
+		base.Errorf("cannot take the address of %s: _", va.Desc.Class())
+		return nil
+	}
 	var ret I
 	switch upn {
-	case 0:  {addresses ; 0}
-	case 1:  {addresses ; 1}
-	case 2:  {addresses ; 2}
-	default: {addresses ; -1}
+	case 0:  {addresses; 0}
+	case 1:  {addresses; 1}
+	case 2:  {addresses; 2}
+	default: {addresses; -1}
 	}
-	return &Expr{Lit: Lit{Type: r.PtrTo(v.Type)}, Fun: ret}
+	return &Expr{Lit: Lit{Type: r.PtrTo(va.Type)}, Fun: ret}
 }

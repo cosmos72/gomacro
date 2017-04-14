@@ -86,26 +86,25 @@ import (
 			// shortcut for all int* types
 			for _, ytyp := range []ast.Expr{~'int, ~'int8, ~'int16, ~'int32, ~'int64} {
 				kind := makekind(ytyp)
-				caselist = append(caselist, ~"{case ~,kind: shift ; ~,opnode ; ~,xconst ; ~,yconst ; ~,xtyp ; ~,ytyp})
+				caselist = append(caselist, ~"{case ~,kind: shift; ~,opnode; ~,xconst; ~,yconst; ~,xtyp; ~,ytyp})
 			}
 		} else if t.Kind() == r.Uint {
 			// shortcut for all uint* types
 			for _, ytyp := range []ast.Expr{~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr} {
 				kind := makekind(ytyp)
-				caselist = append(caselist, ~"{case ~,kind: shift ; ~,opnode ; ~,xconst ; ~,yconst ; ~,xtyp ; ~,ytyp})
+				caselist = append(caselist, ~"{case ~,kind: shift; ~,opnode; ~,xconst; ~,yconst; ~,xtyp; ~,ytyp})
 			}
 		} else {
 			kind := makekind(ytyp)
-			caselist = append(caselist, ~"{case ~,kind: shift ; ~,opnode ; ~,xconst ; ~,yconst ; ~,xtyp ; ~,ytyp})
+			caselist = append(caselist, ~"{case ~,kind: shift; ~,opnode; ~,xconst; ~,yconst; ~,xtyp; ~,ytyp})
 		}
 	}
 
-	ret := ~"{ switch yk { } } // modified parser does not yet support unquoting inside switch body
-	ret.Body = ~"{ ~,@caselist }
+	swtch := ~"{ switch yk { ~,@caselist } }
 	if xc {
-		return ~"{x := x.(~,xtyp) ; ~,ret }
+		return ~"{x := x.(~,xtyp); ~,swtch }
 	} else {
-		return ~"{x := x.(func(*Env) ~,xtyp) ; ~,ret }
+		return ~"{x := x.(func(*Env) ~,xtyp); ~,swtch }
 	}
 }
 
@@ -134,33 +133,31 @@ import (
 	for _, typ := range xtypelist {
 		t := EvalType(typ)
 		if t == nil {
-			caselist = append(caselist, ~"{default: shifts ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ ; ~,ytypes})
+			caselist = append(caselist, ~"{default: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ; ~,ytypes})
 			foundnil = true
 
 		} else if t.Kind() == r.Int {
 			// shortcut for all int* types
 			for _, typ := range []ast.Expr{~'int, ~'int8, ~'int16, ~'int32, ~'int64} {
 				kind := makekind(typ)
-				caselist = append(caselist, ~"{case ~,kind: shifts ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ ; ~,ytypes})
+				caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ; ~,ytypes})
 			}
 		} else if t.Kind() == r.Uint {
 			// shortcut for all uint* types
 			for _, typ := range []ast.Expr{~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr} {
 				kind := makekind(typ)
-				caselist = append(caselist, ~"{case ~,kind: shifts ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ ; ~,ytypes})
+				caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ; ~,ytypes})
 			}
 		} else {
 			kind := makekind(typ)
-			caselist = append(caselist, ~"{case ~,kind: shifts ; ~,opnode ; ~,xconst ; ~,yconst ; ~,typ ; ~,ytypes})
+			caselist = append(caselist, ~"{case ~,kind: shifts; ~,opnode; ~,xconst; ~,yconst; ~,typ; ~,ytypes})
 		}
 	}
 
 	if !foundnil {
 		caselist = append(caselist, ~'{default: return c.invalidBinaryExpr(node, xe, ye)})
 	}
-	ret := ~"{ switch xk { } } // modified parser does not yet support unquoting inside switch body
-	ret.Body = ~"{ ~,@caselist }
-	return ret
+	return ~"{ switch xk { ~,@caselist } }
 }
 
 
