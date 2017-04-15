@@ -1,5 +1,7 @@
+// -------------------------------------------------------------
 // DO NOT EDIT! this file was generated automatically by gomacro
 // Any change will be lost when the file is re-generated
+// -------------------------------------------------------------
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros

@@ -323,9 +323,9 @@ func (e *Lit) Set(x I) {
 //    then sets Expr.Fun to a closure that will return such constant.
 // if Expr is a typed constant, WithFun sets Expr.Fun to a closure that will return such constant.
 // if Expr is not a constant, WithFun does nothing (Expr.Fun must be set already)
-func (e *Expr) WithFun() {
+func (e *Expr) WithFun() I {
 	if !e.Const() {
-		return
+		return e.Fun
 	}
 	var fun I
 again:
@@ -417,4 +417,5 @@ again:
 		}
 	}
 	e.Fun = fun
+	return fun
 }

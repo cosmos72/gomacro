@@ -17,6 +17,8 @@ The fast intepreter supports:
 * unary operators + - ^ ! <- (other unary operators: deref * is unimplemented, address-of & is implemented only for variables)
 * constant, variable and type declarations
 * assignment to variables, i.e. 'variable = constant' and 'variable = expression'
+* function declarations, including variadic functions
+* function calls (unimplemented: calls to variadic functions)
 * if
 * ~quote
 

@@ -97,7 +97,7 @@ func (c *TestCase) interpret(t *testing.T, env *classic.Env) {
 }
 
 const sum_s = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
-const fib_s = "func fibonacci(n uint) uint { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
+const fib_s = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
 
 var ti = r.StructOf(
 	[]r.StructField{
@@ -233,9 +233,12 @@ var tests = []TestCase{
 	TestCase{A, "continue_4", "k", 25, nil},
 
 	TestCase{I, "for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
-	TestCase{I, "function", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
-	TestCase{I, "function_variadic", "func list_args(args ...interface{}) []interface{} { args }; list_args('x', 'y', 'z')", []interface{}{'x', 'y', 'z'}, nil},
-	TestCase{I, "fibonacci", fib_s + "; fibonacci(13)", uint(233), nil},
+	TestCase{A, "function_0", "func nop() { }; nop()", nil, []interface{}{}},
+	TestCase{A, "function_1", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
+	TestCase{A, "function_2", "func swap(x, y int) (int,int) { return y, x }; swap(88,99)", nil, []interface{}{99, 88}},
+	TestCase{I, "function_variadic", "func list_args(args ...int) []int { args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
+	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},
+
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},
 	TestCase{I, "literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
@@ -347,7 +350,7 @@ var tests = []TestCase{
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
 	expected := c.results
-	if len(expected) == 0 {
+	if expected == nil {
 		expected = []interface{}{c.result0}
 	}
 	if len(actual) != len(expected) {

@@ -64,6 +64,16 @@ var verbose = false
 	BenchmarkFibonacciInterpreter-2         	     500	   2519917 ns/op
 */
 
+func BenchmarkFibonacciCompiler(b *testing.B) {
+	_BenchmarkFibonacciCompiler(b)
+}
+func BenchmarkFibonacciFastInterpreter(b *testing.B) {
+	_BenchmarkFibonacciFastInterpreter(b)
+}
+func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
+	_BenchmarkFibonacciClassicInterpreter(b)
+}
+
 func arith(n int) int {
 	return ((n*2+3)&4 | 5 ^ 6) / (n | 1)
 }
@@ -358,7 +368,7 @@ func fibonacci(n int) int {
 	return fibonacci(n-1) + fibonacci(n-2)
 }
 
-func BenchmarkFibonacciCompiler(b *testing.B) {
+func _BenchmarkFibonacciCompiler(b *testing.B) {
 	var total int
 	n := fib_n
 	for i := 0; i < b.N; i++ {
@@ -402,7 +412,21 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 	}
 }
 
-func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
+func _BenchmarkFibonacciFastInterpreter(b *testing.B) {
+	c := fast.New()
+	c.Run(c.CompileAst(c.ParseAst(fib_s)))
+	fun := c.CompileAst(c.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n)))
+	c.Run(fun)
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		retv, _ := fun(c.Env)
+		total += int(retv.Int())
+	}
+}
+
+func _BenchmarkFibonacciClassicInterpreter(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst(fib_s))
 	form := env.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n))
@@ -410,6 +434,6 @@ func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
 	b.ResetTimer()
 	var total int
 	for i := 0; i < b.N; i++ {
-		total += int(env.EvalAst1(form).Uint())
+		total += int(env.EvalAst1(form).Int())
 	}
 }

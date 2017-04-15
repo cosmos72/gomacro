@@ -123,7 +123,10 @@ func (x File) New() Ast {
 func (x GenDecl) New() Ast {
 	return GenDecl{&ast.GenDecl{Doc: x.X.Doc, TokPos: x.X.TokPos, Tok: x.X.Tok, Lparen: x.X.Lparen, Rparen: x.X.Rparen}}
 }
-func (x ReturnStmt) New() Ast { return ReturnStmt{&ast.ReturnStmt{Return: x.X.Return}} }
+
+// do not copy position of "return" keyword.
+// otherwise go/format may insert a newline between "return" and the following expressions
+func (x ReturnStmt) New() Ast { return ReturnStmt{&ast.ReturnStmt{}} }
 
 func (x BlockStmt) Size() int  { return len(x.X.List) }
 func (x FieldList) Size() int  { return len(x.X.List) }

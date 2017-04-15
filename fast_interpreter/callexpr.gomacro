@@ -1,0 +1,182 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * callexpr.go
+ *
+ *  Created on Apr 15, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast_interpreter
+
+import (
+	r "reflect"
+)
+
+:import (
+	"go/ast"
+	"go/token"
+	r "reflect"
+)
+
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func convertret0(typ ast.Node) (ast.Node, ast.Node) {
+	var t r.Type = EvalType(typ)
+	var ret0 ast.Node = ~'{ret0} // set type ast.Node: classic interpreter is too clever and deduces *ast.Ident
+	if t == nil {
+		// keep the result wrapped in a reflect.Value
+		typ = ~'{r.Value}
+	} else {
+		// unwrap the result
+		tname := t.Name()
+		// remove final digits from t.Name()
+		// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+		for len(tname) != 0 {
+			ch := tname[len(tname)-1]
+			if ch < '0' || ch > '9' {
+				break
+			}
+			tname = tname[0:len(tname)-1]
+		}
+		if tname == "uintptr" {
+			tname = "uint" // use reflect.Value.Uint()
+		}
+		sel := ~"{~,ret0 . foo} // we modify it destructively
+		sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
+
+		switch t.Kind() {
+		case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+			// result of reflect.Value.{tname} is already the correct type
+			ret0 = ~"{~,sel ()}
+		default:
+			// convert int64, uint64... to the correct type
+			ret0 = ~"{~,typ ( ~,sel () )}
+		}
+	}
+	return typ, ret0
+}
+
+:macro callexpr_1(argtyp, rettyp ast.Node) ast.Node {
+	var ret0 ast.Node // unused
+	rettyp, ret0 = convertret0(rettyp)
+
+	if EvalType(argtyp) == nil {
+		// keep the argument wrapped in a reflect.Value
+		argtyp = ~'{r.Value}
+	}
+
+	return ~"{
+		arg0 := args[0]
+		if arg0.Const() {
+			argconst := args[0].Value.(~,argtyp)
+			call = func(env *Env) ~,rettyp {
+				fun := exprfun(env).Interface().(func(~,argtyp) ~,rettyp)
+				// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+				return fun(argconst)
+			}
+		} else {
+			argfun := args[0].Fun.(func(env *Env) ~,argtyp)
+			call = func(env *Env) ~,rettyp {
+				fun := exprfun(env).Interface().(func(~,argtyp) ~,rettyp)
+				arg := argfun(env)
+				// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+				return fun(arg)
+			}
+		}
+	}
+}
+
+:macro callexpr(typ ast.Node) ast.Node {
+	var ret0 ast.Node
+	typ, ret0 = convertret0(typ)
+
+	return ~"{
+		call = func(env *Env) ~,typ {
+			funv := exprfun(env)
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
+				argv[i] = argfun(env)
+			}
+			// Debugf("calling %v with args %v", funv.Type(), argv)
+			ret0 := funv.Call(argv)[0]
+			return ~,ret0
+		}
+	}
+}
+
+
+// mandatory optimization: fast_interpreter ASSUMES that expressions
+// returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
+func callExpr1Optimized(expr *Expr, args []*Expr, argfuns []func(*Env) r.Value) I {
+	exprfun := expr.AsX1()
+	t := expr.Type.Out(0)
+	var call I
+	// optimize fun(t) t
+	if expr.Type.NumIn() == 1 && expr.Type.In(0) == t {
+		switch t.Kind() {
+		case r.Bool:      {callexpr_1; bool;   bool}
+		case r.Int:       {callexpr_1; int;    int}
+		case r.Int8:      {callexpr_1; int8;   int8}
+		case r.Int16:     {callexpr_1; int16;  int16}
+		case r.Int32:     {callexpr_1; int32;  int32}
+		case r.Int64:     {callexpr_1; int64;  int64}
+		case r.Uint:      {callexpr_1; uint;   uint}
+		case r.Uint8:     {callexpr_1; uint8;  uint8}
+		case r.Uint16:    {callexpr_1; uint16; uint16}
+		case r.Uint32:    {callexpr_1; uint32; uint32}
+		case r.Uint64:    {callexpr_1; uint64; uint64}
+		case r.Uintptr:   {callexpr_1; uintptr;  uintptr}
+		case r.Float32:   {callexpr_1; float32;   float32}
+		case r.Float64:   {callexpr_1; float64;   float64}
+		case r.Complex64: {callexpr_1; complex64;  complex64}
+		case r.Complex128:{callexpr_1; complex128; complex128}
+		case r.String:    {callexpr_1; string;     string}
+		default:          {callexpr_1; nil; nil}
+		}
+	} else {
+		switch t.Kind() {
+		case r.Bool:      {callexpr; bool}
+		case r.Int:       {callexpr; int}
+		case r.Int8:      {callexpr; int8}
+		case r.Int16:     {callexpr; int16}
+		case r.Int32:     {callexpr; int32}
+		case r.Int64:     {callexpr; int64}
+		case r.Uint:      {callexpr; uint}
+		case r.Uint8:     {callexpr; uint8}
+		case r.Uint16:    {callexpr; uint16}
+		case r.Uint32:    {callexpr; uint32}
+		case r.Uint64:    {callexpr; uint64}
+		case r.Uintptr:   {callexpr; uintptr}
+		case r.Float32:   {callexpr; float32}
+		case r.Float64:   {callexpr; float64}
+		case r.Complex64: {callexpr; complex64}
+		case r.Complex128:{callexpr; complex128}
+		case r.String:    {callexpr; string}
+		default:          {callexpr; nil}
+		}
+	}
+	return call
+}

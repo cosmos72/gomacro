@@ -43,6 +43,11 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 		}
 		recvdecl = funcdecl.Recv.List[0]
 	}
+	ismethod := recvdecl != nil
+	if ismethod {
+		c.Errorf("unimplemented: method declaration: %v", functype)
+		return
+	}
 	_, t, paramnames, resultnames := c.TypeFunctionOrMethod(recvdecl, functype)
 
 	// declare the function name and type before compiling its body: allows recursive functions
@@ -66,15 +71,17 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 		name := paramnames[i]
 		bind := cf.AddBind(name, VarBind, t.In(i))
 		parambinds[i] = bind
-		if bind.Desc.Index() != NoIndex {
-			paramdecls[i] = cf.DeclBindRuntimeValue(name, bind)
+		if bind.Desc.Index() == NoIndex {
+			continue
 		}
+		// TODO optimize for IntBind: no need to wrap and unwrap args into reflect.Value
+		paramdecls[i] = cf.DeclBindRuntimeValue(name, bind)
 	}
 
 	// prepare the function results
 	n = t.NumOut()
 	resultbinds := make([]Bind, n)
-	resultexprs := make([]func(*Env) r.Value, n)
+	resultfuns := make([]I, n)
 	var namedresults, unnamedresults bool
 	for i, n := 0, t.NumOut(); i < n; i++ {
 		// resultnames[i] == "_" means that result is unnamed.
@@ -92,7 +99,7 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 		bind := cf.DeclVar0(name, t.Out(i), nil)
 		resultbinds[i] = bind
 		// compile the extraction of results from runtime env
-		resultexprs[i] = c.IdentBind(0, bind).AsX1()
+		resultfuns[i] = c.IdentBind(0, bind).WithFun()
 	}
 	cf.Func = &FuncInfo{
 		Params:  parambinds,
@@ -115,11 +122,31 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	nbinds := cf.BindNum
 	nintbinds := cf.IntBindNum
 
-	makefunc := func(env *Env) r.Value {
-		return r.MakeFunc(t, func(args []r.Value) []r.Value {
-			// function is closed over the env used to DECLARE it
-			env := NewEnv(env, nbinds, nintbinds)
+	// a function declaration is a statement:
+	// executing it creates the function in the runtime environment
+	stmt := func(env *Env) (Stmt, *Env) {
+		fun := makeFuncOptimized(env, nbinds, nintbinds, t, paramdecls, resultfuns, funcbody)
+		// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
+		env.Binds[funcindex] = fun
+		env.IP++
+		return env.Code[env.IP], env
+	}
+	c.Code.Append(stmt)
+}
 
+// TODO actually optimize, i.e. create specialized functions without using reflect.MakeFunc
+func makeFuncOptimized(env *Env, nbinds int, nintbinds int, t r.Type,
+	paramdecls []func(*Env, r.Value), resultfuns []I, funcbody func(*Env)) r.Value {
+
+	resultexprs := make([]func(*Env) r.Value, len(resultfuns))
+	for i, resultfun := range resultfuns {
+		resultexprs[i] = FunAsX1(resultfun, CompileDefaults)
+	}
+	return r.MakeFunc(t, func(args []r.Value) []r.Value {
+		// function is closed over the env used to DECLARE it
+		env := NewEnv(env, nbinds, nintbinds)
+
+		if funcbody != nil {
 			// copy runtime arguments into allocated binds
 			for i, decl := range paramdecls {
 				if decl != nil {
@@ -128,28 +155,14 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 				}
 			}
 			// execute the body
-			if funcbody != nil {
-				funcbody(env)
-			}
-			// read results from allocated binds and return them
-			rets := make([]r.Value, len(resultexprs))
-			for i, expr := range resultexprs {
-				rets[i] = expr(env)
-			}
-			return rets
-		})
-	}
-
-	// a function declaration is a statement:
-	// executing it creates the function in the runtime environment
-	c.Code.Append(func(env *Env) (Stmt, *Env) {
-		// we could move r.MakeFunc() here, using one less closure,
-		// but this statement is usually executed only once: no need to optimize it
-		fun := makefunc(env)
-		// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
-		env.Binds[funcindex] = fun
-		env.IP++
-		return env.Code[env.IP], env
+			funcbody(env)
+		}
+		// read results from allocated binds and return them
+		rets := make([]r.Value, len(resultexprs))
+		for i, expr := range resultexprs {
+			rets[i] = expr(env)
+		}
+		return rets
 	})
 }
 

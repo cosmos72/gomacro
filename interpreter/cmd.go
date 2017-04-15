@@ -210,8 +210,11 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 	return nil
 }
 
-const disclaimer = `// DO NOT EDIT! this file was generated automatically by gomacro
+// use line comments for disclaimer: block comments prevent Go build tags from working
+const disclaimer = `// -------------------------------------------------------------
+// DO NOT EDIT! this file was generated automatically by gomacro
 // Any change will be lost when the file is re-generated
+// -------------------------------------------------------------
 
 `
 

@@ -38,7 +38,11 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 	expr := c.Expr(node.Fun)
 	t := expr.Type
 	if t.Kind() != r.Func {
-		c.Errorf("call of non-function <%v>: %v", t, node.Fun)
+		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
+		return nil
+	}
+	if t.IsVariadic() {
+		c.Errorf("unimplemented: call to variadic function: %v <%v>", node.Fun, t)
 		return nil
 	}
 	// TODO support funcAcceptsNArgs(funcReturnsNValues())
@@ -76,16 +80,8 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 		}
 	case 1:
 		ret.Type = t.Out(0)
-		ret.Fun = func(env *Env) r.Value {
-			funv := callfun(env)
-			argv := make([]r.Value, len(argfuns))
-			for i, argfun := range argfuns {
-				argv[i] = argfun(env)
-			}
-			// Debugf("calling %v with args %v", funv.Type(), argv)
-			retv := funv.Call(argv)
-			return retv[0]
-		}
+		ret.Fun = callExpr1Optimized(expr, args, argfuns)
+
 	default:
 		types := make([]r.Type, nout)
 		for i := 0; i < nout; i++ {
