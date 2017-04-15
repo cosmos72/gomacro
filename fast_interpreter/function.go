@@ -27,6 +27,7 @@ package fast_interpreter
 import (
 	"go/ast"
 	r "reflect"
+	"unsafe"
 
 	_ "github.com/cosmos72/gomacro/base"
 )
@@ -63,7 +64,6 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	// prepare the function parameters
 	n := t.NumIn()
 	parambinds := make([]Bind, n)
-	paramdecls := make([]func(*Env, r.Value), n)
 	for i := 0; i < n; i++ {
 		// paramNames[i] == "_" means that argument is ignored inside the function.
 		// AddBind will not allocate a bind for it - correct optimization...
@@ -74,8 +74,6 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 		if bind.Desc.Index() == NoIndex {
 			continue
 		}
-		// TODO optimize for IntBind: no need to wrap and unwrap args into reflect.Value
-		paramdecls[i] = cf.DeclBindRuntimeValue(name, bind)
 	}
 
 	// prepare the function results
@@ -122,10 +120,14 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	nbinds := cf.BindNum
 	nintbinds := cf.IntBindNum
 
+	makefunc := c.funcOptimized(nbinds, nintbinds, t,
+		paramnames, parambinds,
+		resultbinds, resultfuns, funcbody)
+
 	// a function declaration is a statement:
 	// executing it creates the function in the runtime environment
 	stmt := func(env *Env) (Stmt, *Env) {
-		fun := makeFuncOptimized(env, nbinds, nintbinds, t, paramdecls, resultfuns, funcbody)
+		fun := makefunc(env)
 		// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
 		env.Binds[funcindex] = fun
 		env.IP++
@@ -135,104 +137,95 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 }
 
 // TODO actually optimize, i.e. create specialized functions without using reflect.MakeFunc
-func makeFuncOptimized(env *Env, nbinds int, nintbinds int, t r.Type,
-	paramdecls []func(*Env, r.Value), resultfuns []I, funcbody func(*Env)) r.Value {
+func (c *Comp) funcOptimized(nbinds int, nintbinds int, t r.Type,
+	paramnames []string, parambinds []Bind,
+	resultbinds []Bind, resultfuns []I,
+	funcbody func(*Env)) func(*Env) r.Value {
 
+	switch r.Zero(t).Interface().(type) {
+	case func(int) int:
+		param0index := parambinds[0].Desc.Index()
+		result0index := resultbinds[0].Desc.Index()
+		if funcbody == nil {
+			return func(env *Env) r.Value {
+				// function is closed over the env used to DECLARE it
+				return r.ValueOf(func(int) int {
+					return 0
+				})
+			}
+		}
+		if param0index == NoIndex {
+			return func(env *Env) r.Value {
+				// function is closed over the env used to DECLARE it
+				return r.ValueOf(func(int) int {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+					// arg0 is ignored
+
+					// execute the body
+					funcbody(env)
+
+					// read results from allocated binds and return them
+					ret0 := *(*int)(unsafe.Pointer(&env.IntBinds[result0index]))
+
+					env.FreeEnv()
+					return ret0
+				})
+			}
+		}
+		return func(env *Env) r.Value {
+			// function is closed over the env used to DECLARE it
+			return r.ValueOf(func(arg0 int) int {
+				env := NewEnv4Func(env, nbinds, nintbinds)
+
+				// copy runtime arguments into allocated binds
+				*(*int)(unsafe.Pointer(&env.IntBinds[param0index])) = arg0
+
+				// execute the body
+				funcbody(env)
+
+				// read results from allocated binds and return them
+				ret0 := *(*int)(unsafe.Pointer(&env.IntBinds[result0index]))
+
+				env.FreeEnv()
+				return ret0
+			})
+		}
+	}
+
+	paramdecls := make([]func(*Env, r.Value), len(parambinds))
+	for i, bind := range parambinds {
+		if bind.Desc.Index() != NoIndex {
+			paramdecls[i] = c.DeclBindRuntimeValue(paramnames[i], parambinds[i])
+		}
+	}
 	resultexprs := make([]func(*Env) r.Value, len(resultfuns))
 	for i, resultfun := range resultfuns {
 		resultexprs[i] = FunAsX1(resultfun, CompileDefaults)
 	}
-	return r.MakeFunc(t, func(args []r.Value) []r.Value {
+
+	return func(env *Env) r.Value {
 		// function is closed over the env used to DECLARE it
-		env := NewEnv(env, nbinds, nintbinds)
+		return r.MakeFunc(t, func(args []r.Value) []r.Value {
+			env := NewEnv(env, nbinds, nintbinds)
 
-		if funcbody != nil {
-			// copy runtime arguments into allocated binds
-			for i, decl := range paramdecls {
-				if decl != nil {
-					// decl == nil means the argument is ignored inside the function
-					decl(env, args[i])
-				}
-			}
-			// execute the body
-			funcbody(env)
-		}
-		// read results from allocated binds and return them
-		rets := make([]r.Value, len(resultexprs))
-		for i, expr := range resultexprs {
-			rets[i] = expr(env)
-		}
-		return rets
-	})
-}
-
-/*
-func (c *Comp) DeclFunc(name string, paramTypes []r.Type, body X) X {
-	idx := c.AddBind(name, typeOfInterface) // FIXME need accurate function type
-	xf := c.MakeFunc(paramTypes, body)
-	return func(env *Env) (r.Value, []r.Value) {
-		f := xf(env)
-		env.Binds[idx] = r.ValueOf(f)
-		return r.ValueOf(f), nil
-	}
-}
-
-func (c *Comp) MakeFunc(paramTypes []r.Type, body X) XFunc {
-	return func(env *Env) Func {
-		return func(args ...r.Value) (ret r.Value, rets []r.Value) {
-			fenv := NewEnv(env, 10)
-			panicking := true // use a flag to distinguish non-panic from panic(nil)
-			defer func() {
-				if panicking {
-					pan := recover()
-					switch p := pan.(type) {
-					case SReturn:
-						// return is implemented with a panic(SReturn{})
-						ret = p.result0
-						rets = p.results
-					default:
-						panic(pan)
+			if funcbody != nil {
+				// copy runtime arguments into allocated binds
+				for i, decl := range paramdecls {
+					if decl != nil {
+						// decl == nil means the argument is ignored inside the function
+						decl(env, args[i])
 					}
 				}
-			}()
-			for i, paramType := range paramTypes {
-				place := r.New(paramType).Elem()
-				place.Set(args[i].convert(paramType))
-				fenv.Binds[i] = place
+				// execute the body
+				funcbody(env)
 			}
-			ret, rets = body(fenv)
-			panicking = false
-			return ret, rets
-		}
+			// read results from allocated binds and return them
+			rets := make([]r.Value, len(resultexprs))
+			for i, expr := range resultexprs {
+				rets[i] = expr(env)
+			}
+			env.FreeEnv()
+			return rets
+		})
 	}
 }
-
-func MakeFuncInt(paramTypes []r.Type, body X) XFuncInt {
-	return func(env *Env) FuncInt {
-		return func(args ...r.Value) (ret int) {
-			fenv := NewEnv(env, 10)
-			panicking := true // use a flag to distinguish non-panic from panic(nil)
-			defer func() {
-				if panicking {
-					pan := recover()
-					switch p := pan.(type) {
-					case SReturn:
-						// return is implemented with a panic(cReturn{})
-						ret = int(p.result0.Int())
-					default:
-						panic(pan)
-					}
-				}
-			}()
-			for i, paramType := range paramTypes {
-				place := r.New(paramType).Elem()
-				place.Set(args[i].convert(paramType))
-				fenv.Binds[i] = place
-			}
-			ret0, _ := body(fenv)
-			panicking = false
-			return int(ret0.Int())
-		}
-	}
-}
-*/

@@ -33,12 +33,22 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
+func makeInterpreterCommon() InterpreterCommon {
+	b := MakeInterpreterBase()
+	return InterpreterCommon{
+		InterpreterBase: &b,
+		// TODO remember create a new pool when starting a goroutine!
+		// otherwise they will consume from this pool and wreak havoc
+		Pool: make([]*Env, 0, 10),
+	}
+}
+
 func New() *CompEnv {
 	top := NewCompEnv(nil, "builtin")
 	top.growEnv(128)
-	env := NewCompEnv(top, "main")
-	env.growEnv(1024)
-	return env
+	file := NewCompEnv(top, "main")
+	file.growEnv(1024)
+	return file
 }
 
 func NewCompEnv(outer *CompEnv, path string) *CompEnv {
@@ -46,24 +56,27 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 
 	var outerComp *Comp
 	var outerEnv *Env
-	var base *InterpreterBase
+	var common *InterpreterCommon
 	if outer != nil {
 		outerComp = outer.Comp
 		outerEnv = outer.Env
-		base = outer.InterpreterBase
+		common = outer.InterpreterCommon
 	}
-	if base == nil {
-		b := MakeInterpreterBase()
-		base = &b
+	if common == nil {
+		comm := makeInterpreterCommon()
+		common = &comm
 	}
 	c := &CompEnv{
 		Comp: &Comp{
-			Outer:           outerComp,
-			Name:            name,
-			Path:            path,
-			InterpreterBase: base,
+			Outer:             outerComp,
+			Name:              name,
+			Path:              path,
+			InterpreterCommon: common,
 		},
-		Env: &Env{Outer: outerEnv},
+		Env: &Env{
+			Outer:  outerEnv,
+			Common: common,
+		},
 	}
 	if outer == nil {
 		c.addBuiltins()
@@ -77,11 +90,11 @@ func NewComp(outer *Comp) *Comp {
 		return &Comp{UpCost: 1}
 	}
 	return &Comp{
-		UpCost:          1,
-		Code:            outer.Code,
-		Outer:           outer,
-		CompileOptions:  outer.CompileOptions,
-		InterpreterBase: outer.InterpreterBase,
+		UpCost:            1,
+		Code:              outer.Code,
+		Outer:             outer,
+		CompileOptions:    outer.CompileOptions,
+		InterpreterCommon: outer.InterpreterCommon,
 	}
 }
 
@@ -105,21 +118,75 @@ func (c *Comp) File() *Comp {
 }
 
 func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
-	if outer == nil {
-		return &Env{
-			Binds:    make([]r.Value, nbinds),
-			IntBinds: make([]uint64, nintbinds),
-		}
+	common := outer.Common
+	if env := common.allocEnv(nbinds, nintbinds); env != nil {
+		env.Outer = outer
+		env.IP = outer.IP
+		env.Code = outer.Code
+		env.Interrupt = outer.Interrupt
+		return env
+	}
+
+	return &Env{
+		Binds:     make([]r.Value, nbinds),
+		IntBinds:  make([]uint64, nintbinds),
+		Outer:     outer,
+		IP:        outer.IP,
+		Code:      outer.Code,
+		Interrupt: outer.Interrupt,
+		Common:    common,
+	}
+}
+
+func NewEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
+	common := outer.Common
+
+	if env := common.allocEnv(nbinds, nintbinds); env != nil {
+		env.Outer = outer
+		return env
 	}
 	return &Env{
-		Binds:           make([]r.Value, nbinds),
-		IntBinds:        make([]uint64, nintbinds),
-		Outer:           outer,
-		IP:              outer.IP, // +1 ? usually needed, but will wreak havoc if not
-		Code:            outer.Code,
-		Interrupt:       outer.Interrupt,
-		InterpreterBase: outer.InterpreterBase,
+		Binds:    make([]r.Value, nbinds),
+		IntBinds: make([]uint64, nintbinds),
+		Outer:    outer,
+		Common:   common,
 	}
+}
+
+func (common *InterpreterCommon) allocEnv(nbinds int, nintbinds int) *Env {
+	pool := common.Pool
+	n := len(pool)
+	if n == 0 {
+		return nil
+	}
+	env := pool[n-1]
+	common.Pool = pool[0 : n-1]
+	if cap(env.Binds) < nbinds {
+		env.Binds = make([]r.Value, nbinds)
+	} else if nbinds != 0 {
+		env.Binds = env.Binds[0:nbinds]
+	}
+	if cap(env.IntBinds) < nintbinds {
+		env.IntBinds = make([]uint64, nintbinds)
+	} else if nbinds != 0 {
+		env.IntBinds = env.IntBinds[0:nintbinds]
+	}
+	env.Common = common
+	return env
+}
+
+// FreeEnv tells the interpreter that given Env is no longer needed.
+// FIXME problem: how does the caller know that Env is not referenced by some closure?
+func (env *Env) FreeEnv() {
+	common := env.Common
+	pool := common.Pool
+	if len(pool) >= 10 {
+		return
+	}
+	env.Outer = nil
+	env.Code = nil
+	env.Common = nil
+	common.Pool = append(pool, env)
 }
 
 func (env *Env) Top() *Env {

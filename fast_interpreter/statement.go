@@ -45,6 +45,7 @@ var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
 func PopEnv(env *Env) (Stmt, *Env) {
 	outer := env.Outer
 	outer.IP = env.IP + 1
+	env.FreeEnv()
 	// Debugf("PopEnv, IP = %d of %d", outer.IP, len(outer.Code))
 	return outer.Code[outer.IP], outer
 }

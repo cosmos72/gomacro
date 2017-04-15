@@ -47,31 +47,112 @@ const (
 var verbose = false
 
 /*
-	BenchmarkCollatzCompiler-2              	 1000000	      1948 ns/op
-	BenchmarkCollatzBytecodeInterfaces-2    	   20000	     79932 ns/op
-	BenchmarkCollatzClosureValues-2         	   50000	     37442 ns/op
-	BenchmarkSumCompiler-2                  	 1000000	      1302 ns/op
-	BenchmarkSumBytecodeValues-2            	   10000	    186601 ns/op
-	BenchmarkSumBytecodeInterfaces-2        	   10000	    139402 ns/op
-	BenchmarkSumClosureValues-2             	   20000	    100682 ns/op
-	BenchmarkSumClosureInterfaces-2         	    3000	    404691 ns/op
-	BenchmarkSumClosureMaps-2               	    5000	    258179 ns/op
-	BenchmarkSumInterpreter-2               	     500	   2865702 ns/op
-	BenchmarkFibonacciCompiler-2            	 1000000	      2359 ns/op
-	BenchmarkFibonacciClosureValues-2       	    2000	    725237 ns/op
-	BenchmarkFibonacciClosureInterfaces-2   	    3000	    558534 ns/op
-	BenchmarkFibonacciClosureMaps-2         	    2000	   1093970 ns/op
-	BenchmarkFibonacciInterpreter-2         	     500	   2519917 ns/op
+	--------- results on Intel Core 2 Duo P8400 ---------------
+
+	BenchmarkFibonacciCompiler-2             	  500000	      2447 ns/op
+	BenchmarkFibonacciFastInterpreter-2      	   30000	     41455 ns/op
+	BenchmarkFibonacciClassicInterpreter-2   	    1000	   2192651 ns/op
+	BenchmarkFibonacciClosureValues-2        	    2000	    719944 ns/op
+	BenchmarkFibonacciClosureInterfaces-2    	    3000	    580711 ns/op
+	BenchmarkFibonacciClosureMaps-2          	    2000	   1121442 ns/op
+	BenchmarkArithCompiler1-2                	100000000	        17.7 ns/op
+	BenchmarkArithCompiler2-2                	100000000	        17.7 ns/op
+	BenchmarkArithFastInterpreter-2          	10000000	       170 ns/op
+	BenchmarkArithFastInterpreterBis-2       	10000000	       127 ns/op
+	BenchmarkArithClassicInterpreter-2       	  500000	      3086 ns/op
+	BenchmarkArithClassicInterpreterBis-2    	  300000	      5632 ns/op
+	BenchmarkCollatzCompiler-2               	 1000000	      1915 ns/op
+	BenchmarkCollatzFastInterpreter-2        	   50000	     35823 ns/op
+	BenchmarkCollatzClassicInterpreter-2     	    1000	   1277431 ns/op
+	BenchmarkCollatzBytecodeInterfaces-2     	   20000	     76116 ns/op
+	BenchmarkCollatzClosureValues-2          	   50000	     37573 ns/op
+	BenchmarkSumCompiler-2                   	 1000000	      1304 ns/op
+	BenchmarkSumFastInterpreter-2            	   30000	     55481 ns/op
+	BenchmarkSumClassicInterpreter-2         	    1000	   2338576 ns/op
+	BenchmarkSumBytecodeValues-2             	   10000	    188303 ns/op
+	BenchmarkSumBytecodeInterfaces-2         	   10000	    136112 ns/op
+	BenchmarkSumClosureValues-2              	   20000	     98944 ns/op
+	BenchmarkSumClosureInterfaces-2          	    3000	    407104 ns/op
+	BenchmarkSumClosureMaps-2                	    5000	    256734 ns/op
 */
 
+// recursion: fibonacci. fib(n) => if (n <= 2) { return 1 } else { return fib(n-1) + fib(n-2) }
+
+func fibonacci(n int) int {
+	if n <= 2 {
+		return 1
+	}
+	return fibonacci(n-1) + fibonacci(n-2)
+}
+
 func BenchmarkFibonacciCompiler(b *testing.B) {
-	_BenchmarkFibonacciCompiler(b)
+	var total int
+	n := fib_n
+	for i := 0; i < b.N; i++ {
+		total += fibonacci(n)
+	}
 }
+
 func BenchmarkFibonacciFastInterpreter(b *testing.B) {
-	_BenchmarkFibonacciFastInterpreter(b)
+	c := fast.New()
+	c.Run(c.CompileAst(c.ParseAst(fib_s)))
+	fun := c.CompileAst(c.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n)))
+	c.Run(fun)
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		retv, _ := fun(c.Env)
+		total += int(retv.Int())
+	}
 }
+
 func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
-	_BenchmarkFibonacciClassicInterpreter(b)
+	env := classic.New()
+	env.EvalAst(env.ParseAst(fib_s))
+	form := env.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n))
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += int(env.EvalAst1(form).Int())
+	}
+}
+
+func BenchmarkFibonacciClosureValues(b *testing.B) {
+	env := cv.NewEnv(nil)
+	fib := cv.DeclFibonacci(env, 0)
+	n := r.ValueOf(fib_n)
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += fib(n)
+	}
+}
+
+func BenchmarkFibonacciClosureInterfaces(b *testing.B) {
+	env := ci.NewEnv(nil)
+	fib := ci.DeclFibonacci(env, 0)
+	var n interface{} = fib_n
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += fib(n)
+	}
+}
+
+func BenchmarkFibonacciClosureMaps(b *testing.B) {
+	env := cm.NewEnv(nil)
+	fib := cm.DeclFibonacci(env, "fib")
+	n := r.ValueOf(fib_n)
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += fib(n)
+	}
 }
 
 func arith(n int) int {
@@ -110,6 +191,7 @@ func BenchmarkArithFastInterpreter(b *testing.B) {
 	var ret r.Value
 	c.Run(fun)
 
+	// interpreted code performs only arithmetic - iteration performed here
 	b.ResetTimer()
 	total := 0
 	for i := 0; i < b.N; i++ {
@@ -123,29 +205,7 @@ func BenchmarkArithFastInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkArithClassicInterpreter(b *testing.B) {
-	ir := classic.New()
-	ir.EvalAst(ir.ParseAst("n:=0"))
-
-	form := ir.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)")
-
-	value := ir.Binds["n"]
-	var ret r.Value
-	ir.EvalAst(form)
-
-	b.ResetTimer()
-	total := 0
-	for i := 0; i < b.N; i++ {
-		value.SetInt(int64(b.N))
-		ret, _ = ir.EvalAst(form)
-		total += int(ret.Int())
-	}
-	if verbose {
-		println(total)
-	}
-}
-
-func BenchmarkForFastInterpreter(b *testing.B) {
+func BenchmarkArithFastInterpreterBis(b *testing.B) {
 	c := fast.New()
 	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
 
@@ -172,7 +232,30 @@ func BenchmarkForFastInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkForClassicInterpreter(b *testing.B) {
+func BenchmarkArithClassicInterpreter(b *testing.B) {
+	ir := classic.New()
+	ir.EvalAst(ir.ParseAst("n:=0"))
+
+	form := ir.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+
+	value := ir.Binds["n"]
+	var ret r.Value
+	ir.EvalAst(form)
+
+	// interpreted code performs only arithmetic - iteration performed here
+	b.ResetTimer()
+	total := 0
+	for i := 0; i < b.N; i++ {
+		value.SetInt(int64(b.N))
+		ret, _ = ir.EvalAst(form)
+		total += int(ret.Int())
+	}
+	if verbose {
+		println(total)
+	}
+}
+
+func BenchmarkArithClassicInterpreterBis(b *testing.B) {
 	ir := classic.New()
 	ir.EvalAst(ir.ParseAst("var n, total int"))
 
@@ -210,6 +293,37 @@ func BenchmarkCollatzCompiler(b *testing.B) {
 	}
 }
 
+func BenchmarkCollatzFastInterpreter(b *testing.B) {
+	c := fast.New()
+	c.DefVar("n", TypeOfInt, 0)
+
+	addr := c.Exec1(c.AddressOfVar("n")).Interface().(*int)
+
+	fun := c.CompileAst(c.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }"))
+	c.Run(fun)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		*addr = collatz_n
+		fun(c.Env)
+	}
+}
+
+func BenchmarkCollatzClassicInterpreter(b *testing.B) {
+	ir := classic.New()
+	ir.Binds = map[string]r.Value{
+		"n": r.New(TypeOfInt).Elem(),
+	}
+
+	form := ir.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		ir.Binds["n"].SetInt(collatz_n)
+		ir.EvalAst(form)
+	}
+}
+
 func BenchmarkCollatzBytecodeInterfaces(b *testing.B) {
 	coll := bi.BytecodeCollatz()
 
@@ -232,34 +346,6 @@ func BenchmarkCollatzClosureValues(b *testing.B) {
 	}
 }
 
-func BenchmarkCollatzFastInterpreter(b *testing.B) {
-	c := fast.New()
-	c.DefVar("n", TypeOfInt, 0)
-
-	addr := c.Exec1(c.AddressOfVar("n")).Interface().(*int)
-
-	fun := c.CompileAst(c.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }"))
-	c.Run(fun)
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		*addr = collatz_n
-		fun(c.Env)
-	}
-}
-
-func BenchmarkCollatzClassicInterpreter(b *testing.B) {
-	ir := classic.New()
-	ir.EvalAst(ir.ParseAst("func collatz(n int) { for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } } }"))
-
-	form := ir.ParseAst(fmt.Sprintf("collatz(%d)", collatz_n))
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		ir.EvalAst(form)
-	}
-}
-
 // looping: sum the integers from 1 to N
 
 func sum(n int) int {
@@ -274,6 +360,34 @@ func BenchmarkSumCompiler(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += sum(sum_n)
+	}
+}
+
+func BenchmarkSumFastInterpreter(b *testing.B) {
+	c := fast.New()
+	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
+
+	addrexpr := c.LookupVar("n").Address()
+	addr := c.Exec1(addrexpr).Interface().(*int)
+	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i+=1 { total += i }; total"))
+	c.Run(fun)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		*addr = sum_n
+		fun(c.Env)
+	}
+}
+
+func BenchmarkSumClassicInterpreter(b *testing.B) {
+	env := classic.New()
+	env.EvalAst(env.ParseAst(sum_s))
+	form := env.ParseAst(fmt.Sprintf("sum(%d)", sum_n))
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += int(env.EvalAst1(form).Int())
 	}
 }
 
@@ -328,112 +442,5 @@ func BenchmarkSumClosureMaps(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += sum(n)
-	}
-}
-
-func BenchmarkSumFastInterpreter(b *testing.B) {
-	c := fast.New()
-	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
-
-	addrexpr := c.LookupVar("n").Address()
-	addr := c.Exec1(addrexpr).Interface().(*int)
-	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i+=1 { total += i }; total"))
-	c.Run(fun)
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		*addr = sum_n
-		fun(c.Env)
-	}
-}
-
-func BenchmarkSumClassicInterpreter(b *testing.B) {
-	env := classic.New()
-	env.EvalAst(env.ParseAst(sum_s))
-	form := env.ParseAst(fmt.Sprintf("sum(%d)", sum_n))
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += int(env.EvalAst1(form).Int())
-	}
-}
-
-// recursion: fibonacci. fib(n) => if (n <= 2) { return 1 }; return fib(n-1) + fib(n-2)
-
-func fibonacci(n int) int {
-	if n <= 2 {
-		return 1
-	}
-	return fibonacci(n-1) + fibonacci(n-2)
-}
-
-func _BenchmarkFibonacciCompiler(b *testing.B) {
-	var total int
-	n := fib_n
-	for i := 0; i < b.N; i++ {
-		total += fibonacci(n)
-	}
-}
-
-func BenchmarkFibonacciClosureValues(b *testing.B) {
-	env := cv.NewEnv(nil)
-	fib := cv.DeclFibonacci(env, 0)
-	n := r.ValueOf(fib_n)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += fib(n)
-	}
-}
-
-func BenchmarkFibonacciClosureInterfaces(b *testing.B) {
-	env := ci.NewEnv(nil)
-	fib := ci.DeclFibonacci(env, 0)
-	var n interface{} = fib_n
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += fib(n)
-	}
-}
-
-func BenchmarkFibonacciClosureMaps(b *testing.B) {
-	env := cm.NewEnv(nil)
-	fib := cm.DeclFibonacci(env, "fib")
-	n := r.ValueOf(fib_n)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += fib(n)
-	}
-}
-
-func _BenchmarkFibonacciFastInterpreter(b *testing.B) {
-	c := fast.New()
-	c.Run(c.CompileAst(c.ParseAst(fib_s)))
-	fun := c.CompileAst(c.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n)))
-	c.Run(fun)
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		retv, _ := fun(c.Env)
-		total += int(retv.Int())
-	}
-}
-
-func _BenchmarkFibonacciClassicInterpreter(b *testing.B) {
-	env := classic.New()
-	env.EvalAst(env.ParseAst(fib_s))
-	form := env.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n))
-
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += int(env.EvalAst1(form).Int())
 	}
 }

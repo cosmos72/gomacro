@@ -307,6 +307,12 @@ type FuncInfo struct {
 	NamedResults bool
 }
 
+// InterpreterCommon contains bookeeping information global to the interpreter
+type InterpreterCommon struct {
+	*base.InterpreterBase
+	Pool []*Env
+}
+
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
 // for faster execution. Consider it a poor man's compiler (hence the name)
 type Comp struct {
@@ -325,7 +331,7 @@ type Comp struct {
 	Name           string // set by "package" directive
 	Path           string
 	CompileOptions CompileOptions
-	*base.InterpreterBase
+	*InterpreterCommon
 }
 
 type Signal int
@@ -345,7 +351,7 @@ type Env struct {
 	Code      []Stmt
 	Interrupt Stmt
 	Signal    Signal // set by interrupts: Return, Defer...
-	*base.InterpreterBase
+	Common    *InterpreterCommon
 }
 
 // CompEnv is the composition of both the tree-of-closures builder Comp
