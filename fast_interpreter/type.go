@@ -213,25 +213,25 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t r.Type, ellipsis bool) {
 	return t, ellipsis
 }
 
-func (c *Comp) TypeFunction(node *ast.FuncType) (t r.Type, argNames []string, resultNames []string) {
-	tFunc, _, argNames, resultNames := c.TypeFunctionOrMethod(nil, node)
-	return tFunc, argNames, resultNames
+func (c *Comp) TypeFunction(node *ast.FuncType) (t r.Type, paramNames []string, resultNames []string) {
+	tFunc, _, paramNames, resultNames := c.TypeFunctionOrMethod(nil, node)
+	return tFunc, paramNames, resultNames
 }
 
-func (c *Comp) TypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (tFunc r.Type, tFuncOrMethod r.Type, argNames []string, resultNames []string) {
-	argTypes, argNames, variadic := c.typeFieldOrParamList(node.Params, true)
+func (c *Comp) TypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (tFunc r.Type, tFuncOrMethod r.Type, paramNames []string, resultNames []string) {
+	paramTypes, paramNames, variadic := c.typeFieldOrParamList(node.Params, true)
 	resultTypes, resultNames := c.TypeFields(node.Results)
-	tFunc = r.FuncOf(argTypes, resultTypes, variadic)
+	tFunc = r.FuncOf(paramTypes, resultTypes, variadic)
 
 	if recv != nil {
 		recvTypes, recvNames, _ := c.typeFieldsOrParams([]*ast.Field{recv}, false)
-		argTypes = append(recvTypes, argTypes...)
-		argNames = append(recvNames, argNames...)
-		tFuncOrMethod = r.FuncOf(argTypes, resultTypes, variadic)
+		paramTypes = append(recvTypes, paramTypes...)
+		paramNames = append(recvNames, paramNames...)
+		tFuncOrMethod = r.FuncOf(paramTypes, resultTypes, variadic)
 	} else {
 		tFuncOrMethod = tFunc
 	}
-	return tFunc, tFuncOrMethod, argNames, resultNames
+	return tFunc, tFuncOrMethod, paramNames, resultNames
 }
 
 func (c *Comp) TypeFields(fields *ast.FieldList) (types []r.Type, names []string) {

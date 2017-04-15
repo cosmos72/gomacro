@@ -68,10 +68,7 @@ func (c *CompEnv) DefVar(name string, t r.Type, value I) {
 	c.Code.Clear()
 	c.DeclVar0(name, t, ExprValue(value))
 	fun := c.Code.AsXV()
-	if fun != nil {
-		c.growEnv(128)
-		fun(c.Env)
-	}
+	c.Run(fun)
 }
 
 // DefType compiles a type declaration

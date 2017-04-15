@@ -27,44 +27,130 @@ package fast_interpreter
 import (
 	"go/ast"
 	r "reflect"
+
+	_ "github.com/cosmos72/gomacro/base"
 )
 
-func (c *Comp) DeclFunc(decl_or_nil *ast.FuncDecl, funcType *ast.FuncType, body *ast.BlockStmt) {
-	var declRecv *ast.Field
-	if decl_or_nil != nil && decl_or_nil.Recv != nil {
-		n := len(decl_or_nil.Recv.List)
+// DeclFunc compiles a function or method declaration (does not support closure declarations)
+func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *ast.BlockStmt) {
+	var recvdecl *ast.Field
+	if funcdecl.Recv != nil {
+		n := len(funcdecl.Recv.List)
 		if n != 1 {
 			c.Errorf("invalid function/method declaration: expecting one receiver or nil, found %d receivers: func %v %s(/*...*/)",
-				n, decl_or_nil.Recv, decl_or_nil.Name)
+				n, funcdecl.Recv, funcdecl.Name)
 			return
 		}
-		declRecv = decl_or_nil.Recv.List[0]
+		recvdecl = funcdecl.Recv.List[0]
 	}
-	_, t, paramNames, resultNames := c.TypeFunctionOrMethod(declRecv, funcType)
+	_, t, paramnames, resultnames := c.TypeFunctionOrMethod(recvdecl, functype)
+
+	// declare the function name and type before compiling its body: allows recursive functions
+	funcname := funcdecl.Name.Name
+	funcbind := c.AddBind(funcname, FuncBind, t)
+	funcclass := funcbind.Desc.Class()
+	if funcclass != FuncBind {
+		c.Errorf("internal error! function bind should have class '%v', found class '%v' for: %s <%v>", FuncBind, funcclass, funcname, t)
+	}
+
 	cf := NewComp(c)
-	for i, n := 0, t.NumIn(); i < n; i++ {
-		// paramNames[i] == "_" means that argument is not used inside the function.
-		// DeclVar0 will not allocate a bind for it - correct optimization...
-		// just remember to check for such case when compiling calls to the function
-		cf.DeclVar0(paramNames[i], t.In(i), nil)
-	}
-	for i, n := 0, t.NumOut(); i < n; i++ {
-		// resultNames[i] == "_" means that result is unnamed.
-		// we must still allocate a bind for it.
-		resultName := resultNames[i]
-		if resultName == "_" {
-			resultName = ""
+
+	// prepare the function parameters
+	n := t.NumIn()
+	parambinds := make([]Bind, n)
+	paramdecls := make([]func(*Env, r.Value), n)
+	for i := 0; i < n; i++ {
+		// paramNames[i] == "_" means that argument is ignored inside the function.
+		// AddBind will not allocate a bind for it - correct optimization...
+		// just remember to check for such case below
+		name := paramnames[i]
+		bind := cf.AddBind(name, VarBind, t.In(i))
+		parambinds[i] = bind
+		if bind.Desc.Index() != NoIndex {
+			paramdecls[i] = cf.DeclBindRuntimeValue(name, bind)
 		}
-		cf.DeclVar0(resultName, t.Out(i), nil)
 	}
-	// TODO copy runtime arguments into allocated binds
-	if body != nil {
+
+	// prepare the function results
+	n = t.NumOut()
+	resultbinds := make([]Bind, n)
+	resultexprs := make([]func(*Env) r.Value, n)
+	var namedresults, unnamedresults bool
+	for i, n := 0, t.NumOut(); i < n; i++ {
+		// resultnames[i] == "_" means that result is unnamed.
+		// we must still allocate a bind for it.
+		name := resultnames[i]
+		if name == "_" {
+			name = ""
+			unnamedresults = true
+		} else {
+			namedresults = true
+		}
+		if namedresults && unnamedresults {
+			c.Errorf("")
+		}
+		bind := cf.DeclVar0(name, t.Out(i), nil)
+		resultbinds[i] = bind
+		// compile the extraction of results from runtime env
+		resultexprs[i] = c.IdentBind(0, bind).AsX1()
+	}
+	cf.Func = &FuncInfo{
+		Params:  parambinds,
+		Results: resultbinds,
+	}
+
+	if body != nil && len(body.List) != 0 {
 		// in Go, function arguments/results and function body are in the same scope
 		cf.Block0(body.List...)
 	}
-	// TODO read allocated returns and return them
 
-	c.Errorf("function declaration is not implemented, found: %v <%v>", decl_or_nil, r.TypeOf(decl_or_nil))
+	funcindex := funcbind.Desc.Index()
+	if funcindex == NoIndex {
+		// unnamed function. still compile it (to check for compile errors) but discard the compiled code
+		return
+	}
+
+	// do NOT keep a reference to compile environment!
+	funcbody := cf.Code.AsX()
+	nbinds := cf.BindNum
+	nintbinds := cf.IntBindNum
+
+	makefunc := func(env *Env) r.Value {
+		return r.MakeFunc(t, func(args []r.Value) []r.Value {
+			// function is closed over the env used to DECLARE it
+			env := NewEnv(env, nbinds, nintbinds)
+
+			// copy runtime arguments into allocated binds
+			for i, decl := range paramdecls {
+				if decl != nil {
+					// decl == nil means the argument is ignored inside the function
+					decl(env, args[i])
+				}
+			}
+			// execute the body
+			if funcbody != nil {
+				funcbody(env)
+			}
+			// read results from allocated binds and return them
+			rets := make([]r.Value, len(resultexprs))
+			for i, expr := range resultexprs {
+				rets[i] = expr(env)
+			}
+			return rets
+		})
+	}
+
+	// a function declaration is a statement:
+	// executing it creates the function in the runtime environment
+	c.Code.Append(func(env *Env) (Stmt, *Env) {
+		// we could move r.MakeFunc() here, using one less closure,
+		// but this statement is usually executed only once: no need to optimize it
+		fun := makefunc(env)
+		// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
+		env.Binds[funcindex] = fun
+		env.IP++
+		return env.Code[env.IP], env
+	})
 }
 
 /*

@@ -122,6 +122,25 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	}
 }
 
+func (env *Env) Top() *Env {
+	for ; env != nil; env = env.Outer {
+		if env.Outer == nil {
+			break
+		}
+	}
+	return env
+}
+
+func (env *Env) File() *Env {
+	for ; env != nil; env = env.Outer {
+		outer := env.Outer
+		if outer == nil || outer.Outer == nil {
+			break
+		}
+	}
+	return env
+}
+
 func (c *Comp) ParseAst(src string) Ast {
 	nodes := c.ParseBytes([]byte(src))
 	return AnyToAst(nodes, "ParseAst")

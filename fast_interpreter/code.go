@@ -45,8 +45,19 @@ func (code *Code) Append(stmt Stmt) {
 	}
 }
 
+// more wrapping (thus slower) than needed... but only used by REPL
 func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
+	fun := code.AsX()
+	if fun == nil {
+		return nil
+	}
+	return func(env *Env) (r.Value, []r.Value) {
+		fun(env)
+		return None, nil
+	}
+}
 
+func (code *Code) AsX() X {
 	if code.Len() == 0 {
 		code.Clear()
 		return nil
@@ -56,7 +67,7 @@ func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
 	all = append(all, nil)
 
 	if len(all) == 2 {
-		return func(env *Env) (r.Value, []r.Value) {
+		return func(env *Env) {
 			env.Interrupt = nil
 			env.IP = 0
 			env.Code = all
@@ -65,13 +76,12 @@ func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
 			for stmt != nil {
 				stmt, env = stmt(env)
 			}
-			return None, nil
 		}
 	}
-	return func(env *Env) (r.Value, []r.Value) {
+	return func(env *Env) {
 		stmt := all[0]
 		if stmt == nil {
-			return None, nil
+			return
 		}
 
 		n := len(all) - 1
@@ -110,7 +120,7 @@ func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
 					}
 				}
 			}
-			return None, nil
+			return
 		}
 
 		unsafeInterrupt := *(**uintptr)(unsafe.Pointer(&Interrupt))
@@ -134,7 +144,7 @@ func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
 			stmt, env = stmt(env)
 
 			if x := stmt; *(**uintptr)(unsafe.Pointer(&x)) == unsafeInterrupt {
-				return None, nil
+				return
 			}
 		}
 	}

@@ -50,7 +50,11 @@ func (c *Comp) TryResolve(name string) (upn int, bind Bind, ok bool) {
 
 // Ident compiles a read operation on a constant, variable or function
 func (c *Comp) Ident(name string) *Expr {
-	upn, bind := c.Resolve(name)
+	return c.IdentBind(c.Resolve(name))
+}
+
+// IdentBind compiles a read operation on a constant, variable or function bind
+func (c *Comp) IdentBind(upn int, bind Bind) *Expr {
 	desc := bind.Desc
 	switch desc.Class() {
 	case ConstBind:
@@ -58,11 +62,11 @@ func (c *Comp) Ident(name string) *Expr {
 	case IntBind:
 		return c.identIntBind(upn, bind)
 	default:
-		return c.identBind(upn, bind)
+		return c.identVarOrFuncBind(upn, bind)
 	}
 }
 
-func (c *Comp) identBind(upn int, bind Bind) *Expr {
+func (c *Comp) identVarOrFuncBind(upn int, bind Bind) *Expr {
 	idx := bind.Desc.Index()
 	var fun I
 	switch bind.Type.Kind() {

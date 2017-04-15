@@ -231,8 +231,8 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 	return bind
 }
 
-// DeclVar0 compiles a variable declaration
-func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
+// DeclVar0 compiles a variable declaration. For caller's convenience, returns allocated Bind
+func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) Bind {
 	if t == nil {
 		if init == nil {
 			c.Errorf("no value and no type, cannot declare : %v", name)
@@ -254,14 +254,14 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 	default:
 		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind ",
 			name, t, desc.Class())
-		return
+		return bind
 	case IntBind:
 		// no difference between declaration and assignment for these classes
 		if init == nil {
 			// no initializer... use the zero-value of t
 			init = ExprValue(r.Zero(t).Interface())
 		}
-		va := &Var{Upn: 0, Desc: desc, Type: t}
+		va := bind.AsVar(0)
 		c.SetVar(va, token.ASSIGN, init)
 	case VarBind:
 		index := desc.Index()
@@ -278,7 +278,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 				env.IP++
 				return env.Code[env.IP], env
 			})
-			return
+			return bind
 		}
 		if init.Const() {
 			init.ConstTo(t) // convert untyped constants, check typed constants
@@ -287,7 +287,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 		tfun := init.Out(0)
 		if tfun != t && !tfun.AssignableTo(t) {
 			c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v <%v>", tfun, t, name, t)
-			return
+			return bind
 		}
 		var ret func(env *Env) (Stmt, *Env)
 		// optimization: no need to wrap multiple-valued function into a single-value function
@@ -312,6 +312,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) {
 		}
 		c.Code.Append(ret)
 	}
+	return bind
 }
 
 // DeclBindRuntimeValue compiles a variable, function or constant declaration with a reflect.Value passed at runtime
