@@ -193,6 +193,9 @@ func (env *Env) extractMacroCall(form Ast) Macro {
 		if found && bind.Kind() == r.Struct {
 			switch value := bind.Interface().(type) {
 			case Macro:
+				if env.Options&OptDebugMacroExpand != 0 {
+					env.Debugf("MacroExpand1: found macro: %v", form.X.Name)
+				}
 				return value
 			}
 		}
@@ -205,7 +208,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		return nil, false
 	}
 	// unwrap trivial nodes: DeclStmt, ParenExpr, ExprStmt
-	in = UnwrapTrivialAst(in)
+	in = UnwrapTrivialAstKeepBlocks(in)
 	ins, ok := in.(AstWithSlice)
 	if !ok {
 		return in, false

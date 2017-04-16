@@ -68,54 +68,42 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) bool)
 				y := y.(func(*Env) bool)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 		case r.Int:
 			{
 				x := x.(func(*Env) int)
 				y := y.(func(*Env) int)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 		case r.Int8:
 			{
 				x := x.(func(*Env) int8)
 				y := y.(func(*Env) int8)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 		case r.Int16:
 			{
 				x := x.(func(*Env) int16)
 				y := y.(func(*Env) int16)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 		case r.Int32:
 			{
 				x := x.(func(*Env) int32)
 				y := y.(func(*Env) int32)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 		case r.Int64:
 			{
 				x := x.(func(*Env) int64)
 				y := y.(func(*Env) int64)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -123,9 +111,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint)
 				y := y.(func(*Env) uint)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -133,9 +119,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint8)
 				y := y.(func(*Env) uint8)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -143,9 +127,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint16)
 				y := y.(func(*Env) uint16)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -153,9 +135,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint32)
 				y := y.(func(*Env) uint32)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -163,9 +143,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint64)
 				y := y.(func(*Env) uint64)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -173,9 +151,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uintptr)
 				y := y.(func(*Env) uintptr)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -183,9 +159,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) float32)
 				y := y.(func(*Env) float32)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -193,9 +167,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) float64)
 				y := y.(func(*Env) float64)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -203,9 +175,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) complex64)
 				y := y.(func(*Env) complex64)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -213,9 +183,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) complex128)
 				y := y.(func(*Env) complex128)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 
@@ -223,9 +191,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) string)
 				y := y.(func(*Env) string)
-				fun = func(env *Env) bool {
-					return x(env) == y(env)
-				}
+				fun = func(env *Env) bool { return x(env) == y(env) }
 
 			}
 		default:
@@ -243,9 +209,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) bool)
 				y := y.(bool)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Int:
@@ -253,9 +217,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int)
 				y := y.(int)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Int8:
@@ -263,9 +225,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int8)
 				y := y.(int8)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Int16:
@@ -273,9 +233,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int16)
 				y := y.(int16)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Int32:
@@ -283,9 +241,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int32)
 				y := y.(int32)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Int64:
@@ -293,108 +249,84 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int64)
 				y := y.(int64)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Uint:
 			{
 				x := x.(func(*Env) uint)
 				y := y.(uint)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Uint8:
 			{
 				x := x.(func(*Env) uint8)
 				y := y.(uint8)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Uint16:
 			{
 				x := x.(func(*Env) uint16)
 				y := y.(uint16)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Uint32:
 			{
 				x := x.(func(*Env) uint32)
 				y := y.(uint32)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Uint64:
 			{
 				x := x.(func(*Env) uint64)
 				y := y.(uint64)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Uintptr:
 			{
 				x := x.(func(*Env) uintptr)
 				y := y.(uintptr)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Float32:
 			{
 				x := x.(func(*Env) float32)
 				y := y.(float32)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Float64:
 			{
 				x := x.(func(*Env) float64)
 				y := y.(float64)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Complex64:
 			{
 				x := x.(func(*Env) complex64)
 				y := y.(complex64)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.Complex128:
 			{
 				x := x.(func(*Env) complex128)
 				y := y.(complex128)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		case r.String:
 			{
 				x := x.(func(*Env) string)
 				y := y.(string)
-				fun = func(env *Env) bool {
-					return x(env) == y
-				}
+				fun = func(env *Env) bool { return x(env) == y }
 
 			}
 		default:
@@ -414,9 +346,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(bool)
 				y := y.(func(*Env) bool)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Int:
@@ -424,9 +354,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int)
 				y := y.(func(*Env) int)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Int8:
@@ -434,9 +362,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int8)
 				y := y.(func(*Env) int8)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Int16:
@@ -444,9 +370,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int16)
 				y := y.(func(*Env) int16)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Int32:
@@ -454,9 +378,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int32)
 				y := y.(func(*Env) int32)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Int64:
@@ -464,9 +386,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int64)
 				y := y.(func(*Env) int64)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Uint:
@@ -474,9 +394,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint)
 				y := y.(func(*Env) uint)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Uint8:
@@ -484,9 +402,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint8)
 				y := y.(func(*Env) uint8)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Uint16:
@@ -494,9 +410,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint16)
 				y := y.(func(*Env) uint16)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Uint32:
@@ -504,9 +418,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint32)
 				y := y.(func(*Env) uint32)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Uint64:
@@ -514,9 +426,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint64)
 				y := y.(func(*Env) uint64)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Uintptr:
@@ -524,9 +434,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uintptr)
 				y := y.(func(*Env) uintptr)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Float32:
@@ -534,9 +442,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(float32)
 				y := y.(func(*Env) float32)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Float64:
@@ -544,9 +450,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(float64)
 				y := y.(func(*Env) float64)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Complex64:
@@ -554,9 +458,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(complex64)
 				y := y.(func(*Env) complex64)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.Complex128:
@@ -564,9 +466,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(complex128)
 				y := y.(func(*Env) complex128)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		case r.String:
@@ -574,9 +474,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(string)
 				y := y.(func(*Env) string)
-				fun = func(env *Env) bool {
-					return x == y(env)
-				}
+				fun = func(env *Env) bool { return x == y(env) }
 
 			}
 		default:
@@ -618,45 +516,35 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int)
 				y := y.(func(*Env) int)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 		case r.Int8:
 			{
 				x := x.(func(*Env) int8)
 				y := y.(func(*Env) int8)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 		case r.Int16:
 			{
 				x := x.(func(*Env) int16)
 				y := y.(func(*Env) int16)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 		case r.Int32:
 			{
 				x := x.(func(*Env) int32)
 				y := y.(func(*Env) int32)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 		case r.Int64:
 			{
 				x := x.(func(*Env) int64)
 				y := y.(func(*Env) int64)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -664,9 +552,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint)
 				y := y.(func(*Env) uint)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -674,9 +560,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint8)
 				y := y.(func(*Env) uint8)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -684,9 +568,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint16)
 				y := y.(func(*Env) uint16)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -694,9 +576,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint32)
 				y := y.(func(*Env) uint32)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -704,9 +584,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uint64)
 				y := y.(func(*Env) uint64)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -714,9 +592,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) uintptr)
 				y := y.(func(*Env) uintptr)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -724,9 +600,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) float32)
 				y := y.(func(*Env) float32)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -734,9 +608,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) float64)
 				y := y.(func(*Env) float64)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -744,9 +616,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) complex64)
 				y := y.(func(*Env) complex64)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -754,9 +624,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) complex128)
 				y := y.(func(*Env) complex128)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 
@@ -764,9 +632,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) string)
 				y := y.(func(*Env) string)
-				fun = func(env *Env) bool {
-					return x(env) != y(env)
-				}
+				fun = func(env *Env) bool { return x(env) != y(env) }
 
 			}
 		default:
@@ -785,9 +651,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int)
 				y := y.(int)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Int8:
@@ -795,9 +659,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int8)
 				y := y.(int8)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Int16:
@@ -805,9 +667,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int16)
 				y := y.(int16)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Int32:
@@ -815,9 +675,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int32)
 				y := y.(int32)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Int64:
@@ -825,108 +683,84 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(func(*Env) int64)
 				y := y.(int64)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Uint:
 			{
 				x := x.(func(*Env) uint)
 				y := y.(uint)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Uint8:
 			{
 				x := x.(func(*Env) uint8)
 				y := y.(uint8)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Uint16:
 			{
 				x := x.(func(*Env) uint16)
 				y := y.(uint16)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Uint32:
 			{
 				x := x.(func(*Env) uint32)
 				y := y.(uint32)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Uint64:
 			{
 				x := x.(func(*Env) uint64)
 				y := y.(uint64)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Uintptr:
 			{
 				x := x.(func(*Env) uintptr)
 				y := y.(uintptr)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Float32:
 			{
 				x := x.(func(*Env) float32)
 				y := y.(float32)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Float64:
 			{
 				x := x.(func(*Env) float64)
 				y := y.(float64)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Complex64:
 			{
 				x := x.(func(*Env) complex64)
 				y := y.(complex64)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.Complex128:
 			{
 				x := x.(func(*Env) complex128)
 				y := y.(complex128)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		case r.String:
 			{
 				x := x.(func(*Env) string)
 				y := y.(string)
-				fun = func(env *Env) bool {
-					return x(env) != y
-				}
+				fun = func(env *Env) bool { return x(env) != y }
 
 			}
 		default:
@@ -946,9 +780,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int)
 				y := y.(func(*Env) int)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Int8:
@@ -956,9 +788,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int8)
 				y := y.(func(*Env) int8)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Int16:
@@ -966,9 +796,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int16)
 				y := y.(func(*Env) int16)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Int32:
@@ -976,9 +804,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int32)
 				y := y.(func(*Env) int32)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Int64:
@@ -986,9 +812,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(int64)
 				y := y.(func(*Env) int64)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Uint:
@@ -996,9 +820,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint)
 				y := y.(func(*Env) uint)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Uint8:
@@ -1006,9 +828,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint8)
 				y := y.(func(*Env) uint8)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Uint16:
@@ -1016,9 +836,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint16)
 				y := y.(func(*Env) uint16)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Uint32:
@@ -1026,9 +844,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint32)
 				y := y.(func(*Env) uint32)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Uint64:
@@ -1036,9 +852,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uint64)
 				y := y.(func(*Env) uint64)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Uintptr:
@@ -1046,9 +860,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(uintptr)
 				y := y.(func(*Env) uintptr)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Float32:
@@ -1056,9 +868,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(float32)
 				y := y.(func(*Env) float32)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Float64:
@@ -1066,9 +876,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(float64)
 				y := y.(func(*Env) float64)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Complex64:
@@ -1076,9 +884,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(complex64)
 				y := y.(func(*Env) complex64)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.Complex128:
@@ -1086,9 +892,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(complex128)
 				y := y.(func(*Env) complex128)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		case r.String:
@@ -1096,9 +900,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			{
 				x := x.(string)
 				y := y.(func(*Env) string)
-				fun = func(env *Env) bool {
-					return x != y(env)
-				}
+				fun = func(env *Env) bool { return x != y(env) }
 
 			}
 		default:
