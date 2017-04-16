@@ -27,10 +27,17 @@ package fast_interpreter
 import (
 	"go/ast"
 	r "reflect"
-	"unsafe"
-
-	_ "github.com/cosmos72/gomacro/base"
 )
+
+type funcMaker struct {
+	nbinds      int
+	nintbinds   int
+	paramnames  []string
+	parambinds  []Bind
+	resultbinds []Bind
+	resultfuns  []I
+	funcbody    func(*Env)
+}
 
 // DeclFunc compiles a function or method declaration (does not support closure declarations)
 func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *ast.BlockStmt) {
@@ -120,9 +127,16 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	nbinds := cf.BindNum
 	nintbinds := cf.IntBindNum
 
-	makefunc := c.funcOptimized(nbinds, nintbinds, t,
-		paramnames, parambinds,
-		resultbinds, resultfuns, funcbody)
+	m := funcMaker{
+		nbinds:      nbinds,
+		nintbinds:   nintbinds,
+		paramnames:  paramnames,
+		parambinds:  parambinds,
+		resultbinds: resultbinds,
+		resultfuns:  resultfuns,
+		funcbody:    funcbody,
+	}
+	makefunc := cf.funcOptimized(t, &m)
 
 	// a function declaration is a statement:
 	// executing it creates the function in the runtime environment
@@ -136,74 +150,37 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	c.Code.Append(stmt)
 }
 
-// TODO actually optimize, i.e. create specialized functions without using reflect.MakeFunc
-func (c *Comp) funcOptimized(nbinds int, nintbinds int, t r.Type,
-	paramnames []string, parambinds []Bind,
-	resultbinds []Bind, resultfuns []I,
-	funcbody func(*Env)) func(*Env) r.Value {
-
-	switch r.Zero(t).Interface().(type) {
-	case func(int) int:
-		param0index := parambinds[0].Desc.Index()
-		result0index := resultbinds[0].Desc.Index()
-		if funcbody == nil {
-			return func(env *Env) r.Value {
-				// function is closed over the env used to DECLARE it
-				return r.ValueOf(func(int) int {
-					return 0
-				})
-			}
-		}
-		if param0index == NoIndex {
-			return func(env *Env) r.Value {
-				// function is closed over the env used to DECLARE it
-				env.MarkUsedByClosure()
-				return r.ValueOf(func(int) int {
-					env := NewEnv4Func(env, nbinds, nintbinds)
-					// arg0 is ignored
-
-					// execute the body
-					funcbody(env)
-
-					// read results from allocated binds and return them
-					ret0 := *(*int)(unsafe.Pointer(&env.IntBinds[result0index]))
-
-					env.FreeEnv()
-					return ret0
-				})
-			}
-		}
-		return func(env *Env) r.Value {
-			// function is closed over the env used to DECLARE it
-			env.MarkUsedByClosure()
-			return r.ValueOf(func(arg0 int) int {
-				env := NewEnv4Func(env, nbinds, nintbinds)
-
-				// copy runtime arguments into allocated binds
-				*(*int)(unsafe.Pointer(&env.IntBinds[param0index])) = arg0
-
-				// execute the body
-				funcbody(env)
-
-				// read results from allocated binds and return them
-				ret0 := *(*int)(unsafe.Pointer(&env.IntBinds[result0index]))
-
-				env.FreeEnv()
-				return ret0
-			})
-		}
+func (c *Comp) funcOptimized(t r.Type, m *funcMaker) func(*Env) r.Value {
+	switch t.NumOut() {
+	case 0:
+		return c.func_ret0(t, m)
+	case 1:
+		return c.funcGeneric(t, m) // func_ret1
+	case 2:
+		return c.funcGeneric(t, m) // func_ret2
+	default:
+		return c.funcGeneric(t, m)
 	}
+}
 
-	paramdecls := make([]func(*Env, r.Value), len(parambinds))
-	for i, bind := range parambinds {
+// fallback: create a non-optimized function
+func (c *Comp) funcGeneric(t r.Type, m *funcMaker) func(*Env) r.Value {
+
+	paramdecls := make([]func(*Env, r.Value), len(m.parambinds))
+	for i, bind := range m.parambinds {
 		if bind.Desc.Index() != NoIndex {
-			paramdecls[i] = c.DeclBindRuntimeValue(paramnames[i], parambinds[i])
+			paramdecls[i] = c.DeclBindRuntimeValue(m.paramnames[i], m.parambinds[i])
 		}
 	}
-	resultexprs := make([]func(*Env) r.Value, len(resultfuns))
-	for i, resultfun := range resultfuns {
+	resultexprs := make([]func(*Env) r.Value, len(m.resultfuns))
+	for i, resultfun := range m.resultfuns {
 		resultexprs[i] = FunAsX1(resultfun, CompileDefaults)
 	}
+
+	// do NOT keep a reference to funcMaker
+	nbinds := m.nbinds
+	nintbinds := m.nintbinds
+	funcbody := m.funcbody
 
 	return func(env *Env) r.Value {
 		// function is closed over the env used to DECLARE it

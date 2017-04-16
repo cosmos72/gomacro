@@ -53,6 +53,17 @@ func IsCategory(k r.Kind, categories ...r.Kind) bool {
 	return false
 }
 
+// IsOptimizedKind returns true if fast_interpreter expects optimized expressions for given Kind
+func IsOptimizedKind(k r.Kind) bool {
+	switch k {
+	case r.Bool, r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
+		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
+		r.Float32, r.Float64, r.Complex64, r.Complex128, r.String:
+		return true
+	}
+	return false
+}
+
 // ConvertValue converts a value to type t and returns the converted value.
 // extends reflect.Value.Convert(t) by allowing conversions from/to complex numbers.
 // does not check for overflows or truncation.

@@ -106,19 +106,24 @@ func (env *Env) convertFuncCallResults(t r.Type, rets []r.Value, warn bool) []r.
 	expectedN := t.NumOut()
 	if retsN < expectedN {
 		if warn {
-			env.Warnf("not enough return values: expected %d, found %d: %v", expectedN, retsN, rets)
+			env.Warnf("not enough return values: expecting %d, found %d: %v", expectedN, retsN, rets)
 		}
 		tmp := make([]r.Value, expectedN)
 		copy(tmp, rets)
 		rets = tmp
 	} else if retsN > expectedN {
 		if warn {
-			env.Warnf("too many return values: expected %d, found %d: %v", expectedN, retsN, rets)
+			env.Warnf("too many return values: expecting %d, found %d: %v", expectedN, retsN, rets)
 		}
 		rets = rets[:expectedN]
 	}
-	for i := range rets {
-		rets[i] = rets[i].Convert(t.Out(i))
+	for i, ret := range rets {
+		ti := t.Out(i)
+		if ret == Nil || ret == None {
+			rets[i] = r.Zero(ti)
+		} else {
+			rets[i] = ret.Convert(ti)
+		}
 	}
 	return rets
 }

@@ -420,5 +420,5 @@ func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 }
 
 func (c *TestCase) fail(t *testing.T, actual interface{}, expected interface{}) {
-	t.Errorf("expected %v <%T>, found %v <%T>\n", expected, expected, actual, actual)
+	t.Errorf("expecting %v <%T>, found %v <%T>\n", expected, expected, actual, actual)
 }

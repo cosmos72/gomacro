@@ -1,0 +1,91 @@
+		
+	case func(int) int:
+		param0index := parambinds[0].Desc.Index()
+		result0index := resultbinds[0].Desc.Index()
+		if funcbody == nil {
+			return func(env *Env) r.Value {
+				// function is closed over the env used to DECLARE it
+				return r.ValueOf(func(int) int {
+					return 0
+				})
+			}
+		}
+		if param0index == NoIndex {
+			return func(env *Env) r.Value {
+				// function is closed over the env used to DECLARE it
+				env.MarkUsedByClosure()
+				return r.ValueOf(func(int) int {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+					// arg0 is ignored
+
+					// execute the body
+					funcbody(env)
+
+					// read results from allocated binds and return them
+					ret0 := *(*int)(unsafe.Pointer(&env.IntBinds[result0index]))
+
+					env.FreeEnv()
+					return ret0
+				})
+			}
+		}
+		return func(env *Env) r.Value {
+			// function is closed over the env used to DECLARE it
+			env.MarkUsedByClosure()
+			return r.ValueOf(func(arg0 int) int {
+				env := NewEnv4Func(env, nbinds, nintbinds)
+
+				// copy runtime arguments into allocated binds
+				*(*int)(unsafe.Pointer(&env.IntBinds[param0index])) = arg0
+
+				// execute the body
+				funcbody(env)
+
+				// read results from allocated binds and return them
+				ret0 := *(*int)(unsafe.Pointer(&env.IntBinds[result0index]))
+
+				env.FreeEnv()
+				return ret0
+			})
+		}
+	}
+
+	paramdecls := make([]func(*Env, r.Value), len(parambinds))
+	for i, bind := range parambinds {
+		if bind.Desc.Index() != NoIndex {
+			paramdecls[i] = c.DeclBindRuntimeValue(paramnames[i], parambinds[i])
+		}
+	}
+	resultexprs := make([]func(*Env) r.Value, len(resultfuns))
+	for i, resultfun := range resultfuns {
+		resultexprs[i] = FunAsX1(resultfun, CompileDefaults)
+	}
+
+	return func(env *Env) r.Value {
+		// function is closed over the env used to DECLARE it
+		env.MarkUsedByClosure()
+		return r.MakeFunc(t, func(args []r.Value) []r.Value {
+			env := NewEnv(env, nbinds, nintbinds)
+
+			if funcbody != nil {
+				// copy runtime arguments into allocated binds
+				for i, decl := range paramdecls {
+					if decl != nil {
+						// decl == nil means the argument is ignored inside the function
+						decl(env, args[i])
+					}
+				}
+				// execute the body
+				funcbody(env)
+			}
+			// read results from allocated binds and return them
+			rets := make([]r.Value, len(resultexprs))
+			for i, expr := range resultexprs {
+				rets[i] = expr(env)
+			}
+			env.FreeEnv()
+			return rets
+		})
+	}
+}
+

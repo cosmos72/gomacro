@@ -1511,7 +1511,7 @@ func (p *parser) checkExprOrType(x ast.Expr) ast.Expr {
 	case *ast.UnaryExpr:
 	case *ast.ArrayType:
 		if len, isEllipsis := t.Len.(*ast.Ellipsis); isEllipsis {
-			p.error(len.Pos(), "expected array length, found '...'")
+			p.error(len.Pos(), "expecting array length, found '...'")
 			x = &ast.BadExpr{From: x.Pos(), To: p.safePos(x.End())}
 		}
 	}
@@ -1882,7 +1882,7 @@ func (p *parser) makeExpr(s ast.Stmt, kind string) ast.Expr {
 	if es, isExpr := s.(*ast.ExprStmt); isExpr {
 		return p.checkExpr(es.X)
 	}
-	p.error(s.Pos(), fmt.Sprintf("expected %s, found simple statement (missing parentheses around composite literal?)", kind))
+	p.error(s.Pos(), fmt.Sprintf("expecting %s, found simple statement (missing parentheses around composite literal?)", kind))
 	return &ast.BadExpr{From: s.Pos(), To: p.safePos(s.End())}
 }
 

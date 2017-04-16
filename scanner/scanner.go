@@ -790,7 +790,7 @@ scanAgain:
 				lit = s.scanIdentifier()
 				tok = mt.LookupSpecial(lit)
 				if tok == token.ILLEGAL {
-					s.error(s.file.Offset(pos), fmt.Sprintf("expected macro-related keyword after '%c', found '%c%s'", s.specialChar, s.specialChar, lit))
+					s.error(s.file.Offset(pos), fmt.Sprintf("expecting macro-related keyword after '%c', found '%c%s'", s.specialChar, s.specialChar, lit))
 					insertSemi = s.insertSemi // preserve insertSemi info
 				}
 			}
