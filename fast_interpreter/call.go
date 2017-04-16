@@ -63,43 +63,79 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 		}
 		argfuns[i] = arg.AsX1()
 	}
-	callfun := expr.AsX1()
 	ret := &Expr{}
 	nout := t.NumOut()
 	switch nout {
 	case 0:
 		ret.Types = ZeroTypes
-		ret.Fun = func(env *Env) {
-			funv := callfun(env)
-			argv := make([]r.Value, len(argfuns))
-			for i, argfun := range argfuns {
-				argv[i] = argfun(env)
-			}
-			// Debugf("calling %v with args %v", funv.Type(), argv)
-			funv.Call(argv)
-		}
+		ret.Fun = call_ret0(expr, args, argfuns)
 	case 1:
 		ret.Type = t.Out(0)
-		ret.Fun = callExpr1Optimized(expr, args, argfuns)
-
+		ret.Fun = call_ret1(expr, args, argfuns)
 	default:
-		types := make([]r.Type, nout)
-		for i := 0; i < nout; i++ {
-			types[i] = t.Out(i)
+		ret.Types = []r.Type{t.Out(0), t.Out(1)}
+		ret.Fun = call_ret2plus(expr, args, argfuns)
+	}
+	return ret
+}
+
+// cannot optimize much here... fast_interpreter ASSUMES that expressions
+// returning multiple values actually return (reflect.Value, []reflect.Value)
+func call_ret2plus(expr *Expr, args []*Expr, argfuns []func(*Env) r.Value) I {
+	exprfun := expr.AsX1()
+	var call func(*Env) (r.Value, []r.Value)
+	// slightly optimize fun() (tret0, tret1)
+	switch expr.Type.NumIn() {
+	case 0:
+		call = func(env *Env) (r.Value, []r.Value) {
+			funv := exprfun(env)
+			retv := funv.Call(ZeroValues)
+			return retv[0], retv
 		}
-		ret.Types = types
-		ret.Fun = func(env *Env) (r.Value, []r.Value) {
-			funv := callfun(env)
+	case 1:
+		argfun := argfuns[0]
+		call = func(env *Env) (r.Value, []r.Value) {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)
+			return retv[0], retv
+		}
+	case 2:
+		call = func(env *Env) (r.Value, []r.Value) {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfuns[0](env),
+				argfuns[1](env),
+			}
+			retv := funv.Call(argv)
+			return retv[0], retv
+		}
+	case 3:
+		call = func(env *Env) (r.Value, []r.Value) {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfuns[0](env),
+				argfuns[1](env),
+				argfuns[2](env),
+			}
+			retv := funv.Call(argv)
+			return retv[0], retv
+		}
+	default:
+		// general case
+		call = func(env *Env) (r.Value, []r.Value) {
+			funv := exprfun(env)
 			argv := make([]r.Value, len(argfuns))
 			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
-			// Debugf("calling %v with args %v", funv.Type(), argv)
 			retv := funv.Call(argv)
 			return retv[0], retv
 		}
 	}
-	return ret
+	return call
 }
 
 func (c *Comp) badCallArgNum(fun ast.Expr, t r.Type, args []*Expr) *Expr {

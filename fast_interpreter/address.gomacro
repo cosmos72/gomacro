@@ -41,39 +41,45 @@ import (
 :func faddress(upn int, typ ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
 	var t r.Type = EvalType(typ)
-	var loop, bind, rettype ast.Node
+	var decls, bind, rettype ast.Node
 
-	if upn >= 0 {
-		bind = ~'{env}
+	if upn == 0 {
+		decls = ~'{{
+			env.AddressTaken = true
+		}}
+	} else if upn > 0 {
+		decls = ~'env
 		for i := 0; i < upn; i++ {
-			bind = ~"{~,bind . Outer}
+			decls = ~"{~,decls. Outer}
+		}
+		decls = ~"{
+			env = ~,decls
+			env.AddressTaken = true
 		}
 	} else {
-		loop = ~'{
-			o := env.Outer.Outer.Outer
+		decls = ~'{
+			env = env.Outer.Outer.Outer
 			for i := 3; i < upn; i++ {
-				o = o.Outer
+				env = env.Outer
 			}
+			env.AddressTaken = true
 		}
-		bind = ~'o
 	}
-
 	if t == nil {
-		bind = ~"{~,bind . Binds[index] .Addr()}
+		bind = ~'{env .Binds[index].Addr()}
 		rettype = ~'{r.Value}
 	} else {
 		rettype = ~"{* ~,typ}
-		switch t.Kind() {
-			case r.Uint64:
-				bind = ~"{& ~,bind . IntBinds[index]}
-			default:
-				bind = ~"{(*~,typ)(unsafe.Pointer(& ~,bind .IntBinds[index]))}
+		if t.Kind() == r.Uint64 {
+			bind = ~'{&env.IntBinds[index]}
+		} else {
+			bind = ~"{(*~,typ)(unsafe.Pointer(&env.IntBinds[index]))}
 		}
 	}
 
 	return ~"{
 		ret = func(env *Env) (~,rettype) {
-			~,@loop
+			~,@decls
 			return ~,bind
 		}
 	}

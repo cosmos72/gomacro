@@ -157,6 +157,7 @@ func (c *Comp) funcOptimized(nbinds int, nintbinds int, t r.Type,
 		if param0index == NoIndex {
 			return func(env *Env) r.Value {
 				// function is closed over the env used to DECLARE it
+				env.MarkUsedByClosure()
 				return r.ValueOf(func(int) int {
 					env := NewEnv4Func(env, nbinds, nintbinds)
 					// arg0 is ignored
@@ -174,6 +175,7 @@ func (c *Comp) funcOptimized(nbinds int, nintbinds int, t r.Type,
 		}
 		return func(env *Env) r.Value {
 			// function is closed over the env used to DECLARE it
+			env.MarkUsedByClosure()
 			return r.ValueOf(func(arg0 int) int {
 				env := NewEnv4Func(env, nbinds, nintbinds)
 
@@ -205,6 +207,7 @@ func (c *Comp) funcOptimized(nbinds int, nintbinds int, t r.Type,
 
 	return func(env *Env) r.Value {
 		// function is closed over the env used to DECLARE it
+		env.MarkUsedByClosure()
 		return r.MakeFunc(t, func(args []r.Value) []r.Value {
 			env := NewEnv(env, nbinds, nintbinds)
 

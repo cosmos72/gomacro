@@ -307,10 +307,17 @@ type FuncInfo struct {
 	NamedResults bool
 }
 
-// InterpreterCommon contains bookeeping information global to the interpreter
+const (
+	PoolCapacity = 10
+)
+
+// InterpreterCommon contains thread-local interpreter bookeeping information
+// TODO remember create a new InterpreterCommon when starting a goroutine!
+// otherwise they will consume Envs from the same pool and wreak havoc
 type InterpreterCommon struct {
 	*base.InterpreterBase
-	Pool []*Env
+	PoolSize int
+	Pool     [PoolCapacity]*Env
 }
 
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
@@ -344,14 +351,16 @@ const (
 
 // Env is the interpreter's runtime environment
 type Env struct {
-	Binds     []r.Value
-	IntBinds  []uint64
-	Outer     *Env
-	IP        int
-	Code      []Stmt
-	Interrupt Stmt
-	Signal    Signal // set by interrupts: Return, Defer...
-	Common    *InterpreterCommon
+	Binds         []r.Value
+	IntBinds      []uint64
+	Outer         *Env
+	IP            int
+	Code          []Stmt
+	Interrupt     Stmt
+	Signal        Signal // set by interrupts: Return, Defer...
+	Common        *InterpreterCommon
+	UsedByClosure bool // a bitfield would introduce more races among goroutines
+	AddressTaken  bool
 }
 
 // CompEnv is the composition of both the tree-of-closures builder Comp

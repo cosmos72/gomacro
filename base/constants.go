@@ -77,4 +77,5 @@ var (
 
 	ZeroStrings = []string{}
 	ZeroTypes   = []r.Type{}
+	ZeroValues  = []r.Value{}
 )

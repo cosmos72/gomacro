@@ -33,13 +33,10 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func makeInterpreterCommon() InterpreterCommon {
+func NewInterpreterCommon() *InterpreterCommon {
 	b := MakeInterpreterBase()
-	return InterpreterCommon{
+	return &InterpreterCommon{
 		InterpreterBase: &b,
-		// TODO remember create a new pool when starting a goroutine!
-		// otherwise they will consume from this pool and wreak havoc
-		Pool: make([]*Env, 0, 10),
 	}
 }
 
@@ -63,8 +60,7 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 		common = outer.InterpreterCommon
 	}
 	if common == nil {
-		comm := makeInterpreterCommon()
-		common = &comm
+		common = NewInterpreterCommon()
 	}
 	c := &CompEnv{
 		Comp: &Comp{
@@ -154,13 +150,14 @@ func NewEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
 }
 
 func (common *InterpreterCommon) allocEnv(nbinds int, nintbinds int) *Env {
-	pool := common.Pool
-	n := len(pool)
-	if n == 0 {
+	pool := &common.Pool // pool is an array, do NOT copy it!
+	index := common.PoolSize - 1
+	if index < 0 {
 		return nil
 	}
-	env := pool[n-1]
-	common.Pool = pool[0 : n-1]
+	common.PoolSize = index
+	env := pool[index]
+	pool[index] = nil
 	if cap(env.Binds) < nbinds {
 		env.Binds = make([]r.Value, nbinds)
 	} else if nbinds != 0 {
@@ -175,18 +172,33 @@ func (common *InterpreterCommon) allocEnv(nbinds int, nintbinds int) *Env {
 	return env
 }
 
+func (env *Env) MarkUsedByClosure() {
+	for ; env != nil && !env.UsedByClosure; env = env.Outer {
+		env.UsedByClosure = true
+	}
+}
+
 // FreeEnv tells the interpreter that given Env is no longer needed.
-// FIXME problem: how does the caller know that Env is not referenced by some closure?
 func (env *Env) FreeEnv() {
-	common := env.Common
-	pool := common.Pool
-	if len(pool) >= 10 {
+	if env.UsedByClosure {
+		// in use, cannot recycle
 		return
+	}
+	common := env.Common
+	n := common.PoolSize
+	if n >= PoolCapacity {
+		return
+	}
+	if env.AddressTaken {
+		env.Binds = nil
+		env.IntBinds = nil
+		env.AddressTaken = false
 	}
 	env.Outer = nil
 	env.Code = nil
 	env.Common = nil
-	common.Pool = append(pool, env)
+	common.Pool[n] = env // pool is an array, be careful NOT to copy it!
+	common.PoolSize = n + 1
 }
 
 func (env *Env) Top() *Env {
