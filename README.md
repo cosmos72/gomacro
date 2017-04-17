@@ -41,14 +41,14 @@ Gomacro can be used as:
 * a library that adds Eval() and scripting capabilities
   to your Go programs - provided you comply with its GPL license
 
-* a way to execute Go source code on-the-fly without a Go compiler:  
+* a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
 
   or you can insert a line `#!/usr/bin/env gomacro` at the beginning of a Go source file,
   then mark the file as executable with `chmod +x FILENAME.go` and finally execute it
   with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
-* a Go code generation tool (BETA):  
+* a Go code generation tool (BETA):
   run `gomacro -m -w FILENAMES` to parse and expand macros in one or more files.
   For each filename on the command line, gomacro will parse it, expand macros,
   then create a corresponding FILENAME.go with the parsed and macroexpanded
@@ -110,6 +110,9 @@ Limitations:
   to define new types, which can only create unnamed types.
   The interpreter then defines named types as aliases for the underlying unnamed types.
 
+* cannot create recursive types, as for example `type List struct { First interface{}; Rest *List}`
+  The reason is the same as above: the interpreter uses `reflect.StructOf()` to define new types,
+  which cannot create recursive types
 
 
 ## Why it was created

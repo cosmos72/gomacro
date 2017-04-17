@@ -137,7 +137,7 @@ func (c *Comp) PlaceOrAddress(lhs ast.Expr, addressof bool) *Place {
 	}
 }
 
-// Var compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
+// LookupVar compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
 func (c *Comp) LookupVar(name string) *Var {
 	if name == "_" {
 		return &Var{}

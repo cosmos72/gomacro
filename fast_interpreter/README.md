@@ -19,7 +19,8 @@ The fast intepreter supports:
 * assignment to variables, i.e. 'variable = constant' and 'variable = expression'
 * function declarations, including variadic functions
 * function calls (unimplemented: calls to variadic functions)
-* if
+* return (unimplemented: return foo() where foo() returns multiple values)
+* if, for, break, continue
 * ~quote
 
 Everything else is still missing. You are welcome to contribute.
@@ -33,6 +34,11 @@ Limitations:
   The reason for such limitation is simple: the interpreter uses `reflect.StructOf()`
   to define new types, which can only create unnamed types.
   The interpreter then defines named types as aliases for the underlying unnamed types.
+
+* cannot create recursive types, as for example `type List struct { First interface{}; Rest *List}`
+  The reason is the same as above: the interpreter uses `reflect.StructOf()` to define new types,
+  which cannot create recursive types
+
 * operators << and >> do not follow type deduction rules for untyped constants.
   The implemented behavior is:
   * an untyped constant shifted by a non-constant expression always returns an int

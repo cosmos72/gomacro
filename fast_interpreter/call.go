@@ -33,10 +33,37 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
+type Call struct {
+	OutTypes []r.Type
+	Fun      *Expr
+	Funvar   *Var // in case function is an identifier (a variable or function name)
+	Args     []*Expr
+	Argvars  []*Var // in case arguments are variable or function names
+	Argfuns  []func(*Env) r.Value
+}
+
 // CallExpr compiles a function call
 func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
-	expr := c.Expr(node.Fun)
-	t := expr.Type
+	call := c.callExpr(node)
+	expr := &Expr{}
+	switch len(call.OutTypes) {
+	case 0:
+		expr.Types = call.OutTypes
+		expr.Fun = call_ret0(call)
+	case 1:
+		expr.Type = call.OutTypes[0]
+		expr.Fun = call_ret1(call)
+	default:
+		expr.Types = call.OutTypes
+		expr.Fun = call_ret2plus(call)
+	}
+	return expr
+}
+
+// callExpr compiles the common part between CallExpr and Go statement
+func (c *Comp) callExpr(node *ast.CallExpr) *Call {
+	fun := c.Expr(node.Fun)
+	t := fun.Type
 	if t.Kind() != r.Func {
 		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
 		return nil
@@ -45,14 +72,21 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 		c.Errorf("unimplemented: call to variadic function: %v <%v>", node.Fun, t)
 		return nil
 	}
-	// TODO support funcAcceptsNArgs(funcReturnsNValues())
+	var funvar *Var
+	if ident, ok := UnwrapTrivialNode(node.Fun).(*ast.Ident); ok {
+		upn, bind := c.Resolve(ident.Name)
+		if bind.Desc.Class() != ConstBind {
+			funvar = &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
+		}
+	}
+
 	args := c.Exprs(node.Args)
 	n := t.NumIn()
+	// TODO support funcAcceptsNArgs(funcReturnsNValues())
 	if n != len(args) {
 		return c.badCallArgNum(node.Fun, t, args)
 	}
-	// TODO optimize for bool, int, uint... argument types and return types
-	// and also for calls to identifiers
+	argvars := make([]*Var, n)
 	argfuns := make([]func(*Env) r.Value, n)
 	for i, arg := range args {
 		ti := t.In(i)
@@ -62,27 +96,29 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 			c.Errorf("cannot use <%v> as <%v> in argument to %v", arg.Type, ti, node.Fun)
 		}
 		argfuns[i] = arg.AsX1()
+		if ident, ok := UnwrapTrivialNode(node.Args[i]).(*ast.Ident); ok {
+			upn, bind := c.Resolve(ident.Name)
+			if bind.Desc.Class() != ConstBind {
+				argvars[i] = &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
+			}
+		}
 	}
-	ret := &Expr{}
+	ret := &Call{Fun: fun, Funvar: funvar, Args: args, Argfuns: argfuns, Argvars: argvars}
 	nout := t.NumOut()
-	switch nout {
-	case 0:
-		ret.Types = ZeroTypes
-		ret.Fun = call_ret0(expr, args, argfuns)
-	case 1:
-		ret.Type = t.Out(0)
-		ret.Fun = call_ret1(expr, args, argfuns)
-	default:
-		ret.Types = []r.Type{t.Out(0), t.Out(1)}
-		ret.Fun = call_ret2plus(expr, args, argfuns)
+	types := make([]r.Type, nout)
+	for i := 0; i < nout; i++ {
+		types[i] = t.Out(i)
 	}
+	ret.OutTypes = types
 	return ret
 }
 
 // cannot optimize much here... fast_interpreter ASSUMES that expressions
 // returning multiple values actually return (reflect.Value, []reflect.Value)
-func call_ret2plus(expr *Expr, args []*Expr, argfuns []func(*Env) r.Value) I {
+func call_ret2plus(callexpr *Call) I {
+	expr := callexpr.Fun
 	exprfun := expr.AsX1()
+	argfuns := callexpr.Argfuns
 	var call func(*Env) (r.Value, []r.Value)
 	// slightly optimize fun() (tret0, tret1)
 	switch expr.Type.NumIn() {
@@ -138,7 +174,7 @@ func call_ret2plus(expr *Expr, args []*Expr, argfuns []func(*Env) r.Value) I {
 	return call
 }
 
-func (c *Comp) badCallArgNum(fun ast.Expr, t r.Type, args []*Expr) *Expr {
+func (c *Comp) badCallArgNum(fun ast.Expr, t r.Type, args []*Expr) *Call {
 	prefix := "not enough"
 	n := t.NumIn()
 	nargs := len(args)

@@ -67,6 +67,13 @@ func SimplifyNodeForQuote(in ast.Node, unwrapTrivialBlocks bool) ast.Node {
 	}
 }
 
+// restricted version of UnwrapTrivialAst
+func UnwrapTrivialNode(node ast.Node) ast.Node {
+	in := ToAst(node)
+	out := unwrapTrivialAst2(in, true)
+	return ToNode(out)
+}
+
 // unwrapTrivialAst extract the content from ParenExpr, ExprStmt, DeclStmt:
 // such nodes are trivial wrappers for their contents
 func UnwrapTrivialAst(in Ast) Ast {
