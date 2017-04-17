@@ -265,62 +265,27 @@ func (c *Comp) funcx1ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 	}
 }
 
-// if arg0typ != arg1typ use Comp.DeclBindRuntimeValue() to limit source code size,
-// while still providing reasonably optimized function implementation.
-// if arg0typ == arg1typ, provide fully optimized function implementation
-:macro macroopt2ret0(arg0typ, arg1typ ast.Node) ast.Node {
-	var t0 r.Type = EvalType(arg0typ)
-	var t1 r.Type = EvalType(arg1typ)
-	if t0 == t1 {
-		return ~"{macro2ret0; ~,arg0typ; ~,arg1typ}
-	}
 
-	return ~"{
-		if funcbody == nil {
-			return func(env *Env) r.Value {
-				return r.ValueOf(func(~,arg0typ, ~,arg1typ) {
-				})
-			}
-		}
-		return func(env *Env) r.Value {
-			// function is closed over the env used to DECLARE it
-			env.MarkUsedByClosure()
-			return r.ValueOf(func(arg0 ~,arg0typ, arg1 ~,arg1typ) {
-				env := NewEnv4Func(env, nbinds, nintbinds)
-
-				// copy args into allocated binds
-				argdecls[0](env, r.ValueOf(arg0))
-				argdecls[1](env, r.ValueOf(arg1))
-
-				// execute the body
-				funcbody(env)
-
-				env.FreeEnv()
-			})
-		}
-	}
-}
-
-:macro macroopty2ret0(arg0typ ast.Node) ast.Node {
+:macro macroy2ret0(arg0typ ast.Node) ast.Node {
 	return ~"{
 		switch karg1 {
-		case r.Bool:      {macroopt2ret0; ~,arg0typ; bool}
-		case r.Int:       {macroopt2ret0; ~,arg0typ; int}
-		case r.Int8:      {macroopt2ret0; ~,arg0typ; int8}
-		case r.Int16:     {macroopt2ret0; ~,arg0typ; int16}
-		case r.Int32:     {macroopt2ret0; ~,arg0typ; int32}
-		case r.Int64:     {macroopt2ret0; ~,arg0typ; int64}
-		case r.Uint:      {macroopt2ret0; ~,arg0typ; uint}
-		case r.Uint8:     {macroopt2ret0; ~,arg0typ; uint8}
-		case r.Uint16:    {macroopt2ret0; ~,arg0typ; uint16}
-		case r.Uint32:    {macroopt2ret0; ~,arg0typ; uint32}
-		case r.Uint64:    {macroopt2ret0; ~,arg0typ; uint64}
-		case r.Uintptr:   {macroopt2ret0; ~,arg0typ; uintptr}
-		case r.Float32:   {macroopt2ret0; ~,arg0typ; float32}
-		case r.Float64:   {macroopt2ret0; ~,arg0typ; float64}
-		case r.Complex64: {macroopt2ret0; ~,arg0typ; complex64}
-		case r.Complex128:{macroopt2ret0; ~,arg0typ; complex128}
-		case r.String:    {macroopt2ret0; ~,arg0typ; string}
+		case r.Bool:      {macro2ret0; ~,arg0typ; bool}
+		case r.Int:       {macro2ret0; ~,arg0typ; int}
+		case r.Int8:      {macro2ret0; ~,arg0typ; int8}
+		case r.Int16:     {macro2ret0; ~,arg0typ; int16}
+		case r.Int32:     {macro2ret0; ~,arg0typ; int32}
+		case r.Int64:     {macro2ret0; ~,arg0typ; int64}
+		case r.Uint:      {macro2ret0; ~,arg0typ; uint}
+		case r.Uint8:     {macro2ret0; ~,arg0typ; uint8}
+		case r.Uint16:    {macro2ret0; ~,arg0typ; uint16}
+		case r.Uint32:    {macro2ret0; ~,arg0typ; uint32}
+		case r.Uint64:    {macro2ret0; ~,arg0typ; uint64}
+		case r.Uintptr:   {macro2ret0; ~,arg0typ; uintptr}
+		case r.Float32:   {macro2ret0; ~,arg0typ; float32}
+		case r.Float64:   {macro2ret0; ~,arg0typ; float64}
+		case r.Complex64: {macro2ret0; ~,arg0typ; complex64}
+		case r.Complex128:{macro2ret0; ~,arg0typ; complex128}
+		case r.String:    {macro2ret0; ~,arg0typ; string}
 		}
 	}
 }
@@ -328,7 +293,7 @@ func (c *Comp) funcx1ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 func declBindRuntimeValueNop(*Env, r.Value) {
 }
 
-:macro macrooptxy2ret0(dummy ast.Node) ast.Node {
+:macro macroxy2ret0(dummy ast.Node) ast.Node {
 	return ~"{
 		argdecls := [2]func(*Env, r.Value){nil, nil}
 		for i := range m.paramnames {
@@ -338,23 +303,23 @@ func declBindRuntimeValueNop(*Env, r.Value) {
 			}
 		}
 		switch karg0 {
-		case r.Bool:      {macroopty2ret0; bool}
-		case r.Int:       {macroopty2ret0; int}
-		case r.Int8:      {macroopty2ret0; int8}
-		case r.Int16:     {macroopty2ret0; int16}
-		case r.Int32:     {macroopty2ret0; int32}
-		case r.Int64:     {macroopty2ret0; int64}
-		case r.Uint:      {macroopty2ret0; uint}
-		case r.Uint8:     {macroopty2ret0; uint8}
-		case r.Uint16:    {macroopty2ret0; uint16}
-		case r.Uint32:    {macroopty2ret0; uint32}
-		case r.Uint64:    {macroopty2ret0; uint64}
-		case r.Uintptr:   {macroopty2ret0; uintptr}
-		case r.Float32:   {macroopty2ret0; float32}
-		case r.Float64:   {macroopty2ret0; float64}
-		case r.Complex64: {macroopty2ret0; complex64}
-		case r.Complex128:{macroopty2ret0; complex128}
-		case r.String:    {macroopty2ret0; string}
+		case r.Bool:      {macroy2ret0; bool}
+		case r.Int:       {macroy2ret0; int}
+		case r.Int8:      {macroy2ret0; int8}
+		case r.Int16:     {macroy2ret0; int16}
+		case r.Int32:     {macroy2ret0; int32}
+		case r.Int64:     {macroy2ret0; int64}
+		case r.Uint:      {macroy2ret0; uint}
+		case r.Uint8:     {macroy2ret0; uint8}
+		case r.Uint16:    {macroy2ret0; uint16}
+		case r.Uint32:    {macroy2ret0; uint32}
+		case r.Uint64:    {macroy2ret0; uint64}
+		case r.Uintptr:   {macroy2ret0; uintptr}
+		case r.Float32:   {macroy2ret0; float32}
+		case r.Float64:   {macroy2ret0; float64}
+		case r.Complex64: {macroy2ret0; complex64}
+		case r.Complex128:{macroy2ret0; complex128}
+		case r.String:    {macroy2ret0; string}
 		}
 	}
 }
@@ -376,7 +341,7 @@ func (c *Comp) funcxy2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 	funcbody := m.funcbody
 
 	if IsOptimizedKind(karg0) && IsOptimizedKind(karg1) {
-		{macrooptxy2ret0; nil}
+		{macroxy2ret0; nil}
 	}
 	{macro2ret0; nil; nil}
 }

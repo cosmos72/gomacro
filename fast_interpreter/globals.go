@@ -308,7 +308,7 @@ type FuncInfo struct {
 }
 
 const (
-	PoolCapacity = 10
+	PoolCapacity = 32
 )
 
 // InterpreterCommon contains thread-local interpreter bookeeping information

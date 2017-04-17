@@ -31,9 +31,8445 @@ package fast_interpreter
 
 import (
 	r "reflect"
-	_ "unsafe"
+	"unsafe"
 
-	_ "github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
-func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value { return c.funcGeneric(t, m) }
+func (c *Comp) func0retx1(t r.Type, m *funcMaker) func(*Env) r.Value {
+
+	nbinds := m.nbinds
+	nintbinds := m.nintbinds
+	funcbody := m.funcbody
+
+	tret0 := t.Out(0)
+	kret0 := tret0.Kind()
+	switch kret0 {
+	case r.Bool:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 bool) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) bool)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 bool) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Int:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 int) { return },
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) int)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 int) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Int8:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 int8) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) int8)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 int8) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Int16:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 int16) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) int16)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 int16) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Int32:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 int32) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) int32)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 int32) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Int64:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 int64) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) int64)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 int64) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Uint:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 uint) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) uint)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 uint) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Uint8:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 uint8) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) uint8)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 uint8) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Uint16:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 uint16) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) uint16)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 uint16) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Uint32:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 uint32) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) uint32)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 uint32) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Uint64:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 uint64) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) uint64)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 uint64) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Uintptr:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 uintptr) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) uintptr)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 uintptr) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Float32:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 float32) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) float32)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 float32) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Float64:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 float64) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) float64)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 float64) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Complex64:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 complex64) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) complex64)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 complex64) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.Complex128:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 complex128) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) complex128)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 complex128) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	case r.String:
+		{
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.ValueOf(func() (ret0 string) {
+						return
+					},
+					)
+				}
+			}
+
+			resultfun := m.resultfuns[0].(func(*Env) string)
+			return func(env *Env) r.Value {
+
+				env.MarkUsedByClosure()
+				return r.ValueOf(func() (ret0 string) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+
+					funcbody(env)
+
+					ret0 = resultfun(env)
+					env.FreeEnv()
+					return
+				})
+			}
+		}
+	default:
+		return c.funcGeneric(t, m)
+
+	}
+}
+func (c *Comp) funcx1rety1(t r.Type, m *funcMaker) func(*Env) r.Value {
+
+	nbinds := m.nbinds
+	nintbinds := m.nintbinds
+	funcbody := m.funcbody
+
+	karg0 := t.In(0).Kind()
+	kret0 := t.Out(0).Kind()
+
+	indexes := [2]int{
+		m.parambinds[0].Desc.Index(),
+		m.resultbinds[0].Desc.Index(),
+	}
+	switch karg0 {
+	case r.Bool:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(bool) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 bool) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*bool)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Int:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Int8:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int8) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int8) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Int16:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int16) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int16) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Int32:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int32) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int32) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Int64:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(int64) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 int64) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*int64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Uint:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Uint8:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint8) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint8) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Uint16:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint16) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint16) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Uint32:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint32) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint32) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Uint64:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uint64) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uint64) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						env.IntBinds[indexes[0]] = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Uintptr:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(uintptr) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 uintptr) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Float32:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float32) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float32) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float32)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Float64:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(float64) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 float64) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*float64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Complex64:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex64) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex64) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+
+						*(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[0]])) = arg0
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.Complex128:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(complex128) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 complex128) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfComplex128).Elem()
+							place.SetComplex(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	case r.String:
+		switch kret0 {
+		case r.Bool:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 bool) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 bool) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*bool)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 int) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 int) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 int8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 int8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 int16) { return },
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 int16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 int32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 int32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Int64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 int64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 int64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*int64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 uint) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 uint) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uint)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint8:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 uint8) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 uint8) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uint8)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint16:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 uint16) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 uint16) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uint16)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 uint32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 uint32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uint32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uint64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 uint64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 uint64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = env.IntBinds[indexes[1]]
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Uintptr:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 uintptr) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 uintptr) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*uintptr)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float32:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 float32) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 float32) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*float32)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Float64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 float64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 float64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*float64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex64:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 complex64) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 complex64) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = *(*complex64)(unsafe.Pointer(&env.IntBinds[indexes[1]]))
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.Complex128:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 complex128) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 complex128) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].Complex()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		case r.String:
+			{
+				if funcbody == nil {
+					return func(env *Env) r.Value {
+						return r.ValueOf(func(string) (ret0 string) {
+							return
+						},
+						)
+					}
+				}
+				return func(env *Env) r.Value {
+
+					env.MarkUsedByClosure()
+					return r.ValueOf(func(arg0 string) (ret0 string) {
+						env := NewEnv4Func(env, nbinds, nintbinds)
+						{
+							place := r.New(TypeOfString).Elem()
+							place.SetString(arg0,
+							)
+							env.Binds[indexes[0]] = place
+						}
+
+						funcbody(env)
+
+						ret0 = env.Binds[indexes[1]].String()
+
+						env.FreeEnv()
+						return
+					})
+				}
+			}
+		}
+	}
+	return c.funcGeneric(t, m)
+}
+func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+	switch t.NumIn() {
+	case 0:
+		return c.func0retx1(t, m)
+	case 1:
+		return c.funcx1rety1(t, m)
+	default:
+		return c.funcGeneric(t, m)
+	}
+}

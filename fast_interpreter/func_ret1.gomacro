@@ -26,9 +26,9 @@ package fast_interpreter
 
 import (
 	r "reflect"
-	_ "unsafe"
+	"unsafe"
 
-	_ "github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -36,17 +36,140 @@ import (
 	"go/ast"
 )
 
-/*
-// if arg0typ != ret0typ use Comp.DeclBindRuntimeValue() to limit source code size,
-// while still providing reasonably optimized function implementation.
-// if arg0typ == ret0typ, provide fully optimized function implementation
-:macro funcopt1ret1(arg0typ, ret0typ ast.Node) ast.Node {
-	var t0 r.Type = EvalType(arg0typ)
-	var t1 r.Type = EvalType(ret0typ)
-	if t0 == t1 {
-		return ~"{func1ret1; ~,arg0typ; ~,ret0typ}
-	}
 
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+// convert a well-known reflect.Type into one of the constants TypeOf*
+:func maketypeident(t r.Type) *ast.Ident {
+	name := "TypeOf" + upcasefirstbyte(t.Name())
+	return &ast.Ident{Name: name}
+}
+
+:func fsetarg(typ, name, index ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	var bind ast.Node
+	typeident := maketypeident(t)
+	switch t.Kind() {
+		case r.Complex128:
+			bind = ~"{
+				place := r.New(~,typeident).Elem()
+				place.SetComplex(~,name)
+				env.Binds[~,index] = place
+			}
+		case r.String:
+			bind = ~"{
+				place := r.New(~,typeident).Elem()
+				place.SetString(~,name)
+				env.Binds[~,index] = place
+			}
+		case r.Uint64:
+			bind = ~"{env.IntBinds[~,index] = ~,name}
+		default:
+			bind = ~"{*(*~,typ)(unsafe.Pointer(&env.IntBinds[~,index])) = ~,name}
+	}
+	return bind
+}
+
+:func fgetresult(typ, index ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	var bind ast.Node
+	if t == nil {
+		bind = ~"{env.Binds[~,index]}
+	} else {
+		typeident := maketypeident(t)
+		switch t.Kind() {
+			case r.Complex128:
+				bind = ~"{env.Binds[~,index].Complex()}
+			case r.String:
+				bind = ~"{env.Binds[~,index].String()}
+			case r.Uint64:
+				bind = ~"{env.IntBinds[~,index]}
+			default:
+				bind = ~"{*(*~,typ)(unsafe.Pointer(&env.IntBinds[~,index]))}
+		}
+	}
+	return bind
+}
+
+// ----------------- func() t0 ---------------------
+
+:macro macro0ret1(ret0typ ast.Node) ast.Node {
+	if EvalType(ret0typ) == nil {
+		// not a well-known type
+		return ~"{
+			return c.funcGeneric(t, m)
+		}
+	}
+	return ~"{
+		if funcbody == nil {
+			return func(env *Env) r.Value {
+				return r.ValueOf(func() (ret0 ~,ret0typ) {
+					return
+				})
+			}
+		}
+		resultfun := m.resultfuns[0].(func (*Env) ~,ret0typ)
+		return func(env *Env) r.Value {
+			// function is closed over the env used to DECLARE it
+			env.MarkUsedByClosure()
+			return r.ValueOf(func() (ret0 ~,ret0typ) {
+				env := NewEnv4Func(env, nbinds, nintbinds)
+
+				// execute the body
+				funcbody(env)
+
+				// extract result
+				ret0 = resultfun(env)
+				env.FreeEnv()
+				return
+			})
+		}
+	}
+}
+
+func (c *Comp) func0retx1(t r.Type, m *funcMaker) func(*Env) r.Value {
+	// do NOT keep a reference to funcMaker
+	nbinds := m.nbinds
+	nintbinds := m.nintbinds
+	funcbody := m.funcbody
+
+	tret0 := t.Out(0)
+	kret0 := tret0.Kind()
+	switch kret0 {
+	case r.Bool:      {macro0ret1; bool}
+	case r.Int:       {macro0ret1; int}
+	case r.Int8:      {macro0ret1; int8}
+	case r.Int16:     {macro0ret1; int16}
+	case r.Int32:     {macro0ret1; int32}
+	case r.Int64:     {macro0ret1; int64}
+	case r.Uint:      {macro0ret1; uint}
+	case r.Uint8:     {macro0ret1; uint8}
+	case r.Uint16:    {macro0ret1; uint16}
+	case r.Uint32:    {macro0ret1; uint32}
+	case r.Uint64:    {macro0ret1; uint64}
+	case r.Uintptr:   {macro0ret1; uintptr}
+	case r.Float32:   {macro0ret1; float32}
+	case r.Float64:   {macro0ret1; float64}
+	case r.Complex64: {macro0ret1; complex64}
+	case r.Complex128:{macro0ret1; complex128}
+	case r.String:    {macro0ret1; string}
+	default:          {macro0ret1; nil}
+	}
+}
+
+// ----------------- func(t0) t1 ---------------------
+
+// generate fully optimized function implementation for func(arg0typ) ret0typ
+:macro funcopt1ret1(arg0typ, ret0typ ast.Node) ast.Node {
+	arg0bind := fsetarg(arg0typ, ~'arg0, ~'{indexes[0]})
+	ret0bind := fgetresult(ret0typ, ~'{indexes[1]})
 	return ~"{
 		if funcbody == nil {
 			return func(env *Env) r.Value {
@@ -55,23 +178,23 @@ import (
 				})
 			}
 		}
+
 		return func(env *Env) r.Value {
 			// function is closed over the env used to DECLARE it
-			if indexes[0] != NoIndex {
-				env.MarkUsedByClosure()
-			}
+			env.MarkUsedByClosure()
 			return r.ValueOf(func(arg0 ~,arg0typ) (ret0 ~,ret0typ) {
 				env := NewEnv4Func(env, nbinds, nintbinds)
 
 				// copy arg into allocated binds
-				argdecl(env, r.ValueOf(arg0))
+				~,arg0bind
 
 				// execute the body
 				funcbody(env)
 
-				// TODO extract result
-
+				// extract result
+				ret0 = ~,ret0bind
 				env.FreeEnv()
+				return
 			})
 		}
 	}
@@ -103,7 +226,6 @@ import (
 
 :macro funcoptx1retx1(dummy ast.Node) ast.Node {
 	return ~"{
-		argdecl := c.DeclBindRuntimeValue(m.paramnames[0], parambinds[0])
 		switch karg0 {
 		case r.Bool:      {funcopt1retx1; bool}
 		case r.Int:       {funcopt1retx1; int}
@@ -126,57 +248,36 @@ import (
 	}
 }
 
-func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) funcx1rety1(t r.Type, m *funcMaker) func(*Env) r.Value {
 	// do NOT keep a reference to funcMaker
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
-	parambinds := m.parambinds
 	funcbody := m.funcbody
 
-	tret0 := t.Out(0)
-	kret0 := tret0.Kind()
+	karg0 := t.In(0).Kind()
+	kret0 := t.Out(0).Kind()
 
+	indexes := [2]int{
+		m.parambinds[0].Desc.Index(),
+		m.resultbinds[0].Desc.Index(),
+	}
+
+	// if IsOptimizedKind(karg0) && IsOptimizedKind(kret0)
+		{funcoptx1retx1; nil}
+
+	return c.funcGeneric(t, m)
+}
+
+
+
+func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
 	switch t.NumIn() {
 	case 0:
-		switch kret0 {
-		case r.Bool:      {func0ret1; bool}
-		case r.Int:       {func0ret1; int}
-		case r.Int8:      {func0ret1; int8}
-		case r.Int16:     {func0ret1; int16}
-		case r.Int32:     {func0ret1; int32}
-		case r.Int64:     {func0ret1; int64}
-		case r.Uint:      {func0ret1; uint}
-		case r.Uint8:     {func0ret1; uint8}
-		case r.Uint16:    {func0ret1; uint16}
-		case r.Uint32:    {func0ret1; uint32}
-		case r.Uint64:    {func0ret1; uint64}
-		case r.Uintptr:   {func0ret1; uintptr}
-		case r.Float32:   {func0ret1; float32}
-		case r.Float64:   {func0ret1; float64}
-		case r.Complex64: {func0ret1; complex64}
-		case r.Complex128:{func0ret1; complex128}
-		case r.String:    {func0ret1; string}
-		default:          {func0ret1; nil}
-		}
+		return c.func0retx1(t, m)
 	case 1:
-		targ0 := t.In(0)
-		karg0 := targ0.Kind()
-
-		ts := [2]r.Type{targ0, tret0}
-		indexes := [2]int{
-			parambinds[0].Desc.Index(),
-			resultbinds[0].Desc.Index(),
-		}
-
-		if IsOptimizedKind(karg0) && IsOptimizedKind(kret0) {
-			{funcoptx1retx1; nil}
-		}
-		{func1ret1; nil; nil}
+		return c.funcx1rety1(t, m)
+	default:
+		return c.funcGeneric(t, m)
 	}
 }
 
-*/
-
-func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
-	return c.funcGeneric(t, m)
-}

@@ -155,9 +155,9 @@ func (c *Comp) funcOptimized(t r.Type, m *funcMaker) func(*Env) r.Value {
 	case 0:
 		return c.func_ret0(t, m)
 	case 1:
-		return c.funcGeneric(t, m) // func_ret1
+		return c.func_ret1(t, m)
 	case 2:
-		return c.funcGeneric(t, m) // func_ret2
+		fallthrough // return c.func_ret2(t, m)
 	default:
 		return c.funcGeneric(t, m)
 	}

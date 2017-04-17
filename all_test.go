@@ -234,9 +234,11 @@ var tests = []TestCase{
 
 	TestCase{I, "for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
 	TestCase{A, "function_0", "func nop() { }; nop()", nil, []interface{}{}},
-	TestCase{A, "function_1", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
-	TestCase{A, "function_2", "func swap(x, y int) (int,int) { return y, x }; swap(88,99)", nil, []interface{}{99, 88}},
-	TestCase{A, "function_3", "i=0; func seti() { i=2 }; seti(); i", 2, nil},
+	TestCase{A, "function_1", "func seven() int { return 7 }; seven()", 7, nil},
+	TestCase{A, "function_2", "i=0; func seti(ii int) { i=ii }; seti(-493); i", -493, nil},
+	TestCase{A, "function_3", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
+	TestCase{A, "function_4", "func swap(x, y int) (int,int) { return y, x }; swap(88,99)", nil, []interface{}{99, 88}},
+	TestCase{A, "function_5", "i=0; func seti2() { i=2 }; seti2(); i", 2, nil},
 	TestCase{I, "function_variadic", "func list_args(args ...int) []int { args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
 	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},
 
