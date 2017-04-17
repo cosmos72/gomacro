@@ -213,11 +213,17 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 		index = NoIndex
 	default: // case FuncBind, VarBind:
 		if index == NoIndex {
+			if c.BindNum == NoIndex {
+				c.BindNum++
+			}
 			index = c.BindNum
 			c.BindNum++
 		}
 	case IntBind:
 		if index == NoIndex {
+			if c.IntBindNum == NoIndex {
+				c.IntBindNum++
+			}
 			index = c.IntBindNum
 			c.IntBindNum++
 		}

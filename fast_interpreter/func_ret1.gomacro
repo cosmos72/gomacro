@@ -1,91 +1,182 @@
-		
-	case func(int) int:
-		param0index := parambinds[0].Desc.Index()
-		result0index := resultbinds[0].Desc.Index()
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * func_ret1.go
+ *
+ *  Created on Apr 16, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast_interpreter
+
+import (
+	r "reflect"
+	_ "unsafe"
+
+	_ "github.com/cosmos72/gomacro/base"
+)
+
+:import (
+	r "reflect"
+	"go/ast"
+)
+
+/*
+// if arg0typ != ret0typ use Comp.DeclBindRuntimeValue() to limit source code size,
+// while still providing reasonably optimized function implementation.
+// if arg0typ == ret0typ, provide fully optimized function implementation
+:macro funcopt1ret1(arg0typ, ret0typ ast.Node) ast.Node {
+	var t0 r.Type = EvalType(arg0typ)
+	var t1 r.Type = EvalType(ret0typ)
+	if t0 == t1 {
+		return ~"{func1ret1; ~,arg0typ; ~,ret0typ}
+	}
+
+	return ~"{
 		if funcbody == nil {
 			return func(env *Env) r.Value {
-				// function is closed over the env used to DECLARE it
-				return r.ValueOf(func(int) int {
-					return 0
-				})
-			}
-		}
-		if param0index == NoIndex {
-			return func(env *Env) r.Value {
-				// function is closed over the env used to DECLARE it
-				env.MarkUsedByClosure()
-				return r.ValueOf(func(int) int {
-					env := NewEnv4Func(env, nbinds, nintbinds)
-					// arg0 is ignored
-
-					// execute the body
-					funcbody(env)
-
-					// read results from allocated binds and return them
-					ret0 := *(*int)(unsafe.Pointer(&env.IntBinds[result0index]))
-
-					env.FreeEnv()
-					return ret0
+				return r.ValueOf(func(~,arg0typ) (ret0 ~,ret0typ) {
+					return
 				})
 			}
 		}
 		return func(env *Env) r.Value {
 			// function is closed over the env used to DECLARE it
-			env.MarkUsedByClosure()
-			return r.ValueOf(func(arg0 int) int {
+			if indexes[0] != NoIndex {
+				env.MarkUsedByClosure()
+			}
+			return r.ValueOf(func(arg0 ~,arg0typ) (ret0 ~,ret0typ) {
 				env := NewEnv4Func(env, nbinds, nintbinds)
 
-				// copy runtime arguments into allocated binds
-				*(*int)(unsafe.Pointer(&env.IntBinds[param0index])) = arg0
+				// copy arg into allocated binds
+				argdecl(env, r.ValueOf(arg0))
 
 				// execute the body
 				funcbody(env)
 
-				// read results from allocated binds and return them
-				ret0 := *(*int)(unsafe.Pointer(&env.IntBinds[result0index]))
+				// TODO extract result
 
 				env.FreeEnv()
-				return ret0
 			})
 		}
 	}
+}
 
-	paramdecls := make([]func(*Env, r.Value), len(parambinds))
-	for i, bind := range parambinds {
-		if bind.Desc.Index() != NoIndex {
-			paramdecls[i] = c.DeclBindRuntimeValue(paramnames[i], parambinds[i])
+:macro funcopt1retx1(arg0typ ast.Node) ast.Node {
+	return ~"{
+		switch kret0 {
+		case r.Bool:      {funcopt1ret1; ~,arg0typ; bool}
+		case r.Int:       {funcopt1ret1; ~,arg0typ; int}
+		case r.Int8:      {funcopt1ret1; ~,arg0typ; int8}
+		case r.Int16:     {funcopt1ret1; ~,arg0typ; int16}
+		case r.Int32:     {funcopt1ret1; ~,arg0typ; int32}
+		case r.Int64:     {funcopt1ret1; ~,arg0typ; int64}
+		case r.Uint:      {funcopt1ret1; ~,arg0typ; uint}
+		case r.Uint8:     {funcopt1ret1; ~,arg0typ; uint8}
+		case r.Uint16:    {funcopt1ret1; ~,arg0typ; uint16}
+		case r.Uint32:    {funcopt1ret1; ~,arg0typ; uint32}
+		case r.Uint64:    {funcopt1ret1; ~,arg0typ; uint64}
+		case r.Uintptr:   {funcopt1ret1; ~,arg0typ; uintptr}
+		case r.Float32:   {funcopt1ret1; ~,arg0typ; float32}
+		case r.Float64:   {funcopt1ret1; ~,arg0typ; float64}
+		case r.Complex64: {funcopt1ret1; ~,arg0typ; complex64}
+		case r.Complex128:{funcopt1ret1; ~,arg0typ; complex128}
+		case r.String:    {funcopt1ret1; ~,arg0typ; string}
 		}
-	}
-	resultexprs := make([]func(*Env) r.Value, len(resultfuns))
-	for i, resultfun := range resultfuns {
-		resultexprs[i] = FunAsX1(resultfun, CompileDefaults)
-	}
-
-	return func(env *Env) r.Value {
-		// function is closed over the env used to DECLARE it
-		env.MarkUsedByClosure()
-		return r.MakeFunc(t, func(args []r.Value) []r.Value {
-			env := NewEnv(env, nbinds, nintbinds)
-
-			if funcbody != nil {
-				// copy runtime arguments into allocated binds
-				for i, decl := range paramdecls {
-					if decl != nil {
-						// decl == nil means the argument is ignored inside the function
-						decl(env, args[i])
-					}
-				}
-				// execute the body
-				funcbody(env)
-			}
-			// read results from allocated binds and return them
-			rets := make([]r.Value, len(resultexprs))
-			for i, expr := range resultexprs {
-				rets[i] = expr(env)
-			}
-			env.FreeEnv()
-			return rets
-		})
 	}
 }
 
+:macro funcoptx1retx1(dummy ast.Node) ast.Node {
+	return ~"{
+		argdecl := c.DeclBindRuntimeValue(m.paramnames[0], parambinds[0])
+		switch karg0 {
+		case r.Bool:      {funcopt1retx1; bool}
+		case r.Int:       {funcopt1retx1; int}
+		case r.Int8:      {funcopt1retx1; int8}
+		case r.Int16:     {funcopt1retx1; int16}
+		case r.Int32:     {funcopt1retx1; int32}
+		case r.Int64:     {funcopt1retx1; int64}
+		case r.Uint:      {funcopt1retx1; uint}
+		case r.Uint8:     {funcopt1retx1; uint8}
+		case r.Uint16:    {funcopt1retx1; uint16}
+		case r.Uint32:    {funcopt1retx1; uint32}
+		case r.Uint64:    {funcopt1retx1; uint64}
+		case r.Uintptr:   {funcopt1retx1; uintptr}
+		case r.Float32:   {funcopt1retx1; float32}
+		case r.Float64:   {funcopt1retx1; float64}
+		case r.Complex64: {funcopt1retx1; complex64}
+		case r.Complex128:{funcopt1retx1; complex128}
+		case r.String:    {funcopt1retx1; string}
+		}
+	}
+}
+
+func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+	// do NOT keep a reference to funcMaker
+	nbinds := m.nbinds
+	nintbinds := m.nintbinds
+	parambinds := m.parambinds
+	funcbody := m.funcbody
+
+	tret0 := t.Out(0)
+	kret0 := tret0.Kind()
+
+	switch t.NumIn() {
+	case 0:
+		switch kret0 {
+		case r.Bool:      {func0ret1; bool}
+		case r.Int:       {func0ret1; int}
+		case r.Int8:      {func0ret1; int8}
+		case r.Int16:     {func0ret1; int16}
+		case r.Int32:     {func0ret1; int32}
+		case r.Int64:     {func0ret1; int64}
+		case r.Uint:      {func0ret1; uint}
+		case r.Uint8:     {func0ret1; uint8}
+		case r.Uint16:    {func0ret1; uint16}
+		case r.Uint32:    {func0ret1; uint32}
+		case r.Uint64:    {func0ret1; uint64}
+		case r.Uintptr:   {func0ret1; uintptr}
+		case r.Float32:   {func0ret1; float32}
+		case r.Float64:   {func0ret1; float64}
+		case r.Complex64: {func0ret1; complex64}
+		case r.Complex128:{func0ret1; complex128}
+		case r.String:    {func0ret1; string}
+		default:          {func0ret1; nil}
+		}
+	case 1:
+		targ0 := t.In(0)
+		karg0 := targ0.Kind()
+
+		ts := [2]r.Type{targ0, tret0}
+		indexes := [2]int{
+			parambinds[0].Desc.Index(),
+			resultbinds[0].Desc.Index(),
+		}
+
+		if IsOptimizedKind(karg0) && IsOptimizedKind(kret0) {
+			{funcoptx1retx1; nil}
+		}
+		{func1ret1; nil; nil}
+	}
+}
+
+*/
+
+func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+	return c.funcGeneric(t, m)
+}

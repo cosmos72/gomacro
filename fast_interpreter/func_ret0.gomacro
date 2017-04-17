@@ -83,31 +83,33 @@ import (
 	}
 	return bind
 }
-	
-:macro func0ret0() ast.Node {
-	return ~"{
-		if funcbody == nil {
-			return func(env *Env) r.Value {
-				return r.ValueOf(INone)
-			}
-		} else {
-			return func(env *Env) r.Value {
-				// function is closed over the env used to DECLARE it
-				env.MarkUsedByClosure()
-				return r.ValueOf(func() {
-					env := NewEnv4Func(env, nbinds, nintbinds)
-					// execute the body
-					funcbody(env)
 
-					env.FreeEnv()
-				})
-			}
+func (c *Comp) func0ret0(t r.Type, m *funcMaker) func(env *Env) r.Value {
+	nbinds := m.nbinds
+	nintbinds := m.nintbinds
+	funcbody := m.funcbody
+
+	if funcbody == nil {
+		return func(env *Env) r.Value {
+			return r.ValueOf(INone)
+		}
+	} else {
+		return func(env *Env) r.Value {
+			// function is closed over the env used to DECLARE it
+			env.MarkUsedByClosure()
+			return r.ValueOf(func() {
+				env := NewEnv4Func(env, nbinds, nintbinds)
+				// execute the body
+				funcbody(env)
+
+				env.FreeEnv()
+			})
 		}
 	}
 }
 
 // fully optimized function declaration
-:macro func1ret0(arg0typ ast.Node) ast.Node {
+:macro macro1ret0(arg0typ ast.Node) ast.Node {
 	var t r.Type = EvalType(arg0typ)
 	if t != nil {
 		arg0bind := fsetarg(arg0typ, ~'targ0, ~'arg0, ~'param0index)
@@ -118,35 +120,18 @@ import (
 					})
 				}
 			}
-			param0index := parambinds[0].Desc.Index()
-			if param0index == NoIndex {
-				return func(env *Env) r.Value {
-					// function is closed over the env used to DECLARE it
-					env.MarkUsedByClosure()
-					return r.ValueOf(func(~,arg0typ) {
-						env := NewEnv4Func(env, nbinds, nintbinds)
-						// arg0 is ignored
-						
-						// execute the body
-						funcbody(env)
-	
-						env.FreeEnv()
-					})
-				}
-			} else {
-				return func(env *Env) r.Value {
-					// function is closed over the env used to DECLARE it
-					env.MarkUsedByClosure()
-					return r.ValueOf(func(arg0 ~,arg0typ) {
-						env := NewEnv4Func(env, nbinds, nintbinds)
-						// copy arg0 into allocated binds
-						~,arg0bind
-						// execute the body
-						funcbody(env)
-	
-						env.FreeEnv()
-					})
-				}
+			return func(env *Env) r.Value {
+				// function is closed over the env used to DECLARE it
+				env.MarkUsedByClosure()
+				return r.ValueOf(func(arg0 ~,arg0typ) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+					// copy arg0 into allocated binds
+					~,arg0bind
+					// execute the body
+					funcbody(env)
+
+					env.FreeEnv()
+				})
 			}
 		}
 	}
@@ -159,13 +144,12 @@ import (
 				})
 			}
 		} else {
-			param0index := parambinds[0].Desc.Index()
 			return func(env *Env) r.Value {
 				// function is closed over the env used to DECLARE it
 				env.MarkUsedByClosure()
 				return r.MakeFunc(t, func(args []r.Value) []r.Value {
 					env := NewEnv4Func(env, nbinds, nintbinds)
-					
+
 					// copy arg0 into allocated binds
 					if param0index != NoIndex {
 						place := r.New(targ0).Elem()
@@ -184,14 +168,45 @@ import (
 	}
 }
 
+func (c *Comp) funcx1ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
+	// do NOT keep a reference to funcMaker
+	nbinds := m.nbinds
+	nintbinds := m.nintbinds
+	funcbody := m.funcbody
+	param0index := m.parambinds[0].Desc.Index()
+
+	targ0 := t.In(0)
+	karg0 := targ0.Kind()
+	switch karg0 {
+	case r.Bool:      {macro1ret0; bool}
+	case r.Int:       {macro1ret0; int}
+	case r.Int8:      {macro1ret0; int8}
+	case r.Int16:     {macro1ret0; int16}
+	case r.Int32:     {macro1ret0; int32}
+	case r.Int64:     {macro1ret0; int64}
+	case r.Uint:      {macro1ret0; uint}
+	case r.Uint8:     {macro1ret0; uint8}
+	case r.Uint16:    {macro1ret0; uint16}
+	case r.Uint32:    {macro1ret0; uint32}
+	case r.Uint64:    {macro1ret0; uint64}
+	case r.Uintptr:   {macro1ret0; uintptr}
+	case r.Float32:   {macro1ret0; float32}
+	case r.Float64:   {macro1ret0; float64}
+	case r.Complex64: {macro1ret0; complex64}
+	case r.Complex128:{macro1ret0; complex128}
+	case r.String:    {macro1ret0; string}
+	default:          {macro1ret0; nil}
+	}
+}
+
 // fully optimized function implementation
-:macro func2ret0(arg0typ, arg1typ ast.Node) ast.Node {
+:macro macro2ret0(arg0typ, arg1typ ast.Node) ast.Node {
 	var t0 r.Type = EvalType(arg0typ)
 	var t1 r.Type = EvalType(arg1typ)
 
 	if t0 != nil && t1 != nil {
-		arg0bind := fsetarg(arg0typ, ~'targ0, ~'arg0, ~'{paramindexes[0]})
-		arg1bind := fsetarg(arg0typ, ~'targ0, ~'arg0, ~'{paramindexes[1]})
+		arg0bind := fsetarg(arg0typ, ~'targ0, ~'arg0, ~'{indexes[0]})
+		arg1bind := fsetarg(arg0typ, ~'targ0, ~'arg0, ~'{indexes[1]})
 		return ~"{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
@@ -199,63 +214,19 @@ import (
 					})
 				}
 			}
-			if paramindexes[0] == NoIndex && paramindexes[1] == NoIndex {
-				return func(env *Env) r.Value {
-					// function is closed over the env used to DECLARE it
-					env.MarkUsedByClosure()
-					return r.ValueOf(func(arg0 ~,arg0typ, arg1 ~,arg1typ) {
-						env := NewEnv4Func(env, nbinds, nintbinds)
-						// arg0 and arg1 are ignored
-						
-						// execute the body
-						funcbody(env)
-	
-						env.FreeEnv()
-					})
-				}
-			} else if paramindexes[0] != NoIndex && paramindexes[1] == NoIndex {
-				return func(env *Env) r.Value {
-					// function is closed over the env used to DECLARE it
-					env.MarkUsedByClosure()
-					return r.ValueOf(func(arg0 ~,arg0typ, arg1 ~,arg1typ) {
-						env := NewEnv4Func(env, nbinds, nintbinds)
-						// copy arg0 into allocated binds
-						~,arg0bind
-						// execute the body
-						funcbody(env)
-	
-						env.FreeEnv()
-					})
-				}
-			} else if paramindexes[0] == NoIndex && paramindexes[1] != NoIndex {
-				return func(env *Env) r.Value {
-					// function is closed over the env used to DECLARE it
-					env.MarkUsedByClosure()
-					return r.ValueOf(func(arg0 ~,arg0typ, arg1 ~,arg1typ) {
-						env := NewEnv4Func(env, nbinds, nintbinds)
-						// copy arg1 into allocated binds
-						~,arg1bind
-						// execute the body
-						funcbody(env)
-	
-						env.FreeEnv()
-					})
-				}
-			} else {
-				return func(env *Env) r.Value {
-					// function is closed over the env used to DECLARE it
-					env.MarkUsedByClosure()
-					return r.ValueOf(func(arg0 ~,arg0typ, arg1 ~,arg1typ) {
-						env := NewEnv4Func(env, nbinds, nintbinds)
-						// copy arg0, arg1 into allocated binds
-						~,arg0bind
-						~,arg1bind
-						// execute the body
-						funcbody(env)
-	
-						env.FreeEnv()
-					})
-				}
+			return func(env *Env) r.Value {
+				// function is closed over the env used to DECLARE it
+				env.MarkUsedByClosure()
+				return r.ValueOf(func(arg0 ~,arg0typ, arg1 ~,arg1typ) {
+					env := NewEnv4Func(env, nbinds, nintbinds)
+					// copy arg0, arg1 into allocated binds
+					~,arg0bind
+					~,arg1bind
+					// execute the body
+					funcbody(env)
+
+					env.FreeEnv()
+				})
 			}
 		}
 	}
@@ -273,13 +244,13 @@ import (
 				env.MarkUsedByClosure()
 				return r.MakeFunc(t, func(args []r.Value) []r.Value {
 					env := NewEnv4Func(env, nbinds, nintbinds)
-					
+
 					// copy args into allocated binds
-					for i := range targs {
-						if idx := paramindexes[i]; idx != NoIndex {
-							place := r.New(targs[i]).Elem()
+					for i := range ts {
+						if idx := indexes[i]; idx != NoIndex {
+							place := r.New(ts[i]).Elem()
 							if arg := args[i]; arg != Nil && arg != None {
-								place.Set(arg.Convert(targs[i]))
+								place.Set(arg.Convert(ts[i]))
 							}
 							env.Binds[idx] = place
 						}
@@ -297,13 +268,13 @@ import (
 // if arg0typ != arg1typ use Comp.DeclBindRuntimeValue() to limit source code size,
 // while still providing reasonably optimized function implementation.
 // if arg0typ == arg1typ, provide fully optimized function implementation
-:macro funcopt2ret0(arg0typ, arg1typ ast.Node) ast.Node {
+:macro macroopt2ret0(arg0typ, arg1typ ast.Node) ast.Node {
 	var t0 r.Type = EvalType(arg0typ)
 	var t1 r.Type = EvalType(arg1typ)
 	if t0 == t1 {
-		return ~"{func2ret0; ~,arg0typ; ~,arg1typ}
+		return ~"{macro2ret0; ~,arg0typ; ~,arg1typ}
 	}
-	
+
 	return ~"{
 		if funcbody == nil {
 			return func(env *Env) r.Value {
@@ -313,16 +284,14 @@ import (
 		}
 		return func(env *Env) r.Value {
 			// function is closed over the env used to DECLARE it
-			if paramindexes[0] != NoIndex || paramindexes[1] != NoIndex {
-				env.MarkUsedByClosure()
-			}
+			env.MarkUsedByClosure()
 			return r.ValueOf(func(arg0 ~,arg0typ, arg1 ~,arg1typ) {
 				env := NewEnv4Func(env, nbinds, nintbinds)
 
 				// copy args into allocated binds
 				argdecls[0](env, r.ValueOf(arg0))
 				argdecls[1](env, r.ValueOf(arg1))
-				
+
 				// execute the body
 				funcbody(env)
 
@@ -332,109 +301,96 @@ import (
 	}
 }
 
-:macro funcopty2ret0(arg0typ ast.Node) ast.Node {
+:macro macroopty2ret0(arg0typ ast.Node) ast.Node {
 	return ~"{
-		switch karg0 {
-		case r.Bool:      {funcopt2ret0; ~,arg0typ; bool}
-		case r.Int:       {funcopt2ret0; ~,arg0typ; int}
-		case r.Int8:      {funcopt2ret0; ~,arg0typ; int8}
-		case r.Int16:     {funcopt2ret0; ~,arg0typ; int16}
-		case r.Int32:     {funcopt2ret0; ~,arg0typ; int32}
-		case r.Int64:     {funcopt2ret0; ~,arg0typ; int64}
-		case r.Uint:      {funcopt2ret0; ~,arg0typ; uint}
-		case r.Uint8:     {funcopt2ret0; ~,arg0typ; uint8}
-		case r.Uint16:    {funcopt2ret0; ~,arg0typ; uint16}
-		case r.Uint32:    {funcopt2ret0; ~,arg0typ; uint32}
-		case r.Uint64:    {funcopt2ret0; ~,arg0typ; uint64}
-		case r.Uintptr:   {funcopt2ret0; ~,arg0typ; uintptr}
-		case r.Float32:   {funcopt2ret0; ~,arg0typ; float32}
-		case r.Float64:   {funcopt2ret0; ~,arg0typ; float64}
-		case r.Complex64: {funcopt2ret0; ~,arg0typ; complex64}
-		case r.Complex128:{funcopt2ret0; ~,arg0typ; complex128}
-		case r.String:    {funcopt2ret0; ~,arg0typ; string}
+		switch karg1 {
+		case r.Bool:      {macroopt2ret0; ~,arg0typ; bool}
+		case r.Int:       {macroopt2ret0; ~,arg0typ; int}
+		case r.Int8:      {macroopt2ret0; ~,arg0typ; int8}
+		case r.Int16:     {macroopt2ret0; ~,arg0typ; int16}
+		case r.Int32:     {macroopt2ret0; ~,arg0typ; int32}
+		case r.Int64:     {macroopt2ret0; ~,arg0typ; int64}
+		case r.Uint:      {macroopt2ret0; ~,arg0typ; uint}
+		case r.Uint8:     {macroopt2ret0; ~,arg0typ; uint8}
+		case r.Uint16:    {macroopt2ret0; ~,arg0typ; uint16}
+		case r.Uint32:    {macroopt2ret0; ~,arg0typ; uint32}
+		case r.Uint64:    {macroopt2ret0; ~,arg0typ; uint64}
+		case r.Uintptr:   {macroopt2ret0; ~,arg0typ; uintptr}
+		case r.Float32:   {macroopt2ret0; ~,arg0typ; float32}
+		case r.Float64:   {macroopt2ret0; ~,arg0typ; float64}
+		case r.Complex64: {macroopt2ret0; ~,arg0typ; complex64}
+		case r.Complex128:{macroopt2ret0; ~,arg0typ; complex128}
+		case r.String:    {macroopt2ret0; ~,arg0typ; string}
 		}
 	}
 }
 
-:macro funcoptxy2ret0(dummy ast.Node) ast.Node {
+func declBindRuntimeValueNop(*Env, r.Value) {
+}
+
+:macro macrooptxy2ret0(dummy ast.Node) ast.Node {
 	return ~"{
-		argdecls := [2]func(*Env, r.Value){
-			c.DeclBindRuntimeValue(m.paramnames[0], parambinds[0]),
-			c.DeclBindRuntimeValue(m.paramnames[1], parambinds[1]),
+		argdecls := [2]func(*Env, r.Value){nil, nil}
+		for i := range m.paramnames {
+			argdecls[i] = c.DeclBindRuntimeValue(m.paramnames[i], m.parambinds[i])
+			if argdecls[i] == nil {
+				argdecls[i] = declBindRuntimeValueNop
+			}
 		}
 		switch karg0 {
-		case r.Bool:      {funcopty2ret0; bool}
-		case r.Int:       {funcopty2ret0; int}
-		case r.Int8:      {funcopty2ret0; int8}
-		case r.Int16:     {funcopty2ret0; int16}
-		case r.Int32:     {funcopty2ret0; int32}
-		case r.Int64:     {funcopty2ret0; int64}
-		case r.Uint:      {funcopty2ret0; uint}
-		case r.Uint8:     {funcopty2ret0; uint8}
-		case r.Uint16:    {funcopty2ret0; uint16}
-		case r.Uint32:    {funcopty2ret0; uint32}
-		case r.Uint64:    {funcopty2ret0; uint64}
-		case r.Uintptr:   {funcopty2ret0; uintptr}
-		case r.Float32:   {funcopty2ret0; float32}
-		case r.Float64:   {funcopty2ret0; float64}
-		case r.Complex64: {funcopty2ret0; complex64}
-		case r.Complex128:{funcopty2ret0; complex128}
-		case r.String:    {funcopty2ret0; string}
+		case r.Bool:      {macroopty2ret0; bool}
+		case r.Int:       {macroopty2ret0; int}
+		case r.Int8:      {macroopty2ret0; int8}
+		case r.Int16:     {macroopty2ret0; int16}
+		case r.Int32:     {macroopty2ret0; int32}
+		case r.Int64:     {macroopty2ret0; int64}
+		case r.Uint:      {macroopty2ret0; uint}
+		case r.Uint8:     {macroopty2ret0; uint8}
+		case r.Uint16:    {macroopty2ret0; uint16}
+		case r.Uint32:    {macroopty2ret0; uint32}
+		case r.Uint64:    {macroopty2ret0; uint64}
+		case r.Uintptr:   {macroopty2ret0; uintptr}
+		case r.Float32:   {macroopty2ret0; float32}
+		case r.Float64:   {macroopty2ret0; float64}
+		case r.Complex64: {macroopty2ret0; complex64}
+		case r.Complex128:{macroopty2ret0; complex128}
+		case r.String:    {macroopty2ret0; string}
 		}
 	}
-}	
+}
 
 
-func (c *Comp) func_ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
-	// do NOT keep a reference to funcMaker
+func (c *Comp) funcxy2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
+	targ0 := t.In(0)
+	targ1 := t.In(1)
+	karg0 := targ0.Kind()
+	karg1 := targ1.Kind()
+
+	ts := [2]r.Type{targ0, targ1}
+	indexes := [2]int{
+		m.parambinds[0].Desc.Index(),
+		m.parambinds[1].Desc.Index(),
+	}
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
-	parambinds := m.parambinds
 	funcbody := m.funcbody
 
+	if IsOptimizedKind(karg0) && IsOptimizedKind(karg1) {
+		{macrooptxy2ret0; nil}
+	}
+	{macro2ret0; nil; nil}
+}
+
+func (c *Comp) func_ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 	switch t.NumIn() {
 	case 0:
-		{func0ret0}
+		return c.func0ret0(t, m)
 	case 1:
-		targ0 := t.In(0)
-		karg0 := targ0.Kind()
-		switch karg0 {
-		case r.Bool:      {func1ret0; bool}
-		case r.Int:       {func1ret0; int}
-		case r.Int8:      {func1ret0; int8}
-		case r.Int16:     {func1ret0; int16}
-		case r.Int32:     {func1ret0; int32}
-		case r.Int64:     {func1ret0; int64}
-		case r.Uint:      {func1ret0; uint}
-		case r.Uint8:     {func1ret0; uint8}
-		case r.Uint16:    {func1ret0; uint16}
-		case r.Uint32:    {func1ret0; uint32}
-		case r.Uint64:    {func1ret0; uint64}
-		case r.Uintptr:   {func1ret0; uintptr}
-		case r.Float32:   {func1ret0; float32}
-		case r.Float64:   {func1ret0; float64}
-		case r.Complex64: {func1ret0; complex64}
-		case r.Complex128:{func1ret0; complex128}
-		case r.String:    {func1ret0; string}
-		default:          {func1ret0; nil}
-		}
+		return c.funcx1ret0(t, m)
 	case 2:
-		targ0 := t.In(0)
-		targ1 := t.In(1)
-		karg0 := targ0.Kind()
-		karg1 := targ1.Kind()
-
-		targs := [2]r.Type{targ0, targ1}
-		paramindexes := [2]int{
-			parambinds[0].Desc.Index(), 
-			parambinds[1].Desc.Index(),
-		}
-		
-		if IsOptimizedKind(karg0) && IsOptimizedKind(karg1) {
-			{funcoptxy2ret0; nil}
-		}
-		{func2ret0; nil; nil}
+		return c.funcxy2ret0(t, m)
+	default:
+		return c.funcGeneric(t, m)
 	}
-	return c.funcGeneric(t, m)
 }
 

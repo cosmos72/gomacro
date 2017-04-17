@@ -113,6 +113,10 @@ func (c *Comp) File() *Comp {
 	return c
 }
 
+// if a function Env only declares ignored binds, it gets this scratch buffers
+var ignoredBinds = []r.Value{Nil}
+var ignoredIntBinds = []uint64{0}
+
 func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	common := outer.Common
 	if env := common.allocEnv(nbinds, nintbinds); env != nil {
@@ -123,30 +127,49 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 		return env
 	}
 
-	return &Env{
-		Binds:     make([]r.Value, nbinds),
-		IntBinds:  make([]uint64, nintbinds),
+	env := &Env{
 		Outer:     outer,
 		IP:        outer.IP,
 		Code:      outer.Code,
 		Interrupt: outer.Interrupt,
 		Common:    common,
 	}
+	if nbinds <= 1 {
+		env.Binds = ignoredBinds
+	} else {
+		env.Binds = make([]r.Value, nbinds)
+	}
+	if nintbinds <= 1 {
+		env.IntBinds = ignoredIntBinds
+	} else {
+		env.IntBinds = make([]uint64, nintbinds)
+	}
+	return env
 }
 
 func NewEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
 	common := outer.Common
 
-	if env := common.allocEnv(nbinds, nintbinds); env != nil {
+	var env *Env
+	if env = common.allocEnv(nbinds, nintbinds); env != nil {
 		env.Outer = outer
 		return env
 	}
-	return &Env{
-		Binds:    make([]r.Value, nbinds),
-		IntBinds: make([]uint64, nintbinds),
-		Outer:    outer,
-		Common:   common,
+	env = &Env{
+		Outer:  outer,
+		Common: common,
 	}
+	if nbinds <= 1 {
+		env.Binds = ignoredBinds
+	} else {
+		env.Binds = make([]r.Value, nbinds)
+	}
+	if nintbinds <= 1 {
+		env.IntBinds = ignoredIntBinds
+	} else {
+		env.IntBinds = make([]uint64, nintbinds)
+	}
+	return env
 }
 
 func (common *InterpreterCommon) allocEnv(nbinds int, nintbinds int) *Env {
