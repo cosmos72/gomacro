@@ -37,7 +37,7 @@ func Nop(env *Env) (Stmt, *Env) {
 	return env.Code[env.IP], env
 }
 
-// use a var instead of function: code.go needs the address of Interrupt
+// declare a var instead of function: code.go needs the address of Interrupt
 var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
 	return env.Interrupt, env
 }
@@ -51,51 +51,68 @@ func PopEnv(env *Env) (Stmt, *Env) {
 }
 
 func (c *Comp) Stmt(node ast.Stmt) {
-	switch node := node.(type) {
-	case nil:
-	case *ast.AssignStmt:
-		c.Assign(node)
-	case *ast.BlockStmt:
-		c.Block(node)
-	case *ast.BranchStmt:
-		c.Branch(node)
-	case *ast.CaseClause, *ast.CommClause:
-		c.Errorf("misplaced case/default: not inside switch or select: %v <%v>", node, r.TypeOf(node))
-	case *ast.DeclStmt:
-		c.Decl(node.Decl)
-	// case *ast.DeferStmt:
-	//   c.DeferStmt(node.Call)
-	case *ast.EmptyStmt:
-	case *ast.ExprStmt:
-		expr := c.Expr(node.X)
-		if !expr.Const() {
-			c.Code.Append(expr.AsStmt())
+	label := ""
+	for {
+		switch node := node.(type) {
+		case nil:
+		case *ast.AssignStmt:
+			c.Assign(node)
+		case *ast.BlockStmt:
+			c.Block(node)
+		case *ast.BranchStmt:
+			c.Branch(node)
+		case *ast.CaseClause:
+			c.misplacedCase(node, node.List == nil)
+		case *ast.CommClause:
+			c.misplacedCase(node, node.Comm == nil)
+		case *ast.DeclStmt:
+			c.Decl(node.Decl)
+		// case *ast.DeferStmt:
+		//   c.DeferStmt(node.Call)
+		case *ast.EmptyStmt:
+			// nothing to do
+		case *ast.ExprStmt:
+			expr := c.Expr(node.X)
+			if !expr.Const() {
+				c.Code.Append(expr.AsStmt())
+			}
+		case *ast.ForStmt:
+			c.For(node, label)
+		// case *ast.GoStmt:
+		//   c.Go(node)
+		case *ast.IfStmt:
+			c.If(node)
+		// case *ast.IncDecStmt:
+		//   c.IncDec(node)
+		case *ast.LabeledStmt:
+			// c.Label(node)
+			label = node.Label.Name
+			continue
+		// case *ast.RangeStmt:
+		//   c.Range(node)
+		case *ast.ReturnStmt:
+			c.Return(node)
+		// case *ast.SelectStmt:
+		//   c.Select(node, label)
+		// case *ast.SendStmt:
+		//   c.Send(node)
+		// case *ast.SwitchStmt:
+		//   c.Switch(node, label)
+		// case *ast.TypeSwitchStmt:
+		//   c.TypeSwitch(node, label)
+		default:
+			c.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 		}
-	case *ast.ForStmt:
-		c.For(node, "")
-	// case *ast.GoStmt:
-	//   c.Go(node)
-	case *ast.IfStmt:
-		c.If(node)
-	// case *ast.IncDecStmt:
-	//   c.IncDec(node)
-	// case *ast.LabeledStmt:
-	//   c.Label(node)
-	// case *ast.RangeStmt:
-	//   c.Range(node)
-	case *ast.ReturnStmt:
-		c.Return(node)
-	// case *ast.SelectStmt:
-	//   c.Select(node)
-	// case *ast.SendStmt:
-	//   c.Send(node)
-	// case *ast.SwitchStmt:
-	//   c.Switch(node)
-	// case *ast.TypeSwitchStmt:
-	//   c.TypeSwitch(node)
-	default:
-		c.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
+		return
 	}
+}
+
+func (c *Comp) misplacedCase(node ast.Node, isdefault bool) {
+	label := "case"
+	if isdefault {
+		label = "default"
+	}
+	c.Errorf("misplaced %s: not inside switch or select: %v <%v>", label, node, r.TypeOf(node))
 }
 
 // Block compiles a block statement, i.e. { ... }
