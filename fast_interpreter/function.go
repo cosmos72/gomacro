@@ -123,7 +123,7 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	}
 
 	// do NOT keep a reference to compile environment!
-	funcbody := cf.Code.AsX()
+	funcbody := cf.Code.Exec()
 	nbinds := cf.BindNum
 	nintbinds := cf.IntBindNum
 
@@ -136,7 +136,7 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 		resultfuns:  resultfuns,
 		funcbody:    funcbody,
 	}
-	makefunc := cf.funcOptimized(t, &m)
+	makefunc := cf.declFunc(t, &m)
 
 	// a function declaration is a statement:
 	// executing it creates the function in the runtime environment
@@ -150,17 +150,33 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	c.Code.Append(stmt)
 }
 
-func (c *Comp) funcOptimized(t r.Type, m *funcMaker) func(*Env) r.Value {
-	switch t.NumOut() {
+func (c *Comp) declFunc(t r.Type, m *funcMaker) func(*Env) r.Value {
+	var fun func(*Env) r.Value
+	switch t.NumIn() {
 	case 0:
-		return c.func_ret0(t, m)
+		switch t.NumOut() {
+		case 0:
+			fun = c.func0ret0(t, m)
+		case 1:
+			fun = c.func0ret1(t, m)
+		}
 	case 1:
-		return c.func_ret1(t, m)
+		switch t.NumOut() {
+		case 0:
+			fun = c.func1ret0(t, m)
+		case 1:
+			fun = c.func1ret1(t, m)
+		}
 	case 2:
-		fallthrough // return c.func_ret2(t, m)
-	default:
-		return c.funcGeneric(t, m)
+		switch t.NumOut() {
+		case 0:
+			fun = c.func2ret0(t, m)
+		}
 	}
+	if fun == nil {
+		fun = c.funcGeneric(t, m)
+	}
+	return fun
 }
 
 // fallback: create a non-optimized function
@@ -208,4 +224,7 @@ func (c *Comp) funcGeneric(t r.Type, m *funcMaker) func(*Env) r.Value {
 			return rets
 		})
 	}
+}
+
+func declBindRuntimeValueNop(*Env, r.Value) {
 }

@@ -398,3 +398,25 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
 		return env.Code[env.IP], env
 	})
 }
+
+// DeclFunc0 compiles a function declaration. For caller's convenience, returns allocated Bind
+func (c *Comp) DeclFunc0(name string, fun I) Bind {
+	funv := r.ValueOf(fun)
+	t := funv.Type()
+	if t.Kind() != r.Func {
+		c.Errorf("DeclFunc0(%s): expecting a function, received %v <%v>", name, fun, t)
+	}
+	bind := c.AddBind(name, FuncBind, t)
+	if bind.Desc.Class() != FuncBind {
+		c.Errorf("internal error! Comp.AddBind(name=%q, class=FuncBind, type=%v) returned class=%v, expecting FuncBind",
+			name, t, bind.Desc.Class())
+	}
+	index := bind.Desc.Index()
+	ret := func(env *Env) (Stmt, *Env) {
+		env.Binds[index] = funv
+		env.IP++
+		return env.Code[env.IP], env
+	}
+	c.Code.Append(ret)
+	return bind
+}

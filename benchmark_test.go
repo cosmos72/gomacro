@@ -94,15 +94,17 @@ func BenchmarkFibonacciCompiler(b *testing.B) {
 }
 
 func BenchmarkFibonacciFastInterpreter(b *testing.B) {
-	c := fast.New()
-	c.Run(c.CompileAst(c.ParseAst(fib_s)))
+	ce := fast.New()
+	c := ce.Comp
+	ce.Eval(fib_s)
 	fun := c.CompileAst(c.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n)))
-	c.Run(fun)
+	env := ce.PrepareEnv()
+	fun(env)
 
 	b.ResetTimer()
 	var total int
 	for i := 0; i < b.N; i++ {
-		retv, _ := fun(c.Env)
+		retv, _ := fun(env)
 		total += int(retv.Int())
 	}
 }
@@ -181,23 +183,23 @@ func BenchmarkArithCompiler2(b *testing.B) {
 }
 
 func BenchmarkArithFastInterpreter(b *testing.B) {
-	c := fast.New()
-	c.DefVar("n", TypeOfInt, 0)
+	ce := fast.New()
+	c := ce.Comp
+	ce.DeclVar("n", TypeOfInt, 0)
+
+	addr := ce.AddressOfVar("n").Interface().(*int)
 
 	fun := c.CompileAst(c.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)"))
-
-	setvar := c.SetVarValue0("n")
-	value := r.New(TypeOfInt).Elem()
+	env := ce.PrepareEnv()
+	fun(env)
 	var ret r.Value
-	c.Run(fun)
 
 	// interpreted code performs only arithmetic - iteration performed here
 	b.ResetTimer()
 	total := 0
 	for i := 0; i < b.N; i++ {
-		value.SetInt(int64(b.N))
-		setvar(c.Env, value)
-		ret, _ = c.Run(fun)
+		*addr = b.N
+		ret, _ = fun(env)
 		total += int(ret.Int())
 	}
 	if verbose {
@@ -206,25 +208,24 @@ func BenchmarkArithFastInterpreter(b *testing.B) {
 }
 
 func BenchmarkArithFastInterpreterBis(b *testing.B) {
-	c := fast.New()
-	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
+	ce := fast.New()
+	c := ce.Comp
+	ce.Eval("var i, n, total int")
+
+	addr := ce.AddressOfVar("n").Interface().(*int)
 
 	// interpreted code performs iteration and arithmetic
-
 	fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i=i+1 { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total"))
 	// fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i=i+1 { }; total"))
 
-	setvar := c.SetVarValue0("n")
-	value := r.New(TypeOfInt).Elem()
+	env := ce.PrepareEnv()
+	fun(env)
 	var ret r.Value
-	c.Run(fun)
 
-	b.ResetTimer()
 	total := 0
-
-	value.SetInt(int64(b.N))
-	setvar(c.Env, value)
-	ret, _ = c.Run(fun)
+	*addr = b.N
+	b.ResetTimer()
+	ret, _ = fun(env)
 	total += int(ret.Int())
 
 	if verbose {
@@ -294,18 +295,20 @@ func BenchmarkCollatzCompiler(b *testing.B) {
 }
 
 func BenchmarkCollatzFastInterpreter(b *testing.B) {
-	c := fast.New()
-	c.DefVar("n", TypeOfInt, 0)
+	ce := fast.New()
+	c := ce.Comp
+	ce.DeclVar("n", TypeOfInt, 0)
 
-	addr := c.Exec1(c.AddressOfVar("n")).Interface().(*int)
+	addr := ce.AddressOfVar("n").Interface().(*int)
 
 	fun := c.CompileAst(c.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }"))
-	c.Run(fun)
+	env := ce.PrepareEnv()
+	fun(env)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		*addr = collatz_n
-		fun(c.Env)
+		fun(env)
 	}
 }
 
@@ -364,18 +367,19 @@ func BenchmarkSumCompiler(b *testing.B) {
 }
 
 func BenchmarkSumFastInterpreter(b *testing.B) {
-	c := fast.New()
-	c.Run(c.CompileAst(c.ParseAst("var i, n, total int")))
+	ce := fast.New()
+	c := ce.Comp
+	ce.Eval("var i, n, total int")
 
-	addrexpr := c.LookupVar("n").Address()
-	addr := c.Exec1(addrexpr).Interface().(*int)
+	addr := ce.AddressOfVar("n").Interface().(*int)
 	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i+=1 { total += i }; total"))
-	c.Run(fun)
+	env := ce.PrepareEnv()
+	fun(env)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		*addr = sum_n
-		fun(c.Env)
+		fun(env)
 	}
 }
 

@@ -28,6 +28,7 @@ import (
 	"go/constant"
 	"go/token"
 	r "reflect"
+	"time"
 
 	. "github.com/cosmos72/gomacro/base"
 )
@@ -53,14 +54,18 @@ func (top *Comp) incrementIota() {
 	top.Binds["iota"] = BindConst(UntypedLit{Kind: r.Int, Obj: uIota})
 }
 
-func (c *CompEnv) addBuiltins() {
+func (ce *CompEnv) addBuiltins() {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	c.DeclConst0("false", nil, UntypedLit{Kind: r.Bool, Obj: constant.MakeBool(false)})
-	c.DeclConst0("true", nil, UntypedLit{Kind: r.Bool, Obj: constant.MakeBool(true)})
+	ce.DeclConst("false", nil, UntypedLit{Kind: r.Bool, Obj: constant.MakeBool(false)})
+	ce.DeclConst("true", nil, UntypedLit{Kind: r.Bool, Obj: constant.MakeBool(true)})
 
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
-	c.DeclConst0("nil", nil, nil)
+	ce.DeclConst("nil", nil, nil)
+
+	ce.DeclFunc("Sleep", func(seconds float64) {
+		time.Sleep(time.Duration(seconds * float64(time.Second)))
+	})
 
 	/*
 		binds["Env"] = r.ValueOf(Function{funcEnv, 0})
@@ -103,26 +108,26 @@ func (c *CompEnv) addBuiltins() {
 	*/
 
 	// --------- types ---------
-	c.DefType("bool", TypeOfBool)
-	c.DefType("byte", TypeOfByte)
-	c.DefType("complex64", TypeOfComplex64)
-	c.DefType("complex128", TypeOfComplex128)
-	c.DefType("error", TypeOfError)
-	c.DefType("float32", TypeOfFloat32)
-	c.DefType("float64", TypeOfFloat64)
-	c.DefType("int", TypeOfInt)
-	c.DefType("int8", TypeOfInt8)
-	c.DefType("int16", TypeOfInt16)
-	c.DefType("int32", TypeOfInt32)
-	c.DefType("int64", TypeOfInt64)
-	c.DefType("rune", TypeOfRune)
-	c.DefType("string", TypeOfString)
-	c.DefType("uint", TypeOfUint)
-	c.DefType("uint8", TypeOfUint8)
-	c.DefType("uint16", TypeOfUint16)
-	c.DefType("uint32", TypeOfUint32)
-	c.DefType("uint64", TypeOfUint64)
-	c.DefType("uintptr", TypeOfUintptr)
+	ce.DeclType("bool", TypeOfBool)
+	ce.DeclType("byte", TypeOfByte)
+	ce.DeclType("complex64", TypeOfComplex64)
+	ce.DeclType("complex128", TypeOfComplex128)
+	ce.DeclType("error", TypeOfError)
+	ce.DeclType("float32", TypeOfFloat32)
+	ce.DeclType("float64", TypeOfFloat64)
+	ce.DeclType("int", TypeOfInt)
+	ce.DeclType("int8", TypeOfInt8)
+	ce.DeclType("int16", TypeOfInt16)
+	ce.DeclType("int32", TypeOfInt32)
+	ce.DeclType("int64", TypeOfInt64)
+	ce.DeclType("rune", TypeOfRune)
+	ce.DeclType("string", TypeOfString)
+	ce.DeclType("uint", TypeOfUint)
+	ce.DeclType("uint8", TypeOfUint8)
+	ce.DeclType("uint16", TypeOfUint16)
+	ce.DeclType("uint32", TypeOfUint32)
+	ce.DeclType("uint64", TypeOfUint64)
+	ce.DeclType("uintptr", TypeOfUintptr)
 
 	/*
 		// --------- proxies ---------
@@ -133,4 +138,6 @@ func (c *CompEnv) addBuiltins() {
 
 		proxies["error", TypeOf(*Error_builtin)(nil)).Elem()
 	*/
+
+	ce.Apply()
 }

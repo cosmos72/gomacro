@@ -42,9 +42,10 @@ func NewInterpreterCommon() *InterpreterCommon {
 
 func New() *CompEnv {
 	top := NewCompEnv(nil, "builtin")
-	top.growEnv(128)
+	top.env.UsedByClosure = true // do not free this *Env
 	file := NewCompEnv(top, "main")
-	file.growEnv(1024)
+	file.Comp.UpCost = 1          // disable the optimization "*Comp has zero bindings, it will not have a corresponding runtime *Env"
+	file.env.UsedByClosure = true // do not free this *Env
 	return file
 }
 
@@ -56,8 +57,8 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 	var common *InterpreterCommon
 	if outer != nil {
 		outerComp = outer.Comp
-		outerEnv = outer.Env
-		common = outer.InterpreterCommon
+		outerEnv = outer.env
+		common = outer.Comp.InterpreterCommon
 	}
 	if common == nil {
 		common = NewInterpreterCommon()
@@ -69,7 +70,7 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 			Path:              path,
 			InterpreterCommon: common,
 		},
-		Env: &Env{
+		env: &Env{
 			Outer:  outerEnv,
 			Common: common,
 		},
@@ -78,7 +79,6 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 		c.addBuiltins()
 	}
 	return c
-
 }
 
 func NewComp(outer *Comp) *Comp {

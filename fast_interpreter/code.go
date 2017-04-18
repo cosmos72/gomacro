@@ -47,7 +47,7 @@ func (code *Code) Append(stmt Stmt) {
 
 // more wrapping (thus slower) than needed... but only used by REPL
 func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
-	fun := code.AsX()
+	fun := code.Exec()
 	if fun == nil {
 		return nil
 	}
@@ -57,7 +57,8 @@ func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
 	}
 }
 
-func (code *Code) AsX() X {
+// Exec returns a func(*Env) that will execute the compiled code
+func (code *Code) Exec() X {
 	if code.Len() == 0 {
 		code.Clear()
 		return nil

@@ -78,8 +78,8 @@ func (c *Comp) Stmt(node ast.Stmt) {
 			}
 		case *ast.ForStmt:
 			c.For(node, label)
-		// case *ast.GoStmt:
-		//   c.Go(node)
+		case *ast.GoStmt:
+			c.Go(node)
 		case *ast.IfStmt:
 			c.If(node)
 		// case *ast.IncDecStmt:
@@ -314,6 +314,27 @@ func (c *Comp) For(node *ast.ForStmt, label string) {
 	if node.Init != nil {
 		c = c.popEnvIfLocalBinds(initLocals, &initBinds, node.Init)
 	}
+}
+
+// Go compiles a "go" statement i.e. a goroutine
+func (c *Comp) Go(node *ast.GoStmt) {
+	call := c.callExpr(node.Call)
+	exprfun := call.Fun.AsX1()
+	argfuns := call.Argfuns
+
+	c.Code.Append(func(env *Env) (Stmt, *Env) {
+		// function and arguments are evaluated in the caller's goroutine
+		funv := exprfun(env)
+		argv := make([]r.Value, len(argfuns))
+		for i, argfun := range argfuns {
+			argv[i] = argfun(env)
+		}
+		// the call is executed in a new goroutine
+		go funv.Call(argv)
+
+		env.IP++
+		return env.Code[env.IP], env
+	})
 }
 
 // If compiles an "if" statement

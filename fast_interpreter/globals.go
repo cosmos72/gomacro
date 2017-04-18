@@ -366,8 +366,8 @@ type Env struct {
 // CompEnv is the composition of both the tree-of-closures builder Comp
 // and the interpreter's runtime environment Env
 type CompEnv struct {
-	*Comp
-	Env *Env
+	Comp *Comp
+	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
 }
 
 type (

@@ -76,15 +76,15 @@ func TestInterpreter(t *testing.T) {
 	}
 }
 
-func (c *TestCase) compile(t *testing.T, comp *fast.CompEnv, env *classic.Env) {
+func (tc *TestCase) compile(t *testing.T, ce *fast.CompEnv, env *classic.Env) {
 	// parse + macroexpansion phase
-	form := env.ParseAst(c.program)
+	form := env.ParseAst(tc.program)
 
 	// compile phase
-	f := comp.CompileAst(form)
-	rets := PackValues(comp.Run(f))
+	f := ce.Comp.CompileAst(form)
+	rets := PackValues(ce.Run(f))
 
-	c.compareResults(t, rets)
+	tc.compareResults(t, rets)
 }
 
 func (c *TestCase) interpret(t *testing.T, env *classic.Env) {
@@ -233,6 +233,7 @@ var tests = []TestCase{
 	TestCase{A, "continue_4", "k", 25, nil},
 
 	TestCase{I, "for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
+
 	TestCase{A, "function_0", "func nop() { }; nop()", nil, []interface{}{}},
 	TestCase{A, "function_1", "func seven() int { return 7 }; seven()", 7, nil},
 	TestCase{A, "function_2", "i=0; func seti(ii int) { i=ii }; seti(-493); i", -493, nil},
@@ -241,6 +242,8 @@ var tests = []TestCase{
 	TestCase{A, "function_5", "i=0; func seti2() { i=2 }; seti2(); i", 2, nil},
 	TestCase{I, "function_variadic", "func list_args(args ...int) []int { args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
 	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},
+
+	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},

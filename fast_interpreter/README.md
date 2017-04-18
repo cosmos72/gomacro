@@ -21,6 +21,7 @@ The fast intepreter supports:
 * function calls (unimplemented: calls to variadic functions)
 * return (unimplemented: return foo() where foo() returns multiple values)
 * if, for, break, continue
+* go i.e. goroutines
 * ~quote
 
 Everything else is still missing. You are welcome to contribute.

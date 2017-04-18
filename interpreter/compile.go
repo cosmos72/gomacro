@@ -42,15 +42,15 @@ func (env *Env) compile(src string) {
 	if env.Options&OptMacroExpandOnly == 0 {
 		// compile phase
 
-		var comp *fast_interpreter.CompEnv
+		var ce *fast_interpreter.CompEnv
 		if env.CompEnv == nil {
-			comp = fast_interpreter.New()
-			comp.CompileOptions |= fast_interpreter.CompileKeepUntyped
-			env.CompEnv = comp
+			ce = fast_interpreter.New()
+			ce.Comp.CompileOptions |= fast_interpreter.CompileKeepUntyped
+			env.CompEnv = ce
 		} else {
-			comp = env.CompEnv.(*fast_interpreter.CompEnv)
+			ce = env.CompEnv.(*fast_interpreter.CompEnv)
 		}
-		fun := comp.CompileAst(ast)
+		fun := ce.Comp.CompileAst(ast)
 
 		// print phase
 		if env.Options&OptShowCompile != 0 {
@@ -58,7 +58,7 @@ func (env *Env) compile(src string) {
 		}
 
 		// eval phase
-		value, values = comp.Run(fun)
+		value, values = ce.Run(fun)
 	} else {
 		value = r.ValueOf(ast.Interface())
 	}

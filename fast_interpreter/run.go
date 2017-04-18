@@ -30,59 +30,89 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func (c *CompEnv) Exec1(expr *Expr) r.Value {
-	c.growEnv(128)
+func (ce *CompEnv) Exec1(expr *Expr) r.Value {
+	ce.PrepareEnv()
 	if expr != nil {
-		return expr.AsX1()(c.Env)
+		return expr.AsX1()(ce.env)
 	} else {
 		return None
 	}
 }
 
-func (c *CompEnv) Exec(expr *Expr) (r.Value, []r.Value) {
-	c.growEnv(128)
+func (ce *CompEnv) Exec(expr *Expr) (r.Value, []r.Value) {
+	ce.PrepareEnv()
 	if expr != nil {
-		return expr.AsXV(CompileDefaults)(c.Env)
+		return expr.AsXV(CompileDefaults)(ce.env)
 	} else {
 		return None, nil
 	}
 }
 
-func (c *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value) {
-	c.growEnv(128)
+func (ce *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value) {
+	ce.PrepareEnv()
 	if fun != nil {
-		return fun(c.Env)
+		return fun(ce.env)
 	} else {
 		return None, nil
 	}
 }
 
-// DefConst compiles a constant declaration, then executes it
-func (c *CompEnv) DefConst(name string, t r.Type, value I) {
-	c.DeclConst0(name, t, value)
-
+// combined ParseAst + CompileAst + Run
+func (ce *CompEnv) Eval(src string) (r.Value, []r.Value) {
+	c := ce.Comp
+	return ce.Run(c.CompileAst(c.ParseAst(src)))
 }
 
-// DefVar compiles a variable declaration, then executes it
-func (c *CompEnv) DefVar(name string, t r.Type, value I) {
-	c.Code.Clear()
-	c.DeclVar0(name, t, ExprValue(value))
-	fun := c.Code.AsXV()
-	c.Run(fun)
+// DeclConst compiles a constant declaration
+func (ce *CompEnv) DeclConst(name string, t r.Type, value I) {
+	ce.Comp.DeclConst0(name, t, value)
+}
+
+// DeclFunc compiles a function declaration
+func (ce *CompEnv) DeclFunc(name string, fun I) {
+	ce.Comp.DeclFunc0(name, fun)
 }
 
 // DefType compiles a type declaration
-func (c *CompEnv) DefType(name string, t r.Type) {
-	c.DeclType0(name, t)
+func (ce *CompEnv) DeclType(name string, t r.Type) {
+	ce.Comp.DeclType0(name, t)
 }
 
-func (c *CompEnv) growEnv(minDelta int) {
+// DefVar compiles a variable declaration, then executes it
+func (ce *CompEnv) DeclVar(name string, t r.Type, value I) {
+	ce.Comp.DeclVar0(name, t, ExprValue(value))
+}
+
+// Apply executes the compiled declarations, statements and expressions,
+// then clears the compiled buffer
+func (ce *CompEnv) Apply() {
+	exec := ce.Comp.Code.Exec()
+	if exec != nil {
+		exec(ce.PrepareEnv())
+	}
+}
+
+// AddressOfVar compiles the expression &name, then executes it
+func (ce *CompEnv) AddressOfVar(name string) r.Value {
+	expr := ce.Comp.AddressOfVar(name)
+	return ce.Exec1(expr)
+}
+
+func (ce *CompEnv) PrepareEnv() *Env {
+	return ce.prepareEnv(128)
+}
+
+func (ce *CompEnv) prepareEnv(minDelta int) *Env {
+	c := ce.Comp
+	env := ce.env
 	// usually we know at Env creation how many slots are needed in c.Env.Binds
 	// but here we are modifying an existing Env...
 	if minDelta < 0 {
 		minDelta = 0
 	}
-	capacity, min := cap(c.Env.Binds), c.BindNum
+	capacity, min := cap(env.Binds), c.BindNum
+	// c.Debugf("prepareEnv() before: c.BindNum = %v, minDelta = %v, len(env.Binds) = %v, cap(env.Binds) = %v, env = %p", c.BindNum, minDelta, len(env.Binds), cap(env.Binds), env)
+
 	if capacity < min {
 		if capacity <= min/2 {
 			capacity = min
@@ -93,14 +123,15 @@ func (c *CompEnv) growEnv(minDelta int) {
 			capacity = min + minDelta
 		}
 		binds := make([]r.Value, min, capacity)
-		copy(binds, c.Env.Binds)
-		c.Env.Binds = binds
+		copy(binds, env.Binds)
+		env.Binds = binds
 	}
-	if len(c.Env.Binds) < min {
-		c.Env.Binds = c.Env.Binds[0:min]
+	if len(env.Binds) < min {
+		env.Binds = env.Binds[0:min:cap(env.Binds)]
 	}
+	// c.Debugf("prepareEnv() after:  c.BindNum = %v, minDelta = %v, len(env.Binds) = %v, cap(env.Binds) = %v, env = %p", c.BindNum, minDelta, len(env.Binds), cap(env.Binds), env)
 
-	capacity, min = cap(c.Env.IntBinds), c.IntBindNum
+	capacity, min = cap(env.IntBinds), c.IntBindNum
 	if capacity < min {
 		if capacity <= min/2 {
 			capacity = min
@@ -111,10 +142,11 @@ func (c *CompEnv) growEnv(minDelta int) {
 			capacity = min + minDelta
 		}
 		binds := make([]uint64, min, capacity)
-		copy(binds, c.Env.IntBinds)
-		c.Env.IntBinds = binds
+		copy(binds, env.IntBinds)
+		env.IntBinds = binds
 	}
-	if len(c.Env.IntBinds) < min {
-		c.Env.IntBinds = c.Env.IntBinds[0:min]
+	if len(env.IntBinds) < min {
+		env.IntBinds = env.IntBinds[0:min:cap(env.IntBinds)]
 	}
+	return env
 }
