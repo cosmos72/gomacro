@@ -27,6 +27,7 @@ package main
 import (
 	"fmt"
 	"os"
+	// "unsafe"
 
 	"github.com/cosmos72/gomacro/base"
 	gmi "github.com/cosmos72/gomacro/interpreter"
@@ -34,6 +35,14 @@ import (
 )
 
 func main() {
+	/*
+		for i := 0; i <= 3; i++ {
+			i := i
+			f := func() int { return i }
+			fmt.Printf("%v %x\n", f, **(**uintptr)(unsafe.Pointer(&f)))
+		}
+	*/
+
 	args := os.Args[1:]
 
 	var cmd gmi.Cmd

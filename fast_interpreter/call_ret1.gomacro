@@ -95,10 +95,35 @@ import (
 	rettyp, ret0 = convertret0(rettyp)
 
 	return ~"{
-		call = func(env *Env) ~,rettyp {
-			fun := exprfun(env).Interface().(func() ~,rettyp)
-			// Debugf("calling %v with args []", r.TypeOf(fun))
-			return fun()
+		if funvar == nil {
+			call = func(env *Env) ~,rettyp {
+				fun := exprfun(env).Interface().(func() ~,rettyp)
+				// Debugf("calling %v with args []", r.TypeOf(fun))
+				return fun()
+			}
+		} else if funupn != 1 {
+			call = func(env *Env) ~,rettyp {
+				o := env
+				for i := 0; i < funupn; i++ {
+					o = o.Outer
+				}
+				fun := o.Binds[funindex].Interface().(func() ~,rettyp)
+				// Debugf("calling %v with args []", r.TypeOf(fun))
+				return fun()
+			}
+		} else {
+			// function is defined in outer environment
+			// quite frequent, optimize as much as possible
+			var cachedfun func() ~,rettyp
+			call = func(env *Env) ~,rettyp {
+				funv := env.Outer.Binds[funindex]
+				if cachedfunv != funv {
+					cachedfunv = funv
+					cachedfun = funv.Interface().(func() ~,rettyp)
+				}
+				// Debugf("calling %v with args []", r.TypeOf(fun))
+				return cachedfun()
+			}
 		}
 	}
 }
@@ -106,7 +131,14 @@ import (
 func call0ret1(c *Call) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
+	funvar := c.Funvar
+	var funupn, funindex int
+	if funvar != nil {
+		funupn = funvar.Upn
+		funindex = funvar.Desc.Index()
+	}
 	kret := expr.Type.Out(0).Kind()
+	var cachedfunv r.Value
 	var call I
 	switch kret {
 	case r.Bool:      {mcall0ret1; bool}
@@ -162,6 +194,7 @@ func call0ret1(c *Call) I {
 	}
 
 	return ~"{
+		var cachedfun func(~,argtyp) ~,rettyp
 		if arg0.Const() {
 			argconst := arg0.Value.(~,argtyp)
 			if funvar == nil {
@@ -184,9 +217,13 @@ func call0ret1(c *Call) I {
 				// function is defined in outer environment
 				// quite frequent, optimize as much as possible
 				call = func(env *Env) ~,rettyp {
-					fun := env.Outer.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
+					funv := env.Outer.Binds[funindex]
+					if cachedfunv != funv {
+						cachedfunv = funv
+						cachedfun = funv.Interface().(func(~,argtyp) ~,rettyp)
+					}
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
-					return fun(argconst)
+					return cachedfun(argconst)
 				}
 			}
 		} else {
@@ -213,10 +250,14 @@ func call0ret1(c *Call) I {
 				// function is defined in outer environment
 				// quite frequent, optimize as much as possible
 				call = func(env *Env) ~,rettyp {
-					fun := env.Outer.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
+					funv := env.Outer.Binds[funindex]
+					if cachedfunv != funv {
+						cachedfunv = funv
+						cachedfun = funv.Interface().(func(~,argtyp) ~,rettyp)
+					}
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
-					return fun(arg)
+					return cachedfun(arg)
 				}
 			}
 		}
@@ -252,6 +293,7 @@ func call1ret1(c *Call) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
 	funvar := c.Funvar
+	var cachedfunv r.Value
 	var funupn, funindex int
 	if funvar != nil {
 		funupn = funvar.Upn

@@ -119,78 +119,65 @@ var ignoredIntBinds = []uint64{0}
 
 func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	common := outer.Common
-	if env := common.allocEnv(nbinds, nintbinds); env != nil {
-		env.Outer = outer
-		env.IP = outer.IP
-		env.Code = outer.Code
-		env.Interrupt = outer.Interrupt
-		return env
-	}
-
-	env := &Env{
-		Outer:     outer,
-		IP:        outer.IP,
-		Code:      outer.Code,
-		Interrupt: outer.Interrupt,
-		Common:    common,
+	pool := &common.Pool // pool is an array, do NOT copy it!
+	index := common.PoolSize - 1
+	var env *Env
+	if index >= 0 {
+		common.PoolSize = index
+		env = pool[index]
+		pool[index] = nil
+	} else {
+		env = &Env{}
 	}
 	if nbinds <= 1 {
 		env.Binds = ignoredBinds
-	} else {
+	} else if cap(env.Binds) < nbinds {
 		env.Binds = make([]r.Value, nbinds)
+	} else {
+		env.Binds = env.Binds[0:nbinds]
 	}
 	if nintbinds <= 1 {
 		env.IntBinds = ignoredIntBinds
-	} else {
+	} else if cap(env.IntBinds) < nintbinds {
 		env.IntBinds = make([]uint64, nintbinds)
+	} else {
+		env.IntBinds = env.IntBinds[0:nintbinds]
 	}
+	env.Outer = outer
+	env.IP = outer.IP
+	env.Code = outer.Code
+	env.Interrupt = outer.Interrupt
+	env.Common = common
 	return env
 }
 
 func NewEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
 	common := outer.Common
-
+	pool := &common.Pool // pool is an array, do NOT copy it!
+	index := common.PoolSize - 1
 	var env *Env
-	if env = common.allocEnv(nbinds, nintbinds); env != nil {
-		env.Outer = outer
-		return env
-	}
-	env = &Env{
-		Outer:  outer,
-		Common: common,
+	if index >= 0 {
+		common.PoolSize = index
+		env = pool[index]
+		pool[index] = nil
+	} else {
+		env = &Env{}
 	}
 	if nbinds <= 1 {
 		env.Binds = ignoredBinds
-	} else {
+	} else if cap(env.Binds) < nbinds {
 		env.Binds = make([]r.Value, nbinds)
+	} else {
+		env.Binds = env.Binds[0:nbinds]
 	}
 	if nintbinds <= 1 {
 		env.IntBinds = ignoredIntBinds
+	} else if cap(env.IntBinds) < nintbinds {
+		env.IntBinds = make([]uint64, nintbinds)
 	} else {
-		env.IntBinds = make([]uint64, nintbinds)
-	}
-	return env
-}
-
-func (common *InterpreterCommon) allocEnv(nbinds int, nintbinds int) *Env {
-	pool := &common.Pool // pool is an array, do NOT copy it!
-	index := common.PoolSize - 1
-	if index < 0 {
-		return nil
-	}
-	common.PoolSize = index
-	env := pool[index]
-	pool[index] = nil
-	if cap(env.Binds) < nbinds {
-		env.Binds = make([]r.Value, nbinds)
-	} else if nbinds != 0 {
-		env.Binds = env.Binds[0:nbinds]
-	}
-	if cap(env.IntBinds) < nintbinds {
-		env.IntBinds = make([]uint64, nintbinds)
-	} else if nbinds != 0 {
 		env.IntBinds = env.IntBinds[0:nintbinds]
 	}
+	env.Outer = outer
 	env.Common = common
 	return env
 }
@@ -219,6 +206,7 @@ func (env *Env) FreeEnv() {
 	}
 	env.Outer = nil
 	env.Code = nil
+	env.Signal = 0
 	env.Common = nil
 	common.Pool[n] = env // pool is an array, be careful NOT to copy it!
 	common.PoolSize = n + 1
