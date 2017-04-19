@@ -1111,7 +1111,7 @@ func (p *parser) parseStmtList() (list []ast.Stmt) {
 		defer un(trace(p, "StatementList"))
 	}
 
-	for p.tok != token.CASE && p.tok != token.DEFAULT && p.tok != token.RBRACE && p.tok != token.EOF {
+	for p.tok != mt.TYPECASE && p.tok != token.CASE && p.tok != token.DEFAULT && p.tok != token.RBRACE && p.tok != token.EOF {
 		list = append(list, p.parseStmt())
 	}
 
@@ -1958,7 +1958,10 @@ func (p *parser) parseCaseClause(typeSwitch bool) ast.Stmt {
 
 	pos := p.pos
 	var list []ast.Expr
-	if p.tok == token.CASE {
+	if p.tok == mt.TYPECASE {
+		p.next()
+		list = p.parseTypeList()
+	} else if p.tok == token.CASE {
 		p.next()
 		if typeSwitch {
 			list = p.parseTypeList()

@@ -21,6 +21,7 @@ const (
 	MACRO
 	FUNCTION
 	LAMBDA
+	TYPECASE
 )
 
 var tokens map[base.Token]string
@@ -37,6 +38,7 @@ func init() {
 		MACRO:          "~macro",
 		FUNCTION:       "~func",
 		LAMBDA:         "~lambda",
+		TYPECASE:       "~typecase",
 	}
 
 	keywords = make(map[string]base.Token)

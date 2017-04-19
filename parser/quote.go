@@ -92,7 +92,9 @@ func (p *parser) parseStmtListQuoted() (list []ast.Stmt) {
 
 	var stmt ast.Stmt
 	for p.tok != token.RBRACE && p.tok != token.EOF {
-		if p.tok == token.CASE || p.tok == token.DEFAULT {
+		if p.tok == mt.TYPECASE {
+			stmt = p.parseCaseClause(true)
+		} else if p.tok == token.CASE || p.tok == token.DEFAULT {
 			stmt = p.parseCaseClause(false)
 		} else {
 			stmt = p.parseStmt()
