@@ -44,7 +44,6 @@ func New() *CompEnv {
 	top := NewCompEnv(nil, "builtin")
 	top.env.UsedByClosure = true // do not free this *Env
 	file := NewCompEnv(top, "main")
-	file.Comp.UpCost = 1          // disable the optimization "*Comp has zero bindings, it will not have a corresponding runtime *Env"
 	file.env.UsedByClosure = true // do not free this *Env
 	return file
 }
@@ -58,13 +57,14 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 	if outer != nil {
 		outerComp = outer.Comp
 		outerEnv = outer.env
-		common = outer.Comp.InterpreterCommon
+		common = outerComp.InterpreterCommon
 	}
 	if common == nil {
 		common = NewInterpreterCommon()
 	}
 	c := &CompEnv{
 		Comp: &Comp{
+			UpCost:            1,
 			Outer:             outerComp,
 			Name:              name,
 			Path:              path,

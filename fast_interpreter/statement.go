@@ -302,8 +302,9 @@ func (c *Comp) For(node *ast.ForStmt, label string) {
 		// jump back to the condition
 		// Debugf("for: body executed, jumping back to condition. IntBinds = %v", env.IntBinds)
 		// time.Sleep(time.Second / 10)
-		env.IP = jump.Cond
-		return env.Code[jump.Cond], env
+		ip := jump.Cond
+		env.IP = ip
+		return env.Code[ip], env
 	})
 	if fun == nil && !flag {
 		// "for false { }" means that body, post and jump back to condition are never executed...
@@ -318,16 +319,31 @@ func (c *Comp) For(node *ast.ForStmt, label string) {
 
 // Go compiles a "go" statement i.e. a goroutine
 func (c *Comp) Go(node *ast.GoStmt) {
-	call := c.callExpr(node.Call)
+	// we must create a new InterpreterCommon with a new Pool.
+	// Ideally, the new InterpreterCommon could be created inside the call,
+	// but that requires modifying the function being executed.
+	// Instead, we create the new InterpreterCommon here and wrap it into an "unnecessary" Env
+	// Thus we must create a corresponding "unnecessary" Comp
+	c2 := NewComp(c)
+
+	call := c2.callExpr(node.Call)
 	exprfun := call.Fun.AsX1()
 	argfuns := call.Argfuns
 
-	c.Code.Append(func(env *Env) (Stmt, *Env) {
+	c2.Code.Append(func(env *Env) (Stmt, *Env) {
+		// create a new Env to hold the new InterpreterCommon and (initially empty) Pool
+		env2 := NewEnv4Func(env, 0, 0)
+		env2.MarkUsedByClosure()
+		env2.Common = &InterpreterCommon{
+			InterpreterBase: env.Common.InterpreterBase,
+		}
+
 		// function and arguments are evaluated in the caller's goroutine
-		funv := exprfun(env)
+		// using the new Env: we compiled them with c2 => execute them with env2
+		funv := exprfun(env2)
 		argv := make([]r.Value, len(argfuns))
 		for i, argfun := range argfuns {
-			argv[i] = argfun(env)
+			argv[i] = argfun(env2)
 		}
 		// the call is executed in a new goroutine
 		go funv.Call(argv)
@@ -335,6 +351,9 @@ func (c *Comp) Go(node *ast.GoStmt) {
 		env.IP++
 		return env.Code[env.IP], env
 	})
+
+	// propagate back the compiled code
+	c.Code = c2.Code
 }
 
 // If compiles an "if" statement

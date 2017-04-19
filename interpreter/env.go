@@ -192,16 +192,16 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 		args := strings.SplitN(src, " ", 2)
 		cmd := args[0]
 		switch {
-		case strings.HasPrefix(":compiler", cmd):
-			if len(args) > 1 {
-				env.compile(args[1])
-			}
-			return true
 		case strings.HasPrefix(":env", cmd):
 			if len(args) <= 1 {
 				env.showPackage("")
 			} else {
 				env.showPackage(args[1])
+			}
+			return true
+		case strings.HasPrefix(":fast", cmd):
+			if len(args) > 1 {
+				env.compile(args[1])
 			}
 			return true
 		case strings.HasPrefix(":help", cmd):
