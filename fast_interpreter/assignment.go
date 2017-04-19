@@ -60,17 +60,11 @@ func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
 		if !panicking {
 			return
 		}
-		c.Errorf("error compiling assignment: %v", node)
+		rec := recover()
+		c.Errorf("error compiling assignment: %v\n    %v", node, rec)
 	}()
 	c.SetVar(va, op, init)
 	panicking = false
-}
-
-// SetVar0 compiles an assignment to a variable.
-// provided as convenience for applications
-func (c *Comp) SetVar0(name string, op token.Token, init *Expr) {
-	va := c.LookupVar(name)
-	c.SetVar(va, op, init)
 }
 
 // SetVar compiles an assignment to a variable.
@@ -78,13 +72,10 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	if init.Type == nil {
 		c.Errorf("invalid operator %v on <%v>", op, init.Type)
 	}
-	switch op {
-	case token.ASSIGN:
+	if op == token.ASSIGN {
 		c.varSet(va, init)
-	case token.ADD, token.ADD_ASSIGN:
-		c.varAdd(va, init)
-	default:
-		c.Errorf("unimplemented assignment: variable %v expression", op)
+	} else {
+		c.varSetOp(va, op, init)
 	}
 }
 

@@ -1,0 +1,369 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * var_add.go
+ *
+ *  Created on Apr 09, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast_interpreter
+
+import (
+	"go/token"
+	r "reflect"
+	"unsafe"
+
+	"github.com/cosmos72/gomacro/base"
+)
+
+:import (
+	"fmt"
+	"go/ast"
+	"go/token"
+	r "reflect"
+)
+
+:func op_to_assign(op token.Token) token.Token {
+	switch op {
+	case token.ADD:
+		op = token.ADD_ASSIGN
+	case token.SUB:
+		op = token.SUB_ASSIGN
+	case token.MUL:
+		op = token.MUL_ASSIGN
+	case token.QUO:
+		op = token.QUO_ASSIGN
+	case token.REM:
+		op = token.REM_ASSIGN
+	case token.AND:
+		op = token.AND_ASSIGN
+	case token.OR:
+		op = token.OR_ASSIGN
+	case token.XOR:
+		op = token.XOR_ASSIGN
+	case token.SHL:
+		op = token.SHL_ASSIGN
+	case token.SHR:
+		op = token.SHR_ASSIGN
+	case token.AND_NOT:
+		op = token.AND_NOT_ASSIGN
+	default:
+		panic(fmt.Sprintf("cannot convert token %s to assignment token", op))
+	}
+	return op
+}
+
+:func fsetplace(opnode, depth, typ, expr, exprv ast.Node) ast.Node {
+	// the return type of Eval() and EvalType() varies. better check early.
+	var upn int = Eval(depth)
+	var t r.Type = EvalType(typ)
+	var loop, bind ast.Node
+	var op token.Token = Eval(opnode)
+	opset := op_to_assign(op)
+
+	if upn >= 0 {
+		bind = ~'{env}
+		for i := 0; i < upn; i++ {
+			bind = ~"{~,bind . Outer}
+		}
+	} else {
+		loop = ~'{
+			o := env.Outer.Outer.Outer
+			for i := 3; i < upn; i++ {
+				o = o.Outer
+			}
+		}
+		bind = ~'o
+	}
+
+	switch t.Kind() {
+		case r.Complex128:
+			var result *ast.BinaryExpr = ~"{lhs.Complex() + ~,expr}
+			result.Op = op
+			bind = ~"{lhs := ~,bind . Binds[index]; lhs.SetComplex(~,result)}
+		case r.String:
+			var result *ast.BinaryExpr = ~"{lhs.String() + ~,expr}
+			result.Op = op
+			bind = ~"{lhs := ~,bind . Binds[index]; lhs.SetString(~,result)}
+		case r.Uint64:
+			var assign *ast.AssignStmt = ~"{~,bind . IntBinds[index] += ~,expr}
+			assign.Tok = opset
+			bind = assign
+		default:
+			var assign *ast.AssignStmt = ~"{*(*~,typ)(unsafe.Pointer(& ~,bind .IntBinds[index])) += ~,expr}
+			assign.Tok = opset
+			bind = assign
+	}
+
+	return ~"{
+		ret = func(env *Env) (Stmt, *Env) {
+			~,@loop
+			~,bind
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	}
+}
+
+:macro setplace_const(opnode, depth, typ ast.Node) ast.Node {
+	return fsetplace(opnode, depth, typ, ~'val, ~'v)
+}
+
+:macro setplace_expr(opnode, depth, typ ast.Node) ast.Node {
+	return fsetplace(opnode, depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(t)})
+}
+
+:func list_types(typelist []ast.Stmt) []ast.Node {
+	rets := make([]ast.Node, 0, len(typelist))
+	for _, typ := range typelist {
+		t := EvalType(typ)
+		if t == nil {
+			rets = append(rets, ~'nil)
+		} else if t.Kind() == r.Int {
+			rets = append(rets, ~'int, ~'int8, ~'int16, ~'int32, ~'int64)
+		} else if t.Kind() == r.Uint {
+			rets = append(rets, ~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr)
+		} else if t.Kind() == r.Float64 {
+			rets = append(rets, ~'float32, ~'float64)
+		} else if t.Kind() == r.Complex128 {
+			rets = append(rets, ~'complex64, ~'complex128)
+		} else {
+			rets = append(rets, typ)
+		}
+	}
+	return rets
+}
+
+:macro setplaces_const(opnode, depth, types ast.Node) ast.Node {
+	typelist := list_types(types.(*ast.BlockStmt).List)
+	caselist := make([]ast.Stmt, len(typelist))
+	for i, typ := range typelist {
+		if EvalType(typ) == nil {
+			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, t)}
+		} else {
+			caselist[i] = ~"{~typecase ~,typ: setplace_const; ~,opnode; ~,depth; ~,typ}
+		}
+	}
+	return ~"{ switch val := val.(type) { ~,@caselist } }
+}
+
+:macro setplaces_expr(opnode, depth, types ast.Node) ast.Node {
+	typelist := list_types(types.(*ast.BlockStmt).List)
+	caselist := make([]ast.Stmt, len(typelist))
+	for i, typ := range typelist {
+		if EvalType(typ) == nil {
+			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, t, funTypeOuts(fun))}
+		} else {
+			caselist[i] = ~"{~typecase func(*Env) ~,typ: setplace_expr; ~,opnode; ~,depth; ~,typ}
+		}
+	}
+	return ~"{ switch fun := fun.(type) { ~,@caselist } }
+}
+
+:macro setplaces_depth_const(opnode, types ast.Node) ast.Node {
+	return ~"{
+		v := r.ValueOf(val)
+		if base.ValueType(v) != t {
+			v = v.Convert(t)
+		}
+		var ret Stmt
+		switch upn {
+			case 0:  setplaces_const; ~,opnode; 0; ~,types
+			case 1:  setplaces_const; ~,opnode; 1; ~,types
+			case 2:  setplaces_const; ~,opnode; 2; ~,types
+			default: setplaces_const; ~,opnode;-1; ~,types
+		}
+		c.Code.Append(ret)
+	}
+}
+
+:macro setplaces_depth_expr(opnode, types ast.Node) ast.Node {
+	return ~"{
+		var ret Stmt
+		switch upn {
+			case 0:  setplaces_expr; ~,opnode; 0; ~,types
+			case 1:  setplaces_expr; ~,opnode; 1; ~,types
+			case 2:  setplaces_expr; ~,opnode; 2; ~,types
+			default: setplaces_expr; ~,opnode;-1; ~,types
+		}
+		c.Code.Append(ret)
+	}
+}
+
+// varAddConst compiles 'name += constant'
+func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.ADD; {int; uint; float64; complex128; string; nil}
+}
+
+// varAddExpr compiles 'name += expression'
+func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.ADD; {int; uint; float64; complex128; string; nil}
+}
+
+// varSubConst compiles 'name -= constant'
+func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.SUB; {int; uint; float64; complex128; nil}
+}
+
+// varSubExpr compiles 'name -= expression'
+func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.SUB; {int; uint; float64; complex128; nil}
+}
+
+// varMulConst compiles 'name *= constant'
+func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.MUL; {int; uint; float64; complex128; nil}
+}
+
+// varMulExpr compiles 'name *= expression'
+func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.MUL; {int; uint; float64; complex128; nil}
+}
+
+// varQuoConst compiles 'name /= constant'
+func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.QUO; {int; uint; float64; complex128; nil}
+}
+
+// varQuoExpr compiles 'name /= expression'
+func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.QUO; {int; uint; float64; complex128; nil}
+}
+
+// varRemConst compiles 'name %= constant'
+func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.REM; {int; uint; nil}
+}
+
+// varRemExpr compiles 'name %= expression'
+func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.REM; {int; uint; nil}
+}
+
+// varAndConst compiles 'name &= constant'
+func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.AND; {int; uint; nil}
+}
+
+// varAndExpr compiles 'name &= expression'
+func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.AND; {int; uint; nil}
+}
+
+// varOrConst compiles 'name |= constant'
+func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.OR; {int; uint; nil}
+}
+
+// varAndExpr compiles 'name &= expression'
+func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.OR; {int; uint; nil}
+}
+
+// varXorConst compiles 'name ^= constant'
+func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.XOR; {int; uint; nil}
+}
+
+// varXorExpr compiles 'name ^= expression'
+func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.XOR; {int; uint; nil}
+}
+
+// varAndnotConst compiles 'name &^= constant'
+func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
+	setplaces_depth_const; token.XOR; {int; uint; nil}
+}
+
+// varAndnotExpr compiles 'name &^= expression'
+func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
+	setplaces_depth_expr; token.XOR; {int; uint; nil}
+}
+
+// varSetOp compiles 'name op constant' and 'name op expression'
+func (c *Comp) varSetOp(va *Var, op token.Token, init *Expr) {
+	t := va.Type
+	if init.Const() {
+		init.ConstTo(t)
+	} else if init.Type != t {
+		if t.Kind() != init.Type.Kind() || !init.Type.AssignableTo(t) {
+			c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
+			return
+		}
+	}
+	class := va.Desc.Class()
+	if class != VarBind && class != IntBind {
+		c.Errorf("invalid operator %s on %v", op, class)
+		return
+	}
+	upn := va.Upn
+	index := va.Desc.Index()
+	if index == NoIndex {
+		c.Errorf("invalid operator %s on _", op)
+		return
+	}
+	if init.Const() {
+		switch op {
+		case token.ADD, token.ADD_ASSIGN:
+			c.varAddConst(upn, index, t, init.Value)
+		case token.SUB, token.SUB_ASSIGN:
+			c.varSubConst(upn, index, t, init.Value)
+		case token.MUL, token.MUL_ASSIGN:
+			c.varMulConst(upn, index, t, init.Value)
+		case token.QUO, token.QUO_ASSIGN:
+			c.varQuoConst(upn, index, t, init.Value)
+		case token.REM, token.REM_ASSIGN:
+			c.varRemConst(upn, index, t, init.Value)
+		case token.AND, token.AND_ASSIGN:
+			c.varAndConst(upn, index, t, init.Value)
+		case token.OR, token.OR_ASSIGN:
+			c.varOrConst(upn, index, t, init.Value)
+		case token.XOR, token.XOR_ASSIGN:
+			c.varAndConst(upn, index, t, init.Value)
+		case token.AND_NOT, token.AND_NOT_ASSIGN:
+			c.varAndnotConst(upn, index, t, init.Value)
+		default:
+			c.Errorf("operator %s is not implemented", op)
+		}
+	} else {
+		switch op {
+		case token.ADD, token.ADD_ASSIGN:
+			c.varAddExpr(upn, index, t, init.Fun)
+		case token.SUB, token.SUB_ASSIGN:
+			c.varSubExpr(upn, index, t, init.Fun)
+		case token.MUL, token.MUL_ASSIGN:
+			c.varMulExpr(upn, index, t, init.Fun)
+		case token.QUO, token.QUO_ASSIGN:
+			c.varQuoExpr(upn, index, t, init.Fun)
+		case token.REM, token.REM_ASSIGN:
+			c.varRemExpr(upn, index, t, init.Fun)
+		case token.AND, token.AND_ASSIGN:
+			c.varAndExpr(upn, index, t, init.Fun)
+		case token.OR, token.OR_ASSIGN:
+			c.varOrExpr(upn, index, t, init.Fun)
+		case token.XOR, token.XOR_ASSIGN:
+			c.varAndExpr(upn, index, t, init.Fun)
+		case token.AND_NOT, token.AND_NOT_ASSIGN:
+			c.varAndnotExpr(upn, index, t, init.Fun)
+		default:
+			c.Errorf("operator %s is not implemented", op)
+		}
+	}
+}
+

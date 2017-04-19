@@ -220,7 +220,11 @@ var tests = []TestCase{
 	TestCase{A, "add_6", "v6 += 0.975319; v6", 1/float32(0.12345678901234) + float32(0.975319), nil}, // v6 is declared float32
 	TestCase{A, "add_7", "v7 = 1; v7 += 0.999999i; v7", complex(float32(1), float32(0.999999)), nil}, // v7 is declared complex64
 
-	TestCase{A, "if_1", "if v2 < 1 { v2 = v2-1 } else { v2 = v2+1 }; v2", uint8(2), nil},
+	TestCase{A, "mul_1", "v2 = 4;  v2 *= 3; v2", uint8(12), nil},
+	TestCase{A, "rem_1", "v3 = 12; v3 %= 7; v3", uint16(5), nil},
+	TestCase{A, "and_1", "v3 &= 9;          v3", uint16(1), nil},
+
+	TestCase{A, "if_1", "v2 = 1; if v2 < 1 { v2 = v2-1 } else { v2 = v2+1 }; v2", uint8(2), nil},
 	TestCase{A, "if_2", "if v2 < 5 { v2 = v2+2 } else { v2 = v2-2 }; v2", uint8(4), nil},
 
 	TestCase{A, "for_1", "var i, j, k int; for i=1; i<=2; i=i+1 { if i<2 {j=i} else {k=i} }; i", 3, nil},
