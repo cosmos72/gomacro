@@ -78,24 +78,13 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	if init.Type == nil {
 		c.Errorf("invalid operator %v on <%v>", op, init.Type)
 	}
-	if init.Const() {
-		switch op {
-		case token.ASSIGN:
-			c.varSetConst(va, init)
-		case token.ADD, token.ADD_ASSIGN:
-			c.varAddConst(va, init)
-		default:
-			c.Errorf("unimplemented assignment: variable %v constant", op)
-		}
-	} else {
-		switch op {
-		case token.ASSIGN:
-			c.varSetExpr(va, init)
-		case token.ADD, token.ADD_ASSIGN:
-			c.varAddExpr(va, init)
-		default:
-			c.Errorf("unimplemented assignment: variable %v expression", op)
-		}
+	switch op {
+	case token.ASSIGN:
+		c.varSet(va, init)
+	case token.ADD, token.ADD_ASSIGN:
+		c.varAdd(va, init)
+	default:
+		c.Errorf("unimplemented assignment: variable %v expression", op)
 	}
 }
 

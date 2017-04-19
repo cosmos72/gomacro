@@ -833,3 +833,17 @@ func FunAsStmt(fun I) Stmt {
 	}
 	return ret
 }
+
+// funTypeOuts returns the return types of given function
+func funTypeOuts(fun I) []r.Type {
+	t := r.TypeOf(fun)
+	if t == nil || t.Kind() != r.Func {
+		return []r.Type{t}
+	}
+	n := t.NumOut()
+	ts := make([]r.Type, n)
+	for i := 0; i < n; i++ {
+		ts[i] = t.Out(i)
+	}
+	return ts
+}
