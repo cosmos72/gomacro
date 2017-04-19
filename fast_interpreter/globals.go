@@ -316,8 +316,10 @@ const (
 // otherwise they will consume Envs from the same pool and wreak havoc
 type InterpreterCommon struct {
 	*base.InterpreterBase
-	PoolSize int
-	Pool     [PoolCapacity]*Env
+	Interrupt Stmt
+	Signal    Signal // set by interrupts: Return, Defer...
+	PoolSize  int
+	Pool      [PoolCapacity]*Env
 }
 
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
@@ -344,7 +346,7 @@ type Comp struct {
 type Signal int
 
 const (
-	SigUnknown Signal = iota
+	SigNone Signal = iota
 	SigReturn
 	SigInstallDeferHandler
 )
@@ -356,8 +358,6 @@ type Env struct {
 	Outer         *Env
 	IP            int
 	Code          []Stmt
-	Interrupt     Stmt
-	Signal        Signal // set by interrupts: Return, Defer...
 	Common        *InterpreterCommon
 	UsedByClosure bool // a bitfield would introduce more races among goroutines
 	AddressTaken  bool

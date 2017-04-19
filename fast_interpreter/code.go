@@ -69,9 +69,9 @@ func (code *Code) Exec() X {
 
 	if len(all) == 2 {
 		return func(env *Env) {
-			env.Interrupt = nil
 			env.IP = 0
 			env.Code = all
+			env.Common.Interrupt = nil
 			stmt := all[0]
 			all[1] = nil
 			for stmt != nil {
@@ -87,9 +87,9 @@ func (code *Code) Exec() X {
 
 		n := len(all) - 1
 		all[n] = nil
-		env.Interrupt = nil
 		env.IP = 0
 		env.Code = all
+		env.Common.Interrupt = nil
 
 		for j := 0; j < 5; j++ {
 			if stmt, env = stmt(env); stmt != nil {
@@ -126,7 +126,7 @@ func (code *Code) Exec() X {
 
 		unsafeInterrupt := *(**uintptr)(unsafe.Pointer(&Interrupt))
 		all[n] = Interrupt
-		env.Interrupt = Interrupt
+		env.Common.Interrupt = Interrupt
 		for {
 			stmt, env = stmt(env)
 			stmt, env = stmt(env)

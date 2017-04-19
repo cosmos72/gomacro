@@ -146,7 +146,6 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	env.Outer = outer
 	env.IP = outer.IP
 	env.Code = outer.Code
-	env.Interrupt = outer.Interrupt
 	env.Common = common
 	return env
 }
@@ -206,7 +205,6 @@ func (env *Env) FreeEnv() {
 	}
 	env.Outer = nil
 	env.Code = nil
-	env.Signal = 0
 	env.Common = nil
 	common.Pool[n] = env // pool is an array, be careful NOT to copy it!
 	common.PoolSize = n + 1

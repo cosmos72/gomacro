@@ -39,7 +39,7 @@ func Nop(env *Env) (Stmt, *Env) {
 
 // declare a var instead of function: code.go needs the address of Interrupt
 var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
-	return env.Interrupt, env
+	return env.Common.Interrupt, env
 }
 
 func PopEnv(env *Env) (Stmt, *Env) {
@@ -333,7 +333,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	c2.Code.Append(func(env *Env) (Stmt, *Env) {
 		// create a new Env to hold the new InterpreterCommon and (initially empty) Pool
 		env2 := NewEnv4Func(env, 0, 0)
-		env2.MarkUsedByClosure()
+		// env2.MarkUsedByClosure() // redundant, done by exprfun(env2) below
 		env2.Common = &InterpreterCommon{
 			InterpreterBase: env.Common.InterpreterBase,
 		}
@@ -470,35 +470,10 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 	for i := 0; i < n; i++ {
 		c.SetVar(resultBinds[i].AsVar(upn), token.ASSIGN, exprs[i])
 	}
-
-	var stmt Stmt
-	switch upn {
-	case 0:
-		stmt = func(env *Env) (Stmt, *Env) {
-			env.Signal = SigReturn
-			return env.Interrupt, env
-		}
-	case 1:
-		stmt = func(env *Env) (Stmt, *Env) {
-			env = env.Outer
-			env.Signal = SigReturn
-			return env.Interrupt, env
-		}
-	case 2:
-		stmt = func(env *Env) (Stmt, *Env) {
-			env = env.Outer.Outer
-			env.Signal = SigReturn
-			return env.Interrupt, env
-		}
-	default:
-		stmt = func(env *Env) (Stmt, *Env) {
-			env = env.Outer.Outer.Outer
-			for i := 3; i < upn; i++ {
-				env = env.Outer
-			}
-			env.Signal = SigReturn
-			return env.Interrupt, env
-		}
+	stmt := func(env *Env) (Stmt, *Env) {
+		common := env.Common
+		common.Signal = SigReturn
+		return common.Interrupt, env
 	}
 	c.Code.Append(stmt)
 }
