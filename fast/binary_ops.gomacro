@@ -1,0 +1,397 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * binary_ops.go
+ *
+ *  Created on Apr 12, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast
+
+import (
+	"go/ast"
+	r "reflect"
+
+	// . "github.com/cosmos72/gomacro/base"
+)
+
+:import (
+	"fmt"
+	"go/ast"
+	"go/token"
+	r "reflect"
+)
+
+
+:macro binaryop(opnode, xconst, yconst, typ ast.Node) ast.Node {
+
+	// the return type of Eval() and EvalType() varies. better check early.
+	var xc, yc bool = Eval(xconst), Eval(yconst)
+	var optoken token.Token = Eval(opnode)
+
+	if xc == yc {
+		var expr *ast.BinaryExpr = ~"{x(env) && y(env)} // quasiquote, we modify it destructively
+		expr.Op = optoken
+
+		return ~"{
+			x := x.(func(*Env) ~,typ)
+			y := y.(func(*Env) ~,typ)
+			fun = func(env *Env) ~,typ {
+				return ~,expr
+			}
+		}
+	} else if yc {
+		var expr *ast.BinaryExpr = ~"{x(env) && y} // quasiquote, we modify it destructively
+		expr.Op = optoken
+
+		return ~"{
+			x := x.(func(*Env) ~,typ)
+			y := y.(~,typ)
+			fun = func(env *Env) ~,typ {
+				return ~,expr
+			}
+		}
+	} else {
+		var expr *ast.BinaryExpr = ~"{x && y(env)} // quasiquote, we modify it destructively
+		expr.Op = optoken
+
+		return ~"{
+			x := x.(~,typ)
+			y := y.(func(*Env) ~,typ)
+			fun = func(env *Env) ~,typ {
+				return ~,expr
+			}
+		}
+	}
+}
+
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func makekind(typ ast.Node) ast.Node {
+	t := EvalType(typ)
+
+	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
+	kind := ~"{r . foo}
+	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
+	return kind
+}
+
+:macro binaryops(opnode, xconst, yconst, types ast.Node) ast.Node {
+	typelist := types.(*ast.BlockStmt).List
+	caselist := make([]ast.Stmt, 0, len(typelist))
+	foundnil := false
+	for _, typ := range typelist {
+		t := EvalType(typ)
+		if t == nil {
+			caselist = append(caselist, ~"{default: binaryop; ~,opnode; ~,xconst; ~,yconst; ~,typ})
+			foundnil = true
+
+		} else if t.Kind() == r.Int {
+			// shortcut for all int* types
+			for _, typ := range []ast.Expr{~'int, ~'int8, ~'int16, ~'int32, ~'int64} {
+				kind := makekind(typ)
+				caselist = append(caselist, ~"{case ~,kind: binaryop; ~,opnode; ~,xconst; ~,yconst; ~,typ})
+			}
+		} else if t.Kind() == r.Uint {
+			// shortcut for all uint* types
+			for _, typ := range []ast.Expr{~'uint, ~'uint8, ~'uint16, ~'uint32, ~'uint64, ~'uintptr} {
+				kind := makekind(typ)
+				caselist = append(caselist, ~"{case ~,kind: binaryop; ~,opnode; ~,xconst; ~,yconst; ~,typ})
+			}
+		} else {
+			kind := makekind(typ)
+			caselist = append(caselist, ~"{case ~,kind: binaryop; ~,opnode; ~,xconst; ~,yconst; ~,typ})
+		}
+	}
+
+	if !foundnil {
+		caselist = append(caselist, ~'{default: return c.invalidBinaryExpr(node, xe, ye)})
+	}
+	return ~"{ switch k { ~,@caselist } }
+}
+
+func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.ADD; false; false; { int; uint; float32; float64; complex64; complex128; string }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		if isLiteralNumber(y, 0) || y == "" {
+			return xe
+		}
+		{binaryops; token.ADD; false; true; { int; uint; float32; float64; complex64; complex128; string }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		if isLiteralNumber(x, 0) || x == "" {
+			return ye
+		}
+		{binaryops; token.ADD; true; false; { int; uint; float32; float64; complex64; complex128; string }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+func (c *Comp) Sub(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.SUB; false; false; { int; uint; float32; float64; complex64; complex128 }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		if isLiteralNumber(y, 0) {
+			return xe
+		}
+		{binaryops; token.SUB; false; true; { int; uint; float32; float64; complex64; complex128 }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		{binaryops; token.SUB; true; false; { int; uint; float32; float64; complex64; complex128 }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+func (c *Comp) Mul(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.MUL; false; false; { int; uint; float32; float64; complex64; complex128 }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		if isLiteralNumber(y, 1) {
+			return xe
+		}
+		{binaryops; token.MUL; false; true; { int; uint; float32; float64; complex64; complex128 }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		if isLiteralNumber(x, 1) {
+			return ye
+		}
+		{binaryops; token.MUL; true; false; { int; uint; float32; float64; complex64; complex128 }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.QUO; false; false; { int; uint; float32; float64; complex64; complex128 }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		if isLiteralNumber(y, 0) {
+			c.Errorf("division by zero")
+			return nil
+		}
+		if isLiteralNumber(y, 1) {
+			return xe
+		}
+		{binaryops; token.QUO; false; true; { int; uint; float32; float64; complex64; complex128 }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		{binaryops; token.QUO; true; false; { int; uint; float32; float64; complex64; complex128 }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.REM; false; false; { int; uint }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		// cannot optimize x % 1 to 0 because x may have side effects
+		if isLiteralNumber(y, 0) {
+			c.Errorf("division by zero")
+			return nil
+		}
+		{binaryops; token.REM; false; true; { int; uint }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		{binaryops; token.REM; true; false; { int; uint }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.AND; false; false; { int; uint }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		// cannot optimize x & 0 to 0 because x may have side effects
+		if isLiteralNumber(y, -1) {
+			return xe
+		}
+		{binaryops; token.AND; false; true; { int; uint }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		// cannot optimize 0 & y to 0 because y may have side effects
+		if isLiteralNumber(x, -1) {
+			return ye
+		}
+		{binaryops; token.AND; true; false; { int; uint }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+func (c *Comp) Or(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.OR; false; false; { int; uint }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		// cannot optimize x | -1 to -1 because x may have side effects
+		if isLiteralNumber(y, 0) {
+			return xe
+		}
+		{binaryops; token.OR; false; true; { int; uint }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		// cannot optimize -1 & y to -1 because x may have side effects
+		if isLiteralNumber(x, 0) {
+			return ye
+		}
+		{binaryops; token.OR; true; false; { int; uint }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+func (c *Comp) Xor(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.XOR; false; false; { int; uint }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		if isLiteralNumber(y, 0) {
+			return xe
+		}
+		{binaryops; token.XOR; false; true; { int; uint }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		if isLiteralNumber(x, 0) {
+			return ye
+		}
+		{binaryops; token.XOR; true; false; { int; uint }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	xc, yc := xe.Const(), ye.Const()
+	c.toSameFuncType(node, xe, ye)
+	k := xe.Type.Kind()
+
+	// if both x and y are constants, BinaryExpr will invoke EvalConst()
+	// on our return value. no need to optimize that.
+	var fun I
+	if xc == yc {
+		x, y := xe.Fun, ye.Fun
+		{binaryops; token.AND_NOT; false; false; { int; uint }}
+	} else if yc {
+		x := xe.Fun
+		y := ye.Value
+		// cannot optimize x &^ -1 to 0 because x may have side effects
+		if isLiteralNumber(y, 0) {
+			return xe
+		}
+		{binaryops; token.AND_NOT; false; true; { int; uint }}
+	} else {
+		x := xe.Value
+		y := ye.Fun
+		// cannot optimize 0 &^ y to 0 because y may have side effects
+		{binaryops; token.AND_NOT; true; false; { int; uint }}
+	}
+	return ExprFun(xe.Type, fun)
+}
+
+

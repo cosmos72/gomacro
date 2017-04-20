@@ -74,7 +74,7 @@ func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMod
 	}
 }
 
-func (ir *InterpreterBase) ImportPackage(name, path string) *PackageRef {
+func (ir *Globals) ImportPackage(name, path string) *PackageRef {
 	if pkg, ok := imports.Packages[path]; ok {
 		return &PackageRef{Package: pkg, Name: name, Path: path}
 	}
@@ -102,7 +102,7 @@ func (ir *InterpreterBase) ImportPackage(name, path string) *PackageRef {
 		Name:    name, Path: path}
 }
 
-func (ir *InterpreterBase) createImportFile(path string, pkg *types.Package, internal bool) string {
+func (ir *Globals) createImportFile(path string, pkg *types.Package, internal bool) string {
 	buf := bytes.Buffer{}
 	isEmpty := ir.writeImportFile(&buf, path, pkg, internal)
 	if isEmpty {
@@ -156,7 +156,7 @@ func computeImportFilename(path string, internal bool) string {
 	return filename
 }
 
-func (ir *InterpreterBase) writeImportFile(out *bytes.Buffer, path string, pkg *types.Package, internal bool) (isEmpty bool) {
+func (ir *Globals) writeImportFile(out *bytes.Buffer, path string, pkg *types.Package, internal bool) (isEmpty bool) {
 	scope := pkg.Scope()
 	names := scope.Names()
 
@@ -279,7 +279,7 @@ func Exports() (map[string]Value, map[string]Type, map[string]Type) {
 	return isEmpty
 }
 
-func (ir *InterpreterBase) detectIntKind(path, name, str string) (string, string) {
+func (ir *Globals) detectIntKind(path, name, str string) (string, string) {
 	i, err := strconv.ParseInt(str, 0, 64)
 	if err == nil {
 		if i == int64(int32(i)) {

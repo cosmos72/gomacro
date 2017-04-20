@@ -32,8 +32,8 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	fast "github.com/cosmos72/gomacro/fast_interpreter"
-	classic "github.com/cosmos72/gomacro/interpreter"
+	"github.com/cosmos72/gomacro/fast"
+	"github.com/cosmos72/gomacro/classic"
 )
 
 type TestFor int

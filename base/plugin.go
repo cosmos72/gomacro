@@ -51,7 +51,7 @@ func getGoSrcPath() string {
 	return getGoPath() + "/src"
 }
 
-func (ir *InterpreterBase) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
+func (ir *Globals) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := getGoSrcPath()
 	gosrclen := len(gosrcdir)
 	filelen := len(filename)
@@ -79,7 +79,7 @@ func (ir *InterpreterBase) compilePlugin(filename string, stdout io.Writer, stde
 	return fmt.Sprintf("%s/%s.so", dirname, filename)
 }
 
-func (ir *InterpreterBase) loadPlugin(soname string, symbolName string) interface{} {
+func (ir *Globals) loadPlugin(soname string, symbolName string) interface{} {
 	pkg, err := plugin.Open(soname)
 	if err != nil {
 		ir.Errorf("error loading plugin %q: %v", soname, err)

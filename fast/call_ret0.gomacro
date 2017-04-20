@@ -1,0 +1,374 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * call_ret0.go
+ *
+ *  Created on Apr 15, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast
+
+import (
+	r "reflect"
+)
+
+:import (
+	"go/ast"
+	"go/token"
+	r "reflect"
+)
+
+func call0ret0(c *Call) func(env *Env) {
+	funvar := c.Funvar
+	if funvar == nil {
+		exprfun := c.Fun.AsX1()
+		return func(env *Env) {
+			fun := exprfun(env).Interface().(func())
+			fun()
+		}
+	}
+	funupn := funvar.Upn
+	funindex := funvar.Desc.Index()
+	switch funupn {
+	case 0:
+		return func(env *Env) {
+			fun := env.Binds[funindex].Interface().(func())
+			fun()
+		}
+	case 1:
+		return func(env *Env) {
+			fun := env.Outer.Binds[funindex].Interface().(func())
+			fun()
+		}
+	case 2:
+		return func(env *Env) {
+			fun := env.Outer.Outer.Binds[funindex].Interface().(func())
+			fun()
+		}
+	case 3:
+		return func(env *Env) {
+			fun := env.Outer.Outer.Outer.Binds[funindex].Interface().(func())
+			fun()
+		}
+	default:
+		return func(env *Env) {
+			env = env.Outer.Outer.Outer.Outer
+			for i := 4; i < funupn; i++ {
+				env = env.Outer
+			}
+			fun := env.Binds[funindex].Interface().(func())
+			fun()
+		}
+	}
+}
+
+:macro mcall1ret0(argtyp ast.Node) ast.Node {
+
+	if EvalType(argtyp) == nil {
+		return ~"{
+			argfun := argfuns[0]
+			call = func(env *Env) {
+				funv := exprfun(env)
+				// keep the argument wrapped in a reflect.Value
+				argv := []r.Value{
+					argfun(env),
+				}
+				funv.Call(argv)
+			}
+		}
+	}
+
+	return ~"{
+		if args[0].Const() {
+			argconst := args[0].Value.(~,argtyp)
+			call = func(env *Env) {
+				fun := exprfun(env).Interface().(func(~,argtyp))
+				// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+				fun(argconst)
+			}
+		} else {
+			argfun := args[0].Fun.(func(env *Env) ~,argtyp)
+			call = func(env *Env) {
+				fun := exprfun(env).Interface().(func(~,argtyp))
+				arg := argfun(env)
+				// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+				fun(arg)
+			}
+		}
+	}
+}
+
+
+
+func call1ret0(c *Call) func(env *Env) {
+	expr := c.Fun
+	exprfun := expr.AsX1()
+	args := c.Args
+	argfuns := c.Argfuns
+
+	t := expr.Type.In(0)
+	var call func(env *Env)
+	switch t.Kind() {
+	case r.Bool:      {mcall1ret0; bool}
+	case r.Int:       {mcall1ret0; int}
+	case r.Int8:      {mcall1ret0; int8}
+	case r.Int16:     {mcall1ret0; int16}
+	case r.Int32:     {mcall1ret0; int32}
+	case r.Int64:     {mcall1ret0; int64}
+	case r.Uint:      {mcall1ret0; uint}
+	case r.Uint8:     {mcall1ret0; uint8}
+	case r.Uint16:    {mcall1ret0; uint16}
+	case r.Uint32:    {mcall1ret0; uint32}
+	case r.Uint64:    {mcall1ret0; uint64}
+	case r.Uintptr:   {mcall1ret0; uintptr}
+	case r.Float32:   {mcall1ret0; float32}
+	case r.Float64:   {mcall1ret0; float64}
+	case r.Complex64: {mcall1ret0; complex64}
+	case r.Complex128:{mcall1ret0; complex128}
+	case r.String:    {mcall1ret0; string}
+	default:          {mcall1ret0; nil}
+	}
+	return call
+}
+
+:macro mcall2ret0(arg0typ, arg1typ ast.Node) ast.Node {
+
+	if EvalType(arg0typ) == nil || EvalType(arg1typ) == nil {
+		return ~"{
+			call = func(env *Env) {
+				funv := exprfun(env)
+				// keep the arguments wrapped in a reflect.Value
+				argv := []r.Value{
+					argfuns[0](env),
+					argfuns[1](env),
+				}
+				funv.Call(argv)
+			}
+		}
+	}
+
+	return ~"{
+		if funvar == nil {
+			if args[0].Const() {
+				arg0const := args[0].Value.(~,arg0typ)
+				if args[1].Const() {
+					arg1const := args[1].Value.(~,arg1typ)
+					call = func(env *Env) {
+						fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
+						fun(arg0const, arg1const)
+					}
+				} else {
+					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
+					call = func(env *Env) {
+						fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
+						arg1 := arg1fun(env)
+						fun(arg0const, arg1)
+					}
+				}
+			} else {
+				arg0fun := args[0].Fun.(func(env *Env) ~,arg0typ)
+				if args[1].Const() {
+					arg1const := args[1].Value.(~,arg1typ)
+					call = func(env *Env) {
+						fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
+						arg0 := arg0fun(env)
+						fun(arg0, arg1const)
+					}
+				} else {
+					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
+					call = func(env *Env) {
+						fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
+						arg0 := arg0fun(env)
+						arg1 := arg1fun(env)
+						fun(arg0, arg1)
+					}
+				}
+			}
+		} else if funupn != 1 {
+			// general case
+			if args[0].Const() {
+				arg0const := args[0].Value.(~,arg0typ)
+				if args[1].Const() {
+					arg1const := args[1].Value.(~,arg1typ)
+					call = func(env *Env) {
+						o := env
+						for i := 0; i < funupn; i++ {
+							o = o.Outer
+						}
+						fun := o.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
+						fun(arg0const, arg1const)
+					}
+				} else {
+					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
+					call = func(env *Env) {
+						o := env
+						for i := 0; i < funupn; i++ {
+							o = o.Outer
+						}
+						fun := o.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
+						arg1 := arg1fun(env)
+						fun(arg0const, arg1)
+					}
+				}
+			} else {
+				arg0fun := args[0].Fun.(func(env *Env) ~,arg0typ)
+				if args[1].Const() {
+					arg1const := args[1].Value.(~,arg1typ)
+					call = func(env *Env) {
+						o := env
+						for i := 0; i < funupn; i++ {
+							o = o.Outer
+						}
+						fun := o.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
+						arg0 := arg0fun(env)
+						fun(arg0, arg1const)
+					}
+				} else {
+					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
+					call = func(env *Env) {
+						o := env
+						for i := 0; i < funupn; i++ {
+							o = o.Outer
+						}
+						fun := o.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
+						arg0 := arg0fun(env)
+						arg1 := arg1fun(env)
+						fun(arg0, arg1)
+					}
+				}
+			}
+		} else {
+			// frequent case... function is defined in outer environment
+			if args[0].Const() {
+				arg0const := args[0].Value.(~,arg0typ)
+				if args[1].Const() {
+					arg1const := args[1].Value.(~,arg1typ)
+					call = func(env *Env) {
+						fun := env.Outer.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
+						fun(arg0const, arg1const)
+					}
+				} else {
+					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
+					call = func(env *Env) {
+						fun := env.Outer.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
+						arg1 := arg1fun(env)
+						fun(arg0const, arg1)
+					}
+				}
+			} else {
+				arg0fun := args[0].Fun.(func(env *Env) ~,arg0typ)
+				if args[1].Const() {
+					arg1const := args[1].Value.(~,arg1typ)
+					call = func(env *Env) {
+						fun := env.Outer.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
+						arg0 := arg0fun(env)
+						fun(arg0, arg1const)
+					}
+				} else {
+					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
+					call = func(env *Env) {
+						fun := env.Outer.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
+						arg0 := arg0fun(env)
+						arg1 := arg1fun(env)
+						fun(arg0, arg1)
+					}
+				}
+			}
+		}
+	}
+}
+
+
+func call2ret0(c *Call) func(env *Env) {
+	expr := c.Fun
+	exprfun := expr.AsX1()
+	funvar := c.Funvar
+	var funupn, funindex int
+	if funvar != nil {
+		funupn = funvar.Upn
+		funindex = funvar.Desc.Index()
+	}
+	args := c.Args
+	argfuns := c.Argfuns
+	var call func(env *Env)
+	if expr.Type.In(0) == expr.Type.In(1) {
+		t := expr.Type.In(0)
+		switch t.Kind() {
+		case r.Bool:      {mcall2ret0; bool;   bool}
+		case r.Int:       {mcall2ret0; int;    int}
+		case r.Int8:      {mcall2ret0; int8;   int8}
+		case r.Int16:     {mcall2ret0; int16;  int16}
+		case r.Int32:     {mcall2ret0; int32;  int32}
+		case r.Int64:     {mcall2ret0; int64;  int64}
+		case r.Uint:      {mcall2ret0; uint;   uint}
+		case r.Uint8:     {mcall2ret0; uint8;  uint8}
+		case r.Uint16:    {mcall2ret0; uint16; uint16}
+		case r.Uint32:    {mcall2ret0; uint32; uint32}
+		case r.Uint64:    {mcall2ret0; uint64; uint64}
+		case r.Uintptr:   {mcall2ret0; uintptr;uintptr}
+		case r.Float32:   {mcall2ret0; float32;    float32}
+		case r.Float64:   {mcall2ret0; float64;    float64}
+		case r.Complex64: {mcall2ret0; complex64;  complex64}
+		case r.Complex128:{mcall2ret0; complex128; complex128}
+		case r.String:    {mcall2ret0; string;     string}
+		}
+	}
+	if call == nil {
+		{mcall2ret0; nil; nil}
+	}
+	return call
+}
+
+// mandatory optimization: fast_interpreter ASSUMES that expressions
+// returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
+func call_ret0(c *Call) func(env *Env) {
+	exprfun := c.Fun.AsX1()
+	argfuns := c.Argfuns
+	var call func(*Env)
+	// optimize fun(t1, t2)
+	switch c.Fun.Type.NumIn() {
+	case 0:
+		call = call0ret0(c)
+	case 1:
+		call = call1ret0(c)
+	case 2:
+		call = call2ret0(c)
+	case 3:
+		call = func(env *Env) {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfuns[0](env),
+				argfuns[1](env),
+				argfuns[2](env),
+			}
+			funv.Call(argv)
+		}
+	}
+	if call == nil {
+		call = func(env *Env) {
+			funv := exprfun(env)
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
+				argv[i] = argfun(env)
+			}
+			funv.Call(argv)
+		}
+	}
+	return call
+}

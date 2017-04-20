@@ -27,28 +27,19 @@ package main
 import (
 	"fmt"
 	"os"
-	// "unsafe"
 
 	"github.com/cosmos72/gomacro/base"
-	gmi "github.com/cosmos72/gomacro/interpreter"
-	gmp "github.com/cosmos72/gomacro/parser"
+	"github.com/cosmos72/gomacro/classic"
+	"github.com/cosmos72/gomacro/parser"
 )
 
 func main() {
-	/*
-		for i := 0; i <= 3; i++ {
-			i := i
-			f := func() int { return i }
-			fmt.Printf("%v %x\n", f, **(**uintptr)(unsafe.Pointer(&f)))
-		}
-	*/
-
 	args := os.Args[1:]
 
-	var cmd gmi.Cmd
+	var cmd classic.Cmd
 	cmd.Init()
 
-	cmd.ParserMode |= gmp.Trace & 0
+	cmd.ParserMode |= parser.Trace & 0
 	cmd.Options |= base.OptShowTime & 0 // base.OptTrapPanic // | base.OptShowAfterMacroExpansion // | base.OptShowAfterParse // | base.OptDebugMacroExpand // |  base.OptDebugQuasiquote
 
 	err := cmd.Main(args)

@@ -34,8 +34,8 @@ import (
 	ci "github.com/cosmos72/gomacro/experiments/closure_interfaces"
 	cm "github.com/cosmos72/gomacro/experiments/closure_maps"
 	cv "github.com/cosmos72/gomacro/experiments/closure_values"
-	fast "github.com/cosmos72/gomacro/fast_interpreter"
-	classic "github.com/cosmos72/gomacro/interpreter"
+	"github.com/cosmos72/gomacro/fast"
+	"github.com/cosmos72/gomacro/classic"
 )
 
 const (

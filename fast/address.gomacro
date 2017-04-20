@@ -1,0 +1,158 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * address.go
+ *
+ *  Created on Apr 05, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast
+
+import (
+	"go/ast"
+	r "reflect"
+	"unsafe"
+	
+	"github.com/cosmos72/gomacro/base"
+)
+
+:import (
+	"go/ast"
+	r "reflect"
+)
+
+
+:func faddress(upn int, typ ast.Node) ast.Node {
+	// the return type of Eval() and EvalType() varies. better check early.
+	var t r.Type = EvalType(typ)
+	var decls, bind, rettype ast.Node
+
+	if upn == 0 {
+		decls = ~'{{
+			env.AddressTaken = true
+		}}
+	} else if upn > 0 {
+		decls = ~'env
+		for i := 0; i < upn; i++ {
+			decls = ~"{~,decls. Outer}
+		}
+		decls = ~"{
+			env = ~,decls
+			env.AddressTaken = true
+		}
+	} else {
+		decls = ~'{
+			env = env.Outer.Outer.Outer
+			for i := 3; i < upn; i++ {
+				env = env.Outer
+			}
+			env.AddressTaken = true
+		}
+	}
+	if t == nil {
+		bind = ~'{env .Binds[index].Addr()}
+		rettype = ~'{r.Value}
+	} else {
+		rettype = ~"{* ~,typ}
+		if t.Kind() == r.Uint64 {
+			bind = ~'{&env.IntBinds[index]}
+		} else {
+			bind = ~"{(*~,typ)(unsafe.Pointer(&env.IntBinds[index]))}
+		}
+	}
+
+	return ~"{
+		ret = func(env *Env) (~,rettype) {
+			~,@decls
+			return ~,bind
+		}
+	}
+}
+
+:macro address(depth ast.Node, typ ast.Node) ast.Node {
+	// the return type of Eval() and EvalType() varies. better check early.
+	var upn int = Eval(depth)
+
+	return faddress(upn, typ)
+}
+
+:macro addresses(depth ast.Node) ast.Node {
+	return ~"{
+		switch k {
+		case r.Bool:       address; ~,depth; bool
+		case r.Int:        address; ~,depth; int
+		case r.Int8:       address; ~,depth; int8
+		case r.Int16:      address; ~,depth; int16
+		case r.Int32:      address; ~,depth; int32
+		case r.Int64:      address; ~,depth; int64
+		case r.Uint:       address; ~,depth; uint
+		case r.Uint8:      address; ~,depth; uint8
+		case r.Uint16:     address; ~,depth; uint16
+		case r.Uint32:     address; ~,depth; uint32
+		case r.Uint64:     address; ~,depth; uint64
+		case r.Uintptr:    address; ~,depth; uintptr
+		case r.Float32:    address; ~,depth; float32
+		case r.Float64:    address; ~,depth; float64
+		case r.Complex64:  address; ~,depth; complex64
+		default:           address; ~,depth; nil
+		}
+	}
+}
+
+// AddressOf compiles the unary operator &expression i.e. address of an expression
+func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
+	place := c.PlaceOrAddress(node.X, true)
+	if place.Fun != nil {
+		return c.badUnaryExpr("unimplemented: address of non-identifier", node, nil)
+	}
+	return place.Var.Address()
+}
+
+// AddressOfVar is a convenience function for applications:
+// it compiles the operation &name, i.e. taking the address of a variable
+func (c *Comp) AddressOfVar(name string) *Expr {
+	upn, bind := c.Resolve(name)
+	class := bind.Desc.Class()
+	switch class {
+	default:
+		c.Errorf("cannot take the address of %s: %v", class, name)
+		return nil
+	case VarBind, IntBind:
+		va := bind.AsVar(upn)
+		return va.Address()
+	}
+}
+
+func (va *Var) Address() *Expr {
+	upn := va.Upn
+	k := va.Type.Kind()
+	index := va.Desc.Index()
+	if index == NoIndex {
+		base.Errorf("cannot take the address of %s: _", va.Desc.Class())
+		return nil
+	}
+	var ret I
+	switch upn {
+	case 0:  {addresses; 0}
+	case 1:  {addresses; 1}
+	case 2:  {addresses; 2}
+	default: {addresses; -1}
+	}
+	return &Expr{Lit: Lit{Type: r.PtrTo(va.Type)}, Fun: ret}
+}
