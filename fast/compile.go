@@ -30,54 +30,68 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 )
 
 func NewThreadGlobals() *ThreadGlobals {
-	var g Globals
-	g.Init()
 	return &ThreadGlobals{
-		Globals: &g,
+		Globals: base.NewGlobals(),
 	}
 }
 
 func New() *CompEnv {
-	top := NewCompEnv(nil, "builtin")
+	top := NewCompEnvTop("builtin")
 	top.env.UsedByClosure = true // do not free this *Env
 	file := NewCompEnv(top, "main")
 	file.env.UsedByClosure = true // do not free this *Env
 	return file
 }
 
+func NewCompEnvTop(path string) *CompEnv {
+	name := path[1+strings.LastIndexByte(path, '/'):]
+
+	globals := base.NewGlobals()
+	threadGlobals := &ThreadGlobals{Globals: globals}
+	c := &CompEnv{
+		Comp: &Comp{
+			UpCost:  1,
+			Depth:   0,
+			Outer:   nil,
+			Name:    name,
+			Path:    path,
+			Globals: globals,
+		},
+		env: &Env{
+			Outer:         nil,
+			ThreadGlobals: threadGlobals,
+		},
+	}
+	threadGlobals.TopEnv = c.env
+	c.addBuiltins()
+	return c
+}
+
 func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
-	var outerComp *Comp
-	var outerEnv *Env
-	var globals *ThreadGlobals
-	if outer != nil {
-		outerComp = outer.Comp
-		outerEnv = outer.env
-		globals = outerComp.ThreadGlobals
-	}
-	if globals == nil {
-		globals = NewThreadGlobals()
-	}
+	globals := outer.Comp.Globals
+	threadGlobals := outer.env.ThreadGlobals
 	c := &CompEnv{
 		Comp: &Comp{
-			UpCost:        1,
-			Outer:         outerComp,
-			Name:          name,
-			Path:          path,
-			ThreadGlobals: globals,
+			UpCost:  1,
+			Depth:   outer.Comp.Depth + 1,
+			Outer:   outer.Comp,
+			Name:    name,
+			Path:    path,
+			Globals: globals,
 		},
 		env: &Env{
-			Outer:         outerEnv,
-			ThreadGlobals: globals,
+			Outer:         outer.env,
+			ThreadGlobals: threadGlobals,
 		},
 	}
-	if outer == nil {
-		c.addBuiltins()
+	if outer.env.Outer == nil {
+		threadGlobals.FileEnv = c.env
 	}
 	return c
 }
@@ -88,10 +102,11 @@ func NewComp(outer *Comp) *Comp {
 	}
 	return &Comp{
 		UpCost:         1,
+		Depth:          outer.Depth + 1,
 		Code:           outer.Code,
 		Outer:          outer,
 		CompileOptions: outer.CompileOptions,
-		ThreadGlobals:  outer.ThreadGlobals,
+		Globals:        outer.Globals,
 	}
 }
 
@@ -115,7 +130,7 @@ func (c *Comp) File() *Comp {
 }
 
 // if a function Env only declares ignored binds, it gets this scratch buffers
-var ignoredBinds = []r.Value{Nil}
+var ignoredBinds = []r.Value{base.Nil}
 var ignoredIntBinds = []uint64{0}
 
 func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {

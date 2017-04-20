@@ -73,12 +73,12 @@ func (ce *CompEnv) DeclFunc(name string, fun I) {
 	ce.Comp.DeclFunc0(name, fun)
 }
 
-// DefType compiles a type declaration
+// DeclType compiles a type declaration
 func (ce *CompEnv) DeclType(name string, t r.Type) {
 	ce.Comp.DeclType0(name, t)
 }
 
-// DefVar compiles a variable declaration, then executes it
+// DeclVar compiles a variable declaration
 func (ce *CompEnv) DeclVar(name string, t r.Type, value I) {
 	ce.Comp.DeclVar0(name, t, exprValue(value))
 }
@@ -95,6 +95,12 @@ func (ce *CompEnv) Apply() {
 // AddressOfVar compiles the expression &name, then executes it
 func (ce *CompEnv) AddressOfVar(name string) r.Value {
 	expr := ce.Comp.AddressOfVar(name)
+	return ce.Exec1(expr)
+}
+
+// ValueOf retrieves the value of a constant, function or variable
+func (ce *CompEnv) ValueOf(name string) r.Value {
+	expr := ce.Comp.Ident(name)
 	return ce.Exec1(expr)
 }
 

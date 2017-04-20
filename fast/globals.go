@@ -313,11 +313,13 @@ const (
 
 // ThreadGlobals contains per-goroutine interpreter bookeeping information
 type ThreadGlobals struct {
-	*base.Globals
+	FileEnv   *Env
+	TopEnv    *Env
 	Interrupt Stmt
 	Signal    Signal // set by interrupts: Return, Defer...
 	PoolSize  int
 	Pool      [PoolCapacity]*Env
+	*base.Globals
 }
 
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
@@ -329,6 +331,7 @@ type Comp struct {
 	// UpCost is the number of *Env.Outer hops to perform at runtime to reach the *Env corresponding to *Comp.Outer
 	// usually equals one. will be zero if this *Comp defines no local variables/functions.
 	UpCost         int
+	Depth          int
 	Types          map[string]r.Type
 	NamedTypes     map[r.Type]NamedType
 	Code           Code // "compiled" code
@@ -338,8 +341,15 @@ type Comp struct {
 	Name           string // set by "package" directive
 	Path           string
 	CompileOptions CompileOptions
-	*ThreadGlobals
+	*base.Globals
 }
+
+const (
+	// conventional values
+	AnyDepth  = -1
+	FileDepth = -2
+	TopDepth  = -3
+)
 
 type Signal int
 

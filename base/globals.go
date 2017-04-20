@@ -75,6 +75,12 @@ func (g *Globals) Init() {
 	g.SpecialChar = '~'
 }
 
+func NewGlobals() *Globals {
+	g := &Globals{}
+	g.Init()
+	return g
+}
+
 func IsReflectGensym(name string) bool {
 	return strings.HasPrefix(name, ReflectGensymPrefix)
 }

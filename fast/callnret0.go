@@ -21,7 +21,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * call_ret0.go
+ * callnret0.go
  *
  *  Created on Apr 15, 2017
  *      Author Massimiliano Ghilardi
@@ -33,7 +33,7 @@ import (
 	r "reflect"
 )
 
-func call0ret0(c *Call) func(env *Env) {
+func call0ret0(c *Call, maxdepth int) func(env *Env) {
 	funvar := c.Funvar
 	if funvar == nil {
 		exprfun := c.Fun.AsX1()
@@ -60,10 +60,15 @@ func call0ret0(c *Call) func(env *Env) {
 			fun := env.Outer.Outer.Binds[funindex].Interface().(func())
 			fun()
 		}
+	case 3:
+		return func(env *Env) {
+			fun := env.Outer.Outer.Outer.Binds[funindex].Interface().(func())
+			fun()
+		}
 	default:
 		return func(env *Env) {
-			env = env.Outer.Outer.Outer
-			for i := 3; i < funupn; i++ {
+			env = env.Outer.Outer.Outer.Outer
+			for i := 4; i < funupn; i++ {
 				env = env.Outer
 			}
 
@@ -72,7 +77,7 @@ func call0ret0(c *Call) func(env *Env) {
 		}
 	}
 }
-func call1ret0(c *Call) func(env *Env) {
+func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
 	args := c.Args
@@ -393,7 +398,7 @@ func call1ret0(c *Call) func(env *Env) {
 	}
 	return call
 }
-func call2ret0(c *Call) func(env *Env) {
+func call2ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
 	funvar := c.Funvar
@@ -446,19 +451,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(bool)
 					if args[1].Const() {
 						arg1const := args[1].Value.(bool)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(bool, bool))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(bool, bool))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) bool)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(bool, bool))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(bool, bool))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -468,14 +483,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(bool)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(bool, bool))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(bool, bool))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) bool)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(bool, bool))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(bool, bool))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -487,23 +512,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(bool)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(bool, bool))
+						fun := env.Outer.Binds[funindex].Interface().(func(bool, bool))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) bool)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(bool, bool))
+						fun := env.Outer.Binds[funindex].Interface().(func(bool, bool))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -513,24 +528,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(bool)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(bool, bool))
+						fun := env.Outer.Binds[funindex].Interface().(func(bool, bool))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) bool)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(bool, bool))
+						fun := env.Outer.Binds[funindex].Interface().(func(bool, bool))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -574,19 +579,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(int)
 					if args[1].Const() {
 						arg1const := args[1].Value.(int)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int, int))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int, int))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int, int))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int, int))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -596,14 +611,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(int)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int, int))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int, int))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int, int))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int, int))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -615,23 +640,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int, int))
+						fun := env.Outer.Binds[funindex].Interface().(func(int, int))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int, int))
+						fun := env.Outer.Binds[funindex].Interface().(func(int, int))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -641,24 +656,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int, int))
+						fun := env.Outer.Binds[funindex].Interface().(func(int, int))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int, int))
+						fun := env.Outer.Binds[funindex].Interface().(func(int, int))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -702,19 +707,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(int8)
 					if args[1].Const() {
 						arg1const := args[1].Value.(int8)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int8, int8))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int8, int8))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int8)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int8, int8))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int8, int8))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -724,14 +739,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(int8)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int8, int8))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int8, int8))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int8)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int8, int8))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int8, int8))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -743,23 +768,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int8)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int8, int8))
+						fun := env.Outer.Binds[funindex].Interface().(func(int8, int8))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int8)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int8, int8))
+						fun := env.Outer.Binds[funindex].Interface().(func(int8, int8))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -769,24 +784,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int8)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int8, int8))
+						fun := env.Outer.Binds[funindex].Interface().(func(int8, int8))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int8)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int8, int8))
+						fun := env.Outer.Binds[funindex].Interface().(func(int8, int8))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -830,19 +835,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(int16)
 					if args[1].Const() {
 						arg1const := args[1].Value.(int16)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int16, int16))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int16, int16))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int16)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int16, int16))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int16, int16))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -852,14 +867,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(int16)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int16, int16))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int16, int16))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int16)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int16, int16))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int16, int16))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -871,23 +896,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int16)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int16, int16))
+						fun := env.Outer.Binds[funindex].Interface().(func(int16, int16))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int16)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int16, int16))
+						fun := env.Outer.Binds[funindex].Interface().(func(int16, int16))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -897,24 +912,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int16)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int16, int16))
+						fun := env.Outer.Binds[funindex].Interface().(func(int16, int16))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int16)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int16, int16))
+						fun := env.Outer.Binds[funindex].Interface().(func(int16, int16))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -958,19 +963,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(int32)
 					if args[1].Const() {
 						arg1const := args[1].Value.(int32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int32, int32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int32, int32))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int32, int32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int32, int32))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -980,14 +995,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(int32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int32, int32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int32, int32))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int32, int32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int32, int32))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -999,23 +1024,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int32, int32))
+						fun := env.Outer.Binds[funindex].Interface().(func(int32, int32))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int32, int32))
+						fun := env.Outer.Binds[funindex].Interface().(func(int32, int32))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -1025,24 +1040,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int32, int32))
+						fun := env.Outer.Binds[funindex].Interface().(func(int32, int32))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int32, int32))
+						fun := env.Outer.Binds[funindex].Interface().(func(int32, int32))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -1086,19 +1091,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(int64)
 					if args[1].Const() {
 						arg1const := args[1].Value.(int64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int64, int64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int64, int64))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int64, int64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int64, int64))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -1108,14 +1123,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(int64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int64, int64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int64, int64))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) int64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(int64, int64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(int64, int64))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -1127,23 +1152,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int64, int64))
+						fun := env.Outer.Binds[funindex].Interface().(func(int64, int64))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int64, int64))
+						fun := env.Outer.Binds[funindex].Interface().(func(int64, int64))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -1153,24 +1168,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(int64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int64, int64))
+						fun := env.Outer.Binds[funindex].Interface().(func(int64, int64))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) int64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(int64, int64))
+						fun := env.Outer.Binds[funindex].Interface().(func(int64, int64))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -1214,19 +1219,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(uint)
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint, uint))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint, uint))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint, uint))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint, uint))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -1236,14 +1251,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint, uint))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint, uint))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint, uint))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint, uint))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -1255,23 +1280,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint, uint))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint, uint))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint, uint))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint, uint))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -1281,24 +1296,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint, uint))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint, uint))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint, uint))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint, uint))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -1342,19 +1347,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(uint8)
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint8)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint8, uint8))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint8, uint8))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint8)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint8, uint8))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint8, uint8))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -1364,14 +1379,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint8)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint8, uint8))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint8, uint8))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint8)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint8, uint8))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint8, uint8))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -1383,23 +1408,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint8)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint8, uint8))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint8, uint8))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint8)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint8, uint8))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint8, uint8))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -1409,24 +1424,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint8)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint8, uint8))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint8, uint8))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint8)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint8, uint8))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint8, uint8))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -1470,19 +1475,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(uint16)
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint16)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint16, uint16))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint16, uint16))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint16)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint16, uint16))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint16, uint16))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -1492,14 +1507,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint16)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint16, uint16))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint16, uint16))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint16)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint16, uint16))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint16, uint16))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -1511,23 +1536,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint16)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint16, uint16))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint16, uint16))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint16)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint16, uint16))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint16, uint16))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -1537,24 +1552,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint16)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint16, uint16))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint16, uint16))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint16)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint16, uint16))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint16, uint16))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -1598,19 +1603,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(uint32)
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint32, uint32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint32, uint32))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint32, uint32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint32, uint32))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -1620,14 +1635,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint32, uint32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint32, uint32))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint32, uint32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint32, uint32))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -1639,23 +1664,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint32, uint32))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint32, uint32))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint32, uint32))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint32, uint32))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -1665,24 +1680,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint32, uint32))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint32, uint32))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint32, uint32))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint32, uint32))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -1726,19 +1731,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(uint64)
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint64, uint64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint64, uint64))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint64, uint64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint64, uint64))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -1748,14 +1763,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(uint64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint64, uint64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint64, uint64))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uint64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uint64, uint64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uint64, uint64))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -1767,23 +1792,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint64, uint64))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint64, uint64))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint64, uint64))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint64, uint64))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -1793,24 +1808,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uint64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint64, uint64))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint64, uint64))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uint64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uint64, uint64))
+						fun := env.Outer.Binds[funindex].Interface().(func(uint64, uint64))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -1854,19 +1859,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(uintptr)
 					if args[1].Const() {
 						arg1const := args[1].Value.(uintptr)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uintptr, uintptr))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uintptr, uintptr))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uintptr)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uintptr, uintptr))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uintptr, uintptr))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -1876,14 +1891,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(uintptr)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uintptr, uintptr))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uintptr, uintptr))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) uintptr)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(uintptr, uintptr))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(uintptr, uintptr))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -1895,23 +1920,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uintptr)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uintptr, uintptr))
+						fun := env.Outer.Binds[funindex].Interface().(func(uintptr, uintptr))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uintptr)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uintptr, uintptr))
+						fun := env.Outer.Binds[funindex].Interface().(func(uintptr, uintptr))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -1921,24 +1936,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(uintptr)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uintptr, uintptr))
+						fun := env.Outer.Binds[funindex].Interface().(func(uintptr, uintptr))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) uintptr)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(uintptr, uintptr))
+						fun := env.Outer.Binds[funindex].Interface().(func(uintptr, uintptr))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -1982,19 +1987,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(float32)
 					if args[1].Const() {
 						arg1const := args[1].Value.(float32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(float32, float32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(float32, float32))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) float32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(float32, float32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(float32, float32))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -2004,14 +2019,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(float32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(float32, float32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(float32, float32))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) float32)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(float32, float32))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(float32, float32))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -2023,23 +2048,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(float32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(float32, float32))
+						fun := env.Outer.Binds[funindex].Interface().(func(float32, float32))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) float32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(float32, float32))
+						fun := env.Outer.Binds[funindex].Interface().(func(float32, float32))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -2049,24 +2064,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(float32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(float32, float32))
+						fun := env.Outer.Binds[funindex].Interface().(func(float32, float32))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) float32)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(float32, float32))
+						fun := env.Outer.Binds[funindex].Interface().(func(float32, float32))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -2110,19 +2115,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(float64)
 					if args[1].Const() {
 						arg1const := args[1].Value.(float64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(float64, float64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(float64, float64))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) float64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(float64, float64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(float64, float64))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -2132,14 +2147,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(float64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(float64, float64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(float64, float64))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) float64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(float64, float64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(float64, float64))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -2151,23 +2176,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(float64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(float64, float64))
+						fun := env.Outer.Binds[funindex].Interface().(func(float64, float64))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) float64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(float64, float64))
+						fun := env.Outer.Binds[funindex].Interface().(func(float64, float64))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -2177,24 +2192,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(float64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(float64, float64))
+						fun := env.Outer.Binds[funindex].Interface().(func(float64, float64))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) float64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(float64, float64))
+						fun := env.Outer.Binds[funindex].Interface().(func(float64, float64))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -2238,19 +2243,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(complex64)
 					if args[1].Const() {
 						arg1const := args[1].Value.(complex64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(complex64, complex64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(complex64, complex64))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) complex64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(complex64, complex64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(complex64, complex64))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -2260,14 +2275,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(complex64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(complex64, complex64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(complex64, complex64))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) complex64)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(complex64, complex64))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(complex64, complex64))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -2279,23 +2304,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(complex64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(complex64, complex64))
+						fun := env.Outer.Binds[funindex].Interface().(func(complex64, complex64))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) complex64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(complex64, complex64))
+						fun := env.Outer.Binds[funindex].Interface().(func(complex64, complex64))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -2305,24 +2320,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(complex64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(complex64, complex64))
+						fun := env.Outer.Binds[funindex].Interface().(func(complex64, complex64))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) complex64)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(complex64, complex64))
+						fun := env.Outer.Binds[funindex].Interface().(func(complex64, complex64))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -2366,19 +2371,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(complex128)
 					if args[1].Const() {
 						arg1const := args[1].Value.(complex128)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(complex128, complex128))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(complex128, complex128))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) complex128)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(complex128, complex128))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(complex128, complex128))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -2388,14 +2403,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(complex128)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(complex128, complex128))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(complex128, complex128))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) complex128)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(complex128, complex128))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(complex128, complex128))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -2407,23 +2432,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(complex128)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(complex128, complex128))
+						fun := env.Outer.Binds[funindex].Interface().(func(complex128, complex128))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) complex128)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(complex128, complex128))
+						fun := env.Outer.Binds[funindex].Interface().(func(complex128, complex128))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -2433,24 +2448,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(complex128)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(complex128, complex128))
+						fun := env.Outer.Binds[funindex].Interface().(func(complex128, complex128))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) complex128)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(complex128, complex128))
+						fun := env.Outer.Binds[funindex].Interface().(func(complex128, complex128))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -2494,19 +2499,29 @@ func call2ret0(c *Call) func(env *Env) {
 						}
 					}
 				}
-			} else if funupn == 1 {
+			} else if funupn != 1 {
 				if args[0].Const() {
 					arg0const := args[0].Value.(string)
 					if args[1].Const() {
 						arg1const := args[1].Value.(string)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(string, string))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(string, string))
 							fun(arg0const, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) string)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(string, string))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(string, string))
 							arg1 := arg1fun(env)
 							fun(arg0const, arg1)
 						}
@@ -2516,14 +2531,24 @@ func call2ret0(c *Call) func(env *Env) {
 					if args[1].Const() {
 						arg1const := args[1].Value.(string)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(string, string))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(string, string))
 							arg0 := arg0fun(env)
 							fun(arg0, arg1const)
 						}
 					} else {
 						arg1fun := args[1].Fun.(func(env *Env) string)
 						call = func(env *Env) {
-							fun := env.Outer.Binds[funindex].Interface().(func(string, string))
+							o := env
+							for i := 0; i < funupn; i++ {
+								o = o.Outer
+							}
+
+							fun := o.Binds[funindex].Interface().(func(string, string))
 							arg0 := arg0fun(env)
 							arg1 := arg1fun(env)
 							fun(arg0, arg1)
@@ -2535,23 +2560,13 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(string)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(string, string))
+						fun := env.Outer.Binds[funindex].Interface().(func(string, string))
 						fun(arg0const, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) string)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(string, string))
+						fun := env.Outer.Binds[funindex].Interface().(func(string, string))
 						arg1 := arg1fun(env)
 						fun(arg0const, arg1)
 					}
@@ -2561,24 +2576,14 @@ func call2ret0(c *Call) func(env *Env) {
 				if args[1].Const() {
 					arg1const := args[1].Value.(string)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(string, string))
+						fun := env.Outer.Binds[funindex].Interface().(func(string, string))
 						arg0 := arg0fun(env)
 						fun(arg0, arg1const)
 					}
 				} else {
 					arg1fun := args[1].Fun.(func(env *Env) string)
 					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-
-						fun := o.Binds[funindex].Interface().(func(string, string))
+						fun := env.Outer.Binds[funindex].Interface().(func(string, string))
 						arg0 := arg0fun(env)
 						arg1 := arg1fun(env)
 						fun(arg0, arg1)
@@ -2595,42 +2600,6 @@ func call2ret0(c *Call) func(env *Env) {
 				argfuns[0](env),
 				argfuns[1](env),
 			}
-			funv.Call(argv)
-		}
-	}
-	return call
-}
-func call_ret0(c *Call) func(env *Env) {
-	exprfun := c.Fun.AsX1()
-	argfuns := c.Argfuns
-	var call func(*Env)
-
-	switch c.Fun.Type.NumIn() {
-	case 0:
-		call = call0ret0(c)
-	case 1:
-		call = call1ret0(c)
-	case 2:
-		call = call2ret0(c)
-	case 3:
-		call = func(env *Env) {
-			funv := exprfun(env)
-			argv := []r.Value{
-				argfuns[0](env),
-				argfuns[1](env),
-				argfuns[2](env),
-			}
-			funv.Call(argv)
-		}
-	}
-	if call == nil {
-		call = func(env *Env) {
-			funv := exprfun(env)
-			argv := make([]r.Value, len(argfuns))
-			for i, argfun := range argfuns {
-				argv[i] = argfun(env)
-			}
-
 			funv.Call(argv)
 		}
 	}

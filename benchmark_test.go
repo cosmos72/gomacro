@@ -29,13 +29,13 @@ import (
 	"testing"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/classic"
 	bi "github.com/cosmos72/gomacro/experiments/bytecode_interfaces"
 	bv "github.com/cosmos72/gomacro/experiments/bytecode_values"
 	ci "github.com/cosmos72/gomacro/experiments/closure_interfaces"
 	cm "github.com/cosmos72/gomacro/experiments/closure_maps"
 	cv "github.com/cosmos72/gomacro/experiments/closure_values"
 	"github.com/cosmos72/gomacro/fast"
-	"github.com/cosmos72/gomacro/classic"
 )
 
 const (
@@ -215,8 +215,7 @@ func BenchmarkArithFastInterpreterBis(b *testing.B) {
 	addr := ce.AddressOfVar("n").Interface().(*int)
 
 	// interpreted code performs iteration and arithmetic
-	fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i=i+1 { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total"))
-	// fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i=i+1 { }; total"))
+	fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total"))
 
 	env := ce.PrepareEnv()
 	fun(env)

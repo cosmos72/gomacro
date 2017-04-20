@@ -45,17 +45,18 @@ type Call struct {
 // CallExpr compiles a function call
 func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 	call := c.callExpr(node)
+	maxdepth := c.Depth
 	expr := &Expr{}
 	switch len(call.OutTypes) {
 	case 0:
 		expr.Types = call.OutTypes
-		expr.Fun = call_ret0(call)
+		expr.Fun = call_ret0(call, maxdepth)
 	case 1:
 		expr.Type = call.OutTypes[0]
-		expr.Fun = call_ret1(call)
+		expr.Fun = call_ret1(call, maxdepth)
 	default:
 		expr.Types = call.OutTypes
-		expr.Fun = call_ret2plus(call)
+		expr.Fun = call_ret2plus(call, maxdepth)
 	}
 	return expr
 }
@@ -113,9 +114,66 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 	return ret
 }
 
+// mandatory optimization: fast_interpreter ASSUMES that expressions
+// returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
+func call_ret0(c *Call, maxdepth int) func(env *Env) {
+	exprfun := c.Fun.AsX1()
+	argfuns := c.Argfuns
+	var call func(*Env)
+	// optimize fun(t1, t2)
+	switch c.Fun.Type.NumIn() {
+	case 0:
+		call = call0ret0(c, maxdepth)
+	case 1:
+		call = call1ret0(c, maxdepth)
+	case 2:
+		call = call2ret0(c, maxdepth)
+	case 3:
+		call = func(env *Env) {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfuns[0](env),
+				argfuns[1](env),
+				argfuns[2](env),
+			}
+			funv.Call(argv)
+		}
+	}
+	if call == nil {
+		call = func(env *Env) {
+			funv := exprfun(env)
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
+				argv[i] = argfun(env)
+			}
+			funv.Call(argv)
+		}
+	}
+	return call
+}
+
+// mandatory optimization: fast_interpreter ASSUMES that expressions
+// returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
+func call_ret1(c *Call, maxdepth int) I {
+	expr := c.Fun
+	var call I
+	// optimize fun(tret) tret
+	switch expr.Type.NumIn() {
+	case 0:
+		call = call0ret1(c, maxdepth)
+	case 1:
+		call = call1ret1(c, maxdepth)
+	case 2:
+		call = call2ret1(c, maxdepth)
+	default:
+		call = callnret1(c, maxdepth)
+	}
+	return call
+}
+
 // cannot optimize much here... fast_interpreter ASSUMES that expressions
 // returning multiple values actually return (reflect.Value, []reflect.Value)
-func call_ret2plus(callexpr *Call) I {
+func call_ret2plus(callexpr *Call, maxdepth int) I {
 	expr := callexpr.Fun
 	exprfun := expr.AsX1()
 	argfuns := callexpr.Argfuns

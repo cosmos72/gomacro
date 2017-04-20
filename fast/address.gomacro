@@ -28,7 +28,7 @@ import (
 	"go/ast"
 	r "reflect"
 	"unsafe"
-	
+
 	"github.com/cosmos72/gomacro/base"
 )
 
@@ -37,6 +37,12 @@ import (
 	r "reflect"
 )
 
+:const (
+	// conventional values
+	AnyDepth  = -1
+	FileDepth = -2
+	TopDepth  = -3
+)
 
 :func faddress(upn int, typ ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
@@ -44,25 +50,25 @@ import (
 	var decls, bind, rettype ast.Node
 
 	if upn == 0 {
-		decls = ~'{{
-			env.AddressTaken = true
-		}}
+		decls = ~'{{ }}
 	} else if upn > 0 {
 		decls = ~'env
 		for i := 0; i < upn; i++ {
 			decls = ~"{~,decls. Outer}
 		}
-		decls = ~"{
+		decls = ~"{{
 			env = ~,decls
-			env.AddressTaken = true
-		}
+		}}
+	} else if upn == FileDepth {
+		decls = ~'{{env = env.ThreadGlobals.FileEnv}}
+	} else if upn == TopDepth {
+		decls = ~'{{env = env.ThreadGlobals.TopEnv}}
 	} else {
 		decls = ~'{
 			env = env.Outer.Outer.Outer
 			for i := 3; i < upn; i++ {
 				env = env.Outer
 			}
-			env.AddressTaken = true
 		}
 	}
 	if t == nil {
@@ -80,6 +86,7 @@ import (
 	return ~"{
 		ret = func(env *Env) (~,rettype) {
 			~,@decls
+			env.AddressTaken = true
 			return ~,bind
 		}
 	}
@@ -121,7 +128,7 @@ func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
 	if place.Fun != nil {
 		return c.badUnaryExpr("unimplemented: address of non-identifier", node, nil)
 	}
-	return place.Var.Address()
+	return place.Var.Address(c.Depth)
 }
 
 // AddressOfVar is a convenience function for applications:
@@ -135,11 +142,11 @@ func (c *Comp) AddressOfVar(name string) *Expr {
 		return nil
 	case VarBind, IntBind:
 		va := bind.AsVar(upn)
-		return va.Address()
+		return va.Address(c.Depth)
 	}
 }
 
-func (va *Var) Address() *Expr {
+func (va *Var) Address(maxdepth int) *Expr {
 	upn := va.Upn
 	k := va.Type.Kind()
 	index := va.Desc.Index()
@@ -153,6 +160,8 @@ func (va *Var) Address() *Expr {
 	case 1:  {addresses; 1}
 	case 2:  {addresses; 2}
 	default: {addresses; -1}
+	case maxdepth-1: {addresses; -2}
+	case maxdepth:   {addresses; -3}
 	}
 	return &Expr{Lit: Lit{Type: r.PtrTo(va.Type)}, Fun: ret}
 }

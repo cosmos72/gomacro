@@ -1,0 +1,311 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * call1ret1.go
+ *
+ *  Created on Apr 15, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast
+
+import (
+	r "reflect"
+)
+
+:import (
+	"go/ast"
+	"go/token"
+	r "reflect"
+)
+
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func convertret0(typ ast.Node) (ast.Node, ast.Node) {
+	var t r.Type = EvalType(typ)
+	var ret0 ast.Node = ~'{ret0} // set type ast.Node: classic interpreter is too clever and deduces *ast.Ident
+	if t == nil {
+		// keep the result wrapped in a reflect.Value
+		typ = ~'{r.Value}
+	} else {
+		// unwrap the result
+		tname := t.Name()
+		// remove final digits from t.Name()
+		// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+		for len(tname) != 0 {
+			ch := tname[len(tname)-1]
+			if ch < '0' || ch > '9' {
+				break
+			}
+			tname = tname[0:len(tname)-1]
+		}
+		if tname == "uintptr" {
+			tname = "uint" // use reflect.Value.Uint()
+		}
+		sel := ~"{~,ret0 . foo} // we modify it destructively
+		sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
+
+		switch t.Kind() {
+		case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+			// result of reflect.Value.{tname} is already the correct type
+			ret0 = ~"{~,sel ()}
+		default:
+			// convert int64, uint64... to the correct type
+			ret0 = ~"{~,typ ( ~,sel () )}
+		}
+	}
+	return typ, ret0
+}
+
+:macro mcall1ret1(argtyp, rettyp ast.Node) ast.Node {
+	if EvalType(rettyp) == nil {
+		// keep the arguments and result wrapped in a reflect.Value
+		return ~"{
+			call = func(env *Env) r.Value {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
+				}
+				return funv.Call(argv)[0]
+			}
+		}
+	}
+	var ret0 ast.Node // unused
+	rettyp, ret0 = convertret0(rettyp)
+
+	if EvalType(argtyp) == nil {
+		return ~"{
+			call = func(env *Env) ~,rettyp {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
+				}
+				// Debugf("calling %v with args [%v]", r.TypeOf(funv), argv)
+				ret0 := funv.Call(argv)[0]
+				return ~,ret0
+			}
+		}
+	}
+
+	cachefun := ~"{
+		if cachedfunv != funv {
+			cachedfunv = funv
+			cachedfun = funv.Interface().(func(~,argtyp) ~,rettyp)
+		}
+	}
+
+	return ~"{
+		var cachedfun func(~,argtyp) ~,rettyp
+		if arg0.Const() {
+			argconst := arg0.Value.(~,argtyp)
+			if funvar == nil {
+				call = func(env *Env) ~,rettyp {
+					funv := exprfun(env)
+					~,cachefun
+					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
+					return cachedfun(argconst)
+				}
+			} else {
+				switch funupn {
+				case 0:
+					call = func(env *Env) ~,rettyp {
+						funv := env.Binds[funindex]
+						~,cachefun
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+						return cachedfun(argconst)
+					}
+				case 1:
+					call = func(env *Env) ~,rettyp {
+						funv := env.Outer.Binds[funindex]
+						~,cachefun
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+						return cachedfun(argconst)
+					}
+				case 2:
+					call = func(env *Env) ~,rettyp {
+						funv := env.Outer.Outer.Binds[funindex]
+						~,cachefun
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+						return cachedfun(argconst)
+					}
+				default:
+					call = func(env *Env) ~,rettyp {
+						o := env
+						for i := 0; i < funupn; i++ {
+							o = o.Outer
+						}
+						funv := o.Binds[funindex]
+						~,cachefun
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+						return cachedfun(argconst)
+					}
+				case maxdepth - 1:
+					call = func(env *Env) ~,rettyp {
+						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+						~,cachefun
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+						return cachedfun(argconst)
+					}
+				case maxdepth:
+					call = func(env *Env) ~,rettyp {
+						funv := env.ThreadGlobals.TopEnv.Binds[funindex]
+						~,cachefun
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+						return cachedfun(argconst)
+					}
+				}
+			}
+		} else {
+			argfun := arg0.Fun.(func(env *Env) ~,argtyp)
+			if funvar == nil {
+				call = func(env *Env) ~,rettyp {
+					funv := exprfun(env)
+					~,cachefun
+					arg := argfun(env)
+					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), arg)
+					return cachedfun(arg)
+				}
+			} else {
+				switch funupn {
+				case 0:
+					call = func(env *Env) ~,rettyp {
+						funv := env.Binds[funindex]
+						~,cachefun
+						arg := argfun(env)
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+						return cachedfun(arg)
+					}
+				case 1:
+					call = func(env *Env) ~,rettyp {
+						funv := env.Outer.Binds[funindex]
+						~,cachefun
+						arg := argfun(env)
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+						return cachedfun(arg)
+					}
+				case 2:
+					call = func(env *Env) ~,rettyp {
+						funv := env.Outer.Outer.Binds[funindex]
+						~,cachefun
+						arg := argfun(env)
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+						return cachedfun(arg)
+					}
+				default:
+					call = func(env *Env) ~,rettyp {
+						o := env
+						for i := 0; i < funupn; i++ {
+							o = o.Outer
+						}
+						funv := o.Binds[funindex]
+						~,cachefun
+						arg := argfun(env)
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+						return cachedfun(arg)
+					}
+				case maxdepth - 1:
+					call = func(env *Env) ~,rettyp {
+						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+						~,cachefun
+						arg := argfun(env)
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+						return cachedfun(arg)
+					}
+				case maxdepth:
+					call = func(env *Env) ~,rettyp {
+						funv := env.ThreadGlobals.TopEnv.Binds[funindex]
+						~,cachefun
+						arg := argfun(env)
+						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+						return cachedfun(arg)
+					}
+				}
+			}
+		}
+	}
+}
+
+:macro mcallx1ret1(rettyp ast.Node) ast.Node {
+	return ~"{
+		switch karg0 {
+			case r.Bool:      {mcall1ret1; bool;   ~,rettyp}
+			case r.Int:       {mcall1ret1; int;    ~,rettyp}
+			case r.Int8:      {mcall1ret1; int8;   ~,rettyp}
+			case r.Int16:     {mcall1ret1; int16;  ~,rettyp}
+			case r.Int32:     {mcall1ret1; int32;  ~,rettyp}
+			case r.Int64:     {mcall1ret1; int64;  ~,rettyp}
+			case r.Uint:      {mcall1ret1; uint;   ~,rettyp}
+			case r.Uint8:     {mcall1ret1; uint8;  ~,rettyp}
+			case r.Uint16:    {mcall1ret1; uint16; ~,rettyp}
+			case r.Uint32:    {mcall1ret1; uint32; ~,rettyp}
+			case r.Uint64:    {mcall1ret1; uint64; ~,rettyp}
+			case r.Uintptr:   {mcall1ret1; uintptr;~,rettyp}
+			case r.Float32:   {mcall1ret1; float32;~,rettyp}
+			case r.Float64:   {mcall1ret1; float64;~,rettyp}
+			case r.Complex64: {mcall1ret1; complex64;  ~,rettyp}
+			case r.Complex128:{mcall1ret1; complex128; ~,rettyp}
+			case r.String:    {mcall1ret1; string;     ~,rettyp}
+			default:          {mcall1ret1; nil;        ~,rettyp}
+		}
+	}
+}
+
+func call1ret1(c *Call, maxdepth int) I {
+	expr := c.Fun
+	exprfun := expr.AsX1()
+	funvar := c.Funvar
+	var funupn, funindex int
+	if funvar != nil {
+		funupn = funvar.Upn
+		funindex = funvar.Desc.Index()
+	}
+	karg0 := expr.Type.In(0).Kind()
+	kret := expr.Type.Out(0).Kind()
+	arg0 := c.Args[0]
+	argfun := c.Argfuns[0]
+	var cachedfunv r.Value
+	var call I
+	switch kret {
+		case r.Bool:      {mcallx1ret1; bool}
+		case r.Int:       {mcallx1ret1; int}
+		case r.Int8:      {mcallx1ret1; int8}
+		case r.Int16:     {mcallx1ret1; int16}
+		case r.Int32:     {mcallx1ret1; int32}
+		case r.Int64:     {mcallx1ret1; int64}
+		case r.Uint:      {mcallx1ret1; uint}
+		case r.Uint8:     {mcallx1ret1; uint8}
+		case r.Uint16:    {mcallx1ret1; uint16}
+		case r.Uint32:    {mcallx1ret1; uint32}
+		case r.Uint64:    {mcallx1ret1; uint64}
+		case r.Uintptr:   {mcallx1ret1; uintptr}
+		case r.Float32:   {mcallx1ret1; float32}
+		case r.Float64:   {mcallx1ret1; float64}
+		case r.Complex64: {mcallx1ret1; complex64}
+		case r.Complex128:{mcallx1ret1; complex128}
+		case r.String:    {mcallx1ret1; string}
+		default:          {mcall1ret1;  nil; nil} // cannot optimize more this one...
+	}
+	return call
+}
