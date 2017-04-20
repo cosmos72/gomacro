@@ -43,9 +43,31 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 			fun()
 		}
 	}
+
+	var cachedfunv r.Value
+	var cachedfun func()
+
 	funupn := funvar.Upn
 	funindex := funvar.Desc.Index()
 	switch funupn {
+	case maxdepth:
+		return func(env *Env) {
+			funv := env.ThreadGlobals.TopEnv.Binds[funindex]
+			if cachedfunv != funv {
+				cachedfunv = funv
+				cachedfun = funv.Interface().(func())
+			}
+			cachedfun()
+		}
+	case maxdepth - 1:
+		return func(env *Env) {
+			funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+			if cachedfunv != funv {
+				cachedfunv = funv
+				cachedfun = funv.Interface().(func())
+			}
+			cachedfun()
+		}
 	case 0:
 		return func(env *Env) {
 			fun := env.Binds[funindex].Interface().(func())
@@ -61,15 +83,10 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 			fun := env.Outer.Outer.Binds[funindex].Interface().(func())
 			fun()
 		}
-	case 3:
-		return func(env *Env) {
-			fun := env.Outer.Outer.Outer.Binds[funindex].Interface().(func())
-			fun()
-		}
 	default:
 		return func(env *Env) {
 			env = env.Outer.Outer.Outer.Outer
-			for i := 4; i < funupn; i++ {
+			for i := 3; i < funupn; i++ {
 				env = env.Outer
 			}
 			fun := env.Binds[funindex].Interface().(func())
@@ -94,21 +111,72 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 		}
 	}
 
+	cachefun := ~"{
+		if cachedfunv != funv {
+			cachedfunv = funv
+			cachedfun = funv.Interface().(func(~,argtyp))
+		}
+	}
+
 	return ~"{
 		if args[0].Const() {
 			argconst := args[0].Value.(~,argtyp)
-			call = func(env *Env) {
-				fun := exprfun(env).Interface().(func(~,argtyp))
-				// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
-				fun(argconst)
+			if funvar != nil {
+				var cachedfun func(~,argtyp)
+				switch funupn {
+				case maxdepth:
+					call = func(env *Env) {
+						funv := env.ThreadGlobals.TopEnv.Binds[funindex]
+						~,cachefun
+						// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
+						cachedfun(argconst)
+					}
+				case maxdepth - 1:
+					call = func(env *Env) {
+						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+						~,cachefun
+						// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
+						cachedfun(argconst)
+					}
+				}
+			}
+			if call == nil {
+				call = func(env *Env) {
+					fun := exprfun(env).Interface().(func(~,argtyp))
+					// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
+					fun(argconst)
+				}
 			}
 		} else {
 			argfun := args[0].Fun.(func(env *Env) ~,argtyp)
-			call = func(env *Env) {
-				fun := exprfun(env).Interface().(func(~,argtyp))
-				arg := argfun(env)
-				// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
-				fun(arg)
+			if funvar != nil {
+				var cachedfun func(~,argtyp)
+				switch funupn {
+				case maxdepth:
+					call = func(env *Env) {
+						funv := env.ThreadGlobals.TopEnv.Binds[funindex]
+						~,cachefun
+						arg := argfun(env)
+						// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), arg)
+						cachedfun(arg)
+					}
+				case maxdepth - 1:
+					call = func(env *Env) {
+						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+						~,cachefun
+						arg := argfun(env)
+						// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), arg)
+						cachedfun(arg)
+					}
+				}
+			}
+			if call == nil {
+				call = func(env *Env) {
+					fun := exprfun(env).Interface().(func(~,argtyp))
+					arg := argfun(env)
+					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+					fun(arg)
+				}
 			}
 		}
 	}
@@ -119,11 +187,19 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
+	funvar := c.Funvar
+	funupn, funindex := -1, -1
+	if funvar != nil {
+		funupn = funvar.Upn
+		funindex = funvar.Desc.Index()
+	}
 	args := c.Args
 	argfuns := c.Argfuns
 
-	t := expr.Type.In(0)
+	var cachedfunv r.Value
 	var call func(env *Env)
+
+	t := expr.Type.In(0)
 	switch t.Kind() {
 	case r.Bool:      {mcall1ret0; bool}
 	case r.Int:       {mcall1ret0; int}
@@ -163,132 +239,46 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 		}
 	}
 
+	cachefun := ~"{
+		if cachedfunv != funv {
+			cachedfunv = funv
+			cachedfun = funv.Interface().(func(~,arg0typ, ~,arg1typ))
+		}
+	}
+
 	return ~"{
-		if funvar == nil {
-			if args[0].Const() {
-				arg0const := args[0].Value.(~,arg0typ)
-				if args[1].Const() {
-					arg1const := args[1].Value.(~,arg1typ)
-					call = func(env *Env) {
-						fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
-						fun(arg0const, arg1const)
-					}
-				} else {
-					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
-					call = func(env *Env) {
-						fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
-						arg1 := arg1fun(env)
-						fun(arg0const, arg1)
-					}
+		args[0].WithFun()
+		args[1].WithFun()
+		arg0fun := args[0].Fun.(func(*Env) ~,arg0typ)
+		arg1fun := args[1].Fun.(func(*Env) ~,arg0typ)
+
+		if funvar != nil {
+			var cachedfun func(~,arg0typ, ~,arg1typ)
+			switch funupn {
+			case maxdepth:
+				call = func(env *Env) {
+					funv := env.ThreadGlobals.TopEnv.Binds[funindex]
+					~,cachefun
+					arg0 := arg0fun(env)
+					arg1 := arg1fun(env)
+					cachedfun(arg0, arg1)
 				}
-			} else {
-				arg0fun := args[0].Fun.(func(env *Env) ~,arg0typ)
-				if args[1].Const() {
-					arg1const := args[1].Value.(~,arg1typ)
-					call = func(env *Env) {
-						fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
-						arg0 := arg0fun(env)
-						fun(arg0, arg1const)
-					}
-				} else {
-					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
-					call = func(env *Env) {
-						fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
-						arg0 := arg0fun(env)
-						arg1 := arg1fun(env)
-						fun(arg0, arg1)
-					}
+			case maxdepth - 1:
+				call = func(env *Env) {
+					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+					~,cachefun
+					arg0 := arg0fun(env)
+					arg1 := arg1fun(env)
+					cachedfun(arg0, arg1)
 				}
 			}
-		} else if funupn != 1 {
-			// general case
-			if args[0].Const() {
-				arg0const := args[0].Value.(~,arg0typ)
-				if args[1].Const() {
-					arg1const := args[1].Value.(~,arg1typ)
-					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-						fun := o.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
-						fun(arg0const, arg1const)
-					}
-				} else {
-					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
-					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-						fun := o.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
-						arg1 := arg1fun(env)
-						fun(arg0const, arg1)
-					}
-				}
-			} else {
-				arg0fun := args[0].Fun.(func(env *Env) ~,arg0typ)
-				if args[1].Const() {
-					arg1const := args[1].Value.(~,arg1typ)
-					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-						fun := o.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
-						arg0 := arg0fun(env)
-						fun(arg0, arg1const)
-					}
-				} else {
-					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
-					call = func(env *Env) {
-						o := env
-						for i := 0; i < funupn; i++ {
-							o = o.Outer
-						}
-						fun := o.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
-						arg0 := arg0fun(env)
-						arg1 := arg1fun(env)
-						fun(arg0, arg1)
-					}
-				}
-			}
-		} else {
-			// frequent case... function is defined in outer environment
-			if args[0].Const() {
-				arg0const := args[0].Value.(~,arg0typ)
-				if args[1].Const() {
-					arg1const := args[1].Value.(~,arg1typ)
-					call = func(env *Env) {
-						fun := env.Outer.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
-						fun(arg0const, arg1const)
-					}
-				} else {
-					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
-					call = func(env *Env) {
-						fun := env.Outer.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
-						arg1 := arg1fun(env)
-						fun(arg0const, arg1)
-					}
-				}
-			} else {
-				arg0fun := args[0].Fun.(func(env *Env) ~,arg0typ)
-				if args[1].Const() {
-					arg1const := args[1].Value.(~,arg1typ)
-					call = func(env *Env) {
-						fun := env.Outer.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
-						arg0 := arg0fun(env)
-						fun(arg0, arg1const)
-					}
-				} else {
-					arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
-					call = func(env *Env) {
-						fun := env.Outer.Binds[funindex].Interface().(func(~,arg0typ, ~,arg1typ))
-						arg0 := arg0fun(env)
-						arg1 := arg1fun(env)
-						fun(arg0, arg1)
-					}
-				}
+		}
+		if call == nil {
+			call = func(env *Env) {
+				fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
+				arg0 := arg0fun(env)
+				arg1 := arg1fun(env)
+				fun(arg0, arg1)
 			}
 		}
 	}
@@ -299,14 +289,16 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
 	funvar := c.Funvar
-	var funupn, funindex int
+	funupn, funindex := -1, -1
 	if funvar != nil {
 		funupn = funvar.Upn
 		funindex = funvar.Desc.Index()
 	}
 	args := c.Args
 	argfuns := c.Argfuns
+	var cachedfunv r.Value
 	var call func(env *Env)
+
 	if expr.Type.In(0) == expr.Type.In(1) {
 		t := expr.Type.In(0)
 		switch t.Kind() {

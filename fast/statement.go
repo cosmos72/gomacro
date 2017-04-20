@@ -558,6 +558,7 @@ func (c *Comp) pushEnvIfLocalBinds(nbinds *[2]int, list ...ast.Stmt) (inner *Com
 	inner = NewComp(c)
 	if !locals {
 		inner.UpCost = 0
+		inner.Depth--
 	}
 	return inner, locals
 }

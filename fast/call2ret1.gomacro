@@ -119,55 +119,44 @@ import (
 	}
 
 	return ~"{
-		var cachedfun func(~,arg0typ , ~,arg1typ) ~,rettyp
-		arg0 := args[0]
-		arg1 := args[1]
-		if arg0.Const() {
-			arg0const := args[0].Value.(~,arg0typ)
-			if arg1.Const() {
-				arg1const := args[1].Value.(~,arg1typ)
+		arg0fun := args[0].WithFun().(func(env *Env) ~,arg0typ)
+		arg1fun := args[1].WithFun().(func(env *Env) ~,arg1typ)
+		if funvar != nil {
+			var cachedfun func(~,arg0typ, ~,arg1typ) ~,rettyp
+			switch funupn {
+			case maxdepth:
 				call = func(env *Env) ~,rettyp {
-					funv := exprfun(env)
-					~,cachefun
-					// Debugf("calling %v with args [%v %v]", r.TypeOf(cachedfun), arg0const, arg1const)
-					return cachedfun(arg0const, arg1const)
-				}
-			} else {
-				arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
-				call = func(env *Env) ~,rettyp {
-					funv := exprfun(env)
-					~,cachefun
-					arg1 := arg1fun(env)
-					// Debugf("calling %v with args [%v %v]", r.TypeOf(cachedfun), arg0const, arg1)
-					return cachedfun(arg0const, arg1)
-				}
-			}
-		} else {
-			arg0fun := args[0].Fun.(func(env *Env) ~,arg0typ)
-			if arg1.Const() {
-				arg1const := args[1].Value.(~,arg1typ)
-				call = func(env *Env) ~,rettyp {
-					funv := exprfun(env)
-					~,cachefun
-					arg0 := arg0fun(env)
-					// Debugf("calling %v with args [%v %v]", r.TypeOf(cachedfun), arg0, arg1const)
-					return cachedfun(arg0, arg1const)
-				}
-			} else {
-				arg1fun := args[1].Fun.(func(env *Env) ~,arg1typ)
-				call = func(env *Env) ~,rettyp {
-					funv := exprfun(env)
+					funv := env.ThreadGlobals.TopEnv.Binds[funindex]
 					~,cachefun
 					arg0 := arg0fun(env)
 					arg1 := arg1fun(env)
-					// Debugf("calling %v with args [%v %v]", r.TypeOf(cachedfun), arg0, arg1)
+					// Debugf("calling %v with args [%v %v]", r.TypeOf(fun), arg0, arg1)
 					return cachedfun(arg0, arg1)
 				}
+			case maxdepth - 1:
+				call = func(env *Env) ~,rettyp {
+					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+					~,cachefun
+					arg0 := arg0fun(env)
+					arg1 := arg1fun(env)
+					// Debugf("calling %v with args [%v %v]", r.TypeOf(fun), arg0, arg1)
+					return cachedfun(arg0, arg1)
+				}
+			}
+		}
+		if call == nil {
+			call = func(env *Env) ~,rettyp {
+				fun := exprfun(env).Interface().(func(~,arg0typ , ~,arg1typ) ~,rettyp)
+				arg0 := arg0fun(env)
+				arg1 := arg1fun(env)
+				// Debugf("calling %v with args [%v %v]", r.TypeOf(fun), arg0, arg1)
+				return fun(arg0, arg1)
 			}
 		}
 	}
 }
 
+// not used, see comment below in mcallxy2ret1
 :macro mcallx2ret1(arg1typ, rettyp ast.Node) ast.Node {
 	return ~"{
 		switch karg0 {
@@ -230,6 +219,12 @@ import (
 func call2ret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
+	funvar := c.Funvar
+	funupn, funindex := -1, -1
+	if funvar != nil {
+		funupn = funvar.Upn
+		funindex = funvar.Desc.Index()
+	}
 	karg0 := expr.Type.In(0).Kind()
 	karg1 := expr.Type.In(1).Kind()
 	kret := expr.Type.Out(0).Kind()
@@ -258,22 +253,4 @@ func call2ret1(c *Call, maxdepth int) I {
 	default:          {mcall2ret1;   nil; nil; nil} // cannot optimize more this one...
 	}
 	return call
-}
-
-:macro mcallnret1(rettyp ast.Node) ast.Node {
-	var ret0 ast.Node
-	rettyp, ret0 = convertret0(rettyp)
-
-	return ~"{
-		call = func(env *Env) ~,rettyp {
-			funv := exprfun(env)
-			argv := make([]r.Value, len(argfuns))
-			for i, argfun := range argfuns {
-				argv[i] = argfun(env)
-			}
-			// Debugf("calling %v with args %v", funv.Type(), argv)
-			ret0 := funv.Call(argv)[0]
-			return ~,ret0
-		}
-	}
 }
