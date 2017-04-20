@@ -323,7 +323,8 @@ func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr, panicOnFail bool) (
 		t1 := r.TypeOf(fval) // extract the actual runtime type of fval
 
 		if t1.AssignableTo(t2) {
-			return r.ValueOf(fval).Convert(t2), nil
+			v := r.ValueOf(fval).Convert(t2)
+			return v, []r.Value{v, True}
 		} else if panicOnFail {
 			return env.Errorf("type assertion failed: %v <%v> is not a <%v>", fval, t1, t2)
 		}

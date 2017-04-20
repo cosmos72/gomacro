@@ -32,8 +32,8 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	"github.com/cosmos72/gomacro/fast"
 	"github.com/cosmos72/gomacro/classic"
+	"github.com/cosmos72/gomacro/fast"
 )
 
 type TestFor int
@@ -313,10 +313,14 @@ var tests = []TestCase{
 	TestCase{I, "switch_2", "switch v:=20; v { case 20: '@' }", '@', nil},
 	TestCase{I, "switch_fallthrough", "switch 0 { default: fallthrough; case 1: 10; fallthrough; case 2: 20 }", 20, nil},
 
-	TestCase{I, "typeswitch_1", "var x interface{} = \"abc\"; switch y := x.(type) { default: 0; case string: 1 }", 1, nil},
-	TestCase{I, "typeswitch_2", "switch x.(type) { default: 0; case interface{}: 2 }", 2, nil},
-	TestCase{I, "typeswitch_3", "switch x.(type) { default: 0; case int: 3 }", 0, nil},
-	TestCase{I, "typeswitch_4", "switch nil.(type) { default: 0; case nil: 4 }", 4, nil},
+	TestCase{I, "typeswitch_1", `var x interface{} = "abc"; switch y := x.(type) { default: 0; case string: 1 }`, 1, nil},
+	TestCase{I, "typeswitch_2", `switch x.(type) { default: 0; case interface{}: 2 }`, 2, nil},
+	TestCase{I, "typeswitch_3", `switch x.(type) { default: 0; case int: 3 }`, 0, nil},
+	TestCase{I, "typeswitch_4", `switch nil.(type) { default: 0; case nil: 4 }`, 4, nil},
+
+	TestCase{I, "typeassert_1", `x = "abc"; y := x.(string)`, "abc", nil},
+	TestCase{I, "typeassert_2", `y, ok := x.(string)`, nil, []interface{}{"abc", true}},
+	TestCase{I, "typeassert_3", `z, ok := x.(int)`, nil, []interface{}{0, false}},
 
 	TestCase{A, "quote_1", `~quote{7}`, &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
 	TestCase{A, "quote_2", `~quote{x}`, &ast.Ident{Name: "x"}, nil},
