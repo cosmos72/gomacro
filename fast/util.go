@@ -380,7 +380,7 @@ func funAsX1(fun I, opts CompileOptions) func(*Env) r.Value {
 			return r.ValueOf(fun(env))
 		}
 	default:
-		Errorf("unsupported expression, cannot convert to func(*Env) r.Value: %v <%v>", fun, r.TypeOf(fun))
+		Errorf("unsupported expression type, cannot convert to func(*Env) r.Value: %v <%v>", fun, r.TypeOf(fun))
 	}
 	return nil
 }

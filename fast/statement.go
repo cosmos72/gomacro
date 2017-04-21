@@ -319,11 +319,11 @@ func (c *Comp) For(node *ast.ForStmt, label string) {
 
 // Go compiles a "go" statement i.e. a goroutine
 func (c *Comp) Go(node *ast.GoStmt) {
-	// we must create a new InterpreterCommon with a new Pool.
-	// Ideally, the new InterpreterCommon could be created inside the call,
+	// we must create a new ThreadGlobals with a new Pool.
+	// Ideally, the new ThreadGlobals could be created inside the call,
 	// but that requires modifying the function being executed.
-	// Instead, we create the new InterpreterCommon here and wrap it into an "unnecessary" Env
-	// Thus we must create a corresponding "unnecessary" Comp
+	// Instead, we create the new ThreadGlobals here and wrap it into an "unnecessary" Env
+	// Thus we must create a corresponding "unnecessary" Comp and use it to compile the call
 	c2 := NewComp(c)
 
 	call := c2.callExpr(node.Call)
@@ -331,12 +331,16 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	argfuns := call.Argfuns
 
 	c2.Code.Append(func(env *Env) (Stmt, *Env) {
-		// create a new Env to hold the new InterpreterCommon and (initially empty) Pool
+		// create a new Env to hold the new ThreadGlobals and (initially empty) Pool
 		env2 := NewEnv4Func(env, 0, 0)
-		// env2.MarkUsedByClosure() // redundant, done by exprfun(env2) below
+		tg := env.ThreadGlobals
 		env2.ThreadGlobals = &ThreadGlobals{
-			Globals: env.ThreadGlobals.Globals,
+			FileEnv: tg.FileEnv,
+			TopEnv:  tg.TopEnv,
+			// Interrupt, Signal, PoolSize and Pool are zero-initialized, fine with that
+			Globals: tg.Globals,
 		}
+		// env2.MarkUsedByClosure() // redundant, done by exprfun(env2) below
 
 		// function and arguments are evaluated in the caller's goroutine
 		// using the new Env: we compiled them with c2 => execute them with env2

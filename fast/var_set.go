@@ -36,6 +36,10 @@ import (
 	"github.com/cosmos72/gomacro/base"
 )
 
+func (c *Comp) varSetZero(upn int, index int, t r.Type) {
+	zero := r.Zero(t).Interface()
+	c.varSetConst(upn, index, t, zero)
+}
 func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 	v := r.ValueOf(val)
 	if base.ValueType(v) == nil {
@@ -837,6 +841,342 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 
 				o.
+					Binds[index].Set(v,
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+	case c.Depth - 1:
+		switch val := val.(type) {
+		case bool:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*bool)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.FileEnv.
+					IntBinds[index] = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case float32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case float64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*float64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case complex64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case complex128:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.FileEnv.
+					Binds[index].SetComplex(val,
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case string:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.FileEnv.
+					Binds[index].SetString(val,
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.FileEnv.
+					Binds[index].Set(v,
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+	case c.Depth:
+		switch val := val.(type) {
+		case bool:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*bool)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.TopEnv.
+					IntBinds[index] = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case float32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case float64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case complex64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = val
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case complex128:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.TopEnv.
+					Binds[index].SetComplex(val,
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case string:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.TopEnv.
+					Binds[index].SetString(val,
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.TopEnv.
 					Binds[index].Set(v,
 				)
 
@@ -1653,6 +1993,350 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 
 				o.
+					Binds[index].Set(fun(env).Convert(t),
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf("invalid expression type, cannot compile assignment: %v <%v> returns %v",
+				fun, r.TypeOf(fun), funTypeOuts(fun))
+			return
+		}
+	case c.Depth - 1:
+		switch fun := fun.(type) {
+		case func(env *Env) bool:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*bool)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.FileEnv.
+					IntBinds[index] = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) float32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) float64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*float64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) complex64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) complex128:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.FileEnv.
+					Binds[index].SetComplex(fun(env),
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) string:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.FileEnv.
+					Binds[index].SetString(fun(env),
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) r.Value:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.FileEnv.
+					Binds[index].Set(fun(env).Convert(t),
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf("invalid expression type, cannot compile assignment: %v <%v> returns %v",
+				fun, r.TypeOf(fun), funTypeOuts(fun))
+			return
+		}
+	case c.Depth:
+		switch fun := fun.(type) {
+		case func(env *Env) bool:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*bool)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.TopEnv.
+					IntBinds[index] = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) float32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) float64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) complex64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
+					IntBinds[index])) = fun(env)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) complex128:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.TopEnv.
+					Binds[index].SetComplex(fun(env),
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) string:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.TopEnv.
+					Binds[index].SetString(fun(env),
+				)
+
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(env *Env) r.Value:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				env.ThreadGlobals.TopEnv.
 					Binds[index].Set(fun(env).Convert(t),
 				)
 

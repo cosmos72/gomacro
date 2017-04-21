@@ -36,7 +36,7 @@ import (
 
 // ----------------- func() t0 ---------------------
 
-:macro macro0ret1(ret0typ ast.Node) ast.Node {
+:macro mfunc0ret1(ret0typ ast.Node) ast.Node {
 	if EvalType(ret0typ) == nil {
 		// not a well-known type
 		return ~"{
@@ -79,24 +79,24 @@ func (c *Comp) func0ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
 	tret0 := t.Out(0)
 	kret0 := tret0.Kind()
 	switch kret0 {
-	case r.Bool:      {macro0ret1; bool}
-	case r.Int:       {macro0ret1; int}
-	case r.Int8:      {macro0ret1; int8}
-	case r.Int16:     {macro0ret1; int16}
-	case r.Int32:     {macro0ret1; int32}
-	case r.Int64:     {macro0ret1; int64}
-	case r.Uint:      {macro0ret1; uint}
-	case r.Uint8:     {macro0ret1; uint8}
-	case r.Uint16:    {macro0ret1; uint16}
-	case r.Uint32:    {macro0ret1; uint32}
-	case r.Uint64:    {macro0ret1; uint64}
-	case r.Uintptr:   {macro0ret1; uintptr}
-	case r.Float32:   {macro0ret1; float32}
-	case r.Float64:   {macro0ret1; float64}
-	case r.Complex64: {macro0ret1; complex64}
-	case r.Complex128:{macro0ret1; complex128}
-	case r.String:    {macro0ret1; string}
-	default:          {macro0ret1; nil}
+	case r.Bool:      {mfunc0ret1; bool}
+	case r.Int:       {mfunc0ret1; int}
+	case r.Int8:      {mfunc0ret1; int8}
+	case r.Int16:     {mfunc0ret1; int16}
+	case r.Int32:     {mfunc0ret1; int32}
+	case r.Int64:     {mfunc0ret1; int64}
+	case r.Uint:      {mfunc0ret1; uint}
+	case r.Uint8:     {mfunc0ret1; uint8}
+	case r.Uint16:    {mfunc0ret1; uint16}
+	case r.Uint32:    {mfunc0ret1; uint32}
+	case r.Uint64:    {mfunc0ret1; uint64}
+	case r.Uintptr:   {mfunc0ret1; uintptr}
+	case r.Float32:   {mfunc0ret1; float32}
+	case r.Float64:   {mfunc0ret1; float64}
+	case r.Complex64: {mfunc0ret1; complex64}
+	case r.Complex128:{mfunc0ret1; complex128}
+	case r.String:    {mfunc0ret1; string}
+	default:          {mfunc0ret1; nil}
 	}
 }
 

@@ -99,6 +99,7 @@ func (ce *CompEnv) AddressOfVar(name string) r.Value {
 }
 
 // ValueOf retrieves the value of a constant, function or variable
+// The returned value is NOT settable - use AddressOfVar().Elem() if you need a settable reflect.Value
 func (ce *CompEnv) ValueOf(name string) r.Value {
 	expr := ce.Comp.Ident(name)
 	return ce.Exec1(expr)

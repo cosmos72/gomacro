@@ -205,3 +205,163 @@ func (c *Comp) UnaryRecv(node *ast.UnaryExpr, xe *Expr) *Expr {
 	types := []r.Type{t.Elem(), TypeOfBool}
 	return exprXV(types, fun)
 }
+
+// UnaryStar compiles unary operator * i.e. pointer dereference
+func (c *Comp) UnaryStar(node *ast.StarExpr) *Expr {
+	addr := c.Expr(node.X)
+	x1 := addr.AsX1() // panics if addr returns zero values, warns if returns multiple values
+	taddr := addr.Type
+	if taddr.Kind() != r.Ptr {
+		c.Errorf("unary operation * on non-pointer <%v>: %v", taddr, node)
+	}
+	t := taddr.Elem()
+	x := addr.Fun
+	var fun I
+	// fast interpreter expects that Exprs returning primitive types or string
+	// do NOT wrap them into reflect.Value
+	switch x := x.(type) {
+	case func(env *Env) *bool:
+		fun = func(env *Env) bool {
+			return *x(env)
+		}
+	case func(env *Env) *int:
+		fun = func(env *Env) int {
+			return *x(env)
+		}
+	case func(env *Env) *int8:
+		fun = func(env *Env) int8 {
+			return *x(env)
+		}
+	case func(env *Env) *int16:
+		fun = func(env *Env) int16 {
+			return *x(env)
+		}
+	case func(env *Env) *int32:
+		fun = func(env *Env) int32 {
+			return *x(env)
+		}
+	case func(env *Env) *int64:
+		fun = func(env *Env) int64 {
+			return *x(env)
+		}
+	case func(env *Env) *uint:
+		fun = func(env *Env) uint {
+			return *x(env)
+		}
+	case func(env *Env) *uint8:
+		fun = func(env *Env) uint8 {
+			return *x(env)
+		}
+	case func(env *Env) *uint16:
+		fun = func(env *Env) uint16 {
+			return *x(env)
+		}
+	case func(env *Env) *uint32:
+		fun = func(env *Env) uint32 {
+			return *x(env)
+		}
+	case func(env *Env) *uint64:
+		fun = func(env *Env) uint64 {
+			return *x(env)
+		}
+	case func(env *Env) *uintptr:
+		fun = func(env *Env) uintptr {
+			return *x(env)
+		}
+	case func(env *Env) *float32:
+		fun = func(env *Env) float32 {
+			return *x(env)
+		}
+	case func(env *Env) *float64:
+		fun = func(env *Env) float64 {
+			return *x(env)
+		}
+	case func(env *Env) *complex64:
+		fun = func(env *Env) complex64 {
+			return *x(env)
+		}
+	default:
+		fun = c.unaryStarUnwrap(t, x1)
+	}
+	return exprFun(t, fun)
+}
+
+// unaryStarUnwrap compiles unary operator * on reflect.Value - unwraps reflect.Value.Elem() if possible
+func (c *Comp) unaryStarUnwrap(t r.Type, x1 func(*Env) r.Value) I {
+	var fun I
+	switch t.Kind() {
+	case r.Bool:
+		fun = func(env *Env) bool {
+			return x1(env).Elem().Bool()
+		}
+	case r.Int:
+		fun = func(env *Env) int {
+			return int(x1(env).Elem().Int())
+		}
+	case r.Int8:
+		fun = func(env *Env) int8 {
+			return int8(x1(env).Elem().Int())
+		}
+	case r.Int16:
+		fun = func(env *Env) int16 {
+			return int16(x1(env).Elem().Int())
+		}
+	case r.Int32:
+		fun = func(env *Env) int32 {
+			return int32(x1(env).Elem().Int())
+		}
+	case r.Int64:
+		fun = func(env *Env) int64 {
+			return x1(env).Elem().Int()
+		}
+	case r.Uint:
+		fun = func(env *Env) uint {
+			return uint(x1(env).Elem().Uint())
+		}
+	case r.Uint8:
+		fun = func(env *Env) uint8 {
+			return uint8(x1(env).Elem().Uint())
+		}
+	case r.Uint16:
+		fun = func(env *Env) uint16 {
+			return uint16(x1(env).Elem().Uint())
+		}
+	case r.Uint32:
+		fun = func(env *Env) uint32 {
+			return uint32(x1(env).Elem().Uint())
+		}
+	case r.Uint64:
+		fun = func(env *Env) uint64 {
+			return x1(env).Elem().Uint()
+		}
+	case r.Uintptr:
+		fun = func(env *Env) uintptr {
+			return uintptr(x1(env).Elem().Uint())
+		}
+	case r.Float32:
+		fun = func(env *Env) float32 {
+			return float32(x1(env).Elem().Float())
+		}
+	case r.Float64:
+		fun = func(env *Env) float64 {
+			return x1(env).Elem().Float()
+		}
+	case r.Complex64:
+		fun = func(env *Env) complex64 {
+			return complex64(x1(env).Elem().Complex())
+		}
+	case r.Complex128:
+		fun = func(env *Env) complex128 {
+			return x1(env).Elem().Complex()
+		}
+	case r.String:
+		fun = func(env *Env) string {
+			return x1(env).Elem().String()
+		}
+	default:
+		fun = func(env *Env) r.Value {
+			return x1(env).Elem()
+		}
+	}
+	return fun
+}

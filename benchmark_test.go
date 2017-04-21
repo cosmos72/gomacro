@@ -363,29 +363,39 @@ func BenchmarkSumCompiler(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		total += sum(sum_n)
 	}
+	if verbose {
+		println(total)
+	}
 }
 
 func BenchmarkSumFastInterpreter(b *testing.B) {
 	ce := fast.New()
 	c := ce.Comp
-	ce.Eval("var i, n, total int")
+	ce.Eval("var i, n, total uint")
 
-	addr := ce.AddressOfVar("n").Interface().(*int)
-	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i+=1 { total += i }; total"))
+	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i++ { total += i }; total"))
 	env := ce.PrepareEnv()
+	ce.AddressOfVar("n").Elem().SetUint(sum_n)
+	// alternative: addr := ce.AddressOfVar("n").Interface().(*int); *addr = sum_n
+	// ugly, and uses undocumented internals: *(*int)(env.IntBinds[ce.Comp.Binds["n"].Desc.Index()]) = sum_n
 	fun(env)
 
+	var total uint
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		*addr = sum_n
-		fun(env)
+		ret, _ := fun(env)
+		total += uint(ret.Uint())
+	}
+	if verbose {
+		println(total)
 	}
 }
 
 func BenchmarkSumClassicInterpreter(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst(sum_s))
-	form := env.ParseAst(fmt.Sprintf("sum(%d)", sum_n))
+	env.EvalAst(env.ParseAst("var i, n, total int"))
+	env.Binds["n"].SetInt(sum_n)
+	form := env.ParseAst("total = 0; for i = 1; i <= n; i++ { total += i }; total")
 
 	b.ResetTimer()
 	var total int

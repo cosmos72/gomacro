@@ -98,6 +98,7 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 		case *ast.SelectorExpr:
 		case *ast.SliceExpr:
 		case *ast.StarExpr:
+			return c.UnaryStar(node)
 		case *ast.TypeAssertExpr:
 		}
 		c.Errorf("unimplemented Compile() for: %v <%v>", in, r.TypeOf(in))

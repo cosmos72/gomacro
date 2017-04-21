@@ -48,6 +48,10 @@ import (
 		for i := 0; i < upn; i++ {
 			bind = ~"{~,bind . Outer}
 		}
+	} else if upn == -2 {
+		bind = ~'{env.ThreadGlobals.FileEnv}
+	} else if upn == -3 {
+		bind = ~'{env.ThreadGlobals.TopEnv}
 	} else {
 		loop = ~'{
 			o := env.Outer.Outer.Outer
@@ -146,6 +150,12 @@ import (
 	}
 }
 
+// varSetZero compiles 'variable = 0'
+func (c *Comp) varSetZero(upn int, index int, t r.Type) {
+	zero := r.Zero(t).Interface()
+	c.varSetConst(upn, index, t, zero)
+}
+
 // varSetConst compiles 'name = constant'
 func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 	v := r.ValueOf(val)
@@ -156,10 +166,12 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 	}
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
-	case 0:  setplaces_const; 0
-	case 1:  setplaces_const; 1
-	case 2:  setplaces_const; 2
-	default: setplaces_const; -1
+	case 0:         setplaces_const;  0
+	case 1:         setplaces_const;  1
+	case 2:         setplaces_const;  2
+	default:        setplaces_const; -1
+	case c.Depth-1: setplaces_const; -2
+	case c.Depth:   setplaces_const; -3
 	}
 	c.Code.Append(ret)
 }
@@ -168,10 +180,12 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
-	case 0:  setplaces_expr; 0
-	case 1:  setplaces_expr; 1
-	case 2:  setplaces_expr; 2
-	default: setplaces_expr; -1
+	case 0:         setplaces_expr;  0
+	case 1:         setplaces_expr;  1
+	case 2:         setplaces_expr;  2
+	default:        setplaces_expr; -1
+	case c.Depth-1: setplaces_expr; -2
+	case c.Depth:   setplaces_expr; -3
 	}
 	c.Code.Append(ret)
 }

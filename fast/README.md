@@ -17,7 +17,7 @@ The fast intepreter supports:
 * function declarations, including variadic functions
 * function calls (unimplemented: calls to variadic functions)
 * binary expressions on untyped constants, booleans, integers, floats, complex numbers, and strings
-* unary operators + - ^ ! <- (other unary operators: deref * is unimplemented, address-of & is implemented only for variables)
+* unary operators + - ^ ! <- * (address-of & is implemented only for variables)
 * assignment to variables, i.e. operators = += -= *= /= %= &= |= ^= &^= on variables (unimplemented: shifted assignments <<= and >>=)
 * return (unimplemented: return foo() where foo() returns multiple values)
 * if, for, break, continue

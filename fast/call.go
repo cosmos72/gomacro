@@ -28,6 +28,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -84,6 +85,9 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 	args := c.Exprs(node.Args)
 	n := t.NumIn()
 	// TODO support funcAcceptsNArgs(funcReturnsNValues())
+	if node.Ellipsis != token.NoPos {
+		c.Errorf("unimplemented: variadic call, i.e. '...' after last argument: %v", node)
+	}
 	if n != len(args) {
 		return c.badCallArgNum(node.Fun, t, args)
 	}

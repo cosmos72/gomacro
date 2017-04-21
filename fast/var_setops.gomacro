@@ -82,6 +82,10 @@ import (
 		for i := 0; i < upn; i++ {
 			bind = ~"{~,bind . Outer}
 		}
+	} else if upn == -2 {
+		bind = ~'{env.ThreadGlobals.FileEnv}
+	} else if upn == -3 {
+		bind = ~'{env.ThreadGlobals.TopEnv}
 	} else {
 		loop = ~'{
 			o := env.Outer.Outer.Outer
@@ -129,6 +133,32 @@ import (
 	return fsetplace(opnode, depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(t)})
 }
 
+:macro setplace_depth_const(opnode, typ ast.Node) ast.Node {
+	return ~"{
+		switch upn {
+			case 0:         setplace_const; ~,opnode; 0; ~,typ
+			case 1:         setplace_const; ~,opnode; 1; ~,typ
+			case 2:         setplace_const; ~,opnode; 2; ~,typ
+			default:        setplace_const; ~,opnode;-1; ~,typ
+			case c.Depth-1: setplace_const; ~,opnode;-2; ~,typ
+			case c.Depth:   setplace_const; ~,opnode;-3; ~,typ
+		}
+	}
+}
+
+:macro setplace_depth_expr(opnode, typ ast.Node) ast.Node {
+	return ~"{
+		switch upn {
+			case 0:         setplace_expr; ~,opnode; 0; ~,typ
+			case 1:         setplace_expr; ~,opnode; 1; ~,typ
+			case 2:         setplace_expr; ~,opnode; 2; ~,typ
+			default:        setplace_expr; ~,opnode;-1; ~,typ
+			case c.Depth-1: setplace_expr; ~,opnode;-2; ~,typ
+			case c.Depth:   setplace_expr; ~,opnode;-3; ~,typ
+		}
+	}
+}
+
 :func list_types(typelist []ast.Stmt) []ast.Node {
 	rets := make([]ast.Node, 0, len(typelist))
 	for _, typ := range typelist {
@@ -150,57 +180,43 @@ import (
 	return rets
 }
 
-:macro setplaces_const(opnode, depth, types ast.Node) ast.Node {
+:macro setplaces_depth_const(opnode, types ast.Node) ast.Node {
 	typelist := list_types(types.(*ast.BlockStmt).List)
 	caselist := make([]ast.Stmt, len(typelist))
 	for i, typ := range typelist {
 		if EvalType(typ) == nil {
 			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, t)}
 		} else {
-			caselist[i] = ~"{~typecase ~,typ: setplace_const; ~,opnode; ~,depth; ~,typ}
+			caselist[i] = ~"{~typecase ~,typ: setplace_depth_const; ~,opnode; ~,typ}
 		}
 	}
-	return ~"{ switch val := val.(type) { ~,@caselist } }
-}
-
-:macro setplaces_expr(opnode, depth, types ast.Node) ast.Node {
-	typelist := list_types(types.(*ast.BlockStmt).List)
-	caselist := make([]ast.Stmt, len(typelist))
-	for i, typ := range typelist {
-		if EvalType(typ) == nil {
-			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, t, funTypeOuts(fun))}
-		} else {
-			caselist[i] = ~"{~typecase func(*Env) ~,typ: setplace_expr; ~,opnode; ~,depth; ~,typ}
-		}
-	}
-	return ~"{ switch fun := fun.(type) { ~,@caselist } }
-}
-
-:macro setplaces_depth_const(opnode, types ast.Node) ast.Node {
 	return ~"{
 		v := r.ValueOf(val)
 		if base.ValueType(v) != t {
 			v = v.Convert(t)
 		}
 		var ret Stmt
-		switch upn {
-			case 0:  setplaces_const; ~,opnode; 0; ~,types
-			case 1:  setplaces_const; ~,opnode; 1; ~,types
-			case 2:  setplaces_const; ~,opnode; 2; ~,types
-			default: setplaces_const; ~,opnode;-1; ~,types
+		switch val := val.(type) {
+			~,@caselist
 		}
 		c.Code.Append(ret)
 	}
 }
 
 :macro setplaces_depth_expr(opnode, types ast.Node) ast.Node {
+	typelist := list_types(types.(*ast.BlockStmt).List)
+	caselist := make([]ast.Stmt, len(typelist))
+	for i, typ := range typelist {
+		if EvalType(typ) == nil {
+			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, t, funTypeOuts(fun))}
+		} else {
+			caselist[i] = ~"{~typecase func(*Env) ~,typ: setplace_depth_expr; ~,opnode; ~,typ}
+		}
+	}
 	return ~"{
 		var ret Stmt
-		switch upn {
-			case 0:  setplaces_expr; ~,opnode; 0; ~,types
-			case 1:  setplaces_expr; ~,opnode; 1; ~,types
-			case 2:  setplaces_expr; ~,opnode; 2; ~,types
-			default: setplaces_expr; ~,opnode;-1; ~,types
+		switch fun := fun.(type) {
+			~,@caselist
 		}
 		c.Code.Append(ret)
 	}
@@ -308,7 +324,7 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 	setplaces_depth_const; token.OR; {int; uint; nil}
 }
 
-// varAndExpr compiles 'variable &= expression'
+// varOrExpr compiles 'variable |= expression'
 func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 	setplaces_depth_expr; token.OR; {int; uint; nil}
 }
@@ -343,10 +359,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 	setplaces_depth_expr; token.AND_NOT; {int; uint; nil}
 }
 
-// varSetZero compiles 'variable = 0'
-func (c *Comp) varSetZero(upn int, index int, t r.Type) {
-	c.varSetConst(upn, index, t, r.Zero(t).Interface())
-}
 
 // varSetOp compiles 'variable op constant' and 'variable op expression'
 func (c *Comp) varSetOp(va *Var, op token.Token, init *Expr) {
@@ -378,52 +390,54 @@ func (c *Comp) varSetOp(va *Var, op token.Token, init *Expr) {
 		return
 	}
 	if init.Const() {
+		val := init.Value
 		switch op {
 		case token.ASSIGN:
-			c.varSetConst(upn, index, t, init.Value)
+			c.varSetConst(upn, index, t, val)
 		case token.ADD, token.ADD_ASSIGN:
-			c.varAddConst(upn, index, t, init.Value)
+			c.varAddConst(upn, index, t, val)
 		case token.SUB, token.SUB_ASSIGN:
-			c.varSubConst(upn, index, t, init.Value)
+			c.varSubConst(upn, index, t, val)
 		case token.MUL, token.MUL_ASSIGN:
-			c.varMulConst(upn, index, t, init.Value)
+			c.varMulConst(upn, index, t, val)
 		case token.QUO, token.QUO_ASSIGN:
-			c.varQuoConst(upn, index, t, init.Value)
+			c.varQuoConst(upn, index, t, val)
 		case token.REM, token.REM_ASSIGN:
-			c.varRemConst(upn, index, t, init.Value)
+			c.varRemConst(upn, index, t, val)
 		case token.AND, token.AND_ASSIGN:
-			c.varAndConst(upn, index, t, init.Value)
+			c.varAndConst(upn, index, t, val)
 		case token.OR, token.OR_ASSIGN:
-			c.varOrConst(upn, index, t, init.Value)
+			c.varOrConst(upn, index, t, val)
 		case token.XOR, token.XOR_ASSIGN:
-			c.varAndConst(upn, index, t, init.Value)
+			c.varAndConst(upn, index, t, val)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
-			c.varAndnotConst(upn, index, t, init.Value)
+			c.varAndnotConst(upn, index, t, val)
 		default:
 			c.Errorf("operator %s is not implemented", op)
 		}
 	} else {
+		fun := init.Fun
 		switch op {
 		case token.ASSIGN:
-			c.varSetExpr(upn, index, t, init.Fun)
+			c.varSetExpr(upn, index, t, fun)
 		case token.ADD, token.ADD_ASSIGN:
-			c.varAddExpr(upn, index, t, init.Fun)
+			c.varAddExpr(upn, index, t, fun)
 		case token.SUB, token.SUB_ASSIGN:
-			c.varSubExpr(upn, index, t, init.Fun)
+			c.varSubExpr(upn, index, t, fun)
 		case token.MUL, token.MUL_ASSIGN:
-			c.varMulExpr(upn, index, t, init.Fun)
+			c.varMulExpr(upn, index, t, fun)
 		case token.QUO, token.QUO_ASSIGN:
-			c.varQuoExpr(upn, index, t, init.Fun)
+			c.varQuoExpr(upn, index, t, fun)
 		case token.REM, token.REM_ASSIGN:
-			c.varRemExpr(upn, index, t, init.Fun)
+			c.varRemExpr(upn, index, t, fun)
 		case token.AND, token.AND_ASSIGN:
-			c.varAndExpr(upn, index, t, init.Fun)
+			c.varAndExpr(upn, index, t, fun)
 		case token.OR, token.OR_ASSIGN:
-			c.varOrExpr(upn, index, t, init.Fun)
+			c.varOrExpr(upn, index, t, fun)
 		case token.XOR, token.XOR_ASSIGN:
-			c.varAndExpr(upn, index, t, init.Fun)
+			c.varAndExpr(upn, index, t, fun)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
-			c.varAndnotExpr(upn, index, t, init.Fun)
+			c.varAndnotExpr(upn, index, t, fun)
 		default:
 			c.Errorf("operator %s is not implemented", op)
 		}

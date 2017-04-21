@@ -179,6 +179,7 @@ var tests = []TestCase{
 	TestCase{A, "eql_nil_6", "vnil == nil", true, nil},
 	TestCase{A, "eql_halfnil", "var vhalfnil interface{} = vm; vhalfnil == nil", false, nil},
 	TestCase{A, "eql_interface", "vi == 1", true, nil},
+
 	TestCase{A, "typed_unary_1", "!!!v1", true, nil},
 	TestCase{A, "typed_unary_2", "+-^v2", uint8(8), nil},
 	TestCase{A, "typed_unary_3", "+^-v3", uint16(11), nil},
@@ -188,7 +189,8 @@ var tests = []TestCase{
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
 	TestCase{A, "type_struct", "type Pair struct { A, B int }; var pair Pair; pair", struct{ A, B int }{}, nil},
 	TestCase{I, "struct", "pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
-	TestCase{I, "pointer", "var p = 1.25; if *&p != p { p = -1 }; p", 1.25, nil},
+	TestCase{A, "pointer_1", "var vf = 1.25; if *&vf != vf { vf = -1 }; vf", 1.25, nil},
+	TestCase{A, "pointer_2", "var pvs = &vs; v1 = (*pvs == nil); v1", true, nil},
 	TestCase{I, "defer_1", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
 	TestCase{I, "defer_2", "v = 12; testdefer(0); v", uint32(12), nil},
 	TestCase{I, "make_chan", "cx := make(chan interface{}, 2)", make(chan interface{}, 2), nil},
