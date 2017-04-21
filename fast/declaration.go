@@ -87,30 +87,50 @@ func (c *Comp) DeclConsts(node ast.Spec, defaultType ast.Expr, defaultExprs []as
 			defaultType = node.Type
 			defaultExprs = node.Values
 		}
-		names, t, inits := c.prepareDeclConstsOrVars(node.Names, defaultType, defaultExprs)
+		names, t, inits := c.prepareDeclConstsOrVars(tostrings(node.Names), defaultType, defaultExprs)
 		c.DeclConsts0(names, t, inits)
 	default:
 		c.Errorf("Compile: unsupported constant declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
-// DeclVars compiles a set of variable declarations
+// DeclVars compiles a set of variable declarations i.e. "var x1, x2... [type] = expr1, expr2..."
 func (c *Comp) DeclVars(node ast.Spec) {
 	switch node := node.(type) {
 	case *ast.ValueSpec:
-		names, t, inits := c.prepareDeclConstsOrVars(node.Names, node.Type, node.Values)
+		names, t, inits := c.prepareDeclConstsOrVars(tostrings(node.Names), node.Type, node.Values)
 		c.DeclVars0(names, t, inits)
 	default:
 		c.Errorf("Compile: unsupported variable declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
-func (c *Comp) prepareDeclConstsOrVars(idents []*ast.Ident, typ ast.Expr, exprs []ast.Expr) (names []string, t r.Type, inits []*Expr) {
+// DeclVarsShort compiles a set of variable short declarations i.e. "x1, x2... := expr1, expr2..."
+func (c *Comp) DeclVarsShort(lhs []ast.Expr, rhs []ast.Expr) {
+	n := len(lhs)
+	names := make([]string, n)
+	for i := range lhs {
+		if ident, ok := lhs[i].(*ast.Ident); ok {
+			names[i] = ident.Name
+		} else {
+			c.Errorf("non-name %v on left side of :=", lhs[i])
+		}
+	}
+	_, t, inits := c.prepareDeclConstsOrVars(names, nil, rhs)
+	c.DeclVars0(names, t, inits)
+}
+
+func tostrings(idents []*ast.Ident) []string {
 	n := len(idents)
-	names = make([]string, n)
+	names := make([]string, n)
 	for i, ident := range idents {
 		names[i] = ident.Name
 	}
+	return names
+}
+
+func (c *Comp) prepareDeclConstsOrVars(names []string, typ ast.Expr, exprs []ast.Expr) (names_out []string, t r.Type, inits []*Expr) {
+	n := len(names)
 	if typ != nil {
 		t = c.CompileType(typ)
 	}
@@ -125,7 +145,7 @@ func (c *Comp) DeclConsts0(names []string, t r.Type, inits []*Expr) {
 	if inits == nil {
 		c.Errorf("constants without initialization: %v", names)
 	} else if len(inits) != n {
-		c.Errorf("cannot declare %d constants with %d initializers: %v", names)
+		c.Errorf("cannot declare %d constants with %d initializers: %v", n, len(inits), names)
 	}
 	for i, name := range names {
 		init := inits[i]

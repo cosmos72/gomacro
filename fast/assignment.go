@@ -32,6 +32,12 @@ import (
 // Assign compiles an *ast.AssignStmt into an assignment to one or more place
 func (c *Comp) Assign(node *ast.AssignStmt) {
 	lhs, rhs := node.Lhs, node.Rhs
+
+	if node.Tok == token.DEFINE {
+		c.DeclVarsShort(lhs, rhs)
+		return
+	}
+
 	ln, rn := len(lhs), len(rhs)
 	if ln > 1 && rn == 1 {
 		c.Errorf("unimplemented: assignment of multiple places with a single multi-valued expression: %v", node)

@@ -15,7 +15,7 @@ The fast intepreter supports:
 * iota and untyped constants
 * constant, variable and type declarations
 * function declarations, including variadic functions
-* function calls (unimplemented: calls to variadic functions)
+* function calls (unimplemented: calls to variadic functions, with or without ... after last call argument)
 * binary expressions on untyped constants, booleans, integers, floats, complex numbers, and strings
 * unary operators + - ^ ! <- * (address-of & is implemented only for variables)
 * assignment to variables, i.e. operators = += -= *= /= %= &= |= ^= &^= on variables (unimplemented: shifted assignments <<= and >>=)

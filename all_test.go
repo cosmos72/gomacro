@@ -115,7 +115,6 @@ var tests = []TestCase{
 	TestCase{F, "1+'A'", "1+'A'", 'B', nil}, // fast_interpreter instead *IS* accurate
 	TestCase{I, "int8+1", "int8(1)+1", int8(2), nil},
 	TestCase{I, "int8_overflow", "int8(64)+64", int8(-128), nil},
-	TestCase{I, "interface", "type Stringer interface { String() string }; var s Stringer", si, nil},
 	TestCase{A, "string", "\"foobar\"", "foobar", nil},
 	TestCase{A, "expr_and", "3 & 6", 3 & 6, nil},
 	TestCase{A, "expr_or", "7 | 8", 7 | 8, nil},
@@ -154,7 +153,7 @@ var tests = []TestCase{
 	TestCase{A, "var_6", "var v6 float32; v6", float32(0), nil},
 	TestCase{A, "var_7", "var v7 complex64; v7", complex64(0), nil},
 	TestCase{A, "var_8", "var err error; err", nil, nil},
-	TestCase{A, "var_9", `var ve string = ""; ve`, "", nil},
+	TestCase{A, "var_9", `ve, vf := "", 1.23; ve`, "", nil},
 	TestCase{A, "var_pointer", "var vp *string; vp", (*string)(nil), nil},
 	TestCase{A, "var_map", "var vm *map[error]bool; vm", (*map[error]bool)(nil), nil},
 	TestCase{A, "var_slice", "var vs []byte; vs", ([]byte)(nil), nil},
@@ -187,6 +186,7 @@ var tests = []TestCase{
 
 	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
+	TestCase{I, "type_interface", "type Stringer interface { String() string }; var s Stringer", si, nil},
 	TestCase{A, "type_struct", "type Pair struct { A, B int }; var pair Pair; pair", struct{ A, B int }{}, nil},
 	TestCase{I, "struct", "pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
 	TestCase{A, "pointer_1", "var vf = 1.25; if *&vf != vf { vf = -1 }; vf", 1.25, nil},
