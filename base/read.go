@@ -88,8 +88,8 @@ func ReadString(src interface{}) string {
 type ReadOptions int
 
 const (
-	ReadOptShowPrompt ReadOptions = 1 << iota
-	ReadOptNoPrompt   ReadOptions = 0
+	ReadOptShowPrompt         ReadOptions = 1 << iota
+	ReadOptCollectAllComments             // continue until non-comment is found. default is to return comments one by one
 )
 
 func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt string) (src string, firstToken int, err error) {
@@ -112,6 +112,7 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 	mode := mNormal
 	paren := 0
 	optPrompt := opts&ReadOptShowPrompt != 0
+	optAllComments := opts&ReadOptCollectAllComments != 0
 	firstToken = -1
 
 	if optPrompt {
@@ -149,6 +150,11 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					continue
 				case '~':
 					mode = mTilde
+				default:
+					if ch <= ' ' {
+						// not a token
+						continue
+					}
 				}
 			case mRune:
 				switch ch {
@@ -237,11 +243,12 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 				mode = mNormal
 			}
 			if firstToken < 0 {
-				firstToken = i
+				firstToken = len(buf) + i
+				// Debugf("ReadMultiline: setting firstToken to %d, line up to it = %q", firstToken, line[:i+1])
 			}
 		}
 		buf = append(buf, line...)
-		if err != nil || paren <= 0 && mode == mNormal && firstToken >= 0 {
+		if err != nil || paren <= 0 && mode == mNormal && (firstToken >= 0 || !optAllComments) {
 			break
 		}
 		if mode == mCommaOrEqual {
@@ -257,6 +264,13 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 		}
 		return string(buf), firstToken, err
 	}
+	// Debugf("ReadMultiline: read %d bytes, firstToken at %d", len(buf), firstToken)
+	// if firstToken >= 0 {
+	//     Debugf("ReadMultiline: comments: %q", buf[:firstToken])
+	//     Debugf("ReadMultiline: tokens: %q", buf[firstToken:])
+	// } else {
+	//     Debugf("ReadMultiline: comments: %q", buf)
+	// }
 	return string(buf), firstToken, nil
 }
 

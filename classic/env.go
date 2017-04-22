@@ -155,9 +155,12 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 	if env.Options&OptShowPrompt != 0 {
 		opts |= ReadOptShowPrompt
 	}
-
 	str, firstToken := env.ReadMultiline(in, opts)
-	return firstToken >= 0 && env.ParseEvalPrintRecover(str[firstToken:], in)
+	if firstToken < 0 {
+		// skip comments and continue, but fail on EOF or other errors
+		return len(str) > 0
+	}
+	return env.ParseEvalPrintRecover(str[firstToken:], in)
 }
 
 func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, firstToken int) {

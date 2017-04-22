@@ -255,7 +255,7 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 				return nil
 			}
 		}
-		env.WriteDeclsToFile(outname, disclaimer, comments, "\n\n")
+		env.WriteDeclsToFile(outname, disclaimer, comments)
 
 		if env.Options&OptShowEval != 0 {
 			fmt.Fprintf(env.Stdout, "// processed file: %v\t-> %v\n", filename, outname)
@@ -280,8 +280,12 @@ func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 	env.Options &^= OptShowPrompt // parsing a file: suppress prompt
 
 	// perform the first iteration manually, to collect comments
-	str, firstToken := env.ReadMultiline(in, ReadOptNoPrompt)
-	if firstToken >= 0 && env.ParseEvalPrintRecover(str, in) {
+	str, firstToken := env.ReadMultiline(in, ReadOptCollectAllComments)
+	if firstToken >= 0 {
+		comments = str[0:firstToken]
+		str = str[firstToken:]
+	}
+	if env.ParseEvalPrintRecover(str, in) {
 		for cmd.Env.ReadParseEvalPrint(in) {
 		}
 	}
