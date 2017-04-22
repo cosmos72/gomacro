@@ -37,8 +37,9 @@ import (
 )
 
 type Stringer struct {
-	Fileset    *token.FileSet
-	NamedTypes map[r.Type]string
+	Fileset      *token.FileSet
+	LastKnownPos token.Pos
+	NamedTypes   map[r.Type]string
 }
 
 type Output struct {
@@ -54,7 +55,17 @@ type RuntimeError struct {
 }
 
 func (err RuntimeError) Error() string {
-	return fmt.Sprintf(err.format, err.st.toPrintables(err.args)...)
+	args := err.args
+	msg := fmt.Sprintf(err.format, args...)
+
+	if st := err.st; st != nil {
+		args = st.toPrintables(args)
+		prefix := st.Position().String()
+		if prefix != "" && prefix != "-" {
+			msg = fmt.Sprintf("%s: %s", prefix, msg)
+		}
+	}
+	return msg
 }
 
 func Error(err error) interface{} {
@@ -96,6 +107,13 @@ func Debugf(format string, args ...interface{}) {
 func (o *Output) Debugf(format string, args ...interface{}) {
 	str := o.Sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
+}
+
+func (st *Stringer) Position() token.Position {
+	if st == nil || st.Fileset == nil {
+		return token.Position{}
+	}
+	return st.Fileset.Position(st.LastKnownPos)
 }
 
 func (st *Stringer) FprintValues(opts Options, out io.Writer, values ...r.Value) {
@@ -179,10 +197,11 @@ func (st *Stringer) ToString(separator string, values ...interface{}) string {
 }
 
 func (st *Stringer) toPrintables(values []interface{}) []interface{} {
+	rets := make([]interface{}, len(values))
 	for i, vi := range values {
-		values[i] = st.toPrintable(vi)
+		rets[i] = st.toPrintable(vi)
 	}
-	return values
+	return rets
 }
 
 func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {

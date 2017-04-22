@@ -13,15 +13,10 @@ import (
 func init() {
 	Packages["github.com/cosmos72/gomacro/classic"] = Package{
 		Binds: map[string]r.Value{
-			"New":                       r.ValueOf(New),
-			"NewEnv":                    r.ValueOf(NewEnv),
-			"NewInterpreterCommon":      r.ValueOf(NewThreadGlobals),
-			"NilEnv":                    r.ValueOf(&NilEnv).Elem(),
-			"ReadBytes":                 r.ValueOf(ReadBytes),
-			"ReadMultiline":             r.ValueOf(ReadMultiline),
-			"ReadOptCollectAllComments": r.ValueOf(ReadOptCollectAllComments),
-			"ReadOptShowPrompt":         r.ValueOf(ReadOptShowPrompt),
-			"ReadString":                r.ValueOf(ReadString),
+			"New":                  r.ValueOf(New),
+			"NewEnv":               r.ValueOf(NewEnv),
+			"NewInterpreterCommon": r.ValueOf(NewThreadGlobals),
+			"NilEnv":               r.ValueOf(&NilEnv).Elem(),
 		},
 		Types: map[string]r.Type{
 			"Builtin":           r.TypeOf((*Builtin)(nil)).Elem(),
@@ -36,7 +31,6 @@ func init() {
 			"InterpreterCommon": r.TypeOf((*ThreadGlobals)(nil)).Elem(),
 			"Macro":             r.TypeOf((*Macro)(nil)).Elem(),
 			"Methods":           r.TypeOf((*Methods)(nil)).Elem(),
-			"ReadOptions":       r.TypeOf((*ReadOptions)(nil)).Elem(),
 			"TypedValue":        r.TypeOf((*TypedValue)(nil)).Elem(),
 		},
 		Proxies: map[string]r.Type{}}

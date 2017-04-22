@@ -280,8 +280,8 @@ func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 	env.Options &^= OptShowPrompt // parsing a file: suppress prompt
 
 	// perform the first iteration manually, to collect comments
-	str, comments := env.ReadMultiline(in, ReadOptCollectAllComments)
-	if len(str) > 0 && env.ParseEvalPrintRecover(str, in) {
+	str, firstToken := env.ReadMultiline(in, ReadOptNoPrompt)
+	if firstToken >= 0 && env.ParseEvalPrintRecover(str, in) {
 		for cmd.Env.ReadParseEvalPrint(in) {
 		}
 	}

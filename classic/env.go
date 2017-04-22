@@ -156,16 +156,16 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 		opts |= ReadOptShowPrompt
 	}
 
-	str, _ := env.ReadMultiline(in, opts)
-	return len(str) > 0 && env.ParseEvalPrintRecover(str, in)
+	str, firstToken := env.ReadMultiline(in, opts)
+	return firstToken >= 0 && env.ParseEvalPrintRecover(str[firstToken:], in)
 }
 
-func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, comments string) {
-	str, comments, err := ReadMultiline(in, opts, env.Stdout, "gomacro> ")
+func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, firstToken int) {
+	str, firstToken, err := ReadMultiline(in, opts, env.Stdout, "gomacro> ")
 	if err != nil && err != io.EOF {
 		fmt.Fprintf(env.Stderr, "// read error: %s\n", err)
 	}
-	return str, comments
+	return str, firstToken
 }
 
 func (env *Env) ParseEvalPrintRecover(str string, in *bufio.Reader) (callAgain bool) {

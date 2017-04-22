@@ -16,13 +16,13 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * readmultiline.go
+ * read.go
  *
  *  Created on: Mar 12, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package classic
+package base
 
 import (
 	"bufio"
@@ -31,8 +31,6 @@ import (
 	"fmt"
 	"io"
 	r "reflect"
-
-	. "github.com/cosmos72/gomacro/base"
 )
 
 func ReadBytes(src interface{}) []byte {
@@ -91,10 +89,10 @@ type ReadOptions int
 
 const (
 	ReadOptShowPrompt ReadOptions = 1 << iota
-	ReadOptCollectAllComments
+	ReadOptNoPrompt   ReadOptions = 0
 )
 
-func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt string) (src string, comments string, err error) {
+func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt string) (src string, firstToken int, err error) {
 	type Mode int
 	const (
 		mNormal Mode = iota
@@ -103,6 +101,7 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 		mRuneEscape
 		mStringEscape
 		mRawString
+		mCommaOrEqual
 		mSlash
 		mHash
 		mLineComment
@@ -112,18 +111,22 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 	)
 	mode := mNormal
 	paren := 0
-	tokens := false // true if some non-comment was found
 	optPrompt := opts&ReadOptShowPrompt != 0
-	optAllComments := opts&ReadOptCollectAllComments != 0
+	firstToken = -1
 
 	if optPrompt {
 		fmt.Fprint(out, prompt)
 	}
-	var line, buf, commentbuf []byte
+	var line, buf []byte
 	for {
 		line, err = in.ReadBytes('\n')
 		for i, ch := range line {
 			switch mode {
+			case mCommaOrEqual:
+				if ch > ' ' {
+					mode = mNormal
+				}
+				fallthrough
 			case mNormal:
 				switch ch {
 				case '(', '[', '{':
@@ -136,6 +139,8 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					mode = mString
 				case '`':
 					mode = mRawString
+				case ',', '=':
+					mode = mCommaOrEqual
 				case '/':
 					mode = mSlash
 					continue
@@ -153,12 +158,12 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					mode = mNormal
 				default:
 					if ch < ' ' {
-						return invalidChar(ch, "rune")
+						return merge(buf, line[:i]), firstToken, invalidChar(ch, "rune")
 					}
 				}
 			case mRuneEscape:
 				if ch < ' ' {
-					return invalidChar(ch, "rune")
+					return merge(buf, line[:i]), firstToken, invalidChar(ch, "rune")
 				}
 				mode = mRune
 			case mString:
@@ -169,12 +174,12 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					mode = mNormal
 				default:
 					if ch < ' ' {
-						return invalidChar(ch, "string")
+						return merge(buf, line[:i]), firstToken, invalidChar(ch, "string")
 					}
 				}
 			case mStringEscape:
 				if ch < ' ' {
-					return invalidChar(ch, "string")
+					return merge(buf, line[:i]), firstToken, invalidChar(ch, "string")
 				}
 				mode = mString
 			case mRawString:
@@ -192,6 +197,9 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					continue
 				default:
 					mode = mNormal
+					if firstToken < 0 {
+						firstToken = i - 1
+					}
 				}
 			case mHash:
 				switch ch {
@@ -202,14 +210,15 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					continue
 				default:
 					mode = mNormal
+					if firstToken < 0 {
+						firstToken = i - 1
+					}
 				}
 			case mLineComment:
-				switch ch {
-				case '\n':
+				if ch == '\n' {
 					mode = mNormal
-				default:
-					continue
 				}
+				continue
 			case mComment:
 				switch ch {
 				case '*':
@@ -222,22 +231,21 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					mode = mNormal
 				default:
 					mode = mComment
-					continue
 				}
+				continue
 			case mTilde:
 				mode = mNormal
 			}
-			if !tokens && optAllComments {
-				commentbuf = append(commentbuf, line[:i+1]...)
+			if firstToken < 0 {
+				firstToken = i
 			}
-			tokens = true
-		}
-		if !tokens && optAllComments {
-			commentbuf = append(commentbuf, line...)
 		}
 		buf = append(buf, line...)
-		if err != nil || paren <= 0 && mode == mNormal && (tokens || !optAllComments) {
+		if err != nil || paren <= 0 && mode == mNormal && firstToken >= 0 {
 			break
+		}
+		if mode == mCommaOrEqual {
+			mode = mNormal
 		}
 		if optPrompt {
 			printDots(out, 4+2*paren)
@@ -247,13 +255,17 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 		if err == io.EOF && paren > 0 {
 			err = errors.New("unexpected EOF")
 		}
-		return string(buf), string(commentbuf), err
+		return string(buf), firstToken, err
 	}
-	return string(buf), string(commentbuf), nil
+	return string(buf), firstToken, nil
 }
 
-func invalidChar(ch byte, ctx string) (string, string, error) {
-	return "\n", "", errors.New(fmt.Sprintf("unexpected character %q inside %s literal", ch, ctx))
+func merge(buf, tail []byte) string {
+	return string(append(buf, tail...))
+}
+
+func invalidChar(ch byte, ctx string) error {
+	return errors.New(fmt.Sprintf("unexpected character %q inside %s literal", ch, ctx))
 }
 
 func printDots(out io.Writer, count int) {

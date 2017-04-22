@@ -74,17 +74,17 @@ func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMod
 	}
 }
 
-func (ir *Globals) ImportPackage(name, path string) *PackageRef {
+func (g *Globals) ImportPackage(name, path string) *PackageRef {
 	if pkg, ok := imports.Packages[path]; ok {
 		return &PackageRef{Package: pkg, Name: name, Path: path}
 	}
-	pkg, err := ir.Importer.Import(path) // loads names and types, not the values!
+	pkg, err := g.Importer.Import(path) // loads names and types, not the values!
 	if err != nil {
-		ir.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
+		g.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
 		return nil
 	}
 	internal := name == "__"
-	filename := ir.createImportFile(path, pkg, internal)
+	filename := g.createImportFile(path, pkg, internal)
 	if internal {
 		return nil
 	}
@@ -93,8 +93,8 @@ func (ir *Globals) ImportPackage(name, path string) *PackageRef {
 		return &PackageRef{Name: name, Path: path}
 	}
 
-	soname := ir.compilePlugin(filename, ir.Stdout, ir.Stderr)
-	ifun := ir.loadPlugin(soname, "Exports")
+	soname := g.compilePlugin(filename, g.Stdout, g.Stderr)
+	ifun := g.loadPlugin(soname, "Exports")
 	fun := ifun.(func() (map[string]r.Value, map[string]r.Type, map[string]r.Type))
 	binds, types, proxies := fun()
 	return &PackageRef{
@@ -102,23 +102,23 @@ func (ir *Globals) ImportPackage(name, path string) *PackageRef {
 		Name:    name, Path: path}
 }
 
-func (ir *Globals) createImportFile(path string, pkg *types.Package, internal bool) string {
+func (g *Globals) createImportFile(path string, pkg *types.Package, internal bool) string {
 	buf := bytes.Buffer{}
-	isEmpty := ir.writeImportFile(&buf, path, pkg, internal)
+	isEmpty := g.writeImportFile(&buf, path, pkg, internal)
 	if isEmpty {
-		ir.Warnf("package %q exports zero constants, functions, types and variables", path)
+		g.Warnf("package %q exports zero constants, functions, types and variables", path)
 		return ""
 	}
 
 	filename := computeImportFilename(path, internal)
 	err := ioutil.WriteFile(filename, buf.Bytes(), os.FileMode(0666))
 	if err != nil {
-		ir.Errorf("error writing file %q: %v", filename, err)
+		g.Errorf("error writing file %q: %v", filename, err)
 	}
 	if internal {
-		ir.Warnf("created file %q, recompile gomacro to use it", filename)
+		g.Warnf("created file %q, recompile gomacro to use it", filename)
 	} else {
-		ir.Debugf("created file %q...", filename)
+		g.Debugf("created file %q...", filename)
 	}
 	return filename
 }

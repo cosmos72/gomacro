@@ -105,6 +105,9 @@ func (env *Env) evalType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellipsis
 		}
 		break
 	}
+	if node != nil {
+		env.LastKnownPos = node.Pos()
+	}
 
 	switch node := node.(type) {
 	case *ast.ArrayType: // also for slices
