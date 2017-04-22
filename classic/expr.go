@@ -100,7 +100,7 @@ func (env *Env) evalExpr1(node ast.Expr) r.Value {
 func (env *Env) evalExpr(in ast.Expr) (r.Value, []r.Value) {
 	for {
 		if in != nil {
-			env.LastKnownPos = in.Pos()
+			env.Pos = in.Pos()
 		}
 		// env.Debugf("evalExpr() %v", node)
 		switch node := in.(type) {

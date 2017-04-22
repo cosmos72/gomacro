@@ -31,5 +31,6 @@ import (
 
 func (c *Comp) Import(node ast.Spec) X {
 	c.Errorf("import is not implemented, found: %v <%v>", node, r.TypeOf(node))
+	c.Pos = node.Pos()
 	return nil
 }

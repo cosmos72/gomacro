@@ -53,6 +53,9 @@ func popEnv(env *Env) (Stmt, *Env) {
 func (c *Comp) Stmt(node ast.Stmt) {
 	label := ""
 	for {
+		if node != nil {
+			c.Pos = node.Pos()
+		}
 		switch node := node.(type) {
 		case nil:
 		case *ast.AssignStmt:

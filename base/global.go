@@ -25,7 +25,6 @@
 package base
 
 import (
-	"bytes"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -101,7 +100,7 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 
 	parser.Configure(g.Fileset, mp.Mode(g.ParserMode), g.SpecialChar)
-	parser.Init(g.Filename, src, g.currentFileLine)
+	parser.Init(g.Filename, src, g.Line)
 
 	nodes, err := parser.Parse()
 	if err != nil {
@@ -109,18 +108,6 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 		return nil
 	}
 	return nodes
-}
-
-func (g *Globals) ResetParsedCount() {
-	g.currentFileLine = 0
-}
-
-func (g *Globals) CountParsed(src string) {
-	g.currentFileLine += strings.Count(src, "\n")
-}
-
-func (g *Globals) CountParsedBytes(src []byte) {
-	g.currentFileLine += bytes.Count(src, []byte("\n"))
 }
 
 // CollectAst accumulates declarations in ir.Decls and statements in ir.Stmts

@@ -246,7 +246,7 @@ func (env *Env) File() *Env {
 }
 
 func (c *Comp) ParseAst(src string) Ast {
-	c.ResetParsedCount()
+	c.Line = 0
 	nodes := c.ParseBytes([]byte(src))
 	return AnyToAst(nodes, "ParseAst")
 }
@@ -289,9 +289,11 @@ func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
 
 func (c *Comp) Compile(in ast.Node) func(*Env) (r.Value, []r.Value) {
 	c.Code.Clear()
-	switch node := in.(type) {
-	case nil:
+	if in == nil {
 		return nil
+	}
+	c.Pos = in.Pos()
+	switch node := in.(type) {
 	case ast.Decl:
 		c.Decl(node)
 	case ast.Expr:

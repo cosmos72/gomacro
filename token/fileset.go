@@ -16,21 +16,21 @@ import (
 //
 type FileSet struct {
 	token.FileSet
-	lineOffsets map[*token.File]int // starting line of each file in the set
+	lines map[*token.File]int // starting line of each file in the set
 }
 
 // NewFileSet creates a new file set.
 func NewFileSet() *FileSet {
 	return &FileSet{
-		FileSet:     *token.NewFileSet(),
-		lineOffsets: make(map[*token.File]int),
+		FileSet: *token.NewFileSet(),
+		lines:   make(map[*token.File]int),
 	}
 }
 
 // AddFile adds a new file with a given filename, base offset, and file size
-func (s *FileSet) AddFile(filename string, base, size, lineOffset int) *token.File {
+func (s *FileSet) AddFile(filename string, base, size, line int) *token.File {
 	f := s.FileSet.AddFile(filename, base, size)
-	s.lineOffsets[f] = lineOffset
+	s.lines[f] = line
 	return f
 }
 
@@ -42,7 +42,7 @@ func (s *FileSet) AddFile(filename string, base, size, lineOffset int) *token.Fi
 func (s *FileSet) PositionFor(p token.Pos, adjusted bool) (pos token.Position) {
 	if f := s.File(p); f != nil {
 		pos = f.PositionFor(p, adjusted)
-		pos.Line += s.lineOffsets[f]
+		pos.Line += s.lines[f]
 	}
 	return
 }

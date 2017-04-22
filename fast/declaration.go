@@ -34,6 +34,9 @@ import (
 
 // Decl compiles a constant, variable, function or type declaration - or an import
 func (c *Comp) Decl(node ast.Decl) {
+	if node != nil {
+		c.Pos = node.Pos()
+	}
 	switch node := node.(type) {
 	case *ast.GenDecl:
 		c.DeclGen(node)
@@ -81,6 +84,7 @@ func (c *Comp) DeclGen(node *ast.GenDecl) {
 
 // DeclConsts compiles a set of constant declarations
 func (c *Comp) DeclConsts(node ast.Spec, defaultType ast.Expr, defaultExprs []ast.Expr) {
+	c.Pos = node.Pos()
 	switch node := node.(type) {
 	case *ast.ValueSpec:
 		if node.Type != nil || node.Values != nil {
@@ -96,6 +100,7 @@ func (c *Comp) DeclConsts(node ast.Spec, defaultType ast.Expr, defaultExprs []as
 
 // DeclVars compiles a set of variable declarations i.e. "var x1, x2... [type] = expr1, expr2..."
 func (c *Comp) DeclVars(node ast.Spec) {
+	c.Pos = node.Pos()
 	switch node := node.(type) {
 	case *ast.ValueSpec:
 		names, t, inits := c.prepareDeclConstsOrVars(tostrings(node.Names), node.Type, node.Values)

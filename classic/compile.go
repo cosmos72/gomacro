@@ -50,6 +50,7 @@ func (env *Env) compile(src string) {
 		} else {
 			ce = env.CompEnv.(*fast.CompEnv)
 		}
+		ce.Comp.Stringer.Copy(&env.Stringer) // sync Fileset, Pos, Line
 		fun := ce.Comp.CompileAst(ast)
 
 		// print phase

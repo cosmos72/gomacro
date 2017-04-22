@@ -32,16 +32,17 @@ import (
 	"go/token"
 	"io"
 	r "reflect"
+	"strings"
 
 	. "github.com/cosmos72/gomacro/ast2"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
 type Stringer struct {
-	Fileset         *mt.FileSet
-	LastKnownPos    token.Pos
-	currentFileLine int
-	NamedTypes      map[r.Type]string
+	Fileset    *mt.FileSet
+	Pos        token.Pos
+	Line       int
+	NamedTypes map[r.Type]string
 }
 
 type Output struct {
@@ -54,6 +55,12 @@ type RuntimeError struct {
 	st     *Stringer
 	format string
 	args   []interface{}
+}
+
+func (st *Stringer) Copy(other *Stringer) {
+	st.Fileset = other.Fileset
+	st.Pos = other.Pos
+	st.Line = other.Line
 }
 
 func (err RuntimeError) Error() string {
@@ -111,11 +118,19 @@ func (o *Output) Debugf(format string, args ...interface{}) {
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
 
+func (st *Stringer) IncLine(src string) {
+	st.Line += strings.Count(src, "\n")
+}
+
+func (st *Stringer) IncLineBytes(src []byte) {
+	st.Line += bytes.Count(src, []byte("\n"))
+}
+
 func (st *Stringer) Position() token.Position {
 	if st == nil || st.Fileset == nil {
 		return token.Position{}
 	}
-	return st.Fileset.Position(st.LastKnownPos)
+	return st.Fileset.Position(st.Pos)
 }
 
 func (st *Stringer) FprintValues(opts Options, out io.Writer, values ...r.Value) {

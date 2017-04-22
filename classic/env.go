@@ -143,9 +143,9 @@ func (env *Env) ReplStdin() {
 	}
 	in := bufio.NewReader(os.Stdin)
 
-	env.ResetParsedCount()
+	env.Line = 0
 	for env.ReadParseEvalPrint(in) {
-		env.ResetParsedCount()
+		env.Line = 0
 	}
 }
 
@@ -162,10 +162,10 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 	str, firstToken := env.ReadMultiline(in, opts)
 	if firstToken < 0 {
 		// skip comments and continue, but fail on EOF or other errors
-		env.CountParsed(str)
+		env.IncLine(str)
 		return len(str) > 0
 	} else if firstToken > 0 {
-		env.CountParsed(str[0:firstToken])
+		env.IncLine(str[0:firstToken])
 	}
 	return env.ParseEvalPrint(str[firstToken:], in)
 }
@@ -205,7 +205,7 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 		}()
 	}
 	callAgain = env.parseEvalPrint(str, in)
-	env.CountParsed(str)
+	env.IncLine(str)
 	return callAgain
 }
 

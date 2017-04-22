@@ -77,7 +77,7 @@ func (env *Env) evalStatements(list []ast.Stmt) (r.Value, []r.Value) {
 
 func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 	if node != nil {
-		env.LastKnownPos = node.Pos()
+		env.Pos = node.Pos()
 	}
 	switch node := node.(type) {
 	case *ast.AssignStmt:

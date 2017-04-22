@@ -115,6 +115,9 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 		}
 		break
 	}
+	if node != nil {
+		c.Pos = node.Pos()
+	}
 
 	switch node := node.(type) {
 	case *ast.ArrayType: // also for slices

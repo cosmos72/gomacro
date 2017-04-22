@@ -77,6 +77,9 @@ func (c *Comp) Expr1(in ast.Expr) *Expr {
 // Expr compiles an expression
 func (c *Comp) Expr(in ast.Expr) *Expr {
 	for {
+		if in != nil {
+			c.Pos = in.Pos()
+		}
 		// env.Debugf("evalExpr() %v", node)
 		switch node := in.(type) {
 		case *ast.BasicLit:
