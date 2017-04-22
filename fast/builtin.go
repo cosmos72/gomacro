@@ -54,6 +54,35 @@ func (top *Comp) incrementIota() {
 	top.Binds["iota"] = BindConst(UntypedLit{Kind: r.Int, Obj: uIota})
 }
 
+/*
+func callLen(val interface{}) int {
+	return r.ValueOf(val).Len()
+}
+
+func builtinLen(c *Comp, upn int, desc BindDescriptor, node *ast.CallExpr) *Call {
+	args := node.Args
+	if len(args) != 1 {
+		return c.badBuiltinCallArgNum("len", 1, 1, args)
+	}
+	arg := c.Expr1(args[0])
+	tin := arg.Type
+	tout := TypeOfInt
+	switch tin.Kind() {
+	case r.Array, r.String, r.Slice, r.Map, r.Chan:
+	default:
+		return c.badBuiltinCallArgType("len", args[0], tin)
+	}
+	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
+	fun := exprX1(t, resolveLen)
+	funvar := bind.AsFuncOrVar(upn)
+	funvar.Type = t
+
+	argvar := c.extractVar(args[0])
+
+	return newCall1(fun, funvar, arg, argvar, tout)
+}
+*/
+
 func (ce *CompEnv) addBuiltins() {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."

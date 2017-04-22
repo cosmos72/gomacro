@@ -110,7 +110,7 @@ func (lit Lit) String() string {
 
 // ================================= Expr =================================
 
-// Expr represents an expression in the compiler
+// Expr represents an expression in the "compiler"
 type Expr struct {
 	Lit
 	Types []r.Type // in case the expression produces multiple values. if nil, use Lit.Type.
@@ -170,6 +170,7 @@ type BindClass int
 
 const (
 	ConstBind = BindClass(iota)
+	BuiltinBind
 	FuncBind
 	VarBind
 	IntBind
@@ -179,6 +180,8 @@ func (class BindClass) String() string {
 	switch class {
 	case ConstBind:
 		return "constant"
+	case BuiltinBind:
+		return "builtin"
 	case FuncBind:
 		return "function"
 	default:
@@ -189,8 +192,8 @@ func (class BindClass) String() string {
 // ================================== BindDescriptor =================================
 
 const (
-	bindClassMask  = BindClass(0x3)
-	bindIndexShift = 2
+	bindClassMask  = BindClass(0x7)
+	bindIndexShift = 3
 
 	NoIndex             = int(0)                    // index of constants, functions and variables named "_"
 	ConstBindDescriptor = BindDescriptor(ConstBind) // bind descriptor for all constants
@@ -228,7 +231,7 @@ func (desc BindDescriptor) String() string {
 
 // ================================== Bind =================================
 
-// Bind represents a constant, variable, or function in the compiler
+// Bind represents a constant, variable, function or builtin in the "compiler"
 type Bind struct {
 	Lit
 	Desc BindDescriptor
@@ -248,16 +251,31 @@ func (bind *Bind) AsVar(upn int) *Var {
 	case VarBind, IntBind:
 		return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
 	default:
-		base.Errorf("invalid assignment to %s", class)
+		base.Errorf("expecting a variable: %s is not settable", class)
 		return nil
 	}
+}
+
+func (bind *Bind) AsSymbol(upn int, name string) *Symbol {
+	return &Symbol{Bind: *bind, Upn: upn, Name: name}
 }
 
 type NamedType struct {
 	Name, Path string
 }
 
-// ================================== Var, Place =================================
+// ================================== Symbol, Var, Place =================================
+
+// Symbol represents a resolved constant, function, variable or builtin
+type Symbol struct {
+	Bind
+	Upn  int
+	Name string
+}
+
+func (sym *Symbol) AsVar() *Var {
+	return sym.Bind.AsVar(sym.Upn)
+}
 
 // Var represents a settable variable
 type Var struct {

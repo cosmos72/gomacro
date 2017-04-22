@@ -121,7 +121,7 @@ import (
 	return ~"{
 		arg0fun := args[0].WithFun().(func(env *Env) ~,arg0typ)
 		arg1fun := args[1].WithFun().(func(env *Env) ~,arg1typ)
-		if funvar != nil {
+		if funsym != nil {
 			var cachedfun func(~,arg0typ, ~,arg1typ) ~,rettyp
 			switch funupn {
 			case maxdepth:
@@ -219,11 +219,11 @@ import (
 func call2ret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	karg0 := expr.Type.In(0).Kind()
 	karg1 := expr.Type.In(1).Kind()

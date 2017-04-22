@@ -35,8 +35,8 @@ import (
 )
 
 func call0ret0(c *Call, maxdepth int) func(env *Env) {
-	funvar := c.Funvar
-	if funvar == nil {
+	funsym := c.Funsym
+	if funsym == nil {
 		exprfun := c.Fun.AsX1()
 		return func(env *Env) {
 			fun := exprfun(env).Interface().(func())
@@ -47,8 +47,8 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 	var cachedfunv r.Value
 	var cachedfun func()
 
-	funupn := funvar.Upn
-	funindex := funvar.Desc.Index()
+	funupn := funsym.Upn
+	funindex := funsym.Desc.Index()
 	switch funupn {
 	case maxdepth:
 		return func(env *Env) {
@@ -121,7 +121,7 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 	return ~"{
 		if args[0].Const() {
 			argconst := args[0].Value.(~,argtyp)
-			if funvar != nil {
+			if funsym != nil {
 				var cachedfun func(~,argtyp)
 				switch funupn {
 				case maxdepth:
@@ -149,7 +149,7 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 			}
 		} else {
 			argfun := args[0].Fun.(func(env *Env) ~,argtyp)
-			if funvar != nil {
+			if funsym != nil {
 				var cachedfun func(~,argtyp)
 				switch funupn {
 				case maxdepth:
@@ -187,11 +187,11 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	args := c.Args
 	argfuns := c.Argfuns
@@ -252,7 +252,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 		arg0fun := args[0].Fun.(func(*Env) ~,arg0typ)
 		arg1fun := args[1].Fun.(func(*Env) ~,arg0typ)
 
-		if funvar != nil {
+		if funsym != nil {
 			var cachedfun func(~,arg0typ, ~,arg1typ)
 			switch funupn {
 			case maxdepth:
@@ -288,11 +288,11 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 func call2ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	args := c.Args
 	argfuns := c.Argfuns

@@ -37,10 +37,21 @@ import (
 type Call struct {
 	OutTypes []r.Type
 	Fun      *Expr
-	Funvar   *Var // in case function is an identifier (a variable or function name)
+	Funsym   *Symbol // in case function is an identifier
 	Args     []*Expr
-	Argvars  []*Var // in case arguments are variable or function names
+	Argsyms  []*Symbol // in case arguments are identifiers or constants
 	Argfuns  []func(*Env) r.Value
+}
+
+func newCall1(fun *Expr, funsym *Symbol, arg *Expr, argsym *Symbol, outtypes ...r.Type) *Call {
+	return &Call{
+		OutTypes: outtypes,
+		Fun:      fun,
+		Funsym:   funsym,
+		Args:     []*Expr{arg},
+		Argsyms:  []*Symbol{argsym},
+		Argfuns:  []func(*Env) r.Value{arg.AsX1()},
+	}
 }
 
 // CallExpr compiles a function call
@@ -74,13 +85,7 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 		c.Errorf("unimplemented: call to variadic function: %v <%v>", node.Fun, t)
 		return nil
 	}
-	var funvar *Var
-	if ident, ok := UnwrapTrivialNode(node.Fun).(*ast.Ident); ok {
-		upn, bind := c.Resolve(ident.Name)
-		if bind.Desc.Class() != ConstBind {
-			funvar = &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
-		}
-	}
+	funsym := c.extractSymbol(node.Fun)
 
 	args := c.Exprs(node.Args)
 	n := t.NumIn()
@@ -91,8 +96,8 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 	if n != len(args) {
 		return c.badCallArgNum(node.Fun, t, args)
 	}
-	argvars := make([]*Var, n)
 	argfuns := make([]func(*Env) r.Value, n)
+	argsyms := make([]*Symbol, n)
 	for i, arg := range args {
 		ti := t.In(i)
 		if arg.Const() {
@@ -101,14 +106,10 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 			c.Errorf("cannot use <%v> as <%v> in argument to %v", arg.Type, ti, node.Fun)
 		}
 		argfuns[i] = arg.AsX1()
-		if ident, ok := UnwrapTrivialNode(node.Args[i]).(*ast.Ident); ok {
-			upn, bind := c.Resolve(ident.Name)
-			if bind.Desc.Class() != ConstBind {
-				argvars[i] = &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
-			}
-		}
+		argsyms[i] = c.extractSymbol(node.Args[i])
 	}
-	ret := &Call{Fun: fun, Funvar: funvar, Args: args, Argfuns: argfuns, Argvars: argvars}
+
+	ret := &Call{Fun: fun, Funsym: funsym, Args: args, Argfuns: argfuns, Argsyms: argsyms}
 	nout := t.NumOut()
 	types := make([]r.Type, nout)
 	for i := 0; i < nout; i++ {
@@ -116,6 +117,22 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 	}
 	ret.OutTypes = types
 	return ret
+}
+
+func (c *Comp) extractSymbols(args []ast.Expr) []*Symbol {
+	n := len(args)
+	syms := make([]*Symbol, n)
+	for i, arg := range args {
+		syms[i] = c.extractSymbol(arg)
+	}
+	return syms
+}
+
+func (c *Comp) extractSymbol(arg ast.Expr) *Symbol {
+	if ident, ok := UnwrapTrivialNode(arg).(*ast.Ident); ok {
+		return c.TryResolve(ident.Name)
+	}
+	return nil
 }
 
 // mandatory optimization: fast_interpreter ASSUMES that expressions
@@ -260,5 +277,24 @@ func (c *Comp) badCallArgNum(fun ast.Expr, t r.Type, args []*Expr) *Call {
 		}
 	}
 	c.Errorf("%s arguments in call to %v:\n\thave (%s)\n\twant (%s)", prefix, fun, have.Bytes(), want.Bytes())
+	return nil
+}
+
+func (c *Comp) badBuiltinCallArgNum(name string, n1 int, n2 int, args []ast.Expr) *Call {
+	prefix := "not enough"
+	nargs := len(args)
+	if nargs > n2 {
+		prefix = "too many"
+	}
+	str := fmt.Sprintf("%d", n1)
+	if n2 != n1 {
+		str = fmt.Sprintf("%s or %d", str, n2)
+	}
+	c.Errorf("%s arguments in call to builtin %s(): expecting %s, found %d: %v", prefix, name, str, nargs, args)
+	return nil
+}
+
+func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, t r.Type) *Call {
+	c.Errorf("invalid argument %v <%v> for builtin %s()", arg, t, name)
 	return nil
 }

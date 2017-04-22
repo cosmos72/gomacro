@@ -29,47 +29,52 @@ import (
 	"unsafe"
 )
 
-func (c *Comp) Resolve(name string) (upn int, bind Bind) {
-	ok := false
-	upn, bind, ok = c.TryResolve(name)
-	if !ok {
+func (c *Comp) Resolve(name string) *Symbol {
+	sym := c.TryResolve(name)
+	if sym == nil {
 		c.Errorf("undefined identifier: %v", name)
 	}
-	return upn, bind
+	return sym
 }
 
-func (c *Comp) TryResolve(name string) (upn int, bind Bind, ok bool) {
+func (c *Comp) TryResolve(name string) *Symbol {
+	upn := 0
 	for ; c != nil; c = c.Outer {
-		if b, ok := c.Binds[name]; ok {
-			return upn, b, true
+		if bind, ok := c.Binds[name]; ok {
+			return bind.AsSymbol(upn, name)
 		}
-		upn += c.UpCost // zero if *Comp has no local variables/functions so it will NOT have a corresponding *Env at runtime
+		upn += c.UpCost // c.UpCost is zero if *Comp has no local variables/functions so it will NOT have a corresponding *Env at runtime
 	}
-	return upn, bind, false
+	return nil
 }
 
 // Ident compiles a read operation on a constant, variable or function
 func (c *Comp) Ident(name string) *Expr {
-	return c.IdentBind(c.Resolve(name))
+	return c.Symbol(c.Resolve(name))
 }
 
-// IdentBind compiles a read operation on a constant, variable or function bind
-func (c *Comp) IdentBind(upn int, bind Bind) *Expr {
-	desc := bind.Desc
-	switch desc.Class() {
+// Symbol compiles a read operation on a constant, variable or function
+func (c *Comp) Symbol(sym *Symbol) *Expr {
+	switch sym.Desc.Class() {
 	case ConstBind:
-		return exprLit(bind.Lit)
+		return exprLit(sym.Lit)
+	case BuiltinBind:
+		c.Errorf("use of builtin %s not in function call", sym.Name)
+	case VarBind, FuncBind:
+		return c.varOrFuncSymbol(sym)
 	case IntBind:
-		return c.identIntBind(upn, bind)
+		return c.intSymbol(sym)
 	default:
-		return c.identVarOrFuncBind(upn, bind)
+		c.Errorf("unknown symbol class %s", sym.Desc.Class())
 	}
+	return nil
 }
 
-func (c *Comp) identVarOrFuncBind(upn int, bind Bind) *Expr {
-	idx := bind.Desc.Index()
+func (c *Comp) varOrFuncSymbol(sym *Symbol) *Expr {
+	idx := sym.Desc.Index()
+	upn := sym.Upn
 	var fun I
-	switch bind.Type.Kind() {
+	switch sym.Type.Kind() {
 	case r.Complex128:
 		switch upn {
 		case 0:
@@ -137,12 +142,13 @@ func (c *Comp) identVarOrFuncBind(upn int, bind Bind) *Expr {
 			}
 		}
 	}
-	return &Expr{Lit: Lit{Type: bind.Type}, Fun: fun}
+	return &Expr{Lit: Lit{Type: sym.Type}, Fun: fun}
 }
 
-func (c *Comp) identIntBind(upn int, bind Bind) *Expr {
-	k := bind.Type.Kind()
-	idx := bind.Desc.Index()
+func (c *Comp) intSymbol(sym *Symbol) *Expr {
+	k := sym.Type.Kind()
+	idx := sym.Desc.Index()
+	upn := sym.Upn
 	switch upn {
 	case 0:
 		switch k {
@@ -207,7 +213,7 @@ func (c *Comp) identIntBind(upn int, bind Bind) *Expr {
 				return *(*complex64)(unsafe.Pointer(&env.IntBinds[idx]))
 			})
 		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: <%v>", bind.Type)
+			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 			return nil
 		}
 	case 1:
@@ -273,7 +279,7 @@ func (c *Comp) identIntBind(upn int, bind Bind) *Expr {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
 			})
 		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: <%v>", bind.Type)
+			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 			return nil
 		}
 	case 2:
@@ -339,7 +345,7 @@ func (c *Comp) identIntBind(upn int, bind Bind) *Expr {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
 			})
 		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: <%v>", bind.Type)
+			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 			return nil
 		}
 	default:
@@ -450,7 +456,7 @@ func (c *Comp) identIntBind(upn int, bind Bind) *Expr {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
 			})
 		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: <%v>", bind.Type)
+			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 			return nil
 		}
 	}

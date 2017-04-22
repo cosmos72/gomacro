@@ -34,8 +34,8 @@ import (
 )
 
 func call0ret0(c *Call, maxdepth int) func(env *Env) {
-	funvar := c.Funvar
-	if funvar == nil {
+	funsym := c.Funsym
+	if funsym == nil {
 		exprfun := c.Fun.AsX1()
 		return func(env *Env) {
 			fun := exprfun(env).Interface().(func())
@@ -46,8 +46,8 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 	var cachedfunv r.Value
 	var cachedfun func()
 
-	funupn := funvar.Upn
-	funindex := funvar.Desc.Index()
+	funupn := funsym.Upn
+	funindex := funsym.Desc.Index()
 	switch funupn {
 	case maxdepth:
 		return func(env *Env) {
@@ -97,11 +97,11 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	args := c.Args
 	argfuns := c.Argfuns
@@ -115,7 +115,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		if args[0].Const() {
 			argconst := args[0].Value.(bool)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(bool)
 
 				switch funupn {
@@ -151,7 +151,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) bool)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(bool)
 
 				switch funupn {
@@ -195,7 +195,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		if args[0].Const() {
 			argconst := args[0].Value.(int)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int)
 
 				switch funupn {
@@ -231,7 +231,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) int)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int)
 
 				switch funupn {
@@ -275,7 +275,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		if args[0].Const() {
 			argconst := args[0].Value.(int8)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int8)
 
 				switch funupn {
@@ -311,7 +311,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) int8)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int8)
 
 				switch funupn {
@@ -355,7 +355,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		if args[0].Const() {
 			argconst := args[0].Value.(int16)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int16)
 
 				switch funupn {
@@ -391,7 +391,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) int16)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int16)
 
 				switch funupn {
@@ -435,7 +435,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		if args[0].Const() {
 			argconst := args[0].Value.(int32)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int32)
 
 				switch funupn {
@@ -471,7 +471,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) int32)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int32)
 
 				switch funupn {
@@ -515,7 +515,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		if args[0].Const() {
 			argconst := args[0].Value.(int64)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int64)
 
 				switch funupn {
@@ -551,7 +551,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) int64)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(int64)
 
 				switch funupn {
@@ -594,7 +594,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Uint:
 		if args[0].Const() {
 			argconst := args[0].Value.(uint)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint)
 
 				switch funupn {
@@ -630,7 +630,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) uint)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint)
 
 				switch funupn {
@@ -673,7 +673,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Uint8:
 		if args[0].Const() {
 			argconst := args[0].Value.(uint8)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint8)
 
 				switch funupn {
@@ -709,7 +709,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) uint8)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint8)
 
 				switch funupn {
@@ -752,7 +752,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Uint16:
 		if args[0].Const() {
 			argconst := args[0].Value.(uint16)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint16)
 
 				switch funupn {
@@ -788,7 +788,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) uint16)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint16)
 
 				switch funupn {
@@ -831,7 +831,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Uint32:
 		if args[0].Const() {
 			argconst := args[0].Value.(uint32)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint32)
 
 				switch funupn {
@@ -867,7 +867,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) uint32)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint32)
 
 				switch funupn {
@@ -910,7 +910,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Uint64:
 		if args[0].Const() {
 			argconst := args[0].Value.(uint64)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint64)
 				switch funupn {
 				case maxdepth:
@@ -945,7 +945,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) uint64)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uint64)
 
 				switch funupn {
@@ -988,7 +988,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Uintptr:
 		if args[0].Const() {
 			argconst := args[0].Value.(uintptr)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uintptr)
 				switch funupn {
 				case maxdepth:
@@ -1023,7 +1023,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) uintptr)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(uintptr)
 
 				switch funupn {
@@ -1066,7 +1066,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Float32:
 		if args[0].Const() {
 			argconst := args[0].Value.(float32)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(float32)
 				switch funupn {
 				case maxdepth:
@@ -1101,7 +1101,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) float32)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(float32)
 
 				switch funupn {
@@ -1144,7 +1144,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Float64:
 		if args[0].Const() {
 			argconst := args[0].Value.(float64)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(float64)
 				switch funupn {
 				case maxdepth:
@@ -1179,7 +1179,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) float64)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(float64)
 
 				switch funupn {
@@ -1222,7 +1222,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Complex64:
 		if args[0].Const() {
 			argconst := args[0].Value.(complex64)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(complex64)
 				switch funupn {
 				case maxdepth:
@@ -1257,7 +1257,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) complex64)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(complex64)
 
 				switch funupn {
@@ -1300,7 +1300,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.Complex128:
 		if args[0].Const() {
 			argconst := args[0].Value.(complex128)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(complex128)
 				switch funupn {
 				case maxdepth:
@@ -1335,7 +1335,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) complex128)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(complex128)
 
 				switch funupn {
@@ -1378,7 +1378,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	case r.String:
 		if args[0].Const() {
 			argconst := args[0].Value.(string)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(string)
 				switch funupn {
 				case maxdepth:
@@ -1413,7 +1413,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 		} else {
 			argfun := args[0].Fun.(func(env *Env) string)
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				var cachedfun func(string)
 
 				switch funupn {
@@ -1472,11 +1472,11 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 func call2ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	args := c.Args
 	argfuns := c.Argfuns
@@ -1494,7 +1494,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) bool)
 				arg1fun := args[1].Fun.(func(*Env) bool)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(bool, bool)
 
 					switch funupn {
@@ -1542,7 +1542,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) int)
 				arg1fun := args[1].Fun.(func(*Env) int)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(int, int)
 
 					switch funupn {
@@ -1590,7 +1590,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) int8)
 				arg1fun := args[1].Fun.(func(*Env) int8)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(int8, int8)
 
 					switch funupn {
@@ -1638,7 +1638,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) int16)
 				arg1fun := args[1].Fun.(func(*Env) int16)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(int16, int16)
 
 					switch funupn {
@@ -1686,7 +1686,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) int32)
 				arg1fun := args[1].Fun.(func(*Env) int32)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(int32, int32)
 
 					switch funupn {
@@ -1733,7 +1733,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) int64)
 				arg1fun := args[1].Fun.(func(*Env) int64)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(int64, int64)
 
 					switch funupn {
@@ -1780,7 +1780,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) uint)
 				arg1fun := args[1].Fun.(func(*Env) uint)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(uint, uint)
 
 					switch funupn {
@@ -1827,7 +1827,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) uint8)
 				arg1fun := args[1].Fun.(func(*Env) uint8)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(uint8, uint8)
 
 					switch funupn {
@@ -1874,7 +1874,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) uint16)
 				arg1fun := args[1].Fun.(func(*Env) uint16)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(uint16, uint16)
 
 					switch funupn {
@@ -1921,7 +1921,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) uint32)
 				arg1fun := args[1].Fun.(func(*Env) uint32)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(uint32, uint32)
 
 					switch funupn {
@@ -1968,7 +1968,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) uint64)
 				arg1fun := args[1].Fun.(func(*Env) uint64)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(uint64, uint64)
 
 					switch funupn {
@@ -2015,7 +2015,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) uintptr)
 				arg1fun := args[1].Fun.(func(*Env) uintptr)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(uintptr, uintptr)
 
 					switch funupn {
@@ -2062,7 +2062,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) float32)
 				arg1fun := args[1].Fun.(func(*Env) float32)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(float32, float32)
 
 					switch funupn {
@@ -2109,7 +2109,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) float64)
 				arg1fun := args[1].Fun.(func(*Env) float64)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(float64, float64)
 					switch funupn {
 					case maxdepth:
@@ -2155,7 +2155,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) complex64)
 				arg1fun := args[1].Fun.(func(*Env) complex64)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(complex64, complex64)
 					switch funupn {
 					case maxdepth:
@@ -2201,7 +2201,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) complex128)
 				arg1fun := args[1].Fun.(func(*Env) complex128)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(complex128, complex128)
 					switch funupn {
 					case maxdepth:
@@ -2247,7 +2247,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 				arg0fun := args[0].Fun.(func(*Env) string)
 				arg1fun := args[1].Fun.(func(*Env) string)
 
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					var cachedfun func(string, string)
 					switch funupn {
 					case maxdepth:

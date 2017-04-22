@@ -45,14 +45,14 @@ func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
 	return place.Var.Address(c.Depth)
 }
 func (c *Comp) AddressOfVar(name string) *Expr {
-	upn, bind := c.Resolve(name)
-	class := bind.Desc.Class()
+	sym := c.Resolve(name)
+	class := sym.Desc.Class()
 	switch class {
 	default:
 		c.Errorf("cannot take the address of %s: %v", class, name)
 		return nil
 	case VarBind, IntBind:
-		va := bind.AsVar(upn)
+		va := sym.AsVar()
 		return va.Address(c.Depth)
 	}
 }

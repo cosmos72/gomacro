@@ -98,8 +98,8 @@ func (c *Comp) PlaceOrAddress(lhs ast.Expr, addressof bool) *Place {
 			}
 			return &Place{}
 		}
-		upn, bind := c.Resolve(name)
-		class := bind.Desc.Class()
+		sym := c.Resolve(name)
+		class := sym.Desc.Class()
 		if class != VarBind && class != IntBind {
 			if addressof {
 				c.Errorf("cannot take the address of %s: %v", class, name)
@@ -108,7 +108,7 @@ func (c *Comp) PlaceOrAddress(lhs ast.Expr, addressof bool) *Place {
 			}
 			return nil
 		}
-		return &Place{Var: Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}}
+		return &Place{Var: *sym.AsVar()}
 	default:
 		if addressof {
 			c.Errorf("unimplemented: address of non-identifier: %v", lhs)
@@ -124,10 +124,10 @@ func (c *Comp) LookupVar(name string) *Var {
 	if name == "_" {
 		return &Var{}
 	}
-	upn, bind := c.Resolve(name)
-	class := bind.Desc.Class()
+	sym := c.Resolve(name)
+	class := sym.Desc.Class()
 	if class != VarBind && class != IntBind {
 		c.Errorf("cannot assign to %s: %v", class, name)
 	}
-	return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
+	return sym.AsVar()
 }

@@ -37,11 +37,11 @@ import (
 func call0ret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	kret := expr.Type.Out(0).Kind()
 	var cachedfunv r.Value
@@ -50,7 +50,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Bool:
 
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() bool
@@ -103,7 +103,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Int:
 
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() int
@@ -156,7 +156,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Int8:
 
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() int8
@@ -209,7 +209,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Int16:
 
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() int16
@@ -262,7 +262,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Int32:
 
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() int32
@@ -315,7 +315,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Int64:
 
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() int64
@@ -368,7 +368,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Uint:
 
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() uint
@@ -420,7 +420,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint8:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() uint8
@@ -472,7 +472,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint16:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() uint16
@@ -524,7 +524,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint32:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() uint32
@@ -576,7 +576,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint64:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() uint64
@@ -628,7 +628,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uintptr:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() uintptr
@@ -680,7 +680,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Float32:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() float32
@@ -731,7 +731,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Float64:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() float64
@@ -782,7 +782,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Complex64:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() complex64
@@ -833,7 +833,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Complex128:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() complex128
@@ -884,7 +884,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.String:
 		{
-			if funvar != nil && funvar.Desc.Class() == FuncBind {
+			if funsym != nil {
 				switch funupn {
 				case maxdepth:
 					var cachedfun func() string

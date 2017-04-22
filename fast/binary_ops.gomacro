@@ -159,7 +159,7 @@ func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 		{binaryops; token.ADD; true; false; { int; uint; float32; float64; complex64; complex128; string }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) Sub(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -185,7 +185,7 @@ func (c *Comp) Sub(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{binaryops; token.SUB; true; false; { int; uint; float32; float64; complex64; complex128 }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) Mul(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -214,7 +214,7 @@ func (c *Comp) Mul(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 		{binaryops; token.MUL; true; false; { int; uint; float32; float64; complex64; complex128 }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -244,7 +244,7 @@ func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{binaryops; token.QUO; true; false; { int; uint; float32; float64; complex64; complex128 }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -272,7 +272,7 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{binaryops; token.REM; true; false; { int; uint }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -303,7 +303,7 @@ func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 		{binaryops; token.AND; true; false; { int; uint }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) Or(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -334,7 +334,7 @@ func (c *Comp) Or(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 		{binaryops; token.OR; true; false; { int; uint }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) Xor(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -363,7 +363,7 @@ func (c *Comp) Xor(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 		{binaryops; token.XOR; true; false; { int; uint }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -391,7 +391,7 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		// cannot optimize 0 &^ y to 0 because y may have side effects
 		{binaryops; token.AND_NOT; true; false; { int; uint }}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 

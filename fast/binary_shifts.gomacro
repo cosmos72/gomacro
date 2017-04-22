@@ -185,7 +185,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{shiftss; token.SHL; true; false; {int; uint}; {uint}}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }
 
 func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -212,5 +212,5 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{shiftss; token.SHR; true; false; {int; uint}; {uint}}
 	}
-	return ExprFun(xe.Type, fun)
+	return exprFun(xe.Type, fun)
 }

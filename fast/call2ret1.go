@@ -36,11 +36,11 @@ import (
 func call2ret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	karg0 := expr.Type.In(0).Kind()
 	karg1 := expr.Type.In(1).Kind()
@@ -59,7 +59,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) bool
 
 							switch funupn {
@@ -104,7 +104,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) bool
 
 							switch funupn {
@@ -149,7 +149,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) bool
 
 							switch funupn {
@@ -194,7 +194,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) bool
 
 							switch funupn {
@@ -239,7 +239,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) bool
 
 							switch funupn {
@@ -284,7 +284,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) bool
 
 							switch funupn {
@@ -329,7 +329,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) bool
 
 							switch funupn {
@@ -374,7 +374,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) bool
 
 							switch funupn {
@@ -419,7 +419,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) bool
 
 							switch funupn {
@@ -464,7 +464,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) bool
 
 							switch funupn {
@@ -509,7 +509,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) bool
 
 							switch funupn {
@@ -554,7 +554,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) bool
 
 							switch funupn {
@@ -599,7 +599,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) bool
 
 							switch funupn {
@@ -644,7 +644,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) bool
 
 							switch funupn {
@@ -689,7 +689,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) bool
 
 							switch funupn {
@@ -734,7 +734,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) bool
 
 							switch funupn {
@@ -779,7 +779,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) bool
 
 							switch funupn {
@@ -845,7 +845,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) int
 
 							switch funupn {
@@ -890,7 +890,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) int
 
 							switch funupn {
@@ -935,7 +935,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) int
 
 							switch funupn {
@@ -980,7 +980,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) int
 
 							switch funupn {
@@ -1025,7 +1025,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) int
 
 							switch funupn {
@@ -1070,7 +1070,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) int
 
 							switch funupn {
@@ -1115,7 +1115,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) int
 
 							switch funupn {
@@ -1160,7 +1160,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) int
 
 							switch funupn {
@@ -1205,7 +1205,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) int
 
 							switch funupn {
@@ -1250,7 +1250,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) int
 
 							switch funupn {
@@ -1295,7 +1295,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) int
 
 							switch funupn {
@@ -1340,7 +1340,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) int
 
 							switch funupn {
@@ -1385,7 +1385,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) int
 
 							switch funupn {
@@ -1430,7 +1430,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) int
 
 							switch funupn {
@@ -1475,7 +1475,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) int
 
 							switch funupn {
@@ -1520,7 +1520,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) int
 
 							switch funupn {
@@ -1565,7 +1565,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) int
 
 							switch funupn {
@@ -1631,7 +1631,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) int8
 
 							switch funupn {
@@ -1676,7 +1676,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) int8
 
 							switch funupn {
@@ -1721,7 +1721,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) int8
 
 							switch funupn {
@@ -1766,7 +1766,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) int8
 
 							switch funupn {
@@ -1811,7 +1811,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) int8
 
 							switch funupn {
@@ -1856,7 +1856,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) int8
 
 							switch funupn {
@@ -1901,7 +1901,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) int8
 
 							switch funupn {
@@ -1946,7 +1946,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) int8
 
 							switch funupn {
@@ -1991,7 +1991,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) int8
 
 							switch funupn {
@@ -2036,7 +2036,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) int8
 
 							switch funupn {
@@ -2081,7 +2081,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) int8
 
 							switch funupn {
@@ -2126,7 +2126,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) int8
 
 							switch funupn {
@@ -2171,7 +2171,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) int8
 
 							switch funupn {
@@ -2216,7 +2216,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) int8
 
 							switch funupn {
@@ -2261,7 +2261,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) int8
 
 							switch funupn {
@@ -2306,7 +2306,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) int8
 
 							switch funupn {
@@ -2351,7 +2351,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) int8
 
 							switch funupn {
@@ -2417,7 +2417,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) int16
 
 							switch funupn {
@@ -2462,7 +2462,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) int16
 
 							switch funupn {
@@ -2507,7 +2507,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) int16
 
 							switch funupn {
@@ -2552,7 +2552,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) int16
 
 							switch funupn {
@@ -2597,7 +2597,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) int16
 
 							switch funupn {
@@ -2642,7 +2642,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) int16
 
 							switch funupn {
@@ -2687,7 +2687,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) int16
 
 							switch funupn {
@@ -2732,7 +2732,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) int16
 
 							switch funupn {
@@ -2777,7 +2777,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) int16
 
 							switch funupn {
@@ -2822,7 +2822,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) int16
 
 							switch funupn {
@@ -2867,7 +2867,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) int16
 
 							switch funupn {
@@ -2912,7 +2912,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) int16
 
 							switch funupn {
@@ -2957,7 +2957,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) int16
 
 							switch funupn {
@@ -3002,7 +3002,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) int16
 
 							switch funupn {
@@ -3047,7 +3047,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) int16
 
 							switch funupn {
@@ -3092,7 +3092,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) int16
 
 							switch funupn {
@@ -3137,7 +3137,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) int16
 
 							switch funupn {
@@ -3203,7 +3203,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) int32
 
 							switch funupn {
@@ -3248,7 +3248,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) int32
 
 							switch funupn {
@@ -3293,7 +3293,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) int32
 
 							switch funupn {
@@ -3338,7 +3338,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) int32
 
 							switch funupn {
@@ -3383,7 +3383,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) int32
 
 							switch funupn {
@@ -3428,7 +3428,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) int32
 
 							switch funupn {
@@ -3473,7 +3473,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) int32
 
 							switch funupn {
@@ -3518,7 +3518,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) int32
 
 							switch funupn {
@@ -3563,7 +3563,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) int32
 
 							switch funupn {
@@ -3608,7 +3608,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) int32
 
 							switch funupn {
@@ -3653,7 +3653,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) int32
 
 							switch funupn {
@@ -3698,7 +3698,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) int32
 
 							switch funupn {
@@ -3743,7 +3743,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) int32
 
 							switch funupn {
@@ -3788,7 +3788,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) int32
 
 							switch funupn {
@@ -3833,7 +3833,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) int32
 
 							switch funupn {
@@ -3878,7 +3878,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) int32
 
 							switch funupn {
@@ -3923,7 +3923,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) int32
 
 							switch funupn {
@@ -3989,7 +3989,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) int64
 
 							switch funupn {
@@ -4034,7 +4034,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) int64
 
 							switch funupn {
@@ -4079,7 +4079,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) int64
 
 							switch funupn {
@@ -4124,7 +4124,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) int64
 
 							switch funupn {
@@ -4169,7 +4169,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) int64
 
 							switch funupn {
@@ -4214,7 +4214,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) int64
 
 							switch funupn {
@@ -4259,7 +4259,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) int64
 
 							switch funupn {
@@ -4304,7 +4304,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) int64
 
 							switch funupn {
@@ -4349,7 +4349,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) int64
 
 							switch funupn {
@@ -4394,7 +4394,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) int64
 
 							switch funupn {
@@ -4439,7 +4439,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) int64
 
 							switch funupn {
@@ -4484,7 +4484,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) int64
 
 							switch funupn {
@@ -4529,7 +4529,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) int64
 
 							switch funupn {
@@ -4574,7 +4574,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) int64
 
 							switch funupn {
@@ -4619,7 +4619,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) int64
 
 							switch funupn {
@@ -4664,7 +4664,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) int64
 
 							switch funupn {
@@ -4709,7 +4709,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) int64
 
 							switch funupn {
@@ -4775,7 +4775,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) uint
 
 							switch funupn {
@@ -4820,7 +4820,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) uint
 
 							switch funupn {
@@ -4865,7 +4865,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) uint
 
 							switch funupn {
@@ -4910,7 +4910,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) uint
 
 							switch funupn {
@@ -4955,7 +4955,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) uint
 
 							switch funupn {
@@ -5000,7 +5000,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) uint
 
 							switch funupn {
@@ -5045,7 +5045,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) uint
 
 							switch funupn {
@@ -5090,7 +5090,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) uint
 
 							switch funupn {
@@ -5135,7 +5135,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) uint
 
 							switch funupn {
@@ -5180,7 +5180,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) uint
 
 							switch funupn {
@@ -5225,7 +5225,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) uint
 
 							switch funupn {
@@ -5270,7 +5270,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) uint
 
 							switch funupn {
@@ -5315,7 +5315,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) uint
 
 							switch funupn {
@@ -5360,7 +5360,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) uint
 
 							switch funupn {
@@ -5405,7 +5405,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) uint
 
 							switch funupn {
@@ -5450,7 +5450,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) uint
 
 							switch funupn {
@@ -5495,7 +5495,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) uint
 
 							switch funupn {
@@ -5561,7 +5561,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) uint8
 
 							switch funupn {
@@ -5606,7 +5606,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) uint8
 
 							switch funupn {
@@ -5651,7 +5651,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) uint8
 
 							switch funupn {
@@ -5696,7 +5696,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) uint8
 
 							switch funupn {
@@ -5741,7 +5741,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) uint8
 
 							switch funupn {
@@ -5786,7 +5786,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) uint8
 
 							switch funupn {
@@ -5831,7 +5831,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) uint8
 
 							switch funupn {
@@ -5876,7 +5876,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) uint8
 
 							switch funupn {
@@ -5921,7 +5921,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) uint8
 
 							switch funupn {
@@ -5966,7 +5966,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) uint8
 
 							switch funupn {
@@ -6011,7 +6011,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) uint8
 
 							switch funupn {
@@ -6056,7 +6056,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) uint8
 
 							switch funupn {
@@ -6101,7 +6101,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) uint8
 
 							switch funupn {
@@ -6146,7 +6146,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) uint8
 
 							switch funupn {
@@ -6191,7 +6191,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) uint8
 
 							switch funupn {
@@ -6236,7 +6236,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) uint8
 
 							switch funupn {
@@ -6281,7 +6281,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) uint8
 
 							switch funupn {
@@ -6347,7 +6347,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) uint16
 
 							switch funupn {
@@ -6392,7 +6392,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) uint16
 
 							switch funupn {
@@ -6437,7 +6437,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) uint16
 
 							switch funupn {
@@ -6482,7 +6482,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) uint16
 
 							switch funupn {
@@ -6527,7 +6527,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) uint16
 
 							switch funupn {
@@ -6572,7 +6572,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) uint16
 
 							switch funupn {
@@ -6617,7 +6617,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) uint16
 
 							switch funupn {
@@ -6662,7 +6662,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) uint16
 
 							switch funupn {
@@ -6707,7 +6707,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) uint16
 
 							switch funupn {
@@ -6752,7 +6752,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) uint16
 
 							switch funupn {
@@ -6797,7 +6797,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) uint16
 
 							switch funupn {
@@ -6842,7 +6842,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) uint16
 
 							switch funupn {
@@ -6887,7 +6887,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) uint16
 
 							switch funupn {
@@ -6932,7 +6932,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) uint16
 
 							switch funupn {
@@ -6977,7 +6977,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) uint16
 
 							switch funupn {
@@ -7022,7 +7022,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) uint16
 
 							switch funupn {
@@ -7067,7 +7067,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) uint16
 
 							switch funupn {
@@ -7133,7 +7133,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) uint32
 
 							switch funupn {
@@ -7178,7 +7178,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) uint32
 
 							switch funupn {
@@ -7223,7 +7223,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) uint32
 
 							switch funupn {
@@ -7268,7 +7268,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) uint32
 
 							switch funupn {
@@ -7313,7 +7313,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) uint32
 
 							switch funupn {
@@ -7358,7 +7358,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) uint32
 
 							switch funupn {
@@ -7403,7 +7403,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) uint32
 
 							switch funupn {
@@ -7448,7 +7448,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) uint32
 
 							switch funupn {
@@ -7493,7 +7493,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) uint32
 
 							switch funupn {
@@ -7538,7 +7538,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) uint32
 
 							switch funupn {
@@ -7583,7 +7583,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) uint32
 
 							switch funupn {
@@ -7628,7 +7628,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) uint32
 
 							switch funupn {
@@ -7673,7 +7673,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) uint32
 
 							switch funupn {
@@ -7718,7 +7718,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) uint32
 
 							switch funupn {
@@ -7763,7 +7763,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) uint32
 
 							switch funupn {
@@ -7808,7 +7808,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) uint32
 
 							switch funupn {
@@ -7853,7 +7853,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) uint32
 
 							switch funupn {
@@ -7919,7 +7919,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) uint64
 
 							switch funupn {
@@ -7964,7 +7964,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) uint64
 
 							switch funupn {
@@ -8009,7 +8009,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) uint64
 
 							switch funupn {
@@ -8054,7 +8054,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) uint64
 
 							switch funupn {
@@ -8099,7 +8099,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) uint64
 
 							switch funupn {
@@ -8144,7 +8144,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) uint64
 
 							switch funupn {
@@ -8189,7 +8189,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) uint64
 
 							switch funupn {
@@ -8234,7 +8234,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) uint64
 
 							switch funupn {
@@ -8279,7 +8279,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) uint64
 
 							switch funupn {
@@ -8324,7 +8324,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) uint64
 
 							switch funupn {
@@ -8369,7 +8369,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) uint64
 
 							switch funupn {
@@ -8414,7 +8414,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) uint64
 
 							switch funupn {
@@ -8459,7 +8459,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) uint64
 
 							switch funupn {
@@ -8504,7 +8504,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) uint64
 
 							switch funupn {
@@ -8549,7 +8549,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) uint64
 
 							switch funupn {
@@ -8594,7 +8594,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) uint64
 
 							switch funupn {
@@ -8639,7 +8639,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) uint64
 
 							switch funupn {
@@ -8705,7 +8705,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) uintptr
 
 							switch funupn {
@@ -8750,7 +8750,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) uintptr
 
 							switch funupn {
@@ -8795,7 +8795,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) uintptr
 
 							switch funupn {
@@ -8840,7 +8840,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) uintptr
 
 							switch funupn {
@@ -8885,7 +8885,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) uintptr
 
 							switch funupn {
@@ -8930,7 +8930,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) uintptr
 
 							switch funupn {
@@ -8975,7 +8975,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) uintptr
 
 							switch funupn {
@@ -9020,7 +9020,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) uintptr
 
 							switch funupn {
@@ -9065,7 +9065,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) uintptr
 
 							switch funupn {
@@ -9110,7 +9110,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) uintptr
 
 							switch funupn {
@@ -9155,7 +9155,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) uintptr
 
 							switch funupn {
@@ -9200,7 +9200,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) uintptr
 
 							switch funupn {
@@ -9245,7 +9245,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) uintptr
 
 							switch funupn {
@@ -9290,7 +9290,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) uintptr
 
 							switch funupn {
@@ -9335,7 +9335,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) uintptr
 
 							switch funupn {
@@ -9380,7 +9380,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) uintptr
 
 							switch funupn {
@@ -9425,7 +9425,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) uintptr
 
 							switch funupn {
@@ -9491,7 +9491,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) float32
 
 							switch funupn {
@@ -9536,7 +9536,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) float32
 
 							switch funupn {
@@ -9581,7 +9581,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) float32
 
 							switch funupn {
@@ -9626,7 +9626,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) float32
 
 							switch funupn {
@@ -9671,7 +9671,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) float32
 
 							switch funupn {
@@ -9716,7 +9716,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) float32
 
 							switch funupn {
@@ -9761,7 +9761,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) float32
 
 							switch funupn {
@@ -9806,7 +9806,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) float32
 
 							switch funupn {
@@ -9851,7 +9851,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) float32
 
 							switch funupn {
@@ -9896,7 +9896,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) float32
 
 							switch funupn {
@@ -9941,7 +9941,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) float32
 
 							switch funupn {
@@ -9986,7 +9986,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) float32
 
 							switch funupn {
@@ -10031,7 +10031,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) float32
 
 							switch funupn {
@@ -10076,7 +10076,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) float32
 
 							switch funupn {
@@ -10121,7 +10121,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) float32
 
 							switch funupn {
@@ -10166,7 +10166,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) float32
 
 							switch funupn {
@@ -10211,7 +10211,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) float32
 
 							switch funupn {
@@ -10277,7 +10277,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) float64
 
 							switch funupn {
@@ -10322,7 +10322,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) float64
 
 							switch funupn {
@@ -10367,7 +10367,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) float64
 
 							switch funupn {
@@ -10412,7 +10412,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) float64
 
 							switch funupn {
@@ -10457,7 +10457,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) float64
 
 							switch funupn {
@@ -10502,7 +10502,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) float64
 
 							switch funupn {
@@ -10547,7 +10547,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) float64
 
 							switch funupn {
@@ -10592,7 +10592,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) float64
 
 							switch funupn {
@@ -10637,7 +10637,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) float64
 
 							switch funupn {
@@ -10682,7 +10682,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) float64
 
 							switch funupn {
@@ -10727,7 +10727,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) float64
 
 							switch funupn {
@@ -10772,7 +10772,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) float64
 
 							switch funupn {
@@ -10817,7 +10817,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) float64
 
 							switch funupn {
@@ -10862,7 +10862,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) float64
 
 							switch funupn {
@@ -10907,7 +10907,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) float64
 
 							switch funupn {
@@ -10952,7 +10952,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) float64
 
 							switch funupn {
@@ -10997,7 +10997,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) float64
 
 							switch funupn {
@@ -11063,7 +11063,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) complex64
 
 							switch funupn {
@@ -11108,7 +11108,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) complex64
 
 							switch funupn {
@@ -11153,7 +11153,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) complex64
 
 							switch funupn {
@@ -11198,7 +11198,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) complex64
 
 							switch funupn {
@@ -11243,7 +11243,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) complex64
 
 							switch funupn {
@@ -11288,7 +11288,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) complex64
 
 							switch funupn {
@@ -11333,7 +11333,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) complex64
 
 							switch funupn {
@@ -11378,7 +11378,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) complex64
 
 							switch funupn {
@@ -11423,7 +11423,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) complex64
 
 							switch funupn {
@@ -11468,7 +11468,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) complex64
 
 							switch funupn {
@@ -11513,7 +11513,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) complex64
 
 							switch funupn {
@@ -11558,7 +11558,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) complex64
 
 							switch funupn {
@@ -11603,7 +11603,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) complex64
 
 							switch funupn {
@@ -11648,7 +11648,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) complex64
 
 							switch funupn {
@@ -11693,7 +11693,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) complex64
 
 							switch funupn {
@@ -11738,7 +11738,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) complex64
 
 							switch funupn {
@@ -11783,7 +11783,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) complex64
 
 							switch funupn {
@@ -11849,7 +11849,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) complex128
 
 							switch funupn {
@@ -11894,7 +11894,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) complex128
 
 							switch funupn {
@@ -11939,7 +11939,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) complex128
 
 							switch funupn {
@@ -11984,7 +11984,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) complex128
 
 							switch funupn {
@@ -12029,7 +12029,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) complex128
 
 							switch funupn {
@@ -12074,7 +12074,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) complex128
 
 							switch funupn {
@@ -12119,7 +12119,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) complex128
 
 							switch funupn {
@@ -12164,7 +12164,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) complex128
 
 							switch funupn {
@@ -12209,7 +12209,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) complex128
 
 							switch funupn {
@@ -12254,7 +12254,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) complex128
 
 							switch funupn {
@@ -12299,7 +12299,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) complex128
 
 							switch funupn {
@@ -12344,7 +12344,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) complex128
 
 							switch funupn {
@@ -12389,7 +12389,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) complex128
 
 							switch funupn {
@@ -12434,7 +12434,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) complex128
 
 							switch funupn {
@@ -12479,7 +12479,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) complex128
 
 							switch funupn {
@@ -12524,7 +12524,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) complex128
 
 							switch funupn {
@@ -12569,7 +12569,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) complex128
 
 							switch funupn {
@@ -12636,7 +12636,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) bool)
 						arg1fun := args[1].WithFun().(func(env *Env) bool)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(bool, bool) string
 
 							switch funupn {
@@ -12681,7 +12681,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int)
 						arg1fun := args[1].WithFun().(func(env *Env) int)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int, int) string
 
 							switch funupn {
@@ -12726,7 +12726,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int8)
 						arg1fun := args[1].WithFun().(func(env *Env) int8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int8, int8) string
 
 							switch funupn {
@@ -12771,7 +12771,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int16)
 						arg1fun := args[1].WithFun().(func(env *Env) int16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int16, int16) string
 
 							switch funupn {
@@ -12816,7 +12816,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int32)
 						arg1fun := args[1].WithFun().(func(env *Env) int32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int32, int32) string
 
 							switch funupn {
@@ -12861,7 +12861,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) int64)
 						arg1fun := args[1].WithFun().(func(env *Env) int64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(int64, int64) string
 
 							switch funupn {
@@ -12906,7 +12906,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint)
 						arg1fun := args[1].WithFun().(func(env *Env) uint)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint, uint) string
 
 							switch funupn {
@@ -12951,7 +12951,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint8)
 						arg1fun := args[1].WithFun().(func(env *Env) uint8)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint8, uint8) string
 
 							switch funupn {
@@ -12996,7 +12996,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint16)
 						arg1fun := args[1].WithFun().(func(env *Env) uint16)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint16, uint16) string
 
 							switch funupn {
@@ -13041,7 +13041,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint32)
 						arg1fun := args[1].WithFun().(func(env *Env) uint32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint32, uint32) string
 
 							switch funupn {
@@ -13086,7 +13086,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uint64)
 						arg1fun := args[1].WithFun().(func(env *Env) uint64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uint64, uint64) string
 
 							switch funupn {
@@ -13131,7 +13131,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) uintptr)
 						arg1fun := args[1].WithFun().(func(env *Env) uintptr)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(uintptr, uintptr) string
 
 							switch funupn {
@@ -13176,7 +13176,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float32)
 						arg1fun := args[1].WithFun().(func(env *Env) float32)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float32, float32) string
 
 							switch funupn {
@@ -13221,7 +13221,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) float64)
 						arg1fun := args[1].WithFun().(func(env *Env) float64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(float64, float64) string
 
 							switch funupn {
@@ -13266,7 +13266,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex64)
 						arg1fun := args[1].WithFun().(func(env *Env) complex64)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex64, complex64) string
 
 							switch funupn {
@@ -13311,7 +13311,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) complex128)
 						arg1fun := args[1].WithFun().(func(env *Env) complex128)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(complex128, complex128) string
 
 							switch funupn {
@@ -13356,7 +13356,7 @@ func call2ret1(c *Call, maxdepth int) I {
 					{
 						arg0fun := args[0].WithFun().(func(env *Env) string)
 						arg1fun := args[1].WithFun().(func(env *Env) string)
-						if funvar != nil && funvar.Desc.Class() == FuncBind {
+						if funsym != nil {
 							var cachedfun func(string, string) string
 
 							switch funupn {

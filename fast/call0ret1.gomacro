@@ -102,7 +102,7 @@ import (
 	}
 
 	return ~"{
-		if funvar != nil {
+		if funsym != nil {
 			switch funupn {
 			case maxdepth:
 				var cachedfun func() ~,rettyp
@@ -153,11 +153,11 @@ import (
 func call0ret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	kret := expr.Type.Out(0).Kind()
 	var cachedfunv r.Value

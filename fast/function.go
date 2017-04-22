@@ -99,12 +99,13 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 			namedresults = true
 		}
 		if namedresults && unnamedresults {
-			c.Errorf("")
+			c.Errorf("cannot mix named and unnamed results in function declaration: %v", functype)
 		}
 		bind := cf.DeclVar0(name, t.Out(i), nil)
 		resultbinds[i] = bind
 		// compile the extraction of results from runtime env
-		resultfuns[i] = c.IdentBind(0, bind).WithFun()
+		sym := bind.AsSymbol(0, name)
+		resultfuns[i] = c.Symbol(sym).WithFun()
 	}
 	cf.Func = &FuncInfo{
 		Params:  parambinds,

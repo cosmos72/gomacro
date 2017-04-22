@@ -278,7 +278,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) Bind {
 	desc := bind.Desc
 	switch desc.Class() {
 	default:
-		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind ",
+		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind",
 			name, t, desc.Class())
 		return bind
 	case IntBind:

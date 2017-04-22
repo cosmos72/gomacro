@@ -36,11 +36,11 @@ import (
 func call1ret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funvar := c.Funvar
+	funsym := c.Funsym
 	funupn, funindex := -1, -1
-	if funvar != nil {
-		funupn = funvar.Upn
-		funindex = funvar.Desc.Index()
+	if funsym != nil {
+		funupn = funsym.Upn
+		funindex = funsym.Desc.Index()
 	}
 	karg0 := expr.Type.In(0).Kind()
 	kret := expr.Type.Out(0).Kind()
@@ -56,7 +56,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(bool)
 					switch funupn {
 					case maxdepth:
@@ -85,7 +85,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) bool)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(bool) bool
@@ -117,13 +117,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(bool) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(bool) bool)
 								arg := argfun(env)
@@ -144,7 +144,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int)
 					switch funupn {
 					case maxdepth:
@@ -173,7 +173,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int) bool
@@ -205,13 +205,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(int) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(int) bool)
 								arg := argfun(env)
@@ -232,7 +232,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int8)
 					switch funupn {
 					case maxdepth:
@@ -261,7 +261,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int8) bool
@@ -293,13 +293,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(int8) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(int8) bool)
 								arg := argfun(env)
@@ -320,7 +320,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int16)
 					switch funupn {
 					case maxdepth:
@@ -349,7 +349,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int16) bool
@@ -381,13 +381,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(int16) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(int16) bool)
 								arg := argfun(env)
@@ -408,7 +408,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int32)
 					switch funupn {
 					case maxdepth:
@@ -437,7 +437,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int32) bool
@@ -469,13 +469,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(int32) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(int32) bool)
 								arg := argfun(env)
@@ -496,7 +496,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int64)
 					switch funupn {
 					case maxdepth:
@@ -525,7 +525,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int64) bool
@@ -557,13 +557,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(int64) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(int64) bool)
 								arg := argfun(env)
@@ -584,7 +584,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint)
 					switch funupn {
 					case maxdepth:
@@ -613,7 +613,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint) bool
@@ -645,13 +645,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(uint) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint) bool)
 								arg := argfun(env)
@@ -672,7 +672,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint8)
 					switch funupn {
 					case maxdepth:
@@ -701,7 +701,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint8) bool
@@ -733,13 +733,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(uint8) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint8) bool)
 								arg := argfun(env)
@@ -760,7 +760,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint16)
 					switch funupn {
 					case maxdepth:
@@ -789,7 +789,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint16) bool
@@ -821,13 +821,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(uint16) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint16) bool)
 								arg := argfun(env)
@@ -848,7 +848,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint32)
 					switch funupn {
 					case maxdepth:
@@ -877,7 +877,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint32) bool
@@ -909,13 +909,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(uint32) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint32) bool)
 								arg := argfun(env)
@@ -936,7 +936,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint64)
 					switch funupn {
 					case maxdepth:
@@ -965,7 +965,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint64) bool
@@ -997,13 +997,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(uint64) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint64) bool)
 								arg := argfun(env)
@@ -1024,7 +1024,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uintptr)
 					switch funupn {
 					case maxdepth:
@@ -1053,7 +1053,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uintptr)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uintptr) bool
@@ -1085,13 +1085,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(uintptr) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(uintptr) bool)
 								arg := argfun(env)
@@ -1112,7 +1112,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float32)
 					switch funupn {
 					case maxdepth:
@@ -1141,7 +1141,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float32) bool
@@ -1173,13 +1173,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(float32) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(float32) bool)
 								arg := argfun(env)
@@ -1200,7 +1200,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float64)
 					switch funupn {
 					case maxdepth:
@@ -1229,7 +1229,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float64) bool
@@ -1261,13 +1261,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(float64) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(float64) bool)
 								arg := argfun(env)
@@ -1288,7 +1288,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex64)
 					switch funupn {
 					case maxdepth:
@@ -1317,7 +1317,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex64) bool
@@ -1349,13 +1349,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(complex64) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex64) bool)
 								arg := argfun(env)
@@ -1376,7 +1376,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex128)
 					switch funupn {
 					case maxdepth:
@@ -1405,7 +1405,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex128)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex128) bool
@@ -1437,13 +1437,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(complex128) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex128) bool)
 								arg := argfun(env)
@@ -1464,7 +1464,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(string)
 					switch funupn {
 					case maxdepth:
@@ -1493,7 +1493,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) string)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(string) bool
@@ -1525,13 +1525,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) bool {
 								fun := env.Binds[funindex].Interface().(func(string) bool)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) bool {
 								fun := env.Outer.Binds[funindex].Interface().(func(string) bool)
 								arg := argfun(env)
@@ -1565,7 +1565,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(bool)
 					switch funupn {
 					case maxdepth:
@@ -1594,7 +1594,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) bool)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(bool) int
@@ -1626,13 +1626,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(bool) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(bool) int)
 								arg := argfun(env)
@@ -1653,7 +1653,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int)
 					switch funupn {
 					case maxdepth:
@@ -1682,7 +1682,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int) int
@@ -1714,13 +1714,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(int) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(int) int)
 								arg := argfun(env)
@@ -1741,7 +1741,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int8)
 					switch funupn {
 					case maxdepth:
@@ -1770,7 +1770,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int8) int
@@ -1802,13 +1802,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(int8) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(int8) int)
 								arg := argfun(env)
@@ -1829,7 +1829,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int16)
 					switch funupn {
 					case maxdepth:
@@ -1858,7 +1858,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int16) int
@@ -1890,13 +1890,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(int16) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(int16) int)
 								arg := argfun(env)
@@ -1917,7 +1917,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int32)
 					switch funupn {
 					case maxdepth:
@@ -1946,7 +1946,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int32) int
@@ -1978,13 +1978,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(int32) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(int32) int)
 								arg := argfun(env)
@@ -2005,7 +2005,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int64)
 					switch funupn {
 					case maxdepth:
@@ -2034,7 +2034,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int64) int
@@ -2066,13 +2066,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(int64) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(int64) int)
 								arg := argfun(env)
@@ -2093,7 +2093,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint)
 					switch funupn {
 					case maxdepth:
@@ -2122,7 +2122,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint) int
@@ -2154,13 +2154,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(uint) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint) int)
 								arg := argfun(env)
@@ -2181,7 +2181,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint8)
 					switch funupn {
 					case maxdepth:
@@ -2210,7 +2210,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint8) int
@@ -2242,13 +2242,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(uint8) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint8) int)
 								arg := argfun(env)
@@ -2269,7 +2269,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint16)
 					switch funupn {
 					case maxdepth:
@@ -2298,7 +2298,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint16) int
@@ -2330,13 +2330,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(uint16) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint16) int)
 								arg := argfun(env)
@@ -2357,7 +2357,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint32)
 					switch funupn {
 					case maxdepth:
@@ -2386,7 +2386,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint32) int
@@ -2418,13 +2418,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(uint32) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint32) int)
 								arg := argfun(env)
@@ -2445,7 +2445,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint64)
 					switch funupn {
 					case maxdepth:
@@ -2474,7 +2474,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint64) int
@@ -2506,13 +2506,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(uint64) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint64) int)
 								arg := argfun(env)
@@ -2533,7 +2533,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uintptr)
 					switch funupn {
 					case maxdepth:
@@ -2562,7 +2562,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uintptr)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uintptr) int
@@ -2594,13 +2594,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(uintptr) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(uintptr) int)
 								arg := argfun(env)
@@ -2621,7 +2621,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float32)
 					switch funupn {
 					case maxdepth:
@@ -2650,7 +2650,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float32) int
@@ -2682,13 +2682,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(float32) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(float32) int)
 								arg := argfun(env)
@@ -2709,7 +2709,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float64)
 					switch funupn {
 					case maxdepth:
@@ -2738,7 +2738,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float64) int
@@ -2770,13 +2770,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(float64) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(float64) int)
 								arg := argfun(env)
@@ -2797,7 +2797,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex64)
 					switch funupn {
 					case maxdepth:
@@ -2826,7 +2826,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex64) int
@@ -2858,13 +2858,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(complex64) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex64) int)
 								arg := argfun(env)
@@ -2885,7 +2885,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex128)
 					switch funupn {
 					case maxdepth:
@@ -2914,7 +2914,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex128)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex128) int
@@ -2946,13 +2946,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(complex128) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex128) int)
 								arg := argfun(env)
@@ -2973,7 +2973,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(string)
 					switch funupn {
 					case maxdepth:
@@ -3002,7 +3002,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) string)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(string) int
@@ -3034,13 +3034,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int {
 								fun := env.Binds[funindex].Interface().(func(string) int)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int {
 								fun := env.Outer.Binds[funindex].Interface().(func(string) int)
 								arg := argfun(env)
@@ -3071,7 +3071,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Int8:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(int8)
 				switch funupn {
 				case maxdepth:
@@ -3100,7 +3100,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) int8)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(int8) int8
@@ -3132,13 +3132,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) int8 {
 							fun := env.Binds[funindex].Interface().(func(int8) int8)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) int8 {
 							fun := env.Outer.Binds[funindex].Interface().(func(int8) int8)
 							arg := argfun(env)
@@ -3331,7 +3331,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Int16:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(int16)
 				switch funupn {
 				case maxdepth:
@@ -3360,7 +3360,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) int16)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(int16) int16
@@ -3392,13 +3392,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) int16 {
 							fun := env.Binds[funindex].Interface().(func(int16) int16)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) int16 {
 							fun := env.Outer.Binds[funindex].Interface().(func(int16) int16)
 							arg := argfun(env)
@@ -3594,7 +3594,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(bool)
 					switch funupn {
 					case maxdepth:
@@ -3623,7 +3623,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) bool)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(bool) int32
@@ -3655,13 +3655,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(bool) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(bool) int32)
 								arg := argfun(env)
@@ -3682,7 +3682,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int)
 					switch funupn {
 					case maxdepth:
@@ -3711,7 +3711,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int) int32
@@ -3743,13 +3743,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(int) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int) int32)
 								arg := argfun(env)
@@ -3770,7 +3770,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int8)
 					switch funupn {
 					case maxdepth:
@@ -3799,7 +3799,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int8) int32
@@ -3831,13 +3831,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(int8) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int8) int32)
 								arg := argfun(env)
@@ -3858,7 +3858,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int16)
 					switch funupn {
 					case maxdepth:
@@ -3887,7 +3887,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int16) int32
@@ -3919,13 +3919,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(int16) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int16) int32)
 								arg := argfun(env)
@@ -3946,7 +3946,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int32)
 					switch funupn {
 					case maxdepth:
@@ -3975,7 +3975,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int32) int32
@@ -4007,13 +4007,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(int32) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int32) int32)
 								arg := argfun(env)
@@ -4034,7 +4034,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int64)
 					switch funupn {
 					case maxdepth:
@@ -4063,7 +4063,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int64) int32
@@ -4095,13 +4095,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(int64) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int64) int32)
 								arg := argfun(env)
@@ -4122,7 +4122,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint)
 					switch funupn {
 					case maxdepth:
@@ -4151,7 +4151,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint) int32
@@ -4183,13 +4183,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(uint) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint) int32)
 								arg := argfun(env)
@@ -4210,7 +4210,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint8)
 					switch funupn {
 					case maxdepth:
@@ -4239,7 +4239,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint8) int32
@@ -4271,13 +4271,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(uint8) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint8) int32)
 								arg := argfun(env)
@@ -4298,7 +4298,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint16)
 					switch funupn {
 					case maxdepth:
@@ -4327,7 +4327,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint16) int32
@@ -4359,13 +4359,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(uint16) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint16) int32)
 								arg := argfun(env)
@@ -4386,7 +4386,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint32)
 					switch funupn {
 					case maxdepth:
@@ -4415,7 +4415,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint32) int32
@@ -4447,13 +4447,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(uint32) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint32) int32)
 								arg := argfun(env)
@@ -4474,7 +4474,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint64)
 					switch funupn {
 					case maxdepth:
@@ -4503,7 +4503,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint64) int32
@@ -4535,13 +4535,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(uint64) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint64) int32)
 								arg := argfun(env)
@@ -4562,7 +4562,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uintptr)
 					switch funupn {
 					case maxdepth:
@@ -4591,7 +4591,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uintptr)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uintptr) int32
@@ -4623,13 +4623,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(uintptr) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uintptr) int32)
 								arg := argfun(env)
@@ -4650,7 +4650,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float32)
 					switch funupn {
 					case maxdepth:
@@ -4679,7 +4679,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float32) int32
@@ -4711,13 +4711,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(float32) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(float32) int32)
 								arg := argfun(env)
@@ -4738,7 +4738,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float64)
 					switch funupn {
 					case maxdepth:
@@ -4767,7 +4767,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float64) int32
@@ -4799,13 +4799,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(float64) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(float64) int32)
 								arg := argfun(env)
@@ -4826,7 +4826,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex64)
 					switch funupn {
 					case maxdepth:
@@ -4855,7 +4855,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex64) int32
@@ -4887,13 +4887,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(complex64) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex64) int32)
 								arg := argfun(env)
@@ -4914,7 +4914,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex128)
 					switch funupn {
 					case maxdepth:
@@ -4943,7 +4943,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex128)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex128) int32
@@ -4975,13 +4975,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(complex128) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex128) int32)
 								arg := argfun(env)
@@ -5002,7 +5002,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(string)
 					switch funupn {
 					case maxdepth:
@@ -5031,7 +5031,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) string)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(string) int32
@@ -5063,13 +5063,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int32 {
 								fun := env.Binds[funindex].Interface().(func(string) int32)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int32 {
 								fun := env.Outer.Binds[funindex].Interface().(func(string) int32)
 								arg := argfun(env)
@@ -5103,7 +5103,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(bool)
 					switch funupn {
 					case maxdepth:
@@ -5132,7 +5132,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) bool)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(bool) int64
@@ -5164,13 +5164,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(bool) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(bool) int64)
 								arg := argfun(env)
@@ -5191,7 +5191,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int)
 					switch funupn {
 					case maxdepth:
@@ -5220,7 +5220,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int) int64
@@ -5252,13 +5252,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(int) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int) int64)
 								arg := argfun(env)
@@ -5279,7 +5279,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int8)
 					switch funupn {
 					case maxdepth:
@@ -5308,7 +5308,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int8) int64
@@ -5340,13 +5340,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(int8) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int8) int64)
 								arg := argfun(env)
@@ -5367,7 +5367,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int16)
 					switch funupn {
 					case maxdepth:
@@ -5396,7 +5396,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int16) int64
@@ -5428,13 +5428,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(int16) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int16) int64)
 								arg := argfun(env)
@@ -5455,7 +5455,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int32)
 					switch funupn {
 					case maxdepth:
@@ -5484,7 +5484,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int32) int64
@@ -5516,13 +5516,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(int32) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int32) int64)
 								arg := argfun(env)
@@ -5543,7 +5543,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int64)
 					switch funupn {
 					case maxdepth:
@@ -5572,7 +5572,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int64) int64
@@ -5604,13 +5604,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(int64) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int64) int64)
 								arg := argfun(env)
@@ -5631,7 +5631,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint)
 					switch funupn {
 					case maxdepth:
@@ -5660,7 +5660,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint) int64
@@ -5692,13 +5692,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(uint) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint) int64)
 								arg := argfun(env)
@@ -5719,7 +5719,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint8)
 					switch funupn {
 					case maxdepth:
@@ -5748,7 +5748,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint8) int64
@@ -5780,13 +5780,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(uint8) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint8) int64)
 								arg := argfun(env)
@@ -5807,7 +5807,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint16)
 					switch funupn {
 					case maxdepth:
@@ -5836,7 +5836,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint16) int64
@@ -5868,13 +5868,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(uint16) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint16) int64)
 								arg := argfun(env)
@@ -5895,7 +5895,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint32)
 					switch funupn {
 					case maxdepth:
@@ -5924,7 +5924,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint32) int64
@@ -5956,13 +5956,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(uint32) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint32) int64)
 								arg := argfun(env)
@@ -5983,7 +5983,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint64)
 					switch funupn {
 					case maxdepth:
@@ -6012,7 +6012,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint64) int64
@@ -6044,13 +6044,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(uint64) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint64) int64)
 								arg := argfun(env)
@@ -6071,7 +6071,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uintptr)
 					switch funupn {
 					case maxdepth:
@@ -6100,7 +6100,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uintptr)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uintptr) int64
@@ -6132,13 +6132,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(uintptr) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uintptr) int64)
 								arg := argfun(env)
@@ -6159,7 +6159,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float32)
 					switch funupn {
 					case maxdepth:
@@ -6188,7 +6188,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float32) int64
@@ -6220,13 +6220,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(float32) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(float32) int64)
 								arg := argfun(env)
@@ -6247,7 +6247,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float64)
 					switch funupn {
 					case maxdepth:
@@ -6276,7 +6276,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float64) int64
@@ -6308,13 +6308,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(float64) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(float64) int64)
 								arg := argfun(env)
@@ -6335,7 +6335,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex64)
 					switch funupn {
 					case maxdepth:
@@ -6364,7 +6364,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex64) int64
@@ -6396,13 +6396,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(complex64) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex64) int64)
 								arg := argfun(env)
@@ -6423,7 +6423,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex128)
 					switch funupn {
 					case maxdepth:
@@ -6452,7 +6452,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex128)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex128) int64
@@ -6484,13 +6484,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(complex128) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex128) int64)
 								arg := argfun(env)
@@ -6511,7 +6511,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(string)
 					switch funupn {
 					case maxdepth:
@@ -6540,7 +6540,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) string)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(string) int64
@@ -6572,13 +6572,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) int64 {
 								fun := env.Binds[funindex].Interface().(func(string) int64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) int64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(string) int64)
 								arg := argfun(env)
@@ -6613,7 +6613,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(bool)
 					switch funupn {
 					case maxdepth:
@@ -6642,7 +6642,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) bool)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(bool) uint
@@ -6674,13 +6674,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(bool) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(bool) uint)
 								arg := argfun(env)
@@ -6701,7 +6701,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int)
 					switch funupn {
 					case maxdepth:
@@ -6730,7 +6730,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int) uint
@@ -6762,13 +6762,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(int) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(int) uint)
 								arg := argfun(env)
@@ -6789,7 +6789,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int8)
 					switch funupn {
 					case maxdepth:
@@ -6818,7 +6818,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int8) uint
@@ -6850,13 +6850,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(int8) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(int8) uint)
 								arg := argfun(env)
@@ -6877,7 +6877,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int16)
 					switch funupn {
 					case maxdepth:
@@ -6906,7 +6906,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int16) uint
@@ -6938,13 +6938,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(int16) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(int16) uint)
 								arg := argfun(env)
@@ -6965,7 +6965,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int32)
 					switch funupn {
 					case maxdepth:
@@ -6994,7 +6994,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int32) uint
@@ -7026,13 +7026,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(int32) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(int32) uint)
 								arg := argfun(env)
@@ -7053,7 +7053,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int64)
 					switch funupn {
 					case maxdepth:
@@ -7082,7 +7082,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int64) uint
@@ -7114,13 +7114,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(int64) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(int64) uint)
 								arg := argfun(env)
@@ -7141,7 +7141,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint)
 					switch funupn {
 					case maxdepth:
@@ -7170,7 +7170,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint) uint
@@ -7202,13 +7202,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(uint) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint) uint)
 								arg := argfun(env)
@@ -7229,7 +7229,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint8)
 					switch funupn {
 					case maxdepth:
@@ -7258,7 +7258,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint8) uint
@@ -7290,13 +7290,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(uint8) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint8) uint)
 								arg := argfun(env)
@@ -7317,7 +7317,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint16)
 					switch funupn {
 					case maxdepth:
@@ -7346,7 +7346,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint16) uint
@@ -7378,13 +7378,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(uint16) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint16) uint)
 								arg := argfun(env)
@@ -7405,7 +7405,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint32)
 					switch funupn {
 					case maxdepth:
@@ -7434,7 +7434,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint32) uint
@@ -7466,13 +7466,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(uint32) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint32) uint)
 								arg := argfun(env)
@@ -7493,7 +7493,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint64)
 					switch funupn {
 					case maxdepth:
@@ -7522,7 +7522,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint64) uint
@@ -7554,13 +7554,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(uint64) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint64) uint)
 								arg := argfun(env)
@@ -7581,7 +7581,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uintptr)
 					switch funupn {
 					case maxdepth:
@@ -7610,7 +7610,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uintptr)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uintptr) uint
@@ -7642,13 +7642,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(uintptr) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(uintptr) uint)
 								arg := argfun(env)
@@ -7669,7 +7669,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float32)
 					switch funupn {
 					case maxdepth:
@@ -7698,7 +7698,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float32) uint
@@ -7730,13 +7730,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(float32) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(float32) uint)
 								arg := argfun(env)
@@ -7757,7 +7757,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float64)
 					switch funupn {
 					case maxdepth:
@@ -7786,7 +7786,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float64) uint
@@ -7818,13 +7818,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(float64) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(float64) uint)
 								arg := argfun(env)
@@ -7845,7 +7845,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex64)
 					switch funupn {
 					case maxdepth:
@@ -7874,7 +7874,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex64) uint
@@ -7906,13 +7906,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(complex64) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex64) uint)
 								arg := argfun(env)
@@ -7933,7 +7933,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex128)
 					switch funupn {
 					case maxdepth:
@@ -7962,7 +7962,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex128)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex128) uint
@@ -7994,13 +7994,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(complex128) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex128) uint)
 								arg := argfun(env)
@@ -8021,7 +8021,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(string)
 					switch funupn {
 					case maxdepth:
@@ -8050,7 +8050,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) string)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(string) uint
@@ -8082,13 +8082,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint {
 								fun := env.Binds[funindex].Interface().(func(string) uint)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint {
 								fun := env.Outer.Binds[funindex].Interface().(func(string) uint)
 								arg := argfun(env)
@@ -8120,7 +8120,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Uint8:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(uint8)
 				switch funupn {
 				case maxdepth:
@@ -8149,7 +8149,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) uint8)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(uint8) uint8
@@ -8181,13 +8181,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) uint8 {
 							fun := env.Binds[funindex].Interface().(func(uint8) uint8)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) uint8 {
 							fun := env.Outer.Binds[funindex].Interface().(func(uint8) uint8)
 							arg := argfun(env)
@@ -8381,7 +8381,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Uint16:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(uint16)
 				switch funupn {
 				case maxdepth:
@@ -8410,7 +8410,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) uint16)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(uint16) uint16
@@ -8442,13 +8442,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) uint16 {
 							fun := env.Binds[funindex].Interface().(func(uint16) uint16)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) uint16 {
 							fun := env.Outer.Binds[funindex].Interface().(func(uint16) uint16)
 							arg := argfun(env)
@@ -8642,7 +8642,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Uint32:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(uint32)
 				switch funupn {
 				case maxdepth:
@@ -8671,7 +8671,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) uint32)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(uint32) uint32
@@ -8703,13 +8703,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) uint32 {
 							fun := env.Binds[funindex].Interface().(func(uint32) uint32)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) uint32 {
 							fun := env.Outer.Binds[funindex].Interface().(func(uint32) uint32)
 							arg := argfun(env)
@@ -8906,7 +8906,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(bool)
 					switch funupn {
 					case maxdepth:
@@ -8935,7 +8935,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) bool)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(bool) uint64
@@ -8967,13 +8967,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(bool) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(bool) uint64)
 								arg := argfun(env)
@@ -8994,7 +8994,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int)
 					switch funupn {
 					case maxdepth:
@@ -9023,7 +9023,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int) uint64
@@ -9055,13 +9055,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(int) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int) uint64)
 								arg := argfun(env)
@@ -9082,7 +9082,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int8)
 					switch funupn {
 					case maxdepth:
@@ -9111,7 +9111,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int8) uint64
@@ -9143,13 +9143,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(int8) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int8) uint64)
 								arg := argfun(env)
@@ -9170,7 +9170,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int16)
 					switch funupn {
 					case maxdepth:
@@ -9199,7 +9199,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int16) uint64
@@ -9231,13 +9231,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(int16) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int16) uint64)
 								arg := argfun(env)
@@ -9258,7 +9258,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int32)
 					switch funupn {
 					case maxdepth:
@@ -9287,7 +9287,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int32) uint64
@@ -9319,13 +9319,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(int32) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int32) uint64)
 								arg := argfun(env)
@@ -9346,7 +9346,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int64)
 					switch funupn {
 					case maxdepth:
@@ -9375,7 +9375,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int64) uint64
@@ -9407,13 +9407,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(int64) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(int64) uint64)
 								arg := argfun(env)
@@ -9434,7 +9434,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint)
 					switch funupn {
 					case maxdepth:
@@ -9463,7 +9463,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint) uint64
@@ -9495,13 +9495,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(uint) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint) uint64)
 								arg := argfun(env)
@@ -9522,7 +9522,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint8)
 					switch funupn {
 					case maxdepth:
@@ -9551,7 +9551,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint8) uint64
@@ -9583,13 +9583,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(uint8) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint8) uint64)
 								arg := argfun(env)
@@ -9610,7 +9610,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint16)
 					switch funupn {
 					case maxdepth:
@@ -9639,7 +9639,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint16) uint64
@@ -9671,13 +9671,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(uint16) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint16) uint64)
 								arg := argfun(env)
@@ -9698,7 +9698,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint32)
 					switch funupn {
 					case maxdepth:
@@ -9727,7 +9727,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint32) uint64
@@ -9759,13 +9759,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(uint32) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint32) uint64)
 								arg := argfun(env)
@@ -9786,7 +9786,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint64)
 					switch funupn {
 					case maxdepth:
@@ -9815,7 +9815,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint64) uint64
@@ -9847,13 +9847,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(uint64) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint64) uint64)
 								arg := argfun(env)
@@ -9874,7 +9874,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uintptr)
 					switch funupn {
 					case maxdepth:
@@ -9903,7 +9903,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uintptr)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uintptr) uint64
@@ -9935,13 +9935,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(uintptr) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(uintptr) uint64)
 								arg := argfun(env)
@@ -9962,7 +9962,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float32)
 					switch funupn {
 					case maxdepth:
@@ -9991,7 +9991,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float32) uint64
@@ -10023,13 +10023,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(float32) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(float32) uint64)
 								arg := argfun(env)
@@ -10050,7 +10050,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float64)
 					switch funupn {
 					case maxdepth:
@@ -10079,7 +10079,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float64) uint64
@@ -10111,13 +10111,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(float64) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(float64) uint64)
 								arg := argfun(env)
@@ -10138,7 +10138,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex64)
 					switch funupn {
 					case maxdepth:
@@ -10167,7 +10167,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex64) uint64
@@ -10199,13 +10199,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(complex64) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex64) uint64)
 								arg := argfun(env)
@@ -10226,7 +10226,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex128)
 					switch funupn {
 					case maxdepth:
@@ -10255,7 +10255,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex128)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex128) uint64
@@ -10287,13 +10287,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(complex128) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex128) uint64)
 								arg := argfun(env)
@@ -10314,7 +10314,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(string)
 					switch funupn {
 					case maxdepth:
@@ -10343,7 +10343,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) string)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(string) uint64
@@ -10375,13 +10375,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) uint64 {
 								fun := env.Binds[funindex].Interface().(func(string) uint64)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) uint64 {
 								fun := env.Outer.Binds[funindex].Interface().(func(string) uint64)
 								arg := argfun(env)
@@ -10413,7 +10413,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Uintptr:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(uintptr)
 				switch funupn {
 				case maxdepth:
@@ -10442,7 +10442,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) uintptr)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(uintptr) uintptr
@@ -10474,13 +10474,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) uintptr {
 							fun := env.Binds[funindex].Interface().(func(uintptr) uintptr)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) uintptr {
 							fun := env.Outer.Binds[funindex].Interface().(func(uintptr) uintptr)
 							arg := argfun(env)
@@ -10674,7 +10674,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Float32:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(float32)
 				switch funupn {
 				case maxdepth:
@@ -10703,7 +10703,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) float32)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(float32) float32
@@ -10735,13 +10735,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) float32 {
 							fun := env.Binds[funindex].Interface().(func(float32) float32)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) float32 {
 							fun := env.Outer.Binds[funindex].Interface().(func(float32) float32)
 							arg := argfun(env)
@@ -10935,7 +10935,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Float64:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(float64)
 				switch funupn {
 				case maxdepth:
@@ -10964,7 +10964,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) float64)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(float64) float64
@@ -10996,13 +10996,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) float64 {
 							fun := env.Binds[funindex].Interface().(func(float64) float64)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) float64 {
 							fun := env.Outer.Binds[funindex].Interface().(func(float64) float64)
 							arg := argfun(env)
@@ -11196,7 +11196,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Complex64:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(complex64)
 				switch funupn {
 				case maxdepth:
@@ -11225,7 +11225,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) complex64)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(complex64) complex64
@@ -11257,13 +11257,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) complex64 {
 							fun := env.Binds[funindex].Interface().(func(complex64) complex64)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) complex64 {
 							fun := env.Outer.Binds[funindex].Interface().(func(complex64) complex64)
 							arg := argfun(env)
@@ -11457,7 +11457,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	case r.Complex128:
 		if karg0 == kret {
 
-			if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+			if arg0.Const() && funsym != nil {
 				argconst := arg0.Value.(complex128)
 				switch funupn {
 				case maxdepth:
@@ -11486,7 +11486,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 			if call == nil {
 				argfun := arg0.WithFun().(func(env *Env) complex128)
-				if funvar != nil && funvar.Desc.Class() == FuncBind {
+				if funsym != nil {
 					switch funupn {
 					case maxdepth:
 						var cachedfun func(complex128) complex128
@@ -11518,13 +11518,13 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 				if call == nil {
-					if funvar != nil && funupn == 0 {
+					if funsym != nil && funupn == 0 {
 						call = func(env *Env) complex128 {
 							fun := env.Binds[funindex].Interface().(func(complex128) complex128)
 							arg := argfun(env)
 							return fun(arg)
 						}
-					} else if funvar != nil && funupn == 1 {
+					} else if funsym != nil && funupn == 1 {
 						call = func(env *Env) complex128 {
 							fun := env.Outer.Binds[funindex].Interface().(func(complex128) complex128)
 							arg := argfun(env)
@@ -11721,7 +11721,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(bool)
 					switch funupn {
 					case maxdepth:
@@ -11750,7 +11750,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) bool)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(bool) string
@@ -11782,13 +11782,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(bool) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(bool) string)
 								arg := argfun(env)
@@ -11809,7 +11809,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int)
 					switch funupn {
 					case maxdepth:
@@ -11838,7 +11838,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int) string
@@ -11870,13 +11870,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(int) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(int) string)
 								arg := argfun(env)
@@ -11897,7 +11897,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int8)
 					switch funupn {
 					case maxdepth:
@@ -11926,7 +11926,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int8) string
@@ -11958,13 +11958,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(int8) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(int8) string)
 								arg := argfun(env)
@@ -11985,7 +11985,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int16)
 					switch funupn {
 					case maxdepth:
@@ -12014,7 +12014,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int16) string
@@ -12046,13 +12046,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(int16) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(int16) string)
 								arg := argfun(env)
@@ -12073,7 +12073,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int32)
 					switch funupn {
 					case maxdepth:
@@ -12102,7 +12102,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int32) string
@@ -12134,13 +12134,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(int32) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(int32) string)
 								arg := argfun(env)
@@ -12161,7 +12161,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(int64)
 					switch funupn {
 					case maxdepth:
@@ -12190,7 +12190,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) int64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(int64) string
@@ -12222,13 +12222,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(int64) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(int64) string)
 								arg := argfun(env)
@@ -12249,7 +12249,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint)
 					switch funupn {
 					case maxdepth:
@@ -12278,7 +12278,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint) string
@@ -12310,13 +12310,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(uint) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint) string)
 								arg := argfun(env)
@@ -12337,7 +12337,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint8)
 					switch funupn {
 					case maxdepth:
@@ -12366,7 +12366,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint8)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint8) string
@@ -12398,13 +12398,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(uint8) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint8) string)
 								arg := argfun(env)
@@ -12425,7 +12425,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint16)
 					switch funupn {
 					case maxdepth:
@@ -12454,7 +12454,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint16)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint16) string
@@ -12486,13 +12486,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(uint16) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint16) string)
 								arg := argfun(env)
@@ -12513,7 +12513,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint32)
 					switch funupn {
 					case maxdepth:
@@ -12542,7 +12542,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint32) string
@@ -12574,13 +12574,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(uint32) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint32) string)
 								arg := argfun(env)
@@ -12601,7 +12601,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uint64)
 					switch funupn {
 					case maxdepth:
@@ -12630,7 +12630,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uint64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uint64) string
@@ -12662,13 +12662,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(uint64) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(uint64) string)
 								arg := argfun(env)
@@ -12689,7 +12689,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(uintptr)
 					switch funupn {
 					case maxdepth:
@@ -12718,7 +12718,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) uintptr)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(uintptr) string
@@ -12750,13 +12750,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(uintptr) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(uintptr) string)
 								arg := argfun(env)
@@ -12777,7 +12777,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float32)
 					switch funupn {
 					case maxdepth:
@@ -12806,7 +12806,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float32)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float32) string
@@ -12838,13 +12838,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(float32) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(float32) string)
 								arg := argfun(env)
@@ -12865,7 +12865,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(float64)
 					switch funupn {
 					case maxdepth:
@@ -12894,7 +12894,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) float64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(float64) string
@@ -12926,13 +12926,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(float64) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(float64) string)
 								arg := argfun(env)
@@ -12953,7 +12953,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex64)
 					switch funupn {
 					case maxdepth:
@@ -12982,7 +12982,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex64)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex64) string
@@ -13014,13 +13014,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(complex64) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex64) string)
 								arg := argfun(env)
@@ -13041,7 +13041,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(complex128)
 					switch funupn {
 					case maxdepth:
@@ -13070,7 +13070,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) complex128)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(complex128) string
@@ -13102,13 +13102,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(complex128) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(complex128) string)
 								arg := argfun(env)
@@ -13129,7 +13129,7 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			{
 
-				if arg0.Const() && funvar != nil && funvar.Desc.Class() == FuncBind {
+				if arg0.Const() && funsym != nil {
 					argconst := arg0.Value.(string)
 					switch funupn {
 					case maxdepth:
@@ -13158,7 +13158,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 				if call == nil {
 					argfun := arg0.WithFun().(func(env *Env) string)
-					if funvar != nil && funvar.Desc.Class() == FuncBind {
+					if funsym != nil {
 						switch funupn {
 						case maxdepth:
 							var cachedfun func(string) string
@@ -13190,13 +13190,13 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 
 					if call == nil {
-						if funvar != nil && funupn == 0 {
+						if funsym != nil && funupn == 0 {
 							call = func(env *Env) string {
 								fun := env.Binds[funindex].Interface().(func(string) string)
 								arg := argfun(env)
 								return fun(arg)
 							}
-						} else if funvar != nil && funupn == 1 {
+						} else if funsym != nil && funupn == 1 {
 							call = func(env *Env) string {
 								fun := env.Outer.Binds[funindex].Interface().(func(string) string)
 								arg := argfun(env)
