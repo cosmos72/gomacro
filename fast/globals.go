@@ -235,29 +235,30 @@ func (desc BindDescriptor) String() string {
 type Bind struct {
 	Lit
 	Desc BindDescriptor
+	Name string
 }
 
 func (bind *Bind) Const() bool {
 	return bind.Desc.Class() == ConstBind
 }
 
-func BindConst(value I) Bind {
-	return Bind{Lit: Lit{Type: r.TypeOf(value), Value: value}, Desc: ConstBindDescriptor}
+func BindConst(value I) *Bind {
+	return &Bind{Lit: Lit{Type: r.TypeOf(value), Value: value}, Desc: ConstBindDescriptor}
 }
 
 func (bind *Bind) AsVar(upn int) *Var {
 	class := bind.Desc.Class()
 	switch class {
 	case VarBind, IntBind:
-		return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type}
+		return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type, Name: bind.Name}
 	default:
-		base.Errorf("expecting a variable: %s is not settable", class)
+		base.Errorf("expecting a variable: %s %s is not settable", class, bind.Name)
 		return nil
 	}
 }
 
-func (bind *Bind) AsSymbol(upn int, name string) *Symbol {
-	return &Symbol{Bind: *bind, Upn: upn, Name: name}
+func (bind *Bind) AsSymbol(upn int) *Symbol {
+	return &Symbol{Bind: *bind, Upn: upn}
 }
 
 type NamedType struct {
@@ -269,8 +270,7 @@ type NamedType struct {
 // Symbol represents a resolved constant, function, variable or builtin
 type Symbol struct {
 	Bind
-	Upn  int
-	Name string
+	Upn int
 }
 
 func (sym *Symbol) AsVar() *Var {
@@ -284,6 +284,7 @@ type Var struct {
 	Upn  int
 	Desc BindDescriptor
 	Type r.Type
+	Name string
 }
 
 // Place represents a settable place or, equivalently, its address
@@ -320,8 +321,8 @@ type LoopInfo struct {
 }
 
 type FuncInfo struct {
-	Params       []Bind
-	Results      []Bind
+	Params       []*Bind
+	Results      []*Bind
 	NamedResults bool
 }
 
@@ -343,7 +344,7 @@ type ThreadGlobals struct {
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
 // for faster execution. Consider it a poor man's compiler (hence the name)
 type Comp struct {
-	Binds      map[string]Bind
+	Binds      map[string]*Bind
 	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
 	IntBindNum int
 	// UpCost is the number of *Env.Outer hops to perform at runtime to reach the *Env corresponding to *Comp.Outer

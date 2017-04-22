@@ -53,8 +53,8 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 	if IsOptimizedKind(karg0) && IsOptimizedKind(karg1) {
 		argdecls := [2]func(*Env, r.Value){nil, nil}
-		for i := range m.paramnames {
-			argdecls[i] = c.DeclBindRuntimeValue(m.paramnames[i], m.parambinds[i])
+		for i, bind := range m.parambinds {
+			argdecls[i] = c.DeclBindRuntimeValue(bind)
 			if argdecls[i] == nil {
 				argdecls[i] = declBindRuntimeValueNop
 			}
@@ -491,8 +491,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -524,8 +523,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -963,8 +961,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -996,8 +993,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -1433,8 +1429,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -1466,8 +1461,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -1901,8 +1895,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -1934,8 +1927,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -2367,8 +2359,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -2400,8 +2391,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -2831,8 +2821,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -2864,8 +2853,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -3277,8 +3265,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -3309,8 +3296,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -3704,8 +3690,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -3735,8 +3720,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -4129,8 +4113,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -4159,8 +4142,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -4553,8 +4535,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -4582,8 +4563,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -4976,8 +4956,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -5005,8 +4984,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -5399,8 +5377,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -5428,8 +5405,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -5823,8 +5799,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -5852,8 +5827,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -6247,8 +6221,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -6276,8 +6249,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -6671,8 +6643,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -6700,8 +6671,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -6730,8 +6700,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6759,8 +6728,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6788,8 +6756,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6816,8 +6783,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6844,8 +6810,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6872,8 +6837,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6900,8 +6864,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6928,8 +6891,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6956,8 +6918,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -6984,8 +6945,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7012,8 +6972,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7040,8 +6999,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7068,8 +7026,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7096,8 +7053,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7124,8 +7080,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7152,14 +7107,12 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -7184,15 +7137,13 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg0,
-								)
+								place.SetComplex(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -7221,8 +7172,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7250,8 +7200,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7279,8 +7228,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7307,8 +7255,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7335,8 +7282,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7363,8 +7309,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7391,8 +7336,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7419,8 +7363,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7447,8 +7390,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7475,8 +7417,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7503,8 +7444,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7531,8 +7471,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7559,8 +7498,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7587,8 +7525,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7615,8 +7552,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 
@@ -7643,14 +7579,12 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 							{
 								place := r.New(TypeOfComplex128).Elem()
-								place.SetComplex(arg1,
-								)
+								place.SetComplex(arg1)
 								env.Binds[indexes[1]] = place
 							}
 
@@ -7675,14 +7609,12 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 							env := NewEnv4Func(env, nbinds, nintbinds)
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg0,
-								)
+								place.SetString(arg0)
 								env.Binds[indexes[0]] = place
 							}
 							{
 								place := r.New(TypeOfString).Elem()
-								place.SetString(arg1,
-								)
+								place.SetString(arg1)
 								env.Binds[indexes[1]] = place
 							}
 							funcbody(env)
@@ -7698,8 +7630,7 @@ func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 	if funcbody == nil {
 		return func(env *Env) r.Value {
-			return r.MakeFunc(t, func([]r.Value) []r.Value { return ZeroValues },
-			)
+			return r.MakeFunc(t, func([]r.Value) []r.Value { return ZeroValues })
 		}
 	} else {
 		return func(env *Env) r.Value {

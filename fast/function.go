@@ -32,9 +32,8 @@ import (
 type funcMaker struct {
 	nbinds      int
 	nintbinds   int
-	paramnames  []string
-	parambinds  []Bind
-	resultbinds []Bind
+	parambinds  []*Bind
+	resultbinds []*Bind
 	resultfuns  []I
 	funcbody    func(*Env)
 }
@@ -70,7 +69,7 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 
 	// prepare the function parameters
 	n := t.NumIn()
-	parambinds := make([]Bind, n)
+	parambinds := make([]*Bind, n)
 	for i := 0; i < n; i++ {
 		// paramNames[i] == "_" means that argument is ignored inside the function.
 		// AddBind will not allocate a bind for it - correct optimization...
@@ -85,7 +84,7 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 
 	// prepare the function results
 	n = t.NumOut()
-	resultbinds := make([]Bind, n)
+	resultbinds := make([]*Bind, n)
 	resultfuns := make([]I, n)
 	var namedresults, unnamedresults bool
 	for i, n := 0, t.NumOut(); i < n; i++ {
@@ -104,7 +103,7 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 		bind := cf.DeclVar0(name, t.Out(i), nil)
 		resultbinds[i] = bind
 		// compile the extraction of results from runtime env
-		sym := bind.AsSymbol(0, name)
+		sym := bind.AsSymbol(0)
 		resultfuns[i] = c.Symbol(sym).WithFun()
 	}
 	cf.Func = &FuncInfo{
@@ -131,7 +130,6 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	m := funcMaker{
 		nbinds:      nbinds,
 		nintbinds:   nintbinds,
-		paramnames:  paramnames,
 		parambinds:  parambinds,
 		resultbinds: resultbinds,
 		resultfuns:  resultfuns,
@@ -186,7 +184,7 @@ func (c *Comp) funcGeneric(t r.Type, m *funcMaker) func(*Env) r.Value {
 	paramdecls := make([]func(*Env, r.Value), len(m.parambinds))
 	for i, bind := range m.parambinds {
 		if bind.Desc.Index() != NoIndex {
-			paramdecls[i] = c.DeclBindRuntimeValue(m.paramnames[i], m.parambinds[i])
+			paramdecls[i] = c.DeclBindRuntimeValue(bind)
 		}
 	}
 	resultexprs := make([]func(*Env) r.Value, len(m.resultfuns))

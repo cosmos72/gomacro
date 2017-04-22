@@ -192,13 +192,13 @@ func (c *Comp) DeclConst0(name string, t r.Type, value I) {
 	if _, ok := c.Binds[name]; ok {
 		c.Warnf("redefined identifier: %v", name)
 	} else if c.Binds == nil {
-		c.Binds = make(map[string]Bind)
+		c.Binds = make(map[string]*Bind)
 	}
 	c.Binds[name] = bind
 }
 
 // AddBind reserves space for a subsequent constant, function or variable declaration
-func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
+func (c *Comp) AddBind(name string, class BindClass, t r.Type) *Bind {
 	if class == IntBind || class == VarBind {
 		if IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64 {
 			class = IntBind
@@ -210,15 +210,15 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 	if name == "_" {
 		// never store bindings for "_" in c.Binds
 		desc := MakeBindDescriptor(class, index)
-		bind := Bind{Lit: Lit{Type: t}, Desc: desc}
+		bind := &Bind{Lit: Lit{Type: t}, Desc: desc, Name: name}
 		return bind
 	}
 	if c.Binds == nil {
-		c.Binds = make(map[string]Bind)
+		c.Binds = make(map[string]*Bind)
 	}
 	if len(name) == 0 {
 		// unnamed function result
-	} else if bind, ok := c.Binds[name]; ok {
+	} else if bind := c.Binds[name]; bind != nil {
 		c.Warnf("redefined identifier: %v", name)
 		oldclass := bind.Desc.Class()
 		if (oldclass == IntBind) == (class == IntBind) {
@@ -249,7 +249,7 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 		}
 	}
 	desc := MakeBindDescriptor(class, index)
-	bind := Bind{Lit: Lit{Type: t}, Desc: desc}
+	bind := &Bind{Lit: Lit{Type: t}, Desc: desc, Name: name}
 	if len(name) != 0 {
 		// skip unnamed function results
 		c.Binds[name] = bind
@@ -258,7 +258,7 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) Bind {
 }
 
 // DeclVar0 compiles a variable declaration. For caller's convenience, returns allocated Bind
-func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) Bind {
+func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) *Bind {
 	if t == nil {
 		if init == nil {
 			c.Errorf("no value and no type, cannot declare : %v", name)
@@ -342,7 +342,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) Bind {
 }
 
 // DeclBindRuntimeValue compiles a variable, function or constant declaration with a reflect.Value passed at runtime
-func (c *Comp) DeclBindRuntimeValue(name string, bind Bind) func(*Env, r.Value) {
+func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 	desc := bind.Desc
 	index := desc.Index()
 	if index == NoIndex {
@@ -350,8 +350,8 @@ func (c *Comp) DeclBindRuntimeValue(name string, bind Bind) func(*Env, r.Value) 
 	}
 	t := bind.Type
 	switch desc.Class() {
-	default: // case ConstBind:
-		c.Errorf("cannot declare a constant with a value passed at runtime: %v <%v>", name, t)
+	default:
+		c.Errorf("cannot declare a %s with a value passed at runtime: %v <%v>", desc.Class(), bind.Name, t)
 		return nil
 	case FuncBind:
 		// declaring a function in Env.Binds[], the reflect.Value must not be addressable or settable
@@ -367,7 +367,7 @@ func (c *Comp) DeclBindRuntimeValue(name string, bind Bind) func(*Env, r.Value) 
 		}
 	case IntBind:
 		// no difference between declaration and assignment for IntBind
-		return c.SetVarValue(&Var{Upn: 0, Desc: desc, Type: t})
+		return c.SetVarValue(bind.AsVar(0))
 	}
 }
 
@@ -401,7 +401,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
 			}
 		}
 		bind := c.AddBind(name, VarBind, ti)
-		decls[i] = c.DeclBindRuntimeValue(name, bind)
+		decls[i] = c.DeclBindRuntimeValue(bind)
 	}
 	fun := init.AsXV(0)
 	c.Code.Append(func(env *Env) (Stmt, *Env) {
@@ -420,7 +420,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
 }
 
 // DeclFunc0 compiles a function declaration. For caller's convenience, returns allocated Bind
-func (c *Comp) DeclFunc0(name string, fun I) Bind {
+func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 	funv := r.ValueOf(fun)
 	t := funv.Type()
 	if t.Kind() != r.Func {

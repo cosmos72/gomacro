@@ -41,7 +41,7 @@ func (c *Comp) TryResolve(name string) *Symbol {
 	upn := 0
 	for ; c != nil; c = c.Outer {
 		if bind, ok := c.Binds[name]; ok {
-			return bind.AsSymbol(upn, name)
+			return bind.AsSymbol(upn)
 		}
 		upn += c.UpCost // c.UpCost is zero if *Comp has no local variables/functions so it will NOT have a corresponding *Env at runtime
 	}
