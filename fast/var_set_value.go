@@ -41,14 +41,6 @@ func (c *Comp) SetPlaceValue(place *Place) func(*Env, r.Value) {
 	return c.SetVarValue(&place.Var)
 }
 
-// SetVarValue0 compiles 'name = value' where value is a reflect.Value passed at runtime.
-// Used to assign variables with the result of multi-valued expressions
-// Also handy for applications
-func (c *Comp) SetVarValue0(name string) func(*Env, r.Value) {
-	va := c.LookupVar(name)
-	return c.SetVarValue(va)
-}
-
 // SetVarValue compiles 'name = value' where value is a reflect.Value passed at runtime.
 // Used to assign variables with the result of multi-valued expressions
 // Also handy for applications
@@ -60,7 +52,7 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 
 	switch desc.Class() {
 	default:
-		c.Errorf("cannot assign to %v", desc.Class())
+		c.Errorf("cannot assign to %v %s", desc.Class(), va.Name)
 		return nil
 	case VarBind:
 		index := desc.Index()
@@ -68,6 +60,7 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 			// assigning a value to _ has no effect at all
 			return nil
 		}
+		zero := r.Zero(t)
 		switch upn {
 		case 0:
 			switch t.Kind() {
@@ -82,9 +75,21 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 					}
 					env.Binds[index].SetString(v.String())
 				}
+			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
+				ret = func(env *Env, v r.Value) {
+					if v == Nil || v == None {
+						v = zero
+					} else if v.Type() != t {
+						v = v.Convert(t)
+					}
+					env.Binds[index].Set(v)
+				}
 			default:
 				ret = func(env *Env, v r.Value) {
-					env.Binds[index].Set(v.Convert(t))
+					if v.Type() != t {
+						v = v.Convert(t)
+					}
+					env.Binds[index].Set(v)
 				}
 			}
 		case 1:
@@ -99,6 +104,15 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 						v = v.Convert(TypeOfString)
 					}
 					env.Outer.Binds[index].SetString(v.String())
+				}
+			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
+				ret = func(env *Env, v r.Value) {
+					if v == Nil || v == None {
+						v = zero
+					} else if v.Type() != t {
+						v = v.Convert(t)
+					}
+					env.Outer.Binds[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
@@ -120,6 +134,15 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 						v = v.Convert(TypeOfString)
 					}
 					env.Outer.Outer.Binds[index].SetString(v.String())
+				}
+			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
+				ret = func(env *Env, v r.Value) {
+					if v == Nil || v == None {
+						v = zero
+					} else if v.Type() != t {
+						v = v.Convert(t)
+					}
+					env.Outer.Outer.Binds[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
@@ -149,6 +172,19 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 						v = v.Convert(TypeOfString)
 					}
 					o.Binds[index].SetString(v.String())
+				}
+			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
+				ret = func(env *Env, v r.Value) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
+					if v == Nil || v == None {
+						v = zero
+					} else if v.Type() != t {
+						v = v.Convert(t)
+					}
+					o.Binds[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
@@ -233,7 +269,7 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.IntBinds[index])) = complex64(v.Complex())
 				}
 			default:
-				c.Errorf("unsupported type, cannot use for optimized assignment: <%v>", t)
+				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
 				return nil
 			}
 		case 1:
@@ -299,7 +335,7 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.Outer.IntBinds[index])) = complex64(v.Complex())
 				}
 			default:
-				c.Errorf("unsupported type, cannot use for optimized assignment: <%v>", t)
+				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
 				return nil
 			}
 		case 2:
@@ -365,7 +401,7 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = complex64(v.Complex())
 				}
 			default:
-				c.Errorf("unsupported type, cannot use for optimized assignment: <%v>", t)
+				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
 				return nil
 			}
 		default:
@@ -476,7 +512,7 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = complex64(v.Complex())
 				}
 			default:
-				c.Errorf("unsupported type, cannot use for optimized assignment: <%v>", t)
+				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
 				return nil
 			}
 		}
