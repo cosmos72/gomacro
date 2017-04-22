@@ -34,6 +34,16 @@ type Parser struct {
 	parser
 }
 
+func (p *parser) Configure(fileset *mt.FileSet, mode Mode, specialChar rune) {
+	p.fileset = fileset
+	p.mode = mode
+	p.specialChar = specialChar
+}
+
+func (p *parser) Init(filename string, src []byte, lineOffset int) {
+	p.init(p.fileset, filename, src, lineOffset, p.mode)
+}
+
 func (p *parser) Parse() (list []ast.Node, err error) {
 	if p.file == nil || p.pkgScope == nil {
 		panic("Parser.Parse(): parser is not initialized, call Parser.Init() first")
@@ -42,7 +52,7 @@ func (p *parser) Parse() (list []ast.Node, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			// resume same panic if it's not a bailout
-			if _, ok := e.(Bailout); !ok {
+			if _, ok := e.(bailout); !ok {
 				panic(e)
 			}
 		}

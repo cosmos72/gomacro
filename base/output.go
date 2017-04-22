@@ -34,12 +34,14 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	mt "github.com/cosmos72/gomacro/token"
 )
 
 type Stringer struct {
-	Fileset      *token.FileSet
-	LastKnownPos token.Pos
-	NamedTypes   map[r.Type]string
+	Fileset         *mt.FileSet
+	LastKnownPos    token.Pos
+	CurrentFileLine int
+	NamedTypes      map[r.Type]string
 }
 
 type Output struct {
@@ -267,15 +269,15 @@ func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
 	if node == nil {
 		return nil
 	}
-	var fset *token.FileSet
+	var fset *mt.FileSet
 	if st != nil {
 		fset = st.Fileset
 	}
 	if fset == nil {
-		fset = token.NewFileSet()
+		fset = mt.NewFileSet()
 	}
 	var buf bytes.Buffer
-	err := config.Fprint(&buf, fset, node)
+	err := config.Fprint(&buf, &fset.FileSet, node)
 	if err != nil {
 		return err
 	}

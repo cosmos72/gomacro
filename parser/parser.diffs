@@ -1,5 +1,5 @@
---- /usr/local/go/src/go/parser/parser.go	2017-02-16 19:27:47.000000000 +0000
-+++ parser.go	2017-04-02 13:54:30.000000000 +0000
+--- /usr/local/go/src/go/parser/parser.go	2017-02-16 20:27:47.000000000 +0100
++++ parser.go	2017-04-22 17:58:50.801987424 +0200
 @@ -19,11 +19,13 @@
  import (
  	"fmt"
@@ -15,17 +15,12 @@
  )
  
  // The parser structure holds the parser's internal state.
-@@ -33,15 +35,21 @@
- 	scanner scanner.Scanner
- 
- 	// Tracing/debugging
--	mode   Mode // parsing mode
-+	Mode   Mode // parsing mode
+@@ -37,11 +39,17 @@
  	trace  bool // == (mode & Trace != 0)
  	indent int  // indentation used for tracing output
  
-+	SpecialChar rune // patch: prefix for quote operators ' ` , ,@
-+	Fileset     *token.FileSet
++	specialChar rune // patch: prefix for quote operators ' ` , ,@
++	fileset     *token.FileSet
 +
  	// Comments
  	comments    []*ast.CommentGroup
@@ -38,34 +33,30 @@
  	// Next token
  	pos token.Pos   // token position
  	tok token.Token // one token look-ahead
-@@ -70,17 +78,52 @@
- 	targetStack [][]*ast.Ident // stack of unresolved labels
+@@ -71,16 +79,51 @@
  }
  
--func (p *parser) init(fset *token.FileSet, filename string, src []byte, mode Mode) {
--	p.file = fset.AddFile(filename, -1, len(src))
-+func (p *parser) Init(filename string, src []byte) {
-+
+ func (p *parser) init(fset *token.FileSet, filename string, src []byte, mode Mode) {
 +	// Explicitly initialize all private fields since a parser may be reused.
-+	if p.Fileset == nil {
-+		p.Fileset = token.NewFileSet()
++	if fset == nil {
++		fset = token.NewFileSet()
 +	}
-+	p.file = p.Fileset.AddFile(filename, -1, len(src))
++	p.fileset = fset
+ 	p.file = fset.AddFile(filename, -1, len(src))
 +	p.errors = nil
 +
-+	mode := p.Mode
  	var m scanner.Mode
  	if mode&ParseComments != 0 {
  		m = scanner.ScanComments
  	}
-+	if p.SpecialChar == '\x00' {
-+		p.SpecialChar = '~'
++	if p.specialChar == '\x00' {
++		p.specialChar = '~'
 +	}
  	eh := func(pos token.Position, msg string) { p.errors.Add(pos, msg) }
 -	p.scanner.Init(p.file, src, eh, m)
-+	p.scanner.Init(p.file, src, eh, m, p.SpecialChar)
++	p.scanner.Init(p.file, src, eh, m, p.specialChar)
  
--	p.mode = mode
+ 	p.mode = mode
  	p.trace = mode&Trace != 0 // for convenience (p.trace is used frequently)
 +	p.indent = 0
 +
@@ -94,33 +85,6 @@
 +	p.targetStack = nil
  
  	p.next()
- }
-@@ -107,7 +150,7 @@
- 	scope := p.labelScope
- 	for _, ident := range p.targetStack[n] {
- 		ident.Obj = scope.Lookup(ident.Name)
--		if ident.Obj == nil && p.mode&DeclarationErrors != 0 {
-+		if ident.Obj == nil && p.Mode&DeclarationErrors != 0 {
- 			p.error(ident.Pos(), fmt.Sprintf("label %s undefined", ident.Name))
- 		}
- 	}
-@@ -126,7 +169,7 @@
- 		obj.Data = data
- 		ident.Obj = obj
- 		if ident.Name != "_" {
--			if alt := scope.Insert(obj); alt != nil && p.mode&DeclarationErrors != 0 {
-+			if alt := scope.Insert(obj); alt != nil && p.Mode&DeclarationErrors != 0 {
- 				prevDecl := ""
- 				if pos := alt.Pos(); pos.IsValid() {
- 					prevDecl = fmt.Sprintf("\n\tprevious declaration at %s", p.file.Position(pos))
-@@ -160,7 +203,7 @@
- 			p.errorExpected(x.Pos(), "identifier on left side of :=")
- 		}
- 	}
--	if n == 0 && p.mode&DeclarationErrors != 0 {
-+	if n == 0 && p.Mode&DeclarationErrors != 0 {
- 		p.error(list[0].Pos(), "no new variables on left side of :=")
- 	}
  }
 @@ -243,11 +286,13 @@
  	// very first token (!p.pos.IsValid()) is not initialized
@@ -155,31 +119,6 @@
  	p.next0()
  
  	if p.tok == token.COMMENT {
-@@ -349,7 +395,7 @@
- }
- 
- // A bailout panic is raised to indicate early termination.
--type bailout struct{}
-+type Bailout struct{}
- 
- func (p *parser) error(pos token.Pos, msg string) {
- 	epos := p.file.Position(pos)
-@@ -357,13 +403,13 @@
- 	// If AllErrors is not set, discard errors reported on the same line
- 	// as the last recorded error and stop parsing if there are more than
- 	// 10 errors.
--	if p.mode&AllErrors == 0 {
-+	if p.Mode&AllErrors == 0 {
- 		n := len(p.errors)
- 		if n > 0 && p.errors[n-1].Pos.Line == epos.Line {
- 			return // discard - likely a spurious error
- 		}
- 		if n > 10 {
--			panic(bailout{})
-+			panic(Bailout{})
- 		}
- 	}
- 
 @@ -378,7 +424,7 @@
  		if p.tok == token.SEMICOLON && p.lit == "\n" {
  			msg += ", found newline"
@@ -198,10 +137,102 @@
  	}
  	p.next() // make progress
  	return pos
-@@ -1154,6 +1200,16 @@
+@@ -409,7 +455,7 @@
  
- 	case token.FUNC:
- 		return p.parseFuncTypeOrLit()
+ func (p *parser) expectSemi() {
+ 	// semicolon is optional before a closing ')' or '}'
+-	if p.tok != token.RPAREN && p.tok != token.RBRACE {
++	if p.tok != token.RPAREN && p.tok != token.RBRACE && p.tok != token.RBRACK { // patch: semicolon is optional also before a closing ']'
+ 		switch p.tok {
+ 		case token.COMMA:
+ 			// permit a ',' instead of a ';' but complain
+@@ -454,7 +500,7 @@
+ 		case token.BREAK, token.CONST, token.CONTINUE, token.DEFER,
+ 			token.FALLTHROUGH, token.FOR, token.GO, token.GOTO,
+ 			token.IF, token.RETURN, token.SELECT, token.SWITCH,
+-			token.TYPE, token.VAR:
++			token.TYPE, token.VAR, mt.FUNCTION:
+ 			// Return only if parser made some progress since last
+ 			// sync or if it has not reached 10 sync calls without
+ 			// progress. Otherwise consume at least one token to
+@@ -489,7 +535,7 @@
+ func syncDecl(p *parser) {
+ 	for {
+ 		switch p.tok {
+-		case token.CONST, token.TYPE, token.VAR:
++		case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.FUNCTION:
+ 			// see comments in syncStmt
+ 			if p.pos == p.syncPos && p.syncCnt < 10 {
+ 				p.syncCnt++
+@@ -912,12 +958,12 @@
+ 	return
+ }
+ 
+-func (p *parser) parseFuncType() (*ast.FuncType, *ast.Scope) {
++func (p *parser) parseFuncType(tok token.Token) (*ast.FuncType, *ast.Scope) {
+ 	if p.trace {
+ 		defer un(trace(p, "FuncType"))
+ 	}
+ 
+-	pos := p.expect(token.FUNC)
++	pos := p.expect(tok)
+ 	scope := ast.NewScope(p.topScope) // function scope
+ 	params, results := p.parseSignature(scope)
+ 
+@@ -1026,8 +1072,8 @@
+ 		return p.parseStructType()
+ 	case token.MUL:
+ 		return p.parsePointerType()
+-	case token.FUNC:
+-		typ, _ := p.parseFuncType()
++	case token.FUNC, mt.LAMBDA:
++		typ, _ := p.parseFuncType(p.tok)
+ 		return typ
+ 	case token.INTERFACE:
+ 		return p.parseInterfaceType()
+@@ -1041,6 +1087,8 @@
+ 		typ := p.parseType()
+ 		rparen := p.expect(token.RPAREN)
+ 		return &ast.ParenExpr{Lparen: lparen, X: typ, Rparen: rparen}
++	case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE: // patch: support quote and friends inside types
++		return p.parseQuote()
+ 	}
+ 
+ 	// no type found
+@@ -1063,7 +1111,7 @@
+ 		defer un(trace(p, "StatementList"))
+ 	}
+ 
+-	for p.tok != token.CASE && p.tok != token.DEFAULT && p.tok != token.RBRACE && p.tok != token.EOF {
++	for p.tok != mt.TYPECASE && p.tok != token.CASE && p.tok != token.DEFAULT && p.tok != token.RBRACE && p.tok != token.EOF {
+ 		list = append(list, p.parseStmt())
+ 	}
+ 
+@@ -1103,12 +1151,12 @@
+ // ----------------------------------------------------------------------------
+ // Expressions
+ 
+-func (p *parser) parseFuncTypeOrLit() ast.Expr {
++func (p *parser) parseFuncTypeOrLit(tok token.Token) ast.Expr {
+ 	if p.trace {
+ 		defer un(trace(p, "FuncTypeOrLit"))
+ 	}
+ 
+-	typ, scope := p.parseFuncType()
++	typ, scope := p.parseFuncType(tok)
+ 	if p.tok != token.LBRACE {
+ 		// function type only
+ 		return typ
+@@ -1152,8 +1200,20 @@
+ 		rparen := p.expect(token.RPAREN)
+ 		return &ast.ParenExpr{Lparen: lparen, X: x, Rparen: rparen}
+ 
+-	case token.FUNC:
+-		return p.parseFuncTypeOrLit()
++	case token.FUNC, mt.LAMBDA:
++		// patch: lambda. equivalent to func, useful to resolve ambiguities between closures
++		// and function/method declarations
++		return p.parseFuncTypeOrLit(p.tok)
 +
 +	// patch: quote and friends
 +	// TODO: accept ms.MACRO here and interpret as local macro definition? (i.e. Common Lisp macrolet)
@@ -215,7 +246,7 @@
  	}
  
  	if typ := p.tryIdentOrType(); typ != nil {
-@@ -1432,10 +1488,13 @@
+@@ -1432,10 +1492,13 @@
  
  // If x is of the form (T), unparen returns unparen(T), otherwise it returns x.
  func unparen(x ast.Expr) ast.Expr {
@@ -232,7 +263,7 @@
  }
  
  // checkExprOrType checks that x is an expression or a type
-@@ -1701,6 +1760,10 @@
+@@ -1701,6 +1764,10 @@
  			// Go spec: The scope of a label is the body of the function
  			// in which it is declared and excludes the body of any nested
  			// function.
@@ -243,37 +274,92 @@
  			stmt := &ast.LabeledStmt{Label: label, Colon: colon, Stmt: p.parseStmt()}
  			p.declare(stmt, nil, p.labelScope, ast.Lbl, label)
  			return stmt, false
-@@ -2165,13 +2228,15 @@
+@@ -1884,25 +1951,32 @@
+ 	return
+ }
+ 
+-func (p *parser) parseCaseClause(typeSwitch bool) *ast.CaseClause {
++func (p *parser) parseCaseClause(typeSwitch bool) ast.Stmt {
+ 	if p.trace {
+ 		defer un(trace(p, "CaseClause"))
+ 	}
+ 
+ 	pos := p.pos
+ 	var list []ast.Expr
+-	if p.tok == token.CASE {
++	if p.tok == mt.TYPECASE {
++		p.next()
++		list = p.parseTypeList()
++	} else if p.tok == token.CASE {
+ 		p.next()
+ 		if typeSwitch {
+ 			list = p.parseTypeList()
+ 		} else {
+ 			list = p.parseRhsList()
+ 		}
+-	} else {
++	} else if p.tok == token.DEFAULT {
+ 		p.expect(token.DEFAULT)
++	} else {
++		// patch: support switch foo { ~,{bar} }
++		// where bar will expand to case x, y, z: w
++		return p.parseStmt()
+ 	}
+-
+ 	colon := p.expect(token.COLON)
++
+ 	p.openScope()
+ 	body := p.parseStmtList()
+ 	p.closeScope()
+@@ -1980,7 +2054,8 @@
+ 	typeSwitch := p.isTypeSwitchGuard(s2)
+ 	lbrace := p.expect(token.LBRACE)
+ 	var list []ast.Stmt
+-	for p.tok == token.CASE || p.tok == token.DEFAULT {
++	// patch: allow ~quote and friends in addition to case: and default:
++	for p.tok0 != token.EOF && p.tok != token.LPAREN && p.tok != token.RBRACK && p.tok != token.RBRACE {
+ 		list = append(list, p.parseCaseClause(typeSwitch))
+ 	}
+ 	rbrace := p.expect(token.RBRACE)
+@@ -2159,13 +2234,17 @@
+ 	}
+ 
+ 	switch p.tok {
+-	case token.CONST, token.TYPE, token.VAR:
++	case token.CONST, token.TYPE, token.VAR,
++		mt.FUNCTION: // patch: allow function/method declarations inside statements. extremely useful for ~quote and ~quasiquote
+ 		s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
+ 	case
  		// tokens that may start an expression
  		token.IDENT, token.INT, token.FLOAT, token.IMAG, token.CHAR, token.STRING, token.FUNC, token.LPAREN, // operands
  		token.LBRACK, token.STRUCT, token.MAP, token.CHAN, token.INTERFACE, // composite types
 -		token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT: // unary operators
 +		token.ADD, token.SUB, token.MUL, token.AND, token.XOR, token.ARROW, token.NOT, // unary operators
-+		mt.MACRO, mt.SPLICE, mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE: // patch: macro, quote and friends
++		mt.MACRO, mt.SPLICE, mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE, // patch: macro, quote and friends
++		mt.LAMBDA:
 +
  		s, _ = p.parseSimpleStmt(labelOk)
  		// because of the required look-ahead, labeled statements are
  		// parsed by parseSimpleStmt - don't expect a semicolon after
- 		// them
+@@ -2173,6 +2252,8 @@
  		if _, isLabeledStmt := s.(*ast.LabeledStmt); !isLabeledStmt {
--			p.expectSemi()
-+			p.expectSemiOrSpace()
+ 			p.expectSemi()
  		}
++	case token.IMPORT: // patch: allow imports inside statements. useful for ~quote and ~quasiquote
++		s = &ast.DeclStmt{Decl: p.parseGenDecl(token.IMPORT, p.parseImportSpec)}
  	case token.GO:
  		s = p.parseGoStmt()
-@@ -2202,7 +2267,6 @@
- 		// a semicolon may be omitted before a closing "}"
- 		s = &ast.EmptyStmt{Semicolon: p.pos, Implicit: true}
- 	default:
--		// no statement found
- 		pos := p.pos
- 		p.errorExpected(pos, "statement")
- 		syncStmt(p)
-@@ -2370,13 +2434,37 @@
+ 	case token.DEFER:
+@@ -2366,17 +2447,41 @@
+ 	}
+ }
+ 
+-func (p *parser) parseFuncDecl() *ast.FuncDecl {
++func (p *parser) parseFuncDecl(tok token.Token) *ast.FuncDecl {
  	if p.trace {
  		defer un(trace(p, "FunctionDecl"))
  	}
-+	decl := p.parseFuncOrMacroDecl(token.FUNC)
++	decl := p.parseFuncOrMacroDecl(tok)
 +
 +	// paranoia: empty receiver list is omitted. this should not happen,
 +	// but we use it to distinguish functions from macros, so better safe than sorry.
@@ -305,30 +391,25 @@
  	var recv *ast.FieldList
 -	if p.tok == token.LPAREN {
 +	// patch: macros cannot have a receiver
-+	if tok == token.FUNC && p.tok == token.LPAREN {
++	if tok != mt.MACRO && p.tok == token.LPAREN {
  		recv = p.parseParameters(scope, false)
  	}
  
-@@ -2432,6 +2520,9 @@
- 	case token.FUNC:
- 		return p.parseFuncDecl()
+@@ -2429,8 +2534,11 @@
+ 	case token.TYPE:
+ 		f = p.parseTypeSpec
  
+-	case token.FUNC:
+-		return p.parseFuncDecl()
++	case token.FUNC, mt.FUNCTION:
++		return p.parseFuncDecl(p.tok)
++
 +	case mt.MACRO: // patch: parse a macro declaration
 +		return p.parseMacroDecl()
-+
+ 
  	default:
  		pos := p.pos
- 		p.errorExpected(pos, "declaration")
-@@ -2462,7 +2553,7 @@
- 	// Go spec: The package clause is not a declaration;
- 	// the package name does not appear in any scope.
- 	ident := p.parseIdent()
--	if ident.Name == "_" && p.mode&DeclarationErrors != 0 {
-+	if ident.Name == "_" && p.Mode&DeclarationErrors != 0 {
- 		p.error(p.pos, "invalid package name _")
- 	}
- 	p.expectSemi()
-@@ -2473,25 +2564,30 @@
+@@ -2473,8 +2581,11 @@
  		return nil
  	}
  
@@ -340,18 +421,9 @@
 +		p.openScope()
 +	}
  	var decls []ast.Decl
--	if p.mode&PackageClauseOnly == 0 {
-+	if p.Mode&PackageClauseOnly == 0 {
+ 	if p.mode&PackageClauseOnly == 0 {
  		// import decls
- 		for p.tok == token.IMPORT {
- 			decls = append(decls, p.parseGenDecl(token.IMPORT, p.parseImportSpec))
- 		}
- 
--		if p.mode&ImportsOnly == 0 {
-+		if p.Mode&ImportsOnly == 0 {
- 			// rest of package body
- 			for p.tok != token.EOF {
- 				decls = append(decls, p.parseDecl(syncDecl))
+@@ -2489,9 +2600,11 @@
  			}
  		}
  	}

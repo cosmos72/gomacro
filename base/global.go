@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * globals.go
+ * global.go
  *
  *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi
@@ -25,6 +25,7 @@
 package base
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -34,6 +35,7 @@ import (
 	"strings"
 
 	mp "github.com/cosmos72/gomacro/parser"
+	mt "github.com/cosmos72/gomacro/token"
 
 	. "github.com/cosmos72/gomacro/ast2"
 )
@@ -55,7 +57,7 @@ type Globals struct {
 func (g *Globals) Init() {
 	g.Output = Output{
 		Stringer: Stringer{
-			Fileset:    token.NewFileSet(),
+			Fileset:    mt.NewFileSet(),
 			NamedTypes: make(map[r.Type]string),
 		},
 		// using both os.Stdout and os.Stderr can interleave impredictably
@@ -98,18 +100,21 @@ func (g *Globals) Gensym() string {
 func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 
-	parser.Fileset = g.Fileset
-	parser.Mode = mp.Mode(g.ParserMode)
-	parser.SpecialChar = g.SpecialChar
+	parser.Configure(g.Fileset, mp.Mode(g.ParserMode), g.SpecialChar)
+	parser.Init(g.Filename, src, g.CurrentFileLine)
 
-	parser.Init(g.Filename, src)
-
+	g.CurrentFileLine += countBytes(src, '\n')
 	nodes, err := parser.Parse()
 	if err != nil {
 		Error(err)
 		return nil
 	}
 	return nodes
+}
+
+// countBytes counts how many times ch appears in src
+func countBytes(src []byte, ch byte) int {
+	return bytes.Count(src, []byte{ch})
 }
 
 // CollectAst accumulates declarations in ir.Decls and statements in ir.Stmts

@@ -33,12 +33,13 @@ type ErrorHandler func(pos token.Position, msg string)
 //
 type Scanner struct {
 	// immutable state
-	file        *token.File  // source file handle
-	dir         string       // directory portion of file.Name()
-	src         []byte       // source
-	err         ErrorHandler // error reporting; or nil
-	mode        Mode         // scanning mode
-	specialChar rune         // prefix of interpreter quoting symbols ' ` , ,@
+	file *token.File  // source file handle
+	dir  string       // directory portion of file.Name()
+	src  []byte       // source
+	err  ErrorHandler // error reporting; or nil
+	mode Mode         // scanning mode
+
+	specialChar rune // prefix of macro-related keywords and symbols ' ` , ,@
 
 	// scanning state
 	ch         rune // current character

@@ -35,12 +35,12 @@ type parser struct {
 	scanner scanner.Scanner
 
 	// Tracing/debugging
-	Mode   Mode // parsing mode
+	mode   Mode // parsing mode
 	trace  bool // == (mode & Trace != 0)
 	indent int  // indentation used for tracing output
 
-	SpecialChar rune // patch: prefix for quote operators ' ` , ,@
-	Fileset     *token.FileSet
+	specialChar rune // patch: prefix for quote operators ' ` , ,@
+	fileset     *mt.FileSet
 
 	// Comments
 	comments    []*ast.CommentGroup
@@ -78,26 +78,26 @@ type parser struct {
 	targetStack [][]*ast.Ident // stack of unresolved labels
 }
 
-func (p *parser) Init(filename string, src []byte) {
-
+func (p *parser) init(fset *mt.FileSet, filename string, src []byte, lineOffset int, mode Mode) {
 	// Explicitly initialize all private fields since a parser may be reused.
-	if p.Fileset == nil {
-		p.Fileset = token.NewFileSet()
+	if fset == nil {
+		fset = mt.NewFileSet()
 	}
-	p.file = p.Fileset.AddFile(filename, -1, len(src))
+	p.fileset = fset
+	p.file = fset.AddFile(filename, -1, len(src), lineOffset)
 	p.errors = nil
 
-	mode := p.Mode
 	var m scanner.Mode
 	if mode&ParseComments != 0 {
 		m = scanner.ScanComments
 	}
-	if p.SpecialChar == '\x00' {
-		p.SpecialChar = '~'
+	if p.specialChar == '\x00' {
+		p.specialChar = '~'
 	}
 	eh := func(pos token.Position, msg string) { p.errors.Add(pos, msg) }
-	p.scanner.Init(p.file, src, eh, m, p.SpecialChar)
+	p.scanner.Init(p.file, src, eh, m, p.specialChar)
 
+	p.mode = mode
 	p.trace = mode&Trace != 0 // for convenience (p.trace is used frequently)
 	p.indent = 0
 
@@ -150,7 +150,7 @@ func (p *parser) closeLabelScope() {
 	scope := p.labelScope
 	for _, ident := range p.targetStack[n] {
 		ident.Obj = scope.Lookup(ident.Name)
-		if ident.Obj == nil && p.Mode&DeclarationErrors != 0 {
+		if ident.Obj == nil && p.mode&DeclarationErrors != 0 {
 			p.error(ident.Pos(), fmt.Sprintf("label %s undefined", ident.Name))
 		}
 	}
@@ -169,7 +169,7 @@ func (p *parser) declare(decl, data interface{}, scope *ast.Scope, kind ast.ObjK
 		obj.Data = data
 		ident.Obj = obj
 		if ident.Name != "_" {
-			if alt := scope.Insert(obj); alt != nil && p.Mode&DeclarationErrors != 0 {
+			if alt := scope.Insert(obj); alt != nil && p.mode&DeclarationErrors != 0 {
 				prevDecl := ""
 				if pos := alt.Pos(); pos.IsValid() {
 					prevDecl = fmt.Sprintf("\n\tprevious declaration at %s", p.file.Position(pos))
@@ -203,7 +203,7 @@ func (p *parser) shortVarDecl(decl *ast.AssignStmt, list []ast.Expr) {
 			p.errorExpected(x.Pos(), "identifier on left side of :=")
 		}
 	}
-	if n == 0 && p.Mode&DeclarationErrors != 0 {
+	if n == 0 && p.mode&DeclarationErrors != 0 {
 		p.error(list[0].Pos(), "no new variables on left side of :=")
 	}
 }
@@ -395,7 +395,7 @@ func (p *parser) next() {
 }
 
 // A bailout panic is raised to indicate early termination.
-type Bailout struct{}
+type bailout struct{}
 
 func (p *parser) error(pos token.Pos, msg string) {
 	epos := p.file.Position(pos)
@@ -403,13 +403,13 @@ func (p *parser) error(pos token.Pos, msg string) {
 	// If AllErrors is not set, discard errors reported on the same line
 	// as the last recorded error and stop parsing if there are more than
 	// 10 errors.
-	if p.Mode&AllErrors == 0 {
+	if p.mode&AllErrors == 0 {
 		n := len(p.errors)
 		if n > 0 && p.errors[n-1].Pos.Line == epos.Line {
 			return // discard - likely a spurious error
 		}
 		if n > 10 {
-			panic(Bailout{})
+			panic(bailout{})
 		}
 	}
 
@@ -1511,7 +1511,7 @@ func (p *parser) checkExprOrType(x ast.Expr) ast.Expr {
 	case *ast.UnaryExpr:
 	case *ast.ArrayType:
 		if len, isEllipsis := t.Len.(*ast.Ellipsis); isEllipsis {
-			p.error(len.Pos(), "expecting array length, found '...'")
+			p.error(len.Pos(), "expected array length, found '...'")
 			x = &ast.BadExpr{From: x.Pos(), To: p.safePos(x.End())}
 		}
 	}
@@ -1882,7 +1882,7 @@ func (p *parser) makeExpr(s ast.Stmt, kind string) ast.Expr {
 	if es, isExpr := s.(*ast.ExprStmt); isExpr {
 		return p.checkExpr(es.X)
 	}
-	p.error(s.Pos(), fmt.Sprintf("expecting %s, found simple statement (missing parentheses around composite literal?)", kind))
+	p.error(s.Pos(), fmt.Sprintf("expected %s, found simple statement (missing parentheses around composite literal?)", kind))
 	return &ast.BadExpr{From: s.Pos(), To: p.safePos(s.End())}
 }
 
@@ -2283,6 +2283,7 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		// a semicolon may be omitted before a closing "}"
 		s = &ast.EmptyStmt{Semicolon: p.pos, Implicit: true}
 	default:
+		// no statement found
 		pos := p.pos
 		p.errorExpected(pos, "statement")
 		syncStmt(p)
@@ -2569,7 +2570,7 @@ func (p *parser) parseFile() *ast.File {
 	// Go spec: The package clause is not a declaration;
 	// the package name does not appear in any scope.
 	ident := p.parseIdent()
-	if ident.Name == "_" && p.Mode&DeclarationErrors != 0 {
+	if ident.Name == "_" && p.mode&DeclarationErrors != 0 {
 		p.error(p.pos, "invalid package name _")
 	}
 	p.expectSemi()
@@ -2586,13 +2587,13 @@ func (p *parser) parseFile() *ast.File {
 		p.openScope()
 	}
 	var decls []ast.Decl
-	if p.Mode&PackageClauseOnly == 0 {
+	if p.mode&PackageClauseOnly == 0 {
 		// import decls
 		for p.tok == token.IMPORT {
 			decls = append(decls, p.parseGenDecl(token.IMPORT, p.parseImportSpec))
 		}
 
-		if p.Mode&ImportsOnly == 0 {
+		if p.mode&ImportsOnly == 0 {
 			// rest of package body
 			for p.tok != token.EOF {
 				decls = append(decls, p.parseDecl(syncDecl))

@@ -22,7 +22,7 @@ func init() {
 			"Trace":             r.ValueOf(Trace),
 		},
 		Types: map[string]r.Type{
-			"Bailout": r.TypeOf((*Bailout)(nil)).Elem(),
+			"Bailout": r.TypeOf((*bailout)(nil)).Elem(),
 			"Mode":    r.TypeOf((*Mode)(nil)).Elem(),
 			"Parser":  r.TypeOf((*Parser)(nil)).Elem(),
 		},

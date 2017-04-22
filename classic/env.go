@@ -142,7 +142,11 @@ func (env *Env) ReplStdin() {
 `)
 	}
 	in := bufio.NewReader(os.Stdin)
-	env.Repl(in)
+
+	env.CurrentFileLine = 0
+	for env.ReadParseEvalPrint(in) {
+		env.CurrentFileLine = 0
+	}
 }
 
 func (env *Env) Repl(in *bufio.Reader) {
