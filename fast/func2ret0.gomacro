@@ -179,8 +179,8 @@ import (
 :macro mfuncxy2ret0(dummy ast.Node) ast.Node {
 	return ~"{
 		argdecls := [2]func(*Env, r.Value){nil, nil}
-		for i := range m.paramnames {
-			argdecls[i] = c.DeclBindRuntimeValue(m.paramnames[i], m.parambinds[i])
+		for i, bind := range m.parambinds {
+			argdecls[i] = c.DeclBindRuntimeValue(bind)
 			if argdecls[i] == nil {
 				argdecls[i] = declBindRuntimeValueNop
 			}
