@@ -101,9 +101,8 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 
 	parser.Configure(g.Fileset, mp.Mode(g.ParserMode), g.SpecialChar)
-	parser.Init(g.Filename, src, g.CurrentFileLine)
+	parser.Init(g.Filename, src, g.currentFileLine)
 
-	g.CurrentFileLine += countBytes(src, '\n')
 	nodes, err := parser.Parse()
 	if err != nil {
 		Error(err)
@@ -112,9 +111,16 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	return nodes
 }
 
-// countBytes counts how many times ch appears in src
-func countBytes(src []byte, ch byte) int {
-	return bytes.Count(src, []byte{ch})
+func (g *Globals) ResetParsedCount() {
+	g.currentFileLine = 0
+}
+
+func (g *Globals) CountParsed(src string) {
+	g.currentFileLine += strings.Count(src, "\n")
+}
+
+func (g *Globals) CountParsedBytes(src []byte) {
+	g.currentFileLine += bytes.Count(src, []byte("\n"))
 }
 
 // CollectAst accumulates declarations in ir.Decls and statements in ir.Stmts

@@ -143,9 +143,9 @@ func (env *Env) ReplStdin() {
 	}
 	in := bufio.NewReader(os.Stdin)
 
-	env.CurrentFileLine = 0
+	env.ResetParsedCount()
 	for env.ReadParseEvalPrint(in) {
-		env.CurrentFileLine = 0
+		env.ResetParsedCount()
 	}
 }
 
@@ -162,9 +162,12 @@ func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 	str, firstToken := env.ReadMultiline(in, opts)
 	if firstToken < 0 {
 		// skip comments and continue, but fail on EOF or other errors
+		env.CountParsed(str)
 		return len(str) > 0
+	} else if firstToken > 0 {
+		env.CountParsed(str[0:firstToken])
 	}
-	return env.ParseEvalPrintRecover(str[firstToken:], in)
+	return env.ParseEvalPrint(str[firstToken:], in)
 }
 
 func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, firstToken int) {
@@ -175,7 +178,7 @@ func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, f
 	return str, firstToken
 }
 
-func (env *Env) ParseEvalPrintRecover(str string, in *bufio.Reader) (callAgain bool) {
+func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 
 	trap := env.Options&OptTrapPanic != 0
 	duration := env.Options&OptShowTime != 0
@@ -201,10 +204,12 @@ func (env *Env) ParseEvalPrintRecover(str string, in *bufio.Reader) (callAgain b
 			}
 		}()
 	}
-	return env.ParseEvalPrint(str, in)
+	callAgain = env.parseEvalPrint(str, in)
+	env.CountParsed(str)
+	return callAgain
 }
 
-func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
+func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 
 	src = strings.TrimSpace(src)
 	n := len(src)
@@ -266,11 +271,12 @@ func (env *Env) ParseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 					env.Options = saved
 				}()
 			}
-			src = src[1:]
+			src = " " + src[1:] // slower than src = src[1:], but gives accurate column positions in error messages
 		}
 	}
-	if src == "package" || strings.HasPrefix(src, "package ") {
+	if src == "package" || src == " package" || strings.HasPrefix(src, "package ") || strings.HasPrefix(src, " package ") {
 		arg := ""
+		src = strings.TrimSpace(src)
 		space := strings.IndexByte(src, ' ')
 		if space >= 0 {
 			arg = strings.TrimSpace(src[1+space:])

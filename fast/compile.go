@@ -246,7 +246,7 @@ func (env *Env) File() *Env {
 }
 
 func (c *Comp) ParseAst(src string) Ast {
-	c.CurrentFileLine = 0
+	c.ResetParsedCount()
 	nodes := c.ParseBytes([]byte(src))
 	return AnyToAst(nodes, "ParseAst")
 }

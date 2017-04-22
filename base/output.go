@@ -40,7 +40,7 @@ import (
 type Stringer struct {
 	Fileset         *mt.FileSet
 	LastKnownPos    token.Pos
-	CurrentFileLine int
+	currentFileLine int
 	NamedTypes      map[r.Type]string
 }
 

@@ -96,12 +96,13 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 	type Mode int
 	const (
 		mNormal Mode = iota
+		mPlus
+		mMinus
 		mRune
 		mString
 		mRuneEscape
 		mStringEscape
 		mRawString
-		mCommaOrEqual
 		mSlash
 		mHash
 		mLineComment
@@ -113,6 +114,7 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 	paren := 0
 	optPrompt := opts&ReadOptShowPrompt != 0
 	optAllComments := opts&ReadOptCollectAllComments != 0
+	ignorenl := false
 	firstToken = -1
 
 	if optPrompt {
@@ -122,11 +124,16 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 	for {
 		line, err = in.ReadBytes('\n')
 		for i, ch := range line {
+			if mode != mNormal || paren != 0 {
+				ignorenl = false
+			}
 			switch mode {
-			case mCommaOrEqual:
-				if ch > ' ' {
+			case mPlus, mMinus:
+				if mode == mPlus && ch == '+' || mode == mMinus && ch == '-' {
 					mode = mNormal
+					break
 				}
+				ignorenl = true
 				fallthrough
 			case mNormal:
 				switch ch {
@@ -140,21 +147,31 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					mode = mString
 				case '`':
 					mode = mRawString
-				case ',', '=':
-					mode = mCommaOrEqual
 				case '/':
 					mode = mSlash
-					continue
+					continue // no tokens yet
 				case '#':
 					mode = mHash // support #! line comments
-					continue
+					continue     // no tokens yet
 				case '~':
 					mode = mTilde
+				case '!', '%', '&', '*', ',', '.', '<', '=', '>', '^', '|':
+					if paren == 0 {
+						ignorenl = true
+					}
+				case '+':
+					if paren == 0 {
+						mode = mPlus
+					}
+				case '-':
+					if paren == 0 {
+						mode = mMinus
+					}
 				default:
 					if ch <= ' ' {
-						// not a token
-						continue
+						continue // not a token
 					}
+					ignorenl = false // found a token
 				}
 			case mRune:
 				switch ch {
@@ -197,14 +214,17 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 				switch ch {
 				case '/':
 					mode = mLineComment
-					continue
+					continue // no tokens
 				case '*':
 					mode = mComment
-					continue
+					continue // no tokens
 				default:
 					mode = mNormal
+					if paren == 0 {
+						ignorenl = true
+					}
 					if firstToken < 0 {
-						firstToken = i - 1
+						firstToken = len(buf) + i - 1
 					}
 				}
 			case mHash:
@@ -213,11 +233,11 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					mode = mLineComment
 					line[i-1] = '/'
 					line[i] = '/'
-					continue
+					continue // no tokens
 				default:
 					mode = mNormal
 					if firstToken < 0 {
-						firstToken = i - 1
+						firstToken = len(buf) + i - 1
 					}
 				}
 			case mLineComment:
@@ -248,10 +268,16 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 			}
 		}
 		buf = append(buf, line...)
-		if err != nil || paren <= 0 && mode == mNormal && (firstToken >= 0 || !optAllComments) {
+		if mode != mNormal || paren != 0 {
+			ignorenl = false
+		}
+		if err != nil || paren <= 0 && !ignorenl && mode == mNormal && (firstToken >= 0 || !optAllComments) {
 			break
 		}
-		if mode == mCommaOrEqual {
+		// Debugf("ReadMultiline: continuing, paren == %d, ignorenl = %t, mode = %d", paren, ignorenl, mode)
+		// ignorenl, mPlus and mMinus only ignore a single newline
+		ignorenl = false
+		if mode == mPlus || mode == mMinus {
 			mode = mNormal
 		}
 		if optPrompt {
@@ -264,13 +290,15 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 		}
 		return string(buf), firstToken, err
 	}
-	// Debugf("ReadMultiline: read %d bytes, firstToken at %d", len(buf), firstToken)
-	// if firstToken >= 0 {
-	//     Debugf("ReadMultiline: comments: %q", buf[:firstToken])
-	//     Debugf("ReadMultiline: tokens: %q", buf[firstToken:])
-	// } else {
-	//     Debugf("ReadMultiline: comments: %q", buf)
-	// }
+	/*
+		Debugf("ReadMultiline: read %d bytes, firstToken at %d", len(buf), firstToken)
+		if firstToken >= 0 {
+			Debugf("ReadMultiline: comments: %q", buf[:firstToken])
+			Debugf("ReadMultiline: tokens: %q", buf[firstToken:])
+		} else {
+			Debugf("ReadMultiline: comments: %q", buf)
+		}
+	*/
 	return string(buf), firstToken, nil
 }
 

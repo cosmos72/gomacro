@@ -278,15 +278,18 @@ func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 	in := bufio.NewReader(src)
 	env := cmd.Env
 	env.Options &^= OptShowPrompt // parsing a file: suppress prompt
-	env.CurrentFileLine = 0
+	env.ResetParsedCount()
 
 	// perform the first iteration manually, to collect comments
 	str, firstToken := env.ReadMultiline(in, ReadOptCollectAllComments)
 	if firstToken >= 0 {
 		comments = str[0:firstToken]
-		str = str[firstToken:]
+		if firstToken > 0 {
+			str = str[firstToken:]
+			env.CountParsed(comments)
+		}
 	}
-	if env.ParseEvalPrintRecover(str, in) {
+	if env.ParseEvalPrint(str, in) {
 		for cmd.Env.ReadParseEvalPrint(in) {
 		}
 	}
