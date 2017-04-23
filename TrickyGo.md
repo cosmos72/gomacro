@@ -1,13 +1,27 @@
 A collection of tricky go code
 
 ```
+// change the meaning of true
 true := false
 println(true)
 ```
 
 ```
+// change the meaning of uint
 func uint(x int) int { return x + 7 }
 println(uint(1))
+```
+
+```
+// nil interfaces don't implement themselves
+var x error
+y := x.(error) // panic!
+```
+
+```
+// except that nil interface{} implements interface{}
+var x interface{}
+y := x.(interface{}) // works
 ```
 
 ```

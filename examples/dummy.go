@@ -1,7 +1,12 @@
 // empty file. stops "go build" from complaining that
 // no buildable files are in the directory "examples"
 
-package examples
+package main
+
+import (
+	"fmt"
+	"reflect"
+)
 
 /*
 func compareClosures() {
@@ -12,3 +17,26 @@ func compareClosures() {
 	}
 }
 */
+
+type IFoo interface {
+	foo()
+}
+type IBar interface {
+	bar()
+}
+
+type Foo struct {
+}
+type Bar struct {
+}
+
+func (Foo) foo() {
+}
+func (Bar) bar() {
+}
+
+var TypeOfIBar = reflect.TypeOf((*IBar)(nil)).Elem()
+
+func main() {
+	fmt.Printf("%v", nil)
+}

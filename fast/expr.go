@@ -59,6 +59,22 @@ func (c *Comp) Exprs(nodes []ast.Expr) []*Expr {
 
 // Expr compiles an expression that returns a single value
 func (c *Comp) Expr1(in ast.Expr) *Expr {
+	for {
+		if in != nil {
+			c.Pos = in.Pos()
+		}
+		// env.Debugf("Expr1() %v", node)
+		switch node := in.(type) {
+		case *ast.ParenExpr:
+			in = node.X
+			continue
+		//case *ast.IndexExpr:
+		//	return c.IndexExpr1(node)
+		case *ast.TypeAssertExpr:
+			return c.TypeAssert1(node)
+		}
+		break
+	}
 	e := c.Expr(in)
 	nout := e.NumOut()
 	switch nout {
@@ -80,7 +96,7 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 		if in != nil {
 			c.Pos = in.Pos()
 		}
-		// env.Debugf("evalExpr() %v", node)
+		// env.Debugf("Expr() %v", node)
 		switch node := in.(type) {
 		case *ast.BasicLit:
 			return c.BasicLit(node)
@@ -90,7 +106,7 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 			return c.CallExpr(node)
 		// case *ast.CompositeLit:
 		case *ast.FuncLit:
-			return c.FuncLit(node.Type, node.Body)
+			return c.FuncLit(node)
 		case *ast.Ident:
 			return c.Ident(node.Name)
 		case *ast.IndexExpr:
@@ -103,8 +119,9 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 		// case *ast.SelectorExpr:
 		// case *ast.SliceExpr:
 		case *ast.StarExpr:
-			return c.UnaryStar(node)
-		// case *ast.TypeAssertExpr:
+			return c.StarExpr(node)
+		case *ast.TypeAssertExpr:
+			return c.TypeAssert2(node)
 		default:
 		}
 		c.Errorf("unimplemented Compile() for: %v <%v>", in, r.TypeOf(in))

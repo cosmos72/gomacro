@@ -342,7 +342,7 @@ type ThreadGlobals struct {
 	*base.Globals
 }
 
-// Comp is a tree-of-closures builder: it transforms ast.Nodes into functions
+// Comp is a tree-of-closures builder: it transforms ast.Nodes into closures
 // for faster execution. Consider it a poor man's compiler (hence the name)
 type Comp struct {
 	Binds      map[string]*Bind
@@ -354,9 +354,9 @@ type Comp struct {
 	Depth          int
 	Types          map[string]r.Type
 	NamedTypes     map[r.Type]NamedType
-	Code           Code // "compiled" code
-	Loop           *LoopInfo
-	Func           *FuncInfo
+	Code           Code      // "compiled" code
+	Loop           *LoopInfo // != nil when compiling a for or switch
+	Func           *FuncInfo // != nil when compiling a function
 	Outer          *Comp
 	Name           string // set by "package" directive
 	Path           string

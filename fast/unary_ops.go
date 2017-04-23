@@ -207,7 +207,7 @@ func (c *Comp) UnaryRecv(node *ast.UnaryExpr, xe *Expr) *Expr {
 }
 
 // UnaryStar compiles unary operator * i.e. pointer dereference
-func (c *Comp) UnaryStar(node *ast.StarExpr) *Expr {
+func (c *Comp) StarExpr(node *ast.StarExpr) *Expr {
 	addr := c.Expr(node.X)
 	x1 := addr.AsX1() // panics if addr returns zero values, warns if returns multiple values
 	taddr := addr.Type

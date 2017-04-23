@@ -268,7 +268,7 @@ func (st *Stringer) valueToPrintable(value r.Value) interface{} {
 
 func (st *Stringer) typeToPrintable(t r.Type) interface{} {
 	if t == nil {
-		return nil
+		return "nil" // because fmt.Printf("%v", nil) prints <nil> i.e adds extra <>
 	}
 	if st != nil {
 		if name, ok := st.NamedTypes[t]; ok {

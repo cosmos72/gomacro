@@ -39,16 +39,16 @@ func (c *Comp) Decl(node ast.Decl) {
 	}
 	switch node := node.(type) {
 	case *ast.GenDecl:
-		c.DeclGen(node)
+		c.GenDecl(node)
 	case *ast.FuncDecl:
-		c.DeclFunc(node, node.Type, node.Body)
+		c.FuncDecl(node)
 	default:
 		c.Errorf("Compile: unsupported declaration, expecting <*ast.GenDecl> or <*ast.FuncDecl>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
-// Decl compiles a constant, variable or type declaration - or an import
-func (c *Comp) DeclGen(node *ast.GenDecl) {
+// GenDecl compiles a constant, variable or type declaration - or an import
+func (c *Comp) GenDecl(node *ast.GenDecl) {
 	switch node.Tok {
 	case token.IMPORT:
 		for _, decl := range node.Specs {
@@ -137,7 +137,7 @@ func tostrings(idents []*ast.Ident) []string {
 func (c *Comp) prepareDeclConstsOrVars(names []string, typ ast.Expr, exprs []ast.Expr) (names_out []string, t r.Type, inits []*Expr) {
 	n := len(names)
 	if typ != nil {
-		t = c.CompileType(typ)
+		t = c.Type(typ)
 	}
 	if exprs != nil {
 		inits = c.ExprsMultipleValues(exprs, n)

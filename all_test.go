@@ -327,9 +327,10 @@ var tests = []TestCase{
 	TestCase{I, "typeswitch_3", `switch x.(type) { default: 0; case int: 3 }`, 0, nil},
 	TestCase{I, "typeswitch_4", `switch nil.(type) { default: 0; case nil: 4 }`, 4, nil},
 
-	TestCase{I, "typeassert_1", `x = "abc"; y := x.(string)`, "abc", nil},
-	TestCase{I, "typeassert_2", `y, ok := x.(string)`, nil, []interface{}{"abc", true}},
-	TestCase{I, "typeassert_3", `z, ok := x.(int)`, nil, []interface{}{0, false}},
+	TestCase{A, "typeassert_1", `var xi interface{} = "abc"; y := xi.(string)`, "abc", nil},
+	TestCase{A, "typeassert_2", `y, ok := xi.(string)`, nil, []interface{}{"abc", true}},
+	TestCase{A, "typeassert_3", `z, ok := xi.(int)`, nil, []interface{}{0, false}},
+	TestCase{A, "typeassert_4", `xi = nil; w, ok := xi.(error)`, nil, []interface{}{error(nil), false}},
 
 	TestCase{A, "quote_1", `~quote{7}`, &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
 	TestCase{A, "quote_2", `~quote{x}`, &ast.Ident{Name: "x"}, nil},

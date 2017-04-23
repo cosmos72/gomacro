@@ -40,7 +40,10 @@ type funcMaker struct {
 
 // DeclFunc compiles a function or method declaration
 // For closure declarations, use FuncLit()
-func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *ast.BlockStmt) {
+func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
+	functype := funcdecl.Type
+	body := funcdecl.Body
+
 	var recvdecl *ast.Field
 	if funcdecl.Recv != nil {
 		n := len(funcdecl.Recv.List)
@@ -97,8 +100,11 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 }
 
 // FuncLit compiles a function literal, i.e. a closure.
-// For functions or methods declarations, use DeclFunc()
-func (c *Comp) FuncLit(functype *ast.FuncType, body *ast.BlockStmt) *Expr {
+// For functions or methods declarations, use FuncDecl()
+func (c *Comp) FuncLit(funclit *ast.FuncLit) *Expr {
+	functype := funclit.Type
+	body := funclit.Body
+
 	t, paramnames, resultnames := c.TypeFunction(functype)
 
 	cf := NewComp(c)

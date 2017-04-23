@@ -321,15 +321,23 @@ func (env *Env) evalTypeAssertExpr(node *ast.TypeAssertExpr, panicOnFail bool) (
 		if panicOnFail {
 			return env.Errorf("type assertion failed: %v <%v> is not a <%v>", val, nil, t2)
 		}
+	} else if t2 == TypeOfInterface {
+		val = val.Convert(t2)
+		return val, []r.Value{val, True}
 	} else {
+		t0 := val.Type()
 		fval := val.Interface()
 		t1 := r.TypeOf(fval) // extract the actual runtime type of fval
 
-		if t1.AssignableTo(t2) {
-			v := r.ValueOf(fval).Convert(t2)
-			return v, []r.Value{v, True}
+		if t1 != nil && t1.AssignableTo(t2) {
+			val = r.ValueOf(fval).Convert(t2)
+			return val, []r.Value{val, True}
 		} else if panicOnFail {
-			return env.Errorf("type assertion failed: %v <%v> is not a <%v>", fval, t1, t2)
+			if t1 == nil {
+				return env.Errorf("type assertion failed: %v <%v> is nil, not a <%v>", fval, t0, t2)
+			} else {
+				return env.Errorf("type assertion failed: %v <%v> is a <%v>, not a <%v>", fval, t0, t1, t2)
+			}
 		}
 	}
 	zero := r.Zero(t2)

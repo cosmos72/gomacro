@@ -37,7 +37,7 @@ func (c *Comp) DeclType(node ast.Spec) {
 	switch node := node.(type) {
 	case *ast.TypeSpec:
 		name := node.Name.Name
-		t := c.CompileType(node.Type)
+		t := c.Type(node.Type)
 		c.DeclType0(name, t)
 	default:
 		c.Errorf("Compile: unexpected type declaration, expecting <*ast.TypeSpec>, found: %v <%v>", node, r.TypeOf(node))
@@ -64,8 +64,8 @@ func (c *Comp) DeclType0(name string, t r.Type) r.Type {
 	return t
 }
 
-// CompileType compiles a type expression.
-func (c *Comp) CompileType(node ast.Expr) r.Type {
+// Type compiles a type expression.
+func (c *Comp) Type(node ast.Expr) r.Type {
 	t, _ := c.compileType2(node, false)
 	return t
 }
@@ -127,7 +127,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 			ellipsis = ellipsis2
 		}
 	case *ast.ChanType:
-		t = c.CompileType(node.Value)
+		t = c.Type(node.Value)
 		dir := r.BothDir
 		if node.Dir == ast.SEND {
 			dir = r.SendDir
@@ -142,8 +142,8 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 	case *ast.InterfaceType:
 		t = c.TypeInterface(node)
 	case *ast.MapType:
-		kt := c.CompileType(node.Key)
-		vt := c.CompileType(node.Value)
+		kt := c.Type(node.Key)
+		vt := c.Type(node.Value)
 		t = r.MapOf(kt, vt)
 	case *ast.SelectorExpr:
 		if _, ok := node.X.(*ast.Ident); ok {
@@ -186,7 +186,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 }
 
 func (c *Comp) TypeArray(node *ast.ArrayType) (t r.Type, ellipsis bool) {
-	t = c.CompileType(node.Elt)
+	t = c.Type(node.Elt)
 	n := node.Len
 	switch n := n.(type) {
 	case *ast.Ellipsis:
@@ -312,4 +312,228 @@ func toExportedName(name string) string {
 		return name
 	}
 	return fmt.Sprintf("%c%s", ch, name[1:])
+}
+
+// TypeAssert2 compiles a multi-valued type assertion
+func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
+	val := c.Expr1(node.X)
+	tin := val.Type
+	tout := c.Type(node.Type)
+	kout := tout.Kind()
+	if tin == nil || tin.Kind() != r.Interface {
+		c.Errorf("invalid type assertion: %v (non-interface type <%v> on left)", node, tin)
+		return nil
+	}
+	if tout.Kind() != r.Interface && !tout.Implements(tin) {
+		c.Errorf("impossible type assertion: <%v> does not implement <%v>", tout, tin)
+	}
+	fun := val.Fun.(func(*Env) r.Value)    // val returns an interface... must be already wrapped in a reflect.Value
+	fail := []r.Value{r.Zero(tout), False} // returned by type assertion in case of failure
+
+	var ret func(env *Env) (r.Value, []r.Value)
+
+	if IsOptimizedKind(kout) {
+		ret = func(env *Env) (r.Value, []r.Value) {
+			v := fun(env)
+			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
+			if v.Type() != tout {
+				return fail[0], fail
+			}
+			return v, []r.Value{v, True}
+		}
+	} else if tout == TypeOfInterface {
+		// special case, nil is a valid interface{}
+		ret = func(env *Env) (r.Value, []r.Value) {
+			v := fun(env).Convert(TypeOfInterface)
+			return v, []r.Value{v, True}
+		}
+	} else if tin.Implements(tout) {
+		ret = func(env *Env) (r.Value, []r.Value) {
+			v := fun(env)
+			// nil is not a valid tout, check for it.
+			// IsNil() can be invoked only on nillable types...
+			// but v.Type().Kind() should be r.Interface, which is nillable :)
+			if v.IsNil() {
+				return fail[0], fail
+			}
+			v = v.Convert(tout)
+			return v, []r.Value{v, True}
+		}
+	} else {
+		ret = func(env *Env) (r.Value, []r.Value) {
+			v := fun(env)
+			// nil is not a valid tout, check for it.
+			// IsNil() can be invoked only on nillable types...
+			// but v.Type().Kind() should be r.Interface, which is nillable :)
+			if v.IsNil() {
+				return fail[0], fail
+			}
+			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
+			tconcr := v.Type()
+			if tconcr != tout && !tconcr.Implements(tout) {
+				return fail[0], fail
+			}
+			v = v.Convert(tout)
+			return v, []r.Value{v, True}
+		}
+	}
+	return exprXV([]r.Type{tout, TypeOfBool}, ret)
+}
+
+// TypeAssert1 compiles a single-valued type assertion
+func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
+	val := c.Expr1(node.X)
+	tin := val.Type
+	tout := c.Type(node.Type)
+	kout := tout.Kind()
+	if tin == nil || tin.Kind() != r.Interface {
+		c.Errorf("invalid type assertion: %v (non-interface type <%v> on left)", node, tin)
+		return nil
+	}
+	if tout.Kind() != r.Interface && !tout.Implements(tin) {
+		c.Errorf("impossible type assertion: <%v> does not implement <%v>", tout, tin)
+	}
+	fun := val.Fun.(func(*Env) r.Value) // val returns an interface... must be already wrapped in a reflect.Value
+	var ret I
+	switch kout {
+	case r.Bool:
+		ret = func(env *Env) bool {
+			return fun(env).Interface().(bool)
+		}
+	case r.Int:
+		ret = func(env *Env) int {
+			return fun(env).Interface().(int)
+		}
+	case r.Int8:
+		ret = func(env *Env) int8 {
+			return fun(env).Interface().(int8)
+		}
+	case r.Int16:
+		ret = func(env *Env) int16 {
+			return fun(env).Interface().(int16)
+		}
+	case r.Int32:
+		ret = func(env *Env) int32 {
+			return fun(env).Interface().(int32)
+		}
+	case r.Int64:
+		ret = func(env *Env) int64 {
+			return fun(env).Interface().(int64)
+		}
+	case r.Uint:
+		ret = func(env *Env) uint {
+			return fun(env).Interface().(uint)
+		}
+	case r.Uint8:
+		ret = func(env *Env) uint8 {
+			return fun(env).Interface().(uint8)
+		}
+	case r.Uint16:
+		ret = func(env *Env) uint16 {
+			return fun(env).Interface().(uint16)
+		}
+	case r.Uint32:
+		ret = func(env *Env) uint32 {
+			return fun(env).Interface().(uint32)
+		}
+	case r.Uint64:
+		ret = func(env *Env) uint64 {
+			return fun(env).Interface().(uint64)
+		}
+	case r.Uintptr:
+		ret = func(env *Env) uintptr {
+			return fun(env).Interface().(uintptr)
+		}
+	case r.Float32:
+		ret = func(env *Env) float32 {
+			return fun(env).Interface().(float32)
+		}
+	case r.Float64:
+		ret = func(env *Env) float64 {
+			return fun(env).Interface().(float64)
+		}
+	case r.Complex64:
+		ret = func(env *Env) complex64 {
+			return fun(env).Interface().(complex64)
+		}
+	case r.Complex128:
+		ret = func(env *Env) complex128 {
+			return fun(env).Interface().(complex128)
+		}
+	case r.String:
+		ret = func(env *Env) string {
+			return fun(env).Interface().(string)
+		}
+	default:
+		if tout == TypeOfInterface {
+			// special case, nil is a valid interface{}
+			ret = func(env *Env) r.Value {
+				return fun(env).Convert(TypeOfInterface)
+			}
+			break
+		}
+		if tin.Implements(tout) {
+			ret = func(env *Env) r.Value {
+				v := fun(env)
+				// nil is not a valid tout, check for it.
+				// IsNil() can be invoked only on nillable types...
+				// but v.Type().Kind() should be r.Interface, which is nillable :)
+				if v.IsNil() {
+					panic(&TypeAssertionError{
+						Interface: tin,
+						Concrete:  nil,
+						Asserted:  tout,
+					})
+				}
+				return v.Convert(tout)
+			}
+			break
+		}
+		ret = func(env *Env) r.Value {
+			v := fun(env)
+			// nil is not a valid tout, check for it.
+			// IsNil() can be invoked only on nillable types...
+			// but v.Type().Kind() should be r.Interface, which is nillable :)
+			if v.IsNil() {
+				panic(&TypeAssertionError{
+					Interface: tin,
+					Concrete:  nil,
+					Asserted:  tout,
+				})
+			}
+			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
+			tconcr := v.Type()
+			if tconcr != tout && !tconcr.Implements(tout) {
+				panic(&TypeAssertionError{
+					Interface: tin,
+					Concrete:  tconcr,
+					Asserted:  tout,
+				})
+			}
+			return v.Convert(tout)
+		}
+	}
+	return exprFun(tout, ret)
+}
+
+// A TypeAssertionError explains a failed type assertion.
+type TypeAssertionError struct {
+	Interface     r.Type
+	Concrete      r.Type
+	Asserted      r.Type
+	MissingMethod string // one method needed by Interface, missing from Concrete
+}
+
+func (*TypeAssertionError) RuntimeError() {}
+
+func (e *TypeAssertionError) Error() string {
+	in := e.Interface
+	concr := e.Concrete
+	if concr == nil {
+		return fmt.Sprintf("interface conversion: <%v> is nil, not <%v>", in, e.Asserted)
+	}
+	if len(e.MissingMethod) == 0 {
+		return fmt.Sprintf("interface conversion: <%v> is <%v>, not <%v>", in, concr, e.Asserted.String())
+	}
+	return fmt.Sprintf("interface conversion: <%v> is not <%v>: missing method ", concr, e.Asserted, e.MissingMethod)
 }
