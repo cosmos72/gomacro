@@ -1,0 +1,330 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017 Massimiliano Ghilardi
+ *
+ *     This program is free software you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *
+ * indexexpr.go
+ *
+ *  Created on Apr 23, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast
+
+:import (
+	"go/ast"
+	r "reflect"
+)
+
+import (
+	"go/ast"
+	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
+)
+
+// IndexExpr compiles obj[idx]
+func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
+	obj := c.Expr1(node.X)
+	idx := c.Expr1(node.Index)
+	if obj.Untyped() {
+		obj.ConstTo(obj.DefaultType())
+	}
+	t := obj.Type
+	var ret *Expr
+	switch t.Kind() {
+	case r.Array, r.Slice, r.String:
+		ret = c.vectorIndex(node, obj, idx)
+	case r.Map:
+		ret = c.mapIndex(node, obj, idx)
+	case r.Ptr:
+		if t.Elem().Kind() == r.Array {
+			objfun := obj.AsX1()
+			deref := exprFun(t.Elem(), func(env *Env) r.Value {
+				return objfun(env).Elem()
+			})
+			ret = c.vectorIndex(node, deref, idx)
+			break
+		}
+		fallthrough
+	default:
+		c.Errorf("invalid operation: %v (type %v does not support indexing)", node, t)
+	}
+	if obj.Const() && idx.Const() {
+		// constant propagation
+		ret.EvalConst(CompileKeepUntyped)
+	}
+	return ret
+}
+
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func makekind(typ ast.Node) ast.Node {
+	t := EvalType(typ)
+	if t == nil {
+		return nil
+	}
+	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
+	kind := ~"{r . foo}
+	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
+	return kind
+}
+
+
+:func convertvalue(typ, val ast.Node) (ast.Node, ast.Node) {
+	var t r.Type = EvalType(typ)
+	if t == nil {
+		// keep the result wrapped in a reflect.Value
+		typ = ~'{r.Value}
+	} else {
+		// unwrap the result
+		tname := t.Name()
+		// remove final digits from t.Name()
+		// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+		for len(tname) != 0 {
+			ch := tname[len(tname)-1]
+			if ch < '0' || ch > '9' {
+				break
+			}
+			tname = tname[0:len(tname)-1]
+		}
+		if tname == "uintptr" {
+			tname = "uint" // use reflect.Value.Uint()
+		}
+		sel := ~"{~,val . foo} // we modify it destructively
+		sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
+
+		switch t.Kind() {
+		case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+			// result of reflect.Value.{tname} is already the correct type
+			val = ~"{~,sel ()}
+		default:
+			// convert int64, uint64... to the correct type
+			val = ~"{~,typ ( ~,sel () )}
+		}
+	}
+	return typ, val
+}
+
+:macro vec_index_c(typ ast.Node) ast.Node {
+	kind := makekind(typ)
+	typv, val := convertvalue(typ, ~'{objv.Index(i)})
+	fun := ~"{
+		fun = func(env *Env) ~,typv {
+			objv := objfun(env)
+			return ~,val
+		}
+	}
+	if kind == nil {
+		return ~"{ default: ~,fun }
+	} else {
+		return ~"{ case ~,kind: ~,fun }
+	}
+}
+
+:macro vec_index_e(typ ast.Node) ast.Node {
+	kind := makekind(typ)
+	typv, val := convertvalue(typ, ~'{objv.Index(i)})
+	fun := ~"{
+		fun = func(env *Env) ~,typv {
+			objv := objfun(env)
+			i := idxfun(env)
+			return ~,val
+		}
+	}
+	if kind == nil {
+		return ~"{ default: ~,fun }
+	} else {
+		return ~"{ case ~,kind: ~,fun }
+	}
+}
+
+// vectorIndex compiles obj[idx] where obj is an array or slice
+func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(TypeOfInt)
+	} else if !idx.Type.AssignableTo(TypeOfInt) {
+		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
+	}
+	t := obj.Type
+	if t.Kind() == r.String {
+		return c.stringIndex(node, obj, idx)
+	}
+	t = t.Elem()
+	objfun := obj.AsX1()
+	var fun I
+	if idxconst {
+		i := idx.Value.(int)
+		switch t.Kind() {
+		{vec_index_c; bool}
+		{vec_index_c; int}
+		{vec_index_c; int8}
+		{vec_index_c; int16}
+		{vec_index_c; int32}
+		{vec_index_c; int64}
+		{vec_index_c; uint}
+		{vec_index_c; uint8}
+		{vec_index_c; uint16}
+		{vec_index_c; uint32}
+		{vec_index_c; uint64}
+		{vec_index_c; uintptr}
+		{vec_index_c; float32}
+		{vec_index_c; float64}
+		{vec_index_c; complex64}
+		{vec_index_c; complex128}
+		{vec_index_c; string}
+		{vec_index_c; nil}
+		}
+	} else {
+		idxfun := idx.WithFun().(func(*Env) int)
+		switch t.Kind() {
+		{vec_index_e; bool}
+		{vec_index_e; int}
+		{vec_index_e; int8}
+		{vec_index_e; int16}
+		{vec_index_e; int32}
+		{vec_index_e; int64}
+		{vec_index_e; uint}
+		{vec_index_e; uint8}
+		{vec_index_e; uint16}
+		{vec_index_e; uint32}
+		{vec_index_e; uint64}
+		{vec_index_e; uintptr}
+		{vec_index_e; float32}
+		{vec_index_e; float64}
+		{vec_index_e; complex64}
+		{vec_index_e; complex128}
+		{vec_index_e; string}
+		{vec_index_e; nil}
+		}
+	}
+	return exprFun(t, fun)
+}
+
+// stringIndex compiles obj[idx] where obj is a string
+func (c *Comp) stringIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
+	idxfun := idx.WithFun().(func(*Env) int)
+	objfun := obj.WithFun().(func(*Env) string)
+	var fun func(env *Env) uint8
+	if obj.Const() {
+		str := obj.Value.(string)
+		fun = func(env *Env) uint8 {
+			i := idxfun(env)
+			return str[i]
+		}
+	} else if idx.Const() {
+		i := idx.Value.(int)
+		fun = func(env *Env) uint8 {
+			str := objfun(env)
+			return str[i]
+		}
+	} else {
+		fun = func(env *Env) uint8 {
+			str := objfun(env)
+			i := idxfun(env)
+			return str[i]
+		}
+	}
+	return exprUint8(fun)
+}
+
+:macro map_index_c(typ ast.Node) ast.Node {
+	kind := makekind(typ)
+	typv, val := convertvalue(typ, ~'{objv.MapIndex(iv)})
+	fun := ~"{
+		fun = func(env *Env) ~,typv {
+			objv := objfun(env)
+			return ~,val
+		}
+	}
+	if kind == nil {
+		return ~"{ default: ~,fun }
+	} else {
+		return ~"{ case ~,kind: ~,fun }
+	}
+}
+
+:macro map_index_e(typ ast.Node) ast.Node {
+	kind := makekind(typ)
+	typv, val := convertvalue(typ, ~'{objv.MapIndex(iv)})
+	fun := ~"{
+		fun = func(env *Env) ~,typv {
+			objv := objfun(env)
+			iv := idxfun(env)
+			return ~,val
+		}
+	}
+	if kind == nil {
+		return ~"{ default: ~,fun }
+	} else {
+		return ~"{ case ~,kind: ~,fun }
+	}
+}
+
+// mapIndex compiles obj[idx] where obj is a map
+func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
+	t := obj.Type
+	tkey := t.Key()
+	tval := t.Elem()
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(tval)
+	} else if !idx.Type.AssignableTo(tval) {
+		c.Errorf("cannot use %v <%v> as <%v> in map index", node.Index, idx.Type, tkey)
+	}
+	objfun := obj.AsX1()
+	zero := r.Zero(tval)
+	var fun I
+	if idxconst {
+		iv := r.ValueOf(idx.Value)
+		fun = func(env *Env) (r.Value, []r.Value) {
+			objv := objfun(env)
+			val := objv.MapIndex(iv)
+			var ok r.Value
+			if val == Nil {
+				val = zero // map[key] returns the zero value if key is not present
+				ok = False
+			} else {
+				ok = True
+			}
+			return val, []r.Value{val, ok}
+		}
+	} else {
+		idxfun := idx.AsX1()
+		fun = func(env *Env) (r.Value, []r.Value) {
+			objv := objfun(env)
+			iv := idxfun(env)
+			val := objv.MapIndex(iv)
+			var ok r.Value
+			if val == Nil {
+				val = zero // map[key] returns the zero value if key is not present
+				ok = False
+			} else {
+				ok = True
+			}
+			return val, []r.Value{val, ok}
+		}
+	}
+	return exprXV([]r.Type{tval, TypeOfBool}, fun)
+}
