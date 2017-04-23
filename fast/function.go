@@ -38,7 +38,8 @@ type funcMaker struct {
 	funcbody    func(*Env)
 }
 
-// DeclFunc compiles a function or method declaration (does not support closure declarations)
+// DeclFunc compiles a function or method declaration
+// For closure declarations, use FuncLit()
 func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *ast.BlockStmt) {
 	var recvdecl *ast.Field
 	if funcdecl.Recv != nil {
@@ -64,33 +65,97 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 	if funcclass != FuncBind {
 		c.Errorf("internal error! function bind should have class '%v', found class '%v' for: %s <%v>", FuncBind, funcclass, funcname, t)
 	}
-
 	cf := NewComp(c)
+	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
+	cf.Func = info
 
-	// prepare the function parameters
-	n := t.NumIn()
-	parambinds := make([]*Bind, n)
-	for i := 0; i < n; i++ {
-		// paramNames[i] == "_" means that argument is ignored inside the function.
-		// AddBind will not allocate a bind for it - correct optimization...
-		// just remember to check for such case below
-		name := paramnames[i]
-		bind := cf.AddBind(name, VarBind, t.In(i))
-		parambinds[i] = bind
-		if bind.Desc.Index() == NoIndex {
-			continue
-		}
+	if body != nil && len(body.List) != 0 {
+		// in Go, function arguments/results and function body are in the same scope
+		cf.List(body.List)
 	}
 
-	// prepare the function results
-	n = t.NumOut()
-	resultbinds := make([]*Bind, n)
-	resultfuns := make([]I, n)
+	funcindex := funcbind.Desc.Index()
+	if funcindex == NoIndex {
+		// unnamed function. still compile it (to check for compile errors) but discard the compiled code
+		return
+	}
+	// do NOT keep a reference to compile environment!
+	funcbody := cf.Code.Exec()
+
+	f := cf.funcCreate(t, info, resultfuns, funcbody)
+
+	// a function declaration is a statement:
+	// executing it creates the function in the runtime environment
+	stmt := func(env *Env) (Stmt, *Env) {
+		fun := f(env)
+		// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
+		env.Binds[funcindex] = fun
+		env.IP++
+		return env.Code[env.IP], env
+	}
+	c.Code.Append(stmt)
+}
+
+// FuncLit compiles a function literal, i.e. a closure.
+// For functions or methods declarations, use DeclFunc()
+func (c *Comp) FuncLit(functype *ast.FuncType, body *ast.BlockStmt) *Expr {
+	t, paramnames, resultnames := c.TypeFunction(functype)
+
+	cf := NewComp(c)
+	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
+	cf.Func = info
+
+	if body != nil && len(body.List) != 0 {
+		// in Go, function arguments/results and function body are in the same scope
+		cf.List(body.List)
+	}
+	// do NOT keep a reference to compile environment!
+	funcbody := cf.Code.Exec()
+
+	f := cf.funcCreate(t, info, resultfuns, funcbody)
+
+	// a function literal is an expression:
+	// executing it returns the function
+	return exprX1(t, f)
+}
+
+// prepare the function parameter binds, result binds and FuncInfo
+func (c *Comp) funcBinds(functype *ast.FuncType, t r.Type, paramnames, resultnames []string) (info *FuncInfo, resultfuns []I) {
+
+	parambinds := c.funcParamBinds(t, paramnames)
+
+	resultbinds, resultfuns := c.funcResultBinds(functype, t, resultnames)
+
+	return &FuncInfo{
+		Params:  parambinds,
+		Results: resultbinds,
+	}, resultfuns
+}
+
+// prepare the function parameter binds
+func (c *Comp) funcParamBinds(t r.Type, names []string) []*Bind {
+	n := t.NumIn()
+	binds := make([]*Bind, n)
+	for i := 0; i < n; i++ {
+		// names[i] == "_" means that argument is ignored inside the function.
+		// AddBind will not allocate a bind for it - correct optimization...
+		// just remember to check for such case when creating the function
+		bind := c.AddBind(names[i], VarBind, t.In(i))
+		binds[i] = bind
+	}
+	return binds
+}
+
+// prepare the function result binds
+func (c *Comp) funcResultBinds(functype *ast.FuncType, t r.Type, names []string) (binds []*Bind, funs []I) {
+	n := t.NumOut()
+	binds = make([]*Bind, n)
+	funs = make([]I, n)
 	var namedresults, unnamedresults bool
 	for i, n := 0, t.NumOut(); i < n; i++ {
-		// resultnames[i] == "_" means that result is unnamed.
+		// names[i] == "_" means that result is unnamed.
 		// we must still allocate a bind for it.
-		name := resultnames[i]
+		name := names[i]
 		if name == "_" {
 			name = ""
 			unnamedresults = true
@@ -100,56 +165,26 @@ func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl, functype *ast.FuncType, body *as
 		if namedresults && unnamedresults {
 			c.Errorf("cannot mix named and unnamed results in function declaration: %v", functype)
 		}
-		bind := cf.DeclVar0(name, t.Out(i), nil)
-		resultbinds[i] = bind
+		bind := c.DeclVar0(name, t.Out(i), nil)
+		binds[i] = bind
 		// compile the extraction of results from runtime env
 		sym := bind.AsSymbol(0)
-		resultfuns[i] = c.Symbol(sym).WithFun()
+		funs[i] = c.Symbol(sym).WithFun()
 	}
-	cf.Func = &FuncInfo{
-		Params:  parambinds,
-		Results: resultbinds,
-	}
+	return
+}
 
-	if body != nil && len(body.List) != 0 {
-		// in Go, function arguments/results and function body are in the same scope
-		cf.Block0(body.List...)
-	}
-
-	funcindex := funcbind.Desc.Index()
-	if funcindex == NoIndex {
-		// unnamed function. still compile it (to check for compile errors) but discard the compiled code
-		return
-	}
-
-	// do NOT keep a reference to compile environment!
-	funcbody := cf.Code.Exec()
-	nbinds := cf.BindNum
-	nintbinds := cf.IntBindNum
-
-	m := funcMaker{
-		nbinds:      nbinds,
-		nintbinds:   nintbinds,
-		parambinds:  parambinds,
-		resultbinds: resultbinds,
+// actually create the function
+func (c *Comp) funcCreate(t r.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) r.Value {
+	m := &funcMaker{
+		nbinds:      c.BindNum,
+		nintbinds:   c.IntBindNum,
+		parambinds:  info.Params,
+		resultbinds: info.Results,
 		resultfuns:  resultfuns,
 		funcbody:    funcbody,
 	}
-	makefunc := cf.declFunc(t, &m)
 
-	// a function declaration is a statement:
-	// executing it creates the function in the runtime environment
-	stmt := func(env *Env) (Stmt, *Env) {
-		fun := makefunc(env)
-		// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
-		env.Binds[funcindex] = fun
-		env.IP++
-		return env.Code[env.IP], env
-	}
-	c.Code.Append(stmt)
-}
-
-func (c *Comp) declFunc(t r.Type, m *funcMaker) func(*Env) r.Value {
 	var fun func(*Env) r.Value
 	switch t.NumIn() {
 	case 0:

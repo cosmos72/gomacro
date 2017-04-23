@@ -123,11 +123,11 @@ func (c *Comp) Block(block *ast.BlockStmt) {
 	if block == nil || len(block.List) == 0 {
 		return
 	}
-	c.Block0(block.List...)
+	c.List(block.List)
 }
 
 // Block0 compiles a block statement, i.e. { ... }
-func (c *Comp) Block0(list ...ast.Stmt) {
+func (c *Comp) List(list []ast.Stmt) {
 	if len(list) == 0 {
 		c.Errorf("Block0 invoked on empty statement list")
 	}

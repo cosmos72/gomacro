@@ -89,7 +89,8 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 		case *ast.CallExpr:
 			return c.CallExpr(node)
 		// case *ast.CompositeLit:
-		// case *ast.FuncLit:
+		case *ast.FuncLit:
+			return c.FuncLit(node.Type, node.Body)
 		case *ast.Ident:
 			return c.Ident(node.Name)
 		case *ast.IndexExpr:

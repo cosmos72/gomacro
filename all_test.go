@@ -254,6 +254,7 @@ var tests = []TestCase{
 	TestCase{A, "function_5", "i=0; func seti2() { i=2 }; seti2(); i", 2, nil},
 	TestCase{I, "function_variadic", "func list_args(args ...int) []int { args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
 	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},
+	TestCase{A, "closure", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 
