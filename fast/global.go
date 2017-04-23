@@ -115,6 +115,7 @@ type Expr struct {
 	Lit
 	Types []r.Type // in case the expression produces multiple values. if nil, use Lit.Type.
 	Fun   I        // function that evaluates the expression at runtime.
+	Sym   *Symbol  // in case the expression is a symbol
 	IsNil bool
 }
 

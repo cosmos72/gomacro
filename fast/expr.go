@@ -88,21 +88,23 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 			return c.BinaryExpr(node)
 		case *ast.CallExpr:
 			return c.CallExpr(node)
-		case *ast.CompositeLit:
-		case *ast.FuncLit:
+		// case *ast.CompositeLit:
+		// case *ast.FuncLit:
 		case *ast.Ident:
 			return c.Ident(node.Name)
 		case *ast.IndexExpr:
+			return c.IndexExpr(node)
 		case *ast.ParenExpr:
 			in = node.X
 			continue
 		case *ast.UnaryExpr:
 			return c.UnaryExpr(node)
-		case *ast.SelectorExpr:
-		case *ast.SliceExpr:
+		// case *ast.SelectorExpr:
+		// case *ast.SliceExpr:
 		case *ast.StarExpr:
 			return c.UnaryStar(node)
-		case *ast.TypeAssertExpr:
+		// case *ast.TypeAssertExpr:
+		default:
 		}
 		c.Errorf("unimplemented Compile() for: %v <%v>", in, r.TypeOf(in))
 		return nil

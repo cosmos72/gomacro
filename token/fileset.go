@@ -9,6 +9,37 @@ import (
 )
 
 // -----------------------------------------------------------------------------
+// File
+
+// A File is a handle for a file belonging to a FileSet.
+// A File has a name, size, and line offset table.
+//
+type File struct {
+	*token.File
+	line int // starting line of this file
+}
+
+// PositionFor returns the Position value for the given file position p.
+// If adjusted is set, the position may be adjusted by position-altering
+// //line comments; otherwise those comments are ignored.
+// p must be a Pos value in f or NoPos.
+//
+func (f *File) PositionFor(p token.Pos, adjusted bool) (pos token.Position) {
+	pos = f.File.PositionFor(p, adjusted)
+	if pos.IsValid() {
+		pos.Line += f.line
+	}
+	return pos
+}
+
+// Position returns the Position value for the given file position p.
+// Calling f.Position(p) is equivalent to calling f.PositionFor(p, true).
+//
+func (f *File) Position(p token.Pos) (pos token.Position) {
+	return f.PositionFor(p, true)
+}
+
+// -----------------------------------------------------------------------------
 // FileSet
 
 // A FileSet represents a set of source files.
@@ -16,22 +47,35 @@ import (
 //
 type FileSet struct {
 	token.FileSet
-	lines map[*token.File]int // starting line of each file in the set
+	filemap map[*token.File]*File
 }
 
 // NewFileSet creates a new file set.
 func NewFileSet() *FileSet {
 	return &FileSet{
 		FileSet: *token.NewFileSet(),
-		lines:   make(map[*token.File]int),
+		filemap: make(map[*token.File]*File),
 	}
 }
 
 // AddFile adds a new file with a given filename, base offset, and file size
-func (s *FileSet) AddFile(filename string, base, size, line int) *token.File {
-	f := s.FileSet.AddFile(filename, base, size)
-	s.lines[f] = line
+func (s *FileSet) AddFile(filename string, base, size, line int) *File {
+	innerf := s.FileSet.AddFile(filename, base, size)
+	f := &File{File: innerf, line: line}
+	s.filemap[innerf] = f
 	return f
+}
+
+// File returns the file that contains the position p.
+// If no such file is found (for instance for p == NoPos),
+// the result is nil.
+//
+func (s *FileSet) File(p token.Pos) (f *File) {
+	if p != token.NoPos {
+		innerf := s.FileSet.File(p)
+		f = s.filemap[innerf]
+	}
+	return
 }
 
 // PositionFor converts a Pos p in the fileset into a Position value.
@@ -42,7 +86,6 @@ func (s *FileSet) AddFile(filename string, base, size, line int) *token.File {
 func (s *FileSet) PositionFor(p token.Pos, adjusted bool) (pos token.Position) {
 	if f := s.File(p); f != nil {
 		pos = f.PositionFor(p, adjusted)
-		pos.Line += s.lines[f]
 	}
 	return
 }

@@ -34,14 +34,13 @@ type Parser struct {
 	parser
 }
 
-func (p *parser) Configure(fileset *mt.FileSet, mode Mode, specialChar rune) {
-	p.fileset = fileset
+func (p *parser) Configure(mode Mode, specialChar rune) {
 	p.mode = mode
 	p.specialChar = specialChar
 }
 
-func (p *parser) Init(filename string, src []byte, lineOffset int) {
-	p.init(p.fileset, filename, src, lineOffset, p.mode)
+func (p *parser) Init(fileset *mt.FileSet, filename string, lineOffset int, src []byte) {
+	p.init(fileset, filename, lineOffset, src, p.mode)
 }
 
 func (p *parser) Parse() (list []ast.Node, err error) {
@@ -68,6 +67,7 @@ func (p *parser) Parse() (list []ast.Node, err error) {
 	list = make([]ast.Node, 0)
 	for p.tok != token.EOF && p.errors.Len() < 10 {
 		list = append(list, p.parseAny())
+		// fmt.Printf("// parser position is now %d (%s). parsed %#v\n", p.pos, p.file.Position(p.pos), list[len(list)-1])
 		if p.pos == lastpos1 {
 			p.error(p.pos, fmt.Sprintf("skipping '%s' to continue", mt.String(p.tok)))
 			p.next()

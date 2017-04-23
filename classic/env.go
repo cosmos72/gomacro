@@ -179,34 +179,30 @@ func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, f
 }
 
 func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
-
+	var t1 time.Time
 	trap := env.Options&OptTrapPanic != 0
 	duration := env.Options&OptShowTime != 0
-	if trap || duration {
-		var t1 time.Time
-		if duration {
-			t1 = time.Now()
-		}
-		defer func() {
-			if trap {
-				if rec := recover(); rec != nil {
-					if env.Options&OptPanicStackTrace != 0 {
-						fmt.Fprintf(env.Stderr, "%s\n%s", rec, debug.Stack())
-					} else {
-						fmt.Fprintf(env.Stderr, "%s\n", rec)
-					}
-					callAgain = true
-				}
-			}
-			if duration {
-				delta := time.Now().Sub(t1)
-				env.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
-			}
-		}()
+	if duration {
+		t1 = time.Now()
 	}
-	callAgain = env.parseEvalPrint(str, in)
-	env.IncLine(str)
-	return callAgain
+	defer func() {
+		env.IncLine(str)
+		if trap {
+			if rec := recover(); rec != nil {
+				if env.Options&OptPanicStackTrace != 0 {
+					fmt.Fprintf(env.Stderr, "%s\n%s", rec, debug.Stack())
+				} else {
+					fmt.Fprintf(env.Stderr, "%s\n", rec)
+				}
+				callAgain = true
+			}
+		}
+		if duration {
+			delta := time.Now().Sub(t1)
+			env.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
+		}
+	}()
+	return env.parseEvalPrint(str, in)
 }
 
 func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {

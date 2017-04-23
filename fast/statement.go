@@ -156,8 +156,6 @@ func (c *Comp) Branch(node *ast.BranchStmt) {
 			c.FallThrough(node)
 		case token.GOTO:
 			c.Goto(node)
-		case token.RETURN:
-			c.Return(node)
 	*/
 	default:
 		c.Errorf("unimplemented branch statement: %v <%v>", node, r.TypeOf(node))

@@ -43,8 +43,8 @@ func exprValue(value I) *Expr {
 	return &Expr{Lit: Lit{Type: r.TypeOf(value), Value: value}, IsNil: value == nil}
 }
 
-func exprLit(lit Lit) *Expr {
-	return &Expr{Lit: lit, IsNil: lit.Value == nil}
+func exprLit(lit Lit, sym *Symbol) *Expr {
+	return &Expr{Lit: lit, Sym: sym, IsNil: lit.Value == nil}
 }
 
 func exprFun(t r.Type, fun I) *Expr {

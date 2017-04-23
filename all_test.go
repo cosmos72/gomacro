@@ -145,6 +145,7 @@ var tests = []TestCase{
 	TestCase{A, "iota_implicit_1", "const ( c8 uint = iota+8; c9 ); c8", uint(8), nil},
 	TestCase{A, "iota_implicit_2", "c9", uint(9), nil},
 
+	TestCase{A, "var_0", "var v0 int = 11; v0", 11, nil},
 	TestCase{A, "var_1", "var v1 bool; v1", false, nil},
 	TestCase{A, "var_2", "var v2 uint8 = 7; v2", uint8(7), nil},
 	TestCase{A, "var_3", "var v3 uint16 = 12; v3", uint16(12), nil},
@@ -196,6 +197,8 @@ var tests = []TestCase{
 	TestCase{I, "make_chan", "cx := make(chan interface{}, 2)", make(chan interface{}, 2), nil},
 	TestCase{I, "make_map", "m := make(map[rune]bool)", make(map[rune]bool), nil},
 	TestCase{I, "make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
+	TestCase{A, "expr_index_1", `"abc"[2]`, byte('c'), nil},
+	TestCase{A, "expr_index_2", `v5 = "foo"; v0 = 0; v5[v0]`, byte('f'), nil},
 	TestCase{I, "expr_slice", "y = y[:4]", []uint8{100, 0, 0, 103}, nil},
 	TestCase{I, "expr_slice3", "y = y[:3:4]", []uint8{100, 0, 0}, nil},
 
@@ -208,8 +211,8 @@ var tests = []TestCase{
 	TestCase{A, "set_const_7", "v7 = 0.98765432109i; v7", complex(0, float32(0.98765432109)), nil}, // v7 is declared complex64
 
 	TestCase{A, "set_expr_1", "v1 = v1 == v1;    v1", true, nil},
-	TestCase{A, "set_expr_2", "v2 = v2 - 7;      v2", uint8(2), nil},
-	TestCase{A, "set_expr_3", "v3 = v3 % 7;      v3", uint16(60000) % 7, nil},
+	TestCase{A, "set_expr_2", "v2 -= 7;      v2", uint8(2), nil},
+	TestCase{A, "set_expr_3", "v3 %= 7;      v3", uint16(60000) % 7, nil},
 	TestCase{A, "set_expr_4", "v  = v * 10;      v", uint32(9870), nil},
 	TestCase{A, "set_expr_5", `v5 = v5 + "iuh";  v5`, "8y57riuh", nil},
 	TestCase{A, "set_expr_6", "v6 = 1/v6;        v6", 1 / float32(0.12345678901234), nil},                              // v6 is declared float32
@@ -302,7 +305,7 @@ var tests = []TestCase{
 		Values(vpanic, vpanic2, vpanic3)
 		`, nil, []interface{}{-5, -5, nil}},
 	TestCase{I, "send_recv", "cx <- \"x\"; <-cx", nil, []interface{}{"x", true}},
-	TestCase{I, "sum", sum_s + "; sum(100)", 5050, nil},
+	TestCase{A, "sum", sum_s + "; sum(100)", 5050, nil},
 
 	TestCase{I, "select_1", "cx <- 1; { var x interface{}; select { case x=<-cx: x; default: } }", 1, nil},
 	TestCase{I, "select_2", "cx <- m; select { case x:=<-cx: x; default: }", make(map[rune]bool), nil},

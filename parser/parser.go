@@ -30,7 +30,7 @@ import (
 
 // The parser structure holds the parser's internal state.
 type parser struct {
-	file    *token.File
+	file    *mt.File
 	errors  scanner.ErrorList
 	scanner scanner.Scanner
 
@@ -39,16 +39,13 @@ type parser struct {
 	trace  bool // == (mode & Trace != 0)
 	indent int  // indentation used for tracing output
 
-	specialChar rune // patch: prefix for quote operators ' ` , ,@
-	fileset     *mt.FileSet
-
 	// Comments
 	comments    []*ast.CommentGroup
 	leadComment *ast.CommentGroup // last lead comment
 	lineComment *ast.CommentGroup // last line comment
 
-	// Previous token
-	tok0 token.Token
+	tok0        token.Token // patch: Previous token
+	specialChar rune        // patch: prefix for quote operators ' ` , ,@
 
 	// Next token
 	pos token.Pos   // token position
@@ -78,12 +75,11 @@ type parser struct {
 	targetStack [][]*ast.Ident // stack of unresolved labels
 }
 
-func (p *parser) init(fset *mt.FileSet, filename string, src []byte, lineOffset int, mode Mode) {
+func (p *parser) init(fset *mt.FileSet, filename string, lineOffset int, src []byte, mode Mode) {
 	// Explicitly initialize all private fields since a parser may be reused.
 	if fset == nil {
 		fset = mt.NewFileSet()
 	}
-	p.fileset = fset
 	p.file = fset.AddFile(filename, -1, len(src), lineOffset)
 	p.errors = nil
 
@@ -319,7 +315,7 @@ func (p *parser) consumeComment() (comment *ast.Comment, endline int) {
 	comment = &ast.Comment{Slash: p.pos, Text: p.lit}
 	p.next0()
 
-	return comment, endline
+	return
 }
 
 // Consume a group of adjacent comments, add it to the parser's

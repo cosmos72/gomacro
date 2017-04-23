@@ -99,8 +99,8 @@ func (g *Globals) Gensym() string {
 func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 
-	parser.Configure(g.Fileset, mp.Mode(g.ParserMode), g.SpecialChar)
-	parser.Init(g.Filename, src, g.Line)
+	parser.Configure(mp.Mode(g.ParserMode), g.SpecialChar)
+	parser.Init(g.Fileset, g.Filename, g.Line, src)
 
 	nodes, err := parser.Parse()
 	if err != nil {
