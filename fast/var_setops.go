@@ -21,7 +21,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * var_add.go
+ * var_setops.go
  *
  *  Created on Apr 09, 2017
  *      Author Massimiliano Ghilardi
@@ -15606,7 +15606,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 	}
 	c.Code.Append(ret)
 }
-func (c *Comp) varSetOp(va *Var, op token.Token, init *Expr) {
+func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	t := va.Type
 	if init.Const() {
 		init.ConstTo(t)

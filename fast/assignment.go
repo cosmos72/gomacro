@@ -76,14 +76,6 @@ func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
 	panicking = false
 }
 
-// SetVar compiles an assignment to a variable
-func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
-	if init.Type == nil {
-		c.Errorf("invalid operator %v on <%v>", op, init.Type)
-	}
-	c.varSetOp(va, op, init)
-}
-
 // Place compiles the left-hand-side of an assignment
 func (c *Comp) Place(lhs ast.Expr) *Place {
 	return c.PlaceOrAddress(lhs, false)
