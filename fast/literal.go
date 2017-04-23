@@ -142,15 +142,16 @@ func (lit *Lit) ConstTo(t r.Type) I {
 	}
 	switch x := value.(type) {
 	case UntypedLit:
-		lit.Value = x.ConstTo(t)
 		lit.Type = t
+		lit.Value = x.ConstTo(t)
 		return lit.Value
 	case nil:
 		// literal nil can only be converted to nillable types
 		if IsNillableKind(t.Kind()) {
-			lit.Value = r.Zero(t)
 			lit.Type = t
-			return lit.Value
+			return nil
+			// lit.Value = r.Zero(t).Interface()
+			// return lit.Value
 		}
 	}
 	Errorf("cannot convert typed constant %v <%v> to <%v>", value, r.TypeOf(value), t)

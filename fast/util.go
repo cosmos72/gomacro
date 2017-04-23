@@ -208,7 +208,7 @@ func (e *Expr) AsX1() func(*Env) r.Value {
 		return valueAsX1(e.Value, CompileDefaults)
 	}
 	e.CheckX1()
-	return funAsX1(e.Fun, CompileDefaults)
+	return funAsX1(e.Fun)
 }
 
 func valueAsX1(any I, opts CompileOptions) func(*Env) r.Value {
@@ -224,7 +224,7 @@ func valueAsX1(any I, opts CompileOptions) func(*Env) r.Value {
 	}
 }
 
-func funAsX1(fun I, opts CompileOptions) func(*Env) r.Value {
+func funAsX1(fun I) func(*Env) r.Value {
 	switch fun := fun.(type) {
 	case nil:
 	case X:

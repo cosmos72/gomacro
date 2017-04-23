@@ -15611,7 +15611,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	if init.Const() {
 		init.ConstTo(t)
 	} else if init.Type != t {
-		if t.Kind() != init.Type.Kind() || !init.Type.AssignableTo(t) {
+		if t.Kind() != init.Type.Kind() && !init.Type.AssignableTo(t) && !init.Type.Implements(t) {
 			c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
 			return
 		}

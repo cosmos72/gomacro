@@ -28,7 +28,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -89,63 +89,76 @@ import (
 }
 
 :macro setplace_const(depth, typ ast.Node) ast.Node {
-	return fsetplace(depth, typ, ~'val, ~'v)
+	ret := fsetplace(depth, typ, ~'val, ~'v)
+	if EvalType(typ) == nil {
+		return ret
+	}
+	return ~"{
+		val := v.Interface().(~,typ)
+		~,ret
+	}
 }
 
 :macro setplace_expr(depth, typ ast.Node) ast.Node {
-	return fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(t)})
+	ret := fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(t)})
+	if EvalType(typ) == nil {
+		return ~"{
+			fun := funAsX1(fun)
+			~,ret
+		}
+	}
+	return ~"{
+		fun := fun.(func(*Env) ~,typ)
+		~,ret
+	}
 }
 
 :macro setplaces_const(depth ast.Node) ast.Node {
 	return ~"{
-		switch val := val.(type) {
-		case bool:       setplace_const; ~,depth; bool;
-		case int:        setplace_const; ~,depth; int;
-		case int8:       setplace_const; ~,depth; int8;
-		case int16:      setplace_const; ~,depth; int16;
-		case int32:      setplace_const; ~,depth; int32;
-		case int64:      setplace_const; ~,depth; int64;
-		case uint:       setplace_const; ~,depth; uint;
-		case uint8:      setplace_const; ~,depth; uint8;
-		case uint16:     setplace_const; ~,depth; uint16;
-		case uint32:     setplace_const; ~,depth; uint32;
-		case uint64:     setplace_const; ~,depth; uint64;
-		case uintptr:    setplace_const; ~,depth; uintptr;
-		case float32:    setplace_const; ~,depth; float32;
-		case float64:    setplace_const; ~,depth; float64;
-		case complex64:  setplace_const; ~,depth; complex64;
-		case complex128: setplace_const; ~,depth; complex128;
-		case string:     setplace_const; ~,depth; string;
-		default:         setplace_const; ~,depth; nil;
+		switch t {
+		case TypeOfBool:       setplace_const; ~,depth; bool;
+		case TypeOfInt:        setplace_const; ~,depth; int;
+		case TypeOfInt8:       setplace_const; ~,depth; int8;
+		case TypeOfInt16:      setplace_const; ~,depth; int16;
+		case TypeOfInt32:      setplace_const; ~,depth; int32;
+		case TypeOfInt64:      setplace_const; ~,depth; int64;
+		case TypeOfUint:       setplace_const; ~,depth; uint;
+		case TypeOfUint8:      setplace_const; ~,depth; uint8;
+		case TypeOfUint16:     setplace_const; ~,depth; uint16;
+		case TypeOfUint32:     setplace_const; ~,depth; uint32;
+		case TypeOfUint64:     setplace_const; ~,depth; uint64;
+		case TypeOfUintptr:    setplace_const; ~,depth; uintptr;
+		case TypeOfFloat32:    setplace_const; ~,depth; float32;
+		case TypeOfFloat64:    setplace_const; ~,depth; float64;
+		case TypeOfComplex64:  setplace_const; ~,depth; complex64;
+		case TypeOfComplex128: setplace_const; ~,depth; complex128;
+		case TypeOfString:     setplace_const; ~,depth; string;
+		default:               setplace_const; ~,depth; nil;
 		}
 	}
 }
 
 :macro setplaces_expr(depth ast.Node) ast.Node {
 	return ~"{
-		switch fun := fun.(type) {
-		case func(env *Env) bool:       setplace_expr; ~,depth; bool;
-		case func(env *Env) int:        setplace_expr; ~,depth; int;
-		case func(env *Env) int8:       setplace_expr; ~,depth; int8;
-		case func(env *Env) int16:      setplace_expr; ~,depth; int16;
-		case func(env *Env) int32:      setplace_expr; ~,depth; int32;
-		case func(env *Env) int64:      setplace_expr; ~,depth; int64;
-		case func(env *Env) uint:       setplace_expr; ~,depth; uint;
-		case func(env *Env) uint8:      setplace_expr; ~,depth; uint8;
-		case func(env *Env) uint16:     setplace_expr; ~,depth; uint16;
-		case func(env *Env) uint32:     setplace_expr; ~,depth; uint32;
-		case func(env *Env) uint64:     setplace_expr; ~,depth; uint64;
-		case func(env *Env) uintptr:    setplace_expr; ~,depth; uintptr;
-		case func(env *Env) float32:    setplace_expr; ~,depth; float32;
-		case func(env *Env) float64:    setplace_expr; ~,depth; float64;
-		case func(env *Env) complex64:  setplace_expr; ~,depth; complex64;
-		case func(env *Env) complex128: setplace_expr; ~,depth; complex128;
-		case func(env *Env) string:     setplace_expr; ~,depth; string;
-		case func(env *Env) r.Value:    setplace_expr; ~,depth; nil;
-		default:
-			c.Errorf("invalid expression type, cannot compile assignment: %v <%v> returns %v",
-				fun, r.TypeOf(fun), funTypeOuts(fun))
-			return
+		switch t {
+		case TypeOfBool:       setplace_expr; ~,depth; bool;
+		case TypeOfInt:        setplace_expr; ~,depth; int;
+		case TypeOfInt8:       setplace_expr; ~,depth; int8;
+		case TypeOfInt16:      setplace_expr; ~,depth; int16;
+		case TypeOfInt32:      setplace_expr; ~,depth; int32;
+		case TypeOfInt64:      setplace_expr; ~,depth; int64;
+		case TypeOfUint:       setplace_expr; ~,depth; uint;
+		case TypeOfUint8:      setplace_expr; ~,depth; uint8;
+		case TypeOfUint16:     setplace_expr; ~,depth; uint16;
+		case TypeOfUint32:     setplace_expr; ~,depth; uint32;
+		case TypeOfUint64:     setplace_expr; ~,depth; uint64;
+		case TypeOfUintptr:    setplace_expr; ~,depth; uintptr;
+		case TypeOfFloat32:    setplace_expr; ~,depth; float32;
+		case TypeOfFloat64:    setplace_expr; ~,depth; float64;
+		case TypeOfComplex64:  setplace_expr; ~,depth; complex64;
+		case TypeOfComplex128: setplace_expr; ~,depth; complex128;
+		case TypeOfString:     setplace_expr; ~,depth; string;
+		default:               setplace_expr; ~,depth; nil;
 		}
 	}
 }
@@ -159,7 +172,7 @@ func (c *Comp) varSetZero(upn int, index int, t r.Type) {
 // varSetConst compiles 'name = constant'
 func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 	v := r.ValueOf(val)
-	if base.ValueType(v) == nil {
+	if ValueType(v) == nil {
 		v = r.Zero(t)
 	} else {
 		v = v.Convert(t)

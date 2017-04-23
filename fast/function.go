@@ -230,7 +230,7 @@ func (c *Comp) funcGeneric(t r.Type, m *funcMaker) func(*Env) r.Value {
 	}
 	resultexprs := make([]func(*Env) r.Value, len(m.resultfuns))
 	for i, resultfun := range m.resultfuns {
-		resultexprs[i] = funAsX1(resultfun, CompileDefaults)
+		resultexprs[i] = funAsX1(resultfun)
 	}
 
 	// do NOT keep a reference to funcMaker
