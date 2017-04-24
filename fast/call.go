@@ -251,44 +251,6 @@ func call_ret2plus(callexpr *Call, maxdepth int) I {
 	return call
 }
 
-func call_builtin(c *Call) I {
-	// builtin functions are always literals, i.e. funindex == NoIndex thus not stored in Env.Binds[]
-	// we must retrieve them directly from c.Fun.Value
-	if !c.Fun.Const() {
-		Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", c.Fun)
-	} else if c.Fun.Sym == nil {
-		Errorf("internal error: call_builtin() invoked for non-name function %#v. use one of the callXretY() instead", c.Fun)
-	}
-	args := c.Args
-	argfuns := make([]I, len(args))
-	argtypes := make([]r.Type, len(args))
-	for i, arg := range args {
-		argfuns[i] = arg.WithFun()
-		argtypes[i] = arg.Type
-	}
-	argfunsX1 := c.MakeArgfuns()
-
-	// Debugf("compiling builtin %s() <%v> with arg types %v", c.Fun.Sym.Name, r.TypeOf(c.Fun.Value), argtypes)
-	var call I
-	switch fun := c.Fun.Value.(type) {
-	case func(string) int:
-		argfun := argfuns[0].(func(*Env) string)
-		call = func(env *Env) int {
-			arg := argfun(env)
-			return fun(arg)
-		}
-	case func(r.Value) int:
-		argfun := argfunsX1[0]
-		call = func(env *Env) int {
-			arg := argfun(env)
-			return fun(arg)
-		}
-	default:
-		Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
-	}
-	return call
-}
-
 func (c *Comp) badCallArgNum(fun ast.Expr, t r.Type, args []*Expr) *Call {
 	prefix := "not enough"
 	n := t.NumIn()

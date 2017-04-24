@@ -259,6 +259,7 @@ var tests = []TestCase{
 
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 
+	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},
 	TestCase{A, "builtin_cap", "cap(va)", 2, nil},
 	TestCase{A, "builtin_len", "len(v5)", len("8y57riuh@#$"), nil},
 

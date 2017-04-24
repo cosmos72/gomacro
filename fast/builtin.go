@@ -39,7 +39,8 @@ type BuiltinFunc struct {
 	// interpreted code should not access "compile": not exported.
 	// compile usually needs to modify Symbol: pass it by value.
 	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call
-	ArgN    int
+	ArgMin  int
+	ArgMax  int
 }
 
 var (
@@ -85,8 +86,9 @@ func (ce *CompEnv) addBuiltins() {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
 
-	ce.DeclBuiltinFunc("cap", BuiltinFunc{compileCap, 1})
-	ce.DeclBuiltinFunc("len", BuiltinFunc{compileLen, 1})
+	ce.DeclBuiltinFunc("append", BuiltinFunc{compileAppend, 1, MaxInt})
+	ce.DeclBuiltinFunc("cap", BuiltinFunc{compileCap, 1, 1})
+	ce.DeclBuiltinFunc("len", BuiltinFunc{compileLen, 1, 1})
 
 	/*
 		binds["Env"] = r.ValueOf(Function{funcEnv, 0})
@@ -106,8 +108,6 @@ func (ce *CompEnv) addBuiltins() {
 		// return multiple values, extracting the concrete type of each interface
 		binds["Values"] = r.ValueOf(Function{funcValues, -1})
 
-		binds["append"] = r.ValueOf(Function{funcAppend, -1})
-		binds["cap"] = r.ValueOf(callCap)
 		binds["close"] = r.ValueOf(callClose)
 		binds["complex"] = r.ValueOf(Function{funcComplex, 2})
 		binds["copy"] = r.ValueOf(callCopy)
@@ -164,6 +164,40 @@ func (ce *CompEnv) addBuiltins() {
 
 // ============================= builtin functions =============================
 
+// --- append() ---
+
+func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	n := len(node.Args)
+	args := make([]*Expr, n)
+
+	args[0] = c.Expr1(node.Args[0])
+	t0 := args[0].Type
+	if t0.Kind() != r.Slice {
+		c.Errorf("first argument to %s must be slice; have <%s>", sym.Name, t0)
+		return nil
+	}
+	telem := t0.Elem()
+
+	for i := 1; i < n; i++ {
+		argi := c.Expr1(node.Args[i])
+		if argi.Const() {
+			argi.ConstTo(telem)
+		} else if ti := argi.Type; ti != telem && !ti.AssignableTo(telem) {
+			return c.badBuiltinCallArgType(sym.Name, node.Args[i], ti, telem)
+		}
+		args[i] = argi
+	}
+	t := r.FuncOf([]r.Type{t0, t0}, []r.Type{t0}, true) // compile as reflect.Append(), which is variadic
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: r.Append}, &sym)
+	return &Call{
+		Fun:      fun,
+		Args:     args,
+		OutTypes: []r.Type{t0},
+		Const:    false,
+	}
+}
+
 // --- cap() ---
 
 func callCap(val r.Value) int {
@@ -171,7 +205,7 @@ func callCap(val r.Value) int {
 }
 
 func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	// arguments of builtin cap() must be cannot be literals
+	// argument of builtin cap() cannot be a literal
 	arg := c.Expr1(node.Args[0])
 	tin := arg.Type
 	tout := TypeOfInt
@@ -179,7 +213,7 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// no cap() on r.Map, see
 	// https://golang.org/ref/spec#Length_and_capacity
 	// and https://golang.org/pkg/reflect/#Value.Cap
-	case r.Array, r.Slice, r.Chan:
+	case r.Array, r.Chan, r.Slice:
 		// ok
 	case r.Ptr:
 		if tin.Elem().Kind() == r.Array {
@@ -190,7 +224,7 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		}
 		fallthrough
 	default:
-		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin)
+		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "array, channel, slice, pointer to array")
 	}
 	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
 	sym.Type = t
@@ -200,8 +234,6 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// when the array passed to cap() is evaluated and when is not...
 	return newCall1(fun, arg, arg.Const(), tout)
 }
-
-// --- copy() ---
 
 // --- len() ---
 
@@ -221,7 +253,7 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	tin := arg.Type
 	tout := TypeOfInt
 	switch tin.Kind() {
-	case r.Array, r.String, r.Slice, r.Map, r.Chan:
+	case r.Array, r.Chan, r.Map, r.Slice, r.String:
 		// ok
 	case r.Ptr:
 		if tin.Elem().Kind() == r.Array {
@@ -232,7 +264,7 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		}
 		fallthrough
 	default:
-		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin)
+		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "array, channel, map, slice, string, pointer to array")
 	}
 	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
 	sym.Type = t
@@ -248,35 +280,89 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // ============================ support functions =============================
 
-// callBuiltinFunc compiles a call to a builtin function: cap, copy, len, make, new...
+// call_builtin compiles a call to a builtin function: cap, copy, len, make, new...
+func call_builtin(c *Call) I {
+	// builtin functions are always literals, i.e. funindex == NoIndex thus not stored in Env.Binds[]
+	// we must retrieve them directly from c.Fun.Value
+	if !c.Fun.Const() {
+		Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", c.Fun)
+	} else if c.Fun.Sym == nil {
+		Errorf("internal error: call_builtin() invoked for non-name function %#v. use one of the callXretY() instead", c.Fun)
+	}
+	args := c.Args
+	argfuns := make([]I, len(args))
+	argtypes := make([]r.Type, len(args))
+	for i, arg := range args {
+		argfuns[i] = arg.WithFun()
+		argtypes[i] = arg.Type
+	}
+	argfunsX1 := c.MakeArgfuns()
+
+	// Debugf("compiling builtin %s() <%v> with arg types %v", c.Fun.Sym.Name, r.TypeOf(c.Fun.Value), argtypes)
+	var call I
+	switch fun := c.Fun.Value.(type) {
+	case func(string) int: // len(string)
+		argfun := argfuns[0].(func(*Env) string)
+		call = func(env *Env) int {
+			arg := argfun(env)
+			return fun(arg)
+		}
+	case func(r.Value) int: // cap() and len()
+		argfun := argfunsX1[0]
+		call = func(env *Env) int {
+			arg := argfun(env)
+			return fun(arg)
+		}
+	case func(r.Value, ...r.Value) r.Value: // append()
+		call = func(env *Env) r.Value {
+			args := make([]r.Value, len(argfunsX1))
+			for i, argfun := range argfunsX1 {
+				args[i] = argfun(env)
+			}
+			return fun(args[0], args[1:]...)
+		}
+	default:
+		Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
+	}
+	return call
+}
+
+// callBuiltinFunc invokes the appropriate compiler for a call to a builtin function: cap, copy, len, make, new...
 func (c *Comp) callBuiltinFunc(fun *Expr, node *ast.CallExpr) *Call {
 	builtin := fun.Value.(BuiltinFunc)
 	if fun.Sym == nil {
 		c.Errorf("invalid call to non-name builtin: %v", node)
 		return nil
 	}
-	n := builtin.ArgN
-	if n >= 0 && len(node.Args) != n {
-		return c.badBuiltinCallArgNum(fun.Sym.Name, n, n, node.Args)
+	nmin := builtin.ArgMin
+	nmax := builtin.ArgMax
+	n := len(node.Args)
+	if n < nmin || n > nmax {
+		return c.badBuiltinCallArgNum(fun.Sym.Name, nmin, nmax, node.Args)
 	}
 	return builtin.compile(c, *fun.Sym, node)
 }
 
-func (c *Comp) badBuiltinCallArgNum(name string, n1 int, n2 int, args []ast.Expr) *Call {
+func (c *Comp) badBuiltinCallArgNum(name string, nmin int, nmax int, args []ast.Expr) *Call {
 	prefix := "not enough"
 	nargs := len(args)
-	if nargs > n2 {
+	if nargs > nmax {
 		prefix = "too many"
 	}
-	str := fmt.Sprintf("%d", n1)
-	if n2 != n1 {
-		str = fmt.Sprintf("%s or %d", str, n2)
+	str := fmt.Sprintf("%d", nmin)
+	if nmax <= nmin {
+	} else if nmax == nmin+1 {
+		str = fmt.Sprintf("%s or %d", str, nmax)
+	} else if nmax < MaxInt {
+		str = fmt.Sprintf("%s to %d", str, nmax)
+	} else {
+		str = fmt.Sprintf("%s or more", str)
 	}
 	c.Errorf("%s arguments in call to builtin %s(): expecting %s, found %d: %v", prefix, name, str, nargs, args)
 	return nil
 }
 
-func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, t r.Type) *Call {
-	c.Errorf("invalid argument %v <%v> for builtin %s()", arg, t, name)
+func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, tactual r.Type, texpected interface{}) *Call {
+	c.Errorf("cannot use %v <%v> as %v in builtin %s()", arg, tactual, texpected, name)
 	return nil
 }

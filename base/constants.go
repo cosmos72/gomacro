@@ -37,6 +37,11 @@ const (
 	// * belongs to an ancient language no longer spoken, so hopefully low collision risk
 	// * outside Unicode basic place, so hopefully lower collision risk
 	// * relatively simple glyph picture
+
+	MaxUint = ^uint(0)
+	MinUint = 0
+	MaxInt  = int(MaxUint >> 1)
+	MinInt  = ^MaxInt
 )
 
 var (

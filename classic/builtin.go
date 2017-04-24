@@ -39,6 +39,10 @@ func funcAppend(env *Env, args []r.Value) (r.Value, []r.Value) {
 	if n < 1 {
 		return env.Errorf("builtin append() expects at least one argument, found %d", n)
 	}
+	t := args[0].Type().Elem()
+	for i := 1; i < n; i++ {
+		args[i] = args[i].Convert(t)
+	}
 	return r.Append(args[0], args[1:]...), nil
 }
 
