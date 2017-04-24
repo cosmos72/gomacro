@@ -269,6 +269,9 @@ var tests = []TestCase{
 	TestCase{A, "builtin_make_5", "make([]rune, 3, 4)", make([]rune, 3, 4), nil},
 	TestCase{A, "builtin_make_6", "make(chan byte)", make(chan byte), nil},
 	TestCase{A, "builtin_make_7", "make(chan byte, 2)", make(chan byte, 2), nil},
+	TestCase{A, "builtin_make_8", "vs = make([]byte, 5); vs", make([]byte, 5), nil},
+	TestCase{A, "builtin_copy_1", "copy(vs, v5)", 5, nil},
+	TestCase{A, "builtin_copy_2", "vs", []byte("8y57r"), nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},

@@ -75,6 +75,12 @@ func funcComplex(env *Env, args []r.Value) (r.Value, []r.Value) {
 }
 
 func callCopy(dst, src interface{}) int {
+	if src, ok := src.(string); ok {
+		if dst, ok := dst.([]byte); ok {
+			// reflect.Copy does not support this case... use the compiler support
+			return copy(dst, src)
+		}
+	}
 	return r.Copy(r.ValueOf(dst), r.ValueOf(src))
 }
 

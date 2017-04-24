@@ -23,4 +23,8 @@ func main() {
 	println(e1 == nil)
 	println(e2 == nil)
 	println(i == nil)
+
+	a := []rune{'a', 'b', 'c'}
+	s := []int{'x', 'y'}
+	copy(s, a)
 }

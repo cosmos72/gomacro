@@ -88,6 +88,7 @@ func (ce *CompEnv) addBuiltins() {
 
 	ce.DeclBuiltinFunc("append", BuiltinFunc{compileAppend, 1, MaxInt})
 	ce.DeclBuiltinFunc("cap", BuiltinFunc{compileCap, 1, 1})
+	ce.DeclBuiltinFunc("copy", BuiltinFunc{compileCopy, 2, 2})
 	ce.DeclBuiltinFunc("len", BuiltinFunc{compileLen, 1, 1})
 	ce.DeclBuiltinFunc("make", BuiltinFunc{compileMake, 1, 3})
 	ce.DeclBuiltinFunc("new", BuiltinFunc{compileNew, 1, 1})
@@ -112,7 +113,6 @@ func (ce *CompEnv) addBuiltins() {
 
 		binds["close"] = r.ValueOf(callClose)
 		binds["complex"] = r.ValueOf(Function{funcComplex, 2})
-		binds["copy"] = r.ValueOf(callCopy)
 		binds["delete"] = r.ValueOf(callDelete)
 	*/
 	/*
@@ -234,6 +234,46 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// TODO https://golang.org/ref/spec#Length_and_capacity specifies
 	// when the array passed to cap() is evaluated and when is not...
 	return newCall1(fun, arg, arg.Const(), tout)
+}
+
+// --- copy() ---
+
+func copyStringToBytes(dst []byte, src string) int {
+	// reflect.Copy does not support this case... use the compiler support
+	return copy(dst, src)
+}
+
+func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	args := []*Expr{
+		c.Expr1(node.Args[0]),
+		c.Expr1(node.Args[1]),
+	}
+	if args[1].Const() {
+		// we also accept a string literal as second argument
+		args[1].ConstTo(args[1].DefaultType())
+	}
+	t0, t1 := args[0].Type, args[1].Type
+	var funCopy I = r.Copy
+	if t0.Kind() != r.Slice || !t0.AssignableTo(r.SliceOf(t0.Elem())) {
+		// https://golang.org/ref/spec#Appending_and_copying_slices
+		// copy [...] arguments must have identical element type T and must be assignable to a slice of type []T.
+		c.Errorf("first argument to copy should be slice; have %v <%v>", node.Args[0], t0)
+		return nil
+	} else if t0.Elem().Kind() == r.Uint8 && t1.Kind() == r.String {
+		// [...] As a special case, copy also accepts a destination argument assignable to type []byte
+		// with a source argument of a string type. This form copies the bytes from the string into the byte slice.
+		funCopy = copyStringToBytes
+	} else if t1.Kind() != r.Slice || !t1.AssignableTo(r.SliceOf(t1.Elem())) {
+		c.Errorf("second argument to copy should be slice or string; have %v <%v>", node.Args[1], t1)
+		return nil
+	} else if t0.Elem() != t1.Elem() {
+		c.Errorf("arguments to copy have different element types: <%v> and <%v>", t0.Elem(), t1.Elem())
+	}
+	outtypes := []r.Type{t0}
+	t := r.FuncOf([]r.Type{t0, t1}, outtypes, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: funCopy}, &sym)
+	return &Call{Fun: fun, Args: args, OutTypes: outtypes, Const: false}
 }
 
 // --- len() ---
@@ -387,12 +427,38 @@ func call_builtin(c *Call) I {
 			arg := argfun(env)
 			return fun(arg)
 		}
+	case func([]byte, string) int: // copy([]byte, string)
+		arg0fun := args[0].AsX1()
+		if args[1].Const() {
+			// string is a literal...
+			arg1const := args[1].Value.(string)
+			call = func(env *Env) int {
+				// arg0 is "assignable to []byte" ... this is a bit too strict
+				arg0 := arg0fun(env).Interface().([]byte)
+				return fun(arg0, arg1const)
+			}
+		} else {
+			arg1fun := args[1].Fun.(func(*Env) string)
+			call = func(env *Env) int {
+				// arg0 is "assignable to []byte" ... this is a bit too strict
+				arg0 := arg0fun(env).Interface().([]byte)
+				arg1 := arg1fun(env)
+				return fun(arg0, arg1)
+			}
+		}
 	case func(r.Value) int: // cap() and len()
 		argfunsX1 := c.MakeArgfuns()
 		argfun := argfunsX1[0]
 		call = func(env *Env) int {
 			arg := argfun(env)
 			return fun(arg)
+		}
+	case func(r.Value, r.Value) int: // copy()
+		argfunsX1 := c.MakeArgfuns()
+		call = func(env *Env) int {
+			arg0 := argfunsX1[0](env)
+			arg1 := argfunsX1[1](env)
+			return fun(arg0, arg1)
 		}
 	case func(r.Value, ...r.Value) r.Value: // append()
 		argfunsX1 := c.MakeArgfuns()
