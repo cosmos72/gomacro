@@ -25,6 +25,7 @@
 package fast
 
 import (
+	"go/ast"
 	"go/constant"
 	"go/token"
 	r "reflect"
@@ -54,32 +55,39 @@ func (top *Comp) incrementIota() {
 	top.Binds["iota"] = BindConst(UntypedLit{Kind: r.Int, Obj: uIota})
 }
 
-/*
+type BuiltinFunc struct {
+	Exec    I
+	ArgN    int
+	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call // interpreted code should not access "compile"
+}
+
+func callCap(val interface{}) int {
+	return r.ValueOf(val).Cap()
+}
+
+func callCopy(dst, src interface{}) int {
+	return r.Copy(r.ValueOf(dst), r.ValueOf(src))
+}
+
 func callLen(val interface{}) int {
 	return r.ValueOf(val).Len()
 }
 
-func builtinLen(c *Comp, upn int, desc BindDescriptor, node *ast.CallExpr) *Call {
-	args := node.Args
-	if len(args) != 1 {
-		return c.badBuiltinCallArgNum("len", 1, 1, args)
-	}
-	arg := c.Expr1(args[0])
+/*
+func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	arg := c.Expr1(node.Args[0])
 	tin := arg.Type
 	tout := TypeOfInt
 	switch tin.Kind() {
 	case r.Array, r.String, r.Slice, r.Map, r.Chan:
 	default:
-		return c.badBuiltinCallArgType("len", args[0], tin)
+		return c.badBuiltinCallArgType("len", node.Args[0], tin)
 	}
 	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
-	fun := exprX1(t, resolveLen)
-	funvar := bind.AsFuncOrVar(upn)
-	funvar.Type = t
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: callLen}, &sym)
 
-	argvar := c.extractVar(args[0])
-
-	return newCall1(fun, funvar, arg, argvar, tout)
+	return newCall1(fun, arg, tout)
 }
 */
 
@@ -92,9 +100,14 @@ func (ce *CompEnv) addBuiltins() {
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
 	ce.DeclConst("nil", nil, nil)
 
+	ce.DeclFunc("cap", callCap)
+	ce.DeclFunc("copy", callCopy)
+	ce.DeclFunc("len", callLen)
 	ce.DeclFunc("Sleep", func(seconds float64) {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
+
+	// ce.DeclBuiltinFunc("len", BuiltinFunc{callLen, 1, compileLen})
 
 	/*
 		binds["Env"] = r.ValueOf(Function{funcEnv, 0})
@@ -123,7 +136,6 @@ func (ce *CompEnv) addBuiltins() {
 	*/
 	/*
 		binds["imag"] = r.ValueOf(Function{funcImag, 1})
-		binds["len"] = r.ValueOf(callLen)
 		binds["make"] = r.ValueOf(Builtin{builtinMake, -1})
 		binds["new"] = r.ValueOf(Builtin{builtinNew, 1})
 		binds["panic"] = r.ValueOf(callPanic)

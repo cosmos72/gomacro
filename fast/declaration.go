@@ -186,20 +186,22 @@ func (c *Comp) DeclConst0(name string, t r.Type, value I) {
 		c.Errorf("const initializer for %q is not a constant: %v <%T>", name, value, value)
 		return
 	}
-	bind := BindConst(value)
+	lit := litValue(value)
 	if t != nil {
-		value = bind.ConstTo(t)
+		value = lit.ConstTo(t)
 	}
-	// never define bindings for "_"
-	if name == "_" {
-		return
+	bind := c.AddBind(name, ConstBind, t)
+	bind.Value = value // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
+}
+
+// AddFuncBind reserves space for a subsequent function declaration
+func (c *Comp) AddFuncBind(name string, t r.Type) *Bind {
+	bind := c.AddBind(name, FuncBind, t)
+	if bind.Desc.Class() != FuncBind {
+		c.Errorf("internal error! Comp.AddBind(name=%q, class=FuncBind, type=%v) returned class=%v, expecting FuncBind",
+			name, t, bind.Desc.Class())
 	}
-	if _, ok := c.Binds[name]; ok {
-		c.Warnf("redefined identifier: %v", name)
-	} else if c.Binds == nil {
-		c.Binds = make(map[string]*Bind)
-	}
-	c.Binds[name] = bind
+	return bind
 }
 
 // AddBind reserves space for a subsequent constant, function or variable declaration
@@ -431,11 +433,7 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 	if t.Kind() != r.Func {
 		c.Errorf("DeclFunc0(%s): expecting a function, received %v <%v>", name, fun, t)
 	}
-	bind := c.AddBind(name, FuncBind, t)
-	if bind.Desc.Class() != FuncBind {
-		c.Errorf("internal error! Comp.AddBind(name=%q, class=FuncBind, type=%v) returned class=%v, expecting FuncBind",
-			name, t, bind.Desc.Class())
-	}
+	bind := c.AddFuncBind(name, t)
 	index := bind.Desc.Index()
 	ret := func(env *Env) (Stmt, *Env) {
 		env.Binds[index] = funv
@@ -443,5 +441,13 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 		return env.Code[env.IP], env
 	}
 	c.Code.Append(ret)
+	return bind
+}
+
+// DeclBuiltinFunc compiles a builtin function declaration. For caller's convenience, returns allocated Bind
+func (c *Comp) DeclBuiltinFunc0(name string, builtin BuiltinFunc) *Bind {
+	t := r.TypeOf(builtin)
+	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
+	bind.Value = builtin                  // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 	return bind
 }

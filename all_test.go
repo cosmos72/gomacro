@@ -125,6 +125,7 @@ var tests = []TestCase{
 	TestCase{A, "complex_1", "7i", 7i, nil},
 	TestCase{A, "complex_2", "0.5+1.75i", 0.5 + 1.75i, nil},
 	TestCase{A, "complex_3", "1i * 2i", 1i * 2i, nil},
+	TestCase{A, "const_0", "const c0 rune = 'x'; c0", 'x', nil},
 	TestCase{A, "const_1", "const c1 = 11; c1", 11, nil},
 	TestCase{A, "const_2", "const c2 = 0xff&555+23/12.2; c2", 0xff&555 + 23/12.2, nil},
 
@@ -135,6 +136,7 @@ var tests = []TestCase{
 	// the fast interpreter instead *IS* accurate, thanks to exact arithmetic on untyped constants
 	TestCase{F, "const_3", "const c3 = 0.1+0.2; c3", 0.1 + 0.2, nil},
 	TestCase{F, "const_4", "const c4 = c3/3; c4", (0.1 + 0.2) / 3, nil},
+
 	TestCase{F, "untyped_1", "2.0 >> 1", 1, nil},
 	TestCase{A, "untyped_2", "1/2", 0, nil},
 	TestCase{A, "untyped_unary", "-+^6", -+^6, nil},
@@ -177,7 +179,8 @@ var tests = []TestCase{
 	TestCase{A, "eql_nil_4", "vs == nil", true, nil},
 	TestCase{A, "eql_nil_5", "vi == nil", false, nil},
 	TestCase{A, "eql_nil_6", "vnil == nil", true, nil},
-	TestCase{A, "eql_halfnil", "var vhalfnil interface{} = vm; vhalfnil == nil", false, nil},
+	TestCase{A, "eql_halfnil_1", "var vhalfnil interface{} = vm; vhalfnil == nil", false, nil},
+	TestCase{A, "eql_halfnil_2", "vm = nil; vhalfnil = vm; vhalfnil == nil", false, nil},
 	TestCase{A, "eql_interface", "vi == 1", true, nil},
 
 	TestCase{A, "typed_unary_1", "!!!v1", true, nil},

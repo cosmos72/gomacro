@@ -102,7 +102,7 @@ func callnret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
 	kret := expr.Type.Out(0).Kind()
-	argfuns := c.Argfuns
+	argfuns := c.MakeArgfuns()
 	var call I
 	switch kret {
 	case r.Bool:      {mcallnret1; bool}

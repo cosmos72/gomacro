@@ -35,23 +35,26 @@ import (
 )
 
 type Call struct {
-	OutTypes []r.Type
 	Fun      *Expr
-	Funsym   *Symbol // in case function is an identifier
 	Args     []*Expr
-	Argsyms  []*Symbol // in case arguments are identifiers or constants
-	Argfuns  []func(*Env) r.Value
+	OutTypes []r.Type
 }
 
-func newCall1(fun *Expr, funsym *Symbol, arg *Expr, argsym *Symbol, outtypes ...r.Type) *Call {
+func newCall1(fun *Expr, arg *Expr, outtypes ...r.Type) *Call {
 	return &Call{
-		OutTypes: outtypes,
 		Fun:      fun,
-		Funsym:   funsym,
 		Args:     []*Expr{arg},
-		Argsyms:  []*Symbol{argsym},
-		Argfuns:  []func(*Env) r.Value{arg.AsX1()},
+		OutTypes: outtypes,
 	}
+}
+
+func (call *Call) MakeArgfuns() []func(*Env) r.Value {
+	args := call.Args
+	argfuns := make([]func(*Env) r.Value, len(args))
+	for i, arg := range args {
+		argfuns[i] = arg.AsX1()
+	}
+	return argfuns
 }
 
 // CallExpr compiles a function call
@@ -85,8 +88,6 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 		c.Errorf("unimplemented: call to variadic function: %v <%v>", node.Fun, t)
 		return nil
 	}
-	funsym := c.extractSymbol(node.Fun)
-
 	args := c.Exprs(node.Args)
 	n := t.NumIn()
 	// TODO support funcAcceptsNArgs(funcReturnsNValues())
@@ -96,8 +97,6 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 	if n != len(args) {
 		return c.badCallArgNum(node.Fun, t, args)
 	}
-	argfuns := make([]func(*Env) r.Value, n)
-	argsyms := make([]*Symbol, n)
 	for i, arg := range args {
 		ti := t.In(i)
 		if arg.Const() {
@@ -105,20 +104,17 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 		} else if arg.Type != ti && !arg.Type.AssignableTo(ti) {
 			c.Errorf("cannot use <%v> as <%v> in argument to %v", arg.Type, ti, node.Fun)
 		}
-		argfuns[i] = arg.AsX1()
-		argsyms[i] = c.extractSymbol(node.Args[i])
 	}
 
-	ret := &Call{Fun: fun, Funsym: funsym, Args: args, Argfuns: argfuns, Argsyms: argsyms}
 	nout := t.NumOut()
 	types := make([]r.Type, nout)
 	for i := 0; i < nout; i++ {
 		types[i] = t.Out(i)
 	}
-	ret.OutTypes = types
-	return ret
+	return &Call{Fun: fun, Args: args, OutTypes: types}
 }
 
+/*
 func (c *Comp) extractSymbols(args []ast.Expr) []*Symbol {
 	n := len(args)
 	syms := make([]*Symbol, n)
@@ -134,12 +130,12 @@ func (c *Comp) extractSymbol(arg ast.Expr) *Symbol {
 	}
 	return nil
 }
+*/
 
 // mandatory optimization: fast_interpreter ASSUMES that expressions
 // returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
 func call_ret0(c *Call, maxdepth int) func(env *Env) {
 	exprfun := c.Fun.AsX1()
-	argfuns := c.Argfuns
 	var call func(*Env)
 	// optimize fun(t1, t2)
 	switch c.Fun.Type.NumIn() {
@@ -150,6 +146,7 @@ func call_ret0(c *Call, maxdepth int) func(env *Env) {
 	case 2:
 		call = call2ret0(c, maxdepth)
 	case 3:
+		argfuns := c.MakeArgfuns()
 		call = func(env *Env) {
 			funv := exprfun(env)
 			argv := []r.Value{
@@ -161,6 +158,7 @@ func call_ret0(c *Call, maxdepth int) func(env *Env) {
 		}
 	}
 	if call == nil {
+		argfuns := c.MakeArgfuns()
 		call = func(env *Env) {
 			funv := exprfun(env)
 			argv := make([]r.Value, len(argfuns))
@@ -197,7 +195,7 @@ func call_ret1(c *Call, maxdepth int) I {
 func call_ret2plus(callexpr *Call, maxdepth int) I {
 	expr := callexpr.Fun
 	exprfun := expr.AsX1()
-	argfuns := callexpr.Argfuns
+	argfuns := callexpr.MakeArgfuns()
 	var call func(*Env) (r.Value, []r.Value)
 	// slightly optimize fun() (tret0, tret1)
 	switch expr.Type.NumIn() {

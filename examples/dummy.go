@@ -4,11 +4,9 @@
 package main
 
 import (
-	"fmt"
 	"reflect"
 )
 
-/*
 func compareClosures() {
 	for i := 0; i <= 3; i++ {
 		i := i
@@ -16,27 +14,12 @@ func compareClosures() {
 		fmt.Printf("%v %x\n", f, **(**uintptr)(unsafe.Pointer(&f)))
 	}
 }
-*/
-
-type IFoo interface {
-	foo()
-}
-type IBar interface {
-	bar()
-}
-
-type Foo struct {
-}
-type Bar struct {
-}
-
-func (Foo) foo() {
-}
-func (Bar) bar() {
-}
-
-var TypeOfIBar = reflect.TypeOf((*IBar)(nil)).Elem()
 
 func main() {
-	fmt.Printf("%v", nil)
+	var e1 *int
+	var e2 *int = e1
+	var i interface{} = e2
+	println(e1 == nil)
+	println(e2 == nil)
+	println(i == nil)
 }

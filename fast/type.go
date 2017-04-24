@@ -262,7 +262,7 @@ func (c *Comp) typeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (types 
 		t, ellipsis = c.compileType2(f.Type, i == n-1)
 		if len(f.Names) == 0 {
 			types = append(types, t)
-			names = append(names, "_")
+			names = append(names, "")
 			// c.Debugf("evalTypeFields() %v -> %v", f.Type, t)
 		} else {
 			for _, ident := range f.Names {

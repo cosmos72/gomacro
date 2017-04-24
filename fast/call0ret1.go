@@ -31,13 +31,14 @@ package fast
 
 import (
 	r "reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 )
 
 func call0ret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funsym := c.Funsym
+	funsym := expr.Sym
 	funupn, funindex := -1, -1
 	if funsym != nil {
 		funupn = funsym.Upn

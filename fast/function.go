@@ -128,7 +128,7 @@ func (c *Comp) FuncLit(funclit *ast.FuncLit) *Expr {
 // prepare the function parameter binds, result binds and FuncInfo
 func (c *Comp) funcBinds(functype *ast.FuncType, t r.Type, paramnames, resultnames []string) (info *FuncInfo, resultfuns []I) {
 
-	parambinds := c.funcParamBinds(t, paramnames)
+	parambinds := c.funcParamBinds(functype, t, paramnames)
 
 	resultbinds, resultfuns := c.funcResultBinds(functype, t, resultnames)
 
@@ -139,14 +139,25 @@ func (c *Comp) funcBinds(functype *ast.FuncType, t r.Type, paramnames, resultnam
 }
 
 // prepare the function parameter binds
-func (c *Comp) funcParamBinds(t r.Type, names []string) []*Bind {
+func (c *Comp) funcParamBinds(functype *ast.FuncType, t r.Type, names []string) []*Bind {
 	n := t.NumIn()
 	binds := make([]*Bind, n)
+	var namedparams, unnamedparams bool
 	for i := 0; i < n; i++ {
-		// names[i] == "_" means that argument is ignored inside the function.
-		// AddBind will not allocate a bind for it - correct optimization...
+		// names[i] == "" means that argument is unnamed, and thus ignored inside the function.
+		// change to "_" so that AddBind will not allocate a bind for it - correct optimization...
 		// just remember to check for such case when creating the function
-		bind := c.AddBind(names[i], VarBind, t.In(i))
+		name := names[i]
+		if name == "" {
+			name = "_"
+			unnamedparams = true
+		} else {
+			namedparams = true
+		}
+		if namedparams && unnamedparams {
+			c.Errorf("cannot mix named and unnamed parameters in function declaration: %v", functype)
+		}
+		bind := c.AddBind(name, VarBind, t.In(i))
 		binds[i] = bind
 	}
 	return binds
@@ -159,11 +170,10 @@ func (c *Comp) funcResultBinds(functype *ast.FuncType, t r.Type, names []string)
 	funs = make([]I, n)
 	var namedresults, unnamedresults bool
 	for i, n := 0, t.NumOut(); i < n; i++ {
-		// names[i] == "_" means that result is unnamed.
+		// names[i] == "" means that result is unnamed.
 		// we must still allocate a bind for it.
 		name := names[i]
-		if name == "_" {
-			name = ""
+		if name == "" {
 			unnamedresults = true
 		} else {
 			namedresults = true

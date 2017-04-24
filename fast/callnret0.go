@@ -34,9 +34,10 @@ import (
 )
 
 func call0ret0(c *Call, maxdepth int) func(env *Env) {
-	funsym := c.Funsym
+	expr := c.Fun
+	funsym := expr.Sym
 	if funsym == nil {
-		exprfun := c.Fun.AsX1()
+		exprfun := expr.AsX1()
 		return func(env *Env) {
 			fun := exprfun(env).Interface().(func())
 			fun()
@@ -97,14 +98,14 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funsym := c.Funsym
+	funsym := expr.Sym
 	funupn, funindex := -1, -1
 	if funsym != nil {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 	}
 	args := c.Args
-	argfuns := c.Argfuns
+	argfuns := c.MakeArgfuns()
 
 	var cachedfunv r.Value
 	var call func(env *Env)
@@ -1472,14 +1473,14 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 func call2ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funsym := c.Funsym
+	funsym := expr.Sym
 	funupn, funindex := -1, -1
 	if funsym != nil {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 	}
 	args := c.Args
-	argfuns := c.Argfuns
+	argfuns := c.MakeArgfuns()
 	var cachedfunv r.Value
 	var call func(env *Env)
 

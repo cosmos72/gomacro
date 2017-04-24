@@ -73,6 +73,11 @@ func (ce *CompEnv) DeclFunc(name string, fun I) {
 	ce.Comp.DeclFunc0(name, fun)
 }
 
+// DeclBuiltinFunc compiles a builtin function declaration
+func (ce *CompEnv) DeclBuiltinFunc(name string, builtin BuiltinFunc) {
+	ce.Comp.DeclBuiltinFunc0(name, builtin)
+}
+
 // DeclType compiles a type declaration
 func (ce *CompEnv) DeclType(name string, t r.Type) {
 	ce.Comp.DeclType0(name, t)

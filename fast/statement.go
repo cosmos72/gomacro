@@ -329,7 +329,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 
 	call := c2.callExpr(node.Call)
 	exprfun := call.Fun.AsX1()
-	argfuns := call.Argfuns
+	argfuns := call.MakeArgfuns()
 
 	c2.Code.Append(func(env *Env) (Stmt, *Env) {
 		// create a new Env to hold the new ThreadGlobals and (initially empty) Pool
