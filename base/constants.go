@@ -79,6 +79,7 @@ var (
 	TypeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
 	TypeOfError     = r.TypeOf((*error)(nil)).Elem()
 	TypeOfDeferFunc = r.TypeOf(func() {})
+	TypeOfType      = r.TypeOf((*r.Type)(nil)).Elem() // inception
 
 	ZeroStrings = []string{}
 	ZeroTypes   = []r.Type{}

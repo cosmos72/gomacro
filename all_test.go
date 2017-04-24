@@ -262,6 +262,7 @@ var tests = []TestCase{
 	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},
 	TestCase{A, "builtin_cap", "cap(va)", 2, nil},
 	TestCase{A, "builtin_len", "len(v5)", len("8y57riuh@#$"), nil},
+	TestCase{A, "builtin_new", "new(int)", new(int), nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},

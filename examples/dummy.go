@@ -17,8 +17,6 @@ func compareClosures() {
 }
 
 func main() {
-	var s []int
-	len(1)
 	var e1 *int
 	var e2 *int = e1
 	var i interface{} = e2

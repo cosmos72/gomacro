@@ -89,6 +89,7 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltinFunc("append", BuiltinFunc{compileAppend, 1, MaxInt})
 	ce.DeclBuiltinFunc("cap", BuiltinFunc{compileCap, 1, 1})
 	ce.DeclBuiltinFunc("len", BuiltinFunc{compileLen, 1, 1})
+	ce.DeclBuiltinFunc("new", BuiltinFunc{compileNew, 1, 1})
 
 	/*
 		binds["Env"] = r.ValueOf(Function{funcEnv, 0})
@@ -116,7 +117,6 @@ func (ce *CompEnv) addBuiltins() {
 	/*
 		binds["imag"] = r.ValueOf(Function{funcImag, 1})
 		binds["make"] = r.ValueOf(Builtin{builtinMake, -1})
-		binds["new"] = r.ValueOf(Builtin{builtinNew, 1})
 		binds["panic"] = r.ValueOf(callPanic)
 		binds["println"] = r.ValueOf(func(args ...interface{}) {
 			// values := toValues(args)
@@ -278,6 +278,18 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	return newCall1(fun, arg, arg.Const(), tout)
 }
 
+// --- new() ---
+
+func compileNew(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	tin := c.Type(node.Args[0])
+	tout := r.PtrTo(tin)
+	t := r.FuncOf([]r.Type{TypeOfType}, []r.Type{tout}, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: r.New}, &sym)
+	arg := exprValue(tin)
+	return newCall1(fun, arg, false, tout)
+}
+
 // ============================ support functions =============================
 
 // call_builtin compiles a call to a builtin function: cap, copy, len, make, new...
@@ -291,14 +303,16 @@ func call_builtin(c *Call) I {
 	}
 	args := c.Args
 	argfuns := make([]I, len(args))
-	argtypes := make([]r.Type, len(args))
 	for i, arg := range args {
 		argfuns[i] = arg.WithFun()
-		argtypes[i] = arg.Type
 	}
-	argfunsX1 := c.MakeArgfuns()
-
-	// Debugf("compiling builtin %s() <%v> with arg types %v", c.Fun.Sym.Name, r.TypeOf(c.Fun.Value), argtypes)
+	if false {
+		argtypes := make([]r.Type, len(args))
+		for i, arg := range args {
+			argtypes[i] = arg.Type
+		}
+		// Debugf("compiling builtin %s() <%v> with arg types %v", c.Fun.Sym.Name, r.TypeOf(c.Fun.Value), argtypes)
+	}
 	var call I
 	switch fun := c.Fun.Value.(type) {
 	case func(string) int: // len(string)
@@ -308,18 +322,25 @@ func call_builtin(c *Call) I {
 			return fun(arg)
 		}
 	case func(r.Value) int: // cap() and len()
+		argfunsX1 := c.MakeArgfuns()
 		argfun := argfunsX1[0]
 		call = func(env *Env) int {
 			arg := argfun(env)
 			return fun(arg)
 		}
 	case func(r.Value, ...r.Value) r.Value: // append()
+		argfunsX1 := c.MakeArgfuns()
 		call = func(env *Env) r.Value {
 			args := make([]r.Value, len(argfunsX1))
 			for i, argfun := range argfunsX1 {
 				args[i] = argfun(env)
 			}
 			return fun(args[0], args[1:]...)
+		}
+	case func(r.Type) r.Value: // new()
+		arg0 := args[0].Value.(r.Type)
+		call = func(env *Env) r.Value {
+			return fun(arg0)
 		}
 	default:
 		Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
