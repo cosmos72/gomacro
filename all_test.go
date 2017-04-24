@@ -263,6 +263,12 @@ var tests = []TestCase{
 	TestCase{A, "builtin_cap", "cap(va)", 2, nil},
 	TestCase{A, "builtin_len", "len(v5)", len("8y57riuh@#$"), nil},
 	TestCase{A, "builtin_new", "new(int)", new(int), nil},
+	TestCase{A, "builtin_make_1", "make(map[int]int)", make(map[int]int), nil},
+	TestCase{A, "builtin_make_2", "make(map[int]int, 10)", make(map[int]int), nil}, // capacity is ignored...
+	TestCase{A, "builtin_make_4", "make([]*error, 2)", make([]*error, 2), nil},
+	TestCase{A, "builtin_make_5", "make([]rune, 3, 4)", make([]rune, 3, 4), nil},
+	TestCase{A, "builtin_make_6", "make(chan byte)", make(chan byte), nil},
+	TestCase{A, "builtin_make_7", "make(chan byte, 2)", make(chan byte, 2), nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},

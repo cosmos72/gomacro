@@ -89,6 +89,7 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltinFunc("append", BuiltinFunc{compileAppend, 1, MaxInt})
 	ce.DeclBuiltinFunc("cap", BuiltinFunc{compileCap, 1, 1})
 	ce.DeclBuiltinFunc("len", BuiltinFunc{compileLen, 1, 1})
+	ce.DeclBuiltinFunc("make", BuiltinFunc{compileMake, 1, 3})
 	ce.DeclBuiltinFunc("new", BuiltinFunc{compileNew, 1, 1})
 
 	/*
@@ -278,6 +279,71 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	return newCall1(fun, arg, arg.Const(), tout)
 }
 
+// --- make() ---
+
+func makeChan1(t r.Type) r.Value {
+	return r.MakeChan(t, 0)
+}
+
+func makeMap2(t r.Type, n int) r.Value {
+	// reflect.MakeMap cannot specify initial capacity
+	return r.MakeMap(t)
+}
+
+func makeSlice2(t r.Type, n int) r.Value {
+	// reflect.MakeSlice requires capacity
+	return r.MakeSlice(t, n, n)
+}
+
+func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	nargs := len(node.Args)
+	nmin, nmax := 1, 2
+	tin := c.Type(node.Args[0])
+	var funMakes [4]I
+	switch tin.Kind() {
+	case r.Chan:
+		funMakes[1] = makeChan1
+		funMakes[2] = r.MakeChan
+	case r.Map:
+		funMakes[1] = r.MakeMap
+		funMakes[2] = makeMap2
+	case r.Slice:
+		nmin, nmax = 2, 3
+		funMakes[2] = makeSlice2
+		funMakes[3] = r.MakeSlice
+	default:
+		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "channel, map, slice")
+	}
+	if nargs < nmin || nargs > nmax {
+		return c.badBuiltinCallArgNum(sym.Name, nmin, nmax, node.Args)
+	}
+	args := make([]*Expr, nargs)
+	argtypes := make([]r.Type, nargs)
+	args[0] = exprValue(tin)
+	argtypes[0] = TypeOfType
+	te := TypeOfInt
+	for i := 1; i < nargs; i++ {
+		argi := c.Expr1(node.Args[i])
+		if argi.Const() {
+			argi.ConstTo(te)
+		} else if ti := argi.Type; ti != te && !ti.AssignableTo(te) {
+			return c.badBuiltinCallArgType(sym.Name, node.Args[i], ti, te)
+		}
+		args[i] = argi
+		argtypes[i] = te
+	}
+	outtypes := []r.Type{tin}
+	t := r.FuncOf(argtypes, outtypes, false)
+	sym.Type = t
+	funMake := funMakes[nargs]
+	if funMake == nil {
+		c.Errorf("internal error: no make() alternative to call for %v with %d arguments", tin, nargs)
+		return nil
+	}
+	fun := exprLit(Lit{Type: t, Value: funMake}, &sym)
+	return &Call{Fun: fun, Args: args, OutTypes: outtypes, Const: false}
+}
+
 // --- new() ---
 
 func compileNew(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
@@ -337,10 +403,26 @@ func call_builtin(c *Call) I {
 			}
 			return fun(args[0], args[1:]...)
 		}
-	case func(r.Type) r.Value: // new()
+	case func(r.Type) r.Value: // new(), make()
 		arg0 := args[0].Value.(r.Type)
 		call = func(env *Env) r.Value {
 			return fun(arg0)
+		}
+	case func(r.Type, int) r.Value: // make()
+		arg0 := args[0].Value.(r.Type)
+		arg1fun := argfuns[1].(func(*Env) int)
+		call = func(env *Env) r.Value {
+			arg1 := arg1fun(env)
+			return fun(arg0, arg1)
+		}
+	case func(r.Type, int, int) r.Value: // make()
+		arg0 := args[0].Value.(r.Type)
+		arg1fun := argfuns[1].(func(*Env) int)
+		arg2fun := argfuns[2].(func(*Env) int)
+		call = func(env *Env) r.Value {
+			arg1 := arg1fun(env)
+			arg2 := arg2fun(env)
+			return fun(arg0, arg1, arg2)
 		}
 	default:
 		Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
