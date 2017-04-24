@@ -384,9 +384,10 @@ func (env *Env) addBuiltins() {
 	binds["new"] = r.ValueOf(Builtin{builtinNew, 1})
 	binds["nil"] = Nil
 	binds["panic"] = r.ValueOf(callPanic)
+	binds["print"] = r.ValueOf(func(args ...interface{}) {
+		fmt.Fprint(env.Stdout, args...)
+	})
 	binds["println"] = r.ValueOf(func(args ...interface{}) {
-		// values := toValues(args)
-		// env.FprintValues(env.Stdout, values...)
 		fmt.Fprintln(env.Stdout, args...)
 	})
 	binds["real"] = r.ValueOf(Function{funcReal, 1})

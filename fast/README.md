@@ -11,19 +11,20 @@ If you want to help with the reimplementation, or you are simply curious, read o
 ALPHA.
 
 The fast intepreter supports:
-* parsing, including parsing macro-related syntax - shared with the classic interpreter
-* iota and untyped constants
-* constant, variable and type declarations
-* function declarations, including variadic functions
-* function calls (unimplemented: calls to variadic functions, with or without ... after last call argument)
-* binary expressions on booleans, integers, floats, complex numbers, strings and on untyped constants
-* unary operators + - ^ ! <- * (address-of & is implemented only for variables)
-* assignment to variables, i.e. operators = += -= *= /= %= &= |= ^= &^= on variables (unimplemented: shifted assignments <<= and >>=)
+* multiline input - shared with the classic interpreter
+* line comments starting with #! in addition to // - shared with the classic interpreter
+* primitive types: booleans, integers, floats, complex numbers (including iota)
+* the empty interface, i.e. interface{} - other interfaces not implemented yet
+* constant, variable and type declarations (including untyped constants)
+* unary and binary operators (address-of & is implemented only for variables)
+* assignment (only for variables) i.e. operators = += -= *= /= %= &= |= ^= &^= on variables (unimplemented: shifted assignments <<= and >>=)
 * type assertions
-* return (unimplemented: return foo() where foo() returns multiple values)
-* if, for, break, continue
+* function declarations (including variadic functions)
+* seamless invocation of compiled functions from interpreter, and vice-versa
+* function calls (unimplemented: calls to variadic functions, with or without ... after last call argument)
+* if, for, break, continue, return (unimplemented: return foo() where foo() returns multiple values)
 * go i.e. goroutines
-* builtins: cap, len
+* some builtins: append, cap, len, make, new
 * ~quote
 
 Everything else is still missing. You are welcome to contribute.
@@ -42,7 +43,7 @@ Limitations:
   The reason is the same as above: the interpreter uses `reflect.StructOf()` to define new types,
   which cannot create recursive types
 
-* operators << and >> do not follow type deduction rules for untyped constants.
+* operators << and >> on untyped constants do not follow the exact type deduction rules.
   The implemented behavior is:
   * an untyped constant shifted by a non-constant expression always returns an int
   * an untyped floating point constant shifted by a constant expression returns an untyped integer constant.

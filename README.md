@@ -65,20 +65,23 @@ The intepreter supports:
 * line comments starting with #! in addition to //
 * primitive types: booleans, integers, floats, complex numbers (including iota)
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
-* constant, variable and type definitions
+* constant, variable and type declarations (untyped constants are not implemented, typed constants are used instead)
+* unary and binary operators
+* assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= <<= >>=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
 * composite literals
-* function definitions (including variadic functions)
-* method definitions (including variadic methods and methods with pointer receiver)
+* type assertions
+* function declarations (including variadic functions)
+* method declarations (including variadic methods and methods with pointer receiver)
 * seamless invocation of compiled functions from interpreter, and vice-versa
 * channel send and receive
 * function and method calls, including multiple return values
 * if, for, for-range, break, continue, return (unimplemented: goto)
 * select, switch, type switch, fallthrough
-* defer, panic and recover
-* imports: Go standard packages "just work", importing other packages requires Go 1.8+ and Linux
+* all builtins: append, cap, close, comples, defer, delete, imag, len, make, new, panic, print, println, real, recover
+* imports: Go standard packages "just work", importing other packages requires the "plugin" package (available only for Go 1.8+ on Linux)
 * switching to a different package
-* macro definitions, for example `macro foo(a, b, c interface{}) interface{} { return b }`
+* macro declarations, for example `macro foo(a, b, c interface{}) interface{} { return b }`
 * macro calls, for example `foo; x; y; z`
 * macroexpansion: code walker, MacroExpand and MacroExpand1
 * ~quote and ~quasiquote. they take any number of arguments in curly braces, for example:
@@ -95,7 +98,7 @@ The intepreter supports:
 
 Several things are still missing:
 * goroutines i.e. the keyword "go"
-* interfaces definition
+* interfaces declaration
 * labeled statements, goto
 * named return values
 * history/readline (rlwrap does the job in most cases)
