@@ -430,20 +430,26 @@ func call_builtin(c *Call) I {
 	case func([]byte, string) int: // copy([]byte, string)
 		arg0fun := args[0].AsX1()
 		if args[1].Const() {
-			// string is a literal...
+			// string is a literal
 			arg1const := args[1].Value.(string)
 			call = func(env *Env) int {
-				// arg0 is "assignable to []byte" ... this is a bit too strict
-				arg0 := arg0fun(env).Interface().([]byte)
-				return fun(arg0, arg1const)
+				// arg0 is "assignable to []byte"
+				arg0 := arg0fun(env)
+				if arg0.Type() != TypeOfSliceOfByte {
+					arg0 = arg0.Convert(TypeOfSliceOfByte)
+				}
+				return fun(arg0.Interface().([]byte), arg1const)
 			}
 		} else {
 			arg1fun := args[1].Fun.(func(*Env) string)
 			call = func(env *Env) int {
-				// arg0 is "assignable to []byte" ... this is a bit too strict
-				arg0 := arg0fun(env).Interface().([]byte)
+				// arg0 is "assignable to []byte"
+				arg0 := arg0fun(env)
+				if arg0.Type() != TypeOfSliceOfByte {
+					arg0 = arg0.Convert(TypeOfSliceOfByte)
+				}
 				arg1 := arg1fun(env)
-				return fun(arg0, arg1)
+				return fun(arg0.Interface().([]byte), arg1)
 			}
 		}
 	case func(r.Value) int: // cap() and len()
