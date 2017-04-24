@@ -25,6 +25,7 @@
 package fast
 
 import (
+	"fmt"
 	"go/ast"
 	"go/constant"
 	"go/token"
@@ -34,10 +35,21 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
+type BuiltinFunc struct {
+	// interpreted code should not access "compile": not exported.
+	// compile usually needs to modify Symbol: pass it by value.
+	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call
+	ArgN    int
+}
+
 var (
 	untypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(int64(0))}
 	untypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(int64(1))}
+
+	TypeOfBuiltinFunc = r.TypeOf(BuiltinFunc{})
 )
+
+// =================================== iota ===================================
 
 func (top *Comp) addIota() {
 	// https://golang.org/ref/spec#Constants
@@ -55,41 +67,7 @@ func (top *Comp) incrementIota() {
 	top.Binds["iota"] = BindConst(UntypedLit{Kind: r.Int, Obj: uIota})
 }
 
-type BuiltinFunc struct {
-	Exec    I
-	ArgN    int
-	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call // interpreted code should not access "compile"
-}
-
-func callCap(val interface{}) int {
-	return r.ValueOf(val).Cap()
-}
-
-func callCopy(dst, src interface{}) int {
-	return r.Copy(r.ValueOf(dst), r.ValueOf(src))
-}
-
-func callLen(val interface{}) int {
-	return r.ValueOf(val).Len()
-}
-
-/*
-func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	arg := c.Expr1(node.Args[0])
-	tin := arg.Type
-	tout := TypeOfInt
-	switch tin.Kind() {
-	case r.Array, r.String, r.Slice, r.Map, r.Chan:
-	default:
-		return c.badBuiltinCallArgType("len", node.Args[0], tin)
-	}
-	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
-	sym.Type = t
-	fun := exprLit(Lit{Type: t, Value: callLen}, &sym)
-
-	return newCall1(fun, arg, tout)
-}
-*/
+// ============================== initialization ===============================
 
 func (ce *CompEnv) addBuiltins() {
 	// https://golang.org/ref/spec#Constants
@@ -100,14 +78,15 @@ func (ce *CompEnv) addBuiltins() {
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
 	ce.DeclConst("nil", nil, nil)
 
-	ce.DeclFunc("cap", callCap)
-	ce.DeclFunc("copy", callCopy)
-	ce.DeclFunc("len", callLen)
+	// ce.DeclFunc("cap", callCap)
+	// ce.DeclFunc("copy", callCopy)
+	// ce.DeclFunc("len", callLen)
 	ce.DeclFunc("Sleep", func(seconds float64) {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
 
-	// ce.DeclBuiltinFunc("len", BuiltinFunc{callLen, 1, compileLen})
+	ce.DeclBuiltinFunc("cap", BuiltinFunc{compileCap, 1})
+	ce.DeclBuiltinFunc("len", BuiltinFunc{compileLen, 1})
 
 	/*
 		binds["Env"] = r.ValueOf(Function{funcEnv, 0})
@@ -181,4 +160,123 @@ func (ce *CompEnv) addBuiltins() {
 	*/
 
 	ce.Apply()
+}
+
+// ============================= builtin functions =============================
+
+// --- cap() ---
+
+func callCap(val r.Value) int {
+	return val.Cap()
+}
+
+func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	// arguments of builtin cap() must be cannot be literals
+	arg := c.Expr1(node.Args[0])
+	tin := arg.Type
+	tout := TypeOfInt
+	switch tin.Kind() {
+	// no cap() on r.Map, see
+	// https://golang.org/ref/spec#Length_and_capacity
+	// and https://golang.org/pkg/reflect/#Value.Cap
+	case r.Array, r.Slice, r.Chan:
+		// ok
+	case r.Ptr:
+		if tin.Elem().Kind() == r.Array {
+			// cap() on pointer to array
+			arg = c.Deref(arg)
+			tin = arg.Type
+			break
+		}
+		fallthrough
+	default:
+		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin)
+	}
+	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: callCap}, &sym)
+	// capacity of arrays is part of their type: cannot change at runtime, we could optimize it.
+	// TODO https://golang.org/ref/spec#Length_and_capacity specifies
+	// when the array passed to cap() is evaluated and when is not...
+	return newCall1(fun, arg, arg.Const(), tout)
+}
+
+// --- copy() ---
+
+// --- len() ---
+
+func callLenValue(val r.Value) int {
+	return val.Len()
+}
+
+func callLenString(val string) int {
+	return len(val)
+}
+
+func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	arg := c.Expr1(node.Args[0])
+	if arg.Const() {
+		arg.ConstTo(arg.DefaultType())
+	}
+	tin := arg.Type
+	tout := TypeOfInt
+	switch tin.Kind() {
+	case r.Array, r.String, r.Slice, r.Map, r.Chan:
+		// ok
+	case r.Ptr:
+		if tin.Elem().Kind() == r.Array {
+			// len() on pointer to array
+			arg = c.Deref(arg)
+			tin = arg.Type
+			break
+		}
+		fallthrough
+	default:
+		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin)
+	}
+	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: callLenValue}, &sym)
+	if tin.Kind() == r.String {
+		fun.Value = callLenString // optimization
+	}
+	// length of arrays is part of their type: cannot change at runtime, we could optimize it.
+	// TODO https://golang.org/ref/spec#Length_and_capacity specifies
+	// when the array passed to len() is evaluated and when is not...
+	return newCall1(fun, arg, arg.Const(), tout)
+}
+
+// ============================ support functions =============================
+
+// callBuiltinFunc compiles a call to a builtin function: cap, copy, len, make, new...
+func (c *Comp) callBuiltinFunc(fun *Expr, node *ast.CallExpr) *Call {
+	builtin := fun.Value.(BuiltinFunc)
+	if fun.Sym == nil {
+		c.Errorf("invalid call to non-name builtin: %v", node)
+		return nil
+	}
+	n := builtin.ArgN
+	if n >= 0 && len(node.Args) != n {
+		return c.badBuiltinCallArgNum(fun.Sym.Name, n, n, node.Args)
+	}
+	return builtin.compile(c, *fun.Sym, node)
+}
+
+func (c *Comp) badBuiltinCallArgNum(name string, n1 int, n2 int, args []ast.Expr) *Call {
+	prefix := "not enough"
+	nargs := len(args)
+	if nargs > n2 {
+		prefix = "too many"
+	}
+	str := fmt.Sprintf("%d", n1)
+	if n2 != n1 {
+		str = fmt.Sprintf("%s or %d", str, n2)
+	}
+	c.Errorf("%s arguments in call to builtin %s(): expecting %s, found %d: %v", prefix, name, str, nargs, args)
+	return nil
+}
+
+func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, t r.Type) *Call {
+	c.Errorf("invalid argument %v <%v> for builtin %s()", arg, t, name)
+	return nil
 }

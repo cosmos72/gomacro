@@ -26,6 +26,7 @@ package fast
 
 import (
 	r "reflect"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -121,30 +122,17 @@ import (
 	return ~"{
 		arg0fun := args[0].WithFun().(func(env *Env) ~,arg0typ)
 		arg1fun := args[1].WithFun().(func(env *Env) ~,arg1typ)
-		if funsym != nil {
+		if funsym != nil && funupn == maxdepth - 1 {
 			var cachedfun func(~,arg0typ, ~,arg1typ) ~,rettyp
-			switch funupn {
-			case maxdepth:
-				call = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.TopEnv.Binds[funindex]
-					~,cachefun
-					arg0 := arg0fun(env)
-					arg1 := arg1fun(env)
-					// Debugf("calling %v with args [%v %v]", r.TypeOf(fun), arg0, arg1)
-					return cachedfun(arg0, arg1)
-				}
-			case maxdepth - 1:
-				call = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
-					~,cachefun
-					arg0 := arg0fun(env)
-					arg1 := arg1fun(env)
-					// Debugf("calling %v with args [%v %v]", r.TypeOf(fun), arg0, arg1)
-					return cachedfun(arg0, arg1)
-				}
+			call = func(env *Env) ~,rettyp {
+				funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+				~,cachefun
+				arg0 := arg0fun(env)
+				arg1 := arg1fun(env)
+				// Debugf("calling %v with args [%v %v]", r.TypeOf(fun), arg0, arg1)
+				return cachedfun(arg0, arg1)
 			}
-		}
-		if call == nil {
+		} else {
 			call = func(env *Env) ~,rettyp {
 				fun := exprfun(env).Interface().(func(~,arg0typ , ~,arg1typ) ~,rettyp)
 				arg0 := arg0fun(env)
@@ -224,6 +212,9 @@ func call2ret1(c *Call, maxdepth int) I {
 	if funsym != nil {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
+		if funindex == NoIndex {
+			Errorf("internal error: call2ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+		}
 	}
 	karg0 := expr.Type.In(0).Kind()
 	karg1 := expr.Type.In(1).Kind()

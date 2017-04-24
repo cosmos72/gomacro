@@ -26,6 +26,7 @@ package fast
 
 import (
 	r "reflect"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -118,73 +119,48 @@ import (
 
 	return ~"{
 		// base.Debugf("compiling call to %v, funsym=%p, funupn=%v, maxdepth=%v", r.TypeOf((func(~,argtyp) ~,rettyp)(nil)), funsym, funupn, maxdepth)
-		if arg0.Const() && funsym != nil {
-			argconst := arg0.Value.(~,argtyp)
-			switch funupn {
-			case maxdepth:
-				var cachedfun func(~,argtyp) ~,rettyp
-				call = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.TopEnv.Binds[funindex]
-					~,cachefun
-					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
-					return cachedfun(argconst)
-				}
-			case maxdepth - 1:
-				var cachedfun func(~,argtyp) ~,rettyp
+		if funsym != nil && funupn == maxdepth - 1 {
+			var cachedfun func(~,argtyp) ~,rettyp
+			if arg0.Const() {
+				argconst := arg0.Value.(~,argtyp)
 				call = func(env *Env) ~,rettyp {
 					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 					~,cachefun
 					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
 					return cachedfun(argconst)
 				}
-			}
-		}
-		if call == nil {
-			argfun := arg0.WithFun().(func(env *Env) ~,argtyp)
-			if funsym != nil {
-				switch funupn {
-				case maxdepth:
-					var cachedfun func(~,argtyp) ~,rettyp
-					call = func(env *Env) ~,rettyp {
-						funv := env.ThreadGlobals.TopEnv.Binds[funindex]
-						~,cachefun
-						arg := argfun(env)
-						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
-						return cachedfun(arg)
-					}
-				case maxdepth - 1:
-					var cachedfun func(~,argtyp) ~,rettyp
-					call = func(env *Env) ~,rettyp {
-						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
-						~,cachefun
-						arg := argfun(env)
-						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
-						return cachedfun(arg)
-					}
+			} else {
+				argfun := arg0.Fun.(func(env *Env) ~,argtyp)
+				call = func(env *Env) ~,rettyp {
+					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+					~,cachefun
+					arg := argfun(env)
+					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+					return cachedfun(arg)
 				}
 			}
-			if call == nil {
-				if funsym != nil && funupn == 0 {
-					call = func(env *Env) ~,rettyp {
-						fun := env.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
-						arg := argfun(env)
-						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
-						return fun(arg)
-					}
-				} else if funsym != nil && funupn == 1 {
-					call = func(env *Env) ~,rettyp {
-						fun := env.Outer.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
-						arg := argfun(env)
-						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
-						return fun(arg)
-					}
-				} else {
-					call = func(env *Env) ~,rettyp {
-						fun := exprfun(env).Interface().(func(~,argtyp) ~,rettyp)
-						arg := argfun(env)
-						// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
-						return fun(arg)
-					}
+		} else {
+			argfun := arg0.WithFun().(func(env *Env) ~,argtyp)
+			if funsym != nil && funupn == 0 {
+				call = func(env *Env) ~,rettyp {
+					fun := env.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
+					arg := argfun(env)
+					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+					return fun(arg)
+				}
+			} else if funsym != nil && funupn == 1 {
+				call = func(env *Env) ~,rettyp {
+					fun := env.Outer.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
+					arg := argfun(env)
+					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+					return fun(arg)
+				}
+			} else {
+				call = func(env *Env) ~,rettyp {
+					fun := exprfun(env).Interface().(func(~,argtyp) ~,rettyp)
+					arg := argfun(env)
+					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
+					return fun(arg)
 				}
 			}
 		}
@@ -266,6 +242,9 @@ func call1ret1(c *Call, maxdepth int) I {
 	if funsym != nil {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
+		if funindex == NoIndex {
+			Errorf("internal error: call1ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+		}
 	}
 	karg0 := expr.Type.In(0).Kind()
 	kret := expr.Type.Out(0).Kind()

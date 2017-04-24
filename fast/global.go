@@ -41,7 +41,7 @@ type UntypedLit struct {
 }
 
 // pretty-print untyped constants
-func (untyp UntypedLit) String() string {
+func (untyp *UntypedLit) String() string {
 	obj := untyp.Obj
 	var strkind, strobj interface{} = untyp.Kind, nil
 	if untyp.Kind == r.Int32 {

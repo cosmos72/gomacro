@@ -159,6 +159,6 @@ func (expr *Expr) EvalConst(opts CompileOptions) I {
 	}
 	expr.Value = value
 	expr.IsNil = value == nil
-	expr.Fun = nil // no longer needed.
+	expr.Fun = nil // no longer needed, will be recreated if needed as a wrapper for the computed value
 	return value
 }

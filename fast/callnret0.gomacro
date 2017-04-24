@@ -26,6 +26,7 @@ package fast
 
 import (
 	r "reflect"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -51,15 +52,6 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 	funupn := funsym.Upn
 	funindex := funsym.Desc.Index()
 	switch funupn {
-	case maxdepth:
-		return func(env *Env) {
-			funv := env.ThreadGlobals.TopEnv.Binds[funindex]
-			if cachedfunv != funv {
-				cachedfunv = funv
-				cachedfun = funv.Interface().(func())
-			}
-			cachedfun()
-		}
 	case maxdepth - 1:
 		return func(env *Env) {
 			funv := env.ThreadGlobals.FileEnv.Binds[funindex]
@@ -122,26 +114,15 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 	return ~"{
 		if args[0].Const() {
 			argconst := args[0].Value.(~,argtyp)
-			if funsym != nil {
+			if funsym != nil && funupn == maxdepth - 1 {
 				var cachedfun func(~,argtyp)
-				switch funupn {
-				case maxdepth:
-					call = func(env *Env) {
-						funv := env.ThreadGlobals.TopEnv.Binds[funindex]
-						~,cachefun
-						// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
-						cachedfun(argconst)
-					}
-				case maxdepth - 1:
-					call = func(env *Env) {
-						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
-						~,cachefun
-						// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
-						cachedfun(argconst)
-					}
+				call = func(env *Env) {
+					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+					~,cachefun
+					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
+					cachedfun(argconst)
 				}
-			}
-			if call == nil {
+			} else {
 				call = func(env *Env) {
 					fun := exprfun(env).Interface().(func(~,argtyp))
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
@@ -150,28 +131,16 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 			}
 		} else {
 			argfun := args[0].Fun.(func(env *Env) ~,argtyp)
-			if funsym != nil {
+			if funsym != nil && funupn == maxdepth - 1 {
 				var cachedfun func(~,argtyp)
-				switch funupn {
-				case maxdepth:
-					call = func(env *Env) {
-						funv := env.ThreadGlobals.TopEnv.Binds[funindex]
-						~,cachefun
-						arg := argfun(env)
-						// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), arg)
-						cachedfun(arg)
-					}
-				case maxdepth - 1:
-					call = func(env *Env) {
-						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
-						~,cachefun
-						arg := argfun(env)
-						// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), arg)
-						cachedfun(arg)
-					}
+				call = func(env *Env) {
+					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+					~,cachefun
+					arg := argfun(env)
+					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), arg)
+					cachedfun(arg)
 				}
-			}
-			if call == nil {
+			} else {
 				call = func(env *Env) {
 					fun := exprfun(env).Interface().(func(~,argtyp))
 					arg := argfun(env)
@@ -193,6 +162,9 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	if funsym != nil {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
+		if funindex == NoIndex {
+			Errorf("internal error: call1ret0() invoked for constant function %#v. use call_builtin() instead", expr)
+		}
 	}
 	args := c.Args
 	argfuns := c.MakeArgfuns()
@@ -248,33 +220,19 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	}
 
 	return ~"{
-		args[0].WithFun()
-		args[1].WithFun()
-		arg0fun := args[0].Fun.(func(*Env) ~,arg0typ)
-		arg1fun := args[1].Fun.(func(*Env) ~,arg0typ)
+		arg0fun := args[0].WithFun().(func(*Env) ~,arg0typ)
+		arg1fun := args[1].WithFun().(func(*Env) ~,arg0typ)
 
-		if funsym != nil {
+		if funsym != nil && funupn == maxdepth - 1 {
 			var cachedfun func(~,arg0typ, ~,arg1typ)
-			switch funupn {
-			case maxdepth:
-				call = func(env *Env) {
-					funv := env.ThreadGlobals.TopEnv.Binds[funindex]
-					~,cachefun
-					arg0 := arg0fun(env)
-					arg1 := arg1fun(env)
-					cachedfun(arg0, arg1)
-				}
-			case maxdepth - 1:
-				call = func(env *Env) {
-					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
-					~,cachefun
-					arg0 := arg0fun(env)
-					arg1 := arg1fun(env)
-					cachedfun(arg0, arg1)
-				}
+			call = func(env *Env) {
+				funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+				~,cachefun
+				arg0 := arg0fun(env)
+				arg1 := arg1fun(env)
+				cachedfun(arg0, arg1)
 			}
-		}
-		if call == nil {
+		} else {
 			call = func(env *Env) {
 				fun := exprfun(env).Interface().(func(~,arg0typ, ~,arg1typ))
 				arg0 := arg0fun(env)
@@ -294,6 +252,9 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 	if funsym != nil {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
+		if funindex == NoIndex {
+			Errorf("internal error: call2ret0() invoked for constant function %#v. use call_builtin() instead", expr)
+		}
 	}
 	args := c.Args
 	argfuns := c.MakeArgfuns()

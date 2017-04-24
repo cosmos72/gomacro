@@ -237,11 +237,9 @@ var tests = []TestCase{
 
 	TestCase{A, "if_1", "v2 = 1; if v2 < 1 { v2 = v2-1 } else { v2 = v2+1 }; v2", uint8(2), nil},
 	TestCase{A, "if_2", "if v2 < 5 { v2 = v2+2 } else { v2 = v2-2 }; v2", uint8(4), nil},
-
 	TestCase{A, "for_1", "var i, j, k int; for i=1; i<=2; i=i+1 { if i<2 {j=i} else {k=i} }; i", 3, nil},
 	TestCase{A, "for_2", "j", 1, nil},
 	TestCase{A, "for_3", "k", 2, nil},
-
 	TestCase{A, "continue_1", "j=0; k=0; for i=1; i<=7; i=i+1 { if i==3 {j=i; continue}; k=k+i }; j", 3, nil},
 	TestCase{A, "continue_2", "k", 25, nil},
 	TestCase{A, "continue_3", "j=0; k=0; for i=1; i<=7; i=i+1 { var ii = i; if ii==3 {j=ii; continue}; k=k+ii }; j", 3, nil},
@@ -260,6 +258,9 @@ var tests = []TestCase{
 	TestCase{A, "closure", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
+
+	TestCase{A, "builtin_cap", "cap(va)", 2, nil},
+	TestCase{A, "builtin_len", "len(v5)", len("8y57riuh@#$"), nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},

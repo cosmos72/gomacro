@@ -38,13 +38,15 @@ type Call struct {
 	Fun      *Expr
 	Args     []*Expr
 	OutTypes []r.Type
+	Const    bool // if true, call has no side effects and always returns the same result => it can be invoked at compile time
 }
 
-func newCall1(fun *Expr, arg *Expr, outtypes ...r.Type) *Call {
+func newCall1(fun *Expr, arg *Expr, isconst bool, outtypes ...r.Type) *Call {
 	return &Call{
 		Fun:      fun,
 		Args:     []*Expr{arg},
 		OutTypes: outtypes,
+		Const:    isconst,
 	}
 }
 
@@ -60,18 +62,31 @@ func (call *Call) MakeArgfuns() []func(*Env) r.Value {
 // CallExpr compiles a function call
 func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 	call := c.callExpr(node)
-	maxdepth := c.Depth
 	expr := &Expr{}
-	switch len(call.OutTypes) {
-	case 0:
-		expr.Types = call.OutTypes
+
+	tout := call.OutTypes
+	nout := len(tout)
+	if nout == 1 {
+		expr.Type = tout[0]
+	} else {
+		expr.Types = tout
+	}
+
+	maxdepth := c.Depth
+	if call.Fun.Const() {
+		// only builtin functions are marked as constant
+		expr.Fun = call_builtin(call)
+	} else if nout == 0 {
 		expr.Fun = call_ret0(call, maxdepth)
-	case 1:
-		expr.Type = call.OutTypes[0]
+	} else if nout == 1 {
 		expr.Fun = call_ret1(call, maxdepth)
-	default:
-		expr.Types = call.OutTypes
+	} else {
 		expr.Fun = call_ret2plus(call, maxdepth)
+	}
+	// constant propagation - only if function returns a single value
+	if call.Const && len(call.OutTypes) == 1 {
+		expr.EvalConst(CompileDefaults)
+		// c.Debugf("pre-computed result of constant call %v: %v <%v>", call, expr.Value, r.TypeOf(expr.Value))
 	}
 	return expr
 }
@@ -80,6 +95,9 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 	fun := c.Expr(node.Fun)
 	t := fun.Type
+	if t == TypeOfBuiltinFunc {
+		return c.callBuiltinFunc(fun, node)
+	}
 	if t.Kind() != r.Func {
 		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
 		return nil
@@ -113,24 +131,6 @@ func (c *Comp) callExpr(node *ast.CallExpr) *Call {
 	}
 	return &Call{Fun: fun, Args: args, OutTypes: types}
 }
-
-/*
-func (c *Comp) extractSymbols(args []ast.Expr) []*Symbol {
-	n := len(args)
-	syms := make([]*Symbol, n)
-	for i, arg := range args {
-		syms[i] = c.extractSymbol(arg)
-	}
-	return syms
-}
-
-func (c *Comp) extractSymbol(arg ast.Expr) *Symbol {
-	if ident, ok := UnwrapTrivialNode(arg).(*ast.Ident); ok {
-		return c.TryResolve(ident.Name)
-	}
-	return nil
-}
-*/
 
 // mandatory optimization: fast_interpreter ASSUMES that expressions
 // returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
@@ -251,6 +251,44 @@ func call_ret2plus(callexpr *Call, maxdepth int) I {
 	return call
 }
 
+func call_builtin(c *Call) I {
+	// builtin functions are always literals, i.e. funindex == NoIndex thus not stored in Env.Binds[]
+	// we must retrieve them directly from c.Fun.Value
+	if !c.Fun.Const() {
+		Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", c.Fun)
+	} else if c.Fun.Sym == nil {
+		Errorf("internal error: call_builtin() invoked for non-name function %#v. use one of the callXretY() instead", c.Fun)
+	}
+	args := c.Args
+	argfuns := make([]I, len(args))
+	argtypes := make([]r.Type, len(args))
+	for i, arg := range args {
+		argfuns[i] = arg.WithFun()
+		argtypes[i] = arg.Type
+	}
+	argfunsX1 := c.MakeArgfuns()
+
+	// Debugf("compiling builtin %s() <%v> with arg types %v", c.Fun.Sym.Name, r.TypeOf(c.Fun.Value), argtypes)
+	var call I
+	switch fun := c.Fun.Value.(type) {
+	case func(string) int:
+		argfun := argfuns[0].(func(*Env) string)
+		call = func(env *Env) int {
+			arg := argfun(env)
+			return fun(arg)
+		}
+	case func(r.Value) int:
+		argfun := argfunsX1[0]
+		call = func(env *Env) int {
+			arg := argfun(env)
+			return fun(arg)
+		}
+	default:
+		Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
+	}
+	return call
+}
+
 func (c *Comp) badCallArgNum(fun ast.Expr, t r.Type, args []*Expr) *Call {
 	prefix := "not enough"
 	n := t.NumIn()
@@ -275,24 +313,5 @@ func (c *Comp) badCallArgNum(fun ast.Expr, t r.Type, args []*Expr) *Call {
 		}
 	}
 	c.Errorf("%s arguments in call to %v:\n\thave (%s)\n\twant (%s)", prefix, fun, have.Bytes(), want.Bytes())
-	return nil
-}
-
-func (c *Comp) badBuiltinCallArgNum(name string, n1 int, n2 int, args []ast.Expr) *Call {
-	prefix := "not enough"
-	nargs := len(args)
-	if nargs > n2 {
-		prefix = "too many"
-	}
-	str := fmt.Sprintf("%d", n1)
-	if n2 != n1 {
-		str = fmt.Sprintf("%s or %d", str, n2)
-	}
-	c.Errorf("%s arguments in call to builtin %s(): expecting %s, found %d: %v", prefix, name, str, nargs, args)
-	return nil
-}
-
-func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, t r.Type) *Call {
-	c.Errorf("invalid argument %v <%v> for builtin %s()", arg, t, name)
 	return nil
 }

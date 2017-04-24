@@ -65,14 +65,14 @@ func (st *Stringer) Copy(other *Stringer) {
 
 func (err RuntimeError) Error() string {
 	args := err.args
-	msg := fmt.Sprintf(err.format, args...)
-
+	var prefix string
 	if st := err.st; st != nil {
 		args = st.toPrintables(args)
-		prefix := st.Position().String()
-		if prefix != "" && prefix != "-" {
-			msg = fmt.Sprintf("%s: %s", prefix, msg)
-		}
+		prefix = st.Position().String()
+	}
+	msg := fmt.Sprintf(err.format, args...)
+	if prefix != "" && prefix != "-" {
+		msg = fmt.Sprintf("%s: %s", prefix, msg)
 	}
 	return msg
 }

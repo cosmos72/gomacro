@@ -31,11 +31,16 @@ package fast
 
 import (
 	r "reflect"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func callnret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
+	if expr.Sym != nil && expr.Sym.Desc.Index() == NoIndex {
+		Errorf("internal error: callnret1() invoked for constant function %#v. use call_builtin() instead", expr)
+	}
+
 	kret := expr.Type.Out(0).Kind()
 	argfuns := c.MakeArgfuns()
 	var call I
@@ -106,6 +111,7 @@ func callnret1(c *Call, maxdepth int) I {
 			ret0 := funv.Call(argv)[0]
 			return ret0.Int()
 		}
+
 	case r.Uint:
 		call = func(env *Env) uint {
 			funv := exprfun(env)
@@ -117,6 +123,7 @@ func callnret1(c *Call, maxdepth int) I {
 			ret0 := funv.Call(argv)[0]
 			return uint(ret0.Uint())
 		}
+
 	case r.Uint8:
 		call = func(env *Env) uint8 {
 			funv := exprfun(env)
@@ -128,6 +135,7 @@ func callnret1(c *Call, maxdepth int) I {
 			ret0 := funv.Call(argv)[0]
 			return uint8(ret0.Uint())
 		}
+
 	case r.Uint16:
 		call = func(env *Env) uint16 {
 			funv := exprfun(env)

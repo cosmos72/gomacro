@@ -206,14 +206,23 @@ func (c *Comp) UnaryRecv(node *ast.UnaryExpr, xe *Expr) *Expr {
 	return exprXV(types, fun)
 }
 
-// UnaryStar compiles unary operator * i.e. pointer dereference
+// StarExpr compiles unary operator * i.e. pointer dereference
 func (c *Comp) StarExpr(node *ast.StarExpr) *Expr {
-	addr := c.Expr(node.X)
-	x1 := addr.AsX1() // panics if addr returns zero values, warns if returns multiple values
+	addr := c.Expr1(node.X) // panics if addr returns zero values, warns if returns multiple values
 	taddr := addr.Type
 	if taddr.Kind() != r.Ptr {
 		c.Errorf("unary operation * on non-pointer <%v>: %v", taddr, node)
 	}
+	return c.Deref(addr)
+}
+
+// Deref compiles unary operator * i.e. pointer dereference
+func (c *Comp) Deref(addr *Expr) *Expr {
+	taddr := addr.Type
+	if taddr.Kind() != r.Ptr {
+		c.Errorf("unary operation * on non-pointer <%v>", taddr)
+	}
+	x1 := addr.AsX1() // panics if addr returns zero values, warns if returns multiple values
 	t := taddr.Elem()
 	x := addr.Fun
 	var fun I
@@ -281,13 +290,13 @@ func (c *Comp) StarExpr(node *ast.StarExpr) *Expr {
 			return *x(env)
 		}
 	default:
-		fun = c.unaryStarUnwrap(t, x1)
+		fun = c.derefUnwrap(t, x1)
 	}
 	return exprFun(t, fun)
 }
 
-// unaryStarUnwrap compiles unary operator * on reflect.Value - unwraps reflect.Value.Elem() if possible
-func (c *Comp) unaryStarUnwrap(t r.Type, x1 func(*Env) r.Value) I {
+// deref0Unwrap compiles unary operator * on reflect.Value - unwraps reflect.Value.Elem() if possible
+func (c *Comp) derefUnwrap(t r.Type, x1 func(*Env) r.Value) I {
 	var fun I
 	switch t.Kind() {
 	case r.Bool:

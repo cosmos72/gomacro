@@ -104,14 +104,6 @@ import (
 	return ~"{
 		if funsym != nil {
 			switch funupn {
-			case maxdepth:
-				var cachedfun func() ~,rettyp
-				call = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.TopEnv.Binds[funindex]
-					~,cachefun
-					// Debugf("calling %v with args []", r.TypeOf(cachedfun))
-					return cachedfun()
-				}
 			case maxdepth - 1:
 				var cachedfun func() ~,rettyp
 				call = func(env *Env) ~,rettyp {
@@ -153,11 +145,14 @@ import (
 func call0ret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
-	funsym := c.Funsym
+	funsym := expr.Sym
 	funupn, funindex := -1, -1
 	if funsym != nil {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
+		if funindex == NoIndex {
+			Errorf("internal error: call0ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+		}
 	}
 	kret := expr.Type.Out(0).Kind()
 	var cachedfunv r.Value

@@ -26,6 +26,7 @@ package fast
 
 import (
 	r "reflect"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -101,6 +102,9 @@ import (
 func callnret1(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
+	if expr.Sym != nil && expr.Sym.Desc.Index() == NoIndex {
+		Errorf("internal error: callnret1() invoked for constant function %#v. use call_builtin() instead", expr)
+	}
 	kret := expr.Type.Out(0).Kind()
 	argfuns := c.MakeArgfuns()
 	var call I

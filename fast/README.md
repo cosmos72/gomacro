@@ -16,12 +16,14 @@ The fast intepreter supports:
 * constant, variable and type declarations
 * function declarations, including variadic functions
 * function calls (unimplemented: calls to variadic functions, with or without ... after last call argument)
-* binary expressions on untyped constants, booleans, integers, floats, complex numbers, and strings
+* binary expressions on booleans, integers, floats, complex numbers, strings and on untyped constants
 * unary operators + - ^ ! <- * (address-of & is implemented only for variables)
 * assignment to variables, i.e. operators = += -= *= /= %= &= |= ^= &^= on variables (unimplemented: shifted assignments <<= and >>=)
+* type assertions
 * return (unimplemented: return foo() where foo() returns multiple values)
 * if, for, break, continue
 * go i.e. goroutines
+* builtins: cap, len
 * ~quote
 
 Everything else is still missing. You are welcome to contribute.
