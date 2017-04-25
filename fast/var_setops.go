@@ -34,20 +34,15 @@ import (
 	r "reflect"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, 0) {
+	if isLiteralNumber(val, 0) || val == "" {
 		return
 	}
 
 	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
-
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -1952,11 +1947,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 	}
 
 	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
-
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -3705,11 +3695,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 	}
 
 	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
-
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -5457,11 +5442,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 	}
 
 	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
-
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -7201,21 +7181,17 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 	c.Code.Append(ret)
 }
 func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, 0) {
-		c.Errorf("division by %v <%v>", val, t)
-		return
-	} else if isLiteralNumber(val, 1) {
+	if IsCategory(t.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, 0) {
+			c.Errorf("division by %v <%v>", val, t)
+			return
+		} else if isLiteralNumber(val, 1) {
 
-		c.varSetZero(upn, index, t)
-		return
-	}
-
-	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
+			c.varSetZero(upn, index, t)
+			return
 		}
-
+	}
+	{
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -8457,20 +8433,17 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 	c.Code.Append(ret)
 }
 func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, -1) {
-		return
-	} else if isLiteralNumber(val, 0) {
+	if IsCategory(t.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, -1) {
+			return
+		} else if isLiteralNumber(val, 0) {
 
-		c.varSetZero(upn, index, t)
-		return
+			c.varSetZero(upn, index, t)
+			return
+		}
 	}
 
 	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
-
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -9712,16 +9685,11 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 	c.Code.Append(ret)
 }
 func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, 0) {
+	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		return
 	}
 
 	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
-
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -10963,16 +10931,11 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 	c.Code.Append(ret)
 }
 func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, 0) {
+	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		return
 	}
 
 	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
-
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -12214,20 +12177,17 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 	c.Code.Append(ret)
 }
 func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, -1) {
+	if IsCategory(t.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, -1) {
 
-		c.varSetZero(upn, index, t)
-		return
-	} else if isLiteralNumber(val, 0) {
-		return
+			c.varSetZero(upn, index, t)
+			return
+		} else if isLiteralNumber(val, 0) {
+			return
+		}
 	}
 
 	{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
-
 		var ret Stmt
 		switch val := val.(type) {
 		case int:
@@ -13496,6 +13456,14 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	}
 	if init.Const() {
 		val := init.Value
+		v := r.ValueOf(val)
+		if v == None || v == Nil {
+			v = r.Zero(t)
+			val = v.Interface()
+		} else if v.Type() != t {
+			v = v.Convert(t)
+			val = v.Interface()
+		}
 		switch op {
 		case token.ASSIGN:
 			c.varSetConst(upn, index, t, val)

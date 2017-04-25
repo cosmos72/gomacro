@@ -29,7 +29,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -189,10 +189,6 @@ import (
 		}
 	}
 	return ~"{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
-		}
 		var ret Stmt
 		switch val := val.(type) {
 			~,@caselist
@@ -222,7 +218,7 @@ import (
 
 // varAddConst compiles 'variable += constant'
 func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, 0) {
+	if isLiteralNumber(val, 0) || val == "" {
 		return
 	}
 	setplaces_depth_const; token.ADD; {int; uint; float64; complex128; string; nil}
@@ -281,13 +277,15 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 
 // varRemConst compiles 'variable %= constant'
 func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, 0) {
-		c.Errorf("division by %v <%v>", val, t)
-		return
-	} else if isLiteralNumber(val, 1) {
-		// variable %= 1 is equivalent to variable = 0
-		c.varSetZero(upn, index, t)
-		return
+	if IsCategory(t.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, 0) {
+			c.Errorf("division by %v <%v>", val, t)
+			return
+		} else if isLiteralNumber(val, 1) {
+			// variable %= 1 is equivalent to variable = 0
+			c.varSetZero(upn, index, t)
+			return
+		}
 	}
 	setplaces_depth_const; token.REM; {int; uint; nil}
 }
@@ -299,12 +297,14 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 
 // varAndConst compiles 'variable &= constant'
 func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, -1) {
-		return
-	} else if isLiteralNumber(val, 0) {
-		// variable &= 0 is equivalent to variable = 0
-		c.varSetZero(upn, index, t)
-		return
+	if IsCategory(t.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, -1) {
+			return
+		} else if isLiteralNumber(val, 0) {
+			// variable &= 0 is equivalent to variable = 0
+			c.varSetZero(upn, index, t)
+			return
+		}
 	}
 	setplaces_depth_const; token.AND; {int; uint; nil}
 }
@@ -316,7 +316,7 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 
 // varOrConst compiles 'variable |= constant'
 func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, 0) {
+	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		return
 	}
 	setplaces_depth_const; token.OR; {int; uint; nil}
@@ -329,7 +329,7 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 
 // varXorConst compiles 'variable ^= constant'
 func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, 0) {
+	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		return
 	}
 	setplaces_depth_const; token.XOR; {int; uint; nil}
@@ -342,12 +342,14 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 
 // varAndnotConst compiles 'variable &^= constant'
 func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
-	if isLiteralNumber(val, -1) {
-		// variable &^= -1 is equivalent to variable = 0
-		c.varSetZero(upn, index, t)
-		return
-	} else if isLiteralNumber(val, 0) {
-		return
+	if IsCategory(t.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, -1) {
+			// variable &^= -1 is equivalent to variable = 0
+			c.varSetZero(upn, index, t)
+			return
+		} else if isLiteralNumber(val, 0) {
+			return
+		}
 	}
 	setplaces_depth_const; token.AND_NOT; {int; uint; nil}
 }
@@ -388,6 +390,14 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	}
 	if init.Const() {
 		val := init.Value
+		v := r.ValueOf(val)
+		if v == None || v == Nil {
+			v = r.Zero(t)
+			val = v.Interface()
+		} else if v.Type() != t {
+			v = v.Convert(t)
+			val = v.Interface()
+		}
 		switch op {
 		case token.ASSIGN:
 			c.varSetConst(upn, index, t, val)

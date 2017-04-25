@@ -131,3 +131,32 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
 		}
 	}
 }
+
+// placeForSideEffects compiles the left-hand-side of a do-nothing assignment,
+// as for example *addressOfInt() += 0, in order to apply its side effects
+func (c *Comp) placeForSideEffects(place *Place) {
+	if place.IsVar() {
+		return
+	}
+	var ret Stmt
+	fun := place.Func()
+	if mapkey := place.MapKey; mapkey != nil {
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			mapkey(env)
+			// no need to call obj.MapIndex(key): it has no side effects and cannot panic.
+			// obj := fun(env)
+			// key := mapkey(env)
+			// obj.MapIndex(key)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	} else {
+		ret = func(env *Env) (Stmt, *Env) {
+			fun(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	}
+	c.Code.Append(ret)
+}
