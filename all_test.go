@@ -259,7 +259,11 @@ var tests = []TestCase{
 	TestCase{A, "closure", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
 	TestCase{A, "setvar_deref_1", `vstr := "foo"; pvstr := &vstr; *pvstr = "bar"; vstr`, "bar", nil},
+	TestCase{A, "setvar_deref_2", `vint := 5; pvint := &vint; *pvint = 6; vint`, 6, nil},
 	TestCase{A, "setplace_deref_1", `func vstr_addr() *string { return &vstr }; *vstr_addr() = "qwerty"; vstr`, "qwerty", nil},
+	TestCase{A, "setplace_deref_2", `*vstr_addr() += "uiop"; vstr`, "qwertyuiop", nil},
+	TestCase{A, "setplace_deref_3", `func vint_addr() *int { return &vint }; *vint_addr() = 7; vint`, 7, nil},
+	TestCase{A, "setplace_deref_4", `*vint_addr() %= 4; vint`, 3, nil},
 	TestCase{A, "setmap_1", `m[1]="x"; m[2]="y"; m`, map[int]string{1: "x", 2: "y"}, nil},
 
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},

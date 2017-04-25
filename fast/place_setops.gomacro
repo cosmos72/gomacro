@@ -26,10 +26,9 @@ package fast
 
 import (
 	"go/token"
-	_ "reflect"
-	_ "unsafe"
+	r "reflect"
 
-	_ "github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 
@@ -70,55 +69,42 @@ import (
 	return op
 }
 
-:func fsetplace(opnode, depth, typ, expr, exprv ast.Node) ast.Node {
+:func fsetplace(opnode, typ, expr ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
-	var upn int = Eval(depth)
 	var t r.Type = EvalType(typ)
-	var loop, bind ast.Node
+	var bind ast.Node
+	var result *ast.BinaryExpr
 	var op token.Token = Eval(opnode)
 	opset := op_to_assign(op)
 
-	if upn >= 0 {
-		bind = ~'{env}
-		for i := 0; i < upn; i++ {
-			bind = ~"{~,bind . Outer}
-		}
-	} else if upn == -2 {
-		bind = ~'{env.ThreadGlobals.FileEnv}
-	} else if upn == -3 {
-		bind = ~'{env.ThreadGlobals.TopEnv}
-	} else {
-		loop = ~'{
-			o := env.Outer.Outer.Outer
-			for i := 3; i < upn; i++ {
-				o = o.Outer
-			}
-		}
-		bind = ~'o
-	}
-
 	switch t.Kind() {
-		case r.Complex128:
-			var result *ast.BinaryExpr = ~"{lhs.Complex() + ~,expr}
+		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+			result = ~"{lhs.Int() + int64(~,expr)}
 			result.Op = op
-			bind = ~"{lhs := ~,bind . Binds[index]; lhs.SetComplex(~,result)}
+			bind = ~"{lhs.SetInt(~,result)}
+		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+			result = ~"{lhs.Uint() + uint64(~,expr)}
+			result.Op = op
+			bind = ~"{lhs.SetUint(~,result)}
+		case r.Float32, r.Float64:
+			result = ~"{lhs.Float() + float64(~,expr)}
+			result.Op = op
+			bind = ~"{lhs.SetFloat(~,result)}
+		case r.Complex64, r.Complex128:
+			result = ~"{lhs.Complex() + complex128(~,expr)}
+			result.Op = op
+			bind = ~"{lhs.SetComplex(~,result)}
 		case r.String:
-			var result *ast.BinaryExpr = ~"{lhs.String() + ~,expr}
+			result = ~"{lhs.String() + ~,expr}
 			result.Op = op
-			bind = ~"{lhs := ~,bind . Binds[index]; lhs.SetString(~,result)}
-		case r.Uint64:
-			var assign *ast.AssignStmt = ~"{~,bind . IntBinds[index] += ~,expr}
-			assign.Tok = opset
-			bind = assign
+			bind = ~"{lhs.SetString(~,result)}
 		default:
-			var assign *ast.AssignStmt = ~"{*(*~,typ)(unsafe.Pointer(& ~,bind .IntBinds[index])) += ~,expr}
-			assign.Tok = opset
-			bind = assign
+			panic("unimplemented: <" + t.String() + "> " + opset.String() + " expression" )
 	}
 
 	return ~"{
 		ret = func(env *Env) (Stmt, *Env) {
-			~,@loop
+			lhs := lhsfun(env)
 			~,bind
 			env.IP++
 			return env.Code[env.IP], env
@@ -126,38 +112,12 @@ import (
 	}
 }
 
-:macro setplace_const(opnode, depth, typ ast.Node) ast.Node {
-	return fsetplace(opnode, depth, typ, ~'val, ~'v)
-}
-
-:macro setplace_expr(opnode, depth, typ ast.Node) ast.Node {
-	return fsetplace(opnode, depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(t)})
-}
-
 :macro setplace_const(opnode, typ ast.Node) ast.Node {
-	return ~"{
-		switch upn {
-			case 0:         setplace_const; ~,opnode; 0; ~,typ
-			case 1:         setplace_const; ~,opnode; 1; ~,typ
-			case 2:         setplace_const; ~,opnode; 2; ~,typ
-			default:        setplace_const; ~,opnode;-1; ~,typ
-			case c.Depth-1: setplace_const; ~,opnode;-2; ~,typ
-			case c.Depth:   setplace_const; ~,opnode;-3; ~,typ
-		}
-	}
+	return fsetplace(opnode, typ, ~'val)
 }
 
 :macro setplace_expr(opnode, typ ast.Node) ast.Node {
-	return ~"{
-		switch upn {
-			case 0:         setplace_expr; ~,opnode; 0; ~,typ
-			case 1:         setplace_expr; ~,opnode; 1; ~,typ
-			case 2:         setplace_expr; ~,opnode; 2; ~,typ
-			default:        setplace_expr; ~,opnode;-1; ~,typ
-			case c.Depth-1: setplace_expr; ~,opnode;-2; ~,typ
-			case c.Depth:   setplace_expr; ~,opnode;-3; ~,typ
-		}
-	}
+	return fsetplace(opnode, typ, ~'{fun(env)})
 }
 
 :func list_types(typelist []ast.Stmt) []ast.Node {
@@ -182,23 +142,20 @@ import (
 }
 
 :macro setplaces_const(opnode, types ast.Node) ast.Node {
-	return ~"{
-		c.Errorf(~,{"unimplemented: place "+Eval(opnode).String()+"= constant"})}
-
 	typelist := list_types(types.(*ast.BlockStmt).List)
 	caselist := make([]ast.Stmt, len(typelist))
 	for i, typ := range typelist {
 		if EvalType(typ) == nil {
-			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, t)}
+			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, place.Type)}
 		} else {
 			caselist[i] = ~"{~typecase ~,typ: setplace_const; ~,opnode; ~,typ}
 		}
 	}
 	return ~"{
-		v := r.ValueOf(val)
-		if base.ValueType(v) != t {
-			v = v.Convert(t)
+		if place.MapKey != nil {
+			c.Errorf("unimplemented: map[key] %s= constant", ~,opnode)
 		}
+		lhsfun := place.Func()
 		var ret Stmt
 		switch val := val.(type) {
 			~,@caselist
@@ -208,19 +165,20 @@ import (
 }
 
 :macro setplaces_expr(opnode, types ast.Node) ast.Node {
-	return ~"{
-		c.Errorf(~,{"unimplemented: place "+Eval(opnode).String()+"= expression"})}
-
 	typelist := list_types(types.(*ast.BlockStmt).List)
 	caselist := make([]ast.Stmt, len(typelist))
 	for i, typ := range typelist {
 		if EvalType(typ) == nil {
-			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, t, funTypeOuts(fun))}
+			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, place.Type, funTypeOuts(fun))}
 		} else {
 			caselist[i] = ~"{~typecase func(*Env) ~,typ: setplace_expr; ~,opnode; ~,typ}
 		}
 	}
 	return ~"{
+		if place.MapKey != nil {
+			c.Errorf("unimplemented: map[key] %s= expression", ~,opnode)
+		}
+		lhsfun := place.Func()
 		var ret Stmt
 		switch fun := fun.(type) {
 			~,@caselist
@@ -231,7 +189,8 @@ import (
 
 // varAddConst compiles 'variable += constant'
 func (c *Comp) placeAddConst(place *Place, val I) {
-	if isLiteralNumber(val, 0) {
+	if isLiteralNumber(val, 0) || val == "" {
+		c.placeForSideEffects(place)
 		return
 	}
 	setplaces_const; token.ADD; {int; uint; float64; complex128; string; nil}
@@ -245,6 +204,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 // varSubConst compiles 'variable -= constant'
 func (c *Comp) placeSubConst(place *Place, val I) {
 	if isLiteralNumber(val, 0) {
+		c.placeForSideEffects(place)
 		return
 	}
 	setplaces_const; token.SUB; {int; uint; float64; complex128; nil}
@@ -262,6 +222,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 		c.placeSetZero(place)
 		return
 	} else if isLiteralNumber(val, 1) {
+		c.placeForSideEffects(place)
 		return
 	}
 	setplaces_const; token.MUL; {int; uint; float64; complex128; nil}
@@ -278,6 +239,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 		c.Errorf("division by %v <%v>", val, place.Type)
 		return
 	} else if isLiteralNumber(val, 1) {
+		c.placeForSideEffects(place)
 		return
 	}
 	setplaces_const; token.QUO; {int; uint; float64; complex128; nil}
@@ -290,13 +252,15 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 // varRemConst compiles 'variable %= constant'
 func (c *Comp) placeRemConst(place *Place, val I) {
-	if isLiteralNumber(val, 0) {
-		c.Errorf("division by %v <%v>", val, place.Type)
-		return
-	} else if isLiteralNumber(val, 1) {
-		// variable %= 1 is equivalent to variable = 0
-		c.placeSetZero(place)
-		return
+	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, 0) {
+			c.Errorf("division by %v <%v>", val, place.Type)
+			return
+		} else if isLiteralNumber(val, 1) {
+			// variable %= 1 is equivalent to variable = 0
+			c.placeSetZero(place)
+			return
+		}
 	}
 	setplaces_const; token.REM; {int; uint; nil}
 }
@@ -308,12 +272,15 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 // varAndConst compiles 'variable &= constant'
 func (c *Comp) placeAndConst(place *Place, val I) {
-	if isLiteralNumber(val, -1) {
-		return
-	} else if isLiteralNumber(val, 0) {
-		// variable &= 0 is equivalent to variable = 0
-		c.placeSetZero(place)
-		return
+	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, -1) {
+			c.placeForSideEffects(place)
+			return
+		} else if isLiteralNumber(val, 0) {
+			// variable &= 0 is equivalent to variable = 0
+			c.placeSetZero(place)
+			return
+		}
 	}
 	setplaces_const; token.AND; {int; uint; nil}
 }
@@ -325,7 +292,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 // varOrConst compiles 'variable |= constant'
 func (c *Comp) placeOrConst(place *Place, val I) {
-	if isLiteralNumber(val, 0) {
+	if IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
+		c.placeForSideEffects(place)
 		return
 	}
 	setplaces_const; token.OR; {int; uint; nil}
@@ -338,7 +306,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 // varXorConst compiles 'variable ^= constant'
 func (c *Comp) placeXorConst(place *Place, val I) {
-	if isLiteralNumber(val, 0) {
+	if IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
+		c.placeForSideEffects(place)
 		return
 	}
 	setplaces_const; token.XOR; {int; uint; nil}
@@ -351,12 +320,15 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 // varAndnotConst compiles 'variable &^= constant'
 func (c *Comp) placeAndnotConst(place *Place, val I) {
-	if isLiteralNumber(val, -1) {
-		// variable &^= -1 is equivalent to variable = 0
-		c.placeSetZero(place)
-		return
-	} else if isLiteralNumber(val, 0) {
-		return
+	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
+		if isLiteralNumber(val, -1) {
+			// variable &^= -1 is equivalent to variable = 0
+			c.placeSetZero(place)
+			return
+		} else if isLiteralNumber(val, 0) {
+			c.placeForSideEffects(place)
+			return
+		}
 	}
 	setplaces_const; token.AND_NOT; {int; uint; nil}
 }
@@ -373,14 +345,20 @@ func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
 	t := place.Type
 	if init.Const() {
 		init.ConstTo(t)
-	} else if init.Type != t {
-		if t.Kind() != init.Type.Kind() || !init.Type.AssignableTo(t) {
-			c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
-			return
-		}
+	} else if !init.Type.AssignableTo(t) {
+		c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
+		return
 	}
 	if init.Const() {
 		val := init.Value
+		v := r.ValueOf(val)
+		if v == None || v == Nil {
+			v = r.Zero(t)
+			val = v.Interface()
+		} else if v.Type() != t {
+			v = v.Convert(t)
+			val = v.Interface()
+		}
 		switch op {
 		case token.ASSIGN:
 			c.placeSetConst(place, val)
