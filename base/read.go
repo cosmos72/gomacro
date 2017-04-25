@@ -120,20 +120,40 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 	if optPrompt {
 		fmt.Fprint(out, prompt)
 	}
+	// comments do not reset ignorenl
+	resetnl := func(paren int, mode Mode) bool {
+		return paren != 0 ||
+			(mode != mNormal && mode != mSlash && mode != mHash &&
+				mode != mLineComment && mode != mComment && mode != mCommentStar)
+	}
 	var line, buf []byte
+
 	for {
 		line, err = in.ReadBytes('\n')
 		for i, ch := range line {
-			if mode != mNormal || paren != 0 {
-				ignorenl = false
-			}
+			Debugf("ReadMultiline: found %q, mode = %d, ignorenl = %t", ch, mode, ignorenl)
 			switch mode {
 			case mPlus, mMinus:
-				if mode == mPlus && ch == '+' || mode == mMinus && ch == '-' {
-					mode = mNormal
+				if ch == '+' {
+					if mode == mPlus {
+						mode = mNormal
+					} else {
+						mode = mPlus
+					}
+					break
+				} else if ch == '-' {
+					if mode == mMinus {
+						mode = mNormal
+					} else {
+						mode = mMinus
+					}
 					break
 				}
+				mode = mNormal
 				ignorenl = true
+				if ch <= ' ' {
+					continue
+				}
 				fallthrough
 			case mNormal:
 				switch ch {
@@ -156,14 +176,14 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 				case '~':
 					mode = mTilde
 				case '!', '%', '&', '*', ',', '.', '<', '=', '>', '^', '|':
-					if paren == 0 {
-						ignorenl = true
-					}
+					ignorenl = paren == 0
 				case '+':
+					ignorenl = false
 					if paren == 0 {
 						mode = mPlus
 					}
 				case '-':
+					ignorenl = false
 					if paren == 0 {
 						mode = mMinus
 					}
@@ -241,9 +261,6 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 					}
 				}
 			case mLineComment:
-				if ch == '\n' {
-					mode = mNormal
-				}
 				continue
 			case mComment:
 				switch ch {
@@ -262,21 +279,24 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 			case mTilde:
 				mode = mNormal
 			}
+			// Debugf("ReadMultiline: mode = %d, ignorenl = %t, resetnl = %t", mode, ignorenl, resetnl(paren, mode))
+			if resetnl(paren, mode) {
+				ignorenl = false
+				// Debugf("ReadMultiline: cleared ignorenl")
+			}
 			if firstToken < 0 {
 				firstToken = len(buf) + i
 				// Debugf("ReadMultiline: setting firstToken to %d, line up to it = %q", firstToken, line[:i+1])
 			}
 		}
 		buf = append(buf, line...)
-		if mode != mNormal || paren != 0 {
-			ignorenl = false
+		if mode == mLineComment {
+			mode = mNormal
 		}
 		if err != nil || paren <= 0 && !ignorenl && mode == mNormal && (firstToken >= 0 || !optAllComments) {
 			break
 		}
-		// Debugf("ReadMultiline: continuing, paren == %d, ignorenl = %t, mode = %d", paren, ignorenl, mode)
-		// ignorenl, mPlus and mMinus only ignore a single newline
-		ignorenl = false
+		// Debugf("ReadMultiline: continuing, mode = %d, paren == %d, ignorenl = %t", mode, paren, ignorenl)
 		if mode == mPlus || mode == mMinus {
 			mode = mNormal
 		}
@@ -290,15 +310,13 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 		}
 		return string(buf), firstToken, err
 	}
-	/*
-		Debugf("ReadMultiline: read %d bytes, firstToken at %d", len(buf), firstToken)
-		if firstToken >= 0 {
-			Debugf("ReadMultiline: comments: %q", buf[:firstToken])
-			Debugf("ReadMultiline: tokens: %q", buf[firstToken:])
-		} else {
-			Debugf("ReadMultiline: comments: %q", buf)
-		}
-	*/
+	// Debugf("ReadMultiline: read %d bytes, firstToken at %d", len(buf), firstToken)
+	// if firstToken >= 0 {
+	//     Debugf("ReadMultiline: comments: %q", buf[:firstToken])
+	//     Debugf("ReadMultiline: tokens: %q", buf[firstToken:])
+	// } else {
+	//     Debugf("ReadMultiline: comments: %q", buf)
+	// }
 	return string(buf), firstToken, nil
 }
 
