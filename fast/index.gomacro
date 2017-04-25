@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * indexexpr.go
+ * index.go
  *
  *  Created on Apr 23, 2017
  *      Author Massimiliano Ghilardi
@@ -36,7 +36,7 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-// IndexExpr compiles obj[idx]
+// IndexExpr compiles a read operation on obj[idx]
 func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
 	obj := c.Expr1(node.X)
 	idx := c.Expr1(node.Index)
@@ -62,6 +62,7 @@ func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
 		fallthrough
 	default:
 		c.Errorf("invalid operation: %v (type %v does not support indexing)", node, t)
+		return nil
 	}
 	if obj.Const() && idx.Const() {
 		// constant propagation
@@ -289,13 +290,13 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	tval := t.Elem()
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(tval)
-	} else if !idx.Type.AssignableTo(tval) {
+		idx.ConstTo(tkey)
+	} else if !idx.Type.AssignableTo(tkey) {
 		c.Errorf("cannot use %v <%v> as <%v> in map index", node.Index, idx.Type, tkey)
 	}
 	objfun := obj.AsX1()
 	zero := r.Zero(tval)
-	var fun I
+	var fun func(env *Env) (r.Value, []r.Value)
 	if idxconst {
 		iv := r.ValueOf(idx.Value)
 		fun = func(env *Env) (r.Value, []r.Value) {
@@ -327,4 +328,91 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 		}
 	}
 	return exprXV([]r.Type{tval, TypeOfBool}, fun)
+}
+
+// IndexPlace compiles obj[idx] returning a Place, i.e. a settable (and addressable, if possible) reflect.Value
+func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
+	obj := c.Expr1(node.X)
+	idx := c.Expr1(node.Index)
+	if obj.Untyped() {
+		obj.ConstTo(obj.DefaultType())
+	}
+	t := obj.Type
+	switch t.Kind() {
+	case r.Array, r.Slice:
+		return c.vectorPlace(node, obj, idx)
+	case r.String: // bytes in a string are not settable nor addressable
+		c.Errorf("%s a byte in a string: %v", opt, node)
+		return nil
+	case r.Map:
+		if opt == PlaceAddress {
+			c.Errorf("%s an element in a map: %v", opt, node)
+			return nil
+		}
+		return &Place{Var: Var{Type: t.Elem()}, fun: obj.AsX1(), MapKey: idx.AsX1()}
+	case r.Ptr:
+		if t.Elem().Kind() == r.Array {
+			return c.vectorPtrPlace(node, obj, idx)
+		}
+		fallthrough
+	default:
+		c.Errorf("invalid operation: %v (type %v does not support indexing)", node, t)
+		return nil
+	}
+}
+
+// vectorPlace compiles obj[idx] where obj is an array or slice, returning a settable and addressable reflect.Value
+func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(TypeOfInt)
+	} else if !idx.Type.AssignableTo(TypeOfInt) {
+		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
+	}
+	t := obj.Type.Elem()
+	objfun := obj.AsX1()
+	var fun func(env *Env) r.Value
+	if idxconst {
+		i := idx.Value.(int)
+		fun = func(env *Env) r.Value {
+			objv := objfun(env)
+			return objv.Index(i)
+		}
+	} else {
+		idxfun := idx.WithFun().(func(*Env) int)
+		fun = func(env *Env) r.Value {
+			objv := objfun(env)
+			i := idxfun(env)
+			return objv.Index(i)
+		}
+	}
+	return &Place{Var: Var{Type: t}, fun: fun}
+}
+
+// vectorPtrPlace compiles obj[idx] where obj is a pointer to an array, returning a settable and addressable reflect.Value
+func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(TypeOfInt)
+	} else if !idx.Type.AssignableTo(TypeOfInt) {
+		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
+	}
+	t := obj.Type.Elem().Elem() // Elem() for the pointer to array, another Elem() for the array element type
+	objfun := obj.AsX1()
+	var fun func(env *Env) r.Value
+	if idxconst {
+		i := idx.Value.(int)
+		fun = func(env *Env) r.Value {
+			objv := objfun(env).Elem()
+			return objv.Index(i)
+		}
+	} else {
+		idxfun := idx.WithFun().(func(*Env) int)
+		fun = func(env *Env) r.Value {
+			objv := objfun(env).Elem()
+			i := idxfun(env)
+			return objv.Index(i)
+		}
+	}
+	return &Place{Var: Var{Type: t}, fun: fun}
 }

@@ -184,7 +184,6 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 	case 2:         setplaces_const;  2
 	default:        setplaces_const; -1
 	case c.Depth-1: setplaces_const; -2
-	case c.Depth:   setplaces_const; -3
 	}
 	c.Code.Append(ret)
 }
@@ -198,7 +197,6 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 	case 2:         setplaces_expr;  2
 	default:        setplaces_expr; -1
 	case c.Depth-1: setplaces_expr; -2
-	case c.Depth:   setplaces_expr; -3
 	}
 	c.Code.Append(ret)
 }

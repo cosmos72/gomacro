@@ -53,13 +53,24 @@ func (c *Comp) Ident(name string) *Expr {
 	return c.Symbol(c.Resolve(name))
 }
 
+// IdentPlace compiles an assignment to a variable, or taking the address of a variable
+func (c *Comp) IdentPlace(name string, opt PlaceOption) *Place {
+	if name == "_" {
+		if opt {
+			c.Errorf("%s _", opt)
+			return nil
+		}
+		return &Place{}
+	}
+	sym := c.Resolve(name)
+	return &Place{Var: *sym.AsVar(opt)}
+}
+
 // Symbol compiles a read operation on a constant, variable or function
 func (c *Comp) Symbol(sym *Symbol) *Expr {
 	switch sym.Desc.Class() {
 	case ConstBind:
 		return exprLit(sym.Lit, sym)
-	case BuiltinBind:
-		c.Errorf("use of builtin %s not in function call", sym.Name)
 	case VarBind, FuncBind:
 		return c.varOrFuncSymbol(sym)
 	case IntBind:

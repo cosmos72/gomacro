@@ -436,17 +436,19 @@ func (c *Comp) If(node *ast.IfStmt) {
 
 // IncDec compiles a "place++" or "place--" statement
 func (c *Comp) IncDec(node *ast.IncDecStmt) {
-	op := node.Tok
 	place := c.Place(node.X)
-	if place.Fun != nil {
-		c.Errorf("unimplemented: %s of non-variable: %v", op, node)
-	}
+	op := node.Tok
 	if op == token.DEC {
 		op = token.SUB
 	} else {
 		op = token.ADD
 	}
-	c.SetVar(&place.Var, op, exprValue(untypedOne))
+	one := exprValue(untypedOne)
+	if place.IsVar() {
+		c.SetVar(&place.Var, op, one)
+	} else {
+		c.SetPlace(place, op, one)
+	}
 }
 
 // Return compiles a "return" statement
@@ -488,7 +490,7 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 
 	exprs := c.Exprs(resultExprs)
 	for i := 0; i < n; i++ {
-		c.SetVar(resultBinds[i].AsVar(upn), token.ASSIGN, exprs[i])
+		c.SetVar(resultBinds[i].AsVar(upn, PlaceSettable), token.ASSIGN, exprs[i])
 	}
 	stmt := func(env *Env) (Stmt, *Env) {
 		common := env.ThreadGlobals

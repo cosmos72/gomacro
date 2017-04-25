@@ -194,12 +194,13 @@ var tests = []TestCase{
 	TestCase{A, "type_struct", "type Pair struct { A, B int }; var pair Pair; pair", struct{ A, B int }{}, nil},
 	TestCase{I, "struct", "pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
 	TestCase{A, "pointer_1", "var vf = 1.25; if *&vf != vf { vf = -1 }; vf", 1.25, nil},
-	TestCase{A, "pointer_2", "var pvs = &vs; v1 = (*pvs == nil); v1", true, nil},
+	TestCase{A, "pointer_2", "var pvf = &vf; *pvf", 1.25, nil},
+	TestCase{A, "pointer_3", "var pvs = &vs; v1 = (*pvs == nil); v1", true, nil},
 	TestCase{I, "defer_1", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
 	TestCase{I, "defer_2", "v = 12; testdefer(0); v", uint32(12), nil},
-	TestCase{I, "make_chan", "cx := make(chan interface{}, 2)", make(chan interface{}, 2), nil},
-	TestCase{I, "make_map", "m := make(map[rune]bool)", make(map[rune]bool), nil},
-	TestCase{I, "make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
+	TestCase{A, "make_chan", "cx := make(chan interface{}, 2); cx", make(chan interface{}, 2), nil},
+	TestCase{A, "make_map", "m := make(map[rune]bool); m", make(map[rune]bool), nil},
+	TestCase{A, "make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
 	TestCase{A, "expr_index_string_1", `"abc"[2]`, byte('c'), nil},
 	TestCase{A, "expr_index_string_2", `v5 = "foo"; v0 = 0; v5[v0]`, byte('f'), nil},
 	TestCase{A, "expr_index_array_1", `va[1]`, rune(0), nil},
@@ -256,6 +257,9 @@ var tests = []TestCase{
 	TestCase{I, "function_variadic", "func list_args(args ...int) []int { args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
 	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},
 	TestCase{A, "closure", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
+
+	TestCase{A, "var_deref_1", `vstr := "foo"; pvstr := &vstr; *pvstr = "bar"; vstr`, "bar", nil},
+	TestCase{A, "place_deref_1", `func vstr_addr() *string { return &vstr }; *vstr_addr() = "qwerty"; vstr`, "qwerty", nil},
 
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 

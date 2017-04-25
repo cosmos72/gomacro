@@ -117,7 +117,8 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 			continue
 		case *ast.UnaryExpr:
 			return c.UnaryExpr(node)
-		// case *ast.SelectorExpr:
+		case *ast.SelectorExpr:
+			return c.SelectorExpr(node)
 		// case *ast.SliceExpr:
 		case *ast.StarExpr:
 			return c.StarExpr(node)

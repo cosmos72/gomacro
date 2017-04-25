@@ -35,10 +35,11 @@ import (
 // Used to assign places with the result of multi-valued expressions
 // Also handy for applications
 func (c *Comp) SetPlaceValue(place *Place) func(*Env, r.Value) {
-	if place.Fun != nil {
-		c.Errorf("unimplemented assignment to place (only assignment to variables is currently implemented)")
+	if place.IsVar() {
+		return c.SetVarValue(&place.Var)
 	}
-	return c.SetVarValue(&place.Var)
+	c.Errorf("unimplemented assignment to place with runtime value (only assignment to variables with runtime value is currently implemented)")
+	return nil
 }
 
 // SetVarValue compiles 'name = value' where value is a reflect.Value passed at runtime.

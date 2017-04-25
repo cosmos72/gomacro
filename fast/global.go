@@ -171,7 +171,6 @@ type BindClass int
 
 const (
 	ConstBind = BindClass(iota)
-	BuiltinBind
 	FuncBind
 	VarBind
 	IntBind
@@ -181,8 +180,6 @@ func (class BindClass) String() string {
 	switch class {
 	case ConstBind:
 		return "constant"
-	case BuiltinBind:
-		return "builtin"
 	case FuncBind:
 		return "function"
 	default:
@@ -193,8 +190,8 @@ func (class BindClass) String() string {
 // ================================== BindDescriptor =================================
 
 const (
-	bindClassMask  = BindClass(0x7)
-	bindIndexShift = 3
+	bindClassMask  = BindClass(0x3)
+	bindIndexShift = 2
 
 	NoIndex             = int(0)                    // index of constants, functions and variables named "_"
 	ConstBindDescriptor = BindDescriptor(ConstBind) // bind descriptor for all constants
@@ -247,13 +244,13 @@ func BindConst(value I) *Bind {
 	return &Bind{Lit: Lit{Type: r.TypeOf(value), Value: value}, Desc: ConstBindDescriptor}
 }
 
-func (bind *Bind) AsVar(upn int) *Var {
+func (bind *Bind) AsVar(upn int, opt PlaceOption) *Var {
 	class := bind.Desc.Class()
 	switch class {
 	case VarBind, IntBind:
 		return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type, Name: bind.Name}
 	default:
-		base.Errorf("expecting a variable: %s %s is not settable", class, bind.Name)
+		base.Errorf("%s a %s: %s <%v>", opt, class, bind.Name, bind.Type)
 		return nil
 	}
 }
@@ -274,8 +271,8 @@ type Symbol struct {
 	Upn int
 }
 
-func (sym *Symbol) AsVar() *Var {
-	return sym.Bind.AsVar(sym.Upn)
+func (sym *Symbol) AsVar(opt PlaceOption) *Var {
+	return sym.Bind.AsVar(sym.Upn, opt)
 }
 
 // Var represents a settable variable
@@ -291,14 +288,67 @@ type Var struct {
 // Place represents a settable place or, equivalently, its address
 type Place struct {
 	Var
-	// Fun is nil for variables. returns address of place (for primitive types that fit uint64)
-	// otherwise returns a non-settable reflect.Value: the address of place
-	// (use r.Value.Elem() to access and modify its contents)
-	// For map[key], Fun returns the map itself wrapped in a reflect.Value (not its address).
+	// fun is nil for variables.
+	// For non-variables, returns a settable and addressable reflect.Value: the place itself.
+	// For map[key], fun returns the map itself (which may NOT be settable).
 	// Call Fun only once, it may have side effects!
-	Fun I
+	fun func(*Env) r.Value
+	// addr is nil for variables.
+	// For non-variables, it may optionally be set, in addition to or instead of fun,
+	// and will return the address of the place. Use Elem() on its results to obtain
+	// a settable and addressable reflect.Value, i.e. what fun would return
+	addr func(*Env) r.Value
 	// used only for map[key], returns key. call it only once, it may have side effects!
 	MapKey func(*Env) r.Value
+}
+
+func (place *Place) IsVar() bool {
+	return place.fun == nil && place.addr == nil
+}
+
+func (place *Place) Func() func(*Env) r.Value {
+	if place.IsVar() {
+		base.Errorf("internal error: Place.Func() invoked on variable. use Place.Var instead")
+	}
+	if place.fun == nil && place.addr != nil {
+		addr := place.addr
+		place.fun = func(env *Env) r.Value {
+			return addr(env).Elem()
+		}
+	}
+	return place.fun
+}
+
+// Addr returns the type of Place's address and a function that will return its reflect.Value
+func (place *Place) Addr() (r.Type, func(*Env) r.Value) {
+	if place.IsVar() {
+		base.Errorf("internal error: Place.Addr() invoked on variable. use Place.Var instead")
+	}
+	if place.addr == nil && place.fun != nil {
+		if place.MapKey != nil {
+			base.Errorf("cannot take the address of map element")
+		}
+		fun := place.fun
+		place.addr = func(env *Env) r.Value {
+			return fun(env).Addr()
+		}
+	}
+	return r.PtrTo(place.Type), place.addr
+}
+
+type PlaceOption bool // the reason why we want a place: either to write into it, or to take its address
+
+const (
+	PlaceSettable PlaceOption = false
+	PlaceAddress  PlaceOption = true
+)
+
+func (opt PlaceOption) String() string {
+	if opt == PlaceAddress {
+		return "cannot take the address of"
+	} else {
+		return "cannot assign to"
+	}
 }
 
 // ================================== Comp, Env =================================

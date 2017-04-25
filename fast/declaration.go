@@ -294,7 +294,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) *Bind {
 			// no initializer... use the zero-value of t
 			init = exprValue(r.Zero(t).Interface())
 		}
-		va := bind.AsVar(0)
+		va := bind.AsVar(0, PlaceSettable)
 		c.SetVar(va, token.ASSIGN, init)
 	case VarBind:
 		index := desc.Index()
@@ -374,7 +374,7 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 		}
 	case IntBind:
 		// no difference between declaration and assignment for IntBind
-		return c.SetVarValue(bind.AsVar(0))
+		return c.SetVarValue(bind.AsVar(0, PlaceSettable))
 	}
 }
 

@@ -104,15 +104,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -163,15 +154,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) += val
 
 					env.IP++
@@ -232,15 +214,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -296,15 +269,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -355,15 +319,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) += val
 
 					env.IP++
@@ -426,15 +381,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -487,15 +433,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) += val
 
 					env.IP++
@@ -558,15 +495,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -619,15 +547,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) += val
 
 					env.IP++
@@ -690,15 +609,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -751,15 +661,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) += val
 
 					env.IP++
@@ -822,15 +723,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -888,15 +780,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -949,15 +832,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) += val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) += val
 
 					env.IP++
@@ -1036,20 +910,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 				ret = func(env *Env) (Stmt, *Env) {
 					{
 						lhs := env.ThreadGlobals.FileEnv.
-							Binds[index]
-						lhs.SetComplex(lhs.Complex() +
-							val,
-						)
-					}
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.ThreadGlobals.TopEnv.
 							Binds[index]
 						lhs.SetComplex(lhs.Complex() +
 							val,
@@ -1139,20 +999,6 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.ThreadGlobals.TopEnv.
-							Binds[index]
-						lhs.SetString(lhs.String() +
-							val,
-						)
-					}
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		default:
 			c.Errorf(`invalid operator %s= on <%v>`, token.ADD, t)
@@ -1218,15 +1064,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -1277,15 +1114,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) += fun(env)
 
 				env.IP++
@@ -1346,15 +1174,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -1405,15 +1224,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) += fun(env)
 
 				env.IP++
@@ -1474,15 +1284,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -1533,15 +1334,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) += fun(env)
 
 				env.IP++
@@ -1602,15 +1394,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -1661,15 +1444,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) += fun(env)
 
 				env.IP++
@@ -1730,15 +1504,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -1789,15 +1554,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				env.ThreadGlobals.FileEnv.
-					IntBinds[index] += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
 					IntBinds[index] += fun(env)
 
 				env.IP++
@@ -1858,15 +1614,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) float32:
 		switch upn {
@@ -1917,15 +1664,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) += fun(env)
 
 				env.IP++
@@ -1986,15 +1724,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) complex64:
 		switch upn {
@@ -2045,15 +1774,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) += fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) += fun(env)
 
 				env.IP++
@@ -2130,20 +1850,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 			ret = func(env *Env) (Stmt, *Env) {
 				{
 					lhs := env.ThreadGlobals.FileEnv.
-						Binds[index]
-					lhs.SetComplex(lhs.Complex() +
-						fun(env),
-					)
-				}
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.ThreadGlobals.TopEnv.
 						Binds[index]
 					lhs.SetComplex(lhs.Complex() +
 						fun(env),
@@ -2233,20 +1939,6 @@ func (c *Comp) varAddExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.ThreadGlobals.TopEnv.
-						Binds[index]
-					lhs.SetString(lhs.String() +
-						fun(env),
-					)
-				}
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	default:
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, t, funTypeOuts(fun))
@@ -2321,15 +2013,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -2380,15 +2063,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) -= val
 
 					env.IP++
@@ -2449,15 +2123,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -2513,15 +2178,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -2572,15 +2228,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) -= val
 
 					env.IP++
@@ -2643,15 +2290,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -2704,15 +2342,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) -= val
 
 					env.IP++
@@ -2775,15 +2404,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -2836,15 +2456,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) -= val
 
 					env.IP++
@@ -2907,15 +2518,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -2968,15 +2570,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) -= val
 
 					env.IP++
@@ -3039,15 +2632,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -3105,15 +2689,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -3166,15 +2741,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) -= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) -= val
 
 					env.IP++
@@ -3262,20 +2828,6 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.ThreadGlobals.TopEnv.
-							Binds[index]
-						lhs.SetComplex(lhs.Complex() -
-							val,
-						)
-					}
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		default:
 			c.Errorf(`invalid operator %s= on <%v>`, token.SUB, t)
@@ -3341,15 +2893,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -3400,15 +2943,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) -= fun(env)
 
 				env.IP++
@@ -3469,15 +3003,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -3528,15 +3053,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) -= fun(env)
 
 				env.IP++
@@ -3597,15 +3113,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -3656,15 +3163,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) -= fun(env)
 
 				env.IP++
@@ -3725,15 +3223,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -3784,15 +3273,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) -= fun(env)
 
 				env.IP++
@@ -3853,15 +3333,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -3912,15 +3383,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				env.ThreadGlobals.FileEnv.
-					IntBinds[index] -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
 					IntBinds[index] -= fun(env)
 
 				env.IP++
@@ -3981,15 +3443,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) float32:
 		switch upn {
@@ -4040,15 +3493,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) -= fun(env)
 
 				env.IP++
@@ -4109,15 +3553,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) complex64:
 		switch upn {
@@ -4168,15 +3603,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) -= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) -= fun(env)
 
 				env.IP++
@@ -4253,20 +3679,6 @@ func (c *Comp) varSubExpr(upn int, index int, t r.Type, fun I) {
 			ret = func(env *Env) (Stmt, *Env) {
 				{
 					lhs := env.ThreadGlobals.FileEnv.
-						Binds[index]
-					lhs.SetComplex(lhs.Complex() -
-						fun(env),
-					)
-				}
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.ThreadGlobals.TopEnv.
 						Binds[index]
 					lhs.SetComplex(lhs.Complex() -
 						fun(env),
@@ -4354,15 +3766,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -4413,15 +3816,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) *= val
 
 					env.IP++
@@ -4482,15 +3876,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -4546,15 +3931,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -4605,15 +3981,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) *= val
 
 					env.IP++
@@ -4676,15 +4043,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -4737,15 +4095,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) *= val
 
 					env.IP++
@@ -4808,15 +4157,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -4869,15 +4209,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) *= val
 
 					env.IP++
@@ -4940,15 +4271,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -5001,15 +4323,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) *= val
 
 					env.IP++
@@ -5072,15 +4385,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -5138,15 +4442,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -5199,15 +4494,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) *= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) *= val
 
 					env.IP++
@@ -5295,20 +4581,6 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.ThreadGlobals.TopEnv.
-							Binds[index]
-						lhs.SetComplex(lhs.Complex() *
-							val,
-						)
-					}
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		default:
 			c.Errorf(`invalid operator %s= on <%v>`, token.MUL, t)
@@ -5374,15 +4646,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -5433,15 +4696,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) *= fun(env)
 
 				env.IP++
@@ -5502,15 +4756,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -5561,15 +4806,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) *= fun(env)
 
 				env.IP++
@@ -5630,15 +4866,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -5689,15 +4916,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) *= fun(env)
 
 				env.IP++
@@ -5758,15 +4976,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -5817,15 +5026,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) *= fun(env)
 
 				env.IP++
@@ -5886,15 +5086,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -5945,15 +5136,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				env.ThreadGlobals.FileEnv.
-					IntBinds[index] *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
 					IntBinds[index] *= fun(env)
 
 				env.IP++
@@ -6014,15 +5196,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) float32:
 		switch upn {
@@ -6073,15 +5246,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) *= fun(env)
 
 				env.IP++
@@ -6142,15 +5306,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) complex64:
 		switch upn {
@@ -6201,15 +5356,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) *= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) *= fun(env)
 
 				env.IP++
@@ -6286,20 +5432,6 @@ func (c *Comp) varMulExpr(upn int, index int, t r.Type, fun I) {
 			ret = func(env *Env) (Stmt, *Env) {
 				{
 					lhs := env.ThreadGlobals.FileEnv.
-						Binds[index]
-					lhs.SetComplex(lhs.Complex() *
-						fun(env),
-					)
-				}
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.ThreadGlobals.TopEnv.
 						Binds[index]
 					lhs.SetComplex(lhs.Complex() *
 						fun(env),
@@ -6386,15 +5518,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -6445,15 +5568,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) /= val
 
 					env.IP++
@@ -6514,15 +5628,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -6578,15 +5683,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -6637,15 +5733,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) /= val
 
 					env.IP++
@@ -6708,15 +5795,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -6769,15 +5847,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) /= val
 
 					env.IP++
@@ -6840,15 +5909,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -6901,15 +5961,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) /= val
 
 					env.IP++
@@ -6972,15 +6023,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -7033,15 +6075,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) /= val
 
 					env.IP++
@@ -7104,15 +6137,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -7170,15 +6194,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -7231,15 +6246,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) /= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) /= val
 
 					env.IP++
@@ -7327,20 +6333,6 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.ThreadGlobals.TopEnv.
-							Binds[index]
-						lhs.SetComplex(lhs.Complex() /
-							val,
-						)
-					}
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		default:
 			c.Errorf(`invalid operator %s= on <%v>`, token.QUO, t)
@@ -7406,15 +6398,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -7465,15 +6448,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) /= fun(env)
 
 				env.IP++
@@ -7534,15 +6508,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -7593,15 +6558,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) /= fun(env)
 
 				env.IP++
@@ -7662,15 +6618,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -7721,15 +6668,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) /= fun(env)
 
 				env.IP++
@@ -7790,15 +6728,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -7849,15 +6778,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) /= fun(env)
 
 				env.IP++
@@ -7918,15 +6838,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -7977,15 +6888,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				env.ThreadGlobals.FileEnv.
-					IntBinds[index] /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
 					IntBinds[index] /= fun(env)
 
 				env.IP++
@@ -8046,15 +6948,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) float32:
 		switch upn {
@@ -8105,15 +6998,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) /= fun(env)
 
 				env.IP++
@@ -8174,15 +7058,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*float64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) complex64:
 		switch upn {
@@ -8233,15 +7108,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) /= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) /= fun(env)
 
 				env.IP++
@@ -8318,20 +7184,6 @@ func (c *Comp) varQuoExpr(upn int, index int, t r.Type, fun I) {
 			ret = func(env *Env) (Stmt, *Env) {
 				{
 					lhs := env.ThreadGlobals.FileEnv.
-						Binds[index]
-					lhs.SetComplex(lhs.Complex() /
-						fun(env),
-					)
-				}
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.ThreadGlobals.TopEnv.
 						Binds[index]
 					lhs.SetComplex(lhs.Complex() /
 						fun(env),
@@ -8420,15 +7272,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -8479,15 +7322,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) %= val
 
 					env.IP++
@@ -8548,15 +7382,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -8612,15 +7437,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -8671,15 +7487,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) %= val
 
 					env.IP++
@@ -8742,15 +7549,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -8803,15 +7601,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) %= val
 
 					env.IP++
@@ -8874,15 +7663,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -8935,15 +7715,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) %= val
 
 					env.IP++
@@ -9006,15 +7777,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -9067,15 +7829,6 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) %= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) %= val
 
 					env.IP++
@@ -9146,15 +7899,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -9205,15 +7949,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) %= fun(env)
 
 				env.IP++
@@ -9274,15 +8009,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -9333,15 +8059,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) %= fun(env)
 
 				env.IP++
@@ -9402,15 +8119,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -9461,15 +8169,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) %= fun(env)
 
 				env.IP++
@@ -9530,15 +8229,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -9589,15 +8279,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) %= fun(env)
 
 				env.IP++
@@ -9658,15 +8339,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -9722,15 +8394,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
-					IntBinds[index] %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uintptr:
 		switch upn {
@@ -9781,15 +8444,6 @@ func (c *Comp) varRemExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) %= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) %= fun(env)
 
 				env.IP++
@@ -9873,15 +8527,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -9932,15 +8577,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &= val
 
 					env.IP++
@@ -10001,15 +8637,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -10065,15 +8692,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -10124,15 +8742,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &= val
 
 					env.IP++
@@ -10195,15 +8804,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -10256,15 +8856,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &= val
 
 					env.IP++
@@ -10327,15 +8918,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -10388,15 +8970,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &= val
 
 					env.IP++
@@ -10459,15 +9032,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -10520,15 +9084,6 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &= val
 
 					env.IP++
@@ -10599,15 +9154,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -10658,15 +9204,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &= fun(env)
 
 				env.IP++
@@ -10727,15 +9264,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -10786,15 +9314,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &= fun(env)
 
 				env.IP++
@@ -10855,15 +9374,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -10914,15 +9424,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &= fun(env)
 
 				env.IP++
@@ -10983,15 +9484,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -11042,15 +9534,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &= fun(env)
 
 				env.IP++
@@ -11111,15 +9594,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -11175,15 +9649,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
-					IntBinds[index] &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uintptr:
 		switch upn {
@@ -11234,15 +9699,6 @@ func (c *Comp) varAndExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &= fun(env)
 
 				env.IP++
@@ -11322,15 +9778,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -11381,15 +9828,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) |= val
 
 					env.IP++
@@ -11450,15 +9888,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -11514,15 +9943,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -11573,15 +9993,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) |= val
 
 					env.IP++
@@ -11644,15 +10055,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -11705,15 +10107,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) |= val
 
 					env.IP++
@@ -11776,15 +10169,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -11837,15 +10221,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) |= val
 
 					env.IP++
@@ -11908,15 +10283,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -11969,15 +10335,6 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) |= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) |= val
 
 					env.IP++
@@ -12048,15 +10405,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -12107,15 +10455,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) |= fun(env)
 
 				env.IP++
@@ -12176,15 +10515,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -12235,15 +10565,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) |= fun(env)
 
 				env.IP++
@@ -12304,15 +10625,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -12363,15 +10675,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) |= fun(env)
 
 				env.IP++
@@ -12432,15 +10735,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -12491,15 +10785,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) |= fun(env)
 
 				env.IP++
@@ -12560,15 +10845,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -12624,15 +10900,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
-					IntBinds[index] |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uintptr:
 		switch upn {
@@ -12683,15 +10950,6 @@ func (c *Comp) varOrExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) |= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) |= fun(env)
 
 				env.IP++
@@ -12771,15 +11029,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -12830,15 +11079,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) ^= val
 
 					env.IP++
@@ -12899,15 +11139,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -12963,15 +11194,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -13022,15 +11244,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) ^= val
 
 					env.IP++
@@ -13093,15 +11306,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -13154,15 +11358,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) ^= val
 
 					env.IP++
@@ -13225,15 +11420,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -13286,15 +11472,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) ^= val
 
 					env.IP++
@@ -13357,15 +11534,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -13418,15 +11586,6 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) ^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) ^= val
 
 					env.IP++
@@ -13497,15 +11656,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -13556,15 +11706,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) ^= fun(env)
 
 				env.IP++
@@ -13625,15 +11766,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -13684,15 +11816,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) ^= fun(env)
 
 				env.IP++
@@ -13753,15 +11876,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -13812,15 +11926,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) ^= fun(env)
 
 				env.IP++
@@ -13881,15 +11986,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -13940,15 +12036,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) ^= fun(env)
 
 				env.IP++
@@ -14009,15 +12096,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -14073,15 +12151,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
-					IntBinds[index] ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uintptr:
 		switch upn {
@@ -14132,15 +12201,6 @@ func (c *Comp) varXorExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) ^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) ^= fun(env)
 
 				env.IP++
@@ -14224,15 +12284,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int8:
 			switch upn {
@@ -14283,15 +12334,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &^= val
 
 					env.IP++
@@ -14352,15 +12394,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int32:
 			switch upn {
@@ -14416,15 +12449,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case int64:
 			switch upn {
@@ -14475,15 +12499,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &^= val
 
 					env.IP++
@@ -14546,15 +12561,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -14607,15 +12613,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &^= val
 
 					env.IP++
@@ -14678,15 +12675,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -14739,15 +12727,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &^= val
 
 					env.IP++
@@ -14810,15 +12789,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					env.ThreadGlobals.TopEnv.
-						IntBinds[index] &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
 			}
 		case
 
@@ -14871,15 +12841,6 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-						IntBinds[index])) &^= val
-
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			case c.Depth:
-
-				ret = func(env *Env) (Stmt, *Env) {
-					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 						IntBinds[index])) &^= val
 
 					env.IP++
@@ -14950,15 +12911,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int8:
 		switch upn {
@@ -15009,15 +12961,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &^= fun(env)
 
 				env.IP++
@@ -15078,15 +13021,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) int32:
 		switch upn {
@@ -15137,15 +13071,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &^= fun(env)
 
 				env.IP++
@@ -15206,15 +13131,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*int64)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint:
 		switch upn {
@@ -15265,15 +13181,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &^= fun(env)
 
 				env.IP++
@@ -15334,15 +13241,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint16:
 		switch upn {
@@ -15393,15 +13291,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
 					IntBinds[index])) &^= fun(env)
 
 				env.IP++
@@ -15462,15 +13351,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	case func(*Env) uint64:
 		switch upn {
@@ -15521,15 +13401,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				env.ThreadGlobals.FileEnv.
-					IntBinds[index] &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				env.ThreadGlobals.TopEnv.
 					IntBinds[index] &^= fun(env)
 
 				env.IP++
@@ -15590,15 +13461,6 @@ func (c *Comp) varAndnotExpr(upn int, index int, t r.Type, fun I) {
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case c.Depth:
-
-			ret = func(env *Env) (Stmt, *Env) {
-				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.TopEnv.
-					IntBinds[index])) &^= fun(env)
-
-				env.IP++
-				return env.Code[env.IP], env
-			}
 		}
 	default:
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, t, funTypeOuts(fun))
@@ -15610,13 +13472,10 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	t := va.Type
 	if init.Const() {
 		init.ConstTo(t)
-	} else if init.Type != t {
-		if t.Kind() != init.Type.Kind() && !init.Type.AssignableTo(t) && !init.Type.Implements(t) {
-			c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
-			return
-		}
+	} else if !init.Type.AssignableTo(t) {
+		c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
+		return
 	}
-
 	class := va.Desc.Class()
 	if class != VarBind && class != IntBind {
 		c.Errorf("invalid operator %s on %v", op, class)

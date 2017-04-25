@@ -21,7 +21,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * indexexpr.go
+ * index.go
  *
  *  Created on Apr 23, 2017
  *      Author Massimiliano Ghilardi
@@ -53,13 +53,15 @@ func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
-			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() })
+			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() },
+			)
 			ret = c.vectorIndex(node, deref, idx)
 			break
 		}
 		fallthrough
 	default:
 		c.Errorf("invalid operation: %v (type %v does not support indexing)", node, t)
+		return nil
 	}
 	if obj.Const() && idx.Const() {
 		ret.EvalConst(CompileKeepUntyped)
@@ -399,4 +401,89 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 		}
 	}
 	return exprXV([]r.Type{tval, TypeOfBool}, fun)
+}
+func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
+	obj := c.Expr1(node.X)
+	idx := c.Expr1(node.Index)
+	if obj.Untyped() {
+		obj.ConstTo(obj.DefaultType())
+	}
+
+	t := obj.Type
+	switch t.Kind() {
+	case r.Array, r.Slice:
+		return c.vectorPlace(node, obj, idx)
+	case r.String:
+		c.Errorf("%s a byte in a string: %v", opt, node)
+		return nil
+	case r.Map:
+		if opt == PlaceAddress {
+			c.Errorf("%s an element in a map: %v", opt, node)
+			return nil
+		}
+		return &Place{Var: Var{Type: t.Elem()}, fun: obj.AsX1(), MapKey: idx.AsX1()}
+	case r.Ptr:
+		if t.Elem().Kind() == r.Array {
+			return c.vectorPtrPlace(node, obj, idx)
+		}
+
+		fallthrough
+	default:
+		c.Errorf("invalid operation: %v (type %v does not support indexing)", node, t)
+		return nil
+	}
+}
+func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(TypeOfInt)
+	} else if !idx.Type.AssignableTo(TypeOfInt) {
+		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
+	}
+
+	t := obj.Type.Elem()
+	objfun := obj.AsX1()
+	var fun func(env *Env) r.Value
+	if idxconst {
+		i := idx.Value.(int)
+		fun = func(env *Env) r.Value {
+			objv := objfun(env)
+			return objv.Index(i)
+		}
+	} else {
+		idxfun := idx.WithFun().(func(*Env) int)
+		fun = func(env *Env) r.Value {
+			objv := objfun(env)
+			i := idxfun(env)
+			return objv.Index(i)
+		}
+	}
+	return &Place{Var: Var{Type: t}, fun: fun}
+}
+func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(TypeOfInt)
+	} else if !idx.Type.AssignableTo(TypeOfInt) {
+		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
+	}
+
+	t := obj.Type.Elem().Elem()
+	objfun := obj.AsX1()
+	var fun func(env *Env) r.Value
+	if idxconst {
+		i := idx.Value.(int)
+		fun = func(env *Env) r.Value {
+			objv := objfun(env).Elem()
+			return objv.Index(i)
+		}
+	} else {
+		idxfun := idx.WithFun().(func(*Env) int)
+		fun = func(env *Env) r.Value {
+			objv := objfun(env).Elem()
+			i := idxfun(env)
+			return objv.Index(i)
+		}
+	}
+	return &Place{Var: Var{Type: t}, fun: fun}
 }

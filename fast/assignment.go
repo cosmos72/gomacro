@@ -58,10 +58,6 @@ func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
 	node := &ast.AssignStmt{Lhs: []ast.Expr{lhs}, Tok: op, Rhs: []ast.Expr{rhs}} // only for nice error messages
 
 	place := c.Place(lhs)
-	if place.Fun != nil {
-		c.Errorf("unimplemented: assignment of composite place (only assignment of variables is implemented): %v", node)
-	}
-	va := &place.Var
 	init := c.Expr(rhs)
 
 	panicking := true
@@ -72,46 +68,12 @@ func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
 		rec := recover()
 		c.Errorf("error compiling assignment: %v\n    %v", node, rec)
 	}()
-	c.SetVar(va, op, init)
-	panicking = false
-}
-
-// Place compiles the left-hand-side of an assignment
-func (c *Comp) Place(lhs ast.Expr) *Place {
-	return c.PlaceOrAddress(lhs, false)
-}
-
-// PlaceOrAddress compiles the left-hand-side of an assignment or the location of an address-of
-func (c *Comp) PlaceOrAddress(lhs ast.Expr, addressof bool) *Place {
-	switch lhs := lhs.(type) {
-	case *ast.Ident:
-		name := lhs.Name
-		if name == "_" {
-			if addressof {
-				c.Errorf("cannot take the address of _")
-				return nil
-			}
-			return &Place{}
-		}
-		sym := c.Resolve(name)
-		class := sym.Desc.Class()
-		if class != VarBind && class != IntBind {
-			if addressof {
-				c.Errorf("cannot take the address of %s: %v", class, name)
-			} else {
-				c.Errorf("cannot assign to %s: %v", class, name)
-			}
-			return nil
-		}
-		return &Place{Var: *sym.AsVar()}
-	default:
-		if addressof {
-			c.Errorf("unimplemented: address of non-identifier: %v", lhs)
-		} else {
-			c.Errorf("unimplemented: assignment of non-identifier: %v", lhs)
-		}
-		return nil
+	if place.IsVar() {
+		c.SetVar(&place.Var, op, init)
+	} else {
+		c.SetPlace(place, op, init)
 	}
+	panicking = false
 }
 
 // LookupVar compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
@@ -120,9 +82,52 @@ func (c *Comp) LookupVar(name string) *Var {
 		return &Var{}
 	}
 	sym := c.Resolve(name)
-	class := sym.Desc.Class()
-	if class != VarBind && class != IntBind {
-		c.Errorf("cannot assign to %s: %v", class, name)
+	return sym.AsVar(PlaceSettable)
+}
+
+// Place compiles the left-hand-side of an assignment
+func (c *Comp) Place(node ast.Expr) *Place {
+	return c.placeOrAddress(node, false)
+}
+
+// PlaceOrAddress compiles the left-hand-side of an assignment or the location of an address-of
+func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
+	for {
+		switch node := in.(type) {
+		case *ast.ParenExpr:
+			in = node.X
+			continue
+		case *ast.Ident:
+			return c.IdentPlace(node.Name, opt)
+		case *ast.IndexExpr:
+			return c.IndexPlace(node, opt)
+		case *ast.StarExpr:
+			e := c.Expr1(node.X)
+			if e.Const() {
+				c.Errorf("%s a constant: %v <%v>", opt, node, e.Type)
+				return nil
+			} else if e.Sym != nil && opt == PlaceAddress {
+				// just return the variable, it's already the address of the place we want
+				// but remember to dereference its type
+				//
+				// we cannot do this optimization when opt == PlaceSettable,
+				// because the code to compile is *variable i.e. the place to return is *variable,
+				// which is not an identifier
+				va := *e.Sym.AsVar(opt)
+				va.Type = va.Type.Elem()
+				return &Place{Var: va}
+			} else {
+				// return e.Fun as Place.addr, it's already the address of the place we want
+				// but remember to dereference its type
+				t := e.Type.Elem()
+				addr := e.AsX1()
+				return &Place{Var: Var{Type: t}, addr: addr}
+			}
+		case *ast.SelectorExpr:
+			return c.SelectorPlace(node, opt)
+		default:
+			c.Errorf("%s: %v", opt, in)
+			return nil
+		}
 	}
-	return sym.AsVar()
 }

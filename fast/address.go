@@ -38,23 +38,16 @@ import (
 )
 
 func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
-	place := c.PlaceOrAddress(node.X, true)
-	if place.Fun != nil {
-		return c.badUnaryExpr("unimplemented: address of non-identifier", node, nil)
+	place := c.placeOrAddress(node.X, PlaceAddress)
+	if place.IsVar() {
+		return place.Var.Address(c.Depth)
 	}
-	return place.Var.Address(c.Depth)
+	return exprX1(place.Addr())
 }
 func (c *Comp) AddressOfVar(name string) *Expr {
 	sym := c.Resolve(name)
-	class := sym.Desc.Class()
-	switch class {
-	default:
-		c.Errorf("cannot take the address of %s: %v", class, name)
-		return nil
-	case VarBind, IntBind:
-		va := sym.AsVar()
-		return va.Address(c.Depth)
-	}
+	va := sym.AsVar(PlaceAddress)
+	return va.Address(c.Depth)
 }
 func (va *Var) Address(maxdepth int) *Expr {
 	upn := va.Upn
