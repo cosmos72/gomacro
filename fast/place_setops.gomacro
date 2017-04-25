@@ -379,9 +379,6 @@ func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
 			return
 		}
 	}
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s expression", op)
-	}
 	if init.Const() {
 		val := init.Value
 		switch op {

@@ -199,7 +199,7 @@ var tests = []TestCase{
 	TestCase{I, "defer_1", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
 	TestCase{I, "defer_2", "v = 12; testdefer(0); v", uint32(12), nil},
 	TestCase{A, "make_chan", "cx := make(chan interface{}, 2); cx", make(chan interface{}, 2), nil},
-	TestCase{A, "make_map", "m := make(map[rune]bool); m", make(map[rune]bool), nil},
+	TestCase{A, "make_map", "m := make(map[int]string); m", make(map[int]string), nil},
 	TestCase{A, "make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
 	TestCase{A, "expr_index_string_1", `"abc"[2]`, byte('c'), nil},
 	TestCase{A, "expr_index_string_2", `v5 = "foo"; v0 = 0; v5[v0]`, byte('f'), nil},
@@ -258,8 +258,9 @@ var tests = []TestCase{
 	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},
 	TestCase{A, "closure", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
-	TestCase{A, "var_deref_1", `vstr := "foo"; pvstr := &vstr; *pvstr = "bar"; vstr`, "bar", nil},
-	TestCase{A, "place_deref_1", `func vstr_addr() *string { return &vstr }; *vstr_addr() = "qwerty"; vstr`, "qwerty", nil},
+	TestCase{A, "setvar_deref_1", `vstr := "foo"; pvstr := &vstr; *pvstr = "bar"; vstr`, "bar", nil},
+	TestCase{A, "setplace_deref_1", `func vstr_addr() *string { return &vstr }; *vstr_addr() = "qwerty"; vstr`, "qwerty", nil},
+	TestCase{A, "setmap_1", `m[1]="x"; m[2]="y"; m`, map[int]string{1: "x", 2: "y"}, nil},
 
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 
@@ -331,7 +332,7 @@ var tests = []TestCase{
 	TestCase{A, "sum", sum_s + "; sum(100)", 5050, nil},
 
 	TestCase{I, "select_1", "cx <- 1; { var x interface{}; select { case x=<-cx: x; default: } }", 1, nil},
-	TestCase{I, "select_2", "cx <- m; select { case x:=<-cx: x; default: }", make(map[rune]bool), nil},
+	TestCase{I, "select_2", "cx <- map[int]int{1:2}; select { case x:=<-cx: x; default: }", map[int]int{1: 2}, nil},
 	TestCase{I, "select_3", "select { case cx<-1: 1; default: 0 }", 1, nil},
 	TestCase{I, "select_4", "select { case cx<-2: 2; default: 0 }", 2, nil},
 	TestCase{I, "select_5", "select { case cx<-3: 3; default: 0 }", 0, nil},

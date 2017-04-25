@@ -39,7 +39,7 @@ import (
 	// the return type of Eval() and EvalType() varies. better check early.
 	var t r.Type = EvalType(typ)
 
-	var decl, bind ast.Node
+	var decl, bind, mapbind ast.Node
 
 	if t == nil {
 		decl = ~'{val := v}
@@ -225,7 +225,18 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 	}
 	lhs := place.Func()
 	var ret Stmt
-	// TODO support map places
+	if mapkey := place.MapKey; mapkey != nil {
+		ret = func(env *Env) (Stmt, *Env) {
+			// enforce left-to-right evaluation order
+			obj := lhs(env)
+			key := mapkey(env)
+			obj.SetMapIndex(key, v)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+		c.Code.Append(ret)
+		return
+	}
 	setplaces_const
 	c.Code.Append(ret)
 }
@@ -235,6 +246,23 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 	t := place.Type
 	lhs := place.Func()
 	var ret Stmt
+	if mapkey := place.MapKey; mapkey != nil {
+		rhs := funAsX1(fun)
+		ret = func(env *Env) (Stmt, *Env) {
+			// enforce left-to-right evaluation order
+			obj := lhs(env)
+			key := mapkey(env)
+			val := rhs(env)
+			if val.Type() != t {
+				val = val.Convert(t)
+			}
+			obj.SetMapIndex(key, val)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+		c.Code.Append(ret)
+		return
+	}
 	setplaces_expr
 	c.Code.Append(ret)
 }

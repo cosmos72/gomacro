@@ -51,6 +51,18 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 
 	lhs := place.Func()
 	var ret Stmt
+	if mapkey := place.MapKey; mapkey != nil {
+		ret = func(env *Env) (Stmt, *Env) {
+
+			obj := lhs(env)
+			key := mapkey(env)
+			obj.SetMapIndex(key, v)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+		c.Code.Append(ret)
+		return
+	}
 	switch KindToCategory(t.Kind()) {
 	case r.Bool:
 
@@ -144,6 +156,24 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 	t := place.Type
 	lhs := place.Func()
 	var ret Stmt
+	if mapkey := place.MapKey; mapkey != nil {
+		rhs := funAsX1(fun)
+		ret = func(env *Env) (Stmt, *Env) {
+
+			obj := lhs(env)
+			key := mapkey(env)
+			val := rhs(env)
+			if val.Type() != t {
+				val = val.Convert(t)
+			}
+
+			obj.SetMapIndex(key, val)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+		c.Code.Append(ret)
+		return
+	}
 	switch t.Kind() {
 	case r.Bool:
 
