@@ -131,7 +131,7 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 	for {
 		line, err = in.ReadBytes('\n')
 		for i, ch := range line {
-			Debugf("ReadMultiline: found %q, mode = %d, ignorenl = %t", ch, mode, ignorenl)
+			// Debugf("ReadMultiline: found %q, mode = %d, ignorenl = %t", ch, mode, ignorenl)
 			switch mode {
 			case mPlus, mMinus:
 				if ch == '+' {
