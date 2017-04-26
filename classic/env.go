@@ -131,6 +131,19 @@ func (env *Env) CallerFrame() *CallFrame {
 	return nil
 }
 
+// ValueOf returns the value of a constant, function or variable.
+// for variables, the returned reflect.Value is settable and addressable
+// returns the zero reflect.Value if not found
+func (env *Env) ValueOf(name string) (value r.Value) {
+	found := false
+	for e := env; e != nil; e = e.Outer {
+		if value, found = e.Binds[name]; found {
+			break
+		}
+	}
+	return
+}
+
 func (env *Env) ReplStdin() {
 	if env.Options&OptShowPrompt != 0 {
 		fmt.Fprint(env.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>

@@ -97,6 +97,8 @@ func BenchmarkFibonacciFastInterpreter(b *testing.B) {
 	ce := fast.New()
 	c := ce.Comp
 	ce.Eval(fib_s)
+
+	// compile the call to fibonacci(fib_n)
 	fun := c.CompileAst(c.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n)))
 	env := ce.PrepareEnv()
 	fun(env)
@@ -109,15 +111,50 @@ func BenchmarkFibonacciFastInterpreter(b *testing.B) {
 	}
 }
 
+func BenchmarkFibonacciFastInterpreterBis(b *testing.B) {
+	ce := fast.New()
+	ce.Eval(fib_s)
+
+	// alternative: extract the function fibonacci, and call it ourselves
+	//
+	// ValueOf is the method to retrieve constants, functions and variables from the classic and fast interpreters
+	// (if you set the same variable repeatedly, use the address returned by AddressOfVar)
+	fun := ce.ValueOf("fibonacci").Interface().(func(int) int)
+	fun(fib_n)
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += fun(fib_n)
+	}
+}
+
 func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst(fib_s))
+
+	// compile the call to fibonacci(fib_n)
 	form := env.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n))
 
 	b.ResetTimer()
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += int(env.EvalAst1(form).Int())
+	}
+}
+
+func BenchmarkFibonacciClassicInterpreterBis(b *testing.B) {
+	env := classic.New()
+	env.EvalAst(env.ParseAst(fib_s))
+
+	// alternative: extract the function fibonacci, and call it ourselves
+	fun := env.ValueOf("fibonacci").Interface().(func(int) int)
+	fun(fib_n)
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += fun(fib_n)
 	}
 }
 
@@ -233,21 +270,21 @@ func BenchmarkArithFastInterpreterBis(b *testing.B) {
 }
 
 func BenchmarkArithClassicInterpreter(b *testing.B) {
-	ir := classic.New()
-	ir.EvalAst(ir.ParseAst("n:=0"))
+	env := classic.New()
+	env.EvalAst(env.ParseAst("n:=0"))
 
-	form := ir.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+	form := env.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)")
 
-	value := ir.Binds["n"]
+	value := env.ValueOf("n")
 	var ret r.Value
-	ir.EvalAst(form)
+	env.EvalAst(form)
 
 	// interpreted code performs only arithmetic - iteration performed here
 	b.ResetTimer()
 	total := 0
 	for i := 0; i < b.N; i++ {
 		value.SetInt(int64(b.N))
-		ret, _ = ir.EvalAst(form)
+		ret, _ = env.EvalAst(form)
 		total += int(ret.Int())
 	}
 	if verbose {
@@ -262,7 +299,7 @@ func BenchmarkArithClassicInterpreterBis(b *testing.B) {
 	// interpreted code performs iteration and arithmetic
 	form := ir.ParseAst("total = 0; for i:= 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total")
 
-	value := ir.Binds["n"]
+	value := ir.ValueOf("n")
 	ir.EvalAst(form)
 
 	b.ResetTimer()
@@ -312,17 +349,16 @@ func BenchmarkCollatzFastInterpreter(b *testing.B) {
 }
 
 func BenchmarkCollatzClassicInterpreter(b *testing.B) {
-	ir := classic.New()
-	ir.Binds = map[string]r.Value{
-		"n": r.New(TypeOfInt).Elem(),
-	}
+	env := classic.New()
+	env.EvalAst(env.ParseAst("var n int"))
+	n := env.ValueOf("n")
 
-	form := ir.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }")
+	form := env.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }")
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ir.Binds["n"].SetInt(collatz_n)
-		ir.EvalAst(form)
+		n.SetInt(collatz_n)
+		env.EvalAst(form)
 	}
 }
 
@@ -415,7 +451,7 @@ func BenchmarkSumFastInterpreterBis(b *testing.B) {
 func BenchmarkSumClassicInterpreter(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst("var i, n, total int"))
-	env.Binds["n"].SetInt(sum_n)
+	env.ValueOf("n").SetInt(sum_n)
 	form := env.ParseAst("total = 0; for i = 1; i <= n; i++ { total += i }; total")
 
 	b.ResetTimer()

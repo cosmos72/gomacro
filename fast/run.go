@@ -104,18 +104,36 @@ func (ce *CompEnv) Apply() {
 }
 
 // AddressOfVar compiles the expression &name, then executes it
-func (ce *CompEnv) AddressOfVar(name string) r.Value {
-	expr := ce.Comp.AddressOfVar(name)
-	return ce.Exec1(expr)
+// returns the zero value if name is not found or is not addressable
+func (ce *CompEnv) AddressOfVar(name string) (addr r.Value) {
+	c := ce.Comp
+	sym := c.TryResolve(name)
+	if sym != nil {
+		switch sym.Desc.Class() {
+		case VarBind, IntBind:
+			va := sym.AsVar(PlaceAddress)
+			expr := va.Address(c.Depth)
+			return ce.Exec1(expr)
+		}
+	}
+	return Nil
 }
 
 // ValueOf retrieves the value of a constant, function or variable
-// The returned value is settable only for variables
-func (ce *CompEnv) ValueOf(name string) r.Value {
-	sym := ce.Comp.Resolve(name)
+// The returned value is settable and addressable only for variables
+// returns the zero value if name is not found
+func (ce *CompEnv) ValueOf(name string) (value r.Value) {
+	sym := ce.Comp.TryResolve(name)
+	if sym == nil {
+		return Nil
+	}
 	switch sym.Desc.Class() {
 	case IntBind:
-		return ce.AddressOfVar(name).Elem()
+		value = ce.AddressOfVar(name)
+		if value != Nil {
+			value = value.Elem() // dereference
+		}
+		return value
 	case VarBind:
 		env := ce.PrepareEnv()
 		for i := 0; i < sym.Upn; i++ {
