@@ -4,7 +4,7 @@ gomacro is a fairly complete Go interpreter, implemented in pure Go,
 built on top of the go/ast and reflect packages.
 
 Gomacro can be used as:
-* a standalone executable with interactive Go REPL:
+* a standalone executable with interactive Go REPL:  
   just run `gomacro` from your command line or, better, `rlwrap gomacro`
   (rlwrap is a wrapper that adds history and line editing to terminal-based programs - available on many platforms)
   Available options:
@@ -38,14 +38,14 @@ Gomacro can be used as:
 * a library that adds Eval() and scripting capabilities
   to your Go programs - provided you comply with its GPL license
 
-* a way to execute Go source code on-the-fly without a Go compiler:
+* a way to execute Go source code on-the-fly without a Go compiler:  
   you can either run `gomacro FILENAME.go` (works on every supported platform)
 
   or you can insert a line `#!/usr/bin/env gomacro` at the beginning of a Go source file,
   then mark the file as executable with `chmod +x FILENAME.go` and finally execute it
   with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
-* a Go code generation tool:
+* a Go code generation tool:  
   gomacro was started as an experiment to add Lisp-like macros to Go, and they are
   extremely useful (in the author's opinion) to simplify code generation.
   Macros are normal functions whose arguments and result are code
