@@ -1,9 +1,6 @@
-## gomacro - A Go interpreter with Lisp-like macros
+## gomacro - interactive Go interpreter with macros
 
-Gomacro is "yet another" Go interpreter.
-
-Started as an experiment to add Lisp-like macros to Go,
-it is a fairly complete Go interpreter, implemented in pure Go,
+gomacro is a fairly complete Go interpreter, implemented in pure Go,
 built on top of the go/ast and reflect packages.
 
 Gomacro can be used as:
@@ -48,8 +45,21 @@ Gomacro can be used as:
   then mark the file as executable with `chmod +x FILENAME.go` and finally execute it
   with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
-* a Go code generation tool (BETA):
-  run `gomacro -m -w FILENAMES` to parse and expand macros in one or more files.
+* a Go code generation tool:
+  gomacro was started as an experiment to add Lisp-like macros to Go, and they are
+  extremely useful (in the author's opinion) to simplify code generation.
+  Macros are normal functions whose arguments and result are code
+  (abstract syntax trees,in the form of go/ast.Node), they are special
+  only in one aspect: they are executed *before* compiling code, and their output
+  *is* code.
+  
+  Don't confuse them with C preprocessor macros: in Lisp, Scheme and now in Go,
+  macros are regular functions written in the same programming language
+  as the rest of the source code. They can perform arbitrary computations
+  and call any other function or library: they can even read and write files,
+  open network connections, etc... as a normal Go function can do.
+
+  Run `gomacro -m -w FILENAMES` to parse and expand macros in one or more files.
   For each filename on the command line, gomacro will parse it, expand macros,
   then create a corresponding FILENAME.go with the parsed and macroexpanded
   imports, declarations and statements.
