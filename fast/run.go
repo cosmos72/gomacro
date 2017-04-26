@@ -31,31 +31,34 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func (ce *CompEnv) Exec1(expr *Expr) r.Value {
-	ce.PrepareEnv()
-	if expr != nil {
-		return expr.AsX1()(ce.env)
-	} else {
+func (ce *CompEnv) RunExpr1(expr *Expr) r.Value {
+	if expr == nil {
 		return None
 	}
+	env := ce.PrepareEnv()
+	return expr.AsX1()(env)
 }
 
-func (ce *CompEnv) Exec(expr *Expr) (r.Value, []r.Value) {
-	ce.PrepareEnv()
-	if expr != nil {
-		return expr.AsXV(CompileDefaults)(ce.env)
-	} else {
+func (ce *CompEnv) RunExpr(expr *Expr) (r.Value, []r.Value) {
+	if expr == nil {
 		return None, nil
 	}
+	env := ce.PrepareEnv()
+	return expr.AsXV(CompileDefaults)(env)
 }
 
 func (ce *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value) {
-	ce.PrepareEnv()
-	if fun != nil {
-		return fun(ce.env)
-	} else {
+	if fun == nil {
 		return None, nil
 	}
+	env := ce.PrepareEnv()
+	return fun(env)
+}
+
+// combined ParseAst + CompileAst
+func (ce *CompEnv) Compile(src string) func(*Env) (r.Value, []r.Value) {
+	c := ce.Comp
+	return c.CompileAst(c.ParseAst(src))
 }
 
 // combined ParseAst + CompileAst + Run
@@ -113,7 +116,7 @@ func (ce *CompEnv) AddressOfVar(name string) (addr r.Value) {
 		case VarBind, IntBind:
 			va := sym.AsVar(PlaceAddress)
 			expr := va.Address(c.Depth)
-			return ce.Exec1(expr)
+			return ce.RunExpr1(expr)
 		}
 	}
 	return Nil
@@ -142,7 +145,7 @@ func (ce *CompEnv) ValueOf(name string) (value r.Value) {
 		return env.Binds[sym.Desc.Index()]
 	default:
 		expr := ce.Comp.Symbol(sym)
-		return ce.Exec1(expr)
+		return ce.RunExpr1(expr)
 	}
 }
 

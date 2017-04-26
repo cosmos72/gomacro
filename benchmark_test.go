@@ -406,12 +406,11 @@ func BenchmarkSumCompiler(b *testing.B) {
 
 func BenchmarkSumFastInterpreter(b *testing.B) {
 	ce := fast.New()
-	c := ce.Comp
 	ce.Eval("var i, total uint")
 	ce.DeclConst("n", nil, uint(sum_n))
 	ce.Apply()
 
-	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i++ { total += i }; total"))
+	fun := ce.Compile("total = 0; for i = 1; i <= n; i++ { total += i }; total")
 	env := ce.PrepareEnv()
 	fun(env)
 
@@ -428,12 +427,11 @@ func BenchmarkSumFastInterpreter(b *testing.B) {
 
 func BenchmarkSumFastInterpreterBis(b *testing.B) {
 	ce := fast.New()
-	c := ce.Comp
 	ce.Eval("var i, total uint")
 	ce.DeclConst("n", nil, uint(sum_n))
 	ce.Apply()
 
-	fun := c.CompileAst(c.ParseAst("for i = 1; i <= n; i++ { total += i }"))
+	fun := ce.Compile("for i = 1; i <= n; i++ { total += i }")
 	env := ce.PrepareEnv()
 	fun(env)
 	total := ce.AddressOfVar("total").Interface().(*uint)
