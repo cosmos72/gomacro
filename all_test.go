@@ -287,6 +287,7 @@ var tests = []TestCase{
 	TestCase{A, "builtin_make_8", "vs = make([]byte, 5); vs", make([]byte, 5), nil},
 	TestCase{A, "builtin_copy_1", "copy(vs, v5)", 5, nil},
 	TestCase{A, "builtin_copy_2", "vs", []byte("8y57r"), nil},
+	TestCase{A, "builtin_delete_1", "delete(m,1); m", map[int]string{2: "yz"}, nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},

@@ -89,6 +89,7 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltinFunc("append", BuiltinFunc{compileAppend, 1, MaxInt})
 	ce.DeclBuiltinFunc("cap", BuiltinFunc{compileCap, 1, 1})
 	ce.DeclBuiltinFunc("copy", BuiltinFunc{compileCopy, 2, 2})
+	ce.DeclBuiltinFunc("delete", BuiltinFunc{compileDelete, 2, 2})
 	ce.DeclBuiltinFunc("len", BuiltinFunc{compileLen, 1, 1})
 	ce.DeclBuiltinFunc("make", BuiltinFunc{compileMake, 1, 3})
 	ce.DeclBuiltinFunc("new", BuiltinFunc{compileNew, 1, 1})
@@ -113,7 +114,6 @@ func (ce *CompEnv) addBuiltins() {
 
 		binds["close"] = r.ValueOf(callClose)
 		binds["complex"] = r.ValueOf(Function{funcComplex, 2})
-		binds["delete"] = r.ValueOf(callDelete)
 	*/
 	/*
 		binds["imag"] = r.ValueOf(Function{funcImag, 1})
@@ -274,6 +274,34 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: funCopy}, &sym)
 	return &Call{Fun: fun, Args: args, OutTypes: outtypes, Const: false}
+}
+
+// --- delete() ---
+
+// use whatever calling convention is convenient: reflect.Values, interface{}s, primitive types...
+// as long as call_builtin supports it, we're fine
+func callDelete(vmap r.Value, vkey r.Value) {
+	vmap.SetMapIndex(vkey, Nil)
+}
+
+func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	emap := c.Expr1(node.Args[0])
+	ekey := c.Expr1(node.Args[1])
+	tmap := emap.Type
+	if tmap.Kind() != r.Map {
+		c.Errorf("first argument to delete must be map; have %v", tmap)
+		return nil
+	}
+	tkey := tmap.Key()
+	if ekey.Const() {
+		ekey.ConstTo(tkey)
+	} else if !ekey.Type.AssignableTo(tkey) {
+		c.Errorf("cannot use %v <%v> as type <%v> in delete", node.Args[1], ekey.Type, tkey)
+	}
+	t := r.FuncOf([]r.Type{tmap, tkey}, ZeroTypes, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: callDelete}, &sym)
+	return &Call{Fun: fun, Args: []*Expr{emap, ekey}, OutTypes: ZeroTypes, Const: false}
 }
 
 // --- len() ---
@@ -458,6 +486,13 @@ func call_builtin(c *Call) I {
 		call = func(env *Env) int {
 			arg := argfun(env)
 			return fun(arg)
+		}
+	case func(r.Value, r.Value): // delete()
+		argfunsX1 := c.MakeArgfuns()
+		call = func(env *Env) {
+			arg0 := argfunsX1[0](env)
+			arg1 := argfunsX1[1](env)
+			fun(arg0, arg1)
 		}
 	case func(r.Value, r.Value) int: // copy()
 		argfunsX1 := c.MakeArgfuns()

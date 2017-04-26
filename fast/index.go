@@ -890,14 +890,16 @@ func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
 	case r.Array, r.Slice:
 		return c.vectorPlace(node, obj, idx)
 	case r.String:
+
 		c.Errorf("%s a byte in a string: %v", opt, node)
 		return nil
 	case r.Map:
+
 		if opt == PlaceAddress {
-			c.Errorf("%s an element in a map: %v", opt, node)
+			c.Errorf("%s a map element: %v", opt, node)
 			return nil
 		}
-		return &Place{Var: Var{Type: t.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1()}
+		return c.mapPlace(node, obj, idx)
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			return c.vectorPtrPlace(node, obj, idx)
@@ -908,6 +910,17 @@ func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
 		c.Errorf("invalid operation: %v (type %v does not support indexing)", node, t)
 		return nil
 	}
+}
+func (c *Comp) mapPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
+	tmap := obj.Type
+	tkey := tmap.Key()
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(tkey)
+	} else if !idx.Type.AssignableTo(tkey) {
+		c.Errorf("cannot use %v <%v> as type <%v> in map index: %v", node.Index, idx.Type, tkey, node)
+	}
+	return &Place{Var: Var{Type: tmap.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1()}
 }
 func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
