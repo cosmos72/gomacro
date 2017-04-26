@@ -50,8 +50,8 @@ Gomacro can be used as:
   extremely useful (in the author's opinion) to simplify code generation.
   Macros are normal functions whose arguments and result are code
   (abstract syntax trees,in the form of go/ast.Node), they are special
-  only in one aspect: they are executed *before* compiling code, and their output
-  *is* code.
+  only in one aspect: they are executed **before** compiling code,
+  and their input and output **is** code.
   
   Don't confuse them with C preprocessor macros: in Lisp, Scheme and now in Go,
   macros are regular functions written in the same programming language
