@@ -223,7 +223,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 	} else {
 		v = v.Convert(t)
 	}
-	lhs := place.Func()
+	lhs := place.Fun
 	var ret Stmt
 	if mapkey := place.MapKey; mapkey != nil {
 		ret = func(env *Env) (Stmt, *Env) {
@@ -244,7 +244,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 // placeSetExpr compiles 'place = expression'
 func (c *Comp) placeSetExpr(place *Place, fun I) {
 	t := place.Type
-	lhs := place.Func()
+	lhs := place.Fun
 	var ret Stmt
 	if mapkey := place.MapKey; mapkey != nil {
 		rhs := funAsX1(fun)

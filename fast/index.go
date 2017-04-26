@@ -36,7 +36,9 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
+func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr { return c.indexExpr(node, true) }
+func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr { return c.indexExpr(node, false) }
+func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	obj := c.Expr1(node.X)
 	idx := c.Expr1(node.Index)
 	if obj.Untyped() {
@@ -49,7 +51,12 @@ func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
 	case r.Array, r.Slice, r.String:
 		ret = c.vectorIndex(node, obj, idx)
 	case r.Map:
-		ret = c.mapIndex(node, obj, idx)
+		if multivalued {
+			ret = c.mapIndex(node, obj, idx)
+		} else {
+			ret = c.mapIndex1(node, obj, idx)
+		}
+
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
@@ -371,10 +378,10 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	zero := r.Zero(tval)
 	var fun func(env *Env) (r.Value, []r.Value)
 	if idxconst {
-		iv := r.ValueOf(idx.Value)
+		key := r.ValueOf(idx.Value)
 		fun = func(env *Env) (r.Value, []r.Value) {
-			objv := objfun(env)
-			val := objv.MapIndex(iv)
+			obj := objfun(env)
+			val := obj.MapIndex(key)
 			var ok r.Value
 			if val == Nil {
 				val = zero
@@ -385,11 +392,11 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			return val, []r.Value{val, ok}
 		}
 	} else {
-		idxfun := idx.AsX1()
+		keyfun := idx.AsX1()
 		fun = func(env *Env) (r.Value, []r.Value) {
-			objv := objfun(env)
-			iv := idxfun(env)
-			val := objv.MapIndex(iv)
+			obj := objfun(env)
+			key := keyfun(env)
+			val := obj.MapIndex(key)
 			var ok r.Value
 			if val == Nil {
 				val = zero
@@ -401,6 +408,475 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 		}
 	}
 	return exprXV([]r.Type{tval, TypeOfBool}, fun)
+}
+func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
+	t := obj.Type
+	tkey := t.Key()
+	tval := t.Elem()
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(tkey)
+	} else if !idx.Type.AssignableTo(tkey) {
+		c.Errorf("cannot use %v <%v> as <%v> in map index", node.Index, idx.Type, tkey)
+	}
+
+	objfun := obj.AsX1()
+	var fun I
+	if idxconst {
+		key := r.ValueOf(idx.Value)
+		switch tval.Kind() {
+		case r.Bool:
+			fun = func(env *Env) bool {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result bool
+
+				if v != Nil {
+					result = v.Bool()
+				}
+				return result
+			}
+		case r.Int:
+			fun = func(env *Env) int {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result int
+
+				if v != Nil {
+					result = int(v.Int())
+				}
+				return result
+			}
+		case r.Int8:
+			fun = func(env *Env) int8 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result int8
+
+				if v != Nil {
+					result = int8(v.Int())
+				}
+				return result
+			}
+		case r.Int16:
+			fun = func(env *Env) int16 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result int16
+
+				if v != Nil {
+					result = int16(v.Int())
+				}
+				return result
+			}
+		case r.Int32:
+			fun = func(env *Env) int32 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result int32
+				if v != Nil {
+					result = int32(v.Int())
+				}
+				return result
+			}
+		case r.Int64:
+			fun = func(env *Env) int64 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result int64
+				if v != Nil {
+					result = v.Int()
+				}
+				return result
+			}
+		case r.Uint:
+			fun = func(env *Env) uint {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result uint
+				if v != Nil {
+					result = uint(v.Uint())
+				}
+				return result
+			}
+		case r.Uint8:
+			fun = func(env *Env) uint8 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result uint8
+				if v != Nil {
+					result =
+						uint8(v.Uint())
+				}
+				return result
+			}
+		case r.Uint16:
+			fun = func(env *Env) uint16 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result uint16
+				if v != Nil {
+					result =
+
+						uint16(v.Uint())
+				}
+				return result
+			}
+		case r.Uint32:
+			fun = func(env *Env) uint32 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result uint32
+				if v != Nil {
+					result =
+
+						uint32(v.Uint())
+				}
+				return result
+			}
+		case r.Uint64:
+			fun = func(env *Env) uint64 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result uint64
+				if v != Nil {
+					result = v.Uint()
+				}
+				return result
+			}
+
+		case r.Uintptr:
+			fun = func(env *Env) uintptr {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result uintptr
+				if v != Nil {
+					result =
+
+						uintptr(v.Uint())
+				}
+				return result
+			}
+
+		case r.Float32:
+			fun = func(env *Env) float32 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result float32
+				if v != Nil {
+					result =
+
+						float32(v.Float())
+				}
+				return result
+			}
+
+		case r.Float64:
+			fun = func(env *Env) float64 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result float64
+				if v != Nil {
+					result = v.Float()
+				}
+				return result
+			}
+
+		case r.Complex64:
+			fun = func(env *Env) complex64 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result complex64
+				if v != Nil {
+					result =
+
+						complex64(v.Complex())
+				}
+				return result
+			}
+
+		case r.Complex128:
+			fun = func(env *Env) complex128 {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result complex128
+				if v != Nil {
+					result = v.Complex()
+				}
+				return result
+			}
+
+		case r.String:
+			fun = func(env *Env) string {
+				obj := objfun(env)
+				v := obj.MapIndex(key)
+				var result string
+				if v != Nil {
+					result = v.String()
+				}
+				return result
+			}
+
+		default:
+			{
+				zero := r.Zero(tval)
+				fun = func(env *Env) r.Value {
+					obj := objfun(env)
+					result := obj.MapIndex(key)
+					if result == Nil {
+						result = zero
+					}
+					return result
+				}
+			}
+
+		}
+	} else {
+		keyfun := idx.AsX1()
+		switch tval.Kind() {
+		case r.Bool:
+			fun = func(env *Env) bool {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result bool
+				if v != Nil {
+					result = v.Bool()
+				}
+				return result
+			}
+
+		case r.Int:
+			fun = func(env *Env) int {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result int
+				if v != Nil {
+					result =
+
+						int(v.Int())
+				}
+				return result
+			}
+
+		case r.Int8:
+			fun = func(env *Env) int8 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result int8
+				if v != Nil {
+					result =
+
+						int8(v.Int())
+				}
+				return result
+			}
+
+		case r.Int16:
+			fun = func(env *Env) int16 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result int16
+				if v != Nil {
+					result =
+
+						int16(v.Int())
+				}
+				return result
+			}
+
+		case r.Int32:
+			fun = func(env *Env) int32 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result int32
+				if v != Nil {
+					result =
+
+						int32(v.Int())
+				}
+				return result
+			}
+
+		case r.Int64:
+			fun = func(env *Env) int64 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result int64
+				if v != Nil {
+					result = v.Int()
+				}
+				return result
+			}
+
+		case r.Uint:
+			fun = func(env *Env) uint {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result uint
+				if v != Nil {
+					result =
+
+						uint(v.Uint())
+				}
+				return result
+			}
+
+		case r.Uint8:
+			fun = func(env *Env) uint8 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result uint8
+				if v != Nil {
+					result =
+
+						uint8(v.Uint())
+				}
+				return result
+			}
+
+		case r.Uint16:
+			fun = func(env *Env) uint16 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result uint16
+				if v != Nil {
+					result =
+
+						uint16(v.Uint())
+				}
+				return result
+			}
+
+		case r.Uint32:
+			fun = func(env *Env) uint32 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result uint32
+				if v != Nil {
+					result =
+
+						uint32(v.Uint())
+				}
+				return result
+			}
+
+		case r.Uint64:
+			fun = func(env *Env) uint64 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result uint64
+				if v != Nil {
+					result = v.Uint()
+				}
+				return result
+			}
+
+		case r.Uintptr:
+			fun = func(env *Env) uintptr {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result uintptr
+				if v != Nil {
+					result =
+
+						uintptr(v.Uint())
+				}
+				return result
+			}
+
+		case r.Float32:
+			fun = func(env *Env) float32 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result float32
+				if v != Nil {
+					result =
+
+						float32(v.Float())
+				}
+				return result
+			}
+
+		case r.Float64:
+			fun = func(env *Env) float64 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result float64
+				if v != Nil {
+					result = v.Float()
+				}
+				return result
+			}
+
+		case r.Complex64:
+			fun = func(env *Env) complex64 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result complex64
+				if v != Nil {
+					result =
+
+						complex64(v.Complex())
+				}
+				return result
+			}
+
+		case r.Complex128:
+			fun = func(env *Env) complex128 {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result complex128
+				if v != Nil {
+					result = v.Complex()
+				}
+				return result
+			}
+
+		case r.String:
+			fun = func(env *Env) string {
+				obj := objfun(env)
+				key := keyfun(env)
+				v := obj.MapIndex(key)
+				var result string
+				if v != Nil {
+					result = v.String()
+				}
+				return result
+			}
+
+		default:
+			{
+				zero := r.Zero(tval)
+				fun = func(env *Env) r.Value {
+					obj := objfun(env)
+					key := keyfun(env)
+					result := obj.MapIndex(key)
+					if result == Nil {
+						result = zero
+					}
+					return result
+				}
+			}
+
+		}
+	}
+	return exprFun(tval, fun)
 }
 func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
 	obj := c.Expr1(node.X)
@@ -421,7 +897,7 @@ func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
 			c.Errorf("%s an element in a map: %v", opt, node)
 			return nil
 		}
-		return &Place{Var: Var{Type: t.Elem()}, fun: obj.AsX1(), MapKey: idx.AsX1()}
+		return &Place{Var: Var{Type: t.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1()}
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			return c.vectorPtrPlace(node, obj, idx)
@@ -443,12 +919,16 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 
 	t := obj.Type.Elem()
 	objfun := obj.AsX1()
-	var fun func(env *Env) r.Value
+	var fun, addr func(env *Env) r.Value
 	if idxconst {
 		i := idx.Value.(int)
 		fun = func(env *Env) r.Value {
 			objv := objfun(env)
 			return objv.Index(i)
+		}
+		addr = func(env *Env) r.Value {
+			objv := objfun(env)
+			return objv.Index(i).Addr()
 		}
 	} else {
 		idxfun := idx.WithFun().(func(*Env) int)
@@ -457,8 +937,13 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 			i := idxfun(env)
 			return objv.Index(i)
 		}
+		addr = func(env *Env) r.Value {
+			objv := objfun(env)
+			i := idxfun(env)
+			return objv.Index(i).Addr()
+		}
 	}
-	return &Place{Var: Var{Type: t}, fun: fun}
+	return &Place{Var: Var{Type: t}, Fun: fun, Addr: addr}
 }
 func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
@@ -470,12 +955,16 @@ func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place 
 
 	t := obj.Type.Elem().Elem()
 	objfun := obj.AsX1()
-	var fun func(env *Env) r.Value
+	var fun, addr func(env *Env) r.Value
 	if idxconst {
 		i := idx.Value.(int)
 		fun = func(env *Env) r.Value {
 			objv := objfun(env).Elem()
 			return objv.Index(i)
+		}
+		addr = func(env *Env) r.Value {
+			objv := objfun(env).Elem()
+			return objv.Index(i).Addr()
 		}
 	} else {
 		idxfun := idx.WithFun().(func(*Env) int)
@@ -484,6 +973,11 @@ func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place 
 			i := idxfun(env)
 			return objv.Index(i)
 		}
+		addr = func(env *Env) r.Value {
+			objv := objfun(env).Elem()
+			i := idxfun(env)
+			return objv.Index(i).Addr()
+		}
 	}
-	return &Place{Var: Var{Type: t}, fun: fun}
+	return &Place{Var: Var{Type: t}, Fun: fun, Addr: addr}
 }

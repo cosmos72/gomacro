@@ -41,8 +41,13 @@ func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
 	place := c.placeOrAddress(node.X, PlaceAddress)
 	if place.IsVar() {
 		return place.Var.Address(c.Depth)
+	} else if place.Addr == nil {
+		c.Errorf("cannot take the address of %v", node.X)
+		return nil
+	} else {
+		return exprX1(r.PtrTo(place.Type), place.Addr)
 	}
-	return exprX1(place.Addr())
+
 }
 func (c *Comp) AddressOfVar(name string) *Expr {
 	sym := c.Resolve(name)
@@ -64,7 +69,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Bool:
 
 			ret = func(env *Env) *bool {
-
 				env.AddressTaken = true
 				return (*bool)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -72,7 +76,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Int:
 
 			ret = func(env *Env) *int {
-
 				env.AddressTaken = true
 				return (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -80,7 +83,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Int8:
 
 			ret = func(env *Env) *int8 {
-
 				env.AddressTaken = true
 				return (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -88,7 +90,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Int16:
 
 			ret = func(env *Env) *int16 {
-
 				env.AddressTaken = true
 				return (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -96,7 +97,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Int32:
 
 			ret = func(env *Env) *int32 {
-
 				env.AddressTaken = true
 				return (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -104,7 +104,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Int64:
 
 			ret = func(env *Env) *int64 {
-
 				env.AddressTaken = true
 				return (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -112,7 +111,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Uint:
 
 			ret = func(env *Env) *uint {
-
 				env.AddressTaken = true
 				return (*uint)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -120,7 +118,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Uint8:
 
 			ret = func(env *Env) *uint8 {
-
 				env.AddressTaken = true
 				return (*uint8)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -128,7 +125,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Uint16:
 
 			ret = func(env *Env) *uint16 {
-
 				env.AddressTaken = true
 				return (*uint16)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -136,7 +132,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Uint32:
 
 			ret = func(env *Env) *uint32 {
-
 				env.AddressTaken = true
 				return (*uint32)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -144,7 +139,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Uint64:
 
 			ret = func(env *Env) *uint64 {
-
 				env.AddressTaken = true
 				return &env.IntBinds[index]
 
@@ -152,7 +146,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Uintptr:
 
 			ret = func(env *Env) *uintptr {
-
 				env.AddressTaken = true
 				return (*uintptr)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -160,7 +153,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Float32:
 
 			ret = func(env *Env) *float32 {
-
 				env.AddressTaken = true
 				return (*float32)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -168,7 +160,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Float64:
 
 			ret = func(env *Env) *float64 {
-
 				env.AddressTaken = true
 				return (*float64)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -176,7 +167,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 		case r.Complex64:
 
 			ret = func(env *Env) *complex64 {
-
 				env.AddressTaken = true
 				return (*complex64)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -184,10 +174,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 		default:
 
 			ret = func(env *Env) r.Value {
-
-				env.AddressTaken = true
 				return env.Binds[index].Addr()
-
 			}
 		}
 	case 1:
@@ -347,8 +334,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 			ret = func(env *Env) r.Value {
 				env = env.
 					Outer
-
-				env.AddressTaken = true
 				return env.Binds[index].Addr()
 
 			}
@@ -510,8 +495,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 			ret = func(env *Env) r.Value {
 				env = env.
 					Outer.Outer
-
-				env.AddressTaken = true
 				return env.Binds[index].Addr()
 
 			}
@@ -705,8 +688,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
-
-				env.AddressTaken = true
 				return env.Binds[index].Addr()
 
 			}
@@ -852,8 +833,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			ret = func(env *Env) r.Value {
 				env = env.ThreadGlobals.FileEnv
-
-				env.AddressTaken = true
 				return env.Binds[index].Addr()
 
 			}
@@ -999,8 +978,6 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			ret = func(env *Env) r.Value {
 				env = env.ThreadGlobals.TopEnv
-
-				env.AddressTaken = true
 				return env.Binds[index].Addr()
 
 			}

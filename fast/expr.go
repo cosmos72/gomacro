@@ -68,9 +68,8 @@ func (c *Comp) Expr1(in ast.Expr) *Expr {
 		case *ast.ParenExpr:
 			in = node.X
 			continue
-		// TODO optimization: implement and call Comp.mapIndex1()
-		// case *ast.IndexExpr:
-		//   return c.IndexExpr1(node)
+		case *ast.IndexExpr:
+			return c.IndexExpr1(node)
 		case *ast.TypeAssertExpr:
 			return c.TypeAssert1(node)
 		}

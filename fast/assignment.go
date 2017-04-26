@@ -27,6 +27,7 @@ package fast
 import (
 	"go/ast"
 	"go/token"
+	r "reflect"
 )
 
 // Assign compiles an *ast.AssignStmt into an assignment to one or more place
@@ -107,21 +108,23 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
 				c.Errorf("%s a constant: %v <%v>", opt, node, e.Type)
 				return nil
 			} else if e.Sym != nil && opt == PlaceAddress {
-				// just return the variable, it's already the address of the place we want
-				// but remember to dereference its type
+				// optimize &*variable -> variable: it's already the address we want,
+				// remember to dereference its type
 				//
 				// we cannot do this optimization when opt == PlaceSettable,
-				// because the code to compile is *variable i.e. the place to return is *variable,
-				// which is not an identifier
+				// because in such case the code to compile is *variable - not an identifier
 				va := *e.Sym.AsVar(opt)
 				va.Type = va.Type.Elem()
 				return &Place{Var: va}
 			} else {
-				// return e.Fun as Place.addr, it's already the address of the place we want
-				// but remember to dereference its type
+				// e.Fun is already the address we want,
+				// remember to dereference its type
 				t := e.Type.Elem()
 				addr := e.AsX1()
-				return &Place{Var: Var{Type: t}, addr: addr}
+				fun := func(env *Env) r.Value {
+					return addr(env).Elem()
+				}
+				return &Place{Var: Var{Type: t}, Fun: fun, Addr: addr}
 			}
 		case *ast.SelectorExpr:
 			return c.SelectorPlace(node, opt)
@@ -139,7 +142,7 @@ func (c *Comp) placeForSideEffects(place *Place) {
 		return
 	}
 	var ret Stmt
-	fun := place.Func()
+	fun := place.Fun
 	if mapkey := place.MapKey; mapkey != nil {
 		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)

@@ -215,7 +215,6 @@ func (env *Env) FreeEnv() {
 		return
 	}
 	if env.AddressTaken {
-		env.Binds = nil
 		env.IntBinds = nil
 		env.AddressTaken = false
 	}

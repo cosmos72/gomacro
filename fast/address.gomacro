@@ -72,9 +72,12 @@ import (
 		}
 	}
 	if t == nil {
+		// no need to set env.AddressTaken = true
+		// because env.Binds[index] actually contains a pointer to the variable
 		bind = ~'{env .Binds[index].Addr()}
 		rettype = ~'{r.Value}
 	} else {
+		decls = ~"{~,@decls; env.AddressTaken = true}
 		rettype = ~"{* ~,typ}
 		if t.Kind() == r.Uint64 {
 			bind = ~'{&env.IntBinds[index]}
@@ -86,7 +89,6 @@ import (
 	return ~"{
 		ret = func(env *Env) (~,rettype) {
 			~,@decls
-			env.AddressTaken = true
 			return ~,bind
 		}
 	}
@@ -126,8 +128,12 @@ func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
 	place := c.placeOrAddress(node.X, PlaceAddress)
 	if place.IsVar() {
 		return place.Var.Address(c.Depth)
+	} else if place.Addr == nil {
+		c.Errorf("cannot take the address of %v", node.X)
+		return nil
+	} else {
+		return exprX1(r.PtrTo(place.Type), place.Addr)
 	}
-	return exprX1(place.Addr())
 }
 
 func (c *Comp) AddressOfVar(name string) *Expr {

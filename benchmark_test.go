@@ -371,13 +371,12 @@ func BenchmarkSumCompiler(b *testing.B) {
 func BenchmarkSumFastInterpreter(b *testing.B) {
 	ce := fast.New()
 	c := ce.Comp
-	ce.Eval("var i, n, total uint")
+	ce.Eval("var i, total uint")
+	ce.DeclConst("n", nil, uint(sum_n))
+	ce.Apply()
 
 	fun := c.CompileAst(c.ParseAst("total = 0; for i = 1; i <= n; i++ { total += i }; total"))
 	env := ce.PrepareEnv()
-	ce.AddressOfVar("n").Elem().SetUint(sum_n)
-	// alternative: addr := ce.AddressOfVar("n").Interface().(*int); *addr = sum_n
-	// ugly, and uses undocumented internals: *(*int)(env.IntBinds[ce.Comp.Binds["n"].Desc.Index()]) = sum_n
 	fun(env)
 
 	var total uint
@@ -388,6 +387,28 @@ func BenchmarkSumFastInterpreter(b *testing.B) {
 	}
 	if verbose {
 		println(total)
+	}
+}
+
+func BenchmarkSumFastInterpreterBis(b *testing.B) {
+	ce := fast.New()
+	c := ce.Comp
+	ce.Eval("var i, total uint")
+	ce.DeclConst("n", nil, uint(sum_n))
+	ce.Apply()
+
+	fun := c.CompileAst(c.ParseAst("for i = 1; i <= n; i++ { total += i }"))
+	env := ce.PrepareEnv()
+	fun(env)
+	total := ce.AddressOfVar("total").Interface().(*uint)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		*total = 0
+		fun(env)
+	}
+	if verbose {
+		println(*total)
 	}
 }
 

@@ -38,6 +38,15 @@ import (
 
 // IndexExpr compiles a read operation on obj[idx]
 func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
+	return c.indexExpr(node, true)
+}
+
+// IndexExpr1 compiles a single-valued read operation on obj[idx]
+func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr {
+	return c.indexExpr(node, false)
+}
+
+func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	obj := c.Expr1(node.X)
 	idx := c.Expr1(node.Index)
 	if obj.Untyped() {
@@ -49,7 +58,11 @@ func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
 	case r.Array, r.Slice, r.String:
 		ret = c.vectorIndex(node, obj, idx)
 	case r.Map:
-		ret = c.mapIndex(node, obj, idx)
+		if multivalued {
+			ret = c.mapIndex(node, obj, idx)
+		} else {
+			ret = c.mapIndex1(node, obj, idx)
+		}
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
@@ -250,39 +263,6 @@ func (c *Comp) stringIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	return exprUint8(fun)
 }
 
-:macro map_index_c(typ ast.Node) ast.Node {
-	kind := makekind(typ)
-	typv, val := convertvalue(typ, ~'{objv.MapIndex(iv)})
-	fun := ~"{
-		fun = func(env *Env) ~,typv {
-			objv := objfun(env)
-			return ~,val
-		}
-	}
-	if kind == nil {
-		return ~"{ default: ~,fun }
-	} else {
-		return ~"{ case ~,kind: ~,fun }
-	}
-}
-
-:macro map_index_e(typ ast.Node) ast.Node {
-	kind := makekind(typ)
-	typv, val := convertvalue(typ, ~'{objv.MapIndex(iv)})
-	fun := ~"{
-		fun = func(env *Env) ~,typv {
-			objv := objfun(env)
-			iv := idxfun(env)
-			return ~,val
-		}
-	}
-	if kind == nil {
-		return ~"{ default: ~,fun }
-	} else {
-		return ~"{ case ~,kind: ~,fun }
-	}
-}
-
 // mapIndex compiles obj[idx] where obj is a map
 func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	t := obj.Type
@@ -298,10 +278,10 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	zero := r.Zero(tval)
 	var fun func(env *Env) (r.Value, []r.Value)
 	if idxconst {
-		iv := r.ValueOf(idx.Value)
+		key := r.ValueOf(idx.Value)
 		fun = func(env *Env) (r.Value, []r.Value) {
-			objv := objfun(env)
-			val := objv.MapIndex(iv)
+			obj := objfun(env)
+			val := obj.MapIndex(key)
 			var ok r.Value
 			if val == Nil {
 				val = zero // map[key] returns the zero value if key is not present
@@ -312,11 +292,11 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			return val, []r.Value{val, ok}
 		}
 	} else {
-		idxfun := idx.AsX1()
+		keyfun := idx.AsX1()
 		fun = func(env *Env) (r.Value, []r.Value) {
-			objv := objfun(env)
-			iv := idxfun(env)
-			val := objv.MapIndex(iv)
+			obj := objfun(env)
+			key := keyfun(env)
+			val := obj.MapIndex(key)
 			var ok r.Value
 			if val == Nil {
 				val = zero // map[key] returns the zero value if key is not present
@@ -328,6 +308,125 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 		}
 	}
 	return exprXV([]r.Type{tval, TypeOfBool}, fun)
+}
+
+:macro mapindex1_c(typ ast.Node) ast.Node {
+	if EvalType(typ) == nil {
+		return ~'{
+			zero := r.Zero(tval)
+			fun = func(env *Env) r.Value {
+				obj := objfun(env)
+				result := obj.MapIndex(key)
+				if result == Nil {
+					result = zero
+				}
+				return result
+			}
+		}
+	}
+	_, unwrap := convertvalue(typ, ~'v)
+	return ~"{
+		fun = func(env *Env) ~,typ {
+			obj := objfun(env)
+			v := obj.MapIndex(key)
+			var result ~,typ
+			if v != Nil {
+				result = ~,unwrap
+			}
+			return result
+		}
+	}
+}
+
+:macro mapindex1_e(typ ast.Node) ast.Node {
+	if EvalType(typ) == nil {
+		return ~'{
+			zero := r.Zero(tval)
+			fun = func(env *Env) r.Value {
+				obj := objfun(env)
+				key := keyfun(env)
+				result := obj.MapIndex(key)
+				if result == Nil {
+					result = zero
+				}
+				return result
+			}
+		}
+	}
+	_, unwrap := convertvalue(typ, ~'v)
+	return ~"{
+		fun = func(env *Env) ~,typ {
+			obj := objfun(env)
+			key := keyfun(env)
+			v := obj.MapIndex(key)
+			var result ~,typ
+			if v != Nil {
+				result = ~,unwrap
+			}
+			return result
+		}
+	}
+}
+
+// mapIndex1 compiles obj[idx] where obj is a map, in single-value context
+func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
+	t := obj.Type
+	tkey := t.Key()
+	tval := t.Elem()
+	idxconst := idx.Const()
+	if idxconst {
+		idx.ConstTo(tkey)
+	} else if !idx.Type.AssignableTo(tkey) {
+		c.Errorf("cannot use %v <%v> as <%v> in map index", node.Index, idx.Type, tkey)
+	}
+	objfun := obj.AsX1()
+	var fun I
+	if idxconst {
+		key := r.ValueOf(idx.Value)
+		switch tval.Kind() {
+		case r.Bool:       mapindex1_c; bool
+		case r.Int:        mapindex1_c; int
+		case r.Int8:       mapindex1_c; int8
+		case r.Int16:      mapindex1_c; int16
+		case r.Int32:      mapindex1_c; int32
+		case r.Int64:      mapindex1_c; int64
+		case r.Uint:       mapindex1_c; uint
+		case r.Uint8:      mapindex1_c; uint8
+		case r.Uint16:     mapindex1_c; uint16
+		case r.Uint32:     mapindex1_c; uint32
+		case r.Uint64:     mapindex1_c; uint64
+		case r.Uintptr:    mapindex1_c; uintptr
+		case r.Float32:    mapindex1_c; float32
+		case r.Float64:    mapindex1_c; float64
+		case r.Complex64:  mapindex1_c; complex64
+		case r.Complex128: mapindex1_c; complex128
+		case r.String:     mapindex1_c; string
+		default:           mapindex1_c; nil
+		}
+	} else {
+		keyfun := idx.AsX1()
+		switch tval.Kind() {
+		case r.Bool:       mapindex1_e; bool
+		case r.Int:        mapindex1_e; int
+		case r.Int8:       mapindex1_e; int8
+		case r.Int16:      mapindex1_e; int16
+		case r.Int32:      mapindex1_e; int32
+		case r.Int64:      mapindex1_e; int64
+		case r.Uint:       mapindex1_e; uint
+		case r.Uint8:      mapindex1_e; uint8
+		case r.Uint16:     mapindex1_e; uint16
+		case r.Uint32:     mapindex1_e; uint32
+		case r.Uint64:     mapindex1_e; uint64
+		case r.Uintptr:    mapindex1_e; uintptr
+		case r.Float32:    mapindex1_e; float32
+		case r.Float64:    mapindex1_e; float64
+		case r.Complex64:  mapindex1_e; complex64
+		case r.Complex128: mapindex1_e; complex128
+		case r.String:     mapindex1_e; string
+		default:           mapindex1_e; nil
+		}
+	}
+	return exprFun(tval, fun)
 }
 
 // IndexPlace compiles obj[idx] returning a Place, i.e. a settable (and addressable, if possible) reflect.Value
@@ -349,7 +448,7 @@ func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
 			c.Errorf("%s an element in a map: %v", opt, node)
 			return nil
 		}
-		return &Place{Var: Var{Type: t.Elem()}, fun: obj.AsX1(), MapKey: idx.AsX1()}
+		return &Place{Var: Var{Type: t.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1()}
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			return c.vectorPtrPlace(node, obj, idx)
@@ -371,12 +470,16 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	}
 	t := obj.Type.Elem()
 	objfun := obj.AsX1()
-	var fun func(env *Env) r.Value
+	var fun, addr func(env *Env) r.Value
 	if idxconst {
 		i := idx.Value.(int)
 		fun = func(env *Env) r.Value {
 			objv := objfun(env)
 			return objv.Index(i)
+		}
+		addr = func(env *Env) r.Value {
+			objv := objfun(env)
+			return objv.Index(i).Addr()
 		}
 	} else {
 		idxfun := idx.WithFun().(func(*Env) int)
@@ -385,8 +488,13 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 			i := idxfun(env)
 			return objv.Index(i)
 		}
+		addr = func(env *Env) r.Value {
+			objv := objfun(env)
+			i := idxfun(env)
+			return objv.Index(i).Addr()
+		}
 	}
-	return &Place{Var: Var{Type: t}, fun: fun}
+	return &Place{Var: Var{Type: t}, Fun: fun, Addr: addr}
 }
 
 // vectorPtrPlace compiles obj[idx] where obj is a pointer to an array, returning a settable and addressable reflect.Value
@@ -399,12 +507,16 @@ func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place 
 	}
 	t := obj.Type.Elem().Elem() // Elem() for the pointer to array, another Elem() for the array element type
 	objfun := obj.AsX1()
-	var fun func(env *Env) r.Value
+	var fun, addr func(env *Env) r.Value
 	if idxconst {
 		i := idx.Value.(int)
 		fun = func(env *Env) r.Value {
 			objv := objfun(env).Elem()
 			return objv.Index(i)
+		}
+		addr = func(env *Env) r.Value {
+			objv := objfun(env).Elem()
+			return objv.Index(i).Addr()
 		}
 	} else {
 		idxfun := idx.WithFun().(func(*Env) int)
@@ -413,6 +525,11 @@ func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place 
 			i := idxfun(env)
 			return objv.Index(i)
 		}
+		addr = func(env *Env) r.Value {
+			objv := objfun(env).Elem()
+			i := idxfun(env)
+			return objv.Index(i).Addr()
+		}
 	}
-	return &Place{Var: Var{Type: t}, fun: fun}
+	return &Place{Var: Var{Type: t}, Fun: fun, Addr: addr}
 }

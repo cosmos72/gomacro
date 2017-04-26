@@ -187,7 +187,9 @@ func (c *Comp) DeclConst0(name string, t r.Type, value I) {
 		return
 	}
 	lit := litValue(value)
-	if t != nil {
+	if t == nil {
+		t = lit.Type
+	} else {
 		value = lit.ConstTo(t)
 	}
 	bind := c.AddBind(name, ConstBind, t)

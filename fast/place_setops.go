@@ -43,406 +43,791 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 	}
 
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.ADD,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() + int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() + uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Float64:
+				val := r.ValueOf(val).Float()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetFloat(lhs.Float() + float64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Complex128:
+				val := r.ValueOf(val).Complex()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetComplex(lhs.Complex() + complex128(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.String:
+				val := r.ValueOf(val).String()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetString(lhs.String() +
+						val,
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.ADD, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case float32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result float32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = float32(v.Float())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case float64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result float64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = float64(v.Float())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case complex64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result complex64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = complex64(v.Complex())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case complex128:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result complex128
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = complex128(v.Complex())
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case string:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result string
+					if v := lhs.MapIndex(key); v != Nil {
+						result = v.String()
+					}
+					result += val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.ADD, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeAddExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(val,
+				lhs.SetInt(lhs.Int() + int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(val,
+				lhs.SetInt(lhs.Int() + int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(val,
+				lhs.SetInt(lhs.Int() + int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(val,
+				lhs.SetInt(lhs.Int() + int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(val,
+				lhs.SetInt(lhs.Int() + int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(val,
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(val,
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(val,
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(val,
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(val,
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(val,
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			float32:
+		case func(*Env) float32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() + float64(val,
+				lhs.SetFloat(lhs.Float() + float64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			float64:
+		case func(*Env) float64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() + float64(val,
+				lhs.SetFloat(lhs.Float() + float64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			complex64:
+		case func(*Env) complex64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() + complex128(val,
+				lhs.SetComplex(lhs.Complex() + complex128(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			complex128:
+		case func(*Env) complex128:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() + complex128(val,
+				lhs.SetComplex(lhs.Complex() + complex128(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case string:
+		case func(*Env) string:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
 				lhs.SetString(lhs.String() +
-					val,
+					fun(env),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.ADD, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) float32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result float32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = float32(v.Float())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) float64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result float64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = float64(v.Float())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) complex64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result complex64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = complex64(v.Complex())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) complex128:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result complex128
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = complex128(v.Complex())
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) string:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result string
+				if v := lhs.MapIndex(key); v != Nil {
+					result = v.String()
+				}
+				result += fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeAddExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.ADD,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() + int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() + int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() + int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() + int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() + int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() + uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() + uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() + uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() + uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() + uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() + uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) float32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetFloat(lhs.Float() + float64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) float64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetFloat(lhs.Float() + float64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) complex64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetComplex(lhs.Complex() + complex128(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) complex128:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetComplex(lhs.Complex() + complex128(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) string:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetString(lhs.String() +
-				fun(env),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) placeSubConst(place *Place, val I) {
@@ -452,193 +837,480 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 	}
 
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.SUB,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() - int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() - uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Float64:
+				val := r.ValueOf(val).Float()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetFloat(lhs.Float() - float64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Complex128:
+				val := r.ValueOf(val).Complex()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetComplex(lhs.Complex() - complex128(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.SUB, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case float32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result float32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = float32(v.Float())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case float64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result float64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = float64(v.Float())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case complex64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result complex64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = complex64(v.Complex())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case complex128:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result complex128
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = complex128(v.Complex())
+					}
+					result -= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.SUB, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeSubExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(val,
+				lhs.SetInt(lhs.Int() - int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(val,
+				lhs.SetInt(lhs.Int() - int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(val,
+				lhs.SetInt(lhs.Int() - int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(val,
+				lhs.SetInt(lhs.Int() - int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(val,
+				lhs.SetInt(lhs.Int() - int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(val,
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(val,
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(val,
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(val,
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(val,
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(val,
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			float32:
+		case func(*Env) float32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() - float64(val,
+				lhs.SetFloat(lhs.Float() - float64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			float64:
+		case func(*Env) float64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() - float64(val,
+				lhs.SetFloat(lhs.Float() - float64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			complex64:
+		case func(*Env) complex64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() - complex128(val,
+				lhs.SetComplex(lhs.Complex() - complex128(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			complex128:
+		case func(*Env) complex128:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() - complex128(val,
+				lhs.SetComplex(lhs.Complex() - complex128(fun(env),
 				),
 				)
 
@@ -646,190 +1318,257 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.SUB, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SUB, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) float32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result float32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = float32(v.Float())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) float64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result float64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = float64(v.Float())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) complex64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result complex64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = complex64(v.Complex())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) complex128:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result complex128
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = complex128(v.Complex())
+				}
+				result -= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SUB, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeSubExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.SUB,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() - int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() - int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() - int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() - int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() - int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() - uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() - uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() - uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() - uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() - uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() - uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) float32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetFloat(lhs.Float() - float64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) float64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetFloat(lhs.Float() - float64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) complex64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetComplex(lhs.Complex() - complex128(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) complex128:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetComplex(lhs.Complex() - complex128(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SUB, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) placeMulConst(place *Place, val I) {
@@ -843,193 +1582,480 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 	}
 
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.MUL,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() * int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() * uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Float64:
+				val := r.ValueOf(val).Float()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetFloat(lhs.Float() * float64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Complex128:
+				val := r.ValueOf(val).Complex()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetComplex(lhs.Complex() * complex128(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.MUL, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case float32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result float32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = float32(v.Float())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case float64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result float64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = float64(v.Float())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case complex64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result complex64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = complex64(v.Complex())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case complex128:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result complex128
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = complex128(v.Complex())
+					}
+					result *= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.MUL, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeMulExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(val,
+				lhs.SetInt(lhs.Int() * int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(val,
+				lhs.SetInt(lhs.Int() * int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(val,
+				lhs.SetInt(lhs.Int() * int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(val,
+				lhs.SetInt(lhs.Int() * int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(val,
+				lhs.SetInt(lhs.Int() * int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(val,
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(val,
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(val,
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(val,
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(val,
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(val,
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			float32:
+		case func(*Env) float32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() * float64(val,
+				lhs.SetFloat(lhs.Float() * float64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			float64:
+		case func(*Env) float64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() * float64(val,
+				lhs.SetFloat(lhs.Float() * float64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			complex64:
+		case func(*Env) complex64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() * complex128(val,
+				lhs.SetComplex(lhs.Complex() * complex128(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			complex128:
+		case func(*Env) complex128:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() * complex128(val,
+				lhs.SetComplex(lhs.Complex() * complex128(fun(env),
 				),
 				)
 
@@ -1037,190 +2063,257 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.MUL, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.MUL, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) float32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result float32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = float32(v.Float())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) float64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result float64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = float64(v.Float())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) complex64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result complex64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = complex64(v.Complex())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) complex128:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result complex128
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = complex128(v.Complex())
+				}
+				result *= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.MUL, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeMulExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.MUL,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() * int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() * int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() * int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() * int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() * int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() * uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() * uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() * uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() * uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() * uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() * uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) float32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetFloat(lhs.Float() * float64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) float64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetFloat(lhs.Float() * float64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) complex64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetComplex(lhs.Complex() * complex128(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) complex128:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetComplex(lhs.Complex() * complex128(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.MUL, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) placeQuoConst(place *Place, val I) {
@@ -1233,193 +2326,480 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 	}
 
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.QUO,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() / int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() / uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Float64:
+				val := r.ValueOf(val).Float()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetFloat(lhs.Float() / float64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Complex128:
+				val := r.ValueOf(val).Complex()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetComplex(lhs.Complex() / complex128(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.QUO, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case float32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result float32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = float32(v.Float())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case float64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result float64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = float64(v.Float())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case complex64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result complex64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = complex64(v.Complex())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case complex128:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result complex128
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = complex128(v.Complex())
+					}
+					result /= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.QUO, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeQuoExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(val,
+				lhs.SetInt(lhs.Int() / int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(val,
+				lhs.SetInt(lhs.Int() / int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(val,
+				lhs.SetInt(lhs.Int() / int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(val,
+				lhs.SetInt(lhs.Int() / int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(val,
+				lhs.SetInt(lhs.Int() / int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(val,
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(val,
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(val,
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(val,
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(val,
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(val,
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			float32:
+		case func(*Env) float32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() / float64(val,
+				lhs.SetFloat(lhs.Float() / float64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			float64:
+		case func(*Env) float64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() / float64(val,
+				lhs.SetFloat(lhs.Float() / float64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			complex64:
+		case func(*Env) complex64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() / complex128(val,
+				lhs.SetComplex(lhs.Complex() / complex128(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			complex128:
+		case func(*Env) complex128:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() / complex128(val,
+				lhs.SetComplex(lhs.Complex() / complex128(fun(env),
 				),
 				)
 
@@ -1427,190 +2807,257 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.QUO, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.QUO, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) float32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result float32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = float32(v.Float())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) float64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result float64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = float64(v.Float())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) complex64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result complex64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = complex64(v.Complex())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) complex128:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result complex128
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = complex128(v.Complex())
+				}
+				result /= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.QUO, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeQuoExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.QUO,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() / int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() / int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() / int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() / int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() / int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() / uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() / uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() / uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() / uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() / uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() / uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) float32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetFloat(lhs.Float() / float64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) float64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetFloat(lhs.Float() / float64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) complex64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetComplex(lhs.Complex() / complex128(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) complex128:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetComplex(lhs.Complex() / complex128(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.QUO, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) placeRemConst(place *Place, val I) {
@@ -1624,142 +3071,350 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 			return
 		}
 	}
+
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.REM,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() % int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() % uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.REM, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result %= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.REM, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeRemExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(val,
+				lhs.SetInt(lhs.Int() % int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(val,
+				lhs.SetInt(lhs.Int() % int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(val,
+				lhs.SetInt(lhs.Int() % int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(val,
+				lhs.SetInt(lhs.Int() % int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(val,
+				lhs.SetInt(lhs.Int() % int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(val,
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(val,
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(val,
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(val,
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(val,
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(val,
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
 				),
 				)
 
@@ -1767,146 +3422,193 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.REM, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.REM, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result %= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.REM, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeRemExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.REM,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() % int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() % int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() % int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() % int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() % int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() % uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() % uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() % uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() % uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() % uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() % uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.REM, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) placeAndConst(place *Place, val I) {
@@ -1920,142 +3622,350 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 			return
 		}
 	}
+
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.AND,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() & int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() & uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.AND, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result &= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.AND, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeAndExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(val,
+				lhs.SetInt(lhs.Int() & int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(val,
+				lhs.SetInt(lhs.Int() & int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(val,
+				lhs.SetInt(lhs.Int() & int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(val,
+				lhs.SetInt(lhs.Int() & int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(val,
+				lhs.SetInt(lhs.Int() & int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(val,
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(val,
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(val,
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(val,
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(val,
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(val,
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
 				),
 				)
 
@@ -2063,146 +3973,193 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.AND, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result &= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeAndExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.AND,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() & int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() & int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() & int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() & int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() & int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() & uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() & uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() & uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() & uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() & uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() & uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) placeOrConst(place *Place, val I) {
@@ -2212,141 +4169,348 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 	}
 
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.OR,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() | int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() | uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.OR, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result |= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.OR, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeOrExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(val,
+				lhs.SetInt(lhs.Int() | int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(val,
+				lhs.SetInt(lhs.Int() | int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(val,
+				lhs.SetInt(lhs.Int() | int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(val,
+				lhs.SetInt(lhs.Int() | int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(val,
+				lhs.SetInt(lhs.Int() | int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(val,
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(val,
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(val,
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(val,
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(val,
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(val,
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
 				),
 				)
 
@@ -2354,146 +4518,193 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.OR, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.OR, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result |= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.OR, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeOrExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.OR,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() | int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() | int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() | int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() | int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() | int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() | uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() | uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() | uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() | uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() | uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() | uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.OR, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) placeXorConst(place *Place, val I) {
@@ -2503,141 +4714,348 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 	}
 
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.XOR,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() ^ int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() ^ uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.XOR, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result ^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.XOR, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeXorExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(val,
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(val,
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(val,
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(val,
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(val,
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(val,
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(val,
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(val,
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(val,
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(val,
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(val,
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
 				),
 				)
 
@@ -2645,146 +5063,193 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.XOR, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.XOR, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result ^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.XOR, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeXorExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.XOR,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() ^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() ^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() ^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() ^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() ^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.XOR, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) placeAndnotConst(place *Place, val I) {
@@ -2798,142 +5263,350 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 			return
 		}
 	}
+
 	{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", token.AND_NOT,
-			)
+		var ret Stmt
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+			case r.Int:
+				val := r.ValueOf(val).Int()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetInt(lhs.Int() &^ int64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case r.Uint:
+				val := r.ValueOf(val).Uint()
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					lhs.SetUint(lhs.Uint() &^ uint64(val,
+					),
+					)
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.AND_NOT, place.Type)
+
+			}
+		} else {
+			switch val := val.(type) {
+			case int:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int(v.Int())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int8(v.Int())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int16(v.Int())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int32(v.Int())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case int64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result int64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = int64(v.Int())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint(v.Uint())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint8:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint8
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint8(v.Uint())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint16:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint16
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint16(v.Uint())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint32:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint32
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint32(v.Uint())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uint64:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uint64
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uint64(v.Uint())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			case uintptr:
+
+				ret = func(env *Env) (Stmt, *Env) {
+					lhs := lhsfun(env)
+					key := keyfun(env)
+					var result uintptr
+
+					if v := lhs.MapIndex(key); v != Nil {
+						result = uintptr(v.Uint())
+					}
+					result &^= val
+
+					lhs.SetMapIndex(key, r.ValueOf(result))
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			default:
+				c.Errorf(`invalid operator %s= on <%v>`, token.AND_NOT, place.Type)
+
+			}
 		}
 
-		lhsfun := place.Func()
-		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		c.Code.Append(ret)
+	}
+}
+func (c *Comp) placeAndnotExpr(place *Place, fun I) {
+	var ret Stmt
+	lhsfun := place.Fun
+	keyfun := place.MapKey
+	if keyfun == nil {
+		switch fun := fun.(type) {
+		case func(*Env) int:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(val,
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int8:
+		case func(*Env) int8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(val,
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int16:
+		case func(*Env) int16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(val,
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int32:
+		case func(*Env) int32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(val,
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case int64:
+		case func(*Env) int64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(val,
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint:
+		case func(*Env) uint:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(val,
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint8:
+		case func(*Env) uint8:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(val,
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint16:
+		case func(*Env) uint16:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(val,
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint32:
+		case func(*Env) uint32:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(val,
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uint64:
+		case func(*Env) uint64:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(val,
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
 				),
 				)
 
 				env.IP++
 				return env.Code[env.IP], env
 			}
-		case
-
-			uintptr:
+		case func(*Env) uintptr:
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(val,
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
 				),
 				)
 
@@ -2941,146 +5614,193 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= on <%v>`, token.AND_NOT, place.Type)
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, place.Type, funTypeOuts(fun))
 
 		}
-		c.Code.Append(ret)
+	} else {
+		switch fun := fun.(type) {
+		case func(*Env) int:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int(v.Int())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int8(v.Int())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int16(v.Int())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int32(v.Int())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) int64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result int64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = int64(v.Int())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint(v.Uint())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint8:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint8
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint8(v.Uint())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint16:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint16
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint16(v.Uint())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint32:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint32
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint32(v.Uint())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uint64:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uint64
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uint64(v.Uint())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case func(*Env) uintptr:
+
+			ret = func(env *Env) (Stmt, *Env) {
+				lhs := lhsfun(env)
+				key := keyfun(env)
+				var result uintptr
+
+				if v := lhs.MapIndex(key); v != Nil {
+					result = uintptr(v.Uint())
+				}
+				result &^= fun(env)
+
+				lhs.SetMapIndex(key, r.ValueOf(result))
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, place.Type, funTypeOuts(fun))
+
+		}
 	}
-}
-func (c *Comp) placeAndnotExpr(place *Place, fun I) {
-	if place.MapKey != nil {
-		c.Errorf("unimplemented: map[key] %s= expression", token.AND_NOT,
-		)
-	}
 
-	lhsfun := place.Func()
-	var ret Stmt
-	switch fun := fun.(type) {
-	case func(*Env) int:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() &^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() &^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() &^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() &^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) int64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetInt(lhs.Int() &^ int64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint8:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint16:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint32:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uint64:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) uintptr:
-
-		ret = func(env *Env) (Stmt, *Env) {
-			lhs := lhsfun(env)
-			lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
-			),
-			)
-
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, place.Type, funTypeOuts(fun))
-
-	}
 	c.Code.Append(ret)
 }
 func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {

@@ -264,7 +264,13 @@ var tests = []TestCase{
 	TestCase{A, "setplace_deref_2", `*vstr_addr() += "uiop"; vstr`, "qwertyuiop", nil},
 	TestCase{A, "setplace_deref_3", `func vint_addr() *int { return &vint }; *vint_addr() = 7; vint`, 7, nil},
 	TestCase{A, "setplace_deref_4", `*vint_addr() %= 4; vint`, 3, nil},
+
 	TestCase{A, "setmap_1", `m[1]="x"; m[2]="y"; m`, map[int]string{1: "x", 2: "y"}, nil},
+	TestCase{A, "setmap_2", `m[2]+="z"; m`, map[int]string{1: "x", 2: "yz"}, nil},
+	TestCase{A, "setmap_3", `mi := make(map[rune]byte); mi['@']+=2; mi`, map[rune]byte{'@': 2}, nil},
+	TestCase{A, "setmap_4", `mi['a'] |= 7; mi['a']`, nil, []interface{}{byte(7), true}},
+	TestCase{A, "getmap_1", `m[1]`, nil, []interface{}{"x", true}},
+	TestCase{A, "getmap_2", `m1 := m[1]; m1`, "x", nil},
 
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 

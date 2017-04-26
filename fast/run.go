@@ -104,10 +104,22 @@ func (ce *CompEnv) AddressOfVar(name string) r.Value {
 }
 
 // ValueOf retrieves the value of a constant, function or variable
-// The returned value is NOT settable - use AddressOfVar().Elem() if you need a settable reflect.Value
+// The returned value is settable only for variables
 func (ce *CompEnv) ValueOf(name string) r.Value {
-	expr := ce.Comp.Ident(name)
-	return ce.Exec1(expr)
+	sym := ce.Comp.Resolve(name)
+	switch sym.Desc.Class() {
+	case IntBind:
+		return ce.AddressOfVar(name).Elem()
+	case VarBind:
+		env := ce.PrepareEnv()
+		for i := 0; i < sym.Upn; i++ {
+			env = env.Outer
+		}
+		return env.Binds[sym.Desc.Index()]
+	default:
+		expr := ce.Comp.Symbol(sym)
+		return ce.Exec1(expr)
+	}
 }
 
 func (ce *CompEnv) PrepareEnv() *Env {

@@ -39,6 +39,47 @@ import (
 	r "reflect"
 )
 
+
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func makeupcase(node ast.Node, name string) ast.Node {
+	// go/ast.SelectorExpr requires the foo in x.foo to be an *ast.Ident, cannot unquote there
+	kind := ~"{~,node . foo}
+	kind.Sel = &ast.Ident{Name: upcasefirstbyte(name)}
+	return kind
+}
+
+:func makekind(typ ast.Node) ast.Node {
+	name := EvalType(typ).Name()
+	return makeupcase(~'r, name)
+}
+
+:func makeunwrapvalue(node ast.Node, typ ast.Node) ast.Node {
+	name := EvalType(typ).Name()
+
+	// remove final digits from name()
+	// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+	for len(name) != 0 {
+		ch := name[len(name)-1]
+		if ch < '0' || ch > '9' {
+			break
+		}
+		name = name[0:len(name)-1]
+	}
+	if name == "uintptr" {
+		name = "uint" // use reflect.Value.Uint()
+	}
+
+	return makeupcase(node, name)
+}
+
 :func op_to_assign(op token.Token) token.Token {
 	switch op {
 	case token.ADD:
@@ -112,6 +153,48 @@ import (
 	}
 }
 
+:func fsetmap(opnode, typ, expr ast.Node) ast.Node {
+	// the return type of Eval() and EvalType() varies. better check early.
+	var t r.Type = EvalType(typ)
+	var curr *ast.BlockStmt
+	var result *ast.AssignStmt
+	var op token.Token = Eval(opnode)
+	opset := op_to_assign(op)
+
+	switch t.Kind() {
+		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = ~,typ(v.Int()) }}
+			result = ~"{result += ~,expr}
+		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = ~,typ(v.Uint()) }}
+			result = ~"{result += ~,expr}
+		case r.Float32, r.Float64:
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = ~,typ(v.Float()) }}
+			result = ~"{result += ~,expr}
+		case r.Complex64, r.Complex128:
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = ~,typ(v.Complex()) }}
+			result = ~"{result += ~,expr}
+		case r.String:
+			curr = ~"{var result string; if v := lhs.MapIndex(key); v != Nil { result = v.String() }}
+			result = ~"{result += ~,expr}
+		default:
+			panic("unimplemented: <" + t.String() + "> " + opset.String() + " expression" )
+	}
+	result.Tok = opset
+
+	return ~"{
+		ret = func(env *Env) (Stmt, *Env) {
+			lhs := lhsfun(env)
+			key := keyfun(env)
+			~,@curr
+			~,result
+			lhs.SetMapIndex(key, r.ValueOf(result))
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	}
+}
+
 :macro setplace_const(opnode, typ ast.Node) ast.Node {
 	return fsetplace(opnode, typ, ~'val)
 }
@@ -119,6 +202,15 @@ import (
 :macro setplace_expr(opnode, typ ast.Node) ast.Node {
 	return fsetplace(opnode, typ, ~'{fun(env)})
 }
+
+:macro setmap_const(opnode, typ ast.Node) ast.Node {
+	return fsetmap(opnode, typ, ~'val)
+}
+
+:macro setmap_expr(opnode, typ ast.Node) ast.Node {
+	return fsetmap(opnode, typ, ~'{fun(env)})
+}
+
 
 :func list_types(typelist []ast.Stmt) []ast.Node {
 	rets := make([]ast.Node, 0, len(typelist))
@@ -142,23 +234,46 @@ import (
 }
 
 :macro setplaces_const(opnode, types ast.Node) ast.Node {
-	typelist := list_types(types.(*ast.BlockStmt).List)
+	// separate cases for int8, uint16... not needed
+	typelist := types.(*ast.BlockStmt).List
 	caselist := make([]ast.Stmt, len(typelist))
 	for i, typ := range typelist {
 		if EvalType(typ) == nil {
 			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, place.Type)}
 		} else {
-			caselist[i] = ~"{~typecase ~,typ: setplace_const; ~,opnode; ~,typ}
+			kind := makekind(typ)
+			unwrap := makeunwrapvalue(~'{r.ValueOf(val)}, typ)
+			caselist[i] = ~"{case ~,kind:
+				val := ~,unwrap ()
+				setplace_const; ~,opnode; ~,typ
+			}
+		}
+	}
+	// separate cases for int8, uint16... are needed
+	maptypelist := list_types(types.(*ast.BlockStmt).List)
+	mapcaselist := make([]ast.Stmt, len(maptypelist))
+	for i, typ := range maptypelist {
+		if EvalType(typ) == nil {
+			mapcaselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, place.Type)}
+		} else {
+			mapcaselist[i] = ~"{~typecase ~,typ:
+				setmap_const; ~,opnode; ~,typ
+			}
 		}
 	}
 	return ~"{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= constant", ~,opnode)
-		}
-		lhsfun := place.Func()
 		var ret Stmt
-		switch val := val.(type) {
-			~,@caselist
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+
+		if keyfun == nil {
+			switch KindToCategory(place.Type.Kind()) {
+				~,@caselist
+			}
+		} else {
+			switch val := val.(type) {
+				~,@mapcaselist
+			}
 		}
 		c.Code.Append(ret)
 	}
@@ -167,21 +282,32 @@ import (
 :macro setplaces_expr(opnode, types ast.Node) ast.Node {
 	typelist := list_types(types.(*ast.BlockStmt).List)
 	caselist := make([]ast.Stmt, len(typelist))
+	mapcaselist := make([]ast.Stmt, len(typelist))
 	for i, typ := range typelist {
 		if EvalType(typ) == nil {
 			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, place.Type, funTypeOuts(fun))}
+			mapcaselist[i] = caselist[i]
 		} else {
-			caselist[i] = ~"{~typecase func(*Env) ~,typ: setplace_expr; ~,opnode; ~,typ}
+			caselist[i] = ~"{~typecase func(*Env) ~,typ:
+				setplace_expr; ~,opnode; ~,typ
+			}
+			mapcaselist[i] = ~"{~typecase func(*Env) ~,typ:
+				setmap_expr; ~,opnode; ~,typ
+			}
 		}
 	}
 	return ~"{
-		if place.MapKey != nil {
-			c.Errorf("unimplemented: map[key] %s= expression", ~,opnode)
-		}
-		lhsfun := place.Func()
 		var ret Stmt
-		switch fun := fun.(type) {
-			~,@caselist
+		lhsfun := place.Fun
+		keyfun := place.MapKey
+		if keyfun == nil {
+			switch fun := fun.(type) {
+				~,@caselist
+			}
+		} else {
+			switch fun := fun.(type) {
+				~,@mapcaselist
+			}
 		}
 		c.Code.Append(ret)
 	}
