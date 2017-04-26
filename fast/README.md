@@ -13,18 +13,18 @@ ALPHA.
 The fast intepreter supports:
 * multiline input - shared with the classic interpreter
 * line comments starting with #! in addition to // - shared with the classic interpreter
-* primitive types: booleans, integers, floats, complex numbers (including iota)
+* primitive types: booleans, integers, floats, complex numbers, string (including iota)
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
 * constant, variable and type declarations (including untyped constants)
-* unary and binary operators (address-of & is implemented only for variables)
-* assignment (only for variables) i.e. operators = += -= *= /= %= &= |= ^= &^= on variables (unimplemented: shifted assignments <<= and >>=)
+* unary and binary operators
+* assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= (unimplemented: <<= and >>=)
 * type assertions
 * function declarations (including variadic functions)
-* seamless invocation of compiled functions from interpreter, and vice-versa
+* transparent invocation of compiled functions from interpreter, and vice-versa
 * function calls (unimplemented: calls to variadic functions, with or without ... after last call argument)
 * if, for, break, continue, return (unimplemented: return foo() where foo() returns multiple values)
 * go i.e. goroutines
-* some builtins: append, cap, len, make, new
+* several builtins: append, cap, delete, imag, len, make, new, real
 * ~quote
 
 Everything else is still missing. You are welcome to contribute.

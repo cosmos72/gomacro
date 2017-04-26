@@ -288,6 +288,10 @@ var tests = []TestCase{
 	TestCase{A, "builtin_copy_1", "copy(vs, v5)", 5, nil},
 	TestCase{A, "builtin_copy_2", "vs", []byte("8y57r"), nil},
 	TestCase{A, "builtin_delete_1", "delete(m,1); m", map[int]string{2: "yz"}, nil},
+	TestCase{A, "builtin_real_1", "real(0.5+1.75i)", real(0.5 + 1.75i), nil},
+	TestCase{A, "builtin_real_2", "var cplx complex64 = 1.5+0.25i; real(cplx)", real(complex64(1.5 + 0.25i)), nil},
+	TestCase{A, "builtin_imag_1", "imag(0.5+1.75i)", imag(0.5 + 1.75i), nil},
+	TestCase{A, "builtin_imag_2", "imag(cplx)", imag(complex64(1.5 + 0.25i)), nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},

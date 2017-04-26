@@ -25,6 +25,7 @@
 package fast
 
 import (
+	"go/ast"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -73,9 +74,14 @@ func (ce *CompEnv) DeclFunc(name string, fun I) {
 	ce.Comp.DeclFunc0(name, fun)
 }
 
-// DeclBuiltinFunc compiles a builtin function declaration
-func (ce *CompEnv) DeclBuiltinFunc(name string, builtin BuiltinFunc) {
+// DeclBuiltin compiles a builtin function declaration
+func (ce *CompEnv) DeclBuiltin(name string, builtin Builtin) {
 	ce.Comp.DeclBuiltinFunc0(name, builtin)
+}
+
+// DeclBuiltin4 compiles a builtin function declaration
+func (ce *CompEnv) DeclBuiltin4(name string, compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call, argMin int, argMax int) {
+	ce.Comp.DeclBuiltinFunc0(name, Builtin{compile: compile, ArgMin: argMin, ArgMax: argMax})
 }
 
 // DeclType compiles a type declaration

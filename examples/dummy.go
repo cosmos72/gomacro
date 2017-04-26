@@ -3,11 +3,5 @@
 
 package main
 
-import (
-	"fmt"
-)
-
 func main() {
-	mi := make(map[rune]byte)
-	mi[""] = 0
 }

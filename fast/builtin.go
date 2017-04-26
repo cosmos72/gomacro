@@ -35,7 +35,7 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-type BuiltinFunc struct {
+type Builtin struct {
 	// interpreted code should not access "compile": not exported.
 	// compile usually needs to modify Symbol: pass it by value.
 	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call
@@ -47,7 +47,7 @@ var (
 	untypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(int64(0))}
 	untypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(int64(1))}
 
-	TypeOfBuiltinFunc = r.TypeOf(BuiltinFunc{})
+	TypeOfBuiltinFunc = r.TypeOf(Builtin{})
 )
 
 // =================================== iota ===================================
@@ -86,13 +86,15 @@ func (ce *CompEnv) addBuiltins() {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
 
-	ce.DeclBuiltinFunc("append", BuiltinFunc{compileAppend, 1, MaxInt})
-	ce.DeclBuiltinFunc("cap", BuiltinFunc{compileCap, 1, 1})
-	ce.DeclBuiltinFunc("copy", BuiltinFunc{compileCopy, 2, 2})
-	ce.DeclBuiltinFunc("delete", BuiltinFunc{compileDelete, 2, 2})
-	ce.DeclBuiltinFunc("len", BuiltinFunc{compileLen, 1, 1})
-	ce.DeclBuiltinFunc("make", BuiltinFunc{compileMake, 1, 3})
-	ce.DeclBuiltinFunc("new", BuiltinFunc{compileNew, 1, 1})
+	ce.DeclBuiltin4("append", compileAppend, 1, MaxInt)
+	ce.DeclBuiltin4("cap", compileCap, 1, 1)
+	ce.DeclBuiltin4("copy", compileCopy, 2, 2)
+	ce.DeclBuiltin4("delete", compileDelete, 2, 2)
+	ce.DeclBuiltin4("imag", compileRealImag, 1, 1)
+	ce.DeclBuiltin4("len", compileLen, 1, 1)
+	ce.DeclBuiltin4("make", compileMake, 1, 3)
+	ce.DeclBuiltin4("new", compileNew, 1, 1)
+	ce.DeclBuiltin4("real", compileRealImag, 1, 1)
 
 	/*
 		binds["Env"] = r.ValueOf(Function{funcEnv, 0})
@@ -116,15 +118,12 @@ func (ce *CompEnv) addBuiltins() {
 		binds["complex"] = r.ValueOf(Function{funcComplex, 2})
 	*/
 	/*
-		binds["imag"] = r.ValueOf(Function{funcImag, 1})
-		binds["make"] = r.ValueOf(Builtin{builtinMake, -1})
 		binds["panic"] = r.ValueOf(callPanic)
 		binds["println"] = r.ValueOf(func(args ...interface{}) {
 			// values := toValues(args)
 			// env.FprintValues(env.Stdout, values...)
 			fmt.Fprintln(env.Stdout, args...)
 		})
-		binds["real"] = r.ValueOf(Function{funcReal, 1})
 		binds["recover"] = r.ValueOf(Function{funcRecover, 0})
 	*/
 
@@ -424,9 +423,60 @@ func compileNew(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	return newCall1(fun, arg, false, tout)
 }
 
+// --- real() and imag() ---
+
+func callReal32(val complex64) float32 {
+	return real(val)
+}
+
+func callReal64(val complex128) float64 {
+	return real(val)
+}
+
+func callImag32(val complex64) float32 {
+	return imag(val)
+}
+
+func callImag64(val complex128) float64 {
+	return imag(val)
+}
+
+func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	arg := c.Expr1(node.Args[0])
+	if arg.Const() {
+		arg.ConstTo(arg.DefaultType())
+	}
+	tin := arg.Type
+	var tout r.Type
+	var call I
+	switch tin.Kind() {
+	case r.Complex64:
+		tout = TypeOfFloat32
+		if sym.Name == "real" {
+			call = callReal32
+		} else {
+			call = callImag32
+		}
+	case r.Complex128:
+		tout = TypeOfFloat64
+		if sym.Name == "real" {
+			call = callReal64
+		} else {
+			call = callImag64
+		}
+	default:
+		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "complex")
+	}
+	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: call}, &sym)
+	// real() and imag() of a constant are constants: they can be computed at compile time
+	return newCall1(fun, arg, arg.Const(), tout)
+}
+
 // ============================ support functions =============================
 
-// call_builtin compiles a call to a builtin function: cap, copy, len, make, new...
+// call_builtin compiles a call to a builtin function: append, cap, copy, delete, len, make, new...
 func call_builtin(c *Call) I {
 	// builtin functions are always literals, i.e. funindex == NoIndex thus not stored in Env.Binds[]
 	// we must retrieve them directly from c.Fun.Value
@@ -449,6 +499,18 @@ func call_builtin(c *Call) I {
 	}
 	var call I
 	switch fun := c.Fun.Value.(type) {
+	case func(complex64) float32: // real(), imag()
+		argfun := argfuns[0].(func(*Env) complex64)
+		call = func(env *Env) float32 {
+			arg := argfun(env)
+			return fun(arg)
+		}
+	case func(complex128) float64: // real(), imag()
+		argfun := argfuns[0].(func(*Env) complex128)
+		call = func(env *Env) float64 {
+			arg := argfun(env)
+			return fun(arg)
+		}
 	case func(string) int: // len(string)
 		argfun := argfuns[0].(func(*Env) string)
 		call = func(env *Env) int {
@@ -480,7 +542,7 @@ func call_builtin(c *Call) I {
 				return fun(arg0.Interface().([]byte), arg1)
 			}
 		}
-	case func(r.Value) int: // cap() and len()
+	case func(r.Value) int: // cap(), len()
 		argfunsX1 := c.MakeArgfuns()
 		argfun := argfunsX1[0]
 		call = func(env *Env) int {
@@ -539,7 +601,7 @@ func call_builtin(c *Call) I {
 
 // callBuiltinFunc invokes the appropriate compiler for a call to a builtin function: cap, copy, len, make, new...
 func (c *Comp) callBuiltinFunc(fun *Expr, node *ast.CallExpr) *Call {
-	builtin := fun.Value.(BuiltinFunc)
+	builtin := fun.Value.(Builtin)
 	if fun.Sym == nil {
 		c.Errorf("invalid call to non-name builtin: %v", node)
 		return nil
