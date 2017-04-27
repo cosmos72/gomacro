@@ -100,7 +100,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 			ret = x
 		case token.SUB:
 			ret = -x
-			if x == -x {
+			if x == -x && x != 0 {
 				env.warnOverflowSignedMinus(x, ret)
 			}
 		case token.XOR:
@@ -112,7 +112,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 			ret = x
 		case token.SUB:
 			ret = -x
-			if x == -x {
+			if x == -x && x != 0 {
 				env.warnOverflowSignedMinus(x, ret)
 			}
 		case token.XOR:
@@ -124,7 +124,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 			ret = x
 		case token.SUB:
 			ret = -x
-			if x == -x {
+			if x == -x && x != 0 {
 				env.warnOverflowSignedMinus(x, ret)
 			}
 		case token.XOR:
@@ -136,7 +136,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 			ret = x
 		case token.SUB:
 			ret = -x
-			if x == -x {
+			if x == -x && x != 0 {
 				env.warnOverflowSignedMinus(x, ret)
 			}
 		case token.XOR:
@@ -148,7 +148,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 			ret = x
 		case token.SUB:
 			ret = -x
-			if x == -x {
+			if x == -x && x != 0 {
 				env.warnOverflowSignedMinus(x, ret)
 			}
 		case token.XOR:
@@ -160,7 +160,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 			ret = x
 		case token.SUB:
 			ret = -x
-			if x != 0 {
+			if x == -x && x != 0 {
 				env.warnUnderflowUnsignedMinus(x, ret)
 			}
 		case token.XOR:
@@ -172,7 +172,7 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 			ret = x
 		case token.SUB:
 			ret = -x
-			if x != 0 {
+			if x == -x && x != 0 {
 				env.warnUnderflowUnsignedMinus(x, ret)
 			}
 		case token.XOR:

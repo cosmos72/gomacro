@@ -13,7 +13,7 @@ println(uint(1))
 ```
 
 ```
-// nil interfaces don't implement themselves
+// nil interface values don't implement interfaces
 var x error
 y := x.(error) // panic!
 ```

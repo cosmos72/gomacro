@@ -447,7 +447,7 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 }
 
 // DeclBuiltinFunc compiles a builtin function declaration. For caller's convenience, returns allocated Bind
-func (c *Comp) DeclBuiltinFunc0(name string, builtin Builtin) *Bind {
+func (c *Comp) DeclBuiltin0(name string, builtin Builtin) *Bind {
 	t := TypeOfBuiltinFunc
 	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
 	bind.Value = builtin                  // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map

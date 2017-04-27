@@ -29,8 +29,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"go/token"
 	"io"
 	r "reflect"
+
+	mt "github.com/cosmos72/gomacro/token"
 )
 
 func ReadBytes(src interface{}) []byte {
@@ -92,64 +95,120 @@ const (
 	ReadOptCollectAllComments             // continue until non-comment is found. default is to return comments one by one
 )
 
+const debug = false
+
+type mode int
+
+const (
+	mNormal mode = iota
+	mPlus
+	mMinus
+	mRune
+	mString
+	mRuneEscape
+	mStringEscape
+	mRawString
+	mSlash
+	mHash
+	mLineComment
+	mComment
+	mCommentStar
+	mTilde
+)
+
+func (m mode) String() string {
+	switch m {
+	case mNormal:
+		return "norm"
+	case mPlus:
+		return "plus"
+	case mMinus:
+		return "minus"
+	case mRune:
+		return "rune"
+	case mString:
+		return "string"
+	case mRuneEscape:
+		return "runesc"
+	case mStringEscape:
+		return "stresc"
+	case mRawString:
+		return "strraw"
+	case mSlash:
+		return "slash"
+	case mHash:
+		return "hash"
+	case mLineComment:
+		return "lcomm"
+	case mComment:
+		return "comment"
+	case mCommentStar:
+		return "comm*"
+	case mTilde:
+		return "tilds"
+	default:
+		return "???"
+	}
+}
+
 func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt string) (src string, firstToken int, err error) {
-	type Mode int
-	const (
-		mNormal Mode = iota
-		mPlus
-		mMinus
-		mRune
-		mString
-		mRuneEscape
-		mStringEscape
-		mRawString
-		mSlash
-		mHash
-		mLineComment
-		mComment
-		mCommentStar
-		mTilde
-	)
-	mode := mNormal
+	m := mNormal
 	paren := 0
 	optPrompt := opts&ReadOptShowPrompt != 0
 	optAllComments := opts&ReadOptCollectAllComments != 0
 	ignorenl := false
 	firstToken = -1
+	lastToken := -1
 
 	if optPrompt {
 		fmt.Fprint(out, prompt)
 	}
-	// comments do not reset ignorenl
-	resetnl := func(paren int, mode Mode) bool {
-		return paren != 0 ||
-			(mode != mNormal && mode != mSlash && mode != mHash &&
-				mode != mLineComment && mode != mComment && mode != mCommentStar)
-	}
 	var line, buf []byte
+
+	// comments do not reset ignorenl
+	resetnl := func(paren int, m mode) bool {
+		return paren != 0 ||
+			(m != mNormal && m != mSlash && m != mHash &&
+				m != mLineComment && m != mComment && m != mCommentStar)
+	}
+	foundtoken := func(pos int) {
+		lastToken = len(buf) + pos
+		if firstToken < 0 {
+			firstToken = lastToken
+			if debug {
+				Debugf("ReadMultiline: setting firstToken to %d, line up to it = %q", firstToken, line[:pos])
+			}
+		}
+	}
+	invalidChar := func(i int, ch byte, ctx string) (string, int, error) {
+		return string(append(buf, line[:i]...)), firstToken,
+			errors.New(fmt.Sprintf("unexpected character %q inside %s literal", ch, ctx))
+	}
 
 	for {
 		line, err = in.ReadBytes('\n')
 		for i, ch := range line {
-			// Debugf("ReadMultiline: found %q, mode = %d, ignorenl = %t", ch, mode, ignorenl)
-			switch mode {
+			if debug {
+				Debugf("ReadMultiline: found %q\tmode=%v\tparen=%d ignorenl=%t", ch, m, paren, ignorenl)
+			}
+			switch m {
 			case mPlus, mMinus:
 				if ch == '+' {
-					if mode == mPlus {
-						mode = mNormal
+					if m == mPlus {
+						m = mNormal
 					} else {
-						mode = mPlus
+						m = mPlus
 					}
 					break
 				} else if ch == '-' {
-					if mode == mMinus {
-						mode = mNormal
+					if m == mMinus {
+						m = mNormal
 					} else {
-						mode = mMinus
+						m = mMinus
 					}
 					break
 				}
-				mode = mNormal
+				m = mNormal
 				ignorenl = true
 				if ch <= ' ' {
 					continue
@@ -162,30 +221,30 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 				case ')', ']', '}':
 					paren--
 				case '\'':
-					mode = mRune
+					m = mRune
 				case '"':
-					mode = mString
+					m = mString
 				case '`':
-					mode = mRawString
+					m = mRawString
 				case '/':
-					mode = mSlash
+					m = mSlash
 					continue // no tokens yet
 				case '#':
-					mode = mHash // support #! line comments
-					continue     // no tokens yet
+					m = mHash // support #! line comments
+					continue  // no tokens yet
 				case '~':
-					mode = mTilde
+					m = mTilde
 				case '!', '%', '&', '*', ',', '.', '<', '=', '>', '^', '|':
 					ignorenl = paren == 0
 				case '+':
 					ignorenl = false
 					if paren == 0 {
-						mode = mPlus
+						m = mPlus
 					}
 				case '-':
 					ignorenl = false
 					if paren == 0 {
-						mode = mMinus
+						m = mMinus
 					}
 				default:
 					if ch <= ' ' {
@@ -196,109 +255,118 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 			case mRune:
 				switch ch {
 				case '\\':
-					mode = mRuneEscape
+					m = mRuneEscape
 				case '\'':
-					mode = mNormal
+					m = mNormal
 				default:
 					if ch < ' ' {
-						return merge(buf, line[:i]), firstToken, invalidChar(ch, "rune")
+						return invalidChar(i, ch, "rune")
 					}
 				}
 			case mRuneEscape:
 				if ch < ' ' {
-					return merge(buf, line[:i]), firstToken, invalidChar(ch, "rune")
+					return invalidChar(i, ch, "rune")
 				}
-				mode = mRune
+				m = mRune
 			case mString:
 				switch ch {
 				case '\\':
-					mode = mStringEscape
+					m = mStringEscape
 				case '"':
-					mode = mNormal
+					m = mNormal
 				default:
 					if ch < ' ' {
-						return merge(buf, line[:i]), firstToken, invalidChar(ch, "string")
+						return invalidChar(i, ch, "string")
 					}
 				}
 			case mStringEscape:
 				if ch < ' ' {
-					return merge(buf, line[:i]), firstToken, invalidChar(ch, "string")
+					return invalidChar(i, ch, "string")
 				}
-				mode = mString
+				m = mString
 			case mRawString:
 				switch ch {
 				case '`':
-					mode = mNormal
+					m = mNormal
 				}
 			case mSlash:
 				switch ch {
 				case '/':
-					mode = mLineComment
+					m = mLineComment
 					continue // no tokens
 				case '*':
-					mode = mComment
+					m = mComment
 					continue // no tokens
 				default:
-					mode = mNormal
-					if paren == 0 {
+					m = mNormal
+					if ch <= ' ' {
 						ignorenl = true
-					}
-					if firstToken < 0 {
-						firstToken = len(buf) + i - 1
+					} else {
+						foundtoken(i - 1)
 					}
 				}
 			case mHash:
 				switch ch {
 				case '!':
-					mode = mLineComment
+					m = mLineComment
 					line[i-1] = '/'
 					line[i] = '/'
 					continue // no tokens
 				default:
-					mode = mNormal
-					if firstToken < 0 {
-						firstToken = len(buf) + i - 1
-					}
+					m = mNormal
+					foundtoken(i - 1)
 				}
 			case mLineComment:
 				continue
 			case mComment:
 				switch ch {
 				case '*':
-					mode = mCommentStar
+					m = mCommentStar
 				}
 				continue
 			case mCommentStar:
 				switch ch {
 				case '/':
-					mode = mNormal
+					m = mNormal
 				default:
-					mode = mComment
+					m = mComment
 				}
 				continue
 			case mTilde:
-				mode = mNormal
+				m = mNormal
 			}
-			// Debugf("ReadMultiline: mode = %d, ignorenl = %t, resetnl = %t", mode, ignorenl, resetnl(paren, mode))
-			if resetnl(paren, mode) {
+			if debug {
+				Debugf("ReadMultiline:          \tmode=%v\tparen=%d ignorenl=%t resetnl=%t", m, paren, ignorenl, resetnl(paren, m))
+			}
+			if resetnl(paren, m) {
 				ignorenl = false
-				// Debugf("ReadMultiline: cleared ignorenl")
+				if debug {
+					Debugf("ReadMultiline: cleared ignorenl")
+				}
 			}
-			if firstToken < 0 {
-				firstToken = len(buf) + i
-				// Debugf("ReadMultiline: setting firstToken to %d, line up to it = %q", firstToken, line[:i+1])
+			if ch > ' ' {
+				foundtoken(i)
 			}
 		}
 		buf = append(buf, line...)
-		if mode == mLineComment {
-			mode = mNormal
+		if m == mLineComment {
+			m = mNormal
 		}
-		if err != nil || paren <= 0 && !ignorenl && mode == mNormal && (firstToken >= 0 || !optAllComments) {
+		if err != nil {
 			break
 		}
-		// Debugf("ReadMultiline: continuing, mode = %d, paren == %d, ignorenl = %t", mode, paren, ignorenl)
-		if mode == mPlus || mode == mMinus {
-			mode = mNormal
+		if paren <= 0 && !ignorenl && m == mNormal && (firstToken >= 0 || !optAllComments) {
+			if firstToken >= 0 && lastIsKeywordIgnoresNl(line, firstToken, lastToken) {
+				ignorenl = true
+			} else {
+				break
+			}
+		}
+		if debug {
+			Debugf("ReadMultiline: continuing\tmode=%v\tparen=%d ignorenl=%t", m, paren, ignorenl)
+		}
+		if m == mPlus || m == mMinus {
+			m = mNormal
 		}
 		if optPrompt {
 			printDots(out, 4+2*paren)
@@ -310,22 +378,56 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 		}
 		return string(buf), firstToken, err
 	}
-	// Debugf("ReadMultiline: read %d bytes, firstToken at %d", len(buf), firstToken)
-	// if firstToken >= 0 {
-	//     Debugf("ReadMultiline: comments: %q", buf[:firstToken])
-	//     Debugf("ReadMultiline: tokens: %q", buf[firstToken:])
-	// } else {
-	//     Debugf("ReadMultiline: comments: %q", buf)
-	// }
+	if debug {
+		Debugf("ReadMultiline: read %d bytes, firstToken at %d", len(buf), firstToken)
+		if firstToken >= 0 {
+			Debugf("ReadMultiline: comments: %q", buf[:firstToken])
+			Debugf("ReadMultiline: tokens: %q", buf[firstToken:])
+		} else {
+			Debugf("ReadMultiline: comments: %q", buf)
+		}
+	}
 	return string(buf), firstToken, nil
 }
 
-func merge(buf, tail []byte) string {
-	return string(append(buf, tail...))
-}
-
-func invalidChar(ch byte, ctx string) error {
-	return errors.New(fmt.Sprintf("unexpected character %q inside %s literal", ch, ctx))
+func lastIsKeywordIgnoresNl(line []byte, first, last int) bool {
+	if last >= 0 && last < len(line) {
+		line = line[:last+1]
+	}
+	if first >= 0 && first <= len(line) {
+		line = line[first:]
+	}
+	n := len(line)
+	var start, end int
+	for i := n - 1; i >= 0; i-- {
+		ch := line[i]
+		if ch <= ' ' {
+			continue
+		} else if ch >= 'a' && ch <= 'z' {
+			end = i + 1
+			break
+		}
+		return false
+	}
+	for i := end - 1; i >= 0; i-- {
+		ch := line[i]
+		if ch < 'a' || ch > 'z' {
+			start = i + 1
+			break
+		}
+	}
+	str := string(line[start:end])
+	tok := mt.Lookup(str)
+	ignorenl := false
+	switch tok {
+	case token.IDENT, token.BREAK, token.CONTINUE, token.FALLTHROUGH, token.RETURN:
+	default:
+		ignorenl = true
+	}
+	if debug {
+		Debugf("lastIsKeywordIgnoresNl: found %ignorenl=%t", str, ignorenl)
+	}
+	return ignorenl
 }
 
 func printDots(out io.Writer, count int) {
