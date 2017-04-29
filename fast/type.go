@@ -166,8 +166,8 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 		// c.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
 		types, names := c.TypeFields(node.Fields)
 		// c.Debugf("evalType() struct names and types: %v %v", types, names)
-		fields := makeStructFields(c.File().Path, names, types)
-		// c.Debugf("evalType() struct fields: %#v", fields)
+		fields := c.makeStructFields(c.File().Path, names, types)
+		// c.Debugf("compileType2() declaring struct type. fields=%#v", fields)
 		t = r.StructOf(fields)
 	case nil:
 		// type can be omitted in many case - then we must perform type inference
@@ -285,33 +285,33 @@ func (c *Comp) TypeIdent(name string) r.Type {
 	return nil
 }
 
-func makeStructFields(pkgPath string, names []string, types []r.Type) []r.StructField {
+func (c *Comp) makeStructFields(pkgPath string, names []string, types []r.Type) []r.StructField {
 	// pkgIdentifier := sanitizeIdentifier(pkgPath)
 	fields := make([]r.StructField, len(names))
 	for i, name := range names {
+		t := types[i]
 		fields[i] = r.StructField{
-			Name:      toExportedName(name), // Go 1.8 reflect.StructOf() supports *only* exported fields
-			Type:      types[i],
+			Name:      c.toExportedName(name, t), // declaring unexported fields is quite useless... cannot access them
+			Type:      t,
 			Tag:       "",
-			Anonymous: false,
+			Anonymous: len(name) == 0,
 		}
 	}
 	return fields
 }
 
-func toExportedName(name string) string {
+func (c *Comp) toExportedName(name string, t r.Type) string {
 	if len(name) == 0 {
-		return name
+		// embedded field
+		if name = t.Name(); len(name) == 0 {
+			name = c.NamedTypes[t].Name
+		}
+		name = c.GensymEmbedded(name)
+	} else if ch := name[0]; ch == '_' || ch >= 'a' && ch <= 'z' {
+		// private field, i.e. not exported
+		name = c.GensymPrivate(name)
 	}
-	ch := name[0]
-	if ch >= 'a' && ch <= 'z' {
-		ch -= 'a' - 'A'
-	} else if ch == '_' {
-		ch = 'X'
-	} else {
-		return name
-	}
-	return fmt.Sprintf("%c%s", ch, name[1:])
+	return name
 }
 
 // TypeAssert2 compiles a multi-valued type assertion

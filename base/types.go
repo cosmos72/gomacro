@@ -43,6 +43,7 @@ const (
 	OptTrapPanic Options = 1 << iota
 	OptPanicStackTrace
 	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
+	OptFastInterpreter // use the new, incomplete fast interpreter
 	OptCollectDeclarations
 	OptCollectStatements
 	OptShowPrompt
@@ -66,10 +67,11 @@ const (
 
 var optNames = map[Options]string{
 	OptTrapPanic:           "TrapPanic",
-	OptPanicStackTrace:     "OptPanicStackTrace",
+	OptPanicStackTrace:     "StackTrace.OnPanic",
 	OptMacroExpandOnly:     "MacroExpandOnly",
-	OptCollectDeclarations: "Declarations",
-	OptCollectStatements:   "Statements",
+	OptFastInterpreter:     "FastInterpreter",
+	OptCollectDeclarations: "Declarations.Collect",
+	OptCollectStatements:   "Statements.Collect",
 	OptShowPrompt:          "Prompt.Show",
 	OptShowParse:           "Parse.Show",
 	OptShowMacroExpand:     "MacroExpand.Show",
@@ -77,10 +79,10 @@ var optNames = map[Options]string{
 	OptShowEval:            "Eval.Show",
 	OptShowEvalType:        "Type.Eval.Show",
 	OptShowTime:            "Time.Show",
-	OptDebugMacroExpand:    "?MacroExpand",
-	OptDebugQuasiquote:     "?Quasiquote",
-	OptDebugCallStack:      "?CallStack",
-	OptDebugPanicRecover:   "?PanicRecover",
+	OptDebugMacroExpand:    "?MacroExpand.Debug",
+	OptDebugQuasiquote:     "?Quasiquote.Debug",
+	OptDebugCallStack:      "?CallStack.Debug",
+	OptDebugPanicRecover:   "?PanicRecover.Debug",
 }
 
 var optValues = map[string]Options{}

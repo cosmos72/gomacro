@@ -41,14 +41,17 @@ var (
 
 func (ir *ThreadGlobals) showHelp(out io.Writer) {
 	fmt.Fprint(out, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
+
 // interpreter commands:
+:classic CODE   execute CODE using the classic interpreter (default)
 :env [name]     show available functions, variables and constants
                 in current package, or from imported package "name"
-:help           print this help
+:fast CODE      execute CODE using the fast interpreter (incomplete)
+:help           show this help
 :inspect EXPR   inspect expression interactively
 :options [OPTS] show or toggle interpreter options
 :quit           quit the interpreter
-:write [FILE]   write collected declarations and/or statements to standard output or to file
+:write [FILE]   write collected declarations and/or statements to standard output or to FILE
                 use :o Declarations and/or :o Statements to start collecting them
 `)
 }

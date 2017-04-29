@@ -44,7 +44,7 @@ func (c *Comp) TypeInterface(node *ast.InterfaceType) r.Type {
 	types = append([]r.Type{TypeOfInterface}, types...)
 	names = append([]string{nameOfInterfaceObject}, names...)
 
-	fields := makeStructFields(c.File().Path, names, types)
+	fields := c.makeStructFields(c.File().Path, names, types)
 	return r.StructOf(fields)
 }
 

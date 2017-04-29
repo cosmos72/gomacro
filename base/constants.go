@@ -31,8 +31,10 @@ import (
 type none struct{}
 
 const (
-	ReflectGensymPrefix = "\u0080"     // prefix to generate names of extra struct fields needed by the interpreter in reflect.StructOf()
-	GensymPrefix        = "\U000124AD" // prefix to generate names in macros - arbitrarily chosen U+124AD CUNEIFORM SIGN ERIN2 X - reasons:
+	StrGensymInterface = "\u0080"     // name of extra struct field needed by the interpreter when creating interface proxies
+	StrGensymPrivate   = "\u00AD"     // prefix to generate names for unexported struct fields
+	StrGensymEmbedded  = "\u00BB"     // prefix to generate names for embedded struct fields
+	StrGensym          = "\U000124AD" // prefix to generate names in macros - arbitrarily chosen U+124AD CUNEIFORM SIGN ERIN2 X - reasons:
 	// * accepted by Go compiler identifier name in source code
 	// * belongs to an ancient language no longer spoken, so hopefully low collision risk
 	// * outside Unicode basic place, so hopefully lower collision risk

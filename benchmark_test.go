@@ -221,12 +221,11 @@ func BenchmarkArithCompiler2(b *testing.B) {
 
 func BenchmarkArithFastInterpreter(b *testing.B) {
 	ce := fast.New()
-	c := ce.Comp
-	ce.DeclVar("n", TypeOfInt, 0)
+	ce.DeclVar("n", nil, int(0))
 
 	addr := ce.AddressOfVar("n").Interface().(*int)
 
-	fun := c.CompileAst(c.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)"))
+	fun := ce.Compile("((n*2+3)&4 | 5 ^ 6) / (n|1)")
 	env := ce.PrepareEnv()
 	fun(env)
 	var ret r.Value
@@ -246,26 +245,34 @@ func BenchmarkArithFastInterpreter(b *testing.B) {
 
 func BenchmarkArithFastInterpreterBis(b *testing.B) {
 	ce := fast.New()
-	c := ce.Comp
 	ce.Eval("var i, n, total int")
 
-	addr := ce.AddressOfVar("n").Interface().(*int)
+	n := ce.AddressOfVar("n").Interface().(*int)
+	total := ce.AddressOfVar("total").Interface().(*int)
 
 	// interpreted code performs iteration and arithmetic
-	fun := c.CompileAst(c.ParseAst("total = 0; for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total"))
-
+	fun := ce.Compile("for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }")
 	env := ce.PrepareEnv()
 	fun(env)
-	var ret r.Value
 
-	total := 0
-	*addr = b.N
 	b.ResetTimer()
-	ret, _ = fun(env)
-	total += int(ret.Int())
+
+	*n = b.N
+	*total = 0
+	fun(env)
 
 	if verbose {
-		println(total)
+		println(*total)
+	}
+}
+
+func BenchmarkArithFastInterpreterCompileLoop(b *testing.B) {
+	ce := fast.New()
+	ce.Eval("var i, n, total int")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		ce.Compile("total = 0; for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total")
 	}
 }
 

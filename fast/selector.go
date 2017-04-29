@@ -27,20 +27,383 @@ package fast
 import (
 	"go/ast"
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/base"
 )
+
+var preferMethods bool
 
 // SelectorExpr compiles a.b
 func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
-	c.Errorf("unimplemented: dotted notation a.b: %v", node)
+	e := c.Expr1(node.X)
+	t := e.Type
+	name := node.Sel.Name
+	switch t.Kind() {
+	case r.Ptr:
+		t = t.Elem()
+		if t.Kind() != r.Struct {
+			break
+		}
+		fun := e.AsX1()
+		e = exprFun(t, func(env *Env) r.Value {
+			return fun(env).Elem()
+		})
+		fallthrough
+	case r.Struct:
+		field, fieldok, mtd, mtdok := c.LookupFieldOrMethod(t, name)
+		if fieldok {
+			return c.compileField(e, field)
+		} else if mtdok {
+			return c.compileMethod(e, mtd)
+		}
+	}
+	c.Errorf("field or method not found: %v", node)
 	return nil
+}
+
+// lookup fields and methods at the same time... it's and error if both exist at the same depth
+func (c *Comp) LookupFieldOrMethod(t r.Type, name string) (r.StructField, bool, r.Method, bool) {
+	field, fieldn := c.lookupField(t, name)
+	mtd, mtddepth, mtdn := methodByNameDepth(t, name)
+	if fieldn != 0 && mtdn != 0 {
+		if len(field.Index) < mtddepth {
+			// prefer the field
+			mtdn = 0
+		} else if len(field.Index) > mtddepth {
+			// prefer the method
+			fieldn = 0
+		} else {
+			var preferred string
+			if preferMethods {
+				preferred = "method"
+				fieldn = 0
+			} else {
+				preferred = "field"
+				mtdn = 0
+			}
+			c.Warnf("type %v has both a field and a method %q at the same depth=%d. this should not happen... using the %s",
+				t, name, len(field.Index), preferred)
+		}
+	}
+	if fieldn > 1 {
+		c.Errorf("type %v has %d fields named %q, all at depth %d", t, fieldn, name, len(field.Index))
+	} else if mtdn > 1 {
+		c.Errorf("type %v has %d methods named %q, all at depth %d", t, mtdn, name, mtddepth)
+	}
+	return field, fieldn == 1, mtd, mtdn == 1
+}
+
+// lookupField performs a breadth-first search for struct field with given name
+func (c *Comp) lookupField(t r.Type, name string) (field r.StructField, numfound int) {
+	return c.lookupField0(t, 0, nil, name)
+}
+
+func (c *Comp) lookupField0(t r.Type, offset uintptr, index []int, name string) (field r.StructField, numfound int) {
+	var recurse []r.StructField
+	if t.Kind() == r.Ptr {
+		t = t.Elem()
+		offset = 0
+	}
+	n := t.NumField()
+	private := isPrivateFieldName(name)
+	for i := 0; i < n; i++ {
+		fieldi := t.Field(i)
+		// check for exported/private (unexported) field
+		if fieldi.Name == name {
+			field = fieldi
+			numfound++
+			continue
+		}
+		// check for GensymPrivate fields - they emulate private fields
+		if private && base.IsGensymPrivate(fieldi.Name) {
+			fname := fieldi.Name[len(base.StrGensymPrivate):]
+			if fname == name {
+				field = fieldi
+				numfound++
+				continue
+			}
+		}
+		// check for embedded fields
+		if fieldi.Anonymous {
+			if fieldi.Type.Name() == name {
+				field = fieldi
+				numfound++
+				continue
+			} else {
+				recurse = append(recurse, fieldi)
+			}
+		}
+		// check for GensymEmbedded fields - they emulate embedded fields
+		if base.IsGensymEmbedded(fieldi.Name) {
+			fname := fieldi.Name[len(base.StrGensymEmbedded):]
+			if fname == name || c.NamedTypes[fieldi.Type].Name == name {
+				// c.Debugf("lookupField: found GensymEmbedded field: %v", fieldi)
+				field = fieldi
+				field.Anonymous = true
+				numfound++
+				continue
+			} else {
+				recurse = append(recurse, fieldi)
+			}
+		}
+	}
+	if numfound != 0 {
+		field.Offset += offset
+		field.Index = append(index, field.Index...)
+		return
+	}
+	// breadth-first recursion
+	depth := len(index)
+	index = append(index, 0)
+	for _, recursei := range recurse {
+		index[depth] = recursei.Index[len(recursei.Index)-1]
+		field, n = c.lookupField0(recursei.Type, offset+recursei.Offset, index[:], name) // pass a copy of slice
+		numfound += n
+	}
+	return
+}
+
+func isPrivateFieldName(name string) bool {
+	if len(name) == 0 {
+		return false
+	}
+	ch := name[0]
+	return ch >= 'a' && ch <= 'z' || ch == '_'
+}
+
+func (c *Comp) compileField(e *Expr, field r.StructField) *Expr {
+	objfun := e.AsX1()
+	t := field.Type
+	var fun I
+	index := field.Index
+	c.Debugf("compileField: field=%#v", field)
+	if len(index) == 1 {
+		index0 := index[0]
+		switch t.Kind() {
+		case r.Bool:
+			fun = func(env *Env) bool {
+				obj := objfun(env)
+				return obj.Field(index0).Bool()
+			}
+		case r.Int:
+			fun = func(env *Env) int {
+				obj := objfun(env)
+				return int(obj.Field(index0).Int())
+			}
+		case r.Int8:
+			fun = func(env *Env) int8 {
+				obj := objfun(env)
+				return int8(obj.Field(index0).Int())
+			}
+		case r.Int16:
+			fun = func(env *Env) int16 {
+				obj := objfun(env)
+				return int16(obj.Field(index0).Int())
+			}
+		case r.Int32:
+			fun = func(env *Env) int32 {
+				obj := objfun(env)
+				return int32(obj.Field(index0).Int())
+			}
+		case r.Int64:
+			fun = func(env *Env) int64 {
+				obj := objfun(env)
+				return obj.Field(index0).Int()
+			}
+		case r.Uint:
+			fun = func(env *Env) uint {
+				obj := objfun(env)
+				return uint(obj.Field(index0).Uint())
+			}
+		case r.Uint8:
+			fun = func(env *Env) uint8 {
+				obj := objfun(env)
+				return uint8(obj.Field(index0).Uint())
+			}
+		case r.Uint16:
+			fun = func(env *Env) uint16 {
+				obj := objfun(env)
+				return uint16(obj.Field(index0).Uint())
+			}
+		case r.Uint32:
+			fun = func(env *Env) uint32 {
+				obj := objfun(env)
+				return uint32(obj.Field(index0).Uint())
+			}
+		case r.Uint64:
+			fun = func(env *Env) uint64 {
+				obj := objfun(env)
+				return obj.Field(index0).Uint()
+			}
+		case r.Uintptr:
+			fun = func(env *Env) uintptr {
+				obj := objfun(env)
+				return uintptr(obj.Field(index0).Uint())
+			}
+		case r.Float32:
+			fun = func(env *Env) float32 {
+				obj := objfun(env)
+				return float32(obj.Field(index0).Float())
+			}
+		case r.Float64:
+			fun = func(env *Env) float64 {
+				obj := objfun(env)
+				return obj.Field(index0).Float()
+			}
+		case r.Complex64:
+			fun = func(env *Env) complex64 {
+				obj := objfun(env)
+				return complex64(obj.Field(index0).Complex())
+			}
+		case r.Complex128:
+			fun = func(env *Env) complex128 {
+				obj := objfun(env)
+				return obj.Field(index0).Complex()
+			}
+		case r.String:
+			fun = func(env *Env) string {
+				obj := objfun(env)
+				return obj.Field(index0).String()
+			}
+		default:
+			fun = func(env *Env) r.Value {
+				obj := objfun(env)
+				return obj.Field(index0)
+			}
+		}
+	} else {
+		switch t.Kind() {
+		case r.Bool:
+			fun = func(env *Env) bool {
+				obj := objfun(env)
+				return obj.FieldByIndex(index).Bool()
+			}
+		case r.Int:
+			fun = func(env *Env) int {
+				obj := objfun(env)
+				return int(obj.FieldByIndex(index).Int())
+			}
+		case r.Int8:
+			fun = func(env *Env) int8 {
+				obj := objfun(env)
+				return int8(obj.FieldByIndex(index).Int())
+			}
+		case r.Int16:
+			fun = func(env *Env) int16 {
+				obj := objfun(env)
+				return int16(obj.FieldByIndex(index).Int())
+			}
+		case r.Int32:
+			fun = func(env *Env) int32 {
+				obj := objfun(env)
+				return int32(obj.FieldByIndex(index).Int())
+			}
+		case r.Int64:
+			fun = func(env *Env) int64 {
+				obj := objfun(env)
+				return obj.FieldByIndex(index).Int()
+			}
+		case r.Uint:
+			fun = func(env *Env) uint {
+				obj := objfun(env)
+				return uint(obj.FieldByIndex(index).Uint())
+			}
+		case r.Uint8:
+			fun = func(env *Env) uint8 {
+				obj := objfun(env)
+				return uint8(obj.FieldByIndex(index).Uint())
+			}
+		case r.Uint16:
+			fun = func(env *Env) uint16 {
+				obj := objfun(env)
+				return uint16(obj.FieldByIndex(index).Uint())
+			}
+		case r.Uint32:
+			fun = func(env *Env) uint32 {
+				obj := objfun(env)
+				return uint32(obj.FieldByIndex(index).Uint())
+			}
+		case r.Uint64:
+			fun = func(env *Env) uint64 {
+				obj := objfun(env)
+				return obj.FieldByIndex(index).Uint()
+			}
+		case r.Uintptr:
+
+			fun = func(env *Env) uintptr {
+				obj := objfun(env)
+				return uintptr(obj.FieldByIndex(index).Uint())
+			}
+		case r.Float32:
+			fun = func(env *Env) float32 {
+				obj := objfun(env)
+				return float32(obj.FieldByIndex(index).Float())
+			}
+		case r.Float64:
+			fun = func(env *Env) float64 {
+				obj := objfun(env)
+				return obj.FieldByIndex(index).Float()
+			}
+		case r.Complex64:
+			fun = func(env *Env) complex64 {
+				obj := objfun(env)
+				return complex64(obj.FieldByIndex(index).Complex())
+			}
+		case r.Complex128:
+			fun = func(env *Env) complex128 {
+				obj := objfun(env)
+				return obj.FieldByIndex(index).Complex()
+			}
+		case r.String:
+			fun = func(env *Env) string {
+				obj := objfun(env)
+				return obj.FieldByIndex(index).String()
+			}
+		default:
+			fun = func(env *Env) r.Value {
+				obj := objfun(env)
+				return obj.FieldByIndex(index)
+			}
+		}
+	}
+	return exprFun(t, fun)
+}
+
+func (c *Comp) compileMethod(e *Expr, mtd r.Method) *Expr {
+	// slow, but simple: return a closure with the receiver already bound
+	index := mtd.Index
+	t := r.Zero(e.Type).Method(index).Type()
+	objfun := e.AsX1()
+	return exprFun(t, func(env *Env) r.Value {
+		obj := objfun(env)
+		return obj.Method(index)
+	})
+}
+
+func methodByNameDepth(t r.Type, name string) (mtd r.Method, depth int, count int) {
+	mtd, ok := t.MethodByName(name)
+	if ok {
+		count++
+	}
+	return mtd, 1, count
+
+	// TODO check for methods declared on embedded field
+	/*
+		for i := 0; i < t.NumField(); i++ {
+			if field := t.Field(i); field.Anonymous {
+				if emtd, eok := methodByNameDepth(field.Type, name); eok {
+				}
+			}
+		}
+	*/
 }
 
 // SelectorPlace compiles a.b returning a settable and addressable Place
 func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 	if opt {
-		c.Errorf("unimplemented: address of struct field: %v", r.TypeOf(node), node)
+		c.Errorf("unimplemented: address of struct field: %v", node)
 	} else {
-		c.Errorf("unimplemented: assignment to struct field: %v", r.TypeOf(node), node)
+		c.Errorf("unimplemented: assignment to struct field: %v", node)
 	}
 	return nil
 }

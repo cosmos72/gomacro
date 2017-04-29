@@ -43,9 +43,14 @@ type Inspector struct {
 	env   *Env
 }
 
-func (env *Env) Inspect(in *bufio.Reader, name string) {
-	ast := env.ParseAst(name)
-	v := env.EvalAst1(ast)
+func (env *Env) Inspect(in *bufio.Reader, str string, fastInterpreter bool) {
+	form := env.ParseAst(str)
+	var v r.Value
+	if fastInterpreter {
+		v, _ = env.fastEval(form)
+	} else {
+		v = env.EvalAst1(form)
+	}
 	var t r.Type
 	if v != Nil && v != None {
 		t = r.TypeOf(v.Interface()) // show concrete type
@@ -54,16 +59,16 @@ func (env *Env) Inspect(in *bufio.Reader, name string) {
 	case r.Array, r.Slice, r.String, r.Struct:
 		break
 	default:
-		env.showVar(name, v, t)
+		env.showVar(str, v, t)
 		return
 	}
-	stack := Inspector{names: []string{name}, vs: []r.Value{v}, ts: []r.Type{t}, in: in, env: env}
+	stack := Inspector{names: []string{str}, vs: []r.Value{v}, ts: []r.Type{t}, in: in, env: env}
 	stack.Show()
 	stack.Repl()
 }
 
-func (env *Env) showVar(name string, v r.Value, t r.Type) {
-	env.Fprintf(env.Stdout, "%s\t= %v\t<%v>\n", name, v, t)
+func (env *Env) showVar(str string, v r.Value, t r.Type) {
+	env.Fprintf(env.Stdout, "%s\t= %v\t<%v>\n", str, v, t)
 }
 
 func (ip *Inspector) Help() {

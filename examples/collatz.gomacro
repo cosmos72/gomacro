@@ -1,6 +1,8 @@
 #!/usr/bin/env gomacro
 
-:fast func collatz(n int) {
+:fast
+
+func collatz(n int) {
 	for n > 1 {
 		if n&1 != 0 {
 			n = ((n * 3) + 1) / 2
@@ -11,9 +13,7 @@
 }
 
 
-:fast {
-	var i int
-	for i = 0; i < 100000; i+=1 {
-		collatz(837799)
-	}
+var i int
+for i = 0; i < 100000; i+=1 {
+	collatz(837799)
 }

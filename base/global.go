@@ -82,18 +82,44 @@ func NewGlobals() *Globals {
 	return g
 }
 
-func IsReflectGensym(name string) bool {
-	return strings.HasPrefix(name, ReflectGensymPrefix)
-}
-
-func IsGensym(name string) bool {
-	return strings.HasPrefix(name, GensymPrefix)
-}
-
 func (g *Globals) Gensym() string {
 	n := g.GensymN
 	g.GensymN++
-	return fmt.Sprintf("%s%d", GensymPrefix, n)
+	return fmt.Sprintf("%s%d", StrGensym, n)
+}
+
+func (g *Globals) GensymEmbedded(name string) string {
+	if len(name) == 0 {
+		n := g.GensymN
+		g.GensymN++
+		name = fmt.Sprintf("%d", n)
+	}
+	return StrGensymEmbedded + name
+}
+
+func (g *Globals) GensymPrivate(name string) string {
+	if len(name) == 0 {
+		n := g.GensymN
+		g.GensymN++
+		name = fmt.Sprintf("%d", n)
+	}
+	return StrGensymPrivate + name
+}
+
+func IsGensym(name string) bool {
+	return strings.HasPrefix(name, StrGensym)
+}
+
+func IsGensymInterface(name string) bool {
+	return name == StrGensymInterface
+}
+
+func IsGensymEmbedded(name string) bool {
+	return strings.HasPrefix(name, StrGensymEmbedded)
+}
+
+func IsGensymPrivate(name string) bool {
+	return strings.HasPrefix(name, StrGensymPrivate)
 }
 
 func (g *Globals) ParseBytes(src []byte) []ast.Node {

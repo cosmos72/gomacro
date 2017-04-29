@@ -225,10 +225,23 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 	if n == 0 {
 		return true // no input. don't print anything
 	}
+	fast := env.Options&OptFastInterpreter != 0 // use the fast interpreter?
+
 	if n > 0 && src[0] == ':' {
 		args := strings.SplitN(src, " ", 2)
 		cmd := args[0]
 		switch {
+		case strings.HasPrefix(":classic", cmd):
+			if len(args) <= 1 {
+				if env.Options&OptFastInterpreter != 0 {
+					env.Debugf("switched to classic interpreter")
+				}
+				env.Options &^= OptFastInterpreter
+				return true
+			}
+			// temporary override
+			src = strings.TrimSpace(args[1])
+			fast = false
 		case strings.HasPrefix(":env", cmd):
 			if len(args) <= 1 {
 				env.showPackage("")
@@ -237,10 +250,16 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 			}
 			return true
 		case strings.HasPrefix(":fast", cmd):
-			if len(args) > 1 {
-				env.compile(args[1])
+			if len(args) <= 1 {
+				if env.Options&OptFastInterpreter == 0 {
+					env.Debugf("switched to fast interpreter (incomplete)")
+				}
+				env.Options |= OptFastInterpreter
+				return true
 			}
-			return true
+			// temporary override
+			src = strings.TrimSpace(args[1])
+			fast = true
 		case strings.HasPrefix(":help", cmd):
 			env.showHelp(env.Stdout)
 			return true
@@ -250,7 +269,7 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 			} else if len(args) == 1 {
 				fmt.Fprint(env.Stdout, "// inspect: missing argument\n")
 			} else {
-				env.Inspect(in, args[1])
+				env.Inspect(in, args[1], fast)
 			}
 			return true
 		case strings.HasPrefix(":options", cmd):
@@ -299,16 +318,20 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 	}
 
 	// parse + macroexpansion phase
-	ast := env.ParseAst(src)
+	form := env.ParseAst(src)
 
 	var value r.Value
 	var values []r.Value
 
 	// eval phase
-	if env.Options&OptMacroExpandOnly == 0 {
-		value, values = env.EvalAst(ast)
-	} else if ast != nil {
-		value = r.ValueOf(ast.Interface())
+	if form != nil {
+		if env.Options&OptMacroExpandOnly != 0 {
+			value = r.ValueOf(form.Interface())
+		} else if fast {
+			value, values = env.fastEval(form)
+		} else {
+			value, values = env.EvalAst(form)
+		}
 	}
 
 	// print phase

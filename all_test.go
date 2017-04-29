@@ -101,7 +101,7 @@ const fib_s = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibona
 
 var ti = r.StructOf(
 	[]r.StructField{
-		r.StructField{Name: ReflectGensymPrefix, Type: r.TypeOf((*interface{})(nil)).Elem()},
+		r.StructField{Name: StrGensymInterface, Type: r.TypeOf((*interface{})(nil)).Elem()},
 		r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
 	},
 )
@@ -191,8 +191,12 @@ var tests = []TestCase{
 	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
 	TestCase{I, "type_interface", "type Stringer interface { String() string }; var s Stringer", si, nil},
-	TestCase{A, "type_struct", "type Pair struct { A, B int }; var pair Pair; pair", struct{ A, B int }{}, nil},
-	TestCase{I, "struct", "pair.A, pair.B = 1, 2; pair", struct{ A, B int }{1, 2}, nil},
+	TestCase{A, "type_struct", "type Pair struct { A rune; B string }; var pair Pair; pair", struct {
+		A rune
+		B string
+	}{}, nil},
+	TestCase{A, "get_struct_1", "pair.A", rune(0), nil},
+	TestCase{A, "get_struct_2", "pair.B", "", nil},
 	TestCase{A, "pointer_1", "var vf = 1.25; if *&vf != vf { vf = -1 }; vf", 1.25, nil},
 	TestCase{A, "pointer_2", "var pvf = &vf; *pvf", 1.25, nil},
 	TestCase{A, "pointer_3", "var pvs = &vs; v1 = (*pvs == nil); v1", true, nil},
@@ -272,6 +276,15 @@ var tests = []TestCase{
 	TestCase{A, "getmap_1", `m[1]`, nil, []interface{}{"x", true}},
 	TestCase{A, "getmap_2", `m1 := m[1]; m1`, "x", nil},
 
+	TestCase{I, "set_struct_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
+		A rune
+		B string
+	}{'k', "m"}, nil},
+	TestCase{I, "set_struct_2", `pair.A, pair.B = 'x', "y"; pair`, struct {
+		A rune
+		B string
+	}{'x', "y"}, nil},
+
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 
 	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},
@@ -294,12 +307,15 @@ var tests = []TestCase{
 	TestCase{A, "builtin_imag_2", "imag(cplx)", imag(complex64(1.5 + 0.25i)), nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
-	TestCase{I, "literal_struct", "Pair{A: 73, B: 94}", struct{ A, B int }{A: 73, B: 94}, nil},
+	TestCase{I, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
+		A rune
+		B string
+	}{A: 0x73, B: "\x94"}, nil},
 	TestCase{I, "literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
 	TestCase{I, "literal_map", "map[int]string{1: \"foo\", 2: \"bar\"}", map[int]string{1: "foo", 2: "bar"}, nil},
 	TestCase{I, "literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
-	TestCase{I, "method_on_ptr", "func (p *Pair) SetLhs(a int) { p.A = a }; pair.SetLhs(8); pair.A", 8, nil},
-	TestCase{I, "method_on_value", "func (p Pair) SetLhs(a int) { p.A = a }; pair.SetLhs(11); pair.A", 8, nil}, // method on value gets a copy of the receiver - changes to not propagate
+	TestCase{I, "method_on_ptr", "func (p *Pair) SetLhs(a rune) { p.A = a }; pair.SetLhs(8); pair.A", rune(8), nil},
+	TestCase{I, "method_on_value", "func (p Pair) SetLhs(a rune) { p.A = a }; pair.SetLhs(11); pair.A", rune(8), nil}, // method on value gets a copy of the receiver - changes to not propagate
 	TestCase{I, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{I, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
 	TestCase{A, "pred_bool_1", "false==false && true==true && true!=false", true, nil},
