@@ -26,6 +26,7 @@ package fast
 
 import (
 	"fmt"
+	"go/ast"
 	"go/constant"
 	r "reflect"
 
@@ -39,6 +40,11 @@ type UntypedLit struct {
 	Kind r.Kind // default type. matches Obj.Kind() except for rune literals, where Kind == reflect.Int32
 	Obj  constant.Value
 }
+
+var (
+	UntypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(0)}
+	UntypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(1)}
+)
 
 // pretty-print untyped constants
 func (untyp *UntypedLit) String() string {
@@ -164,6 +170,19 @@ func (e *Expr) String() string {
 
 // Stmt represents a statement in the fast interpreter
 type Stmt func(*Env) (Stmt, *Env)
+
+// ================================= Builtin =================================
+
+// Builtin represents a builtin function in the fast interpreter
+type Builtin struct {
+	// interpreted code should not access "compile": not exported.
+	// compile usually needs to modify Symbol: pass it by value.
+	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call
+	ArgMin  int
+	ArgMax  int
+}
+
+var TypeOfBuiltinFunc = r.TypeOf(Builtin{})
 
 // ================================= BindClass =================================
 

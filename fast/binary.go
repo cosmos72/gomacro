@@ -395,8 +395,8 @@ func (c *Comp) constsToSameType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
 	} else if xu {
 		xe.ConstTo(ye.Type)
 	} else if yu {
-		ye.ConstTo(ye.Type)
-	} else if r.TypeOf(x) != r.TypeOf(y) {
-		c.badBinaryExpr("constant operands have different types in", node, xe, ye)
+		ye.ConstTo(xe.Type)
+	} else if xe.Type != ye.Type {
+		c.badBinaryExpr("mismatched types in", node, xe, ye)
 	}
 }

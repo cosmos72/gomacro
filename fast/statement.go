@@ -443,7 +443,7 @@ func (c *Comp) IncDec(node *ast.IncDecStmt) {
 	} else {
 		op = token.ADD
 	}
-	one := exprValue(untypedOne)
+	one := exprValue(UntypedOne)
 	if place.IsVar() {
 		c.SetVar(&place.Var, op, one)
 	} else {

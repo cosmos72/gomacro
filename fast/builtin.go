@@ -35,27 +35,12 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-type Builtin struct {
-	// interpreted code should not access "compile": not exported.
-	// compile usually needs to modify Symbol: pass it by value.
-	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call
-	ArgMin  int
-	ArgMax  int
-}
-
-var (
-	untypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(int64(0))}
-	untypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(int64(1))}
-
-	TypeOfBuiltinFunc = r.TypeOf(Builtin{})
-)
-
 // =================================== iota ===================================
 
 func (top *Comp) addIota() {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	top.Binds["iota"] = BindConst(untypedZero)
+	top.Binds["iota"] = BindConst(UntypedZero)
 }
 
 func (top *Comp) removeIota() {
@@ -64,7 +49,7 @@ func (top *Comp) removeIota() {
 
 func (top *Comp) incrementIota() {
 	uIota := top.Binds["iota"].Lit.Value.(UntypedLit).Obj
-	uIota = constant.BinaryOp(uIota, token.ADD, untypedOne.Obj)
+	uIota = constant.BinaryOp(uIota, token.ADD, UntypedOne.Obj)
 	top.Binds["iota"] = BindConst(UntypedLit{Kind: r.Int, Obj: uIota})
 }
 

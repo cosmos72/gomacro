@@ -122,7 +122,13 @@ func (e *Expr) ConstTo(t r.Type) I {
 	if !e.Const() {
 		Errorf("expression is not a constant, cannot convert from <%v> to <%v>", e.Type, t)
 	}
-	return e.Lit.ConstTo(t)
+	val := e.Lit.ConstTo(t)
+	if e.Fun != nil {
+		// no longer valid, recompute it
+		e.Fun = nil
+		e.WithFun()
+	}
+	return val
 }
 
 // ConstTo checks that a Lit can be used as the given type.
