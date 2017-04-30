@@ -40,31 +40,9 @@ func (c *Comp) SliceExpr(node *ast.SliceExpr) *Expr {
 	if e.Type.Kind() == r.Array {
 		c.sliceArrayMustBeAddressable(node, e)
 	}
-	var lo, hi, max *Expr
-	if node.Low != nil {
-		lo = c.Expr1(node.Low)
-		if lo.Const() {
-			lo.ConstTo(TypeOfInt)
-		} else if !lo.Type.AssignableTo(TypeOfInt) {
-			c.Errorf("invalid slice index: expecting integer, found: %v <%v>", lo.Type, node.Low)
-		}
-	}
-	if node.High != nil {
-		hi = c.Expr1(node.High)
-		if hi.Const() {
-			hi.ConstTo(TypeOfInt)
-		} else if !hi.Type.AssignableTo(TypeOfInt) {
-			c.Errorf("invalid slice index: expecting integer, found: %v <%v>", hi.Type, node.High)
-		}
-	}
-	if node.Max != nil {
-		max = c.Expr1(node.Max)
-		if max.Const() {
-			max.ConstTo(TypeOfInt)
-		} else if !max.Type.AssignableTo(TypeOfInt) {
-			c.Errorf("invalid slice index: expecting integer, found: %v <%v>", max.Type, node.Max)
-		}
-	}
+	lo := c.sliceIndex(node.Low)
+	hi := c.sliceIndex(node.High)
+	max := c.sliceIndex(node.Max)
 	var ret *Expr
 	if node.Slice3 {
 		ret = c.slice3(node, e, lo, hi, max)
@@ -76,6 +54,22 @@ func (c *Comp) SliceExpr(node *ast.SliceExpr) *Expr {
 		ret.EvalConst(CompileKeepUntyped)
 	}
 	return ret
+}
+
+func (c *Comp) sliceIndex(node ast.Expr) *Expr {
+	if node == nil {
+		return nil
+	}
+	idx := c.Expr1(node)
+	if idx.Const() {
+		idx.ConstTo(TypeOfInt)
+		if idx.Value.(int) < 0 {
+			c.Errorf("negative slice index: %v == %v", node, idx)
+		}
+	} else if !idx.Type.AssignableTo(TypeOfInt) {
+		c.Errorf("invalid slice index: expecting integer, found: %v <%v>", idx.Type, node)
+	}
+	return idx
 }
 
 // slice2 compiles slice[lo:hi]
@@ -278,5 +272,12 @@ func (c *Comp) slice3(node *ast.SliceExpr, e, lo, hi, max *Expr) *Expr {
 }
 
 func (c *Comp) sliceArrayMustBeAddressable(node *ast.SliceExpr, e *Expr) {
-	c.Place(node.X)
+	panicking := true
+	defer func() {
+		if panicking {
+			c.Errorf("cannot slice: array must be addressable: %v <%v>", node, e.Type)
+		}
+	}()
+	c.placeOrAddress(node.X, PlaceAddress)
+	panicking = false
 }
