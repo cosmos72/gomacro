@@ -59,11 +59,18 @@ func (call *Call) MakeArgfuns() []func(*Env) r.Value {
 	return argfuns
 }
 
-// CallExpr compiles a function call
+// CallExpr compiles a function call or a type conversion
 func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
-	call := c.callExpr(node)
+	var fun *Expr
+	if len(node.Args) == 1 {
+		var t r.Type
+		fun, t = c.Expr1OrType(node.Fun)
+		if t != nil {
+			return c.Convert(node.Args[0], t)
+		}
+	}
+	call := c.callExpr(node, fun)
 	expr := &Expr{}
-
 	tout := call.OutTypes
 	nout := len(tout)
 	if nout == 1 {
@@ -92,8 +99,10 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 }
 
 // callExpr compiles the common part between CallExpr and Go statement
-func (c *Comp) callExpr(node *ast.CallExpr) *Call {
-	fun := c.Expr(node.Fun)
+func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
+	if fun == nil {
+		fun = c.Expr1(node.Fun)
+	}
 	t := fun.Type
 	if t == TypeOfBuiltinFunc {
 		return c.callBuiltinFunc(fun, node)

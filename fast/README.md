@@ -8,7 +8,7 @@ If you want to help with the reimplementation, or you are simply curious, read o
 
 ## Current Status
 
-ALPHA.
+BETA.
 
 The fast intepreter supports:
 * multiline input - shared with the classic interpreter
@@ -20,7 +20,7 @@ The fast intepreter supports:
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= (unimplemented: <<= and >>=)
 * struct fields, including embedded fields (unimplemented: calling methods)
 * slicing
-* type assertions
+* type assertions and type conversions
 * function declarations (including variadic functions)
 * transparent invocation of compiled functions from interpreter, and vice-versa
 * function calls (unimplemented: calls to variadic functions, with or without ... after last call argument)

@@ -327,7 +327,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	// Thus we must create a corresponding "unnecessary" Comp and use it to compile the call
 	c2 := NewComp(c)
 
-	call := c2.callExpr(node.Call)
+	call := c2.callExpr(node.Call, nil)
 	exprfun := call.Fun.AsX1()
 	argfuns := call.MakeArgfuns()
 

@@ -131,3 +131,17 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 		return nil
 	}
 }
+
+// Expr1OrType compiles an single-valued expression or a type
+func (c *Comp) Expr1OrType(node ast.Expr) (e *Expr, t r.Type) {
+	panicking := true
+	defer func() {
+		if panicking {
+			recover()
+			t = c.Type(node)
+		}
+	}()
+	e = c.Expr1(node)
+	panicking = false
+	return
+}
