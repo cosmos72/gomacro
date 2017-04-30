@@ -38,7 +38,7 @@ type rMethod struct {
 
 type rField r.StructField
 
-// SelectorExpr compiles a.b
+// SelectorExpr compiles foo.bar, i.e. read access to methods and struct fields
 func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	e := c.Expr1(node.X)
 	t := e.Type

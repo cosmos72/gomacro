@@ -104,7 +104,8 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 			return c.BinaryExpr(node)
 		case *ast.CallExpr:
 			return c.CallExpr(node)
-		// case *ast.CompositeLit:
+		//case *ast.CompositeLit:
+		//  return c.CompositeLit(node)
 		case *ast.FuncLit:
 			return c.FuncLit(node)
 		case *ast.Ident:
@@ -118,7 +119,8 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 			return c.UnaryExpr(node)
 		case *ast.SelectorExpr:
 			return c.SelectorExpr(node)
-		// case *ast.SliceExpr:
+		case *ast.SliceExpr:
+			return c.SliceExpr(node)
 		case *ast.StarExpr:
 			return c.StarExpr(node)
 		case *ast.TypeAssertExpr:

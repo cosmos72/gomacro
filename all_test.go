@@ -191,9 +191,16 @@ var tests = []TestCase{
 	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
 	TestCase{I, "type_interface", "type Stringer interface { String() string }; var s Stringer", si, nil},
-	TestCase{A, "type_struct", "type Pair struct { A rune; B string }; var pair Pair; pair", struct {
+	TestCase{A, "type_struct_1", "type Pair struct { A rune; B string }; var pair Pair; pair", struct {
 		A rune
 		B string
+	}{}, nil},
+	TestCase{A, "type_struct_2", "type Triple struct { Pair Pair; C float32 }; var triple Triple; triple", struct {
+		Pair struct {
+			A rune
+			B string
+		}
+		C float32
 	}{}, nil},
 	TestCase{A, "get_struct_1", "pair.A", rune(0), nil},
 	TestCase{A, "get_struct_2", "pair.B", "", nil},
@@ -210,8 +217,14 @@ var tests = []TestCase{
 	TestCase{A, "expr_index_array_1", `va[1]`, rune(0), nil},
 	TestCase{A, "expr_index_array_2", `(&va)[0]`, rune(0), nil},
 	TestCase{A, "expr_index_map", `var m2 map[rune]string; m2['x']`, nil, []interface{}{"", false}},
-	TestCase{I, "expr_slice", "y = y[:4]", []uint8{100, 0, 0, 103}, nil},
-	TestCase{I, "expr_slice3", "y = y[:3:4]", []uint8{100, 0, 0}, nil},
+	TestCase{A, "expr_slice_0", "y[:]", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
+	TestCase{A, "expr_slice_1", "y[1:]", []uint8{0, 0, 103, 0, 0, 0}, nil},
+	TestCase{A, "expr_slice_2", "y[2:4]", []uint8{0, 103}, nil},
+	TestCase{A, "expr_slice_3", "y[:3]", []uint8{100, 0, 0}, nil},
+	TestCase{A, "expr_slice_4", "y = y[:3:7]; y", []uint8{100, 0, 0}, nil},
+	TestCase{A, "expr_slice_5", `"abc"[:]`, "abc", nil},
+	TestCase{A, "expr_slice_6", `"abc"[1:]`, "bc", nil},
+	TestCase{A, "expr_slice_7", `"abc"[1:2]`, "b", nil},
 
 	TestCase{A, "set_const_1", "v1 = true;    v1", true, nil},
 	TestCase{A, "set_const_2", "v2 = 9;       v2", uint8(9), nil},
@@ -276,14 +289,29 @@ var tests = []TestCase{
 	TestCase{A, "getmap_1", `m[1]`, nil, []interface{}{"x", true}},
 	TestCase{A, "getmap_2", `m1 := m[1]; m1`, "x", nil},
 
-	TestCase{A, "set_struct_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
+	TestCase{A, "setstruct_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
 		A rune
 		B string
 	}{'k', "m"}, nil},
-	TestCase{I, "set_struct_2", `pair.A, pair.B = 'x', "y"; pair`, struct {
+	TestCase{A, "setstruct_2", `pair.A, pair.B = 'x', "y"; pair`, struct {
 		A rune
 		B string
 	}{'x', "y"}, nil},
+	TestCase{A, "setstruct_3", `triple.Pair.A, triple.C = 'a', 1.0; triple`, struct {
+		Pair struct {
+			A rune
+			B string
+		}
+		C float32
+	}{
+		Pair: struct {
+			A rune
+			B string
+		}{'a', ""},
+		C: float32(1.0),
+	}, nil},
+	TestCase{A, "addr_structfield_1", "ppair := &triple.Pair; ppair.A", 'a', nil},
+	TestCase{A, "setaddr_structfield_1", "ppair.A++; triple.Pair.A", 'b', nil},
 
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 

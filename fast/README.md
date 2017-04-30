@@ -18,7 +18,8 @@ The fast intepreter supports:
 * constant, variable and type declarations (including untyped constants)
 * unary and binary operators
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= (unimplemented: <<= and >>=)
-* reading struct fields (unimplemented: writing struct fields, calling methods)
+* struct fields, including embedded fields (unimplemented: calling methods)
+* slicing
 * type assertions
 * function declarations (including variadic functions)
 * transparent invocation of compiled functions from interpreter, and vice-versa
