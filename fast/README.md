@@ -26,7 +26,7 @@ The fast intepreter supports:
 * function calls (unimplemented: calls to variadic functions, with or without ... after last call argument)
 * if, for, break, continue, return (unimplemented: return foo() where foo() returns multiple values)
 * go i.e. goroutines
-* several builtins: append, cap, delete, imag, len, make, new, real
+* several builtins: append, cap, complex, copy, delete, imag, len, make, new, real
 * ~quote
 
 Everything else is still missing. You are welcome to contribute.
