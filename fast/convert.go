@@ -32,14 +32,18 @@ import (
 // Convert compiles a type conversion
 func (c *Comp) Convert(node ast.Expr, t r.Type) *Expr {
 	e := c.Expr1(node)
-	if e.Const() {
-		e.ConstTo(t)
+	if e.Untyped() {
+		e.ConstTo(e.DefaultType())
+	}
+	if e.Type == t {
 		return e
-	} else if e.Type == t {
-		return e
-	} else if !e.Type.ConvertibleTo(t) {
-		c.Errorf("cannot convert <%v> to <%v>: %v", node)
+	} else if e.Type == nil || !e.Type.ConvertibleTo(t) {
+		c.Errorf("cannot convert %v to %v: %v", e.Type, t, node)
 		return nil
+	}
+	if e.Const() {
+		val := r.ValueOf(e.Value).Convert(t).Interface()
+		return exprValue(val)
 	}
 	fun := e.AsX1()
 	var ret I
