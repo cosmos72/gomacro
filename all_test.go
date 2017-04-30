@@ -276,7 +276,7 @@ var tests = []TestCase{
 	TestCase{A, "getmap_1", `m[1]`, nil, []interface{}{"x", true}},
 	TestCase{A, "getmap_2", `m1 := m[1]; m1`, "x", nil},
 
-	TestCase{I, "set_struct_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
+	TestCase{A, "set_struct_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
 		A rune
 		B string
 	}{'k', "m"}, nil},
@@ -316,7 +316,7 @@ var tests = []TestCase{
 	TestCase{I, "literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
 	TestCase{I, "method_on_ptr", "func (p *Pair) SetLhs(a rune) { p.A = a }; pair.SetLhs(8); pair.A", rune(8), nil},
 	TestCase{I, "method_on_value", "func (p Pair) SetLhs(a rune) { p.A = a }; pair.SetLhs(11); pair.A", rune(8), nil}, // method on value gets a copy of the receiver - changes to not propagate
-	TestCase{I, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
+	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{I, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
 	TestCase{A, "pred_bool_1", "false==false && true==true && true!=false", true, nil},
 	TestCase{A, "pred_bool_2", "false!=false || true!=true || true==false", false, nil},

@@ -62,7 +62,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 			return c.compileMethod(e, mtd)
 		}
 	}
-	c.Errorf("field or method not found: %v", node)
+	c.Errorf("type %v has no field or method %q: %v", t, name, node)
 	return nil
 }
 
@@ -195,7 +195,7 @@ func (c *Comp) compileField(e *Expr, field rField) *Expr {
 	t := field.Type
 	var fun I
 	index := field.Index
-	c.Debugf("compileField: field=%#v", field)
+	// c.Debugf("compileField: field=%#v", field)
 	if len(index) == 1 {
 		index0 := index[0]
 		switch t.Kind() {
@@ -393,18 +393,68 @@ func (c *Comp) compileMethod(e *Expr, mtd rMethod) *Expr {
 	index := mtd.Index
 	t := r.Zero(e.Type).Method(index).Type()
 	objfun := e.AsX1()
-	return exprFun(t, func(env *Env) r.Value {
+	fun := func(env *Env) r.Value {
 		obj := objfun(env)
 		return obj.Method(index)
-	})
+	}
+	return exprFun(t, fun)
 }
 
 // SelectorPlace compiles a.b returning a settable and addressable Place
 func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
-	if opt {
-		c.Errorf("unimplemented: address of struct field: %v", node)
-	} else {
-		c.Errorf("unimplemented: assignment to struct field: %v", node)
+	e := c.Expr1(node.X)
+	t := e.Type
+	name := node.Sel.Name
+	switch t.Kind() {
+	case r.Ptr:
+		t = t.Elem()
+		if t.Kind() != r.Struct {
+			break
+		}
+		fun := e.AsX1()
+		e = exprFun(t, func(env *Env) r.Value {
+			return fun(env).Elem()
+		})
+		fallthrough
+	case r.Struct:
+		field, fieldn := c.lookupField(t, name)
+		if fieldn == 0 {
+			break
+		} else if fieldn > 1 {
+			c.Errorf("type %v has %d fields named %q, all at depth %d", t, fieldn, name, len(field.Index))
+			return nil
+		}
+		return c.compileFieldPlace(e, field)
 	}
+	c.Errorf("type %v has no field %q: %v", t, name, node)
 	return nil
+}
+
+func (c *Comp) compileFieldPlace(e *Expr, field rField) *Place {
+	// c.Debugf("compileFieldPlace: field=%#v", field)
+	objfun := e.AsX1()
+	t := field.Type
+	var fun, addr func(*Env) r.Value
+	index := field.Index
+	if len(index) == 1 {
+		index0 := index[0]
+		fun = func(env *Env) r.Value {
+			obj := objfun(env)
+			return obj.Field(index0)
+		}
+		addr = func(env *Env) r.Value {
+			obj := objfun(env)
+			return obj.Field(index0).Addr()
+		}
+	} else {
+		fun = func(env *Env) r.Value {
+			obj := objfun(env)
+			return obj.FieldByIndex(index)
+		}
+		addr = func(env *Env) r.Value {
+			obj := objfun(env)
+			return obj.FieldByIndex(index).Addr()
+		}
+	}
+	return &Place{Var: Var{Type: t, Name: field.Name}, Fun: fun, Addr: addr}
 }
