@@ -333,6 +333,8 @@ var tests = []TestCase{
 	TestCase{A, "builtin_real_2", "var cplx complex64 = 1.5+0.25i; real(cplx)", real(complex64(1.5 + 0.25i)), nil},
 	TestCase{A, "builtin_imag_1", "imag(0.5+1.75i)", imag(0.5 + 1.75i), nil},
 	TestCase{A, "builtin_imag_2", "imag(cplx)", imag(complex64(1.5 + 0.25i)), nil},
+	TestCase{A, "builtin_complex_1", "complex(0,1)", complex(0, 1), nil},
+	TestCase{A, "builtin_complex_2", "v6 = 0.1; complex(v6,-v6)", complex(float32(0.1), -float32(0.1)), nil},
 
 	TestCase{I, "import", "import \"fmt\"", "fmt", nil},
 	TestCase{I, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
@@ -447,7 +449,7 @@ var tests = []TestCase{
 	TestCase{I, "macro_call", "v = 98; second_arg;1;v;3", uint32(98), nil},
 	TestCase{I, "macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
 	TestCase{I, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
-	TestCase{I, "eval", "Eval(Values(3,4,5))", 3, nil},
+	TestCase{I, "eval", "Eval(~quote{1+2})", 3, nil},
 	TestCase{I, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
 }
 

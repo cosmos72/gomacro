@@ -27,7 +27,8 @@ func (t Triple) Last() int {
 }
 
 func main() {
-	printChars()
+	fmt.Printf("%T\n", complex("", ""))
+	// printChars()
 	// inspectTriple()
 }
 

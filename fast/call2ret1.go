@@ -31,6 +31,7 @@ package fast
 
 import (
 	r "reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 )
 
@@ -51,7 +52,7 @@ func call2ret1(c *Call, maxdepth int) I {
 	karg1 := expr.Type.In(1).Kind()
 	kret := expr.Type.Out(0).Kind()
 	args := c.Args
-	argfuns := c.MakeArgfuns()
+	argfunsX1 := c.MakeArgfunsX1()
 	var cachedfunv r.Value
 	var call I
 	switch kret {
@@ -559,8 +560,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) bool {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -1073,8 +1074,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) int {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -1587,8 +1588,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) int8 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -2101,8 +2102,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) int16 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -2615,8 +2616,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) int32 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -3129,8 +3130,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) int64 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -3643,8 +3644,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) uint {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -4157,8 +4158,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) uint8 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -4671,8 +4672,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) uint16 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -5185,8 +5186,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) uint32 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -5699,8 +5700,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) uint64 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -6213,8 +6214,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) uintptr {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -6727,8 +6728,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) float32 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -7242,8 +7243,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) float64 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -7757,8 +7758,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) complex64 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -8272,8 +8273,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) complex128 {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -8787,8 +8788,8 @@ func call2ret1(c *Call, maxdepth int) I {
 				call = func(env *Env) string {
 					funv := exprfun(env)
 					argv := []r.Value{
-						argfuns[0](env),
-						argfuns[1](env),
+						argfunsX1[0](env),
+						argfunsX1[1](env),
 					}
 
 					ret0 := funv.Call(argv)[0]
@@ -8802,8 +8803,8 @@ func call2ret1(c *Call, maxdepth int) I {
 		call = func(env *Env) r.Value {
 			funv := exprfun(env)
 			argv := []r.Value{
-				argfuns[0](env),
-				argfuns[1](env),
+				argfunsX1[0](env),
+				argfunsX1[1](env),
 			}
 			return funv.Call(argv)[0]
 		}

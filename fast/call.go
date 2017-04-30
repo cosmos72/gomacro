@@ -39,6 +39,7 @@ type Call struct {
 	Args     []*Expr
 	OutTypes []r.Type
 	Const    bool // if true, call has no side effects and always returns the same result => it can be invoked at compile time
+	Ellipsis bool
 }
 
 func newCall1(fun *Expr, arg *Expr, isconst bool, outtypes ...r.Type) *Call {
@@ -50,7 +51,7 @@ func newCall1(fun *Expr, arg *Expr, isconst bool, outtypes ...r.Type) *Call {
 	}
 }
 
-func (call *Call) MakeArgfuns() []func(*Env) r.Value {
+func (call *Call) MakeArgfunsX1() []func(*Env) r.Value {
 	args := call.Args
 	argfuns := make([]func(*Env) r.Value, len(args))
 	for i, arg := range args {
@@ -155,23 +156,23 @@ func call_ret0(c *Call, maxdepth int) func(env *Env) {
 	case 2:
 		call = call2ret0(c, maxdepth)
 	case 3:
-		argfuns := c.MakeArgfuns()
+		argfunsX1 := c.MakeArgfunsX1()
 		call = func(env *Env) {
 			funv := exprfun(env)
 			argv := []r.Value{
-				argfuns[0](env),
-				argfuns[1](env),
-				argfuns[2](env),
+				argfunsX1[0](env),
+				argfunsX1[1](env),
+				argfunsX1[2](env),
 			}
 			funv.Call(argv)
 		}
 	}
 	if call == nil {
-		argfuns := c.MakeArgfuns()
+		argfunsX1 := c.MakeArgfunsX1()
 		call = func(env *Env) {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfuns))
-			for i, argfun := range argfuns {
+			argv := make([]r.Value, len(argfunsX1))
+			for i, argfun := range argfunsX1 {
 				argv[i] = argfun(env)
 			}
 			funv.Call(argv)
@@ -204,7 +205,7 @@ func call_ret1(c *Call, maxdepth int) I {
 func call_ret2plus(callexpr *Call, maxdepth int) I {
 	expr := callexpr.Fun
 	exprfun := expr.AsX1()
-	argfuns := callexpr.MakeArgfuns()
+	argfunsX1 := callexpr.MakeArgfunsX1()
 	var call func(*Env) (r.Value, []r.Value)
 	// slightly optimize fun() (tret0, tret1)
 	switch expr.Type.NumIn() {
@@ -215,7 +216,7 @@ func call_ret2plus(callexpr *Call, maxdepth int) I {
 			return retv[0], retv
 		}
 	case 1:
-		argfun := argfuns[0]
+		argfun := argfunsX1[0]
 		call = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
 			argv := []r.Value{
@@ -228,8 +229,8 @@ func call_ret2plus(callexpr *Call, maxdepth int) I {
 		call = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
 			argv := []r.Value{
-				argfuns[0](env),
-				argfuns[1](env),
+				argfunsX1[0](env),
+				argfunsX1[1](env),
 			}
 			retv := funv.Call(argv)
 			return retv[0], retv
@@ -238,9 +239,9 @@ func call_ret2plus(callexpr *Call, maxdepth int) I {
 		call = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
 			argv := []r.Value{
-				argfuns[0](env),
-				argfuns[1](env),
-				argfuns[2](env),
+				argfunsX1[0](env),
+				argfunsX1[1](env),
+				argfunsX1[2](env),
 			}
 			retv := funv.Call(argv)
 			return retv[0], retv
@@ -249,8 +250,8 @@ func call_ret2plus(callexpr *Call, maxdepth int) I {
 		// general case
 		call = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfuns))
-			for i, argfun := range argfuns {
+			argv := make([]r.Value, len(argfunsX1))
+			for i, argfun := range argfunsX1 {
 				argv[i] = argfun(env)
 			}
 			retv := funv.Call(argv)

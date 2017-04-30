@@ -329,7 +329,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 
 	call := c2.callExpr(node.Call, nil)
 	exprfun := call.Fun.AsX1()
-	argfuns := call.MakeArgfuns()
+	argfunsX1 := call.MakeArgfunsX1()
 
 	c2.Code.Append(func(env *Env) (Stmt, *Env) {
 		// create a new Env to hold the new ThreadGlobals and (initially empty) Pool
@@ -346,8 +346,8 @@ func (c *Comp) Go(node *ast.GoStmt) {
 		// function and arguments are evaluated in the caller's goroutine
 		// using the new Env: we compiled them with c2 => execute them with env2
 		funv := exprfun(env2)
-		argv := make([]r.Value, len(argfuns))
-		for i, argfun := range argfuns {
+		argv := make([]r.Value, len(argfunsX1))
+		for i, argfun := range argfunsX1 {
 			argv[i] = argfun(env2)
 		}
 		// the call is executed in a new goroutine

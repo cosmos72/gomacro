@@ -64,9 +64,6 @@ func (ce *CompEnv) addBuiltins() {
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
 	ce.DeclConst("nil", nil, nil)
 
-	// ce.DeclFunc("cap", callCap)
-	// ce.DeclFunc("copy", callCopy)
-	// ce.DeclFunc("len", callLen)
 	ce.DeclFunc("Sleep", func(seconds float64) {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
@@ -74,6 +71,7 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltin4("append", compileAppend, 1, MaxInt)
 	ce.DeclBuiltin4("cap", compileCap, 1, 1)
 	ce.DeclBuiltin4("copy", compileCopy, 2, 2)
+	ce.DeclBuiltin4("complex", compileComplex, 2, 2)
 	ce.DeclBuiltin4("delete", compileDelete, 2, 2)
 	ce.DeclBuiltin4("imag", compileRealImag, 1, 1)
 	ce.DeclBuiltin4("len", compileLen, 1, 1)
@@ -100,7 +98,6 @@ func (ce *CompEnv) addBuiltins() {
 		binds["Values"] = r.ValueOf(Function{funcValues, -1})
 
 		binds["close"] = r.ValueOf(callClose)
-		binds["complex"] = r.ValueOf(Function{funcComplex, 2})
 	*/
 	/*
 		binds["panic"] = r.ValueOf(callPanic)
@@ -218,6 +215,70 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// TODO https://golang.org/ref/spec#Length_and_capacity specifies
 	// when the array passed to cap() is evaluated and when is not...
 	return newCall1(fun, arg, arg.Const(), tout)
+}
+
+// --- complex() ---
+
+func callComplex64(re float32, im float32) complex64 {
+	return complex(re, im)
+}
+
+func callComplex128(re float64, im float64) complex128 {
+	return complex(re, im)
+}
+
+func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	re := c.Expr1(node.Args[0])
+	im := c.Expr1(node.Args[1])
+	if re.Untyped() {
+		if im.Untyped() {
+			re.ConstTo(TypeOfFloat64)
+			im.ConstTo(TypeOfFloat64)
+		} else {
+			re.ConstTo(im.Type)
+		}
+	} else if im.Untyped() {
+		im.ConstTo(re.Type)
+	}
+	c.toSameFuncType(node, re, im)
+	kre := KindToCategory(re.Type.Kind())
+	if re.Const() && kre != r.Float64 {
+		re.ConstTo(TypeOfFloat64)
+		kre = r.Float64
+	}
+	kim := KindToCategory(im.Type.Kind())
+	if im.Const() && kim != r.Float64 {
+		im.ConstTo(TypeOfFloat64)
+		kim = r.Float64
+	}
+	if kre != r.Float64 {
+		c.Errorf("invalid operation: %v (arguments have type %v, expected floating-point)",
+			node, re.Type)
+	}
+	if kim != r.Float64 {
+		c.Errorf("invalid operation: %v (arguments have type %v, expected floating-point)",
+			node, im.Type)
+	}
+	tin := re.Type
+	k := re.Type.Kind()
+	var tout r.Type
+	var call I
+	switch k {
+	case r.Float32:
+		tout = TypeOfComplex64
+		call = callComplex64
+	case r.Float64:
+		tout = TypeOfComplex128
+		call = callComplex128
+	default:
+		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "floating point")
+	}
+	touts := []r.Type{tout}
+	t := r.FuncOf([]r.Type{tin}, touts, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: call}, &sym)
+	// complex() of two constants is constant: it can be computed at compile time
+	return &Call{Fun: fun, Args: []*Expr{re, im}, Const: re.Const() && im.Const(), OutTypes: touts}
 }
 
 // --- copy() ---
@@ -470,6 +531,7 @@ func call_builtin(c *Call) I {
 	} else if c.Fun.Sym == nil {
 		Errorf("internal error: call_builtin() invoked for non-name function %#v. use one of the callXretY() instead", c.Fun)
 	}
+	name := c.Fun.Sym.Name
 	args := c.Args
 	argfuns := make([]I, len(args))
 	for i, arg := range args {
@@ -480,27 +542,118 @@ func call_builtin(c *Call) I {
 		for i, arg := range args {
 			argtypes[i] = arg.Type
 		}
-		// Debugf("compiling builtin %s() <%v> with arg types %v", c.Fun.Sym.Name, r.TypeOf(c.Fun.Value), argtypes)
+		// Debugf("compiling builtin %s() <%v> with arg types %v", name, r.TypeOf(c.Fun.Value), argtypes)
 	}
 	var call I
 	switch fun := c.Fun.Value.(type) {
+	case func(float32, float32) complex64: // complex
+		arg0fun := argfuns[0].(func(*Env) float32)
+		arg1fun := argfuns[1].(func(*Env) float32)
+		if name == "complex" {
+			if args[0].Const() {
+				arg0 := args[0].Value.(float32)
+				call = func(env *Env) complex64 {
+					arg1 := arg1fun(env)
+					return complex(arg0, arg1)
+				}
+			} else if args[1].Const() {
+				arg1 := args[1].Value.(float32)
+				call = func(env *Env) complex64 {
+					arg0 := arg0fun(env)
+					return complex(arg0, arg1)
+				}
+			} else {
+				call = func(env *Env) complex64 {
+					arg0 := arg0fun(env)
+					arg1 := arg1fun(env)
+					return complex(arg0, arg1)
+				}
+			}
+		} else {
+			call = func(env *Env) complex64 {
+				arg0 := arg0fun(env)
+				arg1 := arg1fun(env)
+				return fun(arg0, arg1)
+			}
+		}
+	case func(float64, float64) complex128: // complex
+		arg0fun := argfuns[0].(func(*Env) float64)
+		arg1fun := argfuns[1].(func(*Env) float64)
+		if name == "complex" {
+			if args[0].Const() {
+				arg0 := args[0].Value.(float64)
+				call = func(env *Env) complex128 {
+					arg1 := arg1fun(env)
+					return complex(arg0, arg1)
+				}
+			} else if args[1].Const() {
+				arg1 := args[1].Value.(float64)
+				call = func(env *Env) complex128 {
+					arg0 := arg0fun(env)
+					return complex(arg0, arg1)
+				}
+			} else {
+				call = func(env *Env) complex128 {
+					arg0 := arg0fun(env)
+					arg1 := arg1fun(env)
+					return complex(arg0, arg1)
+				}
+			}
+		} else {
+			call = func(env *Env) complex128 {
+				arg0 := arg0fun(env)
+				arg1 := arg1fun(env)
+				return fun(arg0, arg1)
+			}
+		}
 	case func(complex64) float32: // real(), imag()
 		argfun := argfuns[0].(func(*Env) complex64)
-		call = func(env *Env) float32 {
-			arg := argfun(env)
-			return fun(arg)
+		if name == "real" {
+			call = func(env *Env) float32 {
+				arg := argfun(env)
+				return real(arg)
+			}
+		} else if name == "imag" {
+			call = func(env *Env) float32 {
+				arg := argfun(env)
+				return imag(arg)
+			}
+		} else {
+			call = func(env *Env) float32 {
+				arg := argfun(env)
+				return fun(arg)
+			}
 		}
 	case func(complex128) float64: // real(), imag()
 		argfun := argfuns[0].(func(*Env) complex128)
-		call = func(env *Env) float64 {
-			arg := argfun(env)
-			return fun(arg)
+		if name == "real" {
+			call = func(env *Env) float64 {
+				arg := argfun(env)
+				return real(arg)
+			}
+		} else if name == "imag" {
+			call = func(env *Env) float64 {
+				arg := argfun(env)
+				return imag(arg)
+			}
+		} else {
+			call = func(env *Env) float64 {
+				arg := argfun(env)
+				return fun(arg)
+			}
 		}
 	case func(string) int: // len(string)
 		argfun := argfuns[0].(func(*Env) string)
-		call = func(env *Env) int {
-			arg := argfun(env)
-			return fun(arg)
+		if name == "len" {
+			call = func(env *Env) int {
+				arg := argfun(env)
+				return len(arg)
+			}
+		} else {
+			call = func(env *Env) int {
+				arg := argfun(env)
+				return fun(arg)
+			}
 		}
 	case func([]byte, string) int: // copy([]byte, string)
 		arg0fun := args[0].AsX1()
@@ -528,28 +681,28 @@ func call_builtin(c *Call) I {
 			}
 		}
 	case func(r.Value) int: // cap(), len()
-		argfunsX1 := c.MakeArgfuns()
+		argfunsX1 := c.MakeArgfunsX1()
 		argfun := argfunsX1[0]
 		call = func(env *Env) int {
 			arg := argfun(env)
 			return fun(arg)
 		}
 	case func(r.Value, r.Value): // delete()
-		argfunsX1 := c.MakeArgfuns()
+		argfunsX1 := c.MakeArgfunsX1()
 		call = func(env *Env) {
 			arg0 := argfunsX1[0](env)
 			arg1 := argfunsX1[1](env)
 			fun(arg0, arg1)
 		}
 	case func(r.Value, r.Value) int: // copy()
-		argfunsX1 := c.MakeArgfuns()
+		argfunsX1 := c.MakeArgfunsX1()
 		call = func(env *Env) int {
 			arg0 := argfunsX1[0](env)
 			arg1 := argfunsX1[1](env)
 			return fun(arg0, arg1)
 		}
 	case func(r.Value, ...r.Value) r.Value: // append()
-		argfunsX1 := c.MakeArgfuns()
+		argfunsX1 := c.MakeArgfunsX1()
 		call = func(env *Env) r.Value {
 			args := make([]r.Value, len(argfunsX1))
 			for i, argfun := range argfunsX1 {

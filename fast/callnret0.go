@@ -31,6 +31,7 @@ package fast
 
 import (
 	r "reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 )
 
@@ -101,7 +102,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 	}
 	args := c.Args
-	argfuns := c.MakeArgfuns()
+	argfunsX1 := c.MakeArgfunsX1()
 
 	var cachedfunv r.Value
 	var call func(env *Env)
@@ -936,7 +937,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 		}
 	default:
 		{
-			argfun := argfuns[0]
+			argfun := argfunsX1[0]
 			call = func(env *Env) {
 				funv := exprfun(env)
 
@@ -964,7 +965,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 
 	}
 	args := c.Args
-	argfuns := c.MakeArgfuns()
+	argfunsX1 := c.MakeArgfunsX1()
 	var cachedfunv r.Value
 	var call func(env *Env)
 
@@ -1464,8 +1465,8 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 			funv := exprfun(env)
 
 			argv := []r.Value{
-				argfuns[0](env),
-				argfuns[1](env),
+				argfunsX1[0](env),
+				argfunsX1[1](env),
 			}
 			funv.Call(argv)
 		}

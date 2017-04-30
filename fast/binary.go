@@ -357,7 +357,7 @@ func (c *Comp) badBinaryExpr(reason string, node *ast.BinaryExpr, x *Expr, y *Ex
 }
 
 // convert x and y to the same single-valued expression type. needed to convert untyped constants to regular Go types
-func (c *Comp) toSameFuncType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
+func (c *Comp) toSameFuncType(node ast.Expr, xe *Expr, ye *Expr) {
 	xe.CheckX1()
 	ye.CheckX1()
 	xconst, yconst := xe.Const(), ye.Const()
@@ -369,34 +369,45 @@ func (c *Comp) toSameFuncType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
 		} else {
 			ye.ConstTo(xe.Type)
 		}
-	} else {
-		if xconst {
-			xe.ConstTo(ye.Type)
-		} else {
-			if xe.Type != ye.Type {
-				c.badBinaryExpr("operands have different types in", node, xe, ye)
-			}
-		}
+	} else if xconst {
+		xe.ConstTo(ye.Type)
+	} else if xe.Type != ye.Type {
+		c.mismatchedTypes(node, xe, ye)
 	}
 }
 
-func (c *Comp) constsToSameType(node *ast.BinaryExpr, xe *Expr, ye *Expr) {
+func (c *Comp) constsToSameType(node ast.Expr, xe *Expr, ye *Expr) {
 	x, y := xe.Value, ye.Value
 	if x == nil {
 		if y == nil {
 			return
 		} else {
-			c.invalidBinaryExpr(node, xe, ye)
+			switch node := node.(type) {
+			case *ast.BinaryExpr:
+				c.invalidBinaryExpr(node, xe, ye)
+			default:
+				c.Errorf("invalid operation between %v <%v> and %v <%v>: %v", x, xe.Type, y, ye.Type, node)
+			}
 		}
 	}
 	xu, yu := xe.Untyped(), ye.Untyped()
 	if xu && yu {
-		c.badBinaryExpr("internal error, operation between untyped constants not optimized away in", node, xe, ye)
+		c.Errorf("internal error, operation between untyped constants %v and %v not optimized away: %v",
+			xe.Lit, ye.Lit, node)
 	} else if xu {
 		xe.ConstTo(ye.Type)
 	} else if yu {
 		ye.ConstTo(xe.Type)
 	} else if xe.Type != ye.Type {
+		c.mismatchedTypes(node, xe, ye)
+	}
+}
+
+func (c *Comp) mismatchedTypes(node ast.Expr, xe *Expr, ye *Expr) {
+	switch node := node.(type) {
+	case *ast.BinaryExpr:
 		c.badBinaryExpr("mismatched types in", node, xe, ye)
+	default:
+		c.Errorf("mismatched types %v and %v in: %v", xe.Type, ye.Type, node)
 	}
 }
