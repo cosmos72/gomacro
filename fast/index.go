@@ -79,7 +79,7 @@ func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	idxconst := idx.Const()
 	if idxconst {
 		idx.ConstTo(TypeOfInt)
-	} else if !idx.Type.AssignableTo(TypeOfInt) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 
@@ -370,7 +370,7 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	idxconst := idx.Const()
 	if idxconst {
 		idx.ConstTo(tkey)
-	} else if !idx.Type.AssignableTo(tkey) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(tkey) {
 		c.Errorf("cannot use %v <%v> as <%v> in map index", node.Index, idx.Type, tkey)
 	}
 
@@ -416,7 +416,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	idxconst := idx.Const()
 	if idxconst {
 		idx.ConstTo(tkey)
-	} else if !idx.Type.AssignableTo(tkey) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(tkey) {
 		c.Errorf("cannot use %v <%v> as <%v> in map index", node.Index, idx.Type, tkey)
 	}
 
@@ -917,7 +917,7 @@ func (c *Comp) mapPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
 	if idxconst {
 		idx.ConstTo(tkey)
-	} else if !idx.Type.AssignableTo(tkey) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(tkey) {
 		c.Errorf("cannot use %v <%v> as type <%v> in map index: %v", node.Index, idx.Type, tkey, node)
 	}
 	return &Place{Var: Var{Type: tmap.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1()}
@@ -926,7 +926,7 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
 	if idxconst {
 		idx.ConstTo(TypeOfInt)
-	} else if !idx.Type.AssignableTo(TypeOfInt) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 
@@ -962,7 +962,7 @@ func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place 
 	idxconst := idx.Const()
 	if idxconst {
 		idx.ConstTo(TypeOfInt)
-	} else if !idx.Type.AssignableTo(TypeOfInt) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 

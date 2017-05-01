@@ -66,7 +66,7 @@ func (c *Comp) sliceIndex(node ast.Expr) *Expr {
 		if idx.Value.(int) < 0 {
 			c.Errorf("negative slice index: %v == %v", node, idx)
 		}
-	} else if !idx.Type.AssignableTo(TypeOfInt) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
 		c.Errorf("invalid slice index: expecting integer, found: %v <%v>", idx.Type, node)
 	}
 	return idx

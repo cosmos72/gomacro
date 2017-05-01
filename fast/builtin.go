@@ -170,7 +170,7 @@ func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
 			argi.ConstTo(telem)
-		} else if ti := argi.Type; ti != telem && !ti.AssignableTo(telem) {
+		} else if ti := argi.Type; ti != telem && (ti == nil || !ti.AssignableTo(telem)) {
 			return c.badBuiltinCallArgType(sym.Name, node.Args[i], ti, telem)
 		}
 		args[i] = argi
@@ -306,7 +306,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	}
 	t0, t1 := args[0].Type, args[1].Type
 	var funCopy I = r.Copy
-	if t0.Kind() != r.Slice || !t0.AssignableTo(r.SliceOf(t0.Elem())) {
+	if t0 == nil || t0.Kind() != r.Slice || !t0.AssignableTo(r.SliceOf(t0.Elem())) {
 		// https://golang.org/ref/spec#Appending_and_copying_slices
 		// copy [...] arguments must have identical element type T and must be assignable to a slice of type []T.
 		c.Errorf("first argument to copy should be slice; have %v <%v>", node.Args[0], t0)
@@ -315,7 +315,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		// [...] As a special case, copy also accepts a destination argument assignable to type []byte
 		// with a source argument of a string type. This form copies the bytes from the string into the byte slice.
 		funCopy = copyStringToBytes
-	} else if t1.Kind() != r.Slice || !t1.AssignableTo(r.SliceOf(t1.Elem())) {
+	} else if t1 == nil || t1.Kind() != r.Slice || !t1.AssignableTo(r.SliceOf(t1.Elem())) {
 		c.Errorf("second argument to copy should be slice or string; have %v <%v>", node.Args[1], t1)
 		return nil
 	} else if t0.Elem() != t1.Elem() {
@@ -347,7 +347,7 @@ func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	tkey := tmap.Key()
 	if ekey.Const() {
 		ekey.ConstTo(tkey)
-	} else if !ekey.Type.AssignableTo(tkey) {
+	} else if ekey.Type == nil || !ekey.Type.AssignableTo(tkey) {
 		c.Errorf("cannot use %v <%v> as type <%v> in delete", node.Args[1], ekey.Type, tkey)
 	}
 	t := r.FuncOf([]r.Type{tmap, tkey}, ZeroTypes, false)
@@ -446,7 +446,7 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
 			argi.ConstTo(te)
-		} else if ti := argi.Type; ti != te && !ti.AssignableTo(te) {
+		} else if ti := argi.Type; ti == nil || (ti != te && !ti.AssignableTo(te)) {
 			return c.badBuiltinCallArgType(sym.Name, node.Args[i], ti, te)
 		}
 		args[i] = argi

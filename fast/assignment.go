@@ -59,7 +59,7 @@ func (c *Comp) Assign1(lhs ast.Expr, op token.Token, rhs ast.Expr) {
 	node := &ast.AssignStmt{Lhs: []ast.Expr{lhs}, Tok: op, Rhs: []ast.Expr{rhs}} // only for nice error messages
 
 	place := c.Place(lhs)
-	init := c.Expr(rhs)
+	init := c.Expr1(rhs)
 
 	panicking := true
 	defer func() {

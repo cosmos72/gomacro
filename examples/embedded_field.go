@@ -26,10 +26,9 @@ func (t Triple) Last() int {
 	return t.C
 }
 
-func main() {
-	fmt.Printf("%T\n", complex("", ""))
-	// printChars()
-	// inspectTriple()
+func embedded_field() {
+	printChars()
+	inspectTriple()
 }
 
 func printChars() {

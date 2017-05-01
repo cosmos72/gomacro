@@ -312,6 +312,21 @@ func convertLiteralCheckOverflow(src interface{}, to r.Type) interface{} {
 	return vto.Interface()
 }
 
+// SetTypes sets the expression result types
+func (e *Expr) SetTypes(tout []r.Type) {
+	switch len(tout) {
+	case 0:
+		e.Type = nil
+		e.Types = tout
+	case 1:
+		e.Type = tout[0]
+		e.Types = nil
+	default:
+		e.Type = tout[0]
+		e.Types = tout
+	}
+}
+
 // Set sets the expression value to the given (typed or untyped) constant
 func (e *Expr) Set(x I) {
 	e.Lit.Set(x)
@@ -321,13 +336,13 @@ func (e *Expr) Set(x I) {
 }
 
 // Set sets the Lit to the given typed constant
-func (e *Lit) Set(x I) {
+func (lit *Lit) Set(x I) {
 	t := r.TypeOf(x)
 	if !isLiteral(x) {
 		Errorf("cannot set Lit to non-literal value %v <%v>", x, t)
 	}
-	e.Type = t
-	e.Value = x
+	lit.Type = t
+	lit.Value = x
 }
 
 // WithFun ensures that Expr.Fun is a closure that will return the expression result:

@@ -91,8 +91,7 @@ func (env *Env) evalExpr1(node ast.Expr) r.Value {
 	}
 	value, extraValues := env.evalExpr(node)
 	if len(extraValues) > 1 {
-		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
-			len(extraValues), node, extraValues)
+		env.WarnExtraValues(extraValues)
 	}
 	return value
 }

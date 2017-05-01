@@ -515,7 +515,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	expr := c.Expr1(node.Value)
 	if expr.Const() {
 		expr.ConstTo(telem)
-	} else if !expr.Type.AssignableTo(telem) {
+	} else if expr.Type == nil || !expr.Type.AssignableTo(telem) {
 		c.Errorf("cannot use %v <%v> as type %v in send", node.Value, expr.Type, telem)
 		return
 	}

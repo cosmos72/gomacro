@@ -127,14 +127,14 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 			ellipsis = ellipsis2
 		}
 	case *ast.ChanType:
-		t = c.Type(node.Value)
+		telem := c.Type(node.Value)
 		dir := r.BothDir
 		if node.Dir == ast.SEND {
 			dir = r.SendDir
 		} else if node.Dir == ast.RECV {
 			dir = r.RecvDir
 		}
-		t = r.ChanOf(dir, t)
+		t = r.ChanOf(dir, telem)
 	case *ast.FuncType:
 		t, _, _ = c.TypeFunction(node)
 	case *ast.Ident:

@@ -13432,7 +13432,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	t := va.Type
 	if init.Const() {
 		init.ConstTo(t)
-	} else if !init.Type.AssignableTo(t) {
+	} else if init.Type == nil || !init.Type.AssignableTo(t) {
 		c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
 		return
 	}

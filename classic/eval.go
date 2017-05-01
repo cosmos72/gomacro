@@ -35,8 +35,7 @@ import (
 func (env *Env) EvalAst1(in Ast) r.Value {
 	value, extraValues := env.EvalAst(in)
 	if len(extraValues) > 1 {
-		env.Warnf("expression returned %d values, using only the first one: %v returned %v",
-			len(extraValues), in.Interface(), extraValues)
+		env.WarnExtraValues(extraValues)
 	}
 	return value
 }

@@ -471,7 +471,7 @@ func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
 	t := place.Type
 	if init.Const() {
 		init.ConstTo(t)
-	} else if !init.Type.AssignableTo(t) {
+	} else if init.Type == nil || !init.Type.AssignableTo(t) {
 		c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
 		return
 	}

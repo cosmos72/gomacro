@@ -103,9 +103,17 @@ func (o *Output) Warnf(format string, args ...interface{}) {
 	fmt.Fprintf(o.Stderr, "// warning: %s\n", str)
 }
 
+var warnExtraValues = 5
+
 func (o *Output) WarnExtraValues(extraValues []r.Value) {
-	o.Warnf("expression returned %d values, using only the first one: %v",
-		len(extraValues), extraValues)
+	if warnExtraValues > 0 {
+		o.Warnf("expression returned %d values, using only the first one: %v",
+			len(extraValues), extraValues)
+		warnExtraValues--
+		if warnExtraValues == 0 {
+			o.Warnf("suppressing further similar warnings")
+		}
+	}
 }
 
 func Debugf(format string, args ...interface{}) {

@@ -59,7 +59,7 @@ func exprXV(types []r.Type, fun func(env *Env) (r.Value, []r.Value)) *Expr {
 	if len(types) == 1 {
 		return &Expr{Lit: Lit{Type: types[0]}, Fun: fun}
 	} else {
-		return &Expr{Types: types, Fun: fun}
+		return &Expr{Lit: Lit{Type: types[0]}, Types: types, Fun: fun}
 	}
 }
 

@@ -2,3 +2,7 @@
 // no buildable files are in the directory "examples"
 
 package main
+
+func main() {
+
+}

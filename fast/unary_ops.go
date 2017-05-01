@@ -350,92 +350,297 @@ func (c *Comp) UnaryRecv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 			}
 		}
 	default:
+		recvonly := t.ChanDir() == r.RecvDir
 		channelfun := xe.AsX1()
 		switch telem.Kind() {
 		case r.Bool:
-			fun = func(env *Env) bool {
-				retv, _ := channelfun(env).Recv()
-				return retv.Bool()
+			if telem != TypeOfBool {
+				fun = func(env *Env) bool {
+					retv, _ := channelfun(env).Recv()
+					return retv.Bool()
+				}
+			} else if recvonly {
+				fun = func(env *Env) bool {
+					channel := channelfun(env).Interface().(<-chan bool)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) bool {
+					channel := channelfun(env).Interface().(chan bool)
+					return <-channel
+				}
 			}
 		case r.Int:
-			fun = func(env *Env) int {
-				retv, _ := channelfun(env).Recv()
-				return int(retv.Int())
+			if telem != TypeOfInt {
+				fun = func(env *Env) int {
+					retv, _ := channelfun(env).Recv()
+					return int(retv.Int())
+				}
+			} else if recvonly {
+				fun = func(env *Env) int {
+					channel := channelfun(env).Interface().(<-chan int)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) int {
+					channel := channelfun(env).Interface().(chan int)
+					return <-channel
+				}
 			}
 		case r.Int8:
-			fun = func(env *Env) int8 {
-				retv, _ := channelfun(env).Recv()
-				return int8(retv.Int())
+			if telem != TypeOfInt8 {
+				fun = func(env *Env) int8 {
+					retv, _ := channelfun(env).Recv()
+					return int8(retv.Int())
+				}
+			} else if recvonly {
+				fun = func(env *Env) int8 {
+					channel := channelfun(env).Interface().(<-chan int8)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) int8 {
+					channel := channelfun(env).Interface().(chan int8)
+					return <-channel
+				}
 			}
 		case r.Int16:
-			fun = func(env *Env) int16 {
-				retv, _ := channelfun(env).Recv()
-				return int16(retv.Int())
+			if telem != TypeOfInt16 {
+				fun = func(env *Env) int16 {
+					retv, _ := channelfun(env).Recv()
+					return int16(retv.Int())
+				}
+			} else if recvonly {
+				fun = func(env *Env) int16 {
+					channel := channelfun(env).Interface().(<-chan int16)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) int16 {
+					channel := channelfun(env).Interface().(chan int16)
+					return <-channel
+				}
 			}
 		case r.Int32:
-			fun = func(env *Env) int32 {
-				retv, _ := channelfun(env).Recv()
-				return int32(retv.Int())
+			if telem != TypeOfInt32 {
+				fun = func(env *Env) int32 {
+					retv, _ := channelfun(env).Recv()
+					return int32(retv.Int())
+				}
+			} else if recvonly {
+				fun = func(env *Env) int32 {
+					channel := channelfun(env).Interface().(<-chan int32)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) int32 {
+					channel := channelfun(env).Interface().(chan int32)
+					return <-channel
+				}
 			}
 		case r.Int64:
-			fun = func(env *Env) int64 {
-				retv, _ := channelfun(env).Recv()
-				return retv.Int()
+			if telem != TypeOfInt64 {
+				fun = func(env *Env) int64 {
+					retv, _ := channelfun(env).Recv()
+					return retv.Int()
+				}
+			} else if recvonly {
+				fun = func(env *Env) int64 {
+					channel := channelfun(env).Interface().(<-chan int64)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) int64 {
+					channel := channelfun(env).Interface().(chan int64)
+					return <-channel
+				}
 			}
 		case r.Uint:
-			fun = func(env *Env) uint {
-				retv, _ := channelfun(env).Recv()
-				return uint(retv.Uint())
+			if telem != TypeOfUint {
+				fun = func(env *Env) uint {
+					retv, _ := channelfun(env).Recv()
+					return uint(retv.Uint())
+				}
+			} else if recvonly {
+				fun = func(env *Env) uint {
+					channel := channelfun(env).Interface().(<-chan uint)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) uint {
+					channel := channelfun(env).Interface().(chan uint)
+					return <-channel
+				}
 			}
 		case r.Uint8:
-			fun = func(env *Env) uint8 {
-				retv, _ := channelfun(env).Recv()
-				return uint8(retv.Uint())
+			if telem != TypeOfUint8 {
+				fun = func(env *Env) uint8 {
+					retv, _ := channelfun(env).Recv()
+					return uint8(retv.Uint())
+				}
+			} else if recvonly {
+				fun = func(env *Env) uint8 {
+					channel := channelfun(env).Interface().(<-chan uint8)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) uint8 {
+					channel := channelfun(env).Interface().(chan uint8)
+					return <-channel
+				}
 			}
 		case r.Uint16:
-			fun = func(env *Env) uint16 {
-				retv, _ := channelfun(env).Recv()
-				return uint16(retv.Uint())
+			if telem != TypeOfUint16 {
+				fun = func(env *Env) uint16 {
+					retv, _ := channelfun(env).Recv()
+					return uint16(retv.Uint())
+				}
+			} else if recvonly {
+				fun = func(env *Env) uint16 {
+					channel := channelfun(env).Interface().(<-chan uint16)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) uint16 {
+					channel := channelfun(env).Interface().(chan uint16)
+					return <-channel
+				}
 			}
 		case r.Uint32:
-			fun = func(env *Env) uint32 {
-				retv, _ := channelfun(env).Recv()
-				return uint32(retv.Uint())
+			if telem != TypeOfUint32 {
+				fun = func(env *Env) uint32 {
+					retv, _ := channelfun(env).Recv()
+					return uint32(retv.Uint())
+				}
+			} else if recvonly {
+				fun = func(env *Env) uint32 {
+					channel := channelfun(env).Interface().(<-chan uint32)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) uint32 {
+					channel := channelfun(env).Interface().(chan uint32)
+					return <-channel
+				}
 			}
 		case r.Uint64:
-			fun = func(env *Env) uint64 {
-				retv, _ := channelfun(env).Recv()
-				return retv.Uint()
+			if telem != TypeOfUint64 {
+				fun = func(env *Env) uint64 {
+					retv, _ := channelfun(env).Recv()
+					return retv.Uint()
+				}
+			} else if recvonly {
+				fun = func(env *Env) uint64 {
+					channel := channelfun(env).Interface().(<-chan uint64)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) uint64 {
+					channel := channelfun(env).Interface().(chan uint64)
+					return <-channel
+				}
 			}
 		case r.Uintptr:
-			fun = func(env *Env) uintptr {
-				retv, _ := channelfun(env).Recv()
-				return uintptr(retv.Uint())
+			if telem != TypeOfUintptr {
+				fun = func(env *Env) uintptr {
+					retv, _ := channelfun(env).Recv()
+					return uintptr(retv.Uint())
+				}
+			} else if recvonly {
+				fun = func(env *Env) uintptr {
+					channel := channelfun(env).Interface().(<-chan uintptr)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) uintptr {
+					channel := channelfun(env).Interface().(chan uintptr)
+					return <-channel
+				}
 			}
 		case r.Float32:
-			fun = func(env *Env) float32 {
-				retv, _ := channelfun(env).Recv()
-				return float32(retv.Float())
+			if telem != TypeOfFloat32 {
+				fun = func(env *Env) float32 {
+					retv, _ := channelfun(env).Recv()
+					return float32(retv.Float())
+				}
+			} else if recvonly {
+				fun = func(env *Env) float32 {
+					channel := channelfun(env).Interface().(<-chan float32)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) float32 {
+					channel := channelfun(env).Interface().(chan float32)
+					return <-channel
+				}
 			}
 		case r.Float64:
-			fun = func(env *Env) float64 {
-				retv, _ := channelfun(env).Recv()
-				return retv.Float()
+			if telem != TypeOfFloat32 {
+				fun = func(env *Env) float64 {
+					retv, _ := channelfun(env).Recv()
+					return retv.Float()
+				}
+			} else if recvonly {
+				fun = func(env *Env) float64 {
+					channel := channelfun(env).Interface().(<-chan float64)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) float64 {
+					channel := channelfun(env).Interface().(chan float64)
+					return <-channel
+				}
 			}
 		case r.Complex64:
-			fun = func(env *Env) complex64 {
-				retv, _ := channelfun(env).Recv()
-				return complex64(retv.Complex())
+			if telem != TypeOfComplex64 {
+				fun = func(env *Env) complex64 {
+					retv, _ := channelfun(env).Recv()
+					return complex64(retv.Complex())
+				}
+			} else if recvonly {
+				fun = func(env *Env) complex64 {
+					channel := channelfun(env).Interface().(<-chan complex64)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) complex64 {
+					channel := channelfun(env).Interface().(chan complex64)
+					return <-channel
+				}
 			}
 		case r.Complex128:
-			fun = func(env *Env) complex128 {
-				retv, _ := channelfun(env).Recv()
-				return retv.Complex()
+			if telem != TypeOfComplex128 {
+				fun = func(env *Env) complex128 {
+					retv, _ := channelfun(env).Recv()
+					return retv.Complex()
+				}
+			} else if recvonly {
+				fun = func(env *Env) complex128 {
+					channel := channelfun(env).Interface().(<-chan complex128)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) complex128 {
+					channel := channelfun(env).Interface().(chan complex128)
+					return <-channel
+				}
 			}
 		case r.String:
-			fun = func(env *Env) string {
-				retv, _ := channelfun(env).Recv()
-				return retv.String()
+			if telem != TypeOfString {
+				fun = func(env *Env) string {
+					retv, _ := channelfun(env).Recv()
+					return retv.String()
+				}
+			} else if recvonly {
+				fun = func(env *Env) string {
+					channel := channelfun(env).Interface().(<-chan string)
+					return <-channel
+				}
+			} else {
+				fun = func(env *Env) string {
+					channel := channelfun(env).Interface().(chan string)
+					return <-channel
+				}
 			}
 		default:
 			fun = func(env *Env) r.Value {

@@ -74,11 +74,7 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 	expr := &Expr{}
 	tout := call.OutTypes
 	nout := len(tout)
-	if nout == 1 {
-		expr.Type = tout[0]
-	} else {
-		expr.Types = tout
-	}
+	expr.SetTypes(tout)
 
 	maxdepth := c.Depth
 	if call.Fun.Const() {
@@ -157,7 +153,7 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t r.Type, args []*Expr) (ellips
 		}
 		if arg.Const() {
 			arg.ConstTo(ti)
-		} else if arg.Type != ti && !arg.Type.AssignableTo(ti) {
+		} else if arg.Type == nil || (arg.Type != ti && !arg.Type.AssignableTo(ti)) {
 			c.Errorf("cannot use <%v> as <%v> in argument to %v", arg.Type, ti, node.Fun)
 		}
 	}
