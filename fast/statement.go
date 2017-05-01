@@ -500,48 +500,6 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 	c.Code.Append(stmt)
 }
 
-func (c *Comp) Send(node *ast.SendStmt) {
-	channel := c.Expr1(node.Chan)
-	t := channel.Type
-	if t.Kind() != r.Chan {
-		c.Errorf("cannot send to non-channel type %v: %v", t, node)
-		return
-	}
-	if t.ChanDir()&r.SendDir == 0 {
-		c.Errorf("cannot send to receive-only channel type %v: %v", t, node)
-		return
-	}
-	telem := t.Elem()
-	expr := c.Expr1(node.Value)
-	if expr.Const() {
-		expr.ConstTo(telem)
-	} else if expr.Type == nil || !expr.Type.AssignableTo(telem) {
-		c.Errorf("cannot use %v <%v> as type %v in send", node.Value, expr.Type, telem)
-		return
-	}
-	channelfun := channel.AsX1()
-	var stmt Stmt
-	if expr.Const() {
-		value := r.ValueOf(expr.Value)
-		stmt = func(env *Env) (Stmt, *Env) {
-			channel := channelfun(env)
-			channel.Send(value)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	} else {
-		exprfun := expr.AsX1()
-		stmt = func(env *Env) (Stmt, *Env) {
-			channel := channelfun(env)
-			value := exprfun(env)
-			channel.Send(value)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	}
-	c.Code.Append(stmt)
-}
-
 // containLocalBinds return true if one or more of the given statements (but not their contents:
 // blocks are not examined) contain some function/variable declaration.
 // ignores types, constants and anything named "_"

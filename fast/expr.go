@@ -76,7 +76,7 @@ func (c *Comp) Expr1(in ast.Expr) *Expr {
 		case *ast.UnaryExpr:
 			if node.Op == token.ARROW {
 				xe := c.Expr1(node.X)
-				return c.UnaryRecv1(node, xe)
+				return c.Recv1(node, xe)
 			} else {
 				return c.UnaryExpr(node)
 			}

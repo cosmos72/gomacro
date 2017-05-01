@@ -73,7 +73,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 	case token.XOR:
 		z = c.UnaryXor(node, xe)
 	case token.ARROW:
-		z = c.UnaryRecv(node, xe)
+		z = c.Recv(node, xe)
 		// never returns a constant
 		isConst = false
 	// case token.MUL: // not seen, the parser produces *ast.StarExpr instead
