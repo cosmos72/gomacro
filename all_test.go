@@ -390,7 +390,7 @@ var tests = []TestCase{
 		test_nested_recover(true, -5)
 		Values(vpanic, vpanic2, vpanic3)
 		`, nil, []interface{}{-5, -5, nil}},
-	TestCase{I, "send_recv", "cx <- \"x\"; <-cx", nil, []interface{}{"x", true}},
+	TestCase{A, "send_recv", `cx <- "x"; <-cx`, nil, []interface{}{"x", true}},
 	TestCase{A, "sum", sum_s + "; sum(100)", 5050, nil},
 
 	TestCase{I, "select_1", "cx <- 1; { var x interface{}; select { case x=<-cx: x; default: } }", 1, nil},

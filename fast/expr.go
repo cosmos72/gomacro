@@ -26,6 +26,7 @@ package fast
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
 )
 
@@ -72,6 +73,13 @@ func (c *Comp) Expr1(in ast.Expr) *Expr {
 			return c.IndexExpr1(node)
 		case *ast.TypeAssertExpr:
 			return c.TypeAssert1(node)
+		case *ast.UnaryExpr:
+			if node.Op == token.ARROW {
+				xe := c.Expr1(node.X)
+				return c.UnaryRecv1(node, xe)
+			} else {
+				return c.UnaryExpr(node)
+			}
 		}
 		break
 	}
