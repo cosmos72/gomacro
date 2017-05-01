@@ -160,6 +160,12 @@ func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	}
 	telem := t0.Elem()
 
+	if node.Ellipsis != token.NoPos {
+		if n != 2 {
+			return c.badBuiltinCallArgNum(sym.Name+"(arg1, arg2...)", 2, 2, node.Args)
+		}
+		telem = t0 // second argument is a slice too
+	}
 	for i := 1; i < n; i++ {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
@@ -177,6 +183,7 @@ func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		Args:     args,
 		OutTypes: []r.Type{t0},
 		Const:    false,
+		Ellipsis: node.Ellipsis != token.NoPos,
 	}
 }
 
@@ -428,7 +435,7 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "channel, map, slice")
 	}
 	if nargs < nmin || nargs > nmax {
-		return c.badBuiltinCallArgNum(sym.Name, nmin, nmax, node.Args)
+		return c.badBuiltinCallArgNum(sym.Name+"()", nmin, nmax, node.Args)
 	}
 	args := make([]*Expr, nargs)
 	argtypes := make([]r.Type, nargs)
@@ -703,17 +710,55 @@ func call_builtin(c *Call) I {
 		}
 	case func(r.Value, ...r.Value) r.Value: // append()
 		argfunsX1 := c.MakeArgfunsX1()
-		call = func(env *Env) r.Value {
-			args := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
-				args[i] = argfun(env)
+		if c.Ellipsis {
+			argfunsX1 := [2]func(*Env) r.Value{
+				argfunsX1[0],
+				argfunsX1[1],
 			}
-			return fun(args[0], args[1:]...)
+			if name == "append" {
+				call = func(env *Env) r.Value {
+					arg0 := argfunsX1[0](env)
+					arg1 := argfunsX1[1](env)
+					argslice := unwrapSlice(arg1)
+					return r.Append(arg0, argslice...)
+				}
+			} else {
+				call = func(env *Env) r.Value {
+					arg0 := argfunsX1[0](env)
+					arg1 := argfunsX1[1](env)
+					argslice := unwrapSlice(arg1)
+					return fun(arg0, argslice...)
+				}
+			}
+		} else {
+			if name == "append" {
+				call = func(env *Env) r.Value {
+					args := make([]r.Value, len(argfunsX1))
+					for i, argfun := range argfunsX1 {
+						args[i] = argfun(env)
+					}
+					return r.Append(args[0], args[1:]...)
+				}
+			} else {
+				call = func(env *Env) r.Value {
+					args := make([]r.Value, len(argfunsX1))
+					for i, argfun := range argfunsX1 {
+						args[i] = argfun(env)
+					}
+					return fun(args[0], args[1:]...)
+				}
+			}
 		}
 	case func(r.Type) r.Value: // new(), make()
 		arg0 := args[0].Value.(r.Type)
-		call = func(env *Env) r.Value {
-			return fun(arg0)
+		if name == "new" {
+			call = func(env *Env) r.Value {
+				return r.New(arg0)
+			}
+		} else {
+			call = func(env *Env) r.Value {
+				return fun(arg0)
+			}
 		}
 	case func(r.Type, int) r.Value: // make()
 		arg0 := args[0].Value.(r.Type)
@@ -737,6 +782,17 @@ func call_builtin(c *Call) I {
 	return call
 }
 
+// unwrapSlice accepts a reflect.Value with kind == reflect.Array, Slice or String
+// and returns slice of its elements, each wrapped in a reflect.Value
+func unwrapSlice(arg r.Value) []r.Value {
+	n := arg.Len()
+	slice := make([]r.Value, n)
+	for i := range slice {
+		slice[i] = arg.Index(i)
+	}
+	return slice
+}
+
 // callBuiltinFunc invokes the appropriate compiler for a call to a builtin function: cap, copy, len, make, new...
 func (c *Comp) callBuiltinFunc(fun *Expr, node *ast.CallExpr) *Call {
 	builtin := fun.Value.(Builtin)
@@ -748,7 +804,7 @@ func (c *Comp) callBuiltinFunc(fun *Expr, node *ast.CallExpr) *Call {
 	nmax := builtin.ArgMax
 	n := len(node.Args)
 	if n < nmin || n > nmax {
-		return c.badBuiltinCallArgNum(fun.Sym.Name, nmin, nmax, node.Args)
+		return c.badBuiltinCallArgNum(fun.Sym.Name+"()", nmin, nmax, node.Args)
 	}
 	return builtin.compile(c, *fun.Sym, node)
 }
@@ -768,7 +824,7 @@ func (c *Comp) badBuiltinCallArgNum(name string, nmin int, nmax int, args []ast.
 	} else {
 		str = fmt.Sprintf("%s or more", str)
 	}
-	c.Errorf("%s arguments in call to builtin %s(): expecting %s, found %d: %v", prefix, name, str, nargs, args)
+	c.Errorf("%s arguments in call to builtin %s: expecting %s, found %d: %v", prefix, name, str, nargs, args)
 	return nil
 }
 

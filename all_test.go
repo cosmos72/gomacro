@@ -271,7 +271,8 @@ var tests = []TestCase{
 	TestCase{A, "function_3", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
 	TestCase{A, "function_4", "func swap(x, y int) (int,int) { return y, x }; swap(88,99)", nil, []interface{}{99, 88}},
 	TestCase{A, "function_5", "i=0; func seti2() { i=2 }; seti2(); i", 2, nil},
-	TestCase{I, "function_variadic", "func list_args(args ...int) []int { args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
+	TestCase{A, "function_variadic_1", "func list_args(args ...int) []int { return args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
+	TestCase{A, "function_variadic_2", "si := make([]int, 4); si[1]=1; si[2]=2; si[3]=3; list_args(si...)", []int{0, 1, 2, 3}, nil},
 	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},
 	TestCase{A, "closure", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
@@ -320,7 +321,7 @@ var tests = []TestCase{
 	TestCase{A, "builtin_len", "len(v5)", len("8y57riuh@#$"), nil},
 	TestCase{A, "builtin_new", "new(int)", new(int), nil},
 	TestCase{A, "builtin_make_1", "make(map[int]int)", make(map[int]int), nil},
-	TestCase{A, "builtin_make_2", "make(map[int]int, 10)", make(map[int]int), nil}, // capacity is ignored...
+	TestCase{A, "builtin_make_2", "make(map[int]int, 10)", make(map[int]int), nil}, // capacity is ignored
 	TestCase{A, "builtin_make_4", "make([]*error, 2)", make([]*error, 2), nil},
 	TestCase{A, "builtin_make_5", "make([]rune, 3, 4)", make([]rune, 3, 4), nil},
 	TestCase{A, "builtin_make_6", "make(chan byte)", make(chan byte), nil},

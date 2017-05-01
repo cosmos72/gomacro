@@ -23,7 +23,7 @@ The fast intepreter supports:
 * type assertions and type conversions
 * function declarations (including variadic functions)
 * transparent invocation of compiled functions from interpreter, and vice-versa
-* function calls (unimplemented: calls to variadic functions, with or without ... after last call argument)
+* function calls (including calls to variadic functions, with or without ... after last call argument)
 * if, for, break, continue, return (unimplemented: return foo() where foo() returns multiple values)
 * go i.e. goroutines
 * several builtins: append, cap, complex, copy, delete, imag, len, make, new, real
