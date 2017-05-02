@@ -29,6 +29,7 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
+	"io"
 	r "reflect"
 	"time"
 
@@ -64,12 +65,9 @@ func (ce *CompEnv) addBuiltins() {
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
 	ce.DeclConst("nil", nil, nil)
 
-	ce.DeclFunc("Sleep", func(seconds float64) {
-		time.Sleep(time.Duration(seconds * float64(time.Second)))
-	})
-
-	ce.DeclBuiltin4("append", compileAppend, 1, MaxInt)
+	ce.DeclBuiltin4("append", compileAppend, 1, MaxUint16)
 	ce.DeclBuiltin4("cap", compileCap, 1, 1)
+	ce.DeclBuiltin4("close", compileClose, 1, 1)
 	ce.DeclBuiltin4("copy", compileCopy, 2, 2)
 	ce.DeclBuiltin4("complex", compileComplex, 2, 2)
 	ce.DeclBuiltin4("delete", compileDelete, 2, 2)
@@ -77,8 +75,15 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltin4("len", compileLen, 1, 1)
 	ce.DeclBuiltin4("make", compileMake, 1, 3)
 	ce.DeclBuiltin4("new", compileNew, 1, 1)
+	ce.DeclBuiltin4("panic", compilePanic, 1, 1)
+	ce.DeclBuiltin4("print", compilePrint, 0, MaxUint16)
+	ce.DeclBuiltin4("println", compilePrint, 0, MaxUint16)
 	ce.DeclBuiltin4("real", compileRealImag, 1, 1)
 
+	ce.DeclBuiltin4("Env", compileEnv, 0, 0)
+	ce.DeclFunc("Sleep", func(seconds float64) {
+		time.Sleep(time.Duration(seconds * float64(time.Second)))
+	})
 	/*
 		binds["Env"] = r.ValueOf(Function{funcEnv, 0})
 		binds["Eval"] = r.ValueOf(Function{funcEval, 1})
@@ -100,12 +105,6 @@ func (ce *CompEnv) addBuiltins() {
 		binds["close"] = r.ValueOf(callClose)
 	*/
 	/*
-		binds["panic"] = r.ValueOf(callPanic)
-		binds["println"] = r.ValueOf(func(args ...interface{}) {
-			// values := toValues(args)
-			// env.FprintValues(env.Stdout, values...)
-			fmt.Fprintln(env.Stdout, args...)
-		})
 		binds["recover"] = r.ValueOf(Function{funcRecover, 0})
 	*/
 
@@ -222,6 +221,24 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// TODO https://golang.org/ref/spec#Length_and_capacity specifies
 	// when the array passed to cap() is evaluated and when is not...
 	return newCall1(fun, arg, arg.Const(), tout)
+}
+
+// --- close() ---
+
+func callClose(val r.Value) {
+	val.Close()
+}
+
+func compileClose(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	arg := c.Expr1(node.Args[0])
+	tin := arg.Type
+	if tin.Kind() != r.Chan {
+		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "channel")
+	}
+	t := r.FuncOf([]r.Type{tin}, ZeroTypes, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: callClose}, &sym)
+	return newCall1(fun, arg, false)
 }
 
 // --- complex() ---
@@ -356,6 +373,26 @@ func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	return &Call{Fun: fun, Args: []*Expr{emap, ekey}, OutTypes: ZeroTypes, Const: false}
 }
 
+// --- Env() ---
+
+func argEnv(env *Env) r.Value {
+	return r.ValueOf(env)
+}
+
+func callIdentity(v r.Value) r.Value {
+	return v
+}
+
+func compileEnv(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	tenv := r.TypeOf((*Env)(nil))
+	tenvs := []r.Type{tenv}
+	arg := exprX1(tenv, argEnv)
+	t := r.FuncOf(tenvs, tenvs, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: callIdentity}, &sym)
+	return newCall1(fun, arg, false, tenv)
+}
+
 // --- len() ---
 
 func callLenValue(val r.Value) int {
@@ -474,6 +511,65 @@ func compileNew(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	fun := exprLit(Lit{Type: t, Value: r.New}, &sym)
 	arg := exprValue(tin)
 	return newCall1(fun, arg, false, tout)
+}
+
+// --- panic() ---
+
+func callPanic(arg interface{}) {
+	panic(arg)
+}
+
+var typeOfBuiltinPanic = r.TypeOf(callPrint)
+
+func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	arg := c.Expr1(node.Args[0])
+	if arg.Const() {
+		arg.ConstTo(arg.DefaultType())
+	}
+
+	t := typeOfBuiltinPanic
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: callPanic}, &sym)
+	return newCall1(fun, arg, false)
+}
+
+// --- print(), println() ---
+
+func callPrint(out io.Writer, args ...interface{}) {
+	fmt.Fprint(out, args...)
+}
+
+func callPrintln(out io.Writer, args ...interface{}) {
+	fmt.Fprintln(out, args...)
+}
+
+func getStdout(env *Env) r.Value {
+	return r.ValueOf(env.ThreadGlobals.Stdout)
+}
+
+var (
+	typeOfIoWriter     = r.TypeOf((*io.Writer)(nil)).Elem()
+	typeOfBuiltinPrint = r.TypeOf(callPrint)
+)
+
+func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	args := c.Exprs(node.Args)
+	for _, arg := range args {
+		if arg.Const() {
+			arg.ConstTo(arg.DefaultType())
+		}
+	}
+	arg0 := exprFun(typeOfIoWriter, getStdout)
+	args = append([]*Expr{arg0}, args...)
+
+	t := typeOfBuiltinPrint
+	sym.Type = t
+	call := callPrint
+	if sym.Name == "println" {
+		call = callPrintln
+	}
+	fun := exprLit(Lit{Type: t, Value: call}, &sym)
+	return &Call{Fun: fun, Args: args, OutTypes: ZeroTypes, Const: false, Ellipsis: node.Ellipsis != token.NoPos}
 }
 
 // --- real() and imag() ---
@@ -687,12 +783,51 @@ func call_builtin(c *Call) I {
 				return fun(arg0.Interface().([]byte), arg1)
 			}
 		}
+	case func(interface{}): // panic()
+		argfunsX1 := c.MakeArgfunsX1()
+		argfun := argfunsX1[0]
+		if name == "panic" {
+			call = func(env *Env) {
+				arg := argfun(env).Interface()
+				panic(arg)
+			}
+		} else {
+			call = func(env *Env) {
+				arg := argfun(env).Interface()
+				fun(arg)
+			}
+		}
+	case func(r.Value): // close()
+		argfunsX1 := c.MakeArgfunsX1()
+		argfun := argfunsX1[0]
+		if name == "close" {
+			call = func(env *Env) {
+				arg := argfun(env)
+				arg.Close()
+			}
+		} else {
+			call = func(env *Env) {
+				arg := argfun(env)
+				fun(arg)
+			}
+		}
 	case func(r.Value) int: // cap(), len()
 		argfunsX1 := c.MakeArgfunsX1()
 		argfun := argfunsX1[0]
 		call = func(env *Env) int {
 			arg := argfun(env)
 			return fun(arg)
+		}
+	case func(r.Value) r.Value: // Env()
+		if name == "Env" {
+			call = argEnv
+		} else {
+			argfunsX1 := c.MakeArgfunsX1()
+			argfun := argfunsX1[0]
+			call = func(env *Env) r.Value {
+				arg0 := argfun(env)
+				return fun(arg0)
+			}
 		}
 	case func(r.Value, r.Value): // delete()
 		argfunsX1 := c.MakeArgfunsX1()
@@ -707,6 +842,27 @@ func call_builtin(c *Call) I {
 			arg0 := argfunsX1[0](env)
 			arg1 := argfunsX1[1](env)
 			return fun(arg0, arg1)
+		}
+	case func(io.Writer, ...interface{}): // print, println()
+		argfunsX1 := c.MakeArgfunsX1()
+		if c.Ellipsis {
+			argfunsX1 := [2]func(*Env) r.Value{
+				argfunsX1[0],
+				argfunsX1[1],
+			}
+			call = func(env *Env) {
+				arg0 := argfunsX1[0](env).Interface().(io.Writer)
+				arg1 := argfunsX1[1](env).Interface().([]interface{})
+				fun(arg0, arg1...)
+			}
+		} else {
+			call = func(env *Env) {
+				args := make([]interface{}, len(argfunsX1))
+				for i, argfun := range argfunsX1 {
+					args[i] = argfun(env).Interface()
+				}
+				fun(args[0].(io.Writer), args[1:]...)
+			}
 		}
 	case func(r.Value, ...r.Value) r.Value: // append()
 		argfunsX1 := c.MakeArgfunsX1()
@@ -800,8 +956,8 @@ func (c *Comp) callBuiltinFunc(fun *Expr, node *ast.CallExpr) *Call {
 		c.Errorf("invalid call to non-name builtin: %v", node)
 		return nil
 	}
-	nmin := builtin.ArgMin
-	nmax := builtin.ArgMax
+	nmin := int(builtin.ArgMin)
+	nmax := int(builtin.ArgMax)
 	n := len(node.Args)
 	if n < nmin || n > nmax {
 		return c.badBuiltinCallArgNum(fun.Sym.Name+"()", nmin, nmax, node.Args)

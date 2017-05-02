@@ -57,7 +57,7 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 	case token.CONST:
 		var defaultType ast.Expr
 		var defaultExprs []ast.Expr
-		top := c.Top()
+		top := c.TopComp()
 		top.addIota()
 		defer top.removeIota()
 		for _, decl := range node.Specs {

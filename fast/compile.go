@@ -110,7 +110,7 @@ func NewComp(outer *Comp) *Comp {
 	}
 }
 
-func (c *Comp) Top() *Comp {
+func (c *Comp) TopComp() *Comp {
 	for ; c != nil; c = c.Outer {
 		if c.Outer == nil {
 			break
@@ -119,7 +119,7 @@ func (c *Comp) Top() *Comp {
 	return c
 }
 
-func (c *Comp) File() *Comp {
+func (c *Comp) FileComp() *Comp {
 	for ; c != nil; c = c.Outer {
 		outer := c.Outer
 		if outer == nil || outer.Outer == nil {
@@ -286,13 +286,13 @@ func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
 	}
 }
 
-func (c *Comp) Compile(in ast.Node) func(*Env) (r.Value, []r.Value) {
+func (c *Comp) Compile(node ast.Node) func(*Env) (r.Value, []r.Value) {
 	c.Code.Clear()
-	if in == nil {
+	if node == nil {
 		return nil
 	}
-	c.Pos = in.Pos()
-	switch node := in.(type) {
+	c.Pos = node.Pos()
+	switch node := node.(type) {
 	case ast.Decl:
 		c.Decl(node)
 	case ast.Expr:
@@ -303,11 +303,17 @@ func (c *Comp) Compile(in ast.Node) func(*Env) (r.Value, []r.Value) {
 	case ast.Stmt:
 		c.Stmt(node)
 	case *ast.File:
-		c.Errorf("Compile: unimplemented <*ast.File>, found %v <%v>", in, r.TypeOf(in))
-		// TODO return c.File(node)
+		c.File(node)
 	default:
-		c.Errorf("Compile: unsupported expression, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", in, r.TypeOf(in))
+		c.Errorf("Compile: unsupported expression, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", node, r.TypeOf(node))
 		return nil
 	}
 	return c.Code.AsXV()
+}
+
+func (c *Comp) File(node *ast.File) {
+	c.Name = node.Name.Name
+	for _, decl := range node.Decls {
+		c.Decl(decl)
+	}
 }

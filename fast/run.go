@@ -28,6 +28,7 @@ import (
 	"go/ast"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
 )
 
@@ -53,6 +54,11 @@ func (ce *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value)
 	}
 	env := ce.PrepareEnv()
 	return fun(env)
+}
+
+func (ce *CompEnv) Parse(src string) ast2.Ast {
+	c := ce.Comp
+	return c.ParseAst(src)
 }
 
 // combined ParseAst + CompileAst
@@ -83,7 +89,7 @@ func (ce *CompEnv) DeclBuiltin(name string, builtin Builtin) {
 }
 
 // DeclBuiltin4 compiles a builtin function declaration
-func (ce *CompEnv) DeclBuiltin4(name string, compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call, argMin int, argMax int) {
+func (ce *CompEnv) DeclBuiltin4(name string, compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call, argMin uint16, argMax uint16) {
 	ce.Comp.DeclBuiltin0(name, Builtin{compile: compile, ArgMin: argMin, ArgMax: argMax})
 }
 

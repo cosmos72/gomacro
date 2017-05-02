@@ -28,6 +28,7 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+	"sort"
 
 	. "github.com/cosmos72/gomacro/base"
 )
@@ -50,13 +51,13 @@ func popEnv(env *Env) (Stmt, *Env) {
 	return outer.Code[outer.IP], outer
 }
 
-func (c *Comp) Stmt(node ast.Stmt) {
-	label := ""
+func (c *Comp) Stmt(in ast.Stmt) {
+	var labels []string
 	for {
-		if node != nil {
-			c.Pos = node.Pos()
+		if in != nil {
+			c.Pos = in.Pos()
 		}
-		switch node := node.(type) {
+		switch node := in.(type) {
 		case nil:
 		case *ast.AssignStmt:
 			c.Assign(node)
@@ -80,7 +81,7 @@ func (c *Comp) Stmt(node ast.Stmt) {
 				c.Code.Append(expr.AsStmt())
 			}
 		case *ast.ForStmt:
-			c.For(node, label)
+			c.For(node, labels)
 		case *ast.GoStmt:
 			c.Go(node)
 		case *ast.IfStmt:
@@ -88,8 +89,8 @@ func (c *Comp) Stmt(node ast.Stmt) {
 		case *ast.IncDecStmt:
 			c.IncDec(node)
 		case *ast.LabeledStmt:
-			// c.Label(node)
-			label = node.Label.Name
+			labels = append(labels, node.Label.Name)
+			in = node.Stmt
 			continue
 		// case *ast.RangeStmt:
 		//   c.Range(node)
@@ -172,7 +173,7 @@ func (c *Comp) Break(node *ast.BranchStmt) {
 	// do not cross function boundaries
 	for o := c; o != nil && o.Func == nil; o = o.Outer {
 		if o.Loop != nil && o.Loop.Break != nil {
-			if len(label) == 0 || o.Loop.ThisLabel == label {
+			if len(label) == 0 || o.Loop.HasLabel(label) {
 				// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
 				c.compileJumpOut(upn, o.Loop.Break)
 				return
@@ -197,7 +198,7 @@ func (c *Comp) Continue(node *ast.BranchStmt) {
 	// do not cross function boundaries
 	for o := c; o != nil && o.Func == nil; o = o.Outer {
 		if o.Loop != nil && o.Loop.Continue != nil {
-			if len(label) == 0 || o.Loop.ThisLabel == label {
+			if len(label) == 0 || o.Loop.HasLabel(label) {
 				// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
 				c.compileJumpOut(upn, o.Loop.Continue)
 				return
@@ -248,7 +249,7 @@ func (c *Comp) compileJumpOut(upn int, ip *int) {
 }
 
 // For compiles a "for" statement
-func (c *Comp) For(node *ast.ForStmt, label string) {
+func (c *Comp) For(node *ast.ForStmt, labels []string) {
 	initLocals := false
 	var initBinds [2]int
 	if node.Init != nil {
@@ -265,10 +266,11 @@ func (c *Comp) For(node *ast.ForStmt, label string) {
 		}
 	}
 	var jump struct{ Cond, Post, Break int }
+	sort.Strings(labels)
 	c.Loop = &LoopInfo{
-		Continue:  &jump.Post,
-		Break:     &jump.Break,
-		ThisLabel: label,
+		Continue:   &jump.Post,
+		Break:      &jump.Break,
+		ThisLabels: labels,
 	}
 
 	// compile the condition, if not a constant

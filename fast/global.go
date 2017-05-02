@@ -29,6 +29,7 @@ import (
 	"go/ast"
 	"go/constant"
 	r "reflect"
+	"sort"
 
 	"github.com/cosmos72/gomacro/base"
 )
@@ -178,8 +179,8 @@ type Builtin struct {
 	// interpreted code should not access "compile": not exported.
 	// compile usually needs to modify Symbol: pass it by value.
 	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call
-	ArgMin  int
-	ArgMax  int
+	ArgMin  uint16
+	ArgMax  uint16
 }
 
 var TypeOfBuiltinFunc = r.TypeOf(Builtin{})
@@ -354,10 +355,15 @@ type Code struct {
 }
 
 type LoopInfo struct {
-	Break     *int
-	Continue  *int
-	Labels    map[string]*int
-	ThisLabel string // for labeled "switch" and "for"
+	Break      *int
+	Continue   *int
+	Labels     map[string]*int
+	ThisLabels []string // sorted. for labeled "switch" and "for"
+}
+
+func (l *LoopInfo) HasLabel(label string) bool {
+	i := sort.SearchStrings(l.ThisLabels, label)
+	return i >= 0 && i < len(l.ThisLabels) && l.ThisLabels[i] == label
 }
 
 type FuncInfo struct {
