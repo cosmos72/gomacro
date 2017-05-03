@@ -80,12 +80,11 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltin4("println", compilePrint, 0, MaxUint16)
 	ce.DeclBuiltin4("real", compileRealImag, 1, 1)
 
-	ce.DeclBuiltin4("Env", compileEnv, 0, 0)
+	ce.DeclEnvFunc3("Env", callIdentity, r.FuncOf([]r.Type{typeOfCompEnv}, []r.Type{typeOfCompEnv}, false))
 	ce.DeclFunc("Sleep", func(seconds float64) {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
 	/*
-		binds["Env"] = r.ValueOf(Function{funcEnv, 0})
 		binds["Eval"] = r.ValueOf(Function{funcEval, 1})
 		binds["MacroExpand"] = r.ValueOf(Function{funcMacroExpand, -1})
 		binds["MacroExpand1"] = r.ValueOf(Function{funcMacroExpand1, -1})
@@ -101,8 +100,6 @@ func (ce *CompEnv) addBuiltins() {
 		})
 		// return multiple values, extracting the concrete type of each interface
 		binds["Values"] = r.ValueOf(Function{funcValues, -1})
-
-		binds["close"] = r.ValueOf(callClose)
 	*/
 	/*
 		binds["recover"] = r.ValueOf(Function{funcRecover, 0})
@@ -375,22 +372,8 @@ func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // --- Env() ---
 
-func argEnv(env *Env) r.Value {
-	return r.ValueOf(env)
-}
-
 func callIdentity(v r.Value) r.Value {
 	return v
-}
-
-func compileEnv(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	tenv := r.TypeOf((*Env)(nil))
-	tenvs := []r.Type{tenv}
-	arg := exprX1(tenv, argEnv)
-	t := r.FuncOf(tenvs, tenvs, false)
-	sym.Type = t
-	fun := exprLit(Lit{Type: t, Value: callIdentity}, &sym)
-	return newCall1(fun, arg, false, tenv)
 }
 
 // --- len() ---
@@ -631,10 +614,11 @@ func call_builtin(c *Call) I {
 	// we must retrieve them directly from c.Fun.Value
 	if !c.Fun.Const() {
 		Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", c.Fun)
-	} else if c.Fun.Sym == nil {
-		Errorf("internal error: call_builtin() invoked for non-name function %#v. use one of the callXretY() instead", c.Fun)
 	}
-	name := c.Fun.Sym.Name
+	var name string
+	if c.Fun.Sym != nil {
+		name = c.Fun.Sym.Name
+	}
 	args := c.Args
 	argfuns := make([]I, len(args))
 	for i, arg := range args {
@@ -819,11 +803,14 @@ func call_builtin(c *Call) I {
 			return fun(arg)
 		}
 	case func(r.Value) r.Value: // Env()
+		argfunsX1 := c.MakeArgfunsX1()
+		argfun := argfunsX1[0]
 		if name == "Env" {
-			call = argEnv
+			call = func(env *Env) r.Value {
+				arg0 := argfun(env)
+				return arg0
+			}
 		} else {
-			argfunsX1 := c.MakeArgfunsX1()
-			argfun := argfunsX1[0]
 			call = func(env *Env) r.Value {
 				arg0 := argfun(env)
 				return fun(arg0)
@@ -851,9 +838,9 @@ func call_builtin(c *Call) I {
 				argfunsX1[1],
 			}
 			call = func(env *Env) {
-				arg0 := argfunsX1[0](env).Interface().(io.Writer)
-				arg1 := argfunsX1[1](env).Interface().([]interface{})
-				fun(arg0, arg1...)
+				arg0 := argfunsX1[0](env).Interface()
+				argslice := argfunsX1[1](env).Interface().([]interface{})
+				fun(arg0.(io.Writer), argslice...)
 			}
 		} else {
 			call = func(env *Env) {
@@ -949,8 +936,8 @@ func unwrapSlice(arg r.Value) []r.Value {
 	return slice
 }
 
-// callBuiltinFunc invokes the appropriate compiler for a call to a builtin function: cap, copy, len, make, new...
-func (c *Comp) callBuiltinFunc(fun *Expr, node *ast.CallExpr) *Call {
+// callBuiltin invokes the appropriate compiler for a call to a builtin function: cap, copy, len, make, new...
+func (c *Comp) callBuiltin(node *ast.CallExpr, fun *Expr) *Call {
 	builtin := fun.Value.(Builtin)
 	if fun.Sym == nil {
 		c.Errorf("invalid call to non-name builtin: %v", node)
@@ -965,7 +952,26 @@ func (c *Comp) callBuiltinFunc(fun *Expr, node *ast.CallExpr) *Call {
 	return builtin.compile(c, *fun.Sym, node)
 }
 
-func (c *Comp) badBuiltinCallArgNum(name string, nmin int, nmax int, args []ast.Expr) *Call {
+// callFunction compiles a call to a function that accesses interpreter's *CompEnv
+func (c *Comp) callFunction(node *ast.CallExpr, fun *Expr) (newfun *Expr, lastarg *Expr) {
+	function := fun.Value.(Function)
+	t := function.Type
+	var sym *Symbol
+	if fun.Sym != nil {
+		symcopy := *fun.Sym
+		symcopy.Type = t
+		sym = &symcopy
+	}
+	newfun = exprLit(Lit{Type: t, Value: function.Fun}, sym)
+	if len(node.Args) < t.NumIn() {
+		lastarg = exprX1(typeOfCompEnv, func(env *Env) r.Value {
+			return r.ValueOf(&CompEnv{Comp: c, env: env})
+		})
+	}
+	return newfun, lastarg
+}
+
+func (c *Comp) badBuiltinCallArgNum(name interface{}, nmin int, nmax int, args []ast.Expr) *Call {
 	prefix := "not enough"
 	nargs := len(args)
 	if nargs > nmax {
@@ -980,7 +986,7 @@ func (c *Comp) badBuiltinCallArgNum(name string, nmin int, nmax int, args []ast.
 	} else {
 		str = fmt.Sprintf("%s or more", str)
 	}
-	c.Errorf("%s arguments in call to builtin %s: expecting %s, found %d: %v", prefix, name, str, nargs, args)
+	c.Errorf("%s arguments in call to builtin %v: expecting %s, found %d: %v", prefix, name, str, nargs, args)
 	return nil
 }
 

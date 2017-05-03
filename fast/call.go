@@ -71,6 +71,44 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 		}
 	}
 	call := c.callExpr(node, fun)
+	return c.call_any(call)
+}
+
+// callExpr compiles the common part between CallExpr and Go statement
+func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
+	if fun == nil {
+		fun = c.Expr1(node.Fun)
+	}
+	t := fun.Type
+	var lastarg *Expr
+	if t == TypeOfBuiltin {
+		return c.callBuiltin(node, fun)
+	} else if t == TypeOfFunction {
+		fun, lastarg = c.callFunction(node, fun)
+		t = fun.Type
+	}
+	if t.Kind() != r.Func {
+		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
+		return nil
+	}
+	args := c.Exprs(node.Args)
+	if lastarg != nil {
+		args = append(args, lastarg)
+	}
+	// TODO support funcAcceptsNArgs(funcReturnsNValues())
+	ellipsis := node.Ellipsis != token.NoPos
+	c.checkCallArgs(node, t, args, ellipsis)
+
+	outn := t.NumOut()
+	outtypes := make([]r.Type, outn)
+	for i := 0; i < outn; i++ {
+		outtypes[i] = t.Out(i)
+	}
+	return &Call{Fun: fun, Args: args, OutTypes: outtypes, Ellipsis: ellipsis}
+}
+
+// call_any emits a compiled function call
+func (c *Comp) call_any(call *Call) *Expr {
 	expr := &Expr{}
 	tout := call.OutTypes
 	nout := len(tout)
@@ -78,7 +116,6 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 
 	maxdepth := c.Depth
 	if call.Fun.Const() {
-		// only builtin functions are marked as constant
 		expr.Fun = call_builtin(call)
 	} else if nout == 0 {
 		expr.Fun = call_ret0(call, maxdepth)
@@ -95,36 +132,10 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 	return expr
 }
 
-// callExpr compiles the common part between CallExpr and Go statement
-func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
-	if fun == nil {
-		fun = c.Expr1(node.Fun)
-	}
-	t := fun.Type
-	if t == TypeOfBuiltinFunc {
-		return c.callBuiltinFunc(fun, node)
-	}
-	if t.Kind() != r.Func {
-		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
-		return nil
-	}
-	args := c.Exprs(node.Args)
-	// TODO support funcAcceptsNArgs(funcReturnsNValues())
-	ellipsis := c.checkCallArgs(node, t, args)
-
-	nout := t.NumOut()
-	types := make([]r.Type, nout)
-	for i := 0; i < nout; i++ {
-		types[i] = t.Out(i)
-	}
-	return &Call{Fun: fun, Args: args, OutTypes: types, Ellipsis: ellipsis}
-}
-
-func (c *Comp) checkCallArgs(node *ast.CallExpr, t r.Type, args []*Expr) (ellipsis bool) {
+func (c *Comp) checkCallArgs(node *ast.CallExpr, t r.Type, args []*Expr, ellipsis bool) {
 	n := t.NumIn()
 	narg := len(args)
 
-	ellipsis = node.Ellipsis != token.NoPos
 	variadic := t.IsVariadic()
 	if ellipsis {
 		if variadic {

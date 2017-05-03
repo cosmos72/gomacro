@@ -183,7 +183,17 @@ type Builtin struct {
 	ArgMax  uint16
 }
 
-var TypeOfBuiltinFunc = r.TypeOf(Builtin{})
+var TypeOfBuiltin = r.TypeOf(Builtin{})
+
+// ================================= EnvFunction =================================
+
+// Function represents a function that accesses *CompEnv in the fast interpreter
+type Function struct {
+	Fun  I
+	Type r.Type
+}
+
+var TypeOfFunction = r.TypeOf(Function{})
 
 // ================================= BindClass =================================
 
@@ -209,6 +219,9 @@ func (class BindClass) String() string {
 
 // ================================== BindDescriptor =================================
 
+// the zero value of BindDescriptor is a valid descriptor for all constants
+type BindDescriptor BindClass
+
 const (
 	bindClassMask  = BindClass(0x3)
 	bindIndexShift = 2
@@ -216,9 +229,6 @@ const (
 	NoIndex             = int(0)                    // index of constants, functions and variables named "_"
 	ConstBindDescriptor = BindDescriptor(ConstBind) // bind descriptor for all constants
 )
-
-// the zero value of BindDescriptor is a valid descriptor for all constants
-type BindDescriptor BindClass
 
 func MakeBindDescriptor(class BindClass, index int) BindDescriptor {
 	class &= bindClassMask
@@ -442,6 +452,8 @@ type CompEnv struct {
 	Comp *Comp
 	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
 }
+
+var typeOfCompEnv = r.TypeOf((*CompEnv)(nil))
 
 type (
 	I interface{}

@@ -446,9 +446,17 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 	return bind
 }
 
-// DeclBuiltinFunc compiles a builtin function declaration. For caller's convenience, returns allocated Bind
+// DeclEnvFunc0 compiles a function declaration that accesses interpreter's Env. For caller's convenience, returns allocated Bind
+func (c *Comp) DeclEnvFunc0(name string, envfun Function) *Bind {
+	t := TypeOfFunction
+	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
+	bind.Value = envfun                   // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
+	return bind
+}
+
+// DeclBuiltin0 compiles a builtin function declaration. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclBuiltin0(name string, builtin Builtin) *Bind {
-	t := TypeOfBuiltinFunc
+	t := TypeOfBuiltin
 	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
 	bind.Value = builtin                  // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 	return bind

@@ -93,6 +93,16 @@ func (ce *CompEnv) DeclBuiltin4(name string, compile func(c *Comp, sym Symbol, n
 	ce.Comp.DeclBuiltin0(name, Builtin{compile: compile, ArgMin: argMin, ArgMax: argMax})
 }
 
+// DeclEnvFunc compiles a function declaration that accesses interpreter's *CompEnv
+func (ce *CompEnv) DeclEnvFunc(name string, function Function) {
+	ce.Comp.DeclEnvFunc0(name, function)
+}
+
+// DeclEnvFunc3 compiles a function declaration that accesses interpreter's *CompEnv
+func (ce *CompEnv) DeclEnvFunc3(name string, fun I, t r.Type) {
+	ce.Comp.DeclEnvFunc0(name, Function{Fun: fun, Type: t})
+}
+
 // DeclType compiles a type declaration
 func (ce *CompEnv) DeclType(name string, t r.Type) {
 	ce.Comp.DeclType0(name, t)

@@ -424,10 +424,28 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 			c.Errorf("type %v has %d fields named %q, all at depth %d", t, fieldn, name, len(field.Index))
 			return nil
 		}
+		if t.Kind() == r.Struct {
+			c.checkSettableField(node)
+		}
 		return c.compileFieldPlace(e, field)
 	}
 	c.Errorf("type %v has no field %q: %v", t, name, node)
 	return nil
+}
+
+// checkSettableField check that a struct field is settable and addressable.
+// by Go specs, this requires the struct itself to be settable and addressable.
+func (c *Comp) checkSettableField(node *ast.SelectorExpr) {
+	panicking := true
+	defer func() {
+		if panicking {
+			recover()
+			c.Pos = node.Pos()
+			c.Errorf("cannot assign to %v", node)
+		}
+	}()
+	c.placeOrAddress(node.X, PlaceAddress)
+	panicking = false
 }
 
 func (c *Comp) compileFieldPlace(e *Expr, field rField) *Place {

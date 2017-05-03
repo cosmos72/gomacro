@@ -113,7 +113,7 @@ var tests = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
 	TestCase{I, "1+'A'", "1+'A'", 66, nil},  // interpreter is not accurate in this case... returns <int> instead of <int32>
 	TestCase{F, "1+'A'", "1+'A'", 'B', nil}, // fast_interpreter instead *IS* accurate
-	TestCase{A, "int8+1", "int8(1)+1", int8(2), nil},
+	TestCase{A, "int8+1", "int8(1)+1", int8(1) + 1, nil},
 	TestCase{A, "int8_overflow", "int8(64)+64", int8(-128), nil},
 	TestCase{A, "string", "\"foobar\"", "foobar", nil},
 	TestCase{A, "expr_and", "3 & 6", 3 & 6, nil},

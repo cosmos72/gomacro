@@ -3,6 +3,8 @@
 
 package main
 
-func main() {
+func pair(a, b int) Pair { var p Pair; p.A = a; p.B = b; return p }
 
+func main() {
+	// pair(1, 2).A = 3
 }

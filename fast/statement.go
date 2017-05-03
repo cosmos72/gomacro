@@ -477,7 +477,12 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 	case n:
 		// ok
 	case 1:
-		c.Errorf("unimplemented: return of multi-valued expression: %v", node)
+		if n == 0 {
+			c.Errorf("return: expecting %d expressions, found %d: %v", n, len(resultExprs), node)
+		} else {
+			c.Errorf("unimplemented: return of multi-valued expression: %v", node)
+		}
+		return
 	case 0:
 		if !cinfo.NamedResults {
 			// naked return requires results to have names
