@@ -43,6 +43,8 @@ type UntypedLit struct {
 }
 
 var (
+	typeOfUntypedLit = r.TypeOf(UntypedLit{})
+
 	UntypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(0)}
 	UntypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(1)}
 )
@@ -264,6 +266,10 @@ type Bind struct {
 	Lit
 	Desc BindDescriptor
 	Name string
+}
+
+func (bind *Bind) String() string {
+	return fmt.Sprintf("{%s %q %#v <%v>}", bind.Desc, bind.Name, bind.Lit.Value, bind.Lit.Type)
 }
 
 func (bind *Bind) Const() bool {

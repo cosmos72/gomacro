@@ -44,8 +44,9 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -100,7 +101,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -155,7 +157,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -210,7 +213,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -265,7 +269,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -320,9 +325,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -377,9 +381,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -434,9 +437,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -491,9 +493,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -548,9 +549,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -605,9 +605,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -662,9 +661,10 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case r.Float32:
+			val :=
 
-			float32:
+				float32(r.ValueOf(val).Float())
 			switch upn {
 			case 0:
 
@@ -719,9 +719,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			float64:
+		case r.Float64:
+			val := r.ValueOf(val).Float()
 			switch upn {
 			case 0:
 
@@ -776,9 +775,10 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case r.Complex64:
+			val :=
 
-			complex64:
+				complex64(r.ValueOf(val).Complex())
 			switch upn {
 			case 0:
 
@@ -833,9 +833,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			complex128:
+		case r.Complex128:
+			val := r.ValueOf(val).Complex()
 			switch upn {
 			case 0:
 
@@ -915,7 +914,8 @@ func (c *Comp) varAddConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case string:
+		case r.String:
+			val := r.ValueOf(val).String()
 			switch upn {
 			case 0:
 
@@ -1948,8 +1948,9 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -2004,7 +2005,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -2059,7 +2061,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -2114,7 +2117,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -2169,7 +2173,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -2224,9 +2229,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -2281,9 +2285,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -2338,9 +2341,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -2395,9 +2397,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -2452,9 +2453,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -2509,9 +2509,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -2566,9 +2565,10 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case r.Float32:
+			val :=
 
-			float32:
+				float32(r.ValueOf(val).Float())
 			switch upn {
 			case 0:
 
@@ -2623,9 +2623,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			float64:
+		case r.Float64:
+			val := r.ValueOf(val).Float()
 			switch upn {
 			case 0:
 
@@ -2680,9 +2679,10 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case r.Complex64:
+			val :=
 
-			complex64:
+				complex64(r.ValueOf(val).Complex())
 			switch upn {
 			case 0:
 
@@ -2737,9 +2737,8 @@ func (c *Comp) varSubConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			complex128:
+		case r.Complex128:
+			val := r.ValueOf(val).Complex()
 			switch upn {
 			case 0:
 
@@ -3696,8 +3695,9 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -3752,7 +3752,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -3807,7 +3808,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -3862,7 +3864,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -3917,7 +3920,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -3972,9 +3976,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -4029,9 +4032,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -4086,9 +4088,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -4143,9 +4144,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -4200,9 +4200,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -4257,9 +4256,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -4314,9 +4312,10 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case r.Float32:
+			val :=
 
-			float32:
+				float32(r.ValueOf(val).Float())
 			switch upn {
 			case 0:
 
@@ -4371,9 +4370,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			float64:
+		case r.Float64:
+			val := r.ValueOf(val).Float()
 			switch upn {
 			case 0:
 
@@ -4428,9 +4426,10 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case r.Complex64:
+			val :=
 
-			complex64:
+				complex64(r.ValueOf(val).Complex())
 			switch upn {
 			case 0:
 
@@ -4485,9 +4484,8 @@ func (c *Comp) varMulConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			complex128:
+		case r.Complex128:
+			val := r.ValueOf(val).Complex()
 			switch upn {
 			case 0:
 
@@ -5443,8 +5441,9 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -5499,7 +5498,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -5554,7 +5554,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -5609,7 +5610,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -5664,7 +5666,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -5719,9 +5722,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -5776,9 +5778,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -5833,9 +5834,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -5890,9 +5890,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -5947,9 +5946,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -6004,9 +6002,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -6061,9 +6058,10 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case r.Float32:
+			val :=
 
-			float32:
+				float32(r.ValueOf(val).Float())
 			switch upn {
 			case 0:
 
@@ -6118,9 +6116,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			float64:
+		case r.Float64:
+			val := r.ValueOf(val).Float()
 			switch upn {
 			case 0:
 
@@ -6175,9 +6172,10 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case r.Complex64:
+			val :=
 
-			complex64:
+				complex64(r.ValueOf(val).Complex())
 			switch upn {
 			case 0:
 
@@ -6232,9 +6230,8 @@ func (c *Comp) varQuoConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			complex128:
+		case r.Complex128:
+			val := r.ValueOf(val).Complex()
 			switch upn {
 			case 0:
 
@@ -7191,10 +7188,12 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 			return
 		}
 	}
+
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -7249,7 +7248,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -7304,7 +7304,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -7359,7 +7360,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -7414,7 +7416,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -7469,9 +7472,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -7526,9 +7528,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -7583,9 +7584,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -7640,9 +7640,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -7697,9 +7696,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -7754,9 +7752,8 @@ func (c *Comp) varRemConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -8445,8 +8442,9 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -8501,7 +8499,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -8556,7 +8555,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -8611,7 +8611,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -8666,7 +8667,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -8721,9 +8723,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -8778,9 +8779,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -8835,9 +8835,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -8892,9 +8891,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -8949,9 +8947,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -9006,9 +9003,8 @@ func (c *Comp) varAndConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -9691,8 +9687,9 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -9747,7 +9744,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -9802,7 +9800,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -9857,7 +9856,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -9912,7 +9912,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -9967,9 +9968,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -10024,9 +10024,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -10081,9 +10080,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -10138,9 +10136,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -10195,9 +10192,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -10252,9 +10248,8 @@ func (c *Comp) varOrConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -10937,8 +10932,9 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -10993,7 +10989,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -11048,7 +11045,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -11103,7 +11101,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -11158,7 +11157,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -11213,9 +11213,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -11270,9 +11269,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -11327,9 +11325,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -11384,9 +11381,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -11441,9 +11437,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -11498,9 +11493,8 @@ func (c *Comp) varXorConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -12189,8 +12183,9 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 
 	{
 		var ret Stmt
-		switch val := val.(type) {
-		case int:
+		switch t.Kind() {
+		case r.Int:
+			val := int(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -12245,7 +12240,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int8:
+		case r.Int8:
+			val := int8(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -12300,7 +12296,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int16:
+		case r.Int16:
+			val := int16(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -12355,7 +12352,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int32:
+		case r.Int32:
+			val := int32(r.ValueOf(val).Int())
 			switch upn {
 			case 0:
 
@@ -12410,7 +12408,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case int64:
+		case r.Int64:
+			val := r.ValueOf(val).Int()
 			switch upn {
 			case 0:
 
@@ -12465,9 +12464,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint:
+		case r.Uint:
+			val := uint(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -12522,9 +12520,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint8:
+		case r.Uint8:
+			val := uint8(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -12579,9 +12576,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint16:
+		case r.Uint16:
+			val := uint16(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -12636,9 +12632,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint32:
+		case r.Uint32:
+			val := uint32(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 
@@ -12693,9 +12688,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uint64:
+		case r.Uint64:
+			val := r.ValueOf(val).Uint()
 			switch upn {
 			case 0:
 
@@ -12750,9 +12744,8 @@ func (c *Comp) varAndnotConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			uintptr:
+		case r.Uintptr:
+			val := uintptr(r.ValueOf(val).Uint())
 			switch upn {
 			case 0:
 

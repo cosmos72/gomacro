@@ -265,23 +265,6 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	return nil
 }
 
-func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
-	ret := r.Invalid
-	switch ckind {
-	case constant.Bool:
-		ret = r.Bool
-	case constant.String:
-		ret = r.String
-	case constant.Int:
-		ret = r.Int // actually ambiguous, could be a rune - thus r.Int32
-	case constant.Float:
-		ret = r.Float64
-	case constant.Complex:
-		ret = r.Complex128
-	}
-	return ret
-}
-
 func (c *Comp) Land(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 	xval, xfun, xerr := x.TryAsPred()
 	yval, yfun, yerr := y.TryAsPred()

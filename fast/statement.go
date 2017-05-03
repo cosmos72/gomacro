@@ -111,14 +111,6 @@ func (c *Comp) Stmt(in ast.Stmt) {
 	}
 }
 
-func (c *Comp) misplacedCase(node ast.Node, isdefault bool) {
-	label := "case"
-	if isdefault {
-		label = "default"
-	}
-	c.Errorf("misplaced %s: not inside switch or select: %v <%v>", label, node, r.TypeOf(node))
-}
-
 // Block compiles a block statement, i.e. { ... }
 func (c *Comp) Block(block *ast.BlockStmt) {
 	if block == nil || len(block.List) == 0 {
@@ -127,10 +119,10 @@ func (c *Comp) Block(block *ast.BlockStmt) {
 	c.List(block.List)
 }
 
-// Block0 compiles a block statement, i.e. { ... }
+// List compiles a slice of statements
 func (c *Comp) List(list []ast.Stmt) {
 	if len(list) == 0 {
-		c.Errorf("Block0 invoked on empty statement list")
+		c.Errorf("List invoked on empty statement list")
 	}
 	var nbinds [2]int // # of binds in the block
 
@@ -142,19 +134,19 @@ func (c *Comp) List(list []ast.Stmt) {
 
 	c2.popEnvIfLocalBinds(locals, &nbinds, list...)
 
-	// c.Debugf("Block compiled. inner *Comp = %#v", c2)
+	// c.Debugf("List compiled. inner *Comp = %#v", c2)
 }
 
-// Branch compiles a break, continue, fallthrough, goto or return statement
+// Branch compiles a break, continue, fallthrough or goto statement
 func (c *Comp) Branch(node *ast.BranchStmt) {
 	switch node.Tok {
 	case token.BREAK:
 		c.Break(node)
 	case token.CONTINUE:
 		c.Continue(node)
+	case token.FALLTHROUGH:
+		c.misplacedFallthrough()
 	/*
-		case token.FALLTHROUGH:
-			c.FallThrough(node)
 		case token.GOTO:
 			c.Goto(node)
 	*/
@@ -600,4 +592,16 @@ func (inner *Comp) popEnvIfLocalBinds(locals bool, nbinds *[2]int, list ...ast.S
 		c.Code.Append(popEnv)
 	}
 	return c
+}
+
+func (c *Comp) misplacedCase(node ast.Node, isdefault bool) {
+	label := "case"
+	if isdefault {
+		label = "default"
+	}
+	c.Errorf("misplaced %s: not inside switch or select: %v <%v>", label, node, r.TypeOf(node))
+}
+
+func (c *Comp) misplacedFallthrough() {
+	c.Errorf("misplaced fallthrough: not inside switch")
 }

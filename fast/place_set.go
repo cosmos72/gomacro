@@ -157,7 +157,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 	lhs := place.Fun
 	var ret Stmt
 	if mapkey := place.MapKey; mapkey != nil {
-		rhs := funAsX1(fun)
+		rhs := funAsX1(fun, nil)
 		ret = func(env *Env) (Stmt, *Env) {
 
 			obj := lhs(env)
@@ -415,7 +415,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 		}
 	default:
 		{
-			rhs := funAsX1(fun)
+			rhs := funAsX1(fun, nil)
 
 			zero := r.Zero(t)
 			ret = func(env *Env) (Stmt, *Env) {

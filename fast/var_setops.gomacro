@@ -39,6 +39,60 @@ import (
 	r "reflect"
 )
 
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func makekind(typ ast.Node) ast.Node {
+	t := EvalType(typ)
+	if t == nil {
+		return nil
+	}
+	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
+	kind := ~"{r . foo}
+	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
+	return kind
+}
+
+
+:func convertvalue1(typ, val ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	if t == nil {
+		return val
+	}
+	// unwrap the result
+	tname := t.Name()
+	// remove final digits from t.Name()
+	// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+	for len(tname) != 0 {
+		ch := tname[len(tname)-1]
+		if ch < '0' || ch > '9' {
+			break
+		}
+		tname = tname[0:len(tname)-1]
+	}
+	if tname == "uintptr" {
+		tname = "uint" // use reflect.Value.Uint()
+	}
+	sel := ~"{~,val . foo} // we modify it destructively
+	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
+
+	switch t.Kind() {
+	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+		// result of reflect.Value.{tname} is already the correct type
+		val = ~"{~,sel ()}
+	default:
+		// convert int64, uint64... to the correct type
+		val = ~"{~,typ ( ~,sel () )}
+	}
+	return val
+}
+
 :func op_to_assign(op token.Token) token.Token {
 	switch op {
 	case token.ADD:
@@ -185,12 +239,14 @@ import (
 		if EvalType(typ) == nil {
 			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, t)}
 		} else {
-			caselist[i] = ~"{~typecase ~,typ: setplace_depth_const; ~,opnode; ~,typ}
+			kind := makekind(typ)
+			convertval := convertvalue1(typ, ~'{r.ValueOf(val)})
+			caselist[i] = ~"{case ~,kind: val := ~,convertval; setplace_depth_const; ~,opnode; ~,typ}
 		}
 	}
 	return ~"{
 		var ret Stmt
-		switch val := val.(type) {
+		switch t.Kind() {
 			~,@caselist
 		}
 		c.Code.Append(ret)

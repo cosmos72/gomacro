@@ -60,36 +60,64 @@ func (c *Comp) BasicLit(node *ast.BasicLit) *Expr {
 	return exprValue(UntypedLit{Kind: kind, Obj: obj})
 }
 
-func isLiteral(x interface{}) bool {
-	switch x.(type) {
-	case nil, bool, int, int8, int16, int32, int64,
-		uint, uint8, uint16, uint32, uint64, uintptr,
-		float32, float64, complex64, complex128, string,
-		UntypedLit:
-		return true
-	default:
-		return false
+func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
+	ret := r.Invalid
+	switch ckind {
+	case constant.Bool:
+		ret = r.Bool
+	case constant.Int:
+		ret = r.Int // actually ambiguous, could be a rune - thus r.Int32
+	case constant.Float:
+		ret = r.Float64
+	case constant.Complex:
+		ret = r.Complex128
+	case constant.String:
+		ret = r.String
 	}
+	return ret
+}
+
+func isLiteral(x interface{}) bool {
+	if x == nil {
+		return true
+	}
+	t := r.TypeOf(x)
+	switch KindToCategory(t.Kind()) {
+	case r.Bool, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
+		return true
+	}
+	_, ok := x.(UntypedLit)
+	return ok
 }
 
 func isLiteralNumber(x I, n int64) bool {
-	switch x := x.(type) {
-	case int, int8, int16, int32, int64:
-		return r.ValueOf(x).Int() == n
-	case uint, uint8, uint16, uint32, uint64, uintptr:
-		return n >= 0 && r.ValueOf(x).Uint() == uint64(n)
-	case float32, float64:
-		return r.ValueOf(x).Float() == float64(n)
-	case complex64, complex128:
-		return r.ValueOf(x).Complex() == complex(float64(n), 0)
-	case UntypedLit:
-		return x.IsLiteralNumber(n)
-	case string, r.Value, nil:
-		return false
-	default:
-		Errorf("isLiteralNumber: unexpected literal type %v <%v>", x, r.TypeOf(x))
+	if x == nil {
 		return false
 	}
+	v := r.ValueOf(x)
+	switch KindToCategory(v.Kind()) {
+	case r.Bool:
+		return false
+	case r.Int:
+		return v.Int() == n
+	case r.Uint:
+		return n >= 0 && v.Uint() == uint64(n)
+	case r.Float64:
+		return v.Float() == float64(n)
+	case r.Complex128:
+		return v.Complex() == complex(float64(n), 0)
+	case r.String:
+		return false
+	}
+	// no luck yet... try harder
+	switch x := x.(type) {
+	case r.Value:
+		return false
+	case UntypedLit:
+		return x.IsLiteralNumber(n)
+	}
+	Errorf("isLiteralNumber: unexpected literal type %v <%v>", x, r.TypeOf(x))
+	return false
 }
 
 func (untyp *UntypedLit) IsLiteralNumber(n int64) bool {
@@ -136,6 +164,7 @@ func (e *Expr) ConstTo(t r.Type) I {
 // actually performs type conversion (and subsequent overflow checks) ONLY on untyped constants.
 func (lit *Lit) ConstTo(t r.Type) I {
 	value := lit.Value
+	// Debugf("Lit.ConstTo(): converting constant %v <%v> (stored as <%v>) to <%v>", value, r.TypeOf(value), lit.Type, t)
 	if t == nil {
 		// only literal nil has type nil
 		if value != nil {
@@ -143,13 +172,15 @@ func (lit *Lit) ConstTo(t r.Type) I {
 		}
 		return nil
 	}
-	if t == lit.Type {
+	// stricter than t == lit.Type
+	if t == r.TypeOf(value) {
 		return value
 	}
 	switch x := value.(type) {
 	case UntypedLit:
 		lit.Type = t
 		lit.Value = x.ConstTo(t)
+		// Debugf("Lit.ConstTo(): converted untyped constant %v to %v <%v> (stored as <%v>)", x, lit.Value, r.TypeOf(lit.Value), t)
 		return lit.Value
 	case nil:
 		// literal nil can only be converted to nillable types
@@ -170,7 +201,6 @@ func (lit *Lit) ConstTo(t r.Type) I {
 func (untyp *UntypedLit) ConstTo(t r.Type) I {
 	obj := untyp.Obj
 again:
-	// Debugf("converting untyped constant %v to <%v>", untyp, t)
 	switch t.Kind() {
 	case r.Bool:
 		if obj.Kind() != constant.Bool {
@@ -287,7 +317,7 @@ func convertLiteralCheckOverflow(src interface{}, to r.Type) interface{} {
 
 	k, kto := v.Kind(), vto.Kind()
 	if k == kto {
-		return vto.Interface() // no conversion happened
+		return vto.Interface() // no numeric conversion happened
 	}
 	c, cto := KindToCategory(k), KindToCategory(kto)
 	if cto == r.Int || cto == r.Uint {

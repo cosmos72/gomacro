@@ -9,6 +9,8 @@ import (
 
 type Pair struct{ A, B int }
 
+func pair(a, b int) Pair { var p Pair; p.A = a; p.B = b; return p }
+
 type Triple struct {
 	Pair
 	C int

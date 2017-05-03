@@ -160,70 +160,70 @@ func (c *Comp) intSymbol(sym *Symbol) *Expr {
 	k := sym.Type.Kind()
 	idx := sym.Desc.Index()
 	upn := sym.Upn
-	var ret *Expr
+	var fun I
 	switch upn {
 	case 0:
 		switch k {
 		case r.Bool:
-			ret = exprBool(func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return *(*bool)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Int:
-			ret = exprInt(func(env *Env) int {
+			fun = func(env *Env) int {
 				return *(*int)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Int8:
-			ret = exprInt8(func(env *Env) int8 {
+			fun = func(env *Env) int8 {
 				return *(*int8)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Int16:
-			ret = exprInt16(func(env *Env) int16 {
+			fun = func(env *Env) int16 {
 				return *(*int16)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Int32:
-			ret = exprInt32(func(env *Env) int32 {
+			fun = func(env *Env) int32 {
 				return *(*int32)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Int64:
-			ret = exprInt64(func(env *Env) int64 {
+			fun = func(env *Env) int64 {
 				return *(*int64)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Uint:
-			ret = exprUint(func(env *Env) uint {
+			fun = func(env *Env) uint {
 				return *(*uint)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Uint8:
-			ret = exprUint8(func(env *Env) uint8 {
+			fun = func(env *Env) uint8 {
 				return *(*uint8)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Uint16:
-			ret = exprUint16(func(env *Env) uint16 {
+			fun = func(env *Env) uint16 {
 				return *(*uint16)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Uint32:
-			ret = exprUint32(func(env *Env) uint32 {
+			fun = func(env *Env) uint32 {
 				return *(*uint32)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Uint64:
-			ret = exprUint64(func(env *Env) uint64 {
+			fun = func(env *Env) uint64 {
 				return env.IntBinds[idx]
-			})
+			}
 		case r.Uintptr:
-			ret = exprUintptr(func(env *Env) uintptr {
+			fun = func(env *Env) uintptr {
 				return *(*uintptr)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Float32:
-			ret = exprFloat32(func(env *Env) float32 {
+			fun = func(env *Env) float32 {
 				return *(*float32)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Float64:
-			ret = exprFloat64(func(env *Env) float64 {
+			fun = func(env *Env) float64 {
 				return *(*float64)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		case r.Complex64:
-			ret = exprComplex64(func(env *Env) complex64 {
+			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.IntBinds[idx]))
-			})
+			}
 		default:
 			c.Errorf("unsupported symbol type, cannot use for optimized read: %s %s <%v>", sym.Desc.Class(), sym.Name, sym.Type)
 			return nil
@@ -231,65 +231,65 @@ func (c *Comp) intSymbol(sym *Symbol) *Expr {
 	case 1:
 		switch k {
 		case r.Bool:
-			ret = exprBool(func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return *(*bool)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int:
-			ret = exprInt(func(env *Env) int {
+			fun = func(env *Env) int {
 				return *(*int)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int8:
-			ret = exprInt8(func(env *Env) int8 {
+			fun = func(env *Env) int8 {
 				return *(*int8)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int16:
-			ret = exprInt16(func(env *Env) int16 {
+			fun = func(env *Env) int16 {
 				return *(*int16)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int32:
-			ret = exprInt32(func(env *Env) int32 {
+			fun = func(env *Env) int32 {
 				return *(*int32)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int64:
-			ret = exprInt64(func(env *Env) int64 {
+			fun = func(env *Env) int64 {
 				return *(*int64)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint:
-			ret = exprUint(func(env *Env) uint {
+			fun = func(env *Env) uint {
 				return *(*uint)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint8:
-			ret = exprUint8(func(env *Env) uint8 {
+			fun = func(env *Env) uint8 {
 				return *(*uint8)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint16:
-			ret = exprUint16(func(env *Env) uint16 {
+			fun = func(env *Env) uint16 {
 				return *(*uint16)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint32:
-			ret = exprUint32(func(env *Env) uint32 {
+			fun = func(env *Env) uint32 {
 				return *(*uint32)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint64:
-			ret = exprUint64(func(env *Env) uint64 {
+			fun = func(env *Env) uint64 {
 				return env.Outer.IntBinds[idx]
-			})
+			}
 		case r.Uintptr:
-			ret = exprUintptr(func(env *Env) uintptr {
+			fun = func(env *Env) uintptr {
 				return *(*uintptr)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Float32:
-			ret = exprFloat32(func(env *Env) float32 {
+			fun = func(env *Env) float32 {
 				return *(*float32)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Float64:
-			ret = exprFloat64(func(env *Env) float64 {
+			fun = func(env *Env) float64 {
 				return *(*float64)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Complex64:
-			ret = exprComplex64(func(env *Env) complex64 {
+			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.IntBinds[idx]))
-			})
+			}
 		default:
 			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 			return nil
@@ -297,65 +297,65 @@ func (c *Comp) intSymbol(sym *Symbol) *Expr {
 	case 2:
 		switch k {
 		case r.Bool:
-			ret = exprBool(func(env *Env) bool {
+			fun = func(env *Env) bool {
 				return *(*bool)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int:
-			ret = exprInt(func(env *Env) int {
+			fun = func(env *Env) int {
 				return *(*int)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int8:
-			ret = exprInt8(func(env *Env) int8 {
+			fun = func(env *Env) int8 {
 				return *(*int8)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int16:
-			ret = exprInt16(func(env *Env) int16 {
+			fun = func(env *Env) int16 {
 				return *(*int16)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int32:
-			ret = exprInt32(func(env *Env) int32 {
+			fun = func(env *Env) int32 {
 				return *(*int32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int64:
-			ret = exprInt64(func(env *Env) int64 {
+			fun = func(env *Env) int64 {
 				return *(*int64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint:
-			ret = exprUint(func(env *Env) uint {
+			fun = func(env *Env) uint {
 				return *(*uint)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint8:
-			ret = exprUint8(func(env *Env) uint8 {
+			fun = func(env *Env) uint8 {
 				return *(*uint8)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint16:
-			ret = exprUint16(func(env *Env) uint16 {
+			fun = func(env *Env) uint16 {
 				return *(*uint16)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint32:
-			ret = exprUint32(func(env *Env) uint32 {
+			fun = func(env *Env) uint32 {
 				return *(*uint32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint64:
-			ret = exprUint64(func(env *Env) uint64 {
+			fun = func(env *Env) uint64 {
 				return env.Outer.Outer.IntBinds[idx]
-			})
+			}
 		case r.Uintptr:
-			ret = exprUintptr(func(env *Env) uintptr {
+			fun = func(env *Env) uintptr {
 				return *(*uintptr)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Float32:
-			ret = exprFloat32(func(env *Env) float32 {
+			fun = func(env *Env) float32 {
 				return *(*float32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Float64:
-			ret = exprFloat64(func(env *Env) float64 {
+			fun = func(env *Env) float64 {
 				return *(*float64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Complex64:
-			ret = exprComplex64(func(env *Env) complex64 {
+			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		default:
 			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 			return nil
@@ -363,115 +363,114 @@ func (c *Comp) intSymbol(sym *Symbol) *Expr {
 	default:
 		switch k {
 		case r.Bool:
-			ret = exprBool(func(env *Env) bool {
+			fun = func(env *Env) bool {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*bool)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int:
-			ret = exprInt(func(env *Env) int {
+			fun = func(env *Env) int {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*int)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int8:
-			ret = exprInt8(func(env *Env) int8 {
+			fun = func(env *Env) int8 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*int8)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int16:
-			ret = exprInt16(func(env *Env) int16 {
+			fun = func(env *Env) int16 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*int16)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int32:
-			ret = exprInt32(func(env *Env) int32 {
+			fun = func(env *Env) int32 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*int32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Int64:
-			ret = exprInt64(func(env *Env) int64 {
+			fun = func(env *Env) int64 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*int64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint:
-			ret = exprUint(func(env *Env) uint {
+			fun = func(env *Env) uint {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*uint)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint8:
-			ret = exprUint8(func(env *Env) uint8 {
+			fun = func(env *Env) uint8 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*uint8)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint16:
-			ret = exprUint16(func(env *Env) uint16 {
+			fun = func(env *Env) uint16 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*uint16)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint32:
-			ret = exprUint32(func(env *Env) uint32 {
+			fun = func(env *Env) uint32 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*uint32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Uint64:
-			ret = exprUint64(func(env *Env) uint64 {
+			fun = func(env *Env) uint64 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return env.Outer.Outer.IntBinds[idx]
-			})
+			}
 		case r.Uintptr:
-			ret = exprUintptr(func(env *Env) uintptr {
+			fun = func(env *Env) uintptr {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*uintptr)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Float32:
-			ret = exprFloat32(func(env *Env) float32 {
+			fun = func(env *Env) float32 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*float32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Float64:
-			ret = exprFloat64(func(env *Env) float64 {
+			fun = func(env *Env) float64 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*float64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		case r.Complex64:
-			ret = exprComplex64(func(env *Env) complex64 {
+			fun = func(env *Env) complex64 {
 				for i := 3; i < upn; i++ {
 					env = env.Outer
 				}
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[idx]))
-			})
+			}
 		default:
 			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 			return nil
 		}
 	}
-	ret.Sym = sym
-	return ret
+	return &Expr{Lit: Lit{Type: sym.Type}, Fun: fun, Sym: sym}
 }

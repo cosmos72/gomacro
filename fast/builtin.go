@@ -127,6 +127,8 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclType("uint64", TypeOfUint64)
 	ce.DeclType("uintptr", TypeOfUintptr)
 
+	ce.DeclType("Duration", r.TypeOf(time.Duration(0)))
+
 	/*
 		// --------- proxies ---------
 		if env.Proxies == nil {
@@ -335,7 +337,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	} else if t0.Elem() != t1.Elem() {
 		c.Errorf("arguments to copy have different element types: <%v> and <%v>", t0.Elem(), t1.Elem())
 	}
-	outtypes := []r.Type{t0}
+	outtypes := []r.Type{TypeOfInt}
 	t := r.FuncOf([]r.Type{t0, t1}, outtypes, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: funCopy}, &sym)

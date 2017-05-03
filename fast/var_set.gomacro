@@ -88,13 +88,57 @@ import (
 	}
 }
 
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func convertconst(typ, val ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	if t == nil {
+		return val
+	}
+
+	// unwrap the result
+	tname := t.Name()
+	// remove final digits from t.Name()
+	// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+	for len(tname) != 0 {
+		ch := tname[len(tname)-1]
+		if ch < '0' || ch > '9' {
+			break
+		}
+		tname = tname[0:len(tname)-1]
+	}
+	if tname == "uintptr" {
+		tname = "uint" // use reflect.Value.Uint()
+	}
+	sel := ~"{~,val . foo} // we modify it destructively
+	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
+
+	switch t.Kind() {
+	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+		// result of reflect.Value.{tname} is already the correct type
+		val = ~"{~,sel ()}
+	default:
+		// convert int64, uint64... to the correct type
+		val = ~"{~,typ ( ~,sel () )}
+	}
+	return val
+}
+
 :macro setplace_const(depth, typ ast.Node) ast.Node {
 	ret := fsetplace(depth, typ, ~'val, ~'v)
 	if EvalType(typ) == nil {
 		return ret
 	}
+	convert := convertconst(typ, ~'v)
 	return ~"{
-		val := v.Interface().(~,typ)
+		val := ~,convert
 		~,ret
 	}
 }
@@ -103,7 +147,7 @@ import (
 	ret := fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(t)})
 	if EvalType(typ) == nil {
 		return ~"{
-			fun := funAsX1(fun)
+			fun := funAsX1(fun, nil)
 			~,ret
 		}
 	}
@@ -115,24 +159,24 @@ import (
 
 :macro setplaces_const(depth ast.Node) ast.Node {
 	return ~"{
-		switch t {
-		case TypeOfBool:       setplace_const; ~,depth; bool;
-		case TypeOfInt:        setplace_const; ~,depth; int;
-		case TypeOfInt8:       setplace_const; ~,depth; int8;
-		case TypeOfInt16:      setplace_const; ~,depth; int16;
-		case TypeOfInt32:      setplace_const; ~,depth; int32;
-		case TypeOfInt64:      setplace_const; ~,depth; int64;
-		case TypeOfUint:       setplace_const; ~,depth; uint;
-		case TypeOfUint8:      setplace_const; ~,depth; uint8;
-		case TypeOfUint16:     setplace_const; ~,depth; uint16;
-		case TypeOfUint32:     setplace_const; ~,depth; uint32;
-		case TypeOfUint64:     setplace_const; ~,depth; uint64;
-		case TypeOfUintptr:    setplace_const; ~,depth; uintptr;
-		case TypeOfFloat32:    setplace_const; ~,depth; float32;
-		case TypeOfFloat64:    setplace_const; ~,depth; float64;
-		case TypeOfComplex64:  setplace_const; ~,depth; complex64;
-		case TypeOfComplex128: setplace_const; ~,depth; complex128;
-		case TypeOfString:     setplace_const; ~,depth; string;
+		switch t.Kind() {
+		case r.Bool:       setplace_const; ~,depth; bool;
+		case r.Int:        setplace_const; ~,depth; int;
+		case r.Int8:       setplace_const; ~,depth; int8;
+		case r.Int16:      setplace_const; ~,depth; int16;
+		case r.Int32:      setplace_const; ~,depth; int32;
+		case r.Int64:      setplace_const; ~,depth; int64;
+		case r.Uint:       setplace_const; ~,depth; uint;
+		case r.Uint8:      setplace_const; ~,depth; uint8;
+		case r.Uint16:     setplace_const; ~,depth; uint16;
+		case r.Uint32:     setplace_const; ~,depth; uint32;
+		case r.Uint64:     setplace_const; ~,depth; uint64;
+		case r.Uintptr:    setplace_const; ~,depth; uintptr;
+		case r.Float32:    setplace_const; ~,depth; float32;
+		case r.Float64:    setplace_const; ~,depth; float64;
+		case r.Complex64:  setplace_const; ~,depth; complex64;
+		case r.Complex128: setplace_const; ~,depth; complex128;
+		case r.String:     setplace_const; ~,depth; string;
 		default:               setplace_const; ~,depth; nil;
 		}
 	}
@@ -140,24 +184,24 @@ import (
 
 :macro setplaces_expr(depth ast.Node) ast.Node {
 	return ~"{
-		switch t {
-		case TypeOfBool:       setplace_expr; ~,depth; bool;
-		case TypeOfInt:        setplace_expr; ~,depth; int;
-		case TypeOfInt8:       setplace_expr; ~,depth; int8;
-		case TypeOfInt16:      setplace_expr; ~,depth; int16;
-		case TypeOfInt32:      setplace_expr; ~,depth; int32;
-		case TypeOfInt64:      setplace_expr; ~,depth; int64;
-		case TypeOfUint:       setplace_expr; ~,depth; uint;
-		case TypeOfUint8:      setplace_expr; ~,depth; uint8;
-		case TypeOfUint16:     setplace_expr; ~,depth; uint16;
-		case TypeOfUint32:     setplace_expr; ~,depth; uint32;
-		case TypeOfUint64:     setplace_expr; ~,depth; uint64;
-		case TypeOfUintptr:    setplace_expr; ~,depth; uintptr;
-		case TypeOfFloat32:    setplace_expr; ~,depth; float32;
-		case TypeOfFloat64:    setplace_expr; ~,depth; float64;
-		case TypeOfComplex64:  setplace_expr; ~,depth; complex64;
-		case TypeOfComplex128: setplace_expr; ~,depth; complex128;
-		case TypeOfString:     setplace_expr; ~,depth; string;
+		switch t.Kind() {
+		case r.Bool:       setplace_expr; ~,depth; bool;
+		case r.Int:        setplace_expr; ~,depth; int;
+		case r.Int8:       setplace_expr; ~,depth; int8;
+		case r.Int16:      setplace_expr; ~,depth; int16;
+		case r.Int32:      setplace_expr; ~,depth; int32;
+		case r.Int64:      setplace_expr; ~,depth; int64;
+		case r.Uint:       setplace_expr; ~,depth; uint;
+		case r.Uint8:      setplace_expr; ~,depth; uint8;
+		case r.Uint16:     setplace_expr; ~,depth; uint16;
+		case r.Uint32:     setplace_expr; ~,depth; uint32;
+		case r.Uint64:     setplace_expr; ~,depth; uint64;
+		case r.Uintptr:    setplace_expr; ~,depth; uintptr;
+		case r.Float32:    setplace_expr; ~,depth; float32;
+		case r.Float64:    setplace_expr; ~,depth; float64;
+		case r.Complex64:  setplace_expr; ~,depth; complex64;
+		case r.Complex128: setplace_expr; ~,depth; complex128;
+		case r.String:     setplace_expr; ~,depth; string;
 		default:               setplace_expr; ~,depth; nil;
 		}
 	}

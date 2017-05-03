@@ -86,7 +86,7 @@ import (
 	var decl, bind ast.Node
 
 	if t == nil {
-		decl = ~'{rhs := funAsX1(fun)}
+		decl = ~'{rhs := funAsX1(fun, nil)}
 		bind = ~'{
 			// force left-to-right evaluation order
 			place := lhs(env)
@@ -247,7 +247,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 	lhs := place.Fun
 	var ret Stmt
 	if mapkey := place.MapKey; mapkey != nil {
-		rhs := funAsX1(fun)
+		rhs := funAsX1(fun, nil)
 		ret = func(env *Env) (Stmt, *Env) {
 			// enforce left-to-right evaluation order
 			obj := lhs(env)

@@ -36,7 +36,7 @@ func litValue(value I) Lit {
 }
 
 func exprUntypedLit(kind r.Kind, value constant.Value) *Expr {
-	return &Expr{Lit: Lit{Type: r.TypeOf(value), Value: UntypedLit{Kind: kind, Obj: value}}}
+	return &Expr{Lit: Lit{Type: typeOfUntypedLit, Value: UntypedLit{Kind: kind, Obj: value}}}
 }
 
 func exprValue(value I) *Expr {
@@ -138,19 +138,9 @@ func (expr *Expr) EvalConst(opts CompileOptions) I {
 	if expr.Const() {
 		return expr.Value
 	}
-	ret, rets := funAsXV(expr.Fun, opts)(nil)
+	ret := expr.AsX1()(nil)
 	if ret == None {
 		Errorf("constant should evaluate to a single value, found no values at all")
-		return nil
-	}
-	if len(rets) > 1 {
-		Errorf("constant should evaluate to a single value, found %d values: %v", len(rets), rets)
-		return nil
-	}
-	t1 := expr.Type
-	t2 := ValueType(ret)
-	if t1 != t2 {
-		Errorf("constant should evaluate to <%v>, found: %v <%v>", t1, t2, ret)
 		return nil
 	}
 	var value I

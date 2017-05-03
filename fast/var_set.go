@@ -51,11 +51,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
 	case 0:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
-				val := v.Interface().(bool)
+				val := v.Bool()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*bool)(unsafe.Pointer(&env.
@@ -65,9 +65,10 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
+
 			{
-				val := v.Interface().(int)
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int)(unsafe.Pointer(&env.
@@ -77,9 +78,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 			{
-				val := v.Interface().(int8)
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.
@@ -89,9 +90,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 			{
-				val := v.Interface().(int16)
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int16)(unsafe.Pointer(&env.
@@ -101,9 +102,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
-				val := v.Interface().(int32)
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int32)(unsafe.Pointer(&env.
@@ -113,9 +114,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
-				val := v.Interface().(int64)
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.
@@ -125,9 +126,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
-				val := v.Interface().(uint)
+				val :=
+
+					uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint)(unsafe.Pointer(&env.
@@ -137,10 +140,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-
-		case TypeOfUint8:
+		case r.Uint8:
 			{
-				val := v.Interface().(uint8)
+				val :=
+
+					uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.
@@ -151,9 +155,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint16:
+		case r.Uint16:
 			{
-				val := v.Interface().(uint16)
+				val :=
+
+					uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint16)(unsafe.Pointer(&env.
@@ -164,9 +170,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint32:
+		case r.Uint32:
 			{
-				val := v.Interface().(uint32)
+				val :=
+
+					uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.
@@ -177,9 +185,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
-				val := v.Interface().(uint64)
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -190,9 +198,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
-				val := v.Interface().(uintptr)
+				val :=
+
+					uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.
@@ -203,9 +213,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
-				val := v.Interface().(float32)
+				val :=
+
+					float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float32)(unsafe.Pointer(&env.
@@ -216,9 +228,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
-				val := v.Interface().(float64)
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float64)(unsafe.Pointer(&env.
@@ -229,9 +241,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
-				val := v.Interface().(complex64)
+				val :=
+
+					complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.
@@ -242,9 +256,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
-				val := v.Interface().(complex128)
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -256,9 +270,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
-				val := v.Interface().(string)
+				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -282,11 +296,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 			}
 		}
 	case 1:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
-				val := v.Interface().(bool)
+				val := v.Bool()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*bool)(unsafe.Pointer(&env.
@@ -297,9 +311,10 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
+
 			{
-				val := v.Interface().(int)
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int)(unsafe.Pointer(&env.
@@ -310,9 +325,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 			{
-				val := v.Interface().(int8)
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.
@@ -323,9 +338,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 			{
-				val := v.Interface().(int16)
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int16)(unsafe.Pointer(&env.
@@ -336,9 +351,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
-				val := v.Interface().(int32)
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int32)(unsafe.Pointer(&env.
@@ -349,9 +364,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
-				val := v.Interface().(int64)
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.
@@ -362,9 +377,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
-				val := v.Interface().(uint)
+				val :=
+
+					uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint)(unsafe.Pointer(&env.
@@ -375,10 +392,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-
-		case TypeOfUint8:
+		case r.Uint8:
 			{
-				val := v.Interface().(uint8)
+				val :=
+
+					uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.
@@ -390,9 +408,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint16:
+		case r.Uint16:
 			{
-				val := v.Interface().(uint16)
+				val :=
+
+					uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint16)(unsafe.Pointer(&env.
@@ -404,9 +424,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint32:
+		case r.Uint32:
 			{
-				val := v.Interface().(uint32)
+				val :=
+
+					uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.
@@ -418,9 +440,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
-				val := v.Interface().(uint64)
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -432,9 +454,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
-				val := v.Interface().(uintptr)
+				val :=
+
+					uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.
@@ -446,9 +470,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
-				val := v.Interface().(float32)
+				val :=
+
+					float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float32)(unsafe.Pointer(&env.
@@ -460,9 +486,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
-				val := v.Interface().(float64)
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float64)(unsafe.Pointer(&env.
@@ -474,9 +500,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
-				val := v.Interface().(complex64)
+				val :=
+
+					complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.
@@ -488,9 +516,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
-				val := v.Interface().(complex128)
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -503,9 +531,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
-				val := v.Interface().(string)
+				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -531,11 +559,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 			}
 		}
 	case 2:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
-				val := v.Interface().(bool)
+				val := v.Bool()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*bool)(unsafe.Pointer(&env.
@@ -546,9 +574,10 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
+
 			{
-				val := v.Interface().(int)
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int)(unsafe.Pointer(&env.
@@ -559,9 +588,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 			{
-				val := v.Interface().(int8)
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.
@@ -572,9 +601,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 			{
-				val := v.Interface().(int16)
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int16)(unsafe.Pointer(&env.
@@ -585,9 +614,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
-				val := v.Interface().(int32)
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int32)(unsafe.Pointer(&env.
@@ -598,9 +627,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
-				val := v.Interface().(int64)
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.
@@ -611,9 +640,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
-				val := v.Interface().(uint)
+				val :=
+
+					uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint)(unsafe.Pointer(&env.
@@ -624,10 +655,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-
-		case TypeOfUint8:
+		case r.Uint8:
 			{
-				val := v.Interface().(uint8)
+				val :=
+
+					uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.
@@ -639,9 +671,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint16:
+		case r.Uint16:
 			{
-				val := v.Interface().(uint16)
+				val :=
+
+					uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint16)(unsafe.Pointer(&env.
@@ -653,9 +687,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint32:
+		case r.Uint32:
 			{
-				val := v.Interface().(uint32)
+				val :=
+
+					uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.
@@ -667,9 +703,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
-				val := v.Interface().(uint64)
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -681,9 +717,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
-				val := v.Interface().(uintptr)
+				val :=
+
+					uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.
@@ -695,9 +733,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
-				val := v.Interface().(float32)
+				val :=
+
+					float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float32)(unsafe.Pointer(&env.
@@ -709,9 +749,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
-				val := v.Interface().(float64)
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float64)(unsafe.Pointer(&env.
@@ -723,9 +763,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
-				val := v.Interface().(complex64)
+				val :=
+
+					complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.
@@ -737,9 +779,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
-				val := v.Interface().(complex128)
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -752,9 +794,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
-				val := v.Interface().(string)
+				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -780,11 +822,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 			}
 		}
 	default:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
-				val := v.Interface().(bool)
+				val := v.Bool()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -799,9 +841,10 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
+
 			{
-				val := v.Interface().(int)
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -816,9 +859,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 			{
-				val := v.Interface().(int8)
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -833,9 +876,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 			{
-				val := v.Interface().(int16)
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -850,9 +893,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
-				val := v.Interface().(int32)
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -867,9 +910,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
-				val := v.Interface().(int64)
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -884,9 +927,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
-				val := v.Interface().(uint)
+				val :=
+
+					uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -901,10 +946,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-
-		case TypeOfUint8:
+		case r.Uint8:
 			{
-				val := v.Interface().(uint8)
+				val :=
+
+					uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -920,9 +966,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint16:
+		case r.Uint16:
 			{
-				val := v.Interface().(uint16)
+				val :=
+
+					uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -938,9 +986,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint32:
+		case r.Uint32:
 			{
-				val := v.Interface().(uint32)
+				val :=
+
+					uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -956,9 +1006,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
-				val := v.Interface().(uint64)
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -974,9 +1024,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
-				val := v.Interface().(uintptr)
+				val :=
+
+					uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -992,9 +1044,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
-				val := v.Interface().(float32)
+				val :=
+
+					float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -1010,9 +1064,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
-				val := v.Interface().(float64)
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -1028,9 +1082,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
-				val := v.Interface().(complex64)
+				val :=
+
+					complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -1046,9 +1102,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
-				val := v.Interface().(complex128)
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -1065,9 +1121,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
-				val := v.Interface().(string)
+				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -1101,11 +1157,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 			}
 		}
 	case c.Depth - 1:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
-				val := v.Interface().(bool)
+				val := v.Bool()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*bool)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1115,9 +1171,10 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
+
 			{
-				val := v.Interface().(int)
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1127,9 +1184,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 			{
-				val := v.Interface().(int8)
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1139,9 +1196,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 			{
-				val := v.Interface().(int16)
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1151,9 +1208,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
-				val := v.Interface().(int32)
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1163,9 +1220,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
-				val := v.Interface().(int64)
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1175,9 +1232,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
-				val := v.Interface().(uint)
+				val :=
+
+					uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1187,10 +1246,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 					return env.Code[env.IP], env
 				}
 			}
-
-		case TypeOfUint8:
+		case r.Uint8:
 			{
-				val := v.Interface().(uint8)
+				val :=
+
+					uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1201,9 +1261,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint16:
+		case r.Uint16:
 			{
-				val := v.Interface().(uint16)
+				val :=
+
+					uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1214,9 +1276,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint32:
+		case r.Uint32:
 			{
-				val := v.Interface().(uint32)
+				val :=
+
+					uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1227,9 +1291,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
-				val := v.Interface().(uint64)
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.ThreadGlobals.FileEnv.
@@ -1240,9 +1304,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
-				val := v.Interface().(uintptr)
+				val :=
+
+					uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1253,9 +1319,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
-				val := v.Interface().(float32)
+				val :=
+
+					float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1266,9 +1334,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
-				val := v.Interface().(float64)
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*float64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1279,9 +1347,11 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
-				val := v.Interface().(complex64)
+				val :=
+
+					complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					*(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.
@@ -1292,9 +1362,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
-				val := v.Interface().(complex128)
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.ThreadGlobals.FileEnv.
@@ -1306,9 +1376,9 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
-				val := v.Interface().(string)
+				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.ThreadGlobals.FileEnv.
@@ -1338,8 +1408,8 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
 	case 0:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -1352,7 +1422,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -1365,7 +1435,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -1378,7 +1448,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -1391,7 +1461,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
 				fun := fun.(func(*Env) int32)
 
@@ -1403,7 +1473,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
 				fun := fun.(func(*Env) int64)
 
@@ -1415,7 +1485,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
 				fun := fun.(func(*Env) uint)
 
@@ -1427,7 +1497,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 			{
 				fun := fun.(func(*Env) uint8)
 
@@ -1439,7 +1509,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 			{
 				fun := fun.(func(*Env) uint16)
 
@@ -1451,7 +1521,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 			{
 				fun := fun.(func(*Env) uint32)
 
@@ -1464,7 +1534,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -1477,7 +1547,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -1490,7 +1560,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -1503,7 +1573,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -1516,7 +1586,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -1529,7 +1599,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -1543,7 +1613,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
 				fun := fun.(func(*Env) string)
 
@@ -1559,7 +1629,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun)
+				fun := funAsX1(fun, nil)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -1573,8 +1643,8 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		}
 	case 1:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -1588,7 +1658,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -1602,7 +1672,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -1616,7 +1686,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -1630,7 +1700,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
 				fun := fun.(func(*Env) int32)
 
@@ -1643,7 +1713,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
 				fun := fun.(func(*Env) int64)
 
@@ -1656,7 +1726,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
 				fun := fun.(func(*Env) uint)
 
@@ -1669,7 +1739,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 			{
 				fun := fun.(func(*Env) uint8)
 
@@ -1682,7 +1752,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 			{
 				fun := fun.(func(*Env) uint16)
 
@@ -1695,7 +1765,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 			{
 				fun := fun.(func(*Env) uint32)
 
@@ -1709,7 +1779,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -1723,7 +1793,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -1737,7 +1807,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -1751,7 +1821,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -1765,7 +1835,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -1779,7 +1849,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -1794,7 +1864,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
 				fun := fun.(func(*Env) string)
 
@@ -1811,7 +1881,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun)
+				fun := funAsX1(fun, nil)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -1826,8 +1896,8 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		}
 	case 2:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -1841,7 +1911,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -1855,7 +1925,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -1869,7 +1939,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -1883,7 +1953,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
 				fun := fun.(func(*Env) int32)
 
@@ -1896,7 +1966,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
 				fun := fun.(func(*Env) int64)
 
@@ -1909,7 +1979,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
 				fun := fun.(func(*Env) uint)
 
@@ -1922,7 +1992,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 			{
 				fun := fun.(func(*Env) uint8)
 
@@ -1935,7 +2005,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 			{
 				fun := fun.(func(*Env) uint16)
 
@@ -1948,7 +2018,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 			{
 				fun := fun.(func(*Env) uint32)
 
@@ -1962,7 +2032,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -1976,7 +2046,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -1990,7 +2060,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -2004,7 +2074,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -2018,7 +2088,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -2032,7 +2102,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -2047,7 +2117,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
 				fun := fun.(func(*Env) string)
 
@@ -2064,7 +2134,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun)
+				fun := funAsX1(fun, nil)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -2079,8 +2149,8 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		}
 	default:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -2098,7 +2168,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -2116,7 +2186,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -2134,7 +2204,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -2152,7 +2222,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
 				fun := fun.(func(*Env) int32)
 
@@ -2169,7 +2239,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
 				fun := fun.(func(*Env) int64)
 
@@ -2186,7 +2256,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
 				fun := fun.(func(*Env) uint)
 
@@ -2203,7 +2273,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 			{
 				fun := fun.(func(*Env) uint8)
 
@@ -2220,7 +2290,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 			{
 				fun := fun.(func(*Env) uint16)
 
@@ -2237,7 +2307,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 			{
 				fun := fun.(func(*Env) uint32)
 
@@ -2255,7 +2325,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -2273,7 +2343,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -2291,7 +2361,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -2309,7 +2379,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -2327,7 +2397,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -2345,7 +2415,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -2364,7 +2434,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
 				fun := fun.(func(*Env) string)
 
@@ -2385,7 +2455,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun)
+				fun := funAsX1(fun, nil)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -2404,8 +2474,8 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		}
 	case c.Depth - 1:
-		switch t {
-		case TypeOfBool:
+		switch t.Kind() {
+		case r.Bool:
 
 			{
 				fun := fun.(func(*Env) bool)
@@ -2418,7 +2488,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			{
 				fun := fun.(func(*Env) int)
@@ -2431,7 +2501,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			{
 				fun := fun.(func(*Env) int8)
@@ -2444,7 +2514,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			{
 				fun := fun.(func(*Env) int16)
@@ -2457,7 +2527,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case r.Int32:
 			{
 				fun := fun.(func(*Env) int32)
 
@@ -2469,7 +2539,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case r.Int64:
 			{
 				fun := fun.(func(*Env) int64)
 
@@ -2481,7 +2551,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case r.Uint:
 			{
 				fun := fun.(func(*Env) uint)
 
@@ -2493,7 +2563,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 			{
 				fun := fun.(func(*Env) uint8)
 
@@ -2505,7 +2575,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 			{
 				fun := fun.(func(*Env) uint16)
 
@@ -2517,7 +2587,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 			{
 				fun := fun.(func(*Env) uint32)
 
@@ -2530,7 +2600,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUint64:
+		case r.Uint64:
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -2543,7 +2613,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfUintptr:
+		case r.Uintptr:
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -2556,7 +2626,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat32:
+		case r.Float32:
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -2569,7 +2639,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfFloat64:
+		case r.Float64:
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -2582,7 +2652,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex64:
+		case r.Complex64:
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -2595,7 +2665,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfComplex128:
+		case r.Complex128:
 			{
 				fun := fun.(func(*Env) complex128)
 
@@ -2609,7 +2679,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				}
 			}
 
-		case TypeOfString:
+		case r.String:
 			{
 				fun := fun.(func(*Env) string)
 
@@ -2625,7 +2695,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun)
+				fun := funAsX1(fun, nil)
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.ThreadGlobals.FileEnv.

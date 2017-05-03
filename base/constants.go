@@ -87,6 +87,27 @@ var (
 	TypeOfSliceOfByte      = r.TypeOf([]byte{})
 	TypeOfSliceOfInterface = r.TypeOf([]interface{}{})
 
+	TypeOfPtrInt   = r.TypeOf((*int)(nil))
+	TypeOfPtrInt8  = r.TypeOf((*int8)(nil))
+	TypeOfPtrInt16 = r.TypeOf((*int16)(nil))
+	TypeOfPtrInt32 = r.TypeOf((*int32)(nil))
+	TypeOfPtrInt64 = r.TypeOf((*int64)(nil))
+
+	TypeOfPtrUint    = r.TypeOf((*uint)(nil))
+	TypeOfPtrUint8   = r.TypeOf((*uint8)(nil))
+	TypeOfPtrUint16  = r.TypeOf((*uint16)(nil))
+	TypeOfPtrUint32  = r.TypeOf((*uint32)(nil))
+	TypeOfPtrUint64  = r.TypeOf((*uint64)(nil))
+	TypeOfPtrUintptr = r.TypeOf((*uintptr)(nil))
+
+	TypeOfPtrFloat32    = r.TypeOf((*float32)(nil))
+	TypeOfPtrFloat64    = r.TypeOf((*float64)(nil))
+	TypeOfPtrComplex64  = r.TypeOf((*complex64)(nil))
+	TypeOfPtrComplex128 = r.TypeOf((*complex128)(nil))
+
+	TypeOfPtrBool   = r.TypeOf((*bool)(nil))
+	TypeOfPtrString = r.TypeOf((*string)(nil))
+
 	ZeroStrings = []string{}
 	ZeroTypes   = []r.Type{}
 	ZeroValues  = []r.Value{}

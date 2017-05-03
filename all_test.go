@@ -60,7 +60,7 @@ func TestFastInterp(t *testing.T) {
 	for _, test := range tests {
 		if test.testfor&F != 0 {
 			c := test
-			t.Run(c.name, func(t *testing.T) { c.compile(t, comp, env) })
+			t.Run(c.name, func(t *testing.T) { c.fast(t, comp, env) })
 		}
 	}
 }
@@ -71,23 +71,21 @@ func TestInterpreter(t *testing.T) {
 	for _, test := range tests {
 		if test.testfor&I != 0 {
 			c := test
-			t.Run(c.name, func(t *testing.T) { c.interpret(t, env) })
+			t.Run(c.name, func(t *testing.T) { c.classic(t, env) })
 		}
 	}
 }
 
-func (tc *TestCase) compile(t *testing.T, ce *fast.CompEnv, env *classic.Env) {
-	// parse + macroexpansion phase
-	form := env.ParseAst(tc.program)
+func (tc *TestCase) fast(t *testing.T, ce *fast.CompEnv, env *classic.Env) {
+	// parse + macroexpansion + compile phases
+	f := ce.Compile(tc.program)
 
-	// compile phase
-	f := ce.Comp.CompileAst(form)
 	rets := PackValues(ce.Run(f))
 
 	tc.compareResults(t, rets)
 }
 
-func (c *TestCase) interpret(t *testing.T, env *classic.Env) {
+func (c *TestCase) classic(t *testing.T, env *classic.Env) {
 	// parse + macroexpansion phase
 	form := env.ParseAst(c.program)
 	// eval phase
