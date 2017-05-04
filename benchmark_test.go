@@ -415,7 +415,6 @@ func BenchmarkSumFastInterpreter(b *testing.B) {
 	ce := fast.New()
 	ce.Eval("var i, total uint")
 	ce.DeclConst("n", nil, uint(sum_n))
-	ce.Apply()
 
 	fun := ce.Compile("total = 0; for i = 1; i <= n; i++ { total += i }; total")
 	env := ce.PrepareEnv()
@@ -436,7 +435,6 @@ func BenchmarkSumFastInterpreterBis(b *testing.B) {
 	ce := fast.New()
 	ce.Eval("var i, total uint")
 	ce.DeclConst("n", nil, uint(sum_n))
-	ce.Apply()
 
 	fun := ce.Compile("for i = 1; i <= n; i++ { total += i }")
 	env := ce.PrepareEnv()

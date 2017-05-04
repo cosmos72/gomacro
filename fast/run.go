@@ -81,6 +81,7 @@ func (ce *CompEnv) DeclConst(name string, t r.Type, value I) {
 // DeclFunc compiles a function declaration
 func (ce *CompEnv) DeclFunc(name string, fun I) {
 	ce.Comp.DeclFunc0(name, fun)
+	ce.apply()
 }
 
 // DeclBuiltin compiles a builtin function declaration
@@ -96,11 +97,13 @@ func (ce *CompEnv) DeclBuiltin4(name string, compile func(c *Comp, sym Symbol, n
 // DeclEnvFunc compiles a function declaration that accesses interpreter's *CompEnv
 func (ce *CompEnv) DeclEnvFunc(name string, function Function) {
 	ce.Comp.DeclEnvFunc0(name, function)
+	ce.apply()
 }
 
 // DeclEnvFunc3 compiles a function declaration that accesses interpreter's *CompEnv
 func (ce *CompEnv) DeclEnvFunc3(name string, fun I, t r.Type) {
 	ce.Comp.DeclEnvFunc0(name, Function{Fun: fun, Type: t})
+	ce.apply()
 }
 
 // DeclType compiles a type declaration
@@ -111,11 +114,12 @@ func (ce *CompEnv) DeclType(name string, t r.Type) {
 // DeclVar compiles a variable declaration
 func (ce *CompEnv) DeclVar(name string, t r.Type, value I) {
 	ce.Comp.DeclVar0(name, t, exprValue(value))
+	ce.apply()
 }
 
-// Apply executes the compiled declarations, statements and expressions,
+// apply executes the compiled declarations, statements and expressions,
 // then clears the compiled buffer
-func (ce *CompEnv) Apply() {
+func (ce *CompEnv) apply() {
 	exec := ce.Comp.Code.Exec()
 	if exec != nil {
 		exec(ce.PrepareEnv())

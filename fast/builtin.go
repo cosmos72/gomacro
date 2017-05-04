@@ -138,8 +138,6 @@ func (ce *CompEnv) addBuiltins() {
 
 		proxies["error", TypeOf(*Error_builtin)(nil)).Elem()
 	*/
-
-	ce.Apply()
 }
 
 // ============================= builtin functions =============================
