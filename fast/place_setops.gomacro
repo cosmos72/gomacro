@@ -119,20 +119,36 @@ import (
 	opset := op_to_assign(op)
 
 	switch t.Kind() {
-		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+		case r.Int, r.Int8, r.Int16, r.Int32:
 			result = ~"{lhs.Int() + int64(~,expr)}
 			result.Op = op
 			bind = ~"{lhs.SetInt(~,result)}
-		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+		case r.Int64:
+			result = ~"{lhs.Int() + ~,expr}
+			result.Op = op
+			bind = ~"{lhs.SetInt(~,result)}
+		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uintptr:
 			result = ~"{lhs.Uint() + uint64(~,expr)}
 			result.Op = op
 			bind = ~"{lhs.SetUint(~,result)}
-		case r.Float32, r.Float64:
+		case r.Uint64:
+			result = ~"{lhs.Uint() + ~,expr}
+			result.Op = op
+			bind = ~"{lhs.SetUint(~,result)}
+		case r.Float32:
 			result = ~"{lhs.Float() + float64(~,expr)}
 			result.Op = op
 			bind = ~"{lhs.SetFloat(~,result)}
-		case r.Complex64, r.Complex128:
+		case r.Float64:
+			result = ~"{lhs.Float() + ~,expr}
+			result.Op = op
+			bind = ~"{lhs.SetFloat(~,result)}
+		case r.Complex64:
 			result = ~"{lhs.Complex() + complex128(~,expr)}
+			result.Op = op
+			bind = ~"{lhs.SetComplex(~,result)}
+		case r.Complex128:
+			result = ~"{lhs.Complex() + ~,expr}
 			result.Op = op
 			bind = ~"{lhs.SetComplex(~,result)}
 		case r.String:
@@ -157,30 +173,33 @@ import (
 	// the return type of Eval() and EvalType() varies. better check early.
 	var t r.Type = EvalType(typ)
 	var curr *ast.BlockStmt
-	var result *ast.AssignStmt
+	var result *ast.AssignStmt = ~"{result += ~,expr}
 	var op token.Token = Eval(opnode)
 	opset := op_to_assign(op)
+	result.Tok = opset
 
 	switch t.Kind() {
-		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+		case r.Int, r.Int8, r.Int16, r.Int32:
 			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = ~,typ(v.Int()) }}
-			result = ~"{result += ~,expr}
-		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+		case r.Int64:
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = v.Int() }}
+		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uintptr:
 			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = ~,typ(v.Uint()) }}
-			result = ~"{result += ~,expr}
-		case r.Float32, r.Float64:
+		case r.Uint64:
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = v.Uint() }}
+		case r.Float32:
 			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = ~,typ(v.Float()) }}
-			result = ~"{result += ~,expr}
-		case r.Complex64, r.Complex128:
+		case r.Float64:
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = v.Float() }}
+		case r.Complex64:
 			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = ~,typ(v.Complex()) }}
-			result = ~"{result += ~,expr}
+		case r.Complex128:
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = v.Complex() }}
 		case r.String:
-			curr = ~"{var result string; if v := lhs.MapIndex(key); v != Nil { result = v.String() }}
-			result = ~"{result += ~,expr}
+			curr = ~"{var result ~,typ; if v := lhs.MapIndex(key); v != Nil { result = v.String() }}
 		default:
 			panic("unimplemented: <" + t.String() + "> " + opset.String() + " expression" )
 	}
-	result.Tok = opset
 
 	return ~"{
 		ret = func(env *Env) (Stmt, *Env) {
@@ -242,7 +261,7 @@ import (
 			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, place.Type)}
 		} else {
 			kind := makekind(typ)
-			unwrap := makeunwrapvalue(~'{r.ValueOf(val)}, typ)
+			unwrap := makeunwrapvalue(~'v, typ)
 			caselist[i] = ~"{case ~,kind:
 				val := ~,unwrap ()
 				setplace_const; ~,opnode; ~,typ
@@ -256,7 +275,10 @@ import (
 		if EvalType(typ) == nil {
 			mapcaselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, place.Type)}
 		} else {
-			mapcaselist[i] = ~"{~typecase ~,typ:
+			kind := makekind(typ)
+			unwrap := makeunwrapvalue(~'v, typ)
+			mapcaselist[i] = ~"{case ~,kind:
+				val := ~,typ( ~,unwrap () )
 				setmap_const; ~,opnode; ~,typ
 			}
 		}
@@ -265,13 +287,14 @@ import (
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 				~,@caselist
 			}
 		} else {
-			switch val := val.(type) {
+			switch place.Type.Kind() {
 				~,@mapcaselist
 			}
 		}

@@ -46,11 +46,12 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -62,7 +63,7 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -74,31 +75,31 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Float64:
-				val := r.ValueOf(val).Float()
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetFloat(lhs.Float() + float64(val,
-					),
+					lhs.SetFloat(lhs.Float() +
+						val,
 					)
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			case r.Complex128:
-				val := r.ValueOf(val).Complex()
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetComplex(lhs.Complex() + complex128(val,
-					),
+					lhs.SetComplex(lhs.Complex() +
+						val,
 					)
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			case r.String:
-				val := r.ValueOf(val).String()
+				val := v.String()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -114,8 +115,9 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -131,7 +133,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -147,7 +150,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -163,7 +167,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -179,7 +184,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -187,7 +193,7 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result += val
 
@@ -195,7 +201,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -211,7 +218,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -227,7 +235,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -243,7 +252,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -259,7 +269,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -267,7 +278,7 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result += val
 
@@ -275,7 +286,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -291,7 +303,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case float32:
+			case r.Float32:
+				val := float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -307,7 +320,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case float64:
+			case r.Float64:
+				val := float64(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -315,7 +329,7 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					var result float64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = float64(v.Float())
+						result = v.Float()
 					}
 					result += val
 
@@ -323,7 +337,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case complex64:
+			case r.Complex64:
+				val := complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -339,7 +354,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case complex128:
+			case r.Complex128:
+				val := complex128(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -347,7 +363,7 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					var result complex128
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = complex128(v.Complex())
+						result = v.Complex()
 					}
 					result += val
 
@@ -355,12 +371,14 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case string:
+			case r.String:
+				val := string(v.String())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
 					key := keyfun(env)
 					var result string
+
 					if v := lhs.MapIndex(key); v != Nil {
 						result = v.String()
 					}
@@ -433,8 +451,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() +
+					fun(env),
 				)
 
 				env.IP++
@@ -488,8 +506,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() +
+					fun(env),
 				)
 
 				env.IP++
@@ -521,8 +539,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() + float64(fun(env),
-				),
+				lhs.SetFloat(lhs.Float() +
+					fun(env),
 				)
 
 				env.IP++
@@ -543,8 +561,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() + complex128(fun(env),
-				),
+				lhs.SetComplex(lhs.Complex() +
+					fun(env),
 				)
 
 				env.IP++
@@ -639,7 +657,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result += fun(env)
 
@@ -719,7 +737,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result += fun(env)
 
@@ -767,7 +785,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 				var result float64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = float64(v.Float())
+					result = v.Float()
 				}
 				result += fun(env)
 
@@ -799,7 +817,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 				var result complex128
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = complex128(v.Complex())
+					result = v.Complex()
 				}
 				result += fun(env)
 
@@ -813,6 +831,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 				lhs := lhsfun(env)
 				key := keyfun(env)
 				var result string
+
 				if v := lhs.MapIndex(key); v != Nil {
 					result = v.String()
 				}
@@ -840,11 +859,12 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -856,7 +876,7 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -868,24 +888,24 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Float64:
-				val := r.ValueOf(val).Float()
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetFloat(lhs.Float() - float64(val,
-					),
+					lhs.SetFloat(lhs.Float() -
+						val,
 					)
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			case r.Complex128:
-				val := r.ValueOf(val).Complex()
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetComplex(lhs.Complex() - complex128(val,
-					),
+					lhs.SetComplex(lhs.Complex() -
+						val,
 					)
 
 					env.IP++
@@ -896,8 +916,9 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -913,7 +934,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -929,7 +951,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -945,7 +968,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -961,7 +985,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -969,7 +994,7 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result -= val
 
@@ -977,7 +1002,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -993,7 +1019,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1009,7 +1036,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1025,7 +1053,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1041,7 +1070,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1049,7 +1079,7 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result -= val
 
@@ -1057,7 +1087,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1073,7 +1104,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case float32:
+			case r.Float32:
+				val := float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1089,7 +1121,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case float64:
+			case r.Float64:
+				val := float64(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1097,7 +1130,7 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					var result float64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = float64(v.Float())
+						result = v.Float()
 					}
 					result -= val
 
@@ -1105,7 +1138,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case complex64:
+			case r.Complex64:
+				val := complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1121,7 +1155,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case complex128:
+			case r.Complex128:
+				val := complex128(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1129,7 +1164,7 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 					var result complex128
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = complex128(v.Complex())
+						result = v.Complex()
 					}
 					result -= val
 
@@ -1200,8 +1235,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() -
+					fun(env),
 				)
 
 				env.IP++
@@ -1255,8 +1290,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() -
+					fun(env),
 				)
 
 				env.IP++
@@ -1288,8 +1323,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() - float64(fun(env),
-				),
+				lhs.SetFloat(lhs.Float() -
+					fun(env),
 				)
 
 				env.IP++
@@ -1310,8 +1345,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() - complex128(fun(env),
-				),
+				lhs.SetComplex(lhs.Complex() -
+					fun(env),
 				)
 
 				env.IP++
@@ -1395,7 +1430,7 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result -= fun(env)
 
@@ -1475,7 +1510,7 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result -= fun(env)
 
@@ -1523,7 +1558,7 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 				var result float64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = float64(v.Float())
+					result = v.Float()
 				}
 				result -= fun(env)
 
@@ -1555,7 +1590,7 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 				var result complex128
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = complex128(v.Complex())
+					result = v.Complex()
 				}
 				result -= fun(env)
 
@@ -1585,11 +1620,12 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1601,7 +1637,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1613,24 +1649,24 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Float64:
-				val := r.ValueOf(val).Float()
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetFloat(lhs.Float() * float64(val,
-					),
+					lhs.SetFloat(lhs.Float() *
+						val,
 					)
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			case r.Complex128:
-				val := r.ValueOf(val).Complex()
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetComplex(lhs.Complex() * complex128(val,
-					),
+					lhs.SetComplex(lhs.Complex() *
+						val,
 					)
 
 					env.IP++
@@ -1641,8 +1677,9 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1658,7 +1695,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1674,7 +1712,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1690,7 +1729,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1706,7 +1746,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1714,7 +1755,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result *= val
 
@@ -1722,7 +1763,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1738,7 +1780,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1754,7 +1797,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1770,7 +1814,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1786,7 +1831,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1794,7 +1840,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result *= val
 
@@ -1802,7 +1848,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1818,7 +1865,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case float32:
+			case r.Float32:
+				val := float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1834,7 +1882,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case float64:
+			case r.Float64:
+				val := float64(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1842,7 +1891,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					var result float64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = float64(v.Float())
+						result = v.Float()
 					}
 					result *= val
 
@@ -1850,7 +1899,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case complex64:
+			case r.Complex64:
+				val := complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1866,7 +1916,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case complex128:
+			case r.Complex128:
+				val := complex128(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -1874,7 +1925,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 					var result complex128
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = complex128(v.Complex())
+						result = v.Complex()
 					}
 					result *= val
 
@@ -1945,8 +1996,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() *
+					fun(env),
 				)
 
 				env.IP++
@@ -2000,8 +2051,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() *
+					fun(env),
 				)
 
 				env.IP++
@@ -2033,8 +2084,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() * float64(fun(env),
-				),
+				lhs.SetFloat(lhs.Float() *
+					fun(env),
 				)
 
 				env.IP++
@@ -2055,8 +2106,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() * complex128(fun(env),
-				),
+				lhs.SetComplex(lhs.Complex() *
+					fun(env),
 				)
 
 				env.IP++
@@ -2140,7 +2191,7 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result *= fun(env)
 
@@ -2220,7 +2271,7 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result *= fun(env)
 
@@ -2268,7 +2319,7 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 				var result float64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = float64(v.Float())
+					result = v.Float()
 				}
 				result *= fun(env)
 
@@ -2300,7 +2351,7 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 				var result complex128
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = complex128(v.Complex())
+					result = v.Complex()
 				}
 				result *= fun(env)
 
@@ -2329,11 +2380,12 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2345,7 +2397,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2357,24 +2409,24 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Float64:
-				val := r.ValueOf(val).Float()
+				val := v.Float()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetFloat(lhs.Float() / float64(val,
-					),
+					lhs.SetFloat(lhs.Float() /
+						val,
 					)
 
 					env.IP++
 					return env.Code[env.IP], env
 				}
 			case r.Complex128:
-				val := r.ValueOf(val).Complex()
+				val := v.Complex()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetComplex(lhs.Complex() / complex128(val,
-					),
+					lhs.SetComplex(lhs.Complex() /
+						val,
 					)
 
 					env.IP++
@@ -2385,8 +2437,9 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2402,7 +2455,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2418,7 +2472,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2434,7 +2489,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2450,7 +2506,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2458,7 +2515,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result /= val
 
@@ -2466,7 +2523,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2482,7 +2540,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2498,7 +2557,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2514,7 +2574,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2530,7 +2591,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2538,7 +2600,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result /= val
 
@@ -2546,7 +2608,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2562,7 +2625,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case float32:
+			case r.Float32:
+				val := float32(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2578,7 +2642,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case float64:
+			case r.Float64:
+				val := float64(v.Float())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2586,7 +2651,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					var result float64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = float64(v.Float())
+						result = v.Float()
 					}
 					result /= val
 
@@ -2594,7 +2659,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case complex64:
+			case r.Complex64:
+				val := complex64(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2610,7 +2676,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case complex128:
+			case r.Complex128:
+				val := complex128(v.Complex())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -2618,7 +2685,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 					var result complex128
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = complex128(v.Complex())
+						result = v.Complex()
 					}
 					result /= val
 
@@ -2689,8 +2756,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() /
+					fun(env),
 				)
 
 				env.IP++
@@ -2744,8 +2811,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() /
+					fun(env),
 				)
 
 				env.IP++
@@ -2777,8 +2844,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() / float64(fun(env),
-				),
+				lhs.SetFloat(lhs.Float() /
+					fun(env),
 				)
 
 				env.IP++
@@ -2799,8 +2866,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() / complex128(fun(env),
-				),
+				lhs.SetComplex(lhs.Complex() /
+					fun(env),
 				)
 
 				env.IP++
@@ -2884,7 +2951,7 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result /= fun(env)
 
@@ -2964,7 +3031,7 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result /= fun(env)
 
@@ -3012,7 +3079,7 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 				var result float64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = float64(v.Float())
+					result = v.Float()
 				}
 				result /= fun(env)
 
@@ -3044,7 +3111,7 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 				var result complex128
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = complex128(v.Complex())
+					result = v.Complex()
 				}
 				result /= fun(env)
 
@@ -3076,11 +3143,12 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3092,7 +3160,7 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3108,8 +3176,9 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3125,7 +3194,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3141,7 +3211,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3157,7 +3228,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3173,7 +3245,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3181,7 +3254,7 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result %= val
 
@@ -3189,7 +3262,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3205,7 +3279,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3221,7 +3296,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3237,7 +3313,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3253,7 +3330,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3261,7 +3339,7 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result %= val
 
@@ -3269,7 +3347,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3348,8 +3427,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() %
+					fun(env),
 				)
 
 				env.IP++
@@ -3403,8 +3482,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() %
+					fun(env),
 				)
 
 				env.IP++
@@ -3499,7 +3578,7 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result %= fun(env)
 
@@ -3579,7 +3658,7 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result %= fun(env)
 
@@ -3627,11 +3706,12 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3643,7 +3723,7 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3659,8 +3739,9 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3676,7 +3757,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3692,7 +3774,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3708,7 +3791,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3724,7 +3808,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3732,7 +3817,7 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result &= val
 
@@ -3740,7 +3825,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3756,7 +3842,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3772,7 +3859,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3788,7 +3876,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3804,7 +3893,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3812,7 +3902,7 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result &= val
 
@@ -3820,7 +3910,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -3899,8 +3990,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() &
+					fun(env),
 				)
 
 				env.IP++
@@ -3954,8 +4045,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() &
+					fun(env),
 				)
 
 				env.IP++
@@ -4050,7 +4141,7 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result &= fun(env)
 
@@ -4130,7 +4221,7 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result &= fun(env)
 
@@ -4172,11 +4263,12 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4188,7 +4280,7 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4204,8 +4296,9 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4221,7 +4314,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4237,7 +4331,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4253,7 +4348,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4269,7 +4365,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4277,7 +4374,7 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result |= val
 
@@ -4285,7 +4382,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4301,7 +4399,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4317,7 +4416,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4333,7 +4433,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4349,7 +4450,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4357,7 +4459,7 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result |= val
 
@@ -4365,7 +4467,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4444,8 +4547,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() |
+					fun(env),
 				)
 
 				env.IP++
@@ -4499,8 +4602,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() |
+					fun(env),
 				)
 
 				env.IP++
@@ -4595,7 +4698,7 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result |= fun(env)
 
@@ -4675,7 +4778,7 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result |= fun(env)
 
@@ -4717,11 +4820,12 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4733,7 +4837,7 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4749,8 +4853,9 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4766,7 +4871,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4782,7 +4888,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4798,7 +4905,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4814,7 +4922,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4822,7 +4931,7 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result ^= val
 
@@ -4830,7 +4939,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4846,7 +4956,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4862,7 +4973,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4878,7 +4990,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4894,7 +5007,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4902,7 +5016,7 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result ^= val
 
@@ -4910,7 +5024,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -4989,8 +5104,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() ^
+					fun(env),
 				)
 
 				env.IP++
@@ -5044,8 +5159,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() ^
+					fun(env),
 				)
 
 				env.IP++
@@ -5140,7 +5255,7 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result ^= fun(env)
 
@@ -5220,7 +5335,7 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result ^= fun(env)
 
@@ -5268,11 +5383,12 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 		var ret Stmt
 		lhsfun := place.Fun
 		keyfun := place.MapKey
+		v := r.ValueOf(val)
 
 		if keyfun == nil {
 			switch KindToCategory(place.Type.Kind()) {
 			case r.Int:
-				val := r.ValueOf(val).Int()
+				val := v.Int()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5284,7 +5400,7 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					return env.Code[env.IP], env
 				}
 			case r.Uint:
-				val := r.ValueOf(val).Uint()
+				val := v.Uint()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5300,8 +5416,9 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 
 			}
 		} else {
-			switch val := val.(type) {
-			case int:
+			switch place.Type.Kind() {
+			case r.Int:
+				val := int(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5317,7 +5434,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int8:
+			case r.Int8:
+				val := int8(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5333,7 +5451,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int16:
+			case r.Int16:
+				val := int16(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5349,7 +5468,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int32:
+			case r.Int32:
+				val := int32(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5365,7 +5485,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case int64:
+			case r.Int64:
+				val := int64(v.Int())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5373,7 +5494,7 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					var result int64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = int64(v.Int())
+						result = v.Int()
 					}
 					result &^= val
 
@@ -5381,7 +5502,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint:
+			case r.Uint:
+				val := uint(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5397,7 +5519,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint8:
+			case r.Uint8:
+				val := uint8(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5413,7 +5536,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint16:
+			case r.Uint16:
+				val := uint16(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5429,7 +5553,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint32:
+			case r.Uint32:
+				val := uint32(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5445,7 +5570,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uint64:
+			case r.Uint64:
+				val := uint64(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5453,7 +5579,7 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					var result uint64
 
 					if v := lhs.MapIndex(key); v != Nil {
-						result = uint64(v.Uint())
+						result = v.Uint()
 					}
 					result &^= val
 
@@ -5461,7 +5587,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 					env.IP++
 					return env.Code[env.IP], env
 				}
-			case uintptr:
+			case r.Uintptr:
+				val := uintptr(v.Uint())
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
@@ -5540,8 +5667,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(fun(env),
-				),
+				lhs.SetInt(lhs.Int() &^
+					fun(env),
 				)
 
 				env.IP++
@@ -5595,8 +5722,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
-				),
+				lhs.SetUint(lhs.Uint() &^
+					fun(env),
 				)
 
 				env.IP++
@@ -5691,7 +5818,7 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 				var result int64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = int64(v.Int())
+					result = v.Int()
 				}
 				result &^= fun(env)
 
@@ -5771,7 +5898,7 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 				var result uint64
 
 				if v := lhs.MapIndex(key); v != Nil {
-					result = uint64(v.Uint())
+					result = v.Uint()
 				}
 				result &^= fun(env)
 

@@ -3,5 +3,16 @@
 
 package main
 
+import (
+	"fmt"
+	r "reflect"
+	"time"
+)
+
 func main() {
+	var d int64 = 1
+	v := r.ValueOf(&d)
+	fmt.Printf("%v <%v>\n", v, v.Type())
+	v = v.Convert(r.TypeOf((*time.Duration)(nil)))
+	fmt.Printf("%v <%v>\n", v, v.Type())
 }
