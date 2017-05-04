@@ -64,6 +64,33 @@ func IsOptimizedKind(k r.Kind) bool {
 	return false
 }
 
+var kindToType = [...]r.Type{
+	r.Bool:       TypeOfBool,
+	r.Int:        TypeOfInt,
+	r.Int8:       TypeOfInt8,
+	r.Int16:      TypeOfInt16,
+	r.Int32:      TypeOfInt32,
+	r.Int64:      TypeOfInt64,
+	r.Uint:       TypeOfUint,
+	r.Uint8:      TypeOfUint8,
+	r.Uint16:     TypeOfUint16,
+	r.Uint32:     TypeOfUint32,
+	r.Uint64:     TypeOfUint64,
+	r.Uintptr:    TypeOfUintptr,
+	r.Float32:    TypeOfFloat32,
+	r.Float64:    TypeOfFloat64,
+	r.Complex64:  TypeOfComplex64,
+	r.Complex128: TypeOfComplex128,
+	r.String:     TypeOfString,
+}
+
+func KindToType(k r.Kind) r.Type {
+	if int(k) < len(kindToType) {
+		return kindToType[k]
+	}
+	return nil
+}
+
 // ConvertValue converts a value to type t and returns the converted value.
 // extends reflect.Value.Convert(t) by allowing conversions from/to complex numbers.
 // does not check for overflows or truncation.

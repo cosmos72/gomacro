@@ -392,84 +392,101 @@ again:
 	if t != r.TypeOf(value) {
 		Errorf("internal error: constant %v <%v> was assumed to have type <%v>", value, r.TypeOf(value), e.Type)
 	}
-	switch x := value.(type) {
-	case nil:
+	v := r.ValueOf(value)
+	switch v.Kind() {
+	case r.Invalid:
 		fun = x1Nil
-	case bool:
-		if x {
+	case r.Bool:
+		if v.Bool() {
 			fun = iTrue
 		} else {
 			fun = iFalse
 		}
-	case int:
+	case r.Int:
+		x := int(v.Int())
 		fun = func(env *Env) int {
 			return x
 		}
-	case int8:
+	case r.Int8:
+		x := int8(v.Int())
 		fun = func(env *Env) int8 {
 			return x
 		}
-	case int16:
+	case r.Int16:
+		x := int16(v.Int())
 		fun = func(env *Env) int16 {
 			return x
 		}
-	case int32:
+	case r.Int32:
+		x := int32(v.Int())
 		fun = func(env *Env) int32 {
 			return x
 		}
-	case int64:
+	case r.Int64:
+		x := v.Int()
 		fun = func(env *Env) int64 {
 			return x
 		}
-	case uint:
+	case r.Uint:
+		x := uint(v.Uint())
 		fun = func(env *Env) uint {
 			return x
 		}
-	case uint8:
+	case r.Uint8:
+		x := uint8(v.Uint())
 		fun = func(env *Env) uint8 {
 			return x
 		}
-	case uint16:
+	case r.Uint16:
+		x := uint16(v.Uint())
 		fun = func(env *Env) uint16 {
 			return x
 		}
-	case uint32:
+	case r.Uint32:
+		x := uint32(v.Uint())
 		fun = func(env *Env) uint32 {
 			return x
 		}
-	case uint64:
+	case r.Uint64:
+		x := v.Uint()
 		fun = func(env *Env) uint64 {
 			return x
 		}
-	case uintptr:
+	case r.Uintptr:
+		x := uintptr(v.Uint())
 		fun = func(env *Env) uintptr {
 			return x
 		}
-	case float32:
+	case r.Float32:
+		x := float32(v.Float())
 		fun = func(env *Env) float32 {
 			return x
 		}
-	case float64:
+	case r.Float64:
+		x := v.Float()
 		fun = func(env *Env) float64 {
 			return x
 		}
-	case complex64:
+	case r.Complex64:
+		x := complex64(v.Complex())
 		fun = func(env *Env) complex64 {
 			return x
 		}
-	case complex128:
+	case r.Complex128:
+		x := v.Complex()
 		fun = func(env *Env) complex128 {
 			return x
 		}
-	case string:
+	case r.String:
+		x := v.String()
 		fun = func(env *Env) string {
 			return x
 		}
-	case UntypedLit:
-		e.ConstTo(x.DefaultType())
-		goto again
 	default:
-		v := r.ValueOf(x)
+		if t == typeOfUntypedLit {
+			e.ConstTo(e.DefaultType())
+			goto again
+		}
 		fun = func(env *Env) r.Value {
 			return v
 		}

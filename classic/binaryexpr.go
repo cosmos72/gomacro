@@ -112,6 +112,7 @@ func (env *Env) evalBinaryExprIntInt(xv r.Value, op token.Token, yv r.Value) r.V
 	x := xv.Int()
 	y := yv.Int()
 	var ret int64
+	var t r.Type
 	switch op {
 	case token.ADD, token.ADD_ASSIGN:
 		ret = x + y
@@ -132,14 +133,19 @@ func (env *Env) evalBinaryExprIntInt(xv r.Value, op token.Token, yv r.Value) r.V
 	case token.SHL, token.SHL_ASSIGN:
 		// in Go, x << y and x >> y require y to be unsigned
 		ret = x << uint64(y)
+		t = xv.Type()
 	case token.SHR, token.SHR_ASSIGN:
 		ret = x >> uint64(y)
+		t = xv.Type()
 	case token.AND_NOT, token.AND_NOT_ASSIGN:
 		ret = x &^ y
 	default:
 		goto PART2
 	}
-	return env.valueToType(r.ValueOf(ret), xv.Type())
+	if t == nil {
+		t = binaryResultType(xv.Type(), yv.Type())
+	}
+	return env.valueToType(r.ValueOf(ret), t)
 
 PART2:
 	var b bool
@@ -166,6 +172,7 @@ func (env *Env) evalBinaryExprUintUint(xv r.Value, op token.Token, yv r.Value) r
 	x := xv.Uint()
 	y := yv.Uint()
 	var ret uint64
+	var t r.Type
 
 	switch op {
 	case token.ADD, token.ADD_ASSIGN:
@@ -186,14 +193,19 @@ func (env *Env) evalBinaryExprUintUint(xv r.Value, op token.Token, yv r.Value) r
 		ret = x ^ y
 	case token.SHL, token.SHL_ASSIGN:
 		ret = x << y
+		t = xv.Type()
 	case token.SHR, token.SHR_ASSIGN:
 		ret = x >> y
+		t = xv.Type()
 	case token.AND_NOT, token.AND_NOT_ASSIGN:
 		ret = x &^ y
 	default:
 		goto PART2
 	}
-	return env.valueToType(r.ValueOf(ret), xv.Type())
+	if t == nil {
+		t = binaryResultType(xv.Type(), yv.Type())
+	}
+	return env.valueToType(r.ValueOf(ret), t)
 
 PART2:
 	var b bool
@@ -214,6 +226,40 @@ PART2:
 		return env.unsupportedBinaryExpr(xv, op, yv)
 	}
 	return r.ValueOf(b)
+}
+
+func binaryResultType(xt, yt r.Type) r.Type {
+	if xt == yt {
+		return xt
+	}
+	// int and uint are used to approximate untyped constants,
+	// avoid them if possible
+	if xt == TypeOfInt || xt == TypeOfUint {
+		return yt
+	}
+	if yt == TypeOfInt || yt == TypeOfUint {
+		return xt
+	}
+	// prefer larger types
+	xs, ys := xt.Size(), yt.Size()
+	if xs > ys {
+		return xt
+	} else if xs < ys {
+		return yt
+	}
+	// prefer named types
+	xk, yk := xt.Kind(), yt.Kind()
+	if KindToType(xk) == xt {
+		return yt
+	} else if KindToType(yk) == yt {
+		return xt
+	}
+	// prefer types appearing later in reflect.Kind list
+	if xk >= yk {
+		return xt
+	} else {
+		return yt
+	}
 }
 
 func (env *Env) evalBinaryExprFloat(xv r.Value, op token.Token, yv r.Value) r.Value {
