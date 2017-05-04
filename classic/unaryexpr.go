@@ -84,20 +84,27 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	}
 
 	xv, _ := env.Eval(node.X)
-	if xv == Nil || xv == None {
-		return env.unsupportedUnaryExpr(xv, op)
+
+	if op == token.ADD {
+		switch xv.Kind() {
+		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
+			r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
+			r.Float32, r.Float64, r.Complex64, r.Complex128:
+			return xv, nil
+		default:
+			return env.unsupportedUnaryExpr(xv, op)
+		}
 	}
 	var ret interface{}
 
-	switch x := xv.Interface().(type) {
-	case bool:
+	switch xv.Kind() {
+	case r.Bool:
 		if op == token.NOT {
-			ret = !x
+			ret = !xv.Bool()
 		}
-	case int:
+	case r.Int:
+		x := int(xv.Int())
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 			if x == -x && x != 0 {
@@ -106,10 +113,9 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.XOR:
 			ret = ^x
 		}
-	case int8:
+	case r.Int8:
+		x := int8(xv.Int())
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 			if x == -x && x != 0 {
@@ -118,10 +124,9 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.XOR:
 			ret = ^x
 		}
-	case int16:
+	case r.Int16:
+		x := int16(xv.Int())
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 			if x == -x && x != 0 {
@@ -130,10 +135,9 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.XOR:
 			ret = ^x
 		}
-	case int32:
+	case r.Int32:
+		x := int32(xv.Int())
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 			if x == -x && x != 0 {
@@ -142,10 +146,9 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.XOR:
 			ret = ^x
 		}
-	case int64:
+	case r.Int64:
+		x := xv.Int()
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 			if x == -x && x != 0 {
@@ -154,34 +157,9 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.XOR:
 			ret = ^x
 		}
-	case uint:
+	case r.Uint:
+		x := uint(xv.Uint())
 		switch op {
-		case token.ADD:
-			ret = x
-		case token.SUB:
-			ret = -x
-			if x == -x && x != 0 {
-				env.warnUnderflowUnsignedMinus(x, ret)
-			}
-		case token.XOR:
-			ret = ^x
-		}
-	case uint8:
-		switch op {
-		case token.ADD:
-			ret = x
-		case token.SUB:
-			ret = -x
-			if x == -x && x != 0 {
-				env.warnUnderflowUnsignedMinus(x, ret)
-			}
-		case token.XOR:
-			ret = ^x
-		}
-	case uint16:
-		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 			if x != 0 {
@@ -190,10 +168,9 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.XOR:
 			ret = ^x
 		}
-	case uint32:
+	case r.Uint8:
+		x := uint8(xv.Uint())
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 			if x != 0 {
@@ -202,10 +179,9 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.XOR:
 			ret = ^x
 		}
-	case uint64:
+	case r.Uint16:
+		x := uint16(xv.Uint())
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 			if x != 0 {
@@ -214,46 +190,66 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 		case token.XOR:
 			ret = ^x
 		}
-	case uintptr:
+	case r.Uint32:
+		x := uint32(xv.Uint())
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
-			env.warnUnderflowUnsignedMinus(x, ret)
+			if x != 0 {
+				env.warnUnderflowUnsignedMinus(x, ret)
+			}
 		case token.XOR:
 			ret = ^x
 		}
-	case float32:
+	case r.Uint64:
+		x := xv.Uint()
 		switch op {
-		case token.ADD:
-			ret = x
+		case token.SUB:
+			ret = -x
+			if x != 0 {
+				env.warnUnderflowUnsignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case r.Uintptr:
+		x := uintptr(xv.Uint())
+		switch op {
+		case token.SUB:
+			ret = -x
+			if x != 0 {
+				env.warnUnderflowUnsignedMinus(x, ret)
+			}
+		case token.XOR:
+			ret = ^x
+		}
+	case r.Float32:
+		x := float32(xv.Float())
+		switch op {
 		case token.SUB:
 			ret = -x
 		}
-	case float64:
+	case r.Float64:
+		x := xv.Float()
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 		}
-	case complex64:
+	case r.Complex64:
+		x := complex64(xv.Complex())
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 		}
-	case complex128:
+	case r.Complex128:
+		x := xv.Complex()
 		switch op {
-		case token.ADD:
-			ret = x
 		case token.SUB:
 			ret = -x
 		}
-	default:
-		if op == token.ARROW && xv.Kind() == r.Chan {
+	case r.Chan:
+		switch op {
+		case token.ARROW:
 			ret, ok := xv.Recv()
 			return ret, []r.Value{ret, r.ValueOf(ok)}
 		}
@@ -261,5 +257,10 @@ func (env *Env) evalUnaryExpr(node *ast.UnaryExpr) (r.Value, []r.Value) {
 	if ret == nil {
 		return env.unsupportedUnaryExpr(xv, op)
 	}
-	return r.ValueOf(ret), nil
+	retv := r.ValueOf(ret)
+	xt := xv.Type()
+	if retv.Type() != xt {
+		retv = retv.Convert(xt)
+	}
+	return retv, nil
 }

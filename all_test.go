@@ -336,8 +336,9 @@ var tests = []TestCase{
 	TestCase{A, "builtin_complex_2", "v6 = 0.1; complex(v6,-v6)", complex(float32(0.1), -float32(0.1)), nil},
 
 	TestCase{I, "import", `import "time"`, "time", nil},
-	TestCase{I, "time_duration_1", `var td time.Duration = 1; td`, time.Duration(1), nil},
-	TestCase{F, "time_duration_1", `var td Duration = 1; td`, time.Duration(1), nil},
+	TestCase{I, "time_duration_0", `var td time.Duration = 1; td`, time.Duration(1), nil},
+	TestCase{F, "time_duration_0", `var td Duration = 1; td`, time.Duration(1), nil},
+	TestCase{A, "time_duration_1", `- td`, time.Duration(-1), nil},
 	TestCase{A, "time_duration_2", `td + 1`, time.Duration(2), nil},
 	TestCase{A, "time_duration_3", `4 - td`, time.Duration(3), nil},
 	TestCase{A, "time_duration_4", `td * 4`, time.Duration(4), nil},
