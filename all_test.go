@@ -173,15 +173,30 @@ var tests = []TestCase{
 	TestCase{A, "var_shift_overflow", "v3 << 13", uint16(32768), nil},
 
 	// test division by constant power-of-two
-	TestCase{I, "var_div_1", "v3 = 11; v3 / 2", uint64(5), nil}, // classic interpreter is not accurate here
-	TestCase{I, "var_div_2", "v3 = 63; v3 / 8", uint64(7), nil},
-	TestCase{F, "var_div_1", "v3 = 11; v3 / 2", uint16(5), nil},
-	TestCase{F, "var_div_2", "v3 = 63; v3 / 8", uint16(7), nil},
+	TestCase{I, "var_div_1", "v3 = 11; v3 / 2", uint64(11) / 2, nil}, // classic interpreter is not type-accurate here
+	TestCase{I, "var_div_2", "v3 = 63; v3 / 8", uint64(63) / 8, nil},
+	TestCase{F, "var_div_1", "v3 = 11; v3 / 2", uint16(11) / 2, nil},
+	TestCase{F, "var_div_2", "v3 = 63; v3 / 8", uint16(63) / 8, nil},
 
-	TestCase{A, "var_div_3", "v0 =-11; v0 / 2", -5, nil},
-	TestCase{A, "var_div_4", "v0 =-11; v0 /-2", +5, nil},
-	TestCase{A, "var_div_5", "v0 =-63; v0 / 8", -7, nil},
-	TestCase{A, "var_div_6", "v0 =-63; v0 /-8", +7, nil},
+	TestCase{A, "var_div_3", "v0 =+11; v0 /-2", +11 / -2, nil},
+	TestCase{A, "var_div_4", "v0 =-11; v0 /+2", -11 / +2, nil},
+	TestCase{A, "var_div_5", "v0 =-11; v0 /-2", -11 / -2, nil},
+	TestCase{A, "var_div_6", "v0 =+63; v0 /-8", +63 / -8, nil},
+	TestCase{A, "var_div_7", "v0 =-63; v0 /+8", -63 / +8, nil},
+	TestCase{A, "var_div_8", "v0 =-63; v0 /-8", -63 / -8, nil},
+
+	// test remainder by constant power-of-two
+	TestCase{I, "var_rem_1", "v3 = 17; v3 % 4", uint64(17) % 4, nil}, // classic interpreter is not type-accurate here
+	TestCase{I, "var_rem_2", "v3 = 61; v3 % 8", uint64(61) % 8, nil},
+	TestCase{F, "var_rem_1", "v3 = 17; v3 % 4", uint16(17) % 4, nil},
+	TestCase{F, "var_rem_2", "v3 = 61; v3 % 8", uint16(61) % 8, nil},
+
+	TestCase{A, "var_rem_3", "v0 =+17; v0 %-4", +17 % -4, nil},
+	TestCase{A, "var_rem_4", "v0 =-17; v0 %+4", -17 % +4, nil},
+	TestCase{A, "var_rem_5", "v0 =-17; v0 %-4", -17 % -4, nil},
+	TestCase{A, "var_rem_6", "v0 =+61; v0 %-8", +61 % -8, nil},
+	TestCase{A, "var_rem_7", "v0 =-61; v0 %+8", -61 % +8, nil},
+	TestCase{A, "var_rem_8", "v0 =-61; v0 %-8", -61 % -8, nil},
 
 	TestCase{A, "eql_nil_1", "err == nil", true, nil},
 	TestCase{A, "eql_nil_2", "vp == nil", true, nil},

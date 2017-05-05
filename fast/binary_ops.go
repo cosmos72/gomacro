@@ -2271,6 +2271,8 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			c.Errorf("division by zero")
 			return nil
+		} else if ze := c.optimizeRem(node, xe, ye); ze != nil {
+			return ze
 		}
 
 		switch k {
@@ -2760,6 +2762,201 @@ func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			x := x.(func(*Env) uintptr)
 			fun = func(env *Env) uintptr {
 				return x(env) >> shift
+			}
+
+		}
+
+	default:
+		return nil
+	}
+	return exprFun(xe.Type, fun)
+}
+func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+
+	if xe.Const() || !ye.Const() {
+		return nil
+	}
+
+	if isLiteralNumber(ye.Value, 0) {
+		c.Errorf("division by zero")
+		return nil
+	}
+	yv := r.ValueOf(ye.Value)
+	var y uint64
+	switch KindToCategory(yv.Kind()) {
+	case r.Int:
+		sy := yv.Int()
+		if sy < 0 {
+			y = uint64(-sy)
+		} else {
+			y = uint64(sy)
+		}
+
+	case r.Uint:
+		y = yv.Uint()
+	default:
+		return nil
+	}
+	if !isPowerOfTwo(y) {
+		return nil
+	}
+
+	x := xe.Fun
+	var fun I
+	switch xe.Type.Kind() {
+	case r.Int:
+		{
+			x := x.(func(*Env) int)
+			y_1 :=
+
+				int(y - 1)
+			fun = func(env *Env) int {
+				n := x(env)
+				neg := n < 0
+				n &= y_1
+				if neg && n != 0 {
+					n -= y_1 + 1
+				}
+				return n
+			}
+		}
+
+	case r.Int8:
+		{
+			x := x.(func(*Env) int8)
+			y_1 :=
+
+				int8(y - 1)
+			fun = func(env *Env) int8 {
+				n := x(env)
+				neg := n < 0
+				n &= y_1
+				if neg && n != 0 {
+					n -= y_1 + 1
+				}
+				return n
+			}
+		}
+
+	case r.Int16:
+		{
+			x := x.(func(*Env) int16)
+			y_1 :=
+
+				int16(y - 1)
+			fun = func(env *Env) int16 {
+				n := x(env)
+				neg := n < 0
+				n &= y_1
+				if neg && n != 0 {
+					n -= y_1 + 1
+				}
+				return n
+			}
+		}
+
+	case r.Int32:
+		{
+			x := x.(func(*Env) int32)
+			y_1 :=
+
+				int32(y - 1)
+			fun = func(env *Env) int32 {
+				n := x(env)
+				neg := n < 0
+				n &= y_1
+				if neg && n != 0 {
+					n -= y_1 + 1
+				}
+				return n
+			}
+		}
+
+	case r.Int64:
+		{
+			x := x.(func(*Env) int64)
+			y_1 :=
+
+				int64(y - 1)
+			fun = func(env *Env) int64 {
+				n := x(env)
+				neg := n < 0
+				n &= y_1
+				if neg && n != 0 {
+					n -= y_1 + 1
+				}
+				return n
+			}
+		}
+
+	case r.Uint:
+		{
+			x := x.(func(*Env) uint)
+			y_1 :=
+
+				uint(y - 1)
+			fun = func(env *Env) uint {
+				return x(env) & y_1
+			}
+
+		}
+
+	case r.Uint8:
+		{
+			x := x.(func(*Env) uint8)
+			y_1 :=
+
+				uint8(y - 1)
+			fun = func(env *Env) uint8 {
+				return x(env) & y_1
+			}
+
+		}
+
+	case r.Uint16:
+		{
+			x := x.(func(*Env) uint16)
+			y_1 :=
+
+				uint16(y - 1)
+			fun = func(env *Env) uint16 {
+				return x(env) & y_1
+			}
+
+		}
+
+	case r.Uint32:
+		{
+			x := x.(func(*Env) uint32)
+			y_1 :=
+
+				uint32(y - 1)
+			fun = func(env *Env) uint32 {
+				return x(env) & y_1
+			}
+
+		}
+
+	case r.Uint64:
+		{
+			x := x.(func(*Env) uint64)
+			y_1 :=
+
+				uint64(y - 1)
+			fun = func(env *Env) uint64 {
+				return x(env) & y_1
+			}
+
+		}
+
+	case r.Uintptr:
+		{
+			x := x.(func(*Env) uintptr)
+			y_1 :=
+
+				uintptr(y - 1)
+			fun = func(env *Env) uintptr {
+				return x(env) & y_1
 			}
 
 		}

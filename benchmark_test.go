@@ -266,6 +266,28 @@ func BenchmarkArithFastInterpreterBis(b *testing.B) {
 	}
 }
 
+func BenchmarkArithFastInterpreterConst(b *testing.B) {
+	ce := fast.New()
+	ce.Eval("var i, total int")
+	// "cheat" a bit and declare n as a constant. checks if constant propagation works :)
+	ce.DeclConst("n", nil, int(b.N))
+	total := ce.AddressOfVar("total").Interface().(*int)
+
+	// interpreted code performs iteration and arithmetic
+	fun := ce.Compile("for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }")
+	env := ce.PrepareEnv()
+	fun(env)
+
+	b.ResetTimer()
+
+	*total = 0
+	fun(env)
+
+	if verbose {
+		println(*total)
+	}
+}
+
 func BenchmarkArithFastInterpreterCompileLoop(b *testing.B) {
 	ce := fast.New()
 	ce.Eval("var i, n, total int")

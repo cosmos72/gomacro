@@ -303,6 +303,8 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			c.Errorf("division by zero")
 			return nil
+		} else if ze := c.optimizeRem(node, xe, ye); ze != nil {
+			return ze
 		}
 		{binaryops; token.REM; false; true; { int; uint }}
 	} else {
@@ -385,7 +387,7 @@ func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		// division by multiplication and shift not implemented...
 		return nil
 	}
-	// attention: / and >> have different truncation rules for negative xe:
+	// attention: xe / (2**n) and xe >> n have different truncation rules for negative xe:
 	//    quotient / truncates toward zero
 	//    right shift >> truncates toward negative infinity
 	// examples:
@@ -419,6 +421,101 @@ func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	case r.Uint32:  {quopow2_u; uint32}
 	case r.Uint64:  {quopow2_u; uint64}
 	case r.Uintptr: {quopow2_u; uintptr}
+	default:        return nil
+	}
+	return exprFun(xe.Type, fun)
+}
+
+:macro rempow2(typ ast.Node) ast.Node {
+	return ~"{
+		x := x.(func(*Env) ~,typ)
+		y_1 := ~,typ(y - 1) // cannot overflow, y was originally a ~,typ
+		fun = func(env *Env) ~,typ {
+			n := x(env)
+			neg := n < 0
+			n &= y_1
+			if neg && n != 0 {
+				n -= (y_1 + 1)
+			}
+			return n
+		}
+	}
+}
+
+:macro rempow2_u(typ ast.Node) ast.Node {
+	return ~"{
+		x := x.(func(*Env) ~,typ)
+		y_1 := ~,typ(y - 1) // cannot overflow, y was originally a ~,typ
+		fun = func(env *Env) ~,typ {
+			return x(env) & y_1
+		}
+	}
+}
+
+// optimizeRem tries to optimize remainders by a constant.
+// returns nil if no optimized version could be compiled.
+func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	// no need to optimize if both xe and ye are constant:
+	// remainder will be computed only once by EvalConst()
+	if xe.Const() || !ye.Const() {
+		return nil
+	}
+	if isLiteralNumber(ye.Value, 0) {
+		c.Errorf("division by zero")
+		return nil
+	}
+	yv := r.ValueOf(ye.Value)
+	var y uint64
+	switch KindToCategory(yv.Kind()) {
+	case r.Int:
+		sy := yv.Int()
+		if sy < 0 {
+			y = uint64(-sy)
+		} else {
+			y = uint64(sy)
+		}
+	case r.Uint:
+		y = yv.Uint()
+	default:
+		// floating point or complex division
+		return nil
+	}
+	if !isPowerOfTwo(y) {
+		// remainder by multiplication and shift not implemented...
+		return nil
+	}
+	// attention: % (2**n) and & (2**n - 1) have different behaviours for negative xe:
+	//    remainder % has the same sign as xe
+	//    bitwise-and & is always >= 0 (for non-negative right operand)
+	// luckily, in Go x % y and x % -y always give the same result, so we can assume y >= 0
+	// examples:
+	//  11 %  2 =  1,  11 &  1 =  1 // same result
+	// -11 %  2 = -1, -11 &  1 =  1 // different result
+	// -11 % -2 = -1, -11 &  1 =  1 // different result
+	//  63 %  8 =  7,  63 &  7 =  7 // same result
+	// -63 %  8 = -7, -63 &  7 =  1 // different result
+	// -63 % -8 = -7, -63 &  7 =  1 // different result
+	//
+	// to fix this, when xe is negative and the result is != 0 we must subtract abs(y) from the result:
+	// -11 %  2 = -1, (-11 & 1) - 2 = 1 - 2 = -1 // same result
+	// -11 % -2 = -1, (-11 & 1) - 2 = 1 - 2 = -1 // same result
+	// -63 %  8 = -7, (-63 & 7) - 8 = 1 - 8 = -7 // same result
+	// -63 % -8 = -7, (-63 & 7) - 8 = 1 - 8 = -7 // same result
+
+	x := xe.Fun
+	var fun I
+	switch xe.Type.Kind() {
+	case r.Int:     {rempow2; int}
+	case r.Int8:    {rempow2; int8}
+	case r.Int16:   {rempow2; int16}
+	case r.Int32:   {rempow2; int32}
+	case r.Int64:   {rempow2; int64}
+	case r.Uint:    {rempow2_u; uint}
+	case r.Uint8:   {rempow2_u; uint8}
+	case r.Uint16:  {rempow2_u; uint16}
+	case r.Uint32:  {rempow2_u; uint32}
+	case r.Uint64:  {rempow2_u; uint64}
+	case r.Uintptr: {rempow2_u; uintptr}
 	default:        return nil
 	}
 
