@@ -292,8 +292,8 @@ func (untyp *UntypedLit) extractNumber(src constant.Value, t r.Type) interface{}
 	case constant.Complex:
 		re := untyp.extractNumber(constant.Real(src), t)
 		im := untyp.extractNumber(constant.Imag(src), t)
-		rfloat := r.ValueOf(re).Convert(TypeOfFloat64).Interface().(float64)
-		ifloat := r.ValueOf(im).Convert(TypeOfFloat64).Interface().(float64)
+		rfloat := r.ValueOf(re).Convert(TypeOfFloat64).Float()
+		ifloat := r.ValueOf(im).Convert(TypeOfFloat64).Float()
 		n = complex(rfloat, ifloat)
 		exact = true
 	default:

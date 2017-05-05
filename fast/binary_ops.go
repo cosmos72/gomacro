@@ -31,7 +31,10 @@ package fast
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -1787,9 +1790,8 @@ func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			c.Errorf("division by zero")
 			return nil
-		}
-		if isLiteralNumber(y, 1) {
-			return xe
+		} else if ze := c.optimizeQuo(node, xe, ye); ze != nil {
+			return ze
 		}
 
 		switch k {
@@ -2536,6 +2538,249 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 	}
 	return exprFun(xe.Type, fun)
+}
+func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+
+	if xe.Const() || !ye.Const() {
+		return nil
+	}
+
+	if isLiteralNumber(ye.Value, 0) {
+		c.Errorf("division by zero")
+		return nil
+	} else if isLiteralNumber(ye.Value, 1) {
+		return xe
+	} else if isLiteralNumber(ye.Value, -1) {
+		node1 := &ast.UnaryExpr{OpPos: node.OpPos, Op: token.SUB, X: node.X}
+		return c.UnaryMinus(node1, xe)
+	}
+	ypositive := true
+	yv := r.ValueOf(ye.Value)
+	var y uint64
+	switch KindToCategory(yv.Kind()) {
+	case r.Int:
+		sy := yv.Int()
+		if sy < 0 {
+			ypositive = false
+			y = uint64(-sy)
+		} else {
+			y = uint64(sy)
+		}
+
+	case r.Uint:
+		y = yv.Uint()
+	default:
+		return nil
+	}
+	if !isPowerOfTwo(y) {
+		return nil
+	}
+
+	shift := integerLen(y) - 1
+	x := xe.Fun
+	var fun I
+	switch xe.Type.Kind() {
+	case r.Int:
+		{
+			x := x.(func(*Env) int)
+			y_1 :=
+
+				int(y - 1)
+			if ypositive {
+				fun = func(env *Env) int {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return n >> shift
+				}
+			} else {
+				fun = func(env *Env) int {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return -(n >> shift)
+				}
+			}
+
+		}
+
+	case r.Int8:
+		{
+			x := x.(func(*Env) int8)
+			y_1 :=
+
+				int8(y - 1)
+			if ypositive {
+				fun = func(env *Env) int8 {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return n >> shift
+				}
+			} else {
+				fun = func(env *Env) int8 {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return -(n >> shift)
+				}
+			}
+
+		}
+
+	case r.Int16:
+		{
+			x := x.(func(*Env) int16)
+			y_1 :=
+
+				int16(y - 1)
+			if ypositive {
+				fun = func(env *Env) int16 {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return n >> shift
+				}
+			} else {
+				fun = func(env *Env) int16 {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return -(n >> shift)
+				}
+			}
+
+		}
+
+	case r.Int32:
+		{
+			x := x.(func(*Env) int32)
+			y_1 :=
+
+				int32(y - 1)
+			if ypositive {
+				fun = func(env *Env) int32 {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return n >> shift
+				}
+			} else {
+				fun = func(env *Env) int32 {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return -(n >> shift)
+				}
+			}
+
+		}
+
+	case r.Int64:
+		{
+			x := x.(func(*Env) int64)
+			y_1 :=
+
+				int64(y - 1)
+			if ypositive {
+				fun = func(env *Env) int64 {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return n >> shift
+				}
+			} else {
+				fun = func(env *Env) int64 {
+					n := x(env)
+					if n < 0 {
+						n += y_1
+					}
+					return -(n >> shift)
+				}
+			}
+
+		}
+
+	case r.Uint:
+		{
+			x := x.(func(*Env) uint)
+			fun = func(env *Env) uint {
+				return x(env) >> shift
+			}
+
+		}
+
+	case r.Uint8:
+		{
+			x := x.(func(*Env) uint8)
+			fun = func(env *Env) uint8 {
+				return x(env) >> shift
+			}
+
+		}
+
+	case r.Uint16:
+		{
+			x := x.(func(*Env) uint16)
+			fun = func(env *Env) uint16 {
+				return x(env) >> shift
+			}
+
+		}
+
+	case r.Uint32:
+		{
+			x := x.(func(*Env) uint32)
+			fun = func(env *Env) uint32 {
+				return x(env) >> shift
+			}
+
+		}
+
+	case r.Uint64:
+		{
+			x := x.(func(*Env) uint64)
+			fun = func(env *Env) uint64 {
+				return x(env) >> shift
+			}
+
+		}
+
+	case r.Uintptr:
+		{
+			x := x.(func(*Env) uintptr)
+			fun = func(env *Env) uintptr {
+				return x(env) >> shift
+			}
+
+		}
+
+	default:
+		return nil
+	}
+	return exprFun(xe.Type, fun)
+}
+func isPowerOfTwo(n uint64) bool { return n != 0 && n&(n-1) == 0 }
+func integerLen(n uint64) uint8 {
+	var l uint8
+	for n > 0xff {
+		l += 8
+		n >>= 8
+	}
+	for n != 0 {
+		l++
+		n >>= 1
+	}
+	return l
 }
 func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	xc, yc := xe.Const(), ye.Const()

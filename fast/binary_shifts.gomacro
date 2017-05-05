@@ -35,6 +35,60 @@ import (
 	r "reflect"
 )
 
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func makekind(typ ast.Node) ast.Node {
+	t := EvalType(typ)
+
+	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
+	kind := ~"{r . foo}
+	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
+	return kind
+}
+
+
+:func convertvalue1(typ, val ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	if t == nil {
+		// keep the result wrapped in a reflect.Value
+		return val
+	}
+	// unwrap the result
+	tname := t.Name()
+	// remove final digits from t.Name()
+	// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+	for len(tname) != 0 {
+		ch := tname[len(tname)-1]
+		if ch < '0' || ch > '9' {
+			break
+		}
+		tname = tname[0:len(tname)-1]
+	}
+	if tname == "uintptr" {
+		tname = "uint" // use reflect.Value.Uint()
+	}
+	sel := ~"{~,val . foo} // we modify it destructively
+	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
+
+	switch t.Kind() {
+	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+		// result of reflect.Value.{tname} is already the correct type
+		val = ~"{~,sel ()}
+	default:
+		// convert int64, uint64... to the correct type
+		val = ~"{~,typ ( ~,sel () )}
+	}
+	return val
+}
+
+// shift, x type and y type are fixed
 :macro shift(opnode, xconst, yconst, xtyp, ytyp ast.Node) ast.Node {
 
 	// the return type of Eval() and EvalType() varies. better check early.
@@ -55,8 +109,14 @@ import (
 		var expr *ast.BinaryExpr = ~"{x(env) && y} // quasiquote, we modify it destructively
 		expr.Op = optoken
 
+		yconvert := ~'{{}}
+		if EvalType(ytyp) != nil {
+			yconv1 := convertvalue1(ytyp, ~'yv)
+			yconvert = ~"{{y := ~,yconv1}}
+		}
+
 		return ~"{
-			y := y.(~,ytyp)
+			~,@yconvert
 			fun = func(env *Env) ~,xtyp {
 				return ~,expr
 			}
@@ -74,6 +134,7 @@ import (
 	}
 }
 
+// shift, x type is fixed. dispatch on y type
 :macro shifts(opnode, xconst, yconst, xtyp, ytypes ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
 	var xc, yc bool = Eval(xconst), Eval(yconst)
@@ -102,30 +163,14 @@ import (
 
 	swtch := ~"{ switch yk { ~,@caselist } }
 	if xc {
-		return ~"{x := x.(~,xtyp); ~,swtch }
+		xconv1 := convertvalue1(xtyp, ~'xv)
+		return ~"{x := ~,xconv1; ~,swtch }
 	} else {
 		return ~"{x := x.(func(*Env) ~,xtyp); ~,swtch }
 	}
 }
 
-:func upcasefirstbyte(str string) string {
-	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
-		bytes := []byte(str)
-		bytes[0] -= 'a' - 'A'
-		return string(bytes)
-	}
-	return str
-}
-
-:func makekind(typ ast.Node) ast.Node {
-	t := EvalType(typ)
-
-	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
-	kind := ~"{r . foo}
-	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
-	return kind
-}
-
+// general shift - dispatch on x type, then on y type
 :macro shiftss(opnode, xconst, yconst, xtypes ast.Node, ytypes ast.Node) ast.Node {
 	xtypelist := xtypes.(*ast.BlockStmt).List
 	caselist := make([]ast.Stmt, 0, len(xtypelist))
@@ -179,9 +224,10 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			return xe
 		}
+		yv := r.ValueOf(y)
 		{shiftss; token.SHL; false; true; {int; uint}; {uint}}
 	} else {
-		x := xe.Value
+		xv := r.ValueOf(xe.Value)
 		y := ye.Fun
 		{shiftss; token.SHL; true; false; {int; uint}; {uint}}
 	}
@@ -206,9 +252,10 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			return xe
 		}
+		yv := r.ValueOf(y)
 		{shiftss; token.SHR; false; true; {int; uint}; {uint}}
 	} else {
-		x := xe.Value
+		xv := r.ValueOf(xe.Value)
 		y := ye.Fun
 		{shiftss; token.SHR; true; false; {int; uint}; {uint}}
 	}

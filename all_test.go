@@ -162,7 +162,7 @@ var tests = []TestCase{
 	TestCase{A, "var_interface_1", "var vi interface{} = 1; vi", 1, nil},
 	TestCase{A, "var_interface_2", "var vnil interface{}; vnil", nil, nil},
 	TestCase{A, "var_shift_1", "7 << 8", 7 << 8, nil},
-	TestCase{A, "var_shift_2", "8 >> 2", 8 >> 2, nil},
+	TestCase{A, "var_shift_2", "-9 >> 2", -9 >> 2, nil},
 	TestCase{A, "var_shift_3", "v2 << 3", uint8(7) << 3, nil},
 	TestCase{A, "var_shift_4", "v2 >> 1", uint8(7) >> 1, nil},
 	TestCase{A, "var_shift_5", "0xff << v2", 0xff << 7, nil},
@@ -171,6 +171,18 @@ var tests = []TestCase{
 	TestCase{A, "var_shift_8", "v3 << v3 >> v2", uint16(12) << 12 >> uint8(7), nil},
 	TestCase{A, "var_shift_9", "v3 << 0", uint16(12), nil},
 	TestCase{A, "var_shift_overflow", "v3 << 13", uint16(32768), nil},
+
+	// test division by constant power-of-two
+	TestCase{I, "var_div_1", "v3 = 11; v3 / 2", uint64(5), nil}, // classic interpreter is not accurate here
+	TestCase{I, "var_div_2", "v3 = 63; v3 / 8", uint64(7), nil},
+	TestCase{F, "var_div_1", "v3 = 11; v3 / 2", uint16(5), nil},
+	TestCase{F, "var_div_2", "v3 = 63; v3 / 8", uint16(7), nil},
+
+	TestCase{A, "var_div_3", "v0 =-11; v0 / 2", -5, nil},
+	TestCase{A, "var_div_4", "v0 =-11; v0 /-2", +5, nil},
+	TestCase{A, "var_div_5", "v0 =-63; v0 / 8", -7, nil},
+	TestCase{A, "var_div_6", "v0 =-63; v0 /-8", +7, nil},
+
 	TestCase{A, "eql_nil_1", "err == nil", true, nil},
 	TestCase{A, "eql_nil_2", "vp == nil", true, nil},
 	TestCase{A, "eql_nil_3", "vm == nil", true, nil},
@@ -183,7 +195,7 @@ var tests = []TestCase{
 
 	TestCase{A, "typed_unary_1", "!!!v1", true, nil},
 	TestCase{A, "typed_unary_2", "+-^v2", uint8(8), nil},
-	TestCase{A, "typed_unary_3", "+^-v3", uint16(11), nil},
+	TestCase{A, "typed_unary_3", "v3 = 12; +^-v3", uint16(11), nil},
 	TestCase{A, "typed_unary_4", "v7 = 2.5i; -v7", complex64(-2.5i), nil},
 
 	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},

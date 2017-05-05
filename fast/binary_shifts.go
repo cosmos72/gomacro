@@ -680,6 +680,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			return xe
 		}
 
+		yv := r.ValueOf(y)
+
 		switch xk {
 		case r.Int:
 
@@ -689,7 +691,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) << y
 						}
@@ -698,7 +700,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) << y
 						}
@@ -707,7 +709,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) << y
 						}
@@ -716,7 +718,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) << y
 						}
@@ -725,7 +727,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int {
 							return x(env) << y
 						}
@@ -734,7 +737,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) << y
 						}
@@ -751,7 +754,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) << y
 						}
@@ -760,7 +763,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) << y
 						}
@@ -769,7 +772,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) << y
 						}
@@ -778,7 +781,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) << y
 						}
@@ -787,7 +790,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int8 {
 							return x(env) << y
 						}
@@ -796,7 +800,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) << y
 						}
@@ -813,7 +817,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) << y
 						}
@@ -822,7 +826,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) << y
 						}
@@ -831,7 +835,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) << y
 						}
@@ -840,7 +844,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) << y
 						}
@@ -849,7 +853,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int16 {
 							return x(env) << y
 						}
@@ -858,7 +863,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) << y
 						}
@@ -875,7 +880,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) << y
 						}
@@ -884,7 +889,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) << y
 						}
@@ -893,7 +898,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) << y
 						}
@@ -902,7 +907,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) << y
 						}
@@ -911,7 +916,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int32 {
 							return x(env) << y
 						}
@@ -920,7 +926,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) << y
 						}
@@ -937,7 +943,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) << y
 						}
@@ -946,7 +952,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) << y
 						}
@@ -955,7 +961,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) << y
 						}
@@ -964,7 +970,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) << y
 						}
@@ -973,7 +979,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int64 {
 							return x(env) << y
 						}
@@ -982,7 +989,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) << y
 						}
@@ -999,7 +1006,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) << y
 						}
@@ -1008,7 +1015,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) << y
 						}
@@ -1017,7 +1024,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) << y
 						}
@@ -1026,7 +1033,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) << y
 						}
@@ -1035,7 +1042,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint {
 							return x(env) << y
 						}
@@ -1044,7 +1052,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) << y
 						}
@@ -1061,7 +1069,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) << y
 						}
@@ -1070,7 +1078,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) << y
 						}
@@ -1079,7 +1087,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) << y
 						}
@@ -1088,7 +1096,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) << y
 						}
@@ -1097,7 +1105,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint8 {
 							return x(env) << y
 						}
@@ -1106,7 +1115,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) << y
 						}
@@ -1123,7 +1132,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) << y
 						}
@@ -1132,7 +1141,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) << y
 						}
@@ -1141,7 +1150,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) << y
 						}
@@ -1150,7 +1159,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) << y
 						}
@@ -1159,7 +1168,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint16 {
 							return x(env) << y
 						}
@@ -1168,7 +1178,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) << y
 						}
@@ -1185,7 +1195,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) << y
 						}
@@ -1194,7 +1204,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) << y
 						}
@@ -1203,7 +1213,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) << y
 						}
@@ -1212,7 +1222,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) << y
 						}
@@ -1221,7 +1231,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint32 {
 							return x(env) << y
 						}
@@ -1230,7 +1241,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) << y
 						}
@@ -1247,7 +1258,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) << y
 						}
@@ -1256,7 +1267,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) << y
 						}
@@ -1265,7 +1276,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) << y
 						}
@@ -1274,7 +1285,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) << y
 						}
@@ -1283,7 +1294,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint64 {
 							return x(env) << y
 						}
@@ -1292,7 +1304,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) << y
 						}
@@ -1309,7 +1321,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) << y
 						}
@@ -1318,7 +1330,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) << y
 						}
@@ -1327,7 +1339,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) << y
 						}
@@ -1336,7 +1348,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) << y
 						}
@@ -1345,7 +1357,8 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uintptr {
 							return x(env) << y
 						}
@@ -1354,7 +1367,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) << y
 						}
@@ -1368,14 +1381,14 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	} else {
-		x := xe.Value
+		xv := r.ValueOf(xe.Value)
 		y := ye.Fun
 
 		switch xk {
 		case r.Int:
 
 			{
-				x := x.(int)
+				x := int(xv.Int())
 				switch yk {
 				case r.Uint:
 
@@ -1437,7 +1450,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Int8:
 
 			{
-				x := x.(int8)
+				x := int8(xv.Int())
 				switch yk {
 				case r.Uint:
 
@@ -1499,7 +1512,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Int16:
 
 			{
-				x := x.(int16)
+				x := int16(xv.Int())
 				switch yk {
 				case r.Uint:
 
@@ -1561,7 +1574,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Int32:
 
 			{
-				x := x.(int32)
+				x := int32(xv.Int())
 				switch yk {
 				case r.Uint:
 
@@ -1623,7 +1636,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Int64:
 
 			{
-				x := x.(int64)
+				x := xv.Int()
 				switch yk {
 				case r.Uint:
 
@@ -1685,7 +1698,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint:
 
 			{
-				x := x.(uint)
+				x := uint(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -1747,7 +1760,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint8:
 
 			{
-				x := x.(uint8)
+				x := uint8(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -1809,7 +1822,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint16:
 
 			{
-				x := x.(uint16)
+				x := uint16(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -1871,7 +1884,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint32:
 
 			{
-				x := x.(uint32)
+				x := uint32(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -1933,7 +1946,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint64:
 
 			{
-				x := x.(uint64)
+				x := xv.Uint()
 				switch yk {
 				case r.Uint:
 
@@ -1995,7 +2008,7 @@ func (c *Comp) Shl(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uintptr:
 
 			{
-				x := x.(uintptr)
+				x := uintptr(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -2707,6 +2720,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 			return xe
 		}
 
+		yv := r.ValueOf(y)
+
 		switch xk {
 		case r.Int:
 
@@ -2716,7 +2731,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) >> y
 						}
@@ -2725,7 +2740,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) >> y
 						}
@@ -2734,7 +2749,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) >> y
 						}
@@ -2743,7 +2758,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) >> y
 						}
@@ -2752,7 +2767,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int {
 							return x(env) >> y
 						}
@@ -2761,7 +2777,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int {
 							return x(env) >> y
 						}
@@ -2778,7 +2794,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) >> y
 						}
@@ -2787,7 +2803,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) >> y
 						}
@@ -2796,7 +2812,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) >> y
 						}
@@ -2805,7 +2821,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) >> y
 						}
@@ -2814,7 +2830,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int8 {
 							return x(env) >> y
 						}
@@ -2823,7 +2840,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int8 {
 							return x(env) >> y
 						}
@@ -2840,7 +2857,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) >> y
 						}
@@ -2849,7 +2866,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) >> y
 						}
@@ -2858,7 +2875,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) >> y
 						}
@@ -2867,7 +2884,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) >> y
 						}
@@ -2876,7 +2893,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int16 {
 							return x(env) >> y
 						}
@@ -2885,7 +2903,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int16 {
 							return x(env) >> y
 						}
@@ -2902,7 +2920,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) >> y
 						}
@@ -2911,7 +2929,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) >> y
 						}
@@ -2920,7 +2938,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) >> y
 						}
@@ -2929,7 +2947,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) >> y
 						}
@@ -2938,7 +2956,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int32 {
 							return x(env) >> y
 						}
@@ -2947,7 +2966,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int32 {
 							return x(env) >> y
 						}
@@ -2964,7 +2983,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) >> y
 						}
@@ -2973,7 +2992,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) >> y
 						}
@@ -2982,7 +3001,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) >> y
 						}
@@ -2991,7 +3010,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) >> y
 						}
@@ -3000,7 +3019,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) int64 {
 							return x(env) >> y
 						}
@@ -3009,7 +3029,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) int64 {
 							return x(env) >> y
 						}
@@ -3026,7 +3046,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) >> y
 						}
@@ -3035,7 +3055,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) >> y
 						}
@@ -3044,7 +3064,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) >> y
 						}
@@ -3053,7 +3073,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) >> y
 						}
@@ -3062,7 +3082,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint {
 							return x(env) >> y
 						}
@@ -3071,7 +3092,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint {
 							return x(env) >> y
 						}
@@ -3088,7 +3109,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) >> y
 						}
@@ -3097,7 +3118,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) >> y
 						}
@@ -3106,7 +3127,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) >> y
 						}
@@ -3115,7 +3136,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) >> y
 						}
@@ -3124,7 +3145,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint8 {
 							return x(env) >> y
 						}
@@ -3133,7 +3155,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint8 {
 							return x(env) >> y
 						}
@@ -3150,7 +3172,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) >> y
 						}
@@ -3159,7 +3181,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) >> y
 						}
@@ -3168,7 +3190,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) >> y
 						}
@@ -3177,7 +3199,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) >> y
 						}
@@ -3186,7 +3208,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint16 {
 							return x(env) >> y
 						}
@@ -3195,7 +3218,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint16 {
 							return x(env) >> y
 						}
@@ -3212,7 +3235,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) >> y
 						}
@@ -3221,7 +3244,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) >> y
 						}
@@ -3230,7 +3253,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) >> y
 						}
@@ -3239,7 +3262,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) >> y
 						}
@@ -3248,7 +3271,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint32 {
 							return x(env) >> y
 						}
@@ -3257,7 +3281,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint32 {
 							return x(env) >> y
 						}
@@ -3274,7 +3298,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) >> y
 						}
@@ -3283,7 +3307,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) >> y
 						}
@@ -3292,7 +3316,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) >> y
 						}
@@ -3301,7 +3325,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) >> y
 						}
@@ -3310,7 +3334,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uint64 {
 							return x(env) >> y
 						}
@@ -3319,7 +3344,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uint64 {
 							return x(env) >> y
 						}
@@ -3336,7 +3361,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint:
 
 					{
-						y := y.(uint)
+						y := uint(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) >> y
 						}
@@ -3345,7 +3370,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint8:
 
 					{
-						y := y.(uint8)
+						y := uint8(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) >> y
 						}
@@ -3354,7 +3379,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint16:
 
 					{
-						y := y.(uint16)
+						y := uint16(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) >> y
 						}
@@ -3363,7 +3388,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint32:
 
 					{
-						y := y.(uint32)
+						y := uint32(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) >> y
 						}
@@ -3372,7 +3397,8 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uint64:
 
 					{
-						y := y.(uint64)
+						y := yv.Uint()
+
 						fun = func(env *Env) uintptr {
 							return x(env) >> y
 						}
@@ -3381,7 +3407,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				case r.Uintptr:
 
 					{
-						y := y.(uintptr)
+						y := uintptr(yv.Uint())
 						fun = func(env *Env) uintptr {
 							return x(env) >> y
 						}
@@ -3395,14 +3421,14 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	} else {
-		x := xe.Value
+		xv := r.ValueOf(xe.Value)
 		y := ye.Fun
 
 		switch xk {
 		case r.Int:
 
 			{
-				x := x.(int)
+				x := int(xv.Int())
 				switch yk {
 				case r.Uint:
 
@@ -3464,7 +3490,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Int8:
 
 			{
-				x := x.(int8)
+				x := int8(xv.Int())
 				switch yk {
 				case r.Uint:
 
@@ -3526,7 +3552,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Int16:
 
 			{
-				x := x.(int16)
+				x := int16(xv.Int())
 				switch yk {
 				case r.Uint:
 
@@ -3588,7 +3614,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Int32:
 
 			{
-				x := x.(int32)
+				x := int32(xv.Int())
 				switch yk {
 				case r.Uint:
 
@@ -3650,7 +3676,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Int64:
 
 			{
-				x := x.(int64)
+				x := xv.Int()
 				switch yk {
 				case r.Uint:
 
@@ -3712,7 +3738,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint:
 
 			{
-				x := x.(uint)
+				x := uint(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -3774,7 +3800,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint8:
 
 			{
-				x := x.(uint8)
+				x := uint8(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -3836,7 +3862,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint16:
 
 			{
-				x := x.(uint16)
+				x := uint16(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -3898,7 +3924,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint32:
 
 			{
-				x := x.(uint32)
+				x := uint32(xv.Uint())
 				switch yk {
 				case r.Uint:
 
@@ -3960,7 +3986,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uint64:
 
 			{
-				x := x.(uint64)
+				x := xv.Uint()
 				switch yk {
 				case r.Uint:
 
@@ -4022,7 +4048,7 @@ func (c *Comp) Shr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		case r.Uintptr:
 
 			{
-				x := x.(uintptr)
+				x := uintptr(xv.Uint())
 				switch yk {
 				case r.Uint:
 

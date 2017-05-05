@@ -26,9 +26,10 @@ package fast
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
 
-	// . "github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -272,9 +273,8 @@ func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			c.Errorf("division by zero")
 			return nil
-		}
-		if isLiteralNumber(y, 1) {
-			return xe
+		} else if ze := c.optimizeQuo(node, xe, ye); ze != nil {
+			return ze
 		}
 		{binaryops; token.QUO; false; true; { int; uint; float32; float64; complex64; complex128 }}
 	} else {
@@ -311,6 +311,136 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.REM; true; false; { int; uint }}
 	}
 	return exprFun(xe.Type, fun)
+}
+
+:macro quopow2(typ ast.Node) ast.Node {
+	return ~"{
+		x := x.(func(*Env) ~,typ)
+		y_1 := ~,typ(y - 1) // cannot overflow, y was originally a ~,typ
+		if ypositive {
+			fun = func(env *Env) ~,typ {
+				n := x(env)
+				if n < 0 {
+					n += y_1
+				}
+				return n >> shift
+			}
+		} else {
+			fun = func(env *Env) ~,typ {
+				n := x(env)
+				if n < 0 {
+					n += y_1
+				}
+				return -(n >> shift)
+			}
+		}
+	}
+}
+
+:macro quopow2_u(typ ast.Node) ast.Node {
+	return ~"{
+		x := x.(func(*Env) ~,typ)
+		fun = func(env *Env) ~,typ {
+			return x(env) >> shift
+		}
+	}
+}
+
+// optimizeQuo tries to optimize divisions by a constant.
+// returns nil if no optimized version could be compiled.
+func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+	// no need to optimize if both xe and ye are constant:
+	// division will be computed only once by EvalConst()
+	if xe.Const() || !ye.Const() {
+		return nil
+	}
+	if isLiteralNumber(ye.Value, 0) {
+		c.Errorf("division by zero")
+		return nil
+	} else if isLiteralNumber(ye.Value, 1) {
+		return xe
+	} else if isLiteralNumber(ye.Value, -1) {
+		node1 := &ast.UnaryExpr{OpPos: node.OpPos, Op: token.SUB, X: node.X}
+		return c.UnaryMinus(node1, xe)
+	}
+	ypositive := true
+	yv := r.ValueOf(ye.Value)
+	var y uint64
+	switch KindToCategory(yv.Kind()) {
+	case r.Int:
+		sy := yv.Int()
+		if sy < 0 {
+			ypositive = false
+			y = uint64(-sy)
+		} else {
+			y = uint64(sy)
+		}
+	case r.Uint:
+		y = yv.Uint()
+	default:
+		// floating point or complex division
+		return nil
+	}
+	if !isPowerOfTwo(y) {
+		// division by multiplication and shift not implemented...
+		return nil
+	}
+	// attention: / and >> have different truncation rules for negative xe:
+	//    quotient / truncates toward zero
+	//    right shift >> truncates toward negative infinity
+	// examples:
+	//  11 /  2 =  5,  11 >> 1 =  5 // same result
+	// -11 /  2 = -5, -11 >> 1 = -6 // different result
+	//  63 /  8 =  7,  63 >> 3 =  7 // same result
+	// -63 /  8 = -7, -63 >> 3 = -8 // different result
+    //
+	// -11 / -2 =  5, -(-11 >> 1) = 6 // different result
+	// -63 / -8 =  7, -(-63 >> 3) = 8 // different result
+	//
+	// to fix this, when xe is negative we must add abs(y)-1 to it:
+	// -11 / 2 = -5, (-11 + 1) >> 1 = -10 >> 1 = -5 // same result
+	// -63 / 8 = -7, (-63 + 7) >> 3 = -56 >> 3 = -7 // same result
+    //
+	// -11 / -2 =  5, -((-11 + 1) >> 1) = -(-10 >> 1) = 5 // same result
+	// -63 / -8 =  7, -((-63 + 7) >> 3) = -(-56 >> 3) = 7 // same result
+
+	shift := integerLen(y) - 1
+	x := xe.Fun
+	var fun I
+	switch xe.Type.Kind() {
+	case r.Int:     {quopow2; int}
+	case r.Int8:    {quopow2; int8}
+	case r.Int16:   {quopow2; int16}
+	case r.Int32:   {quopow2; int32}
+	case r.Int64:   {quopow2; int64}
+	case r.Uint:    {quopow2_u; uint}
+	case r.Uint8:   {quopow2_u; uint8}
+	case r.Uint16:  {quopow2_u; uint16}
+	case r.Uint32:  {quopow2_u; uint32}
+	case r.Uint64:  {quopow2_u; uint64}
+	case r.Uintptr: {quopow2_u; uintptr}
+	default:        return nil
+	}
+
+	return exprFun(xe.Type, fun)
+}
+
+func isPowerOfTwo(n uint64) bool {
+	return n != 0 && (n&(n-1)) == 0
+}
+
+// integerLen returns the number of bits needed to represent n
+func integerLen(n uint64) uint8 {
+	var l uint8
+	for n > 0xff {
+		l += 8
+		n >>= 8
+	}
+	for n != 0 {
+		l++
+		n >>= 1
+	}
+	return l
 }
 
 func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {

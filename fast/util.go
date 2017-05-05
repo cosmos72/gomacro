@@ -55,11 +55,12 @@ func (e *Expr) TryAsPred() (value bool, fun func(*Env) bool, err bool) {
 		}
 		return constant.BoolVal(untyp.Obj), nil, false
 	}
-	if e.Type != TypeOfBool {
+	if e.Type.Kind() != r.Bool {
 		return false, nil, true
 	}
-	if value, ok := e.Value.(bool); ok {
-		return value, nil, false
+	if e.Const() {
+		v := r.ValueOf(e.Value)
+		return v.Bool(), nil, false
 	}
 	switch fun := e.Fun.(type) {
 	case func(*Env) bool:
