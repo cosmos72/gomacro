@@ -35,7 +35,7 @@ func (c *Comp) func0ret0(t r.Type, m *funcMaker) func(env *Env) r.Value {
 
 	if funcbody == nil {
 		return func(env *Env) r.Value {
-			return r.ValueOf(iNone)
+			return valueOfNopFunc
 		}
 	} else {
 		return func(env *Env) r.Value {

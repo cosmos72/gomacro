@@ -167,7 +167,7 @@ func (c *Comp) Break(node *ast.BranchStmt) {
 		if o.Loop != nil && o.Loop.Break != nil {
 			if len(label) == 0 || o.Loop.HasLabel(label) {
 				// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
-				c.compileJumpOut(upn, o.Loop.Break)
+				c.jumpOut(upn, o.Loop.Break)
 				return
 			}
 		}
@@ -192,7 +192,7 @@ func (c *Comp) Continue(node *ast.BranchStmt) {
 		if o.Loop != nil && o.Loop.Continue != nil {
 			if len(label) == 0 || o.Loop.HasLabel(label) {
 				// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
-				c.compileJumpOut(upn, o.Loop.Continue)
+				c.jumpOut(upn, o.Loop.Continue)
 				return
 			}
 		}
@@ -205,27 +205,30 @@ func (c *Comp) Continue(node *ast.BranchStmt) {
 	}
 }
 
-// compileJumpOut compiles a break or continue statement
+// jumpOut compiles a break or continue statement
 // ip is a pointer because the jump target may not be known yet... it will be filled later
-func (c *Comp) compileJumpOut(upn int, ip *int) {
+func (c *Comp) jumpOut(upn int, ip *int) {
 	var stmt Stmt
 	switch upn {
 	case 0:
 		stmt = func(env *Env) (Stmt, *Env) {
-			env.IP = *ip
-			return env.Code[env.IP], env
+			ip := *ip
+			env.IP = ip
+			return env.Code[ip], env
 		}
 	case 1:
 		stmt = func(env *Env) (Stmt, *Env) {
 			env = env.Outer
-			env.IP = *ip
-			return env.Code[env.IP], env
+			ip := *ip
+			env.IP = ip
+			return env.Code[ip], env
 		}
 	case 2:
 		stmt = func(env *Env) (Stmt, *Env) {
 			env = env.Outer.Outer
-			env.IP = *ip
-			return env.Code[env.IP], env
+			ip := *ip
+			env.IP = ip
+			return env.Code[ip], env
 		}
 	default:
 		stmt = func(env *Env) (Stmt, *Env) {
@@ -233,8 +236,9 @@ func (c *Comp) compileJumpOut(upn int, ip *int) {
 			for i := 3; i < upn; i++ {
 				env = env.Outer
 			}
-			env.IP = *ip
-			return env.Code[env.IP], env
+			ip := *ip
+			env.IP = ip
+			return env.Code[ip], env
 		}
 	}
 	c.Code.Append(stmt)

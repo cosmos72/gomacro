@@ -403,12 +403,12 @@ again:
 	v := r.ValueOf(value)
 	switch v.Kind() {
 	case r.Invalid:
-		fun = x1Nil
+		fun = eNil
 	case r.Bool:
 		if v.Bool() {
-			fun = iTrue
+			fun = eTrue
 		} else {
-			fun = iFalse
+			fun = eFalse
 		}
 	case r.Int:
 		x := int(v.Int())

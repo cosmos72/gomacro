@@ -25,7 +25,7 @@ The fast intepreter supports:
 * closures
 * transparent invocation of compiled functions from interpreter, and vice-versa
 * function calls (including calls to variadic functions, with or without ... after last call argument)
-* if, for, break, continue, return (unimplemented: return foo() where foo() returns multiple values)
+* if, for, switch, break, continue, return (unimplemented: type switch, fallthrough and return foo() where foo() returns multiple values)
 * go i.e. goroutines
 * all builtins except recover
 * ~quote

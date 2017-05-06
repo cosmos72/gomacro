@@ -32,20 +32,25 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func iFalse() bool {
+func eFalse(*Env) bool {
 	return false
 }
 
-func iTrue() bool {
+func eTrue(*Env) bool {
 	return true
 }
 
-func iNone() {
+func eNone(*Env) {
 }
 
-func x1Nil() r.Value {
+func eNil(*Env) r.Value {
 	return Nil
 }
+
+func nop() {
+}
+
+var valueOfNopFunc = r.ValueOf(nop)
 
 func (e *Expr) TryAsPred() (value bool, fun func(*Env) bool, err bool) {
 	if e.Untyped() {

@@ -436,9 +436,12 @@ var tests = []TestCase{
 	TestCase{I, "select_5", "select { case cx<-3: 3; default: 0 }", 0, nil},
 	TestCase{I, "select_6", "select { case cx<-4: 4; case x:=<-cx: x; default: 0 }", 1, nil},
 
-	TestCase{I, "switch_1", "switch { case false: 0; default: 1 }", 1, nil},
-	TestCase{I, "switch_2", "switch v:=20; v { case 20: '@' }", '@', nil},
-	TestCase{I, "switch_fallthrough", "switch 0 { default: fallthrough; case 1: 10; fallthrough; case 2: 20 }", 20, nil},
+	TestCase{A, "switch_1", "vi=nil; switch { case false: ; default: vi='1' }; vi", '1', nil},
+	TestCase{A, "switch_2", "vi=nil; switch v:=20; v { case 20: vi='2'; vi='3' }; vi", '3', nil},
+	TestCase{A, "switch_3", `v3=0; vi=nil
+		func inc_u16(addr *uint16, n uint16) uint16 { *addr += n; return *addr }
+		switch v3++; inc_u16(&v3, 2) { case 1: ; case 2: ; case 3: vi='3'; default: }; vi`, '3', nil},
+	TestCase{I, "switch_fallthrough", "vi=nil; switch 0 { default: fallthrough; case 1: vi=10; fallthrough; case 2: vi=20 }", 20, nil},
 
 	TestCase{I, "typeswitch_1", `var x interface{} = "abc"; switch y := x.(type) { default: 0; case string: 1 }`, 1, nil},
 	TestCase{I, "typeswitch_2", `switch x.(type) { default: 0; case interface{}: 2 }`, 2, nil},
