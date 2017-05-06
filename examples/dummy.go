@@ -15,6 +15,11 @@ func twice(d time.Duration) time.Duration {
 
 func main() {
 	var d int64 = 1
+	switch d {
+	case 1:
+		fallthrough
+	default:
+	}
 	v := r.ValueOf(&d)
 	fmt.Printf("%v <%v>\n", v, v.Type())
 	v = v.Convert(r.TypeOf((*time.Duration)(nil)))

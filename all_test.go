@@ -441,7 +441,12 @@ var tests = []TestCase{
 	TestCase{A, "switch_3", `v3=0; vi=nil
 		func inc_u16(addr *uint16, n uint16) uint16 { *addr += n; return *addr }
 		switch v3++; inc_u16(&v3, 2) { case 1: ; case 2: ; case 3: vi='3'; default: }; vi`, '3', nil},
-	TestCase{I, "switch_fallthrough", "vi=nil; switch 0 { default: fallthrough; case 1: vi=10; fallthrough; case 2: vi=20 }", 20, nil},
+	TestCase{A, "switch_fallthrough", `vi=nil; switch v:=0; v {
+		default:       fallthrough
+		case 1: vi=10; fallthrough
+		case 2: vi=20; break
+		case 3: vi=30
+	}; vi`, 20, nil},
 
 	TestCase{I, "typeswitch_1", `var x interface{} = "abc"; switch y := x.(type) { default: 0; case string: 1 }`, 1, nil},
 	TestCase{I, "typeswitch_2", `switch x.(type) { default: 0; case interface{}: 2 }`, 2, nil},
