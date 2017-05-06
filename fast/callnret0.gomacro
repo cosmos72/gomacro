@@ -35,6 +35,58 @@ import (
 	r "reflect"
 )
 
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func makekind(typ ast.Node) ast.Node {
+	t := EvalType(typ)
+
+	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
+	kind := ~"{r . foo}
+	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
+	return kind
+}
+
+:func convertvalue1(typ, val ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	if t == nil {
+		// keep the result wrapped in a reflect.Value
+		return val
+	}
+	// unwrap the result
+	tname := t.Name()
+	// remove final digits from t.Name()
+	// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+	for len(tname) != 0 {
+		ch := tname[len(tname)-1]
+		if ch < '0' || ch > '9' {
+			break
+		}
+		tname = tname[0:len(tname)-1]
+	}
+	if tname == "uintptr" {
+		tname = "uint" // use reflect.Value.Uint()
+	}
+	sel := ~"{~,val . foo} // we modify it destructively
+	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
+
+	switch t.Kind() {
+	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+		// result of reflect.Value.{tname} is already the correct type
+		val = ~"{~,sel ()}
+	default:
+		// convert int64, uint64... to the correct type
+		val = ~"{~,typ ( ~,sel () )}
+	}
+	return val
+}
+
 func call0ret0(c *Call, maxdepth int) func(env *Env) {
 	expr := c.Fun
 	funsym := expr.Sym
@@ -92,7 +144,6 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 
 	if EvalType(argtyp) == nil {
 		return ~"{
-			argfun := argfuns[0]
 			call = func(env *Env) {
 				funv := exprfun(env)
 				// keep the argument wrapped in a reflect.Value
@@ -111,9 +162,11 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 		}
 	}
 
+	argconv := convertvalue1(argtyp, ~'{r.ValueOf(arg.Value)})
+
 	return ~"{
-		if args[0].Const() {
-			argconst := args[0].Value.(~,argtyp)
+		if arg.Const() {
+			argconst := ~,argconv
 			if funsym != nil && funupn == maxdepth - 1 {
 				var cachedfun func(~,argtyp)
 				call = func(env *Env) {
@@ -130,7 +183,7 @@ func call0ret0(c *Call, maxdepth int) func(env *Env) {
 				}
 			}
 		} else {
-			argfun := args[0].Fun.(func(env *Env) ~,argtyp)
+			argfun := arg.Fun.(func(env *Env) ~,argtyp)
 			if funsym != nil && funupn == maxdepth - 1 {
 				var cachedfun func(~,argtyp)
 				call = func(env *Env) {
@@ -166,8 +219,8 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 			Errorf("internal error: call1ret0() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 	}
-	args := c.Args
-	argfuns := c.MakeArgfuns()
+	arg := c.Args[0]
+	argfun := c.MakeArgfunsX1()[0]
 
 	var cachedfunv r.Value
 	var call func(env *Env)
@@ -257,7 +310,11 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 		}
 	}
 	args := c.Args
-	argfuns := c.MakeArgfuns()
+	argfunsX1 := c.MakeArgfunsX1()
+	argfuns := [2]func(*Env)r.Value {
+		argfunsX1[0],
+		argfunsX1[1],
+	}
 	var cachedfunv r.Value
 	var call func(env *Env)
 

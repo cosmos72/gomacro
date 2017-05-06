@@ -39,7 +39,6 @@ import (
 	r "reflect"
 )
 
-
 :func upcasefirstbyte(str string) string {
 	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
 		bytes := []byte(str)
@@ -64,7 +63,6 @@ import (
 		// keep the result wrapped in a reflect.Value
 		return val
 	}
-
 	// unwrap the result
 	tname := t.Name()
 	// remove final digits from t.Name()
@@ -90,7 +88,6 @@ import (
 		// convert int64, uint64... to the correct type
 		val = ~"{~,typ ( ~,sel () )}
 	}
-
 	return val
 }
 
