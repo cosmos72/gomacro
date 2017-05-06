@@ -297,6 +297,7 @@ var tests = []TestCase{
 	TestCase{A, "function_4", "func equal(x, y float32) bool { return x == y }; equal(1.1, 1.1)", true, nil},
 	TestCase{A, "function_5", "func swap(x, y int) (int,int) { return y, x }; swap(88,99)", nil, []interface{}{99, 88}},
 	TestCase{A, "function_6", "i=0; func seti2() { i=2 }; seti2(); i", 2, nil},
+	TestCase{A, "function_7", "i=0; func setiadd(x, y int) { i=x+y }; setiadd(7,8); i", 15, nil},
 	TestCase{A, "function_variadic_1", "func list_args(args ...int) []int { return args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
 	TestCase{A, "function_variadic_2", "si := make([]int, 4); si[1]=1; si[2]=2; si[3]=3; list_args(si...)", []int{0, 1, 2, 3}, nil},
 	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},

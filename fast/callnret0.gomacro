@@ -226,25 +226,30 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 	var call func(env *Env)
 
 	t := expr.Type.In(0)
-	switch t.Kind() {
-	case r.Bool:      {mcall1ret0; bool}
-	case r.Int:       {mcall1ret0; int}
-	case r.Int8:      {mcall1ret0; int8}
-	case r.Int16:     {mcall1ret0; int16}
-	case r.Int32:     {mcall1ret0; int32}
-	case r.Int64:     {mcall1ret0; int64}
-	case r.Uint:      {mcall1ret0; uint}
-	case r.Uint8:     {mcall1ret0; uint8}
-	case r.Uint16:    {mcall1ret0; uint16}
-	case r.Uint32:    {mcall1ret0; uint32}
-	case r.Uint64:    {mcall1ret0; uint64}
-	case r.Uintptr:   {mcall1ret0; uintptr}
-	case r.Float32:   {mcall1ret0; float32}
-	case r.Float64:   {mcall1ret0; float64}
-	case r.Complex64: {mcall1ret0; complex64}
-	case r.Complex128:{mcall1ret0; complex128}
-	case r.String:    {mcall1ret0; string}
-	default:          {mcall1ret0; nil}
+	k := t.Kind()
+	if KindToType(k) == t {
+		switch k {
+		case r.Bool:      {mcall1ret0; bool}
+		case r.Int:       {mcall1ret0; int}
+		case r.Int8:      {mcall1ret0; int8}
+		case r.Int16:     {mcall1ret0; int16}
+		case r.Int32:     {mcall1ret0; int32}
+		case r.Int64:     {mcall1ret0; int64}
+		case r.Uint:      {mcall1ret0; uint}
+		case r.Uint8:     {mcall1ret0; uint8}
+		case r.Uint16:    {mcall1ret0; uint16}
+		case r.Uint32:    {mcall1ret0; uint32}
+		case r.Uint64:    {mcall1ret0; uint64}
+		case r.Uintptr:   {mcall1ret0; uintptr}
+		case r.Float32:   {mcall1ret0; float32}
+		case r.Float64:   {mcall1ret0; float64}
+		case r.Complex64: {mcall1ret0; complex64}
+		case r.Complex128:{mcall1ret0; complex128}
+		case r.String:    {mcall1ret0; string}
+		}
+	}
+	if call == nil {
+		{mcall1ret0; nil}
 	}
 	return call
 }
@@ -318,21 +323,22 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 	var cachedfunv r.Value
 	var call func(env *Env)
 
-	if expr.Type.In(0) == expr.Type.In(1) {
-		t := expr.Type.In(0)
-		switch t.Kind() {
-		case r.Bool:      {mcall2ret0; bool;   bool}
-		case r.Int:       {mcall2ret0; int;    int}
-		case r.Int8:      {mcall2ret0; int8;   int8}
-		case r.Int16:     {mcall2ret0; int16;  int16}
-		case r.Int32:     {mcall2ret0; int32;  int32}
-		case r.Int64:     {mcall2ret0; int64;  int64}
-		case r.Uint:      {mcall2ret0; uint;   uint}
-		case r.Uint8:     {mcall2ret0; uint8;  uint8}
-		case r.Uint16:    {mcall2ret0; uint16; uint16}
-		case r.Uint32:    {mcall2ret0; uint32; uint32}
-		case r.Uint64:    {mcall2ret0; uint64; uint64}
-		case r.Uintptr:   {mcall2ret0; uintptr;uintptr}
+	t := expr.Type.In(0)
+	k := t.Kind()
+	if KindToType(k) == t && expr.Type.In(1) == t {
+		switch k {
+		case r.Bool:      {mcall2ret0; bool;       bool}
+		case r.Int:       {mcall2ret0; int;        int}
+		case r.Int8:      {mcall2ret0; int8;       int8}
+		case r.Int16:     {mcall2ret0; int16;      int16}
+		case r.Int32:     {mcall2ret0; int32;      int32}
+		case r.Int64:     {mcall2ret0; int64;      int64}
+		case r.Uint:      {mcall2ret0; uint;       uint}
+		case r.Uint8:     {mcall2ret0; uint8;      uint8}
+		case r.Uint16:    {mcall2ret0; uint16;     uint16}
+		case r.Uint32:    {mcall2ret0; uint32;     uint32}
+		case r.Uint64:    {mcall2ret0; uint64;     uint64}
+		case r.Uintptr:   {mcall2ret0; uintptr;    uintptr}
 		case r.Float32:   {mcall2ret0; float32;    float32}
 		case r.Float64:   {mcall2ret0; float64;    float64}
 		case r.Complex64: {mcall2ret0; complex64;  complex64}

@@ -8786,8 +8786,7 @@ func call1ret1namedtype(c *Call, maxdepth int) I {
 	expr := c.Fun
 	exprfun := expr.AsX1()
 	t := expr.Type
-	targ, tret := t.In(0), t.Out(0)
-	karg, kret := targ.Kind(), tret.Kind()
+	kret := t.Out(0).Kind()
 
 	argfun := c.Args[0].AsX1()
 	var call I
@@ -8811,7 +8810,6 @@ func call1ret1namedtype(c *Call, maxdepth int) I {
 			retv := funv.Call(argv)[0]
 			return int(retv.Int())
 		}
-
 	case r.Int8:
 		call = func(env *Env) int8 {
 			funv := exprfun(env)
