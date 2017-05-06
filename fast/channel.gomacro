@@ -57,6 +57,11 @@ import (
 	return kind
 }
 
+:func maketypevar(typ ast.Node) ast.Node {
+	t := EvalType(typ)
+	return &ast.Ident{Name: "TypeOf" + upcasefirstbyte(t.Name())}
+}
+
 
 :func convertvalue(typ, val ast.Node) (ast.Node, ast.Node) {
 	var t r.Type = EvalType(typ)
@@ -255,14 +260,11 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 }
 
 :macro send_c(typ ast.Node) ast.Node {
-	kind := makekind(typ)
+	typevar := maketypevar(typ)
+	typ2, conv := convertvalue(typ, ~'v)
 	return ~"{
-		case ~,kind:
-		var zero ~,typ
-		if telem != r.TypeOf(zero) {
-			break;
-		}
-		value := expr.Value.(~,typ)
+		case ~,typevar:
+		value := ~,conv
 		if sendonly {
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env).Interface().(chan<- ~,typ)
@@ -282,16 +284,12 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 }
 
 :macro send_e(typ ast.Node) ast.Node {
-	kind := makekind(typ)
+	typevar := maketypevar(typ)
 	return ~"{
-		case ~,kind:
-		var zero ~,typ
-		var funzero func (*Env) ~,typ
-		if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
-			break;
-		}
-		exprfun := expr.Fun.(func (*Env) ~,typ)
-		if sendonly {
+		case ~,typevar:
+		if exprfun, ok := expr.Fun.(func (*Env) ~,typ); !ok {
+			break
+		} else if sendonly {
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env).Interface().(chan<- ~,typ)
 				channel <- exprfun(env)
@@ -332,7 +330,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	sendonly := t.ChanDir() == r.SendDir
 	var stmt Stmt
 	if expr.Const() {
-		switch telem.Kind() {
+		v := r.ValueOf(expr.Value).Convert(telem) // redundant conversion?
+		switch telem {
 			{send_c; bool}
 			{send_c; int}
 			{send_c; int8}
@@ -352,16 +351,15 @@ func (c *Comp) Send(node *ast.SendStmt) {
 			{send_c; string}
 		}
 		if stmt == nil {
-			value := r.ValueOf(expr.Value).Convert(telem)
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env)
-				channel.Send(value)
+				channel.Send(v)
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		}
 	} else {
-		switch telem.Kind() {
+		switch telem {
 			{send_e; bool}
 			{send_e; int}
 			{send_e; int8}

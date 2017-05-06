@@ -546,16 +546,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	sendonly := t.ChanDir() == r.SendDir
 	var stmt Stmt
 	if expr.Const() {
-		switch telem.Kind() {
-		case
-
-			r.Bool:
-			var zero bool
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(bool)
+		v := r.ValueOf(expr.Value).Convert(telem)
+		switch telem {
+		case TypeOfBool:
+			value := v.Bool()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- bool)
@@ -571,15 +565,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfInt:
+			value :=
 
-			r.Int:
-			var zero int
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(int)
+				int(v.Int())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int)
@@ -595,15 +584,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfInt8:
+			value :=
 
-			r.Int8:
-			var zero int8
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(int8)
+				int8(v.Int())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int8)
@@ -619,15 +603,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfInt16:
+			value :=
 
-			r.Int16:
-			var zero int16
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(int16)
+				int16(v.Int())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int16)
@@ -643,15 +622,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfInt32:
+			value :=
 
-			r.Int32:
-			var zero int32
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(int32)
+				int32(v.Int())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int32)
@@ -667,15 +641,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Int64:
-			var zero int64
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(int64)
+		case TypeOfInt64:
+			value := v.Int()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int64)
@@ -691,15 +658,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfUint:
+			value :=
 
-			r.Uint:
-			var zero uint
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(uint)
+				uint(v.Uint())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint)
@@ -715,15 +677,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfUint8:
+			value :=
 
-			r.Uint8:
-			var zero uint8
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(uint8)
+				uint8(v.Uint())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint8)
@@ -739,15 +696,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfUint16:
+			value :=
 
-			r.Uint16:
-			var zero uint16
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(uint16)
+				uint16(v.Uint())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint16)
@@ -763,15 +715,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfUint32:
+			value :=
 
-			r.Uint32:
-			var zero uint32
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(uint32)
+				uint32(v.Uint())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint32)
@@ -787,15 +734,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Uint64:
-			var zero uint64
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(uint64)
+		case TypeOfUint64:
+			value := v.Uint()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint64)
@@ -811,15 +751,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfUintptr:
+			value :=
 
-			r.Uintptr:
-			var zero uintptr
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(uintptr)
+				uintptr(v.Uint())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uintptr)
@@ -835,15 +770,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfFloat32:
+			value :=
 
-			r.Float32:
-			var zero float32
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(float32)
+				float32(v.Float())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- float32)
@@ -859,15 +789,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Float64:
-			var zero float64
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(float64)
+		case TypeOfFloat64:
+			value := v.Float()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- float64)
@@ -883,15 +806,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
+		case TypeOfComplex64:
+			value :=
 
-			r.Complex64:
-			var zero complex64
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(complex64)
+				complex64(v.Complex())
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- complex64)
@@ -907,15 +825,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Complex128:
-			var zero complex128
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(complex128)
+		case TypeOfComplex128:
+			value := v.Complex()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- complex128)
@@ -931,15 +842,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.String:
-			var zero string
-			if telem != r.TypeOf(zero) {
-				break
-			}
-
-			value := expr.Value.(string)
+		case TypeOfString:
+			value := v.String()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- string)
@@ -958,27 +862,20 @@ func (c *Comp) Send(node *ast.SendStmt) {
 
 		}
 		if stmt == nil {
-			value := r.ValueOf(expr.Value).Convert(telem)
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env)
-				channel.Send(value)
+				channel.Send(v)
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		}
+
 	} else {
-		switch telem.Kind() {
-		case
-
-			r.Bool:
-			var zero bool
-			var funzero func(*Env) bool
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		switch telem {
+		case TypeOfBool:
+			if exprfun, ok := expr.Fun.(func(*Env) bool); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) bool)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- bool)
 					channel <- exprfun(env)
@@ -993,17 +890,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Int:
-			var zero int
-			var funzero func(*Env) int
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfInt:
+			if exprfun, ok := expr.Fun.(func(*Env) int); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) int)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int)
 					channel <- exprfun(env)
@@ -1018,17 +908,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Int8:
-			var zero int8
-			var funzero func(*Env) int8
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfInt8:
+			if exprfun, ok := expr.Fun.(func(*Env) int8); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) int8)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int8)
 					channel <- exprfun(env)
@@ -1043,17 +926,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Int16:
-			var zero int16
-			var funzero func(*Env) int16
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfInt16:
+			if exprfun, ok := expr.Fun.(func(*Env) int16); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) int16)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int16)
 					channel <- exprfun(env)
@@ -1068,17 +944,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Int32:
-			var zero int32
-			var funzero func(*Env) int32
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfInt32:
+			if exprfun, ok := expr.Fun.(func(*Env) int32); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) int32)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int32)
 					channel <- exprfun(env)
@@ -1093,17 +962,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Int64:
-			var zero int64
-			var funzero func(*Env) int64
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfInt64:
+			if exprfun, ok := expr.Fun.(func(*Env) int64); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) int64)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- int64)
 					channel <- exprfun(env)
@@ -1118,17 +980,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Uint:
-			var zero uint
-			var funzero func(*Env) uint
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfUint:
+			if exprfun, ok := expr.Fun.(func(*Env) uint); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) uint)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint)
 					channel <- exprfun(env)
@@ -1143,17 +998,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Uint8:
-			var zero uint8
-			var funzero func(*Env) uint8
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfUint8:
+			if exprfun, ok := expr.Fun.(func(*Env) uint8); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) uint8)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint8)
 					channel <- exprfun(env)
@@ -1168,17 +1016,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Uint16:
-			var zero uint16
-			var funzero func(*Env) uint16
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfUint16:
+			if exprfun, ok := expr.Fun.(func(*Env) uint16); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) uint16)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint16)
 					channel <- exprfun(env)
@@ -1193,17 +1034,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Uint32:
-			var zero uint32
-			var funzero func(*Env) uint32
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfUint32:
+			if exprfun, ok := expr.Fun.(func(*Env) uint32); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) uint32)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint32)
 					channel <- exprfun(env)
@@ -1218,17 +1052,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Uint64:
-			var zero uint64
-			var funzero func(*Env) uint64
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfUint64:
+			if exprfun, ok := expr.Fun.(func(*Env) uint64); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) uint64)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uint64)
 					channel <- exprfun(env)
@@ -1243,17 +1070,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Uintptr:
-			var zero uintptr
-			var funzero func(*Env) uintptr
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfUintptr:
+			if exprfun, ok := expr.Fun.(func(*Env) uintptr); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) uintptr)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- uintptr)
 					channel <- exprfun(env)
@@ -1268,17 +1088,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Float32:
-			var zero float32
-			var funzero func(*Env) float32
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfFloat32:
+			if exprfun, ok := expr.Fun.(func(*Env) float32); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) float32)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- float32)
 					channel <- exprfun(env)
@@ -1293,17 +1106,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Float64:
-			var zero float64
-			var funzero func(*Env) float64
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfFloat64:
+			if exprfun, ok := expr.Fun.(func(*Env) float64); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) float64)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- float64)
 					channel <- exprfun(env)
@@ -1318,17 +1124,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Complex64:
-			var zero complex64
-			var funzero func(*Env) complex64
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfComplex64:
+			if exprfun, ok := expr.Fun.(func(*Env) complex64); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) complex64)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- complex64)
 					channel <- exprfun(env)
@@ -1343,17 +1142,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.Complex128:
-			var zero complex128
-			var funzero func(*Env) complex128
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfComplex128:
+			if exprfun, ok := expr.Fun.(func(*Env) complex128); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) complex128)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- complex128)
 					channel <- exprfun(env)
@@ -1368,17 +1160,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case
-
-			r.String:
-			var zero string
-			var funzero func(*Env) string
-			if telem != r.TypeOf(zero) || r.TypeOf(expr.Fun) != r.TypeOf(funzero) {
+		case TypeOfString:
+			if exprfun, ok := expr.Fun.(func(*Env) string); !ok {
 				break
-			}
-
-			exprfun := expr.Fun.(func(*Env) string)
-			if sendonly {
+			} else if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
 					channel := channelfun(env).Interface().(chan<- string)
 					channel <- exprfun(env)
