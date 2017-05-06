@@ -48,19 +48,22 @@ func call1ret1(c *Call, maxdepth int) I {
 
 	}
 	t := expr.Type
-	targ := t.In(0)
-	tret := t.Out(0)
-	karg := targ.Kind()
-	kret := tret.Kind()
+	targ, tret := t.In(0), t.Out(0)
+	karg, kret := targ.Kind(), tret.Kind()
+	var call I
+	if KindToType(karg) != targ || KindToType(kret) != tret {
+		return call1ret1namedtype(c, maxdepth)
+	}
+
 	arg := c.Args[0]
 	argfun := arg.AsX1()
 	var cachedfunv r.Value
-	var call I
-	switch tret {
 
-	case TypeOfBool:
-		switch targ {
-		case TypeOfBool:
+	switch kret {
+
+	case r.Bool:
+		switch karg {
+		case r.Bool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) bool
@@ -112,7 +115,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) bool
@@ -166,7 +169,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) bool
@@ -220,7 +223,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) bool
@@ -274,7 +277,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt32:
+		case r.Int32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) bool
@@ -328,7 +331,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt64:
+		case r.Int64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) bool
@@ -380,7 +383,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint:
+		case r.Uint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) bool
@@ -434,7 +437,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) bool
@@ -488,7 +491,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) bool
@@ -542,7 +545,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) bool
@@ -596,7 +599,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint64:
+		case r.Uint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) bool
@@ -648,7 +651,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUintptr:
+		case r.Uintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) bool
@@ -702,7 +705,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat32:
+		case r.Float32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) bool
@@ -756,7 +759,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat64:
+		case r.Float64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) bool
@@ -808,7 +811,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex64:
+		case r.Complex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) bool
@@ -862,7 +865,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex128:
+		case r.Complex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) bool
@@ -914,7 +917,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfString:
+		case r.String:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) bool
@@ -978,9 +981,9 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfInt:
-		switch targ {
-		case TypeOfBool:
+	case r.Int:
+		switch karg {
+		case r.Bool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) int
@@ -1032,7 +1035,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) int
@@ -1086,7 +1089,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) int
@@ -1140,7 +1143,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) int
@@ -1194,7 +1197,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt32:
+		case r.Int32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) int
@@ -1248,7 +1251,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt64:
+		case r.Int64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) int
@@ -1300,7 +1303,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint:
+		case r.Uint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) int
@@ -1354,7 +1357,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) int
@@ -1408,7 +1411,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) int
@@ -1462,7 +1465,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) int
@@ -1516,7 +1519,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint64:
+		case r.Uint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) int
@@ -1568,7 +1571,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUintptr:
+		case r.Uintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) int
@@ -1622,7 +1625,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat32:
+		case r.Float32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) int
@@ -1676,7 +1679,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat64:
+		case r.Float64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) int
@@ -1728,7 +1731,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex64:
+		case r.Complex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) int
@@ -1782,7 +1785,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex128:
+		case r.Complex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) int
@@ -1834,7 +1837,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfString:
+		case r.String:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) int
@@ -1898,7 +1901,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfInt8:
+	case r.Int8:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) int8
@@ -1953,8 +1956,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -1964,7 +1967,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -1974,7 +1977,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) int8 {
@@ -1983,7 +1986,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) int8 {
@@ -1992,7 +1995,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) int8 {
@@ -2001,7 +2004,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) int8 {
@@ -2010,7 +2013,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) int8 {
@@ -2019,7 +2022,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) int8 {
@@ -2028,7 +2031,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) int8 {
@@ -2037,7 +2040,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) int8 {
@@ -2046,7 +2049,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) int8 {
@@ -2055,7 +2058,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) int8 {
@@ -2064,7 +2067,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) int8 {
@@ -2074,7 +2077,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) int8 {
@@ -2084,7 +2087,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) int8 {
@@ -2094,7 +2097,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) int8 {
@@ -2104,7 +2107,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) int8 {
@@ -2127,7 +2130,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfInt16:
+	case r.Int16:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) int16
@@ -2182,8 +2185,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -2193,7 +2196,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -2203,7 +2206,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) int16 {
@@ -2212,7 +2215,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) int16 {
@@ -2221,7 +2224,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) int16 {
@@ -2230,7 +2233,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) int16 {
@@ -2239,7 +2242,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) int16 {
@@ -2248,7 +2251,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) int16 {
@@ -2257,7 +2260,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) int16 {
@@ -2266,7 +2269,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) int16 {
@@ -2275,7 +2278,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) int16 {
@@ -2284,7 +2287,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) int16 {
@@ -2293,7 +2296,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) int16 {
@@ -2303,7 +2306,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) int16 {
@@ -2313,7 +2316,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) int16 {
@@ -2323,7 +2326,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) int16 {
@@ -2333,7 +2336,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) int16 {
@@ -2356,9 +2359,9 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfInt32:
-		switch targ {
-		case TypeOfBool:
+	case r.Int32:
+		switch karg {
+		case r.Bool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) int32
@@ -2410,7 +2413,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) int32
@@ -2464,7 +2467,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) int32
@@ -2518,7 +2521,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) int32
@@ -2572,7 +2575,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt32:
+		case r.Int32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) int32
@@ -2626,7 +2629,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt64:
+		case r.Int64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) int32
@@ -2678,7 +2681,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint:
+		case r.Uint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) int32
@@ -2732,7 +2735,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) int32
@@ -2786,7 +2789,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) int32
@@ -2840,7 +2843,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) int32
@@ -2894,7 +2897,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint64:
+		case r.Uint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) int32
@@ -2946,7 +2949,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUintptr:
+		case r.Uintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) int32
@@ -3000,7 +3003,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat32:
+		case r.Float32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) int32
@@ -3054,7 +3057,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat64:
+		case r.Float64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) int32
@@ -3106,7 +3109,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex64:
+		case r.Complex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) int32
@@ -3160,7 +3163,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex128:
+		case r.Complex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) int32
@@ -3212,7 +3215,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfString:
+		case r.String:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) int32
@@ -3276,9 +3279,9 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfInt64:
-		switch targ {
-		case TypeOfBool:
+	case r.Int64:
+		switch karg {
+		case r.Bool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) int64
@@ -3330,7 +3333,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) int64
@@ -3384,7 +3387,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) int64
@@ -3438,7 +3441,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) int64
@@ -3492,7 +3495,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt32:
+		case r.Int32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) int64
@@ -3546,7 +3549,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt64:
+		case r.Int64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) int64
@@ -3598,7 +3601,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint:
+		case r.Uint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) int64
@@ -3652,7 +3655,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) int64
@@ -3706,7 +3709,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) int64
@@ -3760,7 +3763,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) int64
@@ -3814,7 +3817,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint64:
+		case r.Uint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) int64
@@ -3866,7 +3869,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUintptr:
+		case r.Uintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) int64
@@ -3920,7 +3923,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat32:
+		case r.Float32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) int64
@@ -3974,7 +3977,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat64:
+		case r.Float64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) int64
@@ -4026,7 +4029,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex64:
+		case r.Complex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) int64
@@ -4080,7 +4083,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex128:
+		case r.Complex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) int64
@@ -4132,7 +4135,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfString:
+		case r.String:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) int64
@@ -4196,9 +4199,9 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfUint:
-		switch targ {
-		case TypeOfBool:
+	case r.Uint:
+		switch karg {
+		case r.Bool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) uint
@@ -4250,7 +4253,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) uint
@@ -4304,7 +4307,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) uint
@@ -4358,7 +4361,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) uint
@@ -4412,7 +4415,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt32:
+		case r.Int32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) uint
@@ -4466,7 +4469,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt64:
+		case r.Int64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) uint
@@ -4518,7 +4521,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint:
+		case r.Uint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) uint
@@ -4572,7 +4575,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) uint
@@ -4626,7 +4629,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) uint
@@ -4680,7 +4683,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) uint
@@ -4734,7 +4737,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint64:
+		case r.Uint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) uint
@@ -4786,7 +4789,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUintptr:
+		case r.Uintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) uint
@@ -4840,7 +4843,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat32:
+		case r.Float32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) uint
@@ -4894,7 +4897,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat64:
+		case r.Float64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) uint
@@ -4946,7 +4949,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex64:
+		case r.Complex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) uint
@@ -5000,7 +5003,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex128:
+		case r.Complex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) uint
@@ -5052,7 +5055,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfString:
+		case r.String:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) uint
@@ -5116,7 +5119,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfUint8:
+	case r.Uint8:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) uint8
@@ -5171,8 +5174,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -5182,7 +5185,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -5192,7 +5195,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) uint8 {
@@ -5201,7 +5204,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) uint8 {
@@ -5210,7 +5213,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) uint8 {
@@ -5219,7 +5222,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) uint8 {
@@ -5228,7 +5231,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) uint8 {
@@ -5237,7 +5240,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) uint8 {
@@ -5246,7 +5249,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) uint8 {
@@ -5255,7 +5258,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) uint8 {
@@ -5264,7 +5267,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) uint8 {
@@ -5273,7 +5276,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) uint8 {
@@ -5282,7 +5285,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) uint8 {
@@ -5292,7 +5295,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) uint8 {
@@ -5302,7 +5305,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) uint8 {
@@ -5312,7 +5315,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) uint8 {
@@ -5322,7 +5325,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) uint8 {
@@ -5345,7 +5348,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfUint16:
+	case r.Uint16:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) uint16
@@ -5400,8 +5403,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -5411,7 +5414,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -5421,7 +5424,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) uint16 {
@@ -5430,7 +5433,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) uint16 {
@@ -5439,7 +5442,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) uint16 {
@@ -5448,7 +5451,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) uint16 {
@@ -5457,7 +5460,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) uint16 {
@@ -5466,7 +5469,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) uint16 {
@@ -5475,7 +5478,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) uint16 {
@@ -5484,7 +5487,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) uint16 {
@@ -5493,7 +5496,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) uint16 {
@@ -5502,7 +5505,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) uint16 {
@@ -5511,7 +5514,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) uint16 {
@@ -5521,7 +5524,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) uint16 {
@@ -5531,7 +5534,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) uint16 {
@@ -5541,7 +5544,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) uint16 {
@@ -5551,7 +5554,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) uint16 {
@@ -5574,7 +5577,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfUint32:
+	case r.Uint32:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) uint32
@@ -5629,8 +5632,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -5640,7 +5643,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -5650,7 +5653,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) uint32 {
@@ -5659,7 +5662,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) uint32 {
@@ -5668,7 +5671,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) uint32 {
@@ -5677,7 +5680,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) uint32 {
@@ -5686,7 +5689,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) uint32 {
@@ -5695,7 +5698,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) uint32 {
@@ -5704,7 +5707,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) uint32 {
@@ -5713,7 +5716,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) uint32 {
@@ -5722,7 +5725,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) uint32 {
@@ -5731,7 +5734,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) uint32 {
@@ -5740,7 +5743,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) uint32 {
@@ -5750,7 +5753,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) uint32 {
@@ -5760,7 +5763,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) uint32 {
@@ -5770,7 +5773,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) uint32 {
@@ -5780,7 +5783,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) uint32 {
@@ -5803,9 +5806,9 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfUint64:
-		switch targ {
-		case TypeOfBool:
+	case r.Uint64:
+		switch karg {
+		case r.Bool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) uint64
@@ -5857,7 +5860,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) uint64
@@ -5911,7 +5914,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) uint64
@@ -5965,7 +5968,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) uint64
@@ -6019,7 +6022,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt32:
+		case r.Int32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) uint64
@@ -6073,7 +6076,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt64:
+		case r.Int64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) uint64
@@ -6125,7 +6128,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint:
+		case r.Uint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) uint64
@@ -6179,7 +6182,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) uint64
@@ -6233,7 +6236,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) uint64
@@ -6287,7 +6290,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) uint64
@@ -6341,7 +6344,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint64:
+		case r.Uint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) uint64
@@ -6393,7 +6396,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUintptr:
+		case r.Uintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) uint64
@@ -6447,7 +6450,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat32:
+		case r.Float32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) uint64
@@ -6501,7 +6504,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat64:
+		case r.Float64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) uint64
@@ -6553,7 +6556,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex64:
+		case r.Complex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) uint64
@@ -6607,7 +6610,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex128:
+		case r.Complex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) uint64
@@ -6659,7 +6662,7 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfString:
+		case r.String:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) uint64
@@ -6723,7 +6726,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfUintptr:
+	case r.Uintptr:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) uintptr
@@ -6778,8 +6781,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -6789,7 +6792,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -6799,7 +6802,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) uintptr {
@@ -6808,7 +6811,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) uintptr {
@@ -6817,7 +6820,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) uintptr {
@@ -6826,7 +6829,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) uintptr {
@@ -6835,7 +6838,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) uintptr {
@@ -6844,7 +6847,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) uintptr {
@@ -6853,7 +6856,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) uintptr {
@@ -6862,7 +6865,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) uintptr {
@@ -6871,7 +6874,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) uintptr {
@@ -6880,7 +6883,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) uintptr {
@@ -6889,7 +6892,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) uintptr {
@@ -6899,7 +6902,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) uintptr {
@@ -6909,7 +6912,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) uintptr {
@@ -6919,7 +6922,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) uintptr {
@@ -6929,7 +6932,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) uintptr {
@@ -6952,7 +6955,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfFloat32:
+	case r.Float32:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) float32
@@ -7007,8 +7010,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -7018,7 +7021,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -7028,7 +7031,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) float32 {
@@ -7037,7 +7040,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) float32 {
@@ -7046,7 +7049,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) float32 {
@@ -7055,7 +7058,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) float32 {
@@ -7064,7 +7067,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) float32 {
@@ -7073,7 +7076,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) float32 {
@@ -7082,7 +7085,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) float32 {
@@ -7091,7 +7094,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) float32 {
@@ -7100,7 +7103,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) float32 {
@@ -7109,7 +7112,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) float32 {
@@ -7118,7 +7121,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) float32 {
@@ -7128,7 +7131,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) float32 {
@@ -7138,7 +7141,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) float32 {
@@ -7148,7 +7151,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) float32 {
@@ -7158,7 +7161,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) float32 {
@@ -7181,7 +7184,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfFloat64:
+	case r.Float64:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) float64
@@ -7234,8 +7237,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -7245,7 +7248,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -7255,7 +7258,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) float64 {
@@ -7264,7 +7267,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) float64 {
@@ -7273,7 +7276,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) float64 {
@@ -7282,7 +7285,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) float64 {
@@ -7291,7 +7294,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) float64 {
@@ -7300,7 +7303,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) float64 {
@@ -7309,7 +7312,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) float64 {
@@ -7318,7 +7321,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) float64 {
@@ -7327,7 +7330,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) float64 {
@@ -7336,7 +7339,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) float64 {
@@ -7345,7 +7348,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) float64 {
@@ -7355,7 +7358,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) float64 {
@@ -7365,7 +7368,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) float64 {
@@ -7375,7 +7378,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) float64 {
@@ -7385,7 +7388,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) float64 {
@@ -7408,7 +7411,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfComplex64:
+	case r.Complex64:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) complex64
@@ -7463,8 +7466,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -7474,7 +7477,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -7484,7 +7487,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) complex64 {
@@ -7493,7 +7496,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) complex64 {
@@ -7502,7 +7505,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) complex64 {
@@ -7511,7 +7514,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) complex64 {
@@ -7520,7 +7523,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) complex64 {
@@ -7529,7 +7532,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) complex64 {
@@ -7538,7 +7541,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) complex64 {
@@ -7547,7 +7550,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) complex64 {
@@ -7556,7 +7559,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) complex64 {
@@ -7565,7 +7568,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) complex64 {
@@ -7574,7 +7577,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) complex64 {
@@ -7584,7 +7587,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) complex64 {
@@ -7594,7 +7597,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) complex64 {
@@ -7604,7 +7607,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) complex64 {
@@ -7614,7 +7617,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) complex64 {
@@ -7637,7 +7640,7 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfComplex128:
+	case r.Complex128:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) complex128
@@ -7690,8 +7693,8 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch targ {
-			case TypeOfBool:
+			switch karg {
+			case r.Bool:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) bool)
@@ -7701,7 +7704,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt:
+			case r.Int:
 
 				{
 					argfun := arg.WithFun().(func(env *Env) int)
@@ -7711,7 +7714,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt8:
+			case r.Int8:
 				{
 					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) complex128 {
@@ -7720,7 +7723,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt16:
+			case r.Int16:
 				{
 					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) complex128 {
@@ -7729,7 +7732,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt32:
+			case r.Int32:
 				{
 					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) complex128 {
@@ -7738,7 +7741,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfInt64:
+			case r.Int64:
 				{
 					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) complex128 {
@@ -7747,7 +7750,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint:
+			case r.Uint:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) complex128 {
@@ -7756,7 +7759,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint8:
+			case r.Uint8:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) complex128 {
@@ -7765,7 +7768,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint16:
+			case r.Uint16:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) complex128 {
@@ -7774,7 +7777,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint32:
+			case r.Uint32:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) complex128 {
@@ -7783,7 +7786,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUint64:
+			case r.Uint64:
 				{
 					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) complex128 {
@@ -7792,7 +7795,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfUintptr:
+			case r.Uintptr:
 				{
 					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) complex128 {
@@ -7801,7 +7804,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return fun(arg)
 					}
 				}
-			case TypeOfFloat32:
+			case r.Float32:
 				{
 					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) complex128 {
@@ -7811,7 +7814,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfFloat64:
+			case r.Float64:
 				{
 					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) complex128 {
@@ -7821,7 +7824,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex64:
+			case r.Complex64:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) complex128 {
@@ -7831,7 +7834,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfComplex128:
+			case r.Complex128:
 				{
 					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) complex128 {
@@ -7841,7 +7844,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case TypeOfString:
+			case r.String:
 				{
 					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) complex128 {
@@ -7864,13 +7867,12 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case TypeOfString:
-		switch targ {
-		case TypeOfBool:
+	case r.String:
+		switch karg {
+		case r.Bool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) string
-
 				if arg.Const() {
 					argconst := r.ValueOf(arg.Value).Bool()
 
@@ -7918,11 +7920,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt:
+		case r.Int:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) string
-
 				if arg.Const() {
 					argconst := int(
 
@@ -7972,11 +7973,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt8:
+		case r.Int8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) string
-
 				if arg.Const() {
 					argconst := int8(
 
@@ -8026,11 +8026,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt16:
+		case r.Int16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) string
-
 				if arg.Const() {
 					argconst := int16(
 
@@ -8080,11 +8079,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt32:
+		case r.Int32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) string
-
 				if arg.Const() {
 					argconst := int32(
 
@@ -8134,11 +8132,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfInt64:
+		case r.Int64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) string
-
 				if arg.Const() {
 					argconst := r.ValueOf(arg.Value).Int()
 
@@ -8186,11 +8183,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint:
+		case r.Uint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) string
-
 				if arg.Const() {
 					argconst := uint(
 
@@ -8240,11 +8236,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint8:
+		case r.Uint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) string
-
 				if arg.Const() {
 					argconst := uint8(
 
@@ -8294,11 +8289,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint16:
+		case r.Uint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) string
-
 				if arg.Const() {
 					argconst := uint16(
 
@@ -8348,11 +8342,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint32:
+		case r.Uint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) string
-
 				if arg.Const() {
 					argconst := uint32(
 
@@ -8402,11 +8395,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUint64:
+		case r.Uint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) string
-
 				if arg.Const() {
 					argconst := r.ValueOf(arg.Value).Uint()
 
@@ -8454,11 +8446,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfUintptr:
+		case r.Uintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) string
-
 				if arg.Const() {
 					argconst := uintptr(
 
@@ -8508,11 +8499,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat32:
+		case r.Float32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) string
-
 				if arg.Const() {
 					argconst := float32(
 
@@ -8562,11 +8552,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfFloat64:
+		case r.Float64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) string
-
 				if arg.Const() {
 					argconst := r.ValueOf(arg.Value).Float()
 
@@ -8614,11 +8603,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex64:
+		case r.Complex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) string
-
 				if arg.Const() {
 					argconst := complex64(
 
@@ -8668,11 +8656,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfComplex128:
+		case r.Complex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) string
-
 				if arg.Const() {
 					argconst := r.ValueOf(arg.Value).Complex()
 
@@ -8720,11 +8707,10 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case TypeOfString:
+		case r.String:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) string
-
 				if arg.Const() {
 					argconst := r.ValueOf(arg.Value).String()
 
@@ -8782,6 +8768,198 @@ func call1ret1(c *Call, maxdepth int) I {
 				ret0 := funv.Call(argv)[0]
 				return ret0.String()
 			}
+		}
+
+	}
+	if call == nil {
+		call = func(env *Env) r.Value {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			return funv.Call(argv)[0]
+		}
+	}
+	return call
+}
+func call1ret1namedtype(c *Call, maxdepth int) I {
+	expr := c.Fun
+	exprfun := expr.AsX1()
+	t := expr.Type
+	targ, tret := t.In(0), t.Out(0)
+	karg, kret := targ.Kind(), tret.Kind()
+
+	argfun := c.Args[0].AsX1()
+	var call I
+
+	switch kret {
+	case r.Bool:
+		call = func(env *Env) bool {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return retv.Bool()
+		}
+	case r.Int:
+		call = func(env *Env) int {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return int(retv.Int())
+		}
+
+	case r.Int8:
+		call = func(env *Env) int8 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return int8(retv.Int())
+		}
+
+	case r.Int16:
+		call = func(env *Env) int16 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return int16(retv.Int())
+		}
+
+	case r.Int32:
+		call = func(env *Env) int32 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return int32(retv.Int())
+		}
+
+	case r.Int64:
+		call = func(env *Env) int64 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return retv.Int()
+		}
+
+	case r.Uint:
+		call = func(env *Env) uint {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return uint(retv.Uint())
+		}
+
+	case r.Uint8:
+		call = func(env *Env) uint8 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return uint8(retv.Uint())
+		}
+
+	case r.Uint16:
+		call = func(env *Env) uint16 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return uint16(retv.Uint())
+		}
+
+	case r.Uint32:
+		call = func(env *Env) uint32 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return uint32(retv.Uint())
+		}
+
+	case r.Uint64:
+		call = func(env *Env) uint64 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return retv.Uint()
+		}
+
+	case r.Uintptr:
+		call = func(env *Env) uintptr {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return uintptr(retv.Uint())
+		}
+
+	case r.Float32:
+		call = func(env *Env) float32 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return float32(retv.Float())
+		}
+
+	case r.Float64:
+		call = func(env *Env) float64 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return retv.Float()
+		}
+
+	case r.Complex64:
+		call = func(env *Env) complex64 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return complex64(retv.Complex())
+		}
+
+	case r.Complex128:
+		call = func(env *Env) complex128 {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return retv.Complex()
+		}
+
+	case r.String:
+		call = func(env *Env) string {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			retv := funv.Call(argv)[0]
+			return retv.String()
 		}
 
 	}
