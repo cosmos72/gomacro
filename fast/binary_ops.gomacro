@@ -273,7 +273,7 @@ func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			c.Errorf("division by zero")
 			return nil
-		} else if ze := c.optimizeQuo(node, xe, ye); ze != nil {
+		} else if ze := c.quoPow2(node, xe, ye); ze != nil {
 			return ze
 		}
 		{binaryops; token.QUO; false; true; { int; uint; float32; float64; complex64; complex128 }}
@@ -303,7 +303,7 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			c.Errorf("division by zero")
 			return nil
-		} else if ze := c.optimizeRem(node, xe, ye); ze != nil {
+		} else if ze := c.remPow2(node, xe, ye); ze != nil {
 			return ze
 		}
 		{binaryops; token.REM; false; true; { int; uint }}
@@ -348,9 +348,9 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 }
 
-// optimizeQuo tries to optimize divisions by a constant.
+// quoPow2 tries to optimize divisions by a constant power-of-two.
 // returns nil if no optimized version could be compiled.
-func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) quoPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	// no need to optimize if both xe and ye are constant:
 	// division will be computed only once by EvalConst()
 	if xe.Const() || !ye.Const() {
@@ -432,12 +432,10 @@ func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y_1 := ~,typ(y - 1) // cannot overflow, y was originally a ~,typ
 		fun = func(env *Env) ~,typ {
 			n := x(env)
-			neg := n < 0
-			n &= y_1
-			if neg && n != 0 {
-				n -= (y_1 + 1)
+			if n >= 0 {
+				return n & y_1
 			}
-			return n
+			return -(-n & y_1)
 		}
 	}
 }
@@ -452,9 +450,9 @@ func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 }
 
-// optimizeRem tries to optimize remainders by a constant.
+// remPow2 tries to optimize remainders by a constant power-of-two.
 // returns nil if no optimized version could be compiled.
-func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) remPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	// no need to optimize if both xe and ye are constant:
 	// remainder will be computed only once by EvalConst()
 	if xe.Const() || !ye.Const() {
@@ -496,11 +494,11 @@ func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	// -63 %  8 = -7, -63 &  7 =  1 // different result
 	// -63 % -8 = -7, -63 &  7 =  1 // different result
 	//
-	// to fix this, when xe is negative and the result is != 0 we must subtract abs(y) from the result:
-	// -11 %  2 = -1, (-11 & 1) - 2 = 1 - 2 = -1 // same result
-	// -11 % -2 = -1, (-11 & 1) - 2 = 1 - 2 = -1 // same result
-	// -63 %  8 = -7, (-63 & 7) - 8 = 1 - 8 = -7 // same result
-	// -63 % -8 = -7, (-63 & 7) - 8 = 1 - 8 = -7 // same result
+	// to fix this, when xe is negative, we flip its sign, perform the bitwise-and with (abs(y)-1), then flip again the sign:
+	// -11 %  2 = -1, -(11 & 1) = -1 // same result
+	// -11 % -2 = -1, -(11 & 1) = -1 // same result
+	// -63 %  8 = -7, -(63 & 7) = -7 // same result
+	// -63 % -8 = -7, -(63 & 7) = -7 // same result
 
 	x := xe.Fun
 	var fun I
@@ -518,7 +516,6 @@ func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	case r.Uintptr: {rempow2_u; uintptr}
 	default:        return nil
 	}
-
 	return exprFun(xe.Type, fun)
 }
 

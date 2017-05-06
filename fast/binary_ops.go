@@ -1790,7 +1790,7 @@ func (c *Comp) Quo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			c.Errorf("division by zero")
 			return nil
-		} else if ze := c.optimizeQuo(node, xe, ye); ze != nil {
+		} else if ze := c.quoPow2(node, xe, ye); ze != nil {
 			return ze
 		}
 
@@ -2271,7 +2271,7 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		if isLiteralNumber(y, 0) {
 			c.Errorf("division by zero")
 			return nil
-		} else if ze := c.optimizeRem(node, xe, ye); ze != nil {
+		} else if ze := c.remPow2(node, xe, ye); ze != nil {
 			return ze
 		}
 
@@ -2541,7 +2541,7 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	return exprFun(xe.Type, fun)
 }
-func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) quoPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 	if xe.Const() || !ye.Const() {
 		return nil
@@ -2771,7 +2771,7 @@ func (c *Comp) optimizeQuo(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	return exprFun(xe.Type, fun)
 }
-func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+func (c *Comp) remPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 	if xe.Const() || !ye.Const() {
 		return nil
@@ -2812,12 +2812,10 @@ func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				int(y - 1)
 			fun = func(env *Env) int {
 				n := x(env)
-				neg := n < 0
-				n &= y_1
-				if neg && n != 0 {
-					n -= y_1 + 1
+				if n >= 0 {
+					return n & y_1
 				}
-				return n
+				return -(-n & y_1)
 			}
 		}
 
@@ -2829,12 +2827,10 @@ func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				int8(y - 1)
 			fun = func(env *Env) int8 {
 				n := x(env)
-				neg := n < 0
-				n &= y_1
-				if neg && n != 0 {
-					n -= y_1 + 1
+				if n >= 0 {
+					return n & y_1
 				}
-				return n
+				return -(-n & y_1)
 			}
 		}
 
@@ -2846,12 +2842,10 @@ func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				int16(y - 1)
 			fun = func(env *Env) int16 {
 				n := x(env)
-				neg := n < 0
-				n &= y_1
-				if neg && n != 0 {
-					n -= y_1 + 1
+				if n >= 0 {
+					return n & y_1
 				}
-				return n
+				return -(-n & y_1)
 			}
 		}
 
@@ -2863,12 +2857,10 @@ func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				int32(y - 1)
 			fun = func(env *Env) int32 {
 				n := x(env)
-				neg := n < 0
-				n &= y_1
-				if neg && n != 0 {
-					n -= y_1 + 1
+				if n >= 0 {
+					return n & y_1
 				}
-				return n
+				return -(-n & y_1)
 			}
 		}
 
@@ -2880,12 +2872,10 @@ func (c *Comp) optimizeRem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				int64(y - 1)
 			fun = func(env *Env) int64 {
 				n := x(env)
-				neg := n < 0
-				n &= y_1
-				if neg && n != 0 {
-					n -= y_1 + 1
+				if n >= 0 {
+					return n & y_1
 				}
-				return n
+				return -(-n & y_1)
 			}
 		}
 
