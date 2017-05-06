@@ -47,23 +47,27 @@ func call1ret1(c *Call, maxdepth int) I {
 		}
 
 	}
-	karg0 := expr.Type.In(0).Kind()
-	kret := expr.Type.Out(0).Kind()
-	arg0 := c.Args[0]
-	argfun := arg0.AsX1()
+	t := expr.Type
+	targ := t.In(0)
+	tret := t.Out(0)
+	karg := targ.Kind()
+	kret := tret.Kind()
+	arg := c.Args[0]
+	argfun := arg.AsX1()
 	var cachedfunv r.Value
 	var call I
-	switch kret {
+	switch tret {
 
-	case r.Bool:
-		switch karg0 {
-		case r.Bool:
+	case TypeOfBool:
+		switch targ {
+		case TypeOfBool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(bool)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Bool()
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -73,7 +77,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) bool)
+					argfun := arg.Fun.(func(env *Env) bool)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -86,7 +90,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) bool)
+				argfun := arg.WithFun().(func(env *Env) bool)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(bool) bool)
@@ -108,13 +112,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int:
+		case TypeOfInt:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int)
+				if arg.Const() {
+					argconst := int(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -124,7 +131,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int)
+					argfun := arg.Fun.(func(env *Env) int)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -137,7 +144,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int)
+				argfun := arg.WithFun().(func(env *Env) int)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(int) bool)
@@ -159,13 +166,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int8:
+		case TypeOfInt8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int8)
+				if arg.Const() {
+					argconst := int8(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -175,7 +185,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int8)
+					argfun := arg.Fun.(func(env *Env) int8)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -188,7 +198,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int8)
+				argfun := arg.WithFun().(func(env *Env) int8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(int8) bool)
@@ -210,13 +220,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int16:
+		case TypeOfInt16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int16)
+				if arg.Const() {
+					argconst := int16(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -226,7 +239,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int16)
+					argfun := arg.Fun.(func(env *Env) int16)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -239,7 +252,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int16)
+				argfun := arg.WithFun().(func(env *Env) int16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(int16) bool)
@@ -261,13 +274,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int32:
+		case TypeOfInt32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int32)
+				if arg.Const() {
+					argconst := int32(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -277,7 +293,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int32)
+					argfun := arg.Fun.(func(env *Env) int32)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -290,7 +306,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int32)
+				argfun := arg.WithFun().(func(env *Env) int32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(int32) bool)
@@ -312,13 +328,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int64:
+		case TypeOfInt64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Int()
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -328,7 +345,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int64)
+					argfun := arg.Fun.(func(env *Env) int64)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -341,7 +358,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int64)
+				argfun := arg.WithFun().(func(env *Env) int64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(int64) bool)
@@ -363,13 +380,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint:
+		case TypeOfUint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint)
+				if arg.Const() {
+					argconst := uint(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -379,7 +399,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint)
+					argfun := arg.Fun.(func(env *Env) uint)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -392,7 +412,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint)
+				argfun := arg.WithFun().(func(env *Env) uint)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(uint) bool)
@@ -414,13 +434,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint8:
+		case TypeOfUint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint8)
+				if arg.Const() {
+					argconst := uint8(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -430,7 +453,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint8)
+					argfun := arg.Fun.(func(env *Env) uint8)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -443,7 +466,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint8)
+				argfun := arg.WithFun().(func(env *Env) uint8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(uint8) bool)
@@ -465,13 +488,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint16:
+		case TypeOfUint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint16)
+				if arg.Const() {
+					argconst := uint16(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -481,7 +507,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint16)
+					argfun := arg.Fun.(func(env *Env) uint16)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -494,7 +520,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint16)
+				argfun := arg.WithFun().(func(env *Env) uint16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(uint16) bool)
@@ -516,13 +542,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint32:
+		case TypeOfUint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint32)
+				if arg.Const() {
+					argconst := uint32(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -532,7 +561,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint32)
+					argfun := arg.Fun.(func(env *Env) uint32)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -545,7 +574,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint32)
+				argfun := arg.WithFun().(func(env *Env) uint32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(uint32) bool)
@@ -567,13 +596,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint64:
+		case TypeOfUint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Uint()
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -583,7 +613,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint64)
+					argfun := arg.Fun.(func(env *Env) uint64)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -596,7 +626,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint64)
+				argfun := arg.WithFun().(func(env *Env) uint64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(uint64) bool)
@@ -618,13 +648,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uintptr:
+		case TypeOfUintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uintptr)
+				if arg.Const() {
+					argconst := uintptr(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -634,7 +667,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uintptr)
+					argfun := arg.Fun.(func(env *Env) uintptr)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -647,7 +680,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uintptr)
+				argfun := arg.WithFun().(func(env *Env) uintptr)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(uintptr) bool)
@@ -669,13 +702,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float32:
+		case TypeOfFloat32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float32)
+				if arg.Const() {
+					argconst := float32(
+
+						r.ValueOf(arg.Value).Float())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -685,7 +721,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float32)
+					argfun := arg.Fun.(func(env *Env) float32)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -698,7 +734,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float32)
+				argfun := arg.WithFun().(func(env *Env) float32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(float32) bool)
@@ -720,13 +756,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float64:
+		case TypeOfFloat64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Float()
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -736,7 +773,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float64)
+					argfun := arg.Fun.(func(env *Env) float64)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -749,7 +786,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float64)
+				argfun := arg.WithFun().(func(env *Env) float64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(float64) bool)
@@ -771,13 +808,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex64:
+		case TypeOfComplex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex64)
+				if arg.Const() {
+					argconst := complex64(
+
+						r.ValueOf(arg.Value).Complex())
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -787,7 +827,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex64)
+					argfun := arg.Fun.(func(env *Env) complex64)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -800,7 +840,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex64)
+				argfun := arg.WithFun().(func(env *Env) complex64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(complex64) bool)
@@ -822,13 +862,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex128:
+		case TypeOfComplex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex128)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Complex()
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -838,7 +879,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex128)
+					argfun := arg.Fun.(func(env *Env) complex128)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -851,7 +892,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex128)
+				argfun := arg.WithFun().(func(env *Env) complex128)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(complex128) bool)
@@ -873,13 +914,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.String:
+		case TypeOfString:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) bool
 
-				if arg0.Const() {
-					argconst := arg0.Value.(string)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).String()
+
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -889,7 +931,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) string)
+					argfun := arg.Fun.(func(env *Env) string)
 					call = func(env *Env) bool {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -902,7 +944,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) string)
+				argfun := arg.WithFun().(func(env *Env) string)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) bool {
 						fun := env.Binds[funindex].Interface().(func(string) bool)
@@ -935,15 +977,17 @@ func call1ret1(c *Call, maxdepth int) I {
 				return ret0.Bool()
 			}
 		}
-	case r.Int:
-		switch karg0 {
-		case r.Bool:
+
+	case TypeOfInt:
+		switch targ {
+		case TypeOfBool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(bool)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Bool()
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -953,7 +997,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) bool)
+					argfun := arg.Fun.(func(env *Env) bool)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -966,7 +1010,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) bool)
+				argfun := arg.WithFun().(func(env *Env) bool)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(bool) int)
@@ -988,13 +1032,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int:
+		case TypeOfInt:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int)
+				if arg.Const() {
+					argconst := int(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1004,7 +1051,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int)
+					argfun := arg.Fun.(func(env *Env) int)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1017,7 +1064,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int)
+				argfun := arg.WithFun().(func(env *Env) int)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(int) int)
@@ -1039,13 +1086,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int8:
+		case TypeOfInt8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int8)
+				if arg.Const() {
+					argconst := int8(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1055,7 +1105,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int8)
+					argfun := arg.Fun.(func(env *Env) int8)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1068,7 +1118,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int8)
+				argfun := arg.WithFun().(func(env *Env) int8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(int8) int)
@@ -1090,13 +1140,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int16:
+		case TypeOfInt16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int16)
+				if arg.Const() {
+					argconst := int16(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1106,7 +1159,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int16)
+					argfun := arg.Fun.(func(env *Env) int16)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1119,7 +1172,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int16)
+				argfun := arg.WithFun().(func(env *Env) int16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(int16) int)
@@ -1141,13 +1194,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int32:
+		case TypeOfInt32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int32)
+				if arg.Const() {
+					argconst := int32(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1157,7 +1213,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int32)
+					argfun := arg.Fun.(func(env *Env) int32)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1170,7 +1226,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int32)
+				argfun := arg.WithFun().(func(env *Env) int32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(int32) int)
@@ -1192,13 +1248,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int64:
+		case TypeOfInt64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Int()
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1208,7 +1265,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int64)
+					argfun := arg.Fun.(func(env *Env) int64)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1221,7 +1278,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int64)
+				argfun := arg.WithFun().(func(env *Env) int64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(int64) int)
@@ -1243,13 +1300,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint:
+		case TypeOfUint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint)
+				if arg.Const() {
+					argconst := uint(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1259,7 +1319,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint)
+					argfun := arg.Fun.(func(env *Env) uint)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1272,7 +1332,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint)
+				argfun := arg.WithFun().(func(env *Env) uint)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(uint) int)
@@ -1294,13 +1354,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint8:
+		case TypeOfUint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint8)
+				if arg.Const() {
+					argconst := uint8(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1310,7 +1373,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint8)
+					argfun := arg.Fun.(func(env *Env) uint8)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1323,7 +1386,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint8)
+				argfun := arg.WithFun().(func(env *Env) uint8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(uint8) int)
@@ -1345,13 +1408,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint16:
+		case TypeOfUint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint16)
+				if arg.Const() {
+					argconst := uint16(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1361,7 +1427,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint16)
+					argfun := arg.Fun.(func(env *Env) uint16)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1374,7 +1440,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint16)
+				argfun := arg.WithFun().(func(env *Env) uint16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(uint16) int)
@@ -1396,13 +1462,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint32:
+		case TypeOfUint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint32)
+				if arg.Const() {
+					argconst := uint32(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1412,7 +1481,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint32)
+					argfun := arg.Fun.(func(env *Env) uint32)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1425,7 +1494,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint32)
+				argfun := arg.WithFun().(func(env *Env) uint32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(uint32) int)
@@ -1447,13 +1516,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint64:
+		case TypeOfUint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Uint()
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1463,7 +1533,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint64)
+					argfun := arg.Fun.(func(env *Env) uint64)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1476,7 +1546,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint64)
+				argfun := arg.WithFun().(func(env *Env) uint64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(uint64) int)
@@ -1498,13 +1568,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uintptr:
+		case TypeOfUintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uintptr)
+				if arg.Const() {
+					argconst := uintptr(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1514,7 +1587,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uintptr)
+					argfun := arg.Fun.(func(env *Env) uintptr)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1527,7 +1600,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uintptr)
+				argfun := arg.WithFun().(func(env *Env) uintptr)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(uintptr) int)
@@ -1549,13 +1622,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float32:
+		case TypeOfFloat32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float32)
+				if arg.Const() {
+					argconst := float32(
+
+						r.ValueOf(arg.Value).Float())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1565,7 +1641,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float32)
+					argfun := arg.Fun.(func(env *Env) float32)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1578,7 +1654,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float32)
+				argfun := arg.WithFun().(func(env *Env) float32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(float32) int)
@@ -1600,13 +1676,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float64:
+		case TypeOfFloat64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Float()
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1616,7 +1693,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float64)
+					argfun := arg.Fun.(func(env *Env) float64)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1629,7 +1706,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float64)
+				argfun := arg.WithFun().(func(env *Env) float64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(float64) int)
@@ -1651,13 +1728,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex64:
+		case TypeOfComplex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex64)
+				if arg.Const() {
+					argconst := complex64(
+
+						r.ValueOf(arg.Value).Complex())
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1667,7 +1747,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex64)
+					argfun := arg.Fun.(func(env *Env) complex64)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1680,7 +1760,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex64)
+				argfun := arg.WithFun().(func(env *Env) complex64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(complex64) int)
@@ -1702,13 +1782,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex128:
+		case TypeOfComplex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex128)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Complex()
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1718,7 +1799,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex128)
+					argfun := arg.Fun.(func(env *Env) complex128)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1731,7 +1812,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex128)
+				argfun := arg.WithFun().(func(env *Env) complex128)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(complex128) int)
@@ -1753,13 +1834,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.String:
+		case TypeOfString:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) int
 
-				if arg0.Const() {
-					argconst := arg0.Value.(string)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).String()
+
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1769,7 +1851,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) string)
+					argfun := arg.Fun.(func(env *Env) string)
 					call = func(env *Env) int {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1782,7 +1864,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) string)
+				argfun := arg.WithFun().(func(env *Env) string)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int {
 						fun := env.Binds[funindex].Interface().(func(string) int)
@@ -1815,13 +1897,17 @@ func call1ret1(c *Call, maxdepth int) I {
 				return int(ret0.Int())
 			}
 		}
-	case r.Int8:
-		if karg0 == kret {
+
+	case TypeOfInt8:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) int8
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int8)
+				if arg.Const() {
+					argconst := int8(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int8 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1831,7 +1917,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int8)
+					argfun := arg.Fun.(func(env *Env) int8)
 					call = func(env *Env) int8 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -1844,7 +1930,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int8)
+				argfun := arg.WithFun().(func(env *Env) int8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int8 {
 						fun := env.Binds[funindex].Interface().(func(int8) int8)
@@ -1867,120 +1953,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(bool) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(int) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(int8) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(int16) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(int32) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(int64) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(uint) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(uint8) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(uint16) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(uint32) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(uint64) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(uintptr) int8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(float32) int8)
 						arg := argfun(env)
@@ -1988,9 +2074,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(float64) int8)
 						arg := argfun(env)
@@ -1998,9 +2084,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(complex64) int8)
 						arg := argfun(env)
@@ -2008,9 +2094,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(complex128) int8)
 						arg := argfun(env)
@@ -2018,9 +2104,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) int8 {
 						fun := exprfun(env).Interface().(func(string) int8)
 						arg := argfun(env)
@@ -2041,13 +2127,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Int16:
-		if karg0 == kret {
+	case TypeOfInt16:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) int16
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int16)
+				if arg.Const() {
+					argconst := int16(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int16 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2057,7 +2146,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int16)
+					argfun := arg.Fun.(func(env *Env) int16)
 					call = func(env *Env) int16 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2070,7 +2159,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int16)
+				argfun := arg.WithFun().(func(env *Env) int16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int16 {
 						fun := env.Binds[funindex].Interface().(func(int16) int16)
@@ -2093,120 +2182,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(bool) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(int) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(int8) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(int16) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(int32) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(int64) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(uint) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(uint8) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(uint16) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(uint32) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(uint64) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(uintptr) int16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(float32) int16)
 						arg := argfun(env)
@@ -2214,9 +2303,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(float64) int16)
 						arg := argfun(env)
@@ -2224,9 +2313,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(complex64) int16)
 						arg := argfun(env)
@@ -2234,9 +2323,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(complex128) int16)
 						arg := argfun(env)
@@ -2244,9 +2333,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) int16 {
 						fun := exprfun(env).Interface().(func(string) int16)
 						arg := argfun(env)
@@ -2267,15 +2356,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Int32:
-		switch karg0 {
-		case r.Bool:
+	case TypeOfInt32:
+		switch targ {
+		case TypeOfBool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(bool)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Bool()
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2285,7 +2375,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) bool)
+					argfun := arg.Fun.(func(env *Env) bool)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2298,7 +2388,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) bool)
+				argfun := arg.WithFun().(func(env *Env) bool)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(bool) int32)
@@ -2320,13 +2410,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int:
+		case TypeOfInt:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int)
+				if arg.Const() {
+					argconst := int(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2336,7 +2429,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int)
+					argfun := arg.Fun.(func(env *Env) int)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2349,7 +2442,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int)
+				argfun := arg.WithFun().(func(env *Env) int)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(int) int32)
@@ -2371,13 +2464,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int8:
+		case TypeOfInt8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int8)
+				if arg.Const() {
+					argconst := int8(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2387,7 +2483,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int8)
+					argfun := arg.Fun.(func(env *Env) int8)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2400,7 +2496,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int8)
+				argfun := arg.WithFun().(func(env *Env) int8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(int8) int32)
@@ -2422,13 +2518,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int16:
+		case TypeOfInt16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int16)
+				if arg.Const() {
+					argconst := int16(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2438,7 +2537,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int16)
+					argfun := arg.Fun.(func(env *Env) int16)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2451,7 +2550,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int16)
+				argfun := arg.WithFun().(func(env *Env) int16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(int16) int32)
@@ -2473,13 +2572,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int32:
+		case TypeOfInt32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int32)
+				if arg.Const() {
+					argconst := int32(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2489,7 +2591,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int32)
+					argfun := arg.Fun.(func(env *Env) int32)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2502,7 +2604,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int32)
+				argfun := arg.WithFun().(func(env *Env) int32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(int32) int32)
@@ -2524,13 +2626,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int64:
+		case TypeOfInt64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Int()
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2540,7 +2643,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int64)
+					argfun := arg.Fun.(func(env *Env) int64)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2553,7 +2656,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int64)
+				argfun := arg.WithFun().(func(env *Env) int64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(int64) int32)
@@ -2575,13 +2678,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint:
+		case TypeOfUint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint)
+				if arg.Const() {
+					argconst := uint(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2591,7 +2697,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint)
+					argfun := arg.Fun.(func(env *Env) uint)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2604,7 +2710,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint)
+				argfun := arg.WithFun().(func(env *Env) uint)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(uint) int32)
@@ -2626,13 +2732,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint8:
+		case TypeOfUint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint8)
+				if arg.Const() {
+					argconst := uint8(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2642,7 +2751,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint8)
+					argfun := arg.Fun.(func(env *Env) uint8)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2655,7 +2764,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint8)
+				argfun := arg.WithFun().(func(env *Env) uint8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(uint8) int32)
@@ -2677,13 +2786,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint16:
+		case TypeOfUint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint16)
+				if arg.Const() {
+					argconst := uint16(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2693,7 +2805,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint16)
+					argfun := arg.Fun.(func(env *Env) uint16)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2706,7 +2818,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint16)
+				argfun := arg.WithFun().(func(env *Env) uint16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(uint16) int32)
@@ -2728,13 +2840,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint32:
+		case TypeOfUint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint32)
+				if arg.Const() {
+					argconst := uint32(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2744,7 +2859,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint32)
+					argfun := arg.Fun.(func(env *Env) uint32)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2757,7 +2872,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint32)
+				argfun := arg.WithFun().(func(env *Env) uint32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(uint32) int32)
@@ -2779,13 +2894,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint64:
+		case TypeOfUint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Uint()
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2795,7 +2911,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint64)
+					argfun := arg.Fun.(func(env *Env) uint64)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2808,7 +2924,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint64)
+				argfun := arg.WithFun().(func(env *Env) uint64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(uint64) int32)
@@ -2830,13 +2946,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uintptr:
+		case TypeOfUintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uintptr)
+				if arg.Const() {
+					argconst := uintptr(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2846,7 +2965,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uintptr)
+					argfun := arg.Fun.(func(env *Env) uintptr)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2859,7 +2978,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uintptr)
+				argfun := arg.WithFun().(func(env *Env) uintptr)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(uintptr) int32)
@@ -2881,13 +3000,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float32:
+		case TypeOfFloat32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float32)
+				if arg.Const() {
+					argconst := float32(
+
+						r.ValueOf(arg.Value).Float())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2897,7 +3019,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float32)
+					argfun := arg.Fun.(func(env *Env) float32)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2910,7 +3032,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float32)
+				argfun := arg.WithFun().(func(env *Env) float32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(float32) int32)
@@ -2932,13 +3054,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float64:
+		case TypeOfFloat64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Float()
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2948,7 +3071,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float64)
+					argfun := arg.Fun.(func(env *Env) float64)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2961,7 +3084,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float64)
+				argfun := arg.WithFun().(func(env *Env) float64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(float64) int32)
@@ -2983,13 +3106,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex64:
+		case TypeOfComplex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex64)
+				if arg.Const() {
+					argconst := complex64(
+
+						r.ValueOf(arg.Value).Complex())
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -2999,7 +3125,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex64)
+					argfun := arg.Fun.(func(env *Env) complex64)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3012,7 +3138,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex64)
+				argfun := arg.WithFun().(func(env *Env) complex64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(complex64) int32)
@@ -3034,13 +3160,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex128:
+		case TypeOfComplex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex128)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Complex()
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3050,7 +3177,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex128)
+					argfun := arg.Fun.(func(env *Env) complex128)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3063,7 +3190,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex128)
+				argfun := arg.WithFun().(func(env *Env) complex128)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(complex128) int32)
@@ -3085,13 +3212,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.String:
+		case TypeOfString:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) int32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(string)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).String()
+
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3101,7 +3229,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) string)
+					argfun := arg.Fun.(func(env *Env) string)
 					call = func(env *Env) int32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3114,7 +3242,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) string)
+				argfun := arg.WithFun().(func(env *Env) string)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int32 {
 						fun := env.Binds[funindex].Interface().(func(string) int32)
@@ -3148,15 +3276,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Int64:
-		switch karg0 {
-		case r.Bool:
+	case TypeOfInt64:
+		switch targ {
+		case TypeOfBool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(bool)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Bool()
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3166,7 +3295,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) bool)
+					argfun := arg.Fun.(func(env *Env) bool)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3179,7 +3308,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) bool)
+				argfun := arg.WithFun().(func(env *Env) bool)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(bool) int64)
@@ -3201,13 +3330,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int:
+		case TypeOfInt:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int)
+				if arg.Const() {
+					argconst := int(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3217,7 +3349,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int)
+					argfun := arg.Fun.(func(env *Env) int)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3230,7 +3362,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int)
+				argfun := arg.WithFun().(func(env *Env) int)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(int) int64)
@@ -3252,13 +3384,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int8:
+		case TypeOfInt8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int8)
+				if arg.Const() {
+					argconst := int8(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3268,7 +3403,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int8)
+					argfun := arg.Fun.(func(env *Env) int8)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3281,7 +3416,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int8)
+				argfun := arg.WithFun().(func(env *Env) int8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(int8) int64)
@@ -3303,13 +3438,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int16:
+		case TypeOfInt16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int16)
+				if arg.Const() {
+					argconst := int16(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3319,7 +3457,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int16)
+					argfun := arg.Fun.(func(env *Env) int16)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3332,7 +3470,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int16)
+				argfun := arg.WithFun().(func(env *Env) int16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(int16) int64)
@@ -3354,13 +3492,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int32:
+		case TypeOfInt32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int32)
+				if arg.Const() {
+					argconst := int32(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3370,7 +3511,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int32)
+					argfun := arg.Fun.(func(env *Env) int32)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3383,7 +3524,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int32)
+				argfun := arg.WithFun().(func(env *Env) int32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(int32) int64)
@@ -3405,13 +3546,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int64:
+		case TypeOfInt64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Int()
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3421,7 +3563,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int64)
+					argfun := arg.Fun.(func(env *Env) int64)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3434,7 +3576,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int64)
+				argfun := arg.WithFun().(func(env *Env) int64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(int64) int64)
@@ -3456,13 +3598,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint:
+		case TypeOfUint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint)
+				if arg.Const() {
+					argconst := uint(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3472,7 +3617,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint)
+					argfun := arg.Fun.(func(env *Env) uint)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3485,7 +3630,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint)
+				argfun := arg.WithFun().(func(env *Env) uint)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(uint) int64)
@@ -3507,13 +3652,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint8:
+		case TypeOfUint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint8)
+				if arg.Const() {
+					argconst := uint8(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3523,7 +3671,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint8)
+					argfun := arg.Fun.(func(env *Env) uint8)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3536,7 +3684,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint8)
+				argfun := arg.WithFun().(func(env *Env) uint8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(uint8) int64)
@@ -3558,13 +3706,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint16:
+		case TypeOfUint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint16)
+				if arg.Const() {
+					argconst := uint16(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3574,7 +3725,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint16)
+					argfun := arg.Fun.(func(env *Env) uint16)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3587,7 +3738,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint16)
+				argfun := arg.WithFun().(func(env *Env) uint16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(uint16) int64)
@@ -3609,13 +3760,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint32:
+		case TypeOfUint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint32)
+				if arg.Const() {
+					argconst := uint32(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3625,7 +3779,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint32)
+					argfun := arg.Fun.(func(env *Env) uint32)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3638,7 +3792,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint32)
+				argfun := arg.WithFun().(func(env *Env) uint32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(uint32) int64)
@@ -3660,13 +3814,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint64:
+		case TypeOfUint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Uint()
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3676,7 +3831,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint64)
+					argfun := arg.Fun.(func(env *Env) uint64)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3689,7 +3844,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint64)
+				argfun := arg.WithFun().(func(env *Env) uint64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(uint64) int64)
@@ -3711,13 +3866,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uintptr:
+		case TypeOfUintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uintptr)
+				if arg.Const() {
+					argconst := uintptr(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3727,7 +3885,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uintptr)
+					argfun := arg.Fun.(func(env *Env) uintptr)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3740,7 +3898,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uintptr)
+				argfun := arg.WithFun().(func(env *Env) uintptr)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(uintptr) int64)
@@ -3762,13 +3920,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float32:
+		case TypeOfFloat32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float32)
+				if arg.Const() {
+					argconst := float32(
+
+						r.ValueOf(arg.Value).Float())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3778,7 +3939,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float32)
+					argfun := arg.Fun.(func(env *Env) float32)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3791,7 +3952,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float32)
+				argfun := arg.WithFun().(func(env *Env) float32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(float32) int64)
@@ -3813,13 +3974,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float64:
+		case TypeOfFloat64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Float()
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3829,7 +3991,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float64)
+					argfun := arg.Fun.(func(env *Env) float64)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3842,7 +4004,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float64)
+				argfun := arg.WithFun().(func(env *Env) float64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(float64) int64)
@@ -3864,13 +4026,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex64:
+		case TypeOfComplex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex64)
+				if arg.Const() {
+					argconst := complex64(
+
+						r.ValueOf(arg.Value).Complex())
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3880,7 +4045,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex64)
+					argfun := arg.Fun.(func(env *Env) complex64)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3893,7 +4058,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex64)
+				argfun := arg.WithFun().(func(env *Env) complex64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(complex64) int64)
@@ -3915,13 +4080,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex128:
+		case TypeOfComplex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex128)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Complex()
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3931,7 +4097,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex128)
+					argfun := arg.Fun.(func(env *Env) complex128)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3944,7 +4110,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex128)
+				argfun := arg.WithFun().(func(env *Env) complex128)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(complex128) int64)
@@ -3966,13 +4132,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.String:
+		case TypeOfString:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) int64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(string)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).String()
+
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3982,7 +4149,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) string)
+					argfun := arg.Fun.(func(env *Env) string)
 					call = func(env *Env) int64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -3995,7 +4162,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) string)
+				argfun := arg.WithFun().(func(env *Env) string)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) int64 {
 						fun := env.Binds[funindex].Interface().(func(string) int64)
@@ -4029,15 +4196,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Uint:
-		switch karg0 {
-		case r.Bool:
+	case TypeOfUint:
+		switch targ {
+		case TypeOfBool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(bool)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Bool()
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4047,7 +4215,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) bool)
+					argfun := arg.Fun.(func(env *Env) bool)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4060,7 +4228,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) bool)
+				argfun := arg.WithFun().(func(env *Env) bool)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(bool) uint)
@@ -4082,13 +4250,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int:
+		case TypeOfInt:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int)
+				if arg.Const() {
+					argconst := int(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4098,7 +4269,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int)
+					argfun := arg.Fun.(func(env *Env) int)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4111,7 +4282,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int)
+				argfun := arg.WithFun().(func(env *Env) int)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(int) uint)
@@ -4133,13 +4304,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int8:
+		case TypeOfInt8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int8)
+				if arg.Const() {
+					argconst := int8(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4149,7 +4323,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int8)
+					argfun := arg.Fun.(func(env *Env) int8)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4162,7 +4336,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int8)
+				argfun := arg.WithFun().(func(env *Env) int8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(int8) uint)
@@ -4184,13 +4358,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int16:
+		case TypeOfInt16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int16)
+				if arg.Const() {
+					argconst := int16(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4200,7 +4377,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int16)
+					argfun := arg.Fun.(func(env *Env) int16)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4213,7 +4390,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int16)
+				argfun := arg.WithFun().(func(env *Env) int16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(int16) uint)
@@ -4235,13 +4412,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int32:
+		case TypeOfInt32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int32)
+				if arg.Const() {
+					argconst := int32(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4251,7 +4431,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int32)
+					argfun := arg.Fun.(func(env *Env) int32)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4264,7 +4444,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int32)
+				argfun := arg.WithFun().(func(env *Env) int32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(int32) uint)
@@ -4286,13 +4466,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int64:
+		case TypeOfInt64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Int()
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4302,7 +4483,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int64)
+					argfun := arg.Fun.(func(env *Env) int64)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4315,7 +4496,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int64)
+				argfun := arg.WithFun().(func(env *Env) int64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(int64) uint)
@@ -4337,13 +4518,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint:
+		case TypeOfUint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint)
+				if arg.Const() {
+					argconst := uint(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4353,7 +4537,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint)
+					argfun := arg.Fun.(func(env *Env) uint)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4366,7 +4550,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint)
+				argfun := arg.WithFun().(func(env *Env) uint)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(uint) uint)
@@ -4388,13 +4572,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint8:
+		case TypeOfUint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint8)
+				if arg.Const() {
+					argconst := uint8(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4404,7 +4591,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint8)
+					argfun := arg.Fun.(func(env *Env) uint8)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4417,7 +4604,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint8)
+				argfun := arg.WithFun().(func(env *Env) uint8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(uint8) uint)
@@ -4439,13 +4626,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint16:
+		case TypeOfUint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint16)
+				if arg.Const() {
+					argconst := uint16(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4455,7 +4645,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint16)
+					argfun := arg.Fun.(func(env *Env) uint16)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4468,7 +4658,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint16)
+				argfun := arg.WithFun().(func(env *Env) uint16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(uint16) uint)
@@ -4490,13 +4680,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint32:
+		case TypeOfUint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint32)
+				if arg.Const() {
+					argconst := uint32(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4506,7 +4699,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint32)
+					argfun := arg.Fun.(func(env *Env) uint32)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4519,7 +4712,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint32)
+				argfun := arg.WithFun().(func(env *Env) uint32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(uint32) uint)
@@ -4541,13 +4734,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint64:
+		case TypeOfUint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Uint()
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4557,7 +4751,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint64)
+					argfun := arg.Fun.(func(env *Env) uint64)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4570,7 +4764,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint64)
+				argfun := arg.WithFun().(func(env *Env) uint64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(uint64) uint)
@@ -4592,13 +4786,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uintptr:
+		case TypeOfUintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uintptr)
+				if arg.Const() {
+					argconst := uintptr(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4608,7 +4805,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uintptr)
+					argfun := arg.Fun.(func(env *Env) uintptr)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4621,7 +4818,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uintptr)
+				argfun := arg.WithFun().(func(env *Env) uintptr)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(uintptr) uint)
@@ -4643,13 +4840,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float32:
+		case TypeOfFloat32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float32)
+				if arg.Const() {
+					argconst := float32(
+
+						r.ValueOf(arg.Value).Float())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4659,7 +4859,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float32)
+					argfun := arg.Fun.(func(env *Env) float32)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4672,7 +4872,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float32)
+				argfun := arg.WithFun().(func(env *Env) float32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(float32) uint)
@@ -4694,13 +4894,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float64:
+		case TypeOfFloat64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Float()
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4710,7 +4911,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float64)
+					argfun := arg.Fun.(func(env *Env) float64)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4723,7 +4924,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float64)
+				argfun := arg.WithFun().(func(env *Env) float64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(float64) uint)
@@ -4745,13 +4946,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex64:
+		case TypeOfComplex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex64)
+				if arg.Const() {
+					argconst := complex64(
+
+						r.ValueOf(arg.Value).Complex())
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4761,7 +4965,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex64)
+					argfun := arg.Fun.(func(env *Env) complex64)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4774,7 +4978,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex64)
+				argfun := arg.WithFun().(func(env *Env) complex64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(complex64) uint)
@@ -4796,13 +5000,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex128:
+		case TypeOfComplex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex128)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Complex()
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4812,7 +5017,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex128)
+					argfun := arg.Fun.(func(env *Env) complex128)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4825,7 +5030,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex128)
+				argfun := arg.WithFun().(func(env *Env) complex128)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(complex128) uint)
@@ -4847,13 +5052,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.String:
+		case TypeOfString:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) uint
 
-				if arg0.Const() {
-					argconst := arg0.Value.(string)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).String()
+
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4863,7 +5069,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) string)
+					argfun := arg.Fun.(func(env *Env) string)
 					call = func(env *Env) uint {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4876,7 +5082,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) string)
+				argfun := arg.WithFun().(func(env *Env) string)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint {
 						fun := env.Binds[funindex].Interface().(func(string) uint)
@@ -4910,13 +5116,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Uint8:
-		if karg0 == kret {
+	case TypeOfUint8:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) uint8
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint8)
+				if arg.Const() {
+					argconst := uint8(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint8 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4926,7 +5135,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint8)
+					argfun := arg.Fun.(func(env *Env) uint8)
 					call = func(env *Env) uint8 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -4939,7 +5148,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint8)
+				argfun := arg.WithFun().(func(env *Env) uint8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint8 {
 						fun := env.Binds[funindex].Interface().(func(uint8) uint8)
@@ -4962,120 +5171,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(bool) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(int) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(int8) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(int16) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(int32) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(int64) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(uint) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(uint8) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(uint16) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(uint32) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(uint64) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(uintptr) uint8)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(float32) uint8)
 						arg := argfun(env)
@@ -5083,9 +5292,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(float64) uint8)
 						arg := argfun(env)
@@ -5093,9 +5302,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(complex64) uint8)
 						arg := argfun(env)
@@ -5103,9 +5312,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(complex128) uint8)
 						arg := argfun(env)
@@ -5113,9 +5322,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) uint8 {
 						fun := exprfun(env).Interface().(func(string) uint8)
 						arg := argfun(env)
@@ -5136,13 +5345,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Uint16:
-		if karg0 == kret {
+	case TypeOfUint16:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) uint16
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint16)
+				if arg.Const() {
+					argconst := uint16(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint16 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5152,7 +5364,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint16)
+					argfun := arg.Fun.(func(env *Env) uint16)
 					call = func(env *Env) uint16 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5165,7 +5377,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint16)
+				argfun := arg.WithFun().(func(env *Env) uint16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint16 {
 						fun := env.Binds[funindex].Interface().(func(uint16) uint16)
@@ -5188,120 +5400,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(bool) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(int) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(int8) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(int16) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(int32) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(int64) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(uint) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(uint8) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(uint16) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(uint32) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(uint64) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(uintptr) uint16)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(float32) uint16)
 						arg := argfun(env)
@@ -5309,9 +5521,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(float64) uint16)
 						arg := argfun(env)
@@ -5319,9 +5531,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(complex64) uint16)
 						arg := argfun(env)
@@ -5329,9 +5541,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(complex128) uint16)
 						arg := argfun(env)
@@ -5339,9 +5551,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) uint16 {
 						fun := exprfun(env).Interface().(func(string) uint16)
 						arg := argfun(env)
@@ -5362,13 +5574,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Uint32:
-		if karg0 == kret {
+	case TypeOfUint32:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) uint32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint32)
+				if arg.Const() {
+					argconst := uint32(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5378,7 +5593,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint32)
+					argfun := arg.Fun.(func(env *Env) uint32)
 					call = func(env *Env) uint32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5391,7 +5606,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint32)
+				argfun := arg.WithFun().(func(env *Env) uint32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint32 {
 						fun := env.Binds[funindex].Interface().(func(uint32) uint32)
@@ -5414,120 +5629,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(bool) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(int) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(int8) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(int16) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(int32) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(int64) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(uint) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(uint8) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(uint16) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(uint32) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(uint64) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(uintptr) uint32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(float32) uint32)
 						arg := argfun(env)
@@ -5535,9 +5750,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(float64) uint32)
 						arg := argfun(env)
@@ -5545,9 +5760,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(complex64) uint32)
 						arg := argfun(env)
@@ -5555,9 +5770,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(complex128) uint32)
 						arg := argfun(env)
@@ -5565,9 +5780,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) uint32 {
 						fun := exprfun(env).Interface().(func(string) uint32)
 						arg := argfun(env)
@@ -5588,15 +5803,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Uint64:
-		switch karg0 {
-		case r.Bool:
+	case TypeOfUint64:
+		switch targ {
+		case TypeOfBool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(bool)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Bool()
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5606,7 +5822,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) bool)
+					argfun := arg.Fun.(func(env *Env) bool)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5619,7 +5835,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) bool)
+				argfun := arg.WithFun().(func(env *Env) bool)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(bool) uint64)
@@ -5641,13 +5857,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int:
+		case TypeOfInt:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int)
+				if arg.Const() {
+					argconst := int(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5657,7 +5876,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int)
+					argfun := arg.Fun.(func(env *Env) int)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5670,7 +5889,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int)
+				argfun := arg.WithFun().(func(env *Env) int)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(int) uint64)
@@ -5692,13 +5911,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int8:
+		case TypeOfInt8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int8)
+				if arg.Const() {
+					argconst := int8(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5708,7 +5930,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int8)
+					argfun := arg.Fun.(func(env *Env) int8)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5721,7 +5943,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int8)
+				argfun := arg.WithFun().(func(env *Env) int8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(int8) uint64)
@@ -5743,13 +5965,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int16:
+		case TypeOfInt16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int16)
+				if arg.Const() {
+					argconst := int16(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5759,7 +5984,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int16)
+					argfun := arg.Fun.(func(env *Env) int16)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5772,7 +5997,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int16)
+				argfun := arg.WithFun().(func(env *Env) int16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(int16) uint64)
@@ -5794,13 +6019,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int32:
+		case TypeOfInt32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int32)
+				if arg.Const() {
+					argconst := int32(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5810,7 +6038,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int32)
+					argfun := arg.Fun.(func(env *Env) int32)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5823,7 +6051,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int32)
+				argfun := arg.WithFun().(func(env *Env) int32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(int32) uint64)
@@ -5845,13 +6073,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int64:
+		case TypeOfInt64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Int()
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5861,7 +6090,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int64)
+					argfun := arg.Fun.(func(env *Env) int64)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5874,7 +6103,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int64)
+				argfun := arg.WithFun().(func(env *Env) int64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(int64) uint64)
@@ -5896,13 +6125,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint:
+		case TypeOfUint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint)
+				if arg.Const() {
+					argconst := uint(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5912,7 +6144,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint)
+					argfun := arg.Fun.(func(env *Env) uint)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5925,7 +6157,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint)
+				argfun := arg.WithFun().(func(env *Env) uint)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(uint) uint64)
@@ -5947,13 +6179,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint8:
+		case TypeOfUint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint8)
+				if arg.Const() {
+					argconst := uint8(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5963,7 +6198,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint8)
+					argfun := arg.Fun.(func(env *Env) uint8)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -5976,7 +6211,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint8)
+				argfun := arg.WithFun().(func(env *Env) uint8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(uint8) uint64)
@@ -5998,13 +6233,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint16:
+		case TypeOfUint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint16)
+				if arg.Const() {
+					argconst := uint16(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6014,7 +6252,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint16)
+					argfun := arg.Fun.(func(env *Env) uint16)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6027,7 +6265,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint16)
+				argfun := arg.WithFun().(func(env *Env) uint16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(uint16) uint64)
@@ -6049,13 +6287,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint32:
+		case TypeOfUint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint32)
+				if arg.Const() {
+					argconst := uint32(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6065,7 +6306,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint32)
+					argfun := arg.Fun.(func(env *Env) uint32)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6078,7 +6319,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint32)
+				argfun := arg.WithFun().(func(env *Env) uint32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(uint32) uint64)
@@ -6100,13 +6341,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint64:
+		case TypeOfUint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Uint()
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6116,7 +6358,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint64)
+					argfun := arg.Fun.(func(env *Env) uint64)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6129,7 +6371,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint64)
+				argfun := arg.WithFun().(func(env *Env) uint64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(uint64) uint64)
@@ -6151,13 +6393,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uintptr:
+		case TypeOfUintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uintptr)
+				if arg.Const() {
+					argconst := uintptr(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6167,7 +6412,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uintptr)
+					argfun := arg.Fun.(func(env *Env) uintptr)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6180,7 +6425,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uintptr)
+				argfun := arg.WithFun().(func(env *Env) uintptr)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(uintptr) uint64)
@@ -6202,13 +6447,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float32:
+		case TypeOfFloat32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float32)
+				if arg.Const() {
+					argconst := float32(
+
+						r.ValueOf(arg.Value).Float())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6218,7 +6466,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float32)
+					argfun := arg.Fun.(func(env *Env) float32)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6231,7 +6479,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float32)
+				argfun := arg.WithFun().(func(env *Env) float32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(float32) uint64)
@@ -6253,13 +6501,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float64:
+		case TypeOfFloat64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Float()
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6269,7 +6518,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float64)
+					argfun := arg.Fun.(func(env *Env) float64)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6282,7 +6531,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float64)
+				argfun := arg.WithFun().(func(env *Env) float64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(float64) uint64)
@@ -6304,13 +6553,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex64:
+		case TypeOfComplex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex64)
+				if arg.Const() {
+					argconst := complex64(
+
+						r.ValueOf(arg.Value).Complex())
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6320,7 +6572,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex64)
+					argfun := arg.Fun.(func(env *Env) complex64)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6333,7 +6585,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex64)
+				argfun := arg.WithFun().(func(env *Env) complex64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(complex64) uint64)
@@ -6355,13 +6607,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex128:
+		case TypeOfComplex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex128)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Complex()
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6371,7 +6624,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex128)
+					argfun := arg.Fun.(func(env *Env) complex128)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6384,7 +6637,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex128)
+				argfun := arg.WithFun().(func(env *Env) complex128)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(complex128) uint64)
@@ -6406,13 +6659,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.String:
+		case TypeOfString:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) uint64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(string)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).String()
+
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6422,7 +6676,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) string)
+					argfun := arg.Fun.(func(env *Env) string)
 					call = func(env *Env) uint64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6435,7 +6689,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) string)
+				argfun := arg.WithFun().(func(env *Env) string)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uint64 {
 						fun := env.Binds[funindex].Interface().(func(string) uint64)
@@ -6469,13 +6723,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Uintptr:
-		if karg0 == kret {
+	case TypeOfUintptr:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) uintptr
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uintptr)
+				if arg.Const() {
+					argconst := uintptr(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) uintptr {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6485,7 +6742,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uintptr)
+					argfun := arg.Fun.(func(env *Env) uintptr)
 					call = func(env *Env) uintptr {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6498,7 +6755,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uintptr)
+				argfun := arg.WithFun().(func(env *Env) uintptr)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) uintptr {
 						fun := env.Binds[funindex].Interface().(func(uintptr) uintptr)
@@ -6521,120 +6778,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(bool) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(int) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(int8) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(int16) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(int32) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(int64) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(uint) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(uint8) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(uint16) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(uint32) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(uint64) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(uintptr) uintptr)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(float32) uintptr)
 						arg := argfun(env)
@@ -6642,9 +6899,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(float64) uintptr)
 						arg := argfun(env)
@@ -6652,9 +6909,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(complex64) uintptr)
 						arg := argfun(env)
@@ -6662,9 +6919,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(complex128) uintptr)
 						arg := argfun(env)
@@ -6672,9 +6929,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) uintptr {
 						fun := exprfun(env).Interface().(func(string) uintptr)
 						arg := argfun(env)
@@ -6695,13 +6952,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Float32:
-		if karg0 == kret {
+	case TypeOfFloat32:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) float32
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float32)
+				if arg.Const() {
+					argconst := float32(
+
+						r.ValueOf(arg.Value).Float())
+
 					call = func(env *Env) float32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6711,7 +6971,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float32)
+					argfun := arg.Fun.(func(env *Env) float32)
 					call = func(env *Env) float32 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6724,7 +6984,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float32)
+				argfun := arg.WithFun().(func(env *Env) float32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) float32 {
 						fun := env.Binds[funindex].Interface().(func(float32) float32)
@@ -6747,120 +7007,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(bool) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(int) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(int8) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(int16) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(int32) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(int64) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(uint) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(uint8) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(uint16) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(uint32) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(uint64) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(uintptr) float32)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(float32) float32)
 						arg := argfun(env)
@@ -6868,9 +7128,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(float64) float32)
 						arg := argfun(env)
@@ -6878,9 +7138,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(complex64) float32)
 						arg := argfun(env)
@@ -6888,9 +7148,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(complex128) float32)
 						arg := argfun(env)
@@ -6898,9 +7158,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) float32 {
 						fun := exprfun(env).Interface().(func(string) float32)
 						arg := argfun(env)
@@ -6921,13 +7181,14 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Float64:
-		if karg0 == kret {
+	case TypeOfFloat64:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) float64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Float()
+
 					call = func(env *Env) float64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6937,7 +7198,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float64)
+					argfun := arg.Fun.(func(env *Env) float64)
 					call = func(env *Env) float64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -6950,7 +7211,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float64)
+				argfun := arg.WithFun().(func(env *Env) float64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) float64 {
 						fun := env.Binds[funindex].Interface().(func(float64) float64)
@@ -6973,120 +7234,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(bool) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(int) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(int8) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(int16) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(int32) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(int64) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(uint) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(uint8) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(uint16) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(uint32) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(uint64) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(uintptr) float64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(float32) float64)
 						arg := argfun(env)
@@ -7094,9 +7355,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(float64) float64)
 						arg := argfun(env)
@@ -7104,9 +7365,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(complex64) float64)
 						arg := argfun(env)
@@ -7114,9 +7375,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(complex128) float64)
 						arg := argfun(env)
@@ -7124,9 +7385,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) float64 {
 						fun := exprfun(env).Interface().(func(string) float64)
 						arg := argfun(env)
@@ -7147,13 +7408,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Complex64:
-		if karg0 == kret {
+	case TypeOfComplex64:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) complex64
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex64)
+				if arg.Const() {
+					argconst := complex64(
+
+						r.ValueOf(arg.Value).Complex())
+
 					call = func(env *Env) complex64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7163,7 +7427,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex64)
+					argfun := arg.Fun.(func(env *Env) complex64)
 					call = func(env *Env) complex64 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7176,7 +7440,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex64)
+				argfun := arg.WithFun().(func(env *Env) complex64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) complex64 {
 						fun := env.Binds[funindex].Interface().(func(complex64) complex64)
@@ -7199,120 +7463,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(bool) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(int) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(int8) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(int16) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(int32) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(int64) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(uint) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(uint8) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(uint16) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(uint32) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(uint64) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(uintptr) complex64)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(float32) complex64)
 						arg := argfun(env)
@@ -7320,9 +7584,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(float64) complex64)
 						arg := argfun(env)
@@ -7330,9 +7594,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(complex64) complex64)
 						arg := argfun(env)
@@ -7340,9 +7604,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(complex128) complex64)
 						arg := argfun(env)
@@ -7350,9 +7614,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) complex64 {
 						fun := exprfun(env).Interface().(func(string) complex64)
 						arg := argfun(env)
@@ -7373,13 +7637,14 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.Complex128:
-		if karg0 == kret {
+	case TypeOfComplex128:
+		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) complex128
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex128)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Complex()
+
 					call = func(env *Env) complex128 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7389,7 +7654,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex128)
+					argfun := arg.Fun.(func(env *Env) complex128)
 					call = func(env *Env) complex128 {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7402,7 +7667,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex128)
+				argfun := arg.WithFun().(func(env *Env) complex128)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) complex128 {
 						fun := env.Binds[funindex].Interface().(func(complex128) complex128)
@@ -7425,120 +7690,120 @@ func call1ret1(c *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg0 {
-			case r.Bool:
+			switch targ {
+			case TypeOfBool:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) bool)
+					argfun := arg.WithFun().(func(env *Env) bool)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(bool) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int:
+			case TypeOfInt:
 
 				{
-					argfun := arg0.WithFun().(func(env *Env) int)
+					argfun := arg.WithFun().(func(env *Env) int)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(int) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int8:
+			case TypeOfInt8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int8)
+					argfun := arg.WithFun().(func(env *Env) int8)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(int8) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int16:
+			case TypeOfInt16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int16)
+					argfun := arg.WithFun().(func(env *Env) int16)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(int16) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int32:
+			case TypeOfInt32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int32)
+					argfun := arg.WithFun().(func(env *Env) int32)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(int32) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Int64:
+			case TypeOfInt64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) int64)
+					argfun := arg.WithFun().(func(env *Env) int64)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(int64) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint:
+			case TypeOfUint:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint)
+					argfun := arg.WithFun().(func(env *Env) uint)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(uint) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint8:
+			case TypeOfUint8:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint8)
+					argfun := arg.WithFun().(func(env *Env) uint8)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(uint8) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint16:
+			case TypeOfUint16:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint16)
+					argfun := arg.WithFun().(func(env *Env) uint16)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(uint16) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint32:
+			case TypeOfUint32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint32)
+					argfun := arg.WithFun().(func(env *Env) uint32)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(uint32) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uint64:
+			case TypeOfUint64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uint64)
+					argfun := arg.WithFun().(func(env *Env) uint64)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(uint64) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Uintptr:
+			case TypeOfUintptr:
 				{
-					argfun := arg0.WithFun().(func(env *Env) uintptr)
+					argfun := arg.WithFun().(func(env *Env) uintptr)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(uintptr) complex128)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				}
-			case r.Float32:
+			case TypeOfFloat32:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float32)
+					argfun := arg.WithFun().(func(env *Env) float32)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(float32) complex128)
 						arg := argfun(env)
@@ -7546,9 +7811,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Float64:
+			case TypeOfFloat64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) float64)
+					argfun := arg.WithFun().(func(env *Env) float64)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(float64) complex128)
 						arg := argfun(env)
@@ -7556,9 +7821,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex64:
+			case TypeOfComplex64:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex64)
+					argfun := arg.WithFun().(func(env *Env) complex64)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(complex64) complex128)
 						arg := argfun(env)
@@ -7566,9 +7831,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.Complex128:
+			case TypeOfComplex128:
 				{
-					argfun := arg0.WithFun().(func(env *Env) complex128)
+					argfun := arg.WithFun().(func(env *Env) complex128)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(complex128) complex128)
 						arg := argfun(env)
@@ -7576,9 +7841,9 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 
-			case r.String:
+			case TypeOfString:
 				{
-					argfun := arg0.WithFun().(func(env *Env) string)
+					argfun := arg.WithFun().(func(env *Env) string)
 					call = func(env *Env) complex128 {
 						fun := exprfun(env).Interface().(func(string) complex128)
 						arg := argfun(env)
@@ -7599,15 +7864,16 @@ func call1ret1(c *Call, maxdepth int) I {
 			}
 		}
 
-	case r.String:
-		switch karg0 {
-		case r.Bool:
+	case TypeOfString:
+		switch targ {
+		case TypeOfBool:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(bool) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(bool)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Bool()
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7617,7 +7883,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) bool)
+					argfun := arg.Fun.(func(env *Env) bool)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7630,7 +7896,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) bool)
+				argfun := arg.WithFun().(func(env *Env) bool)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(bool) string)
@@ -7652,13 +7918,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int:
+		case TypeOfInt:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int)
+				if arg.Const() {
+					argconst := int(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7668,7 +7937,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int)
+					argfun := arg.Fun.(func(env *Env) int)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7681,7 +7950,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int)
+				argfun := arg.WithFun().(func(env *Env) int)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(int) string)
@@ -7703,13 +7972,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int8:
+		case TypeOfInt8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int8) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int8)
+				if arg.Const() {
+					argconst := int8(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7719,7 +7991,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int8)
+					argfun := arg.Fun.(func(env *Env) int8)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7732,7 +8004,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int8)
+				argfun := arg.WithFun().(func(env *Env) int8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(int8) string)
@@ -7754,13 +8026,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int16:
+		case TypeOfInt16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int16) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int16)
+				if arg.Const() {
+					argconst := int16(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7770,7 +8045,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int16)
+					argfun := arg.Fun.(func(env *Env) int16)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7783,7 +8058,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int16)
+				argfun := arg.WithFun().(func(env *Env) int16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(int16) string)
@@ -7805,13 +8080,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int32:
+		case TypeOfInt32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int32) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int32)
+				if arg.Const() {
+					argconst := int32(
+
+						r.ValueOf(arg.Value).Int())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7821,7 +8099,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int32)
+					argfun := arg.Fun.(func(env *Env) int32)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7834,7 +8112,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int32)
+				argfun := arg.WithFun().(func(env *Env) int32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(int32) string)
@@ -7856,13 +8134,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Int64:
+		case TypeOfInt64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(int64) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(int64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Int()
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7872,7 +8151,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) int64)
+					argfun := arg.Fun.(func(env *Env) int64)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7885,7 +8164,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) int64)
+				argfun := arg.WithFun().(func(env *Env) int64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(int64) string)
@@ -7907,13 +8186,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint:
+		case TypeOfUint:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint)
+				if arg.Const() {
+					argconst := uint(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7923,7 +8205,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint)
+					argfun := arg.Fun.(func(env *Env) uint)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7936,7 +8218,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint)
+				argfun := arg.WithFun().(func(env *Env) uint)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(uint) string)
@@ -7958,13 +8240,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint8:
+		case TypeOfUint8:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint8) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint8)
+				if arg.Const() {
+					argconst := uint8(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7974,7 +8259,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint8)
+					argfun := arg.Fun.(func(env *Env) uint8)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -7987,7 +8272,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint8)
+				argfun := arg.WithFun().(func(env *Env) uint8)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(uint8) string)
@@ -8009,13 +8294,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint16:
+		case TypeOfUint16:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint16) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint16)
+				if arg.Const() {
+					argconst := uint16(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8025,7 +8313,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint16)
+					argfun := arg.Fun.(func(env *Env) uint16)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8038,7 +8326,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint16)
+				argfun := arg.WithFun().(func(env *Env) uint16)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(uint16) string)
@@ -8060,13 +8348,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint32:
+		case TypeOfUint32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint32) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint32)
+				if arg.Const() {
+					argconst := uint32(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8076,7 +8367,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint32)
+					argfun := arg.Fun.(func(env *Env) uint32)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8089,7 +8380,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint32)
+				argfun := arg.WithFun().(func(env *Env) uint32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(uint32) string)
@@ -8111,13 +8402,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uint64:
+		case TypeOfUint64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uint64) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uint64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Uint()
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8127,7 +8419,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uint64)
+					argfun := arg.Fun.(func(env *Env) uint64)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8140,7 +8432,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uint64)
+				argfun := arg.WithFun().(func(env *Env) uint64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(uint64) string)
@@ -8162,13 +8454,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Uintptr:
+		case TypeOfUintptr:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(uintptr) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(uintptr)
+				if arg.Const() {
+					argconst := uintptr(
+
+						r.ValueOf(arg.Value).Uint())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8178,7 +8473,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) uintptr)
+					argfun := arg.Fun.(func(env *Env) uintptr)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8191,7 +8486,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) uintptr)
+				argfun := arg.WithFun().(func(env *Env) uintptr)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(uintptr) string)
@@ -8213,13 +8508,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float32:
+		case TypeOfFloat32:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float32) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float32)
+				if arg.Const() {
+					argconst := float32(
+
+						r.ValueOf(arg.Value).Float())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8229,7 +8527,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float32)
+					argfun := arg.Fun.(func(env *Env) float32)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8242,7 +8540,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float32)
+				argfun := arg.WithFun().(func(env *Env) float32)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(float32) string)
@@ -8264,13 +8562,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Float64:
+		case TypeOfFloat64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(float64) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(float64)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Float()
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8280,7 +8579,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) float64)
+					argfun := arg.Fun.(func(env *Env) float64)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8293,7 +8592,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) float64)
+				argfun := arg.WithFun().(func(env *Env) float64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(float64) string)
@@ -8315,13 +8614,16 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex64:
+		case TypeOfComplex64:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex64) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex64)
+				if arg.Const() {
+					argconst := complex64(
+
+						r.ValueOf(arg.Value).Complex())
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8331,7 +8633,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex64)
+					argfun := arg.Fun.(func(env *Env) complex64)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8344,7 +8646,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex64)
+				argfun := arg.WithFun().(func(env *Env) complex64)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(complex64) string)
@@ -8366,13 +8668,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.Complex128:
+		case TypeOfComplex128:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(complex128) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(complex128)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).Complex()
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8382,7 +8685,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) complex128)
+					argfun := arg.Fun.(func(env *Env) complex128)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8395,7 +8698,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) complex128)
+				argfun := arg.WithFun().(func(env *Env) complex128)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(complex128) string)
@@ -8417,13 +8720,14 @@ func call1ret1(c *Call, maxdepth int) I {
 				}
 
 			}
-		case r.String:
+		case TypeOfString:
 
 			if funsym != nil && funupn == maxdepth-1 {
 				var cachedfun func(string) string
 
-				if arg0.Const() {
-					argconst := arg0.Value.(string)
+				if arg.Const() {
+					argconst := r.ValueOf(arg.Value).String()
+
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8433,7 +8737,7 @@ func call1ret1(c *Call, maxdepth int) I {
 						return cachedfun(argconst)
 					}
 				} else {
-					argfun := arg0.Fun.(func(env *Env) string)
+					argfun := arg.Fun.(func(env *Env) string)
 					call = func(env *Env) string {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {
@@ -8446,7 +8750,7 @@ func call1ret1(c *Call, maxdepth int) I {
 					}
 				}
 			} else {
-				argfun := arg0.WithFun().(func(env *Env) string)
+				argfun := arg.WithFun().(func(env *Env) string)
 				if funsym != nil && funupn == 0 {
 					call = func(env *Env) string {
 						fun := env.Binds[funindex].Interface().(func(string) string)
