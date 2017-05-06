@@ -39,9 +39,10 @@ import (
 )
 
 const (
-	collatz_n = 837799 // sequence climbs to 1487492288, which also fits 32-bit ints
-	sum_n     = 1000
-	fib_n     = 12
+	collatz_n   = 837799 // sequence climbs to 1487492288, which also fits 32-bit ints
+	sum_n       = 1000
+	fib_n       = 12
+	bigswitch_n = 100
 )
 
 var verbose = false
@@ -96,12 +97,15 @@ func BenchmarkFibonacciCompiler(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		total += fibonacci(n)
 	}
+	if verbose {
+		println(total)
+	}
 }
 
 func BenchmarkFibonacciFastInterpreter(b *testing.B) {
 	ce := fast.New()
 	c := ce.Comp
-	ce.Eval(fib_s)
+	ce.Eval(fibonacci_source_string)
 
 	// compile the call to fibonacci(fib_n)
 	fun := c.CompileAst(c.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n)))
@@ -118,12 +122,12 @@ func BenchmarkFibonacciFastInterpreter(b *testing.B) {
 
 func BenchmarkFibonacciFastInterpreterBis(b *testing.B) {
 	ce := fast.New()
-	ce.Eval(fib_s)
+	ce.Eval(fibonacci_source_string)
 
 	// alternative: extract the function fibonacci, and call it ourselves
 	//
 	// ValueOf is the method to retrieve constants, functions and variables from the classic and fast interpreters
-	// (if you set the same variable repeatedly, use the address returned by AddressOfVar)
+	// (if you set the same interpreter variable repeatedly, use the address returned by AddressOfVar)
 	fun := ce.ValueOf("fibonacci").Interface().(func(int) int)
 	fun(fib_n)
 
@@ -136,7 +140,7 @@ func BenchmarkFibonacciFastInterpreterBis(b *testing.B) {
 
 func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst(fib_s))
+	env.EvalAst(env.ParseAst(fibonacci_source_string))
 
 	// compile the call to fibonacci(fib_n)
 	form := env.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n))
@@ -150,7 +154,7 @@ func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
 
 func BenchmarkFibonacciClassicInterpreterBis(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst(fib_s))
+	env.EvalAst(env.ParseAst(fibonacci_source_string))
 
 	// alternative: extract the function fibonacci, and call it ourselves
 	fun := env.ValueOf("fibonacci").Interface().(func(int) int)
@@ -196,6 +200,86 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += fib(n)
+	}
+}
+
+// ---------------------- bigswitch ------------------------
+
+func bigswitch(n int) int {
+	for i := 0; i < 1000; i++ {
+		switch n & 15 {
+		case 0:
+			n++
+		case 1:
+			n += 2
+		case 2:
+			n += 3
+		case 3:
+			n += 4
+		case 4:
+			n += 5
+		case 5:
+			n += 6
+		case 6:
+			n += 7
+		case 7:
+			n += 8
+		case 8:
+			n += 9
+		case 9:
+			n += 10
+		case 10:
+			n += 11
+		case 11:
+			n += 12
+		case 12:
+			n += 13
+		case 13:
+			n += 14
+		case 14:
+			n += 15
+		case 15:
+			n--
+		}
+	}
+	return n
+}
+
+func BenchmarkBigSwitchCompiler(b *testing.B) {
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += bigswitch(bigswitch_n)
+	}
+	if verbose {
+		println(total)
+	}
+}
+
+func BenchmarkBigSwitchFastInterpreter(b *testing.B) {
+	ce := fast.New()
+	ce.Eval(bigswitch_source_string)
+
+	fun := ce.ValueOf("bigswitch").Interface().(func(int) int)
+	fun(bigswitch_n)
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += fun(bigswitch_n)
+	}
+}
+
+func BenchmarkBigSwitchClassicInterpreter(b *testing.B) {
+	env := classic.New()
+	env.EvalAst(env.ParseAst(bigswitch_source_string))
+
+	fun := env.ValueOf("bigswitch").Interface().(func(int) int)
+	fun(bigswitch_n)
+
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += fun(bigswitch_n)
 	}
 }
 

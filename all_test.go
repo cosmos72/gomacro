@@ -95,8 +95,31 @@ func (c *TestCase) classic(t *testing.T, env *classic.Env) {
 	c.compareResults(t, rets)
 }
 
-const sum_s = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
-const fib_s = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
+const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
+const fibonacci_source_string = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
+const bigswitch_source_string = `func bigswitch(n int) int {
+	for i := 0; i < 1000; i++ {
+		switch n&15 {
+		case 0: n++
+		case 1: n+=2
+		case 2: n+=3
+		case 3: n+=4
+		case 4: n+=5
+		case 5: n+=6
+		case 6: n+=7
+		case 7: n+=8
+		case 8: n+=9
+		case 9: n+=10
+		case 10: n+=11
+		case 11: n+=12
+		case 12: n+=13
+		case 13: n+=14
+		case 14: n+=15
+		case 15: n--
+		}
+	}
+	return n
+}`
 
 var ti = r.StructOf(
 	[]r.StructField{
@@ -300,8 +323,8 @@ var tests = []TestCase{
 	TestCase{A, "function_7", "i=0; func setiadd(x, y int) { i=x+y }; setiadd(7,8); i", 15, nil},
 	TestCase{A, "function_variadic_1", "func list_args(args ...int) []int { return args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
 	TestCase{A, "function_variadic_2", "si := make([]int, 4); si[1]=1; si[2]=2; si[3]=3; list_args(si...)", []int{0, 1, 2, 3}, nil},
-	TestCase{A, "fibonacci", fib_s + "; fibonacci(13)", 233, nil},
-	TestCase{A, "closure", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
+	TestCase{A, "fibonacci", fibonacci_source_string + "; fibonacci(13)", 233, nil},
+	TestCase{A, "function_literal", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
 	TestCase{A, "setvar_deref_1", `vstr := "foo"; pvstr := &vstr; *pvstr = "bar"; vstr`, "bar", nil},
 	TestCase{A, "setvar_deref_2", `vint := 5; pvint := &vint; *pvint = 6; vint`, 6, nil},
@@ -427,7 +450,7 @@ var tests = []TestCase{
 		Values(vpanic, vpanic2, vpanic3)
 		`, nil, []interface{}{-5, -5, nil}},
 	TestCase{A, "send_recv", `cx <- "x"; <-cx`, nil, []interface{}{"x", true}},
-	TestCase{A, "sum", sum_s + "; sum(100)", 5050, nil},
+	TestCase{A, "sum", sum_source_string + "; sum(100)", 5050, nil},
 
 	TestCase{I, "select_1", "cx <- 1; { var x interface{}; select { case x=<-cx: x; default: } }", 1, nil},
 	TestCase{I, "select_2", "cx <- map[int]int{1:2}; select { case x:=<-cx: x; default: }", map[int]int{1: 2}, nil},
