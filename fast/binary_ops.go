@@ -1267,8 +1267,8 @@ func (c *Comp) Mul(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
-		if isLiteralNumber(y, 1) {
-			return xe
+		if ze := c.mulPow2(node, xe, ye); ze != nil {
+			return ze
 		}
 
 		switch k {
@@ -1425,8 +1425,8 @@ func (c *Comp) Mul(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else {
 		x := xe.Value
 		y := ye.Fun
-		if isLiteralNumber(x, 1) {
-			return ye
+		if ze := c.mulPow2(node, xe, ye); ze != nil {
+			return ze
 		}
 
 		switch k {
@@ -2541,6 +2541,387 @@ func (c *Comp) Rem(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	return exprFun(xe.Type, fun)
 }
+func (c *Comp) mulPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
+
+	if xe.Const() == ye.Const() {
+		return nil
+	}
+
+	if xe.Const() {
+		xe, ye = ye, xe
+	}
+
+	if isLiteralNumber(ye.Value, 0) {
+		return c.exprZero(xe)
+	} else if isLiteralNumber(ye.Value, 1) {
+		return xe
+	} else if isLiteralNumber(ye.Value, -1) {
+		node1 := &ast.UnaryExpr{OpPos: node.OpPos, Op: token.SUB, X: node.X}
+		return c.UnaryMinus(node1, xe)
+	}
+	ypositive := true
+	yv := r.ValueOf(ye.Value)
+	var y uint64
+	switch KindToCategory(yv.Kind()) {
+	case r.Int:
+		sy := yv.Int()
+		if sy < 0 {
+			ypositive = false
+			y = uint64(-sy)
+		} else {
+			y = uint64(sy)
+		}
+
+	case r.Uint:
+		y = yv.Uint()
+	default:
+		return nil
+	}
+	if !isPowerOfTwo(y) {
+		return nil
+	}
+
+	shift := integerLen(y) - 1
+	x := xe.Fun
+	var fun I
+	switch xe.Type.Kind() {
+	case r.Int:
+		{
+			x := x.(func(*Env) int)
+			if ypositive {
+				switch shift {
+				case 1:
+					fun = func(env *Env) int {
+						return x(env) << 1
+					}
+
+				case 2:
+					fun = func(env *Env) int {
+						return x(env) << 2
+					}
+
+				case 8:
+					fun = func(env *Env) int {
+						return x(env) << 8
+					}
+
+				default:
+					fun = func(env *Env) int {
+						return x(env) << shift
+					}
+
+				}
+			} else {
+				fun = func(env *Env) int {
+					return -(x(env) << shift)
+				}
+			}
+
+		}
+
+	case r.Int8:
+		{
+			x := x.(func(*Env) int8)
+			if ypositive {
+				switch shift {
+				case 1:
+					fun = func(env *Env) int8 {
+						return x(env) << 1
+					}
+
+				case 2:
+					fun = func(env *Env) int8 {
+						return x(env) << 2
+					}
+
+				case 8:
+					fun = func(env *Env) int8 {
+						return x(env) << 8
+					}
+
+				default:
+					fun = func(env *Env) int8 {
+						return x(env) << shift
+					}
+
+				}
+			} else {
+				fun = func(env *Env) int8 {
+					return -(x(env) << shift)
+				}
+			}
+
+		}
+
+	case r.Int16:
+		{
+			x := x.(func(*Env) int16)
+			if ypositive {
+				switch shift {
+				case 1:
+					fun = func(env *Env) int16 {
+						return x(env) << 1
+					}
+
+				case 2:
+					fun = func(env *Env) int16 {
+						return x(env) << 2
+					}
+
+				case 8:
+					fun = func(env *Env) int16 {
+						return x(env) << 8
+					}
+
+				default:
+					fun = func(env *Env) int16 {
+						return x(env) << shift
+					}
+
+				}
+			} else {
+				fun = func(env *Env) int16 {
+					return -(x(env) << shift)
+				}
+			}
+
+		}
+
+	case r.Int32:
+		{
+			x := x.(func(*Env) int32)
+			if ypositive {
+				switch shift {
+				case 1:
+					fun = func(env *Env) int32 {
+						return x(env) << 1
+					}
+
+				case 2:
+					fun = func(env *Env) int32 {
+						return x(env) << 2
+					}
+
+				case 8:
+					fun = func(env *Env) int32 {
+						return x(env) << 8
+					}
+
+				default:
+					fun = func(env *Env) int32 {
+						return x(env) << shift
+					}
+
+				}
+			} else {
+				fun = func(env *Env) int32 {
+					return -(x(env) << shift)
+				}
+			}
+
+		}
+
+	case r.Int64:
+		{
+			x := x.(func(*Env) int64)
+			if ypositive {
+				switch shift {
+				case 1:
+					fun = func(env *Env) int64 {
+						return x(env) << 1
+					}
+
+				case 2:
+					fun = func(env *Env) int64 {
+						return x(env) << 2
+					}
+
+				case 8:
+					fun = func(env *Env) int64 {
+						return x(env) << 8
+					}
+
+				default:
+					fun = func(env *Env) int64 {
+						return x(env) << shift
+					}
+
+				}
+			} else {
+				fun = func(env *Env) int64 {
+					return -(x(env) << shift)
+				}
+			}
+
+		}
+
+	case r.Uint:
+		{
+			x := x.(func(*Env) uint)
+			switch shift {
+			case 1:
+				fun = func(env *Env) uint {
+					return x(env) << 1
+				}
+
+			case 2:
+				fun = func(env *Env) uint {
+					return x(env) << 2
+				}
+
+			case 8:
+				fun = func(env *Env) uint {
+					return x(env) << 8
+				}
+
+			default:
+				fun = func(env *Env) uint {
+					return x(env) << shift
+				}
+
+			}
+		}
+
+	case r.Uint8:
+		{
+			x := x.(func(*Env) uint8)
+			switch shift {
+			case 1:
+				fun = func(env *Env) uint8 {
+					return x(env) << 1
+				}
+
+			case 2:
+				fun = func(env *Env) uint8 {
+					return x(env) << 2
+				}
+
+			case 8:
+				fun = func(env *Env) uint8 {
+					return x(env) << 8
+				}
+
+			default:
+				fun = func(env *Env) uint8 {
+					return x(env) << shift
+				}
+
+			}
+		}
+
+	case r.Uint16:
+		{
+			x := x.(func(*Env) uint16)
+			switch shift {
+			case 1:
+				fun = func(env *Env) uint16 {
+					return x(env) << 1
+				}
+
+			case 2:
+				fun = func(env *Env) uint16 {
+					return x(env) << 2
+				}
+
+			case 8:
+				fun = func(env *Env) uint16 {
+					return x(env) << 8
+				}
+
+			default:
+				fun = func(env *Env) uint16 {
+					return x(env) << shift
+				}
+
+			}
+		}
+
+	case r.Uint32:
+		{
+			x := x.(func(*Env) uint32)
+			switch shift {
+			case 1:
+				fun = func(env *Env) uint32 {
+					return x(env) << 1
+				}
+
+			case 2:
+				fun = func(env *Env) uint32 {
+					return x(env) << 2
+				}
+
+			case 8:
+				fun = func(env *Env) uint32 {
+					return x(env) << 8
+				}
+
+			default:
+				fun = func(env *Env) uint32 {
+					return x(env) << shift
+				}
+
+			}
+		}
+
+	case r.Uint64:
+		{
+			x := x.(func(*Env) uint64)
+			switch shift {
+			case 1:
+				fun = func(env *Env) uint64 {
+					return x(env) << 1
+				}
+
+			case 2:
+				fun = func(env *Env) uint64 {
+					return x(env) << 2
+				}
+
+			case 8:
+				fun = func(env *Env) uint64 {
+					return x(env) << 8
+				}
+
+			default:
+				fun = func(env *Env) uint64 {
+					return x(env) << shift
+				}
+
+			}
+		}
+
+	case r.Uintptr:
+		{
+			x := x.(func(*Env) uintptr)
+			switch shift {
+			case 1:
+				fun = func(env *Env) uintptr {
+					return x(env) << 1
+				}
+
+			case 2:
+				fun = func(env *Env) uintptr {
+					return x(env) << 2
+				}
+
+			case 8:
+				fun = func(env *Env) uintptr {
+					return x(env) << 8
+				}
+
+			default:
+				fun = func(env *Env) uintptr {
+					return x(env) << shift
+				}
+
+			}
+		}
+
+	default:
+		return nil
+	}
+	return exprFun(xe.Type, fun)
+}
 func (c *Comp) quoPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 	if xe.Const() || !ye.Const() {
@@ -2780,7 +3161,10 @@ func (c *Comp) remPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	if isLiteralNumber(ye.Value, 0) {
 		c.Errorf("division by zero")
 		return nil
+	} else if isLiteralNumber(ye.Value, 1) {
+		return c.exprZero(xe)
 	}
+
 	yv := r.ValueOf(ye.Value)
 	var y uint64
 	switch KindToCategory(yv.Kind()) {
@@ -3092,8 +3476,9 @@ func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
-
-		if isLiteralNumber(y, -1) {
+		if isLiteralNumber(y, 0) {
+			return c.exprZero(xe)
+		} else if isLiteralNumber(y, -1) {
 			return xe
 		}
 
@@ -3215,8 +3600,9 @@ func (c *Comp) And(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else {
 		x := xe.Value
 		y := ye.Fun
-
-		if isLiteralNumber(x, -1) {
+		if isLiteralNumber(x, 0) {
+			return c.exprZero(ye)
+		} else if isLiteralNumber(x, -1) {
 			return ye
 		}
 
@@ -4284,8 +4670,9 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else if yc {
 		x := xe.Fun
 		y := ye.Value
-
-		if isLiteralNumber(y, 0) {
+		if isLiteralNumber(y, -1) {
+			return c.exprZero(xe)
+		} else if isLiteralNumber(y, 0) {
 			return xe
 		}
 
@@ -4407,6 +4794,9 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else {
 		x := xe.Value
 		y := ye.Fun
+		if isLiteralNumber(x, 0) {
+			return c.exprZero(ye)
+		}
 
 		switch k {
 		case r.Int:
@@ -4554,4 +4944,170 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 	}
 	return exprFun(xe.Type, fun)
+}
+func (c *Comp) exprZero(xe *Expr) *Expr {
+	if xe.Const() {
+		xe.ConstTo(xe.DefaultType())
+		return exprValue(r.Zero(xe.Type).Interface())
+	}
+	t := xe.Type
+	k := t.Kind()
+	x := xe.Fun
+	var fun I
+
+	switch k {
+	case r.Bool:
+		{
+			x := x.(func(*Env) bool)
+			fun = func(env *Env) (zero bool) {
+				x(env)
+				return
+			}
+		}
+	case r.Int:
+		{
+			x := x.(func(*Env) int)
+			fun = func(env *Env) (zero int) {
+				x(env)
+				return
+			}
+		}
+	case r.Int8:
+		{
+			x := x.(func(*Env) int8)
+			fun = func(env *Env) (zero int8) {
+				x(env)
+				return
+			}
+		}
+	case r.Int16:
+		{
+			x := x.(func(*Env) int16)
+			fun = func(env *Env) (zero int16) {
+				x(env)
+				return
+			}
+		}
+	case r.Int32:
+		{
+			x := x.(func(*Env) int32)
+			fun = func(env *Env) (zero int32) {
+				x(env)
+				return
+			}
+		}
+	case r.Int64:
+		{
+			x := x.(func(*Env) int64)
+			fun = func(env *Env) (zero int64) {
+				x(env)
+				return
+			}
+		}
+	case r.Uint:
+		{
+			x := x.(func(*Env) uint)
+			fun = func(env *Env) (zero uint) {
+				x(env)
+				return
+			}
+		}
+	case r.Uint8:
+		{
+			x := x.(func(*Env) uint8)
+			fun = func(env *Env) (zero uint8) {
+				x(env)
+				return
+			}
+		}
+	case r.Uint16:
+		{
+			x := x.(func(*Env) uint16)
+			fun = func(env *Env) (zero uint16) {
+				x(env)
+				return
+			}
+		}
+	case r.Uint32:
+		{
+			x := x.(func(*Env) uint32)
+			fun = func(env *Env) (zero uint32) {
+				x(env)
+				return
+			}
+		}
+	case r.Uint64:
+		{
+			x := x.(func(*Env) uint64)
+			fun = func(env *Env) (zero uint64) {
+				x(env)
+				return
+			}
+		}
+	case r.Uintptr:
+		{
+			x := x.(func(*Env) uintptr)
+			fun = func(env *Env) (zero uintptr) {
+				x(env)
+				return
+			}
+		}
+
+	case r.Float32:
+		{
+			x := x.(func(*Env) float32)
+			fun = func(env *Env) (zero float32) {
+				x(env)
+				return
+			}
+		}
+
+	case r.Float64:
+		{
+			x := x.(func(*Env) float64)
+			fun = func(env *Env) (zero float64) {
+				x(env)
+				return
+			}
+		}
+
+	case r.Complex64:
+		{
+			x := x.(func(*Env) complex64)
+			fun = func(env *Env) (zero complex64) {
+				x(env)
+				return
+			}
+		}
+
+	case r.Complex128:
+		{
+			x := x.(func(*Env) complex128)
+			fun = func(env *Env) (zero complex128) {
+				x(env)
+				return
+			}
+		}
+
+	case r.String:
+		{
+			x := x.(func(*Env) string)
+			fun = func(env *Env) (zero string) {
+				x(env)
+				return
+			}
+		}
+
+	default:
+		{
+			zero := r.Zero(t)
+			x := funAsX1(x, nil)
+			fun = func(env *Env) r.Value {
+				x(env)
+				return zero
+			}
+		}
+
+	}
+	return exprFun(t, fun)
 }

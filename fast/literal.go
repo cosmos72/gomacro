@@ -101,7 +101,15 @@ func isLiteralNumber(x I, n int64) bool {
 	case r.Int:
 		return v.Int() == n
 	case r.Uint:
-		return n >= 0 && v.Uint() == uint64(n)
+		u := v.Uint()
+		if n >= 0 {
+			return u == uint64(n)
+		}
+		// n == -1 means "unsigned integer equals its maximum value"
+		// similarly, n == -2 means "unsigned integer equals its maximum value minus 1"
+		// and so on...
+		un := r.ValueOf(n).Convert(v.Type()).Uint()
+		return u == un
 	case r.Float64:
 		return v.Float() == float64(n)
 	case r.Complex128:

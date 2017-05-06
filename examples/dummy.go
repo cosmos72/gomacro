@@ -14,6 +14,9 @@ func twice(d time.Duration) time.Duration {
 }
 
 func main() {
+	typeOfU := r.TypeOf(uint16(0))
+	fmt.Println(r.ValueOf(-1).Convert(typeOfU).Uint())
+
 	var d int64 = 1
 	v := r.ValueOf(&d)
 	fmt.Printf("%v <%v>\n", v, v.Type())
