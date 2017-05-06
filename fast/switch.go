@@ -121,7 +121,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 			})
 		}
 		// try to optimize
-		c.switchFastTag(tag, seen, icasemap)
+		c.switchGoto(tag, seen, icasemap)
 	}
 	// we finally know this
 	ibreak = c.Code.Len()
@@ -348,7 +348,7 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 }
 
 // try to optimize switch using a computed goto
-func (c *Comp) switchFastTag(tag *Expr, seen *caseHelper, ip int) {
+func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 	if seen.SomeNonConst {
 		return
 	}
