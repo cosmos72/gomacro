@@ -47,33 +47,38 @@ const (
 var verbose = false
 
 /*
-	--------- results on Intel Core 2 Duo P8400 ---------------
+	--------- 2016-05-06: results on Intel Core i7 4770 ---------------
 
-	BenchmarkFibonacciCompiler-2             	  500000	      2447 ns/op
-	BenchmarkFibonacciFastInterpreter-2      	   30000	     41455 ns/op
-	BenchmarkFibonacciClassicInterpreter-2   	    1000	   2192651 ns/op
-	BenchmarkFibonacciClosureValues-2        	    2000	    719944 ns/op
-	BenchmarkFibonacciClosureInterfaces-2    	    3000	    580711 ns/op
-	BenchmarkFibonacciClosureMaps-2          	    2000	   1121442 ns/op
-	BenchmarkArithCompiler1-2                	100000000	        17.7 ns/op
-	BenchmarkArithCompiler2-2                	100000000	        17.7 ns/op
-	BenchmarkArithFastInterpreter-2          	10000000	       170 ns/op
-	BenchmarkArithFastInterpreterBis-2       	10000000	       127 ns/op
-	BenchmarkArithClassicInterpreter-2       	  500000	      3086 ns/op
-	BenchmarkArithClassicInterpreterBis-2    	  300000	      5632 ns/op
-	BenchmarkCollatzCompiler-2               	 1000000	      1915 ns/op
-	BenchmarkCollatzFastInterpreter-2        	   50000	     35823 ns/op
-	BenchmarkCollatzClassicInterpreter-2     	    1000	   1277431 ns/op
-	BenchmarkCollatzBytecodeInterfaces-2     	   20000	     76116 ns/op
-	BenchmarkCollatzClosureValues-2          	   50000	     37573 ns/op
-	BenchmarkSumCompiler-2                   	 1000000	      1304 ns/op
-	BenchmarkSumFastInterpreter-2            	   30000	     55481 ns/op
-	BenchmarkSumClassicInterpreter-2         	    1000	   2338576 ns/op
-	BenchmarkSumBytecodeValues-2             	   10000	    188303 ns/op
-	BenchmarkSumBytecodeInterfaces-2         	   10000	    136112 ns/op
-	BenchmarkSumClosureValues-2              	   20000	     98944 ns/op
-	BenchmarkSumClosureInterfaces-2          	    3000	    407104 ns/op
-	BenchmarkSumClosureMaps-2                	    5000	    256734 ns/op
+	BenchmarkFibonacciCompiler-8                 	 3000000	       498 ns/op
+	BenchmarkFibonacciFastInterpreter-8          	  100000	     14812 ns/op
+	BenchmarkFibonacciFastInterpreterBis-8       	  100000	     14446 ns/op
+	BenchmarkFibonacciClassicInterpreter-8       	    3000	    575222 ns/op
+	BenchmarkFibonacciClassicInterpreterBis-8    	    3000	    575585 ns/op
+	BenchmarkFibonacciClosureValues-8            	   10000	    239373 ns/op
+	BenchmarkFibonacciClosureInterfaces-8        	   10000	    184985 ns/op
+	BenchmarkFibonacciClosureMaps-8              	    5000	    330350 ns/op
+	BenchmarkArithCompiler1-8                    	200000000	         8.58 ns/op
+	BenchmarkArithCompiler2-8                    	200000000	         8.56 ns/op
+	BenchmarkArithFastInterpreter-8              	30000000	        59.2 ns/op
+	BenchmarkArithFastInterpreterBis-8           	30000000	        51.4 ns/op
+	BenchmarkArithFastInterpreterConst-8         	100000000	        13.9 ns/op
+	BenchmarkArithFastInterpreterCompileLoop-8   	  100000	     21307 ns/op
+	BenchmarkArithClassicInterpreter-8           	 1000000	      1466 ns/op
+	BenchmarkArithClassicInterpreterBis-8        	 1000000	      2378 ns/op
+	BenchmarkCollatzCompiler-8                   	 3000000	       426 ns/op
+	BenchmarkCollatzFastInterpreter-8            	  100000	     12460 ns/op
+	BenchmarkCollatzClassicInterpreter-8         	    3000	    479500 ns/op
+	BenchmarkCollatzBytecodeInterfaces-8         	   50000	     29575 ns/op
+	BenchmarkCollatzClosureValues-8              	  100000	     16678 ns/op
+	BenchmarkSumCompiler-8                       	 3000000	       413 ns/op
+	BenchmarkSumFastInterpreter-8                	  100000	     20292 ns/op
+	BenchmarkSumFastInterpreterBis-8             	  100000	     20330 ns/op
+	BenchmarkSumClassicInterpreter-8             	    2000	    904097 ns/op
+	BenchmarkSumBytecodeValues-8                 	   20000	     72740 ns/op
+	BenchmarkSumBytecodeInterfaces-8             	   30000	     52509 ns/op
+	BenchmarkSumClosureValues-8                  	   30000	     41459 ns/op
+	BenchmarkSumClosureInterfaces-8              	   10000	    142466 ns/op
+	BenchmarkSumClosureMaps-8                    	   20000	     93106 ns/op
 */
 
 // recursion: fibonacci. fib(n) => if (n <= 2) { return 1 } else { return fib(n-1) + fib(n-2) }

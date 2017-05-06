@@ -38,6 +38,58 @@ import (
 	r "reflect"
 )
 
+:func upcasefirstbyte(str string) string {
+	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
+		bytes := []byte(str)
+		bytes[0] -= 'a' - 'A'
+		return string(bytes)
+	}
+	return str
+}
+
+:func makekind(typ ast.Node) ast.Node {
+	t := EvalType(typ)
+
+	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
+	kind := ~"{r . foo}
+	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
+	return kind
+}
+
+
+:func convertvalue1(typ, val ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	if t == nil {
+		// keep the result wrapped in a reflect.Value
+		return val
+	}
+	// unwrap the result
+	tname := t.Name()
+	// remove final digits from t.Name()
+	// needed to convert Uint64 -> Uint etc. to calls reflect.Value.{tname}
+	for len(tname) != 0 {
+		ch := tname[len(tname)-1]
+		if ch < '0' || ch > '9' {
+			break
+		}
+		tname = tname[0:len(tname)-1]
+	}
+	if tname == "uintptr" {
+		tname = "uint" // use reflect.Value.Uint()
+	}
+	sel := ~"{~,val . foo} // we modify it destructively
+	sel.Sel = &ast.Ident{Name: upcasefirstbyte(tname)}
+
+	switch t.Kind() {
+	case r.Bool, r.Int64, r.Uint64, r.Float64, r.Complex128, r.String:
+		// result of reflect.Value.{tname} is already the correct type
+		val = ~"{~,sel ()}
+	default:
+		// convert int64, uint64... to the correct type
+		val = ~"{~,typ ( ~,sel () )}
+	}
+	return val
+}
 
 :macro binaryop(opnode, xconst, yconst, typ ast.Node) ast.Node {
 
@@ -60,9 +112,10 @@ import (
 		var expr *ast.BinaryExpr = ~"{x(env) && y} // quasiquote, we modify it destructively
 		expr.Op = optoken
 
+		yconv := convertvalue1(typ, ~'yv)
 		return ~"{
 			x := x.(func(*Env) ~,typ)
-			y := y.(~,typ)
+			y := ~,yconv
 			fun = func(env *Env) bool {
 				return ~,expr
 			}
@@ -71,32 +124,15 @@ import (
 		var expr *ast.BinaryExpr = ~"{x && y(env)} // quasiquote, we modify it destructively
 		expr.Op = optoken
 
+		xconv := convertvalue1(typ, ~'xv)
 		return ~"{
-			x := x.(~,typ)
+			x := ~,xconv
 			y := y.(func(*Env) ~,typ)
 			fun = func(env *Env) bool {
 				return ~,expr
 			}
 		}
 	}
-}
-
-:func upcasefirstbyte(str string) string {
-	if len(str) > 0 && str[0] >= 'a' && str[0] <= 'z' {
-		bytes := []byte(str)
-		bytes[0] -= 'a' - 'A'
-		return string(bytes)
-	}
-	return str
-}
-
-:func makekind(typ ast.Node) ast.Node {
-	t := EvalType(typ)
-
-	// go/ast.SelectorExpr requires the foo in r.foo to be an *ast.Ident, cannot unquote there
-	kind := ~"{r . foo}
-	kind.Sel = &ast.Ident{Name: upcasefirstbyte(t.Name())}
-	return kind
 }
 
 :macro binaryops(opnode, xconst, yconst, types ast.Node) ast.Node {
@@ -146,10 +182,10 @@ func (c *Comp) Lss(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.LSS; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
-		y := ye.Value
+		yv := r.ValueOf(ye.Value)
 		{binaryops; token.LSS; false; true; { int; uint; float32; float64; string }}
 	} else {
-		x := xe.Value
+		xv := r.ValueOf(xe.Value)
 		y := ye.Fun
 		{binaryops; token.LSS; true; false; { int; uint; float32; float64; string }}
 	}
@@ -169,10 +205,10 @@ func (c *Comp) Gtr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.GTR; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
-		y := ye.Value
+		yv := r.ValueOf(ye.Value)
 		{binaryops; token.GTR; false; true; { int; uint; float32; float64; string }}
 	} else {
-		x := xe.Value
+		xv := r.ValueOf(xe.Value)
 		y := ye.Fun
 		{binaryops; token.GTR; true; false; { int; uint; float32; float64; string }}
 	}
@@ -192,10 +228,10 @@ func (c *Comp) Leq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.LEQ; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
-		y := ye.Value
+		yv := r.ValueOf(ye.Value)
 		{binaryops; token.LEQ; false; true; { int; uint; float32; float64; string }}
 	} else {
-		x := xe.Value
+		xv := r.ValueOf(xe.Value)
 		y := ye.Fun
 		{binaryops; token.LEQ; true; false; { int; uint; float32; float64; string }}
 	}
@@ -215,10 +251,10 @@ func (c *Comp) Geq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		{binaryops; token.GEQ; false; false; { int; uint; float32; float64; string }}
 	} else if yc {
 		x := xe.Fun
-		y := ye.Value
+		yv := r.ValueOf(ye.Value)
 		{binaryops; token.GEQ; false; true; { int; uint; float32; float64; string }}
 	} else {
-		x := xe.Value
+		xv := r.ValueOf(xe.Value)
 		y := ye.Fun
 		{binaryops; token.GEQ; true; false; { int; uint; float32; float64; string }}
 	}
