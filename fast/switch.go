@@ -31,6 +31,28 @@ import (
 	"sort"
 )
 
+type caseEntry struct {
+	Pos token.Pos
+	IP  int
+}
+
+type caseMap map[interface{}]caseEntry
+
+type caseHelper struct {
+	Map          caseMap
+	SomeNonConst bool
+}
+
+// keep track of constant expressions in cases. error on duplicates
+func (seen *caseHelper) add(c *Comp, val interface{}, entry caseEntry) {
+	prev, found := seen.Map[val]
+	if found {
+		c.Errorf("duplicate case %v <%v> in switch\n\tprevious case at %s", val, r.TypeOf(val), c.Fileset.Position(prev.Pos))
+		return
+	}
+	seen.Map[val] = entry
+}
+
 func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	initLocals := false
 	var initBinds [2]int
@@ -61,12 +83,15 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	} else {
 		tag = c.switchTag(e)
 	}
-
 	if node.Body != nil {
+		// reserve a code slot for caseMap optimizer
+		icasemap := c.Code.Len()
+		seen := &caseHelper{make(caseMap), false} // keeps track of constant expressions in cases. errors on duplicates
+		c.Code.Append(stmtNop)
+
 		list := node.Body.List
 		defaulti := -1
 		var defaultpos token.Pos
-		seen := make(map[interface{}]token.Pos) // keep track of constant expressions in cases. error on duplicates
 		n := len(list)
 		for i, stmt := range list {
 			switch clause := stmt.(type) {
@@ -95,8 +120,9 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 				return env.Code[ip], env
 			})
 		}
+		// try to optimize
+		c.switchFastTag(tag, seen, icasemap)
 	}
-
 	// we finally know this
 	ibreak = c.Code.Len()
 
@@ -321,11 +347,304 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 	return exprFun(e.Type, cachefun)
 }
 
+// try to optimize switch using a computed goto
+func (c *Comp) switchFastTag(tag *Expr, seen *caseHelper, ip int) {
+	if seen.SomeNonConst {
+		return
+	}
+	var stmt Stmt
+	switch efun := tag.Fun.(type) {
+	case func(*Env) bool:
+		m := [2]int{-1, -1}
+		for k, v := range seen.Map {
+			if r.ValueOf(k).Bool() {
+				m[1] = v.IP
+			} else {
+				m[0] = v.IP
+			}
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			var ip int
+			if val {
+				ip = m[1]
+			} else {
+				ip = m[0]
+			}
+			if ip >= 0 {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) int:
+		m := make(map[int]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[int(r.ValueOf(k).Int())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) int8:
+		m := make(map[int8]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[int8(r.ValueOf(k).Int())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) int16:
+		m := make(map[int16]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[int16(r.ValueOf(k).Int())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) int32:
+		m := make(map[int32]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[int32(r.ValueOf(k).Int())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) int64:
+		m := make(map[int64]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[r.ValueOf(k).Int()] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) uint:
+		m := make(map[uint]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[uint(r.ValueOf(k).Uint())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) uint8:
+		m := make(map[uint8]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[uint8(r.ValueOf(k).Uint())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) uint16:
+		m := make(map[uint16]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[uint16(r.ValueOf(k).Uint())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) uint32:
+		m := make(map[uint32]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[uint32(r.ValueOf(k).Uint())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) uint64:
+		m := make(map[uint64]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[r.ValueOf(k).Uint()] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) uintptr:
+		m := make(map[uintptr]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[uintptr(r.ValueOf(k).Uint())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) float32:
+		m := make(map[float32]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[float32(r.ValueOf(k).Float())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) float64:
+		m := make(map[float64]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[r.ValueOf(k).Float()] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) complex64:
+		m := make(map[complex64]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[complex64(r.ValueOf(k).Complex())] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) complex128:
+		m := make(map[complex128]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[r.ValueOf(k).Complex()] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) string:
+		m := make(map[string]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[r.ValueOf(k).String()] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := efun(env)
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	case func(*Env) (r.Value, []r.Value):
+		m := make(map[interface{}]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[k] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			v, _ := efun(env)
+			if ip, ok := m[v.Interface()]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	default:
+		fun := tag.AsX1()
+		m := make(map[interface{}]int, len(seen.Map))
+		for k, v := range seen.Map {
+			m[k] = v.IP
+		}
+		stmt = func(env *Env) (Stmt, *Env) {
+			val := fun(env).Interface()
+			if ip, ok := m[val]; ok {
+				env.IP = ip
+			} else {
+				env.IP++
+			}
+			return env.Code[env.IP], env
+		}
+	}
+	if stmt == nil {
+		return
+	}
+	// replace the nop we reserved
+	c.Code.List[ip] = stmt
+}
+
 // switchDefault compiles a case in a switch.
-func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, canfallthrough bool, seen map[interface{}]token.Pos) {
+func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, canfallthrough bool, seen *caseHelper) {
 	cmpfuns := make([]func(*Env) bool, 0)
 	cmpnode := &ast.BinaryExpr{Op: token.EQL, X: tagnode} // only for error messages
 
+	ibody := c.Code.Len() + 1 // body will start here
 	// compile a comparison of tag against each expression
 	sometrue := false
 	for _, enode := range node.List {
@@ -334,7 +653,7 @@ func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, can
 		cmpnode.Y = enode
 		cmp := c.Eql(cmpnode, tag, e)
 		if e.Const() {
-			c.updateSeen(seen, e.Value, enode.Pos())
+			seen.add(c, e.Value, caseEntry{Pos: enode.Pos(), IP: ibody})
 			if tag.Const() {
 				// constant propagation
 				flag := cmp.EvalConst(CompileDefaults)
@@ -346,15 +665,18 @@ func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, can
 					continue
 				}
 			}
+		} else {
+			seen.SomeNonConst = true
 		}
 		// constants are handled above. only add non-constant comparisons to cmpfuns
 		cmpfuns = append(cmpfuns, cmp.Fun.(func(*Env) bool))
 	}
 	// compile like "if tag == e1 || tag == e2 ... { }"
-	// and keep track ourselves of where to jump if no expression matches
+	// and keep track of where to jump if no expression matches
 	//
 	// always occupy a Code slot for cmpfuns, even if nothing to do.
-	// reason: fallthrough from previous case skips such slot and jumps to current body
+	// reason: both caseMap optimizer and fallthrough from previous case
+	// skip such slot and jump to current body
 	var iend int
 	var stmt Stmt
 	switch len(cmpfuns) {
@@ -507,14 +829,4 @@ func isFallthrough(node ast.Stmt) bool {
 	default:
 		return false
 	}
-}
-
-// keep track of constant expressions in cases. error on duplicates
-func (c *Comp) updateSeen(seen map[interface{}]token.Pos, val interface{}, pos token.Pos) {
-	prev, found := seen[val]
-	if found {
-		c.Errorf("duplicate case %v <%v> in switch\n\tprevious case at %s", val, r.TypeOf(val), c.Fileset.Position(prev))
-		return
-	}
-	seen[val] = pos
 }
