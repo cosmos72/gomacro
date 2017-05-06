@@ -97,13 +97,13 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		case *ast.ReturnStmt:
 			c.Return(node)
 		// case *ast.SelectStmt:
-		//   c.Select(node, label)
+		//   c.Select(node, labels)
 		case *ast.SendStmt:
 			c.Send(node)
-		// case *ast.SwitchStmt:
-		//   c.Switch(node, label)
+		case *ast.SwitchStmt:
+			c.Switch(node, labels)
 		// case *ast.TypeSwitchStmt:
-		//   c.TypeSwitch(node, label)
+		//   c.TypeSwitch(node, labels)
 		default:
 			c.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 		}
@@ -244,8 +244,9 @@ func (c *Comp) compileJumpOut(upn int, ip *int) {
 func (c *Comp) For(node *ast.ForStmt, labels []string) {
 	initLocals := false
 	var initBinds [2]int
+
+	c, initLocals = c.pushEnvIfLocalBinds(&initBinds, node.Init)
 	if node.Init != nil {
-		c, initLocals = c.pushEnvIfLocalBinds(&initBinds, node.Init)
 		c.Stmt(node.Init)
 	}
 	flag, fun, err := true, (func(*Env) bool)(nil), false // "for { }" without a condition means "for true { }"
@@ -259,6 +260,7 @@ func (c *Comp) For(node *ast.ForStmt, labels []string) {
 	}
 	var jump struct{ Cond, Post, Break int }
 	sort.Strings(labels)
+	// we need a fresh Comp here... created above by c.pushEnvIfLocalBinds()
 	c.Loop = &LoopInfo{
 		Continue:   &jump.Post,
 		Break:      &jump.Break,
@@ -307,9 +309,8 @@ func (c *Comp) For(node *ast.ForStmt, labels []string) {
 		c.Code.List = c.Code.List[0:jump.Cond]
 	}
 	jump.Break = c.Code.Len()
-	if node.Init != nil {
-		c = c.popEnvIfLocalBinds(initLocals, &initBinds, node.Init)
-	}
+
+	c = c.popEnvIfLocalBinds(initLocals, &initBinds, node.Init)
 }
 
 // Go compiles a "go" statement i.e. a goroutine
@@ -361,8 +362,8 @@ func (c *Comp) If(node *ast.IfStmt) {
 
 	initLocals := false
 	var initBinds [2]int
+	c, initLocals = c.pushEnvIfLocalBinds(&initBinds, node.Init)
 	if node.Init != nil {
-		c, initLocals = c.pushEnvIfLocalBinds(&initBinds, node.Init)
 		c.Stmt(node.Init)
 	}
 	pred := c.Expr(node.Cond)
@@ -423,9 +424,7 @@ func (c *Comp) If(node *ast.IfStmt) {
 	}
 	jump.End = c.Code.Len()
 
-	if node.Init != nil {
-		c = c.popEnvIfLocalBinds(initLocals, &initBinds, node.Init)
-	}
+	c = c.popEnvIfLocalBinds(initLocals, &initBinds, node.Init)
 }
 
 // IncDec compiles a "place++" or "place--" statement
@@ -506,7 +505,7 @@ func containLocalBinds(list ...ast.Stmt) bool {
 	if len(list) == 0 {
 		Errorf("internal error: containLocalBinds() invoked on empty statement list")
 	}
-	for i, node := range list {
+	for _, node := range list {
 		switch node := node.(type) {
 		case *ast.AssignStmt:
 			if node.Tok == token.DEFINE {
@@ -536,7 +535,6 @@ func containLocalBinds(list ...ast.Stmt) bool {
 				}
 			}
 		case nil:
-			Errorf("internal error: containLocalBinds() statement[%d] is nil: %v", i, list)
 		}
 	}
 	return false

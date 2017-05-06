@@ -283,9 +283,9 @@ var tests = []TestCase{
 	TestCase{A, "for_1", "var i, j, k int; for i=1; i<=2; i=i+1 { if i<2 {j=i} else {k=i} }; i", 3, nil},
 	TestCase{A, "for_2", "j", 1, nil},
 	TestCase{A, "for_3", "k", 2, nil},
-	TestCase{A, "continue_1", "j=0; k=0; for i=1; i<=7; i=i+1 { if i==3 {j=i; continue}; k=k+i }; j", 3, nil},
+	TestCase{A, "continue_1", "j=0; k=0; for i:=1; i<=7; i=i+1 { if i==3 {j=i; continue}; k=k+i }; j", 3, nil},
 	TestCase{A, "continue_2", "k", 25, nil},
-	TestCase{A, "continue_3", "j=0; k=0; for i=1; i<=7; i=i+1 { var ii = i; if ii==3 {j=ii; continue}; k=k+ii }; j", 3, nil},
+	TestCase{A, "continue_3", "j=0; k=0; for i:=1; i<=7; i=i+1 { var ii = i; if ii==3 {j=ii; continue}; k=k+ii }; j", 3, nil},
 	TestCase{A, "continue_4", "k", 25, nil},
 
 	TestCase{I, "for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
