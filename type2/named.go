@@ -54,10 +54,10 @@ func (t Type) ExplicitMethod(i int) Method {
 		errorf("ExplicitMethod on invalid type %v", t)
 	}
 	rmethod, _ := t.rtype.MethodByName(gfun.Name())
-	return makemethod([]int{i}, gfun, &rmethod)
+	return makemethod(i, gfun, &rmethod)
 }
 
-func makemethod(index []int, gfun *types.Func, rmethod *reflect.Method) Method {
+func makemethod(index int, gfun *types.Func, rmethod *reflect.Method) Method {
 	return Method{
 		Name:  gfun.Name(),
 		Pkg:   makepackage(gfun.Pkg()),
@@ -89,7 +89,7 @@ func (t Type) SetUnderlying(underlying Type) {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		if t.kind != reflect.Invalid || gtype.Underlying() != TypeOfInterface.gtype || t.rtype != TypeOfInterface.rtype {
-			errorf("SetUnderlying invoked already on named type %v", t)
+			errorf("SetUnderlying invoked multiple times on named type %v", t)
 		}
 		t.kind = gtypeToKind(underlying.gtype)
 		gtype.SetUnderlying(underlying.gtype)

@@ -26,12 +26,17 @@ package type2
 
 import (
 	"go/types"
+	"io"
 	"reflect"
 	"testing"
 )
 
 func fail(t *testing.T, actual interface{}, expected interface{}) {
 	t.Errorf("expecting %v <%T>, found %v <%T>\n", expected, expected, actual, actual)
+}
+
+func fail2(t *testing.T, actual interface{}, expected interface{}) {
+	t.Errorf("expecting %#v <%T>,\n\tfound %#v <%T>\n", expected, expected, actual, actual)
 }
 
 func is(t *testing.T, actual interface{}, expected interface{}) {
@@ -42,7 +47,7 @@ func is(t *testing.T, actual interface{}, expected interface{}) {
 
 func isdeepequal(t *testing.T, actual interface{}, expected interface{}) {
 	if !reflect.DeepEqual(actual, expected) {
-		fail(t, actual, expected)
+		fail2(t, actual, expected)
 	}
 }
 
@@ -50,7 +55,7 @@ func istype(t *testing.T, actual interface{}, expected interface{}) {
 	is(t, reflect.TypeOf(actual), reflect.TypeOf(expected))
 }
 
-func TestBasicTypes(t *testing.T) {
+func TestBasic(t *testing.T) {
 	rmap := []reflect.Type{
 		reflect.Bool:       reflect.TypeOf(bool(false)),
 		reflect.Int:        reflect.TypeOf(int(0)),
@@ -75,7 +80,7 @@ func TestBasicTypes(t *testing.T) {
 			continue
 		}
 		kind := reflect.Kind(i)
-		typ := BasicType(kind)
+		typ := BasicTypes[kind]
 		is(t, typ.Kind(), rtype.Kind())
 		is(t, typ.Name(), rtype.Name())
 		is(t, typ.ReflectType(), rtype)
@@ -87,36 +92,96 @@ func TestBasicTypes(t *testing.T) {
 	}
 }
 
-func TestCompositeTypes(t *testing.T) {
+func TestArray(t *testing.T) {
 	typ := ArrayOf(7, TypeOfUint8)
 	rtype := reflect.TypeOf([7]uint8{})
 	is(t, typ.Kind(), reflect.Array)
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
 	istype(t, typ.GoType(), (*types.Array)(nil))
+	is(t, typ.String(), "[7]uint8")
 }
 
-func TestFunctionTypes(t *testing.T) {
+func TestFunction(t *testing.T) {
 	typ := FuncOf([]Type{TypeOfBool, TypeOfInt16}, []Type{TypeOfString}, false)
 	rtype := reflect.TypeOf(func(bool, int16) string { return "" })
 	is(t, typ.Kind(), reflect.Func)
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
 	istype(t, typ.GoType(), (*types.Signature)(nil))
+	is(t, typ.String(), "func(bool, int16) string")
 }
 
-func TestStructTypes(t *testing.T) {
-	fields := []StructField{
-		StructField{
-			Name: "First",
-			Type: TypeOfInt,
-		},
-		StructField{
-			Name: "Rest",
-			Type: TypeOfInterface,
-		},
-	}
-	typ := StructOf(fields)
+func TestInterface(t *testing.T) {
+	methodtyp := FuncOf(nil, []Type{TypeOfInt}, false)
+	typ := InterfaceOf([]string{"Cap", "Len"}, []Type{methodtyp, methodtyp}, nil).Complete()
+
+	is(t, typ.Kind(), reflect.Interface)
+	is(t, typ.Name(), "")
+	is(t, typ.NumExplicitMethods(), 2)
+	actual := typ.ExplicitMethod(0)
+	is(t, actual.Name, "Cap")
+	is(t, true, types.Identical(methodtyp.GoType(), actual.Type.GoType()))
+	actual = typ.ExplicitMethod(1)
+	is(t, actual.Name, "Len")
+	is(t, true, types.Identical(methodtyp.GoType(), actual.Type.GoType()))
+	istype(t, typ.GoType(), (*types.Interface)(nil))
+
+	rtype := reflect.StructOf([]reflect.StructField{
+		reflect.StructField{Name: StrGensymInterface, Type: TypeOfInterface.ReflectType()},
+		reflect.StructField{Name: "Cap", Type: methodtyp.ReflectType()},
+		reflect.StructField{Name: "Len", Type: methodtyp.ReflectType()},
+	})
+	is(t, typ.ReflectType(), rtype)
+	is(t, typ.String(), "interface{Cap() int; Len() int}")
+}
+
+func TestMap(t *testing.T) {
+	typ := MapOf(TypeOfInterface, TypeOfBool)
+	rtype := reflect.TypeOf(map[interface{}]bool{})
+	is(t, typ.Kind(), reflect.Map)
+	is(t, typ.Name(), "")
+	is(t, typ.ReflectType(), rtype)
+	istype(t, typ.GoType(), (*types.Map)(nil))
+}
+
+func TestNamed(t *testing.T) {
+	typ := NamedOf("MyMap", NewPackage("main", ""))
+	underlying := MapOf(TypeOfInterface, TypeOfBool)
+	typ.SetUnderlying(underlying)
+	rtype := reflect.TypeOf(map[interface{}]bool{})
+	is(t, typ.Kind(), reflect.Map)
+	is(t, typ.Name(), "MyMap")
+	is(t, typ.ReflectType(), rtype)
+	istype(t, typ.GoType(), (*types.Named)(nil))
+}
+
+func TestSelfReference(t *testing.T) {
+	typ := NamedOf("List", NewPackage("main", ""))
+	underlying := StructOf([]StructField{
+		StructField{Name: "First", Type: TypeOfInt},
+		StructField{Name: "Rest", Type: typ},
+	})
+	typ.SetUnderlying(underlying)
+	rtype := reflect.TypeOf(struct {
+		First int
+		Rest  interface{}
+	}{})
+	is(t, typ.Kind(), reflect.Struct)
+	is(t, typ.Name(), "List")
+	is(t, typ.ReflectType(), rtype)
+	is(t, true, types.Identical(typ.Field(1).Type.GoType(), typ.GoType()))
+	istype(t, typ.GoType(), (*types.Named)(nil))
+
+	is(t, typ.String(), "main.List")
+	is(t, typ.underlying().String(), "struct{First int; Rest main.List}")
+}
+
+func TestStruct(t *testing.T) {
+	typ := StructOf([]StructField{
+		StructField{Name: "First", Type: TypeOfInt},
+		StructField{Name: "Rest", Type: TypeOfInterface},
+	})
 	rtype := reflect.TypeOf(struct {
 		First int
 		Rest  interface{}
@@ -132,6 +197,7 @@ func TestStructTypes(t *testing.T) {
 		rfield2 := rtype.Field(i)
 		isdeepequal(t, rfield1, rfield2)
 	}
+	is(t, typ.String(), "struct{First int; Rest interface{}}")
 }
 
 func TestFromReflect1(t *testing.T) {
@@ -146,16 +212,44 @@ func TestFromReflect2(t *testing.T) {
 		I int32
 		U uintptr
 		F [3]float32
-		G *float64
-		M map[string]*[]complex64
+		G []float64
+		M map[string]*complex64
 	}
-	rtype := reflect.TypeOf(Bag{})
-	typ := FromReflectType(rtype, RebuildReflectType)
-	rtype2 := typ.ReflectType()
+	in := reflect.TypeOf(Bag{})
+	expected := reflect.TypeOf(struct {
+		C <-chan bool
+		I int32
+		U uintptr
+		F [3]float32
+		G []float64
+		M map[string]*complex64
+	}{})
+	typ := FromReflectType(in, RebuildReflectType)
+	actual := typ.ReflectType()
 	is(t, typ.Kind(), reflect.Struct)
 	is(t, typ.Name(), "Bag")
-	is(t, rtype.ConvertibleTo(rtype2), true)
-	is(t, rtype2.ConvertibleTo(rtype), true)
-	is(t, rtype.AssignableTo(rtype2), true)
-	is(t, rtype2.AssignableTo(rtype), true)
+	is(t, actual, expected)
+	is(t, actual.ConvertibleTo(in), true)
+	is(t, in.ConvertibleTo(actual), true)
+	is(t, actual.AssignableTo(in), true)
+	is(t, in.AssignableTo(actual), true)
+}
+
+func TestFromReflect3(t *testing.T) {
+	rtype := reflect.TypeOf((*io.Reader)(nil)).Elem()
+	typ := FromReflectType(rtype, RebuildReflectType)
+
+	rmethod := reflect.FuncOf(
+		[]reflect.Type{reflect.SliceOf(TypeOfUint8.rtype)},
+		[]reflect.Type{TypeOfInt.rtype, TypeOfError.rtype},
+		false,
+	)
+	expected := reflect.StructOf([]reflect.StructField{
+		reflect.StructField{Name: StrGensymInterface, Type: TypeOfInterface.rtype},
+		reflect.StructField{Name: "Read", Type: rmethod},
+	})
+	actual := typ.ReflectType()
+	is(t, typ.Kind(), reflect.Interface)
+	is(t, actual, expected)
+	is(t, typ.underlying().String(), "interface{Read([]uint8) (int, error)}")
 }

@@ -87,7 +87,7 @@ func (field *StructField) toReflectField(forceExported bool) reflect.StructField
 	}
 	name := field.Name
 	if forceExported {
-		name = field.toExportedFieldName()
+		name = toExportedFieldName(field.Name, field.Type.Name(), field.Anonymous)
 	}
 	return reflect.StructField{
 		Name:      name,
@@ -132,11 +132,10 @@ func toTags(fields []StructField) []string {
 	return tags
 }
 
-func (field *StructField) toExportedFieldName() string {
-	name := field.Name
-	if field.Anonymous || len(name) == 0 {
+func toExportedFieldName(name, typename string, anonymous bool) string {
+	if anonymous || len(name) == 0 {
 		if len(name) == 0 {
-			name = field.Type.Name()
+			name = typename
 		}
 		return GensymEmbedded(name)
 	}
@@ -154,27 +153,4 @@ func StructOf(fields []StructField) Type {
 		types.NewStruct(vars, tags),
 		reflect.StructOf(rfields),
 	)
-}
-
-// utilities for InterfaceOf()
-
-func (t Type) toStructField(name string) StructField {
-	return StructField{
-		Name:      name,
-		Pkg:       NewPackage(t.PkgName(), t.PkgPath()),
-		Type:      t,
-		Anonymous: len(name) == 0,
-	}
-}
-
-func toStructFields(names []string, ts []Type) []StructField {
-	fields := make([]StructField, len(ts))
-	var name string
-	for i, t := range ts {
-		if names != nil {
-			name = names[i]
-		}
-		fields[i] = t.toStructField(name)
-	}
-	return fields
 }

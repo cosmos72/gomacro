@@ -55,7 +55,7 @@ type TestCase struct {
 	results []interface{}
 }
 
-func TestFastInterp(t *testing.T) {
+func TestFast(t *testing.T) {
 	env := classic.New()
 	comp := fast.New()
 	for _, test := range tests {
@@ -66,7 +66,7 @@ func TestFastInterp(t *testing.T) {
 	}
 }
 
-func TestInterpreter(t *testing.T) {
+func TestClassic(t *testing.T) {
 	env := classic.New()
 	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for _, test := range tests {

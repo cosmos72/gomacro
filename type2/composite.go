@@ -87,15 +87,7 @@ func ArrayOf(count int, elem Type) Type {
 }
 
 func ChanOf(dir reflect.ChanDir, elem Type) Type {
-	var gdir types.ChanDir
-	switch dir {
-	case reflect.RecvDir:
-		gdir = types.RecvOnly
-	case reflect.SendDir:
-		gdir = types.SendOnly
-	case reflect.BothDir:
-		gdir = types.SendRecv
-	}
+	gdir := dirToGdir(dir)
 	return maketype(
 		types.NewChan(gdir, elem.gtype),
 		reflect.ChanOf(dir, elem.rtype))

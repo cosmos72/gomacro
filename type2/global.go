@@ -51,7 +51,7 @@ type Method struct {
 	Pkg   Package
 	Type  Type          // method type
 	Func  reflect.Value // func with receiver as first argument
-	Index []int         // index sequence for Type for Type.MethodByIndex
+	Index int           // index for Type.Method
 }
 
 type StructField struct {

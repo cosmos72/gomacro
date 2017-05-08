@@ -109,6 +109,19 @@ func gbasickindToKind(gkind types.BasicKind) reflect.Kind {
 	return kind
 }
 
+func dirToGdir(dir reflect.ChanDir) types.ChanDir {
+	var gdir types.ChanDir
+	switch dir {
+	case reflect.RecvDir:
+		gdir = types.RecvOnly
+	case reflect.SendDir:
+		gdir = types.SendOnly
+	case reflect.BothDir:
+		gdir = types.SendRecv
+	}
+	return gdir
+}
+
 func toReflectTypes(ts []Type) []reflect.Type {
 	rts := make([]reflect.Type, len(ts))
 	for i, t := range ts {

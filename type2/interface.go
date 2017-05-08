@@ -56,13 +56,69 @@ func toGoNamedTypes(ts []Type) []*types.Named {
 	return gnameds
 }
 
+// InterfaceOf returns a new interface for the given methods and embedded types.
+// After the methods and embeddeds are fully defined, call Complete() to mark the interface as complete
+// and compute wrapper methods for embedded fields.
 func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	gmethods := toGoFuncs(methodnames, methods)
 	gembeddeds := toGoNamedTypes(embeddeds)
-	fields := toStructFields(methodnames, methods)
-	rfields := toReflectFields(fields, true)
+
+	// for reflect.Type, approximate an interface as a struct:
+	// one field for the wrapped object: type is interface{},
+	// one field for each embedded interface: type is the embedded interface type
+	// one field for each method: type is the method type i.e. a function
+	nemb := len(embeddeds)
+	rfields := make([]reflect.StructField, 1+nemb+len(methods))
+	rfields[0] = approxInterfaceSelf()
+	for i, emb := range embeddeds {
+		rfields[i+1] = approxInterfaceEmbedded(emb.Name(), emb.ReflectType())
+	}
+	for i, method := range methods {
+		rfields[i+nemb+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
+	}
 	return maketype(
 		types.NewInterface(gmethods, gembeddeds),
 		reflect.StructOf(rfields),
 	)
+}
+
+// Complete marks an interface as complete and computes wrapper methods for embedded fields.
+// It must be called by users of InterfaceOf after the interface's embedded types are fully defined
+// and before using the interface type in any way other than to form other types.
+// Complete returns the receiver.
+func (t Type) Complete() Type {
+	if t.kind != reflect.Interface {
+		errorf("Complete of non-interface %v", t)
+	}
+	gtype := t.gtype.Underlying().(*types.Interface)
+	gtype.Complete()
+	return t
+}
+
+// utilities for InterfaceOf()
+
+func approxInterfaceSelf() reflect.StructField {
+	return reflect.StructField{
+		Name: StrGensymInterface,
+		Type: TypeOfInterface.ReflectType(),
+	}
+}
+
+func approxInterfaceEmbedded(typename string, rtype reflect.Type) reflect.StructField {
+	// embedded interfaces are always anonymous
+	return reflect.StructField{
+		Name: toExportedFieldName("", typename, true),
+		Type: rtype,
+	}
+}
+
+func approxInterfaceMethod(name string, rtype reflect.Type) reflect.StructField {
+	// interface methods cannot be anonymous
+	if len(name) == 0 {
+		name = "_"
+	}
+	return reflect.StructField{
+		Name: toExportedFieldName(name, "", false),
+		Type: rtype,
+	}
 }

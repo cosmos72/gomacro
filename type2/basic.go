@@ -27,9 +27,6 @@ package type2
 import (
 	"errors"
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/token"
 	"reflect"
 
 	"go/types"
@@ -39,31 +36,7 @@ func errorf(format string, arg ...interface{}) {
 	panic(errors.New(fmt.Sprintf(format, arg...)))
 }
 
-var TypeOfError Type
-var TypeOfInterface = maketype(types.NewInterface(nil, nil), reflect.TypeOf((*interface{})(nil)).Elem())
-
 func makebasictypes() []Type {
-	src := `package main
-func _() {
-	_ = bool(false)
-	_ = int(0)
-	_ = int8(0)
-	_ = int16(0)
-	_ = int32(0)
-	_ = int64(0)
-	_ = uint(0)
-	_ = uint8(0)
-	_ = uint16(0)
-	_ = uint32(0)
-	_ = uint64(0)
-	_ = uintptr(0)
-	_ = float32(0)
-	_ = float64(0)
-	_ = complex64(0)
-	_ = complex128(0)
-	_ = string("")
-	_ = error(nil)
-}`
 	rmap := []reflect.Type{
 		reflect.Bool:          reflect.TypeOf(bool(false)),
 		reflect.Int:           reflect.TypeOf(int(0)),
@@ -84,71 +57,50 @@ func _() {
 		reflect.String:        reflect.TypeOf(string("")),
 		reflect.UnsafePointer: nil, // to set the length
 	}
-
-	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "", src, 0)
-	if err != nil {
-		errorf("%s: %s", src, err)
-	}
-
-	typemap := make(map[ast.Expr]types.TypeAndValue)
-	conf := types.Config{}
-	_, err = conf.Check(f.Name.Name, fset, []*ast.File{f}, &types.Info{Types: typemap})
-	if err != nil {
-		errorf("%s: %s", src, err)
-	}
-
 	m := make([]Type, len(rmap))
-	for x := range typemap {
-		if call, _ := x.(*ast.CallExpr); call != nil {
-			t := typemap[call].Type
-			str := types.ExprString(call)
-			if t == nil {
-				errorf("no type recorded for %s", str)
-			}
-			switch t := t.(type) {
-			case *types.Basic:
-				kind := gbasickindToKind(t.Kind())
-				m[kind] = maketype(t, rmap[kind])
-				continue
-			case *types.Named:
-				name := t.Obj().Name()
-				if name == "error" {
-					TypeOfError = maketype(t, reflect.TypeOf((*error)(nil)).Elem())
-					continue
-				}
-			}
-			errorf("type recorded for %s is not a known type: %#v", str, t)
+	for gkind := types.Bool; gkind <= types.String; gkind++ {
+		kind := gbasickindToKind(gkind)
+		gtype := types.Typ[gkind]
+		rtype := rmap[kind]
+		if gtype == nil || rtype == nil {
+			continue
 		}
+		m[kind] = maketype(gtype, rtype)
 	}
+
 	return m
 }
 
-var basictypes = makebasictypes()
+var BasicTypes = makebasictypes()
 
 var (
-	TypeOfBool       = basictypes[reflect.Bool]
-	TypeOfInt        = basictypes[reflect.Int]
-	TypeOfInt8       = basictypes[reflect.Int8]
-	TypeOfInt16      = basictypes[reflect.Int16]
-	TypeOfInt32      = basictypes[reflect.Int32]
-	TypeOfInt64      = basictypes[reflect.Int64]
-	TypeOfUint       = basictypes[reflect.Uint]
-	TypeOfUint8      = basictypes[reflect.Uint8]
-	TypeOfUint16     = basictypes[reflect.Uint16]
-	TypeOfUint32     = basictypes[reflect.Uint32]
-	TypeOfUint64     = basictypes[reflect.Uint64]
-	TypeOfUintptr    = basictypes[reflect.Uintptr]
-	TypeOfFloat32    = basictypes[reflect.Float32]
-	TypeOfFloat64    = basictypes[reflect.Float64]
-	TypeOfComplex64  = basictypes[reflect.Complex64]
-	TypeOfComplex128 = basictypes[reflect.Complex128]
-	TypeOfString     = basictypes[reflect.String]
-)
+	TypeOfBool       = BasicTypes[reflect.Bool]
+	TypeOfInt        = BasicTypes[reflect.Int]
+	TypeOfInt8       = BasicTypes[reflect.Int8]
+	TypeOfInt16      = BasicTypes[reflect.Int16]
+	TypeOfInt32      = BasicTypes[reflect.Int32]
+	TypeOfInt64      = BasicTypes[reflect.Int64]
+	TypeOfUint       = BasicTypes[reflect.Uint]
+	TypeOfUint8      = BasicTypes[reflect.Uint8]
+	TypeOfUint16     = BasicTypes[reflect.Uint16]
+	TypeOfUint32     = BasicTypes[reflect.Uint32]
+	TypeOfUint64     = BasicTypes[reflect.Uint64]
+	TypeOfUintptr    = BasicTypes[reflect.Uintptr]
+	TypeOfFloat32    = BasicTypes[reflect.Float32]
+	TypeOfFloat64    = BasicTypes[reflect.Float64]
+	TypeOfComplex64  = BasicTypes[reflect.Complex64]
+	TypeOfComplex128 = BasicTypes[reflect.Complex128]
+	TypeOfString     = BasicTypes[reflect.String]
 
-func BasicType(kind reflect.Kind) Type {
-	return basictypes[kind]
-}
+	TypeOfError = maketype(
+		types.Universe.Lookup("error").Type(),
+		reflect.TypeOf((*error)(nil)).Elem(),
+	)
+	TypeOfInterface = maketype(
+		types.NewInterface(nil, nil).Complete(),
+		reflect.TypeOf((*interface{})(nil)).Elem(),
+	)
+)
 
 // Bits returns the size of the type in bits.
 // It panics if the type's Kind is not one of the

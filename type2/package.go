@@ -30,14 +30,23 @@ import (
 )
 
 func (pkg Package) Name() string {
+	if pkg.impl == nil {
+		return ""
+	}
 	return pkg.impl.Name()
 }
 
 func (pkg Package) Path() string {
+	if pkg.impl == nil {
+		return ""
+	}
 	return pkg.impl.Path()
 }
 
 func (pkg Package) String() string {
+	if pkg.impl == nil {
+		return ""
+	}
 	return pkg.impl.Name()
 }
 
