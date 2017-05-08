@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * package.go
+ * gensym.go
  *
  *  Created on May 07, 2017
  *      Author Massimiliano Ghilardi
@@ -25,41 +25,32 @@
 package type2
 
 import (
-	"go/types"
-	"strings"
+	"fmt"
 )
 
-func (pkg Package) Name() string {
-	return pkg.impl.Name()
-}
+// the following constants must match with github.com/cosmos72/gomacro/base/constants.go
+const (
+	StrGensymInterface = "\u0080" // name of extra struct field needed by the interpreter when creating interface proxies
+	StrGensymPrivate   = "\u00AD" // prefix to generate names for unexported struct fields.
+	StrGensymEmbedded  = "\u00BB" // prefix to generate names for embedded struct fields.
+)
 
-func (pkg Package) Path() string {
-	return pkg.impl.Path()
-}
+var gensymn = 0
 
-func (pkg Package) String() string {
-	return pkg.impl.Name()
-}
-
-func NewPackage(path, name string) Package {
-	if len(path) == 0 {
-		// do not create unnamed packages
-		return Package{}
-	}
+func GensymEmbedded(name string) string {
 	if len(name) == 0 {
-		name = path[1+strings.LastIndexByte(path, '/'):]
+		n := gensymn
+		gensymn++
+		name = fmt.Sprintf("%d", n)
 	}
-	return Package{
-		impl: types.NewPackage(path, name),
-	}
+	return StrGensymEmbedded + name
 }
 
-func (pkg Package) GoPackage() *types.Package {
-	return pkg.impl
-}
-
-func makepackage(gpkg *types.Package) Package {
-	return Package{
-		impl: gpkg,
+func GensymPrivate(name string) string {
+	if len(name) == 0 {
+		n := gensymn
+		gensymn++
+		name = fmt.Sprintf("%d", n)
 	}
+	return StrGensymPrivate + name
 }

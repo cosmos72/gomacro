@@ -25,10 +25,16 @@
 package type2
 
 import (
+	"fmt"
 	"go/token"
 	"go/types"
 	"reflect"
 )
+
+func debugf(format string, args ...interface{}) {
+	str := fmt.Sprintf(format, args...)
+	fmt.Printf("// debug: %s\n", str)
+}
 
 func gtypeToKind(gtype types.Type) reflect.Kind {
 	gtype = gtype.Underlying()
@@ -46,17 +52,17 @@ func gtypeToKind(gtype types.Type) reflect.Kind {
 		kind = reflect.Interface
 	case *types.Map:
 		kind = reflect.Map
-	case *types.Named:
-		kind = reflect.Map
 	case *types.Pointer:
 		kind = reflect.Ptr
 	case *types.Slice:
 		kind = reflect.Slice
 	case *types.Struct:
 		kind = reflect.Struct
+	// case *types.Named: // impossible, handled above
 	default:
 		errorf("unsupported types.Type: %v", gtype)
 	}
+	// debugf("gtypeToKind(%T) -> %v", gtype, kind)
 	return kind
 }
 

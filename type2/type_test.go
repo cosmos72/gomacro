@@ -51,28 +51,33 @@ func istype(t *testing.T, actual interface{}, expected interface{}) {
 }
 
 func TestBasicTypes(t *testing.T) {
-	rmap := map[string]reflect.Type{
-		"bool":       reflect.TypeOf(bool(false)),
-		"int":        reflect.TypeOf(int(0)),
-		"int8":       reflect.TypeOf(int8(0)),
-		"int16":      reflect.TypeOf(int16(0)),
-		"int32":      reflect.TypeOf(int32(0)),
-		"int64":      reflect.TypeOf(int64(0)),
-		"uint":       reflect.TypeOf(uint(0)),
-		"uint8":      reflect.TypeOf(uint8(0)),
-		"uint16":     reflect.TypeOf(uint16(0)),
-		"uint32":     reflect.TypeOf(uint32(0)),
-		"uint64":     reflect.TypeOf(uint64(0)),
-		"uintptr":    reflect.TypeOf(uintptr(0)),
-		"float32":    reflect.TypeOf(float32(0)),
-		"float64":    reflect.TypeOf(float64(0)),
-		"complex64":  reflect.TypeOf(complex64(0)),
-		"complex128": reflect.TypeOf(complex128(0)),
-		"string":     reflect.TypeOf(string("")),
+	rmap := []reflect.Type{
+		reflect.Bool:       reflect.TypeOf(bool(false)),
+		reflect.Int:        reflect.TypeOf(int(0)),
+		reflect.Int8:       reflect.TypeOf(int8(0)),
+		reflect.Int16:      reflect.TypeOf(int16(0)),
+		reflect.Int32:      reflect.TypeOf(int32(0)),
+		reflect.Int64:      reflect.TypeOf(int64(0)),
+		reflect.Uint:       reflect.TypeOf(uint(0)),
+		reflect.Uint8:      reflect.TypeOf(uint8(0)),
+		reflect.Uint16:     reflect.TypeOf(uint16(0)),
+		reflect.Uint32:     reflect.TypeOf(uint32(0)),
+		reflect.Uint64:     reflect.TypeOf(uint64(0)),
+		reflect.Uintptr:    reflect.TypeOf(uintptr(0)),
+		reflect.Float32:    reflect.TypeOf(float32(0)),
+		reflect.Float64:    reflect.TypeOf(float64(0)),
+		reflect.Complex64:  reflect.TypeOf(complex64(0)),
+		reflect.Complex128: reflect.TypeOf(complex128(0)),
+		reflect.String:     reflect.TypeOf(string("")),
 	}
-	for name, rtype := range rmap {
-		typ := BasicType(name)
-		is(t, typ.Name(), name)
+	for i, rtype := range rmap {
+		if rtype == nil {
+			continue
+		}
+		kind := reflect.Kind(i)
+		typ := BasicType(kind)
+		is(t, typ.Kind(), rtype.Kind())
+		is(t, typ.Name(), rtype.Name())
 		is(t, typ.ReflectType(), rtype)
 		istype(t, typ.GoType(), (*types.Basic)(nil))
 
@@ -123,8 +128,34 @@ func TestStructTypes(t *testing.T) {
 	is(t, typ.NumField(), rtype.NumField())
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
-		rfield1 := field.toReflectField()
+		rfield1 := field.toReflectField(false)
 		rfield2 := rtype.Field(i)
 		isdeepequal(t, rfield1, rfield2)
 	}
+}
+
+func TestFromReflect1(t *testing.T) {
+	rtype := reflect.TypeOf((*func(bool, int8, <-chan uint16, []float32, [2]float64, []complex64) map[interface{}]*string)(nil)).Elem()
+	typ := FromReflectType(rtype, RebuildReflectType)
+	is(t, typ.ReflectType(), rtype) // recreated 100% accurately?
+}
+
+func TestFromReflect2(t *testing.T) {
+	type Bag struct {
+		C <-chan bool
+		I int32
+		U uintptr
+		F [3]float32
+		G *float64
+		M map[string]*[]complex64
+	}
+	rtype := reflect.TypeOf(Bag{})
+	typ := FromReflectType(rtype, RebuildReflectType)
+	rtype2 := typ.ReflectType()
+	is(t, typ.Kind(), reflect.Struct)
+	is(t, typ.Name(), "Bag")
+	is(t, rtype.ConvertibleTo(rtype2), true)
+	is(t, rtype2.ConvertibleTo(rtype), true)
+	is(t, rtype.AssignableTo(rtype2), true)
+	is(t, rtype2.AssignableTo(rtype), true)
 }

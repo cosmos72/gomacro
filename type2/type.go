@@ -35,17 +35,18 @@ func maketype(gtype types.Type, rtype reflect.Type) Type {
 }
 
 // GoType returns the go/types.Type corresponding to the type.
-func (t *timpl) GoType() types.Type {
+func (t Type) GoType() types.Type {
 	return t.gtype
 }
 
 // ReflectType returns a best-effort reflect.Type that approximates the type.
-// it may be inexact for the following reasons:
-// 1) missing reflect.NamedOf(): no distinction between named types and their underlying type
+// It may be inexact for the following reasons:
+// 1) missing reflect.NamedOf(): no way to programmatically create named types, or to access the underlying type of a named type
 // 2) missing reflect.InterfaceOf(): interface types created at runtime will be approximated by structs
 // 3) missing reflect.MethodOf(): method types created at runtime will be approximated by functions
 //    whose first parameter is the receiver
-// 4) go/reflect missing ability to create self-referencing types:
+// 4) reflect.StructOf() does not support embedded or unexported fields
+// 5) go/reflect lacks the ability to create self-referencing types:
 //    references to the type itself will be replaced by interface{}.
 //
 // Examples:
@@ -55,14 +56,14 @@ func (t *timpl) GoType() types.Type {
 //    ReflectType will return a reflect.Type equivalent to:
 //        struct { Elem int; Rest interface{} }
 //    i.e. the type name will be missing due to limitation 1 above,
-//    and the field 'Rest' will have type interface{} instead of *List due to limitation 4.
-func (t *timpl) ReflectType() reflect.Type {
+//    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
+func (t Type) ReflectType() reflect.Type {
 	return t.rtype
 }
 
 // Named returns whether the type is named.
 // It returns false for unnamed types.
-func (t *timpl) Named() bool {
+func (t Type) Named() bool {
 	switch t.gtype.(type) {
 	case *types.Basic, *types.Named:
 		return true
@@ -73,7 +74,7 @@ func (t *timpl) Named() bool {
 
 // Name returns the type's name within its package.
 // It returns an empty string for unnamed types.
-func (t *timpl) Name() string {
+func (t Type) Name() string {
 	switch gtype := t.gtype.(type) {
 	case *types.Basic:
 		return gtype.Name()
@@ -88,7 +89,7 @@ func (t *timpl) Name() string {
 // the default name that the package provides when imported.
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // the package name will be the empty string.
-func (t *timpl) PkgName() string {
+func (t Type) PkgName() string {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		return gtype.Obj().Pkg().Name()
@@ -101,7 +102,7 @@ func (t *timpl) PkgName() string {
 // that uniquely identifies the package, such as "encoding/base64".
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // the package path will be the empty string.
-func (t *timpl) PkgPath() string {
+func (t Type) PkgPath() string {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		return gtype.Obj().Pkg().Path()
@@ -112,13 +113,13 @@ func (t *timpl) PkgPath() string {
 
 // Size returns the number of bytes needed to store
 // a value of the given type; it is analogous to unsafe.Sizeof.
-func (t *timpl) Size() uintptr {
+func (t Type) Size() uintptr {
 	return t.rtype.Size()
 }
 
 // String returns a string representation of a type.
-func (t *timpl) String() string {
-	if t == nil || t.gtype == nil {
+func (t Type) String() string {
+	if t.timpl == nil {
 		return "invalid type"
 	}
 	return t.gtype.String()
@@ -126,18 +127,18 @@ func (t *timpl) String() string {
 
 /*
 // Underlying returns the underlying type of a type.
-func (t *timpl) Underlying() Type {
+func (t Type) Underlying() Type {
 	return Type{t.underlying}
 }
 */
 
-func (t *timpl) underlying() types.Type {
+func (t Type) underlying() types.Type {
 	return t.gtype.Underlying()
 }
 
 // Kind returns the specific kind of this type.
-func (t *timpl) Kind() reflect.Kind {
-	if t == nil {
+func (t Type) Kind() reflect.Kind {
+	if t.timpl == nil {
 		return reflect.Invalid
 	}
 	return t.kind
@@ -145,7 +146,7 @@ func (t *timpl) Kind() reflect.Kind {
 
 // Implements reports whether the type implements the interface type u.
 // It panics if u's Kind is not Interface
-func (t *timpl) Implements(u Type) bool {
+func (t Type) Implements(u Type) bool {
 	if u.Kind() != reflect.Interface {
 		panic("type2: non-interface type passed to Type.Implements")
 	}
@@ -153,16 +154,16 @@ func (t *timpl) Implements(u Type) bool {
 }
 
 // AssignableTo reports whether a value of the type is assignable to type u.
-func (t *timpl) AssignableTo(u Type) bool {
+func (t Type) AssignableTo(u Type) bool {
 	return types.AssignableTo(t.gtype, u.gtype)
 }
 
 // ConvertibleTo reports whether a value of the type is convertible to type u.
-func (t *timpl) ConvertibleTo(u Type) bool {
+func (t Type) ConvertibleTo(u Type) bool {
 	return types.ConvertibleTo(t.gtype, u.gtype)
 }
 
 // Comparable reports whether values of this type are comparable.
-func (t *timpl) Comparable() bool {
+func (t Type) Comparable() bool {
 	return types.Comparable(t.gtype)
 }

@@ -32,7 +32,7 @@ import (
 
 // ChanDir returns a channel type's direction.
 // It panics if the type's Kind is not Chan.
-func (t *timpl) ChanDir() reflect.ChanDir {
+func (t Type) ChanDir() reflect.ChanDir {
 	if t.Kind() != reflect.Chan {
 		errorf("ChanDir of non-chan type %v", t)
 	}
@@ -41,7 +41,7 @@ func (t *timpl) ChanDir() reflect.ChanDir {
 
 // Elem returns a type's element type.
 // It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
-func (t *timpl) Elem() Type {
+func (t Type) Elem() Type {
 	gtype := t.underlying()
 	rtype := t.rtype
 	switch gtype := gtype.(type) {
@@ -63,7 +63,7 @@ func (t *timpl) Elem() Type {
 
 // Key returns a map type's key type.
 // It panics if the type's Kind is not Map.
-func (t *timpl) Key() Type {
+func (t Type) Key() Type {
 	if t.Kind() != reflect.Map {
 		errorf("Key of non-map type %v", t)
 	}
@@ -73,7 +73,7 @@ func (t *timpl) Key() Type {
 
 // Len returns an array type's length.
 // It panics if the type's Kind is not Array.
-func (t *timpl) Len() int {
+func (t Type) Len() int {
 	if t.Kind() != reflect.Func {
 		errorf("Len of non-array type %v", t)
 	}
@@ -107,32 +107,9 @@ func MapOf(key, elem Type) Type {
 		reflect.MapOf(key.rtype, elem.rtype))
 }
 
-// NamedOf returns a new named type for the given type name.
-// Initially, the underlying type is set to interface{} - use SetUnderlying to change it.
-// These two steps are separate to allow creating self-referencing types,
-// as for example type List struct { Elem int; Rest *List }
-func NamedOf(name string, pkg *Package) Type {
-	underlying := TypeOfInterface
-	typename := types.NewTypeName(token.NoPos, pkg.impl, name, underlying.gtype)
-	return maketype(
-		types.NewNamed(typename, underlying.gtype, nil),
-		underlying.rtype)
-}
-
-// SetUnderlying sets the underlying type of a named type and marks t as complete.
-// It panics if the type is unnamed, or if the underlying type is named.
-func (t *timpl) SetUnderlying(underlying Type) {
-	switch gtype := t.gtype.(type) {
-	case *types.Named:
-		gtype.SetUnderlying(underlying.gtype)
-	default:
-		errorf("SetUnderlying of unnamed type %v", t)
-	}
-}
-
 // AddMethod adds method 'name' to type, unless it is already in the method list.
 // It panics if the type is unnamed, or if the signature is not a function type.
-func (t *timpl) AddMethod(pkg Package, name string, signature Type) {
+func (t Type) AddMethod(name string, signature Type) {
 	gtype, ok := t.gtype.(*types.Named)
 	if !ok {
 		errorf("AddMethod on unnamed type %v", t)
@@ -141,7 +118,7 @@ func (t *timpl) AddMethod(pkg Package, name string, signature Type) {
 		errorf("AddMethod of non-func signature: %v", signature)
 	}
 	gsig := signature.underlying().(*types.Signature)
-	gfun := types.NewFunc(token.NoPos, pkg.impl, name, gsig)
+	gfun := types.NewFunc(token.NoPos, gtype.Obj().Pkg(), name, gsig)
 	gtype.AddMethod(gfun)
 }
 

@@ -46,6 +46,14 @@ type Type struct {
 	*timpl
 }
 
+type Method struct {
+	Name  string
+	Pkg   Package
+	Type  Type          // method type
+	Func  reflect.Value // func with receiver as first argument
+	Index []int         // index sequence for Type for Type.MethodByIndex
+}
+
 type StructField struct {
 	// Name is the field name.
 	Name string

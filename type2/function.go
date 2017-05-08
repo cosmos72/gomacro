@@ -31,7 +31,7 @@ import (
 
 // IsMethod reports whether a function type's contains a receiver, i.e. is a method.
 // It panics if the type's Kind is not Func.
-func (t *timpl) IsMethod() bool {
+func (t Type) IsMethod() bool {
 	if t.Kind() != reflect.Func {
 		errorf("IsMethod of non-func type %v", t)
 	}
@@ -43,7 +43,7 @@ func (t *timpl) IsMethod() bool {
 // is a "..." parameter. If so, t.In(t.NumIn() - 1) returns the parameter's
 // implicit actual type []T.
 // IsVariadic panics if the type's Kind is not Func.
-func (t *timpl) IsVariadic() bool {
+func (t Type) IsVariadic() bool {
 	if t.Kind() != reflect.Func {
 		errorf("In of non-func type %v", t)
 	}
@@ -53,7 +53,7 @@ func (t *timpl) IsVariadic() bool {
 // In returns the type of a function type's i'th input parameter.
 // It panics if the type's Kind is not Func.
 // It panics if i is not in the range [0, NumIn()).
-func (t *timpl) In(i int) Type {
+func (t Type) In(i int) Type {
 	if t.Kind() != reflect.Func {
 		errorf("In of non-func type %v", t)
 	}
@@ -67,7 +67,7 @@ func (t *timpl) In(i int) Type {
 
 // NumIn returns a function type's input parameter count.
 // It panics if the type's Kind is not Func.
-func (t *timpl) NumIn() int {
+func (t Type) NumIn() int {
 	if t.Kind() != reflect.Func {
 		errorf("NumIn of non-func type %v", t)
 	}
@@ -77,7 +77,7 @@ func (t *timpl) NumIn() int {
 
 // NumOut returns a function type's output parameter count.
 // It panics if the type's Kind is not Func.
-func (t *timpl) NumOut() int {
+func (t Type) NumOut() int {
 	if t.Kind() != reflect.Func {
 		errorf("NumOut of non-func type %v", t)
 	}
@@ -88,7 +88,7 @@ func (t *timpl) NumOut() int {
 // Out returns the type of a function type's i'th output parameter.
 // It panics if the type's Kind is not Func.
 // It panics if i is not in the range [0, NumOut()).
-func (t *timpl) Out(i int) Type {
+func (t Type) Out(i int) Type {
 	if t.Kind() != reflect.Func {
 		errorf("Out of non-func type %v", t)
 	}
@@ -100,7 +100,7 @@ func (t *timpl) Out(i int) Type {
 // Recv returns the type of a method type's receiver parameter.
 // It panics if the type's Kind is not Func.
 // It returns Type{} if t has no receiver.
-func (t *timpl) Recv() Type {
+func (t Type) Recv() Type {
 	if t.Kind() != reflect.Func {
 		errorf("Recv of non-func type %v", t)
 	}

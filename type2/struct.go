@@ -33,7 +33,7 @@ import (
 // Field returns a struct type's i'th field.
 // It panics if the type's Kind is not Struct.
 // It panics if i is not in the range [0, NumField()).
-func (t *timpl) Field(i int) StructField {
+func (t Type) Field(i int) StructField {
 	if t.kind != reflect.Struct {
 		errorf("Field of non-struct type %v", t)
 	}
@@ -52,7 +52,7 @@ func (t *timpl) Field(i int) StructField {
 	}
 }
 
-func (t *timpl) NumField() int {
+func (t Type) NumField() int {
 	if t.kind != reflect.Struct {
 		errorf("NumField of non-struct type %v", t)
 	}
@@ -60,13 +60,37 @@ func (t *timpl) NumField() int {
 	return gtype.NumFields()
 }
 
-func (field *StructField) toReflectField() reflect.StructField {
+func fromReflectField(rfield *reflect.StructField, opts FromReflectOpts) StructField {
+	return StructField{
+		Name:      rfield.Name,
+		Pkg:       NewPackage(rfield.PkgPath, ""),
+		Type:      FromReflectType(rfield.Type, opts),
+		Tag:       rfield.Tag,
+		Offset:    rfield.Offset,
+		Index:     rfield.Index,
+		Anonymous: rfield.Anonymous,
+	}
+}
+
+func fromReflectFields(rfields []reflect.StructField, opts FromReflectOpts) []StructField {
+	fields := make([]StructField, len(rfields))
+	for i := range rfields {
+		fields[i] = fromReflectField(&rfields[i], opts)
+	}
+	return fields
+}
+
+func (field *StructField) toReflectField(forceExported bool) reflect.StructField {
 	var pkgpath string
-	if pkg := field.Pkg; pkg.impl != nil {
+	if pkg := field.Pkg; pkg.impl != nil && !forceExported {
 		pkgpath = pkg.Path()
 	}
+	name := field.Name
+	if forceExported {
+		name = field.toExportedFieldName()
+	}
 	return reflect.StructField{
-		Name:      field.Name,
+		Name:      name,
 		PkgPath:   pkgpath,
 		Type:      field.Type.ReflectType(),
 		Tag:       field.Tag,
@@ -76,18 +100,81 @@ func (field *StructField) toReflectField() reflect.StructField {
 	}
 }
 
-func StructOf(fields []StructField) Type {
-	n := len(fields)
-	rfields := make([]reflect.StructField, n)
-	vars := make([]*types.Var, n)
-	tags := make([]string, n)
-	for i, field := range fields {
-		rfields[i] = field.toReflectField()
-		vars[i] = types.NewField(token.NoPos, field.Pkg.impl, field.Name, field.Type.gtype, field.Anonymous)
-		tags[i] = string(field.Tag)
+func toReflectFields(fields []StructField, forceExported bool) []reflect.StructField {
+	rfields := make([]reflect.StructField, len(fields))
+	for i := range fields {
+		rfields[i] = fields[i].toReflectField(forceExported)
 	}
+	return rfields
+}
+
+func (field *StructField) toGoField() *types.Var {
+	return types.NewField(token.NoPos, field.Pkg.impl, field.Name, field.Type.gtype, field.Anonymous)
+}
+
+func toGoFields(fields []StructField) []*types.Var {
+	vars := make([]*types.Var, len(fields))
+	for i := range fields {
+		vars[i] = fields[i].toGoField()
+	}
+	return vars
+}
+
+func (field *StructField) toTag() string {
+	return string(field.Tag)
+}
+
+func toTags(fields []StructField) []string {
+	tags := make([]string, len(fields))
+	for i := range fields {
+		tags[i] = fields[i].toTag()
+	}
+	return tags
+}
+
+func (field *StructField) toExportedFieldName() string {
+	name := field.Name
+	if field.Anonymous || len(name) == 0 {
+		if len(name) == 0 {
+			name = field.Type.Name()
+		}
+		return GensymEmbedded(name)
+	}
+	if ch := name[0]; ch >= 'a' && ch <= 'z' || ch == '_' {
+		return GensymPrivate(name)
+	}
+	return name
+}
+
+func StructOf(fields []StructField) Type {
+	vars := toGoFields(fields)
+	tags := toTags(fields)
+	rfields := toReflectFields(fields, true)
 	return maketype(
 		types.NewStruct(vars, tags),
 		reflect.StructOf(rfields),
 	)
+}
+
+// utilities for InterfaceOf()
+
+func (t Type) toStructField(name string) StructField {
+	return StructField{
+		Name:      name,
+		Pkg:       NewPackage(t.PkgName(), t.PkgPath()),
+		Type:      t,
+		Anonymous: len(name) == 0,
+	}
+}
+
+func toStructFields(names []string, ts []Type) []StructField {
+	fields := make([]StructField, len(ts))
+	var name string
+	for i, t := range ts {
+		if names != nil {
+			name = names[i]
+		}
+		fields[i] = t.toStructField(name)
+	}
+	return fields
 }
