@@ -69,7 +69,7 @@ func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	// one field for each method: type is the method type i.e. a function
 	nemb := len(embeddeds)
 	rfields := make([]reflect.StructField, 1+nemb+len(methods))
-	rfields[0] = approxInterfaceSelf()
+	rfields[0] = approxInterfaceHeader()
 	for i, emb := range embeddeds {
 		rfields[i+1] = approxInterfaceEmbedded(emb.Name(), emb.ReflectType())
 	}
@@ -78,7 +78,9 @@ func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	}
 	return maketype(
 		types.NewInterface(gmethods, gembeddeds),
-		reflect.StructOf(rfields),
+		// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
+		// Then use a pointer to the proxy struct
+		reflect.PtrTo(reflect.StructOf(rfields)),
 	)
 }
 
@@ -97,10 +99,10 @@ func (t Type) Complete() Type {
 
 // utilities for InterfaceOf()
 
-func approxInterfaceSelf() reflect.StructField {
+func approxInterfaceHeader() reflect.StructField {
 	return reflect.StructField{
 		Name: StrGensymInterface,
-		Type: TypeOfInterface.ReflectType(),
+		Type: reflectTypeOfInterfaceHeader,
 	}
 }
 

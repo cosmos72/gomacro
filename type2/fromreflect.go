@@ -42,6 +42,7 @@ const (
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
 func FromReflectType(rtype reflect.Type, rebuildDepth int) Type {
 	var t Type
+	rebuildDepth-- // decrement ONLY here and in fromReflectPtr() when calling fromReflectInterfaceStruct()
 	switch k := rtype.Kind(); k {
 	case reflect.Invalid:
 		return Type{}
@@ -98,14 +99,14 @@ func addmethods(t Type, rtype reflect.Type, rebuildDepth int) Type {
 	}
 	for i := 0; i < n; i++ {
 		rmethod := rtype.Method(i)
-		signature := fromReflectFunc(rmethod.Type, rebuildDepth-1)
+		signature := fromReflectFunc(rmethod.Type, rebuildDepth)
 		t.AddMethod(rmethod.Name, signature)
 	}
 	return t
 }
 
 func fromReflectField(rfield *reflect.StructField, rebuildDepth int) StructField {
-	t := FromReflectType(rfield.Type, rebuildDepth-1)
+	t := FromReflectType(rfield.Type, rebuildDepth)
 	name := rfield.Name
 	anonymous := rfield.Anonymous
 
@@ -159,8 +160,8 @@ func named(t Type, name string, pkgpath string) Type {
 // fromReflectArray converts a reflect.Type representing an array into a Type
 func fromReflectArray(rtype reflect.Type, rebuildDepth int) Type {
 	count := rtype.Len()
-	elem := FromReflectType(rtype.Elem(), rebuildDepth-1)
-	if rebuildDepth != 0 {
+	elem := FromReflectType(rtype.Elem(), rebuildDepth)
+	if rebuildDepth >= 0 {
 		rtype = reflect.ArrayOf(count, elem.rtype)
 	}
 	return maketype(types.NewArray(elem.gtype, int64(count)), rtype)
@@ -169,8 +170,8 @@ func fromReflectArray(rtype reflect.Type, rebuildDepth int) Type {
 // fromReflectChan converts a reflect.Type representing a channel into a Type
 func fromReflectChan(rtype reflect.Type, rebuildDepth int) Type {
 	dir := rtype.ChanDir()
-	elem := FromReflectType(rtype.Elem(), rebuildDepth-1)
-	if rebuildDepth > 0 {
+	elem := FromReflectType(rtype.Elem(), rebuildDepth)
+	if rebuildDepth >= 0 {
 		rtype = reflect.ChanOf(dir, elem.rtype)
 	}
 	gdir := dirToGdir(dir)
@@ -183,16 +184,16 @@ func fromReflectFunc(rtype reflect.Type, rebuildDepth int) Type {
 	in := make([]Type, nin)
 	out := make([]Type, nout)
 	for i := 0; i < nin; i++ {
-		in[i] = FromReflectType(rtype.In(i), rebuildDepth-1)
+		in[i] = FromReflectType(rtype.In(i), rebuildDepth)
 	}
 	for i := 0; i < nout; i++ {
-		out[i] = FromReflectType(rtype.Out(i), rebuildDepth-1)
+		out[i] = FromReflectType(rtype.Out(i), rebuildDepth)
 	}
 	gin := toGoTuple(in)
 	gout := toGoTuple(out)
 	variadic := rtype.IsVariadic()
 
-	if rebuildDepth > 0 {
+	if rebuildDepth >= 0 {
 		rin := toReflectTypes(in)
 		rout := toReflectTypes(out)
 		rtype = reflect.FuncOf(rin, rout, variadic)
@@ -212,31 +213,44 @@ func fromReflectInterface(rtype reflect.Type, rebuildDepth int) Type {
 	gmethods := make([]*types.Func, n)
 	for i := 0; i < n; i++ {
 		rmethod := rtype.Method(i)
-		method := fromReflectFunc(rmethod.Type, rebuildDepth-1)
+		method := fromReflectFunc(rmethod.Type, rebuildDepth)
 		gmethods[i] = types.NewFunc(token.NoPos, NewPackage(rmethod.PkgPath, "").impl, rmethod.Name, method.gtype.(*types.Signature))
 	}
 	// no way to extract embedded interfaces from reflect.Type
-	if rebuildDepth > 0 {
+	if rebuildDepth >= 0 {
 		rfields := make([]reflect.StructField, 1+n)
-		rfields[0] = approxInterfaceSelf()
+		rfields[0] = approxInterfaceHeader()
 		for i := 0; i < n; i++ {
 			rmethod := rtype.Method(i)
 			rmethodtype := rmethod.Type
-			if rebuildDepth > 1 {
-				rmethodtype = fromReflectFunc(rmethod.Type, rebuildDepth-1).rtype
+			if rebuildDepth >= 1 {
+				rmethodtype = FromReflectType(rmethod.Type, rebuildDepth).rtype
 			}
 			rfields[i+1] = approxInterfaceMethod(rmethod.Name, rmethodtype)
 		}
-		rtype = reflect.StructOf(rfields)
+		// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
+		// Then use a pointer to the proxy struct: InterfaceOf() does that, and we must behave identically
+		rtype = reflect.PtrTo(reflect.StructOf(rfields))
 	}
 	return maketype(types.NewInterface(gmethods, nil), rtype)
+}
+
+// isReflectInterfaceStruct returns true if rtype is a reflect.Type representing a struct,
+// that contains our own conventions to emulate an interface
+func isReflectInterfaceStruct(rtype reflect.Type) bool {
+	if rtype.Kind() == reflect.Struct {
+		if n := rtype.NumField(); n != 0 {
+			rfield := rtype.Field(0)
+			return rfield.Name == StrGensymInterface && rfield.Type == reflectTypeOfInterfaceHeader
+		}
+	}
+	return false
 }
 
 // fromReflectInterfaceStruct converts a reflect.Type representing a struct,
 // that contains our own conventions to emulate an interface, into a Type
 func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
-	rebuild := rebuildDepth > 0
-
+	rebuild := rebuildDepth >= 0
 	n := rtype.NumField()
 	// skip rtype.Field(0), it is just approxInterfaceSelf()
 	var gmethods []*types.Func
@@ -244,14 +258,14 @@ func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
 	var rebuildfields []reflect.StructField
 	if rebuild {
 		rebuildfields = make([]reflect.StructField, n)
-		rebuildfields[0] = approxInterfaceSelf()
+		rebuildfields[0] = approxInterfaceHeader()
 	}
 	for i := 1; i < n; i++ {
 		rfield := rtype.Field(i)
 		name := rfield.Name
 		if strings.HasPrefix(name, StrGensymEmbedded) {
 			typename := name[len(StrGensymEmbedded):]
-			t := FromReflectType(rfield.Type, rebuildDepth-1)
+			t := FromReflectType(rfield.Type, rebuildDepth)
 			if t.Kind() != reflect.Interface {
 				errorf("FromReflectType: reflect.Type <%v> is an emulated interface containing the embedded interface <%v>.\n\tExtracting the latter returned a non-interface: %v", t)
 			}
@@ -264,7 +278,7 @@ func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
 			if strings.HasPrefix(name, StrGensymPrivate) {
 				name = name[len(StrGensymPrivate):]
 			}
-			t := FromReflectType(rfield.Type, rebuildDepth-1)
+			t := fromReflectFunc(rfield.Type, rebuildDepth)
 			if t.Kind() != reflect.Func {
 				errorf("FromReflectType: reflect.Type <%v> is an emulated interface containing the method <%v>.\n\tExtracting the latter returned a non-function: %v", t)
 			}
@@ -282,9 +296,9 @@ func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
 
 // fromReflectMap converts a reflect.Type representing a map into a Type
 func fromReflectMap(rtype reflect.Type, rebuildDepth int) Type {
-	key := FromReflectType(rtype.Key(), rebuildDepth-1)
-	elem := FromReflectType(rtype.Elem(), rebuildDepth-1)
-	if rebuildDepth > 0 {
+	key := FromReflectType(rtype.Key(), rebuildDepth)
+	elem := FromReflectType(rtype.Elem(), rebuildDepth)
+	if rebuildDepth >= 0 {
 		rtype = reflect.MapOf(key.rtype, elem.rtype)
 	}
 	return maketype(types.NewMap(key.gtype, elem.gtype), rtype)
@@ -292,17 +306,26 @@ func fromReflectMap(rtype reflect.Type, rebuildDepth int) Type {
 
 // fromReflectPtr converts a reflect.Type representing a pointer into a Type
 func fromReflectPtr(rtype reflect.Type, rebuildDepth int) Type {
-	elem := FromReflectType(rtype.Elem(), rebuildDepth-1)
-	if rebuildDepth > 0 {
+	relem := rtype.Elem()
+	var elem Type
+	var gtype types.Type
+	if isReflectInterfaceStruct(relem) {
+		elem = fromReflectInterfaceStruct(relem, rebuildDepth-1)
+		gtype = elem.gtype
+	} else {
+		elem = FromReflectType(relem, rebuildDepth)
+		gtype = types.NewPointer(elem.gtype)
+	}
+	if rebuildDepth >= 0 {
 		rtype = reflect.PtrTo(elem.rtype)
 	}
-	return maketype(types.NewPointer(elem.gtype), rtype)
+	return maketype(gtype, rtype)
 }
 
 // fromReflectPtr converts a reflect.Type representing a slice into a Type
 func fromReflectSlice(rtype reflect.Type, rebuildDepth int) Type {
-	elem := FromReflectType(rtype.Elem(), rebuildDepth-1)
-	if rebuildDepth > 0 {
+	elem := FromReflectType(rtype.Elem(), rebuildDepth)
+	if rebuildDepth >= 0 {
 		rtype = reflect.SliceOf(elem.rtype)
 	}
 	return maketype(types.NewSlice(elem.gtype), rtype)
@@ -310,14 +333,14 @@ func fromReflectSlice(rtype reflect.Type, rebuildDepth int) Type {
 
 // fromReflectStruct converts a reflect.Type representing a struct into a Type
 func fromReflectStruct(rtype reflect.Type, rebuildDepth int) Type {
-	n := rtype.NumField()
-	if n != 0 && rtype.Field(0).Name == StrGensymInterface {
+	if isReflectInterfaceStruct(rtype) {
 		return fromReflectInterfaceStruct(rtype, rebuildDepth)
 	}
+	n := rtype.NumField()
 	fields := make([]StructField, n)
 	for i := 0; i < n; i++ {
 		rfield := rtype.Field(i)
-		fields[i] = fromReflectField(&rfield, rebuildDepth-1)
+		fields[i] = fromReflectField(&rfield, rebuildDepth)
 	}
 	vars := toGoFields(fields)
 	tags := toTags(fields)
@@ -325,7 +348,7 @@ func fromReflectStruct(rtype reflect.Type, rebuildDepth int) Type {
 	// use reflect.StructOf to recreate reflect.Type only if requested, because it's not 100% accurate:
 	// reflect.StructOf does not support unexported or anonymous fields,
 	// and go/reflect cannot create named types, interfaces and self-referencing types
-	if rebuildDepth > 0 {
+	if rebuildDepth >= 0 {
 		rfields := toReflectFields(fields, true)
 		rtype = reflect.StructOf(rfields)
 	}

@@ -30,7 +30,7 @@ import (
 
 // the following constants must match with github.com/cosmos72/gomacro/base/constants.go
 const (
-	StrGensymInterface = "\u0080" // name of extra struct field needed by the interpreter when creating interface proxies
+	StrGensymInterface = "\u0080" // name of extra struct field needed by the interpreter when creating interpreted interfaces
 	StrGensymPrivate   = "\u00AD" // prefix to generate names for unexported struct fields.
 	StrGensymEmbedded  = "\u00BB" // prefix to generate names for embedded struct fields.
 )

@@ -127,11 +127,12 @@ func TestInterface(t *testing.T) {
 	is(t, true, types.Identical(methodtyp.GoType(), actual.Type.GoType()))
 	istype(t, typ.GoType(), (*types.Interface)(nil))
 
-	rtype := reflect.StructOf([]reflect.StructField{
-		reflect.StructField{Name: StrGensymInterface, Type: TypeOfInterface.ReflectType()},
-		reflect.StructField{Name: "Cap", Type: methodtyp.ReflectType()},
-		reflect.StructField{Name: "Len", Type: methodtyp.ReflectType()},
-	})
+	rtype := reflect.PtrTo(
+		reflect.StructOf([]reflect.StructField{
+			approxInterfaceHeader(),
+			reflect.StructField{Name: "Cap", Type: methodtyp.ReflectType()},
+			reflect.StructField{Name: "Len", Type: methodtyp.ReflectType()},
+		}))
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.String(), "interface{Cap() int; Len() int}")
 }
@@ -239,22 +240,47 @@ func TestFromReflect3(t *testing.T) {
 	rtype := reflect.TypeOf((*io.Reader)(nil)).Elem()
 	typ := FromReflectType(rtype, 1)
 
-	rmethod := reflect.FuncOf(
-		[]reflect.Type{reflect.SliceOf(TypeOfUint8.rtype)},
-		[]reflect.Type{TypeOfInt.rtype, TypeOfError.rtype},
-		false,
-	)
-	expected := reflect.StructOf([]reflect.StructField{
-		reflect.StructField{Name: StrGensymInterface, Type: TypeOfInterface.rtype},
-		reflect.StructField{Name: "Read", Type: rmethod},
-	})
 	actual := typ.ReflectType()
+	expected := reflect.PtrTo(
+		reflect.StructOf([]reflect.StructField{
+			approxInterfaceHeader(),
+			reflect.StructField{Name: "Read", Type: reflect.TypeOf((*func([]uint8) (int, error))(nil)).Elem()},
+		}))
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, actual, expected)
+	is(t, typ.String(), "io.Reader")
 	is(t, typ.underlying().String(), "interface{Read([]uint8) (int, error)}")
 
 	for depth := 0; depth <= 3; depth++ {
 		typ = FromReflectType(rtype, depth)
-		debugf("%v", typ.rtype)
+		debugf("%v\t-> %v", typ, typ.rtype)
+	}
+}
+
+func TestFromReflect4(t *testing.T) {
+	type ToString func() string
+	rtype := reflect.PtrTo(
+		reflect.StructOf([]reflect.StructField{
+			approxInterfaceHeader(),
+			reflect.StructField{Name: "String", Type: reflect.TypeOf((*ToString)(nil)).Elem()},
+		}))
+	typ := NamedOf("Stringer", NewPackage("io", ""))
+	underlying := FromReflectType(rtype, MaxDepth)
+	typ.SetUnderlying(underlying)
+
+	actual := typ.ReflectType()
+	expected := reflect.PtrTo(
+		reflect.StructOf([]reflect.StructField{
+			approxInterfaceHeader(),
+			reflect.StructField{Name: "String", Type: reflect.TypeOf((*func() string)(nil)).Elem()},
+		}))
+	is(t, typ.Kind(), reflect.Interface)
+	is(t, actual, expected)
+	is(t, typ.String(), "io.Stringer")
+	is(t, typ.underlying().String(), "interface{String() string}")
+
+	for depth := 0; depth <= 3; depth++ {
+		typ = FromReflectType(rtype, depth)
+		debugf("%v\t-> %v", typ, typ.rtype)
 	}
 }

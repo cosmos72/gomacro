@@ -104,6 +104,7 @@ var (
 		types.NewInterface(nil, nil).Complete(),
 		reflect.TypeOf((*interface{})(nil)).Elem(),
 	)
+	reflectTypeOfInterfaceHeader = reflect.TypeOf(InterfaceHeader{})
 )
 
 // Bits returns the size of the type in bits.

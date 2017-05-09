@@ -46,6 +46,13 @@ type Type struct {
 	*timpl
 }
 
+// InterfaceHeader is the internal header of interpreted interfaces
+type InterfaceHeader struct {
+	// val and typ must be private! otherwise interpreted code may mess with them and break type safety
+	val reflect.Value
+	typ Type
+}
+
 type Method struct {
 	Name  string
 	Pkg   Package
