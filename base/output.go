@@ -151,8 +151,11 @@ func (st *Stringer) FprintValues(opts Options, out io.Writer, values ...r.Value)
 	}
 }
 
+var typeOfReflectValue = r.TypeOf(r.Value{})
+
 func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
-	var vi, vt interface{}
+	var vi interface{}
+	var vt r.Type
 	if v == None {
 		fmt.Fprint(out, "// no value\n")
 		return
@@ -160,8 +163,12 @@ func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
 		vi = nil
 		vt = nil
 	} else {
-		vi = v.Interface()
+		// print the actual type, but unwrap values inside reflect.Value
 		vt = v.Type()
+		for v.Type() == typeOfReflectValue {
+			v = v.Interface().(r.Value)
+		}
+		vi = v.Interface()
 	}
 	vi = st.toPrintable(vi)
 	if vi == nil && vt == nil {
@@ -170,30 +177,37 @@ func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
 		}
 		return
 	}
-	switch vi := vi.(type) {
-	case uint, uint8, uint32, uint64, uintptr:
-		if opts&OptShowEvalType != 0 {
-			vt = st.toPrintable(vt)
-			fmt.Fprintf(out, "%d <%v>\n", vi, vt)
-		} else {
-			fmt.Fprintf(out, "%d\n", vi)
-		}
+	var typestr string
+	if opts&OptShowEvalType != 0 {
+		typestr = fmt.Sprintf(" <%v>", st.toPrintable(vt))
+	}
+	switch v.Kind() {
+	case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
+		fmt.Fprintf(out, "%d%s\n", vi, typestr)
+	case r.String:
+		fmt.Fprintf(out, "%#v%s\n", vi, typestr)
 	default:
-		if opts&OptShowEvalType != 0 {
-			vt = st.toPrintable(vt)
-			if vt == TypeOfString {
-				fmt.Fprintf(out, "%q <%v>\n", vi, vt)
-			} else {
-				fmt.Fprintf(out, "%v <%v>\n", vi, vt)
-			}
+		// recompute v, because vi = st.toPrintable(vi) may have extracted a non-struct from a struct
+		v = r.ValueOf(vi)
+		if v.Kind() == r.Struct {
+			st.fprintStruct(out, v, typestr)
 		} else {
-			if vt == TypeOfString {
-				fmt.Fprintf(out, "%q\n", vi)
-			} else {
-				fmt.Fprintf(out, "%v\n", vi)
-			}
+			fmt.Fprintf(out, "%v%s\n", vi, typestr)
 		}
 	}
+}
+
+func (st *Stringer) fprintStruct(out io.Writer, v r.Value, typestr string) {
+	buf := bytes.Buffer{}
+	n := v.NumField()
+	t := v.Type()
+	ch := '{'
+	for i := 0; i < n; i++ {
+		fmt.Fprintf(&buf, "%c%s:%v", ch, t.Field(i).Name, v.Field(i))
+		ch = ' '
+	}
+	fmt.Fprintf(&buf, "}%s\n", typestr)
+	buf.WriteTo(out)
 }
 
 func (st *Stringer) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
@@ -246,10 +260,25 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 	if k == r.Array || k == r.Slice {
 		n := v.Len()
 		values := make([]interface{}, n)
+		converted := false
 		for i := 0; i < n; i++ {
-			values[i] = st.toPrintable(v.Index(i))
+			vi := v.Index(i)
+			if vi == Nil {
+				values[i] = nil
+			} else if !vi.CanInterface() {
+				values[i] = vi
+			} else {
+				valuei := vi.Interface()
+				values[i] = st.toPrintable(valuei)
+				converted = converted || valuei != values[i]
+			}
 		}
-		return values
+		// return []interface{} only if we actually converted some element
+		if converted {
+			return values
+		} else {
+			return value
+		}
 	}
 	switch v := value.(type) {
 	case AstWithNode:
@@ -269,8 +298,10 @@ func (st *Stringer) valueToPrintable(value r.Value) interface{} {
 		return "/*no value*/"
 	} else if value == Nil {
 		return nil
-	} else {
+	} else if value.CanInterface() {
 		return st.toPrintable(value.Interface())
+	} else {
+		return value
 	}
 }
 

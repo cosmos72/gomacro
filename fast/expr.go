@@ -91,7 +91,7 @@ func (c *Comp) Expr1(in ast.Expr) *Expr {
 		return nil
 	default:
 		c.Warnf("expression returns %d values %v, using only the first one: %v",
-			e.Types, in)
+			len(e.Types), e.Types, in)
 		fallthrough
 	case 1:
 		return e

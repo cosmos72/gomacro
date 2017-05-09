@@ -72,9 +72,9 @@ Fairly complete.
 The intepreter supports:
 * multiline input
 * line comments starting with #! in addition to //
-* primitive types: booleans, integers, floats, complex numbers (including iota)
+* basic types: booleans, integers, floats, complex numbers, strings (and iota)
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
-* constant, variable and type declarations (untyped constants are not implemented, typed constants are used instead)
+* constant, variable and type declarations (untyped constants are emulated with typed constants)
 * unary and binary operators
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= <<= >>=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
@@ -106,8 +106,9 @@ The intepreter supports:
 * nesting macros, quotes and unquotes
 
 Several things are still missing:
-* goroutines i.e. the keyword "go"
-* interfaces declaration
+* goroutines i.e. the keyword "go". They are difficult to implement with the current architecture,
+  and they would require extensive locking that slows down all code.
+* interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
 * labeled statements, goto
 * named return values
 * history/readline (rlwrap does the job in most cases)

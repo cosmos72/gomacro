@@ -202,7 +202,7 @@ func TestStruct(t *testing.T) {
 
 func TestFromReflect1(t *testing.T) {
 	rtype := reflect.TypeOf((*func(bool, int8, <-chan uint16, []float32, [2]float64, []complex64) map[interface{}]*string)(nil)).Elem()
-	typ := FromReflectType(rtype, RebuildReflectType)
+	typ := FromReflectType(rtype, MaxDepth)
 	is(t, typ.ReflectType(), rtype) // recreated 100% accurately?
 }
 
@@ -224,7 +224,7 @@ func TestFromReflect2(t *testing.T) {
 		G []float64
 		M map[string]*complex64
 	}{})
-	typ := FromReflectType(in, RebuildReflectType)
+	typ := FromReflectType(in, MaxDepth)
 	actual := typ.ReflectType()
 	is(t, typ.Kind(), reflect.Struct)
 	is(t, typ.Name(), "Bag")
@@ -237,7 +237,7 @@ func TestFromReflect2(t *testing.T) {
 
 func TestFromReflect3(t *testing.T) {
 	rtype := reflect.TypeOf((*io.Reader)(nil)).Elem()
-	typ := FromReflectType(rtype, RebuildReflectType)
+	typ := FromReflectType(rtype, 1)
 
 	rmethod := reflect.FuncOf(
 		[]reflect.Type{reflect.SliceOf(TypeOfUint8.rtype)},
@@ -252,4 +252,9 @@ func TestFromReflect3(t *testing.T) {
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, actual, expected)
 	is(t, typ.underlying().String(), "interface{Read([]uint8) (int, error)}")
+
+	for depth := 0; depth <= 3; depth++ {
+		typ = FromReflectType(rtype, depth)
+		debugf("%v", typ.rtype)
+	}
 }

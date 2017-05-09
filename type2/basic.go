@@ -71,6 +71,10 @@ func makebasictypes() []Type {
 	return m
 }
 
+const MaxUInt = ^uint(0)
+const MaxInt = int(MaxUInt >> 1)
+const MaxDepth = MaxInt
+
 var BasicTypes = makebasictypes()
 
 var (

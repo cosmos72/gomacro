@@ -60,26 +60,6 @@ func (t Type) NumField() int {
 	return gtype.NumFields()
 }
 
-func fromReflectField(rfield *reflect.StructField, opts FromReflectOpts) StructField {
-	return StructField{
-		Name:      rfield.Name,
-		Pkg:       NewPackage(rfield.PkgPath, ""),
-		Type:      FromReflectType(rfield.Type, opts),
-		Tag:       rfield.Tag,
-		Offset:    rfield.Offset,
-		Index:     rfield.Index,
-		Anonymous: rfield.Anonymous,
-	}
-}
-
-func fromReflectFields(rfields []reflect.StructField, opts FromReflectOpts) []StructField {
-	fields := make([]StructField, len(rfields))
-	for i := range rfields {
-		fields[i] = fromReflectField(&rfields[i], opts)
-	}
-	return fields
-}
-
 func (field *StructField) toReflectField(forceExported bool) reflect.StructField {
 	var pkgpath string
 	if pkg := field.Pkg; pkg.impl != nil && !forceExported {
