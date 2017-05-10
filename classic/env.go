@@ -34,14 +34,16 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/cosmos72/gomacro/ast2"
+	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/imports"
 )
 
 type Env struct {
 	*ThreadGlobals
-	imports.Package
+	Binds      BindMap
+	Types      TypeMap
+	Proxies    TypeMap
 	Outer      *Env
 	CallStack  *CallStack
 	iotaOffset int
@@ -55,7 +57,6 @@ func New() *Env {
 
 func NewEnv(outer *Env, path string) *Env {
 	env := &Env{
-		Package:    imports.Package{},
 		iotaOffset: 1,
 		Outer:      outer,
 		Name:       path,
@@ -92,17 +93,30 @@ func (env *Env) FileEnv() *Env {
 	return env
 }
 
+func (env *Env) AsPackage() imports.Package {
+	return imports.Package{
+		Binds:   env.Binds.AsMap(),
+		Types:   env.Types.AsMap(),
+		Proxies: env.Proxies.AsMap(),
+	}
+}
+
+func (env *Env) MergePackage(pkg imports.Package) {
+	env.Binds.Ensure().Merge(pkg.Binds)
+	env.Types.Ensure().Merge(pkg.Types)
+	env.Proxies.Ensure().Merge(pkg.Proxies)
+}
+
 func (env *Env) ChangePackage(name string) *Env {
 	fenv := env.FileEnv()
-	curr := fenv.ThreadGlobals.Packagename
-	if name == curr {
+	currname := fenv.ThreadGlobals.Packagename
+	if name == currname {
 		return env
 	}
-	fenv.Package.SaveToPackages(curr)
+	fenv.AsPackage().SaveToPackages(currname)
 
 	nenv := NewEnv(fenv.TopEnv(), name)
-	nenv.Package.Init()
-	nenv.Package.Merge(imports.Packages[name])
+	nenv.MergePackage(imports.Packages[name])
 	nenv.ThreadGlobals.Packagename = name
 
 	return nenv
@@ -137,7 +151,7 @@ func (env *Env) CallerFrame() *CallFrame {
 func (env *Env) ValueOf(name string) (value r.Value) {
 	found := false
 	for e := env; e != nil; e = e.Outer {
-		if value, found = e.Binds[name]; found {
+		if value, found = e.Binds.Get(name); found {
 			break
 		}
 	}
@@ -345,7 +359,7 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 	return true
 }
 
-func (env *Env) ParseAst(src interface{}) Ast {
+func (env *Env) ParseAst(src interface{}) ast2.Ast {
 	bytes := ReadBytes(src)
 	nodes := env.ParseBytes(bytes)
 
@@ -353,14 +367,14 @@ func (env *Env) ParseAst(src interface{}) Ast {
 		env.Debugf("after parse: %v", nodes)
 	}
 
-	var form Ast
+	var form ast2.Ast
 	switch len(nodes) {
 	case 0:
 		return nil
 	case 1:
-		form = ToAst(nodes[0])
+		form = ast2.ToAst(nodes[0])
 	default:
-		form = NodeSlice{X: nodes}
+		form = ast2.NodeSlice{X: nodes}
 	}
 
 	// macroexpansion phase.

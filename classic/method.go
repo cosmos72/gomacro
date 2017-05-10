@@ -56,7 +56,7 @@ func (ir *ThreadGlobals) registerMethod(recvType r.Type, name string, typ r.Type
 		methods = make(map[string]TypedValue)
 		ir.AllMethods[recvType] = methods
 	}
-	methods[name] = TypedValue{Type: typ, Value: val}
+	methods[name] = TypedValue{typ: typ, val: val}
 }
 
 // ObjMethodByName returns a function value corresponding to the method
@@ -72,8 +72,8 @@ func (ir *ThreadGlobals) ObjMethodByName(obj r.Value, name string) r.Value {
 		t := obj.Type()
 		if method, ok := ir.AllMethods[t][name]; ok {
 			// cumbersome... we must create a closure on-the-fly
-			val = r.MakeFunc(method.Type, func(args []r.Value) []r.Value {
-				return method.Value.Call(append([]r.Value{obj}, args...))
+			val = r.MakeFunc(method.typ, func(args []r.Value) []r.Value {
+				return method.val.Call(append([]r.Value{obj}, args...))
 			})
 		}
 	}

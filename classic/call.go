@@ -186,19 +186,12 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	switch fun.Kind() {
 	case r.Struct:
 		switch fun := fun.Interface().(type) {
-		case Builtin:
-			if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
-				return env.Errorf("builtin %v expects %d arguments, found %d",
-					node.Fun, fun.ArgNum, len(node.Args))
-			}
-			return fun.Exec(env, node.Args)
+		case Constructor:
+			t, args := env.evalConstructorArgs(fun, node)
+			return fun.exec(env, t, args)
 		case Function:
-			if fun.ArgNum >= 0 && fun.ArgNum != len(node.Args) {
-				return env.Errorf("function %v expects %d arguments, found %d",
-					node.Fun, fun.ArgNum, len(node.Args))
-			}
-			args := env.evalExprs(node.Args)
-			return fun.Exec(env, args)
+			args := env.evalFunctionArgs(fun, node)
+			return fun.exec(env, args)
 		}
 	case r.Func:
 		args := env.evalFuncArgs(fun, node)
@@ -214,6 +207,27 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 		break
 	}
 	return env.Errorf("call of non-function %v <%v>: %v", ValueInterface(fun), ValueType(fun), node)
+}
+
+func (env *Env) evalConstructorArgs(fun Constructor, node *ast.CallExpr) (r.Type, []r.Value) {
+	args := node.Args
+	if fun.argNum >= 0 && fun.argNum != len(args) {
+		env.Errorf("builtin %v expects %d arguments, found %d",
+			node.Fun, fun.argNum, len(args))
+	} else if len(args) == 0 {
+		env.Errorf("builtin %v expects at least one argument, found zero", node.Fun)
+	}
+	t := env.evalType(args[0])
+	return t, env.evalExprs(args[1:])
+}
+
+func (env *Env) evalFunctionArgs(fun Function, node *ast.CallExpr) []r.Value {
+	args := node.Args
+	if fun.argNum >= 0 && fun.argNum != len(args) {
+		env.Errorf("function %v expects %d arguments, found %d",
+			node.Fun, fun.argNum, len(args))
+	}
+	return env.evalExprs(args)
 }
 
 func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {

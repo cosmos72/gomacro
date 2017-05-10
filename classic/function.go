@@ -58,7 +58,7 @@ func (env *Env) evalDeclFunction(decl *ast.FuncDecl, funcType *ast.FuncType, bod
 	var ret r.Value
 	if isMacro {
 		// env.Debugf("defined macro %v, type %v, args (%v), returns (%v)", decl.Name.Name, t, strings.Join(argNames, ", "), strings.Join(resultNames, ", "))
-		ret = r.ValueOf(Macro{Closure: closure, ArgNum: len(argNames)})
+		ret = r.ValueOf(Macro{closure: closure, argNum: len(argNames)})
 		tret = ret.Type()
 	} else {
 		ret = r.MakeFunc(tFuncOrMethod, closure)

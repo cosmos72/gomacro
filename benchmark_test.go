@@ -50,39 +50,39 @@ var verbose = false
 /*
 	--------- 2016-05-06: results on Intel Core i7 4770 ---------------
 
-	BenchmarkFibonacciCompiler-8                 	 3000000	       498 ns/op
-	BenchmarkFibonacciFastInterpreter-8          	  100000	     14812 ns/op
-	BenchmarkFibonacciFastInterpreterBis-8       	  100000	     14446 ns/op
-	BenchmarkFibonacciClassicInterpreter-8       	    3000	    575222 ns/op
-	BenchmarkFibonacciClassicInterpreterBis-8    	    3000	    575585 ns/op
-	BenchmarkFibonacciClosureValues-8            	   10000	    239373 ns/op
-	BenchmarkFibonacciClosureInterfaces-8        	   10000	    184985 ns/op
-	BenchmarkFibonacciClosureMaps-8              	    5000	    330350 ns/op
-	BenchmarkBigSwitchCompiler-8                 	 1000000	      2422 ns/op
-	BenchmarkBigSwitchFastInterpreter-8          	   30000	     52037 ns/op
-	BenchmarkBigSwitchClassicInterpreter-8       	     500	   2843500 ns/op
-	BenchmarkArithCompiler1-8                    	200000000	         8.58 ns/op
-	BenchmarkArithCompiler2-8                    	200000000	         8.56 ns/op
-	BenchmarkArithFastInterpreter-8              	30000000	        59.2 ns/op
-	BenchmarkArithFastInterpreterBis-8           	30000000	        51.4 ns/op
-	BenchmarkArithFastInterpreterConst-8         	100000000	        13.9 ns/op
-	BenchmarkArithFastInterpreterCompileLoop-8   	  100000	     21307 ns/op
-	BenchmarkArithClassicInterpreter-8           	 1000000	      1466 ns/op
-	BenchmarkArithClassicInterpreterBis-8        	 1000000	      2378 ns/op
-	BenchmarkCollatzCompiler-8                   	 3000000	       426 ns/op
-	BenchmarkCollatzFastInterpreter-8            	  100000	     12460 ns/op
-	BenchmarkCollatzClassicInterpreter-8         	    3000	    479500 ns/op
-	BenchmarkCollatzBytecodeInterfaces-8         	   50000	     29575 ns/op
-	BenchmarkCollatzClosureValues-8              	  100000	     16678 ns/op
-	BenchmarkSumCompiler-8                       	 3000000	       413 ns/op
-	BenchmarkSumFastInterpreter-8                	  100000	     20292 ns/op
-	BenchmarkSumFastInterpreterBis-8             	  100000	     20330 ns/op
-	BenchmarkSumClassicInterpreter-8             	    2000	    904097 ns/op
-	BenchmarkSumBytecodeValues-8                 	   20000	     72740 ns/op
-	BenchmarkSumBytecodeInterfaces-8             	   30000	     52509 ns/op
-	BenchmarkSumClosureValues-8                  	   30000	     41459 ns/op
-	BenchmarkSumClosureInterfaces-8              	   10000	    142466 ns/op
-	BenchmarkSumClosureMaps-8                    	   20000	     93106 ns/op
+	BenchmarkFibonacciCompiler-8            3000000           498 ns/op
+	BenchmarkFibonacciFast-8                 100000         14812 ns/op
+	BenchmarkFibonacciFast2-8                100000         14446 ns/op
+	BenchmarkFibonacciClassic-8                3000        575222 ns/op
+	BenchmarkFibonacciClassic2-8               3000        575585 ns/op
+	BenchmarkFibonacciClosureValues-8         10000        239373 ns/op
+	BenchmarkFibonacciClosureInterfaces-8     10000        184985 ns/op
+	BenchmarkFibonacciClosureMaps-8            5000        330350 ns/op
+	BenchmarkSwitchCompiler-8               1000000          2422 ns/op
+	BenchmarkSwitchFast-8                     30000         52037 ns/op
+	BenchmarkSwitchClassic-8                    500       2843500 ns/op
+	BenchmarkArithCompiler1-8             200000000             8.58 ns/op
+	BenchmarkArithCompiler2-8             200000000             8.56 ns/op
+	BenchmarkArithFast-8                   30000000            59.2 ns/op
+	BenchmarkArithFast2-8                  30000000            51.4 ns/op
+	BenchmarkArithFastConst-8             100000000            13.9 ns/op
+	BenchmarkArithFastCompileLoop-8          100000         21307 ns/op
+	BenchmarkArithClassic-8                 1000000          1466 ns/op
+	BenchmarkArithClassic2-8                1000000          2378 ns/op
+	BenchmarkCollatzCompiler-8              3000000           426 ns/op
+	BenchmarkCollatzFast-8                   100000         12460 ns/op
+	BenchmarkCollatzClassic-8                  3000        479500 ns/op
+	BenchmarkCollatzBytecodeInterfaces-8      50000         29575 ns/op
+	BenchmarkCollatzClosureValues-8          100000         16678 ns/op
+	BenchmarkSumCompiler-8                  3000000           413 ns/op
+	BenchmarkSumFast-8                       100000         20292 ns/op
+	BenchmarkSumFast2-8                      100000         20330 ns/op
+	BenchmarkSumClassic-8                      2000        904097 ns/op
+	BenchmarkSumBytecodeValues-8              20000         72740 ns/op
+	BenchmarkSumBytecodeInterfaces-8          30000         52509 ns/op
+	BenchmarkSumClosureValues-8               30000         41459 ns/op
+	BenchmarkSumClosureInterfaces-8           10000        142466 ns/op
+	BenchmarkSumClosureMaps-8                 20000         93106 ns/op
 */
 
 // recursion: fibonacci. fib(n) => if (n <= 2) { return 1 } else { return fib(n-1) + fib(n-2) }
@@ -105,7 +105,7 @@ func BenchmarkFibonacciCompiler(b *testing.B) {
 	}
 }
 
-func BenchmarkFibonacciFastInterpreter(b *testing.B) {
+func BenchmarkFibonacciFast(b *testing.B) {
 	ce := fast.New()
 	c := ce.Comp
 	ce.Eval(fibonacci_source_string)
@@ -123,7 +123,7 @@ func BenchmarkFibonacciFastInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkFibonacciFastInterpreterBis(b *testing.B) {
+func BenchmarkFibonacciFast2(b *testing.B) {
 	ce := fast.New()
 	ce.Eval(fibonacci_source_string)
 
@@ -141,7 +141,7 @@ func BenchmarkFibonacciFastInterpreterBis(b *testing.B) {
 	}
 }
 
-func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
+func BenchmarkFibonacciClassic(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst(fibonacci_source_string))
 
@@ -155,7 +155,7 @@ func BenchmarkFibonacciClassicInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkFibonacciClassicInterpreterBis(b *testing.B) {
+func BenchmarkFibonacciClassic2(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst(fibonacci_source_string))
 
@@ -248,7 +248,7 @@ func bigswitch(n int) int {
 	return n
 }
 
-func BenchmarkBigSwitchCompiler(b *testing.B) {
+func BenchmarkSwitchCompiler(b *testing.B) {
 	var total int
 	for i := 0; i < b.N; i++ {
 		total += bigswitch(bigswitch_n)
@@ -258,9 +258,9 @@ func BenchmarkBigSwitchCompiler(b *testing.B) {
 	}
 }
 
-func BenchmarkBigSwitchFastInterpreter(b *testing.B) {
+func BenchmarkSwitchFast(b *testing.B) {
 	ce := fast.New()
-	ce.Eval(bigswitch_source_string)
+	ce.Eval(switch_source_string)
 
 	fun := ce.ValueOf("bigswitch").Interface().(func(int) int)
 	fun(bigswitch_n)
@@ -272,9 +272,9 @@ func BenchmarkBigSwitchFastInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkBigSwitchClassicInterpreter(b *testing.B) {
+func BenchmarkSwitchClassic(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst(bigswitch_source_string))
+	env.EvalAst(env.ParseAst(switch_source_string))
 
 	fun := env.ValueOf("bigswitch").Interface().(func(int) int)
 	fun(bigswitch_n)
@@ -311,7 +311,7 @@ func BenchmarkArithCompiler2(b *testing.B) {
 	}
 }
 
-func BenchmarkArithFastInterpreter(b *testing.B) {
+func BenchmarkArithFast(b *testing.B) {
 	ce := fast.New()
 	ce.DeclVar("n", nil, int(0))
 
@@ -335,7 +335,7 @@ func BenchmarkArithFastInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkArithFastInterpreterBis(b *testing.B) {
+func BenchmarkArithFast2(b *testing.B) {
 	ce := fast.New()
 	ce.Eval("var i, n, total int")
 
@@ -358,7 +358,7 @@ func BenchmarkArithFastInterpreterBis(b *testing.B) {
 	}
 }
 
-func BenchmarkArithFastInterpreterConst(b *testing.B) {
+func BenchmarkArithFastConst(b *testing.B) {
 	ce := fast.New()
 	ce.Eval("var i, total int")
 	// "cheat" a bit and declare n as a constant. checks if constant propagation works :)
@@ -380,7 +380,7 @@ func BenchmarkArithFastInterpreterConst(b *testing.B) {
 	}
 }
 
-func BenchmarkArithFastInterpreterCompileLoop(b *testing.B) {
+func BenchmarkArithFastCompileLoop(b *testing.B) {
 	ce := fast.New()
 	ce.Eval("var i, n, total int")
 
@@ -390,7 +390,7 @@ func BenchmarkArithFastInterpreterCompileLoop(b *testing.B) {
 	}
 }
 
-func BenchmarkArithClassicInterpreter(b *testing.B) {
+func BenchmarkArithClassic(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst("n:=0"))
 
@@ -413,7 +413,7 @@ func BenchmarkArithClassicInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkArithClassicInterpreterBis(b *testing.B) {
+func BenchmarkArithClassic2(b *testing.B) {
 	ir := classic.New()
 	ir.EvalAst(ir.ParseAst("var n, total int"))
 
@@ -451,7 +451,7 @@ func BenchmarkCollatzCompiler(b *testing.B) {
 	}
 }
 
-func BenchmarkCollatzFastInterpreter(b *testing.B) {
+func BenchmarkCollatzFast(b *testing.B) {
 	ce := fast.New()
 	c := ce.Comp
 	ce.DeclVar("n", TypeOfInt, 0)
@@ -469,7 +469,7 @@ func BenchmarkCollatzFastInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkCollatzClassicInterpreter(b *testing.B) {
+func BenchmarkCollatzClassic(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst("var n int"))
 	n := env.ValueOf("n")
@@ -525,7 +525,7 @@ func BenchmarkSumCompiler(b *testing.B) {
 	}
 }
 
-func BenchmarkSumFastInterpreter(b *testing.B) {
+func BenchmarkSumFast(b *testing.B) {
 	ce := fast.New()
 	ce.Eval("var i, total uint")
 	ce.DeclConst("n", nil, uint(sum_n))
@@ -545,7 +545,7 @@ func BenchmarkSumFastInterpreter(b *testing.B) {
 	}
 }
 
-func BenchmarkSumFastInterpreterBis(b *testing.B) {
+func BenchmarkSumFast2(b *testing.B) {
 	ce := fast.New()
 	ce.Eval("var i, total uint")
 	ce.DeclConst("n", nil, uint(sum_n))
@@ -565,7 +565,7 @@ func BenchmarkSumFastInterpreterBis(b *testing.B) {
 	}
 }
 
-func BenchmarkSumClassicInterpreter(b *testing.B) {
+func BenchmarkSumClassic(b *testing.B) {
 	env := classic.New()
 	env.EvalAst(env.ParseAst("var i, n, total int"))
 	env.ValueOf("n").SetInt(sum_n)

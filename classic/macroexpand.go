@@ -226,11 +226,11 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 	for i := 0; i < n; i++ {
 		elt := ins.Get(i)
 		macro := env.extractMacroCall(elt)
-		if macro.Closure == nil {
+		if macro.closure == nil {
 			outs = outs.Append(elt)
 			continue
 		}
-		argn := macro.ArgNum
+		argn := macro.argNum
 		leftn := n - i - 1
 		var args []r.Value
 		if argn > leftn {
@@ -238,7 +238,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 			for j := 0; j <= leftn; j++ {
 				args[j] = r.ValueOf(ins.Get(i + j).Interface())
 			}
-			env.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.ArgNum, leftn)
+			env.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.argNum, leftn)
 			return in, false
 		}
 		if env.Options&OptDebugMacroExpand != 0 {
@@ -250,7 +250,7 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 			args[j] = r.ValueOf(ToNode(ins.Get(i + j + 1)))
 		}
 		// invoke the macro
-		results := macro.Closure(args)
+		results := macro.closure(args)
 		if env.Options&OptDebugMacroExpand != 0 {
 			env.Debugf("MacroExpand1: macro expanded to: %v", results)
 		}

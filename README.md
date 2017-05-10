@@ -84,8 +84,9 @@ The intepreter supports:
 * method declarations (including variadic methods and methods with pointer receiver)
 * seamless invocation of compiled functions from interpreter, and vice-versa
 * channel send and receive
+* goroutines, i.e. go function(args)
 * function and method calls, including multiple return values
-* if, for, for-range, break, continue, return (unimplemented: goto)
+* if, for, for-range, break, continue, fallthrough, return (unimplemented: goto)
 * select, switch, type switch, fallthrough
 * all builtins: append, cap, close, comples, defer, delete, imag, len, make, new, panic, print, println, real, recover
 * imports: Go standard packages "just work", importing other packages requires the "plugin" package (available only for Go 1.8+ on Linux)
@@ -106,10 +107,8 @@ The intepreter supports:
 * nesting macros, quotes and unquotes
 
 Several things are still missing:
-* goroutines i.e. the keyword "go". They are difficult to implement with the current architecture,
-  and they would require extensive locking that slows down all code.
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
-* labeled statements, goto
+* goto
 * named return values
 * history/readline (rlwrap does the job in most cases)
 

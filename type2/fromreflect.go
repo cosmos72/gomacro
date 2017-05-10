@@ -157,7 +157,7 @@ func named(t Type, name string, pkgpath string) Type {
 	return t
 }
 
-// fromReflectArray converts a reflect.Type representing an array into a Type
+// fromReflectArray converts a reflect.Type with Kind reflect.Array into a Type
 func fromReflectArray(rtype reflect.Type, rebuildDepth int) Type {
 	count := rtype.Len()
 	elem := FromReflectType(rtype.Elem(), rebuildDepth)
@@ -167,7 +167,7 @@ func fromReflectArray(rtype reflect.Type, rebuildDepth int) Type {
 	return maketype(types.NewArray(elem.gtype, int64(count)), rtype)
 }
 
-// fromReflectChan converts a reflect.Type representing a channel into a Type
+// fromReflectChan converts a reflect.Type with Kind reflect.Chan into a Type
 func fromReflectChan(rtype reflect.Type, rebuildDepth int) Type {
 	dir := rtype.ChanDir()
 	elem := FromReflectType(rtype.Elem(), rebuildDepth)
@@ -178,7 +178,7 @@ func fromReflectChan(rtype reflect.Type, rebuildDepth int) Type {
 	return maketype(types.NewChan(gdir, elem.gtype), rtype)
 }
 
-// fromReflectFunc converts a reflect.Type representing a function into a Type
+// fromReflectFunc converts a reflect.Type with Kind reflect.Func into a Type
 func fromReflectFunc(rtype reflect.Type, rebuildDepth int) Type {
 	nin, nout := rtype.NumIn(), rtype.NumOut()
 	in := make([]Type, nin)
@@ -204,7 +204,7 @@ func fromReflectFunc(rtype reflect.Type, rebuildDepth int) Type {
 	)
 }
 
-// fromReflectInterface converts a reflect.Type representing an interface into a Type
+// fromReflectInterface converts a reflect.Type with Kind reflect.Interface into a Type
 func fromReflectInterface(rtype reflect.Type, rebuildDepth int) Type {
 	if rtype == TypeOfInterface.rtype {
 		return TypeOfInterface
@@ -235,7 +235,7 @@ func fromReflectInterface(rtype reflect.Type, rebuildDepth int) Type {
 	return maketype(types.NewInterface(gmethods, nil), rtype)
 }
 
-// isReflectInterfaceStruct returns true if rtype is a reflect.Type representing a struct,
+// isReflectInterfaceStruct returns true if rtype is a reflect.Type with Kind reflect.Struct,
 // that contains our own conventions to emulate an interface
 func isReflectInterfaceStruct(rtype reflect.Type) bool {
 	if rtype.Kind() == reflect.Struct {
@@ -247,7 +247,7 @@ func isReflectInterfaceStruct(rtype reflect.Type) bool {
 	return false
 }
 
-// fromReflectInterfaceStruct converts a reflect.Type representing a struct,
+// fromReflectInterfaceStruct converts a reflect.Type with Kind reflect.Struct,
 // that contains our own conventions to emulate an interface, into a Type
 func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
 	rebuild := rebuildDepth >= 0
@@ -294,7 +294,7 @@ func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
 	return maketype(types.NewInterface(gmethods, gembeddeds), rtype)
 }
 
-// fromReflectMap converts a reflect.Type representing a map into a Type
+// fromReflectMap converts a reflect.Type with Kind reflect.map into a Type
 func fromReflectMap(rtype reflect.Type, rebuildDepth int) Type {
 	key := FromReflectType(rtype.Key(), rebuildDepth)
 	elem := FromReflectType(rtype.Elem(), rebuildDepth)
@@ -304,7 +304,7 @@ func fromReflectMap(rtype reflect.Type, rebuildDepth int) Type {
 	return maketype(types.NewMap(key.gtype, elem.gtype), rtype)
 }
 
-// fromReflectPtr converts a reflect.Type representing a pointer into a Type
+// fromReflectPtr converts a reflect.Type with Kind reflect.Ptr into a Type
 func fromReflectPtr(rtype reflect.Type, rebuildDepth int) Type {
 	relem := rtype.Elem()
 	var elem Type
@@ -322,7 +322,7 @@ func fromReflectPtr(rtype reflect.Type, rebuildDepth int) Type {
 	return maketype(gtype, rtype)
 }
 
-// fromReflectPtr converts a reflect.Type representing a slice into a Type
+// fromReflectPtr converts a reflect.Type with Kind reflect.Slice into a Type
 func fromReflectSlice(rtype reflect.Type, rebuildDepth int) Type {
 	elem := FromReflectType(rtype.Elem(), rebuildDepth)
 	if rebuildDepth >= 0 {
@@ -331,11 +331,8 @@ func fromReflectSlice(rtype reflect.Type, rebuildDepth int) Type {
 	return maketype(types.NewSlice(elem.gtype), rtype)
 }
 
-// fromReflectStruct converts a reflect.Type representing a struct into a Type
+// fromReflectStruct converts a reflect.Type with Kind reflect.Struct into a Type
 func fromReflectStruct(rtype reflect.Type, rebuildDepth int) Type {
-	if isReflectInterfaceStruct(rtype) {
-		return fromReflectInterfaceStruct(rtype, rebuildDepth)
-	}
 	n := rtype.NumField()
 	fields := make([]StructField, n)
 	for i := 0; i < n; i++ {

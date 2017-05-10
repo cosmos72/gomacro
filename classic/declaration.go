@@ -101,12 +101,12 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 		t := env.evalType(node.Type)
 		if name != "_" {
 			// never define bindings for "_"
-			if _, ok := env.Types[name]; ok {
+			if _, ok := env.Types.Get(name); ok {
 				env.Warnf("redefined type: %v", name)
-			} else if env.Types == nil {
-				env.Types = make(map[string]r.Type)
+			} else {
+				env.Types.Ensure()
 			}
-			env.Types[name] = t
+			env.Types.Set(name, t)
 			if _, ok := env.NamedTypes[t]; !ok {
 				env.NamedTypes[t] = fmt.Sprintf("%s.%s", env.Packagename, name)
 			}
@@ -184,19 +184,18 @@ func (env *Env) defineConstVarOrFunc(name string, t r.Type, value r.Value, const
 	if t == nil {
 		t = typeOf(value)
 	}
-	if _, exists := env.Binds[name]; exists {
+	if _, found := env.Binds.Get(name); found {
 		env.Warnf("redefined identifier: %v", name)
-	}
-	if env.Binds == nil {
-		env.Binds = make(map[string]r.Value)
+	} else {
+		env.Binds.Ensure()
 	}
 	if constant {
 		value = value.Convert(t)
-		env.Binds[name] = value
+		env.Binds.Set(name, value)
 	} else {
 		addr := r.New(t)
 		value = env.assignPlace(placeType{addr.Elem(), Nil}, token.ASSIGN, value)
-		env.Binds[name] = addr.Elem()
+		env.Binds.Set(name, addr.Elem())
 	}
 	// Debugf("defineConstVarOrFunc() added %#v to %#v", name, env.Binds)
 	return value

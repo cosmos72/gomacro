@@ -43,24 +43,24 @@ type CallFrame struct {
 	runningDefers bool
 }
 
-type Builtin struct {
-	Exec   func(env *Env, args []ast.Expr) (r.Value, []r.Value)
-	ArgNum int // if negative, do not check
+type Constructor struct {
+	exec   func(env *Env, arg0 r.Type, args []r.Value) (r.Value, []r.Value)
+	argNum int // if negative, do not check
 }
 
 type Function struct {
-	Exec   func(env *Env, args []r.Value) (r.Value, []r.Value)
-	ArgNum int // if negative, do not check
+	exec   func(env *Env, args []r.Value) (r.Value, []r.Value)
+	argNum int // if negative, do not check
 }
 
 type Macro struct {
-	Closure func(args []r.Value) (results []r.Value)
-	ArgNum  int
+	closure func(args []r.Value) (results []r.Value)
+	argNum  int
 }
 
 type TypedValue struct {
-	Type  r.Type
-	Value r.Value
+	typ r.Type
+	val r.Value
 }
 
 /**

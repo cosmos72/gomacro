@@ -19,7 +19,7 @@ func init() {
 			"NilEnv":               r.ValueOf(&NilEnv).Elem(),
 		},
 		Types: map[string]r.Type{
-			"Builtin":           r.TypeOf((*Builtin)(nil)).Elem(),
+			"Builtin":           r.TypeOf((*Constructor)(nil)).Elem(),
 			"CallFrame":         r.TypeOf((*CallFrame)(nil)).Elem(),
 			"CallStack":         r.TypeOf((*CallStack)(nil)).Elem(),
 			"Cmd":               r.TypeOf((*Cmd)(nil)).Elem(),

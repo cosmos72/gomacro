@@ -77,7 +77,7 @@ func (env *Env) showPackage(packageName string) {
 	out := env.Stdout
 	e := env
 	path := env.Path
-	pkg := &env.Package
+	pkg := env.AsPackage()
 	if len(packageName) != 0 {
 		bind := env.evalIdentifier(&ast.Ident{Name: packageName})
 		if bind == None || bind == Nil {
@@ -87,7 +87,7 @@ func (env *Env) showPackage(packageName string) {
 		switch val := bind.Interface().(type) {
 		case *PackageRef:
 			e = nil
-			pkg = &val.Package
+			pkg = val.Package
 			path = packageName
 		default:
 			env.Warnf("not an imported package: %q = %v <%v>", packageName, val, typeOf(bind))
@@ -143,7 +143,7 @@ Loop:
 	if e != nil {
 		if e = e.Outer; e != nil {
 			path = e.Path
-			pkg = &e.Package
+			pkg = e.AsPackage()
 			goto Loop
 		}
 	}

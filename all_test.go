@@ -97,7 +97,7 @@ func (c *TestCase) classic(t *testing.T, env *classic.Env) {
 
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
 const fibonacci_source_string = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
-const bigswitch_source_string = `func bigswitch(n int) int {
+const switch_source_string = `func bigswitch(n int) int {
 	for i := 0; i < 1000; i++ {
 		switch n&15 {
 		case 0: n++
@@ -364,6 +364,7 @@ var tests = []TestCase{
 	TestCase{A, "addr_structfield_1", "ppair := &triple.Pair; ppair.A", 'a', nil},
 	TestCase{A, "setaddr_structfield_1", "ppair.A++; triple.Pair.A", 'b', nil},
 
+	TestCase{I, "goroutine_1", `import "time"; go seti(9); time.Sleep(time.Second/20); i`, 9, nil},
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
 
 	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},

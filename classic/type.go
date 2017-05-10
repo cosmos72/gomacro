@@ -249,7 +249,7 @@ func (env *Env) evalTypeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (t
 
 func (env *Env) evalTypeIdentifier(name string) r.Type {
 	for e := env; e != nil; e = e.Outer {
-		if t, ok := e.Types[name]; ok {
+		if t, ok := e.Types.Get(name); ok {
 			return t
 		}
 	}

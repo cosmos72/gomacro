@@ -289,7 +289,7 @@ func (env *Env) defineForIterVar(node ast.Expr, t r.Type) r.Value {
 	}
 	name := node.(*ast.Ident).Name
 	env.DefineVar(name, t, r.Zero(t))
-	return env.Binds[name]
+	return env.Binds.Get1(name)
 }
 
 func nilIfIdentUnderscore(node ast.Expr) ast.Expr {

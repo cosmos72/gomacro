@@ -45,7 +45,7 @@ func (env *Env) resolveIdentifier(ident *ast.Ident) (r.Value, bool) {
 	found := false
 	for e := env; e != nil; e = e.Outer {
 		// Debugf("evalIdentifier() looking up %#v in %#v", name, env.Binds)
-		if value, found = e.Binds[name]; found {
+		if value, found = e.Binds.Get(name); found {
 			break
 		}
 	}

@@ -189,20 +189,17 @@ func callMacroExpand(env *Env, args []r.Value, which WhichMacroExpand) (r.Value,
 	return formv, []r.Value{formv, r.ValueOf(expanded)}
 }
 
-func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
+func funcMake(env *Env, t r.Type, args []r.Value) (r.Value, []r.Value) {
 	n := len(args)
-	if n < 1 || n > 3 {
-		return env.Errorf("builtin make() expects one, two or three arguments, found %d", n)
+	if n > 2 {
+		return env.Errorf("builtin make() expects one, two or three arguments, found %d", n+1)
 	}
-	t := env.evalType(args[0])
-	values := env.evalExprs(args[1:])
-	n--
 	ret := Nil
 	switch t.Kind() {
 	case r.Chan:
 		buffer := 0
 		if n > 0 {
-			buffer = int(values[0].Int())
+			buffer = int(args[0].Int())
 		}
 		ret = r.MakeChan(t, buffer)
 	case r.Map:
@@ -210,19 +207,18 @@ func builtinMake(env *Env, args []ast.Expr) (r.Value, []r.Value) {
 	case r.Slice:
 		length := 0
 		if n > 0 {
-			length = int(values[0].Int())
+			length = int(args[0].Int())
 		}
 		capacity := length
 		if n > 1 {
-			capacity = int(values[1].Int())
+			capacity = int(args[1].Int())
 		}
 		ret = r.MakeSlice(t, length, capacity)
 	}
 	return ret, nil
 }
 
-func builtinNew(env *Env, args []ast.Expr) (r.Value, []r.Value) {
-	t := env.evalType(args[0])
+func funcNew(env *Env, t r.Type, args []r.Value) (r.Value, []r.Value) {
 	return r.New(t), nil
 }
 
@@ -341,99 +337,90 @@ func funcValues(env *Env, args []r.Value) (r.Value, []r.Value) {
 }
 
 func (top *Env) addIota() {
-	top.Binds["iota"] = r.ValueOf(0)
+	top.Binds.Set("iota", r.ValueOf(0))
 }
 
 func (top *Env) removeIota() {
-	delete(top.Binds, "iota")
+	top.Binds.Del("iota")
 }
 
 func (top *Env) incrementIota() {
-	uIota := int(top.Binds["iota"].Int())
-	top.Binds["iota"] = r.ValueOf(uIota + 1)
+	uIota := int(top.Binds.Get1("iota").Int())
+	top.Binds.Set("iota", r.ValueOf(uIota+1))
 }
 
 func (env *Env) addBuiltins() {
-	if env.Binds == nil {
-		env.Binds = make(map[string]r.Value)
-	}
-	binds := env.Binds
+	binds := env.Binds.Ensure()
 
-	binds["Env"] = r.ValueOf(Function{funcEnv, 0})
-	binds["Eval"] = r.ValueOf(Function{funcEval, 1})
-	binds["EvalType"] = r.ValueOf(Function{funcEvalType, 1})
-	binds["MacroExpand"] = r.ValueOf(Function{funcMacroExpand, -1})
-	binds["MacroExpand1"] = r.ValueOf(Function{funcMacroExpand1, -1})
-	binds["MacroExpandCodewalk"] = r.ValueOf(Function{funcMacroExpandCodewalk, -1})
-	binds["Parse"] = r.ValueOf(Function{funcParse, 1})
-	binds["Read"] = r.ValueOf(ReadString)
-	binds["ReadDir"] = r.ValueOf(callReadDir)
-	binds["ReadFile"] = r.ValueOf(callReadFile)
-	binds["ReadMultiline"] = r.ValueOf(ReadMultiline)
-	binds["Slice"] = r.ValueOf(callSlice)
-	binds["String"] = r.ValueOf(func(args ...interface{}) string {
+	binds.Set("Env", r.ValueOf(Function{funcEnv, 0}))
+	binds.Set("Eval", r.ValueOf(Function{funcEval, 1}))
+	binds.Set("EvalType", r.ValueOf(Function{funcEvalType, 1}))
+	binds.Set("MacroExpand", r.ValueOf(Function{funcMacroExpand, -1}))
+	binds.Set("MacroExpand1", r.ValueOf(Function{funcMacroExpand1, -1}))
+	binds.Set("MacroExpandCodewalk", r.ValueOf(Function{funcMacroExpandCodewalk, -1}))
+	binds.Set("Parse", r.ValueOf(Function{funcParse, 1}))
+	binds.Set("Read", r.ValueOf(ReadString))
+	binds.Set("ReadDir", r.ValueOf(callReadDir))
+	binds.Set("ReadFile", r.ValueOf(callReadFile))
+	binds.Set("ReadMultiline", r.ValueOf(ReadMultiline))
+	binds.Set("Slice", r.ValueOf(callSlice))
+	binds.Set("String", r.ValueOf(func(args ...interface{}) string {
 		return env.ToString("", args...)
-	})
+	}))
 	// return multiple values, extracting the concrete type of each interface
-	binds["Values"] = r.ValueOf(Function{funcValues, -1})
+	binds.Set("Values", r.ValueOf(Function{funcValues, -1}))
 
-	binds["append"] = r.ValueOf(Function{funcAppend, -1})
-	binds["cap"] = r.ValueOf(callCap)
-	binds["close"] = r.ValueOf(callClose)
-	binds["complex"] = r.ValueOf(Function{funcComplex, 2})
-	binds["copy"] = r.ValueOf(callCopy)
-	binds["delete"] = r.ValueOf(callDelete)
-	binds["false"] = r.ValueOf(false)
-	binds["imag"] = r.ValueOf(Function{funcImag, 1})
-	binds["len"] = r.ValueOf(callLen)
-	binds["make"] = r.ValueOf(Builtin{builtinMake, -1})
-	binds["new"] = r.ValueOf(Builtin{builtinNew, 1})
-	binds["nil"] = Nil
-	binds["panic"] = r.ValueOf(callPanic)
-	binds["print"] = r.ValueOf(func(args ...interface{}) {
+	binds.Set("append", r.ValueOf(Function{funcAppend, -1}))
+	binds.Set("cap", r.ValueOf(callCap))
+	binds.Set("close", r.ValueOf(callClose))
+	binds.Set("complex", r.ValueOf(Function{funcComplex, 2}))
+	binds.Set("copy", r.ValueOf(callCopy))
+	binds.Set("delete", r.ValueOf(callDelete))
+	binds.Set("false", r.ValueOf(false))
+	binds.Set("imag", r.ValueOf(Function{funcImag, 1}))
+	binds.Set("len", r.ValueOf(callLen))
+	binds.Set("make", r.ValueOf(Constructor{funcMake, -1}))
+	binds.Set("new", r.ValueOf(Constructor{funcNew, 1}))
+	binds.Set("nil", Nil)
+	binds.Set("panic", r.ValueOf(callPanic))
+	binds.Set("print", r.ValueOf(func(args ...interface{}) {
 		fmt.Fprint(env.Stdout, args...)
-	})
-	binds["println"] = r.ValueOf(func(args ...interface{}) {
+	}))
+	binds.Set("println", r.ValueOf(func(args ...interface{}) {
 		fmt.Fprintln(env.Stdout, args...)
-	})
-	binds["real"] = r.ValueOf(Function{funcReal, 1})
-	binds["recover"] = r.ValueOf(Function{funcRecover, 0})
-	binds["true"] = r.ValueOf(true)
+	}))
+	binds.Set("real", r.ValueOf(Function{funcReal, 1}))
+	binds.Set("recover", r.ValueOf(Function{funcRecover, 0}))
+	binds.Set("true", r.ValueOf(true))
 
 	// --------- types ---------
-	if env.Types == nil {
-		env.Types = make(map[string]r.Type)
-	}
-	types := env.Types
+	types := env.Types.Ensure()
 
-	types["bool"] = r.TypeOf(false)
-	types["byte"] = r.TypeOf(byte(0))
-	types["complex64"] = r.TypeOf(complex64(0))
-	types["complex128"] = r.TypeOf(complex128(0))
-	types["error"] = r.TypeOf((*error)(nil)).Elem()
-	types["float32"] = r.TypeOf(float32(0))
-	types["float64"] = r.TypeOf(float64(0))
-	types["int"] = r.TypeOf(int(0))
-	types["int8"] = r.TypeOf(int8(0))
-	types["int16"] = r.TypeOf(int16(0))
-	types["int32"] = r.TypeOf(int32(0))
-	types["int64"] = r.TypeOf(int64(0))
-	types["rune"] = r.TypeOf(rune(0))
-	types["string"] = r.TypeOf("")
-	types["uint"] = r.TypeOf(uint(0))
-	types["uint8"] = r.TypeOf(uint8(0))
-	types["uint16"] = r.TypeOf(uint16(0))
-	types["uint32"] = r.TypeOf(uint32(0))
-	types["uint64"] = r.TypeOf(uint64(0))
-	types["uintptr"] = r.TypeOf(uintptr(0))
+	types.Set("bool", r.TypeOf(false))
+	types.Set("byte", r.TypeOf(byte(0)))
+	types.Set("complex64", r.TypeOf(complex64(0)))
+	types.Set("complex128", r.TypeOf(complex128(0)))
+	types.Set("error", r.TypeOf((*error)(nil)).Elem())
+	types.Set("float32", r.TypeOf(float32(0)))
+	types.Set("float64", r.TypeOf(float64(0)))
+	types.Set("int", r.TypeOf(int(0)))
+	types.Set("int8", r.TypeOf(int8(0)))
+	types.Set("int16", r.TypeOf(int16(0)))
+	types.Set("int32", r.TypeOf(int32(0)))
+	types.Set("int64", r.TypeOf(int64(0)))
+	types.Set("rune", r.TypeOf(rune(0)))
+	types.Set("string", r.TypeOf(""))
+	types.Set("uint", r.TypeOf(uint(0)))
+	types.Set("uint8", r.TypeOf(uint8(0)))
+	types.Set("uint16", r.TypeOf(uint16(0)))
+	types.Set("uint32", r.TypeOf(uint32(0)))
+	types.Set("uint64", r.TypeOf(uint64(0)))
+	types.Set("uintptr", r.TypeOf(uintptr(0)))
 
 	// --------- proxies ---------
-	if env.Proxies == nil {
-		env.Proxies = make(map[string]r.Type)
-	}
-	proxies := env.Proxies
+	proxies := env.Proxies.Ensure()
 
-	proxies["error"] = r.TypeOf((*Error_builtin)(nil)).Elem()
+	proxies.Set("error", r.TypeOf((*Error_builtin)(nil)).Elem())
 }
 
 type Error_builtin struct {

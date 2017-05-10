@@ -75,11 +75,12 @@ func (env *Env) evalStatements(list []ast.Stmt) (r.Value, []r.Value) {
 	return ret, rets
 }
 
-func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
-	if node != nil {
-		env.Pos = node.Pos()
+func (env *Env) evalStatement(stmt ast.Stmt) (r.Value, []r.Value) {
+again:
+	if stmt != nil {
+		env.Pos = stmt.Pos()
 	}
-	switch node := node.(type) {
+	switch node := stmt.(type) {
 	case *ast.AssignStmt:
 		return env.evalAssignments(node)
 	case *ast.BlockStmt:
@@ -92,16 +93,21 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return env.evalDecl(node.Decl)
 	case *ast.DeferStmt:
 		return env.evalDefer(node.Call)
+	case *ast.EmptyStmt:
+		return None, nil
 	case *ast.ExprStmt:
 		return env.evalExpr(node.X)
 	case *ast.ForStmt:
 		return env.evalFor(node)
+	case *ast.GoStmt:
+		return env.evalGo(node)
 	case *ast.IfStmt:
 		return env.evalIf(node)
 	case *ast.IncDecStmt:
 		return env.evalIncDec(node)
-	case *ast.EmptyStmt:
-		return None, nil
+	case *ast.LabeledStmt:
+		stmt = node
+		goto again
 	case *ast.RangeStmt:
 		return env.evalForRange(node)
 	case *ast.ReturnStmt:
@@ -114,7 +120,7 @@ func (env *Env) evalStatement(node ast.Stmt) (r.Value, []r.Value) {
 		return env.evalSwitch(node)
 	case *ast.TypeSwitchStmt:
 		return env.evalTypeSwitch(node)
-	default: // TODO:  *ast.GoStmt, *ast.LabeledStmt
+	default:
 		return env.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 	}
 }
@@ -136,6 +142,38 @@ func (env *Env) evalBranch(node *ast.BranchStmt) (r.Value, []r.Value) {
 	default:
 		return env.Errorf("unimplemented branch: %v <%v>", node, r.TypeOf(node))
 	}
+}
+
+func (env *Env) evalGo(stmt *ast.GoStmt) (r.Value, []r.Value) {
+	if !MultiThread {
+		env.Errorf("cannot create goroutine: %v\n\treason: this copy of gomacro was compiled with build tag 'gomacro_singlethread'", stmt)
+	}
+
+	node := stmt.Call
+	fun := env.evalExpr1(node.Fun)
+
+	switch fun.Kind() {
+	case r.Struct:
+		switch fun := fun.Interface().(type) {
+		case Constructor:
+			// evaluate args in the caller's goroutine
+			t, args := env.evalConstructorArgs(fun, node)
+			go fun.exec(env, t, args)
+		case Function:
+			// evaluate args in the caller's goroutine
+			args := env.evalFunctionArgs(fun, node)
+			go fun.exec(env, args)
+		}
+	case r.Func:
+		// evaluate args in the caller's goroutine
+		args := env.evalFuncArgs(fun, node)
+		if node.Ellipsis == token.NoPos {
+			go fun.Call(args)
+		} else {
+			go fun.CallSlice(args)
+		}
+	}
+	return None, nil
 }
 
 func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
