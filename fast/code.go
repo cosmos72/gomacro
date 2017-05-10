@@ -71,12 +71,15 @@ func (code *Code) Exec() X {
 		return func(env *Env) {
 			env.IP = 0
 			env.Code = all
+			interrupt := env.ThreadGlobals.Interrupt
 			env.ThreadGlobals.Interrupt = nil
 			stmt := all[0]
 			all[1] = nil
 			for stmt != nil {
 				stmt, env = stmt(env)
 			}
+			// restore env.ThreadGlobals.Interrupt before returning
+			env.ThreadGlobals.Interrupt = interrupt
 		}
 	}
 	return func(env *Env) {
@@ -89,6 +92,7 @@ func (code *Code) Exec() X {
 		all[n] = nil
 		env.IP = 0
 		env.Code = all
+		interrupt := env.ThreadGlobals.Interrupt
 		env.ThreadGlobals.Interrupt = nil
 
 		for j := 0; j < 5; j++ {
@@ -121,6 +125,8 @@ func (code *Code) Exec() X {
 					}
 				}
 			}
+			// restore env.ThreadGlobals.Interrupt before returning
+			env.ThreadGlobals.Interrupt = interrupt
 			return
 		}
 
@@ -145,6 +151,8 @@ func (code *Code) Exec() X {
 			stmt, env = stmt(env)
 
 			if x := stmt; *(**uintptr)(unsafe.Pointer(&x)) == unsafeInterrupt {
+				// restore env.ThreadGlobals.Interrupt before returning
+				env.ThreadGlobals.Interrupt = interrupt
 				return
 			}
 		}

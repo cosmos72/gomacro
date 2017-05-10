@@ -106,7 +106,7 @@ The intepreter supports:
     "func" always declares a closure (lambda) or a function type - there is no way to declare a function or method
 * nesting macros, quotes and unquotes
 
-Several things are still missing:
+Some features are still missing:
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
 * goto
 * named return values
