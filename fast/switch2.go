@@ -31,6 +31,7 @@ package fast
 
 import (
 	r "reflect"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) switchTag(e *Expr) *Expr {
@@ -307,8 +308,8 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 	c.Code.Append(stmt)
 	return exprFun(e.Type, cachefun)
 }
-func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
-	if seen.SomeNonConst {
+func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
+	if seen.SomeNonConst || len(seen.Map) == 0 {
 		return
 	}
 
@@ -342,6 +343,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 		}
 	case func(*Env) int:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[int]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[int(r.ValueOf(k).Int())] = v.IP
@@ -360,6 +366,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) int8:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[int8]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[int8(r.ValueOf(k).Int())] = v.IP
@@ -378,6 +389,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) int16:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[int16]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[int16(r.ValueOf(k).Int())] = v.IP
@@ -396,6 +412,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) int32:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[int32]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[int32(r.ValueOf(k).Int())] = v.IP
@@ -414,6 +435,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) int64:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[int64]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[r.ValueOf(k).Int()] = v.IP
@@ -432,6 +458,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) uint:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[uint]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[uint(r.ValueOf(k).Uint())] = v.IP
@@ -450,6 +481,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) uint8:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[uint8]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[uint8(r.ValueOf(k).Uint())] = v.IP
@@ -468,6 +504,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) uint16:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[uint16]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[uint16(r.ValueOf(k).Uint())] = v.IP
@@ -486,6 +527,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) uint32:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[uint32]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[uint32(r.ValueOf(k).Uint())] = v.IP
@@ -504,6 +550,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) uint64:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[uint64]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[r.ValueOf(k).Uint()] = v.IP
@@ -522,6 +573,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) uintptr:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[uintptr]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[uintptr(r.ValueOf(k).Uint())] = v.IP
@@ -540,6 +596,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) float32:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[float32]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[float32(r.ValueOf(k).Float())] = v.IP
@@ -558,6 +619,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) float64:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[float64]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[r.ValueOf(k).Float()] = v.IP
@@ -576,6 +642,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) complex64:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[complex64]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[complex64(r.ValueOf(k).Complex())] = v.IP
@@ -594,6 +665,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) complex128:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[complex128]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[r.ValueOf(k).Complex()] = v.IP
@@ -612,6 +688,11 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 
 	case func(*Env) string:
 		{
+			stmt = c.switchGotoSlice(tag, seen)
+			if stmt != nil {
+				break
+			}
+
 			m := make(map[string]int, len(seen.Map))
 			for k, v := range seen.Map {
 				m[r.ValueOf(k).String()] = v.IP
@@ -665,4 +746,573 @@ func (c *Comp) switchGoto(tag *Expr, seen *caseHelper, ip int) {
 	}
 
 	c.Code.List[ip] = stmt
+}
+func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
+	var stmt Stmt
+	switch efun := tag.Fun.(type) {
+	case func(*Env) int:
+		{
+			var min, max int
+			for k := range seen.Map {
+				key := int(r.ValueOf(k).Int())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := int(r.ValueOf(k).Int())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := int(r.ValueOf(k).Int())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) int8:
+		{
+			var min, max int8
+			for k := range seen.Map {
+				key := int8(r.ValueOf(k).Int())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := int8(r.ValueOf(k).Int())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := int8(r.ValueOf(k).Int())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) int16:
+		{
+			var min, max int16
+			for k := range seen.Map {
+				key := int16(r.ValueOf(k).Int())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := int16(r.ValueOf(k).Int())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := int16(r.ValueOf(k).Int())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) int32:
+		{
+			var min, max int32
+			for k := range seen.Map {
+				key :=
+					int32(r.ValueOf(k).Int())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := int32(r.ValueOf(k).Int())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := int32(r.ValueOf(k).Int())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) int64:
+		{
+			var min, max int64
+			for k := range seen.Map {
+				key := r.ValueOf(k).Int()
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := r.ValueOf(k).Int()
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := r.ValueOf(k).Int()
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) uint:
+		{
+			var min, max uint
+			for k := range seen.Map {
+				key :=
+
+					uint(r.ValueOf(k).Uint())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := uint(r.ValueOf(k).Uint())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := uint(r.ValueOf(k).Uint())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) uint8:
+		{
+			var min, max uint8
+			for k := range seen.Map {
+				key :=
+
+					uint8(r.ValueOf(k).Uint())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := uint8(r.ValueOf(k).Uint())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := uint8(r.ValueOf(k).Uint())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) uint16:
+		{
+			var min, max uint16
+			for k := range seen.Map {
+				key :=
+
+					uint16(r.ValueOf(k).Uint())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := uint16(r.ValueOf(k).Uint())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := uint16(r.ValueOf(k).Uint())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) uint32:
+		{
+			var min, max uint32
+			for k := range seen.Map {
+				key :=
+
+					uint32(r.ValueOf(k).Uint())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := uint32(r.ValueOf(k).Uint())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := uint32(r.ValueOf(k).Uint())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) uint64:
+		{
+			var min, max uint64
+			for k := range seen.Map {
+				key := r.ValueOf(k).Uint()
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key := r.ValueOf(k).Uint()
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := r.ValueOf(k).Uint()
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	case func(*Env) uintptr:
+		{
+			var min, max uintptr
+			for k := range seen.Map {
+				key :=
+
+					uintptr(r.ValueOf(k).Uint())
+				min = key
+				max = key
+				break
+			}
+			for k := range seen.Map {
+				key :=
+
+					uintptr(r.ValueOf(k).Uint())
+				if min > key {
+					min = key
+				} else if max < key {
+					max = key
+				}
+
+			}
+
+			halfrange := max/2 - min/2
+			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+				break
+			}
+
+			fullrange := int(halfrange)*2 + 2
+			if fullrange < len(seen.Map) {
+				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+			}
+
+			slice := make([]int, fullrange)
+			for k, v := range seen.Map {
+				key := uintptr(r.ValueOf(k).Uint())
+
+				slice[key-min] = v.IP + 1
+			}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val := efun(env)
+				ip := 0
+				if val >= min && val <= max {
+					ip = slice[val-min]
+				}
+
+				if ip > 0 {
+					env.IP = ip - 1
+				} else {
+					env.IP++
+				}
+				return env.Code[env.IP], env
+			}
+		}
+	}
+	return stmt
 }

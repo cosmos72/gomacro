@@ -121,7 +121,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 			})
 		}
 		// try to optimize
-		c.switchGoto(tag, seen, icasemap)
+		c.switchGotoMap(tag, seen, icasemap)
 	}
 	// we finally know this
 	ibreak = c.Code.Len()

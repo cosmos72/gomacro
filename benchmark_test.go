@@ -59,7 +59,7 @@ var verbose = false
 	BenchmarkFibonacciClosureInterfaces-8     10000        184985 ns/op
 	BenchmarkFibonacciClosureMaps-8            5000        330350 ns/op
 	BenchmarkSwitchCompiler-8               1000000          2422 ns/op
-	BenchmarkSwitchFast-8                     30000         52037 ns/op
+	BenchmarkSwitchFast-8                     50000         37846 ns/op
 	BenchmarkSwitchClassic-8                    500       2843500 ns/op
 	BenchmarkArithCompiler1-8             200000000             8.58 ns/op
 	BenchmarkArithCompiler2-8             200000000             8.56 ns/op
