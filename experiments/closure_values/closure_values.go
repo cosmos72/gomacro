@@ -26,7 +26,6 @@ package compile_reflect_values
 
 import (
 	r "reflect"
-	"time"
 
 	"github.com/cosmos72/gomacro/base"
 )
@@ -146,7 +145,7 @@ func RshiftIntInt(lhs, rhs XInt) XInt {
 		return func(env *Env) int {
 			l, r := lhs(env), rhs(env)
 			// Debugf("rshift: lhs=%v, rhs=%v\n", l, r)
-			time.Sleep(time.Second)
+			// time.Sleep(time.Second)
 			return l >> uint(r)
 		}
 	} else {

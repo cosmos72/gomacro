@@ -182,13 +182,14 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 				max = key
 			}
 		}
-		// divide *before* subtracting, to avoid overflows
-		halfrange := max/2 - min/2
-		if uint64(halfrange) >= uint64(MaxInt/2 - 2) || int(halfrange) > len(seen.Map) {
+		// full range is max - min + 1, but may overflow (example: MaxInt - MinInt + 1)
+		// so divide by 2 before subtracting and do not add one
+		halfrange_trunc := max/2 - min/2
+		if uint64(halfrange_trunc) >= uint64(MaxInt/2 - 3) || int(halfrange_trunc) > len(seen.Map) {
 			// too sparse for a slice, or slice indexes would overflow int
 			break
 		}
-		fullrange := int(halfrange)*2 + 2 // cannot overflow, we just checked above
+		fullrange := int(max - min) + 1 // cannot overflow, we just checked above
 		if fullrange < len(seen.Map) {
 			c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 		}

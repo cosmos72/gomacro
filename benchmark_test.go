@@ -85,6 +85,50 @@ var verbose = false
 	BenchmarkSumClosureMaps-8                 20000         93106 ns/op
 */
 
+// ---------------------- bubblesort ------------------------
+
+func bubblesort(v []int) {
+	n := len(v)
+	for {
+		swapped := false
+		for i := 1; i < n; i++ {
+			if v[i-1] > v[i] {
+				v[i-1], v[i] = v[i], v[i-1]
+				swapped = true
+			}
+		}
+		if !swapped {
+			break
+		}
+	}
+}
+
+func BenchmarkBubblesortCompiler(b *testing.B) {
+	var v []int
+
+	for i := 0; i < b.N; i++ {
+		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+		bubblesort(v)
+	}
+	fmt.Println(v)
+}
+
+func BenchmarkBubblesortFast(b *testing.B) {
+	ce := fast.New()
+	ce.Eval(bubblesort_source_string)
+
+	// compile the call to fibonacci(fib_n)
+	bubblesort := ce.ValueOf("bubblesort").Interface().(func([]int))
+	bubblesort([]int{3, 2, 1})
+
+	var v []int
+	for i := 0; i < b.N; i++ {
+		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+		bubblesort(v)
+	}
+	fmt.Println(v)
+}
+
 // recursion: fibonacci. fib(n) => if (n <= 2) { return 1 } else { return fib(n-1) + fib(n-2) }
 
 func fibonacci(n int) int {
@@ -206,7 +250,7 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 	}
 }
 
-// ---------------------- bigswitch ------------------------
+// ---------------------- switch ------------------------
 
 func bigswitch(n int) int {
 	for i := 0; i < 1000; i++ {

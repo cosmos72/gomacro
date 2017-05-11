@@ -63,6 +63,10 @@ func exprXV(types []r.Type, fun func(env *Env) (r.Value, []r.Value)) *Expr {
 	}
 }
 
+func expr0(fun func(env *Env)) *Expr {
+	return &Expr{Types: ZeroTypes, Fun: fun}
+}
+
 func exprBool(fun func(env *Env) bool) *Expr {
 	return &Expr{Lit: Lit{Type: TypeOfBool}, Fun: fun}
 }

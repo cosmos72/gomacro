@@ -122,6 +122,22 @@ func (env *Env) evalPlace(node ast.Expr) placeType {
 
 func (env *Env) assignPlaces(places []placeType, op token.Token, values []r.Value) (r.Value, []r.Value) {
 	n := len(places)
+	if n == 1 {
+		return env.assignPlace(places[0], op, values[0]), nil
+	}
+	// the naive loop
+	//   for i := range places { env.assignPlace(places[i], op, values[i]) }
+	// is bugged. It breaks, among others, the common Go idiom to swap two values: a,b = b,a
+	//
+	// More in general, Go guarantees that all assignments happen *as if*
+	// the rhs values were copied to temporary locations before the assignments.
+	// That's exactly what we must do.
+	for i := 0; i < n; i++ {
+		v := values[i]
+		if v != None && v != Nil {
+			values[i] = v.Convert(v.Type()) // r.Value.Convert() makes a copy
+		}
+	}
 	for i := 0; i < n; i++ {
 		values[i] = env.assignPlace(places[i], op, values[i])
 	}
