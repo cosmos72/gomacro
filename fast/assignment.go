@@ -46,11 +46,6 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 		c.Errorf("unimplemented: assignment of multiple places with a single multi-valued expression: %v", node)
 	} else if ln != rn {
 		c.Errorf("invalid assignment, cannot assign %d values to %d places: %v", node)
-	} else if ln == 1 {
-		l := lhs[0]
-		r := rhs[0]
-		c.assign1(l, node.Tok, r, c.Place(l), c.Expr1(r))
-		return
 	}
 
 	// the naive loop
@@ -60,31 +55,70 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 	// More in general, Go guarantees that all assignments happen *as if*
 	// the rhs values were copied to temporary locations before the assignments.
 	// That's exactly what we must do.
+	//
+	// To be completely accurate, https://golang.org/ref/spec#Assignments states:
+	//
+	// "The assignment proceeds in two phases. First, the operands of index expressions
+	// and pointer indirections (including implicit pointer indirections in selectors)
+	// on the left and the expressions on the right are all evaluated in the usual order.
+	// Second, the assignments are carried out in left-to-right order."
+	//
+	// so we must also cache the results of index expressions, pointer indirections, selectors on left side
+
 	places := make([]*Place, ln)
+	exprs := make([]*Expr, rn)
+	needcache := false
 	for i, li := range lhs {
 		places[i] = c.Place(li)
+		needcache = needcache || !places[i].IsVar() // ach, needed. see the example i := 0; i, x[i] = 1, 2  // set i = 1, x[0] = 2
 	}
-	inits := make([]func(*Env), 0, rn)
-	caches := make([]*Expr, rn)
 	for i, ri := range rhs {
-		init, cache := c.Cache(c.Expr1(ri), CacheCopy)
-		// init is nil for constant expressions: nothing to cache
-		if init != nil {
-			inits = append(inits, init)
-		}
-		caches[i] = cache
+		exprs[i] = c.Expr1(ri)
+		needcache = needcache || !exprs[i].Const()
 	}
-	// TODO indexing, selectors, dereferencing and other side effects of places
-	// should happen BEFORE evaluating inits!
-	c.Code.Append(func(env *Env) (Stmt, *Env) {
-		for _, init := range inits {
-			init(env)
+	if ln <= 1 {
+		// optimization
+		needcache = false
+	}
+	if needcache {
+		var inits []func(*Env)
+		for i, li := range lhs {
+			for {
+				switch node := li.(type) {
+				case *ast.ParenExpr:
+					li = node.X
+					continue
+				case *ast.IndexExpr, *ast.StarExpr, *ast.SelectorExpr:
+					fun, _, index := places[i].Cache(CacheCopy)
+					if fun != nil {
+						inits = append(inits, fun)
+					}
+					if index != nil {
+						inits = append(inits, index)
+					}
+				}
+				break
+			}
 		}
-		env.IP++
-		return env.Code[env.IP], env
-	})
+		for _, expr := range exprs {
+			init := expr.Cache(CacheCopy)
+			// init is nil for constant expressions: nothing to cache
+			if init != nil {
+				inits = append(inits, init)
+			}
+		}
+		if len(inits) != 0 {
+			c.Code.Append(func(env *Env) (Stmt, *Env) {
+				for _, init := range inits {
+					init(env)
+				}
+				env.IP++
+				return env.Code[env.IP], env
+			})
+		}
+	}
 	for i := range lhs {
-		c.assign1(lhs[i], node.Tok, rhs[i], places[i], caches[i])
+		c.assign1(lhs[i], node.Tok, rhs[i], places[i], exprs[i])
 	}
 }
 
@@ -200,224 +234,249 @@ func (c *Comp) placeForSideEffects(place *Place) {
 type CacheOption bool
 
 const (
-	CacheRef  CacheOption = false
-	CacheCopy CacheOption = true
+	CacheNoCopy CacheOption = false
+	CacheCopy   CacheOption = true
 )
 
-// Cache creates and returns a function and an expression:
-// the function 'setfun' will evaluate the given expression 'expr' and store its result in a cache,
-// the expression 'getter' will return the value stored in the cache.
+// Expr.Cache is a wrapper around CacheFun that operates on expressions. it modifies 'e' !
+func (e *Expr) Cache(option CacheOption) (setfun func(*Env)) {
+	if e.Const() {
+		return nil
+	}
+	setfun, e.Fun = CacheFun(e.Fun, e.Type, option)
+	return
+}
+
+// Place.Cache is a wrapper around CacheFun that operates on places. it modifies 'p' !
+func (p *Place) Cache(option CacheOption) (setfun func(*Env), addrfun func(*Env), mapkeyfun func(*Env)) {
+	if p.IsVar() {
+		return nil, nil, nil
+	}
+	t := p.Type
+	if p.Addr != nil {
+		addrfun, p.Addr = cacheFunX1(p.Addr, r.PtrTo(t), option)
+	}
+	if p.MapKey != nil {
+		tmap := p.MapType
+		setfun, p.Fun = cacheFunX1(p.Fun, tmap, option)
+		mapkeyfun, p.MapKey = cacheFunX1(p.MapKey, tmap.Key(), option)
+	} else {
+		setfun, p.Fun = cacheFunX1(p.Fun, t, CacheNoCopy) // cannot copy, it would become unsettable
+	}
+	return
+}
+
+// CacheFun creates and returns two functions:
+// the function 'setfun' will evaluate the given function 'fun' and store its result in a cache,
+// the function 'getfun' will return the cached value.
 // If 'option' == CacheCopy, setfun will also make a copy of the value before storing it in the cache.
 // Used to create temporary storage for multiple assignments, as for example a,b = b,a
-func (c *Comp) Cache(expr *Expr, option CacheOption) (setfun func(*Env), getter *Expr) {
-	if expr.Const() {
-		return nil, expr
-	}
-	efun := expr.Fun
-	var getfun I
-	switch expr.Type.Kind() {
+func CacheFun(fun I, t r.Type, option CacheOption) (setfun func(*Env), getfun I) {
+	switch t.Kind() {
 	case r.Bool:
-		efun := efun.(func(*Env) bool)
+		fun := fun.(func(*Env) bool)
 		var cache bool
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) bool {
 			return cache
 		}
 	case r.Int:
-		efun := efun.(func(*Env) int)
+		fun := fun.(func(*Env) int)
 		var cache int
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) int {
 			return cache
 		}
 	case r.Int8:
-		efun := efun.(func(*Env) int8)
+		fun := fun.(func(*Env) int8)
 		var cache int8
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) int8 {
 			return cache
 		}
 	case r.Int16:
-		efun := efun.(func(*Env) int16)
+		fun := fun.(func(*Env) int16)
 		var cache int16
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) int16 {
 			return cache
 		}
 	case r.Int32:
-		efun := efun.(func(*Env) int32)
+		fun := fun.(func(*Env) int32)
 		var cache int32
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) int32 {
 			return cache
 		}
 	case r.Int64:
-		efun := efun.(func(*Env) int64)
+		fun := fun.(func(*Env) int64)
 		var cache int64
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) int64 {
 			return cache
 		}
 	case r.Uint:
-		efun := efun.(func(*Env) uint)
+		fun := fun.(func(*Env) uint)
 		var cache uint
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) uint {
 			return cache
 		}
 	case r.Uint8:
-		efun := efun.(func(*Env) uint8)
+		fun := fun.(func(*Env) uint8)
 		var cache uint8
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) uint8 {
 			return cache
 		}
 	case r.Uint16:
-		efun := efun.(func(*Env) uint16)
+		fun := fun.(func(*Env) uint16)
 		var cache uint16
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) uint16 {
 			return cache
 		}
 	case r.Uint32:
-		efun := efun.(func(*Env) uint32)
+		fun := fun.(func(*Env) uint32)
 		var cache uint32
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) uint32 {
 			return cache
 		}
 	case r.Uint64:
-		efun := efun.(func(*Env) uint64)
+		fun := fun.(func(*Env) uint64)
 		var cache uint64
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) uint64 {
 			return cache
 		}
 	case r.Uintptr:
-		efun := efun.(func(*Env) uintptr)
+		fun := fun.(func(*Env) uintptr)
 		var cache uintptr
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) uintptr {
 			return cache
 		}
 	case r.Float32:
-		efun := efun.(func(*Env) float32)
+		fun := fun.(func(*Env) float32)
 		var cache float32
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) float32 {
 			return cache
 		}
 	case r.Float64:
-		efun := efun.(func(*Env) float64)
+		fun := fun.(func(*Env) float64)
 		var cache float64
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) float64 {
 			return cache
 		}
 	case r.Complex64:
-		efun := efun.(func(*Env) complex64)
+		fun := fun.(func(*Env) complex64)
 		var cache complex64
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) complex64 {
 			return cache
 		}
 	case r.Complex128:
-		efun := efun.(func(*Env) complex128)
+		fun := fun.(func(*Env) complex128)
 		var cache complex128
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) complex128 {
 			return cache
 		}
 	case r.String:
-		efun := efun.(func(*Env) string)
+		fun := fun.(func(*Env) string)
 		var cache string
 		setfun = func(env *Env) {
-			cache = efun(env)
+			cache = fun(env)
 		}
 		getfun = func(env *Env) string {
 			return cache
 		}
 	default:
-		t := expr.Type
-		var cache r.Value
-		if efun, ok := efun.(func(env *Env) (r.Value, []r.Value)); ok {
-			if option == CacheCopy {
-				setfun = func(env *Env) {
-					v, _ := efun(env)
-					if v != base.Nil && v != base.None {
-						// to make a copy, Convert() an r.Value to its own type
-						cache = v.Convert(t)
-					}
-				}
-			} else {
-				setfun = func(env *Env) {
-					cache, _ = efun(env)
-				}
-			}
+		if fun, ok := fun.(func(env *Env) (r.Value, []r.Value)); ok {
+			setfun, getfun = cacheFunXV(fun, t, option)
 		} else {
-			efunx1 := expr.AsX1()
-			if option == CacheCopy {
-				t := expr.Type
-				setfun = func(env *Env) {
-					v := efunx1(env)
-					if v != base.Nil && v != base.None {
-						// to make a copy, Convert() an r.Value to its own type
-						cache = v.Convert(t)
-					}
-				}
-			} else {
-				setfun = func(env *Env) {
-					cache = efunx1(env)
-				}
-			}
-		}
-		getfun = func(env *Env) r.Value {
-			return cache
+			funx1 := funAsX1(fun, t)
+			setfun, getfun = cacheFunX1(funx1, t, option)
 		}
 	}
-	return setfun, exprFun(expr.Type, getfun)
+	return setfun, getfun
 }
 
-/*
-......
-......
-......
-......
-......
-......
-......
-......
-......
-*/
+// special case of CacheFun
+func cacheFunXV(fun func(env *Env) (r.Value, []r.Value), t r.Type, option CacheOption) (setfun func(*Env), getfun func(env *Env) r.Value) {
+	var cache r.Value
+	if option == CacheCopy {
+		setfun = func(env *Env) {
+			v, _ := fun(env)
+			if v != base.Nil && v != base.None {
+				// to make a copy, Convert() an r.Value to its expected type
+				cache = v.Convert(t)
+			}
+		}
+	} else {
+		setfun = func(env *Env) {
+			cache, _ = fun(env)
+		}
+	}
+	getfun = func(env *Env) r.Value {
+		return cache
+	}
+	return
+}
+
+// special case of CacheFun
+func cacheFunX1(fun func(env *Env) r.Value, t r.Type, option CacheOption) (setfun func(*Env), getfun func(env *Env) r.Value) {
+	var cache r.Value
+	if option == CacheCopy {
+		setfun = func(env *Env) {
+			v := fun(env)
+			if v != base.Nil && v != base.None {
+				// to make a copy, Convert() an r.Value to its expected type
+				cache = v.Convert(t)
+			}
+		}
+	} else {
+		setfun = func(env *Env) {
+			cache = fun(env)
+		}
+	}
+	getfun = func(env *Env) r.Value {
+		return cache
+	}
+	return
+}

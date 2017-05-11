@@ -36,7 +36,7 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr { return c.indexExpr(node, true) }
+func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr  { return c.indexExpr(node, true) }
 func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr { return c.indexExpr(node, false) }
 func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	obj := c.Expr1(node.X)
@@ -60,8 +60,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
-			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() },
-			)
+			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() })
 			ret = c.vectorIndex(node, deref, idx)
 			break
 		}
@@ -920,7 +919,7 @@ func (c *Comp) mapPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	} else if idx.Type == nil || !idx.Type.AssignableTo(tkey) {
 		c.Errorf("cannot use %v <%v> as type <%v> in map index: %v", node.Index, idx.Type, tkey, node)
 	}
-	return &Place{Var: Var{Type: tmap.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1()}
+	return &Place{Var: Var{Type: tmap.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1(), MapType: tmap}
 }
 func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()

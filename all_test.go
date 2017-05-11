@@ -348,8 +348,8 @@ var tests = []TestCase{
 	TestCase{A, "setplace_deref_3", `func vint_addr() *int { return &vint }; *vint_addr() = 7; vint`, 7, nil},
 	TestCase{A, "setplace_deref_4", `*vint_addr() %= 4; vint`, 3, nil},
 
-	TestCase{A, "swap_1", `v0 = 1; vint = 2; v0, vint = vint, v0; v0`, 2, nil},
-	TestCase{A, "swap_2", `vint`, 1, nil},
+	TestCase{A, "swap", `i=1;j=2;  i,j=j,i;  list_args(i, j)`, []int{2, 1}, nil},
+	TestCase{A, "evil_assignment", `i=0; si[0]=7; si[1]=8; i,si[i]=1,2; list_args(i,si[0],si[1])`, []int{1, 2, 8}, nil},
 
 	TestCase{A, "setmap_1", `m[1]="x"; m[2]="y"; m`, map[int]string{1: "x", 2: "y"}, nil},
 	TestCase{A, "setmap_2", `m[2]+="z"; m`, map[int]string{1: "x", 2: "yz"}, nil},

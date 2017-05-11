@@ -472,7 +472,7 @@ func (c *Comp) mapPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	} else if idx.Type == nil || !idx.Type.AssignableTo(tkey) {
 		c.Errorf("cannot use %v <%v> as type <%v> in map index: %v", node.Index, idx.Type, tkey, node)
 	}
-	return &Place{Var: Var{Type: tmap.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1()}
+	return &Place{Var: Var{Type: tmap.Elem()}, Fun: obj.AsX1(), MapKey: idx.AsX1(), MapType: tmap}
 }
 
 // vectorPlace compiles obj[idx] where obj is an array or slice, returning a settable and addressable place

@@ -335,7 +335,8 @@ type Place struct {
 	// Call Addr only once, it may have side effects!
 	Addr func(*Env) r.Value
 	// used only for map[key], returns key. call it only once, it may have side effects!
-	MapKey func(*Env) r.Value
+	MapKey  func(*Env) r.Value
+	MapType r.Type
 }
 
 func (place *Place) IsVar() bool {
