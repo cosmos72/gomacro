@@ -92,18 +92,10 @@ func (tc *TestCase) classic(t *testing.T, env *classic.Env) {
 
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
 const fibonacci_source_string = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
-const bubblesort_source_string = `func bubblesort(v []int) {
-	n := len(v)
-	for {
-		swapped := false
-		for i := 1; i < n; i++ {
-			if v[i-1] > v[i] {
-				v[i-1], v[i] = v[i], v[i-1]
-				swapped = true
-			}
-		}
-		if !swapped {
-			break
+const insertion_sort_source_string = `func insertion_sort(v []int) {
+	for i, n := 1, len(v); i < n; i++ {
+		for j := i; j > 0 && v[j-1] > v[j]; j-- {
+			v[j-1], v[j] = v[j], v[j-1]
 		}
 	}
 }`

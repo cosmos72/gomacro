@@ -85,72 +85,6 @@ var verbose = false
 	BenchmarkSumClosureMaps-8                 20000         93106 ns/op
 */
 
-// ---------------------- iteration: bubblesort ------------------------
-
-func bubblesort(v []int) {
-	n := len(v)
-	for {
-		swapped := false
-		for i := 1; i < n; i++ {
-			if v[i-1] > v[i] {
-				v[i-1], v[i] = v[i], v[i-1]
-				swapped = true
-			}
-		}
-		if !swapped {
-			break
-		}
-	}
-}
-
-func BenchmarkBubblesortCompiler(b *testing.B) {
-	var v []int
-
-	for i := 0; i < b.N; i++ {
-		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
-		bubblesort(v)
-	}
-	if verbose {
-		fmt.Println(v)
-	}
-}
-
-func BenchmarkBubblesortFast(b *testing.B) {
-	ce := fast.New()
-	ce.Eval(bubblesort_source_string)
-
-	// compile the call to fibonacci(fib_n)
-	bubblesort := ce.ValueOf("bubblesort").Interface().(func([]int))
-	bubblesort([]int{3, 2, 1})
-
-	var v []int
-	for i := 0; i < b.N; i++ {
-		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
-		bubblesort(v)
-	}
-	if verbose {
-		fmt.Println(v)
-	}
-}
-
-func BenchmarkBubblesortClassic(b *testing.B) {
-	env := classic.New()
-	env.Eval(bubblesort_source_string)
-
-	// compile the call to fibonacci(fib_n)
-	bubblesort := env.ValueOf("bubblesort").Interface().(func([]int))
-	bubblesort([]int{3, 2, 1})
-
-	var v []int
-	for i := 0; i < b.N; i++ {
-		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
-		bubblesort(v)
-	}
-	if verbose {
-		fmt.Println(v)
-	}
-}
-
 // ---------------------- recursion: fibonacci ----------------------
 
 func fibonacci(n int) int {
@@ -271,6 +205,64 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 	}
 }
 
+// ---------------------- iteration: insertion_sort ------------------------
+
+func insertion_sort(v []int) {
+	for i, n := 1, len(v); i < n; i++ {
+		for j := i; j > 0 && v[j-1] > v[j]; j-- {
+			v[j-1], v[j] = v[j], v[j-1]
+		}
+	}
+}
+
+func BenchmarkInsertionSortCompiler(b *testing.B) {
+	var v []int
+
+	for i := 0; i < b.N; i++ {
+		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+		insertion_sort(v)
+	}
+	if verbose {
+		fmt.Println(v)
+	}
+}
+
+func BenchmarkInsertionSortFast(b *testing.B) {
+	ce := fast.New()
+	ce.Eval(insertion_sort_source_string)
+
+	// compile the call to fibonacci(fib_n)
+	insertion_sort := ce.ValueOf("insertion_sort").Interface().(func([]int))
+	insertion_sort([]int{3, 2, 1})
+
+	var v []int
+	for i := 0; i < b.N; i++ {
+		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+		insertion_sort(v)
+	}
+	if verbose {
+		fmt.Println(v)
+	}
+}
+
+func BenchmarkInsertionSortClassic(b *testing.B) {
+	env := classic.New()
+	env.Eval(insertion_sort_source_string)
+
+	// compile the call to fibonacci(fib_n)
+	insertion_sort := env.ValueOf("insertion_sort").Interface().(func([]int))
+	insertion_sort([]int{3, 2, 1})
+
+	var v []int
+	for i := 0; i < b.N; i++ {
+		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+		insertion_sort(v)
+	}
+	if verbose {
+		fmt.Println(v)
+	}
+}
+
 // ---------------------- switch ------------------------
 
 func bigswitch(n int) int {
@@ -350,6 +342,8 @@ func BenchmarkSwitchClassic(b *testing.B) {
 		total += fun(bigswitch_n)
 	}
 }
+
+// ---------------- simple arithmetic ------------------
 
 func arith(n int) int {
 	return ((n*2+3)&4 | 5 ^ 6) / (n | 1)
@@ -497,7 +491,7 @@ func BenchmarkArithClassic2(b *testing.B) {
 	}
 }
 
-// collatz conjecture
+// ---------------- collatz conjecture --------------------
 
 func collatz(n int) {
 	for n > 1 {
@@ -569,7 +563,7 @@ func BenchmarkCollatzClosureValues(b *testing.B) {
 	}
 }
 
-// looping: sum the integers from 1 to N
+// ------------- looping: sum the integers from 1 to N -------------------
 
 func sum(n int) int {
 	total := 0

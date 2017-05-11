@@ -1,11 +1,13 @@
 #!/usr/bin/env gomacro
 
-:fast func fibonacci(n uint) uint {
+:fast
+
+func fibonacci(n uint) uint {
 	if n <= 2 {
 		return 1
 	}
 	return fibonacci(n-1) + fibonacci(n-2)
 }
 
-:fast fibonacci(30)
+fibonacci(30)
 
