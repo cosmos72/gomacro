@@ -227,7 +227,7 @@ func funcParse(env *Env, args []r.Value) (r.Value, []r.Value) {
 	if arg := args[0]; arg != Nil && arg != None {
 		in = arg.Interface()
 	}
-	out := env.ParseAst(in)
+	out := env.Parse(in)
 	if out != nil {
 		return r.ValueOf(out.Interface()), nil
 	}
@@ -435,11 +435,11 @@ func (Proxy Error_builtin) Error() string {
 func (env *Env) addInterpretedBuiltins() {
 	if false {
 		line := "func not(flag bool) bool { if flag { return false } else { return true } }"
-		env.EvalAst(env.ParseAst(line))
+		env.EvalAst(env.Parse(line))
 	}
 	if false {
 		// Factorial(1000000): eval() elapsed time: 1.233714899 s
 		line := "func Factorial(n int) int { t := 1; for i := 2; i <= n; i=i+1 { t = t * i }; t }"
-		env.EvalAst(env.ParseAst(line))
+		env.EvalAst(env.Parse(line))
 	}
 }

@@ -44,7 +44,7 @@ type Inspector struct {
 }
 
 func (env *Env) Inspect(in *bufio.Reader, str string, fastInterpreter bool) {
-	form := env.ParseAst(str)
+	form := env.Parse(str)
 	var v r.Value
 	if fastInterpreter {
 		v, _ = env.fastEval(form)

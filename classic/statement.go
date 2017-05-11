@@ -181,7 +181,7 @@ func (env *Env) evalIf(node *ast.IfStmt) (r.Value, []r.Value) {
 		env = NewEnv(env, "if {}")
 		_, _ = env.evalStatement(node.Init)
 	}
-	cond, _ := env.Eval(node.Cond)
+	cond, _ := env.EvalNode(node.Cond)
 	if cond.Kind() != r.Bool {
 		cf := cond.Interface()
 		return env.Errorf("if: invalid condition type <%T> %#v, expecting <bool>", cf, cf)

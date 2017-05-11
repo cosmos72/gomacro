@@ -45,7 +45,7 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value) {
 		ce = env.CompEnv.(*fast.CompEnv)
 	}
 	ce.Comp.Stringer.Copy(&env.Stringer) // sync Fileset, Pos, Line
-	fun := ce.Comp.CompileAst(form)
+	fun := ce.Comp.Compile(form)
 
 	// debug output
 	if env.Options&base.OptShowCompile != 0 {

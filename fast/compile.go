@@ -244,19 +244,19 @@ func (env *Env) File() *Env {
 	return env
 }
 
-func (c *Comp) ParseAst(src string) Ast {
+func (c *Comp) Parse(src string) Ast {
 	c.Line = 0
 	nodes := c.ParseBytes([]byte(src))
 	return AnyToAst(nodes, "ParseAst")
 }
 
-func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
+func (c *Comp) Compile(in Ast) func(*Env) (r.Value, []r.Value) {
 	for {
 		switch form := in.(type) {
 		case nil:
 			return nil
 		case AstWithNode:
-			return c.Compile(form.Node())
+			return c.CompileNode(form.Node())
 		case AstWithSlice:
 			switch n := form.Size(); n {
 			case 0:
@@ -267,7 +267,7 @@ func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
 			default:
 				var list []func(*Env) (r.Value, []r.Value)
 				for i := 0; i < n; i++ {
-					fun := c.CompileAst(form.Get(i))
+					fun := c.Compile(form.Get(i))
 					if fun != nil {
 						list = append(list, fun)
 					}
@@ -281,12 +281,12 @@ func (c *Comp) CompileAst(in Ast) func(*Env) (r.Value, []r.Value) {
 				}
 			}
 		}
-		c.Errorf("CompileAst: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
+		c.Errorf("Compile: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
 		return nil
 	}
 }
 
-func (c *Comp) Compile(node ast.Node) func(*Env) (r.Value, []r.Value) {
+func (c *Comp) CompileNode(node ast.Node) func(*Env) (r.Value, []r.Value) {
 	c.Code.Clear()
 	if node == nil {
 		return nil

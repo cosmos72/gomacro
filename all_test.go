@@ -56,12 +56,11 @@ type TestCase struct {
 }
 
 func TestFast(t *testing.T) {
-	env := classic.New()
-	comp := fast.New()
-	for _, test := range tests {
+	ce := fast.New()
+	for _, test := range testcases {
 		if test.testfor&F != 0 {
-			c := test
-			t.Run(c.name, func(t *testing.T) { c.fast(t, comp, env) })
+			tc := test
+			t.Run(tc.name, func(t *testing.T) { tc.fast(t, ce) })
 		}
 	}
 }
@@ -69,30 +68,26 @@ func TestFast(t *testing.T) {
 func TestClassic(t *testing.T) {
 	env := classic.New()
 	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
-	for _, test := range tests {
-		if test.testfor&I != 0 {
-			c := test
-			t.Run(c.name, func(t *testing.T) { c.classic(t, env) })
+	for _, tc := range testcases {
+		if tc.testfor&I != 0 {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) { tc.classic(t, env) })
 		}
 	}
 }
 
-func (tc *TestCase) fast(t *testing.T, ce *fast.CompEnv, env *classic.Env) {
-	// parse + macroexpansion + compile phases
-	f := ce.Compile(tc.program)
+func (tc *TestCase) fast(t *testing.T, ce *fast.CompEnv) {
 
-	rets := PackValues(ce.Run(f))
+	rets := PackValues(ce.Eval(tc.program))
 
 	tc.compareResults(t, rets)
 }
 
-func (c *TestCase) classic(t *testing.T, env *classic.Env) {
-	// parse + macroexpansion phase
-	form := env.ParseAst(c.program)
-	// eval phase
-	rets := PackValues(env.EvalAst(form))
+func (tc *TestCase) classic(t *testing.T, env *classic.Env) {
 
-	c.compareResults(t, rets)
+	rets := PackValues(env.Eval(tc.program))
+
+	tc.compareResults(t, rets)
 }
 
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
@@ -146,7 +141,7 @@ var si = r.Zero(ti).Interface()
 
 var zeroValues = []r.Value{}
 
-var tests = []TestCase{
+var testcases = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
 	TestCase{A, "1+'A'", "1+'A'", 'B', nil}, // rune i.e. int32 should win over untyped constant (or int)
 	TestCase{A, "int8+1", "int8(1)+1", int8(1) + 1, nil},

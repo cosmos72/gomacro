@@ -58,19 +58,27 @@ func (ce *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value)
 
 func (ce *CompEnv) Parse(src string) ast2.Ast {
 	c := ce.Comp
-	return c.ParseAst(src)
+	return c.Parse(src)
 }
 
-// combined ParseAst + CompileAst
+// combined Parse + Compile
 func (ce *CompEnv) Compile(src string) func(*Env) (r.Value, []r.Value) {
 	c := ce.Comp
-	return c.CompileAst(c.ParseAst(src))
+	return c.Compile(c.Parse(src))
 }
 
-// combined ParseAst + CompileAst + Run
+func (ce *CompEnv) CompileNode(node ast.Node) func(*Env) (r.Value, []r.Value) {
+	return ce.Comp.CompileNode(node)
+}
+
+func (ce *CompEnv) CompileAst(form ast2.Ast) func(*Env) (r.Value, []r.Value) {
+	return ce.Comp.Compile(form)
+}
+
+// combined Parse + Compile + Run
 func (ce *CompEnv) Eval(src string) (r.Value, []r.Value) {
 	c := ce.Comp
-	return ce.Run(c.CompileAst(c.ParseAst(src)))
+	return ce.Run(c.Compile(c.Parse(src)))
 }
 
 // DeclConst compiles a constant declaration
@@ -89,20 +97,9 @@ func (ce *CompEnv) DeclBuiltin(name string, builtin Builtin) {
 	ce.Comp.DeclBuiltin0(name, builtin)
 }
 
-// DeclBuiltin4 compiles a builtin function declaration
-func (ce *CompEnv) DeclBuiltin4(name string, compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call, argMin uint16, argMax uint16) {
-	ce.Comp.DeclBuiltin0(name, Builtin{compile: compile, ArgMin: argMin, ArgMax: argMax})
-}
-
 // DeclEnvFunc compiles a function declaration that accesses interpreter's *CompEnv
 func (ce *CompEnv) DeclEnvFunc(name string, function Function) {
 	ce.Comp.DeclEnvFunc0(name, function)
-	ce.apply()
-}
-
-// DeclEnvFunc3 compiles a function declaration that accesses interpreter's *CompEnv
-func (ce *CompEnv) DeclEnvFunc3(name string, fun I, t r.Type) {
-	ce.Comp.DeclEnvFunc0(name, Function{Fun: fun, Type: t})
 	ce.apply()
 }
 

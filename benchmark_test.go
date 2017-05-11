@@ -85,7 +85,7 @@ var verbose = false
 	BenchmarkSumClosureMaps-8                 20000         93106 ns/op
 */
 
-// ---------------------- bubblesort ------------------------
+// ---------------------- iteration: bubblesort ------------------------
 
 func bubblesort(v []int) {
 	n := len(v)
@@ -110,7 +110,9 @@ func BenchmarkBubblesortCompiler(b *testing.B) {
 		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
 		bubblesort(v)
 	}
-	fmt.Println(v)
+	if verbose {
+		fmt.Println(v)
+	}
 }
 
 func BenchmarkBubblesortFast(b *testing.B) {
@@ -126,10 +128,30 @@ func BenchmarkBubblesortFast(b *testing.B) {
 		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
 		bubblesort(v)
 	}
-	fmt.Println(v)
+	if verbose {
+		fmt.Println(v)
+	}
 }
 
-// recursion: fibonacci. fib(n) => if (n <= 2) { return 1 } else { return fib(n-1) + fib(n-2) }
+func BenchmarkBubblesortClassic(b *testing.B) {
+	env := classic.New()
+	env.Eval(bubblesort_source_string)
+
+	// compile the call to fibonacci(fib_n)
+	bubblesort := env.ValueOf("bubblesort").Interface().(func([]int))
+	bubblesort([]int{3, 2, 1})
+
+	var v []int
+	for i := 0; i < b.N; i++ {
+		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+		bubblesort(v)
+	}
+	if verbose {
+		fmt.Println(v)
+	}
+}
+
+// ---------------------- recursion: fibonacci ----------------------
 
 func fibonacci(n int) int {
 	if n <= 2 {
@@ -151,11 +173,10 @@ func BenchmarkFibonacciCompiler(b *testing.B) {
 
 func BenchmarkFibonacciFast(b *testing.B) {
 	ce := fast.New()
-	c := ce.Comp
 	ce.Eval(fibonacci_source_string)
 
 	// compile the call to fibonacci(fib_n)
-	fun := c.CompileAst(c.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n)))
+	fun := ce.Compile(fmt.Sprintf("fibonacci(%d)", fib_n))
 	env := ce.PrepareEnv()
 	fun(env)
 
@@ -187,10 +208,10 @@ func BenchmarkFibonacciFast2(b *testing.B) {
 
 func BenchmarkFibonacciClassic(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst(fibonacci_source_string))
+	env.Eval(fibonacci_source_string)
 
 	// compile the call to fibonacci(fib_n)
-	form := env.ParseAst(fmt.Sprintf("fibonacci(%d)", fib_n))
+	form := env.Parse(fmt.Sprintf("fibonacci(%d)", fib_n))
 
 	b.ResetTimer()
 	var total int
@@ -201,7 +222,7 @@ func BenchmarkFibonacciClassic(b *testing.B) {
 
 func BenchmarkFibonacciClassic2(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst(fibonacci_source_string))
+	env.Eval(fibonacci_source_string)
 
 	// alternative: extract the function fibonacci, and call it ourselves
 	fun := env.ValueOf("fibonacci").Interface().(func(int) int)
@@ -318,7 +339,7 @@ func BenchmarkSwitchFast(b *testing.B) {
 
 func BenchmarkSwitchClassic(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst(switch_source_string))
+	env.Eval(switch_source_string)
 
 	fun := env.ValueOf("bigswitch").Interface().(func(int) int)
 	fun(bigswitch_n)
@@ -436,9 +457,9 @@ func BenchmarkArithFastCompileLoop(b *testing.B) {
 
 func BenchmarkArithClassic(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst("n:=0"))
+	env.Eval("n:=0")
 
-	form := env.ParseAst("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+	form := env.Parse("((n*2+3)&4 | 5 ^ 6) / (n|1)")
 
 	value := env.ValueOf("n")
 	var ret r.Value
@@ -458,18 +479,18 @@ func BenchmarkArithClassic(b *testing.B) {
 }
 
 func BenchmarkArithClassic2(b *testing.B) {
-	ir := classic.New()
-	ir.EvalAst(ir.ParseAst("var n, total int"))
+	env := classic.New()
+	env.Eval("var n, total int")
 
 	// interpreted code performs iteration and arithmetic
-	form := ir.ParseAst("total = 0; for i:= 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total")
+	form := env.Parse("total = 0; for i:= 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total")
 
-	value := ir.ValueOf("n")
-	ir.EvalAst(form)
+	value := env.ValueOf("n")
+	env.EvalAst(form)
 
 	b.ResetTimer()
 	value.SetInt(int64(b.N))
-	ret, _ := ir.EvalAst(form)
+	ret, _ := env.EvalAst(form)
 
 	if verbose {
 		println(ret.Int())
@@ -497,12 +518,11 @@ func BenchmarkCollatzCompiler(b *testing.B) {
 
 func BenchmarkCollatzFast(b *testing.B) {
 	ce := fast.New()
-	c := ce.Comp
 	ce.DeclVar("n", TypeOfInt, 0)
 
 	addr := ce.AddressOfVar("n").Interface().(*int)
 
-	fun := c.CompileAst(c.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }"))
+	fun := ce.Compile("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }")
 	env := ce.PrepareEnv()
 	fun(env)
 
@@ -515,10 +535,10 @@ func BenchmarkCollatzFast(b *testing.B) {
 
 func BenchmarkCollatzClassic(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst("var n int"))
+	env.EvalAst(env.Parse("var n int"))
 	n := env.ValueOf("n")
 
-	form := env.ParseAst("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }")
+	form := env.Parse("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n = n / 2 } }")
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -611,9 +631,9 @@ func BenchmarkSumFast2(b *testing.B) {
 
 func BenchmarkSumClassic(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.ParseAst("var i, n, total int"))
+	env.Eval("var i, n, total int")
 	env.ValueOf("n").SetInt(sum_n)
-	form := env.ParseAst("total = 0; for i = 1; i <= n; i++ { total += i }; total")
+	form := env.Parse("total = 0; for i = 1; i <= n; i++ { total += i }; total")
 
 	b.ResetTimer()
 	var total int

@@ -32,6 +32,14 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
+func (env *Env) Eval(src interface{}) (r.Value, []r.Value) {
+	return env.EvalAst(env.Parse(src))
+}
+
+func (env *Env) Eval1(src interface{}) r.Value {
+	return env.EvalAst1(env.Parse(src))
+}
+
 func (env *Env) EvalAst1(in Ast) r.Value {
 	value, extraValues := env.EvalAst(in)
 	if len(extraValues) > 1 {
@@ -44,7 +52,7 @@ func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
 	switch in := in.(type) {
 	case AstWithNode:
 		if in != nil {
-			return env.Eval(ToNode(in))
+			return env.EvalNode(ToNode(in))
 		}
 	case AstWithSlice:
 		if in != nil {
@@ -52,7 +60,7 @@ func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
 			var rets []r.Value
 			n := in.Size()
 			for i := 0; i < n; i++ {
-				ret, rets = env.Eval(ToNode(in.Get(i)))
+				ret, rets = env.EvalNode(ToNode(in.Get(i)))
 			}
 			return ret, rets
 		}
@@ -65,7 +73,7 @@ func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
 	return env.Errorf("EvalAst(): expecting <AstWithNode> or <AstWithSlice>, found: nil")
 }
 
-func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
+func (env *Env) EvalNode(node ast.Node) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case ast.Decl:
 		return env.evalDecl(node)
@@ -80,10 +88,47 @@ func (env *Env) Eval(node ast.Node) (r.Value, []r.Value) {
 	}
 }
 
-func (env *Env) Eval1(node ast.Node) r.Value {
-	value, extraValues := env.Eval(node)
+func (env *Env) EvalNode1(node ast.Node) r.Value {
+	value, extraValues := env.EvalNode(node)
 	if len(extraValues) > 1 {
 		env.WarnExtraValues(extraValues)
 	}
 	return value
+}
+
+func (env *Env) Parse(src interface{}) Ast {
+	var form Ast
+	switch src := src.(type) {
+	case Ast:
+		form = src
+	case ast.Node:
+		form = ToAst(src)
+	default:
+		bytes := ReadBytes(src)
+		nodes := env.ParseBytes(bytes)
+
+		if env.Options&OptShowParse != 0 {
+			env.Debugf("after parse: %v", nodes)
+		}
+
+		switch len(nodes) {
+		case 0:
+			return nil
+		case 1:
+			form = ToAst(nodes[0])
+		default:
+			form = NodeSlice{X: nodes}
+		}
+	}
+
+	// macroexpansion phase.
+	form, _ = env.MacroExpandAstCodewalk(form)
+
+	if env.Options&OptShowMacroExpand != 0 {
+		env.Debugf("after macroexpansion: %v", form.Interface())
+	}
+	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
+		env.CollectAst(form)
+	}
+	return form
 }
