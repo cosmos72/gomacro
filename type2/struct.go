@@ -33,7 +33,7 @@ import (
 // Field returns a struct type's i'th field.
 // It panics if the type's Kind is not Struct.
 // It panics if i is not in the range [0, NumField()).
-func (t Type) Field(i int) StructField {
+func (t *xtype) Field(i int) StructField {
 	if t.kind != reflect.Struct {
 		errorf("Field of non-struct type %v", t)
 	}
@@ -43,7 +43,7 @@ func (t Type) Field(i int) StructField {
 	rf := t.rtype.Field(i)
 	return StructField{
 		Name:      va.Name(),
-		Pkg:       makepackage(va.Pkg()),
+		Pkg:       (*Package)(va.Pkg()),
 		Type:      maketype(va.Type(), rf.Type),
 		Tag:       rf.Tag,
 		Offset:    rf.Offset,
@@ -52,7 +52,9 @@ func (t Type) Field(i int) StructField {
 	}
 }
 
-func (t Type) NumField() int {
+// NumField returns a struct type's field count.
+// It panics if the type's Kind is not Struct.
+func (t *xtype) NumField() int {
 	if t.kind != reflect.Struct {
 		errorf("NumField of non-struct type %v", t)
 	}
@@ -62,7 +64,7 @@ func (t Type) NumField() int {
 
 func (field *StructField) toReflectField(forceExported bool) reflect.StructField {
 	var pkgpath string
-	if pkg := field.Pkg; pkg.impl != nil && !forceExported {
+	if pkg := field.Pkg; pkg != nil && !forceExported {
 		pkgpath = pkg.Path()
 	}
 	name := field.Name
@@ -89,7 +91,7 @@ func toReflectFields(fields []StructField, forceExported bool) []reflect.StructF
 }
 
 func (field *StructField) toGoField() *types.Var {
-	return types.NewField(token.NoPos, field.Pkg.impl, field.Name, field.Type.gtype, field.Anonymous)
+	return types.NewField(token.NoPos, (*types.Package)(field.Pkg), field.Name, field.Type.GoType(), field.Anonymous)
 }
 
 func toGoFields(fields []StructField) []*types.Var {

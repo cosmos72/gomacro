@@ -253,7 +253,7 @@ func TestFromReflect3(t *testing.T) {
 
 	for depth := 0; depth <= 3; depth++ {
 		typ = FromReflectType(rtype, depth)
-		debugf("%v\t-> %v", typ, typ.rtype)
+		debugf("%v\t-> %v", typ, typ.ReflectType())
 	}
 }
 
@@ -281,6 +281,6 @@ func TestFromReflect4(t *testing.T) {
 
 	for depth := 0; depth <= 3; depth++ {
 		typ = FromReflectType(rtype, depth)
-		debugf("%v\t-> %v", typ, typ.rtype)
+		debugf("%v\t-> %v", typ, typ.ReflectType())
 	}
 }

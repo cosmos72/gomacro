@@ -31,7 +31,7 @@ import (
 
 // IsMethod reports whether a function type's contains a receiver, i.e. is a method.
 // It panics if the type's Kind is not Func.
-func (t Type) IsMethod() bool {
+func (t *xtype) IsMethod() bool {
 	if t.Kind() != reflect.Func {
 		errorf("IsMethod of non-func type %v", t)
 	}
@@ -39,11 +39,10 @@ func (t Type) IsMethod() bool {
 	return gtype.Recv() != nil
 }
 
-// IsVariadic reports whether a function type's final input parameter
-// is a "..." parameter. If so, t.In(t.NumIn() - 1) returns the parameter's
-// implicit actual type []T.
+// IsVariadic reports whether a function type's final input parameter is a "..." parameter.
+// If so, t.In(t.NumIn() - 1) returns the parameter's implicit actual type []T.
 // IsVariadic panics if the type's Kind is not Func.
-func (t Type) IsVariadic() bool {
+func (t *xtype) IsVariadic() bool {
 	if t.Kind() != reflect.Func {
 		errorf("In of non-func type %v", t)
 	}
@@ -53,7 +52,7 @@ func (t Type) IsVariadic() bool {
 // In returns the type of a function type's i'th input parameter.
 // It panics if the type's Kind is not Func.
 // It panics if i is not in the range [0, NumIn()).
-func (t Type) In(i int) Type {
+func (t *xtype) In(i int) Type {
 	if t.Kind() != reflect.Func {
 		errorf("In of non-func type %v", t)
 	}
@@ -67,7 +66,7 @@ func (t Type) In(i int) Type {
 
 // NumIn returns a function type's input parameter count.
 // It panics if the type's Kind is not Func.
-func (t Type) NumIn() int {
+func (t *xtype) NumIn() int {
 	if t.Kind() != reflect.Func {
 		errorf("NumIn of non-func type %v", t)
 	}
@@ -77,7 +76,7 @@ func (t Type) NumIn() int {
 
 // NumOut returns a function type's output parameter count.
 // It panics if the type's Kind is not Func.
-func (t Type) NumOut() int {
+func (t *xtype) NumOut() int {
 	if t.Kind() != reflect.Func {
 		errorf("NumOut of non-func type %v", t)
 	}
@@ -88,7 +87,7 @@ func (t Type) NumOut() int {
 // Out returns the type of a function type's i'th output parameter.
 // It panics if the type's Kind is not Func.
 // It panics if i is not in the range [0, NumOut()).
-func (t Type) Out(i int) Type {
+func (t *xtype) Out(i int) Type {
 	if t.Kind() != reflect.Func {
 		errorf("Out of non-func type %v", t)
 	}
@@ -99,21 +98,21 @@ func (t Type) Out(i int) Type {
 
 // Recv returns the type of a method type's receiver parameter.
 // It panics if the type's Kind is not Func.
-// It returns Type{} if t has no receiver.
-func (t Type) Recv() Type {
+// It returns nil if t has no receiver.
+func (t *xtype) Recv() Type {
 	if t.Kind() != reflect.Func {
 		errorf("Recv of non-func type %v", t)
 	}
 	gtype := t.underlying().(*types.Signature)
 	va := gtype.Recv()
 	if va == nil {
-		return Type{}
+		return nil
 	}
 	return maketype(va.Type(), t.rtype.In(0))
 }
 
 func FuncOf(in []Type, out []Type, variadic bool) Type {
-	return MethodOf(Type{}, in, out, variadic)
+	return MethodOf(nil, in, out, variadic)
 }
 
 func MethodOf(recv Type, in []Type, out []Type, variadic bool) Type {
@@ -122,8 +121,8 @@ func MethodOf(recv Type, in []Type, out []Type, variadic bool) Type {
 	rin := toReflectTypes(in)
 	rout := toReflectTypes(out)
 	var grecv *types.Var
-	if recv.timpl != nil {
-		rin = append([]reflect.Type{recv.rtype}, rin...)
+	if recv != nil {
+		rin = append([]reflect.Type{recv.ReflectType()}, rin...)
 		grecv = toGoParam(recv)
 	}
 	return maketype(

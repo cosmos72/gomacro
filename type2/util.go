@@ -125,13 +125,13 @@ func dirToGdir(dir reflect.ChanDir) types.ChanDir {
 func toReflectTypes(ts []Type) []reflect.Type {
 	rts := make([]reflect.Type, len(ts))
 	for i, t := range ts {
-		rts[i] = t.rtype
+		rts[i] = t.ReflectType()
 	}
 	return rts
 }
 
 func toGoParam(t Type) *types.Var {
-	return types.NewParam(token.NoPos, (*types.Package)(nil), "", t.gtype)
+	return types.NewParam(token.NoPos, nil, "", t.GoType())
 }
 
 func toGoParams(ts []Type) []*types.Var {

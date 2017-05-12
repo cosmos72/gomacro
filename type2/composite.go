@@ -32,7 +32,7 @@ import (
 
 // ChanDir returns a channel type's direction.
 // It panics if the type's Kind is not Chan.
-func (t Type) ChanDir() reflect.ChanDir {
+func (t *xtype) ChanDir() reflect.ChanDir {
 	if t.Kind() != reflect.Chan {
 		errorf("ChanDir of non-chan type %v", t)
 	}
@@ -41,7 +41,7 @@ func (t Type) ChanDir() reflect.ChanDir {
 
 // Elem returns a type's element type.
 // It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
-func (t Type) Elem() Type {
+func (t *xtype) Elem() Type {
 	gtype := t.underlying()
 	rtype := t.rtype
 	switch gtype := gtype.(type) {
@@ -57,13 +57,13 @@ func (t Type) Elem() Type {
 		return maketype(gtype.Elem(), rtype.Elem())
 	default:
 		errorf("Elem of invalid type %v", t)
-		return Type{}
+		return nil
 	}
 }
 
 // Key returns a map type's key type.
 // It panics if the type's Kind is not Map.
-func (t Type) Key() Type {
+func (t *xtype) Key() Type {
 	if t.Kind() != reflect.Map {
 		errorf("Key of non-map type %v", t)
 	}
@@ -73,7 +73,7 @@ func (t Type) Key() Type {
 
 // Len returns an array type's length.
 // It panics if the type's Kind is not Array.
-func (t Type) Len() int {
+func (t *xtype) Len() int {
 	if t.Kind() != reflect.Func {
 		errorf("Len of non-array type %v", t)
 	}
@@ -82,31 +82,31 @@ func (t Type) Len() int {
 
 func ArrayOf(count int, elem Type) Type {
 	return maketype(
-		types.NewArray(elem.gtype, int64(count)),
-		reflect.ArrayOf(count, elem.rtype))
+		types.NewArray(elem.GoType(), int64(count)),
+		reflect.ArrayOf(count, elem.ReflectType()))
 }
 
 func ChanOf(dir reflect.ChanDir, elem Type) Type {
 	gdir := dirToGdir(dir)
 	return maketype(
-		types.NewChan(gdir, elem.gtype),
-		reflect.ChanOf(dir, elem.rtype))
+		types.NewChan(gdir, elem.GoType()),
+		reflect.ChanOf(dir, elem.ReflectType()))
 }
 
 func MapOf(key, elem Type) Type {
 	return maketype(
-		types.NewMap(key.gtype, elem.gtype),
-		reflect.MapOf(key.rtype, elem.rtype))
+		types.NewMap(key.GoType(), elem.GoType()),
+		reflect.MapOf(key.ReflectType(), elem.ReflectType()))
 }
 
 // AddMethod adds method 'name' to type, unless it is already in the method list.
 // It panics if the type is unnamed, or if the signature is not a function type.
-func (t Type) AddMethod(name string, signature Type) {
+func (t *xtype) AddMethod(name string, signature Type) {
 	gtype, ok := t.gtype.(*types.Named)
 	if !ok {
 		errorf("AddMethod on unnamed type %v", t)
 	}
-	if signature.kind != reflect.Func {
+	if signature.Kind() != reflect.Func {
 		errorf("AddMethod of non-func signature: %v", signature)
 	}
 	gsig := signature.underlying().(*types.Signature)
@@ -116,12 +116,12 @@ func (t Type) AddMethod(name string, signature Type) {
 
 func PtrTo(elem Type) Type {
 	return maketype(
-		types.NewPointer(elem.gtype),
-		reflect.PtrTo(elem.rtype))
+		types.NewPointer(elem.GoType()),
+		reflect.PtrTo(elem.ReflectType()))
 }
 
 func SliceOf(elem Type) Type {
 	return maketype(
-		types.NewSlice(elem.gtype),
-		reflect.SliceOf(elem.rtype))
+		types.NewSlice(elem.GoType()),
+		reflect.SliceOf(elem.ReflectType()))
 }

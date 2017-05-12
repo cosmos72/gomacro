@@ -31,8 +31,8 @@ import (
 )
 
 // NumExplicitMethods returns the number of explicitly declared methods of named type or interface t.
-// Wrapper methods for embedded fields are not counted - use NumMethods() to include them.
-func (t Type) NumExplicitMethods() int {
+// Wrapper methods for embedded fields or embedded interfaces are not counted - use NumMethods() to include them.
+func (t *xtype) NumExplicitMethods() int {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		return gtype.NumMethods()
@@ -43,7 +43,9 @@ func (t Type) NumExplicitMethods() int {
 	}
 }
 
-func (t Type) ExplicitMethod(i int) Method {
+// ExplicitMethod return the i-th explicitly declared method of named type or interface t.
+// Wrapper methods for embedded fields are not counted - use Method() to get them.
+func (t *xtype) ExplicitMethod(i int) Method {
 	var gfun *types.Func
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
@@ -60,7 +62,7 @@ func (t Type) ExplicitMethod(i int) Method {
 func makemethod(index int, gfun *types.Func, rmethod *reflect.Method) Method {
 	return Method{
 		Name:  gfun.Name(),
-		Pkg:   makepackage(gfun.Pkg()),
+		Pkg:   (*Package)(gfun.Pkg()),
 		Type:  maketype(gfun.Type(), rmethod.Type),
 		Func:  rmethod.Func,
 		Index: index,
@@ -71,29 +73,33 @@ func makemethod(index int, gfun *types.Func, rmethod *reflect.Method) Method {
 // Initially, the underlying type is set to interface{} - use SetUnderlying to change it.
 // These two steps are separate to allow creating self-referencing types,
 // as for example type List struct { Elem int; Rest *List }
-func NamedOf(name string, pkg Package) Type {
+func NamedOf(name string, pkg *Package) Type {
+	return namedOf(name, pkg)
+}
+
+func namedOf(name string, pkg *Package) *xtype {
 	underlying := TypeOfInterface
-	typename := types.NewTypeName(token.NoPos, pkg.impl, name, underlying.gtype)
-	return Type{
-		&timpl{
-			kind:  reflect.Invalid, // incomplete type! will be fixed by SetUnderlying
-			gtype: types.NewNamed(typename, underlying.gtype, nil),
-			rtype: underlying.rtype,
-		},
+	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.gtype)
+	return &xtype{
+		kind:  reflect.Invalid, // incomplete type! will be fixed by SetUnderlying
+		gtype: types.NewNamed(typename, underlying.gtype, nil),
+		rtype: underlying.rtype,
 	}
 }
 
 // SetUnderlying sets the underlying type of a named type and marks t as complete.
-// It panics if the type is unnamed, or if the underlying type is named.
-func (t Type) SetUnderlying(underlying Type) {
+// It panics if the type is unnamed, or if the underlying type is named,
+// or if SetUnderlying() was already invoked on the named type.
+func (t *xtype) SetUnderlying(underlying Type) {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		if t.kind != reflect.Invalid || gtype.Underlying() != TypeOfInterface.gtype || t.rtype != TypeOfInterface.rtype {
 			errorf("SetUnderlying invoked multiple times on named type %v", t)
 		}
-		t.kind = gtypeToKind(underlying.gtype)
-		gtype.SetUnderlying(underlying.gtype)
-		t.rtype = underlying.rtype
+		gunderlying := underlying.GoType()
+		t.kind = gtypeToKind(gunderlying)
+		gtype.SetUnderlying(gunderlying)
+		t.rtype = underlying.ReflectType()
 	default:
 		errorf("SetUnderlying of unnamed type %v", t)
 	}

@@ -110,6 +110,6 @@ var (
 // Bits returns the size of the type in bits.
 // It panics if the type's Kind is not one of the
 // sized or unsized Int, Uint, Float, or Complex kinds.
-func (t Type) Bits() int {
+func (t *xtype) Bits() int {
 	return t.rtype.Bits()
 }

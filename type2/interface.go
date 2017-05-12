@@ -46,7 +46,7 @@ func toGoFuncs(names []string, methods []Type) []*types.Func {
 func toGoNamedTypes(ts []Type) []*types.Named {
 	gnameds := make([]*types.Named, len(ts))
 	for i, t := range ts {
-		switch gt := t.gtype.(type) {
+		switch gt := t.GoType().(type) {
 		case *types.Named:
 			gnameds[i] = gt
 		default:
@@ -84,11 +84,11 @@ func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	)
 }
 
-// Complete marks an interface as complete and computes wrapper methods for embedded fields.
+// Complete marks an interface type as complete and computes wrapper methods for embedded fields.
 // It must be called by users of InterfaceOf after the interface's embedded types are fully defined
 // and before using the interface type in any way other than to form other types.
 // Complete returns the receiver.
-func (t Type) Complete() Type {
+func (t *xtype) Complete() Type {
 	if t.kind != reflect.Interface {
 		errorf("Complete of non-interface %v", t)
 	}

@@ -29,46 +29,35 @@ import (
 	"strings"
 )
 
-func (pkg Package) Name() string {
-	if pkg.impl == nil {
-		return ""
-	}
-	return pkg.impl.Name()
-}
-
-func (pkg Package) Path() string {
-	if pkg.impl == nil {
-		return ""
-	}
-	return pkg.impl.Path()
-}
-
-func (pkg Package) String() string {
-	if pkg.impl == nil {
-		return ""
-	}
-	return pkg.impl.Name()
-}
-
-func NewPackage(path, name string) Package {
+func newPackage(path, name string) *types.Package {
 	if len(path) == 0 {
 		// do not create unnamed packages
-		return Package{}
+		return nil
 	}
 	if len(name) == 0 {
 		name = path[1+strings.LastIndexByte(path, '/'):]
 	}
-	return Package{
-		impl: types.NewPackage(path, name),
-	}
+	return types.NewPackage(path, name)
 }
 
-func (pkg Package) GoPackage() *types.Package {
-	return pkg.impl
+func NewPackage(path, name string) *Package {
+	return (*Package)(newPackage(path, name))
 }
 
-func makepackage(gpkg *types.Package) Package {
-	return Package{
-		impl: gpkg,
+func (pkg *Package) GoPackage() *types.Package {
+	return (*types.Package)(pkg)
+}
+
+func (pkg *Package) Name() string {
+	if pkg == nil {
+		return ""
 	}
+	return (*types.Package)(pkg).Name()
+}
+
+func (pkg *Package) Path() string {
+	if pkg == nil {
+		return ""
+	}
+	return (*types.Package)(pkg).Path()
 }

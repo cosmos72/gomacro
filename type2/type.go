@@ -29,13 +29,13 @@ import (
 	"reflect"
 )
 
-func maketype(gtype types.Type, rtype reflect.Type) Type {
+func maketype(gtype types.Type, rtype reflect.Type) *xtype {
 	kind := gtypeToKind(gtype)
-	return Type{&timpl{kind, gtype, rtype}}
+	return &xtype{kind, gtype, rtype}
 }
 
 // GoType returns the go/types.Type corresponding to the type.
-func (t Type) GoType() types.Type {
+func (t *xtype) GoType() types.Type {
 	return t.gtype
 }
 
@@ -57,13 +57,13 @@ func (t Type) GoType() types.Type {
 //        struct { Elem int; Rest interface{} }
 //    i.e. the type name will be missing due to limitation 1 above,
 //    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
-func (t Type) ReflectType() reflect.Type {
+func (t *xtype) ReflectType() reflect.Type {
 	return t.rtype
 }
 
 // Named returns whether the type is named.
 // It returns false for unnamed types.
-func (t Type) Named() bool {
+func (t *xtype) Named() bool {
 	switch t.gtype.(type) {
 	case *types.Basic, *types.Named:
 		return true
@@ -74,7 +74,7 @@ func (t Type) Named() bool {
 
 // Name returns the type's name within its package.
 // It returns an empty string for unnamed types.
-func (t Type) Name() string {
+func (t *xtype) Name() string {
 	switch gtype := t.gtype.(type) {
 	case *types.Basic:
 		return gtype.Name()
@@ -85,11 +85,23 @@ func (t Type) Name() string {
 	}
 }
 
+// Pkg returns a named type's package, that is, the package where it was defined.
+// If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
+// Pkg will return nil.
+func (t *xtype) Pkg() *Package {
+	switch gtype := t.gtype.(type) {
+	case *types.Named:
+		return (*Package)(gtype.Obj().Pkg())
+	default:
+		return nil
+	}
+}
+
 // PkgName returns a named type's package name, that is,
 // the default name that the package provides when imported.
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // the package name will be the empty string.
-func (t Type) PkgName() string {
+func (t *xtype) PkgName() string {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		return gtype.Obj().Pkg().Name()
@@ -102,7 +114,7 @@ func (t Type) PkgName() string {
 // that uniquely identifies the package, such as "encoding/base64".
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // the package path will be the empty string.
-func (t Type) PkgPath() string {
+func (t *xtype) PkgPath() string {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		return gtype.Obj().Pkg().Path()
@@ -113,13 +125,13 @@ func (t Type) PkgPath() string {
 
 // Size returns the number of bytes needed to store
 // a value of the given type; it is analogous to unsafe.Sizeof.
-func (t Type) Size() uintptr {
+func (t *xtype) Size() uintptr {
 	return t.rtype.Size()
 }
 
 // String returns a string representation of a type.
-func (t Type) String() string {
-	if t.timpl == nil {
+func (t *xtype) String() string {
+	if t == nil {
 		return "invalid type"
 	}
 	return t.gtype.String()
@@ -127,18 +139,18 @@ func (t Type) String() string {
 
 /*
 // Underlying returns the underlying type of a type.
-func (t Type) Underlying() Type {
+func (t *xtype) Underlying() Type {
 	return Type{t.underlying}
 }
 */
 
-func (t Type) underlying() types.Type {
+func (t *xtype) underlying() types.Type {
 	return t.gtype.Underlying()
 }
 
-// Kind returns the specific kind of this type.
-func (t Type) Kind() reflect.Kind {
-	if t.timpl == nil {
+// Kind returns the specific kind of the type.
+func (t *xtype) Kind() reflect.Kind {
+	if t == nil {
 		return reflect.Invalid
 	}
 	return t.kind
@@ -146,24 +158,24 @@ func (t Type) Kind() reflect.Kind {
 
 // Implements reports whether the type implements the interface type u.
 // It panics if u's Kind is not Interface
-func (t Type) Implements(u Type) bool {
+func (t *xtype) Implements(u Type) bool {
 	if u.Kind() != reflect.Interface {
 		panic("type2: non-interface type passed to Type.Implements")
 	}
-	return types.Implements(t.gtype, u.gtype.(*types.Interface))
+	return types.Implements(t.gtype, u.GoType().(*types.Interface))
 }
 
 // AssignableTo reports whether a value of the type is assignable to type u.
-func (t Type) AssignableTo(u Type) bool {
-	return types.AssignableTo(t.gtype, u.gtype)
+func (t *xtype) AssignableTo(u Type) bool {
+	return types.AssignableTo(t.gtype, u.GoType())
 }
 
 // ConvertibleTo reports whether a value of the type is convertible to type u.
-func (t Type) ConvertibleTo(u Type) bool {
-	return types.ConvertibleTo(t.gtype, u.gtype)
+func (t *xtype) ConvertibleTo(u Type) bool {
+	return types.ConvertibleTo(t.gtype, u.GoType())
 }
 
 // Comparable reports whether values of this type are comparable.
-func (t Type) Comparable() bool {
+func (t *xtype) Comparable() bool {
 	return types.Comparable(t.gtype)
 }

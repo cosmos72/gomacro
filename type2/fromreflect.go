@@ -41,15 +41,19 @@ const (
 // because of the reasons listed in Type.ReflectType()
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
 func FromReflectType(rtype reflect.Type, rebuildDepth int) Type {
-	var t Type
+	return fromReflectType(rtype, rebuildDepth)
+}
+
+func fromReflectType(rtype reflect.Type, rebuildDepth int) *xtype {
+	var t *xtype
 	rebuildDepth-- // decrement ONLY here and in fromReflectPtr() when calling fromReflectInterfaceStruct()
 	switch k := rtype.Kind(); k {
 	case reflect.Invalid:
-		return Type{}
+		return nil
 	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
 		reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String:
-		t = BasicTypes[k]
+		t = BasicTypes[k].(*xtype)
 	case reflect.Array:
 		t = fromReflectArray(rtype, rebuildDepth)
 	case reflect.Chan:
@@ -73,7 +77,7 @@ func FromReflectType(rtype reflect.Type, rebuildDepth int) Type {
 	return finish(t, rtype, rebuildDepth)
 }
 
-func finish(t Type, rtype reflect.Type, rebuildDepth int) Type {
+func finish(t *xtype, rtype reflect.Type, rebuildDepth int) *xtype {
 	name := rtype.Name()
 	pkgpath := rtype.PkgPath()
 	if pkgpath == t.PkgPath() && name == t.Name() {
@@ -84,12 +88,12 @@ func finish(t Type, rtype reflect.Type, rebuildDepth int) Type {
 		return underlying
 	}
 	pkg := NewPackage(pkgpath, "")
-	t = NamedOf(name, pkg)
+	t = namedOf(name, pkg)
 	t.SetUnderlying(underlying)
 	return addmethods(t, rtype, rebuildDepth)
 }
 
-func addmethods(t Type, rtype reflect.Type, rebuildDepth int) Type {
+func addmethods(t *xtype, rtype reflect.Type, rebuildDepth int) *xtype {
 	n := rtype.NumMethod()
 	if n == 0 {
 		return t
@@ -106,7 +110,7 @@ func addmethods(t Type, rtype reflect.Type, rebuildDepth int) Type {
 }
 
 func fromReflectField(rfield *reflect.StructField, rebuildDepth int) StructField {
-	t := FromReflectType(rfield.Type, rebuildDepth)
+	t := fromReflectType(rfield.Type, rebuildDepth)
 	name := rfield.Name
 	anonymous := rfield.Anonymous
 
@@ -148,9 +152,9 @@ func fromReflectFields(rfields []reflect.StructField, rebuildDepth int) []Struct
 }
 
 // named creates a new named Type based on t, having the given name and pkgpath
-func named(t Type, name string, pkgpath string) Type {
+func named(t *xtype, name string, pkgpath string) *xtype {
 	if t.Name() != name || t.PkgPath() != pkgpath {
-		t2 := NamedOf(name, NewPackage(pkgpath, ""))
+		t2 := namedOf(name, NewPackage(pkgpath, ""))
 		t2.SetUnderlying(maketype(t.underlying(), t.rtype))
 		t = t2
 	}
@@ -158,36 +162,36 @@ func named(t Type, name string, pkgpath string) Type {
 }
 
 // fromReflectArray converts a reflect.Type with Kind reflect.Array into a Type
-func fromReflectArray(rtype reflect.Type, rebuildDepth int) Type {
+func fromReflectArray(rtype reflect.Type, rebuildDepth int) *xtype {
 	count := rtype.Len()
 	elem := FromReflectType(rtype.Elem(), rebuildDepth)
 	if rebuildDepth >= 0 {
-		rtype = reflect.ArrayOf(count, elem.rtype)
+		rtype = reflect.ArrayOf(count, elem.ReflectType())
 	}
-	return maketype(types.NewArray(elem.gtype, int64(count)), rtype)
+	return maketype(types.NewArray(elem.GoType(), int64(count)), rtype)
 }
 
 // fromReflectChan converts a reflect.Type with Kind reflect.Chan into a Type
-func fromReflectChan(rtype reflect.Type, rebuildDepth int) Type {
+func fromReflectChan(rtype reflect.Type, rebuildDepth int) *xtype {
 	dir := rtype.ChanDir()
 	elem := FromReflectType(rtype.Elem(), rebuildDepth)
 	if rebuildDepth >= 0 {
-		rtype = reflect.ChanOf(dir, elem.rtype)
+		rtype = reflect.ChanOf(dir, elem.ReflectType())
 	}
 	gdir := dirToGdir(dir)
-	return maketype(types.NewChan(gdir, elem.gtype), rtype)
+	return maketype(types.NewChan(gdir, elem.GoType()), rtype)
 }
 
 // fromReflectFunc converts a reflect.Type with Kind reflect.Func into a Type
-func fromReflectFunc(rtype reflect.Type, rebuildDepth int) Type {
+func fromReflectFunc(rtype reflect.Type, rebuildDepth int) *xtype {
 	nin, nout := rtype.NumIn(), rtype.NumOut()
 	in := make([]Type, nin)
 	out := make([]Type, nout)
 	for i := 0; i < nin; i++ {
-		in[i] = FromReflectType(rtype.In(i), rebuildDepth)
+		in[i] = fromReflectType(rtype.In(i), rebuildDepth)
 	}
 	for i := 0; i < nout; i++ {
-		out[i] = FromReflectType(rtype.Out(i), rebuildDepth)
+		out[i] = fromReflectType(rtype.Out(i), rebuildDepth)
 	}
 	gin := toGoTuple(in)
 	gout := toGoTuple(out)
@@ -205,16 +209,21 @@ func fromReflectFunc(rtype reflect.Type, rebuildDepth int) Type {
 }
 
 // fromReflectInterface converts a reflect.Type with Kind reflect.Interface into a Type
-func fromReflectInterface(rtype reflect.Type, rebuildDepth int) Type {
-	if rtype == TypeOfInterface.rtype {
+func fromReflectInterface(rtype reflect.Type, rebuildDepth int) *xtype {
+	if rtype == TypeOfInterface.ReflectType() {
 		return TypeOfInterface
 	}
 	n := rtype.NumMethod()
 	gmethods := make([]*types.Func, n)
+	pkgs := make(map[string]*types.Package)
 	for i := 0; i < n; i++ {
 		rmethod := rtype.Method(i)
 		method := fromReflectFunc(rmethod.Type, rebuildDepth)
-		gmethods[i] = types.NewFunc(token.NoPos, NewPackage(rmethod.PkgPath, "").impl, rmethod.Name, method.gtype.(*types.Signature))
+		pkg := pkgs[rmethod.PkgPath]
+		if pkg == nil {
+			pkg = (*types.Package)(NewPackage(rmethod.PkgPath, ""))
+		}
+		gmethods[i] = types.NewFunc(token.NoPos, pkg, rmethod.Name, method.GoType().(*types.Signature))
 	}
 	// no way to extract embedded interfaces from reflect.Type
 	if rebuildDepth >= 0 {
@@ -224,7 +233,7 @@ func fromReflectInterface(rtype reflect.Type, rebuildDepth int) Type {
 			rmethod := rtype.Method(i)
 			rmethodtype := rmethod.Type
 			if rebuildDepth >= 1 {
-				rmethodtype = FromReflectType(rmethod.Type, rebuildDepth).rtype
+				rmethodtype = FromReflectType(rmethod.Type, rebuildDepth).ReflectType()
 			}
 			rfields[i+1] = approxInterfaceMethod(rmethod.Name, rmethodtype)
 		}
@@ -249,7 +258,7 @@ func isReflectInterfaceStruct(rtype reflect.Type) bool {
 
 // fromReflectInterfaceStruct converts a reflect.Type with Kind reflect.Struct,
 // that contains our own conventions to emulate an interface, into a Type
-func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
+func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) *xtype {
 	rebuild := rebuildDepth >= 0
 	n := rtype.NumField()
 	// skip rtype.Field(0), it is just approxInterfaceSelf()
@@ -260,19 +269,20 @@ func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
 		rebuildfields = make([]reflect.StructField, n)
 		rebuildfields[0] = approxInterfaceHeader()
 	}
+	pkgs := make(map[string]*types.Package)
 	for i := 1; i < n; i++ {
 		rfield := rtype.Field(i)
 		name := rfield.Name
 		if strings.HasPrefix(name, StrGensymEmbedded) {
 			typename := name[len(StrGensymEmbedded):]
-			t := FromReflectType(rfield.Type, rebuildDepth)
+			t := fromReflectType(rfield.Type, rebuildDepth)
 			if t.Kind() != reflect.Interface {
 				errorf("FromReflectType: reflect.Type <%v> is an emulated interface containing the embedded interface <%v>.\n\tExtracting the latter returned a non-interface: %v", t)
 			}
 			t = named(t, typename, rfield.Type.PkgPath())
-			gembeddeds = append(gembeddeds, t.gtype.(*types.Named))
+			gembeddeds = append(gembeddeds, t.GoType().(*types.Named))
 			if rebuild {
-				rebuildfields[i] = approxInterfaceEmbedded(typename, t.rtype)
+				rebuildfields[i] = approxInterfaceEmbedded(typename, t.ReflectType())
 			}
 		} else {
 			if strings.HasPrefix(name, StrGensymPrivate) {
@@ -282,9 +292,13 @@ func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
 			if t.Kind() != reflect.Func {
 				errorf("FromReflectType: reflect.Type <%v> is an emulated interface containing the method <%v>.\n\tExtracting the latter returned a non-function: %v", t)
 			}
-			gmethods = append(gmethods, types.NewFunc(token.NoPos, NewPackage(rfield.PkgPath, "").impl, name, t.gtype.(*types.Signature)))
+			pkg := pkgs[rfield.PkgPath]
+			if pkg == nil {
+				pkg = newPackage(rfield.PkgPath, "")
+			}
+			gmethods = append(gmethods, types.NewFunc(token.NoPos, pkg, name, t.gtype.(*types.Signature)))
 			if rebuild {
-				rebuildfields[i] = approxInterfaceMethod(name, t.rtype)
+				rebuildfields[i] = approxInterfaceMethod(name, t.ReflectType())
 			}
 		}
 	}
@@ -295,26 +309,26 @@ func fromReflectInterfaceStruct(rtype reflect.Type, rebuildDepth int) Type {
 }
 
 // fromReflectMap converts a reflect.Type with Kind reflect.map into a Type
-func fromReflectMap(rtype reflect.Type, rebuildDepth int) Type {
+func fromReflectMap(rtype reflect.Type, rebuildDepth int) *xtype {
 	key := FromReflectType(rtype.Key(), rebuildDepth)
 	elem := FromReflectType(rtype.Elem(), rebuildDepth)
 	if rebuildDepth >= 0 {
-		rtype = reflect.MapOf(key.rtype, elem.rtype)
+		rtype = reflect.MapOf(key.ReflectType(), elem.ReflectType())
 	}
-	return maketype(types.NewMap(key.gtype, elem.gtype), rtype)
+	return maketype(types.NewMap(key.GoType(), elem.GoType()), rtype)
 }
 
 // fromReflectPtr converts a reflect.Type with Kind reflect.Ptr into a Type
-func fromReflectPtr(rtype reflect.Type, rebuildDepth int) Type {
+func fromReflectPtr(rtype reflect.Type, rebuildDepth int) *xtype {
 	relem := rtype.Elem()
-	var elem Type
+	var elem *xtype
 	var gtype types.Type
 	if isReflectInterfaceStruct(relem) {
 		elem = fromReflectInterfaceStruct(relem, rebuildDepth-1)
-		gtype = elem.gtype
+		gtype = elem.GoType()
 	} else {
-		elem = FromReflectType(relem, rebuildDepth)
-		gtype = types.NewPointer(elem.gtype)
+		elem = fromReflectType(relem, rebuildDepth)
+		gtype = types.NewPointer(elem.GoType())
 	}
 	if rebuildDepth >= 0 {
 		rtype = reflect.PtrTo(elem.rtype)
@@ -323,8 +337,8 @@ func fromReflectPtr(rtype reflect.Type, rebuildDepth int) Type {
 }
 
 // fromReflectPtr converts a reflect.Type with Kind reflect.Slice into a Type
-func fromReflectSlice(rtype reflect.Type, rebuildDepth int) Type {
-	elem := FromReflectType(rtype.Elem(), rebuildDepth)
+func fromReflectSlice(rtype reflect.Type, rebuildDepth int) *xtype {
+	elem := fromReflectType(rtype.Elem(), rebuildDepth)
 	if rebuildDepth >= 0 {
 		rtype = reflect.SliceOf(elem.rtype)
 	}
@@ -332,7 +346,7 @@ func fromReflectSlice(rtype reflect.Type, rebuildDepth int) Type {
 }
 
 // fromReflectStruct converts a reflect.Type with Kind reflect.Struct into a Type
-func fromReflectStruct(rtype reflect.Type, rebuildDepth int) Type {
+func fromReflectStruct(rtype reflect.Type, rebuildDepth int) *xtype {
 	n := rtype.NumField()
 	fields := make([]StructField, n)
 	for i := 0; i < n; i++ {
