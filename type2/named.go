@@ -32,20 +32,21 @@ import (
 
 // NumExplicitMethods returns the number of explicitly declared methods of named type or interface t.
 // Wrapper methods for embedded fields or embedded interfaces are not counted - use NumMethods() to include them.
-func (t *xtype) NumExplicitMethods() int {
+func (t *xtype) NumMethods() int {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		return gtype.NumMethods()
 	case *types.Interface:
 		return gtype.NumExplicitMethods()
 	default:
+		errorf("NumExplicitMethods on invalid type %v", t)
 		return 0
 	}
 }
 
 // ExplicitMethod return the i-th explicitly declared method of named type or interface t.
 // Wrapper methods for embedded fields are not counted - use Method() to get them.
-func (t *xtype) ExplicitMethod(i int) Method {
+func (t *xtype) Method(i int) Method {
 	var gfun *types.Func
 	switch gtype := t.gtype.(type) {
 	case *types.Named:

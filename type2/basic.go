@@ -113,3 +113,15 @@ var (
 func (t *xtype) Bits() int {
 	return t.rtype.Bits()
 }
+
+// Align returns the alignment in bytes of a value of
+// this type when allocated in memory.
+func (t *xtype) Align() int {
+	return t.rtype.Align()
+}
+
+// FieldAlign returns the alignment in bytes of a value of
+// this type when used as a field in a struct.
+func (t *xtype) FieldAlign() int {
+	return t.rtype.FieldAlign()
+}

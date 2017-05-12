@@ -179,3 +179,8 @@ func (t *xtype) ConvertibleTo(u Type) bool {
 func (t *xtype) Comparable() bool {
 	return types.Comparable(t.gtype)
 }
+
+// Zero returns a Value representing the zero value for the specified type.
+func Zero(t Type) reflect.Value {
+	return reflect.Zero(t.ReflectType())
+}

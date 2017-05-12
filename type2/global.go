@@ -70,6 +70,12 @@ type xtype struct {
 }
 
 type Type interface {
+	// Align returns the alignment in bytes of a value of
+	// this type when allocated in memory.
+	Align() int
+	// FieldAlign returns the alignment in bytes of a value of
+	// this type when used as a field in a struct.
+	FieldAlign() int
 	// AssignableTo reports whether a value of the type is assignable to type u.
 	AssignableTo(u Type) bool
 	// ConvertibleTo reports whether a value of the type is convertible to type u.
@@ -144,10 +150,6 @@ type Type interface {
 	// Elem returns a type's element type.
 	// It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
 	Elem() Type
-	// ExplicitMethod return the i-th explicitly declared method of named type or interface t.
-	// Wrapper methods for embedded fields or embedded interfaces are not returned - use Method() to get them.
-	// It panics if the type is unnamed, or if the type's Kind is not Interface
-	ExplicitMethod(i int) Method
 	// Field returns a struct type's i-th field.
 	// It panics if the type's Kind is not Struct.
 	// It panics if i is not in the range [0, NumField()).
@@ -171,9 +173,13 @@ type Type interface {
 	// It panics if the type's Kind is not Func.
 	// It panics if i is not in the range [0, NumIn()).
 	In(i int) Type
-	// NumExplicitMethods returns the number of explicitly declared methods of named type or interface t.
-	// Wrapper methods for embedded fields or embedded interfaces are not counted - use NumMethods() to include them.
-	NumExplicitMethods() int
+	// Method return the i-th explicitly declared method of named type or interface t.
+	// Wrapper methods for embedded fields or embedded interfaces are not returned.
+	// It panics if the type is unnamed, or if the type's Kind is not Interface
+	Method(i int) Method
+	// NumMethods returns the number of explicitly declared methods of named type or interface t.
+	// Wrapper methods for embedded fields or embedded interfaces are not counted.
+	NumMethods() int
 	// NumField returns a struct type's field count.
 	// It panics if the type's Kind is not Struct.
 	NumField() int

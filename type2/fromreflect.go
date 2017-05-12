@@ -36,6 +36,14 @@ const (
 	RebuildReflectType1 = 1
 )
 
+// TypeOf creates a Type corresponding to reflect.TypeOf() of given value.
+// Note: conversions from Type to reflect.Type and back are not exact,
+// because of the reasons listed in Type.ReflectType()
+// Conversions from reflect.Type to Type and back are not exact for the same reasons.
+func TypeOf(rvalue interface{}) Type {
+	return fromReflectType(reflect.TypeOf(rvalue), 0)
+}
+
 // FromReflectType creates a Type corresponding to given reflect.Type
 // Note: conversions from Type to reflect.Type and back are not exact,
 // because of the reasons listed in Type.ReflectType()
