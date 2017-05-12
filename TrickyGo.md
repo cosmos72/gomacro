@@ -2,12 +2,18 @@ A collection of tricky go code
 
 ```
 // change the meaning of true
-true := false
+const true = false
 println(true)
 ```
 
 ```
 // change the meaning of uint
+type uint int
+println(uint(1))
+```
+
+```
+// change the meaning of uint (again)
 func uint(x int) int { return x + 7 }
 println(uint(1))
 ```

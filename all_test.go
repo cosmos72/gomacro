@@ -93,8 +93,9 @@ func (tc *TestCase) classic(t *testing.T, env *classic.Env) {
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
 const fibonacci_source_string = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
 const insertion_sort_source_string = `func insertion_sort(v []int) {
-	for i, n := 1, len(v); i < n; i++ {
-		for j := i; j > 0 && v[j-1] > v[j]; j-- {
+	var i, j, n int // optimization: group var declarations
+	for i, n = 1, len(v); i < n; i++ {
+		for j = i; j > 0 && v[j-1] > v[j]; j-- {
 			v[j-1], v[j] = v[j], v[j-1]
 		}
 	}
@@ -132,6 +133,8 @@ var ti = r.StructOf(
 var si = r.Zero(ti).Interface()
 
 var zeroValues = []r.Value{}
+
+var nil_map_int_string map[int]string
 
 var testcases = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
@@ -323,8 +326,8 @@ var testcases = []TestCase{
 	TestCase{A, "function_5", "func swap(x, y int) (int,int) { return y, x }; swap(88,99)", nil, []interface{}{99, 88}},
 	TestCase{A, "function_6", "i=0; func seti2() { i=2 }; seti2(); i", 2, nil},
 	TestCase{A, "function_7", "i=0; func setiadd(x, y int) { i=x+y }; setiadd(7,8); i", 15, nil},
-	TestCase{A, "function_variadic_1", "func list_args(args ...int) []int { return args }; list_args(1,2,3)", []int{1, 2, 3}, nil},
-	TestCase{A, "function_variadic_2", "si := make([]int, 4); si[1]=1; si[2]=2; si[3]=3; list_args(si...)", []int{0, 1, 2, 3}, nil},
+	TestCase{A, "function_variadic_1", "func list_args(args ...interface{}) []interface{} { return args }; list_args(1,2,3)", []interface{}{1, 2, 3}, nil},
+	TestCase{A, "function_variadic_2", "si := make([]interface{}, 4); si[1]=1; si[2]=2; si[3]=3; list_args(si...)", []interface{}{nil, 1, 2, 3}, nil},
 	TestCase{A, "fibonacci", fibonacci_source_string + "; fibonacci(13)", 233, nil},
 	TestCase{A, "function_literal", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
@@ -335,15 +338,23 @@ var testcases = []TestCase{
 	TestCase{A, "setplace_deref_3", `func vint_addr() *int { return &vint }; *vint_addr() = 7; vint`, 7, nil},
 	TestCase{A, "setplace_deref_4", `*vint_addr() %= 4; vint`, 3, nil},
 
-	TestCase{A, "swap", `i=1;j=2;  i,j=j,i;  list_args(i, j)`, []int{2, 1}, nil},
-	TestCase{A, "evil_assignment", `i=0; si[0]=7; si[1]=8; i,si[i]=1,2; list_args(i,si[0],si[1])`, []int{1, 2, 8}, nil},
-
 	TestCase{A, "setmap_1", `m[1]="x"; m[2]="y"; m`, map[int]string{1: "x", 2: "y"}, nil},
 	TestCase{A, "setmap_2", `m[2]+="z"; m`, map[int]string{1: "x", 2: "yz"}, nil},
 	TestCase{A, "setmap_3", `mi := make(map[rune]byte); mi['@']+=2; mi`, map[rune]byte{'@': 2}, nil},
-	TestCase{A, "setmap_4", `mi['a'] |= 7; mi['a']`, nil, []interface{}{byte(7), true}},
+	TestCase{A, "setmap_4", `mi['a'] |= 7; mi`, map[rune]byte{'@': 2, 'a': 7}, nil},
 	TestCase{A, "getmap_1", `m[1]`, nil, []interface{}{"x", true}},
 	TestCase{A, "getmap_2", `m1 := m[1]; m1`, "x", nil},
+	TestCase{A, "getmap_3", `mi['b']`, nil, []interface{}{byte(0), false}},
+	TestCase{A, "getmap_4", `v2 = mi['@']; v2`, byte(2), nil},
+
+	TestCase{A, "swap", `i=1;j=2;  i,j=j,i;  list_args(i, j)`, []interface{}{2, 1}, nil},
+	TestCase{A, "evil_assignment_1", `i=0; si[0]=7; si[1]=8
+		i, si[i] = 1, 2
+		list_args(i,si[0],si[1])`, []interface{}{1, 2, 8}, nil},
+	TestCase{A, "evil_assignment_2", `i=0; m=make(map[int]string); mcopy:=m;
+		i, m, m[i] = 1, nil, "foo"
+		list_args(i,m,mcopy)`,
+		[]interface{}{1, nil_map_int_string, map[int]string{0: "foo"}}, nil},
 
 	TestCase{A, "setstruct_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
 		A rune
@@ -385,7 +396,7 @@ var testcases = []TestCase{
 	TestCase{A, "builtin_make_8", "vs = make([]byte, 5); vs", make([]byte, 5), nil},
 	TestCase{A, "builtin_copy_1", "copy(vs, v5)", 5, nil},
 	TestCase{A, "builtin_copy_2", "vs", []byte("8y57r"), nil},
-	TestCase{A, "builtin_delete_1", "delete(m,1); m", map[int]string{2: "yz"}, nil},
+	TestCase{A, "builtin_delete_1", "delete(mi,64); mi", map[rune]byte{'a': 7}, nil},
 	TestCase{A, "builtin_real_1", "real(0.5+1.75i)", real(0.5 + 1.75i), nil},
 	TestCase{A, "builtin_real_2", "var cplx complex64 = 1.5+0.25i; real(cplx)", real(complex64(1.5 + 0.25i)), nil},
 	TestCase{A, "builtin_imag_1", "imag(0.5+1.75i)", imag(0.5 + 1.75i), nil},

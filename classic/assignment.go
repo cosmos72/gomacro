@@ -97,7 +97,22 @@ func (env *Env) evalPlace(node ast.Expr) placeType {
 
 		switch obj.Kind() {
 		case r.Map:
+			// make a copy of obj and index, to protect against "evil assignment" m, i, m[i] = nil, 1, 2  where m is a map
+			if obj != Nil && obj.CanSet() {
+				obj = obj.Convert(obj.Type())
+			}
+			if index != Nil && index.CanSet() {
+				index = index.Convert(index.Type())
+			}
 			return placeType{obj, index}
+		default:
+			if obj.Kind() != r.Ptr || obj.Elem().Kind() != r.Array {
+				env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>",
+					node.X, index, obj, typeOf(obj))
+				return placeType{}
+			}
+			obj = obj.Elem()
+			fallthrough
 		case r.Array, r.Slice, r.String:
 			i, ok := env.toInt(index)
 			if !ok {
@@ -105,10 +120,6 @@ func (env *Env) evalPlace(node ast.Expr) placeType {
 				return placeType{}
 			}
 			obj = obj.Index(int(i))
-		default:
-			env.Errorf("unsupported index operation: %v [ %v ]. not an array, map, slice or string: %v <%v>",
-				node.X, index, obj, typeOf(obj))
-			return placeType{}
 		}
 	default:
 		obj = env.evalExpr1(node)
@@ -130,11 +141,17 @@ func (env *Env) assignPlaces(places []placeType, op token.Token, values []r.Valu
 	// is bugged. It breaks, among others, the common Go idiom to swap two values: a,b = b,a
 	//
 	// More in general, Go guarantees that all assignments happen *as if*
-	// the rhs values were copied to temporary locations before the assignments.
+	// the rhs values, and all lhs operands of indexing, dereferencing and struct field access,
+	// were copied to temporary locations before the assignments.
 	// That's exactly what we must do.
 	for i := 0; i < n; i++ {
-		v := values[i]
-		if v != None && v != Nil {
+		p := &places[i]
+		v := p.mapkey
+		if v != Nil && v.CanSet() {
+			p.mapkey = v.Convert(v.Type()) // r.Value.Convert() makes a copy
+		}
+		v = values[i]
+		if v != Nil && v.CanSet() {
 			values[i] = v.Convert(v.Type()) // r.Value.Convert() makes a copy
 		}
 	}

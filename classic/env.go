@@ -160,7 +160,7 @@ func (env *Env) ValueOf(name string) (value r.Value) {
 func (env *Env) ReplStdin() {
 	if env.Options&OptShowPrompt != 0 {
 		fmt.Fprint(env.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
-// Copyright (C) 2016-2017 Massimiliano Ghilardi
+// Copyright (C) 2017 Massimiliano Ghilardi
 // License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
 // This is free software with ABSOLUTELY NO WARRANTY.
 //

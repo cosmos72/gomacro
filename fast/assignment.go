@@ -442,10 +442,10 @@ func cacheFunXV(fun func(env *Env) (r.Value, []r.Value), t r.Type, option CacheO
 	var cache r.Value
 	if option == CacheCopy {
 		setfun = func(env *Env) {
-			v, _ := fun(env)
-			if v != base.Nil && v != base.None && v.CanSet() {
+			cache, _ = fun(env)
+			if cache != base.Nil && cache.CanSet() {
 				// make a copy. how? Convert() the r.Value to its expected type
-				cache = v.Convert(t)
+				cache = cache.Convert(t)
 			}
 		}
 	} else {
@@ -464,10 +464,10 @@ func cacheFunX1(fun func(env *Env) r.Value, t r.Type, option CacheOption) (setfu
 	var cache r.Value
 	if option == CacheCopy {
 		setfun = func(env *Env) {
-			v := fun(env)
-			if v != base.Nil && v != base.None && v.CanSet() {
+			cache = fun(env)
+			if cache != base.Nil && cache.CanSet() {
 				// make a copy. how? Convert() the r.Value to its expected type
-				cache = v.Convert(t)
+				cache = cache.Convert(t)
 			}
 		}
 	} else {

@@ -72,7 +72,7 @@ func (c *Comp) Symbol(sym *Symbol) *Expr {
 	case ConstBind:
 		return exprLit(sym.Lit, sym)
 	case VarBind, FuncBind:
-		return c.varOrFuncSymbol(sym)
+		return c.symbol(sym)
 	case IntBind:
 		return c.intSymbol(sym)
 	default:
@@ -81,7 +81,7 @@ func (c *Comp) Symbol(sym *Symbol) *Expr {
 	return nil
 }
 
-func (c *Comp) varOrFuncSymbol(sym *Symbol) *Expr {
+func (c *Comp) symbol(sym *Symbol) *Expr {
 	idx := sym.Desc.Index()
 	upn := sym.Upn
 	var fun I
@@ -99,6 +99,14 @@ func (c *Comp) varOrFuncSymbol(sym *Symbol) *Expr {
 		case 2:
 			fun = func(env *Env) complex128 {
 				return env.Outer.Outer.Binds[idx].Complex()
+			}
+		case c.Depth - 1:
+			fun = func(env *Env) complex128 {
+				return env.ThreadGlobals.FileEnv.Binds[idx].Complex()
+			}
+		case c.Depth: // TopEnv should not contain variables or functions... but no harm
+			fun = func(env *Env) complex128 {
+				return env.ThreadGlobals.TopEnv.Binds[idx].Complex()
 			}
 		default:
 			fun = func(env *Env) complex128 {
@@ -122,6 +130,14 @@ func (c *Comp) varOrFuncSymbol(sym *Symbol) *Expr {
 			fun = func(env *Env) string {
 				return env.Outer.Outer.Binds[idx].String()
 			}
+		case c.Depth - 1:
+			fun = func(env *Env) string {
+				return env.ThreadGlobals.FileEnv.Binds[idx].String()
+			}
+		case c.Depth: // TopEnv should not contain variables or functions... but no harm
+			fun = func(env *Env) string {
+				return env.ThreadGlobals.TopEnv.Binds[idx].String()
+			}
 		default:
 			fun = func(env *Env) string {
 				for i := 3; i < upn; i++ {
@@ -143,6 +159,14 @@ func (c *Comp) varOrFuncSymbol(sym *Symbol) *Expr {
 		case 2:
 			fun = func(env *Env) r.Value {
 				return env.Outer.Outer.Binds[idx]
+			}
+		case c.Depth - 1:
+			fun = func(env *Env) r.Value {
+				return env.ThreadGlobals.FileEnv.Binds[idx]
+			}
+		case c.Depth: // TopEnv should not contain variables or functions... but no harm
+			fun = func(env *Env) r.Value {
+				return env.ThreadGlobals.TopEnv.Binds[idx]
 			}
 		default:
 			fun = func(env *Env) r.Value {

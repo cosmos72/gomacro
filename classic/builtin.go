@@ -85,7 +85,13 @@ func callCopy(dst, src interface{}) int {
 }
 
 func callDelete(m interface{}, key interface{}) {
-	r.ValueOf(m).SetMapIndex(r.ValueOf(key), Nil)
+	vmap := r.ValueOf(m)
+	tkey := vmap.Type().Key()
+	vkey := r.ValueOf(key)
+	if key != nil && vkey.Type() != tkey {
+		vkey = vkey.Convert(tkey)
+	}
+	vmap.SetMapIndex(vkey, Nil)
 }
 
 func funcEnv(env *Env, args []r.Value) (r.Value, []r.Value) {

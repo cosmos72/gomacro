@@ -48,7 +48,7 @@ const (
 var verbose = false
 
 /*
-	--------- 2016-05-06: results on Intel Core i7 4770 ---------------
+	--------- 2017-05-06: results on Intel Core i7 4770 ---------------
 
 	BenchmarkFibonacciCompiler-8            3000000           498 ns/op
 	BenchmarkFibonacciFast-8                 100000         14812 ns/op
@@ -205,57 +205,52 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 	}
 }
 
-// ---------------------- iteration: insertion_sort ------------------------
+// ---------------------- arrays: insertion_sort ------------------------
 
 func insertion_sort(v []int) {
-	for i, n := 1, len(v); i < n; i++ {
-		for j := i; j > 0 && v[j-1] > v[j]; j-- {
+	var i, j, n int
+	for i, n = 1, len(v); i < n; i++ {
+		for j = i; j > 0 && v[j-1] > v[j]; j-- {
 			v[j-1], v[j] = v[j], v[j-1]
 		}
 	}
 }
 
-func BenchmarkInsertionSortCompiler(b *testing.B) {
-	var v []int
+var insertion_sort_data = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
 
-	for i := 0; i < b.N; i++ {
-		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
-		insertion_sort(v)
-	}
-	if verbose {
-		fmt.Println(v)
-	}
+func BenchmarkInsertionSortCompiler(b *testing.B) {
+	benchmark_insertion_sort(b, insertion_sort)
 }
 
 func BenchmarkInsertionSortFast(b *testing.B) {
 	ce := fast.New()
 	ce.Eval(insertion_sort_source_string)
 
-	// compile the call to fibonacci(fib_n)
+	// extract the function insertion_sort()
 	insertion_sort := ce.ValueOf("insertion_sort").Interface().(func([]int))
-	insertion_sort([]int{3, 2, 1})
 
-	var v []int
-	for i := 0; i < b.N; i++ {
-		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
-		insertion_sort(v)
-	}
-	if verbose {
-		fmt.Println(v)
-	}
+	benchmark_insertion_sort(b, insertion_sort)
 }
 
 func BenchmarkInsertionSortClassic(b *testing.B) {
 	env := classic.New()
 	env.Eval(insertion_sort_source_string)
 
-	// compile the call to fibonacci(fib_n)
+	// extract the function insertion_sort()
 	insertion_sort := env.ValueOf("insertion_sort").Interface().(func([]int))
-	insertion_sort([]int{3, 2, 1})
 
-	var v []int
+	benchmark_insertion_sort(b, insertion_sort)
+}
+
+func benchmark_insertion_sort(b *testing.B, insertion_sort func([]int)) {
+	// call insertion_sort once for warm-up
+	v := make([]int, len(insertion_sort_data))
+	copy(v, insertion_sort_data)
+	insertion_sort(v)
+
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		v = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+		copy(v, insertion_sort_data)
 		insertion_sort(v)
 	}
 	if verbose {

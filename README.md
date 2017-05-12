@@ -1,12 +1,17 @@
 ## gomacro - interactive Go interpreter with macros
 
-gomacro is a fairly complete Go interpreter, implemented in pure Go,
-built on top of the go/ast and reflect packages.
+gomacro is a fairly complete Go interpreter, implemented in pure Go. It offers both
+an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
+(except in one very specific case: import of a non-standard package).
+
+It has very few dependencies: go/ast, go/types, reflect and,
+for goroutines support, golang.org/x/sync/syncmap.
 
 Gomacro can be used as:
 * a standalone executable with interactive Go REPL:  
   just run `gomacro` from your command line or, better, `rlwrap gomacro`
-  (rlwrap is a wrapper that adds history and line editing to terminal-based programs - available on many platforms)
+  (rlwrap is a wrapper that adds history and line editing to terminal-based
+  programs - available on many platforms)
   Available options:
     ```
     -c,   --collect          collect declarations and statements, to print them later
