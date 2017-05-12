@@ -31,6 +31,7 @@ import (
 	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/parser"
+	_ "github.com/cosmos72/gomacro/type2"
 )
 
 func main() {
