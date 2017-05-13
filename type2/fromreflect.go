@@ -41,14 +41,6 @@ func (cfg *ReflectConfig) rebuild() bool {
 	return cfg != nil && cfg.RebuildDepth >= 0
 }
 
-func (cfg *ReflectConfig) cached(rtype reflect.Type) Type {
-	var t Type
-	if cfg != nil {
-		t = cfg.Cache[rtype]
-	}
-	return t
-}
-
 func (cfg *ReflectConfig) cache(t Type) Type {
 	if cfg != nil {
 		if cfg.Cache == nil {
@@ -59,19 +51,15 @@ func (cfg *ReflectConfig) cache(t Type) Type {
 	return t
 }
 
-func (cfg *ReflectConfig) tryResolve(name, pkgpath string) Type {
-	var t Type
-	if cfg != nil && cfg.TryResolve != nil && len(name) != 0 {
-		t = cfg.TryResolve(name, pkgpath)
-	}
-	return t
-}
-
 // TypeOf creates a Type corresponding to reflect.TypeOf() of given value.
 // Note: conversions from Type to reflect.Type and back are not exact,
 // because of the reasons listed in Type.ReflectType()
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
-func TypeOf(rvalue interface{}, cfg *ReflectConfig) Type {
+func TypeOf(rvalue interface{}) Type {
+	return FromReflectType(reflect.TypeOf(rvalue), nil)
+}
+
+func TypeOf2(rvalue interface{}, cfg *ReflectConfig) Type {
 	return FromReflectType(reflect.TypeOf(rvalue), cfg)
 }
 
@@ -81,12 +69,19 @@ func TypeOf(rvalue interface{}, cfg *ReflectConfig) Type {
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
 func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
 	var t Type
-	if cfg != nil {
-		if t = cfg.cached(rtype); t != nil {
+	if cfg == nil {
+		cfg = &ReflectConfig{}
+	} else {
+		if t = cfg.Cache[rtype]; t != nil {
 			return t
 		}
-		if t = cfg.tryResolve(rtype.Name(), rtype.PkgPath()); t != nil {
-			return t
+		name := rtype.Name()
+		tryresolve := cfg.TryResolve
+		if tryresolve != nil && len(name) != 0 {
+			t = tryresolve(name, rtype.PkgPath())
+			if t != nil {
+				return t
+			}
 		}
 		if cfg.RebuildDepth >= 0 {
 			// decrement ONLY here and in fromReflectPtr() when calling fromReflectInterfaceStruct()
