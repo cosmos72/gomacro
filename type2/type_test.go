@@ -203,7 +203,7 @@ func TestStruct(t *testing.T) {
 
 func TestFromReflect1(t *testing.T) {
 	rtype := reflect.TypeOf((*func(bool, int8, <-chan uint16, []float32, [2]float64, []complex64) map[interface{}]*string)(nil)).Elem()
-	typ := FromReflectType(rtype, MaxDepth)
+	typ := FromReflectType(rtype, &ReflectConfig{RebuildDepth: MaxDepth})
 	is(t, typ.ReflectType(), rtype) // recreated 100% accurately?
 }
 
@@ -225,7 +225,7 @@ func TestFromReflect2(t *testing.T) {
 		G []float64
 		M map[string]*complex64
 	}{})
-	typ := FromReflectType(in, MaxDepth)
+	typ := FromReflectType(in, &ReflectConfig{RebuildDepth: MaxDepth})
 	actual := typ.ReflectType()
 	is(t, typ.Kind(), reflect.Struct)
 	is(t, typ.Name(), "Bag")
@@ -238,7 +238,7 @@ func TestFromReflect2(t *testing.T) {
 
 func TestFromReflect3(t *testing.T) {
 	rtype := reflect.TypeOf((*io.Reader)(nil)).Elem()
-	typ := FromReflectType(rtype, 1)
+	typ := FromReflectType(rtype, &ReflectConfig{RebuildDepth: 1})
 
 	actual := typ.ReflectType()
 	expected := reflect.PtrTo(
@@ -252,7 +252,7 @@ func TestFromReflect3(t *testing.T) {
 	is(t, typ.underlying().String(), "interface{Read([]uint8) (int, error)}")
 
 	for depth := 0; depth <= 3; depth++ {
-		typ = FromReflectType(rtype, depth)
+		typ = FromReflectType(rtype, &ReflectConfig{RebuildDepth: depth})
 		debugf("%v\t-> %v", typ, typ.ReflectType())
 	}
 }
@@ -265,7 +265,7 @@ func TestFromReflect4(t *testing.T) {
 			reflect.StructField{Name: "String", Type: reflect.TypeOf((*ToString)(nil)).Elem()},
 		}))
 	typ := NamedOf("Stringer", NewPackage("io", ""))
-	underlying := FromReflectType(rtype, MaxDepth)
+	underlying := FromReflectType(rtype, &ReflectConfig{RebuildDepth: MaxDepth})
 	typ.SetUnderlying(underlying)
 
 	actual := typ.ReflectType()
@@ -280,7 +280,7 @@ func TestFromReflect4(t *testing.T) {
 	is(t, typ.underlying().String(), "interface{String() string}")
 
 	for depth := 0; depth <= 3; depth++ {
-		typ = FromReflectType(rtype, depth)
+		typ = FromReflectType(rtype, &ReflectConfig{RebuildDepth: depth})
 		debugf("%v\t-> %v", typ, typ.ReflectType())
 	}
 }
