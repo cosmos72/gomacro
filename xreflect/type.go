@@ -22,16 +22,20 @@
  *      Author Massimiliano Ghilardi
  */
 
-package type2
+package xtype
 
 import (
 	"go/types"
 	"reflect"
 )
 
-func maketype(gtype types.Type, rtype reflect.Type) *xtype {
+func SameType(t, u Type) bool {
+	return t == u || t != nil && u != nil && types.IdenticalIgnoreTags(t.GoType(), u.GoType())
+}
+
+func maketype(gtype types.Type, rtype reflect.Type) Type {
 	kind := gtypeToKind(gtype)
-	return &xtype{kind, gtype, rtype}
+	return &xtype{kind, gtype, rtype, nil}
 }
 
 // GoType returns the go/types.Type corresponding to the type.

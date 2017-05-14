@@ -34,7 +34,8 @@ import (
 	"go/token"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) Add(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -2562,7 +2563,7 @@ func (c *Comp) mulPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	ypositive := true
 	yv := r.ValueOf(ye.Value)
 	var y uint64
-	switch KindToCategory(yv.Kind()) {
+	switch base.KindToCategory(yv.Kind()) {
 	case r.Int:
 		sy := yv.Int()
 		if sy < 0 {
@@ -2940,7 +2941,7 @@ func (c *Comp) quoPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	ypositive := true
 	yv := r.ValueOf(ye.Value)
 	var y uint64
-	switch KindToCategory(yv.Kind()) {
+	switch base.KindToCategory(yv.Kind()) {
 	case r.Int:
 		sy := yv.Int()
 		if sy < 0 {
@@ -3167,7 +3168,7 @@ func (c *Comp) remPow2(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 	yv := r.ValueOf(ye.Value)
 	var y uint64
-	switch KindToCategory(yv.Kind()) {
+	switch base.KindToCategory(yv.Kind()) {
 	case r.Int:
 		sy := yv.Int()
 		if sy < 0 {
@@ -4948,7 +4949,7 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 func (c *Comp) exprZero(xe *Expr) *Expr {
 	if xe.Const() {
 		xe.ConstTo(xe.DefaultType())
-		return exprValue(r.Zero(xe.Type).Interface())
+		return c.exprValue(xe.Type, xr.Zero(xe.Type).Interface())
 	}
 	t := xe.Type
 	k := t.Kind()
@@ -5100,7 +5101,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 
 	default:
 		{
-			zero := r.Zero(t)
+			zero := xr.Zero(t)
 			x := funAsX1(x, nil)
 			fun = func(env *Env) r.Value {
 				x(env)

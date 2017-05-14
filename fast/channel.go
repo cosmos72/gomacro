@@ -33,7 +33,8 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
@@ -55,9 +56,9 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			retv, ok := channel.Recv()
 			var okv r.Value
 			if ok {
-				okv = True
+				okv = base.True
 			} else {
-				okv = False
+				okv = base.False
 			}
 			return retv, []r.Value{retv, okv}
 		}
@@ -67,14 +68,14 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			retv, ok := channelfun(env).Recv()
 			var okv r.Value
 			if ok {
-				okv = True
+				okv = base.True
 			} else {
-				okv = False
+				okv = base.False
 			}
 			return retv, []r.Value{retv, okv}
 		}
 	}
-	types := []r.Type{t.Elem(), TypeOfBool}
+	types := []xr.Type{t.Elem(), xr.TypeOfBool}
 	return exprXV(types, fun)
 }
 func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
@@ -208,8 +209,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 		channelfun := xe.AsX1()
 		switch telem.Kind() {
 		case r.Bool:
-			var zero bool
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Bool,
+			) {
 				fun = func(env *Env) bool {
 					retv, _ := channelfun(env).Recv()
 					return retv.Bool()
@@ -226,8 +227,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int:
-			var zero int
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Int,
+			) {
 				fun = func(env *Env) int {
 					retv, _ := channelfun(env).Recv()
 					return int(retv.Int())
@@ -244,8 +245,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int8:
-			var zero int8
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Int8,
+			) {
 				fun = func(env *Env) int8 {
 					retv, _ := channelfun(env).Recv()
 					return int8(retv.Int())
@@ -262,8 +263,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int16:
-			var zero int16
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Int16,
+			) {
 				fun = func(env *Env) int16 {
 					retv, _ := channelfun(env).Recv()
 					return int16(retv.Int())
@@ -280,8 +281,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int32:
-			var zero int32
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Int32,
+			) {
 				fun = func(env *Env) int32 {
 					retv, _ := channelfun(env).Recv()
 					return int32(retv.Int())
@@ -298,8 +299,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int64:
-			var zero int64
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Int64,
+			) {
 				fun = func(env *Env) int64 {
 					retv, _ := channelfun(env).Recv()
 					return retv.Int()
@@ -316,8 +317,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint:
-			var zero uint
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Uint,
+			) {
 				fun = func(env *Env) uint {
 					retv, _ := channelfun(env).Recv()
 					return uint(retv.Uint())
@@ -334,8 +335,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint8:
-			var zero uint8
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Uint8,
+			) {
 				fun = func(env *Env) uint8 {
 					retv, _ := channelfun(env).Recv()
 					return uint8(retv.Uint())
@@ -352,8 +353,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint16:
-			var zero uint16
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Uint16,
+			) {
 				fun = func(env *Env) uint16 {
 					retv, _ := channelfun(env).Recv()
 					return uint16(retv.Uint())
@@ -370,8 +371,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint32:
-			var zero uint32
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Uint32,
+			) {
 				fun = func(env *Env) uint32 {
 					retv, _ := channelfun(env).Recv()
 					return uint32(retv.Uint())
@@ -388,8 +389,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint64:
-			var zero uint64
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Uint64,
+			) {
 				fun = func(env *Env) uint64 {
 					retv, _ := channelfun(env).Recv()
 					return retv.Uint()
@@ -406,8 +407,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uintptr:
-			var zero uintptr
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Uintptr,
+			) {
 				fun = func(env *Env) uintptr {
 					retv, _ := channelfun(env).Recv()
 					return uintptr(retv.Uint())
@@ -424,8 +425,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Float32:
-			var zero float32
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Float32,
+			) {
 				fun = func(env *Env) float32 {
 					retv, _ := channelfun(env).Recv()
 					return float32(retv.Float())
@@ -442,8 +443,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Float64:
-			var zero float64
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Float64,
+			) {
 				fun = func(env *Env) float64 {
 					retv, _ := channelfun(env).Recv()
 					return retv.Float()
@@ -460,8 +461,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Complex64:
-			var zero complex64
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Complex64,
+			) {
 				fun = func(env *Env) complex64 {
 					retv, _ := channelfun(env).Recv()
 					return complex64(retv.Complex())
@@ -478,8 +479,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Complex128:
-			var zero complex128
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.Complex128,
+			) {
 				fun = func(env *Env) complex128 {
 					retv, _ := channelfun(env).Recv()
 					return retv.Complex()
@@ -496,8 +497,8 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.String:
-			var zero string
-			if telem != r.TypeOf(zero) {
+			if telem != BasicType(r.String,
+			) {
 				fun = func(env *Env) string {
 					retv, _ := channelfun(env).Recv()
 					return retv.String()
@@ -546,9 +547,9 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	sendonly := t.ChanDir() == r.SendDir
 	var stmt Stmt
 	if expr.Const() {
-		v := r.ValueOf(expr.Value).Convert(telem)
+		v := r.ValueOf(expr.Value)
 		switch telem {
-		case TypeOfBool:
+		case xr.TypeOfBool:
 			value := v.Bool()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
@@ -565,7 +566,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case xr.TypeOfInt:
 			value :=
 
 				int(v.Int())
@@ -584,7 +585,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case xr.TypeOfInt8:
 			value :=
 
 				int8(v.Int())
@@ -603,7 +604,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case xr.TypeOfInt16:
 			value :=
 
 				int16(v.Int())
@@ -622,7 +623,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case xr.TypeOfInt32:
 			value :=
 
 				int32(v.Int())
@@ -641,7 +642,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case xr.TypeOfInt64:
 			value := v.Int()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
@@ -658,7 +659,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case xr.TypeOfUint:
 			value :=
 
 				uint(v.Uint())
@@ -677,7 +678,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint8:
+		case xr.TypeOfUint8:
 			value :=
 
 				uint8(v.Uint())
@@ -696,7 +697,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint16:
+		case xr.TypeOfUint16:
 			value :=
 
 				uint16(v.Uint())
@@ -715,7 +716,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint32:
+		case xr.TypeOfUint32:
 			value :=
 
 				uint32(v.Uint())
@@ -734,7 +735,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint64:
+		case xr.TypeOfUint64:
 			value := v.Uint()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
@@ -751,7 +752,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUintptr:
+		case xr.TypeOfUintptr:
 			value :=
 
 				uintptr(v.Uint())
@@ -770,7 +771,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfFloat32:
+		case xr.TypeOfFloat32:
 			value :=
 
 				float32(v.Float())
@@ -789,7 +790,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfFloat64:
+		case xr.TypeOfFloat64:
 			value := v.Float()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
@@ -806,7 +807,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfComplex64:
+		case xr.TypeOfComplex64:
 			value :=
 
 				complex64(v.Complex())
@@ -825,7 +826,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfComplex128:
+		case xr.TypeOfComplex128:
 			value := v.Complex()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
@@ -842,7 +843,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfString:
+		case xr.TypeOfString:
 			value := v.String()
 			if sendonly {
 				stmt = func(env *Env) (Stmt, *Env) {
@@ -872,7 +873,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 
 	} else {
 		switch telem {
-		case TypeOfBool:
+		case xr.TypeOfBool:
 			if exprfun, ok := expr.Fun.(func(*Env) bool); !ok {
 				break
 			} else if sendonly {
@@ -890,7 +891,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt:
+		case xr.TypeOfInt:
 			if exprfun, ok := expr.Fun.(func(*Env) int); !ok {
 				break
 			} else if sendonly {
@@ -908,7 +909,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt8:
+		case xr.TypeOfInt8:
 			if exprfun, ok := expr.Fun.(func(*Env) int8); !ok {
 				break
 			} else if sendonly {
@@ -926,7 +927,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt16:
+		case xr.TypeOfInt16:
 			if exprfun, ok := expr.Fun.(func(*Env) int16); !ok {
 				break
 			} else if sendonly {
@@ -944,7 +945,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt32:
+		case xr.TypeOfInt32:
 			if exprfun, ok := expr.Fun.(func(*Env) int32); !ok {
 				break
 			} else if sendonly {
@@ -962,7 +963,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfInt64:
+		case xr.TypeOfInt64:
 			if exprfun, ok := expr.Fun.(func(*Env) int64); !ok {
 				break
 			} else if sendonly {
@@ -980,7 +981,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint:
+		case xr.TypeOfUint:
 			if exprfun, ok := expr.Fun.(func(*Env) uint); !ok {
 				break
 			} else if sendonly {
@@ -998,7 +999,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint8:
+		case xr.TypeOfUint8:
 			if exprfun, ok := expr.Fun.(func(*Env) uint8); !ok {
 				break
 			} else if sendonly {
@@ -1016,7 +1017,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint16:
+		case xr.TypeOfUint16:
 			if exprfun, ok := expr.Fun.(func(*Env) uint16); !ok {
 				break
 			} else if sendonly {
@@ -1034,7 +1035,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint32:
+		case xr.TypeOfUint32:
 			if exprfun, ok := expr.Fun.(func(*Env) uint32); !ok {
 				break
 			} else if sendonly {
@@ -1052,7 +1053,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUint64:
+		case xr.TypeOfUint64:
 			if exprfun, ok := expr.Fun.(func(*Env) uint64); !ok {
 				break
 			} else if sendonly {
@@ -1070,7 +1071,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfUintptr:
+		case xr.TypeOfUintptr:
 			if exprfun, ok := expr.Fun.(func(*Env) uintptr); !ok {
 				break
 			} else if sendonly {
@@ -1088,7 +1089,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfFloat32:
+		case xr.TypeOfFloat32:
 			if exprfun, ok := expr.Fun.(func(*Env) float32); !ok {
 				break
 			} else if sendonly {
@@ -1106,7 +1107,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfFloat64:
+		case xr.TypeOfFloat64:
 			if exprfun, ok := expr.Fun.(func(*Env) float64); !ok {
 				break
 			} else if sendonly {
@@ -1124,7 +1125,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfComplex64:
+		case xr.TypeOfComplex64:
 			if exprfun, ok := expr.Fun.(func(*Env) complex64); !ok {
 				break
 			} else if sendonly {
@@ -1142,7 +1143,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfComplex128:
+		case xr.TypeOfComplex128:
 			if exprfun, ok := expr.Fun.(func(*Env) complex128); !ok {
 				break
 			} else if sendonly {
@@ -1160,7 +1161,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 					return env.Code[env.IP], env
 				}
 			}
-		case TypeOfString:
+		case xr.TypeOfString:
 			if exprfun, ok := expr.Fun.(func(*Env) string); !ok {
 				break
 			} else if sendonly {
@@ -1182,11 +1183,12 @@ func (c *Comp) Send(node *ast.SendStmt) {
 		}
 		if stmt == nil {
 			exprfun := expr.AsX1()
+			rtelem := telem.ReflectType()
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env)
 				value := exprfun(env)
-				if value.Type() != telem {
-					value = value.Convert(telem)
+				if value.Type() != rtelem {
+					value = value.Convert(rtelem)
 				}
 
 				channel.Send(value)

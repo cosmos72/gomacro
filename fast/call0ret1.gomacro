@@ -26,7 +26,8 @@ package fast
 
 import (
 	r "reflect"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xt "github.com/cosmos72/gomacro/xtype"
 )
 
 :import (
@@ -46,7 +47,10 @@ import (
 
 :func maketypevar(typ ast.Node) ast.Node {
 	t := EvalType(typ)
-	return &ast.Ident{Name: "TypeOf" + upcasefirstbyte(t.Name())}
+	return &ast.SelectorExpr{
+		X: &ast.Ident{Name: "xt"},
+		Sel: &ast.Ident{Name: "TypeOf" + upcasefirstbyte(t.Name())},
+	}
 }
 
 :func convertvalue1(typ, val ast.Node) ast.Node {
@@ -89,7 +93,7 @@ import (
 		return ~"{
 			call = func(env *Env) r.Value {
 				funv := exprfun(env)
-				return funv.Call(ZeroValues)[0]
+				return funv.Call(base.ZeroValues)[0]
 			}
 		}
 	}
@@ -109,7 +113,7 @@ import (
 			call = func(env *Env) ~,rettyp {
 				fun := exprfun(env)
 				// Debugf("calling %v with args []", fun.Type())
-				ret := fun.Call(ZeroValues)[0]
+				ret := fun.Call(base.ZeroValues)[0]
 				return ~,retconv
 			}
 		} else if funsym != nil {
@@ -161,7 +165,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			Errorf("internal error: call0ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+			base.Errorf("internal error: call0ret1() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 	}
 	tret := expr.Type.Out(0)

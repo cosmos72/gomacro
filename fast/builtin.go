@@ -33,7 +33,34 @@ import (
 	r "reflect"
 	"time"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
+)
+
+var (
+	zeroTypes          = []xr.Type{}
+	typeOfReflectType  = xr.TypeOf((*r.Type)(nil)).Elem() // inception
+	rtypeOfSliceOfByte = r.TypeOf([]byte{})
+
+/*
+	typeOfPtrBool       = xr.PtrTo(xr.TypeOfBool)
+	typeOfPtrInt        = xr.PtrTo(xr.TypeOfInt)
+	typeOfPtrInt8       = xr.PtrTo(xr.TypeOfInt)
+	typeOfPtrInt16      = xr.PtrTo(xr.TypeOfInt16)
+	typeOfPtrInt32      = xr.PtrTo(xr.TypeOfInt32)
+	typeOfPtrInt64      = xr.PtrTo(xr.TypeOfInt64)
+	typeOfPtrUint       = xr.PtrTo(xr.TypeOfUint)
+	typeOfPtrUint8      = xr.PtrTo(xr.TypeOfUint)
+	typeOfPtrUint16     = xr.PtrTo(xr.TypeOfUint16)
+	typeOfPtrUint32     = xr.PtrTo(xr.TypeOfUint32)
+	typeOfPtrUint64     = xr.PtrTo(xr.TypeOfUint64)
+	typeOfPtrUintptr    = xr.PtrTo(xr.TypeOfUintptr)
+	typeOfPtrFloat32    = xr.PtrTo(xr.TypeOfFloat32)
+	typeOfPtrFloat64    = xr.PtrTo(xr.TypeOfFloat64)
+	typeOfPtrComplex64  = xr.PtrTo(xr.TypeOfComplex64)
+	typeOfPtrComplex128 = xr.PtrTo(xr.TypeOfComplex128)
+	typeOfPtrString     = xr.PtrTo(xr.TypeOfString)
+*/
 )
 
 // =================================== iota ===================================
@@ -41,7 +68,7 @@ import (
 func (top *Comp) addIota() {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	top.Binds["iota"] = BindConst(UntypedZero)
+	top.Binds["iota"] = BindUntyped(UntypedZero)
 }
 
 func (top *Comp) removeIota() {
@@ -51,7 +78,7 @@ func (top *Comp) removeIota() {
 func (top *Comp) incrementIota() {
 	uIota := top.Binds["iota"].Lit.Value.(UntypedLit).Obj
 	uIota = constant.BinaryOp(uIota, token.ADD, UntypedOne.Obj)
-	top.Binds["iota"] = BindConst(UntypedLit{Kind: r.Int, Obj: uIota})
+	top.Binds["iota"] = BindUntyped(UntypedLit{Kind: r.Int, Obj: uIota})
 }
 
 // ============================== initialization ===============================
@@ -65,7 +92,7 @@ func (ce *CompEnv) addBuiltins() {
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
 	ce.DeclConst("nil", nil, nil)
 
-	ce.DeclBuiltin("append", Builtin{compileAppend, 1, MaxUint16})
+	ce.DeclBuiltin("append", Builtin{compileAppend, 1, base.MaxUint16})
 	ce.DeclBuiltin("cap", Builtin{compileCap, 1, 1})
 	ce.DeclBuiltin("close", Builtin{compileClose, 1, 1})
 	ce.DeclBuiltin("copy", Builtin{compileCopy, 2, 2})
@@ -76,11 +103,11 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltin("make", Builtin{compileMake, 1, 3})
 	ce.DeclBuiltin("new", Builtin{compileNew, 1, 1})
 	ce.DeclBuiltin("panic", Builtin{compilePanic, 1, 1})
-	ce.DeclBuiltin("print", Builtin{compilePrint, 0, MaxUint16})
-	ce.DeclBuiltin("println", Builtin{compilePrint, 0, MaxUint16})
+	ce.DeclBuiltin("print", Builtin{compilePrint, 0, base.MaxUint16})
+	ce.DeclBuiltin("println", Builtin{compilePrint, 0, base.MaxUint16})
 	ce.DeclBuiltin("real", Builtin{compileRealImag, 1, 1})
 
-	ce.DeclEnvFunc("Env", Function{callIdentity, r.TypeOf((*func(*CompEnv) *CompEnv)(nil)).Elem()})
+	ce.DeclEnvFunc("Env", Function{callIdentity, xr.TypeOf((*func(*CompEnv) *CompEnv)(nil)).Elem()})
 	ce.DeclFunc("Sleep", func(seconds float64) {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
@@ -106,33 +133,33 @@ func (ce *CompEnv) addBuiltins() {
 	*/
 
 	// --------- types ---------
-	ce.DeclType("bool", TypeOfBool)
-	ce.DeclType("byte", TypeOfByte)
-	ce.DeclType("complex64", TypeOfComplex64)
-	ce.DeclType("complex128", TypeOfComplex128)
-	ce.DeclType("error", TypeOfError)
-	ce.DeclType("float32", TypeOfFloat32)
-	ce.DeclType("float64", TypeOfFloat64)
-	ce.DeclType("int", TypeOfInt)
-	ce.DeclType("int8", TypeOfInt8)
-	ce.DeclType("int16", TypeOfInt16)
-	ce.DeclType("int32", TypeOfInt32)
-	ce.DeclType("int64", TypeOfInt64)
-	ce.DeclType("rune", TypeOfRune)
-	ce.DeclType("string", TypeOfString)
-	ce.DeclType("uint", TypeOfUint)
-	ce.DeclType("uint8", TypeOfUint8)
-	ce.DeclType("uint16", TypeOfUint16)
-	ce.DeclType("uint32", TypeOfUint32)
-	ce.DeclType("uint64", TypeOfUint64)
-	ce.DeclType("uintptr", TypeOfUintptr)
+	ce.DeclType("bool", xr.TypeOfBool)
+	ce.DeclType("byte", xr.TypeOfByte)
+	ce.DeclType("complex64", xr.TypeOfComplex64)
+	ce.DeclType("complex128", xr.TypeOfComplex128)
+	ce.DeclType("error", xr.TypeOfError)
+	ce.DeclType("float32", xr.TypeOfFloat32)
+	ce.DeclType("float64", xr.TypeOfFloat64)
+	ce.DeclType("int", xr.TypeOfInt)
+	ce.DeclType("int8", xr.TypeOfInt8)
+	ce.DeclType("int16", xr.TypeOfInt16)
+	ce.DeclType("int32", xr.TypeOfInt32)
+	ce.DeclType("int64", xr.TypeOfInt64)
+	ce.DeclType("rune", xr.TypeOfRune)
+	ce.DeclType("string", xr.TypeOfString)
+	ce.DeclType("uint", xr.TypeOfUint)
+	ce.DeclType("uint8", xr.TypeOfUint8)
+	ce.DeclType("uint16", xr.TypeOfUint16)
+	ce.DeclType("uint32", xr.TypeOfUint32)
+	ce.DeclType("uint64", xr.TypeOfUint64)
+	ce.DeclType("uintptr", xr.TypeOfUintptr)
 
-	ce.DeclType("Duration", r.TypeOf(time.Duration(0)))
+	ce.DeclType("Duration", xr.TypeOf(time.Duration(0)))
 
 	/*
 		// --------- proxies ---------
 		if env.Proxies == nil {
-			env.Proxies = make(map[string]r.Type)
+			env.Proxies = make(map[string]Type)
 		}
 		proxies := env.Proxies
 
@@ -171,13 +198,13 @@ func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		}
 		args[i] = argi
 	}
-	t := r.FuncOf([]r.Type{t0, t0}, []r.Type{t0}, true) // compile as reflect.Append(), which is variadic
+	t := xr.FuncOf([]xr.Type{t0, t0}, []xr.Type{t0}, true) // compile as reflect.Append(), which is variadic
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: r.Append}, &sym)
 	return &Call{
 		Fun:      fun,
 		Args:     args,
-		OutTypes: []r.Type{t0},
+		OutTypes: []xr.Type{t0},
 		Const:    false,
 		Ellipsis: node.Ellipsis != token.NoPos,
 	}
@@ -193,7 +220,7 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// argument of builtin cap() cannot be a literal
 	arg := c.Expr1(node.Args[0])
 	tin := arg.Type
-	tout := TypeOfInt
+	tout := xr.TypeOfInt
 	switch tin.Kind() {
 	// no cap() on r.Map, see
 	// https://golang.org/ref/spec#Length_and_capacity
@@ -211,7 +238,7 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	default:
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "array, channel, slice, pointer to array")
 	}
-	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
+	t := xr.FuncOf([]xr.Type{tin}, []xr.Type{tout}, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: callCap}, &sym)
 	// capacity of arrays is part of their type: cannot change at runtime, we could optimize it.
@@ -232,7 +259,7 @@ func compileClose(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	if tin.Kind() != r.Chan {
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "channel")
 	}
-	t := r.FuncOf([]r.Type{tin}, ZeroTypes, false)
+	t := xr.FuncOf([]xr.Type{tin}, zeroTypes, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: callClose}, &sym)
 	return newCall1(fun, arg, false)
@@ -253,8 +280,8 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	im := c.Expr1(node.Args[1])
 	if re.Untyped() {
 		if im.Untyped() {
-			re.ConstTo(TypeOfFloat64)
-			im.ConstTo(TypeOfFloat64)
+			re.ConstTo(xr.TypeOfFloat64)
+			im.ConstTo(xr.TypeOfFloat64)
 		} else {
 			re.ConstTo(im.Type)
 		}
@@ -262,14 +289,14 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		im.ConstTo(re.Type)
 	}
 	c.toSameFuncType(node, re, im)
-	kre := KindToCategory(re.Type.Kind())
+	kre := base.KindToCategory(re.Type.Kind())
 	if re.Const() && kre != r.Float64 {
-		re.ConstTo(TypeOfFloat64)
+		re.ConstTo(xr.TypeOfFloat64)
 		kre = r.Float64
 	}
-	kim := KindToCategory(im.Type.Kind())
+	kim := base.KindToCategory(im.Type.Kind())
 	if im.Const() && kim != r.Float64 {
-		im.ConstTo(TypeOfFloat64)
+		im.ConstTo(xr.TypeOfFloat64)
 		kim = r.Float64
 	}
 	if kre != r.Float64 {
@@ -282,20 +309,20 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	}
 	tin := re.Type
 	k := re.Type.Kind()
-	var tout r.Type
+	var tout xr.Type
 	var call I
 	switch k {
 	case r.Float32:
-		tout = TypeOfComplex64
+		tout = xr.TypeOfComplex64
 		call = callComplex64
 	case r.Float64:
-		tout = TypeOfComplex128
+		tout = xr.TypeOfComplex128
 		call = callComplex128
 	default:
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "floating point")
 	}
-	touts := []r.Type{tout}
-	t := r.FuncOf([]r.Type{tin}, touts, false)
+	touts := []xr.Type{tout}
+	t := xr.FuncOf([]xr.Type{tin}, touts, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: call}, &sym)
 	// complex() of two constants is constant: it can be computed at compile time
@@ -320,7 +347,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	}
 	t0, t1 := args[0].Type, args[1].Type
 	var funCopy I = r.Copy
-	if t0 == nil || t0.Kind() != r.Slice || !t0.AssignableTo(r.SliceOf(t0.Elem())) {
+	if t0 == nil || t0.Kind() != r.Slice || !t0.AssignableTo(xr.SliceOf(t0.Elem())) {
 		// https://golang.org/ref/spec#Appending_and_copying_slices
 		// copy [...] arguments must have identical element type T and must be assignable to a slice of type []T.
 		c.Errorf("first argument to copy should be slice; have %v <%v>", node.Args[0], t0)
@@ -329,14 +356,14 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		// [...] As a special case, copy also accepts a destination argument assignable to type []byte
 		// with a source argument of a string type. This form copies the bytes from the string into the byte slice.
 		funCopy = copyStringToBytes
-	} else if t1 == nil || t1.Kind() != r.Slice || !t1.AssignableTo(r.SliceOf(t1.Elem())) {
+	} else if t1 == nil || t1.Kind() != r.Slice || !t1.AssignableTo(xr.SliceOf(t1.Elem())) {
 		c.Errorf("second argument to copy should be slice or string; have %v <%v>", node.Args[1], t1)
 		return nil
 	} else if t0.Elem() != t1.Elem() {
 		c.Errorf("arguments to copy have different element types: <%v> and <%v>", t0.Elem(), t1.Elem())
 	}
-	outtypes := []r.Type{TypeOfInt}
-	t := r.FuncOf([]r.Type{t0, t1}, outtypes, false)
+	outtypes := []xr.Type{xr.TypeOfInt}
+	t := xr.FuncOf([]xr.Type{t0, t1}, outtypes, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: funCopy}, &sym)
 	return &Call{Fun: fun, Args: args, OutTypes: outtypes, Const: false}
@@ -347,7 +374,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 // use whatever calling convention is convenient: reflect.Values, interface{}s, primitive types...
 // as long as call_builtin supports it, we're fine
 func callDelete(vmap r.Value, vkey r.Value) {
-	vmap.SetMapIndex(vkey, Nil)
+	vmap.SetMapIndex(vkey, base.Nil)
 }
 
 func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
@@ -364,10 +391,10 @@ func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	} else if ekey.Type == nil || !ekey.Type.AssignableTo(tkey) {
 		c.Errorf("cannot use %v <%v> as type <%v> in delete", node.Args[1], ekey.Type, tkey)
 	}
-	t := r.FuncOf([]r.Type{tmap, tkey}, ZeroTypes, false)
+	t := xr.FuncOf([]xr.Type{tmap, tkey}, zeroTypes, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: callDelete}, &sym)
-	return &Call{Fun: fun, Args: []*Expr{emap, ekey}, OutTypes: ZeroTypes, Const: false}
+	return &Call{Fun: fun, Args: []*Expr{emap, ekey}, OutTypes: zeroTypes, Const: false}
 }
 
 // --- Env() ---
@@ -392,7 +419,7 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		arg.ConstTo(arg.DefaultType())
 	}
 	tin := arg.Type
-	tout := TypeOfInt
+	tout := xr.TypeOfInt
 	switch tin.Kind() {
 	case r.Array, r.Chan, r.Map, r.Slice, r.String:
 		// ok
@@ -407,7 +434,7 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	default:
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "array, channel, map, slice, string, pointer to array")
 	}
-	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
+	t := xr.FuncOf([]xr.Type{tin}, []xr.Type{tout}, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: callLenValue}, &sym)
 	if tin.Kind() == r.String {
@@ -437,7 +464,7 @@ func makeSlice2(t r.Type, n int) r.Value {
 
 func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	nargs := len(node.Args)
-	nmin, nmax := 1, 2
+	var nmin, nmax uint16 = 1, 2
 	tin := c.Type(node.Args[0])
 	var funMakes [4]I
 	switch tin.Kind() {
@@ -454,14 +481,14 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	default:
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "channel, map, slice")
 	}
-	if nargs < nmin || nargs > nmax {
+	if nargs < int(nmin) || nargs > int(nmax) {
 		return c.badBuiltinCallArgNum(sym.Name+"()", nmin, nmax, node.Args)
 	}
 	args := make([]*Expr, nargs)
-	argtypes := make([]r.Type, nargs)
-	args[0] = exprValue(tin)
-	argtypes[0] = TypeOfType
-	te := TypeOfInt
+	argtypes := make([]xr.Type, nargs)
+	args[0] = c.exprValue(typeOfReflectType, tin.ReflectType())
+	argtypes[0] = typeOfReflectType
+	te := xr.TypeOfInt
 	for i := 1; i < nargs; i++ {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
@@ -472,8 +499,8 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		args[i] = argi
 		argtypes[i] = te
 	}
-	outtypes := []r.Type{tin}
-	t := r.FuncOf(argtypes, outtypes, false)
+	outtypes := []xr.Type{tin}
+	t := xr.FuncOf(argtypes, outtypes, false)
 	sym.Type = t
 	funMake := funMakes[nargs]
 	if funMake == nil {
@@ -488,11 +515,11 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 func compileNew(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	tin := c.Type(node.Args[0])
-	tout := r.PtrTo(tin)
-	t := r.FuncOf([]r.Type{TypeOfType}, []r.Type{tout}, false)
+	tout := xr.PtrTo(tin)
+	t := xr.FuncOf([]xr.Type{typeOfReflectType}, []xr.Type{tout}, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: r.New}, &sym)
-	arg := exprValue(tin)
+	arg := c.exprValue(typeOfReflectType, tin.ReflectType())
 	return newCall1(fun, arg, false, tout)
 }
 
@@ -502,7 +529,7 @@ func callPanic(arg interface{}) {
 	panic(arg)
 }
 
-var typeOfBuiltinPanic = r.TypeOf(callPrint)
+var typeOfBuiltinPanic = xr.TypeOf(callPrint)
 
 func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	arg := c.Expr1(node.Args[0])
@@ -531,8 +558,8 @@ func getStdout(env *Env) r.Value {
 }
 
 var (
-	typeOfIoWriter     = r.TypeOf((*io.Writer)(nil)).Elem()
-	typeOfBuiltinPrint = r.TypeOf(callPrint)
+	typeOfIoWriter     = xr.TypeOf((*io.Writer)(nil)).Elem()
+	typeOfBuiltinPrint = xr.TypeOf(callPrint)
 )
 
 func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
@@ -552,7 +579,7 @@ func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		call = callPrintln
 	}
 	fun := exprLit(Lit{Type: t, Value: call}, &sym)
-	return &Call{Fun: fun, Args: args, OutTypes: ZeroTypes, Const: false, Ellipsis: node.Ellipsis != token.NoPos}
+	return &Call{Fun: fun, Args: args, OutTypes: zeroTypes, Const: false, Ellipsis: node.Ellipsis != token.NoPos}
 }
 
 // --- real() and imag() ---
@@ -579,18 +606,18 @@ func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		arg.ConstTo(arg.DefaultType())
 	}
 	tin := arg.Type
-	var tout r.Type
+	var tout xr.Type
 	var call I
 	switch tin.Kind() {
 	case r.Complex64:
-		tout = TypeOfFloat32
+		tout = xr.TypeOfFloat32
 		if sym.Name == "real" {
 			call = callReal32
 		} else {
 			call = callImag32
 		}
 	case r.Complex128:
-		tout = TypeOfFloat64
+		tout = xr.TypeOfFloat64
 		if sym.Name == "real" {
 			call = callReal64
 		} else {
@@ -599,7 +626,7 @@ func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	default:
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "complex")
 	}
-	t := r.FuncOf([]r.Type{tin}, []r.Type{tout}, false)
+	t := xr.FuncOf([]xr.Type{tin}, []xr.Type{tout}, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: call}, &sym)
 	// real() and imag() of a constant are constants: they can be computed at compile time
@@ -613,7 +640,7 @@ func call_builtin(c *Call) I {
 	// builtin functions are always literals, i.e. funindex == NoIndex thus not stored in Env.Binds[]
 	// we must retrieve them directly from c.Fun.Value
 	if !c.Fun.Const() {
-		Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", c.Fun)
+		base.Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", c.Fun)
 	}
 	var name string
 	if c.Fun.Sym != nil {
@@ -625,11 +652,11 @@ func call_builtin(c *Call) I {
 		argfuns[i] = arg.WithFun()
 	}
 	if false {
-		argtypes := make([]r.Type, len(args))
+		argtypes := make([]xr.Type, len(args))
 		for i, arg := range args {
 			argtypes[i] = arg.Type
 		}
-		// Debugf("compiling builtin %s() <%v> with arg types %v", name, r.TypeOf(c.Fun.Value), argtypes)
+		// Debugf("compiling builtin %s() <%v> with arg types %v", name, TypeOf(c.Fun.Value), argtypes)
 	}
 	var call I
 	switch fun := c.Fun.Value.(type) {
@@ -750,8 +777,8 @@ func call_builtin(c *Call) I {
 			call = func(env *Env) int {
 				// arg0 is "assignable to []byte"
 				arg0 := arg0fun(env)
-				if arg0.Type() != TypeOfSliceOfByte {
-					arg0 = arg0.Convert(TypeOfSliceOfByte)
+				if arg0.Type() != rtypeOfSliceOfByte {
+					arg0 = arg0.Convert(rtypeOfSliceOfByte)
 				}
 				return fun(arg0.Interface().([]byte), arg1const)
 			}
@@ -760,8 +787,8 @@ func call_builtin(c *Call) I {
 			call = func(env *Env) int {
 				// arg0 is "assignable to []byte"
 				arg0 := arg0fun(env)
-				if arg0.Type() != TypeOfSliceOfByte {
-					arg0 = arg0.Convert(TypeOfSliceOfByte)
+				if arg0.Type() != rtypeOfSliceOfByte {
+					arg0 = arg0.Convert(rtypeOfSliceOfByte)
 				}
 				arg1 := arg1fun(env)
 				return fun(arg0.Interface().([]byte), arg1)
@@ -920,7 +947,7 @@ func call_builtin(c *Call) I {
 			return fun(arg0, arg1, arg2)
 		}
 	default:
-		Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
+		base.Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
 	}
 	return call
 }
@@ -943,13 +970,13 @@ func (c *Comp) callBuiltin(node *ast.CallExpr, fun *Expr) *Call {
 		c.Errorf("invalid call to non-name builtin: %v", node)
 		return nil
 	}
-	nmin := int(builtin.ArgMin)
-	nmax := int(builtin.ArgMax)
+	nmin := builtin.ArgMin
+	nmax := builtin.ArgMax
 	n := len(node.Args)
-	if n < nmin || n > nmax {
+	if n < int(nmin) || n > int(nmax) {
 		return c.badBuiltinCallArgNum(fun.Sym.Name+"()", nmin, nmax, node.Args)
 	}
-	return builtin.compile(c, *fun.Sym, node)
+	return builtin.Compile(c, *fun.Sym, node)
 }
 
 // callFunction compiles a call to a function that accesses interpreter's *CompEnv
@@ -971,17 +998,17 @@ func (c *Comp) callFunction(node *ast.CallExpr, fun *Expr) (newfun *Expr, lastar
 	return newfun, lastarg
 }
 
-func (c *Comp) badBuiltinCallArgNum(name interface{}, nmin int, nmax int, args []ast.Expr) *Call {
+func (c *Comp) badBuiltinCallArgNum(name interface{}, nmin uint16, nmax uint16, args []ast.Expr) *Call {
 	prefix := "not enough"
 	nargs := len(args)
-	if nargs > nmax {
+	if nargs > int(nmax) {
 		prefix = "too many"
 	}
 	str := fmt.Sprintf("%d", nmin)
 	if nmax <= nmin {
 	} else if nmax == nmin+1 {
 		str = fmt.Sprintf("%s or %d", str, nmax)
-	} else if nmax < MaxInt {
+	} else if nmax < base.MaxUint16 {
 		str = fmt.Sprintf("%s to %d", str, nmax)
 	} else {
 		str = fmt.Sprintf("%s or more", str)
@@ -990,7 +1017,7 @@ func (c *Comp) badBuiltinCallArgNum(name interface{}, nmin int, nmax int, args [
 	return nil
 }
 
-func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, tactual r.Type, texpected interface{}) *Call {
+func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, tactual xr.Type, texpected interface{}) *Call {
 	c.Errorf("cannot use %v <%v> as %v in builtin %s()", arg, tactual, texpected, name)
 	return nil
 }

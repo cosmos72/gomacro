@@ -29,6 +29,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // SetPlaceValue compiles 'place = value' where value is a reflect.Value passed at runtime.
@@ -47,6 +48,7 @@ func (c *Comp) SetPlaceValue(place *Place) func(*Env, r.Value) {
 // Also handy for applications
 func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 	t := va.Type
+	rt := t.ReflectType()
 	upn := va.Upn
 	desc := va.Desc
 	var ret func(env *Env, v r.Value)
@@ -61,7 +63,7 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 			// assigning a value to _ has no effect at all
 			return nil
 		}
-		zero := r.Zero(t)
+		zero := xr.Zero(t)
 		switch upn {
 		case 0:
 			switch t.Kind() {
@@ -80,15 +82,15 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 				ret = func(env *Env, v r.Value) {
 					if v == Nil || v == None {
 						v = zero
-					} else if v.Type() != t {
-						v = v.Convert(t)
+					} else if v.Type() != rt {
+						v = v.Convert(rt)
 					}
 					env.Binds[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
-					if v.Type() != t {
-						v = v.Convert(t)
+					if v.Type() != rt {
+						v = v.Convert(rt)
 					}
 					env.Binds[index].Set(v)
 				}
@@ -110,15 +112,15 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 				ret = func(env *Env, v r.Value) {
 					if v == Nil || v == None {
 						v = zero
-					} else if v.Type() != t {
-						v = v.Convert(t)
+					} else if v.Type() != rt {
+						v = v.Convert(rt)
 					}
 					env.Outer.Binds[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
-					if v.Type() != t {
-						v = v.Convert(t)
+					if v.Type() != rt {
+						v = v.Convert(rt)
 					}
 					env.Outer.Binds[index].Set(v)
 				}
@@ -140,15 +142,15 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 				ret = func(env *Env, v r.Value) {
 					if v == Nil || v == None {
 						v = zero
-					} else if v.Type() != t {
-						v = v.Convert(t)
+					} else if v.Type() != rt {
+						v = v.Convert(rt)
 					}
 					env.Outer.Outer.Binds[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
-					if v.Type() != t {
-						v = v.Convert(t)
+					if v.Type() != rt {
+						v = v.Convert(rt)
 					}
 					env.Outer.Outer.Binds[index].Set(v)
 				}
@@ -182,8 +184,8 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 					}
 					if v == Nil || v == None {
 						v = zero
-					} else if v.Type() != t {
-						v = v.Convert(t)
+					} else if v.Type() != rt {
+						v = v.Convert(rt)
 					}
 					o.Binds[index].Set(v)
 				}
@@ -193,8 +195,8 @@ func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-					if v.Type() != t {
-						v = v.Convert(t)
+					if v.Type() != rt {
+						v = v.Convert(rt)
 					}
 					o.Binds[index].Set(v)
 				}

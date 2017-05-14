@@ -5938,14 +5938,15 @@ func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
 		c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
 		return
 	}
+	rt := t.ReflectType()
 	if init.Const() {
 		val := init.Value
 		v := r.ValueOf(val)
 		if v == None || v == Nil {
-			v = r.Zero(t)
+			v = r.Zero(rt)
 			val = v.Interface()
-		} else if v.Type() != t {
-			v = v.Convert(t)
+		} else if v.Type() != rt {
+			v = v.Convert(rt)
 			val = v.Interface()
 		}
 		switch op {

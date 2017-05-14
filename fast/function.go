@@ -27,6 +27,8 @@ package fast
 import (
 	"go/ast"
 	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type funcMaker struct {
@@ -126,7 +128,7 @@ func (c *Comp) FuncLit(funclit *ast.FuncLit) *Expr {
 }
 
 // prepare the function parameter binds, result binds and FuncInfo
-func (c *Comp) funcBinds(functype *ast.FuncType, t r.Type, paramnames, resultnames []string) (info *FuncInfo, resultfuns []I) {
+func (c *Comp) funcBinds(functype *ast.FuncType, t xr.Type, paramnames, resultnames []string) (info *FuncInfo, resultfuns []I) {
 
 	parambinds := c.funcParamBinds(functype, t, paramnames)
 
@@ -139,7 +141,7 @@ func (c *Comp) funcBinds(functype *ast.FuncType, t r.Type, paramnames, resultnam
 }
 
 // prepare the function parameter binds
-func (c *Comp) funcParamBinds(functype *ast.FuncType, t r.Type, names []string) []*Bind {
+func (c *Comp) funcParamBinds(functype *ast.FuncType, t xr.Type, names []string) []*Bind {
 	n := t.NumIn()
 	binds := make([]*Bind, n)
 	var namedparams, unnamedparams bool
@@ -164,7 +166,7 @@ func (c *Comp) funcParamBinds(functype *ast.FuncType, t r.Type, names []string) 
 }
 
 // prepare the function result binds
-func (c *Comp) funcResultBinds(functype *ast.FuncType, t r.Type, names []string) (binds []*Bind, funs []I) {
+func (c *Comp) funcResultBinds(functype *ast.FuncType, t xr.Type, names []string) (binds []*Bind, funs []I) {
 	n := t.NumOut()
 	binds = make([]*Bind, n)
 	funs = make([]I, n)
@@ -191,7 +193,7 @@ func (c *Comp) funcResultBinds(functype *ast.FuncType, t r.Type, names []string)
 }
 
 // actually create the function
-func (c *Comp) funcCreate(t r.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) r.Value {
+func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) r.Value {
 	m := &funcMaker{
 		nbinds:      c.BindNum,
 		nintbinds:   c.IntBindNum,
@@ -230,7 +232,7 @@ func (c *Comp) funcCreate(t r.Type, info *FuncInfo, resultfuns []I, funcbody fun
 }
 
 // fallback: create a non-optimized function
-func (c *Comp) funcGeneric(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 	paramdecls := make([]func(*Env, r.Value), len(m.parambinds))
 	for i, bind := range m.parambinds {
@@ -247,11 +249,12 @@ func (c *Comp) funcGeneric(t r.Type, m *funcMaker) func(*Env) r.Value {
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
 	funcbody := m.funcbody
+	rtype := t.ReflectType()
 
 	return func(env *Env) r.Value {
 		// function is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
-		return r.MakeFunc(t, func(args []r.Value) []r.Value {
+		return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
 			env := NewEnv(env, nbinds, nintbinds)
 
 			if funcbody != nil {

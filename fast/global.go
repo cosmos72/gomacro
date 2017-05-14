@@ -32,6 +32,7 @@ import (
 	"sort"
 
 	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // ================================= Untyped =================================
@@ -43,7 +44,7 @@ type UntypedLit struct {
 }
 
 var (
-	typeOfUntypedLit = r.TypeOf(UntypedLit{})
+	typeOfUntypedLit = xr.TypeOf(UntypedLit{})
 
 	UntypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(0)}
 	UntypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(1)}
@@ -79,7 +80,7 @@ type Lit struct {
 	//
 	// when Lit is embedded in other structs that represent non-constant expressions,
 	// Type is the first type returned by the expression (nil if returns no values)
-	Type r.Type
+	Type xr.Type
 
 	// Value is one of:
 	//   nil, bool, int, int8, int16, int32, int64,
@@ -122,9 +123,9 @@ func (lit Lit) String() string {
 // Expr represents an expression in the "compiler"
 type Expr struct {
 	Lit
-	Types []r.Type // in case the expression produces multiple values. if nil, use Lit.Type.
-	Fun   I        // function that evaluates the expression at runtime.
-	Sym   *Symbol  // in case the expression is a symbol
+	Types []xr.Type // in case the expression produces multiple values. if nil, use Lit.Type.
+	Fun   I         // function that evaluates the expression at runtime.
+	Sym   *Symbol   // in case the expression is a symbol
 	IsNil bool
 }
 
@@ -141,7 +142,7 @@ func (e *Expr) NumOut() int {
 }
 
 // Out returns the i-th type that an expression will produce when evaluated
-func (e *Expr) Out(i int) r.Type {
+func (e *Expr) Out(i int) xr.Type {
 	if i == 0 && e.Types == nil {
 		return e.Type
 	}
@@ -149,9 +150,9 @@ func (e *Expr) Out(i int) r.Type {
 }
 
 // Outs returns the types that an expression will produce when evaluated
-func (e *Expr) Outs() []r.Type {
+func (e *Expr) Outs() []xr.Type {
 	if e.Types == nil {
-		return []r.Type{e.Type}
+		return []xr.Type{e.Type}
 	}
 	return e.Types
 }
@@ -180,22 +181,22 @@ type Stmt func(*Env) (Stmt, *Env)
 type Builtin struct {
 	// interpreted code should not access "compile": not exported.
 	// compile usually needs to modify Symbol: pass it by value.
-	compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call
+	Compile func(c *Comp, sym Symbol, node *ast.CallExpr) *Call
 	ArgMin  uint16
 	ArgMax  uint16
 }
 
-var TypeOfBuiltin = r.TypeOf(Builtin{})
+var TypeOfBuiltin = xr.TypeOf(Builtin{})
 
 // ================================= EnvFunction =================================
 
 // Function represents a function that accesses *CompEnv in the fast interpreter
 type Function struct {
 	Fun  I
-	Type r.Type
+	Type xr.Type
 }
 
-var TypeOfFunction = r.TypeOf(Function{})
+var TypeOfFunction = xr.TypeOf(Function{})
 
 // ================================= BindClass =================================
 
@@ -276,8 +277,8 @@ func (bind *Bind) Const() bool {
 	return bind.Desc.Class() == ConstBind
 }
 
-func BindConst(value I) *Bind {
-	return &Bind{Lit: Lit{Type: r.TypeOf(value), Value: value}, Desc: ConstBindDescriptor}
+func BindUntyped(value UntypedLit) *Bind {
+	return &Bind{Lit: Lit{Type: typeOfUntypedLit, Value: value}, Desc: ConstBindDescriptor}
 }
 
 func (bind *Bind) AsVar(upn int, opt PlaceOption) *Var {
@@ -317,7 +318,7 @@ type Var struct {
 	// Upn and Desc are usually the zero values
 	Upn  int
 	Desc BindDescriptor
-	Type r.Type
+	Type xr.Type
 	Name string
 }
 
@@ -336,7 +337,7 @@ type Place struct {
 	Addr func(*Env) r.Value
 	// used only for map[key], returns key. call it only once, it may have side effects!
 	MapKey  func(*Env) r.Value
-	MapType r.Type
+	MapType xr.Type
 }
 
 func (place *Place) IsVar() bool {
@@ -414,8 +415,8 @@ type Comp struct {
 	// usually equals one. will be zero if this *Comp defines no local variables/functions.
 	UpCost         int
 	Depth          int
-	Types          map[string]r.Type
-	NamedTypes     map[r.Type]NamedType
+	Types          map[string]xr.Type
+	ReflectTypes   map[r.Type]xr.Type
 	Code           Code      // "compiled" code
 	Loop           *LoopInfo // != nil when compiling a for or switch
 	Func           *FuncInfo // != nil when compiling a function
@@ -460,7 +461,7 @@ type CompEnv struct {
 	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
 }
 
-var typeOfCompEnv = r.TypeOf((*CompEnv)(nil))
+var typeOfCompEnv = xr.TypeOf((*CompEnv)(nil))
 
 type (
 	I interface{}

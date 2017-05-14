@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package type2
+package xtype
 
 import (
 	"go/token"
@@ -30,16 +30,15 @@ import (
 	"reflect"
 )
 
-// NumExplicitMethods returns the number of explicitly declared methods of named type or interface t.
-// Wrapper methods for embedded fields or embedded interfaces are not counted - use NumMethods() to include them.
-func (t *xtype) NumMethods() int {
+// NumMethod returns the number of explicitly declared methods of named type or interface t.
+// Wrapper methods for embedded fields or embedded interfaces are not counted.
+func (t *xtype) NumMethod() int {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
 		return gtype.NumMethods()
 	case *types.Interface:
 		return gtype.NumExplicitMethods()
 	default:
-		errorf("NumExplicitMethods on invalid type %v", t)
 		return 0
 	}
 }
@@ -54,7 +53,7 @@ func (t *xtype) Method(i int) Method {
 	case *types.Interface:
 		gfun = gtype.ExplicitMethod(i)
 	default:
-		errorf("ExplicitMethod on invalid type %v", t)
+		errorf("Method on invalid type %v", t)
 	}
 	rmethod, _ := t.rtype.MethodByName(gfun.Name())
 	return makemethod(i, gfun, &rmethod)
@@ -75,16 +74,12 @@ func makemethod(index int, gfun *types.Func, rmethod *reflect.Method) Method {
 // These two steps are separate to allow creating self-referencing types,
 // as for example type List struct { Elem int; Rest *List }
 func NamedOf(name string, pkg *Package) Type {
-	return namedOf(name, pkg)
-}
-
-func namedOf(name string, pkg *Package) *xtype {
 	underlying := TypeOfInterface
-	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.gtype)
+	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
 	return &xtype{
 		kind:  reflect.Invalid, // incomplete type! will be fixed by SetUnderlying
-		gtype: types.NewNamed(typename, underlying.gtype, nil),
-		rtype: underlying.rtype,
+		gtype: types.NewNamed(typename, underlying.GoType(), nil),
+		rtype: underlying.ReflectType(),
 	}
 }
 
@@ -94,7 +89,7 @@ func namedOf(name string, pkg *Package) *xtype {
 func (t *xtype) SetUnderlying(underlying Type) {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
-		if t.kind != reflect.Invalid || gtype.Underlying() != TypeOfInterface.gtype || t.rtype != TypeOfInterface.rtype {
+		if t.kind != reflect.Invalid || gtype.Underlying() != TypeOfInterface.GoType() || t.rtype != TypeOfInterface.ReflectType() {
 			errorf("SetUnderlying invoked multiple times on named type %v", t)
 		}
 		gunderlying := underlying.GoType()

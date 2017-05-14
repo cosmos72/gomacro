@@ -30,6 +30,7 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (ce *CompEnv) RunExpr1(expr *Expr) r.Value {
@@ -82,7 +83,7 @@ func (ce *CompEnv) Eval(src string) (r.Value, []r.Value) {
 }
 
 // DeclConst compiles a constant declaration
-func (ce *CompEnv) DeclConst(name string, t r.Type, value I) {
+func (ce *CompEnv) DeclConst(name string, t xr.Type, value I) {
 	ce.Comp.DeclConst0(name, t, value)
 }
 
@@ -104,13 +105,16 @@ func (ce *CompEnv) DeclEnvFunc(name string, function Function) {
 }
 
 // DeclType compiles a type declaration
-func (ce *CompEnv) DeclType(name string, t r.Type) {
+func (ce *CompEnv) DeclType(name string, t xr.Type) {
 	ce.Comp.DeclType0(name, t)
 }
 
 // DeclVar compiles a variable declaration
-func (ce *CompEnv) DeclVar(name string, t r.Type, value I) {
-	ce.Comp.DeclVar0(name, t, exprValue(value))
+func (ce *CompEnv) DeclVar(name string, t xr.Type, value I) {
+	if t == nil {
+		t = ce.Comp.xtypeof(value)
+	}
+	ce.Comp.DeclVar0(name, t, ce.Comp.exprValue(t, value))
 	ce.apply()
 }
 

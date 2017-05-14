@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package type2
+package xtype
 
 import (
 	"errors"
@@ -95,6 +95,9 @@ var (
 	TypeOfComplex64  = BasicTypes[reflect.Complex64]
 	TypeOfComplex128 = BasicTypes[reflect.Complex128]
 	TypeOfString     = BasicTypes[reflect.String]
+
+	TypeOfByte = TypeOfUint8
+	TypeOfRune = TypeOfInt32
 
 	TypeOfError = maketype(
 		types.Universe.Lookup("error").Type(),

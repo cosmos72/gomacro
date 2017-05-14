@@ -30,6 +30,7 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // Assign compiles an *ast.AssignStmt into an assignment to one or more place
@@ -254,7 +255,7 @@ func (p *Place) Cache(option CacheOption) (setfun func(*Env), addrfun func(*Env)
 	}
 	t := p.Type
 	if p.Addr != nil {
-		addrfun, p.Addr = cacheFunX1(p.Addr, r.PtrTo(t), option)
+		addrfun, p.Addr = cacheFunX1(p.Addr, xr.PtrTo(t), option)
 	}
 	if p.MapKey != nil {
 		tmap := p.MapType
@@ -271,7 +272,7 @@ func (p *Place) Cache(option CacheOption) (setfun func(*Env), addrfun func(*Env)
 // the function 'getfun' will return the cached value.
 // If 'option' == CacheCopy, setfun will also make a copy of the value before storing it in the cache.
 // Used to create temporary storage for multiple assignments, as for example a,b = b,a
-func CacheFun(fun I, t r.Type, option CacheOption) (setfun func(*Env), getfun I) {
+func CacheFun(fun I, t xr.Type, option CacheOption) (setfun func(*Env), getfun I) {
 	switch t.Kind() {
 	case r.Bool:
 		fun := fun.(func(*Env) bool)
@@ -438,14 +439,15 @@ func CacheFun(fun I, t r.Type, option CacheOption) (setfun func(*Env), getfun I)
 }
 
 // special case of CacheFun
-func cacheFunXV(fun func(env *Env) (r.Value, []r.Value), t r.Type, option CacheOption) (setfun func(*Env), getfun func(env *Env) r.Value) {
+func cacheFunXV(fun func(env *Env) (r.Value, []r.Value), t xr.Type, option CacheOption) (setfun func(*Env), getfun func(env *Env) r.Value) {
+	rt := t.ReflectType()
 	var cache r.Value
 	if option == CacheCopy {
 		setfun = func(env *Env) {
 			cache, _ = fun(env)
 			if cache != base.Nil && cache.CanSet() {
 				// make a copy. how? Convert() the r.Value to its expected type
-				cache = cache.Convert(t)
+				cache = cache.Convert(rt)
 			}
 		}
 	} else {
@@ -460,14 +462,15 @@ func cacheFunXV(fun func(env *Env) (r.Value, []r.Value), t r.Type, option CacheO
 }
 
 // special case of CacheFun
-func cacheFunX1(fun func(env *Env) r.Value, t r.Type, option CacheOption) (setfun func(*Env), getfun func(env *Env) r.Value) {
+func cacheFunX1(fun func(env *Env) r.Value, t xr.Type, option CacheOption) (setfun func(*Env), getfun func(env *Env) r.Value) {
+	rt := t.ReflectType()
 	var cache r.Value
 	if option == CacheCopy {
 		setfun = func(env *Env) {
 			cache = fun(env)
 			if cache != base.Nil && cache.CanSet() {
 				// make a copy. how? Convert() the r.Value to its expected type
-				cache = cache.Convert(t)
+				cache = cache.Convert(rt)
 			}
 		}
 	} else {

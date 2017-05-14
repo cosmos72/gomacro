@@ -29,6 +29,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	xt "github.com/cosmos72/gomacro/xtype"
 )
 
 :import (
@@ -144,7 +145,7 @@ import (
 }
 
 :macro setplace_expr(depth, typ ast.Node) ast.Node {
-	ret := fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(t)})
+	ret := fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(rt)})
 	if EvalType(typ) == nil {
 		return ~"{
 			fun := funAsX1(fun, nil)
@@ -208,18 +209,19 @@ import (
 }
 
 // varSetZero compiles 'variable = 0'
-func (c *Comp) varSetZero(upn int, index int, t r.Type) {
-	zero := r.Zero(t).Interface()
+func (c *Comp) varSetZero(upn int, index int, t xt.Type) {
+	zero := xt.Zero(t).Interface()
 	c.varSetConst(upn, index, t, zero)
 }
 
 // varSetConst compiles 'name = constant'
-func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
+func (c *Comp) varSetConst(upn int, index int, t xt.Type, val I) {
 	v := r.ValueOf(val)
+	rt := t.ReflectType()
 	if ValueType(v) == nil {
-		v = r.Zero(t)
+		v = r.Zero(rt)
 	} else {
-		v = v.Convert(t)
+		v = v.Convert(rt)
 	}
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
@@ -233,7 +235,8 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 }
 
 // varSetExpr compiles 'name = expression'
-func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
+func (c *Comp) varSetExpr(upn int, index int, t xt.Type, fun I) {
+	rt := t.ReflectType()
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
 	case 0:         setplaces_expr;  0

@@ -29,14 +29,15 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-type rMethod struct {
-	r.Method
+type cMethod struct {
+	xr.Method
 	FieldIndexes []int
 }
 
-type rField r.StructField
+type cField xr.StructField
 
 // SelectorExpr compiles foo.bar, i.e. read access to methods and struct fields
 func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
@@ -67,7 +68,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 }
 
 // lookup fields and methods at the same time... it's and error if both exist at the same depth
-func (c *Comp) LookupFieldOrMethod(t r.Type, name string) (rField, bool, rMethod, bool) {
+func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (cField, bool, cMethod, bool) {
 	field, fieldn := c.lookupField(t, name)
 	mtd, mtdn := c.lookupMethod(t, name)
 	fielddepth := len(field.Index)
@@ -94,39 +95,30 @@ func (c *Comp) LookupFieldOrMethod(t r.Type, name string) (rField, bool, rMethod
 }
 
 // lookupField performs a breadth-first search for struct field with given name
-func (c *Comp) lookupField(t r.Type, name string) (field rField, numfound int) {
+func (c *Comp) lookupField(t xr.Type, name string) (field cField, numfound int) {
 	return c.lookupField0(t, 0, nil, name)
 }
 
-func (c *Comp) lookupField0(t r.Type, offset uintptr, index []int, name string) (field rField, numfound int) {
-	var recurse []r.StructField
+func (c *Comp) lookupField0(t xr.Type, offset uintptr, index []int, name string) (field cField, numfound int) {
+	var recurse []xr.StructField
 	if t.Kind() == r.Ptr {
 		t = t.Elem()
 		offset = 0
 	}
 	n := t.NumField()
-	private := isPrivateFieldName(name)
+	exported := isExportedName(name)
 	for i := 0; i < n; i++ {
 		fieldi := t.Field(i)
-		// check for exported/private (unexported) field
-		if fieldi.Name == name {
-			field = rField(fieldi)
+		// check for exported/unexported field
+		if fieldi.Name == name && (exported || (fieldi.Pkg != nil && fieldi.Pkg.Path() == c.FileComp().Path)) {
+			field = cField(fieldi)
 			numfound++
 			continue
-		}
-		// check for GensymPrivate fields - they emulate private fields
-		if private && base.IsGensymPrivate(fieldi.Name) {
-			fname := fieldi.Name[len(base.StrGensymPrivate):]
-			if fname == name {
-				field = rField(fieldi)
-				numfound++
-				continue
-			}
 		}
 		// check for embedded fields
 		if fieldi.Anonymous {
 			if fieldi.Type.Name() == name {
-				field = rField(fieldi)
+				field = cField(fieldi)
 				numfound++
 				continue
 			} else {
@@ -136,9 +128,9 @@ func (c *Comp) lookupField0(t r.Type, offset uintptr, index []int, name string) 
 		// check for GensymEmbedded fields - they emulate embedded fields
 		if base.IsGensymEmbedded(fieldi.Name) {
 			fname := fieldi.Name[len(base.StrGensymEmbedded):]
-			if fname == name || c.NamedTypes[fieldi.Type].Name == name {
+			if fname == name {
 				// c.Debugf("lookupField: found GensymEmbedded field: %v", fieldi)
-				field = rField(fieldi)
+				field = cField(fieldi)
 				field.Anonymous = true
 				numfound++
 				continue
@@ -163,19 +155,24 @@ func (c *Comp) lookupField0(t r.Type, offset uintptr, index []int, name string) 
 	return
 }
 
-func isPrivateFieldName(name string) bool {
+func isExportedName(name string) bool {
 	if len(name) == 0 {
-		return false
+		return true
 	}
 	ch := name[0]
-	return ch >= 'a' && ch <= 'z' || ch == '_'
+	return ch != '_' && (ch < 'a' || ch > 'z')
 }
 
-func (c *Comp) lookupMethod(t r.Type, name string) (mtd rMethod, count int) {
-	m, ok := t.MethodByName(name)
-	if ok {
-		mtd = rMethod{Method: m, FieldIndexes: nil}
-		count++
+func (c *Comp) lookupMethod(t xr.Type, name string) (mtd cMethod, count int) {
+	exported := isExportedName(name)
+	n := t.NumMethod()
+	for i := 0; i < n; i++ {
+		m := t.Method(i)
+		// check for exported/unexported method
+		if m.Name == name && (exported || (m.Pkg != nil && m.Pkg.Path() == c.FileComp().Path)) {
+			mtd = cMethod{Method: m, FieldIndexes: nil}
+			count++
+		}
 	}
 	return mtd, count
 
@@ -190,7 +187,7 @@ func (c *Comp) lookupMethod(t r.Type, name string) (mtd rMethod, count int) {
 	*/
 }
 
-func (c *Comp) compileField(e *Expr, field rField) *Expr {
+func (c *Comp) compileField(e *Expr, field cField) *Expr {
 	objfun := e.AsX1()
 	t := field.Type
 	var fun I
@@ -388,10 +385,10 @@ func (c *Comp) compileField(e *Expr, field rField) *Expr {
 	return exprFun(t, fun)
 }
 
-func (c *Comp) compileMethod(e *Expr, mtd rMethod) *Expr {
+func (c *Comp) compileMethod(e *Expr, mtd cMethod) *Expr {
 	// slow, but simple: return a closure with the receiver already bound
 	index := mtd.Index
-	t := r.Zero(e.Type).Method(index).Type()
+	t := e.Type.Method(index).Type
 	objfun := e.AsX1()
 	fun := func(env *Env) r.Value {
 		obj := objfun(env)
@@ -448,7 +445,7 @@ func (c *Comp) checkSettableField(node *ast.SelectorExpr) {
 	panicking = false
 }
 
-func (c *Comp) compileFieldPlace(e *Expr, field rField) *Place {
+func (c *Comp) compileFieldPlace(e *Expr, field cField) *Place {
 	// c.Debugf("compileFieldPlace: field=%#v", field)
 	objfun := e.AsX1()
 	t := field.Type

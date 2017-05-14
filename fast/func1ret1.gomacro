@@ -29,6 +29,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	xt "github.com/cosmos72/gomacro/xtype"
 )
 
 :import (
@@ -182,7 +183,7 @@ import (
 	}
 }
 
-func (c *Comp) func1ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func1ret1(t xt.Type, m *funcMaker) func(*Env) r.Value {
 	// do NOT keep a reference to funcMaker
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
@@ -204,7 +205,7 @@ func (c *Comp) func1ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
 
 
 
-func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func_ret1(t xt.Type, m *funcMaker) func(*Env) r.Value {
 	switch t.NumIn() {
 	case 0:
 		return c.func0ret1(t, m)

@@ -36,6 +36,7 @@ import (
 	cm "github.com/cosmos72/gomacro/experiments/closure_maps"
 	cv "github.com/cosmos72/gomacro/experiments/closure_values"
 	"github.com/cosmos72/gomacro/fast"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 const (
@@ -507,7 +508,7 @@ func BenchmarkCollatzCompiler(b *testing.B) {
 
 func BenchmarkCollatzFast(b *testing.B) {
 	ce := fast.New()
-	ce.DeclVar("n", TypeOfInt, 0)
+	ce.DeclVar("n", xr.TypeOfInt, 0)
 
 	addr := ce.AddressOfVar("n").Interface().(*int)
 

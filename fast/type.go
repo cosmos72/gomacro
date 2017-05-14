@@ -30,6 +30,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // DeclType compiles a type declaration.
@@ -46,7 +47,7 @@ func (c *Comp) DeclType(node ast.Spec) {
 
 // DeclType0 executes a type declaration
 // in Go, types are computed only at compile time - no need for a runtime *Env
-func (c *Comp) DeclType0(name string, t r.Type) r.Type {
+func (c *Comp) DeclType0(name string, t xr.Type) xr.Type {
 	if name == "_" {
 		// never define bindings for "_"
 		return t
@@ -54,24 +55,24 @@ func (c *Comp) DeclType0(name string, t r.Type) r.Type {
 	if _, ok := c.Types[name]; ok {
 		c.Warnf("redefined type: %v", name)
 	} else if c.Types == nil {
-		c.Types = make(map[string]r.Type)
+		c.Types = make(map[string]xr.Type)
 	}
 	c.Types[name] = t
-	if c.NamedTypes == nil {
-		c.NamedTypes = make(map[r.Type]NamedType)
+	if c.ReflectTypes == nil {
+		c.ReflectTypes = make(map[r.Type]xr.Type)
 	}
-	c.NamedTypes[t] = NamedType{Name: name, Path: c.Path}
+	c.ReflectTypes[t.ReflectType()] = t
 	return t
 }
 
 // Type compiles a type expression.
-func (c *Comp) Type(node ast.Expr) r.Type {
+func (c *Comp) Type(node ast.Expr) xr.Type {
 	t, _ := c.compileType2(node, false)
 	return t
 }
 
 // compileTypeOrNil compiles a type expression. as a special case used by type switch, compiles *ast.Ident{Name:"nil"} to nil
-func (c *Comp) compileTypeOrNil(node ast.Expr) r.Type {
+func (c *Comp) compileTypeOrNil(node ast.Expr) xr.Type {
 	for {
 		switch expr := node.(type) {
 		case *ast.ParenExpr:
@@ -95,7 +96,7 @@ func (c *Comp) compileTypeOrNil(node ast.Expr) r.Type {
 // if allowEllipsis is true, it supports the special case &ast.Ellipsis{/*expression*/}
 // that represents ellipsis in the last argument of a function declaration.
 // The second return value is true both in the case above, and for array types whose length is [...]
-func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellipsis bool) {
+func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellipsis bool) {
 	stars := 0
 	for {
 		switch expr := node.(type) {
@@ -134,7 +135,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 		} else if node.Dir == ast.RECV {
 			dir = r.RecvDir
 		}
-		t = r.ChanOf(dir, telem)
+		t = xr.ChanOf(dir, telem)
 	case *ast.FuncType:
 		t, _, _ = c.TypeFunction(node)
 	case *ast.Ident:
@@ -144,7 +145,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 	case *ast.MapType:
 		kt := c.Type(node.Key)
 		vt := c.Type(node.Value)
-		t = r.MapOf(kt, vt)
+		t = xr.MapOf(kt, vt)
 	case *ast.SelectorExpr:
 		if _, ok := node.X.(*ast.Ident); ok {
 			/*
@@ -168,7 +169,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 		// c.Debugf("evalType() struct names and types: %v %v", types, names)
 		fields := c.makeStructFields(c.FileComp().Path, names, types)
 		// c.Debugf("compileType2() declaring struct type. fields=%#v", fields)
-		t = r.StructOf(fields)
+		t = xr.StructOf(fields)
 	case nil:
 		// type can be omitted in many case - then we must perform type inference
 		break
@@ -177,23 +178,23 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t r.Type, ellips
 		c.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 	}
 	for i := 0; i < stars; i++ {
-		t = r.PtrTo(t)
+		t = xr.PtrTo(t)
 	}
 	if allowEllipsis && ellipsis {
-		t = r.SliceOf(t)
+		t = xr.SliceOf(t)
 	}
 	return t, ellipsis
 }
 
-func (c *Comp) TypeArray(node *ast.ArrayType) (t r.Type, ellipsis bool) {
+func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
 	t = c.Type(node.Elt)
 	n := node.Len
 	switch n := n.(type) {
 	case *ast.Ellipsis:
-		t = r.SliceOf(t)
+		t = xr.SliceOf(t)
 		ellipsis = true
 	case nil:
-		t = r.SliceOf(t)
+		t = xr.SliceOf(t)
 	default:
 		// as stated by https://golang.org/ref/spec#Array_types
 		// "The length is part of the array's type; it must evaluate to a non-negative constant
@@ -204,45 +205,43 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t r.Type, ellipsis bool) {
 			c.Errorf("array length is not a constant: %v", node)
 			return
 		} else if init.Untyped() {
-			count = init.ConstTo(TypeOfInt).(int)
+			count = init.ConstTo(xr.TypeOfInt).(int)
 		} else {
-			count = convertLiteralCheckOverflow(init.Value, TypeOfInt).(int)
+			count = convertLiteralCheckOverflow(init.Value, xr.TypeOfInt).(int)
 		}
 		if count < 0 {
 			c.Errorf("array length [%v] is negative: %v", count, node)
 		}
-		t = r.ArrayOf(count, t)
+		t = xr.ArrayOf(count, t)
 	}
 	return t, ellipsis
 }
 
-func (c *Comp) TypeFunction(node *ast.FuncType) (t r.Type, paramNames []string, resultNames []string) {
+func (c *Comp) TypeFunction(node *ast.FuncType) (t xr.Type, paramNames []string, resultNames []string) {
 	tFunc, _, paramNames, resultNames := c.TypeFunctionOrMethod(nil, node)
 	return tFunc, paramNames, resultNames
 }
 
-func (c *Comp) TypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (tFunc r.Type, tFuncOrMethod r.Type, paramNames []string, resultNames []string) {
+func (c *Comp) TypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (tFunc xr.Type, tFuncOrMethod xr.Type, paramNames []string, resultNames []string) {
 	paramTypes, paramNames, variadic := c.typeFieldOrParamList(node.Params, true)
 	resultTypes, resultNames := c.TypeFields(node.Results)
-	tFunc = r.FuncOf(paramTypes, resultTypes, variadic)
+	tFunc = xr.FuncOf(paramTypes, resultTypes, variadic)
 
 	if recv != nil {
-		recvTypes, recvNames, _ := c.typeFieldsOrParams([]*ast.Field{recv}, false)
-		paramTypes = append(recvTypes, paramTypes...)
-		paramNames = append(recvNames, paramNames...)
-		tFuncOrMethod = r.FuncOf(paramTypes, resultTypes, variadic)
+		recvTypes, _, _ := c.typeFieldsOrParams([]*ast.Field{recv}, false)
+		tFuncOrMethod = xr.MethodOf(recvTypes[0], paramTypes, resultTypes, variadic)
 	} else {
 		tFuncOrMethod = tFunc
 	}
 	return tFunc, tFuncOrMethod, paramNames, resultNames
 }
 
-func (c *Comp) TypeFields(fields *ast.FieldList) (types []r.Type, names []string) {
+func (c *Comp) TypeFields(fields *ast.FieldList) (types []xr.Type, names []string) {
 	types, names, _ = c.typeFieldOrParamList(fields, false)
 	return types, names
 }
 
-func (c *Comp) typeFieldOrParamList(fields *ast.FieldList, allowEllipsis bool) (types []r.Type, names []string, ellipsis bool) {
+func (c *Comp) typeFieldOrParamList(fields *ast.FieldList, allowEllipsis bool) (types []xr.Type, names []string, ellipsis bool) {
 	var list []*ast.Field
 	if fields != nil {
 		list = fields.List
@@ -250,14 +249,14 @@ func (c *Comp) typeFieldOrParamList(fields *ast.FieldList, allowEllipsis bool) (
 	return c.typeFieldsOrParams(list, allowEllipsis)
 }
 
-func (c *Comp) typeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (types []r.Type, names []string, ellipsis bool) {
-	types = make([]r.Type, 0)
+func (c *Comp) typeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (types []xr.Type, names []string, ellipsis bool) {
+	types = make([]xr.Type, 0)
 	names = ZeroStrings
 	n := len(list)
 	if n == 0 {
 		return types, names, ellipsis
 	}
-	var t r.Type
+	var t xr.Type
 	for i, f := range list {
 		t, ellipsis = c.compileType2(f.Type, i == n-1)
 		if len(f.Names) == 0 {
@@ -275,7 +274,7 @@ func (c *Comp) typeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (types 
 	return types, names, ellipsis
 }
 
-func (c *Comp) TypeIdent(name string) r.Type {
+func (c *Comp) TypeIdent(name string) xr.Type {
 	for co := c; co != nil; co = co.Outer {
 		if t, ok := co.Types[name]; ok {
 			return t
@@ -285,13 +284,13 @@ func (c *Comp) TypeIdent(name string) r.Type {
 	return nil
 }
 
-func (c *Comp) makeStructFields(pkgPath string, names []string, types []r.Type) []r.StructField {
+func (c *Comp) makeStructFields(pkgPath string, names []string, types []xr.Type) []xr.StructField {
 	// pkgIdentifier := sanitizeIdentifier(pkgPath)
-	fields := make([]r.StructField, len(names))
+	fields := make([]xr.StructField, len(names))
 	for i, name := range names {
 		t := types[i]
-		fields[i] = r.StructField{
-			Name:      c.toExportedName(name, t), // declaring unexported fields is quite useless... cannot access them
+		fields[i] = xr.StructField{
+			Name:      name,
 			Type:      t,
 			Tag:       "",
 			Anonymous: len(name) == 0,
@@ -300,25 +299,12 @@ func (c *Comp) makeStructFields(pkgPath string, names []string, types []r.Type) 
 	return fields
 }
 
-func (c *Comp) toExportedName(name string, t r.Type) string {
-	if len(name) == 0 {
-		// embedded field
-		if name = t.Name(); len(name) == 0 {
-			name = c.NamedTypes[t].Name
-		}
-		name = c.GensymEmbedded(name)
-	} else if ch := name[0]; ch == '_' || ch >= 'a' && ch <= 'z' {
-		// private field, i.e. not exported
-		name = c.GensymPrivate(name)
-	}
-	return name
-}
-
 // TypeAssert2 compiles a multi-valued type assertion
 func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	val := c.Expr1(node.X)
 	tin := val.Type
 	tout := c.Type(node.Type)
+	rtout := tout.ReflectType()
 	kout := tout.Kind()
 	if tin == nil || tin.Kind() != r.Interface {
 		c.Errorf("invalid type assertion: %v (non-interface type <%v> on left)", node, tin)
@@ -327,8 +313,8 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	if tout.Kind() != r.Interface && !tout.Implements(tin) {
 		c.Errorf("impossible type assertion: <%v> does not implement <%v>", tout, tin)
 	}
-	fun := val.Fun.(func(*Env) r.Value)    // val returns an interface... must be already wrapped in a reflect.Value
-	fail := []r.Value{r.Zero(tout), False} // returned by type assertion in case of failure
+	fun := val.Fun.(func(*Env) r.Value)     // val returns an interface... must be already wrapped in a reflect.Value
+	fail := []r.Value{xr.Zero(tout), False} // returned by type assertion in case of failure
 
 	var ret func(env *Env) (r.Value, []r.Value)
 
@@ -336,12 +322,12 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env)
 			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
-			if v.Type() != tout {
+			if v.Kind() != kout {
 				return fail[0], fail
 			}
 			return v, []r.Value{v, True}
 		}
-	} else if tout == TypeOfInterface {
+	} else if tout == xr.TypeOfInterface {
 		// special case, nil is a valid interface{}
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env).Convert(TypeOfInterface)
@@ -356,7 +342,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			if v.IsNil() {
 				return fail[0], fail
 			}
-			v = v.Convert(tout)
+			v = v.Convert(rtout)
 			return v, []r.Value{v, True}
 		}
 	} else {
@@ -369,15 +355,15 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 				return fail[0], fail
 			}
 			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
-			tconcr := v.Type()
-			if tconcr != tout && !tconcr.Implements(tout) {
+			rtconcr := v.Type()
+			if rtconcr != rtout && !rtconcr.Implements(rtout) {
 				return fail[0], fail
 			}
-			v = v.Convert(tout)
+			v = v.Convert(rtout)
 			return v, []r.Value{v, True}
 		}
 	}
-	return exprXV([]r.Type{tout, TypeOfBool}, ret)
+	return exprXV([]xr.Type{tout, xr.TypeOfBool}, ret)
 }
 
 // TypeAssert1 compiles a single-valued type assertion
@@ -465,13 +451,15 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			return fun(env).Interface().(string)
 		}
 	default:
-		if tout == TypeOfInterface {
+		if tout == xr.TypeOfInterface {
 			// special case, nil is a valid interface{}
 			ret = func(env *Env) r.Value {
 				return fun(env).Convert(TypeOfInterface)
 			}
 			break
 		}
+		rtin := tin.ReflectType()
+		rtout := tout.ReflectType()
 		if tin.Implements(tout) {
 			ret = func(env *Env) r.Value {
 				v := fun(env)
@@ -480,12 +468,12 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 				// but v.Type().Kind() should be r.Interface, which is nillable :)
 				if v.IsNil() {
 					panic(&TypeAssertionError{
-						Interface: tin,
+						Interface: rtin,
 						Concrete:  nil,
-						Asserted:  tout,
+						Asserted:  rtout,
 					})
 				}
-				return v.Convert(tout)
+				return v.Convert(rtout)
 			}
 			break
 		}
@@ -496,21 +484,21 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			// but v.Type().Kind() should be r.Interface, which is nillable :)
 			if v.IsNil() {
 				panic(&TypeAssertionError{
-					Interface: tin,
+					Interface: rtin,
 					Concrete:  nil,
-					Asserted:  tout,
+					Asserted:  rtout,
 				})
 			}
 			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
-			tconcr := v.Type()
-			if tconcr != tout && !tconcr.Implements(tout) {
+			rtconcr := v.Type()
+			if rtconcr != rtout && !rtconcr.Implements(rtout) {
 				panic(&TypeAssertionError{
-					Interface: tin,
-					Concrete:  tconcr,
-					Asserted:  tout,
+					Interface: rtin,
+					Concrete:  rtconcr,
+					Asserted:  rtout,
 				})
 			}
-			return v.Convert(tout)
+			return v.Convert(rtout)
 		}
 	}
 	return exprFun(tout, ret)
@@ -533,7 +521,7 @@ func (e *TypeAssertionError) Error() string {
 		return fmt.Sprintf("interface conversion: <%v> is nil, not <%v>", in, e.Asserted)
 	}
 	if len(e.MissingMethod) == 0 {
-		return fmt.Sprintf("interface conversion: <%v> is <%v>, not <%v>", in, concr, e.Asserted.String())
+		return fmt.Sprintf("interface conversion: <%v> is <%v>, not <%v>", in, concr, e.Asserted)
 	}
 	return fmt.Sprintf("interface conversion: <%v> is not <%v>: missing method ", concr, e.Asserted, e.MissingMethod)
 }

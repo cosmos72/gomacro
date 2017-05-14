@@ -75,14 +75,14 @@ var (
 	TypeOfComplex64  = r.TypeOf(complex64(0))
 	TypeOfComplex128 = r.TypeOf(complex128(0))
 
-	TypeOfBool      = r.TypeOf(false)
-	TypeOfByte      = r.TypeOf(byte(0))
-	TypeOfRune      = r.TypeOf(rune(0))
-	TypeOfString    = r.TypeOf("")
-	TypeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
-	TypeOfError     = r.TypeOf((*error)(nil)).Elem()
-	TypeOfDeferFunc = r.TypeOf(func() {})
-	TypeOfType      = r.TypeOf((*r.Type)(nil)).Elem() // inception
+	TypeOfBool        = r.TypeOf(false)
+	TypeOfByte        = r.TypeOf(byte(0))
+	TypeOfRune        = r.TypeOf(rune(0))
+	TypeOfString      = r.TypeOf("")
+	TypeOfInterface   = r.TypeOf((*interface{})(nil)).Elem()
+	TypeOfError       = r.TypeOf((*error)(nil)).Elem()
+	TypeOfDeferFunc   = r.TypeOf(func() {})
+	TypeOfReflectType = r.TypeOf((*r.Type)(nil)).Elem() // inception
 
 	TypeOfSliceOfByte      = r.TypeOf([]byte{})
 	TypeOfSliceOfInterface = r.TypeOf([]interface{}{})

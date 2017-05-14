@@ -29,6 +29,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	xt "github.com/cosmos72/gomacro/xtype"
 )
 
 :import (
@@ -118,9 +119,10 @@ import (
 	}
 	// not well-known types... use reflect.MakeFunc()
 	return ~"{
+		rtype := t.ReflectType()
 		if funcbody == nil {
 			return func(env *Env) r.Value {
-				return r.MakeFunc(t, func([]r.Value) []r.Value {
+				return r.MakeFunc(rtype, func([]r.Value) []r.Value {
 					return ZeroValues
 				})
 			}
@@ -128,15 +130,15 @@ import (
 			return func(env *Env) r.Value {
 				// function is closed over the env used to DECLARE it
 				env.MarkUsedByClosure()
-				return r.MakeFunc(t, func(args []r.Value) []r.Value {
+				return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
 					env := NewEnv4Func(env, nbinds, nintbinds)
 
 					// copy args into allocated binds
-					for i := range ts {
+					for i := range rtargs {
 						if idx := indexes[i]; idx != NoIndex {
-							place := r.New(ts[i]).Elem()
+							place := r.New(rtargs[i]).Elem()
 							if arg := args[i]; arg != Nil && arg != None {
-								place.Set(arg.Convert(ts[i]))
+								place.Set(arg.Convert(rtargs[i]))
 							}
 							env.Binds[idx] = place
 						}
@@ -208,13 +210,13 @@ import (
 }
 
 
-func (c *Comp) func2ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func2ret0(t xt.Type, m *funcMaker) func(*Env) r.Value {
 	targ0 := t.In(0)
 	targ1 := t.In(1)
 	karg0 := targ0.Kind()
 	karg1 := targ1.Kind()
 
-	ts := [2]r.Type{targ0, targ1}
+	rtargs := [2]r.Type{targ0.ReflectType(), targ1.ReflectType()}
 	indexes := [2]int{
 		m.parambinds[0].Desc.Index(),
 		m.parambinds[1].Desc.Index(),

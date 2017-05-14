@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package type2
+package xtype
 
 import (
 	"go/types"
@@ -61,12 +61,10 @@ type StructField struct {
 }
 
 type xtype struct {
-	kind  reflect.Kind
-	gtype types.Type
-	rtype reflect.Type
-	// underlying *timpl // needed? computing it for elements
-	//   of arrays, maps, slices, structs is painful.
-	//   for function/method arguments is even worse.
+	kind    reflect.Kind
+	gtype   types.Type
+	rtype   reflect.Type
+	methods []reflect.Value
 }
 
 type Type interface {
@@ -177,9 +175,9 @@ type Type interface {
 	// Wrapper methods for embedded fields or embedded interfaces are not returned.
 	// It panics if the type is unnamed, or if the type's Kind is not Interface
 	Method(i int) Method
-	// NumMethods returns the number of explicitly declared methods of named type or interface t.
+	// NumMethod returns the number of explicitly declared methods of named type or interface t.
 	// Wrapper methods for embedded fields or embedded interfaces are not counted.
-	NumMethods() int
+	NumMethod() int
 	// NumField returns a struct type's field count.
 	// It panics if the type's Kind is not Struct.
 	NumField() int

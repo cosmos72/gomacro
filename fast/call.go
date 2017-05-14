@@ -31,18 +31,19 @@ import (
 	"go/token"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type Call struct {
 	Fun      *Expr
 	Args     []*Expr
-	OutTypes []r.Type
+	OutTypes []xr.Type
 	Const    bool // if true, call has no side effects and always returns the same result => it can be invoked at compile time
 	Ellipsis bool // if true, must use reflect.Value.CallSlice or equivalent to invoke the function
 }
 
-func newCall1(fun *Expr, arg *Expr, isconst bool, outtypes ...r.Type) *Call {
+func newCall1(fun *Expr, arg *Expr, isconst bool, outtypes ...xr.Type) *Call {
 	return &Call{
 		Fun:      fun,
 		Args:     []*Expr{arg},
@@ -64,7 +65,7 @@ func (call *Call) MakeArgfunsX1() []func(*Env) r.Value {
 func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 	var fun *Expr
 	if len(node.Args) == 1 {
-		var t r.Type
+		var t xr.Type
 		fun, t = c.Expr1OrType(node.Fun)
 		if t != nil {
 			return c.Convert(node.Args[0], t)
@@ -100,7 +101,7 @@ func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
 	c.checkCallArgs(node, t, args, ellipsis)
 
 	outn := t.NumOut()
-	outtypes := make([]r.Type, outn)
+	outtypes := make([]xr.Type, outn)
 	for i := 0; i < outn; i++ {
 		outtypes[i] = t.Out(i)
 	}
@@ -127,12 +128,12 @@ func (c *Comp) call_any(call *Call) *Expr {
 	// constant propagation - only if function returns a single value
 	if call.Const && len(call.OutTypes) == 1 {
 		expr.EvalConst(CompileDefaults)
-		// c.Debugf("pre-computed result of constant call %v: %v <%v>", call, expr.Value, r.TypeOf(expr.Value))
+		// c.Debugf("pre-computed result of constant call %v: %v <%v>", call, expr.Value, TypeOf(expr.Value))
 	}
 	return expr
 }
 
-func (c *Comp) checkCallArgs(node *ast.CallExpr, t r.Type, args []*Expr, ellipsis bool) {
+func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellipsis bool) {
 	n := t.NumIn()
 	narg := len(args)
 
@@ -152,7 +153,7 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t r.Type, args []*Expr, ellipsi
 		c.badCallArgNum(node.Fun, t, args)
 		return
 	}
-	var ti, tlast r.Type
+	var ti, tlast xr.Type
 	if variadic {
 		tlast = t.In(n - 1).Elem()
 	}
@@ -259,7 +260,7 @@ func call_ret2plus(c *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
 	case 0:
 		call = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
-			retv := funv.Call(ZeroValues)
+			retv := funv.Call(base.ZeroValues)
 			return retv[0], retv
 		}
 	case 1:
@@ -317,7 +318,7 @@ func call_ret2plus(c *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
 	return call
 }
 
-func (c *Comp) badCallArgNum(fun ast.Expr, t r.Type, args []*Expr) *Call {
+func (c *Comp) badCallArgNum(fun ast.Expr, t xr.Type, args []*Expr) *Call {
 	prefix := "not enough"
 	n := t.NumIn()
 	nargs := len(args)

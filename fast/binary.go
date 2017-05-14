@@ -30,8 +30,9 @@ import (
 	"go/token"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
@@ -105,7 +106,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 	op := node.Op
 	switch op {
 	case token.LAND, token.LOR:
-		xb, yb := x.ConstTo(TypeOfBool).(bool), y.ConstTo(TypeOfBool).(bool)
+		xb, yb := x.ConstTo(xr.TypeOfBool).(bool), y.ConstTo(xr.TypeOfBool).(bool)
 		var flag bool
 		if op == token.LAND {
 			flag = xb && yb
@@ -123,8 +124,8 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 		return c.ShiftUntyped(node, token.SHR, x, y)
 	default:
 		op2 := tokenWithoutAssign(op)
-		xint := KindToCategory(x.Kind) == r.Int
-		yint := KindToCategory(y.Kind) == r.Int
+		xint := base.KindToCategory(x.Kind) == r.Int
+		yint := base.KindToCategory(y.Kind) == r.Int
 		if op2 == token.QUO && xint && yint {
 			// untyped integer division
 			op2 = token.QUO_ASSIGN
@@ -202,9 +203,9 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 			sign = constant.Sign(constant.Real(xn))
 		}
 		if sign >= 0 {
-			xn = constant.MakeUint64(x.ConstTo(TypeOfUint64).(uint64))
+			xn = constant.MakeUint64(x.ConstTo(xr.TypeOfUint64).(uint64))
 		} else {
-			xn = constant.MakeInt64(x.ConstTo(TypeOfInt64).(int64))
+			xn = constant.MakeInt64(x.ConstTo(xr.TypeOfInt64).(int64))
 		}
 		xkind = r.Int
 	default:
@@ -224,8 +225,8 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		// untyped << untyped should not happen here, it's handled in Comp.BinaryExpr... but let's be safe
 		return c.ShiftUntyped(node, node.Op, xe.Value.(UntypedLit), ye.Value.(UntypedLit))
 	}
-	xt, yt := xe.DefaultType(), ye.DefaultType()
-	if xt == nil || !IsCategory(xt.Kind(), r.Int, r.Uint) {
+	xet, yet := xe.DefaultType(), ye.DefaultType()
+	if xet == nil || !base.IsCategory(xet.Kind(), r.Int, r.Uint) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	if xe.Untyped() {
@@ -247,16 +248,16 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				node)
 			warnUntypedShift2 = false
 		}
-		xe.ConstTo(TypeOfInt)
+		xe.ConstTo(xr.TypeOfInt)
 	}
 	if ye.Untyped() {
 		// untyped constants do not distinguish between int and uint
-		if yt == nil || !IsCategory(yt.Kind(), r.Int) {
+		if yet == nil || !base.IsCategory(yet.Kind(), r.Int) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
-		ye.ConstTo(TypeOfUint64)
+		ye.ConstTo(xr.TypeOfUint64)
 	} else {
-		if yt == nil || !IsCategory(yt.Kind(), r.Uint) {
+		if yet == nil || !base.IsCategory(yet.Kind(), r.Uint) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	}
@@ -276,7 +277,7 @@ func (c *Comp) Land(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 		if xval {
 			return y
 		}
-		return exprValue(false)
+		return c.exprValue(nil, false)
 	}
 	if yfun == nil {
 		if yval {
@@ -300,7 +301,7 @@ func (c *Comp) Lor(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 	// optimize short-circuit logic
 	if xfun == nil {
 		if xval {
-			return exprValue(true)
+			return c.exprValue(nil, true)
 		}
 		return y
 	}

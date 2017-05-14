@@ -31,7 +31,8 @@ package fast
 
 import (
 	r "reflect"
-	. "github.com/cosmos72/gomacro/base"
+
+	"github.com/cosmos72/gomacro/base"
 )
 
 func call1ret1(c *Call, maxdepth int) I {
@@ -43,7 +44,7 @@ func call1ret1(c *Call, maxdepth int) I {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			Errorf("internal error: call1ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+			base.Errorf("internal error: call1ret1() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 
 	}
@@ -51,7 +52,7 @@ func call1ret1(c *Call, maxdepth int) I {
 	targ, tret := t.In(0), t.Out(0)
 	karg, kret := targ.Kind(), tret.Kind()
 	var call I
-	if KindToType(karg) != targ || KindToType(kret) != tret {
+	if BasicType(karg) != targ || BasicType(kret) != tret {
 		return call1ret1namedtype(c, maxdepth)
 	}
 

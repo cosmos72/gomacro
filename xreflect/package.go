@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package type2
+package xtype
 
 import (
 	"go/types"

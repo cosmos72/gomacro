@@ -27,110 +27,113 @@ package fast
 import (
 	"go/ast"
 	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // Convert compiles a type conversion
-func (c *Comp) Convert(node ast.Expr, t r.Type) *Expr {
+func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 	e := c.Expr1(node)
 	if e.Untyped() {
 		e.ConstTo(e.DefaultType())
 	}
-	if e.Type == t {
+	if xr.SameType(e.Type, t) {
 		return e
 	} else if e.Type == nil || !e.Type.ConvertibleTo(t) {
 		c.Errorf("cannot convert %v to %v: %v", e.Type, t, node)
 		return nil
 	}
+	rtype := t.ReflectType()
 	if e.Const() {
-		val := r.ValueOf(e.Value).Convert(t).Interface()
-		return exprValue(val)
+		val := r.ValueOf(e.Value).Convert(rtype).Interface()
+		return c.exprValue(t, val)
 	}
 	fun := e.AsX1()
 	var ret I
 	switch t.Kind() {
 	case r.Bool:
 		ret = func(env *Env) bool {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return val.Bool()
 		}
 	case r.Int:
 		ret = func(env *Env) int {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return int(val.Int())
 		}
 	case r.Int8:
 		ret = func(env *Env) int8 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return int8(val.Int())
 		}
 	case r.Int16:
 		ret = func(env *Env) int16 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return int16(val.Int())
 		}
 	case r.Int32:
 		ret = func(env *Env) int32 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return int32(val.Int())
 		}
 	case r.Int64:
 		ret = func(env *Env) int64 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return val.Int()
 		}
 	case r.Uint:
 		ret = func(env *Env) uint {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return uint(val.Uint())
 		}
 	case r.Uint16:
 		ret = func(env *Env) uint16 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return uint16(val.Uint())
 		}
 	case r.Uint32:
 		ret = func(env *Env) uint32 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return uint32(val.Uint())
 		}
 	case r.Uint64:
 		ret = func(env *Env) uint64 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return val.Uint()
 		}
 	case r.Uintptr:
 		ret = func(env *Env) uintptr {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return uintptr(val.Uint())
 		}
 	case r.Float32:
 		ret = func(env *Env) float32 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return float32(val.Float())
 		}
 	case r.Float64:
 		ret = func(env *Env) float64 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return val.Float()
 		}
 	case r.Complex64:
 		ret = func(env *Env) complex64 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return complex64(val.Complex())
 		}
 	case r.Complex128:
 		ret = func(env *Env) complex128 {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return val.Complex()
 		}
 	case r.String:
 		ret = func(env *Env) string {
-			val := fun(env).Convert(t)
+			val := fun(env).Convert(rtype)
 			return val.String()
 		}
 	default:
 		ret = func(env *Env) r.Value {
-			return fun(env).Convert(t)
+			return fun(env).Convert(rtype)
 		}
 	}
 	return exprFun(t, ret)

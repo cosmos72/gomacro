@@ -28,7 +28,7 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // SliceExpr compiles slice[lo:hi] and slice[lo:hi:max]
@@ -62,11 +62,11 @@ func (c *Comp) sliceIndex(node ast.Expr) *Expr {
 	}
 	idx := c.Expr1(node)
 	if idx.Const() {
-		idx.ConstTo(TypeOfInt)
+		idx.ConstTo(xr.TypeOfInt)
 		if idx.Value.(int) < 0 {
 			c.Errorf("negative slice index: %v == %v", node, idx)
 		}
-	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(xr.TypeOfInt) {
 		c.Errorf("invalid slice index: expecting integer, found: %v <%v>", idx.Type, node)
 	}
 	return idx
@@ -93,7 +93,7 @@ func (c *Comp) slice2(node *ast.SliceExpr, e, lo, hi *Expr) *Expr {
 		}
 		objfun := e.AsX1()
 		if lo == nil {
-			lo = exprValue(0)
+			lo = c.exprValue(xr.TypeOfInt, 0)
 		}
 		var fun func(env *Env) r.Value
 		if lo.Const() {
@@ -142,7 +142,7 @@ func (c *Comp) slice2(node *ast.SliceExpr, e, lo, hi *Expr) *Expr {
 				}
 			}
 		}
-		tout := r.SliceOf(t.Elem())
+		tout := xr.SliceOf(t.Elem())
 		return exprX1(tout, fun)
 	}
 	c.Errorf("cannot slice %v: %v", t, node)
@@ -222,7 +222,7 @@ func (c *Comp) sliceString(e, lo, hi *Expr) *Expr {
 // slice3 compiles slice[lo:hi:max]
 func (c *Comp) slice3(node *ast.SliceExpr, e, lo, hi, max *Expr) *Expr {
 	if lo == nil {
-		lo = exprValue(0)
+		lo = c.exprValue(xr.TypeOfInt, 0)
 	}
 	if hi == nil {
 		c.Errorf("final index required in 3-index slice: %v", node)
@@ -264,7 +264,7 @@ func (c *Comp) slice3(node *ast.SliceExpr, e, lo, hi, max *Expr) *Expr {
 				return obj.Slice3(lo, hi, max)
 			}
 		}
-		tout := r.SliceOf(t.Elem())
+		tout := xr.SliceOf(t.Elem())
 		return exprX1(tout, fun)
 	}
 	c.Errorf("cannot slice %v: %v", t, node)

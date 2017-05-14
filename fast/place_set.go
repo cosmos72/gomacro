@@ -36,17 +36,17 @@ import (
 )
 
 func (c *Comp) placeSetZero(place *Place) {
-	t := place.Type
-	zero := r.Zero(t).Interface()
+	rt := place.Type.ReflectType()
+	zero := r.Zero(rt).Interface()
 	c.placeSetConst(place, zero)
 }
 func (c *Comp) placeSetConst(place *Place, val I) {
-	t := place.Type
+	rt := place.Type.ReflectType()
 	v := r.ValueOf(val)
 	if ValueType(v) == nil {
-		v = r.Zero(t)
+		v = r.Zero(rt)
 	} else {
-		v = v.Convert(t)
+		v = v.Convert(rt)
 	}
 
 	lhs := place.Fun
@@ -63,7 +63,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 		c.Code.Append(ret)
 		return
 	}
-	switch KindToCategory(t.Kind()) {
+	switch KindToCategory(rt.Kind()) {
 	case r.Bool:
 
 		{
@@ -153,7 +153,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 	c.Code.Append(ret)
 }
 func (c *Comp) placeSetExpr(place *Place, fun I) {
-	t := place.Type
+	rt := place.Type.ReflectType()
 	lhs := place.Fun
 	var ret Stmt
 	if mapkey := place.MapKey; mapkey != nil {
@@ -163,8 +163,8 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			obj := lhs(env)
 			key := mapkey(env)
 			val := rhs(env)
-			if val.Type() != t {
-				val = val.Convert(t)
+			if val.Type() != rt {
+				val = val.Convert(rt)
 			}
 
 			obj.SetMapIndex(key, val)
@@ -174,7 +174,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 		c.Code.Append(ret)
 		return
 	}
-	switch t.Kind() {
+	switch rt.Kind() {
 	case r.Bool:
 
 		{
@@ -417,14 +417,14 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 		{
 			rhs := funAsX1(fun, nil)
 
-			zero := r.Zero(t)
+			zero := r.Zero(rt)
 			ret = func(env *Env) (Stmt, *Env) {
 				place := lhs(env)
 				value := rhs(env)
 				if value == Nil || value == None {
 					value = zero
-				} else if value.Type() != t {
-					value = value.Convert(t)
+				} else if value.Type() != rt {
+					value = value.Convert(rt)
 				}
 
 				place.Set(value)

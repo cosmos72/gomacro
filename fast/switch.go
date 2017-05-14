@@ -29,6 +29,8 @@ import (
 	"go/token"
 	r "reflect"
 	"sort"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type caseEntry struct {
@@ -73,7 +75,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	enode := node.Tag
 	if enode == nil {
 		// "switch { }" without an expression means "switch true { }"
-		e = exprValue(true)
+		e = c.exprValue(xr.TypeOfBool, true)
 		enode = &ast.Ident{NamePos: node.Pos() + 6, Name: "true"} // only for error messages
 	} else {
 		e = c.Expr1(enode)

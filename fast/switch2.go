@@ -32,6 +32,7 @@ package fast
 import (
 	r "reflect"
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) switchTag(e *Expr) *Expr {
@@ -287,7 +288,7 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 		}
 
 	default:
-		val := r.Zero(e.Type)
+		val := xr.Zero(e.Type)
 		cachefun = func(*Env) r.Value { return val }
 
 		if efun, ok := efun.(func(*Env) (r.Value, []r.Value)); ok {
@@ -769,12 +770,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -819,12 +820,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -869,12 +870,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -920,12 +921,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -970,12 +971,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -1022,12 +1023,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -1074,12 +1075,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -1126,12 +1127,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -1178,12 +1179,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -1228,12 +1229,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}
@@ -1282,12 +1283,12 @@ func (c *Comp) switchGotoSlice(tag *Expr, seen *caseHelper) Stmt {
 
 			}
 
-			halfrange := max/2 - min/2
-			if uint64(halfrange) >= uint64(MaxInt/2-2) || int(halfrange) > len(seen.Map) {
+			halfrange_trunc := max/2 - min/2
+			if uint64(halfrange_trunc) >= uint64(MaxInt/2-3) || int(halfrange_trunc) > len(seen.Map) {
 				break
 			}
 
-			fullrange := int(halfrange)*2 + 2
+			fullrange := int(max-min) + 1
 			if fullrange < len(seen.Map) {
 				c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
 			}

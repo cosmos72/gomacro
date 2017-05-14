@@ -26,7 +26,7 @@ package fast
 
 import (
 	r "reflect"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -216,7 +216,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			Errorf("internal error: call1ret0() invoked for constant function %#v. use call_builtin() instead", expr)
+			base.Errorf("internal error: call1ret0() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 	}
 	arg := c.Args[0]
@@ -311,7 +311,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			Errorf("internal error: call2ret0() invoked for constant function %#v. use call_builtin() instead", expr)
+			base.Errorf("internal error: call2ret0() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 	}
 	args := c.Args

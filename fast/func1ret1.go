@@ -34,9 +34,10 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) func1ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
@@ -8009,7 +8010,7 @@ func (c *Comp) func1ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
 	}
 	return c.funcGeneric(t, m)
 }
-func (c *Comp) func_ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func_ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	switch t.NumIn() {
 	case 0:
 		return c.func0ret1(t, m)

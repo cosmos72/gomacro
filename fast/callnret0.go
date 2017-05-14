@@ -31,7 +31,7 @@ package fast
 
 import (
 	r "reflect"
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 )
 
 func call0ret0(c *Call, maxdepth int) func(env *Env) {
@@ -96,7 +96,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			Errorf("internal error: call1ret0() invoked for constant function %#v. use call_builtin() instead", expr)
+			base.Errorf("internal error: call1ret0() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 
 	}
@@ -108,7 +108,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 	t := expr.Type.In(0)
 	k := t.Kind()
-	if KindToType(k) == t {
+	if BasicType(k) == t {
 		switch k {
 		case r.Bool:
 
@@ -972,7 +972,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			Errorf("internal error: call2ret0() invoked for constant function %#v. use call_builtin() instead", expr)
+			base.Errorf("internal error: call2ret0() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 
 	}
@@ -987,7 +987,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 
 	t := expr.Type.In(0)
 	k := t.Kind()
-	if KindToType(k) == t && expr.Type.In(1) == t {
+	if BasicType(k) == t && expr.Type.In(1) == t {
 		switch k {
 		case r.Bool:
 			{

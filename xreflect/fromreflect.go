@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package type2
+package xtype
 
 import (
 	"go/token"
@@ -35,20 +35,33 @@ type ReflectConfig struct {
 	RebuildDepth int
 	TryResolve   func(name, pkgpath string) Type
 	Cache        map[reflect.Type]Type
+	PkgCache     map[string]*Package
 }
 
 func (cfg *ReflectConfig) rebuild() bool {
 	return cfg != nil && cfg.RebuildDepth >= 0
 }
 
-func (cfg *ReflectConfig) cache(t Type) Type {
+func (cfg *ReflectConfig) cache(rt reflect.Type, t Type) Type {
 	if cfg != nil {
 		if cfg.Cache == nil {
 			cfg.Cache = make(map[reflect.Type]Type)
 		}
-		cfg.Cache[t.ReflectType()] = t
+		cfg.Cache[rt] = t
 	}
 	return t
+}
+
+func (cfg *ReflectConfig) NewPackage(path, name string) *Package {
+	pkg := cfg.PkgCache[path]
+	if pkg == nil {
+		pkg = NewPackage(path, name)
+		if cfg.PkgCache == nil {
+			cfg.PkgCache = make(map[string]*Package)
+		}
+		cfg.PkgCache[path] = pkg
+	}
+	return pkg
 }
 
 // TypeOf creates a Type corresponding to reflect.TypeOf() of given value.
@@ -68,14 +81,14 @@ func TypeOf2(rvalue interface{}, cfg *ReflectConfig) Type {
 // because of the reasons listed in Type.ReflectType()
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
 func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
-	var t Type
+	name := rtype.Name()
+	var t, u Type
 	if cfg == nil {
 		cfg = &ReflectConfig{}
 	} else {
 		if t = cfg.Cache[rtype]; t != nil {
 			return t
 		}
-		name := rtype.Name()
 		tryresolve := cfg.TryResolve
 		if tryresolve != nil && len(name) != 0 {
 			t = tryresolve(name, rtype.PkgPath())
@@ -91,6 +104,13 @@ func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
 			}()
 		}
 	}
+	// when converting a named type, immediately register it in the cache
+	// because it may reference itself, as for example type List struct { Elem int; Rest *List }
+	// otherwise we may get an infinite recursion
+	if len(name) != 0 {
+		t = NamedOf(name, cfg.NewPackage(rtype.PkgPath(), ""))
+		cfg.cache(rtype, t)
+	}
 
 	switch k := rtype.Kind(); k {
 	case reflect.Invalid:
@@ -98,41 +118,32 @@ func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
 	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
 		reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String:
-		t = BasicTypes[k]
+		u = BasicTypes[k]
 	case reflect.Array:
-		t = fromReflectArray(rtype, cfg)
+		u = fromReflectArray(rtype, cfg)
 	case reflect.Chan:
-		t = fromReflectChan(rtype, cfg)
+		u = fromReflectChan(rtype, cfg)
 	case reflect.Func:
-		t = fromReflectFunc(rtype, cfg)
+		u = fromReflectFunc(rtype, cfg)
 	case reflect.Interface:
-		t = fromReflectInterface(rtype, cfg)
+		u = fromReflectInterface(rtype, cfg)
 	case reflect.Map:
-		t = fromReflectMap(rtype, cfg)
+		u = fromReflectMap(rtype, cfg)
 	case reflect.Ptr:
-		t = fromReflectPtr(rtype, cfg)
+		u = fromReflectPtr(rtype, cfg)
 	case reflect.Slice:
-		t = fromReflectSlice(rtype, cfg)
+		u = fromReflectSlice(rtype, cfg)
 	case reflect.Struct:
-		t = fromReflectStruct(rtype, cfg)
+		u = fromReflectStruct(rtype, cfg)
 	// case reflect.UnsafePointer:
 	default:
 		errorf("unsupported reflect.Type %v", rtype)
 	}
-	return finish(t, rtype, cfg)
-}
-
-func finish(t Type, rtype reflect.Type, cfg *ReflectConfig) Type {
-	name := rtype.Name()
-	pkgpath := rtype.PkgPath()
-	if pkgpath != t.PkgPath() || name != t.Name() {
-		underlying := maketype(t.GoType().Underlying(), t.ReflectType())
-		if len(name) == 0 {
-			return cfg.cache(underlying)
-		}
-		pkg := NewPackage(pkgpath, "")
-		t = namedOf(name, pkg)
-		t.SetUnderlying(underlying)
+	if t == nil {
+		cfg.cache(rtype, u)
+		t = u
+	} else {
+		t.SetUnderlying(u)
 	}
 	return addmethods(t, rtype, cfg)
 }
@@ -149,7 +160,7 @@ func addmethods(t Type, rtype reflect.Type, cfg *ReflectConfig) Type {
 			t.AddMethod(rmethod.Name, signature)
 		}
 	}
-	return cfg.cache(t)
+	return t
 }
 
 func fromReflectField(rfield *reflect.StructField, cfg *ReflectConfig) StructField {
@@ -177,7 +188,7 @@ func fromReflectField(rfield *reflect.StructField, cfg *ReflectConfig) StructFie
 
 	return StructField{
 		Name:      name,
-		Pkg:       NewPackage(rfield.PkgPath, ""),
+		Pkg:       cfg.NewPackage(rfield.PkgPath, ""),
 		Type:      t,
 		Tag:       rfield.Tag,
 		Offset:    rfield.Offset,
@@ -197,7 +208,7 @@ func fromReflectFields(rfields []reflect.StructField, cfg *ReflectConfig) []Stru
 // named creates a new named Type based on t, having the given name and pkgpath
 func named(t Type, name string, pkgpath string, cfg *ReflectConfig) Type {
 	if t.Name() != name || t.PkgPath() != pkgpath {
-		t2 := namedOf(name, NewPackage(pkgpath, ""))
+		t2 := NamedOf(name, cfg.NewPackage(pkgpath, ""))
 		t2.SetUnderlying(maketype(t.underlying(), t.ReflectType()))
 		t = t2
 	}
@@ -261,10 +272,10 @@ func fromReflectInterface(rtype reflect.Type, cfg *ReflectConfig) Type {
 	pkgs := make(map[string]*types.Package)
 	for i := 0; i < n; i++ {
 		rmethod := rtype.Method(i)
-		method := fromReflectFunc(rmethod.Type, cfg)
+		method := FromReflectType(rmethod.Type, cfg)
 		pkg := pkgs[rmethod.PkgPath]
 		if pkg == nil {
-			pkg = (*types.Package)(NewPackage(rmethod.PkgPath, ""))
+			pkg = (*types.Package)(cfg.NewPackage(rmethod.PkgPath, ""))
 		}
 		gmethods[i] = types.NewFunc(token.NoPos, pkg, rmethod.Name, method.GoType().(*types.Signature))
 	}

@@ -440,7 +440,7 @@ func (c *Comp) IncDec(node *ast.IncDecStmt) {
 	} else {
 		op = token.ADD
 	}
-	one := exprValue(UntypedOne)
+	one := c.exprValue(typeOfUntypedLit, UntypedOne)
 	if place.IsVar() {
 		c.SetVar(&place.Var, op, one)
 	} else {

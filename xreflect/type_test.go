@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package type2
+package xtype
 
 import (
 	"go/types"
@@ -118,7 +118,7 @@ func TestInterface(t *testing.T) {
 
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, typ.Name(), "")
-	is(t, typ.NumMethods(), 2)
+	is(t, typ.NumMethod(), 2)
 	actual := typ.Method(0)
 	is(t, actual.Name, "Cap")
 	is(t, true, types.Identical(methodtyp.GoType(), actual.Type.GoType()))
@@ -283,4 +283,12 @@ func TestFromReflect4(t *testing.T) {
 		typ = FromReflectType(rtype, &ReflectConfig{RebuildDepth: depth})
 		debugf("%v\t-> %v", typ, typ.ReflectType())
 	}
+}
+
+func TestFromReflect5(t *testing.T) {
+	rtype := reflect.TypeOf((*reflect.Type)(nil)).Elem()
+	typ := FromReflectType(rtype, nil)
+
+	actual := typ.ReflectType()
+	debugf("%v\t-> %v", typ, actual)
 }

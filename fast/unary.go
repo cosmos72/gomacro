@@ -39,7 +39,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		// surprisingly easy :)
 		block := node.X.(*ast.FuncLit).Body
 		node := SimplifyNodeForQuote(block, true)
-		return exprValue(node)
+		return c.exprValue(nil, node)
 
 	case mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
 		return c.unimplementedUnaryExpr(node, nil)

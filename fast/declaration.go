@@ -29,7 +29,8 @@ import (
 	"go/token"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // Decl compiles a constant, variable, function or type declaration - or an import
@@ -134,7 +135,7 @@ func tostrings(idents []*ast.Ident) []string {
 	return names
 }
 
-func (c *Comp) prepareDeclConstsOrVars(names []string, typ ast.Expr, exprs []ast.Expr) (names_out []string, t r.Type, inits []*Expr) {
+func (c *Comp) prepareDeclConstsOrVars(names []string, typ ast.Expr, exprs []ast.Expr) (names_out []string, t xr.Type, inits []*Expr) {
 	n := len(names)
 	if typ != nil {
 		t = c.Type(typ)
@@ -145,7 +146,7 @@ func (c *Comp) prepareDeclConstsOrVars(names []string, typ ast.Expr, exprs []ast
 	return names, t, inits
 }
 
-func (c *Comp) DeclConsts0(names []string, t r.Type, inits []*Expr) {
+func (c *Comp) DeclConsts0(names []string, t xr.Type, inits []*Expr) {
 	n := len(names)
 	if inits == nil {
 		c.Errorf("constants without initialization: %v", names)
@@ -162,7 +163,7 @@ func (c *Comp) DeclConsts0(names []string, t r.Type, inits []*Expr) {
 }
 
 // DeclVars0 compiles a set of variable declarations
-func (c *Comp) DeclVars0(names []string, t r.Type, inits []*Expr) {
+func (c *Comp) DeclVars0(names []string, t xr.Type, inits []*Expr) {
 	n := len(names)
 	ni := len(inits)
 	if ni == 0 {
@@ -181,12 +182,12 @@ func (c *Comp) DeclVars0(names []string, t r.Type, inits []*Expr) {
 }
 
 // DeclConst0 compiles a constant declaration
-func (c *Comp) DeclConst0(name string, t r.Type, value I) {
+func (c *Comp) DeclConst0(name string, t xr.Type, value I) {
 	if !isLiteral(value) {
 		c.Errorf("const initializer for %q is not a constant: %v <%T>", name, value, value)
 		return
 	}
-	lit := litValue(value)
+	lit := c.litValue(value)
 	if t == nil {
 		t = lit.Type
 	} else {
@@ -197,7 +198,7 @@ func (c *Comp) DeclConst0(name string, t r.Type, value I) {
 }
 
 // AddFuncBind reserves space for a subsequent function declaration
-func (c *Comp) AddFuncBind(name string, t r.Type) *Bind {
+func (c *Comp) AddFuncBind(name string, t xr.Type) *Bind {
 	bind := c.AddBind(name, FuncBind, t)
 	if bind.Desc.Class() != FuncBind {
 		c.Errorf("internal error! Comp.AddBind(name=%q, class=FuncBind, type=%v) returned class=%v, expecting FuncBind",
@@ -207,9 +208,9 @@ func (c *Comp) AddFuncBind(name string, t r.Type) *Bind {
 }
 
 // AddBind reserves space for a subsequent constant, function or variable declaration
-func (c *Comp) AddBind(name string, class BindClass, t r.Type) *Bind {
+func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 	if class == IntBind || class == VarBind {
-		if IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64 {
+		if base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64 {
 			class = IntBind
 		} else {
 			class = VarBind
@@ -267,7 +268,7 @@ func (c *Comp) AddBind(name string, class BindClass, t r.Type) *Bind {
 }
 
 // DeclVar0 compiles a variable declaration. For caller's convenience, returns allocated Bind
-func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) *Bind {
+func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 	if t == nil {
 		if init == nil {
 			c.Errorf("no value and no type, cannot declare : %v", name)
@@ -294,7 +295,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) *Bind {
 		// no difference between declaration and assignment for these classes
 		if init == nil {
 			// no initializer... use the zero-value of t
-			init = exprValue(r.Zero(t).Interface())
+			init = c.exprValue(t, xr.Zero(t).Interface())
 		}
 		va := bind.AsVar(0, PlaceSettable)
 		c.SetVar(va, token.ASSIGN, init)
@@ -309,7 +310,7 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) *Bind {
 		if init == nil {
 			// no initializer... use the zero-value of t
 			c.Code.Append(func(env *Env) (Stmt, *Env) {
-				env.Binds[index] = r.New(t).Elem()
+				env.Binds[index] = r.New(t.ReflectType()).Elem()
 				env.IP++
 				return env.Code[env.IP], env
 			})
@@ -320,17 +321,18 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) *Bind {
 		}
 		fun := init.AsX1() // AsX1() panics if init.NumOut() == 0, warns if init.NumOut() > 1
 		tfun := init.Out(0)
-		if tfun == nil || (tfun != t && !tfun.AssignableTo(t)) {
+		if tfun == nil || (!xr.SameType(tfun, t) && !tfun.AssignableTo(t)) {
 			c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v <%v>", tfun, t, name, t)
 			return bind
 		}
 		var ret func(env *Env) (Stmt, *Env)
 		// optimization: no need to wrap multiple-valued function into a single-value function
+		rtype := t.ReflectType()
 		if f, ok := init.Fun.(func(*Env) (r.Value, []r.Value)); ok {
 			ret = func(env *Env) (Stmt, *Env) {
 				ret, _ := f(env)
-				place := r.New(t).Elem()
-				place.Set(ret.Convert(t))
+				place := r.New(rtype).Elem()
+				place.Set(ret.Convert(rtype))
 				env.Binds[index] = place
 				env.IP++
 				return env.Code[env.IP], env
@@ -338,8 +340,8 @@ func (c *Comp) DeclVar0(name string, t r.Type, init *Expr) *Bind {
 		} else {
 			ret = func(env *Env) (Stmt, *Env) {
 				ret := fun(env)
-				place := r.New(t).Elem()
-				place.Set(ret.Convert(t))
+				place := r.New(rtype).Elem()
+				place.Set(ret.Convert(rtype))
 				env.Binds[index] = place
 				env.IP++
 				return env.Code[env.IP], env
@@ -358,6 +360,7 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 		return nil
 	}
 	t := bind.Type
+	rtype := t.ReflectType()
 	switch desc.Class() {
 	default:
 		c.Errorf("cannot declare a %s with a value passed at runtime: %v <%v>", desc.Class(), bind.Name, t)
@@ -365,13 +368,13 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 	case FuncBind:
 		// declaring a function in Env.Binds[], the reflect.Value must not be addressable or settable
 		return func(env *Env, v r.Value) {
-			env.Binds[index] = v.Convert(t)
+			env.Binds[index] = v.Convert(rtype)
 		}
 	case VarBind:
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		return func(env *Env, v r.Value) {
-			place := r.New(t).Elem()
-			place.Set(v.Convert(t))
+			place := r.New(rtype).Elem()
+			place.Set(v.Convert(rtype))
 			env.Binds[index] = place
 		}
 	case IntBind:
@@ -381,7 +384,7 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 }
 
 // DeclMultiVar0 compiles multiple variable declarations from a single multi-valued expression
-func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
+func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr) {
 	if t == nil {
 		if init == nil {
 			c.Errorf("no value and no type, cannot declare variables: %v", names)
@@ -431,7 +434,7 @@ func (c *Comp) DeclMultiVar0(names []string, t r.Type, init *Expr) {
 // DeclFunc0 compiles a function declaration. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 	funv := r.ValueOf(fun)
-	t := funv.Type()
+	t := c.xtypeof(fun)
 	if t.Kind() != r.Func {
 		c.Errorf("DeclFunc0(%s): expecting a function, received %v <%v>", name, fun, t)
 	}
@@ -460,4 +463,24 @@ func (c *Comp) DeclBuiltin0(name string, builtin Builtin) *Bind {
 	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
 	bind.Value = builtin                  // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 	return bind
+}
+
+func (c *Comp) xtypeof(val I) xr.Type {
+	return xr.TypeOf2(val, &xr.ReflectConfig{
+		RebuildDepth: 0,
+		TryResolve:   c.tryResolveForXtype,
+		Cache:        c.ReflectTypes,
+	})
+}
+
+func (c *Comp) tryResolveForXtype(name, pkgpath string) xr.Type {
+	if c.FileComp().Path != pkgpath {
+		return nil
+	}
+	var t xr.Type
+	for c != nil && t == nil {
+		t = c.Types[name]
+		c = c.Outer
+	}
+	return t
 }

@@ -33,7 +33,8 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xt "github.com/cosmos72/gomacro/xtype"
 )
 
 // IndexExpr compiles a read operation on obj[idx]
@@ -177,8 +178,8 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
+		idx.ConstTo(xt.TypeOfInt)
+	} else if idx.Type == nil || !idx.Type.AssignableTo(xt.TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 	t := obj.Type
@@ -275,7 +276,7 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 		c.Errorf("cannot use %v <%v> as <%v> in map index", node.Index, idx.Type, tkey)
 	}
 	objfun := obj.AsX1()
-	zero := r.Zero(tval)
+	zero := xt.Zero(tval)
 	var fun func(env *Env) (r.Value, []r.Value)
 	if idxconst {
 		key := r.ValueOf(idx.Value)
@@ -283,11 +284,11 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			obj := objfun(env)
 			val := obj.MapIndex(key)
 			var ok r.Value
-			if val == Nil {
+			if val == base.Nil {
 				val = zero // map[key] returns the zero value if key is not present
-				ok = False
+				ok = base.False
 			} else {
-				ok = True
+				ok = base.True
 			}
 			return val, []r.Value{val, ok}
 		}
@@ -298,26 +299,26 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			key := keyfun(env)
 			val := obj.MapIndex(key)
 			var ok r.Value
-			if val == Nil {
+			if val == base.Nil {
 				val = zero // map[key] returns the zero value if key is not present
-				ok = False
+				ok = base.False
 			} else {
-				ok = True
+				ok = base.True
 			}
 			return val, []r.Value{val, ok}
 		}
 	}
-	return exprXV([]r.Type{tval, TypeOfBool}, fun)
+	return exprXV([]xt.Type{tval, xt.TypeOfBool}, fun)
 }
 
 :macro mapindex1_c(typ ast.Node) ast.Node {
 	if EvalType(typ) == nil {
 		return ~'{
-			zero := r.Zero(tval)
+			zero := xt.Zero(tval)
 			fun = func(env *Env) r.Value {
 				obj := objfun(env)
 				result := obj.MapIndex(key)
-				if result == Nil {
+				if result == base.Nil {
 					result = zero
 				}
 				return result
@@ -330,7 +331,7 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			obj := objfun(env)
 			v := obj.MapIndex(key)
 			var result ~,typ
-			if v != Nil {
+			if v != base.Nil {
 				result = ~,unwrap
 			}
 			return result
@@ -341,12 +342,12 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 :macro mapindex1_e(typ ast.Node) ast.Node {
 	if EvalType(typ) == nil {
 		return ~'{
-			zero := r.Zero(tval)
+			zero := xt.Zero(tval)
 			fun = func(env *Env) r.Value {
 				obj := objfun(env)
 				key := keyfun(env)
 				result := obj.MapIndex(key)
-				if result == Nil {
+				if result == base.Nil {
 					result = zero
 				}
 				return result
@@ -360,7 +361,7 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			key := keyfun(env)
 			v := obj.MapIndex(key)
 			var result ~,typ
-			if v != Nil {
+			if v != base.Nil {
 				result = ~,unwrap
 			}
 			return result
@@ -479,8 +480,8 @@ func (c *Comp) mapPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
+		idx.ConstTo(xt.TypeOfInt)
+	} else if idx.Type == nil || !idx.Type.AssignableTo(xt.TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 	t := obj.Type.Elem()
@@ -516,8 +517,8 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
+		idx.ConstTo(xt.TypeOfInt)
+	} else if idx.Type == nil || !idx.Type.AssignableTo(xt.TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 	t := obj.Type.Elem().Elem() // Elem() for the pointer to array, another Elem() for the array element type

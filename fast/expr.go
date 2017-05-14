@@ -28,6 +28,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits []*Expr) {
@@ -141,7 +143,7 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 }
 
 // Expr1OrType compiles an single-valued expression or a type
-func (c *Comp) Expr1OrType(node ast.Expr) (e *Expr, t r.Type) {
+func (c *Comp) Expr1OrType(node ast.Expr) (e *Expr, t xr.Type) {
 	panicking := true
 	defer func() {
 		if panicking {

@@ -34,18 +34,20 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) varSetZero(upn int, index int, t r.Type) {
-	zero := r.Zero(t).Interface()
+func (c *Comp) varSetZero(upn int, index int, t xr.Type) {
+	zero := xr.Zero(t).Interface()
 	c.varSetConst(upn, index, t, zero)
 }
-func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
+func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 	v := r.ValueOf(val)
+	rt := t.ReflectType()
 	if ValueType(v) == nil {
-		v = r.Zero(t)
+		v = r.Zero(rt)
 	} else {
-		v = v.Convert(t)
+		v = v.Convert(rt)
 	}
 
 	var ret func(env *Env) (Stmt, *Env)
@@ -1404,7 +1406,8 @@ func (c *Comp) varSetConst(upn int, index int, t r.Type, val I) {
 	}
 	c.Code.Append(ret)
 }
-func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
+func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
+	rt := t.ReflectType()
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
 	case 0:
@@ -1633,7 +1636,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
-						Binds[index].Set(fun(env).Convert(t),
+						Binds[index].Set(fun(env).Convert(rt),
 					)
 
 					env.IP++
@@ -1886,7 +1889,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
 						Outer.
-						Binds[index].Set(fun(env).Convert(t),
+						Binds[index].Set(fun(env).Convert(rt),
 					)
 
 					env.IP++
@@ -2139,7 +2142,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
 						Outer.Outer.
-						Binds[index].Set(fun(env).Convert(t),
+						Binds[index].Set(fun(env).Convert(rt),
 					)
 
 					env.IP++
@@ -2464,7 +2467,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 					}
 
 					o.
-						Binds[index].Set(fun(env).Convert(t),
+						Binds[index].Set(fun(env).Convert(rt),
 					)
 
 					env.IP++
@@ -2699,7 +2702,7 @@ func (c *Comp) varSetExpr(upn int, index int, t r.Type, fun I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.ThreadGlobals.FileEnv.
-						Binds[index].Set(fun(env).Convert(t),
+						Binds[index].Set(fun(env).Convert(rt),
 					)
 
 					env.IP++

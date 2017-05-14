@@ -30,6 +30,7 @@ import (
 	"unsafe"
 
 	"github.com/cosmos72/gomacro/base"
+	xt "github.com/cosmos72/gomacro/xtype"
 )
 
 :import (
@@ -132,7 +133,7 @@ func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
 		c.Errorf("cannot take the address of %v", node.X)
 		return nil
 	} else {
-		return exprX1(r.PtrTo(place.Type), place.Addr)
+		return exprX1(xt.PtrTo(place.Type), place.Addr)
 	}
 }
 

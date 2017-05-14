@@ -33,10 +33,11 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr  { return c.indexExpr(node, true) }
+func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr { return c.indexExpr(node, true) }
 func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr { return c.indexExpr(node, false) }
 func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	obj := c.Expr1(node.X)
@@ -60,7 +61,8 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
-			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() })
+			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() },
+			)
 			ret = c.vectorIndex(node, deref, idx)
 			break
 		}
@@ -77,8 +79,8 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
+		idx.ConstTo(xr.TypeOfInt)
+	} else if idx.Type == nil || !idx.Type.AssignableTo(xr.TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 
@@ -374,7 +376,7 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	}
 
 	objfun := obj.AsX1()
-	zero := r.Zero(tval)
+	zero := xr.Zero(tval)
 	var fun func(env *Env) (r.Value, []r.Value)
 	if idxconst {
 		key := r.ValueOf(idx.Value)
@@ -382,11 +384,11 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			obj := objfun(env)
 			val := obj.MapIndex(key)
 			var ok r.Value
-			if val == Nil {
+			if val == base.Nil {
 				val = zero
-				ok = False
+				ok = base.False
 			} else {
-				ok = True
+				ok = base.True
 			}
 			return val, []r.Value{val, ok}
 		}
@@ -397,16 +399,16 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			key := keyfun(env)
 			val := obj.MapIndex(key)
 			var ok r.Value
-			if val == Nil {
+			if val == base.Nil {
 				val = zero
-				ok = False
+				ok = base.False
 			} else {
-				ok = True
+				ok = base.True
 			}
 			return val, []r.Value{val, ok}
 		}
 	}
-	return exprXV([]r.Type{tval, TypeOfBool}, fun)
+	return exprXV([]xr.Type{tval, xr.TypeOfBool}, fun)
 }
 func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	t := obj.Type
@@ -430,7 +432,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				v := obj.MapIndex(key)
 				var result bool
 
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Bool()
 				}
 				return result
@@ -441,7 +443,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				v := obj.MapIndex(key)
 				var result int
 
-				if v != Nil {
+				if v != base.Nil {
 					result = int(v.Int())
 				}
 				return result
@@ -452,7 +454,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				v := obj.MapIndex(key)
 				var result int8
 
-				if v != Nil {
+				if v != base.Nil {
 					result = int8(v.Int())
 				}
 				return result
@@ -463,7 +465,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				v := obj.MapIndex(key)
 				var result int16
 
-				if v != Nil {
+				if v != base.Nil {
 					result = int16(v.Int())
 				}
 				return result
@@ -473,7 +475,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result int32
-				if v != Nil {
+				if v != base.Nil {
 					result = int32(v.Int())
 				}
 				return result
@@ -483,7 +485,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result int64
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Int()
 				}
 				return result
@@ -493,7 +495,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result uint
-				if v != Nil {
+				if v != base.Nil {
 					result = uint(v.Uint())
 				}
 				return result
@@ -503,7 +505,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result uint8
-				if v != Nil {
+				if v != base.Nil {
 					result =
 						uint8(v.Uint())
 				}
@@ -514,7 +516,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result uint16
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						uint16(v.Uint())
@@ -526,7 +528,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result uint32
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						uint32(v.Uint())
@@ -538,7 +540,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result uint64
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Uint()
 				}
 				return result
@@ -549,7 +551,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result uintptr
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						uintptr(v.Uint())
@@ -562,7 +564,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result float32
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						float32(v.Float())
@@ -575,7 +577,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result float64
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Float()
 				}
 				return result
@@ -586,7 +588,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result complex64
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						complex64(v.Complex())
@@ -599,7 +601,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result complex128
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Complex()
 				}
 				return result
@@ -610,7 +612,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				obj := objfun(env)
 				v := obj.MapIndex(key)
 				var result string
-				if v != Nil {
+				if v != base.Nil {
 					result = v.String()
 				}
 				return result
@@ -618,11 +620,11 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 
 		default:
 			{
-				zero := r.Zero(tval)
+				zero := xr.Zero(tval)
 				fun = func(env *Env) r.Value {
 					obj := objfun(env)
 					result := obj.MapIndex(key)
-					if result == Nil {
+					if result == base.Nil {
 						result = zero
 					}
 					return result
@@ -639,7 +641,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result bool
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Bool()
 				}
 				return result
@@ -651,7 +653,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result int
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						int(v.Int())
@@ -665,7 +667,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result int8
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						int8(v.Int())
@@ -679,7 +681,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result int16
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						int16(v.Int())
@@ -693,7 +695,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result int32
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						int32(v.Int())
@@ -707,7 +709,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result int64
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Int()
 				}
 				return result
@@ -719,7 +721,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result uint
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						uint(v.Uint())
@@ -733,7 +735,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result uint8
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						uint8(v.Uint())
@@ -747,7 +749,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result uint16
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						uint16(v.Uint())
@@ -761,7 +763,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result uint32
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						uint32(v.Uint())
@@ -775,7 +777,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result uint64
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Uint()
 				}
 				return result
@@ -787,7 +789,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result uintptr
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						uintptr(v.Uint())
@@ -801,7 +803,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result float32
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						float32(v.Float())
@@ -815,7 +817,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result float64
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Float()
 				}
 				return result
@@ -827,7 +829,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result complex64
-				if v != Nil {
+				if v != base.Nil {
 					result =
 
 						complex64(v.Complex())
@@ -841,7 +843,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result complex128
-				if v != Nil {
+				if v != base.Nil {
 					result = v.Complex()
 				}
 				return result
@@ -853,7 +855,7 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				key := keyfun(env)
 				v := obj.MapIndex(key)
 				var result string
-				if v != Nil {
+				if v != base.Nil {
 					result = v.String()
 				}
 				return result
@@ -861,12 +863,12 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 
 		default:
 			{
-				zero := r.Zero(tval)
+				zero := xr.Zero(tval)
 				fun = func(env *Env) r.Value {
 					obj := objfun(env)
 					key := keyfun(env)
 					result := obj.MapIndex(key)
-					if result == Nil {
+					if result == base.Nil {
 						result = zero
 					}
 					return result
@@ -924,8 +926,8 @@ func (c *Comp) mapPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
+		idx.ConstTo(xr.TypeOfInt)
+	} else if idx.Type == nil || !idx.Type.AssignableTo(xr.TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 
@@ -960,8 +962,8 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(TypeOfInt) {
+		idx.ConstTo(xr.TypeOfInt)
+	} else if idx.Type == nil || !idx.Type.AssignableTo(xr.TypeOfInt) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 

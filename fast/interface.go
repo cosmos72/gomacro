@@ -28,30 +28,19 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// "\u0080" is Unicode codepoint: Padding Character.
-// reflect.StructOf() allows it as field name, while go/scanner forbids it in Go source code
-const nameOfInterfaceObject = "\u0080"
-
-func (c *Comp) TypeInterface(node *ast.InterfaceType) r.Type {
+func (c *Comp) TypeInterface(node *ast.InterfaceType) xr.Type {
 	if node.Methods == nil || len(node.Methods.List) == 0 {
-		return TypeOfInterface
+		return xr.TypeOfInterface
 	}
-	types, names := c.TypeFields(node.Methods)
+	methodtypes, methodnames := c.TypeFields(node.Methods)
 
-	types = append([]r.Type{TypeOfInterface}, types...)
-	names = append([]string{nameOfInterfaceObject}, names...)
-
-	fields := c.makeStructFields(c.FileComp().Path, names, types)
-	return r.StructOf(fields)
+	// TODO embedded interfaces
+	return xr.InterfaceOf(methodnames, methodtypes, nil)
 }
 
-func isInterfaceType(t r.Type) bool {
-	if t.Kind() == r.Struct && t.NumField() > 0 {
-		field := t.Field(0)
-		return field.Name == nameOfInterfaceObject && field.Type == TypeOfInterface
-	}
-	return false
+func isInterfaceType(t xr.Type) bool {
+	return t.Kind() == r.Interface
 }

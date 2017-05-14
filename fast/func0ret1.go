@@ -31,9 +31,10 @@ package fast
 
 import (
 	r "reflect"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) func0ret1(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds

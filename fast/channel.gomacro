@@ -33,7 +33,8 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
+	xt "github.com/cosmos72/gomacro/xtype"
 )
 
 
@@ -59,7 +60,10 @@ import (
 
 :func maketypevar(typ ast.Node) ast.Node {
 	t := EvalType(typ)
-	return &ast.Ident{Name: "TypeOf" + upcasefirstbyte(t.Name())}
+	return &ast.SelectorExpr{
+		X: &ast.Ident{Name: "xt"},
+		Sel: &ast.Ident{Name: "TypeOf" + upcasefirstbyte(t.Name())},
+	}
 }
 
 
@@ -116,9 +120,9 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			retv, ok := channel.Recv()
 			var okv r.Value
 			if ok {
-				okv = True
+				okv = base.True
 			} else {
-				okv = False
+				okv = base.False
 			}
 			return retv, []r.Value{retv, okv}
 		}
@@ -128,14 +132,14 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			retv, ok := channelfun(env).Recv()
 			var okv r.Value
 			if ok {
-				okv = True
+				okv = base.True
 			} else {
-				okv = False
+				okv = base.False
 			}
 			return retv, []r.Value{retv, okv}
 		}
 	}
-	types := []r.Type{t.Elem(), TypeOfBool}
+	types := []xt.Type{t.Elem(), xt.TypeOfBool}
 	return exprXV(types, fun)
 }
 
@@ -176,8 +180,7 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 	typ2, ret := convertvalue(typ, ~'retv)
 	return ~"{
 		case ~,kind:
-		var zero ~,typ
-		if telem != r.TypeOf(zero) {
+		if telem != BasicType(~,kind) {
 			fun = func(env *Env) ~,typ {
 				retv, _ := channelfun(env).Recv()
 				return ~,ret
@@ -330,7 +333,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	sendonly := t.ChanDir() == r.SendDir
 	var stmt Stmt
 	if expr.Const() {
-		v := r.ValueOf(expr.Value).Convert(telem) // redundant conversion?
+		v := r.ValueOf(expr.Value)
 		switch telem {
 			{send_c; bool}
 			{send_c; int}
@@ -380,11 +383,12 @@ func (c *Comp) Send(node *ast.SendStmt) {
 		}
 		if stmt == nil {
 			exprfun := expr.AsX1()
+			rtelem := telem.ReflectType()
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env)
 				value := exprfun(env)
-				if value.Type() != telem {
-					value = value.Convert(telem)
+				if value.Type() != rtelem {
+					value = value.Convert(rtelem)
 				}
 				channel.Send(value)
 				env.IP++

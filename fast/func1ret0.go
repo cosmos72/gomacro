@@ -34,9 +34,10 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) func1ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
@@ -431,31 +432,36 @@ func (c *Comp) func1ret0(t r.Type, m *funcMaker) func(*Env) r.Value {
 		}
 
 	default:
-		if funcbody == nil {
-			return func(env *Env) r.Value {
-				return r.MakeFunc(t, func([]r.Value) []r.Value { return ZeroValues },
-				)
-			}
-		} else {
-			return func(env *Env) r.Value {
+		{
+			rtype := t.ReflectType()
+			if funcbody == nil {
+				return func(env *Env) r.Value {
+					return r.MakeFunc(rtype, func([]r.Value) []r.Value { return ZeroValues },
+					)
+				}
+			} else {
+				return func(env *Env) r.Value {
 
-				env.MarkUsedByClosure()
-				return r.MakeFunc(t, func(args []r.Value) []r.Value {
-					env := NewEnv4Func(env, nbinds, nintbinds)
+					env.MarkUsedByClosure()
+					rtarg0 := targ0.ReflectType()
+					return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
+						env := NewEnv4Func(env, nbinds, nintbinds)
 
-					if param0index != NoIndex {
-						place := r.New(targ0).Elem()
-						if arg0 := args[0]; arg0 != Nil && arg0 != None {
-							place.Set(arg0.Convert(targ0))
+						if param0index != NoIndex {
+							place := r.New(rtarg0).Elem()
+							if arg0 := args[0]; arg0 != Nil && arg0 != None {
+								place.Set(arg0.Convert(rtarg0))
+							}
+
+							env.Binds[param0index] = place
 						}
 
-						env.Binds[param0index] = place
-					}
-
-					funcbody(env)
-					return ZeroValues
-				})
+						funcbody(env)
+						return ZeroValues
+					})
+				}
 			}
+
 		}
 	}
 }

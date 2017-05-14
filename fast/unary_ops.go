@@ -29,6 +29,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) UnaryPlus(node *ast.UnaryExpr, xe *Expr) *Expr {
@@ -272,7 +273,7 @@ func (c *Comp) Deref(addr *Expr) *Expr {
 }
 
 // deref0Unwrap compiles unary operator * on reflect.Value - unwraps reflect.Value.Elem() if possible
-func (c *Comp) derefUnwrap(t r.Type, x1 func(*Env) r.Value) I {
+func (c *Comp) derefUnwrap(t xr.Type, x1 func(*Env) r.Value) I {
 	var fun I
 	switch t.Kind() {
 	case r.Bool:
