@@ -46,6 +46,7 @@ func (cfg *Cache) cache(rt reflect.Type, t Type) Type {
 		cfg.ReflectTypes = make(map[reflect.Type]Type)
 	}
 	cfg.ReflectTypes[rt] = t
+	// debugf("added type to cache: %v -> %v (%v)", rt, t, t.ReflectType())
 	return t
 }
 
@@ -63,7 +64,8 @@ func (cfg *Cache) NewPackage(path, name string) *Package {
 
 func (cfg *Cache) namedTypeFromImport(rtype reflect.Type) Type {
 	t := cfg.namedTypeFromPackageCache(rtype)
-	if t != nil {
+	// importer gives accurate view of wrapper methods for embedded fields... use if type has methods
+	if t != nil || rtype.NumMethod() == 0 {
 		return t
 	}
 	if cfg.Importer == nil {
@@ -85,26 +87,20 @@ func (cfg *Cache) namedTypeFromImport(rtype reflect.Type) Type {
 func (cfg *Cache) namedTypeFromPackageCache(rtype reflect.Type) Type {
 	pkgpath := rtype.PkgPath()
 	pkg := (*types.Package)(cfg.Pkgs[pkgpath])
-	if pkg == nil || !pkg.Complete() {
-		return nil
+	if pkg != nil {
+		return cfg.namedTypeFromPackage(rtype, pkg)
 	}
-	return cfg.namedTypeFromPackage(rtype, pkg)
+	return nil
 }
 
 func (cfg *Cache) namedTypeFromPackage(rtype reflect.Type, pkg *types.Package) Type {
-	scope := pkg.Scope()
-	if scope == nil {
-		return nil
+	if scope := pkg.Scope(); scope != nil {
+		if obj := scope.Lookup(rtype.Name()); obj != nil {
+			if gtype := obj.Type(); gtype != nil {
+				// debugf("imported named type %v for %v", gtype, rtype)
+				return MakeType(gtype, rtype)
+			}
+		}
 	}
-	obj := scope.Lookup(rtype.Name())
-	if obj == nil {
-		return nil
-	}
-	gtype := obj.Type()
-	if gtype == nil {
-		return nil
-	}
-	// debugf("imported named type %v for %v", gtype, rtype)
-	t := maketype(gtype, rtype)
-	return cfg.cache(rtype, t)
+	return nil
 }

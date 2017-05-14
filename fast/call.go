@@ -81,11 +81,10 @@ func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
 		fun = c.Expr1(node.Fun)
 	}
 	t := fun.Type
-	rtype := t.ReflectType()
 	var lastarg *Expr
-	if rtype == TypeOfBuiltin.ReflectType() {
+	if xr.SameType(t, TypeOfBuiltin) {
 		return c.callBuiltin(node, fun)
-	} else if rtype == TypeOfFunction.ReflectType() {
+	} else if xr.SameType(t, TypeOfFunction) {
 		fun, lastarg = c.callFunction(node, fun)
 		t = fun.Type
 	}
@@ -166,8 +165,12 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 		}
 		if arg.Const() {
 			arg.ConstTo(ti)
-		} else if arg.Type == nil || (arg.Type != ti && !arg.Type.AssignableTo(ti)) {
-			c.Errorf("cannot use <%v> as <%v> in argument to %v", arg.Type, ti, node.Fun)
+		} else if arg.Type == nil || (!xr.SameType(arg.Type, ti) && !arg.Type.AssignableTo(ti)) {
+			var rtarg r.Type
+			if arg.Type != nil {
+				rtarg = arg.Type.ReflectType()
+			}
+			c.Errorf("cannot use <%v> as <%v> in argument to %v", rtarg, ti.ReflectType(), node.Fun)
 		}
 	}
 	return

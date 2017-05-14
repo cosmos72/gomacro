@@ -31,7 +31,7 @@ package fast
 
 import (
 	r "reflect"
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func call0ret0(c *Call, maxdepth int) func(env *Env) {
@@ -96,7 +96,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			base.Errorf("internal error: call1ret0() invoked for constant function %#v. use call_builtin() instead", expr)
+			Errorf("internal error: call1ret0() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 
 	}
@@ -108,7 +108,7 @@ func call1ret0(c *Call, maxdepth int) func(env *Env) {
 
 	t := expr.Type.In(0)
 	k := t.Kind()
-	if BasicType(k) == t {
+	if KindToType(k) == t.ReflectType() {
 		switch k {
 		case r.Bool:
 
@@ -972,7 +972,7 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			base.Errorf("internal error: call2ret0() invoked for constant function %#v. use call_builtin() instead", expr)
+			Errorf("internal error: call2ret0() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 
 	}
@@ -986,8 +986,9 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 	var call func(env *Env)
 
 	t := expr.Type.In(0)
+	rt := t.ReflectType()
 	k := t.Kind()
-	if BasicType(k) == t && expr.Type.In(1) == t {
+	if KindToType(k) == rt && expr.Type.In(1).ReflectType() == rt {
 		switch k {
 		case r.Bool:
 			{
@@ -1054,7 +1055,6 @@ func call2ret0(c *Call, maxdepth int) func(env *Env) {
 
 				if funsym != nil && funupn == maxdepth-1 {
 					var cachedfun func(int8, int8)
-
 					call = func(env *Env) {
 						funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 						if cachedfunv != funv {

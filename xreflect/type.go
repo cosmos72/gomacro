@@ -30,12 +30,23 @@ import (
 )
 
 func SameType(t, u Type) bool {
-	return t == u || t != nil && u != nil && types.IdenticalIgnoreTags(t.GoType(), u.GoType())
+	xnil := t == nil
+	ynil := u == nil
+	if xnil || ynil {
+		return xnil == ynil
+	}
+	xt := &t[0]
+	yt := &u[0]
+	return xt == yt || xt.same(yt)
 }
 
-func maketype(gtype types.Type, rtype reflect.Type) Type {
+func (t *xtype) same(u *xtype) bool {
+	return types.IdenticalIgnoreTags(t.GoType(), u.GoType())
+}
+
+func MakeType(gtype types.Type, rtype reflect.Type) Type {
 	kind := gtypeToKind(gtype)
-	return &xtype{kind, gtype, rtype, nil}
+	return wrap(&xtype{kind, gtype, rtype, nil})
 }
 
 // GoType returns the go/types.Type corresponding to the type.
@@ -166,7 +177,7 @@ func (t *xtype) Implements(u Type) bool {
 	if u.Kind() != reflect.Interface {
 		panic("type2: non-interface type passed to Type.Implements")
 	}
-	return types.Implements(t.gtype, u.GoType().(*types.Interface))
+	return types.Implements(t.gtype, u.GoType().Underlying().(*types.Interface))
 }
 
 // AssignableTo reports whether a value of the type is assignable to type u.

@@ -63,7 +63,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 			return c.compileMethod(e, mtd)
 		}
 	}
-	c.Errorf("type %v has no field or method %q: %v", t, name, node)
+	c.Errorf("type %s has no field or method %q: %v", t, name, node)
 	return nil
 }
 

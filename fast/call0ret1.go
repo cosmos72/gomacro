@@ -56,7 +56,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Bool:
 
 		{
-			if tret != xr.TypeOfBool {
+			if !xr.SameType(tret, xr.TypeOfBool) {
 				call = func(env *Env) bool {
 					fun := exprfun(env)
 
@@ -106,7 +106,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Int:
 
 		{
-			if tret != xr.TypeOfInt {
+			if !xr.SameType(tret, xr.TypeOfInt) {
 				call = func(env *Env) int {
 					fun := exprfun(env)
 
@@ -155,7 +155,7 @@ func call0ret1(c *Call, maxdepth int) I {
 	case r.Int8:
 
 		{
-			if tret != xr.TypeOfInt8 {
+			if !xr.SameType(tret, xr.TypeOfInt8) {
 				call = func(env *Env) int8 {
 					fun := exprfun(env)
 
@@ -203,7 +203,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Int16:
 		{
-			if tret != xr.TypeOfInt16 {
+			if !xr.SameType(tret, xr.TypeOfInt16) {
 				call = func(env *Env) int16 {
 					fun := exprfun(env)
 
@@ -251,7 +251,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Int32:
 		{
-			if tret != xr.TypeOfInt32 {
+			if !xr.SameType(tret, xr.TypeOfInt32) {
 				call = func(env *Env) int32 {
 					fun := exprfun(env)
 
@@ -299,7 +299,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Int64:
 		{
-			if tret != xr.TypeOfInt64 {
+			if !xr.SameType(tret, xr.TypeOfInt64) {
 				call = func(env *Env) int64 {
 					fun := exprfun(env)
 
@@ -348,7 +348,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint:
 		{
-			if tret != xr.TypeOfUint {
+			if !xr.SameType(tret, xr.TypeOfUint) {
 				call = func(env *Env) uint {
 					fun := exprfun(env)
 
@@ -396,7 +396,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint8:
 		{
-			if tret != xr.TypeOfUint8 {
+			if !xr.SameType(tret, xr.TypeOfUint8) {
 				call = func(env *Env) uint8 {
 					fun := exprfun(env)
 
@@ -444,7 +444,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint16:
 		{
-			if tret != xr.TypeOfUint16 {
+			if !xr.SameType(tret, xr.TypeOfUint16) {
 				call = func(env *Env) uint16 {
 					fun := exprfun(env)
 
@@ -492,7 +492,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint32:
 		{
-			if tret != xr.TypeOfUint32 {
+			if !xr.SameType(tret, xr.TypeOfUint32) {
 				call = func(env *Env) uint32 {
 					fun := exprfun(env)
 
@@ -540,7 +540,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uint64:
 		{
-			if tret != xr.TypeOfUint64 {
+			if !xr.SameType(tret, xr.TypeOfUint64) {
 				call = func(env *Env) uint64 {
 					fun := exprfun(env)
 
@@ -589,7 +589,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Uintptr:
 		{
-			if tret != xr.TypeOfUintptr {
+			if !xr.SameType(tret, xr.TypeOfUintptr) {
 				call = func(env *Env) uintptr {
 					fun := exprfun(env)
 
@@ -637,7 +637,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Float32:
 		{
-			if tret != xr.TypeOfFloat32 {
+			if !xr.SameType(tret, xr.TypeOfFloat32) {
 				call = func(env *Env) float32 {
 					fun := exprfun(env)
 
@@ -685,7 +685,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Float64:
 		{
-			if tret != xr.TypeOfFloat64 {
+			if !xr.SameType(tret, xr.TypeOfFloat64) {
 				call = func(env *Env) float64 {
 					fun := exprfun(env)
 
@@ -734,7 +734,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Complex64:
 		{
-			if tret != xr.TypeOfComplex64 {
+			if !xr.SameType(tret, xr.TypeOfComplex64) {
 				call = func(env *Env) complex64 {
 					fun := exprfun(env)
 
@@ -782,7 +782,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.Complex128:
 		{
-			if tret != xr.TypeOfComplex128 {
+			if !xr.SameType(tret, xr.TypeOfComplex128) {
 				call = func(env *Env) complex128 {
 					fun := exprfun(env)
 
@@ -830,7 +830,7 @@ func call0ret1(c *Call, maxdepth int) I {
 		}
 	case r.String:
 		{
-			if tret != xr.TypeOfString {
+			if !xr.SameType(tret, xr.TypeOfString) {
 				call = func(env *Env) string {
 					fun := exprfun(env)
 

@@ -233,8 +233,8 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 	convertuntyped := opts&CompileKeepUntyped == 0
 	if convertuntyped {
 		if untyp, ok := any.(UntypedLit); ok {
-			// Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, TypeOf(untyp), t)
-			if t.ReflectType() == TypeOfUntypedLit.ReflectType() {
+			Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
+			if xr.SameType(t, TypeOfUntypedLit) {
 				t = untyp.DefaultType()
 			}
 			any = untyp.ConstTo(t)
@@ -258,8 +258,8 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 	convertuntyped := opts&CompileKeepUntyped == 0
 	if convertuntyped {
 		if untyp, ok := any.(UntypedLit); ok {
-			// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t.ReflectType())
-			if t.ReflectType() == TypeOfUntypedLit.ReflectType() {
+			// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
+			if xr.SameType(t, TypeOfUntypedLit) {
 				t = untyp.DefaultType()
 			}
 			any = untyp.ConstTo(t)

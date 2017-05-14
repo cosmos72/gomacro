@@ -39,7 +39,6 @@ import (
 
 var (
 	zeroTypes          = []xr.Type{}
-	typeOfReflectType  = xr.TypeOf((*r.Type)(nil)).Elem() // inception
 	rtypeOfSliceOfByte = r.TypeOf([]byte{})
 
 /*
@@ -107,7 +106,7 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltin("println", Builtin{compilePrint, 0, base.MaxUint16})
 	ce.DeclBuiltin("real", Builtin{compileRealImag, 1, 1})
 
-	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf((*func(*CompEnv) *CompEnv)(nil)).Elem()})
+	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf((*func(interface{}) interface{})(nil)).Elem()})
 	ce.DeclFunc("Sleep", func(seconds float64) {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
@@ -193,7 +192,7 @@ func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
 			argi.ConstTo(telem)
-		} else if ti := argi.Type; ti != telem && (ti == nil || !ti.AssignableTo(telem)) {
+		} else if ti := argi.Type; !xr.SameType(ti, telem) && (ti == nil || !ti.AssignableTo(telem)) {
 			return c.badBuiltinCallArgType(sym.Name, node.Args[i], ti, telem)
 		}
 		args[i] = argi
@@ -359,7 +358,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	} else if t1 == nil || t1.Kind() != r.Slice || !t1.AssignableTo(xr.SliceOf(t1.Elem())) {
 		c.Errorf("second argument to copy should be slice or string; have %v <%v>", node.Args[1], t1)
 		return nil
-	} else if t0.Elem() != t1.Elem() {
+	} else if !xr.SameType(t0.Elem(), t1.Elem()) {
 		c.Errorf("arguments to copy have different element types: <%v> and <%v>", t0.Elem(), t1.Elem())
 	}
 	outtypes := []xr.Type{xr.TypeOfInt}
@@ -486,14 +485,14 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	}
 	args := make([]*Expr, nargs)
 	argtypes := make([]xr.Type, nargs)
-	args[0] = c.exprValue(typeOfReflectType, tin.ReflectType())
-	argtypes[0] = typeOfReflectType
+	args[0] = c.exprValue(xr.TypeOfInterface, tin.ReflectType()) // no need to build TypeOfReflectType
+	argtypes[0] = xr.TypeOfInterface
 	te := xr.TypeOfInt
 	for i := 1; i < nargs; i++ {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
 			argi.ConstTo(te)
-		} else if ti := argi.Type; ti == nil || (ti != te && !ti.AssignableTo(te)) {
+		} else if ti := argi.Type; ti == nil || (!xr.SameType(ti, te) && !ti.AssignableTo(te)) {
 			return c.badBuiltinCallArgType(sym.Name, node.Args[i], ti, te)
 		}
 		args[i] = argi
@@ -516,10 +515,10 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 func compileNew(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	tin := c.Type(node.Args[0])
 	tout := xr.PtrTo(tin)
-	t := xr.FuncOf([]xr.Type{typeOfReflectType}, []xr.Type{tout}, false)
+	t := xr.FuncOf([]xr.Type{xr.TypeOfInterface}, []xr.Type{tout}, false) // no need to build TypeOfReflectType
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: r.New}, &sym)
-	arg := c.exprValue(typeOfReflectType, tin.ReflectType())
+	arg := c.exprValue(xr.TypeOfInterface, tin.ReflectType())
 	return newCall1(fun, arg, false, tout)
 }
 
@@ -545,21 +544,19 @@ func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // --- print(), println() ---
 
-func callPrint(out io.Writer, args ...interface{}) {
-	fmt.Fprint(out, args...)
+func callPrint(out interface{}, args ...interface{}) {
+	fmt.Fprint(out.(io.Writer), args...)
 }
 
-func callPrintln(out io.Writer, args ...interface{}) {
-	fmt.Fprintln(out, args...)
+func callPrintln(out interface{}, args ...interface{}) {
+	fmt.Fprintln(out.(io.Writer), args...)
 }
 
 func getStdout(env *Env) r.Value {
 	return r.ValueOf(env.ThreadGlobals.Stdout)
 }
 
-var (
-	typeOfIoWriter xr.Type = xr.TypeOf((*io.Writer)(nil)).Elem()
-)
+var typeOfBuiltinPrint = xr.TypeOf(callPrint)
 
 func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args := c.Exprs(node.Args)
@@ -568,10 +565,10 @@ func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 			arg.ConstTo(arg.DefaultType())
 		}
 	}
-	arg0 := exprFun(typeOfIoWriter, getStdout)
+	arg0 := exprFun(xr.TypeOfInterface, getStdout) // no need to build TypeOfIoWriter
 	args = append([]*Expr{arg0}, args...)
 
-	t := c.TopComp().TypeOf(callPrint)
+	t := typeOfBuiltinPrint
 	sym.Type = t
 	call := callPrint
 	if sym.Name == "println" {
@@ -807,9 +804,29 @@ func call_builtin(c *Call) I {
 				fun(arg)
 			}
 		}
-	case func(r.Value): // close()
+	case func(interface{}, ...interface{}): // print, println()
 		argfunsX1 := c.MakeArgfunsX1()
-		argfun := argfunsX1[0]
+		if c.Ellipsis {
+			argfuns := [2]func(*Env) r.Value{
+				argfunsX1[0],
+				argfunsX1[1],
+			}
+			call = func(env *Env) {
+				arg0 := argfuns[0](env).Interface()
+				argslice := argfuns[1](env).Interface().([]interface{})
+				fun(arg0, argslice...)
+			}
+		} else {
+			call = func(env *Env) {
+				args := make([]interface{}, len(argfunsX1))
+				for i, argfun := range argfunsX1 {
+					args[i] = argfun(env).Interface()
+				}
+				fun(args[0], args[1:]...)
+			}
+		}
+	case func(r.Value): // close()
+		argfun := c.MakeArgfunsX1()[0]
 		if name == "close" {
 			call = func(env *Env) {
 				arg := argfun(env)
@@ -822,15 +839,13 @@ func call_builtin(c *Call) I {
 			}
 		}
 	case func(r.Value) int: // cap(), len()
-		argfunsX1 := c.MakeArgfunsX1()
-		argfun := argfunsX1[0]
+		argfun := c.MakeArgfunsX1()[0]
 		call = func(env *Env) int {
 			arg := argfun(env)
 			return fun(arg)
 		}
 	case func(r.Value) r.Value: // Env()
-		argfunsX1 := c.MakeArgfunsX1()
-		argfun := argfunsX1[0]
+		argfun := c.MakeArgfunsX1()[0]
 		if name == "Env" {
 			call = func(env *Env) r.Value {
 				arg0 := argfun(env)
@@ -844,57 +859,44 @@ func call_builtin(c *Call) I {
 		}
 	case func(r.Value, r.Value): // delete()
 		argfunsX1 := c.MakeArgfunsX1()
+		argfuns := [2]func(env *Env) r.Value{
+			argfunsX1[0],
+			argfunsX1[1],
+		}
 		call = func(env *Env) {
-			arg0 := argfunsX1[0](env)
-			arg1 := argfunsX1[1](env)
+			arg0 := argfuns[0](env)
+			arg1 := argfuns[1](env)
 			fun(arg0, arg1)
 		}
 	case func(r.Value, r.Value) int: // copy()
 		argfunsX1 := c.MakeArgfunsX1()
-		call = func(env *Env) int {
-			arg0 := argfunsX1[0](env)
-			arg1 := argfunsX1[1](env)
-			return fun(arg0, arg1)
+		argfuns := [2]func(env *Env) r.Value{
+			argfunsX1[0],
+			argfunsX1[1],
 		}
-	case func(io.Writer, ...interface{}): // print, println()
-		argfunsX1 := c.MakeArgfunsX1()
-		if c.Ellipsis {
-			argfunsX1 := [2]func(*Env) r.Value{
-				argfunsX1[0],
-				argfunsX1[1],
-			}
-			call = func(env *Env) {
-				arg0 := argfunsX1[0](env).Interface()
-				argslice := argfunsX1[1](env).Interface().([]interface{})
-				fun(arg0.(io.Writer), argslice...)
-			}
-		} else {
-			call = func(env *Env) {
-				args := make([]interface{}, len(argfunsX1))
-				for i, argfun := range argfunsX1 {
-					args[i] = argfun(env).Interface()
-				}
-				fun(args[0].(io.Writer), args[1:]...)
-			}
+		call = func(env *Env) int {
+			arg0 := argfuns[0](env)
+			arg1 := argfuns[1](env)
+			return fun(arg0, arg1)
 		}
 	case func(r.Value, ...r.Value) r.Value: // append()
 		argfunsX1 := c.MakeArgfunsX1()
 		if c.Ellipsis {
-			argfunsX1 := [2]func(*Env) r.Value{
+			argfuns := [2]func(*Env) r.Value{
 				argfunsX1[0],
 				argfunsX1[1],
 			}
 			if name == "append" {
 				call = func(env *Env) r.Value {
-					arg0 := argfunsX1[0](env)
-					arg1 := argfunsX1[1](env)
+					arg0 := argfuns[0](env)
+					arg1 := argfuns[1](env)
 					argslice := unwrapSlice(arg1)
 					return r.Append(arg0, argslice...)
 				}
 			} else {
 				call = func(env *Env) r.Value {
-					arg0 := argfunsX1[0](env)
-					arg1 := argfunsX1[1](env)
+					arg0 := argfuns[0](env)
+					arg1 := argfuns[1](env)
 					argslice := unwrapSlice(arg1)
 					return fun(arg0, argslice...)
 				}

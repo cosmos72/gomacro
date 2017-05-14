@@ -76,7 +76,7 @@ func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	for i, method := range methods {
 		rfields[i+nemb+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
 	}
-	return maketype(
+	return MakeType(
 		types.NewInterface(gmethods, gembeddeds),
 		// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
 		// Then use a pointer to the proxy struct
@@ -94,7 +94,7 @@ func (t *xtype) Complete() Type {
 	}
 	gtype := t.gtype.Underlying().(*types.Interface)
 	gtype.Complete()
-	return t
+	return wrap(t)
 }
 
 // utilities for InterfaceOf()

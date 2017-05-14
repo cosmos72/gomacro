@@ -508,7 +508,7 @@ again:
 			return x
 		}
 	default:
-		if t.ReflectType() == TypeOfUntypedLit.ReflectType() {
+		if xr.SameType(t, TypeOfUntypedLit) {
 			e.ConstTo(e.DefaultType())
 			goto again
 		}

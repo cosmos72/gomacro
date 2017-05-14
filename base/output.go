@@ -249,11 +249,24 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 	}
 	defer func() {
 		if rec := recover(); rec != nil {
-			ret = fmt.Sprintf("error pretty-printing %#v <%v>", value, r.TypeOf(value))
+			ret = fmt.Sprintf("error pretty-printing %v", value, r.TypeOf(value))
 		}
 	}()
-	if v, ok := value.(r.Value); ok {
-		return st.valueToPrintable(v)
+	switch value := value.(type) {
+	case r.Value:
+		return st.valueToPrintable(value)
+	case AstWithNode:
+		return st.nodeToPrintable(value.Node())
+	case Ast:
+		return st.toPrintable(value.Interface())
+	case ast.Node:
+		return st.nodeToPrintable(value)
+	case r.Type:
+		return st.typeToPrintable(value)
+	case fmt.Stringer:
+		return value.String()
+	case fmt.GoStringer:
+		return value.GoString()
 	}
 	v := r.ValueOf(value)
 	k := v.Kind()
@@ -270,7 +283,7 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 			} else {
 				valuei := vi.Interface()
 				values[i] = st.toPrintable(valuei)
-				converted = converted || valuei != values[i]
+				converted = converted || !vi.Type().Comparable() || valuei != values[i]
 			}
 		}
 		// return []interface{} only if we actually converted some element
@@ -279,16 +292,6 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 		} else {
 			return value
 		}
-	}
-	switch v := value.(type) {
-	case AstWithNode:
-		return st.nodeToPrintable(v.Node())
-	case Ast:
-		return st.toPrintable(v.Interface())
-	case ast.Node:
-		return st.nodeToPrintable(v)
-	case r.Type:
-		return st.typeToPrintable(v)
 	}
 	return value
 }

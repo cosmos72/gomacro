@@ -305,12 +305,13 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	tin := val.Type
 	tout := c.Type(node.Type)
 	rtout := tout.ReflectType()
-	kout := tout.Kind()
 	if tin == nil || tin.Kind() != r.Interface {
 		c.Errorf("invalid type assertion: %v (non-interface type <%v> on left)", node, tin)
 		return nil
 	}
-	if tout.Kind() != r.Interface && !tout.Implements(tin) {
+	kin := tin.Kind()
+	kout := tout.Kind()
+	if kout != r.Interface && !tout.Implements(tin) {
 		c.Errorf("impossible type assertion: <%v> does not implement <%v>", tout, tin)
 	}
 	fun := val.Fun.(func(*Env) r.Value)     // val returns an interface... must be already wrapped in a reflect.Value
@@ -322,18 +323,18 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env)
 			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
-			if v.Kind() != kout {
+			if v.Type() != rtout {
 				return fail[0], fail
 			}
 			return v, []r.Value{v, True}
 		}
-	} else if tout == xr.TypeOfInterface {
+	} else if tout.ReflectType() == TypeOfInterface {
 		// special case, nil is a valid interface{}
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env).Convert(TypeOfInterface)
 			return v, []r.Value{v, True}
 		}
-	} else if tin.Implements(tout) {
+	} else if kout == r.Interface && tin.Implements(tout) {
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env)
 			// nil is not a valid tout, check for it.
@@ -345,7 +346,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			v = v.Convert(rtout)
 			return v, []r.Value{v, True}
 		}
-	} else {
+	} else if kout == r.Interface {
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env)
 			// nil is not a valid tout, check for it.
@@ -360,6 +361,32 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 				return fail[0], fail
 			}
 			v = v.Convert(rtout)
+			return v, []r.Value{v, True}
+		}
+	} else if IsNillableKind(kin) {
+		ret = func(env *Env) (r.Value, []r.Value) {
+			v := fun(env)
+			// nil is not a valid tout, check for it.
+			// IsNil() can be invoked only on nillable types...
+			// but we just checked IsNillableKind(kin)
+			if v.IsNil() {
+				return fail[0], fail
+			}
+			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
+			rtconcr := v.Type()
+			if rtconcr != rtout {
+				return fail[0], fail
+			}
+			return v, []r.Value{v, True}
+		}
+	} else {
+		ret = func(env *Env) (r.Value, []r.Value) {
+			v := fun(env)
+			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
+			rtconcr := v.Type()
+			if rtconcr != rtout {
+				return fail[0], fail
+			}
 			return v, []r.Value{v, True}
 		}
 	}
@@ -451,7 +478,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			return fun(env).Interface().(string)
 		}
 	default:
-		if tout == xr.TypeOfInterface {
+		if tout.ReflectType() == TypeOfInterface {
 			// special case, nil is a valid interface{}
 			ret = func(env *Env) r.Value {
 				return fun(env).Convert(TypeOfInterface)

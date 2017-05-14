@@ -33,7 +33,7 @@ import (
 	"go/ast"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -56,9 +56,9 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			retv, ok := channel.Recv()
 			var okv r.Value
 			if ok {
-				okv = base.True
+				okv = True
 			} else {
-				okv = base.False
+				okv = False
 			}
 			return retv, []r.Value{retv, okv}
 		}
@@ -68,9 +68,9 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			retv, ok := channelfun(env).Recv()
 			var okv r.Value
 			if ok {
-				okv = base.True
+				okv = True
 			} else {
-				okv = base.False
+				okv = False
 			}
 			return retv, []r.Value{retv, okv}
 		}
@@ -209,7 +209,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 		channelfun := xe.AsX1()
 		switch telem.Kind() {
 		case r.Bool:
-			if telem != BasicType(r.Bool,
+			if telem.ReflectType() != KindToType(r.Bool,
 			) {
 				fun = func(env *Env) bool {
 					retv, _ := channelfun(env).Recv()
@@ -227,7 +227,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int:
-			if telem != BasicType(r.Int,
+			if telem.ReflectType() != KindToType(r.Int,
 			) {
 				fun = func(env *Env) int {
 					retv, _ := channelfun(env).Recv()
@@ -245,7 +245,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int8:
-			if telem != BasicType(r.Int8,
+			if telem.ReflectType() != KindToType(r.Int8,
 			) {
 				fun = func(env *Env) int8 {
 					retv, _ := channelfun(env).Recv()
@@ -263,7 +263,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int16:
-			if telem != BasicType(r.Int16,
+			if telem.ReflectType() != KindToType(r.Int16,
 			) {
 				fun = func(env *Env) int16 {
 					retv, _ := channelfun(env).Recv()
@@ -281,7 +281,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int32:
-			if telem != BasicType(r.Int32,
+			if telem.ReflectType() != KindToType(r.Int32,
 			) {
 				fun = func(env *Env) int32 {
 					retv, _ := channelfun(env).Recv()
@@ -299,7 +299,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int64:
-			if telem != BasicType(r.Int64,
+			if telem.ReflectType() != KindToType(r.Int64,
 			) {
 				fun = func(env *Env) int64 {
 					retv, _ := channelfun(env).Recv()
@@ -317,7 +317,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint:
-			if telem != BasicType(r.Uint,
+			if telem.ReflectType() != KindToType(r.Uint,
 			) {
 				fun = func(env *Env) uint {
 					retv, _ := channelfun(env).Recv()
@@ -335,7 +335,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint8:
-			if telem != BasicType(r.Uint8,
+			if telem.ReflectType() != KindToType(r.Uint8,
 			) {
 				fun = func(env *Env) uint8 {
 					retv, _ := channelfun(env).Recv()
@@ -353,7 +353,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint16:
-			if telem != BasicType(r.Uint16,
+			if telem.ReflectType() != KindToType(r.Uint16,
 			) {
 				fun = func(env *Env) uint16 {
 					retv, _ := channelfun(env).Recv()
@@ -371,7 +371,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint32:
-			if telem != BasicType(r.Uint32,
+			if telem.ReflectType() != KindToType(r.Uint32,
 			) {
 				fun = func(env *Env) uint32 {
 					retv, _ := channelfun(env).Recv()
@@ -389,7 +389,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint64:
-			if telem != BasicType(r.Uint64,
+			if telem.ReflectType() != KindToType(r.Uint64,
 			) {
 				fun = func(env *Env) uint64 {
 					retv, _ := channelfun(env).Recv()
@@ -407,7 +407,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uintptr:
-			if telem != BasicType(r.Uintptr,
+			if telem.ReflectType() != KindToType(r.Uintptr,
 			) {
 				fun = func(env *Env) uintptr {
 					retv, _ := channelfun(env).Recv()
@@ -425,7 +425,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Float32:
-			if telem != BasicType(r.Float32,
+			if telem.ReflectType() != KindToType(r.Float32,
 			) {
 				fun = func(env *Env) float32 {
 					retv, _ := channelfun(env).Recv()
@@ -443,7 +443,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Float64:
-			if telem != BasicType(r.Float64,
+			if telem.ReflectType() != KindToType(r.Float64,
 			) {
 				fun = func(env *Env) float64 {
 					retv, _ := channelfun(env).Recv()
@@ -461,7 +461,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Complex64:
-			if telem != BasicType(r.Complex64,
+			if telem.ReflectType() != KindToType(r.Complex64,
 			) {
 				fun = func(env *Env) complex64 {
 					retv, _ := channelfun(env).Recv()
@@ -479,7 +479,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Complex128:
-			if telem != BasicType(r.Complex128,
+			if telem.ReflectType() != KindToType(r.Complex128,
 			) {
 				fun = func(env *Env) complex128 {
 					retv, _ := channelfun(env).Recv()
@@ -497,7 +497,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.String:
-			if telem != BasicType(r.String,
+			if telem.ReflectType() != KindToType(r.String,
 			) {
 				fun = func(env *Env) string {
 					retv, _ := channelfun(env).Recv()
@@ -536,6 +536,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 		return
 	}
 	telem := t.Elem()
+	rtelem := telem.ReflectType()
+	kelem := rtelem.Kind()
 	expr := c.Expr1(node.Value)
 	if expr.Const() {
 		expr.ConstTo(telem)
@@ -548,320 +550,357 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	var stmt Stmt
 	if expr.Const() {
 		v := r.ValueOf(expr.Value)
-		switch telem {
-		case xr.TypeOfBool:
-			value := v.Bool()
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- bool)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan bool)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt:
-			value :=
+		if KindToType(kelem) == rtelem {
+			switch kelem {
+			case
 
-				int(v.Int())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
+				r.Bool:
+				value := v.Bool()
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- bool)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan bool)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt8:
-			value :=
+			case
 
-				int8(v.Int())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int8)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int8)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt16:
-			value :=
+				r.Int:
+				value :=
 
-				int16(v.Int())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int16)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
+					int(v.Int())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int16)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt32:
-			value :=
+			case
 
-				int32(v.Int())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int32)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int32)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt64:
-			value := v.Int()
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int64)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int64)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint:
-			value :=
+				r.Int8:
+				value :=
 
-				uint(v.Uint())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
+					int8(v.Int())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int8)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int8)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint8:
-			value :=
+			case
 
-				uint8(v.Uint())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint8)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint8)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint16:
-			value :=
+				r.Int16:
+				value :=
 
-				uint16(v.Uint())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint16)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
+					int16(v.Int())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int16)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int16)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint16)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint32:
-			value :=
+			case
 
-				uint32(v.Uint())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint32)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint32)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint64:
-			value := v.Uint()
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint64)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint64)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUintptr:
-			value :=
+				r.Int32:
+				value :=
 
-				uintptr(v.Uint())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uintptr)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
+					int32(v.Int())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int32)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int32)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uintptr)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfFloat32:
-			value :=
+			case
 
-				float32(v.Float())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- float32)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
+				r.Int64:
+				value := v.Int()
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int64)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int64)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan float32)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfFloat64:
-			value := v.Float()
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- float64)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan float64)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfComplex64:
-			value :=
+			case
 
-				complex64(v.Complex())
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- complex64)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan complex64)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfComplex128:
-			value := v.Complex()
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- complex128)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan complex128)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfString:
-			value := v.String()
-			if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- string)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan string)
-					channel <- value
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
+				r.Uint:
+				value :=
 
+					uint(v.Uint())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint8:
+				value :=
+
+					uint8(v.Uint())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint8)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint8)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint16:
+				value :=
+
+					uint16(v.Uint())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint16)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint16)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint32:
+				value :=
+
+					uint32(v.Uint())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint32)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint32)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint64:
+				value := v.Uint()
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint64)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint64)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uintptr:
+				value :=
+
+					uintptr(v.Uint())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uintptr)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uintptr)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Float32:
+				value :=
+
+					float32(v.Float())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- float32)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan float32)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Float64:
+				value := v.Float()
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- float64)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan float64)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Complex64:
+				value :=
+
+					complex64(v.Complex())
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- complex64)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan complex64)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Complex128:
+				value := v.Complex()
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- complex128)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan complex128)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.String:
+				value := v.String()
+				if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- string)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan string)
+						channel <- value
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
 		}
+
 		if stmt == nil {
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env)
@@ -872,318 +911,354 @@ func (c *Comp) Send(node *ast.SendStmt) {
 		}
 
 	} else {
-		switch telem {
-		case xr.TypeOfBool:
-			if exprfun, ok := expr.Fun.(func(*Env) bool); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- bool)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan bool)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt:
-			if exprfun, ok := expr.Fun.(func(*Env) int); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt8:
-			if exprfun, ok := expr.Fun.(func(*Env) int8); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int8)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int8)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt16:
-			if exprfun, ok := expr.Fun.(func(*Env) int16); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int16)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int16)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt32:
-			if exprfun, ok := expr.Fun.(func(*Env) int32); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int32)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int32)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfInt64:
-			if exprfun, ok := expr.Fun.(func(*Env) int64); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- int64)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan int64)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint:
-			if exprfun, ok := expr.Fun.(func(*Env) uint); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint8:
-			if exprfun, ok := expr.Fun.(func(*Env) uint8); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint8)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint8)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint16:
-			if exprfun, ok := expr.Fun.(func(*Env) uint16); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint16)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint16)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint32:
-			if exprfun, ok := expr.Fun.(func(*Env) uint32); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint32)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint32)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUint64:
-			if exprfun, ok := expr.Fun.(func(*Env) uint64); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uint64)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uint64)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfUintptr:
-			if exprfun, ok := expr.Fun.(func(*Env) uintptr); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- uintptr)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan uintptr)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfFloat32:
-			if exprfun, ok := expr.Fun.(func(*Env) float32); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- float32)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan float32)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfFloat64:
-			if exprfun, ok := expr.Fun.(func(*Env) float64); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- float64)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan float64)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfComplex64:
-			if exprfun, ok := expr.Fun.(func(*Env) complex64); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- complex64)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan complex64)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfComplex128:
-			if exprfun, ok := expr.Fun.(func(*Env) complex128); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- complex128)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan complex128)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
-		case xr.TypeOfString:
-			if exprfun, ok := expr.Fun.(func(*Env) string); !ok {
-				break
-			} else if sendonly {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan<- string)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			} else {
-				stmt = func(env *Env) (Stmt, *Env) {
-					channel := channelfun(env).Interface().(chan string)
-					channel <- exprfun(env)
-					env.IP++
-					return env.Code[env.IP], env
-				}
-			}
+		if KindToType(kelem) == rtelem {
+			switch kelem {
+			case
 
+				r.Bool:
+				if exprfun, ok := expr.Fun.(func(*Env) bool); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- bool)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan bool)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Int:
+				if exprfun, ok := expr.Fun.(func(*Env) int); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Int8:
+				if exprfun, ok := expr.Fun.(func(*Env) int8); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int8)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int8)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Int16:
+				if exprfun, ok := expr.Fun.(func(*Env) int16); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int16)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int16)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Int32:
+				if exprfun, ok := expr.Fun.(func(*Env) int32); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int32)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int32)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Int64:
+				if exprfun, ok := expr.Fun.(func(*Env) int64); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- int64)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan int64)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint:
+				if exprfun, ok := expr.Fun.(func(*Env) uint); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint8:
+				if exprfun, ok := expr.Fun.(func(*Env) uint8); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint8)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint8)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint16:
+				if exprfun, ok := expr.Fun.(func(*Env) uint16); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint16)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint16)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint32:
+				if exprfun, ok := expr.Fun.(func(*Env) uint32); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint32)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint32)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uint64:
+				if exprfun, ok := expr.Fun.(func(*Env) uint64); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uint64)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uint64)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Uintptr:
+				if exprfun, ok := expr.Fun.(func(*Env) uintptr); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- uintptr)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan uintptr)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Float32:
+				if exprfun, ok := expr.Fun.(func(*Env) float32); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- float32)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan float32)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Float64:
+				if exprfun, ok := expr.Fun.(func(*Env) float64); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- float64)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan float64)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Complex64:
+				if exprfun, ok := expr.Fun.(func(*Env) complex64); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- complex64)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan complex64)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.Complex128:
+				if exprfun, ok := expr.Fun.(func(*Env) complex128); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- complex128)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan complex128)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+			case
+
+				r.String:
+				if exprfun, ok := expr.Fun.(func(*Env) string); !ok {
+					break
+				} else if sendonly {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan<- string)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						channel := channelfun(env).Interface().(chan string)
+						channel <- exprfun(env)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
 		}
+
 		if stmt == nil {
 			exprfun := expr.AsX1()
-			rtelem := telem.ReflectType()
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env)
 				value := exprfun(env)

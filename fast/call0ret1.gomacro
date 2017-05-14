@@ -27,7 +27,7 @@ package fast
 import (
 	r "reflect"
 	"github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 :import (
@@ -48,7 +48,7 @@ import (
 :func maketypevar(typ ast.Node) ast.Node {
 	t := EvalType(typ)
 	return &ast.SelectorExpr{
-		X: &ast.Ident{Name: "xt"},
+		X: &ast.Ident{Name: "xr"},
 		Sel: &ast.Ident{Name: "TypeOf" + upcasefirstbyte(t.Name())},
 	}
 }
@@ -109,7 +109,7 @@ import (
 	retconv := convertvalue1(rettyp, ~'ret)
 
 	return ~"{
-		if tret != ~,typevar {
+		if !xr.SameType(tret, ~,typevar) {
 			call = func(env *Env) ~,rettyp {
 				fun := exprfun(env)
 				// Debugf("calling %v with args []", fun.Type())

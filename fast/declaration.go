@@ -404,7 +404,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr) {
 	decls := make([]func(*Env, r.Value), n)
 	for i, name := range names {
 		ti := init.Out(i)
-		if t != nil && t != ti {
+		if t != nil && !xr.SameType(t, ti) {
 			if ti != nil && !ti.AssignableTo(t) {
 				c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v", ti, t, names)
 				return
@@ -467,6 +467,16 @@ func (c *Comp) DeclBuiltin0(name string, builtin Builtin) *Bind {
 
 // replacement of reflect.TypeOf() that uses xreflect.TypeOf()
 func (c *Comp) TypeOf(val interface{}) xr.Type {
+	// use our opaque types instead of scavenging for fields and methods of Builtin, Function, UntypedLit
+	switch val.(type) {
+	case Builtin:
+		return TypeOfBuiltin
+	case Function:
+		return TypeOfFunction
+	case UntypedLit:
+		return TypeOfUntypedLit
+	}
+
 	g := c.CompThreadGlobals
 	if g.Pkgs == nil {
 		g.Pkgs = make(map[string]*xr.Package)

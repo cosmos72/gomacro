@@ -61,7 +61,7 @@ func (t *xtype) In(i int) Type {
 	if gtype.Recv() != nil {
 		i++ // skip the receiver in reflect.Type
 	}
-	return maketype(va.Type(), t.rtype.In(i))
+	return MakeType(va.Type(), t.rtype.In(i))
 }
 
 // NumIn returns a function type's input parameter count.
@@ -93,7 +93,7 @@ func (t *xtype) Out(i int) Type {
 	}
 	gtype := t.underlying().(*types.Signature)
 	va := gtype.Results().At(i)
-	return maketype(va.Type(), t.rtype.Out(i))
+	return MakeType(va.Type(), t.rtype.Out(i))
 }
 
 // Recv returns the type of a method type's receiver parameter.
@@ -108,7 +108,7 @@ func (t *xtype) Recv() Type {
 	if va == nil {
 		return nil
 	}
-	return maketype(va.Type(), t.rtype.In(0))
+	return MakeType(va.Type(), t.rtype.In(0))
 }
 
 func FuncOf(in []Type, out []Type, variadic bool) Type {
@@ -125,7 +125,7 @@ func MethodOf(recv Type, in []Type, out []Type, variadic bool) Type {
 		rin = append([]reflect.Type{recv.ReflectType()}, rin...)
 		grecv = toGoParam(recv)
 	}
-	return maketype(
+	return MakeType(
 		types.NewSignature(grecv, gin, gout, variadic),
 		reflect.FuncOf(rin, rout, variadic),
 	)

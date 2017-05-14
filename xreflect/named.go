@@ -63,7 +63,7 @@ func makemethod(index int, gfun *types.Func, rmethod *reflect.Method) Method {
 	return Method{
 		Name:  gfun.Name(),
 		Pkg:   (*Package)(gfun.Pkg()),
-		Type:  maketype(gfun.Type(), rmethod.Type),
+		Type:  MakeType(gfun.Type(), rmethod.Type),
 		Func:  rmethod.Func,
 		Index: index,
 	}
@@ -76,11 +76,11 @@ func makemethod(index int, gfun *types.Func, rmethod *reflect.Method) Method {
 func NamedOf(name string, pkg *Package) Type {
 	underlying := TypeOfInterface
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
-	return &xtype{
+	return wrap(&xtype{
 		kind:  reflect.Invalid, // incomplete type! will be fixed by SetUnderlying
 		gtype: types.NewNamed(typename, underlying.GoType(), nil),
 		rtype: underlying.ReflectType(),
-	}
+	})
 }
 
 // SetUnderlying sets the underlying type of a named type and marks t as complete.

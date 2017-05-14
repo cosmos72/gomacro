@@ -74,16 +74,19 @@ func (cfg *Cache) TypeOf(rvalue interface{}) Type {
 }
 
 func (cfg *Cache) FromReflectType(rtype reflect.Type) Type {
-	// debugf("FromReflectType: %v", rtype)
 	if rtype == nil {
 		return nil
 	}
-	name := rtype.Name()
-	var t, u Type
-	if t = cfg.ReflectTypes[rtype]; t != nil {
-		// debugf("found type in cache: %v -> %v", t, t.ReflectType())
+	t := BasicTypes[rtype.Kind()]
+	if t != nil && t.ReflectType() == rtype {
 		return t
 	}
+	if t = cfg.ReflectTypes[rtype]; t != nil {
+		// debugf("found type in cache: %v -> %v (%v)", rtype, t, t.ReflectType())
+		// time.Sleep(100 * time.Millisecond)
+		return t
+	}
+	name := rtype.Name()
 	tryresolve := cfg.TryResolve
 	if tryresolve != nil && len(name) != 0 {
 		t = tryresolve(name, rtype.PkgPath())
@@ -110,9 +113,11 @@ func (cfg *Cache) FromReflectType(rtype reflect.Type) Type {
 			}
 		}
 		t = NamedOf(name, cfg.NewPackage(rtype.PkgPath(), ""))
-		cfg.cache(rtype, t)
+		cfg.cache(rtype, t) // support self-refencing types
+		// debugf("prepared named type %v", t)
 	}
 
+	var u Type
 	switch k := rtype.Kind(); k {
 	case reflect.Invalid:
 		return nil
@@ -141,28 +146,41 @@ func (cfg *Cache) FromReflectType(rtype reflect.Type) Type {
 		errorf("unsupported reflect.Type %v", rtype)
 	}
 	if t == nil {
-		cfg.cache(rtype, u)
 		t = u
+		// cache before adding methods - otherwise we get an infinite recursion
+		// if u is a pointer to named type with methods that reference the named type
+		cfg.cache(rtype, t)
 	} else {
 		t.SetUnderlying(u)
+		// t.ReflectType() is now u.ReflectType(). but we can do better... we know the exact rtype to set
+		if !cfg.rebuild() {
+			t[0].rtype = rtype
+		}
 	}
 	return cfg.addmethods(t, rtype)
 }
 
 func (cfg *Cache) addmethods(t Type, rtype reflect.Type) Type {
 	n := rtype.NumMethod()
-	if n != 0 {
-		tm := t
-		if !t.Named() && t.Kind() == reflect.Ptr {
-			// methods on pointer-to-type. add them to the type itself
-			tm = t.Elem()
-		}
-		if !tm.Named() {
-			errorf("cannot add methods to unnamed type %v", t)
-		}
+	if n == 0 {
+		return t
+	}
+	tm := t
+	if !t.Named() && t.Kind() == reflect.Ptr {
+		// methods on pointer-to-type. add them to the type itself
+		tm = t.Elem()
+	}
+	if !tm.Named() {
+		errorf("cannot add methods to unnamed type %v", t)
+	}
+	if tm.NumMethod() != 0 {
+		// prevent another infinite recursion: Type.AddMethod() may reference the type itself in its methods
+		// debugf("NOT adding again %d methods to %v", n, tm)
+	} else {
+		// debugf("adding %d methods to %v", n, tm)
 		for i := 0; i < n; i++ {
 			rmethod := rtype.Method(i)
-			signature := cfg.fromReflectFunc(rmethod.Type)
+			signature := cfg.FromReflectType(rmethod.Type)
 			tm.AddMethod(rmethod.Name, signature)
 		}
 	}
@@ -215,7 +233,7 @@ func (cfg *Cache) fromReflectFields(rfields []reflect.StructField) []StructField
 func (cfg *Cache) named(t Type, name string, pkgpath string) Type {
 	if t.Name() != name || t.PkgPath() != pkgpath {
 		t2 := NamedOf(name, cfg.NewPackage(pkgpath, ""))
-		t2.SetUnderlying(maketype(t.underlying(), t.ReflectType()))
+		t2.SetUnderlying(MakeType(t.underlying(), t.ReflectType()))
 		t = t2
 	}
 	return t
@@ -228,7 +246,7 @@ func (cfg *Cache) fromReflectArray(rtype reflect.Type) Type {
 	if cfg.rebuild() {
 		rtype = reflect.ArrayOf(count, elem.ReflectType())
 	}
-	return maketype(types.NewArray(elem.GoType(), int64(count)), rtype)
+	return MakeType(types.NewArray(elem.GoType(), int64(count)), rtype)
 }
 
 // fromReflectChan converts a reflect.Type with Kind reflect.Chan into a Type
@@ -239,7 +257,7 @@ func (cfg *Cache) fromReflectChan(rtype reflect.Type) Type {
 		rtype = reflect.ChanOf(dir, elem.ReflectType())
 	}
 	gdir := dirToGdir(dir)
-	return maketype(types.NewChan(gdir, elem.GoType()), rtype)
+	return MakeType(types.NewChan(gdir, elem.GoType()), rtype)
 }
 
 // fromReflectFunc converts a reflect.Type with Kind reflect.Func into a Type
@@ -262,7 +280,7 @@ func (cfg *Cache) fromReflectFunc(rtype reflect.Type) Type {
 		rout := toReflectTypes(out)
 		rtype = reflect.FuncOf(rin, rout, variadic)
 	}
-	return maketype(
+	return MakeType(
 		types.NewSignature(nil, gin, gout, variadic),
 		rtype,
 	)
@@ -303,7 +321,7 @@ func (cfg *Cache) fromReflectInterface(rtype reflect.Type) Type {
 		// Then use a pointer to the proxy struct: InterfaceOf() does that, and we must behave identically
 		rtype = reflect.PtrTo(reflect.StructOf(rfields))
 	}
-	return maketype(types.NewInterface(gmethods, nil), rtype)
+	return MakeType(types.NewInterface(gmethods, nil), rtype)
 }
 
 // isReflectInterfaceStruct returns true if rtype is a reflect.Type with Kind reflect.Struct,
@@ -370,7 +388,7 @@ func (cfg *Cache) fromReflectInterfaceStruct(rtype reflect.Type) Type {
 	if rebuild {
 		rtype = reflect.StructOf(rebuildfields)
 	}
-	return maketype(types.NewInterface(gmethods, gembeddeds), rtype)
+	return MakeType(types.NewInterface(gmethods, gembeddeds), rtype)
 }
 
 // fromReflectMap converts a reflect.Type with Kind reflect.map into a Type
@@ -380,7 +398,7 @@ func (cfg *Cache) fromReflectMap(rtype reflect.Type) Type {
 	if cfg.rebuild() {
 		rtype = reflect.MapOf(key.ReflectType(), elem.ReflectType())
 	}
-	return maketype(types.NewMap(key.GoType(), elem.GoType()), rtype)
+	return MakeType(types.NewMap(key.GoType(), elem.GoType()), rtype)
 }
 
 // fromReflectPtr converts a reflect.Type with Kind reflect.Ptr into a Type
@@ -405,7 +423,7 @@ func (cfg *Cache) fromReflectPtr(rtype reflect.Type) Type {
 	if rebuild {
 		rtype = reflect.PtrTo(elem.ReflectType())
 	}
-	return maketype(gtype, rtype)
+	return MakeType(gtype, rtype)
 }
 
 // fromReflectPtr converts a reflect.Type with Kind reflect.Slice into a Type
@@ -414,7 +432,7 @@ func (cfg *Cache) fromReflectSlice(rtype reflect.Type) Type {
 	if cfg.rebuild() {
 		rtype = reflect.SliceOf(elem.ReflectType())
 	}
-	return maketype(types.NewSlice(elem.GoType()), rtype)
+	return MakeType(types.NewSlice(elem.GoType()), rtype)
 }
 
 // fromReflectStruct converts a reflect.Type with Kind reflect.Struct into a Type
@@ -435,5 +453,5 @@ func (cfg *Cache) fromReflectStruct(rtype reflect.Type) Type {
 		rfields := toReflectFields(fields, true)
 		rtype = reflect.StructOf(rfields)
 	}
-	return maketype(types.NewStruct(vars, tags), rtype)
+	return MakeType(types.NewStruct(vars, tags), rtype)
 }

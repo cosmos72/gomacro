@@ -66,7 +66,7 @@ func makebasictypes() []Type {
 		if gtype == nil || rtype == nil {
 			continue
 		}
-		m[kind] = maketype(gtype, rtype)
+		m[kind] = MakeType(gtype, rtype)
 	}
 
 	return m
@@ -101,11 +101,11 @@ var (
 	TypeOfRune          = TypeOfInt32
 	TypeOfUnsafePointer = BasicTypes[reflect.UnsafePointer]
 
-	TypeOfError = maketype(
+	TypeOfError = MakeType(
 		types.Universe.Lookup("error").Type(),
 		reflect.TypeOf((*error)(nil)).Elem(),
 	)
-	TypeOfInterface = maketype(
+	TypeOfInterface = MakeType(
 		types.NewInterface(nil, nil).Complete(),
 		reflect.TypeOf((*interface{})(nil)).Elem(),
 	)

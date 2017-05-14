@@ -44,7 +44,7 @@ func (t *xtype) Field(i int) StructField {
 	return StructField{
 		Name:      va.Name(),
 		Pkg:       (*Package)(va.Pkg()),
-		Type:      maketype(va.Type(), rf.Type),
+		Type:      MakeType(va.Type(), rf.Type),
 		Tag:       rf.Tag,
 		Offset:    rf.Offset,
 		Index:     rf.Index,
@@ -131,7 +131,7 @@ func StructOf(fields []StructField) Type {
 	vars := toGoFields(fields)
 	tags := toTags(fields)
 	rfields := toReflectFields(fields, true)
-	return maketype(
+	return MakeType(
 		types.NewStruct(vars, tags),
 		reflect.StructOf(rfields),
 	)

@@ -26,8 +26,7 @@ package fast
 
 import (
 	r "reflect"
-	"github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -146,27 +145,27 @@ import (
 }
 
 // not used, see comment below in mcallxy2ret1
-:macro mcallx2ret1(arg1typ, rettyp ast.Node) ast.Node {
+:macro __mcallx2ret1(arg1typ, rettyp ast.Node) ast.Node {
 	return ~"{
-		switch targ0 {
-			case xt.TypeOfBool:      {mcall2ret1; bool;       ~,arg1typ; ~,rettyp}
-			case xt.TypeOfInt:       {mcall2ret1; int;        ~,arg1typ; ~,rettyp}
-			case xt.TypeOfInt8:      {mcall2ret1; int8;       ~,arg1typ; ~,rettyp}
-			case xt.TypeOfInt16:     {mcall2ret1; int16;      ~,arg1typ; ~,rettyp}
-			case xt.TypeOfInt32:     {mcall2ret1; int32;      ~,arg1typ; ~,rettyp}
-			case xt.TypeOfInt64:     {mcall2ret1; int64;      ~,arg1typ; ~,rettyp}
-			case xt.TypeOfUint:      {mcall2ret1; uint;       ~,arg1typ; ~,rettyp}
-			case xt.TypeOfUint8:     {mcall2ret1; uint8;      ~,arg1typ; ~,rettyp}
-			case xt.TypeOfUint16:    {mcall2ret1; uint16;     ~,arg1typ; ~,rettyp}
-			case xt.TypeOfUint32:    {mcall2ret1; uint32;     ~,arg1typ; ~,rettyp}
-			case xt.TypeOfUint64:    {mcall2ret1; uint64;     ~,arg1typ; ~,rettyp}
-			case xt.TypeOfUintptr:   {mcall2ret1; uintptr;    ~,arg1typ; ~,rettyp}
-			case xt.TypeOfFloat32:   {mcall2ret1; float32;    ~,arg1typ; ~,rettyp}
-			case xt.TypeOfFloat64:   {mcall2ret1; float64;    ~,arg1typ; ~,rettyp}
-			case xt.TypeOfComplex64: {mcall2ret1; complex64;  ~,arg1typ; ~,rettyp}
-			case xt.TypeOfComplex128:{mcall2ret1; complex128; ~,arg1typ; ~,rettyp}
-			case xt.TypeOfString:    {mcall2ret1; string;     ~,arg1typ; ~,rettyp}
-			default:          {mcall2ret1; nil;        ~,arg1typ; ~,rettyp}
+		switch karg0 {
+			case r.Bool:      {mcall2ret1; bool;       ~,arg1typ; ~,rettyp}
+			case r.Int:       {mcall2ret1; int;        ~,arg1typ; ~,rettyp}
+			case r.Int8:      {mcall2ret1; int8;       ~,arg1typ; ~,rettyp}
+			case r.Int16:     {mcall2ret1; int16;      ~,arg1typ; ~,rettyp}
+			case r.Int32:     {mcall2ret1; int32;      ~,arg1typ; ~,rettyp}
+			case r.Int64:     {mcall2ret1; int64;      ~,arg1typ; ~,rettyp}
+			case r.Uint:      {mcall2ret1; uint;       ~,arg1typ; ~,rettyp}
+			case r.Uint8:     {mcall2ret1; uint8;      ~,arg1typ; ~,rettyp}
+			case r.Uint16:    {mcall2ret1; uint16;     ~,arg1typ; ~,rettyp}
+			case r.Uint32:    {mcall2ret1; uint32;     ~,arg1typ; ~,rettyp}
+			case r.Uint64:    {mcall2ret1; uint64;     ~,arg1typ; ~,rettyp}
+			case r.Uintptr:   {mcall2ret1; uintptr;    ~,arg1typ; ~,rettyp}
+			case r.Float32:   {mcall2ret1; float32;    ~,arg1typ; ~,rettyp}
+			case r.Float64:   {mcall2ret1; float64;    ~,arg1typ; ~,rettyp}
+			case r.Complex64: {mcall2ret1; complex64;  ~,arg1typ; ~,rettyp}
+			case r.Complex128:{mcall2ret1; complex128; ~,arg1typ; ~,rettyp}
+			case r.String:    {mcall2ret1; string;     ~,arg1typ; ~,rettyp}
+			default:                   {mcall2ret1; nil;        ~,arg1typ; ~,rettyp}
 		}
 	}
 }
@@ -178,25 +177,25 @@ import (
 	// Only optimize func(targ0,targ0) tret
 	// i.e. if the two args have the same type - still produces a 240kB source file
 	return ~"{
-		if targ0 == targ1 {
-			switch targ0 {
-				case xt.TypeOfBool:      {mcall2ret1; bool;       bool;       ~,rettyp}
-				case xt.TypeOfInt:       {mcall2ret1; int;        int;        ~,rettyp}
-				case xt.TypeOfInt8:      {mcall2ret1; int8;       int8;       ~,rettyp}
-				case xt.TypeOfInt16:     {mcall2ret1; int16;      int16;      ~,rettyp}
-				case xt.TypeOfInt32:     {mcall2ret1; int32;      int32;      ~,rettyp}
-				case xt.TypeOfInt64:     {mcall2ret1; int64;      int64;      ~,rettyp}
-				case xt.TypeOfUint:      {mcall2ret1; uint;       uint;       ~,rettyp}
-				case xt.TypeOfUint8:     {mcall2ret1; uint8;      uint8;      ~,rettyp}
-				case xt.TypeOfUint16:    {mcall2ret1; uint16;     uint16;     ~,rettyp}
-				case xt.TypeOfUint32:    {mcall2ret1; uint32;     uint32;     ~,rettyp}
-				case xt.TypeOfUint64:    {mcall2ret1; uint64;     uint64;     ~,rettyp}
-				case xt.TypeOfUintptr:   {mcall2ret1; uintptr;    uintptr;    ~,rettyp}
-				case xt.TypeOfFloat32:   {mcall2ret1; float32;    float32;    ~,rettyp}
-				case xt.TypeOfFloat64:   {mcall2ret1; float64;    float64;    ~,rettyp}
-				case xt.TypeOfComplex64: {mcall2ret1; complex64;  complex64;  ~,rettyp}
-				case xt.TypeOfComplex128:{mcall2ret1; complex128; complex128; ~,rettyp}
-				case xt.TypeOfString:    {mcall2ret1; string;     string;     ~,rettyp}
+		if rtarg0 == rtarg1 && KindToType(karg0) == rtarg0 {
+			switch karg0 {
+				case r.Bool:      {mcall2ret1; bool;       bool;       ~,rettyp}
+				case r.Int:       {mcall2ret1; int;        int;        ~,rettyp}
+				case r.Int8:      {mcall2ret1; int8;       int8;       ~,rettyp}
+				case r.Int16:     {mcall2ret1; int16;      int16;      ~,rettyp}
+				case r.Int32:     {mcall2ret1; int32;      int32;      ~,rettyp}
+				case r.Int64:     {mcall2ret1; int64;      int64;      ~,rettyp}
+				case r.Uint:      {mcall2ret1; uint;       uint;       ~,rettyp}
+				case r.Uint8:     {mcall2ret1; uint8;      uint8;      ~,rettyp}
+				case r.Uint16:    {mcall2ret1; uint16;     uint16;     ~,rettyp}
+				case r.Uint32:    {mcall2ret1; uint32;     uint32;     ~,rettyp}
+				case r.Uint64:    {mcall2ret1; uint64;     uint64;     ~,rettyp}
+				case r.Uintptr:   {mcall2ret1; uintptr;    uintptr;    ~,rettyp}
+				case r.Float32:   {mcall2ret1; float32;    float32;    ~,rettyp}
+				case r.Float64:   {mcall2ret1; float64;    float64;    ~,rettyp}
+				case r.Complex64: {mcall2ret1; complex64;  complex64;  ~,rettyp}
+				case r.Complex128:{mcall2ret1; complex128; complex128; ~,rettyp}
+				case r.String:    {mcall2ret1; string;     string;     ~,rettyp}
 			}
 		}
 		if call == nil {
@@ -214,11 +213,12 @@ func call2ret1(c *Call, maxdepth int) I {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			base.Errorf("internal error: call2ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+			Errorf("internal error: call2ret1() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 	}
 	t := expr.Type
-	targ0, targ1, tret := t.In(0), t.In(1), t.Out(0)
+	rtarg0, rtarg1, rtret := t.In(0).ReflectType(), t.In(1).ReflectType(), t.Out(0).ReflectType()
+	karg0, kret := rtarg0.Kind(), rtret.Kind()
 	args := c.Args
 	argfunsX1 := c.MakeArgfunsX1()
 	argfuns := [2]func(*Env) r.Value {
@@ -227,25 +227,29 @@ func call2ret1(c *Call, maxdepth int) I {
 	}
 	var cachedfunv r.Value
 	var call I
-	switch tret {
-	case xt.TypeOfBool:      {mcallxy2ret1; bool}
-	case xt.TypeOfInt:       {mcallxy2ret1; int}
-	case xt.TypeOfInt8:      {mcallxy2ret1; int8}
-	case xt.TypeOfInt16:     {mcallxy2ret1; int16}
-	case xt.TypeOfInt32:     {mcallxy2ret1; int32}
-	case xt.TypeOfInt64:     {mcallxy2ret1; int64}
-	case xt.TypeOfUint:      {mcallxy2ret1; uint}
-	case xt.TypeOfUint8:     {mcallxy2ret1; uint8}
-	case xt.TypeOfUint16:    {mcallxy2ret1; uint16}
-	case xt.TypeOfUint32:    {mcallxy2ret1; uint32}
-	case xt.TypeOfUint64:    {mcallxy2ret1; uint64}
-	case xt.TypeOfUintptr:   {mcallxy2ret1; uintptr}
-	case xt.TypeOfFloat32:   {mcallxy2ret1; float32}
-	case xt.TypeOfFloat64:   {mcallxy2ret1; float64}
-	case xt.TypeOfComplex64: {mcallxy2ret1; complex64}
-	case xt.TypeOfComplex128:{mcallxy2ret1; complex128}
-	case xt.TypeOfString:    {mcallxy2ret1; string}
-	default:                 {mcall2ret1;   nil; nil; nil} // cannot optimize more this one...
+	if KindToType(kret) == rtret {
+		switch kret {
+		case r.Bool:      {mcallxy2ret1; bool}
+		case r.Int:       {mcallxy2ret1; int}
+		case r.Int8:      {mcallxy2ret1; int8}
+		case r.Int16:     {mcallxy2ret1; int16}
+		case r.Int32:     {mcallxy2ret1; int32}
+		case r.Int64:     {mcallxy2ret1; int64}
+		case r.Uint:      {mcallxy2ret1; uint}
+		case r.Uint8:     {mcallxy2ret1; uint8}
+		case r.Uint16:    {mcallxy2ret1; uint16}
+		case r.Uint32:    {mcallxy2ret1; uint32}
+		case r.Uint64:    {mcallxy2ret1; uint64}
+		case r.Uintptr:   {mcallxy2ret1; uintptr}
+		case r.Float32:   {mcallxy2ret1; float32}
+		case r.Float64:   {mcallxy2ret1; float64}
+		case r.Complex64: {mcallxy2ret1; complex64}
+		case r.Complex128:{mcallxy2ret1; complex128}
+		case r.String:    {mcallxy2ret1; string}
+		}
+	}
+	if call == nil {
+		{mcall2ret1;   nil; nil; nil} // cannot optimize more this one...
 	}
 	return call
 }

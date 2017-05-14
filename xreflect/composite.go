@@ -46,15 +46,15 @@ func (t *xtype) Elem() Type {
 	rtype := t.rtype
 	switch gtype := gtype.(type) {
 	case *types.Array:
-		return maketype(gtype.Elem(), rtype.Elem())
+		return MakeType(gtype.Elem(), rtype.Elem())
 	case *types.Chan:
-		return maketype(gtype.Elem(), rtype.Elem())
+		return MakeType(gtype.Elem(), rtype.Elem())
 	case *types.Map:
-		return maketype(gtype.Elem(), rtype.Elem())
+		return MakeType(gtype.Elem(), rtype.Elem())
 	case *types.Pointer:
-		return maketype(gtype.Elem(), rtype.Elem())
+		return MakeType(gtype.Elem(), rtype.Elem())
 	case *types.Slice:
-		return maketype(gtype.Elem(), rtype.Elem())
+		return MakeType(gtype.Elem(), rtype.Elem())
 	default:
 		errorf("Elem of invalid type %v", t)
 		return nil
@@ -68,7 +68,7 @@ func (t *xtype) Key() Type {
 		errorf("Key of non-map type %v", t)
 	}
 	gtype := t.underlying().(*types.Map)
-	return maketype(gtype.Key(), t.rtype.Key())
+	return MakeType(gtype.Key(), t.rtype.Key())
 }
 
 // Len returns an array type's length.
@@ -81,20 +81,20 @@ func (t *xtype) Len() int {
 }
 
 func ArrayOf(count int, elem Type) Type {
-	return maketype(
+	return MakeType(
 		types.NewArray(elem.GoType(), int64(count)),
 		reflect.ArrayOf(count, elem.ReflectType()))
 }
 
 func ChanOf(dir reflect.ChanDir, elem Type) Type {
 	gdir := dirToGdir(dir)
-	return maketype(
+	return MakeType(
 		types.NewChan(gdir, elem.GoType()),
 		reflect.ChanOf(dir, elem.ReflectType()))
 }
 
 func MapOf(key, elem Type) Type {
-	return maketype(
+	return MakeType(
 		types.NewMap(key.GoType(), elem.GoType()),
 		reflect.MapOf(key.ReflectType(), elem.ReflectType()))
 }
@@ -115,13 +115,13 @@ func (t *xtype) AddMethod(name string, signature Type) {
 }
 
 func PtrTo(elem Type) Type {
-	return maketype(
+	return MakeType(
 		types.NewPointer(elem.GoType()),
 		reflect.PtrTo(elem.ReflectType()))
 }
 
 func SliceOf(elem Type) Type {
-	return maketype(
+	return MakeType(
 		types.NewSlice(elem.GoType()),
 		reflect.SliceOf(elem.ReflectType()))
 }

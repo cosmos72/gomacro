@@ -29,6 +29,7 @@ import (
 	"io"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func fail(t *testing.T, actual interface{}, expected interface{}) {
@@ -201,10 +202,18 @@ func TestStruct(t *testing.T) {
 	is(t, typ.String(), "struct{First int; Rest interface{}}")
 }
 
-func TestFromReflect1(t *testing.T) {
+func TestFromReflect0(t *testing.T) {
 	rtype := reflect.TypeOf((*func(bool, int8, <-chan uint16, []float32, [2]float64, []complex64) map[interface{}]*string)(nil)).Elem()
 	typ := FromReflectType(rtype, &Cache{RebuildDepth: MaxDepth})
 	is(t, typ.ReflectType(), rtype) // recreated 100% accurately?
+}
+
+func TestFromReflect1(t *testing.T) {
+	rtype := reflect.TypeOf(time.Duration(0))
+	typ := FromReflectType(rtype, nil)
+	is(t, typ.ReflectType(), rtype)
+	is(t, typ.String(), "time.Duration")
+	is(t, typ.underlying().String(), "int64")
 }
 
 func TestFromReflect2(t *testing.T) {
@@ -253,7 +262,7 @@ func TestFromReflect3(t *testing.T) {
 
 	for depth := 0; depth <= 3; depth++ {
 		typ = FromReflectType(rtype, &Cache{RebuildDepth: depth})
-		debugf("%v\t-> %v", typ, typ.ReflectType())
+		// debugf("%v\t-> %v", typ, typ.ReflectType())
 	}
 }
 
@@ -281,7 +290,7 @@ func TestFromReflect4(t *testing.T) {
 
 	for depth := 0; depth <= 3; depth++ {
 		typ = FromReflectType(rtype, &Cache{RebuildDepth: depth})
-		debugf("%v\t-> %v", typ, typ.ReflectType())
+		// debugf("%v\t-> %v", typ, typ.ReflectType())
 	}
 }
 
@@ -289,6 +298,14 @@ func TestFromReflect5(t *testing.T) {
 	rtype := reflect.TypeOf((*reflect.Type)(nil)).Elem()
 	typ := FromReflectType(rtype, nil)
 
-	actual := typ.ReflectType()
-	debugf("%v\t-> %v", typ, actual)
+	is(t, typ.String(), "reflect.Type")
+
+	// importer is more accurate and gives even function param names...
+	s1 := "interface{Align() int; AssignableTo(reflect.Type) bool; Bits() int; ChanDir() reflect.ChanDir; Comparable() bool; ConvertibleTo(reflect.Type) bool; Elem() reflect.Type; Field(int) reflect.StructField; FieldAlign() int; FieldByIndex([]int) reflect.StructField; FieldByName(string) (reflect.StructField, bool); FieldByNameFunc(func(string) bool) (reflect.StructField, bool); Implements(reflect.Type) bool; In(int) reflect.Type; IsVariadic() bool; Key() reflect.Type; Kind() reflect.Kind; Len() int; Method(int) reflect.Method; MethodByName(string) (reflect.Method, bool); Name() string; NumField() int; NumIn() int; NumMethod() int; NumOut() int; Out(int) reflect.Type; PkgPath() string; Size() uintptr; String() string; common() *reflect.rtype; uncommon() *reflect.uncommonType}"
+	s2 := "interface{Align() int; AssignableTo(u reflect.Type) bool; Bits() int; ChanDir() reflect.ChanDir; Comparable() bool; ConvertibleTo(u reflect.Type) bool; Elem() reflect.Type; Field(i int) reflect.StructField; FieldAlign() int; FieldByIndex(index []int) reflect.StructField; FieldByName(name string) (reflect.StructField, bool); FieldByNameFunc(match func(string) bool) (reflect.StructField, bool); Implements(u reflect.Type) bool; In(i int) reflect.Type; IsVariadic() bool; Key() reflect.Type; Kind() reflect.Kind; Len() int; Method(int) reflect.Method; MethodByName(string) (reflect.Method, bool); Name() string; NumField() int; NumIn() int; NumMethod() int; NumOut() int; Out(i int) reflect.Type; PkgPath() string; Size() uintptr; String() string; common() *reflect.rtype; uncommon() *reflect.uncommonType}"
+	su := typ.underlying().String()
+
+	if su != s1 && su != s2 {
+		is(t, su, s1)
+	}
 }

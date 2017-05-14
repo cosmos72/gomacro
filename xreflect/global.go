@@ -67,141 +67,257 @@ type xtype struct {
 	methods []reflect.Value
 }
 
-type Type interface {
-	// Align returns the alignment in bytes of a value of
-	// this type when allocated in memory.
-	Align() int
-	// FieldAlign returns the alignment in bytes of a value of
-	// this type when used as a field in a struct.
-	FieldAlign() int
-	// AssignableTo reports whether a value of the type is assignable to type u.
-	AssignableTo(u Type) bool
-	// ConvertibleTo reports whether a value of the type is convertible to type u.
-	ConvertibleTo(u Type) bool
-	// Comparable reports whether values of this type are comparable.
-	Comparable() bool
-	// GoType returns the go/types.Type corresponding to the given type.
-	GoType() types.Type
-	// Implements reports whether the type implements the interface type u.
-	// It panics if u's Kind is not Interface
-	Implements(u Type) bool
-	// Name returns the type's name within its package.
-	// It returns an empty string for unnamed types.
-	Name() string
-	// Named returns whether the type is named.
-	// It returns false for unnamed types.
-	Named() bool
-	// Pkg returns a named type's package, that is, the package where it was defined.
-	// If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
-	// Pkg will return nil.
-	Pkg() *Package
-	// PkgName returns a named type's package name, that is,
-	// the default name that the package provides when imported.
-	// If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
-	// the package name will be the empty string.
-	PkgName() string
-	// PkgPath returns a named type's package path, that is, the import path
-	// that uniquely identifies the package, such as "encoding/base64".
-	// If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
-	// the package path will be the empty string.
-	PkgPath() string
-	// ReflectType returns a best-effort reflect.Type that approximates the type.
-	// It may be inexact for the following reasons:
-	// 1) missing reflect.NamedOf(): no way to programmatically create named types, or to access the underlying type of a named type
-	// 2) missing reflect.InterfaceOf(): interface types created at runtime will be approximated by structs
-	// 3) missing reflect.MethodOf(): method types created at runtime will be approximated by functions
-	//    whose first parameter is the receiver
-	// 4) reflect.StructOf() does not support embedded or unexported fields
-	// 5) go/reflect lacks the ability to create self-referencing types:
-	//    references to the type itself will be replaced by interface{}.
-	//
-	// Examples:
-	//    after invoking at runtime type2.NewStruct() and type2.NewNamed()
-	//    to create the following type:
-	//        type List struct { Elem int; Rest *List }
-	//    ReflectType will return a reflect.Type equivalent to:
-	//        struct { Elem int; Rest interface{} }
-	//    i.e. the type name will be missing due to limitation 1 above,
-	//    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
-	ReflectType() reflect.Type
-	// Size returns the number of bytes needed to store
-	// a value of the given type; it is analogous to unsafe.Sizeof.
-	Size() uintptr
-	// String returns a string representation of a type.
-	String() string
+type Type []xtype
 
-	// AddMethod adds method with given name and signature to type, unless it is already in the method list.
-	// It panics if the type is unnamed, or if the signature is not a function type.
-	AddMethod(name string, signature Type)
-	// Bits returns the size of the type in bits.
-	// It panics if the type's Kind is not one of the
-	// sized or unsized Int, Uint, Float, or Complex kinds.
-	Bits() int
-	// ChanDir returns a channel type's direction.
-	// It panics if the type's Kind is not Chan.
-	ChanDir() reflect.ChanDir
-	// Complete marks an interface type as complete and computes wrapper methods for embedded fields.
-	// It must be called by users of InterfaceOf after the interface's embedded types are fully defined
-	// and before using the interface type in any way other than to form other types.
-	// Complete returns the receiver.
-	Complete() Type
-	// Elem returns a type's element type.
-	// It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
-	Elem() Type
-	// Field returns a struct type's i-th field.
-	// It panics if the type's Kind is not Struct.
-	// It panics if i is not in the range [0, NumField()).
-	Field(i int) StructField
-	// IsMethod reports whether a function type's contains a receiver, i.e. is a method.
-	// It panics if the type's Kind is not Func.
-	IsMethod() bool
-	// IsVariadic reports whether a function type's final input parameter is a "..." parameter.
-	// If so, t.In(t.NumIn() - 1) returns the parameter's implicit actual type []T.
-	// IsVariadic panics if the type's Kind is not Func.
-	IsVariadic() bool
-	// Key returns a map type's key type.
-	// It panics if the type's Kind is not Map.
-	Key() Type
-	// Kind returns the specific kind of the type.
-	Kind() reflect.Kind
-	// Len returns an array type's length.
-	// It panics if the type's Kind is not Array.
-	Len() int
-	// In returns the type of a function type's i'th input parameter.
-	// It panics if the type's Kind is not Func.
-	// It panics if i is not in the range [0, NumIn()).
-	In(i int) Type
-	// Method return the i-th explicitly declared method of named type or interface t.
-	// Wrapper methods for embedded fields or embedded interfaces are not returned.
-	// It panics if the type is unnamed, or if the type's Kind is not Interface
-	Method(i int) Method
-	// NumMethod returns the number of explicitly declared methods of named type or interface t.
-	// Wrapper methods for embedded fields or embedded interfaces are not counted.
-	NumMethod() int
-	// NumField returns a struct type's field count.
-	// It panics if the type's Kind is not Struct.
-	NumField() int
-	// NumIn returns a function type's input parameter count.
-	// It panics if the type's Kind is not Func.
-	NumIn() int
-	// NumOut returns a function type's output parameter count.
-	// It panics if the type's Kind is not Func.
-	NumOut() int
-	// Out returns the type of a function type's i'th output parameter.
-	// It panics if the type's Kind is not Func.
-	// It panics if i is not in the range [0, NumOut()).
-	Out(i int) Type
-	// Recv returns the type of a method type's receiver parameter.
-	// It panics if the type's Kind is not Func.
-	// It returns nil if t has no receiver.
-	Recv() Type
-	// SetUnderlying sets the underlying type of a named type and marks it as complete.
-	// It panics if the type is unnamed, or if the underlying type is named,
-	// or if SetUnderlying() was already invoked on the named type.
-	SetUnderlying(underlying Type)
-	// underlying returns the underlying types.Type of a type.
-	// TODO implement Underlying() Type ?
-	// Synthetizing the underlying reflect.Type is not possible for interface types,
-	// or for struct types with embedded or unexported fields.
-	underlying() types.Type
+// Align returns the alignment in bytes of a value of
+// this type when allocated in memory.
+func (t Type) Align() int {
+	return (&t[0]).Align()
+}
+
+// FieldAlign returns the alignment in bytes of a value of
+// this type when used as a field in a struct.
+func (t Type) FieldAlign() int {
+	return (&t[0]).FieldAlign()
+}
+
+// AssignableTo reports whether a value of the type is assignable to type u.
+func (t Type) AssignableTo(u Type) bool {
+	return (&t[0]).AssignableTo(u)
+}
+
+// ConvertibleTo reports whether a value of the type is convertible to type u.
+func (t Type) ConvertibleTo(u Type) bool {
+	return (&t[0]).ConvertibleTo(u)
+}
+
+// Comparable reports whether values of this type are comparable.
+func (t Type) Comparable() bool {
+	return (&t[0]).Comparable()
+}
+
+// GoType returns the go/types.Type corresponding to the given type.
+func (t Type) GoType() types.Type {
+	return (&t[0]).GoType()
+}
+
+// Implements reports whether the type implements the interface type u.
+// It panics if u's Kind is not Interface
+func (t Type) Implements(u Type) bool {
+	return (&t[0]).Implements(u)
+}
+
+// Name returns the type's name within its package.
+// It returns an empty string for unnamed types.
+func (t Type) Name() string {
+	return (&t[0]).Name()
+}
+
+// Named returns whether the type is named.
+// It returns false for unnamed types.
+func (t Type) Named() bool {
+	return (&t[0]).Named()
+}
+
+// Pkg returns a named type's package, that is, the package where it was defined.
+// If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
+// Pkg will return nil.
+func (t Type) Pkg() *Package {
+	return (&t[0]).Pkg()
+}
+
+// PkgName returns a named type's package name, that is,
+// the default name that the package provides when imported.
+// If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
+// the package name will be the empty string.
+func (t Type) PkgName() string {
+	return (&t[0]).PkgName()
+}
+
+// PkgPath returns a named type's package path, that is, the import path
+// that uniquely identifies the package, such as "encoding/base64".
+// If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
+// the package path will be the empty string.
+func (t Type) PkgPath() string {
+	return (&t[0]).PkgPath()
+}
+
+// ReflectType returns a best-effort reflect.Type that approximates the type.
+// It may be inexact for the following reasons:
+// 1) missing reflect.NamedOf(): no way to programmatically create named types, or to access the underlying type of a named type
+// 2) missing reflect.InterfaceOf(): interface types created at runtime will be approximated by structs
+// 3) missing reflect.MethodOf(): method types created at runtime will be approximated by functions
+//    whose first parameter is the receiver
+// 4) reflect.StructOf() does not support embedded or unexported fields
+// 5) go/reflect lacks the ability to create self-referencing types:
+//    references to the type itself will be replaced by interface{}.
+//
+// Examples:
+//    after invoking at runtime type2.NewStruct() and type2.NewNamed()
+//    to create the following type:
+//        type List struct { Elem int; Rest *List }
+//    ReflectType will return a reflect.Type equivalent to:
+//        struct { Elem int; Rest interface{} }
+//    i.e. the type name will be missing due to limitation 1 above,
+//    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
+func (t Type) ReflectType() reflect.Type {
+	return (&t[0]).ReflectType()
+}
+
+// Size returns the number of bytes needed to store
+// a value of the given type; it is analogous to unsafe.Sizeof.
+func (t Type) Size() uintptr {
+	return (&t[0]).Size()
+}
+
+// String returns a string representation of a type.
+func (t Type) String() string {
+	if t == nil {
+		return "<nil>"
+	}
+	return (&t[0]).String()
+}
+
+// AddMethod adds method with given name and signature to type, unless it is already in the method list.
+// It panics if the type is unnamed, or if the signature is not a function type.
+func (t Type) AddMethod(name string, signature Type) {
+	(&t[0]).AddMethod(name, signature)
+}
+
+// Bits returns the size of the type in bits.
+// It panics if the type's Kind is not one of the
+// sized or unsized Int, Uint, Float, or Complex kinds.
+func (t Type) Bits() int {
+	return (&t[0]).Bits()
+}
+
+// ChanDir returns a channel type's direction.
+// It panics if the type's Kind is not Chan.
+func (t Type) ChanDir() reflect.ChanDir {
+	return (&t[0]).ChanDir()
+}
+
+// Complete marks an interface type as complete and computes wrapper methods for embedded fields.
+// It must be called by users of InterfaceOf after the interface's embedded types are fully defined
+// and before using the interface type in any way other than to form other types.
+// Complete returns the receiver.
+func (t Type) Complete() Type {
+	return (&t[0]).Complete()
+}
+
+// Elem returns a type's element type.
+// It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
+func (t Type) Elem() Type {
+	return (&t[0]).Elem()
+}
+
+// Field returns a struct type's i-th field.
+// It panics if the type's Kind is not Struct.
+// It panics if i is not in the range [0, NumField()).
+func (t Type) Field(i int) StructField {
+	return (&t[0]).Field(i)
+}
+
+// IsMethod reports whether a function type's contains a receiver, i.e. is a method.
+// It panics if the type's Kind is not Func.
+func (t Type) IsMethod() bool {
+	return (&t[0]).IsMethod()
+}
+
+// IsVariadic reports whether a function type's final input parameter is a "..." parameter.
+// If so, t.In(t.NumIn() - 1) returns the parameter's implicit actual type []T.
+// IsVariadic panics if the type's Kind is not Func.
+func (t Type) IsVariadic() bool {
+	return (&t[0]).IsVariadic()
+}
+
+// Key returns a map type's key type.
+// It panics if the type's Kind is not Map.
+func (t Type) Key() Type {
+	return (&t[0]).Key()
+}
+
+// Kind returns the specific kind of the type.
+func (t Type) Kind() reflect.Kind {
+	if t == nil {
+		return reflect.Invalid
+	}
+	return (&t[0]).Kind()
+}
+
+// Len returns an array type's length.
+// It panics if the type's Kind is not Array.
+func (t Type) Len() int {
+	return (&t[0]).Len()
+}
+
+// In returns the type of a function type's i'th input parameter.
+// It panics if the type's Kind is not Func.
+// It panics if i is not in the range [0, NumIn()).
+func (t Type) In(i int) Type {
+	return (&t[0]).In(i)
+}
+
+// Method return the i-th explicitly declared method of named type or interface t.
+// Wrapper methods for embedded fields or embedded interfaces are not returned.
+// It panics if the type is unnamed, or if the type's Kind is not Interface
+func (t Type) Method(i int) Method {
+	return (&t[0]).Method(i)
+}
+
+// NumMethod returns the number of explicitly declared methods of named type or interface t.
+// Wrapper methods for embedded fields or embedded interfaces are not counted.
+func (t Type) NumMethod() int {
+	return (&t[0]).NumMethod()
+}
+
+// NumField returns a struct type's field count.
+// It panics if the type's Kind is not Struct.
+func (t Type) NumField() int {
+	return (&t[0]).NumField()
+}
+
+// NumIn returns a function type's input parameter count.
+// It panics if the type's Kind is not Func.
+func (t Type) NumIn() int {
+	return (&t[0]).NumIn()
+}
+
+// NumOut returns a function type's output parameter count.
+// It panics if the type's Kind is not Func.
+func (t Type) NumOut() int {
+	return (&t[0]).NumOut()
+}
+
+// Out returns the type of a function type's i'th output parameter.
+// It panics if the type's Kind is not Func.
+// It panics if i is not in the range [0, NumOut()).
+func (t Type) Out(i int) Type {
+	return (&t[0]).Out(i)
+}
+
+// Recv returns the type of a method type's receiver parameter.
+// It panics if the type's Kind is not Func.
+// It returns nil if t has no receiver.
+func (t Type) Recv() Type {
+	return (&t[0]).Recv()
+}
+
+// SetUnderlying sets the underlying type of a named type and marks it as complete.
+// It panics if the type is unnamed, or if the underlying type is named,
+// or if SetUnderlying() was already invoked on the named type.
+func (t Type) SetUnderlying(underlying Type) {
+	(&t[0]).SetUnderlying(underlying)
+}
+
+// underlying returns the underlying types.Type of a type.
+// TODO implement Underlying() Type ?
+// Synthetizing the underlying reflect.Type is not possible for interface types,
+// or for struct types with embedded or unexported fields.
+func (t Type) underlying() types.Type {
+	return (&t[0]).underlying()
+}
+
+func wrap(t *xtype) Type {
+	return []xtype{*t}
 }

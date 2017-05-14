@@ -31,9 +31,25 @@ import (
 	r "reflect"
 	"sort"
 
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
+
+var (
+	selfPkg           = xr.NewPackage("fast", "")
+	typeOfEmptyStruct = xr.TypeOf(struct{}{})
+)
+
+// opaqueTypeOf returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
+func opaqueTypeOf(val interface{}) xr.Type {
+	rtype := r.TypeOf(val)
+	if k := rtype.Kind(); k != r.Struct {
+		Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
+	}
+	t := xr.NamedOf(rtype.Name(), selfPkg)
+	t.SetUnderlying(typeOfEmptyStruct)
+	return xr.MakeType(t.GoType(), rtype)
+}
 
 // ================================= Untyped =================================
 
@@ -44,15 +60,11 @@ type UntypedLit struct {
 }
 
 var (
-	TypeOfUntypedLit = xr.TypeOf(UntypedLit{})
+	TypeOfUntypedLit = opaqueTypeOf(UntypedLit{}) // no need to scavenge for UntypedLit fields and methods
 
 	UntypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(0)}
 	UntypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(1)}
 )
-
-func init() {
-	base.Debugf("TypeOfUntypedLit = %v -> %v", TypeOfUntypedLit.GoType(), TypeOfUntypedLit.ReflectType())
-}
 
 // pretty-print untyped constants
 func (untyp *UntypedLit) String() string {
@@ -190,7 +202,7 @@ type Builtin struct {
 	ArgMax  uint16
 }
 
-var TypeOfBuiltin = xr.TypeOf(Builtin{})
+var TypeOfBuiltin = opaqueTypeOf(Builtin{}) // no need to scavenge for Builtin fields and methods
 
 // ================================= EnvFunction =================================
 
@@ -200,7 +212,7 @@ type Function struct {
 	Type xr.Type
 }
 
-var TypeOfFunction = xr.TypeOf(Function{})
+var TypeOfFunction = opaqueTypeOf(Function{}) // no need to scavenge for Function fields and methods
 
 // ================================= BindClass =================================
 
@@ -216,11 +228,11 @@ const (
 func (class BindClass) String() string {
 	switch class {
 	case ConstBind:
-		return "constant"
+		return "const"
 	case FuncBind:
-		return "function"
+		return "func"
 	default:
-		return "variable"
+		return "var"
 	}
 }
 
@@ -291,7 +303,7 @@ func (bind *Bind) AsVar(upn int, opt PlaceOption) *Var {
 	case VarBind, IntBind:
 		return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type, Name: bind.Name}
 	default:
-		base.Errorf("%s a %s: %s <%v>", opt, class, bind.Name, bind.Type)
+		Errorf("%s a %s: %s <%v>", opt, class, bind.Name, bind.Type)
 		return nil
 	}
 }
@@ -406,14 +418,14 @@ type ThreadGlobals struct {
 	Signal    Signal // set by interrupts: Return, Defer...
 	PoolSize  int
 	Pool      [PoolCapacity]*Env
-	*base.Globals
+	*Globals
 }
 
 // ThreadGlobals contains per-goroutine interpreter compile bookeeping information
 type CompThreadGlobals struct {
 	Pkgs     map[string]*xr.Package
 	Importer *xr.Importer
-	*base.Globals
+	*Globals
 }
 
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into closures

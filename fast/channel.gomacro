@@ -33,8 +33,8 @@ import (
 	"go/ast"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 
@@ -61,7 +61,7 @@ import (
 :func maketypevar(typ ast.Node) ast.Node {
 	t := EvalType(typ)
 	return &ast.SelectorExpr{
-		X: &ast.Ident{Name: "xt"},
+		X: &ast.Ident{Name: "xr"},
 		Sel: &ast.Ident{Name: "TypeOf" + upcasefirstbyte(t.Name())},
 	}
 }
@@ -120,9 +120,9 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			retv, ok := channel.Recv()
 			var okv r.Value
 			if ok {
-				okv = base.True
+				okv = True
 			} else {
-				okv = base.False
+				okv = False
 			}
 			return retv, []r.Value{retv, okv}
 		}
@@ -132,14 +132,14 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			retv, ok := channelfun(env).Recv()
 			var okv r.Value
 			if ok {
-				okv = base.True
+				okv = True
 			} else {
-				okv = base.False
+				okv = False
 			}
 			return retv, []r.Value{retv, okv}
 		}
 	}
-	types := []xt.Type{t.Elem(), xt.TypeOfBool}
+	types := []xr.Type{t.Elem(), xr.TypeOfBool}
 	return exprXV(types, fun)
 }
 
@@ -180,7 +180,7 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 	typ2, ret := convertvalue(typ, ~'retv)
 	return ~"{
 		case ~,kind:
-		if telem != BasicType(~,kind) {
+		if telem.ReflectType() != KindToType(~,kind) {
 			fun = func(env *Env) ~,typ {
 				retv, _ := channelfun(env).Recv()
 				return ~,ret
@@ -263,10 +263,10 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 }
 
 :macro send_c(typ ast.Node) ast.Node {
-	typevar := maketypevar(typ)
+	kind := makekind(typ)
 	typ2, conv := convertvalue(typ, ~'v)
 	return ~"{
-		case ~,typevar:
+		case ~,kind:
 		value := ~,conv
 		if sendonly {
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -287,9 +287,9 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 }
 
 :macro send_e(typ ast.Node) ast.Node {
-	typevar := maketypevar(typ)
+	kind := makekind(typ)
 	return ~"{
-		case ~,typevar:
+		case ~,kind:
 		if exprfun, ok := expr.Fun.(func (*Env) ~,typ); !ok {
 			break
 		} else if sendonly {
@@ -322,6 +322,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 		return
 	}
 	telem := t.Elem()
+	rtelem := telem.ReflectType()
+	kelem := rtelem.Kind()
 	expr := c.Expr1(node.Value)
 	if expr.Const() {
 		expr.ConstTo(telem)
@@ -334,7 +336,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	var stmt Stmt
 	if expr.Const() {
 		v := r.ValueOf(expr.Value)
-		switch telem {
+		if KindToType(kelem) == rtelem {
+			switch kelem {
 			{send_c; bool}
 			{send_c; int}
 			{send_c; int8}
@@ -352,6 +355,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 			{send_c; complex64}
 			{send_c; complex128}
 			{send_c; string}
+			}
 		}
 		if stmt == nil {
 			stmt = func(env *Env) (Stmt, *Env) {
@@ -362,7 +366,8 @@ func (c *Comp) Send(node *ast.SendStmt) {
 			}
 		}
 	} else {
-		switch telem {
+		if KindToType(kelem) == rtelem {
+			switch kelem {
 			{send_e; bool}
 			{send_e; int}
 			{send_e; int8}
@@ -380,10 +385,10 @@ func (c *Comp) Send(node *ast.SendStmt) {
 			{send_e; complex64}
 			{send_e; complex128}
 			{send_e; string}
+			}
 		}
 		if stmt == nil {
 			exprfun := expr.AsX1()
-			rtelem := telem.ReflectType()
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env)
 				value := exprfun(env)
