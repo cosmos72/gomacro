@@ -107,7 +107,7 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltin("println", Builtin{compilePrint, 0, base.MaxUint16})
 	ce.DeclBuiltin("real", Builtin{compileRealImag, 1, 1})
 
-	ce.DeclEnvFunc("Env", Function{callIdentity, xr.TypeOf((*func(*CompEnv) *CompEnv)(nil)).Elem()})
+	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf((*func(*CompEnv) *CompEnv)(nil)).Elem()})
 	ce.DeclFunc("Sleep", func(seconds float64) {
 		time.Sleep(time.Duration(seconds * float64(time.Second)))
 	})
@@ -154,7 +154,7 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclType("uint64", xr.TypeOfUint64)
 	ce.DeclType("uintptr", xr.TypeOfUintptr)
 
-	ce.DeclType("Duration", xr.TypeOf(time.Duration(0)))
+	ce.DeclType("Duration", ce.Comp.TypeOf(time.Duration(0)))
 
 	/*
 		// --------- proxies ---------
@@ -529,7 +529,7 @@ func callPanic(arg interface{}) {
 	panic(arg)
 }
 
-var typeOfBuiltinPanic = xr.TypeOf(callPrint)
+var typeOfBuiltinPanic = xr.TypeOf(callPanic)
 
 func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	arg := c.Expr1(node.Args[0])
@@ -558,8 +558,7 @@ func getStdout(env *Env) r.Value {
 }
 
 var (
-	typeOfIoWriter     = xr.TypeOf((*io.Writer)(nil)).Elem()
-	typeOfBuiltinPrint = xr.TypeOf(callPrint)
+	typeOfIoWriter xr.Type = xr.TypeOf((*io.Writer)(nil)).Elem()
 )
 
 func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
@@ -572,7 +571,7 @@ func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	arg0 := exprFun(typeOfIoWriter, getStdout)
 	args = append([]*Expr{arg0}, args...)
 
-	t := typeOfBuiltinPrint
+	t := c.TopComp().TypeOf(callPrint)
 	sym.Type = t
 	call := callPrint
 	if sym.Name == "println" {

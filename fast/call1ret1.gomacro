@@ -26,7 +26,7 @@ package fast
 
 import (
 	r "reflect"
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
 )
 
 :import (
@@ -122,7 +122,7 @@ import (
 	argconv := convertvalue1(argtyp, ~'{r.ValueOf(arg.Value)})
 
 	return ~"{
-		// base.Debugf("compiling call to %v, funsym=%p, funupn=%v, maxdepth=%v", r.TypeOf((func(~,argtyp) ~,rettyp)(nil)), funsym, funupn, maxdepth)
+		// Debugf("compiling call to %v, funsym=%p, funupn=%v, maxdepth=%v", r.TypeOf((func(~,argtyp) ~,rettyp)(nil)), funsym, funupn, maxdepth)
 		if funsym != nil && funupn == maxdepth - 1 {
 			var cachedfun func(~,argtyp) ~,rettyp
 			if arg.Const() {
@@ -247,14 +247,14 @@ func call1ret1(c *Call, maxdepth int) I {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			base.Errorf("internal error: call1ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+			Errorf("internal error: call1ret1() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 	}
 	t := expr.Type
 	targ, tret := t.In(0), t.Out(0)
 	karg, kret := targ.Kind(), tret.Kind()
 	var call I
-	if KindToType(karg) != targ || KindToType(kret) != tret {
+	if KindToType(karg) != targ.ReflectType() || KindToType(kret) != tret.ReflectType() {
 		return call1ret1namedtype(c, maxdepth)
 	}
 	arg := c.Args[0]

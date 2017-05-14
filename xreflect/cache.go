@@ -32,8 +32,8 @@ import (
 type Cache struct {
 	RebuildDepth int
 	TryResolve   func(name, pkgpath string) Type
-	ReflectCache map[reflect.Type]Type
-	PkgCache     map[string]*Package
+	ReflectTypes map[reflect.Type]Type
+	Pkgs         map[string]*Package
 	Importer     types.ImporterFrom
 }
 
@@ -42,21 +42,21 @@ func (cfg *Cache) rebuild() bool {
 }
 
 func (cfg *Cache) cache(rt reflect.Type, t Type) Type {
-	if cfg.ReflectCache == nil {
-		cfg.ReflectCache = make(map[reflect.Type]Type)
+	if cfg.ReflectTypes == nil {
+		cfg.ReflectTypes = make(map[reflect.Type]Type)
 	}
-	cfg.ReflectCache[rt] = t
+	cfg.ReflectTypes[rt] = t
 	return t
 }
 
 func (cfg *Cache) NewPackage(path, name string) *Package {
-	pkg := cfg.PkgCache[path]
+	pkg := cfg.Pkgs[path]
 	if pkg == nil {
 		pkg = NewPackage(path, name)
-		if cfg.PkgCache == nil {
-			cfg.PkgCache = make(map[string]*Package)
+		if cfg.Pkgs == nil {
+			cfg.Pkgs = make(map[string]*Package)
 		}
-		cfg.PkgCache[path] = pkg
+		cfg.Pkgs[path] = pkg
 	}
 	return pkg
 }
@@ -74,17 +74,17 @@ func (cfg *Cache) namedTypeFromImport(rtype reflect.Type) Type {
 	if err != nil || pkg == nil {
 		return nil
 	}
-	if cfg.PkgCache == nil {
-		cfg.PkgCache = make(map[string]*Package)
+	if cfg.Pkgs == nil {
+		cfg.Pkgs = make(map[string]*Package)
 	}
-	cfg.PkgCache[pkgpath] = (*Package)(pkg)
+	cfg.Pkgs[pkgpath] = (*Package)(pkg)
 
 	return cfg.namedTypeFromPackage(rtype, pkg)
 }
 
 func (cfg *Cache) namedTypeFromPackageCache(rtype reflect.Type) Type {
 	pkgpath := rtype.PkgPath()
-	pkg := (*types.Package)(cfg.PkgCache[pkgpath])
+	pkg := (*types.Package)(cfg.Pkgs[pkgpath])
 	if pkg == nil || !pkg.Complete() {
 		return nil
 	}

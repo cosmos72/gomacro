@@ -80,7 +80,7 @@ func (cfg *Cache) FromReflectType(rtype reflect.Type) Type {
 	}
 	name := rtype.Name()
 	var t, u Type
-	if t = cfg.ReflectCache[rtype]; t != nil {
+	if t = cfg.ReflectTypes[rtype]; t != nil {
 		// debugf("found type in cache: %v -> %v", t, t.ReflectType())
 		return t
 	}
@@ -357,7 +357,7 @@ func (cfg *Cache) fromReflectInterfaceStruct(rtype reflect.Type) Type {
 			if t.Named() {
 				gtype = gtype.Underlying()
 			}
-			pkg := cfg.PkgCache[rfield.PkgPath]
+			pkg := cfg.Pkgs[rfield.PkgPath]
 			if pkg == nil {
 				pkg = cfg.NewPackage(rfield.PkgPath, "")
 			}

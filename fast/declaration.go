@@ -434,7 +434,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr) {
 // DeclFunc0 compiles a function declaration. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 	funv := r.ValueOf(fun)
-	t := c.xtypeof(fun)
+	t := c.TypeOf(fun)
 	if t.Kind() != r.Func {
 		c.Errorf("DeclFunc0(%s): expecting a function, received %v <%v>", name, fun, t)
 	}
@@ -465,12 +465,23 @@ func (c *Comp) DeclBuiltin0(name string, builtin Builtin) *Bind {
 	return bind
 }
 
-func (c *Comp) xtypeof(val I) xr.Type {
-	return xr.TypeOf2(val, &xr.ReflectConfig{
+// replacement of reflect.TypeOf() that uses xreflect.TypeOf()
+func (c *Comp) TypeOf(val interface{}) xr.Type {
+	g := c.CompThreadGlobals
+	if g.Pkgs == nil {
+		g.Pkgs = make(map[string]*xr.Package)
+	}
+	if g.Importer == nil {
+		g.Importer = xr.DefaultImporter()
+	}
+	cache := xr.Cache{
 		RebuildDepth: 0,
 		TryResolve:   c.tryResolveForXtype,
-		Cache:        c.ReflectTypes,
-	})
+		ReflectTypes: c.ReflectTypes,
+		Pkgs:         g.Pkgs,
+		Importer:     g.Importer,
+	}
+	return cache.TypeOf(val)
 }
 
 func (c *Comp) tryResolveForXtype(name, pkgpath string) xr.Type {

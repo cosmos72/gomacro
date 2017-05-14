@@ -112,7 +112,7 @@ func (ce *CompEnv) DeclType(name string, t xr.Type) {
 // DeclVar compiles a variable declaration
 func (ce *CompEnv) DeclVar(name string, t xr.Type, value I) {
 	if t == nil {
-		t = ce.Comp.xtypeof(value)
+		t = ce.Comp.TypeOf(value)
 	}
 	ce.Comp.DeclVar0(name, t, ce.Comp.exprValue(t, value))
 	ce.apply()
@@ -141,6 +141,11 @@ func (ce *CompEnv) AddressOfVar(name string) (addr r.Value) {
 		}
 	}
 	return Nil
+}
+
+// replacement of reflect.TypeOf() that uses xreflect.TypeOf()
+func (ce *CompEnv) TypeOf(val interface{}) xr.Type {
+	return ce.Comp.TypeOf(val)
 }
 
 // ValueOf retrieves the value of a constant, function or variable

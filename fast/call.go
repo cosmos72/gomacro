@@ -81,10 +81,11 @@ func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
 		fun = c.Expr1(node.Fun)
 	}
 	t := fun.Type
+	rtype := t.ReflectType()
 	var lastarg *Expr
-	if t == TypeOfBuiltin {
+	if rtype == TypeOfBuiltin.ReflectType() {
 		return c.callBuiltin(node, fun)
-	} else if t == TypeOfFunction {
+	} else if rtype == TypeOfFunction.ReflectType() {
 		fun, lastarg = c.callFunction(node, fun)
 		t = fun.Type
 	}

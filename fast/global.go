@@ -44,11 +44,15 @@ type UntypedLit struct {
 }
 
 var (
-	typeOfUntypedLit = xr.TypeOf(UntypedLit{})
+	TypeOfUntypedLit = xr.TypeOf(UntypedLit{})
 
 	UntypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(0)}
 	UntypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(1)}
 )
+
+func init() {
+	base.Debugf("TypeOfUntypedLit = %v -> %v", TypeOfUntypedLit.GoType(), TypeOfUntypedLit.ReflectType())
+}
 
 // pretty-print untyped constants
 func (untyp *UntypedLit) String() string {
@@ -278,7 +282,7 @@ func (bind *Bind) Const() bool {
 }
 
 func BindUntyped(value UntypedLit) *Bind {
-	return &Bind{Lit: Lit{Type: typeOfUntypedLit, Value: value}, Desc: ConstBindDescriptor}
+	return &Bind{Lit: Lit{Type: TypeOfUntypedLit, Value: value}, Desc: ConstBindDescriptor}
 }
 
 func (bind *Bind) AsVar(upn int, opt PlaceOption) *Var {
@@ -394,7 +398,7 @@ const (
 	PoolCapacity = 32
 )
 
-// ThreadGlobals contains per-goroutine interpreter bookeeping information
+// ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
 type ThreadGlobals struct {
 	FileEnv   *Env
 	TopEnv    *Env
@@ -402,6 +406,13 @@ type ThreadGlobals struct {
 	Signal    Signal // set by interrupts: Return, Defer...
 	PoolSize  int
 	Pool      [PoolCapacity]*Env
+	*base.Globals
+}
+
+// ThreadGlobals contains per-goroutine interpreter compile bookeeping information
+type CompThreadGlobals struct {
+	Pkgs     map[string]*xr.Package
+	Importer *xr.Importer
 	*base.Globals
 }
 
@@ -424,7 +435,7 @@ type Comp struct {
 	Name           string // set by "package" directive
 	Path           string
 	CompileOptions CompileOptions
-	*base.Globals
+	*CompThreadGlobals
 }
 
 const (

@@ -234,7 +234,7 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 	if convertuntyped {
 		if untyp, ok := any.(UntypedLit); ok {
 			// Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, TypeOf(untyp), t)
-			if t == typeOfUntypedLit {
+			if t.ReflectType() == TypeOfUntypedLit.ReflectType() {
 				t = untyp.DefaultType()
 			}
 			any = untyp.ConstTo(t)
@@ -258,8 +258,8 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 	convertuntyped := opts&CompileKeepUntyped == 0
 	if convertuntyped {
 		if untyp, ok := any.(UntypedLit); ok {
-			// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to <%v>", untyp, TypeOf(untyp), t)
-			if t == typeOfUntypedLit {
+			// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t.ReflectType())
+			if t.ReflectType() == TypeOfUntypedLit.ReflectType() {
 				t = untyp.DefaultType()
 			}
 			any = untyp.ConstTo(t)
@@ -637,7 +637,10 @@ func funAsX1(fun I, t xr.Type) func(*Env) r.Value {
 
 func funAsXV(fun I, t xr.Type) func(*Env) (r.Value, []r.Value) {
 	// Debugf("funAsXV() %v -> %v", TypeOf(fun), t)
-	rt := t.ReflectType()
+	var rt r.Type
+	if t != nil {
+		rt = t.ReflectType()
+	}
 	switch fun := fun.(type) {
 	case nil:
 	case X:

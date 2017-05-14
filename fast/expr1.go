@@ -33,16 +33,16 @@ import (
 )
 
 func (c *Comp) litValue(value I) Lit {
-	return Lit{Type: c.xtypeof(value), Value: value}
+	return Lit{Type: c.TypeOf(value), Value: value}
 }
 
 func exprUntypedLit(kind r.Kind, value constant.Value) *Expr {
-	return &Expr{Lit: Lit{Type: typeOfUntypedLit, Value: UntypedLit{Kind: kind, Obj: value}}}
+	return &Expr{Lit: Lit{Type: TypeOfUntypedLit, Value: UntypedLit{Kind: kind, Obj: value}}}
 }
 
 func (c *Comp) exprValue(t xr.Type, value I) *Expr {
 	if t == nil {
-		t = c.xtypeof(value)
+		t = c.TypeOf(value)
 	}
 	return &Expr{Lit: Lit{Type: t, Value: value}, IsNil: value == nil}
 }

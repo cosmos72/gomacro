@@ -51,22 +51,25 @@ func NewCompEnvTop(path string) *CompEnv {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
 	globals := base.NewGlobals()
-	threadGlobals := &ThreadGlobals{Globals: globals}
+	envGlobals := &ThreadGlobals{Globals: globals}
+	compGlobals := &CompThreadGlobals{
+		Globals: globals,
+	}
 	c := &CompEnv{
 		Comp: &Comp{
-			UpCost:  1,
-			Depth:   0,
-			Outer:   nil,
-			Name:    name,
-			Path:    path,
-			Globals: globals,
+			UpCost:            1,
+			Depth:             0,
+			Outer:             nil,
+			Name:              name,
+			Path:              path,
+			CompThreadGlobals: compGlobals,
 		},
 		env: &Env{
 			Outer:         nil,
-			ThreadGlobals: threadGlobals,
+			ThreadGlobals: envGlobals,
 		},
 	}
-	threadGlobals.TopEnv = c.env
+	envGlobals.TopEnv = c.env
 	c.addBuiltins()
 	return c
 }
@@ -74,24 +77,24 @@ func NewCompEnvTop(path string) *CompEnv {
 func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
-	globals := outer.Comp.Globals
-	threadGlobals := outer.env.ThreadGlobals
+	compGlobals := outer.Comp.CompThreadGlobals
+	envGlobals := outer.env.ThreadGlobals
 	c := &CompEnv{
 		Comp: &Comp{
-			UpCost:  1,
-			Depth:   outer.Comp.Depth + 1,
-			Outer:   outer.Comp,
-			Name:    name,
-			Path:    path,
-			Globals: globals,
+			UpCost:            1,
+			Depth:             outer.Comp.Depth + 1,
+			Outer:             outer.Comp,
+			Name:              name,
+			Path:              path,
+			CompThreadGlobals: compGlobals,
 		},
 		env: &Env{
 			Outer:         outer.env,
-			ThreadGlobals: threadGlobals,
+			ThreadGlobals: envGlobals,
 		},
 	}
 	if outer.env.Outer == nil {
-		threadGlobals.FileEnv = c.env
+		envGlobals.FileEnv = c.env
 	}
 	return c
 }
@@ -101,12 +104,12 @@ func NewComp(outer *Comp) *Comp {
 		return &Comp{UpCost: 1}
 	}
 	return &Comp{
-		UpCost:         1,
-		Depth:          outer.Depth + 1,
-		Code:           outer.Code,
-		Outer:          outer,
-		CompileOptions: outer.CompileOptions,
-		Globals:        outer.Globals,
+		UpCost:            1,
+		Depth:             outer.Depth + 1,
+		Code:              outer.Code,
+		Outer:             outer,
+		CompileOptions:    outer.CompileOptions,
+		CompThreadGlobals: outer.CompThreadGlobals,
 	}
 }
 

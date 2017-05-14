@@ -45,7 +45,7 @@ type Globals struct {
 	Packagename  string
 	Filename     string
 	GensymN      uint
-	Importer     Importer
+	Importer     *Importer
 	Imports      []*ast.GenDecl
 	Declarations []ast.Decl
 	Statements   []ast.Stmt

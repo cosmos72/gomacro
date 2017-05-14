@@ -47,10 +47,10 @@ type Importer struct {
 	mode   types.ImportMode
 }
 
-func DefaultImporter() Importer {
-	imp := Importer{}
+func DefaultImporter() *Importer {
+	imp := &Importer{}
 	compat := importer.Default()
-	if from, ok := imp.compat.(types.ImporterFrom); ok {
+	if from, ok := compat.(types.ImporterFrom); ok {
 		imp.from = from
 	} else {
 		imp.compat = compat

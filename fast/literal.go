@@ -407,11 +407,17 @@ func (e *Expr) WithFun() I {
 	var fun I
 again:
 	value := e.Value
-	t := e.Type
-	if t.ReflectType() != r.TypeOf(value) {
-		Errorf("internal error: constant %v <%v> was assumed to have type <%v>", value, r.TypeOf(value), t.ReflectType())
-	}
 	v := r.ValueOf(value)
+	t := e.Type
+	rtexpected := t.ReflectType()
+	rtactual := r.TypeOf(value)
+	if rtexpected != rtactual {
+		if rtexpected.Kind() == r.Interface && rtactual.Implements(rtexpected) {
+			v = v.Convert(rtexpected)
+		} else {
+			Errorf("internal error: constant %v <%v> was assumed to have type <%v>", value, r.TypeOf(value), t.ReflectType())
+		}
+	}
 	switch v.Kind() {
 	case r.Invalid:
 		fun = eNil
@@ -502,7 +508,7 @@ again:
 			return x
 		}
 	default:
-		if t == typeOfUntypedLit {
+		if t.ReflectType() == TypeOfUntypedLit.ReflectType() {
 			e.ConstTo(e.DefaultType())
 			goto again
 		}
