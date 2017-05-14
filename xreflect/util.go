@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package xtype
+package xreflect
 
 import (
 	"fmt"
@@ -103,6 +103,8 @@ func gbasickindToKind(gkind types.BasicKind) reflect.Kind {
 		kind = reflect.Complex128
 	case types.String:
 		kind = reflect.String
+	case types.UnsafePointer:
+		kind = reflect.UnsafePointer
 	default:
 		errorf("unsupported types.BasicKind: %v", gkind)
 	}

@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package xtype
+package xreflect
 
 import (
 	"go/types"

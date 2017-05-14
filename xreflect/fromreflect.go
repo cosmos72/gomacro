@@ -22,7 +22,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package xtype
+package xreflect
 
 import (
 	"go/token"
@@ -30,39 +30,6 @@ import (
 	"reflect"
 	"strings"
 )
-
-type ReflectConfig struct {
-	RebuildDepth int
-	TryResolve   func(name, pkgpath string) Type
-	Cache        map[reflect.Type]Type
-	PkgCache     map[string]*Package
-}
-
-func (cfg *ReflectConfig) rebuild() bool {
-	return cfg != nil && cfg.RebuildDepth >= 0
-}
-
-func (cfg *ReflectConfig) cache(rt reflect.Type, t Type) Type {
-	if cfg != nil {
-		if cfg.Cache == nil {
-			cfg.Cache = make(map[reflect.Type]Type)
-		}
-		cfg.Cache[rt] = t
-	}
-	return t
-}
-
-func (cfg *ReflectConfig) NewPackage(path, name string) *Package {
-	pkg := cfg.PkgCache[path]
-	if pkg == nil {
-		pkg = NewPackage(path, name)
-		if cfg.PkgCache == nil {
-			cfg.PkgCache = make(map[string]*Package)
-		}
-		cfg.PkgCache[path] = pkg
-	}
-	return pkg
-}
 
 // TypeOf creates a Type corresponding to reflect.TypeOf() of given value.
 // Note: conversions from Type to reflect.Type and back are not exact,
@@ -81,12 +48,14 @@ func TypeOf2(rvalue interface{}, cfg *ReflectConfig) Type {
 // because of the reasons listed in Type.ReflectType()
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
 func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
+	// debugf("FromReflectType: %v", rtype)
 	name := rtype.Name()
 	var t, u Type
 	if cfg == nil {
 		cfg = &ReflectConfig{}
 	} else {
 		if t = cfg.Cache[rtype]; t != nil {
+			// debugf("found type in cache: %v", t)
 			return t
 		}
 		tryresolve := cfg.TryResolve
@@ -104,10 +73,16 @@ func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
 			}()
 		}
 	}
-	// when converting a named type, immediately register it in the cache
-	// because it may reference itself, as for example type List struct { Elem int; Rest *List }
+	// when converting a named type and cfg.Importer cannot locate it,
+	// immediately register it in the cache because it may reference itself,
+	// as for example type List struct { Elem int; Rest *List }
 	// otherwise we may get an infinite recursion
 	if len(name) != 0 {
+		if !cfg.rebuild() {
+			if t = cfg.namedTypeFromImport(rtype); t != nil {
+				return t
+			}
+		}
 		t = NamedOf(name, cfg.NewPackage(rtype.PkgPath(), ""))
 		cfg.cache(rtype, t)
 	}
@@ -117,7 +92,8 @@ func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
 		return nil
 	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
-		reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String:
+		reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String,
+		reflect.UnsafePointer:
 		u = BasicTypes[k]
 	case reflect.Array:
 		u = fromReflectArray(rtype, cfg)
@@ -135,7 +111,6 @@ func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
 		u = fromReflectSlice(rtype, cfg)
 	case reflect.Struct:
 		u = fromReflectStruct(rtype, cfg)
-	// case reflect.UnsafePointer:
 	default:
 		errorf("unsupported reflect.Type %v", rtype)
 	}
@@ -151,13 +126,18 @@ func FromReflectType(rtype reflect.Type, cfg *ReflectConfig) Type {
 func addmethods(t Type, rtype reflect.Type, cfg *ReflectConfig) Type {
 	n := rtype.NumMethod()
 	if n != 0 {
-		if !t.Named() {
+		tm := t
+		if !t.Named() && t.Kind() == reflect.Ptr {
+			// methods on pointer-to-type. add them to the type itself
+			tm = t.Elem()
+		}
+		if !tm.Named() {
 			errorf("cannot add methods to unnamed type %v", t)
 		}
 		for i := 0; i < n; i++ {
 			rmethod := rtype.Method(i)
 			signature := fromReflectFunc(rmethod.Type, cfg)
-			t.AddMethod(rmethod.Name, signature)
+			tm.AddMethod(rmethod.Name, signature)
 		}
 	}
 	return t

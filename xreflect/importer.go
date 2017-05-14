@@ -16,41 +16,49 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * gensym.go
+ * importer.go
  *
- *  Created on May 07, 2017
+ *  Created on May 14, 2017
  *      Author Massimiliano Ghilardi
  */
 
 package xreflect
 
 import (
-	"fmt"
+	"go/importer"
+	"go/types"
 )
 
-// the following constants must match with github.com/cosmos72/gomacro/base/constants.go
-const (
-	StrGensymInterface = "\u0080" // name of extra struct field needed by the interpreter when creating interpreted interfaces
-	StrGensymPrivate   = "\u00AD" // prefix to generate names for unexported struct fields.
-	StrGensymEmbedded  = "\u00BB" // prefix to generate names for embedded struct fields.
-)
-
-var gensymn = 0
-
-func GensymEmbedded(name string) string {
-	if len(name) == 0 {
-		n := gensymn
-		gensymn++
-		name = fmt.Sprintf("%d", n)
-	}
-	return StrGensymEmbedded + name
+type Importer struct {
+	from   types.ImporterFrom
+	compat types.Importer
+	srcDir string
+	mode   types.ImportMode
 }
 
-func GensymPrivate(name string) string {
-	if len(name) == 0 {
-		n := gensymn
-		gensymn++
-		name = fmt.Sprintf("%d", n)
+func DefaultImporter() *Importer {
+	imp := &Importer{}
+	compat := importer.Default()
+	if from, ok := compat.(types.ImporterFrom); ok {
+		imp.from = from
+	} else {
+		imp.compat = compat
 	}
-	return StrGensymPrivate + name
+	return imp
+}
+
+func (imp *Importer) Import(path string) (*types.Package, error) {
+	if imp.from != nil {
+		return imp.from.ImportFrom(path, imp.srcDir, imp.mode)
+	} else {
+		return imp.compat.Import(path)
+	}
+}
+
+func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
+	if imp.from != nil {
+		return imp.from.ImportFrom(path, srcDir, mode)
+	} else {
+		return imp.compat.Import(path)
+	}
 }

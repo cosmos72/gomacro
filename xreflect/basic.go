@@ -22,12 +22,13 @@
  *      Author Massimiliano Ghilardi
  */
 
-package xtype
+package xreflect
 
 import (
 	"errors"
 	"fmt"
 	"reflect"
+	"unsafe"
 
 	"go/types"
 )
@@ -55,10 +56,10 @@ func makebasictypes() []Type {
 		reflect.Complex64:     reflect.TypeOf(complex64(0)),
 		reflect.Complex128:    reflect.TypeOf(complex128(0)),
 		reflect.String:        reflect.TypeOf(string("")),
-		reflect.UnsafePointer: nil, // to set the length
+		reflect.UnsafePointer: reflect.TypeOf(unsafe.Pointer(nil)),
 	}
 	m := make([]Type, len(rmap))
-	for gkind := types.Bool; gkind <= types.String; gkind++ {
+	for gkind := types.Bool; gkind <= types.UnsafePointer; gkind++ {
 		kind := gbasickindToKind(gkind)
 		gtype := types.Typ[gkind]
 		rtype := rmap[kind]
@@ -96,8 +97,9 @@ var (
 	TypeOfComplex128 = BasicTypes[reflect.Complex128]
 	TypeOfString     = BasicTypes[reflect.String]
 
-	TypeOfByte = TypeOfUint8
-	TypeOfRune = TypeOfInt32
+	TypeOfByte          = TypeOfUint8
+	TypeOfRune          = TypeOfInt32
+	TypeOfUnsafePointer = BasicTypes[reflect.UnsafePointer]
 
 	TypeOfError = maketype(
 		types.Universe.Lookup("error").Type(),
