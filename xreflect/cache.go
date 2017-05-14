@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * config.go
+ * cache.go
  *
  *  Created on May 14, 2017
  *      Author Massimiliano Ghilardi
@@ -29,29 +29,27 @@ import (
 	"reflect"
 )
 
-type ReflectConfig struct {
+type Cache struct {
 	RebuildDepth int
 	TryResolve   func(name, pkgpath string) Type
-	Cache        map[reflect.Type]Type
+	ReflectCache map[reflect.Type]Type
 	PkgCache     map[string]*Package
 	Importer     types.ImporterFrom
 }
 
-func (cfg *ReflectConfig) rebuild() bool {
-	return cfg != nil && cfg.RebuildDepth >= 0
+func (cfg *Cache) rebuild() bool {
+	return cfg.RebuildDepth >= 0
 }
 
-func (cfg *ReflectConfig) cache(rt reflect.Type, t Type) Type {
-	if cfg != nil {
-		if cfg.Cache == nil {
-			cfg.Cache = make(map[reflect.Type]Type)
-		}
-		cfg.Cache[rt] = t
+func (cfg *Cache) cache(rt reflect.Type, t Type) Type {
+	if cfg.ReflectCache == nil {
+		cfg.ReflectCache = make(map[reflect.Type]Type)
 	}
+	cfg.ReflectCache[rt] = t
 	return t
 }
 
-func (cfg *ReflectConfig) NewPackage(path, name string) *Package {
+func (cfg *Cache) NewPackage(path, name string) *Package {
 	pkg := cfg.PkgCache[path]
 	if pkg == nil {
 		pkg = NewPackage(path, name)
@@ -63,7 +61,7 @@ func (cfg *ReflectConfig) NewPackage(path, name string) *Package {
 	return pkg
 }
 
-func (cfg *ReflectConfig) namedTypeFromImport(rtype reflect.Type) Type {
+func (cfg *Cache) namedTypeFromImport(rtype reflect.Type) Type {
 	t := cfg.namedTypeFromPackageCache(rtype)
 	if t != nil {
 		return t
@@ -84,7 +82,7 @@ func (cfg *ReflectConfig) namedTypeFromImport(rtype reflect.Type) Type {
 	return cfg.namedTypeFromPackage(rtype, pkg)
 }
 
-func (cfg *ReflectConfig) namedTypeFromPackageCache(rtype reflect.Type) Type {
+func (cfg *Cache) namedTypeFromPackageCache(rtype reflect.Type) Type {
 	pkgpath := rtype.PkgPath()
 	pkg := (*types.Package)(cfg.PkgCache[pkgpath])
 	if pkg == nil || !pkg.Complete() {
@@ -93,7 +91,7 @@ func (cfg *ReflectConfig) namedTypeFromPackageCache(rtype reflect.Type) Type {
 	return cfg.namedTypeFromPackage(rtype, pkg)
 }
 
-func (cfg *ReflectConfig) namedTypeFromPackage(rtype reflect.Type, pkg *types.Package) Type {
+func (cfg *Cache) namedTypeFromPackage(rtype reflect.Type, pkg *types.Package) Type {
 	scope := pkg.Scope()
 	if scope == nil {
 		return nil

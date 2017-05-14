@@ -29,7 +29,7 @@ import (
 	"strings"
 )
 
-func newPackage(path, name string) *types.Package {
+func NewPackage(path, name string) *Package {
 	if len(path) == 0 {
 		// do not create unnamed packages
 		return nil
@@ -37,11 +37,7 @@ func newPackage(path, name string) *types.Package {
 	if len(name) == 0 {
 		name = path[1+strings.LastIndexByte(path, '/'):]
 	}
-	return types.NewPackage(path, name)
-}
-
-func NewPackage(path, name string) *Package {
-	return (*Package)(newPackage(path, name))
+	return (*Package)(types.NewPackage(path, name))
 }
 
 func (pkg *Package) GoPackage() *types.Package {
