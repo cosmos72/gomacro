@@ -27,7 +27,7 @@ package fast
 import (
 	r "reflect"
 	. "github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 :import (
@@ -119,7 +119,7 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 	case r.Complex128:	{switchtag; complex128}
 	case r.String:		{switchtag; string}
 	default:
-		val := xt.Zero(e.Type)
+		val := xr.Zero(e.Type)
 		cachefun = func(*Env) r.Value {
 			return val
 		}

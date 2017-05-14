@@ -29,7 +29,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 :import (
@@ -210,7 +210,7 @@ import (
 }
 
 
-func (c *Comp) func2ret0(t xt.Type, m *funcMaker) func(*Env) r.Value {
+func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	targ0 := t.In(0)
 	targ1 := t.In(1)
 	karg0 := targ0.Kind()

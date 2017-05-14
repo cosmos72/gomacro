@@ -30,7 +30,7 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 :import (
@@ -780,7 +780,7 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 :macro exprzero(typ ast.Node) ast.Node {
 	if EvalType(typ) == nil {
 		return ~"{
-			zero := xt.Zero(t)
+			zero := xr.Zero(t)
 			x := funAsX1(x, nil)
 			fun = func(env *Env) r.Value {
 				x(env)
@@ -833,7 +833,7 @@ func (c *Comp) Andnot(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 func (c *Comp) exprZero(xe *Expr) *Expr {
 	if xe.Const() {
 		xe.ConstTo(xe.DefaultType())
-		return exprValue(xt.Zero(xe.Type).Interface())
+		return c.exprValue(xe.Type, xr.Zero(xe.Type).Interface())
 	}
 	t := xe.Type
 	k := t.Kind()

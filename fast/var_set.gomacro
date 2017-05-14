@@ -29,7 +29,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 :import (
@@ -209,13 +209,13 @@ import (
 }
 
 // varSetZero compiles 'variable = 0'
-func (c *Comp) varSetZero(upn int, index int, t xt.Type) {
-	zero := xt.Zero(t).Interface()
+func (c *Comp) varSetZero(upn int, index int, t xr.Type) {
+	zero := xr.Zero(t).Interface()
 	c.varSetConst(upn, index, t, zero)
 }
 
 // varSetConst compiles 'name = constant'
-func (c *Comp) varSetConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 	v := r.ValueOf(val)
 	rt := t.ReflectType()
 	if ValueType(v) == nil {
@@ -235,7 +235,7 @@ func (c *Comp) varSetConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varSetExpr compiles 'name = expression'
-func (c *Comp) varSetExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
 	rt := t.ReflectType()
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {

@@ -31,7 +31,6 @@ package fast
 
 import (
 	r "reflect"
-
 	. "github.com/cosmos72/gomacro/base"
 )
 
@@ -43,14 +42,14 @@ func callnret1(c *Call, maxdepth int) I {
 	}
 
 	kret := expr.Type.Out(0).Kind()
-	argfunsX1 := c.MakeArgfunsX1()
+	argfuns := c.MakeArgfuns()
 	var call I
 	switch kret {
 	case r.Bool:
 		call = func(env *Env) bool {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -60,8 +59,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Int:
 		call = func(env *Env) int {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -71,8 +70,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Int8:
 		call = func(env *Env) int8 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -82,8 +81,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Int16:
 		call = func(env *Env) int16 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -93,8 +92,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Int32:
 		call = func(env *Env) int32 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -104,8 +103,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Int64:
 		call = func(env *Env) int64 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -116,8 +115,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Uint:
 		call = func(env *Env) uint {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -128,8 +127,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Uint8:
 		call = func(env *Env) uint8 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -140,8 +139,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Uint16:
 		call = func(env *Env) uint16 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -152,8 +151,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Uint32:
 		call = func(env *Env) uint32 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -164,8 +163,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Uint64:
 		call = func(env *Env) uint64 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -176,8 +175,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Uintptr:
 		call = func(env *Env) uintptr {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -188,8 +187,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Float32:
 		call = func(env *Env) float32 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -200,8 +199,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Float64:
 		call = func(env *Env) float64 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -212,8 +211,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Complex64:
 		call = func(env *Env) complex64 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -224,8 +223,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.Complex128:
 		call = func(env *Env) complex128 {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -236,8 +235,8 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.String:
 		call = func(env *Env) string {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 
@@ -248,8 +247,8 @@ func callnret1(c *Call, maxdepth int) I {
 	default:
 		call = func(env *Env) r.Value {
 			funv := exprfun(env)
-			argv := make([]r.Value, len(argfunsX1))
-			for i, argfun := range argfunsX1 {
+			argv := make([]r.Value, len(argfuns))
+			for i, argfun := range argfuns {
 				argv[i] = argfun(env)
 			}
 

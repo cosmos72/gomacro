@@ -30,7 +30,7 @@ import (
 	"unsafe"
 
 	"github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 :import (
@@ -133,7 +133,7 @@ func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
 		c.Errorf("cannot take the address of %v", node.X)
 		return nil
 	} else {
-		return exprX1(xt.PtrTo(place.Type), place.Addr)
+		return exprX1(xr.PtrTo(place.Type), place.Addr)
 	}
 }
 
@@ -160,5 +160,5 @@ func (va *Var) Address(maxdepth int) *Expr {
 	case maxdepth-1: {addresses; -2}
 	case maxdepth:   {addresses; -3}
 	}
-	return &Expr{Lit: Lit{Type: r.PtrTo(va.Type)}, Fun: ret}
+	return &Expr{Lit: Lit{Type: xr.PtrTo(va.Type)}, Fun: ret}
 }

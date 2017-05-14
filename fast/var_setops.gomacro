@@ -30,7 +30,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
-	xt "github.com/cosmos72/gomacro/xtype"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 :import (
@@ -274,7 +274,7 @@ import (
 }
 
 // varAddConst compiles 'variable += constant'
-func (c *Comp) varAddConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 	if isLiteralNumber(val, 0) || val == "" {
 		return
 	}
@@ -282,12 +282,12 @@ func (c *Comp) varAddConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varAddExpr compiles 'variable += expression'
-func (c *Comp) varAddExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.ADD; {int; uint; float64; complex128; string; nil}
 }
 
 // varSubConst compiles 'variable -= constant'
-func (c *Comp) varSubConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 	if isLiteralNumber(val, 0) {
 		return
 	}
@@ -295,12 +295,12 @@ func (c *Comp) varSubConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varSubExpr compiles 'variable -= expression'
-func (c *Comp) varSubExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.SUB; {int; uint; float64; complex128; nil}
 }
 
 // varMulConst compiles 'variable *= constant'
-func (c *Comp) varMulConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 	if isLiteralNumber(val, 0) {
 		// variable *= 0 is equivalent to variable = 0
 		c.varSetZero(upn, index, t)
@@ -312,12 +312,12 @@ func (c *Comp) varMulConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varMulExpr compiles 'variable *= expression'
-func (c *Comp) varMulExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.MUL; {int; uint; float64; complex128; nil}
 }
 
 // varQuoConst compiles 'variable /= constant'
-func (c *Comp) varQuoConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 	if isLiteralNumber(val, 0) {
 		c.Errorf("division by %v <%v>", val, t)
 		return
@@ -328,12 +328,12 @@ func (c *Comp) varQuoConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varQuoExpr compiles 'variable /= expression'
-func (c *Comp) varQuoExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.QUO; {int; uint; float64; complex128; nil}
 }
 
 // varRemConst compiles 'variable %= constant'
-func (c *Comp) varRemConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, 0) {
 			c.Errorf("division by %v <%v>", val, t)
@@ -348,12 +348,12 @@ func (c *Comp) varRemConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varRemExpr compiles 'variable %= expression'
-func (c *Comp) varRemExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.REM; {int; uint; nil}
 }
 
 // varAndConst compiles 'variable &= constant'
-func (c *Comp) varAndConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
 			return
@@ -367,12 +367,12 @@ func (c *Comp) varAndConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varAndExpr compiles 'variable &= expression'
-func (c *Comp) varAndExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.AND; {int; uint; nil}
 }
 
 // varOrConst compiles 'variable |= constant'
-func (c *Comp) varOrConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		return
 	}
@@ -380,12 +380,12 @@ func (c *Comp) varOrConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varOrExpr compiles 'variable |= expression'
-func (c *Comp) varOrExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.OR; {int; uint; nil}
 }
 
 // varXorConst compiles 'variable ^= constant'
-func (c *Comp) varXorConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		return
 	}
@@ -393,12 +393,12 @@ func (c *Comp) varXorConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varXorExpr compiles 'variable ^= expression'
-func (c *Comp) varXorExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.XOR; {int; uint; nil}
 }
 
 // varAndnotConst compiles 'variable &^= constant'
-func (c *Comp) varAndnotConst(upn int, index int, t xt.Type, val I) {
+func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
 			// variable &^= -1 is equivalent to variable = 0
@@ -412,7 +412,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xt.Type, val I) {
 }
 
 // varAndnotExpr compiles 'variable &^= expression'
-func (c *Comp) varAndnotExpr(upn int, index int, t xt.Type, fun I) {
+func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.AND_NOT; {int; uint; nil}
 }
 
