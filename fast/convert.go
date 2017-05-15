@@ -28,6 +28,7 @@ import (
 	"go/ast"
 	r "reflect"
 
+	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -37,9 +38,14 @@ func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 	if e.Untyped() {
 		e.ConstTo(e.DefaultType())
 	}
+
 	if xr.SameType(e.Type, t) {
 		return e
-	} else if e.Type == nil || !e.Type.ConvertibleTo(t) {
+	} else if e.Type == nil && IsNillableKind(t.Kind()) {
+		e.Type = t
+		e.Value = xr.Zero(t).Interface()
+	} else if e.Type != nil && e.Type.ConvertibleTo(t) {
+	} else {
 		c.Errorf("cannot convert %v to %v: %v", e.Type, t, node)
 		return nil
 	}

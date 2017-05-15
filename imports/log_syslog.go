@@ -3,6 +3,7 @@
 
 // +build !plan9
 // +build !windows
+// +build !nacl
 
 package imports
 

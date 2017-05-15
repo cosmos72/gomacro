@@ -179,7 +179,7 @@ func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
 	}
 	var typestr string
 	if opts&OptShowEvalType != 0 {
-		typestr = fmt.Sprintf(" <%v>", st.toPrintable(vt))
+		typestr = fmt.Sprintf(" // %v", st.toPrintable(vt))
 	}
 	switch v.Kind() {
 	case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:

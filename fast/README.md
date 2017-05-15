@@ -22,6 +22,7 @@ The fast interpreter supports:
 * reading and writing struct fields, including embedded fields
 * slicing
 * type assertions and type conversions
+* interface definition (**only** definitions. interfaces cannot be implemented or used yet)
 * function declarations, including variadic functions
 * closures
 * transparent invocation of compiled functions from interpreter, and vice-versa
@@ -40,27 +41,46 @@ Missing features - you are welcome to contribute:
 * shifted assignment, i.e. operators <<= and >>=
 * for range (normal for is implemented)
 * type switch
+* interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
 * method definition
 * method call
-* interface definition
 * conversion from/to interpreted interfaces
 * defer and recover
 * macro definition
 * ~quasiquote, ~unquote, ~unquote_splice
 
 Current limitations:
-* no distinction between named and unnamed types created by interpreted code.
-  For the interpreter, `struct { A, B int }` and `type Pair struct { A, B int }`
-  are exactly the same type. This has subtle consequences, including the risk
-  that two different packages define the same type and overwrite each other's methods.
+* named types declared by interpreted code are approximated.
+  Inside the interpreter they look and behave correctly, but if you pass them to compiled code,
+  the type is actually unnamed.
 
-  The reason for such limitation is simple: the interpreter uses `reflect.StructOf()`
-  to define new types, which can only create unnamed types.
-  The interpreter then defines named types as aliases for the underlying unnamed types.
+  For example, if interpreted code declares `type Pair struct { A, B int }`,
+  then passes a `Pair` to compiled code, it will be received as `struct { A, B int }`
 
-* cannot create recursive types, as for example `type List struct { First interface{}; Rest *List}`
+  The reason for such limitation is simple: the function `reflect.NamedOf()` does not exist,
+  so the interpreter uses `reflect.StructOf()` to define new types,
+  which can only create unnamed types.
+
+* recursive types declared by interpreted code are approximated (not implemented yet)
+  Inside the interpreter they look and behave correctly, but if you pass them to compiled code,
+  the type is unnamed (as above) and self-references are actually interface{}.
+
+  For example, if interpreted code declares `type List struct { First int; Rest *List }`
+  then passes a `List` to compiled code, it will be received as `struct { First int; Rest *interface{} }`
+
   The reason is the same as above: the interpreter uses `reflect.StructOf()` to define new types,
-  which cannot create recursive types
+  which cannot create recursive types.
+
+  Interestingly, this means the interpreter also accepts the following declaration,
+  which is rejected by Go compiler: `type List2 struct { First int; Rest List2 }`
+  Note that `Rest` is a `List2` **not** a pointer to `List2`
+
+* interfaces declared by interpreted code are emulated.
+  Inside the interpreter they look and behave correctly, but if you pass them to compiled code,
+  the type is actually a pointer to a struct containing a header and a lot of functions.
+
+  The reason is: the function `reflect.InterfaceOf()` does not exist,
+  so the interpreter has to emulate interfaces with `reflect.StructOf()` and a lot of bookkeeping
 
 * operators << and >> on untyped constants do not follow the exact type deduction rules.
   The implemented behavior is:

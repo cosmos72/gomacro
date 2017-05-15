@@ -92,14 +92,39 @@ func (tc *TestCase) classic(t *testing.T, env *classic.Env) {
 
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
 const fibonacci_source_string = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
-const insertion_sort_source_string = `func insertion_sort(v []int) {
-	var i, j, n int // optimization: group var declarations
-	for i, n = 1, len(v); i < n; i++ {
-		for j = i; j > 0 && v[j-1] > v[j]; j-- {
-			v[j-1], v[j] = v[j], v[j-1]
+const shellsort_source_string = `
+var shellshort_gaps = make([]int, 8)
+
+func shellsort_init() { // fast interpreter currently lacks composite literals
+	gaps := shellshort_gaps
+	gaps[0] = 701
+	gaps[1] = 301
+	gaps[2] = 132
+	gaps[3] = 57
+	gaps[4] = 23
+	gaps[5] = 10
+	gaps[6] = 4
+	gaps[7] = 1
+}
+
+shellsort_init()
+
+func shellsort(v []int) {
+	var i, j, n, gi, gapn, gap, temp int
+	n = len(v)
+	gapn = len(shellshort_gaps) // fast interpreter currently lacks for-range
+	for gi = 0; gi < gapn; gi++ {
+		gap = shellshort_gaps[gi]
+		for i = gap; i < n; i++ {
+			temp = v[i]
+			for j = i; j >= gap && v[j-gap] > temp; j -= gap {
+				v[j] = v[j-gap]
+			}
+			v[j] = temp
 		}
 	}
-}`
+}
+`
 const switch_source_string = `func bigswitch(n int) int {
 	for i := 0; i < 1000; i++ {
 		switch n&15 {

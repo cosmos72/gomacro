@@ -113,6 +113,9 @@ The intepreter supports:
 
 Some features are still missing:
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
+* extracting methods from types. For example `time.Duration.String` should return a `func(time.Duration) string`
+  but currently gives an error.
+  Instead extracting methods from objects is supported: `time.Duration(1s).String` correctly returns a func() string
 * goto
 * named return values
 * history/readline (rlwrap does the job in most cases)

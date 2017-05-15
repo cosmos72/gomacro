@@ -173,15 +173,28 @@ func (cfg *Cache) addmethods(t Type, rtype reflect.Type) Type {
 	if !tm.Named() {
 		errorf("cannot add methods to unnamed type %v", t)
 	}
-	if tm.NumMethod() != 0 {
+	xt := &tm[0]
+	if xt.methods != nil {
 		// prevent another infinite recursion: Type.AddMethod() may reference the type itself in its methods
 		// debugf("NOT adding again %d methods to %v", n, tm)
 	} else {
 		// debugf("adding %d methods to %v", n, tm)
+		xt.methods = make([]reflect.Value, 0, n)
+		nilv := reflect.Value{}
 		for i := 0; i < n; i++ {
 			rmethod := rtype.Method(i)
 			signature := cfg.FromReflectType(rmethod.Type)
+			n1 := tm.NumMethod()
 			tm.AddMethod(rmethod.Name, signature)
+			n2 := tm.NumMethod()
+			if n1 == n2 {
+				// method was already present
+				continue
+			}
+			for n1 >= len(xt.methods) {
+				xt.methods = append(xt.methods, nilv)
+			}
+			xt.methods[n1] = rmethod.Func
 		}
 	}
 	return t

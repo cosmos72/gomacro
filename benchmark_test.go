@@ -206,53 +206,60 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 	}
 }
 
-// ---------------------- arrays: insertion_sort ------------------------
+// ---------------------- arrays: shellsort ------------------------
 
-func insertion_sort(v []int) {
-	var i, j, n int
-	for i, n = 1, len(v); i < n; i++ {
-		for j = i; j > 0 && v[j-1] > v[j]; j-- {
-			v[j-1], v[j] = v[j], v[j-1]
+var shellshort_gaps = []int{701, 301, 132, 57, 23, 10, 4, 1}
+
+func shellsort(v []int) {
+	var i, j, n, gap, temp int
+	n = len(v)
+	for _, gap = range shellshort_gaps {
+		for i = gap; i < n; i++ {
+			temp = v[i]
+			for j = i; j >= gap && v[j-gap] > temp; j -= gap {
+				v[j] = v[j-gap]
+			}
+			v[j] = temp
 		}
 	}
 }
 
-var insertion_sort_data = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
+var sort_data = []int{97, 89, 3, 4, 7, 0, 36, 79, 1, 12, 2, 15, 70, 18, 35, 70, 15, 73}
 
-func BenchmarkInsertionSortCompiler(b *testing.B) {
-	benchmark_insertion_sort(b, insertion_sort)
+func BenchmarkShellSortCompiler(b *testing.B) {
+	benchmark_sort(b, shellsort)
 }
 
-func BenchmarkInsertionSortFast(b *testing.B) {
+func BenchmarkShellSortFast(b *testing.B) {
 	ce := fast.New()
-	ce.Eval(insertion_sort_source_string)
+	ce.Eval(shellsort_source_string)
 
-	// extract the function insertion_sort()
-	insertion_sort := ce.ValueOf("insertion_sort").Interface().(func([]int))
+	// extract the function shellsort()
+	sort := ce.ValueOf("shellsort").Interface().(func([]int))
 
-	benchmark_insertion_sort(b, insertion_sort)
+	benchmark_sort(b, sort)
 }
 
-func BenchmarkInsertionSortClassic(b *testing.B) {
+func BenchmarkShellSortClassic(b *testing.B) {
 	env := classic.New()
-	env.Eval(insertion_sort_source_string)
+	env.Eval(shellsort_source_string)
 
-	// extract the function insertion_sort()
-	insertion_sort := env.ValueOf("insertion_sort").Interface().(func([]int))
+	// extract the function shellsort()
+	sort := env.ValueOf("shellsort").Interface().(func([]int))
 
-	benchmark_insertion_sort(b, insertion_sort)
+	benchmark_sort(b, sort)
 }
 
-func benchmark_insertion_sort(b *testing.B, insertion_sort func([]int)) {
-	// call insertion_sort once for warm-up
-	v := make([]int, len(insertion_sort_data))
-	copy(v, insertion_sort_data)
-	insertion_sort(v)
+func benchmark_sort(b *testing.B, sort func([]int)) {
+	// call sort once for warm-up
+	v := make([]int, len(sort_data))
+	copy(v, sort_data)
+	sort(v)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		copy(v, insertion_sort_data)
-		insertion_sort(v)
+		copy(v, sort_data)
+		sort(v)
 	}
 	if verbose {
 		fmt.Println(v)
