@@ -1885,7 +1885,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.ADD, t)
 
 	}
 	c.Code.Append(ret)
@@ -3576,7 +3576,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SUB, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.SUB, t)
 
 	}
 	c.Code.Append(ret)
@@ -5271,7 +5271,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.MUL, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.MUL, t)
 
 	}
 	c.Code.Append(ret)
@@ -5307,7 +5307,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 	}
 
 	shift := integerLen(y) - 1
-	var stmt Stmt
+	var ret Stmt
 
 	switch t.Kind() {
 	case r.Int:
@@ -5319,7 +5319,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -5333,7 +5333,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -5356,7 +5356,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -5371,7 +5371,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -5394,7 +5394,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -5409,7 +5409,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -5432,7 +5432,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
@@ -5450,7 +5450,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
 							o = o.Outer
@@ -5476,7 +5476,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -5490,7 +5490,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -5517,7 +5517,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int8(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -5531,7 +5531,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -5554,7 +5554,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int8(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int8)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -5569,7 +5569,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int8)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -5592,7 +5592,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int8(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int8)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -5607,7 +5607,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int8)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -5630,7 +5630,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int8(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
@@ -5648,7 +5648,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
 							o = o.Outer
@@ -5674,7 +5674,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int8(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -5688,7 +5688,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -5715,7 +5715,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int16(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -5729,7 +5729,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -5752,7 +5752,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int16(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int16)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -5767,7 +5767,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int16)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -5790,7 +5790,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int16(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int16)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -5805,7 +5805,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int16)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -5828,7 +5828,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int16(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
@@ -5846,7 +5846,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
 							o = o.Outer
@@ -5872,7 +5872,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int16(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -5886,7 +5886,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -5913,7 +5913,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int32(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -5927,7 +5927,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -5950,7 +5950,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int32(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int32)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -5965,7 +5965,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int32)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -5988,7 +5988,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int32(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int32)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -6003,7 +6003,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int32)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -6026,7 +6026,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int32(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
@@ -6044,7 +6044,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
 							o = o.Outer
@@ -6070,7 +6070,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int32(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -6084,7 +6084,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -6111,7 +6111,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int64(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -6125,7 +6125,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
@@ -6148,7 +6148,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int64(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int64)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -6163,7 +6163,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int64)(unsafe.Pointer(&env.
 							Outer.IntBinds[index]))
@@ -6186,7 +6186,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int64(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int64)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -6201,7 +6201,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int64)(unsafe.Pointer(&env.
 							Outer.Outer.IntBinds[index]))
@@ -6224,7 +6224,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int64(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
@@ -6242,7 +6242,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
 							o = o.Outer
@@ -6268,7 +6268,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 
 					int64(y - 1)
 				if ypositive {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -6282,7 +6282,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 						return env.Code[env.IP], env
 					}
 				} else {
-					stmt = func(env *Env) (Stmt, *Env) {
+					ret = func(env *Env) (Stmt, *Env) {
 
 						addr := (*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
 
@@ -6304,14 +6304,14 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 		switch upn {
 		case 0:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		case 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.
 					Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6319,7 +6319,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case 2:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.
 					Outer.Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6327,7 +6327,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		default:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 
 				o := env.Outer.Outer.Outer
 				for i := 3; i < upn; i++ {
@@ -6339,7 +6339,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case c.Depth - 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
@@ -6350,14 +6350,14 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 		switch upn {
 		case 0:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint8)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		case 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint8)(unsafe.Pointer(&env.
 					Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6365,7 +6365,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case 2:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint8)(unsafe.Pointer(&env.
 					Outer.Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6373,7 +6373,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		default:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 
 				o := env.Outer.Outer.Outer
 				for i := 3; i < upn; i++ {
@@ -6385,7 +6385,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case c.Depth - 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
@@ -6396,14 +6396,14 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 		switch upn {
 		case 0:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		case 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.
 					Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6411,7 +6411,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case 2:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.
 					Outer.Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6419,7 +6419,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		default:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 
 				o := env.Outer.Outer.Outer
 				for i := 3; i < upn; i++ {
@@ -6431,7 +6431,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case c.Depth - 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
@@ -6442,14 +6442,14 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 		switch upn {
 		case 0:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint32)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		case 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint32)(unsafe.Pointer(&env.
 					Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6457,7 +6457,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case 2:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint32)(unsafe.Pointer(&env.
 					Outer.Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6465,7 +6465,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		default:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 
 				o := env.Outer.Outer.Outer
 				for i := 3; i < upn; i++ {
@@ -6477,7 +6477,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case c.Depth - 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
@@ -6488,14 +6488,14 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 		switch upn {
 		case 0:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				env.IntBinds[index] >>= shift
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		case 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				env.
 					Outer.IntBinds[index] >>= shift
 				env.IP++
@@ -6503,7 +6503,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case 2:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				env.
 					Outer.Outer.IntBinds[index] >>= shift
 				env.IP++
@@ -6511,7 +6511,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		default:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 
 				o := env.Outer.Outer.Outer
 				for i := 3; i < upn; i++ {
@@ -6524,7 +6524,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case c.Depth - 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 
 				env.ThreadGlobals.FileEnv.IntBinds[index] >>= shift
 				env.IP++
@@ -6536,14 +6536,14 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 		switch upn {
 		case 0:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uintptr)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		case 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uintptr)(unsafe.Pointer(&env.
 					Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6551,7 +6551,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case 2:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uintptr)(unsafe.Pointer(&env.
 					Outer.Outer.IntBinds[index])) >>= shift
 				env.IP++
@@ -6559,7 +6559,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		default:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 
 				o := env.Outer.Outer.Outer
 				for i := 3; i < upn; i++ {
@@ -6571,7 +6571,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 			}
 		case c.Depth - 1:
 
-			stmt = func(env *Env) (Stmt, *Env) {
+			ret = func(env *Env) (Stmt, *Env) {
 				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
 				env.IP++
 				return env.Code[env.IP], env
@@ -6579,11 +6579,11 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 		}
 
 	}
-	if stmt == nil {
+	if ret == nil {
 		return false
 	}
 
-	c.Code.Append(stmt)
+	c.Code.Append(ret)
 	return true
 }
 func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
@@ -8272,7 +8272,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.QUO, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.QUO, t)
 
 	}
 	c.Code.Append(ret)
@@ -9482,7 +9482,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.REM, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.REM, t)
 
 	}
 	c.Code.Append(ret)
@@ -10691,7 +10691,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.AND, t)
 
 	}
 	c.Code.Append(ret)
@@ -11894,7 +11894,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.OR, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.OR, t)
 
 	}
 	c.Code.Append(ret)
@@ -13097,7 +13097,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.XOR, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.XOR, t)
 
 	}
 	c.Code.Append(ret)
@@ -14306,17 +14306,37 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 			}
 		}
 	default:
-		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, t, funTypeOuts(fun))
+		c.Errorf(`invalid operator %s= on <%v>`, token.AND_NOT, t)
 
 	}
 	c.Code.Append(ret)
 }
 func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	t := va.Type
-	if init.Const() {
-		init.ConstTo(t)
-	} else if init.Type == nil || !init.Type.AssignableTo(t) {
-		c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
+	var ok, shift bool
+	switch op {
+	case token.SHL, token.SHL_ASSIGN, token.SHR, token.SHR_ASSIGN:
+		shift = true
+		if init.Untyped() {
+			init.ConstTo(xr.TypeOfUint64)
+			ok = true
+		} else {
+			ok = init.Type != nil && KindToCategory(init.Type.Kind()) == r.Uint
+		}
+
+	default:
+		if init.Const() {
+			init.ConstTo(t)
+			ok = true
+		} else if init.Type == nil {
+			ok = op == token.ASSIGN && IsNillableKind(t.Kind())
+		} else {
+			ok = init.Type.AssignableTo(t)
+		}
+
+	}
+	if !ok {
+		c.Errorf("incompatible types in assignment: %v %s %v", t, op, init.Type)
 		return
 	}
 	class := va.Desc.Class()
@@ -14344,7 +14364,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		if v == None || v == Nil {
 			v = r.Zero(rt)
 			val = v.Interface()
-		} else if v.Type() != rt {
+		} else if v.Type() != rt && !shift {
 			v = v.Convert(rt)
 			val = v.Interface()
 		}
@@ -14366,11 +14386,15 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		case token.OR, token.OR_ASSIGN:
 			c.varOrConst(upn, index, t, val)
 		case token.XOR, token.XOR_ASSIGN:
-			c.varAndConst(upn, index, t, val)
+			c.varXorConst(upn, index, t, val)
+		case token.SHL, token.SHL_ASSIGN:
+			c.varShlConst(upn, index, t, val)
+		case token.SHR, token.SHR_ASSIGN:
+			c.varShrConst(upn, index, t, val)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
 			c.varAndnotConst(upn, index, t, val)
 		default:
-			c.Errorf("operator %s is not implemented", op)
+			c.Errorf("invalid operator %s", op)
 		}
 	} else {
 		fun := init.Fun
@@ -14392,11 +14416,15 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		case token.OR, token.OR_ASSIGN:
 			c.varOrExpr(upn, index, t, fun)
 		case token.XOR, token.XOR_ASSIGN:
-			c.varAndExpr(upn, index, t, fun)
+			c.varXorExpr(upn, index, t, fun)
+		case token.SHL, token.SHL_ASSIGN:
+			c.varShlExpr(upn, index, t, fun)
+		case token.SHR, token.SHR_ASSIGN:
+			c.varShrExpr(upn, index, t, fun)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
 			c.varAndnotExpr(upn, index, t, fun)
 		default:
-			c.Errorf("operator %s is not implemented", op)
+			c.Errorf("invalid operator %s", op)
 		}
 	}
 }

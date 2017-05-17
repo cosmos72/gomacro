@@ -32,17 +32,6 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// SetPlaceValue compiles 'place = value' where value is a reflect.Value passed at runtime.
-// Used to assign places with the result of multi-valued expressions
-// Also handy for applications
-func (c *Comp) SetPlaceValue(place *Place) func(*Env, r.Value) {
-	if place.IsVar() {
-		return c.SetVarValue(&place.Var)
-	}
-	c.Errorf("unimplemented assignment to place with runtime value (only assignment to variables with runtime value is currently implemented)")
-	return nil
-}
-
 // SetVarValue compiles 'name = value' where value is a reflect.Value passed at runtime.
 // Used to assign variables with the result of multi-valued expressions
 // Also handy for applications

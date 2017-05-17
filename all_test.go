@@ -337,6 +337,9 @@ var testcases = []TestCase{
 	TestCase{A, "rem_1", "v3 = 12; v3 %= 7; v3", uint16(5), nil},
 	TestCase{A, "and_1", "v3 &= 9;          v3", uint16(1), nil},
 
+	TestCase{A, "shift_1", "v3 <<= 7;       v3", uint16(128), nil},
+	TestCase{A, "shift_2", "v3 >>= (v3>>5); v3", uint16(128 >> (128 >> 5)), nil},
+
 	TestCase{A, "if_1", "v2 = 1; if v2 < 1 { v2 = v2-1 } else { v2 = v2+1 }; v2", uint8(2), nil},
 	TestCase{A, "if_2", "if v2 < 5 { v2 = v2+2 } else { v2 = v2-2 }; v2", uint8(4), nil},
 	TestCase{A, "for_1", "var i, j, k int; for i=1; i<=2; i=i+1 { if i<2 {j=i} else {k=i} }; i", 3, nil},

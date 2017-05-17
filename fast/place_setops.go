@@ -580,7 +580,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -842,7 +842,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.ADD, place.Type, funTypeOut(fun))
 
 		}
 	}
@@ -1353,7 +1353,7 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SUB, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SUB, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -1599,7 +1599,7 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SUB, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SUB, place.Type, funTypeOut(fun))
 
 		}
 	}
@@ -2114,7 +2114,7 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.MUL, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.MUL, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -2360,7 +2360,7 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.MUL, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.MUL, place.Type, funTypeOut(fun))
 
 		}
 	}
@@ -2870,7 +2870,7 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.QUO, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.QUO, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -3116,7 +3116,7 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.QUO, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.QUO, place.Type, funTypeOut(fun))
 
 		}
 	}
@@ -3497,7 +3497,7 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.REM, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.REM, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -3679,7 +3679,7 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.REM, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.REM, place.Type, funTypeOut(fun))
 
 		}
 	}
@@ -4060,7 +4060,7 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -4242,7 +4242,7 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND, place.Type, funTypeOut(fun))
 
 		}
 	}
@@ -4617,7 +4617,7 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.OR, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.OR, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -4799,7 +4799,7 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.OR, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.OR, place.Type, funTypeOut(fun))
 
 		}
 	}
@@ -5174,7 +5174,7 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.XOR, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.XOR, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -5356,7 +5356,7 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.XOR, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.XOR, place.Type, funTypeOut(fun))
 
 		}
 	}
@@ -5737,7 +5737,7 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, place.Type, funTypeOut(fun))
 
 		}
 	} else {
@@ -5919,7 +5919,7 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 				return env.Code[env.IP], env
 			}
 		default:
-			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, place.Type, funTypeOuts(fun))
+			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.AND_NOT, place.Type, funTypeOut(fun))
 
 		}
 	}

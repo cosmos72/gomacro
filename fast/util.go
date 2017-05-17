@@ -1228,6 +1228,15 @@ func funAsStmt(fun I) Stmt {
 	return ret
 }
 
+// funTypeOut returns the first return type of given function
+func funTypeOut(fun I) r.Type {
+	rt := r.TypeOf(fun)
+	if rt == nil || rt.Kind() != r.Func || rt.NumOut() == 0 {
+		return nil
+	}
+	return rt.Out(0)
+}
+
 // funTypeOuts returns the return types of given function
 func funTypeOuts(fun I) []r.Type {
 	rt := r.TypeOf(fun)

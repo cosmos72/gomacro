@@ -17,12 +17,12 @@ The fast interpreter supports:
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
 * constant, variable and type declarations (including structs and untyped constants)
 * unary and binary operators
-* assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= (unimplemented: <<= and >>=)
+* assignment, i.e. operators = += -= *= /= %= &= |= ^= <<= >>= &^=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs (unimplemented: composite literals)
 * reading and writing struct fields, including embedded fields
 * slicing
 * type assertions and type conversions
-* interface definition (**only** definitions. interfaces cannot be implemented or used yet)
+* interface declarations (**only** declarations. interfaces cannot be implemented or used yet)
 * function declarations, including variadic functions
 * closures
 * transparent invocation of compiled functions from interpreter, and vice-versa
@@ -38,8 +38,7 @@ Missing features - you are welcome to contribute:
 * return foo() where foo() returns multiple values
 * bar(foo()) where foo() returns multiple values
 * x,y = foo() where foo() returns multiple values
-* shifted assignment, i.e. operators <<= and >>=
-* for range (normal for is implemented)
+* for-range (normal for is implemented)
 * type switch
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
 * method definition

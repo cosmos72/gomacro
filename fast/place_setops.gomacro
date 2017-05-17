@@ -308,7 +308,7 @@ import (
 	mapcaselist := make([]ast.Stmt, len(typelist))
 	for i, typ := range typelist {
 		if EvalType(typ) == nil {
-			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, place.Type, funTypeOuts(fun))}
+			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, place.Type, funTypeOut(fun))}
 			mapcaselist[i] = caselist[i]
 		} else {
 			caselist[i] = ~"{~typecase func(*Env) ~,typ:

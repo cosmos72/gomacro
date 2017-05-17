@@ -130,7 +130,7 @@ import (
 	var t r.Type = EvalType(typ)
 	var bind ast.Node
 	var loop *ast.BlockStmt
-	
+
 	if upn >= 0 {
 		bind = ~'{env}
 		for i := 0; i < upn; i++ {
@@ -267,7 +267,7 @@ import (
 	caselist := make([]ast.Stmt, len(typelist))
 	for i, typ := range typelist {
 		if EvalType(typ) == nil {
-			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= between <%v> and <%v>`, ~,opnode, t, funTypeOuts(fun))}
+			caselist[i] = ~"{default: c.Errorf(`invalid operator %s= on <%v>`, ~,opnode, t)}
 		} else {
 			caselist[i] = ~"{~typecase func(*Env) ~,typ: setplace_depth_expr; ~,opnode; ~,typ}
 		}
@@ -363,7 +363,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 :macro place_quopow2_u(depth, typ ast.Node) ast.Node {
 	var t r.Type = EvalType(typ)
 	loop, bind := fgetplace(depth, typ)
-	
+
 	if t.Kind() == r.Uint64 {
 		bind = ~"{~,bind . IntBinds[index]}
 	} else {
@@ -378,7 +378,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 		}
 	}
 }
-			
+
 :macro place_depth_quopow2(typ ast.Node) ast.Node {
 	return ~"{
 		switch upn {
@@ -439,7 +439,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 	// see quoPow2() in binary_ops.go for more details
 	shift := integerLen(y) - 1
 	var ret Stmt
-		
+
 	switch t.Kind() {
 	case r.Int:     {place_depth_quopow2; int}
 	case r.Int8:    {place_depth_quopow2; int8}
@@ -562,10 +562,28 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 // 'variable op constant' and 'variable op expression'
 func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	t := va.Type
-	if init.Const() {
-		init.ConstTo(t)
-	} else if init.Type == nil || !init.Type.AssignableTo(t) {
-		c.Errorf("incompatible types in assignment: <%v> %s <%v>", t, op, init.Type)
+	var ok, shift bool
+	switch op {
+	case token.SHL, token.SHL_ASSIGN, token.SHR, token.SHR_ASSIGN:
+		shift = true
+		if init.Untyped() {
+			init.ConstTo(xr.TypeOfUint64)
+			ok = true
+		} else {
+			ok = init.Type != nil && KindToCategory(init.Type.Kind()) == r.Uint
+		}
+	default:
+		if init.Const() {
+			init.ConstTo(t)
+			ok = true
+		} else if init.Type == nil {
+			ok = op == token.ASSIGN && IsNillableKind(t.Kind())
+		} else {
+			ok = init.Type.AssignableTo(t)
+		}
+	}
+	if !ok {
+		c.Errorf("incompatible types in assignment: %v %s %v", t, op, init.Type)
 		return
 	}
 	class := va.Desc.Class()
@@ -593,7 +611,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		if v == None || v == Nil {
 			v = r.Zero(rt)
 			val = v.Interface()
-		} else if v.Type() != rt {
+		} else if v.Type() != rt && !shift {
 			v = v.Convert(rt)
 			val = v.Interface()
 		}
@@ -615,11 +633,15 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		case token.OR, token.OR_ASSIGN:
 			c.varOrConst(upn, index, t, val)
 		case token.XOR, token.XOR_ASSIGN:
-			c.varAndConst(upn, index, t, val)
+			c.varXorConst(upn, index, t, val)
+		case token.SHL, token.SHL_ASSIGN:
+			c.varShlConst(upn, index, t, val)
+		case token.SHR, token.SHR_ASSIGN:
+			c.varShrConst(upn, index, t, val)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
 			c.varAndnotConst(upn, index, t, val)
 		default:
-			c.Errorf("operator %s is not implemented", op)
+			c.Errorf("invalid operator %s", op)
 		}
 	} else {
 		fun := init.Fun
@@ -641,11 +663,15 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		case token.OR, token.OR_ASSIGN:
 			c.varOrExpr(upn, index, t, fun)
 		case token.XOR, token.XOR_ASSIGN:
-			c.varAndExpr(upn, index, t, fun)
+			c.varXorExpr(upn, index, t, fun)
+		case token.SHL, token.SHL_ASSIGN:
+			c.varShlExpr(upn, index, t, fun)
+		case token.SHR, token.SHR_ASSIGN:
+			c.varShrExpr(upn, index, t, fun)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
 			c.varAndnotExpr(upn, index, t, fun)
 		default:
-			c.Errorf("operator %s is not implemented", op)
+			c.Errorf("invalid operator %s", op)
 		}
 	}
 }
