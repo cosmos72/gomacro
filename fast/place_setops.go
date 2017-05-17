@@ -2368,11 +2368,7 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 	c.Code.Append(ret)
 }
 func (c *Comp) placeQuoConst(place *Place, val I) {
-	if isLiteralNumber(val, 0) {
-		c.Errorf("division by %v <%v>", val, place.Type)
-		return
-	} else if isLiteralNumber(val, 1) {
-		c.placeForSideEffects(place)
+	if c.placeQuoPow2(place, val) {
 		return
 	}
 

@@ -124,14 +124,13 @@ import (
 	return op
 }
 
-:func fsetplace(opnode, depth, typ, expr, exprv ast.Node) ast.Node {
+:func fgetplace(depth, typ ast.Node) (/*loop*/ *ast.BlockStmt, /*bind*/ ast.Node) {
 	// the return type of Eval() and EvalType() varies. better check early.
 	var upn int = Eval(depth)
 	var t r.Type = EvalType(typ)
-	var loop, bind ast.Node
-	var op token.Token = Eval(opnode)
-	opset := op_to_assign(op)
-
+	var bind ast.Node
+	var loop *ast.BlockStmt
+	
 	if upn >= 0 {
 		bind = ~'{env}
 		for i := 0; i < upn; i++ {
@@ -150,6 +149,15 @@ import (
 		}
 		bind = ~'o
 	}
+	return loop, bind
+}
+
+:func fsetplace(opnode, depth, typ, expr, exprv ast.Node) ast.Node {
+	loop, bind := fgetplace(depth, typ)
+	// the return type of Eval() and EvalType() varies. better check early.
+	var t r.Type = EvalType(typ)
+	var op token.Token = Eval(opnode)
+	opset := op_to_assign(op)
 
 	switch t.Kind() {
 		case r.Complex128:
@@ -316,12 +324,145 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 	setplaces_depth_expr; token.MUL; {int; uint; float64; complex128; nil}
 }
 
-// varQuoConst compiles 'variable /= constant'
-func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
+:macro place_quopow2(depth, typ ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	loop, bind := fgetplace(depth, typ)
+
+	addr := ~"{(*~,typ)(unsafe.Pointer(& ~,bind .IntBinds[index]))}
+
+	return ~"{
+		y_1 := ~,typ(y - 1) // cannot overflow, y is the abs() value of a non-zero ~,typ
+		if ypositive {
+			ret = func(env *Env) (Stmt, *Env) {
+				~,@loop
+				addr := ~,addr
+				n := *addr
+				if n < 0 {
+					n += y_1
+				}
+				*addr = n >> shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		} else {
+			ret = func(env *Env) (Stmt, *Env) {
+				~,@loop
+				addr := ~,addr
+				n := *addr
+				if n < 0 {
+					n += y_1
+				}
+				*addr = -(n >> shift)
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+	}
+}
+
+:macro place_quopow2_u(depth, typ ast.Node) ast.Node {
+	var t r.Type = EvalType(typ)
+	loop, bind := fgetplace(depth, typ)
+	
+	if t.Kind() == r.Uint64 {
+		bind = ~"{~,bind . IntBinds[index]}
+	} else {
+		bind = ~"{*(*~,typ)(unsafe.Pointer(& ~,bind .IntBinds[index]))}
+	}
+	return ~"{
+		ret = func(env *Env) (Stmt, *Env) {
+			~,@loop
+			~,bind >>= shift
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	}
+}
+			
+:macro place_depth_quopow2(typ ast.Node) ast.Node {
+	return ~"{
+		switch upn {
+			case 0:			place_quopow2; 0; ~,typ
+			case 1:			place_quopow2; 1; ~,typ
+			case 2:			place_quopow2; 2; ~,typ
+			default:        place_quopow2;-1; ~,typ
+			case c.Depth-1: place_quopow2;-2; ~,typ
+		}
+	}
+}
+
+:macro place_depth_quopow2_u(typ ast.Node) ast.Node {
+	return ~"{
+		switch upn {
+			case 0:			place_quopow2_u; 0; ~,typ
+			case 1:			place_quopow2_u; 1; ~,typ
+			case 2:			place_quopow2_u; 2; ~,typ
+			default:        place_quopow2_u;-1; ~,typ
+			case c.Depth-1: place_quopow2_u;-2; ~,typ
+		}
+	}
+}
+
+// varQuoPow2 compiles 'variable /= constant-power-of-two'
+func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 	if isLiteralNumber(val, 0) {
 		c.Errorf("division by %v <%v>", val, t)
-		return
+		return false
 	} else if isLiteralNumber(val, 1) {
+		return true // nothing to do
+	}
+	ypositive := true
+	yv := r.ValueOf(val)
+	var y uint64
+	switch KindToCategory(yv.Kind()) {
+	case r.Int:
+		sy := yv.Int()
+		if sy < 0 {
+			ypositive = false
+			y = uint64(-sy)
+		} else {
+			y = uint64(sy)
+		}
+	case r.Uint:
+		y = yv.Uint()
+	default:
+		// floating point or complex division
+		return false
+	}
+	if !isPowerOfTwo(y) {
+		// division by multiplication and shift not implemented...
+		return false
+	}
+	// attention: xe / (2**n) and xe >> n have different truncation rules for negative xe:
+	//    quotient / truncates toward zero
+	//    right shift >> truncates toward negative infinity
+	// see quoPow2() in binary_ops.go for more details
+	shift := integerLen(y) - 1
+	var ret Stmt
+		
+	switch t.Kind() {
+	case r.Int:     {place_depth_quopow2; int}
+	case r.Int8:    {place_depth_quopow2; int8}
+	case r.Int16:   {place_depth_quopow2; int16}
+	case r.Int32:   {place_depth_quopow2; int32}
+	case r.Int64:   {place_depth_quopow2; int64}
+	case r.Uint:    {place_depth_quopow2_u; uint}
+	case r.Uint8:   {place_depth_quopow2_u; uint8}
+	case r.Uint16:  {place_depth_quopow2_u; uint16}
+	case r.Uint32:  {place_depth_quopow2_u; uint32}
+	case r.Uint64:  {place_depth_quopow2_u; uint64}
+	case r.Uintptr: {place_depth_quopow2_u; uintptr}
+	}
+	if ret == nil {
+		return false
+	}
+	c.Code.Append(ret)
+	return true
+}
+
+// varQuoConst compiles 'variable /= constant'
+func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
+	if c.varQuoPow2(upn, index, t, val) {
 		return
 	}
 	setplaces_depth_const; token.QUO; {int; uint; float64; complex128; nil}

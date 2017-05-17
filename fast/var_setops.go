@@ -85,9 +85,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -141,9 +139,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -197,9 +193,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -253,9 +247,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -309,9 +301,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -365,9 +355,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -421,9 +409,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -477,9 +463,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -533,9 +517,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -590,8 +572,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] += val
+					o.IntBinds[index] += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -645,9 +626,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -703,9 +682,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*float32)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*float32)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -759,9 +736,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*float64)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*float64)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -817,9 +792,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*complex64)(unsafe.Pointer(&o.
-						IntBinds[index])) += val
+					*(*complex64)(unsafe.Pointer(&o.IntBinds[index])) += val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -888,10 +861,10 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
 					{
-						lhs := o.
-							Binds[index]
+						lhs :=
+
+							o.Binds[index]
 						lhs.SetComplex(lhs.Complex() +
 							val,
 						)
@@ -904,8 +877,9 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					{
-						lhs := env.ThreadGlobals.FileEnv.
-							Binds[index]
+						lhs :=
+
+							env.ThreadGlobals.FileEnv.Binds[index]
 						lhs.SetComplex(lhs.Complex() +
 							val,
 						)
@@ -969,10 +943,10 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
 					{
-						lhs := o.
-							Binds[index]
+						lhs :=
+
+							o.Binds[index]
 						lhs.SetString(lhs.String() +
 							val,
 						)
@@ -1044,9 +1018,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1099,9 +1071,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1154,9 +1124,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1209,9 +1177,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1264,9 +1230,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1319,9 +1283,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1374,9 +1336,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1429,9 +1389,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1484,9 +1442,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1540,8 +1496,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] += fun(env)
+				o.IntBinds[index] += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1594,9 +1549,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1649,9 +1602,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*float32)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*float32)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1704,9 +1655,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*float64)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*float64)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1759,9 +1708,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*complex64)(unsafe.Pointer(&o.
-					IntBinds[index])) += fun(env)
+				*(*complex64)(unsafe.Pointer(&o.IntBinds[index])) += fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -1829,10 +1776,10 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
 				{
-					lhs := o.
-						Binds[index]
+					lhs :=
+
+						o.Binds[index]
 					lhs.SetComplex(lhs.Complex() +
 						fun(env),
 					)
@@ -1845,8 +1792,9 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				{
-					lhs := env.ThreadGlobals.FileEnv.
-						Binds[index]
+					lhs :=
+
+						env.ThreadGlobals.FileEnv.Binds[index]
 					lhs.SetComplex(lhs.Complex() +
 						fun(env),
 					)
@@ -1909,10 +1857,10 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
 				{
-					lhs := o.
-						Binds[index]
+					lhs :=
+
+						o.Binds[index]
 					lhs.SetString(lhs.String() +
 						fun(env),
 					)
@@ -1989,9 +1937,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2045,9 +1991,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2101,9 +2045,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2157,9 +2099,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2213,9 +2153,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2269,9 +2207,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2325,9 +2261,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2381,9 +2315,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2437,9 +2369,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2494,8 +2424,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] -= val
+					o.IntBinds[index] -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2549,9 +2478,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2607,9 +2534,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*float32)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*float32)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2663,9 +2588,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*float64)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*float64)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2721,9 +2644,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*complex64)(unsafe.Pointer(&o.
-						IntBinds[index])) -= val
+					*(*complex64)(unsafe.Pointer(&o.IntBinds[index])) -= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -2792,10 +2713,10 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
 					{
-						lhs := o.
-							Binds[index]
+						lhs :=
+
+							o.Binds[index]
 						lhs.SetComplex(lhs.Complex() -
 							val,
 						)
@@ -2808,8 +2729,9 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					{
-						lhs := env.ThreadGlobals.FileEnv.
-							Binds[index]
+						lhs :=
+
+							env.ThreadGlobals.FileEnv.Binds[index]
 						lhs.SetComplex(lhs.Complex() -
 							val,
 						)
@@ -2867,9 +2789,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -2922,9 +2842,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -2977,9 +2895,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3032,9 +2948,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3087,9 +3001,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3142,9 +3054,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3197,9 +3107,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3252,9 +3160,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3307,9 +3213,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3363,8 +3267,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] -= fun(env)
+				o.IntBinds[index] -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3417,9 +3320,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3472,9 +3373,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*float32)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*float32)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3527,9 +3426,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*float64)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*float64)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3582,9 +3479,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*complex64)(unsafe.Pointer(&o.
-					IntBinds[index])) -= fun(env)
+				*(*complex64)(unsafe.Pointer(&o.IntBinds[index])) -= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -3652,10 +3547,10 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
 				{
-					lhs := o.
-						Binds[index]
+					lhs :=
+
+						o.Binds[index]
 					lhs.SetComplex(lhs.Complex() -
 						fun(env),
 					)
@@ -3668,8 +3563,9 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				{
-					lhs := env.ThreadGlobals.FileEnv.
-						Binds[index]
+					lhs :=
+
+						env.ThreadGlobals.FileEnv.Binds[index]
 					lhs.SetComplex(lhs.Complex() -
 						fun(env),
 					)
@@ -3736,9 +3632,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -3792,9 +3686,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -3848,9 +3740,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -3904,9 +3794,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -3960,9 +3848,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4016,9 +3902,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4072,9 +3956,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4128,9 +4010,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4184,9 +4064,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4241,8 +4119,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] *= val
+					o.IntBinds[index] *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4296,9 +4173,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4354,9 +4229,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*float32)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*float32)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4410,9 +4283,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*float64)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*float64)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4468,9 +4339,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*complex64)(unsafe.Pointer(&o.
-						IntBinds[index])) *= val
+					*(*complex64)(unsafe.Pointer(&o.IntBinds[index])) *= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -4539,10 +4408,10 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
 					{
-						lhs := o.
-							Binds[index]
+						lhs :=
+
+							o.Binds[index]
 						lhs.SetComplex(lhs.Complex() *
 							val,
 						)
@@ -4555,8 +4424,9 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					{
-						lhs := env.ThreadGlobals.FileEnv.
-							Binds[index]
+						lhs :=
+
+							env.ThreadGlobals.FileEnv.Binds[index]
 						lhs.SetComplex(lhs.Complex() *
 							val,
 						)
@@ -4614,9 +4484,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -4669,9 +4537,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -4724,9 +4590,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -4779,9 +4643,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -4834,9 +4696,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -4889,9 +4749,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -4944,9 +4802,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -4999,9 +4855,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -5054,9 +4908,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -5110,8 +4962,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] *= fun(env)
+				o.IntBinds[index] *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -5164,9 +5015,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -5219,9 +5068,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*float32)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*float32)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -5274,9 +5121,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*float64)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*float64)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -5329,9 +5174,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*complex64)(unsafe.Pointer(&o.
-					IntBinds[index])) *= fun(env)
+				*(*complex64)(unsafe.Pointer(&o.IntBinds[index])) *= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -5399,10 +5242,10 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
 				{
-					lhs := o.
-						Binds[index]
+					lhs :=
+
+						o.Binds[index]
 					lhs.SetComplex(lhs.Complex() *
 						fun(env),
 					)
@@ -5415,8 +5258,9 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				{
-					lhs := env.ThreadGlobals.FileEnv.
-						Binds[index]
+					lhs :=
+
+						env.ThreadGlobals.FileEnv.Binds[index]
 					lhs.SetComplex(lhs.Complex() *
 						fun(env),
 					)
@@ -5432,11 +5276,1318 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 	}
 	c.Code.Append(ret)
 }
-func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
+func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 	if isLiteralNumber(val, 0) {
 		c.Errorf("division by %v <%v>", val, t)
-		return
+		return false
 	} else if isLiteralNumber(val, 1) {
+		return true
+	}
+
+	ypositive := true
+	yv := r.ValueOf(val)
+	var y uint64
+	switch KindToCategory(yv.Kind()) {
+	case r.Int:
+		sy := yv.Int()
+		if sy < 0 {
+			ypositive = false
+			y = uint64(-sy)
+		} else {
+			y = uint64(sy)
+		}
+
+	case r.Uint:
+		y = yv.Uint()
+	default:
+		return false
+	}
+	if !isPowerOfTwo(y) {
+		return false
+	}
+
+	shift := integerLen(y) - 1
+	var stmt Stmt
+
+	switch t.Kind() {
+	case r.Int:
+		switch upn {
+		case 0:
+
+			{
+				y_1 :=
+
+					int(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 1:
+
+			{
+				y_1 :=
+
+					int(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 2:
+			{
+				y_1 :=
+
+					int(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		default:
+			{
+				y_1 :=
+
+					int(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						addr := (*int)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+
+						addr := (*int)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case c.Depth - 1:
+			{
+				y_1 :=
+
+					int(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		}
+
+	case r.Int8:
+		switch upn {
+		case 0:
+
+			{
+				y_1 :=
+
+					int8(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int8)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int8)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 1:
+
+			{
+				y_1 :=
+
+					int8(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int8)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int8)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 2:
+			{
+				y_1 :=
+
+					int8(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int8)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int8)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		default:
+			{
+				y_1 :=
+
+					int8(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						addr := (*int8)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+
+						addr := (*int8)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case c.Depth - 1:
+			{
+				y_1 :=
+
+					int8(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		}
+
+	case r.Int16:
+		switch upn {
+		case 0:
+
+			{
+				y_1 :=
+
+					int16(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int16)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int16)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 1:
+
+			{
+				y_1 :=
+
+					int16(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int16)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int16)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 2:
+			{
+				y_1 :=
+
+					int16(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int16)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int16)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		default:
+			{
+				y_1 :=
+
+					int16(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						addr := (*int16)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+
+						addr := (*int16)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case c.Depth - 1:
+			{
+				y_1 :=
+
+					int16(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		}
+
+	case r.Int32:
+		switch upn {
+		case 0:
+
+			{
+				y_1 :=
+
+					int32(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int32)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int32)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 1:
+
+			{
+				y_1 :=
+
+					int32(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int32)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int32)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 2:
+			{
+				y_1 :=
+
+					int32(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int32)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int32)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		default:
+			{
+				y_1 :=
+
+					int32(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						addr := (*int32)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+
+						addr := (*int32)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case c.Depth - 1:
+			{
+				y_1 :=
+
+					int32(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		}
+
+	case r.Int64:
+		switch upn {
+		case 0:
+
+			{
+				y_1 :=
+
+					int64(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int64)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int64)(unsafe.Pointer(&env.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 1:
+
+			{
+				y_1 :=
+
+					int64(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int64)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int64)(unsafe.Pointer(&env.
+							Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case 2:
+			{
+				y_1 :=
+
+					int64(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int64)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int64)(unsafe.Pointer(&env.
+							Outer.Outer.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		default:
+			{
+				y_1 :=
+
+					int64(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						addr := (*int64)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+
+						addr := (*int64)(unsafe.Pointer(&o.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		case c.Depth - 1:
+			{
+				y_1 :=
+
+					int64(y - 1)
+				if ypositive {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = n >> shift
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					stmt = func(env *Env) (Stmt, *Env) {
+
+						addr := (*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index]))
+
+						n := *addr
+						if n < 0 {
+							n += y_1
+						}
+
+						*addr = -(n >> shift)
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				}
+
+			}
+		}
+
+	case r.Uint:
+		switch upn {
+		case 0:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint)(unsafe.Pointer(&env.
+					Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 2:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint)(unsafe.Pointer(&env.
+					Outer.Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+
+				o := env.Outer.Outer.Outer
+				for i := 3; i < upn; i++ {
+					o = o.Outer
+				}
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case c.Depth - 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+
+	case r.Uint8:
+		switch upn {
+		case 0:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint8)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint8)(unsafe.Pointer(&env.
+					Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 2:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint8)(unsafe.Pointer(&env.
+					Outer.Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+
+				o := env.Outer.Outer.Outer
+				for i := 3; i < upn; i++ {
+					o = o.Outer
+				}
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case c.Depth - 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+
+	case r.Uint16:
+		switch upn {
+		case 0:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint16)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint16)(unsafe.Pointer(&env.
+					Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 2:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint16)(unsafe.Pointer(&env.
+					Outer.Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+
+				o := env.Outer.Outer.Outer
+				for i := 3; i < upn; i++ {
+					o = o.Outer
+				}
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case c.Depth - 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+
+	case r.Uint32:
+		switch upn {
+		case 0:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint32)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint32)(unsafe.Pointer(&env.
+					Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 2:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint32)(unsafe.Pointer(&env.
+					Outer.Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+
+				o := env.Outer.Outer.Outer
+				for i := 3; i < upn; i++ {
+					o = o.Outer
+				}
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case c.Depth - 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+
+	case r.Uint64:
+		switch upn {
+		case 0:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				env.IntBinds[index] >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				env.
+					Outer.IntBinds[index] >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 2:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				env.
+					Outer.Outer.IntBinds[index] >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+
+				o := env.Outer.Outer.Outer
+				for i := 3; i < upn; i++ {
+					o = o.Outer
+				}
+
+				o.IntBinds[index] >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case c.Depth - 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+
+				env.ThreadGlobals.FileEnv.IntBinds[index] >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+
+	case r.Uintptr:
+		switch upn {
+		case 0:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uintptr)(unsafe.Pointer(&env.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uintptr)(unsafe.Pointer(&env.
+					Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case 2:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uintptr)(unsafe.Pointer(&env.
+					Outer.Outer.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		default:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+
+				o := env.Outer.Outer.Outer
+				for i := 3; i < upn; i++ {
+					o = o.Outer
+				}
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		case c.Depth - 1:
+
+			stmt = func(env *Env) (Stmt, *Env) {
+				*(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.IntBinds[index])) >>= shift
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+
+	}
+	if stmt == nil {
+		return false
+	}
+
+	c.Code.Append(stmt)
+	return true
+}
+func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
+	if c.varQuoPow2(upn, index, t, val) {
 		return
 	}
 
@@ -5482,9 +6633,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5538,9 +6687,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5594,9 +6741,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5650,9 +6795,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5706,9 +6849,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5762,9 +6903,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5818,9 +6957,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5874,9 +7011,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5930,9 +7065,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -5987,8 +7120,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] /= val
+					o.IntBinds[index] /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -6042,9 +7174,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -6100,9 +7230,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*float32)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*float32)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -6156,9 +7284,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*float64)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*float64)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -6214,9 +7340,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*complex64)(unsafe.Pointer(&o.
-						IntBinds[index])) /= val
+					*(*complex64)(unsafe.Pointer(&o.IntBinds[index])) /= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -6285,10 +7409,10 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
 					{
-						lhs := o.
-							Binds[index]
+						lhs :=
+
+							o.Binds[index]
 						lhs.SetComplex(lhs.Complex() /
 							val,
 						)
@@ -6301,8 +7425,9 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					{
-						lhs := env.ThreadGlobals.FileEnv.
-							Binds[index]
+						lhs :=
+
+							env.ThreadGlobals.FileEnv.Binds[index]
 						lhs.SetComplex(lhs.Complex() /
 							val,
 						)
@@ -6360,9 +7485,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6415,9 +7538,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6470,9 +7591,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6525,9 +7644,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6580,9 +7697,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6635,9 +7750,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6690,9 +7803,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6745,9 +7856,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6800,9 +7909,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6856,8 +7963,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] /= fun(env)
+				o.IntBinds[index] /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6910,9 +8016,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -6965,9 +8069,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*float32)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*float32)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -7020,9 +8122,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*float64)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*float64)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -7075,9 +8175,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*complex64)(unsafe.Pointer(&o.
-					IntBinds[index])) /= fun(env)
+				*(*complex64)(unsafe.Pointer(&o.IntBinds[index])) /= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -7145,10 +8243,10 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
 				{
-					lhs := o.
-						Binds[index]
+					lhs :=
+
+						o.Binds[index]
 					lhs.SetComplex(lhs.Complex() /
 						fun(env),
 					)
@@ -7161,8 +8259,9 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				{
-					lhs := env.ThreadGlobals.FileEnv.
-						Binds[index]
+					lhs :=
+
+						env.ThreadGlobals.FileEnv.Binds[index]
 					lhs.SetComplex(lhs.Complex() /
 						fun(env),
 					)
@@ -7232,9 +8331,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7288,9 +8385,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7344,9 +8439,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7400,9 +8493,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7456,9 +8547,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7512,9 +8601,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7568,9 +8655,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7624,9 +8709,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7680,9 +8763,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7737,8 +8818,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] %= val
+					o.IntBinds[index] %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7792,9 +8872,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) %= val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) %= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -7857,9 +8935,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -7912,9 +8988,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -7967,9 +9041,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8022,9 +9094,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8077,9 +9147,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8132,9 +9200,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8187,9 +9253,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8242,9 +9306,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8297,9 +9359,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8353,8 +9413,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] %= fun(env)
+				o.IntBinds[index] %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8407,9 +9466,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) %= fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) %= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -8483,9 +9540,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8539,9 +9594,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8595,9 +9648,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8651,9 +9702,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8707,9 +9756,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8763,9 +9810,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8819,9 +9864,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8875,9 +9918,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8931,9 +9972,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -8988,8 +10027,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] &= val
+					o.IntBinds[index] &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -9043,9 +10081,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) &= val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) &= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -9108,9 +10144,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9163,9 +10197,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9218,9 +10250,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9273,9 +10303,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9328,9 +10356,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9383,9 +10409,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9438,9 +10462,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9493,9 +10515,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9548,9 +10568,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9604,8 +10622,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] &= fun(env)
+				o.IntBinds[index] &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9658,9 +10675,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) &= fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) &= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -9728,9 +10743,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -9784,9 +10797,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -9840,9 +10851,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -9896,9 +10905,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -9952,9 +10959,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -10008,9 +11013,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -10064,9 +11067,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -10120,9 +11121,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -10176,9 +11175,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -10233,8 +11230,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] |= val
+					o.IntBinds[index] |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -10288,9 +11284,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) |= val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) |= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -10353,9 +11347,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10408,9 +11400,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10463,9 +11453,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10518,9 +11506,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10573,9 +11559,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10628,9 +11612,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10683,9 +11665,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10738,9 +11718,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10793,9 +11771,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10849,8 +11825,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] |= fun(env)
+				o.IntBinds[index] |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10903,9 +11878,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) |= fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) |= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -10973,9 +11946,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11029,9 +12000,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11085,9 +12054,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11141,9 +12108,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11197,9 +12162,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11253,9 +12216,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11309,9 +12270,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11365,9 +12324,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11421,9 +12378,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11478,8 +12433,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] ^= val
+					o.IntBinds[index] ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11533,9 +12487,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) ^= val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) ^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -11598,9 +12550,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -11653,9 +12603,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -11708,9 +12656,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -11763,9 +12709,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -11818,9 +12762,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -11873,9 +12815,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -11928,9 +12868,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -11983,9 +12921,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -12038,9 +12974,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -12094,8 +13028,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] ^= fun(env)
+				o.IntBinds[index] ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -12148,9 +13081,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) ^= fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) ^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -12224,9 +13155,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*int)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12280,9 +13209,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int8)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*int8)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12336,9 +13263,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int16)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*int16)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12392,9 +13317,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int32)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*int32)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12448,9 +13371,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*int64)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*int64)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12504,9 +13425,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*uint)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12560,9 +13479,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint8)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12616,9 +13533,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint16)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12672,9 +13587,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uint32)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12729,8 +13642,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 						o = o.Outer
 					}
 
-					o.
-						IntBinds[index] &^= val
+					o.IntBinds[index] &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12784,9 +13696,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-
-					*(*uintptr)(unsafe.Pointer(&o.
-						IntBinds[index])) &^= val
+					*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) &^= val
 
 					env.IP++
 					return env.Code[env.IP], env
@@ -12849,9 +13759,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*int)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -12904,9 +13812,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int8)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*int8)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -12959,9 +13865,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int16)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*int16)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -13014,9 +13918,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int32)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*int32)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -13069,9 +13971,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*int64)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*int64)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -13124,9 +14024,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*uint)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -13179,9 +14077,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint8)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*uint8)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -13234,9 +14130,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint16)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*uint16)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -13289,9 +14183,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uint32)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*uint32)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -13345,8 +14237,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 					o = o.Outer
 				}
 
-				o.
-					IntBinds[index] &^= fun(env)
+				o.IntBinds[index] &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env
@@ -13399,9 +14290,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 				for i := 3; i < upn; i++ {
 					o = o.Outer
 				}
-
-				*(*uintptr)(unsafe.Pointer(&o.
-					IntBinds[index])) &^= fun(env)
+				*(*uintptr)(unsafe.Pointer(&o.IntBinds[index])) &^= fun(env)
 
 				env.IP++
 				return env.Code[env.IP], env

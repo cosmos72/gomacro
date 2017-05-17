@@ -231,12 +231,18 @@ var testcases = []TestCase{
 	TestCase{F, "var_div_1", "v3 = 11; v3 / 2", uint16(11) / 2, nil},
 	TestCase{F, "var_div_2", "v3 = 63; v3 / 8", uint16(63) / 8, nil},
 
-	TestCase{A, "var_div_3", "v0 =+11; v0 /-2", +11 / -2, nil},
-	TestCase{A, "var_div_4", "v0 =-11; v0 /+2", -11 / +2, nil},
-	TestCase{A, "var_div_5", "v0 =-11; v0 /-2", -11 / -2, nil},
-	TestCase{A, "var_div_6", "v0 =+63; v0 /-8", +63 / -8, nil},
-	TestCase{A, "var_div_7", "v0 =-63; v0 /+8", -63 / +8, nil},
-	TestCase{A, "var_div_8", "v0 =-63; v0 /-8", -63 / -8, nil},
+	TestCase{A, "var_div_3", "v3 = 11; v3 /=2; v3", uint16(11) / 2, nil},
+	TestCase{A, "var_div_4", "v3 = 63; v3 /=8; v3", uint16(63) / 8, nil},
+
+	TestCase{A, "var_div_5", "v0 =+7; v0 /-1", -7, nil},
+	TestCase{A, "var_div_6", "v0 =-7; v0 /+1", -7, nil},
+	TestCase{A, "var_div_7", "v0 =-7; v0 /-1", +7, nil},
+	TestCase{A, "var_div_8", "v0 =+11; v0 /-2", +11 / -2, nil},
+	TestCase{A, "var_div_9", "v0 =-11; v0 /+2", -11 / +2, nil},
+	TestCase{A, "var_div_10", "v0 =-11; v0 /-2", -11 / -2, nil},
+	TestCase{A, "var_div_11", "v0 =+63; v0 /-8", +63 / -8, nil},
+	TestCase{A, "var_div_12", "v0 =-63; v0 /+8", -63 / +8, nil},
+	TestCase{A, "var_div_13", "v0 =-63; v0 /-8", -63 / -8, nil},
 
 	// test remainder by constant power-of-two
 	TestCase{I, "var_rem_1", "v3 = 17; v3 % 4", uint64(17) % 4, nil}, // classic interpreter is not type-accurate here
@@ -371,6 +377,9 @@ var testcases = []TestCase{
 	TestCase{A, "getmap_2", `m1 := m[1]; m1`, "x", nil},
 	TestCase{A, "getmap_3", `mi['b']`, nil, []interface{}{byte(0), false}},
 	TestCase{A, "getmap_4", `v2 = mi['@']; v2`, byte(2), nil},
+
+	TestCase{A, "divmap_1", "mi['@'] = 99; mi['@'] /= 3; v2 = mi['@']; v2", byte(33), nil},
+	TestCase{A, "divmap_2", "mi['@'] /= 4; v2 = mi['@']; v2", byte(8), nil},
 
 	TestCase{A, "swap", `i=1;j=2;  i,j=j,i;  list_args(i, j)`, []interface{}{2, 1}, nil},
 	TestCase{A, "evil_assignment_1", `i=0; si[0]=7; si[1]=8

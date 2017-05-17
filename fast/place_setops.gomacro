@@ -336,7 +336,7 @@ import (
 	}
 }
 
-// varAddConst compiles 'variable += constant'
+// varAddConst compiles 'place += constant'
 func (c *Comp) placeAddConst(place *Place, val I) {
 	if isLiteralNumber(val, 0) || val == "" {
 		c.placeForSideEffects(place)
@@ -345,12 +345,12 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 	setplaces_const; token.ADD; {int; uint; float64; complex128; string; nil}
 }
 
-// varAddExpr compiles 'variable += expression'
+// varAddExpr compiles 'place += expression'
 func (c *Comp) placeAddExpr(place *Place, fun I) {
 	setplaces_expr; token.ADD; {int; uint; float64; complex128; string; nil}
 }
 
-// varSubConst compiles 'variable -= constant'
+// placeSubConst compiles 'place -= constant'
 func (c *Comp) placeSubConst(place *Place, val I) {
 	if isLiteralNumber(val, 0) {
 		c.placeForSideEffects(place)
@@ -359,15 +359,15 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 	setplaces_const; token.SUB; {int; uint; float64; complex128; nil}
 }
 
-// varSubExpr compiles 'variable -= expression'
+// placeSubExpr compiles 'place -= expression'
 func (c *Comp) placeSubExpr(place *Place, fun I) {
 	setplaces_expr; token.SUB; {int; uint; float64; complex128; nil}
 }
 
-// varMulConst compiles 'variable *= constant'
+// placeMulConst compiles 'place *= constant'
 func (c *Comp) placeMulConst(place *Place, val I) {
 	if isLiteralNumber(val, 0) {
-		// variable *= 0 is equivalent to variable = 0
+		// placeiable *= 0 is equivalent to place = 0
 		c.placeSetZero(place)
 		return
 	} else if isLiteralNumber(val, 1) {
@@ -377,36 +377,32 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 	setplaces_const; token.MUL; {int; uint; float64; complex128; nil}
 }
 
-// varMulExpr compiles 'variable *= expression'
+// placeMulExpr compiles 'place *= expression'
 func (c *Comp) placeMulExpr(place *Place, fun I) {
 	setplaces_expr; token.MUL; {int; uint; float64; complex128; nil}
 }
 
-// varQuoConst compiles 'variable /= constant'
+// placeQuoConst compiles 'place /= constant'
 func (c *Comp) placeQuoConst(place *Place, val I) {
-	if isLiteralNumber(val, 0) {
-		c.Errorf("division by %v <%v>", val, place.Type)
-		return
-	} else if isLiteralNumber(val, 1) {
-		c.placeForSideEffects(place)
+	if c.placeQuoPow2(place, val) {
 		return
 	}
 	setplaces_const; token.QUO; {int; uint; float64; complex128; nil}
 }
 
-// varQuoExpr compiles 'variable /= expression'
+// placeQuoExpr compiles 'place /= expression'
 func (c *Comp) placeQuoExpr(place *Place, fun I) {
 	setplaces_expr; token.QUO; {int; uint; float64; complex128; nil}
 }
 
-// varRemConst compiles 'variable %= constant'
+// placeRemConst compiles 'place %= constant'
 func (c *Comp) placeRemConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, 0) {
 			c.Errorf("division by %v <%v>", val, place.Type)
 			return
 		} else if isLiteralNumber(val, 1) {
-			// variable %= 1 is equivalent to variable = 0
+			// place %= 1 is equivalent to place = 0
 			c.placeSetZero(place)
 			return
 		}
@@ -414,19 +410,19 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 	setplaces_const; token.REM; {int; uint; nil}
 }
 
-// varRemExpr compiles 'variable %= expression'
+// placeRemExpr compiles 'place %= expression'
 func (c *Comp) placeRemExpr(place *Place, fun I) {
 	setplaces_expr; token.REM; {int; uint; nil}
 }
 
-// varAndConst compiles 'variable &= constant'
+// placeAndConst compiles 'place &= constant'
 func (c *Comp) placeAndConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
 			c.placeForSideEffects(place)
 			return
 		} else if isLiteralNumber(val, 0) {
-			// variable &= 0 is equivalent to variable = 0
+			// place &= 0 is equivalent to place = 0
 			c.placeSetZero(place)
 			return
 		}
@@ -434,12 +430,12 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 	setplaces_const; token.AND; {int; uint; nil}
 }
 
-// varAndExpr compiles 'variable &= expression'
+// placeAndExpr compiles 'place &= expression'
 func (c *Comp) placeAndExpr(place *Place, fun I) {
 	setplaces_expr; token.AND; {int; uint; nil}
 }
 
-// varOrConst compiles 'variable |= constant'
+// placeOrConst compiles 'place |= constant'
 func (c *Comp) placeOrConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		c.placeForSideEffects(place)
@@ -448,12 +444,12 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 	setplaces_const; token.OR; {int; uint; nil}
 }
 
-// varOrExpr compiles 'variable |= expression'
+// placeOrExpr compiles 'place |= expression'
 func (c *Comp) placeOrExpr(place *Place, fun I) {
 	setplaces_expr; token.OR; {int; uint; nil}
 }
 
-// varXorConst compiles 'variable ^= constant'
+// placeXorConst compiles 'place ^= constant'
 func (c *Comp) placeXorConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		c.placeForSideEffects(place)
@@ -462,16 +458,16 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 	setplaces_const; token.XOR; {int; uint; nil}
 }
 
-// varXorExpr compiles 'variable ^= expression'
+// placeXorExpr compiles 'place ^= expression'
 func (c *Comp) placeXorExpr(place *Place, fun I) {
 	setplaces_expr; token.XOR; {int; uint; nil}
 }
 
-// varAndnotConst compiles 'variable &^= constant'
+// placeAndnotConst compiles 'place &^= constant'
 func (c *Comp) placeAndnotConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
-			// variable &^= -1 is equivalent to variable = 0
+			// place &^= -1 is equivalent to place = 0
 			c.placeSetZero(place)
 			return
 		} else if isLiteralNumber(val, 0) {
@@ -482,14 +478,14 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 	setplaces_const; token.AND_NOT; {int; uint; nil}
 }
 
-// varAndnotExpr compiles 'variable &^= expression'
+// varAndnotExpr compiles 'place &^= expression'
 func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 	setplaces_expr; token.AND_NOT; {int; uint; nil}
 }
 
 
-// SetVar compiles an assignment to a variable:
-// 'variable op constant' and 'variable op expression'
+// SetPlace compiles an assignment to a place:
+// 'place op constant' and 'place op expression'
 func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
 	t := place.Type
 	if init.Const() {
