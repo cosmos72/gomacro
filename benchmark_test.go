@@ -500,9 +500,9 @@ func BenchmarkArithClassic2(b *testing.B) {
 func collatz(n uint) {
 	for n > 1 {
 		if n&1 != 0 {
-			n = ((n * 3) + 1) / 2
+			n = ((n * 3) + 1) >> 1
 		} else {
-			n /= 2
+			n >>= 1
 		}
 	}
 }
@@ -516,11 +516,10 @@ func BenchmarkCollatzCompiler(b *testing.B) {
 
 func BenchmarkCollatzFast(b *testing.B) {
 	ce := fast.New()
-	ce.DeclVar("n", xr.TypeOfUint, uint(0)) // use uint, it optimizes /= better
-
+	ce.DeclVar("n", xr.TypeOfUint, uint(0))
 	addr := ce.AddressOfVar("n").Interface().(*uint)
 
-	fun := ce.Compile("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n /= 2 } }")
+	fun := ce.Compile("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) >> 1 } else { n >>= 1 } }")
 	env := ce.PrepareEnv()
 	fun(env)
 
@@ -533,10 +532,11 @@ func BenchmarkCollatzFast(b *testing.B) {
 
 func BenchmarkCollatzClassic(b *testing.B) {
 	env := classic.New()
-	env.EvalAst(env.Parse("var n uint")) // use uint, it optimizes /= better
+	env.EvalAst(env.Parse("var n uint"))
 	addr := env.ValueOf("n").Addr().Interface().(*uint)
 
 	form := env.Parse("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n /= 2 } }")
+	env.EvalAst(form)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
