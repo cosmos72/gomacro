@@ -181,19 +181,23 @@ func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
 	if opts&OptShowEvalType != 0 {
 		typestr = fmt.Sprintf(" // %v", st.toPrintable(vt))
 	}
-	switch v.Kind() {
-	case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
-		fmt.Fprintf(out, "%d%s\n", vi, typestr)
-	case r.String:
-		fmt.Fprintf(out, "%#v%s\n", vi, typestr)
-	default:
-		// recompute v, because vi = st.toPrintable(vi) may have extracted a non-struct from a struct
-		v = r.ValueOf(vi)
-		if v.Kind() == r.Struct {
-			st.fprintStruct(out, v, typestr)
-		} else {
-			fmt.Fprintf(out, "%v%s\n", vi, typestr)
+
+	if vkind := v.Kind(); KindToType(vkind) == v.Type() {
+		switch vkind {
+		case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
+			fmt.Fprintf(out, "%d%s\n", vi, typestr)
+			return
+		case r.String:
+			fmt.Fprintf(out, "%#v%s\n", vi, typestr)
+			return
 		}
+	}
+	// recompute v, because vi = st.toPrintable(vi) may have extracted a non-struct from a struct
+	v = r.ValueOf(vi)
+	if v.Kind() == r.Struct {
+		st.fprintStruct(out, v, typestr)
+	} else {
+		fmt.Fprintf(out, "%v%s\n", vi, typestr)
 	}
 }
 
