@@ -46,7 +46,7 @@ func (t *xtype) same(u *xtype) bool {
 
 func MakeType(gtype types.Type, rtype reflect.Type) Type {
 	kind := gtypeToKind(gtype)
-	return wrap(&xtype{kind, gtype, rtype, nil, nil})
+	return wrap(&xtype{kind, gtype, rtype, nil, nil, nil})
 }
 
 // GoType returns the go/types.Type corresponding to the type.

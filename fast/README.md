@@ -27,6 +27,7 @@ The fast interpreter supports:
 * closures
 * transparent invocation of compiled functions from interpreter, and vice-versa
 * function calls, including calls to variadic functions, with or without ... after last call argument
+* method calls (only methods declared in compiled code)
 * if, for, switch, break, continue, fallthrough, return (unimplemented: for-range, type switch, goto, return foo() where foo() returns multiple values)
 * go i.e. goroutines
 * all builtins except defer and recover
@@ -34,14 +35,15 @@ The fast interpreter supports:
 
 Missing features - you are welcome to contribute:
 * composite literals
+* imports
 * return foo() where foo() returns multiple values
 * bar(foo()) where foo() returns multiple values
 * x,y = foo() where foo() returns multiple values
 * for-range (normal 'for' is implemented)
 * type switch
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
-* method definition
-* method call
+* method declarations
+* method calls (cannot yet call methods declared in interpreted code)
 * conversion from/to interpreted interfaces
 * defer and recover
 * macro definition
@@ -59,7 +61,7 @@ Current limitations:
   so the interpreter uses `reflect.StructOf()` to define new types,
   which can only create unnamed types.
 
-* recursive types declared by interpreted code are approximated (not implemented yet)
+* recursive types declared by interpreted code are approximated.
   Inside the interpreter they look and behave correctly, but if you pass them to compiled code,
   the type is unnamed (as above) and self-references are actually interface{}.
 

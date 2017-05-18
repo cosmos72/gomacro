@@ -31,9 +31,30 @@ import (
 	"reflect"
 )
 
+func concat(a, b []int) []int {
+	na := len(a)
+	c := make([]int, na+len(b))
+	copy(c, a)
+	copy(c[na:], b)
+	return c
+}
+
 func debugf(format string, args ...interface{}) {
 	str := fmt.Sprintf(format, args...)
 	fmt.Printf("// debug: %s\n", str)
+}
+
+func dirToGdir(dir reflect.ChanDir) types.ChanDir {
+	var gdir types.ChanDir
+	switch dir {
+	case reflect.RecvDir:
+		gdir = types.RecvOnly
+	case reflect.SendDir:
+		gdir = types.SendOnly
+	case reflect.BothDir:
+		gdir = types.SendRecv
+	}
+	return gdir
 }
 
 func gtypeToKind(gtype types.Type) reflect.Kind {
@@ -111,17 +132,12 @@ func gbasickindToKind(gkind types.BasicKind) reflect.Kind {
 	return kind
 }
 
-func dirToGdir(dir reflect.ChanDir) types.ChanDir {
-	var gdir types.ChanDir
-	switch dir {
-	case reflect.RecvDir:
-		gdir = types.RecvOnly
-	case reflect.SendDir:
-		gdir = types.SendOnly
-	case reflect.BothDir:
-		gdir = types.SendRecv
+func isExportedName(name string) bool {
+	if len(name) == 0 {
+		return true
 	}
-	return gdir
+	ch := name[0]
+	return ch != '_' && (ch < 'a' || ch > 'z')
 }
 
 func toReflectTypes(ts []Type) []reflect.Type {

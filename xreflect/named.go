@@ -33,30 +33,33 @@ import (
 // NumMethod returns the number of explicitly declared methods of named type or interface t.
 // Wrapper methods for embedded fields or embedded interfaces are not counted.
 func (t *xtype) NumMethod() int {
-	switch gtype := t.gtype.(type) {
-	case *types.Named:
-		return gtype.NumMethods()
-	case *types.Interface:
-		return gtype.NumExplicitMethods()
-	default:
-		return 0
+	num := 0
+	if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
+		num = gtype.NumExplicitMethods()
+	} else if gtype, ok := t.gtype.(*types.Named); ok {
+		num = gtype.NumMethods()
 	}
+	return num
 }
 
 // Method return the i-th explicitly declared method of named type or interface t.
 // Wrapper methods for embedded fields are not counted
 func (t *xtype) Method(i int) Method {
-	var gfun *types.Func
-	switch gtype := t.gtype.(type) {
-	case *types.Named:
-		gfun = gtype.Method(i)
-	case *types.Interface:
-		gfun = gtype.ExplicitMethod(i)
-	default:
-		errorf("Method on invalid type %v", t)
-	}
+	gfun := t.method(i)
 	rmethod, _ := t.rtype.MethodByName(gfun.Name())
 	return makemethod(i, gfun, &rmethod)
+}
+
+func (t *xtype) method(i int) *types.Func {
+	var gfun *types.Func
+	if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
+		gfun = gtype.ExplicitMethod(i)
+	} else if gtype, ok := t.gtype.(*types.Named); ok {
+		gfun = gtype.Method(i)
+	} else {
+		errorf("Method on invalid type %v", t)
+	}
+	return gfun
 }
 
 func makemethod(index int, gfun *types.Func, rmethod *reflect.Method) Method {

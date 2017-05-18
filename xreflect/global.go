@@ -39,11 +39,12 @@ type InterfaceHeader struct {
 }
 
 type Method struct {
-	Name  string
-	Pkg   *Package
-	Type  Type          // method type
-	Func  reflect.Value // func with receiver as first argument
-	Index int           // index for Type.Method
+	Name       string
+	Pkg        *Package
+	Type       Type          // method type
+	Func       reflect.Value // func with receiver as first argument
+	Index      int           // index for Type.Method
+	FieldIndex []int         // embedded fields index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
 }
 
 type StructField struct {
@@ -56,16 +57,17 @@ type StructField struct {
 	Type      Type              // field type
 	Tag       reflect.StructTag // field tag string
 	Offset    uintptr           // offset within struct, in bytes
-	Index     []int             // index sequence for Type.FieldByIndex
+	Index     []int             // index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
 	Anonymous bool              // is an embedded field
 }
 
 type xtype struct {
-	kind       reflect.Kind
-	gtype      types.Type
-	rtype      reflect.Type
-	fieldcache map[string]map[string]StructField // index by pkgpath, then by name
-	methods    []reflect.Value
+	kind        reflect.Kind
+	gtype       types.Type
+	rtype       reflect.Type
+	methods     []reflect.Value
+	fieldcache  map[string]map[string]StructField // index by pkgpath, then by name
+	methodcache map[string]map[string]Method      // index by pkgpath, then by name
 }
 
 type Type []xtype
@@ -277,6 +279,13 @@ func (t Type) In(i int) Type {
 // It panics if the type is unnamed, or if the type's Kind is not Interface
 func (t Type) Method(i int) Method {
 	return (&t[0]).Method(i)
+}
+
+// MethodByName returns the method with given name (including wrapper methods for embedded fields)
+// and the number of methods found at the same (shallowest) depth: 0 if not found.
+// Private methods are returned only if they were declared in pkgpath.
+func (t Type) MethodByName(name, pkgpath string) (method Method, count int) {
+	return (&t[0]).MethodByName(name, pkgpath)
 }
 
 // NumMethod returns the number of explicitly declared methods of named type or interface t.

@@ -28,14 +28,8 @@ import (
 	"go/ast"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
-
-type cMethod struct {
-	xr.Method
-	FieldIndexes []int
-}
 
 // SelectorExpr compiles foo.bar, i.e. read access to methods and struct fields
 func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
@@ -63,7 +57,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	default:
 		// interfaces and named types can have methods, but no fields
 		if t.NumMethod() != 0 {
-			mtd, mtdn := c.lookupMethod(t, name)
+			mtd, mtdn := c.LookupMethod(t, name)
 			switch mtdn {
 			case 0:
 			case 1:
@@ -78,11 +72,11 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 }
 
 // lookup fields and methods at the same time... it's and error if both exist at the same depth
-func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool, cMethod, bool) {
+func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool, xr.Method, bool) {
 	field, fieldn := c.LookupField(t, name)
-	mtd, mtdn := c.lookupMethod(t, name)
+	mtd, mtdn := c.LookupMethod(t, name)
 	fielddepth := len(field.Index)
-	mtddepth := len(mtd.FieldIndexes) + 1
+	mtddepth := len(mtd.FieldIndex) + 1
 	if fieldn != 0 && mtdn != 0 {
 		if fielddepth < mtddepth {
 			// prefer the field
@@ -91,79 +85,26 @@ func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool
 			// prefer the method
 			fieldn = 0
 		} else {
-			c.Warnf("type %v has both %d field(s) and %d method(s) %q at the same depth=%d. this should not happen... using the method(s)",
+			c.Errorf("type %v has %d field(s) and %d method(s) named %q at depth %d",
 				t, fieldn, mtdn, name, fielddepth)
-			fieldn = 0
 		}
 	}
 	if fieldn > 1 {
-		c.Errorf("type %v has %d fields named %q, all at depth %d", t, fieldn, name, fielddepth)
+		c.Errorf("type %v has %d fields named %q at depth %d", t, fieldn, name, fielddepth)
 	} else if mtdn > 1 {
-		c.Errorf("type %v has %d methods named %q, all at depth %d", t, mtdn, name, mtddepth)
+		c.Errorf("type %v has %d methods named %q at depth %d", t, mtdn, name, mtddepth)
 	}
 	return field, fieldn == 1, mtd, mtdn == 1
 }
 
-// lookupField performs a breadth-first search for struct field with given name
+// LookupField performs a breadth-first search for struct field with given name
 func (c *Comp) LookupField(t xr.Type, name string) (field xr.StructField, numfound int) {
 	return t.FieldByName(name, c.FileComp().Packagename)
 }
 
-func isExportedName(name string) bool {
-	if len(name) == 0 {
-		return true
-	}
-	ch := name[0]
-	return ch != '_' && (ch < 'a' || ch > 'z')
-}
-
-func (c *Comp) lookupMethod(t xr.Type, name string) (mtd cMethod, count int) {
-	return c.lookupMethod0(t, name, nil, base.MaxInt)
-}
-
-func (c *Comp) lookupMethod0(t xr.Type, name string, indexes []int, maxdepth int) (mtd cMethod, count int) {
-	exported := isExportedName(name)
-	n := t.NumMethod()
-	// c.Debugf("%v has %d methods", t, n)
-	for i := 0; i < n; i++ {
-		m := t.Method(i)
-		// c.Debugf("%v has %d-th method %s <%v>", t, i, m.Name, m.Type)
-		// check for exported/unexported method
-		if m.Name == name && (exported || (m.Pkg != nil && m.Pkg.Path() == c.FileComp().Path)) {
-			mtd = cMethod{Method: m, FieldIndexes: indexes}
-			count++
-		}
-	}
-	if count != 0 || t.Kind() != r.Struct || maxdepth <= len(indexes) {
-		return mtd, count
-	}
-
-	index_last := len(indexes)
-	indexes = append(indexes, 0)
-	depth := base.MaxInt
-
-	// check for methods declared on embedded fields
-	ni := t.NumField()
-	for i := 0; i < ni; i++ {
-		if efield := t.Field(i); efield.Anonymous {
-			indexes[index_last] = i
-			emtd, ecount := c.lookupMethod0(efield.Type, name, indexes, maxdepth)
-			if ecount != 0 {
-				edepth := len(emtd.FieldIndexes)
-				if depth > edepth {
-					mtd = emtd
-					// make a copy of indexes
-					mtd.FieldIndexes = append([]int(nil), mtd.FieldIndexes...)
-					count = ecount
-					depth = edepth
-					maxdepth = edepth
-				} else if depth == edepth {
-					count += ecount
-				}
-			}
-		}
-	}
-	return mtd, count
+// LookupMethod performs a breadth-first search for method with given name
+func (c *Comp) LookupMethod(t xr.Type, name string) (mtd xr.Method, numfound int) {
+	return t.MethodByName(name, c.FileComp().Packagename)
 }
 
 func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
@@ -364,16 +305,33 @@ func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 	return exprFun(t, fun)
 }
 
-func (c *Comp) compileMethod(e *Expr, mtd cMethod) *Expr {
+func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 	// slow, but simple: return a closure with the receiver already bound
+	fieldindex := mtd.FieldIndex
 	index := mtd.Index
 	t := e.Type.Method(index).Type
 	objfun := e.AsX1()
-	fun := func(env *Env) r.Value {
-		obj := objfun(env)
-		return obj.Method(index)
+	var fun func(env *Env) r.Value
+
+	switch len(fieldindex) {
+	case 0:
+		fun = func(env *Env) r.Value {
+			obj := objfun(env)
+			return obj.Method(index)
+		}
+	case 1:
+		fieldindex := fieldindex[0]
+		fun = func(env *Env) r.Value {
+			obj := objfun(env).Field(fieldindex)
+			return obj.Method(index)
+		}
+	default:
+		fun = func(env *Env) r.Value {
+			obj := objfun(env).FieldByIndex(fieldindex)
+			return obj.Method(index)
+		}
 	}
-	return exprFun(t, fun)
+	return exprX1(t, fun)
 }
 
 // SelectorPlace compiles a.b returning a settable and addressable Place
