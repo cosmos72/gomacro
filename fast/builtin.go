@@ -132,28 +132,14 @@ func (ce *CompEnv) addBuiltins() {
 	*/
 
 	// --------- types ---------
-	ce.DeclType("bool", xr.TypeOfBool)
-	ce.DeclType("byte", xr.TypeOfByte)
-	ce.DeclType("complex64", xr.TypeOfComplex64)
-	ce.DeclType("complex128", xr.TypeOfComplex128)
-	ce.DeclType("error", xr.TypeOfError)
-	ce.DeclType("float32", xr.TypeOfFloat32)
-	ce.DeclType("float64", xr.TypeOfFloat64)
-	ce.DeclType("int", xr.TypeOfInt)
-	ce.DeclType("int8", xr.TypeOfInt8)
-	ce.DeclType("int16", xr.TypeOfInt16)
-	ce.DeclType("int32", xr.TypeOfInt32)
-	ce.DeclType("int64", xr.TypeOfInt64)
-	ce.DeclType("rune", xr.TypeOfRune)
-	ce.DeclType("string", xr.TypeOfString)
-	ce.DeclType("uint", xr.TypeOfUint)
-	ce.DeclType("uint8", xr.TypeOfUint8)
-	ce.DeclType("uint16", xr.TypeOfUint16)
-	ce.DeclType("uint32", xr.TypeOfUint32)
-	ce.DeclType("uint64", xr.TypeOfUint64)
-	ce.DeclType("uintptr", xr.TypeOfUintptr)
+	for _, t := range xr.BasicTypes {
+		ce.DeclType(t)
+	}
+	ce.DeclTypeAlias("byte", xr.TypeOfUint8)
+	ce.DeclTypeAlias("rune", xr.TypeOfInt32)
+	ce.DeclType(xr.TypeOfError)
 
-	ce.DeclType("Duration", ce.Comp.TypeOf(time.Duration(0)))
+	ce.DeclType(ce.Comp.TypeOf(time.Duration(0)))
 
 	/*
 		// --------- proxies ---------
@@ -992,7 +978,7 @@ func (c *Comp) callFunction(node *ast.CallExpr, fun *Expr) (newfun *Expr, lastar
 	}
 	newfun = exprLit(Lit{Type: t, Value: function.Fun}, sym)
 	if len(node.Args) < t.NumIn() {
-		lastarg = exprX1(typeOfCompEnv, func(env *Env) r.Value {
+		lastarg = exprX1(xr.TypeOfInterface, func(env *Env) r.Value {
 			return r.ValueOf(&CompEnv{Comp: c, env: env})
 		})
 	}

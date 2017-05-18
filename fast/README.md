@@ -27,18 +27,17 @@ The fast interpreter supports:
 * closures
 * transparent invocation of compiled functions from interpreter, and vice-versa
 * function calls, including calls to variadic functions, with or without ... after last call argument
-* if, for, switch, break, continue, fallthrough, return (unimplemented: for range, type switch, goto, return foo() where foo() returns multiple values)
+* if, for, switch, break, continue, fallthrough, return (unimplemented: for-range, type switch, goto, return foo() where foo() returns multiple values)
 * go i.e. goroutines
 * all builtins except defer and recover
 * ~quote
 
 Missing features - you are welcome to contribute:
 * composite literals
-* naked return, i.e. return without arguments in a function with named results
 * return foo() where foo() returns multiple values
 * bar(foo()) where foo() returns multiple values
 * x,y = foo() where foo() returns multiple values
-* for-range (normal for is implemented)
+* for-range (normal 'for' is implemented)
 * type switch
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
 * method definition

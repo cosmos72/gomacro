@@ -233,10 +233,10 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 	convertuntyped := opts&CompileKeepUntyped == 0
 	if convertuntyped {
 		if untyp, ok := any.(UntypedLit); ok {
-			Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
 			if xr.SameType(t, TypeOfUntypedLit) {
 				t = untyp.DefaultType()
 			}
+			// Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
 			any = untyp.ConstTo(t)
 		}
 	}

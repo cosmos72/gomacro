@@ -484,8 +484,6 @@ type CompEnv struct {
 	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
 }
 
-var typeOfCompEnv = xr.TypeOf((*CompEnv)(nil))
-
 type (
 	I interface{}
 	X func(*Env)

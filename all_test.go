@@ -360,6 +360,10 @@ var testcases = []TestCase{
 	TestCase{A, "function_5", "func swap(x, y int) (int,int) { return y, x }; swap(88,99)", nil, []interface{}{99, 88}},
 	TestCase{A, "function_6", "i=0; func seti2() { i=2 }; seti2(); i", 2, nil},
 	TestCase{A, "function_7", "i=0; func setiadd(x, y int) { i=x+y }; setiadd(7,8); i", 15, nil},
+
+	// bool is the param name, NOT its type!
+	TestCase{F, "function_named_return", "func add3(bool, x, y int) (z int) { z=bool+x+y; return }; add3(1,2,3)", 6, nil},
+
 	TestCase{A, "function_variadic_1", "func list_args(args ...interface{}) []interface{} { return args }; list_args(1,2,3)", []interface{}{1, 2, 3}, nil},
 	TestCase{A, "function_variadic_2", "si := make([]interface{}, 4); si[1]=1; si[2]=2; si[3]=3; list_args(si...)", []interface{}{nil, 1, 2, 3}, nil},
 	TestCase{A, "fibonacci", fibonacci_source_string + "; fibonacci(13)", 233, nil},

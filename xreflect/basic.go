@@ -97,8 +97,8 @@ var (
 	TypeOfComplex128 = BasicTypes[reflect.Complex128]
 	TypeOfString     = BasicTypes[reflect.String]
 
-	TypeOfByte          = TypeOfUint8
-	TypeOfRune          = TypeOfInt32
+	// TypeOfByte          = TypeOfUint8
+	// TypeOfRune          = TypeOfInt32
 	TypeOfUnsafePointer = BasicTypes[reflect.UnsafePointer]
 
 	TypeOfError = MakeType(

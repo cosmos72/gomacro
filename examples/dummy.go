@@ -3,6 +3,15 @@
 
 package main
 
-func main() {
+import (
+	"fmt"
+)
 
+func add3(*bool, x, y int) int {
+	return  x + y
+}
+
+func main() {
+	fmt.Printf("%T\n", add3)
+	fmt.Printf("%v\n", add3(nil, 2, 3))
 }

@@ -38,31 +38,75 @@ func (c *Comp) DeclType(node ast.Spec) {
 	switch node := node.(type) {
 	case *ast.TypeSpec:
 		name := node.Name.Name
-		t := c.Type(node.Type)
-		c.DeclType0(name, t)
+		// support self-referencing types, as for example: type List struct { First int; Rest *List }
+		t := c.DeclNamedType(name)
+		u := c.Type(node.Type)
+		c.SetUnderlyingType(t, u)
 	default:
 		c.Errorf("Compile: unexpected type declaration, expecting <*ast.TypeSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
-// DeclType0 executes a type declaration
-// in Go, types are computed only at compile time - no need for a runtime *Env
-func (c *Comp) DeclType0(name string, t xr.Type) xr.Type {
-	if name == "_" {
-		// never define bindings for "_"
-		return t
-	}
+// DeclNamedType executes a named type forward declaration.
+// must be followed by Comp.SetUnderlyingType()
+func (c *Comp) DeclNamedType(name string) xr.Type {
 	if _, ok := c.Types[name]; ok {
 		c.Warnf("redefined type: %v", name)
 	} else if c.Types == nil {
 		c.Types = make(map[string]xr.Type)
 	}
-	c.Types[name] = t
-	if c.ReflectTypes == nil {
-		c.ReflectTypes = make(map[r.Type]xr.Type)
+	g := c.CompThreadGlobals
+	pkg := g.Pkgs[g.Packagename]
+	if pkg == nil {
+		if g.Pkgs == nil {
+			g.Pkgs = make(map[string]*xr.Package)
+		}
+		g.Pkgs[g.Packagename] = pkg
 	}
-	c.ReflectTypes[t.ReflectType()] = t
+	t := xr.NamedOf(name, pkg)
+	c.Types[name] = t
 	return t
+}
+
+func (c *Comp) SetUnderlyingType(t, underlying xr.Type) {
+	t.SetUnderlying(underlying)
+	// update Comp.ReflectType[] cache
+	c.cacheReflectType(t)
+}
+
+// DeclType0 declares a type
+// in Go, types are computed only at compile time - no need for a runtime *Env
+func (c *Comp) DeclType0(t xr.Type) xr.Type {
+	return c.DeclTypeAlias0(t.Name(), t)
+}
+
+// DeclTypeAlias0 declares a type alias
+// in Go, types are computed only at compile time - no need for a runtime *Env
+func (c *Comp) DeclTypeAlias0(alias string, t xr.Type) xr.Type {
+	if alias == "" || alias == "_" {
+		// never define bindings for "_"
+		return t
+	}
+	if _, ok := c.Types[alias]; ok {
+		c.Warnf("redefined type: %v", alias)
+	} else if c.Types == nil {
+		c.Types = make(map[string]xr.Type)
+	}
+	c.Types[alias] = t
+	c.cacheReflectType(t)
+	return t
+}
+
+func (c *Comp) cacheReflectType(t xr.Type) {
+	rt := t.ReflectType()
+	// rt may be unnamed or have a different name...
+	// it happens when interpreter declares a new type or an alias
+	if t.Name() == rt.Name() || c.ReflectTypes[rt] == nil {
+		if c.ReflectTypes == nil {
+			c.ReflectTypes = make(map[r.Type]xr.Type)
+		}
+		c.ReflectTypes[rt] = t
+	}
 }
 
 // Type compiles a type expression.

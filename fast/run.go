@@ -104,9 +104,14 @@ func (ce *CompEnv) DeclEnvFunc(name string, function Function) {
 	ce.apply()
 }
 
-// DeclType compiles a type declaration
-func (ce *CompEnv) DeclType(name string, t xr.Type) {
-	ce.Comp.DeclType0(name, t)
+// DeclType declares a type
+func (ce *CompEnv) DeclType(t xr.Type) {
+	ce.Comp.DeclType0(t)
+}
+
+// DeclType declares a type alias
+func (ce *CompEnv) DeclTypeAlias(alias string, t xr.Type) {
+	ce.Comp.DeclTypeAlias0(alias, t)
 }
 
 // DeclVar compiles a variable declaration

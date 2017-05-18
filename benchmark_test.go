@@ -496,7 +496,6 @@ func BenchmarkArithClassic2(b *testing.B) {
 
 // ---------------- collatz conjecture --------------------
 
-// use uint, it optimizes /= better
 func collatz(n uint) {
 	for n > 1 {
 		if n&1 != 0 {
@@ -535,7 +534,7 @@ func BenchmarkCollatzClassic(b *testing.B) {
 	env.EvalAst(env.Parse("var n uint"))
 	addr := env.ValueOf("n").Addr().Interface().(*uint)
 
-	form := env.Parse("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) / 2 } else { n /= 2 } }")
+	form := env.Parse("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) >> 1 } else { n >>= 1 } }")
 	env.EvalAst(form)
 
 	b.ResetTimer()

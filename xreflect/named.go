@@ -43,8 +43,8 @@ func (t *xtype) NumMethod() int {
 	}
 }
 
-// ExplicitMethod return the i-th explicitly declared method of named type or interface t.
-// Wrapper methods for embedded fields are not counted - use Method() to get them.
+// Method return the i-th explicitly declared method of named type or interface t.
+// Wrapper methods for embedded fields are not counted
 func (t *xtype) Method(i int) Method {
 	var gfun *types.Func
 	switch gtype := t.gtype.(type) {

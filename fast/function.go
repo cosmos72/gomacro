@@ -133,10 +133,16 @@ func (c *Comp) funcBinds(functype *ast.FuncType, t xr.Type, paramnames, resultna
 	parambinds := c.funcParamBinds(functype, t, paramnames)
 
 	resultbinds, resultfuns := c.funcResultBinds(functype, t, resultnames)
-
+	namedresults := true
+	for _, resultname := range resultnames {
+		if len(resultname) == 0 {
+			namedresults = false
+		}
+	}
 	return &FuncInfo{
-		Params:  parambinds,
-		Results: resultbinds,
+		Params:       parambinds,
+		Results:      resultbinds,
+		NamedResults: namedresults,
 	}, resultfuns
 }
 

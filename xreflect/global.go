@@ -61,10 +61,11 @@ type StructField struct {
 }
 
 type xtype struct {
-	kind    reflect.Kind
-	gtype   types.Type
-	rtype   reflect.Type
-	methods []reflect.Value
+	kind       reflect.Kind
+	gtype      types.Type
+	rtype      reflect.Type
+	fieldcache map[string]map[string]StructField // index by pkgpath, then by name
+	methods    []reflect.Value
 }
 
 type Type []xtype
@@ -110,12 +111,18 @@ func (t Type) Implements(u Type) bool {
 // Name returns the type's name within its package.
 // It returns an empty string for unnamed types.
 func (t Type) Name() string {
+	if len(t) == 0 {
+		return ""
+	}
 	return (&t[0]).Name()
 }
 
 // Named returns whether the type is named.
 // It returns false for unnamed types.
 func (t Type) Named() bool {
+	if len(t) == 0 {
+		return false
+	}
 	return (&t[0]).Named()
 }
 
@@ -218,6 +225,13 @@ func (t Type) Field(i int) StructField {
 	return (&t[0]).Field(i)
 }
 
+// FieldByName returns the (possibly embedded) struct field with the given name
+// and the number of fields found at the same (shallowest) depth: 0 if not found.
+// Private fields are returned only if they were declared in pkgpath.
+func (t Type) FieldByName(name, pkgpath string) (field StructField, count int) {
+	return (&t[0]).FieldByName(name, pkgpath)
+}
+
 // IsMethod reports whether a function type's contains a receiver, i.e. is a method.
 // It panics if the type's Kind is not Func.
 func (t Type) IsMethod() bool {
@@ -239,7 +253,7 @@ func (t Type) Key() Type {
 
 // Kind returns the specific kind of the type.
 func (t Type) Kind() reflect.Kind {
-	if t == nil {
+	if len(t) == 0 {
 		return reflect.Invalid
 	}
 	return (&t[0]).Kind()

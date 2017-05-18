@@ -254,39 +254,42 @@ func (c *Comp) Parse(src string) Ast {
 }
 
 func (c *Comp) Compile(in Ast) func(*Env) (r.Value, []r.Value) {
-	for {
-		switch form := in.(type) {
-		case nil:
-			return nil
-		case AstWithNode:
-			return c.CompileNode(form.Node())
-		case AstWithSlice:
-			switch n := form.Size(); n {
-			case 0:
-				return nil
-			case 1:
-				in = form.Get(0)
-				continue
-			default:
-				var list []func(*Env) (r.Value, []r.Value)
-				for i := 0; i < n; i++ {
-					fun := c.Compile(form.Get(i))
-					if fun != nil {
-						list = append(list, fun)
-					}
-				}
-				return func(env *Env) (r.Value, []r.Value) {
-					n_1 := len(list) - 1
-					for i := 0; i < n_1; i++ {
-						list[i](env)
-					}
-					return list[n_1](env)
-				}
+	switch form := in.(type) {
+	case nil:
+		return nil
+	case AstWithNode:
+		return c.CompileNode(form.Node())
+	case AstWithSlice:
+		n := form.Size()
+		var list []func(*Env) (r.Value, []r.Value)
+		for i := 0; i < n; i++ {
+			fun := c.Compile(form.Get(i))
+			if fun != nil {
+				list = append(list, fun)
 			}
 		}
-		c.Errorf("Compile: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
-		return nil
+		switch len(list) {
+		case 0:
+			return nil
+		case 1:
+			return list[0]
+		case 2:
+			return func(env *Env) (r.Value, []r.Value) {
+				list[0](env)
+				return list[1](env)
+			}
+		default:
+			return func(env *Env) (r.Value, []r.Value) {
+				n_1 := len(list) - 1
+				for i := 0; i < n_1; i++ {
+					list[i](env)
+				}
+				return list[n_1](env)
+			}
+		}
 	}
+	c.Errorf("Compile: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
+	return nil
 }
 
 func (c *Comp) CompileNode(node ast.Node) func(*Env) (r.Value, []r.Value) {

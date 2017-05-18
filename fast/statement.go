@@ -494,12 +494,13 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 	for i := 0; i < n; i++ {
 		c.SetVar(resultBinds[i].AsVar(upn, PlaceSettable), token.ASSIGN, exprs[i])
 	}
-	stmt := func(env *Env) (Stmt, *Env) {
-		common := env.ThreadGlobals
-		common.Signal = SigReturn
-		return common.Interrupt, env
-	}
-	c.Code.Append(stmt)
+	c.Code.Append(stmtReturn)
+}
+
+func stmtReturn(env *Env) (Stmt, *Env) {
+	common := env.ThreadGlobals
+	common.Signal = SigReturn
+	return common.Interrupt, env
 }
 
 // containLocalBinds return true if one or more of the given statements (but not their contents:
