@@ -43,37 +43,26 @@ type funcMaker struct {
 // DeclFunc compiles a function or method declaration
 // For closure declarations, use FuncLit()
 func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
-	functype := funcdecl.Type
-	body := funcdecl.Body
-
-	var recvdecl *ast.Field
 	if funcdecl.Recv != nil {
-		n := len(funcdecl.Recv.List)
-		if n != 1 {
-			c.Errorf("invalid function/method declaration: expecting one receiver or nil, found %d receivers: func %v %s(/*...*/)",
-				n, funcdecl.Recv, funcdecl.Name)
-			return
-		}
-		recvdecl = funcdecl.Recv.List[0]
-	}
-	ismethod := recvdecl != nil
-	if ismethod {
-		c.Errorf("unimplemented: method declaration: %v", functype)
+		c.methodDecl(funcdecl)
 		return
 	}
-	_, t, paramnames, resultnames := c.TypeFunctionOrMethod(recvdecl, functype)
+	functype := funcdecl.Type
+	t, paramnames, resultnames := c.TypeFunction(functype)
 
-	// declare the function name and type before compiling its body: allows recursive functions
+	// declare the function name and type before compiling its body: allows recursive functions/methods
 	funcname := funcdecl.Name.Name
 	funcbind := c.AddBind(funcname, FuncBind, t)
 	funcclass := funcbind.Desc.Class()
 	if funcclass != FuncBind {
 		c.Errorf("internal error! function bind should have class '%v', found class '%v' for: %s <%v>", FuncBind, funcclass, funcname, t)
 	}
+
 	cf := NewComp(c)
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
 	cf.Func = info
 
+	body := funcdecl.Body
 	if body != nil && len(body.List) != 0 {
 		// in Go, function arguments/results and function body are in the same scope
 		cf.List(body.List)
@@ -84,6 +73,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 		// unnamed function. still compile it (to check for compile errors) but discard the compiled code
 		return
 	}
+
 	// do NOT keep a reference to compile environment!
 	funcbody := cf.Code.Exec()
 
@@ -101,18 +91,58 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 	c.Code.Append(stmt)
 }
 
+// methodDecl compiles a method declaration
+func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
+	n := len(funcdecl.Recv.List)
+	if n != 1 {
+		c.Errorf("invalid function/method declaration: expecting one receiver or nil, found %d receivers: func %v %s(/*...*/)",
+			n, funcdecl.Recv, funcdecl.Name)
+		return
+	}
+	recvdecl := funcdecl.Recv.List[0]
+
+	functype := funcdecl.Type
+	_, t, paramnames, resultnames := c.TypeFunctionOrMethod(recvdecl, functype)
+
+	// declare the method name and type before compiling its body: allows recursive methods
+	funcname := funcdecl.Name.Name
+	methodindex := t.Recv().AddMethod(funcname, t)
+	methodaddr := t.Recv().GetMethodAddr(methodindex)
+
+	cf := NewComp(c)
+	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
+	cf.Func = info
+
+	body := funcdecl.Body
+	if body != nil && len(body.List) != 0 {
+		// in Go, function arguments/results and function body are in the same scope
+		cf.List(body.List)
+	}
+	// do NOT keep a reference to compile environment!
+	funcbody := cf.Code.Exec()
+	f := cf.funcCreate(t, info, resultfuns, funcbody)
+
+	// a method declaration is a statement:
+	// executing it sets the method value in the receiver type
+	stmt := func(env *Env) (Stmt, *Env) {
+		*methodaddr = f(env)
+		env.IP++
+		return env.Code[env.IP], env
+	}
+	c.Code.Append(stmt)
+}
+
 // FuncLit compiles a function literal, i.e. a closure.
 // For functions or methods declarations, use FuncDecl()
 func (c *Comp) FuncLit(funclit *ast.FuncLit) *Expr {
 	functype := funclit.Type
-	body := funclit.Body
-
 	t, paramnames, resultnames := c.TypeFunction(functype)
 
 	cf := NewComp(c)
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
 	cf.Func = info
 
+	body := funclit.Body
 	if body != nil && len(body.List) != 0 {
 		// in Go, function arguments/results and function body are in the same scope
 		cf.List(body.List)

@@ -174,12 +174,12 @@ func (cfg *Cache) addmethods(t Type, rtype reflect.Type) Type {
 		errorf("cannot add methods to unnamed type %v", t)
 	}
 	xt := &tm[0]
-	if xt.methods != nil {
+	if xt.methodvalues != nil {
 		// prevent another infinite recursion: Type.AddMethod() may reference the type itself in its methods
 		// debugf("NOT adding again %d methods to %v", n, tm)
 	} else {
 		// debugf("adding %d methods to %v", n, tm)
-		xt.methods = make([]reflect.Value, 0, n)
+		xt.methodvalues = make([]reflect.Value, 0, n)
 		nilv := reflect.Value{}
 		for i := 0; i < n; i++ {
 			rmethod := rtype.Method(i)
@@ -191,10 +191,10 @@ func (cfg *Cache) addmethods(t Type, rtype reflect.Type) Type {
 				// method was already present
 				continue
 			}
-			for n1 >= len(xt.methods) {
-				xt.methods = append(xt.methods, nilv)
+			for len(xt.methodvalues) < n2 {
+				xt.methodvalues = append(xt.methodvalues, nilv)
 			}
-			xt.methods[n1] = rmethod.Func
+			xt.methodvalues[n1] = rmethod.Func
 		}
 	}
 	return t
@@ -273,7 +273,7 @@ func (cfg *Cache) fromReflectChan(rtype reflect.Type) Type {
 	return MakeType(types.NewChan(gdir, elem.GoType()), rtype)
 }
 
-// fromReflectFunc converts a reflect.Type with Kind reflect.Func into a Type
+// fromReflectFunc converts a reflect.Type with Kind reflect.Func into a function Type
 func (cfg *Cache) fromReflectFunc(rtype reflect.Type) Type {
 	nin, nout := rtype.NumIn(), rtype.NumOut()
 	in := make([]Type, nin)

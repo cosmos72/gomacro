@@ -132,12 +132,11 @@ func gbasickindToKind(gkind types.BasicKind) reflect.Kind {
 	return kind
 }
 
-func isExportedName(name string) bool {
-	if len(name) == 0 {
-		return true
+func path(gpkg *types.Package) string {
+	if gpkg == nil {
+		return ""
 	}
-	ch := name[0]
-	return ch != '_' && (ch < 'a' || ch > 'z')
+	return gpkg.Path()
 }
 
 func toReflectTypes(ts []Type) []reflect.Type {

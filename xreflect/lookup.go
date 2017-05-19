@@ -70,13 +70,12 @@ func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int)
 }
 
 func fieldByName(t *xtype, name, pkgpath string, offset uintptr, index []int) (field StructField, count int, tovisit []StructField) {
-	exported := isExportedName(name)
 	gtype := t.gtype.Underlying().(*types.Struct)
 	n := t.NumField()
 	for i := 0; i < n; i++ {
 
 		gfield := gtype.Field(i)
-		if matchFieldByName(name, pkgpath, exported, gfield) {
+		if matchFieldByName(name, pkgpath, gfield) {
 			if count == 0 {
 				field = t.Field(i)
 				field.Offset += offset
@@ -96,9 +95,9 @@ func fieldByName(t *xtype, name, pkgpath string, offset uintptr, index []int) (f
 }
 
 // return true if gfield name matches given name, or if it's anonymous and its *type* name matches given name
-func matchFieldByName(name, pkgpath string, exported bool, gfield *types.Var) bool {
+func matchFieldByName(name, pkgpath string, gfield *types.Var) bool {
 	// always check the field's package, not the type's package
-	if !exported && (gfield.Pkg() == nil || gfield.Pkg().Path() != pkgpath) {
+	if !gfield.Exported() && path(gfield.Pkg()) != pkgpath {
 		return false
 	}
 	if gfield.Name() == name {
@@ -154,10 +153,15 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	// debugf("method cache for %v <%v> = %v", unsafe.Pointer(t), t, t.methodcache)
 	method, found := t.methodcache[pkgpath][name]
 	if found {
-		if method.Index < 0 { // marker for ambiguous method names
-			count = -method.Index
+		index := method.Index
+		if index < 0 { // marker for ambiguous method names
+			count = -index
 		} else {
 			count = 1
+			if len(method.FieldIndex) == 0 && index < len(t.methodvalues) {
+				// in case it changed meanwhile
+				method.Func = t.methodvalues[index]
+			}
 		}
 		return method, count
 	}
@@ -183,18 +187,17 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 			tovisit = next
 		}
 	}
-	if count != 0 {
+	if count > 0 {
 		cacheMethodByName(t, name, pkgpath, &method, count)
 	}
 	return method, count
 }
 
 func methodByName(t *xtype, name, pkgpath string, index []int) (method Method, count int) {
-	exported := isExportedName(name)
 	n := t.NumMethod()
 	for i := 0; i < n; i++ {
 		gmethod := t.method(i)
-		if matchMethodByName(name, pkgpath, exported, gmethod) {
+		if matchMethodByName(name, pkgpath, gmethod) {
 			if count == 0 {
 				method = t.Method(i)
 				method.FieldIndex = concat(index, method.FieldIndex) // make a copy of index
@@ -207,9 +210,9 @@ func methodByName(t *xtype, name, pkgpath string, index []int) (method Method, c
 }
 
 // return true if gmethod name matches given name
-func matchMethodByName(name, pkgpath string, exported bool, gmethod *types.Func) bool {
+func matchMethodByName(name, pkgpath string, gmethod *types.Func) bool {
 	// always check the methods's package, not the type's package
-	return gmethod.Name() == name && (exported || (gmethod.Pkg() != nil && gmethod.Pkg().Path() == pkgpath))
+	return gmethod.Name() == name && (gmethod.Exported() || path(gmethod.Pkg()) == pkgpath)
 }
 
 // add method to type's methodcache. used by Type.MethodByName after a successful lookup

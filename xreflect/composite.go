@@ -25,7 +25,6 @@
 package xreflect
 
 import (
-	"go/token"
 	"go/types"
 	"reflect"
 )
@@ -97,21 +96,6 @@ func MapOf(key, elem Type) Type {
 	return MakeType(
 		types.NewMap(key.GoType(), elem.GoType()),
 		reflect.MapOf(key.ReflectType(), elem.ReflectType()))
-}
-
-// AddMethod adds method 'name' to type, unless it is already in the method list.
-// It panics if the type is unnamed, or if the signature is not a function type.
-func (t *xtype) AddMethod(name string, signature Type) {
-	gtype, ok := t.gtype.(*types.Named)
-	if !ok {
-		errorf("AddMethod on unnamed type %v", t)
-	}
-	if signature.Kind() != reflect.Func {
-		errorf("AddMethod of non-func signature: %v", signature)
-	}
-	gsig := signature.underlying().(*types.Signature)
-	gfun := types.NewFunc(token.NoPos, gtype.Obj().Pkg(), name, gsig)
-	gtype.AddMethod(gfun)
 }
 
 func PtrTo(elem Type) Type {

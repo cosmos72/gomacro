@@ -46,8 +46,17 @@ func (t *xtype) NumMethod() int {
 // Wrapper methods for embedded fields are not counted
 func (t *xtype) Method(i int) Method {
 	gfun := t.method(i)
-	rmethod, _ := t.rtype.MethodByName(gfun.Name())
-	return makemethod(i, gfun, &rmethod)
+	var rfunc reflect.Value
+	var rfunctype reflect.Type
+	if len(t.methodvalues) > i && t.methodvalues[i].Kind() == reflect.Func {
+		rfunc = t.methodvalues[i]
+		rfunctype = rfunc.Type()
+	} else {
+		rmethod, _ := t.rtype.MethodByName(gfun.Name())
+		rfunc = rmethod.Func
+		rfunctype = rmethod.Type
+	}
+	return makemethod(i, gfun, rfunc, rfunctype)
 }
 
 func (t *xtype) method(i int) *types.Func {
@@ -62,12 +71,12 @@ func (t *xtype) method(i int) *types.Func {
 	return gfun
 }
 
-func makemethod(index int, gfun *types.Func, rmethod *reflect.Method) Method {
+func makemethod(index int, gfun *types.Func, rfunc reflect.Value, rfunctype reflect.Type) Method {
 	return Method{
 		Name:  gfun.Name(),
 		Pkg:   (*Package)(gfun.Pkg()),
-		Type:  MakeType(gfun.Type(), rmethod.Type),
-		Func:  rmethod.Func,
+		Type:  MakeType(gfun.Type(), rfunctype),
+		Func:  rfunc,
 		Index: index,
 	}
 }
@@ -102,4 +111,68 @@ func (t *xtype) SetUnderlying(underlying Type) {
 	default:
 		errorf("SetUnderlying of unnamed type %v", t)
 	}
+}
+
+// AddMethod adds method 'name' to type, unless it is already in the method list.
+// It panics if the type is unnamed, or if the signature is not a function-with-receiver type.
+// Returns the method index, or < 0 in case of errors
+func (t *xtype) AddMethod(name string, signature Type) int {
+	gtype, ok := t.gtype.(*types.Named)
+	if !ok {
+		errorf("AddMethod on unnamed type %v", t)
+	}
+	if signature.Kind() != reflect.Func {
+		errorf("AddMethod on <%v> of non-func signature: %v", t, signature)
+	}
+	gsig := signature.underlying().(*types.Signature)
+	// we accept both signatures "non-nil receiver" and "nil receiver, use the first parameter as receiver"
+	grecv := gsig.Recv()
+	if grecv == nil && gsig.Params().Len() != 0 {
+		grecv = gsig.Params().At(0)
+	}
+	if grecv == nil {
+		errorf("AddMethod on <%v> of function with no receiver and no parameters: %v", t, gsig)
+	}
+	if !types.IdenticalIgnoreTags(grecv.Type(), gtype) &&
+		!types.IdenticalIgnoreTags(grecv.Type(), gtype.Underlying()) &&
+		!types.IdenticalIgnoreTags(grecv.Type(), types.NewPointer(gtype)) {
+
+		label := "receiver"
+		if gsig.Recv() == nil {
+			label = "first parameter"
+		}
+		debugf("AddMethod on <%v> of function <%v> with mismatched %s type: %v", t, gsig, label, grecv)
+	}
+
+	gpkg := gtype.Obj().Pkg()
+	gfun := types.NewFunc(token.NoPos, gpkg, name, gsig)
+
+	n1 := gtype.NumMethods()
+	gtype.AddMethod(gfun)
+	n2 := gtype.NumMethods()
+
+	for len(t.methodvalues) < n2 {
+		t.methodvalues = append(t.methodvalues, reflect.Value{})
+	}
+
+	if n2 == n1+1 {
+		return n1
+	}
+	pkgpath := (*Package)(gpkg).Path()
+	for i := 0; i < n2; i++ {
+		gmethod := gtype.Method(i)
+		if matchMethodByName(name, pkgpath, gmethod) {
+			return i
+		}
+	}
+	return -1 // method not found??
+}
+
+// GetMethodAddr returns the pointer to the method value for given method index.
+// It panics if the type is unnamed, or if the index is outside [0,NumMethod()-1]
+func (t *xtype) GetMethodAddr(index int) *reflect.Value {
+	if !t.Named() {
+		errorf("SetMethodValue on unnamed type %v", t)
+	}
+	return &t.methodvalues[index]
 }

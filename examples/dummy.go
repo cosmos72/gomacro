@@ -5,13 +5,29 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 )
 
-func add3(*bool, x, y int) int {
-	return  x + y
+func f1() interface{} {
+	type Pair struct {
+		A, B int
+	}
+	return Pair{}
+}
+
+func f2() interface{} {
+	type Pair struct {
+		A, B int
+	}
+	return Pair{}
 }
 
 func main() {
-	fmt.Printf("%T\n", add3)
-	fmt.Printf("%v\n", add3(nil, 2, 3))
+	p1, p2 := f1(), f2()
+	t1, t2 := reflect.TypeOf(p1), reflect.TypeOf(p2)
+	fmt.Printf("%v %T\n", p1, p1)
+	fmt.Printf("%v %T\n", p2, p2)
+	fmt.Printf("%t %t\n", p1 == p2, t1 == t2)
+	fmt.Printf("%p %#v\n", t1, t1)
+	fmt.Printf("%p %#v\n", t2, t2)
 }

@@ -62,12 +62,12 @@ type StructField struct {
 }
 
 type xtype struct {
-	kind        reflect.Kind
-	gtype       types.Type
-	rtype       reflect.Type
-	methods     []reflect.Value
-	fieldcache  map[string]map[string]StructField // index by pkgpath, then by name
-	methodcache map[string]map[string]Method      // index by pkgpath, then by name
+	kind         reflect.Kind
+	gtype        types.Type
+	rtype        reflect.Type
+	methodvalues []reflect.Value
+	fieldcache   map[string]map[string]StructField // index by pkgpath, then by name
+	methodcache  map[string]map[string]Method      // index by pkgpath, then by name
 }
 
 type Type []xtype
@@ -188,9 +188,10 @@ func (t Type) String() string {
 }
 
 // AddMethod adds method with given name and signature to type, unless it is already in the method list.
-// It panics if the type is unnamed, or if the signature is not a function type.
-func (t Type) AddMethod(name string, signature Type) {
-	(&t[0]).AddMethod(name, signature)
+// It panics if the type is unnamed, or if the signature is not a function-with-receiver type.
+// Returns the method index, or < 0 in case of errors
+func (t Type) AddMethod(name string, signature Type) int {
+	return (&t[0]).AddMethod(name, signature)
 }
 
 // Bits returns the size of the type in bits.
@@ -339,6 +340,12 @@ func (t Type) SetUnderlying(underlying Type) {
 // or for struct types with embedded or unexported fields.
 func (t Type) underlying() types.Type {
 	return (&t[0]).underlying()
+}
+
+// GetMethodAddr returns the pointer to the method value for given method index.
+// It panics if the type is unnamed, or if the index is outside [0,NumMethod()-1]
+func (t Type) GetMethodAddr(index int) *reflect.Value {
+	return (&t[0]).GetMethodAddr(index)
 }
 
 func wrap(t *xtype) Type {
