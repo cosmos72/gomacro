@@ -119,21 +119,21 @@ func (v *Universe) SliceOf(elem Type) Type {
 }
 
 func ArrayOf(count int, elem Type) Type {
-	return elem[0].universe.ArrayOf(count, elem)
+	return elem.Universe().ArrayOf(count, elem)
 }
 
 func ChanOf(dir reflect.ChanDir, elem Type) Type {
-	return elem[0].universe.ChanOf(dir, elem)
+	return elem.Universe().ChanOf(dir, elem)
 }
 
 func MapOf(key, elem Type) Type {
-	return key[0].universe.MapOf(key, elem)
+	return key.Universe().MapOf(key, elem)
 }
 
 func PtrTo(elem Type) Type {
-	return elem[0].universe.PtrTo(elem)
+	return elem.Universe().PtrTo(elem)
 }
 
 func SliceOf(elem Type) Type {
-	return elem[0].universe.SliceOf(elem)
+	return elem.Universe().SliceOf(elem)
 }

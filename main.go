@@ -58,7 +58,7 @@ func main() {
 
 // type Pair struct { A, B int }; type Triple struct { Pair; C int }
 // var p Pair; var t Triple
-// func (p *Pair) Lhs() int { p.A }
+// func (p *Pair) Lhs() int { return p.A }
 // func (p *Pair) SetLhs(a int) { p.A = a }
 
 // :c var i = 0; for i = 0; i < 2; i=i+1 { println(i) }

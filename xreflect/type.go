@@ -35,8 +35,8 @@ func SameType(t, u Type) bool {
 	if xnil || ynil {
 		return xnil == ynil
 	}
-	xt := &t[0]
-	yt := &u[0]
+	xt := unwrap(t)
+	yt := unwrap(u)
 	return xt == yt || xt.same(yt)
 }
 
@@ -75,7 +75,7 @@ func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.
 		// lazy creation of basic types
 		v.init()
 	}
-	t := Type{xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v}}
+	t := wrap(&xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v})
 	v.add(t)
 	return t
 }
@@ -121,6 +121,10 @@ func (t *xtype) ReflectType() reflect.Type {
 
 func (t *xtype) UnsafeForceReflectType(rtype reflect.Type) {
 	t.rtype = rtype
+}
+
+func (t *xtype) Universe() *Universe {
+	return t.universe
 }
 
 // Named returns whether the type is named.

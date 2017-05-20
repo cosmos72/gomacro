@@ -73,14 +73,14 @@ func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds [
 		rfields[i+nemb+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
 	}
 	// do NOT canonicalize the new interface. See InterfaceOf() for rationale.
-	return Type{xtype{
+	return wrap(&xtype{
 		kind:  reflect.Interface,
 		gtype: types.NewInterface(gmethods, gembeddeds),
 		// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
 		// Use a pointer to the proxy struct
 		rtype:    reflect.PtrTo(reflect.StructOf(rfields)),
 		universe: v,
-	}}
+	})
 }
 
 // InterfaceOf returns a new interface for the given methods and embedded types.
@@ -95,23 +95,12 @@ func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds [
 // once you know that methods and embedded interfaces are complete.
 func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	v := universe
-	if len(embeddeds) != 0 && len(embeddeds[0]) != 0 {
-		v = embeddeds[0][0].universe
-	} else if len(methods) != 0 && len(methods[0]) != 0 {
-		v = methods[0][0].universe
+	if len(embeddeds) != 0 && embeddeds[0] != nil {
+		v = embeddeds[0].Universe()
+	} else if len(methods) != 0 && methods[0] != nil {
+		v = methods[0].Universe()
 	}
 	return v.InterfaceOf(methodnames, methods, embeddeds)
-}
-
-// Complete marks an interface type as complete and computes wrapper methods for embedded fields.
-// It must be called by users of InterfaceOf after the interface's embedded types are fully defined
-// and before using the interface type in any way other than to form other types.
-func (t *xtype) Complete() {
-	if t.kind != reflect.Interface {
-		errorf("Complete of non-interface %v", t)
-	}
-	gtype := t.gtype.Underlying().(*types.Interface)
-	gtype.Complete()
 }
 
 // utilities for InterfaceOf()

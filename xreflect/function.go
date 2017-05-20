@@ -121,12 +121,12 @@ func (v *Universe) FuncOf(in []Type, out []Type, variadic bool) Type {
 
 func MethodOf(recv Type, in []Type, out []Type, variadic bool) Type {
 	v := universe
-	if len(recv) != 0 {
-		v = recv[0].universe
-	} else if len(in) != 0 && len(in[0]) != 0 {
-		v = in[0][0].universe
-	} else if len(out) != 0 && len(out[0]) != 0 {
-		v = out[0][0].universe
+	if recv != nil {
+		v = recv.Universe()
+	} else if len(in) != 0 && in[0] != nil {
+		v = in[0].Universe()
+	} else if len(out) != 0 && out[0] != nil {
+		v = out[0].Universe()
 	}
 	return v.MethodOf(recv, in, out, variadic)
 }
@@ -141,8 +141,12 @@ func (v *Universe) MethodOf(recv Type, in []Type, out []Type, variadic bool) Typ
 		rin = append([]reflect.Type{recv.ReflectType()}, rin...)
 		grecv = toGoParam(recv)
 	}
+	gtype := types.NewSignature(grecv, gin, gout, variadic)
+	if grecv != nil {
+		debugf("xreflect.MethodOf: recv = <%v>, method = <%v> with recv = <%v>", grecv, gtype, gtype.Recv())
+	}
 	return v.MakeType(
-		types.NewSignature(grecv, gin, gout, variadic),
+		gtype,
 		reflect.FuncOf(rin, rout, variadic),
 	)
 }

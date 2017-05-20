@@ -50,7 +50,7 @@ func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int)
 	for count == 0 && len(tovisit) != 0 {
 		var next []StructField
 		for _, f := range tovisit {
-			efield, ecount, etovisit := fieldByName(&f.Type[0], name, pkgpath, f.Offset, f.Index)
+			efield, ecount, etovisit := fieldByName(unwrap(f.Type), name, pkgpath, f.Offset, f.Index)
 			if count == 0 {
 				if ecount > 0 {
 					field = efield
@@ -172,7 +172,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 		for count == 0 && len(tovisit) != 0 {
 			var next []StructField
 			for _, f := range tovisit {
-				t = &f.Type[0]
+				t = unwrap(f.Type)
 				emethod, ecount := methodByName(t, name, pkgpath, f.Index)
 				if count == 0 {
 					if ecount > 0 {

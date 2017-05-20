@@ -67,6 +67,9 @@ func (c *Comp) SetUnderlyingType(t, underlying xr.Type) {
 // DeclType0 declares a type
 // in Go, types are computed only at compile time - no need for a runtime *Env
 func (c *Comp) DeclType0(t xr.Type) xr.Type {
+	if t == nil {
+		return nil
+	}
 	return c.DeclTypeAlias0(t.Name(), t)
 }
 

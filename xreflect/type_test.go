@@ -130,6 +130,16 @@ func TestMap(t *testing.T) {
 	istype(t, typ.GoType(), (*types.Map)(nil))
 }
 
+func TestMethod(t *testing.T) {
+	typ := v.NamedOf("MyInt", "main")
+	typ.SetUnderlying(v.BasicTypes[reflect.Int])
+	rtype := reflect.TypeOf(int(0))
+	is(t, typ.Kind(), reflect.Int)
+	is(t, typ.Name(), "MyInt")
+	is(t, typ.ReflectType(), rtype)
+	istype(t, typ.GoType(), (*types.Named)(nil))
+}
+
 func TestNamed(t *testing.T) {
 	typ := v.NamedOf("MyMap", "main")
 	underlying := MapOf(v.TypeOfInterface, v.BasicTypes[reflect.Bool])

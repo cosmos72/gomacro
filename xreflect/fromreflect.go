@@ -129,7 +129,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 		t.SetUnderlying(u)
 		// t.ReflectType() is now u.ReflectType(). but we can do better... we know the exact rtype to set
 		if !v.rebuild() {
-			t[0].rtype = rtype
+			t.UnsafeForceReflectType(rtype)
 		}
 	}
 	return v.addmethods(t, rtype)
@@ -143,12 +143,12 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 	tm := t
 	if !t.Named() && t.Kind() == reflect.Ptr {
 		// methods on pointer-to-type. add them to the type itself
-		tm = t[0].elem()
+		tm = t.elem()
 	}
 	if !tm.Named() {
 		errorf("cannot add methods to unnamed type %v", t)
 	}
-	xt := &tm[0]
+	xt := unwrap(tm)
 	if xt.methodvalues != nil {
 		// prevent another infinite recursion: Type.AddMethod() may reference the type itself in its methods
 		// debugf("NOT adding again %d methods to %v", n, tm)

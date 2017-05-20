@@ -61,7 +61,7 @@ func (v *Universe) makebasictypes() []Type {
 		if gtype == nil || rtype == nil {
 			continue
 		}
-		t := Type{xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v}}
+		t := wrap(&xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v})
 		v.add(t)
 		m[kind] = t
 	}
@@ -70,23 +70,23 @@ func (v *Universe) makebasictypes() []Type {
 
 func (v *Universe) makeerror() Type {
 	gtype := types.Universe.Lookup("error").Type()
-	t := Type{xtype{
+	t := wrap(&xtype{
 		kind:     reflect.Interface,
 		gtype:    gtype,
 		rtype:    reflect.TypeOf((*error)(nil)).Elem(),
 		universe: v,
-	}}
+	})
 	v.add(t)
 	return t
 }
 
 func (v *Universe) makeinterface() Type {
-	t := Type{xtype{
+	t := wrap(&xtype{
 		kind:     reflect.Interface,
 		gtype:    types.NewInterface(nil, nil).Complete(),
 		rtype:    reflect.TypeOf((*interface{})(nil)).Elem(),
 		universe: v,
-	}}
+	})
 	v.add(t)
 	return t
 }
