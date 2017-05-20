@@ -45,7 +45,7 @@ func (t *xtype) Field(i int) StructField {
 	return StructField{
 		Name:      va.Name(),
 		Pkg:       (*Package)(va.Pkg()),
-		Type:      MakeType(va.Type(), rf.Type),
+		Type:      t.universe.MakeType(va.Type(), rf.Type),
 		Tag:       rf.Tag,
 		Offset:    rf.Offset,
 		Index:     rf.Index,
@@ -128,12 +128,20 @@ func toExportedFieldName(name, typename string, anonymous bool) string {
 	return name
 }
 
-func StructOf(fields []StructField) Type {
+func (v *Universe) StructOf(fields []StructField) Type {
 	vars := toGoFields(fields)
 	tags := toTags(fields)
 	rfields := toReflectFields(fields, true)
-	return MakeType(
+	return v.MakeType(
 		types.NewStruct(vars, tags),
 		reflect.StructOf(rfields),
 	)
+}
+
+func StructOf(fields []StructField) Type {
+	v := universe
+	if len(fields) != 0 && len(fields[0].Type) != 0 {
+		v = fields[0].Type[0].universe
+	}
+	return v.StructOf(fields)
 }

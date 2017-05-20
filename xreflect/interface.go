@@ -46,20 +46,16 @@ func toGoFuncs(names []string, methods []Type) []*types.Func {
 func toGoNamedTypes(ts []Type) []*types.Named {
 	gnameds := make([]*types.Named, len(ts))
 	for i, t := range ts {
-		switch gt := t.GoType().(type) {
-		case *types.Named:
+		if gt, ok := t.GoType().(*types.Named); ok {
 			gnameds[i] = gt
-		default:
+		} else {
 			errorf("InterfaceOf: %d-th 'embedded' argument is not a named type: %v", i, t)
 		}
 	}
 	return gnameds
 }
 
-// InterfaceOf returns a new interface for the given methods and embedded types.
-// After the methods and embeddeds are fully defined, call Complete() to mark the interface as complete
-// and compute wrapper methods for embedded fields.
-func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
+func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	gmethods := toGoFuncs(methodnames, methods)
 	gembeddeds := toGoNamedTypes(embeddeds)
 
@@ -76,25 +72,46 @@ func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	for i, method := range methods {
 		rfields[i+nemb+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
 	}
-	return MakeType(
-		types.NewInterface(gmethods, gembeddeds),
+	// do NOT canonicalize the new interface. See InterfaceOf() for rationale.
+	return Type{xtype{
+		kind:  reflect.Interface,
+		gtype: types.NewInterface(gmethods, gembeddeds),
 		// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
-		// Then use a pointer to the proxy struct
-		reflect.PtrTo(reflect.StructOf(rfields)),
-	)
+		// Use a pointer to the proxy struct
+		rtype:    reflect.PtrTo(reflect.StructOf(rfields)),
+		universe: v,
+	}}
+}
+
+// InterfaceOf returns a new interface for the given methods and embedded types.
+// After the methods and embeddeds are fully defined, call Complete() to mark
+// the interface as complete and compute wrapper methods for embedded fields.
+//
+// WARNING: the Type returned by InterfaceOf is not complete and not canonicalized,
+// i.e. not guaranteed to be unique, because equality on interfaces means "the same methods",
+// which requires that the methods and embedded interfaces are complete.
+//
+// Call Complete() to canonicalize the Type returned by InterfaceOf
+// once you know that methods and embedded interfaces are complete.
+func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
+	v := universe
+	if len(embeddeds) != 0 && len(embeddeds[0]) != 0 {
+		v = embeddeds[0][0].universe
+	} else if len(methods) != 0 && len(methods[0]) != 0 {
+		v = methods[0][0].universe
+	}
+	return v.InterfaceOf(methodnames, methods, embeddeds)
 }
 
 // Complete marks an interface type as complete and computes wrapper methods for embedded fields.
 // It must be called by users of InterfaceOf after the interface's embedded types are fully defined
 // and before using the interface type in any way other than to form other types.
-// Complete returns the receiver.
-func (t *xtype) Complete() Type {
+func (t *xtype) Complete() {
 	if t.kind != reflect.Interface {
 		errorf("Complete of non-interface %v", t)
 	}
 	gtype := t.gtype.Underlying().(*types.Interface)
 	gtype.Complete()
-	return wrap(t)
 }
 
 // utilities for InterfaceOf()

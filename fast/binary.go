@@ -32,7 +32,6 @@ import (
 
 	"github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
-	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
@@ -106,18 +105,18 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 	op := node.Op
 	switch op {
 	case token.LAND, token.LOR:
-		xb, yb := x.ConstTo(xr.TypeOfBool).(bool), y.ConstTo(xr.TypeOfBool).(bool)
+		xb, yb := x.ConstTo(c.TypeOfBool()).(bool), y.ConstTo(c.TypeOfBool()).(bool)
 		var flag bool
 		if op == token.LAND {
 			flag = xb && yb
 		} else {
 			flag = xb || yb
 		}
-		return exprUntypedLit(r.Bool, constant.MakeBool(flag))
+		return c.exprUntypedLit(r.Bool, constant.MakeBool(flag))
 	case token.EQL, token.LSS, token.GTR, token.NEQ, token.LEQ, token.GEQ:
 		// comparison gives an untyped bool
 		flag := constant.Compare(x.Obj, op, y.Obj)
-		return exprUntypedLit(r.Bool, constant.MakeBool(flag))
+		return c.exprUntypedLit(r.Bool, constant.MakeBool(flag))
 	case token.SHL, token.SHL_ASSIGN:
 		return c.ShiftUntyped(node, token.SHL, x, y)
 	case token.SHR, token.SHR_ASSIGN:
@@ -144,7 +143,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 		if zkind == r.Invalid {
 			c.Errorf("invalid binary operation: %v %v %v", x.Obj, op, y.Obj)
 		}
-		return exprUntypedLit(zkind, zobj)
+		return c.exprUntypedLit(zkind, zobj)
 	}
 }
 
@@ -203,9 +202,9 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 			sign = constant.Sign(constant.Real(xn))
 		}
 		if sign >= 0 {
-			xn = constant.MakeUint64(x.ConstTo(xr.TypeOfUint64).(uint64))
+			xn = constant.MakeUint64(x.ConstTo(c.TypeOfUint64()).(uint64))
 		} else {
-			xn = constant.MakeInt64(x.ConstTo(xr.TypeOfInt64).(int64))
+			xn = constant.MakeInt64(x.ConstTo(c.TypeOfInt64()).(int64))
 		}
 		xkind = r.Int
 	default:
@@ -215,7 +214,7 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 	if zobj.Kind() == constant.Unknown {
 		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
 	}
-	return exprUntypedLit(xkind, zobj)
+	return c.exprUntypedLit(xkind, zobj)
 }
 
 // prepareShift panics if the types of xe and ye are not valid for shifts i.e. << or >>
@@ -233,7 +232,7 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		xuntyp := xe.Value.(UntypedLit)
 		if ye.Const() {
 			// untyped << typed
-			yuntyp := UntypedLit{Kind: r.Int, Obj: constant.MakeUint64(r.ValueOf(ye.Value).Uint())}
+			yuntyp := UntypedLit{r.Int, constant.MakeUint64(r.ValueOf(ye.Value).Uint()), c.Universe}
 			return c.ShiftUntyped(node, node.Op, xuntyp, yuntyp)
 		}
 		// untyped << expression
@@ -248,14 +247,14 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 				node)
 			warnUntypedShift2 = false
 		}
-		xe.ConstTo(xr.TypeOfInt)
+		xe.ConstTo(c.TypeOfInt())
 	}
 	if ye.Untyped() {
 		// untyped constants do not distinguish between int and uint
 		if yet == nil || !base.IsCategory(yet.Kind(), r.Int) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
-		ye.ConstTo(xr.TypeOfUint64)
+		ye.ConstTo(c.TypeOfUint64())
 	} else {
 		if yet == nil || !base.IsCategory(yet.Kind(), r.Uint) {
 			return c.invalidBinaryExpr(node, xe, ye)
@@ -283,11 +282,11 @@ func (c *Comp) Land(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 		if yval {
 			return x
 		}
-		return exprBool(func(env *Env) bool {
+		return c.exprBool(func(env *Env) bool {
 			return xfun(env) && false
 		})
 	}
-	return exprBool(func(env *Env) bool {
+	return c.exprBool(func(env *Env) bool {
 		return xfun(env) && yfun(env)
 	})
 }
@@ -307,13 +306,13 @@ func (c *Comp) Lor(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 	}
 	if yfun == nil {
 		if yval {
-			return exprBool(func(env *Env) bool {
+			return c.exprBool(func(env *Env) bool {
 				return xfun(env) || true
 			})
 		}
 		return x
 	}
-	return exprBool(func(env *Env) bool {
+	return c.exprBool(func(env *Env) bool {
 		return xfun(env) || yfun(env)
 	})
 }

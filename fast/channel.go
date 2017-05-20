@@ -75,7 +75,7 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			return retv, []r.Value{retv, okv}
 		}
 	}
-	types := []xr.Type{t.Elem(), xr.TypeOfBool}
+	types := []xr.Type{t.Elem(), c.TypeOfBool()}
 	return exprXV(types, fun)
 }
 func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {

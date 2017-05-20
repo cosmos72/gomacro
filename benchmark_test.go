@@ -36,7 +36,6 @@ import (
 	cm "github.com/cosmos72/gomacro/experiments/closure_maps"
 	cv "github.com/cosmos72/gomacro/experiments/closure_values"
 	"github.com/cosmos72/gomacro/fast"
-	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 const (
@@ -515,7 +514,7 @@ func BenchmarkCollatzCompiler(b *testing.B) {
 
 func BenchmarkCollatzFast(b *testing.B) {
 	ce := fast.New()
-	ce.DeclVar("n", xr.TypeOfUint, uint(0))
+	ce.DeclVar("n", nil, uint(0))
 	addr := ce.AddressOfVar("n").Interface().(*uint)
 
 	fun := ce.Compile("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) >> 1 } else { n >>= 1 } }")

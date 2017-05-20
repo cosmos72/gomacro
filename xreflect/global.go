@@ -65,6 +65,7 @@ type xtype struct {
 	kind         reflect.Kind
 	gtype        types.Type
 	rtype        reflect.Type
+	universe     *Universe
 	methodvalues []reflect.Value
 	fieldcache   map[string]map[string]StructField // index by pkgpath, then by name
 	methodcache  map[string]map[string]Method      // index by pkgpath, then by name
@@ -75,39 +76,39 @@ type Type []xtype
 // Align returns the alignment in bytes of a value of
 // this type when allocated in memory.
 func (t Type) Align() int {
-	return (&t[0]).Align()
+	return t[0].Align()
 }
 
 // FieldAlign returns the alignment in bytes of a value of
 // this type when used as a field in a struct.
 func (t Type) FieldAlign() int {
-	return (&t[0]).FieldAlign()
+	return t[0].FieldAlign()
 }
 
 // AssignableTo reports whether a value of the type is assignable to type u.
 func (t Type) AssignableTo(u Type) bool {
-	return (&t[0]).AssignableTo(u)
+	return t[0].AssignableTo(u)
 }
 
 // ConvertibleTo reports whether a value of the type is convertible to type u.
 func (t Type) ConvertibleTo(u Type) bool {
-	return (&t[0]).ConvertibleTo(u)
+	return t[0].ConvertibleTo(u)
 }
 
 // Comparable reports whether values of this type are comparable.
 func (t Type) Comparable() bool {
-	return (&t[0]).Comparable()
+	return t[0].Comparable()
 }
 
 // GoType returns the go/types.Type corresponding to the given type.
 func (t Type) GoType() types.Type {
-	return (&t[0]).GoType()
+	return t[0].GoType()
 }
 
 // Implements reports whether the type implements the interface type u.
 // It panics if u's Kind is not Interface
 func (t Type) Implements(u Type) bool {
-	return (&t[0]).Implements(u)
+	return t[0].Implements(u)
 }
 
 // Name returns the type's name within its package.
@@ -116,7 +117,7 @@ func (t Type) Name() string {
 	if len(t) == 0 {
 		return ""
 	}
-	return (&t[0]).Name()
+	return t[0].Name()
 }
 
 // Named returns whether the type is named.
@@ -125,14 +126,14 @@ func (t Type) Named() bool {
 	if len(t) == 0 {
 		return false
 	}
-	return (&t[0]).Named()
+	return t[0].Named()
 }
 
 // Pkg returns a named type's package, that is, the package where it was defined.
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // Pkg will return nil.
 func (t Type) Pkg() *Package {
-	return (&t[0]).Pkg()
+	return t[0].Pkg()
 }
 
 // PkgName returns a named type's package name, that is,
@@ -140,7 +141,7 @@ func (t Type) Pkg() *Package {
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // the package name will be the empty string.
 func (t Type) PkgName() string {
-	return (&t[0]).PkgName()
+	return t[0].PkgName()
 }
 
 // PkgPath returns a named type's package path, that is, the import path
@@ -148,7 +149,7 @@ func (t Type) PkgName() string {
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // the package path will be the empty string.
 func (t Type) PkgPath() string {
-	return (&t[0]).PkgPath()
+	return t[0].PkgPath()
 }
 
 // ReflectType returns a best-effort reflect.Type that approximates the type.
@@ -170,13 +171,17 @@ func (t Type) PkgPath() string {
 //    i.e. the type name will be missing due to limitation 1 above,
 //    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
 func (t Type) ReflectType() reflect.Type {
-	return (&t[0]).ReflectType()
+	return t[0].ReflectType()
+}
+
+func (t Type) UnsafeForceReflectType(rtype reflect.Type) {
+	t[0].UnsafeForceReflectType(rtype)
 }
 
 // Size returns the number of bytes needed to store
 // a value of the given type; it is analogous to unsafe.Sizeof.
 func (t Type) Size() uintptr {
-	return (&t[0]).Size()
+	return t[0].Size()
 }
 
 // String returns a string representation of a type.
@@ -184,74 +189,75 @@ func (t Type) String() string {
 	if t == nil {
 		return "<nil>"
 	}
-	return (&t[0]).String()
+	return t[0].String()
 }
 
 // AddMethod adds method with given name and signature to type, unless it is already in the method list.
 // It panics if the type is unnamed, or if the signature is not a function-with-receiver type.
 // Returns the method index, or < 0 in case of errors
 func (t Type) AddMethod(name string, signature Type) int {
-	return (&t[0]).AddMethod(name, signature)
+	return t[0].AddMethod(name, signature)
 }
 
 // Bits returns the size of the type in bits.
 // It panics if the type's Kind is not one of the
 // sized or unsized Int, Uint, Float, or Complex kinds.
 func (t Type) Bits() int {
-	return (&t[0]).Bits()
+	return t[0].Bits()
 }
 
 // ChanDir returns a channel type's direction.
 // It panics if the type's Kind is not Chan.
 func (t Type) ChanDir() reflect.ChanDir {
-	return (&t[0]).ChanDir()
+	return t[0].ChanDir()
 }
 
 // Complete marks an interface type as complete and computes wrapper methods for embedded fields.
 // It must be called by users of InterfaceOf after the interface's embedded types are fully defined
 // and before using the interface type in any way other than to form other types.
-// Complete returns the receiver.
+// Complete returns a canonicalized (unique) version of the receiver.
 func (t Type) Complete() Type {
-	return (&t[0]).Complete()
+	t[0].Complete()
+	return t[0].universe.unique(t)
 }
 
 // Elem returns a type's element type.
 // It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
 func (t Type) Elem() Type {
-	return (&t[0]).Elem()
+	return t[0].Elem()
 }
 
 // Field returns a struct type's i-th field.
 // It panics if the type's Kind is not Struct.
 // It panics if i is not in the range [0, NumField()).
 func (t Type) Field(i int) StructField {
-	return (&t[0]).Field(i)
+	return t[0].Field(i)
 }
 
 // FieldByName returns the (possibly embedded) struct field with the given name
 // and the number of fields found at the same (shallowest) depth: 0 if not found.
 // Private fields are returned only if they were declared in pkgpath.
 func (t Type) FieldByName(name, pkgpath string) (field StructField, count int) {
-	return (&t[0]).FieldByName(name, pkgpath)
+	return t[0].FieldByName(name, pkgpath)
 }
 
 // IsMethod reports whether a function type's contains a receiver, i.e. is a method.
 // It panics if the type's Kind is not Func.
 func (t Type) IsMethod() bool {
-	return (&t[0]).IsMethod()
+	return t[0].IsMethod()
 }
 
 // IsVariadic reports whether a function type's final input parameter is a "..." parameter.
 // If so, t.In(t.NumIn() - 1) returns the parameter's implicit actual type []T.
 // IsVariadic panics if the type's Kind is not Func.
 func (t Type) IsVariadic() bool {
-	return (&t[0]).IsVariadic()
+	return t[0].IsVariadic()
 }
 
 // Key returns a map type's key type.
 // It panics if the type's Kind is not Map.
 func (t Type) Key() Type {
-	return (&t[0]).Key()
+	return t[0].Key()
 }
 
 // Kind returns the specific kind of the type.
@@ -259,79 +265,79 @@ func (t Type) Kind() reflect.Kind {
 	if len(t) == 0 {
 		return reflect.Invalid
 	}
-	return (&t[0]).Kind()
+	return t[0].Kind()
 }
 
 // Len returns an array type's length.
 // It panics if the type's Kind is not Array.
 func (t Type) Len() int {
-	return (&t[0]).Len()
+	return t[0].Len()
 }
 
 // In returns the type of a function type's i'th input parameter.
 // It panics if the type's Kind is not Func.
 // It panics if i is not in the range [0, NumIn()).
 func (t Type) In(i int) Type {
-	return (&t[0]).In(i)
+	return t[0].In(i)
 }
 
 // Method return the i-th explicitly declared method of named type or interface t.
 // Wrapper methods for embedded fields or embedded interfaces are not returned.
 // It panics if the type is unnamed, or if the type's Kind is not Interface
 func (t Type) Method(i int) Method {
-	return (&t[0]).Method(i)
+	return t[0].Method(i)
 }
 
 // MethodByName returns the method with given name (including wrapper methods for embedded fields)
 // and the number of methods found at the same (shallowest) depth: 0 if not found.
 // Private methods are returned only if they were declared in pkgpath.
 func (t Type) MethodByName(name, pkgpath string) (method Method, count int) {
-	return (&t[0]).MethodByName(name, pkgpath)
+	return t[0].MethodByName(name, pkgpath)
 }
 
 // NumMethod returns the number of explicitly declared methods of named type or interface t.
 // Wrapper methods for embedded fields or embedded interfaces are not counted.
 func (t Type) NumMethod() int {
-	return (&t[0]).NumMethod()
+	return t[0].NumMethod()
 }
 
 // NumField returns a struct type's field count.
 // It panics if the type's Kind is not Struct.
 func (t Type) NumField() int {
-	return (&t[0]).NumField()
+	return t[0].NumField()
 }
 
 // NumIn returns a function type's input parameter count.
 // It panics if the type's Kind is not Func.
 func (t Type) NumIn() int {
-	return (&t[0]).NumIn()
+	return t[0].NumIn()
 }
 
 // NumOut returns a function type's output parameter count.
 // It panics if the type's Kind is not Func.
 func (t Type) NumOut() int {
-	return (&t[0]).NumOut()
+	return t[0].NumOut()
 }
 
 // Out returns the type of a function type's i'th output parameter.
 // It panics if the type's Kind is not Func.
 // It panics if i is not in the range [0, NumOut()).
 func (t Type) Out(i int) Type {
-	return (&t[0]).Out(i)
+	return t[0].Out(i)
 }
 
 // Recv returns the type of a method type's receiver parameter.
 // It panics if the type's Kind is not Func.
 // It returns nil if t has no receiver.
 func (t Type) Recv() Type {
-	return (&t[0]).Recv()
+	return t[0].Recv()
 }
 
 // SetUnderlying sets the underlying type of a named type and marks it as complete.
 // It panics if the type is unnamed, or if the underlying type is named,
 // or if SetUnderlying() was already invoked on the named type.
 func (t Type) SetUnderlying(underlying Type) {
-	(&t[0]).SetUnderlying(underlying)
+	t[0].SetUnderlying(underlying)
 }
 
 // underlying returns the underlying types.Type of a type.
@@ -339,15 +345,11 @@ func (t Type) SetUnderlying(underlying Type) {
 // Synthetizing the underlying reflect.Type is not possible for interface types,
 // or for struct types with embedded or unexported fields.
 func (t Type) underlying() types.Type {
-	return (&t[0]).underlying()
+	return t[0].underlying()
 }
 
 // GetMethodAddr returns the pointer to the method value for given method index.
 // It panics if the type is unnamed, or if the index is outside [0,NumMethod()-1]
 func (t Type) GetMethodAddr(index int) *reflect.Value {
-	return (&t[0]).GetMethodAddr(index)
-}
-
-func wrap(t *xtype) Type {
-	return []xtype{*t}
+	return t[0].GetMethodAddr(index)
 }

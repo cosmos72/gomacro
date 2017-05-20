@@ -46,7 +46,7 @@ func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
 		c.Errorf("cannot take the address of %v", node.X)
 		return nil
 	} else {
-		return exprX1(xr.PtrTo(place.Type), place.Addr)
+		return exprX1(c.Universe.PtrTo(place.Type), place.Addr)
 	}
 
 }

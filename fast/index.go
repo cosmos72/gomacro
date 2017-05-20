@@ -79,8 +79,8 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(xr.TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(xr.TypeOfInt) {
+		idx.ConstTo(c.TypeOfInt())
+	} else if idx.Type == nil || !idx.Type.AssignableTo(c.TypeOfInt()) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 
@@ -362,7 +362,7 @@ func (c *Comp) stringIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			return str[i]
 		}
 	}
-	return exprUint8(fun)
+	return c.exprUint8(fun)
 }
 func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	t := obj.Type
@@ -408,7 +408,7 @@ func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			return val, []r.Value{val, ok}
 		}
 	}
-	return exprXV([]xr.Type{tval, xr.TypeOfBool}, fun)
+	return exprXV([]xr.Type{tval, c.TypeOfBool()}, fun)
 }
 func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	t := obj.Type
@@ -926,8 +926,8 @@ func (c *Comp) mapPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(xr.TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(xr.TypeOfInt) {
+		idx.ConstTo(c.TypeOfInt())
+	} else if idx.Type == nil || !idx.Type.AssignableTo(c.TypeOfInt()) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 
@@ -962,8 +962,8 @@ func (c *Comp) vectorPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 func (c *Comp) vectorPtrPlace(node *ast.IndexExpr, obj *Expr, idx *Expr) *Place {
 	idxconst := idx.Const()
 	if idxconst {
-		idx.ConstTo(xr.TypeOfInt)
-	} else if idx.Type == nil || !idx.Type.AssignableTo(xr.TypeOfInt) {
+		idx.ConstTo(c.TypeOfInt())
+	} else if idx.Type == nil || !idx.Type.AssignableTo(c.TypeOfInt()) {
 		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
 	}
 

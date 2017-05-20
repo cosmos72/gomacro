@@ -58,7 +58,7 @@ func (c *Comp) BasicLit(node *ast.BasicLit) *Expr {
 		c.Errorf("invalid %s literal: %v", label, str)
 		return nil
 	}
-	return exprUntypedLit(kind, obj)
+	return c.exprUntypedLit(kind, obj)
 }
 
 func constantKindToUntypedLitKind(ckind constant.Kind) r.Kind {
@@ -271,20 +271,8 @@ func (lit *Lit) DefaultType() xr.Type {
 // DefaultType returns the default type of an untyped constant.
 func (untyp *UntypedLit) DefaultType() xr.Type {
 	switch untyp.Kind {
-	case r.Bool:
-		return xr.TypeOfBool
-	case r.Int32: // rune
-		return xr.TypeOfInt32
-	case r.Int:
-		return xr.TypeOfInt
-	case r.Uint:
-		return xr.TypeOfUint
-	case r.Float64:
-		return xr.TypeOfFloat64
-	case r.Complex128:
-		return xr.TypeOfComplex128
-	case r.String:
-		return xr.TypeOfString
+	case r.Bool, r.Int32, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
+		return untyp.Universe.BasicTypes[untyp.Kind]
 	default:
 		Errorf("unexpected untyped constant %v, its default type is not known", untyp)
 		return nil
@@ -508,7 +496,7 @@ again:
 			return x
 		}
 	default:
-		if xr.SameType(t, TypeOfUntypedLit) {
+		if t.ReflectType() == rtypeOfUntypedLit {
 			e.ConstTo(e.DefaultType())
 			goto again
 		}

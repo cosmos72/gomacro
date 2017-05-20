@@ -44,9 +44,52 @@ func (t *xtype) same(u *xtype) bool {
 	return types.IdenticalIgnoreTags(t.GoType(), u.GoType())
 }
 
-func MakeType(gtype types.Type, rtype reflect.Type) Type {
+func (m *Types) add(t Type) {
+	// debugf("added type to cache: %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
+	m.gmap.Set(t.GoType(), t)
+	if t.Kind() == reflect.Interface && t.ReflectType().Kind() == reflect.Struct {
+		errorf("bug!")
+	}
+}
+
+func (v *Universe) unique(t Type) Type {
+	gtype := t.GoType()
+	ret := v.Types.gmap.At(gtype)
+	if ret != nil {
+		// debugf("unique: found type in cache: %v for %v <%v> <%v>", ret, t.Kind(), gtype, t.ReflectType())
+		return ret.(Type)
+	}
+	v.add(t)
+	return t
+}
+
+// all unexported methods assume lock is already held
+func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.Type) Type {
+	ret := v.Types.gmap.At(gtype)
+	if ret != nil {
+		t := ret.(Type)
+		// debugf("found type in cache:\n\t    %v <%v> <%v>\n\tfor %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType(), kind, gtype, rtype)
+		return t
+	}
+	if v.BasicTypes == nil {
+		// lazy creation of basic types
+		v.init()
+	}
+	t := Type{xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v}}
+	v.add(t)
+	return t
+}
+
+func (v *Universe) maketype(gtype types.Type, rtype reflect.Type) Type {
+	return v.maketype3(gtypeToKind(gtype), gtype, rtype)
+}
+
+func (v *Universe) MakeType(gtype types.Type, rtype reflect.Type) Type {
 	kind := gtypeToKind(gtype)
-	return wrap(&xtype{kind, gtype, rtype, nil, nil, nil})
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
+	return v.maketype3(kind, gtype, rtype)
 }
 
 // GoType returns the go/types.Type corresponding to the type.
@@ -74,6 +117,10 @@ func (t *xtype) GoType() types.Type {
 //    and the field 'Rest' will have type interface{} instead of *List due to limitation 5.
 func (t *xtype) ReflectType() reflect.Type {
 	return t.rtype
+}
+
+func (t *xtype) UnsafeForceReflectType(rtype reflect.Type) {
+	t.rtype = rtype
 }
 
 // Named returns whether the type is named.

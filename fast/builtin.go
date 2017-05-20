@@ -67,7 +67,7 @@ var (
 func (top *Comp) addIota() {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	top.Binds["iota"] = BindUntyped(UntypedZero)
+	top.Binds["iota"] = top.BindUntyped(untypedZero)
 }
 
 func (top *Comp) removeIota() {
@@ -75,9 +75,9 @@ func (top *Comp) removeIota() {
 }
 
 func (top *Comp) incrementIota() {
-	uIota := top.Binds["iota"].Lit.Value.(UntypedLit).Obj
-	uIota = constant.BinaryOp(uIota, token.ADD, UntypedOne.Obj)
-	top.Binds["iota"] = BindUntyped(UntypedLit{Kind: r.Int, Obj: uIota})
+	iota := top.Binds["iota"].Lit.Value.(UntypedLit).Obj
+	iota = constant.BinaryOp(iota, token.ADD, untypedOne.Obj)
+	top.Binds["iota"] = top.BindUntyped(UntypedLit{Kind: r.Int, Obj: iota})
 }
 
 // ============================== initialization ===============================
@@ -132,14 +132,15 @@ func (ce *CompEnv) addBuiltins() {
 	*/
 
 	// --------- types ---------
-	for _, t := range xr.BasicTypes {
+	c := ce.Comp
+	for _, t := range c.Universe.BasicTypes {
 		ce.DeclType(t)
 	}
-	ce.DeclTypeAlias("byte", xr.TypeOfUint8)
-	ce.DeclTypeAlias("rune", xr.TypeOfInt32)
-	ce.DeclType(xr.TypeOfError)
+	ce.DeclTypeAlias("byte", c.TypeOfUint8())
+	ce.DeclTypeAlias("rune", c.TypeOfInt32())
+	ce.DeclType(c.TypeOfError())
 
-	ce.DeclType(ce.Comp.TypeOf(time.Duration(0)))
+	ce.DeclType(c.TypeOf(time.Duration(0)))
 
 	/*
 		// --------- proxies ---------
@@ -205,7 +206,7 @@ func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// argument of builtin cap() cannot be a literal
 	arg := c.Expr1(node.Args[0])
 	tin := arg.Type
-	tout := xr.TypeOfInt
+	tout := c.TypeOfInt()
 	switch tin.Kind() {
 	// no cap() on r.Map, see
 	// https://golang.org/ref/spec#Length_and_capacity
@@ -265,8 +266,8 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	im := c.Expr1(node.Args[1])
 	if re.Untyped() {
 		if im.Untyped() {
-			re.ConstTo(xr.TypeOfFloat64)
-			im.ConstTo(xr.TypeOfFloat64)
+			re.ConstTo(c.TypeOfFloat64())
+			im.ConstTo(c.TypeOfFloat64())
 		} else {
 			re.ConstTo(im.Type)
 		}
@@ -276,12 +277,12 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	c.toSameFuncType(node, re, im)
 	kre := base.KindToCategory(re.Type.Kind())
 	if re.Const() && kre != r.Float64 {
-		re.ConstTo(xr.TypeOfFloat64)
+		re.ConstTo(c.TypeOfFloat64())
 		kre = r.Float64
 	}
 	kim := base.KindToCategory(im.Type.Kind())
 	if im.Const() && kim != r.Float64 {
-		im.ConstTo(xr.TypeOfFloat64)
+		im.ConstTo(c.TypeOfFloat64())
 		kim = r.Float64
 	}
 	if kre != r.Float64 {
@@ -298,10 +299,10 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	var call I
 	switch k {
 	case r.Float32:
-		tout = xr.TypeOfComplex64
+		tout = c.TypeOfComplex64()
 		call = callComplex64
 	case r.Float64:
-		tout = xr.TypeOfComplex128
+		tout = c.TypeOfComplex128()
 		call = callComplex128
 	default:
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "floating point")
@@ -347,7 +348,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	} else if !xr.SameType(t0.Elem(), t1.Elem()) {
 		c.Errorf("arguments to copy have different element types: <%v> and <%v>", t0.Elem(), t1.Elem())
 	}
-	outtypes := []xr.Type{xr.TypeOfInt}
+	outtypes := []xr.Type{c.TypeOfInt()}
 	t := xr.FuncOf([]xr.Type{t0, t1}, outtypes, false)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: funCopy}, &sym)
@@ -404,7 +405,7 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		arg.ConstTo(arg.DefaultType())
 	}
 	tin := arg.Type
-	tout := xr.TypeOfInt
+	tout := c.TypeOfInt()
 	switch tin.Kind() {
 	case r.Array, r.Chan, r.Map, r.Slice, r.String:
 		// ok
@@ -471,9 +472,9 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	}
 	args := make([]*Expr, nargs)
 	argtypes := make([]xr.Type, nargs)
-	args[0] = c.exprValue(xr.TypeOfInterface, tin.ReflectType()) // no need to build TypeOfReflectType
-	argtypes[0] = xr.TypeOfInterface
-	te := xr.TypeOfInt
+	argtypes[0] = c.TypeOfInterface()
+	args[0] = c.exprValue(argtypes[0], tin.ReflectType()) // no need to build TypeOfReflectType
+	te := c.TypeOfInt()
 	for i := 1; i < nargs; i++ {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
@@ -501,10 +502,10 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 func compileNew(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	tin := c.Type(node.Args[0])
 	tout := xr.PtrTo(tin)
-	t := xr.FuncOf([]xr.Type{xr.TypeOfInterface}, []xr.Type{tout}, false) // no need to build TypeOfReflectType
+	t := xr.FuncOf([]xr.Type{c.TypeOfInterface()}, []xr.Type{tout}, false) // no need to build TypeOfReflectType
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: r.New}, &sym)
-	arg := c.exprValue(xr.TypeOfInterface, tin.ReflectType())
+	arg := c.exprValue(c.TypeOfInterface(), tin.ReflectType())
 	return newCall1(fun, arg, false, tout)
 }
 
@@ -514,15 +515,13 @@ func callPanic(arg interface{}) {
 	panic(arg)
 }
 
-var typeOfBuiltinPanic = xr.TypeOf(callPanic)
-
 func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	arg := c.Expr1(node.Args[0])
 	if arg.Const() {
 		arg.ConstTo(arg.DefaultType())
 	}
 
-	t := typeOfBuiltinPanic
+	t := c.TypeOf(callPanic)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: callPanic}, &sym)
 	return newCall1(fun, arg, false)
@@ -542,8 +541,6 @@ func getStdout(env *Env) r.Value {
 	return r.ValueOf(env.ThreadGlobals.Stdout)
 }
 
-var typeOfBuiltinPrint = xr.TypeOf(callPrint)
-
 func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args := c.Exprs(node.Args)
 	for _, arg := range args {
@@ -551,10 +548,10 @@ func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 			arg.ConstTo(arg.DefaultType())
 		}
 	}
-	arg0 := exprFun(xr.TypeOfInterface, getStdout) // no need to build TypeOfIoWriter
+	arg0 := exprFun(c.TypeOfInterface(), getStdout) // no need to build TypeOfIoWriter
 	args = append([]*Expr{arg0}, args...)
 
-	t := typeOfBuiltinPrint
+	t := c.TypeOf(callPrint)
 	sym.Type = t
 	call := callPrint
 	if sym.Name == "println" {
@@ -592,14 +589,14 @@ func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	var call I
 	switch tin.Kind() {
 	case r.Complex64:
-		tout = xr.TypeOfFloat32
+		tout = c.TypeOfFloat32()
 		if sym.Name == "real" {
 			call = callReal32
 		} else {
 			call = callImag32
 		}
 	case r.Complex128:
-		tout = xr.TypeOfFloat64
+		tout = c.TypeOfFloat64()
 		if sym.Name == "real" {
 			call = callReal64
 		} else {
@@ -618,17 +615,17 @@ func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 // ============================ support functions =============================
 
 // call_builtin compiles a call to a builtin function: append, cap, copy, delete, len, make, new...
-func call_builtin(c *Call) I {
+func (c *Comp) call_builtin(call *Call) I {
 	// builtin functions are always literals, i.e. funindex == NoIndex thus not stored in Env.Binds[]
 	// we must retrieve them directly from c.Fun.Value
-	if !c.Fun.Const() {
-		base.Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", c.Fun)
+	if !call.Fun.Const() {
+		base.Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", call.Fun)
 	}
 	var name string
-	if c.Fun.Sym != nil {
-		name = c.Fun.Sym.Name
+	if call.Fun.Sym != nil {
+		name = call.Fun.Sym.Name
 	}
-	args := c.Args
+	args := call.Args
 	argfuns := make([]I, len(args))
 	for i, arg := range args {
 		argfuns[i] = arg.WithFun()
@@ -640,33 +637,33 @@ func call_builtin(c *Call) I {
 		}
 		// Debugf("compiling builtin %s() <%v> with arg types %v", name, TypeOf(c.Fun.Value), argtypes)
 	}
-	var call I
-	switch fun := c.Fun.Value.(type) {
+	var ret I
+	switch fun := call.Fun.Value.(type) {
 	case func(float32, float32) complex64: // complex
 		arg0fun := argfuns[0].(func(*Env) float32)
 		arg1fun := argfuns[1].(func(*Env) float32)
 		if name == "complex" {
 			if args[0].Const() {
 				arg0 := args[0].Value.(float32)
-				call = func(env *Env) complex64 {
+				ret = func(env *Env) complex64 {
 					arg1 := arg1fun(env)
 					return complex(arg0, arg1)
 				}
 			} else if args[1].Const() {
 				arg1 := args[1].Value.(float32)
-				call = func(env *Env) complex64 {
+				ret = func(env *Env) complex64 {
 					arg0 := arg0fun(env)
 					return complex(arg0, arg1)
 				}
 			} else {
-				call = func(env *Env) complex64 {
+				ret = func(env *Env) complex64 {
 					arg0 := arg0fun(env)
 					arg1 := arg1fun(env)
 					return complex(arg0, arg1)
 				}
 			}
 		} else {
-			call = func(env *Env) complex64 {
+			ret = func(env *Env) complex64 {
 				arg0 := arg0fun(env)
 				arg1 := arg1fun(env)
 				return fun(arg0, arg1)
@@ -678,25 +675,25 @@ func call_builtin(c *Call) I {
 		if name == "complex" {
 			if args[0].Const() {
 				arg0 := args[0].Value.(float64)
-				call = func(env *Env) complex128 {
+				ret = func(env *Env) complex128 {
 					arg1 := arg1fun(env)
 					return complex(arg0, arg1)
 				}
 			} else if args[1].Const() {
 				arg1 := args[1].Value.(float64)
-				call = func(env *Env) complex128 {
+				ret = func(env *Env) complex128 {
 					arg0 := arg0fun(env)
 					return complex(arg0, arg1)
 				}
 			} else {
-				call = func(env *Env) complex128 {
+				ret = func(env *Env) complex128 {
 					arg0 := arg0fun(env)
 					arg1 := arg1fun(env)
 					return complex(arg0, arg1)
 				}
 			}
 		} else {
-			call = func(env *Env) complex128 {
+			ret = func(env *Env) complex128 {
 				arg0 := arg0fun(env)
 				arg1 := arg1fun(env)
 				return fun(arg0, arg1)
@@ -705,17 +702,17 @@ func call_builtin(c *Call) I {
 	case func(complex64) float32: // real(), imag()
 		argfun := argfuns[0].(func(*Env) complex64)
 		if name == "real" {
-			call = func(env *Env) float32 {
+			ret = func(env *Env) float32 {
 				arg := argfun(env)
 				return real(arg)
 			}
 		} else if name == "imag" {
-			call = func(env *Env) float32 {
+			ret = func(env *Env) float32 {
 				arg := argfun(env)
 				return imag(arg)
 			}
 		} else {
-			call = func(env *Env) float32 {
+			ret = func(env *Env) float32 {
 				arg := argfun(env)
 				return fun(arg)
 			}
@@ -723,17 +720,17 @@ func call_builtin(c *Call) I {
 	case func(complex128) float64: // real(), imag()
 		argfun := argfuns[0].(func(*Env) complex128)
 		if name == "real" {
-			call = func(env *Env) float64 {
+			ret = func(env *Env) float64 {
 				arg := argfun(env)
 				return real(arg)
 			}
 		} else if name == "imag" {
-			call = func(env *Env) float64 {
+			ret = func(env *Env) float64 {
 				arg := argfun(env)
 				return imag(arg)
 			}
 		} else {
-			call = func(env *Env) float64 {
+			ret = func(env *Env) float64 {
 				arg := argfun(env)
 				return fun(arg)
 			}
@@ -741,12 +738,12 @@ func call_builtin(c *Call) I {
 	case func(string) int: // len(string)
 		argfun := argfuns[0].(func(*Env) string)
 		if name == "len" {
-			call = func(env *Env) int {
+			ret = func(env *Env) int {
 				arg := argfun(env)
 				return len(arg)
 			}
 		} else {
-			call = func(env *Env) int {
+			ret = func(env *Env) int {
 				arg := argfun(env)
 				return fun(arg)
 			}
@@ -756,7 +753,7 @@ func call_builtin(c *Call) I {
 		if args[1].Const() {
 			// string is a literal
 			arg1const := args[1].Value.(string)
-			call = func(env *Env) int {
+			ret = func(env *Env) int {
 				// arg0 is "assignable to []byte"
 				arg0 := arg0fun(env)
 				if arg0.Type() != rtypeOfSliceOfByte {
@@ -766,7 +763,7 @@ func call_builtin(c *Call) I {
 			}
 		} else {
 			arg1fun := args[1].Fun.(func(*Env) string)
-			call = func(env *Env) int {
+			ret = func(env *Env) int {
 				// arg0 is "assignable to []byte"
 				arg0 := arg0fun(env)
 				if arg0.Type() != rtypeOfSliceOfByte {
@@ -777,33 +774,33 @@ func call_builtin(c *Call) I {
 			}
 		}
 	case func(interface{}): // panic()
-		argfunsX1 := c.MakeArgfunsX1()
+		argfunsX1 := call.MakeArgfunsX1()
 		argfun := argfunsX1[0]
 		if name == "panic" {
-			call = func(env *Env) {
+			ret = func(env *Env) {
 				arg := argfun(env).Interface()
 				panic(arg)
 			}
 		} else {
-			call = func(env *Env) {
+			ret = func(env *Env) {
 				arg := argfun(env).Interface()
 				fun(arg)
 			}
 		}
 	case func(interface{}, ...interface{}): // print, println()
-		argfunsX1 := c.MakeArgfunsX1()
-		if c.Ellipsis {
+		argfunsX1 := call.MakeArgfunsX1()
+		if call.Ellipsis {
 			argfuns := [2]func(*Env) r.Value{
 				argfunsX1[0],
 				argfunsX1[1],
 			}
-			call = func(env *Env) {
+			ret = func(env *Env) {
 				arg0 := argfuns[0](env).Interface()
 				argslice := argfuns[1](env).Interface().([]interface{})
 				fun(arg0, argslice...)
 			}
 		} else {
-			call = func(env *Env) {
+			ret = func(env *Env) {
 				args := make([]interface{}, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					args[i] = argfun(env).Interface()
@@ -812,75 +809,75 @@ func call_builtin(c *Call) I {
 			}
 		}
 	case func(r.Value): // close()
-		argfun := c.MakeArgfunsX1()[0]
+		argfun := call.MakeArgfunsX1()[0]
 		if name == "close" {
-			call = func(env *Env) {
+			ret = func(env *Env) {
 				arg := argfun(env)
 				arg.Close()
 			}
 		} else {
-			call = func(env *Env) {
+			ret = func(env *Env) {
 				arg := argfun(env)
 				fun(arg)
 			}
 		}
 	case func(r.Value) int: // cap(), len()
-		argfun := c.MakeArgfunsX1()[0]
-		call = func(env *Env) int {
+		argfun := call.MakeArgfunsX1()[0]
+		ret = func(env *Env) int {
 			arg := argfun(env)
 			return fun(arg)
 		}
 	case func(r.Value) r.Value: // Env()
-		argfun := c.MakeArgfunsX1()[0]
+		argfun := call.MakeArgfunsX1()[0]
 		if name == "Env" {
-			call = func(env *Env) r.Value {
+			ret = func(env *Env) r.Value {
 				arg0 := argfun(env)
 				return arg0
 			}
 		} else {
-			call = func(env *Env) r.Value {
+			ret = func(env *Env) r.Value {
 				arg0 := argfun(env)
 				return fun(arg0)
 			}
 		}
 	case func(r.Value, r.Value): // delete()
-		argfunsX1 := c.MakeArgfunsX1()
+		argfunsX1 := call.MakeArgfunsX1()
 		argfuns := [2]func(env *Env) r.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 		}
-		call = func(env *Env) {
+		ret = func(env *Env) {
 			arg0 := argfuns[0](env)
 			arg1 := argfuns[1](env)
 			fun(arg0, arg1)
 		}
 	case func(r.Value, r.Value) int: // copy()
-		argfunsX1 := c.MakeArgfunsX1()
+		argfunsX1 := call.MakeArgfunsX1()
 		argfuns := [2]func(env *Env) r.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 		}
-		call = func(env *Env) int {
+		ret = func(env *Env) int {
 			arg0 := argfuns[0](env)
 			arg1 := argfuns[1](env)
 			return fun(arg0, arg1)
 		}
 	case func(r.Value, ...r.Value) r.Value: // append()
-		argfunsX1 := c.MakeArgfunsX1()
-		if c.Ellipsis {
+		argfunsX1 := call.MakeArgfunsX1()
+		if call.Ellipsis {
 			argfuns := [2]func(*Env) r.Value{
 				argfunsX1[0],
 				argfunsX1[1],
 			}
 			if name == "append" {
-				call = func(env *Env) r.Value {
+				ret = func(env *Env) r.Value {
 					arg0 := argfuns[0](env)
 					arg1 := argfuns[1](env)
 					argslice := unwrapSlice(arg1)
 					return r.Append(arg0, argslice...)
 				}
 			} else {
-				call = func(env *Env) r.Value {
+				ret = func(env *Env) r.Value {
 					arg0 := argfuns[0](env)
 					arg1 := argfuns[1](env)
 					argslice := unwrapSlice(arg1)
@@ -889,7 +886,7 @@ func call_builtin(c *Call) I {
 			}
 		} else {
 			if name == "append" {
-				call = func(env *Env) r.Value {
+				ret = func(env *Env) r.Value {
 					args := make([]r.Value, len(argfunsX1))
 					for i, argfun := range argfunsX1 {
 						args[i] = argfun(env)
@@ -897,7 +894,7 @@ func call_builtin(c *Call) I {
 					return r.Append(args[0], args[1:]...)
 				}
 			} else {
-				call = func(env *Env) r.Value {
+				ret = func(env *Env) r.Value {
 					args := make([]r.Value, len(argfunsX1))
 					for i, argfun := range argfunsX1 {
 						args[i] = argfun(env)
@@ -909,18 +906,18 @@ func call_builtin(c *Call) I {
 	case func(r.Type) r.Value: // new(), make()
 		arg0 := args[0].Value.(r.Type)
 		if name == "new" {
-			call = func(env *Env) r.Value {
+			ret = func(env *Env) r.Value {
 				return r.New(arg0)
 			}
 		} else {
-			call = func(env *Env) r.Value {
+			ret = func(env *Env) r.Value {
 				return fun(arg0)
 			}
 		}
 	case func(r.Type, int) r.Value: // make()
 		arg0 := args[0].Value.(r.Type)
 		arg1fun := argfuns[1].(func(*Env) int)
-		call = func(env *Env) r.Value {
+		ret = func(env *Env) r.Value {
 			arg1 := arg1fun(env)
 			return fun(arg0, arg1)
 		}
@@ -928,7 +925,7 @@ func call_builtin(c *Call) I {
 		arg0 := args[0].Value.(r.Type)
 		arg1fun := argfuns[1].(func(*Env) int)
 		arg2fun := argfuns[2].(func(*Env) int)
-		call = func(env *Env) r.Value {
+		ret = func(env *Env) r.Value {
 			arg1 := arg1fun(env)
 			arg2 := arg2fun(env)
 			return fun(arg0, arg1, arg2)
@@ -936,7 +933,7 @@ func call_builtin(c *Call) I {
 	default:
 		base.Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
 	}
-	return call
+	return ret
 }
 
 // unwrapSlice accepts a reflect.Value with kind == reflect.Array, Slice or String
@@ -978,7 +975,7 @@ func (c *Comp) callFunction(node *ast.CallExpr, fun *Expr) (newfun *Expr, lastar
 	}
 	newfun = exprLit(Lit{Type: t, Value: function.Fun}, sym)
 	if len(node.Args) < t.NumIn() {
-		lastarg = exprX1(xr.TypeOfInterface, func(env *Env) r.Value {
+		lastarg = exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
 			return r.ValueOf(&CompEnv{Comp: c, env: env})
 		})
 	}

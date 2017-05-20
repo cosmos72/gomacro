@@ -56,7 +56,7 @@ func (t *xtype) Method(i int) Method {
 		rfunc = rmethod.Func
 		rfunctype = rmethod.Type
 	}
-	return makemethod(i, gfun, rfunc, rfunctype)
+	return t.universe.makemethod(i, gfun, rfunc, rfunctype)
 }
 
 func (t *xtype) method(i int) *types.Func {
@@ -71,28 +71,32 @@ func (t *xtype) method(i int) *types.Func {
 	return gfun
 }
 
-func makemethod(index int, gfun *types.Func, rfunc reflect.Value, rfunctype reflect.Type) Method {
+func (v *Universe) makemethod(index int, gfun *types.Func, rfunc reflect.Value, rfunctype reflect.Type) Method {
 	return Method{
 		Name:  gfun.Name(),
 		Pkg:   (*Package)(gfun.Pkg()),
-		Type:  MakeType(gfun.Type(), rfunctype),
+		Type:  v.MakeType(gfun.Type(), rfunctype),
 		Func:  rfunc,
 		Index: index,
 	}
 }
 
-// NamedOf returns a new named type for the given type name.
-// Initially, the underlying type is set to interface{} - use SetUnderlying to change it.
-// These two steps are separate to allow creating self-referencing types,
-// as for example type List struct { Elem int; Rest *List }
-func NamedOf(name string, pkg *Package) Type {
-	underlying := TypeOfInterface
+func (v *Universe) NamedOf(name, pkgpath string) Type {
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
+	return v.namedOf(name, pkgpath)
+}
+
+func (v *Universe) namedOf(name, pkgpath string) Type {
+	underlying := v.TypeOfInterface
+	pkg := v.newPackage(pkgpath, "")
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
-	return wrap(&xtype{
-		kind:  reflect.Invalid, // incomplete type! will be fixed by SetUnderlying
-		gtype: types.NewNamed(typename, underlying.GoType(), nil),
-		rtype: underlying.ReflectType(),
-	})
+	return v.maketype3(
+		reflect.Invalid, // incomplete type! will be fixed by SetUnderlying
+		types.NewNamed(typename, underlying.GoType(), nil),
+		underlying.ReflectType(),
+	)
 }
 
 // SetUnderlying sets the underlying type of a named type and marks t as complete.
@@ -101,10 +105,11 @@ func NamedOf(name string, pkg *Package) Type {
 func (t *xtype) SetUnderlying(underlying Type) {
 	switch gtype := t.gtype.(type) {
 	case *types.Named:
-		if t.kind != reflect.Invalid || gtype.Underlying() != TypeOfInterface.GoType() || t.rtype != TypeOfInterface.ReflectType() {
+		v := t.universe
+		if t.kind != reflect.Invalid || gtype.Underlying() != v.TypeOfInterface.GoType() || t.rtype != v.TypeOfInterface.ReflectType() {
 			errorf("SetUnderlying invoked multiple times on named type %v", t)
 		}
-		gunderlying := underlying.GoType()
+		gunderlying := underlying.GoType().Underlying() // in case underlying is named
 		t.kind = gtypeToKind(gunderlying)
 		gtype.SetUnderlying(gunderlying)
 		t.rtype = underlying.ReflectType()

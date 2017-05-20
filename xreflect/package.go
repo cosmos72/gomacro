@@ -29,15 +29,34 @@ import (
 	"strings"
 )
 
-func NewPackage(path, name string) *Package {
+func (v *Universe) newPackage(path, name string) *Package {
 	if len(path) == 0 {
 		// do not create unnamed packages
 		return nil
 	}
-	if len(name) == 0 {
-		name = path[1+strings.LastIndexByte(path, '/'):]
+	pkg := v.Packages[path]
+	if pkg == nil {
+		if len(name) == 0 {
+			name = path[1+strings.LastIndexByte(path, '/'):]
+		}
+		if v.Packages == nil {
+			v.Packages = make(map[string]*Package)
+		}
+		pkg = (*Package)(types.NewPackage(path, name))
+		v.Packages[path] = pkg
 	}
-	return (*Package)(types.NewPackage(path, name))
+	return pkg
+}
+
+func (v *Universe) NewPackage(path, name string) *Package {
+	if len(path) == 0 {
+		// do not create unnamed packages
+		return nil
+	}
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
+	return v.newPackage(path, name)
 }
 
 func (pkg *Package) GoPackage() *types.Package {

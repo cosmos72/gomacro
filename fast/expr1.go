@@ -33,11 +33,15 @@ import (
 )
 
 func (c *Comp) litValue(value I) Lit {
+	if untyp, ok := value.(UntypedLit); ok && untyp.Universe != c.Universe {
+		untyp.Universe = c.Universe
+		value = untyp
+	}
 	return Lit{Type: c.TypeOf(value), Value: value}
 }
 
-func exprUntypedLit(kind r.Kind, value constant.Value) *Expr {
-	return &Expr{Lit: Lit{Type: TypeOfUntypedLit, Value: UntypedLit{Kind: kind, Obj: value}}}
+func (c *Comp) exprUntypedLit(kind r.Kind, obj constant.Value) *Expr {
+	return &Expr{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: UntypedLit{Kind: kind, Obj: obj, Universe: c.Universe}}}
 }
 
 func (c *Comp) exprValue(t xr.Type, value I) *Expr {
@@ -71,72 +75,16 @@ func expr0(fun func(env *Env)) *Expr {
 	return &Expr{Types: zeroTypes, Fun: fun}
 }
 
-func exprBool(fun func(env *Env) bool) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfBool}, Fun: fun}
+func (c *Comp) exprBool(fun func(env *Env) bool) *Expr {
+	return &Expr{Lit: Lit{Type: c.TypeOfBool()}, Fun: fun}
 }
 
-func exprInt(fun func(env *Env) int) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfInt}, Fun: fun}
+func (c *Comp) exprUint8(fun func(env *Env) uint8) *Expr {
+	return &Expr{Lit: Lit{Type: c.TypeOfUint8()}, Fun: fun}
 }
 
-func exprInt8(fun func(env *Env) int8) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfInt8}, Fun: fun}
-}
-
-func exprInt16(fun func(env *Env) int16) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfInt16}, Fun: fun}
-}
-
-func exprInt32(fun func(env *Env) int32) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfInt32}, Fun: fun}
-}
-
-func exprInt64(fun func(env *Env) int64) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfInt64}, Fun: fun}
-}
-
-func exprUint(fun func(env *Env) uint) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfUint}, Fun: fun}
-}
-
-func exprUint8(fun func(env *Env) uint8) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfUint8}, Fun: fun}
-}
-
-func exprUint16(fun func(env *Env) uint16) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfUint16}, Fun: fun}
-}
-
-func exprUint32(fun func(env *Env) uint32) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfUint32}, Fun: fun}
-}
-
-func exprUint64(fun func(env *Env) uint64) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfUint64}, Fun: fun}
-}
-
-func exprUintptr(fun func(env *Env) uintptr) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfUintptr}, Fun: fun}
-}
-
-func exprFloat32(fun func(env *Env) float32) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfFloat32}, Fun: fun}
-}
-
-func exprFloat64(fun func(env *Env) float64) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfFloat64}, Fun: fun}
-}
-
-func exprComplex64(fun func(env *Env) complex64) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfComplex64}, Fun: fun}
-}
-
-func exprComplex128(fun func(env *Env) complex128) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfComplex128}, Fun: fun}
-}
-
-func exprString(fun func(env *Env) string) *Expr {
-	return &Expr{Lit: Lit{Type: xr.TypeOfString}, Fun: fun}
+func (c *Comp) exprString(fun func(env *Env) string) *Expr {
+	return &Expr{Lit: Lit{Type: c.TypeOfString()}, Fun: fun}
 }
 
 func (expr *Expr) EvalConst(opts CompileOptions) I {

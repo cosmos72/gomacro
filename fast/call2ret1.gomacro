@@ -84,7 +84,7 @@ import (
 	if EvalType(rettyp) == nil {
 		// keep the arguments and result wrapped in a reflect.Value
 		return ~"{
-			call = func(env *Env) r.Value {
+			ret = func(env *Env) r.Value {
 				funv := exprfun(env)
 				argv := []r.Value{
 					argfuns[0](env),
@@ -99,7 +99,7 @@ import (
 
 	if EvalType(arg0typ) == nil || EvalType(arg1typ) == nil {
 		return ~"{
-			call = func(env *Env) ~,rettyp {
+			ret = func(env *Env) ~,rettyp {
 				funv := exprfun(env)
 				argv := []r.Value{
 					argfuns[0](env),
@@ -124,7 +124,7 @@ import (
 		arg1fun := args[1].WithFun().(func(env *Env) ~,arg1typ)
 		if funsym != nil && funupn == maxdepth - 1 {
 			var cachedfun func(~,arg0typ, ~,arg1typ) ~,rettyp
-			call = func(env *Env) ~,rettyp {
+			ret = func(env *Env) ~,rettyp {
 				funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 				~,cachefun
 				arg0 := arg0fun(env)
@@ -133,7 +133,7 @@ import (
 				return cachedfun(arg0, arg1)
 			}
 		} else {
-			call = func(env *Env) ~,rettyp {
+			ret = func(env *Env) ~,rettyp {
 				fun := exprfun(env).Interface().(func(~,arg0typ , ~,arg1typ) ~,rettyp)
 				arg0 := arg0fun(env)
 				arg1 := arg1fun(env)
@@ -198,14 +198,14 @@ import (
 				case r.String:    {mcall2ret1; string;     string;     ~,rettyp}
 			}
 		}
-		if call == nil {
+		if ret == nil {
 			{mcall2ret1; nil; nil; ~,rettyp}
 		}
 	}
 }
 
-func call2ret1(c *Call, maxdepth int) I {
-	expr := c.Fun
+func (c *Comp) call2ret1(call *Call, maxdepth int) I {
+	expr := call.Fun
 	exprfun := expr.AsX1()
 	funsym := expr.Sym
 	funupn, funindex := -1, -1
@@ -219,14 +219,14 @@ func call2ret1(c *Call, maxdepth int) I {
 	t := expr.Type
 	rtarg0, rtarg1, rtret := t.In(0).ReflectType(), t.In(1).ReflectType(), t.Out(0).ReflectType()
 	karg0, kret := rtarg0.Kind(), rtret.Kind()
-	args := c.Args
-	argfunsX1 := c.MakeArgfunsX1()
+	args := call.Args
+	argfunsX1 := call.MakeArgfunsX1()
 	argfuns := [2]func(*Env) r.Value {
 		argfunsX1[0],
 		argfunsX1[1],
 	}
 	var cachedfunv r.Value
-	var call I
+	var ret I
 	if KindToType(kret) == rtret {
 		switch kret {
 		case r.Bool:      {mcallxy2ret1; bool}
@@ -248,8 +248,8 @@ func call2ret1(c *Call, maxdepth int) I {
 		case r.String:    {mcallxy2ret1; string}
 		}
 	}
-	if call == nil {
+	if ret == nil {
 		{mcall2ret1;   nil; nil; nil} // cannot optimize more this one...
 	}
-	return call
+	return ret
 }

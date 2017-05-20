@@ -41,19 +41,27 @@ func (t *xtype) ChanDir() reflect.ChanDir {
 // Elem returns a type's element type.
 // It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
 func (t *xtype) Elem() Type {
+	v := t.universe
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
+	return t.elem()
+}
+
+func (t *xtype) elem() Type {
 	gtype := t.underlying()
 	rtype := t.rtype
 	switch gtype := gtype.(type) {
 	case *types.Array:
-		return MakeType(gtype.Elem(), rtype.Elem())
+		return t.universe.maketype(gtype.Elem(), rtype.Elem())
 	case *types.Chan:
-		return MakeType(gtype.Elem(), rtype.Elem())
+		return t.universe.maketype(gtype.Elem(), rtype.Elem())
 	case *types.Map:
-		return MakeType(gtype.Elem(), rtype.Elem())
+		return t.universe.maketype(gtype.Elem(), rtype.Elem())
 	case *types.Pointer:
-		return MakeType(gtype.Elem(), rtype.Elem())
+		return t.universe.maketype(gtype.Elem(), rtype.Elem())
 	case *types.Slice:
-		return MakeType(gtype.Elem(), rtype.Elem())
+		return t.universe.maketype(gtype.Elem(), rtype.Elem())
 	default:
 		errorf("Elem of invalid type %v", t)
 		return nil
@@ -67,7 +75,7 @@ func (t *xtype) Key() Type {
 		errorf("Key of non-map type %v", t)
 	}
 	gtype := t.underlying().(*types.Map)
-	return MakeType(gtype.Key(), t.rtype.Key())
+	return t.universe.MakeType(gtype.Key(), t.rtype.Key())
 }
 
 // Len returns an array type's length.
@@ -79,33 +87,53 @@ func (t *xtype) Len() int {
 	return t.rtype.Len()
 }
 
-func ArrayOf(count int, elem Type) Type {
-	return MakeType(
+func (v *Universe) ArrayOf(count int, elem Type) Type {
+	return v.MakeType(
 		types.NewArray(elem.GoType(), int64(count)),
 		reflect.ArrayOf(count, elem.ReflectType()))
 }
 
-func ChanOf(dir reflect.ChanDir, elem Type) Type {
+func (v *Universe) ChanOf(dir reflect.ChanDir, elem Type) Type {
 	gdir := dirToGdir(dir)
-	return MakeType(
+	return v.MakeType(
 		types.NewChan(gdir, elem.GoType()),
 		reflect.ChanOf(dir, elem.ReflectType()))
 }
 
-func MapOf(key, elem Type) Type {
-	return MakeType(
+func (v *Universe) MapOf(key, elem Type) Type {
+	return v.MakeType(
 		types.NewMap(key.GoType(), elem.GoType()),
 		reflect.MapOf(key.ReflectType(), elem.ReflectType()))
 }
 
-func PtrTo(elem Type) Type {
-	return MakeType(
+func (v *Universe) PtrTo(elem Type) Type {
+	return v.MakeType(
 		types.NewPointer(elem.GoType()),
 		reflect.PtrTo(elem.ReflectType()))
 }
 
-func SliceOf(elem Type) Type {
-	return MakeType(
+func (v *Universe) SliceOf(elem Type) Type {
+	return v.MakeType(
 		types.NewSlice(elem.GoType()),
 		reflect.SliceOf(elem.ReflectType()))
+}
+
+func ArrayOf(count int, elem Type) Type {
+	return elem[0].universe.ArrayOf(count, elem)
+}
+
+func ChanOf(dir reflect.ChanDir, elem Type) Type {
+	return elem[0].universe.ChanOf(dir, elem)
+}
+
+func MapOf(key, elem Type) Type {
+	return key[0].universe.MapOf(key, elem)
+}
+
+func PtrTo(elem Type) Type {
+	return elem[0].universe.PtrTo(elem)
+}
+
+func SliceOf(elem Type) Type {
+	return elem[0].universe.SliceOf(elem)
 }

@@ -82,9 +82,9 @@ func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
 	}
 	t := fun.Type
 	var lastarg *Expr
-	if xr.SameType(t, TypeOfBuiltin) {
+	if xr.SameType(t, c.TypeOfBuiltin()) {
 		return c.callBuiltin(node, fun)
-	} else if xr.SameType(t, TypeOfFunction) {
+	} else if xr.SameType(t, c.TypeOfFunction()) {
 		fun, lastarg = c.callFunction(node, fun)
 		t = fun.Type
 	}
@@ -117,13 +117,13 @@ func (c *Comp) call_any(call *Call) *Expr {
 
 	maxdepth := c.Depth
 	if call.Fun.Const() {
-		expr.Fun = call_builtin(call)
+		expr.Fun = c.call_builtin(call)
 	} else if nout == 0 {
-		expr.Fun = call_ret0(call, maxdepth)
+		expr.Fun = c.call_ret0(call, maxdepth)
 	} else if nout == 1 {
-		expr.Fun = call_ret1(call, maxdepth)
+		expr.Fun = c.call_ret1(call, maxdepth)
 	} else {
-		expr.Fun = call_ret2plus(call, maxdepth)
+		expr.Fun = c.call_ret2plus(call, maxdepth)
 	}
 	// constant propagation - only if function returns a single value
 	if call.Const && len(call.OutTypes) == 1 {
@@ -178,30 +178,30 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 
 // mandatory optimization: fast_interpreter ASSUMES that expressions
 // returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
-func call_ret0(c *Call, maxdepth int) func(env *Env) {
-	if c.Ellipsis {
-		return call_ellipsis_ret0(c, maxdepth)
-	} else if c.Fun.Type.IsVariadic() {
-		return call_variadic_ret0(c, maxdepth)
+func (c *Comp) call_ret0(call *Call, maxdepth int) func(env *Env) {
+	if call.Ellipsis {
+		return call_ellipsis_ret0(call, maxdepth)
+	} else if call.Fun.Type.IsVariadic() {
+		return call_variadic_ret0(call, maxdepth)
 	}
 	// optimize fun(t1, t2)
-	exprfun := c.Fun.AsX1()
-	var call func(*Env)
-	switch len(c.Args) {
+	exprfun := call.Fun.AsX1()
+	var ret func(*Env)
+	switch len(call.Args) {
 	case 0:
-		call = call0ret0(c, maxdepth)
+		ret = c.call0ret0(call, maxdepth)
 	case 1:
-		call = call1ret0(c, maxdepth)
+		ret = c.call1ret0(call, maxdepth)
 	case 2:
-		call = call2ret0(c, maxdepth)
+		ret = c.call2ret0(call, maxdepth)
 	case 3:
-		argfunsX1 := c.MakeArgfunsX1()
+		argfunsX1 := call.MakeArgfunsX1()
 		argfuns := [3]func(*Env) r.Value{
 			argfunsX1[0],
 			argfunsX1[1],
 			argfunsX1[2],
 		}
-		call = func(env *Env) {
+		ret = func(env *Env) {
 			funv := exprfun(env)
 			argv := []r.Value{
 				argfuns[0](env),
@@ -211,9 +211,9 @@ func call_ret0(c *Call, maxdepth int) func(env *Env) {
 			funv.Call(argv)
 		}
 	}
-	if call == nil {
-		argfunsX1 := c.MakeArgfunsX1()
-		call = func(env *Env) {
+	if ret == nil {
+		argfunsX1 := call.MakeArgfunsX1()
+		ret = func(env *Env) {
 			funv := exprfun(env)
 			argv := make([]r.Value, len(argfunsX1))
 			for i, argfun := range argfunsX1 {
@@ -222,54 +222,53 @@ func call_ret0(c *Call, maxdepth int) func(env *Env) {
 			funv.Call(argv)
 		}
 	}
-	return call
+	return ret
 }
 
 // mandatory optimization: fast_interpreter ASSUMES that expressions
 // returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
-func call_ret1(c *Call, maxdepth int) I {
-	if c.Ellipsis {
-		return call_ellipsis_ret1(c, maxdepth)
-	} else if c.Fun.Type.IsVariadic() {
-		return call_variadic_ret1(c, maxdepth)
+func (c *Comp) call_ret1(call *Call, maxdepth int) I {
+	if call.Ellipsis {
+		return call_ellipsis_ret1(call, maxdepth)
+	} else if call.Fun.Type.IsVariadic() {
+		return call_variadic_ret1(call, maxdepth)
 	}
-	var call I
-	// optimize fun(tret) tret
-	switch len(c.Args) {
+	var ret I
+	switch len(call.Args) {
 	case 0:
-		call = call0ret1(c, maxdepth)
+		ret = c.call0ret1(call, maxdepth)
 	case 1:
-		call = call1ret1(c, maxdepth)
+		ret = c.call1ret1(call, maxdepth)
 	case 2:
-		call = call2ret1(c, maxdepth)
+		ret = c.call2ret1(call, maxdepth)
 	default:
-		call = callnret1(c, maxdepth)
+		ret = c.callnret1(call, maxdepth)
 	}
-	return call
+	return ret
 }
 
 // cannot optimize much here... fast_interpreter ASSUMES that expressions
 // returning multiple values actually return (reflect.Value, []reflect.Value)
-func call_ret2plus(c *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
-	if c.Ellipsis {
-		return call_ellipsis_ret2plus(c, maxdepth)
+func (c *Comp) call_ret2plus(call *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
+	if call.Ellipsis {
+		return call_ellipsis_ret2plus(call, maxdepth)
 	}
 	// no need to special case variadic functions here
-	expr := c.Fun
+	expr := call.Fun
 	exprfun := expr.AsX1()
-	argfunsX1 := c.MakeArgfunsX1()
-	var call func(*Env) (r.Value, []r.Value)
+	argfunsX1 := call.MakeArgfunsX1()
+	var ret func(*Env) (r.Value, []r.Value)
 	// slightly optimize fun() (tret0, tret1)
-	switch len(c.Args) {
+	switch len(call.Args) {
 	case 0:
-		call = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
 			retv := funv.Call(base.ZeroValues)
 			return retv[0], retv
 		}
 	case 1:
 		argfun := argfunsX1[0]
-		call = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
 			argv := []r.Value{
 				argfun(env),
@@ -282,7 +281,7 @@ func call_ret2plus(c *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
 			argfunsX1[0],
 			argfunsX1[1],
 		}
-		call = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
 			argv := []r.Value{
 				argfuns[0](env),
@@ -297,7 +296,7 @@ func call_ret2plus(c *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
 			argfunsX1[1],
 			argfunsX1[2],
 		}
-		call = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
 			argv := []r.Value{
 				argfuns[0](env),
@@ -309,7 +308,7 @@ func call_ret2plus(c *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
 		}
 	default:
 		// general case
-		call = func(env *Env) (r.Value, []r.Value) {
+		ret = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
 			argv := make([]r.Value, len(argfunsX1))
 			for i, argfun := range argfunsX1 {
@@ -319,7 +318,7 @@ func call_ret2plus(c *Call, maxdepth int) func(env *Env) (r.Value, []r.Value) {
 			return retv[0], retv
 		}
 	}
-	return call
+	return ret
 }
 
 func (c *Comp) badCallArgNum(fun ast.Expr, t xr.Type, args []*Expr) *Call {

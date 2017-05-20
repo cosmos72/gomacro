@@ -567,7 +567,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	case token.SHL, token.SHL_ASSIGN, token.SHR, token.SHR_ASSIGN:
 		shift = true
 		if init.Untyped() {
-			init.ConstTo(xr.TypeOfUint64)
+			init.ConstTo(c.TypeOfUint64())
 			ok = true
 		} else {
 			ok = init.Type != nil && KindToCategory(init.Type.Kind()) == r.Uint

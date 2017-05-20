@@ -53,10 +53,6 @@ func nop() {
 
 var valueOfNopFunc = r.ValueOf(nop)
 
-func BasicType(k r.Kind) xr.Type {
-	return xr.BasicTypes[k]
-}
-
 func (e *Expr) TryAsPred() (value bool, fun func(*Env) bool, err bool) {
 	if e.Untyped() {
 		untyp := e.Value.(UntypedLit)
@@ -233,7 +229,7 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 	convertuntyped := opts&CompileKeepUntyped == 0
 	if convertuntyped {
 		if untyp, ok := any.(UntypedLit); ok {
-			if xr.SameType(t, TypeOfUntypedLit) {
+			if t == nil || t.ReflectType() == rtypeOfUntypedLit {
 				t = untyp.DefaultType()
 			}
 			// Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
@@ -258,9 +254,11 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 	convertuntyped := opts&CompileKeepUntyped == 0
 	if convertuntyped {
 		if untyp, ok := any.(UntypedLit); ok {
-			// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
-			if xr.SameType(t, TypeOfUntypedLit) {
+			if t == nil || t.ReflectType() == rtypeOfUntypedLit {
 				t = untyp.DefaultType()
+				// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to its default type <%v>", untyp, r.TypeOf(untyp), t)
+			} else {
+				// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t.ReflectType())
 			}
 			any = untyp.ConstTo(t)
 		}

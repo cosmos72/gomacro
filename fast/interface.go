@@ -33,12 +33,12 @@ import (
 
 func (c *Comp) TypeInterface(node *ast.InterfaceType) xr.Type {
 	if node.Methods == nil || len(node.Methods.List) == 0 {
-		return xr.TypeOfInterface
+		return c.TypeOfInterface()
 	}
 	methodtypes, methodnames := c.TypeFields(node.Methods)
 
 	// TODO embedded interfaces
-	return xr.InterfaceOf(methodnames, methodtypes, nil)
+	return c.Universe.InterfaceOf(methodnames, methodtypes, nil)
 }
 
 func isInterfaceType(t xr.Type) bool {

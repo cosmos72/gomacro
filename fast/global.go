@@ -35,39 +35,36 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-var (
-	selfPkg           = xr.NewPackage("fast", "")
-	typeOfEmptyStruct = xr.TypeOf(struct{}{})
-)
-
 // opaqueTypeOf returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
-func opaqueTypeOf(val interface{}) xr.Type {
-	rtype := r.TypeOf(val)
+func (g *CompThreadGlobals) opaqueType(rtype r.Type) xr.Type {
 	if k := rtype.Kind(); k != r.Struct {
-		Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
+		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
 	}
-	t := xr.NamedOf(rtype.Name(), selfPkg)
-	t.SetUnderlying(typeOfEmptyStruct)
-	return xr.MakeType(t.GoType(), rtype)
+	v := g.Universe
+	t := v.NamedOf(rtype.Name(), "fast")
+	t.SetUnderlying(v.TypeOf(struct{}{}))
+	t.UnsafeForceReflectType(rtype)
+	g.Universe.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes
+	// g.Debugf("initialized opaque type %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
+	return t
 }
 
 // ================================= Untyped =================================
 
 // UntypedLit represents an untyped literal value, i.e. an untyped constant
 type UntypedLit struct {
-	Kind r.Kind // default type. matches Obj.Kind() except for rune literals, where Kind == reflect.Int32
-	Obj  constant.Value
+	Kind     r.Kind // default type. matches Obj.Kind() except for rune literals, where Kind == reflect.Int32
+	Obj      constant.Value
+	Universe *xr.Universe
 }
 
 var (
-	TypeOfUntypedLit = opaqueTypeOf(UntypedLit{}) // no need to scavenge for UntypedLit fields and methods
-
-	UntypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(0)}
-	UntypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(1)}
+	untypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(0)}
+	untypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(1)}
 )
 
 // pretty-print untyped constants
-func (untyp *UntypedLit) String() string {
+func (untyp UntypedLit) String() string {
 	obj := untyp.Obj
 	var strkind, strobj interface{} = untyp.Kind, nil
 	if untyp.Kind == r.Int32 {
@@ -202,8 +199,6 @@ type Builtin struct {
 	ArgMax  uint16
 }
 
-var TypeOfBuiltin = opaqueTypeOf(Builtin{}) // no need to scavenge for Builtin fields and methods
-
 // ================================= EnvFunction =================================
 
 // Function represents a function that accesses *CompEnv in the fast interpreter
@@ -211,8 +206,6 @@ type Function struct {
 	Fun  I
 	Type xr.Type
 }
-
-var TypeOfFunction = opaqueTypeOf(Function{}) // no need to scavenge for Function fields and methods
 
 // ================================= BindClass =================================
 
@@ -293,8 +286,9 @@ func (bind *Bind) Const() bool {
 	return bind.Desc.Class() == ConstBind
 }
 
-func BindUntyped(value UntypedLit) *Bind {
-	return &Bind{Lit: Lit{Type: TypeOfUntypedLit, Value: value}, Desc: ConstBindDescriptor}
+func (c *Comp) BindUntyped(value UntypedLit) *Bind {
+	value.Universe = c.Universe
+	return &Bind{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: value}, Desc: ConstBindDescriptor}
 }
 
 func (bind *Bind) AsVar(upn int, opt PlaceOption) *Var {
@@ -421,10 +415,9 @@ type ThreadGlobals struct {
 	*Globals
 }
 
-// ThreadGlobals contains per-goroutine interpreter compile bookeeping information
+// CompGlobals contains per-goroutine interpreter compile bookeeping information
 type CompThreadGlobals struct {
-	Pkgs     map[string]*xr.Package
-	Importer *xr.Importer
+	Universe *xr.Universe
 	*Globals
 }
 
@@ -439,7 +432,6 @@ type Comp struct {
 	UpCost         int
 	Depth          int
 	Types          map[string]xr.Type
-	ReflectTypes   map[r.Type]xr.Type
 	Code           Code      // "compiled" code
 	Loop           *LoopInfo // != nil when compiling a for or switch
 	Func           *FuncInfo // != nil when compiling a function

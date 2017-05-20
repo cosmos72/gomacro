@@ -62,11 +62,11 @@ func (c *Comp) sliceIndex(node ast.Expr) *Expr {
 	}
 	idx := c.Expr1(node)
 	if idx.Const() {
-		idx.ConstTo(xr.TypeOfInt)
+		idx.ConstTo(c.TypeOfInt())
 		if idx.Value.(int) < 0 {
 			c.Errorf("negative slice index: %v == %v", node, idx)
 		}
-	} else if idx.Type == nil || !idx.Type.AssignableTo(xr.TypeOfInt) {
+	} else if idx.Type == nil || !idx.Type.AssignableTo(c.TypeOfInt()) {
 		c.Errorf("invalid slice index: expecting integer, found: %v <%v>", idx.Type, node)
 	}
 	return idx
@@ -93,7 +93,7 @@ func (c *Comp) slice2(node *ast.SliceExpr, e, lo, hi *Expr) *Expr {
 		}
 		objfun := e.AsX1()
 		if lo == nil {
-			lo = c.exprValue(xr.TypeOfInt, 0)
+			lo = c.exprValue(c.TypeOfInt(), 0)
 		}
 		var fun func(env *Env) r.Value
 		if lo.Const() {
@@ -216,13 +216,13 @@ func (c *Comp) sliceString(e, lo, hi *Expr) *Expr {
 			}
 		}
 	}
-	return exprString(fun)
+	return exprFun(c.TypeOfString(), fun)
 }
 
 // slice3 compiles slice[lo:hi:max]
 func (c *Comp) slice3(node *ast.SliceExpr, e, lo, hi, max *Expr) *Expr {
 	if lo == nil {
-		lo = c.exprValue(xr.TypeOfInt, 0)
+		lo = c.exprValue(c.TypeOfInt(), 0)
 	}
 	if hi == nil {
 		c.Errorf("final index required in 3-index slice: %v", node)

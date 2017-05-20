@@ -60,10 +60,11 @@ import (
 
 :func maketypevar(typ ast.Node) ast.Node {
 	t := EvalType(typ)
-	return &ast.SelectorExpr{
-		X: &ast.Ident{Name: "xr"},
+	sel := &ast.SelectorExpr{
+		X: &ast.Ident{Name: "c"},
 		Sel: &ast.Ident{Name: "TypeOf" + upcasefirstbyte(t.Name())},
 	}
+	return ~"{~,sel ()}
 }
 
 
@@ -139,7 +140,7 @@ func (c *Comp) Recv(node *ast.UnaryExpr, xe *Expr) *Expr {
 			return retv, []r.Value{retv, okv}
 		}
 	}
-	types := []xr.Type{t.Elem(), xr.TypeOfBool}
+	types := []xr.Type{t.Elem(), c.TypeOfBool()}
 	return exprXV(types, fun)
 }
 

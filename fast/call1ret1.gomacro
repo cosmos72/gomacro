@@ -87,7 +87,7 @@ import (
 	if EvalType(rettyp) == nil {
 		// keep the arguments and result wrapped in a reflect.Value
 		return ~"{
-			call = func(env *Env) r.Value {
+			ret = func(env *Env) r.Value {
 				funv := exprfun(env)
 				argv := []r.Value{
 					argfun(env),
@@ -100,7 +100,7 @@ import (
 		ret0 := convertvalue1(rettyp, ~'ret0)
 
 		return ~"{
-			call = func(env *Env) ~,rettyp {
+			ret = func(env *Env) ~,rettyp {
 				funv := exprfun(env)
 				argv := []r.Value{
 					argfun(env),
@@ -127,7 +127,7 @@ import (
 			var cachedfun func(~,argtyp) ~,rettyp
 			if arg.Const() {
 				argconst := ~,argconv
-				call = func(env *Env) ~,rettyp {
+				ret = func(env *Env) ~,rettyp {
 					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 					~,cachefun
 					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
@@ -135,7 +135,7 @@ import (
 				}
 			} else {
 				argfun := arg.Fun.(func(env *Env) ~,argtyp)
-				call = func(env *Env) ~,rettyp {
+				ret = func(env *Env) ~,rettyp {
 					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
 					~,cachefun
 					arg := argfun(env)
@@ -146,21 +146,21 @@ import (
 		} else {
 			argfun := arg.WithFun().(func(env *Env) ~,argtyp)
 			if funsym != nil && funupn == 0 {
-				call = func(env *Env) ~,rettyp {
+				ret = func(env *Env) ~,rettyp {
 					fun := env.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
 					return fun(arg)
 				}
 			} else if funsym != nil && funupn == 1 {
-				call = func(env *Env) ~,rettyp {
+				ret = func(env *Env) ~,rettyp {
 					fun := env.Outer.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
 					return fun(arg)
 				}
 			} else {
-				call = func(env *Env) ~,rettyp {
+				ret = func(env *Env) ~,rettyp {
 					fun := exprfun(env).Interface().(func(~,argtyp) ~,rettyp)
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
@@ -179,7 +179,7 @@ import (
 
 	return ~"{
 		argfun := arg.WithFun().(func(env *Env) ~,argtyp)
-		call = func(env *Env) ~,rettyp {
+		ret = func(env *Env) ~,rettyp {
 			fun := exprfun(env).Interface().(func(~,argtyp) ~,rettyp)
 			arg := argfun(env)
 			// Debugf("calling %v with args [%v]", r.TypeOf(fun), argconst)
@@ -238,8 +238,8 @@ import (
 	}
 }
 
-func call1ret1(c *Call, maxdepth int) I {
-	expr := c.Fun
+func (c *Comp) call1ret1(call *Call, maxdepth int) I {
+	expr := call.Fun
 	exprfun := expr.AsX1()
 	funsym := expr.Sym
 	funupn, funindex := -1, -1
@@ -253,11 +253,11 @@ func call1ret1(c *Call, maxdepth int) I {
 	t := expr.Type
 	targ, tret := t.In(0), t.Out(0)
 	karg, kret := targ.Kind(), tret.Kind()
-	var call I
+	var ret I
 	if KindToType(karg) != targ.ReflectType() || KindToType(kret) != tret.ReflectType() {
-		return call1ret1namedtype(c, maxdepth)
+		return c.call1ret1namedtype(call, maxdepth)
 	}
-	arg := c.Args[0]
+	arg := call.Args[0]
 	argfun := arg.AsX1()
 	var cachedfunv r.Value
 
@@ -281,17 +281,17 @@ func call1ret1(c *Call, maxdepth int) I {
 		case r.Complex128:if karg == kret {mcall1ret1; complex128; complex128}  else {mcallx1ret1compact; complex128}
 		case r.String:    {mcallx1ret1; string}
 	}
-	if call == nil {
+	if ret == nil {
 		{mcall1ret1;  nil; nil} // cannot optimize more this one...
 	}
-	return call
+	return ret
 }
 
 :macro mcallx1ret1namedtype(rettyp ast.Node) ast.Node {
 	retconv := convertvalue1(rettyp, ~'retv)
 
 	return ~"{
-		call = func(env *Env) ~,rettyp {
+		ret = func(env *Env) ~,rettyp {
 			funv := exprfun(env)
 			argv := []r.Value{
 				argfun(env),
@@ -302,14 +302,14 @@ func call1ret1(c *Call, maxdepth int) I {
 	}
 }
 
-func call1ret1namedtype(c *Call, maxdepth int) I {
-	expr := c.Fun
+func (c *Comp) call1ret1namedtype(call *Call, maxdepth int) I {
+	expr := call.Fun
 	exprfun := expr.AsX1()
 	t := expr.Type
 	kret := t.Out(0).Kind()
 
-	argfun := c.Args[0].AsX1()
-	var call I
+	argfun := call.Args[0].AsX1()
+	var ret I
 
 	switch kret {
 		case r.Bool:      {mcallx1ret1namedtype; bool}
@@ -330,9 +330,9 @@ func call1ret1namedtype(c *Call, maxdepth int) I {
 		case r.Complex128:{mcallx1ret1namedtype; complex128}
 		case r.String:    {mcallx1ret1namedtype; string}
 	}
-	if call == nil {
+	if ret == nil {
 		{mcall1ret1;  nil; nil} // cannot optimize more this one...
 	}
-	return call
+	return ret
 }
 

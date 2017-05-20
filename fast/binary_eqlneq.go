@@ -532,7 +532,7 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 	}
 	if fun != nil {
-		return exprBool(fun)
+		return c.exprBool(fun)
 	}
 	return c.eqlneqMisc(node, xe, ye)
 }
@@ -1007,7 +1007,7 @@ func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 	}
 	if fun != nil {
-		return exprBool(fun)
+		return c.exprBool(fun)
 	}
 	return c.eqlneqMisc(node, xe, ye)
 }
@@ -1132,7 +1132,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }
 func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var e *Expr
@@ -1180,5 +1180,5 @@ func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		}
 
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }

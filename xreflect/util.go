@@ -25,6 +25,7 @@
 package xreflect
 
 import (
+	"errors"
 	"fmt"
 	"go/token"
 	"go/types"
@@ -42,6 +43,10 @@ func concat(a, b []int) []int {
 func debugf(format string, args ...interface{}) {
 	str := fmt.Sprintf(format, args...)
 	fmt.Printf("// debug: %s\n", str)
+}
+
+func errorf(format string, arg ...interface{}) {
+	panic(errors.New(fmt.Sprintf(format, arg...)))
 }
 
 func dirToGdir(dir reflect.ChanDir) types.ChanDir {

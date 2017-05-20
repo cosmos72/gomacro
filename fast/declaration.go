@@ -451,7 +451,7 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 
 // DeclEnvFunc0 compiles a function declaration that accesses interpreter's Env. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclEnvFunc0(name string, envfun Function) *Bind {
-	t := TypeOfFunction
+	t := c.TypeOfFunction()
 	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
 	bind.Value = envfun                   // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 	return bind
@@ -459,7 +459,7 @@ func (c *Comp) DeclEnvFunc0(name string, envfun Function) *Bind {
 
 // DeclBuiltin0 compiles a builtin function declaration. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclBuiltin0(name string, builtin Builtin) *Bind {
-	t := TypeOfBuiltin
+	t := c.TypeOfBuiltin()
 	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
 	bind.Value = builtin                  // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 	return bind
@@ -467,31 +467,10 @@ func (c *Comp) DeclBuiltin0(name string, builtin Builtin) *Bind {
 
 // replacement of reflect.TypeOf() that uses xreflect.TypeOf()
 func (c *Comp) TypeOf(val interface{}) xr.Type {
-	// use our opaque types instead of scavenging for fields and methods of Builtin, Function, UntypedLit
-	switch val.(type) {
-	case Builtin:
-		return TypeOfBuiltin
-	case Function:
-		return TypeOfFunction
-	case UntypedLit:
-		return TypeOfUntypedLit
-	}
+	v := c.Universe
+	v.TryResolve = c.tryResolveForXtype
 
-	g := c.CompThreadGlobals
-	if g.Pkgs == nil {
-		g.Pkgs = make(map[string]*xr.Package)
-	}
-	if g.Importer == nil {
-		g.Importer = xr.DefaultImporter()
-	}
-	cache := xr.Cache{
-		RebuildDepth: 0,
-		TryResolve:   c.tryResolveForXtype,
-		ReflectTypes: c.ReflectTypes,
-		Pkgs:         g.Pkgs,
-		Importer:     g.Importer,
-	}
-	return cache.TypeOf(val)
+	return v.TypeOf(val)
 }
 
 func (c *Comp) tryResolveForXtype(name, pkgpath string) xr.Type {

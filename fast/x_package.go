@@ -12,7 +12,6 @@ import (
 func init() {
 	Packages["github.com/cosmos72/gomacro/fast"] = Package{
 		Binds: map[string]r.Value{
-			"BindUntyped":            r.ValueOf(BindUntyped),
 			"CompileDefaults":        r.ValueOf(CompileDefaults),
 			"CompileKeepUntyped":     r.ValueOf(CompileKeepUntyped),
 			"ConstBind":              r.ValueOf(ConstBind),

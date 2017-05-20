@@ -430,7 +430,7 @@ func (c *Comp) Lss(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }
 func (c *Comp) Gtr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	xc, yc := xe.Const(), ye.Const()
@@ -828,7 +828,7 @@ func (c *Comp) Gtr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }
 func (c *Comp) Leq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	xc, yc := xe.Const(), ye.Const()
@@ -1226,7 +1226,7 @@ func (c *Comp) Leq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }
 func (c *Comp) Geq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	xc, yc := xe.Const(), ye.Const()
@@ -1624,5 +1624,5 @@ func (c *Comp) Geq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 
 		}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }

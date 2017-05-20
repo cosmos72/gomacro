@@ -189,7 +189,7 @@ func (c *Comp) Lss(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{binaryops; token.LSS; true; false; { int; uint; float32; float64; string }}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }
 
 func (c *Comp) Gtr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -212,7 +212,7 @@ func (c *Comp) Gtr(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{binaryops; token.GTR; true; false; { int; uint; float32; float64; string }}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }
 
 func (c *Comp) Leq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -235,7 +235,7 @@ func (c *Comp) Leq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{binaryops; token.LEQ; true; false; { int; uint; float32; float64; string }}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }
 
 func (c *Comp) Geq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
@@ -258,5 +258,5 @@ func (c *Comp) Geq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		y := ye.Fun
 		{binaryops; token.GEQ; true; false; { int; uint; float32; float64; string }}
 	}
-	return exprBool(fun)
+	return c.exprBool(fun)
 }

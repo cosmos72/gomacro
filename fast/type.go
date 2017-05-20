@@ -55,23 +55,13 @@ func (c *Comp) DeclNamedType(name string) xr.Type {
 	} else if c.Types == nil {
 		c.Types = make(map[string]xr.Type)
 	}
-	g := c.CompThreadGlobals
-	pkg := g.Pkgs[g.Packagename]
-	if pkg == nil {
-		if g.Pkgs == nil {
-			g.Pkgs = make(map[string]*xr.Package)
-		}
-		g.Pkgs[g.Packagename] = pkg
-	}
-	t := xr.NamedOf(name, pkg)
+	t := c.Universe.NamedOf(name, c.Packagename)
 	c.Types[name] = t
 	return t
 }
 
 func (c *Comp) SetUnderlyingType(t, underlying xr.Type) {
 	t.SetUnderlying(underlying)
-	// update Comp.ReflectType[] cache
-	c.cacheReflectType(t)
 }
 
 // DeclType0 declares a type
@@ -93,20 +83,7 @@ func (c *Comp) DeclTypeAlias0(alias string, t xr.Type) xr.Type {
 		c.Types = make(map[string]xr.Type)
 	}
 	c.Types[alias] = t
-	c.cacheReflectType(t)
 	return t
-}
-
-func (c *Comp) cacheReflectType(t xr.Type) {
-	rt := t.ReflectType()
-	// rt may be unnamed or have a different name...
-	// it happens when interpreter declares a new type or an alias
-	if t.Name() == rt.Name() || c.ReflectTypes[rt] == nil {
-		if c.ReflectTypes == nil {
-			c.ReflectTypes = make(map[r.Type]xr.Type)
-		}
-		c.ReflectTypes[rt] = t
-	}
 }
 
 // Type compiles a type expression.
@@ -163,6 +140,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 	if node != nil {
 		c.Pos = node.Pos()
 	}
+	universe := c.Universe
 
 	switch node := node.(type) {
 	case *ast.ArrayType: // also for slices
@@ -179,7 +157,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		} else if node.Dir == ast.RECV {
 			dir = r.RecvDir
 		}
-		t = xr.ChanOf(dir, telem)
+		t = universe.ChanOf(dir, telem)
 	case *ast.FuncType:
 		t, _, _ = c.TypeFunction(node)
 	case *ast.Ident:
@@ -189,7 +167,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 	case *ast.MapType:
 		kt := c.Type(node.Key)
 		vt := c.Type(node.Value)
-		t = xr.MapOf(kt, vt)
+		t = universe.MapOf(kt, vt)
 	case *ast.SelectorExpr:
 		if _, ok := node.X.(*ast.Ident); ok {
 			/*
@@ -213,7 +191,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		// c.Debugf("evalType() struct names and types: %v %v", types, names)
 		fields := c.makeStructFields(c.FileComp().Path, names, types)
 		// c.Debugf("compileType2() declaring struct type. fields=%#v", fields)
-		t = xr.StructOf(fields)
+		t = universe.StructOf(fields)
 	case nil:
 		// type can be omitted in many case - then we must perform type inference
 		break
@@ -222,23 +200,24 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		c.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 	}
 	for i := 0; i < stars; i++ {
-		t = xr.PtrTo(t)
+		t = universe.PtrTo(t)
 	}
 	if allowEllipsis && ellipsis {
-		t = xr.SliceOf(t)
+		t = universe.SliceOf(t)
 	}
 	return t, ellipsis
 }
 
 func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
+	universe := c.Universe
 	t = c.Type(node.Elt)
 	n := node.Len
 	switch n := n.(type) {
 	case *ast.Ellipsis:
-		t = xr.SliceOf(t)
+		t = universe.SliceOf(t)
 		ellipsis = true
 	case nil:
-		t = xr.SliceOf(t)
+		t = universe.SliceOf(t)
 	default:
 		// as stated by https://golang.org/ref/spec#Array_types
 		// "The length is part of the array's type; it must evaluate to a non-negative constant
@@ -249,14 +228,14 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
 			c.Errorf("array length is not a constant: %v", node)
 			return
 		} else if init.Untyped() {
-			count = init.ConstTo(xr.TypeOfInt).(int)
+			count = init.ConstTo(universe.BasicTypes[r.Int]).(int)
 		} else {
-			count = convertLiteralCheckOverflow(init.Value, xr.TypeOfInt).(int)
+			count = convertLiteralCheckOverflow(init.Value, universe.BasicTypes[r.Int]).(int)
 		}
 		if count < 0 {
 			c.Errorf("array length [%v] is negative: %v", count, node)
 		}
-		t = xr.ArrayOf(count, t)
+		t = universe.ArrayOf(count, t)
 	}
 	return t, ellipsis
 }
@@ -269,11 +248,13 @@ func (c *Comp) TypeFunction(node *ast.FuncType) (t xr.Type, paramNames []string,
 func (c *Comp) TypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (tFunc xr.Type, tFuncOrMethod xr.Type, paramNames []string, resultNames []string) {
 	paramTypes, paramNames, variadic := c.typeFieldOrParamList(node.Params, true)
 	resultTypes, resultNames := c.TypeFields(node.Results)
-	tFunc = xr.FuncOf(paramTypes, resultTypes, variadic)
+
+	universe := c.Universe
+	tFunc = universe.FuncOf(paramTypes, resultTypes, variadic)
 
 	if recv != nil {
 		recvTypes, _, _ := c.typeFieldsOrParams([]*ast.Field{recv}, false)
-		tFuncOrMethod = xr.MethodOf(recvTypes[0], paramTypes, resultTypes, variadic)
+		tFuncOrMethod = universe.MethodOf(recvTypes[0], paramTypes, resultTypes, variadic)
 	} else {
 		tFuncOrMethod = tFunc
 	}
@@ -434,7 +415,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			return v, []r.Value{v, True}
 		}
 	}
-	return exprXV([]xr.Type{tout, xr.TypeOfBool}, ret)
+	return exprXV([]xr.Type{tout, c.TypeOfBool()}, ret)
 }
 
 // TypeAssert1 compiles a single-valued type assertion
@@ -573,6 +554,100 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 		}
 	}
 	return exprFun(tout, ret)
+}
+
+func (g *CompThreadGlobals) TypeOfBool() xr.Type {
+	return g.Universe.BasicTypes[r.Bool]
+}
+
+func (g *CompThreadGlobals) TypeOfInt() xr.Type {
+	return g.Universe.BasicTypes[r.Int]
+}
+
+func (g *CompThreadGlobals) TypeOfInt8() xr.Type {
+	return g.Universe.BasicTypes[r.Int8]
+}
+
+func (g *CompThreadGlobals) TypeOfInt16() xr.Type {
+	return g.Universe.BasicTypes[r.Int16]
+}
+
+func (g *CompThreadGlobals) TypeOfInt32() xr.Type {
+	return g.Universe.BasicTypes[r.Int32]
+}
+
+func (g *CompThreadGlobals) TypeOfInt64() xr.Type {
+	return g.Universe.BasicTypes[r.Int64]
+}
+
+func (g *CompThreadGlobals) TypeOfUint() xr.Type {
+	return g.Universe.BasicTypes[r.Uint]
+}
+
+func (g *CompThreadGlobals) TypeOfUint8() xr.Type {
+	return g.Universe.BasicTypes[r.Uint8]
+}
+
+func (g *CompThreadGlobals) TypeOfUint16() xr.Type {
+	return g.Universe.BasicTypes[r.Uint16]
+}
+
+func (g *CompThreadGlobals) TypeOfUint32() xr.Type {
+	return g.Universe.BasicTypes[r.Uint32]
+}
+
+func (g *CompThreadGlobals) TypeOfUint64() xr.Type {
+	return g.Universe.BasicTypes[r.Uint64]
+}
+
+func (g *CompThreadGlobals) TypeOfUintptr() xr.Type {
+	return g.Universe.BasicTypes[r.Uintptr]
+}
+
+func (g *CompThreadGlobals) TypeOfFloat32() xr.Type {
+	return g.Universe.BasicTypes[r.Float32]
+}
+
+func (g *CompThreadGlobals) TypeOfFloat64() xr.Type {
+	return g.Universe.BasicTypes[r.Float64]
+}
+
+func (g *CompThreadGlobals) TypeOfComplex64() xr.Type {
+	return g.Universe.BasicTypes[r.Complex64]
+}
+
+func (g *CompThreadGlobals) TypeOfComplex128() xr.Type {
+	return g.Universe.BasicTypes[r.Complex128]
+}
+
+func (g *CompThreadGlobals) TypeOfString() xr.Type {
+	return g.Universe.BasicTypes[r.String]
+}
+
+func (g *CompThreadGlobals) TypeOfError() xr.Type {
+	return g.Universe.TypeOfError
+}
+
+func (g *CompThreadGlobals) TypeOfInterface() xr.Type {
+	return g.Universe.TypeOfInterface
+}
+
+var (
+	rtypeOfBuiltin    = r.TypeOf(Builtin{})
+	rtypeOfFunction   = r.TypeOf(Function{})
+	rtypeOfUntypedLit = r.TypeOf(UntypedLit{})
+)
+
+func (g *CompThreadGlobals) TypeOfBuiltin() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfBuiltin]
+}
+
+func (g *CompThreadGlobals) TypeOfFunction() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfFunction]
+}
+
+func (g *CompThreadGlobals) TypeOfUntypedLit() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfUntypedLit]
 }
 
 // A TypeAssertionError explains a failed type assertion.

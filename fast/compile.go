@@ -30,12 +30,13 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	"github.com/cosmos72/gomacro/base"
+	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func NewThreadGlobals() *ThreadGlobals {
 	return &ThreadGlobals{
-		Globals: base.NewGlobals(),
+		Globals: NewGlobals(),
 	}
 }
 
@@ -50,12 +51,15 @@ func New() *CompEnv {
 func NewCompEnvTop(path string) *CompEnv {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
-	globals := base.NewGlobals()
-	envGlobals := &ThreadGlobals{Globals: globals}
+	globals := NewGlobals()
+	universe := xr.NewUniverse()
+
 	compGlobals := &CompThreadGlobals{
-		Globals: globals,
+		Universe: universe,
+		Globals:  globals,
 	}
-	c := &CompEnv{
+	envGlobals := &ThreadGlobals{Globals: globals}
+	ce := &CompEnv{
 		Comp: &Comp{
 			UpCost:            1,
 			Depth:             0,
@@ -69,9 +73,14 @@ func NewCompEnvTop(path string) *CompEnv {
 			ThreadGlobals: envGlobals,
 		},
 	}
-	envGlobals.TopEnv = c.env
-	c.addBuiltins()
-	return c
+	// no need to scavenge for Builtin, Function and UntypedLit fields and methods
+	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfUntypedLit} {
+		compGlobals.opaqueType(rtype)
+	}
+
+	envGlobals.TopEnv = ce.env
+	ce.addBuiltins()
+	return ce
 }
 
 func NewCompEnv(outer *CompEnv, path string) *CompEnv {
@@ -133,7 +142,7 @@ func (c *Comp) FileComp() *Comp {
 }
 
 // if a function Env only declares ignored binds, it gets this scratch buffers
-var ignoredBinds = []r.Value{base.Nil}
+var ignoredBinds = []r.Value{Nil}
 var ignoredIntBinds = []uint64{0}
 
 func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {

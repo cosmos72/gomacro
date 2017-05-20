@@ -86,7 +86,7 @@ import (
 	rettyp, ret0 = convertret0(rettyp)
 
 	return ~"{
-		call = func(env *Env) ~,rettyp {
+		ret = func(env *Env) ~,rettyp {
 			funv := exprfun(env)
 			argv := make([]r.Value, len(argfuns))
 			for i, argfun := range argfuns {
@@ -99,15 +99,15 @@ import (
 	}
 }
 
-func callnret1(c *Call, maxdepth int) I {
-	expr := c.Fun
+func (c *Comp) callnret1(call *Call, maxdepth int) I {
+	expr := call.Fun
 	exprfun := expr.AsX1()
 	if expr.Sym != nil && expr.Sym.Desc.Index() == NoIndex {
 		Errorf("internal error: callnret1() invoked for constant function %#v. use call_builtin() instead", expr)
 	}
 	kret := expr.Type.Out(0).Kind()
-	argfuns := c.MakeArgfunsX1()
-	var call I
+	argfuns := call.MakeArgfunsX1()
+	var ret I
 	switch kret {
 	case r.Bool:      {mcallnret1; bool}
 	case r.Int:       {mcallnret1; int}
@@ -128,5 +128,5 @@ func callnret1(c *Call, maxdepth int) I {
 	case r.String:    {mcallnret1; string}
 	default:          {mcallnret1; nil}
 	}
-	return call
+	return ret
 }

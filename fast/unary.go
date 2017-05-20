@@ -96,7 +96,7 @@ func (c *Comp) UnaryExprUntyped(node *ast.UnaryExpr, xe *Expr) *Expr {
 		if ret == constant.MakeUnknown() {
 			return c.invalidUnaryExpr(node, xe)
 		}
-		return exprUntypedLit(xlit.Kind, ret)
+		return c.exprUntypedLit(xlit.Kind, ret)
 	}
 	return c.invalidUnaryExpr(node, xe)
 }
