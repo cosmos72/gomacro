@@ -25,8 +25,8 @@
 package xreflect
 
 import (
+	"go/ast"
 	"go/types"
-	"unsafe"
 )
 
 // FieldByName returns the (possibly embedded) struct field with given name,
@@ -95,21 +95,27 @@ func fieldByName(t *xtype, name, pkgpath string, offset uintptr, index []int) (f
 	return
 }
 
+func sameName(xname string, xpkgpath, yname string, ypkg *types.Package) bool {
+	return xname == yname && (ast.IsExported(xname) || xpkgpath == path(ypkg))
+}
+
 // return true if gfield name matches given name, or if it's anonymous and its *type* name matches given name
 func matchFieldByName(name, pkgpath string, gfield *types.Var) bool {
 	// always check the field's package, not the type's package
-	if !gfield.Exported() && path(gfield.Pkg()) != pkgpath {
-		return false
-	}
-	if gfield.Name() == name {
+	if sameName(name, pkgpath, gfield.Name(), gfield.Pkg()) {
 		return true
 	}
 	if gfield.Anonymous() {
 		switch gtype := gfield.Type().(type) {
 		case *types.Basic:
-			return gtype.Name() == name
+			// is it possible to embed basic types?
+			// yes, and they work as unexported embedded fields,
+			// i.e. in the same package as the struct that includes them
+			return sameName(name, pkgpath, gtype.Name(), gfield.Pkg())
 		case *types.Named:
-			return gtype.Obj().Name() == name
+			// gtype.Obj().Pkg() and gfield.Pkg() should be identical for *unexported* fields
+			// (they are ignored for exported fields)
+			return sameName(name, pkgpath, gtype.Obj().Name(), gfield.Pkg())
 		}
 	}
 	return false

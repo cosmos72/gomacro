@@ -12,7 +12,18 @@ import (
 	"golang.org/x/tools/go/types/typeutil"
 )
 
-// currying
+type EmbedBasicType struct {
+	int
+}
+
+func main() {
+	var e EmbedBasicType
+	fmt.Println(e.int)
+	v := r.ValueOf(e)
+	vi := v.Field(0)
+	vi.Interface()
+}
+
 func add(a, b int) int {
 	return a + b
 }
@@ -30,7 +41,7 @@ func reflectCurry(f r.Value, a r.Value) func([]r.Value) []r.Value {
 	}
 }
 
-func main() {
+func main0() {
 	add1 := curry(add, 1)
 	fmt.Printf("add1 = %T\n", add1)
 	fmt.Printf("add1(5) = %v\n", add1(5))

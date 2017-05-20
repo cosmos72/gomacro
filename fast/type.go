@@ -193,7 +193,8 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		// c.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
 		types, names := c.TypeFields(node.Fields)
 		// c.Debugf("evalType() struct names and types: %v %v", types, names)
-		fields := c.makeStructFields(c.FileComp().Path, names, types)
+		pkg := universe.NewPackage(c.FileComp().Path, "")
+		fields := c.makeStructFields(pkg, names, types)
 		// c.Debugf("compileType2() declaring struct type. fields=%#v", fields)
 		t = universe.StructOf(fields)
 	case nil:
@@ -203,11 +204,13 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		// TODO which types are still missing?
 		c.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 	}
-	for i := 0; i < stars; i++ {
-		t = universe.PtrTo(t)
-	}
-	if allowEllipsis && ellipsis {
-		t = universe.SliceOf(t)
+	if t != nil {
+		for i := 0; i < stars; i++ {
+			t = universe.PtrTo(t)
+		}
+		if allowEllipsis && ellipsis {
+			t = universe.SliceOf(t)
+		}
 	}
 	return t, ellipsis
 }
@@ -318,13 +321,14 @@ func (c *Comp) TypeIdent(name string) xr.Type {
 	return nil
 }
 
-func (c *Comp) makeStructFields(pkgPath string, names []string, types []xr.Type) []xr.StructField {
+func (c *Comp) makeStructFields(pkg *xr.Package, names []string, types []xr.Type) []xr.StructField {
 	// pkgIdentifier := sanitizeIdentifier(pkgPath)
 	fields := make([]xr.StructField, len(names))
 	for i, name := range names {
 		t := types[i]
 		fields[i] = xr.StructField{
 			Name:      name,
+			Pkg:       pkg,
 			Type:      t,
 			Tag:       "",
 			Anonymous: len(name) == 0,
