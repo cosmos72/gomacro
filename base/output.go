@@ -33,6 +33,7 @@ import (
 	"io"
 	r "reflect"
 	"strings"
+	"unsafe"
 
 	. "github.com/cosmos72/gomacro/ast2"
 	mt "github.com/cosmos72/gomacro/token"
@@ -153,6 +154,21 @@ func (st *Stringer) FprintValues(opts Options, out io.Writer, values ...r.Value)
 
 var typeOfReflectValue = r.TypeOf(r.Value{})
 
+type unsafeType struct {
+}
+
+type unsafeFlag uintptr
+
+type unsafeValue struct {
+	typ *unsafeType
+	ptr unsafe.Pointer
+	unsafeFlag
+}
+
+func asUnsafeValue(v r.Value) unsafeValue {
+	return *(*unsafeValue)(unsafe.Pointer(&v))
+}
+
 func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
 	var vi interface{}
 	var vt r.Type
@@ -194,9 +210,13 @@ func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
 	}
 	// recompute v, because vi = st.toPrintable(vi) may have extracted a non-struct from a struct
 	v = r.ValueOf(vi)
-	if v.Kind() == r.Struct {
+	switch v.Kind() {
+	case r.Struct:
 		st.fprintStruct(out, v, typestr)
-	} else {
+	case r.Func:
+		v := asUnsafeValue(v)
+		fmt.Fprintf(out, "%p%s\n", v.ptr, typestr)
+	default:
 		fmt.Fprintf(out, "%v%s\n", vi, typestr)
 	}
 }

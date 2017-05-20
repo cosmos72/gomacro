@@ -26,6 +26,7 @@ package xreflect
 
 import (
 	"go/types"
+	"unsafe"
 )
 
 // FieldByName returns the (possibly embedded) struct field with given name,
@@ -172,14 +173,14 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 		for count == 0 && len(tovisit) != 0 {
 			var next []StructField
 			for _, f := range tovisit {
-				t = unwrap(f.Type)
-				emethod, ecount := methodByName(t, name, pkgpath, f.Index)
+				et := unwrap(f.Type)
+				emethod, ecount := methodByName(et, name, pkgpath, f.Index)
 				if count == 0 {
 					if ecount > 0 {
 						method = emethod
 					} else {
 						// no recursion if we found something
-						next = append(next, anonymousFields(t, f.Offset, f.Index)...)
+						next = append(next, anonymousFields(et, f.Offset, f.Index)...)
 					}
 				}
 				count += ecount
@@ -227,4 +228,18 @@ func cacheMethodByName(t *xtype, name, pkgpath string, method *Method, count int
 		method.Index = -count // marker for ambiguous method names
 	}
 	t.methodcache[pkgpath][name] = *method
+}
+
+func cacheInvalidate(gtype types.Type, t interface{}) {
+	if t, ok := t.(Type); ok {
+		t := unwrap(t)
+		t.fieldcache = nil
+		t.methodcache = nil
+	}
+}
+
+// clears all xtype.fieldcache and xtype.methodcache.
+// invoked by NamedOf() when a type is redefined.
+func (v *Universe) cacheInvalidate() {
+	v.gmap.Iterate(cacheInvalidate)
 }

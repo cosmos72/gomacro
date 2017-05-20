@@ -29,7 +29,7 @@ import (
 	"reflect"
 	"sync"
 
-	"golang.org/x/tools/go/types/typeutil"
+	"github.com/cosmos72/gomacro/typeutil"
 )
 
 type Types struct {

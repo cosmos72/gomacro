@@ -91,6 +91,27 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 	c.Code.Append(stmt)
 }
 
+func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, methodaddr *r.Value) {
+	name := funcdecl.Name.Name
+	trecv := t.In(0)
+	if trecv.Kind() == r.Ptr {
+		// receiver is a pointer type. add the method to its element type
+		trecv = trecv.Elem()
+	}
+
+	panicking := true
+	defer func() {
+		if panicking {
+			recover()
+			c.Errorf("failed to add func %s <%v> to type <%v>", name, t, trecv)
+		}
+	}()
+	methodindex = trecv.AddMethod(name, t)
+	methodaddr = trecv.GetMethodAddr(methodindex)
+	panicking = false
+	return
+}
+
 // methodDecl compiles a method declaration
 func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	n := len(funcdecl.Recv.List)
@@ -102,12 +123,10 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	recvdecl := funcdecl.Recv.List[0]
 
 	functype := funcdecl.Type
-	_, t, paramnames, resultnames := c.TypeFunctionOrMethod(recvdecl, functype)
+	t, paramnames, resultnames := c.TypeFunctionOrMethod(recvdecl, functype)
 
 	// declare the method name and type before compiling its body: allows recursive methods
-	funcname := funcdecl.Name.Name
-	methodindex := t.Recv().AddMethod(funcname, t)
-	methodaddr := t.Recv().GetMethodAddr(methodindex)
+	_, methodaddr := c.methodAdd(funcdecl, t)
 
 	cf := NewComp(c)
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)

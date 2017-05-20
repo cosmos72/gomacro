@@ -50,8 +50,9 @@ func (c *Comp) DeclType(node ast.Spec) {
 // DeclNamedType executes a named type forward declaration.
 // must be followed by Comp.SetUnderlyingType()
 func (c *Comp) DeclNamedType(name string) xr.Type {
-	if _, ok := c.Types[name]; ok {
+	if t, ok := c.Types[name]; ok {
 		c.Warnf("redefined type: %v", name)
+		return t // reuse t, change only its underlying type
 	} else if c.Types == nil {
 		c.Types = make(map[string]xr.Type)
 	}
@@ -244,24 +245,29 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
 }
 
 func (c *Comp) TypeFunction(node *ast.FuncType) (t xr.Type, paramNames []string, resultNames []string) {
-	tFunc, _, paramNames, resultNames := c.TypeFunctionOrMethod(nil, node)
-	return tFunc, paramNames, resultNames
+	return c.TypeFunctionOrMethod(nil, node)
 }
 
-func (c *Comp) TypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (tFunc xr.Type, tFuncOrMethod xr.Type, paramNames []string, resultNames []string) {
+// TypeFunctionOrMethod compiles a function type corresponding to given receiver and function declaration
+// If receiver is not null, the returned tFunc will have the receiver as first parameter.
+func (c *Comp) TypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (t xr.Type, paramNames []string, resultNames []string) {
 	paramTypes, paramNames, variadic := c.typeFieldOrParamList(node.Params, true)
 	resultTypes, resultNames := c.TypeFields(node.Results)
 
-	universe := c.Universe
-	tFunc = universe.FuncOf(paramTypes, resultTypes, variadic)
-
 	if recv != nil {
-		recvTypes, _, _ := c.typeFieldsOrParams([]*ast.Field{recv}, false)
-		tFuncOrMethod = universe.MethodOf(recvTypes[0], paramTypes, resultTypes, variadic)
-	} else {
-		tFuncOrMethod = tFunc
+		// DESIGN CHOICE: always represent methods as functions whose first parameter is the receiver.
+		// Makes life easier: methods are not first class in Go, retrieving them produces functions
+		// whose first parameter is the receiver (example: time.Duration.String)
+		// Also go/types.Type.String() does *not* print the receiver, making it ugly and difficult to debug.
+		//
+		// xreflect understands such representation :)
+		recvTypes, recvNames, _ := c.typeFieldsOrParams([]*ast.Field{recv}, false)
+
+		paramTypes = append(recvTypes, paramTypes...)
+		paramNames = append(recvNames, paramNames...)
 	}
-	return tFunc, tFuncOrMethod, paramNames, resultNames
+	t = c.Universe.FuncOf(paramTypes, resultTypes, variadic)
+	return t, paramNames, resultNames
 }
 
 func (c *Comp) TypeFields(fields *ast.FieldList) (types []xr.Type, names []string) {

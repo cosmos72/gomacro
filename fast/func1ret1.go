@@ -8008,7 +8008,7 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			}
 		}
 	}
-	return c.funcGeneric(t, m)
+	return nil
 }
 func (c *Comp) func_ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	switch t.NumIn() {
@@ -8017,6 +8017,6 @@ func (c *Comp) func_ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	case 1:
 		return c.func1ret1(t, m)
 	default:
-		return c.funcGeneric(t, m)
+		return nil
 	}
 }

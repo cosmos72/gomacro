@@ -216,7 +216,9 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	karg0 := targ0.Kind()
 	karg1 := targ1.Kind()
 
-	rtargs := [2]r.Type{targ0.ReflectType(), targ1.ReflectType()}
+	if !IsOptimizedKind(karg0) || !IsOptimizedKind(karg1) {
+		return nil
+	}
 	indexes := [2]int{
 		m.parambinds[0].Desc.Index(),
 		m.parambinds[1].Desc.Index(),
@@ -225,8 +227,7 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	nintbinds := m.nintbinds
 	funcbody := m.funcbody
 
-	if IsOptimizedKind(karg0) && IsOptimizedKind(karg1) {
-		{mfuncxy2ret0; nil}
-	}
-	{mfunc2ret0; nil; nil}
+	mfuncxy2ret0; nil
+
+	return nil
 }

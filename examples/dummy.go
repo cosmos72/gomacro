@@ -7,15 +7,43 @@ import (
 	"fmt"
 	"go/token"
 	"go/types"
+	r "reflect"
 
 	"golang.org/x/tools/go/types/typeutil"
 )
 
-type Cons struct {
-	A, B int
+// currying
+func add(a, b int) int {
+	return a + b
+}
+
+func curry(f func(a, b int) int, a int) func(b int) int {
+	return func(b int) int {
+		return f(a, b)
+	}
+}
+
+func reflectCurry(f r.Value, a r.Value) func([]r.Value) []r.Value {
+	return func(args []r.Value) []r.Value {
+		args = append([]r.Value{a}, args...)
+		return f.Call(args)
+	}
 }
 
 func main() {
+	add1 := curry(add, 1)
+	fmt.Printf("add1 = %T\n", add1)
+	fmt.Printf("add1(5) = %v\n", add1(5))
+
+	add1refl := reflectCurry(r.ValueOf(add), r.ValueOf(1))
+	fmt.Printf("add1refl = %T\n", add1refl)
+	fmt.Printf("add1refl(5) = %v\n", add1refl([]r.Value{r.ValueOf(5)})[0])
+}
+
+func main1() {
+	type Cons struct {
+		A, B int
+	}
 	p := Cons{1, 2}
 	var i interface{} = p
 	q := i.(Cons)

@@ -198,9 +198,9 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	}
 
 	// if IsOptimizedKind(karg0) && IsOptimizedKind(kret0)
-		{mfuncx1retx1; nil}
+	mfuncx1retx1; nil
 
-	return c.funcGeneric(t, m)
+	return nil
 }
 
 
@@ -212,7 +212,7 @@ func (c *Comp) func_ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	case 1:
 		return c.func1ret1(t, m)
 	default:
-		return c.funcGeneric(t, m)
+		return nil
 	}
 }
 

@@ -107,7 +107,9 @@ func (t *xtype) SetUnderlying(underlying Type) {
 	case *types.Named:
 		v := t.universe
 		if t.kind != reflect.Invalid || gtype.Underlying() != v.TypeOfInterface.GoType() || t.rtype != v.TypeOfInterface.ReflectType() {
-			errorf("SetUnderlying invoked multiple times on named type %v", t)
+			// redefined type. try really hard to support it.
+			v.cacheInvalidate()
+			// errorf("SetUnderlying invoked multiple times on named type %v", t)
 		}
 		gunderlying := underlying.GoType().Underlying() // in case underlying is named
 		t.kind = gtypeToKind(gunderlying)
@@ -119,7 +121,7 @@ func (t *xtype) SetUnderlying(underlying Type) {
 }
 
 // AddMethod adds method 'name' to type, unless it is already in the method list.
-// It panics if the type is unnamed, or if the signature is not a function-with-receiver type.
+// It panics if the type is unnamed, or if the signature is not a function type,
 // Returns the method index, or < 0 in case of errors
 func (t *xtype) AddMethod(name string, signature Type) int {
 	gtype, ok := t.gtype.(*types.Named)
@@ -130,7 +132,7 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 		errorf("AddMethod on <%v> of non-func signature: %v", t, signature)
 	}
 	gsig := signature.underlying().(*types.Signature)
-	// we accept both signatures "non-nil receiver" and "nil receiver, use the first parameter as receiver"
+	// accept both signatures "non-nil receiver" and "nil receiver, use the first parameter as receiver"
 	grecv := gsig.Recv()
 	if grecv == nil && gsig.Params().Len() != 0 {
 		grecv = gsig.Params().At(0)

@@ -166,11 +166,7 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 		if arg.Const() {
 			arg.ConstTo(ti)
 		} else if arg.Type == nil || (!xr.SameType(arg.Type, ti) && !arg.Type.AssignableTo(ti)) {
-			var rtarg r.Type
-			if arg.Type != nil {
-				rtarg = arg.Type.ReflectType()
-			}
-			c.Errorf("cannot use <%v> as <%v> in argument to %v", rtarg, ti.ReflectType(), node.Fun)
+			c.Errorf("cannot use <%v> as <%v> in argument to %v", arg.Type, ti, node.Fun)
 		}
 	}
 	return

@@ -43,7 +43,10 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	karg0 := targ0.Kind()
 	karg1 := targ1.Kind()
 
-	rtargs := [2]r.Type{targ0.ReflectType(), targ1.ReflectType()}
+	if !IsOptimizedKind(karg0) || !IsOptimizedKind(karg1) {
+		return nil
+	}
+
 	indexes := [2]int{
 		m.parambinds[0].Desc.Index(),
 		m.parambinds[1].Desc.Index(),
@@ -51,8 +54,7 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
 	funcbody := m.funcbody
-
-	if IsOptimizedKind(karg0) && IsOptimizedKind(karg1) {
+	{
 		argdecls := [2]func(*Env, r.Value){nil, nil}
 		for i, bind := range m.parambinds {
 			argdecls[i] = c.DeclBindRuntimeValue(bind)
@@ -7696,37 +7698,5 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 		}
 	}
-
-	{
-		rtype := t.ReflectType()
-		if funcbody == nil {
-			return func(env *Env) r.Value {
-				return r.MakeFunc(rtype, func([]r.Value) []r.Value { return ZeroValues },
-				)
-			}
-		} else {
-			return func(env *Env) r.Value {
-
-				env.MarkUsedByClosure()
-				return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
-					env := NewEnv4Func(env, nbinds, nintbinds)
-
-					for i := range rtargs {
-						if idx := indexes[i]; idx != NoIndex {
-							place := r.New(rtargs[i]).Elem()
-							if arg := args[i]; arg != Nil && arg != None {
-								place.Set(arg.Convert(rtargs[i]))
-							}
-
-							env.Binds[idx] = place
-						}
-					}
-
-					funcbody(env)
-					return ZeroValues
-				})
-			}
-		}
-
-	}
+	return nil
 }
