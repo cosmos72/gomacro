@@ -26,18 +26,23 @@ package xreflect
 
 import (
 	"go/types"
+	"reflect"
 )
 
 // FieldByName returns the (possibly embedded) struct field with given name,
 // and the number of fields found at the same (shallowest) depth: 0 if not found.
 // Private fields are returned only if they were declared in pkgpath.
 func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int) {
-	if name == "_" {
+	if name == "_" || t.kind != reflect.Struct {
 		return
 	}
 	// debugf("field cache for %v <%v> = %v", unsafe.Pointer(t), t, t.fieldcache)
 	qname := QName2(name, pkgpath)
 
+	v := t.universe
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
 	field, found := t.fieldcache[qname]
 	if found {
 		if field.Index == nil { // marker for ambiguous field names
@@ -75,21 +80,32 @@ func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int)
 }
 
 func fieldByName(t *xtype, qname QName, offset uintptr, index []int) (field StructField, count int, tovisit []StructField) {
-	gtype := t.gtype.Underlying().(*types.Struct)
+	// also support embedded fields: they can be named types or pointers to named types
+	if t.kind == reflect.Ptr {
+		t = unwrap(t.elem())
+	}
+	gtype, ok := t.gtype.Underlying().(*types.Struct)
+	if !ok {
+		debugf("fieldByName: type is %s, not struct. bailing out", t.kind)
+		return
+	}
 	n := t.NumField()
 	for i := 0; i < n; i++ {
 
 		gfield := gtype.Field(i)
+		if gfield.Anonymous() != (len(gfield.Name()) == 0) {
+			debugf("inconsistent field in <%v>: Name = %q, Anonymous = %t", t, gfield.Name(), gfield.Anonymous())
+		}
 		if matchFieldByName(qname, gfield) {
 			if count == 0 {
-				field = t.Field(i)
+				field = t.field(i) // lock already held
 				field.Offset += offset
 				field.Index = concat(index, field.Index) // make a copy of index
 				// debugf("fieldByName: %d-th field of <%v> matches: %#v", i, t.rtype, field)
 			}
 			count++
 		} else if count == 0 && gfield.Anonymous() {
-			efield := t.Field(i)
+			efield := t.field(i) // lock already held
 			efield.Offset += offset
 			efield.Index = concat(index, efield.Index) // make a copy of index
 			// debugf("fieldByName: %d-th field of <%v> is anonymous: %#v", i, t.rtype, efield)
@@ -106,7 +122,13 @@ func matchFieldByName(qname QName, gfield *types.Var) bool {
 		return true
 	}
 	if gfield.Anonymous() {
-		switch gtype := gfield.Type().(type) {
+		gtype := gfield.Type()
+		if gptr, ok := gtype.(*types.Pointer); ok {
+			// unnamed field has unnamed pointer type, as for example *Foo
+			// check the element type
+			gtype = gptr.Elem()
+		}
+		switch gtype := gtype.(type) {
 		case *types.Basic:
 			// is it possible to embed basic types?
 			// yes, and they work as unexported embedded fields,
@@ -136,8 +158,15 @@ func cacheFieldByName(t *xtype, qname QName, field *StructField, count int) {
 // anonymousFields returns the anonymous fields of a (named or unnamed) struct type
 func anonymousFields(t *xtype, offset uintptr, index []int) []StructField {
 	var tovisit []StructField
-	gtype := t.gtype.Underlying().(*types.Struct)
-	n := t.NumField()
+	gt := t.gtype.Underlying()
+	if gptr, ok := gt.(*types.Pointer); ok {
+		gt = gptr.Elem().Underlying()
+	}
+	gtype, ok := gt.(*types.Struct)
+	if !ok {
+		return tovisit
+	}
+	n := gtype.NumFields()
 	for i := 0; i < n; i++ {
 		gfield := gtype.Field(i)
 		if gfield.Anonymous() {
@@ -155,10 +184,16 @@ func anonymousFields(t *xtype, offset uintptr, index []int) []StructField {
 // Private methods are returned only if they were declared in pkgpath.
 func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	// debugf("method cache for %v <%v> = %v", unsafe.Pointer(t), t, t.methodcache)
-	if name == "_" {
+
+	// only named types and interfaces can have methods
+	if name == "_" || (!t.Named() && t.kind != reflect.Interface) {
 		return
 	}
 	qname := QName2(name, pkgpath)
+	v := t.universe
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
 	method, found := t.methodcache[qname]
 	if found {
 		index := method.Index
@@ -198,12 +233,16 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 }
 
 func methodByName(t *xtype, qname QName, index []int) (method Method, count int) {
+	// also support embedded fields: they can be named types or pointers to named types
+	if t.kind == reflect.Ptr {
+		t = unwrap(t.elem())
+	}
 	n := t.NumMethod()
 	for i := 0; i < n; i++ {
-		gmethod := t.method(i)
+		gmethod := t.gmethod(i)
 		if matchMethodByName(qname, gmethod) {
 			if count == 0 {
-				method = t.Method(i)
+				method = t.method(i)                                 // lock already held
 				method.FieldIndex = concat(index, method.FieldIndex) // make a copy of index
 				// debugf("methodByName: %d-th method of <%v> matches: %#v", i, t.rtype, method)
 			}

@@ -46,7 +46,15 @@ func (t *xtype) NumMethod() int {
 // Method return the i-th explicitly declared method of named type or interface t.
 // Wrapper methods for embedded fields are not counted
 func (t *xtype) Method(i int) Method {
-	gfunc := t.method(i)
+	v := t.universe
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
+	return t.method(i)
+}
+
+func (t *xtype) method(i int) Method {
+	gfunc := t.gmethod(i)
 	resizemethodvalues(t)
 
 	var rfunctype reflect.Type
@@ -60,10 +68,10 @@ func (t *xtype) Method(i int) Method {
 		t.methodvalues[i] = rfunc
 		rfunctype = rmethod.Type
 	}
-	return t.universe.makemethod(i, gfunc, rfuncs, rfunctype)
+	return t.universe.makemethod(i, gfunc, rfuncs, rfunctype) // lock already held
 }
 
-func (t *xtype) method(i int) *types.Func {
+func (t *xtype) gmethod(i int) *types.Func {
 	var gfun *types.Func
 	if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
 		gfun = gtype.ExplicitMethod(i)
@@ -79,7 +87,7 @@ func (v *Universe) makemethod(index int, gfun *types.Func, rfuns *[]reflect.Valu
 	return Method{
 		Name:  gfun.Name(),
 		Pkg:   (*Package)(gfun.Pkg()),
-		Type:  v.MakeType(gfun.Type(), rfunctype),
+		Type:  v.maketype(gfun.Type(), rfunctype), // lock already held
 		Funs:  rfuns,
 		Index: index,
 	}

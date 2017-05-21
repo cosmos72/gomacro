@@ -28,6 +28,7 @@ import (
 	"go/ast"
 	r "reflect"
 
+	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -50,7 +51,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 		if fieldok {
 			return c.compileField(e, field)
 		} else if mtdok {
-			return c.compileMethod(node, e, eorig, mtd)
+			return c.compileMethod(node, eorig, mtd)
 		}
 	default:
 		// interfaces and named types can have methods, but no fields
@@ -59,7 +60,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 			switch mtdn {
 			case 0:
 			case 1:
-				return c.compileMethod(node, e, eorig, mtd)
+				return c.compileMethod(node, eorig, mtd)
 			default:
 				c.Errorf("type %s has %d methods %q, expression is ambiguous: %v", t, mtdn, name, node)
 			}
@@ -105,6 +106,31 @@ func (c *Comp) LookupMethod(t xr.Type, name string) (mtd xr.Method, numfound int
 	return t.MethodByName(name, c.FileComp().Packagename)
 }
 
+// generalization of reflect.Value.Field, also accepts pointer values
+func Field0(v r.Value, index int) r.Value {
+	if v.Kind() == r.Ptr && v.Type().Elem().Kind() == r.Struct {
+		if v.IsNil() {
+			Errorf("reflect: indirection through nil pointer to embedded struct")
+		}
+		v = v.Elem()
+	}
+	return v.Field(index)
+}
+
+// generalization of reflect.Value.FieldByIndex, also accepts pointer values
+func FieldByIndex(v r.Value, index []int) r.Value {
+	for _, x := range index {
+		if v.Kind() == r.Ptr && v.Type().Elem().Kind() == r.Struct {
+			if v.IsNil() {
+				Errorf("reflect: indirection through nil pointer to embedded struct")
+			}
+			v = v.Elem()
+		}
+		v = v.Field(x)
+	}
+	return v
+}
+
 func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 	objfun := e.AsX1()
 	t := field.Type
@@ -117,92 +143,92 @@ func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 		case r.Bool:
 			fun = func(env *Env) bool {
 				obj := objfun(env)
-				return obj.Field(index0).Bool()
+				return Field0(obj, index0).Bool()
 			}
 		case r.Int:
 			fun = func(env *Env) int {
 				obj := objfun(env)
-				return int(obj.Field(index0).Int())
+				return int(Field0(obj, index0).Int())
 			}
 		case r.Int8:
 			fun = func(env *Env) int8 {
 				obj := objfun(env)
-				return int8(obj.Field(index0).Int())
+				return int8(Field0(obj, index0).Int())
 			}
 		case r.Int16:
 			fun = func(env *Env) int16 {
 				obj := objfun(env)
-				return int16(obj.Field(index0).Int())
+				return int16(Field0(obj, index0).Int())
 			}
 		case r.Int32:
 			fun = func(env *Env) int32 {
 				obj := objfun(env)
-				return int32(obj.Field(index0).Int())
+				return int32(Field0(obj, index0).Int())
 			}
 		case r.Int64:
 			fun = func(env *Env) int64 {
 				obj := objfun(env)
-				return obj.Field(index0).Int()
+				return Field0(obj, index0).Int()
 			}
 		case r.Uint:
 			fun = func(env *Env) uint {
 				obj := objfun(env)
-				return uint(obj.Field(index0).Uint())
+				return uint(Field0(obj, index0).Uint())
 			}
 		case r.Uint8:
 			fun = func(env *Env) uint8 {
 				obj := objfun(env)
-				return uint8(obj.Field(index0).Uint())
+				return uint8(Field0(obj, index0).Uint())
 			}
 		case r.Uint16:
 			fun = func(env *Env) uint16 {
 				obj := objfun(env)
-				return uint16(obj.Field(index0).Uint())
+				return uint16(Field0(obj, index0).Uint())
 			}
 		case r.Uint32:
 			fun = func(env *Env) uint32 {
 				obj := objfun(env)
-				return uint32(obj.Field(index0).Uint())
+				return uint32(Field0(obj, index0).Uint())
 			}
 		case r.Uint64:
 			fun = func(env *Env) uint64 {
 				obj := objfun(env)
-				return obj.Field(index0).Uint()
+				return Field0(obj, index0).Uint()
 			}
 		case r.Uintptr:
 			fun = func(env *Env) uintptr {
 				obj := objfun(env)
-				return uintptr(obj.Field(index0).Uint())
+				return uintptr(Field0(obj, index0).Uint())
 			}
 		case r.Float32:
 			fun = func(env *Env) float32 {
 				obj := objfun(env)
-				return float32(obj.Field(index0).Float())
+				return float32(Field0(obj, index0).Float())
 			}
 		case r.Float64:
 			fun = func(env *Env) float64 {
 				obj := objfun(env)
-				return obj.Field(index0).Float()
+				return Field0(obj, index0).Float()
 			}
 		case r.Complex64:
 			fun = func(env *Env) complex64 {
 				obj := objfun(env)
-				return complex64(obj.Field(index0).Complex())
+				return complex64(Field0(obj, index0).Complex())
 			}
 		case r.Complex128:
 			fun = func(env *Env) complex128 {
 				obj := objfun(env)
-				return obj.Field(index0).Complex()
+				return Field0(obj, index0).Complex()
 			}
 		case r.String:
 			fun = func(env *Env) string {
 				obj := objfun(env)
-				return obj.Field(index0).String()
+				return Field0(obj, index0).String()
 			}
 		default:
 			fun = func(env *Env) r.Value {
 				obj := objfun(env)
-				return obj.Field(index0)
+				return Field0(obj, index0)
 			}
 		}
 	} else {
@@ -210,93 +236,93 @@ func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 		case r.Bool:
 			fun = func(env *Env) bool {
 				obj := objfun(env)
-				return obj.FieldByIndex(index).Bool()
+				return FieldByIndex(obj, index).Bool()
 			}
 		case r.Int:
 			fun = func(env *Env) int {
 				obj := objfun(env)
-				return int(obj.FieldByIndex(index).Int())
+				return int(FieldByIndex(obj, index).Int())
 			}
 		case r.Int8:
 			fun = func(env *Env) int8 {
 				obj := objfun(env)
-				return int8(obj.FieldByIndex(index).Int())
+				return int8(FieldByIndex(obj, index).Int())
 			}
 		case r.Int16:
 			fun = func(env *Env) int16 {
 				obj := objfun(env)
-				return int16(obj.FieldByIndex(index).Int())
+				return int16(FieldByIndex(obj, index).Int())
 			}
 		case r.Int32:
 			fun = func(env *Env) int32 {
 				obj := objfun(env)
-				return int32(obj.FieldByIndex(index).Int())
+				return int32(FieldByIndex(obj, index).Int())
 			}
 		case r.Int64:
 			fun = func(env *Env) int64 {
 				obj := objfun(env)
-				return obj.FieldByIndex(index).Int()
+				return FieldByIndex(obj, index).Int()
 			}
 		case r.Uint:
 			fun = func(env *Env) uint {
 				obj := objfun(env)
-				return uint(obj.FieldByIndex(index).Uint())
+				return uint(FieldByIndex(obj, index).Uint())
 			}
 		case r.Uint8:
 			fun = func(env *Env) uint8 {
 				obj := objfun(env)
-				return uint8(obj.FieldByIndex(index).Uint())
+				return uint8(FieldByIndex(obj, index).Uint())
 			}
 		case r.Uint16:
 			fun = func(env *Env) uint16 {
 				obj := objfun(env)
-				return uint16(obj.FieldByIndex(index).Uint())
+				return uint16(FieldByIndex(obj, index).Uint())
 			}
 		case r.Uint32:
 			fun = func(env *Env) uint32 {
 				obj := objfun(env)
-				return uint32(obj.FieldByIndex(index).Uint())
+				return uint32(FieldByIndex(obj, index).Uint())
 			}
 		case r.Uint64:
 			fun = func(env *Env) uint64 {
 				obj := objfun(env)
-				return obj.FieldByIndex(index).Uint()
+				return FieldByIndex(obj, index).Uint()
 			}
 		case r.Uintptr:
 
 			fun = func(env *Env) uintptr {
 				obj := objfun(env)
-				return uintptr(obj.FieldByIndex(index).Uint())
+				return uintptr(FieldByIndex(obj, index).Uint())
 			}
 		case r.Float32:
 			fun = func(env *Env) float32 {
 				obj := objfun(env)
-				return float32(obj.FieldByIndex(index).Float())
+				return float32(FieldByIndex(obj, index).Float())
 			}
 		case r.Float64:
 			fun = func(env *Env) float64 {
 				obj := objfun(env)
-				return obj.FieldByIndex(index).Float()
+				return FieldByIndex(obj, index).Float()
 			}
 		case r.Complex64:
 			fun = func(env *Env) complex64 {
 				obj := objfun(env)
-				return complex64(obj.FieldByIndex(index).Complex())
+				return complex64(FieldByIndex(obj, index).Complex())
 			}
 		case r.Complex128:
 			fun = func(env *Env) complex128 {
 				obj := objfun(env)
-				return obj.FieldByIndex(index).Complex()
+				return FieldByIndex(obj, index).Complex()
 			}
 		case r.String:
 			fun = func(env *Env) string {
 				obj := objfun(env)
-				return obj.FieldByIndex(index).String()
+				return FieldByIndex(obj, index).String()
 			}
 		default:
 			fun = func(env *Env) r.Value {
 				obj := objfun(env)
-				return obj.FieldByIndex(index)
+				return FieldByIndex(obj, index)
 			}
 		}
 	}
@@ -322,24 +348,23 @@ func (c *Comp) removeReceiver(t xr.Type) (trecv, tfunc xr.Type) {
 
 // compileMethod compiles a method call.
 // relatively slow, but simple: return a closure with the receiver already bound
-func (c *Comp) compileMethod(node *ast.SelectorExpr, e, eorig *Expr, mtd xr.Method) *Expr {
+func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Expr {
 	fieldindex := mtd.FieldIndex
 	t := e.Type
-	indirect := e != eorig // executed a dereference ?
+	indirect := false // executed a dereference ?
 
 	// descend embedded fields
-	for i, index := range fieldindex {
-		if i > 0 && t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
-			// embedded field is a pointer, dereference it.
+	for _, index := range fieldindex {
+		if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
+			// embedded field (or initial value) is a pointer, dereference it.
 			t = t.Elem()
 			indirect = true
 		}
 		t = t.Field(index).Type
 	}
-	rtype := t.ReflectType()
 	index := mtd.Index
-	tmethod := t.Method(index)
-	tfunc := tmethod.Type
+	rtype := t.ReflectType()
+	tfunc := mtd.Type
 	trecv, tclosure := c.removeReceiver(tfunc)
 	rtclosure := tclosure.ReflectType()
 
@@ -348,9 +373,16 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e, eorig *Expr, mtd xr.Meth
 	addressof := !objPointer && recvPointer
 	deref := objPointer && !recvPointer
 
+	debug := c.Options&OptDebugMethod != 0
+	if debug {
+		c.Debugf("compiling method %v: receiver is <%v>, value is <%v>", node, trecv, t)
+	}
 	if t.AssignableTo(trecv) {
 		addressof = false
 		deref = false
+		if debug {
+			c.Debugf("compiling method %v: value is assignable to receiver", node)
+		}
 	} else if addressof && xr.PtrTo(t).AssignableTo(trecv) {
 		// c.Debugf("method call <%v> will take address of receiver <%v>", tfunc, t)
 		// ensure receiver is addressable. maybe it was simply dereferenced by Comp.SelectorExpr
@@ -359,18 +391,33 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e, eorig *Expr, mtd xr.Meth
 			if len(fieldindex) != 0 {
 				// easy, we dereferenced some expression while descending embedded fields
 				// so the receiver is addressable
+				if debug {
+					c.Debugf("compiling method %v: address-of-value is assignable to receiver", node)
+				}
 			} else {
-				// even easier, the original expression already contains the address we want
-				e = eorig
+				// even easier, the initial expression already contains the address we want
 				addressof = false
+				if debug {
+					c.Debugf("compiling method %v: value was initially an address", node)
+				}
 			}
 		} else {
 			// manually compile "& receiver_expression"
-			e = c.addressOf(node.X)
-			addressof = false
+			if debug {
+				c.Debugf("compiling method %v: compiling address-of-value", node)
+			}
+			if len(fieldindex) != 0 {
+				// must execute address-of-field at runtime, just check that struct is addressable
+				c.addressOf(node.X)
+			} else {
+				e = c.addressOf(node.X)
+				addressof = false
+			}
 		}
 	} else if deref && t.Elem().AssignableTo(trecv) {
-		c.Debugf("method call <%v> will dereference receiver <%v>", tfunc, t)
+		if debug {
+			c.Debugf("method call <%v> will dereference receiver <%v>", tfunc, t)
+		}
 	} else {
 		c.Errorf("cannot use <%v> as <%v> in receiver of method <%v>", t, trecv, tfunc)
 	}
@@ -390,12 +437,14 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e, eorig *Expr, mtd xr.Meth
 		case 1:
 			fieldindex := fieldindex[0]
 			ret = func(env *Env) r.Value {
-				obj := objfun(env).Field(fieldindex)
+				obj := objfun(env)
+				obj = Field0(obj, fieldindex)
 				return obj.Method(index)
 			}
 		default:
 			ret = func(env *Env) r.Value {
-				obj := objfun(env).FieldByIndex(fieldindex)
+				obj := objfun(env)
+				obj = FieldByIndex(obj, fieldindex)
 				return obj.Method(index)
 			}
 		}
@@ -406,11 +455,11 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e, eorig *Expr, mtd xr.Meth
 		// because the closure passed to it needs access to a variable holding the receiver.
 		// such variable would be allocated only once at compile-time,
 		// not once per goroutine!
-		funs := tmethod.Funs
+		funs := mtd.Funs
 		nin := tclosure.NumIn() + 1
 
 		if funs == nil {
-			c.Errorf("method declared but not yet implemented: %v.%v", t.Name(), tmethod.Name)
+			c.Errorf("method declared but not yet implemented: %v.%v", t.Name(), mtd.Name)
 		} else if len(*funs) <= index || (*funs)[index].Kind() != r.Func {
 			// c.Warnf("method declared but not yet implemented: %v.%v", t.Name(), tmethod.Name)
 		}
@@ -437,7 +486,9 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e, eorig *Expr, mtd xr.Meth
 		case 1:
 			fieldindex := fieldindex[0]
 			ret = func(env *Env) r.Value {
-				obj := objfun(env).Field(fieldindex)
+				obj := objfun(env)
+				obj = Field0(obj, fieldindex)
+				// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
 				if addressof {
 					obj = obj.Addr()
 				} else if deref {
@@ -455,7 +506,8 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e, eorig *Expr, mtd xr.Meth
 			}
 		default:
 			ret = func(env *Env) r.Value {
-				obj := objfun(env).FieldByIndex(fieldindex)
+				obj := objfun(env)
+				obj = FieldByIndex(obj, fieldindex)
 				if addressof {
 					obj = obj.Addr()
 				} else if deref {
@@ -538,20 +590,20 @@ func (c *Comp) compileFieldPlace(obje *Expr, field xr.StructField) *Place {
 		index0 := index[0]
 		fun = func(env *Env) r.Value {
 			obj := objfun(env)
-			return obj.Field(index0)
+			return Field0(obj, index0)
 		}
 		addr = func(env *Env) r.Value {
 			obj := objfun(env)
-			return obj.Field(index0).Addr()
+			return Field0(obj, index0).Addr()
 		}
 	} else {
 		fun = func(env *Env) r.Value {
 			obj := objfun(env)
-			return obj.FieldByIndex(index)
+			return FieldByIndex(obj, index)
 		}
 		addr = func(env *Env) r.Value {
 			obj := objfun(env)
-			return obj.FieldByIndex(index).Addr()
+			return FieldByIndex(obj, index).Addr()
 		}
 	}
 	return &Place{Var: Var{Type: t, Name: field.Name}, Fun: fun, Addr: addr}

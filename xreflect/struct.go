@@ -38,6 +38,17 @@ func (t *xtype) Field(i int) StructField {
 	if t.kind != reflect.Struct {
 		xerrorf(t, "Field of non-struct type %v", t)
 	}
+	v := t.universe
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
+	return t.field(i)
+}
+
+func (t *xtype) field(i int) StructField {
+	if t.kind != reflect.Struct {
+		xerrorf(t, "Field of non-struct type %v", t)
+	}
 	gtype := t.gtype.Underlying().(*types.Struct)
 
 	va := gtype.Field(i)
@@ -46,7 +57,7 @@ func (t *xtype) Field(i int) StructField {
 	return StructField{
 		Name:      va.Name(),
 		Pkg:       (*Package)(va.Pkg()),
-		Type:      t.universe.MakeType(va.Type(), rf.Type),
+		Type:      t.universe.maketype(va.Type(), rf.Type), // lock already held
 		Tag:       rf.Tag,
 		Offset:    rf.Offset,
 		Index:     rf.Index,
@@ -93,6 +104,7 @@ func toReflectFields(fields []StructField, forceExported bool) []reflect.StructF
 }
 
 func (field *StructField) toGoField() *types.Var {
+	field.Anonymous = len(field.Name) == 0 // cleanup
 	return types.NewField(token.NoPos, (*types.Package)(field.Pkg), field.Name, field.Type.GoType(), field.Anonymous)
 }
 

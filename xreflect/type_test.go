@@ -195,6 +195,43 @@ func TestStruct(t *testing.T) {
 	is(t, typ.String(), "struct{First int; Rest interface{}}")
 }
 
+func TestEmbedded(t *testing.T) {
+	etyp := v.NamedOf("Box", "")
+	etyp.SetUnderlying(StructOf([]StructField{
+		StructField{Name: "Value", Type: v.BasicTypes[reflect.Int]},
+	}))
+	ertype := reflect.TypeOf(struct {
+		Value int
+	}{})
+	is(t, etyp.Kind(), reflect.Struct)
+	is(t, etyp.Name(), "Box")
+	is(t, etyp.ReflectType(), ertype)
+	istype(t, etyp.GoType(), (*types.Named)(nil))
+	istype(t, etyp.GoType().Underlying(), (*types.Struct)(nil))
+
+	typ := StructOf([]StructField{
+		StructField{Name: "Label", Type: v.BasicTypes[reflect.String]},
+		StructField{Type: v.PtrTo(etyp)}, // empty name => anonymous
+	})
+	is(t, typ.String(), "struct{Label string; *Box}")
+	is(t, typ.Field(1).Anonymous, true)
+
+	// access field Struct.Value - shorthand for Struct.Box.Value
+	field, count := typ.FieldByName("Value", "")
+	is(t, count, 1)
+	isdeepequal(t, field.Index, []int{1, 0})
+
+	efield := etyp.Field(0)
+	field.Index = efield.Index
+	field.Offset = efield.Offset
+	isdeepequal(t, field, efield)
+
+	// access anonymous field Struct.Box
+	field, count = typ.FieldByName("Box", "")
+	is(t, count, 1)
+	isdeepequal(t, field, typ.Field(1))
+}
+
 func TestFromReflect0(t *testing.T) {
 	rtype := reflect.TypeOf((*func(bool, int8, <-chan uint16, []float32, [2]float64, []complex64) map[interface{}]*string)(nil)).Elem()
 	v := &Universe{RebuildDepth: MaxDepth}

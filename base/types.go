@@ -57,6 +57,8 @@ const (
 	OptDebugQuasiquote
 	OptDebugCallStack
 	OptDebugPanicRecover
+	OptDebugField
+	OptDebugMethod
 )
 
 const (
@@ -83,6 +85,8 @@ var optNames = map[Options]string{
 	OptDebugQuasiquote:     "?Quasiquote.Debug",
 	OptDebugCallStack:      "?CallStack.Debug",
 	OptDebugPanicRecover:   "?PanicRecover.Debug",
+	OptDebugField:          "?Field.Debug",
+	OptDebugMethod:         "?Method.Debug",
 }
 
 var optValues = map[string]Options{}

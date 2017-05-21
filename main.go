@@ -61,9 +61,11 @@ func main() {
 
 	type Pair struct { A, B int }; var p Pair
 	func (p *Pair) Lhs() int { return p.A }; func (p *Pair) SetLhs(a int) { p.A = a }
-	p.SetLhs(5); p.Lhs()
+	p.SetLhs(2); p.Lhs()
 
 	type Triple struct { Pair; C int }; var t Triple
+	t.Pair = p
+	t.SetLhs(3); t.Lhs()
 
 	// test some valid methods:
 
