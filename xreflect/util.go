@@ -25,7 +25,6 @@
 package xreflect
 
 import (
-	"errors"
 	"fmt"
 	"go/token"
 	"go/types"
@@ -45,8 +44,22 @@ func debugf(format string, args ...interface{}) {
 	fmt.Printf("// debug: %s\n", str)
 }
 
-func errorf(format string, arg ...interface{}) {
-	panic(errors.New(fmt.Sprintf(format, arg...)))
+type Error struct {
+	Type   Type
+	format string
+	args   []interface{}
+}
+
+func (e *Error) Error() string {
+	return fmt.Sprintf(e.format, e.args...)
+}
+
+func errorf(t Type, format string, args ...interface{}) {
+	panic(&Error{t, format, args})
+}
+
+func xerrorf(t *xtype, format string, args ...interface{}) {
+	panic(&Error{wrap(t), format, args})
 }
 
 func dirToGdir(dir reflect.ChanDir) types.ChanDir {
@@ -62,7 +75,7 @@ func dirToGdir(dir reflect.ChanDir) types.ChanDir {
 	return gdir
 }
 
-func gtypeToKind(gtype types.Type) reflect.Kind {
+func gtypeToKind(t *xtype, gtype types.Type) reflect.Kind {
 	gtype = gtype.Underlying()
 	var kind reflect.Kind
 	switch gtype := gtype.(type) {
@@ -86,7 +99,7 @@ func gtypeToKind(gtype types.Type) reflect.Kind {
 		kind = reflect.Struct
 	// case *types.Named: // impossible, handled above
 	default:
-		errorf("unsupported types.Type: %v", gtype)
+		xerrorf(t, "unsupported types.Type: %v", gtype)
 	}
 	// debugf("gtypeToKind(%T) -> %v", gtype, kind)
 	return kind
@@ -132,7 +145,7 @@ func gbasickindToKind(gkind types.BasicKind) reflect.Kind {
 	case types.UnsafePointer:
 		kind = reflect.UnsafePointer
 	default:
-		errorf("unsupported types.BasicKind: %v", gkind)
+		errorf(nil, "unsupported types.BasicKind: %v", gkind)
 	}
 	return kind
 }

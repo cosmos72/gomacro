@@ -28,6 +28,7 @@ import (
 	"go/token"
 	"go/types"
 	"reflect"
+	"unsafe"
 )
 
 // NumMethod returns the number of explicitly declared methods of named type or interface t.
@@ -69,7 +70,7 @@ func (t *xtype) method(i int) *types.Func {
 	} else if gtype, ok := t.gtype.(*types.Named); ok {
 		gfun = gtype.Method(i)
 	} else {
-		errorf("Method on invalid type %v", t)
+		xerrorf(t, "Method on invalid type %v", t)
 	}
 	return gfun
 }
@@ -122,15 +123,15 @@ func (t *xtype) SetUnderlying(underlying Type) {
 		v := t.universe
 		if t.kind != reflect.Invalid || gtype.Underlying() != v.TypeOfInterface.GoType() || t.rtype != v.TypeOfInterface.ReflectType() {
 			// redefined type. try really hard to support it.
-			v.cacheInvalidate()
-			// errorf("SetUnderlying invoked multiple times on named type %v", t)
+			v.invalidateCache()
+			// xerrorf(t, "SetUnderlying invoked multiple times on named type %v", t)
 		}
 		gunderlying := underlying.GoType().Underlying() // in case underlying is named
-		t.kind = gtypeToKind(gunderlying)
+		t.kind = gtypeToKind(t, gunderlying)
 		gtype.SetUnderlying(gunderlying)
 		t.rtype = underlying.ReflectType()
 	default:
-		errorf("SetUnderlying of unnamed type %v", t)
+		xerrorf(t, "SetUnderlying of unnamed type %v", t)
 	}
 }
 
@@ -140,10 +141,14 @@ func (t *xtype) SetUnderlying(underlying Type) {
 func (t *xtype) AddMethod(name string, signature Type) int {
 	gtype, ok := t.gtype.(*types.Named)
 	if !ok {
-		errorf("AddMethod on unnamed type %v", t)
+		xerrorf(t, "AddMethod on unnamed type %v", t)
+	}
+	kind := gtypeToKind(t, gtype.Underlying())
+	if kind == reflect.Ptr || kind == reflect.Interface {
+		xerrorf(t, "AddMethod: cannot add methods to named %s type: <%v>", kind, t)
 	}
 	if signature.Kind() != reflect.Func {
-		errorf("AddMethod on <%v> of non-func signature: %v", t, signature)
+		xerrorf(t, "AddMethod on <%v> of non-function: %v", t, signature)
 	}
 	gsig := signature.underlying().(*types.Signature)
 	// accept both signatures "non-nil receiver" and "nil receiver, use the first parameter as receiver"
@@ -152,48 +157,62 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 		grecv = gsig.Params().At(0)
 	}
 	if grecv == nil {
-		errorf("AddMethod on <%v> of function with no receiver and no parameters: %v", t, gsig)
+		xerrorf(t, "AddMethod on <%v> of function with no receiver and no parameters: %v", t, gsig)
 	}
 	if !types.IdenticalIgnoreTags(grecv.Type(), gtype) &&
-		!types.IdenticalIgnoreTags(grecv.Type(), gtype.Underlying()) &&
+		// !types.IdenticalIgnoreTags(grecv.Type(), gtype.Underlying()) &&
 		!types.IdenticalIgnoreTags(grecv.Type(), types.NewPointer(gtype)) {
 
 		label := "receiver"
 		if gsig.Recv() == nil {
 			label = "first parameter"
 		}
-		debugf("AddMethod on <%v> of function <%v> with mismatched %s type: %v", t, gsig, label, grecv)
+		xerrorf(t, "AddMethod on <%v> of function <%v> with mismatched %s type: %v", t, gsig, label, grecv.Type())
 	}
 
 	gpkg := gtype.Obj().Pkg()
 	gfun := types.NewFunc(token.NoPos, gpkg, name, gsig)
 
-	n1 := gtype.NumMethods()
-	gtype.AddMethod(gfun)
-	n2 := gtype.NumMethods()
+	index := unsafeAddMethod(gtype, gfun)
+	n := gtype.NumMethods()
 
-	for len(t.methodvalues) < n2 {
+	for len(t.methodvalues) < n {
 		t.methodvalues = append(t.methodvalues, reflect.Value{})
 	}
 
-	if n2 == n1+1 {
-		return n1
+	return index
+}
+
+// internal representation of go/types.Named
+type unsafeNamed struct {
+	obj        *types.TypeName
+	underlying types.Type
+	methods    []*types.Func
+}
+
+// patched version of go/types.Named.AddMethod() that *overwrites* matching methods
+// (the original does not)
+func unsafeAddMethod(gtype *types.Named, gfun *types.Func) int {
+	if gfun.Name() == "_" {
+		return -1
 	}
-	pkgpath := (*Package)(gpkg).Path()
-	for i := 0; i < n2; i++ {
-		gmethod := gtype.Method(i)
-		if matchMethodByName(name, pkgpath, gmethod) {
+	gt := (*unsafeNamed)(unsafe.Pointer(gtype))
+	qname := QNameGo(gfun)
+	for i, m := range gt.methods {
+		if qname == QNameGo(m) {
+			gt.methods[i] = gfun
 			return i
 		}
 	}
-	return -1 // method not found??
+	gt.methods = append(gt.methods, gfun)
+	return len(gt.methods) - 1
 }
 
 // GetMethods returns the pointer to the method values.
 // It panics if the type is unnamed
 func (t *xtype) GetMethods() *[]reflect.Value {
 	if !t.Named() {
-		errorf("GetMethods on unnamed type %v", t)
+		xerrorf(t, "GetMethods on unnamed type %v", t)
 	}
 	resizemethodvalues(t)
 	return &t.methodvalues

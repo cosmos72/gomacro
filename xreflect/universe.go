@@ -53,7 +53,7 @@ type Universe struct {
 
 func lock(v *Universe) *Universe {
 	if v.debugmutex != 0 {
-		errorf("deadlocking universe %p", v)
+		errorf(nil, "deadlocking universe %p", v)
 	}
 	v.mutex.Lock()
 	v.debugmutex++
@@ -116,7 +116,7 @@ func (v *Universe) namedTypeFromPackage(rtype reflect.Type, pkg *types.Package) 
 			if gtype := obj.Type(); gtype != nil {
 				// debugf("imported named type %v for %v", gtype, rtype)
 				// not v.MakeType, because we already hold the lock
-				return v.maketype3(gtypeToKind(gtype), gtype, rtype)
+				return v.maketype3(gtypeToKind(nil, gtype), gtype, rtype)
 			}
 		}
 	}

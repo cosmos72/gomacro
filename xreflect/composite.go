@@ -33,7 +33,7 @@ import (
 // It panics if the type's Kind is not Chan.
 func (t *xtype) ChanDir() reflect.ChanDir {
 	if t.Kind() != reflect.Chan {
-		errorf("ChanDir of non-chan type %v", t)
+		xerrorf(t, "ChanDir of non-chan type %v", t)
 	}
 	return t.rtype.ChanDir()
 }
@@ -63,7 +63,7 @@ func (t *xtype) elem() Type {
 	case *types.Slice:
 		return t.universe.maketype(gtype.Elem(), rtype.Elem())
 	default:
-		errorf("Elem of invalid type %v", t)
+		xerrorf(t, "Elem of invalid type %v", t)
 		return nil
 	}
 }
@@ -72,7 +72,7 @@ func (t *xtype) elem() Type {
 // It panics if the type's Kind is not Map.
 func (t *xtype) Key() Type {
 	if t.Kind() != reflect.Map {
-		errorf("Key of non-map type %v", t)
+		xerrorf(t, "Key of non-map type %v", t)
 	}
 	gtype := t.underlying().(*types.Map)
 	return t.universe.MakeType(gtype.Key(), t.rtype.Key())
@@ -82,7 +82,7 @@ func (t *xtype) Key() Type {
 // It panics if the type's Kind is not Array.
 func (t *xtype) Len() int {
 	if t.Kind() != reflect.Func {
-		errorf("Len of non-array type %v", t)
+		xerrorf(t, "Len of non-array type %v", t)
 	}
 	return t.rtype.Len()
 }

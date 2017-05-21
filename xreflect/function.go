@@ -33,7 +33,7 @@ import (
 // It panics if the type's Kind is not Func.
 func (t *xtype) IsMethod() bool {
 	if t.Kind() != reflect.Func {
-		errorf("IsMethod of non-func type %v", t)
+		xerrorf(t, "IsMethod of non-func type %v", t)
 	}
 	gtype := t.gtype.(*types.Signature)
 	return gtype.Recv() != nil
@@ -44,7 +44,7 @@ func (t *xtype) IsMethod() bool {
 // IsVariadic panics if the type's Kind is not Func.
 func (t *xtype) IsVariadic() bool {
 	if t.Kind() != reflect.Func {
-		errorf("In of non-func type %v", t)
+		xerrorf(t, "In of non-func type %v", t)
 	}
 	return t.rtype.IsVariadic()
 }
@@ -54,7 +54,7 @@ func (t *xtype) IsVariadic() bool {
 // It panics if i is not in the range [0, NumIn()).
 func (t *xtype) In(i int) Type {
 	if t.Kind() != reflect.Func {
-		errorf("In of non-func type %v", t)
+		xerrorf(t, "In of non-func type %v", t)
 	}
 	gtype := t.underlying().(*types.Signature)
 	va := gtype.Params().At(i)
@@ -68,7 +68,7 @@ func (t *xtype) In(i int) Type {
 // It panics if the type's Kind is not Func.
 func (t *xtype) NumIn() int {
 	if t.Kind() != reflect.Func {
-		errorf("NumIn of non-func type %v", t)
+		xerrorf(t, "NumIn of non-func type %v", t)
 	}
 	gtype := t.underlying().(*types.Signature)
 	return gtype.Params().Len()
@@ -78,7 +78,7 @@ func (t *xtype) NumIn() int {
 // It panics if the type's Kind is not Func.
 func (t *xtype) NumOut() int {
 	if t.Kind() != reflect.Func {
-		errorf("NumOut of non-func type %v", t)
+		xerrorf(t, "NumOut of non-func type %v", t)
 	}
 	gtype := t.underlying().(*types.Signature)
 	return gtype.Results().Len()
@@ -89,7 +89,7 @@ func (t *xtype) NumOut() int {
 // It panics if i is not in the range [0, NumOut()).
 func (t *xtype) Out(i int) Type {
 	if t.Kind() != reflect.Func {
-		errorf("Out of non-func type %v", t)
+		xerrorf(t, "Out of non-func type %v", t)
 	}
 	gtype := t.underlying().(*types.Signature)
 	va := gtype.Results().At(i)
@@ -101,7 +101,7 @@ func (t *xtype) Out(i int) Type {
 // It returns nil if t has no receiver.
 func (t *xtype) Recv() Type {
 	if t.Kind() != reflect.Func {
-		errorf("Recv of non-func type %v", t)
+		xerrorf(t, "Recv of non-func type %v", t)
 	}
 	gtype := t.underlying().(*types.Signature)
 	va := gtype.Recv()

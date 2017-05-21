@@ -45,11 +45,15 @@ func (t *xtype) same(u *xtype) bool {
 }
 
 func (m *Types) add(t Type) {
-	// debugf("added type to cache: %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
-	m.gmap.Set(t.GoType(), t)
-	if t.Kind() == reflect.Interface && t.ReflectType().Kind() == reflect.Struct {
-		errorf("bug!")
+	if t.Kind() == reflect.Interface {
+		rtype := t.ReflectType()
+		rkind := rtype.Kind()
+		if rkind != reflect.Interface && (rkind != reflect.Ptr || rtype.Elem().Kind() != reflect.Struct) {
+			errorf(t, "bug! inconsistent type <%v>: has kind = %s but its Type.Reflect() is %s\n\tinstead of interface or pointer-to-struct: <%v>", t, t.Kind(), rtype.Kind(), t.ReflectType())
+		}
 	}
+	m.gmap.Set(t.GoType(), t)
+	// debugf("added type to cache: %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
 }
 
 func (v *Universe) unique(t Type) Type {
@@ -81,11 +85,11 @@ func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.
 }
 
 func (v *Universe) maketype(gtype types.Type, rtype reflect.Type) Type {
-	return v.maketype3(gtypeToKind(gtype), gtype, rtype)
+	return v.maketype3(gtypeToKind(nil, gtype), gtype, rtype)
 }
 
 func (v *Universe) MakeType(gtype types.Type, rtype reflect.Type) Type {
-	kind := gtypeToKind(gtype)
+	kind := gtypeToKind(nil, gtype)
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}

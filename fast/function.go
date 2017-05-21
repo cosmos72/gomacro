@@ -94,19 +94,24 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, methods *[]r.Value) {
 	name := funcdecl.Name.Name
 	trecv := t.In(0)
-	if trecv.Kind() == r.Ptr {
-		// receiver is a pointer type. add the method to its element type
+	if trecv.Kind() == r.Ptr && !trecv.Named() {
+		// receiver is an unnamed pointer type. add the method to its element type
 		trecv = trecv.Elem()
 	}
 
 	panicking := true
 	defer func() {
 		if panicking {
-			recover()
-			c.Errorf("failed to add func %s <%v> to type <%v>", name, t, trecv)
+			rec := recover()
+			c.Errorf("error adding method %s <%v> to type <%v>\n\t%v", name, t, trecv, rec)
 		}
 	}()
+	n1 := trecv.NumMethod()
 	methodindex = trecv.AddMethod(name, t)
+	n2 := trecv.NumMethod()
+	if n1 == n2 {
+		c.Warnf("redefined method: %s.%s", trecv.Name(), name)
+	}
 	methods = trecv.GetMethods()
 	panicking = false
 	return

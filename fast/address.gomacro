@@ -126,14 +126,18 @@ import (
 }
 
 func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
-	place := c.placeOrAddress(node.X, PlaceAddress)
+	return c.addressOf(node.X)
+}
+
+func (c *Comp) addressOf(expr ast.Expr) *Expr {
+	place := c.placeOrAddress(expr, PlaceAddress)
 	if place.IsVar() {
 		return place.Var.Address(c.Depth)
 	} else if place.Addr == nil {
-		c.Errorf("cannot take the address of %v", node.X)
+		c.Errorf("cannot take the address of %v", expr)
 		return nil
 	} else {
-		return exprX1(xr.PtrTo(place.Type), place.Addr)
+		return exprX1(c.Universe.PtrTo(place.Type), place.Addr)
 	}
 }
 

@@ -25,6 +25,7 @@
 package xreflect
 
 import (
+	"go/ast"
 	"go/token"
 	"go/types"
 	"reflect"
@@ -35,7 +36,7 @@ import (
 // It panics if i is not in the range [0, NumField()).
 func (t *xtype) Field(i int) StructField {
 	if t.kind != reflect.Struct {
-		errorf("Field of non-struct type %v", t)
+		xerrorf(t, "Field of non-struct type %v", t)
 	}
 	gtype := t.gtype.Underlying().(*types.Struct)
 
@@ -57,7 +58,7 @@ func (t *xtype) Field(i int) StructField {
 // It panics if the type's Kind is not Struct.
 func (t *xtype) NumField() int {
 	if t.kind != reflect.Struct {
-		errorf("NumField of non-struct type %v", t)
+		xerrorf(t, "NumField of non-struct type %v", t)
 	}
 	gtype := t.underlying().(*types.Struct)
 	return gtype.NumFields()
@@ -122,7 +123,7 @@ func toExportedFieldName(name, typename string, anonymous bool) string {
 		}
 		return GensymEmbedded(name)
 	}
-	if ch := name[0]; ch >= 'a' && ch <= 'z' || ch == '_' {
+	if !ast.IsExported(name) {
 		return GensymPrivate(name)
 	}
 	return name

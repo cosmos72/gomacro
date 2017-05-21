@@ -25,7 +25,6 @@
 package xreflect
 
 import (
-	"go/ast"
 	"go/types"
 )
 
@@ -33,8 +32,13 @@ import (
 // and the number of fields found at the same (shallowest) depth: 0 if not found.
 // Private fields are returned only if they were declared in pkgpath.
 func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int) {
+	if name == "_" {
+		return
+	}
 	// debugf("field cache for %v <%v> = %v", unsafe.Pointer(t), t, t.fieldcache)
-	field, found := t.fieldcache[pkgpath][name]
+	qname := QName2(name, pkgpath)
+
+	field, found := t.fieldcache[qname]
 	if found {
 		if field.Index == nil { // marker for ambiguous field names
 			count = int(field.Offset) // reuse Offset as "number of ambiguous fields"
@@ -45,13 +49,13 @@ func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int)
 	}
 	var tovisit []StructField
 
-	field, count, tovisit = fieldByName(t, name, pkgpath, 0, nil)
+	field, count, tovisit = fieldByName(t, qname, 0, nil)
 
 	// breadth-first recursion
 	for count == 0 && len(tovisit) != 0 {
 		var next []StructField
 		for _, f := range tovisit {
-			efield, ecount, etovisit := fieldByName(unwrap(f.Type), name, pkgpath, f.Offset, f.Index)
+			efield, ecount, etovisit := fieldByName(unwrap(f.Type), qname, f.Offset, f.Index)
 			if count == 0 {
 				if ecount > 0 {
 					field = efield
@@ -65,18 +69,18 @@ func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int)
 		tovisit = next
 	}
 	if count > 0 {
-		cacheFieldByName(t, name, pkgpath, &field, count)
+		cacheFieldByName(t, qname, &field, count)
 	}
 	return field, count
 }
 
-func fieldByName(t *xtype, name, pkgpath string, offset uintptr, index []int) (field StructField, count int, tovisit []StructField) {
+func fieldByName(t *xtype, qname QName, offset uintptr, index []int) (field StructField, count int, tovisit []StructField) {
 	gtype := t.gtype.Underlying().(*types.Struct)
 	n := t.NumField()
 	for i := 0; i < n; i++ {
 
 		gfield := gtype.Field(i)
-		if matchFieldByName(name, pkgpath, gfield) {
+		if matchFieldByName(qname, gfield) {
 			if count == 0 {
 				field = t.Field(i)
 				field.Offset += offset
@@ -95,14 +99,10 @@ func fieldByName(t *xtype, name, pkgpath string, offset uintptr, index []int) (f
 	return
 }
 
-func sameName(xname string, xpkgpath, yname string, ypkg *types.Package) bool {
-	return xname == yname && (ast.IsExported(xname) || xpkgpath == path(ypkg))
-}
-
 // return true if gfield name matches given name, or if it's anonymous and its *type* name matches given name
-func matchFieldByName(name, pkgpath string, gfield *types.Var) bool {
+func matchFieldByName(qname QName, gfield *types.Var) bool {
 	// always check the field's package, not the type's package
-	if sameName(name, pkgpath, gfield.Name(), gfield.Pkg()) {
+	if qname == QNameGo(gfield) {
 		return true
 	}
 	if gfield.Anonymous() {
@@ -111,29 +111,26 @@ func matchFieldByName(name, pkgpath string, gfield *types.Var) bool {
 			// is it possible to embed basic types?
 			// yes, and they work as unexported embedded fields,
 			// i.e. in the same package as the struct that includes them
-			return sameName(name, pkgpath, gtype.Name(), gfield.Pkg())
+			return qname == QNameGo2(gtype.Name(), gfield.Pkg())
 		case *types.Named:
 			// gtype.Obj().Pkg() and gfield.Pkg() should be identical for *unexported* fields
 			// (they are ignored for exported fields)
-			return sameName(name, pkgpath, gtype.Obj().Name(), gfield.Pkg())
+			return qname == QNameGo2(gtype.Obj().Name(), gfield.Pkg())
 		}
 	}
 	return false
 }
 
 // add field to type's fieldcache. used by Type.FieldByName after a successful lookup
-func cacheFieldByName(t *xtype, name, pkgpath string, field *StructField, count int) {
+func cacheFieldByName(t *xtype, qname QName, field *StructField, count int) {
 	if t.fieldcache == nil {
-		t.fieldcache = make(map[string]map[string]StructField)
-	}
-	if t.fieldcache[pkgpath] == nil {
-		t.fieldcache[pkgpath] = make(map[string]StructField)
+		t.fieldcache = make(map[QName]StructField)
 	}
 	if count > 1 {
 		field.Index = nil             // marker for ambiguous field names
 		field.Offset = uintptr(count) // reuse Offset as "number of ambiguous fields"
 	}
-	t.fieldcache[pkgpath][name] = *field
+	t.fieldcache[qname] = *field
 }
 
 // anonymousFields returns the anonymous fields of a (named or unnamed) struct type
@@ -158,7 +155,11 @@ func anonymousFields(t *xtype, offset uintptr, index []int) []StructField {
 // Private methods are returned only if they were declared in pkgpath.
 func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	// debugf("method cache for %v <%v> = %v", unsafe.Pointer(t), t, t.methodcache)
-	method, found := t.methodcache[pkgpath][name]
+	if name == "_" {
+		return
+	}
+	qname := QName2(name, pkgpath)
+	method, found := t.methodcache[qname]
 	if found {
 		index := method.Index
 		if index < 0 { // marker for ambiguous method names
@@ -168,7 +169,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 		}
 		return method, count
 	}
-	method, count = methodByName(t, name, pkgpath, nil)
+	method, count = methodByName(t, qname, nil)
 	if count == 0 {
 		tovisit := anonymousFields(t, 0, nil)
 		// breadth-first recursion
@@ -176,7 +177,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 			var next []StructField
 			for _, f := range tovisit {
 				et := unwrap(f.Type)
-				emethod, ecount := methodByName(et, name, pkgpath, f.Index)
+				emethod, ecount := methodByName(et, qname, f.Index)
 				if count == 0 {
 					if ecount > 0 {
 						method = emethod
@@ -191,16 +192,16 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 		}
 	}
 	if count > 0 {
-		cacheMethodByName(t, name, pkgpath, &method, count)
+		cacheMethodByName(t, qname, &method, count)
 	}
 	return method, count
 }
 
-func methodByName(t *xtype, name, pkgpath string, index []int) (method Method, count int) {
+func methodByName(t *xtype, qname QName, index []int) (method Method, count int) {
 	n := t.NumMethod()
 	for i := 0; i < n; i++ {
 		gmethod := t.method(i)
-		if matchMethodByName(name, pkgpath, gmethod) {
+		if matchMethodByName(qname, gmethod) {
 			if count == 0 {
 				method = t.Method(i)
 				method.FieldIndex = concat(index, method.FieldIndex) // make a copy of index
@@ -213,26 +214,23 @@ func methodByName(t *xtype, name, pkgpath string, index []int) (method Method, c
 }
 
 // return true if gmethod name matches given name
-func matchMethodByName(name, pkgpath string, gmethod *types.Func) bool {
+func matchMethodByName(qname QName, gmethod *types.Func) bool {
 	// always check the methods's package, not the type's package
-	return gmethod.Name() == name && (gmethod.Exported() || path(gmethod.Pkg()) == pkgpath)
+	return qname == QNameGo(gmethod)
 }
 
 // add method to type's methodcache. used by Type.MethodByName after a successful lookup
-func cacheMethodByName(t *xtype, name, pkgpath string, method *Method, count int) {
+func cacheMethodByName(t *xtype, qname QName, method *Method, count int) {
 	if t.methodcache == nil {
-		t.methodcache = make(map[string]map[string]Method)
-	}
-	if t.methodcache[pkgpath] == nil {
-		t.methodcache[pkgpath] = make(map[string]Method)
+		t.methodcache = make(map[QName]Method)
 	}
 	if count > 1 {
 		method.Index = -count // marker for ambiguous method names
 	}
-	t.methodcache[pkgpath][name] = *method
+	t.methodcache[qname] = *method
 }
 
-func cacheInvalidate(gtype types.Type, t interface{}) {
+func invalidateCache(gtype types.Type, t interface{}) {
 	if t, ok := t.(Type); ok {
 		t := unwrap(t)
 		t.fieldcache = nil
@@ -242,6 +240,6 @@ func cacheInvalidate(gtype types.Type, t interface{}) {
 
 // clears all xtype.fieldcache and xtype.methodcache.
 // invoked by NamedOf() when a type is redefined.
-func (v *Universe) cacheInvalidate() {
-	v.gmap.Iterate(cacheInvalidate)
+func (v *Universe) invalidateCache() {
+	v.gmap.Iterate(invalidateCache)
 }

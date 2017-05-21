@@ -35,24 +35,22 @@ import (
 func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	e := c.Expr1(node.X)
 	t := e.Type
-	name := node.Sel.Name
-	switch t.Kind() {
-	case r.Ptr:
+	eorig := e
+	if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
 		t = t.Elem()
-		if t.Kind() != r.Struct {
-			break
-		}
 		fun := e.AsX1()
 		e = exprFun(t, func(env *Env) r.Value {
 			return fun(env).Elem()
 		})
-		fallthrough
+	}
+	name := node.Sel.Name
+	switch t.Kind() {
 	case r.Struct:
 		field, fieldok, mtd, mtdok := c.LookupFieldOrMethod(t, name)
 		if fieldok {
 			return c.compileField(e, field)
 		} else if mtdok {
-			return c.compileMethod(e, mtd)
+			return c.compileMethod(node, e, eorig, mtd)
 		}
 	default:
 		// interfaces and named types can have methods, but no fields
@@ -61,7 +59,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 			switch mtdn {
 			case 0:
 			case 1:
-				return c.compileMethod(e, mtd)
+				return c.compileMethod(node, e, eorig, mtd)
 			default:
 				c.Errorf("type %s has %d methods %q, expression is ambiguous: %v", t, mtdn, name, node)
 			}
@@ -324,15 +322,17 @@ func (c *Comp) removeReceiver(t xr.Type) (trecv, tfunc xr.Type) {
 
 // compileMethod compiles a method call.
 // relatively slow, but simple: return a closure with the receiver already bound
-func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
+func (c *Comp) compileMethod(node *ast.SelectorExpr, e, eorig *Expr, mtd xr.Method) *Expr {
 	fieldindex := mtd.FieldIndex
 	t := e.Type
+	indirect := e != eorig // executed a dereference ?
 
 	// descend embedded fields
 	for i, index := range fieldindex {
 		if i > 0 && t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
 			// embedded field is a pointer, dereference it.
 			t = t.Elem()
+			indirect = true
 		}
 		t = t.Field(index).Type
 	}
@@ -343,23 +343,42 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 	trecv, tclosure := c.removeReceiver(tfunc)
 	rtclosure := tclosure.ReflectType()
 
-	recvPointer := trecv.Kind() == r.Ptr // method with pointer receiver?
 	objPointer := t.Kind() == r.Ptr      // field is pointer?
-	addressof := recvPointer && !objPointer
-	deref := !recvPointer && objPointer
+	recvPointer := trecv.Kind() == r.Ptr // method with pointer receiver?
+	addressof := !objPointer && recvPointer
+	deref := objPointer && !recvPointer
 
-	if addressof && xr.PtrTo(t).AssignableTo(trecv) {
-		// ok
+	if t.AssignableTo(trecv) {
+		addressof = false
+		deref = false
+	} else if addressof && xr.PtrTo(t).AssignableTo(trecv) {
+		// c.Debugf("method call <%v> will take address of receiver <%v>", tfunc, t)
+		// ensure receiver is addressable. maybe it was simply dereferenced by Comp.SelectorExpr
+		// or maybe we need to explicitly take its address
+		if indirect {
+			if len(fieldindex) != 0 {
+				// easy, we dereferenced some expression while descending embedded fields
+				// so the receiver is addressable
+			} else {
+				// even easier, the original expression already contains the address we want
+				e = eorig
+				addressof = false
+			}
+		} else {
+			// manually compile "& receiver_expression"
+			e = c.addressOf(node.X)
+			addressof = false
+		}
 	} else if deref && t.Elem().AssignableTo(trecv) {
-		// ok
-	} else if !t.AssignableTo(trecv) {
+		c.Debugf("method call <%v> will dereference receiver <%v>", tfunc, t)
+	} else {
 		c.Errorf("cannot use <%v> as <%v> in receiver of method <%v>", t, trecv, tfunc)
 	}
 
 	objfun := e.AsX1()
 	var ret func(env *Env) r.Value
 
-	if t.NumMethod() == rtype.NumMethod() && t.Named() && SameName(t.Name(), t.PkgPath(), rtype.Name(), rtype.PkgPath()) {
+	if t.NumMethod() == rtype.NumMethod() && t.Named() && xr.QName1(t) == xr.QName1(rtype) {
 		// closures for methods declared by compiled code are available
 		// simply with reflect.Value.Method(index). Easy.
 		switch len(fieldindex) {
@@ -391,9 +410,9 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 		nin := tclosure.NumIn() + 1
 
 		if funs == nil {
-			c.Errorf("method declared but not yet implemented: %v.%v", t, tmethod.Name)
+			c.Errorf("method declared but not yet implemented: %v.%v", t.Name(), tmethod.Name)
 		} else if len(*funs) <= index || (*funs)[index].Kind() != r.Func {
-			c.Warnf("method declared but not yet implemented: %v.%v", t, tmethod.Name)
+			// c.Warnf("method declared but not yet implemented: %v.%v", t.Name(), tmethod.Name)
 		}
 
 		switch len(fieldindex) {
@@ -405,12 +424,14 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 				} else if deref {
 					obj = obj.Elem()
 				}
+				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
+
 				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 					fullargs := make([]r.Value, nin)
 					fullargs[0] = obj
 					copy(fullargs[1:], args)
 					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return (*funs)[index].Call(fullargs)
+					return fun.Call(fullargs)
 				})
 			}
 		case 1:
@@ -422,12 +443,14 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 				} else if deref {
 					obj = obj.Elem()
 				}
+				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
+
 				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 					fullargs := make([]r.Value, nin)
 					fullargs[0] = obj
 					copy(fullargs[1:], args)
 					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return (*funs)[index].Call(fullargs)
+					return fun.Call(fullargs)
 				})
 			}
 		default:
@@ -438,12 +461,14 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 				} else if deref {
 					obj = obj.Elem()
 				}
+				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
+
 				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 					fullargs := make([]r.Value, nin)
 					fullargs[0] = obj
 					copy(fullargs[1:], args)
 					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return (*funs)[index].Call(fullargs)
+					return fun.Call(fullargs)
 				})
 			}
 		}
@@ -477,8 +502,10 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 			c.Errorf("type %v has %d fields named %q, all at depth %d", te, fieldn, name, len(field.Index))
 			return nil
 		}
+		// if te.Kind() == r.Ptr, field is automatically settable and addressable
+		// because the 'a' in 'a.b' is actually a pointer
 		if te.Kind() == r.Struct {
-			c.checkSettableField(node)
+			c.checkAddressableField(node)
 		}
 		return c.compileFieldPlace(obje, field)
 	}
@@ -488,13 +515,13 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 
 // checkSettableField check that a struct field is settable and addressable.
 // by Go specs, this requires the struct itself to be settable and addressable.
-func (c *Comp) checkSettableField(node *ast.SelectorExpr) {
+func (c *Comp) checkAddressableField(node *ast.SelectorExpr) {
 	panicking := true
 	defer func() {
 		if panicking {
-			recover()
+			rec := recover()
 			c.Pos = node.Pos()
-			c.Errorf("cannot assign to %v", node)
+			c.Errorf("cannot assign to %v\n\t%v", node, rec)
 		}
 	}()
 	c.placeOrAddress(node.X, PlaceAddress)

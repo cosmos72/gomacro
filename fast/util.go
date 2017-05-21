@@ -1248,7 +1248,3 @@ func funTypeOuts(fun I) []r.Type {
 	}
 	return rts
 }
-
-func SameName(xname, xpkgpath, yname, ypkgpath string) bool {
-	return xname == yname && (ast.IsExported(xname) || xpkgpath == ypkgpath)
-}

@@ -37,7 +37,7 @@ func toGoFuncs(names []string, methods []Type) []*types.Func {
 		case *types.Signature:
 			gfuns[i] = types.NewFunc(token.NoPos, nil, names[i], gsig)
 		default:
-			errorf("InterfaceOf: %d-th 'method' argument is not a function type: %v", i, t)
+			errorf(t, "InterfaceOf: %d-th 'method' argument is not a function type: %v", i, t)
 		}
 	}
 	return gfuns
@@ -49,7 +49,7 @@ func toGoNamedTypes(ts []Type) []*types.Named {
 		if gt, ok := t.GoType().(*types.Named); ok {
 			gnameds[i] = gt
 		} else {
-			errorf("InterfaceOf: %d-th 'embedded' argument is not a named type: %v", i, t)
+			errorf(t, "InterfaceOf: %d-th 'embedded' argument is not a named type: %v", i, t)
 		}
 	}
 	return gnameds

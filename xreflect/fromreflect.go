@@ -118,7 +118,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	case reflect.Struct:
 		u = v.fromReflectStruct(rtype)
 	default:
-		errorf("unsupported reflect.Type %v", rtype)
+		errorf(t, "unsupported reflect.Type %v", rtype)
 	}
 	if t == nil {
 		t = u
@@ -145,10 +145,14 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		// methods on pointer-to-type. add them to the type itself
 		tm = t.elem()
 	}
-	if !tm.Named() {
-		errorf("cannot add methods to unnamed type %v", t)
-	}
 	xt := unwrap(tm)
+	if !xt.Named() {
+		errorf(t, "cannot add methods to unnamed type %v", t)
+	}
+	if xt.kind == reflect.Interface {
+		// debugf("NOT adding methods to interface %v", tm)
+		return t
+	}
 	if xt.methodvalues != nil {
 		// prevent another infinite recursion: Type.AddMethod() may reference the type itself in its methods
 		// debugf("NOT adding again %d methods to %v", n, tm)
@@ -324,7 +328,7 @@ func isReflectInterfaceStruct(rtype reflect.Type) bool {
 // that contains our own conventions to emulate an interface, into a Type
 func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 	if rtype.Kind() != reflect.Ptr || rtype.Elem().Kind() != reflect.Struct {
-		errorf("internal error: fromReflectInterfacePtrStruct expects pointer-to-struct reflect.Type, found: %v", rtype)
+		errorf(nil, "internal error: fromReflectInterfacePtrStruct expects pointer-to-struct reflect.Type, found: %v", rtype)
 	}
 	rebuild := v.rebuild()
 	rtype = rtype.Elem()
@@ -344,7 +348,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 			typename := name[len(StrGensymEmbedded):]
 			t := v.fromReflectType(rfield.Type)
 			if t.Kind() != reflect.Interface {
-				errorf("FromReflectType: reflect.Type <%v> is an emulated interface containing the embedded interface <%v>.\n\tExtracting the latter returned a non-interface: %v", t)
+				errorf(t, "FromReflectType: reflect.Type <%v> is an emulated interface containing the embedded interface <%v>.\n\tExtracting the latter returned a non-interface: %v", t)
 			}
 			t = v.named(t, typename, rfield.Type.PkgPath())
 			gembeddeds = append(gembeddeds, t.GoType().(*types.Named))
@@ -357,7 +361,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 			}
 			t := v.fromReflectFunc(rfield.Type)
 			if t.Kind() != reflect.Func {
-				errorf("FromReflectType: reflect.Type <%v> is an emulated interface containing the method <%v>.\n\tExtracting the latter returned a non-function: %v", t)
+				errorf(t, "FromReflectType: reflect.Type <%v> is an emulated interface containing the method <%v>.\n\tExtracting the latter returned a non-function: %v", t)
 			}
 			gtype := t.GoType().Underlying()
 			pkg := v.newPackage(rfield.PkgPath, "")

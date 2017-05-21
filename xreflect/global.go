@@ -25,6 +25,7 @@
 package xreflect
 
 import (
+	"go/ast"
 	"go/types"
 	"reflect"
 )
@@ -67,6 +68,52 @@ type xtype struct {
 	rtype        reflect.Type
 	universe     *Universe
 	methodvalues []reflect.Value
-	fieldcache   map[string]map[string]StructField // index by pkgpath, then by name
-	methodcache  map[string]map[string]Method      // index by pkgpath, then by name
+	fieldcache   map[QName]StructField
+	methodcache  map[QName]Method
+}
+
+// QName is a replacement for go/types.Id and implements accurate comparison
+// of type names, field names and method names.
+// It recognizes unexported names, and names declared in different packages.
+//
+// To compare two names, build two QNames with the functions QName*
+// then compare the two QName structs with ==
+type QName struct {
+	name, pkgpath string
+}
+
+func (q QName) Name() string {
+	return q.name
+}
+
+func (q QName) PkgPath() string {
+	return q.pkgpath
+}
+
+type QNameI interface {
+	Name() string
+	PkgPath() string
+}
+
+func QName2(name, pkgpath string) QName {
+	if ast.IsExported(name) {
+		pkgpath = ""
+	}
+	return QName{name, pkgpath}
+}
+
+func QName1(q QNameI) QName {
+	return QName2(q.Name(), q.PkgPath())
+}
+
+func QNameGo2(name string, pkg *types.Package) QName {
+	var pkgpath string
+	if pkg != nil && !ast.IsExported(name) {
+		pkgpath = pkg.Path()
+	}
+	return QName{name, pkgpath}
+}
+
+func QNameGo(obj types.Object) QName {
+	return QNameGo2(obj.Name(), obj.Pkg())
 }
