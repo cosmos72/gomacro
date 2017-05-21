@@ -175,10 +175,10 @@ func (t Type) ChanDir() reflect.ChanDir {
 // Complete marks an interface type as complete and computes wrapper methods for embedded fields.
 // It must be called by users of InterfaceOf after the interface's embedded types are fully defined
 // and before using the interface type in any way other than to form other types.
-// Complete returns a canonicalized (unique) version of the receiver.
+// Complete returns the receiver.
 func (t Type) Complete() Type {
 	t[0].Complete()
-	return t[0].universe.unique(t)
+	return t
 }
 
 // Elem returns a type's element type.

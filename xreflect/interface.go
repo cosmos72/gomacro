@@ -72,27 +72,23 @@ func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds [
 	for i, method := range methods {
 		rfields[i+nemb+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
 	}
-	// do NOT canonicalize the new interface. See InterfaceOf() for rationale.
-	return wrap(&xtype{
-		kind:  reflect.Interface,
-		gtype: types.NewInterface(gmethods, gembeddeds),
+	return v.maketype3(
+		reflect.Interface,
+		types.NewInterface(gmethods, gembeddeds),
 		// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
 		// Use a pointer to the proxy struct
-		rtype:    reflect.PtrTo(reflect.StructOf(rfields)),
-		universe: v,
-	})
+		reflect.PtrTo(reflect.StructOf(rfields)),
+	)
 }
 
 // InterfaceOf returns a new interface for the given methods and embedded types.
 // After the methods and embeddeds are fully defined, call Complete() to mark
 // the interface as complete and compute wrapper methods for embedded fields.
 //
-// WARNING: the Type returned by InterfaceOf is not complete and not canonicalized,
-// i.e. not guaranteed to be unique, because equality on interfaces means "the same methods",
-// which requires that the methods and embedded interfaces are complete.
-//
-// Call Complete() to canonicalize the Type returned by InterfaceOf
-// once you know that methods and embedded interfaces are complete.
+// WARNING: the Type returned by InterfaceOf is not complete,
+// i.e. its method set is not computed yet.
+// Once you know that methods and embedded interfaces are complete,
+// call Complete() to compute the method set and mark this Type as complete.
 func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	v := universe
 	if len(embeddeds) != 0 && embeddeds[0] != nil {
