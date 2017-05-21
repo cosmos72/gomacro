@@ -215,9 +215,9 @@ type Type interface {
 
 	Universe() *Universe
 
-	// GetMethodAddr returns the pointer to the method value for given method index.
-	// It panics if the type is unnamed, or if the index is outside [0,NumMethod()-1]
-	GetMethodAddr(index int) *reflect.Value
+	// GetMethods returns the pointer to the method values.
+	// It panics if the type is unnamed
+	GetMethods() *[]reflect.Value
 }
 
 func unwrap(t Type) *xtype {

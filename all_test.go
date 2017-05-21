@@ -288,6 +288,7 @@ var testcases = []TestCase{
 	}{}, nil},
 	TestCase{A, "get_struct_1", "pair.A", rune(0), nil},
 	TestCase{A, "get_struct_2", "pair.B", "", nil},
+
 	TestCase{A, "pointer_1", "var vf = 1.25; if *&vf != vf { vf = -1 }; vf", 1.25, nil},
 	TestCase{A, "pointer_2", "var pvf = &vf; *pvf", 1.25, nil},
 	TestCase{A, "pointer_3", "var pvs = &vs; v1 = (*pvs == nil); v1", true, nil},
@@ -462,8 +463,10 @@ var testcases = []TestCase{
 	TestCase{I, "literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
 	TestCase{I, "literal_map", "map[int]string{1: \"foo\", 2: \"bar\"}", map[int]string{1: "foo", 2: "bar"}, nil},
 	TestCase{I, "literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
-	TestCase{I, "method_on_ptr", "func (p *Pair) SetLhs(a rune) { p.A = a }; pair.SetLhs(8); pair.A", rune(8), nil},
-	TestCase{I, "method_on_value", "func (p Pair) SetLhs(a rune) { p.A = a }; pair.SetLhs(11); pair.A", rune(8), nil}, // method on value gets a copy of the receiver - changes to not propagate
+	TestCase{A, "method_decls", "func (p *Pair) SetA(a rune) { p.A = a }; func (p Pair) SetAV(a rune) { p.A = a }; nil", nil, nil},
+	TestCase{A, "method_on_ptr", "pair.SetA(8); pair.A", rune(8), nil},
+	TestCase{A, "method_on_value", "pair.SetAV(11); pair.A", rune(8), nil}, // method on value gets a copy of the receiver - changes to not propagate
+
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{I, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
 	TestCase{A, "pred_bool_1", "false==false && true==true && true!=false", true, nil},
@@ -473,6 +476,7 @@ var testcases = []TestCase{
 	TestCase{A, "pred_string_2", `ve=="" && ve>="" && ve<="" && ve<"a" && ve<="b" && "a">ve && "b">=ve`, true, nil},
 	TestCase{A, "pred_string_3", `"x"=="x" && "x"<="x" && "x">="x" && "x"!="y" && "x"<"y" && "y">"x"`, true, nil},
 	TestCase{A, "pred_string_4", `"x"!="x" || "y"!="y" || "x">="y" || "y"<="x"`, false, nil},
+
 	TestCase{I, "recover", `var vpanic interface{}
 		func test_recover(rec bool, panick interface{}) {
 			defer func() {

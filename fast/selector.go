@@ -28,7 +28,6 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -361,7 +360,7 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 	var ret func(env *Env) r.Value
 
 	if t.NumMethod() == rtype.NumMethod() && t.Named() && SameName(t.Name(), t.PkgPath(), rtype.Name(), rtype.PkgPath()) {
-		// closures for methods declared by compiled code are accessible
+		// closures for methods declared by compiled code are available
 		// simply with reflect.Value.Method(index). Easy.
 		switch len(fieldindex) {
 		case 0:
@@ -381,8 +380,6 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 				return obj.Method(index)
 			}
 		}
-	} else if tmethod.Func == Nil {
-		c.Errorf("method declared but not yet implemented: %v.%v", t, tmethod.Name)
 	} else {
 		// method declared by interpreted code, manually build the closure.
 		//
@@ -390,8 +387,14 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 		// because the closure passed to it needs access to a variable holding the receiver.
 		// such variable would be allocated only once at compile-time,
 		// not once per goroutine!
-		fun := tmethod.Func
+		funs := tmethod.Funs
 		nin := tclosure.NumIn() + 1
+
+		if funs == nil {
+			c.Errorf("method declared but not yet implemented: %v.%v", t, tmethod.Name)
+		} else if len(*funs) <= index || (*funs)[index].Kind() != r.Func {
+			c.Warnf("method declared but not yet implemented: %v.%v", t, tmethod.Name)
+		}
 
 		switch len(fieldindex) {
 		case 0:
@@ -407,7 +410,7 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 					fullargs[0] = obj
 					copy(fullargs[1:], args)
 					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return fun.Call(fullargs)
+					return (*funs)[index].Call(fullargs)
 				})
 			}
 		case 1:
@@ -424,7 +427,7 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 					fullargs[0] = obj
 					copy(fullargs[1:], args)
 					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return fun.Call(fullargs)
+					return (*funs)[index].Call(fullargs)
 				})
 			}
 		default:
@@ -440,7 +443,7 @@ func (c *Comp) compileMethod(e *Expr, mtd xr.Method) *Expr {
 					fullargs[0] = obj
 					copy(fullargs[1:], args)
 					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return fun.Call(fullargs)
+					return (*funs)[index].Call(fullargs)
 				})
 			}
 		}

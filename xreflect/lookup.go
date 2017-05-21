@@ -165,10 +165,6 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 			count = -index
 		} else {
 			count = 1
-			if len(method.FieldIndex) == 0 && index < len(t.methodvalues) {
-				// in case it changed meanwhile
-				method.Func = t.methodvalues[index]
-			}
 		}
 		return method, count
 	}

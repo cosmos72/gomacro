@@ -41,10 +41,10 @@ type InterfaceHeader struct {
 type Method struct {
 	Name       string
 	Pkg        *Package
-	Type       Type          // method type
-	Func       reflect.Value // func with receiver as first argument
-	Index      int           // index for Type.Method
-	FieldIndex []int         // embedded fields index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
+	Type       Type             // method type
+	Funs       *[]reflect.Value // (*Funs)[Index] is the method, with receiver as first argument
+	Index      int              // index for Type.Method
+	FieldIndex []int            // embedded fields index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
 }
 
 type StructField struct {

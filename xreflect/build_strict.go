@@ -316,10 +316,10 @@ func (t Type) Universe() *Universe {
 	return t[0].Universe()
 }
 
-// GetMethodAddr returns the pointer to the method value for given method index.
-// It panics if the type is unnamed, or if the index is outside [0,NumMethod()-1]
-func (t Type) GetMethodAddr(index int) *reflect.Value {
-	return t[0].GetMethodAddr(index)
+// GetMethods returns the pointer to the method values.
+// It panics if the type is unnamed
+func (t Type) GetMethods() *[]reflect.Value {
+	return t[0].GetMethods()
 }
 
 // Complete marks an interface type as complete and computes wrapper methods for embedded fields.

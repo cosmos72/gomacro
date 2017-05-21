@@ -91,7 +91,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 	c.Code.Append(stmt)
 }
 
-func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, methodaddr *r.Value) {
+func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, methods *[]r.Value) {
 	name := funcdecl.Name.Name
 	trecv := t.In(0)
 	if trecv.Kind() == r.Ptr {
@@ -107,7 +107,7 @@ func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, me
 		}
 	}()
 	methodindex = trecv.AddMethod(name, t)
-	methodaddr = trecv.GetMethodAddr(methodindex)
+	methods = trecv.GetMethods()
 	panicking = false
 	return
 }
@@ -126,7 +126,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	t, paramnames, resultnames := c.TypeFunctionOrMethod(recvdecl, functype)
 
 	// declare the method name and type before compiling its body: allows recursive methods
-	_, methodaddr := c.methodAdd(funcdecl, t)
+	methodindex, methods := c.methodAdd(funcdecl, t)
 
 	cf := NewComp(c)
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
@@ -144,7 +144,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	// a method declaration is a statement:
 	// executing it sets the method value in the receiver type
 	stmt := func(env *Env) (Stmt, *Env) {
-		*methodaddr = f(env)
+		(*methods)[methodindex] = f(env)
 		env.IP++
 		return env.Code[env.IP], env
 	}

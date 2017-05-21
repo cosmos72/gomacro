@@ -45,18 +45,21 @@ func (t *xtype) NumMethod() int {
 // Method return the i-th explicitly declared method of named type or interface t.
 // Wrapper methods for embedded fields are not counted
 func (t *xtype) Method(i int) Method {
-	gfun := t.method(i)
-	var rfunc reflect.Value
+	gfunc := t.method(i)
+	resizemethodvalues(t)
+
 	var rfunctype reflect.Type
-	if len(t.methodvalues) > i && t.methodvalues[i].Kind() == reflect.Func {
-		rfunc = t.methodvalues[i]
+	rfuncs := &t.methodvalues
+	rfunc := t.methodvalues[i]
+	if rfunc.Kind() == reflect.Func {
 		rfunctype = rfunc.Type()
 	} else {
-		rmethod, _ := t.rtype.MethodByName(gfun.Name())
+		rmethod, _ := t.rtype.MethodByName(gfunc.Name())
 		rfunc = rmethod.Func
+		t.methodvalues[i] = rfunc
 		rfunctype = rmethod.Type
 	}
-	return t.universe.makemethod(i, gfun, rfunc, rfunctype)
+	return t.universe.makemethod(i, gfunc, rfuncs, rfunctype)
 }
 
 func (t *xtype) method(i int) *types.Func {
@@ -71,13 +74,24 @@ func (t *xtype) method(i int) *types.Func {
 	return gfun
 }
 
-func (v *Universe) makemethod(index int, gfun *types.Func, rfunc reflect.Value, rfunctype reflect.Type) Method {
+func (v *Universe) makemethod(index int, gfun *types.Func, rfuns *[]reflect.Value, rfunctype reflect.Type) Method {
 	return Method{
 		Name:  gfun.Name(),
 		Pkg:   (*Package)(gfun.Pkg()),
 		Type:  v.MakeType(gfun.Type(), rfunctype),
-		Func:  rfunc,
+		Funs:  rfuns,
 		Index: index,
+	}
+}
+
+func resizemethodvalues(t *xtype) {
+	n := t.NumMethod()
+	if cap(t.methodvalues) < n {
+		slice := make([]reflect.Value, n, n+n/2+4)
+		copy(slice, t.methodvalues)
+		t.methodvalues = slice
+	} else if len(t.methodvalues) < n {
+		t.methodvalues = t.methodvalues[0:n]
 	}
 }
 
@@ -175,11 +189,12 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 	return -1 // method not found??
 }
 
-// GetMethodAddr returns the pointer to the method value for given method index.
-// It panics if the type is unnamed, or if the index is outside [0,NumMethod()-1]
-func (t *xtype) GetMethodAddr(index int) *reflect.Value {
+// GetMethods returns the pointer to the method values.
+// It panics if the type is unnamed
+func (t *xtype) GetMethods() *[]reflect.Value {
 	if !t.Named() {
-		errorf("SetMethodValue on unnamed type %v", t)
+		errorf("GetMethods on unnamed type %v", t)
 	}
-	return &t.methodvalues[index]
+	resizemethodvalues(t)
+	return &t.methodvalues
 }
