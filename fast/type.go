@@ -27,6 +27,7 @@ package fast
 import (
 	"fmt"
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -38,25 +39,59 @@ func (c *Comp) DeclType(node ast.Spec) {
 	switch node := node.(type) {
 	case *ast.TypeSpec:
 		name := node.Name.Name
-		// support self-referencing types, as for example: type List struct { First int; Rest *List }
-		t := c.DeclNamedType(name)
-		u := c.Type(node.Type)
-		c.SetUnderlyingType(t, u)
+		// PATCH: support type aliases
+		if unary, ok := node.Type.(*ast.UnaryExpr); ok && unary.Op == token.ASSIGN {
+			t := c.Type(unary.X)
+			c.DeclTypeAlias(name, t)
+		} else {
+			// support self-referencing types, as for example: type List struct { First int; Rest *List }
+			t := c.DeclNamedType(name)
+			u := c.Type(node.Type)
+			if t != nil { // t == nil means name == "_", discard the result of type declaration
+				c.SetUnderlyingType(t, u)
+			}
+		}
 	default:
 		c.Errorf("Compile: unexpected type declaration, expecting <*ast.TypeSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
-// DeclNamedType executes a named type forward declaration.
-// must be followed by Comp.SetUnderlyingType()
-func (c *Comp) DeclNamedType(name string) xr.Type {
-	if t, ok := c.Types[name]; ok {
-		c.Warnf("redefined type: %v", name)
-		return t // reuse t, change only its underlying type
+// DeclTypeAlias compiles a typealias declaration, i.e. type Foo = /*...*/
+// Returns the second argument.
+func (c *Comp) DeclTypeAlias(name string, t xr.Type) xr.Type {
+	if name == "_" {
+		return t
+	}
+	if _, ok := c.Types[name]; ok {
+		c.Warnf("redefined type alias: %v", name)
+		c.Universe.InvalidateCache()
 	} else if c.Types == nil {
 		c.Types = make(map[string]xr.Type)
 	}
-	t := c.Universe.NamedOf(name, c.Packagename)
+	c.Types[name] = t
+	return t
+}
+
+// DeclNamedType executes a named type forward declaration.
+// Returns nil if name == "_"
+// Otherwise it must be followed by Comp.SetUnderlyingType()
+func (c *Comp) DeclNamedType(name string) xr.Type {
+	if name == "_" {
+		return nil
+	}
+	if t, ok := c.Types[name]; ok {
+		c.Warnf("redefined type: %v", name)
+		if xr.QName1(t) != xr.QName2(name, c.PackagePath) {
+			// the current type "name" is an alias, discard it
+			c.Universe.InvalidateCache()
+		} else {
+			// reuse t, change only its underlying type
+			return t
+		}
+	} else if c.Types == nil {
+		c.Types = make(map[string]xr.Type)
+	}
+	t := c.Universe.NamedOf(name, c.PackagePath)
 	c.Types[name] = t
 	return t
 }

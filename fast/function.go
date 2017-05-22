@@ -148,10 +148,22 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 
 	// a method declaration is a statement:
 	// executing it sets the method value in the receiver type
-	stmt := func(env *Env) (Stmt, *Env) {
-		(*methods)[methodindex] = f(env)
-		env.IP++
-		return env.Code[env.IP], env
+	var stmt Stmt
+	if true /*c.Options&OptDebugMethod != 0*/ {
+		tname := t.Name()
+		methodname := funcdecl.Name
+		stmt = func(env *Env) (Stmt, *Env) {
+			(*methods)[methodindex] = f(env)
+			env.ThreadGlobals.Debugf("implemented method %s.%s", tname, methodname)
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	} else {
+		stmt = func(env *Env) (Stmt, *Env) {
+			(*methods)[methodindex] = f(env)
+			env.IP++
+			return env.Code[env.IP], env
+		}
 	}
 	c.Code.Append(stmt)
 }

@@ -108,7 +108,7 @@ func (env *Env) MergePackage(pkg imports.Package) {
 
 func (env *Env) ChangePackage(name string) *Env {
 	fenv := env.FileEnv()
-	currname := fenv.ThreadGlobals.Packagename
+	currname := fenv.ThreadGlobals.PackagePath
 	if name == currname {
 		return env
 	}
@@ -116,7 +116,7 @@ func (env *Env) ChangePackage(name string) *Env {
 
 	nenv := NewEnv(fenv.TopEnv(), name)
 	nenv.MergePackage(imports.Packages[name])
-	nenv.ThreadGlobals.Packagename = name
+	nenv.ThreadGlobals.PackagePath = name
 
 	return nenv
 }
@@ -323,7 +323,7 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 			arg = strings.TrimSpace(src[1+space:])
 		}
 		if len(arg) == 0 {
-			fmt.Fprintf(env.Stdout, "// current package: %v\n", env.Packagename)
+			fmt.Fprintf(env.Stdout, "// current package: %v\n", env.PackagePath)
 		} else {
 			env = env.ChangePackage(arg)
 		}

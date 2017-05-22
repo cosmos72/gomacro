@@ -54,6 +54,21 @@ func (env *Env) evalExpr1OrType(node ast.Expr) (val r.Value, t r.Type) {
 	return val, nil
 }
 
+// evalTypeAlias evaluates a type alias declaration, i.e. type Foo = /*...*/
+func (env *Env) evalTypeAlias(name string, node ast.Expr) r.Type {
+	t := env.evalType(node)
+	// never define bindings for "_"
+	if name != "_" {
+		if _, ok := env.Types.Get(name); ok {
+			env.Warnf("redefined type alias: %v", name)
+		} else {
+			env.Types.Ensure()
+		}
+		env.Types.Set(name, t)
+	}
+	return t
+}
+
 // evalType evaluates a type
 func (env *Env) evalType(node ast.Expr) r.Type {
 	t, _ := env.evalType2(node, false)

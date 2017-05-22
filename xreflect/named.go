@@ -131,7 +131,7 @@ func (t *xtype) SetUnderlying(underlying Type) {
 		v := t.universe
 		if t.kind != reflect.Invalid || gtype.Underlying() != v.TypeOfInterface.GoType() || t.rtype != v.TypeOfInterface.ReflectType() {
 			// redefined type. try really hard to support it.
-			v.invalidateCache()
+			v.InvalidateCache()
 			// xerrorf(t, "SetUnderlying invoked multiple times on named type %v", t)
 		}
 		gunderlying := underlying.GoType().Underlying() // in case underlying is named

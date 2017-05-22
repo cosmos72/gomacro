@@ -236,7 +236,7 @@ func wrap(t *xtype) Type {
 // and before using the interface type in any way other than to form other types.
 func (t *xtype) Complete() Type {
 	if t.kind != reflect.Interface {
-		errorf("Complete of non-interface %v", t)
+		xerrorf(t, "Complete of non-interface %v", t)
 	}
 	gtype := t.gtype.Underlying().(*types.Interface)
 	gtype.Complete()

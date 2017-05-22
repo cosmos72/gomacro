@@ -279,6 +279,6 @@ func invalidateCache(gtype types.Type, t interface{}) {
 
 // clears all xtype.fieldcache and xtype.methodcache.
 // invoked by NamedOf() when a type is redefined.
-func (v *Universe) invalidateCache() {
+func (v *Universe) InvalidateCache() {
 	v.gmap.Iterate(invalidateCache)
 }

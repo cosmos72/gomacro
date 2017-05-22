@@ -279,15 +279,15 @@ var testcases = []TestCase{
 		A rune
 		B string
 	}{}, nil},
-	TestCase{A, "type_struct_2", "type Triple struct { Pair Pair; C float32 }; var triple Triple; triple", struct {
-		Pair struct {
-			A rune
-			B string
-		}
-		C float32
+	TestCase{A, "type_struct_2", "type Triple struct { Pair; C float32 }; var triple Triple; triple.C", float32(0), nil},
+	TestCase{A, "field_get_1", "pair.A", rune(0), nil},
+	TestCase{A, "field_get_2", "pair.B", "", nil},
+	TestCase{F, "field_anonymous_1", "triple.Pair", struct {
+		A rune
+		B string
 	}{}, nil},
-	TestCase{A, "get_struct_1", "pair.A", rune(0), nil},
-	TestCase{A, "get_struct_2", "pair.B", "", nil},
+	TestCase{F, "field_embedded_1", "triple.A", rune(0), nil},
+	TestCase{F, "field_embedded_2", "triple.Pair.B", "", nil},
 
 	TestCase{A, "pointer_1", "var vf = 1.25; if *&vf != vf { vf = -1 }; vf", 1.25, nil},
 	TestCase{A, "pointer_2", "var pvf = &vf; *pvf", 1.25, nil},
@@ -398,29 +398,24 @@ var testcases = []TestCase{
 		list_args(i,m,mcopy)`,
 		[]interface{}{1, nil_map_int_string, map[int]string{0: "foo"}}, nil},
 
-	TestCase{A, "setstruct_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
+	TestCase{A, "field_set_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
 		A rune
 		B string
 	}{'k', "m"}, nil},
-	TestCase{A, "setstruct_2", `pair.A, pair.B = 'x', "y"; pair`, struct {
+	TestCase{A, "field_set_2", `pair.A, pair.B = 'x', "y"; pair`, struct {
 		A rune
 		B string
 	}{'x', "y"}, nil},
-	TestCase{A, "setstruct_3", `triple.Pair.A, triple.C = 'a', 1.0; triple`, struct {
-		Pair struct {
-			A rune
-			B string
-		}
-		C float32
-	}{
-		Pair: struct {
-			A rune
-			B string
-		}{'a', ""},
-		C: float32(1.0),
-	}, nil},
-	TestCase{A, "addr_structfield_1", "ppair := &triple.Pair; ppair.A", 'a', nil},
-	TestCase{A, "setaddr_structfield_1", "ppair.A++; triple.Pair.A", 'b', nil},
+	TestCase{F, "field_set_3", `triple.Pair.A, triple.C = 'a', 1.0; triple.Pair`, struct {
+		A rune
+		B string
+	}{'a', ""}, nil},
+	TestCase{F, "field_set_embedded_1", `triple.A, triple.B = 'b', "xy"; triple.Pair`, struct {
+		A rune
+		B string
+	}{'b', "xy"}, nil},
+	TestCase{F, "field_addr_1", "ppair := &triple.Pair; ppair.A", 'b', nil},
+	TestCase{F, "field_addr_2", "ppair.A++; triple.Pair.A", 'c', nil},
 
 	TestCase{I, "goroutine_1", `import "time"; go seti(9); time.Sleep(time.Second/20); i`, 9, nil},
 	TestCase{F, "goroutine_1", "go seti(9); Sleep(0.05); i", 9, nil},
@@ -465,7 +460,9 @@ var testcases = []TestCase{
 	TestCase{I, "literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
 	TestCase{A, "method_decls", "func (p *Pair) SetA(a rune) { p.A = a }; func (p Pair) SetAV(a rune) { p.A = a }; nil", nil, nil},
 	TestCase{A, "method_on_ptr", "pair.SetA(8); pair.A", rune(8), nil},
-	TestCase{A, "method_on_value", "pair.SetAV(11); pair.A", rune(8), nil}, // method on value gets a copy of the receiver - changes to not propagate
+	TestCase{A, "method_on_val", "pair.SetAV(11); pair.A", rune(8), nil}, // method on value gets a copy of the receiver - changes to not propagate
+	TestCase{F, "method_embedded_on_ptr", "triple.SetA('+'); triple.A", '+', nil},
+	TestCase{F, "method_embedded_on_val", "triple.SetAV('*'); triple.A", '+', nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{I, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},

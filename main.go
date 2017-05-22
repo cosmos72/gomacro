@@ -86,5 +86,11 @@ func main() {
 	func (p PPair) Foo() { }
 	func (p *PPair) Foo() { }
 
-	:fast var i = 0; for i = 0; i < 2; i=i+1 { println(i) }
+	// test type alias:
+
+	type u8 = uint8
+	var n u8 = 255
+	func show(n uint8) { println(n) }
+
+	type u8 uint8 // redefine type at runtime!
 */

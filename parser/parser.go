@@ -2405,7 +2405,14 @@ func (p *parser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.
 	spec := &ast.TypeSpec{Doc: doc, Name: ident}
 	p.declare(spec, nil, p.topScope, ast.Typ, ident)
 
-	spec.Type = p.parseType()
+	// PATCH: support type aliases
+	if p.tok == token.ASSIGN {
+		pos := p.pos
+		p.next()
+		spec.Type = &ast.UnaryExpr{OpPos: pos, Op: token.ASSIGN, X: p.parseType()}
+	} else {
+		spec.Type = p.parseType()
+	}
 	p.expectSemi() // call before accessing p.linecomment
 	spec.Comment = p.lineComment
 

@@ -397,6 +397,10 @@ again:
 	value := e.Value
 	v := r.ValueOf(value)
 	t := e.Type
+	if t == nil {
+		e.Fun = eNil
+		return eNil
+	}
 	rtexpected := t.ReflectType()
 	rtactual := r.TypeOf(value)
 	if rtexpected != rtactual {

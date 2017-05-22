@@ -42,7 +42,7 @@ import (
 type Globals struct {
 	Output
 	Options      Options
-	Packagename  string
+	PackagePath  string
 	Filename     string
 	GensymN      uint
 	Importer     *Importer
@@ -65,7 +65,7 @@ func (g *Globals) Init() {
 		Stderr: os.Stdout,
 	}
 	g.Options = OptTrapPanic // set by default
-	g.Packagename = "main"
+	g.PackagePath = "main"
 	g.Filename = "repl.go"
 	g.GensymN = 0
 	g.Importer = DefaultImporter()
@@ -212,7 +212,7 @@ func (g *Globals) CollectNode(node ast.Node) {
 		if unary, ok := node.(*ast.UnaryExpr); ok && collectDecl {
 			if unary.Op == token.PACKAGE && unary.X != nil {
 				if ident, ok := unary.X.(*ast.Ident); ok {
-					g.Packagename = ident.Name
+					g.PackagePath = ident.Name
 					break
 				}
 			}
@@ -237,7 +237,7 @@ func (g *Globals) WriteDeclsToFile(filename string, prologue ...string) {
 }
 
 func (g *Globals) WriteDeclsToStream(out io.Writer) {
-	fmt.Fprintf(out, "package %s\n\n", g.Packagename)
+	fmt.Fprintf(out, "package %s\n\n", g.PackagePath)
 
 	for _, imp := range g.Imports {
 		fmt.Fprintln(out, g.toPrintable(imp))

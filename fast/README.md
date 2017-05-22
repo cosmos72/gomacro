@@ -15,19 +15,19 @@ The fast interpreter supports:
 * line comments starting with #! in addition to // - shared with the classic interpreter
 * basic types: booleans, integers, floats, complex numbers, strings (and iota)
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
-* constant, variable and type declarations (including structs and untyped constants)
+* constant, variable and type declarations (including untyped constants)
+* Go 1.9 type aliases (experimental)
 * unary and binary operators
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= <<= >>= &^=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs (unimplemented: composite literals)
-* reading and writing struct fields, including embedded fields
+* accessing struct fields, including embedded fields
 * slicing
 * type assertions and type conversions
 * interface declarations (**only** declarations. interfaces cannot be implemented or used yet)
-* function declarations, including variadic functions
+* function declarations and calls, including variadic functions
+* method declarations and calls, including wrapper methods for embedded fields
 * closures
 * transparent invocation of compiled functions from interpreter, and vice-versa
-* function calls, including calls to variadic functions, with or without ... after last call argument
-* method calls (only methods declared in compiled code)
 * if, for, switch, break, continue, fallthrough, return (unimplemented: for-range, type switch, goto, return foo() where foo() returns multiple values)
 * go i.e. goroutines
 * all builtins except defer and recover
@@ -42,8 +42,6 @@ Missing features - you are welcome to contribute:
 * for-range (normal 'for' is implemented)
 * type switch
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
-* method declarations
-* method calls (cannot yet call methods declared in interpreted code)
 * conversion from/to interpreted interfaces
 * defer and recover
 * macro definition

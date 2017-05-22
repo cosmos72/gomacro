@@ -41,18 +41,11 @@ func (ce *CompEnv) RunExpr1(expr *Expr) r.Value {
 	return expr.AsX1()(env)
 }
 
-func (ce *CompEnv) RunExpr(expr *Expr) (r.Value, []r.Value) {
-	if expr == nil {
+func (ce *CompEnv) RunExpr(e *Expr) (r.Value, []r.Value) {
+	if e == nil {
 		return None, nil
 	}
-	env := ce.PrepareEnv()
-	return expr.AsXV(CompileDefaults)(env)
-}
-
-func (ce *CompEnv) Run(fun func(*Env) (r.Value, []r.Value)) (r.Value, []r.Value) {
-	if fun == nil {
-		return None, nil
-	}
+	fun := e.AsXV(ce.Comp.CompileOptions)
 	env := ce.PrepareEnv()
 	return fun(env)
 }
@@ -63,23 +56,23 @@ func (ce *CompEnv) Parse(src string) ast2.Ast {
 }
 
 // combined Parse + Compile
-func (ce *CompEnv) Compile(src string) func(*Env) (r.Value, []r.Value) {
+func (ce *CompEnv) Compile(src string) *Expr {
 	c := ce.Comp
 	return c.Compile(c.Parse(src))
 }
 
-func (ce *CompEnv) CompileNode(node ast.Node) func(*Env) (r.Value, []r.Value) {
+func (ce *CompEnv) CompileNode(node ast.Node) *Expr {
 	return ce.Comp.CompileNode(node)
 }
 
-func (ce *CompEnv) CompileAst(form ast2.Ast) func(*Env) (r.Value, []r.Value) {
+func (ce *CompEnv) CompileAst(form ast2.Ast) *Expr {
 	return ce.Comp.Compile(form)
 }
 
-// combined Parse + Compile + Run
+// combined Parse + Compile + RunExpr
 func (ce *CompEnv) Eval(src string) (r.Value, []r.Value) {
 	c := ce.Comp
-	return ce.Run(c.Compile(c.Parse(src)))
+	return ce.RunExpr(c.Compile(c.Parse(src)))
 }
 
 // DeclConst compiles a constant declaration

@@ -55,7 +55,6 @@ func init() {
 			"ThreadLocal":    r.TypeOf((*ThreadGlobals)(nil)).Elem(),
 			"UntypedLit":     r.TypeOf((*UntypedLit)(nil)).Elem(),
 			"Var":            r.TypeOf((*Var)(nil)).Elem(),
-			"X":              r.TypeOf((*X)(nil)).Elem(),
 		},
 		Proxies: map[string]r.Type{
 			"I": r.TypeOf((*I_github_com_cosmos72_gomacro_fast)(nil)).Elem(),

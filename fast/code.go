@@ -25,10 +25,7 @@
 package fast
 
 import (
-	r "reflect"
 	"unsafe"
-
-	. "github.com/cosmos72/gomacro/base"
 )
 
 func (code *Code) Clear() {
@@ -45,20 +42,16 @@ func (code *Code) Append(stmt Stmt) {
 	}
 }
 
-// more wrapping (thus slower) than needed... but only used by REPL
-func (code *Code) AsXV() func(*Env) (r.Value, []r.Value) {
+func (code *Code) AsExpr() *Expr {
 	fun := code.Exec()
 	if fun == nil {
 		return nil
 	}
-	return func(env *Env) (r.Value, []r.Value) {
-		fun(env)
-		return None, nil
-	}
+	return expr0(fun)
 }
 
 // Exec returns a func(*Env) that will execute the compiled code
-func (code *Code) Exec() X {
+func (code *Code) Exec() func(*Env) {
 	if code.Len() == 0 {
 		code.Clear()
 		return nil

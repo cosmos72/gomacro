@@ -262,7 +262,7 @@ func (c *Comp) Parse(src string) Ast {
 	return AnyToAst(nodes, "ParseAst")
 }
 
-func (c *Comp) Compile(in Ast) func(*Env) (r.Value, []r.Value) {
+func (c *Comp) Compile(in Ast) *Expr {
 	switch form := in.(type) {
 	case nil:
 		return nil
@@ -270,38 +270,20 @@ func (c *Comp) Compile(in Ast) func(*Env) (r.Value, []r.Value) {
 		return c.CompileNode(form.Node())
 	case AstWithSlice:
 		n := form.Size()
-		var list []func(*Env) (r.Value, []r.Value)
+		var list []*Expr
 		for i := 0; i < n; i++ {
-			fun := c.Compile(form.Get(i))
-			if fun != nil {
-				list = append(list, fun)
+			e := c.Compile(form.Get(i))
+			if e != nil {
+				list = append(list, e)
 			}
 		}
-		switch len(list) {
-		case 0:
-			return nil
-		case 1:
-			return list[0]
-		case 2:
-			return func(env *Env) (r.Value, []r.Value) {
-				list[0](env)
-				return list[1](env)
-			}
-		default:
-			return func(env *Env) (r.Value, []r.Value) {
-				n_1 := len(list) - 1
-				for i := 0; i < n_1; i++ {
-					list[i](env)
-				}
-				return list[n_1](env)
-			}
-		}
+		return exprList(list, c.CompileOptions)
 	}
 	c.Errorf("Compile: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
 	return nil
 }
 
-func (c *Comp) CompileNode(node ast.Node) func(*Env) (r.Value, []r.Value) {
+func (c *Comp) CompileNode(node ast.Node) *Expr {
 	c.Code.Clear()
 	if node == nil {
 		return nil
@@ -311,10 +293,10 @@ func (c *Comp) CompileNode(node ast.Node) func(*Env) (r.Value, []r.Value) {
 	case ast.Decl:
 		c.Decl(node)
 	case ast.Expr:
-		return c.Expr(node).AsXV(c.CompileOptions)
+		return c.Expr(node)
 	case *ast.ExprStmt:
 		// special case of statement
-		return c.Expr(node.X).AsXV(c.CompileOptions)
+		return c.Expr(node.X)
 	case ast.Stmt:
 		c.Stmt(node)
 	case *ast.File:
@@ -323,7 +305,7 @@ func (c *Comp) CompileNode(node ast.Node) func(*Env) (r.Value, []r.Value) {
 		c.Errorf("Compile: unsupported expression, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", node, r.TypeOf(node))
 		return nil
 	}
-	return c.Code.AsXV()
+	return c.Code.AsExpr()
 }
 
 func (c *Comp) File(node *ast.File) {

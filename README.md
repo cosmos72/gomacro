@@ -88,6 +88,7 @@ The intepreter supports:
 * basic types: booleans, integers, floats, complex numbers, strings (and iota)
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
 * constant, variable and type declarations (untyped constants are emulated with typed constants)
+* Go 1.9 type aliases (experimental)
 * unary and binary operators
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= <<= >>=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs

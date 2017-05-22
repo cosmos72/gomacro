@@ -48,41 +48,44 @@ const (
 var verbose = false
 
 /*
-	--------- 2017-05-06: results on Intel Core i7 4770 ---------------
+	--------- 2017-05-21: results on Intel Core i7 4770 ---------------
 
-	BenchmarkFibonacciCompiler-8            3000000           498 ns/op
-	BenchmarkFibonacciFast-8                 100000         14812 ns/op
-	BenchmarkFibonacciFast2-8                100000         14446 ns/op
-	BenchmarkFibonacciClassic-8                3000        575222 ns/op
-	BenchmarkFibonacciClassic2-8               3000        575585 ns/op
-	BenchmarkFibonacciClosureValues-8         10000        239373 ns/op
-	BenchmarkFibonacciClosureInterfaces-8     10000        184985 ns/op
-	BenchmarkFibonacciClosureMaps-8            5000        330350 ns/op
-	BenchmarkSwitchCompiler-8               1000000          2422 ns/op
-	BenchmarkSwitchFast-8                     50000         37846 ns/op
-	BenchmarkSwitchClassic-8                    500       2843500 ns/op
-	BenchmarkArithCompiler1-8             200000000             8.58 ns/op
-	BenchmarkArithCompiler2-8             200000000             8.56 ns/op
-	BenchmarkArithFast-8                   30000000            59.2 ns/op
-	BenchmarkArithFast2-8                  30000000            51.4 ns/op
-	BenchmarkArithFastConst-8             100000000            13.9 ns/op
-	BenchmarkArithFastCompileLoop-8          100000         21307 ns/op
-	BenchmarkArithClassic-8                 1000000          1466 ns/op
-	BenchmarkArithClassic2-8                1000000          2378 ns/op
-	BenchmarkCollatzCompiler-8              3000000           426 ns/op
-	BenchmarkCollatzFast-8                   100000         12460 ns/op
-	BenchmarkCollatzClassic-8                  3000        479500 ns/op
-	BenchmarkCollatzBytecodeInterfaces-8      50000         29575 ns/op
-	BenchmarkCollatzClosureValues-8          100000         16678 ns/op
-	BenchmarkSumCompiler-8                  3000000           413 ns/op
-	BenchmarkSumFast-8                       100000         20292 ns/op
-	BenchmarkSumFast2-8                      100000         20330 ns/op
-	BenchmarkSumClassic-8                      2000        904097 ns/op
-	BenchmarkSumBytecodeValues-8              20000         72740 ns/op
-	BenchmarkSumBytecodeInterfaces-8          30000         52509 ns/op
-	BenchmarkSumClosureValues-8               30000         41459 ns/op
-	BenchmarkSumClosureInterfaces-8           10000        142466 ns/op
-	BenchmarkSumClosureMaps-8                 20000         93106 ns/op
+	BenchmarkFibonacciCompiler-8            	 3000000	       501 ns/op
+	BenchmarkFibonacciFast-8                	  100000	     15774 ns/op
+	BenchmarkFibonacciFast2-8               	  100000	     15141 ns/op
+	BenchmarkFibonacciClassic-8             	    2000	    915990 ns/op
+	BenchmarkFibonacciClassic2-8            	    2000	    912180 ns/op
+	BenchmarkFibonacciClosureValues-8       	    5000	    259074 ns/op
+	BenchmarkFibonacciClosureInterfaces-8   	   10000	    193098 ns/op
+	BenchmarkFibonacciClosureMaps-8         	    5000	    358345 ns/op
+	BenchmarkShellSortCompiler-8            	20000000	        74.0 ns/op
+	BenchmarkShellSortFast-8                	  200000	      7790 ns/op
+	BenchmarkShellSortClassic-8             	    5000	    276673 ns/op
+	BenchmarkSwitchCompiler-8               	 1000000	      2363 ns/op
+	BenchmarkSwitchFast-8                   	   50000	     37773 ns/op
+	BenchmarkSwitchClassic-8                	     500	   3454461 ns/op
+	BenchmarkArithCompiler1-8               	200000000	         8.41 ns/op
+	BenchmarkArithCompiler2-8               	200000000	         8.41 ns/op
+	BenchmarkArithFast-8                    	50000000	        30.8 ns/op
+	BenchmarkArithFast2-8                   	30000000	        50.6 ns/op
+	BenchmarkArithFastConst-8               	100000000	        15.2 ns/op
+	BenchmarkArithFastCompileLoop-8         	  100000	     21442 ns/op
+	BenchmarkArithClassic-8                 	 1000000	      1686 ns/op
+	BenchmarkArithClassic2-8                	  500000	      2916 ns/op
+	BenchmarkCollatzCompiler-8              	 5000000	       265 ns/op
+	BenchmarkCollatzFast-8                  	  200000	     11812 ns/op
+	BenchmarkCollatzClassic-8               	    2000	    654139 ns/op
+	BenchmarkCollatzBytecodeInterfaces-8    	   50000	     30203 ns/op
+	BenchmarkCollatzClosureValues-8         	  100000	     16570 ns/op
+	BenchmarkSumCompiler-8                  	 5000000	       294 ns/op
+	BenchmarkSumFast-8                      	  100000	     20789 ns/op
+	BenchmarkSumFast2-8                     	  100000	     20720 ns/op
+	BenchmarkSumClassic-8                   	    1000	   1223624 ns/op
+	BenchmarkSumBytecodeValues-8            	   20000	     76201 ns/op
+	BenchmarkSumBytecodeInterfaces-8        	   30000	     53031 ns/op
+	BenchmarkSumClosureValues-8             	   30000	     41124 ns/op
+	BenchmarkSumClosureInterfaces-8         	   10000	    147109 ns/op
+	BenchmarkSumClosureMaps-8               	   20000	     93320 ns/op
 */
 
 // ---------------------- recursion: fibonacci ----------------------
@@ -110,15 +113,15 @@ func BenchmarkFibonacciFast(b *testing.B) {
 	ce.Eval(fibonacci_source_string)
 
 	// compile the call to fibonacci(fib_n)
-	fun := ce.Compile(fmt.Sprintf("fibonacci(%d)", fib_n))
+	expr := ce.Compile(fmt.Sprintf("fibonacci(%d)", fib_n))
+	fun := expr.Fun.(func(*fast.Env) int)
 	env := ce.PrepareEnv()
 	fun(env)
 
 	b.ResetTimer()
 	var total int
 	for i := 0; i < b.N; i++ {
-		retv, _ := fun(env)
-		total += int(retv.Int())
+		total += fun(env)
 	}
 }
 
@@ -378,18 +381,17 @@ func BenchmarkArithFast(b *testing.B) {
 
 	addr := ce.AddressOfVar("n").Interface().(*int)
 
-	fun := ce.Compile("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+	expr := ce.Compile("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+	fun := expr.Fun.(func(*fast.Env) int)
 	env := ce.PrepareEnv()
 	fun(env)
-	var ret r.Value
 
 	// interpreted code performs only arithmetic - iteration performed here
 	b.ResetTimer()
 	total := 0
 	for i := 0; i < b.N; i++ {
 		*addr = b.N
-		ret, _ = fun(env)
-		total += int(ret.Int())
+		total += fun(env)
 	}
 	if verbose {
 		println(total)
@@ -404,7 +406,7 @@ func BenchmarkArithFast2(b *testing.B) {
 	total := ce.AddressOfVar("total").Interface().(*int)
 
 	// interpreted code performs iteration and arithmetic
-	fun := ce.Compile("for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }")
+	fun := ce.Compile("for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }").AsX()
 	env := ce.PrepareEnv()
 	fun(env)
 
@@ -427,7 +429,7 @@ func BenchmarkArithFastConst(b *testing.B) {
 	total := ce.AddressOfVar("total").Interface().(*int)
 
 	// interpreted code performs iteration and arithmetic
-	fun := ce.Compile("for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }")
+	fun := ce.Compile("for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }").AsX()
 	env := ce.PrepareEnv()
 	fun(env)
 
@@ -517,7 +519,7 @@ func BenchmarkCollatzFast(b *testing.B) {
 	ce.DeclVar("n", nil, uint(0))
 	addr := ce.AddressOfVar("n").Interface().(*uint)
 
-	fun := ce.Compile("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) >> 1 } else { n >>= 1 } }")
+	fun := ce.Compile("for n > 1 { if n&1 != 0 { n = ((n * 3) + 1) >> 1 } else { n >>= 1 } }").AsX()
 	env := ce.PrepareEnv()
 	fun(env)
 
@@ -590,15 +592,15 @@ func BenchmarkSumFast(b *testing.B) {
 	ce.Eval("var i, total uint")
 	ce.DeclConst("n", nil, uint(sum_n))
 
-	fun := ce.Compile("total = 0; for i = 1; i <= n; i++ { total += i }; total")
+	expr := ce.Compile("total = 0; for i = 1; i <= n; i++ { total += i }; total")
+	fun := expr.Fun.(func(*fast.Env) uint)
 	env := ce.PrepareEnv()
 	fun(env)
 
 	var total uint
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ret, _ := fun(env)
-		total += uint(ret.Uint())
+		total += fun(env)
 	}
 	if verbose {
 		println(total)
@@ -610,7 +612,7 @@ func BenchmarkSumFast2(b *testing.B) {
 	ce.Eval("var i, total uint")
 	ce.DeclConst("n", nil, uint(sum_n))
 
-	fun := ce.Compile("for i = 1; i <= n; i++ { total += i }")
+	fun := ce.Compile("for i = 1; i <= n; i++ { total += i }").AsX()
 	env := ce.PrepareEnv()
 	fun(env)
 	total := ce.AddressOfVar("total").Interface().(*uint)

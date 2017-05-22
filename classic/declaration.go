@@ -98,6 +98,12 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case *ast.TypeSpec:
 		name := node.Name.Name
+		// PATCH: support type aliases
+		if unary, ok := node.Type.(*ast.UnaryExpr); ok && unary.Op == token.ASSIGN {
+			t := env.evalTypeAlias(name, unary.X)
+			return r.ValueOf(&t).Elem(), nil // return a reflect.Type, not the concrete type
+		}
+
 		t := env.evalType(node.Type)
 		if name != "_" {
 			// never define bindings for "_"
@@ -108,7 +114,7 @@ func (env *Env) evalDeclType(node ast.Spec) (r.Value, []r.Value) {
 			}
 			env.Types.Set(name, t)
 			if _, ok := env.NamedTypes[t]; !ok {
-				env.NamedTypes[t] = fmt.Sprintf("%s.%s", env.Packagename, name)
+				env.NamedTypes[t] = fmt.Sprintf("%s.%s", env.PackagePath, name)
 			}
 		}
 		return r.ValueOf(&t).Elem(), nil // return a reflect.Type, not the concrete type

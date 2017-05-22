@@ -29,7 +29,7 @@ import (
 	r "reflect"
 )
 
-func (c *Comp) Import(node ast.Spec) X {
+func (c *Comp) Import(node ast.Spec) func(*Env) {
 	c.Errorf("import is not implemented, found: %v <%v>", node, r.TypeOf(node))
 	c.Pos = node.Pos()
 	return nil

@@ -99,18 +99,16 @@ func (c *Comp) badPred(reason string, node ast.Expr, x *Expr) Stmt {
 	return nil
 }
 
-func (e *Expr) AsX() X {
+func (e *Expr) AsX() func(*Env) {
 	if e == nil || e.Const() {
 		return nil
 	}
 	return funAsX(e.Fun)
 }
 
-func funAsX(any I) X {
+func funAsX(any I) func(*Env) {
 	switch fun := any.(type) {
 	case nil:
-	case X:
-		return fun
 	case func(*Env):
 		return fun
 	case func(*Env) r.Value:
@@ -284,14 +282,6 @@ func funAsX1(fun I, t xr.Type) func(*Env) r.Value {
 	}
 	switch fun := fun.(type) {
 	case nil:
-	case X:
-		if fun == nil {
-			break
-		}
-		return func(env *Env) r.Value {
-			fun(env)
-			return None
-		}
 	case func(*Env):
 		if fun == nil {
 			break
@@ -641,14 +631,6 @@ func funAsXV(fun I, t xr.Type) func(*Env) (r.Value, []r.Value) {
 	}
 	switch fun := fun.(type) {
 	case nil:
-	case X:
-		if fun == nil {
-			break
-		}
-		return func(env *Env) (r.Value, []r.Value) {
-			fun(env)
-			return None, nil
-		}
 	case func(*Env):
 		if fun == nil {
 			break
@@ -1002,12 +984,6 @@ func funAsStmt(fun I) Stmt {
 
 	switch fun := fun.(type) {
 	case nil:
-	case X:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
 	case func(*Env):
 		ret = func(env *Env) (Stmt, *Env) {
 			fun(env)
@@ -1128,98 +1104,8 @@ func funAsStmt(fun I) Stmt {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-
-	case func(*Env) *bool:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *int:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *int8:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *int16:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *int32:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *int64:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *uint:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *uint8:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *uint16:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *uint32:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *uint64:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *uintptr:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *float32:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *float64:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
-	case func(*Env) *complex64:
-		ret = func(env *Env) (Stmt, *Env) {
-			fun(env)
-			env.IP++
-			return env.Code[env.IP], env
-		}
 	default:
+
 		Errorf("unsupported expression type, cannot convert to Stmt : %v <%v>",
 			fun, r.TypeOf(fun))
 	}
@@ -1247,4 +1133,399 @@ func funTypeOuts(fun I) []r.Type {
 		rts[i] = rt.Out(i)
 	}
 	return rts
+}
+
+// exprList merges together a list of expressions,
+// and returns an expression that evaluates each one
+func exprList(list []*Expr, opts CompileOptions) *Expr {
+	// skip constant expressions (except the last one)
+	var n int
+	for i, ni := 0, len(list)-1; i <= ni; i++ {
+		// preserve the last expression even if constant
+		// because it will be returned to the user
+		if i == ni || !list[i].Const() {
+			list[n] = list[i]
+			n++
+		}
+	}
+	switch n {
+	case 0:
+		return nil
+	case 1:
+		return list[0]
+	}
+	list = list[:n]
+
+	funs := make([]func(*Env), n-1)
+	for i := range funs {
+		funs[i] = list[i].AsX()
+	}
+	return &Expr{
+		Lit:   Lit{Type: list[n-1].Type},
+		Types: list[n-1].Types,
+		Fun:   funList(funs, list[n-1], opts),
+	}
+}
+
+// funList merges together a list of functions,
+// and returns a function that evaluates each one
+func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
+	var rt r.Type
+	if last.Type != nil {
+		rt = last.Type.ReflectType()
+	}
+	switch fun := last.WithFun().(type) {
+	case nil:
+		return func(env *Env) {
+			for _, f := range funs {
+				f(env)
+			}
+		}
+	case func(*Env):
+		return func(env *Env) {
+			for _, f := range funs {
+				f(env)
+			}
+			fun(env)
+		}
+	case func(*Env) r.Value:
+		return func(env *Env) r.Value {
+			for _, f := range funs {
+				f(env)
+			}
+			return fun(env)
+		}
+	case func(*Env) (r.Value, []r.Value):
+		return func(env *Env) (r.Value, []r.Value) {
+			for _, f := range funs {
+				f(env)
+			}
+			return fun(env)
+		}
+	case func(*Env) bool:
+		if rt == nil || rt == TypeOfBool {
+			return func(env *Env) bool {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) int:
+		if rt == nil || rt == TypeOfInt {
+			return func(env *Env) int {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) int8:
+		if rt == nil || rt == TypeOfInt8 {
+			return func(env *Env) int8 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) int16:
+		if rt == nil || rt == TypeOfInt16 {
+			return func(env *Env) int16 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) int32:
+		if rt == nil || rt == TypeOfInt32 {
+			return func(env *Env) int32 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) int64:
+		if rt == nil || rt == TypeOfInt64 {
+			return func(env *Env) int64 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) uint:
+		if rt == nil || rt == TypeOfUint {
+			return func(env *Env) uint {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) uint8:
+		if rt == nil || rt == TypeOfUint8 {
+			return func(env *Env) uint8 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) uint16:
+		if rt == nil || rt == TypeOfUint16 {
+			return func(env *Env) uint16 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) uint32:
+		if rt == nil || rt == TypeOfUint32 {
+			return func(env *Env) uint32 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) uint64:
+		if rt == nil || rt == TypeOfUint64 {
+			return func(env *Env) uint64 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) uintptr:
+		if rt == nil || rt == TypeOfUintptr {
+			return func(env *Env) uintptr {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) float32:
+		if rt == nil || rt == TypeOfFloat32 {
+			return func(env *Env) float32 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) float64:
+		if rt == nil || rt == TypeOfFloat64 {
+			return func(env *Env) float64 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) complex64:
+		if rt == nil || rt == TypeOfComplex64 {
+			return func(env *Env) complex64 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) complex128:
+		if rt == nil || rt == TypeOfComplex128 {
+			return func(env *Env) complex128 {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	case func(*Env) string:
+		if rt == nil || rt == TypeOfString {
+			return func(env *Env) string {
+				for _, f := range funs {
+					f(env)
+				}
+				return fun(env)
+			}
+		} else {
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				return r.ValueOf(fun(env)).Convert(rt)
+			}
+		}
+	default:
+		switch last.NumOut() {
+		case 0:
+			fun := last.AsX()
+			return func(env *Env) {
+				for _, f := range funs {
+					f(env)
+				}
+				fun(env)
+			}
+		case 1:
+			var zero r.Value
+			if rt != nil {
+				zero = r.Zero(rt)
+			}
+			fun := last.AsX1()
+			return func(env *Env) r.Value {
+				for _, f := range funs {
+					f(env)
+				}
+				ret := fun(env)
+				if ret == Nil {
+					ret = zero
+				} else if rt != nil && rt != ret.Type() {
+					ret = ret.Convert(rt)
+				}
+				return ret
+			}
+		default:
+			var zero []r.Value
+			var rt []r.Type
+			for i, t := range last.Types {
+				if t != nil {
+					rt[i] = t.ReflectType()
+					zero[i] = r.Zero(rt[i])
+				}
+			}
+			fun := last.AsXV(opts)
+			return func(env *Env) (r.Value, []r.Value) {
+				for _, f := range funs {
+					f(env)
+				}
+				_, rets := fun(env)
+				for i, ret := range rets {
+					if ret == Nil {
+						rets[i] = zero[i]
+					} else if rt != nil && rt[i] != ret.Type() {
+						rets[i] = ret.Convert(rt[i])
+					}
+				}
+				return rets[0], rets
+			}
+		}
+	}
 }

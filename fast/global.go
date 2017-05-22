@@ -478,7 +478,6 @@ type CompEnv struct {
 
 type (
 	I interface{}
-	X func(*Env)
 	/*
 		XBool func(*Env) bool
 		XInt        func(*Env) int
