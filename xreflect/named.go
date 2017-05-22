@@ -114,7 +114,8 @@ func (v *Universe) NamedOf(name, pkgpath string) Type {
 func (v *Universe) namedOf(name, pkgpath string) Type {
 	underlying := v.TypeOfInterface
 	pkg := v.newPackage(pkgpath, "")
-	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
+	// typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
+	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
 	return v.maketype3(
 		reflect.Invalid, // incomplete type! will be fixed by SetUnderlying
 		types.NewNamed(typename, underlying.GoType(), nil),
@@ -181,13 +182,19 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 	gpkg := gtype.Obj().Pkg()
 	gfun := types.NewFunc(token.NoPos, gpkg, name, gsig)
 
+	n1 := gtype.NumMethods()
 	index := unsafeAddMethod(gtype, gfun)
-	n := gtype.NumMethods()
+	n2 := gtype.NumMethods()
 
-	for len(t.methodvalues) < n {
-		t.methodvalues = append(t.methodvalues, reflect.Value{})
+	// update the caches... be careful if the method was just redefined
+	nilv := reflect.Value{}
+	for len(t.methodvalues) < n2 {
+		t.methodvalues = append(t.methodvalues, nilv)
 	}
-
+	t.methodvalues[index] = nilv
+	if n1 == n2 {
+		t.universe.InvalidateCache()
+	}
 	return index
 }
 

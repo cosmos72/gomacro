@@ -36,7 +36,7 @@ type Package struct {
 
 var Packages = make(map[string]Package)
 
-// inception: allow interpreted code to import "github.com/cosmos72/gomacro/imports"
+// reflection: allow interpreted code to import "github.com/cosmos72/gomacro/imports"
 func init() {
 	Packages["github.com/cosmos72/gomacro/imports"] = Package{
 		map[string]Value{

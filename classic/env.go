@@ -335,24 +335,53 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 
 	var value r.Value
 	var values []r.Value
+	var typ interface{}
+	var types []interface{}
 
 	// eval phase
 	if form != nil {
 		if env.Options&OptMacroExpandOnly != 0 {
 			value = r.ValueOf(form.Interface())
 		} else if fast {
-			value, values = env.fastEval(form)
+			xvalue, xvalues, xtype, xtypes := env.fastEval(form)
+			value, values, typ = xvalue, xvalues, xtype
+			types := make([]interface{}, len(xtypes))
+			for i, xt := range xtypes {
+				types[i] = xt
+			}
 		} else {
 			value, values = env.EvalAst(form)
 		}
 	}
 
 	// print phase
-	if env.Options&OptShowEval != 0 {
+	opts := env.Options
+	if opts&OptShowEval != 0 {
 		if len(values) != 0 {
-			env.FprintValues(env.Options, env.Stdout, values...)
+			if opts&OptShowEvalType != 0 {
+				for i, vi := range values {
+					var ti interface{}
+					if types != nil && len(types) > i {
+						ti = types[i]
+					} else {
+						ti = ValueType(vi)
+					}
+					env.Fprintf(env.Stdout, "%v\t// %v\n", vi, ti)
+				}
+			} else {
+				for _, vi := range values {
+					env.Fprintf(env.Stdout, "%v\n", vi)
+				}
+			}
 		} else if value != None {
-			env.FprintValues(env.Options, env.Stdout, value)
+			if opts&OptShowEvalType != 0 {
+				if typ == nil {
+					typ = ValueType(value)
+				}
+				env.Fprintf(env.Stdout, "%v\t// %v\n", value, typ)
+			} else {
+				env.Fprintf(env.Stdout, "%v\n", value)
+			}
 		}
 	}
 	return true

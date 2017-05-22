@@ -75,9 +75,9 @@ func main() {
 	type SPair []Pair; var s SPair
 	func (p SPair) Foo() { }; s.Foo()
 
-	type Int int; var i Int
-	func (i Int) Print() { println(i) }; i.Print; i.Print()
-	func (i *Int) Print() { println(*i) }; i.Print; i.Print()
+	type Int int; var I Int
+	func (x Int) Print() { println(x) }; I.Print; I.Print()
+	func (x *Int) Print() { println(*x) }; I.Print; I.Print()
 
 	// test some bogus methods:
 
@@ -88,9 +88,12 @@ func main() {
 
 	// test type alias:
 
-	type u8 = uint8
-	var n u8 = 255
-	func show(n uint8) { println(n) }
+	type iint = int
+	type Int int
+	var i int = 1
+	var ii iint = 2
+	var I Int = 3
+	func show(x int) { println(x) }
+	func Show(x Int) { println(x) }
 
-	type u8 uint8 // redefine type at runtime!
 */

@@ -27,7 +27,7 @@ The fast interpreter supports:
 * function declarations and calls, including variadic functions
 * method declarations and calls, including wrapper methods for embedded fields
 * closures
-* transparent invocation of compiled functions from interpreter, and vice-versa
+* seamless invocation of compiled functions from interpreter, and vice-versa
 * if, for, switch, break, continue, fallthrough, return (unimplemented: for-range, type switch, goto, return foo() where foo() returns multiple values)
 * go i.e. goroutines
 * all builtins except defer and recover

@@ -67,7 +67,7 @@ func writeInterfaceMethod(out *bytes.Buffer, pkgSuffix string, interfaceName str
 	if opts&writeMethodsAsFields != 0 {
 		fmt.Fprintf(out, "\n\t%s_\tfunc", method.Name())
 	} else {
-		fmt.Fprintf(out, "func (Proxy %s%s) %s", interfaceName, pkgSuffix, method.Name())
+		fmt.Fprintf(out, "func (Proxy *%s%s) %s", interfaceName, pkgSuffix, method.Name())
 	}
 	params := sig.Params()
 	results := sig.Results()

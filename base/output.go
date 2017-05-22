@@ -32,6 +32,7 @@ import (
 	"go/token"
 	"io"
 	r "reflect"
+	"strconv"
 	"strings"
 	"unsafe"
 
@@ -100,7 +101,7 @@ func Warnf(format string, args ...interface{}) {
 }
 
 func (o *Output) Warnf(format string, args ...interface{}) {
-	str := o.Sprintf(format, args...)
+	str := fmt.Sprintf(format, args...)
 	fmt.Fprintf(o.Stderr, "// warning: %s\n", str)
 }
 
@@ -123,7 +124,7 @@ func Debugf(format string, args ...interface{}) {
 }
 
 func (o *Output) Debugf(format string, args ...interface{}) {
-	str := o.Sprintf(format, args...)
+	str := fmt.Sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
 
@@ -142,16 +143,6 @@ func (st *Stringer) Position() token.Position {
 	return st.Fileset.Position(st.Pos)
 }
 
-func (st *Stringer) FprintValues(opts Options, out io.Writer, values ...r.Value) {
-	if len(values) == 0 {
-		fmt.Fprint(out, "// no value\n")
-		return
-	}
-	for _, v := range values {
-		st.FprintValue(opts, out, v)
-	}
-}
-
 var typeOfReflectValue = r.TypeOf(r.Value{})
 
 type unsafeType struct {
@@ -167,71 +158,6 @@ type unsafeValue struct {
 
 func asUnsafeValue(v r.Value) unsafeValue {
 	return *(*unsafeValue)(unsafe.Pointer(&v))
-}
-
-func (st *Stringer) FprintValue(opts Options, out io.Writer, v r.Value) {
-	var vi interface{}
-	var vt r.Type
-	if v == None {
-		fmt.Fprint(out, "// no value\n")
-		return
-	} else if v == Nil {
-		vi = nil
-		vt = nil
-	} else {
-		// print the actual type, but unwrap values inside reflect.Value
-		vt = v.Type()
-		for v.Type() == typeOfReflectValue {
-			v = v.Interface().(r.Value)
-		}
-		vi = v.Interface()
-	}
-	vi = st.toPrintable(vi)
-	if vi == nil && vt == nil {
-		if opts&OptShowEvalType != 0 {
-			fmt.Fprint(out, "<nil>\n")
-		}
-		return
-	}
-	var typestr string
-	if opts&OptShowEvalType != 0 {
-		typestr = fmt.Sprintf(" // %v", st.toPrintable(vt))
-	}
-
-	if vkind := v.Kind(); KindToType(vkind) == v.Type() {
-		switch vkind {
-		case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
-			fmt.Fprintf(out, "%d%s\n", vi, typestr)
-			return
-		case r.String:
-			fmt.Fprintf(out, "%#v%s\n", vi, typestr)
-			return
-		}
-	}
-	// recompute v, because vi = st.toPrintable(vi) may have extracted a non-struct from a struct
-	v = r.ValueOf(vi)
-	switch v.Kind() {
-	case r.Struct:
-		st.fprintStruct(out, v, typestr)
-	case r.Func:
-		v := asUnsafeValue(v)
-		fmt.Fprintf(out, "%p%s\n", v.ptr, typestr)
-	default:
-		fmt.Fprintf(out, "%v%s\n", vi, typestr)
-	}
-}
-
-func (st *Stringer) fprintStruct(out io.Writer, v r.Value, typestr string) {
-	buf := bytes.Buffer{}
-	n := v.NumField()
-	t := v.Type()
-	ch := '{'
-	for i := 0; i < n; i++ {
-		fmt.Fprintf(&buf, "%c%s:%v", ch, t.Field(i).Name, v.Field(i))
-		ch = ' '
-	}
-	fmt.Fprintf(&buf, "}%s\n", typestr)
-	buf.WriteTo(out)
 }
 
 func (st *Stringer) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
@@ -273,12 +199,13 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 	}
 	defer func() {
 		if rec := recover(); rec != nil {
-			ret = fmt.Sprintf("error pretty-printing %v", value, r.TypeOf(value))
+			ret = fmt.Sprintf("error pretty-printing %v", value)
 		}
 	}()
+
 	switch value := value.(type) {
 	case r.Value:
-		return st.valueToPrintable(value)
+		return st.rvalueToPrintable(value)
 	case AstWithNode:
 		return st.nodeToPrintable(value.Node())
 	case Ast:
@@ -293,8 +220,8 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 		return value.GoString()
 	}
 	v := r.ValueOf(value)
-	k := v.Kind()
-	if k == r.Array || k == r.Slice {
+	switch k := v.Kind(); k {
+	case r.Array, r.Slice:
 		n := v.Len()
 		values := make([]interface{}, n)
 		converted := false
@@ -316,11 +243,38 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 		} else {
 			return value
 		}
+	case r.String:
+		return strconv.Quote(v.String())
+	case r.Struct:
+		return st.structToPrintable(v)
+	case r.Func:
+		return asUnsafeValue(v).ptr
 	}
 	return value
 }
 
-func (st *Stringer) valueToPrintable(value r.Value) interface{} {
+var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
+
+func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
+	if node == nil {
+		return nil
+	}
+	var fset *mt.FileSet
+	if st != nil {
+		fset = st.Fileset
+	}
+	if fset == nil {
+		fset = mt.NewFileSet()
+	}
+	var buf bytes.Buffer
+	err := config.Fprint(&buf, &fset.FileSet, node)
+	if err != nil {
+		return err
+	}
+	return buf.String()
+}
+
+func (st *Stringer) rvalueToPrintable(value r.Value) interface{} {
 	if value == None {
 		return "/*no value*/"
 	} else if value == Nil {
@@ -344,23 +298,15 @@ func (st *Stringer) typeToPrintable(t r.Type) interface{} {
 	return t
 }
 
-var config = printer.Config{Mode: printer.UseSpaces | printer.TabIndent, Tabwidth: 8}
-
-func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
-	if node == nil {
-		return nil
+func (st *Stringer) structToPrintable(v r.Value) string {
+	buf := bytes.Buffer{}
+	n := v.NumField()
+	t := v.Type()
+	ch := '{'
+	for i := 0; i < n; i++ {
+		fmt.Fprintf(&buf, "%c%s:%v", ch, t.Field(i).Name, v.Field(i))
+		ch = ' '
 	}
-	var fset *mt.FileSet
-	if st != nil {
-		fset = st.Fileset
-	}
-	if fset == nil {
-		fset = mt.NewFileSet()
-	}
-	var buf bytes.Buffer
-	err := config.Fprint(&buf, &fset.FileSet, node)
-	if err != nil {
-		return err
-	}
+	buf.WriteByte('}')
 	return buf.String()
 }

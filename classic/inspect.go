@@ -47,7 +47,7 @@ func (env *Env) Inspect(in *bufio.Reader, str string, fastInterpreter bool) {
 	form := env.Parse(str)
 	var v r.Value
 	if fastInterpreter {
-		v, _ = env.fastEval(form)
+		v, _, _, _ = env.fastEval(form)
 	} else {
 		v = env.EvalAst1(form)
 	}
@@ -68,7 +68,7 @@ func (env *Env) Inspect(in *bufio.Reader, str string, fastInterpreter bool) {
 }
 
 func (env *Env) showVar(str string, v r.Value, t r.Type) {
-	env.Fprintf(env.Stdout, "%s\t= %v\t<%v>\n", str, v, t)
+	env.Fprintf(env.Stdout, "%s\t= %v\t// %v\n", str, v, t)
 }
 
 func (ip *Inspector) Help() {

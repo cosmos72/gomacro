@@ -430,11 +430,11 @@ func (env *Env) addBuiltins() {
 }
 
 type Error_builtin struct {
-	Object interface{}
+	Obj    interface{}
 	Error_ func() string
 }
 
-func (Proxy Error_builtin) Error() string {
+func (Proxy *Error_builtin) Error() string {
 	return Proxy.Error_()
 }
 

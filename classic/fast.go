@@ -30,10 +30,11 @@ import (
 	"github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/fast"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // temporary helper to invoke the new fast interpreter
-func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value) {
+func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type) {
 	// compile phase
 
 	var ce *fast.CompEnv
@@ -51,9 +52,12 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value) {
 
 	// debug output
 	if env.Options&base.OptShowCompile != 0 {
-		env.FprintValue(env.Options, env.Stdout, r.ValueOf(expr))
+		env.Fprintf(env.Stdout, "%v\n", expr)
 	}
-
 	// eval phase
-	return ce.RunExpr(expr)
+	if expr == nil {
+		return base.None, nil, nil, nil
+	}
+	value, values := ce.RunExpr(expr)
+	return value, values, expr.Type, expr.Types
 }

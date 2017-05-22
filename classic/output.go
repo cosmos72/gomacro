@@ -114,11 +114,11 @@ Loop:
 			if bind != Nil {
 				switch bind := bind.Interface().(type) {
 				case *Env:
-					fmt.Fprintf(out, "%p <%v>\n", bind, r.TypeOf(bind))
+					fmt.Fprintf(out, "%p // %v\n", bind, r.TypeOf(bind))
 					continue
 				}
 			}
-			env.FprintValue(OptShowEvalType, out, bind)
+			env.Fprintf(out, "%v // %v\n", bind, r.TypeOf(bind))
 		}
 		fmt.Fprintln(out)
 	}

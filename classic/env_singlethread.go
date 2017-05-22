@@ -1,4 +1,4 @@
-// +build gomacro_singlethread
+// +build gomacro_classic_singlethread
 
 /*
  * gomacro - A Go intepreter with Lisp-like macros

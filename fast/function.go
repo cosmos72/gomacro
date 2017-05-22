@@ -150,7 +150,14 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	// executing it sets the method value in the receiver type
 	var stmt Stmt
 	if true /*c.Options&OptDebugMethod != 0*/ {
-		tname := t.Name()
+		trecv := t.Recv()
+		if trecv == nil {
+			trecv = t.In(0)
+		}
+		tname := trecv.Name()
+		if len(tname) == 0 && trecv.Kind() == r.Ptr {
+			tname = trecv.Elem().Name()
+		}
 		methodname := funcdecl.Name
 		stmt = func(env *Env) (Stmt, *Env) {
 			(*methods)[methodindex] = f(env)

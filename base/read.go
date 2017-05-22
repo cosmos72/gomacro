@@ -151,6 +151,9 @@ func (m mode) String() string {
 	}
 }
 
+var paragraph_separator_bytes = []byte{0xe2, 0x80, 0xa9}
+var nl_bytes = []byte{'\n'}
+
 func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt string) (src string, firstToken int, err error) {
 	m := mNormal
 	paren := 0
@@ -187,6 +190,7 @@ func ReadMultiline(in *bufio.Reader, opts ReadOptions, out io.Writer, prompt str
 
 	for {
 		line, err = in.ReadBytes('\n')
+		line = bytes.Replace(line, paragraph_separator_bytes, nl_bytes, -1)
 		for i, ch := range line {
 			if debug {
 				Debugf("ReadMultiline: found %q\tmode=%v\tparen=%d ignorenl=%t", ch, m, paren, ignorenl)
