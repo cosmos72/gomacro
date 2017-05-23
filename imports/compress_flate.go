@@ -43,10 +43,10 @@ type Reader_compress_flate struct {
 	Read_	func(p []byte) (n int, err error)
 	ReadByte_	func() (byte, error)
 }
-func (Proxy Reader_compress_flate) Read(p []byte) (n int, err error) {
+func (Proxy *Reader_compress_flate) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
-func (Proxy Reader_compress_flate) ReadByte() (byte, error) {
+func (Proxy *Reader_compress_flate) ReadByte() (byte, error) {
 	return Proxy.ReadByte_()
 }
 
@@ -55,6 +55,6 @@ type Resetter_compress_flate struct {
 	Object	interface{}
 	Reset_	func(r io.Reader, dict []byte) error
 }
-func (Proxy Resetter_compress_flate) Reset(r io.Reader, dict []byte) error {
+func (Proxy *Resetter_compress_flate) Reset(r io.Reader, dict []byte) error {
 	return Proxy.Reset_(r, dict)
 }

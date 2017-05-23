@@ -55,8 +55,10 @@ func NewCompEnvTop(path string) *CompEnv {
 	universe := xr.NewUniverse()
 
 	compGlobals := &CompThreadGlobals{
-		Universe: universe,
-		Globals:  globals,
+		Universe:     universe,
+		interf2proxy: make(map[r.Type]r.Type),
+		proxy2interf: make(map[r.Type]xr.Type),
+		Globals:      globals,
 	}
 	envGlobals := &ThreadGlobals{Globals: globals}
 	ce := &CompEnv{
@@ -73,8 +75,9 @@ func NewCompEnvTop(path string) *CompEnv {
 			ThreadGlobals: envGlobals,
 		},
 	}
-	// no need to scavenge for Builtin, Function and UntypedLit fields and methods
-	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfUntypedLit} {
+	// no need to scavenge for Builtin, Function, PackageRef and UntypedLit fields and methods.
+	// actually, making them opaque helps securing against malicious interpreted code.
+	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfImport, rtypeOfUntypedLit} {
 		compGlobals.opaqueType(rtype)
 	}
 

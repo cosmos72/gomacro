@@ -54,10 +54,10 @@ type Decrypter_crypto struct {
 	Decrypt_	func(rand io.Reader, msg []byte, opts crypto.DecrypterOpts) (plaintext []byte, err error)
 	Public_	func() crypto.PublicKey
 }
-func (Proxy Decrypter_crypto) Decrypt(rand io.Reader, msg []byte, opts crypto.DecrypterOpts) (plaintext []byte, err error) {
+func (Proxy *Decrypter_crypto) Decrypt(rand io.Reader, msg []byte, opts crypto.DecrypterOpts) (plaintext []byte, err error) {
 	return Proxy.Decrypt_(rand, msg, opts)
 }
-func (Proxy Decrypter_crypto) Public() crypto.PublicKey {
+func (Proxy *Decrypter_crypto) Public() crypto.PublicKey {
 	return Proxy.Public_()
 }
 
@@ -82,10 +82,10 @@ type Signer_crypto struct {
 	Public_	func() crypto.PublicKey
 	Sign_	func(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error)
 }
-func (Proxy Signer_crypto) Public() crypto.PublicKey {
+func (Proxy *Signer_crypto) Public() crypto.PublicKey {
 	return Proxy.Public_()
 }
-func (Proxy Signer_crypto) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error) {
+func (Proxy *Signer_crypto) Sign(rand io.Reader, digest []byte, opts crypto.SignerOpts) (signature []byte, err error) {
 	return Proxy.Sign_(rand, digest, opts)
 }
 
@@ -94,6 +94,6 @@ type SignerOpts_crypto struct {
 	Object	interface{}
 	HashFunc_	func() crypto.Hash
 }
-func (Proxy SignerOpts_crypto) HashFunc() crypto.Hash {
+func (Proxy *SignerOpts_crypto) HashFunc() crypto.Hash {
 	return Proxy.HashFunc_()
 }

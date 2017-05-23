@@ -39,21 +39,21 @@ type Curve_crypto_elliptic struct {
 	ScalarBaseMult_	func(k []byte) (x *big.Int, y *big.Int)
 	ScalarMult_	func(x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int)
 }
-func (Proxy Curve_crypto_elliptic) Add(x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int) {
+func (Proxy *Curve_crypto_elliptic) Add(x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int) {
 	return Proxy.Add_(x1, y1, x2, y2)
 }
-func (Proxy Curve_crypto_elliptic) Double(x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int) {
+func (Proxy *Curve_crypto_elliptic) Double(x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int) {
 	return Proxy.Double_(x1, y1)
 }
-func (Proxy Curve_crypto_elliptic) IsOnCurve(x *big.Int, y *big.Int) bool {
+func (Proxy *Curve_crypto_elliptic) IsOnCurve(x *big.Int, y *big.Int) bool {
 	return Proxy.IsOnCurve_(x, y)
 }
-func (Proxy Curve_crypto_elliptic) Params() *elliptic.CurveParams {
+func (Proxy *Curve_crypto_elliptic) Params() *elliptic.CurveParams {
 	return Proxy.Params_()
 }
-func (Proxy Curve_crypto_elliptic) ScalarBaseMult(k []byte) (x *big.Int, y *big.Int) {
+func (Proxy *Curve_crypto_elliptic) ScalarBaseMult(k []byte) (x *big.Int, y *big.Int) {
 	return Proxy.ScalarBaseMult_(k)
 }
-func (Proxy Curve_crypto_elliptic) ScalarMult(x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int) {
+func (Proxy *Curve_crypto_elliptic) ScalarMult(x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int) {
 	return Proxy.ScalarMult_(x1, y1, k)
 }

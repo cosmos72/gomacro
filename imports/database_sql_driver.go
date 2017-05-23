@@ -90,7 +90,7 @@ type ColumnConverter_database_sql_driver struct {
 	Object	interface{}
 	ColumnConverter_	func(idx int) driver.ValueConverter
 }
-func (Proxy ColumnConverter_database_sql_driver) ColumnConverter(idx int) driver.ValueConverter {
+func (Proxy *ColumnConverter_database_sql_driver) ColumnConverter(idx int) driver.ValueConverter {
 	return Proxy.ColumnConverter_(idx)
 }
 
@@ -101,13 +101,13 @@ type Conn_database_sql_driver struct {
 	Close_	func() error
 	Prepare_	func(query string) (driver.Stmt, error)
 }
-func (Proxy Conn_database_sql_driver) Begin() (driver.Tx, error) {
+func (Proxy *Conn_database_sql_driver) Begin() (driver.Tx, error) {
 	return Proxy.Begin_()
 }
-func (Proxy Conn_database_sql_driver) Close() error {
+func (Proxy *Conn_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy Conn_database_sql_driver) Prepare(query string) (driver.Stmt, error) {
+func (Proxy *Conn_database_sql_driver) Prepare(query string) (driver.Stmt, error) {
 	return Proxy.Prepare_(query)
 }
 
@@ -116,7 +116,7 @@ type ConnBeginTx_database_sql_driver struct {
 	Object	interface{}
 	BeginTx_	func(ctx context.Context, opts driver.TxOptions) (driver.Tx, error)
 }
-func (Proxy ConnBeginTx_database_sql_driver) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, error) {
+func (Proxy *ConnBeginTx_database_sql_driver) BeginTx(ctx context.Context, opts driver.TxOptions) (driver.Tx, error) {
 	return Proxy.BeginTx_(ctx, opts)
 }
 
@@ -125,7 +125,7 @@ type ConnPrepareContext_database_sql_driver struct {
 	Object	interface{}
 	PrepareContext_	func(ctx context.Context, query string) (driver.Stmt, error)
 }
-func (Proxy ConnPrepareContext_database_sql_driver) PrepareContext(ctx context.Context, query string) (driver.Stmt, error) {
+func (Proxy *ConnPrepareContext_database_sql_driver) PrepareContext(ctx context.Context, query string) (driver.Stmt, error) {
 	return Proxy.PrepareContext_(ctx, query)
 }
 
@@ -134,7 +134,7 @@ type Driver_database_sql_driver struct {
 	Object	interface{}
 	Open_	func(name string) (driver.Conn, error)
 }
-func (Proxy Driver_database_sql_driver) Open(name string) (driver.Conn, error) {
+func (Proxy *Driver_database_sql_driver) Open(name string) (driver.Conn, error) {
 	return Proxy.Open_(name)
 }
 
@@ -143,7 +143,7 @@ type Execer_database_sql_driver struct {
 	Object	interface{}
 	Exec_	func(query string, args []driver.Value) (driver.Result, error)
 }
-func (Proxy Execer_database_sql_driver) Exec(query string, args []driver.Value) (driver.Result, error) {
+func (Proxy *Execer_database_sql_driver) Exec(query string, args []driver.Value) (driver.Result, error) {
 	return Proxy.Exec_(query, args)
 }
 
@@ -152,7 +152,7 @@ type ExecerContext_database_sql_driver struct {
 	Object	interface{}
 	ExecContext_	func(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error)
 }
-func (Proxy ExecerContext_database_sql_driver) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
+func (Proxy *ExecerContext_database_sql_driver) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
 	return Proxy.ExecContext_(ctx, query, args)
 }
 
@@ -161,7 +161,7 @@ type Pinger_database_sql_driver struct {
 	Object	interface{}
 	Ping_	func(ctx context.Context) error
 }
-func (Proxy Pinger_database_sql_driver) Ping(ctx context.Context) error {
+func (Proxy *Pinger_database_sql_driver) Ping(ctx context.Context) error {
 	return Proxy.Ping_(ctx)
 }
 
@@ -170,7 +170,7 @@ type Queryer_database_sql_driver struct {
 	Object	interface{}
 	Query_	func(query string, args []driver.Value) (driver.Rows, error)
 }
-func (Proxy Queryer_database_sql_driver) Query(query string, args []driver.Value) (driver.Rows, error) {
+func (Proxy *Queryer_database_sql_driver) Query(query string, args []driver.Value) (driver.Rows, error) {
 	return Proxy.Query_(query, args)
 }
 
@@ -179,7 +179,7 @@ type QueryerContext_database_sql_driver struct {
 	Object	interface{}
 	QueryContext_	func(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error)
 }
-func (Proxy QueryerContext_database_sql_driver) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
+func (Proxy *QueryerContext_database_sql_driver) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
 	return Proxy.QueryContext_(ctx, query, args)
 }
 
@@ -189,10 +189,10 @@ type Result_database_sql_driver struct {
 	LastInsertId_	func() (int64, error)
 	RowsAffected_	func() (int64, error)
 }
-func (Proxy Result_database_sql_driver) LastInsertId() (int64, error) {
+func (Proxy *Result_database_sql_driver) LastInsertId() (int64, error) {
 	return Proxy.LastInsertId_()
 }
-func (Proxy Result_database_sql_driver) RowsAffected() (int64, error) {
+func (Proxy *Result_database_sql_driver) RowsAffected() (int64, error) {
 	return Proxy.RowsAffected_()
 }
 
@@ -203,13 +203,13 @@ type Rows_database_sql_driver struct {
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Proxy Rows_database_sql_driver) Close() error {
+func (Proxy *Rows_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy Rows_database_sql_driver) Columns() []string {
+func (Proxy *Rows_database_sql_driver) Columns() []string {
 	return Proxy.Columns_()
 }
-func (Proxy Rows_database_sql_driver) Next(dest []driver.Value) error {
+func (Proxy *Rows_database_sql_driver) Next(dest []driver.Value) error {
 	return Proxy.Next_(dest)
 }
 
@@ -221,16 +221,16 @@ type RowsColumnTypeDatabaseTypeName_database_sql_driver struct {
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Proxy RowsColumnTypeDatabaseTypeName_database_sql_driver) Close() error {
+func (Proxy *RowsColumnTypeDatabaseTypeName_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy RowsColumnTypeDatabaseTypeName_database_sql_driver) ColumnTypeDatabaseTypeName(index int) string {
+func (Proxy *RowsColumnTypeDatabaseTypeName_database_sql_driver) ColumnTypeDatabaseTypeName(index int) string {
 	return Proxy.ColumnTypeDatabaseTypeName_(index)
 }
-func (Proxy RowsColumnTypeDatabaseTypeName_database_sql_driver) Columns() []string {
+func (Proxy *RowsColumnTypeDatabaseTypeName_database_sql_driver) Columns() []string {
 	return Proxy.Columns_()
 }
-func (Proxy RowsColumnTypeDatabaseTypeName_database_sql_driver) Next(dest []driver.Value) error {
+func (Proxy *RowsColumnTypeDatabaseTypeName_database_sql_driver) Next(dest []driver.Value) error {
 	return Proxy.Next_(dest)
 }
 
@@ -242,16 +242,16 @@ type RowsColumnTypeLength_database_sql_driver struct {
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Proxy RowsColumnTypeLength_database_sql_driver) Close() error {
+func (Proxy *RowsColumnTypeLength_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy RowsColumnTypeLength_database_sql_driver) ColumnTypeLength(index int) (length int64, ok bool) {
+func (Proxy *RowsColumnTypeLength_database_sql_driver) ColumnTypeLength(index int) (length int64, ok bool) {
 	return Proxy.ColumnTypeLength_(index)
 }
-func (Proxy RowsColumnTypeLength_database_sql_driver) Columns() []string {
+func (Proxy *RowsColumnTypeLength_database_sql_driver) Columns() []string {
 	return Proxy.Columns_()
 }
-func (Proxy RowsColumnTypeLength_database_sql_driver) Next(dest []driver.Value) error {
+func (Proxy *RowsColumnTypeLength_database_sql_driver) Next(dest []driver.Value) error {
 	return Proxy.Next_(dest)
 }
 
@@ -263,16 +263,16 @@ type RowsColumnTypeNullable_database_sql_driver struct {
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Proxy RowsColumnTypeNullable_database_sql_driver) Close() error {
+func (Proxy *RowsColumnTypeNullable_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy RowsColumnTypeNullable_database_sql_driver) ColumnTypeNullable(index int) (nullable bool, ok bool) {
+func (Proxy *RowsColumnTypeNullable_database_sql_driver) ColumnTypeNullable(index int) (nullable bool, ok bool) {
 	return Proxy.ColumnTypeNullable_(index)
 }
-func (Proxy RowsColumnTypeNullable_database_sql_driver) Columns() []string {
+func (Proxy *RowsColumnTypeNullable_database_sql_driver) Columns() []string {
 	return Proxy.Columns_()
 }
-func (Proxy RowsColumnTypeNullable_database_sql_driver) Next(dest []driver.Value) error {
+func (Proxy *RowsColumnTypeNullable_database_sql_driver) Next(dest []driver.Value) error {
 	return Proxy.Next_(dest)
 }
 
@@ -284,16 +284,16 @@ type RowsColumnTypePrecisionScale_database_sql_driver struct {
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Proxy RowsColumnTypePrecisionScale_database_sql_driver) Close() error {
+func (Proxy *RowsColumnTypePrecisionScale_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy RowsColumnTypePrecisionScale_database_sql_driver) ColumnTypePrecisionScale(index int) (precision int64, scale int64, ok bool) {
+func (Proxy *RowsColumnTypePrecisionScale_database_sql_driver) ColumnTypePrecisionScale(index int) (precision int64, scale int64, ok bool) {
 	return Proxy.ColumnTypePrecisionScale_(index)
 }
-func (Proxy RowsColumnTypePrecisionScale_database_sql_driver) Columns() []string {
+func (Proxy *RowsColumnTypePrecisionScale_database_sql_driver) Columns() []string {
 	return Proxy.Columns_()
 }
-func (Proxy RowsColumnTypePrecisionScale_database_sql_driver) Next(dest []driver.Value) error {
+func (Proxy *RowsColumnTypePrecisionScale_database_sql_driver) Next(dest []driver.Value) error {
 	return Proxy.Next_(dest)
 }
 
@@ -305,16 +305,16 @@ type RowsColumnTypeScanType_database_sql_driver struct {
 	Columns_	func() []string
 	Next_	func(dest []driver.Value) error
 }
-func (Proxy RowsColumnTypeScanType_database_sql_driver) Close() error {
+func (Proxy *RowsColumnTypeScanType_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy RowsColumnTypeScanType_database_sql_driver) ColumnTypeScanType(index int) reflect.Type {
+func (Proxy *RowsColumnTypeScanType_database_sql_driver) ColumnTypeScanType(index int) reflect.Type {
 	return Proxy.ColumnTypeScanType_(index)
 }
-func (Proxy RowsColumnTypeScanType_database_sql_driver) Columns() []string {
+func (Proxy *RowsColumnTypeScanType_database_sql_driver) Columns() []string {
 	return Proxy.Columns_()
 }
-func (Proxy RowsColumnTypeScanType_database_sql_driver) Next(dest []driver.Value) error {
+func (Proxy *RowsColumnTypeScanType_database_sql_driver) Next(dest []driver.Value) error {
 	return Proxy.Next_(dest)
 }
 
@@ -327,19 +327,19 @@ type RowsNextResultSet_database_sql_driver struct {
 	Next_	func(dest []driver.Value) error
 	NextResultSet_	func() error
 }
-func (Proxy RowsNextResultSet_database_sql_driver) Close() error {
+func (Proxy *RowsNextResultSet_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy RowsNextResultSet_database_sql_driver) Columns() []string {
+func (Proxy *RowsNextResultSet_database_sql_driver) Columns() []string {
 	return Proxy.Columns_()
 }
-func (Proxy RowsNextResultSet_database_sql_driver) HasNextResultSet() bool {
+func (Proxy *RowsNextResultSet_database_sql_driver) HasNextResultSet() bool {
 	return Proxy.HasNextResultSet_()
 }
-func (Proxy RowsNextResultSet_database_sql_driver) Next(dest []driver.Value) error {
+func (Proxy *RowsNextResultSet_database_sql_driver) Next(dest []driver.Value) error {
 	return Proxy.Next_(dest)
 }
-func (Proxy RowsNextResultSet_database_sql_driver) NextResultSet() error {
+func (Proxy *RowsNextResultSet_database_sql_driver) NextResultSet() error {
 	return Proxy.NextResultSet_()
 }
 
@@ -351,16 +351,16 @@ type Stmt_database_sql_driver struct {
 	NumInput_	func() int
 	Query_	func(args []driver.Value) (driver.Rows, error)
 }
-func (Proxy Stmt_database_sql_driver) Close() error {
+func (Proxy *Stmt_database_sql_driver) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy Stmt_database_sql_driver) Exec(args []driver.Value) (driver.Result, error) {
+func (Proxy *Stmt_database_sql_driver) Exec(args []driver.Value) (driver.Result, error) {
 	return Proxy.Exec_(args)
 }
-func (Proxy Stmt_database_sql_driver) NumInput() int {
+func (Proxy *Stmt_database_sql_driver) NumInput() int {
 	return Proxy.NumInput_()
 }
-func (Proxy Stmt_database_sql_driver) Query(args []driver.Value) (driver.Rows, error) {
+func (Proxy *Stmt_database_sql_driver) Query(args []driver.Value) (driver.Rows, error) {
 	return Proxy.Query_(args)
 }
 
@@ -369,7 +369,7 @@ type StmtExecContext_database_sql_driver struct {
 	Object	interface{}
 	ExecContext_	func(ctx context.Context, args []driver.NamedValue) (driver.Result, error)
 }
-func (Proxy StmtExecContext_database_sql_driver) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
+func (Proxy *StmtExecContext_database_sql_driver) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
 	return Proxy.ExecContext_(ctx, args)
 }
 
@@ -378,7 +378,7 @@ type StmtQueryContext_database_sql_driver struct {
 	Object	interface{}
 	QueryContext_	func(ctx context.Context, args []driver.NamedValue) (driver.Rows, error)
 }
-func (Proxy StmtQueryContext_database_sql_driver) QueryContext(ctx context.Context, args []driver.NamedValue) (driver.Rows, error) {
+func (Proxy *StmtQueryContext_database_sql_driver) QueryContext(ctx context.Context, args []driver.NamedValue) (driver.Rows, error) {
 	return Proxy.QueryContext_(ctx, args)
 }
 
@@ -388,10 +388,10 @@ type Tx_database_sql_driver struct {
 	Commit_	func() error
 	Rollback_	func() error
 }
-func (Proxy Tx_database_sql_driver) Commit() error {
+func (Proxy *Tx_database_sql_driver) Commit() error {
 	return Proxy.Commit_()
 }
-func (Proxy Tx_database_sql_driver) Rollback() error {
+func (Proxy *Tx_database_sql_driver) Rollback() error {
 	return Proxy.Rollback_()
 }
 
@@ -405,7 +405,7 @@ type ValueConverter_database_sql_driver struct {
 	Object	interface{}
 	ConvertValue_	func(v interface{}) (driver.Value, error)
 }
-func (Proxy ValueConverter_database_sql_driver) ConvertValue(v interface{}) (driver.Value, error) {
+func (Proxy *ValueConverter_database_sql_driver) ConvertValue(v interface{}) (driver.Value, error) {
 	return Proxy.ConvertValue_(v)
 }
 
@@ -414,6 +414,6 @@ type Valuer_database_sql_driver struct {
 	Object	interface{}
 	Value_	func() (driver.Value, error)
 }
-func (Proxy Valuer_database_sql_driver) Value() (driver.Value, error) {
+func (Proxy *Valuer_database_sql_driver) Value() (driver.Value, error) {
 	return Proxy.Value_()
 }

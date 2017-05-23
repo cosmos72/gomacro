@@ -44,16 +44,16 @@ type AEAD_crypto_cipher struct {
 	Overhead_	func() int
 	Seal_	func(dst []byte, nonce []byte, plaintext []byte, additionalData []byte) []byte
 }
-func (Proxy AEAD_crypto_cipher) NonceSize() int {
+func (Proxy *AEAD_crypto_cipher) NonceSize() int {
 	return Proxy.NonceSize_()
 }
-func (Proxy AEAD_crypto_cipher) Open(dst []byte, nonce []byte, ciphertext []byte, additionalData []byte) ([]byte, error) {
+func (Proxy *AEAD_crypto_cipher) Open(dst []byte, nonce []byte, ciphertext []byte, additionalData []byte) ([]byte, error) {
 	return Proxy.Open_(dst, nonce, ciphertext, additionalData)
 }
-func (Proxy AEAD_crypto_cipher) Overhead() int {
+func (Proxy *AEAD_crypto_cipher) Overhead() int {
 	return Proxy.Overhead_()
 }
-func (Proxy AEAD_crypto_cipher) Seal(dst []byte, nonce []byte, plaintext []byte, additionalData []byte) []byte {
+func (Proxy *AEAD_crypto_cipher) Seal(dst []byte, nonce []byte, plaintext []byte, additionalData []byte) []byte {
 	return Proxy.Seal_(dst, nonce, plaintext, additionalData)
 }
 
@@ -64,13 +64,13 @@ type Block_crypto_cipher struct {
 	Decrypt_	func(dst []byte, src []byte) 
 	Encrypt_	func(dst []byte, src []byte) 
 }
-func (Proxy Block_crypto_cipher) BlockSize() int {
+func (Proxy *Block_crypto_cipher) BlockSize() int {
 	return Proxy.BlockSize_()
 }
-func (Proxy Block_crypto_cipher) Decrypt(dst []byte, src []byte)  {
+func (Proxy *Block_crypto_cipher) Decrypt(dst []byte, src []byte)  {
 	Proxy.Decrypt_(dst, src)
 }
-func (Proxy Block_crypto_cipher) Encrypt(dst []byte, src []byte)  {
+func (Proxy *Block_crypto_cipher) Encrypt(dst []byte, src []byte)  {
 	Proxy.Encrypt_(dst, src)
 }
 
@@ -80,10 +80,10 @@ type BlockMode_crypto_cipher struct {
 	BlockSize_	func() int
 	CryptBlocks_	func(dst []byte, src []byte) 
 }
-func (Proxy BlockMode_crypto_cipher) BlockSize() int {
+func (Proxy *BlockMode_crypto_cipher) BlockSize() int {
 	return Proxy.BlockSize_()
 }
-func (Proxy BlockMode_crypto_cipher) CryptBlocks(dst []byte, src []byte)  {
+func (Proxy *BlockMode_crypto_cipher) CryptBlocks(dst []byte, src []byte)  {
 	Proxy.CryptBlocks_(dst, src)
 }
 
@@ -92,6 +92,6 @@ type Stream_crypto_cipher struct {
 	Object	interface{}
 	XORKeyStream_	func(dst []byte, src []byte) 
 }
-func (Proxy Stream_crypto_cipher) XORKeyStream(dst []byte, src []byte)  {
+func (Proxy *Stream_crypto_cipher) XORKeyStream(dst []byte, src []byte)  {
 	Proxy.XORKeyStream_(dst, src)
 }

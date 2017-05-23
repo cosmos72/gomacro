@@ -48,10 +48,10 @@ type Source_math_rand struct {
 	Int63_	func() int64
 	Seed_	func(seed int64) 
 }
-func (Proxy Source_math_rand) Int63() int64 {
+func (Proxy *Source_math_rand) Int63() int64 {
 	return Proxy.Int63_()
 }
-func (Proxy Source_math_rand) Seed(seed int64)  {
+func (Proxy *Source_math_rand) Seed(seed int64)  {
 	Proxy.Seed_(seed)
 }
 
@@ -62,12 +62,12 @@ type Source64_math_rand struct {
 	Seed_	func(seed int64) 
 	Uint64_	func() uint64
 }
-func (Proxy Source64_math_rand) Int63() int64 {
+func (Proxy *Source64_math_rand) Int63() int64 {
 	return Proxy.Int63_()
 }
-func (Proxy Source64_math_rand) Seed(seed int64)  {
+func (Proxy *Source64_math_rand) Seed(seed int64)  {
 	Proxy.Seed_(seed)
 }
-func (Proxy Source64_math_rand) Uint64() uint64 {
+func (Proxy *Source64_math_rand) Uint64() uint64 {
 	return Proxy.Uint64_()
 }

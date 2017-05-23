@@ -55,7 +55,7 @@ var rbasictypes = []reflect.Type{
 func (v *Universe) makebasictypes() []Type {
 	m := make([]Type, len(rbasictypes))
 	for gkind := types.Bool; gkind <= types.UnsafePointer; gkind++ {
-		kind := gbasickindToKind(gkind)
+		kind := ToReflectKind(gkind)
 		gtype := types.Typ[gkind]
 		rtype := rbasictypes[kind]
 		if gtype == nil || rtype == nil {

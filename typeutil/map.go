@@ -307,17 +307,26 @@ func (h Hasher) hashFor(t types.Type) uint32 {
 		// PATCH: consider the explicit methods and embedded interfaces, in order.
 		// See Identical for rationale.
 		var hash uint32 = 9103
-		for i, n := 0, t.NumExplicitMethods(); i < n; i++ {
-			// Method order is significant.
-			// Ignore m.Pkg().
-			m := t.ExplicitMethod(i)
-			hash = (hash<<5 | hash>>27) + 3*hashString(m.Name()) + 5*h.Hash(m.Type())
-		}
 		for i, n := 0, t.NumEmbeddeds(); i < n; i++ {
 			// Embedded interfaces order is significant.
 			e := t.Embedded(i)
 			// Not safe with a copying GC; objects may move.
-			hash = (hash<<5 | hash>>27) + 7*hashNamed(e)
+			hash = (hash<<5 | hash>>27) + 2*hashNamed(e)
+		}
+		for i, n := 0, t.NumExplicitMethods(); i < n; i++ {
+			// Method order is significant.
+			// Ignore m.Pkg().
+			m := t.ExplicitMethod(i)
+			// fmt.Printf("Hash for interface <%v> method %q <%v>\n", t, m.Name(), m.Type())
+
+			hash = (hash<<5 | hash>>27) + 7*hashString(m.Name())
+			if mt, ok := m.Type().Underlying().(*types.Signature); ok {
+				if mt.Variadic() {
+					hash *= 8863
+				}
+				// do NOT hash the receiver of an interface... it may be the interface itself
+				hash += 3*h.hashTuple(mt.Params()) + 5*h.hashTuple(mt.Results())
+			}
 		}
 		return hash
 

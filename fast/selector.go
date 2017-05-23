@@ -26,6 +26,7 @@ package fast
 
 import (
 	"go/ast"
+	"go/types"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -47,6 +48,15 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	name := node.Sel.Name
 	switch t.Kind() {
 	case r.Struct:
+		if t.ReflectType() == rtypeOfImport && e.Const() {
+			// access symbol from imported package, for example fmt.Printf
+			imp := e.Value.(Import)
+			if bind, ok := imp.Binds[name]; ok {
+				return c.exprValue(imp.BindTypes[name], bind.Interface())
+			}
+			c.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
+			return nil
+		}
 		field, fieldok, mtd, mtdok := c.LookupFieldOrMethod(t, name)
 		if fieldok {
 			return c.compileField(e, field)
@@ -340,6 +350,11 @@ func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 }
 
 func (c *Comp) removeReceiver(t xr.Type) (trecv, tfunc xr.Type) {
+	gtype := t.GoType().Underlying().(*types.Signature)
+	rtype := t.ReflectType()
+	// c.Debugf("removeReceiver: gtype Recv %v, Params %v, Results %v", gtype.Recv(), gtype.Params(), gtype.Results())
+	// c.Debugf("removeReceiver: rtype <%v>", rtype)
+
 	nin, nout := t.NumIn(), t.NumOut()
 	params := make([]xr.Type, nin)
 	results := make([]xr.Type, nout)
@@ -349,9 +364,20 @@ func (c *Comp) removeReceiver(t xr.Type) (trecv, tfunc xr.Type) {
 	for i := 0; i < nout; i++ {
 		results[i] = t.Out(i)
 	}
-	if trecv = t.Recv(); trecv == nil {
+	if gtype.Recv() == nil {
 		trecv = params[0]
 		params = params[1:]
+	} else {
+		rin := rtype.NumIn()
+		if rin == nin {
+			// t is probably an interface method...
+			// when loaded by Go importer it gets a receiver
+			trecv = t
+		} else {
+			c.Errorf(`inconsistent type <%v>
+	GoType has unexpected receiver <%v> and %d parameters: %v
+	while ReflectType has %d parameters: %v`, t, gtype.Recv(), nin, gtype.Params(), rin, rtype)
+		}
 	}
 	return trecv, c.Universe.FuncOf(params, results, t.IsVariadic())
 }
@@ -377,6 +403,9 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 	rtype := t.ReflectType()
 	tfunc := mtd.Type
 	trecv, tclosure := c.removeReceiver(tfunc)
+	if trecv == nil {
+		trecv = t
+	}
 	rtclosure := tclosure.ReflectType()
 
 	objPointer := t.Kind() == r.Ptr      // field is pointer?

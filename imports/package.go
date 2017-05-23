@@ -32,6 +32,7 @@ type Package struct {
 	Binds   map[string]Value
 	Types   map[string]Type
 	Proxies map[string]Type
+	GoPkg   interface{} // contains correspoding *go/types.Package if available
 }
 
 var Packages = make(map[string]Package)
@@ -39,13 +40,13 @@ var Packages = make(map[string]Package)
 // reflection: allow interpreted code to import "github.com/cosmos72/gomacro/imports"
 func init() {
 	Packages["github.com/cosmos72/gomacro/imports"] = Package{
-		map[string]Value{
+		Binds: map[string]Value{
 			"Packages": ValueOf(&Packages).Elem(),
 		},
-		map[string]Type{
+		Types: map[string]Type{
 			"Package": TypeOf((*Package)(nil)).Elem(),
 		},
-		map[string]Type{},
+		Proxies: map[string]Type{},
 	}
 }
 

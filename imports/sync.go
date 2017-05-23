@@ -33,9 +33,9 @@ type Locker_sync struct {
 	Lock_	func() 
 	Unlock_	func() 
 }
-func (Proxy Locker_sync) Lock()  {
+func (Proxy *Locker_sync) Lock()  {
 	Proxy.Lock_()
 }
-func (Proxy Locker_sync) Unlock()  {
+func (Proxy *Locker_sync) Unlock()  {
 	Proxy.Unlock_()
 }

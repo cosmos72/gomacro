@@ -33,9 +33,9 @@ type Reader_image_jpeg struct {
 	Read_	func(p []byte) (n int, err error)
 	ReadByte_	func() (byte, error)
 }
-func (Proxy Reader_image_jpeg) Read(p []byte) (n int, err error) {
+func (Proxy *Reader_image_jpeg) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
-func (Proxy Reader_image_jpeg) ReadByte() (byte, error) {
+func (Proxy *Reader_image_jpeg) ReadByte() (byte, error) {
 	return Proxy.ReadByte_()
 }

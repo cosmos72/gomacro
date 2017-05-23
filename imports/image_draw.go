@@ -37,7 +37,7 @@ type Drawer_image_draw struct {
 	Object	interface{}
 	Draw_	func(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point) 
 }
-func (Proxy Drawer_image_draw) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point)  {
+func (Proxy *Drawer_image_draw) Draw(dst draw.Image, r image.Rectangle, src image.Image, sp image.Point)  {
 	Proxy.Draw_(dst, r, src, sp)
 }
 
@@ -49,16 +49,16 @@ type Image_image_draw struct {
 	ColorModel_	func() color.Model
 	Set_	func(x int, y int, c color.Color) 
 }
-func (Proxy Image_image_draw) At(x int, y int) color.Color {
+func (Proxy *Image_image_draw) At(x int, y int) color.Color {
 	return Proxy.At_(x, y)
 }
-func (Proxy Image_image_draw) Bounds() image.Rectangle {
+func (Proxy *Image_image_draw) Bounds() image.Rectangle {
 	return Proxy.Bounds_()
 }
-func (Proxy Image_image_draw) ColorModel() color.Model {
+func (Proxy *Image_image_draw) ColorModel() color.Model {
 	return Proxy.ColorModel_()
 }
-func (Proxy Image_image_draw) Set(x int, y int, c color.Color)  {
+func (Proxy *Image_image_draw) Set(x int, y int, c color.Color)  {
 	Proxy.Set_(x, y, c)
 }
 
@@ -67,6 +67,6 @@ type Quantizer_image_draw struct {
 	Object	interface{}
 	Quantize_	func(p color.Palette, m image.Image) color.Palette
 }
-func (Proxy Quantizer_image_draw) Quantize(p color.Palette, m image.Image) color.Palette {
+func (Proxy *Quantizer_image_draw) Quantize(p color.Palette, m image.Image) color.Palette {
 	return Proxy.Quantize_(p, m)
 }

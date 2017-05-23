@@ -108,7 +108,16 @@ func (t *xtype) Recv() Type {
 	if va == nil {
 		return nil
 	}
-	return t.universe.MakeType(va.Type(), t.rtype.In(0))
+	rtype := t.rtype
+	if rtype.NumIn() <= gtype.Params().Len() {
+		// gtype is probably an interface method...
+		// when loaded by Go importer it gets a receiver
+		// but the corresponding r.Type lacks it
+		return nil
+	} else {
+		rtype.In(0)
+	}
+	return t.universe.MakeType(va.Type(), rtype)
 }
 
 func FuncOf(in []Type, out []Type, variadic bool) Type {

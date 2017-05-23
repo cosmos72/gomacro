@@ -58,7 +58,7 @@ type Marshaler_encoding_xml struct {
 	Object	interface{}
 	MarshalXML_	func(e *xml.Encoder, start xml.StartElement) error
 }
-func (Proxy Marshaler_encoding_xml) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+func (Proxy *Marshaler_encoding_xml) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return Proxy.MarshalXML_(e, start)
 }
 
@@ -67,7 +67,7 @@ type MarshalerAttr_encoding_xml struct {
 	Object	interface{}
 	MarshalXMLAttr_	func(name xml.Name) (xml.Attr, error)
 }
-func (Proxy MarshalerAttr_encoding_xml) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+func (Proxy *MarshalerAttr_encoding_xml) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return Proxy.MarshalXMLAttr_(name)
 }
 
@@ -81,7 +81,7 @@ type Unmarshaler_encoding_xml struct {
 	Object	interface{}
 	UnmarshalXML_	func(d *xml.Decoder, start xml.StartElement) error
 }
-func (Proxy Unmarshaler_encoding_xml) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+func (Proxy *Unmarshaler_encoding_xml) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	return Proxy.UnmarshalXML_(d, start)
 }
 
@@ -90,6 +90,6 @@ type UnmarshalerAttr_encoding_xml struct {
 	Object	interface{}
 	UnmarshalXMLAttr_	func(attr xml.Attr) error
 }
-func (Proxy UnmarshalerAttr_encoding_xml) UnmarshalXMLAttr(attr xml.Attr) error {
+func (Proxy *UnmarshalerAttr_encoding_xml) UnmarshalXMLAttr(attr xml.Attr) error {
 	return Proxy.UnmarshalXMLAttr_(attr)
 }

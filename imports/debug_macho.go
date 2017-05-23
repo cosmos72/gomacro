@@ -80,6 +80,6 @@ type Load_debug_macho struct {
 	Object	interface{}
 	Raw_	func() []byte
 }
-func (Proxy Load_debug_macho) Raw() []byte {
+func (Proxy *Load_debug_macho) Raw() []byte {
 	return Proxy.Raw_()
 }

@@ -32,7 +32,6 @@ import (
 	"go/token"
 	"io"
 	r "reflect"
-	"strconv"
 	"strings"
 	"unsafe"
 
@@ -69,7 +68,7 @@ func (err RuntimeError) Error() string {
 	args := err.args
 	var prefix string
 	if st := err.st; st != nil {
-		args = st.toPrintables(args)
+		args = st.toPrintables(err.format, args)
 		prefix = st.Position().String()
 	}
 	msg := fmt.Sprintf(err.format, args...)
@@ -161,12 +160,12 @@ func asUnsafeValue(v r.Value) unsafeValue {
 }
 
 func (st *Stringer) Fprintf(out io.Writer, format string, values ...interface{}) (n int, err error) {
-	values = st.toPrintables(values)
+	values = st.toPrintables(format, values)
 	return fmt.Fprintf(out, format, values...)
 }
 
 func (st *Stringer) Sprintf(format string, values ...interface{}) string {
-	values = st.toPrintables(values)
+	values = st.toPrintables(format, values)
 	return fmt.Sprintf(format, values...)
 }
 
@@ -174,7 +173,7 @@ func (st *Stringer) ToString(separator string, values ...interface{}) string {
 	if len(values) == 0 {
 		return ""
 	}
-	values = st.toPrintables(values)
+	values = st.toPrintables("", values)
 	var buf bytes.Buffer
 	for i, value := range values {
 		if i != 0 {
@@ -185,15 +184,25 @@ func (st *Stringer) ToString(separator string, values ...interface{}) string {
 	return buf.String()
 }
 
-func (st *Stringer) toPrintables(values []interface{}) []interface{} {
+func (st *Stringer) toPrintables(format string, values []interface{}) []interface{} {
 	rets := make([]interface{}, len(values))
 	for i, vi := range values {
-		rets[i] = st.toPrintable(vi)
+		if percent := strings.IndexByte(format, '%'); percent >= 0 {
+			format = format[percent:]
+		}
+		rets[i] = st.toPrintable(format, vi)
+		switch len(format) {
+		case 0:
+		case 1, 2:
+			format = ""
+		default:
+			format = format[2:] // skip %*
+		}
 	}
 	return rets
 }
 
-func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
+func (st *Stringer) toPrintable(format string, value interface{}) (ret interface{}) {
 	if value == nil {
 		return nil
 	}
@@ -203,22 +212,33 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 		}
 	}()
 
-	switch value := value.(type) {
-	case r.Value:
-		return st.rvalueToPrintable(value)
-	case AstWithNode:
-		return st.nodeToPrintable(value.Node())
-	case Ast:
-		return st.toPrintable(value.Interface())
-	case ast.Node:
-		return st.nodeToPrintable(value)
-	case r.Type:
-		return st.typeToPrintable(value)
-	case fmt.Stringer:
-		return value.String()
-	case fmt.GoStringer:
-		return value.GoString()
+	if v, ok := value.(r.Value); ok {
+		return st.rvalueToPrintable(format, v)
 	}
+
+	exact := strings.HasPrefix(format, "%#v")
+	if exact {
+		if value, ok := value.(fmt.GoStringer); ok {
+			return value.GoString()
+		}
+	}
+
+	usual := len(format) == 0 || strings.HasPrefix(format, "%v") || strings.HasPrefix(format, "%s")
+	if usual {
+		switch value := value.(type) {
+		case AstWithNode:
+			return st.nodeToPrintable(value.Node())
+		case Ast:
+			return st.toPrintable(format, value.Interface())
+		case ast.Node:
+			return st.nodeToPrintable(value)
+		case r.Type:
+			return st.typeToPrintable(value)
+		case fmt.Stringer:
+			return value.String()
+		}
+	}
+
 	v := r.ValueOf(value)
 	switch k := v.Kind(); k {
 	case r.Array, r.Slice:
@@ -233,7 +253,7 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 				values[i] = vi
 			} else {
 				valuei := vi.Interface()
-				values[i] = st.toPrintable(valuei)
+				values[i] = st.toPrintable(format, valuei)
 				converted = converted || !vi.Type().Comparable() || valuei != values[i]
 			}
 		}
@@ -243,12 +263,14 @@ func (st *Stringer) toPrintable(value interface{}) (ret interface{}) {
 		} else {
 			return value
 		}
-	case r.String:
-		return strconv.Quote(v.String())
 	case r.Struct:
-		return st.structToPrintable(v)
+		if usual {
+			return st.structToPrintable(format, v)
+		}
 	case r.Func:
-		return asUnsafeValue(v).ptr
+		if usual || exact || strings.HasPrefix(format, "%p") {
+			return asUnsafeValue(v).ptr
+		}
 	}
 	return value
 }
@@ -274,13 +296,13 @@ func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
 	return buf.String()
 }
 
-func (st *Stringer) rvalueToPrintable(value r.Value) interface{} {
+func (st *Stringer) rvalueToPrintable(format string, value r.Value) interface{} {
 	if value == None {
 		return "/*no value*/"
 	} else if value == Nil {
 		return nil
 	} else if value.CanInterface() {
-		return st.toPrintable(value.Interface())
+		return st.toPrintable(format, value.Interface())
 	} else {
 		return value
 	}
@@ -298,7 +320,7 @@ func (st *Stringer) typeToPrintable(t r.Type) interface{} {
 	return t
 }
 
-func (st *Stringer) structToPrintable(v r.Value) string {
+func (st *Stringer) structToPrintable(format string, v r.Value) string {
 	buf := bytes.Buffer{}
 	n := v.NumField()
 	t := v.Type()

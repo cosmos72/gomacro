@@ -54,7 +54,7 @@ type Formatter_fmt struct {
 	Object	interface{}
 	Format_	func(f fmt.State, c rune) 
 }
-func (Proxy Formatter_fmt) Format(f fmt.State, c rune)  {
+func (Proxy *Formatter_fmt) Format(f fmt.State, c rune)  {
 	Proxy.Format_(f, c)
 }
 
@@ -63,7 +63,7 @@ type GoStringer_fmt struct {
 	Object	interface{}
 	GoString_	func() string
 }
-func (Proxy GoStringer_fmt) GoString() string {
+func (Proxy *GoStringer_fmt) GoString() string {
 	return Proxy.GoString_()
 }
 
@@ -77,22 +77,22 @@ type ScanState_fmt struct {
 	UnreadRune_	func() error
 	Width_	func() (wid int, ok bool)
 }
-func (Proxy ScanState_fmt) Read(buf []byte) (n int, err error) {
+func (Proxy *ScanState_fmt) Read(buf []byte) (n int, err error) {
 	return Proxy.Read_(buf)
 }
-func (Proxy ScanState_fmt) ReadRune() (r rune, size int, err error) {
+func (Proxy *ScanState_fmt) ReadRune() (r rune, size int, err error) {
 	return Proxy.ReadRune_()
 }
-func (Proxy ScanState_fmt) SkipSpace()  {
+func (Proxy *ScanState_fmt) SkipSpace()  {
 	Proxy.SkipSpace_()
 }
-func (Proxy ScanState_fmt) Token(skipSpace bool, f func(rune) bool) (token []byte, err error) {
+func (Proxy *ScanState_fmt) Token(skipSpace bool, f func(rune) bool) (token []byte, err error) {
 	return Proxy.Token_(skipSpace, f)
 }
-func (Proxy ScanState_fmt) UnreadRune() error {
+func (Proxy *ScanState_fmt) UnreadRune() error {
 	return Proxy.UnreadRune_()
 }
-func (Proxy ScanState_fmt) Width() (wid int, ok bool) {
+func (Proxy *ScanState_fmt) Width() (wid int, ok bool) {
 	return Proxy.Width_()
 }
 
@@ -101,7 +101,7 @@ type Scanner_fmt struct {
 	Object	interface{}
 	Scan_	func(state fmt.ScanState, verb rune) error
 }
-func (Proxy Scanner_fmt) Scan(state fmt.ScanState, verb rune) error {
+func (Proxy *Scanner_fmt) Scan(state fmt.ScanState, verb rune) error {
 	return Proxy.Scan_(state, verb)
 }
 
@@ -113,16 +113,16 @@ type State_fmt struct {
 	Width_	func() (wid int, ok bool)
 	Write_	func(b []byte) (n int, err error)
 }
-func (Proxy State_fmt) Flag(c int) bool {
+func (Proxy *State_fmt) Flag(c int) bool {
 	return Proxy.Flag_(c)
 }
-func (Proxy State_fmt) Precision() (prec int, ok bool) {
+func (Proxy *State_fmt) Precision() (prec int, ok bool) {
 	return Proxy.Precision_()
 }
-func (Proxy State_fmt) Width() (wid int, ok bool) {
+func (Proxy *State_fmt) Width() (wid int, ok bool) {
 	return Proxy.Width_()
 }
-func (Proxy State_fmt) Write(b []byte) (n int, err error) {
+func (Proxy *State_fmt) Write(b []byte) (n int, err error) {
 	return Proxy.Write_(b)
 }
 
@@ -131,6 +131,6 @@ type Stringer_fmt struct {
 	Object	interface{}
 	String_	func() string
 }
-func (Proxy Stringer_fmt) String() string {
+func (Proxy *Stringer_fmt) String() string {
 	return Proxy.String_()
 }

@@ -126,10 +126,10 @@ type Addr_net struct {
 	Network_	func() string
 	String_	func() string
 }
-func (Proxy Addr_net) Network() string {
+func (Proxy *Addr_net) Network() string {
 	return Proxy.Network_()
 }
-func (Proxy Addr_net) String() string {
+func (Proxy *Addr_net) String() string {
 	return Proxy.String_()
 }
 
@@ -145,28 +145,28 @@ type Conn_net struct {
 	SetWriteDeadline_	func(t time.Time) error
 	Write_	func(b []byte) (n int, err error)
 }
-func (Proxy Conn_net) Close() error {
+func (Proxy *Conn_net) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy Conn_net) LocalAddr() net.Addr {
+func (Proxy *Conn_net) LocalAddr() net.Addr {
 	return Proxy.LocalAddr_()
 }
-func (Proxy Conn_net) Read(b []byte) (n int, err error) {
+func (Proxy *Conn_net) Read(b []byte) (n int, err error) {
 	return Proxy.Read_(b)
 }
-func (Proxy Conn_net) RemoteAddr() net.Addr {
+func (Proxy *Conn_net) RemoteAddr() net.Addr {
 	return Proxy.RemoteAddr_()
 }
-func (Proxy Conn_net) SetDeadline(t time.Time) error {
+func (Proxy *Conn_net) SetDeadline(t time.Time) error {
 	return Proxy.SetDeadline_(t)
 }
-func (Proxy Conn_net) SetReadDeadline(t time.Time) error {
+func (Proxy *Conn_net) SetReadDeadline(t time.Time) error {
 	return Proxy.SetReadDeadline_(t)
 }
-func (Proxy Conn_net) SetWriteDeadline(t time.Time) error {
+func (Proxy *Conn_net) SetWriteDeadline(t time.Time) error {
 	return Proxy.SetWriteDeadline_(t)
 }
-func (Proxy Conn_net) Write(b []byte) (n int, err error) {
+func (Proxy *Conn_net) Write(b []byte) (n int, err error) {
 	return Proxy.Write_(b)
 }
 
@@ -177,13 +177,13 @@ type Error_net struct {
 	Temporary_	func() bool
 	Timeout_	func() bool
 }
-func (Proxy Error_net) Error() string {
+func (Proxy *Error_net) Error() string {
 	return Proxy.Error_()
 }
-func (Proxy Error_net) Temporary() bool {
+func (Proxy *Error_net) Temporary() bool {
 	return Proxy.Temporary_()
 }
-func (Proxy Error_net) Timeout() bool {
+func (Proxy *Error_net) Timeout() bool {
 	return Proxy.Timeout_()
 }
 
@@ -194,13 +194,13 @@ type Listener_net struct {
 	Addr_	func() net.Addr
 	Close_	func() error
 }
-func (Proxy Listener_net) Accept() (net.Conn, error) {
+func (Proxy *Listener_net) Accept() (net.Conn, error) {
 	return Proxy.Accept_()
 }
-func (Proxy Listener_net) Addr() net.Addr {
+func (Proxy *Listener_net) Addr() net.Addr {
 	return Proxy.Addr_()
 }
-func (Proxy Listener_net) Close() error {
+func (Proxy *Listener_net) Close() error {
 	return Proxy.Close_()
 }
 
@@ -215,24 +215,24 @@ type PacketConn_net struct {
 	SetWriteDeadline_	func(t time.Time) error
 	WriteTo_	func(b []byte, addr net.Addr) (n int, err error)
 }
-func (Proxy PacketConn_net) Close() error {
+func (Proxy *PacketConn_net) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy PacketConn_net) LocalAddr() net.Addr {
+func (Proxy *PacketConn_net) LocalAddr() net.Addr {
 	return Proxy.LocalAddr_()
 }
-func (Proxy PacketConn_net) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
+func (Proxy *PacketConn_net) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
 	return Proxy.ReadFrom_(b)
 }
-func (Proxy PacketConn_net) SetDeadline(t time.Time) error {
+func (Proxy *PacketConn_net) SetDeadline(t time.Time) error {
 	return Proxy.SetDeadline_(t)
 }
-func (Proxy PacketConn_net) SetReadDeadline(t time.Time) error {
+func (Proxy *PacketConn_net) SetReadDeadline(t time.Time) error {
 	return Proxy.SetReadDeadline_(t)
 }
-func (Proxy PacketConn_net) SetWriteDeadline(t time.Time) error {
+func (Proxy *PacketConn_net) SetWriteDeadline(t time.Time) error {
 	return Proxy.SetWriteDeadline_(t)
 }
-func (Proxy PacketConn_net) WriteTo(b []byte, addr net.Addr) (n int, err error) {
+func (Proxy *PacketConn_net) WriteTo(b []byte, addr net.Addr) (n int, err error) {
 	return Proxy.WriteTo_(b, addr)
 }

@@ -68,13 +68,13 @@ type Getter_flag struct {
 	Set_	func(string) error
 	String_	func() string
 }
-func (Proxy Getter_flag) Get() interface{} {
+func (Proxy *Getter_flag) Get() interface{} {
 	return Proxy.Get_()
 }
-func (Proxy Getter_flag) Set(unnamed0 string) error {
+func (Proxy *Getter_flag) Set(unnamed0 string) error {
 	return Proxy.Set_(unnamed0)
 }
-func (Proxy Getter_flag) String() string {
+func (Proxy *Getter_flag) String() string {
 	return Proxy.String_()
 }
 
@@ -84,9 +84,9 @@ type Value_flag struct {
 	Set_	func(string) error
 	String_	func() string
 }
-func (Proxy Value_flag) Set(unnamed0 string) error {
+func (Proxy *Value_flag) Set(unnamed0 string) error {
 	return Proxy.Set_(unnamed0)
 }
-func (Proxy Value_flag) String() string {
+func (Proxy *Value_flag) String() string {
 	return Proxy.String_()
 }

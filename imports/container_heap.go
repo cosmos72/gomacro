@@ -34,18 +34,18 @@ type Interface_container_heap struct {
 	Push_	func(x interface{}) 
 	Swap_	func(i int, j int) 
 }
-func (Proxy Interface_container_heap) Len() int {
+func (Proxy *Interface_container_heap) Len() int {
 	return Proxy.Len_()
 }
-func (Proxy Interface_container_heap) Less(i int, j int) bool {
+func (Proxy *Interface_container_heap) Less(i int, j int) bool {
 	return Proxy.Less_(i, j)
 }
-func (Proxy Interface_container_heap) Pop() interface{} {
+func (Proxy *Interface_container_heap) Pop() interface{} {
 	return Proxy.Pop_()
 }
-func (Proxy Interface_container_heap) Push(x interface{})  {
+func (Proxy *Interface_container_heap) Push(x interface{})  {
 	Proxy.Push_(x)
 }
-func (Proxy Interface_container_heap) Swap(i int, j int)  {
+func (Proxy *Interface_container_heap) Swap(i int, j int)  {
 	Proxy.Swap_(i, j)
 }

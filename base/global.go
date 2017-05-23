@@ -240,13 +240,13 @@ func (g *Globals) WriteDeclsToStream(out io.Writer) {
 	fmt.Fprintf(out, "package %s\n\n", g.PackagePath)
 
 	for _, imp := range g.Imports {
-		fmt.Fprintln(out, g.toPrintable(imp))
+		fmt.Fprintln(out, g.toPrintable("%v", imp))
 	}
 	if len(g.Imports) != 0 {
 		fmt.Fprintln(out)
 	}
 	for _, decl := range g.Declarations {
-		fmt.Fprintln(out, g.toPrintable(decl))
+		fmt.Fprintln(out, g.toPrintable("%v", decl))
 	}
 	if len(g.Statements) != 0 {
 		fmt.Fprint(out, "\nfunc init() {\n")
@@ -255,7 +255,7 @@ func (g *Globals) WriteDeclsToStream(out io.Writer) {
 			config.Indent = 0
 		}()
 		for _, stmt := range g.Statements {
-			fmt.Fprintln(out, g.toPrintable(stmt))
+			fmt.Fprintln(out, g.toPrintable("%v", stmt))
 		}
 		fmt.Fprint(out, "}\n")
 	}

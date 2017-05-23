@@ -33,9 +33,9 @@ type Auth_net_smtp struct {
 	Next_	func(fromServer []byte, more bool) (toServer []byte, err error)
 	Start_	func(server *smtp.ServerInfo) (proto string, toServer []byte, err error)
 }
-func (Proxy Auth_net_smtp) Next(fromServer []byte, more bool) (toServer []byte, err error) {
+func (Proxy *Auth_net_smtp) Next(fromServer []byte, more bool) (toServer []byte, err error) {
 	return Proxy.Next_(fromServer, more)
 }
-func (Proxy Auth_net_smtp) Start(server *smtp.ServerInfo) (proto string, toServer []byte, err error) {
+func (Proxy *Auth_net_smtp) Start(server *smtp.ServerInfo) (proto string, toServer []byte, err error) {
 	return Proxy.Start_(server)
 }

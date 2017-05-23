@@ -83,13 +83,27 @@ func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMod
 }
 
 func (g *Globals) ImportPackage(name, path string) *PackageRef {
-	if pkg, ok := imports.Packages[path]; ok {
-		return &PackageRef{Package: pkg, Name: name, Path: path}
+	pkg, ok := imports.Packages[path]
+	ref := &PackageRef{Package: pkg, Name: name, Path: path}
+	if _, ok := pkg.GoPkg.(*types.Package); ok {
+		return ref
 	}
-	pkg, err := g.Importer.Import(path) // loads names and types, not the values!
+	gpkg, err := g.Importer.Import(path) // loads names and types, not the values!
 	if err != nil {
-		g.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
-		return nil
+		if ok {
+			g.Warnf("error loading package %q metadata, continuing without (wrapper methods for embedded fields may be inaccurate): %v", path, err)
+			return ref
+		} else {
+			g.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
+			return nil
+		}
+	}
+	if ok {
+		// we have all the information. cache gpkg for future use.
+		pkg.GoPkg = gpkg
+		imports.Packages[path] = pkg
+		ref.Package.GoPkg = gpkg
+		return ref
 	}
 	var mode ImportMode
 	switch name {
@@ -98,22 +112,32 @@ func (g *Globals) ImportPackage(name, path string) *PackageRef {
 	case "_i":
 		mode = ImInception
 	}
-	file := g.createImportFile(path, pkg, mode)
+	file := g.createImportFile(path, gpkg, mode)
 	if mode != ImSharedLib {
 		return nil
 	}
 	if len(file) == 0 {
-		// empty package
-		return &PackageRef{Name: name, Path: path}
+		// empty package. still cache it for future use.
+		pkg.GoPkg = gpkg
+		imports.Packages[path] = pkg
+		ref.Package.GoPkg = gpkg
+		return ref
 	}
-
 	soname := g.compilePlugin(file, g.Stdout, g.Stderr)
 	ifun := g.loadPlugin(soname, "Exports")
 	fun := ifun.(func() (map[string]r.Value, map[string]r.Type, map[string]r.Type))
 	binds, types, proxies := fun()
-	return &PackageRef{
-		Package: imports.Package{Binds: binds, Types: types, Proxies: proxies},
-		Name:    name, Path: path}
+
+	// done. cache pkg and gpkg for future use.
+	pkg = imports.Package{
+		Binds:   binds,
+		Types:   types,
+		Proxies: proxies,
+		GoPkg:   gpkg,
+	}
+	imports.Packages[path] = pkg
+	ref.Package = pkg
+	return ref
 }
 
 func (g *Globals) createImportFile(path string, pkg *types.Package, mode ImportMode) string {

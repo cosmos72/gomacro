@@ -212,12 +212,12 @@ type Type_debug_dwarf struct {
 	Size_	func() int64
 	String_	func() string
 }
-func (Proxy Type_debug_dwarf) Common() *dwarf.CommonType {
+func (Proxy *Type_debug_dwarf) Common() *dwarf.CommonType {
 	return Proxy.Common_()
 }
-func (Proxy Type_debug_dwarf) Size() int64 {
+func (Proxy *Type_debug_dwarf) Size() int64 {
 	return Proxy.Size_()
 }
-func (Proxy Type_debug_dwarf) String() string {
+func (Proxy *Type_debug_dwarf) String() string {
 	return Proxy.String_()
 }

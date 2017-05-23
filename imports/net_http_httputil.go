@@ -42,9 +42,9 @@ type BufferPool_net_http_httputil struct {
 	Get_	func() []byte
 	Put_	func([]byte) 
 }
-func (Proxy BufferPool_net_http_httputil) Get() []byte {
+func (Proxy *BufferPool_net_http_httputil) Get() []byte {
 	return Proxy.Get_()
 }
-func (Proxy BufferPool_net_http_httputil) Put(unnamed0 []byte)  {
+func (Proxy *BufferPool_net_http_httputil) Put(unnamed0 []byte)  {
 	Proxy.Put_(unnamed0)
 }

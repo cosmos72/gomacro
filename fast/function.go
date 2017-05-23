@@ -28,6 +28,7 @@ import (
 	"go/ast"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -149,7 +150,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	// a method declaration is a statement:
 	// executing it sets the method value in the receiver type
 	var stmt Stmt
-	if true /*c.Options&OptDebugMethod != 0*/ {
+	if c.Options&base.OptDebugMethod != 0 {
 		trecv := t.Recv()
 		if trecv == nil {
 			trecv = t.In(0)

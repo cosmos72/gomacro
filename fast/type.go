@@ -208,21 +208,27 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		vt := c.Type(node.Value)
 		t = universe.MapOf(kt, vt)
 	case *ast.SelectorExpr:
-		if _, ok := node.X.(*ast.Ident); ok {
-			/*
-				pkgv := c.Identifier(pkgIdent)
-				if pkg, ok := pkgv.Interface().(*PackageRef); ok {
-					name := node.Sel.Name
-					if t, ok = pkg.Types[name]; !ok {
-						c.Errorf("not a type: %v <%v>", node, r.TypeOf(node))
-					}
-				} else {
-					c.Errorf("not a package: %v = %v <%v>", pkgIdent, pkgv, typeOf(pkgv))
-				}
-			*/
-			c.Errorf("types from another package are not implemented: %v <%v>", node, r.TypeOf(node))
-		} else {
-			c.Errorf("invalid qualified type, expecting packageName.identifier, found: %v <%v>", node, r.TypeOf(node))
+		ident, ok := node.X.(*ast.Ident)
+		if !ok {
+			c.Errorf("invalid qualified type, expecting packagename.identifier, found: %v <%v>", node, r.TypeOf(node))
+		}
+		// this could be Package.Type, or other non-type expressions: Type.Method, Value.Method, Struct.Field...
+		// check for Package.Type
+		pkg := ident.Name
+		bind, ok := c.FileComp().Binds[pkg]
+		if !ok {
+			c.Errorf("undefined %q in %v <%v>", pkg, node, r.TypeOf(node))
+		} else if !bind.Const() || bind.Type.ReflectType() != rtypeOfImport {
+			c.Errorf("not a package: %q in %v <%v>", pkg, node, r.TypeOf(node))
+		}
+		imp, ok := bind.Value.(Import)
+		if !ok {
+			c.Errorf("not a package: %q in %v <%v>", pkg, node, r.TypeOf(node))
+		}
+		name := node.Sel.Name
+		t, ok = imp.Types[name]
+		if !ok || t == nil {
+			c.Errorf("not a type: %v <%v>", node, r.TypeOf(node))
 		}
 	case *ast.StructType:
 		// c.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
@@ -683,6 +689,7 @@ func (g *CompThreadGlobals) TypeOfInterface() xr.Type {
 var (
 	rtypeOfBuiltin    = r.TypeOf(Builtin{})
 	rtypeOfFunction   = r.TypeOf(Function{})
+	rtypeOfImport     = r.TypeOf(Import{})
 	rtypeOfUntypedLit = r.TypeOf(UntypedLit{})
 )
 
@@ -692,6 +699,10 @@ func (g *CompThreadGlobals) TypeOfBuiltin() xr.Type {
 
 func (g *CompThreadGlobals) TypeOfFunction() xr.Type {
 	return g.Universe.ReflectTypes[rtypeOfFunction]
+}
+
+func (g *CompThreadGlobals) TypeOfImport() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfImport]
 }
 
 func (g *CompThreadGlobals) TypeOfUntypedLit() xr.Type {

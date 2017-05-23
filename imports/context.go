@@ -38,15 +38,15 @@ type Context_context struct {
 	Err_	func() error
 	Value_	func(key interface{}) interface{}
 }
-func (Proxy Context_context) Deadline() (deadline time.Time, ok bool) {
+func (Proxy *Context_context) Deadline() (deadline time.Time, ok bool) {
 	return Proxy.Deadline_()
 }
-func (Proxy Context_context) Done() <-chan struct{} {
+func (Proxy *Context_context) Done() <-chan struct{} {
 	return Proxy.Done_()
 }
-func (Proxy Context_context) Err() error {
+func (Proxy *Context_context) Err() error {
 	return Proxy.Err_()
 }
-func (Proxy Context_context) Value(key interface{}) interface{} {
+func (Proxy *Context_context) Value(key interface{}) interface{} {
 	return Proxy.Value_(key)
 }

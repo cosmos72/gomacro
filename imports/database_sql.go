@@ -57,10 +57,10 @@ type Result_database_sql struct {
 	LastInsertId_	func() (int64, error)
 	RowsAffected_	func() (int64, error)
 }
-func (Proxy Result_database_sql) LastInsertId() (int64, error) {
+func (Proxy *Result_database_sql) LastInsertId() (int64, error) {
 	return Proxy.LastInsertId_()
 }
-func (Proxy Result_database_sql) RowsAffected() (int64, error) {
+func (Proxy *Result_database_sql) RowsAffected() (int64, error) {
 	return Proxy.RowsAffected_()
 }
 
@@ -69,6 +69,6 @@ type Scanner_database_sql struct {
 	Object	interface{}
 	Scan_	func(src interface{}) error
 }
-func (Proxy Scanner_database_sql) Scan(src interface{}) error {
+func (Proxy *Scanner_database_sql) Scan(src interface{}) error {
 	return Proxy.Scan_(src)
 }

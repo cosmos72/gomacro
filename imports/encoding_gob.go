@@ -34,7 +34,7 @@ type GobDecoder_encoding_gob struct {
 	Object	interface{}
 	GobDecode_	func([]byte) error
 }
-func (Proxy GobDecoder_encoding_gob) GobDecode(unnamed0 []byte) error {
+func (Proxy *GobDecoder_encoding_gob) GobDecode(unnamed0 []byte) error {
 	return Proxy.GobDecode_(unnamed0)
 }
 
@@ -43,6 +43,6 @@ type GobEncoder_encoding_gob struct {
 	Object	interface{}
 	GobEncode_	func() ([]byte, error)
 }
-func (Proxy GobEncoder_encoding_gob) GobEncode() ([]byte, error) {
+func (Proxy *GobEncoder_encoding_gob) GobEncode() ([]byte, error) {
 	return Proxy.GobEncode_()
 }

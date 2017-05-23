@@ -71,7 +71,7 @@ func TestBasic(t *testing.T) {
 		istype(t, typ.GoType(), (*types.Basic)(nil))
 
 		basic := typ.GoType().(*types.Basic)
-		k := gbasickindToKind(basic.Kind())
+		k := ToReflectKind(basic.Kind())
 		is(t, k, rtype.Kind())
 	}
 }

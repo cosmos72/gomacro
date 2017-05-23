@@ -47,12 +47,12 @@ type Interface_sort struct {
 	Less_	func(i int, j int) bool
 	Swap_	func(i int, j int) 
 }
-func (Proxy Interface_sort) Len() int {
+func (Proxy *Interface_sort) Len() int {
 	return Proxy.Len_()
 }
-func (Proxy Interface_sort) Less(i int, j int) bool {
+func (Proxy *Interface_sort) Less(i int, j int) bool {
 	return Proxy.Less_(i, j)
 }
-func (Proxy Interface_sort) Swap(i int, j int)  {
+func (Proxy *Interface_sort) Swap(i int, j int)  {
 	Proxy.Swap_(i, j)
 }

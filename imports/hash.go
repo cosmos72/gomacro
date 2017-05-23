@@ -33,19 +33,19 @@ type Hash_hash struct {
 	Sum_	func(b []byte) []byte
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy Hash_hash) BlockSize() int {
+func (Proxy *Hash_hash) BlockSize() int {
 	return Proxy.BlockSize_()
 }
-func (Proxy Hash_hash) Reset()  {
+func (Proxy *Hash_hash) Reset()  {
 	Proxy.Reset_()
 }
-func (Proxy Hash_hash) Size() int {
+func (Proxy *Hash_hash) Size() int {
 	return Proxy.Size_()
 }
-func (Proxy Hash_hash) Sum(b []byte) []byte {
+func (Proxy *Hash_hash) Sum(b []byte) []byte {
 	return Proxy.Sum_(b)
 }
-func (Proxy Hash_hash) Write(p []byte) (n int, err error) {
+func (Proxy *Hash_hash) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }
 
@@ -59,22 +59,22 @@ type Hash32_hash struct {
 	Sum32_	func() uint32
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy Hash32_hash) BlockSize() int {
+func (Proxy *Hash32_hash) BlockSize() int {
 	return Proxy.BlockSize_()
 }
-func (Proxy Hash32_hash) Reset()  {
+func (Proxy *Hash32_hash) Reset()  {
 	Proxy.Reset_()
 }
-func (Proxy Hash32_hash) Size() int {
+func (Proxy *Hash32_hash) Size() int {
 	return Proxy.Size_()
 }
-func (Proxy Hash32_hash) Sum(b []byte) []byte {
+func (Proxy *Hash32_hash) Sum(b []byte) []byte {
 	return Proxy.Sum_(b)
 }
-func (Proxy Hash32_hash) Sum32() uint32 {
+func (Proxy *Hash32_hash) Sum32() uint32 {
 	return Proxy.Sum32_()
 }
-func (Proxy Hash32_hash) Write(p []byte) (n int, err error) {
+func (Proxy *Hash32_hash) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }
 
@@ -88,21 +88,21 @@ type Hash64_hash struct {
 	Sum64_	func() uint64
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy Hash64_hash) BlockSize() int {
+func (Proxy *Hash64_hash) BlockSize() int {
 	return Proxy.BlockSize_()
 }
-func (Proxy Hash64_hash) Reset()  {
+func (Proxy *Hash64_hash) Reset()  {
 	Proxy.Reset_()
 }
-func (Proxy Hash64_hash) Size() int {
+func (Proxy *Hash64_hash) Size() int {
 	return Proxy.Size_()
 }
-func (Proxy Hash64_hash) Sum(b []byte) []byte {
+func (Proxy *Hash64_hash) Sum(b []byte) []byte {
 	return Proxy.Sum_(b)
 }
-func (Proxy Hash64_hash) Sum64() uint64 {
+func (Proxy *Hash64_hash) Sum64() uint64 {
 	return Proxy.Sum64_()
 }
-func (Proxy Hash64_hash) Write(p []byte) (n int, err error) {
+func (Proxy *Hash64_hash) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }

@@ -35,15 +35,15 @@ type File_mime_multipart struct {
 	ReadAt_	func(p []byte, off int64) (n int, err error)
 	Seek_	func(offset int64, whence int) (int64, error)
 }
-func (Proxy File_mime_multipart) Close() error {
+func (Proxy *File_mime_multipart) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy File_mime_multipart) Read(p []byte) (n int, err error) {
+func (Proxy *File_mime_multipart) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
-func (Proxy File_mime_multipart) ReadAt(p []byte, off int64) (n int, err error) {
+func (Proxy *File_mime_multipart) ReadAt(p []byte, off int64) (n int, err error) {
 	return Proxy.ReadAt_(p, off)
 }
-func (Proxy File_mime_multipart) Seek(offset int64, whence int) (int64, error) {
+func (Proxy *File_mime_multipart) Seek(offset int64, whence int) (int64, error) {
 	return Proxy.Seek_(offset, whence)
 }

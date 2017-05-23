@@ -39,6 +39,6 @@ type Var_expvar struct {
 	Object	interface{}
 	String_	func() string
 }
-func (Proxy Var_expvar) String() string {
+func (Proxy *Var_expvar) String() string {
 	return Proxy.String_()
 }

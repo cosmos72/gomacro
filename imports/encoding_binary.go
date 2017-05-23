@@ -45,24 +45,24 @@ type ByteOrder_encoding_binary struct {
 	Uint32_	func([]byte) uint32
 	Uint64_	func([]byte) uint64
 }
-func (Proxy ByteOrder_encoding_binary) PutUint16(unnamed0 []byte, unnamed1 uint16)  {
+func (Proxy *ByteOrder_encoding_binary) PutUint16(unnamed0 []byte, unnamed1 uint16)  {
 	Proxy.PutUint16_(unnamed0, unnamed1)
 }
-func (Proxy ByteOrder_encoding_binary) PutUint32(unnamed0 []byte, unnamed1 uint32)  {
+func (Proxy *ByteOrder_encoding_binary) PutUint32(unnamed0 []byte, unnamed1 uint32)  {
 	Proxy.PutUint32_(unnamed0, unnamed1)
 }
-func (Proxy ByteOrder_encoding_binary) PutUint64(unnamed0 []byte, unnamed1 uint64)  {
+func (Proxy *ByteOrder_encoding_binary) PutUint64(unnamed0 []byte, unnamed1 uint64)  {
 	Proxy.PutUint64_(unnamed0, unnamed1)
 }
-func (Proxy ByteOrder_encoding_binary) String() string {
+func (Proxy *ByteOrder_encoding_binary) String() string {
 	return Proxy.String_()
 }
-func (Proxy ByteOrder_encoding_binary) Uint16(unnamed0 []byte) uint16 {
+func (Proxy *ByteOrder_encoding_binary) Uint16(unnamed0 []byte) uint16 {
 	return Proxy.Uint16_(unnamed0)
 }
-func (Proxy ByteOrder_encoding_binary) Uint32(unnamed0 []byte) uint32 {
+func (Proxy *ByteOrder_encoding_binary) Uint32(unnamed0 []byte) uint32 {
 	return Proxy.Uint32_(unnamed0)
 }
-func (Proxy ByteOrder_encoding_binary) Uint64(unnamed0 []byte) uint64 {
+func (Proxy *ByteOrder_encoding_binary) Uint64(unnamed0 []byte) uint64 {
 	return Proxy.Uint64_(unnamed0)
 }

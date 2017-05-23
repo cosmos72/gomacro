@@ -78,13 +78,13 @@ type Image_image struct {
 	Bounds_	func() image.Rectangle
 	ColorModel_	func() color.Model
 }
-func (Proxy Image_image) At(x int, y int) color.Color {
+func (Proxy *Image_image) At(x int, y int) color.Color {
 	return Proxy.At_(x, y)
 }
-func (Proxy Image_image) Bounds() image.Rectangle {
+func (Proxy *Image_image) Bounds() image.Rectangle {
 	return Proxy.Bounds_()
 }
-func (Proxy Image_image) ColorModel() color.Model {
+func (Proxy *Image_image) ColorModel() color.Model {
 	return Proxy.ColorModel_()
 }
 
@@ -96,15 +96,15 @@ type PalettedImage_image struct {
 	ColorIndexAt_	func(x int, y int) uint8
 	ColorModel_	func() color.Model
 }
-func (Proxy PalettedImage_image) At(x int, y int) color.Color {
+func (Proxy *PalettedImage_image) At(x int, y int) color.Color {
 	return Proxy.At_(x, y)
 }
-func (Proxy PalettedImage_image) Bounds() image.Rectangle {
+func (Proxy *PalettedImage_image) Bounds() image.Rectangle {
 	return Proxy.Bounds_()
 }
-func (Proxy PalettedImage_image) ColorIndexAt(x int, y int) uint8 {
+func (Proxy *PalettedImage_image) ColorIndexAt(x int, y int) uint8 {
 	return Proxy.ColorIndexAt_(x, y)
 }
-func (Proxy PalettedImage_image) ColorModel() color.Model {
+func (Proxy *PalettedImage_image) ColorModel() color.Model {
 	return Proxy.ColorModel_()
 }

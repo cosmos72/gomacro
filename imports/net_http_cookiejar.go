@@ -29,9 +29,9 @@ type PublicSuffixList_net_http_cookiejar struct {
 	PublicSuffix_	func(domain string) string
 	String_	func() string
 }
-func (Proxy PublicSuffixList_net_http_cookiejar) PublicSuffix(domain string) string {
+func (Proxy *PublicSuffixList_net_http_cookiejar) PublicSuffix(domain string) string {
 	return Proxy.PublicSuffix_(domain)
 }
-func (Proxy PublicSuffixList_net_http_cookiejar) String() string {
+func (Proxy *PublicSuffixList_net_http_cookiejar) String() string {
 	return Proxy.String_()
 }

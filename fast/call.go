@@ -39,6 +39,7 @@ type Call struct {
 	Fun      *Expr
 	Args     []*Expr
 	OutTypes []xr.Type
+	Builtin  bool // if true, call is a builtin function
 	Const    bool // if true, call has no side effects and always returns the same result => it can be invoked at compile time
 	Ellipsis bool // if true, must use reflect.Value.CallSlice or equivalent to invoke the function
 }
@@ -116,8 +117,19 @@ func (c *Comp) call_any(call *Call) *Expr {
 	expr.SetTypes(tout)
 
 	maxdepth := c.Depth
+	// functions imported from other packages are constant too...
+	// but call_builtin does not know about them
 	if call.Fun.Const() {
-		expr.Fun = c.call_builtin(call)
+		if call.Builtin {
+			expr.Fun = c.call_builtin(call)
+		} else {
+			// normal calls do not expect function to be a constant.
+			call.Fun.WithFun()
+		}
+	}
+
+	if expr.Fun != nil {
+		// done already
 	} else if nout == 0 {
 		expr.Fun = c.call_ret0(call, maxdepth)
 	} else if nout == 1 {

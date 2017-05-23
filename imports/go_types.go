@@ -159,7 +159,7 @@ type Importer_go_types struct {
 	Object	interface{}
 	Import_	func(path string) (*types.Package, error)
 }
-func (Proxy Importer_go_types) Import(path string) (*types.Package, error) {
+func (Proxy *Importer_go_types) Import(path string) (*types.Package, error) {
 	return Proxy.Import_(path)
 }
 
@@ -169,10 +169,10 @@ type ImporterFrom_go_types struct {
 	Import_	func(path string) (*types.Package, error)
 	ImportFrom_	func(path string, srcDir string, mode types.ImportMode) (*types.Package, error)
 }
-func (Proxy ImporterFrom_go_types) Import(path string) (*types.Package, error) {
+func (Proxy *ImporterFrom_go_types) Import(path string) (*types.Package, error) {
 	return Proxy.Import_(path)
 }
-func (Proxy ImporterFrom_go_types) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
+func (Proxy *ImporterFrom_go_types) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
 	return Proxy.ImportFrom_(path, srcDir, mode)
 }
 
@@ -183,13 +183,13 @@ type Sizes_go_types struct {
 	Offsetsof_	func(fields []*types.Var) []int64
 	Sizeof_	func(T types.Type) int64
 }
-func (Proxy Sizes_go_types) Alignof(T types.Type) int64 {
+func (Proxy *Sizes_go_types) Alignof(T types.Type) int64 {
 	return Proxy.Alignof_(T)
 }
-func (Proxy Sizes_go_types) Offsetsof(fields []*types.Var) []int64 {
+func (Proxy *Sizes_go_types) Offsetsof(fields []*types.Var) []int64 {
 	return Proxy.Offsetsof_(fields)
 }
-func (Proxy Sizes_go_types) Sizeof(T types.Type) int64 {
+func (Proxy *Sizes_go_types) Sizeof(T types.Type) int64 {
 	return Proxy.Sizeof_(T)
 }
 
@@ -199,9 +199,9 @@ type Type_go_types struct {
 	String_	func() string
 	Underlying_	func() types.Type
 }
-func (Proxy Type_go_types) String() string {
+func (Proxy *Type_go_types) String() string {
 	return Proxy.String_()
 }
-func (Proxy Type_go_types) Underlying() types.Type {
+func (Proxy *Type_go_types) Underlying() types.Type {
 	return Proxy.Underlying_()
 }

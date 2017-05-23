@@ -79,6 +79,16 @@ func (v *Universe) cache(rt reflect.Type, t Type) Type {
 	return t
 }
 
+func (v *Universe) CachePackage(pkg *types.Package) {
+	if pkg == nil {
+		return
+	}
+	if v.Packages == nil {
+		v.Packages = make(map[string]*Package)
+	}
+	v.Packages[pkg.Path()] = (*Package)(pkg)
+}
+
 func (v *Universe) namedTypeFromImport(rtype reflect.Type) Type {
 	t := v.namedTypeFromPackageCache(rtype)
 	// importer gives accurate view of wrapper methods for embedded fields... use if type has methods
@@ -93,10 +103,7 @@ func (v *Universe) namedTypeFromImport(rtype reflect.Type) Type {
 	if err != nil || pkg == nil {
 		return nil
 	}
-	if v.Packages == nil {
-		v.Packages = make(map[string]*Package)
-	}
-	v.Packages[pkgpath] = (*Package)(pkg)
+	v.CachePackage(pkg)
 
 	return v.namedTypeFromPackage(rtype, pkg)
 }
@@ -111,8 +118,9 @@ func (v *Universe) namedTypeFromPackageCache(rtype reflect.Type) Type {
 }
 
 func (v *Universe) namedTypeFromPackage(rtype reflect.Type, pkg *types.Package) Type {
-	if scope := pkg.Scope(); scope != nil {
-		if obj := scope.Lookup(rtype.Name()); obj != nil {
+	name := rtype.Name()
+	if scope := pkg.Scope(); scope != nil && len(name) != 0 {
+		if obj := scope.Lookup(name); obj != nil {
 			if gtype := obj.Type(); gtype != nil {
 				// debugf("imported named type %v for %v", gtype, rtype)
 				// not v.MakeType, because we already hold the lock

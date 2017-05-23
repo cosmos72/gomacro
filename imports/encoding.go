@@ -31,7 +31,7 @@ type BinaryMarshaler_encoding struct {
 	Object	interface{}
 	MarshalBinary_	func() (data []byte, err error)
 }
-func (Proxy BinaryMarshaler_encoding) MarshalBinary() (data []byte, err error) {
+func (Proxy *BinaryMarshaler_encoding) MarshalBinary() (data []byte, err error) {
 	return Proxy.MarshalBinary_()
 }
 
@@ -40,7 +40,7 @@ type BinaryUnmarshaler_encoding struct {
 	Object	interface{}
 	UnmarshalBinary_	func(data []byte) error
 }
-func (Proxy BinaryUnmarshaler_encoding) UnmarshalBinary(data []byte) error {
+func (Proxy *BinaryUnmarshaler_encoding) UnmarshalBinary(data []byte) error {
 	return Proxy.UnmarshalBinary_(data)
 }
 
@@ -49,7 +49,7 @@ type TextMarshaler_encoding struct {
 	Object	interface{}
 	MarshalText_	func() (text []byte, err error)
 }
-func (Proxy TextMarshaler_encoding) MarshalText() (text []byte, err error) {
+func (Proxy *TextMarshaler_encoding) MarshalText() (text []byte, err error) {
 	return Proxy.MarshalText_()
 }
 
@@ -58,6 +58,6 @@ type TextUnmarshaler_encoding struct {
 	Object	interface{}
 	UnmarshalText_	func(text []byte) error
 }
-func (Proxy TextUnmarshaler_encoding) UnmarshalText(text []byte) error {
+func (Proxy *TextUnmarshaler_encoding) UnmarshalText(text []byte) error {
 	return Proxy.UnmarshalText_(text)
 }

@@ -349,7 +349,8 @@ func (c *Comp) Go(node *ast.GoStmt) {
 		for i, argfun := range argfunsX1 {
 			argv[i] = argfun(env2)
 		}
-		// the call is executed in a new goroutine
+		// the call is executed in a new goroutine.
+		// make it easy and do not try to optimize this call.
 		go funv.Call(argv)
 
 		env.IP++

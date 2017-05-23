@@ -53,16 +53,16 @@ type ClientCodec_net_rpc struct {
 	ReadResponseHeader_	func(*rpc.Response) error
 	WriteRequest_	func(*rpc.Request, interface{}) error
 }
-func (Proxy ClientCodec_net_rpc) Close() error {
+func (Proxy *ClientCodec_net_rpc) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy ClientCodec_net_rpc) ReadResponseBody(unnamed0 interface{}) error {
+func (Proxy *ClientCodec_net_rpc) ReadResponseBody(unnamed0 interface{}) error {
 	return Proxy.ReadResponseBody_(unnamed0)
 }
-func (Proxy ClientCodec_net_rpc) ReadResponseHeader(unnamed0 *rpc.Response) error {
+func (Proxy *ClientCodec_net_rpc) ReadResponseHeader(unnamed0 *rpc.Response) error {
 	return Proxy.ReadResponseHeader_(unnamed0)
 }
-func (Proxy ClientCodec_net_rpc) WriteRequest(unnamed0 *rpc.Request, unnamed1 interface{}) error {
+func (Proxy *ClientCodec_net_rpc) WriteRequest(unnamed0 *rpc.Request, unnamed1 interface{}) error {
 	return Proxy.WriteRequest_(unnamed0, unnamed1)
 }
 
@@ -74,15 +74,15 @@ type ServerCodec_net_rpc struct {
 	ReadRequestHeader_	func(*rpc.Request) error
 	WriteResponse_	func(*rpc.Response, interface{}) error
 }
-func (Proxy ServerCodec_net_rpc) Close() error {
+func (Proxy *ServerCodec_net_rpc) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy ServerCodec_net_rpc) ReadRequestBody(unnamed0 interface{}) error {
+func (Proxy *ServerCodec_net_rpc) ReadRequestBody(unnamed0 interface{}) error {
 	return Proxy.ReadRequestBody_(unnamed0)
 }
-func (Proxy ServerCodec_net_rpc) ReadRequestHeader(unnamed0 *rpc.Request) error {
+func (Proxy *ServerCodec_net_rpc) ReadRequestHeader(unnamed0 *rpc.Request) error {
 	return Proxy.ReadRequestHeader_(unnamed0)
 }
-func (Proxy ServerCodec_net_rpc) WriteResponse(unnamed0 *rpc.Response, unnamed1 interface{}) error {
+func (Proxy *ServerCodec_net_rpc) WriteResponse(unnamed0 *rpc.Response, unnamed1 interface{}) error {
 	return Proxy.WriteResponse_(unnamed0, unnamed1)
 }

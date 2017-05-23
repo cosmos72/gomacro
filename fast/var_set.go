@@ -1406,8 +1406,9 @@ func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 	}
 	c.Code.Append(ret)
 }
-func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
+func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 	rt := t.ReflectType()
+	fun := e.Fun
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
 	case 0:
@@ -1632,7 +1633,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun, nil)
+				fun := e.AsX1()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -1884,7 +1885,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun, nil)
+				fun := e.AsX1()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -2137,7 +2138,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun, nil)
+				fun := e.AsX1()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.
@@ -2458,7 +2459,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun, nil)
+				fun := e.AsX1()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					o := env.Outer.Outer.Outer
@@ -2698,7 +2699,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
 
 		default:
 			{
-				fun := funAsX1(fun, nil)
+				fun := e.AsX1()
 
 				ret = func(env *Env) (Stmt, *Env) {
 					env.ThreadGlobals.FileEnv.

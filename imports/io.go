@@ -88,7 +88,7 @@ type ByteReader_io struct {
 	Object	interface{}
 	ReadByte_	func() (byte, error)
 }
-func (Proxy ByteReader_io) ReadByte() (byte, error) {
+func (Proxy *ByteReader_io) ReadByte() (byte, error) {
 	return Proxy.ReadByte_()
 }
 
@@ -98,10 +98,10 @@ type ByteScanner_io struct {
 	ReadByte_	func() (byte, error)
 	UnreadByte_	func() error
 }
-func (Proxy ByteScanner_io) ReadByte() (byte, error) {
+func (Proxy *ByteScanner_io) ReadByte() (byte, error) {
 	return Proxy.ReadByte_()
 }
-func (Proxy ByteScanner_io) UnreadByte() error {
+func (Proxy *ByteScanner_io) UnreadByte() error {
 	return Proxy.UnreadByte_()
 }
 
@@ -110,7 +110,7 @@ type ByteWriter_io struct {
 	Object	interface{}
 	WriteByte_	func(c byte) error
 }
-func (Proxy ByteWriter_io) WriteByte(c byte) error {
+func (Proxy *ByteWriter_io) WriteByte(c byte) error {
 	return Proxy.WriteByte_(c)
 }
 
@@ -119,7 +119,7 @@ type Closer_io struct {
 	Object	interface{}
 	Close_	func() error
 }
-func (Proxy Closer_io) Close() error {
+func (Proxy *Closer_io) Close() error {
 	return Proxy.Close_()
 }
 
@@ -129,10 +129,10 @@ type ReadCloser_io struct {
 	Close_	func() error
 	Read_	func(p []byte) (n int, err error)
 }
-func (Proxy ReadCloser_io) Close() error {
+func (Proxy *ReadCloser_io) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy ReadCloser_io) Read(p []byte) (n int, err error) {
+func (Proxy *ReadCloser_io) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
 
@@ -142,10 +142,10 @@ type ReadSeeker_io struct {
 	Read_	func(p []byte) (n int, err error)
 	Seek_	func(offset int64, whence int) (int64, error)
 }
-func (Proxy ReadSeeker_io) Read(p []byte) (n int, err error) {
+func (Proxy *ReadSeeker_io) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
-func (Proxy ReadSeeker_io) Seek(offset int64, whence int) (int64, error) {
+func (Proxy *ReadSeeker_io) Seek(offset int64, whence int) (int64, error) {
 	return Proxy.Seek_(offset, whence)
 }
 
@@ -156,13 +156,13 @@ type ReadWriteCloser_io struct {
 	Read_	func(p []byte) (n int, err error)
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy ReadWriteCloser_io) Close() error {
+func (Proxy *ReadWriteCloser_io) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy ReadWriteCloser_io) Read(p []byte) (n int, err error) {
+func (Proxy *ReadWriteCloser_io) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
-func (Proxy ReadWriteCloser_io) Write(p []byte) (n int, err error) {
+func (Proxy *ReadWriteCloser_io) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }
 
@@ -173,13 +173,13 @@ type ReadWriteSeeker_io struct {
 	Seek_	func(offset int64, whence int) (int64, error)
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy ReadWriteSeeker_io) Read(p []byte) (n int, err error) {
+func (Proxy *ReadWriteSeeker_io) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
-func (Proxy ReadWriteSeeker_io) Seek(offset int64, whence int) (int64, error) {
+func (Proxy *ReadWriteSeeker_io) Seek(offset int64, whence int) (int64, error) {
 	return Proxy.Seek_(offset, whence)
 }
-func (Proxy ReadWriteSeeker_io) Write(p []byte) (n int, err error) {
+func (Proxy *ReadWriteSeeker_io) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }
 
@@ -189,10 +189,10 @@ type ReadWriter_io struct {
 	Read_	func(p []byte) (n int, err error)
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy ReadWriter_io) Read(p []byte) (n int, err error) {
+func (Proxy *ReadWriter_io) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
-func (Proxy ReadWriter_io) Write(p []byte) (n int, err error) {
+func (Proxy *ReadWriter_io) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }
 
@@ -201,7 +201,7 @@ type Reader_io struct {
 	Object	interface{}
 	Read_	func(p []byte) (n int, err error)
 }
-func (Proxy Reader_io) Read(p []byte) (n int, err error) {
+func (Proxy *Reader_io) Read(p []byte) (n int, err error) {
 	return Proxy.Read_(p)
 }
 
@@ -210,7 +210,7 @@ type ReaderAt_io struct {
 	Object	interface{}
 	ReadAt_	func(p []byte, off int64) (n int, err error)
 }
-func (Proxy ReaderAt_io) ReadAt(p []byte, off int64) (n int, err error) {
+func (Proxy *ReaderAt_io) ReadAt(p []byte, off int64) (n int, err error) {
 	return Proxy.ReadAt_(p, off)
 }
 
@@ -219,7 +219,7 @@ type ReaderFrom_io struct {
 	Object	interface{}
 	ReadFrom_	func(r io.Reader) (n int64, err error)
 }
-func (Proxy ReaderFrom_io) ReadFrom(r io.Reader) (n int64, err error) {
+func (Proxy *ReaderFrom_io) ReadFrom(r io.Reader) (n int64, err error) {
 	return Proxy.ReadFrom_(r)
 }
 
@@ -228,7 +228,7 @@ type RuneReader_io struct {
 	Object	interface{}
 	ReadRune_	func() (r rune, size int, err error)
 }
-func (Proxy RuneReader_io) ReadRune() (r rune, size int, err error) {
+func (Proxy *RuneReader_io) ReadRune() (r rune, size int, err error) {
 	return Proxy.ReadRune_()
 }
 
@@ -238,10 +238,10 @@ type RuneScanner_io struct {
 	ReadRune_	func() (r rune, size int, err error)
 	UnreadRune_	func() error
 }
-func (Proxy RuneScanner_io) ReadRune() (r rune, size int, err error) {
+func (Proxy *RuneScanner_io) ReadRune() (r rune, size int, err error) {
 	return Proxy.ReadRune_()
 }
-func (Proxy RuneScanner_io) UnreadRune() error {
+func (Proxy *RuneScanner_io) UnreadRune() error {
 	return Proxy.UnreadRune_()
 }
 
@@ -250,7 +250,7 @@ type Seeker_io struct {
 	Object	interface{}
 	Seek_	func(offset int64, whence int) (int64, error)
 }
-func (Proxy Seeker_io) Seek(offset int64, whence int) (int64, error) {
+func (Proxy *Seeker_io) Seek(offset int64, whence int) (int64, error) {
 	return Proxy.Seek_(offset, whence)
 }
 
@@ -260,10 +260,10 @@ type WriteCloser_io struct {
 	Close_	func() error
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy WriteCloser_io) Close() error {
+func (Proxy *WriteCloser_io) Close() error {
 	return Proxy.Close_()
 }
-func (Proxy WriteCloser_io) Write(p []byte) (n int, err error) {
+func (Proxy *WriteCloser_io) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }
 
@@ -273,10 +273,10 @@ type WriteSeeker_io struct {
 	Seek_	func(offset int64, whence int) (int64, error)
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy WriteSeeker_io) Seek(offset int64, whence int) (int64, error) {
+func (Proxy *WriteSeeker_io) Seek(offset int64, whence int) (int64, error) {
 	return Proxy.Seek_(offset, whence)
 }
-func (Proxy WriteSeeker_io) Write(p []byte) (n int, err error) {
+func (Proxy *WriteSeeker_io) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }
 
@@ -285,7 +285,7 @@ type Writer_io struct {
 	Object	interface{}
 	Write_	func(p []byte) (n int, err error)
 }
-func (Proxy Writer_io) Write(p []byte) (n int, err error) {
+func (Proxy *Writer_io) Write(p []byte) (n int, err error) {
 	return Proxy.Write_(p)
 }
 
@@ -294,7 +294,7 @@ type WriterAt_io struct {
 	Object	interface{}
 	WriteAt_	func(p []byte, off int64) (n int, err error)
 }
-func (Proxy WriterAt_io) WriteAt(p []byte, off int64) (n int, err error) {
+func (Proxy *WriterAt_io) WriteAt(p []byte, off int64) (n int, err error) {
 	return Proxy.WriteAt_(p, off)
 }
 
@@ -303,6 +303,6 @@ type WriterTo_io struct {
 	Object	interface{}
 	WriteTo_	func(w io.Writer) (n int64, err error)
 }
-func (Proxy WriterTo_io) WriteTo(w io.Writer) (n int64, err error) {
+func (Proxy *WriterTo_io) WriteTo(w io.Writer) (n int64, err error) {
 	return Proxy.WriteTo_(w)
 }

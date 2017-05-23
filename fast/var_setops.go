@@ -14400,7 +14400,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		fun := init.Fun
 		switch op {
 		case token.ASSIGN:
-			c.varSetExpr(upn, index, t, fun)
+			c.varSetExpr(upn, index, t, init)
 		case token.ADD, token.ADD_ASSIGN:
 			c.varAddExpr(upn, index, t, fun)
 		case token.SUB, token.SUB_ASSIGN:

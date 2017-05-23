@@ -148,7 +148,7 @@ import (
 	ret := fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(rt)})
 	if EvalType(typ) == nil {
 		return ~"{
-			fun := funAsX1(fun, nil)
+			fun := e.AsX1() // we need the exact type!
 			~,ret
 		}
 	}
@@ -178,7 +178,7 @@ import (
 		case r.Complex64:  setplace_const; ~,depth; complex64;
 		case r.Complex128: setplace_const; ~,depth; complex128;
 		case r.String:     setplace_const; ~,depth; string;
-		default:               setplace_const; ~,depth; nil;
+		default:           setplace_const; ~,depth; nil;
 		}
 	}
 }
@@ -203,7 +203,7 @@ import (
 		case r.Complex64:  setplace_expr; ~,depth; complex64;
 		case r.Complex128: setplace_expr; ~,depth; complex128;
 		case r.String:     setplace_expr; ~,depth; string;
-		default:               setplace_expr; ~,depth; nil;
+		default:           setplace_expr; ~,depth; nil;
 		}
 	}
 }
@@ -235,8 +235,9 @@ func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 }
 
 // varSetExpr compiles 'name = expression'
-func (c *Comp) varSetExpr(upn int, index int, t xr.Type, fun I) {
+func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 	rt := t.ReflectType()
+	fun := e.Fun
 	var ret func(env *Env) (Stmt, *Env)
 	switch upn {
 	case 0:         setplaces_expr;  0

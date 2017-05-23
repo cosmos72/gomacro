@@ -182,7 +182,9 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 		return nil
 	}
 	// stricter than t == lit.Type
-	if t.ReflectType() == r.TypeOf(value) {
+	rfrom := r.TypeOf(value)
+	rto := t.ReflectType()
+	if rfrom == rto {
 		return value
 	}
 	switch x := value.(type) {
@@ -200,8 +202,11 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 			// return lit.Value
 		}
 	}
+	if rfrom != nil && rto != nil && (rfrom.AssignableTo(rto) || rfrom.Implements(rto)) {
+		return value
+	}
 	Errorf("cannot convert typed constant %v <%v> to <%v>", value, r.TypeOf(value), t)
-	return value
+	return nil
 }
 
 // ConstTo checks that an UntypedLit can be used as the given type.

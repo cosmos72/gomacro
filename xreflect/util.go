@@ -82,7 +82,7 @@ func gtypeToKind(t *xtype, gtype types.Type) reflect.Kind {
 	case *types.Array:
 		kind = reflect.Array
 	case *types.Basic:
-		kind = gbasickindToKind(gtype.Kind())
+		kind = ToReflectKind(gtype.Kind())
 	case *types.Chan:
 		kind = reflect.Chan
 	case *types.Signature:
@@ -105,18 +105,28 @@ func gtypeToKind(t *xtype, gtype types.Type) reflect.Kind {
 	return kind
 }
 
-func gbasickindToKind(gkind types.BasicKind) reflect.Kind {
+func IsGoUntypedKind(gkind types.BasicKind) bool {
+	switch gkind {
+	case types.UntypedBool, types.UntypedInt, types.UntypedRune,
+		types.UntypedFloat, types.UntypedComplex, types.UntypedString, types.UntypedNil:
+		return true
+	default:
+		return false
+	}
+}
+
+func ToReflectKind(gkind types.BasicKind) reflect.Kind {
 	var kind reflect.Kind
 	switch gkind {
-	case types.Bool:
+	case types.Bool, types.UntypedBool:
 		kind = reflect.Bool
-	case types.Int:
+	case types.Int, types.UntypedInt:
 		kind = reflect.Int
 	case types.Int8:
 		kind = reflect.Int8
 	case types.Int16:
 		kind = reflect.Int16
-	case types.Int32:
+	case types.Int32, types.UntypedRune:
 		kind = reflect.Int32
 	case types.Int64:
 		kind = reflect.Int64
@@ -134,16 +144,18 @@ func gbasickindToKind(gkind types.BasicKind) reflect.Kind {
 		kind = reflect.Uintptr
 	case types.Float32:
 		kind = reflect.Float32
-	case types.Float64:
+	case types.Float64, types.UntypedFloat:
 		kind = reflect.Float64
 	case types.Complex64:
 		kind = reflect.Complex64
-	case types.Complex128:
+	case types.Complex128, types.UntypedComplex:
 		kind = reflect.Complex128
-	case types.String:
+	case types.String, types.UntypedString:
 		kind = reflect.String
 	case types.UnsafePointer:
 		kind = reflect.UnsafePointer
+	case types.UntypedNil:
+		kind = reflect.Invalid
 	default:
 		errorf(nil, "unsupported types.BasicKind: %v", gkind)
 	}

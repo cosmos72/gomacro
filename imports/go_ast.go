@@ -127,10 +127,10 @@ type Node_go_ast struct {
 	End_	func() token.Pos
 	Pos_	func() token.Pos
 }
-func (Proxy Node_go_ast) End() token.Pos {
+func (Proxy *Node_go_ast) End() token.Pos {
 	return Proxy.End_()
 }
-func (Proxy Node_go_ast) Pos() token.Pos {
+func (Proxy *Node_go_ast) Pos() token.Pos {
 	return Proxy.Pos_()
 }
 
@@ -139,6 +139,6 @@ type Visitor_go_ast struct {
 	Object	interface{}
 	Visit_	func(node ast.Node) (w ast.Visitor)
 }
-func (Proxy Visitor_go_ast) Visit(node ast.Node) (w ast.Visitor) {
+func (Proxy *Visitor_go_ast) Visit(node ast.Node) (w ast.Visitor) {
 	return Proxy.Visit_(node)
 }

@@ -50,7 +50,7 @@ type Marshaler_encoding_json struct {
 	Object	interface{}
 	MarshalJSON_	func() ([]byte, error)
 }
-func (Proxy Marshaler_encoding_json) MarshalJSON() ([]byte, error) {
+func (Proxy *Marshaler_encoding_json) MarshalJSON() ([]byte, error) {
 	return Proxy.MarshalJSON_()
 }
 
@@ -64,6 +64,6 @@ type Unmarshaler_encoding_json struct {
 	Object	interface{}
 	UnmarshalJSON_	func([]byte) error
 }
-func (Proxy Unmarshaler_encoding_json) UnmarshalJSON(unnamed0 []byte) error {
+func (Proxy *Unmarshaler_encoding_json) UnmarshalJSON(unnamed0 []byte) error {
 	return Proxy.UnmarshalJSON_(unnamed0)
 }

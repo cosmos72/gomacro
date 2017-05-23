@@ -31,7 +31,6 @@ import (
 	"go/token"
 	"io"
 	r "reflect"
-	"time"
 
 	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
@@ -107,9 +106,6 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltin("real", Builtin{compileRealImag, 1, 1})
 
 	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf((*func(interface{}) interface{})(nil)).Elem()})
-	ce.DeclFunc("Sleep", func(seconds float64) {
-		time.Sleep(time.Duration(seconds * float64(time.Second)))
-	})
 	/*
 		binds["Eval"] = r.ValueOf(Function{funcEval, 1})
 		binds["MacroExpand"] = r.ValueOf(Function{funcMacroExpand, -1})
@@ -139,8 +135,6 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclTypeAlias("byte", c.TypeOfUint8())
 	ce.DeclTypeAlias("rune", c.TypeOfInt32())
 	ce.DeclType(c.TypeOfError())
-
-	ce.DeclType(c.TypeOf(time.Duration(0)))
 
 	/*
 		// --------- proxies ---------
@@ -960,7 +954,11 @@ func (c *Comp) callBuiltin(node *ast.CallExpr, fun *Expr) *Call {
 	if n < int(nmin) || n > int(nmax) {
 		return c.badBuiltinCallArgNum(fun.Sym.Name+"()", nmin, nmax, node.Args)
 	}
-	return builtin.Compile(c, *fun.Sym, node)
+	call := builtin.Compile(c, *fun.Sym, node)
+	if call != nil {
+		call.Builtin = true
+	}
+	return call
 }
 
 // callFunction compiles a call to a function that accesses interpreter's *CompEnv

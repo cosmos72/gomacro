@@ -130,22 +130,22 @@ type FileInfo_os struct {
 	Size_	func() int64
 	Sys_	func() interface{}
 }
-func (Proxy FileInfo_os) IsDir() bool {
+func (Proxy *FileInfo_os) IsDir() bool {
 	return Proxy.IsDir_()
 }
-func (Proxy FileInfo_os) ModTime() time.Time {
+func (Proxy *FileInfo_os) ModTime() time.Time {
 	return Proxy.ModTime_()
 }
-func (Proxy FileInfo_os) Mode() os.FileMode {
+func (Proxy *FileInfo_os) Mode() os.FileMode {
 	return Proxy.Mode_()
 }
-func (Proxy FileInfo_os) Name() string {
+func (Proxy *FileInfo_os) Name() string {
 	return Proxy.Name_()
 }
-func (Proxy FileInfo_os) Size() int64 {
+func (Proxy *FileInfo_os) Size() int64 {
 	return Proxy.Size_()
 }
-func (Proxy FileInfo_os) Sys() interface{} {
+func (Proxy *FileInfo_os) Sys() interface{} {
 	return Proxy.Sys_()
 }
 
@@ -155,9 +155,9 @@ type Signal_os struct {
 	Signal_	func() 
 	String_	func() string
 }
-func (Proxy Signal_os) Signal()  {
+func (Proxy *Signal_os) Signal()  {
 	Proxy.Signal_()
 }
-func (Proxy Signal_os) String() string {
+func (Proxy *Signal_os) String() string {
 	return Proxy.String_()
 }

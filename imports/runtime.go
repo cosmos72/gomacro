@@ -71,9 +71,9 @@ type Error_runtime struct {
 	Error_	func() string
 	RuntimeError_	func() 
 }
-func (Proxy Error_runtime) Error() string {
+func (Proxy *Error_runtime) Error() string {
 	return Proxy.Error_()
 }
-func (Proxy Error_runtime) RuntimeError()  {
+func (Proxy *Error_runtime) RuntimeError()  {
 	Proxy.RuntimeError_()
 }

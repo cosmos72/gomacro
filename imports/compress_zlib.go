@@ -40,6 +40,6 @@ type Resetter_compress_zlib struct {
 	Object	interface{}
 	Reset_	func(r io.Reader, dict []byte) error
 }
-func (Proxy Resetter_compress_zlib) Reset(r io.Reader, dict []byte) error {
+func (Proxy *Resetter_compress_zlib) Reset(r io.Reader, dict []byte) error {
 	return Proxy.Reset_(r, dict)
 }

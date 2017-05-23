@@ -199,7 +199,7 @@ type Builtin struct {
 	ArgMax  uint16
 }
 
-// ================================= EnvFunction =================================
+// ================================= Function =================================
 
 // Function represents a function that accesses *CompEnv in the fast interpreter
 type Function struct {
@@ -369,6 +369,20 @@ func (opt PlaceOption) String() string {
 	}
 }
 
+// ================================= Import =================================
+
+// Import represents an imported package
+type Import struct {
+	// no need to split compile-time bind descriptors map from runtime values slice,
+	// because an import is a singleton - cannot be "instantiated" multiple times.
+	// Instead function or block activation record (*Env) can:
+	// think about goroutines, recursive functions or even loops.
+	Binds      map[string]r.Value
+	BindTypes  map[string]xr.Type
+	Types      map[string]xr.Type
+	Name, Path string
+}
+
 // ================================== Comp, Env =================================
 
 type CompileOptions int
@@ -417,7 +431,9 @@ type ThreadGlobals struct {
 
 // CompGlobals contains per-goroutine interpreter compile bookeeping information
 type CompThreadGlobals struct {
-	Universe *xr.Universe
+	Universe     *xr.Universe
+	interf2proxy map[r.Type]r.Type  // interface -> proxy
+	proxy2interf map[r.Type]xr.Type // proxy -> interface
 	*Globals
 }
 
