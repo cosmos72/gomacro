@@ -143,6 +143,8 @@ func (g *CompThreadGlobals) parseImportConst(name string, bind r.Value, scope *t
 				// untyped nil
 				return Nil, nil, true
 			}
+			// use the arbitrary precision constant from *types.Const,
+			// not the approximation from imported reflect.Value
 			lit := UntypedLit{Kind: kind, Obj: c.Val(), Universe: g.Universe}
 			if xr.IsGoUntypedKind(gkind) {
 				// untyped constant

@@ -68,7 +68,7 @@ func (t *xtype) method(i int) Method {
 		t.methodvalues[i] = rfunc
 		rfunctype = rmethod.Type
 	}
-	return t.universe.makemethod(i, gfunc, rfuncs, rfunctype) // lock already held
+	return t.makemethod(i, gfunc, rfuncs, rfunctype) // lock already held
 }
 
 func (t *xtype) gmethod(i int) *types.Func {
@@ -83,11 +83,31 @@ func (t *xtype) gmethod(i int) *types.Func {
 	return gfun
 }
 
-func (v *Universe) makemethod(index int, gfun *types.Func, rfuns *[]reflect.Value, rfunctype reflect.Type) Method {
+func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]reflect.Value, rfunctype reflect.Type) Method {
+	// sanity checks
+	name := gfun.Name()
+	gsig := gfun.Type().Underlying().(*types.Signature)
+	if rfunctype != nil {
+		nparams := 0
+		if gsig.Params() != nil {
+			nparams = gsig.Params().Len()
+		}
+		if gsig.Recv() != nil {
+			if nparams+1 != rfunctype.NumIn() {
+				xerrorf(t, `type <%v>: inconsistent %d-th method signature:
+	go/types.Type has receiver <%v> and %d parameters: %v
+	reflect.Type has %d parameters: %v`, t, index, gsig.Recv(), nparams, gsig, rfunctype.NumIn(), rfunctype)
+			}
+		} else if nparams != rfunctype.NumIn() {
+			xerrorf(t, `type <%v>: inconsistent %d-th method signature:
+	go/types.Type has no receiver and %d parameters: %v
+	reflect.Type has %d parameters: %v`, t, index, nparams, gsig, rfunctype.NumIn(), rfunctype)
+		}
+	}
 	return Method{
-		Name:  gfun.Name(),
+		Name:  name,
 		Pkg:   (*Package)(gfun.Pkg()),
-		Type:  v.maketype(gfun.Type(), rfunctype), // lock already held
+		Type:  t.universe.maketype(gsig, rfunctype), // lock already held
 		Funs:  rfuns,
 		Index: index,
 	}

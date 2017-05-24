@@ -261,7 +261,7 @@ import (`, alias, path, filepkg)
 	}
 	fmt.Fprintf(out, "\n)\n")
 
-	if mode == ImBuiltin {
+	if mode == ImSharedLib {
 		fmt.Fprint(out, `
 func main() {
 }
@@ -282,9 +282,12 @@ func init() {
 			case *types.Const:
 				val := obj.Val()
 				var conv1, conv2 string
-				if val.Kind() == constant.Int {
-					str := val.ExactString()
-					conv1, conv2 = ir.detectIntKind(path, name, str)
+				if t, ok := obj.Type().(*types.Basic); ok && t.Info()&types.IsUntyped != 0 {
+					// untyped constants have arbitrary precision... they may overflow integers
+					if val.Kind() == constant.Int {
+						str := val.ExactString()
+						conv1, conv2 = ir.detectIntKind(path, name, str)
+					}
 				}
 				fmt.Fprintf(out, "\n\t\t%q:\t%sValueOf(%s%s%s%s),", name, reflect, conv1, pkg_, name, conv2)
 			case *types.Var:
@@ -295,7 +298,7 @@ func init() {
 		}
 	}
 
-	if mode == ImBuiltin {
+	if mode == ImSharedLib {
 		fmt.Fprint(out, "\n\t}, map[string]Type{")
 	} else {
 		fmt.Fprintf(out, "\n\t},\n\tTypes: map[string]%sType{", reflect)
@@ -310,7 +313,7 @@ func init() {
 		}
 	}
 
-	if mode == ImBuiltin {
+	if mode == ImSharedLib {
 		fmt.Fprint(out, "\n\t}, map[string]Type{")
 	} else {
 		fmt.Fprintf(out, "\n\t},\n\tProxies: map[string]%sType{", reflect)
@@ -323,7 +326,7 @@ func init() {
 		}
 	}
 
-	if mode == ImBuiltin {
+	if mode == ImSharedLib {
 		fmt.Fprint(out, "\n\t}\n}\n")
 	} else {
 		fmt.Fprint(out, "\n\t} }\n}\n")
