@@ -132,7 +132,7 @@ func (c *Comp) assign1(lhs ast.Expr, op token.Token, rhs ast.Expr, place *Place,
 		}
 		rec := recover()
 		node := &ast.AssignStmt{Lhs: []ast.Expr{lhs}, Tok: op, Rhs: []ast.Expr{rhs}} // for nice error messages
-		c.Errorf("error compiling assignment: %v\n    %v", node, rec)
+		c.Errorf("error compiling assignment: %v\n\t%v", node, rec)
 	}()
 	if place.IsVar() {
 		c.SetVar(&place.Var, op, init)
@@ -175,25 +175,16 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
 			if e.Const() {
 				c.Errorf("%s a constant: %v <%v>", opt, node, e.Type)
 				return nil
-			} else if e.Sym != nil && opt == PlaceAddress {
-				// optimize &*variable -> variable: it's already the address we want,
-				// remember to dereference its type
-				//
-				// we cannot do this optimization when opt == PlaceSettable,
-				// because in such case the code to compile is *variable - not an identifier
-				va := *e.Sym.AsVar(opt)
-				va.Type = va.Type.Elem()
-				return &Place{Var: va}
-			} else {
-				// e.Fun is already the address we want,
-				// remember to dereference its type
-				t := e.Type.Elem()
-				addr := e.AsX1()
-				fun := func(env *Env) r.Value {
-					return addr(env).Elem()
-				}
-				return &Place{Var: Var{Type: t}, Fun: fun, Addr: addr}
 			}
+			// we cannot optimize the case "node.X is a variable" because we are compiling *variable, not variable
+			// e.Fun is already the address we want, dereference its type
+			t := e.Type.Elem()
+			// c.Debugf("placeOrAddress: %v has type %v, transformed into: %v has type %v", node.X, e.Type, node, t)
+			addr := e.AsX1()
+			fun := func(env *Env) r.Value {
+				return addr(env).Elem()
+			}
+			return &Place{Var: Var{Type: t}, Fun: fun, Addr: addr}
 		case *ast.SelectorExpr:
 			return c.SelectorPlace(node, opt)
 		default:

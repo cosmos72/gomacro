@@ -26,6 +26,7 @@ package fast
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -185,7 +186,22 @@ func (c *Comp) UnaryNot(node *ast.UnaryExpr, xe *Expr) *Expr {
 
 // StarExpr compiles unary operator * i.e. pointer dereference
 func (c *Comp) StarExpr(node *ast.StarExpr) *Expr {
-	addr := c.Expr1(node.X) // panics if addr returns zero values, warns if returns multiple values
+	expr := node.X
+	for {
+		switch e := expr.(type) {
+		case *ast.ParenExpr:
+			expr = e.X
+			continue
+		case *ast.UnaryExpr:
+			if e.Op == token.AND {
+				// optimize * & x -> x, but check that x is addressable
+				c.placeOrAddress(e.X, PlaceAddress)
+				return c.Expr1(e.X)
+			}
+		}
+		break
+	}
+	addr := c.Expr1(expr) // panics if addr returns zero values, warns if returns multiple values
 	taddr := addr.Type
 	if taddr.Kind() != r.Ptr {
 		c.Errorf("unary operation * on non-pointer <%v>: %v", taddr, node)

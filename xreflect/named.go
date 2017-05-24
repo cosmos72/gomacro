@@ -63,8 +63,16 @@ func (t *xtype) method(i int) Method {
 	if rfunc.Kind() == reflect.Func {
 		rfunctype = rfunc.Type()
 	} else {
-		rmethod, _ := t.rtype.MethodByName(gfunc.Name())
+		rtype := t.rtype
+		rmethod, _ := rtype.MethodByName(gfunc.Name())
 		rfunc = rmethod.Func
+		if rfunc.Kind() != reflect.Func {
+			if rtype.Kind() != reflect.Ptr {
+				// also search in the method set of pointer-to-t
+				rmethod, _ = reflect.PtrTo(rtype).MethodByName(gfunc.Name())
+				rfunc = rmethod.Func
+			}
+		}
 		t.methodvalues[i] = rfunc
 		rfunctype = rmethod.Type
 	}

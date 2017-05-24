@@ -204,7 +204,7 @@ func (e *Expr) CheckX1() {
 		Errorf("expression returns no values, cannot convert to func(env *Env) r.Value")
 		return
 	} else if e.NumOut() > 1 {
-		Warnf("expression returns %d values, using only the first one: %v", e.Types)
+		Warnf("expression returns %d values, using only the first one: %v", e.NumOut(), e.Types)
 	}
 }
 

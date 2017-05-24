@@ -60,7 +60,7 @@ func (c *Comp) IdentPlace(name string, opt PlaceOption) *Place {
 			c.Errorf("%s _", opt)
 			return nil
 		}
-		return &Place{}
+		return &Place{} // assignment to _ is allowed: it does nothing
 	}
 	sym := c.Resolve(name)
 	return &Place{Var: *sym.AsVar(opt)}

@@ -35,13 +35,11 @@ The fast interpreter supports:
 * imports
   * Go standard packages "just work"
   * importing other packages requires the "plugin" package (available only on Linux with Go 1.8+)
-  * cannot yet invoke methods of imported types
   * imported variables are not settable or addressable yet
 * ~quote
 
 Missing features - you are welcome to contribute:
 * composite literals
-* cannot yet invoke methods of imported types
 * imported variables are not settable or addressable yet
 * return foo() where foo() returns multiple values
 * bar(foo()) where foo() returns multiple values

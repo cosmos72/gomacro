@@ -350,36 +350,60 @@ func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 }
 
 func (c *Comp) removeReceiver(t xr.Type) (trecv, tfunc xr.Type) {
-	gtype := t.GoType().Underlying().(*types.Signature)
-	rtype := t.ReflectType()
-	// c.Debugf("removeReceiver: gtype Recv %v, Params %v, Results %v", gtype.Recv(), gtype.Params(), gtype.Results())
-	// c.Debugf("removeReceiver: rtype <%v>", rtype)
+	trecv = c.validateMethodType(t)
 
-	nin, nout := t.NumIn(), t.NumOut()
+	nin := t.NumIn()
 	params := make([]xr.Type, nin)
-	results := make([]xr.Type, nout)
 	for i := 0; i < nin; i++ {
 		params[i] = t.In(i)
 	}
+	if trecv == nil {
+		trecv = params[0]
+		params = params[1:]
+	}
+
+	nout := t.NumOut()
+	results := make([]xr.Type, nout)
 	for i := 0; i < nout; i++ {
 		results[i] = t.Out(i)
 	}
-	if gtype.Recv() == nil {
-		trecv = params[0]
-		params = params[1:]
-	} else {
-		rin := rtype.NumIn()
-		if rin == nin {
-			// t is probably an interface method...
-			// when loaded by Go importer it gets a receiver
-			trecv = t
-		} else {
-			c.Errorf(`inconsistent type <%v>
-	GoType has unexpected receiver <%v> and %d parameters: %v
-	while ReflectType has %d parameters: %v`, t, gtype.Recv(), nin, gtype.Params(), rin, rtype)
-		}
-	}
 	return trecv, c.Universe.FuncOf(params, results, t.IsVariadic())
+}
+
+func (c *Comp) validateMethodType(t xr.Type) (trecv xr.Type) {
+	gtype := t.GoType().Underlying().(*types.Signature)
+	rtype := t.ReflectType()
+
+	// c.Debugf("validateMethodType: gtype Recv %v, Params %v, Results %v", gtype.Recv(), gtype.Params(), gtype.Results())
+	// c.Debugf("validateMethodType: rtype <%v>", rtype)
+
+	rin, rout := rtype.NumIn(), rtype.NumOut()
+	var nin, nout int
+	if gtype.Params() != nil {
+		nin = gtype.Params().Len()
+	}
+	if gtype.Results() != nil {
+		nout = gtype.Results().Len()
+	}
+
+	if rout != nout {
+		c.Errorf("inconsistent type <%v>\n\tGoType has %d results: %v\n\twhile ReflectType has %d results: %v",
+			t, nout, gtype.Results(), rtype.NumOut(), rtype)
+	}
+
+	if gtype.Recv() == nil {
+		if rin != nin {
+			c.Errorf("inconsistent type <%v>\n\tGoType has no receiver and %d parameters: %v\n\twhile ReflectType has %d parameters: %v",
+				t, gtype.Recv(), nin, gtype.Params(), rtype.NumIn(), rtype)
+		}
+		return nil
+	} else {
+		if rin != nin+1 {
+			c.Errorf("inconsistent type <%v>\n\tGoType has receiver <%v> and %d parameters: %v\n\twhile ReflectType has %d parameters: %v",
+				t, gtype.Recv(), nin, gtype.Params(), rtype.NumIn(), rtype)
+		}
+		return t.Recv()
+	}
 }
 
 // compileMethod compiles a method call.
@@ -404,7 +428,7 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 	tfunc := mtd.Type
 	trecv, tclosure := c.removeReceiver(tfunc)
 	if trecv == nil {
-		trecv = t
+		c.Errorf("method has no receiver: %v", tfunc)
 	}
 	rtclosure := tclosure.ReflectType()
 
@@ -517,7 +541,7 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 				}
 				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
 				if fun == Nil {
-					Errorf("method not yet implemented: %s.%s", tname, methodname)
+					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
 
 				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {

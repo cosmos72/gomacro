@@ -100,6 +100,7 @@ func Warnf(format string, args ...interface{}) {
 }
 
 func (o *Output) Warnf(format string, args ...interface{}) {
+	args = o.toPrintables(format, args)
 	str := fmt.Sprintf(format, args...)
 	fmt.Fprintf(o.Stderr, "// warning: %s\n", str)
 }
@@ -123,6 +124,7 @@ func Debugf(format string, args ...interface{}) {
 }
 
 func (o *Output) Debugf(format string, args ...interface{}) {
+	args = o.toPrintables(format, args)
 	str := fmt.Sprintf(format, args...)
 	fmt.Fprintf(o.Stdout, "// debug: %s\n", str)
 }
@@ -212,30 +214,32 @@ func (st *Stringer) toPrintable(format string, value interface{}) (ret interface
 		}
 	}()
 
-	if v, ok := value.(r.Value); ok {
+	switch v := value.(type) {
+	case r.Value:
 		return st.rvalueToPrintable(format, v)
-	}
-
-	exact := strings.HasPrefix(format, "%#v")
-	if exact {
-		if value, ok := value.(fmt.GoStringer); ok {
-			return value.GoString()
+	case fmt.Formatter:
+		return v
+	case fmt.GoStringer:
+		if strings.HasPrefix(format, "%#v") {
+			return v.GoString()
 		}
 	}
 
 	usual := len(format) == 0 || strings.HasPrefix(format, "%v") || strings.HasPrefix(format, "%s")
 	if usual {
-		switch value := value.(type) {
+		switch v := value.(type) {
 		case AstWithNode:
-			return st.nodeToPrintable(value.Node())
+			return st.nodeToPrintable(v.Node())
 		case Ast:
-			return st.toPrintable(format, value.Interface())
+			return st.toPrintable(format, v.Interface())
 		case ast.Node:
-			return st.nodeToPrintable(value)
+			return st.nodeToPrintable(v)
 		case r.Type:
-			return st.typeToPrintable(value)
+			return st.typeToPrintable(v)
+		case error:
+			return v.Error()
 		case fmt.Stringer:
-			return value.String()
+			return v.String()
 		}
 	}
 
@@ -268,9 +272,7 @@ func (st *Stringer) toPrintable(format string, value interface{}) (ret interface
 			return st.structToPrintable(format, v)
 		}
 	case r.Func:
-		if usual || exact || strings.HasPrefix(format, "%p") {
-			return asUnsafeValue(v).ptr
-		}
+		return asUnsafeValue(v).ptr
 	}
 	return value
 }

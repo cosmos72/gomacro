@@ -289,9 +289,10 @@ var testcases = []TestCase{
 	TestCase{F, "field_embedded_1", "triple.A", rune(0), nil},
 	TestCase{F, "field_embedded_2", "triple.Pair.B", "", nil},
 
-	TestCase{A, "pointer_1", "var vf = 1.25; if *&vf != vf { vf = -1 }; vf", 1.25, nil},
-	TestCase{A, "pointer_2", "var pvf = &vf; *pvf", 1.25, nil},
-	TestCase{A, "pointer_3", "var pvs = &vs; v1 = (*pvs == nil); v1", true, nil},
+	TestCase{A, "address_0", "var vf = 1.25; *&vf == vf", true, nil},
+	TestCase{A, "address_1", "var pvf = &vf; *pvf", 1.25, nil},
+	TestCase{A, "address_2", "&*pvf == *&pvf", true, nil},
+	TestCase{A, "address_3", "var pvs = &vs; v1 = (*pvs == nil); v1", true, nil},
 	TestCase{I, "defer_1", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
 	TestCase{I, "defer_2", "v = 12; testdefer(0); v", uint32(12), nil},
 	TestCase{A, "make_chan", "cx := make(chan interface{}, 2); cx", make(chan interface{}, 2), nil},
@@ -449,7 +450,8 @@ var testcases = []TestCase{
 	TestCase{A, "time_duration_4", `td * 4`, time.Duration(4), nil},
 	TestCase{A, "time_duration_5", `5 / td`, time.Duration(5), nil},
 	TestCase{A, "time_duration_6", `&td`, func() *time.Duration { td := time.Duration(1); return &td }(), nil},
-	TestCase{I, "time_duration_string", ` td = time.Second; td.String()`, "1s", nil},
+	TestCase{A, "time_duration_method", ` td = time.Second; td.String()`, "1s", nil},
+	TestCase{A, "time_duration_closure", ` tds := td.String; tds()`, "1s", nil},
 
 	TestCase{I, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
 		A rune
