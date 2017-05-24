@@ -59,7 +59,7 @@ type StructField struct {
 	Tag       reflect.StructTag // field tag string
 	Offset    uintptr           // offset within struct, in bytes
 	Index     []int             // index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
-	Anonymous bool              // is an embedded field
+	Anonymous bool              // is an embedded field. Note: embedded field's name should be set to the type's name
 }
 
 type xtype struct {

@@ -25,6 +25,7 @@
 package xreflect
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"go/types"
@@ -82,7 +83,7 @@ func (field *StructField) toReflectField(forceExported bool) reflect.StructField
 	}
 	name := field.Name
 	if forceExported {
-		name = toExportedFieldName(field.Name, field.Type.Name(), field.Anonymous)
+		name = toExportedFieldName(name, field.Type, field.Anonymous)
 	}
 	return reflect.StructField{
 		Name:      name,
@@ -103,15 +104,31 @@ func toReflectFields(fields []StructField, forceExported bool) []reflect.StructF
 	return rfields
 }
 
-func (field *StructField) toGoField() *types.Var {
-	field.Anonymous = len(field.Name) == 0 // cleanup
+func (field *StructField) sanitize(i int) {
+	if len(field.Name) != 0 {
+		return
+	}
+	t := field.Type
+	name := t.Name()
+	if len(name) == 0 && t.Kind() == reflect.Ptr {
+		name = t.elem().Name()
+	}
+	if len(name) == 0 {
+		name = StrGensymEmbedded + fmt.Sprintf("%d", i)
+	}
+	field.Name = name
+	field.Anonymous = true
+}
+
+func (field *StructField) toGoField(i int) *types.Var {
+	field.sanitize(i)
 	return types.NewField(token.NoPos, (*types.Package)(field.Pkg), field.Name, field.Type.GoType(), field.Anonymous)
 }
 
 func toGoFields(fields []StructField) []*types.Var {
 	vars := make([]*types.Var, len(fields))
 	for i := range fields {
-		vars[i] = fields[i].toGoField()
+		vars[i] = fields[i].toGoField(i)
 	}
 	return vars
 }
@@ -128,15 +145,18 @@ func toTags(fields []StructField) []string {
 	return tags
 }
 
-func toExportedFieldName(name, typename string, anonymous bool) string {
-	if anonymous || len(name) == 0 {
-		if len(name) == 0 {
-			name = typename
+func toExportedFieldName(name string, t Type, anonymous bool) string {
+	if len(name) == 0 && t != nil {
+		if name = t.Name(); len(name) == 0 && t.Kind() == reflect.Ptr {
+			name = t.elem().Name()
 		}
-		return GensymEmbedded(name)
 	}
 	if !ast.IsExported(name) {
-		return GensymPrivate(name)
+		if anonymous {
+			return GensymEmbedded(name)
+		} else {
+			return GensymPrivate(name)
+		}
 	}
 	return name
 }

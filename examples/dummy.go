@@ -12,16 +12,12 @@ import (
 	"golang.org/x/tools/go/types/typeutil"
 )
 
-type EmbedBasicType struct {
-	int
-}
-
 func main() {
-	var e EmbedBasicType
-	fmt.Println(e.int)
-	v := r.ValueOf(e)
-	vi := v.Field(0)
-	vi.Interface()
+	type Pair struct { A,B int }
+        type Triple struct { Pair; C int }
+        var t Triple
+        fmt.Printf("%v\n", t)
+        fmt.Printf("%#v\n", t)
 }
 
 func add(a, b int) int {
@@ -80,4 +76,15 @@ func main2() {
 	fmt.Printf("%v\n", m.At(interface1))
 	fmt.Printf("%v\n", m.At(interface2))
 	fmt.Printf("%v\n", m.Len())
+}
+
+func main3() {
+	type EmbedBasicType struct {
+		int
+	}
+	var e EmbedBasicType
+	fmt.Println(e.int)
+	v := r.ValueOf(e)
+	vi := v.Field(0)
+	vi.Interface()
 }

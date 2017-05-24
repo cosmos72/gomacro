@@ -194,7 +194,7 @@ func (v *Universe) fromReflectField(rfield *reflect.StructField) StructField {
 		}
 		// rebuild the type's name and package
 		t = v.named(t, typename, rtype.PkgPath())
-		name = ""
+		name = typename
 		anonymous = true
 	} else if strings.HasPrefix(name, StrGensymPrivate) {
 		// this reflect.StructField emulates private (unexported) field using our own convention.
@@ -353,7 +353,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 			t = v.named(t, typename, rfield.Type.PkgPath())
 			gembeddeds = append(gembeddeds, t.GoType().(*types.Named))
 			if rebuild {
-				rebuildfields[i] = approxInterfaceEmbedded(typename, t.ReflectType())
+				rebuildfields[i] = approxInterfaceEmbedded(t)
 			}
 		} else {
 			if strings.HasPrefix(name, StrGensymPrivate) {

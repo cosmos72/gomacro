@@ -67,7 +67,7 @@ func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds [
 	rfields := make([]reflect.StructField, 1+nemb+len(methods))
 	rfields[0] = approxInterfaceHeader()
 	for i, emb := range embeddeds {
-		rfields[i+1] = approxInterfaceEmbedded(emb.Name(), emb.ReflectType())
+		rfields[i+1] = approxInterfaceEmbedded(emb)
 	}
 	for i, method := range methods {
 		rfields[i+nemb+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
@@ -108,11 +108,11 @@ func approxInterfaceHeader() reflect.StructField {
 	}
 }
 
-func approxInterfaceEmbedded(typename string, rtype reflect.Type) reflect.StructField {
+func approxInterfaceEmbedded(t Type) reflect.StructField {
 	// embedded interfaces are always anonymous
 	return reflect.StructField{
-		Name: toExportedFieldName("", typename, true),
-		Type: rtype,
+		Name: toExportedFieldName("", t, true),
+		Type: t.ReflectType(),
 	}
 }
 
@@ -122,7 +122,7 @@ func approxInterfaceMethod(name string, rtype reflect.Type) reflect.StructField 
 		name = "_"
 	}
 	return reflect.StructField{
-		Name: toExportedFieldName(name, "", false),
+		Name: toExportedFieldName(name, nil, false),
 		Type: rtype,
 	}
 }

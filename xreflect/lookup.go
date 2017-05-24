@@ -93,9 +93,6 @@ func fieldByName(t *xtype, qname QName, offset uintptr, index []int) (field Stru
 	for i := 0; i < n; i++ {
 
 		gfield := gtype.Field(i)
-		if gfield.Anonymous() != (len(gfield.Name()) == 0) {
-			debugf("inconsistent field in <%v>: Name = %q, Anonymous = %t", t, gfield.Name(), gfield.Anonymous())
-		}
 		if matchFieldByName(qname, gfield) {
 			if count == 0 {
 				field = t.field(i) // lock already held

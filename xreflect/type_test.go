@@ -211,10 +211,12 @@ func TestEmbedded(t *testing.T) {
 
 	typ := StructOf([]StructField{
 		StructField{Name: "Label", Type: v.BasicTypes[reflect.String]},
-		StructField{Type: v.PtrTo(etyp)}, // empty name => anonymous
+		StructField{Type: v.PtrTo(etyp)}, // empty name => anonymous, and autodetect name from type
 	})
 	is(t, typ.String(), "struct{Label string; *Box}")
-	is(t, typ.Field(1).Anonymous, true)
+	field1 := typ.Field(1)
+	is(t, field1.Name, "Box") // autodetected
+	is(t, field1.Anonymous, true)
 
 	// access field Struct.Value - shorthand for Struct.Box.Value
 	field, count := typ.FieldByName("Value", "")
