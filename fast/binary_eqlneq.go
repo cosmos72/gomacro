@@ -30,8 +30,8 @@
 package fast
 
 import (
-	"go/token"
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -1142,7 +1142,7 @@ func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		e = ye
 	}
 
-	if e.Const() || !IsNillableKind(e.Type.Kind()) {
+	if !IsNillableKind(e.Type.Kind()) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 

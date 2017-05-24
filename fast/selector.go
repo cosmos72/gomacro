@@ -51,11 +51,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 		if t.ReflectType() == rtypeOfImport && e.Const() {
 			// access symbol from imported package, for example fmt.Printf
 			imp := e.Value.(Import)
-			if bind, ok := imp.Binds[name]; ok {
-				return c.exprValue(imp.BindTypes[name], bind.Interface())
-			}
-			c.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
-			return nil
+			return c.selectorImport(&imp, name)
 		}
 		field, fieldok, mtd, mtdok := c.LookupFieldOrMethod(t, name)
 		if fieldok {
@@ -77,6 +73,27 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 		}
 	}
 	c.Errorf("type %s has no field or method %q: %v", t, name, node)
+	return nil
+}
+
+func (c *Comp) selectorImport(imp *Import, name string) *Expr {
+	if bind, ok := imp.Binds[name]; ok {
+		t := imp.BindTypes[name]
+		var value interface{}
+		if bind.IsValid() && bind.CanInterface() {
+			if bind.CanAddr() {
+				// bind is an imported variable. do NOT extract its value, otherwise the fast interpreter
+				// will (incorrectly) assume that it's a constant and will perform constant propagation
+				fun := importedBindAsFun(t, bind)
+				return exprFun(t, fun)
+			}
+			value = bind.Interface()
+		} else {
+			value = xr.Zero(t)
+		}
+		return c.exprValue(t, value)
+	}
+	c.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
 	return nil
 }
 
@@ -616,6 +633,11 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 		})
 		fallthrough
 	case r.Struct:
+		if te.ReflectType() == rtypeOfImport && obje.Const() {
+			// access symbol from imported package, for example fmt.Printf
+			imp := obje.Value.(Import)
+			return c.selectorPlaceImport(&imp, name, opt)
+		}
 		field, fieldn := c.LookupField(te, name)
 		if fieldn == 0 {
 			break
@@ -631,6 +653,29 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 		return c.compileFieldPlace(obje, field)
 	}
 	c.Errorf("type %v has no field %q: %v", te, name, node)
+	return nil
+}
+
+// selectorImport compiles pkgname.varname returning a settable and/or addressable Place
+func (c *Comp) selectorPlaceImport(imp *Import, name string, opt PlaceOption) *Place {
+	if bind, ok := imp.Binds[name]; ok {
+		// a settable reflect.Value is always addressable.
+		// the converse is not guaranteed: unexported fields can be addressed but not set.
+		// see implementation of reflect.Value.CanAddr() and reflect.Value.CanSet() for details
+		if bind.IsValid() && bind.CanAddr() {
+			return &Place{
+				Var: Var{Type: imp.BindTypes[name]},
+				Fun: func(*Env) r.Value {
+					return bind
+				},
+				Addr: func(*Env) r.Value {
+					return bind.Addr()
+				},
+			}
+		}
+		c.Errorf("%s %s %s.%s", opt, bind.Kind(), imp.Name, name)
+	}
+	c.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
 	return nil
 }
 

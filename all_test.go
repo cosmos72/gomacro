@@ -452,6 +452,10 @@ var testcases = []TestCase{
 	TestCase{A, "time_duration_6", `&td`, func() *time.Duration { td := time.Duration(1); return &td }(), nil},
 	TestCase{A, "time_duration_method", ` td = time.Second; td.String()`, "1s", nil},
 	TestCase{A, "time_duration_closure", ` tds := td.String; tds()`, "1s", nil},
+	TestCase{A, "time_utc", ` utc := time.UTC; utc.String()`, "UTC", nil},
+	TestCase{A, "time_utc_addr", ` utcaddr := &time.UTC; *utcaddr == utc`, true, nil},
+	TestCase{A, "time_utc_set_1", ` time.UTC = nil; time.UTC == nil`, true, nil},
+	TestCase{A, "time_utc_set_2", ` time.UTC = utc; time.UTC.String()`, "UTC", nil},
 
 	TestCase{I, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
 		A rune

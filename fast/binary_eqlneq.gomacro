@@ -390,8 +390,8 @@ func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	} else {
 		e = ye
 	}
-	// e cannot be a constant (none of the nillable types support compile-time constants) but better safe than sorry
-	if e.Const() || !IsNillableKind(e.Type.Kind()) {
+	// e can be a constant... for example nil == nil
+	if !IsNillableKind(e.Type.Kind()) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 

@@ -51,7 +51,9 @@ func (c *Comp) Import(node ast.Spec) {
 		} else {
 			name = path[1+strings.LastIndexByte(path, '/'):]
 		}
-		c.FileComp().ImportPackage(name, path)
+		// yes, we support local imports
+		// i.e. a function or block can import packages
+		c.ImportPackage(name, path)
 	default:
 		c.Errorf("unimplemented import: %v", node)
 	}
@@ -70,9 +72,10 @@ func (g *CompThreadGlobals) sanitizeImportPath(path string) string {
 }
 
 // Import imports a package. Usually invoked as Comp.FileComp().ImportPackage(name, path)
-// because imports are top-level statements in a source file.
-func (cfile *Comp) ImportPackage(name, path string) *Import {
-	g := cfile.CompThreadGlobals
+// because imports are usually top-level statements in a source file.
+// But we also support local imports, i.e. import statements inside a function or block.
+func (c *Comp) ImportPackage(name, path string) *Import {
+	g := c.CompThreadGlobals
 	pkgref := g.ImportPackage(name, path)
 	if pkgref == nil {
 		return nil
@@ -94,18 +97,18 @@ func (cfile *Comp) ImportPackage(name, path string) *Import {
 
 	g.loadProxies(pkgref.Proxies, imp.Types)
 
-	cfile.DeclImport0(name, imp)
+	c.declImport0(name, imp)
 	return &imp
 }
 
 // declImport0 compiles an import declaration.
 // Note: does not loads proxies, use ImportPackage for that
-func (cfile *Comp) DeclImport0(name string, imp Import) {
+func (c *Comp) declImport0(name string, imp Import) {
 	// treat imported package as a constant,
 	// because to compile code we need the declarations it contains:
 	// importing them at runtime would be too late.
-	t := cfile.TypeOfImport()
-	bind := cfile.AddBind(name, ConstBind, t)
+	t := c.TypeOfImport()
+	bind := c.AddBind(name, ConstBind, t)
 	bind.Value = imp // cfile.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 }
 
@@ -186,4 +189,88 @@ func (g *CompThreadGlobals) loadProxies(proxies map[string]r.Type, xtypes map[st
 		g.interf2proxy[rtype] = proxy
 		g.proxy2interf[proxy] = xtype
 	}
+}
+
+// v is an imported variable. build a function that will return it.
+// Do NOT expose its value while compiling, otherwise the fast interpreter
+// will (incorrectly) assume that it's a constant and will perform constant propagation.
+//
+// mandatory optimization: for basic kinds, unwrap reflect.Value
+func importedBindAsFun(t xr.Type, v r.Value) I {
+	var fun I
+	switch t.Kind() {
+	case r.Bool:
+		fun = func(env *Env) bool {
+			return v.Bool()
+		}
+	case r.Int:
+		fun = func(env *Env) int {
+			return int(v.Int())
+		}
+	case r.Int8:
+		fun = func(env *Env) int8 {
+			return int8(v.Int())
+		}
+	case r.Int16:
+		fun = func(env *Env) int16 {
+			return int16(v.Int())
+		}
+	case r.Int32:
+		fun = func(env *Env) int32 {
+			return int32(v.Int())
+		}
+	case r.Int64:
+		fun = func(env *Env) int64 {
+			return v.Int()
+		}
+	case r.Uint:
+		fun = func(env *Env) uint {
+			return uint(v.Uint())
+		}
+	case r.Uint8:
+		fun = func(env *Env) uint8 {
+			return uint8(v.Uint())
+		}
+	case r.Uint16:
+		fun = func(env *Env) uint16 {
+			return uint16(v.Uint())
+		}
+	case r.Uint32:
+		fun = func(env *Env) uint32 {
+			return uint32(v.Uint())
+		}
+	case r.Uint64:
+		fun = func(env *Env) uint64 {
+			return v.Uint()
+		}
+	case r.Uintptr:
+		fun = func(env *Env) uintptr {
+			return uintptr(v.Uint())
+		}
+	case r.Float32:
+		fun = func(env *Env) float32 {
+			return float32(v.Float())
+		}
+	case r.Float64:
+		fun = func(env *Env) float64 {
+			return v.Float()
+		}
+	case r.Complex64:
+		fun = func(env *Env) complex64 {
+			return complex64(v.Complex())
+		}
+	case r.Complex128:
+		fun = func(env *Env) complex128 {
+			return v.Complex()
+		}
+	case r.String:
+		fun = func(env *Env) string {
+			return v.String()
+		}
+	default:
+		fun = func(env *Env) r.Value {
+			return v
+		}
+	}
+	return fun
 }
