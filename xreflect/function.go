@@ -150,12 +150,8 @@ func (v *Universe) MethodOf(recv Type, in []Type, out []Type, variadic bool) Typ
 		rin = append([]reflect.Type{recv.ReflectType()}, rin...)
 		grecv = toGoParam(recv)
 	}
-	gtype := types.NewSignature(grecv, gin, gout, variadic)
-	if grecv != nil {
-		debugf("xreflect.MethodOf: recv = <%v>, method = <%v> with recv = <%v>", grecv, gtype, gtype.Recv())
-	}
 	return v.MakeType(
-		gtype,
+		types.NewSignature(grecv, gin, gout, variadic),
 		reflect.FuncOf(rin, rout, variadic),
 	)
 }

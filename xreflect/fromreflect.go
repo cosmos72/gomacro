@@ -160,9 +160,13 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		// debugf("adding %d methods to %v", n, tm)
 		xt.methodvalues = make([]reflect.Value, 0, n)
 		nilv := reflect.Value{}
+		if v.rebuild() {
+			v.RebuildDepth--
+
+		}
 		for i := 0; i < n; i++ {
 			rmethod := rtype.Method(i)
-			signature := v.fromReflectType(rmethod.Type)
+			signature := v.fromReflectMethod(rmethod.Type)
 			n1 := tm.NumMethod()
 			tm.AddMethod(rmethod.Name, signature)
 			n2 := tm.NumMethod()
@@ -204,7 +208,7 @@ func (v *Universe) fromReflectField(rfield *reflect.StructField) StructField {
 
 	return StructField{
 		Name:      name,
-		Pkg:       v.NewPackage(rfield.PkgPath, ""),
+		Pkg:       v.findPackage(rfield.PkgPath),
 		Type:      t,
 		Tag:       rfield.Tag,
 		Offset:    rfield.Offset,
@@ -278,6 +282,43 @@ func (v *Universe) fromReflectFunc(rtype reflect.Type) Type {
 	)
 }
 
+// fromReflectMethod converts a reflect.Type with Kind reflect.Func into a method Type,
+// i.e. into a function with receiver
+func (v *Universe) fromReflectMethod(rtype reflect.Type) Type {
+	nin, nout := rtype.NumIn(), rtype.NumOut()
+	if nin == 0 {
+		errorf(nil, "fromReflectMethod: function type has zero arguments, cannot use first one as receiver: <%v>", rtype)
+	}
+	in := make([]Type, nin)
+	out := make([]Type, nout)
+	for i := 0; i < nin; i++ {
+		in[i] = v.fromReflectType(rtype.In(i))
+	}
+	for i := 0; i < nout; i++ {
+		out[i] = v.fromReflectType(rtype.Out(i))
+	}
+	grecv := toGoParam(in[0])
+	gin := toGoTuple(in[1:])
+	gout := toGoTuple(out)
+	variadic := rtype.IsVariadic()
+
+	if v.RebuildDepth >= 1 {
+		rin := toReflectTypes(in)
+		rout := toReflectTypes(out)
+		rtype = reflect.FuncOf(rin, rout, variadic)
+	}
+	return v.maketype(
+		types.NewSignature(grecv, gin, gout, variadic),
+		rtype,
+	)
+}
+
+// fromReflectMethod converts a reflect.Type with Kind reflect.Func into a method Type,
+// manually adding the given type as receiver
+func (v *Universe) fromReflectInterfaceMethod(rtype, rmethod reflect.Type) Type {
+	return v.fromReflectMethod(addreceiver(rtype, rmethod))
+}
+
 // fromReflectInterface converts a reflect.Type with Kind reflect.Interface into a Type
 func (v *Universe) fromReflectInterface(rtype reflect.Type) Type {
 	if rtype == v.TypeOfInterface.ReflectType() {
@@ -287,8 +328,8 @@ func (v *Universe) fromReflectInterface(rtype reflect.Type) Type {
 	gmethods := make([]*types.Func, n)
 	for i := 0; i < n; i++ {
 		rmethod := rtype.Method(i)
-		method := v.fromReflectType(rmethod.Type)
-		pkg := v.newPackage(rmethod.PkgPath, "")
+		method := v.fromReflectInterfaceMethod(rtype, rmethod.Type)
+		pkg := v.findPackage(rmethod.PkgPath)
 		gmethods[i] = types.NewFunc(token.NoPos, (*types.Package)(pkg), rmethod.Name, method.GoType().(*types.Signature))
 	}
 	// no way to extract embedded interfaces from reflect.Type
@@ -301,7 +342,7 @@ func (v *Universe) fromReflectInterface(rtype reflect.Type) Type {
 			if v.RebuildDepth >= 1 {
 				// needed? method := v.FromReflectType(rmethod.Type) above
 				// should already rebuild rmethod.Type.ReflectType()
-				rmethodtype = v.fromReflectType(rmethod.Type).ReflectType()
+				rmethodtype = v.fromReflectInterfaceMethod(rtype, rmethod.Type).ReflectType()
 			}
 			rfields[i+1] = approxInterfaceMethod(rmethod.Name, rmethodtype)
 		}
@@ -364,7 +405,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 				errorf(t, "FromReflectType: reflect.Type <%v> is an emulated interface containing the method <%v>.\n\tExtracting the latter returned a non-function: %v", t)
 			}
 			gtype := t.GoType().Underlying()
-			pkg := v.newPackage(rfield.PkgPath, "")
+			pkg := v.findPackage(rfield.PkgPath)
 			gmethods = append(gmethods, types.NewFunc(token.NoPos, (*types.Package)(pkg), name, gtype.(*types.Signature)))
 			if rebuild {
 				rebuildfields[i] = approxInterfaceMethod(name, t.ReflectType())

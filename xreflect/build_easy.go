@@ -266,8 +266,6 @@ var (
 	TypeOfUnsafePointer = BasicTypes[reflect.UnsafePointer]
 	TypeOfError         = universe.TypeOfError
 	TypeOfInterface     = universe.TypeOfInterface
-	// TypeOfByte       = TypeOfUint8
-	// TypeOfRune       = TypeOfInt32
 )
 
 // TypeOf creates a Type corresponding to reflect.TypeOf() of given value.

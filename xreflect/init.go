@@ -69,10 +69,9 @@ func (v *Universe) makebasictypes() []Type {
 }
 
 func (v *Universe) makeerror() Type {
-	gtype := types.Universe.Lookup("error").Type()
 	t := wrap(&xtype{
 		kind:     reflect.Interface,
-		gtype:    gtype,
+		gtype:    types.Universe.Lookup("error").Type(),
 		rtype:    reflect.TypeOf((*error)(nil)).Elem(),
 		universe: v,
 	})
@@ -102,6 +101,9 @@ func (v *Universe) init() *Universe {
 	v.BasicTypes = v.makebasictypes()
 	v.TypeOfError = v.makeerror()
 	v.TypeOfInterface = v.makeinterface()
+	// critical! trying to rebuild "error" type creates a non-indentical copy... lots of conversions would fail
+	v.cache(v.TypeOfError.ReflectType(), v.TypeOfError)
+	v.cache(v.TypeOfInterface.ReflectType(), v.TypeOfInterface)
 	return v
 }
 

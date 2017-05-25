@@ -44,6 +44,7 @@ Missing features - you are welcome to contribute:
 * x,y = foo() where foo() returns multiple values
 * Type.Method i.e. converting methods to functions (example: time.Duration.Hours)
 * for-range (normal 'for' is implemented)
+* switch is not (yet) thread-safe
 * type switch
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
   (interfaces declared in compiled code can be used, but not yet implemented by interpreted code)

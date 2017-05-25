@@ -27,6 +27,7 @@ package xreflect
 import (
 	"go/types"
 	"io"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -45,6 +46,12 @@ func fail2(t *testing.T, actual interface{}, expected interface{}) {
 func is(t *testing.T, actual interface{}, expected interface{}) {
 	if actual != expected {
 		fail(t, actual, expected)
+	}
+}
+
+func istrue(t *testing.T, actual bool) {
+	if !actual {
+		fail(t, actual, true)
 	}
 }
 
@@ -96,7 +103,7 @@ func TestFunction(t *testing.T) {
 	is(t, typ.String(), "func(bool, int16) string")
 }
 
-func TestInterface(t *testing.T) {
+func TestInterface1(t *testing.T) {
 	methodtyp := FuncOf(nil, []Type{v.BasicTypes[reflect.Int]}, false)
 	typ := InterfaceOf([]string{"Cap", "Len"}, []Type{methodtyp, methodtyp}, nil).Complete()
 
@@ -119,6 +126,18 @@ func TestInterface(t *testing.T) {
 		}))
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.String(), "interface{Cap() int; Len() int}")
+}
+
+// test implementing 'error' interface
+func TestInterfaceError(t *testing.T) {
+	methodtyp := FuncOf(nil, []Type{v.BasicTypes[reflect.String]}, false)
+	typ := InterfaceOf([]string{"Error"}, []Type{methodtyp}, nil).Complete()
+
+	is(t, typ.Kind(), reflect.Interface)
+	is(t, typ.Name(), "")
+	is(t, typ.NumMethod(), 1)
+
+	is(t, typ.Implements(v.TypeOfError), true)
 }
 
 func TestMap(t *testing.T) {
@@ -347,5 +366,91 @@ func TestFromReflect5(t *testing.T) {
 
 	if su != s1 && su != s2 {
 		is(t, su, s1)
+	}
+}
+
+// test implementing 'io.Reader' interface
+func TestInterfaceIoReader(t *testing.T) {
+	v.RebuildDepth = 0
+
+	in := []Type{v.SliceOf(v.BasicTypes[reflect.Uint8])}
+	out := []Type{v.BasicTypes[reflect.Int], v.TypeOfError}
+	methodtyp := v.FuncOf(in, out, false)
+	typ := InterfaceOf([]string{"Read"}, []Type{methodtyp}, nil).Complete()
+	gtyp := typ.GoType()
+
+	is(t, typ.Kind(), reflect.Interface)
+	is(t, typ.Name(), "")
+	is(t, typ.NumMethod(), 1)
+
+	// ---------------------------
+	treader := v.TypeOf((*io.Reader)(nil)).Elem()
+
+	is(t, treader.Kind(), reflect.Interface)
+	is(t, treader.Name(), "Reader")
+	is(t, treader.NumMethod(), 1)
+
+	istrue(t, typ.Implements(treader))
+	istrue(t, typ.AssignableTo(treader))
+	istrue(t, treader.AssignableTo(typ))
+	istrue(t, types.Identical(gtyp, treader.GoType().Underlying()))
+
+	// ---------------------------
+	io, err := v.Importer.Import("io")
+	istrue(t, err == nil)
+	istrue(t, io != nil)
+
+	reader := io.Scope().Lookup("Reader").Type().(*types.Named)
+	ireader := reader.Underlying().(*types.Interface)
+
+	is(t, reader.Obj().Name(), "Reader")
+	is(t, reader.NumMethods(), 0) // method Read() is declared in the interface, not in the named type
+	is(t, ireader.NumMethods(), 1)
+
+	istrue(t, types.Implements(gtyp, ireader))
+	istrue(t, types.Identical(gtyp, ireader))
+	istrue(t, types.AssignableTo(gtyp, reader))
+	istrue(t, types.AssignableTo(reader, gtyp))
+
+	// ---------------------------
+	t_file := v.TypeOf((*os.File)(nil))
+	tfile := t_file.Elem()
+
+	os, err := v.Importer.Import("os")
+	istrue(t, err == nil)
+	istrue(t, os != nil)
+
+	file := os.Scope().Lookup("File").Type().(*types.Named)
+
+	tfileRead := tfile.Method(6).Type.GoType().(*types.Signature)
+	fileRead := file.Method(6).Type().(*types.Signature)
+	ireaderRead := ireader.ExplicitMethod(0).Type().(*types.Signature)
+
+	if false {
+		inspect("error", types.Universe.Lookup("error").Type())
+		inspect("Universe.TypeOfError.GoType()", v.TypeOfError.GoType())
+		inspect("tfile.Read.Results.1.Type", tfileRead.Results().At(1).Type())
+		inspect("file.Read.Results.1.Type", fileRead.Results().At(1).Type())
+		inspect("ireader.Read.Results.1.Type", ireaderRead.Results().At(1).Type())
+	}
+
+	istrue(t, types.Identical(tfileRead, ireaderRead))
+	istrue(t, types.Identical(fileRead, ireaderRead))
+	istrue(t, types.Identical(tfileRead, fileRead))
+
+	istrue(t, types.Implements(t_file.GoType(), ireader))
+	istrue(t, types.AssignableTo(t_file.GoType(), reader))
+
+}
+
+func inspect(label string, t types.Type) {
+	debugf("%s:\t%v", label, t)
+	switch t := t.(type) {
+	case *types.Named:
+		debugf("  typename:\t%p\t%#v", t.Obj(), t.Obj())
+		for i, n := 0, t.NumMethods(); i < n; i++ {
+			debugf("    method %d:\t%s", i, t.Method(i))
+		}
+		debugf("  underlying:\t%v", t.Underlying())
 	}
 }

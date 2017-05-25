@@ -69,6 +69,11 @@ func (v *Universe) unique(t Type) Type {
 
 // all unexported methods assume lock is already held
 func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.Type) Type {
+	if gtype == nil {
+		errorf(nil, "MakeType of nil types.Type")
+	} else if rtype == nil {
+		errorf(nil, "MakeType of nil reflect.Type")
+	}
 	ret := v.Types.gmap.At(gtype)
 	if ret != nil {
 		t := ret.(Type)
@@ -230,13 +235,14 @@ func (t *xtype) Kind() reflect.Kind {
 // It panics if u's Kind is not Interface
 func (t *xtype) Implements(u Type) bool {
 	if u.Kind() != reflect.Interface {
-		panic("type2: non-interface type passed to Type.Implements")
+		xerrorf(t, "Type.Implements of non-interface type: %v", u)
 	}
 	return types.Implements(t.gtype, u.GoType().Underlying().(*types.Interface))
 }
 
 // AssignableTo reports whether a value of the type is assignable to type u.
 func (t *xtype) AssignableTo(u Type) bool {
+	// debugf("AssignableTo: <%v> <%v>", t, u)
 	return types.AssignableTo(t.gtype, u.GoType())
 }
 

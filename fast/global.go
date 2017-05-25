@@ -44,7 +44,7 @@ func (g *CompThreadGlobals) opaqueType(rtype r.Type) xr.Type {
 	t := v.NamedOf(rtype.Name(), "fast")
 	t.SetUnderlying(v.TypeOf(struct{}{}))
 	t.UnsafeForceReflectType(rtype)
-	g.Universe.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes
+	v.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes
 	// g.Debugf("initialized opaque type %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
 	return t
 }

@@ -81,9 +81,7 @@ func (c *Comp) ImportPackage(name, path string) *Import {
 		return nil
 	}
 	pkg, _ := pkgref.GoPkg.(*types.Package)
-	if pkg != nil {
-		g.Universe.CachePackage(pkg)
-	}
+	g.Universe.CachePackage(pkg)
 
 	binds, bindtypes := g.parseImportBinds(pkgref.Binds, pkg)
 

@@ -26,6 +26,7 @@ package fast
 
 import (
 	"go/ast"
+	"go/types"
 	r "reflect"
 	"strings"
 
@@ -75,6 +76,9 @@ func NewCompEnvTop(path string) *CompEnv {
 			ThreadGlobals: envGlobals,
 		},
 	}
+	// tell xreflect about our package "fast"
+	compGlobals.Universe.CachePackage(types.NewPackage("fast", "fast"))
+
 	// no need to scavenge for Builtin, Function, PackageRef and UntypedLit fields and methods.
 	// actually, making them opaque helps securing against malicious interpreted code.
 	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfImport, rtypeOfUntypedLit} {

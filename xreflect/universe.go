@@ -27,6 +27,7 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
+	"runtime/debug"
 	"sync"
 
 	"github.com/cosmos72/gomacro/typeutil"
@@ -79,7 +80,21 @@ func (v *Universe) cache(rt reflect.Type, t Type) Type {
 	return t
 }
 
-func (v *Universe) CachePackage(pkg *types.Package) {
+// cachePackage0 recursively adds pkg and its imports to Universe.Packages if not cached already
+func (v *Universe) cachePackage0(pkg *types.Package) {
+	path := pkg.Path()
+	if _, ok := v.Packages[path]; ok {
+		return
+	}
+	v.Packages[path] = (*Package)(pkg)
+	for _, imp := range pkg.Imports() {
+		v.cachePackage0(imp)
+	}
+}
+
+// cachePackage unconditionally adds pkg to Universe.Packages,
+// then also adds its imports if not cached already
+func (v *Universe) cachePackage(pkg *types.Package) {
 	if pkg == nil {
 		return
 	}
@@ -87,25 +102,47 @@ func (v *Universe) CachePackage(pkg *types.Package) {
 		v.Packages = make(map[string]*Package)
 	}
 	v.Packages[pkg.Path()] = (*Package)(pkg)
+	for _, imp := range pkg.Imports() {
+		v.cachePackage0(imp)
+	}
+}
+
+// CachePackage unconditionally adds pkg to Universe.Packages,
+// then also adds its imports if not cached already
+func (v *Universe) CachePackage(pkg *types.Package) {
+	if pkg == nil {
+		return
+	}
+	if v.ThreadSafe {
+		defer un(lock(v))
+	}
+	v.cachePackage(pkg)
+}
+
+func (v *Universe) importPackage(path string) *Package {
+	if v.Importer == nil {
+		v.Importer = DefaultImporter()
+	}
+	pkg, err := v.Importer.Import(path)
+	if err != nil || pkg == nil {
+		debugf("error importing package %q: %v\n\t%s", path, err, debug.Stack())
+		return nil
+	}
+	v.cachePackage(pkg)
+	return (*Package)(pkg)
 }
 
 func (v *Universe) namedTypeFromImport(rtype reflect.Type) Type {
 	t := v.namedTypeFromPackageCache(rtype)
-	// importer gives accurate view of wrapper methods for embedded fields... use if type has methods
-	if t != nil || rtype.NumMethod() == 0 {
+	if t != nil {
 		return t
 	}
-	if v.Importer == nil {
-		v.Importer = DefaultImporter()
-	}
-	pkgpath := rtype.PkgPath()
-	pkg, err := v.Importer.Import(pkgpath)
-	if err != nil || pkg == nil {
+	pkg := v.importPackage(rtype.PkgPath())
+	if pkg == nil {
 		return nil
 	}
-	v.CachePackage(pkg)
 
-	return v.namedTypeFromPackage(rtype, pkg)
+	return v.namedTypeFromPackage(rtype, (*types.Package)(pkg))
 }
 
 func (v *Universe) namedTypeFromPackageCache(rtype reflect.Type) Type {

@@ -29,26 +29,29 @@ import (
 	"strings"
 )
 
-func (v *Universe) newPackage(path, name string) *Package {
+func (v *Universe) findPackage(path string) *Package {
 	if len(path) == 0 {
 		// do not create unnamed packages
 		return nil
 	}
-	pkg := v.Packages[path]
-	if pkg == nil {
-		if len(name) == 0 {
-			name = path[1+strings.LastIndexByte(path, '/'):]
-		}
-		if v.Packages == nil {
-			v.Packages = make(map[string]*Package)
-		}
-		pkg = (*Package)(types.NewPackage(path, name))
-		v.Packages[path] = pkg
+	if pkg := v.Packages[path]; pkg != nil {
+		return pkg
 	}
+	// try to import the package first...
+	// slower, but creates the correct Typename objects for named types
+	if pkg := v.importPackage(path); pkg != nil {
+		return pkg
+	}
+	if v.Packages == nil {
+		v.Packages = make(map[string]*Package)
+	}
+	name := path[1+strings.LastIndexByte(path, '/'):]
+	pkg := (*Package)(types.NewPackage(path, name))
+	v.Packages[path] = pkg
 	return pkg
 }
 
-func (v *Universe) NewPackage(path, name string) *Package {
+func (v *Universe) FindPackage(path string) *Package {
 	if len(path) == 0 {
 		// do not create unnamed packages
 		return nil
@@ -56,7 +59,7 @@ func (v *Universe) NewPackage(path, name string) *Package {
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
-	return v.newPackage(path, name)
+	return v.findPackage(path)
 }
 
 func (pkg *Package) GoPackage() *types.Package {

@@ -51,11 +51,18 @@ func main() {
 /*
 	miscellaneous annotations
 
-	x := [2][]rune{}
-	fmt.Printf("[4][]byte(nil) = %v <%T>\n", x, x)
-	generated with: find [a-u]* -type f -name \*.go | grep -v internal | grep -v testdata | grep -v cmd/ | grep -v builtin | xargs -d'\n' dirname | sort -u | while read i; do echo -n "_b \"$i\"; "; done
+	imports, generated with: find [a-u]* -type f -name \*.go | grep -v internal | grep -v testdata | grep -v cmd/ | grep -v builtin | xargs -d'\n' dirname | sort -u | while read i; do echo -n "_b \"$i\"; "; done
 	plus some hand-made tweaks
 	import ( _b "archive/tar"; _b "archive/zip"; _b "bufio"; _b "bytes"; _b "compress/bzip2"; _b "compress/flate"; _b "compress/gzip"; _b "compress/lzw"; _b "compress/zlib"; _b "container/heap"; _b "container/list"; _b "container/ring"; _b "context"; _b "crypto"; _b "crypto/aes"; _b "crypto/cipher"; _b "crypto/des"; _b "crypto/dsa"; _b "crypto/ecdsa"; _b "crypto/elliptic"; _b "crypto/hmac"; _b "crypto/md5"; _b "crypto/rand"; _b "crypto/rc4"; _b "crypto/rsa"; _b "crypto/sha1"; _b "crypto/sha256"; _b "crypto/sha512"; _b "crypto/subtle"; _b "crypto/tls"; _b "crypto/x509"; _b "crypto/x509/pkix"; _b "database/sql"; _b "database/sql/driver"; _b "debug/dwarf"; _b "debug/elf"; _b "debug/gosym"; _b "debug/macho"; _b "debug/pe"; _b "debug/plan9obj"; _b "encoding"; _b "encoding/ascii85"; _b "encoding/asn1"; _b "encoding/base32"; _b "encoding/base64"; _b "encoding/binary"; _b "encoding/csv"; _b "encoding/gob"; _b "encoding/hex"; _b "encoding/json"; _b "encoding/pem"; _b "encoding/xml"; _b "errors"; _b "expvar"; _b "flag"; _b "fmt"; _b "go/ast"; _b "go/build"; _b "go/constant"; _b "go/doc"; _b "go/format"; _b "go/importer"; _b "go/parser"; _b "go/printer"; _b "go/scanner"; _b "go/token"; _b "go/types"; _b "hash"; _b "hash/adler32"; _b "hash/crc32"; _b "hash/crc64"; _b "hash/fnv"; _b "html"; _b "html/template"; _b "image"; _b "image/color"; _b "image/color/palette"; _b "image/draw"; _b "image/gif"; _b "image/jpeg"; _b "image/png"; _b "index/suffixarray"; _b "io"; _b "io/ioutil"; _b "log"; _b "log/syslog"; _b "math"; _b "math/big"; _b "math/cmplx"; _b "math/rand"; _b "mime"; _b "mime/multipart"; _b "mime/quotedprintable"; _b "net"; _b "net/http"; _b "net/http/cgi"; _b "net/http/cookiejar"; _b "net/http/fcgi"; _b "net/http/httptest"; _b "net/http/httptrace"; _b "net/http/httputil"; _b "net/http/pprof"; _b "net/mail"; _b "net/rpc"; _b "net/rpc/jsonrpc"; _b "net/smtp"; _b "net/textproto"; _b "net/url"; _b "os"; _b "os/exec"; _b "os/signal"; _b "os/user"; _b "path"; _b "path/filepath"; _b "plugin"; _b "reflect"; _b "regexp"; _b "regexp/syntax"; _b "runtime"; _b "runtime/debug"; _b "runtime/pprof"; _b "runtime/trace"; _b "sort"; _b "strconv"; _b "strings"; _b "sync"; _b "sync/atomic"; _b "syscall"; _b "testing"; _b "testing/iotest"; _b "testing/quick"; _b "text/scanner"; _b "text/tabwriter"; _b "text/template"; _b "text/template/parse"; _b "time"; _b "unicode"; _b "unicode/utf16"; _b "unicode/utf8"; _b "unsafe" )
+
+    // test interfaces:
+
+	import ( "time"; "fmt" ); var s fmt.Stringer = time.Hour    // ok
+	s.String                                                    // error: MakeType of nil reflect.Type
+
+	import ( "os"; "io" );    var in io.Reader = os.Stdin       // ok
+	import "reflect";         var t = reflect.TypeOf(os.Stdin)  // ok
+	t.Elem                                                      // error: MakeType of nil reflect.Type
 
 	// test methods:
 

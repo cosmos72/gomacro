@@ -57,13 +57,19 @@ func (t *xtype) method(i int) Method {
 	gfunc := t.gmethod(i)
 	resizemethodvalues(t)
 
+	rtype := t.rtype
 	var rfunctype reflect.Type
 	rfuncs := &t.methodvalues
 	rfunc := t.methodvalues[i]
 	if rfunc.Kind() == reflect.Func {
 		rfunctype = rfunc.Type()
+	} else if gtype, ok := t.gtype.Underlying().(*types.Interface); ok && rtype.Kind() == reflect.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
+		// rtype is our emulated interface type.
+		// it's a pointer to a struct containing: InterfaceHeader, embeddeds, methods (without receiver)
+		skip := gtype.NumEmbeddeds() + 1
+		rfield := rtype.Elem().Field(i + skip)
+		rfunctype = addreceiver(rtype, rfield.Type)
 	} else {
-		rtype := t.rtype
 		rmethod, _ := rtype.MethodByName(gfunc.Name())
 		rfunc = rmethod.Func
 		if rfunc.Kind() != reflect.Func {
@@ -77,6 +83,21 @@ func (t *xtype) method(i int) Method {
 		rfunctype = rmethod.Type
 	}
 	return t.makemethod(i, gfunc, rfuncs, rfunctype) // lock already held
+}
+
+func addreceiver(recv reflect.Type, rtype reflect.Type) reflect.Type {
+	nin := rtype.NumIn()
+	rin := make([]reflect.Type, nin+1)
+	rin[0] = recv
+	for i := 0; i < nin; i++ {
+		rin[i+1] = rtype.In(i)
+	}
+	nout := rtype.NumOut()
+	rout := make([]reflect.Type, nout)
+	for i := 0; i < nout; i++ {
+		rout[i] = rtype.Out(i)
+	}
+	return reflect.FuncOf(rin, rout, rtype.IsVariadic())
 }
 
 func (t *xtype) gmethod(i int) *types.Func {
@@ -141,7 +162,7 @@ func (v *Universe) NamedOf(name, pkgpath string) Type {
 
 func (v *Universe) namedOf(name, pkgpath string) Type {
 	underlying := v.TypeOfInterface
-	pkg := v.newPackage(pkgpath, "")
+	pkg := v.findPackage(pkgpath)
 	// typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
 	return v.maketype3(
