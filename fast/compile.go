@@ -76,8 +76,9 @@ func NewCompEnvTop(path string) *CompEnv {
 			ThreadGlobals: envGlobals,
 		},
 	}
-	// tell xreflect about our package "fast"
+	// tell xreflect about our packages "fast" and "main"
 	compGlobals.Universe.CachePackage(types.NewPackage("fast", "fast"))
+	compGlobals.Universe.CachePackage(types.NewPackage("main", "main"))
 
 	// no need to scavenge for Builtin, Function, PackageRef and UntypedLit fields and methods.
 	// actually, making them opaque helps securing against malicious interpreted code.

@@ -43,7 +43,12 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	nintbinds := m.nintbinds
 	funcbody := m.funcbody
 
-	karg0 := t.In(0).Kind()
+	targ0 := t.Recv()
+	if targ0 == nil {
+		targ0 = t.In(0)
+	}
+
+	karg0 := targ0.Kind()
 	kret0 := t.Out(0).Kind()
 
 	indexes := [2]int{
@@ -8011,7 +8016,7 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	return nil
 }
 func (c *Comp) func_ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
-	switch t.NumIn() {
+	switch t.ReflectType().NumIn() {
 	case 0:
 		return c.func0ret1(t, m)
 	case 1:

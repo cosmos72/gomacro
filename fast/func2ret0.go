@@ -38,8 +38,11 @@ import (
 )
 
 func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
-	targ0 := t.In(0)
-	targ1 := t.In(1)
+	targ0, targ1 := t.Recv(), t.In(0)
+	if targ0 == nil {
+		targ0, targ1 = targ1, t.In(1)
+	}
+
 	karg0 := targ0.Kind()
 	karg1 := targ1.Kind()
 

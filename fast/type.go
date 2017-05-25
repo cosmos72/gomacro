@@ -293,24 +293,27 @@ func (c *Comp) TypeFunction(node *ast.FuncType) (t xr.Type, paramNames []string,
 }
 
 // TypeFunctionOrMethod compiles a function type corresponding to given receiver and function declaration
-// If receiver is not null, the returned tFunc will have the receiver as first parameter.
+// If receiver is not null, the returned tFunc will have it as receiver.
 func (c *Comp) TypeFunctionOrMethod(recv *ast.Field, node *ast.FuncType) (t xr.Type, paramNames []string, resultNames []string) {
 	paramTypes, paramNames, variadic := c.typeFieldOrParamList(node.Params, true)
 	resultTypes, resultNames := c.TypeFields(node.Results)
 
+	var recvType xr.Type
 	if recv != nil {
-		// DESIGN CHOICE: always represent methods as functions whose first parameter is the receiver.
-		// Makes life easier: methods are not first class in Go, retrieving them produces functions
-		// whose first parameter is the receiver (example: time.Duration.String)
-		// Also go/types.Type.String() does *not* print the receiver, making it ugly and difficult to debug.
+		// methods are functions with receiver. xreflect allows functions to be treated as methods
+		// (using the first parameter as receiver), but go/types.Type loaded by go/importer.Default()
+		// will have methods as functions with receivers.
 		//
-		// xreflect understands such representation :)
+		// So be uniform with those.
+		//
+		// Alas, go/types.Type.String() does *not* print the receiver, making it cumbersome to debug.
 		recvTypes, recvNames, _ := c.typeFieldsOrParams([]*ast.Field{recv}, false)
+		recvType = recvTypes[0]
 
-		paramTypes = append(recvTypes, paramTypes...)
+		// anyway, return the receiver *name* as first element of paramNames
 		paramNames = append(recvNames, paramNames...)
 	}
-	t = c.Universe.FuncOf(paramTypes, resultTypes, variadic)
+	t = c.Universe.MethodOf(recvType, paramTypes, resultTypes, variadic)
 	return t, paramNames, resultNames
 }
 

@@ -94,7 +94,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 
 func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, methods *[]r.Value) {
 	name := funcdecl.Name.Name
-	trecv := t.In(0)
+	trecv := t.Recv()
 	if trecv.Kind() == r.Ptr && !trecv.Named() {
 		// receiver is an unnamed pointer type. add the method to its element type
 		trecv = trecv.Elem()
@@ -130,6 +130,9 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 
 	functype := funcdecl.Type
 	t, paramnames, resultnames := c.TypeFunctionOrMethod(recvdecl, functype)
+
+	// gtype := t.GoType().Underlying().(*types.Signature)
+	// c.Debugf("declaring method (%v).%s%s %s\n\treflect.Type: <%v>", gtype.Recv().Type(), funcdecl.Name.Name, gtype.Params(), gtype.Results(), t.ReflectType())
 
 	// declare the method name and type before compiling its body: allows recursive methods
 	methodindex, methods := c.methodAdd(funcdecl, t)
@@ -222,14 +225,26 @@ func (c *Comp) funcBinds(functype *ast.FuncType, t xr.Type, paramnames, resultna
 
 // prepare the function parameter binds
 func (c *Comp) funcParamBinds(functype *ast.FuncType, t xr.Type, names []string) []*Bind {
-	n := t.NumIn()
-	binds := make([]*Bind, n)
+	nrecv, nin := 0, t.NumIn()
+	trecv := t.Recv()
+	if trecv != nil {
+		nrecv = 1
+	}
+	binds := make([]*Bind, nin+nrecv)
 	var namedparams, unnamedparams bool
-	for i := 0; i < n; i++ {
+	if trecv != nil {
+		name := names[0]
+		if name == "" {
+			name = "_"
+		}
+		bind := c.AddBind(name, VarBind, trecv)
+		binds[0] = bind
+	}
+	for i := 0; i < nin; i++ {
 		// names[i] == "" means that argument is unnamed, and thus ignored inside the function.
 		// change to "_" so that AddBind will not allocate a bind for it - correct optimization...
 		// just remember to check for such case when creating the function
-		name := names[i]
+		name := names[i+nrecv]
 		if name == "" {
 			name = "_"
 			unnamedparams = true
@@ -240,7 +255,7 @@ func (c *Comp) funcParamBinds(functype *ast.FuncType, t xr.Type, names []string)
 			c.Errorf("cannot mix named and unnamed parameters in function declaration: %v", functype)
 		}
 		bind := c.AddBind(name, VarBind, t.In(i))
-		binds[i] = bind
+		binds[i+nrecv] = bind
 	}
 	return binds
 }
@@ -283,24 +298,28 @@ func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody fu
 		funcbody:    funcbody,
 	}
 
+	rtype := t.ReflectType() // has receiver as first parameter
+	nin := rtype.NumIn()
+	nout := rtype.NumOut()
+
 	var fun func(*Env) r.Value
-	switch t.NumIn() {
+	switch nin {
 	case 0:
-		switch t.NumOut() {
+		switch nout {
 		case 0:
 			fun = c.func0ret0(t, m)
 		case 1:
 			fun = c.func0ret1(t, m)
 		}
 	case 1:
-		switch t.NumOut() {
+		switch nout {
 		case 0:
 			fun = c.func1ret0(t, m)
 		case 1:
 			fun = c.func1ret1(t, m)
 		}
 	case 2:
-		switch t.NumOut() {
+		switch nout {
 		case 0:
 			fun = c.func2ret0(t, m)
 		}

@@ -391,8 +391,8 @@ func (c *Comp) validateMethodType(t xr.Type) (trecv xr.Type) {
 	gtype := t.GoType().Underlying().(*types.Signature)
 	rtype := t.ReflectType()
 
-	c.Debugf("validateMethodType: gtype Recv %v, Params %v, Results %v", gtype.Recv(), gtype.Params(), gtype.Results())
-	c.Debugf("validateMethodType: rtype <%v>", rtype)
+	// c.Debugf("validateMethodType: gtype Recv %v, Params %v, Results %v", gtype.Recv(), gtype.Params(), gtype.Results())
+	// c.Debugf("validateMethodType: rtype <%v>", rtype)
 
 	rin, rout := rtype.NumIn(), rtype.NumOut()
 	var nin, nout int

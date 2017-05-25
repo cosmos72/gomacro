@@ -82,15 +82,24 @@ func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMod
 	}
 }
 
+// LookupPackage returns a package if already present in cache
+func (g *Globals) LookupPackage(name, path string) (ref *PackageRef, complete bool) {
+	pkg, found := imports.Packages[path]
+	if !found {
+		return nil, false
+	}
+	_, complete = pkg.GoPkg.(*types.Package)
+	return &PackageRef{Package: pkg, Name: name, Path: path}, complete
+}
+
 func (g *Globals) ImportPackage(name, path string) *PackageRef {
-	pkg, ok := imports.Packages[path]
-	ref := &PackageRef{Package: pkg, Name: name, Path: path}
-	if _, ok := pkg.GoPkg.(*types.Package); ok {
+	ref, complete := g.LookupPackage(name, path)
+	if complete {
 		return ref
 	}
 	gpkg, err := g.Importer.Import(path) // loads names and types, not the values!
 	if err != nil {
-		if ok {
+		if ref != nil {
 			g.Warnf("error loading package %q metadata, continuing without (wrapper methods for embedded fields may be inaccurate): %v", path, err)
 			return ref
 		} else {
@@ -98,11 +107,10 @@ func (g *Globals) ImportPackage(name, path string) *PackageRef {
 			return nil
 		}
 	}
-	if ok {
+	if ref != nil {
 		// we have all the information. cache gpkg for future use.
-		pkg.GoPkg = gpkg
-		imports.Packages[path] = pkg
 		ref.Package.GoPkg = gpkg
+		imports.Packages[path] = ref.Package
 		return ref
 	}
 	var mode ImportMode
@@ -116,11 +124,13 @@ func (g *Globals) ImportPackage(name, path string) *PackageRef {
 	if mode != ImSharedLib {
 		return nil
 	}
+
+	ref = &PackageRef{Name: name, Path: path}
+
 	if len(file) == 0 {
 		// empty package. still cache it for future use.
-		pkg.GoPkg = gpkg
-		imports.Packages[path] = pkg
 		ref.Package.GoPkg = gpkg
+		imports.Packages[path] = ref.Package
 		return ref
 	}
 	soname := g.compilePlugin(file, g.Stdout, g.Stderr)
@@ -129,14 +139,13 @@ func (g *Globals) ImportPackage(name, path string) *PackageRef {
 	binds, types, proxies := fun()
 
 	// done. cache pkg and gpkg for future use.
-	pkg = imports.Package{
+	ref.Package = imports.Package{
 		Binds:   binds,
 		Types:   types,
 		Proxies: proxies,
 		GoPkg:   gpkg,
 	}
-	imports.Packages[path] = pkg
-	ref.Package = pkg
+	imports.Packages[path] = ref.Package
 	return ref
 }
 

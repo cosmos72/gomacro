@@ -35,6 +35,7 @@ The fast interpreter supports:
 * imports
   * Go standard packages "just work"
   * importing other packages requires the "plugin" package (available only on Linux with Go 1.8+)
+  * cannot yet invoke methods of imported interfaces (methods on imported concrete types work fine)
 * ~quote
 
 Missing features - you are welcome to contribute:
@@ -46,6 +47,7 @@ Missing features - you are welcome to contribute:
 * for-range (normal 'for' is implemented)
 * switch is not (yet) thread-safe
 * type switch
+* cannot yet invoke methods of imported interfaces
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
   (interfaces declared in compiled code can be used, but not yet implemented by interpreted code)
 * conversion from/to interpreted interfaces

@@ -44,7 +44,11 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	funcbody := m.funcbody
 	param0index := m.parambinds[0].Desc.Index()
 
-	targ0 := t.In(0)
+	targ0 := t.Recv()
+	if targ0 == nil {
+		targ0 = t.In(0)
+	}
+
 	karg0 := targ0.Kind()
 	switch karg0 {
 	case r.Bool:
@@ -333,6 +337,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
+
 	case r.Float64:
 		{
 			if funcbody == nil {
@@ -355,6 +360,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
+
 	case r.Complex64:
 		{
 			if funcbody == nil {
@@ -377,6 +383,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
+
 	case r.Complex128:
 		{
 			if funcbody == nil {
