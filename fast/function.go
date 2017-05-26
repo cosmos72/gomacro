@@ -94,7 +94,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 
 func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, methods *[]r.Value) {
 	name := funcdecl.Name.Name
-	trecv := t.Recv()
+	trecv := t.In(0)
 	if trecv.Kind() == r.Ptr && !trecv.Named() {
 		// receiver is an unnamed pointer type. add the method to its element type
 		trecv = trecv.Elem()
@@ -154,10 +154,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	// executing it sets the method value in the receiver type
 	var stmt Stmt
 	if c.Options&base.OptDebugMethod != 0 {
-		trecv := t.Recv()
-		if trecv == nil {
-			trecv = t.In(0)
-		}
+		trecv := t.In(0)
 		tname := trecv.Name()
 		if len(tname) == 0 && trecv.Kind() == r.Ptr {
 			tname = trecv.Elem().Name()
@@ -225,37 +222,29 @@ func (c *Comp) funcBinds(functype *ast.FuncType, t xr.Type, paramnames, resultna
 
 // prepare the function parameter binds
 func (c *Comp) funcParamBinds(functype *ast.FuncType, t xr.Type, names []string) []*Bind {
-	nrecv, nin := 0, t.NumIn()
-	trecv := t.Recv()
-	if trecv != nil {
-		nrecv = 1
-	}
-	binds := make([]*Bind, nin+nrecv)
+	nin := t.NumIn()
+	binds := make([]*Bind, nin)
 	var namedparams, unnamedparams bool
-	if trecv != nil {
-		name := names[0]
-		if name == "" {
-			name = "_"
-		}
-		bind := c.AddBind(name, VarBind, trecv)
-		binds[0] = bind
-	}
+	ismethod := t.IsMethod()
 	for i := 0; i < nin; i++ {
 		// names[i] == "" means that argument is unnamed, and thus ignored inside the function.
 		// change to "_" so that AddBind will not allocate a bind for it - correct optimization...
 		// just remember to check for such case when creating the function
-		name := names[i+nrecv]
-		if name == "" {
-			name = "_"
-			unnamedparams = true
-		} else {
-			namedparams = true
+		name := names[i]
+		if !ismethod || i != 0 {
+			// method receiver can be named or unnamed, independently from other input parameters
+			if name == "" {
+				name = "_"
+				unnamedparams = true
+			} else {
+				namedparams = true
+			}
 		}
 		if namedparams && unnamedparams {
 			c.Errorf("cannot mix named and unnamed parameters in function declaration: %v", functype)
 		}
 		bind := c.AddBind(name, VarBind, t.In(i))
-		binds[i+nrecv] = bind
+		binds[i] = bind
 	}
 	return binds
 }

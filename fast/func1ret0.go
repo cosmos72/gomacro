@@ -44,11 +44,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	funcbody := m.funcbody
 	param0index := m.parambinds[0].Desc.Index()
 
-	targ0 := t.Recv()
-	if targ0 == nil {
-		targ0 = t.In(0)
-	}
-
+	targ0 := t.In(0)
 	karg0 := targ0.Kind()
 	switch karg0 {
 	case r.Bool:
@@ -399,8 +395,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env := NewEnv4Func(env, nbinds, nintbinds)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Binds[param0index] = place
 					}
 
@@ -427,8 +422,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Binds[param0index] = place
 					}
 					funcbody(env)
@@ -443,8 +437,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			rtype := t.ReflectType()
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.MakeFunc(rtype, func([]r.Value) []r.Value { return ZeroValues },
-					)
+					return r.MakeFunc(rtype, func([]r.Value) []r.Value { return ZeroValues })
 				}
 			} else {
 				return func(env *Env) r.Value {

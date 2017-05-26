@@ -214,18 +214,23 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		}
 		// this could be Package.Type, or other non-type expressions: Type.Method, Value.Method, Struct.Field...
 		// check for Package.Type
-		pkg := ident.Name
-		bind, ok := c.FileComp().Binds[pkg]
-		if !ok {
-			c.Errorf("undefined %q in %v <%v>", pkg, node, r.TypeOf(node))
+		name := ident.Name
+		var bind *Bind
+		for o := c; o != nil; o = o.Outer {
+			if bind = c.Binds[name]; bind != nil {
+				break
+			}
+		}
+		if bind == nil {
+			c.Errorf("undefined %q in %v <%v>", name, node, r.TypeOf(node))
 		} else if !bind.Const() || bind.Type.ReflectType() != rtypeOfImport {
-			c.Errorf("not a package: %q in %v <%v>", pkg, node, r.TypeOf(node))
+			c.Errorf("not a package: %q in %v <%v>", name, node, r.TypeOf(node))
 		}
 		imp, ok := bind.Value.(Import)
 		if !ok {
-			c.Errorf("not a package: %q in %v <%v>", pkg, node, r.TypeOf(node))
+			c.Errorf("not a package: %q in %v <%v>", name, node, r.TypeOf(node))
 		}
-		name := node.Sel.Name
+		name = node.Sel.Name
 		t, ok = imp.Types[name]
 		if !ok || t == nil {
 			c.Errorf("not a type: %v <%v>", node, r.TypeOf(node))

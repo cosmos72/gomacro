@@ -26,7 +26,6 @@ package fast
 
 import (
 	"go/ast"
-	"go/types"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -366,61 +365,21 @@ func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 	return exprFun(t, fun)
 }
 
-func (c *Comp) removeReceiver(t xr.Type) (trecv, tfunc xr.Type) {
-	trecv = c.validateMethodType(t)
-
+func (c *Comp) removeFirstParam(t xr.Type) xr.Type {
 	nin := t.NumIn()
-	params := make([]xr.Type, nin)
-	for i := 0; i < nin; i++ {
-		params[i] = t.In(i)
+	if nin == 0 {
+		c.Errorf("compileMethod: inconsistent method type: expecting at least the receiver, found zero input parameters: <%v>", t)
 	}
-	if trecv == nil {
-		trecv = params[0]
-		params = params[1:]
+	params := make([]xr.Type, nin-1)
+	for i := 1; i < nin; i++ {
+		params[i-1] = t.In(i)
 	}
-
 	nout := t.NumOut()
 	results := make([]xr.Type, nout)
 	for i := 0; i < nout; i++ {
 		results[i] = t.Out(i)
 	}
-	return trecv, c.Universe.FuncOf(params, results, t.IsVariadic())
-}
-
-func (c *Comp) validateMethodType(t xr.Type) (trecv xr.Type) {
-	gtype := t.GoType().Underlying().(*types.Signature)
-	rtype := t.ReflectType()
-
-	// c.Debugf("validateMethodType: gtype Recv %v, Params %v, Results %v", gtype.Recv(), gtype.Params(), gtype.Results())
-	// c.Debugf("validateMethodType: rtype <%v>", rtype)
-
-	rin, rout := rtype.NumIn(), rtype.NumOut()
-	var nin, nout int
-	if gtype.Params() != nil {
-		nin = gtype.Params().Len()
-	}
-	if gtype.Results() != nil {
-		nout = gtype.Results().Len()
-	}
-
-	if rout != nout {
-		c.Errorf("inconsistent type <%v>\n\tGoType has %d results: %v\n\twhile ReflectType has %d results: %v",
-			t, nout, gtype.Results(), rtype.NumOut(), rtype)
-	}
-
-	if gtype.Recv() == nil {
-		if rin != nin {
-			c.Errorf("inconsistent type <%v>\n\tGoType has no receiver and %d parameters: %v\n\twhile ReflectType has %d parameters: %v",
-				t, gtype.Recv(), nin, gtype.Params(), rtype.NumIn(), rtype)
-		}
-		return nil
-	} else {
-		if rin != nin+1 {
-			c.Errorf("inconsistent type <%v>\n\tGoType has receiver <%v> and %d parameters: %v\n\twhile ReflectType has %d parameters: %v",
-				t, gtype.Recv(), nin, gtype.Params(), rtype.NumIn(), rtype)
-		}
-		return t.Recv()
-	}
+	return c.Universe.FuncOf(params, results, t.IsVariadic())
 }
 
 // compileMethod compiles a method call.
@@ -443,11 +402,9 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 	index := mtd.Index
 	rtype := t.ReflectType()
 	tfunc := mtd.Type
-	trecv, tclosure := c.removeReceiver(tfunc)
-	if trecv == nil {
-		c.Errorf("method has no receiver: %v", tfunc)
-	}
+	tclosure := c.removeFirstParam(tfunc)
 	rtclosure := tclosure.ReflectType()
+	trecv := tfunc.In(0)
 
 	objPointer := t.Kind() == r.Ptr      // field is pointer?
 	recvPointer := trecv.Kind() == r.Ptr // method with pointer receiver?
@@ -537,7 +494,7 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 		// such variable would be allocated only once at compile-time,
 		// not once per goroutine!
 		funs := mtd.Funs
-		nin := tclosure.NumIn() + 1
+		nin := tfunc.NumIn()
 
 		tname := t.Name()
 		methodname := mtd.Name

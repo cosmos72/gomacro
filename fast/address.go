@@ -38,10 +38,7 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr {
-	return c.addressOf(node.X)
-}
-
+func (c *Comp) AddressOf(node *ast.UnaryExpr) *Expr { return c.addressOf(node.X) }
 func (c *Comp) addressOf(expr ast.Expr) *Expr {
 	for {
 		switch e := expr.(type) {
@@ -49,29 +46,29 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 			expr = e.X
 			continue
 		case *ast.StarExpr:
-			// optimize & * x -> x, but check that x is a pointer
+
 			ret := c.Expr1(e.X)
 			if ret.Type.Kind() != r.Ptr {
 				c.Errorf("unary operation * on non-pointer <%v>: %v", ret.Type, e)
 			}
+
 		}
 		break
 	}
 	place := c.placeOrAddress(expr, PlaceAddress)
-	// c.Debugf("AddressOf: place %v has type %v, taking its address", expr, place.Type)
+
 	if place.IsVar() {
-		va := place.Var // make a copy of place.Var, do not alter the original's type
+		va := place.Var
 		return va.Address(c.Depth)
 	} else if place.Addr == nil {
 		c.Errorf("cannot take the address of %v <%v>", expr, place.Type)
 		return nil
 	} else {
-		// placeOrAddress returns the dereferenced type... fix it
+
 		t := c.Universe.PtrTo(place.Type)
 		return exprX1(t, place.Addr)
 	}
 }
-
 func (c *Comp) AddressOfVar(name string) *Expr {
 	sym := c.Resolve(name)
 	va := sym.AsVar(PlaceAddress)

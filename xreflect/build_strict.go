@@ -206,6 +206,7 @@ func (t Type) FieldByName(name, pkgpath string) (field StructField, count int) {
 }
 
 // IsMethod reports whether a function type's contains a receiver, i.e. is a method.
+// If IsMethod returns true, the actual receiver type is available as the first parameter, i.e. Type.In(0)
 // It panics if the type's Kind is not Func.
 func (t Type) IsMethod() bool {
 	return t[0].IsMethod()
@@ -288,13 +289,6 @@ func (t Type) NumOut() int {
 // It panics if i is not in the range [0, NumOut()).
 func (t Type) Out(i int) Type {
 	return t[0].Out(i)
-}
-
-// Recv returns the type of a method type's receiver parameter.
-// It panics if the type's Kind is not Func.
-// It returns nil if t has no receiver.
-func (t Type) Recv() Type {
-	return t[0].Recv()
 }
 
 // SetUnderlying sets the underlying type of a named type and marks it as complete.

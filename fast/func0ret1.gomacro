@@ -97,7 +97,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	case r.Complex64: {mfunc0ret1; complex64}
 	case r.Complex128:{mfunc0ret1; complex128}
 	case r.String:    {mfunc0ret1; string}
-	default:          {mfunc0ret1; nil}
+	default:          return nil
 	}
 }
 

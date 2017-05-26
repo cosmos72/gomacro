@@ -31,7 +31,6 @@ package fast
 
 import (
 	r "reflect"
-
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -74,7 +73,8 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 int) { return })
+					return r.ValueOf(func() (ret0 int) { return },
+					)
 				}
 			}
 
@@ -485,6 +485,5 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		}
 	default:
 		return nil
-
 	}
 }

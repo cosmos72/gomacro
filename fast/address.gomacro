@@ -145,7 +145,7 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 		break
 	}
 	place := c.placeOrAddress(expr, PlaceAddress)
-	c.Debugf("AddressOf: place %v has type %v, taking its address", expr, place.Type)
+	// c.Debugf("AddressOf: place %v has type %v, taking its address", expr, place.Type)
 	if place.IsVar() {
 		va := place.Var // make a copy of place.Var, do not alter the original's type
 		return va.Address(c.Depth)

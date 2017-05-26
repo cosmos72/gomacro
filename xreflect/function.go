@@ -30,12 +30,13 @@ import (
 )
 
 // IsMethod reports whether a function type's contains a receiver, i.e. is a method.
+// If IsMethod returns true, the actual receiver type is available as the first parameter, i.e. Type.In(0)
 // It panics if the type's Kind is not Func.
 func (t *xtype) IsMethod() bool {
 	if t.Kind() != reflect.Func {
 		xerrorf(t, "IsMethod of non-func type %v", t)
 	}
-	gtype := t.gtype.(*types.Signature)
+	gtype := t.underlying().(*types.Signature)
 	return gtype.Recv() != nil
 }
 
@@ -57,9 +58,16 @@ func (t *xtype) In(i int) Type {
 		xerrorf(t, "In of non-func type %v", t)
 	}
 	gtype := t.underlying().(*types.Signature)
-	va := gtype.Params().At(i)
-	if gtype.Recv() != nil {
-		i++ // skip the receiver in reflect.Type
+	var va *types.Var
+	if recv := gtype.Recv(); recv != nil {
+		// include the receiver as first parameter
+		if i == 0 {
+			va = recv
+		} else {
+			va = gtype.Params().At(i - 1)
+		}
+	} else {
+		va = gtype.Params().At(i)
 	}
 	return t.universe.MakeType(va.Type(), t.rtype.In(i))
 }
@@ -70,8 +78,15 @@ func (t *xtype) NumIn() int {
 	if t.Kind() != reflect.Func {
 		xerrorf(t, "NumIn of non-func type %v", t)
 	}
+	var nparams, nrecv int
 	gtype := t.underlying().(*types.Signature)
-	return gtype.Params().Len()
+	if gtype.Recv() != nil {
+		nrecv = 1
+	}
+	if params := gtype.Params(); params != nil {
+		nparams = params.Len()
+	}
+	return nparams + nrecv
 }
 
 // NumOut returns a function type's output parameter count.
@@ -94,30 +109,6 @@ func (t *xtype) Out(i int) Type {
 	gtype := t.underlying().(*types.Signature)
 	va := gtype.Results().At(i)
 	return t.universe.MakeType(va.Type(), t.rtype.Out(i))
-}
-
-// Recv returns the type of a method type's receiver parameter.
-// It panics if the type's Kind is not Func.
-// It returns nil if t has no receiver.
-func (t *xtype) Recv() Type {
-	if t.Kind() != reflect.Func {
-		xerrorf(t, "Recv of non-func type %v", t)
-	}
-	gtype := t.underlying().(*types.Signature)
-	va := gtype.Recv()
-	if va == nil {
-		return nil
-	}
-	rtype := t.rtype
-	if rtype.NumIn() <= gtype.Params().Len() {
-		// gtype is probably an interface method...
-		// when loaded by Go importer it gets a receiver
-		// but the corresponding r.Type lacks it
-		return nil
-	} else {
-		rtype.In(0)
-	}
-	return t.universe.MakeType(va.Type(), rtype)
 }
 
 func FuncOf(in []Type, out []Type, variadic bool) Type {
