@@ -119,6 +119,11 @@ func init() {
 		"FileInfo":	TypeOf((*FileInfo_os)(nil)).Elem(),
 		"Signal":	TypeOf((*Signal_os)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+		"DevNull":	"string:/dev/null",
+		"PathListSeparator":	"rune:58",
+		"PathSeparator":	"rune:47",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

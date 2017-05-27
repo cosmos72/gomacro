@@ -29,6 +29,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Context":	TypeOf((*Context_context)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

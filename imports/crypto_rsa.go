@@ -40,6 +40,10 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"PSSSaltLengthAuto":	"int:0",
+		"PSSSaltLengthEqualsHash":	"int:-1",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

@@ -28,6 +28,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Generator":	TypeOf((*Generator_testing_quick)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

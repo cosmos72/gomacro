@@ -26,6 +26,9 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"Escape":	"rune:255",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

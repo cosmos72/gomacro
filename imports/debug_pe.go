@@ -54,6 +54,29 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"COFFSymbolSize":	"int:18",
+		"IMAGE_FILE_MACHINE_AM33":	"int:467",
+		"IMAGE_FILE_MACHINE_AMD64":	"int:34404",
+		"IMAGE_FILE_MACHINE_ARM":	"int:448",
+		"IMAGE_FILE_MACHINE_EBC":	"int:3772",
+		"IMAGE_FILE_MACHINE_I386":	"int:332",
+		"IMAGE_FILE_MACHINE_IA64":	"int:512",
+		"IMAGE_FILE_MACHINE_M32R":	"int:36929",
+		"IMAGE_FILE_MACHINE_MIPS16":	"int:614",
+		"IMAGE_FILE_MACHINE_MIPSFPU":	"int:870",
+		"IMAGE_FILE_MACHINE_MIPSFPU16":	"int:1126",
+		"IMAGE_FILE_MACHINE_POWERPC":	"int:496",
+		"IMAGE_FILE_MACHINE_POWERPCFP":	"int:497",
+		"IMAGE_FILE_MACHINE_R4000":	"int:358",
+		"IMAGE_FILE_MACHINE_SH3":	"int:418",
+		"IMAGE_FILE_MACHINE_SH3DSP":	"int:419",
+		"IMAGE_FILE_MACHINE_SH4":	"int:422",
+		"IMAGE_FILE_MACHINE_SH5":	"int:424",
+		"IMAGE_FILE_MACHINE_THUMB":	"int:450",
+		"IMAGE_FILE_MACHINE_UNKNOWN":	"int:0",
+		"IMAGE_FILE_MACHINE_WCEMIPSV2":	"int:361",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

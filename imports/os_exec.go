@@ -24,7 +24,9 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
-		"ExitError":	[]string{"SysUsage","UserTime","String","Sys","Pid","Success","SystemTime","Exited",},
+		"ExitError":	[]string{"Exited","Pid","String","Success","Sys","SysUsage","SystemTime","UserTime",},
 	} }
 }

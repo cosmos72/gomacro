@@ -41,6 +41,8 @@ func init() {
 		"Source":	TypeOf((*Source_math_rand)(nil)).Elem(),
 		"Source64":	TypeOf((*Source64_math_rand)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

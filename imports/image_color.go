@@ -53,6 +53,8 @@ func init() {
 		"Color":	TypeOf((*Color_image_color)(nil)).Elem(),
 		"Model":	TypeOf((*Model_image_color)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

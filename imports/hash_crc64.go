@@ -25,6 +25,11 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"ECMA":	"int:14514072000185962306",
+		"ISO":	"int:15564440312192434176",
+		"Size":	"int:8",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

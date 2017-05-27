@@ -23,6 +23,8 @@ func init() {
 		"Hash32":	TypeOf((*Hash32_hash)(nil)).Elem(),
 		"Hash64":	TypeOf((*Hash64_hash)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

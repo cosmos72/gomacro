@@ -28,6 +28,12 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"Magic386":	"int:491",
+		"Magic64":	"int:32768",
+		"MagicAMD64":	"int:35479",
+		"MagicARM":	"int:1607",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

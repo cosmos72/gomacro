@@ -120,6 +120,8 @@ func init() {
 		"Node":	TypeOf((*Node_go_ast)(nil)).Elem(),
 		"Visitor":	TypeOf((*Visitor_go_ast)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

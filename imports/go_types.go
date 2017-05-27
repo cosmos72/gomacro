@@ -153,16 +153,18 @@ func init() {
 		"Sizes":	TypeOf((*Sizes_go_types)(nil)).Elem(),
 		"Type":	TypeOf((*Type_go_types)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
-		"Builtin":	[]string{"Pos","Type","Exported","Id","Name","Parent","Pkg",},
+		"Builtin":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
 		"Checker":	[]string{"ObjectOf","TypeOf",},
-		"Const":	[]string{"Pkg","Exported","Name","Id","Parent","Pos","Type",},
-		"Func":	[]string{"Parent","Pkg","Pos","Exported","Id","Name","Type",},
-		"Label":	[]string{"Pkg","Pos","Type","Exported","Id","Name","Parent",},
-		"Nil":	[]string{"Type","Exported","Id","Name","Parent","Pkg","Pos",},
-		"PkgName":	[]string{"Name","Parent","Pkg","Exported","Id","Pos","Type",},
-		"TypeName":	[]string{"Pkg","Pos","Type","Exported","Id","Name","Parent",},
-		"Var":	[]string{"Parent","Exported","Id","Name","Pkg","Pos","Type",},
+		"Const":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
+		"Func":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
+		"Label":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
+		"Nil":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
+		"PkgName":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
+		"TypeName":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
+		"Var":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
 	} }
 }
 

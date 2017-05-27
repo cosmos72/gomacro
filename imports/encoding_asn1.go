@@ -47,6 +47,27 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"ClassApplication":	"int:1",
+		"ClassContextSpecific":	"int:2",
+		"ClassPrivate":	"int:3",
+		"ClassUniversal":	"int:0",
+		"TagBitString":	"int:3",
+		"TagBoolean":	"int:1",
+		"TagEnum":	"int:10",
+		"TagGeneralString":	"int:27",
+		"TagGeneralizedTime":	"int:24",
+		"TagIA5String":	"int:22",
+		"TagInteger":	"int:2",
+		"TagOID":	"int:6",
+		"TagOctetString":	"int:4",
+		"TagPrintableString":	"int:19",
+		"TagSequence":	"int:16",
+		"TagSet":	"int:17",
+		"TagT61String":	"int:20",
+		"TagUTCTime":	"int:23",
+		"TagUTF8String":	"int:12",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

@@ -25,6 +25,8 @@ func init() {
 		"TextMarshaler":	TypeOf((*TextMarshaler_encoding)(nil)).Elem(),
 		"TextUnmarshaler":	TypeOf((*TextUnmarshaler_encoding)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

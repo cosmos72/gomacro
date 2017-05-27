@@ -41,6 +41,22 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"TypeBlock":	"rune:52",
+		"TypeChar":	"rune:51",
+		"TypeCont":	"rune:55",
+		"TypeDir":	"rune:53",
+		"TypeFifo":	"rune:54",
+		"TypeGNULongLink":	"rune:75",
+		"TypeGNULongName":	"rune:76",
+		"TypeGNUSparse":	"rune:83",
+		"TypeLink":	"rune:49",
+		"TypeReg":	"rune:48",
+		"TypeRegA":	"rune:0",
+		"TypeSymlink":	"rune:50",
+		"TypeXGlobalHeader":	"rune:103",
+		"TypeXHeader":	"rune:120",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

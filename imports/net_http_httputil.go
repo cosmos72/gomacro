@@ -35,6 +35,8 @@ func init() {
 	Proxies: map[string]Type{
 		"BufferPool":	TypeOf((*BufferPool_net_http_httputil)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

@@ -197,7 +197,6 @@ func (o *Output) CollectPackageImports(pkg *types.Package, requireAllInterfaceMe
 		imports: map[string]bool{pkg.Path(): true},
 		o:       o,
 	}
-
 	ie.visitPackage(pkg, requireAllInterfaceMethodsExported)
 
 	strings := make([]string, len(ie.imports))

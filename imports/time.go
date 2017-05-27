@@ -83,6 +83,23 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"ANSIC":	"string:Mon Jan _2 15:04:05 2006",
+		"Kitchen":	"string:3:04PM",
+		"RFC1123":	"string:Mon, 02 Jan 2006 15:04:05 MST",
+		"RFC1123Z":	"string:Mon, 02 Jan 2006 15:04:05 -0700",
+		"RFC3339":	"string:2006-01-02T15:04:05Z07:00",
+		"RFC3339Nano":	"string:2006-01-02T15:04:05.999999999Z07:00",
+		"RFC822":	"string:02 Jan 06 15:04 MST",
+		"RFC822Z":	"string:02 Jan 06 15:04 -0700",
+		"RFC850":	"string:Monday, 02-Jan-06 15:04:05 MST",
+		"RubyDate":	"string:Mon Jan 02 15:04:05 -0700 2006",
+		"Stamp":	"string:Jan _2 15:04:05",
+		"StampMicro":	"string:Jan _2 15:04:05.000000",
+		"StampMilli":	"string:Jan _2 15:04:05.000",
+		"StampNano":	"string:Jan _2 15:04:05.000000000",
+		"UnixDate":	"string:Mon Jan _2 15:04:05 MST 2006",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

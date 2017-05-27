@@ -52,6 +52,9 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"IntSize":	"int:64",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

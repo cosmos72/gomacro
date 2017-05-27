@@ -35,6 +35,8 @@ func init() {
 		"BlockMode":	TypeOf((*BlockMode_crypto_cipher)(nil)).Elem(),
 		"Stream":	TypeOf((*Stream_crypto_cipher)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

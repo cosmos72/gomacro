@@ -89,6 +89,12 @@ func init() {
 	Proxies: map[string]Type{
 		"ClientSessionCache":	TypeOf((*ClientSessionCache_crypto_tls)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+		"VersionSSL30":	"int:768",
+		"VersionTLS10":	"int:769",
+		"VersionTLS11":	"int:770",
+		"VersionTLS12":	"int:771",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

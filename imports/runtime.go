@@ -64,6 +64,9 @@ func init() {
 	Proxies: map[string]Type{
 		"Error":	TypeOf((*Error_runtime)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+		"Compiler":	"string:gc",
+	},
 	Wrappers: map[string][]string{
 		"BlockProfileRecord":	[]string{"Stack",},
 	} }

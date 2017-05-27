@@ -70,6 +70,8 @@ func init() {
 		"Image":	TypeOf((*Image_image)(nil)).Elem(),
 		"PalettedImage":	TypeOf((*PalettedImage_image)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 		"NYCbCrA":	[]string{"Bounds","COffset","YCbCrAt","YOffset",},
 	} }

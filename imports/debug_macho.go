@@ -74,6 +74,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Load":	TypeOf((*Load_debug_macho)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 		"Dylib":	[]string{"Raw",},
 		"Dysymtab":	[]string{"Raw",},

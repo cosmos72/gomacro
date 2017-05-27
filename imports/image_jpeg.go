@@ -26,6 +26,9 @@ func init() {
 	Proxies: map[string]Type{
 		"Reader":	TypeOf((*Reader_image_jpeg)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+		"DefaultQuality":	"int:75",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

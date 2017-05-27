@@ -27,6 +27,11 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"DisposalBackground":	"int:2",
+		"DisposalNone":	"int:1",
+		"DisposalPrevious":	"int:3",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

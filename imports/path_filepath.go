@@ -40,6 +40,10 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"ListSeparator":	"rune:58",
+		"Separator":	"rune:47",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

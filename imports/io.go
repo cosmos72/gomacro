@@ -82,6 +82,11 @@ func init() {
 		"WriterAt":	TypeOf((*WriterAt_io)(nil)).Elem(),
 		"WriterTo":	TypeOf((*WriterTo_io)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+		"SeekCurrent":	"int:1",
+		"SeekEnd":	"int:2",
+		"SeekStart":	"int:0",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

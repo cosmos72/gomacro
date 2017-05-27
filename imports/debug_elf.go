@@ -881,6 +881,19 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"ARM_MAGIC_TRAMP_NUMBER":	"int:1543503875",
+		"EI_ABIVERSION":	"int:8",
+		"EI_CLASS":	"int:4",
+		"EI_DATA":	"int:5",
+		"EI_NIDENT":	"int:16",
+		"EI_OSABI":	"int:7",
+		"EI_PAD":	"int:9",
+		"EI_VERSION":	"int:6",
+		"ELFMAG":	"string:\u007fELF",
+		"Sym32Size":	"int:16",
+		"Sym64Size":	"int:24",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

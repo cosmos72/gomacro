@@ -38,6 +38,26 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"Char":	"int:-5",
+		"Comment":	"int:-8",
+		"EOF":	"int:-1",
+		"Float":	"int:-4",
+		"GoTokens":	"int:1012",
+		"GoWhitespace":	"int:4294977024",
+		"Ident":	"int:-2",
+		"Int":	"int:-3",
+		"RawString":	"int:-7",
+		"ScanChars":	"int:32",
+		"ScanComments":	"int:256",
+		"ScanFloats":	"int:16",
+		"ScanIdents":	"int:4",
+		"ScanInts":	"int:8",
+		"ScanRawStrings":	"int:128",
+		"ScanStrings":	"int:64",
+		"SkipComments":	"int:512",
+		"String":	"int:-6",
+	},
 	Wrappers: map[string][]string{
 		"Scanner":	[]string{"IsValid","String",},
 	} }

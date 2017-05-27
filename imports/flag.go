@@ -60,6 +60,8 @@ func init() {
 		"Getter":	TypeOf((*Getter_flag)(nil)).Elem(),
 		"Value":	TypeOf((*Value_flag)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

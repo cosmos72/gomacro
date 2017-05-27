@@ -26,6 +26,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Locker":	TypeOf((*Locker_sync)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

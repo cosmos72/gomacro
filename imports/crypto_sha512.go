@@ -30,6 +30,13 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"BlockSize":	"int:128",
+		"Size":	"int:64",
+		"Size224":	"int:28",
+		"Size256":	"int:32",
+		"Size384":	"int:48",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

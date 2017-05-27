@@ -44,6 +44,10 @@ func init() {
 		"ClientCodec":	TypeOf((*ClientCodec_net_rpc)(nil)).Elem(),
 		"ServerCodec":	TypeOf((*ServerCodec_net_rpc)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+		"DefaultDebugPath":	"string:/debug/rpc",
+		"DefaultRPCPath":	"string:/_goRPC_",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

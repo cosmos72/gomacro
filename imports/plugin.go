@@ -21,6 +21,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Symbol":	TypeOf((*Symbol_plugin)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

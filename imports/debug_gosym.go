@@ -27,6 +27,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 		"Func":	[]string{"BaseName","PackageName","ReceiverName","Static",},
 	} }

@@ -303,25 +303,22 @@ func unsafeRemoveMethods(gtype *types.Named, names []string, pkgpath string) {
 
 	n1 := len(gt.methods)
 	n2 := n1
-	for i := 0; i < n2; {
+	for i, j := 0, 0; i < n1; i++ {
 		m := gt.methods[i]
 		name := m.Name()
 		pos := sort.SearchStrings(names, name)
-		if pos >= len(names) || names[pos] != name {
+		if pos < len(names) && names[pos] == name && (m.Exported() || m.Pkg().Path() == pkgpath) {
+			// delete this method
+			n2--
 			continue
 		}
-		if m.Exported() || m.Pkg().Path() == pkgpath {
-			gt.methods[i] = gt.methods[n2-1]
-			n2--
-		} else {
-			i++
+		if i != j {
+			gt.methods[j] = gt.methods[i]
 		}
+		j++
 	}
 	if n1 != n2 {
 		gt.methods = gt.methods[:n2]
-		sort.Slice(gt.methods, func(i, j int) bool {
-			return gt.methods[i].Name() < gt.methods[j].Name()
-		})
 	}
 }
 

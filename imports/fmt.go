@@ -48,6 +48,8 @@ func init() {
 		"State":	TypeOf((*State_fmt)(nil)).Elem(),
 		"Stringer":	TypeOf((*Stringer_fmt)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

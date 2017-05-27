@@ -25,6 +25,9 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"DefaultRemoteAddr":	"string:1.2.3.4",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

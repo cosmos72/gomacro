@@ -109,6 +109,11 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"HighestPrec":	"int:7",
+		"LowestPrec":	"int:0",
+		"UnaryPrec":	"int:6",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

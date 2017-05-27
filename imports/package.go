@@ -32,6 +32,9 @@ type Package struct {
 	Binds   map[string]Value
 	Types   map[string]Type
 	Proxies map[string]Type
+	// Untypeds contains a string representation of untyped constants,
+	// stored without loss of precision
+	Untypeds map[string]string
 	// Wrappers is the list of wrapper methods for named types.
 	// Stored explicitly because reflect package cannot distinguish
 	// between explicit methods and wrapper methods for embedded fields
@@ -49,7 +52,9 @@ func init() {
 		Types: map[string]Type{
 			"Package": TypeOf((*Package)(nil)).Elem(),
 		},
-		Proxies: map[string]Type{},
+		Proxies:  map[string]Type{},
+		Untypeds: map[string]string{},
+		Wrappers: map[string][]string{},
 	}
 }
 
@@ -57,6 +62,7 @@ func (pkg *Package) Init() {
 	pkg.Binds = make(map[string]Value)
 	pkg.Types = make(map[string]Type)
 	pkg.Proxies = make(map[string]Type)
+	pkg.Untypeds = make(map[string]string)
 	pkg.Wrappers = make(map[string][]string)
 }
 
@@ -81,6 +87,9 @@ func (dst Package) Merge(src Package) {
 	}
 	for k, v := range src.Proxies {
 		dst.Proxies[k] = v
+	}
+	for k, v := range src.Untypeds {
+		dst.Untypeds[k] = v
 	}
 	for k, v := range src.Wrappers {
 		dst.Wrappers[k] = v

@@ -29,6 +29,12 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"Castagnoli":	"int:2197175160",
+		"IEEE":	"int:3988292384",
+		"Koopman":	"int:3945912366",
+		"Size":	"int:4",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

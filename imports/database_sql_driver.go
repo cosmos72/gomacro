@@ -84,6 +84,8 @@ func init() {
 		"ValueConverter":	TypeOf((*ValueConverter_database_sql_driver)(nil)).Elem(),
 		"Valuer":	TypeOf((*Valuer_database_sql_driver)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

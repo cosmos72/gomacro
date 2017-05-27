@@ -80,14 +80,12 @@ func (c *Comp) ImportPackage(name, path string) *Import {
 	if pkgref == nil {
 		return nil
 	}
-	pkg := c.Universe.LoadPackage(path) // FIXME store untyped constants in pkgref
-
-	binds, bindtypes := g.parseImportBinds(pkgref.Binds, (*types.Package)(pkg))
+	binds, bindtypes := g.parseImportBinds(pkgref.Binds, pkgref.Untypeds)
 
 	imp := Import{
 		Binds:     binds,
 		BindTypes: bindtypes,
-		Types:     g.rtypesToXTypes(pkgref.Types, pkgref.Wrappers),
+		Types:     g.parseImportTypes(pkgref.Types, pkgref.Wrappers),
 		Name:      name,
 		Path:      path,
 	}
@@ -109,58 +107,34 @@ func (c *Comp) declImport0(name string, imp Import) {
 	bind.Value = imp // cfile.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 }
 
-func (g *CompThreadGlobals) parseImportBinds(binds map[string]r.Value, pkg *types.Package) (map[string]r.Value, map[string]xr.Type) {
-	v := g.Universe
+func (g *CompThreadGlobals) parseImportBinds(binds map[string]r.Value, untypeds map[string]string) (map[string]r.Value, map[string]xr.Type) {
 	retbinds := make(map[string]r.Value)
 	rettypes := make(map[string]xr.Type)
-	var scope *types.Scope
-	if pkg != nil {
-		scope = pkg.Scope()
-	}
 	for name, bind := range binds {
-		if scope != nil {
-			value, typ, ok := g.parseImportConst(name, bind, scope)
+		if untyped, ok := untypeds[name]; ok {
+			value, typ, ok := g.parseImportUntyped(untyped)
 			if ok {
 				retbinds[name] = value
 				rettypes[name] = typ
 				continue
 			}
 		}
-		// Universe.FromReflectType uses cached *types.Package if possible
 		retbinds[name] = bind
-		rettypes[name] = v.FromReflectType(bind.Type())
+		rettypes[name] = g.Universe.FromReflectType(bind.Type())
 	}
 	return retbinds, rettypes
 }
 
-func (g *CompThreadGlobals) parseImportConst(name string, bind r.Value, scope *types.Scope) (r.Value, xr.Type, bool) {
-	if c, ok := scope.Lookup(name).(*types.Const); ok {
-		switch gtype := c.Type().(type) {
-		case *types.Basic:
-			gkind := gtype.Kind()
-			kind := xr.ToReflectKind(gkind)
-			if kind == r.Invalid {
-				// untyped nil
-				return Nil, nil, true
-			}
-			// use the arbitrary precision constant from *types.Const,
-			// not the approximation from imported reflect.Value
-			lit := UntypedLit{Kind: kind, Obj: c.Val(), Universe: g.Universe}
-			if xr.IsGoUntypedKind(gkind) {
-				// untyped constant
-				return r.ValueOf(lit), g.TypeOfUntypedLit(), true
-			}
-			t := g.Universe.BasicTypes[kind]
-			if t == nil {
-				t = lit.DefaultType()
-			}
-			return r.ValueOf(lit.ConstTo(t)), t, true
-		}
+func (g *CompThreadGlobals) parseImportUntyped(untyped string) (r.Value, xr.Type, bool) {
+	gkind, value := UnmarshalUntyped(untyped)
+	if gkind == types.Invalid {
+		return Nil, nil, false
 	}
-	return Nil, nil, false
+	lit := UntypedLit{Kind: xr.ToReflectKind(gkind), Obj: value, Universe: g.Universe}
+	return r.ValueOf(lit), g.TypeOfUntypedLit(), true
 }
 
-func (g *CompThreadGlobals) rtypesToXTypes(rtypes map[string]r.Type, wrappers map[string][]string) map[string]xr.Type {
+func (g *CompThreadGlobals) parseImportTypes(rtypes map[string]r.Type, wrappers map[string][]string) map[string]xr.Type {
 	v := g.Universe
 	xtypes := make(map[string]xr.Type)
 	for name, rtype := range rtypes {

@@ -281,6 +281,18 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"LowerCase":	"int:1",
+		"MaxASCII":	"rune:127",
+		"MaxCase":	"int:3",
+		"MaxLatin1":	"rune:255",
+		"MaxRune":	"rune:1114111",
+		"ReplacementChar":	"rune:65533",
+		"TitleCase":	"int:2",
+		"UpperCase":	"int:0",
+		"UpperLower":	"rune:1114112",
+		"Version":	"string:9.0.0",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

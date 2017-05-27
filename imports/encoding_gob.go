@@ -28,6 +28,8 @@ func init() {
 		"GobDecoder":	TypeOf((*GobDecoder_encoding_gob)(nil)).Elem(),
 		"GobEncoder":	TypeOf((*GobEncoder_encoding_gob)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

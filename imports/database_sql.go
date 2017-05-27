@@ -50,6 +50,8 @@ func init() {
 		"Result":	TypeOf((*Result_database_sql)(nil)).Elem(),
 		"Scanner":	TypeOf((*Scanner_database_sql)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

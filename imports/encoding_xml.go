@@ -52,6 +52,9 @@ func init() {
 		"Unmarshaler":	TypeOf((*Unmarshaler_encoding_xml)(nil)).Elem(),
 		"UnmarshalerAttr":	TypeOf((*UnmarshalerAttr_encoding_xml)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+		"Header":	"string:<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

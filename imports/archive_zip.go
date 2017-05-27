@@ -35,8 +35,10 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
-		"File":	[]string{"Mode","SetModTime","SetMode","FileInfo","ModTime",},
+		"File":	[]string{"FileInfo","ModTime","Mode","SetModTime","SetMode",},
 		"ReadCloser":	[]string{"RegisterDecompressor",},
 	} }
 }

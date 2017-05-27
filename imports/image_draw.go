@@ -31,6 +31,8 @@ func init() {
 		"Image":	TypeOf((*Image_image_draw)(nil)).Elem(),
 		"Quantizer":	TypeOf((*Quantizer_image_draw)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

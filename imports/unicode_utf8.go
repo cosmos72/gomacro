@@ -35,6 +35,12 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"MaxRune":	"rune:1114111",
+		"RuneError":	"rune:65533",
+		"RuneSelf":	"int:128",
+		"UTFMax":	"int:4",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

@@ -44,6 +44,8 @@ func init() {
 		"Token":	TypeOf((*Token_encoding_json)(nil)).Elem(),
 		"Unmarshaler":	TypeOf((*Unmarshaler_encoding_json)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

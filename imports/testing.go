@@ -40,8 +40,10 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
-		"B":	[]string{"FailNow","Failed","Skip","SkipNow","Skipf","Errorf","Fatal","Name","Skipped","Logf","Error","Fail","Log","Fatalf",},
-		"T":	[]string{"Skip","Fatalf","Skipped","Logf","Error","Fail","SkipNow","Errorf","FailNow","Failed","Fatal","Log","Name","Skipf",},
+		"B":	[]string{"Error","Errorf","Fail","FailNow","Failed","Fatal","Fatalf","Log","Logf","Name","Skip","SkipNow","Skipf","Skipped",},
+		"T":	[]string{"Error","Errorf","Fail","FailNow","Failed","Fatal","Fatalf","Log","Logf","Name","Skip","SkipNow","Skipf","Skipped",},
 	} }
 }

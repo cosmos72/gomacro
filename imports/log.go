@@ -41,6 +41,15 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"LUTC":	"int:32",
+		"Ldate":	"int:1",
+		"Llongfile":	"int:8",
+		"Lmicroseconds":	"int:4",
+		"Lshortfile":	"int:16",
+		"LstdFlags":	"int:3",
+		"Ltime":	"int:2",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

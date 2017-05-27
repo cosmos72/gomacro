@@ -20,6 +20,9 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"Size":	"int:4",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

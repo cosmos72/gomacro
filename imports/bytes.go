@@ -69,6 +69,9 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"MinRead":	"int:512",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

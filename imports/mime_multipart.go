@@ -26,6 +26,8 @@ func init() {
 	Proxies: map[string]Type{
 		"File":	TypeOf((*File_mime_multipart)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
 	} }
 }

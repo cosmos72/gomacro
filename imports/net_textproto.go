@@ -31,7 +31,9 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+	},
 	Wrappers: map[string][]string{
-		"Conn":	[]string{"ReadDotLines","ReadMIMEHeader","DotWriter","PrintfLine","EndResponse","ReadContinuedLine","StartRequest","ReadContinuedLineBytes","ReadDotBytes","ReadLine","EndRequest","DotReader","ReadCodeLine","ReadLineBytes","ReadResponse","Next","StartResponse",},
+		"Conn":	[]string{"DotReader","DotWriter","EndRequest","EndResponse","Next","PrintfLine","ReadCodeLine","ReadContinuedLine","ReadContinuedLineBytes","ReadDotBytes","ReadDotLines","ReadLine","ReadLineBytes","ReadMIMEHeader","ReadResponse","StartRequest","StartResponse",},
 	} }
 }

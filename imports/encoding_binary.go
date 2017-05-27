@@ -33,6 +33,11 @@ func init() {
 	Proxies: map[string]Type{
 		"ByteOrder":	TypeOf((*ByteOrder_encoding_binary)(nil)).Elem(),
 	},
+	Untypeds: map[string]string{
+		"MaxVarintLen16":	"int:3",
+		"MaxVarintLen32":	"int:5",
+		"MaxVarintLen64":	"int:10",
+	},
 	Wrappers: map[string][]string{
 	} }
 }

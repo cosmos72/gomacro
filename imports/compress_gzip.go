@@ -30,6 +30,13 @@ func init() {
 	},
 	Proxies: map[string]Type{
 	},
+	Untypeds: map[string]string{
+		"BestCompression":	"int:9",
+		"BestSpeed":	"int:1",
+		"DefaultCompression":	"int:-1",
+		"HuffmanOnly":	"int:-2",
+		"NoCompression":	"int:0",
+	},
 	Wrappers: map[string][]string{
 	} }
 }
