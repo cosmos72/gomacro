@@ -49,5 +49,7 @@ func init() {
 		"URL":	TypeOf((*template.URL)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

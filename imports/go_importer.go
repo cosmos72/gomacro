@@ -19,5 +19,7 @@ func init() {
 		"Lookup":	TypeOf((*importer.Lookup)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

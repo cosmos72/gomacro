@@ -40,5 +40,8 @@ func init() {
 		"Writer":	TypeOf((*bufio.Writer)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"ReadWriter":	[]string{"Discard","Read","ReadLine","UnreadByte","WriteByte","ReadBytes","ReadString","UnreadRune","ReadFrom","WriteRune","Buffered","Peek","ReadByte","Reset","WriteTo","Write","ReadRune","ReadSlice","Available","Flush","WriteString",},
 	} }
 }

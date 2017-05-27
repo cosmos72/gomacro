@@ -203,6 +203,27 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Type":	TypeOf((*Type_debug_dwarf)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
+		"AddrType":	[]string{"Basic","String","Common","Size",},
+		"ArrayType":	[]string{"Common",},
+		"BasicType":	[]string{"Common","Size",},
+		"BoolType":	[]string{"Basic","String","Common","Size",},
+		"CharType":	[]string{"Size","Basic","String","Common",},
+		"ComplexType":	[]string{"Common","Size","Basic","String",},
+		"DotDotDotType":	[]string{"Common","Size",},
+		"EnumType":	[]string{"Common","Size",},
+		"FloatType":	[]string{"String","Common","Size","Basic",},
+		"FuncType":	[]string{"Common","Size",},
+		"IntType":	[]string{"Basic","String","Common","Size",},
+		"PtrType":	[]string{"Size","Common",},
+		"QualType":	[]string{"Common",},
+		"StructType":	[]string{"Common","Size",},
+		"TypedefType":	[]string{"Common",},
+		"UcharType":	[]string{"Basic","String","Common","Size",},
+		"UintType":	[]string{"Size","Basic","String","Common",},
+		"UnspecifiedType":	[]string{"Basic","String","Common","Size",},
+		"VoidType":	[]string{"Common","Size",},
 	} }
 }
 

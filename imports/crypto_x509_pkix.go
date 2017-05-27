@@ -26,5 +26,7 @@ func init() {
 		"TBSCertificateList":	TypeOf((*pkix.TBSCertificateList)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

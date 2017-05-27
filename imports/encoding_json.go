@@ -43,6 +43,8 @@ func init() {
 		"Marshaler":	TypeOf((*Marshaler_encoding_json)(nil)).Elem(),
 		"Token":	TypeOf((*Token_encoding_json)(nil)).Elem(),
 		"Unmarshaler":	TypeOf((*Unmarshaler_encoding_json)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

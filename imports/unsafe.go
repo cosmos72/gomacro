@@ -17,5 +17,7 @@ func init() {
 		"Pointer":	TypeOf((*unsafe.Pointer)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

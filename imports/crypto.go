@@ -46,6 +46,8 @@ func init() {
 		"PublicKey":	TypeOf((*PublicKey_crypto)(nil)).Elem(),
 		"Signer":	TypeOf((*Signer_crypto)(nil)).Elem(),
 		"SignerOpts":	TypeOf((*SignerOpts_crypto)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

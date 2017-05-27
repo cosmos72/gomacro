@@ -43,6 +43,8 @@ func init() {
 	Proxies: map[string]Type{
 		"ClientCodec":	TypeOf((*ClientCodec_net_rpc)(nil)).Elem(),
 		"ServerCodec":	TypeOf((*ServerCodec_net_rpc)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

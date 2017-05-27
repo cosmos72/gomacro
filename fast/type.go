@@ -239,7 +239,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		// c.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
 		types, names := c.TypeFields(node.Fields)
 		// c.Debugf("evalType() struct names and types: %v %v", types, names)
-		pkg := universe.FindPackage(c.FileComp().Path)
+		pkg := universe.LoadPackage(c.FileComp().Path)
 		fields := c.makeStructFields(pkg, names, types)
 		// c.Debugf("compileType2() declaring struct type. fields=%#v", fields)
 		t = universe.StructOf(fields)

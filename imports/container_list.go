@@ -19,5 +19,7 @@ func init() {
 		"List":	TypeOf((*list.List)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

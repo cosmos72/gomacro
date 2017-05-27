@@ -29,7 +29,7 @@ import (
 	"strings"
 )
 
-func (v *Universe) findPackage(path string) *Package {
+func (v *Universe) loadPackage(path string) *Package {
 	if len(path) == 0 {
 		// do not create unnamed packages
 		return nil
@@ -51,7 +51,7 @@ func (v *Universe) findPackage(path string) *Package {
 	return pkg
 }
 
-func (v *Universe) FindPackage(path string) *Package {
+func (v *Universe) LoadPackage(path string) *Package {
 	if len(path) == 0 {
 		// do not create unnamed packages
 		return nil
@@ -59,7 +59,7 @@ func (v *Universe) FindPackage(path string) *Package {
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
-	return v.findPackage(path)
+	return v.loadPackage(path)
 }
 
 func (pkg *Package) GoPackage() *types.Package {

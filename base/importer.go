@@ -83,35 +83,22 @@ func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMod
 }
 
 // LookupPackage returns a package if already present in cache
-func (g *Globals) LookupPackage(name, path string) (ref *PackageRef, complete bool) {
+func (g *Globals) LookupPackage(name, path string) *PackageRef {
 	pkg, found := imports.Packages[path]
 	if !found {
-		return nil, false
+		return nil
 	}
-	_, complete = pkg.GoPkg.(*types.Package)
-	return &PackageRef{Package: pkg, Name: name, Path: path}, complete
+	return &PackageRef{Package: pkg, Name: name, Path: path}
 }
 
 func (g *Globals) ImportPackage(name, path string) *PackageRef {
-	ref, complete := g.LookupPackage(name, path)
-	if complete {
+	ref := g.LookupPackage(name, path)
+	if ref != nil {
 		return ref
 	}
 	gpkg, err := g.Importer.Import(path) // loads names and types, not the values!
 	if err != nil {
-		if ref != nil {
-			g.Warnf("error loading package %q metadata, continuing without (wrapper methods for embedded fields may be inaccurate): %v", path, err)
-			return ref
-		} else {
-			g.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
-			return nil
-		}
-	}
-	if ref != nil {
-		// we have all the information. cache gpkg for future use.
-		ref.Package.GoPkg = gpkg
-		imports.Packages[path] = ref.Package
-		return ref
+		g.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
 	}
 	var mode ImportMode
 	switch name {
@@ -124,26 +111,23 @@ func (g *Globals) ImportPackage(name, path string) *PackageRef {
 	if mode != ImSharedLib {
 		return nil
 	}
-
 	ref = &PackageRef{Name: name, Path: path}
-
 	if len(file) == 0 {
 		// empty package. still cache it for future use.
-		ref.Package.GoPkg = gpkg
 		imports.Packages[path] = ref.Package
 		return ref
 	}
 	soname := g.compilePlugin(file, g.Stdout, g.Stderr)
 	ifun := g.loadPlugin(soname, "Exports")
-	fun := ifun.(func() (map[string]r.Value, map[string]r.Type, map[string]r.Type))
-	binds, types, proxies := fun()
+	fun := ifun.(func() (map[string]r.Value, map[string]r.Type, map[string]r.Type, map[string][]string))
+	binds, types, proxies, wrappers := fun()
 
-	// done. cache pkg and gpkg for future use.
+	// done. cache package for future use.
 	ref.Package = imports.Package{
-		Binds:   binds,
-		Types:   types,
-		Proxies: proxies,
-		GoPkg:   gpkg,
+		Binds:    binds,
+		Types:    types,
+		Proxies:  proxies,
+		Wrappers: wrappers,
 	}
 	imports.Packages[path] = ref.Package
 	return ref
@@ -275,7 +259,7 @@ import (`, alias, path, filepkg)
 func main() {
 }
 
-func Exports() (map[string]Value, map[string]Type, map[string]Type) {
+func Exports() (map[string]Value, map[string]Type, map[string]Type, map[string][]string) {
 	return map[string]Value{`)
 	} else {
 		fmt.Fprintf(out, `
@@ -336,6 +320,34 @@ func init() {
 	}
 
 	if mode == ImSharedLib {
+		fmt.Fprint(out, "\n\t}, map[string][]string{")
+	} else {
+		fmt.Fprintf(out, "\n\t},\n\tWrappers: map[string][]string{")
+	}
+
+	for _, name := range names {
+		if obj := scope.Lookup(name); obj.Exported() {
+			switch obj.(type) {
+			case *types.TypeName:
+				if t, ok := obj.Type().(*types.Named); ok {
+					// only structs can have embedded fields
+					// and thus wrapper methods for embedded fields
+					if _, ok := t.Underlying().(*types.Struct); ok {
+						wrappers := new(analyzer).Analyze(t)
+						if len(wrappers) != 0 {
+							fmt.Fprintf(out, "\n\t\t%q:\t[]string{", obj.Name())
+							for _, wrapper := range wrappers {
+								fmt.Fprintf(out, "%q,", wrapper)
+							}
+							fmt.Fprint(out, "},")
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if mode == ImSharedLib {
 		fmt.Fprint(out, "\n\t}\n}\n")
 	} else {
 		fmt.Fprint(out, "\n\t} }\n}\n")
@@ -347,6 +359,7 @@ func init() {
 			writeInterfaceProxy(out, gpkg.Path(), pkgSuffix, name, t)
 		}
 	}
+
 	return isEmpty
 }
 

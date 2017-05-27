@@ -25,5 +25,7 @@ func init() {
 		"Message":	TypeOf((*mail.Message)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

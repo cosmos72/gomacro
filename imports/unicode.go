@@ -280,5 +280,7 @@ func init() {
 		"SpecialCase":	TypeOf((*unicode.SpecialCase)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

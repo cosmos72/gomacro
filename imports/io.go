@@ -81,6 +81,8 @@ func init() {
 		"Writer":	TypeOf((*Writer_io)(nil)).Elem(),
 		"WriterAt":	TypeOf((*WriterAt_io)(nil)).Elem(),
 		"WriterTo":	TypeOf((*WriterTo_io)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

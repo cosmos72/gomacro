@@ -196,6 +196,10 @@ type Type interface {
 	// It panics if i is not in the range [0, NumOut()).
 	Out(i int) Type
 
+	// RemoveMethods removes given methods from type.
+	// It panics if the type is unnamed, or if the signature is not a function type,
+	RemoveMethods(names []string, pkgpath string)
+
 	// SetUnderlying sets the underlying type of a named type and marks it as complete.
 	// It panics if the type is unnamed, or if the underlying type is named,
 	// or if SetUnderlying() was already invoked on the named type.

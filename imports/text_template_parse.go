@@ -61,5 +61,26 @@ func init() {
 		"WithNode":	TypeOf((*parse.WithNode)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"ActionNode":	[]string{"Type","Position",},
+		"BoolNode":	[]string{"Type","Position",},
+		"BranchNode":	[]string{"Type","Position",},
+		"ChainNode":	[]string{"Type","Position",},
+		"CommandNode":	[]string{"Type","Position",},
+		"DotNode":	[]string{"Position",},
+		"FieldNode":	[]string{"Type","Position",},
+		"IdentifierNode":	[]string{"Type","Position",},
+		"IfNode":	[]string{"Type","Position","String",},
+		"ListNode":	[]string{"Type","Position",},
+		"NilNode":	[]string{"Position",},
+		"NumberNode":	[]string{"Type","Position",},
+		"PipeNode":	[]string{"Type","Position",},
+		"RangeNode":	[]string{"Type","Position","String",},
+		"StringNode":	[]string{"Type","Position",},
+		"TemplateNode":	[]string{"Type","Position",},
+		"TextNode":	[]string{"Type","Position",},
+		"VariableNode":	[]string{"Type","Position",},
+		"WithNode":	[]string{"String","Type","Position",},
 	} }
 }

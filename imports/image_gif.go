@@ -26,5 +26,7 @@ func init() {
 		"Options":	TypeOf((*gif.Options)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

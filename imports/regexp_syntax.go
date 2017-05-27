@@ -92,5 +92,7 @@ func init() {
 		"Regexp":	TypeOf((*syntax.Regexp)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

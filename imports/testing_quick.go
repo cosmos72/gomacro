@@ -27,6 +27,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Generator":	TypeOf((*Generator_testing_quick)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

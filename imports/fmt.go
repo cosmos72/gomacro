@@ -47,6 +47,8 @@ func init() {
 		"Scanner":	TypeOf((*Scanner_fmt)(nil)).Elem(),
 		"State":	TypeOf((*State_fmt)(nil)).Elem(),
 		"Stringer":	TypeOf((*Stringer_fmt)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

@@ -88,6 +88,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"ClientSessionCache":	TypeOf((*ClientSessionCache_crypto_tls)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

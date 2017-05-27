@@ -27,6 +27,8 @@ func init() {
 	Proxies: map[string]Type{
 		"GobDecoder":	TypeOf((*GobDecoder_encoding_gob)(nil)).Elem(),
 		"GobEncoder":	TypeOf((*GobEncoder_encoding_gob)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

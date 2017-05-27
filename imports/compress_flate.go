@@ -35,6 +35,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Reader":	TypeOf((*Reader_compress_flate)(nil)).Elem(),
 		"Resetter":	TypeOf((*Resetter_compress_flate)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

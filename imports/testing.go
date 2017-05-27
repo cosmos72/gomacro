@@ -39,5 +39,9 @@ func init() {
 		"TB":	TypeOf((*testing.TB)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"B":	[]string{"FailNow","Failed","Skip","SkipNow","Skipf","Errorf","Fatal","Name","Skipped","Logf","Error","Fail","Log","Fatalf",},
+		"T":	[]string{"Skip","Fatalf","Skipped","Logf","Error","Fail","SkipNow","Errorf","FailNow","Failed","Fatal","Log","Name","Skipf",},
 	} }
 }

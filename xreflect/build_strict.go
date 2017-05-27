@@ -291,6 +291,12 @@ func (t Type) Out(i int) Type {
 	return t[0].Out(i)
 }
 
+// RemoveMethods removes given methods from type.
+// It panics if the type is unnamed.
+func (t Type) RemoveMethods(names []string, pkgpath string) {
+	t[0].RemoveMethods(names, pkgpath)
+}
+
 // SetUnderlying sets the underlying type of a named type and marks it as complete.
 // It panics if the type is unnamed, or if the underlying type is named,
 // or if SetUnderlying() was already invoked on the named type.

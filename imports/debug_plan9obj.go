@@ -27,5 +27,7 @@ func init() {
 		"Sym":	TypeOf((*plan9obj.Sym)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

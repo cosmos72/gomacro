@@ -52,6 +52,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Color":	TypeOf((*Color_image_color)(nil)).Elem(),
 		"Model":	TypeOf((*Model_image_color)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

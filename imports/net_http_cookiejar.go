@@ -21,6 +21,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"PublicSuffixList":	TypeOf((*PublicSuffixList_net_http_cookiejar)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

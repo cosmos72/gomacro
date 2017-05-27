@@ -33,6 +33,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Resetter":	TypeOf((*Resetter_compress_zlib)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

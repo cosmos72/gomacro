@@ -22,6 +22,8 @@ func init() {
 		"Hash":	TypeOf((*Hash_hash)(nil)).Elem(),
 		"Hash32":	TypeOf((*Hash32_hash)(nil)).Elem(),
 		"Hash64":	TypeOf((*Hash64_hash)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

@@ -28,6 +28,7 @@ import (
 	"go/token"
 	"go/types"
 	"reflect"
+	"sort"
 	"unsafe"
 )
 
@@ -162,7 +163,7 @@ func (v *Universe) NamedOf(name, pkgpath string) Type {
 
 func (v *Universe) namedOf(name, pkgpath string) Type {
 	underlying := v.TypeOfInterface
-	pkg := v.findPackage(pkgpath)
+	pkg := v.loadPackage(pkgpath)
 	// typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
 	return v.maketype3(
@@ -193,7 +194,7 @@ func (t *xtype) SetUnderlying(underlying Type) {
 	}
 }
 
-// AddMethod adds method 'name' to type, unless it is already in the method list.
+// AddMethod adds method 'name' to type.
 // It panics if the type is unnamed, or if the signature is not a function type,
 // Returns the method index, or < 0 in case of errors
 func (t *xtype) AddMethod(name string, signature Type) int {
@@ -242,9 +243,31 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 	}
 	t.methodvalues[index] = nilv
 	if n1 == n2 {
-		t.universe.InvalidateCache()
+		// an existing method was overwritten.
+		// it may be cached in some other type's method cache.
+		t.universe.InvalidateMethodCache()
 	}
 	return index
+}
+
+// RemoveMethods removes given methods from type.
+// It panics if the type is unnamed, or if the signature is not a function type,
+func (t *xtype) RemoveMethods(names []string, pkgpath string) {
+	gtype, ok := t.gtype.(*types.Named)
+	if !ok {
+		xerrorf(t, "RemoveMethods on unnamed type %v", t)
+	}
+	if len(names) == 0 {
+		return
+	}
+	n1 := gtype.NumMethods()
+	unsafeRemoveMethods(gtype, names, pkgpath)
+	n2 := gtype.NumMethods()
+	if n1 != n2 {
+		// some existing methods were removed.
+		// they may be cached in some other type's method cache.
+		t.universe.InvalidateMethodCache()
+	}
 }
 
 // internal representation of go/types.Named
@@ -270,6 +293,36 @@ func unsafeAddMethod(gtype *types.Named, gfun *types.Func) int {
 	}
 	gt.methods = append(gt.methods, gfun)
 	return len(gt.methods) - 1
+}
+
+func unsafeRemoveMethods(gtype *types.Named, names []string, pkgpath string) {
+	names = append([]string{}, names...) // make a copy
+	sort.Strings(names)                  // and sort it
+
+	gt := (*unsafeNamed)(unsafe.Pointer(gtype))
+
+	n1 := len(gt.methods)
+	n2 := n1
+	for i := 0; i < n2; {
+		m := gt.methods[i]
+		name := m.Name()
+		pos := sort.SearchStrings(names, name)
+		if pos >= len(names) || names[pos] != name {
+			continue
+		}
+		if m.Exported() || m.Pkg().Path() == pkgpath {
+			gt.methods[i] = gt.methods[n2-1]
+			n2--
+		} else {
+			i++
+		}
+	}
+	if n1 != n2 {
+		gt.methods = gt.methods[:n2]
+		sort.Slice(gt.methods, func(i, j int) bool {
+			return gt.methods[i].Name() < gt.methods[j].Name()
+		})
+	}
 }
 
 // GetMethods returns the pointer to the method values.

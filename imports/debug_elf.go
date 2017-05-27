@@ -880,5 +880,7 @@ func init() {
 		"Version":	TypeOf((*elf.Version)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

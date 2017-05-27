@@ -32,6 +32,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"ByteOrder":	TypeOf((*ByteOrder_encoding_binary)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

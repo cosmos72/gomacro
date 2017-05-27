@@ -34,6 +34,8 @@ func init() {
 		"Block":	TypeOf((*Block_crypto_cipher)(nil)).Elem(),
 		"BlockMode":	TypeOf((*BlockMode_crypto_cipher)(nil)).Elem(),
 		"Stream":	TypeOf((*Stream_crypto_cipher)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

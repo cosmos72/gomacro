@@ -51,6 +51,8 @@ func init() {
 		"Token":	TypeOf((*Token_encoding_xml)(nil)).Elem(),
 		"Unmarshaler":	TypeOf((*Unmarshaler_encoding_xml)(nil)).Elem(),
 		"UnmarshalerAttr":	TypeOf((*UnmarshalerAttr_encoding_xml)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

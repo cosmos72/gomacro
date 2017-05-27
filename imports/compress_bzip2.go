@@ -18,5 +18,7 @@ func init() {
 		"StructuralError":	TypeOf((*bzip2.StructuralError)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

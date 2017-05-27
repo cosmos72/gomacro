@@ -24,5 +24,7 @@ func init() {
 		"Server":	TypeOf((*httptest.Server)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

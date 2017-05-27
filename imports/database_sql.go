@@ -49,6 +49,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Result":	TypeOf((*Result_database_sql)(nil)).Elem(),
 		"Scanner":	TypeOf((*Scanner_database_sql)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

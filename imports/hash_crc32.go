@@ -28,5 +28,7 @@ func init() {
 		"Table":	TypeOf((*crc32.Table)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

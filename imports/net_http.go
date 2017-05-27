@@ -190,6 +190,8 @@ func init() {
 		"Pusher":	TypeOf((*Pusher_net_http)(nil)).Elem(),
 		"ResponseWriter":	TypeOf((*ResponseWriter_net_http)(nil)).Elem(),
 		"RoundTripper":	TypeOf((*RoundTripper_net_http)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

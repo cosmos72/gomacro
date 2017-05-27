@@ -30,5 +30,8 @@ func init() {
 		"Writer":	TypeOf((*textproto.Writer)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"Conn":	[]string{"ReadDotLines","ReadMIMEHeader","DotWriter","PrintfLine","EndResponse","ReadContinuedLine","StartRequest","ReadContinuedLineBytes","ReadDotBytes","ReadLine","EndRequest","DotReader","ReadCodeLine","ReadLineBytes","ReadResponse","Next","StartResponse",},
 	} }
 }

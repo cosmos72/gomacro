@@ -108,5 +108,7 @@ func init() {
 		"Token":	TypeOf((*token.Token)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

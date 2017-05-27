@@ -118,6 +118,8 @@ func init() {
 	Proxies: map[string]Type{
 		"FileInfo":	TypeOf((*FileInfo_os)(nil)).Elem(),
 		"Signal":	TypeOf((*Signal_os)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

@@ -34,5 +34,7 @@ func init() {
 	Types: map[string]Type{
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

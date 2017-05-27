@@ -69,6 +69,9 @@ func init() {
 	Proxies: map[string]Type{
 		"Image":	TypeOf((*Image_image)(nil)).Elem(),
 		"PalettedImage":	TypeOf((*PalettedImage_image)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
+		"NYCbCrA":	[]string{"Bounds","COffset","YCbCrAt","YOffset",},
 	} }
 }
 

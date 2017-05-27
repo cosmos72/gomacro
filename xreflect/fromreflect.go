@@ -208,7 +208,7 @@ func (v *Universe) fromReflectField(rfield *reflect.StructField) StructField {
 
 	return StructField{
 		Name:      name,
-		Pkg:       v.findPackage(rfield.PkgPath),
+		Pkg:       v.loadPackage(rfield.PkgPath),
 		Type:      t,
 		Tag:       rfield.Tag,
 		Offset:    rfield.Offset,
@@ -329,7 +329,7 @@ func (v *Universe) fromReflectInterface(rtype reflect.Type) Type {
 	for i := 0; i < n; i++ {
 		rmethod := rtype.Method(i)
 		method := v.fromReflectInterfaceMethod(rtype, rmethod.Type)
-		pkg := v.findPackage(rmethod.PkgPath)
+		pkg := v.loadPackage(rmethod.PkgPath)
 		gmethods[i] = types.NewFunc(token.NoPos, (*types.Package)(pkg), rmethod.Name, method.GoType().(*types.Signature))
 	}
 	// no way to extract embedded interfaces from reflect.Type
@@ -405,7 +405,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 				errorf(t, "FromReflectType: reflect.Type <%v> is an emulated interface containing the method <%v>.\n\tExtracting the latter returned a non-function: %v", t)
 			}
 			gtype := t.GoType().Underlying()
-			pkg := v.findPackage(rfield.PkgPath)
+			pkg := v.loadPackage(rfield.PkgPath)
 			gmethods = append(gmethods, types.NewFunc(token.NoPos, (*types.Package)(pkg), name, gtype.(*types.Signature)))
 			if rebuild {
 				rebuildfields[i] = approxInterfaceMethod(name, t.ReflectType())

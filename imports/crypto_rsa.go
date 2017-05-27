@@ -39,5 +39,7 @@ func init() {
 		"PublicKey":	TypeOf((*rsa.PublicKey)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

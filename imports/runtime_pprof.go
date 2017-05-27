@@ -23,5 +23,7 @@ func init() {
 		"Profile":	TypeOf((*pprof.Profile)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

@@ -73,6 +73,13 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Load":	TypeOf((*Load_debug_macho)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
+		"Dylib":	[]string{"Raw",},
+		"Dysymtab":	[]string{"Raw",},
+		"FatArch":	[]string{"Close","DWARF","ImportedLibraries","ImportedSymbols","Section","Segment",},
+		"Segment":	[]string{"Raw",},
+		"Symtab":	[]string{"Raw",},
 	} }
 }
 

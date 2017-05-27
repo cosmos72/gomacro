@@ -31,5 +31,7 @@ func init() {
 		"Package":	TypeOf((*build.Package)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

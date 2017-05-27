@@ -37,5 +37,8 @@ func init() {
 		"Scanner":	TypeOf((*scanner.Scanner)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"Scanner":	[]string{"IsValid","String",},
 	} }
 }

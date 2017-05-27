@@ -150,6 +150,7 @@ func cacheFieldByName(t *xtype, qname QName, field *StructField, count int) {
 		field.Offset = uintptr(count) // reuse Offset as "number of ambiguous fields"
 	}
 	t.fieldcache[qname] = *field
+	t.universe.fieldcache = true
 }
 
 // anonymousFields returns the anonymous fields of a (named or unnamed) struct type
@@ -264,6 +265,7 @@ func cacheMethodByName(t *xtype, qname QName, method *Method, count int) {
 		method.Index = -count // marker for ambiguous method names
 	}
 	t.methodcache[qname] = *method
+	t.universe.methodcache = true
 }
 
 func invalidateCache(gtype types.Type, t interface{}) {
@@ -284,11 +286,18 @@ func invalidateMethodCache(gtype types.Type, t interface{}) {
 // clears all xtype.fieldcache and xtype.methodcache.
 // invoked by NamedOf() when a type is redefined.
 func (v *Universe) InvalidateCache() {
-	v.gmap.Iterate(invalidateCache)
+	if v.fieldcache || v.methodcache {
+		v.gmap.Iterate(invalidateCache)
+		v.fieldcache = false
+		v.methodcache = false
+	}
 }
 
 // clears all xtype.methodcache.
 // invoked by AddMethod() when a method is redefined.
 func (v *Universe) InvalidateMethodCache() {
-	v.gmap.Iterate(invalidateMethodCache)
+	if v.methodcache {
+		v.gmap.Iterate(invalidateMethodCache)
+		v.methodcache = false
+	}
 }

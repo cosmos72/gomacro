@@ -68,5 +68,7 @@ func init() {
 		"Reader":	TypeOf((*bytes.Reader)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

@@ -24,6 +24,8 @@ func init() {
 		"BinaryUnmarshaler":	TypeOf((*BinaryUnmarshaler_encoding)(nil)).Elem(),
 		"TextMarshaler":	TypeOf((*TextMarshaler_encoding)(nil)).Elem(),
 		"TextUnmarshaler":	TypeOf((*TextUnmarshaler_encoding)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

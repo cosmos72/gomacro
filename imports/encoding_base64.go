@@ -27,5 +27,7 @@ func init() {
 		"Encoding":	TypeOf((*base64.Encoding)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

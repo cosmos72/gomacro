@@ -33,5 +33,7 @@ func init() {
 		"Value":	TypeOf((*doc.Value)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

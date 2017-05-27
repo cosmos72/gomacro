@@ -24,5 +24,7 @@ func init() {
 		"Mode":	TypeOf((*printer.Mode)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

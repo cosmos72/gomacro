@@ -32,6 +32,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Var":	TypeOf((*Var_expvar)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

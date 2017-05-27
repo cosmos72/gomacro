@@ -40,6 +40,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Source":	TypeOf((*Source_math_rand)(nil)).Elem(),
 		"Source64":	TypeOf((*Source64_math_rand)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

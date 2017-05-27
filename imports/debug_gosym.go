@@ -26,5 +26,8 @@ func init() {
 		"UnknownLineError":	TypeOf((*gosym.UnknownLineError)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"Func":	[]string{"BaseName","PackageName","ReceiverName","Static",},
 	} }
 }

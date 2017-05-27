@@ -38,6 +38,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Interface":	TypeOf((*Interface_sort)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

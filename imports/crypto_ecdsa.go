@@ -21,5 +21,7 @@ func init() {
 		"PublicKey":	TypeOf((*ecdsa.PublicKey)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

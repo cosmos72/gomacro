@@ -59,6 +59,8 @@ func init() {
 	Proxies: map[string]Type{
 		"Getter":	TypeOf((*Getter_flag)(nil)).Elem(),
 		"Value":	TypeOf((*Value_flag)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

@@ -53,5 +53,7 @@ func init() {
 		"Value":	TypeOf((*constant.Value)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

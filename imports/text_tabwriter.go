@@ -25,5 +25,7 @@ func init() {
 		"Writer":	TypeOf((*tabwriter.Writer)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

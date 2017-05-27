@@ -23,5 +23,7 @@ func init() {
 		"WroteRequestInfo":	TypeOf((*httptrace.WroteRequestInfo)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

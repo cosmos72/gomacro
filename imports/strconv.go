@@ -51,5 +51,7 @@ func init() {
 		"NumError":	TypeOf((*strconv.NumError)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

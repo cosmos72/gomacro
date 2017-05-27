@@ -39,5 +39,7 @@ func init() {
 		"WalkFunc":	TypeOf((*filepath.WalkFunc)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

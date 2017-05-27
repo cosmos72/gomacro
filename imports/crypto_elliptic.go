@@ -27,6 +27,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Curve":	TypeOf((*Curve_crypto_elliptic)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

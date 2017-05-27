@@ -32,7 +32,10 @@ type Package struct {
 	Binds   map[string]Value
 	Types   map[string]Type
 	Proxies map[string]Type
-	GoPkg   interface{} // contains correspoding *go/types.Package if available
+	// Wrappers is the list of wrapper methods for named types.
+	// Stored explicitly because reflect package cannot distinguish
+	// between explicit methods and wrapper methods for embedded fields
+	Wrappers map[string][]string
 }
 
 var Packages = make(map[string]Package)
@@ -54,6 +57,7 @@ func (pkg *Package) Init() {
 	pkg.Binds = make(map[string]Value)
 	pkg.Types = make(map[string]Type)
 	pkg.Proxies = make(map[string]Type)
+	pkg.Wrappers = make(map[string][]string)
 }
 
 func (pkg Package) SaveToPackages(path string) {
@@ -77,5 +81,8 @@ func (dst Package) Merge(src Package) {
 	}
 	for k, v := range src.Proxies {
 		dst.Proxies[k] = v
+	}
+	for k, v := range src.Wrappers {
+		dst.Wrappers[k] = v
 	}
 }

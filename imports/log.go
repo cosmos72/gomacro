@@ -40,5 +40,7 @@ func init() {
 		"Logger":	TypeOf((*log.Logger)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

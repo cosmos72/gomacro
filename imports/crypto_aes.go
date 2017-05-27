@@ -19,5 +19,7 @@ func init() {
 		"KeySizeError":	TypeOf((*aes.KeySizeError)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

@@ -20,5 +20,7 @@ func init() {
 		"Handler":	TypeOf((*cgi.Handler)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

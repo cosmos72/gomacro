@@ -25,6 +25,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Auth":	TypeOf((*Auth_net_smtp)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

@@ -46,5 +46,7 @@ func init() {
 		"Value":	TypeOf((*atomic.Value)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

@@ -20,6 +20,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Symbol":	TypeOf((*Symbol_plugin)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

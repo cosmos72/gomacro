@@ -20,5 +20,7 @@ func init() {
 		"Block":	TypeOf((*pem.Block)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

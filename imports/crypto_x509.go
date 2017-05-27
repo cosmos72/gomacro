@@ -106,5 +106,7 @@ func init() {
 		"VerifyOptions":	TypeOf((*x509.VerifyOptions)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

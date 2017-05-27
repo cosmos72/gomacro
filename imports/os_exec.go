@@ -23,5 +23,8 @@ func init() {
 		"ExitError":	TypeOf((*exec.ExitError)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"ExitError":	[]string{"SysUsage","UserTime","String","Sys","Pid","Success","SystemTime","Exited",},
 	} }
 }

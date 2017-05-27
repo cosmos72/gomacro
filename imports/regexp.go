@@ -25,5 +25,7 @@ func init() {
 		"Regexp":	TypeOf((*regexp.Regexp)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

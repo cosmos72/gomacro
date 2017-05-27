@@ -53,5 +53,7 @@ func init() {
 		"Symbol":	TypeOf((*pe.Symbol)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

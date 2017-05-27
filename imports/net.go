@@ -118,6 +118,12 @@ func init() {
 		"Error":	TypeOf((*Error_net)(nil)).Elem(),
 		"Listener":	TypeOf((*Listener_net)(nil)).Elem(),
 		"PacketConn":	TypeOf((*PacketConn_net)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
+		"IPConn":	[]string{"LocalAddr","SetDeadline","SetWriteDeadline","Write","Read","File","SetReadBuffer","SetReadDeadline","Close","RemoteAddr","SetWriteBuffer",},
+		"TCPConn":	[]string{"Write","Close","LocalAddr","SetDeadline","SetWriteBuffer","Read","SetReadBuffer","SetReadDeadline","RemoteAddr","SetWriteDeadline","File",},
+		"UDPConn":	[]string{"SetWriteDeadline","Write","RemoteAddr","SetReadBuffer","SetReadDeadline","LocalAddr","SetDeadline","SetWriteBuffer","Close","File","Read",},
+		"UnixConn":	[]string{"File","SetDeadline","SetWriteDeadline","Write","LocalAddr","Read","Close","RemoteAddr","SetReadBuffer","SetReadDeadline","SetWriteBuffer",},
 	} }
 }
 

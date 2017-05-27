@@ -25,6 +25,8 @@ func init() {
 	},
 	Proxies: map[string]Type{
 		"Reader":	TypeOf((*Reader_image_jpeg)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

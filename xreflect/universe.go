@@ -50,6 +50,8 @@ type Universe struct {
 	mutex           sync.Mutex
 	debugmutex      int
 	ThreadSafe      bool
+	methodcache     bool
+	fieldcache      bool
 }
 
 func lock(v *Universe) *Universe {

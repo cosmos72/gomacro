@@ -20,5 +20,7 @@ func init() {
 		"Writer":	TypeOf((*quotedprintable.Writer)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

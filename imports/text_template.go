@@ -31,5 +31,8 @@ func init() {
 		"Template":	TypeOf((*template.Template)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"Template":	[]string{"Copy","ErrorContext",},
 	} }
 }

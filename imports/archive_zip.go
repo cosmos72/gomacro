@@ -34,5 +34,9 @@ func init() {
 		"Writer":	TypeOf((*zip.Writer)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
+		"File":	[]string{"Mode","SetModTime","SetMode","FileInfo","ModTime",},
+		"ReadCloser":	[]string{"RegisterDecompressor",},
 	} }
 }

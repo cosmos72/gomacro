@@ -22,5 +22,7 @@ func init() {
 		"CorruptInputError":	TypeOf((*ascii85.CorruptInputError)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

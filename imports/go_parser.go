@@ -28,5 +28,7 @@ func init() {
 		"Mode":	TypeOf((*parser.Mode)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

@@ -80,15 +80,14 @@ func (c *Comp) ImportPackage(name, path string) *Import {
 	if pkgref == nil {
 		return nil
 	}
-	pkg, _ := pkgref.GoPkg.(*types.Package)
-	g.Universe.CachePackage(pkg)
+	pkg := c.Universe.LoadPackage(path) // FIXME store untyped constants in pkgref
 
-	binds, bindtypes := g.parseImportBinds(pkgref.Binds, pkg)
+	binds, bindtypes := g.parseImportBinds(pkgref.Binds, (*types.Package)(pkg))
 
 	imp := Import{
 		Binds:     binds,
 		BindTypes: bindtypes,
-		Types:     g.rtypesToXTypes(pkgref.Types),
+		Types:     g.rtypesToXTypes(pkgref.Types, pkgref.Wrappers),
 		Name:      name,
 		Path:      path,
 	}
@@ -161,12 +160,16 @@ func (g *CompThreadGlobals) parseImportConst(name string, bind r.Value, scope *t
 	return Nil, nil, false
 }
 
-func (g *CompThreadGlobals) rtypesToXTypes(rtypes map[string]r.Type) map[string]xr.Type {
+func (g *CompThreadGlobals) rtypesToXTypes(rtypes map[string]r.Type, wrappers map[string][]string) map[string]xr.Type {
 	v := g.Universe
 	xtypes := make(map[string]xr.Type)
 	for name, rtype := range rtypes {
 		// Universe.FromReflectType uses cached *types.Package if possible
-		xtypes[name] = v.FromReflectType(rtype)
+		t := v.FromReflectType(rtype)
+		if twrappers := wrappers[name]; len(twrappers) != 0 {
+			t.RemoveMethods(twrappers, "")
+		}
+		xtypes[name] = t
 	}
 	return xtypes
 }

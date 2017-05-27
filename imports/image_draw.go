@@ -30,6 +30,8 @@ func init() {
 		"Drawer":	TypeOf((*Drawer_image_draw)(nil)).Elem(),
 		"Image":	TypeOf((*Image_image_draw)(nil)).Elem(),
 		"Quantizer":	TypeOf((*Quantizer_image_draw)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

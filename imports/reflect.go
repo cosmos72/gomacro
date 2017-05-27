@@ -84,5 +84,7 @@ func init() {
 		"ValueError":	TypeOf((*reflect.ValueError)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }

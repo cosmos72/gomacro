@@ -83,6 +83,8 @@ func init() {
 		"Value":	TypeOf((*Value_database_sql_driver)(nil)).Elem(),
 		"ValueConverter":	TypeOf((*ValueConverter_database_sql_driver)(nil)).Elem(),
 		"Valuer":	TypeOf((*Valuer_database_sql_driver)(nil)).Elem(),
+	},
+	Wrappers: map[string][]string{
 	} }
 }
 

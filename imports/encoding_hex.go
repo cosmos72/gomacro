@@ -26,5 +26,7 @@ func init() {
 		"InvalidByteError":	TypeOf((*hex.InvalidByteError)(nil)).Elem(),
 	},
 	Proxies: map[string]Type{
+	},
+	Wrappers: map[string][]string{
 	} }
 }
