@@ -281,7 +281,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		if n == 0 {
 			c.Errorf("initializer returns no values, cannot declare variable: %v", name)
 		} else if n > 1 {
-			c.Errorf("initializer returns %d values, using only the first one to declare variable: %v", name)
+			c.Warnf("initializer returns %d values, using only the first one to declare variable: %v", n, name)
 		}
 	}
 	bind := c.AddBind(name, VarBind, t)

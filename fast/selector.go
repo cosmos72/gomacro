@@ -32,10 +32,13 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// SelectorExpr compiles foo.bar, i.e. read access to methods and struct fields
+// SelectorExpr compiles foo.bar, i.e. read access to methods, struct fields and imported packages
 func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
-	e := c.Expr1(node.X)
-	t := e.Type
+	e, t := c.Expr1OrType(node.X)
+	if t != nil {
+		return c.selectorType(node, t)
+	}
+	t = e.Type
 	eorig := e
 	if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
 		t = t.Elem()
@@ -75,6 +78,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	return nil
 }
 
+// selectorImport compiles foo.bar where 'foo' is an imported package
 func (c *Comp) selectorImport(imp *Import, name string) *Expr {
 	if bind, ok := imp.Binds[name]; ok {
 		t := imp.BindTypes[name]
@@ -94,6 +98,17 @@ func (c *Comp) selectorImport(imp *Import, name string) *Expr {
 	}
 	c.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
 	return nil
+}
+
+// selectorType compiles foo.bar where 'foo' is a type
+func (c *Comp) selectorType(node *ast.SelectorExpr, t xr.Type) *Expr {
+	mtd, count := c.LookupMethod(t, node.Sel.Name)
+	if count == 0 {
+		c.Errorf("type <%v> has no method %q: %v", t, node.Sel, node)
+	} else if count > 1 {
+		c.Errorf("type <%v> has %d wrapper methods %q all at the same depth - expression is ambiguous: %v", t, count, node.Sel, node)
+	}
+	return c.compileMethodAsFunc(t, mtd)
 }
 
 // lookup fields and methods at the same time... it's and error if both exist at the same depth
@@ -365,6 +380,24 @@ func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
 	return exprFun(t, fun)
 }
 
+func (c *Comp) changeFirstParam(tfirstparam, t xr.Type) xr.Type {
+	nin := t.NumIn()
+	if nin == 0 {
+		c.Errorf("compileMethod: inconsistent method type: expecting at least the receiver, found zero input parameters: <%v>", t)
+	}
+	params := make([]xr.Type, nin)
+	params[0] = tfirstparam
+	for i := 1; i < nin; i++ {
+		params[i] = t.In(i)
+	}
+	nout := t.NumOut()
+	results := make([]xr.Type, nout)
+	for i := 0; i < nout; i++ {
+		results[i] = t.Out(i)
+	}
+	return c.Universe.FuncOf(params, results, t.IsVariadic())
+}
+
 func (c *Comp) removeFirstParam(t xr.Type) xr.Type {
 	nin := t.NumIn()
 	if nin == 0 {
@@ -569,6 +602,181 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 		}
 	}
 	return exprX1(tclosure, ret)
+}
+
+// compileMethodAsFunc compiles a method as a function, for example time.Duration.String.
+// The method receiver will be the first argument of returned function.
+func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
+	tsave := t
+	fieldindex := mtd.FieldIndex
+
+	// descend embedded fields
+	for i, index := range fieldindex {
+		if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
+			// embedded field (or initial value) is a pointer, dereference it.
+			t = t.Elem()
+			fieldindex[i] = ^index // remember we neeed a pointer dereference at runtime
+		}
+		t = t.Field(index).Type
+	}
+
+	index := mtd.Index
+	tfunc := mtd.Type
+	trecv := tfunc.In(0)
+
+	objPointer := t.Kind() == r.Ptr      // field is pointer?
+	recvPointer := trecv.Kind() == r.Ptr // method with pointer receiver?
+	addressof := !objPointer && recvPointer
+	deref := objPointer && !recvPointer
+
+	// convert a method (i.e. with first param used as receiver) to regular function
+	// and, if needed, create wrapper method for embedded field
+	if recvPointer {
+		// receiver is pointer-to-tsave
+		if tsave.Kind() != r.Ptr {
+			tsave = xr.PtrTo(tsave)
+			if len(fieldindex) != 0 && fieldindex[0] >= 0 {
+				// remember we neeed a pointer dereference at runtime
+				fieldindex[0] = ^fieldindex[0]
+			}
+		}
+	} else {
+		// receiver is tsave
+		if tsave.Kind() == r.Ptr {
+			tsave = tsave.Elem()
+			if len(fieldindex) != 0 && fieldindex[0] < 0 {
+				// no pointer dereference at runtime
+				fieldindex[0] = ^fieldindex[0]
+			}
+		}
+	}
+	tfunc = c.changeFirstParam(tsave, tfunc)
+
+	if len(fieldindex) == 0 {
+		// tsave is a named type, while trecv may be an unnamed interface:
+		// use tsave for correctness
+		t = tsave
+	} else {
+		t = trecv
+	}
+	if t.Kind() == r.Ptr {
+		t = t.Elem()
+	}
+	rtype := t.ReflectType()
+
+	var ret r.Value
+
+	// c.Debugf("compileMethodAsFunc: t = <%v> has %d methods, rtype = <%v> has %d methods", t, t.NumMethod(), rtype, rtype.NumMethod())
+
+	if t.NumMethod() == rtype.NumMethod() && t.Named() && xr.QName1(t) == xr.QName1(rtype) {
+		// methods declared by compiled code are available
+		// simply with reflect.Type.Method(index). Easy.
+		rmethod, ok := rtype.MethodByName(mtd.Name)
+		if !ok {
+			c.Errorf("inconsistent type <%v>: reflect.Type <%v> has no method %q", t, rtype, mtd.Name)
+		}
+		rfunc := rmethod.Func
+
+		if rfunc.Kind() != r.Func {
+			if rtype.Kind() != r.Interface {
+				c.Errorf("inconsistent type <%v>: reflect.Type <%v> has method %q with callable function = nil", t, rtype, mtd.Name)
+			}
+			// invoking interface method... retrieve the function at runtime
+			rindex := rmethod.Index // usually == index. may differ if we removed wrapper methods from t
+			switch len(fieldindex) {
+			case 0:
+				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+					return args[0].Method(rindex).Call(args[1:])
+				})
+			case 1:
+				fieldindex := fieldindex[0]
+				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+					args[0] = field0(args[0], fieldindex)
+					return args[0].Method(rindex).Call(args[1:])
+				})
+			default:
+				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+					args[0] = fieldByIndex(args[0], fieldindex)
+					return args[0].Method(rindex).Call(args[1:])
+				})
+			}
+		} else {
+			// invoking method of named type
+			switch len(fieldindex) {
+			case 0:
+				ret = rfunc
+			case 1:
+				fieldindex := fieldindex[0]
+				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+					args[0] = field0(args[0], fieldindex)
+					return rfunc.Call(args)
+				})
+			default:
+				ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+					args[0] = fieldByIndex(args[0], fieldindex)
+					return rfunc.Call(args)
+				})
+			}
+		}
+	} else {
+		// method declared by interpreted code, manually retrieve it.
+		funs := mtd.Funs
+
+		tname := t.Name()
+		methodname := mtd.Name
+		if funs == nil {
+			c.Errorf("method declared but not yet implemented: %s.%s", tname, methodname)
+		} else if len(*funs) <= index || (*funs)[index].Kind() != r.Func {
+			// c.Warnf("method declared but not yet implemented: %s.%s", tname, methodname)
+		}
+
+		switch len(fieldindex) {
+		case 0:
+			ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+				if addressof {
+					args[0] = args[0].Addr()
+				} else if deref {
+					args[0] = args[0].Elem()
+				}
+				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
+				if fun == Nil {
+					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+				}
+				return fun.Call(args)
+			})
+		case 1:
+			fieldindex := fieldindex[0]
+			ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+				args[0] = field0(args[0], fieldindex)
+				// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
+				if addressof {
+					args[0] = args[0].Addr()
+				} else if deref {
+					args[0] = args[0].Elem()
+				}
+				fun := (*funs)[index]
+				if fun == Nil {
+					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+				}
+				return fun.Call(args)
+			})
+		default:
+			ret = r.MakeFunc(tfunc.ReflectType(), func(args []r.Value) []r.Value {
+				args[0] = fieldByIndex(args[0], fieldindex)
+				if addressof {
+					args[0] = args[0].Addr()
+				} else if deref {
+					args[0] = args[0].Elem()
+				}
+				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
+				if fun == Nil {
+					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+				}
+				return fun.Call(args)
+			})
+		}
+	}
+	return c.exprValue(tfunc, ret.Interface())
 }
 
 // SelectorPlace compiles a.b returning a settable and addressable Place

@@ -28,6 +28,7 @@ The fast interpreter supports:
 * function declarations and calls, including variadic functions
 * method declarations and calls, including wrapper methods for embedded fields
 * closures
+* Type.Method i.e. converting methods to functions (examples: time.Duration.Hours, fmt.Stringer.String)
 * seamless invocation of compiled functions from interpreter, and vice-versa
 * if, for, switch, break, continue, fallthrough, return (unimplemented: for-range, type switch, goto, return foo() where foo() returns multiple values)
 * all builtins except defer and recover
@@ -35,7 +36,6 @@ The fast interpreter supports:
 * imports
   * Go standard packages "just work"
   * importing other packages requires the "plugin" package (available only on Linux with Go 1.8+)
-  * cannot yet invoke methods of imported interfaces (methods on imported concrete types work fine)
 * ~quote
 
 Missing features - you are welcome to contribute:
@@ -43,11 +43,9 @@ Missing features - you are welcome to contribute:
 * return foo() where foo() returns multiple values
 * bar(foo()) where foo() returns multiple values
 * x,y = foo() where foo() returns multiple values
-* Type.Method i.e. converting methods to functions (example: time.Duration.Hours)
 * for-range (normal 'for' is implemented)
 * switch is not (yet) thread-safe
 * type switch
-* cannot yet invoke methods of imported interfaces
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
   (interfaces declared in compiled code can be used, but not yet implemented by interpreted code)
 * conversion from/to interpreted interfaces
