@@ -2118,8 +2118,7 @@ func init() {
 		"Wait4":	ValueOf(syscall.Wait4),
 		"Write":	ValueOf(syscall.Write),
 		"XCASE":	ValueOf(syscall.XCASE),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Cmsghdr":	TypeOf((*syscall.Cmsghdr)(nil)).Elem(),
 		"Credential":	TypeOf((*syscall.Credential)(nil)).Elem(),
 		"Dirent":	TypeOf((*syscall.Dirent)(nil)).Elem(),
@@ -2189,10 +2188,7 @@ func init() {
 		"Utimbuf":	TypeOf((*syscall.Utimbuf)(nil)).Elem(),
 		"Utsname":	TypeOf((*syscall.Utsname)(nil)).Elem(),
 		"WaitStatus":	TypeOf((*syscall.WaitStatus)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"AF_ALG":	"int:38",
 		"AF_APPLETALK":	"int:5",
 		"AF_ASH":	"int:18",
@@ -3900,6 +3896,5 @@ func init() {
 		"WUNTRACED":	"int:2",
 		"XCASE":	"int:4",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

@@ -20,18 +20,13 @@ func init() {
 		"DisposalPrevious":	ValueOf(gif.DisposalPrevious),
 		"Encode":	ValueOf(gif.Encode),
 		"EncodeAll":	ValueOf(gif.EncodeAll),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"GIF":	TypeOf((*gif.GIF)(nil)).Elem(),
 		"Options":	TypeOf((*gif.Options)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"DisposalBackground":	"int:2",
 		"DisposalNone":	"int:1",
 		"DisposalPrevious":	"int:3",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

@@ -103,8 +103,7 @@ func init() {
 		"WriteExpr":	ValueOf(types.WriteExpr),
 		"WriteSignature":	ValueOf(types.WriteSignature),
 		"WriteType":	ValueOf(types.WriteType),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Array":	TypeOf((*types.Array)(nil)).Elem(),
 		"Basic":	TypeOf((*types.Basic)(nil)).Elem(),
 		"BasicInfo":	TypeOf((*types.BasicInfo)(nil)).Elem(),
@@ -146,16 +145,12 @@ func init() {
 		"TypeAndValue":	TypeOf((*types.TypeAndValue)(nil)).Elem(),
 		"TypeName":	TypeOf((*types.TypeName)(nil)).Elem(),
 		"Var":	TypeOf((*types.Var)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Importer":	TypeOf((*Importer_go_types)(nil)).Elem(),
 		"ImporterFrom":	TypeOf((*ImporterFrom_go_types)(nil)).Elem(),
 		"Sizes":	TypeOf((*Sizes_go_types)(nil)).Elem(),
 		"Type":	TypeOf((*Type_go_types)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
+	},Wrappers: map[string][]string{
 		"Builtin":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
 		"Checker":	[]string{"ObjectOf","TypeOf",},
 		"Const":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
@@ -165,7 +160,8 @@ func init() {
 		"PkgName":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
 		"TypeName":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
 		"Var":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
-	} }
+	},
+	}
 }
 
 // --------------- proxy for go/types.Importer ---------------

@@ -18,14 +18,8 @@ func init() {
 		"StartCPUProfile":	ValueOf(pprof.StartCPUProfile),
 		"StopCPUProfile":	ValueOf(pprof.StopCPUProfile),
 		"WriteHeapProfile":	ValueOf(pprof.WriteHeapProfile),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Profile":	TypeOf((*pprof.Profile)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

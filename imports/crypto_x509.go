@@ -85,8 +85,7 @@ func init() {
 		"TooManyIntermediates":	ValueOf(x509.TooManyIntermediates),
 		"UnknownPublicKeyAlgorithm":	ValueOf(x509.UnknownPublicKeyAlgorithm),
 		"UnknownSignatureAlgorithm":	ValueOf(x509.UnknownSignatureAlgorithm),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"CertPool":	TypeOf((*x509.CertPool)(nil)).Elem(),
 		"Certificate":	TypeOf((*x509.Certificate)(nil)).Elem(),
 		"CertificateInvalidError":	TypeOf((*x509.CertificateInvalidError)(nil)).Elem(),
@@ -105,10 +104,5 @@ func init() {
 		"UnknownAuthorityError":	TypeOf((*x509.UnknownAuthorityError)(nil)).Elem(),
 		"VerifyOptions":	TypeOf((*x509.VerifyOptions)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

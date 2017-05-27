@@ -30,21 +30,16 @@ func init() {
 		"Seed":	ValueOf(rand.Seed),
 		"Uint32":	ValueOf(rand.Uint32),
 		"Uint64":	ValueOf(rand.Uint64),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Rand":	TypeOf((*rand.Rand)(nil)).Elem(),
 		"Source":	TypeOf((*rand.Source)(nil)).Elem(),
 		"Source64":	TypeOf((*rand.Source64)(nil)).Elem(),
 		"Zipf":	TypeOf((*rand.Zipf)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Source":	TypeOf((*Source_math_rand)(nil)).Elem(),
 		"Source64":	TypeOf((*Source64_math_rand)(nil)).Elem(),
 	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for math/rand.Source ---------------

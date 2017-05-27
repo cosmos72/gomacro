@@ -29,8 +29,7 @@ func init() {
 		"SHA512":	ValueOf(crypto.SHA512),
 		"SHA512_224":	ValueOf(crypto.SHA512_224),
 		"SHA512_256":	ValueOf(crypto.SHA512_256),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Decrypter":	TypeOf((*crypto.Decrypter)(nil)).Elem(),
 		"DecrypterOpts":	TypeOf((*crypto.DecrypterOpts)(nil)).Elem(),
 		"Hash":	TypeOf((*crypto.Hash)(nil)).Elem(),
@@ -38,8 +37,7 @@ func init() {
 		"PublicKey":	TypeOf((*crypto.PublicKey)(nil)).Elem(),
 		"Signer":	TypeOf((*crypto.Signer)(nil)).Elem(),
 		"SignerOpts":	TypeOf((*crypto.SignerOpts)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Decrypter":	TypeOf((*Decrypter_crypto)(nil)).Elem(),
 		"DecrypterOpts":	TypeOf((*DecrypterOpts_crypto)(nil)).Elem(),
 		"PrivateKey":	TypeOf((*PrivateKey_crypto)(nil)).Elem(),
@@ -47,10 +45,7 @@ func init() {
 		"Signer":	TypeOf((*Signer_crypto)(nil)).Elem(),
 		"SignerOpts":	TypeOf((*SignerOpts_crypto)(nil)).Elem(),
 	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for crypto.Decrypter ---------------

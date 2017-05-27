@@ -75,8 +75,7 @@ func init() {
 		"ResolveUDPAddr":	ValueOf(net.ResolveUDPAddr),
 		"ResolveUnixAddr":	ValueOf(net.ResolveUnixAddr),
 		"SplitHostPort":	ValueOf(net.SplitHostPort),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Addr":	TypeOf((*net.Addr)(nil)).Elem(),
 		"AddrError":	TypeOf((*net.AddrError)(nil)).Elem(),
 		"Buffers":	TypeOf((*net.Buffers)(nil)).Elem(),
@@ -111,24 +110,22 @@ func init() {
 		"UnixConn":	TypeOf((*net.UnixConn)(nil)).Elem(),
 		"UnixListener":	TypeOf((*net.UnixListener)(nil)).Elem(),
 		"UnknownNetworkError":	TypeOf((*net.UnknownNetworkError)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Addr":	TypeOf((*Addr_net)(nil)).Elem(),
 		"Conn":	TypeOf((*Conn_net)(nil)).Elem(),
 		"Error":	TypeOf((*Error_net)(nil)).Elem(),
 		"Listener":	TypeOf((*Listener_net)(nil)).Elem(),
 		"PacketConn":	TypeOf((*PacketConn_net)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"IPv4len":	"int:4",
 		"IPv6len":	"int:16",
-	},
-	Wrappers: map[string][]string{
+	},Wrappers: map[string][]string{
 		"IPConn":	[]string{"Close","File","LocalAddr","Read","RemoteAddr","SetDeadline","SetReadBuffer","SetReadDeadline","SetWriteBuffer","SetWriteDeadline","Write",},
 		"TCPConn":	[]string{"Close","File","LocalAddr","Read","RemoteAddr","SetDeadline","SetReadBuffer","SetReadDeadline","SetWriteBuffer","SetWriteDeadline","Write",},
 		"UDPConn":	[]string{"Close","File","LocalAddr","Read","RemoteAddr","SetDeadline","SetReadBuffer","SetReadDeadline","SetWriteBuffer","SetWriteDeadline","Write",},
 		"UnixConn":	[]string{"Close","File","LocalAddr","Read","RemoteAddr","SetDeadline","SetReadBuffer","SetReadDeadline","SetWriteBuffer","SetWriteDeadline","Write",},
-	} }
+	},
+	}
 }
 
 // --------------- proxy for net.Addr ---------------

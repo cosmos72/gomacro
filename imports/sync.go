@@ -13,8 +13,7 @@ func init() {
 	Packages["sync"] = Package{
 	Binds: map[string]Value{
 		"NewCond":	ValueOf(sync.NewCond),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Cond":	TypeOf((*sync.Cond)(nil)).Elem(),
 		"Locker":	TypeOf((*sync.Locker)(nil)).Elem(),
 		"Mutex":	TypeOf((*sync.Mutex)(nil)).Elem(),
@@ -22,14 +21,10 @@ func init() {
 		"Pool":	TypeOf((*sync.Pool)(nil)).Elem(),
 		"RWMutex":	TypeOf((*sync.RWMutex)(nil)).Elem(),
 		"WaitGroup":	TypeOf((*sync.WaitGroup)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Locker":	TypeOf((*Locker_sync)(nil)).Elem(),
 	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for sync.Locker ---------------

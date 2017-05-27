@@ -15,12 +15,5 @@ func init() {
 		"EscapeString":	ValueOf(html.EscapeString),
 		"UnescapeString":	ValueOf(html.UnescapeString),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

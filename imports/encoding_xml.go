@@ -23,8 +23,7 @@ func init() {
 		"NewDecoder":	ValueOf(xml.NewDecoder),
 		"NewEncoder":	ValueOf(xml.NewEncoder),
 		"Unmarshal":	ValueOf(xml.Unmarshal),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Attr":	TypeOf((*xml.Attr)(nil)).Elem(),
 		"CharData":	TypeOf((*xml.CharData)(nil)).Elem(),
 		"Comment":	TypeOf((*xml.Comment)(nil)).Elem(),
@@ -44,19 +43,16 @@ func init() {
 		"Unmarshaler":	TypeOf((*xml.Unmarshaler)(nil)).Elem(),
 		"UnmarshalerAttr":	TypeOf((*xml.UnmarshalerAttr)(nil)).Elem(),
 		"UnsupportedTypeError":	TypeOf((*xml.UnsupportedTypeError)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Marshaler":	TypeOf((*Marshaler_encoding_xml)(nil)).Elem(),
 		"MarshalerAttr":	TypeOf((*MarshalerAttr_encoding_xml)(nil)).Elem(),
 		"Token":	TypeOf((*Token_encoding_xml)(nil)).Elem(),
 		"Unmarshaler":	TypeOf((*Unmarshaler_encoding_xml)(nil)).Elem(),
 		"UnmarshalerAttr":	TypeOf((*UnmarshalerAttr_encoding_xml)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"Header":	"string:<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for encoding/xml.Marshaler ---------------

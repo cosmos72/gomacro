@@ -19,12 +19,5 @@ func init() {
 		"ConstantTimeLessOrEq":	ValueOf(subtle.ConstantTimeLessOrEq),
 		"ConstantTimeSelect":	ValueOf(subtle.ConstantTimeSelect),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

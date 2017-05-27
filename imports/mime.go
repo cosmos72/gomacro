@@ -19,15 +19,9 @@ func init() {
 		"ParseMediaType":	ValueOf(mime.ParseMediaType),
 		"QEncoding":	ValueOf(mime.QEncoding),
 		"TypeByExtension":	ValueOf(mime.TypeByExtension),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"WordDecoder":	TypeOf((*mime.WordDecoder)(nil)).Elem(),
 		"WordEncoder":	TypeOf((*mime.WordEncoder)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

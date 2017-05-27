@@ -18,12 +18,5 @@ func init() {
 		"EncodeRune":	ValueOf(utf16.EncodeRune),
 		"IsSurrogate":	ValueOf(utf16.IsSurrogate),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

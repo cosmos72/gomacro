@@ -14,12 +14,5 @@ func init() {
 	Binds: map[string]Value{
 		"New":	ValueOf(errors.New),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

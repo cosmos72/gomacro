@@ -17,12 +17,5 @@ func init() {
 		"New64":	ValueOf(fnv.New64),
 		"New64a":	ValueOf(fnv.New64a),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

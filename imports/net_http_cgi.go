@@ -15,14 +15,8 @@ func init() {
 		"Request":	ValueOf(cgi.Request),
 		"RequestFromMap":	ValueOf(cgi.RequestFromMap),
 		"Serve":	ValueOf(cgi.Serve),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Handler":	TypeOf((*cgi.Handler)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

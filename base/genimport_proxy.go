@@ -16,7 +16,7 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
  *
- * import_scanner.go
+ * genimport_proxy.go
  *
  *  Created on Mar 06, 2017
  *      Author Massimiliano Ghilardi

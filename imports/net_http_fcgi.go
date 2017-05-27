@@ -16,12 +16,5 @@ func init() {
 		"ErrRequestAborted":	ValueOf(&fcgi.ErrRequestAborted).Elem(),
 		"Serve":	ValueOf(fcgi.Serve),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

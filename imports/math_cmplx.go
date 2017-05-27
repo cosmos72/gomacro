@@ -40,12 +40,5 @@ func init() {
 		"Tan":	ValueOf(cmplx.Tan),
 		"Tanh":	ValueOf(cmplx.Tanh),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

@@ -37,8 +37,7 @@ func init() {
 		"TypeDylib":	ValueOf(macho.TypeDylib),
 		"TypeExec":	ValueOf(macho.TypeExec),
 		"TypeObj":	ValueOf(macho.TypeObj),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Cpu":	TypeOf((*macho.Cpu)(nil)).Elem(),
 		"Dylib":	TypeOf((*macho.Dylib)(nil)).Elem(),
 		"DylibCmd":	TypeOf((*macho.DylibCmd)(nil)).Elem(),
@@ -70,19 +69,16 @@ func init() {
 		"SymtabCmd":	TypeOf((*macho.SymtabCmd)(nil)).Elem(),
 		"Thread":	TypeOf((*macho.Thread)(nil)).Elem(),
 		"Type":	TypeOf((*macho.Type)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Load":	TypeOf((*Load_debug_macho)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
+	},Wrappers: map[string][]string{
 		"Dylib":	[]string{"Raw",},
 		"Dysymtab":	[]string{"Raw",},
 		"FatArch":	[]string{"Close","DWARF","ImportedLibraries","ImportedSymbols","Section","Segment",},
 		"Segment":	[]string{"Raw",},
 		"Symtab":	[]string{"Raw",},
-	} }
+	},
+	}
 }
 
 // --------------- proxy for debug/macho.Load ---------------

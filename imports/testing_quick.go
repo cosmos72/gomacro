@@ -17,21 +17,16 @@ func init() {
 		"Check":	ValueOf(quick.Check),
 		"CheckEqual":	ValueOf(quick.CheckEqual),
 		"Value":	ValueOf(quick.Value),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"CheckEqualError":	TypeOf((*quick.CheckEqualError)(nil)).Elem(),
 		"CheckError":	TypeOf((*quick.CheckError)(nil)).Elem(),
 		"Config":	TypeOf((*quick.Config)(nil)).Elem(),
 		"Generator":	TypeOf((*quick.Generator)(nil)).Elem(),
 		"SetupError":	TypeOf((*quick.SetupError)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Generator":	TypeOf((*Generator_testing_quick)(nil)).Elem(),
 	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for testing/quick.Generator ---------------

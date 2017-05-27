@@ -35,8 +35,7 @@ func init() {
 		"ParseFiles":	ValueOf(template.ParseFiles),
 		"ParseGlob":	ValueOf(template.ParseGlob),
 		"URLQueryEscaper":	ValueOf(template.URLQueryEscaper),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"CSS":	TypeOf((*template.CSS)(nil)).Elem(),
 		"Error":	TypeOf((*template.Error)(nil)).Elem(),
 		"ErrorCode":	TypeOf((*template.ErrorCode)(nil)).Elem(),
@@ -48,10 +47,5 @@ func init() {
 		"Template":	TypeOf((*template.Template)(nil)).Elem(),
 		"URL":	TypeOf((*template.URL)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

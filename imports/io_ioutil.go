@@ -21,12 +21,5 @@ func init() {
 		"TempFile":	ValueOf(ioutil.TempFile),
 		"WriteFile":	ValueOf(ioutil.WriteFile),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

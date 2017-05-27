@@ -17,12 +17,5 @@ func init() {
 		"Reset":	ValueOf(signal.Reset),
 		"Stop":	ValueOf(signal.Stop),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

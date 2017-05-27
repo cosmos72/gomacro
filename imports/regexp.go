@@ -20,14 +20,8 @@ func init() {
 		"MustCompile":	ValueOf(regexp.MustCompile),
 		"MustCompilePOSIX":	ValueOf(regexp.MustCompilePOSIX),
 		"QuoteMeta":	ValueOf(regexp.QuoteMeta),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Regexp":	TypeOf((*regexp.Regexp)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

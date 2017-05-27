@@ -62,16 +62,11 @@ func init() {
 		"TrimRightFunc":	ValueOf(bytes.TrimRightFunc),
 		"TrimSpace":	ValueOf(bytes.TrimSpace),
 		"TrimSuffix":	ValueOf(bytes.TrimSuffix),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Buffer":	TypeOf((*bytes.Buffer)(nil)).Elem(),
 		"Reader":	TypeOf((*bytes.Reader)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"MinRead":	"int:512",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

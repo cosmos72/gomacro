@@ -19,16 +19,10 @@ func init() {
 		"Size224":	ValueOf(sha256.Size224),
 		"Sum224":	ValueOf(sha256.Sum224),
 		"Sum256":	ValueOf(sha256.Sum256),
-	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"BlockSize":	"int:64",
 		"Size":	"int:32",
 		"Size224":	"int:28",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

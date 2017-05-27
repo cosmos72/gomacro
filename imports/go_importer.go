@@ -14,14 +14,8 @@ func init() {
 	Binds: map[string]Value{
 		"Default":	ValueOf(importer.Default),
 		"For":	ValueOf(importer.For),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Lookup":	TypeOf((*importer.Lookup)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

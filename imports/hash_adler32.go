@@ -15,14 +15,8 @@ func init() {
 		"Checksum":	ValueOf(adler32.Checksum),
 		"New":	ValueOf(adler32.New),
 		"Size":	ValueOf(adler32.Size),
-	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"Size":	"int:4",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

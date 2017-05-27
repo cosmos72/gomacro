@@ -16,15 +16,9 @@ func init() {
 		"New":	ValueOf(md5.New),
 		"Size":	ValueOf(md5.Size),
 		"Sum":	ValueOf(md5.Sum),
-	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"BlockSize":	"int:64",
 		"Size":	"int:16",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

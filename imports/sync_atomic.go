@@ -41,14 +41,8 @@ func init() {
 		"SwapUint32":	ValueOf(atomic.SwapUint32),
 		"SwapUint64":	ValueOf(atomic.SwapUint64),
 		"SwapUintptr":	ValueOf(atomic.SwapUintptr),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Value":	TypeOf((*atomic.Value)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

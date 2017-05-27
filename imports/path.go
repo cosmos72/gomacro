@@ -22,12 +22,5 @@ func init() {
 		"Match":	ValueOf(path.Match),
 		"Split":	ValueOf(path.Split),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

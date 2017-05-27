@@ -13,18 +13,13 @@ func init() {
 	Packages["plugin"] = Package{
 	Binds: map[string]Value{
 		"Open":	ValueOf(plugin.Open),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Plugin":	TypeOf((*plugin.Plugin)(nil)).Elem(),
 		"Symbol":	TypeOf((*plugin.Symbol)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Symbol":	TypeOf((*Symbol_plugin)(nil)).Elem(),
 	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for plugin.Symbol ---------------

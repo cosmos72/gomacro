@@ -26,8 +26,7 @@ func init() {
 		"Named":	ValueOf(sql.Named),
 		"Open":	ValueOf(sql.Open),
 		"Register":	ValueOf(sql.Register),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"ColumnType":	TypeOf((*sql.ColumnType)(nil)).Elem(),
 		"DB":	TypeOf((*sql.DB)(nil)).Elem(),
 		"DBStats":	TypeOf((*sql.DBStats)(nil)).Elem(),
@@ -45,15 +44,11 @@ func init() {
 		"Stmt":	TypeOf((*sql.Stmt)(nil)).Elem(),
 		"Tx":	TypeOf((*sql.Tx)(nil)).Elem(),
 		"TxOptions":	TypeOf((*sql.TxOptions)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Result":	TypeOf((*Result_database_sql)(nil)).Elem(),
 		"Scanner":	TypeOf((*Scanner_database_sql)(nil)).Elem(),
 	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for database/sql.Result ---------------

@@ -68,8 +68,7 @@ func init() {
 		"UnsafePointer":	ValueOf(reflect.UnsafePointer),
 		"ValueOf":	ValueOf(reflect.ValueOf),
 		"Zero":	ValueOf(reflect.Zero),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"ChanDir":	TypeOf((*reflect.ChanDir)(nil)).Elem(),
 		"Kind":	TypeOf((*reflect.Kind)(nil)).Elem(),
 		"Method":	TypeOf((*reflect.Method)(nil)).Elem(),
@@ -83,10 +82,5 @@ func init() {
 		"Value":	TypeOf((*reflect.Value)(nil)).Elem(),
 		"ValueError":	TypeOf((*reflect.ValueError)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

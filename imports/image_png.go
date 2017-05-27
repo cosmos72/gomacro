@@ -19,17 +19,11 @@ func init() {
 		"DefaultCompression":	ValueOf(png.DefaultCompression),
 		"Encode":	ValueOf(png.Encode),
 		"NoCompression":	ValueOf(png.NoCompression),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"CompressionLevel":	TypeOf((*png.CompressionLevel)(nil)).Elem(),
 		"Encoder":	TypeOf((*png.Encoder)(nil)).Elem(),
 		"FormatError":	TypeOf((*png.FormatError)(nil)).Elem(),
 		"UnsupportedError":	TypeOf((*png.UnsupportedError)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

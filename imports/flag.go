@@ -48,22 +48,17 @@ func init() {
 		"Var":	ValueOf(flag.Var),
 		"Visit":	ValueOf(flag.Visit),
 		"VisitAll":	ValueOf(flag.VisitAll),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"ErrorHandling":	TypeOf((*flag.ErrorHandling)(nil)).Elem(),
 		"Flag":	TypeOf((*flag.Flag)(nil)).Elem(),
 		"FlagSet":	TypeOf((*flag.FlagSet)(nil)).Elem(),
 		"Getter":	TypeOf((*flag.Getter)(nil)).Elem(),
 		"Value":	TypeOf((*flag.Value)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Getter":	TypeOf((*Getter_flag)(nil)).Elem(),
 		"Value":	TypeOf((*Value_flag)(nil)).Elem(),
 	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for flag.Getter ---------------

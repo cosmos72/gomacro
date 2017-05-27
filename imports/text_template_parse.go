@@ -34,8 +34,7 @@ func init() {
 		"NodeVariable":	ValueOf(parse.NodeVariable),
 		"NodeWith":	ValueOf(parse.NodeWith),
 		"Parse":	ValueOf(parse.Parse),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"ActionNode":	TypeOf((*parse.ActionNode)(nil)).Elem(),
 		"BoolNode":	TypeOf((*parse.BoolNode)(nil)).Elem(),
 		"BranchNode":	TypeOf((*parse.BranchNode)(nil)).Elem(),
@@ -59,12 +58,7 @@ func init() {
 		"Tree":	TypeOf((*parse.Tree)(nil)).Elem(),
 		"VariableNode":	TypeOf((*parse.VariableNode)(nil)).Elem(),
 		"WithNode":	TypeOf((*parse.WithNode)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
+	},Wrappers: map[string][]string{
 		"ActionNode":	[]string{"Position","Type",},
 		"BoolNode":	[]string{"Position","Type",},
 		"BranchNode":	[]string{"Position","Type",},
@@ -84,5 +78,6 @@ func init() {
 		"TextNode":	[]string{"Position","Type",},
 		"VariableNode":	[]string{"Position","Type",},
 		"WithNode":	[]string{"Position","String","Type",},
-	} }
+	},
+	}
 }

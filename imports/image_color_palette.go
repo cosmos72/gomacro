@@ -15,12 +15,5 @@ func init() {
 		"Plan9":	ValueOf(&palette.Plan9).Elem(),
 		"WebSafe":	ValueOf(&palette.WebSafe).Elem(),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

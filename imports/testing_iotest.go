@@ -21,12 +21,5 @@ func init() {
 		"TimeoutReader":	ValueOf(iotest.TimeoutReader),
 		"TruncateWriter":	ValueOf(iotest.TruncateWriter),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

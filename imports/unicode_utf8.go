@@ -30,17 +30,11 @@ func init() {
 		"Valid":	ValueOf(utf8.Valid),
 		"ValidRune":	ValueOf(utf8.ValidRune),
 		"ValidString":	ValueOf(utf8.ValidString),
-	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"MaxRune":	"rune:1114111",
 		"RuneError":	"rune:65533",
 		"RuneSelf":	"int:128",
 		"UTFMax":	"int:4",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

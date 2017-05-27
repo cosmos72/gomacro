@@ -29,20 +29,15 @@ func init() {
 		"Stable":	ValueOf(sort.Stable),
 		"Strings":	ValueOf(sort.Strings),
 		"StringsAreSorted":	ValueOf(sort.StringsAreSorted),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Float64Slice":	TypeOf((*sort.Float64Slice)(nil)).Elem(),
 		"IntSlice":	TypeOf((*sort.IntSlice)(nil)).Elem(),
 		"Interface":	TypeOf((*sort.Interface)(nil)).Elem(),
 		"StringSlice":	TypeOf((*sort.StringSlice)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Interface":	TypeOf((*Interface_sort)(nil)).Elem(),
 	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for sort.Interface ---------------

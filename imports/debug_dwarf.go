@@ -162,8 +162,7 @@ func init() {
 		"TagVariantPart":	ValueOf(dwarf.TagVariantPart),
 		"TagVolatileType":	ValueOf(dwarf.TagVolatileType),
 		"TagWithStmt":	ValueOf(dwarf.TagWithStmt),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"AddrType":	TypeOf((*dwarf.AddrType)(nil)).Elem(),
 		"ArrayType":	TypeOf((*dwarf.ArrayType)(nil)).Elem(),
 		"Attr":	TypeOf((*dwarf.Attr)(nil)).Elem(),
@@ -200,13 +199,9 @@ func init() {
 		"UintType":	TypeOf((*dwarf.UintType)(nil)).Elem(),
 		"UnspecifiedType":	TypeOf((*dwarf.UnspecifiedType)(nil)).Elem(),
 		"VoidType":	TypeOf((*dwarf.VoidType)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Type":	TypeOf((*Type_debug_dwarf)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
+	},Wrappers: map[string][]string{
 		"AddrType":	[]string{"Basic","Common","Size","String",},
 		"ArrayType":	[]string{"Common",},
 		"BasicType":	[]string{"Common","Size",},
@@ -226,7 +221,8 @@ func init() {
 		"UintType":	[]string{"Basic","Common","Size","String",},
 		"UnspecifiedType":	[]string{"Basic","Common","Size","String",},
 		"VoidType":	[]string{"Common","Size",},
-	} }
+	},
+	}
 }
 
 // --------------- proxy for debug/dwarf.Type ---------------

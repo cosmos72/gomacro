@@ -11,15 +11,8 @@ import (
 // reflection: allow interpreted code to import "unsafe"
 func init() {
 	Packages["unsafe"] = Package{
-	Binds: map[string]Value{
-	},
 	Types: map[string]Type{
 		"Pointer":	TypeOf((*unsafe.Pointer)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

@@ -15,12 +15,5 @@ func init() {
 		"Start":	ValueOf(trace.Start),
 		"Stop":	ValueOf(trace.Stop),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

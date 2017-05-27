@@ -11,8 +11,6 @@ import (
 // reflection: allow interpreted code to import "crypto/x509/pkix"
 func init() {
 	Packages["crypto/x509/pkix"] = Package{
-	Binds: map[string]Value{
-	},
 	Types: map[string]Type{
 		"AlgorithmIdentifier":	TypeOf((*pkix.AlgorithmIdentifier)(nil)).Elem(),
 		"AttributeTypeAndValue":	TypeOf((*pkix.AttributeTypeAndValue)(nil)).Elem(),
@@ -25,10 +23,5 @@ func init() {
 		"RevokedCertificate":	TypeOf((*pkix.RevokedCertificate)(nil)).Elem(),
 		"TBSCertificateList":	TypeOf((*pkix.TBSCertificateList)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

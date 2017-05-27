@@ -17,17 +17,11 @@ func init() {
 		"ParseAddressList":	ValueOf(mail.ParseAddressList),
 		"ParseDate":	ValueOf(mail.ParseDate),
 		"ReadMessage":	ValueOf(mail.ReadMessage),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Address":	TypeOf((*mail.Address)(nil)).Elem(),
 		"AddressParser":	TypeOf((*mail.AddressParser)(nil)).Elem(),
 		"Header":	TypeOf((*mail.Header)(nil)).Elem(),
 		"Message":	TypeOf((*mail.Message)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

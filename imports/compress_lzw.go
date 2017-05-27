@@ -16,14 +16,8 @@ func init() {
 		"MSB":	ValueOf(lzw.MSB),
 		"NewReader":	ValueOf(lzw.NewReader),
 		"NewWriter":	ValueOf(lzw.NewWriter),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Order":	TypeOf((*lzw.Order)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

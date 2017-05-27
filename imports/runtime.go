@@ -49,8 +49,7 @@ func init() {
 		"ThreadCreateProfile":	ValueOf(runtime.ThreadCreateProfile),
 		"UnlockOSThread":	ValueOf(runtime.UnlockOSThread),
 		"Version":	ValueOf(runtime.Version),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"BlockProfileRecord":	TypeOf((*runtime.BlockProfileRecord)(nil)).Elem(),
 		"Error":	TypeOf((*runtime.Error)(nil)).Elem(),
 		"Frame":	TypeOf((*runtime.Frame)(nil)).Elem(),
@@ -60,16 +59,14 @@ func init() {
 		"MemStats":	TypeOf((*runtime.MemStats)(nil)).Elem(),
 		"StackRecord":	TypeOf((*runtime.StackRecord)(nil)).Elem(),
 		"TypeAssertionError":	TypeOf((*runtime.TypeAssertionError)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Error":	TypeOf((*Error_runtime)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"Compiler":	"string:gc",
-	},
-	Wrappers: map[string][]string{
+	},Wrappers: map[string][]string{
 		"BlockProfileRecord":	[]string{"Stack",},
-	} }
+	},
+	}
 }
 
 // --------------- proxy for runtime.Error ---------------

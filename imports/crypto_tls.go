@@ -70,8 +70,7 @@ func init() {
 		"VersionTLS12":	ValueOf(tls.VersionTLS12),
 		"X25519":	ValueOf(tls.X25519),
 		"X509KeyPair":	ValueOf(tls.X509KeyPair),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Certificate":	TypeOf((*tls.Certificate)(nil)).Elem(),
 		"CertificateRequestInfo":	TypeOf((*tls.CertificateRequestInfo)(nil)).Elem(),
 		"ClientAuthType":	TypeOf((*tls.ClientAuthType)(nil)).Elem(),
@@ -85,18 +84,15 @@ func init() {
 		"RecordHeaderError":	TypeOf((*tls.RecordHeaderError)(nil)).Elem(),
 		"RenegotiationSupport":	TypeOf((*tls.RenegotiationSupport)(nil)).Elem(),
 		"SignatureScheme":	TypeOf((*tls.SignatureScheme)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"ClientSessionCache":	TypeOf((*ClientSessionCache_crypto_tls)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"VersionSSL30":	"int:768",
 		"VersionTLS10":	"int:769",
 		"VersionTLS11":	"int:770",
 		"VersionTLS12":	"int:771",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for crypto/tls.ClientSessionCache ---------------

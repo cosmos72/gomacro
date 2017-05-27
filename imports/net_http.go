@@ -153,8 +153,7 @@ func init() {
 		"TimeFormat":	ValueOf(http.TimeFormat),
 		"TimeoutHandler":	ValueOf(http.TimeoutHandler),
 		"TrailerPrefix":	ValueOf(http.TrailerPrefix),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"Client":	TypeOf((*http.Client)(nil)).Elem(),
 		"CloseNotifier":	TypeOf((*http.CloseNotifier)(nil)).Elem(),
 		"ConnState":	TypeOf((*http.ConnState)(nil)).Elem(),
@@ -178,8 +177,7 @@ func init() {
 		"ServeMux":	TypeOf((*http.ServeMux)(nil)).Elem(),
 		"Server":	TypeOf((*http.Server)(nil)).Elem(),
 		"Transport":	TypeOf((*http.Transport)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"CloseNotifier":	TypeOf((*CloseNotifier_net_http)(nil)).Elem(),
 		"CookieJar":	TypeOf((*CookieJar_net_http)(nil)).Elem(),
 		"File":	TypeOf((*File_net_http)(nil)).Elem(),
@@ -190,8 +188,7 @@ func init() {
 		"Pusher":	TypeOf((*Pusher_net_http)(nil)).Elem(),
 		"ResponseWriter":	TypeOf((*ResponseWriter_net_http)(nil)).Elem(),
 		"RoundTripper":	TypeOf((*RoundTripper_net_http)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"DefaultMaxHeaderBytes":	"int:1048576",
 		"DefaultMaxIdleConnsPerHost":	"int:2",
 		"MethodConnect":	"string:CONNECT",
@@ -265,8 +262,7 @@ func init() {
 		"TimeFormat":	"string:Mon, 02 Jan 2006 15:04:05 GMT",
 		"TrailerPrefix":	"string:Trailer:",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for net/http.CloseNotifier ---------------

@@ -16,21 +16,17 @@ func init() {
 		"DecodeConfig":	ValueOf(jpeg.DecodeConfig),
 		"DefaultQuality":	ValueOf(jpeg.DefaultQuality),
 		"Encode":	ValueOf(jpeg.Encode),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"FormatError":	TypeOf((*jpeg.FormatError)(nil)).Elem(),
 		"Options":	TypeOf((*jpeg.Options)(nil)).Elem(),
 		"Reader":	TypeOf((*jpeg.Reader)(nil)).Elem(),
 		"UnsupportedError":	TypeOf((*jpeg.UnsupportedError)(nil)).Elem(),
-	},
-	Proxies: map[string]Type{
+	},Proxies: map[string]Type{
 		"Reader":	TypeOf((*Reader_image_jpeg)(nil)).Elem(),
-	},
-	Untypeds: map[string]string{
+	},Untypeds: map[string]string{
 		"DefaultQuality":	"int:75",
 	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
 
 // --------------- proxy for image/jpeg.Reader ---------------

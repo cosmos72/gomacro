@@ -18,12 +18,5 @@ func init() {
 		"NewServerCodec":	ValueOf(jsonrpc.NewServerCodec),
 		"ServeConn":	ValueOf(jsonrpc.ServeConn),
 	},
-	Types: map[string]Type{
-	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }

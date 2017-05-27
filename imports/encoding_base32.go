@@ -17,15 +17,9 @@ func init() {
 		"NewEncoder":	ValueOf(base32.NewEncoder),
 		"NewEncoding":	ValueOf(base32.NewEncoding),
 		"StdEncoding":	ValueOf(&base32.StdEncoding).Elem(),
-	},
-	Types: map[string]Type{
+	},Types: map[string]Type{
 		"CorruptInputError":	TypeOf((*base32.CorruptInputError)(nil)).Elem(),
 		"Encoding":	TypeOf((*base32.Encoding)(nil)).Elem(),
 	},
-	Proxies: map[string]Type{
-	},
-	Untypeds: map[string]string{
-	},
-	Wrappers: map[string][]string{
-	} }
+	}
 }
