@@ -441,8 +441,8 @@ var testcases = []TestCase{
 	TestCase{A, "builtin_complex_1", "complex(0,1)", complex(0, 1), nil},
 	TestCase{A, "builtin_complex_2", "v6 = 0.1; complex(v6,-v6)", complex(float32(0.1), -float32(0.1)), nil},
 
-	TestCase{I, "import", `import "time"`, "time", nil},
-	TestCase{F, "import", `import "time"`, nil, []interface{}{}},
+	TestCase{I, "import", `import ( "fmt"; "time" )`, "time", nil},
+	TestCase{F, "import", `import ( "fmt"; "time" )`, nil, []interface{}{}},
 	TestCase{A, "time_duration_0", `var td time.Duration = 1; td`, time.Duration(1), nil},
 	TestCase{A, "time_duration_1", `- td`, time.Duration(-1), nil},
 	TestCase{A, "time_duration_2", `td + 1`, time.Duration(2), nil},
@@ -469,6 +469,9 @@ var testcases = []TestCase{
 	TestCase{A, "method_on_val", "pair.SetAV(11); pair.A", rune(8), nil}, // method on value gets a copy of the receiver - changes to not propagate
 	TestCase{F, "method_embedded_on_ptr", "triple.SetA('+'); triple.A", '+', nil},
 	TestCase{F, "method_embedded_on_val", "triple.SetAV('*'); triple.A", '+', nil},
+
+	TestCase{A, "interface_1", "var st fmt.Stringer = time.Second; st", time.Second, nil},
+	TestCase{A, "method_on_interface_1", "stf := st.String; stf()", "1s", nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{I, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},

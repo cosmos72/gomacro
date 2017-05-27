@@ -56,6 +56,7 @@ func (t *xtype) Method(i int) Method {
 
 func (t *xtype) method(i int) Method {
 	gfunc := t.gmethod(i)
+	name := gfunc.Name()
 	resizemethodvalues(t)
 
 	rtype := t.rtype
@@ -63,13 +64,31 @@ func (t *xtype) method(i int) Method {
 	rfuncs := &t.methodvalues
 	rfunc := t.methodvalues[i]
 	if rfunc.Kind() == reflect.Func {
+		// easy, method is cached already
 		rfunctype = rfunc.Type()
-	} else if gtype, ok := t.gtype.Underlying().(*types.Interface); ok && rtype.Kind() == reflect.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
-		// rtype is our emulated interface type.
-		// it's a pointer to a struct containing: InterfaceHeader, embeddeds, methods (without receiver)
-		skip := gtype.NumEmbeddeds() + 1
-		rfield := rtype.Elem().Field(i + skip)
-		rfunctype = addreceiver(rtype, rfield.Type)
+	} else if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
+		if rtype.Kind() == reflect.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
+			// rtype is our emulated interface type.
+			// it's a pointer to a struct containing: InterfaceHeader, embeddeds, methods (without receiver)
+			skip := gtype.NumEmbeddeds() + 1
+			rfield := rtype.Elem().Field(i + skip)
+			rfunctype = addreceiver(rtype, rfield.Type)
+		} else if rtype.Kind() != reflect.Interface {
+			xerrorf(t, "inconsistent interface type <%v>: expecting interface reflect.Type, found <%v>", t, rtype)
+		} else {
+			// rtype is an interface type.
+			// rtype.MethodByName returns a Method with the following caveats
+			// 1) Type == method signature, without a receiver
+			// 2) Func == nil.
+			rmethod, _ := rtype.MethodByName(name)
+			if rmethod.Type == nil {
+				xerrorf(t, "interface type <%v>: reflect method %q not found", t, name)
+			} else if rmethod.Index != i {
+				xerrorf(t, "inconsistent interface type <%v>: method %q has go/types.Func index=%d but reflect.Method index=%d",
+					t, name, i, rmethod.Index)
+			}
+			rfunctype = addreceiver(rtype, rmethod.Type)
+		}
 	} else {
 		rmethod, _ := rtype.MethodByName(gfunc.Name())
 		rfunc = rmethod.Func
@@ -79,6 +98,9 @@ func (t *xtype) method(i int) Method {
 				rmethod, _ = reflect.PtrTo(rtype).MethodByName(gfunc.Name())
 				rfunc = rmethod.Func
 			}
+		}
+		if rfunc.Kind() != reflect.Func {
+			xerrorf(t, "type <%v>: reflect method %q not found", t, gfunc.Name())
 		}
 		t.methodvalues[i] = rfunc
 		rfunctype = rmethod.Type

@@ -57,12 +57,12 @@ func main() {
 
     // test interfaces:
 
-	import ( "time"; "fmt" ); var s fmt.Stringer = time.Hour    // ok
-	s.String                                                    // error: MakeType of nil reflect.Type
+	import ( "time"; "fmt" ); var s fmt.Stringer = time.Second  // ok
+	s.String                                                    // ok
 
 	import ( "os"; "io" );    var in io.Reader = os.Stdin       // ok
 	import "reflect";         var t = reflect.TypeOf(os.Stdin)  // ok
-	t.Elem                                                      // error: MakeType of nil reflect.Type
+	t.Elem                                                      // ok
 
 	// test methods:
 

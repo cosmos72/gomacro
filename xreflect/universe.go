@@ -130,7 +130,7 @@ func (v *Universe) importPackage(path string) *Package {
 		debugf("error importing package %q: %v\n\t%s", path, err, debug.Stack())
 		return nil
 	}
-	debugf("imported package %q", path)
+	// debugf("imported package %q", path)
 	v.cachePackage(pkg)
 	return (*Package)(pkg)
 }
