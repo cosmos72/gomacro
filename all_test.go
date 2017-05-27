@@ -471,10 +471,10 @@ var testcases = []TestCase{
 	TestCase{F, "method_embedded_on_val", "triple.SetAV('*'); triple.A", '+', nil},
 
 	TestCase{A, "interface_1", "var st fmt.Stringer = time.Second; st", time.Second, nil},
-	TestCase{A, "interface_method", "stbind := st.String; stbind()", "1s", nil},
+	TestCase{A, "interface_method", "bind := st.String; bind()", "1s", nil},
 
-	TestCase{F, "concrete_method_to_func", "stf1 := time.Duration.String; stf1(time.Minute)", "1m0s", nil},
-	TestCase{F, "interface_method_to_func", "stf2 := fmt.Stringer.String; stf2(time.Hour)", "1h0m0s", nil},
+	TestCase{F, "concrete_method_to_func", "f1 := time.Duration.Seconds; f1(time.Hour)", 3600.0, nil},
+	TestCase{F, "interface_method_to_func", "f2 := fmt.Stringer.String; f2(time.Hour)", "1h0m0s", nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{I, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},

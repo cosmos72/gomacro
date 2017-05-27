@@ -66,7 +66,7 @@ func main() {
 
 	// test methods-to-functions:
 
-	time.Duration.Hours         // easy, time.Duration is a concrete type
+	time.Duration.Seconds       // easy, time.Duration is a concrete type
 	io.Stringer.String          // harder, io.Stringer is an interface
 
 	// test methods:
