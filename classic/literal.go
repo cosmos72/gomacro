@@ -130,6 +130,10 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 				env.Errorf("map literal: invalid element, expecting <*ast.KeyValueExpr>, found: %v <%v>", elt, r.TypeOf(elt))
 			}
 		}
+		// in compiled Go, map literals are addressable
+		place := r.New(t).Elem()
+		place.Set(obj)
+		obj = place
 	case r.Array, r.Slice:
 		vt := t.Elem()
 		idx := -1
@@ -170,6 +174,11 @@ func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value
 				array.Index(i).Set(obj.Index(i))
 			}
 			obj = array
+		} else if t.Kind() == r.Slice {
+			// in compiled Go, slice literals are addressable
+			place := r.New(t).Elem()
+			place.Set(obj)
+			obj = place
 		}
 	case r.Struct:
 		obj = r.New(t).Elem()
