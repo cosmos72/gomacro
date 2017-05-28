@@ -242,6 +242,17 @@ func BenchmarkShellSortFast(b *testing.B) {
 	benchmark_sort(b, sort)
 }
 
+func BenchmarkShellSortFastCompileLoop(b *testing.B) {
+	ce := fast.New()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		ce.Comp.Binds = make(map[string]*fast.Bind)
+		ce.Comp.BindNum = fast.NoIndex
+		ce.Compile(shellsort_source_string)
+	}
+}
+
 func BenchmarkShellSortClassic(b *testing.B) {
 	env := classic.New()
 	env.Eval(shellsort_source_string)

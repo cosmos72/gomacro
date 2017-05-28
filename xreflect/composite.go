@@ -81,7 +81,7 @@ func (t *xtype) Key() Type {
 // Len returns an array type's length.
 // It panics if the type's Kind is not Array.
 func (t *xtype) Len() int {
-	if t.Kind() != reflect.Func {
+	if t.Kind() != reflect.Array {
 		xerrorf(t, "Len of non-array type %v", t)
 	}
 	return t.rtype.Len()

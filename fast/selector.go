@@ -139,12 +139,12 @@ func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool
 
 // LookupField performs a breadth-first search for struct field with given name
 func (c *Comp) LookupField(t xr.Type, name string) (field xr.StructField, numfound int) {
-	return t.FieldByName(name, c.PackagePath)
+	return t.FieldByName(name, c.FileComp().Path)
 }
 
 // LookupMethod performs a breadth-first search for method with given name
 func (c *Comp) LookupMethod(t xr.Type, name string) (mtd xr.Method, numfound int) {
-	return t.MethodByName(name, c.PackagePath)
+	return t.MethodByName(name, c.FileComp().Path)
 }
 
 // field1 isa variand of reflect.Value.Field, also accepts pointer values

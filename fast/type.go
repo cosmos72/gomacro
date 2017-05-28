@@ -81,7 +81,7 @@ func (c *Comp) DeclNamedType(name string) xr.Type {
 	}
 	if t, ok := c.Types[name]; ok {
 		c.Warnf("redefined type: %v", name)
-		if xr.QName1(t) != xr.QName2(name, c.PackagePath) {
+		if xr.QName1(t) != xr.QName2(name, c.FileComp().Path) {
 			// the current type "name" is an alias, discard it
 			c.Universe.InvalidateCache()
 		} else {
@@ -91,7 +91,7 @@ func (c *Comp) DeclNamedType(name string) xr.Type {
 	} else if c.Types == nil {
 		c.Types = make(map[string]xr.Type)
 	}
-	t := c.Universe.NamedOf(name, c.PackagePath)
+	t := c.Universe.NamedOf(name, c.FileComp().Path)
 	c.Types[name] = t
 	return t
 }
@@ -180,14 +180,11 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		c.Pos = node.Pos()
 	}
 	universe := c.Universe
+	var ellipsisArray bool
 
 	switch node := node.(type) {
 	case *ast.ArrayType: // also for slices
-		var ellipsis2 bool
-		t, ellipsis2 = c.TypeArray(node)
-		if !ellipsis {
-			ellipsis = ellipsis2
-		}
+		t, ellipsisArray = c.TypeArray(node)
 	case *ast.ChanType:
 		telem := c.Type(node.Value)
 		dir := r.BothDir
@@ -258,10 +255,11 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 			t = universe.PtrTo(t)
 		}
 		if allowEllipsis && ellipsis {
+			// ellipsis in the last argument of a function declaration
 			t = universe.SliceOf(t)
 		}
 	}
-	return t, ellipsis
+	return t, ellipsis || ellipsisArray
 }
 
 func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
@@ -270,7 +268,7 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
 	n := node.Len
 	switch n := n.(type) {
 	case *ast.Ellipsis:
-		t = universe.SliceOf(t)
+		t = universe.ArrayOf(0, t)
 		ellipsis = true
 	case nil:
 		t = universe.SliceOf(t)
@@ -284,9 +282,9 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
 			c.Errorf("array length is not a constant: %v", node)
 			return
 		} else if init.Untyped() {
-			count = init.ConstTo(universe.BasicTypes[r.Int]).(int)
+			count = init.ConstTo(c.TypeOfInt()).(int)
 		} else {
-			count = convertLiteralCheckOverflow(init.Value, universe.BasicTypes[r.Int]).(int)
+			count = convertLiteralCheckOverflow(init.Value, c.TypeOfInt()).(int)
 		}
 		if count < 0 {
 			c.Errorf("array length [%v] is negative: %v", count, node)

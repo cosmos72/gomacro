@@ -33,19 +33,133 @@ import (
 )
 
 func (c *Comp) CompositeLit(node *ast.CompositeLit) *Expr {
-	t, ellipsis := c.compileType2(node.Type, true)
-	// array and slice: "index must be non-negative integer constant"
+	t, ellipsis := c.compileType2(node.Type, false)
 	switch t.Kind() {
+	case r.Array:
+		return c.compositeLitArray(t, ellipsis, node)
 	case r.Map:
 		return c.compositeLitMap(t, node)
-	case r.Array, r.Slice:
-		return c.compositeLitSlice(t, ellipsis, node)
+	case r.Slice:
+		return c.compositeLitSlice(t, node)
 	case r.Struct:
 		return c.compositeLitStruct(t, node)
 	default:
 		c.Errorf("invalid type for composite literal: <%v> %v", t, node.Type)
 		return nil
 	}
+}
+
+func (c *Comp) compositeLitArray(t xr.Type, ellipsis bool, node *ast.CompositeLit) *Expr {
+	rtype := t.ReflectType()
+	n := len(node.Elts)
+	if n == 0 {
+		return exprX1(t, func(env *Env) r.Value {
+			// array len is already encoded in its type
+			return r.New(rtype).Elem()
+		})
+	}
+	size, keys, funvals := c.compositeLitElements(t, ellipsis, node)
+	if ellipsis {
+		// rebuild type with correct length
+		t = xr.ArrayOf(size, t.Elem())
+		rtype = t.ReflectType()
+	}
+
+	rtval := rtype.Elem()
+	zeroval := r.Zero(rtval)
+	return exprX1(t, func(env *Env) r.Value {
+		obj := r.New(rtype).Elem()
+		var val r.Value
+		for i, funval := range funvals {
+			val = funval(env)
+			if val == Nil || val == None {
+				val = zeroval
+			} else if val.Type() != rtval {
+				val = val.Convert(rtval)
+			}
+			obj.Index(keys[i]).Set(val)
+		}
+		return obj
+	})
+}
+
+func (c *Comp) compositeLitSlice(t xr.Type, node *ast.CompositeLit) *Expr {
+	rtype := t.ReflectType()
+	n := len(node.Elts)
+	if n == 0 {
+		return exprX1(t, func(env *Env) r.Value {
+			return r.MakeSlice(rtype, 0, 0)
+		})
+	}
+	size, keys, funvals := c.compositeLitElements(t, false, node)
+
+	rtval := rtype.Elem()
+	zeroval := r.Zero(rtval)
+	return exprX1(t, func(env *Env) r.Value {
+		obj := r.MakeSlice(rtype, size, size)
+		var val r.Value
+		for i, funval := range funvals {
+			val = funval(env)
+			if val == Nil || val == None {
+				val = zeroval
+			} else if val.Type() != rtval {
+				val = val.Convert(rtval)
+			}
+			obj.Index(keys[i]).Set(val)
+		}
+		return obj
+	})
+}
+
+func (c *Comp) compositeLitElements(t xr.Type, ellipsis bool, node *ast.CompositeLit) (size int, keys []int, funvals []func(*Env) r.Value) {
+	n := len(node.Elts)
+	tval := t.Elem()
+	seen := make(map[int]bool) // indexes already seen
+	keys = make([]int, n)
+	funvals = make([]func(*Env) r.Value, n)
+	size = 0
+	key, lastkey := 0, -1
+
+	for i, el := range node.Elts {
+		elv := el
+		switch elkv := el.(type) {
+		case *ast.KeyValueExpr:
+			ekey := c.Expr1(elkv.Key)
+			if !ekey.Const() {
+				c.Errorf("literal %s index must be non-negative integer constant: %v", t.Kind(), elkv.Key)
+			} else if ekey.Untyped() {
+				key = ekey.ConstTo(c.TypeOfInt()).(int)
+			} else {
+				key = convertLiteralCheckOverflow(ekey.Value, c.TypeOfInt()).(int)
+			}
+			lastkey = key
+			elv = elkv.Value
+		default:
+			lastkey++
+		}
+		if t.Kind() == r.Array && !ellipsis && (lastkey < 0 || lastkey >= t.Len()) {
+			c.Errorf("array index %d out of bounds [0:%d]", lastkey, t.Len())
+		} else if seen[lastkey] {
+			c.Errorf("duplicate index in %s literal: %d", t.Kind(), lastkey)
+		}
+		seen[lastkey] = true
+		if size <= lastkey {
+			if lastkey == MaxInt {
+				c.Errorf("literal %s too large: found index == MaxInt", t.Kind())
+			}
+			size = lastkey + 1
+		}
+		keys[i] = lastkey
+
+		eval := c.Expr1(elv)
+		if eval.Const() {
+			eval.ConstTo(tval)
+		} else if !eval.Type.AssignableTo(tval) {
+			c.Errorf("cannot use %v <%v> as type <%v> in %s value", elv, eval.Type, tval, t.Kind())
+		}
+		funvals[i] = eval.AsX1()
+	}
+	return size, keys, funvals
 }
 
 func (c *Comp) compositeLitMap(t xr.Type, node *ast.CompositeLit) *Expr {
@@ -67,7 +181,6 @@ func (c *Comp) compositeLitMap(t xr.Type, node *ast.CompositeLit) *Expr {
 		switch elkv := el.(type) {
 		case *ast.KeyValueExpr:
 			ekey := c.Expr1(elkv.Key)
-			eval := c.Expr1(elkv.Value)
 			if ekey.Const() {
 				ekey.ConstTo(tkey)
 				if seen[ekey.Value] {
@@ -77,6 +190,7 @@ func (c *Comp) compositeLitMap(t xr.Type, node *ast.CompositeLit) *Expr {
 			} else if !ekey.Type.AssignableTo(tkey) {
 				c.Errorf("cannot use %v <%v> as type <%v> in map key", elkv.Key, ekey.Type, tkey)
 			}
+			eval := c.Expr1(elkv.Value)
 			if eval.Const() {
 				eval.ConstTo(tval)
 			} else if !eval.Type.AssignableTo(tval) {
@@ -113,11 +227,6 @@ func (c *Comp) compositeLitMap(t xr.Type, node *ast.CompositeLit) *Expr {
 	})
 }
 
-func (c *Comp) compositeLitSlice(t xr.Type, ellipsis bool, node *ast.CompositeLit) *Expr {
-	c.Errorf("unimplemented: array/slice composite literal: %v", node)
-	return nil
-}
-
 func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 	rtype := t.ReflectType()
 	n := len(node.Elts)
@@ -147,7 +256,7 @@ func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 					c.Errorf("duplicate field name in struct literal: %v", name)
 				} else if seen == nil {
 					seen = make(map[string]bool)
-					all = listStructFields(t, c.PackagePath)
+					all = listStructFields(t, c.FileComp().Path)
 				}
 				field, ok := all[name]
 				if !ok {
@@ -176,7 +285,7 @@ func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 			} else if !expr.Type.AssignableTo(field.Type) {
 				c.Errorf("cannot use %v <%v> as type <%v> in field value", el, expr.Type, field.Type)
 			}
-			if !ast.IsExported(field.Name) && field.Pkg.Path() != c.PackagePath {
+			if !ast.IsExported(field.Name) && field.Pkg.Path() != c.FileComp().Path {
 				c.Errorf("implicit assignment of unexported field '%v' in struct literal <%v>", field.Name, t)
 			}
 			inits[i] = expr.AsX1()
