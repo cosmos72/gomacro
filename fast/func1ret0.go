@@ -8,18 +8,19 @@
  *
  * Copyright (C) 2017 Massimiliano Ghilardi
  *
- *     This program is free software you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Lesser General Public License as published
+ *     by the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
  *
  *     This program is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ *     GNU Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *     You should have received a copy of the GNU Lesser General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  *
  * func1ret0.go
  *
@@ -333,7 +334,6 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-
 	case r.Float64:
 		{
 			if funcbody == nil {
@@ -356,7 +356,6 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-
 	case r.Complex64:
 		{
 			if funcbody == nil {
@@ -379,7 +378,6 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				})
 			}
 		}
-
 	case r.Complex128:
 		{
 			if funcbody == nil {
@@ -395,7 +393,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env := NewEnv4Func(env, nbinds, nintbinds)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0)
+						place.SetComplex(arg0,
+						)
 						env.Binds[param0index] = place
 					}
 
@@ -422,7 +421,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0)
+						place.SetString(arg0,
+						)
 						env.Binds[param0index] = place
 					}
 					funcbody(env)
@@ -437,7 +437,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			rtype := t.ReflectType()
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.MakeFunc(rtype, func([]r.Value) []r.Value { return ZeroValues })
+					return r.MakeFunc(rtype, func([]r.Value) []r.Value { return ZeroValues },
+					)
 				}
 			} else {
 				return func(env *Env) r.Value {

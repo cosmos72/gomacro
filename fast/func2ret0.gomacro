@@ -3,18 +3,19 @@
  *
  * Copyright (C) 2017 Massimiliano Ghilardi
  *
- *     This program is free software you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Lesser General Public License as published
+ *     by the Free Software Foundation, either version 3 of the License, or
  *     (at your option) any later version.
  *
  *     This program is distributed in the hope that it will be useful,
  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
+ *     GNU Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <http//www.gnu.org/licenses/>.
+ *     You should have received a copy of the GNU Lesser General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  *
  * func2ret0.go
  *
@@ -211,12 +212,8 @@ import (
 
 
 func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
-	targ0, targ1 := t.Recv(), t.In(0)
-	if targ0 == nil {
-		targ0, targ1 = targ1, t.In(1)
-	}
-	karg0 := targ0.Kind()
-	karg1 := targ1.Kind()
+	karg0 := t.In(0).Kind()
+	karg1 := t.In(1).Kind()
 
 	if !IsOptimizedKind(karg0) || !IsOptimizedKind(karg1) {
 		return nil
