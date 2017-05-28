@@ -137,8 +137,10 @@ func (c *Comp) compositeLitElements(t xr.Type, ellipsis bool, node *ast.Composit
 		default:
 			lastkey++
 		}
-		if t.Kind() == r.Array && !ellipsis && (lastkey < 0 || lastkey >= t.Len()) {
-			c.Errorf("array index %d out of bounds [0:%d]", lastkey, t.Len())
+		if lastkey < 0 {
+			c.Errorf("literal %s index must be non-negative integer constant: %v", t.Kind(), lastkey)
+		} else if !ellipsis && t.Kind() == r.Array && lastkey >= t.Len() {
+			c.Errorf("%s index %d out of bounds [0:%d]", t.Kind(), lastkey, t.Len())
 		} else if seen[lastkey] {
 			c.Errorf("duplicate index in %s literal: %d", t.Kind(), lastkey)
 		}

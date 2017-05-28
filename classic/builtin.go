@@ -47,7 +47,12 @@ func funcAppend(env *Env, args []r.Value) (r.Value, []r.Value) {
 }
 
 func callCap(arg interface{}) int {
-	return r.ValueOf(arg).Cap()
+	obj := r.ValueOf(arg)
+	if obj.Kind() == r.Ptr {
+		// cap() of pointer-to-array returns cap() of array
+		obj = obj.Elem()
+	}
+	return obj.Cap()
 }
 
 func callClose(channel interface{}) {
@@ -147,7 +152,12 @@ func funcImag(env *Env, args []r.Value) (r.Value, []r.Value) {
 }
 
 func callLen(arg interface{}) int {
-	return r.ValueOf(arg).Len()
+	obj := r.ValueOf(arg)
+	if obj.Kind() == r.Ptr {
+		// len() of pointer-to-array returns len() of array
+		obj = obj.Elem()
+	}
+	return obj.Len()
 }
 
 //

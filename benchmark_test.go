@@ -210,7 +210,9 @@ func BenchmarkFibonacciClosureMaps(b *testing.B) {
 
 // ---------------------- arrays: shellsort ------------------------
 
-var shellshort_gaps = []int{701, 301, 132, 57, 23, 10, 4, 1}
+// array indexing is faster that slice indexing,
+// provided the array is *not* copied. so use a pointer to array
+var shellshort_gaps = &[...]int{701, 301, 132, 57, 23, 10, 4, 1}
 
 func shellsort(v []int) {
 	var i, j, n, gap, temp int
