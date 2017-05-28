@@ -163,13 +163,24 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
 			c.Pos = in.Pos()
 		}
 		switch node := in.(type) {
-		case *ast.ParenExpr:
-			in = node.X
-			continue
+		case *ast.CompositeLit:
+			// composite literals are addressable but not settable
+			if opt == PlaceSettable {
+				c.Errorf("%s composite literal", opt)
+			}
+			e := c.Expr1(node)
+			fun := e.AsX1()
+			addr := func(env *Env) r.Value {
+				return fun(env).Addr()
+			}
+			return &Place{Var: Var{Type: e.Type}, Fun: fun, Addr: addr}
 		case *ast.Ident:
 			return c.IdentPlace(node.Name, opt)
 		case *ast.IndexExpr:
 			return c.IndexPlace(node, opt)
+		case *ast.ParenExpr:
+			in = node.X
+			continue
 		case *ast.StarExpr:
 			e := c.Expr1(node.X)
 			if e.Const() {

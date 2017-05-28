@@ -457,13 +457,18 @@ var testcases = []TestCase{
 	TestCase{A, "time_utc_set_1", ` time.UTC = nil; time.UTC == nil`, true, nil},
 	TestCase{A, "time_utc_set_2", ` time.UTC = utc; time.UTC.String()`, "UTC", nil},
 
+	TestCase{I, "literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
+	TestCase{I, "literal_map", "map[int]string{1: \"foo\", 2: \"bar\"}", map[int]string{1: "foo", 2: "bar"}, nil},
+	TestCase{I, "literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
 	TestCase{A, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
 		A rune
 		B string
 	}{A: 0x73, B: "\x94"}, nil},
-	TestCase{I, "literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
-	TestCase{I, "literal_map", "map[int]string{1: \"foo\", 2: \"bar\"}", map[int]string{1: "foo", 2: "bar"}, nil},
-	TestCase{I, "literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
+	TestCase{A, "literal_struct_address", `&Pair{1,"2"}`, &struct {
+		A rune
+		B string
+	}{A: 1, B: "2"}, nil},
+
 	TestCase{A, "method_decls", "func (p *Pair) SetA(a rune) { p.A = a }; func (p Pair) SetAV(a rune) { p.A = a }; nil", nil, nil},
 	TestCase{A, "method_on_ptr", "pair.SetA(8); pair.A", rune(8), nil},
 	TestCase{A, "method_on_val", "pair.SetAV(11); pair.A", rune(8), nil}, // method on value gets a copy of the receiver - changes to not propagate

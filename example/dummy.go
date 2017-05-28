@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// p := Pair{A: 1, B: true}
-	// _ = Pair{1, 2, 3}
+	Pair{1, 2} = Pair{}
 	// var f os.file
 	// _ = bytes.Buffer{nil, 0}
 }

@@ -124,12 +124,14 @@ func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 		}
 	}
 	if nfield := t.NumField(); vflag && n != nfield {
-		label := "few"
+		var label, plural = "few", "s"
 		if n > nfield {
 			label = "many"
+		} else if n == 1 {
+			plural = ""
 		}
-		c.Errorf("too %s values in struct initializer: <%v> has %d fields, found %d initializers",
-			label, t, nfield, n)
+		c.Errorf("too %s values in struct initializer: <%v> has %d fields, found %d initializer%s",
+			label, t, nfield, n, plural)
 	}
 	return exprX1(t, func(env *Env) r.Value {
 		obj := r.New(rtype).Elem()
