@@ -49,7 +49,7 @@ Gomacro can be used as:
   so they will be as fast as in compiled Go.
 
 * a library that adds Eval() and scripting capabilities
-  to your Go programs - provided you comply with its GPL license
+  to your Go programs - provided you comply with its LGPL license
 
 * a way to execute Go source code on-the-fly without a Go compiler:  
   you can either run `gomacro FILENAME.go` (works on every supported platform)
