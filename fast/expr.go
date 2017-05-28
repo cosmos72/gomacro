@@ -42,8 +42,15 @@ func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits
 				n, expectedValuesN, nodes)
 			return nil
 		}
-		node := nodes[0]
-		inits = []*Expr{c.Expr(node)}
+		e := c.Expr(nodes[0])
+		if actualN := e.NumOut(); actualN != expectedValuesN {
+			var plural string
+			if actualN != 1 {
+				plural = "s"
+			}
+			c.Errorf("expression returns %d value%s, expecting %d: %v", actualN, plural, expectedValuesN, nodes[0])
+		}
+		inits = []*Expr{e}
 	} else {
 		inits = c.Exprs(nodes)
 	}

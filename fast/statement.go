@@ -93,7 +93,7 @@ func (c *Comp) Stmt(in ast.Stmt) {
 			in = node.Stmt
 			continue
 		// case *ast.RangeStmt:
-		//   c.Range(node)
+		//   c.Range(node, labels)
 		case *ast.ReturnStmt:
 			c.Return(node)
 		// case *ast.SelectStmt:
@@ -475,9 +475,8 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 	case 1:
 		if n == 0 {
 			c.Errorf("return: expecting %d expressions, found %d: %v", n, len(resultExprs), node)
-		} else {
-			c.Errorf("unimplemented: return of multi-valued expression: %v", node)
 		}
+		c.returnMultiValues(resultBinds, upn, resultExprs)
 		return
 	case 0:
 		if !cinfo.NamedResults {
@@ -496,6 +495,33 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 		c.SetVar(resultBinds[i].AsVar(upn, PlaceSettable), token.ASSIGN, exprs[i])
 	}
 	c.Code.Append(stmtReturn)
+}
+
+// returnMultiValues compiles a "return foo()" statement where foo() returns multiple values
+func (c *Comp) returnMultiValues(resultBinds []*Bind, upn int, exprs []ast.Expr) {
+	n := len(resultBinds)
+	e := c.ExprsMultipleValues(exprs, n)[0]
+	fun := e.AsXV(CompileDefaults)
+	assigns := make([]func(*Env, r.Value), n)
+	for i := 0; i < n; i++ {
+		texpected := resultBinds[i].Type
+		tactual := e.Out(i)
+		if !tactual.AssignableTo(texpected) {
+			c.Errorf("incompatible types in assignment: %v = %v", texpected, tactual)
+		}
+		assigns[i] = c.SetVarValue(resultBinds[i].AsVar(upn, PlaceSettable))
+	}
+	c.Code.Append(func(env *Env) (Stmt, *Env) {
+		// no risk in evaluating fun() first: return binds are plain variables, not places with side effects
+		_, vals := fun(env)
+		for i, assign := range assigns {
+			assign(env, vals[i])
+		}
+		// append the return epilogue
+		common := env.ThreadGlobals
+		common.Signal = SigReturn
+		return common.Interrupt, env
+	})
 }
 
 func stmtReturn(env *Env) (Stmt, *Env) {
@@ -556,7 +582,19 @@ func (c *Comp) pushEnvIfLocalBinds(nbinds *[2]int, list ...ast.Stmt) (inner *Com
 	// no need to create a new *Env at runtime
 	// note: we still create a new *Comp at compile time to handle constant/type declarations
 	locals = containLocalBinds(list...)
-	if locals {
+	return c.pushEnvIfFlag(nbinds, locals)
+}
+
+// pushEnvIfDefine compiles a PushEnv statement if tok is token.DEFINE
+// returns the *Comp to use to compile statement list.
+func (c *Comp) pushEnvIfDefine(nbinds *[2]int, tok token.Token) (inner *Comp, locals bool) {
+	return c.pushEnvIfFlag(nbinds, tok == token.DEFINE)
+}
+
+// pushEnvIfFlag compiles a PushEnv statement if flag is true
+// returns the *Comp to use to compile statement list.
+func (c *Comp) pushEnvIfFlag(nbinds *[2]int, flag bool) (*Comp, bool) {
+	if flag {
 		// push new *Env at runtime. we will know # of binds in the block only later, so use a closure on them
 		c.Code.Append(func(env *Env) (Stmt, *Env) {
 			inner := NewEnv(env, nbinds[0], nbinds[1])
@@ -565,12 +603,12 @@ func (c *Comp) pushEnvIfLocalBinds(nbinds *[2]int, list ...ast.Stmt) (inner *Com
 			return inner.Code[inner.IP], inner
 		})
 	}
-	inner = NewComp(c)
-	if !locals {
+	inner := NewComp(c)
+	if !flag {
 		inner.UpCost = 0
 		inner.Depth--
 	}
-	return inner, locals
+	return inner, flag
 }
 
 // popEnvIfLocalBinds compiles a PopEnv statement if locals is true. also sets *nbinds and *nintbinds

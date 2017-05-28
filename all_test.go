@@ -471,7 +471,7 @@ var testcases = []TestCase{
 	TestCase{F, "interface_method_to_func", "f2 := fmt.Stringer.String; f2(time.Hour)", "1h0m0s", nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
-	TestCase{I, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
+	TestCase{A, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
 	TestCase{A, "pred_bool_1", "false==false && true==true && true!=false", true, nil},
 	TestCase{A, "pred_bool_2", "false!=false || true!=true || true==false", false, nil},
 	TestCase{A, "pred_int", "1==1 && 1<=1 && 1>=1 && 1!=2 && 1<2 && 2>1 || 0==1", true, nil},
