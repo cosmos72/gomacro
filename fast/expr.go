@@ -32,6 +32,8 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+// ExprsMultipleValues either a single expression returning multiple values,
+// or multiple expressions each returning a value.
 func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits []*Expr) {
 	n := len(nodes)
 	if n != expectedValuesN {
@@ -114,8 +116,8 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 			return c.BinaryExpr(node)
 		case *ast.CallExpr:
 			return c.CallExpr(node)
-		//case *ast.CompositeLit:
-		//  return c.CompositeLit(node)
+		case *ast.CompositeLit:
+			return c.CompositeLit(node)
 		case *ast.FuncLit:
 			return c.FuncLit(node)
 		case *ast.Ident:
@@ -143,6 +145,7 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 }
 
 // Expr1OrType compiles an single-valued expression or a type
+// FIXME lookup simultaneously for both types and expressions
 func (c *Comp) Expr1OrType(node ast.Expr) (e *Expr, t xr.Type) {
 	panicking := true
 	defer func() {

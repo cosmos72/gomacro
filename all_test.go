@@ -457,7 +457,7 @@ var testcases = []TestCase{
 	TestCase{A, "time_utc_set_1", ` time.UTC = nil; time.UTC == nil`, true, nil},
 	TestCase{A, "time_utc_set_2", ` time.UTC = utc; time.UTC.String()`, "UTC", nil},
 
-	TestCase{I, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
+	TestCase{A, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
 		A rune
 		B string
 	}{A: 0x73, B: "\x94"}, nil},

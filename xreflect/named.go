@@ -25,6 +25,7 @@
 package xreflect
 
 import (
+	"go/ast"
 	"go/token"
 	"go/types"
 	"reflect"
@@ -75,8 +76,8 @@ func (t *xtype) method(i int) Method {
 			rfunctype = addreceiver(rtype, rfield.Type)
 		} else if rtype.Kind() != reflect.Interface {
 			xerrorf(t, "inconsistent interface type <%v>: expecting interface reflect.Type, found <%v>", t, rtype)
-		} else {
-			// rtype is an interface type.
+		} else if ast.IsExported(name) {
+			// rtype is an interface type, and reflect only returns exported methods
 			// rtype.MethodByName returns a Method with the following caveats
 			// 1) Type == method signature, without a receiver
 			// 2) Func == nil.
@@ -100,10 +101,13 @@ func (t *xtype) method(i int) Method {
 			}
 		}
 		if rfunc.Kind() != reflect.Func {
-			xerrorf(t, "type <%v>: reflect method %q not found", t, gfunc.Name())
+			if ast.IsExported(name) {
+				xerrorf(t, "type <%v>: reflect method %q not found", t, gfunc.Name())
+			}
+		} else {
+			t.methodvalues[i] = rfunc
+			rfunctype = rmethod.Type
 		}
-		t.methodvalues[i] = rfunc
-		rfunctype = rmethod.Type
 	}
 	return t.makemethod(i, gfunc, rfuncs, rfunctype) // lock already held
 }
@@ -156,12 +160,17 @@ func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]reflect.Value, 
 	reflect.Type has %d parameters: %v`, t, index, nparams, gsig, rfunctype.NumIn(), rfunctype)
 		}
 	}
+	var tmethod Type
+	if rfunctype != nil {
+		tmethod = t.universe.maketype(gsig, rfunctype) // lock already held
+	}
 	return Method{
 		Name:  name,
 		Pkg:   (*Package)(gfun.Pkg()),
-		Type:  t.universe.maketype(gsig, rfunctype), // lock already held
+		Type:  tmethod,
 		Funs:  rfuns,
 		Index: index,
+		GoFun: gfun,
 	}
 }
 

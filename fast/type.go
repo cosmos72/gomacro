@@ -235,6 +235,9 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		if !ok || t == nil {
 			c.Errorf("not a type: %v <%v>", node, r.TypeOf(node))
 		}
+		if !ast.IsExported(name) {
+			c.Errorf("cannot refer to unexported name %v", node)
+		}
 	case *ast.StructType:
 		// c.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
 		types, names := c.TypeFields(node.Fields)

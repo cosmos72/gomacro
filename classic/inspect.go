@@ -33,12 +33,14 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type Inspector struct {
 	names []string
 	vs    []r.Value
 	ts    []r.Type
+	xts   []xr.Type
 	in    *bufio.Reader
 	env   *Env
 }
@@ -46,8 +48,9 @@ type Inspector struct {
 func (env *Env) Inspect(in *bufio.Reader, str string, fastInterpreter bool) {
 	form := env.Parse(str)
 	var v r.Value
+	var xt xr.Type
 	if fastInterpreter {
-		v, _, _, _ = env.fastEval(form)
+		v, _, xt, _ = env.fastEval(form)
 	} else {
 		v = env.EvalAst1(form)
 	}
@@ -60,11 +63,42 @@ func (env *Env) Inspect(in *bufio.Reader, str string, fastInterpreter bool) {
 		break
 	default:
 		env.showVar(str, v, t)
+		env.showMethods(t, xt)
 		return
 	}
-	stack := Inspector{names: []string{str}, vs: []r.Value{v}, ts: []r.Type{t}, in: in, env: env}
+	stack := Inspector{names: []string{str}, vs: []r.Value{v}, ts: []r.Type{t}, xts: []xr.Type{xt}, in: in, env: env}
 	stack.Show()
 	stack.Repl()
+}
+
+func (env *Env) showMethods(t r.Type, xt xr.Type) {
+	switch {
+	case xt != nil:
+		if xt.Kind() == r.Ptr {
+			xt = xt.Elem()
+		}
+		n := xt.NumMethod()
+		if n == 0 {
+			env.Fprintf(env.Stdout, "no methods of %v\n", xt)
+			return
+		}
+		env.Fprintf(env.Stdout, "methods of %v:\n", xt)
+		for i := 0; i < n; i++ {
+			env.Fprintf(env.Stdout, "    m%d. %v\n", i, xt.Method(i).GoFun)
+		}
+
+	case t != nil:
+		n := t.NumMethod()
+		if n == 0 {
+			env.Fprintf(env.Stdout, "no methods of %v\n", t)
+			return
+		}
+		env.Fprintf(env.Stdout, "methods of %v:\n", t)
+		for i := 0; i < n; i++ {
+			m := t.Method(i)
+			env.Fprintf(env.Stdout, "    m%d. %s\t%v\n", i, m.Name, m.Type)
+		}
+	}
 }
 
 func (env *Env) showVar(str string, v r.Value, t r.Type) {
@@ -72,7 +106,7 @@ func (env *Env) showVar(str string, v r.Value, t r.Type) {
 }
 
 func (ip *Inspector) Help() {
-	fmt.Fprint(ip.env.Stdout, "// inspect commands: <number> help quit top up\n")
+	fmt.Fprint(ip.env.Stdout, "// inspect commands: <number> help methods quit top up\n")
 }
 
 func (ip *Inspector) Show() {
@@ -111,6 +145,10 @@ func (ip *Inspector) Eval(cmd string) error {
 	switch {
 	case cmd == "?", strings.HasPrefix("help", cmd):
 		ip.Help()
+	case strings.HasPrefix("methods", cmd):
+		t := ip.ts[len(ip.ts)-1]
+		xt := ip.xts[len(ip.xts)-1]
+		ip.env.showMethods(t, xt)
 	case strings.HasPrefix("quit", cmd):
 		return errors.New("user quit")
 	case strings.HasPrefix("top", cmd):

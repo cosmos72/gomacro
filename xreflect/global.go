@@ -46,6 +46,7 @@ type Method struct {
 	Funs       *[]reflect.Value // (*Funs)[Index] is the method, with receiver as first argument
 	Index      int              // index for Type.Method
 	FieldIndex []int            // embedded fields index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
+	GoFun      *types.Func      // for completeness
 }
 
 type StructField struct {
