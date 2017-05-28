@@ -19,7 +19,7 @@ The fast interpreter supports:
 * Go 1.9 type aliases (experimental)
 * unary and binary operators
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= <<= >>= &^=
-* composite types: arrays, channels, maps, pointers, slices, strings, structs (unimplemented: composite literals)
+* composite types: arrays, channels, maps, pointers, slices, strings, structs (including composite literals)
 * accessing struct fields, including embedded fields
 * slicing
 * type assertions and type conversions
@@ -39,7 +39,6 @@ The fast interpreter supports:
 * ~quote
 
 Missing features - you are welcome to contribute:
-* composite literals
 * return foo() where foo() returns multiple values
 * bar(foo()) where foo() returns multiple values
 * x,y = foo() where foo() returns multiple values
