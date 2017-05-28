@@ -10,8 +10,10 @@ import (
 )
 
 func main() {
+	m := &[]int{1: 2, 2: 3}
+	fmt.Println(m)
 	// p := Pair{A: 1, B: true}
-	Pair{1, 2} = Pair{}
+	// Pair{1, 2} = Pair{}
 	// var f os.file
 	// _ = bytes.Buffer{nil, 0}
 }

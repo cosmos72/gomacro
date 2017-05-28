@@ -170,8 +170,29 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
 			}
 			e := c.Expr1(node)
 			fun := e.AsX1()
-			addr := func(env *Env) r.Value {
-				return fun(env).Addr()
+			var addr func(*Env) r.Value
+			switch e.Type.Kind() {
+			case r.Array, r.Struct:
+				// array and struct composite literals are directly addressable
+				// because they are created with reflect.New(t).Elem()
+				addr = func(env *Env) r.Value {
+					return fun(env).Addr()
+				}
+			default:
+				// other composite literals (maps, slices) are not directly addressable:
+				// the result of reflect.MakeMap and reflect.MakeSlice is not addressable,
+				// so implement a workaround to behave as compiled Go.
+				//
+				// 'addr' below creates a new pointer-to-t at each execution,
+				// but since the map or slice is freshly created each time
+				// and 'addr' below is the only one code accessing it,
+				// it's not a problem
+				addr = func(env *Env) r.Value {
+					obj := fun(env)
+					place := r.New(obj.Type())
+					place.Elem().Set(obj)
+					return place
+				}
 			}
 			return &Place{Var: Var{Type: e.Type}, Fun: fun, Addr: addr}
 		case *ast.Ident:

@@ -458,12 +458,13 @@ var testcases = []TestCase{
 	TestCase{A, "time_utc_set_2", ` time.UTC = utc; time.UTC.String()`, "UTC", nil},
 
 	TestCase{I, "literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
-	TestCase{I, "literal_map", "map[int]string{1: \"foo\", 2: \"bar\"}", map[int]string{1: "foo", 2: "bar"}, nil},
+	TestCase{A, "literal_map", `map[int]string{1: "foo", 2: "bar"}`, map[int]string{1: "foo", 2: "bar"}, nil},
 	TestCase{I, "literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
 	TestCase{A, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
 		A rune
 		B string
 	}{A: 0x73, B: "\x94"}, nil},
+	TestCase{F, "literal_map_address", `&map[int]byte{6:7, 8:9}`, &map[int]byte{6: 7, 8: 9}, nil},
 	TestCase{A, "literal_struct_address", `&Pair{1,"2"}`, &struct {
 		A rune
 		B string

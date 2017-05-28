@@ -49,8 +49,68 @@ func (c *Comp) CompositeLit(node *ast.CompositeLit) *Expr {
 }
 
 func (c *Comp) compositeLitMap(t xr.Type, node *ast.CompositeLit) *Expr {
-	c.Errorf("unimplemented: map composite literal: %v", node)
-	return nil
+	rtype := t.ReflectType()
+	n := len(node.Elts)
+	if n == 0 {
+		return exprX1(t, func(env *Env) r.Value {
+			return r.MakeMap(rtype)
+		})
+	}
+	tkey := t.Key()
+	tval := t.Elem()
+
+	seen := make(map[interface{}]bool) // constant keys already seen
+	funkeys := make([]func(*Env) r.Value, n)
+	funvals := make([]func(*Env) r.Value, n)
+
+	for i, el := range node.Elts {
+		switch elkv := el.(type) {
+		case *ast.KeyValueExpr:
+			ekey := c.Expr1(elkv.Key)
+			eval := c.Expr1(elkv.Value)
+			if ekey.Const() {
+				ekey.ConstTo(tkey)
+				if seen[ekey.Value] {
+					c.Errorf("duplicate key %v in map literal", elkv.Key)
+				}
+				seen[ekey.Value] = true
+			} else if !ekey.Type.AssignableTo(tkey) {
+				c.Errorf("cannot use %v <%v> as type <%v> in map key", elkv.Key, ekey.Type, tkey)
+			}
+			if eval.Const() {
+				eval.ConstTo(tval)
+			} else if !eval.Type.AssignableTo(tval) {
+				c.Errorf("cannot use %v <%v> as type <%v> in map value", elkv.Value, eval.Type, tval)
+			}
+			funkeys[i] = ekey.AsX1()
+			funvals[i] = eval.AsX1()
+
+		default:
+			c.Errorf("missing key in map literal: %v", el)
+		}
+	}
+	rtkey, rtval := rtype.Key(), rtype.Elem()
+	zerokey, zeroval := r.Zero(rtkey), r.Zero(rtval)
+	return exprX1(t, func(env *Env) r.Value {
+		obj := r.MakeMap(rtype)
+		var key, val r.Value
+		for i, funkey := range funkeys {
+			key = funkey(env)
+			if key == Nil || key == None {
+				key = zerokey
+			} else if key.Type() != rtkey {
+				key = key.Convert(rtkey)
+			}
+			val = funvals[i](env)
+			if val == Nil || val == None {
+				val = zeroval
+			} else if val.Type() != rtval {
+				val = val.Convert(rtval)
+			}
+			obj.SetMapIndex(key, val)
+		}
+		return obj
+	})
 }
 
 func (c *Comp) compositeLitSlice(t xr.Type, ellipsis bool, node *ast.CompositeLit) *Expr {
@@ -71,16 +131,16 @@ func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 	var all map[string]xr.StructField
 	inits := make([]func(*Env) r.Value, n)
 	indexes := make([]int, n)
-	var kvflag, vflag bool
+	var flagkv, flagv bool
 
 	for i, el := range node.Elts {
-		switch kvel := el.(type) {
+		switch elkv := el.(type) {
 		case *ast.KeyValueExpr:
-			kvflag = true
-			if vflag {
+			flagkv = true
+			if flagv {
 				c.Errorf("mixture of field:value and value in struct literal: %v", node)
 			}
-			switch k := kvel.Key.(type) {
+			switch k := elkv.Key.(type) {
 			case *ast.Ident:
 				name := k.Name
 				if seen[name] {
@@ -93,11 +153,11 @@ func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 				if !ok {
 					c.Errorf("unknown field '%v' in struct literal of type %v", name, t)
 				}
-				expr := c.Expr1(kvel.Value)
+				expr := c.Expr1(elkv.Value)
 				if expr.Const() {
 					expr.ConstTo(field.Type)
 				} else if !expr.Type.AssignableTo(field.Type) {
-					c.Errorf("cannot use %v <%v> as type <%v> in field value", kvel.Value, expr.Type, field.Type)
+					c.Errorf("cannot use %v <%v> as type <%v> in field value", elkv.Value, expr.Type, field.Type)
 				}
 				inits[i] = expr.AsX1()
 				indexes[i] = field.Index[0]
@@ -105,8 +165,8 @@ func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 				c.Errorf("invalid field name '%v' in struct literal", k)
 			}
 		default:
-			vflag = true
-			if kvflag {
+			flagv = true
+			if flagkv {
 				c.Errorf("mixture of field:value and value in struct literal: %v", node)
 			}
 			field := t.Field(i)
@@ -117,13 +177,13 @@ func (c *Comp) compositeLitStruct(t xr.Type, node *ast.CompositeLit) *Expr {
 				c.Errorf("cannot use %v <%v> as type <%v> in field value", el, expr.Type, field.Type)
 			}
 			if !ast.IsExported(field.Name) && field.Pkg.Path() != c.PackagePath {
-				c.Errorf("implicit assignment of unexported field '%v' in %v literal", field.Name, t)
+				c.Errorf("implicit assignment of unexported field '%v' in struct literal <%v>", field.Name, t)
 			}
 			inits[i] = expr.AsX1()
 			indexes[i] = field.Index[0]
 		}
 	}
-	if nfield := t.NumField(); vflag && n != nfield {
+	if nfield := t.NumField(); flagv && n != nfield {
 		var label, plural = "few", "s"
 		if n > nfield {
 			label = "many"
