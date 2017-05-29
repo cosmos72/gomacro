@@ -232,12 +232,18 @@ func (env *Env) evalFunctionArgs(fun Function, node *ast.CallExpr) []r.Value {
 }
 
 func (env *Env) evalFuncArgs(fun r.Value, node *ast.CallExpr) []r.Value {
-	args := env.evalExprs(node.Args)
 	funt := fun.Type()
-	// TODO does Go have a special case fooAcceptsMultipleArgs( barReturnsMultipleValues() ) ???
-	if !funt.IsVariadic() {
-		if len(args) != funt.NumIn() {
-			env.Errorf("function %v expects %d arguments, found %d: %v", node.Fun, funt.NumIn(), len(args), args)
+	nin := funt.NumIn()
+	var args []r.Value
+	if len(node.Args) == 1 && nin > 1 {
+		// special case fooAcceptsMultipleArgs( barReturnsMultipleValues() )
+		args = env.evalExprsMultipleValues(node.Args, nin)
+	} else {
+		args = env.evalExprs(node.Args)
+	}
+	if funt.IsVariadic() == (node.Ellipsis != token.NoPos) {
+		if len(args) != nin {
+			env.Errorf("function %v expects %d arguments, found %d: %v", node.Fun, nin, len(args), args)
 			return nil
 		}
 		for i, arg := range args {

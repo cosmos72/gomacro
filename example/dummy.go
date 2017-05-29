@@ -9,14 +9,14 @@ import (
 	"os"
 )
 
-func pair() (int, int) {
-	return 1, 2
+func swap(a, b int) (int, int) {
+	return b, a
 }
 
 func main() {
-	var x int
-	var y uint
-	x, y = pair()
+	x, y := 1, 2
+	x, y = swap(swap(x, y))
+	println(x, y)
 	// m := [...]int{0x7ffffff: 3}
 	// fmt.Println(m)
 	// p := Pair{A: 1, B: true}

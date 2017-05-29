@@ -377,7 +377,7 @@ var testcases = []TestCase{
 	TestCase{A, "divmap_1", "mi['@'] = 99; mi['@'] /= 3; v2 = mi['@']; v2", byte(33), nil},
 	TestCase{A, "divmap_2", "mi['@'] /= 4; v2 = mi['@']; v2", byte(8), nil},
 
-	TestCase{A, "swap", `i=1;j=2;  i,j=j,i;  list_args(i, j)`, []interface{}{2, 1}, nil},
+	TestCase{A, "swap_assignment", `i=1;j=2;  i,j=j,i;  list_args(i, j)`, []interface{}{2, 1}, nil},
 	TestCase{A, "evil_assignment_1", `i=0; si[0]=7; si[1]=8
 		i, si[i] = 1, 2
 		list_args(i,si[0],si[1])`, []interface{}{1, 2, 8}, nil},
@@ -475,6 +475,8 @@ var testcases = []TestCase{
 	TestCase{A, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
 	TestCase{A, "multiple_values_3", "f1, f2 := twins(23.0); list_args(f1, f2)", []interface{}{float32(23.0), float32(24.0)}, nil},
 	TestCase{A, "multiple_values_4", "fm := make(map[int]float32); fm[1], fm[2] = twins(3.0); fm", map[int]float32{1: 3.0, 2: 4.0}, nil},
+	TestCase{A, "multiple_values_5", "swap(swap(3,4))", nil, []interface{}{3, 4}},
+
 	TestCase{A, "pred_bool_1", "false==false && true==true && true!=false", true, nil},
 	TestCase{A, "pred_bool_2", "false!=false || true!=true || true==false", false, nil},
 	TestCase{A, "pred_int", "1==1 && 1<=1 && 1>=1 && 1!=2 && 1<2 && 2>1 || 0==1", true, nil},

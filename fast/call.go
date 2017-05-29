@@ -94,11 +94,20 @@ func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
 		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
 		return nil
 	}
-	args := c.Exprs(node.Args)
+	var args []*Expr
+	if len(node.Args) == 1 {
+		// support foo(bar()) where bar() returns multiple values
+		arg := c.Expr(node.Args[0])
+		if arg.NumOut() == 0 {
+			c.Errorf("function argument returns zero values: %v ", node.Args[0])
+		}
+		args = []*Expr{arg}
+	} else {
+		args = c.Exprs(node.Args)
+	}
 	if lastarg != nil {
 		args = append(args, lastarg)
 	}
-	// TODO support funcAcceptsNArgs(funcReturnsNValues())
 	ellipsis := node.Ellipsis != token.NoPos
 	c.checkCallArgs(node, t, args, ellipsis)
 
@@ -131,6 +140,9 @@ func (c *Comp) call_any(call *Call) *Expr {
 
 	if expr.Fun != nil {
 		// done already
+	} else if len(call.Args) == 1 && call.Fun.Type.NumIn() > 1 {
+		// support foo(bar()) where bar() returns multiple values
+		expr.Fun = call_multivalue(call, maxdepth)
 	} else if nout == 0 {
 		expr.Fun = c.call_ret0(call, maxdepth)
 	} else if nout == 1 {
@@ -147,9 +159,6 @@ func (c *Comp) call_any(call *Call) *Expr {
 }
 
 func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellipsis bool) {
-	n := t.NumIn()
-	narg := len(args)
-
 	variadic := t.IsVariadic()
 	if ellipsis {
 		if variadic {
@@ -162,6 +171,12 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 			return
 		}
 	}
+	n := t.NumIn()
+	narg := len(args)
+	if narg == 1 {
+		// support foo(bar()) where bar() returns multiple values
+		narg = args[0].NumOut()
+	}
 	if narg < n-1 || (!variadic && narg != n) {
 		c.badCallArgNum(node.Fun, t, args)
 		return
@@ -170,19 +185,28 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 	if variadic {
 		tlast = t.In(n - 1).Elem()
 	}
-	for i, arg := range args {
+	for i := 0; i < narg; i++ {
 		if variadic && i >= n-1 {
 			ti = tlast
 		} else {
 			ti = t.In(i)
 		}
+		if len(args) != narg {
+			// support foo(bar()) where bar() returns multiple values
+			targ := args[0].Out(i)
+			if targ == nil || !targ.AssignableTo(ti) {
+				c.Errorf("cannot use <%v> as <%v> in argument to %v", targ, ti, node.Fun)
+			}
+			continue
+		}
+		// one argument per parameter: foo(arg1, arg2 /*...*/)
+		arg := args[i]
 		if arg.Const() {
 			arg.ConstTo(ti)
-		} else if arg.Type == nil || (!xr.SameType(arg.Type, ti) && !arg.Type.AssignableTo(ti)) {
+		} else if arg.Type == nil || !arg.Type.AssignableTo(ti) {
 			c.Errorf("cannot use <%v> as <%v> in argument to %v", arg.Type, ti, node.Fun)
 		}
 	}
-	return
 }
 
 // mandatory optimization: fast_interpreter ASSUMES that expressions
