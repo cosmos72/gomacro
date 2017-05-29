@@ -9,13 +9,16 @@ import (
 	"os"
 )
 
-func swap(a, b int) (int, int) {
-	return b, a
-}
+func fib(a, b int) (int, int) { return b, a + b }
 
 func main() {
 	x, y := 1, 2
-	x, y = swap(swap(x, y))
+	println(x, y)
+	x, y = fib(x, y)
+	println(x, y)
+	x, y = fib(fib(x, y))
+	println(x, y)
+	x, y = fib(fib(fib(x, y)))
 	println(x, y)
 	// m := [...]int{0x7ffffff: 3}
 	// fmt.Println(m)
