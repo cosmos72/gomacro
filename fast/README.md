@@ -18,7 +18,7 @@ The fast interpreter supports:
 * constant, variable and type declarations (including untyped constants)
 * Go 1.9 type aliases (experimental)
 * unary and binary operators
-* assignment, i.e. operators = += -= *= /= %= &= |= ^= <<= >>= &^=
+* assignment, i.e. operators := = += -= *= /= %= &= |= ^= <<= >>= &^=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs (including composite literals)
 * accessing struct fields, including embedded fields
 * slicing
@@ -30,7 +30,7 @@ The fast interpreter supports:
 * closures
 * Type.Method i.e. converting methods to functions (examples: time.Duration.Hours, fmt.Stringer.String)
 * seamless invocation of compiled functions from interpreter, and vice-versa
-* if, for, switch, break, continue, fallthrough, return (unimplemented: for-range, type switch, goto)
+* if, for, switch, break, continue, fallthrough, return (unimplemented: for-range, select, type switch, goto)
 * all builtins except defer and recover
 * go i.e. goroutines
 * imports
@@ -40,10 +40,10 @@ The fast interpreter supports:
 
 Missing features - you are welcome to contribute:
 * bar(foo()) where foo() returns multiple values
-* x,y = foo() where foo() returns multiple values
 * for-range (normal 'for' is implemented)
-* switch is not (yet) thread-safe
+* select
 * type switch
+* switch is implemented but not (yet) thread-safe
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
   (interfaces declared in compiled code can be used, but not yet implemented by interpreted code)
 * conversion from/to interpreted interfaces

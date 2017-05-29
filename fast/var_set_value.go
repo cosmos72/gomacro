@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  *
- * assign_set_expr.go
+ * var_setter.go
  *
  *  Created on Apr 09, 2017
  *      Author Massimiliano Ghilardi
@@ -33,10 +33,10 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// SetVarValue compiles 'name = value' where value is a reflect.Value passed at runtime.
-// Used to assign variables with the result of multi-valued expressions
-// Also handy for applications
-func (c *Comp) SetVarValue(va *Var) func(*Env, r.Value) {
+// varSetValue compiles 'name = value' where value is a reflect.Value passed at runtime.
+// Used to assign variables with the result of multi-valued expressions,
+// and to implement multiple assignment var1, var2... = expr1, expr2...
+func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 	t := va.Type
 	rt := t.ReflectType()
 	upn := va.Upn

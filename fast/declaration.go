@@ -380,7 +380,7 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 		}
 	case IntBind:
 		// no difference between declaration and assignment for IntBind
-		return c.SetVarValue(bind.AsVar(0, PlaceSettable))
+		return c.varSetValue(bind.AsVar(0, PlaceSettable))
 	}
 }
 

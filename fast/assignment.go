@@ -29,9 +29,6 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
-
-	"github.com/cosmos72/gomacro/base"
-	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 // Assign compiles an *ast.AssignStmt into an assignment to one or more place
@@ -44,84 +41,166 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 		return
 	}
 	ln, rn := len(lhs), len(rhs)
-	if ln > 1 && rn == 1 {
-		c.Errorf("unimplemented: assignment of multiple places with a single multi-valued expression: %v", node)
-	} else if ln != rn {
-		c.Errorf("invalid assignment, cannot assign %d values to %d places: %v", node)
+	if node.Tok == token.ASSIGN {
+		if ln < 1 || (rn != 1 && ln != rn) {
+			c.Errorf("invalid assignment, cannot assign %d values to %d places: %v", rn, ln, node)
+		}
+	} else if ln != 1 || rn != 1 {
+		c.Errorf("invalid assignment, operator %s does not support multiple parallel assignments: %v", node.Tok, node)
 	}
 
 	// the naive loop
-	//   for i := range lhs { c.Assign1(lhs[i], node.Tok, rhs[i]) }
+	//   for i := range lhs { c.assign1(lhs[i], node.Tok, rhs[i]) }
 	// is bugged. It breaks, among others, the common Go idiom to swap two values: a,b = b,a
 	//
-	// More in general, Go guarantees that all assignments happen *as if*
-	// the rhs values were copied to temporary locations before the assignments.
-	// That's exactly what we must do.
-	//
-	// To be completely accurate, https://golang.org/ref/spec#Assignments states:
+	// More accurately, Go states at: https://golang.org/ref/spec#Assignments
 	//
 	// "The assignment proceeds in two phases. First, the operands of index expressions
 	// and pointer indirections (including implicit pointer indirections in selectors)
 	// on the left and the expressions on the right are all evaluated in the usual order.
 	// Second, the assignments are carried out in left-to-right order."
 	//
-	// so we must also cache the results of index expressions, pointer indirections, selectors on left side
+	// A solution is to evaluate left-to-right all places on the left,
+	// then all expressions on the right, then perform all the assignments
 
 	places := make([]*Place, ln)
 	exprs := make([]*Expr, rn)
-	needcache := false
+	canreorder := true
 	for i, li := range lhs {
 		places[i] = c.Place(li)
-		needcache = needcache || !places[i].IsVar() // ach, needed. see the example i := 0; i, x[i] = 1, 2  // set i = 1, x[0] = 2
+		canreorder = canreorder && places[i].IsVar() // ach, needed. see for example i := 0; i, x[i] = 1, 2  // set i = 1, x[0] = 2
 	}
-	for i, ri := range rhs {
-		exprs[i] = c.Expr1(ri)
-		needcache = needcache || !exprs[i].Const()
+	if rn == 1 && ln > 1 {
+		exprs[0] = c.Expr(rhs[0])
+	} else {
+		for i, ri := range rhs {
+			exprs[i] = c.Expr1(ri)
+			canreorder = canreorder && exprs[i].Const()
+		}
 	}
-	if ln <= 1 {
-		// optimization
-		needcache = false
+	if ln == rn && (ln <= 1 || canreorder) {
+		for i := range lhs {
+			c.assign1(lhs[i], node.Tok, rhs[i], places[i], exprs[i])
+		}
+		return
 	}
-	if needcache {
-		var inits []func(*Env)
-		for i, li := range lhs {
-			for {
-				switch node := li.(type) {
-				case *ast.ParenExpr:
-					li = node.X
-					continue
-				case *ast.IndexExpr, *ast.StarExpr, *ast.SelectorExpr:
-					fun, _, index := places[i].Cache(CacheCopy)
-					if fun != nil {
-						inits = append(inits, fun)
-					}
-					if index != nil {
-						inits = append(inits, index)
-					}
-				}
-				break
+	// problem: we need to create temporary copies of the evaluations
+	// before performing the assignments. Such temporary copies must be per-goroutine!
+	//
+	// so a technique like the following is bugged,
+	// because create a *single* global location for the temporary copy:
+	//   var tmp r.Value
+	//   func set(env *Env) { tmp = places[i].Fun(env) }
+	//   func get(env *Env) r.Value { return tmp }
+
+	type Assign struct {
+		placefun func(*Env) r.Value
+		placekey func(*Env) r.Value
+		setvar   func(*Env, r.Value)
+		setplace func(r.Value, r.Value, r.Value)
+	}
+	assign := make([]Assign, ln)
+	for i, place := range places {
+		a := &assign[i]
+		if place.IsVar() {
+			a.setvar = c.varSetValue(&place.Var)
+		} else {
+			a.placefun = place.Fun
+			a.placekey = place.MapKey
+			a.setplace = c.placeSetValue(place)
+		}
+	}
+
+	exprfuns, exprxv := c.assignPrepareRhs(node, places, exprs)
+
+	c.Code.Append(func(env *Env) (Stmt, *Env) {
+		n := len(assign)
+		// these buffers must be allocated at runtime, per goroutine!
+		objs := make([]r.Value, n)
+		keys := make([]r.Value, n)
+		var tmp r.Value
+		var a *Assign
+		// evaluate all lhs
+		for i := range assign {
+			if a = &assign[i]; a.placefun == nil {
+				continue
+			}
+			objs[i] = a.placefun(env)
+			if a.placekey == nil {
+				continue
+			}
+			// assigning to obj[key] where obj is a map:
+			// obj and key do NOT need to be settable,
+			// and actually Go spec tell to make a copy of their values
+			if tmp = objs[i]; tmp.CanSet() {
+				objs[i] = tmp.Convert(tmp.Type())
+			}
+			if tmp = a.placekey(env); tmp.CanSet() {
+				tmp = tmp.Convert(tmp.Type())
+			}
+			keys[i] = tmp
+		}
+		// evaluate all rhs
+		var vals []r.Value
+		if exprxv != nil {
+			_, vals = exprxv(env)
+		} else {
+			vals = make([]r.Value, n)
+			for i, exprfun := range exprfuns {
+				vals[i] = exprfun(env)
 			}
 		}
-		for _, expr := range exprs {
-			init := expr.Cache(CacheCopy)
-			// init is nil for constant expressions: nothing to cache
-			if init != nil {
-				inits = append(inits, init)
+		// execute assignments
+		for i := range assign {
+			a := &assign[i]
+			if a.setvar != nil {
+				a.setvar(env, vals[i])
+			} else {
+				a.setplace(objs[i], keys[i], vals[i])
 			}
 		}
-		if len(inits) != 0 {
-			c.Code.Append(func(env *Env) (Stmt, *Env) {
-				for _, init := range inits {
-					init(env)
-				}
-				env.IP++
-				return env.Code[env.IP], env
-			})
+		env.IP++
+		return env.Code[env.IP], env
+	})
+}
+
+func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*Expr) ([]func(*Env) r.Value, func(*Env) (r.Value, []r.Value)) {
+	lhs, rhs := node.Lhs, node.Rhs
+	ln, rn := len(lhs), len(rhs)
+	if ln == rn {
+		exprfuns := make([]func(*Env) r.Value, rn)
+		for i, expr := range exprs {
+			tplace := places[i].Type
+			if expr.Const() {
+				expr.ConstTo(tplace)
+			} else if !expr.Type.AssignableTo(tplace) {
+				c.Pos = rhs[i].Pos()
+				c.Errorf("cannot use <%v> as <%v> in assignment: %v %v %v", expr.Type, tplace, lhs[i], node.Tok, rhs[i])
+			}
+			exprfuns[i] = expr.AsX1()
 		}
+		return exprfuns, nil
 	}
-	for i := range lhs {
-		c.assign1(lhs[i], node.Tok, rhs[i], places[i], exprs[i])
+	if rn == 1 {
+		expr := exprs[0]
+		nexpr := expr.NumOut()
+		if nexpr != ln {
+			c.Pos = node.Pos()
+			c.Errorf("invalid assignment: expression returns %d values, cannot assign them to %d places: %v", nexpr, ln, node)
+		}
+		for i := 0; i < nexpr; i++ {
+			texpr := expr.Out(i)
+			tplace := places[i].Type
+			if !texpr.AssignableTo(tplace) {
+				c.Pos = lhs[i].Pos()
+				c.Errorf("cannot assign <%v> to %v <%v> in multiple assignment", texpr, lhs[i], tplace)
+			}
+		}
+		return nil, expr.AsXV(CompileDefaults)
 	}
+	c.Pos = node.Pos()
+	c.Errorf("invalid assignment, cannot assign %d values to %d places: %v", rn, ln, node)
+	return nil, nil
 }
 
 // assign1 compiles a single assignment to a place
@@ -254,256 +333,4 @@ func (c *Comp) placeForSideEffects(place *Place) {
 		}
 	}
 	c.Code.Append(ret)
-}
-
-type CacheOption bool
-
-const (
-	CacheNoCopy CacheOption = false
-	CacheCopy   CacheOption = true
-)
-
-// Expr.Cache is a wrapper around CacheFun that operates on expressions. it modifies 'e' !
-func (e *Expr) Cache(option CacheOption) (setfun func(*Env)) {
-	if e.Const() {
-		return nil
-	}
-	setfun, e.Fun = CacheFun(e.Fun, e.Type, option)
-	return
-}
-
-// Place.Cache is a wrapper around CacheFun that operates on places. it modifies 'p' !
-func (p *Place) Cache(option CacheOption) (setfun func(*Env), addrfun func(*Env), mapkeyfun func(*Env)) {
-	if p.IsVar() {
-		return nil, nil, nil
-	}
-	t := p.Type
-	if p.Addr != nil {
-		addrfun, p.Addr = cacheFunX1(p.Addr, xr.PtrTo(t), option)
-	}
-	if p.MapKey != nil {
-		tmap := p.MapType
-		setfun, p.Fun = cacheFunX1(p.Fun, tmap, option)
-		mapkeyfun, p.MapKey = cacheFunX1(p.MapKey, tmap.Key(), option)
-	} else {
-		setfun, p.Fun = cacheFunX1(p.Fun, t, CacheNoCopy) // cannot copy, it would become unsettable
-	}
-	return
-}
-
-// CacheFun creates and returns two functions:
-// the function 'setfun' will evaluate the given function 'fun' and store its result in a cache,
-// the function 'getfun' will return the cached value.
-// If 'option' == CacheCopy, setfun will also make a copy of the value before storing it in the cache.
-// Used to create temporary storage for multiple assignments, as for example a,b = b,a
-func CacheFun(fun I, t xr.Type, option CacheOption) (setfun func(*Env), getfun I) {
-	switch t.Kind() {
-	case r.Bool:
-		fun := fun.(func(*Env) bool)
-		var cache bool
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) bool {
-			return cache
-		}
-	case r.Int:
-		fun := fun.(func(*Env) int)
-		var cache int
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) int {
-			return cache
-		}
-	case r.Int8:
-		fun := fun.(func(*Env) int8)
-		var cache int8
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) int8 {
-			return cache
-		}
-	case r.Int16:
-		fun := fun.(func(*Env) int16)
-		var cache int16
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) int16 {
-			return cache
-		}
-	case r.Int32:
-		fun := fun.(func(*Env) int32)
-		var cache int32
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) int32 {
-			return cache
-		}
-	case r.Int64:
-		fun := fun.(func(*Env) int64)
-		var cache int64
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) int64 {
-			return cache
-		}
-	case r.Uint:
-		fun := fun.(func(*Env) uint)
-		var cache uint
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) uint {
-			return cache
-		}
-	case r.Uint8:
-		fun := fun.(func(*Env) uint8)
-		var cache uint8
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) uint8 {
-			return cache
-		}
-	case r.Uint16:
-		fun := fun.(func(*Env) uint16)
-		var cache uint16
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) uint16 {
-			return cache
-		}
-	case r.Uint32:
-		fun := fun.(func(*Env) uint32)
-		var cache uint32
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) uint32 {
-			return cache
-		}
-	case r.Uint64:
-		fun := fun.(func(*Env) uint64)
-		var cache uint64
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) uint64 {
-			return cache
-		}
-	case r.Uintptr:
-		fun := fun.(func(*Env) uintptr)
-		var cache uintptr
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) uintptr {
-			return cache
-		}
-	case r.Float32:
-		fun := fun.(func(*Env) float32)
-		var cache float32
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) float32 {
-			return cache
-		}
-	case r.Float64:
-		fun := fun.(func(*Env) float64)
-		var cache float64
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) float64 {
-			return cache
-		}
-	case r.Complex64:
-		fun := fun.(func(*Env) complex64)
-		var cache complex64
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) complex64 {
-			return cache
-		}
-	case r.Complex128:
-		fun := fun.(func(*Env) complex128)
-		var cache complex128
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) complex128 {
-			return cache
-		}
-	case r.String:
-		fun := fun.(func(*Env) string)
-		var cache string
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-		getfun = func(env *Env) string {
-			return cache
-		}
-	default:
-		if fun, ok := fun.(func(env *Env) (r.Value, []r.Value)); ok {
-			setfun, getfun = cacheFunXV(fun, t, option)
-		} else {
-			funx1 := funAsX1(fun, t)
-			setfun, getfun = cacheFunX1(funx1, t, option)
-		}
-	}
-	return setfun, getfun
-}
-
-// special case of CacheFun
-func cacheFunXV(fun func(env *Env) (r.Value, []r.Value), t xr.Type, option CacheOption) (setfun func(*Env), getfun func(env *Env) r.Value) {
-	rt := t.ReflectType()
-	var cache r.Value
-	if option == CacheCopy {
-		setfun = func(env *Env) {
-			cache, _ = fun(env)
-			if cache != base.Nil && cache.CanSet() {
-				// make a copy. how? Convert() the r.Value to its expected type
-				cache = cache.Convert(rt)
-			}
-		}
-	} else {
-		setfun = func(env *Env) {
-			cache, _ = fun(env)
-		}
-	}
-	getfun = func(env *Env) r.Value {
-		return cache
-	}
-	return
-}
-
-// special case of CacheFun
-func cacheFunX1(fun func(env *Env) r.Value, t xr.Type, option CacheOption) (setfun func(*Env), getfun func(env *Env) r.Value) {
-	rt := t.ReflectType()
-	var cache r.Value
-	if option == CacheCopy {
-		setfun = func(env *Env) {
-			cache = fun(env)
-			if cache != base.Nil && cache.CanSet() {
-				// make a copy. how? Convert() the r.Value to its expected type
-				cache = cache.Convert(rt)
-			}
-		}
-	} else {
-		setfun = func(env *Env) {
-			cache = fun(env)
-		}
-	}
-	getfun = func(env *Env) r.Value {
-		return cache
-	}
-	return
 }

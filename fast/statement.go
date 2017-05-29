@@ -510,7 +510,7 @@ func (c *Comp) returnMultiValues(resultBinds []*Bind, upn int, exprs []ast.Expr)
 		if !tactual.AssignableTo(texpected) {
 			c.Errorf("incompatible types in assignment: %v = %v", texpected, tactual)
 		}
-		assigns[i] = c.SetVarValue(resultBinds[i].AsVar(upn, PlaceSettable))
+		assigns[i] = c.varSetValue(resultBinds[i].AsVar(upn, PlaceSettable))
 	}
 	c.Code.Append(func(env *Env) (Stmt, *Env) {
 		// no risk in evaluating fun() first: return binds are plain variables, not places with side effects

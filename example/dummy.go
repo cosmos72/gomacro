@@ -9,7 +9,14 @@ import (
 	"os"
 )
 
+func pair() (int, int) {
+	return 1, 2
+}
+
 func main() {
+	var x int
+	var y uint
+	x, y = pair()
 	// m := [...]int{0x7ffffff: 3}
 	// fmt.Println(m)
 	// p := Pair{A: 1, B: true}

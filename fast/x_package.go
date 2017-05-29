@@ -14,9 +14,6 @@ func init() {
 	imports.Packages["github.com/cosmos72/gomacro/fast"] = imports.Package{
 		Binds: map[string]r.Value{
 			"AnyDepth":               r.ValueOf(AnyDepth),
-			"CacheCopy":              r.ValueOf(CacheCopy),
-			"CacheFun":               r.ValueOf(CacheFun),
-			"CacheNoCopy":            r.ValueOf(CacheNoCopy),
 			"CompileDefaults":        r.ValueOf(CompileDefaults),
 			"CompileKeepUntyped":     r.ValueOf(CompileKeepUntyped),
 			"ConstBind":              r.ValueOf(ConstBind),
@@ -48,7 +45,6 @@ func init() {
 			"BindClass":          r.TypeOf((*BindClass)(nil)).Elem(),
 			"BindDescriptor":     r.TypeOf((*BindDescriptor)(nil)).Elem(),
 			"Builtin":            r.TypeOf((*Builtin)(nil)).Elem(),
-			"CacheOption":        r.TypeOf((*CacheOption)(nil)).Elem(),
 			"Call":               r.TypeOf((*Call)(nil)).Elem(),
 			"Code":               r.TypeOf((*Code)(nil)).Elem(),
 			"Comp":               r.TypeOf((*Comp)(nil)).Elem(),
