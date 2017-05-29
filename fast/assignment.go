@@ -31,6 +31,13 @@ import (
 	r "reflect"
 )
 
+type Assign struct {
+	placefun func(*Env) r.Value
+	placekey func(*Env) r.Value
+	setvar   func(*Env, r.Value)
+	setplace func(r.Value, r.Value, r.Value)
+}
+
 // Assign compiles an *ast.AssignStmt into an assignment to one or more place
 func (c *Comp) Assign(node *ast.AssignStmt) {
 	c.Pos = node.Pos()
@@ -72,6 +79,7 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 	}
 	if rn == 1 && ln > 1 {
 		exprs[0] = c.Expr(rhs[0])
+		canreorder = false
 	} else {
 		for i, ri := range rhs {
 			exprs[i] = c.Expr1(ri)
@@ -93,12 +101,6 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 	//   func set(env *Env) { tmp = places[i].Fun(env) }
 	//   func get(env *Env) r.Value { return tmp }
 
-	type Assign struct {
-		placefun func(*Env) r.Value
-		placekey func(*Env) r.Value
-		setvar   func(*Env, r.Value)
-		setplace func(r.Value, r.Value, r.Value)
-	}
 	assign := make([]Assign, ln)
 	for i, place := range places {
 		a := &assign[i]
@@ -113,6 +115,107 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 
 	exprfuns, exprxv := c.assignPrepareRhs(node, places, exprs)
 
+	if ln == 2 && rn == 2 && assign[0].placekey == nil && assign[1].placekey == nil {
+		c.assign2(assign, exprfuns)
+	} else {
+		c.assignMulti(assign, exprfuns, exprxv)
+	}
+}
+
+func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*Expr) ([]func(*Env) r.Value, func(*Env) (r.Value, []r.Value)) {
+	lhs, rhs := node.Lhs, node.Rhs
+	ln, rn := len(lhs), len(rhs)
+	if ln == rn {
+		exprfuns := make([]func(*Env) r.Value, rn)
+		for i, expr := range exprs {
+			tplace := places[i].Type
+			if expr.Const() {
+				expr.ConstTo(tplace)
+			} else if !expr.Type.AssignableTo(tplace) {
+				c.Pos = rhs[i].Pos()
+				c.Errorf("cannot use <%v> as <%v> in assignment: %v %v %v", expr.Type, tplace, lhs[i], node.Tok, rhs[i])
+			}
+			exprfuns[i] = expr.AsX1()
+		}
+		return exprfuns, nil
+	}
+	if rn == 1 {
+		expr := exprs[0]
+		nexpr := expr.NumOut()
+		if nexpr != ln {
+			c.Pos = node.Pos()
+			c.Errorf("invalid assignment: expression returns %d values, cannot assign them to %d places: %v", nexpr, ln, node)
+		}
+		for i := 0; i < nexpr; i++ {
+			texpr := expr.Out(i)
+			tplace := places[i].Type
+			if !texpr.AssignableTo(tplace) {
+				c.Pos = lhs[i].Pos()
+				c.Errorf("cannot assign <%v> to %v <%v> in multiple assignment", texpr, lhs[i], tplace)
+			}
+		}
+		return nil, expr.AsXV(CompileDefaults)
+	}
+	c.Pos = node.Pos()
+	c.Errorf("invalid assignment, cannot assign %d values to %d places: %v", rn, ln, node)
+	return nil, nil
+}
+
+// assign2 compiles multiple assignment to two places
+func (c *Comp) assign2(assign []Assign, exprfuns []func(*Env) r.Value) {
+	efuns := [2]func(*Env) r.Value{exprfuns[0], exprfuns[1]}
+	var stmt Stmt
+	if assign[0].placefun == nil {
+		if assign[1].placefun == nil {
+			setvars := [2]func(*Env, r.Value){assign[0].setvar, assign[1].setvar}
+			stmt = func(env *Env) (Stmt, *Env) {
+				val0 := efuns[0](env)
+				val1 := efuns[1](env)
+				setvars[0](env, val0)
+				setvars[1](env, val1)
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		} else {
+			stmt = func(env *Env) (Stmt, *Env) {
+				obj1 := assign[1].placefun(env)
+				val0 := efuns[0](env)
+				val1 := efuns[1](env)
+				assign[0].setvar(env, val0)
+				assign[1].setplace(obj1, obj1, val1)
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+	} else {
+		if assign[1].placefun == nil {
+			stmt = func(env *Env) (Stmt, *Env) {
+				obj0 := assign[0].placefun(env)
+				val0 := efuns[0](env)
+				val1 := efuns[1](env)
+				assign[0].setplace(obj0, obj0, val0)
+				assign[1].setvar(env, val1)
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		} else {
+			stmt = func(env *Env) (Stmt, *Env) {
+				obj0 := assign[0].placefun(env)
+				obj1 := assign[1].placefun(env)
+				val0 := efuns[0](env)
+				val1 := efuns[1](env)
+				assign[0].setplace(obj0, obj0, val0)
+				assign[1].setplace(obj1, obj1, val1)
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
+	}
+	c.Code.Append(stmt)
+}
+
+// assignMulti compiles multiple assignment to places
+func (c *Comp) assignMulti(assign []Assign, exprfuns []func(*Env) r.Value, exprxv func(*Env) (r.Value, []r.Value)) {
 	c.Code.Append(func(env *Env) (Stmt, *Env) {
 		n := len(assign)
 		// these buffers must be allocated at runtime, per goroutine!
@@ -162,45 +265,6 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 		env.IP++
 		return env.Code[env.IP], env
 	})
-}
-
-func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*Expr) ([]func(*Env) r.Value, func(*Env) (r.Value, []r.Value)) {
-	lhs, rhs := node.Lhs, node.Rhs
-	ln, rn := len(lhs), len(rhs)
-	if ln == rn {
-		exprfuns := make([]func(*Env) r.Value, rn)
-		for i, expr := range exprs {
-			tplace := places[i].Type
-			if expr.Const() {
-				expr.ConstTo(tplace)
-			} else if !expr.Type.AssignableTo(tplace) {
-				c.Pos = rhs[i].Pos()
-				c.Errorf("cannot use <%v> as <%v> in assignment: %v %v %v", expr.Type, tplace, lhs[i], node.Tok, rhs[i])
-			}
-			exprfuns[i] = expr.AsX1()
-		}
-		return exprfuns, nil
-	}
-	if rn == 1 {
-		expr := exprs[0]
-		nexpr := expr.NumOut()
-		if nexpr != ln {
-			c.Pos = node.Pos()
-			c.Errorf("invalid assignment: expression returns %d values, cannot assign them to %d places: %v", nexpr, ln, node)
-		}
-		for i := 0; i < nexpr; i++ {
-			texpr := expr.Out(i)
-			tplace := places[i].Type
-			if !texpr.AssignableTo(tplace) {
-				c.Pos = lhs[i].Pos()
-				c.Errorf("cannot assign <%v> to %v <%v> in multiple assignment", texpr, lhs[i], tplace)
-			}
-		}
-		return nil, expr.AsXV(CompileDefaults)
-	}
-	c.Pos = node.Pos()
-	c.Errorf("invalid assignment, cannot assign %d values to %d places: %v", rn, ln, node)
-	return nil, nil
 }
 
 // assign1 compiles a single assignment to a place
