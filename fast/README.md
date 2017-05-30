@@ -39,7 +39,6 @@ The fast interpreter supports:
 * ~quote
 
 Missing features - you are welcome to contribute:
-* bar(foo()) where foo() returns multiple values
 * for-range (normal 'for' is implemented)
 * select
 * type switch

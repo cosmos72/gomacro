@@ -27,6 +27,7 @@ package fast
 
 import (
 	"go/ast"
+	"go/constant"
 	"go/token"
 	r "reflect"
 	"sort"
@@ -74,7 +75,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	enode := node.Tag
 	if enode == nil {
 		// "switch { }" without an expression means "switch true { }"
-		e = c.exprValue(c.TypeOfBool(), true)
+		e = c.exprUntypedLit(r.Bool, constant.MakeBool(true))
 		enode = &ast.Ident{NamePos: node.Pos() + 6, Name: "true"} // only for error messages
 	} else {
 		e = c.Expr1(enode)
@@ -133,7 +134,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 // switchCase compiles a case in a switch.
 func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, canfallthrough bool, seen *caseHelper) {
 	cmpfuns := make([]func(*Env) bool, 0)
-	cmpnode := &ast.BinaryExpr{Op: token.EQL, X: tagnode} // only for error messages
+	cmpnode := &ast.BinaryExpr{Op: token.EQL, X: tagnode} // for error messages, and Comp.BinaryExpr1 dispatches on its Op
 
 	ibody := c.Code.Len() + 1 // body will start here
 	// compile a comparison of tag against each expression
@@ -142,7 +143,7 @@ func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, can
 		e := c.Expr1(enode)
 		cmpnode.OpPos = enode.Pos()
 		cmpnode.Y = enode
-		cmp := c.Eql(cmpnode, tag, e)
+		cmp := c.BinaryExpr1(cmpnode, tag, e)
 		if e.Const() {
 			seen.add(c, e.Value, caseEntry{Pos: enode.Pos(), IP: ibody})
 			if tag.Const() {

@@ -93,6 +93,9 @@ func (expr *Expr) EvalConst(opts CompileOptions) I {
 		return nil
 	}
 	if expr.Const() {
+		if opts == CompileDefaults && expr.Untyped() {
+			return expr.ConstTo(expr.DefaultType())
+		}
 		return expr.Value
 	}
 	ret := expr.AsX1()(nil)

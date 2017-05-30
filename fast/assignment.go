@@ -96,7 +96,7 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 	// before performing the assignments. Such temporary copies must be per-goroutine!
 	//
 	// so a technique like the following is bugged,
-	// because create a *single* global location for the temporary copy:
+	// because it creates a *single* global location for the temporary copy:
 	//   var tmp r.Value
 	//   func set(env *Env) { tmp = places[i].Fun(env) }
 	//   func get(env *Env) r.Value { return tmp }
