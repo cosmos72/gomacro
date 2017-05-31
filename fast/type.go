@@ -484,6 +484,9 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 
 // TypeAssert1 compiles a single-valued type assertion
 func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
+	if node.Type == nil {
+		c.Errorf("invalid type assertion: expecting actual type, found type switch: %v", node)
+	}
 	val := c.Expr1(node.X)
 	tin := val.Type
 	tout := c.Type(node.Type)

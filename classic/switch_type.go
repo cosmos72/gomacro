@@ -41,15 +41,18 @@ func (env *Env) evalTypeSwitch(node *ast.TypeSwitchStmt) (ret r.Value, rets []r.
 		env.evalStatement(node.Init)
 	}
 	varname, expr := env.mustBeTypeSwitchStatement(node.Assign)
-	val := env.evalExpr1(expr)
+	v := env.evalExpr1(expr)
 	if node.Body == nil || len(node.Body.List) == 0 {
 		return None, nil
 	}
 	var vt r.Type = nil
-	if val != None && val != Nil {
+	if v != None && v != Nil {
 		// go through interface{} to obtain actual concrete type
-		val = r.ValueOf(val.Interface())
-		vt = val.Type()
+		val := v.Interface()
+		v = r.ValueOf(val)
+		if val != nil {
+			vt = v.Type()
+		}
 	}
 	var default_ *ast.CaseClause
 	for _, stmt := range node.Body.List {
@@ -58,11 +61,11 @@ func (env *Env) evalTypeSwitch(node *ast.TypeSwitchStmt) (ret r.Value, rets []r.
 			// default will be executed later, if no case matches
 			default_ = case_
 		} else if t, ok := env.typecaseMatches(vt, case_.List); ok {
-			return env.evalTypecaseBody(varname, t, val, case_, false)
+			return env.evalTypecaseBody(varname, t, v, case_, false)
 		}
 	}
 	if default_ != nil {
-		return env.evalTypecaseBody(varname, TypeOfInterface, val, default_, true)
+		return env.evalTypecaseBody(varname, TypeOfInterface, v, default_, true)
 	}
 	return None, nil
 }

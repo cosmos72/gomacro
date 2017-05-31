@@ -342,6 +342,9 @@ func (h Hasher) hashFor(t types.Type) uint32 {
 
 	case *types.Tuple:
 		return h.hashTuple(t)
+
+	case nil:
+		return 9133
 	}
 	panic(t)
 }

@@ -73,7 +73,6 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	}
 
 	// tag.Value (if constant) or tag.Fun() will return the tag value at runtime
-	// cannot invoke tag.Fun() multiple times because side effects must be applied only once!
 	var tag *Expr
 	tagnode := node.Tag
 	if tagnode == nil {
@@ -84,6 +83,9 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 		tag = c.Expr1(tagnode)
 	}
 	if !tag.Const() {
+		// cannot invoke tag.Fun() multiple times because side effects must be applied only once!
+		// switchTag saves the result of tag.Fun() in a runtime bind
+		// and returns an expression that retrieves it
 		tag = c.switchTag(tag)
 
 		if c.Options&OptDebugSleepOnSwitch != 0 {

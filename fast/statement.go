@@ -103,8 +103,8 @@ func (c *Comp) Stmt(in ast.Stmt) {
 			c.Send(node)
 		case *ast.SwitchStmt:
 			c.Switch(node, labels)
-		// case *ast.TypeSwitchStmt:
-		//   c.TypeSwitch(node, labels)
+		case *ast.TypeSwitchStmt:
+			c.TypeSwitch(node, labels)
 		default:
 			c.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
 		}

@@ -9,17 +9,7 @@ import (
 	"os"
 )
 
-func fib(a, b int) (int, int) { return b, a + b }
-
 func main() {
-	x, y := 1, 2
-	println(x, y)
-	x, y = fib(x, y)
-	println(x, y)
-	x, y = fib(fib(x, y))
-	println(x, y)
-	x, y = fib(fib(fib(x, y)))
-	println(x, y)
 	// m := [...]int{0x7ffffff: 3}
 	// fmt.Println(m)
 	// p := Pair{A: 1, B: true}
