@@ -115,6 +115,7 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 
 	exprfuns, exprxv := c.assignPrepareRhs(node, places, exprs)
 
+	c.Pos = node.Pos()
 	if ln == 2 && rn == 2 && assign[0].placekey == nil && assign[1].placekey == nil {
 		c.assign2(assign, exprfuns)
 	} else {
@@ -211,12 +212,12 @@ func (c *Comp) assign2(assign []Assign, exprfuns []func(*Env) r.Value) {
 			}
 		}
 	}
-	c.Code.Append(stmt)
+	c.append(stmt)
 }
 
 // assignMulti compiles multiple assignment to places
 func (c *Comp) assignMulti(assign []Assign, exprfuns []func(*Env) r.Value, exprxv func(*Env) (r.Value, []r.Value)) {
-	c.Code.Append(func(env *Env) (Stmt, *Env) {
+	stmt := func(env *Env) (Stmt, *Env) {
 		n := len(assign)
 		// these buffers must be allocated at runtime, per goroutine!
 		objs := make([]r.Value, n)
@@ -264,7 +265,8 @@ func (c *Comp) assignMulti(assign []Assign, exprfuns []func(*Env) r.Value, exprx
 		}
 		env.IP++
 		return env.Code[env.IP], env
-	})
+	}
+	c.append(stmt)
 }
 
 // assign1 compiles a single assignment to a place
@@ -396,5 +398,5 @@ func (c *Comp) placeForSideEffects(place *Place) {
 			return env.Code[env.IP], env
 		}
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }

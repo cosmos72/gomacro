@@ -1405,7 +1405,7 @@ func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 			}
 		}
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 	rt := t.ReflectType()
@@ -2714,5 +2714,5 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 
 		}
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }

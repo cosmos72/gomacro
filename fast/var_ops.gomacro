@@ -259,7 +259,7 @@ import (
 		switch t.Kind() {
 			~,@caselist
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 
@@ -278,7 +278,7 @@ import (
 		switch fun := fun.(type) {
 			~,@caselist
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 
@@ -457,7 +457,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 	if ret == nil {
 		return false
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 	return true
 }
 
@@ -601,7 +601,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		if !init.Const() {
 			// assigning an expression to _
 			// only keep the expression side effects
-			c.Code.Append(init.AsStmt())
+			c.append(init.AsStmt())
 		}
 		return
 	}

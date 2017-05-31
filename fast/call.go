@@ -83,12 +83,14 @@ func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
 		fun = c.Expr1(node.Fun)
 	}
 	t := fun.Type
+	var builtin bool
 	var lastarg *Expr
 	if xr.SameType(t, c.TypeOfBuiltin()) {
 		return c.callBuiltin(node, fun)
 	} else if xr.SameType(t, c.TypeOfFunction()) {
 		fun, lastarg = c.callFunction(node, fun)
 		t = fun.Type
+		builtin = true
 	}
 	if t.Kind() != r.Func {
 		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
@@ -116,7 +118,7 @@ func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
 	for i := 0; i < outn; i++ {
 		outtypes[i] = t.Out(i)
 	}
-	return &Call{Fun: fun, Args: args, OutTypes: outtypes, Ellipsis: ellipsis}
+	return &Call{Fun: fun, Args: args, OutTypes: outtypes, Builtin: builtin, Ellipsis: ellipsis}
 }
 
 // call_any emits a compiled function call

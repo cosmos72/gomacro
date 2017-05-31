@@ -380,6 +380,7 @@ func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // --- Env() ---
 
+// we can use whatever signature we want, as long as call_builtin supports it
 func callIdentity(v r.Value) r.Value {
 	return v
 }

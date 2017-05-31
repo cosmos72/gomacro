@@ -248,7 +248,7 @@ import (
 		if ret == nil {
 			c.Errorf("invalid operator %s= on <%v>", ~,opnode, place.Type)
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 
@@ -317,7 +317,7 @@ import (
 		if ret == nil {
 			c.Errorf("invalid operator %s= on <%v>", ~,opnode, place.Type)
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 

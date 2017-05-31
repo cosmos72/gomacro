@@ -56,7 +56,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() + int64(val),
+					lhs.SetInt(lhs.Int() + int64(val,
+					),
 					)
 
 					env.IP++
@@ -67,7 +68,8 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() + uint64(val),
+					lhs.SetUint(lhs.Uint() + uint64(val,
+					),
 					)
 
 					env.IP++
@@ -393,7 +395,7 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeAddExpr(place *Place, fun I) {
@@ -406,7 +408,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(fun(env)),
+				lhs.SetInt(lhs.Int() + int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -416,7 +419,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(fun(env)),
+				lhs.SetInt(lhs.Int() + int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -426,7 +430,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(fun(env)),
+				lhs.SetInt(lhs.Int() + int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -436,7 +441,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() + int64(fun(env)),
+				lhs.SetInt(lhs.Int() + int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -457,7 +463,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -467,7 +474,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -477,7 +485,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -487,7 +496,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -508,7 +518,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() + uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() + uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -518,7 +529,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() + float64(fun(env)),
+				lhs.SetFloat(lhs.Float() + float64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -539,7 +551,8 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() + complex128(fun(env)),
+				lhs.SetComplex(lhs.Complex() + complex128(fun(env),
+				),
 				)
 
 				env.IP++
@@ -835,7 +848,7 @@ func (c *Comp) placeAddExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeSubConst(place *Place, val I) {
 	if isLiteralNumber(val, 0) {
@@ -856,7 +869,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() - int64(val),
+					lhs.SetInt(lhs.Int() - int64(val,
+					),
 					)
 
 					env.IP++
@@ -867,7 +881,8 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() - uint64(val),
+					lhs.SetUint(lhs.Uint() - uint64(val,
+					),
 					)
 
 					env.IP++
@@ -1164,7 +1179,7 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeSubExpr(place *Place, fun I) {
@@ -1177,7 +1192,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(fun(env)),
+				lhs.SetInt(lhs.Int() - int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1187,7 +1203,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(fun(env)),
+				lhs.SetInt(lhs.Int() - int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1197,7 +1214,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(fun(env)),
+				lhs.SetInt(lhs.Int() - int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1207,7 +1225,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() - int64(fun(env)),
+				lhs.SetInt(lhs.Int() - int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1228,7 +1247,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1238,7 +1258,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1248,7 +1269,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1258,7 +1280,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1279,7 +1302,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() - uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() - uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1289,7 +1313,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() - float64(fun(env)),
+				lhs.SetFloat(lhs.Float() - float64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1310,7 +1335,8 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() - complex128(fun(env)),
+				lhs.SetComplex(lhs.Complex() - complex128(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1579,7 +1605,7 @@ func (c *Comp) placeSubExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeMulConst(place *Place, val I) {
 	if isLiteralNumber(val, 0) {
@@ -1604,7 +1630,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() * int64(val),
+					lhs.SetInt(lhs.Int() * int64(val,
+					),
 					)
 
 					env.IP++
@@ -1615,7 +1642,8 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() * uint64(val),
+					lhs.SetUint(lhs.Uint() * uint64(val,
+					),
 					)
 
 					env.IP++
@@ -1912,7 +1940,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeMulExpr(place *Place, fun I) {
@@ -1925,7 +1953,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(fun(env)),
+				lhs.SetInt(lhs.Int() * int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1935,7 +1964,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(fun(env)),
+				lhs.SetInt(lhs.Int() * int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1945,7 +1975,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(fun(env)),
+				lhs.SetInt(lhs.Int() * int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1955,7 +1986,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() * int64(fun(env)),
+				lhs.SetInt(lhs.Int() * int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1976,7 +2008,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1986,7 +2019,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -1996,7 +2030,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2006,7 +2041,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2027,7 +2063,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() * uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() * uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2037,7 +2074,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() * float64(fun(env)),
+				lhs.SetFloat(lhs.Float() * float64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2058,7 +2096,8 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() * complex128(fun(env)),
+				lhs.SetComplex(lhs.Complex() * complex128(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2327,7 +2366,7 @@ func (c *Comp) placeMulExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeQuoConst(place *Place, val I) {
 	if c.placeQuoPow2(place, val) {
@@ -2347,7 +2386,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() / int64(val),
+					lhs.SetInt(lhs.Int() / int64(val,
+					),
 					)
 
 					env.IP++
@@ -2358,7 +2398,8 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() / uint64(val),
+					lhs.SetUint(lhs.Uint() / uint64(val,
+					),
 					)
 
 					env.IP++
@@ -2655,7 +2696,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeQuoExpr(place *Place, fun I) {
@@ -2668,7 +2709,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(fun(env)),
+				lhs.SetInt(lhs.Int() / int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2678,7 +2720,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(fun(env)),
+				lhs.SetInt(lhs.Int() / int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2688,7 +2731,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(fun(env)),
+				lhs.SetInt(lhs.Int() / int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2698,7 +2742,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() / int64(fun(env)),
+				lhs.SetInt(lhs.Int() / int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2719,7 +2764,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2729,7 +2775,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2739,7 +2786,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2749,7 +2797,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2770,7 +2819,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() / uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() / uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2780,7 +2830,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetFloat(lhs.Float() / float64(fun(env)),
+				lhs.SetFloat(lhs.Float() / float64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -2801,7 +2852,8 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetComplex(lhs.Complex() / complex128(fun(env)),
+				lhs.SetComplex(lhs.Complex() / complex128(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3070,7 +3122,7 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeRemConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
@@ -3097,7 +3149,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() % int64(val),
+					lhs.SetInt(lhs.Int() % int64(val,
+					),
 					)
 
 					env.IP++
@@ -3108,7 +3161,8 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() % uint64(val),
+					lhs.SetUint(lhs.Uint() % uint64(val,
+					),
 					)
 
 					env.IP++
@@ -3313,7 +3367,7 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeRemExpr(place *Place, fun I) {
@@ -3326,7 +3380,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(fun(env)),
+				lhs.SetInt(lhs.Int() % int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3336,7 +3391,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(fun(env)),
+				lhs.SetInt(lhs.Int() % int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3346,7 +3402,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(fun(env)),
+				lhs.SetInt(lhs.Int() % int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3356,7 +3413,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() % int64(fun(env)),
+				lhs.SetInt(lhs.Int() % int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3377,7 +3435,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3387,7 +3446,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3397,7 +3457,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3407,7 +3468,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3428,7 +3490,8 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() % uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() % uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3622,7 +3685,7 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeAndConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
@@ -3649,7 +3712,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() & int64(val),
+					lhs.SetInt(lhs.Int() & int64(val,
+					),
 					)
 
 					env.IP++
@@ -3660,7 +3724,8 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() & uint64(val),
+					lhs.SetUint(lhs.Uint() & uint64(val,
+					),
 					)
 
 					env.IP++
@@ -3865,7 +3930,7 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeAndExpr(place *Place, fun I) {
@@ -3878,7 +3943,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(fun(env)),
+				lhs.SetInt(lhs.Int() & int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3888,7 +3954,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(fun(env)),
+				lhs.SetInt(lhs.Int() & int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3898,7 +3965,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(fun(env)),
+				lhs.SetInt(lhs.Int() & int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3908,7 +3976,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() & int64(fun(env)),
+				lhs.SetInt(lhs.Int() & int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3929,7 +3998,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3939,7 +4009,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3949,7 +4020,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3959,7 +4031,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -3980,7 +4053,8 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() & uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() & uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4174,7 +4248,7 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeOrConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
@@ -4195,7 +4269,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() | int64(val),
+					lhs.SetInt(lhs.Int() | int64(val,
+					),
 					)
 
 					env.IP++
@@ -4206,7 +4281,8 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() | uint64(val),
+					lhs.SetUint(lhs.Uint() | uint64(val,
+					),
 					)
 
 					env.IP++
@@ -4411,7 +4487,7 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeOrExpr(place *Place, fun I) {
@@ -4424,7 +4500,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(fun(env)),
+				lhs.SetInt(lhs.Int() | int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4434,7 +4511,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(fun(env)),
+				lhs.SetInt(lhs.Int() | int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4444,7 +4522,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(fun(env)),
+				lhs.SetInt(lhs.Int() | int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4454,7 +4533,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() | int64(fun(env)),
+				lhs.SetInt(lhs.Int() | int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4475,7 +4555,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4485,7 +4566,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4495,7 +4577,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4505,7 +4588,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4526,7 +4610,8 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() | uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() | uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4720,7 +4805,7 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeXorConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
@@ -4741,7 +4826,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() ^ int64(val),
+					lhs.SetInt(lhs.Int() ^ int64(val,
+					),
 					)
 
 					env.IP++
@@ -4752,7 +4838,8 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() ^ uint64(val),
+					lhs.SetUint(lhs.Uint() ^ uint64(val,
+					),
 					)
 
 					env.IP++
@@ -4957,7 +5044,7 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeXorExpr(place *Place, fun I) {
@@ -4970,7 +5057,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(fun(env)),
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4980,7 +5068,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(fun(env)),
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -4990,7 +5079,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(fun(env)),
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5000,7 +5090,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() ^ int64(fun(env)),
+				lhs.SetInt(lhs.Int() ^ int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5021,7 +5112,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5031,7 +5123,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5041,7 +5134,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5051,7 +5145,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5072,7 +5167,8 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() ^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() ^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5266,7 +5362,7 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeAndnotConst(place *Place, val I) {
 	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
@@ -5293,7 +5389,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetInt(lhs.Int() &^ int64(val),
+					lhs.SetInt(lhs.Int() &^ int64(val,
+					),
 					)
 
 					env.IP++
@@ -5304,7 +5401,8 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 
 				ret = func(env *Env) (Stmt, *Env) {
 					lhs := lhsfun(env)
-					lhs.SetUint(lhs.Uint() &^ uint64(val),
+					lhs.SetUint(lhs.Uint() &^ uint64(val,
+					),
 					)
 
 					env.IP++
@@ -5509,7 +5607,7 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 			}
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeAndnotExpr(place *Place, fun I) {
@@ -5522,7 +5620,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(fun(env)),
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5532,7 +5631,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(fun(env)),
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5542,7 +5642,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(fun(env)),
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5552,7 +5653,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetInt(lhs.Int() &^ int64(fun(env)),
+				lhs.SetInt(lhs.Int() &^ int64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5573,7 +5675,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5583,7 +5686,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5593,7 +5697,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5603,7 +5708,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5624,7 +5730,8 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 
 			ret = func(env *Env) (Stmt, *Env) {
 				lhs := lhsfun(env)
-				lhs.SetUint(lhs.Uint() &^ uint64(fun(env)),
+				lhs.SetUint(lhs.Uint() &^ uint64(fun(env),
+				),
 				)
 
 				env.IP++
@@ -5818,7 +5925,7 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
 	t := place.Type

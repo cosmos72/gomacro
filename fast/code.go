@@ -26,20 +26,23 @@
 package fast
 
 import (
+	"go/token"
 	"unsafe"
 )
 
 func (code *Code) Clear() {
 	code.List = nil
+	code.DebugPos = nil
 }
 
 func (code *Code) Len() int {
 	return len(code.List)
 }
 
-func (code *Code) Append(stmt Stmt) {
+func (code *Code) Append(stmt Stmt, pos token.Pos) {
 	if stmt != nil {
 		code.List = append(code.List, stmt)
+		code.DebugPos = append(code.DebugPos, pos)
 	}
 }
 
@@ -53,18 +56,19 @@ func (code *Code) AsExpr() *Expr {
 
 // Exec returns a func(*Env) that will execute the compiled code
 func (code *Code) Exec() func(*Env) {
-	if code.Len() == 0 {
-		code.Clear()
+	all := code.List
+	pos := code.DebugPos
+	code.Clear()
+	if len(all) == 0 {
 		return nil
 	}
-	all := code.List
-	code.Clear()
 	all = append(all, nil)
 
 	if len(all) == 2 {
 		return func(env *Env) {
 			env.IP = 0
 			env.Code = all
+			env.DebugPos = pos
 			interrupt := env.ThreadGlobals.Interrupt
 			env.ThreadGlobals.Interrupt = nil
 			stmt := all[0]
@@ -86,6 +90,7 @@ func (code *Code) Exec() func(*Env) {
 		all[n] = nil
 		env.IP = 0
 		env.Code = all
+		env.DebugPos = pos
 		interrupt := env.ThreadGlobals.Interrupt
 		env.ThreadGlobals.Interrupt = nil
 

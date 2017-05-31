@@ -228,7 +228,7 @@ func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 		c.Binds = make(map[string]*Bind)
 	}
 	if len(name) == 0 {
-		// unnamed function result
+		// unnamed function result, or unnamed switch expression
 	} else if bind := c.Binds[name]; bind != nil {
 		c.Warnf("redefined identifier: %v", name)
 		oldclass := bind.Desc.Class()
@@ -305,12 +305,12 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		if index == NoIndex {
 			// assigning a constant or expression to _
 			// only keep the expression side effects
-			c.Code.Append(init.AsStmt())
+			c.append(init.AsStmt())
 		}
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		if init == nil {
 			// no initializer... use the zero-value of t
-			c.Code.Append(func(env *Env) (Stmt, *Env) {
+			c.append(func(env *Env) (Stmt, *Env) {
 				env.Binds[index] = r.New(t.ReflectType()).Elem()
 				env.IP++
 				return env.Code[env.IP], env
@@ -348,7 +348,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 				return env.Code[env.IP], env
 			}
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 	return bind
 }
@@ -417,7 +417,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr) {
 		decls[i] = c.DeclBindRuntimeValue(bind)
 	}
 	fun := init.AsXV(0)
-	c.Code.Append(func(env *Env) (Stmt, *Env) {
+	c.append(func(env *Env) (Stmt, *Env) {
 		// call the multi-valued function. we know ni > 1, so just use the []r.Value
 		_, rets := fun(env)
 
@@ -446,7 +446,7 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 		env.IP++
 		return env.Code[env.IP], env
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 	return bind
 }
 

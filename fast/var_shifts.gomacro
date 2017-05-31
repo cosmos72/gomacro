@@ -259,7 +259,7 @@ import (
 		switch t.Kind() {
 			~,@caselist
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 
@@ -279,7 +279,7 @@ import (
 		switch t.Kind() {
 			~,@caselist
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 

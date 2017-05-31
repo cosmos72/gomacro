@@ -27,6 +27,7 @@ package fast
 
 import (
 	"go/ast"
+	"go/token"
 	"go/types"
 	r "reflect"
 	"strings"
@@ -322,4 +323,12 @@ func (c *Comp) File(node *ast.File) {
 	for _, decl := range node.Decls {
 		c.Decl(decl)
 	}
+}
+
+func (c *Comp) Append(stmt Stmt, pos token.Pos) {
+	c.Code.Append(stmt, pos)
+}
+
+func (c *Comp) append(stmt Stmt) {
+	c.Code.Append(stmt, c.Pos)
 }

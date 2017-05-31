@@ -232,7 +232,7 @@ func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 	default:        setplaces_const; -1
 	case c.Depth-1: setplaces_const; -2
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 
 // varSetExpr compiles 'name = expression'
@@ -247,5 +247,5 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 	default:        setplaces_expr; -1
 	case c.Depth-1: setplaces_expr; -2
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }

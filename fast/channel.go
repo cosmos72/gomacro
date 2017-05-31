@@ -1273,5 +1273,5 @@ func (c *Comp) Send(node *ast.SendStmt) {
 			}
 		}
 	}
-	c.Code.Append(stmt)
+	c.append(stmt)
 }

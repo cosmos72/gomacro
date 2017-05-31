@@ -32,6 +32,7 @@ package fast
 
 import (
 	r "reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 )
 
@@ -44,7 +45,7 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			Errorf("internal error: call1ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+			Errorf("internal error: call1ret1() invoked for constant function %v. use call_builtin() instead", expr)
 		}
 
 	}

@@ -641,7 +641,7 @@ func (c *Comp) varShlConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varShlExpr(upn int, index int, t xr.Type, function I) {
@@ -1243,7 +1243,7 @@ func (c *Comp) varShlExpr(upn int, index int, t xr.Type, function I) {
 			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varShrConst(upn int, index int, t xr.Type, val I) {
@@ -1848,7 +1848,7 @@ func (c *Comp) varShrConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varShrExpr(upn int, index int, t xr.Type, function I) {
@@ -2450,7 +2450,7 @@ func (c *Comp) varShrExpr(upn int, index int, t xr.Type, function I) {
 			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func asFunUint8(fun I) func(*Env) uint8 {

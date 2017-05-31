@@ -43,8 +43,9 @@ type TestFor int
 const (
 	I TestFor = 1 << iota
 	F
-	A TestFor = I | F
-	B TestFor = I // temporarily disabled compiler test
+	S // set option OptDebugSleepOnSwitch
+	A = I | F
+	B = I // temporarily disabled compiler test
 
 )
 
@@ -79,6 +80,11 @@ func TestClassic(t *testing.T) {
 
 func (tc *TestCase) fast(t *testing.T, ce *fast.CompEnv) {
 
+	if tc.testfor&S != 0 {
+		ce.Comp.Options |= OptDebugSleepOnSwitch
+	} else {
+		ce.Comp.Options &^= OptDebugSleepOnSwitch
+	}
 	rets := PackValues(ce.Eval(tc.program))
 
 	tc.compareResults(t, rets)
@@ -405,7 +411,10 @@ var testcases = []TestCase{
 	TestCase{F, "field_addr_1", "ppair := &triple.Pair; ppair.A", 'b', nil},
 	TestCase{F, "field_addr_2", "ppair.A++; triple.Pair.A", 'c', nil},
 
-	TestCase{A, "goroutine_1", `import "time"; go seti(9); time.Sleep(time.Second/20); i`, 9, nil},
+	TestCase{I, "import", `import ( "fmt"; "time" )`, "time", nil},
+	TestCase{F, "import", `import ( "fmt"; "time" )`, nil, []interface{}{}},
+
+	TestCase{A, "goroutine_1", `go seti(9); time.Sleep(time.Second/50); i`, 9, nil},
 
 	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},
 	TestCase{A, "builtin_cap", "cap(va)", 2, nil},
@@ -428,8 +437,6 @@ var testcases = []TestCase{
 	TestCase{A, "builtin_complex_1", "complex(0,1)", complex(0, 1), nil},
 	TestCase{A, "builtin_complex_2", "v6 = 0.1; complex(v6,-v6)", complex(float32(0.1), -float32(0.1)), nil},
 
-	TestCase{I, "import", `import ( "fmt"; "time" )`, "time", nil},
-	TestCase{F, "import", `import ( "fmt"; "time" )`, nil, []interface{}{}},
 	TestCase{A, "time_duration_0", `var td time.Duration = 1; td`, time.Duration(1), nil},
 	TestCase{A, "time_duration_1", `- td`, time.Duration(-1), nil},
 	TestCase{A, "time_duration_2", `td + 1`, time.Duration(2), nil},
@@ -540,6 +547,13 @@ var testcases = []TestCase{
 		case 2: vi=20; break
 		case 3: vi=30
 	}; vi`, 20, nil},
+	TestCase{A | S, "switch_multithread", `func doswitch(i, j int) { switch i { case 1: v0 = j; case 2: vi = j } }
+		v0, vi = 0, nil
+		go doswitch(1, 10)
+		doswitch(2, 20)
+		time.Sleep(time.Second/10)
+		list_args(v0, vi)
+	`, []interface{}{10, 20}, nil},
 
 	TestCase{I, "typeswitch_1", `var x interface{} = "abc"; switch y := x.(type) { default: 0; case string: 1 }`, 1, nil},
 	TestCase{I, "typeswitch_2", `switch x.(type) { default: 0; case interface{}: 2 }`, 2, nil},

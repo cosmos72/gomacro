@@ -60,6 +60,7 @@ const (
 	OptDebugPanicRecover
 	OptDebugField
 	OptDebugMethod
+	OptDebugSleepOnSwitch // to torture-test "switch" implementation for race conditions
 )
 
 const (

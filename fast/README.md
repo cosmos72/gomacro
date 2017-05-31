@@ -42,7 +42,6 @@ Missing features - you are welcome to contribute:
 * for-range (normal 'for' is implemented)
 * select
 * type switch
-* switch is implemented but not (yet) thread-safe
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
   (interfaces declared in compiled code can be used, but not yet implemented by interpreted code)
 * conversion from/to interpreted interfaces

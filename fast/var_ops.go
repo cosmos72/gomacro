@@ -975,7 +975,7 @@ func (c *Comp) varAddConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.ADD, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
@@ -1889,7 +1889,7 @@ func (c *Comp) varAddExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.ADD, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 	if isLiteralNumber(val, 0) {
@@ -2746,7 +2746,7 @@ func (c *Comp) varSubConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.SUB, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
@@ -3580,7 +3580,7 @@ func (c *Comp) varSubExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.SUB, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 	if isLiteralNumber(val, 0) {
@@ -4441,7 +4441,7 @@ func (c *Comp) varMulConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.MUL, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
@@ -5275,7 +5275,7 @@ func (c *Comp) varMulExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.MUL, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 	if isLiteralNumber(val, 0) {
@@ -6584,7 +6584,7 @@ func (c *Comp) varQuoPow2(upn int, index int, t xr.Type, val I) bool {
 		return false
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 	return true
 }
 func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
@@ -7442,7 +7442,7 @@ func (c *Comp) varQuoConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.QUO, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
@@ -8276,7 +8276,7 @@ func (c *Comp) varQuoExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.QUO, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) {
@@ -8892,7 +8892,7 @@ func (c *Comp) varRemConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.REM, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
@@ -9486,7 +9486,7 @@ func (c *Comp) varRemExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.REM, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) {
@@ -10101,7 +10101,7 @@ func (c *Comp) varAndConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.AND, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
@@ -10695,7 +10695,7 @@ func (c *Comp) varAndExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.AND, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
@@ -11304,7 +11304,7 @@ func (c *Comp) varOrConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.OR, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
@@ -11898,7 +11898,7 @@ func (c *Comp) varOrExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.OR, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
@@ -12507,7 +12507,7 @@ func (c *Comp) varXorConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.XOR, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
@@ -13101,7 +13101,7 @@ func (c *Comp) varXorExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.XOR, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 	if IsCategory(t.Kind(), r.Int, r.Uint) {
@@ -13716,7 +13716,7 @@ func (c *Comp) varAndnotConst(upn int, index int, t xr.Type, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.AND_NOT, t)
 
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
@@ -14310,7 +14310,7 @@ func (c *Comp) varAndnotExpr(upn int, index int, t xr.Type, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.AND_NOT, t)
 
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	t := va.Type
@@ -14353,7 +14353,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		}
 
 		if !init.Const() {
-			c.Code.Append(init.AsStmt())
+			c.append(init.AsStmt())
 		}
 
 		return

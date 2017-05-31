@@ -235,11 +235,11 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 		return
 	}
 	setplaces_const
-	c.Code.Append(ret)
+	c.append(ret)
 }
 
 // placeSetExpr compiles 'place = expression'
@@ -261,9 +261,9 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 		return
 	}
 	setplaces_expr
-	c.Code.Append(ret)
+	c.append(ret)
 }

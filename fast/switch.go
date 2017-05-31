@@ -31,6 +31,9 @@ import (
 	"go/token"
 	r "reflect"
 	"sort"
+	"time"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 type caseEntry struct {
@@ -70,26 +73,34 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	}
 
 	// tag.Value (if constant) or tag.Fun() will return the tag value at runtime
-	// cannot invoke e.Fun() multiple times because side effects must be applied only once!
-	var e, tag *Expr
-	enode := node.Tag
-	if enode == nil {
+	// cannot invoke tag.Fun() multiple times because side effects must be applied only once!
+	var tag *Expr
+	tagnode := node.Tag
+	if tagnode == nil {
 		// "switch { }" without an expression means "switch true { }"
-		e = c.exprUntypedLit(r.Bool, constant.MakeBool(true))
-		enode = &ast.Ident{NamePos: node.Pos() + 6, Name: "true"} // only for error messages
+		tag = c.exprUntypedLit(r.Bool, constant.MakeBool(true))
+		tagnode = &ast.Ident{NamePos: node.Pos() + 6, Name: "true"} // only for error messages
 	} else {
-		e = c.Expr1(enode)
+		tag = c.Expr1(tagnode)
 	}
-	if e.Const() {
-		tag = e
-	} else {
-		tag = c.switchTag(e)
+	if !tag.Const() {
+		tag = c.switchTag(tag)
+
+		if c.Options&OptDebugSleepOnSwitch != 0 {
+			c.append(func(env *Env) (Stmt, *Env) {
+				Debugf("start sleeping on switch, env = %p", env)
+				time.Sleep(time.Second / 30)
+				Debugf("done  sleeping on switch, env = %p", env)
+				env.IP++
+				return env.Code[env.IP], env
+			})
+		}
 	}
 	if node.Body != nil {
-		// reserve a code slot for caseMap optimizer
+		// reserve a code slot for switchGotoMap/switchGotoSlice optimizer
 		icasemap := c.Code.Len()
 		seen := &caseHelper{make(caseMap), false} // keeps track of constant expressions in cases. errors on duplicates
-		c.Code.Append(stmtNop)
+		c.Append(stmtNop, node.Body.Pos())
 
 		list := node.Body.List
 		defaulti := -1
@@ -107,7 +118,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 					defaultpos = clause.Pos()
 					c.switchDefault(clause, canfallthrough)
 				} else {
-					c.switchCase(clause, enode, tag, canfallthrough, seen)
+					c.switchCase(clause, tagnode, tag, canfallthrough, seen)
 				}
 			default:
 				c.Errorf("invalid statement inside switch: expecting case or default, found: %v <%v>", stmt, r.TypeOf(stmt))
@@ -116,11 +127,11 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 		// default is executed as last, if no other case matches
 		if defaulti >= 0 {
 			// +1 to skip its "never matches" header
-			c.Code.Append(func(env *Env) (Stmt, *Env) {
+			c.Append(func(env *Env) (Stmt, *Env) {
 				ip := defaulti + 1
 				env.IP = ip
 				return env.Code[ip], env
-			})
+			}, defaultpos)
 		}
 		// try to optimize
 		c.switchGotoMap(tag, seen, icasemap)
@@ -129,6 +140,81 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	ibreak = c.Code.Len()
 
 	c = c.popEnvIfLocalBinds(initLocals, &initBinds, node.Init)
+}
+
+// switchTag takes the expression immediately following a switch,
+// compiles it to a statement that evaluates it and saves its result
+// in a runtime binding (an interpreter local variable),
+// finally returns another expression that retrieves such runtime binding
+func (c *Comp) switchTag(e *Expr) *Expr {
+	var upn, o = 0, c
+	// try to piggyback the binding to a Comp that already has some bindings,
+	// but do not cross function boundaries
+	for o.BindNum == 0 && o.IntBindNum == 0 && o.Func == nil && o.Outer != nil {
+		upn += o.UpCost
+		o = o.Outer
+	}
+	t := e.Type
+	bind := o.AddBind("", VarBind, t)
+	// c.Debugf("switchTag: allocated bind %v, upn = %d", bind, upn)
+	switch bind.Desc.Class() {
+	case IntBind:
+		// no difference between declaration and assignment for this class
+		va := bind.AsVar(upn, PlaceSettable)
+		c.SetVar(va, token.ASSIGN, e)
+	case VarBind:
+		// cannot use c.DeclVar0 because the variable is declared in o
+		// cannot use o.DeclVar0 because the initializer must be evaluated in c
+		// so initialize the binding manually
+		index := bind.Desc.Index()
+		init := e.AsX1()
+		rtype := t.ReflectType()
+		switch upn {
+		case 0:
+			c.append(func(env *Env) (Stmt, *Env) {
+				v := init(env)
+				if v.Type() != rtype {
+					v = v.Convert(rtype)
+				}
+				// no need to create a settable reflect.Value
+				env.Binds[index] = v
+				env.IP++
+				return env.Code[env.IP], env
+			})
+		case 1:
+			c.append(func(env *Env) (Stmt, *Env) {
+				v := init(env)
+				if v.Type() != rtype {
+					v = v.Convert(rtype)
+				}
+				// no need to create a settable reflect.Value
+				env.Outer.Binds[index] = v
+				env.IP++
+				return env.Code[env.IP], env
+			})
+		default:
+			c.append(func(env *Env) (Stmt, *Env) {
+				o := env
+				for i := 0; i < upn; i++ {
+					o = o.Outer
+				}
+				v := init(env)
+				if v.Type() != rtype {
+					v = v.Convert(rtype)
+				}
+				// no need to create a settable reflect.Value
+				o.Binds[index] = v
+				env.IP++
+				return env.Code[env.IP], env
+			})
+		}
+	default:
+		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind",
+			"", t, bind.Desc.Class())
+		return nil
+	}
+	sym := bind.AsSymbol(upn)
+	return c.Symbol(sym)
 }
 
 // switchCase compiles a case in a switch.
@@ -254,7 +340,7 @@ func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, can
 			}
 		}
 	}
-	c.Code.Append(stmt)
+	c.Append(stmt, node.Pos())
 	c.switchCaseBody(node.Body, canfallthrough)
 	// we finally know where to jump if match fails
 	iend = c.Code.Len()
@@ -263,7 +349,7 @@ func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, can
 // switchDefault compiles the default case in a switch
 func (c *Comp) switchDefault(node *ast.CaseClause, canfallthrough bool) {
 	var iend int
-	c.Code.Append(func(env *Env) (Stmt, *Env) {
+	c.Append(func(env *Env) (Stmt, *Env) {
 		// jump to the next case. we must always add this statement for three reasons:
 		// 1) if default is entered normally, it always fails to match and jumps to the next case
 		// 2) if the previous case ends with fallthrough, it will skip this statement and jump to default's body
@@ -271,7 +357,7 @@ func (c *Comp) switchDefault(node *ast.CaseClause, canfallthrough bool) {
 		ip := iend
 		env.IP = ip
 		return env.Code[ip], env
-	})
+	}, node.Pos())
 	c.switchCaseBody(node.Body, canfallthrough)
 	// we finally know where to jump if match fails
 	iend = c.Code.Len()
@@ -279,11 +365,13 @@ func (c *Comp) switchDefault(node *ast.CaseClause, canfallthrough bool) {
 
 // switchCaseBody compiles the body of a case in a switch
 func (c *Comp) switchCaseBody(list []ast.Stmt, canfallthrough bool) {
-	isfallthrough := false
+	var isfallthrough bool
+	var endpos token.Pos
 	n := len(list)
 	if n != 0 {
 		isfallthrough = isFallthrough(list[n-1])
 		if isfallthrough {
+			endpos = list[n-1].Pos()
 			if canfallthrough {
 				n--
 				list = list[:n]
@@ -291,6 +379,8 @@ func (c *Comp) switchCaseBody(list []ast.Stmt, canfallthrough bool) {
 				c.Errorf("cannot fallthrough final case in switch")
 				return
 			}
+		} else {
+			endpos = list[n-1].End()
 		}
 
 		// c.List creates a new scope... not accurate, compiled Go doesn't.
@@ -300,8 +390,9 @@ func (c *Comp) switchCaseBody(list []ast.Stmt, canfallthrough bool) {
 		}
 	}
 	// after executing the case body, either break or fallthrough
+	c.Pos = endpos
 	if isfallthrough {
-		c.Code.Append(stmtFallthrough)
+		c.append(stmtFallthrough)
 	} else {
 		c.jumpOut(0, c.Loop.Break)
 	}

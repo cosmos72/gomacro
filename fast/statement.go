@@ -79,7 +79,7 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		case *ast.ExprStmt:
 			expr := c.Expr(node.X)
 			if !expr.Const() {
-				c.Code.Append(expr.AsStmt())
+				c.Append(expr.AsStmt(), in.Pos())
 			}
 		case *ast.ForStmt:
 			c.For(node, labels)
@@ -242,7 +242,7 @@ func (c *Comp) jumpOut(upn int, ip *int) {
 			return env.Code[ip], env
 		}
 	}
-	c.Code.Append(stmt)
+	c.append(stmt)
 }
 
 // For compiles a "for" statement
@@ -275,7 +275,7 @@ func (c *Comp) For(node *ast.ForStmt, labels []string) {
 	// compile the condition, if not a constant
 	jump.Cond = c.Code.Len()
 	if fun != nil {
-		c.Code.Append(func(env *Env) (Stmt, *Env) {
+		stmt := func(env *Env) (Stmt, *Env) {
 			var ip int
 			if fun(env) {
 				ip = env.IP + 1
@@ -286,7 +286,8 @@ func (c *Comp) For(node *ast.ForStmt, labels []string) {
 			}
 			env.IP = ip
 			return env.Code[ip], env
-		})
+		}
+		c.Append(stmt, node.Cond.Pos())
 	}
 	// compile the body
 	c.Block(node.Body)
@@ -300,14 +301,14 @@ func (c *Comp) For(node *ast.ForStmt, labels []string) {
 		}
 		c.Stmt(node.Post)
 	}
-	c.Code.Append(func(env *Env) (Stmt, *Env) {
+	c.Append(func(env *Env) (Stmt, *Env) {
 		// jump back to the condition
 		// Debugf("for: body executed, jumping back to condition. IntBinds = %v", env.IntBinds)
 		// time.Sleep(time.Second / 10)
 		ip := jump.Cond
 		env.IP = ip
 		return env.Code[ip], env
-	})
+	}, node.End()-1)
 	if fun == nil && !flag {
 		// "for false { }" means that body, post and jump back to condition are never executed...
 		// still compiled above (to check for errors) but drop the generated code
@@ -331,7 +332,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	exprfun := call.Fun.AsX1()
 	argfunsX1 := call.MakeArgfunsX1()
 
-	c2.Code.Append(func(env *Env) (Stmt, *Env) {
+	stmt := func(env *Env) (Stmt, *Env) {
 		// create a new Env to hold the new ThreadGlobals and (initially empty) Pool
 		env2 := NewEnv4Func(env, 0, 0)
 		tg := env.ThreadGlobals
@@ -356,7 +357,8 @@ func (c *Comp) Go(node *ast.GoStmt) {
 
 		env.IP++
 		return env.Code[env.IP], env
-	})
+	}
+	c2.Append(stmt, node.Pos())
 
 	// propagate back the compiled code
 	c.Code = c2.Code
@@ -379,7 +381,7 @@ func (c *Comp) If(node *ast.IfStmt) {
 		return
 	}
 	if fun != nil {
-		c.Code.Append(func(env *Env) (Stmt, *Env) {
+		stmt := func(env *Env) (Stmt, *Env) {
 			var ip int
 			if fun(env) {
 				ip = jump.Then
@@ -388,7 +390,8 @@ func (c *Comp) If(node *ast.IfStmt) {
 			}
 			env.IP = ip
 			return env.Code[ip], env
-		})
+		}
+		c.Append(stmt, node.Cond.Pos())
 	}
 	// compile 'then' branch
 	jump.Then = c.Code.Len()
@@ -400,11 +403,11 @@ func (c *Comp) If(node *ast.IfStmt) {
 	}
 	// compile a 'goto' between 'then' and 'else' branches
 	if fun != nil && node.Else != nil {
-		c.Code.Append(func(env *Env) (Stmt, *Env) {
+		c.Append(func(env *Env) (Stmt, *Env) {
 			// after executing 'then' branch, we must skip 'else' branch
 			env.IP = jump.End
 			return env.Code[jump.End], env
-		})
+		}, node.Else.Pos())
 	}
 	// compile 'else' branch
 	jump.Else = c.Code.Len()
@@ -477,7 +480,7 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 		if n == 0 {
 			c.Errorf("return: expecting %d expressions, found %d: %v", n, len(resultExprs), node)
 		}
-		c.returnMultiValues(resultBinds, upn, resultExprs)
+		c.returnMultiValues(node, resultBinds, upn, resultExprs)
 		return
 	case 0:
 		if !cinfo.NamedResults {
@@ -495,11 +498,11 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 	for i := 0; i < n; i++ {
 		c.SetVar(resultBinds[i].AsVar(upn, PlaceSettable), token.ASSIGN, exprs[i])
 	}
-	c.Code.Append(stmtReturn)
+	c.Append(stmtReturn, node.Pos())
 }
 
 // returnMultiValues compiles a "return foo()" statement where foo() returns multiple values
-func (c *Comp) returnMultiValues(resultBinds []*Bind, upn int, exprs []ast.Expr) {
+func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn int, exprs []ast.Expr) {
 	n := len(resultBinds)
 	e := c.ExprsMultipleValues(exprs, n)[0]
 	fun := e.AsXV(CompileDefaults)
@@ -512,7 +515,7 @@ func (c *Comp) returnMultiValues(resultBinds []*Bind, upn int, exprs []ast.Expr)
 		}
 		assigns[i] = c.varSetValue(resultBinds[i].AsVar(upn, PlaceSettable))
 	}
-	c.Code.Append(func(env *Env) (Stmt, *Env) {
+	c.Append(func(env *Env) (Stmt, *Env) {
 		// no risk in evaluating fun() first: return binds are plain variables, not places with side effects
 		_, vals := fun(env)
 		for i, assign := range assigns {
@@ -522,7 +525,7 @@ func (c *Comp) returnMultiValues(resultBinds []*Bind, upn int, exprs []ast.Expr)
 		common := env.ThreadGlobals
 		common.Signal = SigReturn
 		return common.Interrupt, env
-	})
+	}, node.Pos())
 }
 
 func stmtReturn(env *Env) (Stmt, *Env) {
@@ -597,7 +600,7 @@ func (c *Comp) pushEnvIfDefine(nbinds *[2]int, tok token.Token) (inner *Comp, lo
 func (c *Comp) pushEnvIfFlag(nbinds *[2]int, flag bool) (*Comp, bool) {
 	if flag {
 		// push new *Env at runtime. we will know # of binds in the block only later, so use a closure on them
-		c.Code.Append(func(env *Env) (Stmt, *Env) {
+		c.append(func(env *Env) (Stmt, *Env) {
 			inner := NewEnv(env, nbinds[0], nbinds[1])
 			inner.IP++
 			// Debugf("PushEnv, IP = %d of %d, pushed %d binds and %d intbinds", inner.IP, nbinds[0], nbinds[1])
@@ -632,7 +635,7 @@ func (inner *Comp) popEnvIfLocalBinds(locals bool, nbinds *[2]int, list ...ast.S
 
 	if locals {
 		// pop *Env at runtime
-		c.Code.Append(popEnv)
+		c.append(popEnv)
 	}
 	return c
 }

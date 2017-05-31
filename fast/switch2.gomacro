@@ -28,7 +28,6 @@ package fast
 import (
 	r "reflect"
 	. "github.com/cosmos72/gomacro/base"
-	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 :import (
@@ -95,6 +94,8 @@ import (
 	}
 }
 
+/*
+// BUGGED: not thread-safe, do not use.
 // compile a statement that evaluates e.Fun() once,
 // and return an expression that returns cached e.Fun() result
 func (c *Comp) switchTag(e *Expr) *Expr {
@@ -139,9 +140,10 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 			}
 		}
 	}
-	c.Code.Append(stmt)
+	c.append(stmt)
 	return exprFun(e.Type, cachefun)
 }
+*/
 
 :macro switch_goto_map(typ ast.Node) ast.Node {
 	conv := convertvalue1(typ, ~'{r.ValueOf(k)})

@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/constant"
+	"go/token"
 	r "reflect"
 	"sort"
 
@@ -177,9 +178,11 @@ func (e *Expr) String() string {
 	}
 	var str string
 	if e.Const() {
-		str = e.Lit.String()
+		str = fmt.Sprintf("Expr{Type: %v, Value: %v}", e.Type, e.Lit.String())
+	} else if e.NumOut() == 1 {
+		str = fmt.Sprintf("Expr{Type: %v, Fun: %#v}", e.Type, e.Fun)
 	} else {
-		str = fmt.Sprintf("%#v", e.Fun)
+		str = fmt.Sprintf("Expr{Types: %v, Fun: %#v}", e.Types, e.Fun)
 	}
 	return str
 }
@@ -394,7 +397,8 @@ const (
 )
 
 type Code struct {
-	List []Stmt
+	List     []Stmt
+	DebugPos []token.Pos // for debugging interpreted code: position of each statement
 }
 
 type LoopInfo struct {
@@ -481,6 +485,7 @@ type Env struct {
 	Outer         *Env
 	IP            int
 	Code          []Stmt
+	DebugPos      []token.Pos // for debugging interpreted code: position of each statement
 	ThreadGlobals *ThreadGlobals
 	UsedByClosure bool // a bitfield would introduce more races among goroutines
 	AddressTaken  bool // true if &Env.IntBinds[index] was executed... then we cannot reuse IntBinds

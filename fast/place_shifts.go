@@ -124,7 +124,7 @@ func (c *Comp) placeShlConst(place *Place, val I) {
 			c.Errorf("invalid operator %s= on <%v>", token.SHL, place.Type)
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeShlExpr(place *Place, fun I) {
@@ -522,7 +522,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 		c.Errorf("invalid operator %s= on <%v>", token.SHL, place.Type)
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeShrConst(place *Place, val I) {
 	if isLiteralNumber(val, 0) {
@@ -611,7 +611,7 @@ func (c *Comp) placeShrConst(place *Place, val I) {
 			c.Errorf("invalid operator %s= on <%v>", token.SHR, place.Type)
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 }
 func (c *Comp) placeShrExpr(place *Place, fun I) {
@@ -1009,7 +1009,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 		c.Errorf("invalid operator %s= on <%v>", token.SHR, place.Type)
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 	if isLiteralNumber(val, 0) {
@@ -1142,7 +1142,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 			c.Errorf("invalid operator %s= on <%v>", token.QUO, place.Type)
 		}
 
-		c.Code.Append(ret)
+		c.append(ret)
 	}
 	return true
 }

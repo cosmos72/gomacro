@@ -61,7 +61,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 		return
 	}
 	switch KindToCategory(rt.Kind()) {
@@ -151,7 +151,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 		}
 	}
 
-	c.Code.Append(ret)
+	c.append(ret)
 }
 func (c *Comp) placeSetExpr(place *Place, fun I) {
 	rt := place.Type.ReflectType()
@@ -172,7 +172,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.Code.Append(ret)
+		c.append(ret)
 		return
 	}
 	switch rt.Kind() {
@@ -435,5 +435,5 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			}
 		}
 	}
-	c.Code.Append(ret)
+	c.append(ret)
 }

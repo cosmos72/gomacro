@@ -90,7 +90,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 		env.IP++
 		return env.Code[env.IP], env
 	}
-	c.Code.Append(stmt)
+	c.Code.Append(stmt, funcdecl.Pos())
 }
 
 func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, methods *[]r.Value) {
@@ -174,7 +174,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 			return env.Code[env.IP], env
 		}
 	}
-	c.Code.Append(stmt)
+	c.Code.Append(stmt, funcdecl.Pos())
 }
 
 // FuncLit compiles a function literal, i.e. a closure.
@@ -268,6 +268,7 @@ func (c *Comp) funcResultBinds(functype *ast.FuncType, t xr.Type, names []string
 		if namedresults && unnamedresults {
 			c.Errorf("cannot mix named and unnamed results in function declaration: %v", functype)
 		}
+		c.Pos = functype.Pos()
 		bind := c.DeclVar0(name, t.Out(i), nil)
 		binds[i] = bind
 		// compile the extraction of results from runtime env
