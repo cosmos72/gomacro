@@ -32,7 +32,6 @@ import (
 	r "reflect"
 	"sort"
 
-	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/typeutil"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -171,7 +170,7 @@ func (c *Comp) TypeSwitch(node *ast.TypeSwitchStmt, labels []string) {
 			}, defaultpos)
 		}
 		// try to optimize
-		_ = ipswitchgoto // c.typeswitchGotoMap(tag, seen, ipswitchgoto)
+		c.typeswitchGotoMap(tag, seen, ipswitchgoto)
 	}
 	// we finally know this
 	ibreak = c.Code.Len()
@@ -289,9 +288,8 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr,
 	// compile like "if r.TypeOf(tag) == t1 || r.TypeOf(tag) == t2 ... { }"
 	// and keep track of where to jump if no expression matches
 	//
-	// always occupy a Code slot for cmpfuns, even if nothing to do.
-	// reason: both caseMap optimizer and fallthrough from previous case
-	// skip such slot and jump to current body
+	// always occupy a Code slot for type comparison, even if nothing to do.
+	// reason: typeswitchGotoMap optimizer skips such slot and jumps to current body
 	var iend int
 	var stmt Stmt
 	switch len(node.List) {
@@ -311,7 +309,7 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr,
 				v := tagfun(env)
 				// Debugf("typeswitchCase: comparing %v <%v> against nil type", v, ValueType(v))
 				var ip int
-				if !v.IsValid() || IsNillableKind(v.Kind()) && v.IsNil() {
+				if !v.IsValid() {
 					ip = env.IP + 1
 				} else {
 					ip = iend
@@ -362,8 +360,8 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr,
 					if rtype.Kind() != r.Interface || !vt.Implements(rtype) {
 						continue
 					}
-				default:
-					if v.IsValid() && (!IsNillableKind(v.Kind()) || !v.IsNil()) {
+				default: // rtype == nil
+					if v.IsValid() {
 						continue
 					}
 				}
