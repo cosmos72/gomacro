@@ -104,7 +104,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	}
 	if node.Body != nil {
 		// reserve a code slot for switchGotoMap/switchGotoSlice optimizer
-		icasemap := c.Code.Len()
+		ipswitchgoto := c.Code.Len()
 		seen := &caseHelper{make(caseMap), make(caseMap), true} // keeps track of constant expressions in cases. errors on duplicates
 		c.Append(stmtNop, node.Body.Pos())
 
@@ -140,7 +140,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 			}, defaultpos)
 		}
 		// try to optimize
-		c.switchGotoMap(tag, seen, icasemap)
+		c.switchGotoMap(tag, seen, ipswitchgoto)
 	}
 	// we finally know this
 	ibreak = c.Code.Len()

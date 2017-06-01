@@ -44,7 +44,9 @@ type typecaseEntry struct {
 }
 
 type typecaseHelper struct {
-	Map typeutil.Map // map types.Type -> typecaseEntry
+	TypeMap     typeutil.Map // map types.Type -> typecaseEntry
+	ConcreteMap typeutil.Map // only contains the initial segment of non-interface types
+	AllConcrete bool
 }
 
 // keep track of types in type-switch. error on duplicates
@@ -53,13 +55,18 @@ func (seen *typecaseHelper) add(c *Comp, t xr.Type, entry typecaseEntry) {
 	if t != nil {
 		gtype = t.GoType()
 	}
-	prev := seen.Map.At(gtype)
+	prev := seen.TypeMap.At(gtype)
 	if prev != nil {
 		c.Errorf("duplicate case <%v> in switch\n\tprevious case at %s", t, c.Fileset.Position(prev.(typecaseEntry).Pos))
 		return
 	}
 	entry.Type = t
-	seen.Map.Set(gtype, entry)
+	seen.TypeMap.Set(gtype, entry)
+	if t.Kind() == r.Interface {
+		seen.AllConcrete = false
+	} else if seen.AllConcrete {
+		seen.ConcreteMap.Set(gtype, entry)
+	}
 }
 
 /*
@@ -113,8 +120,6 @@ func (c *Comp) TypeSwitch(node *ast.TypeSwitchStmt, labels []string) {
 	}
 	if tagnode == nil {
 		c.Errorf("expected type-switch expression, found: %v", node)
-	} else {
-		c.Debugf("type-switch on %v <%v>", tagnode, r.TypeOf(tagnode))
 	}
 	tag := c.Expr1(tagnode)
 
@@ -131,14 +136,15 @@ func (c *Comp) TypeSwitch(node *ast.TypeSwitchStmt, labels []string) {
 
 	if node.Body != nil {
 		// reserve a code slot for typeSwitchGotoMap optimizer
-		icasemap := c.Code.Len()
-		seen := &typecaseHelper{} // keeps track of types in cases. errors on duplicates
+		ipswitchgoto := c.Code.Len()
+		seen := &typecaseHelper{AllConcrete: true} // keeps track of types in cases. errors on duplicates
 		c.Append(stmtNop, node.Body.Pos())
 
 		list := node.Body.List
 		defaulti := -1
 		var defaultpos token.Pos
 		for _, stmt := range list {
+			c.Pos = stmt.Pos()
 			switch clause := stmt.(type) {
 			case *ast.CaseClause:
 				if clause.List == nil {
@@ -165,7 +171,7 @@ func (c *Comp) TypeSwitch(node *ast.TypeSwitchStmt, labels []string) {
 			}, defaultpos)
 		}
 		// try to optimize
-		c.typeswitchGotoMap(tag, seen, icasemap)
+		_ = ipswitchgoto // c.typeswitchGotoMap(tag, seen, ipswitchgoto)
 	}
 	// we finally know this
 	ibreak = c.Code.Len()
@@ -188,7 +194,7 @@ func (c *Comp) typeswitchTag(e *Expr) *Expr {
 	}
 	bind := o.AddBind("", VarBind, c.TypeOfInterface())
 
-	// c.Debugf("switchTag: allocated bind %v, upn = %d", bind, upn)
+	// c.Debugf("typeswitchTag: allocated bind %v, upn = %d", bind, upn)
 	switch bind.Desc.Class() {
 	case VarBind:
 		// cannot use c.DeclVar0 because the variable is declared in o
@@ -200,6 +206,7 @@ func (c *Comp) typeswitchTag(e *Expr) *Expr {
 		case 0:
 			c.append(func(env *Env) (Stmt, *Env) {
 				v := r.ValueOf(init(env).Interface()) // extract concrete type
+				// Debugf("typeswitchTag = %v <%v>", v, ValueType(v))
 				// no need to create a settable reflect.Value
 				env.Binds[index] = v
 				env.IP++
@@ -208,6 +215,7 @@ func (c *Comp) typeswitchTag(e *Expr) *Expr {
 		case 1:
 			c.append(func(env *Env) (Stmt, *Env) {
 				v := r.ValueOf(init(env).Interface()) // extract concrete type
+				// Debugf("typeswitchTag = %v <%v>", v, ValueType(v))
 				// no need to create a settable reflect.Value
 				env.Outer.Binds[index] = v
 				env.IP++
@@ -215,12 +223,13 @@ func (c *Comp) typeswitchTag(e *Expr) *Expr {
 			})
 		default:
 			c.append(func(env *Env) (Stmt, *Env) {
-				o := env
-				for i := 0; i < upn; i++ {
+				v := r.ValueOf(init(env).Interface()) // extract concrete type
+				// Debugf("typeswitchTag = %v <%v>", v, ValueType(v))
+				// no need to create a settable reflect.Value
+				o := env.Outer.Outer
+				for i := 2; i < upn; i++ {
 					o = o.Outer
 				}
-				v := r.ValueOf(init(env).Interface()) // extract concrete type
-				// no need to create a settable reflect.Value
 				o.Binds[index] = v
 				env.IP++
 				return env.Code[env.IP], env
@@ -238,17 +247,14 @@ func (c *Comp) typeswitchTag(e *Expr) *Expr {
 // typeswitchGotoMap tries to optimize the dispatching of a type-switch
 func (c *Comp) typeswitchGotoMap(tag *Expr, seen *typecaseHelper, ip int) {
 	fun := tag.AsX1()
-	m := make(map[r.Type]int) // FIXME this breaks on types declared in the interpreter
-	seen.Map.Iterate(func(k types.Type, v interface{}) {
-		// useless to put interface types here
-		entry := v.(typecaseEntry)
-		if t := entry.Type; t.Kind() != r.Interface {
-			m[t.ReflectType()] = entry.IP
-		}
-	})
-	if len(m) == 0 {
+	if seen.ConcreteMap.Len() <= 1 {
 		return
 	}
+	m := make(map[r.Type]int) // FIXME this breaks on types declared in the interpreter
+	seen.ConcreteMap.Iterate(func(k types.Type, v interface{}) {
+		entry := v.(typecaseEntry)
+		m[entry.Type.ReflectType()] = entry.IP
+	})
 
 	stmt := func(env *Env) (Stmt, *Env) {
 		// FIXME this breaks on types declared in the interpreter
@@ -265,35 +271,19 @@ func (c *Comp) typeswitchGotoMap(tag *Expr, seen *typecaseHelper, ip int) {
 
 // typeswitchCase compiles a case in a type-switch.
 func (c *Comp) typeswitchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, varname string, seen *typecaseHelper) {
-	cmpfuns := make([]func(*Env) bool, len(node.List))
-	cmpnode := &ast.BinaryExpr{Op: token.EQL, X: tagnode} // for error messages, and Comp.BinaryExpr1 dispatches on its Op
 
 	ibody := c.Code.Len() + 1 // body will start here
 	tagfun := tag.AsX1()
+	ts := make([]xr.Type, len(node.List))
+	rtypes := make([]r.Type, len(node.List))
+
 	// compile a comparison of tag against each type
 	for i, enode := range node.List {
 		t := c.compileTypeOrNil(enode)
-		var rtype r.Type
 		if t != nil {
-			rtype = t.ReflectType()
+			rtypes[i] = t.ReflectType()
 		}
-		cmpnode.OpPos = enode.Pos()
-		cmpnode.Y = enode
-		if rtype == nil {
-			// in a type-switch, 'case nil:' means 'is the value a nil interface ?'
-			cmpfuns[i] = func(env *Env) bool {
-				v := tagfun(env)
-				return v == Nil || v.Kind() == r.Interface && v.IsNil()
-			}
-		} else if rtype.Kind() == r.Interface {
-			cmpfuns[i] = func(env *Env) bool {
-				return tagfun(env).Type().Implements(rtype)
-			}
-		} else {
-			cmpfuns[i] = func(env *Env) bool {
-				return rtype == tagfun(env).Type()
-			}
-		}
+		ts[i] = t
 		seen.add(c, t, typecaseEntry{Pos: enode.Pos(), IP: ibody})
 	}
 	// compile like "if r.TypeOf(tag) == t1 || r.TypeOf(tag) == t2 ... { }"
@@ -304,49 +294,82 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr,
 	// skip such slot and jump to current body
 	var iend int
 	var stmt Stmt
-	switch len(cmpfuns) {
+	switch len(node.List) {
 	case 0:
 		// compile anyway. reachable?
 		stmt = func(env *Env) (Stmt, *Env) {
+			// Debugf("typeswitchCase: comparing %v against zero types", tagfun(env))
 			ip := iend
 			env.IP = ip
 			return env.Code[ip], env
 		}
 	case 1:
-		cmpfun := cmpfuns[0]
-		stmt = func(env *Env) (Stmt, *Env) {
-			var ip int
-			if cmpfun(env) {
-				ip = env.IP + 1
-			} else {
-				ip = iend
+		t := ts[0]
+		rtype := rtypes[0]
+		if t == nil {
+			stmt = func(env *Env) (Stmt, *Env) {
+				v := tagfun(env)
+				// Debugf("typeswitchCase: comparing %v <%v> against nil type", v, ValueType(v))
+				var ip int
+				if !v.IsValid() || IsNillableKind(v.Kind()) && v.IsNil() {
+					ip = env.IP + 1
+				} else {
+					ip = iend
+				}
+				env.IP = ip
+				return env.Code[ip], env
 			}
-			env.IP = ip
-			return env.Code[ip], env
-		}
-	case 2:
-		cmpfuns := [...]func(*Env) bool{
-			cmpfuns[0],
-			cmpfuns[1],
-		}
-		stmt = func(env *Env) (Stmt, *Env) {
-			var ip int
-			if cmpfuns[0](env) || cmpfuns[1](env) {
-				ip = env.IP + 1
-			} else {
-				ip = iend
+		} else if t.Kind() == r.Interface {
+			stmt = func(env *Env) (Stmt, *Env) {
+				v := tagfun(env)
+				// Debugf("typeswitchCase: comparing %v <%v> against interface type %v", v, ValueType(v), rtype)
+				var ip int
+				if v.IsValid() && v.Type().Implements(rtype) {
+					ip = env.IP + 1
+				} else {
+					ip = iend
+				}
+				env.IP = ip
+				return env.Code[ip], env
 			}
-			env.IP = ip
-			return env.Code[ip], env
+		} else {
+			stmt = func(env *Env) (Stmt, *Env) {
+				v := tagfun(env)
+				// Debugf("typeswitchCase: comparing %v <%v> against concrete type %v", v, ValueType(v), rtype)
+				var ip int
+				if v.IsValid() && v.Type() == rtype {
+					ip = env.IP + 1
+				} else {
+					ip = iend
+				}
+				env.IP = ip
+				return env.Code[ip], env
+			}
 		}
 	default:
 		stmt = func(env *Env) (Stmt, *Env) {
+			v := tagfun(env)
+			var vt r.Type
+			if v.IsValid() {
+				vt = v.Type()
+			}
+			// Debugf("typeswitchCase: comparing %v <%v> against types %v", v, vt, rtypes)
 			ip := iend
-			for _, cmpfun := range cmpfuns {
-				if cmpfun(env) {
-					ip = env.IP + 1
-					break
+			for _, rtype := range rtypes {
+				switch {
+				case vt == rtype:
+				case rtype != nil:
+					if rtype.Kind() != r.Interface || !vt.Implements(rtype) {
+						continue
+					}
+				default:
+					if v.IsValid() && (!IsNillableKind(v.Kind()) || !v.IsNil()) {
+						continue
+					}
 				}
+				// Debugf("typeswitchCase: v <%v> matches type %v", v, vt, rtype)
+				ip = env.IP + 1
+				break
 			}
 			env.IP = ip
 			return env.Code[ip], env
@@ -361,6 +384,15 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr,
 
 // typeswitchCase compiles the default case in a type-switch.
 func (c *Comp) typeswitchDefault(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, varname string) {
+	var iend int
+	stmt := func(env *Env) (Stmt, *Env) {
+		// Debugf("typeswitchDefault: default entered normally, skipping it")
+		ip := iend
+		env.IP = ip
+		return env.Code[ip], env
+	}
+	c.append(stmt)
 	// TODO declare varname
 	c.switchCaseBody(node.Body, false)
+	iend = c.Code.Len()
 }

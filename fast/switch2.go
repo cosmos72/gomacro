@@ -32,11 +32,12 @@ package fast
 
 import (
 	r "reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
-	if len(seen.GotoMap) == 0 {
+	if len(seen.GotoMap) <= 1 {
 		return
 	}
 

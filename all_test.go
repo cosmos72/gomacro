@@ -558,10 +558,10 @@ var testcases = []TestCase{
 
 	TestCase{I, "typeswitch_1", `vi = nil; var x interface{} = "abc"; switch y := x.(type) { default: vi = 0; case string: vi = 1 }; vi`, 1, nil},
 	TestCase{F, "typeswitch_1", `var x interface{} = "abc"; nil`, nil, nil},
-	TestCase{I, "typeswitch_2", `vi = nil; switch x.(type) { default: vi = 0; case interface{}: vi = 2 }; vi`, 2, nil},
+	TestCase{A, "typeswitch_2", `vi = nil; switch x.(type) { default: vi = 0; case interface{}: vi = 2 }; vi`, 2, nil},
 	TestCase{A, "typeswitch_3", `vi = nil; switch x.(type) { default: vi = 0; case int:         vi = 3 }; vi`, 0, nil},
 	TestCase{A, "typeswitch_4", `vi = nil; switch x.(type) { default: vi = 0; case string:      vi = 4 }; vi`, 4, nil},
-	TestCase{I, "typeswitch_5", `vi,x = nil,nil; switch x.(type) { default: vi=0; case nil:     vi = 5 }; vi`, 5, nil},
+	TestCase{A, "typeswitch_5", `vi,x = nil,nil; switch x.(type) { default: vi=0; case nil:     vi = 5 }; vi`, 5, nil},
 
 	TestCase{A, "typeassert_1", `var xi interface{} = "abc"; yi := xi.(string); yi`, "abc", nil},
 	TestCase{A, "typeassert_2", `xi.(string)`, nil, []interface{}{"abc", true}},

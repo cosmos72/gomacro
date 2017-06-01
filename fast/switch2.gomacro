@@ -220,7 +220,7 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 
 // try to optimize switch using a computed goto
 func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
-	if len(seen.GotoMap) == 0 {
+	if len(seen.GotoMap) <= 1 {
 		return
 	}
 	var stmt Stmt
