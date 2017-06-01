@@ -44,18 +44,22 @@ type caseEntry struct {
 type caseMap map[interface{}]caseEntry
 
 type caseHelper struct {
-	Map          caseMap
-	SomeNonConst bool
+	ConstMap caseMap // constains all case constants
+	GotoMap  caseMap // contains only the constants appearing before any non-constant case expression
+	AllConst bool
 }
 
 // keep track of constant expressions in cases. error on duplicates
 func (seen *caseHelper) add(c *Comp, val interface{}, entry caseEntry) {
-	prev, found := seen.Map[val]
+	prev, found := seen.ConstMap[val]
 	if found {
 		c.Errorf("duplicate case %v <%v> in switch\n\tprevious case at %s", val, r.TypeOf(val), c.Fileset.Position(prev.Pos))
 		return
 	}
-	seen.Map[val] = entry
+	seen.ConstMap[val] = entry
+	if seen.AllConst {
+		seen.GotoMap[val] = entry
+	}
 }
 
 func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
@@ -101,7 +105,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 	if node.Body != nil {
 		// reserve a code slot for switchGotoMap/switchGotoSlice optimizer
 		icasemap := c.Code.Len()
-		seen := &caseHelper{make(caseMap), false} // keeps track of constant expressions in cases. errors on duplicates
+		seen := &caseHelper{make(caseMap), make(caseMap), true} // keeps track of constant expressions in cases. errors on duplicates
 		c.Append(stmtNop, node.Body.Pos())
 
 		list := node.Body.List
@@ -246,7 +250,7 @@ func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, can
 				}
 			}
 		} else {
-			seen.SomeNonConst = true
+			seen.AllConst = false
 		}
 		// constants are handled above. only add non-constant comparisons to cmpfuns
 		cmpfuns = append(cmpfuns, cmp.Fun.(func(*Env) bool))

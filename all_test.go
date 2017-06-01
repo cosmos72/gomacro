@@ -541,6 +541,7 @@ var testcases = []TestCase{
 	TestCase{A, "switch_3", `v3=0; vi=nil
 		func inc_u16(addr *uint16, n uint16) uint16 { *addr += n; return *addr }
 		switch v3++; inc_u16(&v3, 2) { case 1: ; case 2: ; case 3: vi='3'; default: }; vi`, '3', nil},
+	TestCase{A, "switch_4", "v0=7; switch v:=7; v { default: vi=0; case 1: vi=1; case v0: vi=7; case 7: vi=-7 }; vi", 7, nil},
 	TestCase{A, "switch_fallthrough", `vi=nil; switch v:=0; v {
 		default:       fallthrough
 		case 1: vi=10; fallthrough

@@ -152,8 +152,8 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 		if stmt != nil {
 			break
 		}
-		m := make(map[~,typ]int, len(seen.Map))
-		for k, v := range seen.Map {
+		m := make(map[~,typ]int, len(seen.GotoMap))
+		for k, v := range seen.GotoMap {
 			m[~,conv] = v.IP
 		}
 		stmt = func(env *Env) (Stmt, *Env) {
@@ -172,13 +172,13 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 	conv := convertvalue1(typ, ~'{r.ValueOf(k)})
 	return ~"{
 		var min, max ~,typ
-		for k := range seen.Map {
+		for k := range seen.GotoMap {
 			key := ~,conv
 			min = key
 			max = key
 			break
 		}
-		for k := range seen.Map {
+		for k := range seen.GotoMap {
 			key := ~,conv
 			if min > key {
 				min = key
@@ -189,16 +189,16 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 		// full range is max - min + 1, but may overflow (example: MaxInt - MinInt + 1)
 		// so divide by 2 before subtracting and do not add one
 		halfrange_trunc := max/2 - min/2
-		if uint64(halfrange_trunc) >= uint64(MaxInt/2 - 3) || int(halfrange_trunc) > len(seen.Map) {
+		if uint64(halfrange_trunc) >= uint64(MaxInt/2 - 3) || int(halfrange_trunc) > len(seen.GotoMap) {
 			// too sparse for a slice, or slice indexes would overflow int
 			break
 		}
 		fullrange := int(max - min) + 1 // cannot overflow, we just checked above
-		if fullrange < len(seen.Map) {
-			c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.Map))
+		if fullrange < len(seen.GotoMap) {
+			c.Errorf("switchGotoSlice: internal error, allocated slice has len=%v: less than the %d cases", fullrange, len(seen.GotoMap))
 		}
 		slice := make([]int, fullrange)
-		for k, v := range seen.Map {
+		for k, v := range seen.GotoMap {
 			key := ~,conv
 			slice[key - min] = v.IP + 1 // we will subtract one later. useful to mark 0 as invalid.
 		}
@@ -220,14 +220,14 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 
 // try to optimize switch using a computed goto
 func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
-	if seen.SomeNonConst || len(seen.Map) == 0 {
+	if len(seen.GotoMap) == 0 {
 		return
 	}
 	var stmt Stmt
 	switch efun := tag.Fun.(type) {
 	case func(*Env) bool:
 		m := [2]int{-1, -1}
-		for k, v := range seen.Map {
+		for k, v := range seen.GotoMap {
 			if r.ValueOf(k).Bool() {
 				m[1] = v.IP
 			} else {
@@ -266,8 +266,8 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 	case func(*Env) complex128:	{switch_goto_map; complex128}
 	case func(*Env) string:		{switch_goto_map; string}
 	case func(*Env) (r.Value, []r.Value):
-		m := make(map[interface{}]int, len(seen.Map))
-		for k, v := range seen.Map {
+		m := make(map[interface{}]int, len(seen.GotoMap))
+		for k, v := range seen.GotoMap {
 			m[k] = v.IP
 		}
 		stmt = func(env *Env) (Stmt, *Env) {
@@ -281,8 +281,8 @@ func (c *Comp) switchGotoMap(tag *Expr, seen *caseHelper, ip int) {
 		}
 	default:
 		fun := tag.AsX1()
-		m := make(map[interface{}]int, len(seen.Map))
-		for k, v := range seen.Map {
+		m := make(map[interface{}]int, len(seen.GotoMap))
+		for k, v := range seen.GotoMap {
 			m[k] = v.IP
 		}
 		stmt = func(env *Env) (Stmt, *Env) {
