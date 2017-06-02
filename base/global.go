@@ -126,7 +126,13 @@ func IsGensymPrivate(name string) bool {
 func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 
-	parser.Configure(mp.Mode(g.ParserMode), g.SpecialChar)
+	mode := g.ParserMode
+	if g.Options&OptDebugParse != 0 {
+		mode |= mp.Trace
+	} else {
+		mode &^= mp.Trace
+	}
+	parser.Configure(mode, g.SpecialChar)
 	parser.Init(g.Fileset, g.Filename, g.Line, src)
 
 	nodes, err := parser.Parse()

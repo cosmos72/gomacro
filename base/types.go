@@ -44,22 +44,23 @@ const (
 	OptTrapPanic Options = 1 << iota
 	OptPanicStackTrace
 	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
-	OptFastInterpreter // use the new, incomplete fast interpreter
+	OptFastInterpreter // use the new (and incomplete) fast interpreter
 	OptCollectDeclarations
 	OptCollectStatements
-	OptShowPrompt
-	OptShowParse
-	OptShowMacroExpand
 	OptShowCompile
 	OptShowEval
 	OptShowEvalType
+	OptShowMacroExpand
+	OptShowParse
+	OptShowPrompt
 	OptShowTime
-	OptDebugMacroExpand
-	OptDebugQuasiquote
 	OptDebugCallStack
-	OptDebugPanicRecover
 	OptDebugField
+	OptDebugMacroExpand
 	OptDebugMethod
+	OptDebugPanicRecover
+	OptDebugParse
+	OptDebugQuasiquote
 	OptDebugSleepOnSwitch // to torture-test "switch" implementation for race conditions
 )
 
@@ -76,19 +77,21 @@ var optNames = map[Options]string{
 	OptFastInterpreter:     "FastInterpreter",
 	OptCollectDeclarations: "Declarations.Collect",
 	OptCollectStatements:   "Statements.Collect",
-	OptShowPrompt:          "Prompt.Show",
-	OptShowParse:           "Parse.Show",
-	OptShowMacroExpand:     "MacroExpand.Show",
 	OptShowCompile:         "Compile.Show",
 	OptShowEval:            "Eval.Show",
 	OptShowEvalType:        "Type.Eval.Show",
+	OptShowMacroExpand:     "MacroExpand.Show",
+	OptShowParse:           "Parse.Show",
+	OptShowPrompt:          "Prompt.Show",
 	OptShowTime:            "Time.Show",
-	OptDebugMacroExpand:    "?MacroExpand.Debug",
-	OptDebugQuasiquote:     "?Quasiquote.Debug",
 	OptDebugCallStack:      "?CallStack.Debug",
-	OptDebugPanicRecover:   "?PanicRecover.Debug",
 	OptDebugField:          "?Field.Debug",
+	OptDebugMacroExpand:    "?MacroExpand.Debug",
 	OptDebugMethod:         "?Method.Debug",
+	OptDebugPanicRecover:   "?PanicRecover.Debug",
+	OptDebugParse:          "?Parse.Debug",
+	OptDebugQuasiquote:     "?Quasiquote.Debug",
+	OptDebugSleepOnSwitch:  "?SwitchSleep.Debug",
 }
 
 var optValues = map[string]Options{}

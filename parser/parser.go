@@ -1967,9 +1967,14 @@ func (p *parser) parseCaseClause(typeSwitch bool) ast.Stmt {
 	} else if p.tok == token.DEFAULT {
 		p.expect(token.DEFAULT)
 	} else {
-		// patch: support switch foo { ~,{bar} }
-		// where bar will expand to case x, y, z: w
-		return p.parseStmt()
+		switch p.tok {
+		case token.ILLEGAL, token.EOF, token.COLON, token.SEMICOLON, token.RBRACE, token.RBRACK, token.LPAREN:
+			p.errorExpected(p.pos, "'case' or 'default'")
+		default:
+			// patch: support switch foo { ~,{bar} }
+			// where bar will expand to case x, y, z: w
+			return p.parseStmt()
+		}
 	}
 	colon := p.expect(token.COLON)
 
