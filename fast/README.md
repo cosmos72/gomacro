@@ -30,7 +30,7 @@ The fast interpreter supports:
 * closures
 * Type.Method i.e. converting methods to functions (examples: time.Duration.Hours, fmt.Stringer.String)
 * seamless invocation of compiled functions from interpreter, and vice-versa
-* if, for, switch, break, continue, fallthrough, return (unimplemented: for-range, select, type switch, goto)
+* if, for, switch, type switch, break, continue, fallthrough, return (unimplemented: for-range, select, goto)
 * all builtins except defer and recover
 * go i.e. goroutines
 * imports
@@ -41,7 +41,6 @@ The fast interpreter supports:
 Missing features - you are welcome to contribute:
 * for-range (normal 'for' is implemented)
 * select
-* type switch
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
   (interfaces declared in compiled code can be used, but not yet implemented by interpreted code)
 * conversion from/to interpreted interfaces
