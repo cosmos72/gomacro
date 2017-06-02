@@ -215,7 +215,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		name := ident.Name
 		var bind *Bind
 		for o := c; o != nil; o = o.Outer {
-			if bind = c.Binds[name]; bind != nil {
+			if bind = o.Binds[name]; bind != nil {
 				break
 			}
 		}
