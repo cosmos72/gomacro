@@ -93,6 +93,11 @@ func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 			val := fun(env).Convert(rtype)
 			return uint(val.Uint())
 		}
+	case r.Uint8:
+		ret = func(env *Env) uint8 {
+			val := fun(env).Convert(rtype)
+			return uint8(val.Uint())
+		}
 	case r.Uint16:
 		ret = func(env *Env) uint16 {
 			val := fun(env).Convert(rtype)

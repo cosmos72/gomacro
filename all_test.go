@@ -154,6 +154,14 @@ var zeroValues = []r.Value{}
 
 var nil_map_int_string map[int]string
 
+func for_range_string(s string) int32 {
+	var v0 int32
+	for i, r := range s {
+		v0 += r << (uint8(i) * 8)
+	}
+	return v0
+}
+
 var testcases = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
 	TestCase{A, "1+'A'", "1+'A'", 'B', nil}, // rune i.e. int32 should win over untyped constant (or int)
@@ -347,6 +355,7 @@ var testcases = []TestCase{
 
 	TestCase{A, "for_range_array", `v0 = 0; for _, s := range [2]string{"a", "bc"} { v0 += len(s) }; v0`, 3, nil},
 	TestCase{A, "for_range_slice", `v0 = 0; for _, s := range [ ]string{"a", "bc"} { v0 += len(s) }; v0`, 3, nil},
+	TestCase{A, "for_range_string", `var vrune rune; for i, r := range "abc\u00ff" { vrune += r << (uint8(i)*8) }; vrune`, for_range_string("abc\u00ff"), nil},
 	TestCase{I, "for_range_chan", `v0 = 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { v0 += e }; v0`, 3, nil},
 
 	TestCase{A, "function_0", "func nop() { }; nop()", nil, []interface{}{}},

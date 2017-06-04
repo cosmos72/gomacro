@@ -30,6 +30,8 @@ import (
 	"go/token"
 	r "reflect"
 	"sort"
+	"unicode/utf8"
+	"unsafe"
 
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -45,6 +47,10 @@ func (c *Comp) Range(node *ast.RangeStmt, labels []string) {
 	c, _ = c.pushEnvIfFlag(&nbinds, true)
 	erange := c.Expr1(node.X)
 	t := erange.Type
+	if erange.Untyped() {
+		t = erange.DefaultType()
+		erange.ConstTo(t)
+	}
 	var jump rangeJump
 
 	sort.Strings(labels)
@@ -67,12 +73,12 @@ func (c *Comp) Range(node *ast.RangeStmt, labels []string) {
 			return efun(env).Elem()
 		})
 		fallthrough
-	case r.Array, r.Slice:
-		c.rangeArray(node, erange, &jump)
 	case r.Chan:
 		c.rangeChan(node, erange, &jump)
 	case r.Map:
 		c.rangeMap(node, erange, &jump)
+	case r.Array, r.Slice:
+		c.rangeSlice(node, erange, &jump)
 	case r.String:
 		c.rangeString(node, erange, &jump)
 	default:
@@ -84,8 +90,15 @@ func (c *Comp) Range(node *ast.RangeStmt, labels []string) {
 	c = c.popEnvIfFlag(&nbinds, true)
 }
 
-func (c *Comp) rangeArray(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
+func (c *Comp) rangeChan(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
+	c.Errorf("range on chan not implemented: range %v <%v>", node.X, erange.Type)
+}
 
+func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
+	c.Errorf("range on map not implemented: %v <%v>", node.X, erange.Type)
+}
+
+func (c *Comp) rangeSlice(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	t := erange.Type
 	var constlen int
 	var elen *Expr
@@ -110,6 +123,11 @@ func (c *Comp) rangeArray(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	}
 
 	placekey, placeval := c.rangeVars(node, c.TypeOfInt(), t.Elem())
+
+	if placekey == nil {
+		// we need an interation variable, even if user code ignores it
+		placekey = c.DeclVar0("", c.TypeOfInt(), nil).AsVar(0, PlaceSettable).AsPlace()
+	}
 
 	jump.Start = c.Code.Len()
 
@@ -164,6 +182,102 @@ func (c *Comp) rangeArray(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	})
 }
 
+func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
+	// save string in an unnamed bind
+	bindrange := c.DeclVar0("", nil, erange)
+	idxrange := bindrange.Desc.Index()
+
+	placekey, placeval := c.rangeVars(node, c.TypeOfInt(), c.TypeOfInt32())
+	bindnext := c.DeclVar0("", c.TypeOfInt(), nil)
+	idxnext := bindnext.Desc.Index()
+
+	var bindrune *Bind
+	if placeval != nil && !placeval.IsVar() {
+		bindrune = c.DeclVar0("", c.TypeOfInt32(), nil)
+	}
+
+	jump.Start = c.Code.Len()
+
+	if placekey != nil {
+		c.SetPlace(placekey, token.ASSIGN, c.Symbol(bindnext.AsSymbol(0)))
+	}
+	if placeval == nil {
+		c.append(func(env *Env) (Stmt, *Env) {
+			s := env.Binds[idxrange].String()
+			pnext := (*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			next := *pnext
+
+			_, size := utf8.DecodeRuneInString(s[next:])
+			var ip int
+			if size != 0 {
+				next += size
+				*pnext = next
+				ip = env.IP + 1
+			} else {
+				ip = jump.Break
+			}
+			env.IP = ip
+			return env.Code[ip], env
+		})
+	} else if placeval.IsVar() {
+		idxval := placeval.Var.Desc.Index()
+		upval := placeval.Var.Upn
+		c.append(func(env *Env) (Stmt, *Env) {
+			s := env.Binds[idxrange].String()
+			pnext := (*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			next := *pnext
+
+			r, size := utf8.DecodeRuneInString(s[next:])
+			var ip int
+			if size != 0 {
+				next += size
+				*pnext = next
+				o := env
+				for i := 0; i < upval; i++ {
+					o = o.Outer
+				}
+				*(*int32)(unsafe.Pointer(&env.IntBinds[idxval])) = r
+				ip = env.IP + 1
+			} else {
+				ip = jump.Break
+			}
+			env.IP = ip
+			return env.Code[ip], env
+		})
+	} else {
+		idxrune := bindrune.Desc.Index()
+		c.append(func(env *Env) (Stmt, *Env) {
+			s := env.Binds[idxrange].String()
+			pnext := (*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			next := *pnext
+
+			r, size := utf8.DecodeRuneInString(s[next:])
+			var ip int
+			if size != 0 {
+				next += size
+				*pnext = next
+				*(*int32)(unsafe.Pointer(&env.IntBinds[idxrune])) = r
+				ip = env.IP + 1
+			} else {
+				ip = jump.Break
+			}
+			env.IP = ip
+			return env.Code[ip], env
+		})
+		c.SetPlace(placeval, token.ASSIGN, c.Symbol(bindrune.AsSymbol(0)))
+	}
+
+	// compile the body
+	c.Block(node.Body)
+
+	// jump back to iteration
+	c.append(func(env *Env) (Stmt, *Env) {
+		ip := jump.Start
+		env.IP = ip
+		return env.Code[ip], env
+	})
+}
+
 // rangeVars compiles the key and value iteration variables in a for-range
 func (c *Comp) rangeVars(node *ast.RangeStmt, tkey xr.Type, tval xr.Type) (*Place, *Place) {
 	var place [2]*Place
@@ -171,10 +285,6 @@ func (c *Comp) rangeVars(node *ast.RangeStmt, tkey xr.Type, tval xr.Type) (*Plac
 
 	for i, expr := range [2]ast.Expr{node.Key, node.Value} {
 		if expr == nil {
-			if i == 0 {
-				// we need key bind for looping, even if user code ignores it
-				place[i] = c.DeclVar0("", t[i], nil).AsVar(0, PlaceSettable).AsPlace()
-			}
 			continue
 		}
 		c.Pos = expr.Pos()
@@ -182,11 +292,9 @@ func (c *Comp) rangeVars(node *ast.RangeStmt, tkey xr.Type, tval xr.Type) (*Plac
 			switch expr := expr.(type) {
 			case *ast.Ident:
 				name := expr.Name
-				if i == 0 && name == "_" {
-					// we need key bind for looping, even if user code ignores it
-					name = ""
+				if name != "_" {
+					place[i] = c.DeclVar0(name, t[i], nil).AsVar(0, PlaceSettable).AsPlace()
 				}
-				place[i] = c.DeclVar0(name, t[i], nil).AsVar(0, PlaceSettable).AsPlace()
 			default:
 				c.Errorf("non-name %v on left side of :=", expr)
 			}
@@ -198,16 +306,4 @@ func (c *Comp) rangeVars(node *ast.RangeStmt, tkey xr.Type, tval xr.Type) (*Plac
 		}
 	}
 	return place[0], place[1]
-}
-
-func (c *Comp) rangeChan(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
-	c.Errorf("range on chan not implemented: range %v <%v>", node.X, erange.Type)
-}
-
-func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
-	c.Errorf("range on map not implemented: %v <%v>", node.X, erange.Type)
-}
-
-func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
-	c.Errorf("range on string not implemented: %v <%v>", node.X, erange.Type)
 }

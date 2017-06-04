@@ -38,6 +38,16 @@ type Assign struct {
 	setplace func(r.Value, r.Value, r.Value)
 }
 
+func (a *Assign) init(c *Comp, place *Place) {
+	if place.IsVar() {
+		a.setvar = c.varSetValue(&place.Var)
+	} else {
+		a.placefun = place.Fun
+		a.placekey = place.MapKey
+		a.setplace = c.placeSetValue(place)
+	}
+}
+
 // Assign compiles an *ast.AssignStmt into an assignment to one or more place
 func (c *Comp) Assign(node *ast.AssignStmt) {
 	c.Pos = node.Pos()
@@ -103,14 +113,7 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 
 	assign := make([]Assign, ln)
 	for i, place := range places {
-		a := &assign[i]
-		if place.IsVar() {
-			a.setvar = c.varSetValue(&place.Var)
-		} else {
-			a.placefun = place.Fun
-			a.placekey = place.MapKey
-			a.setplace = c.placeSetValue(place)
-		}
+		assign[i].init(c, place)
 	}
 
 	exprfuns, exprxv := c.assignPrepareRhs(node, places, exprs)
