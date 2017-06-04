@@ -1530,3 +1530,85 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 		}
 	}
 }
+
+// unwrapBind compiles a conversion from a "mis-typed" bind stored as reflect.Value
+// into a correctly-typed expression
+func unwrapBind(bind *Bind, t xr.Type) *Expr {
+	idx := bind.Desc.Index()
+	var ret I
+	switch t.Kind() {
+	case r.Bool:
+		ret = func(env *Env) bool {
+			return env.Binds[idx].Bool()
+		}
+	case r.Int:
+		ret = func(env *Env) int {
+			return int(env.Binds[idx].Int())
+		}
+	case r.Int8:
+		ret = func(env *Env) int8 {
+			return int8(env.Binds[idx].Int())
+		}
+	case r.Int16:
+		ret = func(env *Env) int16 {
+			return int16(env.Binds[idx].Int())
+		}
+	case r.Int32:
+		ret = func(env *Env) int32 {
+			return int32(env.Binds[idx].Int())
+		}
+	case r.Int64:
+		ret = func(env *Env) int64 {
+			return env.Binds[idx].Int()
+		}
+	case r.Uint:
+		ret = func(env *Env) uint {
+			return uint(env.Binds[idx].Uint())
+		}
+	case r.Uint8:
+		ret = func(env *Env) uint8 {
+			return uint8(env.Binds[idx].Uint())
+		}
+	case r.Uint16:
+		ret = func(env *Env) uint16 {
+			return uint16(env.Binds[idx].Uint())
+		}
+	case r.Uint32:
+		ret = func(env *Env) uint32 {
+			return uint32(env.Binds[idx].Uint())
+		}
+	case r.Uint64:
+		ret = func(env *Env) uint64 {
+			return env.Binds[idx].Uint()
+		}
+	case r.Uintptr:
+		ret = func(env *Env) uintptr {
+			return uintptr(env.Binds[idx].Uint())
+		}
+	case r.Float32:
+		ret = func(env *Env) float32 {
+			return float32(env.Binds[idx].Float())
+		}
+	case r.Float64:
+		ret = func(env *Env) float64 {
+			return env.Binds[idx].Float()
+		}
+	case r.Complex64:
+		ret = func(env *Env) complex64 {
+			return complex64(env.Binds[idx].Complex())
+		}
+	case r.Complex128:
+		ret = func(env *Env) complex128 {
+			return env.Binds[idx].Complex()
+		}
+	case r.String:
+		ret = func(env *Env) string {
+			return env.Binds[idx].String()
+		}
+	default:
+		ret = func(env *Env) r.Value {
+			return env.Binds[idx]
+		}
+	}
+	return exprFun(t, ret)
+}

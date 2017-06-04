@@ -33,6 +33,7 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -95,7 +96,125 @@ func (c *Comp) rangeChan(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 }
 
 func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
-	c.Errorf("range on map not implemented: %v <%v>", node.X, erange.Type)
+	t := erange.Type
+	tkey, tval := t.Key(), t.Elem()
+	tkeyslice := xr.SliceOf(tkey)
+	rtkeyslice := tkeyslice.ReflectType()
+
+	// unnamed bind, contains map
+	bindmap := c.DeclVar0("", nil, erange)
+	idxmap := bindmap.Desc.Index()
+
+	// unnamed bind, contains map keys
+	bindkeys := c.AddBind("", VarBind, tkeyslice)
+	idxkeys := bindkeys.Desc.Index()
+	c.append(func(env *Env) (Stmt, *Env) {
+		// convert []r.Value slice into a []rtkey slice, to avoid reflect.Value.Interface() while iterating
+		vkeys := env.Binds[idxmap].MapKeys()
+		keys := r.MakeSlice(rtkeyslice, len(vkeys), len(vkeys))
+		for i, vkey := range vkeys {
+			keys.Index(i).Set(vkey)
+		}
+		env.Binds[idxkeys] = keys
+		env.IP++
+		return env.Code[env.IP], env
+	})
+
+	// unnamed bind, contains iteration index
+	bindnext := c.DeclVar0("", c.TypeOfInt(), nil)
+	idxnext := bindnext.Desc.Index()
+
+	placekey, placeval := c.rangeVars(node, tkey, tval)
+
+	var bindkey *Bind
+	var ekey *Expr
+	if placekey != nil || placeval != nil {
+		// unnamed bind, contains iteration map key
+		bindkey = c.DeclVar0("", c.TypeOfInterface(), nil)
+		ekey = unwrapBind(bindkey, tkey)
+	}
+
+	jump.Start = c.Code.Len()
+
+	if bindkey == nil {
+		// check iteration index against # of keys
+		c.append(func(env *Env) (Stmt, *Env) {
+			n := env.Binds[idxkeys].Len()
+			i := *(*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			var ip int
+			if i < n {
+				ip = env.IP + 1
+			} else {
+				ip = jump.Break
+			}
+			env.IP = ip
+			return env.Code[ip], env
+		})
+	} else {
+		// check iteration index against # of keys,
+		// and copy current map key into bindkey
+		idxkey := bindkey.Desc.Index()
+		c.append(func(env *Env) (Stmt, *Env) {
+			vkeys := env.Binds[idxkeys]
+			n := vkeys.Len()
+			i := *(*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			var ip int
+			if i < n {
+				env.Binds[idxkey] = vkeys.Index(i)
+				ip = env.IP + 1
+			} else {
+				ip = jump.Break
+			}
+			env.IP = ip
+			return env.Code[ip], env
+		})
+	}
+
+	if placekey != nil {
+		// copy current map key into placekey
+		c.SetPlace(placekey, token.ASSIGN, ekey)
+	}
+
+	if placeval == nil {
+		// nothing to do
+	} else if placeval.IsVar() && !base.IsOptimizedKind(placeval.Type.Kind()) {
+		idxkey := bindkey.Desc.Index()
+		idxval := placeval.Var.Desc.Index()
+		upval := placeval.Var.Upn
+		rtype := tval.ReflectType()
+		zero := r.Zero(rtype)
+		c.append(func(env *Env) (Stmt, *Env) {
+			vmap := env.Binds[idxmap]
+			key := env.Binds[idxkey]
+			o := env
+			for j := 0; j < upval; j++ {
+				o = o.Outer
+			}
+			val := vmap.MapIndex(key)
+			if !val.IsValid() {
+				val = zero
+			} else if val.Type() != rtype {
+				val = val.Convert(rtype)
+			}
+			o.Binds[idxval].Set(val)
+			env.IP++
+			return env.Code[env.IP], env
+		})
+	} else {
+		emap := c.Symbol(bindmap.AsSymbol(0))
+		c.SetPlace(placeval, token.ASSIGN, c.mapIndex1(nil, emap, ekey))
+	}
+
+	// compile the body
+	c.Block(node.Body)
+
+	// increase iteration index and jump back to start
+	c.append(func(env *Env) (Stmt, *Env) {
+		(*(*int)(unsafe.Pointer(&env.IntBinds[idxnext])))++
+		ip := jump.Start
+		env.IP = ip
+		return env.Code[ip], env
+	})
 }
 
 func (c *Comp) rangeSlice(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
