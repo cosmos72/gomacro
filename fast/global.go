@@ -336,6 +336,21 @@ type Var struct {
 	Name string
 }
 
+func (va *Var) AsSymbol() *Symbol {
+	return &Symbol{
+		Bind: Bind{
+			Lit:  Lit{Type: va.Type},
+			Desc: va.Desc,
+			Name: va.Name,
+		},
+		Upn: va.Upn,
+	}
+}
+
+func (va *Var) AsPlace() *Place {
+	return &Place{Var: *va}
+}
+
 // Place represents a settable place or, equivalently, its address
 type Place struct {
 	Var

@@ -228,7 +228,7 @@ func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 		c.Binds = make(map[string]*Bind)
 	}
 	if len(name) == 0 {
-		// unnamed function result, or unnamed switch expression
+		// unnamed function result, or unnamed switch/range/... expression
 	} else if bind := c.Binds[name]; bind != nil {
 		c.Warnf("redefined identifier: %v", name)
 		oldclass := bind.Desc.Class()
@@ -262,10 +262,73 @@ func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 	desc := MakeBindDescriptor(class, index)
 	bind := &Bind{Lit: Lit{Type: t}, Desc: desc, Name: name}
 	if len(name) != 0 {
-		// skip unnamed function results
+		// skip unnamed function results, and unnamed switch/range/... expression
 		c.Binds[name] = bind
 	}
 	return bind
+}
+
+func (c *Comp) declUnnamedBind(e *Expr, o *Comp, upn int) *Symbol {
+	t := e.Type
+	bind := o.AddBind("", VarBind, t)
+	// c.Debugf("declUnnamedBind: allocated bind %v, upn = %d", bind, upn)
+	switch bind.Desc.Class() {
+	case IntBind:
+		// no difference between declaration and assignment for this class
+		va := bind.AsVar(upn, PlaceSettable)
+		c.SetVar(va, token.ASSIGN, e)
+	case VarBind:
+		// cannot use c.DeclVar0 because the variable is declared in o
+		// cannot use o.DeclVar0 because the initializer must be evaluated in c
+		// so initialize the binding manually
+		index := bind.Desc.Index()
+		init := e.AsX1()
+		rtype := t.ReflectType()
+		switch upn {
+		case 0:
+			c.append(func(env *Env) (Stmt, *Env) {
+				v := init(env)
+				if v.Type() != rtype {
+					v = v.Convert(rtype)
+				}
+				// no need to create a settable reflect.Value
+				env.Binds[index] = v
+				env.IP++
+				return env.Code[env.IP], env
+			})
+		case 1:
+			c.append(func(env *Env) (Stmt, *Env) {
+				v := init(env)
+				if v.Type() != rtype {
+					v = v.Convert(rtype)
+				}
+				// no need to create a settable reflect.Value
+				env.Outer.Binds[index] = v
+				env.IP++
+				return env.Code[env.IP], env
+			})
+		default:
+			c.append(func(env *Env) (Stmt, *Env) {
+				o := env
+				for i := 0; i < upn; i++ {
+					o = o.Outer
+				}
+				v := init(env)
+				if v.Type() != rtype {
+					v = v.Convert(rtype)
+				}
+				// no need to create a settable reflect.Value
+				o.Binds[index] = v
+				env.IP++
+				return env.Code[env.IP], env
+			})
+		}
+	default:
+		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind",
+			"", t, bind.Desc.Class())
+		return nil
+	}
+	return bind.AsSymbol(upn)
 }
 
 // DeclVar0 compiles a variable declaration. For caller's convenience, returns allocated Bind
@@ -302,7 +365,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		c.SetVar(va, token.ASSIGN, init)
 	case VarBind:
 		index := desc.Index()
-		if index == NoIndex {
+		if index == NoIndex && init != nil {
 			// assigning a constant or expression to _
 			// only keep the expression side effects
 			c.append(init.AsStmt())
@@ -310,8 +373,9 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		if init == nil {
 			// no initializer... use the zero-value of t
+			rtype := t.ReflectType()
 			c.append(func(env *Env) (Stmt, *Env) {
-				env.Binds[index] = r.New(t.ReflectType()).Elem()
+				env.Binds[index] = r.New(rtype).Elem()
 				env.IP++
 				return env.Code[env.IP], env
 			})

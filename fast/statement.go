@@ -93,8 +93,8 @@ func (c *Comp) Stmt(in ast.Stmt) {
 			labels = append(labels, node.Label.Name)
 			in = node.Stmt
 			continue
-		// case *ast.RangeStmt:
-		//   c.Range(node, labels)
+		case *ast.RangeStmt:
+			c.Range(node, labels)
 		case *ast.ReturnStmt:
 			c.Return(node)
 		// case *ast.SelectStmt:
@@ -446,11 +446,7 @@ func (c *Comp) IncDec(node *ast.IncDecStmt) {
 		op = token.ADD
 	}
 	one := c.exprUntypedLit(untypedOne.Kind, untypedOne.Obj)
-	if place.IsVar() {
-		c.SetVar(&place.Var, op, one)
-	} else {
-		c.SetPlace(place, op, one)
-	}
+	c.SetPlace(place, op, one)
 }
 
 // Return compiles a "return" statement
@@ -634,6 +630,26 @@ func (inner *Comp) popEnvIfLocalBinds(locals bool, nbinds *[2]int, list ...ast.S
 	}
 
 	if locals {
+		// pop *Env at runtime
+		c.append(popEnv)
+	}
+	return c
+}
+
+// popEnvIfLocalBinds compiles a PopEnv statement if flag is true. also sets *nbinds and *nintbinds
+func (inner *Comp) popEnvIfFlag(nbinds *[2]int, flag bool) *Comp {
+	c := inner.Outer
+	c.Code = inner.Code       // copy back accumulated code
+	nbinds[0] = inner.BindNum // we finally know these
+	nbinds[1] = inner.IntBindNum
+
+	if flag != (inner.BindNum != 0 || inner.IntBindNum != 0) {
+		c.Errorf(`popEnvIfFlag internal error: flag is %t, but block actually defined %d Binds and %d IntBinds:
+	Binds = %v`, flag, inner.BindNum, inner.IntBindNum, inner.Binds)
+		return nil
+	}
+
+	if flag {
 		// pop *Env at runtime
 		c.append(popEnv)
 	}

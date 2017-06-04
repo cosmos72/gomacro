@@ -345,7 +345,9 @@ var testcases = []TestCase{
 	TestCase{A, "continue_3", "j=0; k=0; for i:=1; i<=7; i=i+1 { var ii = i; if ii==3 {j=ii; continue}; k=k+ii }; j", 3, nil},
 	TestCase{A, "continue_4", "k", 25, nil},
 
-	TestCase{I, "for_range_chan", "i := 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { i += e }; i", 3, nil},
+	TestCase{A, "for_range_array", `v0 = 0; for _, s := range [2]string{"a", "bc"} { v0 += len(s) }; v0`, 3, nil},
+	TestCase{A, "for_range_slice", `v0 = 0; for _, s := range [ ]string{"a", "bc"} { v0 += len(s) }; v0`, 3, nil},
+	TestCase{I, "for_range_chan", `v0 = 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { v0 += e }; v0`, 3, nil},
 
 	TestCase{A, "function_0", "func nop() { }; nop()", nil, []interface{}{}},
 	TestCase{A, "function_1", "func seven() int { return 7 }; seven()", 7, nil},

@@ -160,67 +160,7 @@ func (c *Comp) switchTag(e *Expr) *Expr {
 		upn += o.UpCost
 		o = o.Outer
 	}
-	t := e.Type
-	bind := o.AddBind("", VarBind, t)
-	// c.Debugf("switchTag: allocated bind %v, upn = %d", bind, upn)
-	switch bind.Desc.Class() {
-	case IntBind:
-		// no difference between declaration and assignment for this class
-		va := bind.AsVar(upn, PlaceSettable)
-		c.SetVar(va, token.ASSIGN, e)
-	case VarBind:
-		// cannot use c.DeclVar0 because the variable is declared in o
-		// cannot use o.DeclVar0 because the initializer must be evaluated in c
-		// so initialize the binding manually
-		index := bind.Desc.Index()
-		init := e.AsX1()
-		rtype := t.ReflectType()
-		switch upn {
-		case 0:
-			c.append(func(env *Env) (Stmt, *Env) {
-				v := init(env)
-				if v.Type() != rtype {
-					v = v.Convert(rtype)
-				}
-				// no need to create a settable reflect.Value
-				env.Binds[index] = v
-				env.IP++
-				return env.Code[env.IP], env
-			})
-		case 1:
-			c.append(func(env *Env) (Stmt, *Env) {
-				v := init(env)
-				if v.Type() != rtype {
-					v = v.Convert(rtype)
-				}
-				// no need to create a settable reflect.Value
-				env.Outer.Binds[index] = v
-				env.IP++
-				return env.Code[env.IP], env
-			})
-		default:
-			c.append(func(env *Env) (Stmt, *Env) {
-				o := env
-				for i := 0; i < upn; i++ {
-					o = o.Outer
-				}
-				v := init(env)
-				if v.Type() != rtype {
-					v = v.Convert(rtype)
-				}
-				// no need to create a settable reflect.Value
-				o.Binds[index] = v
-				env.IP++
-				return env.Code[env.IP], env
-			})
-		}
-	default:
-		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind",
-			"", t, bind.Desc.Class())
-		return nil
-	}
-	sym := bind.AsSymbol(upn)
-	return c.Symbol(sym)
+	return c.Symbol(c.declUnnamedBind(e, o, upn))
 }
 
 // switchCase compiles a case in a switch.

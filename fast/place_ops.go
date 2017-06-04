@@ -5928,6 +5928,10 @@ func (c *Comp) placeAndnotExpr(place *Place, fun I) {
 	c.append(ret)
 }
 func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
+	if place.IsVar() {
+		c.SetVar(&place.Var, op, init)
+		return
+	}
 	t := place.Type
 	if init.Const() {
 		init.ConstTo(t)
