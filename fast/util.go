@@ -54,6 +54,11 @@ func nop() {
 
 var valueOfNopFunc = r.ValueOf(nop)
 
+func asIdent(node ast.Expr) *ast.Ident {
+	ident, _ := node.(*ast.Ident)
+	return ident
+}
+
 func (e *Expr) TryAsPred() (value bool, fun func(*Env) bool, err bool) {
 	if e.Untyped() {
 		untyp := e.Value.(UntypedLit)
@@ -1531,7 +1536,7 @@ func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 	}
 }
 
-// unwrapBind compiles a conversion from a "mis-typed" bind stored as reflect.Value
+// unwrapBind compiles a conversion from a "mis-typed" bind stored in env.Binds[] as reflect.Value
 // into a correctly-typed expression
 func unwrapBind(bind *Bind, t xr.Type) *Expr {
 	idx := bind.Desc.Index()
@@ -1606,8 +1611,106 @@ func unwrapBind(bind *Bind, t xr.Type) *Expr {
 			return env.Binds[idx].String()
 		}
 	default:
+		rtype := t.ReflectType()
+		zero := r.Zero(rtype)
 		ret = func(env *Env) r.Value {
-			return env.Binds[idx]
+			v := env.Binds[idx]
+			if !v.IsValid() {
+				v = zero
+			} else if v.Type() != rtype {
+				v = v.Convert(rtype)
+			}
+			return v
+		}
+	}
+	return exprFun(t, ret)
+}
+
+// unwrapBindUp1 compiles a conversion from a "mis-typed" bind stored in env.Outer.Binds[] as reflect.Value
+// into a correctly-typed expression
+func unwrapBindUp1(bind *Bind, t xr.Type) *Expr {
+	idx := bind.Desc.Index()
+	var ret I
+	switch t.Kind() {
+	case r.Bool:
+		ret = func(env *Env) bool {
+			return env.Outer.Binds[idx].Bool()
+		}
+	case r.Int:
+		ret = func(env *Env) int {
+			return int(env.Outer.Binds[idx].Int())
+		}
+	case r.Int8:
+		ret = func(env *Env) int8 {
+			return int8(env.Outer.Binds[idx].Int())
+		}
+	case r.Int16:
+		ret = func(env *Env) int16 {
+			return int16(env.Outer.Binds[idx].Int())
+		}
+	case r.Int32:
+		ret = func(env *Env) int32 {
+			return int32(env.Outer.Binds[idx].Int())
+		}
+	case r.Int64:
+		ret = func(env *Env) int64 {
+			return env.Outer.Binds[idx].Int()
+		}
+	case r.Uint:
+		ret = func(env *Env) uint {
+			return uint(env.Outer.Binds[idx].Uint())
+		}
+	case r.Uint8:
+		ret = func(env *Env) uint8 {
+			return uint8(env.Outer.Binds[idx].Uint())
+		}
+	case r.Uint16:
+		ret = func(env *Env) uint16 {
+			return uint16(env.Outer.Binds[idx].Uint())
+		}
+	case r.Uint32:
+		ret = func(env *Env) uint32 {
+			return uint32(env.Outer.Binds[idx].Uint())
+		}
+	case r.Uint64:
+		ret = func(env *Env) uint64 {
+			return env.Outer.Binds[idx].Uint()
+		}
+	case r.Uintptr:
+		ret = func(env *Env) uintptr {
+			return uintptr(env.Outer.Binds[idx].Uint())
+		}
+	case r.Float32:
+		ret = func(env *Env) float32 {
+			return float32(env.Outer.Binds[idx].Float())
+		}
+	case r.Float64:
+		ret = func(env *Env) float64 {
+			return env.Outer.Binds[idx].Float()
+		}
+	case r.Complex64:
+		ret = func(env *Env) complex64 {
+			return complex64(env.Outer.Binds[idx].Complex())
+		}
+	case r.Complex128:
+		ret = func(env *Env) complex128 {
+			return env.Outer.Binds[idx].Complex()
+		}
+	case r.String:
+		ret = func(env *Env) string {
+			return env.Outer.Binds[idx].String()
+		}
+	default:
+		rtype := t.ReflectType()
+		zero := r.Zero(rtype)
+		ret = func(env *Env) r.Value {
+			v := env.Outer.Binds[idx]
+			if !v.IsValid() {
+				v = zero
+			} else if v.Type() != rtype {
+				v = v.Convert(rtype)
+			}
+			return v
 		}
 	}
 	return exprFun(t, ret)

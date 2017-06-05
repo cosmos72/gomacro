@@ -97,8 +97,8 @@ func (c *Comp) Stmt(in ast.Stmt) {
 			c.Range(node, labels)
 		case *ast.ReturnStmt:
 			c.Return(node)
-		// case *ast.SelectStmt:
-		//   c.Select(node, labels)
+		case *ast.SelectStmt:
+			c.Select(node, labels)
 		case *ast.SendStmt:
 			c.Send(node)
 		case *ast.SwitchStmt:

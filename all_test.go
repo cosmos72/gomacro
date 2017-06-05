@@ -541,12 +541,12 @@ var testcases = []TestCase{
 	TestCase{A, "send_recv", `cx <- "x"; <-cx`, nil, []interface{}{"x", true}},
 	TestCase{A, "sum", sum_source_string + "; sum(100)", 5050, nil},
 
-	TestCase{I, "select_1", "cx <- 1; { var x interface{}; select { case x=<-cx: x; default: } }", 1, nil},
-	TestCase{I, "select_2", "cx <- map[int]int{1:2}; select { case x:=<-cx: x; default: }", map[int]int{1: 2}, nil},
-	TestCase{I, "select_3", "select { case cx<-1: 1; default: 0 }", 1, nil},
-	TestCase{I, "select_4", "select { case cx<-2: 2; default: 0 }", 2, nil},
-	TestCase{I, "select_5", "select { case cx<-3: 3; default: 0 }", 0, nil},
-	TestCase{I, "select_6", "select { case cx<-4: 4; case x:=<-cx: x; default: 0 }", 1, nil},
+	TestCase{A, "select_1", "vi = nil; cx <- 1; { var x interface{}; select { case x=<-cx: vi=x; default: } }; vi", 1, nil},
+	TestCase{A, "select_2", "vi = nil; cx <- map[int]int{1:2}; select { case x:=<-cx: vi=x; default: }; vi", map[int]int{1: 2}, nil},
+	TestCase{A, "select_3", "vi = nil; select { case cx<-1: vi=1; default: vi=0 }; vi", 1, nil},
+	TestCase{A, "select_4", "vi = nil; select { case cx<-2: vi=2; default: vi=0 }; vi", 2, nil},
+	TestCase{A, "select_5", "vi = nil; select { case cx<-3: vi=3; default: vi=0 }; vi", 0, nil},
+	TestCase{A, "select_6", "vi = nil; select { case cx<-4: vi=4; case x:=<-cx: vi=x; default: vi=0 }; vi", 1, nil},
 
 	TestCase{A, "switch_1", "vi=nil; switch { case false: ; default: vi='1' }; vi", '1', nil},
 	TestCase{A, "switch_2", "vi=nil; switch v:=20; v { case 20: vi='2'; vi='3' }; vi", '3', nil},

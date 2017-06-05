@@ -10,9 +10,13 @@ import (
 )
 
 func main() {
-	var ch chan int
-	for e, f := range ch {
-		fmt.Printf("%#v\n", e)
+	var ch1, ch2 chan int
+	select {
+	case i := <-ch1:
+		println(i)
+		break
+	case ch2 <- 0:
+		break
 	}
 	// m := [...]int{0x7ffffff: 3}
 	// fmt.Println(m)
