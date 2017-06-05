@@ -57,11 +57,13 @@ func (c *Comp) Ident(name string) *Expr {
 // IdentPlace compiles an assignment to a variable, or taking the address of a variable
 func (c *Comp) IdentPlace(name string, opt PlaceOption) *Place {
 	if name == "_" {
-		if opt {
+		if opt == PlaceAddress {
 			c.Errorf("%s _", opt)
 			return nil
 		}
-		return &Place{} // assignment to _ is allowed: it does nothing
+		// assignment to _ is allowed: it does nothing
+		bind := c.AddBind(name, VarBind, c.TypeOfInterface())
+		return &Place{Var: *bind.AsVar(0, PlaceSettable)}
 	}
 	sym := c.Resolve(name)
 	return &Place{Var: *sym.AsVar(opt)}

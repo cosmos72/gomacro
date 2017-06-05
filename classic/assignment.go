@@ -38,6 +38,11 @@ type placeType struct {
 	mapkey r.Value // the map key to set, or Nil
 }
 
+// dummy place for assignment to _
+var _Place = placeType{
+	obj: r.ValueOf(struct{}{}),
+}
+
 func (env *Env) evalAssignments(node *ast.AssignStmt) (r.Value, []r.Value) {
 	left := node.Lhs
 	right := node.Rhs
@@ -122,6 +127,12 @@ func (env *Env) evalPlace(node ast.Expr) placeType {
 			}
 			obj = obj.Index(int(i))
 		}
+	case *ast.Ident:
+		if node.Name == "_" {
+			return _Place
+		}
+		obj = env.evalExpr1(node)
+
 	default:
 		obj = env.evalExpr1(node)
 	}
@@ -164,6 +175,9 @@ func (env *Env) assignPlaces(places []placeType, op token.Token, values []r.Valu
 
 func (env *Env) assignPlace(place placeType, op token.Token, value r.Value) r.Value {
 	obj := place.obj
+	if obj == _Place.obj {
+		return value
+	}
 	key := place.mapkey
 	if key == Nil {
 		t := typeOf(obj)
