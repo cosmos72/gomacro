@@ -40,7 +40,7 @@ Gomacro can be used as:
     Collected declarations and statements can be also written to standard output
     or to a file with the REPL command :write
 
-* an interactive tool to make science simpler and more fun.  
+* an interactive tool to make science more productive and more fun.  
   If you use compiled Go with scientific libraries (physics, bioinformatics, statistics...)
   you can import the same libraries from gomacro REPL (requires Go 1.8+ and Linux),
   call them interactively, inspect the results, feed them to other functions/libraries,

@@ -10,6 +10,10 @@ import (
 )
 
 func main() {
+	var ch chan int
+	for e, f := range ch {
+		fmt.Printf("%#v\n", e)
+	}
 	// m := [...]int{0x7ffffff: 3}
 	// fmt.Println(m)
 	// p := Pair{A: 1, B: true}

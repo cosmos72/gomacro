@@ -17,9 +17,9 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  *
- * statement.go
+ * range.go
  *
- *  Created on Apr 01, 2017
+ *  Created on Jun 04, 2017
  *      Author Massimiliano Ghilardi
  */
 
@@ -92,7 +92,58 @@ func (c *Comp) Range(node *ast.RangeStmt, labels []string) {
 }
 
 func (c *Comp) rangeChan(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
-	c.Errorf("range on chan not implemented: range %v <%v>", node.X, erange.Type)
+	t := erange.Type
+	telem := t.Elem()
+
+	// unnamed bind, contains channel
+	bindchan := c.DeclVar0("", nil, erange)
+	idxchan := bindchan.Desc.Index()
+
+	placekey, _ := c.rangeVars(node, telem, nil)
+
+	jump.Start = c.Code.Len()
+
+	if placekey == nil {
+		c.append(func(env *Env) (Stmt, *Env) {
+			_, ok := env.Binds[idxchan].Recv()
+			var ip int
+			if ok {
+				ip = env.IP + 1
+			} else {
+				ip = jump.Break
+			}
+			env.IP = ip
+			return env.Code[ip], env
+		})
+	} else {
+		// unnamed bind, contains last received value
+		bindrecv := c.AddBind("", VarBind, c.TypeOfInterface())
+		idxrecv := bindrecv.Desc.Index()
+
+		c.append(func(env *Env) (Stmt, *Env) {
+			v, ok := env.Binds[idxchan].Recv()
+			var ip int
+			if ok {
+				env.Binds[idxrecv] = v
+				ip = env.IP + 1
+			} else {
+				ip = jump.Break
+			}
+			env.IP = ip
+			return env.Code[ip], env
+		})
+		c.SetPlace(placekey, token.ASSIGN, unwrapBind(bindrecv, telem))
+	}
+
+	// compile the body
+	c.Block(node.Body)
+
+	// jump back to start
+	c.append(func(env *Env) (Stmt, *Env) {
+		ip := jump.Start
+		env.IP = ip
+		return env.Code[ip], env
+	})
 }
 
 func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
@@ -405,6 +456,9 @@ func (c *Comp) rangeVars(node *ast.RangeStmt, tkey xr.Type, tval xr.Type) (*Plac
 	for i, expr := range [2]ast.Expr{node.Key, node.Value} {
 		if expr == nil {
 			continue
+		} else if t[i] == nil {
+			c.Pos = expr.Pos()
+			c.Errorf("too many variables in range")
 		}
 		c.Pos = expr.Pos()
 		if node.Tok == token.DEFINE {

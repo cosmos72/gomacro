@@ -28,7 +28,7 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
-	"runtime/debug"
+	// "runtime/debug"
 	"sync"
 
 	"github.com/cosmos72/gomacro/typeutil"
@@ -128,7 +128,8 @@ func (v *Universe) importPackage(path string) *Package {
 	}
 	pkg, err := v.Importer.Import(path)
 	if err != nil || pkg == nil {
-		debugf("error importing package %q: %v\n\t%s", path, err, debug.Stack())
+		// debugf("cannot find metadata to import package %q: %v\n\t%s", path, err, debug.Stack())
+		debugf("importer: cannot find package %q metadata, approximating it with reflection", path)
 		return nil
 	}
 	// debugf("imported package %q", path)
