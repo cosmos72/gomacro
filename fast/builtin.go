@@ -105,6 +105,8 @@ func (ce *CompEnv) addBuiltins() {
 	ce.DeclBuiltin("print", Builtin{compilePrint, 0, base.MaxUint16})
 	ce.DeclBuiltin("println", Builtin{compilePrint, 0, base.MaxUint16})
 	ce.DeclBuiltin("real", Builtin{compileRealImag, 1, 1})
+	ce.DeclBuiltin("recover", Builtin{compileRecover, 0, 0})
+	// ce.DeclBuiltin("recover", Function{callRecover, ce.Comp.TypeOf((*func() interface{})(nil)).Elem()})
 
 	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf((*func(interface{}) interface{})(nil)).Elem()})
 	/*
@@ -123,9 +125,6 @@ func (ce *CompEnv) addBuiltins() {
 		})
 		// return multiple values, extracting the concrete type of each interface
 		binds["Values"] = r.ValueOf(Function{funcValues, -1})
-	*/
-	/*
-		binds["recover"] = r.ValueOf(Function{funcRecover, 0})
 	*/
 
 	// --------- types ---------
@@ -513,10 +512,7 @@ func callPanic(arg interface{}) {
 
 func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	arg := c.Expr1(node.Args[0])
-	if arg.Const() {
-		arg.ConstTo(arg.DefaultType())
-	}
-
+	arg.To(c.TypeOfInterface())
 	t := c.TypeOf(callPanic)
 	sym.Type = t
 	fun := exprLit(Lit{Type: t, Value: callPanic}, &sym)
@@ -540,9 +536,7 @@ func getStdout(env *Env) r.Value {
 func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args := c.Exprs(node.Args)
 	for _, arg := range args {
-		if arg.Const() {
-			arg.ConstTo(arg.DefaultType())
-		}
+		arg.To(c.TypeOfInterface())
 	}
 	arg0 := exprFun(c.TypeOfInterface(), getStdout) // no need to build TypeOfIoWriter
 	args = append([]*Expr{arg0}, args...)
@@ -606,6 +600,51 @@ func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	fun := exprLit(Lit{Type: t, Value: call}, &sym)
 	// real() and imag() of a constant are constants: they can be computed at compile time
 	return newCall1(fun, arg, arg.Const(), tout)
+}
+
+var nilInterface = r.Zero(base.TypeOfInterface)
+
+// we can use whatever signature we want, as long as call_builtin supports it
+func callRecover(v r.Value) r.Value {
+	env := v.Interface().(*Env)
+	g := env.ThreadGlobals
+	if !g.IsDefer {
+		base.Debugf("recover() not directly inside a defer")
+		return nilInterface
+	}
+	if g.PanicFun == nil {
+		base.Debugf("recover() no panic")
+		return nilInterface
+	}
+	if g.DeferOfFun != g.PanicFun {
+		base.Debugf("recover() inside defer of function %p, not defer of the current panicking function %p", g.DeferOfFun, g.PanicFun)
+		return nilInterface
+	}
+	rec := g.Panic
+	if rec == nil {
+		base.Debugf("recover() consuming current panic: nil")
+		v = nilInterface
+	} else {
+		base.Debugf("recover() consuming current panic: %v <%v>", rec, r.TypeOf(rec))
+		v = r.ValueOf(rec).Convert(base.TypeOfInterface) // keep the interface{} type
+	}
+	// consume the current panic
+	g.Panic = nil
+	g.PanicFun = nil
+	return v
+}
+
+func argEnv(env *Env) r.Value {
+	return r.ValueOf(env)
+}
+
+func compileRecover(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
+	ti := c.TypeOfInterface()
+	t := xr.FuncOf([]xr.Type{ti}, []xr.Type{ti}, false)
+	sym.Type = t
+	fun := exprLit(Lit{Type: t, Value: callRecover}, &sym)
+	arg := exprX1(ti, argEnv)
+	return newCall1(fun, arg, false, ti)
 }
 
 // ============================ support functions =============================
@@ -791,9 +830,9 @@ func (c *Comp) call_builtin(call *Call) I {
 				argfunsX1[1],
 			}
 			ret = func(env *Env) {
-				arg0 := argfuns[0](env).Interface()
+				arg := argfuns[0](env).Interface()
 				argslice := argfuns[1](env).Interface().([]interface{})
-				fun(arg0, argslice...)
+				fun(arg, argslice...)
 			}
 		} else {
 			ret = func(env *Env) {

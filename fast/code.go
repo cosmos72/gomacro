@@ -33,6 +33,7 @@ import (
 func (code *Code) Clear() {
 	code.List = nil
 	code.DebugPos = nil
+	code.WithDefers = false
 }
 
 func (code *Code) Len() int {
@@ -54,45 +55,78 @@ func (code *Code) AsExpr() *Expr {
 	return expr0(fun)
 }
 
+// declare a var instead of function: Code.Exec() needs the address of Interrupt
+var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
+	return env.ThreadGlobals.Interrupt, env
+}
+
+func pushDefer(g *ThreadGlobals, deferOf *Env, panicking bool) (retg *ThreadGlobals, deferOf_ *Env, isDefer bool) {
+	deferOf_ = g.DeferOfFun
+	if panicking {
+		g.PanicFun = deferOf
+	}
+	g.DeferOfFun = deferOf
+	g.StartDefer = true
+	return g, deferOf_, g.IsDefer
+}
+
+func popDefer(g *ThreadGlobals, deferOf *Env, isDefer bool) {
+	g.DeferOfFun = deferOf
+	g.StartDefer = false
+	g.IsDefer = isDefer
+}
+
+func setIsDefer(g *ThreadGlobals, flag bool) {
+	g.IsDefer = flag
+}
+
+func maybeRepanic(g *ThreadGlobals) bool {
+	if g.PanicFun != nil {
+		panic(g.Panic)
+	}
+	// either not panicking or recover() invoked, no longer panicking
+	return false
+}
+
 // Exec returns a func(*Env) that will execute the compiled code
 func (code *Code) Exec() func(*Env) {
 	all := code.List
 	pos := code.DebugPos
+	defers := code.WithDefers
+
 	code.Clear()
 	if len(all) == 0 {
 		return nil
 	}
-	all = append(all, nil)
+	all = append(all, Interrupt)
 
-	if len(all) == 2 {
+	if defers {
+		// code to support defer is slower... isolate it in a separate function
 		return func(env *Env) {
-			env.IP = 0
-			env.Code = all
-			env.DebugPos = pos
-			interrupt := env.ThreadGlobals.Interrupt
-			env.ThreadGlobals.Interrupt = nil
-			stmt := all[0]
-			all[1] = nil
-			for stmt != nil {
-				stmt, env = stmt(env)
-			}
-			// restore env.ThreadGlobals.Interrupt before returning
-			env.ThreadGlobals.Interrupt = interrupt
+			execWithDefers(env, all, pos)
 		}
+	} else {
+		return exec(all, pos)
 	}
+}
+
+func exec(all []Stmt, pos []token.Pos) func(*Env) {
 	return func(env *Env) {
-		stmt := all[0]
-		if stmt == nil {
+		g := env.ThreadGlobals
+		if g.IsDefer || g.StartDefer {
+			// code to support defer is slower... isolate it in a separate function
+			execWithDefers(env, all, pos)
 			return
 		}
-
-		n := len(all) - 1
-		all[n] = nil
+		stmt := all[0]
 		env.IP = 0
 		env.Code = all
 		env.DebugPos = pos
-		interrupt := env.ThreadGlobals.Interrupt
-		env.ThreadGlobals.Interrupt = nil
+
+		interrupt := g.Interrupt
+		g.Interrupt = nil
+		var unsafeInterrupt *uintptr
+		g.Signal = SigNone
 
 		for j := 0; j < 5; j++ {
 			if stmt, env = stmt(env); stmt != nil {
@@ -124,13 +158,10 @@ func (code *Code) Exec() func(*Env) {
 					}
 				}
 			}
-			// restore env.ThreadGlobals.Interrupt before returning
-			env.ThreadGlobals.Interrupt = interrupt
-			return
+			goto finish
 		}
 
-		unsafeInterrupt := *(**uintptr)(unsafe.Pointer(&Interrupt))
-		all[n] = Interrupt
+		unsafeInterrupt = *(**uintptr)(unsafe.Pointer(&Interrupt))
 		env.ThreadGlobals.Interrupt = Interrupt
 		for {
 			stmt, env = stmt(env)
@@ -149,11 +180,138 @@ func (code *Code) Exec() func(*Env) {
 			stmt, env = stmt(env)
 			stmt, env = stmt(env)
 
-			if x := stmt; *(**uintptr)(unsafe.Pointer(&x)) == unsafeInterrupt {
-				// restore env.ThreadGlobals.Interrupt before returning
-				env.ThreadGlobals.Interrupt = interrupt
-				return
+			if *(**uintptr)(unsafe.Pointer(&stmt)) == unsafeInterrupt {
+				break
 			}
 		}
+	finish:
+		// restore env.ThreadGlobals.Interrupt and Signal before returning
+		g.Interrupt = interrupt
+		g.Signal = SigNone
+		return
 	}
+}
+
+// execWithDefers executes the given compiled code, including support for defer()
+func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
+	funenv := env
+	stmt := all[0]
+	env.IP = 0
+	env.Code = all
+	env.DebugPos = pos
+
+	g := env.ThreadGlobals
+	interrupt := g.Interrupt
+	g.Interrupt = nil
+	var unsafeInterrupt *uintptr
+	g.Signal = SigNone
+	if g.IsDefer != g.StartDefer {
+		defer setIsDefer(g, g.IsDefer) // restore g.IsDefer on return
+		g.IsDefer = g.StartDefer
+	}
+	g.StartDefer = false
+	panicking := true
+
+	for j := 0; j < 5; j++ {
+		if stmt, env = stmt(env); stmt != nil {
+			if stmt, env = stmt(env); stmt != nil {
+				if stmt, env = stmt(env); stmt != nil {
+					if stmt, env = stmt(env); stmt != nil {
+						if stmt, env = stmt(env); stmt != nil {
+							if stmt, env = stmt(env); stmt != nil {
+								if stmt, env = stmt(env); stmt != nil {
+									if stmt, env = stmt(env); stmt != nil {
+										if stmt, env = stmt(env); stmt != nil {
+											if stmt, env = stmt(env); stmt != nil {
+												if stmt, env = stmt(env); stmt != nil {
+													if stmt, env = stmt(env); stmt != nil {
+														if stmt, env = stmt(env); stmt != nil {
+															if stmt, env = stmt(env); stmt != nil {
+																continue
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if g.Signal != SigDefer {
+			goto finish
+		}
+		fun := g.InstallDefer
+		g.Signal = SigNone
+		g.InstallDefer = nil
+		defer func() {
+			if panicking {
+				g.Panic = recover()
+			}
+			defer popDefer(pushDefer(g, funenv, panicking))
+			fun()
+			if panicking {
+				panicking = maybeRepanic(g)
+			}
+		}()
+		stmt = env.Code[env.IP]
+		if stmt != nil {
+			continue
+		}
+		break
+	}
+
+	unsafeInterrupt = *(**uintptr)(unsafe.Pointer(&Interrupt))
+	env.ThreadGlobals.Interrupt = Interrupt
+	for {
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+		stmt, env = stmt(env)
+
+		if *(**uintptr)(unsafe.Pointer(&stmt)) == unsafeInterrupt {
+			if g.Signal != SigDefer {
+				goto finish
+			}
+			fun := g.InstallDefer
+			g.Signal = SigNone
+			g.InstallDefer = nil
+			defer func() {
+				if panicking {
+					g.Panic = recover()
+				}
+				defer popDefer(pushDefer(g, funenv, panicking))
+				fun()
+				if panicking {
+					panicking = maybeRepanic(g)
+				}
+			}()
+			stmt = env.Code[env.IP]
+			if *(**uintptr)(unsafe.Pointer(&stmt)) != unsafeInterrupt {
+				continue
+			}
+			break
+		}
+	}
+finish:
+	// restore env.ThreadGlobals.Interrupt and Signal before returning
+	g.Interrupt = interrupt
+	g.Signal = SigNone
+	panicking = false
+	return
 }

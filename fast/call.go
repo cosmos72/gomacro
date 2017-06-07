@@ -73,12 +73,12 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 			return c.Convert(node.Args[0], t)
 		}
 	}
-	call := c.callExpr(node, fun)
+	call := c.prepareCall(node, fun)
 	return c.call_any(call)
 }
 
 // callExpr compiles the common part between CallExpr and Go statement
-func (c *Comp) callExpr(node *ast.CallExpr, fun *Expr) *Call {
+func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	if fun == nil {
 		fun = c.Expr1(node.Fun)
 	}

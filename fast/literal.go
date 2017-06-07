@@ -158,7 +158,7 @@ func (untyp *UntypedLit) IsLiteralNumber(n int64) bool {
 // actually performs type conversion (and subsequent overflow checks) ONLY on untyped constants.
 func (e *Expr) ConstTo(t xr.Type) I {
 	if !e.Const() {
-		Errorf("expression is not a constant, cannot convert from <%v> to <%v>", e.Type, t)
+		Errorf("internal error: expression is not constant, use Expr.To() instead of Expr.ConstTo() to convert from <%v> to <%v>", e.Type, t)
 	}
 	val := e.Lit.ConstTo(t)
 	if e.Fun != nil {
@@ -388,6 +388,45 @@ func (lit *Lit) Set(x I) {
 }
 */
 
+// To checks that an Expr can be used as (i.e. is assignable to) the given type,
+// and converts Expr to the given type.
+// panics if Expr has an incompatible type.
+func (e *Expr) To(t xr.Type) {
+	if e.Const() {
+		e.ConstTo(t)
+		return
+	}
+	if xr.SameType(e.Type, t) {
+		return
+	}
+	if !e.Type.AssignableTo(t) {
+		Errorf("cannot use <%v> as <%v>", e.Type, t)
+	}
+	k := e.Type.Kind()
+	if IsOptimizedKind(k) {
+		if k == t.Kind() {
+			// same optimized representation
+			e.Type = t
+			return
+		} else {
+			Errorf("internal error: cannot use <%v> as <%v> (should not happen, <%v> is assignable to <%v>", e.Type, t, e.Type, t)
+		}
+	}
+	fun := e.AsX1()
+	rtype := t.ReflectType()
+	zero := r.Zero(rtype)
+	e.Fun = func(env *Env) r.Value {
+		v := fun(env)
+		if !v.IsValid() {
+			v = zero
+		} else if v.Type() != rtype {
+			v = v.Convert(rtype)
+		}
+		return v
+	}
+	e.Type = t
+}
+
 // WithFun ensures that Expr.Fun is a closure that will return the expression result:
 //
 // if Expr is an untyped constant, WithFun converts the constant to its default type (panics on overflows),
@@ -407,8 +446,19 @@ again:
 		e.Fun = eNil
 		return eNil
 	}
-	rtexpected := t.ReflectType()
+	if value == nil {
+		if !IsNillableKind(t.Kind()) {
+			Errorf("internal error: constant of type <%v> cannot be nil", t)
+		}
+		zero := r.Zero(t.ReflectType())
+		fun = func(*Env) r.Value {
+			return zero
+		}
+		e.Fun = fun
+		return fun
+	}
 	rtactual := r.TypeOf(value)
+	rtexpected := t.ReflectType()
 	if rtexpected != rtactual {
 		if rtexpected.Kind() == r.Interface && rtactual.Implements(rtexpected) {
 			v = v.Convert(rtexpected)

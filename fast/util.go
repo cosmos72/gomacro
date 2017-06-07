@@ -231,8 +231,9 @@ func (e *Expr) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 
 func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 	convertuntyped := opts&CompileKeepUntyped == 0
+	untyp, untyped := any.(UntypedLit)
 	if convertuntyped {
-		if untyp, ok := any.(UntypedLit); ok {
+		if untyped {
 			if t == nil || t.ReflectType() == rtypeOfUntypedLit {
 				t = untyp.DefaultType()
 			}
@@ -243,9 +244,9 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 	v := r.ValueOf(any)
 	if t != nil {
 		rtype := t.ReflectType()
-		if ValueType(v) == nil {
+		if !v.IsValid() {
 			v = r.Zero(rtype)
-		} else if convertuntyped {
+		} else if convertuntyped || !untyped {
 			v = v.Convert(rtype)
 		}
 	}
@@ -256,8 +257,9 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 
 func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 	convertuntyped := opts&CompileKeepUntyped == 0
+	untyp, untyped := any.(UntypedLit)
 	if convertuntyped {
-		if untyp, ok := any.(UntypedLit); ok {
+		if untyped {
 			if t == nil || t.ReflectType() == rtypeOfUntypedLit {
 				t = untyp.DefaultType()
 				// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to its default type <%v>", untyp, r.TypeOf(untyp), t)
@@ -269,10 +271,11 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 	}
 	v := r.ValueOf(any)
 	if t != nil {
+		rtype := t.ReflectType()
 		if ValueType(v) == nil {
-			v = xr.Zero(t)
-		} else if convertuntyped {
-			v = v.Convert(t.ReflectType())
+			v = r.Zero(rtype)
+		} else if convertuntyped || !untyped {
+			v = v.Convert(rtype)
 		}
 	}
 	return func(*Env) (r.Value, []r.Value) {

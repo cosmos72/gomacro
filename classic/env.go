@@ -215,21 +215,22 @@ func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 	defer func() {
 		env.IncLine(str)
 		if trap {
-			if rec := recover(); rec != nil {
-				if env.Options&OptPanicStackTrace != 0 {
-					fmt.Fprintf(env.Stderr, "%s\n%s", rec, debug.Stack())
-				} else {
-					fmt.Fprintf(env.Stderr, "%s\n", rec)
-				}
-				callAgain = true
+			rec := recover()
+			if env.Options&OptPanicStackTrace != 0 {
+				fmt.Fprintf(env.Stderr, "%v\n%s", rec, debug.Stack())
+			} else {
+				fmt.Fprintf(env.Stderr, "%v\n", rec)
 			}
+			callAgain = true
 		}
 		if duration {
 			delta := time.Now().Sub(t1)
 			env.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
 		}
 	}()
-	return env.parseEvalPrint(str, in)
+	callAgain = env.parseEvalPrint(str, in)
+	trap = false // no panic happened
+	return callAgain
 }
 
 func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {

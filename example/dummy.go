@@ -7,17 +7,27 @@ import (
 	"fmt"
 	"io"
 	"os"
+	r "reflect"
 )
 
+var TypeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
+
 func main() {
-	var ch1, ch2 chan int
-	select {
-	case i := <-ch1:
-		println(i)
-		break
-	case ch2 <- 0:
-		break
-	}
+	p := r.ValueOf(new(interface{}))
+	i := p.Elem()
+	c := i.Convert(TypeOfInterface)
+	fmt.Printf("%v %v\n", p, p.Type())
+	fmt.Printf("%v %v\n", i, i.Type())
+	fmt.Printf("%v %v\n", c, c.Type())
+	/*
+		defer func() {
+			fmt.Println(recover())
+		}()
+		defer func() {
+			fmt.Println("foo")
+		}()
+		panic("test panic")
+	*/
 	// m := [...]int{0x7ffffff: 3}
 	// fmt.Println(m)
 	// p := Pair{A: 1, B: true}

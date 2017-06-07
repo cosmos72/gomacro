@@ -376,6 +376,24 @@ var testcases = []TestCase{
 	TestCase{A, "fibonacci", fibonacci_source_string + "; fibonacci(13)", 233, nil},
 	TestCase{A, "function_literal", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
+	TestCase{A, "closure_1", `
+		func test_closure_1() int {
+			var x int
+			func() {
+				x = 1
+			}()
+			return x
+		}
+		test_closure_1()`, 1, nil},
+
+	TestCase{F, "closure_2", `
+		func test_closure_2() (x int) {
+			func() {
+				x = 2
+			}()
+		}
+		test_closure_2()`, 2, nil},
+
 	TestCase{A, "setvar_deref_1", `vstr := "foo"; pvstr := &vstr; *pvstr = "bar"; vstr`, "bar", nil},
 	TestCase{A, "setvar_deref_2", `vint := 5; pvint := &vint; *pvint = 6; vint`, 6, nil},
 	TestCase{A, "setplace_deref_1", `func vstr_addr() *string { return &vstr }; *vstr_addr() = "qwerty"; vstr`, "qwerty", nil},
@@ -504,7 +522,22 @@ var testcases = []TestCase{
 	TestCase{A, "pred_string_3", `"x"=="x" && "x"<="x" && "x">="x" && "x"!="y" && "x"<"y" && "y">"x"`, true, nil},
 	TestCase{A, "pred_string_4", `"x"!="x" || "y"!="y" || "x">="y" || "y"<="x"`, false, nil},
 
-	TestCase{I, "recover", `var vpanic interface{}
+	TestCase{A, "defer_1", `
+		vi = nil
+		func test_defer_1() {
+			defer func() {
+				vi = 1
+			}()
+		}
+		test_defer_1(); vi`, 1, nil},
+	TestCase{F, "defer_2", `
+		func test_defer_2() (x int) {
+			defer func() {
+				x = 2
+			}()
+		}
+		test_defer_2()`, 2, nil},
+	TestCase{A, "recover", `var vpanic interface{}
 		func test_recover(rec bool, panick interface{}) {
 			defer func() {
 				if rec {
@@ -515,7 +548,7 @@ var testcases = []TestCase{
 		}
 		test_recover(true, -3)
 		vpanic`, -3, nil},
-	TestCase{I, "recover_nested_1", `var vpanic2, vpanic3 interface{}
+	TestCase{A, "recover_nested_1", `var vpanic2, vpanic3 interface{}
 		func test_nested_recover(repanic bool, panick interface{}) {
 			defer func() {
 				vpanic = recover()
@@ -532,12 +565,12 @@ var testcases = []TestCase{
 			panic(panick)
 		}
 		test_nested_recover(false, -4)
-		Values(vpanic, vpanic2, vpanic3)
-		`, nil, []interface{}{nil, -4, nil}},
-	TestCase{I, "recover_nested_2", `vpanic, vpanic2, vpanic3 = nil, nil, nil
+		list_args(vpanic, vpanic2, vpanic3)
+		`, []interface{}{nil, -4, nil}, nil},
+	TestCase{A, "recover_nested_2", `vpanic, vpanic2, vpanic3 = nil, nil, nil
 		test_nested_recover(true, -5)
-		Values(vpanic, vpanic2, vpanic3)
-		`, nil, []interface{}{-5, -5, nil}},
+		list_args(vpanic, vpanic2, vpanic3)
+		`, []interface{}{-5, -5, nil}, nil},
 	TestCase{A, "send_recv", `cx <- "x"; <-cx`, nil, []interface{}{"x", true}},
 	TestCase{A, "sum", sum_source_string + "; sum(100)", 5050, nil},
 

@@ -39,11 +39,6 @@ func stmtNop(env *Env) (Stmt, *Env) {
 	return env.Code[env.IP], env
 }
 
-// declare a var instead of function: code.go needs the address of Interrupt
-var Interrupt Stmt = func(env *Env) (Stmt, *Env) {
-	return env.ThreadGlobals.Interrupt, env
-}
-
 func popEnv(env *Env) (Stmt, *Env) {
 	outer := env.Outer
 	outer.IP = env.IP + 1
@@ -72,8 +67,8 @@ func (c *Comp) Stmt(in ast.Stmt) {
 			c.misplacedCase(node, node.Comm == nil)
 		case *ast.DeclStmt:
 			c.Decl(node.Decl)
-		// case *ast.DeferStmt:
-		//   c.DeferStmt(node.Call)
+		case *ast.DeferStmt:
+			c.Defer(node)
 		case *ast.EmptyStmt:
 			// nothing to do
 		case *ast.ExprStmt:
@@ -206,6 +201,45 @@ func (c *Comp) Continue(node *ast.BranchStmt) {
 	}
 }
 
+// Defer compiles a "defer" statement
+func (c *Comp) Defer(node *ast.DeferStmt) {
+	call := c.prepareCall(node.Call, nil)
+	fun := call.Fun.AsX1()
+	argfuns := call.MakeArgfunsX1()
+	ellipsis := call.Ellipsis
+	c.append(func(env *Env) (Stmt, *Env) {
+		// Go specs: arguments of a defer call are evaluated immediately.
+		// the call itself is executed when the function containing defer returns,
+		// either normally or with a panic
+		f := fun(env)
+		if f.CanSet() {
+			f = f.Convert(f.Type()) // make a copy
+		}
+		args := make([]r.Value, len(argfuns))
+		for i, argfun := range argfuns {
+			v := argfun(env)
+			if v.CanSet() {
+				v = v.Convert(v.Type()) // make a copy
+			}
+			args[i] = v
+		}
+		env.IP++
+		g := env.ThreadGlobals
+		if ellipsis {
+			g.InstallDefer = func() {
+				f.CallSlice(args)
+			}
+		} else {
+			g.InstallDefer = func() {
+				f.Call(args)
+			}
+		}
+		g.Signal = SigDefer
+		return g.Interrupt, env
+	})
+	c.Code.WithDefers = true
+}
+
 // jumpOut compiles a break or continue statement
 // ip is a pointer because the jump target may not be known yet... it will be filled later
 func (c *Comp) jumpOut(upn int, ip *int) {
@@ -326,9 +360,9 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	// but that requires modifying the function being executed.
 	// Instead, we create the new ThreadGlobals here and wrap it into an "unnecessary" Env
 	// Thus we must create a corresponding "unnecessary" Comp and use it to compile the call
-	c2 := NewComp(c)
+	c2 := NewComp(c, &c.Code)
 
-	call := c2.callExpr(node.Call, nil)
+	call := c2.prepareCall(node.Call, nil)
 	exprfun := call.Fun.AsX1()
 	argfunsX1 := call.MakeArgfunsX1()
 
@@ -603,7 +637,7 @@ func (c *Comp) pushEnvIfFlag(nbinds *[2]int, flag bool) (*Comp, bool) {
 			return inner.Code[inner.IP], inner
 		})
 	}
-	inner := NewComp(c)
+	inner := NewComp(c, &c.Code)
 	if !flag {
 		inner.UpCost = 0
 		inner.Depth--

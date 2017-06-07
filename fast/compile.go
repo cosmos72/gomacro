@@ -118,18 +118,21 @@ func NewCompEnv(outer *CompEnv, path string) *CompEnv {
 	return c
 }
 
-func NewComp(outer *Comp) *Comp {
+func NewComp(outer *Comp, code *Code) *Comp {
 	if outer == nil {
 		return &Comp{UpCost: 1}
 	}
-	return &Comp{
+	c := Comp{
 		UpCost:            1,
 		Depth:             outer.Depth + 1,
-		Code:              outer.Code,
 		Outer:             outer,
 		CompileOptions:    outer.CompileOptions,
 		CompThreadGlobals: outer.CompThreadGlobals,
 	}
+	if code != nil {
+		c.Code = *code
+	}
+	return &c
 }
 
 func (c *Comp) TopComp() *Comp {

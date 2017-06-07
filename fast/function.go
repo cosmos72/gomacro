@@ -60,7 +60,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 		c.Errorf("internal error! function bind should have class '%v', found class '%v' for: %s <%v>", FuncBind, funcclass, funcname, t)
 	}
 
-	cf := NewComp(c)
+	cf := NewComp(c, nil)
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
 	cf.Func = info
 
@@ -138,7 +138,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	// declare the method name and type before compiling its body: allows recursive methods
 	methodindex, methods := c.methodAdd(funcdecl, t)
 
-	cf := NewComp(c)
+	cf := NewComp(c, nil)
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
 	cf.Func = info
 
@@ -183,7 +183,7 @@ func (c *Comp) FuncLit(funclit *ast.FuncLit) *Expr {
 	functype := funclit.Type
 	t, paramnames, resultnames := c.TypeFunction(functype)
 
-	cf := NewComp(c)
+	cf := NewComp(c, nil)
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
 	cf.Func = info
 

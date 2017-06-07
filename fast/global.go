@@ -412,8 +412,9 @@ const (
 )
 
 type Code struct {
-	List     []Stmt
-	DebugPos []token.Pos // for debugging interpreted code: position of each statement
+	List       []Stmt
+	DebugPos   []token.Pos // for debugging interpreted code: position of each statement
+	WithDefers bool        // true if code contains some defers
 }
 
 type LoopInfo struct {
@@ -440,12 +441,18 @@ const (
 
 // ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
 type ThreadGlobals struct {
-	FileEnv   *Env
-	TopEnv    *Env
-	Interrupt Stmt
-	Signal    Signal // set by interrupts: Return, Defer...
-	PoolSize  int
-	Pool      [PoolCapacity]*Env
+	FileEnv      *Env
+	TopEnv       *Env
+	Interrupt    Stmt
+	Signal       Signal // set by interrupts: Return, Defer...
+	PoolSize     int
+	Pool         [PoolCapacity]*Env
+	InstallDefer func()      // defer function to be installed
+	Panic        interface{} // current panic. needed for recover()
+	PanicFun     *Env        // the currently panicking function
+	DeferOfFun   *Env        // function whose defer are running
+	StartDefer   bool        // true if next executed function body is a defer
+	IsDefer      bool        // true if function body being executed is a defer
 	*Globals
 }
 
@@ -490,7 +497,7 @@ type Signal int
 const (
 	SigNone Signal = iota
 	SigReturn
-	SigInstallDeferHandler
+	SigDefer // request to install a defer function
 )
 
 // Env is the interpreter's runtime environment
