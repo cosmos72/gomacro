@@ -88,6 +88,15 @@ Current limitations:
     or it overflows both int64 and uint64.
   See [Go Language Specification](https://golang.org/ref/spec#Operators) for the correct behavior
 
+* recover() does not like the mixing of interpreted and compiled code:
+  if an interpreted function invokes as defer a compiled function,
+  or a compiled function invokes as defer an interpreted function,
+  then, inside that defer, recover() will not work:
+  it will return nil and will **not** stop panics.
+  
+  recover() works normally if the function and its defer are either
+  **both interpreted** or **both compiled**.
+
 Misc TODO notes:
 * when importing a package, reuse compiled .so if exists already
 * gomacro FILE: execute main() if (re)defined and package == "main"
