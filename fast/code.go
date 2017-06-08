@@ -211,6 +211,7 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 	}
 	g.StartDefer = false
 	panicking := true
+	panicking2 := false
 
 	for j := 0; j < 5; j++ {
 		if stmt, env = stmt(env); stmt != nil {
@@ -249,11 +250,15 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 		g.Signal = SigNone
 		g.InstallDefer = nil
 		defer func() {
-			if panicking {
+			if panicking || panicking2 {
+				panicking = true
+				panicking2 = false
 				g.Panic = recover()
 			}
 			defer popDefer(pushDefer(g, funenv, panicking))
+			panicking2 = true // detect panics inside defer
 			fun()
+			panicking2 = false
 			if panicking {
 				panicking = maybeRepanic(g)
 			}
@@ -292,11 +297,15 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 			g.Signal = SigNone
 			g.InstallDefer = nil
 			defer func() {
-				if panicking {
+				if panicking || panicking2 {
+					panicking = true
+					panicking2 = false
 					g.Panic = recover()
 				}
 				defer popDefer(pushDefer(g, funenv, panicking))
+				panicking2 = true // detect panics inside defer
 				fun()
+				panicking2 = false
 				if panicking {
 					panicking = maybeRepanic(g)
 				}

@@ -537,7 +537,7 @@ var testcases = []TestCase{
 			}()
 		}
 		test_defer_2()`, 2, nil},
-	TestCase{A, "recover", `var vpanic interface{}
+	TestCase{A, "recover_1", `var vpanic interface{}
 		func test_recover(rec bool, panick interface{}) {
 			defer func() {
 				if rec {
@@ -546,9 +546,9 @@ var testcases = []TestCase{
 			}()
 			panic(panick)
 		}
-		test_recover(true, -3)
-		vpanic`, -3, nil},
-	TestCase{A, "recover_nested_1", `var vpanic2, vpanic3 interface{}
+		test_recover(true, -1)
+		vpanic`, -1, nil},
+	TestCase{A, "recover_2", `var vpanic2, vpanic3 interface{}
 		func test_nested_recover(repanic bool, panick interface{}) {
 			defer func() {
 				vpanic = recover()
@@ -564,13 +564,25 @@ var testcases = []TestCase{
 			}()
 			panic(panick)
 		}
-		test_nested_recover(false, -4)
+		test_nested_recover(false, -2)
 		list_args(vpanic, vpanic2, vpanic3)
-		`, []interface{}{nil, -4, nil}, nil},
-	TestCase{A, "recover_nested_2", `vpanic, vpanic2, vpanic3 = nil, nil, nil
-		test_nested_recover(true, -5)
+		`, []interface{}{nil, -2, nil}, nil},
+	TestCase{A, "recover_3", `vpanic, vpanic2, vpanic3 = nil, nil, nil
+		test_nested_recover(true, -3)
 		list_args(vpanic, vpanic2, vpanic3)
-		`, []interface{}{-5, -5, nil}, nil},
+		`, []interface{}{-3, -3, nil}, nil},
+	TestCase{A, "recover_4", `vpanic = nil
+		func test_defer_panic(panick interface{}) {
+			defer func() {
+				vpanic = recover()
+			}()
+			defer func() {
+				panic(panick)
+			}()
+		}
+		test_defer_panic(-4)
+		vpanic
+		`, -4, nil},
 	TestCase{A, "send_recv", `cx <- "x"; <-cx`, nil, []interface{}{"x", true}},
 	TestCase{A, "sum", sum_source_string + "; sum(100)", 5050, nil},
 
