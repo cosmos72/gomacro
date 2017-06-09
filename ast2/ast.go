@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * ast.go
@@ -49,6 +49,7 @@ type (
 		Append(child Ast) AstWithSlice
 	}
 
+	AstSlice   struct{ X []Ast }
 	NodeSlice  struct{ X []ast.Node }
 	ExprSlice  struct{ X []ast.Expr }
 	FieldSlice struct{ X []*ast.Field }

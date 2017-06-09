@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * fast.go
@@ -34,10 +34,9 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// temporary helper to invoke the new fast interpreter
+// temporary helper to invoke the new fast interpreter.
+// executes macroexpand + collect + compile + eval
 func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type) {
-	// compile phase
-
 	var ce *fast.CompEnv
 	if env.CompEnv == nil {
 		ce = fast.New()
@@ -49,12 +48,28 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type)
 	ce.Comp.Stringer.Copy(&env.Stringer) // sync Fileset, Pos, Line
 	ce.Comp.Options = env.Options        // sync Options
 
-	expr := ce.Comp.Compile(form)
+	// macroexpand phase
+	form, _ = ce.Comp.MacroExpandCodewalk(form)
+	if env.Options&base.OptShowMacroExpand != 0 {
+		env.Debugf("after macroexpansion: %v", form.Interface())
+	}
 
-	// debug output
+	// collect phase
+	if env.Options&(base.OptCollectDeclarations|base.OptCollectStatements) != 0 {
+		env.CollectAst(form)
+	}
+
+	if env.Options&base.OptMacroExpandOnly != 0 {
+		x := form.Interface()
+		return r.ValueOf(x), nil, ce.Comp.TypeOf(x), nil
+	}
+
+	// compile phase
+	expr := ce.Comp.Compile(form)
 	if env.Options&base.OptShowCompile != 0 {
 		env.Fprintf(env.Stdout, "%v\n", expr)
 	}
+
 	// eval phase
 	if expr == nil {
 		return base.None, nil, nil, nil

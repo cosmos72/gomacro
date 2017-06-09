@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * env.go
@@ -35,6 +35,7 @@ import (
 	"strings"
 	"time"
 
+	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/imports"
 )
@@ -332,8 +333,8 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 		return true
 	}
 
-	// parse + macroexpansion phase
-	form := env.Parse(src)
+	// parse phase. no macroexpansion/collect yet
+	form := env.parse(src)
 
 	var value r.Value
 	var values []r.Value
@@ -342,9 +343,8 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 
 	// eval phase
 	if form != nil {
-		if env.Options&OptMacroExpandOnly != 0 {
-			value = r.ValueOf(form.Interface())
-		} else if fast {
+		if fast {
+			// macroexpand + collect + eval
 			xvalue, xvalues, xtype, xtypes := env.fastEval(form)
 			value, values, typ = xvalue, xvalues, xtype
 			types := make([]interface{}, len(xtypes))
@@ -352,10 +352,10 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 				types[i] = xt
 			}
 		} else {
-			value, values = env.EvalAst(form)
+			// macroexpand + collect + eval
+			value, values = env.classicEval(form)
 		}
 	}
-
 	// print phase
 	opts := env.Options
 	if opts&OptShowEval != 0 {
@@ -387,4 +387,26 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 		}
 	}
 	return true
+}
+
+// macroexpand + collect + eval
+func (env *Env) classicEval(form Ast) (r.Value, []r.Value) {
+	// macroexpansion phase.
+	form, _ = env.MacroExpandAstCodewalk(form)
+
+	if env.Options&OptShowMacroExpand != 0 {
+		env.Debugf("after macroexpansion: %v", form.Interface())
+	}
+
+	// collect phase
+	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
+		env.CollectAst(form)
+	}
+
+	// eval phase
+	if env.Options&OptMacroExpandOnly != 0 {
+		return r.ValueOf(form.Interface()), nil
+	} else {
+		return env.EvalAst(form)
+	}
 }

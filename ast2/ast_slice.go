@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * ast_slice.go
@@ -32,6 +32,7 @@ import (
 
 // Ast wrappers for variable-length slices of ast.Nodes - they are not full-blown ast.Node
 
+func (x AstSlice) Interface() interface{}   { return x.X }
 func (x NodeSlice) Interface() interface{}  { return x.X }
 func (x ExprSlice) Interface() interface{}  { return x.X }
 func (x FieldSlice) Interface() interface{} { return x.X }
@@ -40,6 +41,7 @@ func (x IdentSlice) Interface() interface{} { return x.X }
 func (x SpecSlice) Interface() interface{}  { return x.X }
 func (x StmtSlice) Interface() interface{}  { return x.X }
 
+func (x AstSlice) Op() token.Token   { return token.COMMA }     // FIXME
 func (x NodeSlice) Op() token.Token  { return token.COMMA }     // FIXME
 func (x ExprSlice) Op() token.Token  { return token.COMMA }     // FIXME
 func (x FieldSlice) Op() token.Token { return token.SEMICOLON } // FIXME
@@ -48,6 +50,7 @@ func (x IdentSlice) Op() token.Token { return token.COMMA }     // FIXME
 func (x SpecSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 func (x StmtSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 
+func (x AstSlice) New() Ast   { return AstSlice{X: []Ast{}} }
 func (x NodeSlice) New() Ast  { return NodeSlice{X: []ast.Node{}} }
 func (x ExprSlice) New() Ast  { return ExprSlice{X: []ast.Expr{}} }
 func (x FieldSlice) New() Ast { return FieldSlice{X: []*ast.Field{}} }
@@ -56,6 +59,7 @@ func (x IdentSlice) New() Ast { return IdentSlice{X: []*ast.Ident{}} }
 func (x SpecSlice) New() Ast  { return SpecSlice{X: []ast.Spec{}} }
 func (x StmtSlice) New() Ast  { return StmtSlice{X: []ast.Stmt{}} }
 
+func (x AstSlice) Size() int   { return len(x.X) }
 func (x NodeSlice) Size() int  { return len(x.X) }
 func (x ExprSlice) Size() int  { return len(x.X) }
 func (x FieldSlice) Size() int { return len(x.X) }
@@ -64,6 +68,7 @@ func (x IdentSlice) Size() int { return len(x.X) }
 func (x SpecSlice) Size() int  { return len(x.X) }
 func (x StmtSlice) Size() int  { return len(x.X) }
 
+func (x AstSlice) Get(i int) Ast   { return x.X[i] }
 func (x NodeSlice) Get(i int) Ast  { return ToAst(x.X[i]) }
 func (x ExprSlice) Get(i int) Ast  { return ToAst(x.X[i]) }
 func (x FieldSlice) Get(i int) Ast { return ToAst(x.X[i]) }
@@ -72,6 +77,7 @@ func (x IdentSlice) Get(i int) Ast { return ToAst(x.X[i]) }
 func (x SpecSlice) Get(i int) Ast  { return ToAst(x.X[i]) }
 func (x StmtSlice) Get(i int) Ast  { return ToAst(x.X[i]) }
 
+func (x AstSlice) Set(i int, child Ast)   { x.X[i] = child }
 func (x NodeSlice) Set(i int, child Ast)  { x.X[i] = ToNode(child) }
 func (x ExprSlice) Set(i int, child Ast)  { x.X[i] = ToExpr(child) }
 func (x FieldSlice) Set(i int, child Ast) { x.X[i] = ToField(child) }
@@ -80,6 +86,7 @@ func (x IdentSlice) Set(i int, child Ast) { x.X[i] = ToIdent(child) }
 func (x SpecSlice) Set(i int, child Ast)  { x.X[i] = ToSpec(child) }
 func (x StmtSlice) Set(i int, child Ast)  { x.X[i] = ToStmt(child) }
 
+func (x AstSlice) Slice(lo, hi int) AstWithSlice   { x.X = x.X[lo:hi]; return x }
 func (x NodeSlice) Slice(lo, hi int) AstWithSlice  { x.X = x.X[lo:hi]; return x }
 func (x ExprSlice) Slice(lo, hi int) AstWithSlice  { x.X = x.X[lo:hi]; return x }
 func (x FieldSlice) Slice(lo, hi int) AstWithSlice { x.X = x.X[lo:hi]; return x }
@@ -88,6 +95,7 @@ func (x IdentSlice) Slice(lo, hi int) AstWithSlice { x.X = x.X[lo:hi]; return x 
 func (x SpecSlice) Slice(lo, hi int) AstWithSlice  { x.X = x.X[lo:hi]; return x }
 func (x StmtSlice) Slice(lo, hi int) AstWithSlice  { x.X = x.X[lo:hi]; return x }
 
+func (x AstSlice) Append(child Ast) AstWithSlice   { x.X = append(x.X, child); return x }
 func (x NodeSlice) Append(child Ast) AstWithSlice  { x.X = append(x.X, ToNode(child)); return x }
 func (x ExprSlice) Append(child Ast) AstWithSlice  { x.X = append(x.X, ToExpr(child)); return x }
 func (x FieldSlice) Append(child Ast) AstWithSlice { x.X = append(x.X, ToField(child)); return x }

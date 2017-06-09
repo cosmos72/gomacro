@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * eval.go
@@ -97,7 +97,8 @@ func (env *Env) EvalNode1(node ast.Node) r.Value {
 	return value
 }
 
-func (env *Env) Parse(src interface{}) Ast {
+// parse, without macroexpansion
+func (env *Env) parse(src interface{}) Ast {
 	var form Ast
 	switch src := src.(type) {
 	case Ast:
@@ -111,16 +112,21 @@ func (env *Env) Parse(src interface{}) Ast {
 		if env.Options&OptShowParse != 0 {
 			env.Debugf("after parse: %v", nodes)
 		}
-
 		switch len(nodes) {
 		case 0:
-			return nil
+			form = nil
 		case 1:
 			form = ToAst(nodes[0])
 		default:
 			form = NodeSlice{X: nodes}
 		}
 	}
+	return form
+}
+
+// Parse, with macroexpansion
+func (env *Env) Parse(src interface{}) Ast {
+	form := env.parse(src)
 
 	// macroexpansion phase.
 	form, _ = env.MacroExpandAstCodewalk(form)

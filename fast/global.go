@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * global.go
@@ -209,6 +209,14 @@ type Builtin struct {
 type Function struct {
 	Fun  I
 	Type xr.Type
+}
+
+// ================================= Macro =================================
+
+// Macro represents a macro in the fast interpreter
+type Macro struct {
+	closure func(args []r.Value) (results []r.Value)
+	argNum  int
 }
 
 // ================================= BindClass =================================

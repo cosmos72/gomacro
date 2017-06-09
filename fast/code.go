@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * code.go
@@ -206,8 +206,9 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 	interrupt := g.Interrupt
 	g.Interrupt = nil
 	var unsafeInterrupt *uintptr
-	g.Signal = SigNone
+
 	defer restore(g, g.IsDefer, interrupt) // restore g.IsDefer, g.Signal and g.Interrupt on return
+	g.Signal = SigNone
 	g.IsDefer = g.StartDefer
 	g.StartDefer = false
 	panicking := true

@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * type.go
@@ -703,6 +703,7 @@ var (
 	rtypeOfBuiltin    = r.TypeOf(Builtin{})
 	rtypeOfFunction   = r.TypeOf(Function{})
 	rtypeOfImport     = r.TypeOf(Import{})
+	rtypeOfMacro      = r.TypeOf(Macro{})
 	rtypeOfUntypedLit = r.TypeOf(UntypedLit{})
 )
 
@@ -716,6 +717,10 @@ func (g *CompThreadGlobals) TypeOfFunction() xr.Type {
 
 func (g *CompThreadGlobals) TypeOfImport() xr.Type {
 	return g.Universe.ReflectTypes[rtypeOfImport]
+}
+
+func (g *CompThreadGlobals) TypeOfMacro() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfMacro]
 }
 
 func (g *CompThreadGlobals) TypeOfUntypedLit() xr.Type {

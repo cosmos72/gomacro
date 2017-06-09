@@ -14,16 +14,16 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  *
  * macroexpand.go
  *
- *  Created on: Feb 19, 2017
- *      Author: Massimiliano Ghilardi
+ *  Created on Jun 09, 2017
+ *      Author Massimiliano Ghilardi
  */
 
-package classic
+package fast
 
 import (
 	"go/ast"
@@ -34,39 +34,38 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-type macroExpandCtx struct {
-	env *Env
+// MacroExpandNodeCodewalk traverses the whole AST tree using pre-order traversal,
+// and replaces each node with the result of MacroExpandNode(node).
+// It implements the macroexpansion phase
+func (c *Comp) MacroExpandNodeCodewalk(in ast.Node) (out ast.Node, anythingExpanded bool) {
+	if in == nil {
+		return nil, false
+	}
+	var form Ast = ToAst(in)
+	form, anythingExpanded = c.MacroExpandCodewalk(form)
+	out = ToNode(form)
+	// if !anythingExpanded {
+	//    c.Debugf("MacroExpand1() nothing to expand: %v <%v>", out, r.TypeOf(out))
+	//}
+	return out, anythingExpanded
 }
 
 // MacroExpandCodewalk traverses the whole AST tree using pre-order traversal,
 // and replaces each node with the result of MacroExpand(node).
 // It implements the macroexpansion phase
-func (env *Env) MacroExpandCodewalk(in ast.Node) (out ast.Node, anythingExpanded bool) {
-	if in == nil {
-		return nil, false
-	}
-	var form Ast = ToAst(in)
-	form, anythingExpanded = env.MacroExpandAstCodewalk(form)
-	out = ToNode(form)
-	// if !anythingExpanded {
-	//    env.Debugf("MacroExpand1() nothing to expand: %v <%v>", out, r.TypeOf(out))
-	//}
-	return out, anythingExpanded
+func (c *Comp) MacroExpandCodewalk(in Ast) (out Ast, anythingExpanded bool) {
+	return c.macroExpandCodewalk(in, 0)
 }
 
-func (env *Env) MacroExpandAstCodewalk(in Ast) (out Ast, anythingExpanded bool) {
-	return env.macroExpandAstCodewalk(in, 0)
-}
-
-func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythingExpanded bool) {
+func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythingExpanded bool) {
 	if in == nil || in.Size() == 0 {
 		return in, false
 	}
 	if quasiquoteDepth <= 0 {
-		if env.Options&OptDebugMacroExpand != 0 {
-			env.Debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, in.Interface())
+		if c.Options&OptDebugMacroExpand != 0 {
+			c.Debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, in.Interface())
 		}
-		in, anythingExpanded = env.macroExpandAst(in)
+		in, anythingExpanded = c.MacroExpand(in)
 	}
 	if in != nil {
 		in = UnwrapTrivialAst(in)
@@ -96,7 +95,7 @@ func (env *Env) macroExpandAstCodewalk(in Ast, quasiquoteDepth int) (out Ast, an
 			goto Recurse
 		}
 		inChild := UnwrapTrivialAst(in.Get(0).Get(1))
-		outChild, expanded := env.macroExpandAstCodewalk(inChild, quasiquoteDepth)
+		outChild, expanded := c.macroExpandCodewalk(inChild, quasiquoteDepth)
 		if isBlockWithinExpr {
 			return outChild, expanded
 		} else {
@@ -111,8 +110,8 @@ Recurse:
 	if in == nil {
 		return saved, anythingExpanded
 	}
-	if env.Options&OptDebugMacroExpand != 0 {
-		env.Debugf("MacroExpandCodewalk: qq = %d, recursing on %v", quasiquoteDepth, in)
+	if c.Options&OptDebugMacroExpand != 0 {
+		c.Debugf("MacroExpandCodewalk: qq = %d, recursing on %v", quasiquoteDepth, in)
 	}
 	out = in.New()
 	n := in.Size()
@@ -128,7 +127,7 @@ Recurse:
 		if child != nil {
 			expanded := false
 			if child.Size() != 0 {
-				child, expanded = env.macroExpandAstCodewalk(child, quasiquoteDepth)
+				child, expanded = c.macroExpandCodewalk(child, quasiquoteDepth)
 			}
 			if expanded {
 				anythingExpanded = true
@@ -136,32 +135,35 @@ Recurse:
 		}
 		out.Set(i, child)
 	}
-	if env.Options&OptDebugMacroExpand != 0 {
-		env.Debugf("MacroExpandCodewalk: qq = %d, expanded to %v", quasiquoteDepth, out)
+	if c.Options&OptDebugMacroExpand != 0 {
+		c.Debugf("MacroExpandCodewalk: qq = %d, expanded to %v", quasiquoteDepth, out)
 	}
 	return out, anythingExpanded
 }
 
-// MacroExpand repeatedly invokes MacroExpand1
+// MacroExpandNode repeatedly invokes MacroExpandNode1
 // as long as the node represents a macro call.
 // it returns the resulting node.
-func (env *Env) MacroExpand(in ast.Node) (out ast.Node, everExpanded bool) {
+func (c *Comp) MacroExpandNode(in ast.Node) (out ast.Node, everExpanded bool) {
 	if in == nil {
 		return nil, false
 	}
 	inAst := ToAst(in)
-	outAst, everExpanded := env.macroExpandAst(inAst)
+	outAst, everExpanded := c.MacroExpand(inAst)
 	out = ToNode(outAst)
 	// if !everExpanded {
-	//    env.Debugf("MacroExpand1() not a macro: %v <%v>", out, r.TypeOf(out))
+	//    c.Debugf("MacroExpand1() not a macro: %v <%v>", out, r.TypeOf(out))
 	//}
 	return out, everExpanded
 }
 
-func (env *Env) macroExpandAst(form Ast) (out Ast, everExpanded bool) {
+// MacroExpand repeatedly invokes MacroExpand
+// as long as the node represents a macro call.
+// it returns the resulting node.
+func (c *Comp) MacroExpand(form Ast) (out Ast, everExpanded bool) {
 	var expanded bool
 	for {
-		form, expanded = env.macroExpandAstOnce(form)
+		form, expanded = c.macroExpandOnce(form)
 		if !expanded {
 			return form, everExpanded
 		}
@@ -169,33 +171,32 @@ func (env *Env) macroExpandAst(form Ast) (out Ast, everExpanded bool) {
 	}
 }
 
-// if node represents a macro call, MacroExpand1 executes it
+// if node represents a macro call, MacroExpandNode1 executes it
 // and returns the resulting node.
 // Otherwise returns the node argument unchanged
-func (env *Env) MacroExpand1(in ast.Node) (out ast.Node, expanded bool) {
+func (c *Comp) MacroExpandNode1(in ast.Node) (out ast.Node, expanded bool) {
 	if in == nil {
 		return nil, false
 	}
 	var form Ast = ToAst(in)
-	form, expanded = env.macroExpandAstOnce(form)
+	form, expanded = c.macroExpandOnce(form)
 	out = ToNode(form)
 	// if !expanded {
-	//    env.Debugf("MacroExpand1: not a macro: %v <%v>", out, r.TypeOf(out))
+	//    c.Debugf("MacroExpandNode1: not a macro: %v <%v>", out, r.TypeOf(out))
 	//}
 	return out, expanded
 }
 
-//
-func (env *Env) extractMacroCall(form Ast) Macro {
+func (c *Comp) extractMacroCall(form Ast) Macro {
 	form = UnwrapTrivialAst(form)
 	switch form := form.(type) {
 	case Ident:
-		bind, found := env.resolveIdentifier(form.X)
-		if found && bind.Kind() == r.Struct {
-			switch value := bind.Interface().(type) {
+		sym := c.TryResolve(form.X.Name)
+		if sym != nil && sym.Type.Kind() == r.Struct {
+			switch value := sym.Value.(type) {
 			case Macro:
-				if env.Options&OptDebugMacroExpand != 0 {
-					env.Debugf("MacroExpand1: found macro: %v", form.X.Name)
+				if c.Options&OptDebugMacroExpand != 0 {
+					c.Debugf("MacroExpand1: found macro: %v", form.X.Name)
 				}
 				return value
 			}
@@ -204,7 +205,7 @@ func (env *Env) extractMacroCall(form Ast) Macro {
 	return Macro{}
 }
 
-func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
+func (c *Comp) macroExpandOnce(in Ast) (out Ast, expanded bool) {
 	if in == nil {
 		return nil, false
 	}
@@ -212,10 +213,11 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 	in = UnwrapTrivialAstKeepBlocks(in)
 	ins, ok := in.(AstWithSlice)
 	if !ok {
-		return in, false
+		// quasiquote is considered a macro
+		return c.Quasiquote(in)
 	}
-	if env.Options&OptDebugMacroExpand != 0 {
-		env.Debugf("MacroExpand1: found list: %v", ins.Interface())
+	if c.Options&OptDebugMacroExpand != 0 {
+		c.Debugf("MacroExpand1: found list: %v", ins.Interface())
 	}
 	outs := ins.New().(AstWithSlice)
 	n := ins.Size()
@@ -226,8 +228,11 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 	// and build a new list accumulating the results of macroexpansion
 	for i := 0; i < n; i++ {
 		elt := ins.Get(i)
-		macro := env.extractMacroCall(elt)
+		macro := c.extractMacroCall(elt)
 		if macro.closure == nil {
+			// quasiquote is considered a macro
+			elt, qqexpanded := c.Quasiquote(elt)
+			expanded = expanded || qqexpanded
 			outs = outs.Append(elt)
 			continue
 		}
@@ -239,11 +244,11 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 			for j := 0; j <= leftn; j++ {
 				args[j] = r.ValueOf(ins.Get(i + j).Interface())
 			}
-			env.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.argNum, leftn)
+			c.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.argNum, leftn)
 			return in, false
 		}
-		if env.Options&OptDebugMacroExpand != 0 {
-			env.Debugf("MacroExpand1: found macro call %v at %d-th position of %v", elt.Interface(), i, ins.Interface())
+		if c.Options&OptDebugMacroExpand != 0 {
+			c.Debugf("MacroExpand1: found macro call %v at %d-th position of %v", elt.Interface(), i, ins.Interface())
 		}
 		// wrap each ast.Node into a reflect.Value
 		args = make([]r.Value, argn)
@@ -252,14 +257,14 @@ func (env *Env) macroExpandAstOnce(in Ast) (out Ast, expanded bool) {
 		}
 		// invoke the macro
 		results := macro.closure(args)
-		if env.Options&OptDebugMacroExpand != 0 {
-			env.Debugf("MacroExpand1: macro expanded to: %v", results)
+		if c.Options&OptDebugMacroExpand != 0 {
+			c.Debugf("MacroExpand1: macro expanded to: %v", results)
 		}
 		var out Ast
 		switch len(results) {
 		default:
 			args = append([]r.Value{r.ValueOf(elt.Interface())}, args...)
-			env.Warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
+			c.Warnf("macroexpansion returned %d values, using only the first one: %v %v returned %v",
 				len(results), args, results)
 			fallthrough
 		case 1:

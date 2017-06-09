@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * unary.go
@@ -30,7 +30,7 @@ import (
 	"go/constant"
 	"go/token"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -39,23 +39,23 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 	case mt.QUOTE:
 		// surprisingly easy :)
 		block := node.X.(*ast.FuncLit).Body
-		node := SimplifyNodeForQuote(block, true)
+		node := base.SimplifyNodeForQuote(block, true)
 		return c.exprValue(nil, node)
 
-	case mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
-		return c.unimplementedUnaryExpr(node, nil)
+	case mt.QUASIQUOTE:
+		c.Errorf("unexpected %s, should be optimized away by macroexpansion: %v", mt.String(node.Op), node)
+
+	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+		c.Errorf("invalid %s outside %s: %s %v", mt.String(node.Op), mt.String(mt.QUASIQUOTE), node)
 
 	case token.AND:
 		// c.Expr(node.X) is useless here... skip it
 		return c.AddressOf(node)
 	}
 
-	xe := c.Expr(node.X)
-	if xe.NumOut() == 0 {
-		c.Errorf("operand of unary expression returns no values: %v", node)
-	}
+	xe := c.Expr1(node.X)
 	if xe.Type == nil {
-		return c.unimplementedUnaryExpr(node, xe)
+		return c.invalidUnaryExpr(node, xe)
 	}
 	if xe.Untyped() {
 		return c.UnaryExprUntyped(node, xe)
@@ -79,7 +79,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		isConst = false
 	// case token.MUL: // not seen, the parser produces *ast.StarExpr instead
 	default:
-		return c.unimplementedUnaryExpr(node, xe)
+		return c.invalidUnaryExpr(node, xe)
 	}
 	if isConst {
 		// constant propagation

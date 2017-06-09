@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * ast_convert.go
@@ -66,6 +66,8 @@ func AnyToAst(any interface{}, caller string) Ast {
 		return node
 	case ast.Node:
 		return ToAst(node)
+	case []Ast:
+		return AstSlice{X: node}
 	case []ast.Node:
 		return NodeSlice{X: node}
 	case []*ast.Field:

@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * compile.go
@@ -82,9 +82,9 @@ func NewCompEnvTop(path string) *CompEnv {
 	compGlobals.Universe.CachePackage(types.NewPackage("fast", "fast"))
 	compGlobals.Universe.CachePackage(types.NewPackage("main", "main"))
 
-	// no need to scavenge for Builtin, Function, PackageRef and UntypedLit fields and methods.
+	// no need to scavenge for Builtin, Function, Import, Macro and UntypedLit fields and methods.
 	// actually, making them opaque helps securing against malicious interpreted code.
-	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfImport, rtypeOfUntypedLit} {
+	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfImport, rtypeOfMacro, rtypeOfUntypedLit} {
 		compGlobals.opaqueType(rtype)
 	}
 

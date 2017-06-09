@@ -14,7 +14,7 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
  * quasiquote.go
@@ -38,11 +38,8 @@ import (
 // and returns their contents.
 // used to implement interpreter.evalQuote() and interpreter.evalQuasiQuote(), be extra careful if you patch it!
 func SimplifyNodeForQuote(in ast.Node, unwrapTrivialBlocks bool) ast.Node {
-	// unwrap expressions... they fit in more places and make the life easier
-	// to MacroExpand and evalQuasiquote
-	// also, only for quote{},
-	// unwrap single-element blocks { foo } to foo
-	// unless their only element is itself a block
+	// unwrap expressions... they fit in more places and make the life easier to MacroExpand and evalQuasiquote
+	// also, if unwrapTrivialBlocks is true, unwrap a single-statement block { foo } to foo
 	for {
 		switch node := in.(type) {
 		case *ast.BlockStmt:
