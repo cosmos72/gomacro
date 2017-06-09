@@ -39,59 +39,59 @@ func init() {
 // --------------- proxy for crypto/cipher.AEAD ---------------
 type AEAD_crypto_cipher struct {
 	Object	interface{}
-	NonceSize_	func() int
-	Open_	func(dst []byte, nonce []byte, ciphertext []byte, additionalData []byte) ([]byte, error)
-	Overhead_	func() int
-	Seal_	func(dst []byte, nonce []byte, plaintext []byte, additionalData []byte) []byte
+	NonceSize_	func(interface{}) int
+	Open_	func(_proxy_obj_ interface{}, dst []byte, nonce []byte, ciphertext []byte, additionalData []byte) ([]byte, error)
+	Overhead_	func(interface{}) int
+	Seal_	func(_proxy_obj_ interface{}, dst []byte, nonce []byte, plaintext []byte, additionalData []byte) []byte
 }
 func (Proxy *AEAD_crypto_cipher) NonceSize() int {
-	return Proxy.NonceSize_()
+	return Proxy.NonceSize_(Proxy.Object)
 }
 func (Proxy *AEAD_crypto_cipher) Open(dst []byte, nonce []byte, ciphertext []byte, additionalData []byte) ([]byte, error) {
-	return Proxy.Open_(dst, nonce, ciphertext, additionalData)
+	return Proxy.Open_(Proxy.Object, dst, nonce, ciphertext, additionalData)
 }
 func (Proxy *AEAD_crypto_cipher) Overhead() int {
-	return Proxy.Overhead_()
+	return Proxy.Overhead_(Proxy.Object)
 }
 func (Proxy *AEAD_crypto_cipher) Seal(dst []byte, nonce []byte, plaintext []byte, additionalData []byte) []byte {
-	return Proxy.Seal_(dst, nonce, plaintext, additionalData)
+	return Proxy.Seal_(Proxy.Object, dst, nonce, plaintext, additionalData)
 }
 
 // --------------- proxy for crypto/cipher.Block ---------------
 type Block_crypto_cipher struct {
 	Object	interface{}
-	BlockSize_	func() int
-	Decrypt_	func(dst []byte, src []byte) 
-	Encrypt_	func(dst []byte, src []byte) 
+	BlockSize_	func(interface{}) int
+	Decrypt_	func(_proxy_obj_ interface{}, dst []byte, src []byte) 
+	Encrypt_	func(_proxy_obj_ interface{}, dst []byte, src []byte) 
 }
 func (Proxy *Block_crypto_cipher) BlockSize() int {
-	return Proxy.BlockSize_()
+	return Proxy.BlockSize_(Proxy.Object)
 }
 func (Proxy *Block_crypto_cipher) Decrypt(dst []byte, src []byte)  {
-	Proxy.Decrypt_(dst, src)
+	Proxy.Decrypt_(Proxy.Object, dst, src)
 }
 func (Proxy *Block_crypto_cipher) Encrypt(dst []byte, src []byte)  {
-	Proxy.Encrypt_(dst, src)
+	Proxy.Encrypt_(Proxy.Object, dst, src)
 }
 
 // --------------- proxy for crypto/cipher.BlockMode ---------------
 type BlockMode_crypto_cipher struct {
 	Object	interface{}
-	BlockSize_	func() int
-	CryptBlocks_	func(dst []byte, src []byte) 
+	BlockSize_	func(interface{}) int
+	CryptBlocks_	func(_proxy_obj_ interface{}, dst []byte, src []byte) 
 }
 func (Proxy *BlockMode_crypto_cipher) BlockSize() int {
-	return Proxy.BlockSize_()
+	return Proxy.BlockSize_(Proxy.Object)
 }
 func (Proxy *BlockMode_crypto_cipher) CryptBlocks(dst []byte, src []byte)  {
-	Proxy.CryptBlocks_(dst, src)
+	Proxy.CryptBlocks_(Proxy.Object, dst, src)
 }
 
 // --------------- proxy for crypto/cipher.Stream ---------------
 type Stream_crypto_cipher struct {
 	Object	interface{}
-	XORKeyStream_	func(dst []byte, src []byte) 
+	XORKeyStream_	func(_proxy_obj_ interface{}, dst []byte, src []byte) 
 }
 func (Proxy *Stream_crypto_cipher) XORKeyStream(dst []byte, src []byte)  {
-	Proxy.XORKeyStream_(dst, src)
+	Proxy.XORKeyStream_(Proxy.Object, dst, src)
 }

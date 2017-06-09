@@ -76,8 +76,10 @@ func popDefer(g *ThreadGlobals, deferOf *Env, isDefer bool) {
 	g.IsDefer = isDefer
 }
 
-func setIsDefer(g *ThreadGlobals, flag bool) {
+func restore(g *ThreadGlobals, flag bool, interrupt Stmt) {
 	g.IsDefer = flag
+	g.Signal = SigNone
+	g.Interrupt = interrupt
 }
 
 func maybeRepanic(g *ThreadGlobals) bool {
@@ -205,13 +207,26 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 	g.Interrupt = nil
 	var unsafeInterrupt *uintptr
 	g.Signal = SigNone
-	if g.IsDefer != g.StartDefer {
-		defer setIsDefer(g, g.IsDefer) // restore g.IsDefer on return
-		g.IsDefer = g.StartDefer
-	}
+	defer restore(g, g.IsDefer, interrupt) // restore g.IsDefer, g.Signal and g.Interrupt on return
+	g.IsDefer = g.StartDefer
 	g.StartDefer = false
 	panicking := true
 	panicking2 := false
+
+	rundefer := func(fun func()) {
+		if panicking || panicking2 {
+			panicking = true
+			panicking2 = false
+			g.Panic = recover()
+		}
+		defer popDefer(pushDefer(g, funenv, panicking))
+		panicking2 = true // detect panics inside defer
+		fun()
+		panicking2 = false
+		if panicking {
+			panicking = maybeRepanic(g)
+		}
+	}
 
 	for j := 0; j < 5; j++ {
 		if stmt, env = stmt(env); stmt != nil {
@@ -249,20 +264,7 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 		fun := g.InstallDefer
 		g.Signal = SigNone
 		g.InstallDefer = nil
-		defer func() {
-			if panicking || panicking2 {
-				panicking = true
-				panicking2 = false
-				g.Panic = recover()
-			}
-			defer popDefer(pushDefer(g, funenv, panicking))
-			panicking2 = true // detect panics inside defer
-			fun()
-			panicking2 = false
-			if panicking {
-				panicking = maybeRepanic(g)
-			}
-		}()
+		defer rundefer(fun)
 		stmt = env.Code[env.IP]
 		if stmt != nil {
 			continue
@@ -296,20 +298,7 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 			fun := g.InstallDefer
 			g.Signal = SigNone
 			g.InstallDefer = nil
-			defer func() {
-				if panicking || panicking2 {
-					panicking = true
-					panicking2 = false
-					g.Panic = recover()
-				}
-				defer popDefer(pushDefer(g, funenv, panicking))
-				panicking2 = true // detect panics inside defer
-				fun()
-				panicking2 = false
-				if panicking {
-					panicking = maybeRepanic(g)
-				}
-			}()
+			defer rundefer(fun)
 			stmt = env.Code[env.IP]
 			if *(**uintptr)(unsafe.Pointer(&stmt)) != unsafeInterrupt {
 				continue
@@ -318,9 +307,6 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 		}
 	}
 finish:
-	// restore env.ThreadGlobals.Interrupt and Signal before returning
-	g.Interrupt = interrupt
-	g.Signal = SigNone
 	panicking = false
 	return
 }

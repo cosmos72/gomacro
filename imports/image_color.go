@@ -57,17 +57,17 @@ func init() {
 // --------------- proxy for image/color.Color ---------------
 type Color_image_color struct {
 	Object	interface{}
-	RGBA_	func() (r uint32, g uint32, b uint32, a uint32)
+	RGBA_	func(interface{}) (r uint32, g uint32, b uint32, a uint32)
 }
 func (Proxy *Color_image_color) RGBA() (r uint32, g uint32, b uint32, a uint32) {
-	return Proxy.RGBA_()
+	return Proxy.RGBA_(Proxy.Object)
 }
 
 // --------------- proxy for image/color.Model ---------------
 type Model_image_color struct {
 	Object	interface{}
-	Convert_	func(c color.Color) color.Color
+	Convert_	func(_proxy_obj_ interface{}, c color.Color) color.Color
 }
 func (Proxy *Model_image_color) Convert(c color.Color) color.Color {
-	return Proxy.Convert_(c)
+	return Proxy.Convert_(Proxy.Object, c)
 }

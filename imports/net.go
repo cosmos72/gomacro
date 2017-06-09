@@ -131,116 +131,116 @@ func init() {
 // --------------- proxy for net.Addr ---------------
 type Addr_net struct {
 	Object	interface{}
-	Network_	func() string
-	String_	func() string
+	Network_	func(interface{}) string
+	String_	func(interface{}) string
 }
 func (Proxy *Addr_net) Network() string {
-	return Proxy.Network_()
+	return Proxy.Network_(Proxy.Object)
 }
 func (Proxy *Addr_net) String() string {
-	return Proxy.String_()
+	return Proxy.String_(Proxy.Object)
 }
 
 // --------------- proxy for net.Conn ---------------
 type Conn_net struct {
 	Object	interface{}
-	Close_	func() error
-	LocalAddr_	func() net.Addr
-	Read_	func(b []byte) (n int, err error)
-	RemoteAddr_	func() net.Addr
-	SetDeadline_	func(t time.Time) error
-	SetReadDeadline_	func(t time.Time) error
-	SetWriteDeadline_	func(t time.Time) error
-	Write_	func(b []byte) (n int, err error)
+	Close_	func(interface{}) error
+	LocalAddr_	func(interface{}) net.Addr
+	Read_	func(_proxy_obj_ interface{}, b []byte) (n int, err error)
+	RemoteAddr_	func(interface{}) net.Addr
+	SetDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
+	SetReadDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
+	SetWriteDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
+	Write_	func(_proxy_obj_ interface{}, b []byte) (n int, err error)
 }
 func (Proxy *Conn_net) Close() error {
-	return Proxy.Close_()
+	return Proxy.Close_(Proxy.Object)
 }
 func (Proxy *Conn_net) LocalAddr() net.Addr {
-	return Proxy.LocalAddr_()
+	return Proxy.LocalAddr_(Proxy.Object)
 }
 func (Proxy *Conn_net) Read(b []byte) (n int, err error) {
-	return Proxy.Read_(b)
+	return Proxy.Read_(Proxy.Object, b)
 }
 func (Proxy *Conn_net) RemoteAddr() net.Addr {
-	return Proxy.RemoteAddr_()
+	return Proxy.RemoteAddr_(Proxy.Object)
 }
 func (Proxy *Conn_net) SetDeadline(t time.Time) error {
-	return Proxy.SetDeadline_(t)
+	return Proxy.SetDeadline_(Proxy.Object, t)
 }
 func (Proxy *Conn_net) SetReadDeadline(t time.Time) error {
-	return Proxy.SetReadDeadline_(t)
+	return Proxy.SetReadDeadline_(Proxy.Object, t)
 }
 func (Proxy *Conn_net) SetWriteDeadline(t time.Time) error {
-	return Proxy.SetWriteDeadline_(t)
+	return Proxy.SetWriteDeadline_(Proxy.Object, t)
 }
 func (Proxy *Conn_net) Write(b []byte) (n int, err error) {
-	return Proxy.Write_(b)
+	return Proxy.Write_(Proxy.Object, b)
 }
 
 // --------------- proxy for net.Error ---------------
 type Error_net struct {
 	Object	interface{}
-	Error_	func() string
-	Temporary_	func() bool
-	Timeout_	func() bool
+	Error_	func(interface{}) string
+	Temporary_	func(interface{}) bool
+	Timeout_	func(interface{}) bool
 }
 func (Proxy *Error_net) Error() string {
-	return Proxy.Error_()
+	return Proxy.Error_(Proxy.Object)
 }
 func (Proxy *Error_net) Temporary() bool {
-	return Proxy.Temporary_()
+	return Proxy.Temporary_(Proxy.Object)
 }
 func (Proxy *Error_net) Timeout() bool {
-	return Proxy.Timeout_()
+	return Proxy.Timeout_(Proxy.Object)
 }
 
 // --------------- proxy for net.Listener ---------------
 type Listener_net struct {
 	Object	interface{}
-	Accept_	func() (net.Conn, error)
-	Addr_	func() net.Addr
-	Close_	func() error
+	Accept_	func(interface{}) (net.Conn, error)
+	Addr_	func(interface{}) net.Addr
+	Close_	func(interface{}) error
 }
 func (Proxy *Listener_net) Accept() (net.Conn, error) {
-	return Proxy.Accept_()
+	return Proxy.Accept_(Proxy.Object)
 }
 func (Proxy *Listener_net) Addr() net.Addr {
-	return Proxy.Addr_()
+	return Proxy.Addr_(Proxy.Object)
 }
 func (Proxy *Listener_net) Close() error {
-	return Proxy.Close_()
+	return Proxy.Close_(Proxy.Object)
 }
 
 // --------------- proxy for net.PacketConn ---------------
 type PacketConn_net struct {
 	Object	interface{}
-	Close_	func() error
-	LocalAddr_	func() net.Addr
-	ReadFrom_	func(b []byte) (n int, addr net.Addr, err error)
-	SetDeadline_	func(t time.Time) error
-	SetReadDeadline_	func(t time.Time) error
-	SetWriteDeadline_	func(t time.Time) error
-	WriteTo_	func(b []byte, addr net.Addr) (n int, err error)
+	Close_	func(interface{}) error
+	LocalAddr_	func(interface{}) net.Addr
+	ReadFrom_	func(_proxy_obj_ interface{}, b []byte) (n int, addr net.Addr, err error)
+	SetDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
+	SetReadDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
+	SetWriteDeadline_	func(_proxy_obj_ interface{}, t time.Time) error
+	WriteTo_	func(_proxy_obj_ interface{}, b []byte, addr net.Addr) (n int, err error)
 }
 func (Proxy *PacketConn_net) Close() error {
-	return Proxy.Close_()
+	return Proxy.Close_(Proxy.Object)
 }
 func (Proxy *PacketConn_net) LocalAddr() net.Addr {
-	return Proxy.LocalAddr_()
+	return Proxy.LocalAddr_(Proxy.Object)
 }
 func (Proxy *PacketConn_net) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
-	return Proxy.ReadFrom_(b)
+	return Proxy.ReadFrom_(Proxy.Object, b)
 }
 func (Proxy *PacketConn_net) SetDeadline(t time.Time) error {
-	return Proxy.SetDeadline_(t)
+	return Proxy.SetDeadline_(Proxy.Object, t)
 }
 func (Proxy *PacketConn_net) SetReadDeadline(t time.Time) error {
-	return Proxy.SetReadDeadline_(t)
+	return Proxy.SetReadDeadline_(Proxy.Object, t)
 }
 func (Proxy *PacketConn_net) SetWriteDeadline(t time.Time) error {
-	return Proxy.SetWriteDeadline_(t)
+	return Proxy.SetWriteDeadline_(Proxy.Object, t)
 }
 func (Proxy *PacketConn_net) WriteTo(b []byte, addr net.Addr) (n int, err error) {
-	return Proxy.WriteTo_(b, addr)
+	return Proxy.WriteTo_(Proxy.Object, b, addr)
 }

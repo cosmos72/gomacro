@@ -127,41 +127,41 @@ func init() {
 // --------------- proxy for os.FileInfo ---------------
 type FileInfo_os struct {
 	Object	interface{}
-	IsDir_	func() bool
-	ModTime_	func() time.Time
-	Mode_	func() os.FileMode
-	Name_	func() string
-	Size_	func() int64
-	Sys_	func() interface{}
+	IsDir_	func(interface{}) bool
+	ModTime_	func(interface{}) time.Time
+	Mode_	func(interface{}) os.FileMode
+	Name_	func(interface{}) string
+	Size_	func(interface{}) int64
+	Sys_	func(interface{}) interface{}
 }
 func (Proxy *FileInfo_os) IsDir() bool {
-	return Proxy.IsDir_()
+	return Proxy.IsDir_(Proxy.Object)
 }
 func (Proxy *FileInfo_os) ModTime() time.Time {
-	return Proxy.ModTime_()
+	return Proxy.ModTime_(Proxy.Object)
 }
 func (Proxy *FileInfo_os) Mode() os.FileMode {
-	return Proxy.Mode_()
+	return Proxy.Mode_(Proxy.Object)
 }
 func (Proxy *FileInfo_os) Name() string {
-	return Proxy.Name_()
+	return Proxy.Name_(Proxy.Object)
 }
 func (Proxy *FileInfo_os) Size() int64 {
-	return Proxy.Size_()
+	return Proxy.Size_(Proxy.Object)
 }
 func (Proxy *FileInfo_os) Sys() interface{} {
-	return Proxy.Sys_()
+	return Proxy.Sys_(Proxy.Object)
 }
 
 // --------------- proxy for os.Signal ---------------
 type Signal_os struct {
 	Object	interface{}
-	Signal_	func() 
-	String_	func() string
+	Signal_	func(interface{}) 
+	String_	func(interface{}) string
 }
 func (Proxy *Signal_os) Signal()  {
-	Proxy.Signal_()
+	Proxy.Signal_(Proxy.Object)
 }
 func (Proxy *Signal_os) String() string {
-	return Proxy.String_()
+	return Proxy.String_(Proxy.Object)
 }

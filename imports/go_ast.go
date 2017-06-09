@@ -124,21 +124,21 @@ func init() {
 // --------------- proxy for go/ast.Node ---------------
 type Node_go_ast struct {
 	Object	interface{}
-	End_	func() token.Pos
-	Pos_	func() token.Pos
+	End_	func(interface{}) token.Pos
+	Pos_	func(interface{}) token.Pos
 }
 func (Proxy *Node_go_ast) End() token.Pos {
-	return Proxy.End_()
+	return Proxy.End_(Proxy.Object)
 }
 func (Proxy *Node_go_ast) Pos() token.Pos {
-	return Proxy.Pos_()
+	return Proxy.Pos_(Proxy.Object)
 }
 
 // --------------- proxy for go/ast.Visitor ---------------
 type Visitor_go_ast struct {
 	Object	interface{}
-	Visit_	func(node ast.Node) (w ast.Visitor)
+	Visit_	func(_proxy_obj_ interface{}, node ast.Node) (w ast.Visitor)
 }
 func (Proxy *Visitor_go_ast) Visit(node ast.Node) (w ast.Visitor) {
-	return Proxy.Visit_(node)
+	return Proxy.Visit_(Proxy.Object, node)
 }

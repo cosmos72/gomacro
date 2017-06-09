@@ -33,20 +33,20 @@ func init() {
 // --------------- proxy for context.Context ---------------
 type Context_context struct {
 	Object	interface{}
-	Deadline_	func() (deadline time.Time, ok bool)
-	Done_	func() <-chan struct{}
-	Err_	func() error
-	Value_	func(key interface{}) interface{}
+	Deadline_	func(interface{}) (deadline time.Time, ok bool)
+	Done_	func(interface{}) <-chan struct{}
+	Err_	func(interface{}) error
+	Value_	func(_proxy_obj_ interface{}, key interface{}) interface{}
 }
 func (Proxy *Context_context) Deadline() (deadline time.Time, ok bool) {
-	return Proxy.Deadline_()
+	return Proxy.Deadline_(Proxy.Object)
 }
 func (Proxy *Context_context) Done() <-chan struct{} {
-	return Proxy.Done_()
+	return Proxy.Done_(Proxy.Object)
 }
 func (Proxy *Context_context) Err() error {
-	return Proxy.Err_()
+	return Proxy.Err_(Proxy.Object)
 }
 func (Proxy *Context_context) Value(key interface{}) interface{} {
-	return Proxy.Value_(key)
+	return Proxy.Value_(Proxy.Object, key)
 }

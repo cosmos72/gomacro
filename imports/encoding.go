@@ -28,35 +28,35 @@ func init() {
 // --------------- proxy for encoding.BinaryMarshaler ---------------
 type BinaryMarshaler_encoding struct {
 	Object	interface{}
-	MarshalBinary_	func() (data []byte, err error)
+	MarshalBinary_	func(interface{}) (data []byte, err error)
 }
 func (Proxy *BinaryMarshaler_encoding) MarshalBinary() (data []byte, err error) {
-	return Proxy.MarshalBinary_()
+	return Proxy.MarshalBinary_(Proxy.Object)
 }
 
 // --------------- proxy for encoding.BinaryUnmarshaler ---------------
 type BinaryUnmarshaler_encoding struct {
 	Object	interface{}
-	UnmarshalBinary_	func(data []byte) error
+	UnmarshalBinary_	func(_proxy_obj_ interface{}, data []byte) error
 }
 func (Proxy *BinaryUnmarshaler_encoding) UnmarshalBinary(data []byte) error {
-	return Proxy.UnmarshalBinary_(data)
+	return Proxy.UnmarshalBinary_(Proxy.Object, data)
 }
 
 // --------------- proxy for encoding.TextMarshaler ---------------
 type TextMarshaler_encoding struct {
 	Object	interface{}
-	MarshalText_	func() (text []byte, err error)
+	MarshalText_	func(interface{}) (text []byte, err error)
 }
 func (Proxy *TextMarshaler_encoding) MarshalText() (text []byte, err error) {
-	return Proxy.MarshalText_()
+	return Proxy.MarshalText_(Proxy.Object)
 }
 
 // --------------- proxy for encoding.TextUnmarshaler ---------------
 type TextUnmarshaler_encoding struct {
 	Object	interface{}
-	UnmarshalText_	func(text []byte) error
+	UnmarshalText_	func(_proxy_obj_ interface{}, text []byte) error
 }
 func (Proxy *TextUnmarshaler_encoding) UnmarshalText(text []byte) error {
-	return Proxy.UnmarshalText_(text)
+	return Proxy.UnmarshalText_(Proxy.Object, text)
 }

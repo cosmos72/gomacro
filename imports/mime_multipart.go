@@ -30,20 +30,20 @@ func init() {
 // --------------- proxy for mime/multipart.File ---------------
 type File_mime_multipart struct {
 	Object	interface{}
-	Close_	func() error
-	Read_	func(p []byte) (n int, err error)
-	ReadAt_	func(p []byte, off int64) (n int, err error)
-	Seek_	func(offset int64, whence int) (int64, error)
+	Close_	func(interface{}) error
+	Read_	func(_proxy_obj_ interface{}, p []byte) (n int, err error)
+	ReadAt_	func(_proxy_obj_ interface{}, p []byte, off int64) (n int, err error)
+	Seek_	func(_proxy_obj_ interface{}, offset int64, whence int) (int64, error)
 }
 func (Proxy *File_mime_multipart) Close() error {
-	return Proxy.Close_()
+	return Proxy.Close_(Proxy.Object)
 }
 func (Proxy *File_mime_multipart) Read(p []byte) (n int, err error) {
-	return Proxy.Read_(p)
+	return Proxy.Read_(Proxy.Object, p)
 }
 func (Proxy *File_mime_multipart) ReadAt(p []byte, off int64) (n int, err error) {
-	return Proxy.ReadAt_(p, off)
+	return Proxy.ReadAt_(Proxy.Object, p, off)
 }
 func (Proxy *File_mime_multipart) Seek(offset int64, whence int) (int64, error) {
-	return Proxy.Seek_(offset, whence)
+	return Proxy.Seek_(Proxy.Object, offset, whence)
 }

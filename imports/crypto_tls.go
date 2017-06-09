@@ -98,12 +98,12 @@ func init() {
 // --------------- proxy for crypto/tls.ClientSessionCache ---------------
 type ClientSessionCache_crypto_tls struct {
 	Object	interface{}
-	Get_	func(sessionKey string) (session *tls.ClientSessionState, ok bool)
-	Put_	func(sessionKey string, cs *tls.ClientSessionState) 
+	Get_	func(_proxy_obj_ interface{}, sessionKey string) (session *tls.ClientSessionState, ok bool)
+	Put_	func(_proxy_obj_ interface{}, sessionKey string, cs *tls.ClientSessionState) 
 }
 func (Proxy *ClientSessionCache_crypto_tls) Get(sessionKey string) (session *tls.ClientSessionState, ok bool) {
-	return Proxy.Get_(sessionKey)
+	return Proxy.Get_(Proxy.Object, sessionKey)
 }
 func (Proxy *ClientSessionCache_crypto_tls) Put(sessionKey string, cs *tls.ClientSessionState)  {
-	Proxy.Put_(sessionKey, cs)
+	Proxy.Put_(Proxy.Object, sessionKey, cs)
 }

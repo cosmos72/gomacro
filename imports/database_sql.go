@@ -54,21 +54,21 @@ func init() {
 // --------------- proxy for database/sql.Result ---------------
 type Result_database_sql struct {
 	Object	interface{}
-	LastInsertId_	func() (int64, error)
-	RowsAffected_	func() (int64, error)
+	LastInsertId_	func(interface{}) (int64, error)
+	RowsAffected_	func(interface{}) (int64, error)
 }
 func (Proxy *Result_database_sql) LastInsertId() (int64, error) {
-	return Proxy.LastInsertId_()
+	return Proxy.LastInsertId_(Proxy.Object)
 }
 func (Proxy *Result_database_sql) RowsAffected() (int64, error) {
-	return Proxy.RowsAffected_()
+	return Proxy.RowsAffected_(Proxy.Object)
 }
 
 // --------------- proxy for database/sql.Scanner ---------------
 type Scanner_database_sql struct {
 	Object	interface{}
-	Scan_	func(src interface{}) error
+	Scan_	func(_proxy_obj_ interface{}, src interface{}) error
 }
 func (Proxy *Scanner_database_sql) Scan(src interface{}) error {
-	return Proxy.Scan_(src)
+	return Proxy.Scan_(Proxy.Object, src)
 }

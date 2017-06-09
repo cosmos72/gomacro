@@ -167,51 +167,51 @@ func init() {
 // --------------- proxy for go/types.Importer ---------------
 type Importer_go_types struct {
 	Object	interface{}
-	Import_	func(path string) (*types.Package, error)
+	Import_	func(_proxy_obj_ interface{}, path string) (*types.Package, error)
 }
 func (Proxy *Importer_go_types) Import(path string) (*types.Package, error) {
-	return Proxy.Import_(path)
+	return Proxy.Import_(Proxy.Object, path)
 }
 
 // --------------- proxy for go/types.ImporterFrom ---------------
 type ImporterFrom_go_types struct {
 	Object	interface{}
-	Import_	func(path string) (*types.Package, error)
-	ImportFrom_	func(path string, srcDir string, mode types.ImportMode) (*types.Package, error)
+	Import_	func(_proxy_obj_ interface{}, path string) (*types.Package, error)
+	ImportFrom_	func(_proxy_obj_ interface{}, path string, srcDir string, mode types.ImportMode) (*types.Package, error)
 }
 func (Proxy *ImporterFrom_go_types) Import(path string) (*types.Package, error) {
-	return Proxy.Import_(path)
+	return Proxy.Import_(Proxy.Object, path)
 }
 func (Proxy *ImporterFrom_go_types) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
-	return Proxy.ImportFrom_(path, srcDir, mode)
+	return Proxy.ImportFrom_(Proxy.Object, path, srcDir, mode)
 }
 
 // --------------- proxy for go/types.Sizes ---------------
 type Sizes_go_types struct {
 	Object	interface{}
-	Alignof_	func(T types.Type) int64
-	Offsetsof_	func(fields []*types.Var) []int64
-	Sizeof_	func(T types.Type) int64
+	Alignof_	func(_proxy_obj_ interface{}, T types.Type) int64
+	Offsetsof_	func(_proxy_obj_ interface{}, fields []*types.Var) []int64
+	Sizeof_	func(_proxy_obj_ interface{}, T types.Type) int64
 }
 func (Proxy *Sizes_go_types) Alignof(T types.Type) int64 {
-	return Proxy.Alignof_(T)
+	return Proxy.Alignof_(Proxy.Object, T)
 }
 func (Proxy *Sizes_go_types) Offsetsof(fields []*types.Var) []int64 {
-	return Proxy.Offsetsof_(fields)
+	return Proxy.Offsetsof_(Proxy.Object, fields)
 }
 func (Proxy *Sizes_go_types) Sizeof(T types.Type) int64 {
-	return Proxy.Sizeof_(T)
+	return Proxy.Sizeof_(Proxy.Object, T)
 }
 
 // --------------- proxy for go/types.Type ---------------
 type Type_go_types struct {
 	Object	interface{}
-	String_	func() string
-	Underlying_	func() types.Type
+	String_	func(interface{}) string
+	Underlying_	func(interface{}) types.Type
 }
 func (Proxy *Type_go_types) String() string {
-	return Proxy.String_()
+	return Proxy.String_(Proxy.Object)
 }
 func (Proxy *Type_go_types) Underlying() types.Type {
-	return Proxy.Underlying_()
+	return Proxy.Underlying_(Proxy.Object)
 }

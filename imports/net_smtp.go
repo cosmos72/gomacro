@@ -30,12 +30,12 @@ func init() {
 // --------------- proxy for net/smtp.Auth ---------------
 type Auth_net_smtp struct {
 	Object	interface{}
-	Next_	func(fromServer []byte, more bool) (toServer []byte, err error)
-	Start_	func(server *smtp.ServerInfo) (proto string, toServer []byte, err error)
+	Next_	func(_proxy_obj_ interface{}, fromServer []byte, more bool) (toServer []byte, err error)
+	Start_	func(_proxy_obj_ interface{}, server *smtp.ServerInfo) (proto string, toServer []byte, err error)
 }
 func (Proxy *Auth_net_smtp) Next(fromServer []byte, more bool) (toServer []byte, err error) {
-	return Proxy.Next_(fromServer, more)
+	return Proxy.Next_(Proxy.Object, fromServer, more)
 }
 func (Proxy *Auth_net_smtp) Start(server *smtp.ServerInfo) (proto string, toServer []byte, err error) {
-	return Proxy.Start_(server)
+	return Proxy.Start_(Proxy.Object, server)
 }

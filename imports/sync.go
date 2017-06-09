@@ -30,12 +30,12 @@ func init() {
 // --------------- proxy for sync.Locker ---------------
 type Locker_sync struct {
 	Object	interface{}
-	Lock_	func() 
-	Unlock_	func() 
+	Lock_	func(interface{}) 
+	Unlock_	func(interface{}) 
 }
 func (Proxy *Locker_sync) Lock()  {
-	Proxy.Lock_()
+	Proxy.Lock_(Proxy.Object)
 }
 func (Proxy *Locker_sync) Unlock()  {
-	Proxy.Unlock_()
+	Proxy.Unlock_(Proxy.Object)
 }

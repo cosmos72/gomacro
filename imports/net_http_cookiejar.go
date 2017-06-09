@@ -26,12 +26,12 @@ func init() {
 // --------------- proxy for net/http/cookiejar.PublicSuffixList ---------------
 type PublicSuffixList_net_http_cookiejar struct {
 	Object	interface{}
-	PublicSuffix_	func(domain string) string
-	String_	func() string
+	PublicSuffix_	func(_proxy_obj_ interface{}, domain string) string
+	String_	func(interface{}) string
 }
 func (Proxy *PublicSuffixList_net_http_cookiejar) PublicSuffix(domain string) string {
-	return Proxy.PublicSuffix_(domain)
+	return Proxy.PublicSuffix_(Proxy.Object, domain)
 }
 func (Proxy *PublicSuffixList_net_http_cookiejar) String() string {
-	return Proxy.String_()
+	return Proxy.String_(Proxy.Object)
 }

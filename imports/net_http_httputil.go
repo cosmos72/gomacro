@@ -39,12 +39,12 @@ func init() {
 // --------------- proxy for net/http/httputil.BufferPool ---------------
 type BufferPool_net_http_httputil struct {
 	Object	interface{}
-	Get_	func() []byte
-	Put_	func([]byte) 
+	Get_	func(interface{}) []byte
+	Put_	func(interface{}, []byte) 
 }
 func (Proxy *BufferPool_net_http_httputil) Get() []byte {
-	return Proxy.Get_()
+	return Proxy.Get_(Proxy.Object)
 }
 func (Proxy *BufferPool_net_http_httputil) Put(unnamed0 []byte)  {
-	Proxy.Put_(unnamed0)
+	Proxy.Put_(Proxy.Object, unnamed0)
 }

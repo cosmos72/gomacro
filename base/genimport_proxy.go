@@ -65,15 +65,22 @@ func writeInterfaceMethod(out *bytes.Buffer, pkgSuffix string, interfaceName str
 	if !ok {
 		return
 	}
-	if opts&writeMethodsAsFields != 0 {
-		fmt.Fprintf(out, "\n\t%s_\tfunc", method.Name())
-	} else {
-		fmt.Fprintf(out, "func (Proxy *%s%s) %s", interfaceName, pkgSuffix, method.Name())
-	}
 	params := sig.Params()
+	if opts&writeMethodsAsFields != 0 {
+		var param0 string
+		if opts&writeForceParamNames != 0 || isNamedTypeTuple(params) {
+			param0 = "_proxy_obj_ "
+		}
+		fmt.Fprintf(out, "\n\t%s_\tfunc(%sinterface{}", method.Name(), param0)
+		if params != nil && params.Len() != 0 {
+			out.WriteString(", ")
+		}
+	} else {
+		fmt.Fprintf(out, "func (Proxy *%s%s) %s(", interfaceName, pkgSuffix, method.Name())
+	}
 	results := sig.Results()
-	writeTypeTupleIn(out, params, opts)
-	out.WriteString(" ")
+	writeTypeTuple(out, params, opts|writeIncludeParamTypes)
+	out.WriteString(") ")
 	writeTypeTupleOut(out, results)
 	if opts&writeMethodsAsFields != 0 {
 		return
@@ -82,15 +89,24 @@ func writeInterfaceMethod(out *bytes.Buffer, pkgSuffix string, interfaceName str
 	if results != nil && results.Len() > 0 {
 		out.WriteString("return ")
 	}
-	fmt.Fprintf(out, "Proxy.%s_(", method.Name())
+	fmt.Fprintf(out, "Proxy.%s_(Proxy.Object", method.Name())
+	if params != nil && params.Len() != 0 {
+		out.WriteString(", ")
+	}
 	writeTypeTuple(out, params, writeForceParamNames)
 	out.WriteString(")\n}\n")
 }
 
-func writeTypeTupleIn(out *bytes.Buffer, tuple *types.Tuple, opts writeTypeOpts) {
-	out.WriteString("(")
-	writeTypeTuple(out, tuple, opts|writeIncludeParamTypes)
-	out.WriteString(")")
+func isNamedTypeTuple(tuple *types.Tuple) bool {
+	if tuple == nil || tuple.Len() == 0 {
+		return false
+	}
+	for i, n := 0, tuple.Len(); i < n; i++ {
+		if len(tuple.At(i).Name()) != 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func writeTypeTupleOut(out *bytes.Buffer, tuple *types.Tuple) {

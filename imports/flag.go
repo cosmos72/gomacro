@@ -64,29 +64,29 @@ func init() {
 // --------------- proxy for flag.Getter ---------------
 type Getter_flag struct {
 	Object	interface{}
-	Get_	func() interface{}
-	Set_	func(string) error
-	String_	func() string
+	Get_	func(interface{}) interface{}
+	Set_	func(interface{}, string) error
+	String_	func(interface{}) string
 }
 func (Proxy *Getter_flag) Get() interface{} {
-	return Proxy.Get_()
+	return Proxy.Get_(Proxy.Object)
 }
 func (Proxy *Getter_flag) Set(unnamed0 string) error {
-	return Proxy.Set_(unnamed0)
+	return Proxy.Set_(Proxy.Object, unnamed0)
 }
 func (Proxy *Getter_flag) String() string {
-	return Proxy.String_()
+	return Proxy.String_(Proxy.Object)
 }
 
 // --------------- proxy for flag.Value ---------------
 type Value_flag struct {
 	Object	interface{}
-	Set_	func(string) error
-	String_	func() string
+	Set_	func(interface{}, string) error
+	String_	func(interface{}) string
 }
 func (Proxy *Value_flag) Set(unnamed0 string) error {
-	return Proxy.Set_(unnamed0)
+	return Proxy.Set_(Proxy.Object, unnamed0)
 }
 func (Proxy *Value_flag) String() string {
-	return Proxy.String_()
+	return Proxy.String_(Proxy.Object)
 }

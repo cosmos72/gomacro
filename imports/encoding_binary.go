@@ -41,32 +41,32 @@ func init() {
 // --------------- proxy for encoding/binary.ByteOrder ---------------
 type ByteOrder_encoding_binary struct {
 	Object	interface{}
-	PutUint16_	func([]byte, uint16) 
-	PutUint32_	func([]byte, uint32) 
-	PutUint64_	func([]byte, uint64) 
-	String_	func() string
-	Uint16_	func([]byte) uint16
-	Uint32_	func([]byte) uint32
-	Uint64_	func([]byte) uint64
+	PutUint16_	func(interface{}, []byte, uint16) 
+	PutUint32_	func(interface{}, []byte, uint32) 
+	PutUint64_	func(interface{}, []byte, uint64) 
+	String_	func(interface{}) string
+	Uint16_	func(interface{}, []byte) uint16
+	Uint32_	func(interface{}, []byte) uint32
+	Uint64_	func(interface{}, []byte) uint64
 }
 func (Proxy *ByteOrder_encoding_binary) PutUint16(unnamed0 []byte, unnamed1 uint16)  {
-	Proxy.PutUint16_(unnamed0, unnamed1)
+	Proxy.PutUint16_(Proxy.Object, unnamed0, unnamed1)
 }
 func (Proxy *ByteOrder_encoding_binary) PutUint32(unnamed0 []byte, unnamed1 uint32)  {
-	Proxy.PutUint32_(unnamed0, unnamed1)
+	Proxy.PutUint32_(Proxy.Object, unnamed0, unnamed1)
 }
 func (Proxy *ByteOrder_encoding_binary) PutUint64(unnamed0 []byte, unnamed1 uint64)  {
-	Proxy.PutUint64_(unnamed0, unnamed1)
+	Proxy.PutUint64_(Proxy.Object, unnamed0, unnamed1)
 }
 func (Proxy *ByteOrder_encoding_binary) String() string {
-	return Proxy.String_()
+	return Proxy.String_(Proxy.Object)
 }
 func (Proxy *ByteOrder_encoding_binary) Uint16(unnamed0 []byte) uint16 {
-	return Proxy.Uint16_(unnamed0)
+	return Proxy.Uint16_(Proxy.Object, unnamed0)
 }
 func (Proxy *ByteOrder_encoding_binary) Uint32(unnamed0 []byte) uint32 {
-	return Proxy.Uint32_(unnamed0)
+	return Proxy.Uint32_(Proxy.Object, unnamed0)
 }
 func (Proxy *ByteOrder_encoding_binary) Uint64(unnamed0 []byte) uint64 {
-	return Proxy.Uint64_(unnamed0)
+	return Proxy.Uint64_(Proxy.Object, unnamed0)
 }
