@@ -69,20 +69,28 @@ func concatAst(a, b AstWithSlice) {
 	}
 }
 
-func quote(node ast.Node) *ast.UnaryExpr {
+func quote(in AstWithNode) UnaryExpr {
+	node := in.Node()
 	unary, _ := mp.MakeQuote(nil, mt.QUOTE, node.Pos(), node)
-	return unary
+	return UnaryExpr{unary}
 }
 
 func (c *Comp) quasiquoteSlice(in Ast) AstWithSlice {
+	debug := c.Options&OptDebugMacroExpand != 0
 	switch form := in.(type) {
 	case UnaryExpr:
-		switch form.Op() {
+		switch op := form.Op(); op {
 		case mt.UNQUOTE:
 			node := SimplifyNodeForQuote(form.X.X.(*ast.FuncLit).Body, true)
+			if debug {
+				c.Debugf("Quasiquote slice expanding %s: %v", mt.String(op), node)
+			}
 			return NodeSlice{X: []ast.Node{node}}
 		case mt.UNQUOTE_SPLICE:
 			body := form.X.X.(*ast.FuncLit).Body
+			if debug {
+				c.Debugf("Quasiquote slice expanding %s: %v", mt.String(op), body)
+			}
 			return BlockStmt{X: body}
 		}
 	}
@@ -92,6 +100,10 @@ func (c *Comp) quasiquoteSlice(in Ast) AstWithSlice {
 
 // quasiquote expands the contents of a ~quasiquote
 func (c *Comp) quasiquote(in Ast) Ast {
+	debug := c.Options&OptDebugMacroExpand != 0
+	if debug {
+		c.Debugf("Quasiquote expanding %s: %v", mt.String(mt.QUASIQUOTE), in.Interface())
+	}
 	switch form := in.(type) {
 	case AstWithSlice:
 		ni := form.Size()
@@ -102,19 +114,35 @@ func (c *Comp) quasiquote(in Ast) Ast {
 		}
 		return out
 	case UnaryExpr:
-		switch form.Op() {
+		switch op := form.Op(); op {
 		case mt.UNQUOTE:
 			node := SimplifyNodeForQuote(form.X.X.(*ast.FuncLit).Body, true)
+			if debug {
+				c.Debugf("Quasiquote expanding %s: %v", mt.String(op), node)
+			}
 			return ToAst(node)
 		case mt.UNQUOTE_SPLICE:
 			c.Pos = form.X.Pos()
 			c.Errorf("quasiquote: cannot %s in single-node context: %v", mt.String(form.Op()), form.X)
+			return nil
 		}
-	case AstWithNode:
-		return ToAst(quote(form.Node()))
-	default:
+	}
+
+	// Ast can still be a tree: just not a resizeable one, so support ~unquote but not ~unquote_splice
+	if form, ok := in.(AstWithNode); !ok {
 		x := in.Interface()
 		c.Errorf("quasiquote: unsupported node type: %v <%v>", x, r.TypeOf(x))
+		return nil
+	} else {
+		ni := form.Size()
+		out := form.New().(AstWithNode)
+		if ni == 0 {
+			out = quote(form)
+		} else {
+			for i := 0; i < ni; i++ {
+				out.Set(i, c.quasiquote(form.Get(i)))
+			}
+		}
+		return out
 	}
-	return nil
 }

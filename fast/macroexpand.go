@@ -61,8 +61,9 @@ func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythi
 	if in == nil || in.Size() == 0 {
 		return in, false
 	}
+	debug := c.Options&OptDebugMacroExpand != 0
 	if quasiquoteDepth <= 0 {
-		if c.Options&OptDebugMacroExpand != 0 {
+		if debug {
 			c.Debugf("MacroExpandCodewalk: qq = %d, macroexpanding %v", quasiquoteDepth, in.Interface())
 		}
 		in, anythingExpanded = c.MacroExpand(in)
@@ -110,7 +111,7 @@ Recurse:
 	if in == nil {
 		return saved, anythingExpanded
 	}
-	if c.Options&OptDebugMacroExpand != 0 {
+	if debug {
 		c.Debugf("MacroExpandCodewalk: qq = %d, recursing on %v", quasiquoteDepth, in)
 	}
 	out = in.New()
@@ -135,7 +136,7 @@ Recurse:
 		}
 		out.Set(i, child)
 	}
-	if c.Options&OptDebugMacroExpand != 0 {
+	if debug {
 		c.Debugf("MacroExpandCodewalk: qq = %d, expanded to %v", quasiquoteDepth, out)
 	}
 	return out, anythingExpanded
@@ -216,7 +217,8 @@ func (c *Comp) macroExpandOnce(in Ast) (out Ast, expanded bool) {
 		// quasiquote is considered a macro
 		return c.Quasiquote(in)
 	}
-	if c.Options&OptDebugMacroExpand != 0 {
+	debug := c.Options&OptDebugMacroExpand != 0
+	if debug {
 		c.Debugf("MacroExpand1: found list: %v", ins.Interface())
 	}
 	outs := ins.New().(AstWithSlice)
@@ -247,7 +249,7 @@ func (c *Comp) macroExpandOnce(in Ast) (out Ast, expanded bool) {
 			c.Errorf("not enough arguments for macroexpansion of %v: expecting %d, found %d", args, macro.argNum, leftn)
 			return in, false
 		}
-		if c.Options&OptDebugMacroExpand != 0 {
+		if debug {
 			c.Debugf("MacroExpand1: found macro call %v at %d-th position of %v", elt.Interface(), i, ins.Interface())
 		}
 		// wrap each ast.Node into a reflect.Value
@@ -257,7 +259,7 @@ func (c *Comp) macroExpandOnce(in Ast) (out Ast, expanded bool) {
 		}
 		// invoke the macro
 		results := macro.closure(args)
-		if c.Options&OptDebugMacroExpand != 0 {
+		if debug {
 			c.Debugf("MacroExpand1: macro expanded to: %v", results)
 		}
 		var out Ast
