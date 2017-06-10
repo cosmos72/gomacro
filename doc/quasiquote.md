@@ -112,7 +112,7 @@ it splits the execution in two phases:
 2) executes the created closures
 
 "fast" interpreter also uses native Go types where possible, to further speed up execution
-and reduce the reliance on `reflect.Value`.
+and reduce the reliance on `reflect.Value` and the overhead it imposes.
 
 The result is a much larger interpreter:
 * 20k LOC written manually
@@ -123,15 +123,15 @@ It is also significantly faster than the "classic" interpreter:
 on most microbenchmarks, "fast" interpreter is 10-100 times slower than compiled code, instead of 1000-2000 times slower.
 
 The main difficulty in implementing quasiquotation in the "fast" interpreter is the transformation phase:
-Code containing quasiquote must be type checked, and code fragments that must be evaluated should be transformed
+code containing quasiquote must be type checked, and code fragments that must be evaluated should be transformed
 into closures returning the result of evaluation. This is a problem similar to what Common Lisp compilers face
 when compiling quasiquoted code, with the difference that Go is not homoiconic.
 
 In practice, the lack of homoiconicity means that standard textbook quasiquotation algorithms for Common Lisp
-are not directly applicable to Go. An example to clarify the last statement:
+are not directly applicable to Go. Some examples will clarify the last statement:
 
 In Common Lisp the textbook quasiquotation algorithms, as for example http://www.lispworks.com/documentation/HyperSpec/Body/02_df.htm
-recursively visit the input AST, producing an output AST that does **not** contain `` ` `` `,` and `,@` at the price of
+recursively visit the input AST, producing an output AST that does **not** contain `` ` `` `,` or `,@` at the price of
 typically producing "ugly" output, i.e. significantly different from the input. Examples:
 
 * `` `(+ x ,y)`` is typically expanded to the equivalent source code: `(list '+ 'x y)` - to verify it, try ``(macroexpand '`(+ x ,y))`` in a Common Lisp REPL
@@ -148,12 +148,28 @@ would create an algorithm able to perform the following expansions:
 * `~"{x; ,y}` would be expanded to the source code: `[]ast.Stmt{&ast.ExprStmt{X: &ast.BasicLit{Name: "x"}}, y}`
   i.e. a list of two ast.Stmt: a literal "x" wrapped in a statement, and an ast.Stmt equal to the result of evaluating y.
 * `~"{x; ,@y}` would be expanded to the source code: `append([]ast.Stmt{&ast.ExprStmt{X: &ast.BasicLit{Name: "x"}}}, y...)`
-  where y must be an expression with type []ast.Stmt
+  where y must be an expression that, once type-checked and transformed into a closure, will return a []ast.Stmt
 * `~"{x; ,@y; ,@z}` would be expanded to the source code: `append(append([]ast.Stmt{&ast.ExprStmt{X: &ast.BasicLit{Name: "x"}}}, y...), z...)`
-  where x and y must must be expressions with type []ast.Stmt
+  where x and y must be expressions that, once type-checked and transformed into closures, will return []ast.Stmt
 
 Note the differences between the various expansions, and the dependency on "go/ast" package of the expanded source code.
 
+Some possible simplifications are:
+1. allow quote `~'` in the expanded source code
+2. work on `ast2.Ast` `ast2.AstWithNode` and `ast2.AstWithSlice` instead of `ast.Node` and the dozens of concrete types
+   implementing `ast.Node`: the formers are `ast.Node` wrappers with an uniform API that greatly simplifies
+   manipulating Go abstract syntax trees.
+3. implement dedicated functions and methods operating on `ast2.Ast`: `Quote`, `Unquote`, `Init`, `Concat`
+   and whatever else is needed to simplify the expansion
 
+
+* `~"{x + ~,y}` would be expanded to the equivalent source code: `in.New().Init(~'x, y)`
+  where `in` is an `ast2.Ast` containing `~"{x + ~,y}`
+* `~"{x; ~,y}` would be expanded to the source code: `in.New().Init(~'x, y)`
+  where `in` is an `ast2.Ast` containing `~"{x; ~,y}`
+* `~"{x; ~,@y}` would be expanded to the source code: `in.New().Init(~'x).Concat(y)`
+  where `in` is an `ast2.Ast` containing `~"{x; ~,@y}`
+* `~"{x; ~,@y; ~,@z}` would be expanded to the source code: `in.New().Init(~'x).Concat(y).Concat(z)`
+  where `in` is an `ast2.Ast` containing `~"{x; ~,@y; ~,@z}`
 
 
