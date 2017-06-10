@@ -61,9 +61,11 @@ while keeping track of the current quasiquotation depth (the number of entered `
 
 ### Fast interpreter ###
 
+#### Architecture ####
+
 The second, "fast" interpreter included in `gomacro` is more sophisticated. Instead of directly executing the AST,
 it splits the execution in two phases:
-1. visits the AST depth-first and create a tree of closures - one for each expression to be executed.
+1. visits the AST depth-first and "compiles" i.e. transforms it into tree of closures - one for each expression to be executed.
    For example, `a + b` is transformed into something equivalent to:
    ```
    var a = resolve("a").(func(env *Env) int)
@@ -72,10 +74,10 @@ it splits the execution in two phases:
 	   return a(env) + b(env)
    }
    ```
-   The fast interpreter also performs type checking and type inference while creating this tree of closures.
+   The fast interpreter also performs type checking and type inference while "compiling" this tree of closures.
 
-   Statements (including declarations) are transformed a bit differently: each becomes a closure
-   executing the statement in the interpreter, and returning the next statement to be executed.
+   Statements (including declarations) are "compiled", i.e. transformed, a bit differently: each one becomes
+   a closure executing the statement in the interpreter, and returning the next closure to be executed.
    For example, `if x { foo() } else { bar() }` is transformed into something equivalent to:
    ```
    var x = resolve("x").(func(env *Env) bool)
@@ -109,7 +111,7 @@ it splits the execution in two phases:
    Note the extensive use of closures, i.e. anonymous functions that access **mutable** variables
    of the surrounding scope: `x` `foo` `bar` `ip_then` `ip_else` and `ip_finish`.
 
-2) executes the created closures
+2) executes the "compiled" code, i.e. calls the created closures
 
 "fast" interpreter also uses native Go types where possible, to further speed up execution
 and reduce the reliance on `reflect.Value` and the overhead it imposes.
@@ -121,6 +123,8 @@ The result is a much larger interpreter:
 
 It is also significantly faster than the "classic" interpreter:
 on most microbenchmarks, "fast" interpreter is 10-100 times slower than compiled code, instead of 1000-2000 times slower.
+
+#### Quasiquotation difficulties ####
 
 The main difficulty in implementing quasiquotation in the "fast" interpreter is the transformation phase:
 code containing quasiquote must be type checked, and code fragments that must be evaluated should be transformed
@@ -140,6 +144,8 @@ typically producing "ugly" output, i.e. significantly different from the input. 
 * `` `(x ,@y ,@z)`` is typically expanded to the equivalent `(list* 'x (append y z))`
 * and so on...
 
+#### First approach: quasiquotation is source transformation ####
+
 Any attempt to translate (almost) one-to-one the same algorithm in Go, and thus also the resulting examples,
 would create an algorithm able to perform the following expansions:
 
@@ -155,13 +161,12 @@ would create an algorithm able to perform the following expansions:
 Note the differences between the various expansions, and the dependency on "go/ast" package of the expanded source code.
 
 Some possible simplifications are:
-1. allow quote `~'` in the expanded source code
-2. work on `ast2.Ast` `ast2.AstWithNode` and `ast2.AstWithSlice` instead of `ast.Node` and the dozens of concrete types
-   implementing `ast.Node`: the formers are `ast.Node` wrappers with an uniform API that greatly simplifies
+1. allow `~'` in the expanded source code
+2. work on `ast2.Ast` instead of `ast.Node` and the dozens of concrete types
+   implementing `ast.Node`: the formers is an `ast.Node` wrapper with an uniform API that greatly simplifies
    manipulating Go abstract syntax trees.
 3. implement dedicated functions and methods operating on `ast2.Ast`: `Quote`, `Unquote`, `Init`, `Concat`
    and whatever else is needed to simplify the expansion
-
 
 * `~"{x + ~,y}` would be expanded to the equivalent source code: `in.New().Init(~'x, y)`
   where `in` is an `ast2.Ast` containing `~"{x + ~,y}`
@@ -172,4 +177,17 @@ Some possible simplifications are:
 * `~"{x; ~,@y; ~,@z}` would be expanded to the source code: `in.New().Init(~'x).Concat(y).Concat(z)`
   where `in` is an `ast2.Ast` containing `~"{x; ~,@y; ~,@z}`
 
+#### Second approach: quasiquotation merged with compile ####
+
+Since quasiquotation must be executed on the output of macroexpansion (quasiquote could be even considered a macro),
+it is the last phase before "compile" i.e. before transformation of source code to a tree of closures.
+
+Thus an alternative approach is to merge quasiquotation with the compile phase:
+while transforming AST nodes to closures, the "fast" interpreter could detect quasiquotes
+and expand them - possibly not to source code, but directly to a tree of closures.
+
+In other words, quasiquotation could directly produce executable code, without going through
+the intermediate phase of expanding it to source code.
+
+Is it easier to implement? Let's see.
 
