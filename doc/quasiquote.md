@@ -66,23 +66,24 @@ while keeping track of the current quasiquotation depth (the number of entered `
 The second, "fast" interpreter included in `gomacro` is more sophisticated. Instead of directly executing the AST,
 it splits the execution in two phases:
 1. visits the AST depth-first and "compiles" i.e. transforms it into tree of closures - one for each expression to be executed.
-   For example, `a + b` is transformed into something equivalent to:
+   For example, `a + b` causes the interpreter to execute something like:
    ```
-   var a = resolve("a").(func(env *Env) int)
-   var b = resolve("b").(func(env *Env) int)
+   var a = compile("a").(func(env *Env) int)
+   var b = compile("b").(func(env *Env) int)
    var sum_ab = func(env *Env) int {
 	   return a(env) + b(env)
    }
    ```
+   which creates a closure that, when later executed, computes `a + b`.
    The fast interpreter also performs type checking and type inference while "compiling" this tree of closures.
 
    Statements (including declarations) are "compiled", i.e. transformed, a bit differently: each one becomes
    a closure executing the statement in the interpreter, and returning the next closure to be executed.
-   For example, `if x { foo() } else { bar() }` is transformed into something equivalent to:
+   For example, `if x { foo() } else { bar() }` causes the interpreter to execute something like:
    ```
-   var x = resolve("x").(func(env *Env) bool)
-   var foo = resolve("foo").(func(env *Env) func())
-   var bar = resolve("bar").(func(env *Env) func())
+   var x = compile("x").(func(env *Env) bool)
+   var foo = compile("foo").(func(env *Env) func())
+   var bar = compile("bar").(func(env *Env) func())
    var ip_then, ip_else, ip_finish int // will be set below
    Code.Append(func(env *Env) (Stmt, *Env) {
 	  var ip int
@@ -108,8 +109,10 @@ it splits the execution in two phases:
    })
    ip_finish = Code.Len()
    ```
+   which creates a list of closures that, when later executed, computes `if x { foo() } else { bar() }`.
+
    Note the extensive use of closures, i.e. anonymous functions that access **mutable** variables
-   of the surrounding scope: `x` `foo` `bar` `ip_then` `ip_else` and `ip_finish`.
+   of the surrounding scope: in this case, `x` `foo` `bar` `ip_then` `ip_else` and `ip_finish`.
 
 2) executes the "compiled" code, i.e. calls the created closures
 
@@ -124,12 +127,15 @@ The result is a much larger interpreter:
 It is also significantly faster than the "classic" interpreter:
 on most microbenchmarks, "fast" interpreter is 10-100 times slower than compiled code, instead of 1000-2000 times slower.
 
+Interestingly, the "fast" interpreter appears to be faster than [python](https://www.python.org/) at least
+on the fibonacci and collatz microbenchmarks - see [examples](../examples/)
+
 #### Quasiquotation difficulties ####
 
-The main difficulty in implementing quasiquotation in the "fast" interpreter is the transformation phase:
+The main difficulty in implementing quasiquotation in the "fast" interpreter is the "compile" phase:
 code containing quasiquote must be type checked, and code fragments that must be evaluated should be transformed
 into closures returning the result of evaluation. This is a problem similar to what Common Lisp compilers face
-when compiling quasiquoted code, with the difference that Go is not homoiconic.
+when compiling quasiquotations, with the difference that Go is not homoiconic.
 
 In practice, the lack of homoiconicity means that standard textbook quasiquotation algorithms for Common Lisp
 are not directly applicable to Go. Some examples will clarify the last statement:
@@ -177,6 +183,9 @@ Some possible simplifications are:
 * `~"{x; ~,@y; ~,@z}` would be expanded to the source code: `in.New().Init(~'x).Concat(y).Concat(z)`
   where `in` is an `ast2.Ast` containing `~"{x; ~,@y; ~,@z}`
 
+Even with such simplifications, this first approach looks tricky to implement correctly in all cases,
+and also fragile: expanded source code depends on external libraries, which could be shadowed or unavailable.
+
 #### Second approach: quasiquotation merged with compile ####
 
 Since quasiquotation must be executed on the output of macroexpansion (quasiquote could be even considered a macro),
@@ -189,5 +198,71 @@ and expand them - possibly not to source code, but directly to a tree of closure
 In other words, quasiquotation could directly produce executable code, without going through
 the intermediate phase of expanding it to source code.
 
-Is it easier to implement? Let's see.
+Is it easier to implement and/or more robust? Let's see.
 
+* `~"{x + ~,y}` would be transformed into a closure, by executing something like (`node` is an `ast.Node`
+  containing `~"{x + ~,y}`):
+  ```
+  var x = node.X       // an &ast.BasicLit
+  var y = compile("y").(func (env *Env) func() reflect.Value) // compile to a closure that returns ast.Node wrapped in reflect.Value
+  var in = ToAst(node) // wrap into ast2.Ast
+  var form = in.New()  // empty ast2.Ast with same type, operator and source position as 'in'
+
+  var closure = func(env *Env) ast.Node {
+	  var out = form.New() // create a new, empty ast2.Ast at each invokation
+	  var xform = ToAst(x)
+	  var yform = ToAst(y(env)().Interface())
+
+	  out.Set(0, xform)
+	  out.Set(1, yform)
+	  return ToNode(out)
+  }
+  ```
+* `~"{x; ~,y}` would be transformed into a closure, by executing something like (`node` is an `ast.Node`
+  containing `~"{x; ~,y}`):
+  ```
+  var x = node.X       // an &ast.BasicLit
+  var y = compile("y").(func (env *Env) func() reflect.Value) // compile to a closure that returns ast.Node wrapped in reflect.Value
+  var in = ToAst(node) // wrap into ast2.Ast
+  var form = in.New()  // empty ast2.Ast with same type, operator and source position as 'in'
+
+  var closure = func(env *Env) ast.Node {
+	  var out = form.New() // create a new, empty ast2.Ast at each invokation
+	  var xform = ToAst(x)
+	  var yform = ToAst(y(env)().Interface())
+
+	  out.Append(xform)
+	  out.Append(yform)
+	  return ToNode(out)
+  }
+  ```
+* `~"{x; ~,@y}` would be transformed into a closure, by executing something like (`node` is an `ast.Node`
+  containing `~"{x; ~,@y}`):
+  ```
+  var x = node.X       // an &ast.BasicLit
+  var y = compile("y").(func (env *Env) func() reflect.Value) // compile to a closure that returns ast.Node wrapped in reflect.Value
+  var in = ToAst(node) // wrap into ast2.Ast
+  var form = in.New()  // empty ast2.Ast with same type, operator and source position as 'in'
+
+  var closure = func(env *Env) ast.Node {
+	  var out = form.New() // create a new, empty ast2.Ast at each invokation
+	  var xform = ToAst(x)
+	  var yform = ToAst(y(env)().Interface())
+
+	  out.Append(xform)
+	  for i := 0; i < y.Len(); i++ {
+	      out.Append(y.Get(i))
+      }
+	  return ToNode(out)
+  }
+  ```
+
+While the above looks somewhat complicated, it changes very little from one case to the other,
+and it is actually the **implementation** of quasiquote, not its output!
+
+Such implementation depends on `ast2.Ast` and related functions, but it would be a part of the interpreter
+itself - which already has such dependency - while macroexpanded source code would remain free of such dependencies.
+
+It seems this second approach only has advantages... the only evident disadvantage is the lack
+of user-available mechanisms to expand quasiquotations, i.e. an eventual "Macroexpand" function
+available at the REPL and to interpreted code, would **not** expand quasiquotes.
