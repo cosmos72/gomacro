@@ -8,21 +8,21 @@ One of the main motivations behind the creation of Go interpreter `gomacro`
 was to add Lisp-like macros to Go.
 
 This includes implementing Common Lisp quote, quasiquote and, more crucially,
-unquote and unquote_splice i.e. Common Lisp macro characters `'` `\` ` `,` and `,@`
+unquote and unquote_splice i.e. Common Lisp macro characters `'` `` ` `` `,` and `,@`
 
 Since Go language is not homoiconic, i.e. (source) code and (program) data
 are not represented identically, this is a challenge.
 
 ### Parser ###
 
-The first (moderate) difficulty is adding support for `'` `\`` `,` and `,@` to Go parser.
+The first (moderate) difficulty is adding support for `'` `` ` `` `,` and `,@` to Go parser.
 It was solved by forking Go standard packages https://golang.org/pkg/go/scanner/
 and https://golang.org/pkg/go/parser/ and patching them.
 
-Actually, the characters `'` `\' ` and `,` are already reserved in Go,
+Actually, the characters `'` `` ` `` and `,` are already reserved in Go,
 so the author decided to replace them as follows:
 * `'`     becomes `~'`
-* `` ` `` becomes `~"` - not ``~` `` because the latter messes up syntax hilighting in Go-aware editors and IDEs
+* `` ` `` becomes `~"` not ``~` `` because the latter messes up syntax hilighting in Go-aware editors and IDEs (starts a multiline raw string)
 * `,`     becomes `~,`
 * `,@`    becomes `~,@`
 
