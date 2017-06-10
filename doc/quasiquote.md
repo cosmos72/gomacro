@@ -61,9 +61,8 @@ while keeping track of the current quasiquotation depth (the number of entered `
 
 ### Fast interpreter ###
 
-The second, "fast" interpreter included in `gomacro` is more sophisticated.
-
-Instead of directly executing the AST, it splits the execution in two phases:
+The second, "fast" interpreter included in `gomacro` is more sophisticated. Instead of directly executing the AST,
+it splits the execution in two phases:
 1. visits the AST depth-first and create a tree of closures - one for each expression to be executed.
    For example, `a + b` is transformed into something equivalent to:
    ```
@@ -121,4 +120,40 @@ The result is a much larger interpreter:
   quasiquote and macros as a code generation tool
 
 It is also significantly faster than the "classic" interpreter:
-on most microbenchmarks, it's 10-100 times slower than compiled code, instead of 1000-2000 times slower.
+on most microbenchmarks, "fast" interpreter is 10-100 times slower than compiled code, instead of 1000-2000 times slower.
+
+The main difficulty in implementing quasiquotation in the "fast" interpreter is the transformation phase:
+Code containing quasiquote must be type checked, and code fragments that must be evaluated should be transformed
+into closures returning the result of evaluation. This is a problem similar to what Common Lisp compilers face
+when compiling quasiquoted code, with the difference that Go is not homoiconic.
+
+In practice, the lack of homoiconicity means that standard textbook quasiquotation algorithms for Common Lisp
+are not directly applicable to Go. An example to clarify the last statement:
+
+In Common Lisp the textbook quasiquotation algorithms, as for example http://www.lispworks.com/documentation/HyperSpec/Body/02_df.htm
+recursively visit the input AST, producing an output AST that does **not** contain `` ` `` `,` and `,@` at the price of
+typically producing "ugly" output, i.e. significantly different from the input. Examples:
+
+* `` `(+ x ,y)`` is typically expanded to the equivalent source code: `(list '+ 'x y)` - to verify it, try ``(macroexpand '`(+ x ,y))`` in a Common Lisp REPL
+* `` `(x ,y)`` is typically expanded to the equivalent `(list 'x y)`
+* `` `(x ,@y)`` is typically expanded to the equivalent `(list* 'x y)`
+* `` `(x ,@y ,@z)`` is typically expanded to the equivalent `(list* 'x (append y z))`
+* and so on...
+
+Any attempt to translate (almost) one-to-one the same algorithm in Go, and thus also the resulting examples,
+would create an algorithm able to perform the following expansions:
+
+* `~"{x + ,y}` would be expanded to the equivalent source code: `&ast.BinaryExpr{Op: token.ADD, X: &ast.BasicLit{Name: "x"}, Y: y}`
+  i.e. an ast.Node representing addition between a literal "x" and an ast.Expr equal to the result of evaluating y
+* `~"{x; ,y}` would be expanded to the source code: `[]ast.Stmt{&ast.ExprStmt{X: &ast.BasicLit{Name: "x"}}, y}`
+  i.e. a list of two ast.Stmt: a literal "x" wrapped in a statement, and an ast.Stmt equal to the result of evaluating y.
+* `~"{x; ,@y}` would be expanded to the source code: `append([]ast.Stmt{&ast.ExprStmt{X: &ast.BasicLit{Name: "x"}}}, y...)`
+  where y must be an expression with type []ast.Stmt
+* `~"{x; ,@y; ,@z}` would be expanded to the source code: `append(append([]ast.Stmt{&ast.ExprStmt{X: &ast.BasicLit{Name: "x"}}}, y...), z...)`
+  where x and y must must be expressions with type []ast.Stmt
+
+Note the differences between the various expansions, and the dependency on "go/ast" package of the expanded source code.
+
+
+
+
