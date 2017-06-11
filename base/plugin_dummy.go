@@ -1,4 +1,4 @@
-// +build !go1.8
+// +build !go1.8 !linux android
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros
@@ -41,11 +41,11 @@ func getGoSrcPath() string {
 }
 
 func (ir *InterpreterCommon) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
-	errorf("gomacro compiled on Go version < 1.8. No support to load plugins - cannot import packages at runtime")
+	errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
 	return ""
 }
 
 func loadPlugin(soname string, symbolName string) interface{} {
-	errorf("gomacro compiled on Go version < 1.8. No support to load plugins - cannot import packages at runtime")
+	errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
 	return nil
 }

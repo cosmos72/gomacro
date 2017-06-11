@@ -1,4 +1,4 @@
-// +build go1.8
+// +build go1.8,linux,!android
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros
