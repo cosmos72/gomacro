@@ -439,7 +439,10 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		return func(env *Env, v r.Value) {
 			place := r.New(rtype).Elem()
-			place.Set(v.Convert(rtype))
+			if v.Type() != rtype {
+				v = v.Convert(rtype)
+			}
+			place.Set(v)
 			env.Binds[index] = place
 		}
 	case IntBind:

@@ -37,13 +37,14 @@ The fast interpreter supports:
   * Go standard packages "just work"
   * importing other packages requires the "plugin" package (available only on Linux with Go 1.8+)
 * ~quote
+* macro declarations, for example `macro foo(a, b, c interface{}) interface{} { return b }`
+* macro calls, for example `foo; x; y; z`
 
 Missing features - you are welcome to contribute:
 * goto
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
   (interfaces declared in compiled code can be used, but not yet implemented by interpreted code)
 * conversion from/to interpreted interfaces
-* macro definition
 * ~quasiquote, ~unquote, ~unquote_splice
 
 Current limitations:

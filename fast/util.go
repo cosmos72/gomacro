@@ -1181,6 +1181,10 @@ func exprList(list []*Expr, opts CompileOptions) *Expr {
 func funList(funs []func(*Env), last *Expr, opts CompileOptions) I {
 	var rt r.Type
 	if last.Type != nil {
+		// keep untyped constants only if requested
+		if opts != CompileKeepUntyped && last.Untyped() {
+			last.ConstTo(last.DefaultType())
+		}
 		rt = last.Type.ReflectType()
 	}
 	switch fun := last.WithFun().(type) {

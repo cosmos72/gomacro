@@ -123,6 +123,7 @@ func IsGensymPrivate(name string) bool {
 	return strings.HasPrefix(name, StrGensymPrivate)
 }
 
+// parse phase. no macroexpansion.
 func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
 

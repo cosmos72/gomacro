@@ -48,7 +48,9 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type)
 	ce.Comp.Stringer.Copy(&env.Stringer) // sync Fileset, Pos, Line
 	ce.Comp.Options = env.Options        // sync Options
 
-	// macroexpand phase
+	// macroexpand phase.
+	// must be performed manually, because we used classic.Env.Parse()
+	// instead of fast.Comp.Parse()
 	form, _ = ce.Comp.MacroExpandCodewalk(form)
 	if env.Options&base.OptShowMacroExpand != 0 {
 		env.Debugf("after macroexpansion: %v", form.Interface())

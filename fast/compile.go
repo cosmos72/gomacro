@@ -269,10 +269,17 @@ func (env *Env) File() *Env {
 	return env
 }
 
+// combined Parse + MacroExpandCodeWalk
 func (c *Comp) Parse(src string) Ast {
 	c.Line = 0
 	nodes := c.ParseBytes([]byte(src))
-	return AnyToAst(nodes, "ParseAst")
+	forms := AnyToAst(nodes, "Parse")
+
+	forms, _ = c.MacroExpandCodewalk(forms)
+	if c.Options&OptShowMacroExpand != 0 {
+		c.Debugf("after macroexpansion: %v", forms.Interface())
+	}
+	return forms
 }
 
 func (c *Comp) Compile(in Ast) *Expr {

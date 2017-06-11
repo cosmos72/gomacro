@@ -42,24 +42,34 @@ type funcMaker struct {
 	funcbody    func(*Env)
 }
 
-// DeclFunc compiles a function or method declaration
+// DeclFunc compiles a function, macro or method declaration
 // For closure declarations, use FuncLit()
 func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
+	var ismacro bool
 	if funcdecl.Recv != nil {
-		c.methodDecl(funcdecl)
-		return
+		switch n := len(funcdecl.Recv.List); n {
+		case 0:
+			ismacro = true
+		case 1:
+			c.methodDecl(funcdecl)
+			return
+		default:
+			c.Errorf("invalid function/method declaration: found %d receivers, expecting at most one: %v", n, funcdecl)
+			return
+		}
 	}
 	functype := funcdecl.Type
 	t, paramnames, resultnames := c.TypeFunction(functype)
 
-	// declare the function name and type before compiling its body: allows recursive functions/methods
+	// declare the function name and type before compiling its body: allows recursive functions/macros
 	funcname := funcdecl.Name.Name
-	funcbind := c.AddBind(funcname, FuncBind, t)
-	funcclass := funcbind.Desc.Class()
-	if funcclass != FuncBind {
-		c.Errorf("internal error! function bind should have class '%v', found class '%v' for: %s <%v>", FuncBind, funcclass, funcname, t)
+	var funcbind *Bind
+	if ismacro {
+		// use a ConstBind, as builtins do
+		funcbind = c.AddBind(funcname, ConstBind, c.TypeOfMacro())
+	} else {
+		funcbind = c.AddBind(funcname, FuncBind, t)
 	}
-
 	cf := NewComp(c, nil)
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
 	cf.Func = info
@@ -71,24 +81,39 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 	}
 
 	funcindex := funcbind.Desc.Index()
-	if funcindex == NoIndex {
-		// unnamed function. still compile it (to check for compile errors) but discard the compiled code
+	if funcname == "_" || (!ismacro && funcindex == NoIndex) {
+		// function/macro named "_". still compile it (to check for compile errors) but discard the compiled code
 		return
 	}
-
 	// do NOT keep a reference to compile environment!
 	funcbody := cf.Code.Exec()
 
-	f := cf.funcCreate(t, info, resultfuns, funcbody)
+	var stmt Stmt
+	if ismacro {
+		// a macro declaration is a statement:
+		// executing it stores the macro function into Comp.Binds[funcname].Value
+		f := cf.macroCreate(t, info, resultfuns, funcbody)
 
-	// a function declaration is a statement:
-	// executing it creates the function in the runtime environment
-	stmt := func(env *Env) (Stmt, *Env) {
-		fun := f(env)
-		// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
-		env.Binds[funcindex] = fun
-		env.IP++
-		return env.Code[env.IP], env
+		addr := &funcbind.Value
+		argnum := t.NumIn()
+		stmt = func(env *Env) (Stmt, *Env) {
+			fun := f(env)
+			*addr = Macro{fun, argnum}
+			env.IP++
+			return env.Code[env.IP], env
+		}
+	} else {
+		// a function declaration is a statement:
+		// executing it creates the function in the runtime environment
+		f := cf.funcCreate(t, info, resultfuns, funcbody)
+
+		stmt = func(env *Env) (Stmt, *Env) {
+			fun := f(env)
+			// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
+			env.Binds[funcindex] = fun
+			env.IP++
+			return env.Code[env.IP], env
+		}
 	}
 	c.Code.Append(stmt, funcdecl.Pos())
 }
@@ -278,9 +303,8 @@ func (c *Comp) funcResultBinds(functype *ast.FuncType, t xr.Type, names []string
 	return
 }
 
-// actually create the function
-func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) r.Value {
-	m := &funcMaker{
+func (c *Comp) funcMaker(info *FuncInfo, resultfuns []I, funcbody func(*Env)) *funcMaker {
+	return &funcMaker{
 		nbinds:      c.BindNum,
 		nintbinds:   c.IntBindNum,
 		parambinds:  info.Params,
@@ -288,6 +312,11 @@ func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody fu
 		resultfuns:  resultfuns,
 		funcbody:    funcbody,
 	}
+}
+
+// actually create the function
+func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) r.Value {
+	m := c.funcMaker(info, resultfuns, funcbody)
 
 	rtype := t.ReflectType() // has receiver as first parameter
 	nin := rtype.NumIn()
@@ -366,6 +395,53 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			env.FreeEnv()
 			return rets
 		})
+	}
+}
+
+// create a macro
+func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) func(args []r.Value) []r.Value {
+	m := c.funcMaker(info, resultfuns, funcbody)
+
+	paramdecls := make([]func(*Env, r.Value), len(m.parambinds))
+	for i, bind := range m.parambinds {
+		if bind.Desc.Index() != NoIndex {
+			paramdecls[i] = c.DeclBindRuntimeValue(bind)
+		}
+	}
+	resultexprs := make([]func(*Env) r.Value, len(m.resultfuns))
+	for i, resultfun := range m.resultfuns {
+		resultexprs[i] = funAsX1(resultfun, m.resultbinds[i].Type)
+	}
+
+	// do NOT keep a reference to funcMaker
+	nbinds := m.nbinds
+	nintbinds := m.nintbinds
+
+	return func(env *Env) func(args []r.Value) []r.Value {
+		// macro is closed over the env used to DECLARE it
+		env.MarkUsedByClosure()
+		return func(args []r.Value) []r.Value {
+			env := NewEnv(env, nbinds, nintbinds)
+
+			if funcbody != nil {
+				// copy runtime arguments into allocated binds
+				for i, decl := range paramdecls {
+					if decl != nil {
+						// decl == nil means the argument is ignored inside the function
+						decl(env, args[i])
+					}
+				}
+				// execute the body
+				funcbody(env)
+			}
+			// read results from allocated binds and return them
+			rets := make([]r.Value, len(resultexprs))
+			for i, expr := range resultexprs {
+				rets[i] = expr(env)
+			}
+			env.FreeEnv()
+			return rets
+		}
 	}
 }
 

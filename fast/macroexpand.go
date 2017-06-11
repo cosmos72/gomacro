@@ -193,7 +193,7 @@ func (c *Comp) extractMacroCall(form Ast) Macro {
 	switch form := form.(type) {
 	case Ident:
 		sym := c.TryResolve(form.X.Name)
-		if sym != nil && sym.Type.Kind() == r.Struct {
+		if sym != nil && sym.Bind.Desc.Class() == ConstBind && sym.Type.Kind() == r.Struct {
 			switch value := sym.Value.(type) {
 			case Macro:
 				if c.Options&OptDebugMacroExpand != 0 {
@@ -214,8 +214,7 @@ func (c *Comp) macroExpandOnce(in Ast) (out Ast, expanded bool) {
 	in = UnwrapTrivialAstKeepBlocks(in)
 	ins, ok := in.(AstWithSlice)
 	if !ok {
-		// quasiquote is considered a macro
-		return c.Quasiquote(in)
+		return in, false
 	}
 	debug := c.Options&OptDebugMacroExpand != 0
 	if debug {
@@ -232,9 +231,6 @@ func (c *Comp) macroExpandOnce(in Ast) (out Ast, expanded bool) {
 		elt := ins.Get(i)
 		macro := c.extractMacroCall(elt)
 		if macro.closure == nil {
-			// quasiquote is considered a macro
-			elt, qqexpanded := c.Quasiquote(elt)
-			expanded = expanded || qqexpanded
 			outs = outs.Append(elt)
 			continue
 		}

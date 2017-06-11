@@ -138,11 +138,11 @@ into closures returning the result of evaluation. This is a problem similar to w
 when compiling quasiquotations, with the difference that Go is not homoiconic.
 
 In practice, the lack of homoiconicity means that standard textbook quasiquotation algorithms for Common Lisp
-are not directly applicable to Go. Some examples will clarify the last statement:
+are not directly applicable to Go. Some examples will clarify this last statement:
 
 In Common Lisp the textbook quasiquotation algorithms, as for example http://www.lispworks.com/documentation/HyperSpec/Body/02_df.htm
-recursively visit the input AST, producing an output AST that does **not** contain `` ` `` `,` or `,@` at the price of
-typically producing "ugly" output, i.e. significantly different from the input. Examples:
+recursively visit the input AST, producing an output AST that does **not** contain `` ` `` `,` or `,@`
+at the price of typically producing output significantly different from the input. Examples:
 
 * `` `(+ x ,y)`` is typically expanded to the equivalent source code: `(list '+ 'x y)` - to verify it, try ``(macroexpand '`(+ x ,y))`` in a Common Lisp REPL
 * `` `(x ,y)`` is typically expanded to the equivalent `(list 'x y)`
@@ -203,15 +203,15 @@ Is it easier to implement and/or more robust? Let's see.
 * `~"{x + ~,y}` would be transformed into a closure, by executing something like (`node` is an `ast.Node`
   containing `~"{x + ~,y}`):
   ```
-  var x = node.X       // an &ast.BasicLit
-  var y = compile("y").(func (env *Env) func() reflect.Value) // compile to a closure that returns ast.Node wrapped in reflect.Value
+  var x = quasiquote(node.X).(func(*Env) reflect.Value) // compile to a closure that returns a copy of the &ast.BasicLit wrapped in reflect.Value 
+  var y = compile("y").(func (*Env) reflect.Value) // compile to a closure that returns an ast.Node wrapped in reflect.Value
   var in = ToAst(node) // wrap into ast2.Ast
   var form = in.New()  // empty ast2.Ast with same type, operator and source position as 'in'
 
   var closure = func(env *Env) ast.Node {
 	  var out = form.New() // create a new, empty ast2.Ast at each invokation
-	  var xform = ToAst(x)
-	  var yform = ToAst(y(env)().Interface())
+	  var xform = ToAst(x(env).Interface())
+	  var yform = ToAst(y(env).Interface())
 
 	  out.Set(0, xform)
 	  out.Set(1, yform)
@@ -221,15 +221,15 @@ Is it easier to implement and/or more robust? Let's see.
 * `~"{x; ~,y}` would be transformed into a closure, by executing something like (`node` is an `ast.Node`
   containing `~"{x; ~,y}`):
   ```
-  var x = node.X       // an &ast.BasicLit
-  var y = compile("y").(func (env *Env) func() reflect.Value) // compile to a closure that returns ast.Node wrapped in reflect.Value
+  var x = quasiquote(node.X).(func(*Env) reflect.Value) // compile to a closure that returns a copy of the &ast.BasicLit wrapped in reflect.Value 
+  var y = compile("y").(func (env *Env) reflect.Value) // compile to a closure that returns ast.Node wrapped in reflect.Value
   var in = ToAst(node) // wrap into ast2.Ast
   var form = in.New()  // empty ast2.Ast with same type, operator and source position as 'in'
 
   var closure = func(env *Env) ast.Node {
 	  var out = form.New() // create a new, empty ast2.Ast at each invokation
-	  var xform = ToAst(x)
-	  var yform = ToAst(y(env)().Interface())
+	  var xform = ToAst(x(env).Interface())
+	  var yform = ToAst(y(env).Interface())
 
 	  out.Append(xform)
 	  out.Append(yform)
@@ -239,15 +239,15 @@ Is it easier to implement and/or more robust? Let's see.
 * `~"{x; ~,@y}` would be transformed into a closure, by executing something like (`node` is an `ast.Node`
   containing `~"{x; ~,@y}`):
   ```
-  var x = node.X       // an &ast.BasicLit
-  var y = compile("y").(func (env *Env) func() reflect.Value) // compile to a closure that returns ast.Node wrapped in reflect.Value
+  var x = quasiquote(node.X).(func(*Env) reflect.Value) // compile to a closure that returns a copy of the &ast.BasicLit wrapped in reflect.Value 
+  var y = compile("y").(func (env *Env) reflect.Value) // compile to a closure that returns ast.Node wrapped in reflect.Value
   var in = ToAst(node) // wrap into ast2.Ast
   var form = in.New()  // empty ast2.Ast with same type, operator and source position as 'in'
 
   var closure = func(env *Env) ast.Node {
 	  var out = form.New() // create a new, empty ast2.Ast at each invokation
-	  var xform = ToAst(x)
-	  var yform = ToAst(y(env)().Interface())
+	  var xform = ToAst(x(env).Interface())
+	  var yform = ToAst(y(env).Interface())
 
 	  out.Append(xform)
 	  for i := 0; i < y.Len(); i++ {
@@ -260,7 +260,7 @@ Is it easier to implement and/or more robust? Let's see.
 While the above looks somewhat complicated, it changes very little from one case to the other,
 and it is actually the **implementation** of quasiquote, not its output!
 
-Such implementation depends on `ast2.Ast` and related functions, but it would be a part of the interpreter
+Such implementation depends on `ast2.Ast` and related functions, but it will be part of the interpreter
 itself - which already has such dependency - while macroexpanded source code would remain free of such dependencies.
 
 It seems this second approach only has advantages... the only evident disadvantage is the lack
