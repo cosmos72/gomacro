@@ -52,12 +52,12 @@ func getGoSrcPath() string {
 	return getGoPath() + "/src"
 }
 
-func (ir *Globals) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
+func (g *Globals) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := getGoSrcPath()
 	gosrclen := len(gosrcdir)
 	filelen := len(filename)
 	if filelen < gosrclen || filename[0:gosrclen] != gosrcdir {
-		ir.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filename, gosrcdir)
+		g.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filename, gosrcdir)
 	}
 
 	cmd := exec.Command("go", "build", "-buildmode=plugin")
@@ -66,10 +66,10 @@ func (ir *Globals) compilePlugin(filename string, stdout io.Writer, stderr io.Wr
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	ir.Debugf("compiling %q ...", filename)
+	g.Debugf("compiling %q ...", filename)
 	err := cmd.Run()
 	if err != nil {
-		ir.Errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
+		g.Errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
 	}
 
 	dirname := filename[:strings.LastIndexByte(filename, '/')]

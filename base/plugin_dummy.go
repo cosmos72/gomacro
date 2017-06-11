@@ -40,12 +40,12 @@ func getGoSrcPath() string {
 	return getGoPath() + "/src"
 }
 
-func (ir *InterpreterCommon) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
-	errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
+func (g *Globals) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
+	g.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
 	return ""
 }
 
 func loadPlugin(soname string, symbolName string) interface{} {
-	errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
+	g.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
 	return nil
 }
