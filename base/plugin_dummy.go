@@ -45,7 +45,7 @@ func (g *Globals) compilePlugin(filename string, stdout io.Writer, stderr io.Wri
 	return ""
 }
 
-func loadPlugin(soname string, symbolName string) interface{} {
+func (g *Globals) loadPlugin(soname string, symbolName string) interface{} {
 	g.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
 	return nil
 }

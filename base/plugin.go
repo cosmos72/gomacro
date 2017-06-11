@@ -80,14 +80,14 @@ func (g *Globals) compilePlugin(filename string, stdout io.Writer, stderr io.Wri
 	return fmt.Sprintf("%s/%s.so", dirname, filename)
 }
 
-func (ir *Globals) loadPlugin(soname string, symbolName string) interface{} {
+func (g *Globals) loadPlugin(soname string, symbolName string) interface{} {
 	pkg, err := plugin.Open(soname)
 	if err != nil {
-		ir.Errorf("error loading plugin %q: %v", soname, err)
+		g.Errorf("error loading plugin %q: %v", soname, err)
 	}
 	val, err := pkg.Lookup(symbolName)
 	if err != nil {
-		ir.Errorf("error loading symbol %q from plugin %q: %v", symbolName, soname, err)
+		g.Errorf("error loading symbol %q from plugin %q: %v", symbolName, soname, err)
 	}
 	return val
 }
