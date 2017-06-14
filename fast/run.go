@@ -28,9 +28,11 @@ package fast
 import (
 	"go/ast"
 	r "reflect"
+	"strings"
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/imports"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -74,6 +76,64 @@ func (ce *CompEnv) CompileAst(form ast2.Ast) *Expr {
 func (ce *CompEnv) Eval(src string) (r.Value, []r.Value) {
 	c := ce.Comp
 	return ce.RunExpr(c.Compile(c.Parse(src)))
+}
+
+func (ce *CompEnv) AsPackage() imports.Package {
+	var values map[string]r.Value
+	var untypeds map[string]string
+	var types map[string]r.Type
+
+	c := ce.Comp
+	env := ce.PrepareEnv()
+	if len(c.Binds) != 0 {
+		values = make(map[string]r.Value)
+		for name, bind := range c.Binds {
+			switch bind.Desc.Class() {
+			case ConstBind:
+				values[name] = bind.ConstValue()
+				if bind.Untyped() {
+					untyp := bind.Value.(UntypedLit)
+					if untypeds == nil {
+						untypeds = make(map[string]string)
+					}
+					kind := xr.ToBasicKind(untyp.Kind, true)
+					untypeds[name] = MarshalUntyped(kind, untyp.Obj)
+				}
+			case IntBind:
+				values[name] = ce.ValueOf(name)
+			default:
+				values[name] = env.Binds[bind.Desc.Index()]
+			}
+		}
+	}
+	if len(c.Types) != 0 {
+		types = make(map[string]r.Type)
+		for name, typ := range c.Types {
+			types[name] = typ.ReflectType()
+		}
+	}
+	return imports.Package{
+		Binds:    values,
+		Types:    types,
+		Untypeds: untypeds,
+	}
+}
+
+func (ce *CompEnv) ChangePackage(name, path string) {
+	if len(path) == 0 {
+		path = name
+	} else {
+		name = path[1+strings.LastIndexByte(path, '/'):]
+	}
+	c := ce.Comp
+	currpath := c.Path
+	if path == currpath {
+		return
+	}
+	ce.AsPackage().SaveToPackages(currpath)
+	c.Path = path
+	c.PackagePath = path
+	c.Filename = name
 }
 
 // DeclConst compiles a constant declaration
@@ -156,6 +216,8 @@ func (ce *CompEnv) ValueOf(name string) (value r.Value) {
 		return Nil
 	}
 	switch sym.Desc.Class() {
+	case ConstBind:
+		return sym.Bind.ConstValue()
 	case IntBind:
 		value = ce.AddressOfVar(name)
 		if value != Nil {

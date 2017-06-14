@@ -40,12 +40,12 @@ import (
 )
 
 type Cmd struct {
-	*Env
+	*Interp
 	WriteDeclsAndStmtsToFile, OverwriteFiles bool
 }
 
 func (cmd *Cmd) Init() {
-	cmd.Env = New()
+	cmd.Interp = New()
 	cmd.ParserMode = 0
 	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 	cmd.WriteDeclsAndStmtsToFile = false
@@ -53,9 +53,10 @@ func (cmd *Cmd) Init() {
 }
 
 func (cmd *Cmd) Main(args []string) (err error) {
-	if cmd.Env == nil {
+	if cmd.Interp == nil {
 		cmd.Init()
 	}
+	ir := cmd.Interp
 	env := cmd.Env
 
 	var set, clear Options
@@ -88,7 +89,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			repl = false
 			env.Options |= OptShowPrompt | OptShowEval | OptShowEvalType // set by default, overridden by -s, -v and -vv
 			env.Options = (env.Options | set) &^ clear
-			env.ReplStdin()
+			ir.ReplStdin()
 
 		case "-m", "--macro-only":
 			set |= OptMacroExpandOnly
@@ -134,7 +135,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 	if repl {
 		env.Options |= OptShowPrompt | OptShowEval | OptShowEvalType // set by default, overridden by -s, -v and -vv
 		env.Options = (env.Options | set) &^ clear
-		env.ReplStdin()
+		ir.ReplStdin()
 	}
 	return nil
 }
@@ -277,7 +278,8 @@ func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 		}
 	}()
 	in := bufio.NewReader(src)
-	env := cmd.Env
+	ir := cmd.Interp
+	env := ir.Env
 	env.Options &^= OptShowPrompt // parsing a file: suppress prompt
 	env.Line = 0
 
@@ -290,8 +292,8 @@ func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 			env.IncLine(comments)
 		}
 	}
-	if env.ParseEvalPrint(str, in) {
-		for cmd.Env.ReadParseEvalPrint(in) {
+	if ir.ParseEvalPrint(str, in) {
+		for ir.ReadParseEvalPrint(in) {
 		}
 	}
 	return comments, nil

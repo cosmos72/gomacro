@@ -163,6 +163,77 @@ func ToReflectKind(gkind types.BasicKind) reflect.Kind {
 	return kind
 }
 
+func ToBasicKind(kind reflect.Kind, untyped bool) types.BasicKind {
+	var gkind types.BasicKind
+	switch kind {
+	case reflect.Bool:
+		if untyped {
+			gkind = types.UntypedBool
+		} else {
+			gkind = types.Bool
+		}
+	case reflect.Int:
+		if untyped {
+			gkind = types.Int
+		} else {
+			gkind = types.UntypedInt
+		}
+	case reflect.Int8:
+		gkind = types.Int8
+	case reflect.Int16:
+		gkind = types.Int16
+	case reflect.Int32:
+		if untyped {
+			gkind = types.UntypedRune
+		} else {
+			gkind = types.Int32
+		}
+	case reflect.Int64:
+		gkind = types.Int64
+	case reflect.Uint:
+		gkind = types.Uint
+	case reflect.Uint8:
+		gkind = types.Uint8
+	case reflect.Uint16:
+		gkind = types.Uint16
+	case reflect.Uint32:
+		gkind = types.Uint32
+	case reflect.Uint64:
+		gkind = types.Uint64
+	case reflect.Uintptr:
+		gkind = types.Uintptr
+	case reflect.Float32:
+		gkind = types.Float32
+	case reflect.Float64:
+		if untyped {
+			gkind = types.UntypedFloat
+		} else {
+			gkind = types.Float64
+		}
+	case reflect.Complex64:
+		gkind = types.Complex64
+	case reflect.Complex128:
+		if untyped {
+			gkind = types.UntypedComplex
+		} else {
+			gkind = types.Complex128
+		}
+	case reflect.String:
+		if untyped {
+			gkind = types.UntypedString
+		} else {
+			gkind = types.String
+		}
+	case reflect.UnsafePointer:
+		gkind = types.UnsafePointer
+	case reflect.Invalid:
+		gkind = types.UntypedNil
+	default:
+		errorf(nil, "unsupported refletc.Kind: %v", kind)
+	}
+	return gkind
+}
+
 func path(gpkg *types.Package) string {
 	if gpkg == nil {
 		return ""

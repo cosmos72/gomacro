@@ -51,9 +51,14 @@ type Env struct {
 	Name, Path string
 }
 
-func New() *Env {
+type Interp struct {
+	*Env
+}
+
+func New() *Interp {
 	top := NewEnv(nil, "builtin")
-	return NewEnv(top, "main")
+	env := NewEnv(top, "main")
+	return &Interp{env}
 }
 
 func NewEnv(outer *Env, path string) *Env {
@@ -159,9 +164,9 @@ func (env *Env) ValueOf(name string) (value r.Value) {
 	return
 }
 
-func (env *Env) ReplStdin() {
-	if env.Options&OptShowPrompt != 0 {
-		fmt.Fprint(env.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
+func (ir *Interp) ReplStdin() {
+	if ir.Options&OptShowPrompt != 0 {
+		fmt.Fprint(ir.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
 // Copyright (C) 2017 Massimiliano Ghilardi
 // License LGPL v3+: GNU Lesser GPL version 3 or later <https://gnu.org/licenses/lgpl>
 // This is free software with ABSOLUTELY NO WARRANTY.
@@ -171,31 +176,31 @@ func (env *Env) ReplStdin() {
 	}
 	in := bufio.NewReader(os.Stdin)
 
-	env.Line = 0
-	for env.ReadParseEvalPrint(in) {
-		env.Line = 0
+	ir.Line = 0
+	for ir.ReadParseEvalPrint(in) {
+		ir.Line = 0
 	}
 }
 
-func (env *Env) Repl(in *bufio.Reader) {
-	for env.ReadParseEvalPrint(in) {
+func (ir *Interp) Repl(in *bufio.Reader) {
+	for ir.ReadParseEvalPrint(in) {
 	}
 }
 
-func (env *Env) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
+func (ir *Interp) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 	var opts ReadOptions
-	if env.Options&OptShowPrompt != 0 {
+	if ir.Options&OptShowPrompt != 0 {
 		opts |= ReadOptShowPrompt
 	}
-	str, firstToken := env.ReadMultiline(in, opts)
+	str, firstToken := ir.ReadMultiline(in, opts)
 	if firstToken < 0 {
 		// skip comments and continue, but fail on EOF or other errors
-		env.IncLine(str)
+		ir.IncLine(str)
 		return len(str) > 0
 	} else if firstToken > 0 {
-		env.IncLine(str[0:firstToken])
+		ir.IncLine(str[0:firstToken])
 	}
-	return env.ParseEvalPrint(str[firstToken:], in)
+	return ir.ParseEvalPrint(str[firstToken:], in)
 }
 
 func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, firstToken int) {
@@ -206,41 +211,42 @@ func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, f
 	return str, firstToken
 }
 
-func (env *Env) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
+func (ir *Interp) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
 	var t1 time.Time
-	trap := env.Options&OptTrapPanic != 0
-	duration := env.Options&OptShowTime != 0
+	trap := ir.Options&OptTrapPanic != 0
+	duration := ir.Options&OptShowTime != 0
 	if duration {
 		t1 = time.Now()
 	}
 	defer func() {
-		env.IncLine(str)
+		ir.IncLine(str)
 		if trap {
 			rec := recover()
-			if env.Options&OptPanicStackTrace != 0 {
-				fmt.Fprintf(env.Stderr, "%v\n%s", rec, debug.Stack())
+			if ir.Options&OptPanicStackTrace != 0 {
+				fmt.Fprintf(ir.Stderr, "%v\n%s", rec, debug.Stack())
 			} else {
-				fmt.Fprintf(env.Stderr, "%v\n", rec)
+				fmt.Fprintf(ir.Stderr, "%v\n", rec)
 			}
 			callAgain = true
 		}
 		if duration {
 			delta := time.Now().Sub(t1)
-			env.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
+			ir.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
 		}
 	}()
-	callAgain = env.parseEvalPrint(str, in)
+	callAgain = ir.parseEvalPrint(str, in)
 	trap = false // no panic happened
 	return callAgain
 }
 
-func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
+func (ir *Interp) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 
 	src = strings.TrimSpace(src)
 	n := len(src)
 	if n == 0 {
 		return true // no input. don't print anything
 	}
+	env := ir.Env
 	fast := env.Options&OptFastInterpreter != 0 // use the fast interpreter?
 
 	if n > 0 && src[0] == ':' {
@@ -318,19 +324,21 @@ func (env *Env) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
 			src = " " + src[1:] // slower than src = src[1:], but gives accurate column positions in error messages
 		}
 	}
-	if src == "package" || src == " package" || strings.HasPrefix(src, "package ") || strings.HasPrefix(src, " package ") {
-		arg := ""
-		src = strings.TrimSpace(src)
-		space := strings.IndexByte(src, ' ')
-		if space >= 0 {
-			arg = strings.TrimSpace(src[1+space:])
+	if !fast {
+		if src == "package" || src == " package" || strings.HasPrefix(src, "package ") || strings.HasPrefix(src, " package ") {
+			arg := ""
+			src = strings.TrimSpace(src)
+			space := strings.IndexByte(src, ' ')
+			if space >= 0 {
+				arg = strings.TrimSpace(src[1+space:])
+			}
+			if len(arg) == 0 {
+				fmt.Fprintf(env.Stdout, "// current package: %v\n", env.PackagePath)
+			} else {
+				ir.Env = env.ChangePackage(arg)
+			}
+			return true
 		}
-		if len(arg) == 0 {
-			fmt.Fprintf(env.Stdout, "// current package: %v\n", env.PackagePath)
-		} else {
-			env = env.ChangePackage(arg)
-		}
-		return true
 	}
 
 	// parse phase. no macroexpansion/collect yet

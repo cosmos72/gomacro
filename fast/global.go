@@ -124,6 +124,25 @@ func (lit *Lit) UntypedKind() r.Kind {
 	}
 }
 
+func (lit *Lit) ReflectValue() r.Value {
+	if lit.Untyped() {
+		// do not modify original Lit type
+		tmp := *lit
+		lit = &tmp
+		lit.ConstTo(lit.DefaultType())
+	}
+	v := r.ValueOf(lit.Value)
+	if lit.Type != nil {
+		rtype := lit.Type.ReflectType()
+		if !v.IsValid() {
+			v = r.Zero(rtype)
+		} else if v.Type() != rtype {
+			v = v.Convert(rtype)
+		}
+	}
+	return v
+}
+
 func (lit Lit) String() string {
 	switch val := lit.Value.(type) {
 	case string, nil:
@@ -296,6 +315,13 @@ func (bind *Bind) String() string {
 
 func (bind *Bind) Const() bool {
 	return bind.Desc.Class() == ConstBind
+}
+
+func (bind *Bind) ConstValue() r.Value {
+	if !bind.Const() {
+		return Nil
+	}
+	return bind.Lit.ReflectValue()
 }
 
 func (c *Comp) BindUntyped(value UntypedLit) *Bind {

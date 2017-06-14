@@ -56,6 +56,13 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 		for _, decl := range node.Specs {
 			c.Import(decl)
 		}
+	/*
+		case token.PACKAGE:
+			// modified parser converts 'package foo' to ast.GenDecl{Tok: token.Package}
+			for _, decl := range node.Specs {
+				c.changePackage(decl)
+			}
+	*/
 	case token.CONST:
 		var defaultType ast.Expr
 		var defaultExprs []ast.Expr
@@ -79,7 +86,7 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 			c.DeclVars(decl)
 		}
 	default:
-		c.Errorf("Compile: unsupported declaration kind, expecting token.IMPORT, token.CONST, token.TYPE or token.VAR, found %v: %v %<v>",
+		c.Errorf("Compile: unsupported declaration kind, expecting token.IMPORT, token.CONST, token.TYPE or token.VAR, found %v: %v <%v>",
 			node.Tok, node, r.TypeOf(node))
 	}
 }

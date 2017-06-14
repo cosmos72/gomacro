@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"strconv"
 
 	mt "github.com/cosmos72/gomacro/token"
 )
@@ -94,7 +95,8 @@ func (p *parser) parseAny() ast.Node {
 	var node ast.Node
 	switch p.tok {
 	case token.PACKAGE:
-		node = p.parseFile()
+		// not p.parseFile() because it does not support top-level statements and expressions
+		node = p.parsePackage()
 	case token.IMPORT:
 		node = p.parseGenDecl(token.IMPORT, p.parseImportSpec)
 	case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.MACRO, mt.FUNCTION:
@@ -117,4 +119,42 @@ func (p *parser) parseAny() ast.Node {
 		}
 	}
 	return node
+}
+
+func (p *parser) parsePackage() ast.Node {
+	if p.trace {
+		defer un(trace(p, "Package"))
+	}
+	doc := p.leadComment
+	pos := p.expect(token.PACKAGE)
+
+	var ident *ast.Ident
+	var path *ast.BasicLit
+
+	switch p.tok {
+	case token.ILLEGAL, token.EOF, token.SEMICOLON, token.RPAREN, token.RBRACE, token.RBRACK:
+	default:
+		ident = p.parseIdent()
+		if ident.Name == "_" && p.mode&DeclarationErrors != 0 {
+			p.error(p.pos, "invalid package name: _")
+		}
+		path = &ast.BasicLit{
+			ValuePos: ident.Pos(),
+			Kind:     token.STRING,
+			Value:    strconv.Quote(ident.Name),
+		}
+	}
+	p.expectSemi()
+
+	return &ast.GenDecl{
+		TokPos: pos,
+		Tok:    token.PACKAGE,
+		Specs: []ast.Spec{
+			&ast.ImportSpec{
+				Doc:  doc,
+				Name: ident,
+				Path: path,
+			},
+		},
+	}
 }

@@ -68,7 +68,7 @@ func TestFast(t *testing.T) {
 }
 
 func TestClassic(t *testing.T) {
-	env := classic.New()
+	env := classic.New().Env
 	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for _, tc := range testcases {
 		if tc.testfor&I != 0 {
