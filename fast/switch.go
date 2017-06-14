@@ -173,6 +173,9 @@ func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, can
 	sometrue := false
 	for _, enode := range node.List {
 		e := c.Expr1(enode)
+		if e.Const() {
+			e.ConstTo(tag.Type)
+		}
 		cmpnode.OpPos = enode.Pos()
 		cmpnode.Y = enode
 		cmp := c.BinaryExpr1(cmpnode, tag, e)

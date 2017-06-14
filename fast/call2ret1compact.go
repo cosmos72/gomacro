@@ -1,3 +1,5 @@
+// +build gomacro_fast_compact
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -14,42 +16,17 @@
  *     GNU Lesser General Public License for more details.
  *
  *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * func0ret0.go
+ * call1ret1compact.go
  *
- *  Created on Apr 16, 2017
+ *  Created on Jun 14, 2017
  *      Author Massimiliano Ghilardi
  */
 
 package fast
 
-import (
-	r "reflect"
-
-	xr "github.com/cosmos72/gomacro/xreflect"
-)
-
-func (c *Comp) func0ret0(t xr.Type, m *funcMaker) func(env *Env) r.Value {
-	funcbody := m.funcbody
-	if funcbody == nil {
-		return func(env *Env) r.Value {
-			return valueOfNopFunc
-		}
-	}
-
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
-	return func(env *Env) r.Value {
-		// function is closed over the env used to DECLARE it
-		env.MarkUsedByClosure()
-		return r.ValueOf(func() {
-			env := NewEnv4Func(env, nbinds, nintbinds)
-			// execute the body
-			funcbody(env)
-
-			env.FreeEnv()
-		})
-	}
+func (c *Comp) call2ret1(call *Call, maxdepth int) I {
+	return c.callnret1(call, maxdepth)
 }

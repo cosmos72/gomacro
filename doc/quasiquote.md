@@ -51,7 +51,7 @@ In Go, the only expression that can contain arbitrary statements and declaration
 `gomacro` contains two interpreters: "classic" and "fast".
 
 The classic interpreter is compact (about 5k LOC) and directly executes the AST, producing `reflect.Value` objects as output.
-It is also quite slow (1000-2000 times slower than compiled Go), due to the overhead of continuously dispatching on the type
+It is also quite slow (1000-3000 times slower than compiled Go), due to the overhead of continuously dispatching on the type
 and contents of `ast.Node` and working with `reflect.Value` instead of native Go types.
 
 One significant advantage of directly executing the AST is the simplicity of quasiquote implementation:
@@ -125,7 +125,7 @@ The result is a much larger interpreter:
   quasiquote and macros as a code generation tool
 
 It is also significantly faster than the "classic" interpreter:
-on most microbenchmarks, "fast" interpreter is 10-100 times slower than compiled code, instead of 1000-2000 times slower.
+on most microbenchmarks, "fast" interpreter is 10-100 times slower than compiled code, instead of 1000-3000 times slower.
 
 Interestingly, the "fast" interpreter appears to be faster than [python](https://www.python.org/) at least
 on the fibonacci and collatz microbenchmarks - see [examples](../examples/)

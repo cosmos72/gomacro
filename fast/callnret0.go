@@ -3,6 +3,8 @@
 // Any change will be lost when the file is re-generated
 // -------------------------------------------------------------
 
+// +build !gomacro_fast_compact
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -32,6 +34,7 @@ package fast
 
 import (
 	r "reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 )
 

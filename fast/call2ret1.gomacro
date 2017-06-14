@@ -1,3 +1,5 @@
+// +build !gomacro_fast_compact
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *

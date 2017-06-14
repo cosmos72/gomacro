@@ -204,7 +204,9 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 		}
 	}
 	if rfrom != nil && rto != nil && (rfrom.AssignableTo(rto) || rfrom.Implements(rto)) {
-		return value
+		lit.Type = t
+		lit.Value = r.ValueOf(value).Convert(rto).Interface()
+		return lit.Value
 	}
 	Errorf("cannot convert typed constant %v <%v> to <%v>", value, r.TypeOf(value), t)
 	return nil
