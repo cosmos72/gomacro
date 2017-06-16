@@ -43,7 +43,7 @@ func NewThreadGlobals() *ThreadGlobals {
 	}
 }
 
-func New() *CompEnv {
+func New() *Interp {
 	top := NewCompEnvTop("builtin")
 	top.env.UsedByClosure = true // do not free this *Env
 	file := NewCompEnv(top, "main")
@@ -51,7 +51,7 @@ func New() *CompEnv {
 	return file
 }
 
-func NewCompEnvTop(path string) *CompEnv {
+func NewCompEnvTop(path string) *Interp {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
 	globals := NewGlobals()
@@ -64,7 +64,7 @@ func NewCompEnvTop(path string) *CompEnv {
 		Globals:      globals,
 	}
 	envGlobals := &ThreadGlobals{Globals: globals}
-	ce := &CompEnv{
+	ce := &Interp{
 		Comp: &Comp{
 			UpCost:            1,
 			Depth:             0,
@@ -93,12 +93,12 @@ func NewCompEnvTop(path string) *CompEnv {
 	return ce
 }
 
-func NewCompEnv(outer *CompEnv, path string) *CompEnv {
+func NewCompEnv(outer *Interp, path string) *Interp {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
 	compGlobals := outer.Comp.CompThreadGlobals
 	envGlobals := outer.env.ThreadGlobals
-	c := &CompEnv{
+	c := &Interp{
 		Comp: &Comp{
 			UpCost:            1,
 			Depth:             outer.Comp.Depth + 1,

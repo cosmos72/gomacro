@@ -17,13 +17,13 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * compile_maps.go
+ * closure_maps.go
  *
  *  Created on Apr 01, 2017
  *      Author Massimiliano Ghilardi
  */
 
-package compile_maps
+package closure_maps
 
 import (
 	"errors"

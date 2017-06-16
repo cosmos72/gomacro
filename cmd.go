@@ -17,13 +17,13 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * main.go
+ * cmd.go
  *
  *  Created on: Feb 13, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package classic
+package main
 
 import (
 	"bufio"
@@ -36,16 +36,16 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
-	// mp "github.com/cosmos72/gomacro/parser"
+	"github.com/cosmos72/gomacro/classic"
 )
 
 type Cmd struct {
-	*Interp
+	*classic.Interp
 	WriteDeclsAndStmtsToFile, OverwriteFiles bool
 }
 
 func (cmd *Cmd) Init() {
-	cmd.Interp = New()
+	cmd.Interp = classic.New()
 	cmd.ParserMode = 0
 	cmd.Options = OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 	cmd.WriteDeclsAndStmtsToFile = false

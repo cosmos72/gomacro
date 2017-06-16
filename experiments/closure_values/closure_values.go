@@ -17,13 +17,13 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * compile_reflect_values.go
+ * closure_values.go
  *
  *  Created on Apr 01, 2017
  *      Author Massimiliano Ghilardi
  */
 
-package compile_reflect_values
+package closure_values
 
 import (
 	r "reflect"

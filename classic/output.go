@@ -40,7 +40,7 @@ var (
 	NilEnv = []r.Value{r.ValueOf(nilEnv)}
 )
 
-func (ir *ThreadGlobals) showHelp(out io.Writer) {
+func (ir *ThreadGlobals) ShowHelp(out io.Writer) {
 	fmt.Fprint(out, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
 
 // interpreter commands:
@@ -74,7 +74,7 @@ func (env *Env) showStack() {
 	}
 }
 
-func (env *Env) showPackage(packageName string) {
+func (env *Env) ShowPackage(packageName string) {
 	out := env.Stdout
 	e := env
 	path := env.Path

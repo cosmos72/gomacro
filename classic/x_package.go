@@ -14,7 +14,6 @@ func init() {
 	imports.Packages["github.com/cosmos72/gomacro/classic"] = imports.Package{
 		Binds: map[string]r.Value{
 			"MultiThread":      r.ValueOf(MultiThread),
-			"New":              r.ValueOf(New),
 			"NewEnv":           r.ValueOf(NewEnv),
 			"NewThreadGlobals": r.ValueOf(NewThreadGlobals),
 			"NilEnv":           r.ValueOf(&NilEnv).Elem(),
@@ -23,7 +22,6 @@ func init() {
 			"BindMap":       r.TypeOf((*BindMap)(nil)).Elem(),
 			"CallFrame":     r.TypeOf((*CallFrame)(nil)).Elem(),
 			"CallStack":     r.TypeOf((*CallStack)(nil)).Elem(),
-			"Cmd":           r.TypeOf((*Cmd)(nil)).Elem(),
 			"Constructor":   r.TypeOf((*Constructor)(nil)).Elem(),
 			"Env":           r.TypeOf((*Env)(nil)).Elem(),
 			"Error_builtin": r.TypeOf((*Error_builtin)(nil)).Elem(),

@@ -78,14 +78,14 @@ func TestClassic(t *testing.T) {
 	}
 }
 
-func (tc *TestCase) fast(t *testing.T, ce *fast.CompEnv) {
+func (tc *TestCase) fast(t *testing.T, ir *fast.Interp) {
 
 	if tc.testfor&S != 0 {
-		ce.Comp.Options |= OptDebugSleepOnSwitch
+		ir.Comp.Options |= OptDebugSleepOnSwitch
 	} else {
-		ce.Comp.Options &^= OptDebugSleepOnSwitch
+		ir.Comp.Options &^= OptDebugSleepOnSwitch
 	}
-	rets := PackValues(ce.Eval(tc.program))
+	rets := PackValues(ir.Eval(tc.program))
 
 	tc.compareResults(t, rets)
 }
@@ -663,7 +663,7 @@ var testcases = []TestCase{
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "one"}},
 	}}, nil},
-	TestCase{A, "macro", "~macro second_arg(a,b,c interface{}) interface{} { println(a,b,c); return b }; v = 98; v", uint32(98), nil},
+	TestCase{A, "macro", "~macro second_arg(a,b,c interface{}) interface{} { return b }; v = 98; v", uint32(98), nil},
 	TestCase{A, "macro_call", "second_arg;1;v;3", uint32(98), nil},
 	TestCase{A, "macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
 	TestCase{I, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},

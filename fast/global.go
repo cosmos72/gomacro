@@ -547,13 +547,6 @@ type Env struct {
 	AddressTaken  bool // true if &Env.IntBinds[index] was executed... then we cannot reuse IntBinds
 }
 
-// CompEnv is the composition of both the tree-of-closures builder Comp
-// and the interpreter's runtime environment Env
-type CompEnv struct {
-	Comp *Comp
-	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
-}
-
 type (
 	I interface{}
 	/*

@@ -30,14 +30,13 @@ import (
 	"os"
 
 	"github.com/cosmos72/gomacro/base"
-	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/parser"
 )
 
 func main() {
 	args := os.Args[1:]
 
-	var cmd classic.Cmd
+	var cmd Cmd
 	cmd.Init()
 
 	cmd.ParserMode |= parser.Trace & 0

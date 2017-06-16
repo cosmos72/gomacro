@@ -36,22 +36,22 @@ import (
 
 // temporary helper to invoke the new fast interpreter.
 // executes macroexpand + collect + compile + eval
-func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type) {
-	var ce *fast.CompEnv
-	if env.CompEnv == nil {
-		ce = fast.New()
-		ce.Comp.CompileOptions |= fast.CompileKeepUntyped
-		env.CompEnv = ce
+func (env *Env) FastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type) {
+	var f *fast.Interp
+	if env.FastInterp == nil {
+		f = fast.New()
+		f.Comp.CompileOptions |= fast.CompileKeepUntyped
+		env.FastInterp = f
 	} else {
-		ce = env.CompEnv.(*fast.CompEnv)
+		f = env.FastInterp.(*fast.Interp)
 	}
-	ce.Comp.Stringer.Copy(&env.Stringer) // sync Fileset, Pos, Line
-	ce.Comp.Options = env.Options        // sync Options
+	f.Comp.Stringer.Copy(&env.Stringer) // sync Fileset, Pos, Line
+	f.Comp.Options = env.Options        // sync Options
 
 	// macroexpand phase.
 	// must be performed manually, because we used classic.Env.Parse()
 	// instead of fast.Comp.Parse()
-	form, _ = ce.Comp.MacroExpandCodewalk(form)
+	form, _ = f.Comp.MacroExpandCodewalk(form)
 	if env.Options&base.OptShowMacroExpand != 0 {
 		env.Debugf("after macroexpansion: %v", form.Interface())
 	}
@@ -63,11 +63,11 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type)
 
 	if env.Options&base.OptMacroExpandOnly != 0 {
 		x := form.Interface()
-		return r.ValueOf(x), nil, ce.Comp.TypeOf(x), nil
+		return r.ValueOf(x), nil, f.Comp.TypeOf(x), nil
 	}
 
 	// compile phase
-	expr := ce.Comp.Compile(form)
+	expr := f.Comp.Compile(form)
 	if env.Options&base.OptShowCompile != 0 {
 		env.Fprintf(env.Stdout, "%v\n", expr)
 	}
@@ -76,6 +76,6 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type)
 	if expr == nil {
 		return base.None, nil, nil, nil
 	}
-	value, values := ce.RunExpr(expr)
+	value, values := f.RunExpr(expr)
 	return value, values, expr.Type, expr.Types
 }

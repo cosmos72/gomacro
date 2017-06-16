@@ -48,7 +48,7 @@ func init() {
 			"Call":               r.TypeOf((*Call)(nil)).Elem(),
 			"Code":               r.TypeOf((*Code)(nil)).Elem(),
 			"Comp":               r.TypeOf((*Comp)(nil)).Elem(),
-			"CompEnv":            r.TypeOf((*CompEnv)(nil)).Elem(),
+			"CompEnv":            r.TypeOf((*Interp)(nil)).Elem(),
 			"CompThreadGlobals":  r.TypeOf((*CompThreadGlobals)(nil)).Elem(),
 			"CompileOptions":     r.TypeOf((*CompileOptions)(nil)).Elem(),
 			"Env":                r.TypeOf((*Env)(nil)).Elem(),

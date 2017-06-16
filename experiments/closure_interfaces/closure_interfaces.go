@@ -17,13 +17,13 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * compile_interfaces.go
+ * closure_interfaces.go
  *
  *  Created on Apr 01, 2017
  *      Author Massimiliano Ghilardi
  */
 
-package compile_interfaces
+package closure_interfaces
 
 import (
 	_ "errors"

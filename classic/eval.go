@@ -98,7 +98,7 @@ func (env *Env) EvalNode1(node ast.Node) r.Value {
 }
 
 // parse, without macroexpansion
-func (env *Env) parse(src interface{}) Ast {
+func (env *Env) ParseOnly(src interface{}) Ast {
 	var form Ast
 	switch src := src.(type) {
 	case Ast:
@@ -126,7 +126,7 @@ func (env *Env) parse(src interface{}) Ast {
 
 // Parse, with macroexpansion
 func (env *Env) Parse(src interface{}) Ast {
-	form := env.parse(src)
+	form := env.ParseOnly(src)
 
 	// macroexpansion phase.
 	form, _ = env.MacroExpandAstCodewalk(form)

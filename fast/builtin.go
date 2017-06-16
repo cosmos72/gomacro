@@ -82,7 +82,7 @@ func (top *Comp) incrementIota() {
 
 // ============================== initialization ===============================
 
-func (ce *CompEnv) addBuiltins() {
+func (ce *Interp) addBuiltins() {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
 	ce.DeclConst("false", nil, UntypedLit{Kind: r.Bool, Obj: constant.MakeBool(false)})
@@ -1015,7 +1015,7 @@ func (c *Comp) callFunction(node *ast.CallExpr, fun *Expr) (newfun *Expr, lastar
 	newfun = exprLit(Lit{Type: t, Value: function.Fun}, sym)
 	if len(node.Args) < t.NumIn() {
 		lastarg = exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
-			return r.ValueOf(&CompEnv{Comp: c, env: env})
+			return r.ValueOf(&Interp{Comp: c, env: env})
 		})
 	}
 	return newfun, lastarg
