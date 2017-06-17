@@ -45,8 +45,6 @@ const (
 	F
 	S // set option OptDebugSleepOnSwitch
 	A = I | F
-	B = I // temporarily disabled compiler test
-
 )
 
 type TestCase struct {
@@ -57,44 +55,44 @@ type TestCase struct {
 	results []interface{}
 }
 
+func TestClassic(t *testing.T) {
+	ir := classic.New()
+	// ir.Options |= OptDebugCallStack | OptDebugPanicRecover
+	for _, test := range testcases {
+		if test.testfor&I != 0 {
+			test := test
+			t.Run(test.name, func(t *testing.T) { test.classic(t, ir) })
+		}
+	}
+}
+
 func TestFast(t *testing.T) {
-	ce := fast.New()
+	ir := fast.New()
 	for _, test := range testcases {
 		if test.testfor&F != 0 {
-			tc := test
-			t.Run(tc.name, func(t *testing.T) { tc.fast(t, ce) })
+			test := test
+			t.Run(test.name, func(t *testing.T) { test.fast(t, ir) })
 		}
 	}
 }
 
-func TestClassic(t *testing.T) {
-	env := classic.New().Env
-	// env.Options |= OptDebugCallStack | OptDebugPanicRecover
-	for _, tc := range testcases {
-		if tc.testfor&I != 0 {
-			tc := tc
-			t.Run(tc.name, func(t *testing.T) { tc.classic(t, env) })
-		}
-	}
+func (test *TestCase) classic(t *testing.T, ir *classic.Interp) {
+
+	rets := PackValues(ir.Eval(test.program))
+
+	test.compareResults(t, rets)
 }
 
-func (tc *TestCase) fast(t *testing.T, ir *fast.Interp) {
+func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 
-	if tc.testfor&S != 0 {
+	if test.testfor&S != 0 {
 		ir.Comp.Options |= OptDebugSleepOnSwitch
 	} else {
 		ir.Comp.Options &^= OptDebugSleepOnSwitch
 	}
-	rets := PackValues(ir.Eval(tc.program))
+	rets := PackValues(ir.Eval(test.program))
 
-	tc.compareResults(t, rets)
-}
-
-func (tc *TestCase) classic(t *testing.T, env *classic.Env) {
-
-	rets := PackValues(env.Eval(tc.program))
-
-	tc.compareResults(t, rets)
+	test.compareResults(t, rets)
 }
 
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"

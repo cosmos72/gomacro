@@ -32,7 +32,6 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	"github.com/cosmos72/gomacro/imports"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -44,20 +43,21 @@ type Interp struct {
 	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
 }
 
-func (ir *Interp) RunExpr1(expr *Expr) r.Value {
-	if expr == nil {
+func (ir *Interp) RunExpr1(e *Expr) r.Value {
+	if e == nil {
 		return None
 	}
 	env := ir.PrepareEnv()
-	return expr.AsX1()(env)
+	fun := e.AsX1()
+	return fun(env)
 }
 
 func (ir *Interp) RunExpr(e *Expr) (r.Value, []r.Value) {
 	if e == nil {
 		return None, nil
 	}
-	fun := e.AsXV(ir.Comp.CompileOptions)
 	env := ir.PrepareEnv()
+	fun := e.AsXV(ir.Comp.CompileOptions)
 	return fun(env)
 }
 
@@ -85,47 +85,6 @@ func (ir *Interp) Eval(src string) (r.Value, []r.Value) {
 	return ir.RunExpr(c.Compile(c.Parse(src)))
 }
 
-func (ir *Interp) AsPackage() imports.Package {
-	var values map[string]r.Value
-	var untypeds map[string]string
-	var types map[string]r.Type
-
-	c := ir.Comp
-	env := ir.PrepareEnv()
-	if len(c.Binds) != 0 {
-		values = make(map[string]r.Value)
-		for name, bind := range c.Binds {
-			switch bind.Desc.Class() {
-			case ConstBind:
-				values[name] = bind.ConstValue()
-				if bind.Untyped() {
-					untyp := bind.Value.(UntypedLit)
-					if untypeds == nil {
-						untypeds = make(map[string]string)
-					}
-					kind := xr.ToBasicKind(untyp.Kind, true)
-					untypeds[name] = MarshalUntyped(kind, untyp.Obj)
-				}
-			case IntBind:
-				values[name] = ir.ValueOf(name)
-			default:
-				values[name] = env.Binds[bind.Desc.Index()]
-			}
-		}
-	}
-	if len(c.Types) != 0 {
-		types = make(map[string]r.Type)
-		for name, typ := range c.Types {
-			types[name] = typ.ReflectType()
-		}
-	}
-	return imports.Package{
-		Binds:    values,
-		Types:    types,
-		Untypeds: untypeds,
-	}
-}
-
 func (ir *Interp) ChangePackage(name, path string) {
 	if len(path) == 0 {
 		path = name
@@ -137,10 +96,6 @@ func (ir *Interp) ChangePackage(name, path string) {
 	if path == currpath {
 		return
 	}
-	ir.AsPackage().SaveToPackages(currpath)
-	c.Path = path
-	c.PackagePath = path
-	c.Filename = name
 }
 
 // DeclConst compiles a constant declaration

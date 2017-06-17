@@ -117,7 +117,8 @@ func BenchmarkFibonacciFast(b *testing.B) {
 	expr := ir.Compile(fmt.Sprintf("fibonacci(%d)", fib_n))
 	fun := expr.Fun.(func(*fast.Env) int)
 	env := ir.PrepareEnv()
-	fun(env)
+
+	fun(env) // warm up
 
 	b.ResetTimer()
 	var total int
@@ -133,9 +134,11 @@ func BenchmarkFibonacciFast2(b *testing.B) {
 	// alternative: extract the function fibonacci, and call it ourselves
 	//
 	// ValueOf is the method to retrieve constants, functions and variables from the classic and fast interpreters
-	// (if you set the same interpreter variable repeatedly, use the address returned by AddressOfVar)
+	// (if you are going to read or write the same interpreter variable repeatedly,
+	// dereferencing the address returned by AddressOfVar is faster)
 	fun := ir.ValueOf("fibonacci").Interface().(func(int) int)
-	fun(fib_n)
+
+	fun(fib_n) // warm up
 
 	b.ResetTimer()
 	var total int
@@ -164,7 +167,8 @@ func BenchmarkFibonacciClassic2(b *testing.B) {
 
 	// alternative: extract the function fibonacci, and call it ourselves
 	fun := ir.ValueOf("fibonacci").Interface().(func(int) int)
-	fun(fib_n)
+
+	fun(fib_n) // warm up
 
 	b.ResetTimer()
 	var total int
