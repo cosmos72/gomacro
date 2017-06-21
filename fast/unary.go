@@ -43,7 +43,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		return c.exprValue(nil, node)
 
 	case mt.QUASIQUOTE:
-		c.Errorf("unexpected %s, should be optimized away by macroexpansion: %v", mt.String(node.Op), node)
+		return c.quasiquoteUnary(node)
 
 	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
 		c.Errorf("invalid %s outside %s: %s %v", mt.String(node.Op), mt.String(mt.QUASIQUOTE), node)

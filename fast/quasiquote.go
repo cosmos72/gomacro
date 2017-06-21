@@ -34,18 +34,33 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-func (c *Comp) QuasiquoteUnary(unary *ast.UnaryExpr) *Expr {
-	block := unary.X.(*ast.FuncLit).Body
+func isUnquoteSplice(node ast.Node) bool {
+	switch node := UnwrapTrivialNode(node).(type) {
+	case *ast.UnaryExpr:
+		return node.Op == mt.UNQUOTE_SPLICE
+	}
+	return false
+}
 
+func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
+	block := unary.X.(*ast.FuncLit).Body
+	node := SimplifyNodeForQuote(block, true)
+
+	if block == nil || len(block.List) != 1 || !isUnquoteSplice(block.List[0]) {
+		in := ToAst(node)
+		return c.quasiquote(in)
+	}
+
+	// to support quasiquote{unquote_splice ...}
 	// we invoke SimplifyNodeForQuote() at the end, not at the beginning.
-	// reason: to support quasiquote{unquote_splice ...}
-	toUnwrap := block != SimplifyNodeForQuote(block, true)
+	toUnwrap := block != node
 
 	in := ToAst(block)
-	fun := c.Quasiquote(in).AsX1()
+	fun := c.quasiquote(in).AsX1()
 
 	return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
-		node := AnyToAstWithNode(fun(env), "Quasiquote").Node()
+		x := fun(env).Interface()
+		node := AnyToAstWithNode(x, "Quasiquote").Node()
 		return r.ValueOf(SimplifyNodeForQuote(node, toUnwrap))
 	})
 }
@@ -63,20 +78,20 @@ func (c *Comp) Quasiquote(in Ast) *Expr {
 }
 
 func (c *Comp) quasiquoteSlice(in Ast) *Expr {
-	debug := c.Options&OptDebugMacroExpand != 0
+	debug := c.Options&OptDebugQuasiquote != 0
 	switch form := in.(type) {
 	case UnaryExpr:
 		switch op := form.Op(); op {
 		case mt.UNQUOTE:
 			node := SimplifyNodeForQuote(form.X.X.(*ast.FuncLit).Body, true)
 			if debug {
-				c.Debugf("Quasiquote slice expanding %s: %v", mt.String(op), node)
+				c.Debugf("Quasiquote slice compiling %s: %v", mt.String(op), node)
 			}
 			return c.CompileNode(node)
 		case mt.UNQUOTE_SPLICE:
 			body := form.X.X.(*ast.FuncLit).Body
 			if debug {
-				c.Debugf("Quasiquote slice expanding %s: %v", mt.String(op), body)
+				c.Debugf("Quasiquote slice compiling %s: %v", mt.String(op), body)
 			}
 			return c.CompileNode(body)
 		}
@@ -86,9 +101,9 @@ func (c *Comp) quasiquoteSlice(in Ast) *Expr {
 
 // quasiquote expands and compiles the contents of a ~quasiquote
 func (c *Comp) quasiquote(in Ast) *Expr {
-	debug := c.Options&OptDebugMacroExpand != 0
+	debug := c.Options&OptDebugQuasiquote != 0
 	if debug {
-		c.Debugf("Quasiquote expanding %s: %v", mt.String(mt.QUASIQUOTE), in.Interface())
+		c.Debugf("Quasiquote compiling %s: %v", mt.String(mt.QUASIQUOTE), in.Interface())
 	}
 	switch in := in.(type) {
 	case AstWithSlice:
@@ -99,19 +114,23 @@ func (c *Comp) quasiquote(in Ast) *Expr {
 		}
 		form := in.New().(AstWithSlice)
 
-		return exprX1(c.TypeOf(form), func(env *Env) r.Value {
+		typ := c.TypeOf(in.Interface()) // extract the concrete type implementing ast.Node
+		rtype := typ.ReflectType()
+
+		return exprX1(typ, func(env *Env) r.Value {
 			out := form.New().(AstWithSlice)
 			for _, fun := range funs {
-				out.Append(AnyToAst(fun(env).Interface(), "Quasiquote"))
+				x := fun(env).Interface()
+				out.Append(AnyToAst(x, "Quasiquote"))
 			}
-			return r.ValueOf(out)
+			return r.ValueOf(out.Interface()).Convert(rtype)
 		})
 	case UnaryExpr:
 		switch op := in.Op(); op {
 		case mt.UNQUOTE:
 			node := SimplifyNodeForQuote(in.X.X.(*ast.FuncLit).Body, true)
 			if debug {
-				c.Debugf("Quasiquote expanding %s: %v", mt.String(op), node)
+				c.Debugf("Quasiquote compiling %s: %v", mt.String(op), node)
 			}
 			return c.CompileNode(node)
 		case mt.UNQUOTE_SPLICE:
@@ -122,29 +141,36 @@ func (c *Comp) quasiquote(in Ast) *Expr {
 	}
 
 	// Ast can still be a tree: just not a resizeable one, so support ~unquote but not ~unquote_splice
-	if in, ok := in.(AstWithNode); !ok {
+	in, ok := in.(AstWithNode)
+	if !ok {
 		x := in.Interface()
 		c.Errorf("Quasiquote: unsupported node type, expecting AstWithNode or AstWithSlice: %v <%v>", x, r.TypeOf(x))
 		return nil
-	} else {
-		form := in.New().(AstWithNode) // clone input argument, do NOT retain it
-		n := in.Size()
-		if n == 0 {
-			return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
-				return r.ValueOf(form.New())
-			})
-		}
-		funs := make([]func(*Env) r.Value, n)
-		for i := 0; i < n; i++ {
-			funs[i] = c.quasiquote(in.Get(i)).AsX1()
-		}
+	}
+	if debug {
+		c.Debugf("Quasiquote compiling: %v", in.Interface())
+	}
+	form := in.New().(AstWithNode) // we must NOT retain input argument, so clone it
+	n := in.Size()
+	typ := c.TypeOf(in.Interface()) // extract the concrete type implementing ast.Node
+	rtype := typ.ReflectType()
 
-		return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
-			out := form.New().(AstWithNode)
-			for i, fun := range funs {
-				out.Set(i, AnyToAst(fun(env).Interface(), "Quasiquote"))
-			}
-			return r.ValueOf(out)
+	if n == 0 {
+		return exprX1(typ, func(env *Env) r.Value {
+			return r.ValueOf(form.New().Interface()).Convert(rtype)
 		})
 	}
+	funs := make([]func(*Env) r.Value, n)
+	for i := 0; i < n; i++ {
+		funs[i] = c.quasiquote(in.Get(i)).AsX1()
+	}
+
+	return exprX1(typ, func(env *Env) r.Value {
+		out := form.New().(AstWithNode)
+		for i, fun := range funs {
+			x := fun(env).Interface()
+			out.Set(i, AnyToAst(x, "Quasiquote"))
+		}
+		return r.ValueOf(out.Interface()).Convert(rtype)
+	})
 }
