@@ -34,6 +34,39 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
+// unused
+/*
+func CloneAst(in Ast) Ast {
+	switch in := in.(type) {
+	case AstWithNode:
+		return CloneAstWithNode(in)
+	case AstWithSlice:
+		return CloneAstWithSlice(in)
+	default:
+		errorf("CloneAst: unsupported argument type, expecting AstWithNode or AstWithSlice: %v <%v>", in, r.TypeOf(in))
+		return nil
+	}
+}
+
+func CloneAstWithNode(in AstWithNode) AstWithNode {
+	form := in.New().(AstWithNode)
+	n := in.Size()
+	for i := 0; i < n; i++ {
+		form.Set(i, CloneAst(in.Get(i)))
+	}
+	return form
+}
+
+func CloneAstWithSlice(in AstWithSlice) AstWithSlice {
+	form := in.New().(AstWithSlice)
+	n := in.Size()
+	for i := 0; i < n; i++ {
+		form = form.Append(CloneAst(in.Get(i)))
+	}
+	return form
+}
+*/
+
 func AnyToAstWithNode(any interface{}, caller string) AstWithNode {
 	node := AnyToAst(any, caller)
 	switch node := node.(type) {

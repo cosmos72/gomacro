@@ -58,11 +58,11 @@ func main() {
     // test interfaces:
 
 	import ( "time"; "fmt" ); var s fmt.Stringer = time.Second  // ok
-	s.String                                                    // ok, s is an interface
+	s.String                                                    // ok, s is the interface fmt.Stringer
 
 	import ( "os"; "io" );    var in io.Reader = os.Stdin       // ok
 	import "reflect";         var t = reflect.TypeOf(os.Stdin)  // ok
-	t.Elem                                                      // ok, t is an interface
+	t.Elem                                                      // ok, t is the interface reflect.Type
 
 	// test methods-to-functions:
 

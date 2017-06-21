@@ -31,11 +31,10 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	mp "github.com/cosmos72/gomacro/parser"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-func (c *Comp) QuasiquoteUnary(unary *ast.UnaryExpr) ast.Node {
+func (c *Comp) QuasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 	block := unary.X.(*ast.FuncLit).Body
 
 	// we invoke SimplifyNodeForQuote() at the end, not at the beginning.
@@ -43,39 +42,27 @@ func (c *Comp) QuasiquoteUnary(unary *ast.UnaryExpr) ast.Node {
 	toUnwrap := block != SimplifyNodeForQuote(block, true)
 
 	in := ToAst(block)
-	out, _ := c.Quasiquote(in)
-	node := ToNode(out)
-	return SimplifyNodeForQuote(node, toUnwrap)
+	fun := c.Quasiquote(in).AsX1()
+
+	return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
+		node := AnyToAstWithNode(fun(env), "Quasiquote").Node()
+		return r.ValueOf(SimplifyNodeForQuote(node, toUnwrap))
+	})
 }
 
-// Quasiquote expands ~quasiquote, if Ast starts with it
-func (c *Comp) Quasiquote(in Ast) (Ast, bool) {
+// Quasiquote expands and compiles ~quasiquote, if Ast starts with it
+func (c *Comp) Quasiquote(in Ast) *Expr {
 	switch form := in.(type) {
 	case UnaryExpr:
 		if form.Op() == mt.QUASIQUOTE {
 			body := form.X.X.(*ast.FuncLit).Body
-			return c.quasiquote(ToAst(body)), true
+			return c.quasiquote(ToAst(body))
 		}
 	}
-	return in, false
+	return c.Compile(in)
 }
 
-func concatAst(a, b AstWithSlice) {
-	if b != nil {
-		n := b.Size()
-		for i := 0; i < n; i++ {
-			a.Append(b.Get(i))
-		}
-	}
-}
-
-func quote(in AstWithNode) UnaryExpr {
-	node := in.Node()
-	unary, _ := mp.MakeQuote(nil, mt.QUOTE, node.Pos(), node)
-	return UnaryExpr{unary}
-}
-
-func (c *Comp) quasiquoteSlice(in Ast) AstWithSlice {
+func (c *Comp) quasiquoteSlice(in Ast) *Expr {
 	debug := c.Options&OptDebugMacroExpand != 0
 	switch form := in.(type) {
 	case UnaryExpr:
@@ -85,64 +72,79 @@ func (c *Comp) quasiquoteSlice(in Ast) AstWithSlice {
 			if debug {
 				c.Debugf("Quasiquote slice expanding %s: %v", mt.String(op), node)
 			}
-			return NodeSlice{X: []ast.Node{node}}
+			return c.CompileNode(node)
 		case mt.UNQUOTE_SPLICE:
 			body := form.X.X.(*ast.FuncLit).Body
 			if debug {
 				c.Debugf("Quasiquote slice expanding %s: %v", mt.String(op), body)
 			}
-			return BlockStmt{X: body}
+			return c.CompileNode(body)
 		}
 	}
-	form := c.quasiquote(in)
-	return AstSlice{X: []Ast{form}}
+	return c.quasiquote(in)
 }
 
-// quasiquote expands the contents of a ~quasiquote
-func (c *Comp) quasiquote(in Ast) Ast {
+// quasiquote expands and compiles the contents of a ~quasiquote
+func (c *Comp) quasiquote(in Ast) *Expr {
 	debug := c.Options&OptDebugMacroExpand != 0
 	if debug {
 		c.Debugf("Quasiquote expanding %s: %v", mt.String(mt.QUASIQUOTE), in.Interface())
 	}
-	switch form := in.(type) {
+	switch in := in.(type) {
 	case AstWithSlice:
-		ni := form.Size()
-
-		out := form.New().(AstWithSlice)
-		for i := 0; i < ni; i++ {
-			concatAst(out, c.quasiquoteSlice(form.Get(i)))
+		n := in.Size()
+		funs := make([]func(*Env) r.Value, n)
+		for i := 0; i < n; i++ {
+			funs[i] = c.quasiquoteSlice(in.Get(i)).AsX1()
 		}
-		return out
+		form := in.New().(AstWithSlice)
+
+		return exprX1(c.TypeOf(form), func(env *Env) r.Value {
+			out := form.New().(AstWithSlice)
+			for _, fun := range funs {
+				out.Append(AnyToAst(fun(env).Interface(), "Quasiquote"))
+			}
+			return r.ValueOf(out)
+		})
 	case UnaryExpr:
-		switch op := form.Op(); op {
+		switch op := in.Op(); op {
 		case mt.UNQUOTE:
-			node := SimplifyNodeForQuote(form.X.X.(*ast.FuncLit).Body, true)
+			node := SimplifyNodeForQuote(in.X.X.(*ast.FuncLit).Body, true)
 			if debug {
 				c.Debugf("Quasiquote expanding %s: %v", mt.String(op), node)
 			}
-			return ToAst(node)
+			return c.CompileNode(node)
 		case mt.UNQUOTE_SPLICE:
-			c.Pos = form.X.Pos()
-			c.Errorf("quasiquote: cannot %s in single-node context: %v", mt.String(form.Op()), form.X)
+			c.Pos = in.X.Pos()
+			c.Errorf("Quasiquote: cannot %s in single-node context: %v", mt.String(in.Op()), in.X)
 			return nil
 		}
 	}
 
 	// Ast can still be a tree: just not a resizeable one, so support ~unquote but not ~unquote_splice
-	if form, ok := in.(AstWithNode); !ok {
+	if in, ok := in.(AstWithNode); !ok {
 		x := in.Interface()
-		c.Errorf("quasiquote: unsupported node type: %v <%v>", x, r.TypeOf(x))
+		c.Errorf("Quasiquote: unsupported node type, expecting AstWithNode or AstWithSlice: %v <%v>", x, r.TypeOf(x))
 		return nil
 	} else {
-		ni := form.Size()
-		out := form.New().(AstWithNode)
-		if ni == 0 {
-			out = quote(form)
-		} else {
-			for i := 0; i < ni; i++ {
-				out.Set(i, c.quasiquote(form.Get(i)))
-			}
+		form := in.New().(AstWithNode) // clone input argument, do NOT retain it
+		n := in.Size()
+		if n == 0 {
+			return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
+				return r.ValueOf(form.New())
+			})
 		}
-		return out
+		funs := make([]func(*Env) r.Value, n)
+		for i := 0; i < n; i++ {
+			funs[i] = c.quasiquote(in.Get(i)).AsX1()
+		}
+
+		return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
+			out := form.New().(AstWithNode)
+			for i, fun := range funs {
+				out.Set(i, AnyToAst(fun(env).Interface(), "Quasiquote"))
+			}
+			return r.ValueOf(out)
+		})
 	}
 }
