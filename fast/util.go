@@ -49,6 +49,10 @@ func eNil(*Env) r.Value {
 	return Nil
 }
 
+func eXVNone(*Env) (r.Value, []r.Value) {
+	return None, nil
+}
+
 func nop() {
 }
 
@@ -215,6 +219,9 @@ func (e *Expr) CheckX1() {
 }
 
 func (e *Expr) AsX1() func(*Env) r.Value {
+	if e == nil {
+		return eNil
+	}
 	if e.Const() {
 		return valueAsX1(e.Value, e.Type, CompileDefaults)
 	}
@@ -223,6 +230,9 @@ func (e *Expr) AsX1() func(*Env) r.Value {
 }
 
 func (e *Expr) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
+	if e == nil {
+		return eXVNone
+	}
 	if e.Const() {
 		return valueAsXV(e.Value, e.Type, opts)
 	}

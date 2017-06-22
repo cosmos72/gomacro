@@ -29,7 +29,7 @@ import (
 	r "reflect"
 	"testing"
 
-	. "github.com/cosmos72/gomacro/base"
+	// . "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/experiments/bytecode_interfaces"
 	"github.com/cosmos72/gomacro/experiments/bytecode_values"

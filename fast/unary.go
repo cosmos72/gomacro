@@ -46,7 +46,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		return c.quasiquoteUnary(node)
 
 	case mt.UNQUOTE, mt.UNQUOTE_SPLICE:
-		c.Errorf("invalid %s outside %s: %s %v", mt.String(node.Op), mt.String(mt.QUASIQUOTE), node)
+		c.Errorf("invalid %s outside %s: %v", mt.String(node.Op), mt.String(mt.QUASIQUOTE), node)
 
 	case token.AND:
 		// c.Expr(node.X) is useless here... skip it

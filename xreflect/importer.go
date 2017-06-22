@@ -26,6 +26,8 @@
 package xreflect
 
 import (
+	"errors"
+	"fmt"
 	"go/importer"
 	"go/types"
 )
@@ -38,28 +40,26 @@ type Importer struct {
 }
 
 func DefaultImporter() *Importer {
-	imp := &Importer{}
+	imp := Importer{}
 	compat := importer.Default()
 	if from, ok := compat.(types.ImporterFrom); ok {
 		imp.from = from
 	} else {
 		imp.compat = compat
 	}
-	return imp
+	return &imp
 }
 
 func (imp *Importer) Import(path string) (*types.Package, error) {
-	if imp.from != nil {
-		return imp.from.ImportFrom(path, imp.srcDir, imp.mode)
-	} else {
-		return imp.compat.Import(path)
-	}
+	return imp.ImportFrom(path, imp.srcDir, imp.mode)
 }
 
 func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
 	if imp.from != nil {
 		return imp.from.ImportFrom(path, srcDir, mode)
-	} else {
+	} else if imp.compat != nil {
 		return imp.compat.Import(path)
+	} else {
+		return nil, errors.New(fmt.Sprintf("importer.Default() returned nil, cannot import %q", path))
 	}
 }

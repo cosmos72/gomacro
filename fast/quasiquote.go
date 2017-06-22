@@ -34,35 +34,32 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-func isUnquoteSplice(node ast.Node) bool {
-	switch node := UnwrapTrivialNode(node).(type) {
-	case *ast.UnaryExpr:
-		return node.Op == mt.UNQUOTE_SPLICE
-	}
-	return false
+func isUnquoteOrUnquoteSplice(node ast.Node) bool {
+	op := UnwrapTrivialAst(ToAst(node)).Op()
+	return op == mt.UNQUOTE || op == mt.UNQUOTE_SPLICE
 }
 
 func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 	block := unary.X.(*ast.FuncLit).Body
 	node := SimplifyNodeForQuote(block, true)
 
-	if block == nil || len(block.List) != 1 || !isUnquoteSplice(block.List[0]) {
-		in := ToAst(node)
-		return c.quasiquote(in)
+	if block != nil && len(block.List) == 1 && isUnquoteOrUnquoteSplice(block.List[0]) {
+		// to support quasiquote{unquote ...} and quasiquote{unquote_splice ...}
+		// we invoke SimplifyNodeForQuote() at the end, not at the beginning.
+		toUnwrap := block != node
+
+		in := ToAst(block)
+		fun := c.quasiquote(in).AsX1()
+
+		return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
+			x := fun(env).Interface()
+			node := AnyToAstWithNode(x, "Quasiquote").Node()
+			return r.ValueOf(SimplifyNodeForQuote(node, toUnwrap))
+		})
 	}
 
-	// to support quasiquote{unquote_splice ...}
-	// we invoke SimplifyNodeForQuote() at the end, not at the beginning.
-	toUnwrap := block != node
-
-	in := ToAst(block)
-	fun := c.quasiquote(in).AsX1()
-
-	return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
-		x := fun(env).Interface()
-		node := AnyToAstWithNode(x, "Quasiquote").Node()
-		return r.ValueOf(SimplifyNodeForQuote(node, toUnwrap))
-	})
+	in := ToAst(node)
+	return c.quasiquote(in)
 }
 
 // Quasiquote expands and compiles ~quasiquote, if Ast starts with it
