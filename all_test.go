@@ -640,12 +640,12 @@ var testcases = []TestCase{
 		X:  &ast.BasicLit{Kind: token.STRING, Value: `"foo"`},
 		Y:  &ast.BasicLit{Kind: token.STRING, Value: `"bar"`},
 	}, nil},
-	TestCase{I, "quasiquote_1", `~quasiquote{1 + ~unquote{2+3}}`, &ast.BinaryExpr{
+	TestCase{A, "quasiquote_1", `~quasiquote{1 + ~unquote{2+3}}`, &ast.BinaryExpr{
 		Op: token.ADD,
 		X:  &ast.BasicLit{Kind: token.INT, Value: "1"},
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "5"},
 	}, nil},
-	TestCase{I, "quasiquote_2", `~"{2 * ~,{3<<1}}`, &ast.BinaryExpr{
+	TestCase{A, "quasiquote_2", `~"{2 * ~,{3<<1}}`, &ast.BinaryExpr{
 		Op: token.MUL,
 		X:  &ast.BasicLit{Kind: token.INT, Value: "2"},
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "6"},

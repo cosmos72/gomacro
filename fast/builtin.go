@@ -608,24 +608,35 @@ var nilInterface = r.Zero(base.TypeOfInterface)
 func callRecover(v r.Value) r.Value {
 	env := v.Interface().(*Env)
 	g := env.ThreadGlobals
+	debug := g.Options&base.OptDebugPanicRecover != 0
 	if !g.IsDefer {
-		base.Debugf("recover() not directly inside a defer")
+		if debug {
+			base.Debugf("recover() not directly inside a defer")
+		}
 		return nilInterface
 	}
 	if g.PanicFun == nil {
-		base.Debugf("recover() no panic")
+		if debug {
+			base.Debugf("recover() no panic")
+		}
 		return nilInterface
 	}
 	if g.DeferOfFun != g.PanicFun {
-		base.Debugf("recover() inside defer of function %p, not defer of the current panicking function %p", g.DeferOfFun, g.PanicFun)
+		if debug {
+			base.Debugf("recover() inside defer of function %p, not defer of the current panicking function %p", g.DeferOfFun, g.PanicFun)
+		}
 		return nilInterface
 	}
 	rec := g.Panic
 	if rec == nil {
-		base.Debugf("recover() consuming current panic: nil")
+		if debug {
+			base.Debugf("recover() consuming current panic: nil")
+		}
 		v = nilInterface
 	} else {
-		base.Debugf("recover() consuming current panic: %v <%v>", rec, r.TypeOf(rec))
+		if debug {
+			base.Debugf("recover() consuming current panic: %v <%v>", rec, r.TypeOf(rec))
+		}
 		v = r.ValueOf(rec).Convert(base.TypeOfInterface) // keep the interface{} type
 	}
 	// consume the current panic

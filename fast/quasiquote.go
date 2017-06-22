@@ -27,10 +27,12 @@ package fast
 
 import (
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	mp "github.com/cosmos72/gomacro/parser"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -38,6 +40,11 @@ func isUnquoteOrUnquoteSplice(node ast.Node) bool {
 	op := UnwrapTrivialAst(ToAst(node)).Op()
 	return op == mt.UNQUOTE || op == mt.UNQUOTE_SPLICE
 }
+
+var (
+	rtypeOfNode      = r.TypeOf((*ast.Node)(nil)).Elem()
+	rtypeOfUnaryExpr = r.TypeOf((*ast.UnaryExpr)(nil))
+)
 
 func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 	block := unary.X.(*ast.FuncLit).Body
@@ -51,7 +58,7 @@ func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 		in := ToAst(block)
 		fun := c.quasiquote(in).AsX1()
 
-		return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
+		return exprX1(c.Universe.FromReflectType(rtypeOfNode), func(env *Env) r.Value {
 			x := fun(env).Interface()
 			node := AnyToAstWithNode(x, "Quasiquote").Node()
 			return r.ValueOf(SimplifyNodeForQuote(node, toUnwrap))
@@ -74,20 +81,32 @@ func (c *Comp) Quasiquote(in Ast) *Expr {
 	return c.Compile(in)
 }
 
+func (c *Comp) quasiquoteSimple(unary *ast.UnaryExpr, label string) *Expr {
+	node := SimplifyNodeForQuote(unary.X.(*ast.FuncLit).Body, true)
+	op := unary.Op
+	if c.Options&OptDebugQuasiquote != 0 {
+		c.Debugf("Quasiquote%s compiling %s: %v", label, mt.String(op), node)
+	}
+	if op == mt.UNQUOTE {
+		return c.CompileNode(node)
+	}
+	fun := c.quasiquote(ToAst(node)).AsX1()
+	return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) r.Value {
+		ret, _ := mp.MakeQuote(nil, op, token.NoPos, fun(env).Interface().(ast.Node))
+		return r.ValueOf(ret)
+	})
+}
+
 func (c *Comp) quasiquoteSlice(in Ast) *Expr {
-	debug := c.Options&OptDebugQuasiquote != 0
 	switch form := in.(type) {
 	case UnaryExpr:
 		switch op := form.Op(); op {
-		case mt.UNQUOTE:
-			node := SimplifyNodeForQuote(form.X.X.(*ast.FuncLit).Body, true)
-			if debug {
-				c.Debugf("Quasiquote slice compiling %s: %v", mt.String(op), node)
-			}
-			return c.CompileNode(node)
+		case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE:
+			return c.quasiquoteSimple(form.X, " slice")
+
 		case mt.UNQUOTE_SPLICE:
 			body := form.X.X.(*ast.FuncLit).Body
-			if debug {
+			if c.Options&OptDebugQuasiquote != 0 {
 				c.Debugf("Quasiquote slice compiling %s: %v", mt.String(op), body)
 			}
 			return c.CompileNode(body)
@@ -100,7 +119,7 @@ func (c *Comp) quasiquoteSlice(in Ast) *Expr {
 func (c *Comp) quasiquote(in Ast) *Expr {
 	debug := c.Options&OptDebugQuasiquote != 0
 	if debug {
-		c.Debugf("Quasiquote compiling %s: %v", mt.String(mt.QUASIQUOTE), in.Interface())
+		c.Debugf("Quasiquote expanding %s: %v", mt.String(mt.QUASIQUOTE), in.Interface())
 	}
 	switch in := in.(type) {
 	case AstWithSlice:
@@ -124,12 +143,9 @@ func (c *Comp) quasiquote(in Ast) *Expr {
 		})
 	case UnaryExpr:
 		switch op := in.Op(); op {
-		case mt.UNQUOTE:
-			node := SimplifyNodeForQuote(in.X.X.(*ast.FuncLit).Body, true)
-			if debug {
-				c.Debugf("Quasiquote compiling %s: %v", mt.String(op), node)
-			}
-			return c.CompileNode(node)
+		case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE:
+			return c.quasiquoteSimple(in.X, "")
+
 		case mt.UNQUOTE_SPLICE:
 			c.Pos = in.X.Pos()
 			c.Errorf("Quasiquote: cannot %s in single-node context: %v", mt.String(in.Op()), in.X)
