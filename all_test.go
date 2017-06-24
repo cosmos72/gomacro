@@ -679,6 +679,9 @@ var testcases = []TestCase{
 	}, nil},
 	TestCase{A, "quasiquote_func", `func qq_func(x interface{}) interface{} { y := ~"~,x; return y }; qq_func(123)`,
 		&ast.BasicLit{Kind: token.INT, Value: "123"}, nil},
+	TestCase{A, "quasiquote_case", `~"{case xy:}`,
+		&ast.CaseClause{List: []ast.Expr{&ast.Ident{Name: "xy"}}}, nil},
+
 	TestCase{A, "unquote_splice_1", `~quasiquote{~unquote_splice ab ; c}`, &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
@@ -740,10 +743,10 @@ func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interfa
 }
 
 func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
-	if actual == expected {
-		return
-	}
 	if actual == nil || expected == nil {
+		if actual == nil && expected == nil {
+			return
+		}
 		c.fail(t, actual, expected)
 	}
 	if r.TypeOf(actual) == r.TypeOf(expected) {
