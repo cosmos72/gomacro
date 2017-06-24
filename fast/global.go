@@ -310,7 +310,7 @@ type Bind struct {
 }
 
 func (bind *Bind) String() string {
-	return fmt.Sprintf("{%s %q %#v <%v>}", bind.Desc, bind.Name, bind.Lit.Value, bind.Lit.Type)
+	return fmt.Sprintf("{%s name=%q value=%v type=<%v>}", bind.Desc, bind.Name, bind.Lit.Value, bind.Lit.Type)
 }
 
 func (bind *Bind) Const() bool {

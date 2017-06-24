@@ -74,10 +74,11 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
 	cf.Func = info
 
-	body := funcdecl.Body
-	if body != nil && len(body.List) != 0 {
+	if body := funcdecl.Body; body != nil {
 		// in Go, function arguments/results and function body are in the same scope
-		cf.List(body.List)
+		for _, node := range body.List {
+			cf.Stmt(node)
+		}
 	}
 
 	funcindex := funcbind.Desc.Index()
@@ -374,7 +375,7 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		// function is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
 		return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
-			env := NewEnv(env, nbinds, nintbinds)
+			env := NewEnv4Func(env, nbinds, nintbinds)
 
 			if funcbody != nil {
 				// copy runtime arguments into allocated binds
@@ -421,7 +422,7 @@ func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody f
 		// macro is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
 		return func(args []r.Value) []r.Value {
-			env := NewEnv(env, nbinds, nintbinds)
+			env := NewEnv4Func(env, nbinds, nintbinds)
 
 			if funcbody != nil {
 				// copy runtime arguments into allocated binds

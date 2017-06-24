@@ -129,6 +129,7 @@ func NewComp(outer *Comp, code *Code) *Comp {
 		CompileOptions:    outer.CompileOptions,
 		CompThreadGlobals: outer.CompThreadGlobals,
 	}
+	// Debugf("NewComp(%p->%p) %s", outer, &c, debug.Stack())
 	if code != nil {
 		c.Code = *code
 	}
@@ -219,6 +220,7 @@ func NewEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
 	}
 	env.Outer = outer
 	env.ThreadGlobals = tg
+	// Debugf("NewEnv4Func(%p->%p) binds=%d intbinds=%d", outer, env, nbinds, nintbinds)
 	return env
 }
 
@@ -230,6 +232,7 @@ func (env *Env) MarkUsedByClosure() {
 
 // FreeEnv tells the interpreter that given Env is no longer needed.
 func (env *Env) FreeEnv() {
+	// Debugf("FreeEnv(%p->%p), IP = %d of %d", env, env.Outer, env.Outer.IP, len(env.Outer.Code))
 	if env.UsedByClosure {
 		// in use, cannot recycle
 		return
@@ -301,6 +304,16 @@ func (c *Comp) Compile(in Ast) *Expr {
 	}
 	c.Errorf("Compile: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
 	return nil
+}
+
+// compileExpr is a wrapper for Compile
+// that guarantees Code does not get clobbered/cleared.
+// Used by Comp.Quasiquote
+func (c *Comp) compileExpr(in Ast) *Expr {
+	cf := NewComp(c, nil)
+	cf.UpCost = 0
+	cf.Depth--
+	return cf.Compile(in)
 }
 
 func (c *Comp) CompileNode(node ast.Node) *Expr {

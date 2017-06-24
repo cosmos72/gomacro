@@ -43,7 +43,6 @@ func popEnv(env *Env) (Stmt, *Env) {
 	outer := env.Outer
 	outer.IP = env.IP + 1
 	env.FreeEnv()
-	// Debugf("PopEnv, IP = %d of %d", outer.IP, len(outer.Code))
 	return outer.Code[outer.IP], outer
 }
 
@@ -633,7 +632,7 @@ func (c *Comp) pushEnvIfFlag(nbinds *[2]int, flag bool) (*Comp, bool) {
 		c.append(func(env *Env) (Stmt, *Env) {
 			inner := NewEnv(env, nbinds[0], nbinds[1])
 			inner.IP++
-			// Debugf("PushEnv, IP = %d of %d, pushed %d binds and %d intbinds", inner.IP, nbinds[0], nbinds[1])
+			// Debugf("PushEnv(%p->%p), IP = %d of %d, pushed %d binds and %d intbinds", env, inner, inner.IP, nbinds[0], nbinds[1])
 			return inner.Code[inner.IP], inner
 		})
 	}

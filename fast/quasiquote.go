@@ -136,7 +136,7 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 			for i, fun := range funs {
 				x := ValueInterface(fun(env))
 				if debug {
-					Debugf("Quasiquote: append to AstWithSlice: <%v> returned %v <%v>", r.TypeOf(fun), x, r.TypeOf(x))
+					Debugf("Quasiquote: env=%p, append to AstWithSlice: <%v> returned %v <%v>", env, r.TypeOf(fun), x, r.TypeOf(x))
 				}
 				if x == nil {
 					continue
@@ -170,7 +170,7 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 				if debug {
 					c.Debugf("Quasiquote[%d]%s compiling %s: %v <%v>", depth, label, mt.String(op), node, r.TypeOf(node))
 				}
-				return c.Compile(form), op == mt.UNQUOTE_SPLICE
+				return c.compileExpr(form), op == mt.UNQUOTE_SPLICE
 			}
 			fun := c.quasiquote1(form, depth, true).AsX1()
 			if fun == nil {
@@ -190,7 +190,7 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 				if fun != nil {
 					x := ValueInterface(fun(env))
 					if debug {
-						Debugf("Quasiquote: body of %s: <%v> returned %v <%v>", mt.String(op), r.TypeOf(fun), x, r.TypeOf(x))
+						Debugf("Quasiquote: env = %p, body of %s: <%v> returned %v <%v>", env, mt.String(op), r.TypeOf(fun), x, r.TypeOf(x))
 					}
 					node = AnyToAstWithNode(x, position).Node()
 				}
@@ -246,6 +246,9 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 		for i, fun := range funs {
 			if fun != nil {
 				x := ValueInterface(fun(env))
+				if debug {
+					Debugf("Quasiquote: env = %p, <%v> returned %v <%v>", env, r.TypeOf(fun), x, r.TypeOf(x))
+				}
 				out.Set(i, AnyToAst(x, positions[i]))
 			}
 		}

@@ -382,6 +382,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			// no initializer... use the zero-value of t
 			rtype := t.ReflectType()
 			c.append(func(env *Env) (Stmt, *Env) {
+				// base.Debugf("declaring %v", bind)
 				env.Binds[index] = r.New(rtype).Elem()
 				env.IP++
 				return env.Code[env.IP], env
