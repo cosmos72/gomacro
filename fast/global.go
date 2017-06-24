@@ -226,7 +226,7 @@ type Builtin struct {
 
 // Function represents a function that accesses *CompEnv in the fast interpreter
 type Function struct {
-	Fun  I
+	Fun  interface{}
 	Type xr.Type
 }
 

@@ -33,6 +33,7 @@ import (
 	"io"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -108,9 +109,10 @@ func (ce *Interp) addBuiltins() {
 	ce.DeclBuiltin("recover", Builtin{compileRecover, 0, 0})
 	// ce.DeclBuiltin("recover", Function{callRecover, ce.Comp.TypeOf((*func() interface{})(nil)).Elem()})
 
-	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf((*func(interface{}) interface{})(nil)).Elem()})
+	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf(funI_I)})
+	ce.DeclEnvFunc("Eval", Function{callEval, ce.Comp.TypeOf(funI2_I)})
+	ce.DeclEnvFunc("EvalType", Function{callEvalType, ce.Comp.TypeOf(funI2_T)})
 	/*
-		binds["Eval"] = r.ValueOf(Function{funcEval, 1})
 		binds["MacroExpand"] = r.ValueOf(Function{funcMacroExpand, -1})
 		binds["MacroExpand1"] = r.ValueOf(Function{funcMacroExpand1, -1})
 		binds["MacroExpandCodewalk"] = r.ValueOf(Function{funcMacroExpandCodewalk, -1})
@@ -379,9 +381,50 @@ func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // --- Env() ---
 
+func funI_I(interface{}) interface{} {
+	return nil
+}
+
 // we can use whatever signature we want, as long as call_builtin supports it
 func callIdentity(v r.Value) r.Value {
 	return v
+}
+
+// --- Eval() ---
+
+func funI2_I(interface{}, interface{}) interface{} {
+	return nil
+}
+
+func callEval(argv r.Value, interpv r.Value) r.Value {
+	if !argv.IsValid() {
+		return argv
+	}
+	form := ast2.AnyToAst(argv.Interface(), "Eval")
+	form = base.SimplifyAstForQuote(form, true)
+
+	interp := interpv.Interface().(*Interp)
+	e := interp.CompileAst(form)
+	return interp.RunExpr1(e)
+}
+
+// --- EvalType() ---
+
+func funI2_T(interface{}, interface{}) r.Type {
+	return nil
+}
+
+func callEvalType(argv r.Value, interpv r.Value) r.Value {
+	if !argv.IsValid() {
+		return argv
+	}
+	form := ast2.AnyToAst(argv.Interface(), "EvalType")
+	form = base.UnwrapTrivialAst(form)
+	node := form.Interface().(ast.Expr)
+
+	interp := interpv.Interface().(*Interp)
+	t := interp.Comp.Type(node)
+	return r.ValueOf(t.ReflectType())
 }
 
 // --- len() ---
@@ -904,6 +947,17 @@ func (c *Comp) call_builtin(call *Call) I {
 			argfunsX1[1],
 		}
 		ret = func(env *Env) int {
+			arg0 := argfuns[0](env)
+			arg1 := argfuns[1](env)
+			return fun(arg0, arg1)
+		}
+	case func(r.Value, r.Value) r.Value: // Eval(), EvalType()
+		argfunsX1 := call.MakeArgfunsX1()
+		argfuns := [2]func(env *Env) r.Value{
+			argfunsX1[0],
+			argfunsX1[1],
+		}
+		ret = func(env *Env) r.Value {
 			arg0 := argfuns[0](env)
 			arg1 := argfuns[1](env)
 			return fun(arg0, arg1)

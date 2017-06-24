@@ -677,7 +677,7 @@ var testcases = []TestCase{
 	TestCase{A, "macro_call", "second_arg;1;v;3", uint32(98), nil},
 	TestCase{A, "macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
 	TestCase{I, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
-	TestCase{I, "eval", "Eval(~quote{1+2})", 3, nil},
+	TestCase{A, "eval", "Eval(~quote{1+2})", 3, nil},
 	TestCase{I, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
 }
 
