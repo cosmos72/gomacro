@@ -579,7 +579,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 		}
 		rtin := tin.ReflectType()
 		rtout := tout.ReflectType()
-		if tin.Implements(tout) {
+		if tout.Kind() == r.Interface && tin.Implements(tout) {
 			ret = func(env *Env) r.Value {
 				v := fun(env)
 				// nil is not a valid tout, check for it.
@@ -610,7 +610,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			}
 			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
 			rtconcr := v.Type()
-			if rtconcr != rtout && !rtconcr.Implements(rtout) {
+			if rtconcr != rtout && (rtout.Kind() != r.Interface || !rtconcr.Implements(rtout)) {
 				panic(&TypeAssertionError{
 					Interface: rtin,
 					Concrete:  rtconcr,

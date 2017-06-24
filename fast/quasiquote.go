@@ -134,11 +134,15 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 		return exprX1(typ, func(env *Env) r.Value {
 			out := form.New().(AstWithSlice)
 			for i, fun := range funs {
-				if splices[i] {
-					x := ValueInterface(fun(env))
-					if x == nil {
-						continue
-					}
+				x := ValueInterface(fun(env))
+				if debug {
+					Debugf("Quasiquote: append to AstWithSlice: <%v> returned %v <%v>", r.TypeOf(fun), x, r.TypeOf(x))
+				}
+				if x == nil {
+					continue
+				} else if !splices[i] {
+					out.Append(AnyToAst(x, positions[i]))
+				} else {
 					xs := AnyToAstWithSlice(x, positions[i])
 					n := xs.Size()
 					for j := 0; j < n; j++ {
@@ -146,9 +150,6 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 							out.Append(xj)
 						}
 					}
-				} else {
-					x := ValueInterface(fun(env))
-					out.Append(AnyToAst(x, positions[i]))
 				}
 			}
 			return r.ValueOf(out.Interface()).Convert(rtype)
@@ -188,6 +189,9 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 				var node ast.Node
 				if fun != nil {
 					x := ValueInterface(fun(env))
+					if debug {
+						Debugf("Quasiquote: body of %s: <%v> returned %v <%v>", mt.String(op), r.TypeOf(fun), x, r.TypeOf(x))
+					}
 					node = AnyToAstWithNode(x, position).Node()
 				}
 				ret, _ := mp.MakeQuote(nil, op, token.NoPos, node)
