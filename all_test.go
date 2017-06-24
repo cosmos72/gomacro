@@ -36,6 +36,7 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/fast"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type TestFor int
@@ -140,15 +141,25 @@ const switch_source_string = `func bigswitch(n int) int {
 	return n
 }`
 
-var ti = r.StructOf(
-	[]r.StructField{
-		r.StructField{Name: StrGensymInterface, Type: r.TypeOf((*interface{})(nil)).Elem()},
-		r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
-	},
-)
-var si = r.Zero(ti).Interface()
+var (
+	cti = r.StructOf(
+		[]r.StructField{
+			r.StructField{Name: StrGensymInterface, Type: r.TypeOf((*interface{})(nil)).Elem()},
+			r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
+		},
+	)
+	fti = r.StructOf(
+		[]r.StructField{
+			r.StructField{Name: StrGensymInterface, Type: r.TypeOf((*xr.InterfaceHeader)(nil)).Elem()},
+			r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
+		},
+	)
 
-var zeroValues = []r.Value{}
+	csi = r.Zero(cti).Interface()
+	fsi = r.Zero(r.PtrTo(fti)).Interface()
+
+	zeroValues = []r.Value{}
+)
 
 var nil_map_int_string map[int]string
 
@@ -273,7 +284,8 @@ var testcases = []TestCase{
 
 	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
-	TestCase{I, "type_interface", "type Stringer interface { String() string }; var s Stringer", si, nil},
+	TestCase{I, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", csi, nil},
+	TestCase{F, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", fsi, nil},
 	TestCase{A, "type_struct_1", "type Pair struct { A rune; B string }; var pair Pair; pair", struct {
 		A rune
 		B string
@@ -650,12 +662,12 @@ var testcases = []TestCase{
 		X:  &ast.BasicLit{Kind: token.INT, Value: "2"},
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "6"},
 	}, nil},
-	TestCase{I, "unquote_splice_1", `~quasiquote{~unquote_splice ab ; c}`, &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{A, "unquote_splice_1", `~quasiquote{~unquote_splice ab ; c}`, &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "c"}},
 	}}, nil},
-	TestCase{I, "unquote_splice_2", `~"{zero ; ~,@ab ; one}`, &ast.BlockStmt{List: []ast.Stmt{
+	TestCase{A, "unquote_splice_2", `~"{zero ; ~,@ab ; one}`, &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "zero"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},

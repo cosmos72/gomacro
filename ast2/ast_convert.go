@@ -67,7 +67,7 @@ func CloneAstWithSlice(in AstWithSlice) AstWithSlice {
 }
 */
 
-func AnyToAstWithNode(any interface{}, caller string) AstWithNode {
+func AnyToAstWithNode(any interface{}, caller interface{}) AstWithNode {
 	node := AnyToAst(any, caller)
 	switch node := node.(type) {
 	case AstWithNode:
@@ -78,7 +78,7 @@ func AnyToAstWithNode(any interface{}, caller string) AstWithNode {
 	}
 }
 
-func AnyToAstWithSlice(any interface{}, caller string) AstWithSlice {
+func AnyToAstWithSlice(any interface{}, caller interface{}) AstWithSlice {
 	node := AnyToAst(any, caller)
 	switch node := node.(type) {
 	case AstWithSlice:
@@ -89,7 +89,7 @@ func AnyToAstWithSlice(any interface{}, caller string) AstWithSlice {
 	}
 }
 
-func AnyToAst(any interface{}, caller string) Ast {
+func AnyToAst(any interface{}, caller interface{}) Ast {
 	var str string
 	var tok token.Token
 	switch node := any.(type) {
@@ -331,7 +331,7 @@ func ToAst(node ast.Node) AstWithNode {
 	return x
 }
 
-func ToAstWithSlice(x Ast, caller string) AstWithSlice {
+func ToAstWithSlice(x Ast, caller interface{}) AstWithSlice {
 	switch x := x.(type) {
 	case AstWithSlice:
 		return x
