@@ -32,14 +32,14 @@ import (
 
 // Ast wrappers for variable-length slices of ast.Nodes - they are not full-blown ast.Node
 
-func (x AstSlice) Interface() interface{}   { return x.X }
-func (x NodeSlice) Interface() interface{}  { return x.X }
-func (x ExprSlice) Interface() interface{}  { return x.X }
-func (x FieldSlice) Interface() interface{} { return x.X }
-func (x DeclSlice) Interface() interface{}  { return x.X }
-func (x IdentSlice) Interface() interface{} { return x.X }
-func (x SpecSlice) Interface() interface{}  { return x.X }
-func (x StmtSlice) Interface() interface{}  { return x.X }
+func (x AstSlice) Interface() interface{}   { return asInterface(x.X, x.X == nil) }
+func (x NodeSlice) Interface() interface{}  { return asInterface(x.X, x.X == nil) }
+func (x ExprSlice) Interface() interface{}  { return asInterface(x.X, x.X == nil) }
+func (x FieldSlice) Interface() interface{} { return asInterface(x.X, x.X == nil) }
+func (x DeclSlice) Interface() interface{}  { return asInterface(x.X, x.X == nil) }
+func (x IdentSlice) Interface() interface{} { return asInterface(x.X, x.X == nil) }
+func (x SpecSlice) Interface() interface{}  { return asInterface(x.X, x.X == nil) }
+func (x StmtSlice) Interface() interface{}  { return asInterface(x.X, x.X == nil) }
 
 func (x AstSlice) Op() token.Token   { return token.COMMA }     // FIXME
 func (x NodeSlice) Op() token.Token  { return token.COMMA }     // FIXME
@@ -106,17 +106,17 @@ func (x StmtSlice) Append(child Ast) AstWithSlice  { x.X = append(x.X, ToStmt(ch
 
 // variable-length ast.Nodes
 
-func (x BlockStmt) Interface() interface{}  { return x.X }
-func (x FieldList) Interface() interface{}  { return x.X }
-func (x File) Interface() interface{}       { return x.X }
-func (x GenDecl) Interface() interface{}    { return x.X }
-func (x ReturnStmt) Interface() interface{} { return x.X }
+func (x BlockStmt) Interface() interface{}  { return asInterface(x.X, x.X == nil) }
+func (x FieldList) Interface() interface{}  { return asInterface(x.X, x.X == nil) }
+func (x File) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x GenDecl) Interface() interface{}    { return asInterface(x.X, x.X == nil) }
+func (x ReturnStmt) Interface() interface{} { return asInterface(x.X, x.X == nil) }
 
-func (x BlockStmt) Node() ast.Node  { return x.X }
-func (x FieldList) Node() ast.Node  { return x.X }
-func (x File) Node() ast.Node       { return x.X }
-func (x GenDecl) Node() ast.Node    { return x.X }
-func (x ReturnStmt) Node() ast.Node { return x.X }
+func (x BlockStmt) Node() ast.Node  { return asNode(x.X, x.X == nil) }
+func (x FieldList) Node() ast.Node  { return asNode(x.X, x.X == nil) }
+func (x File) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x GenDecl) Node() ast.Node    { return asNode(x.X, x.X == nil) }
+func (x ReturnStmt) Node() ast.Node { return asNode(x.X, x.X == nil) }
 
 func (x BlockStmt) Op() token.Token  { return token.LBRACE }
 func (x FieldList) Op() token.Token  { return token.ELLIPSIS }

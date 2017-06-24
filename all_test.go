@@ -662,6 +662,21 @@ var testcases = []TestCase{
 		X:  &ast.BasicLit{Kind: token.INT, Value: "2"},
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "6"},
 	}, nil},
+	TestCase{A, "quasiquote_3", `~"{func(int) {}}`, &ast.FuncLit{
+		Type: &ast.FuncType{
+			Params: &ast.FieldList{
+				List: []*ast.Field{
+					&ast.Field{
+						Names: nil,
+						Type: &ast.Ident{
+							Name: "int",
+						},
+					},
+				},
+			},
+		},
+		Body: &ast.BlockStmt{},
+	}, nil},
 	TestCase{A, "unquote_splice_1", `~quasiquote{~unquote_splice ab ; c}`, &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
@@ -723,6 +738,12 @@ func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interfa
 }
 
 func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
+	if actual == expected {
+		return
+	}
+	if actual == nil || expected == nil {
+		c.fail(t, actual, expected)
+	}
 	if r.TypeOf(actual) == r.TypeOf(expected) {
 		switch actual := actual.(type) {
 		case BadDecl, BadExpr, BadStmt:
@@ -734,7 +755,7 @@ func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 		case BasicLit:
 			actualp := actual.X
 			expectedp := expected.(BasicLit).X
-			if actualp.Kind == expectedp.Kind && actualp.Value == expectedp.Value {
+			if actualp == expectedp || (actualp != nil && expectedp != nil && actualp.Kind == expectedp.Kind && actualp.Value == expectedp.Value) {
 				return
 			}
 		default:

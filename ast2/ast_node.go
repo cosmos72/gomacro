@@ -30,109 +30,123 @@ import (
 	"go/token"
 )
 
+func asInterface(x interface{}, isnil bool) interface{} {
+	if isnil {
+		return nil
+	}
+	return x
+}
+
+func asNode(x ast.Node, isnil bool) ast.Node {
+	if isnil {
+		return nil
+	}
+	return x
+}
+
 //
 // .................. functions Interface() interface{}
 //
-func (x ArrayType) Interface() interface{}      { return x.X }
-func (x AssignStmt) Interface() interface{}     { return x.X }
-func (x BadDecl) Interface() interface{}        { return x.X }
-func (x BadExpr) Interface() interface{}        { return x.X }
-func (x BadStmt) Interface() interface{}        { return x.X }
-func (x BasicLit) Interface() interface{}       { return x.X }
-func (x BinaryExpr) Interface() interface{}     { return x.X }
-func (x BranchStmt) Interface() interface{}     { return x.X }
-func (x CallExpr) Interface() interface{}       { return x.X }
-func (x CaseClause) Interface() interface{}     { return x.X }
-func (x ChanType) Interface() interface{}       { return x.X }
-func (x CommClause) Interface() interface{}     { return x.X }
-func (x CompositeLit) Interface() interface{}   { return x.X }
-func (x DeclStmt) Interface() interface{}       { return x.X }
-func (x DeferStmt) Interface() interface{}      { return x.X }
-func (x Ellipsis) Interface() interface{}       { return x.X }
-func (x EmptyStmt) Interface() interface{}      { return x.X }
-func (x ExprStmt) Interface() interface{}       { return x.X }
-func (x Field) Interface() interface{}          { return x.X }
-func (x ForStmt) Interface() interface{}        { return x.X }
-func (x FuncDecl) Interface() interface{}       { return x.X }
-func (x FuncLit) Interface() interface{}        { return x.X }
-func (x FuncType) Interface() interface{}       { return x.X }
-func (x GoStmt) Interface() interface{}         { return x.X }
-func (x Ident) Interface() interface{}          { return x.X }
-func (x IfStmt) Interface() interface{}         { return x.X }
-func (x ImportSpec) Interface() interface{}     { return x.X }
-func (x IncDecStmt) Interface() interface{}     { return x.X }
-func (x IndexExpr) Interface() interface{}      { return x.X }
-func (x InterfaceType) Interface() interface{}  { return x.X }
-func (x KeyValueExpr) Interface() interface{}   { return x.X }
-func (x LabeledStmt) Interface() interface{}    { return x.X }
-func (x MapType) Interface() interface{}        { return x.X }
-func (x Package) Interface() interface{}        { return x.X }
-func (x ParenExpr) Interface() interface{}      { return x.X }
-func (x RangeStmt) Interface() interface{}      { return x.X }
-func (x SelectStmt) Interface() interface{}     { return x.X }
-func (x SelectorExpr) Interface() interface{}   { return x.X }
-func (x SendStmt) Interface() interface{}       { return x.X }
-func (x SliceExpr) Interface() interface{}      { return x.X }
-func (x StarExpr) Interface() interface{}       { return x.X }
-func (x StructType) Interface() interface{}     { return x.X }
-func (x SwitchStmt) Interface() interface{}     { return x.X }
-func (x TypeAssertExpr) Interface() interface{} { return x.X }
-func (x TypeSpec) Interface() interface{}       { return x.X }
-func (x TypeSwitchStmt) Interface() interface{} { return x.X }
-func (x UnaryExpr) Interface() interface{}      { return x.X }
-func (x ValueSpec) Interface() interface{}      { return x.X }
+func (x ArrayType) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
+func (x AssignStmt) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x BadDecl) Interface() interface{}        { return asInterface(x.X, x.X == nil) }
+func (x BadExpr) Interface() interface{}        { return asInterface(x.X, x.X == nil) }
+func (x BadStmt) Interface() interface{}        { return asInterface(x.X, x.X == nil) }
+func (x BasicLit) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x BinaryExpr) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x BranchStmt) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x CallExpr) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x CaseClause) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x ChanType) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x CommClause) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x CompositeLit) Interface() interface{}   { return asInterface(x.X, x.X == nil) }
+func (x DeclStmt) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x DeferStmt) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
+func (x Ellipsis) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x EmptyStmt) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
+func (x ExprStmt) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x Field) Interface() interface{}          { return asInterface(x.X, x.X == nil) }
+func (x ForStmt) Interface() interface{}        { return asInterface(x.X, x.X == nil) }
+func (x FuncDecl) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x FuncLit) Interface() interface{}        { return asInterface(x.X, x.X == nil) }
+func (x FuncType) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x GoStmt) Interface() interface{}         { return asInterface(x.X, x.X == nil) }
+func (x Ident) Interface() interface{}          { return asInterface(x.X, x.X == nil) }
+func (x IfStmt) Interface() interface{}         { return asInterface(x.X, x.X == nil) }
+func (x ImportSpec) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x IncDecStmt) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x IndexExpr) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
+func (x InterfaceType) Interface() interface{}  { return asInterface(x.X, x.X == nil) }
+func (x KeyValueExpr) Interface() interface{}   { return asInterface(x.X, x.X == nil) }
+func (x LabeledStmt) Interface() interface{}    { return asInterface(x.X, x.X == nil) }
+func (x MapType) Interface() interface{}        { return asInterface(x.X, x.X == nil) }
+func (x Package) Interface() interface{}        { return asInterface(x.X, x.X == nil) }
+func (x ParenExpr) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
+func (x RangeStmt) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
+func (x SelectStmt) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x SelectorExpr) Interface() interface{}   { return asInterface(x.X, x.X == nil) }
+func (x SendStmt) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x SliceExpr) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
+func (x StarExpr) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x StructType) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x SwitchStmt) Interface() interface{}     { return asInterface(x.X, x.X == nil) }
+func (x TypeAssertExpr) Interface() interface{} { return asInterface(x.X, x.X == nil) }
+func (x TypeSpec) Interface() interface{}       { return asInterface(x.X, x.X == nil) }
+func (x TypeSwitchStmt) Interface() interface{} { return asInterface(x.X, x.X == nil) }
+func (x UnaryExpr) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
+func (x ValueSpec) Interface() interface{}      { return asInterface(x.X, x.X == nil) }
 
 //
 // .................. functions Node() ast.Node
 //
-func (x ArrayType) Node() ast.Node      { return x.X }
-func (x AssignStmt) Node() ast.Node     { return x.X }
-func (x BadDecl) Node() ast.Node        { return x.X }
-func (x BadExpr) Node() ast.Node        { return x.X }
-func (x BadStmt) Node() ast.Node        { return x.X }
-func (x BasicLit) Node() ast.Node       { return x.X }
-func (x BinaryExpr) Node() ast.Node     { return x.X }
-func (x BranchStmt) Node() ast.Node     { return x.X }
-func (x CallExpr) Node() ast.Node       { return x.X }
-func (x CaseClause) Node() ast.Node     { return x.X }
-func (x ChanType) Node() ast.Node       { return x.X }
-func (x CommClause) Node() ast.Node     { return x.X }
-func (x CompositeLit) Node() ast.Node   { return x.X }
-func (x DeclStmt) Node() ast.Node       { return x.X }
-func (x DeferStmt) Node() ast.Node      { return x.X }
-func (x Ellipsis) Node() ast.Node       { return x.X }
-func (x EmptyStmt) Node() ast.Node      { return x.X }
-func (x ExprStmt) Node() ast.Node       { return x.X }
-func (x Field) Node() ast.Node          { return x.X }
-func (x ForStmt) Node() ast.Node        { return x.X }
-func (x FuncDecl) Node() ast.Node       { return x.X }
-func (x FuncLit) Node() ast.Node        { return x.X }
-func (x FuncType) Node() ast.Node       { return x.X }
-func (x GoStmt) Node() ast.Node         { return x.X }
-func (x Ident) Node() ast.Node          { return x.X }
-func (x IfStmt) Node() ast.Node         { return x.X }
-func (x ImportSpec) Node() ast.Node     { return x.X }
-func (x IncDecStmt) Node() ast.Node     { return x.X }
-func (x IndexExpr) Node() ast.Node      { return x.X }
-func (x InterfaceType) Node() ast.Node  { return x.X }
-func (x KeyValueExpr) Node() ast.Node   { return x.X }
-func (x LabeledStmt) Node() ast.Node    { return x.X }
-func (x MapType) Node() ast.Node        { return x.X }
-func (x Package) Node() ast.Node        { return x.X }
-func (x ParenExpr) Node() ast.Node      { return x.X }
-func (x RangeStmt) Node() ast.Node      { return x.X }
-func (x SelectStmt) Node() ast.Node     { return x.X }
-func (x SelectorExpr) Node() ast.Node   { return x.X }
-func (x SendStmt) Node() ast.Node       { return x.X }
-func (x SliceExpr) Node() ast.Node      { return x.X }
-func (x StarExpr) Node() ast.Node       { return x.X }
-func (x StructType) Node() ast.Node     { return x.X }
-func (x SwitchStmt) Node() ast.Node     { return x.X }
-func (x TypeAssertExpr) Node() ast.Node { return x.X }
-func (x TypeSpec) Node() ast.Node       { return x.X }
-func (x TypeSwitchStmt) Node() ast.Node { return x.X }
-func (x UnaryExpr) Node() ast.Node      { return x.X }
-func (x ValueSpec) Node() ast.Node      { return x.X }
+func (x ArrayType) Node() ast.Node      { return asNode(x.X, x.X == nil) }
+func (x AssignStmt) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x BadDecl) Node() ast.Node        { return asNode(x.X, x.X == nil) }
+func (x BadExpr) Node() ast.Node        { return asNode(x.X, x.X == nil) }
+func (x BadStmt) Node() ast.Node        { return asNode(x.X, x.X == nil) }
+func (x BasicLit) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x BinaryExpr) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x BranchStmt) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x CallExpr) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x CaseClause) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x ChanType) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x CommClause) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x CompositeLit) Node() ast.Node   { return asNode(x.X, x.X == nil) }
+func (x DeclStmt) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x DeferStmt) Node() ast.Node      { return asNode(x.X, x.X == nil) }
+func (x Ellipsis) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x EmptyStmt) Node() ast.Node      { return asNode(x.X, x.X == nil) }
+func (x ExprStmt) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x Field) Node() ast.Node          { return asNode(x.X, x.X == nil) }
+func (x ForStmt) Node() ast.Node        { return asNode(x.X, x.X == nil) }
+func (x FuncDecl) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x FuncLit) Node() ast.Node        { return asNode(x.X, x.X == nil) }
+func (x FuncType) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x GoStmt) Node() ast.Node         { return asNode(x.X, x.X == nil) }
+func (x Ident) Node() ast.Node          { return asNode(x.X, x.X == nil) }
+func (x IfStmt) Node() ast.Node         { return asNode(x.X, x.X == nil) }
+func (x ImportSpec) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x IncDecStmt) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x IndexExpr) Node() ast.Node      { return asNode(x.X, x.X == nil) }
+func (x InterfaceType) Node() ast.Node  { return asNode(x.X, x.X == nil) }
+func (x KeyValueExpr) Node() ast.Node   { return asNode(x.X, x.X == nil) }
+func (x LabeledStmt) Node() ast.Node    { return asNode(x.X, x.X == nil) }
+func (x MapType) Node() ast.Node        { return asNode(x.X, x.X == nil) }
+func (x Package) Node() ast.Node        { return asNode(x.X, x.X == nil) }
+func (x ParenExpr) Node() ast.Node      { return asNode(x.X, x.X == nil) }
+func (x RangeStmt) Node() ast.Node      { return asNode(x.X, x.X == nil) }
+func (x SelectStmt) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x SelectorExpr) Node() ast.Node   { return asNode(x.X, x.X == nil) }
+func (x SendStmt) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x SliceExpr) Node() ast.Node      { return asNode(x.X, x.X == nil) }
+func (x StarExpr) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x StructType) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x SwitchStmt) Node() ast.Node     { return asNode(x.X, x.X == nil) }
+func (x TypeAssertExpr) Node() ast.Node { return asNode(x.X, x.X == nil) }
+func (x TypeSpec) Node() ast.Node       { return asNode(x.X, x.X == nil) }
+func (x TypeSwitchStmt) Node() ast.Node { return asNode(x.X, x.X == nil) }
+func (x UnaryExpr) Node() ast.Node      { return asNode(x.X, x.X == nil) }
+func (x ValueSpec) Node() ast.Node      { return asNode(x.X, x.X == nil) }
 
 //
 // .................. functions Op() token.Token

@@ -61,7 +61,7 @@ func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 			fun := expr.AsX1()
 			toUnwrap := block != node
 			return exprX1(c.Universe.FromReflectType(rtypeOfNode), func(env *Env) r.Value {
-				x := fun(env).Interface()
+				x := ValueInterface(fun(env))
 				node := AnyToAstWithNode(x, "Quasiquote").Node()
 				node = SimplifyNodeForQuote(node, toUnwrap)
 				return r.ValueOf(node)
@@ -90,6 +90,9 @@ func (c *Comp) quasiquote1(in Ast, depth int, can_splice bool) *Expr {
 
 // quasiquote expands and compiles the contents of a ~quasiquote
 func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
+	if in == nil || in.Interface() == nil {
+		return nil, false
+	}
 	debug := c.Options&OptDebugQuasiquote != 0
 	var label string
 	if can_splice {
@@ -132,7 +135,11 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 			out := form.New().(AstWithSlice)
 			for i, fun := range funs {
 				if splices[i] {
-					xs := AnyToAstWithSlice(fun(env).Interface(), positions[i])
+					x := ValueInterface(fun(env))
+					if x == nil {
+						continue
+					}
+					xs := AnyToAstWithSlice(x, positions[i])
 					n := xs.Size()
 					for j := 0; j < n; j++ {
 						if xj := xs.Get(j); xj != nil {
@@ -140,7 +147,7 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 						}
 					}
 				} else {
-					x := fun(env).Interface()
+					x := ValueInterface(fun(env))
 					out.Append(AnyToAst(x, positions[i]))
 				}
 			}
@@ -180,7 +187,8 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 			return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) r.Value {
 				var node ast.Node
 				if fun != nil {
-					node = AnyToAstWithNode(fun(env).Interface(), position).Node()
+					x := ValueInterface(fun(env))
+					node = AnyToAstWithNode(x, position).Node()
 				}
 				ret, _ := mp.MakeQuote(nil, op, token.NoPos, node)
 				return r.ValueOf(ret)
@@ -195,8 +203,12 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 		c.Errorf("Quasiquote: unsupported node type, expecting AstWithNode or AstWithSlice: %v <%v>", x, r.TypeOf(x))
 		return nil, false
 	}
+	node := in.Interface()
 	if debug {
-		c.Debugf("Quasiquote[%d] recursing: %v <%v>", depth, in.Interface(), r.TypeOf(in.Interface()))
+		c.Debugf("Quasiquote[%d] recursing: %v <%v>", depth, node, r.TypeOf(node))
+	}
+	if node == nil {
+		return nil, false
 	}
 	form := in.New().(AstWithNode) // we must NOT retain input argument, so clone it
 	n := in.Size()
@@ -219,7 +231,7 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 				continue
 			}
 			funs[i] = fun
-			if form, ok := form.(AstWithNode); ok {
+			if form, ok := form.(AstWithNode); ok && form.Node() != nil {
 				positions[i] = c.Fileset.Position(form.Node().Pos())
 			}
 		}
@@ -229,7 +241,7 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 		out := form.New().(AstWithNode)
 		for i, fun := range funs {
 			if fun != nil {
-				x := fun(env).Interface()
+				x := ValueInterface(fun(env))
 				out.Set(i, AnyToAst(x, positions[i]))
 			}
 		}
@@ -241,7 +253,8 @@ func (c *Comp) quoteUnquoteSplice(op token.Token, pos token.Pos, position token.
 	return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) r.Value {
 		var node ast.Node
 		if fun != nil {
-			form := AnyToAst(fun(env).Interface(), position)
+			x := ValueInterface(fun(env))
+			form := AnyToAst(x, position)
 			switch form := form.(type) {
 			case AstWithNode:
 				node = form.Node()
