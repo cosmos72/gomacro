@@ -75,6 +75,7 @@ func init() {
 			"ReadOptCollectAllComments":  r.ValueOf(ReadOptCollectAllComments),
 			"ReadOptShowPrompt":          r.ValueOf(ReadOptShowPrompt),
 			"ReadString":                 r.ValueOf(ReadString),
+			"SimplifyAstForQuote":        r.ValueOf(SimplifyAstForQuote),
 			"SimplifyNodeForQuote":       r.ValueOf(SimplifyNodeForQuote),
 			"StrGensym":                  r.ValueOf(StrGensym),
 			"StrGensymEmbedded":          r.ValueOf(StrGensymEmbedded),

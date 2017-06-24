@@ -36,7 +36,7 @@ import (
 
 // SimplifyNodeForQuote unwraps ast.BlockStmt, ast.ExprStmt, ast.ParenExpr and ast.DeclStmt
 // and returns their contents.
-// used to implement interpreter.evalQuote() and interpreter.evalQuasiQuote(), be extra careful if you patch it!
+// used to implement classic.Env.evalQuote() and classic.Env.evalQuasiQuote(), be extra careful if you patch it!
 func SimplifyNodeForQuote(in ast.Node, unwrapTrivialBlocks bool) ast.Node {
 	// unwrap expressions... they fit in more places and make the life easier to MacroExpand and evalQuasiquote
 	// also, if unwrapTrivialBlocks is true, unwrap a single-statement block { foo } to foo
@@ -60,6 +60,33 @@ func SimplifyNodeForQuote(in ast.Node, unwrapTrivialBlocks bool) ast.Node {
 			return node.X
 		case *ast.DeclStmt:
 			return node.Decl
+		}
+		return in
+	}
+}
+
+// SimplifyAstForQuote unwraps ast2.BlockStmt, ast2.ExprStmt, ast2.ParenExpr and ast2.DeclStmt
+// and returns their contents.
+// used to implement fast.Comp.QuasiQuote(), be extra careful if you patch it!
+func SimplifyAstForQuote(in Ast, unwrapTrivialBlocks bool) Ast {
+	// unwrap expressions... they fit in more places and make the life easier to MacroExpand and evalQuasiquote
+	// also, if unwrapTrivialBlocks is true, unwrap a single-statement block { foo } to foo
+	for {
+		switch form := in.(type) {
+		case BlockStmt:
+			if unwrapTrivialBlocks {
+				switch form.Size() {
+				case 0:
+					return EmptyStmt{&ast.EmptyStmt{Semicolon: form.X.List[0].End(), Implicit: false}}
+				case 1:
+					in = form.Get(0)
+					unwrapTrivialBlocks = false
+					continue
+				}
+			}
+			return form
+		case ExprStmt, ParenExpr, DeclStmt:
+			return in.Get(0)
 		}
 		return in
 	}

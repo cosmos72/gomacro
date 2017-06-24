@@ -26,6 +26,7 @@
 package fast
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
@@ -36,36 +37,36 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-func isUnquoteOrUnquoteSplice(node ast.Node) bool {
-	op := UnwrapTrivialAst(ToAst(node)).Op()
-	return op == mt.UNQUOTE || op == mt.UNQUOTE_SPLICE
-}
-
 var (
 	rtypeOfNode      = r.TypeOf((*ast.Node)(nil)).Elem()
 	rtypeOfUnaryExpr = r.TypeOf((*ast.UnaryExpr)(nil))
+	rtypeOfBlockStmt = r.TypeOf((*ast.BlockStmt)(nil)).Elem()
 )
 
 func (c *Comp) quasiquoteUnary(unary *ast.UnaryExpr) *Expr {
 	block := unary.X.(*ast.FuncLit).Body
 	node := SimplifyNodeForQuote(block, true)
 
-	if block != nil && len(block.List) == 1 && isUnquoteOrUnquoteSplice(block.List[0]) {
-		// to support quasiquote{unquote ...} and quasiquote{unquote_splice ...}
-		// we invoke SimplifyNodeForQuote() at the end, not at the beginning.
-		toUnwrap := block != node
+	if block != nil && len(block.List) == 1 {
+		if unary, ok := SimplifyNodeForQuote(block.List[0], false).(*ast.UnaryExpr); ok && (unary.Op == mt.UNQUOTE || unary.Op == mt.UNQUOTE_SPLICE) {
+			// to support quasiquote{unquote ...} and quasiquote{unquote_splice ...}
+			// we invoke SimplifyNodeForQuote() at the end, not at the beginning.
 
-		in := ToAst(block)
-		fun := c.quasiquote1(in, 1, true).AsX1()
+			in := ToAst(block)
+			expr := c.quasiquote1(in, 1, true)
 
-		return exprX1(c.TypeOfInterface(), func(env *Env) r.Value {
-			x := fun(env).Interface()
-			form := AnyToAst(x, "Quasiquote")
-			if form, ok := form.(AstWithNode); ok {
-				return r.ValueOf(SimplifyNodeForQuote(form.Node(), toUnwrap))
+			if unary.Op == mt.UNQUOTE_SPLICE {
+				return expr
 			}
-			return r.ValueOf(form.Interface())
-		})
+			fun := expr.AsX1()
+			toUnwrap := block != node
+			return exprX1(c.Universe.FromReflectType(rtypeOfNode), func(env *Env) r.Value {
+				x := fun(env).Interface()
+				node := AnyToAstWithNode(x, "Quasiquote").Node()
+				node = SimplifyNodeForQuote(node, toUnwrap)
+				return r.ValueOf(node)
+			})
+		}
 	}
 	return c.quasiquote1(ToAst(node), 1, true)
 }
@@ -106,7 +107,7 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 		positions := make([]token.Position, 0, n)
 		for i := 0; i < n; i++ {
 			if form := in.Get(i); form != nil {
-				form = UnwrapTrivialAst(form)
+				form = SimplifyAstForQuote(form, false)
 				expr, splice := c.quasiquote(form, depth, true)
 				fun := expr.AsX1()
 				if fun == nil {
@@ -149,8 +150,8 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 		unary := in.X
 		switch op := unary.Op; op {
 		case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
-			form := UnwrapTrivialAst(ToAst(unary.X.(*ast.FuncLit).Body))
-			node := form.Interface()
+			node := SimplifyNodeForQuote(unary.X.(*ast.FuncLit).Body, true)
+			form := ToAst(node)
 
 			if op == mt.QUASIQUOTE {
 				depth++
@@ -167,9 +168,14 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 			if fun == nil {
 				c.Warnf("Quasiquote[%d]%s: node expanded to nil: %v <%v>", depth, label, node, r.TypeOf(node))
 			}
+			var pos token.Pos
 			var position token.Position
 			if node, ok := node.(ast.Node); ok {
-				position = c.Fileset.Position(node.Pos())
+				pos = node.Pos()
+				position = c.Fileset.Position(pos)
+			}
+			if op == mt.UNQUOTE_SPLICE {
+				return c.quoteUnquoteSplice(op, pos, position, fun), false
 			}
 			return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) r.Value {
 				var node ast.Node
@@ -206,7 +212,7 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 	positions := make([]token.Position, n)
 	for i := 0; i < n; i++ {
 		if form := in.Get(i); form != nil {
-			form = UnwrapTrivialAst(form)
+			form = SimplifyAstForQuote(form, false)
 			fun := c.quasiquote1(form, depth, false).AsX1()
 			if fun == nil {
 				c.Warnf("Quasiquote[%d]: node expanded to nil: %v", depth, form.Interface())
@@ -229,4 +235,36 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 		}
 		return r.ValueOf(out.Interface()).Convert(rtype)
 	}), false
+}
+
+func (c *Comp) quoteUnquoteSplice(op token.Token, pos token.Pos, position token.Position, fun func(*Env) r.Value) *Expr {
+	return exprX1(c.Universe.FromReflectType(rtypeOfUnaryExpr), func(env *Env) r.Value {
+		var node ast.Node
+		if fun != nil {
+			form := AnyToAst(fun(env).Interface(), position)
+			switch form := form.(type) {
+			case AstWithNode:
+				node = form.Node()
+			case AstWithSlice:
+				block := BlockStmt{&ast.BlockStmt{Lbrace: pos}}
+				n := form.Size()
+				for i := 0; i < n; i++ {
+					if formi := form.Get(i); formi != nil {
+						/*block =*/ block.Append(formi)
+					}
+				}
+				node = block.X
+			default:
+				var prefix string
+				if pos != token.NoPos {
+					prefix = fmt.Sprintf("%s: ", position)
+				}
+				Errorf("%s%s returned invalid type, expecting AstWithNode or AstWithSlice: %v, <%v>",
+					prefix, mt.String(mt.UNQUOTE_SPLICE), form, r.TypeOf(form))
+				return Nil
+			}
+		}
+		ret, _ := mp.MakeQuote(nil, op, token.NoPos, node)
+		return r.ValueOf(ret)
+	})
 }
