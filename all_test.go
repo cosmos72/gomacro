@@ -744,10 +744,10 @@ func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interfa
 
 func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 	if actual == nil || expected == nil {
-		if actual == nil && expected == nil {
-			return
+		if actual != nil || expected != nil {
+			c.fail(t, actual, expected)
 		}
-		c.fail(t, actual, expected)
+		return
 	}
 	if r.TypeOf(actual) == r.TypeOf(expected) {
 		switch actual := actual.(type) {

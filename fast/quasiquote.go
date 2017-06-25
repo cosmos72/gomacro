@@ -141,13 +141,13 @@ func (c *Comp) quasiquote(in Ast, depth int, can_splice bool) (*Expr, bool) {
 				if x == nil {
 					continue
 				} else if !splices[i] {
-					out.Append(AnyToAst(x, positions[i]))
+					out = out.Append(AnyToAst(x, positions[i]))
 				} else {
 					xs := AnyToAstWithSlice(x, positions[i])
 					n := xs.Size()
 					for j := 0; j < n; j++ {
 						if xj := xs.Get(j); xj != nil {
-							out.Append(xj)
+							out = out.Append(xj)
 						}
 					}
 				}

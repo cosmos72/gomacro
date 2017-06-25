@@ -375,13 +375,13 @@ func (x CallExpr) Get(i int) Ast {
 }
 func (x CaseClause) Get(i int) Ast {
 	if i == 0 {
-		if node := x.X.List; node != nil {
-			return ExprSlice{node}
+		if list := x.X.List; list != nil {
+			return ExprSlice{list}
 		}
 		return nil
 	} else if i == 1 {
-		if node := x.X.Body; node != nil {
-			return StmtSlice{node}
+		if list := x.X.Body; list != nil {
+			return StmtSlice{list}
 		}
 		return nil
 	} else {
@@ -393,8 +393,8 @@ func (x CommClause) Get(i int) Ast {
 	if i == 0 {
 		return ToAst(x.X.Comm)
 	} else if i == 1 {
-		if x.X.Body != nil {
-			return StmtSlice{x.X.Body}
+		if list := x.X.Body; list != nil {
+			return StmtSlice{list}
 		}
 		return nil
 	} else {

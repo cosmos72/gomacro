@@ -317,6 +317,9 @@ func (c *Comp) compileExpr(in Ast) *Expr {
 }
 
 func (c *Comp) CompileNode(node ast.Node) *Expr {
+	if n := c.Code.Len(); n != 0 {
+		c.Warnf("Compile: discarding %d previously compiled statements from code buffer", n)
+	}
 	c.Code.Clear()
 	if node == nil {
 		return nil
