@@ -679,8 +679,12 @@ var testcases = []TestCase{
 	}, nil},
 	TestCase{A, "quasiquote_func", `func qq_func(x interface{}) interface{} { y := ~"~,x; return y }; qq_func(123)`,
 		&ast.BasicLit{Kind: token.INT, Value: "123"}, nil},
-	TestCase{A, "quasiquote_case", `~"{case xy:}`,
-		&ast.CaseClause{List: []ast.Expr{&ast.Ident{Name: "xy"}}}, nil},
+	TestCase{A, "quasiquote_case", `~"{case xy: nil}`,
+		&ast.CaseClause{
+			List: []ast.Expr{&ast.Ident{Name: "xy"}},
+			Body: []ast.Stmt{&ast.ExprStmt{&ast.Ident{Name: "nil"}}},
+		}, nil,
+	},
 
 	TestCase{A, "unquote_splice_1", `~quasiquote{~unquote_splice ab ; c}`, &ast.BlockStmt{List: []ast.Stmt{
 		&ast.ExprStmt{X: &ast.Ident{Name: "a"}},

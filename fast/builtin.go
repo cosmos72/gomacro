@@ -109,13 +109,15 @@ func (ce *Interp) addBuiltins() {
 	ce.DeclBuiltin("recover", Builtin{compileRecover, 0, 0})
 	// ce.DeclBuiltin("recover", Function{callRecover, ce.Comp.TypeOf((*func() interface{})(nil)).Elem()})
 
+	tfunI2_Nb := ce.Comp.TypeOf(funI2_Nb)
+
 	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf(funI_I)})
 	ce.DeclEnvFunc("Eval", Function{callEval, ce.Comp.TypeOf(funI2_I)})
 	ce.DeclEnvFunc("EvalType", Function{callEvalType, ce.Comp.TypeOf(funI2_T)})
+	ce.DeclEnvFunc("MacroExpand", Function{callMacroExpand, tfunI2_Nb})
+	ce.DeclEnvFunc("MacroExpand1", Function{callMacroExpand1, tfunI2_Nb})
+	ce.DeclEnvFunc("MacroExpandCodeWalk", Function{callMacroExpandCodeWalk, tfunI2_Nb})
 	/*
-		binds["MacroExpand"] = r.ValueOf(Function{funcMacroExpand, -1})
-		binds["MacroExpand1"] = r.ValueOf(Function{funcMacroExpand1, -1})
-		binds["MacroExpandCodewalk"] = r.ValueOf(Function{funcMacroExpandCodewalk, -1})
 		binds["Parse"] = r.ValueOf(Function{funcParse, 1})
 		binds["Read"] = r.ValueOf(ReadString)
 		binds["ReadDir"] = r.ValueOf(callReadDir)
@@ -468,6 +470,50 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// TODO https://golang.org/ref/spec#Length_and_capacity specifies
 	// when the array passed to len() is evaluated and when is not...
 	return newCall1(fun, arg, arg.Const(), tout)
+}
+
+// --- MacroExpand(), MacroExpand1(), MacroExpandCodeWalk() ---
+
+func funI2_Nb(interface{}, interface{}) (ast.Node, bool) {
+	return nil, false
+}
+
+func callMacroExpand(argv r.Value, interpv r.Value) (r.Value, r.Value) {
+	return callMacroExpandDispatch(argv, interpv, "MacroExpand")
+}
+
+func callMacroExpand1(argv r.Value, interpv r.Value) (r.Value, r.Value) {
+	return callMacroExpandDispatch(argv, interpv, "MacroExpand1")
+}
+
+func callMacroExpandCodeWalk(argv r.Value, interpv r.Value) (r.Value, r.Value) {
+	return callMacroExpandDispatch(argv, interpv, "MacroExpandCodeWalk")
+}
+
+func callMacroExpandDispatch(argv r.Value, interpv r.Value, caller string) (r.Value, r.Value) {
+	if !argv.IsValid() {
+		return r.Zero(rtypeOfNode), base.False
+	}
+	form := ast2.AnyToAst(argv.Interface(), caller)
+	form = base.SimplifyAstForQuote(form, true)
+
+	interp := interpv.Interface().(*Interp)
+	c := interp.Comp
+
+	var flag bool
+	switch caller {
+	default:
+		form, flag = c.MacroExpand(form)
+	case "MacroExpand1":
+		form, flag = c.MacroExpand1(form)
+	case "MacroExpandCodeWalk":
+		form, flag = c.MacroExpandCodewalk(form)
+	}
+	flagv := base.False
+	if flag {
+		flagv = base.True
+	}
+	return r.ValueOf(form.Interface()).Convert(rtypeOfNode), flagv
 }
 
 // --- make() ---
@@ -920,8 +966,7 @@ func (c *Comp) call_builtin(call *Call) I {
 		argfun := call.MakeArgfunsX1()[0]
 		if name == "Env" {
 			ret = func(env *Env) r.Value {
-				arg0 := argfun(env)
-				return arg0
+				return argfun(env)
 			}
 		} else {
 			ret = func(env *Env) r.Value {
@@ -961,6 +1006,18 @@ func (c *Comp) call_builtin(call *Call) I {
 			arg0 := argfuns[0](env)
 			arg1 := argfuns[1](env)
 			return fun(arg0, arg1)
+		}
+	case func(r.Value, r.Value) (r.Value, r.Value): // MacroExpand*()
+		argfunsX1 := call.MakeArgfunsX1()
+		argfuns := [2]func(env *Env) r.Value{
+			argfunsX1[0],
+			argfunsX1[1],
+		}
+		ret = func(env *Env) (r.Value, []r.Value) {
+			arg0 := argfuns[0](env)
+			arg1 := argfuns[1](env)
+			ret0, ret1 := fun(arg0, arg1)
+			return ret0, []r.Value{ret0, ret1}
 		}
 	case func(r.Value, ...r.Value) r.Value: // append()
 		argfunsX1 := call.MakeArgfunsX1()

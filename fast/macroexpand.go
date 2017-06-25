@@ -164,7 +164,7 @@ func (c *Comp) MacroExpandNode(in ast.Node) (out ast.Node, everExpanded bool) {
 func (c *Comp) MacroExpand(form Ast) (out Ast, everExpanded bool) {
 	var expanded bool
 	for {
-		form, expanded = c.macroExpandOnce(form)
+		form, expanded = c.MacroExpand1(form)
 		if !expanded {
 			return form, everExpanded
 		}
@@ -180,7 +180,7 @@ func (c *Comp) MacroExpandNode1(in ast.Node) (out ast.Node, expanded bool) {
 		return nil, false
 	}
 	var form Ast = ToAst(in)
-	form, expanded = c.macroExpandOnce(form)
+	form, expanded = c.MacroExpand1(form)
 	out = ToNode(form)
 	// if !expanded {
 	//    c.Debugf("MacroExpandNode1: not a macro: %v <%v>", out, r.TypeOf(out))
@@ -206,7 +206,10 @@ func (c *Comp) extractMacroCall(form Ast) Macro {
 	return Macro{}
 }
 
-func (c *Comp) macroExpandOnce(in Ast) (out Ast, expanded bool) {
+// if node represents a macro call, MacroExpandNode1 executes it
+// and returns the resulting node.
+// Otherwise returns the node argument unchanged
+func (c *Comp) MacroExpand1(in Ast) (out Ast, expanded bool) {
 	if in == nil {
 		return nil, false
 	}
