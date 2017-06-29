@@ -93,8 +93,8 @@ import (
 :macro shift(opnode, xconst, yconst, xtyp, ytyp ast.Node) ast.Node {
 
 	// the return type of Eval() and EvalType() varies. better check early.
-	var xc, yc bool = Eval(xconst), Eval(yconst)
-	var optoken token.Token = Eval(opnode)
+	xc, yc := Eval(xconst).(bool), Eval(yconst).(bool)
+	optoken := Eval(opnode).(token.Token)
 
 	if xc == yc {
 		var expr *ast.BinaryExpr = ~"{x(env) && y(env)} // quasiquote, we modify it destructively
@@ -138,7 +138,7 @@ import (
 // shift, x type is fixed. dispatch on y type
 :macro shifts(opnode, xconst, yconst, xtyp, ytypes ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
-	var xc, yc bool = Eval(xconst), Eval(yconst)
+	xc, yc := Eval(xconst).(bool), Eval(yconst).(bool)
 
 	ytypelist := ytypes.(*ast.BlockStmt).List
 	caselist := make([]ast.Stmt, 0, len(ytypelist))

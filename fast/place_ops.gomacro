@@ -116,7 +116,7 @@ import (
 	var t r.Type = EvalType(typ)
 	var bind ast.Node
 	var result *ast.BinaryExpr
-	var op token.Token = Eval(opnode)
+	op := Eval(opnode).(token.Token)
 	opset := op_to_assign(op)
 
 	switch t.Kind() {
@@ -175,7 +175,7 @@ import (
 	var t r.Type = EvalType(typ)
 	var curr *ast.BlockStmt
 	var result *ast.AssignStmt = ~"{result += ~,expr}
-	var op token.Token = Eval(opnode)
+	op := Eval(opnode).(token.Token)
 	opset := op_to_assign(op)
 	result.Tok = opset
 
