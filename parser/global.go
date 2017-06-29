@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"strconv"
 
 	mt "github.com/cosmos72/gomacro/token"
 )
@@ -128,21 +127,16 @@ func (p *parser) parsePackage() ast.Node {
 	doc := p.leadComment
 	pos := p.expect(token.PACKAGE)
 
-	var ident *ast.Ident
-	var path *ast.BasicLit
+	var names []*ast.Ident
 
 	switch p.tok {
 	case token.ILLEGAL, token.EOF, token.SEMICOLON, token.RPAREN, token.RBRACE, token.RBRACK:
 	default:
-		ident = p.parseIdent()
+		ident := p.parseIdent()
 		if ident.Name == "_" && p.mode&DeclarationErrors != 0 {
 			p.error(p.pos, "invalid package name: _")
 		}
-		path = &ast.BasicLit{
-			ValuePos: ident.Pos(),
-			Kind:     token.STRING,
-			Value:    strconv.Quote(ident.Name),
-		}
+		names = []*ast.Ident{ident}
 	}
 	p.expectSemi()
 
@@ -150,10 +144,9 @@ func (p *parser) parsePackage() ast.Node {
 		TokPos: pos,
 		Tok:    token.PACKAGE,
 		Specs: []ast.Spec{
-			&ast.ImportSpec{
-				Doc:  doc,
-				Name: ident,
-				Path: path,
+			&ast.ValueSpec{
+				Doc:   doc,
+				Names: names,
 			},
 		},
 	}

@@ -169,9 +169,18 @@ func (g *Globals) CollectNode(node ast.Node) {
 	switch node := node.(type) {
 	case *ast.GenDecl:
 		if collectDecl {
-			if node.Tok == token.IMPORT {
+			switch node.Tok {
+			case token.IMPORT:
 				g.Imports = append(g.Imports, node)
-			} else {
+			case token.PACKAGE: // exception: modified parser parses "package foo" as a declaration
+				if len(node.Specs) == 1 {
+					if spec, ok := node.Specs[0].(*ast.ValueSpec); ok && len(spec.Names) == 1 {
+						g.PackagePath = spec.Names[0].Name
+						break
+					}
+				}
+				fallthrough
+			default:
 				g.Declarations = append(g.Declarations, node)
 			}
 		}
