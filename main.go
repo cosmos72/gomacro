@@ -39,8 +39,11 @@ func main() {
 	var cmd Cmd
 	cmd.Init()
 
+	cmd.Options |= base.OptFastInterpreter // use fast interpreter by default
+
+	// cmd.Options |= base.OptShowTime // | base.OptTrapPanic // | base.OptShowAfterMacroExpansion // | base.OptShowAfterParse // | base.OptDebugMacroExpand // |  base.OptDebugQuasiquote
+
 	cmd.ParserMode |= parser.Trace & 0
-	cmd.Options |= base.OptShowTime & 0 // base.OptTrapPanic // | base.OptShowAfterMacroExpansion // | base.OptShowAfterParse // | base.OptDebugMacroExpand // |  base.OptDebugQuasiquote
 
 	err := cmd.Main(args)
 	if err != nil {

@@ -1,7 +1,5 @@
 #!/usr/bin/env gomacro
 
-:fast
-
 func collatz(n int) {
 	for n > 1 {
 		if n&1 != 0 {

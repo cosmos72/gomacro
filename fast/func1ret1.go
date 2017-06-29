@@ -8301,13 +8301,3 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	}
 	return nil
 }
-func (c *Comp) func_ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
-	switch t.ReflectType().NumIn() {
-	case 0:
-		return c.func0ret1(t, m)
-	case 1:
-		return c.func1ret1(t, m)
-	default:
-		return nil
-	}
-}

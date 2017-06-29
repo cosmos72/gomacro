@@ -1,7 +1,5 @@
 #!/usr/bin/env gomacro
 
-:fast
-
 func fibonacci(n uint) uint {
 	if n <= 2 {
 		return 1
