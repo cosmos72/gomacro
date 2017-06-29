@@ -50,14 +50,14 @@ func (x IdentSlice) Op() token.Token { return token.COMMA }     // FIXME
 func (x SpecSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 func (x StmtSlice) Op() token.Token  { return token.SEMICOLON } // FIXME
 
-func (x AstSlice) New() Ast   { return AstSlice{X: []Ast{}} }
-func (x NodeSlice) New() Ast  { return NodeSlice{X: []ast.Node{}} }
-func (x ExprSlice) New() Ast  { return ExprSlice{X: []ast.Expr{}} }
-func (x FieldSlice) New() Ast { return FieldSlice{X: []*ast.Field{}} }
-func (x DeclSlice) New() Ast  { return DeclSlice{X: []ast.Decl{}} }
-func (x IdentSlice) New() Ast { return IdentSlice{X: []*ast.Ident{}} }
-func (x SpecSlice) New() Ast  { return SpecSlice{X: []ast.Spec{}} }
-func (x StmtSlice) New() Ast  { return StmtSlice{X: []ast.Stmt{}} }
+func (x AstSlice) New() Ast   { return AstSlice{} }
+func (x NodeSlice) New() Ast  { return NodeSlice{} }
+func (x ExprSlice) New() Ast  { return ExprSlice{} }
+func (x FieldSlice) New() Ast { return FieldSlice{} }
+func (x DeclSlice) New() Ast  { return DeclSlice{} }
+func (x IdentSlice) New() Ast { return IdentSlice{} }
+func (x SpecSlice) New() Ast  { return SpecSlice{} }
+func (x StmtSlice) New() Ast  { return StmtSlice{} }
 
 func (x AstSlice) Size() int   { return len(x.X) }
 func (x NodeSlice) Size() int  { return len(x.X) }

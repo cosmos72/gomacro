@@ -40,7 +40,7 @@ import (
 
 :func fsetplace(depth, typ, expr, exprv ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
-	var upn int = Eval(depth)
+	upn := Eval(depth).(int)
 	var t r.Type = EvalType(typ)
 
 	var loop, bind ast.Node

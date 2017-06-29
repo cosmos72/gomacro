@@ -82,7 +82,7 @@ func AnyToAstWithSlice(any interface{}, caller interface{}) AstWithSlice {
 	node := AnyToAst(any, caller)
 	switch node := node.(type) {
 	case nil:
-		return nil
+		return NodeSlice{}
 	case AstWithSlice:
 		return node
 	default:
