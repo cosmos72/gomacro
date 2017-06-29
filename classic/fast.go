@@ -49,7 +49,7 @@ func (env *Env) FastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type)
 	f.Comp.Options = env.Options        // sync Options
 
 	// macroexpand phase.
-	// must be performed manually, because we used classic.Env.Parse()
+	// must be performed manually, because we used classic.Env.ParseOnly()
 	// instead of fast.Comp.Parse()
 	form, _ = f.Comp.MacroExpandCodewalk(form)
 	if env.Options&base.OptShowMacroExpand != 0 {

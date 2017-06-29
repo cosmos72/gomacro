@@ -410,9 +410,12 @@ func (e *Expr) To(t xr.Type) {
 			// same optimized representation
 			e.Type = t
 			return
-		} else {
-			Errorf("internal error: cannot use <%v> as <%v> (should not happen, <%v> is assignable to <%v>", e.Type, t, e.Type, t)
+		} else if t.Kind() == r.Interface {
+			e.Fun = e.AsX1()
+			e.Type = t
+			return
 		}
+		Errorf("internal error: cannot use <%v> as <%v> (should not happen, <%v> is assignable to <%v>", e.Type, t, e.Type, t)
 	}
 	fun := e.AsX1()
 	rtype := t.ReflectType()
