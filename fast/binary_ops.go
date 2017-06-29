@@ -4964,6 +4964,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero bool) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Int:
@@ -4972,6 +4973,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero int) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Int8:
@@ -4980,6 +4982,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero int8) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Int16:
@@ -4988,6 +4991,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero int16) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Int32:
@@ -4996,6 +5000,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero int32) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Int64:
@@ -5004,6 +5009,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero int64) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Uint:
@@ -5012,6 +5018,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero uint) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Uint8:
@@ -5020,6 +5027,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero uint8) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Uint16:
@@ -5028,6 +5036,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero uint16) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Uint32:
@@ -5036,6 +5045,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero uint32) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Uint64:
@@ -5044,6 +5054,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero uint64) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Uintptr:
@@ -5052,6 +5063,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero uintptr) {
 				x(env)
 				return
+
 			}
 		}
 
@@ -5061,6 +5073,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero float32) {
 				x(env)
 				return
+
 			}
 		}
 
@@ -5070,6 +5083,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero float64) {
 				x(env)
 				return
+
 			}
 		}
 
@@ -5079,6 +5093,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero complex64) {
 				x(env)
 				return
+
 			}
 		}
 
@@ -5088,6 +5103,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero complex128) {
 				x(env)
 				return
+
 			}
 		}
 
@@ -5097,6 +5113,7 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 			fun = func(env *Env) (zero string) {
 				x(env)
 				return
+
 			}
 		}
 
