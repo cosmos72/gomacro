@@ -280,7 +280,13 @@ func (lit *Lit) DefaultType() xr.Type {
 func (untyp *UntypedLit) DefaultType() xr.Type {
 	switch untyp.Kind {
 	case r.Bool, r.Int32, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
-		return untyp.Universe.BasicTypes[untyp.Kind]
+		if universe := untyp.Universe; universe == nil {
+			Errorf("UntypedLit.DefaultType(): malformed untyped constant %v, has nil Universe!", untyp)
+			return nil
+		} else {
+			return universe.BasicTypes[untyp.Kind]
+		}
+
 	default:
 		Errorf("unexpected untyped constant %v, its default type is not known", untyp)
 		return nil

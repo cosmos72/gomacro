@@ -499,75 +499,111 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 		c.Errorf("impossible type assertion: <%v> does not implement <%v>", tout, tin)
 	}
 	fun := val.Fun.(func(*Env) r.Value) // val returns an interface... must be already wrapped in a reflect.Value
+	rtin := tin.ReflectType()
+	rtout := tout.ReflectType()
 	var ret I
 	switch kout {
 	case r.Bool:
 		ret = func(env *Env) bool {
-			return fun(env).Interface().(bool)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return v.Bool()
 		}
 	case r.Int:
 		ret = func(env *Env) int {
-			return fun(env).Interface().(int)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return int(v.Int())
 		}
 	case r.Int8:
 		ret = func(env *Env) int8 {
-			return fun(env).Interface().(int8)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return int8(v.Int())
 		}
 	case r.Int16:
 		ret = func(env *Env) int16 {
-			return fun(env).Interface().(int16)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return int16(v.Int())
 		}
 	case r.Int32:
 		ret = func(env *Env) int32 {
-			return fun(env).Interface().(int32)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return int32(v.Int())
 		}
 	case r.Int64:
 		ret = func(env *Env) int64 {
-			return fun(env).Interface().(int64)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return v.Int()
 		}
 	case r.Uint:
 		ret = func(env *Env) uint {
-			return fun(env).Interface().(uint)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return uint(v.Uint())
 		}
 	case r.Uint8:
 		ret = func(env *Env) uint8 {
-			return fun(env).Interface().(uint8)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return uint8(v.Uint())
 		}
 	case r.Uint16:
 		ret = func(env *Env) uint16 {
-			return fun(env).Interface().(uint16)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return uint16(v.Uint())
 		}
 	case r.Uint32:
 		ret = func(env *Env) uint32 {
-			return fun(env).Interface().(uint32)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return uint32(v.Uint())
 		}
 	case r.Uint64:
 		ret = func(env *Env) uint64 {
-			return fun(env).Interface().(uint64)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return v.Uint()
 		}
 	case r.Uintptr:
 		ret = func(env *Env) uintptr {
-			return fun(env).Interface().(uintptr)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return uintptr(v.Uint())
 		}
 	case r.Float32:
 		ret = func(env *Env) float32 {
-			return fun(env).Interface().(float32)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return float32(v.Float())
 		}
 	case r.Float64:
 		ret = func(env *Env) float64 {
-			return fun(env).Interface().(float64)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return v.Float()
 		}
 	case r.Complex64:
 		ret = func(env *Env) complex64 {
-			return fun(env).Interface().(complex64)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return complex64(v.Complex())
 		}
 	case r.Complex128:
 		ret = func(env *Env) complex128 {
-			return fun(env).Interface().(complex128)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return v.Complex()
 		}
 	case r.String:
 		ret = func(env *Env) string {
-			return fun(env).Interface().(string)
+			v := fun(env)
+			typeassert(v, rtin, rtout)
+			return v.String()
 		}
 	default:
 		if tout.ReflectType() == TypeOfInterface {
@@ -577,8 +613,6 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			}
 			break
 		}
-		rtin := tin.ReflectType()
-		rtout := tout.ReflectType()
 		if tout.Kind() == r.Interface && tin.Implements(tout) {
 			ret = func(env *Env) r.Value {
 				v := fun(env)
@@ -621,6 +655,17 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 		}
 	}
 	return exprFun(tout, ret)
+}
+
+func typeassert(v r.Value, rtin r.Type, rtout r.Type) {
+	rtconcr := r.TypeOf(v.Interface()) // extract concrete type
+	if rtconcr != rtout {
+		panic(&TypeAssertionError{
+			Interface: rtin,
+			Concrete:  rtconcr,
+			Asserted:  rtout,
+		})
+	}
 }
 
 func (g *CompThreadGlobals) TypeOfBool() xr.Type {

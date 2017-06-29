@@ -242,14 +242,12 @@ func (e *Expr) AsXV(opts CompileOptions) func(*Env) (r.Value, []r.Value) {
 func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 	convertuntyped := opts&CompileKeepUntyped == 0
 	untyp, untyped := any.(UntypedLit)
-	if convertuntyped {
-		if untyped {
-			if t == nil || t.ReflectType() == rtypeOfUntypedLit {
-				t = untyp.DefaultType()
-			}
-			// Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
-			any = untyp.ConstTo(t)
+	if untyped && convertuntyped {
+		if t == nil || t.ReflectType() == rtypeOfUntypedLit {
+			t = untyp.DefaultType()
 		}
+		// Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
+		any = untyp.ConstTo(t)
 	}
 	v := r.ValueOf(any)
 	if t != nil {
