@@ -97,8 +97,8 @@ import (
 :macro eqlneq(opnode, xconst, yconst, typ ast.Node) ast.Node {
 
 	// the return type of Eval() and EvalType() varies. better check early.
-	var xc, yc = Eval(xconst).(bool), Eval(yconst).(bool)
-	var optoken token.Token = Eval(opnode).(token.Token)
+	xc, yc := Eval(xconst).(bool), Eval(yconst).(bool)
+	optoken := Eval(opnode).(token.Token)
 
 	if xc == yc {
 		var expr *ast.BinaryExpr = ~"{x(env) && y(env)} // quasiquote, we modify it destructively

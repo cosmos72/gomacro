@@ -745,11 +745,14 @@ func (g *CompThreadGlobals) TypeOfInterface() xr.Type {
 }
 
 var (
-	rtypeOfBuiltin    = r.TypeOf(Builtin{})
-	rtypeOfFunction   = r.TypeOf(Function{})
-	rtypeOfImport     = r.TypeOf(Import{})
-	rtypeOfMacro      = r.TypeOf(Macro{})
-	rtypeOfUntypedLit = r.TypeOf(UntypedLit{})
+	rtypeOfBuiltin     = r.TypeOf(Builtin{})
+	rtypeOfFunction    = r.TypeOf(Function{})
+	rtypeOfImport      = r.TypeOf(Import{})
+	rtypeOfMacro       = r.TypeOf(Macro{})
+	rtypeOfUntypedLit  = r.TypeOf(UntypedLit{})
+	rtypeOfReflectType = r.TypeOf((*r.Type)(nil)).Elem()
+
+	zeroOfReflectType = r.Zero(rtypeOfReflectType)
 )
 
 func (g *CompThreadGlobals) TypeOfBuiltin() xr.Type {

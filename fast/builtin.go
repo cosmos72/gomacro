@@ -420,14 +420,17 @@ func funI2_T(interface{}, interface{}) r.Type {
 
 func callEvalType(argv r.Value, interpv r.Value) r.Value {
 	if !argv.IsValid() {
-		return argv
+		return zeroOfReflectType
 	}
 	form := ast2.AnyToAst(argv.Interface(), "EvalType")
 	form = base.UnwrapTrivialAst(form)
 	node := form.Interface().(ast.Expr)
 
 	interp := interpv.Interface().(*Interp)
-	t := interp.Comp.Type(node)
+	t := interp.Comp.compileTypeOrNil(node)
+	if t == nil {
+		return zeroOfReflectType
+	}
 	return r.ValueOf(t.ReflectType())
 }
 
