@@ -67,9 +67,9 @@ import (
 	var t r.Type = EvalType(typ)
 	var get, set ast.Node
 	var shift *ast.BinaryExpr = ~"{result >> ~,expr}
-	var op token.Token = Eval(opnode)
-	var signed bool
+	op := Eval(opnode).(token.Token)
 	shift.Op = op
+	signed := false
 
 	switch t.Kind() {
 		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
@@ -114,9 +114,9 @@ import (
 	var t r.Type = EvalType(typ)
 	var get ast.Node
 	var shift *ast.BinaryExpr = ~"{result >> ~,expr}
-	var op token.Token = Eval(opnode)
-	var signed bool
+	op := Eval(opnode).(token.Token)
 	shift.Op = op
+	signed := false
 
 	switch t.Kind() {
 		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:

@@ -323,26 +323,41 @@ func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody fu
 	nin := rtype.NumIn()
 	nout := rtype.NumOut()
 
+	// do not create optimized functions if arguments or results are named types
+	optimize := true
+	for i := 0; optimize && i < nin; i++ {
+		rt := rtype.In(i)
+		k := rt.Kind()
+		optimize = base.IsOptimizedKind(k) && rt == c.Universe.BasicTypes[k].ReflectType()
+	}
+	for i := 0; optimize && i < nout; i++ {
+		rt := rtype.Out(i)
+		k := rt.Kind()
+		optimize = base.IsOptimizedKind(k) && rt == c.Universe.BasicTypes[k].ReflectType()
+	}
+
 	var fun func(*Env) r.Value
-	switch nin {
-	case 0:
-		switch nout {
+	if optimize {
+		switch nin {
 		case 0:
-			fun = c.func0ret0(t, m)
+			switch nout {
+			case 0:
+				fun = c.func0ret0(t, m)
+			case 1:
+				fun = c.func0ret1(t, m)
+			}
 		case 1:
-			fun = c.func0ret1(t, m)
-		}
-	case 1:
-		switch nout {
-		case 0:
-			fun = c.func1ret0(t, m)
-		case 1:
-			fun = c.func1ret1(t, m)
-		}
-	case 2:
-		switch nout {
-		case 0:
-			fun = c.func2ret0(t, m)
+			switch nout {
+			case 0:
+				fun = c.func1ret0(t, m)
+			case 1:
+				fun = c.func1ret1(t, m)
+			}
+		case 2:
+			switch nout {
+			case 0:
+				fun = c.func2ret0(t, m)
+			}
 		}
 	}
 	if fun == nil {
