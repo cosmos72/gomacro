@@ -1,0 +1,24 @@
+#!/usr/bin/env gomacro
+
+package main
+
+import "fmt"
+
+type Person struct {
+	Name, Surname string
+}
+
+func (p Person) String() string {
+	return fmt.Sprintf("%s %s", p.Name, p.Surname)
+}
+
+var (
+	p = Person{"John", "Smith"}
+	k = Person{"Clark", "Kent"}
+)
+
+fmt.Printf("%v\n", p)
+fmt.Printf("%#v\n", p)
+
+var s fmt.Stringer
+s = p

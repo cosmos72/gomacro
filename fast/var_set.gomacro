@@ -146,16 +146,27 @@ import (
 }
 
 :macro setplace_expr(depth, typ ast.Node) ast.Node {
-	ret := fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(rt)})
+	ret1 := fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env).Convert(rt)})
 	if EvalType(typ) == nil {
+		ret0 := fsetplace(depth, typ, ~'{fun(env)}, ~'{fun(env)})
+		ret2 := fsetplace(depth, typ, ~'{fun(env)}, ~'{ToInterface(fun(env), texpr, rtproxy, rt)})
 		return ~"{
 			fun := e.AsX1() // we need the exact type!
-			~,ret
+			texpr := e.Type
+			rtexpr := texpr.ReflectType()
+			if rtexpr == rt {
+				~,ret0
+			} else if rtexpr.ConvertibleTo(rt) {
+				~,ret1
+			} else {
+				rtproxy := c.InterfaceProxy(t)
+				~,ret2
+			}
 		}
 	}
 	return ~"{
 		fun := fun.(func(*Env) ~,typ)
-		~,ret
+		~,ret1
 	}
 }
 
