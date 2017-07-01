@@ -1545,7 +1545,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uint64:
-
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -1558,7 +1557,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uintptr:
-
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -1571,7 +1569,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float32:
-
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -1584,7 +1581,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float64:
-
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -1597,7 +1593,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Complex64:
-
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -1622,6 +1617,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		case r.String:
 			{
 				fun := fun.(func(*Env) string)
@@ -1635,12 +1631,11 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		default:
 			{
 				fun := e.AsX1()
-				texpr := e.Type
-				rtexpr := texpr.ReflectType()
-				if rtexpr == rt {
+				if conv := c.Converter(e.Type, t); conv == nil {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Binds[index].Set(fun(env),
@@ -1649,21 +1644,10 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 						env.IP++
 						return env.Code[env.IP], env
 					}
-				} else if rtexpr.ConvertibleTo(rt) {
-					ret = func(env *Env) (Stmt, *Env) {
-						env.
-							Binds[index].Set(fun(env).Convert(rt),
-						)
-
-						env.IP++
-						return env.Code[env.IP], env
-					}
 				} else {
-					rtproxy := c.InterfaceProxy(t)
-
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
-							Binds[index].Set(ToInterface(fun(env), texpr, rtproxy, rt),
+							Binds[index].Set(conv(fun(env), rt),
 						)
 
 						env.IP++
@@ -1816,7 +1800,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uint64:
-
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -1830,7 +1813,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uintptr:
-
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -1844,7 +1826,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float32:
-
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -1858,7 +1839,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float64:
-
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -1872,7 +1852,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Complex64:
-
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -1899,6 +1878,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		case r.String:
 			{
 				fun := fun.(func(*Env) string)
@@ -1913,12 +1893,11 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		default:
 			{
 				fun := e.AsX1()
-				texpr := e.Type
-				rtexpr := texpr.ReflectType()
-				if rtexpr == rt {
+				if conv := c.Converter(e.Type, t); conv == nil {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
@@ -1928,23 +1907,11 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 						env.IP++
 						return env.Code[env.IP], env
 					}
-				} else if rtexpr.ConvertibleTo(rt) {
-					ret = func(env *Env) (Stmt, *Env) {
-						env.
-							Outer.
-							Binds[index].Set(fun(env).Convert(rt),
-						)
-
-						env.IP++
-						return env.Code[env.IP], env
-					}
 				} else {
-					rtproxy := c.InterfaceProxy(t)
-
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.
-							Binds[index].Set(ToInterface(fun(env), texpr, rtproxy, rt),
+							Binds[index].Set(conv(fun(env), rt),
 						)
 
 						env.IP++
@@ -2097,7 +2064,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uint64:
-
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -2111,7 +2077,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uintptr:
-
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -2125,7 +2090,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float32:
-
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -2139,7 +2103,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float64:
-
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -2153,7 +2116,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Complex64:
-
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -2180,6 +2142,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		case r.String:
 			{
 				fun := fun.(func(*Env) string)
@@ -2194,12 +2157,11 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		default:
 			{
 				fun := e.AsX1()
-				texpr := e.Type
-				rtexpr := texpr.ReflectType()
-				if rtexpr == rt {
+				if conv := c.Converter(e.Type, t); conv == nil {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
@@ -2209,23 +2171,11 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 						env.IP++
 						return env.Code[env.IP], env
 					}
-				} else if rtexpr.ConvertibleTo(rt) {
-					ret = func(env *Env) (Stmt, *Env) {
-						env.
-							Outer.Outer.
-							Binds[index].Set(fun(env).Convert(rt),
-						)
-
-						env.IP++
-						return env.Code[env.IP], env
-					}
 				} else {
-					rtproxy := c.InterfaceProxy(t)
-
 					ret = func(env *Env) (Stmt, *Env) {
 						env.
 							Outer.Outer.
-							Binds[index].Set(ToInterface(fun(env), texpr, rtproxy, rt),
+							Binds[index].Set(conv(fun(env), rt),
 						)
 
 						env.IP++
@@ -2418,7 +2368,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uint64:
-
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -2436,7 +2385,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uintptr:
-
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -2454,7 +2402,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float32:
-
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -2472,7 +2419,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float64:
-
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -2490,7 +2436,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Complex64:
-
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -2525,6 +2470,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		case r.String:
 			{
 				fun := fun.(func(*Env) string)
@@ -2543,12 +2489,11 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		default:
 			{
 				fun := e.AsX1()
-				texpr := e.Type
-				rtexpr := texpr.ReflectType()
-				if rtexpr == rt {
+				if conv := c.Converter(e.Type, t); conv == nil {
 					ret = func(env *Env) (Stmt, *Env) {
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
@@ -2562,23 +2507,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 						env.IP++
 						return env.Code[env.IP], env
 					}
-				} else if rtexpr.ConvertibleTo(rt) {
-					ret = func(env *Env) (Stmt, *Env) {
-						o := env.Outer.Outer.Outer
-						for i := 3; i < upn; i++ {
-							o = o.Outer
-						}
-
-						o.
-							Binds[index].Set(fun(env).Convert(rt),
-						)
-
-						env.IP++
-						return env.Code[env.IP], env
-					}
 				} else {
-					rtproxy := c.InterfaceProxy(t)
-
 					ret = func(env *Env) (Stmt, *Env) {
 						o := env.Outer.Outer.Outer
 						for i := 3; i < upn; i++ {
@@ -2586,7 +2515,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 						}
 
 						o.
-							Binds[index].Set(ToInterface(fun(env), texpr, rtproxy, rt),
+							Binds[index].Set(conv(fun(env), rt),
 						)
 
 						env.IP++
@@ -2729,7 +2658,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uint64:
-
 			{
 				fun := fun.(func(*Env) uint64)
 
@@ -2742,7 +2670,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Uintptr:
-
 			{
 				fun := fun.(func(*Env) uintptr)
 
@@ -2755,7 +2682,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float32:
-
 			{
 				fun := fun.(func(*Env) float32)
 
@@ -2768,7 +2694,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Float64:
-
 			{
 				fun := fun.(func(*Env) float64)
 
@@ -2781,7 +2706,6 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 				}
 			}
 		case r.Complex64:
-
 			{
 				fun := fun.(func(*Env) complex64)
 
@@ -2806,6 +2730,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		case r.String:
 			{
 				fun := fun.(func(*Env) string)
@@ -2819,12 +2744,11 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 					return env.Code[env.IP], env
 				}
 			}
+
 		default:
 			{
 				fun := e.AsX1()
-				texpr := e.Type
-				rtexpr := texpr.ReflectType()
-				if rtexpr == rt {
+				if conv := c.Converter(e.Type, t); conv == nil {
 					ret = func(env *Env) (Stmt, *Env) {
 						env.ThreadGlobals.FileEnv.
 							Binds[index].Set(fun(env),
@@ -2833,21 +2757,10 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 						env.IP++
 						return env.Code[env.IP], env
 					}
-				} else if rtexpr.ConvertibleTo(rt) {
-					ret = func(env *Env) (Stmt, *Env) {
-						env.ThreadGlobals.FileEnv.
-							Binds[index].Set(fun(env).Convert(rt),
-						)
-
-						env.IP++
-						return env.Code[env.IP], env
-					}
 				} else {
-					rtproxy := c.InterfaceProxy(t)
-
 					ret = func(env *Env) (Stmt, *Env) {
 						env.ThreadGlobals.FileEnv.
-							Binds[index].Set(ToInterface(fun(env), texpr, rtproxy, rt),
+							Binds[index].Set(conv(fun(env), rt),
 						)
 
 						env.IP++

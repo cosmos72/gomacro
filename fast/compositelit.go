@@ -68,6 +68,7 @@ func (c *Comp) compositeLitArray(t xr.Type, ellipsis bool, node *ast.CompositeLi
 
 	rtval := rtype.Elem()
 	zeroval := r.Zero(rtval)
+
 	return exprX1(t, func(env *Env) r.Value {
 		obj := r.New(rtype).Elem()
 		var val r.Value
@@ -159,6 +160,8 @@ func (c *Comp) compositeLitElements(t xr.Type, ellipsis bool, node *ast.Composit
 			eval.ConstTo(tval)
 		} else if !eval.Type.AssignableTo(tval) {
 			c.Errorf("cannot use %v <%v> as type <%v> in %s value", elv, eval.Type, tval, t.Kind())
+		} else {
+			eval.To(c, tval)
 		}
 		funvals[i] = eval.AsX1()
 	}

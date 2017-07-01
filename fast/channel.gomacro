@@ -391,11 +391,12 @@ func (c *Comp) Send(node *ast.SendStmt) {
 		}
 		if stmt == nil {
 			exprfun := expr.AsX1()
+			conv := c.Converter(expr.Type, channel.Type.Elem())
 			stmt = func(env *Env) (Stmt, *Env) {
 				channel := channelfun(env)
 				value := exprfun(env)
-				if value.Type() != rtelem {
-					value = value.Convert(rtelem)
+				if conv != nil {
+					value = conv(value, rtelem)
 				}
 				channel.Send(value)
 				env.IP++

@@ -29,7 +29,6 @@ import (
 	"go/ast"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -52,33 +51,33 @@ func (c *Comp) InterfaceProxy(t xr.Type) r.Type {
 	return ret
 }
 
-// ToInterface wraps a reflect.Value of type 'rtin' into a proxy struct of type 'rtproxy'
-// that implements the interface type 'rtout'
-// and returns the proxy value, converted to the interface type 'rtout'
-func ToInterface(vin r.Value, tin xr.Type, rtproxy r.Type, rtout r.Type) r.Value {
-	vaddrproxy := r.New(rtproxy)
-	vproxy := vaddrproxy.Elem()
-	vproxy.Field(0).Set(r.ValueOf(xr.MakeInterfaceHeader(vin, tin)))
+// converterToInterface compiles a conversion from 'tin' into a proxy struct that implements the interface type 'tout'
+// and returns a function that performs such conversion
+func (c *Comp) converterToInterface(tin xr.Type, tout xr.Type) func(val r.Value, rtout r.Type) r.Value {
+	rtproxy := c.InterfaceProxy(tout)
+	rtout := tout.ReflectType()
+
+	vtable := r.New(rtproxy).Elem()
 	n := rtout.NumMethod()
 	for i := 0; i < n; i++ {
 		imtd := rtout.Method(i)
 		xmtd, count := tin.MethodByName(imtd.Name, imtd.PkgPath)
-		switch count {
-		case 0:
-			base.Errorf("cannot convert type <%v> to interface <%v>: missing method %s %s", tin, rtout, imtd.PkgPath, imtd.Name)
-		case 1:
-			/*
-				if len(xmtd.FieldIndex) != 0 {
-					Errorf("unimplemented: conversion of type <%v> to interface <%v> requires wrapping method %s %s from embedded field",
-						tin, rtout, imtd.PkgPath, imtd.Name)
-				}
-			*/
-			setProxyMethod(vproxy.Field(i+1), (*xmtd.Funs)[xmtd.Index])
-		default:
-			base.Errorf("cannot convert type <%v> to interface <%v>: ambiguous method %s %s", tin, rtout, imtd.PkgPath, imtd.Name)
+		if count == 0 {
+			c.Errorf("cannot convert type <%v> to interface <%v>: missing method %s %s", tin, rtout, imtd.PkgPath, imtd.Name)
+		} else if count > 1 {
+			c.Errorf("type <%v> has %d wrapper methods %s %s all at the same depth=%d - cannot convert to interface <%v>",
+				tin, count, imtd.PkgPath, imtd.Name, len(xmtd.FieldIndex), tout)
 		}
+		e := c.compileMethodAsFunc(tin, xmtd)
+		setProxyMethod(vtable.Field(i+1), r.ValueOf(e.Value))
 	}
-	return vaddrproxy.Convert(rtout)
+	return func(val r.Value, rtout r.Type) r.Value {
+		vaddr := r.New(rtproxy)
+		vproxy := vaddr.Elem()
+		vproxy.Set(vtable)
+		vproxy.Field(0).Set(r.ValueOf(xr.MakeInterfaceHeader(val, tin)))
+		return vaddr.Convert(rtout)
+	}
 }
 
 func setProxyMethod(place r.Value, mtd r.Value) {
