@@ -149,7 +149,7 @@ func (ir *Interp) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) 
 		case strings.HasPrefix(":fast", cmd):
 			if len(args) <= 1 {
 				if env.Options&OptFastInterpreter == 0 {
-					env.Debugf("switched to fast interpreter (incomplete)")
+					env.Debugf("switched to fast interpreter")
 				}
 				env.Options |= OptFastInterpreter
 				return true
