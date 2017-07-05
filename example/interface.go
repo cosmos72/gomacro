@@ -17,12 +17,20 @@ func (p Person) String() string {
 	return fmt.Sprintf("%s %s", p.Name, p.Surname)
 }
 
-func conv() {
-	var p = Person{"John", "Smith"}
-	var d = Driver{nil, p}
+var p = Person{"John", "Smith"}
+var d = Driver{nil, p}
 
+func pd() (Person, Driver) { return p, d }
+
+type FmtPair struct{ a, b fmt.Stringer }
+
+func fmtpair(a, b fmt.Stringer) FmtPair { return FmtPair{a, b} }
+
+func conv() {
 	fmt.Printf("%v\n", p)
 	fmt.Printf("%v\n", d)
+
+	fmtpair(pd())
 
 	var s fmt.Stringer
 	var ch = make(chan fmt.Stringer, 2)

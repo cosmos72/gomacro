@@ -179,7 +179,7 @@ func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
 			argi.ConstTo(telem)
-		} else if ti := argi.Type; !xr.SameType(ti, telem) && (ti == nil || !ti.AssignableTo(telem)) {
+		} else if ti := argi.Type; ti == nil || !ti.AssignableTo(telem) {
 			return c.badBuiltinCallArgType(sym.Name, node.Args[i], ti, telem)
 		}
 		args[i] = argi
