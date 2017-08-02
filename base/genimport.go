@@ -103,10 +103,10 @@ func (gen *genimport) write() {
 	gen.writeUntypeds()
 	gen.writeWrappers()
 
-	if gen.mode == ImBuiltin {
-		gen.out.WriteString("\n\t}\n}\n")
-	} else {
+	if gen.mode == ImSharedLib {
 		gen.out.WriteString("\n}\n")
+	} else {
+		gen.out.WriteString("\n\t}\n}\n")
 	}
 	gen.writeInterfaceProxies()
 }

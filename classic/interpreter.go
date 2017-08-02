@@ -47,6 +47,10 @@ func New() *Interp {
 	return &Interp{env}
 }
 
+func (ir *Interp) ChangePackage(name string) {
+	ir.Env = ir.Env.ChangePackage(name)
+}
+
 func (ir *Interp) ReplStdin() {
 	if ir.Options&OptShowPrompt != 0 {
 		fmt.Fprint(ir.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>

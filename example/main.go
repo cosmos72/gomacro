@@ -10,7 +10,7 @@ import (
 	r "reflect"
 )
 
-func main() {
+func main3() {
 	conv()
 }
 
