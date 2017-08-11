@@ -124,22 +124,22 @@ import (
 	return op
 }
 
-:func fgetplace(depth, typ ast.Node) (/*loop*/ *ast.BlockStmt, /*bind*/ ast.Node) {
+:func fgetplace(depth, typ ast.Node) (/*loop*/ *ast.BlockStmt, /*env*/ ast.Node) {
 	// the return type of Eval() and EvalType() varies. better check early.
 	upn := Eval(depth).(int)
 	var t r.Type = EvalType(typ)
-	var bind ast.Node
+	var env ast.Node
 	var loop *ast.BlockStmt
 
 	if upn >= 0 {
-		bind = ~'{env}
+		env = ~'{env}
 		for i := 0; i < upn; i++ {
-			bind = ~"{~,bind . Outer}
+			env = ~"{~,env . Outer}
 		}
 	} else if upn == -2 {
-		bind = ~'{env.ThreadGlobals.FileEnv}
+		env = ~'{env.ThreadGlobals.FileEnv}
 	} else if upn == -3 {
-		bind = ~'{env.ThreadGlobals.TopEnv}
+		env = ~'{env.ThreadGlobals.TopEnv}
 	} else {
 		loop = ~'{
 			o := env.Outer.Outer.Outer
@@ -147,43 +147,85 @@ import (
 				o = o.Outer
 			}
 		}
-		bind = ~'o
+		env = ~'o
 	}
-	return loop, bind
+	return loop, env
 }
 
 :func fsetplace(opnode, depth, typ, expr, exprv ast.Node) ast.Node {
-	loop, bind := fgetplace(depth, typ)
+	loop, env := fgetplace(depth, typ)
 	// the return type of Eval() and EvalType() varies. better check early.
 	var t r.Type = EvalType(typ)
 	op := Eval(opnode).(token.Token)
 	opset := op_to_assign(op)
+	var bind, cbind ast.Node
+
+	var assign *ast.AssignStmt = ~"{*(*~,typ)(unsafe.Pointer(& ~,env .IntBinds[index])) += ~,expr}
+	assign.Tok = opset
+	bind = assign
 
 	switch t.Kind() {
+		case r.Bool:
+			var result *ast.BinaryExpr = ~"{lhs.Bool() + ~,expr}
+			result.Op = op
+			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetBool(~,result)}
+		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
+			var result *ast.BinaryExpr = ~"{lhs.Int() + int64(~,expr)}
+			result.Op = op
+			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetInt(~,result)}
+		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+			var result *ast.BinaryExpr = ~"{lhs.Uint() + uint64(~,expr)}
+			result.Op = op
+			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetUint(~,result)}
+			if t.Kind() == r.Uint64 {
+				var assign *ast.AssignStmt = ~"{~,env . IntBinds[index] += ~,expr}
+				assign.Tok = opset
+				bind = assign
+			}
+		case r.Float32, r.Float64:
+			var result *ast.BinaryExpr = ~"{lhs.Float() + float64(~,expr)}
+			result.Op = op
+			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetFloat(~,result)}
+		case r.Complex64:
+			var result *ast.BinaryExpr = ~"{lhs.Complex() + complex128(~,expr)}
+			result.Op = op
+			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetComplex(~,result)}
 		case r.Complex128:
 			var result *ast.BinaryExpr = ~"{lhs.Complex() + ~,expr}
 			result.Op = op
-			bind = ~"{lhs := ~,bind . Binds[index]; lhs.SetComplex(~,result)}
+			bind = ~"{lhs := ~,env . Binds[index]; lhs.SetComplex(~,result)}
 		case r.String:
 			var result *ast.BinaryExpr = ~"{lhs.String() + ~,expr}
 			result.Op = op
-			bind = ~"{lhs := ~,bind . Binds[index]; lhs.SetString(~,result)}
-		case r.Uint64:
-			var assign *ast.AssignStmt = ~"{~,bind . IntBinds[index] += ~,expr}
-			assign.Tok = opset
-			bind = assign
-		default:
-			var assign *ast.AssignStmt = ~"{*(*~,typ)(unsafe.Pointer(& ~,bind .IntBinds[index])) += ~,expr}
-			assign.Tok = opset
-			bind = assign
+			bind = ~"{lhs := ~,env . Binds[index]; lhs.SetString(~,result)}
+	}
+
+	if cbind == nil {
+		return ~"{
+			ret = func(env *Env) (Stmt, *Env) {
+				~,@loop
+				~,bind
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		}
 	}
 
 	return ~"{
-		ret = func(env *Env) (Stmt, *Env) {
-			~,@loop
-			~,bind
-			env.IP++
-			return env.Code[env.IP], env
+		if intbinds {
+			ret = func(env *Env) (Stmt, *Env) {
+				~,@loop
+				~,bind
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		} else {
+			ret = func(env *Env) (Stmt, *Env) {
+				~,@loop
+				~,cbind
+				env.IP++
+				return env.Code[env.IP], env
+			}
 		}
 	}
 }
@@ -257,6 +299,7 @@ import (
 		t := va.Type
 		upn := va.Upn
 		index := va.Desc.Index()
+		intbinds := va.Desc.Class() == IntBind
 		var ret Stmt
 		switch t.Kind() {
 			~,@caselist
@@ -279,6 +322,7 @@ import (
 		t := va.Type
 		upn := va.Upn
 		index := va.Desc.Index()
+		intbinds := va.Desc.Class() == IntBind
 		var ret Stmt
 		switch fun := fun.(type) {
 			~,@caselist
