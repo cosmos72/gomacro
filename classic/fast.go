@@ -40,7 +40,7 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type)
 	var f *fast.Interp
 	if env.FastInterp == nil {
 		f = fast.New()
-		f.Comp.CompileOptions |= fast.CompileKeepUntyped
+		f.Comp.CompileOptions |= fast.OptKeepUntyped
 		env.FastInterp = f
 	} else {
 		f = env.FastInterp.(*fast.Interp)

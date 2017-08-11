@@ -534,7 +534,7 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn int, exprs []ast.Expr) {
 	n := len(resultBinds)
 	e := c.ExprsMultipleValues(exprs, n)[0]
-	fun := e.AsXV(CompileDefaults)
+	fun := e.AsXV(OptDefaults)
 	assigns := make([]func(*Env, r.Value), n)
 	for i := 0; i < n; i++ {
 		texpected := resultBinds[i].Type

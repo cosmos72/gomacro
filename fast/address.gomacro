@@ -49,7 +49,7 @@ import (
 :func faddress(upn int, typ ast.Node) ast.Node {
 	// the return type of Eval() and EvalType() varies. better check early.
 	var t r.Type = EvalType(typ)
-	var decls, bind, rettype ast.Node
+	var decls, addresstaken, bind, rettype ast.Node
 
 	if upn == 0 {
 		decls = ~'{{ }}
@@ -79,7 +79,7 @@ import (
 		bind = ~'{env .Binds[index].Addr()}
 		rettype = ~'{r.Value}
 	} else {
-		decls = ~"{~,@decls; env.AddressTaken = true}
+		addresstaken = ~"{{env.AddressTaken = true}}
 		rettype = ~"{* ~,typ}
 		if t.Kind() == r.Uint64 {
 			bind = ~'{&env.IntBinds[index]}
@@ -89,9 +89,17 @@ import (
 	}
 
 	return ~"{
-		ret = func(env *Env) (~,rettype) {
-			~,@decls
-			return ~,bind
+		if compiled {
+			ret = func(env *Env) (~,rettype) {
+				~,@decls
+				return env.Binds[index].Addr().Interface().(~,rettype)
+			}
+		} else {
+			ret = func(env *Env) (~,rettype) {
+				~,@decls
+				~,addresstaken
+				return ~,bind
+			}
 		}
 	}
 }
@@ -149,7 +157,7 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 	// c.Debugf("AddressOf: place %v has type %v, taking its address", expr, place.Type)
 	if place.IsVar() {
 		va := place.Var // make a copy of place.Var, do not alter the original's type
-		return va.Address(c.Depth)
+		return va.Address(c.Depth, c.CompileOptions)
 	} else if place.Addr == nil {
 		c.Errorf("cannot take the address of %v <%v>", expr, place.Type)
 		return nil
@@ -163,10 +171,10 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 func (c *Comp) AddressOfVar(name string) *Expr {
 	sym := c.Resolve(name)
 	va := sym.AsVar(PlaceAddress)
-	return va.Address(c.Depth)
+	return va.Address(c.Depth, c.CompileOptions)
 }
 
-func (va *Var) Address(maxdepth int) *Expr {
+func (va *Var) Address(maxdepth int, opts CompileOptions) *Expr {
 	upn := va.Upn
 	k := va.Type.Kind()
 	index := va.Desc.Index()
@@ -175,13 +183,14 @@ func (va *Var) Address(maxdepth int) *Expr {
 		return nil
 	}
 	var ret I
+	compiled := opts&OptIsCompiled != 0
 	switch upn {
-	case 0:  {addresses; 0}
-	case 1:  {addresses; 1}
-	case 2:  {addresses; 2}
-	default: {addresses; -1}
-	case maxdepth-1: {addresses; -2}
-	case maxdepth:   {addresses; -3}
+	case 0:          addresses;  0
+	case 1:          addresses;  1
+	case 2:          addresses;  2
+	default:         addresses; -1
+	case maxdepth-1: addresses; -2
+	case maxdepth:   addresses; -3
 	}
 	return &Expr{Lit: Lit{Type: xr.PtrTo(va.Type)}, Fun: ret}
 }

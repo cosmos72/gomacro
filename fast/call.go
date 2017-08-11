@@ -154,7 +154,7 @@ func (c *Comp) call_any(call *Call) *Expr {
 	}
 	// constant propagation - only if function returns a single value
 	if call.Const && len(call.OutTypes) == 1 {
-		expr.EvalConst(CompileDefaults)
+		expr.EvalConst(OptDefaults)
 		// c.Debugf("pre-computed result of constant call %v: %v <%v>", call, expr.Value, TypeOf(expr.Value))
 	}
 	return expr
@@ -227,7 +227,7 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 	if !multivalue || !needconvs {
 		return
 	}
-	f := args[0].AsXV(CompileDefaults)
+	f := args[0].AsXV(OptDefaults)
 	args[0].Fun = func(env *Env) (r.Value, []r.Value) {
 		_, vs := f(env)
 		for i, conv := range convs {
