@@ -157,7 +157,7 @@ func (ir *Interp) AddressOfVar(name string) (addr r.Value) {
 		switch sym.Desc.Class() {
 		case VarBind, IntBind:
 			va := sym.AsVar(PlaceAddress)
-			expr := va.Address(c.Depth, c.IsCompiledOuter(va.Upn))
+			expr := va.Address(c.Depth)
 			return ir.RunExpr1(expr)
 		}
 	}

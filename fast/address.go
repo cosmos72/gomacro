@@ -60,7 +60,7 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 
 	if place.IsVar() {
 		va := place.Var
-		return va.Address(c.Depth, c.IsCompiledOuter(va.Upn))
+		return va.Address(c.Depth)
 	} else if place.Addr == nil {
 		c.Errorf("cannot take the address of %v <%v>", expr, place.Type)
 		return nil
@@ -73,9 +73,9 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 func (c *Comp) AddressOfVar(name string) *Expr {
 	sym := c.Resolve(name)
 	va := sym.AsVar(PlaceAddress)
-	return va.Address(c.Depth, c.IsCompiledOuter(va.Upn))
+	return va.Address(c.Depth)
 }
-func (va *Var) Address(maxdepth int, compiled bool) *Expr {
+func (va *Var) Address(maxdepth int) *Expr {
 	upn := va.Upn
 	k := va.Type.Kind()
 	index := va.Desc.Index()
@@ -84,227 +84,216 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 		return nil
 	}
 	var ret I
+	intbinds := va.Desc.Class() == IntBind
 	switch upn {
 	case 0:
 		switch k {
 		case r.Bool:
 
-			if compiled {
-				ret = func(env *Env) *bool {
-					return env.Binds[index].Addr().Interface().(*bool)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *bool {
 					env.AddressTaken = true
 					return (*bool)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *bool {
+					return env.Binds[index].Addr().Interface().(*bool)
+				}
 			}
 		case r.Int:
 
-			if compiled {
-				ret = func(env *Env) *int {
-					return env.Binds[index].Addr().Interface().(*int)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int {
 					env.AddressTaken = true
 					return (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int {
+					return env.Binds[index].Addr().Interface().(*int)
+				}
 			}
 		case r.Int8:
 
-			if compiled {
-				ret = func(env *Env) *int8 {
-					return env.Binds[index].Addr().Interface().(*int8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int8 {
 					env.AddressTaken = true
 					return (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int8 {
+					return env.Binds[index].Addr().Interface().(*int8)
+				}
 			}
 		case r.Int16:
 
-			if compiled {
-				ret = func(env *Env) *int16 {
-					return env.Binds[index].Addr().Interface().(*int16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int16 {
 					env.AddressTaken = true
 					return (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int16 {
+					return env.Binds[index].Addr().Interface().(*int16)
+				}
 			}
 		case r.Int32:
 
-			if compiled {
-				ret = func(env *Env) *int32 {
-					return env.Binds[index].Addr().Interface().(*int32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int32 {
 					env.AddressTaken = true
 					return (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int32 {
+					return env.Binds[index].Addr().Interface().(*int32)
+				}
 			}
 		case r.Int64:
 
-			if compiled {
-				ret = func(env *Env) *int64 {
-					return env.Binds[index].Addr().Interface().(*int64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int64 {
 					env.AddressTaken = true
 					return (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int64 {
+					return env.Binds[index].Addr().Interface().(*int64)
+				}
 			}
 		case r.Uint:
 
-			if compiled {
-				ret = func(env *Env) *uint {
-					return env.Binds[index].Addr().Interface().(*uint)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint {
 					env.AddressTaken = true
 					return (*uint)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint {
+					return env.Binds[index].Addr().Interface().(*uint)
+				}
 			}
 		case r.Uint8:
 
-			if compiled {
-				ret = func(env *Env) *uint8 {
-					return env.Binds[index].Addr().Interface().(*uint8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint8 {
 					env.AddressTaken = true
 					return (*uint8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint8 {
+					return env.Binds[index].Addr().Interface().(*uint8)
+				}
 			}
 		case r.Uint16:
 
-			if compiled {
-				ret = func(env *Env) *uint16 {
-					return env.Binds[index].Addr().Interface().(*uint16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint16 {
 					env.AddressTaken = true
 					return (*uint16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint16 {
+					return env.Binds[index].Addr().Interface().(*uint16)
+				}
 			}
 		case r.Uint32:
 
-			if compiled {
-				ret = func(env *Env) *uint32 {
-					return env.Binds[index].Addr().Interface().(*uint32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint32 {
 					env.AddressTaken = true
 					return (*uint32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint32 {
+					return env.Binds[index].Addr().Interface().(*uint32)
+				}
 			}
 		case r.Uint64:
 
-			if compiled {
-				ret = func(env *Env) *uint64 {
-					return env.Binds[index].Addr().Interface().(*uint64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint64 {
 					env.AddressTaken = true
 					return &env.IntBinds[index]
 
 				}
+			} else {
+				ret = func(env *Env) *uint64 {
+					return env.Binds[index].Addr().Interface().(*uint64)
+				}
 			}
 		case r.Uintptr:
 
-			if compiled {
-				ret = func(env *Env) *uintptr {
-					return env.Binds[index].Addr().Interface().(*uintptr)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uintptr {
 					env.AddressTaken = true
 					return (*uintptr)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uintptr {
+					return env.Binds[index].Addr().Interface().(*uintptr)
+				}
 			}
 		case r.Float32:
 
-			if compiled {
-				ret = func(env *Env) *float32 {
-					return env.Binds[index].Addr().Interface().(*float32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float32 {
 					env.AddressTaken = true
 					return (*float32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float32 {
+					return env.Binds[index].Addr().Interface().(*float32)
+				}
 			}
 		case r.Float64:
 
-			if compiled {
-				ret = func(env *Env) *float64 {
-					return env.Binds[index].Addr().Interface().(*float64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float64 {
 					env.AddressTaken = true
 					return (*float64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float64 {
+					return env.Binds[index].Addr().Interface().(*float64)
+				}
 			}
 		case r.Complex64:
 
-			if compiled {
-				ret = func(env *Env) *complex64 {
-					return env.Binds[index].Addr().Interface().(*complex64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *complex64 {
 					env.AddressTaken = true
 					return (*complex64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *complex64 {
+					return env.Binds[index].Addr().Interface().(*complex64)
+				}
 			}
 		default:
 
-			if compiled {
-				ret = func(env *Env) r.Value {
-					return env.Binds[index].Addr().Interface().(r.Value)
-				}
-			} else {
-				ret = func(env *Env) r.Value {
-					return env.Binds[index].Addr()
-				}
+			ret = func(env *Env) r.Value {
+				return env.Binds[index].Addr()
 			}
 		}
 	case 1:
 		switch k {
 		case r.Bool:
 
-			if compiled {
-				ret = func(env *Env) *bool {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*bool)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *bool {
 					env = env.
 						Outer
@@ -313,16 +302,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*bool)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *bool {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*bool)
+				}
 			}
 		case r.Int:
 
-			if compiled {
-				ret = func(env *Env) *int {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*int)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int {
 					env = env.
 						Outer
@@ -331,16 +320,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*int)
+				}
 			}
 		case r.Int8:
 
-			if compiled {
-				ret = func(env *Env) *int8 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*int8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int8 {
 					env = env.
 						Outer
@@ -349,16 +338,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int8 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*int8)
+				}
 			}
 		case r.Int16:
 
-			if compiled {
-				ret = func(env *Env) *int16 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*int16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int16 {
 					env = env.
 						Outer
@@ -367,16 +356,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int16 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*int16)
+				}
 			}
 		case r.Int32:
 
-			if compiled {
-				ret = func(env *Env) *int32 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*int32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int32 {
 					env = env.
 						Outer
@@ -385,16 +374,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int32 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*int32)
+				}
 			}
 		case r.Int64:
 
-			if compiled {
-				ret = func(env *Env) *int64 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*int64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int64 {
 					env = env.
 						Outer
@@ -403,16 +392,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int64 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*int64)
+				}
 			}
 		case r.Uint:
 
-			if compiled {
-				ret = func(env *Env) *uint {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*uint)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint {
 					env = env.
 						Outer
@@ -421,16 +410,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*uint)
+				}
 			}
 		case r.Uint8:
 
-			if compiled {
-				ret = func(env *Env) *uint8 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*uint8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint8 {
 					env = env.
 						Outer
@@ -439,16 +428,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint8 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*uint8)
+				}
 			}
 		case r.Uint16:
 
-			if compiled {
-				ret = func(env *Env) *uint16 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*uint16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint16 {
 					env = env.
 						Outer
@@ -457,16 +446,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint16 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*uint16)
+				}
 			}
 		case r.Uint32:
 
-			if compiled {
-				ret = func(env *Env) *uint32 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*uint32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint32 {
 					env = env.
 						Outer
@@ -475,16 +464,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint32 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*uint32)
+				}
 			}
 		case r.Uint64:
 
-			if compiled {
-				ret = func(env *Env) *uint64 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*uint64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint64 {
 					env = env.
 						Outer
@@ -493,16 +482,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return &env.IntBinds[index]
 
 				}
+			} else {
+				ret = func(env *Env) *uint64 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*uint64)
+				}
 			}
 		case r.Uintptr:
 
-			if compiled {
-				ret = func(env *Env) *uintptr {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*uintptr)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uintptr {
 					env = env.
 						Outer
@@ -511,16 +500,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uintptr)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uintptr {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*uintptr)
+				}
 			}
 		case r.Float32:
 
-			if compiled {
-				ret = func(env *Env) *float32 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*float32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float32 {
 					env = env.
 						Outer
@@ -529,16 +518,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float32 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*float32)
+				}
 			}
 		case r.Float64:
 
-			if compiled {
-				ret = func(env *Env) *float64 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*float64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float64 {
 					env = env.
 						Outer
@@ -547,16 +536,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float64 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*float64)
+				}
 			}
 		case r.Complex64:
 
-			if compiled {
-				ret = func(env *Env) *complex64 {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(*complex64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *complex64 {
 					env = env.
 						Outer
@@ -565,35 +554,27 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*complex64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *complex64 {
+					env = env.
+						Outer
+					return env.Binds[index].Addr().Interface().(*complex64)
+				}
 			}
 		default:
 
-			if compiled {
-				ret = func(env *Env) r.Value {
-					env = env.
-						Outer
-					return env.Binds[index].Addr().Interface().(r.Value)
-				}
-			} else {
-				ret = func(env *Env) r.Value {
-					env = env.
-						Outer
-					return env.Binds[index].Addr()
+			ret = func(env *Env) r.Value {
+				env = env.
+					Outer
+				return env.Binds[index].Addr()
 
-				}
 			}
 		}
 	case 2:
 		switch k {
 		case r.Bool:
 
-			if compiled {
-				ret = func(env *Env) *bool {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*bool)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *bool {
 					env = env.
 						Outer.Outer
@@ -602,16 +583,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*bool)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *bool {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*bool)
+				}
 			}
 		case r.Int:
 
-			if compiled {
-				ret = func(env *Env) *int {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*int)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int {
 					env = env.
 						Outer.Outer
@@ -620,16 +601,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*int)
+				}
 			}
 		case r.Int8:
 
-			if compiled {
-				ret = func(env *Env) *int8 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*int8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int8 {
 					env = env.
 						Outer.Outer
@@ -638,16 +619,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int8 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*int8)
+				}
 			}
 		case r.Int16:
 
-			if compiled {
-				ret = func(env *Env) *int16 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*int16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int16 {
 					env = env.
 						Outer.Outer
@@ -656,16 +637,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int16 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*int16)
+				}
 			}
 		case r.Int32:
 
-			if compiled {
-				ret = func(env *Env) *int32 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*int32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int32 {
 					env = env.
 						Outer.Outer
@@ -674,16 +655,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int32 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*int32)
+				}
 			}
 		case r.Int64:
 
-			if compiled {
-				ret = func(env *Env) *int64 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*int64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int64 {
 					env = env.
 						Outer.Outer
@@ -692,16 +673,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int64 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*int64)
+				}
 			}
 		case r.Uint:
 
-			if compiled {
-				ret = func(env *Env) *uint {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*uint)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint {
 					env = env.
 						Outer.Outer
@@ -710,16 +691,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*uint)
+				}
 			}
 		case r.Uint8:
 
-			if compiled {
-				ret = func(env *Env) *uint8 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*uint8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint8 {
 					env = env.
 						Outer.Outer
@@ -728,16 +709,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint8 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*uint8)
+				}
 			}
 		case r.Uint16:
 
-			if compiled {
-				ret = func(env *Env) *uint16 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*uint16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint16 {
 					env = env.
 						Outer.Outer
@@ -746,16 +727,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint16 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*uint16)
+				}
 			}
 		case r.Uint32:
 
-			if compiled {
-				ret = func(env *Env) *uint32 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*uint32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint32 {
 					env = env.
 						Outer.Outer
@@ -764,16 +745,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint32 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*uint32)
+				}
 			}
 		case r.Uint64:
 
-			if compiled {
-				ret = func(env *Env) *uint64 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*uint64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint64 {
 					env = env.
 						Outer.Outer
@@ -782,16 +763,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return &env.IntBinds[index]
 
 				}
+			} else {
+				ret = func(env *Env) *uint64 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*uint64)
+				}
 			}
 		case r.Uintptr:
 
-			if compiled {
-				ret = func(env *Env) *uintptr {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*uintptr)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uintptr {
 					env = env.
 						Outer.Outer
@@ -800,16 +781,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uintptr)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uintptr {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*uintptr)
+				}
 			}
 		case r.Float32:
 
-			if compiled {
-				ret = func(env *Env) *float32 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*float32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float32 {
 					env = env.
 						Outer.Outer
@@ -818,16 +799,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float32 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*float32)
+				}
 			}
 		case r.Float64:
 
-			if compiled {
-				ret = func(env *Env) *float64 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*float64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float64 {
 					env = env.
 						Outer.Outer
@@ -836,16 +817,16 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float64 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*float64)
+				}
 			}
 		case r.Complex64:
 
-			if compiled {
-				ret = func(env *Env) *complex64 {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(*complex64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *complex64 {
 					env = env.
 						Outer.Outer
@@ -854,37 +835,27 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*complex64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *complex64 {
+					env = env.
+						Outer.Outer
+					return env.Binds[index].Addr().Interface().(*complex64)
+				}
 			}
 		default:
 
-			if compiled {
-				ret = func(env *Env) r.Value {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr().Interface().(r.Value)
-				}
-			} else {
-				ret = func(env *Env) r.Value {
-					env = env.
-						Outer.Outer
-					return env.Binds[index].Addr()
+			ret = func(env *Env) r.Value {
+				env = env.
+					Outer.Outer
+				return env.Binds[index].Addr()
 
-				}
 			}
 		}
 	default:
 		switch k {
 		case r.Bool:
 
-			if compiled {
-				ret = func(env *Env) *bool {
-					env = env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						env = env.Outer
-					}
-					return env.Binds[index].Addr().Interface().(*bool)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *bool {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -895,18 +866,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*bool)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Int:
-
-			if compiled {
-				ret = func(env *Env) *int {
+			} else {
+				ret = func(env *Env) *bool {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*int)
+					return env.Binds[index].Addr().Interface().(*bool)
 				}
-			} else {
+			}
+		case r.Int:
+
+			if intbinds {
 				ret = func(env *Env) *int {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -917,18 +888,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Int8:
-
-			if compiled {
-				ret = func(env *Env) *int8 {
+			} else {
+				ret = func(env *Env) *int {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*int8)
+					return env.Binds[index].Addr().Interface().(*int)
 				}
-			} else {
+			}
+		case r.Int8:
+
+			if intbinds {
 				ret = func(env *Env) *int8 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -939,18 +910,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Int16:
-
-			if compiled {
-				ret = func(env *Env) *int16 {
+			} else {
+				ret = func(env *Env) *int8 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*int16)
+					return env.Binds[index].Addr().Interface().(*int8)
 				}
-			} else {
+			}
+		case r.Int16:
+
+			if intbinds {
 				ret = func(env *Env) *int16 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -961,18 +932,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Int32:
-
-			if compiled {
-				ret = func(env *Env) *int32 {
+			} else {
+				ret = func(env *Env) *int16 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*int32)
+					return env.Binds[index].Addr().Interface().(*int16)
 				}
-			} else {
+			}
+		case r.Int32:
+
+			if intbinds {
 				ret = func(env *Env) *int32 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -983,18 +954,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Int64:
-
-			if compiled {
-				ret = func(env *Env) *int64 {
+			} else {
+				ret = func(env *Env) *int32 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*int64)
+					return env.Binds[index].Addr().Interface().(*int32)
 				}
-			} else {
+			}
+		case r.Int64:
+
+			if intbinds {
 				ret = func(env *Env) *int64 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1005,18 +976,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Uint:
-
-			if compiled {
-				ret = func(env *Env) *uint {
+			} else {
+				ret = func(env *Env) *int64 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*uint)
+					return env.Binds[index].Addr().Interface().(*int64)
 				}
-			} else {
+			}
+		case r.Uint:
+
+			if intbinds {
 				ret = func(env *Env) *uint {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1027,18 +998,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Uint8:
-
-			if compiled {
-				ret = func(env *Env) *uint8 {
+			} else {
+				ret = func(env *Env) *uint {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*uint8)
+					return env.Binds[index].Addr().Interface().(*uint)
 				}
-			} else {
+			}
+		case r.Uint8:
+
+			if intbinds {
 				ret = func(env *Env) *uint8 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1049,18 +1020,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Uint16:
-
-			if compiled {
-				ret = func(env *Env) *uint16 {
+			} else {
+				ret = func(env *Env) *uint8 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*uint16)
+					return env.Binds[index].Addr().Interface().(*uint8)
 				}
-			} else {
+			}
+		case r.Uint16:
+
+			if intbinds {
 				ret = func(env *Env) *uint16 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1071,18 +1042,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Uint32:
-
-			if compiled {
-				ret = func(env *Env) *uint32 {
+			} else {
+				ret = func(env *Env) *uint16 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*uint32)
+					return env.Binds[index].Addr().Interface().(*uint16)
 				}
-			} else {
+			}
+		case r.Uint32:
+
+			if intbinds {
 				ret = func(env *Env) *uint32 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1093,18 +1064,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Uint64:
-
-			if compiled {
-				ret = func(env *Env) *uint64 {
+			} else {
+				ret = func(env *Env) *uint32 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*uint64)
+					return env.Binds[index].Addr().Interface().(*uint32)
 				}
-			} else {
+			}
+		case r.Uint64:
+
+			if intbinds {
 				ret = func(env *Env) *uint64 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1115,18 +1086,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return &env.IntBinds[index]
 
 				}
-			}
-		case r.Uintptr:
-
-			if compiled {
-				ret = func(env *Env) *uintptr {
+			} else {
+				ret = func(env *Env) *uint64 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*uintptr)
+					return env.Binds[index].Addr().Interface().(*uint64)
 				}
-			} else {
+			}
+		case r.Uintptr:
+
+			if intbinds {
 				ret = func(env *Env) *uintptr {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1137,18 +1108,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uintptr)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Float32:
-
-			if compiled {
-				ret = func(env *Env) *float32 {
+			} else {
+				ret = func(env *Env) *uintptr {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*float32)
+					return env.Binds[index].Addr().Interface().(*uintptr)
 				}
-			} else {
+			}
+		case r.Float32:
+
+			if intbinds {
 				ret = func(env *Env) *float32 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1159,18 +1130,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Float64:
-
-			if compiled {
-				ret = func(env *Env) *float64 {
+			} else {
+				ret = func(env *Env) *float32 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*float64)
+					return env.Binds[index].Addr().Interface().(*float32)
 				}
-			} else {
+			}
+		case r.Float64:
+
+			if intbinds {
 				ret = func(env *Env) *float64 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1181,18 +1152,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
-			}
-		case r.Complex64:
-
-			if compiled {
-				ret = func(env *Env) *complex64 {
+			} else {
+				ret = func(env *Env) *float64 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					return env.Binds[index].Addr().Interface().(*complex64)
+					return env.Binds[index].Addr().Interface().(*float64)
 				}
-			} else {
+			}
+		case r.Complex64:
+
+			if intbinds {
 				ret = func(env *Env) *complex64 {
 					env = env.Outer.Outer.Outer
 					for i := 3; i < upn; i++ {
@@ -1203,38 +1174,31 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*complex64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *complex64 {
+					env = env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						env = env.Outer
+					}
+					return env.Binds[index].Addr().Interface().(*complex64)
+				}
 			}
 		default:
 
-			if compiled {
-				ret = func(env *Env) r.Value {
-					env = env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						env = env.Outer
-					}
-					return env.Binds[index].Addr().Interface().(r.Value)
+			ret = func(env *Env) r.Value {
+				env = env.Outer.Outer.Outer
+				for i := 3; i < upn; i++ {
+					env = env.Outer
 				}
-			} else {
-				ret = func(env *Env) r.Value {
-					env = env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						env = env.Outer
-					}
-					return env.Binds[index].Addr()
+				return env.Binds[index].Addr()
 
-				}
 			}
 		}
 	case maxdepth - 1:
 		switch k {
 		case r.Bool:
 
-			if compiled {
-				ret = func(env *Env) *bool {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*bool)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *bool {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1242,15 +1206,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*bool)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *bool {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*bool)
+				}
 			}
 		case r.Int:
 
-			if compiled {
-				ret = func(env *Env) *int {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*int)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1258,15 +1222,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*int)
+				}
 			}
 		case r.Int8:
 
-			if compiled {
-				ret = func(env *Env) *int8 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*int8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int8 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1274,15 +1238,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int8 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*int8)
+				}
 			}
 		case r.Int16:
 
-			if compiled {
-				ret = func(env *Env) *int16 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*int16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int16 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1290,15 +1254,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int16 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*int16)
+				}
 			}
 		case r.Int32:
 
-			if compiled {
-				ret = func(env *Env) *int32 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*int32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int32 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1306,15 +1270,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int32 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*int32)
+				}
 			}
 		case r.Int64:
 
-			if compiled {
-				ret = func(env *Env) *int64 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*int64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int64 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1322,15 +1286,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int64 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*int64)
+				}
 			}
 		case r.Uint:
 
-			if compiled {
-				ret = func(env *Env) *uint {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*uint)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1338,15 +1302,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*uint)
+				}
 			}
 		case r.Uint8:
 
-			if compiled {
-				ret = func(env *Env) *uint8 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*uint8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint8 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1354,15 +1318,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint8 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*uint8)
+				}
 			}
 		case r.Uint16:
 
-			if compiled {
-				ret = func(env *Env) *uint16 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*uint16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint16 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1370,15 +1334,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint16 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*uint16)
+				}
 			}
 		case r.Uint32:
 
-			if compiled {
-				ret = func(env *Env) *uint32 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*uint32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint32 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1386,15 +1350,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint32 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*uint32)
+				}
 			}
 		case r.Uint64:
 
-			if compiled {
-				ret = func(env *Env) *uint64 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*uint64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint64 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1402,15 +1366,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return &env.IntBinds[index]
 
 				}
+			} else {
+				ret = func(env *Env) *uint64 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*uint64)
+				}
 			}
 		case r.Uintptr:
 
-			if compiled {
-				ret = func(env *Env) *uintptr {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*uintptr)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uintptr {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1418,15 +1382,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uintptr)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uintptr {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*uintptr)
+				}
 			}
 		case r.Float32:
 
-			if compiled {
-				ret = func(env *Env) *float32 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*float32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float32 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1434,15 +1398,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float32 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*float32)
+				}
 			}
 		case r.Float64:
 
-			if compiled {
-				ret = func(env *Env) *float64 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*float64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float64 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1450,15 +1414,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float64 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*float64)
+				}
 			}
 		case r.Complex64:
 
-			if compiled {
-				ret = func(env *Env) *complex64 {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(*complex64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *complex64 {
 					env = env.ThreadGlobals.FileEnv
 
@@ -1466,32 +1430,25 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*complex64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *complex64 {
+					env = env.ThreadGlobals.FileEnv
+					return env.Binds[index].Addr().Interface().(*complex64)
+				}
 			}
 		default:
 
-			if compiled {
-				ret = func(env *Env) r.Value {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr().Interface().(r.Value)
-				}
-			} else {
-				ret = func(env *Env) r.Value {
-					env = env.ThreadGlobals.FileEnv
-					return env.Binds[index].Addr()
+			ret = func(env *Env) r.Value {
+				env = env.ThreadGlobals.FileEnv
+				return env.Binds[index].Addr()
 
-				}
 			}
 		}
 	case maxdepth:
 		switch k {
 		case r.Bool:
 
-			if compiled {
-				ret = func(env *Env) *bool {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*bool)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *bool {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1499,15 +1456,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*bool)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *bool {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*bool)
+				}
 			}
 		case r.Int:
 
-			if compiled {
-				ret = func(env *Env) *int {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*int)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1515,15 +1472,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*int)
+				}
 			}
 		case r.Int8:
 
-			if compiled {
-				ret = func(env *Env) *int8 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*int8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int8 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1531,15 +1488,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int8 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*int8)
+				}
 			}
 		case r.Int16:
 
-			if compiled {
-				ret = func(env *Env) *int16 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*int16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int16 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1547,15 +1504,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int16 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*int16)
+				}
 			}
 		case r.Int32:
 
-			if compiled {
-				ret = func(env *Env) *int32 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*int32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int32 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1563,15 +1520,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int32 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*int32)
+				}
 			}
 		case r.Int64:
 
-			if compiled {
-				ret = func(env *Env) *int64 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*int64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *int64 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1579,15 +1536,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*int64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *int64 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*int64)
+				}
 			}
 		case r.Uint:
 
-			if compiled {
-				ret = func(env *Env) *uint {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*uint)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1595,15 +1552,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*uint)
+				}
 			}
 		case r.Uint8:
 
-			if compiled {
-				ret = func(env *Env) *uint8 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*uint8)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint8 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1611,15 +1568,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint8)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint8 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*uint8)
+				}
 			}
 		case r.Uint16:
 
-			if compiled {
-				ret = func(env *Env) *uint16 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*uint16)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint16 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1627,15 +1584,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint16)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint16 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*uint16)
+				}
 			}
 		case r.Uint32:
 
-			if compiled {
-				ret = func(env *Env) *uint32 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*uint32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint32 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1643,15 +1600,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uint32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uint32 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*uint32)
+				}
 			}
 		case r.Uint64:
 
-			if compiled {
-				ret = func(env *Env) *uint64 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*uint64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uint64 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1659,15 +1616,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return &env.IntBinds[index]
 
 				}
+			} else {
+				ret = func(env *Env) *uint64 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*uint64)
+				}
 			}
 		case r.Uintptr:
 
-			if compiled {
-				ret = func(env *Env) *uintptr {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*uintptr)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *uintptr {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1675,15 +1632,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*uintptr)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *uintptr {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*uintptr)
+				}
 			}
 		case r.Float32:
 
-			if compiled {
-				ret = func(env *Env) *float32 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*float32)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float32 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1691,15 +1648,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float32)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float32 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*float32)
+				}
 			}
 		case r.Float64:
 
-			if compiled {
-				ret = func(env *Env) *float64 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*float64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *float64 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1707,15 +1664,15 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*float64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *float64 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*float64)
+				}
 			}
 		case r.Complex64:
 
-			if compiled {
-				ret = func(env *Env) *complex64 {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(*complex64)
-				}
-			} else {
+			if intbinds {
 				ret = func(env *Env) *complex64 {
 					env = env.ThreadGlobals.TopEnv
 
@@ -1723,20 +1680,18 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 					return (*complex64)(unsafe.Pointer(&env.IntBinds[index]))
 
 				}
+			} else {
+				ret = func(env *Env) *complex64 {
+					env = env.ThreadGlobals.TopEnv
+					return env.Binds[index].Addr().Interface().(*complex64)
+				}
 			}
 		default:
 
-			if compiled {
-				ret = func(env *Env) r.Value {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr().Interface().(r.Value)
-				}
-			} else {
-				ret = func(env *Env) r.Value {
-					env = env.ThreadGlobals.TopEnv
-					return env.Binds[index].Addr()
+			ret = func(env *Env) r.Value {
+				env = env.ThreadGlobals.TopEnv
+				return env.Binds[index].Addr()
 
-				}
 			}
 		}
 	}

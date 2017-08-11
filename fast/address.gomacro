@@ -78,27 +78,33 @@ import (
 		// because env.Binds[index] actually contains a pointer to the variable
 		bind = ~'{env .Binds[index].Addr()}
 		rettype = ~'{r.Value}
-	} else {
-		addresstaken = ~"{{env.AddressTaken = true}}
-		rettype = ~"{* ~,typ}
-		if t.Kind() == r.Uint64 {
-			bind = ~'{&env.IntBinds[index]}
-		} else {
-			bind = ~"{(*~,typ)(unsafe.Pointer(&env.IntBinds[index]))}
+		return ~"{
+			ret = func(env *Env) (~,rettype) {
+				~,@decls
+				return ~,bind
+			}
 		}
 	}
 
+	addresstaken = ~"{{env.AddressTaken = true}}
+	rettype = ~"{* ~,typ}
+	if t.Kind() == r.Uint64 {
+		bind = ~'{&env.IntBinds[index]}
+	} else {
+		bind = ~"{(*~,typ)(unsafe.Pointer(&env.IntBinds[index]))}
+	}
+
 	return ~"{
-		if compiled {
-			ret = func(env *Env) (~,rettype) {
-				~,@decls
-				return env.Binds[index].Addr().Interface().(~,rettype)
-			}
-		} else {
+		if intbinds {
 			ret = func(env *Env) (~,rettype) {
 				~,@decls
 				~,addresstaken
 				return ~,bind
+			}
+		} else {
+			ret = func(env *Env) (~,rettype) {
+				~,@decls
+				return env.Binds[index].Addr().Interface().(~,rettype)
 			}
 		}
 	}
@@ -157,7 +163,7 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 	// c.Debugf("AddressOf: place %v has type %v, taking its address", expr, place.Type)
 	if place.IsVar() {
 		va := place.Var // make a copy of place.Var, do not alter the original's type
-		return va.Address(c.Depth, c.IsCompiledOuter(va.Upn))
+		return va.Address(c.Depth)
 	} else if place.Addr == nil {
 		c.Errorf("cannot take the address of %v <%v>", expr, place.Type)
 		return nil
@@ -171,10 +177,10 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 func (c *Comp) AddressOfVar(name string) *Expr {
 	sym := c.Resolve(name)
 	va := sym.AsVar(PlaceAddress)
-	return va.Address(c.Depth, c.IsCompiledOuter(va.Upn))
+	return va.Address(c.Depth)
 }
 
-func (va *Var) Address(maxdepth int, compiled bool) *Expr {
+func (va *Var) Address(maxdepth int) *Expr {
 	upn := va.Upn
 	k := va.Type.Kind()
 	index := va.Desc.Index()
@@ -183,6 +189,7 @@ func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 		return nil
 	}
 	var ret I
+	intbinds := va.Desc.Class() == IntBind
 	switch upn {
 	case 0:          addresses;  0
 	case 1:          addresses;  1

@@ -106,17 +106,17 @@ import (
 	}
 
 	return ~"{
-		if compiled {
+		if intbinds {
 			ret = func(env *Env) (Stmt, *Env) {
 				~,@loop
-				~,cbind
+				~,bind
 				env.IP++
 				return env.Code[env.IP], env
 			}
 		} else {
 			ret = func(env *Env) (Stmt, *Env) {
 				~,@loop
-				~,bind
+				~,cbind
 				env.IP++
 				return env.Code[env.IP], env
 			}
@@ -250,13 +250,17 @@ import (
 }
 
 // varSetZero compiles 'variable = 0'
-func (c *Comp) varSetZero(upn int, index int, t xr.Type) {
-	zero := xr.Zero(t).Interface()
-	c.varSetConst(upn, index, t, zero)
+func (c *Comp) varSetZero(va *Var) {
+	zero := xr.Zero(va.Type).Interface()
+	c.varSetConst(va, zero)
 }
 
 // varSetConst compiles 'name = constant'
-func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
+func (c *Comp) varSetConst(va *Var, val I) {
+	t := va.Type
+	upn := va.Upn
+	index := va.Desc.Index()
+
 	v := r.ValueOf(val)
 	rt := t.ReflectType()
 	if ValueType(v) == nil {
@@ -265,7 +269,7 @@ func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 		v = v.Convert(rt)
 	}
 	var ret func(env *Env) (Stmt, *Env)
-	compiled := c.IsCompiledOuter(upn)
+	intbinds := va.Desc.Class() == IntBind
 	switch upn {
 	case 0:         setplaces_const;  0
 	case 1:         setplaces_const;  1
@@ -277,11 +281,15 @@ func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 }
 
 // varSetExpr compiles 'name = expression'
-func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
+func (c *Comp) varSetExpr(va *Var, e *Expr) {
+	t := va.Type
+	upn := va.Upn
+	index := va.Desc.Index()
+
 	rt := t.ReflectType()
 	fun := e.Fun
 	var ret func(env *Env) (Stmt, *Env)
-	compiled := c.IsCompiledOuter(upn)
+	intbinds := va.Desc.Class() == IntBind
 	switch upn {
 	case 0:         setplaces_expr;  0
 	case 1:         setplaces_expr;  1

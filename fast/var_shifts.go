@@ -36,10 +36,13 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
-	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) varShlConst(upn int, index int, t xr.Type, val I) {
+func (c *Comp) varShlConst(va *Var, val I) {
+	t := va.Type
+	upn := va.Upn
+	index := va.Desc.Index()
+
 	t2 := r.TypeOf(val)
 	if t2 == nil || KindToCategory(t2.Kind()) != r.Uint {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
@@ -48,7 +51,6 @@ func (c *Comp) varShlConst(upn int, index int, t xr.Type, val I) {
 	if isLiteralNumber(val, 0) {
 		return
 	}
-
 	{
 		val := r.ValueOf(val).Uint()
 		var ret Stmt
@@ -644,7 +646,11 @@ func (c *Comp) varShlConst(upn int, index int, t xr.Type, val I) {
 		c.append(ret)
 	}
 }
-func (c *Comp) varShlExpr(upn int, index int, t xr.Type, function I) {
+func (c *Comp) varShlExpr(va *Var, function I) {
+	t := va.Type
+	upn := va.Upn
+	index := va.Desc.Index()
+
 	t2 := funTypeOut(function)
 	if t2 == nil || KindToCategory(t2.Kind()) != r.Uint {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
@@ -1246,7 +1252,11 @@ func (c *Comp) varShlExpr(upn int, index int, t xr.Type, function I) {
 		c.append(ret)
 	}
 }
-func (c *Comp) varShrConst(upn int, index int, t xr.Type, val I) {
+func (c *Comp) varShrConst(va *Var, val I) {
+	t := va.Type
+	upn := va.Upn
+	index := va.Desc.Index()
+
 	t2 := r.TypeOf(val)
 	if t2 == nil || KindToCategory(t2.Kind()) != r.Uint {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
@@ -1255,7 +1265,6 @@ func (c *Comp) varShrConst(upn int, index int, t xr.Type, val I) {
 	if isLiteralNumber(val, 0) {
 		return
 	}
-
 	{
 		val := r.ValueOf(val).Uint()
 		var ret Stmt
@@ -1851,7 +1860,11 @@ func (c *Comp) varShrConst(upn int, index int, t xr.Type, val I) {
 		c.append(ret)
 	}
 }
-func (c *Comp) varShrExpr(upn int, index int, t xr.Type, function I) {
+func (c *Comp) varShrExpr(va *Var, function I) {
+	t := va.Type
+	upn := va.Upn
+	index := va.Desc.Index()
+
 	t2 := funTypeOut(function)
 	if t2 == nil || KindToCategory(t2.Kind()) != r.Uint {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
