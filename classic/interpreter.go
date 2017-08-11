@@ -47,8 +47,8 @@ func New() *Interp {
 	return &Interp{env}
 }
 
-func (ir *Interp) ChangePackage(name string) {
-	ir.Env = ir.Env.ChangePackage(name)
+func (ir *Interp) ChangePackage(path string) {
+	ir.Env = ir.Env.ChangePackage(path)
 }
 
 // cmd is expected to start with 'package'
