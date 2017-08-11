@@ -20,20 +20,20 @@ func main() {
 	// 1. allocate the classic interpreter. Reason: the fast interpreter cannot yet switch package
 	ir := classic.New()
 
-	// 2. tell the interpreter to load the file "cube.go" into the package "github.com/cosmos72/gomacro/examples/earljwagner2"
-	ir.EvalFile("cube.go", "github.com/cosmos72/gomacro/examples/earljwagner2")
+	// 2. tell the interpreter to load the file "cube.go" into the package "github.com/cosmos72/gomacro/example/earljwagner2"
+	ir.EvalFile("cube.go", "github.com/cosmos72/gomacro/example/earljwagner2")
 
 	// 3. tell the interpreter to import the package containing the interpreted function Cube() loaded from file
-	ir.Eval(`import "github.com/cosmos72/gomacro/examples/earljwagner2"`)
+	ir.Eval(`import "github.com/cosmos72/gomacro/example/earljwagner2"`)
 
 	// 4. execute interpreted Cube() loaded from file - and realise it's bugged
 	xcube, _ := ir.Eval("earljwagner2.Cube(3.0)")
 	fmt.Printf("interpreted earljwagner2.Cube(3.0) = %f\n", xcube.Interface().(float64))
 
-	// 5. tell the interpreter to switch to package "github.com/cosmos72/gomacro/examples/earljwagner2"
+	// 5. tell the interpreter to switch to package "github.com/cosmos72/gomacro/example/earljwagner2"
 	//    at REPL, one would instead type the following (note the quotes):
-	//      package "github.com/cosmos72/gomacro/examples/earljwagner2"
-	ir.ChangePackage("github.com/cosmos72/gomacro/examples/earljwagner2")
+	//      package "github.com/cosmos72/gomacro/example/earljwagner2"
+	ir.ChangePackage("github.com/cosmos72/gomacro/example/earljwagner2")
 
 	// 6. the interpreted function Cube() can now be invoked without package prefix
 	xcube, _ = ir.Eval("Cube(4.0)")
@@ -50,5 +50,5 @@ func main() {
 	//    One solution is to stay inside the interpreter REPL and use interpreted functions.
 	//    Another solution is to extract the bug-fixed function from the interpreter and use it,
 	//    for example by storing it inside imports.Packages
-	imports.Packages["github.com/cosmos72/gomacro/examples/earljwagner2"].Binds["Cube"] = ir.ValueOf("Cube")
+	imports.Packages["github.com/cosmos72/gomacro/example/earljwagner2"].Binds["Cube"] = ir.ValueOf("Cube")
 }

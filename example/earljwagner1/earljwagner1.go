@@ -14,30 +14,30 @@ func main() {
 	// 1. allocate the classic interpreter. Reason: the fast interpreter cannot yet switch package
 	ir := classic.New()
 
-	// 2. tell the interpreter about our compiled function Cube() in package "github.com/cosmos72/gomacro/examples/earljwagner1"
+	// 2. tell the interpreter about our compiled function Cube() in package "github.com/cosmos72/gomacro/example/earljwagner1"
 	// An alternative solution is to run the interpreter interactively, and at its REPL enter the command:
 	// import _i "package/to/generate/imports/for"
 	// (note: the _i is fundamental)
 	// This will create a file x_package.go in the imported package - just recompile and rerun you program:
 	// the interpreter will now be able to 'import "package/to/generate/imports/for"'
 	// without the need to dynamically compile and load a plugin
-	imports.Packages["github.com/cosmos72/gomacro/examples/earljwagner1"] = imports.Package{
+	imports.Packages["github.com/cosmos72/gomacro/example/earljwagner1"] = imports.Package{
 		Binds: map[string]reflect.Value{
 			"Cube": reflect.ValueOf(Cube),
 		},
 	}
 
 	// 3. tell the interpreter to import the package containing our Cube()
-	ir.Eval(`import "github.com/cosmos72/gomacro/examples/earljwagner1"`)
+	ir.Eval(`import "github.com/cosmos72/gomacro/example/earljwagner1"`)
 
 	// 4. execute compiled Cube() - and realise it's bugged
 	xcube, _ := ir.Eval("earljwagner1.Cube(3.0)")
 	fmt.Printf("compiled earljwagner1.Cube(3.0) = %f\n", xcube.Interface().(float64))
 
-	// 5. tell the interpreter to switch to package "github.com/cosmos72/gomacro/examples/earljwagner1"
+	// 5. tell the interpreter to switch to package "github.com/cosmos72/gomacro/example/earljwagner1"
 	//    at REPL, one would instead type the following (note the quotes):
-	//      package "github.com/cosmos72/gomacro/examples/earljwagner1"
-	ir.ChangePackage("github.com/cosmos72/gomacro/examples/earljwagner1")
+	//      package "github.com/cosmos72/gomacro/example/earljwagner1"
+	ir.ChangePackage("github.com/cosmos72/gomacro/example/earljwagner1")
 
 	// 6. the compiled function Cube() can now be invoked without package prefix
 	xcube, _ = ir.Eval("Cube(4.0)")
@@ -54,7 +54,7 @@ func main() {
 	//    One solution is to stay inside the interpreter REPL and use interpreted functions.
 	//    Another solution is to extract the bug-fixed function from the interpreter and use it,
 	//    for example by storing it inside imports.Packages
-	imports.Packages["github.com/cosmos72/gomacro/examples/earljwagner1"].Binds["Cube"] = ir.ValueOf("Cube")
+	imports.Packages["github.com/cosmos72/gomacro/example/earljwagner1"].Binds["Cube"] = ir.ValueOf("Cube")
 }
 
 func Cube(x float64) float64 {
