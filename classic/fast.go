@@ -36,7 +36,7 @@ import (
 
 // temporary helper to invoke the new fast interpreter.
 // executes macroexpand + collect + compile + eval
-func (env *Env) FastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type) {
+func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type) {
 	var f *fast.Interp
 	if env.FastInterp == nil {
 		f = fast.New()

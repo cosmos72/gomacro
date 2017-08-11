@@ -173,7 +173,7 @@ func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, f
 }
 
 // macroexpand + collect + eval
-func (env *Env) ClassicEval(form Ast) (r.Value, []r.Value) {
+func (env *Env) classicEval(form Ast) (r.Value, []r.Value) {
 	// macroexpansion phase.
 	form, _ = env.MacroExpandAstCodewalk(form)
 
