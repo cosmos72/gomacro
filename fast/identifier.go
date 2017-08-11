@@ -30,6 +30,19 @@ import (
 	"unsafe"
 )
 
+func (c *Comp) IsCompiledOuter(upn int) bool {
+	for ; upn > 0; upn-- {
+		for c.UpCost == 0 {
+			c = c.Outer
+		}
+		c = c.Outer
+	}
+	for c.UpCost == 0 {
+		c = c.Outer
+	}
+	return c.IsCompiled()
+}
+
 func (c *Comp) Resolve(name string) *Symbol {
 	sym := c.TryResolve(name)
 	if sym == nil {
@@ -78,7 +91,7 @@ func (c *Comp) Symbol(sym *Symbol) *Expr {
 	case VarBind, FuncBind:
 		return c.symbol(sym)
 	case IntBind:
-		if c.CompileOptions&OptIsCompiled != 0 {
+		if c.IsCompiledOuter(sym.Upn) {
 			return c.symbol(sym)
 		} else {
 			return c.intSymbol(sym)

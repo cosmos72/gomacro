@@ -43,17 +43,17 @@ import (
 	upn := Eval(depth).(int)
 	var t r.Type = EvalType(typ)
 
-	var loop, bind ast.Node
+	var loop, env, bind, cbind ast.Node
 
 	if upn >= 0 {
-		bind = ~'{env}
+		env = ~'{env}
 		for i := 0; i < upn; i++ {
-			bind = ~"{~,bind . Outer}
+			env = ~"{~,env . Outer}
 		}
 	} else if upn == -2 {
-		bind = ~'{env.ThreadGlobals.FileEnv}
+		env = ~'{env.ThreadGlobals.FileEnv}
 	} else if upn == -3 {
-		bind = ~'{env.ThreadGlobals.TopEnv}
+		env = ~'{env.ThreadGlobals.TopEnv}
 	} else {
 		loop = ~'{
 			o := env.Outer.Outer.Outer
@@ -61,31 +61,65 @@ import (
 				o = o.Outer
 			}
 		}
-		bind = ~'o
+		env = ~'o
 	}
 
 	if t == nil {
-		bind = ~"{~,bind . Binds[index] .Set(~,exprv)}
+		bind = ~"{~,env . Binds[index] .Set(~,exprv)}
 	} else {
+		typename := &ast.Ident{Name: t.Name()}
+		bind = ~"{*(*~,typename)(unsafe.Pointer(& ~,env .IntBinds[index])) = ~,expr}
 		switch t.Kind() {
-			case r.Complex128:
-				bind = ~"{~,bind . Binds[index] .SetComplex(~,expr)}
-			case r.String:
-				bind = ~"{~,bind . Binds[index] .SetString(~,expr)}
+			case r.Bool:
+				cbind = ~"{~,env . Binds[index].SetBool(~,expr)}
+			case r.Int, r.Int8, r.Int16, r.Int32:
+				cbind = ~"{~,env . Binds[index].SetInt(int64(~,expr))}
+			case r.Int64:
+				cbind = ~"{~,env . Binds[index].SetInt(~,expr)}
+			case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uintptr:
+				cbind = ~"{~,env . Binds[index].SetUint(uint64(~,expr))}
 			case r.Uint64:
-				bind = ~"{~,bind . IntBinds[index] = ~,expr}
-			default:
-				typename := &ast.Ident{Name: t.Name()}
-				bind = ~"{*(*~,typename)(unsafe.Pointer(& ~,bind .IntBinds[index])) = ~,expr}
+				bind = ~"{~,env . IntBinds[index] = ~,expr}
+				cbind = ~"{~,env . Binds[index].SetUint(~,expr)}
+			case r.Float32:
+				cbind = ~"{~,env . Binds[index].SetFloat(float64(~,expr))}
+			case r.Float64:
+				cbind = ~"{~,env . Binds[index].SetFloat(~,expr)}
+			case r.Complex64:
+				cbind = ~"{~,env . Binds[index] .SetComplex(complex128(~,expr))}
+			case r.Complex128:
+				bind = ~"{~,env . Binds[index] .SetComplex(~,expr)}
+			case r.String:
+				bind = ~"{~,env . Binds[index] .SetString(~,expr)}
+		}
+	}
+
+	if cbind == nil {
+		return ~"{
+			ret = func(env *Env) (Stmt, *Env) {
+				~,@loop
+				~,bind
+				env.IP++
+				return env.Code[env.IP], env
+			}
 		}
 	}
 
 	return ~"{
-		ret = func(env *Env) (Stmt, *Env) {
-			~,@loop
-			~,bind
-			env.IP++
-			return env.Code[env.IP], env
+		if compiled {
+			ret = func(env *Env) (Stmt, *Env) {
+				~,@loop
+				~,cbind
+				env.IP++
+				return env.Code[env.IP], env
+			}
+		} else {
+			ret = func(env *Env) (Stmt, *Env) {
+				~,@loop
+				~,bind
+				env.IP++
+				return env.Code[env.IP], env
+			}
 		}
 	}
 }
@@ -231,6 +265,7 @@ func (c *Comp) varSetConst(upn int, index int, t xr.Type, val I) {
 		v = v.Convert(rt)
 	}
 	var ret func(env *Env) (Stmt, *Env)
+	compiled := c.IsCompiledOuter(upn)
 	switch upn {
 	case 0:         setplaces_const;  0
 	case 1:         setplaces_const;  1
@@ -246,6 +281,7 @@ func (c *Comp) varSetExpr(upn int, index int, t xr.Type, e *Expr) {
 	rt := t.ReflectType()
 	fun := e.Fun
 	var ret func(env *Env) (Stmt, *Env)
+	compiled := c.IsCompiledOuter(upn)
 	switch upn {
 	case 0:         setplaces_expr;  0
 	case 1:         setplaces_expr;  1

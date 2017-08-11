@@ -446,6 +446,10 @@ const (
 	OptDefaults    CompileOptions = 0
 )
 
+func (opts CompileOptions) IsCompiled() bool {
+	return opts&OptIsCompiled != 0
+}
+
 type Code struct {
 	List       []Stmt
 	DebugPos   []token.Pos // for debugging interpreted code: position of each statement

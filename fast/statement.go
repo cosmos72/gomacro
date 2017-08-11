@@ -611,7 +611,7 @@ func (c *Comp) pushEnvIfLocalBinds(nbinds *[2]int, list ...ast.Stmt) (inner *Com
 	if len(list) == 0 {
 		inner.Errorf("internal error: pushEnvIfLocalBinds() invoked on empty statement list")
 	}
-	// optimization: examine statements. if none of them is a function/variable declaration,
+	// 2. optimization: examine statements. if none of them is a function/variable declaration,
 	// no need to create a new *Env at runtime
 	// note: we still create a new *Comp at compile time to handle constant/type declarations
 	locals = containLocalBinds(list...)

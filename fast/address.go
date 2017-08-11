@@ -60,7 +60,7 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 
 	if place.IsVar() {
 		va := place.Var
-		return va.Address(c.Depth, c.CompileOptions)
+		return va.Address(c.Depth, c.IsCompiledOuter(va.Upn))
 	} else if place.Addr == nil {
 		c.Errorf("cannot take the address of %v <%v>", expr, place.Type)
 		return nil
@@ -73,9 +73,9 @@ func (c *Comp) addressOf(expr ast.Expr) *Expr {
 func (c *Comp) AddressOfVar(name string) *Expr {
 	sym := c.Resolve(name)
 	va := sym.AsVar(PlaceAddress)
-	return va.Address(c.Depth, c.CompileOptions)
+	return va.Address(c.Depth, c.IsCompiledOuter(va.Upn))
 }
-func (va *Var) Address(maxdepth int, opts CompileOptions) *Expr {
+func (va *Var) Address(maxdepth int, compiled bool) *Expr {
 	upn := va.Upn
 	k := va.Type.Kind()
 	index := va.Desc.Index()
@@ -84,7 +84,6 @@ func (va *Var) Address(maxdepth int, opts CompileOptions) *Expr {
 		return nil
 	}
 	var ret I
-	compiled := opts&OptIsCompiled != 0
 	switch upn {
 	case 0:
 		switch k {

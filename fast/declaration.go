@@ -218,7 +218,7 @@ func (c *Comp) AddFuncBind(name string, t xr.Type) *Bind {
 // AddBind reserves space for a subsequent constant, function or variable declaration
 func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 	if class == IntBind || class == VarBind {
-		if base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64 {
+		if !c.IsCompiled() && (base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64) {
 			class = IntBind
 		} else {
 			class = VarBind
