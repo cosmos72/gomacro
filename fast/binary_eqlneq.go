@@ -31,21 +31,21 @@
 package fast
 
 import (
-	"go/token"
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
-	if xe.IsNil {
-		if ye.IsNil {
+	if xe.IsNil() {
+		if ye.IsNil() {
 			return c.invalidBinaryExpr(node, xe, ye)
 		} else {
 			return c.eqlneqNil(node, xe, ye)
 		}
-	} else if ye.IsNil {
+	} else if ye.IsNil() {
 		return c.eqlneqNil(node, xe, ye)
 	}
 
@@ -538,13 +538,13 @@ func (c *Comp) Eql(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	return c.eqlneqMisc(node, xe, ye)
 }
 func (c *Comp) Neq(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
-	if xe.IsNil {
-		if ye.IsNil {
+	if xe.IsNil() {
+		if ye.IsNil() {
 			return c.invalidBinaryExpr(node, xe, ye)
 		} else {
 			return c.eqlneqNil(node, xe, ye)
 		}
-	} else if ye.IsNil {
+	} else if ye.IsNil() {
 		return c.eqlneqNil(node, xe, ye)
 	}
 
@@ -1137,7 +1137,7 @@ func (c *Comp) eqlneqMisc(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 }
 func (c *Comp) eqlneqNil(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	var e *Expr
-	if ye.IsNil {
+	if ye.IsNil() {
 		e = xe
 	} else {
 		e = ye

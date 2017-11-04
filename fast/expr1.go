@@ -49,11 +49,11 @@ func (c *Comp) exprValue(t xr.Type, value I) *Expr {
 	if t == nil {
 		t = c.TypeOf(value)
 	}
-	return &Expr{Lit: Lit{Type: t, Value: value}, IsNil: value == nil}
+	return &Expr{Lit: Lit{Type: t, Value: value}, EFlags: EFlag4Value(value)}
 }
 
 func exprLit(lit Lit, sym *Symbol) *Expr {
-	return &Expr{Lit: lit, Sym: sym, IsNil: lit.Value == nil}
+	return &Expr{Lit: lit, Sym: sym, EFlags: EFlag4Value(lit.Value)}
 }
 
 func exprFun(t xr.Type, fun I) *Expr {
@@ -108,7 +108,7 @@ func (expr *Expr) EvalConst(opts CompileOptions) I {
 		value = ret.Interface()
 	}
 	expr.Value = value
-	expr.IsNil = value == nil
+	expr.EFlags = EFlag4Value(value)
 	expr.Fun = nil // no longer needed, will be recreated if needed as a wrapper for the computed value
 	return value
 }

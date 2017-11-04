@@ -152,6 +152,34 @@ func (lit Lit) String() string {
 	}
 }
 
+// ================================= EFlags =================================
+
+// EFlags represents the flags of an expression
+type EFlags uint32
+
+const (
+	Eisnil EFlags = 1 << iota
+	Eistypeassert
+)
+
+func (f EFlags) IsNil() bool {
+	return f&Eisnil != 0
+}
+
+func MakeEFlag(flag bool, iftrue EFlags) EFlags {
+	if flag {
+		return iftrue
+	}
+	return 0
+}
+
+func EFlag4Value(value I) EFlags {
+	if value == nil {
+		return Eisnil
+	}
+	return 0
+}
+
 // ================================= Expr =================================
 
 // Expr represents an expression in the "compiler"
@@ -160,11 +188,11 @@ type Expr struct {
 	Types []xr.Type // in case the expression produces multiple values. if nil, use Lit.Type.
 	Fun   I         // function that evaluates the expression at runtime.
 	Sym   *Symbol   // in case the expression is a symbol
-	IsNil bool
+	EFlags
 }
 
 func (e *Expr) Const() bool {
-	return e.Value != nil || e.IsNil
+	return e.Value != nil || e.IsNil()
 }
 
 // NumOut returns the number of values that an expression will produce when evaluated
