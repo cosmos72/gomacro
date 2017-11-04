@@ -158,12 +158,12 @@ func (lit Lit) String() string {
 type EFlags uint32
 
 const (
-	Eisnil EFlags = 1 << iota
-	Eistypeassert
+	EIsNil EFlags = 1 << iota
+	EIsTypeAssert
 )
 
 func (f EFlags) IsNil() bool {
-	return f&Eisnil != 0
+	return f&EIsNil != 0
 }
 
 func MakeEFlag(flag bool, iftrue EFlags) EFlags {
@@ -175,7 +175,7 @@ func MakeEFlag(flag bool, iftrue EFlags) EFlags {
 
 func EFlag4Value(value I) EFlags {
 	if value == nil {
-		return Eisnil
+		return EIsNil
 	}
 	return 0
 }

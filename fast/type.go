@@ -492,7 +492,9 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			return v, []r.Value{v, True}
 		}
 	}
-	return exprXV([]xr.Type{tout, c.TypeOfBool()}, ret)
+	e := exprXV([]xr.Type{tout, c.TypeOfBool()}, ret)
+	e.EFlags = EIsTypeAssert
+	return e
 }
 
 // TypeAssert1 compiles a single-valued type assertion
@@ -650,7 +652,9 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			return v.Convert(rtout)
 		}
 	}
-	return exprFun(tout, ret)
+	e := exprFun(tout, ret)
+	e.EFlags = EIsTypeAssert
+	return e
 }
 
 func typeassert(v r.Value, rtin r.Type, rtout r.Type) r.Value {

@@ -36,13 +36,8 @@ import (
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
-	x := c.Expr(node.X)
-	y := c.Expr(node.Y)
-	if x.NumOut() == 0 {
-		c.Errorf("operand returns no values, cannot use in binary expression: %v", node.X)
-	} else if y.NumOut() == 0 {
-		c.Errorf("operand returns no values, cannot use in binary expression: %v", node.Y)
-	}
+	x := c.Expr1(node.X)
+	y := c.Expr1(node.Y)
 	return c.BinaryExpr1(node, x, y)
 }
 
