@@ -286,6 +286,7 @@ var testcases = []TestCase{
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
 	TestCase{I, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", csi, nil},
 	TestCase{F, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", fsi, nil},
+	TestCase{F, "type_struct_0", "type PairPrivate struct { a, b rune }; var pp PairPrivate; pp.a+pp.b", rune(0), nil},
 	TestCase{A, "type_struct_1", "type Pair struct { A rune; B string }; var pair Pair; pair", struct {
 		A rune
 		B string
