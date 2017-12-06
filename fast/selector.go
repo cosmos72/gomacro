@@ -148,8 +148,8 @@ func (c *Comp) LookupMethod(t xr.Type, name string) (mtd xr.Method, numfound int
 	return t.MethodByName(name, c.FileComp().Path)
 }
 
-// field1 isa variand of reflect.Value.Field, also accepts pointer values
-// and dereferences pointer ONLY if index is negative (actually used index will be ^x)
+// field0 is a variant of reflect.Value.Field, also accepts pointer values
+// and dereferences pointer ONLY if index is negative (actually used index will be ^index)
 func field0(v r.Value, index int) r.Value {
 	if index < 0 {
 		v = v.Elem()
@@ -159,7 +159,7 @@ func field0(v r.Value, index int) r.Value {
 }
 
 // fieldByIndex is a variant of reflect.Value.FieldByIndex, also accepts pointer values
-// and dereferences pointers ONLY if index[i] is negative (actually used index will be ^x)
+// and dereferences pointers ONLY if index[i] is negative (actually used index will be ^index[i])
 func fieldByIndex(v r.Value, index []int) r.Value {
 	for _, x := range index {
 		if x < 0 {
@@ -780,13 +780,15 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 	return c.exprValue(tfunc, ret.Interface())
 }
 
-// SelectorPlace compiles a.b returning a settable and addressable Place
+// SelectorPlace compiles a.b returning a settable and/or addressable Place
 func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 	obje := c.Expr1(node.X)
 	te := obje.Type
 	name := node.Sel.Name
+	ispointer := false
 	switch te.Kind() {
 	case r.Ptr:
+		ispointer = true
 		te = te.Elem()
 		if te.Kind() != r.Struct {
 			break
@@ -799,7 +801,7 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 		})
 		fallthrough
 	case r.Struct:
-		if te.ReflectType() == rtypeOfImport && obje.Const() {
+		if !ispointer && te.ReflectType() == rtypeOfImport && obje.Const() {
 			// access symbol from imported package, for example fmt.Printf
 			imp := obje.Value.(Import)
 			return c.selectorPlaceImport(&imp, name, opt)
@@ -811,9 +813,9 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 			c.Errorf("type %v has %d fields named %q, all at depth %d", te, fieldn, name, len(field.Index))
 			return nil
 		}
-		// if te.Kind() == r.Ptr, field is automatically settable and addressable
+		// if ispointer, field is automatically settable and addressable
 		// because the 'a' in 'a.b' is actually a pointer
-		if te.Kind() == r.Struct {
+		if !ispointer {
 			c.checkAddressableField(node)
 		}
 		return c.compileFieldPlace(obje, field)
