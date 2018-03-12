@@ -238,7 +238,7 @@ again:
 		val = UnescapeString(obj.ExactString())
 	case r.Interface:
 		// this can happen too... for example in "var foo interface{} = 7"
-		// and it requites to convert the untyped constant to its default type.
+		// and it requires to convert the untyped constant to its default type.
 		// obviously, untyped constants can only implement empty interfaces
 		if t.NumMethod() == 0 {
 			t = untyp.DefaultType()
@@ -304,6 +304,9 @@ func (untyp *UntypedLit) extractNumber(src constant.Value, t xr.Type) interface{
 	switch src.Kind() {
 	case constant.Int:
 		n, exact = constant.Int64Val(src)
+		if !exact {
+			n, exact = constant.Uint64Val(src)
+		}
 	case constant.Float:
 		n, exact = constant.Float64Val(src)
 	case constant.Complex:
@@ -352,7 +355,7 @@ func convertLiteralCheckOverflow(src interface{}, to xr.Type) interface{} {
 			t1 := ValueType(v)
 			vback := vto.Convert(t1)
 			if src != vback.Interface() {
-				Errorf("constant %v overflows %v", src, to)
+				Errorf("constant %v overflows <%v>", src, to)
 				return nil
 			}
 		}

@@ -37,7 +37,7 @@ import (
 func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 	e := c.Expr1(node)
 	if e.Untyped() {
-		e.ConstTo(e.DefaultType())
+		e.ConstTo(t)
 	}
 
 	if xr.SameType(e.Type, t) {
