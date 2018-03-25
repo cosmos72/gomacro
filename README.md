@@ -4,8 +4,8 @@ gomacro is a fairly complete Go interpreter, implemented in pure Go. It offers b
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
 (except in one very specific case: import of a non-standard package).
 
-It has very few dependencies: go/ast, go/types, reflect and,
-for goroutines support, golang.org/x/sync/syncmap.
+It has very few dependencies: go/ast, go/types, reflect and, for legacy reasons
+(no longer used by the default interpreter), golang.org/x/sync/syncmap.
 
 Gomacro can be used as:
 * a standalone executable with interactive Go REPL:
@@ -48,8 +48,9 @@ Gomacro can be used as:
   The imported libraries will be **compiled**, not interpreted,
   so they will be as fast as in compiled Go.
 
-* a library that adds Eval() and scripting capabilities
-  to your Go programs - provided you comply with its LGPL license
+* a library that adds Eval() and scripting capabilities to your Go programs,
+  provided you comply with its LGPL license.
+  See issue #13 for sample code.
 
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
