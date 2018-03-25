@@ -8,7 +8,7 @@ It has very few dependencies: go/ast, go/types, reflect and,
 for goroutines support, golang.org/x/sync/syncmap.
 
 Gomacro can be used as:
-* a standalone executable with interactive Go REPL:  
+* a standalone executable with interactive Go REPL:
   just run `gomacro` from your command line or, better, `rlwrap gomacro`
   (rlwrap is a wrapper that adds history and line editing to terminal-based
   programs - available on many platforms)
@@ -40,7 +40,7 @@ Gomacro can be used as:
     Collected declarations and statements can be also written to standard output
     or to a file with the REPL command :write
 
-* an interactive tool to make science more productive and more fun.  
+* an interactive tool to make science more productive and more fun.
   If you use compiled Go with scientific libraries (physics, bioinformatics, statistics...)
   you can import the same libraries from gomacro REPL (requires Go 1.8+ and Linux),
   call them interactively, inspect the results, feed them to other functions/libraries,
@@ -51,20 +51,20 @@ Gomacro can be used as:
 * a library that adds Eval() and scripting capabilities
   to your Go programs - provided you comply with its LGPL license
 
-* a way to execute Go source code on-the-fly without a Go compiler:  
+* a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
 
   or you can insert a line `#!/usr/bin/env gomacro` at the beginning of a Go source file,
   then mark the file as executable with `chmod +x FILENAME.go` and finally execute it
   with `./FILENAME.go` (works only on Unix-like systems: Linux, *BSD, Mac OS X ...)
 
-* a Go code generation tool:  
+* a Go code generation tool:
   gomacro was started as an experiment to add Lisp-like macros to Go, and they are
   extremely useful (in the author's opinion) to simplify code generation.
   Macros are normal Go functions, they are special only in one aspect:
   they are executed **before** compiling code, and their input and output **is** code
   (abstract syntax trees, in the form of go/ast.Node)
-  
+
   Don't confuse them with C preprocessor macros: in Lisp, Scheme and now in Go,
   macros are regular functions written in the same programming language
   as the rest of the source code. They can perform arbitrary computations
@@ -87,24 +87,29 @@ The intepreter supports:
 * line comments starting with #! in addition to //
 * basic types: booleans, integers, floats, complex numbers, strings (and iota)
 * the empty interface, i.e. interface{} - other interfaces not implemented yet
-* constant, variable and type declarations (untyped constants are emulated with typed constants)
+* constant, variable and type declaration, including untyped constants
 * Go 1.9 type aliases (experimental)
 * unary and binary operators
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= <<= >>=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
 * composite literals
 * type assertions
-* function declarations (including variadic functions)
-* method declarations (including variadic methods and methods with pointer receiver)
 * seamless invocation of compiled functions from interpreter, and vice-versa
 * channel send and receive
 * goroutines, i.e. go function(args)
 * function and method calls, including multiple return values
-* if, for, for-range, break, continue, fallthrough, return (unimplemented: goto)
+* function and method declarations (including variadic functions/methods,
+  and methods with pointer receiver)
+* named return values
+* extracting methods from types and from instances.
+  For example `time.Duration.String` returns a `func(time.Duration) string`
+  and `time.Duration(1s).String` returns a `func() string`
+* if, for, for-range, break, continue, fallthrough, return (goto is only partially implemented)
 * select, switch, type switch, fallthrough
 * all builtins: append, cap, close, comples, defer, delete, imag, len, make, new, panic, print, println, real, recover
-* imports: Go standard packages "just work", importing other packages requires the "plugin" package (available only for Go 1.8+ on Linux)
-* switching to a different package
+* imports: Go standard packages "just work". Importing other packages requires either the "plugin" package
+  (available only for Go 1.8+ on Linux) or, in alternative, adding an `init()` function to the package,
+  then compiling it statically inside gomacro (see issue #13 for more details)
 * macro declarations, for example `macro foo(a, b, c interface{}) interface{} { return b }`
 * macro calls, for example `foo; x; y; z`
 * macroexpansion: code walker, MacroExpand and MacroExpand1
@@ -122,24 +127,27 @@ The intepreter supports:
 
 Some features are still missing:
 * interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
-* extracting methods from types. For example `time.Duration.String` should return a `func(time.Duration) string`
-  but currently gives an error.
-  Instead extracting methods from objects is supported: `time.Duration(1s).String` correctly returns a func() string
-* goto
-* named return values
+* switching to a different package
+  (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
+* goto is partially implemented, needs to be completed
 * history/readline (rlwrap does the job in most cases)
 
 Limitations:
-* no distinction between named and unnamed types created by interpreted code.
-  For the interpreter, `struct { A, B int }` and `type Pair struct { A, B int }`
-  are exactly the same type. This has subtle consequences, including the risk
-  that two different packages define the same type and overwrite each other's methods.
+* Named types created by interpreted code are emulated.
+  When the interpreter is asked to create for example `type Pair struct { A, B int }`,
+  it actually creates instances of the unnamed `struct { A, B int }`.
+  Everything works as it should within the interpreter, but extracting the struct
+  and using it in compiled code actually reveals the difference.
 
   The reason for such limitation is simple: the interpreter uses `reflect.StructOf()`
   to define new types, which can only create unnamed types.
-  The interpreter then defines named types as aliases for the underlying unnamed types.
 
-* cannot create recursive types, as for example `type List struct { First interface{}; Rest *List}`
+* recursive types are emulated too.
+  For example `type List struct { First interface{}; Rest *List}`
+  is actually a `struct { First interface{}; Rest *interface{} }`.
+  Again, everything works as it should within the interpreter, but extracting
+  the struct and using it in compiled code reveals the difference.
+
   The reason is the same as above: the interpreter uses `reflect.StructOf()` to define new types,
   which cannot create recursive types
 
