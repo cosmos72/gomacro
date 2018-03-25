@@ -87,7 +87,8 @@ The intepreter supports:
 * multiline input
 * line comments starting with #! in addition to //
 * basic types: booleans, integers, floats, complex numbers, strings (and iota)
-* the empty interface, i.e. interface{} - other interfaces not implemented yet
+* interfaces imported from compiled code, as for example `interface{}`, `error`, `fmt.Stringer`...
+  (new interfaces can be declared inside interpreted code, but they are not yet functional)
 * constant, variable and type declaration, including untyped constants
 * Go 1.9 type aliases (experimental)
 * unary and binary operators
@@ -128,7 +129,7 @@ The intepreter supports:
 
 Some features are still missing:
 * interpreted interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods.
-  Note: interfaces imported from compiled code are fully functional.
+  Note: interfaces imported from compiled code are fully functional, and interpreted types **can** implement them.
 * switching to a different package
   (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented, needs to be completed
