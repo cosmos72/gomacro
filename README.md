@@ -127,11 +127,13 @@ The intepreter supports:
 * nesting macros, quotes and unquotes
 
 Some features are still missing:
-* interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods
+* interpreted interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods.
+  Note: interfaces imported from compiled code are fully functional.
 * switching to a different package
   (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented, needs to be completed
 * history/readline (rlwrap does the job in most cases)
+* type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
 Limitations:
 * Named types created by interpreted code are emulated.
