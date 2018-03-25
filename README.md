@@ -50,7 +50,7 @@ Gomacro can be used as:
 
 * a library that adds Eval() and scripting capabilities to your Go programs,
   provided you comply with its LGPL license.
-  See issue #13 for sample code.
+  See [github issue #13](https://github.com/cosmos72/gomacro/issues/13) for sample code.
 
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
@@ -110,7 +110,7 @@ The intepreter supports:
 * all builtins: append, cap, close, comples, defer, delete, imag, len, make, new, panic, print, println, real, recover
 * imports: Go standard packages "just work". Importing other packages requires either the "plugin" package
   (available only for Go 1.8+ on Linux) or, in alternative, adding an `init()` function to the package,
-  then compiling it statically inside gomacro (see issue #13 for more details)
+  then compiling it statically inside gomacro (see [github issue #13](https://github.com/cosmos72/gomacro/issues/13) for more details)
 * macro declarations, for example `macro foo(a, b, c interface{}) interface{} { return b }`
 * macro calls, for example `foo; x; y; z`
 * macroexpansion: code walker, MacroExpand and MacroExpand1
