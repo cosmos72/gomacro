@@ -29,6 +29,7 @@ import (
 	"go/ast"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -93,4 +94,38 @@ func setProxyMethod(place r.Value, mtd r.Value) {
 			return mtd.Call(args)
 		}))
 	}
+}
+
+// extract a value from a proxy struct (one of the imports.* structs) that implements an interface
+// this is the inverse of the function returned by Comp.converterToInterface() above
+func extractFromInterface(v r.Value) r.Value {
+	// base.Debugf("type assertion: value = %v <%v>", v, base.ValueType(v))
+	i := base.ValueInterface(v)
+	v = r.ValueOf(i) // rebuild with concrete type
+	t := r.TypeOf(i)
+	// base.Debugf("type assertion: concrete value = %v <%v>", i, t)
+	if isProxyStruct(t) {
+		v = v.Elem().Field(0)
+		i = base.ValueInterface(v)
+		if j, ok := i.(xr.InterfaceHeader); ok {
+			// base.Debugf("type assertion: unwrapped value = %v <%T>", j, j)
+			v = j.Value()
+		} else {
+			// base.Debugf("type assertion: failed to unwrap value = %v <%T>", i, i)
+			v = r.ValueOf(i) // rebuild with concrete type
+		}
+	}
+	return v
+}
+
+// return true if t is pointer to one of our proxy structs in imports.* that pre-implement compiled interfaces.
+func isProxyStruct(t r.Type) bool {
+	if t != nil && t.Kind() == r.Ptr {
+		t = t.Elem()
+		if t.Kind() == r.Struct && t.PkgPath() == "github.com/cosmos72/gomacro/imports" && t.NumField() != 0 {
+			f := t.Field(0)
+			return f.Type == base.TypeOfInterface && f.Name == "Object"
+		}
+	}
+	return false
 }

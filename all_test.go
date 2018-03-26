@@ -649,6 +649,10 @@ var testcases = []TestCase{
 	TestCase{A, "typeassert_3", `xi.(int)`, nil, []interface{}{0, false}},
 	TestCase{A, "typeassert_4", `xi = nil; xi.(error)`, nil, []interface{}{error(nil), false}},
 	TestCase{A, "typeassert_5", `xi = 7; xi.(int)+2`, 9, nil},
+	TestCase{F, "typeassert_6", `type T struct { Val int }; func (t T) String() string { return "T" }; import "fmt"; nil`, nil, nil},
+	TestCase{F, "typeassert_7", `stringer = T{}; nil`, nil, nil},
+	TestCase{F, "typeassert_8", `st1 := stringer.(T); st1`, struct{ Val int }{0}, nil},
+	TestCase{F, "typeassert_9", `stringer.(T)`, nil, []interface{}{struct{ Val int }{0}, true}},
 
 	TestCase{A, "quote_1", `~quote{7}`, &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
 	TestCase{A, "quote_2", `~quote{x}`, &ast.Ident{Name: "x"}, nil},

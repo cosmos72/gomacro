@@ -411,21 +411,25 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 		c.Errorf("invalid type assertion: %v (non-interface type <%v> on left)", node, tin)
 		return nil
 	}
-	kin := tin.Kind()
 	kout := tout.Kind()
 	if kout != r.Interface && !tout.Implements(tin) {
 		c.Errorf("impossible type assertion: <%v> does not implement <%v>", tout, tin)
 	}
-	fun := val.Fun.(func(*Env) r.Value)     // val returns an interface... must be already wrapped in a reflect.Value
-	fail := []r.Value{xr.Zero(tout), False} // returned by type assertion in case of failure
+	vfun := val.Fun.(func(*Env) r.Value) // val returns an interface... must be already wrapped in a reflect.Value
 
+	fun := func(env *Env) r.Value {
+		// value may be an interpreted type wrapped in one of our proxies (an imports.* struct)
+		// that pre-implement compiled interfaces.
+		// in such case, we must extract it from the proxy
+		return extractFromInterface(vfun(env))
+	}
 	var ret func(env *Env) (r.Value, []r.Value)
 
+	fail := []r.Value{xr.Zero(tout), False} // returned by type assertion in case of failure
 	if IsOptimizedKind(kout) {
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env)
-			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
-			if v.Type() != rtout {
+			if ValueType(v) != rtout {
 				return fail[0], fail
 			}
 			return v, []r.Value{v, True}
@@ -441,8 +445,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			v := fun(env)
 			// nil is not a valid tout, check for it.
 			// IsNil() can be invoked only on nillable types...
-			// but v.Type().Kind() should be r.Interface, which is nillable :)
-			if v.IsNil() {
+			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 				return fail[0], fail
 			}
 			v = v.Convert(rtout)
@@ -453,11 +456,9 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			v := fun(env)
 			// nil is not a valid tout, check for it.
 			// IsNil() can be invoked only on nillable types...
-			// but v.Type().Kind() should be r.Interface, which is nillable :)
-			if v.IsNil() {
+			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 				return fail[0], fail
 			}
-			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
 			rtconcr := v.Type()
 			if rtconcr != rtout && !rtconcr.Implements(rtout) {
 				return fail[0], fail
@@ -465,16 +466,14 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			v = v.Convert(rtout)
 			return v, []r.Value{v, True}
 		}
-	} else if IsNillableKind(kin) {
+	} else if IsNillableKind(kout) {
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env)
 			// nil is not a valid tout, check for it.
 			// IsNil() can be invoked only on nillable types...
-			// but we just checked IsNillableKind(kin)
-			if v.IsNil() {
+			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 				return fail[0], fail
 			}
-			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
 			rtconcr := v.Type()
 			if rtconcr != rtout {
 				return fail[0], fail
@@ -484,8 +483,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	} else {
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v := fun(env)
-			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
-			rtconcr := v.Type()
+			rtconcr := ValueType(v)
 			if rtconcr != rtout {
 				return fail[0], fail
 			}
@@ -513,7 +511,14 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 	if tout.Kind() != r.Interface && !tout.Implements(tin) {
 		c.Errorf("impossible type assertion: <%v> does not implement <%v>", tout, tin)
 	}
-	fun := val.Fun.(func(*Env) r.Value) // val returns an interface... must be already wrapped in a reflect.Value
+	vfun := val.Fun.(func(*Env) r.Value) // val returns an interface... must be already wrapped in a reflect.Value
+	fun := func(env *Env) r.Value {
+		// value may be an interpreted type wrapped in one of our proxies (an imports.* struct)
+		// that pre-implement compiled interfaces.
+		// in such case, we must extract it from the proxy
+		return extractFromInterface(vfun(env))
+	}
+
 	rtin := tin.ReflectType()
 	rtout := tout.ReflectType()
 	var ret I
@@ -616,8 +621,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 				v := fun(env)
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
-				// but v.Type().Kind() should be r.Interface, which is nillable :)
-				if v.IsNil() {
+				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 					panic(&TypeAssertionError{
 						Interface: rtin,
 						Concrete:  nil,
@@ -632,16 +636,14 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			v := fun(env)
 			// nil is not a valid tout, check for it.
 			// IsNil() can be invoked only on nillable types...
-			// but v.Type().Kind() should be r.Interface, which is nillable :)
-			if v.IsNil() {
+			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 				panic(&TypeAssertionError{
 					Interface: rtin,
 					Concrete:  nil,
 					Asserted:  rtout,
 				})
 			}
-			v = r.ValueOf(v.Interface()) // rebuild reflect.Value with concrete type
-			rtconcr := v.Type()
+			rtconcr := ValueType(v)
 			if rtconcr != rtout && (rtout.Kind() != r.Interface || !rtconcr.Implements(rtout)) {
 				panic(&TypeAssertionError{
 					Interface: rtin,
@@ -658,8 +660,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 }
 
 func typeassert(v r.Value, rtin r.Type, rtout r.Type) r.Value {
-	v = r.ValueOf(v.Interface()) // extract concrete type
-	rtconcr := v.Type()
+	rtconcr := ValueType(v)
 	if rtconcr != rtout {
 		panic(&TypeAssertionError{
 			Interface: rtin,
