@@ -186,6 +186,10 @@ func resizemethodvalues(t *xtype) {
 	}
 }
 
+// NamedOf returns a new named type for the given type name and package.
+// Initially, the underlying type is set to interface{} - use SetUnderlying to change it.
+// These two steps are separate to allow creating self-referencing types,
+// as for example type List struct { Elem int; Rest *List }
 func (v *Universe) NamedOf(name, pkgpath string) Type {
 	if v.ThreadSafe {
 		defer un(lock(v))
