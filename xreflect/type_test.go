@@ -34,7 +34,7 @@ import (
 	"time"
 )
 
-var v = universe
+var u = NewUniverse()
 
 func fail(t *testing.T, actual interface{}, expected interface{}) {
 	t.Errorf("expecting %v <%T>, found %v <%T>\n", expected, expected, actual, actual)
@@ -72,7 +72,7 @@ func TestBasic(t *testing.T) {
 			continue
 		}
 		kind := reflect.Kind(i)
-		typ := v.BasicTypes[kind]
+		typ := u.BasicTypes[kind]
 		is(t, typ.Kind(), rtype.Kind())
 		is(t, typ.Name(), rtype.Name())
 		is(t, typ.ReflectType(), rtype)
@@ -85,7 +85,7 @@ func TestBasic(t *testing.T) {
 }
 
 func TestArray(t *testing.T) {
-	typ := ArrayOf(7, v.BasicTypes[reflect.Uint8])
+	typ := u.ArrayOf(7, u.BasicTypes[reflect.Uint8])
 	rtype := reflect.TypeOf([7]uint8{})
 	is(t, typ.Kind(), reflect.Array)
 	is(t, typ.Name(), "")
@@ -95,7 +95,7 @@ func TestArray(t *testing.T) {
 }
 
 func TestFunction(t *testing.T) {
-	typ := FuncOf([]Type{v.BasicTypes[reflect.Bool], v.BasicTypes[reflect.Int16]}, []Type{v.BasicTypes[reflect.String]}, false)
+	typ := u.FuncOf([]Type{u.BasicTypes[reflect.Bool], u.BasicTypes[reflect.Int16]}, []Type{u.BasicTypes[reflect.String]}, false)
 	rtype := reflect.TypeOf(func(bool, int16) string { return "" })
 	is(t, typ.Kind(), reflect.Func)
 	is(t, typ.Name(), "")
@@ -105,8 +105,8 @@ func TestFunction(t *testing.T) {
 }
 
 func TestInterface1(t *testing.T) {
-	methodtyp := FuncOf(nil, []Type{v.BasicTypes[reflect.Int]}, false)
-	typ := InterfaceOf([]string{"Cap", "Len"}, []Type{methodtyp, methodtyp}, nil).Complete()
+	methodtyp := u.FuncOf(nil, []Type{u.BasicTypes[reflect.Int]}, false)
+	typ := u.InterfaceOf([]string{"Cap", "Len"}, []Type{methodtyp, methodtyp}, nil).Complete()
 
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, typ.Name(), "")
@@ -131,18 +131,18 @@ func TestInterface1(t *testing.T) {
 
 // test implementing 'error' interface
 func TestInterfaceError(t *testing.T) {
-	methodtyp := FuncOf(nil, []Type{v.BasicTypes[reflect.String]}, false)
-	typ := InterfaceOf([]string{"Error"}, []Type{methodtyp}, nil).Complete()
+	methodtyp := u.FuncOf(nil, []Type{u.BasicTypes[reflect.String]}, false)
+	typ := u.InterfaceOf([]string{"Error"}, []Type{methodtyp}, nil).Complete()
 
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, typ.Name(), "")
 	is(t, typ.NumMethod(), 1)
 
-	is(t, typ.Implements(v.TypeOfError), true)
+	is(t, typ.Implements(u.TypeOfError), true)
 }
 
 func TestMap(t *testing.T) {
-	typ := MapOf(v.TypeOfInterface, v.BasicTypes[reflect.Bool])
+	typ := u.MapOf(u.TypeOfInterface, u.BasicTypes[reflect.Bool])
 	rtype := reflect.TypeOf(map[interface{}]bool{})
 	is(t, typ.Kind(), reflect.Map)
 	is(t, typ.Name(), "")
@@ -151,8 +151,8 @@ func TestMap(t *testing.T) {
 }
 
 func TestMethod(t *testing.T) {
-	typ := v.NamedOf("MyInt", "main")
-	typ.SetUnderlying(v.BasicTypes[reflect.Int])
+	typ := u.NamedOf("MyInt", "main")
+	typ.SetUnderlying(u.BasicTypes[reflect.Int])
 	rtype := reflect.TypeOf(int(0))
 	is(t, typ.Kind(), reflect.Int)
 	is(t, typ.Name(), "MyInt")
@@ -161,8 +161,8 @@ func TestMethod(t *testing.T) {
 }
 
 func TestNamed(t *testing.T) {
-	typ := v.NamedOf("MyMap", "main")
-	underlying := MapOf(v.TypeOfInterface, v.BasicTypes[reflect.Bool])
+	typ := u.NamedOf("MyMap", "main")
+	underlying := u.MapOf(u.TypeOfInterface, u.BasicTypes[reflect.Bool])
 	typ.SetUnderlying(underlying)
 	rtype := reflect.TypeOf(map[interface{}]bool{})
 	is(t, typ.Kind(), reflect.Map)
@@ -172,9 +172,9 @@ func TestNamed(t *testing.T) {
 }
 
 func TestSelfReference(t *testing.T) {
-	typ := v.NamedOf("List", "main")
-	underlying := StructOf([]StructField{
-		StructField{Name: "First", Type: v.BasicTypes[reflect.Int]},
+	typ := u.NamedOf("List", "main")
+	underlying := u.StructOf([]StructField{
+		StructField{Name: "First", Type: u.BasicTypes[reflect.Int]},
 		StructField{Name: "Rest", Type: typ},
 	})
 	typ.SetUnderlying(underlying)
@@ -193,9 +193,9 @@ func TestSelfReference(t *testing.T) {
 }
 
 func TestStruct(t *testing.T) {
-	typ := StructOf([]StructField{
-		StructField{Name: "First", Type: v.BasicTypes[reflect.Int]},
-		StructField{Name: "Rest", Type: v.TypeOfInterface},
+	typ := u.StructOf([]StructField{
+		StructField{Name: "First", Type: u.BasicTypes[reflect.Int]},
+		StructField{Name: "Rest", Type: u.TypeOfInterface},
 	})
 	rtype := reflect.TypeOf(struct {
 		First int
@@ -216,9 +216,9 @@ func TestStruct(t *testing.T) {
 }
 
 func TestEmbedded(t *testing.T) {
-	etyp := v.NamedOf("Box", "")
-	etyp.SetUnderlying(StructOf([]StructField{
-		StructField{Name: "Value", Type: v.BasicTypes[reflect.Int]},
+	etyp := u.NamedOf("Box", "")
+	etyp.SetUnderlying(u.StructOf([]StructField{
+		StructField{Name: "Value", Type: u.BasicTypes[reflect.Int]},
 	}))
 	ertype := reflect.TypeOf(struct {
 		Value int
@@ -229,9 +229,9 @@ func TestEmbedded(t *testing.T) {
 	istype(t, etyp.GoType(), (*types.Named)(nil))
 	istype(t, etyp.GoType().Underlying(), (*types.Struct)(nil))
 
-	typ := StructOf([]StructField{
-		StructField{Name: "Label", Type: v.BasicTypes[reflect.String]},
-		StructField{Type: v.PtrTo(etyp)}, // empty name => anonymous, and autodetect name from type
+	typ := u.StructOf([]StructField{
+		StructField{Name: "Label", Type: u.BasicTypes[reflect.String]},
+		StructField{Type: u.PtrTo(etyp)}, // empty name => anonymous, and autodetect name from type
 	})
 	is(t, typ.String(), "struct{Label string; *Box}")
 	field1 := typ.Field(1)
@@ -263,7 +263,7 @@ func TestFromReflect0(t *testing.T) {
 
 func TestFromReflect1(t *testing.T) {
 	rtype := reflect.TypeOf(time.Duration(0))
-	typ := v.FromReflectType(rtype)
+	typ := u.FromReflectType(rtype)
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.String(), "time.Duration")
 	is(t, typ.underlying().String(), "int64")
@@ -329,7 +329,7 @@ func TestFromReflect4(t *testing.T) {
 			approxInterfaceHeader(),
 			reflect.StructField{Name: "String", Type: reflect.TypeOf((*ToString)(nil)).Elem()},
 		}))
-	typ := v.NamedOf("Stringer", "io")
+	typ := u.NamedOf("Stringer", "io")
 	v := &Universe{RebuildDepth: MaxDepth}
 	underlying := v.FromReflectType(rtype)
 	typ.SetUnderlying(underlying)
@@ -356,7 +356,7 @@ func TestFromReflect4(t *testing.T) {
 
 func TestFromReflect5(t *testing.T) {
 	rtype := reflect.TypeOf((*reflect.Type)(nil)).Elem()
-	typ := v.FromReflectType(rtype)
+	typ := u.FromReflectType(rtype)
 
 	is(t, typ.String(), "reflect.Type")
 
@@ -372,12 +372,12 @@ func TestFromReflect5(t *testing.T) {
 
 // test implementing 'io.Reader' interface
 func TestInterfaceIoReader(t *testing.T) {
-	v.RebuildDepth = 0
+	u.RebuildDepth = 0
 
-	in := []Type{v.SliceOf(v.BasicTypes[reflect.Uint8])}
-	out := []Type{v.BasicTypes[reflect.Int], v.TypeOfError}
-	methodtyp := v.FuncOf(in, out, false)
-	typ := InterfaceOf([]string{"Read"}, []Type{methodtyp}, nil).Complete()
+	in := []Type{u.SliceOf(u.BasicTypes[reflect.Uint8])}
+	out := []Type{u.BasicTypes[reflect.Int], u.TypeOfError}
+	methodtyp := u.FuncOf(in, out, false)
+	typ := u.InterfaceOf([]string{"Read"}, []Type{methodtyp}, nil).Complete()
 	gtyp := typ.GoType()
 
 	is(t, typ.Kind(), reflect.Interface)
@@ -385,7 +385,7 @@ func TestInterfaceIoReader(t *testing.T) {
 	is(t, typ.NumMethod(), 1)
 
 	// ---------------------------
-	treader := v.TypeOf((*io.Reader)(nil)).Elem()
+	treader := u.TypeOf((*io.Reader)(nil)).Elem()
 
 	is(t, treader.Kind(), reflect.Interface)
 	is(t, treader.Name(), "Reader")
@@ -397,7 +397,7 @@ func TestInterfaceIoReader(t *testing.T) {
 	istrue(t, types.Identical(gtyp, treader.GoType().Underlying()))
 
 	// ---------------------------
-	io, err := v.Importer.Import("io")
+	io, err := u.Importer.Import("io")
 	istrue(t, err == nil)
 	istrue(t, io != nil)
 
@@ -414,10 +414,10 @@ func TestInterfaceIoReader(t *testing.T) {
 	istrue(t, types.AssignableTo(reader, gtyp))
 
 	// ---------------------------
-	t_file := v.TypeOf((*os.File)(nil))
+	t_file := u.TypeOf((*os.File)(nil))
 	tfile := t_file.Elem()
 
-	os, err := v.Importer.Import("os")
+	os, err := u.Importer.Import("os")
 	istrue(t, err == nil)
 	istrue(t, os != nil)
 
@@ -429,7 +429,7 @@ func TestInterfaceIoReader(t *testing.T) {
 
 	if false {
 		inspect("error", types.Universe.Lookup("error").Type())
-		inspect("Universe.TypeOfError.GoType()", v.TypeOfError.GoType())
+		inspect("Universe.TypeOfError.GoType()", u.TypeOfError.GoType())
 		inspect("tfile.Read.Results.1.Type", tfileRead.Results().At(1).Type())
 		inspect("file.Read.Results.1.Type", fileRead.Results().At(1).Type())
 		inspect("ireader.Read.Results.1.Type", ireaderRead.Results().At(1).Type())

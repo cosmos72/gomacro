@@ -56,6 +56,14 @@ func toGoNamedTypes(ts []Type) []*types.Named {
 	return gnameds
 }
 
+// InterfaceOf returns a new interface for the given methods and embedded types.
+// After the methods and embeddeds are fully defined, call Complete() to mark
+// the interface as complete and compute wrapper methods for embedded fields.
+//
+// WARNING: the Type returned by InterfaceOf is not complete,
+// i.e. its method set is not computed yet.
+// Once you know that methods and embedded interfaces are complete,
+// call Complete() to compute the method set and mark this Type as complete.
 func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
 	gmethods := toGoFuncs(methodnames, methods)
 	gembeddeds := toGoNamedTypes(embeddeds)
@@ -80,24 +88,6 @@ func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds [
 		// Use a pointer to the proxy struct
 		reflect.PtrTo(reflect.StructOf(rfields)),
 	)
-}
-
-// InterfaceOf returns a new interface for the given methods and embedded types.
-// After the methods and embeddeds are fully defined, call Complete() to mark
-// the interface as complete and compute wrapper methods for embedded fields.
-//
-// WARNING: the Type returned by InterfaceOf is not complete,
-// i.e. its method set is not computed yet.
-// Once you know that methods and embedded interfaces are complete,
-// call Complete() to compute the method set and mark this Type as complete.
-func InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
-	v := universe
-	if len(embeddeds) != 0 && embeddeds[0] != nil {
-		v = embeddeds[0].Universe()
-	} else if len(methods) != 0 && methods[0] != nil {
-		v = methods[0].Universe()
-	}
-	return v.InterfaceOf(methodnames, methods, embeddeds)
 }
 
 // utilities for InterfaceOf()

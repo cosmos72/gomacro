@@ -118,23 +118,3 @@ func (v *Universe) SliceOf(elem Type) Type {
 		types.NewSlice(elem.GoType()),
 		reflect.SliceOf(elem.ReflectType()))
 }
-
-func ArrayOf(count int, elem Type) Type {
-	return elem.Universe().ArrayOf(count, elem)
-}
-
-func ChanOf(dir reflect.ChanDir, elem Type) Type {
-	return elem.Universe().ChanOf(dir, elem)
-}
-
-func MapOf(key, elem Type) Type {
-	return key.Universe().MapOf(key, elem)
-}
-
-func PtrTo(elem Type) Type {
-	return elem.Universe().PtrTo(elem)
-}
-
-func SliceOf(elem Type) Type {
-	return elem.Universe().SliceOf(elem)
-}

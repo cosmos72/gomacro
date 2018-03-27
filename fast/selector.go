@@ -455,7 +455,7 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 		if debug {
 			c.Debugf("compiling method %v: value is assignable to receiver", node)
 		}
-	} else if addressof && xr.PtrTo(t).AssignableTo(trecv) {
+	} else if addressof && c.Universe.PtrTo(t).AssignableTo(trecv) {
 		// c.Debugf("method call <%v> will take address of receiver <%v>", tfunc, t)
 		// ensure receiver is addressable. maybe it was simply dereferenced by Comp.SelectorExpr
 		// or maybe we need to explicitly take its address
@@ -635,7 +635,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 	if recvPointer {
 		// receiver is pointer-to-tsave
 		if tsave.Kind() != r.Ptr {
-			tsave = xr.PtrTo(tsave)
+			tsave = c.Universe.PtrTo(tsave)
 			if len(fieldindex) != 0 && fieldindex[0] >= 0 {
 				// remember we neeed a pointer dereference at runtime
 				fieldindex[0] = ^fieldindex[0]

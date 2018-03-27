@@ -171,11 +171,3 @@ func (v *Universe) StructOf(fields []StructField) Type {
 		reflect.StructOf(rfields),
 	)
 }
-
-func StructOf(fields []StructField) Type {
-	v := universe
-	if len(fields) != 0 && fields[0].Type != nil {
-		v = fields[0].Type.Universe()
-	}
-	return v.StructOf(fields)
-}

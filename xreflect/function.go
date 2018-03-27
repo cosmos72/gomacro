@@ -112,12 +112,13 @@ func (t *xtype) Out(i int) Type {
 	return t.universe.MakeType(va.Type(), t.rtype.Out(i))
 }
 
-func FuncOf(in []Type, out []Type, variadic bool) Type {
-	return MethodOf(nil, in, out, variadic)
-}
-
 func (v *Universe) FuncOf(in []Type, out []Type, variadic bool) Type {
 	return v.MethodOf(nil, in, out, variadic)
+}
+
+/*
+func FuncOf(in []Type, out []Type, variadic bool) Type {
+	return MethodOf(nil, in, out, variadic)
 }
 
 func MethodOf(recv Type, in []Type, out []Type, variadic bool) Type {
@@ -131,6 +132,7 @@ func MethodOf(recv Type, in []Type, out []Type, variadic bool) Type {
 	}
 	return v.MethodOf(recv, in, out, variadic)
 }
+*/
 
 func (v *Universe) MethodOf(recv Type, in []Type, out []Type, variadic bool) Type {
 	gin := toGoTuple(in)

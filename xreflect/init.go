@@ -116,14 +116,8 @@ func NewUniverse() *Universe {
 const MaxDepth = int(^uint(0) >> 1)
 
 var (
-	universe = (&Universe{ThreadSafe: true}).Init()
-
 	reflectTypeOfInterfaceHeader = reflect.TypeOf(InterfaceHeader{})
 )
-
-func DefaultUniverse() *Universe {
-	return universe
-}
 
 // Bits returns the size of the type in bits.
 // It panics if the type's Kind is not one of the
