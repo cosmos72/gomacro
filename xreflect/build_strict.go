@@ -332,17 +332,6 @@ func (t Type) GetMethods() *[]reflect.Value {
 	return t[0].GetMethods()
 }
 
-// Complete marks an interface type as complete and computes wrapper methods for embedded fields.
-// It must be called by users of InterfaceOf after the interface's embedded types are fully defined
-// and before using the interface type in any way other than to form other types.
-func (t *xtype) Complete() {
-	if t.kind != reflect.Interface {
-		xerrorf(t, "Complete of non-interface %v", t)
-	}
-	gtype := t.gtype.Underlying().(*types.Interface)
-	gtype.Complete()
-}
-
 func wrap(t *xtype) Type {
 	return Type{*t}
 }
