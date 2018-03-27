@@ -653,6 +653,9 @@ var testcases = []TestCase{
 	TestCase{F, "typeassert_7", `stringer = T{}; nil`, nil, nil},
 	TestCase{F, "typeassert_8", `st1 := stringer.(T); st1`, struct{ Val int }{0}, nil},
 	TestCase{F, "typeassert_9", `stringer.(T)`, nil, []interface{}{struct{ Val int }{0}, true}},
+	// can interpreted type assertions distinguish between emulated named types with identical underlying type?
+	TestCase{F, "typeassert_10", `type U struct { Val int }; func (u U) String() string { return "U" }; nil`, nil, nil},
+	TestCase{F, "typeassert_11", `stringer.(U)`, nil, []interface{}{struct{ Val int }{0}, false}},
 
 	TestCase{A, "quote_1", `~quote{7}`, &ast.BasicLit{Kind: token.INT, Value: "7"}, nil},
 	TestCase{A, "quote_2", `~quote{x}`, &ast.Ident{Name: "x"}, nil},

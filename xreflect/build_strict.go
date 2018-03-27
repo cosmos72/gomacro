@@ -34,6 +34,8 @@ import (
 	"reflect"
 )
 
+// Type:s must be compared with IdenticalTo, not with ==
+// produce compile-time error on == between Type:s
 type Type []xtype
 
 // Align returns the alignment in bytes of a value of
@@ -46,6 +48,11 @@ func (t Type) Align() int {
 // this type when used as a field in a struct.
 func (t Type) FieldAlign() int {
 	return t[0].FieldAlign()
+}
+
+// Identical reports whether the type is identical to type u.
+func (t Type) Identical(u Type) bool {
+	return identicalType(t, u)
 }
 
 // AssignableTo reports whether a value of the type is assignable to type u.

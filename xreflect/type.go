@@ -30,7 +30,7 @@ import (
 	"reflect"
 )
 
-func SameType(t, u Type) bool {
+func identicalType(t, u Type) bool {
 	xnil := t == nil
 	ynil := u == nil
 	if xnil || ynil {
@@ -38,10 +38,10 @@ func SameType(t, u Type) bool {
 	}
 	xt := unwrap(t)
 	yt := unwrap(u)
-	return xt == yt || xt.same(yt)
+	return xt == yt || xt.identical(yt)
 }
 
-func (t *xtype) same(u *xtype) bool {
+func (t *xtype) identical(u *xtype) bool {
 	return types.IdenticalIgnoreTags(t.GoType(), u.GoType())
 }
 
@@ -241,15 +241,21 @@ func (t *xtype) Implements(u Type) bool {
 	return types.Implements(t.gtype, u.GoType().Underlying().(*types.Interface))
 }
 
+// Identical reports whether the type is identical to type u.
+func (t *xtype) Identical(u Type) bool {
+	xu := unwrap(u)
+	return t == xu || t.identical(xu)
+}
+
 // AssignableTo reports whether a value of the type is assignable to type u.
 func (t *xtype) AssignableTo(u Type) bool {
 	// debugf("AssignableTo: <%v> <%v>", t, u)
-	return types.AssignableTo(t.gtype, u.GoType())
+	return t.gtype == u.GoType() || types.AssignableTo(t.gtype, u.GoType())
 }
 
 // ConvertibleTo reports whether a value of the type is convertible to type u.
 func (t *xtype) ConvertibleTo(u Type) bool {
-	return types.ConvertibleTo(t.gtype, u.GoType())
+	return t.gtype == u.GoType() || types.ConvertibleTo(t.gtype, u.GoType())
 }
 
 // Comparable reports whether values of this type are comparable.

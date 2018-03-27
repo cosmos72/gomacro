@@ -57,7 +57,7 @@ func NewCompEnvTop(path string) *Interp {
 	globals := NewGlobals()
 	universe := xr.NewUniverse()
 
-	compGlobals := &CompThreadGlobals{
+	compGlobals := &CompGlobals{
 		Universe:     universe,
 		interf2proxy: make(map[r.Type]r.Type),
 		proxy2interf: make(map[r.Type]xr.Type),
@@ -66,12 +66,12 @@ func NewCompEnvTop(path string) *Interp {
 	envGlobals := &ThreadGlobals{Globals: globals}
 	ce := &Interp{
 		Comp: &Comp{
-			UpCost:            1,
-			Depth:             0,
-			Outer:             nil,
-			Name:              name,
-			Path:              path,
-			CompThreadGlobals: compGlobals,
+			UpCost:      1,
+			Depth:       0,
+			Outer:       nil,
+			Name:        name,
+			Path:        path,
+			CompGlobals: compGlobals,
 		},
 		env: &Env{
 			Outer:         nil,
@@ -96,16 +96,16 @@ func NewCompEnvTop(path string) *Interp {
 func NewCompEnv(outer *Interp, path string) *Interp {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
-	compGlobals := outer.Comp.CompThreadGlobals
+	compGlobals := outer.Comp.CompGlobals
 	envGlobals := outer.env.ThreadGlobals
 	c := &Interp{
 		Comp: &Comp{
-			UpCost:            1,
-			Depth:             outer.Comp.Depth + 1,
-			Outer:             outer.Comp,
-			Name:              name,
-			Path:              path,
-			CompThreadGlobals: compGlobals,
+			UpCost:      1,
+			Depth:       outer.Comp.Depth + 1,
+			Outer:       outer.Comp,
+			Name:        name,
+			Path:        path,
+			CompGlobals: compGlobals,
 		},
 		env: &Env{
 			Outer:         outer.env,
@@ -123,11 +123,11 @@ func NewComp(outer *Comp, code *Code) *Comp {
 		return &Comp{UpCost: 1}
 	}
 	c := Comp{
-		UpCost:            1,
-		Depth:             outer.Depth + 1,
-		Outer:             outer,
-		CompileOptions:    outer.CompileOptions,
-		CompThreadGlobals: outer.CompThreadGlobals,
+		UpCost:         1,
+		Depth:          outer.Depth + 1,
+		Outer:          outer,
+		CompileOptions: outer.CompileOptions,
+		CompGlobals:    outer.CompGlobals,
 	}
 	// Debugf("NewComp(%p->%p) %s", outer, &c, debug.Stack())
 	if code != nil {

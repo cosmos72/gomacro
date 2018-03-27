@@ -38,7 +38,7 @@ import (
 )
 
 // opaqueTypeOf returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
-func (g *CompThreadGlobals) opaqueType(rtype r.Type) xr.Type {
+func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
 	if k := rtype.Kind(); k != r.Struct {
 		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
 	}
@@ -523,8 +523,8 @@ type ThreadGlobals struct {
 	*Globals
 }
 
-// CompGlobals contains per-goroutine interpreter compile bookeeping information
-type CompThreadGlobals struct {
+// CompGlobals contains interpreter compile bookeeping information
+type CompGlobals struct {
 	Universe     *xr.Universe
 	interf2proxy map[r.Type]r.Type  // interface -> proxy
 	proxy2interf map[r.Type]xr.Type // proxy -> interface
@@ -549,7 +549,7 @@ type Comp struct {
 	Name           string // set by "package" directive
 	Path           string
 	CompileOptions CompileOptions
-	*CompThreadGlobals
+	*CompGlobals
 }
 
 const (

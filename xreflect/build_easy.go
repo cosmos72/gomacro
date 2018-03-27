@@ -44,6 +44,9 @@ type Type interface {
 	// this type when used as a field in a struct.
 	FieldAlign() int
 
+	// Identical reports whether the type is identical to type u.
+	Identical(u Type) bool
+
 	// AssignableTo reports whether a value of the type is assignable to type u.
 	AssignableTo(u Type) bool
 

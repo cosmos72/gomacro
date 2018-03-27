@@ -30,7 +30,6 @@ func init() {
 			"QName2":             r.ValueOf(QName2),
 			"QNameGo":            r.ValueOf(QNameGo),
 			"QNameGo2":           r.ValueOf(QNameGo2),
-			"SameType":           r.ValueOf(SameType),
 			"SliceOf":            r.ValueOf(SliceOf),
 			"StrGensymEmbedded":  r.ValueOf(StrGensymEmbedded),
 			"StrGensymInterface": r.ValueOf(StrGensymInterface),
