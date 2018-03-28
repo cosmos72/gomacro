@@ -28,7 +28,6 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
-	"unsafe"
 )
 
 // FieldByName returns the (possibly embedded) struct field with given name,
