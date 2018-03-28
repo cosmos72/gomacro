@@ -43,7 +43,7 @@ func init() {
 		"Typ":	ValueOf(ast.Typ),
 		"Var":	ValueOf(ast.Var),
 		"Walk":	ValueOf(ast.Walk),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"ArrayType":	TypeOf((*ast.ArrayType)(nil)).Elem(),
 		"AssignStmt":	TypeOf((*ast.AssignStmt)(nil)).Elem(),
 		"BadDecl":	TypeOf((*ast.BadDecl)(nil)).Elem(),
@@ -114,10 +114,10 @@ func init() {
 		"UnaryExpr":	TypeOf((*ast.UnaryExpr)(nil)).Elem(),
 		"ValueSpec":	TypeOf((*ast.ValueSpec)(nil)).Elem(),
 		"Visitor":	TypeOf((*ast.Visitor)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Node":	TypeOf((*Node_go_ast)(nil)).Elem(),
 		"Visitor":	TypeOf((*Visitor_go_ast)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

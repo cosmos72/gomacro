@@ -82,6 +82,7 @@ func init() {
 		"Serve":	ValueOf(http.Serve),
 		"ServeContent":	ValueOf(http.ServeContent),
 		"ServeFile":	ValueOf(http.ServeFile),
+		"ServeTLS":	ValueOf(http.ServeTLS),
 		"ServerContextKey":	ValueOf(&http.ServerContextKey).Elem(),
 		"SetCookie":	ValueOf(http.SetCookie),
 		"StateActive":	ValueOf(http.StateActive),
@@ -153,7 +154,7 @@ func init() {
 		"TimeFormat":	ValueOf(http.TimeFormat),
 		"TimeoutHandler":	ValueOf(http.TimeoutHandler),
 		"TrailerPrefix":	ValueOf(http.TrailerPrefix),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Client":	TypeOf((*http.Client)(nil)).Elem(),
 		"CloseNotifier":	TypeOf((*http.CloseNotifier)(nil)).Elem(),
 		"ConnState":	TypeOf((*http.ConnState)(nil)).Elem(),
@@ -177,7 +178,7 @@ func init() {
 		"ServeMux":	TypeOf((*http.ServeMux)(nil)).Elem(),
 		"Server":	TypeOf((*http.Server)(nil)).Elem(),
 		"Transport":	TypeOf((*http.Transport)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"CloseNotifier":	TypeOf((*CloseNotifier_net_http)(nil)).Elem(),
 		"CookieJar":	TypeOf((*CookieJar_net_http)(nil)).Elem(),
 		"File":	TypeOf((*File_net_http)(nil)).Elem(),
@@ -188,7 +189,7 @@ func init() {
 		"Pusher":	TypeOf((*Pusher_net_http)(nil)).Elem(),
 		"ResponseWriter":	TypeOf((*ResponseWriter_net_http)(nil)).Elem(),
 		"RoundTripper":	TypeOf((*RoundTripper_net_http)(nil)).Elem(),
-	},Untypeds: map[string]string{
+	}, Untypeds: map[string]string{
 		"DefaultMaxHeaderBytes":	"int:1048576",
 		"DefaultMaxIdleConnsPerHost":	"int:2",
 		"MethodConnect":	"string:CONNECT",
@@ -261,7 +262,7 @@ func init() {
 		"StatusVariantAlsoNegotiates":	"int:506",
 		"TimeFormat":	"string:Mon, 02 Jan 2006 15:04:05 GMT",
 		"TrailerPrefix":	"string:Trailer:",
-	},
+	}, 
 	}
 }
 
@@ -362,7 +363,7 @@ type ResponseWriter_net_http struct {
 	Object	interface{}
 	Header_	func(interface{}) http.Header
 	Write_	func(interface{}, []byte) (int, error)
-	WriteHeader_	func(interface{}, int) 
+	WriteHeader_	func(_proxy_obj_ interface{}, statusCode int) 
 }
 func (Proxy *ResponseWriter_net_http) Header() http.Header {
 	return Proxy.Header_(Proxy.Object)
@@ -370,8 +371,8 @@ func (Proxy *ResponseWriter_net_http) Header() http.Header {
 func (Proxy *ResponseWriter_net_http) Write(unnamed0 []byte) (int, error) {
 	return Proxy.Write_(Proxy.Object, unnamed0)
 }
-func (Proxy *ResponseWriter_net_http) WriteHeader(unnamed0 int)  {
-	Proxy.WriteHeader_(Proxy.Object, unnamed0)
+func (Proxy *ResponseWriter_net_http) WriteHeader(statusCode int)  {
+	Proxy.WriteHeader_(Proxy.Object, statusCode)
 }
 
 // --------------- proxy for net/http.RoundTripper ---------------

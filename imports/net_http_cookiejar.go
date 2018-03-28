@@ -13,13 +13,13 @@ func init() {
 	Packages["net/http/cookiejar"] = Package{
 	Binds: map[string]Value{
 		"New":	ValueOf(cookiejar.New),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Jar":	TypeOf((*cookiejar.Jar)(nil)).Elem(),
 		"Options":	TypeOf((*cookiejar.Options)(nil)).Elem(),
 		"PublicSuffixList":	TypeOf((*cookiejar.PublicSuffixList)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"PublicSuffixList":	TypeOf((*PublicSuffixList_net_http_cookiejar)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

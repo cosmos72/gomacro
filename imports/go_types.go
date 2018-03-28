@@ -81,6 +81,7 @@ func init() {
 		"SelectionString":	ValueOf(types.SelectionString),
 		"SendOnly":	ValueOf(types.SendOnly),
 		"SendRecv":	ValueOf(types.SendRecv),
+		"SizesFor":	ValueOf(types.SizesFor),
 		"String":	ValueOf(types.String),
 		"Typ":	ValueOf(&types.Typ).Elem(),
 		"TypeString":	ValueOf(types.TypeString),
@@ -103,7 +104,7 @@ func init() {
 		"WriteExpr":	ValueOf(types.WriteExpr),
 		"WriteSignature":	ValueOf(types.WriteSignature),
 		"WriteType":	ValueOf(types.WriteType),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Array":	TypeOf((*types.Array)(nil)).Elem(),
 		"Basic":	TypeOf((*types.Basic)(nil)).Elem(),
 		"BasicInfo":	TypeOf((*types.BasicInfo)(nil)).Elem(),
@@ -145,12 +146,12 @@ func init() {
 		"TypeAndValue":	TypeOf((*types.TypeAndValue)(nil)).Elem(),
 		"TypeName":	TypeOf((*types.TypeName)(nil)).Elem(),
 		"Var":	TypeOf((*types.Var)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Importer":	TypeOf((*Importer_go_types)(nil)).Elem(),
 		"ImporterFrom":	TypeOf((*ImporterFrom_go_types)(nil)).Elem(),
 		"Sizes":	TypeOf((*Sizes_go_types)(nil)).Elem(),
 		"Type":	TypeOf((*Type_go_types)(nil)).Elem(),
-	},Wrappers: map[string][]string{
+	}, Wrappers: map[string][]string{
 		"Builtin":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
 		"Checker":	[]string{"ObjectOf","TypeOf",},
 		"Const":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
@@ -160,7 +161,7 @@ func init() {
 		"PkgName":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
 		"TypeName":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
 		"Var":	[]string{"Exported","Id","Name","Parent","Pkg","Pos","Type",},
-	},
+	}, 
 	}
 }
 
@@ -177,13 +178,13 @@ func (Proxy *Importer_go_types) Import(path string) (*types.Package, error) {
 type ImporterFrom_go_types struct {
 	Object	interface{}
 	Import_	func(_proxy_obj_ interface{}, path string) (*types.Package, error)
-	ImportFrom_	func(_proxy_obj_ interface{}, path string, srcDir string, mode types.ImportMode) (*types.Package, error)
+	ImportFrom_	func(_proxy_obj_ interface{}, path string, dir string, mode types.ImportMode) (*types.Package, error)
 }
 func (Proxy *ImporterFrom_go_types) Import(path string) (*types.Package, error) {
 	return Proxy.Import_(Proxy.Object, path)
 }
-func (Proxy *ImporterFrom_go_types) ImportFrom(path string, srcDir string, mode types.ImportMode) (*types.Package, error) {
-	return Proxy.ImportFrom_(Proxy.Object, path, srcDir, mode)
+func (Proxy *ImporterFrom_go_types) ImportFrom(path string, dir string, mode types.ImportMode) (*types.Package, error) {
+	return Proxy.ImportFrom_(Proxy.Object, path, dir, mode)
 }
 
 // --------------- proxy for go/types.Sizes ---------------

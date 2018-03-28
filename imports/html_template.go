@@ -20,6 +20,7 @@ func init() {
 		"ErrOutputContext":	ValueOf(template.ErrOutputContext),
 		"ErrPartialCharset":	ValueOf(template.ErrPartialCharset),
 		"ErrPartialEscape":	ValueOf(template.ErrPartialEscape),
+		"ErrPredefinedEscaper":	ValueOf(template.ErrPredefinedEscaper),
 		"ErrRangeLoopReentry":	ValueOf(template.ErrRangeLoopReentry),
 		"ErrSlashAmbig":	ValueOf(template.ErrSlashAmbig),
 		"HTMLEscape":	ValueOf(template.HTMLEscape),
@@ -35,7 +36,7 @@ func init() {
 		"ParseFiles":	ValueOf(template.ParseFiles),
 		"ParseGlob":	ValueOf(template.ParseGlob),
 		"URLQueryEscaper":	ValueOf(template.URLQueryEscaper),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"CSS":	TypeOf((*template.CSS)(nil)).Elem(),
 		"Error":	TypeOf((*template.Error)(nil)).Elem(),
 		"ErrorCode":	TypeOf((*template.ErrorCode)(nil)).Elem(),
@@ -44,8 +45,9 @@ func init() {
 		"HTMLAttr":	TypeOf((*template.HTMLAttr)(nil)).Elem(),
 		"JS":	TypeOf((*template.JS)(nil)).Elem(),
 		"JSStr":	TypeOf((*template.JSStr)(nil)).Elem(),
+		"Srcset":	TypeOf((*template.Srcset)(nil)).Elem(),
 		"Template":	TypeOf((*template.Template)(nil)).Elem(),
 		"URL":	TypeOf((*template.URL)(nil)).Elem(),
-	},
+	}, 
 	}
 }

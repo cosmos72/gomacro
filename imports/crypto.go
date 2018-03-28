@@ -13,6 +13,10 @@ import (
 func init() {
 	Packages["crypto"] = Package{
 	Binds: map[string]Value{
+		"BLAKE2b_256":	ValueOf(crypto.BLAKE2b_256),
+		"BLAKE2b_384":	ValueOf(crypto.BLAKE2b_384),
+		"BLAKE2b_512":	ValueOf(crypto.BLAKE2b_512),
+		"BLAKE2s_256":	ValueOf(crypto.BLAKE2s_256),
 		"MD4":	ValueOf(crypto.MD4),
 		"MD5":	ValueOf(crypto.MD5),
 		"MD5SHA1":	ValueOf(crypto.MD5SHA1),
@@ -29,7 +33,7 @@ func init() {
 		"SHA512":	ValueOf(crypto.SHA512),
 		"SHA512_224":	ValueOf(crypto.SHA512_224),
 		"SHA512_256":	ValueOf(crypto.SHA512_256),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Decrypter":	TypeOf((*crypto.Decrypter)(nil)).Elem(),
 		"DecrypterOpts":	TypeOf((*crypto.DecrypterOpts)(nil)).Elem(),
 		"Hash":	TypeOf((*crypto.Hash)(nil)).Elem(),
@@ -37,14 +41,14 @@ func init() {
 		"PublicKey":	TypeOf((*crypto.PublicKey)(nil)).Elem(),
 		"Signer":	TypeOf((*crypto.Signer)(nil)).Elem(),
 		"SignerOpts":	TypeOf((*crypto.SignerOpts)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Decrypter":	TypeOf((*Decrypter_crypto)(nil)).Elem(),
 		"DecrypterOpts":	TypeOf((*DecrypterOpts_crypto)(nil)).Elem(),
 		"PrivateKey":	TypeOf((*PrivateKey_crypto)(nil)).Elem(),
 		"PublicKey":	TypeOf((*PublicKey_crypto)(nil)).Elem(),
 		"Signer":	TypeOf((*Signer_crypto)(nil)).Elem(),
 		"SignerOpts":	TypeOf((*SignerOpts_crypto)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

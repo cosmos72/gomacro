@@ -25,14 +25,14 @@ func init() {
 		"NewProxyClientConn":	ValueOf(httputil.NewProxyClientConn),
 		"NewServerConn":	ValueOf(httputil.NewServerConn),
 		"NewSingleHostReverseProxy":	ValueOf(httputil.NewSingleHostReverseProxy),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"BufferPool":	TypeOf((*httputil.BufferPool)(nil)).Elem(),
 		"ClientConn":	TypeOf((*httputil.ClientConn)(nil)).Elem(),
 		"ReverseProxy":	TypeOf((*httputil.ReverseProxy)(nil)).Elem(),
 		"ServerConn":	TypeOf((*httputil.ServerConn)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"BufferPool":	TypeOf((*BufferPool_net_http_httputil)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

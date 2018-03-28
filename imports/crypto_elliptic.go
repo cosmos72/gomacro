@@ -20,12 +20,12 @@ func init() {
 		"P384":	ValueOf(elliptic.P384),
 		"P521":	ValueOf(elliptic.P521),
 		"Unmarshal":	ValueOf(elliptic.Unmarshal),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Curve":	TypeOf((*elliptic.Curve)(nil)).Elem(),
 		"CurveParams":	TypeOf((*elliptic.CurveParams)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Curve":	TypeOf((*Curve_crypto_elliptic)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

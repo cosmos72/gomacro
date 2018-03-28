@@ -22,8 +22,9 @@ func init() {
 		"MarshalIndent":	ValueOf(xml.MarshalIndent),
 		"NewDecoder":	ValueOf(xml.NewDecoder),
 		"NewEncoder":	ValueOf(xml.NewEncoder),
+		"NewTokenDecoder":	ValueOf(xml.NewTokenDecoder),
 		"Unmarshal":	ValueOf(xml.Unmarshal),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Attr":	TypeOf((*xml.Attr)(nil)).Elem(),
 		"CharData":	TypeOf((*xml.CharData)(nil)).Elem(),
 		"Comment":	TypeOf((*xml.Comment)(nil)).Elem(),
@@ -39,19 +40,21 @@ func init() {
 		"SyntaxError":	TypeOf((*xml.SyntaxError)(nil)).Elem(),
 		"TagPathError":	TypeOf((*xml.TagPathError)(nil)).Elem(),
 		"Token":	TypeOf((*xml.Token)(nil)).Elem(),
+		"TokenReader":	TypeOf((*xml.TokenReader)(nil)).Elem(),
 		"UnmarshalError":	TypeOf((*xml.UnmarshalError)(nil)).Elem(),
 		"Unmarshaler":	TypeOf((*xml.Unmarshaler)(nil)).Elem(),
 		"UnmarshalerAttr":	TypeOf((*xml.UnmarshalerAttr)(nil)).Elem(),
 		"UnsupportedTypeError":	TypeOf((*xml.UnsupportedTypeError)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Marshaler":	TypeOf((*Marshaler_encoding_xml)(nil)).Elem(),
 		"MarshalerAttr":	TypeOf((*MarshalerAttr_encoding_xml)(nil)).Elem(),
 		"Token":	TypeOf((*Token_encoding_xml)(nil)).Elem(),
+		"TokenReader":	TypeOf((*TokenReader_encoding_xml)(nil)).Elem(),
 		"Unmarshaler":	TypeOf((*Unmarshaler_encoding_xml)(nil)).Elem(),
 		"UnmarshalerAttr":	TypeOf((*UnmarshalerAttr_encoding_xml)(nil)).Elem(),
-	},Untypeds: map[string]string{
+	}, Untypeds: map[string]string{
 		"Header":	"string:<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n",
-	},
+	}, 
 	}
 }
 
@@ -76,6 +79,15 @@ func (Proxy *MarshalerAttr_encoding_xml) MarshalXMLAttr(name xml.Name) (xml.Attr
 // --------------- proxy for encoding/xml.Token ---------------
 type Token_encoding_xml struct {
 	Object	interface{}
+}
+
+// --------------- proxy for encoding/xml.TokenReader ---------------
+type TokenReader_encoding_xml struct {
+	Object	interface{}
+	Token_	func(interface{}) (xml.Token, error)
+}
+func (Proxy *TokenReader_encoding_xml) Token() (xml.Token, error) {
+	return Proxy.Token_(Proxy.Object)
 }
 
 // --------------- proxy for encoding/xml.Unmarshaler ---------------

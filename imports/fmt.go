@@ -31,21 +31,21 @@ func init() {
 		"Sscan":	ValueOf(fmt.Sscan),
 		"Sscanf":	ValueOf(fmt.Sscanf),
 		"Sscanln":	ValueOf(fmt.Sscanln),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Formatter":	TypeOf((*fmt.Formatter)(nil)).Elem(),
 		"GoStringer":	TypeOf((*fmt.GoStringer)(nil)).Elem(),
 		"ScanState":	TypeOf((*fmt.ScanState)(nil)).Elem(),
 		"Scanner":	TypeOf((*fmt.Scanner)(nil)).Elem(),
 		"State":	TypeOf((*fmt.State)(nil)).Elem(),
 		"Stringer":	TypeOf((*fmt.Stringer)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Formatter":	TypeOf((*Formatter_fmt)(nil)).Elem(),
 		"GoStringer":	TypeOf((*GoStringer_fmt)(nil)).Elem(),
 		"ScanState":	TypeOf((*ScanState_fmt)(nil)).Elem(),
 		"Scanner":	TypeOf((*Scanner_fmt)(nil)).Elem(),
 		"State":	TypeOf((*State_fmt)(nil)).Elem(),
 		"Stringer":	TypeOf((*Stringer_fmt)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

@@ -16,12 +16,12 @@ func init() {
 		"BinaryUnmarshaler":	TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem(),
 		"TextMarshaler":	TypeOf((*encoding.TextMarshaler)(nil)).Elem(),
 		"TextUnmarshaler":	TypeOf((*encoding.TextUnmarshaler)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"BinaryMarshaler":	TypeOf((*BinaryMarshaler_encoding)(nil)).Elem(),
 		"BinaryUnmarshaler":	TypeOf((*BinaryUnmarshaler_encoding)(nil)).Elem(),
 		"TextMarshaler":	TypeOf((*TextMarshaler_encoding)(nil)).Elem(),
 		"TextUnmarshaler":	TypeOf((*TextUnmarshaler_encoding)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

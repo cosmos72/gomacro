@@ -21,6 +21,7 @@ func init() {
 		"ECDSAWithP256AndSHA256":	ValueOf(tls.ECDSAWithP256AndSHA256),
 		"ECDSAWithP384AndSHA384":	ValueOf(tls.ECDSAWithP384AndSHA384),
 		"ECDSAWithP521AndSHA512":	ValueOf(tls.ECDSAWithP521AndSHA512),
+		"ECDSAWithSHA1":	ValueOf(tls.ECDSAWithSHA1),
 		"Listen":	ValueOf(tls.Listen),
 		"LoadX509KeyPair":	ValueOf(tls.LoadX509KeyPair),
 		"NewLRUClientSessionCache":	ValueOf(tls.NewLRUClientSessionCache),
@@ -70,7 +71,7 @@ func init() {
 		"VersionTLS12":	ValueOf(tls.VersionTLS12),
 		"X25519":	ValueOf(tls.X25519),
 		"X509KeyPair":	ValueOf(tls.X509KeyPair),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Certificate":	TypeOf((*tls.Certificate)(nil)).Elem(),
 		"CertificateRequestInfo":	TypeOf((*tls.CertificateRequestInfo)(nil)).Elem(),
 		"ClientAuthType":	TypeOf((*tls.ClientAuthType)(nil)).Elem(),
@@ -84,14 +85,14 @@ func init() {
 		"RecordHeaderError":	TypeOf((*tls.RecordHeaderError)(nil)).Elem(),
 		"RenegotiationSupport":	TypeOf((*tls.RenegotiationSupport)(nil)).Elem(),
 		"SignatureScheme":	TypeOf((*tls.SignatureScheme)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"ClientSessionCache":	TypeOf((*ClientSessionCache_crypto_tls)(nil)).Elem(),
-	},Untypeds: map[string]string{
+	}, Untypeds: map[string]string{
 		"VersionSSL30":	"int:768",
 		"VersionTLS10":	"int:769",
 		"VersionTLS11":	"int:770",
 		"VersionTLS12":	"int:771",
-	},
+	}, 
 	}
 }
 

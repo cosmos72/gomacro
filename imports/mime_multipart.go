@@ -12,18 +12,19 @@ import (
 func init() {
 	Packages["mime/multipart"] = Package{
 	Binds: map[string]Value{
+		"ErrMessageTooLarge":	ValueOf(&multipart.ErrMessageTooLarge).Elem(),
 		"NewReader":	ValueOf(multipart.NewReader),
 		"NewWriter":	ValueOf(multipart.NewWriter),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"File":	TypeOf((*multipart.File)(nil)).Elem(),
 		"FileHeader":	TypeOf((*multipart.FileHeader)(nil)).Elem(),
 		"Form":	TypeOf((*multipart.Form)(nil)).Elem(),
 		"Part":	TypeOf((*multipart.Part)(nil)).Elem(),
 		"Reader":	TypeOf((*multipart.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*multipart.Writer)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"File":	TypeOf((*File_mime_multipart)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

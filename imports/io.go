@@ -33,7 +33,7 @@ func init() {
 		"SeekStart":	ValueOf(io.SeekStart),
 		"TeeReader":	ValueOf(io.TeeReader),
 		"WriteString":	ValueOf(io.WriteString),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"ByteReader":	TypeOf((*io.ByteReader)(nil)).Elem(),
 		"ByteScanner":	TypeOf((*io.ByteScanner)(nil)).Elem(),
 		"ByteWriter":	TypeOf((*io.ByteWriter)(nil)).Elem(),
@@ -58,7 +58,7 @@ func init() {
 		"Writer":	TypeOf((*io.Writer)(nil)).Elem(),
 		"WriterAt":	TypeOf((*io.WriterAt)(nil)).Elem(),
 		"WriterTo":	TypeOf((*io.WriterTo)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"ByteReader":	TypeOf((*ByteReader_io)(nil)).Elem(),
 		"ByteScanner":	TypeOf((*ByteScanner_io)(nil)).Elem(),
 		"ByteWriter":	TypeOf((*ByteWriter_io)(nil)).Elem(),
@@ -79,11 +79,11 @@ func init() {
 		"Writer":	TypeOf((*Writer_io)(nil)).Elem(),
 		"WriterAt":	TypeOf((*WriterAt_io)(nil)).Elem(),
 		"WriterTo":	TypeOf((*WriterTo_io)(nil)).Elem(),
-	},Untypeds: map[string]string{
+	}, Untypeds: map[string]string{
 		"SeekCurrent":	"int:1",
 		"SeekEnd":	"int:2",
 		"SeekStart":	"int:0",
-	},
+	}, 
 	}
 }
 

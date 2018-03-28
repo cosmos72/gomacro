@@ -15,11 +15,11 @@ func init() {
 		"Hash":	TypeOf((*hash.Hash)(nil)).Elem(),
 		"Hash32":	TypeOf((*hash.Hash32)(nil)).Elem(),
 		"Hash64":	TypeOf((*hash.Hash64)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Hash":	TypeOf((*Hash_hash)(nil)).Elem(),
 		"Hash32":	TypeOf((*Hash32_hash)(nil)).Elem(),
 		"Hash64":	TypeOf((*Hash64_hash)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

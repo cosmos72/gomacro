@@ -25,6 +25,7 @@ func init() {
 		"ErrClosed":	ValueOf(&os.ErrClosed).Elem(),
 		"ErrExist":	ValueOf(&os.ErrExist).Elem(),
 		"ErrInvalid":	ValueOf(&os.ErrInvalid).Elem(),
+		"ErrNoDeadline":	ValueOf(&os.ErrNoDeadline).Elem(),
 		"ErrNotExist":	ValueOf(&os.ErrNotExist).Elem(),
 		"ErrPermission":	ValueOf(&os.ErrPermission).Elem(),
 		"Executable":	ValueOf(os.Executable),
@@ -48,6 +49,7 @@ func init() {
 		"IsNotExist":	ValueOf(os.IsNotExist),
 		"IsPathSeparator":	ValueOf(os.IsPathSeparator),
 		"IsPermission":	ValueOf(os.IsPermission),
+		"IsTimeout":	ValueOf(os.IsTimeout),
 		"Kill":	ValueOf(&os.Kill).Elem(),
 		"Lchown":	ValueOf(os.Lchown),
 		"Link":	ValueOf(os.Link),
@@ -102,7 +104,7 @@ func init() {
 		"TempDir":	ValueOf(os.TempDir),
 		"Truncate":	ValueOf(os.Truncate),
 		"Unsetenv":	ValueOf(os.Unsetenv),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"File":	TypeOf((*os.File)(nil)).Elem(),
 		"FileInfo":	TypeOf((*os.FileInfo)(nil)).Elem(),
 		"FileMode":	TypeOf((*os.FileMode)(nil)).Elem(),
@@ -113,14 +115,14 @@ func init() {
 		"ProcessState":	TypeOf((*os.ProcessState)(nil)).Elem(),
 		"Signal":	TypeOf((*os.Signal)(nil)).Elem(),
 		"SyscallError":	TypeOf((*os.SyscallError)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"FileInfo":	TypeOf((*FileInfo_os)(nil)).Elem(),
 		"Signal":	TypeOf((*Signal_os)(nil)).Elem(),
-	},Untypeds: map[string]string{
+	}, Untypeds: map[string]string{
 		"DevNull":	"string:/dev/null",
 		"PathListSeparator":	"rune:58",
 		"PathSeparator":	"rune:47",
-	},
+	}, 
 	}
 }
 

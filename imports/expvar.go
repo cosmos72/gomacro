@@ -20,7 +20,7 @@ func init() {
 		"NewMap":	ValueOf(expvar.NewMap),
 		"NewString":	ValueOf(expvar.NewString),
 		"Publish":	ValueOf(expvar.Publish),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Float":	TypeOf((*expvar.Float)(nil)).Elem(),
 		"Func":	TypeOf((*expvar.Func)(nil)).Elem(),
 		"Int":	TypeOf((*expvar.Int)(nil)).Elem(),
@@ -28,9 +28,9 @@ func init() {
 		"Map":	TypeOf((*expvar.Map)(nil)).Elem(),
 		"String":	TypeOf((*expvar.String)(nil)).Elem(),
 		"Var":	TypeOf((*expvar.Var)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Var":	TypeOf((*Var_expvar)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

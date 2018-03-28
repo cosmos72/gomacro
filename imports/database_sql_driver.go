@@ -17,22 +17,26 @@ func init() {
 		"Bool":	ValueOf(&driver.Bool).Elem(),
 		"DefaultParameterConverter":	ValueOf(&driver.DefaultParameterConverter).Elem(),
 		"ErrBadConn":	ValueOf(&driver.ErrBadConn).Elem(),
+		"ErrRemoveArgument":	ValueOf(&driver.ErrRemoveArgument).Elem(),
 		"ErrSkip":	ValueOf(&driver.ErrSkip).Elem(),
 		"Int32":	ValueOf(&driver.Int32).Elem(),
 		"IsScanValue":	ValueOf(driver.IsScanValue),
 		"IsValue":	ValueOf(driver.IsValue),
 		"ResultNoRows":	ValueOf(&driver.ResultNoRows).Elem(),
 		"String":	ValueOf(&driver.String).Elem(),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"ColumnConverter":	TypeOf((*driver.ColumnConverter)(nil)).Elem(),
 		"Conn":	TypeOf((*driver.Conn)(nil)).Elem(),
 		"ConnBeginTx":	TypeOf((*driver.ConnBeginTx)(nil)).Elem(),
 		"ConnPrepareContext":	TypeOf((*driver.ConnPrepareContext)(nil)).Elem(),
+		"Connector":	TypeOf((*driver.Connector)(nil)).Elem(),
 		"Driver":	TypeOf((*driver.Driver)(nil)).Elem(),
+		"DriverContext":	TypeOf((*driver.DriverContext)(nil)).Elem(),
 		"Execer":	TypeOf((*driver.Execer)(nil)).Elem(),
 		"ExecerContext":	TypeOf((*driver.ExecerContext)(nil)).Elem(),
 		"IsolationLevel":	TypeOf((*driver.IsolationLevel)(nil)).Elem(),
 		"NamedValue":	TypeOf((*driver.NamedValue)(nil)).Elem(),
+		"NamedValueChecker":	TypeOf((*driver.NamedValueChecker)(nil)).Elem(),
 		"NotNull":	TypeOf((*driver.NotNull)(nil)).Elem(),
 		"Null":	TypeOf((*driver.Null)(nil)).Elem(),
 		"Pinger":	TypeOf((*driver.Pinger)(nil)).Elem(),
@@ -47,6 +51,7 @@ func init() {
 		"RowsColumnTypePrecisionScale":	TypeOf((*driver.RowsColumnTypePrecisionScale)(nil)).Elem(),
 		"RowsColumnTypeScanType":	TypeOf((*driver.RowsColumnTypeScanType)(nil)).Elem(),
 		"RowsNextResultSet":	TypeOf((*driver.RowsNextResultSet)(nil)).Elem(),
+		"SessionResetter":	TypeOf((*driver.SessionResetter)(nil)).Elem(),
 		"Stmt":	TypeOf((*driver.Stmt)(nil)).Elem(),
 		"StmtExecContext":	TypeOf((*driver.StmtExecContext)(nil)).Elem(),
 		"StmtQueryContext":	TypeOf((*driver.StmtQueryContext)(nil)).Elem(),
@@ -55,14 +60,17 @@ func init() {
 		"Value":	TypeOf((*driver.Value)(nil)).Elem(),
 		"ValueConverter":	TypeOf((*driver.ValueConverter)(nil)).Elem(),
 		"Valuer":	TypeOf((*driver.Valuer)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"ColumnConverter":	TypeOf((*ColumnConverter_database_sql_driver)(nil)).Elem(),
 		"Conn":	TypeOf((*Conn_database_sql_driver)(nil)).Elem(),
 		"ConnBeginTx":	TypeOf((*ConnBeginTx_database_sql_driver)(nil)).Elem(),
 		"ConnPrepareContext":	TypeOf((*ConnPrepareContext_database_sql_driver)(nil)).Elem(),
+		"Connector":	TypeOf((*Connector_database_sql_driver)(nil)).Elem(),
 		"Driver":	TypeOf((*Driver_database_sql_driver)(nil)).Elem(),
+		"DriverContext":	TypeOf((*DriverContext_database_sql_driver)(nil)).Elem(),
 		"Execer":	TypeOf((*Execer_database_sql_driver)(nil)).Elem(),
 		"ExecerContext":	TypeOf((*ExecerContext_database_sql_driver)(nil)).Elem(),
+		"NamedValueChecker":	TypeOf((*NamedValueChecker_database_sql_driver)(nil)).Elem(),
 		"Pinger":	TypeOf((*Pinger_database_sql_driver)(nil)).Elem(),
 		"Queryer":	TypeOf((*Queryer_database_sql_driver)(nil)).Elem(),
 		"QueryerContext":	TypeOf((*QueryerContext_database_sql_driver)(nil)).Elem(),
@@ -74,6 +82,7 @@ func init() {
 		"RowsColumnTypePrecisionScale":	TypeOf((*RowsColumnTypePrecisionScale_database_sql_driver)(nil)).Elem(),
 		"RowsColumnTypeScanType":	TypeOf((*RowsColumnTypeScanType_database_sql_driver)(nil)).Elem(),
 		"RowsNextResultSet":	TypeOf((*RowsNextResultSet_database_sql_driver)(nil)).Elem(),
+		"SessionResetter":	TypeOf((*SessionResetter_database_sql_driver)(nil)).Elem(),
 		"Stmt":	TypeOf((*Stmt_database_sql_driver)(nil)).Elem(),
 		"StmtExecContext":	TypeOf((*StmtExecContext_database_sql_driver)(nil)).Elem(),
 		"StmtQueryContext":	TypeOf((*StmtQueryContext_database_sql_driver)(nil)).Elem(),
@@ -81,7 +90,7 @@ func init() {
 		"Value":	TypeOf((*Value_database_sql_driver)(nil)).Elem(),
 		"ValueConverter":	TypeOf((*ValueConverter_database_sql_driver)(nil)).Elem(),
 		"Valuer":	TypeOf((*Valuer_database_sql_driver)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 
@@ -129,6 +138,19 @@ func (Proxy *ConnPrepareContext_database_sql_driver) PrepareContext(ctx context.
 	return Proxy.PrepareContext_(Proxy.Object, ctx, query)
 }
 
+// --------------- proxy for database/sql/driver.Connector ---------------
+type Connector_database_sql_driver struct {
+	Object	interface{}
+	Connect_	func(interface{}, context.Context) (driver.Conn, error)
+	Driver_	func(interface{}) driver.Driver
+}
+func (Proxy *Connector_database_sql_driver) Connect(unnamed0 context.Context) (driver.Conn, error) {
+	return Proxy.Connect_(Proxy.Object, unnamed0)
+}
+func (Proxy *Connector_database_sql_driver) Driver() driver.Driver {
+	return Proxy.Driver_(Proxy.Object)
+}
+
 // --------------- proxy for database/sql/driver.Driver ---------------
 type Driver_database_sql_driver struct {
 	Object	interface{}
@@ -136,6 +158,15 @@ type Driver_database_sql_driver struct {
 }
 func (Proxy *Driver_database_sql_driver) Open(name string) (driver.Conn, error) {
 	return Proxy.Open_(Proxy.Object, name)
+}
+
+// --------------- proxy for database/sql/driver.DriverContext ---------------
+type DriverContext_database_sql_driver struct {
+	Object	interface{}
+	OpenConnector_	func(_proxy_obj_ interface{}, name string) (driver.Connector, error)
+}
+func (Proxy *DriverContext_database_sql_driver) OpenConnector(name string) (driver.Connector, error) {
+	return Proxy.OpenConnector_(Proxy.Object, name)
 }
 
 // --------------- proxy for database/sql/driver.Execer ---------------
@@ -154,6 +185,15 @@ type ExecerContext_database_sql_driver struct {
 }
 func (Proxy *ExecerContext_database_sql_driver) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
 	return Proxy.ExecContext_(Proxy.Object, ctx, query, args)
+}
+
+// --------------- proxy for database/sql/driver.NamedValueChecker ---------------
+type NamedValueChecker_database_sql_driver struct {
+	Object	interface{}
+	CheckNamedValue_	func(interface{}, *driver.NamedValue) error
+}
+func (Proxy *NamedValueChecker_database_sql_driver) CheckNamedValue(unnamed0 *driver.NamedValue) error {
+	return Proxy.CheckNamedValue_(Proxy.Object, unnamed0)
 }
 
 // --------------- proxy for database/sql/driver.Pinger ---------------
@@ -341,6 +381,15 @@ func (Proxy *RowsNextResultSet_database_sql_driver) Next(dest []driver.Value) er
 }
 func (Proxy *RowsNextResultSet_database_sql_driver) NextResultSet() error {
 	return Proxy.NextResultSet_(Proxy.Object)
+}
+
+// --------------- proxy for database/sql/driver.SessionResetter ---------------
+type SessionResetter_database_sql_driver struct {
+	Object	interface{}
+	ResetSession_	func(_proxy_obj_ interface{}, ctx context.Context) error
+}
+func (Proxy *SessionResetter_database_sql_driver) ResetSession(ctx context.Context) error {
+	return Proxy.ResetSession_(Proxy.Object, ctx)
 }
 
 // --------------- proxy for database/sql/driver.Stmt ---------------

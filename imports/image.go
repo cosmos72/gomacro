@@ -44,7 +44,7 @@ func init() {
 		"YCbCrSubsampleRatio444":	ValueOf(image.YCbCrSubsampleRatio444),
 		"ZP":	ValueOf(&image.ZP).Elem(),
 		"ZR":	ValueOf(&image.ZR).Elem(),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Alpha":	TypeOf((*image.Alpha)(nil)).Elem(),
 		"Alpha16":	TypeOf((*image.Alpha16)(nil)).Elem(),
 		"CMYK":	TypeOf((*image.CMYK)(nil)).Elem(),
@@ -64,12 +64,12 @@ func init() {
 		"Uniform":	TypeOf((*image.Uniform)(nil)).Elem(),
 		"YCbCr":	TypeOf((*image.YCbCr)(nil)).Elem(),
 		"YCbCrSubsampleRatio":	TypeOf((*image.YCbCrSubsampleRatio)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Image":	TypeOf((*Image_image)(nil)).Elem(),
 		"PalettedImage":	TypeOf((*PalettedImage_image)(nil)).Elem(),
-	},Wrappers: map[string][]string{
+	}, Wrappers: map[string][]string{
 		"NYCbCrA":	[]string{"Bounds","COffset","YCbCrAt","YOffset",},
-	},
+	}, 
 	}
 }
 

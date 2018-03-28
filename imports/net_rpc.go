@@ -29,7 +29,7 @@ func init() {
 		"ServeCodec":	ValueOf(rpc.ServeCodec),
 		"ServeConn":	ValueOf(rpc.ServeConn),
 		"ServeRequest":	ValueOf(rpc.ServeRequest),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Call":	TypeOf((*rpc.Call)(nil)).Elem(),
 		"Client":	TypeOf((*rpc.Client)(nil)).Elem(),
 		"ClientCodec":	TypeOf((*rpc.ClientCodec)(nil)).Elem(),
@@ -38,13 +38,13 @@ func init() {
 		"Server":	TypeOf((*rpc.Server)(nil)).Elem(),
 		"ServerCodec":	TypeOf((*rpc.ServerCodec)(nil)).Elem(),
 		"ServerError":	TypeOf((*rpc.ServerError)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"ClientCodec":	TypeOf((*ClientCodec_net_rpc)(nil)).Elem(),
 		"ServerCodec":	TypeOf((*ServerCodec_net_rpc)(nil)).Elem(),
-	},Untypeds: map[string]string{
+	}, Untypeds: map[string]string{
 		"DefaultDebugPath":	"string:/debug/rpc",
 		"DefaultRPCPath":	"string:/_goRPC_",
-	},
+	}, 
 	}
 }
 

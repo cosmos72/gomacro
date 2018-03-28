@@ -17,13 +17,13 @@ func init() {
 		"NewClient":	ValueOf(smtp.NewClient),
 		"PlainAuth":	ValueOf(smtp.PlainAuth),
 		"SendMail":	ValueOf(smtp.SendMail),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Auth":	TypeOf((*smtp.Auth)(nil)).Elem(),
 		"Client":	TypeOf((*smtp.Client)(nil)).Elem(),
 		"ServerInfo":	TypeOf((*smtp.ServerInfo)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Auth":	TypeOf((*Auth_net_smtp)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

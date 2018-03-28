@@ -17,6 +17,9 @@ func init() {
 		"ClassPrivate":	ValueOf(asn1.ClassPrivate),
 		"ClassUniversal":	ValueOf(asn1.ClassUniversal),
 		"Marshal":	ValueOf(asn1.Marshal),
+		"MarshalWithParams":	ValueOf(asn1.MarshalWithParams),
+		"NullBytes":	ValueOf(&asn1.NullBytes).Elem(),
+		"NullRawValue":	ValueOf(&asn1.NullRawValue).Elem(),
 		"TagBitString":	ValueOf(asn1.TagBitString),
 		"TagBoolean":	ValueOf(asn1.TagBoolean),
 		"TagEnum":	ValueOf(asn1.TagEnum),
@@ -24,6 +27,8 @@ func init() {
 		"TagGeneralizedTime":	ValueOf(asn1.TagGeneralizedTime),
 		"TagIA5String":	ValueOf(asn1.TagIA5String),
 		"TagInteger":	ValueOf(asn1.TagInteger),
+		"TagNull":	ValueOf(asn1.TagNull),
+		"TagNumericString":	ValueOf(asn1.TagNumericString),
 		"TagOID":	ValueOf(asn1.TagOID),
 		"TagOctetString":	ValueOf(asn1.TagOctetString),
 		"TagPrintableString":	ValueOf(asn1.TagPrintableString),
@@ -34,7 +39,7 @@ func init() {
 		"TagUTF8String":	ValueOf(asn1.TagUTF8String),
 		"Unmarshal":	ValueOf(asn1.Unmarshal),
 		"UnmarshalWithParams":	ValueOf(asn1.UnmarshalWithParams),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"BitString":	TypeOf((*asn1.BitString)(nil)).Elem(),
 		"Enumerated":	TypeOf((*asn1.Enumerated)(nil)).Elem(),
 		"Flag":	TypeOf((*asn1.Flag)(nil)).Elem(),
@@ -43,7 +48,7 @@ func init() {
 		"RawValue":	TypeOf((*asn1.RawValue)(nil)).Elem(),
 		"StructuralError":	TypeOf((*asn1.StructuralError)(nil)).Elem(),
 		"SyntaxError":	TypeOf((*asn1.SyntaxError)(nil)).Elem(),
-	},Untypeds: map[string]string{
+	}, Untypeds: map[string]string{
 		"ClassApplication":	"int:1",
 		"ClassContextSpecific":	"int:2",
 		"ClassPrivate":	"int:3",
@@ -55,6 +60,8 @@ func init() {
 		"TagGeneralizedTime":	"int:24",
 		"TagIA5String":	"int:22",
 		"TagInteger":	"int:2",
+		"TagNull":	"int:5",
+		"TagNumericString":	"int:18",
 		"TagOID":	"int:6",
 		"TagOctetString":	"int:4",
 		"TagPrintableString":	"int:19",
@@ -63,6 +70,6 @@ func init() {
 		"TagT61String":	"int:20",
 		"TagUTCTime":	"int:23",
 		"TagUTF8String":	"int:12",
-	},
+	}, 
 	}
 }

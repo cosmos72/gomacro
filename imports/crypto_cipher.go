@@ -20,19 +20,19 @@ func init() {
 		"NewGCM":	ValueOf(cipher.NewGCM),
 		"NewGCMWithNonceSize":	ValueOf(cipher.NewGCMWithNonceSize),
 		"NewOFB":	ValueOf(cipher.NewOFB),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"AEAD":	TypeOf((*cipher.AEAD)(nil)).Elem(),
 		"Block":	TypeOf((*cipher.Block)(nil)).Elem(),
 		"BlockMode":	TypeOf((*cipher.BlockMode)(nil)).Elem(),
 		"Stream":	TypeOf((*cipher.Stream)(nil)).Elem(),
 		"StreamReader":	TypeOf((*cipher.StreamReader)(nil)).Elem(),
 		"StreamWriter":	TypeOf((*cipher.StreamWriter)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"AEAD":	TypeOf((*AEAD_crypto_cipher)(nil)).Elem(),
 		"Block":	TypeOf((*Block_crypto_cipher)(nil)).Elem(),
 		"BlockMode":	TypeOf((*BlockMode_crypto_cipher)(nil)).Elem(),
 		"Stream":	TypeOf((*Stream_crypto_cipher)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

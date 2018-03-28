@@ -13,6 +13,7 @@ func init() {
 	Packages["database/sql"] = Package{
 	Binds: map[string]Value{
 		"Drivers":	ValueOf(sql.Drivers),
+		"ErrConnDone":	ValueOf(&sql.ErrConnDone).Elem(),
 		"ErrNoRows":	ValueOf(&sql.ErrNoRows).Elem(),
 		"ErrTxDone":	ValueOf(&sql.ErrTxDone).Elem(),
 		"LevelDefault":	ValueOf(sql.LevelDefault),
@@ -25,9 +26,11 @@ func init() {
 		"LevelWriteCommitted":	ValueOf(sql.LevelWriteCommitted),
 		"Named":	ValueOf(sql.Named),
 		"Open":	ValueOf(sql.Open),
+		"OpenDB":	ValueOf(sql.OpenDB),
 		"Register":	ValueOf(sql.Register),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"ColumnType":	TypeOf((*sql.ColumnType)(nil)).Elem(),
+		"Conn":	TypeOf((*sql.Conn)(nil)).Elem(),
 		"DB":	TypeOf((*sql.DB)(nil)).Elem(),
 		"DBStats":	TypeOf((*sql.DBStats)(nil)).Elem(),
 		"IsolationLevel":	TypeOf((*sql.IsolationLevel)(nil)).Elem(),
@@ -36,6 +39,7 @@ func init() {
 		"NullFloat64":	TypeOf((*sql.NullFloat64)(nil)).Elem(),
 		"NullInt64":	TypeOf((*sql.NullInt64)(nil)).Elem(),
 		"NullString":	TypeOf((*sql.NullString)(nil)).Elem(),
+		"Out":	TypeOf((*sql.Out)(nil)).Elem(),
 		"RawBytes":	TypeOf((*sql.RawBytes)(nil)).Elem(),
 		"Result":	TypeOf((*sql.Result)(nil)).Elem(),
 		"Row":	TypeOf((*sql.Row)(nil)).Elem(),
@@ -44,10 +48,10 @@ func init() {
 		"Stmt":	TypeOf((*sql.Stmt)(nil)).Elem(),
 		"Tx":	TypeOf((*sql.Tx)(nil)).Elem(),
 		"TxOptions":	TypeOf((*sql.TxOptions)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Result":	TypeOf((*Result_database_sql)(nil)).Elem(),
 		"Scanner":	TypeOf((*Scanner_database_sql)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 

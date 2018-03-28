@@ -19,11 +19,28 @@ func init() {
 		"DefaultCompression":	ValueOf(png.DefaultCompression),
 		"Encode":	ValueOf(png.Encode),
 		"NoCompression":	ValueOf(png.NoCompression),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"CompressionLevel":	TypeOf((*png.CompressionLevel)(nil)).Elem(),
 		"Encoder":	TypeOf((*png.Encoder)(nil)).Elem(),
+		"EncoderBuffer":	TypeOf((*png.EncoderBuffer)(nil)).Elem(),
+		"EncoderBufferPool":	TypeOf((*png.EncoderBufferPool)(nil)).Elem(),
 		"FormatError":	TypeOf((*png.FormatError)(nil)).Elem(),
 		"UnsupportedError":	TypeOf((*png.UnsupportedError)(nil)).Elem(),
-	},
+	}, Proxies: map[string]Type{
+		"EncoderBufferPool":	TypeOf((*EncoderBufferPool_image_png)(nil)).Elem(),
+	}, 
 	}
+}
+
+// --------------- proxy for image/png.EncoderBufferPool ---------------
+type EncoderBufferPool_image_png struct {
+	Object	interface{}
+	Get_	func(interface{}) *png.EncoderBuffer
+	Put_	func(interface{}, *png.EncoderBuffer) 
+}
+func (Proxy *EncoderBufferPool_image_png) Get() *png.EncoderBuffer {
+	return Proxy.Get_(Proxy.Object)
+}
+func (Proxy *EncoderBufferPool_image_png) Put(unnamed0 *png.EncoderBuffer)  {
+	Proxy.Put_(Proxy.Object, unnamed0)
 }

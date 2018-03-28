@@ -17,11 +17,11 @@ func init() {
 		"Pop":	ValueOf(heap.Pop),
 		"Push":	ValueOf(heap.Push),
 		"Remove":	ValueOf(heap.Remove),
-	},Types: map[string]Type{
+	}, Types: map[string]Type{
 		"Interface":	TypeOf((*heap.Interface)(nil)).Elem(),
-	},Proxies: map[string]Type{
+	}, Proxies: map[string]Type{
 		"Interface":	TypeOf((*Interface_container_heap)(nil)).Elem(),
-	},
+	}, 
 	}
 }
 
