@@ -112,7 +112,7 @@ import (
 	retconv := convertvalue1(rettyp, ~'ret)
 
 	return ~"{
-		if !tret.Identical(~,typevar) {
+		if !tret.IdenticalTo(~,typevar) {
 			ret = func(env *Env) ~,rettyp {
 				fun := exprfun(env)
 				// Debugf("calling %v with args []", fun.Type())

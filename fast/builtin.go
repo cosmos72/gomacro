@@ -345,7 +345,7 @@ func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	} else if t1 == nil || t1.Kind() != r.Slice || !t1.AssignableTo(c.Universe.SliceOf(t1.Elem())) {
 		c.Errorf("second argument to copy should be slice or string; have %v <%v>", node.Args[1], t1)
 		return nil
-	} else if !t0.Elem().Identical(t1.Elem()) {
+	} else if !t0.Elem().IdenticalTo(t1.Elem()) {
 		c.Errorf("arguments to copy have different element types: <%v> and <%v>", t0.Elem(), t1.Elem())
 	}
 	outtypes := []xr.Type{c.TypeOfInt()}
@@ -568,7 +568,7 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		argi := c.Expr1(node.Args[i])
 		if argi.Const() {
 			argi.ConstTo(te)
-		} else if ti := argi.Type; ti == nil || (!ti.Identical(te) && !ti.AssignableTo(te)) {
+		} else if ti := argi.Type; ti == nil || (!ti.IdenticalTo(te) && !ti.AssignableTo(te)) {
 			return c.badBuiltinCallArgType(sym.Name, node.Args[i], ti, te)
 		}
 		args[i] = argi

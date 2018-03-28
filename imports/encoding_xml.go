@@ -48,7 +48,6 @@ func init() {
 	}, Proxies: map[string]Type{
 		"Marshaler":	TypeOf((*Marshaler_encoding_xml)(nil)).Elem(),
 		"MarshalerAttr":	TypeOf((*MarshalerAttr_encoding_xml)(nil)).Elem(),
-		"Token":	TypeOf((*Token_encoding_xml)(nil)).Elem(),
 		"TokenReader":	TypeOf((*TokenReader_encoding_xml)(nil)).Elem(),
 		"Unmarshaler":	TypeOf((*Unmarshaler_encoding_xml)(nil)).Elem(),
 		"UnmarshalerAttr":	TypeOf((*UnmarshalerAttr_encoding_xml)(nil)).Elem(),
@@ -74,11 +73,6 @@ type MarshalerAttr_encoding_xml struct {
 }
 func (Proxy *MarshalerAttr_encoding_xml) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return Proxy.MarshalXMLAttr_(Proxy.Object, name)
-}
-
-// --------------- proxy for encoding/xml.Token ---------------
-type Token_encoding_xml struct {
-	Object	interface{}
 }
 
 // --------------- proxy for encoding/xml.TokenReader ---------------

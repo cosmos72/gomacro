@@ -40,7 +40,6 @@ func init() {
 		"UnsupportedValueError":	TypeOf((*json.UnsupportedValueError)(nil)).Elem(),
 	}, Proxies: map[string]Type{
 		"Marshaler":	TypeOf((*Marshaler_encoding_json)(nil)).Elem(),
-		"Token":	TypeOf((*Token_encoding_json)(nil)).Elem(),
 		"Unmarshaler":	TypeOf((*Unmarshaler_encoding_json)(nil)).Elem(),
 	}, 
 	}
@@ -53,11 +52,6 @@ type Marshaler_encoding_json struct {
 }
 func (Proxy *Marshaler_encoding_json) MarshalJSON() ([]byte, error) {
 	return Proxy.MarshalJSON_(Proxy.Object)
-}
-
-// --------------- proxy for encoding/json.Token ---------------
-type Token_encoding_json struct {
-	Object	interface{}
 }
 
 // --------------- proxy for encoding/json.Unmarshaler ---------------

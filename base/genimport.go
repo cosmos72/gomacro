@@ -138,12 +138,10 @@ func (d *mapdecl) header() {
 	}
 }
 
-func (d *mapdecl) footer(more bool) {
+func (d *mapdecl) footer() {
 	if len(d.foot) != 0 {
 		d.out.WriteString(d.foot)
-		if more {
-			d.out.WriteString(", ")
-		}
+		d.out.WriteString(", ")
 	}
 }
 
@@ -229,7 +227,7 @@ func (gen *genimport) writeBinds() {
 			}
 		}
 	}
-	d.footer(true)
+	d.footer()
 }
 
 func (gen *genimport) writeTypes() {
@@ -244,7 +242,7 @@ func (gen *genimport) writeTypes() {
 			}
 		}
 	}
-	d.footer(true)
+	d.footer()
 }
 
 func (gen *genimport) writeProxies() {
@@ -258,7 +256,7 @@ func (gen *genimport) writeProxies() {
 			}
 		}
 	}
-	d.footer(true)
+	d.footer()
 }
 
 func (gen *genimport) writeUntypeds() {
@@ -278,7 +276,7 @@ func (gen *genimport) writeUntypeds() {
 			}
 		}
 	}
-	d.footer(true)
+	d.footer()
 }
 
 func (gen *genimport) writeWrappers() {
@@ -305,7 +303,7 @@ func (gen *genimport) writeWrappers() {
 			}
 		}
 	}
-	d.footer(false)
+	d.footer()
 }
 
 func (gen *genimport) writeInterfaceProxies() {

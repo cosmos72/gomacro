@@ -172,7 +172,9 @@ func extractInterface(obj types.Object, requireAllMethodsExported bool) *types.I
 	case *types.TypeName:
 		u := obj.Type().Underlying()
 		if u, ok := u.(*types.Interface); ok {
-			if !requireAllMethodsExported || allMethodsExported(u) {
+			// do not export proxies for empty interfaces:
+			// using reflect.Value.Convert() at runtime is enough
+			if u.NumMethods() != 0 && (!requireAllMethodsExported || allMethodsExported(u)) {
 				return u
 			}
 		}

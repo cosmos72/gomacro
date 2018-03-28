@@ -87,7 +87,6 @@ func init() {
 		"StmtExecContext":	TypeOf((*StmtExecContext_database_sql_driver)(nil)).Elem(),
 		"StmtQueryContext":	TypeOf((*StmtQueryContext_database_sql_driver)(nil)).Elem(),
 		"Tx":	TypeOf((*Tx_database_sql_driver)(nil)).Elem(),
-		"Value":	TypeOf((*Value_database_sql_driver)(nil)).Elem(),
 		"ValueConverter":	TypeOf((*ValueConverter_database_sql_driver)(nil)).Elem(),
 		"Valuer":	TypeOf((*Valuer_database_sql_driver)(nil)).Elem(),
 	}, 
@@ -442,11 +441,6 @@ func (Proxy *Tx_database_sql_driver) Commit() error {
 }
 func (Proxy *Tx_database_sql_driver) Rollback() error {
 	return Proxy.Rollback_(Proxy.Object)
-}
-
-// --------------- proxy for database/sql/driver.Value ---------------
-type Value_database_sql_driver struct {
-	Object	interface{}
 }
 
 // --------------- proxy for database/sql/driver.ValueConverter ---------------

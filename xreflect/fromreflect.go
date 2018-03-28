@@ -176,9 +176,9 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		for i := 0; i < n; i++ {
 			rmethod := rtype.Method(i)
 			signature := v.fromReflectMethod(rmethod.Type)
-			n1 := tm.NumMethod()
+			n1 := tm.NumExplicitMethod()
 			tm.AddMethod(rmethod.Name, signature)
-			n2 := tm.NumMethod()
+			n2 := tm.NumExplicitMethod()
 			if n1 == n2 {
 				// method was already present
 				continue

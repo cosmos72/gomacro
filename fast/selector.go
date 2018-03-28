@@ -63,16 +63,14 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 			return c.compileMethod(node, eorig, mtd)
 		}
 	default:
-		// interfaces and named types can have methods, but no fields
-		if t.NumMethod() != 0 {
-			mtd, mtdn := c.LookupMethod(t, name)
-			switch mtdn {
-			case 0:
-			case 1:
-				return c.compileMethod(node, eorig, mtd)
-			default:
-				c.Errorf("type %s has %d methods %q, expression is ambiguous: %v", t, mtdn, name, node)
-			}
+		// non-struct interfaces and named types can have methods, but no fields
+		mtd, mtdn := c.LookupMethod(t, name)
+		switch mtdn {
+		case 0:
+		case 1:
+			return c.compileMethod(node, eorig, mtd)
+		default:
+			c.Errorf("type %s has %d methods %q, expression is ambiguous: %v", t, mtdn, name, node)
 		}
 	}
 	c.Errorf("type %s has no field or method %q: %v", t, name, node)

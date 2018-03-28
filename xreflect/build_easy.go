@@ -44,8 +44,8 @@ type Type interface {
 	// this type when used as a field in a struct.
 	FieldAlign() int
 
-	// Identical reports whether the type is identical to type u.
-	Identical(u Type) bool
+	// IdenticalTo reports whether the type is identical to type u.
+	IdenticalTo(u Type) bool
 
 	// AssignableTo reports whether a value of the type is assignable to type u.
 	AssignableTo(u Type) bool
@@ -173,17 +173,25 @@ type Type interface {
 	// It panics if the type's Kind is not Func.
 	// It panics if i is not in the range [0, NumIn()).
 	In(i int) Type
-	// Method return the i-th explicitly declared method of named type or interface t.
+
+	// ExplicitMethod return the i-th explicitly declared method for interface or named type t.
 	// Wrapper methods for embedded fields or embedded interfaces are not returned.
 	// It panics if the type is unnamed, or if the type's Kind is not Interface
-	Method(i int) Method
+	ExplicitMethod(i int) Method
 	// MethodByName returns the method with given name (including wrapper methods for embedded fields)
 	// and the number of methods found at the same (shallowest) depth: 0 if not found.
 	// Private methods are returned only if they were declared in pkgpath.
 	MethodByName(name, pkgpath string) (method Method, count int)
 
-	// NumMethod returns the number of explicitly declared methods of named type or interface t.
+	// NumExplicitMethod returns the number of explicitly declared methods for interface or named type t.
 	// Wrapper methods for embedded fields or embedded interfaces are not counted.
+	NumExplicitMethod() int
+	// NumMethod returns the *total* number of methods for interface or named type t,
+	// including wrapper methods for embedded fields or embedded interfaces.
+	// Note: it has slightly different semantics from go/types.(*Named).NumMethods(),
+	//       since the latter returns 0 for named interfaces, and callers need to manually invoke
+	//       goNamedType.Underlying().NumMethods() to retrieve the number of methods
+	//       of a named interface
 	NumMethod() int
 	// NumField returns a struct type's field count.
 	// It panics if the type's Kind is not Struct.

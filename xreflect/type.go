@@ -38,11 +38,7 @@ func identicalType(t, u Type) bool {
 	}
 	xt := unwrap(t)
 	yt := unwrap(u)
-	return xt == yt || xt.identical(yt)
-}
-
-func (t *xtype) identical(u *xtype) bool {
-	return types.IdenticalIgnoreTags(t.GoType(), u.GoType())
+	return xt == yt || xt.identicalTo(yt)
 }
 
 func (m *Types) add(t Type) {
@@ -238,13 +234,17 @@ func (t *xtype) Implements(u Type) bool {
 	if u.Kind() != reflect.Interface {
 		xerrorf(t, "Type.Implements of non-interface type: %v", u)
 	}
-	return types.Implements(t.gtype, u.GoType().Underlying().(*types.Interface))
+	return t.gtype == u.GoType() || types.Implements(t.gtype, u.GoType().Underlying().(*types.Interface))
 }
 
-// Identical reports whether the type is identical to type u.
-func (t *xtype) Identical(u Type) bool {
+// IdenticalTo reports whether the type is identical to type u.
+func (t *xtype) IdenticalTo(u Type) bool {
 	xu := unwrap(u)
-	return t == xu || t.identical(xu)
+	return t == xu || t.identicalTo(xu)
+}
+
+func (t *xtype) identicalTo(u *xtype) bool {
+	return types.IdenticalIgnoreTags(t.GoType(), u.GoType())
 }
 
 // AssignableTo reports whether a value of the type is assignable to type u.

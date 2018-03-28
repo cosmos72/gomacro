@@ -395,7 +395,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		}
 		fun := init.AsX1() // AsX1() panics if init.NumOut() == 0, warns if init.NumOut() > 1
 		tfun := init.Out(0)
-		if tfun == nil || (!tfun.Identical(t) && !tfun.AssignableTo(t)) {
+		if tfun == nil || (!tfun.IdenticalTo(t) && !tfun.AssignableTo(t)) {
 			c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v <%v>", tfun, t, name, t)
 			return bind
 		}
@@ -504,7 +504,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr) {
 	decls := make([]func(*Env, r.Value), n)
 	for i, name := range names {
 		ti := init.Out(i)
-		if t != nil && !t.Identical(ti) {
+		if t != nil && !t.IdenticalTo(ti) {
 			if ti != nil && !ti.AssignableTo(t) {
 				c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v", ti, t, names)
 				return

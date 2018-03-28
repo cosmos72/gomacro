@@ -34,9 +34,9 @@ import (
 	"unsafe"
 )
 
-// NumMethod returns the number of explicitly declared methods of named type or interface t.
+// NumExplicitMethod returns the number of explicitly declared methods of named type or interface t.
 // Wrapper methods for embedded fields or embedded interfaces are not counted.
-func (t *xtype) NumMethod() int {
+func (t *xtype) NumExplicitMethod() int {
 	num := 0
 	if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
 		num = gtype.NumExplicitMethods()
@@ -48,15 +48,15 @@ func (t *xtype) NumMethod() int {
 
 // Method return the i-th explicitly declared method of named type or interface t.
 // Wrapper methods for embedded fields are not counted
-func (t *xtype) Method(i int) Method {
+func (t *xtype) ExplicitMethod(i int) Method {
 	v := t.universe
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
-	return t.method(i)
+	return t.explicitMethod(i)
 }
 
-func (t *xtype) method(i int) Method {
+func (t *xtype) explicitMethod(i int) Method {
 	gfunc := t.gmethod(i)
 	name := gfunc.Name()
 	resizemethodvalues(t)
@@ -176,7 +176,7 @@ func (t *xtype) makemethod(index int, gfun *types.Func, rfuns *[]reflect.Value, 
 }
 
 func resizemethodvalues(t *xtype) {
-	n := t.NumMethod()
+	n := t.NumExplicitMethod()
 	if cap(t.methodvalues) < n {
 		slice := make([]reflect.Value, n, n+n/2+4)
 		copy(slice, t.methodvalues)

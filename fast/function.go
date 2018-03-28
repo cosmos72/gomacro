@@ -148,9 +148,9 @@ func (c *Comp) methodAdd(funcdecl *ast.FuncDecl, t xr.Type) (methodindex int, me
 			c.Errorf("error adding method %s <%v> to type <%v>\n\t%v", name, t, trecv, rec)
 		}
 	}()
-	n1 := trecv.NumMethod()
+	n1 := trecv.NumExplicitMethod()
 	methodindex = trecv.AddMethod(name, t)
-	n2 := trecv.NumMethod()
+	n2 := trecv.NumExplicitMethod()
 	if n1 == n2 {
 		c.Warnf("redefined method: %s.%s", trecv.Name(), name)
 	}

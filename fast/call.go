@@ -85,9 +85,9 @@ func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	t := fun.Type
 	var builtin bool
 	var lastarg *Expr
-	if t.Identical(c.TypeOfBuiltin()) {
+	if t.IdenticalTo(c.TypeOfBuiltin()) {
 		return c.callBuiltin(node, fun)
-	} else if t.Identical(c.TypeOfFunction()) {
+	} else if t.IdenticalTo(c.TypeOfFunction()) {
 		fun, lastarg = c.callFunction(node, fun)
 		t = fun.Type
 		builtin = true

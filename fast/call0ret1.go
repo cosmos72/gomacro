@@ -58,7 +58,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 	case r.Bool:
 
 		{
-			if !tret.Identical(c.TypeOfBool(),
+			if !tret.IdenticalTo(c.TypeOfBool(),
 			) {
 				ret = func(env *Env) bool {
 					fun := exprfun(env)
@@ -109,7 +109,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 	case r.Int:
 
 		{
-			if !tret.Identical(c.TypeOfInt(),
+			if !tret.IdenticalTo(c.TypeOfInt(),
 			) {
 				ret = func(env *Env) int {
 					fun := exprfun(env)
@@ -159,7 +159,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 	case r.Int8:
 
 		{
-			if !tret.Identical(c.TypeOfInt8(),
+			if !tret.IdenticalTo(c.TypeOfInt8(),
 			) {
 				ret = func(env *Env) int8 {
 					fun := exprfun(env)
@@ -208,7 +208,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Int16:
 		{
-			if !tret.Identical(c.TypeOfInt16(),
+			if !tret.IdenticalTo(c.TypeOfInt16(),
 			) {
 				ret = func(env *Env) int16 {
 					fun := exprfun(env)
@@ -257,7 +257,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Int32:
 		{
-			if !tret.Identical(c.TypeOfInt32(),
+			if !tret.IdenticalTo(c.TypeOfInt32(),
 			) {
 				ret = func(env *Env) int32 {
 					fun := exprfun(env)
@@ -306,7 +306,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Int64:
 		{
-			if !tret.Identical(c.TypeOfInt64(),
+			if !tret.IdenticalTo(c.TypeOfInt64(),
 			) {
 				ret = func(env *Env) int64 {
 					fun := exprfun(env)
@@ -356,7 +356,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Uint:
 		{
-			if !tret.Identical(c.TypeOfUint(),
+			if !tret.IdenticalTo(c.TypeOfUint(),
 			) {
 				ret = func(env *Env) uint {
 					fun := exprfun(env)
@@ -405,7 +405,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Uint8:
 		{
-			if !tret.Identical(c.TypeOfUint8(),
+			if !tret.IdenticalTo(c.TypeOfUint8(),
 			) {
 				ret = func(env *Env) uint8 {
 					fun := exprfun(env)
@@ -454,7 +454,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Uint16:
 		{
-			if !tret.Identical(c.TypeOfUint16(),
+			if !tret.IdenticalTo(c.TypeOfUint16(),
 			) {
 				ret = func(env *Env) uint16 {
 					fun := exprfun(env)
@@ -503,7 +503,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Uint32:
 		{
-			if !tret.Identical(c.TypeOfUint32(),
+			if !tret.IdenticalTo(c.TypeOfUint32(),
 			) {
 				ret = func(env *Env) uint32 {
 					fun := exprfun(env)
@@ -552,7 +552,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Uint64:
 		{
-			if !tret.Identical(c.TypeOfUint64(),
+			if !tret.IdenticalTo(c.TypeOfUint64(),
 			) {
 				ret = func(env *Env) uint64 {
 					fun := exprfun(env)
@@ -602,7 +602,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Uintptr:
 		{
-			if !tret.Identical(c.TypeOfUintptr(),
+			if !tret.IdenticalTo(c.TypeOfUintptr(),
 			) {
 				ret = func(env *Env) uintptr {
 					fun := exprfun(env)
@@ -651,7 +651,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Float32:
 		{
-			if !tret.Identical(c.TypeOfFloat32(),
+			if !tret.IdenticalTo(c.TypeOfFloat32(),
 			) {
 				ret = func(env *Env) float32 {
 					fun := exprfun(env)
@@ -700,7 +700,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Float64:
 		{
-			if !tret.Identical(c.TypeOfFloat64(),
+			if !tret.IdenticalTo(c.TypeOfFloat64(),
 			) {
 				ret = func(env *Env) float64 {
 					fun := exprfun(env)
@@ -750,7 +750,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Complex64:
 		{
-			if !tret.Identical(c.TypeOfComplex64(),
+			if !tret.IdenticalTo(c.TypeOfComplex64(),
 			) {
 				ret = func(env *Env) complex64 {
 					fun := exprfun(env)
@@ -799,7 +799,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.Complex128:
 		{
-			if !tret.Identical(c.TypeOfComplex128(),
+			if !tret.IdenticalTo(c.TypeOfComplex128(),
 			) {
 				ret = func(env *Env) complex128 {
 					fun := exprfun(env)
@@ -848,7 +848,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		}
 	case r.String:
 		{
-			if !tret.Identical(c.TypeOfString(),
+			if !tret.IdenticalTo(c.TypeOfString(),
 			) {
 				ret = func(env *Env) string {
 					fun := exprfun(env)

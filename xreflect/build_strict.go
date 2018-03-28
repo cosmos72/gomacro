@@ -51,7 +51,7 @@ func (t Type) FieldAlign() int {
 }
 
 // Identical reports whether the type is identical to type u.
-func (t Type) Identical(u Type) bool {
+func (t Type) IdenticalTo(u Type) bool {
 	return identicalType(t, u)
 }
 
@@ -259,8 +259,8 @@ func (t Type) In(i int) Type {
 // Method return the i-th explicitly declared method of named type or interface t.
 // Wrapper methods for embedded fields or embedded interfaces are not returned.
 // It panics if the type is unnamed, or if the type's Kind is not Interface
-func (t Type) Method(i int) Method {
-	return t[0].Method(i)
+func (t Type) ExplicitMethod(i int) Method {
+	return t[0].ExplicitMethod(i)
 }
 
 // MethodByName returns the method with given name (including wrapper methods for embedded fields)
@@ -270,8 +270,18 @@ func (t Type) MethodByName(name, pkgpath string) (method Method, count int) {
 	return t[0].MethodByName(name, pkgpath)
 }
 
-// NumMethod returns the number of explicitly declared methods of named type or interface t.
+// NumExplicitMethod returns the number of explicitly declared methods of named type or interface t.
 // Wrapper methods for embedded fields or embedded interfaces are not counted.
+func (t Type) NumExplicitMethod() int {
+	return t[0].NumExplicitMethod()
+}
+
+// NumMethod returns the *total* number of methods for interface or named type t,
+// including wrapper methods for embedded fields or embedded interfaces.
+// Note: it has slightly different semantics from go/types.(*Named).NumMethods(),
+//       since the latter returns 0 for named interfaces, and callers need to manually invoke
+//       goNamedType.Underlying().NumMethods() to retrieve the number of methods
+//       of a named interface
 func (t Type) NumMethod() int {
 	return t[0].NumMethod()
 }

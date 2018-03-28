@@ -206,7 +206,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	method, count = methodByName(t, qname, nil)
 	if count == 0 {
 		tovisit := anonymousFields(t, 0, nil)
-		// breadth-first recursion
+		// breadth-first recursion on struct's anonymous fields
 		for count == 0 && len(tovisit) != 0 {
 			var next []StructField
 			for _, f := range tovisit {
@@ -236,12 +236,12 @@ func methodByName(t *xtype, qname QName, index []int) (method Method, count int)
 	if t.kind == reflect.Ptr {
 		t = unwrap(t.elem())
 	}
-	n := t.NumMethod()
+	n := t.NumExplicitMethod()
 	for i := 0; i < n; i++ {
 		gmethod := t.gmethod(i)
 		if matchMethodByName(qname, gmethod) {
 			if count == 0 {
-				method = t.method(i)                                 // lock already held
+				method = t.explicitMethod(i)                         // lock already held
 				method.FieldIndex = concat(index, method.FieldIndex) // make a copy of index
 				// debugf("methodByName: %d-th method of <%v> matches: %#v", i, t.rtype, method)
 			}

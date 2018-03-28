@@ -407,7 +407,7 @@ func (e *Expr) To(c *Comp, t xr.Type) {
 		e.ConstTo(t)
 		return
 	}
-	if e.Type.Identical(t) {
+	if e.Type.IdenticalTo(t) {
 		return
 	}
 	if !e.Type.AssignableTo(t) {

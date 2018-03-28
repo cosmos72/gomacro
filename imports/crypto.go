@@ -43,9 +43,6 @@ func init() {
 		"SignerOpts":	TypeOf((*crypto.SignerOpts)(nil)).Elem(),
 	}, Proxies: map[string]Type{
 		"Decrypter":	TypeOf((*Decrypter_crypto)(nil)).Elem(),
-		"DecrypterOpts":	TypeOf((*DecrypterOpts_crypto)(nil)).Elem(),
-		"PrivateKey":	TypeOf((*PrivateKey_crypto)(nil)).Elem(),
-		"PublicKey":	TypeOf((*PublicKey_crypto)(nil)).Elem(),
 		"Signer":	TypeOf((*Signer_crypto)(nil)).Elem(),
 		"SignerOpts":	TypeOf((*SignerOpts_crypto)(nil)).Elem(),
 	}, 
@@ -63,21 +60,6 @@ func (Proxy *Decrypter_crypto) Decrypt(rand io.Reader, msg []byte, opts crypto.D
 }
 func (Proxy *Decrypter_crypto) Public() crypto.PublicKey {
 	return Proxy.Public_(Proxy.Object)
-}
-
-// --------------- proxy for crypto.DecrypterOpts ---------------
-type DecrypterOpts_crypto struct {
-	Object	interface{}
-}
-
-// --------------- proxy for crypto.PrivateKey ---------------
-type PrivateKey_crypto struct {
-	Object	interface{}
-}
-
-// --------------- proxy for crypto.PublicKey ---------------
-type PublicKey_crypto struct {
-	Object	interface{}
 }
 
 // --------------- proxy for crypto.Signer ---------------

@@ -429,7 +429,8 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	var ret func(env *Env) (r.Value, []r.Value)
 
 	fail := []r.Value{xr.Zero(tout), False} // returned by type assertion in case of failure
-	if IsOptimizedKind(kout) {
+	switch {
+	case IsOptimizedKind(kout):
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v, t := g.extractFromInterface(fun(env))
 			if ValueType(v) != rtout || (t != nil && !t.AssignableTo(tout)) {
@@ -437,28 +438,33 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			}
 			return v, []r.Value{v, True}
 		}
-	} else if tout.ReflectType() == TypeOfInterface {
-		// type assertion to interface{}
-		// everything, including nil, is a valid interface{}
-		ret = func(env *Env) (r.Value, []r.Value) {
-			v, _ := g.extractFromInterface(fun(env))
-			v = v.Convert(TypeOfInterface)
-			return v, []r.Value{v, True}
-		}
-	} else if kout == r.Interface && tin.Implements(tout) {
-		// type assertion to interface.
-		// expression type implements such interface, can only fail if value is nil
-		ret = func(env *Env) (r.Value, []r.Value) {
-			v, _ := g.extractFromInterface(fun(env))
-			// nil is not a valid tout, check for it.
-			// IsNil() can be invoked only on nillable types...
-			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
-				return fail[0], fail
+
+	case kout == r.Interface:
+		if tout.NumMethod() == 0 {
+			// type assertion to empty interface.
+			// everything, including nil, implements an empty interface
+			ret = func(env *Env) (r.Value, []r.Value) {
+				v, _ := g.extractFromInterface(fun(env))
+				v = v.Convert(rtout)
+				return v, []r.Value{v, True}
 			}
-			v = v.Convert(rtout)
-			return v, []r.Value{v, True}
+			break
 		}
-	} else if kout == r.Interface {
+		if tin.Implements(tout) {
+			// type assertion to interface.
+			// expression type implements such interface, can only fail if value is nil
+			ret = func(env *Env) (r.Value, []r.Value) {
+				v, _ := g.extractFromInterface(fun(env))
+				// nil is not a valid tout, check for it.
+				// IsNil() can be invoked only on nillable types...
+				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
+					return fail[0], fail
+				}
+				v = v.Convert(rtout)
+				return v, []r.Value{v, True}
+			}
+			break
+		}
 		// type assertion to interface
 		// must check at runtime whether concrete type implements asserted interface
 		ret = func(env *Env) (r.Value, []r.Value) {
@@ -469,14 +475,15 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 				return fail[0], fail
 			}
 			rt := rtypeof(v, t)
-			if (rt != rtout && !rt.AssignableTo(rtout) && !rt.Implements(rtout)) ||
-				(t != nil && !t.AssignableTo(tout) && !t.Implements(tout)) {
+			if (rt != rtout && !rt.Implements(rtout)) ||
+				(t != nil && !t.IdenticalTo(tout) && !t.Implements(tout)) {
 				return fail[0], fail
 			}
 			v = v.Convert(rtout)
 			return v, []r.Value{v, True}
 		}
-	} else if IsNillableKind(kout) {
+
+	case IsNillableKind(kout):
 		// type assertion to concrete (nillable) type
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v, t := g.extractFromInterface(fun(env))
@@ -486,16 +493,17 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 				return fail[0], fail
 			}
 			rt := rtypeof(v, t)
-			if rt != rtout || (t != nil && !t.AssignableTo(tout)) {
+			if rt != rtout || (t != nil && !t.IdenticalTo(tout)) {
 				return fail[0], fail
 			}
 			return v, []r.Value{v, True}
 		}
-	} else {
+	default:
+		// type assertion to concrete (non-nillable) type
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v, t := g.extractFromInterface(fun(env))
 			rt := rtypeof(v, t)
-			if rt != rtout || (t != nil && !t.AssignableTo(tout)) {
+			if rt != rtout || (t != nil && !t.IdenticalTo(tout)) {
 				return fail[0], fail
 			}
 			return v, []r.Value{v, True}
@@ -631,12 +639,12 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			return v.String()
 		}
 	case r.Interface:
-		if tout.ReflectType() == TypeOfInterface {
-			// type assertion to interface{}
-			// everything, including nil, is a valid interface{}
+		if tout.NumMethod() == 0 {
+			// type assertion to empty interface.
+			// everything, including nil, implements an empty interface
 			ret = func(env *Env) r.Value {
 				v, _ := g.extractFromInterface(fun(env))
-				return v.Convert(TypeOfInterface)
+				return v.Convert(rtout)
 			}
 		} else if tin.Implements(tout) {
 			// type assertion to interface.
@@ -679,7 +687,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 					typeassertpanic(nil, nil, tin, tout)
 				}
 				rt := rtypeof(v, t)
-				if rt != rtout || (t != nil && !t.AssignableTo(tout)) {
+				if rt != rtout || (t != nil && !t.IdenticalTo(tout)) {
 					panic(&TypeAssertionError{
 						Interface:       tin,
 						Concrete:        t,
@@ -690,11 +698,11 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 				return v
 			}
 		} else {
-			// type assertion to concrete type
+			// type assertion to concrete (non-nillable) type
 			ret = func(env *Env) r.Value {
 				v, t := g.extractFromInterface(fun(env))
 				rt := rtypeof(v, t)
-				if rt != rtout || (t != nil && !t.AssignableTo(tout)) {
+				if rt != rtout || (t != nil && !t.IdenticalTo(tout)) {
 					panic(&TypeAssertionError{
 						Interface:       tin,
 						Concrete:        t,
@@ -713,7 +721,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 
 func typeassert(v r.Value, t xr.Type, tin xr.Type, tout xr.Type) r.Value {
 	rt := rtypeof(v, t)
-	if rt != tout.ReflectType() || t != nil && !t.Identical(tout) {
+	if rt != tout.ReflectType() || t != nil && !t.IdenticalTo(tout) {
 		panic(&TypeAssertionError{
 			Interface:       tin,
 			Concrete:        t,
