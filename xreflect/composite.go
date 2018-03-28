@@ -50,7 +50,7 @@ func (t *xtype) Elem() Type {
 }
 
 func (t *xtype) elem() Type {
-	gtype := t.underlying()
+	gtype := t.gunderlying()
 	rtype := t.rtype
 	switch gtype := gtype.(type) {
 	case *types.Array:
@@ -75,7 +75,7 @@ func (t *xtype) Key() Type {
 	if t.Kind() != reflect.Map {
 		xerrorf(t, "Key of non-map type %v", t)
 	}
-	gtype := t.underlying().(*types.Map)
+	gtype := t.gunderlying().(*types.Map)
 	return t.universe.MakeType(gtype.Key(), t.rtype.Key())
 }
 

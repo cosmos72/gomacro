@@ -451,8 +451,8 @@ var testcases = []TestCase{
 	TestCase{F, "field_addr_1", "ppair := &triple.Pair; ppair.A", 'b', nil},
 	TestCase{F, "field_addr_2", "ppair.A++; triple.Pair.A", 'c', nil},
 
-	TestCase{I, "import", `import ( "fmt"; "time" )`, "time", nil},
-	TestCase{F, "import", `import ( "fmt"; "time" )`, nil, []interface{}{}},
+	TestCase{I, "import", `import ( "fmt"; "time"; "io" )`, "io", nil},
+	TestCase{F, "import", `import ( "fmt"; "time"; "io" )`, nil, []interface{}{}},
 
 	TestCase{A, "goroutine_1", `go seti(9); time.Sleep(time.Second/50); i`, 9, nil},
 
@@ -521,8 +521,9 @@ var testcases = []TestCase{
 	TestCase{F, "interface_2", "st = pair; nil", nil, nil},
 	TestCase{F, "interface_method_2", "bind = st.String; bind()", "! y", nil},
 
-	TestCase{F, "concrete_method_to_func", "f1 := time.Duration.Seconds; f1(time.Hour)", 3600.0, nil},
-	TestCase{F, "interface_method_to_func", "f2 := fmt.Stringer.String; f2(time.Hour)", "1h0m0s", nil},
+	TestCase{F, "concrete_method_to_func", "f0 := time.Duration.Seconds; f0(time.Hour)", 3600.0, nil},
+	TestCase{F, "interface_method_to_func_1", "f1 := fmt.Stringer.String; f1(time.Hour)", "1h0m0s", nil},
+	TestCase{F, "interface_method_to_func_2", "f2 := io.ReadWriter.Read; f2 != nil", true, nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{A, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
@@ -649,7 +650,7 @@ var testcases = []TestCase{
 	TestCase{A, "typeassert_3", `xi.(int)`, nil, []interface{}{0, false}},
 	TestCase{A, "typeassert_4", `xi = nil; xi.(error)`, nil, []interface{}{error(nil), false}},
 	TestCase{A, "typeassert_5", `xi = 7; xi.(int)+2`, 9, nil},
-	TestCase{F, "typeassert_6", `type T struct { Val int }; func (t T) String() string { return "T" }; import "fmt"; nil`, nil, nil},
+	TestCase{F, "typeassert_6", `type T struct { Val int }; func (t T) String() string { return "T" }`, nil, []interface{}{}},
 	TestCase{F, "typeassert_7", `stringer = T{}; nil`, nil, nil},
 	TestCase{F, "typeassert_8", `st1 := stringer.(T); st1`, struct{ Val int }{0}, nil},
 	TestCase{F, "typeassert_9", `stringer.(T)`, nil, []interface{}{struct{ Val int }{0}, true}},

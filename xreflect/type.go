@@ -216,7 +216,7 @@ func (t *xtype) Underlying() Type {
 }
 */
 
-func (t *xtype) underlying() types.Type {
+func (t *xtype) gunderlying() types.Type {
 	return t.gtype.Underlying()
 }
 

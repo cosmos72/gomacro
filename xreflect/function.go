@@ -37,7 +37,7 @@ func (t *xtype) IsMethod() bool {
 	if t.Kind() != reflect.Func {
 		xerrorf(t, "IsMethod of non-func type %v", t)
 	}
-	gtype := t.underlying().(*types.Signature)
+	gtype := t.gunderlying().(*types.Signature)
 	return gtype.Recv() != nil
 }
 
@@ -58,7 +58,7 @@ func (t *xtype) In(i int) Type {
 	if t.Kind() != reflect.Func {
 		xerrorf(t, "In of non-func type %v", t)
 	}
-	gtype := t.underlying().(*types.Signature)
+	gtype := t.gunderlying().(*types.Signature)
 	var va *types.Var
 	if recv := gtype.Recv(); recv != nil {
 		// include the receiver as first parameter
@@ -80,7 +80,7 @@ func (t *xtype) NumIn() int {
 		xerrorf(t, "NumIn of non-func type %v", t)
 	}
 	var nparams, nrecv int
-	gtype := t.underlying().(*types.Signature)
+	gtype := t.gunderlying().(*types.Signature)
 	if gtype.Recv() != nil {
 		nrecv = 1
 	}
@@ -96,7 +96,7 @@ func (t *xtype) NumOut() int {
 	if t.Kind() != reflect.Func {
 		xerrorf(t, "NumOut of non-func type %v", t)
 	}
-	gtype := t.underlying().(*types.Signature)
+	gtype := t.gunderlying().(*types.Signature)
 	return gtype.Results().Len()
 }
 
@@ -107,7 +107,7 @@ func (t *xtype) Out(i int) Type {
 	if t.Kind() != reflect.Func {
 		xerrorf(t, "Out of non-func type %v", t)
 	}
-	gtype := t.underlying().(*types.Signature)
+	gtype := t.gunderlying().(*types.Signature)
 	va := gtype.Results().At(i)
 	return t.universe.MakeType(va.Type(), t.rtype.Out(i))
 }

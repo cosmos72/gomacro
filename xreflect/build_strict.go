@@ -256,11 +256,11 @@ func (t Type) In(i int) Type {
 	return t[0].In(i)
 }
 
-// Method return the i-th explicitly declared method of named type or interface t.
-// Wrapper methods for embedded fields or embedded interfaces are not returned.
-// It panics if the type is unnamed, or if the type's Kind is not Interface
-func (t Type) ExplicitMethod(i int) Method {
-	return t[0].ExplicitMethod(i)
+// For interfaces, Method returns the i-th method, including methods from embedded interfaces.
+// For all other named types, Method returns the i-th explicitly declared method, ignoring wrapper methods for embedded fields.
+// It panics if i is outside the range 0 .. NumMethod()-1
+func (t Type) Method(i int) Method {
+	return t[0].Method(i)
 }
 
 // MethodByName returns the method with given name (including wrapper methods for embedded fields)
@@ -268,6 +268,15 @@ func (t Type) ExplicitMethod(i int) Method {
 // Private methods are returned only if they were declared in pkgpath.
 func (t Type) MethodByName(name, pkgpath string) (method Method, count int) {
 	return t[0].MethodByName(name, pkgpath)
+}
+
+// For interfaces, NumMethod returns *total* number of methods for interface t,
+// including wrapper methods for embedded interfaces.
+// For all other named types, NumMethod returns the number of explicitly declared methods,
+// ignoring wrapper methods for embedded fields.
+// Returns 0 for other unnamed types.
+func (t Type) NumMethod() int {
+	return t[0].NumMethod()
 }
 
 // NumExplicitMethod returns the number of explicitly declared methods of named type or interface t.
@@ -282,8 +291,8 @@ func (t Type) NumExplicitMethod() int {
 //       since the latter returns 0 for named interfaces, and callers need to manually invoke
 //       goNamedType.Underlying().NumMethods() to retrieve the number of methods
 //       of a named interface
-func (t Type) NumMethod() int {
-	return t[0].NumMethod()
+func (t Type) NumAllMethod() int {
+	return t[0].NumAllMethod()
 }
 
 // NumField returns a struct type's field count.
@@ -329,7 +338,7 @@ func (t Type) SetUnderlying(underlying Type) {
 // Synthetizing the underlying reflect.Type is not possible for interface types,
 // or for struct types with embedded or unexported fields.
 func (t Type) underlying() types.Type {
-	return t[0].underlying()
+	return t[0].gunderlying()
 }
 
 func (t Type) Universe() *Universe {

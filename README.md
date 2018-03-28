@@ -2,7 +2,7 @@
 
 gomacro is a fairly complete Go interpreter, implemented in pure Go. It offers both
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
-(except in one very specific case: import of a non-standard package).
+(except in one very specific case: import of a 3d-party package).
 
 It has very few dependencies: go/ast, go/types, reflect and, for legacy reasons
 (no longer used by the default interpreter), golang.org/x/sync/syncmap.

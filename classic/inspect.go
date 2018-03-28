@@ -85,7 +85,7 @@ func (env *Env) showMethods(t r.Type, xt xr.Type) {
 		}
 		env.Fprintf(env.Stdout, "explicit methods of %v:\n", xt)
 		for i := 0; i < n; i++ {
-			env.Fprintf(env.Stdout, "    m%d. %v\n", i, xt.ExplicitMethod(i).GoFun)
+			env.Fprintf(env.Stdout, "    m%d. %v\n", i, xt.Method(i).GoFun)
 		}
 
 	case t != nil:

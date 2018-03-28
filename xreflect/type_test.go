@@ -111,10 +111,10 @@ func TestInterface1(t *testing.T) {
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, typ.Name(), "")
 	is(t, typ.NumExplicitMethod(), 2)
-	actual := typ.ExplicitMethod(0)
+	actual := typ.Method(0)
 	is(t, actual.Name, "Cap")
 	is(t, true, types.Identical(methodtyp.GoType(), actual.Type.GoType()))
-	actual = typ.ExplicitMethod(1)
+	actual = typ.Method(1)
 	is(t, actual.Name, "Len")
 	is(t, true, types.Identical(methodtyp.GoType(), actual.Type.GoType()))
 	istype(t, typ.GoType(), (*types.Interface)(nil))
@@ -137,7 +137,7 @@ func TestInterfaceError(t *testing.T) {
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, typ.Name(), "")
 	is(t, typ.NumExplicitMethod(), 1)
-	is(t, typ.NumMethod(), 1)
+	is(t, typ.NumAllMethod(), 1)
 
 	is(t, typ.Implements(u.TypeOfError), true)
 }
@@ -148,7 +148,7 @@ func TestMap(t *testing.T) {
 	is(t, typ.Kind(), reflect.Map)
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
-	is(t, typ.NumMethod(), 0)
+	is(t, typ.NumAllMethod(), 0)
 	istype(t, typ.GoType(), (*types.Map)(nil))
 }
 
@@ -159,7 +159,7 @@ func TestMethod(t *testing.T) {
 	is(t, typ.Kind(), reflect.Int)
 	is(t, typ.Name(), "MyInt")
 	is(t, typ.ReflectType(), rtype)
-	is(t, typ.NumMethod(), 0)
+	is(t, typ.NumAllMethod(), 0)
 	istype(t, typ.GoType(), (*types.Named)(nil))
 }
 
@@ -171,7 +171,7 @@ func TestNamed(t *testing.T) {
 	is(t, typ.Kind(), reflect.Map)
 	is(t, typ.Name(), "MyMap")
 	is(t, typ.ReflectType(), rtype)
-	is(t, typ.NumMethod(), rtype.NumMethod())
+	is(t, typ.NumAllMethod(), rtype.NumMethod())
 	istype(t, typ.GoType(), (*types.Named)(nil))
 }
 
@@ -189,7 +189,7 @@ func TestSelfReference(t *testing.T) {
 	is(t, typ.Kind(), reflect.Struct)
 	is(t, typ.Name(), "List")
 	is(t, typ.ReflectType(), rtype)
-	is(t, typ.NumMethod(), rtype.NumMethod())
+	is(t, typ.NumAllMethod(), rtype.NumMethod())
 	is(t, types.Identical(typ.Field(1).Type.GoType(), typ.GoType()), true)
 	istype(t, typ.GoType(), (*types.Named)(nil))
 
@@ -211,7 +211,7 @@ func TestStruct(t *testing.T) {
 	is(t, typ.ReflectType(), rtype)
 	istype(t, typ.GoType(), (*types.Struct)(nil))
 	is(t, typ.NumField(), rtype.NumField())
-	is(t, typ.NumMethod(), rtype.NumMethod())
+	is(t, typ.NumAllMethod(), rtype.NumMethod())
 	for i := 0; i < typ.NumField(); i++ {
 		field := typ.Field(i)
 		rfield1 := field.toReflectField(false)
@@ -321,7 +321,7 @@ func TestFromReflect3(t *testing.T) {
 	is(t, typ.String(), "io.Reader")
 	is(t, typ.underlying().String(), "interface{Read([]uint8) (int, error)}")
 	is(t, typ.NumExplicitMethod(), 1)
-	is(t, typ.NumMethod(), 1)
+	is(t, typ.NumAllMethod(), 1)
 	is(t, rtype.NumMethod(), 1)
 
 	for depth := 0; depth <= 3; depth++ {
@@ -352,7 +352,7 @@ func TestFromReflect4(t *testing.T) {
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, actual, expected)
 	is(t, typ.NumExplicitMethod(), 1)
-	is(t, typ.NumMethod(), 1)
+	is(t, typ.NumAllMethod(), 1)
 	/*
 		is(t, typ.String(), "io.Stringer")
 		is(t, typ.underlying().String(), "interface{String() string}")
@@ -380,7 +380,7 @@ func TestFromReflect5(t *testing.T) {
 		is(t, su, s1)
 	}
 	is(t, typ.NumExplicitMethod(), rtype.NumMethod())
-	is(t, typ.NumMethod(), rtype.NumMethod())
+	is(t, typ.NumAllMethod(), rtype.NumMethod())
 }
 
 // test implementing 'io.Reader' interface
@@ -396,7 +396,7 @@ func TestInterfaceIoReader(t *testing.T) {
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, typ.Name(), "")
 	is(t, typ.NumExplicitMethod(), 1)
-	is(t, typ.NumMethod(), 1)
+	is(t, typ.NumAllMethod(), 1)
 
 	// ---------------------------
 	treader := u.TypeOf((*io.Reader)(nil)).Elem()
@@ -404,7 +404,7 @@ func TestInterfaceIoReader(t *testing.T) {
 	is(t, treader.Kind(), reflect.Interface)
 	is(t, treader.Name(), "Reader")
 	is(t, treader.NumExplicitMethod(), 1)
-	is(t, treader.NumMethod(), 1)
+	is(t, treader.NumAllMethod(), 1)
 
 	istrue(t, typ.Implements(treader))
 	istrue(t, typ.AssignableTo(treader))
@@ -438,7 +438,7 @@ func TestInterfaceIoReader(t *testing.T) {
 
 	file := os.Scope().Lookup("File").Type().(*types.Named)
 
-	tfileRead := tfile.ExplicitMethod(6).Type.GoType().(*types.Signature)
+	tfileRead := tfile.Method(6).Type.GoType().(*types.Signature)
 	fileRead := file.Method(6).Type().(*types.Signature)
 	ireaderRead := ireader.ExplicitMethod(0).Type().(*types.Signature)
 
@@ -481,7 +481,7 @@ func TestInterfaceIoReadWriter(t *testing.T) {
 	rw := makeIoReaderWriterType()
 
 	is(t, rw.NumExplicitMethod(), 0)
-	is(t, rw.NumMethod(), 2)
+	is(t, rw.NumAllMethod(), 2)
 	if false {
 		// Type.MethodByName() does not work yet on embedded interfaces
 		_, nread := rw.MethodByName("Read", "")

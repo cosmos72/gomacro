@@ -73,7 +73,7 @@ func (t *xtype) NumField() int {
 	if t.kind != reflect.Struct {
 		xerrorf(t, "NumField of non-struct type %v", t)
 	}
-	gtype := t.underlying().(*types.Struct)
+	gtype := t.gunderlying().(*types.Struct)
 	return gtype.NumFields()
 }
 

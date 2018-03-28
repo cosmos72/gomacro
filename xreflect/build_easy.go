@@ -174,15 +174,21 @@ type Type interface {
 	// It panics if i is not in the range [0, NumIn()).
 	In(i int) Type
 
-	// ExplicitMethod return the i-th explicitly declared method for interface or named type t.
-	// Wrapper methods for embedded fields or embedded interfaces are not returned.
-	// It panics if the type is unnamed, or if the type's Kind is not Interface
-	ExplicitMethod(i int) Method
+	// For interfaces, Method returns the i-th method, including methods from embedded interfaces.
+	// For all other named types, Method returns the i-th explicitly declared method, ignoring wrapper methods for embedded fields.
+	// It panics if i is outside the range 0 .. NumMethod()-1
+	Method(i int) Method
 	// MethodByName returns the method with given name (including wrapper methods for embedded fields)
 	// and the number of methods found at the same (shallowest) depth: 0 if not found.
 	// Private methods are returned only if they were declared in pkgpath.
 	MethodByName(name, pkgpath string) (method Method, count int)
 
+	// For interfaces, NumMethod returns *total* number of methods for interface t,
+	// including wrapper methods for embedded interfaces.
+	// For all other named types, NumMethod returns the number of explicitly declared methods,
+	// ignoring wrapper methods for embedded fields.
+	// Returns 0 for other unnamed types.
+	NumMethod() int
 	// NumExplicitMethod returns the number of explicitly declared methods for interface or named type t.
 	// Wrapper methods for embedded fields or embedded interfaces are not counted.
 	NumExplicitMethod() int
@@ -192,7 +198,8 @@ type Type interface {
 	//       since the latter returns 0 for named interfaces, and callers need to manually invoke
 	//       goNamedType.Underlying().NumMethods() to retrieve the number of methods
 	//       of a named interface
-	NumMethod() int
+	NumAllMethod() int
+
 	// NumField returns a struct type's field count.
 	// It panics if the type's Kind is not Struct.
 	NumField() int

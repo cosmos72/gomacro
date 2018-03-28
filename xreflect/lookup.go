@@ -28,6 +28,7 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
+	"unsafe"
 )
 
 // FieldByName returns the (possibly embedded) struct field with given name,
@@ -231,19 +232,21 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	return method, count
 }
 
+// For interfaces, search in *all* methods including wrapper methods for embedded interfaces
+// For all other named types, only search in explicitly declared methods, ignoring wrapper methods for embedded fields.
 func methodByName(t *xtype, qname QName, index []int) (method Method, count int) {
-	// also support embedded fields: they can be named types or pointers to named types
-	if t.kind == reflect.Ptr {
+	// also support embedded fields: they can be interfaces, named types, pointers to named types
+	if t.kind == reflect.Ptr && t.elem().Kind() != reflect.Interface {
 		t = unwrap(t.elem())
 	}
-	n := t.NumExplicitMethod()
+	n := t.NumMethod()
 	for i := 0; i < n; i++ {
 		gmethod := t.gmethod(i)
 		if matchMethodByName(qname, gmethod) {
 			if count == 0 {
-				method = t.explicitMethod(i)                         // lock already held
+				method = t.method(i)                                 // lock already held
 				method.FieldIndex = concat(index, method.FieldIndex) // make a copy of index
-				// debugf("methodByName: %d-th method of <%v> matches: %#v", i, t.rtype, method)
+				// debugf("methodByName: %d-th explicit method of <%v> matches: %#v", i, t.rtype, method)
 			}
 			count++
 		}
