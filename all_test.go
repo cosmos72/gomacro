@@ -42,10 +42,10 @@ import (
 type TestFor int
 
 const (
-	I TestFor = 1 << iota
-	F
-	S // set option OptDebugSleepOnSwitch
-	A = I | F
+	S TestFor = 1 << iota // set option OptDebugSleepOnSwitch
+	C                     // test for classic interpreter
+	F                     // test for fast interpreter
+	A = C | F             // test for both interpreters
 )
 
 type TestCase struct {
@@ -60,7 +60,7 @@ func TestClassic(t *testing.T) {
 	ir := classic.New()
 	// ir.Options |= OptDebugCallStack | OptDebugPanicRecover
 	for _, test := range testcases {
-		if test.testfor&I != 0 {
+		if test.testfor&C != 0 {
 			test := test
 			t.Run(test.name, func(t *testing.T) { test.classic(t, ir) })
 		}
@@ -192,8 +192,8 @@ var testcases = []TestCase{
 	TestCase{A, "const_2", "const c2 = 0xff&555+23/12.2; c2", 0xff&555 + 23/12.2, nil},
 
 	// the classic interpreter is not accurate in this cases... missing exact arithmetic on constants
-	TestCase{I, "const_3", "const c3 = 0.1+0.2; c3", float64(0.1) + float64(0.2), nil},
-	TestCase{I, "const_4", "const c4 = c3/3; c4", (float64(0.1) + float64(0.2)) / 3, nil},
+	TestCase{C, "const_3", "const c3 = 0.1+0.2; c3", float64(0.1) + float64(0.2), nil},
+	TestCase{C, "const_4", "const c4 = c3/3; c4", (float64(0.1) + float64(0.2)) / 3, nil},
 
 	// the fast interpreter instead *IS* accurate, thanks to exact arithmetic on untyped constants
 	TestCase{F, "const_3", "const c3 = 0.1+0.2; c3", 0.1 + 0.2, nil},
@@ -237,8 +237,8 @@ var testcases = []TestCase{
 	TestCase{A, "var_shift_overflow", "v3 << 13", uint16(32768), nil},
 
 	// test division by constant power-of-two
-	TestCase{I, "var_div_1", "v3 = 11; v3 / 2", uint64(11) / 2, nil}, // classic interpreter is not type-accurate here
-	TestCase{I, "var_div_2", "v3 = 63; v3 / 8", uint64(63) / 8, nil},
+	TestCase{C, "var_div_1", "v3 = 11; v3 / 2", uint64(11) / 2, nil}, // classic interpreter is not type-accurate here
+	TestCase{C, "var_div_2", "v3 = 63; v3 / 8", uint64(63) / 8, nil},
 	TestCase{F, "var_div_1", "v3 = 11; v3 / 2", uint16(11) / 2, nil},
 	TestCase{F, "var_div_2", "v3 = 63; v3 / 8", uint16(63) / 8, nil},
 
@@ -256,8 +256,8 @@ var testcases = []TestCase{
 	TestCase{A, "var_div_13", "v0 =-63; v0 /-8", -63 / -8, nil},
 
 	// test remainder by constant power-of-two
-	TestCase{I, "var_rem_1", "v3 = 17; v3 % 4", uint64(17) % 4, nil}, // classic interpreter is not type-accurate here
-	TestCase{I, "var_rem_2", "v3 = 61; v3 % 8", uint64(61) % 8, nil},
+	TestCase{C, "var_rem_1", "v3 = 17; v3 % 4", uint64(17) % 4, nil}, // classic interpreter is not type-accurate here
+	TestCase{C, "var_rem_2", "v3 = 61; v3 % 8", uint64(61) % 8, nil},
 	TestCase{F, "var_rem_1", "v3 = 17; v3 % 4", uint16(17) % 4, nil},
 	TestCase{F, "var_rem_2", "v3 = 61; v3 % 8", uint16(61) % 8, nil},
 
@@ -285,7 +285,7 @@ var testcases = []TestCase{
 
 	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
-	TestCase{I, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", csi, nil},
+	TestCase{C, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", csi, nil},
 	TestCase{F, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", fsi, nil},
 	TestCase{F, "type_struct_0", "type PairPrivate struct { a, b rune }; var pp PairPrivate; pp.a+pp.b", rune(0), nil},
 	TestCase{A, "type_struct_1", "type Pair struct { A rune; B string }; var pair Pair; pair", struct {
@@ -452,7 +452,7 @@ var testcases = []TestCase{
 	TestCase{F, "field_addr_1", "ppair := &triple.Pair; ppair.A", 'b', nil},
 	TestCase{F, "field_addr_2", "ppair.A++; triple.Pair.A", 'c', nil},
 
-	TestCase{I, "import", `import ( "fmt"; "time"; "io" )`, "io", nil},
+	TestCase{C, "import", `import ( "fmt"; "time"; "io" )`, "io", nil},
 	TestCase{F, "import", `import ( "fmt"; "time"; "io" )`, nil, []interface{}{}},
 
 	TestCase{A, "goroutine_1", `go seti(9); time.Sleep(time.Second/50); i`, 9, nil},
@@ -526,6 +526,9 @@ var testcases = []TestCase{
 	TestCase{F, "interface_method_to_func_1", "f1 := fmt.Stringer.String; f1(time.Hour)", "1h0m0s", nil},
 	TestCase{F, "interface_method_to_func_2", "f2 := io.ReadWriter.Read; f2 != nil", true, nil},
 	TestCase{F, "interface_method_to_func_3", "type Fooer interface { Foo() }; Fooer.Foo != nil", true, nil},
+
+	// FIXME currently fails on fast interpreter (classic does not even try)
+	TestCase{0, "interface_method_to_func_4", "type Reader interface { io.Reader }; Reader.Read != nil", true, nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{A, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
@@ -719,9 +722,9 @@ var testcases = []TestCase{
 	TestCase{A, "macro", "~macro second_arg(a,b,c interface{}) interface{} { return b }; v = 98; v", uint32(98), nil},
 	TestCase{A, "macro_call", "second_arg;1;v;3", uint32(98), nil},
 	TestCase{A, "macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
-	TestCase{I, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
+	TestCase{C, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
 	TestCase{A, "eval", "Eval(~quote{1+2})", 3, nil},
-	TestCase{I, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
+	TestCase{C, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
