@@ -31,17 +31,25 @@ import (
 	"reflect"
 )
 
+// create []*types.Func suitable for types.NewInterface.
+// makes a copy of each methods[i].gunderlying().(*types.Signature)
+// because types.NewInterface will destructively modify them!
 func toGoFuncs(names []string, methods []Type) []*types.Func {
 	gfuns := make([]*types.Func, len(methods))
 	for i, t := range methods {
 		switch gsig := t.gunderlying().(type) {
 		case *types.Signature:
+			gsig = cloneGoSignature(gsig)
 			gfuns[i] = types.NewFunc(token.NoPos, nil, names[i], gsig)
 		default:
 			errorf(t, "interface contains non-function: %s %v", names[i], t)
 		}
 	}
 	return gfuns
+}
+
+func cloneGoSignature(gsig *types.Signature) *types.Signature {
+	return types.NewSignature(gsig.Recv(), gsig.Params(), gsig.Results(), gsig.Variadic())
 }
 
 func toGoNamedTypes(ts []Type) []*types.Named {

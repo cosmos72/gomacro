@@ -167,8 +167,8 @@ func (t *xtype) method(i int) Method {
 		} else {
 			rfunctype = rmethod.Type
 		}
+		t.methodvalues[i] = rfunc
 	}
-	t.methodvalues[i] = rfunc
 	return t.makemethod(i, gfunc, &t.methodvalues, rfunctype) // lock already held
 }
 

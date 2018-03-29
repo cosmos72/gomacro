@@ -41,24 +41,52 @@ func identicalType(t, u Type) bool {
 	return xt == yt || xt.identicalTo(yt)
 }
 
-func (m *Types) add(t Type) {
-	if t.Kind() == reflect.Interface {
-		rtype := t.ReflectType()
-		rkind := rtype.Kind()
-		if rkind != reflect.Interface && (rkind != reflect.Ptr || rtype.Elem().Kind() != reflect.Struct) {
-			errorf(t, "bug! inconsistent type <%v>: has kind = %s but its Type.Reflect() is %s\n\tinstead of interface or pointer-to-struct: <%v>", t, t.Kind(), rtype.Kind(), t.ReflectType())
-		}
+// go/types.InterfaceOf(methods, embeddeds) modifies the methods argument and adds receiver to them,
+// thwarting our attempts to keep go/types.Type and reflect.Type in sync in the cache.
+// So it would be safer to set enableCache = false, but...
+//
+// Currently, enableCache = false breaks TestFast/method_on_ptr (and possibly other tests)
+// FIXME: fix TestFast/method_on_ptr, then consider setting enableCache = false
+const (
+	enableCache = true
+
+	enableWarnOnCacheMismatch = false
+)
+
+func warnOnCacheMismatch(gtype types.Type, rtype reflect.Type, rcached reflect.Type) {
+	if enableWarnOnCacheMismatch {
+		debugf("overwriting mismatched reflect.Type found in cache for type %v:\n\tcurrent reflect.Type: %v\n\tcached  reflect.Type: %v",
+			gtype, rtype, rcached)
 	}
-	m.gmap.Set(t.GoType(), t)
-	// debugf("added type to cache: %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
+}
+
+func (m *Types) add(t Type) {
+	if enableCache {
+		switch t.Kind() {
+		case reflect.Func:
+			t.NumIn() // check consistency
+
+		case reflect.Interface:
+			rtype := t.ReflectType()
+			rkind := rtype.Kind()
+			if rkind != reflect.Interface && (rkind != reflect.Ptr || rtype.Elem().Kind() != reflect.Struct) {
+				errorf(t, "bug! inconsistent type <%v>: has kind = %s but its Type.Reflect() is %s\n\tinstead of interface or pointer-to-struct: <%v>", t, t.Kind(), rtype.Kind(), t.ReflectType())
+			}
+		}
+		m.gmap.Set(t.GoType(), t)
+		// debugf("added type to cache: %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
+	}
 }
 
 func (v *Universe) unique(t Type) Type {
 	gtype := t.GoType()
 	ret := v.Types.gmap.At(gtype)
 	if ret != nil {
-		// debugf("unique: found type in cache: %v for %v <%v> <%v>", ret, t.Kind(), gtype, t.ReflectType())
-		return ret.(Type)
+		tret := ret.(Type)
+		if tret.ReflectType() == t.ReflectType() {
+			return t
+		}
+		warnOnCacheMismatch(gtype, t.ReflectType(), tret.ReflectType())
 	}
 	v.add(t)
 	return t
@@ -74,8 +102,10 @@ func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.
 	ret := v.Types.gmap.At(gtype)
 	if ret != nil {
 		t := ret.(Type)
-		// debugf("found type in cache:\n\t    %v <%v> <%v>\n\tfor %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType(), kind, gtype, rtype)
-		return t
+		if t.ReflectType() == rtype {
+			return t
+		}
+		warnOnCacheMismatch(gtype, rtype, t.ReflectType())
 	}
 	if v.BasicTypes == nil {
 		// lazy creation of basic types

@@ -152,6 +152,9 @@ func TestInterfaceError(t *testing.T) {
 	is(t, typ.NumExplicitMethod(), 1)
 	is(t, typ.NumAllMethod(), 1)
 
+	methodtyp = typ.Method(0).Type
+	is(t, methodtyp.NumIn(), 1) // one input parameter: the method receiver
+
 	is(t, typ.Implements(u.TypeOfError), true)
 }
 

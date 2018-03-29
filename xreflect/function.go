@@ -26,6 +26,7 @@
 package xreflect
 
 import (
+	"fmt"
 	"go/types"
 	"reflect"
 )
@@ -59,8 +60,9 @@ func (t *xtype) In(i int) Type {
 		xerrorf(t, "In of non-func type %v", t)
 	}
 	gtype := t.gunderlying().(*types.Signature)
+	recv := gtype.Recv()
 	var va *types.Var
-	if recv := gtype.Recv(); recv != nil {
+	if recv != nil {
 		// include the receiver as first parameter
 		if i == 0 {
 			va = recv
@@ -70,6 +72,7 @@ func (t *xtype) In(i int) Type {
 	} else {
 		va = gtype.Params().At(i)
 	}
+	t.NumIn() // for consistency check
 	return t.universe.MakeType(va.Type(), t.rtype.In(i))
 }
 
@@ -79,15 +82,23 @@ func (t *xtype) NumIn() int {
 	if t.Kind() != reflect.Func {
 		xerrorf(t, "NumIn of non-func type %v", t)
 	}
-	var nparams, nrecv int
+	n := 0
 	gtype := t.gunderlying().(*types.Signature)
 	if gtype.Recv() != nil {
-		nrecv = 1
+		n++
 	}
 	if params := gtype.Params(); params != nil {
-		nparams = params.Len()
+		n += params.Len()
 	}
-	return nparams + nrecv
+	if t.rtype.NumIn() != n {
+		var srecv string
+		if gtype.Recv() != nil {
+			srecv = fmt.Sprintf(" - including receiver type %v", gtype.Recv().Type())
+		}
+		xerrorf(t, `inconsistent function type: %v has %d params%s
+      but its reflect.Type: %v has %d params`, t, n, srecv, t.rtype, t.rtype.NumIn())
+	}
+	return n
 }
 
 // NumOut returns a function type's output parameter count.
