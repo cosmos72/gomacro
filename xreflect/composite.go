@@ -65,7 +65,7 @@ func (t *xtype) elem() Type {
 		return t.universe.maketype(gtype.Elem(), rtype.Elem())
 	default:
 		xerrorf(t, "Elem of invalid type %v", t)
-		return nilT
+		return nil
 	}
 }
 

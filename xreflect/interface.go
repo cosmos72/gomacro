@@ -68,36 +68,38 @@ func toGoNamedTypes(ts []Type) []*types.Named {
 // i.e. its method set is not computed yet.
 // Once you know that methods and embedded interfaces are complete,
 // call Complete() to compute the method set and mark this Type as complete.
-func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds []Type) Type {
-	gmethods := toGoFuncs(methodnames, methods)
+func (v *Universe) InterfaceOf(methodnames []string, methodtypes []Type, embeddeds []Type) Type {
+	gmethods := toGoFuncs(methodnames, methodtypes)
 	gembeddeds := toGoNamedTypes(embeddeds)
 
-	// for reflect.Type, approximate an interface as a struct:
+	gtype := types.NewInterface(gmethods, gembeddeds)
+	gtype.Complete()
+
+	// for reflect.Type, approximate an interface as a pointer-to-struct:
 	// one field for the wrapped object: type is interface{},
 	// one field for each explicit method: type is the method type i.e. a function
-	// Note: Complete() will overwrite our generated reflect.Type
-	//       with a struct also containing all methods from embedded interfaces
-	nemb := len(embeddeds)
-	nextra := 0
-	if nemb != 0 {
-		nextra = 1
-	}
-	rfields := make([]reflect.StructField, 1+nextra+len(methods))
+	rfields := make([]reflect.StructField, 2+len(methodtypes), gtype.NumMethods()+2)
 	rfields[0] = approxInterfaceHeader()
+	rfields[1] = approxInterfaceEmbeddeds(embeddeds)
 
-	if nemb != 0 {
-		rfields[1] = approxInterfaceEmbeddeds(embeddeds)
+	for i, methodtype := range methodtypes {
+		rfields[i+2] = approxInterfaceMethod(methodnames[i], methodtype.ReflectType())
 	}
-	for i, method := range methods {
-		rfields[i+nextra+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
+	for _, e := range embeddeds {
+		n := e.NumMethod()
+		for i := 0; i < n; i++ {
+			method := e.Method(i)
+			rfields = append(rfields, approxInterfaceMethod(method.Name, method.Type.ReflectType()))
+		}
 	}
-	return v.maketype3(
-		reflect.Interface,
-		types.NewInterface(gmethods, gembeddeds),
-		// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
-		// Use a pointer to the proxy struct
-		reflect.PtrTo(reflect.StructOf(rfields)),
-	)
+	// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
+	// Use a pointer to the proxy struct
+	rtype := reflect.PtrTo(reflect.StructOf(rfields))
+	t := v.maketype3(reflect.Interface, gtype, rtype)
+	// debugf("InterfaceOf: new type %v", t)
+	// debugf("           types.Type %v", gtype)
+	// debugf("         reflect.Type %v", rtype)
+	return t
 }
 
 // Complete marks an interface type as complete and computes wrapper methods for embedded fields.
@@ -107,8 +109,6 @@ func (t *xtype) Complete() Type {
 	if t.kind != reflect.Interface {
 		xerrorf(t, "Complete of non-interface %v", t)
 	}
-	gtype := t.gtype.Underlying().(*types.Interface)
-	gtype.Complete()
 	return wrap(t)
 }
 
@@ -145,7 +145,7 @@ func approxInterfaceMethod(name string, rtype reflect.Type) reflect.StructField 
 		name = "_"
 	}
 	return reflect.StructField{
-		Name: toExportedFieldName(name, nilT, false),
+		Name: toExportedFieldName(name, nil, false),
 		Type: rtype,
 	}
 }

@@ -158,7 +158,7 @@ func ToReflectKind(gkind types.BasicKind) reflect.Kind {
 	case types.UntypedNil:
 		kind = reflect.Invalid
 	default:
-		errorf(nilT, "unsupported types.BasicKind: %v", gkind)
+		errorf(nil, "unsupported types.BasicKind: %v", gkind)
 	}
 	return kind
 }
@@ -229,7 +229,7 @@ func ToBasicKind(kind reflect.Kind, untyped bool) types.BasicKind {
 	case reflect.Invalid:
 		gkind = types.UntypedNil
 	default:
-		errorf(nilT, "unsupported refletc.Kind: %v", kind)
+		errorf(nil, "unsupported refletc.Kind: %v", kind)
 	}
 	return gkind
 }

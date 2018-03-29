@@ -1,4 +1,4 @@
-// +build !gomacro_xreflect_strict
+// +build gomacro_xreflect_easy
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros
@@ -240,8 +240,6 @@ type Type interface {
 	// It panics if the type is unnamed
 	GetMethods() *[]reflect.Value
 }
-
-var nilT Type
 
 func unwrap(t Type) *xtype {
 	if t == nil {

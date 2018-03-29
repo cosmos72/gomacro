@@ -113,7 +113,7 @@ func (t *xtype) Out(i int) Type {
 }
 
 func (v *Universe) FuncOf(in []Type, out []Type, variadic bool) Type {
-	return v.MethodOf(nilT, in, out, variadic)
+	return v.MethodOf(nil, in, out, variadic)
 }
 
 /*

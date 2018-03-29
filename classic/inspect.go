@@ -78,12 +78,12 @@ func (env *Env) showMethods(t r.Type, xt xr.Type) {
 		if xt.Kind() == r.Ptr {
 			xt = xt.Elem()
 		}
-		n := xt.NumExplicitMethod()
+		n := xt.NumMethod()
 		if n == 0 {
-			env.Fprintf(env.Stdout, "no explicit methods of %v\n", xt)
+			env.Fprintf(env.Stdout, "no methods of %v\n", xt)
 			return
 		}
-		env.Fprintf(env.Stdout, "explicit methods of %v:\n", xt)
+		env.Fprintf(env.Stdout, "methods of %v:\n", xt)
 		for i := 0; i < n; i++ {
 			env.Fprintf(env.Stdout, "    m%d. %v\n", i, xt.Method(i).GoFun)
 		}

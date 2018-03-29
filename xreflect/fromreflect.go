@@ -46,7 +46,7 @@ func (v *Universe) TypeOf(rvalue interface{}) Type {
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
 func (v *Universe) FromReflectType(rtype reflect.Type) Type {
 	if rtype == nil {
-		return nilT
+		return nil
 	}
 	if v.ThreadSafe {
 		defer un(lock(v))
@@ -56,7 +56,7 @@ func (v *Universe) FromReflectType(rtype reflect.Type) Type {
 
 func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	if rtype == nil {
-		return nilT
+		return nil
 	}
 	if v.BasicTypes == nil {
 		v.init()
@@ -104,7 +104,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	var u Type
 	switch k := rtype.Kind(); k {
 	case reflect.Invalid:
-		return nilT
+		return nil
 	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
 		reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String,
@@ -296,7 +296,7 @@ func (v *Universe) fromReflectFunc(rtype reflect.Type) Type {
 func (v *Universe) fromReflectMethod(rtype reflect.Type) Type {
 	nin, nout := rtype.NumIn(), rtype.NumOut()
 	if nin == 0 {
-		errorf(nilT, "fromReflectMethod: function type has zero arguments, cannot use first one as receiver: <%v>", rtype)
+		errorf(nil, "fromReflectMethod: function type has zero arguments, cannot use first one as receiver: <%v>", rtype)
 	}
 	in := make([]Type, nin)
 	out := make([]Type, nout)
@@ -366,9 +366,12 @@ func (v *Universe) fromReflectInterface(rtype reflect.Type) Type {
 // that contains our own conventions to emulate an interface
 func isReflectInterfaceStruct(rtype reflect.Type) bool {
 	if rtype.Kind() == reflect.Struct {
-		if n := rtype.NumField(); n != 0 {
+		if n := rtype.NumField(); n >= 2 {
 			rfield := rtype.Field(0)
-			return rfield.Name == StrGensymInterface && rfield.Type == reflectTypeOfInterfaceHeader
+			if rfield.Name == StrGensymInterface && rfield.Type == reflectTypeOfInterfaceHeader {
+				rfield = rtype.Field(1)
+				return rfield.Name == StrGensymEmbedded && rfield.Type.Kind() == reflect.Array && rfield.Type.Len() == 0
+			}
 		}
 	}
 	return false
@@ -378,7 +381,7 @@ func isReflectInterfaceStruct(rtype reflect.Type) bool {
 // that contains our own conventions to emulate an interface, into a Type
 func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 	if rtype.Kind() != reflect.Ptr || rtype.Elem().Kind() != reflect.Struct {
-		errorf(nilT, "internal error: fromReflectInterfacePtrStruct expects pointer-to-struct reflect.Type, found: %v", rtype)
+		errorf(nil, "internal error: fromReflectInterfacePtrStruct expects pointer-to-struct reflect.Type, found: %v", rtype)
 	}
 	rebuild := v.rebuild()
 	rtype = rtype.Elem()

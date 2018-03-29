@@ -62,6 +62,18 @@ func isdeepequal(t *testing.T, actual interface{}, expected interface{}) {
 	}
 }
 
+func isfieldequal(t *testing.T, actual StructField, expected StructField) {
+	is(t, actual.Name, expected.Name)
+	is(t, actual.Pkg, expected.Pkg)
+	if !actual.Type.IdenticalTo(expected.Type) {
+		fail(t, actual.Type, expected.Type)
+	}
+	is(t, actual.Tag, expected.Tag)
+	is(t, actual.Offset, expected.Offset)
+	isdeepequal(t, actual.Index, expected.Index)
+	is(t, actual.Anonymous, expected.Anonymous)
+}
+
 func istype(t *testing.T, actual interface{}, expected interface{}) {
 	is(t, reflect.TypeOf(actual), reflect.TypeOf(expected))
 }
@@ -122,6 +134,7 @@ func TestInterface1(t *testing.T) {
 	rtype := reflect.PtrTo(
 		reflect.StructOf([]reflect.StructField{
 			approxInterfaceHeader(),
+			approxInterfaceEmbeddeds(nil),
 			reflect.StructField{Name: "Cap", Type: methodtyp.ReflectType()},
 			reflect.StructField{Name: "Len", Type: methodtyp.ReflectType()},
 		}))
@@ -252,12 +265,12 @@ func TestEmbedded(t *testing.T) {
 	efield := etyp.Field(0)
 	field.Index = efield.Index
 	field.Offset = efield.Offset
-	isdeepequal(t, field, efield)
+	isfieldequal(t, field, efield)
 
 	// access anonymous field Struct.Box
 	field, count = typ.FieldByName("Box", "")
 	is(t, count, 1)
-	isdeepequal(t, field, typ.Field(1))
+	isfieldequal(t, field, typ.Field(1))
 }
 
 func TestFromReflect0(t *testing.T) {
@@ -336,6 +349,7 @@ func TestFromReflect4(t *testing.T) {
 	rtype := reflect.PtrTo(
 		reflect.StructOf([]reflect.StructField{
 			approxInterfaceHeader(),
+			approxInterfaceEmbeddeds(nil),
 			reflect.StructField{Name: "String", Type: reflect.TypeOf((*ToString)(nil)).Elem()},
 		}))
 	typ := u.NamedOf("Stringer", "io")
@@ -347,6 +361,7 @@ func TestFromReflect4(t *testing.T) {
 	expected := reflect.PtrTo(
 		reflect.StructOf([]reflect.StructField{
 			approxInterfaceHeader(),
+			approxInterfaceEmbeddeds(nil),
 			reflect.StructField{Name: "String", Type: reflect.TypeOf((*func() string)(nil)).Elem()},
 		}))
 	is(t, typ.Kind(), reflect.Interface)

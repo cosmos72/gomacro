@@ -150,7 +150,8 @@ var (
 	)
 	fti = r.StructOf(
 		[]r.StructField{
-			r.StructField{Name: StrGensymInterface, Type: r.TypeOf((*xr.InterfaceHeader)(nil)).Elem()},
+			r.StructField{Name: StrGensymInterface, Type: r.TypeOf(xr.InterfaceHeader{})},
+			r.StructField{Name: StrGensymEmbedded, Type: r.TypeOf([0]struct{}{})},
 			r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
 		},
 	)

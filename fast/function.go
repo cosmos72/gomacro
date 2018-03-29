@@ -129,7 +129,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 			return env.Code[env.IP], env
 		}
 	}
-	c.Code.Append(stmt, funcdecl.Pos())
+	c.Append(stmt, funcdecl.Pos())
 	panicking = false
 }
 
@@ -214,7 +214,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 			return env.Code[env.IP], env
 		}
 	}
-	c.Code.Append(stmt, funcdecl.Pos())
+	c.Append(stmt, funcdecl.Pos())
 }
 
 // FuncLit compiles a function literal, i.e. a closure.

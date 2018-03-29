@@ -67,9 +67,9 @@ func (v *Universe) unique(t Type) Type {
 // all unexported methods assume lock is already held
 func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.Type) Type {
 	if gtype == nil {
-		errorf(nilT, "MakeType of nil types.Type")
+		errorf(nil, "MakeType of nil types.Type")
 	} else if rtype == nil {
-		errorf(nilT, "MakeType of nil reflect.Type")
+		errorf(nil, "MakeType of nil reflect.Type")
 	}
 	ret := v.Types.gmap.At(gtype)
 	if ret != nil {

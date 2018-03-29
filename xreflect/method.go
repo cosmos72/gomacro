@@ -124,17 +124,15 @@ func (t *xtype) method(i int) Method {
 
 	rtype := t.rtype
 	var rfunctype reflect.Type
-	rfuncs := &t.methodvalues
 	rfunc := t.methodvalues[i]
 	if rfunc.Kind() == reflect.Func {
 		// easy, method is cached already
 		rfunctype = rfunc.Type()
-	} else if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
+	} else if _, ok := t.gtype.Underlying().(*types.Interface); ok {
 		if rtype.Kind() == reflect.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
 			// rtype is our emulated interface type.
-			// it's a pointer to a struct containing: InterfaceHeader, embeddeds, methods (without receiver)
-			skip := gtype.NumEmbeddeds() + 1
-			rfield := rtype.Elem().Field(i + skip)
+			// it's a pointer to a struct containing: InterfaceHeader, [0]struct { embeddeds }, methods (without receiver)
+			rfield := rtype.Elem().Field(i + 2)
 			rfunctype = addreceiver(rtype, rfield.Type)
 		} else if rtype.Kind() != reflect.Interface {
 			xerrorf(t, "inconsistent interface type <%v>: expecting interface reflect.Type, found <%v>", t, rtype)
@@ -167,11 +165,11 @@ func (t *xtype) method(i int) Method {
 				xerrorf(t, "type <%v>: reflect method %q not found", t, gfunc.Name())
 			}
 		} else {
-			t.methodvalues[i] = rfunc
 			rfunctype = rmethod.Type
 		}
 	}
-	return t.makemethod(i, gfunc, rfuncs, rfunctype) // lock already held
+	t.methodvalues[i] = rfunc
+	return t.makemethod(i, gfunc, &t.methodvalues, rfunctype) // lock already held
 }
 
 func addreceiver(recv reflect.Type, rtype reflect.Type) reflect.Type {
