@@ -40,7 +40,7 @@ func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 		e.ConstTo(t)
 	}
 
-	if e.Type.IdenticalTo(t) {
+	if e.Type != nil && e.Type.IdenticalTo(t) {
 		return e
 	} else if e.Type == nil && IsNillableKind(t.Kind()) {
 		e.Type = t

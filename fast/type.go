@@ -442,9 +442,12 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	case kout == r.Interface:
 		if tout.NumMethod() == 0 {
 			// type assertion to empty interface.
-			// everything, including nil, implements an empty interface
+			// everything, excluding nil, implements an empty interface
 			ret = func(env *Env) (r.Value, []r.Value) {
 				v, _ := g.extractFromInterface(fun(env))
+				if v == Nil {
+					return fail[0], fail
+				}
 				v = v.Convert(rtout)
 				return v, []r.Value{v, True}
 			}
@@ -641,9 +644,12 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 	case r.Interface:
 		if tout.NumMethod() == 0 {
 			// type assertion to empty interface.
-			// everything, including nil, implements an empty interface
+			// everything, excluding untyped nil, implements an empty interface
 			ret = func(env *Env) r.Value {
 				v, _ := g.extractFromInterface(fun(env))
+				if v == Nil {
+					typeassertpanic(nil, nil, tin, tout)
+				}
 				return v.Convert(rtout)
 			}
 		} else if tin.Implements(tout) {
