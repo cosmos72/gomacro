@@ -92,7 +92,7 @@ func (t *xtype) AddMethod(name string, signature Type) int {
 	if signature.Kind() != reflect.Func {
 		xerrorf(t, "AddMethod on <%v> of non-function: %v", t, signature)
 	}
-	gsig := signature.underlying().(*types.Signature)
+	gsig := signature.gunderlying().(*types.Signature)
 	// accept both signatures "non-nil receiver" and "nil receiver, use the first parameter as receiver"
 	grecv := gsig.Recv()
 	if grecv == nil && gsig.Params().Len() != 0 {

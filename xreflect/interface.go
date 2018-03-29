@@ -34,11 +34,11 @@ import (
 func toGoFuncs(names []string, methods []Type) []*types.Func {
 	gfuns := make([]*types.Func, len(methods))
 	for i, t := range methods {
-		switch gsig := t.underlying().(type) {
+		switch gsig := t.gunderlying().(type) {
 		case *types.Signature:
 			gfuns[i] = types.NewFunc(token.NoPos, nil, names[i], gsig)
 		default:
-			errorf(t, "InterfaceOf: %d-th 'method' argument is not a function type: %v", i, t)
+			errorf(t, "interface contains non-function: %s %v", names[i], t)
 		}
 	}
 	return gfuns
@@ -48,9 +48,13 @@ func toGoNamedTypes(ts []Type) []*types.Named {
 	gnameds := make([]*types.Named, len(ts))
 	for i, t := range ts {
 		if gt, ok := t.GoType().(*types.Named); ok {
-			gnameds[i] = gt
+			if t.Kind() == reflect.Interface {
+				gnameds[i] = gt
+			} else {
+				errorf(t, "interface contains embedded non-interface: %v", t)
+			}
 		} else {
-			errorf(t, "InterfaceOf: %d-th 'embedded' argument is not a named type: %v", i, t)
+			errorf(t, "interface contains embedded interface without name: %v", t)
 		}
 	}
 	return gnameds
@@ -70,16 +74,22 @@ func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds [
 
 	// for reflect.Type, approximate an interface as a struct:
 	// one field for the wrapped object: type is interface{},
-	// one field for each embedded interface: type is the embedded interface type
-	// one field for each method: type is the method type i.e. a function
+	// one field for each explicit method: type is the method type i.e. a function
+	// Note: Complete() will overwrite our generated reflect.Type
+	//       with a struct also containing all methods from embedded interfaces
 	nemb := len(embeddeds)
-	rfields := make([]reflect.StructField, 1+nemb+len(methods))
+	nextra := 0
+	if nemb != 0 {
+		nextra = 1
+	}
+	rfields := make([]reflect.StructField, 1+nextra+len(methods))
 	rfields[0] = approxInterfaceHeader()
-	for i, emb := range embeddeds {
-		rfields[i+1] = approxInterfaceEmbedded(emb)
+
+	if nemb != 0 {
+		rfields[1] = approxInterfaceEmbeddeds(embeddeds)
 	}
 	for i, method := range methods {
-		rfields[i+nemb+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
+		rfields[i+nextra+1] = approxInterfaceMethod(methodnames[i], method.ReflectType())
 	}
 	return v.maketype3(
 		reflect.Interface,
@@ -93,12 +103,13 @@ func (v *Universe) InterfaceOf(methodnames []string, methods []Type, embeddeds [
 // Complete marks an interface type as complete and computes wrapper methods for embedded fields.
 // It must be called by users of InterfaceOf after the interface's embedded types are fully defined
 // and before using the interface type in any way other than to form other types.
-func (t *xtype) Complete() {
+func (t *xtype) Complete() Type {
 	if t.kind != reflect.Interface {
 		xerrorf(t, "Complete of non-interface %v", t)
 	}
 	gtype := t.gtype.Underlying().(*types.Interface)
 	gtype.Complete()
+	return wrap(t)
 }
 
 // utilities for InterfaceOf()
@@ -110,8 +121,18 @@ func approxInterfaceHeader() reflect.StructField {
 	}
 }
 
+func approxInterfaceEmbeddeds(embeddeds []Type) reflect.StructField {
+	fields := make([]reflect.StructField, len(embeddeds))
+	for i, t := range embeddeds {
+		fields[i] = approxInterfaceEmbedded(t)
+	}
+	return reflect.StructField{
+		Name: StrGensymEmbedded,
+		Type: reflect.ArrayOf(0, reflect.StructOf(fields)),
+	}
+}
+
 func approxInterfaceEmbedded(t Type) reflect.StructField {
-	// embedded interfaces are always anonymous
 	return reflect.StructField{
 		Name: toExportedFieldName("", t, true),
 		Type: t.ReflectType(),
@@ -124,7 +145,7 @@ func approxInterfaceMethod(name string, rtype reflect.Type) reflect.StructField 
 		name = "_"
 	}
 	return reflect.StructField{
-		Name: toExportedFieldName(name, nil, false),
+		Name: toExportedFieldName(name, nilT, false),
 		Type: rtype,
 	}
 }

@@ -37,10 +37,20 @@ func (c *Comp) TypeInterface(node *ast.InterfaceType) xr.Type {
 	if node.Methods == nil || len(node.Methods.List) == 0 {
 		return c.TypeOfInterface()
 	}
-	methodtypes, methodnames := c.TypeFields(node.Methods)
+	types, names := c.TypeFields(node.Methods)
 
-	// TODO embedded interfaces
-	return c.Universe.InterfaceOf(methodnames, methodtypes, nil)
+	// parser returns embedded interfaces as unnamed fields
+	var methodnames []string
+	var methodtypes, embeddedtypes []xr.Type
+	for i, typ := range types {
+		if i < len(names) && len(names[i]) != 0 {
+			methodnames = append(methodnames, names[i])
+			methodtypes = append(methodtypes, typ)
+		} else {
+			embeddedtypes = append(embeddedtypes, typ)
+		}
+	}
+	return c.Universe.InterfaceOf(methodnames, methodtypes, embeddedtypes)
 }
 
 // InterfaceProxy returns the proxy struct that implements a compiled interface

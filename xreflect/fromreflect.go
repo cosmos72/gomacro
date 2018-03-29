@@ -46,7 +46,7 @@ func (v *Universe) TypeOf(rvalue interface{}) Type {
 // Conversions from reflect.Type to Type and back are not exact for the same reasons.
 func (v *Universe) FromReflectType(rtype reflect.Type) Type {
 	if rtype == nil {
-		return nil
+		return nilT
 	}
 	if v.ThreadSafe {
 		defer un(lock(v))
@@ -56,16 +56,16 @@ func (v *Universe) FromReflectType(rtype reflect.Type) Type {
 
 func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	if rtype == nil {
-		return nil
+		return nilT
 	}
 	if v.BasicTypes == nil {
 		v.init()
 	}
 	t := v.BasicTypes[rtype.Kind()]
-	if t != nil && t.ReflectType() == rtype {
+	if unwrap(t) != nil && t.ReflectType() == rtype {
 		return t
 	}
-	if t = v.ReflectTypes[rtype]; t != nil {
+	if t = v.ReflectTypes[rtype]; unwrap(t) != nil {
 		// debugf("found rtype in cache: %v -> %v (%v)", rtype, t, t.ReflectType())
 		// time.Sleep(100 * time.Millisecond)
 		return t
@@ -74,7 +74,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	tryresolve := v.TryResolve
 	if tryresolve != nil && len(name) != 0 {
 		t = tryresolve(name, rtype.PkgPath())
-		if t != nil {
+		if unwrap(t) != nil {
 			return t
 		}
 	}
@@ -91,7 +91,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	// otherwise we may get an infinite recursion
 	if len(name) != 0 {
 		if !v.rebuild() {
-			if t = v.namedTypeFromImport(rtype); t != nil {
+			if t = v.namedTypeFromImport(rtype); unwrap(t) != nil {
 				// debugf("found type in import: %v -> %v", t, t.ReflectType())
 				return t
 			}
@@ -104,7 +104,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	var u Type
 	switch k := rtype.Kind(); k {
 	case reflect.Invalid:
-		return nil
+		return nilT
 	case reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
 		reflect.Float32, reflect.Float64, reflect.Complex64, reflect.Complex128, reflect.String,
@@ -129,7 +129,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	default:
 		errorf(t, "unsupported reflect.Type %v", rtype)
 	}
-	if t == nil {
+	if unwrap(t) == nil {
 		t = u
 		// cache before adding methods - otherwise we get an infinite recursion
 		// if u is a pointer to named type with methods that reference the named type
@@ -238,7 +238,7 @@ func (v *Universe) fromReflectFields(rfields []reflect.StructField) []StructFiel
 func (v *Universe) named(t Type, name string, pkgpath string) Type {
 	if t.Name() != name || t.PkgPath() != pkgpath {
 		t2 := v.namedOf(name, pkgpath)
-		t2.SetUnderlying(v.maketype(t.underlying(), t.ReflectType()))
+		t2.SetUnderlying(v.maketype(t.gunderlying(), t.ReflectType()))
 		t = t2
 	}
 	return t
@@ -296,7 +296,7 @@ func (v *Universe) fromReflectFunc(rtype reflect.Type) Type {
 func (v *Universe) fromReflectMethod(rtype reflect.Type) Type {
 	nin, nout := rtype.NumIn(), rtype.NumOut()
 	if nin == 0 {
-		errorf(nil, "fromReflectMethod: function type has zero arguments, cannot use first one as receiver: <%v>", rtype)
+		errorf(nilT, "fromReflectMethod: function type has zero arguments, cannot use first one as receiver: <%v>", rtype)
 	}
 	in := make([]Type, nin)
 	out := make([]Type, nout)
@@ -378,7 +378,7 @@ func isReflectInterfaceStruct(rtype reflect.Type) bool {
 // that contains our own conventions to emulate an interface, into a Type
 func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 	if rtype.Kind() != reflect.Ptr || rtype.Elem().Kind() != reflect.Struct {
-		errorf(nil, "internal error: fromReflectInterfacePtrStruct expects pointer-to-struct reflect.Type, found: %v", rtype)
+		errorf(nilT, "internal error: fromReflectInterfacePtrStruct expects pointer-to-struct reflect.Type, found: %v", rtype)
 	}
 	rebuild := v.rebuild()
 	rtype = rtype.Elem()
@@ -394,16 +394,13 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 	for i := 1; i < n; i++ {
 		rfield := rtype.Field(i)
 		name := rfield.Name
-		if strings.HasPrefix(name, StrGensymEmbedded) {
-			typename := name[len(StrGensymEmbedded):]
-			t := v.fromReflectType(rfield.Type)
-			if t.Kind() != reflect.Interface {
-				errorf(t, "FromReflectType: reflect.Type <%v> is an emulated interface containing the embedded interface <%v>.\n\tExtracting the latter returned a non-interface: %v", t)
+		if name == StrGensymEmbedded {
+			ts := v.fromReflectInterfaceEmbeddeds(rtype, rfield.Type)
+			for _, t := range ts {
+				gembeddeds = append(gembeddeds, t.GoType().(*types.Named))
 			}
-			t = v.named(t, typename, rfield.Type.PkgPath())
-			gembeddeds = append(gembeddeds, t.GoType().(*types.Named))
 			if rebuild {
-				rebuildfields[i] = approxInterfaceEmbedded(t)
+				rebuildfields[i] = approxInterfaceEmbeddeds(ts)
 			}
 		} else {
 			if strings.HasPrefix(name, StrGensymPrivate) {
@@ -425,6 +422,25 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 		rtype = reflect.PtrTo(reflect.StructOf(rebuildfields))
 	}
 	return v.maketype(types.NewInterface(gmethods, gembeddeds).Complete(), rtype)
+}
+
+func (v *Universe) fromReflectInterfaceEmbeddeds(rinterf, rtype reflect.Type) []Type {
+	if rtype.Kind() != reflect.Array || rtype.Len() != 0 || rtype.Elem().Kind() != reflect.Struct {
+		return nil
+	}
+	rtype = rtype.Elem()
+	n := rtype.NumField()
+	ts := make([]Type, n)
+	for i := 0; i < n; i++ {
+		f := rtype.Field(i)
+		t := v.fromReflectInterface(f.Type)
+		if t.Kind() != reflect.Interface {
+			errorf(t, `FromReflectType: reflect.Type <%v> is an emulated interface containing the embedded interface <%v>.
+	Extracting the latter returned a non-interface: %v`, rinterf, f.Type, t)
+		}
+		ts[i] = t
+	}
+	return ts
 }
 
 // fromReflectMap converts a reflect.Type with Kind reflect.map into a Type

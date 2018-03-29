@@ -1,4 +1,4 @@
-// +build !gomacro_xreflect_easy
+// +build gomacro_xreflect_strict
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros
@@ -37,6 +37,8 @@ import (
 // Type:s must be compared with IdenticalTo, not with ==
 // produce compile-time error on == between Type:s
 type Type []xtype
+
+var nilT Type
 
 // Align returns the alignment in bytes of a value of
 // this type when allocated in memory.
@@ -187,8 +189,7 @@ func (t Type) ChanDir() reflect.ChanDir {
 // and before using the interface type in any way other than to form other types.
 // Complete returns the receiver.
 func (t Type) Complete() Type {
-	t[0].Complete()
-	return t
+	return t[0].Complete()
 }
 
 // Elem returns a type's element type.
@@ -333,11 +334,11 @@ func (t Type) SetUnderlying(underlying Type) {
 	t[0].SetUnderlying(underlying)
 }
 
-// underlying returns the underlying types.Type of a type.
+// gunderlying returns the underlying types.Type of a type.
 // TODO implement Underlying() Type ?
 // Synthetizing the underlying reflect.Type is not possible for interface types,
 // or for struct types with embedded or unexported fields.
-func (t Type) underlying() types.Type {
+func (t Type) gunderlying() types.Type {
 	return t[0].gunderlying()
 }
 
@@ -352,9 +353,15 @@ func (t Type) GetMethods() *[]reflect.Value {
 }
 
 func wrap(t *xtype) Type {
-	return Type{*t}
+	if t != nil {
+		return Type{*t}
+	}
+	return nil
 }
 
 func unwrap(t Type) *xtype {
-	return &t[0]
+	if t != nil {
+		return &t[0]
+	}
+	return nil
 }

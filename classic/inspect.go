@@ -239,7 +239,11 @@ func (ip *Inspector) Enter(cmd string) {
 	}
 	var t r.Type
 	if f != Nil && f != None {
-		t = r.TypeOf(f.Interface()) // concrete type
+		if f.CanInterface() {
+			t = r.TypeOf(f.Interface()) // concrete type
+		} else {
+			t = f.Type()
+		}
 	}
 
 	switch dereferenceValue(f).Kind() { // dereference pointers on-the-fly

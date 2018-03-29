@@ -873,5 +873,5 @@ func (e *TypeAssertionError) Error() string {
 	if len(e.MissingMethod) == 0 {
 		return fmt.Sprintf("interface conversion: <%v> is <%v>, not <%v>", in, concr, e.Asserted)
 	}
-	return fmt.Sprintf("interface conversion: <%v> is not <%v>: missing method ", concr, e.Asserted, e.MissingMethod)
+	return fmt.Sprintf("interface conversion: <%v> is not <%v>: missing method %s", concr, e.Asserted, e.MissingMethod)
 }

@@ -194,7 +194,7 @@ func TestSelfReference(t *testing.T) {
 	istype(t, typ.GoType(), (*types.Named)(nil))
 
 	is(t, typ.String(), "main.List")
-	is(t, typ.underlying().String(), "struct{First int; Rest main.List}")
+	is(t, typ.gunderlying().String(), "struct{First int; Rest main.List}")
 }
 
 func TestStruct(t *testing.T) {
@@ -272,7 +272,7 @@ func TestFromReflect1(t *testing.T) {
 	typ := u.FromReflectType(rtype)
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.String(), "time.Duration")
-	is(t, typ.underlying().String(), "int64")
+	is(t, typ.gunderlying().String(), "int64")
 }
 
 func TestFromReflect2(t *testing.T) {
@@ -319,7 +319,7 @@ func TestFromReflect3(t *testing.T) {
 	is(t, typ.Kind(), reflect.Interface)
 	is(t, actual, expected)
 	is(t, typ.String(), "io.Reader")
-	is(t, typ.underlying().String(), "interface{Read([]uint8) (int, error)}")
+	is(t, typ.gunderlying().String(), "interface{Read([]uint8) (int, error)}")
 	is(t, typ.NumExplicitMethod(), 1)
 	is(t, typ.NumAllMethod(), 1)
 	is(t, rtype.NumMethod(), 1)
@@ -374,7 +374,7 @@ func TestFromReflect5(t *testing.T) {
 	// importer is more accurate and gives even function param names... accept both variants
 	s1 := "interface{Align() int; AssignableTo(reflect.Type) bool; Bits() int; ChanDir() reflect.ChanDir; Comparable() bool; ConvertibleTo(reflect.Type) bool; Elem() reflect.Type; Field(int) reflect.StructField; FieldAlign() int; FieldByIndex([]int) reflect.StructField; FieldByName(string) (reflect.StructField, bool); FieldByNameFunc(func(string) bool) (reflect.StructField, bool); Implements(reflect.Type) bool; In(int) reflect.Type; IsVariadic() bool; Key() reflect.Type; Kind() reflect.Kind; Len() int; Method(int) reflect.Method; MethodByName(string) (reflect.Method, bool); Name() string; NumField() int; NumIn() int; NumMethod() int; NumOut() int; Out(int) reflect.Type; PkgPath() string; Size() uintptr; String() string; common() *reflect.rtype; uncommon() *reflect.uncommonType}"
 	s2 := "interface{Align() int; AssignableTo(u reflect.Type) bool; Bits() int; ChanDir() reflect.ChanDir; Comparable() bool; ConvertibleTo(u reflect.Type) bool; Elem() reflect.Type; Field(i int) reflect.StructField; FieldAlign() int; FieldByIndex(index []int) reflect.StructField; FieldByName(name string) (reflect.StructField, bool); FieldByNameFunc(match func(string) bool) (reflect.StructField, bool); Implements(u reflect.Type) bool; In(i int) reflect.Type; IsVariadic() bool; Key() reflect.Type; Kind() reflect.Kind; Len() int; Method(int) reflect.Method; MethodByName(string) (reflect.Method, bool); Name() string; NumField() int; NumIn() int; NumMethod() int; NumOut() int; Out(i int) reflect.Type; PkgPath() string; Size() uintptr; String() string; common() *reflect.rtype; uncommon() *reflect.uncommonType}"
-	su := typ.underlying().String()
+	su := typ.gunderlying().String()
 
 	if su != s1 && su != s2 {
 		is(t, su, s1)

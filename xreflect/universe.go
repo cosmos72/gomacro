@@ -57,7 +57,7 @@ type Universe struct {
 
 func lock(v *Universe) *Universe {
 	if v.debugmutex != 0 {
-		errorf(nil, "deadlocking universe %p", v)
+		errorf(nilT, "deadlocking universe %p", v)
 	}
 	v.mutex.Lock()
 	v.debugmutex++
@@ -139,12 +139,12 @@ func (v *Universe) importPackage(path string) *Package {
 
 func (v *Universe) namedTypeFromImport(rtype reflect.Type) Type {
 	t := v.namedTypeFromPackageCache(rtype)
-	if t != nil {
+	if unwrap(t) != nil {
 		return t
 	}
 	pkg := v.importPackage(rtype.PkgPath())
 	if pkg == nil {
-		return nil
+		return nilT
 	}
 
 	return v.namedTypeFromPackage(rtype, (*types.Package)(pkg))
@@ -156,7 +156,7 @@ func (v *Universe) namedTypeFromPackageCache(rtype reflect.Type) Type {
 	if pkg != nil {
 		return v.namedTypeFromPackage(rtype, pkg)
 	}
-	return nil
+	return nilT
 }
 
 func (v *Universe) namedTypeFromPackage(rtype reflect.Type, pkg *types.Package) Type {
@@ -170,5 +170,5 @@ func (v *Universe) namedTypeFromPackage(rtype reflect.Type, pkg *types.Package) 
 			}
 		}
 	}
-	return nil
+	return nilT
 }

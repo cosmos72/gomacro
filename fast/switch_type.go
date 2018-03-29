@@ -63,7 +63,7 @@ func (seen *typecaseHelper) add(c *Comp, t xr.Type, entry typecaseEntry) {
 	}
 	entry.Type = t
 	seen.TypeMap.Set(gtype, entry)
-	if t.Kind() == r.Interface {
+	if t != nil && t.Kind() == r.Interface {
 		seen.AllConcrete = false
 	} else if seen.AllConcrete {
 		seen.ConcreteMap.Set(gtype, entry)

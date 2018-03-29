@@ -193,7 +193,7 @@ func (c *Comp) extractMacroCall(form Ast) Macro {
 	switch form := form.(type) {
 	case Ident:
 		sym := c.TryResolve(form.X.Name)
-		if sym != nil && sym.Bind.Desc.Class() == ConstBind && sym.Type.Kind() == r.Struct {
+		if sym != nil && sym.Bind.Desc.Class() == ConstBind && sym.Type != nil && sym.Type.Kind() == r.Struct {
 			switch value := sym.Value.(type) {
 			case Macro:
 				if c.Options&OptDebugMacroExpand != 0 {

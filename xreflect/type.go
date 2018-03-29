@@ -31,13 +31,13 @@ import (
 )
 
 func identicalType(t, u Type) bool {
-	xnil := t == nil
-	ynil := u == nil
+	xt := unwrap(t)
+	yt := unwrap(u)
+	xnil := xt == nil
+	ynil := yt == nil
 	if xnil || ynil {
 		return xnil == ynil
 	}
-	xt := unwrap(t)
-	yt := unwrap(u)
 	return xt == yt || xt.identicalTo(yt)
 }
 
@@ -67,9 +67,9 @@ func (v *Universe) unique(t Type) Type {
 // all unexported methods assume lock is already held
 func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.Type) Type {
 	if gtype == nil {
-		errorf(nil, "MakeType of nil types.Type")
+		errorf(nilT, "MakeType of nil types.Type")
 	} else if rtype == nil {
-		errorf(nil, "MakeType of nil reflect.Type")
+		errorf(nilT, "MakeType of nil reflect.Type")
 	}
 	ret := v.Types.gmap.At(gtype)
 	if ret != nil {
@@ -136,25 +136,27 @@ func (t *xtype) Universe() *Universe {
 // Named returns whether the type is named.
 // It returns false for unnamed types.
 func (t *xtype) Named() bool {
-	switch t.gtype.(type) {
-	case *types.Basic, *types.Named:
-		return true
-	default:
-		return false
+	if t != nil {
+		switch t.gtype.(type) {
+		case *types.Basic, *types.Named:
+			return true
+		}
 	}
+	return false
 }
 
 // Name returns the type's name within its package.
 // It returns an empty string for unnamed types.
 func (t *xtype) Name() string {
-	switch gtype := t.gtype.(type) {
-	case *types.Basic:
-		return gtype.Name()
-	case *types.Named:
-		return gtype.Obj().Name()
-	default:
-		return ""
+	if t != nil {
+		switch gtype := t.gtype.(type) {
+		case *types.Basic:
+			return gtype.Name()
+		case *types.Named:
+			return gtype.Obj().Name()
+		}
 	}
+	return ""
 }
 
 // Pkg returns a named type's package, that is, the package where it was defined.
@@ -204,7 +206,7 @@ func (t *xtype) Size() uintptr {
 // String returns a string representation of a type.
 func (t *xtype) String() string {
 	if t == nil {
-		return "invalid type"
+		return "<nil>"
 	}
 	return t.gtype.String()
 }

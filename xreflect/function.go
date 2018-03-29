@@ -113,7 +113,7 @@ func (t *xtype) Out(i int) Type {
 }
 
 func (v *Universe) FuncOf(in []Type, out []Type, variadic bool) Type {
-	return v.MethodOf(nil, in, out, variadic)
+	return v.MethodOf(nilT, in, out, variadic)
 }
 
 /*
@@ -140,7 +140,7 @@ func (v *Universe) MethodOf(recv Type, in []Type, out []Type, variadic bool) Typ
 	rin := toReflectTypes(in)
 	rout := toReflectTypes(out)
 	var grecv *types.Var
-	if recv != nil {
+	if unwrap(recv) != nil {
 		rin = append([]reflect.Type{recv.ReflectType()}, rin...)
 		grecv = toGoParam(recv)
 	}
