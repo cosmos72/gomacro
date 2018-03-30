@@ -165,10 +165,14 @@ func (ir *Interp) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) 
 			src = strings.TrimSpace(args[1])
 			fast = false
 		case strings.HasPrefix(":env", cmd):
-			if len(args) <= 1 {
-				env.ShowPackage("")
+			var arg string
+			if len(args) > 1 {
+				arg = args[1]
+			}
+			if fast {
+				ir.fastShowPackage(arg)
 			} else {
-				env.ShowPackage(args[1])
+				env.ShowPackage(arg)
 			}
 			return true
 		case strings.HasPrefix(":fast", cmd):

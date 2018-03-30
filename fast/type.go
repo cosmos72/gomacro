@@ -37,14 +37,13 @@ import (
 
 // DeclType compiles a type declaration.
 func (c *Comp) DeclType(node ast.Spec) {
-	switch node := node.(type) {
-	case *ast.TypeSpec:
+	if node, ok := node.(*ast.TypeSpec); ok {
 		name := node.Name.Name
 		// PATCH: support type aliases
 		if unary, ok := node.Type.(*ast.UnaryExpr); ok && unary.Op == token.ASSIGN {
 			t := c.Type(unary.X)
 			c.DeclTypeAlias(name, t)
-			break
+			return
 		}
 		// support self-referencing types, as for example: type List struct { First int; Rest *List }
 		oldt := c.Types[name]
@@ -65,8 +64,8 @@ func (c *Comp) DeclType(node ast.Spec) {
 			c.SetUnderlyingType(t, u)
 		}
 		panicking = false
-	default:
-		c.Errorf("Compile: unexpected type declaration, expecting <*ast.TypeSpec>, found: %v <%v>", node, r.TypeOf(node))
+	} else {
+		c.Errorf("unexpected declaration type, expecting <*ast.TypeSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 

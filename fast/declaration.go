@@ -45,7 +45,7 @@ func (c *Comp) Decl(node ast.Decl) {
 	case *ast.FuncDecl:
 		c.FuncDecl(node)
 	default:
-		c.Errorf("Compile: unsupported declaration, expecting <*ast.GenDecl> or <*ast.FuncDecl>, found: %v <%v>", node, r.TypeOf(node))
+		c.Errorf("unsupported declaration, expecting <*ast.GenDecl> or <*ast.FuncDecl>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -56,13 +56,6 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 		for _, decl := range node.Specs {
 			c.Import(decl)
 		}
-	/*
-		case token.PACKAGE:
-			// modified parser converts 'package foo' to ast.GenDecl{Tok: token.Package}
-			for _, decl := range node.Specs {
-				c.changePackage(decl)
-			}
-	*/
 	case token.CONST:
 		var defaultType ast.Expr
 		var defaultExprs []ast.Expr
@@ -85,8 +78,23 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 		for _, decl := range node.Specs {
 			c.DeclVars(decl)
 		}
+	case token.PACKAGE:
+		// modified parser converts 'package foo' to ast.GenDecl{Tok: token.Package}
+		if len(node.Specs) == 1 {
+			if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
+				if len(decl.Names) == 1 {
+					name := decl.Names[0]
+					if name.Name == "main" {
+						break
+					}
+					// c.changePackage(name)
+					c.Errorf("switching package not yet implemented, found: %v <%v>", node, r.TypeOf(node))
+				}
+			}
+		}
+		c.Errorf("unsupported package syntax, expecting a single package name, found: %v <%v>", node, r.TypeOf(node))
 	default:
-		c.Errorf("Compile: unsupported declaration kind, expecting token.IMPORT, token.CONST, token.TYPE or token.VAR, found %v: %v <%v>",
+		c.Errorf("unsupported declaration kind, expecting token.IMPORT, token.PACKAGE, token.CONST, token.TYPE or token.VAR, found %v: %v <%v>",
 			node.Tok, node, r.TypeOf(node))
 	}
 }
@@ -103,7 +111,7 @@ func (c *Comp) DeclConsts(node ast.Spec, defaultType ast.Expr, defaultExprs []as
 		names, t, inits := c.prepareDeclConstsOrVars(tostrings(node.Names), defaultType, defaultExprs)
 		c.DeclConsts0(names, t, inits)
 	default:
-		c.Errorf("Compile: unsupported constant declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
+		c.Errorf("unsupported constant declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 
@@ -115,7 +123,7 @@ func (c *Comp) DeclVars(node ast.Spec) {
 		names, t, inits := c.prepareDeclConstsOrVars(tostrings(node.Names), node.Type, node.Values)
 		c.DeclVars0(names, t, inits)
 	default:
-		c.Errorf("Compile: unsupported variable declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
+		c.Errorf("unsupported variable declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
 }
 

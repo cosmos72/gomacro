@@ -312,7 +312,7 @@ func (c *Comp) Compile(in Ast) *Expr {
 		}
 		return exprList(list, c.CompileOptions)
 	}
-	c.Errorf("Compile: unsupported value, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
+	c.Errorf("unsupported Ast node, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
 	return nil
 }
 
@@ -348,7 +348,7 @@ func (c *Comp) CompileNode(node ast.Node) *Expr {
 	case *ast.File:
 		c.File(node)
 	default:
-		c.Errorf("Compile: unsupported expression, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", node, r.TypeOf(node))
+		c.Errorf("unsupported node type, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", node, r.TypeOf(node))
 		return nil
 	}
 	return c.Code.AsExpr()

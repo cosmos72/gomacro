@@ -72,7 +72,7 @@ func (g *CompGlobals) sanitizeImportPath(path string) string {
 	return path
 }
 
-// Import imports a package. Usually invoked as Comp.FileComp().ImportPackage(name, path)
+// ImportPackage imports a package. Usually invoked as Comp.FileComp().ImportPackage(name, path)
 // because imports are usually top-level statements in a source file.
 // But we also support local imports, i.e. import statements inside a function or block.
 func (c *Comp) ImportPackage(name, path string) *Import {

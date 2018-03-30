@@ -452,7 +452,8 @@ func (opt PlaceOption) String() string {
 
 // ================================= Import =================================
 
-// Import represents an imported package
+// Import represents an imported package.
+// we cannot name it "Package" because it conflicts with go/ast.Package
 type Import struct {
 	// no need to split compile-time bind descriptors map from runtime values slice,
 	// because an import is a singleton - cannot be "instantiated" multiple times.

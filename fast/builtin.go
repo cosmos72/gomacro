@@ -113,7 +113,7 @@ func (ce *Interp) addBuiltins() {
 
 	tfunI2_Nb := ce.Comp.TypeOf(funI2_Nb)
 
-	ce.DeclEnvFunc("Env", Function{callIdentity, ce.Comp.TypeOf(funI_I)})
+	ce.DeclEnvFunc("Interp", Function{callIdentity, ce.Comp.TypeOf(funI_I)})
 	ce.DeclEnvFunc("Eval", Function{callEval, ce.Comp.TypeOf(funI2_I)})
 	ce.DeclEnvFunc("EvalType", Function{callEvalType, ce.Comp.TypeOf(funI2_T)})
 	ce.DeclEnvFunc("MacroExpand", Function{callMacroExpand, tfunI2_Nb})
@@ -969,7 +969,7 @@ func (c *Comp) call_builtin(call *Call) I {
 		}
 	case func(r.Value) r.Value: // Env()
 		argfun := call.MakeArgfunsX1()[0]
-		if name == "Env" {
+		if name == "Interp" {
 			ret = func(env *Env) r.Value {
 				return argfun(env)
 			}
