@@ -377,6 +377,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			// assigning a constant or expression to _
 			// only keep the expression side effects
 			c.append(init.AsStmt())
+			return bind
 		}
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
 		if init == nil {
