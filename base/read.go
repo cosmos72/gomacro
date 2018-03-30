@@ -430,7 +430,7 @@ func lastIsKeywordIgnoresNl(line []byte, first, last int) bool {
 		ignorenl = true
 	}
 	if debug {
-		Debugf("lastIsKeywordIgnoresNl: found %ignorenl=%t", str, ignorenl)
+		Debugf("lastIsKeywordIgnoresNl: found %q ignorenl=%t", str, ignorenl)
 	}
 	return ignorenl
 }

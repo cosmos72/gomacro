@@ -140,7 +140,6 @@ func (ir *Interp) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) 
 }
 
 func (ir *Interp) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
-
 	src = strings.TrimSpace(src)
 	n := len(src)
 	if n == 0 {

@@ -60,7 +60,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 	env := cmd.Env
 
 	var set, clear Options
-	var repl = true
+	var repl, forcerepl = true, false
 	cmd.WriteDeclsAndStmtsToFile = false
 	cmd.OverwriteFiles = false
 
@@ -86,11 +86,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		case "-h", "--help":
 			return cmd.Usage()
 		case "-i", "--repl":
-			repl = false
-			env.Options |= OptShowPrompt | OptShowEval | OptShowEvalType // set by default, overridden by -s, -v and -vv
-			env.Options = (env.Options | set) &^ clear
-			ir.ReplStdin()
-
+			forcerepl = true
 		case "-m", "--macro-only":
 			set |= OptMacroExpandOnly
 			clear &^= OptMacroExpandOnly
@@ -132,7 +128,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		}
 		args = args[1:]
 	}
-	if repl {
+	if repl || forcerepl {
 		env.Options |= OptShowPrompt | OptShowEval | OptShowEvalType // set by default, overridden by -s, -v and -vv
 		env.Options = (env.Options | set) &^ clear
 		ir.ReplStdin()

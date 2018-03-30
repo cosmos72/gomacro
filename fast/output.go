@@ -68,7 +68,7 @@ func (ir *Interp) ShowAsPackage() {
 	c := ir.Comp
 	out := c.Stdout
 	if binds := c.Binds; len(binds) > 0 {
-		fmt.Fprintf(out, "// ----- %s %q binds -----\n", c.Path)
+		fmt.Fprintf(out, "// ----- %s binds -----\n", c.Path)
 
 		keys := make([]string, len(binds))
 		i := 0
