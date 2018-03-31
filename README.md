@@ -48,9 +48,33 @@ Gomacro can be used as:
   The imported libraries will be **compiled**, not interpreted,
   so they will be as fast as in compiled Go.
 
-* a library that adds Eval() and scripting capabilities to your Go programs,
-  provided you comply with its LGPL license.
-  See [github issue #13](https://github.com/cosmos72/gomacro/issues/13) for sample code.
+* a library that adds Eval() and scripting capabilities to your Go programs in few lines
+  of code:
+```
+package main
+import (
+	"fmt"
+	"reflect"
+	"github.com/cosmos72/gomacro/fast"
+)
+func RunGomacro(toeval string) reflect.Value {
+	interp := fast.New()
+	// for simplicity, only collect the first returned value
+	val, _ := interp.Eval(toeval)
+	return val
+}
+func main() {
+	fmt.Println(RunGomacro("1+1"))
+}
+```
+  Also, [github issue #13](https://github.com/cosmos72/gomacro/issues/13) explains
+  how to have your application's functions, variable, constants and types
+  available in the interpreter.
+
+  Note: your programs **don't** need to be LGPL as gomacro: they can keep their license,
+  be it commercial, BSD, MIT, GPL or (almost) anything else
+  (read https://www.gnu.org/licenses/lgpl-3.0.en.html section 4 for the legal details).
+  and using gomacro in your programs does **not** force you to distribute their source code.
 
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
@@ -83,51 +107,8 @@ Gomacro can be used as:
 
 Fairly complete.
 
-The intepreter supports:
-* multiline input
-* line comments starting with #! in addition to //
-* basic types: booleans, integers, floats, complex numbers, strings (and iota)
-* interfaces imported from compiled code, as for example `interface{}`, `error`, `fmt.Stringer`...
-  (new interfaces can be declared inside interpreted code, but they are not yet functional)
-* constant, variable and type declaration, including untyped constants
-* Go 1.9 type aliases (experimental)
-* unary and binary operators
-* assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= <<= >>=
-* composite types: arrays, channels, maps, pointers, slices, strings, structs
-* composite literals
-* type assertions
-* seamless invocation of compiled functions from interpreter, and vice-versa
-* channel send and receive
-* goroutines, i.e. go function(args)
-* function and method calls, including multiple return values
-* function and method declarations (including variadic functions/methods,
-  and methods with pointer receiver)
-* named return values
-* extracting methods from types and from instances.
-  For example `time.Duration.String` returns a `func(time.Duration) string`
-  and `time.Duration(1s).String` returns a `func() string`
-* if, for, for-range, break, continue, fallthrough, return (goto is only partially implemented)
-* select, switch, type switch, fallthrough
-* all builtins: append, cap, close, comples, defer, delete, imag, len, make, new, panic, print, println, real, recover
-* imports: Go standard packages "just work". Importing other packages requires either the "plugin" package
-  (available only for Go 1.8+ on Linux) or, in alternative, adding an `init()` function to the package,
-  then compiling it statically inside gomacro (see [github issue #13](https://github.com/cosmos72/gomacro/issues/13) for more details)
-* macro declarations, for example `macro foo(a, b, c interface{}) interface{} { return b }`
-* macro calls, for example `foo; x; y; z`
-* macroexpansion: code walker, MacroExpand and MacroExpand1
-* ~quote and ~quasiquote. they take any number of arguments in curly braces, for example:
-  `~quote { x; y; z }`
-* ~unquote and ~unquote_splice
-* ~func, ~lambda: specializations of "func".
-  * ~lambda always starts a closure (lambda) or a function type
-  * ~func always starts a function or method declaration
-  useful to resolve a limitation in Go syntax that becomes significant for ~quote and ~quasiquote:
-  * in declarations, "func" always declares a function or method - there is no way to declare a closure (lambda) or function type
-  * in statements and expressions, including the body of ~quote and ~quasiquote,
-    "func" always declares a closure (lambda) or a function type - there is no way to declare a function or method
-* nesting macros, quotes and unquotes
+The main missing features are:
 
-Some features are still missing:
 * interpreted interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods.
   Note: interfaces imported from compiled code are fully functional, and interpreted types **can** implement them.
 * switching to a different package
@@ -136,24 +117,7 @@ Some features are still missing:
 * history/readline (rlwrap does the job in most cases)
 * type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
-Limitations:
-* Named types created by interpreted code are emulated.
-  When the interpreter is asked to create for example `type Pair struct { A, B int }`,
-  it actually creates instances of the unnamed `struct { A, B int }`.
-  Everything works as it should within the interpreter, but extracting the struct
-  and using it in compiled code actually reveals the difference.
-
-  The reason for such limitation is simple: the interpreter uses `reflect.StructOf()`
-  to define new types, which can only create unnamed types.
-
-* recursive types are emulated too.
-  For example `type List struct { First interface{}; Rest *List}`
-  is actually a `struct { First interface{}; Rest *interface{} }`.
-  Again, everything works as it should within the interpreter, but extracting
-  the struct and using it in compiled code reveals the difference.
-
-  The reason is the same as above: the interpreter uses `reflect.StructOf()` to define new types,
-  which cannot create recursive types
+The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 
 
 ## Why it was created
