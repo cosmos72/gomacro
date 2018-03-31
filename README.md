@@ -73,7 +73,7 @@ Gomacro can be used as:
 
   Note: your programs **don't** need to be LGPL as gomacro: they can keep their license,
   be it commercial, BSD, MIT, GPL or (almost) anything else
-  (read https://www.gnu.org/licenses/lgpl-3.0.en.html section 4 for the legal details).
+  (read LGPL [LICENSE](LICENSE) section 4 for the legal details).
 
   Using gomacro in your programs does **not** force you to distribute their source code.
 
