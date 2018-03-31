@@ -97,7 +97,8 @@ func (v *Universe) InterfaceOf(methodnames []string, methodtypes []Type, embedde
 		n := e.NumMethod()
 		for i := 0; i < n; i++ {
 			method := e.Method(i)
-			rfields = append(rfields, approxInterfaceMethod(method.Name, method.Type.ReflectType()))
+			rtype := removeReceiver(method.Type.ReflectType()) // receiver is the embedded interface, remove it
+			rfields = append(rfields, approxInterfaceMethod(method.Name, rtype))
 		}
 	}
 	// interfaces may have lots of methods, thus a lot of fields in the proxy struct.

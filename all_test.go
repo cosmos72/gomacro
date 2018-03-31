@@ -538,9 +538,7 @@ var testcases = []TestCase{
 	TestCase{F, "interface_method_to_func_1", "f1 := fmt.Stringer.String; f1(time.Hour)", "1h0m0s", nil},
 	TestCase{F, "interface_method_to_func_2", "f2 := io.ReadWriter.Read; f2 != nil", true, nil},
 	TestCase{F, "interface_method_to_func_3", "type Fooer interface { Foo() }; Fooer.Foo != nil", true, nil},
-
-	// FIXME currently fails on fast interpreter (classic does not even try)
-	TestCase{0, "interface_method_to_func_4", "type Reader interface { io.Reader }; Reader.Read != nil", true, nil},
+	TestCase{F, "interface_method_to_func_4", "type RW interface { io.Reader; io.Writer }; RW.Read != nil && RW.Write != nil", true, nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{A, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},

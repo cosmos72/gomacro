@@ -133,7 +133,7 @@ func (t *xtype) method(i int) Method {
 			// rtype is our emulated interface type.
 			// it's a pointer to a struct containing: InterfaceHeader, [0]struct { embeddeds }, methods (without receiver)
 			rfield := rtype.Elem().Field(i + 2)
-			rfunctype = addreceiver(rtype, rfield.Type)
+			rfunctype = addReceiver(rtype, rfield.Type)
 		} else if rtype.Kind() != reflect.Interface {
 			xerrorf(t, "inconsistent interface type <%v>: expecting interface reflect.Type, found <%v>", t, rtype)
 		} else if ast.IsExported(name) {
@@ -148,7 +148,7 @@ func (t *xtype) method(i int) Method {
 				xerrorf(t, "inconsistent interface type <%v>: method %q has go/types.Func index=%d but reflect.Method index=%d",
 					t, name, i, rmethod.Index)
 			}
-			rfunctype = addreceiver(rtype, rmethod.Type)
+			rfunctype = addReceiver(rtype, rmethod.Type)
 		}
 	} else {
 		rmethod, _ := rtype.MethodByName(gfunc.Name())
@@ -172,12 +172,31 @@ func (t *xtype) method(i int) Method {
 	return t.makemethod(i, gfunc, &t.methodvalues, rfunctype) // lock already held
 }
 
-func addreceiver(recv reflect.Type, rtype reflect.Type) reflect.Type {
+// insert recv as the the first parameter of rtype function type
+func addReceiver(recv reflect.Type, rtype reflect.Type) reflect.Type {
 	nin := rtype.NumIn()
 	rin := make([]reflect.Type, nin+1)
 	rin[0] = recv
 	for i := 0; i < nin; i++ {
 		rin[i+1] = rtype.In(i)
+	}
+	nout := rtype.NumOut()
+	rout := make([]reflect.Type, nout)
+	for i := 0; i < nout; i++ {
+		rout[i] = rtype.Out(i)
+	}
+	return reflect.FuncOf(rin, rout, rtype.IsVariadic())
+}
+
+// remove the first parameter of rtype function type
+func removeReceiver(rtype reflect.Type) reflect.Type {
+	nin := rtype.NumIn()
+	if nin == 0 {
+		return rtype
+	}
+	rin := make([]reflect.Type, nin-1)
+	for i := 1; i < nin; i++ {
+		rin[i-1] = rtype.In(i)
 	}
 	nout := rtype.NumOut()
 	rout := make([]reflect.Type, nout)

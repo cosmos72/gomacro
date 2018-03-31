@@ -32,6 +32,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/cosmos72/gomacro/typeutil"
 )
 
 var u = NewUniverse()
@@ -72,6 +74,12 @@ func isfieldequal(t *testing.T, actual StructField, expected StructField) {
 	is(t, actual.Offset, expected.Offset)
 	isdeepequal(t, actual.Index, expected.Index)
 	is(t, actual.Anonymous, expected.Anonymous)
+}
+
+func isidenticalgotype(t *testing.T, actual types.Type, expected types.Type) {
+	if !typeutil.Identical(actual, expected) {
+		fail(t, actual, expected)
+	}
 }
 
 func istype(t *testing.T, actual interface{}, expected interface{}) {
@@ -371,10 +379,9 @@ func TestFromReflect4(t *testing.T) {
 	is(t, actual, expected)
 	is(t, typ.NumExplicitMethod(), 1)
 	is(t, typ.NumAllMethod(), 1)
+	is(t, typ.String(), "io.Stringer")
+	is(t, typ.gunderlying().String(), "interface{String() string}")
 	/*
-		is(t, typ.String(), "io.Stringer")
-		is(t, typ.underlying().String(), "interface{String() string}")
-
 		for depth := 0; depth <= 3; depth++ {
 			v := &Universe{RebuildDepth: depth}
 			typ = v.FromReflectType(rtype)
@@ -500,14 +507,23 @@ func TestInterfaceIoReadWriter(t *testing.T) {
 
 	is(t, rw.NumExplicitMethod(), 0)
 	is(t, rw.NumAllMethod(), 2)
-	if false {
-		// Type.MethodByName() does not work yet on embedded interfaces
-		_, nread := rw.MethodByName("Read", "")
-		_, nwrite := rw.MethodByName("Write", "")
 
-		is(t, nread, 1)
-		is(t, nwrite, 1)
-	}
+	m, count := rw.MethodByName("Read", "")
+	is(t, count, 1)
+	is(t, m.Name, "Read")
+	is(t, m.Type.NumIn(), 2) // receiver and []uint8
+	is(t, m.Type.NumOut(), 2)
+	is(t, m.Type.String(), "func([]uint8) (int, error)")
+	isidenticalgotype(t, m.Type.In(0).GoType(), rw.gunderlying())
+
+	m, count = rw.MethodByName("Write", "")
+	is(t, count, 1)
+	is(t, m.Name, "Write")
+	is(t, m.Type.NumIn(), 2) // receiver and []uint8
+	is(t, m.Type.NumOut(), 2)
+	is(t, m.Type.String(), "func([]uint8) (int, error)")
+	isidenticalgotype(t, m.Type.In(0).GoType(), rw.gunderlying())
+
 	trw := u.TypeOf((*io.ReadWriter)(nil)).Elem()
 
 	is(t, rw.ConvertibleTo(trw), true)

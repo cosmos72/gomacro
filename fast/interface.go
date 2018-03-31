@@ -33,6 +33,7 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+// compile an interface definition
 func (c *Comp) TypeInterface(node *ast.InterfaceType) xr.Type {
 	if node.Methods == nil || len(node.Methods.List) == 0 {
 		return c.TypeOfInterface()
