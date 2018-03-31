@@ -48,6 +48,9 @@ Gomacro can be used as:
   The imported libraries will be **compiled**, not interpreted,
   so they will be as fast as in compiled Go.
 
+  For a graphical user interface on top of gomacro, see (Gophernotes)[https://github.com/gopherdata/gophernotes].
+  It is a Go kernel for Jupyter notebooks and nteract, and uses gomacro for Go code evaluation.
+
 * a library that adds Eval() and scripting capabilities to your Go programs in few lines
   of code:
 	```
