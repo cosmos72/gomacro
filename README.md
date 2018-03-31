@@ -50,23 +50,23 @@ Gomacro can be used as:
 
 * a library that adds Eval() and scripting capabilities to your Go programs in few lines
   of code:
-```
-package main
-import (
-	"fmt"
-	"reflect"
-	"github.com/cosmos72/gomacro/fast"
-)
-func RunGomacro(toeval string) reflect.Value {
-	interp := fast.New()
-	// for simplicity, only collect the first returned value
-	val, _ := interp.Eval(toeval)
-	return val
-}
-func main() {
-	fmt.Println(RunGomacro("1+1"))
-}
-```
+	```
+	package main
+	import (
+		"fmt"
+		"reflect"
+		"github.com/cosmos72/gomacro/fast"
+	)
+	func RunGomacro(toeval string) reflect.Value {
+		interp := fast.New()
+		// for simplicity, only collect the first returned value
+		val, _ := interp.Eval(toeval)
+		return val
+	}
+	func main() {
+		fmt.Println(RunGomacro("1+1"))
+	}
+	```
   Also, [github issue #13](https://github.com/cosmos72/gomacro/issues/13) explains
   how to have your application's functions, variable, constants and types
   available in the interpreter.
@@ -74,7 +74,8 @@ func main() {
   Note: your programs **don't** need to be LGPL as gomacro: they can keep their license,
   be it commercial, BSD, MIT, GPL or (almost) anything else
   (read https://www.gnu.org/licenses/lgpl-3.0.en.html section 4 for the legal details).
-  and using gomacro in your programs does **not** force you to distribute their source code.
+
+  Using gomacro in your programs does **not** force you to distribute their source code.
 
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
