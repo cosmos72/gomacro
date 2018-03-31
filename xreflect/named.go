@@ -68,10 +68,17 @@ func (t *xtype) SetUnderlying(underlying Type) {
 			v.InvalidateCache()
 			// xerrorf(t, "SetUnderlying invoked multiple times on named type %v", t)
 		}
-		gunderlying := underlying.GoType().Underlying() // in case underlying is named
+		tunderlying := unwrap(underlying)
+		gunderlying := tunderlying.gtype.Underlying() // in case underlying is named
 		t.kind = gtypeToKind(t, gunderlying)
 		gtype.SetUnderlying(gunderlying)
 		t.rtype = underlying.ReflectType()
+		if t.kind == reflect.Interface {
+			// propagate methodvalues from underlying interface to named type
+			t.methodvalues = tunderlying.methodvalues
+			t.methodcache = nil
+			t.fieldcache = nil
+		}
 	default:
 		xerrorf(t, "SetUnderlying of unnamed type %v", t)
 	}

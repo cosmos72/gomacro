@@ -353,7 +353,7 @@ func (v *Universe) fromReflectInterface(rtype reflect.Type) Type {
 				// should already rebuild rmethod.Type.ReflectType()
 				rmethodtype = v.fromReflectInterfaceMethod(rtype, rmethod.Type).ReflectType()
 			}
-			rfields[i+1] = approxInterfaceMethod(rmethod.Name, rmethodtype)
+			rfields[i+1] = approxInterfaceMethodAsField(rmethod.Name, rmethodtype)
 		}
 		// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
 		// Then use a pointer to the proxy struct: InterfaceOf() does that, and we must behave identically
@@ -417,7 +417,7 @@ func (v *Universe) fromReflectInterfacePtrStruct(rtype reflect.Type) Type {
 			pkg := v.loadPackage(rfield.PkgPath)
 			gmethods = append(gmethods, types.NewFunc(token.NoPos, (*types.Package)(pkg), name, gtype.(*types.Signature)))
 			if rebuild {
-				rebuildfields[i] = approxInterfaceMethod(name, t.ReflectType())
+				rebuildfields[i] = approxInterfaceMethodAsField(name, t.ReflectType())
 			}
 		}
 	}

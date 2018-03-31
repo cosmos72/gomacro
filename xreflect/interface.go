@@ -91,20 +91,21 @@ func (v *Universe) InterfaceOf(methodnames []string, methodtypes []Type, embedde
 	rfields[1] = approxInterfaceEmbeddeds(embeddeds)
 
 	for i, methodtype := range methodtypes {
-		rfields[i+2] = approxInterfaceMethod(methodnames[i], methodtype.ReflectType())
+		rfields[i+2] = approxInterfaceMethodAsField(methodnames[i], methodtype.ReflectType())
 	}
 	for _, e := range embeddeds {
 		n := e.NumMethod()
 		for i := 0; i < n; i++ {
 			method := e.Method(i)
 			rtype := removeReceiver(method.Type.ReflectType()) // receiver is the embedded interface, remove it
-			rfields = append(rfields, approxInterfaceMethod(method.Name, rtype))
+			rfields = append(rfields, approxInterfaceMethodAsField(method.Name, rtype))
 		}
 	}
 	// interfaces may have lots of methods, thus a lot of fields in the proxy struct.
 	// Use a pointer to the proxy struct
 	rtype := reflect.PtrTo(reflect.StructOf(rfields))
 	t := v.maketype3(reflect.Interface, gtype, rtype)
+	setInterfaceMethods(t)
 	// debugf("InterfaceOf: new type %v", t)
 	// debugf("           types.Type %v", gtype)
 	// debugf("         reflect.Type %v", rtype)
@@ -130,15 +131,22 @@ func approxInterfaceHeader() reflect.StructField {
 	}
 }
 
+// if true, produces more detailes reflect.Types for emulated interfaces,
+// at the cost of an exponential explosion of their String() output
+const ANNOTATE_EMULATED_INTERFACES_WITH_EMBEDDED_INTERFACE_TYPES = false
+
 func approxInterfaceEmbeddeds(embeddeds []Type) reflect.StructField {
-	fields := make([]reflect.StructField, len(embeddeds))
-	for i, t := range embeddeds {
-		fields[i] = approxInterfaceEmbedded(t)
+	var rtype reflect.Type
+	if ANNOTATE_EMULATED_INTERFACES_WITH_EMBEDDED_INTERFACE_TYPES {
+		fields := make([]reflect.StructField, len(embeddeds))
+		for i, t := range embeddeds {
+			fields[i] = approxInterfaceEmbedded(t)
+		}
+		rtype = reflect.ArrayOf(0, reflect.StructOf(fields))
+	} else {
+		rtype = reflect.ArrayOf(0, reflect.TypeOf(struct{}{}))
 	}
-	return reflect.StructField{
-		Name: StrGensymEmbedded,
-		Type: reflect.ArrayOf(0, reflect.StructOf(fields)),
-	}
+	return reflect.StructField{Name: StrGensymEmbedded, Type: rtype}
 }
 
 func approxInterfaceEmbedded(t Type) reflect.StructField {
@@ -148,7 +156,7 @@ func approxInterfaceEmbedded(t Type) reflect.StructField {
 	}
 }
 
-func approxInterfaceMethod(name string, rtype reflect.Type) reflect.StructField {
+func approxInterfaceMethodAsField(name string, rtype reflect.Type) reflect.StructField {
 	// interface methods cannot be anonymous
 	if len(name) == 0 {
 		name = "_"
@@ -157,4 +165,30 @@ func approxInterfaceMethod(name string, rtype reflect.Type) reflect.StructField 
 		Name: toExportedFieldName(name, nil, false),
 		Type: rtype,
 	}
+}
+
+// fill t.methodvalues[] with wrappers that forward the call to closures stored in the emulated interface struct
+func setInterfaceMethods(t Type) {
+	xt := unwrap(t)
+	n := xt.NumMethod()
+	if n == 0 || xt.Named() || xt.kind != reflect.Interface || xt.methodvalues != nil {
+		return
+	}
+	xt.methodvalues = make([]reflect.Value, n)
+	rtype := xt.rtype
+	for i := 0; i < n; i++ {
+		xt.methodvalues[i] = interfaceMethod(rtype, i)
+	}
+}
+
+// create and return a single wrapper function that forwards the call to the i-th closure
+// stored in the emulated interface struct rtype (that will be received as first parameter)
+func interfaceMethod(rtype reflect.Type, index int) reflect.Value {
+	// rtype is *struct { InterfaceHeader; [0]struct{ embeddeds.. }; closures... }
+	index += 2
+	rclosure := rtype.Elem().Field(index).Type
+	rfunc := addReceiver(rtype, rclosure)
+	return reflect.MakeFunc(rfunc, func(args []reflect.Value) []reflect.Value {
+		return args[0].Elem().Field(index).Call(args[1:])
+	})
 }

@@ -519,6 +519,9 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 			}
 		}
 	} else {
+		if debug {
+			c.Debugf("compiling method %v: method declared by interpreted code, manually building the closure", node)
+		}
 		// method declared by interpreted code, manually build the closure.
 		//
 		// It's not possible to call r.MakeFunc() only once at compile-time,
@@ -535,6 +538,14 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 		} else if len(*funs) <= index || (*funs)[index].Kind() != r.Func {
 			// c.Warnf("method declared but not yet implemented: %s.%s", tname, methodname)
 		}
+		// Go compiled code crashes when extracting a method from nil interface,
+		// NOT later calling the method.
+		//
+		// On the other hand, Go compiled code can extract methods from a nil pointer to named type,
+		// and it will crash later calling the method ONLY if the method implementation dereferences the receiver.
+		//
+		// Reproduce the same behaviour
+		isinterface := t.Kind() == r.Interface
 
 		switch len(fieldindex) {
 		case 0:
@@ -542,14 +553,18 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 				obj := objfun(env)
 				if addressof {
 					obj = obj.Addr()
-				} else if deref {
-					obj = obj.Elem()
+				} else {
+					if deref {
+						obj = obj.Elem()
+					}
+					if isinterface {
+						return closureFromEmulatedInterface(obj, index)
+					}
 				}
 				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
 				if fun == Nil {
 					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
-
 				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 					fullargs := make([]r.Value, nin)
 					fullargs[0] = obj
@@ -566,11 +581,18 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 				// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
 				if addressof {
 					obj = obj.Addr()
-				} else if deref {
-					obj = obj.Elem()
+				} else {
+					if deref {
+						obj = obj.Elem()
+					}
+					if isinterface {
+						return closureFromEmulatedInterface(obj, index)
+					}
 				}
 				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-
+				if fun == Nil {
+					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+				}
 				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 					fullargs := make([]r.Value, nin)
 					fullargs[0] = obj
@@ -585,11 +607,18 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 				obj = fieldByIndex(obj, fieldindex)
 				if addressof {
 					obj = obj.Addr()
-				} else if deref {
-					obj = obj.Elem()
+				} else {
+					if deref {
+						obj = obj.Elem()
+					}
+					if isinterface {
+						return closureFromEmulatedInterface(obj, index)
+					}
 				}
 				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-
+				if fun == Nil {
+					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+				}
 				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 					fullargs := make([]r.Value, nin)
 					fullargs[0] = obj
@@ -601,6 +630,14 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 		}
 	}
 	return exprX1(tclosure, ret)
+}
+
+// instead of building a closure that will pass the receiver to i-th interface method,
+// extract the already-made closure from inside the emulated interface object.
+// This works by exploiting how emulated interfaces are INTERNALLY implemented by xreflect:
+// they are a *struct { xreflect.InterfaceHeader; [0]struct { embeddeds... }; closures... }
+func closureFromEmulatedInterface(obj r.Value, index int) r.Value {
+	return obj.Elem().Field(index + 2)
 }
 
 // compileMethodAsFunc compiles a method as a function, for example time.Duration.String.

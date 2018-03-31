@@ -77,22 +77,46 @@ func TestFast(t *testing.T) {
 	}
 }
 
+type shouldpanic struct{}
+
+// a value that the interpreter cannot produce.
+// only matches if the interpreter panicked
+var panics shouldpanic
+
 func (test *TestCase) classic(t *testing.T, ir *classic.Interp) {
-
-	rets := PackValues(ir.Eval(test.program))
-
+	var rets []r.Value
+	panicking := true
+	if test.result0 == panics {
+		defer func() {
+			if panicking {
+				recover()
+			}
+		}()
+	}
+	rets = PackValues(ir.Eval(test.program))
+	panicking = false
 	test.compareResults(t, rets)
 }
 
 func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
-
 	if test.testfor&S != 0 {
 		ir.Comp.Options |= OptDebugSleepOnSwitch
 	} else {
 		ir.Comp.Options &^= OptDebugSleepOnSwitch
 	}
-	rets := PackValues(ir.Eval(test.program))
 
+	var rets []r.Value
+	panicking := true
+	if test.result0 == panics {
+		defer func() {
+			if panicking {
+				recover()
+			}
+		}()
+	}
+
+	rets = PackValues(ir.Eval(test.program))
+	panicking = false
 	test.compareResults(t, rets)
 }
 
@@ -529,12 +553,19 @@ var testcases = []TestCase{
 	TestCase{F, "method_embedded_on_ptr", `triple.SetA('+'); triple.A`, '+', nil},
 	TestCase{F, "method_embedded_on_val", `triple.SetAV('*'); triple.A`, '+', nil},
 
-	TestCase{A, "interface_1", "var st fmt.Stringer = time.Second; st", time.Second, nil},
-	TestCase{A, "interface_method_1", "bind := st.String; bind()", "1s", nil},
-	TestCase{F, "interface_2", "st = pair; nil", nil, nil},
-	TestCase{F, "interface_method_2", "bind = st.String; bind()", "! y", nil},
+	TestCase{F, "concrete_method_to_func", "cf0 := time.Duration.Seconds; cf0(time.Hour)", 3600.0, nil},
+	TestCase{F, "concrete_method_to_closure", "cl1 := time.Hour.Seconds; cl1()", 3600.0, nil},
 
-	TestCase{F, "concrete_method_to_func", "f0 := time.Duration.Seconds; f0(time.Hour)", 3600.0, nil},
+	TestCase{A, "interface_1", "var st fmt.Stringer = time.Second; st", time.Second, nil},
+	TestCase{A, "interface_method_to_closure_1", "bind := st.String; bind()", "1s", nil},
+	TestCase{F, "interface_2", "st = pair; nil", nil, nil},
+	TestCase{F, "interface_method_to_closure_2", "bind = st.String; bind()", "! y", nil},
+	TestCase{F, "interface_method_to_closure_3", "st = nil; bind = st.String", panics, nil},
+	// interpreted interface
+	TestCase{F, "interface_3", "type IStringer interface { String() string }; nil", nil, nil},
+	TestCase{F, "interface_method_to_closure_4", "var ist IStringer; nil", nil, nil},
+	TestCase{F, "interface_method_to_closure_5", "ist.String", panics, nil},
+
 	TestCase{F, "interface_method_to_func_1", "f1 := fmt.Stringer.String; f1(time.Hour)", "1h0m0s", nil},
 	TestCase{F, "interface_method_to_func_2", "f2 := io.ReadWriter.Read; f2 != nil", true, nil},
 	TestCase{F, "interface_method_to_func_3", "type Fooer interface { Foo() }; Fooer.Foo != nil", true, nil},

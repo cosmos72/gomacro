@@ -130,8 +130,8 @@ func (t *xtype) method(i int) Method {
 		rfunctype = rfunc.Type()
 	} else if _, ok := t.gtype.Underlying().(*types.Interface); ok {
 		if rtype.Kind() == reflect.Ptr && isReflectInterfaceStruct(rtype.Elem()) {
-			// rtype is our emulated interface type.
-			// it's a pointer to a struct containing: InterfaceHeader, [0]struct { embeddeds }, methods (without receiver)
+			// rtype is our emulated interface type,
+			// i.e. a pointer to a struct containing: InterfaceHeader, [0]struct { embeddeds }, methods (without receiver)
 			rfield := rtype.Elem().Field(i + 2)
 			rfunctype = addReceiver(rtype, rfield.Type)
 		} else if rtype.Kind() != reflect.Interface {
