@@ -172,8 +172,12 @@ func (c *Comp) Converter(tin, tout xr.Type) func(val r.Value, rtout r.Type) r.Va
 		// most conversions, including from compiled type to compiled interface
 		return r.Value.Convert
 	case tin.Kind() != r.Interface && rtout.Kind() == r.Interface:
-		// conversion from interpreted type to compiled interface
-		return c.converterToInterface(tin, tout)
+		// conversion from interpreted type to compiled interface.
+		// must use one of proxies that pre-implement compiled interfaces.
+		return c.converterToProxy(tin, tout)
+	case tout.Kind() == r.Interface && rtout.Kind() != r.Interface:
+		// conversion from type to interpreted interface
+		return c.converterToEmulatedInterface(tin, tout)
 	default:
 		c.Errorf("unimplemented conversion from <%v> to <%v>", tin, tout)
 		return nil

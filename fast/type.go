@@ -431,7 +431,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	switch {
 	case IsOptimizedKind(kout):
 		ret = func(env *Env) (r.Value, []r.Value) {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			if ValueType(v) != rtout || (t != nil && !t.AssignableTo(tout)) {
 				return fail[0], fail
 			}
@@ -443,7 +443,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			// type assertion to empty interface.
 			// everything, excluding nil, implements an empty interface
 			ret = func(env *Env) (r.Value, []r.Value) {
-				v, _ := g.extractFromInterface(fun(env))
+				v, _ := g.extractFromProxy(fun(env))
 				if v == Nil {
 					return fail[0], fail
 				}
@@ -456,7 +456,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			// type assertion to interface.
 			// expression type implements such interface, can only fail if value is nil
 			ret = func(env *Env) (r.Value, []r.Value) {
-				v, _ := g.extractFromInterface(fun(env))
+				v, _ := g.extractFromProxy(fun(env))
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
 				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
@@ -470,7 +470,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 		// type assertion to interface
 		// must check at runtime whether concrete type implements asserted interface
 		ret = func(env *Env) (r.Value, []r.Value) {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			// nil is not a valid tout, check for it.
 			// IsNil() can be invoked only on nillable types...
 			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
@@ -488,7 +488,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	case IsNillableKind(kout):
 		// type assertion to concrete (nillable) type
 		ret = func(env *Env) (r.Value, []r.Value) {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			// nil is not a valid tout, check for it.
 			// IsNil() can be invoked only on nillable types...
 			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
@@ -503,7 +503,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	default:
 		// type assertion to concrete (non-nillable) type
 		ret = func(env *Env) (r.Value, []r.Value) {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			rt := rtypeof(v, t)
 			if rt != rtout || (t != nil && !t.IdenticalTo(tout)) {
 				return fail[0], fail
@@ -540,103 +540,103 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 	switch kout {
 	case r.Bool:
 		ret = func(env *Env) bool {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return v.Bool()
 		}
 	case r.Int:
 		ret = func(env *Env) int {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return int(v.Int())
 		}
 	case r.Int8:
 		ret = func(env *Env) int8 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return int8(v.Int())
 		}
 	case r.Int16:
 		ret = func(env *Env) int16 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return int16(v.Int())
 		}
 	case r.Int32:
 		ret = func(env *Env) int32 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return int32(v.Int())
 		}
 	case r.Int64:
 		ret = func(env *Env) int64 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return v.Int()
 		}
 	case r.Uint:
 		ret = func(env *Env) uint {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return uint(v.Uint())
 		}
 	case r.Uint8:
 		ret = func(env *Env) uint8 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return uint8(v.Uint())
 		}
 	case r.Uint16:
 		ret = func(env *Env) uint16 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return uint16(v.Uint())
 		}
 	case r.Uint32:
 		ret = func(env *Env) uint32 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return uint32(v.Uint())
 		}
 	case r.Uint64:
 		ret = func(env *Env) uint64 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return v.Uint()
 		}
 	case r.Uintptr:
 		ret = func(env *Env) uintptr {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return uintptr(v.Uint())
 		}
 	case r.Float32:
 		ret = func(env *Env) float32 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return float32(v.Float())
 		}
 	case r.Float64:
 		ret = func(env *Env) float64 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return v.Float()
 		}
 	case r.Complex64:
 		ret = func(env *Env) complex64 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return complex64(v.Complex())
 		}
 	case r.Complex128:
 		ret = func(env *Env) complex128 {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return v.Convert(rtout).Complex()
 		}
 	case r.String:
 		ret = func(env *Env) string {
-			v, t := g.extractFromInterface(fun(env))
+			v, t := g.extractFromProxy(fun(env))
 			v = typeassert(v, t, tin, tout)
 			return v.String()
 		}
@@ -645,7 +645,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			// type assertion to empty interface.
 			// everything, excluding untyped nil, implements an empty interface
 			ret = func(env *Env) r.Value {
-				v, _ := g.extractFromInterface(fun(env))
+				v, _ := g.extractFromProxy(fun(env))
 				if v == Nil {
 					typeassertpanic(nil, nil, tin, tout)
 				}
@@ -655,7 +655,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			// type assertion to interface.
 			// expression type implements such interface, can only fail if value is nil
 			ret = func(env *Env) r.Value {
-				v, _ := g.extractFromInterface(fun(env))
+				v, _ := g.extractFromProxy(fun(env))
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
 				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
@@ -667,7 +667,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			// type assertion to interface.
 			// must check at runtime whether concrete type implements asserted interface
 			ret = func(env *Env) r.Value {
-				v, t := g.extractFromInterface(fun(env))
+				v, t := g.extractFromProxy(fun(env))
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
 				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
@@ -685,7 +685,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 		if IsNillableKind(kout) {
 			// type assertion to concrete (nillable) type
 			ret = func(env *Env) r.Value {
-				v, t := g.extractFromInterface(fun(env))
+				v, t := g.extractFromProxy(fun(env))
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
 				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
@@ -705,7 +705,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 		} else {
 			// type assertion to concrete (non-nillable) type
 			ret = func(env *Env) r.Value {
-				v, t := g.extractFromInterface(fun(env))
+				v, t := g.extractFromProxy(fun(env))
 				rt := rtypeof(v, t)
 				if rt != rtout || (t != nil && !t.IdenticalTo(tout)) {
 					panic(&TypeAssertionError{

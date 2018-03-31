@@ -63,9 +63,9 @@ func (c *Comp) InterfaceProxy(t xr.Type) r.Type {
 	return ret
 }
 
-// converterToInterface compiles a conversion from 'tin' into a proxy struct that implements the interface type 'tout'
+// converterToProxy compiles a conversion from 'tin' into a proxy struct that implements the interface type 'tout'
 // and returns a function that performs such conversion
-func (c *Comp) converterToInterface(tin xr.Type, tout xr.Type) func(val r.Value, rtout r.Type) r.Value {
+func (c *Comp) converterToProxy(tin xr.Type, tout xr.Type) func(val r.Value, rtout r.Type) r.Value {
 	rtproxy := c.InterfaceProxy(tout)
 	rtout := tout.ReflectType()
 
@@ -81,7 +81,7 @@ func (c *Comp) converterToInterface(tin xr.Type, tout xr.Type) func(val r.Value,
 				tin, count, imtd.PkgPath, imtd.Name, len(xmtd.FieldIndex), tout)
 		}
 		e := c.compileMethodAsFunc(tin, xmtd)
-		setProxyMethod(vtable.Field(i+1), r.ValueOf(e.Value))
+		setProxyField(vtable.Field(i+1), r.ValueOf(e.Value))
 	}
 	return func(val r.Value, rtout r.Type) r.Value {
 		vaddr := r.New(rtproxy)
@@ -92,7 +92,7 @@ func (c *Comp) converterToInterface(tin xr.Type, tout xr.Type) func(val r.Value,
 	}
 }
 
-func setProxyMethod(place r.Value, mtd r.Value) {
+func setProxyField(place r.Value, mtd r.Value) {
 	rtin := mtd.Type()
 	rtout := place.Type()
 	if rtin == rtout {
@@ -108,8 +108,8 @@ func setProxyMethod(place r.Value, mtd r.Value) {
 }
 
 // extract a value from a proxy struct (one of the imports.* structs) that implements an interface
-// this is the inverse of the function returned by Comp.converterToInterface() above
-func (g *CompGlobals) extractFromInterface(v r.Value) (r.Value, xr.Type) {
+// this is the inverse of the function returned by Comp.converterToProxy() above
+func (g *CompGlobals) extractFromProxy(v r.Value) (r.Value, xr.Type) {
 	// base.Debugf("type assertion: value = %v <%v>", v, base.ValueType(v))
 	i := base.ValueInterface(v)
 	v = r.ValueOf(i) // rebuild with concrete type
@@ -129,4 +129,26 @@ func (g *CompGlobals) extractFromInterface(v r.Value) (r.Value, xr.Type) {
 		}
 	}
 	return v, xt
+}
+
+// converterToProxy compiles a conversion from 'tin' into the emulated interface type 'tout'
+// and returns a function that performs such conversion
+func (c *Comp) converterToEmulatedInterface(tin, tout xr.Type) func(val r.Value, rtout r.Type) r.Value {
+	if !tin.Implements(tout) {
+		c.Errorf("cannot convert from <%v> to <%v>", tin, tout)
+	}
+	n := tout.NumMethod()
+	// closures := make([]r.Value, n)
+	for i := 0; i < n; i++ {
+		mtdout := tout.Method(i)
+		mtdin, count := tin.MethodByName(mtdout.Name, c.PackagePath) // pkgpath is ignored for exported names
+		if count != 1 {
+			c.Errorf("cannot convert from <%v> to <%v>: missing method %s", tin, tout, mtdout.Name)
+		}
+		if !mtdin.Type.AssignableTo(mtdout.Type) {
+			c.Errorf("cannot convert from <%v> to <%v>: mismatched method %s", tin, tout, mtdout.Name)
+		}
+	}
+
+	return nil
 }

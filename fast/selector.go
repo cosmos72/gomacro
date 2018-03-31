@@ -545,91 +545,110 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 		// and it will crash later calling the method ONLY if the method implementation dereferences the receiver.
 		//
 		// Reproduce the same behaviour
-		isinterface := t.Kind() == r.Interface
-
-		switch len(fieldindex) {
-		case 0:
-			ret = func(env *Env) r.Value {
-				obj := objfun(env)
-				if addressof {
-					obj = obj.Addr()
-				} else {
-					if deref {
+		if t.Kind() == r.Interface {
+			ret = exprInterfaceMethodAsClosure(objfun, fieldindex, deref, index)
+		} else {
+			switch len(fieldindex) {
+			case 0:
+				ret = func(env *Env) r.Value {
+					obj := objfun(env)
+					if addressof {
+						obj = obj.Addr()
+					} else if deref {
 						obj = obj.Elem()
 					}
-					if isinterface {
-						return closureFromEmulatedInterface(obj, index)
+					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
+					if fun == Nil {
+						Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
+					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
+						fullargs := make([]r.Value, nin)
+						fullargs[0] = obj
+						copy(fullargs[1:], args)
+						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
+						return fun.Call(fullargs)
+					})
 				}
-				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-				if fun == Nil {
-					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
-				}
-				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
-					fullargs := make([]r.Value, nin)
-					fullargs[0] = obj
-					copy(fullargs[1:], args)
-					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return fun.Call(fullargs)
-				})
-			}
-		case 1:
-			fieldindex := fieldindex[0]
-			ret = func(env *Env) r.Value {
-				obj := objfun(env)
-				obj = field0(obj, fieldindex)
-				// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
-				if addressof {
-					obj = obj.Addr()
-				} else {
-					if deref {
+			case 1:
+				fieldindex := fieldindex[0]
+				ret = func(env *Env) r.Value {
+					obj := objfun(env)
+					obj = field0(obj, fieldindex)
+					// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
+					if addressof {
+						obj = obj.Addr()
+					} else if deref {
 						obj = obj.Elem()
 					}
-					if isinterface {
-						return closureFromEmulatedInterface(obj, index)
+					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
+					if fun == Nil {
+						Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
+					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
+						fullargs := make([]r.Value, nin)
+						fullargs[0] = obj
+						copy(fullargs[1:], args)
+						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
+						return fun.Call(fullargs)
+					})
 				}
-				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-				if fun == Nil {
-					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
-				}
-				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
-					fullargs := make([]r.Value, nin)
-					fullargs[0] = obj
-					copy(fullargs[1:], args)
-					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return fun.Call(fullargs)
-				})
-			}
-		default:
-			ret = func(env *Env) r.Value {
-				obj := objfun(env)
-				obj = fieldByIndex(obj, fieldindex)
-				if addressof {
-					obj = obj.Addr()
-				} else {
-					if deref {
+			default:
+				ret = func(env *Env) r.Value {
+					obj := objfun(env)
+					obj = fieldByIndex(obj, fieldindex)
+					if addressof {
+						obj = obj.Addr()
+					} else if deref {
 						obj = obj.Elem()
 					}
-					if isinterface {
-						return closureFromEmulatedInterface(obj, index)
+					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
+					if fun == Nil {
+						Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
+					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
+						fullargs := make([]r.Value, nin)
+						fullargs[0] = obj
+						copy(fullargs[1:], args)
+						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
+						return fun.Call(fullargs)
+					})
 				}
-				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
-				if fun == Nil {
-					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
-				}
-				return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
-					fullargs := make([]r.Value, nin)
-					fullargs[0] = obj
-					copy(fullargs[1:], args)
-					// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-					return fun.Call(fullargs)
-				})
 			}
 		}
 	}
 	return exprX1(tclosure, ret)
+}
+
+func exprInterfaceMethodAsClosure(objfun func(*Env) r.Value, fieldindex []int, deref bool, index int) func(env *Env) r.Value {
+	switch len(fieldindex) {
+	case 0:
+		return func(env *Env) r.Value {
+			obj := objfun(env)
+			if deref {
+				obj = obj.Elem()
+			}
+			return closureFromEmulatedInterface(obj, index)
+		}
+	case 1:
+		fieldindex := fieldindex[0]
+		return func(env *Env) r.Value {
+			obj := objfun(env)
+			obj = field0(obj, fieldindex)
+			if deref {
+				obj = obj.Elem()
+			}
+			return closureFromEmulatedInterface(obj, index)
+		}
+	default:
+		return func(env *Env) r.Value {
+			obj := objfun(env)
+			obj = fieldByIndex(obj, fieldindex)
+			if deref {
+				obj = obj.Elem()
+			}
+			return closureFromEmulatedInterface(obj, index)
+		}
+	}
 }
 
 // instead of building a closure that will pass the receiver to i-th interface method,
