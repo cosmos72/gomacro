@@ -44,14 +44,14 @@ func NewThreadGlobals() *ThreadGlobals {
 }
 
 func New() *Interp {
-	top := NewCompEnvTop("builtin")
+	top := newTopInterp("builtin")
 	top.env.UsedByClosure = true // do not free this *Env
-	file := NewCompEnv(top, "main")
+	file := NewInnerInterp(top, "main", "main")
 	file.env.UsedByClosure = true // do not free this *Env
 	return file
 }
 
-func NewCompEnvTop(path string) *Interp {
+func newTopInterp(path string) *Interp {
 	name := path[1+strings.LastIndexByte(path, '/'):]
 
 	globals := NewGlobals()
@@ -93,29 +93,31 @@ func NewCompEnvTop(path string) *Interp {
 	return ce
 }
 
-func NewCompEnv(outer *Interp, path string) *Interp {
-	name := path[1+strings.LastIndexByte(path, '/'):]
+func NewInnerInterp(outer *Interp, name string, path string) *Interp {
+	if len(name) == 0 {
+		name = path[1+strings.LastIndexByte(path, '/'):]
+	}
 
-	compGlobals := outer.Comp.CompGlobals
-	envGlobals := outer.env.ThreadGlobals
-	c := &Interp{
+	outerComp := outer.Comp
+	outerEnv := outer.env
+	ir := &Interp{
 		Comp: &Comp{
 			UpCost:      1,
-			Depth:       outer.Comp.Depth + 1,
-			Outer:       outer.Comp,
+			Depth:       outerComp.Depth + 1,
+			Outer:       outerComp,
 			Name:        name,
 			Path:        path,
-			CompGlobals: compGlobals,
+			CompGlobals: outerComp.CompGlobals,
 		},
 		env: &Env{
-			Outer:         outer.env,
-			ThreadGlobals: envGlobals,
+			Outer:         outerEnv,
+			ThreadGlobals: outerEnv.ThreadGlobals,
 		},
 	}
-	if outer.env.Outer == nil {
-		envGlobals.FileEnv = c.env
+	if outerEnv.Outer == nil {
+		outerEnv.ThreadGlobals.FileEnv = ir.env
 	}
-	return c
+	return ir
 }
 
 func NewComp(outer *Comp, code *Code) *Comp {
@@ -192,7 +194,7 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	return env
 }
 
-func NewEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
+func newEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
 	tg := outer.ThreadGlobals
 	pool := &tg.Pool // pool is an array, do NOT copy it!
 	index := tg.PoolSize - 1
@@ -220,7 +222,7 @@ func NewEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
 	}
 	env.Outer = outer
 	env.ThreadGlobals = tg
-	// Debugf("NewEnv4Func(%p->%p) binds=%d intbinds=%d", outer, env, nbinds, nintbinds)
+	// Debugf("newEnv4Func(%p->%p) binds=%d intbinds=%d", outer, env, nbinds, nintbinds)
 	return env
 }
 

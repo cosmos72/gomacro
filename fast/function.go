@@ -406,7 +406,7 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		// function is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
 		return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
-			env := NewEnv4Func(env, nbinds, nintbinds)
+			env := newEnv4Func(env, nbinds, nintbinds)
 
 			if funcbody != nil {
 				// copy runtime arguments into allocated binds
@@ -453,7 +453,7 @@ func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody f
 		// macro is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
 		return func(args []r.Value) []r.Value {
-			env := NewEnv4Func(env, nbinds, nintbinds)
+			env := newEnv4Func(env, nbinds, nintbinds)
 
 			if funcbody != nil {
 				// copy runtime arguments into allocated binds

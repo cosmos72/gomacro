@@ -359,9 +359,9 @@ var testcases = []TestCase{
 	TestCase{A, "for_1", "var i, j, k int; for i=1; i<=2; i=i+1 { if i<2 {j=i} else {k=i} }; i", 3, nil},
 	TestCase{A, "for_2", "j", 1, nil},
 	TestCase{A, "for_3", "k", 2, nil},
-	TestCase{A, "for_nested", `
-		(func (n1, n2, n3 int) int {
-			x := 0
+	TestCase{A, "for_nested", `x := 0
+		{
+			n1, n2, n3 := 2, 3, 5
 			for i := 0; i < n1; i++ {
 				for k := 0; k < n2; k++ {
 					for j := 0; j < n3; j++ {
@@ -369,8 +369,8 @@ var testcases = []TestCase{
 					}
 				}
 			}
-			return x
-		})(2,3,5)`, 2 * 3 * 5, nil},
+		}
+		x`, 2 * 3 * 5, nil},
 	TestCase{A, "continue_1", "j=0; k=0; for i:=1; i<=7; i=i+1 { if i==3 {j=i; continue}; k=k+i }; j", 3, nil},
 	TestCase{A, "continue_2", "k", 25, nil},
 	TestCase{A, "continue_3", "j=0; k=0; for i:=1; i<=7; i=i+1 { var ii = i; if ii==3 {j=ii; continue}; k=k+ii }; j", 3, nil},
