@@ -113,8 +113,8 @@ Fairly complete.
 
 The main missing features are:
 
-* interpreted interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods.
-  Note: interfaces imported from compiled code are fully functional, and interpreted types **can** implement them.
+* interpreted interfaces are supported, but not extensively tested yet.
+* out-of-order code. Types, variables and functions must be declared **before** using them.
 * switching to a different package
   (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented, needs to be completed

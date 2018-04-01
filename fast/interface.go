@@ -66,21 +66,21 @@ func (c *Comp) InterfaceProxy(t xr.Type) r.Type {
 // converterToProxy compiles a conversion from 'tin' into a proxy struct that implements the interface type 'tout'
 // and returns a function that performs such conversion
 func (c *Comp) converterToProxy(tin xr.Type, tout xr.Type) func(val r.Value) r.Value {
-	rtproxy := c.InterfaceProxy(tout)
-	rtout := tout.ReflectType()
+	rtout := tout.ReflectType()       // a compiled interface
+	rtproxy := c.InterfaceProxy(tout) // one of our proxies that pre-implement the compiled interface
 
 	vtable := r.New(rtproxy).Elem()
 	n := rtout.NumMethod()
 	for i := 0; i < n; i++ {
-		imtd := rtout.Method(i)
-		xmtd, count := tin.MethodByName(imtd.Name, imtd.PkgPath)
+		mtdout := rtout.Method(i)
+		mtdin, count := tin.MethodByName(mtdout.Name, mtdout.PkgPath)
 		if count == 0 {
-			c.Errorf("cannot convert type <%v> to interface <%v>: missing method %s %s", tin, rtout, imtd.PkgPath, imtd.Name)
+			c.Errorf("cannot convert type <%v> to interface <%v>: missing method %s %s", tin, rtout, mtdout.PkgPath, mtdout.Name)
 		} else if count > 1 {
 			c.Errorf("type <%v> has %d wrapper methods %s %s all at the same depth=%d - cannot convert to interface <%v>",
-				tin, count, imtd.PkgPath, imtd.Name, len(xmtd.FieldIndex), tout)
+				tin, count, mtdout.PkgPath, mtdout.Name, len(mtdin.FieldIndex), tout)
 		}
-		e := c.compileMethodAsFunc(tin, xmtd)
+		e := c.compileMethodAsFunc(tin, mtdin)
 		setProxyField(vtable.Field(i+1), r.ValueOf(e.Value))
 	}
 	extractor := c.extractor(tin)

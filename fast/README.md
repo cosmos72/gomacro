@@ -2,7 +2,7 @@
 
 The package `fast` contains a faster reimplementation of gomacro interpreter.
 
-To learn about gomacro, download, compile and use it, please refer to the original implementation [README.md](../README.md)
+To learn about gomacro, download, compile and use it, please refer to the main [README.md](../README.md)
 
 ## Current Status
 

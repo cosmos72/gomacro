@@ -4,7 +4,7 @@ Gomacro default interpreter supports:
 * line comments starting with #! in addition to //
 * basic types: booleans, integers, floats, complex numbers, strings (and iota)
 * interfaces imported from compiled code, as for example `interface{}`, `error`, `fmt.Stringer`...
-  (new interfaces can be declared inside interpreted code, but they are not yet functional)
+* new interfaces can be declared inside interpreted code
 * constant, variable and type declaration, including untyped constants
 * Go 1.9 type aliases (experimental)
 * unary and binary operators
@@ -43,9 +43,9 @@ Gomacro default interpreter supports:
     "func" always declares a closure (lambda) or a function type - there is no way to declare a function or method
 * nesting macros, quotes and unquotes
 
-Some features are still missing:
-* interpreted interfaces. They can be declared, but nothing more: there is no way to implement them or call their methods.
-  Note: interfaces imported from compiled code are fully functional, and interpreted types **can** implement them.
+Some features are still missing or incomplete:
+* interpreted interfaces are supported, but not extensively tested yet.
+* out-of-order code. Types, variables and functions must be declared **before** using them.
 * switching to a different package
   (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented, needs to be completed
@@ -53,14 +53,15 @@ Some features are still missing:
 * type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
 Limitations:
-* Named types created by interpreted code are emulated.
+* named types created by interpreted code are emulated.
   When the interpreter is asked to create for example `type Pair struct { A, B int }`,
-  it actually creates instances of the unnamed `struct { A, B int }`.
+  it actually creates the unnamed type `struct { A, B int }`.
   Everything works as it should within the interpreter, but extracting the struct
-  and using it in compiled code actually reveals the difference.
+  and using it in compiled code reveals the difference.
 
-  The reason for such limitation is simple: the interpreter uses `reflect.StructOf()`
-  to define new types, which can only create unnamed types.
+  Reason: gomacro relies on the Go reflect package to create new types,
+  but there is no function `reflect.InterfaceOf()` or any other way to create new **named** types,
+  so gomacro uses `reflect.StructOf` which can only create unnamed types.
 
 * recursive types are emulated too.
   For example `type List struct { First interface{}; Rest *List}`
@@ -68,12 +69,21 @@ Limitations:
   Again, everything works as it should within the interpreter, but extracting
   the struct and using it in compiled code reveals the difference.
 
-  The reason is the same as above: the interpreter uses `reflect.StructOf()` to define new types,
+  The reason is: the interpreter uses `reflect.StructOf()` to define new types,
   which cannot create recursive types
 
   Interestingly, this means the interpreter also accepts the following declaration,
   which is rejected by Go compiler: `type List2 struct { First int; Rest List2 }`
   Note that `Rest` is a `List2` **not** a pointer to `List2`
+
+* interpreted interfaces are emulated too.
+  New interface types created by interpreted code are actually anonymous structs.
+  Also here, everything works as it should within the interpreter, but extracting
+  the interface and using it in compiled code reveals the difference.
+
+  Reason: gomacro relies on the Go reflect package to create new types,
+  and there is no function `reflect.InterfaceOf()`, so the interpreter uses
+  `reflect.StructOf()` and a lot of bookkeeping to emulate new interface types.
 
 * operators << and >> on untyped constants do not follow the exact type deduction rules.
   The implemented behavior is:
