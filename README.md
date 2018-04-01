@@ -74,11 +74,11 @@ Gomacro can be used as:
   how to have your application's functions, variable, constants and types
   available in the interpreter.
 
-  Note: your programs **don't** need to be LGPL as gomacro: they can keep their license,
-  be it commercial, BSD, MIT, GPL or (almost) anything else
-  (read LGPL [LICENSE](LICENSE) section 4 for the legal details).
-
-  Using gomacro in your programs does **not** force you to distribute their source code.
+  Note: gomacro is currently [LGPL](LICENSE), which imposes some restrictions
+  on programs that use gomacro. The author is currently looking for a license
+  that has fewer (but not zero) restrictions. If you are sufficiently expert with licenses,
+  you can help by reading [issue #14](https://github.com/cosmos72/gomacro/issues/14)
+  and indicating a license that satisfies the requirements listed in it.
 
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
