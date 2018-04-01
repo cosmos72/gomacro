@@ -52,7 +52,9 @@ Some features are still missing or incomplete:
 * history/readline (rlwrap does the job in most cases)
 * type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
-Limitations:
+* typeswitch confuses interpreted types with the same underlying (unnamed) type
+
+Other limitations:
 * named types created by interpreted code are emulated.
   When the interpreter is asked to create for example `type Pair struct { A, B int }`,
   it actually creates the unnamed type `struct { A, B int }`.

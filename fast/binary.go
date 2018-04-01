@@ -350,7 +350,7 @@ func (c *Comp) toSameFuncType(node ast.Expr, xe *Expr, ye *Expr) {
 		}
 	} else if xconst {
 		xe.ConstTo(ye.Type)
-	} else if xe.Type.ReflectType() != ye.Type.ReflectType() {
+	} else if !xe.Type.IdenticalTo(ye.Type) {
 		c.mismatchedTypes(node, xe, ye)
 	}
 }

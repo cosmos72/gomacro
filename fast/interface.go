@@ -124,7 +124,11 @@ func setProxyField(place r.Value, mtd r.Value) {
 // this is the inverse of the function returned by Comp.converterToProxy() above
 func (g *CompGlobals) extractFromProxy(v r.Value) (r.Value, xr.Type) {
 	// base.Debugf("type assertion: value = %v <%v>", v, base.ValueType(v))
-	i := base.ValueInterface(v)
+	if v == base.Nil || v == base.None || !v.IsValid() || !v.CanInterface() {
+		// cannot rebuild with concrete type
+		return v, nil
+	}
+	i := v.Interface()
 	v = r.ValueOf(i) // rebuild with concrete type
 	rt := r.TypeOf(i)
 	var xt xr.Type

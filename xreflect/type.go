@@ -28,6 +28,8 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
+
+	"github.com/cosmos72/gomacro/typeutil"
 )
 
 func identicalType(t, u Type) bool {
@@ -276,7 +278,7 @@ func (t *xtype) IdenticalTo(u Type) bool {
 }
 
 func (t *xtype) identicalTo(u *xtype) bool {
-	return types.IdenticalIgnoreTags(t.GoType(), u.GoType())
+	return typeutil.Identical(t.GoType(), u.GoType())
 }
 
 // AssignableTo reports whether a value of the type is assignable to type u.

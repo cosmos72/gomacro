@@ -165,6 +165,83 @@ const switch_source_string = `func bigswitch(n int) int {
 	return n
 }`
 
+const interface_interpreted_1_source_string = `
+import (
+	"errors"
+	"fmt"
+	"io"
+	"os"
+)
+
+type R interface {
+	Read([]uint8) (int, error)
+}
+
+type DevNull struct{ dummy int } // FIXME typeswitch confuses types with same reflect.Type
+
+func (d DevNull) Read(b []byte) (int, error) {
+	return 0, io.EOF
+}
+
+type DevZero struct{}
+
+func (d DevZero) Read(b []byte) (int, error) {
+	for i := range b {
+		b[i] = 0
+	}
+	return len(b), nil
+}
+
+true`
+
+const interface_interpreted_2_source_string = `
+(func() bool {
+
+	fail := func(format string, args ...interface{}) {
+		panic(errors.New(fmt.Sprintf(format, args...)))
+	}
+
+	f, _ := os.Open("README.md")
+	bytes := make([]uint8, 80)
+
+	rs := [3]R{f, DevNull{}, DevZero{}}
+	lens := [3]int{80, 0, 80}
+	errs := [3]error{nil, io.EOF, nil}
+
+	for i, r := range rs {
+		len, err := r.Read(bytes)
+		if len != lens[i] || err != errs[i] {
+			fail("Read(): expecting (%v, %v), returned (%v, %v)", lens[i], errs[i], len, err)
+		}
+		j := -1
+		switch r := r.(type) {
+		case *os.File:
+			j = 0
+			// FIXME: extract values from proxy / emulated interfaces for comparison!
+			if r != rs[i] {
+				fail("typeswitch: expecting r=%T, found r=%T", rs[i], r)
+			}
+		case DevNull:
+			j = 1
+			// FIXME: as above
+			if r != rs[i] {
+				fail("typeswitch: expecting r=%T, found r=%T", rs[i], r)
+			}
+		case DevZero:
+			j = 2
+			// FIXME: as above
+			if r != rs[i] {
+				fail("typeswitch: expecting r=%T, found r=%T", rs[i], r)
+			}
+		}
+		if i != j {
+			fail("typeswitch: expecting j=%d, found j=%d", i, j)
+		}
+	}
+	return true
+})()
+`
+
 var (
 	cti = r.StructOf(
 		[]r.StructField{
@@ -570,6 +647,9 @@ var testcases = []TestCase{
 	TestCase{F, "interface_method_to_func_2", "f2 := io.ReadWriter.Read; f2 != nil", true, nil},
 	TestCase{F, "interface_method_to_func_3", "type Fooer interface { Foo() }; Fooer.Foo != nil", true, nil},
 	TestCase{F, "interface_method_to_func_4", "type RW interface { io.Reader; io.Writer }; RW.Read != nil && RW.Write != nil", true, nil},
+
+	TestCase{F, "interface_interpreted_1", interface_interpreted_1_source_string, true, nil},
+	TestCase{F, "interface_interpreted_2", interface_interpreted_2_source_string, true, nil},
 
 	TestCase{A, "multiple_values_1", "func twins(x float32) (float32,float32) { return x, x+1 }; twins(17.0)", nil, []interface{}{float32(17.0), float32(18.0)}},
 	TestCase{A, "multiple_values_2", "func twins2(x float32) (float32,float32) { return twins(x) }; twins2(19.0)", nil, []interface{}{float32(19.0), float32(20.0)}},
