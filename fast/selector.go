@@ -63,7 +63,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 			return c.compileMethod(node, eorig, mtd)
 		}
 	default:
-		// non-struct interfaces and named types can have methods, but no fields
+		// interfaces and non-struct named types can have methods, but no fields
 		mtd, mtdn := c.LookupMethod(t, name)
 		switch mtdn {
 		case 0:
@@ -414,113 +414,54 @@ func (c *Comp) removeFirstParam(t xr.Type) xr.Type {
 	return c.Universe.FuncOf(params, results, t.IsVariadic())
 }
 
-// compileMethod compiles a method call.
+// compileMethod compiles expr.method
 // relatively slow, but simple: return a closure with the receiver already bound
 func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Expr {
-	fieldindex := mtd.FieldIndex
-	t := e.Type
-	indirect := false // executed a dereference ?
+	obj2method := c.compileObjGetMethod(e.Type, mtd)
+	fun := e.AsX1()
+	tclosure := c.removeFirstParam(mtd.Type)
 
-	// descend embedded fields
-	for i, index := range fieldindex {
-		if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
-			// embedded field (or initial value) is a pointer, dereference it.
-			t = t.Elem()
-			indirect = true
-			fieldindex[i] = ^index // remember we neeed a pointer dereference at runtime
-		}
-		t = t.Field(index).Type
-	}
-	index := mtd.Index
+	return exprX1(tclosure, func(env *Env) r.Value {
+		return obj2method(fun(env))
+	})
+}
+
+// create and return a function that, given a reflect.Value, returns its method specified by mtd
+func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) r.Value) {
 	rtype := t.ReflectType()
+	index := mtd.Index
 	tfunc := mtd.Type
-	tclosure := c.removeFirstParam(tfunc)
-	rtclosure := tclosure.ReflectType()
-	trecv := tfunc.In(0)
+	rtclosure := c.removeFirstParam(tfunc).ReflectType()
 
-	objPointer := t.Kind() == r.Ptr      // field is pointer?
-	recvPointer := trecv.Kind() == r.Ptr // method with pointer receiver?
-	addressof := !objPointer && recvPointer
-	deref := objPointer && !recvPointer
-
-	debug := c.Options&OptDebugMethod != 0
-	if debug {
-		c.Debugf("compiling method %v: receiver is <%v>, value is <%v>", node, trecv, t)
-	}
-	if t.AssignableTo(trecv) {
-		addressof = false
-		deref = false
-		if debug {
-			c.Debugf("compiling method %v: value is assignable to receiver", node)
-		}
-	} else if addressof && c.Universe.PtrTo(t).AssignableTo(trecv) {
-		// c.Debugf("method call <%v> will take address of receiver <%v>", tfunc, t)
-		// ensure receiver is addressable. maybe it was simply dereferenced by Comp.SelectorExpr
-		// or maybe we need to explicitly take its address
-		if indirect {
-			if len(fieldindex) != 0 {
-				// easy, we dereferenced some expression while descending embedded fields
-				// so the receiver is addressable
-				if debug {
-					c.Debugf("compiling method %v: address-of-value is assignable to receiver", node)
-				}
-			} else {
-				// even easier, the initial expression already contains the address we want
-				addressof = false
-				if debug {
-					c.Debugf("compiling method %v: value was initially an address", node)
-				}
-			}
-		} else {
-			// manually compile "& receiver_expression"
-			if debug {
-				c.Debugf("compiling method %v: compiling address-of-value", node)
-			}
-			if len(fieldindex) != 0 {
-				// must execute address-of-field at runtime, just check that struct is addressable
-				c.addressOf(node.X)
-			} else {
-				e = c.addressOf(node.X)
-				addressof = false
-			}
-		}
-	} else if deref && t.Elem().AssignableTo(trecv) {
-		if debug {
-			c.Debugf("method call <%v> will dereference receiver <%v>", tfunc, t)
-		}
-	} else {
-		c.Errorf("cannot use <%v> as <%v> in receiver of method <%v>", t, trecv, tfunc)
-	}
-
-	objfun := e.AsX1()
-	var ret func(env *Env) r.Value
+	fieldindex, addressof, deref := c.computeFieldIndex(t, mtd)
 
 	if t.NumMethod() == rtype.NumMethod() && t.Named() && xr.QName1(t) == xr.QName1(rtype) {
 		// closures for methods declared by compiled code are available
 		// simply with reflect.Value.Method(index). Easy.
 		switch len(fieldindex) {
 		case 0:
-			ret = func(env *Env) r.Value {
-				obj := objfun(env)
+			ret = func(obj r.Value) r.Value {
 				return obj.Method(index)
 			}
 		case 1:
 			fieldindex := fieldindex[0]
-			ret = func(env *Env) r.Value {
-				obj := objfun(env)
+			ret = func(obj r.Value) r.Value {
 				obj = field0(obj, fieldindex)
 				return obj.Method(index)
 			}
 		default:
-			ret = func(env *Env) r.Value {
-				obj := objfun(env)
+			ret = func(obj r.Value) r.Value {
 				obj = fieldByIndex(obj, fieldindex)
 				return obj.Method(index)
 			}
 		}
 	} else {
-		if debug {
-			c.Debugf("compiling method %v: method declared by interpreted code, manually building the closure", node)
+		tname := t.Name()
+		methodname := mtd.Name
+
+		if c.Options&OptDebugMethod != 0 {
+			c.Debugf("compiling method %v.%s: method declared by interpreted code, manually building the closure",
+				tname, methodname)
 		}
 		// method declared by interpreted code, manually build the closure.
 		//
@@ -531,27 +472,24 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 		funs := mtd.Funs
 		nin := tfunc.NumIn()
 
-		tname := t.Name()
-		methodname := mtd.Name
 		if funs == nil {
 			c.Errorf("method declared but not yet implemented: %s.%s", tname, methodname)
 		} else if len(*funs) <= index || (*funs)[index].Kind() != r.Func {
 			// c.Warnf("method declared but not yet implemented: %s.%s", tname, methodname)
 		}
 		// Go compiled code crashes when extracting a method from nil interface,
-		// NOT later calling the method.
+		// NOT later when calling the method.
 		//
 		// On the other hand, Go compiled code can extract methods from a nil pointer to named type,
 		// and it will crash later calling the method ONLY if the method implementation dereferences the receiver.
 		//
 		// Reproduce the same behaviour
 		if t.Kind() == r.Interface {
-			ret = exprInterfaceMethodAsClosure(objfun, fieldindex, deref, index)
+			ret = compileInterfaceGetMethod(fieldindex, deref, index)
 		} else {
 			switch len(fieldindex) {
 			case 0:
-				ret = func(env *Env) r.Value {
-					obj := objfun(env)
+				ret = func(obj r.Value) r.Value {
 					if addressof {
 						obj = obj.Addr()
 					} else if deref {
@@ -571,8 +509,7 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 				}
 			case 1:
 				fieldindex := fieldindex[0]
-				ret = func(env *Env) r.Value {
-					obj := objfun(env)
+				ret = func(obj r.Value) r.Value {
 					obj = field0(obj, fieldindex)
 					// Debugf("invoking method <%v> on receiver <%v> (addressof=%t, deref=%t)", (*funs)[index].Type(), obj.Type(), addressof, deref)
 					if addressof {
@@ -593,8 +530,7 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 					})
 				}
 			default:
-				ret = func(env *Env) r.Value {
-					obj := objfun(env)
+				ret = func(obj r.Value) r.Value {
 					obj = fieldByIndex(obj, fieldindex)
 					if addressof {
 						obj = obj.Addr()
@@ -616,47 +552,115 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 			}
 		}
 	}
-	return exprX1(tclosure, ret)
+	return ret
 }
 
-func exprInterfaceMethodAsClosure(objfun func(*Env) r.Value, fieldindex []int, deref bool, index int) func(env *Env) r.Value {
+func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(r.Value) r.Value {
 	switch len(fieldindex) {
 	case 0:
-		return func(env *Env) r.Value {
-			obj := objfun(env)
+		return func(obj r.Value) r.Value {
 			if deref {
 				obj = obj.Elem()
 			}
-			return closureFromEmulatedInterface(obj, index)
+			return xr.EmulatedInterfaceGetMethod(obj, index)
 		}
 	case 1:
 		fieldindex := fieldindex[0]
-		return func(env *Env) r.Value {
-			obj := objfun(env)
+		return func(obj r.Value) r.Value {
 			obj = field0(obj, fieldindex)
 			if deref {
 				obj = obj.Elem()
 			}
-			return closureFromEmulatedInterface(obj, index)
+			return xr.EmulatedInterfaceGetMethod(obj, index)
 		}
 	default:
-		return func(env *Env) r.Value {
-			obj := objfun(env)
+		return func(obj r.Value) r.Value {
 			obj = fieldByIndex(obj, fieldindex)
 			if deref {
 				obj = obj.Elem()
 			}
-			return closureFromEmulatedInterface(obj, index)
+			return xr.EmulatedInterfaceGetMethod(obj, index)
 		}
 	}
 }
 
-// instead of building a closure that will pass the receiver to i-th interface method,
-// extract the already-made closure from inside the emulated interface object.
-// This works by exploiting how emulated interfaces are INTERNALLY implemented by xreflect:
-// they are a *struct { xreflect.InterfaceHeader; [0]struct { embeddeds... }; closures... }
-func closureFromEmulatedInterface(obj r.Value, index int) r.Value {
-	return obj.Elem().Field(index + 2)
+// compute and return the dereferences and addressof to perform while descending
+// the embedded fields described by mtd.FieldIndex []int
+// also check that addressof will be performed on addressable fields
+func (c *Comp) computeFieldIndex(t xr.Type, mtd xr.Method) (fieldindex []int, addressof bool, deref bool) {
+	fieldindex = append([]int{}, mtd.FieldIndex...) // make a copy, we will modify fieldIndex
+	indirect := false                               // executed a dereference ?
+
+	// descend embedded fields
+	for i, index := range fieldindex {
+		if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
+			// embedded field (or initial value) is a pointer, dereference it.
+			t = t.Elem()
+			indirect = true
+			fieldindex[i] = ^index // remember we need a pointer dereference at runtime
+		}
+		t = t.Field(index).Type
+	}
+	tfunc := mtd.Type
+	trecv := tfunc.In(0)
+
+	objPointer := t.Kind() == r.Ptr      // field is pointer?
+	recvPointer := trecv.Kind() == r.Ptr // method with pointer receiver?
+	addressof = !objPointer && recvPointer
+	deref = objPointer && !recvPointer
+
+	debug := c.Options&OptDebugMethod != 0
+	if debug {
+		c.Debugf("compiling method %v.%v", t.Name(), mtd.Name)
+	}
+	if t.AssignableTo(trecv) {
+		addressof = false
+		deref = false
+		if debug {
+			c.Debugf("compiling method %v.%v: value is assignable to receiver", t.Name(), mtd.Name)
+		}
+	} else if addressof && c.Universe.PtrTo(t).AssignableTo(trecv) {
+		// c.Debugf("method call <%v> will take address of receiver <%v>", tfunc, t)
+		// ensure receiver is addressable. maybe it was simply dereferenced by Comp.SelectorExpr
+		// or maybe we need to explicitly take its address
+		if indirect {
+			if len(fieldindex) != 0 {
+				// easy, we dereferenced some expression while descending embedded fields
+				// so the receiver is addressable
+				if debug {
+					c.Debugf("compiling method %v.%v: address-of-value is assignable to receiver", t.Name(), mtd.Name)
+				}
+			} else {
+				// even easier, the initial expression already contains the address we want
+				addressof = false
+				if debug {
+					c.Debugf("compiling method %v.%v: value was initially an address", t.Name(), mtd.Name)
+				}
+			}
+		} else {
+			// manually compile "& receiver_expression"
+			if debug {
+				c.Debugf("compiling method %v.%v: compiling address-of-value", t.Name(), mtd.Name)
+			}
+			// FIXME restore and complete these addressability checks
+			/*
+				if len(fieldindex) != 0 {
+					// must execute addressof at runtime, just check that struct is addressable
+					c.addressOf(node.X)
+				} else {
+					e = c.addressOf(node.X)
+					addressof = false
+				}
+			*/
+		}
+	} else if deref && t.Elem().AssignableTo(trecv) {
+		if debug {
+			c.Debugf("method call <%v> will dereference receiver <%v>", tfunc, t)
+		}
+	} else {
+		c.Errorf("cannot use <%v> as <%v> in receiver of method <%v>", t, trecv, tfunc)
+	}
+	return fieldindex, addressof, deref
 }
 
 // compileMethodAsFunc compiles a method as a function, for example time.Duration.String.

@@ -299,13 +299,12 @@ func (c *Comp) declUnnamedBind(init *Expr, o *Comp, upn int) *Symbol {
 		index := bind.Desc.Index()
 		f := init.AsX1()
 		conv := c.Converter(init.Type, t)
-		rtype := t.ReflectType()
 		switch upn {
 		case 0:
 			c.append(func(env *Env) (Stmt, *Env) {
 				v := f(env)
 				if conv != nil {
-					v = conv(v, rtype)
+					v = conv(v)
 				}
 				// no need to create a settable reflect.Value
 				env.Binds[index] = v
@@ -316,7 +315,7 @@ func (c *Comp) declUnnamedBind(init *Expr, o *Comp, upn int) *Symbol {
 			c.append(func(env *Env) (Stmt, *Env) {
 				v := f(env)
 				if conv != nil {
-					v = conv(v, rtype)
+					v = conv(v)
 				}
 				// no need to create a settable reflect.Value
 				env.Outer.Binds[index] = v
@@ -331,7 +330,7 @@ func (c *Comp) declUnnamedBind(init *Expr, o *Comp, upn int) *Symbol {
 				}
 				v := f(env)
 				if conv != nil {
-					v = conv(v, rtype)
+					v = conv(v)
 				}
 				// no need to create a settable reflect.Value
 				o.Binds[index] = v
@@ -417,7 +416,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret, _ := f(env)
 					place := r.New(rtype).Elem()
-					place.Set(conv(ret, rtype))
+					place.Set(conv(ret))
 					env.Binds[index] = place
 					env.IP++
 					return env.Code[env.IP], env
@@ -437,7 +436,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 				ret = func(env *Env) (Stmt, *Env) {
 					ret := fun(env)
 					place := r.New(rtype).Elem()
-					place.Set(conv(ret, rtype))
+					place.Set(conv(ret))
 					env.Binds[index] = place
 					env.IP++
 					return env.Code[env.IP], env

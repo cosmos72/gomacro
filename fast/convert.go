@@ -146,7 +146,7 @@ func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 	default:
 		if conv := c.Converter(e.Type, t); conv != nil {
 			ret = func(env *Env) r.Value {
-				return conv(fun(env), rtype)
+				return conv(fun(env))
 			}
 		} else {
 			ret = func(env *Env) r.Value {
@@ -159,9 +159,11 @@ func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 
 // Converter returns a function that converts reflect.Value from tin to tout
 // also supports conversion from interpreted types to interfaces
-func (c *Comp) Converter(tin, tout xr.Type) func(val r.Value, rtout r.Type) r.Value {
+func (c *Comp) Converter(tin, tout xr.Type) func(val r.Value) r.Value {
 	if !tin.ConvertibleTo(tout) {
 		c.Errorf("cannot convert from <%v> to <%v>", tin, tout)
+	} else if tin.IdenticalTo(tout) {
+		return nil
 	}
 	rtin := tin.ReflectType()
 	rtout := tout.ReflectType()
@@ -170,14 +172,24 @@ func (c *Comp) Converter(tin, tout xr.Type) func(val r.Value, rtout r.Type) r.Va
 		return nil
 	case rtin.ConvertibleTo(rtout):
 		// most conversions, including from compiled type to compiled interface
-		return r.Value.Convert
-	case tin.Kind() != r.Interface && rtout.Kind() == r.Interface:
-		// conversion from interpreted type to compiled interface.
-		// must use one of proxies that pre-implement compiled interfaces.
-		return c.converterToProxy(tin, tout)
-	case tout.Kind() == r.Interface && rtout.Kind() != r.Interface:
-		// conversion from type to interpreted interface
+		if rtin.Kind() != r.Interface {
+			return func(obj r.Value) r.Value {
+				return obj.Convert(rtout)
+			}
+		}
+		// extract objects wrapped in proxies (if any)
+		g := c.CompGlobals
+		return func(obj r.Value) r.Value {
+			obj, _ = g.extractFromProxy(obj)
+			return obj.Convert(rtout)
+		}
+	case xr.IsEmulatedInterface(tout):
+		// conversion from type to emulated interface
 		return c.converterToEmulatedInterface(tin, tout)
+	case rtout.Kind() == r.Interface:
+		// conversion from interpreted type to compiled interface.
+		// must use a proxy that pre-implement compiled interfaces.
+		return c.converterToProxy(tin, tout)
 	default:
 		c.Errorf("unimplemented conversion from <%v> to <%v>", tin, tout)
 		return nil

@@ -31,6 +31,36 @@ import (
 	"reflect"
 )
 
+func IsEmulatedInterface(t Type) bool {
+	xt := unwrap(t)
+	return xt.kind == reflect.Interface && xt.rtype.Kind() == reflect.Ptr
+}
+
+// extract the concrete value and type contained in an emulated interface
+func FromEmulatedInterface(v reflect.Value) (reflect.Value, Type) {
+	h := v.Elem().Field(0).Interface().(InterfaceHeader)
+	return h.val, h.typ
+}
+
+// create an emulated interface from given value, type and method extractors
+// (methods extractors are functions that, given a value, return one of its methods)
+func ToEmulatedInterface(rtypeinterf reflect.Type, v reflect.Value,
+	t Type, obj2methods []func(reflect.Value) reflect.Value) reflect.Value {
+
+	addr := reflect.New(rtypeinterf.Elem())
+	place := addr.Elem()
+	place.Field(0).Set(reflect.ValueOf(InterfaceHeader{v, t}))
+	for i := range obj2methods {
+		place.Field(i + 2).Set(obj2methods[i](v))
+	}
+	return addr
+}
+
+// extract the already-made i-th closure from inside the emulated interface object.
+func EmulatedInterfaceGetMethod(obj reflect.Value, index int) reflect.Value {
+	return obj.Elem().Field(index + 2)
+}
+
 // create []*types.Func suitable for types.NewInterface.
 // makes a copy of each methods[i].gunderlying().(*types.Signature)
 // because types.NewInterface will destructively modify them!

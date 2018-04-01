@@ -65,7 +65,7 @@ func (c *Comp) InterfaceProxy(t xr.Type) r.Type {
 
 // converterToProxy compiles a conversion from 'tin' into a proxy struct that implements the interface type 'tout'
 // and returns a function that performs such conversion
-func (c *Comp) converterToProxy(tin xr.Type, tout xr.Type) func(val r.Value, rtout r.Type) r.Value {
+func (c *Comp) converterToProxy(tin xr.Type, tout xr.Type) func(val r.Value) r.Value {
 	rtproxy := c.InterfaceProxy(tout)
 	rtout := tout.ReflectType()
 
@@ -83,11 +83,24 @@ func (c *Comp) converterToProxy(tin xr.Type, tout xr.Type) func(val r.Value, rto
 		e := c.compileMethodAsFunc(tin, xmtd)
 		setProxyField(vtable.Field(i+1), r.ValueOf(e.Value))
 	}
-	return func(val r.Value, rtout r.Type) r.Value {
+	extractor := c.extractor(tin)
+	if extractor == nil {
+		return func(val r.Value) r.Value {
+			vaddr := r.New(rtproxy)
+			vproxy := vaddr.Elem()
+			vproxy.Set(vtable)
+			vproxy.Field(0).Set(r.ValueOf(xr.MakeInterfaceHeader(val, tin)))
+			return vaddr.Convert(rtout)
+		}
+	}
+	// extract object from tin proxy or emulated interface (if any),
+	// and wrap it in tout proxy
+	return func(val r.Value) r.Value {
+		v, t := extractor(val)
 		vaddr := r.New(rtproxy)
 		vproxy := vaddr.Elem()
 		vproxy.Set(vtable)
-		vproxy.Field(0).Set(r.ValueOf(xr.MakeInterfaceHeader(val, tin)))
+		vproxy.Field(0).Set(r.ValueOf(xr.MakeInterfaceHeader(v, t)))
 		return vaddr.Convert(rtout)
 	}
 }
@@ -133,22 +146,57 @@ func (g *CompGlobals) extractFromProxy(v r.Value) (r.Value, xr.Type) {
 
 // converterToProxy compiles a conversion from 'tin' into the emulated interface type 'tout'
 // and returns a function that performs such conversion
-func (c *Comp) converterToEmulatedInterface(tin, tout xr.Type) func(val r.Value, rtout r.Type) r.Value {
+func (c *Comp) converterToEmulatedInterface(tin, tout xr.Type) func(val r.Value) r.Value {
 	if !tin.Implements(tout) {
 		c.Errorf("cannot convert from <%v> to <%v>", tin, tout)
 	}
 	n := tout.NumMethod()
-	// closures := make([]r.Value, n)
+	obj2methodFuncs := make([]func(r.Value) r.Value, n)
+
+	tsrc := tin
+	if tin.Kind() == r.Ptr {
+		// xr.Type.MethodByName wants T, not *T, even for methods with pointer receiver
+		tsrc = tin.Elem()
+	}
 	for i := 0; i < n; i++ {
 		mtdout := tout.Method(i)
-		mtdin, count := tin.MethodByName(mtdout.Name, c.PackagePath) // pkgpath is ignored for exported names
-		if count != 1 {
-			c.Errorf("cannot convert from <%v> to <%v>: missing method %s", tin, tout, mtdout.Name)
+		mtdin, count := tsrc.MethodByName(mtdout.Name, c.PackagePath) // pkgpath is ignored for exported names
+
+		if count == 0 {
+			c.Errorf("cannot convert from <%v> to <%v>: missing method %s %s", tin, tout, mtdout.Name, mtdout.Type)
+		} else if count > 1 {
+			c.Errorf("cannot convert from <%v> to <%v>: multiple methods match %s %s", tin, tout, mtdout.Name, mtdout.Type)
 		}
 		if !mtdin.Type.AssignableTo(mtdout.Type) {
-			c.Errorf("cannot convert from <%v> to <%v>: mismatched method %s", tin, tout, mtdout.Name)
+			c.Errorf("cannot convert from <%v> to <%v>: mismatched method %s: expecting %s, found %s",
+				tin, tout, mtdout.Name, mtdout.Type, mtdin.Type)
+		}
+		obj2methodFuncs[i] = c.compileObjGetMethod(tin, mtdin)
+	}
+	rtout := tout.ReflectType()
+
+	extractor := c.extractor(tin)
+	if extractor == nil {
+		return func(obj r.Value) r.Value {
+			return xr.ToEmulatedInterface(rtout, obj, tin, obj2methodFuncs)
 		}
 	}
+	// extract object from tin proxy or emulated interface (if any),
+	// and wrap it in tout emulated interface
+	return func(obj r.Value) r.Value {
+		v, t := extractor(obj)
+		return xr.ToEmulatedInterface(rtout, v, t, obj2methodFuncs)
+	}
+}
 
-	return nil
+// return a function that extracts value wrapped in a proxy or emulated interface
+// returns nil if no extraction is needed
+func (g *CompGlobals) extractor(tin xr.Type) func(r.Value) (r.Value, xr.Type) {
+	if tin.Kind() != r.Interface {
+		return nil
+	} else if xr.IsEmulatedInterface(tin) {
+		return xr.FromEmulatedInterface
+	} else {
+		return g.extractFromProxy
+	}
 }

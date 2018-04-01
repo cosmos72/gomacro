@@ -444,7 +444,7 @@ func (e *Expr) To(c *Comp, t xr.Type) {
 			if !v.IsValid() {
 				v = zero
 			} else {
-				v = conv(v, rtype)
+				v = conv(v)
 			}
 			return v
 		}
