@@ -177,7 +177,7 @@ type R interface {
 	Read([]uint8) (int, error)
 }
 
-type DevNull struct{ dummy int } // FIXME typeswitch confuses types with same reflect.Type
+type DevNull struct{}
 
 func (d DevNull) Read(b []byte) (int, error) {
 	return 0, io.EOF
@@ -217,21 +217,18 @@ const interface_interpreted_2_source_string = `
 		switch r := r.(type) {
 		case *os.File:
 			j = 0
-			// FIXME: extract values from proxy / emulated interfaces for comparison!
 			if r != rs[i] {
-				fail("typeswitch: expecting r=%T, found r=%T", rs[i], r)
+				fail("typeswitch: expecting %v, found %v", rs[i], r)
 			}
 		case DevNull:
 			j = 1
-			// FIXME: as above
 			if r != rs[i] {
-				fail("typeswitch: expecting r=%T, found r=%T", rs[i], r)
+				fail("typeswitch: expecting %v, found %v", rs[i], r)
 			}
 		case DevZero:
 			j = 2
-			// FIXME: as above
 			if r != rs[i] {
-				fail("typeswitch: expecting r=%T, found r=%T", rs[i], r)
+				fail("typeswitch: expecting %v, found %v", rs[i], r)
 			}
 		}
 		if i != j {
