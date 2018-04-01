@@ -196,6 +196,8 @@ func (c *Comp) typeswitchNode(stmt ast.Stmt) (ast.Expr, string) {
 func (c *Comp) typeswitchTag(e *Expr) *Bind {
 	bind := c.AddBind("", VarBind, e.Type) // e.Type must be an interface type...
 
+	extractor := c.extractor(e.Type)
+
 	// c.Debugf("typeswitchTag: allocated bind %v", bind)
 	switch bind.Desc.Class() {
 	case VarBind:
@@ -205,7 +207,7 @@ func (c *Comp) typeswitchTag(e *Expr) *Bind {
 		index := bind.Desc.Index()
 		init := e.AsX1()
 		c.append(func(env *Env) (Stmt, *Env) {
-			v := r.ValueOf(init(env).Interface()) // extract concrete type
+			v, _ := extractor(init(env)) // extract value with concrete type
 			// Debugf("typeswitchTag = %v <%v>", v, ValueType(v))
 			// no need to create a settable reflect.Value
 			env.Binds[index] = v
