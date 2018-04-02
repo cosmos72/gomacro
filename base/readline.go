@@ -77,7 +77,7 @@ func MakeTtyReadline(historyfile string) (TtyReadline, error) {
 		sig := <-c
 		signal.Stop(c)
 
-		fmt.Fprintf(os.Stderr, "received signal %v\n", sig)
+		fmt.Fprintf(os.Stderr, "\nreceived signal: %v\n", sig)
 		tty.Close(historyfile)
 	}()
 
@@ -95,7 +95,13 @@ func (tty TtyReadline) Read(prompt string) ([]byte, error) {
 	if len(line) != 0 {
 		tty.term.AppendHistory(line)
 	}
-	return []byte(line), err
+	if n := len(line); n != 0 || err != io.EOF {
+		bytes := make([]byte, n+1)
+		copy(bytes, line)
+		bytes[n] = '\n'
+		return bytes, err
+	}
+	return nil, err
 }
 
 func (tty TtyReadline) Close(historyfile string) (err error) {
