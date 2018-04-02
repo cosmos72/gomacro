@@ -280,11 +280,11 @@ func (lit *Lit) DefaultType() xr.Type {
 func (untyp *UntypedLit) DefaultType() xr.Type {
 	switch untyp.Kind {
 	case r.Bool, r.Int32, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
-		if universe := untyp.Universe; universe == nil {
-			Errorf("UntypedLit.DefaultType(): malformed untyped constant %v, has nil Universe!", untyp)
+		if basicTypes := untyp.BasicTypes; basicTypes == nil {
+			Errorf("UntypedLit.DefaultType(): malformed untyped constant %v, has nil BasicTypes!", untyp)
 			return nil
 		} else {
-			return universe.BasicTypes[untyp.Kind]
+			return (*basicTypes)[untyp.Kind]
 		}
 
 	default:

@@ -55,9 +55,9 @@ func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
 
 // UntypedLit represents an untyped literal value, i.e. an untyped constant
 type UntypedLit struct {
-	Kind     r.Kind // default type. matches Obj.Kind() except for rune literals, where Kind == reflect.Int32
-	Obj      constant.Value
-	Universe *xr.Universe
+	Kind       r.Kind // default type. matches Obj.Kind() except for rune literals, where Kind == reflect.Int32
+	Obj        constant.Value
+	BasicTypes *[]xr.Type
 }
 
 var (
@@ -353,7 +353,7 @@ func (bind *Bind) ConstValue() r.Value {
 }
 
 func (c *Comp) BindUntyped(value UntypedLit) *Bind {
-	value.Universe = c.Universe
+	value.BasicTypes = &c.Universe.BasicTypes
 	return &Bind{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: value}, Desc: ConstBindDescriptor}
 }
 

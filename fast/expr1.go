@@ -34,15 +34,15 @@ import (
 )
 
 func (c *Comp) litValue(value I) Lit {
-	if untyp, ok := value.(UntypedLit); ok && untyp.Universe != c.Universe {
-		untyp.Universe = c.Universe
+	if untyp, ok := value.(UntypedLit); ok && untyp.BasicTypes != &c.Universe.BasicTypes {
+		untyp.BasicTypes = &c.Universe.BasicTypes
 		value = untyp
 	}
 	return Lit{Type: c.TypeOf(value), Value: value}
 }
 
 func (c *Comp) exprUntypedLit(kind r.Kind, obj constant.Value) *Expr {
-	return &Expr{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: UntypedLit{kind, obj, c.Universe}}}
+	return &Expr{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: UntypedLit{kind, obj, &c.Universe.BasicTypes}}}
 }
 
 func (c *Comp) exprValue(t xr.Type, value I) *Expr {

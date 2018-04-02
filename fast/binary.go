@@ -228,7 +228,7 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		xuntyp := xe.Value.(UntypedLit)
 		if ye.Const() {
 			// untyped << typed
-			yuntyp := UntypedLit{r.Int, constant.MakeUint64(r.ValueOf(ye.Value).Uint()), c.Universe}
+			yuntyp := UntypedLit{r.Int, constant.MakeUint64(r.ValueOf(ye.Value).Uint()), &c.Universe.BasicTypes}
 			return c.ShiftUntyped(node, node.Op, xuntyp, yuntyp)
 		}
 		// untyped << expression

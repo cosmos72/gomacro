@@ -107,6 +107,12 @@ Gomacro can be used as:
 
 ## Installation
 
+  The command
+  ```
+  go get -u github.com/cosmos72/gomacro
+  ```
+  downloads, compiles and installs gomacro
+
 ## Current Status
 
 Fairly complete.

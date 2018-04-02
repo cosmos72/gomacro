@@ -131,7 +131,7 @@ func (g *CompGlobals) parseImportUntyped(untyped string) (r.Value, xr.Type, bool
 	if gkind == types.Invalid {
 		return Nil, nil, false
 	}
-	lit := UntypedLit{Kind: xr.ToReflectKind(gkind), Obj: value, Universe: g.Universe}
+	lit := UntypedLit{Kind: xr.ToReflectKind(gkind), Obj: value, BasicTypes: &g.Universe.BasicTypes}
 	return r.ValueOf(lit), g.TypeOfUntypedLit(), true
 }
 

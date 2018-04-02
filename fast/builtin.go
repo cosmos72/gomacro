@@ -84,12 +84,12 @@ func (top *Comp) incrementIota() {
 // ============================== initialization ===============================
 
 func (ce *Interp) addBuiltins() {
-	universe := ce.Comp.Universe
+	basicTypes := &ce.Comp.Universe.BasicTypes
 
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	ce.DeclConst("false", nil, UntypedLit{r.Bool, constant.MakeBool(false), universe})
-	ce.DeclConst("true", nil, UntypedLit{r.Bool, constant.MakeBool(true), universe})
+	ce.DeclConst("false", nil, UntypedLit{r.Bool, constant.MakeBool(false), basicTypes})
+	ce.DeclConst("true", nil, UntypedLit{r.Bool, constant.MakeBool(true), basicTypes})
 
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
 	ce.DeclConst("nil", nil, nil)
