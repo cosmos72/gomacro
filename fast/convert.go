@@ -181,7 +181,11 @@ func (c *Comp) Converter(tin, tout xr.Type) func(val r.Value) r.Value {
 		g := c.CompGlobals
 		return func(obj r.Value) r.Value {
 			obj, _ = g.extractFromProxy(obj)
-			return obj.Convert(rtout)
+			if obj.IsValid() {
+				return obj.Convert(rtout)
+			} else {
+				return r.Zero(rtout)
+			}
 		}
 	case xr.IsEmulatedInterface(tout):
 		// conversion from type to emulated interface
