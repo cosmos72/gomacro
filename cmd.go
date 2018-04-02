@@ -273,7 +273,7 @@ func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 			}
 		}
 	}()
-	in := bufio.NewReader(src)
+	in := MakeBufReadline(bufio.NewReader(src), cmd.Interp.Stdout)
 	ir := cmd.Interp
 	env := ir.Env
 	env.Options &^= OptShowPrompt // parsing a file: suppress prompt

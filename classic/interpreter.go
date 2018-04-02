@@ -82,20 +82,24 @@ func (ir *Interp) ReplStdin() {
 // Type :help for help
 `)
 	}
-	in := bufio.NewReader(os.Stdin)
+	historyfile := fmt.Sprintf("%s%c%s", os.Getenv("HOME"), os.PathSeparator, ".gomacro_history")
+	tty, _ := MakeTtyReadline(historyfile)
+	defer tty.Close(historyfile) // restore normal tty mode!
 
 	ir.Line = 0
-	for ir.ReadParseEvalPrint(in) {
+	for ir.ReadParseEvalPrint(tty) {
 		ir.Line = 0
 	}
+	os.Stdout.WriteString("\n")
 }
 
 func (ir *Interp) Repl(in *bufio.Reader) {
-	for ir.ReadParseEvalPrint(in) {
+	r := MakeBufReadline(in, ir.Stdout)
+	for ir.ReadParseEvalPrint(r) {
 	}
 }
 
-func (ir *Interp) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
+func (ir *Interp) ReadParseEvalPrint(in Readline) (callAgain bool) {
 	var opts ReadOptions
 	if ir.Options&OptShowPrompt != 0 {
 		opts |= ReadOptShowPrompt
@@ -111,7 +115,7 @@ func (ir *Interp) ReadParseEvalPrint(in *bufio.Reader) (callAgain bool) {
 	return ir.ParseEvalPrint(str[firstToken:], in)
 }
 
-func (ir *Interp) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) {
+func (ir *Interp) ParseEvalPrint(str string, in Readline) (callAgain bool) {
 	var t1 time.Time
 	trap := ir.Options&OptTrapPanic != 0
 	duration := ir.Options&OptShowTime != 0
@@ -139,7 +143,7 @@ func (ir *Interp) ParseEvalPrint(str string, in *bufio.Reader) (callAgain bool) 
 	return callAgain
 }
 
-func (ir *Interp) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) {
+func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 	src = strings.TrimSpace(src)
 	n := len(src)
 	if n == 0 {
@@ -189,9 +193,7 @@ func (ir *Interp) parseEvalPrint(src string, in *bufio.Reader) (callAgain bool) 
 			env.ShowHelp(env.Stdout)
 			return true
 		case strings.HasPrefix(":inspect", cmd):
-			if in == nil {
-				fmt.Fprint(env.Stdout, "// not connected to user input, cannot :inspect\n")
-			} else if len(args) == 1 {
+			if len(args) == 1 {
 				fmt.Fprint(env.Stdout, "// inspect: missing argument\n")
 			} else {
 				env.Inspect(in, args[1], fast)

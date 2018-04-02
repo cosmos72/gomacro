@@ -1,5 +1,5 @@
 Gomacro default interpreter supports:
-
+* history/readline (uses https://github.com/peterh/liner)
 * multiline input
 * line comments starting with #! in addition to //
 * basic types: booleans, integers, floats, complex numbers, strings (and iota)
@@ -49,10 +49,9 @@ Some features are still missing or incomplete:
 * switching to a different package
   (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented, needs to be completed
-* history/readline (rlwrap does the job in most cases)
 * type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
-* incomplete interface -> interface type assertion and type switch:
+* incomplete interface -> interface type assertions and type switches:
   they do not support yet interpreted types stored in interfaces, and interpreted interfaces.
 
 Other limitations:

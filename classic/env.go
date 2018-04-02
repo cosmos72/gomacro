@@ -26,7 +26,6 @@
 package classic
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	r "reflect"
@@ -164,8 +163,8 @@ func (env *Env) ValueOf(name string) (value r.Value) {
 	return
 }
 
-func (env *Env) ReadMultiline(in *bufio.Reader, opts ReadOptions) (str string, firstToken int) {
-	str, firstToken, err := ReadMultiline(in, opts, env.Stdout, "gomacro> ")
+func (env *Env) ReadMultiline(in Readline, opts ReadOptions) (str string, firstToken int) {
+	str, firstToken, err := ReadMultiline(in, opts, "gomacro> ")
 	if err != nil && err != io.EOF {
 		fmt.Fprintf(env.Stderr, "// read error: %s\n", err)
 	}

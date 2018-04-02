@@ -4,14 +4,12 @@ gomacro is a fairly complete Go interpreter, implemented in pure Go. It offers b
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
 (except in one very specific case: import of a 3d-party package).
 
-It has very few dependencies: go/ast, go/types, reflect and, for legacy reasons
-(no longer used by the default interpreter), golang.org/x/sync/syncmap.
+It has very few dependencies: go/ast, go/types, reflect, github.com/peterh/liner and,
+for legacy reasons (no longer used by the default interpreter), golang.org/sync/syncmap.
 
 Gomacro can be used as:
 * a standalone executable with interactive Go REPL:
-  just run `gomacro` from your command line or, better, `rlwrap gomacro`
-  (rlwrap is a wrapper that adds history and line editing to terminal-based
-  programs - available on many platforms)
+  just run `gomacro` from your command line.
   Available options:
     ```
     -c,   --collect          collect declarations and statements, to print them later
@@ -107,6 +105,8 @@ Gomacro can be used as:
 
   To parse and macroexpand all *.gomacro files in a directory, run `gomacro -m -w DIRECTORY`
 
+## Installation
+
 ## Current Status
 
 Fairly complete.
@@ -118,7 +118,6 @@ The main missing features are:
 * switching to a different package
   (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented, needs to be completed
-* history/readline (rlwrap does the job in most cases)
 * type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
