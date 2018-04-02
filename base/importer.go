@@ -48,10 +48,11 @@ const (
 )
 
 type Importer struct {
-	from   types.ImporterFrom
-	compat types.Importer
-	srcDir string
-	mode   types.ImportMode
+	from       types.ImporterFrom
+	compat     types.Importer
+	srcDir     string
+	mode       types.ImportMode
+	PluginOpen r.Value // = reflect.ValueOf(plugin.Open)
 }
 
 func DefaultImporter() *Importer {

@@ -52,6 +52,9 @@ Some features are still missing or incomplete:
 * history/readline (rlwrap does the job in most cases)
 * type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
+* incomplete interface -> interface type assertion and type switch:
+  they do not support yet interpreted types stored in interfaces, and interpreted interfaces.
+
 Other limitations:
 * named types created by interpreted code are emulated.
   When the interpreter is asked to create for example `type Pair struct { A, B int }`,
