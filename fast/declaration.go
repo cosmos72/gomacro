@@ -404,7 +404,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		fun := init.AsX1() // AsX1() panics if init.NumOut() == 0, warns if init.NumOut() > 1
 		tfun := init.Out(0)
 		if tfun == nil || (!tfun.IdenticalTo(t) && !tfun.AssignableTo(t)) {
-			c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v <%v>", tfun, t, name, t)
+			c.Errorf("cannot assign <%v> to <%v> in variable declaration: %v <%v>%s", tfun, t, name, t, interfaceMissingMethod(tfun, t))
 			return bind
 		}
 		var ret func(env *Env) (Stmt, *Env)

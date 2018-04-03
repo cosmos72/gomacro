@@ -26,11 +26,19 @@
 package xreflect
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
 	"go/types"
 	"reflect"
 )
+
+func (m Method) String() string {
+	gt := m.Type.GoType().(*types.Signature)
+	var buf bytes.Buffer
+	types.WriteSignature(&buf, gt, nil)
+	return fmt.Sprintf("%s%s", m.Name, buf.String())
+}
 
 // For interfaces, NumMethod returns *total* number of methods for interface t,
 // including wrapper methods for embedded interfaces.
@@ -39,10 +47,10 @@ import (
 // Returns 0 for other unnamed types.
 func (t *xtype) NumMethod() int {
 	num := 0
-	if t.kind == reflect.Interface {
-		num = t.gtype.Underlying().(*types.Interface).NumMethods()
-	} else if t.Named() {
-		num = t.gtype.(*types.Named).NumMethods()
+	if gt, ok := t.gtype.Underlying().(*types.Interface); ok {
+		num = gt.NumMethods()
+	} else if gt, ok := t.gtype.(*types.Named); ok {
+		num = gt.NumMethods()
 	}
 	return num
 }
@@ -51,10 +59,10 @@ func (t *xtype) NumMethod() int {
 // Wrapper methods for embedded fields or embedded interfaces are not counted.
 func (t *xtype) NumExplicitMethod() int {
 	num := 0
-	if gtype, ok := t.gtype.Underlying().(*types.Interface); ok {
-		num = gtype.NumExplicitMethods()
-	} else if gtype, ok := t.gtype.(*types.Named); ok {
-		num = gtype.NumMethods()
+	if gt, ok := t.gtype.Underlying().(*types.Interface); ok {
+		num = gt.NumExplicitMethods()
+	} else if gt, ok := t.gtype.(*types.Named); ok {
+		num = gt.NumMethods()
 	}
 	return num
 }
@@ -133,7 +141,7 @@ func (t *xtype) method(i int) Method {
 			// rtype is our emulated interface type,
 			// i.e. a pointer to a struct containing: InterfaceHeader, [0]struct { embeddeds }, methods (without receiver)
 			rfield := rtype.Elem().Field(i + 2)
-			rfunctype = addReceiver(rtype, rfield.Type)
+			rfunctype = rAddReceiver(rtype, rfield.Type)
 		} else if rtype.Kind() != reflect.Interface {
 			xerrorf(t, "inconsistent interface type <%v>: expecting interface reflect.Type, found <%v>", t, rtype)
 		} else if ast.IsExported(name) {
@@ -148,7 +156,7 @@ func (t *xtype) method(i int) Method {
 				xerrorf(t, "inconsistent interface type <%v>: method %q has go/types.Func index=%d but reflect.Method index=%d",
 					t, name, i, rmethod.Index)
 			}
-			rfunctype = addReceiver(rtype, rmethod.Type)
+			rfunctype = rAddReceiver(rtype, rmethod.Type)
 		}
 	} else {
 		rmethod, _ := rtype.MethodByName(gfunc.Name())
@@ -173,7 +181,7 @@ func (t *xtype) method(i int) Method {
 }
 
 // insert recv as the the first parameter of rtype function type
-func addReceiver(recv reflect.Type, rtype reflect.Type) reflect.Type {
+func rAddReceiver(recv reflect.Type, rtype reflect.Type) reflect.Type {
 	nin := rtype.NumIn()
 	rin := make([]reflect.Type, nin+1)
 	rin[0] = recv
@@ -189,7 +197,7 @@ func addReceiver(recv reflect.Type, rtype reflect.Type) reflect.Type {
 }
 
 // remove the first parameter of rtype function type
-func removeReceiver(rtype reflect.Type) reflect.Type {
+func rRemoveReceiver(rtype reflect.Type) reflect.Type {
 	nin := rtype.NumIn()
 	if nin == 0 {
 		return rtype
@@ -203,7 +211,25 @@ func removeReceiver(rtype reflect.Type) reflect.Type {
 	for i := 0; i < nout; i++ {
 		rout[i] = rtype.Out(i)
 	}
-	return reflect.FuncOf(rin, rout, rtype.IsVariadic())
+	return reflect.FuncOf(rin, rout, nin > 1 && rtype.IsVariadic())
+}
+
+// remove the first parameter of t function type
+func removeReceiver(t Type) Type {
+	nin := t.NumIn()
+	if nin == 0 {
+		return t
+	}
+	tin := make([]Type, nin-1)
+	for i := 1; i < nin; i++ {
+		tin[i-1] = t.In(i)
+	}
+	nout := t.NumOut()
+	tout := make([]Type, nout)
+	for i := 0; i < nout; i++ {
+		tout[i] = t.Out(i)
+	}
+	return t.Universe().FuncOf(tin, tout, nin > 1 && t.IsVariadic())
 }
 
 func (t *xtype) gmethod(i int) *types.Func {
@@ -264,6 +290,27 @@ func resizemethodvalues(t *xtype) {
 	}
 }
 
-func (m Method) String() string {
-	return fmt.Sprintf("%s %s", m.Name, m.Type.GoType())
+// return one of the methods defined by interface tinterf but missing from t
+func MissingMethod(t, tinterf Type) *Method {
+	n := tinterf.NumMethod()
+	var mtdinterf Method
+	if t == nil && n > 0 {
+		mtdinterf = tinterf.Method(0)
+		return &mtdinterf
+	}
+	for i := 0; i < n; i++ {
+		mtdinterf = tinterf.Method(i)
+		mtd, count := t.MethodByName(mtdinterf.Name, mtdinterf.Pkg.Name())
+		if count == 1 {
+			tfunc := mtd.Type
+			if t.Kind() != reflect.Interface {
+				tfunc = removeReceiver(tfunc)
+			}
+			if !mtdinterf.Type.IdenticalTo(tfunc) {
+				continue
+			}
+		}
+		return &mtdinterf
+	}
+	return nil
 }

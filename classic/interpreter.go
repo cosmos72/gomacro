@@ -134,8 +134,8 @@ func (ir *Interp) ParseEvalPrint(str string, in Readline) (callAgain bool) {
 			callAgain = true
 		}
 		if duration {
-			delta := time.Now().Sub(t1)
-			ir.Debugf("eval time %.6f s", float32(delta)/float32(time.Second))
+			delta := time.Since(t1)
+			ir.Debugf("eval time %v", delta)
 		}
 	}()
 	callAgain = ir.parseEvalPrint(str, in)

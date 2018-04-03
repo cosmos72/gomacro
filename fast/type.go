@@ -741,11 +741,16 @@ func typeassert(v r.Value, t xr.Type, tin xr.Type, tout xr.Type) r.Value {
 }
 
 func typeassertpanic(rt r.Type, t xr.Type, tin xr.Type, tout xr.Type) {
+	var missingmethod *xr.Method
+	if t != nil && tout.Kind() == r.Interface {
+		missingmethod = xr.MissingMethod(t, tout)
+	}
 	panic(&TypeAssertionError{
 		Interface:       tin,
 		Concrete:        t,
 		ReflectConcrete: rt,
 		Asserted:        tout,
+		MissingMethod:   missingmethod,
 	})
 }
 
@@ -862,7 +867,7 @@ type TypeAssertionError struct {
 	Concrete        xr.Type
 	ReflectConcrete r.Type // in case Concrete is not available
 	Asserted        xr.Type
-	MissingMethod   string // one method needed by Interface, missing from Concrete
+	MissingMethod   *xr.Method // one method needed by Interface, missing from Concrete
 }
 
 func (*TypeAssertionError) RuntimeError() {}
@@ -878,8 +883,8 @@ func (e *TypeAssertionError) Error() string {
 	if concr == nil {
 		return fmt.Sprintf("interface conversion: <%v> is nil, not <%v>", in, e.Asserted)
 	}
-	if len(e.MissingMethod) == 0 {
+	if e.MissingMethod == nil {
 		return fmt.Sprintf("interface conversion: <%v> is <%v>, not <%v>", in, concr, e.Asserted)
 	}
-	return fmt.Sprintf("interface conversion: <%v> is not <%v>: missing method %s", concr, e.Asserted, e.MissingMethod)
+	return fmt.Sprintf("interface conversion: <%v> does not implement <%v>: missing method %s", concr, e.Asserted, e.MissingMethod.String())
 }

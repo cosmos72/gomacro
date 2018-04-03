@@ -127,7 +127,7 @@ func (v *Universe) InterfaceOf(methodnames []string, methodtypes []Type, embedde
 		n := e.NumMethod()
 		for i := 0; i < n; i++ {
 			method := e.Method(i)
-			rtype := removeReceiver(method.Type.ReflectType()) // receiver is the embedded interface, remove it
+			rtype := rRemoveReceiver(method.Type.ReflectType()) // receiver is the embedded interface, remove it
 			rfields = append(rfields, approxInterfaceMethodAsField(method.Name, rtype))
 		}
 	}
@@ -217,7 +217,7 @@ func interfaceMethod(rtype reflect.Type, index int) reflect.Value {
 	// rtype is *struct { InterfaceHeader; [0]struct{ embeddeds.. }; closures... }
 	index += 2
 	rclosure := rtype.Elem().Field(index).Type
-	rfunc := addReceiver(rtype, rclosure)
+	rfunc := rAddReceiver(rtype, rclosure)
 	return reflect.MakeFunc(rfunc, func(args []reflect.Value) []reflect.Value {
 		return args[0].Elem().Field(index).Call(args[1:])
 	})

@@ -325,7 +325,7 @@ func (v *Universe) fromReflectMethod(rtype reflect.Type) Type {
 // fromReflectMethod converts a reflect.Type with Kind reflect.Func into a method Type,
 // manually adding the given type as receiver
 func (v *Universe) fromReflectInterfaceMethod(rtype, rmethod reflect.Type) Type {
-	return v.fromReflectMethod(addReceiver(rtype, rmethod))
+	return v.fromReflectMethod(rAddReceiver(rtype, rmethod))
 }
 
 // fromReflectInterface converts a reflect.Type with Kind reflect.Interface into a Type

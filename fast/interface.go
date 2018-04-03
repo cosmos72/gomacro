@@ -26,6 +26,7 @@
 package fast
 
 import (
+	"fmt"
 	"go/ast"
 	r "reflect"
 
@@ -203,4 +204,17 @@ func (g *CompGlobals) extractor(tin xr.Type) func(r.Value) (r.Value, xr.Type) {
 	} else {
 		return g.extractFromProxy
 	}
+}
+
+// return the error "\n\treason: t does not implement tinterf: missing method <method>"
+func interfaceMissingMethod(t, tinterf xr.Type) string {
+	var s string
+	if tinterf.Kind() == r.Interface {
+		s = fmt.Sprintf("\n\treason: %v does not implement %v", t, tinterf)
+		missingmtd := xr.MissingMethod(t, tinterf)
+		if missingmtd != nil {
+			s = fmt.Sprintf("%s: missing method %s", s, missingmtd.String())
+		}
+	}
+	return s
 }

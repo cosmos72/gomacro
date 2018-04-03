@@ -31,7 +31,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/signal"
+	// "os/signal"
 
 	"github.com/peterh/liner"
 )
@@ -71,15 +71,17 @@ type TtyReadline struct {
 func MakeTtyReadline(historyfile string) (TtyReadline, error) {
 	tty := TtyReadline{liner.NewLiner()}
 
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt, os.Kill)
-		sig := <-c
-		signal.Stop(c)
+	/*
+		go func() {
+			c := make(chan os.Signal, 1)
+			signal.Notify(c, os.Interrupt, os.Kill)
+			sig := <-c
+			signal.Stop(c)
 
-		fmt.Fprintf(os.Stderr, "\nreceived signal: %v\n", sig)
-		tty.Close(historyfile)
-	}()
+			fmt.Fprintf(os.Stderr, "\nreceived signal: %v\n", sig)
+			tty.Close(historyfile)
+		}()
+	*/
 
 	f, err := os.Open(historyfile)
 	if err != nil {

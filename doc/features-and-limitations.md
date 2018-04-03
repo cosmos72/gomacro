@@ -54,6 +54,9 @@ Some features are still missing or incomplete:
 * incomplete interface -> interface type assertions and type switches:
   they do not support yet interpreted types stored in interfaces, and interpreted interfaces.
 
+* unimplemented conversion typed constant -> interpreted interface (see fast/literal.go:207)
+  Workaround: assign the constant to a variable, then convert the variable to the interpreted interface
+
 Other limitations:
 * named types created by interpreted code are emulated.
   When the interpreter is asked to create for example `type Pair struct { A, B int }`,
