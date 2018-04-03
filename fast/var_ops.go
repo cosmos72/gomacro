@@ -29585,6 +29585,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		} else {
 			err = nil
 		}
+
 	default:
 		if init.Const() {
 			init.ConstTo(t)

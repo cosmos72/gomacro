@@ -26,6 +26,7 @@
 package fast
 
 import (
+	"fmt"
 	"go/token"
 	r "reflect"
 	"unsafe"
@@ -648,7 +649,6 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		} else {
 			err = nil
 		}
-
 	}
 	if err != nil {
 		c.Errorf("incompatible types in assignment: %v %s %v%v", t, op, init.Type, err)
