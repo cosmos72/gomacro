@@ -16,7 +16,7 @@ func init() {
 			"DefaultImporter":    r.ValueOf(DefaultImporter),
 			"GensymEmbedded":     r.ValueOf(GensymEmbedded),
 			"GensymPrivate":      r.ValueOf(GensymPrivate),
-			"MaxDepth":           r.ValueOf(int64(MaxDepth)),
+			"MaxDepth":           r.ValueOf(MaxDepth),
 			"MissingMethod":      r.ValueOf(MissingMethod),
 			"NewUniverse":        r.ValueOf(NewUniverse),
 			"QName1":             r.ValueOf(QName1),

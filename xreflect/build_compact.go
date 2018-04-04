@@ -353,17 +353,17 @@ func (t Type) GetMethods() *[]reflect.Value {
 }
 
 func wrap(t *xtype) Type {
-	if t != nil {
-		return func(z) *xtype {
-			return t
-		}
+	if t == nil {
+		return nil
 	}
-	return nil
+	return func(z) *xtype {
+		return t
+	}
 }
 
 func unwrap(t Type) *xtype {
-	if t != nil {
-		return t(z{})
+	if t == nil {
+		return nil
 	}
-	return nil
+	return t(z{})
 }

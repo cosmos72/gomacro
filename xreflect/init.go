@@ -84,39 +84,46 @@ func (v *Universe) makeinterface() Type {
 	t := wrap(&xtype{
 		kind:     reflect.Interface,
 		gtype:    types.NewInterface(nil, nil).Complete(),
-		rtype:    reflect.TypeOf((*interface{})(nil)).Elem(),
+		rtype:    rTypeOfInterface,
 		universe: v,
 	})
 	v.add(t)
 	return t
 }
 
-func (v *Universe) Init() *Universe {
-	if v.ThreadSafe {
-		defer un(lock(v))
-	}
-	return v.init()
+// tries to lock v. Called only from NewUniverse() => v.ThreadSafe is false
+func (v *Universe) makeemptytypes() []Type {
+	m := make([]Type, len(rbasictypes))
+	copy(m, v.BasicTypes)
+	t0 := v.StructOf(nil)
+	m[reflect.Struct] = t0
+	m[reflect.Array] = v.ArrayOf(0, t0)
+	m[reflect.Chan] = v.ChanOf(reflect.BothDir, t0)
+	m[reflect.Func] = v.FuncOf(nil, nil, false)
+	m[reflect.Interface] = v.TypeOfInterface
+	m[reflect.Map] = v.MapOf(t0, t0)
+	m[reflect.Ptr] = v.PtrTo(t0)
+	m[reflect.Slice] = v.SliceOf(t0)
+	return m
 }
 
-func (v *Universe) init() *Universe {
+func NewUniverse() *Universe {
+	v := &Universe{}
 	v.BasicTypes = v.makebasictypes()
 	v.TypeOfError = v.makeerror()
 	v.TypeOfInterface = v.makeinterface()
+	v.EmptyTypes = v.makeemptytypes() // tries to lock v... luckily v.ThreadSafe is false
 	// critical! trying to rebuild "error" type creates a non-indentical copy... lots of conversions would fail
 	v.cache(v.TypeOfError.ReflectType(), v.TypeOfError)
 	v.cache(v.TypeOfInterface.ReflectType(), v.TypeOfInterface)
 	return v
 }
 
-func NewUniverse() *Universe {
-	v := &Universe{}
-	return v.init()
-}
-
 const MaxDepth = int(^uint(0) >> 1)
 
 var (
-	reflectTypeOfInterfaceHeader = reflect.TypeOf(InterfaceHeader{})
+	rTypeOfInterface       = reflect.TypeOf((*interface{})(nil)).Elem()
+	rTypeOfInterfaceHeader = reflect.TypeOf(InterfaceHeader{})
 )
 
 // Bits returns the size of the type in bits.

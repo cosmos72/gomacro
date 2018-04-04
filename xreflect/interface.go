@@ -157,7 +157,7 @@ func (t *xtype) Complete() Type {
 func approxInterfaceHeader() reflect.StructField {
 	return reflect.StructField{
 		Name: StrGensymInterface,
-		Type: reflectTypeOfInterfaceHeader,
+		Type: rTypeOfInterfaceHeader,
 	}
 }
 

@@ -47,6 +47,12 @@ func (env *Env) fastInterp() *fast.Interp {
 }
 
 func (env *Env) fastUpdateOptions(opts base.Options) {
+	f := env.fastInterp()
+	if opts&base.OptDebugFromReflect != 0 {
+		f.Comp.Universe.DebugDepth = 1
+	} else {
+		f.Comp.Universe.DebugDepth = 0
+	}
 }
 
 func (env *Env) fastShowPackage(name string) {

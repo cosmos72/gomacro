@@ -43,7 +43,7 @@ func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
 		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
 	}
 	v := g.Universe
-	t := v.NamedOf(rtype.Name(), "fast")
+	t := v.NamedOf(rtype.Name(), "fast", r.Struct)
 	t.SetUnderlying(v.TypeOf(struct{}{}))
 	t.UnsafeForceReflectType(rtype)
 	v.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes

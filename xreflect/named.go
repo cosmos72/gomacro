@@ -37,20 +37,24 @@ import (
 // Initially, the underlying type is set to interface{} - use SetUnderlying to change it.
 // These two steps are separate to allow creating self-referencing types,
 // as for example type List struct { Elem int; Rest *List }
-func (v *Universe) NamedOf(name, pkgpath string) Type {
+func (v *Universe) NamedOf(name, pkgpath string, kind reflect.Kind) Type {
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
-	return v.namedOf(name, pkgpath)
+	return v.namedOf(name, pkgpath, kind)
 }
 
-func (v *Universe) namedOf(name, pkgpath string) Type {
-	underlying := v.TypeOfInterface
+func (v *Universe) namedOf(name, pkgpath string, kind reflect.Kind) Type {
+	underlying := v.BasicTypes[kind]
+	if underlying == nil {
+		underlying = v.TypeOfInterface
+	}
 	pkg := v.loadPackage(pkgpath)
 	// typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
-	return v.maketype3(
-		reflect.Invalid, // incomplete type! will be fixed by SetUnderlying
+	return v.maketype4(
+		kind,      // may be inaccurate or reflect.Invalid! will be fixed by SetUnderlying()
+		xfNoCache, // so do not cache it (yet)
 		types.NewNamed(typename, underlying.GoType(), nil),
 		underlying.ReflectType(),
 	)
@@ -79,6 +83,8 @@ func (t *xtype) SetUnderlying(underlying Type) {
 			t.methodcache = nil
 			t.fieldcache = nil
 		}
+		t.flags &^= xfNoCache
+		v.add(wrap(t))
 	default:
 		xerrorf(t, "SetUnderlying of unnamed type %v", t)
 	}

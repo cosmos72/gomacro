@@ -28,6 +28,8 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
+	"runtime/debug"
+	// "runtime/debug"
 
 	"github.com/cosmos72/gomacro/typeutil"
 )
@@ -50,48 +52,69 @@ func identicalType(t, u Type) bool {
 // Currently, enableCache = false breaks TestFast/method_on_ptr (and possibly other tests)
 // FIXME: fix TestFast/method_on_ptr, then consider setting enableCache = false
 const (
-	enableCache = true
+	ENABLE_CACHE = true
 
-	enableWarnOnCacheMismatch = false
+	WARN_ON_BAD_CACHE = true
 )
 
-func warnOnCacheMismatch(gtype types.Type, rtype reflect.Type, rcached reflect.Type) {
-	if enableWarnOnCacheMismatch {
-		debugf("overwriting mismatched reflect.Type found in cache for type %v:\n\tcurrent reflect.Type: %v\n\tcached  reflect.Type: %v",
-			gtype, rtype, rcached)
+func warnOnMismatchCache(gtype types.Type, rtype reflect.Type, rcached reflect.Type) {
+	if WARN_ON_BAD_CACHE {
+		debugf("overwriting mismatched reflect.Type found in cache for type %v:\n\tcurrent reflect.Type: %v\n\tcached  reflect.Type: %v\n",
+			gtype, rtype, rcached) //, debug.Stack())
+	}
+}
+
+func warnOnSuspiciousCache(t *xtype) {
+	if WARN_ON_BAD_CACHE {
+		// reflect cannot create new interface types or new named types: accept whatever we have.
+		// also, it cannot create unnamed structs containing unexported fields. again, accept whatever we have.
+		// instead complain on mismatch for non-interface, non-named types
+		rt := t.rtype
+		bad := !t.Named() && len(rt.Name()) != 0 && rt.Kind() != reflect.Interface && rt.Kind() != reflect.Struct
+		if !bad {
+			if t.kind != rt.Kind() && rt.Kind() == reflect.Interface {
+				tinterf := unwrap(t.Universe().TypeOfInterface)
+				bad = t.NumMethod() != 0 || tinterf != nil && (t.gunderlying() != tinterf.gtype || rt != tinterf.rtype)
+			}
+		}
+		if bad {
+			debugf("caching suspicious type %v => %v\n%s", t.GoType(), t.ReflectType(), debug.Stack())
+		}
 	}
 }
 
 func (m *Types) add(t Type) {
-	if enableCache {
-		switch t.Kind() {
-		case reflect.Func:
-			t.NumIn() // check consistency
-
-		case reflect.Interface:
-			rtype := t.ReflectType()
-			rkind := rtype.Kind()
-			if rkind != reflect.Interface && (rkind != reflect.Ptr || rtype.Elem().Kind() != reflect.Struct) {
-				errorf(t, "bug! inconsistent type <%v>: has kind = %s but its Type.Reflect() is %s\n\tinstead of interface or pointer-to-struct: <%v>", t, t.Kind(), rtype.Kind(), t.ReflectType())
-			}
-		}
-		m.gmap.Set(t.GoType(), t)
-		// debugf("added type to cache: %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
+	if !ENABLE_CACHE {
+		return
 	}
+	warnOnSuspiciousCache(unwrap(t))
+	switch t.Kind() {
+	case reflect.Func:
+		t.NumIn() // check consistency
+
+	case reflect.Interface:
+		rtype := t.ReflectType()
+		rkind := rtype.Kind()
+		if rkind != reflect.Interface && (rkind != reflect.Ptr || rtype.Elem().Kind() != reflect.Struct) {
+			errorf(t, "bug! inconsistent type <%v>: has kind = %s but its Type.Reflect() is %s\n\tinstead of interface or pointer-to-struct: <%v>",
+				t, t.Kind(), rtype.Kind(), t.ReflectType())
+		}
+	}
+	m.gmap.Set(t.GoType(), t)
+	// debugf("added type to cache: %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
 }
 
-func (v *Universe) unique(t Type) Type {
-	gtype := t.GoType()
-	ret := v.Types.gmap.At(gtype)
-	if ret != nil {
-		tret := ret.(Type)
-		if tret.ReflectType() == t.ReflectType() {
-			return t
-		}
-		warnOnCacheMismatch(gtype, t.ReflectType(), tret.ReflectType())
+// all unexported methods assume lock is already held
+func (v *Universe) maketype4(kind reflect.Kind, flags xflags, gtype types.Type, rtype reflect.Type) Type {
+	if flags&xfNoCache == 0 {
+		return v.maketype3(kind, gtype, rtype)
 	}
-	v.add(t)
-	return t
+	if gtype == nil {
+		errorf(nil, "MakeType of nil types.Type")
+	} else if rtype == nil {
+		errorf(nil, "MakeType of nil reflect.Type")
+	}
+	return wrap(&xtype{kind: kind, flags: flags, gtype: gtype, rtype: rtype, universe: v})
 }
 
 // all unexported methods assume lock is already held
@@ -107,11 +130,7 @@ func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.
 		if t.ReflectType() == rtype {
 			return t
 		}
-		warnOnCacheMismatch(gtype, rtype, t.ReflectType())
-	}
-	if v.BasicTypes == nil {
-		// lazy creation of basic types
-		v.init()
+		warnOnMismatchCache(gtype, rtype, t.ReflectType())
 	}
 	t := wrap(&xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v})
 	v.add(t)
@@ -252,6 +271,11 @@ func (t *xtype) Underlying() Type {
 
 func (t *xtype) gunderlying() types.Type {
 	return t.gtype.Underlying()
+}
+
+// best-effort implementation of missing reflect.Type.Underlying()
+func (t *xtype) runderlying() reflect.Type {
+	return ReflectUnderlying(t.rtype)
 }
 
 // Kind returns the specific kind of the type.
