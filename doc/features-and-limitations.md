@@ -57,6 +57,15 @@ Some features are still missing or incomplete:
 * unimplemented conversion typed constant -> interpreted interface (see fast/literal.go:207)
   Workaround: assign the constant to a variable, then convert the variable to the interpreted interface
 
+* bug: a few imports, including "net/http", fail with internal error on systems without Go toolchain installed
+
+* bug: if gomacro is linked as a shared library (see https://stackoverflow.com/questions/1757090/shared-library-in-go)
+  some method calls on constants do not work. example:
+    import "os"
+    os.ModeAppend.IsDir()
+  interface conversion: interface {} is func() bool, not func() bool
+
+
 Other limitations:
 * named types created by interpreted code are emulated.
   When the interpreter is asked to create for example `type Pair struct { A, B int }`,

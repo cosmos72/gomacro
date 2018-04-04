@@ -117,8 +117,6 @@ func init() {
 			"TypeOfPtrUintptr":           r.ValueOf(&TypeOfPtrUintptr).Elem(),
 			"TypeOfReflectType":          r.ValueOf(&TypeOfReflectType).Elem(),
 			"TypeOfRune":                 r.ValueOf(&TypeOfRune).Elem(),
-			"TypeOfSliceOfByte":          r.ValueOf(&TypeOfSliceOfByte).Elem(),
-			"TypeOfSliceOfInterface":     r.ValueOf(&TypeOfSliceOfInterface).Elem(),
 			"TypeOfString":               r.ValueOf(&TypeOfString).Elem(),
 			"TypeOfUint":                 r.ValueOf(&TypeOfUint).Elem(),
 			"TypeOfUint16":               r.ValueOf(&TypeOfUint16).Elem(),

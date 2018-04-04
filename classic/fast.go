@@ -46,6 +46,9 @@ func (env *Env) fastInterp() *fast.Interp {
 	return f
 }
 
+func (env *Env) fastUpdateOptions(opts base.Options) {
+}
+
 func (env *Env) fastShowPackage(name string) {
 	f := env.fastInterp()
 	f.ShowPackage(name)

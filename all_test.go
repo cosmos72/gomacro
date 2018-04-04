@@ -617,7 +617,7 @@ var testcases = []TestCase{
 		B string
 	}{A: 1, B: "2"}, nil},
 
-	TestCase{A, "method_decl_1", `func (p *Pair) SetA(a rune) { p.A = a }; func (p Pair) SetAV(a rune) { p.A = a }; nil`, nil, nil},
+	TestCase{A, "method_decl_1", `func (p *Pair) SetA(a rune) { p.A = a }; nil`, nil, nil},
 	TestCase{A, "method_decl_2", `func (p Pair) SetAV(a rune) { p.A = a }; nil`, nil, nil},
 	TestCase{A, "method_decl_3", `func (p Pair) String() string { return fmt.Sprintf("%c %s", p.A, p.B) }; nil`, nil, nil},
 
