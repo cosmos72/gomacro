@@ -79,11 +79,8 @@ type StructField struct {
 	Anonymous bool              // is an embedded field. If true, Name should be empty or equal to the type's name
 }
 
-type xflags uint
-
 type xtype struct {
 	kind         reflect.Kind
-	flags        xflags
 	gtype        types.Type
 	rtype        reflect.Type
 	universe     *Universe

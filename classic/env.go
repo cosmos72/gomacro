@@ -42,12 +42,10 @@ type ThreadGlobals struct {
 }
 
 func NewThreadGlobals() *ThreadGlobals {
-	tg := &ThreadGlobals{
-		Globals:    &Globals{},
+	return &ThreadGlobals{
+		Globals:    NewGlobals(),
 		AllMethods: make(map[r.Type]Methods),
 	}
-	tg.Globals.Init()
-	return tg
 }
 
 type Env struct {
