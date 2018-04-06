@@ -87,7 +87,7 @@ func (g *Globals) newGenImport(out *bytes.Buffer, path string, gpkg *types.Packa
 	} else {
 		gen.name_ = name + "."
 	}
-	if mode != ImSharedLib {
+	if mode != ImPlugin {
 		gen.suffix = fmt.Sprintf("_%s", sanitizeIdentifier(path))
 	}
 	return gen
@@ -103,7 +103,7 @@ func (gen *genimport) write() {
 	gen.writeUntypeds()
 	gen.writeWrappers()
 
-	if gen.mode == ImSharedLib {
+	if gen.mode == ImPlugin {
 		gen.out.WriteString("\n}\n")
 	} else {
 		gen.out.WriteString("\n\t}\n}\n")
@@ -119,7 +119,7 @@ type mapdecl struct {
 
 func (gen *genimport) mapdecl(head, althead string) mapdecl {
 	var foot string
-	if gen.mode == ImSharedLib {
+	if gen.mode == ImPlugin {
 		foot = "nil"
 	} else if strings.IndexByte(althead, '%') < 0 {
 		head = althead
@@ -142,6 +142,15 @@ func (d *mapdecl) footer() {
 	if len(d.foot) != 0 {
 		d.out.WriteString(d.foot)
 		d.out.WriteString(", ")
+	}
+}
+
+func (d *mapdecl) footer1(comma bool) {
+	if len(d.foot) != 0 {
+		d.out.WriteString(d.foot)
+		if comma {
+			d.out.WriteString(", ")
+		}
 	}
 }
 
@@ -183,7 +192,7 @@ import (`, alias, path, filepkg)
 	}
 	fmt.Fprintf(out, "\n)\n")
 
-	if mode == ImSharedLib {
+	if mode == ImPlugin {
 		fmt.Fprint(out, `
 func main() {
 }
@@ -209,7 +218,7 @@ func (gen *genimport) writeBinds() {
 				val := obj.Val()
 				var conv1, conv2 string
 				if t, ok := obj.Type().(*types.Basic); ok && t.Info()&types.IsUntyped != 0 {
-					// untyped constants have arbitrary precision... they may overflow integers
+					// untyped constants have arbitrary precision... they may overflow integers.
 					// this is just an approximation, use Package.Untypeds for exact value
 					if val.Kind() == constant.Int {
 						str := val.ExactString()
@@ -303,7 +312,9 @@ func (gen *genimport) writeWrappers() {
 			}
 		}
 	}
-	d.footer()
+	// shared lib API is func Exports() (...multiple values...) { return ... }
+	// which does NOT accept a comma after the last returned value
+	d.footer1(gen.mode != ImPlugin)
 }
 
 func (gen *genimport) writeInterfaceProxies() {

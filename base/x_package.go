@@ -27,7 +27,7 @@ func init() {
 			"FindFirstToken":          r.ValueOf(FindFirstToken),
 			"ImBuiltin":               r.ValueOf(ImBuiltin),
 			"ImInception":             r.ValueOf(ImInception),
-			"ImSharedLib":             r.ValueOf(ImSharedLib),
+			"ImPlugin":                r.ValueOf(ImPlugin),
 			"IsCategory":              r.ValueOf(IsCategory),
 			"IsGensym":                r.ValueOf(IsGensym),
 			"IsGensymEmbedded":        r.ValueOf(IsGensymEmbedded),
