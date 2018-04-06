@@ -530,7 +530,7 @@ func (v *Universe) fromReflectStruct(rtype reflect.Type) Type {
 	for i := 0; i < n; i++ {
 		rfield := rtype.Field(i)
 		fields[i] = v.fromReflectField(&rfield)
-		if canrebuildexactly && fields[i].Anonymous || !ast.IsExported(fields[i].Name) {
+		if canrebuildexactly && (fields[i].Anonymous || !ast.IsExported(fields[i].Name)) {
 			canrebuildexactly = false
 		}
 	}
