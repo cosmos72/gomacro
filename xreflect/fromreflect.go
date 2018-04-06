@@ -26,6 +26,7 @@
 package xreflect
 
 import (
+	"go/ast"
 	"go/token"
 	"go/types"
 	"reflect"
@@ -51,7 +52,18 @@ func (v *Universe) FromReflectType(rtype reflect.Type) Type {
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
-	return v.fromReflectType(rtype)
+	defer v.partialTypes.clear()
+
+	t := v.fromReflectType(rtype)
+
+	// add methods only after generating all requested types.
+	// reason: cannot add methods to incomplete types,
+	// their t.gunderlying() will often be interface{}
+	v.partialTypes.gmap.Iterate(func(gtype types.Type, i interface{}) {
+		t := i.(Type)
+		v.addmethods(t, t.ReflectType())
+	})
+	return t
 }
 
 func (v *Universe) fromReflectType(rtype reflect.Type) Type {
@@ -64,6 +76,9 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	}
 	if t = v.ReflectTypes[rtype]; t != nil {
 		// debugf("found rtype in cache: %v -> %v (%v)", rtype, t, t.ReflectType())
+		if rtype != t.ReflectType() {
+			v.debugf("warning: mismatched rtype cache: %v -> %v (%v)", rtype, t, t.ReflectType())
+		}
 		// time.Sleep(100 * time.Millisecond)
 		return t
 	}
@@ -93,7 +108,8 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 				return t
 			}
 		}
-		t = v.namedOf(name, rtype.PkgPath(), rtype.Kind())
+		// t.gunderlying() will often be interface{}. ugly and dangerous, but no solution
+		t = v.reflectNamedOf(name, rtype.PkgPath(), rtype.Kind(), rtype)
 		v.cache(rtype, t) // support self-referencing types
 	}
 	if v.debug() {
@@ -136,12 +152,16 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 		v.cache(rtype, t)
 	} else {
 		t.SetUnderlying(u)
-		// t.ReflectType() is now u.ReflectType(). but we can do better... we know the exact rtype to set
+		// t.ReflectType() is now u.ReflectType(). overwrite with the exact rtype instead
 		if !v.rebuild() {
 			t.UnsafeForceReflectType(rtype)
 		}
 	}
-	return v.addmethods(t, rtype)
+	if rtype.NumMethod() != 0 {
+		// FromReflectType() will invoke addmethods(t, t.ReflectType()) on all v.partialTypes
+		v.partialTypes.add(t)
+	}
+	return t
 }
 
 func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
@@ -169,6 +189,12 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 	}
 	if !xt.Named() {
 		// debugf("NOT adding methods to unnamed type %v", t)
+		return t
+	}
+	if xt.kind != gtypeToKind(xt, xt.gtype) {
+		if v.debug() {
+			debugf("NOT adding methods to incomplete named type %v. call SetUnderlying() first.", xt)
+		}
 		return t
 	}
 	if xt.methodvalues != nil {
@@ -232,14 +258,6 @@ func (v *Universe) fromReflectField(rfield *reflect.StructField) StructField {
 		Index:     rfield.Index,
 		Anonymous: anonymous,
 	}
-}
-
-func (v *Universe) fromReflectFields(rfields []reflect.StructField) []StructField {
-	fields := make([]StructField, len(rfields))
-	for i := range rfields {
-		fields[i] = v.fromReflectField(&rfields[i])
-	}
-	return fields
 }
 
 // rebuildnamed re-creates a named Type based on t, having the given name and pkgpath
@@ -508,19 +526,27 @@ func (v *Universe) fromReflectSlice(rtype reflect.Type) Type {
 func (v *Universe) fromReflectStruct(rtype reflect.Type) Type {
 	n := rtype.NumField()
 	fields := make([]StructField, n)
+	canrebuildexactly := true
 	for i := 0; i < n; i++ {
 		rfield := rtype.Field(i)
 		fields[i] = v.fromReflectField(&rfield)
+		if canrebuildexactly && fields[i].Anonymous || !ast.IsExported(fields[i].Name) {
+			canrebuildexactly = false
+		}
 	}
 	vars := toGoFields(fields)
 	tags := toTags(fields)
 
-	// use reflect.StructOf to recreate reflect.Type only if requested, because it's not 100% accurate:
+	// use reflect.StructOf to recreate reflect.Type only if requested,
+	// or if rtype is named but we can guarantee that result is 100% accurate:
 	// reflect.StructOf does not support unexported or anonymous fields,
-	// and go/reflect cannot create named types, interfaces and self-referencing types
-	if v.rebuild() {
-		rfields := toReflectFields(fields, true)
-		rtype = reflect.StructOf(rfields)
+	// and cannot create self-referencing types from scratch.
+	if v.rebuild() || (canrebuildexactly && len(rtype.Name()) != 0) {
+		rfields := toReflectFields(fields, !v.rebuild())
+		rtype2 := reflect.StructOf(rfields)
+		if v.rebuild() || rtype2.AssignableTo(rtype) {
+			rtype = rtype2
+		}
 	}
 	return v.maketype(types.NewStruct(vars, tags), rtype)
 }

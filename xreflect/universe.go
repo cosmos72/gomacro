@@ -40,6 +40,9 @@ type Types struct {
 
 type Universe struct {
 	Types
+	// FromReflectType() map of types under construction.
+	// v.addmethods() will be invoked on them once the topmost FromReflectType() finishes.
+	partialTypes    Types
 	ReflectTypes    map[reflect.Type]Type
 	BasicTypes      []Type
 	TypeOfInterface Type
@@ -146,7 +149,9 @@ func (v *Universe) importPackage(path string) *Package {
 	pkg, err := v.Importer.Import(path)
 	if err != nil || pkg == nil {
 		if !cached {
-			debugf("importer: cannot find package %q metadata, approximating it with reflection", path)
+			if v.debug() {
+				debugf("importer: cannot find package %q metadata, approximating it with reflection", path)
+			}
 			v.cacheMissingPackage(path)
 		}
 		return nil

@@ -152,6 +152,11 @@ func (t *xtype) Complete() Type {
 	return wrap(t)
 }
 
+// return true if t is a named type that still waits for the caller to invoke SetUnderlying() on it
+func (t *xtype) needSetUnderlying() bool {
+	return t.Named() && t.kind != gtypeToKind(t, t.gtype)
+}
+
 // utilities for InterfaceOf()
 
 func approxInterfaceHeader() reflect.StructField {

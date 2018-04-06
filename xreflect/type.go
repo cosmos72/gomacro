@@ -45,53 +45,41 @@ func identicalType(t, u Type) bool {
 	return xt == yt || xt.identicalTo(yt)
 }
 
-// go/types.InterfaceOf(methods, embeddeds) modifies the methods argument and adds receiver to them,
-// thwarting our attempts to keep go/types.Type and reflect.Type in sync in the cache.
-// So it would be safer to set enableCache = false, but...
-//
-// Currently, enableCache = false breaks TestFast/method_on_ptr (and possibly other tests)
-// FIXME: fix TestFast/method_on_ptr, then consider setting enableCache = false
-const (
-	ENABLE_CACHE = true
-
-	WARN_ON_BAD_CACHE = true
-)
-
-func warnOnMismatchCache(gtype types.Type, rtype reflect.Type, rcached reflect.Type) {
-	if WARN_ON_BAD_CACHE {
-		debugf("overwriting mismatched reflect.Type found in cache for type %v:\n\tcurrent reflect.Type: %v\n\tcached  reflect.Type: %v\n",
-			gtype, rtype, rcached) //, debug.Stack())
-	}
+func debugOnMismatchCache(gtype types.Type, rtype reflect.Type, cached Type) {
+	debugf("overwriting mismatched reflect.Type found in cache for type %v:\n\tnew reflect.Type: %v\n\told reflect.Type: %v",
+		gtype, rtype, cached.ReflectType()) //, debug.Stack())
 }
 
 func warnOnSuspiciousCache(t *xtype) {
-	if WARN_ON_BAD_CACHE {
-		// reflect cannot create new interface types or new named types: accept whatever we have.
-		// also, it cannot create unnamed structs containing unexported fields. again, accept whatever we have.
-		// instead complain on mismatch for non-interface, non-named types
-		rt := t.rtype
-		bad := !t.Named() && len(rt.Name()) != 0 && rt.Kind() != reflect.Interface && rt.Kind() != reflect.Struct
-		if !bad {
-			if t.kind != rt.Kind() && rt.Kind() == reflect.Interface {
-				tinterf := unwrap(t.Universe().TypeOfInterface)
-				bad = t.NumMethod() != 0 || tinterf != nil && (t.gunderlying() != tinterf.gtype || rt != tinterf.rtype)
-			}
+	// reflect cannot create new interface types or new named types: accept whatever we have.
+	// also, it cannot create unnamed structs containing unexported fields. again, accept whatever we have.
+	// instead complain on mismatch for non-interface, non-named types
+	rt := t.rtype
+	bad := !t.Named() && len(rt.Name()) != 0 && rt.Kind() != reflect.Interface && rt.Kind() != reflect.Struct
+	if !bad {
+		if t.kind != rt.Kind() && rt.Kind() == reflect.Interface {
+			tinterf := unwrap(t.Universe().TypeOfInterface)
+			bad = t.NumMethod() != 0 || tinterf != nil && (t.gunderlying() != tinterf.gtype || rt != tinterf.rtype)
 		}
-		if bad {
-			debugf("caching suspicious type %v => %v\n%s", t.GoType(), t.ReflectType(), debug.Stack())
-		}
+	}
+	if bad {
+		debugf("caching suspicious type %v => %v\n%s", t.GoType(), t.ReflectType(), debug.Stack())
 	}
 }
 
+func (m *Types) clear() {
+	*m = Types{}
+}
+
 func (m *Types) add(t Type) {
-	if !ENABLE_CACHE {
-		return
-	}
-	warnOnSuspiciousCache(unwrap(t))
+	xt := unwrap(t)
+	warnOnSuspiciousCache(xt)
 	switch t.Kind() {
 	case reflect.Func:
-		t.NumIn() // check consistency
-
+		// even function types can be named => they need SetUnderlying() before being complete
+		if !xt.needSetUnderlying() {
+			t.NumIn() // check consistency
+		}
 	case reflect.Interface:
 		rtype := t.ReflectType()
 		rkind := rtype.Kind()
@@ -117,7 +105,9 @@ func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.
 		if t.ReflectType() == rtype {
 			return t
 		}
-		warnOnMismatchCache(gtype, rtype, t.ReflectType())
+		if v.debug() {
+			debugOnMismatchCache(gtype, rtype, t)
+		}
 	}
 	t := wrap(&xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v})
 	v.add(t)

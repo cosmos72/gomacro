@@ -34,7 +34,7 @@ import (
 )
 
 // NamedOf returns a new named type for the given type name and package.
-// Initially, the underlying type is set to interface{} - use SetUnderlying to change it.
+// Initially, the underlying type may be set to interface{} - use SetUnderlying to change it.
 // These two steps are separate to allow creating self-referencing types,
 // as for example type List struct { Elem int; Rest *List }
 func (v *Universe) NamedOf(name, pkgpath string, kind reflect.Kind) Type {
@@ -49,13 +49,25 @@ func (v *Universe) namedOf(name, pkgpath string, kind reflect.Kind) Type {
 	if underlying == nil {
 		underlying = v.TypeOfInterface
 	}
+	return v.reflectNamedOf(name, pkgpath, kind, underlying.ReflectType())
+}
+
+// alternate version of namedOf(), to be used when reflect.Type is known
+func (v *Universe) reflectNamedOf(name, pkgpath string, kind reflect.Kind, rtype reflect.Type) Type {
+	underlying := v.BasicTypes[kind]
+	if underlying == nil {
+		underlying = v.TypeOfInterface
+	}
 	pkg := v.loadPackage(pkgpath)
-	// typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
 	return v.maketype3(
-		kind, // may be inaccurate or reflect.Invalid! will be fixed by SetUnderlying()
+		// kind may be inaccurate or reflect.Invalid;
+		// underlying.GoType() will often be inaccurate and equal to interface{};
+		// rtype will often be inaccurate and equal to interface{}.
+		// All these issues will be fixed by Type.SetUnderlying()
+		kind,
 		types.NewNamed(typename, underlying.GoType(), nil),
-		underlying.ReflectType(),
+		rtype,
 	)
 }
 

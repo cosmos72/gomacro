@@ -83,7 +83,10 @@ func (t *xtype) NumIn() int {
 		xerrorf(t, "NumIn of non-func type %v", t)
 	}
 	n := 0
-	gtype := t.gunderlying().(*types.Signature)
+	gtype, ok := t.gunderlying().(*types.Signature)
+	if !ok {
+		xerrorf(t, "NumIn of non-func type %v (gotype = %v)", t, t.gunderlying())
+	}
 	if gtype.Recv() != nil {
 		n++
 	}
