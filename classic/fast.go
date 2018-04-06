@@ -39,14 +39,12 @@ func (env *Env) fastInterp() *fast.Interp {
 	if env.FastInterp == nil {
 		f = fast.New()
 		f.Comp.CompileOptions |= fast.OptKeepUntyped
+		f.Comp.CompGlobals.Globals = env.ThreadGlobals.Globals // share *Globals and Globals.Options
 		env.FastInterp = f
 	} else {
 		f = env.FastInterp.(*fast.Interp)
 	}
 	return f
-}
-
-func (env *Env) fastUpdateOptions(opts base.Options) {
 }
 
 func (env *Env) fastShowPackage(name string) {

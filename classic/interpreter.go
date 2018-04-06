@@ -164,7 +164,8 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 		return true // no input. don't print anything
 	}
 	env := ir.Env
-	fast := env.Options&OptFastInterpreter != 0 // use the fast interpreter?
+	g := env.Globals
+	fast := g.Options&OptFastInterpreter != 0 // use the fast interpreter?
 
 	if n > 0 && src[0] == ':' {
 		args := strings.SplitN(src, " ", 2)
@@ -172,10 +173,10 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 		switch {
 		case strings.HasPrefix(":classic", cmd):
 			if len(args) <= 1 {
-				if env.Options&OptFastInterpreter != 0 {
+				if g.Options&OptFastInterpreter != 0 {
 					env.Debugf("switched to classic interpreter")
 				}
-				env.Options &^= OptFastInterpreter
+				g.Options &^= OptFastInterpreter
 				return true
 			}
 			// temporary override
@@ -194,10 +195,10 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 			return true
 		case strings.HasPrefix(":fast", cmd):
 			if len(args) <= 1 {
-				if env.Options&OptFastInterpreter == 0 {
+				if g.Options&OptFastInterpreter == 0 {
 					env.Debugf("switched to fast interpreter")
 				}
-				env.Options |= OptFastInterpreter
+				g.Options |= OptFastInterpreter
 				return true
 			}
 			// temporary override
@@ -215,11 +216,10 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 			return true
 		case strings.HasPrefix(":options", cmd):
 			if len(args) > 1 {
-				env.Options ^= ParseOptions(args[1])
-				ir.fastUpdateOptions(env.Options)
+				g.Options ^= ParseOptions(args[1])
 			}
-			fmt.Fprintf(env.Stdout, "// current options: %v\n", env.Options)
-			fmt.Fprintf(env.Stdout, "// unset   options: %v\n", ^env.Options)
+			fmt.Fprintf(env.Stdout, "// current options: %v\n", g.Options)
+			fmt.Fprintf(env.Stdout, "// unset   options: %v\n", ^g.Options)
 			return true
 		case strings.HasPrefix(":quit", cmd):
 			return false
@@ -233,12 +233,12 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 		default:
 			// temporarily disable collection of declarations and statements,
 			// and temporarily disable macroexpandonly (i.e. re-enable eval)
-			saved := env.Options
+			opts := g.Options
 			todisable := OptMacroExpandOnly | OptCollectDeclarations | OptCollectStatements
-			if saved&todisable != 0 {
-				env.Options &^= todisable
+			if opts&todisable != 0 {
+				g.Options &^= todisable
 				defer func() {
-					env.Options = saved
+					g.Options = opts
 				}()
 			}
 			src = " " + src[1:] // slower than src = src[1:], but gives accurate column positions in error messages
