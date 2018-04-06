@@ -49,30 +49,30 @@ func init() {
 		"Tx":	TypeOf((*sql.Tx)(nil)).Elem(),
 		"TxOptions":	TypeOf((*sql.TxOptions)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"Result":	TypeOf((*Result_database_sql)(nil)).Elem(),
-		"Scanner":	TypeOf((*Scanner_database_sql)(nil)).Elem(),
+		"Result":	TypeOf((*P_database_sql_Result)(nil)).Elem(),
+		"Scanner":	TypeOf((*P_database_sql_Scanner)(nil)).Elem(),
 	}, 
 	}
 }
 
 // --------------- proxy for database/sql.Result ---------------
-type Result_database_sql struct {
+type P_database_sql_Result struct {
 	Object	interface{}
 	LastInsertId_	func(interface{}) (int64, error)
 	RowsAffected_	func(interface{}) (int64, error)
 }
-func (Proxy *Result_database_sql) LastInsertId() (int64, error) {
-	return Proxy.LastInsertId_(Proxy.Object)
+func (P *P_database_sql_Result) LastInsertId() (int64, error) {
+	return P.LastInsertId_(P.Object)
 }
-func (Proxy *Result_database_sql) RowsAffected() (int64, error) {
-	return Proxy.RowsAffected_(Proxy.Object)
+func (P *P_database_sql_Result) RowsAffected() (int64, error) {
+	return P.RowsAffected_(P.Object)
 }
 
 // --------------- proxy for database/sql.Scanner ---------------
-type Scanner_database_sql struct {
+type P_database_sql_Scanner struct {
 	Object	interface{}
 	Scan_	func(_proxy_obj_ interface{}, src interface{}) error
 }
-func (Proxy *Scanner_database_sql) Scan(src interface{}) error {
-	return Proxy.Scan_(Proxy.Object, src)
+func (P *P_database_sql_Scanner) Scan(src interface{}) error {
+	return P.Scan_(P.Object, src)
 }

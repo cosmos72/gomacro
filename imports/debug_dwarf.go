@@ -200,7 +200,7 @@ func init() {
 		"UnspecifiedType":	TypeOf((*dwarf.UnspecifiedType)(nil)).Elem(),
 		"VoidType":	TypeOf((*dwarf.VoidType)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"Type":	TypeOf((*Type_debug_dwarf)(nil)).Elem(),
+		"Type":	TypeOf((*P_debug_dwarf_Type)(nil)).Elem(),
 	}, Wrappers: map[string][]string{
 		"AddrType":	[]string{"Basic","Common","Size","String",},
 		"ArrayType":	[]string{"Common",},
@@ -226,18 +226,18 @@ func init() {
 }
 
 // --------------- proxy for debug/dwarf.Type ---------------
-type Type_debug_dwarf struct {
+type P_debug_dwarf_Type struct {
 	Object	interface{}
 	Common_	func(interface{}) *dwarf.CommonType
 	Size_	func(interface{}) int64
 	String_	func(interface{}) string
 }
-func (Proxy *Type_debug_dwarf) Common() *dwarf.CommonType {
-	return Proxy.Common_(Proxy.Object)
+func (P *P_debug_dwarf_Type) Common() *dwarf.CommonType {
+	return P.Common_(P.Object)
 }
-func (Proxy *Type_debug_dwarf) Size() int64 {
-	return Proxy.Size_(Proxy.Object)
+func (P *P_debug_dwarf_Type) Size() int64 {
+	return P.Size_(P.Object)
 }
-func (Proxy *Type_debug_dwarf) String() string {
-	return Proxy.String_(Proxy.Object)
+func (P *P_debug_dwarf_Type) String() string {
+	return P.String_(P.Object)
 }

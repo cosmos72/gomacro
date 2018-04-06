@@ -509,6 +509,7 @@ const (
 
 // ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
 type ThreadGlobals struct {
+	*Globals
 	FileEnv      *Env
 	TopEnv       *Env
 	Interrupt    Stmt
@@ -521,20 +522,20 @@ type ThreadGlobals struct {
 	DeferOfFun   *Env        // function whose defer are running
 	StartDefer   bool        // true if next executed function body is a defer
 	IsDefer      bool        // true if function body being executed is a defer
-	*Globals
 }
 
 // CompGlobals contains interpreter compile bookeeping information
 type CompGlobals struct {
+	*Globals
 	Universe     *xr.Universe
 	interf2proxy map[r.Type]r.Type  // interface -> proxy
 	proxy2interf map[r.Type]xr.Type // proxy -> interface
-	*Globals
 }
 
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into closures
 // for faster execution. Consider it a poor man's compiler (hence the name)
 type Comp struct {
+	*CompGlobals
 	Binds      map[string]*Bind
 	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
 	IntBindNum int
@@ -550,7 +551,6 @@ type Comp struct {
 	Name           string // set by "package" directive
 	Path           string
 	CompileOptions CompileOptions
-	*CompGlobals
 }
 
 const (

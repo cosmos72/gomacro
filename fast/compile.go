@@ -30,7 +30,6 @@ import (
 	"go/token"
 	"go/types"
 	r "reflect"
-	"strings"
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
@@ -52,7 +51,7 @@ func New() *Interp {
 }
 
 func newTopInterp(path string) *Interp {
-	name := path[1+strings.LastIndexByte(path, '/'):]
+	name := FileName(path)
 
 	globals := NewGlobals()
 	universe := xr.NewUniverse()
@@ -95,7 +94,7 @@ func newTopInterp(path string) *Interp {
 
 func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 	if len(name) == 0 {
-		name = path[1+strings.LastIndexByte(path, '/'):]
+		name = FileName(path)
 	}
 
 	outerComp := outer.Comp
