@@ -150,15 +150,25 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		return t
 	}
 	xt := unwrap(t)
-	if !xt.Named() && xt.Kind() == reflect.Ptr {
-		// methods on pointer-to-type. add them to the type itself
-		xt = unwrap(xt.elem())
+	if xt.kind == reflect.Interface {
+		// fromReflectInterface() already added methods to interface.
+		return t
+	}
+	if xt.kind == reflect.Ptr {
+		if xt.Named() {
+			errorf(t, "CANNOT add methods to named pointer %v", t)
+		} else {
+			// methods on pointer-to-type. add them to the type itself
+			xt = unwrap(xt.elem())
+			if xt.kind == reflect.Interface {
+				errorf(t, "CANNOT add methods to pointer to interface %v", t)
+			} else if xt.kind == reflect.Ptr {
+				errorf(t, "CANNOT add methods to pointer to pointer %v", t)
+			}
+		}
 	}
 	if !xt.Named() {
-		errorf(t, "cannot add methods to unnamed type %v", t)
-	}
-	if xt.kind == reflect.Interface {
-		// debugf("NOT adding methods to interface %v", tm)
+		// debugf("NOT adding methods to unnamed type %v", t)
 		return t
 	}
 	if xt.methodvalues != nil {
@@ -339,11 +349,11 @@ func (v *Universe) fromReflectInterface(rtype reflect.Type) Type {
 	gmethods := make([]*types.Func, n)
 	for i := 0; i < n; i++ {
 		rmethod := rtype.Method(i)
-		method := v.fromReflectInterfaceMethod(rtype, rmethod.Type)
+		method := v.fromReflectFunc(rmethod.Type) // do NOT add a receiver: types.NewInterface() will add it
 		pkg := v.loadPackage(rmethod.PkgPath)
 		gmethods[i] = types.NewFunc(token.NoPos, (*types.Package)(pkg), rmethod.Name, method.GoType().(*types.Signature))
 	}
-	// no way to extract embedded interfaces from reflect.Type
+	// no way to extract embedded interfaces from reflect.Type. Just collect all methods
 	if v.rebuild() {
 		rfields := make([]reflect.StructField, 1+n)
 		rfields[0] = approxInterfaceHeader()
