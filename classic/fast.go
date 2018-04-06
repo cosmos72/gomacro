@@ -41,10 +41,24 @@ func (env *Env) fastInterp() *fast.Interp {
 		f.Comp.CompileOptions |= fast.OptKeepUntyped
 		f.Comp.CompGlobals.Globals = env.ThreadGlobals.Globals // share *Globals and Globals.Options
 		env.FastInterp = f
+		env.fastUpdateOptions()
 	} else {
 		f = env.FastInterp.(*fast.Interp)
 	}
 	return f
+}
+
+func (env *Env) fastUpdateOptions() {
+	f, _ := env.FastInterp.(*fast.Interp)
+	if f == nil {
+		return
+	}
+	debugdepth := 0
+	g := f.Comp.CompGlobals
+	if g.Options&base.OptDebugFromReflect != 0 {
+		debugdepth = 1
+	}
+	g.Universe.DebugDepth = debugdepth
 }
 
 func (env *Env) fastShowPackage(name string) {

@@ -217,6 +217,7 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 		case strings.HasPrefix(":options", cmd):
 			if len(args) > 1 {
 				g.Options ^= ParseOptions(args[1])
+				env.fastUpdateOptions() // to set fastInterp.Comp.CompGlobals.Universe.DebugDepth
 			}
 			fmt.Fprintf(env.Stdout, "// current options: %v\n", g.Options)
 			fmt.Fprintf(env.Stdout, "// unset   options: %v\n", ^g.Options)
