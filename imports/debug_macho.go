@@ -141,7 +141,7 @@ func init() {
 		"Thread":	TypeOf((*macho.Thread)(nil)).Elem(),
 		"Type":	TypeOf((*macho.Type)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"Load":	TypeOf((*Load_debug_macho)(nil)).Elem(),
+		"Load":	TypeOf((*P_debug_macho_Load)(nil)).Elem(),
 	}, Wrappers: map[string][]string{
 		"Dylib":	[]string{"Raw",},
 		"Dysymtab":	[]string{"Raw",},
@@ -154,10 +154,10 @@ func init() {
 }
 
 // --------------- proxy for debug/macho.Load ---------------
-type Load_debug_macho struct {
+type P_debug_macho_Load struct {
 	Object	interface{}
 	Raw_	func(interface{}) []byte
 }
-func (Proxy *Load_debug_macho) Raw() []byte {
-	return Proxy.Raw_(Proxy.Object)
+func (P *P_debug_macho_Load) Raw() []byte {
+	return P.Raw_(P.Object)
 }

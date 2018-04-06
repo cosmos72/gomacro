@@ -50,7 +50,7 @@ func (c *Comp) Import(node ast.Spec) {
 		if node.Name != nil {
 			name = node.Name.Name
 		} else {
-			name = path[1+strings.LastIndexByte(path, '/'):]
+			name = FileName(path)
 		}
 		// yes, we support local imports
 		// i.e. a function or block can import packages

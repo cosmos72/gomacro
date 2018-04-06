@@ -29,16 +29,16 @@ func init() {
 		"String":	TypeOf((*expvar.String)(nil)).Elem(),
 		"Var":	TypeOf((*expvar.Var)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"Var":	TypeOf((*Var_expvar)(nil)).Elem(),
+		"Var":	TypeOf((*P_expvar_Var)(nil)).Elem(),
 	}, 
 	}
 }
 
 // --------------- proxy for expvar.Var ---------------
-type Var_expvar struct {
+type P_expvar_Var struct {
 	Object	interface{}
 	String_	func(interface{}) string
 }
-func (Proxy *Var_expvar) String() string {
-	return Proxy.String_(Proxy.Object)
+func (P *P_expvar_Var) String() string {
+	return P.String_(P.Object)
 }

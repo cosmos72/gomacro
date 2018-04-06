@@ -34,7 +34,6 @@ import (
 	"io/ioutil"
 	"os"
 	r "reflect"
-	"strings"
 
 	"github.com/cosmos72/gomacro/imports"
 )
@@ -195,9 +194,9 @@ func computeImportFilename(path string, mode ImportMode) string {
 		return fmt.Sprintf("%s/%s/x_package.go", srcdir, path)
 	}
 
-	file := path[1+strings.LastIndexByte(path, '/'):]
+	file := FileName(path)
 	file = fmt.Sprintf("%s/gomacro_imports/%s/%s.go", srcdir, path, file)
-	dir := file[0 : 1+strings.LastIndexByte(file, '/')]
+	dir := DirName(file)
 	err := os.MkdirAll(dir, 0700)
 	if err != nil {
 		Errorf("error creating directory %q: %v", dir, err)

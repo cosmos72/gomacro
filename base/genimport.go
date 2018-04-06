@@ -41,10 +41,11 @@ type genimport struct {
 	gpkg        *types.Package
 	scope       *types.Scope
 	names       []string
+	pkgrenames  map[string]string // map[path]name of packages to import, where name:s are guaranteed to be unique
 	out         *bytes.Buffer
 	path        string
 	name, name_ string
-	suffix      string
+	proxyprefix string
 	reflect     string
 }
 
@@ -78,7 +79,7 @@ func (g *Globals) newGenImport(out *bytes.Buffer, path string, gpkg *types.Packa
 
 	gen := &genimport{globals: g, mode: mode, gpkg: gpkg, scope: scope, names: names, out: out, path: path}
 
-	name := path[1+strings.LastIndexByte(path, '/'):]
+	name := FileName(path)
 	name = sanitizeIdentifier(name)
 	gen.name = name
 
@@ -87,8 +88,10 @@ func (g *Globals) newGenImport(out *bytes.Buffer, path string, gpkg *types.Packa
 	} else {
 		gen.name_ = name + "."
 	}
-	if mode != ImPlugin {
-		gen.suffix = fmt.Sprintf("_%s", sanitizeIdentifier(path))
+	if mode == ImPlugin {
+		gen.proxyprefix = "P_"
+	} else {
+		gen.proxyprefix = fmt.Sprintf("P_%s_", sanitizeIdentifier(path))
 	}
 	return gen
 }
@@ -154,6 +157,10 @@ func (d *mapdecl) footer1(comma bool) {
 	}
 }
 
+func (gen *genimport) collectPackageImportsWithRename(requireAllInterfaceMethodsExported bool) {
+	gen.pkgrenames = gen.globals.CollectPackageImportsWithRename(gen.gpkg, requireAllInterfaceMethodsExported)
+}
+
 func (gen *genimport) writePreamble() {
 	mode := gen.mode
 	out := gen.out
@@ -185,9 +192,14 @@ import (`, alias, path, filepkg)
 	} else {
 		fmt.Fprintf(out, "\n\t. \"reflect\"")
 	}
-	for _, str := range gen.globals.CollectPackageImports(gen.gpkg, true) {
-		if mode != ImInception || str != path {
-			fmt.Fprintf(out, "\n\t%q", str)
+	gen.collectPackageImportsWithRename(true)
+	for path, name := range gen.pkgrenames {
+		if mode == ImInception && path == gen.path {
+			continue // writing inside the package: it should not import itself
+		} else if name == FileName(path) {
+			fmt.Fprintf(out, "\n\t%q", path)
+		} else {
+			fmt.Fprintf(out, "\n\t%s %q", name, path)
 		}
 	}
 	fmt.Fprintf(out, "\n)\n")
@@ -261,7 +273,7 @@ func (gen *genimport) writeProxies() {
 		if obj := gen.scope.Lookup(name); obj.Exported() {
 			if t := extractInterface(obj, true); t != nil {
 				d.header()
-				fmt.Fprintf(gen.out, "\n\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),", name, gen.reflect, name, gen.suffix)
+				fmt.Fprintf(gen.out, "\n\t\t%q:\t%sTypeOf((*%s%s)(nil)).Elem(),", name, gen.reflect, gen.proxyprefix, name)
 			}
 		}
 	}
@@ -288,6 +300,7 @@ func (gen *genimport) writeUntypeds() {
 	d.footer()
 }
 
+// find wrapper methods and write them. needed for accurate method selection.
 func (gen *genimport) writeWrappers() {
 	d := gen.mapdecl("map[string][]string", "Wrappers: map[string][]string")
 
@@ -317,12 +330,13 @@ func (gen *genimport) writeWrappers() {
 	d.footer1(gen.mode != ImPlugin)
 }
 
+// write proxies that pre-implement package's interfaces
 func (gen *genimport) writeInterfaceProxies() {
 	path := gen.gpkg.Path()
 	for _, name := range gen.names {
 		obj := gen.scope.Lookup(name)
 		if t := extractInterface(obj, true); t != nil {
-			writeInterfaceProxy(gen.out, path, gen.suffix, name, t)
+			gen.writeInterfaceProxy(path, name, t)
 		}
 	}
 }

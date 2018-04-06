@@ -18,20 +18,20 @@ func init() {
 		"Options":	TypeOf((*cookiejar.Options)(nil)).Elem(),
 		"PublicSuffixList":	TypeOf((*cookiejar.PublicSuffixList)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"PublicSuffixList":	TypeOf((*PublicSuffixList_net_http_cookiejar)(nil)).Elem(),
+		"PublicSuffixList":	TypeOf((*P_net_http_cookiejar_PublicSuffixList)(nil)).Elem(),
 	}, 
 	}
 }
 
 // --------------- proxy for net/http/cookiejar.PublicSuffixList ---------------
-type PublicSuffixList_net_http_cookiejar struct {
+type P_net_http_cookiejar_PublicSuffixList struct {
 	Object	interface{}
 	PublicSuffix_	func(_proxy_obj_ interface{}, domain string) string
 	String_	func(interface{}) string
 }
-func (Proxy *PublicSuffixList_net_http_cookiejar) PublicSuffix(domain string) string {
-	return Proxy.PublicSuffix_(Proxy.Object, domain)
+func (P *P_net_http_cookiejar_PublicSuffixList) PublicSuffix(domain string) string {
+	return P.PublicSuffix_(P.Object, domain)
 }
-func (Proxy *PublicSuffixList_net_http_cookiejar) String() string {
-	return Proxy.String_(Proxy.Object)
+func (P *P_net_http_cookiejar_PublicSuffixList) String() string {
+	return P.String_(P.Object)
 }

@@ -31,8 +31,8 @@ func init() {
 		"WriteError":	TypeOf((*flate.WriteError)(nil)).Elem(),
 		"Writer":	TypeOf((*flate.Writer)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"Reader":	TypeOf((*Reader_compress_flate)(nil)).Elem(),
-		"Resetter":	TypeOf((*Resetter_compress_flate)(nil)).Elem(),
+		"Reader":	TypeOf((*P_compress_flate_Reader)(nil)).Elem(),
+		"Resetter":	TypeOf((*P_compress_flate_Resetter)(nil)).Elem(),
 	}, Untypeds: map[string]string{
 		"BestCompression":	"int:9",
 		"BestSpeed":	"int:1",
@@ -44,23 +44,23 @@ func init() {
 }
 
 // --------------- proxy for compress/flate.Reader ---------------
-type Reader_compress_flate struct {
+type P_compress_flate_Reader struct {
 	Object	interface{}
 	Read_	func(_proxy_obj_ interface{}, p []byte) (n int, err error)
 	ReadByte_	func(interface{}) (byte, error)
 }
-func (Proxy *Reader_compress_flate) Read(p []byte) (n int, err error) {
-	return Proxy.Read_(Proxy.Object, p)
+func (P *P_compress_flate_Reader) Read(p []byte) (n int, err error) {
+	return P.Read_(P.Object, p)
 }
-func (Proxy *Reader_compress_flate) ReadByte() (byte, error) {
-	return Proxy.ReadByte_(Proxy.Object)
+func (P *P_compress_flate_Reader) ReadByte() (byte, error) {
+	return P.ReadByte_(P.Object)
 }
 
 // --------------- proxy for compress/flate.Resetter ---------------
-type Resetter_compress_flate struct {
+type P_compress_flate_Resetter struct {
 	Object	interface{}
 	Reset_	func(_proxy_obj_ interface{}, r io.Reader, dict []byte) error
 }
-func (Proxy *Resetter_compress_flate) Reset(r io.Reader, dict []byte) error {
-	return Proxy.Reset_(Proxy.Object, r, dict)
+func (P *P_compress_flate_Resetter) Reset(r io.Reader, dict []byte) error {
+	return P.Reset_(P.Object, r, dict)
 }

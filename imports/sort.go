@@ -35,24 +35,24 @@ func init() {
 		"Interface":	TypeOf((*sort.Interface)(nil)).Elem(),
 		"StringSlice":	TypeOf((*sort.StringSlice)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"Interface":	TypeOf((*Interface_sort)(nil)).Elem(),
+		"Interface":	TypeOf((*P_sort_Interface)(nil)).Elem(),
 	}, 
 	}
 }
 
 // --------------- proxy for sort.Interface ---------------
-type Interface_sort struct {
+type P_sort_Interface struct {
 	Object	interface{}
 	Len_	func(interface{}) int
 	Less_	func(_proxy_obj_ interface{}, i int, j int) bool
 	Swap_	func(_proxy_obj_ interface{}, i int, j int) 
 }
-func (Proxy *Interface_sort) Len() int {
-	return Proxy.Len_(Proxy.Object)
+func (P *P_sort_Interface) Len() int {
+	return P.Len_(P.Object)
 }
-func (Proxy *Interface_sort) Less(i int, j int) bool {
-	return Proxy.Less_(Proxy.Object, i, j)
+func (P *P_sort_Interface) Less(i int, j int) bool {
+	return P.Less_(P.Object, i, j)
 }
-func (Proxy *Interface_sort) Swap(i int, j int)  {
-	Proxy.Swap_(Proxy.Object, i, j)
+func (P *P_sort_Interface) Swap(i int, j int)  {
+	P.Swap_(P.Object, i, j)
 }

@@ -22,7 +22,7 @@ func init() {
 		"Reader":	TypeOf((*jpeg.Reader)(nil)).Elem(),
 		"UnsupportedError":	TypeOf((*jpeg.UnsupportedError)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"Reader":	TypeOf((*Reader_image_jpeg)(nil)).Elem(),
+		"Reader":	TypeOf((*P_image_jpeg_Reader)(nil)).Elem(),
 	}, Untypeds: map[string]string{
 		"DefaultQuality":	"int:75",
 	}, 
@@ -30,14 +30,14 @@ func init() {
 }
 
 // --------------- proxy for image/jpeg.Reader ---------------
-type Reader_image_jpeg struct {
+type P_image_jpeg_Reader struct {
 	Object	interface{}
 	Read_	func(_proxy_obj_ interface{}, p []byte) (n int, err error)
 	ReadByte_	func(interface{}) (byte, error)
 }
-func (Proxy *Reader_image_jpeg) Read(p []byte) (n int, err error) {
-	return Proxy.Read_(Proxy.Object, p)
+func (P *P_image_jpeg_Reader) Read(p []byte) (n int, err error) {
+	return P.Read_(P.Object, p)
 }
-func (Proxy *Reader_image_jpeg) ReadByte() (byte, error) {
-	return Proxy.ReadByte_(Proxy.Object)
+func (P *P_image_jpeg_Reader) ReadByte() (byte, error) {
+	return P.ReadByte_(P.Object)
 }

@@ -27,20 +27,20 @@ func init() {
 		"FormatError":	TypeOf((*png.FormatError)(nil)).Elem(),
 		"UnsupportedError":	TypeOf((*png.UnsupportedError)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"EncoderBufferPool":	TypeOf((*EncoderBufferPool_image_png)(nil)).Elem(),
+		"EncoderBufferPool":	TypeOf((*P_image_png_EncoderBufferPool)(nil)).Elem(),
 	}, 
 	}
 }
 
 // --------------- proxy for image/png.EncoderBufferPool ---------------
-type EncoderBufferPool_image_png struct {
+type P_image_png_EncoderBufferPool struct {
 	Object	interface{}
 	Get_	func(interface{}) *png.EncoderBuffer
 	Put_	func(interface{}, *png.EncoderBuffer) 
 }
-func (Proxy *EncoderBufferPool_image_png) Get() *png.EncoderBuffer {
-	return Proxy.Get_(Proxy.Object)
+func (P *P_image_png_EncoderBufferPool) Get() *png.EncoderBuffer {
+	return P.Get_(P.Object)
 }
-func (Proxy *EncoderBufferPool_image_png) Put(unnamed0 *png.EncoderBuffer)  {
-	Proxy.Put_(Proxy.Object, unnamed0)
+func (P *P_image_png_EncoderBufferPool) Put(unnamed0 *png.EncoderBuffer)  {
+	P.Put_(P.Object, unnamed0)
 }

@@ -86,7 +86,7 @@ func init() {
 		"RenegotiationSupport":	TypeOf((*tls.RenegotiationSupport)(nil)).Elem(),
 		"SignatureScheme":	TypeOf((*tls.SignatureScheme)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"ClientSessionCache":	TypeOf((*ClientSessionCache_crypto_tls)(nil)).Elem(),
+		"ClientSessionCache":	TypeOf((*P_crypto_tls_ClientSessionCache)(nil)).Elem(),
 	}, Untypeds: map[string]string{
 		"VersionSSL30":	"int:768",
 		"VersionTLS10":	"int:769",
@@ -97,14 +97,14 @@ func init() {
 }
 
 // --------------- proxy for crypto/tls.ClientSessionCache ---------------
-type ClientSessionCache_crypto_tls struct {
+type P_crypto_tls_ClientSessionCache struct {
 	Object	interface{}
 	Get_	func(_proxy_obj_ interface{}, sessionKey string) (session *tls.ClientSessionState, ok bool)
 	Put_	func(_proxy_obj_ interface{}, sessionKey string, cs *tls.ClientSessionState) 
 }
-func (Proxy *ClientSessionCache_crypto_tls) Get(sessionKey string) (session *tls.ClientSessionState, ok bool) {
-	return Proxy.Get_(Proxy.Object, sessionKey)
+func (P *P_crypto_tls_ClientSessionCache) Get(sessionKey string) (session *tls.ClientSessionState, ok bool) {
+	return P.Get_(P.Object, sessionKey)
 }
-func (Proxy *ClientSessionCache_crypto_tls) Put(sessionKey string, cs *tls.ClientSessionState)  {
-	Proxy.Put_(Proxy.Object, sessionKey, cs)
+func (P *P_crypto_tls_ClientSessionCache) Put(sessionKey string, cs *tls.ClientSessionState)  {
+	P.Put_(P.Object, sessionKey, cs)
 }

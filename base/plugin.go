@@ -31,7 +31,6 @@ import (
 	"os"
 	"os/exec"
 	r "reflect"
-	"strings"
 
 	"github.com/cosmos72/gomacro/imports"
 )
@@ -52,34 +51,34 @@ func getGoSrcPath() string {
 	return getGoPath() + "/src"
 }
 
-func (g *Globals) compilePlugin(filename string, stdout io.Writer, stderr io.Writer) string {
+func (g *Globals) compilePlugin(filepath string, stdout io.Writer, stderr io.Writer) string {
 	// panics if plugin.Open is not available
 	// -> skip generating .go file and compiling it
 	g.loadPlugin("", "")
 
 	gosrcdir := getGoSrcPath()
 	gosrclen := len(gosrcdir)
-	filelen := len(filename)
-	if filelen < gosrclen || filename[0:gosrclen] != gosrcdir {
-		g.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filename, gosrcdir)
+	filelen := len(filepath)
+	if filelen < gosrclen || filepath[0:gosrclen] != gosrcdir {
+		g.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filepath, gosrcdir)
 	}
 
 	cmd := exec.Command("go", "build", "-buildmode=plugin")
-	cmd.Dir = filename[0 : 1+strings.LastIndexByte(filename, '/')]
+	cmd.Dir = DirName(filepath)
 	cmd.Stdin = nil
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	g.Debugf("compiling %q ...", filename)
+	g.Debugf("compiling %q ...", filepath)
 	err := cmd.Run()
 	if err != nil {
 		g.Errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
 	}
 
-	dirname := filename[:strings.LastIndexByte(filename, '/')]
+	dirname := RemoveLastByte(DirName(filepath))
 	// go build uses innermost directory name as shared object name,
 	// i.e.	foo/bar/main.go is compiled to foo/bar/bar.so
-	filename = dirname[1+strings.LastIndexByte(dirname, '/'):]
+	filename := FileName(dirname)
 
 	return fmt.Sprintf("%s/%s.so", dirname, filename)
 }

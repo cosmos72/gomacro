@@ -6,25 +6,18 @@
 package imports
 
 import (
-	"plugin"
 	. "reflect"
+	"plugin"
 )
 
 // reflection: allow interpreted code to import "plugin"
 func init() {
 	Packages["plugin"] = Package{
-		Binds: map[string]Value{
-			"Open": ValueOf(plugin.Open),
-		}, Types: map[string]Type{
-			"Plugin": TypeOf((*plugin.Plugin)(nil)).Elem(),
-			"Symbol": TypeOf((*plugin.Symbol)(nil)).Elem(),
-		}, Proxies: map[string]Type{
-			"Symbol": TypeOf((*Symbol_plugin)(nil)).Elem(),
-		},
+	Binds: map[string]Value{
+		"Open":	ValueOf(plugin.Open),
+	}, Types: map[string]Type{
+		"Plugin":	TypeOf((*plugin.Plugin)(nil)).Elem(),
+		"Symbol":	TypeOf((*plugin.Symbol)(nil)).Elem(),
+	}, 
 	}
-}
-
-// --------------- proxy for plugin.Symbol ---------------
-type Symbol_plugin struct {
-	Object interface{}
 }

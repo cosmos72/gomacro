@@ -23,20 +23,20 @@ func init() {
 		"RWMutex":	TypeOf((*sync.RWMutex)(nil)).Elem(),
 		"WaitGroup":	TypeOf((*sync.WaitGroup)(nil)).Elem(),
 	}, Proxies: map[string]Type{
-		"Locker":	TypeOf((*Locker_sync)(nil)).Elem(),
+		"Locker":	TypeOf((*P_sync_Locker)(nil)).Elem(),
 	}, 
 	}
 }
 
 // --------------- proxy for sync.Locker ---------------
-type Locker_sync struct {
+type P_sync_Locker struct {
 	Object	interface{}
 	Lock_	func(interface{}) 
 	Unlock_	func(interface{}) 
 }
-func (Proxy *Locker_sync) Lock()  {
-	Proxy.Lock_(Proxy.Object)
+func (P *P_sync_Locker) Lock()  {
+	P.Lock_(P.Object)
 }
-func (Proxy *Locker_sync) Unlock()  {
-	Proxy.Unlock_(Proxy.Object)
+func (P *P_sync_Locker) Unlock()  {
+	P.Unlock_(P.Object)
 }
