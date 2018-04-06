@@ -42,7 +42,6 @@ type Universe struct {
 	Types
 	ReflectTypes    map[reflect.Type]Type
 	BasicTypes      []Type
-	EmptyTypes      []Type // an empty type for each kind, used as underlying type while declaring named types
 	TypeOfInterface Type
 	TypeOfError     Type
 	TryResolve      func(name, pkgpath string) Type

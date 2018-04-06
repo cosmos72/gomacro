@@ -91,28 +91,11 @@ func (v *Universe) makeinterface() Type {
 	return t
 }
 
-// tries to lock v. Called only from NewUniverse() => v.ThreadSafe is false
-func (v *Universe) makeemptytypes() []Type {
-	m := make([]Type, len(rbasictypes))
-	copy(m, v.BasicTypes)
-	t0 := v.StructOf(nil)
-	m[reflect.Struct] = t0
-	m[reflect.Array] = v.ArrayOf(0, t0)
-	m[reflect.Chan] = v.ChanOf(reflect.BothDir, t0)
-	m[reflect.Func] = v.FuncOf(nil, nil, false)
-	m[reflect.Interface] = v.TypeOfInterface
-	m[reflect.Map] = v.MapOf(t0, t0)
-	m[reflect.Ptr] = v.PtrTo(t0)
-	m[reflect.Slice] = v.SliceOf(t0)
-	return m
-}
-
 func NewUniverse() *Universe {
 	v := &Universe{}
 	v.BasicTypes = v.makebasictypes()
 	v.TypeOfError = v.makeerror()
 	v.TypeOfInterface = v.makeinterface()
-	v.EmptyTypes = v.makeemptytypes() // tries to lock v... luckily v.ThreadSafe is false
 	// critical! trying to rebuild "error" type creates a non-indentical copy... lots of conversions would fail
 	v.cache(v.TypeOfError.ReflectType(), v.TypeOfError)
 	v.cache(v.TypeOfInterface.ReflectType(), v.TypeOfInterface)
