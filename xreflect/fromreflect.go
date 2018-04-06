@@ -146,21 +146,29 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 
 func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 	n := rtype.NumMethod()
-	if n == 0 || rtype.Kind() == reflect.Interface {
+	if n == 0 {
+		return t
+	}
+	xt := unwrap(t)
+	if xt.kind == reflect.Interface {
 		// fromReflectInterface() already added methods to interface.
 		return t
 	}
-	tm := t
-	if !t.Named() && t.Kind() == reflect.Ptr {
-		// methods on pointer-to-type. add them to the type itself
-		tm = t.elem()
+	if xt.kind == reflect.Ptr {
+		if xt.Named() {
+			errorf(t, "CANNOT add methods to named pointer %v", t)
+		} else {
+			// methods on pointer-to-type. add them to the type itself
+			xt = unwrap(xt.elem())
+			if xt.kind == reflect.Interface {
+				errorf(t, "CANNOT add methods to pointer to interface %v", t)
+			} else if xt.kind == reflect.Ptr {
+				errorf(t, "CANNOT add methods to pointer to pointer %v", t)
+			}
+		}
 	}
-	xt := unwrap(tm)
 	if !xt.Named() {
-		errorf(t, "cannot add methods to unnamed type %v", t)
-	}
-	if xt.kind == reflect.Interface {
-		// debugf("NOT adding methods to interface %v", tm)
+		// debugf("NOT adding methods to unnamed type %v", t)
 		return t
 	}
 	if xt.methodvalues != nil {
@@ -177,9 +185,9 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		for i := 0; i < n; i++ {
 			rmethod := rtype.Method(i)
 			signature := v.fromReflectMethod(rmethod.Type)
-			n1 := tm.NumExplicitMethod()
-			tm.AddMethod(rmethod.Name, signature)
-			n2 := tm.NumExplicitMethod()
+			n1 := xt.NumExplicitMethod()
+			xt.AddMethod(rmethod.Name, signature)
+			n2 := xt.NumExplicitMethod()
 			if n1 == n2 {
 				// method was already present
 				continue
