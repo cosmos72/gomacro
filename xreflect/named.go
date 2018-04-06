@@ -52,9 +52,8 @@ func (v *Universe) namedOf(name, pkgpath string, kind reflect.Kind) Type {
 	pkg := v.loadPackage(pkgpath)
 	// typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, underlying.GoType())
 	typename := types.NewTypeName(token.NoPos, (*types.Package)(pkg), name, nil)
-	return v.maketype4(
-		kind,      // may be inaccurate or reflect.Invalid! will be fixed by SetUnderlying()
-		xfNoCache, // so do not cache it (yet)
+	return v.maketype3(
+		kind, // may be inaccurate or reflect.Invalid! will be fixed by SetUnderlying()
 		types.NewNamed(typename, underlying.GoType(), nil),
 		underlying.ReflectType(),
 	)
@@ -83,8 +82,6 @@ func (t *xtype) SetUnderlying(underlying Type) {
 			t.methodcache = nil
 			t.fieldcache = nil
 		}
-		t.flags &^= xfNoCache
-		v.add(wrap(t))
 	default:
 		xerrorf(t, "SetUnderlying of unnamed type %v", t)
 	}

@@ -105,19 +105,6 @@ func (m *Types) add(t Type) {
 }
 
 // all unexported methods assume lock is already held
-func (v *Universe) maketype4(kind reflect.Kind, flags xflags, gtype types.Type, rtype reflect.Type) Type {
-	if flags&xfNoCache == 0 {
-		return v.maketype3(kind, gtype, rtype)
-	}
-	if gtype == nil {
-		errorf(nil, "MakeType of nil types.Type")
-	} else if rtype == nil {
-		errorf(nil, "MakeType of nil reflect.Type")
-	}
-	return wrap(&xtype{kind: kind, flags: flags, gtype: gtype, rtype: rtype, universe: v})
-}
-
-// all unexported methods assume lock is already held
 func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.Type) Type {
 	if gtype == nil {
 		errorf(nil, "MakeType of nil types.Type")

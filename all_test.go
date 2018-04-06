@@ -624,8 +624,8 @@ var testcases = []TestCase{
 	TestCase{A, "method_on_ptr", `pair.SetA(33); pair.A`, rune(33), nil},
 	TestCase{A, "method_on_val_1", `pair.SetAV(11); pair.A`, rune(33), nil}, // method on value gets a copy of the receiver - changes to not propagate
 	TestCase{A, "method_on_val_2", `pair.String()`, "! y", nil},
-	// TestCase{F, "method_embedded_on_ptr", `triple.SetA('+'); triple.A`, '+', nil},
-	// TestCase{F, "method_embedded_on_val", `triple.SetAV('*'); triple.A`, '+', nil},
+	TestCase{F, "method_embedded_on_ptr", `triple.SetA('+'); triple.A`, '+', nil},
+	TestCase{F, "method_embedded_on_val", `triple.SetAV('*'); triple.A`, '+', nil},
 
 	TestCase{F, "concrete_method_to_func", "cf0 := time.Duration.Seconds; cf0(time.Hour)", 3600.0, nil},
 	TestCase{F, "concrete_method_to_closure", "cl1 := time.Hour.Seconds; cl1()", 3600.0, nil},

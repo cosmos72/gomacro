@@ -81,14 +81,6 @@ type StructField struct {
 
 type xflags uint
 
-const (
-	// do not cache this type, because it is approximate.
-	// example: Field(1) in type List struct { First interface{}; Rest *List }
-	// has gotype = *List, but rtype = *interface{} because reflect.StructOf() cannot create recursive types
-	// and we DO NOT WANT to spread this inaccurate information to other uses of *List or, worse, List
-	xfNoCache = 1 << iota
-)
-
 type xtype struct {
 	kind         reflect.Kind
 	flags        xflags

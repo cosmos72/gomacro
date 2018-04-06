@@ -56,24 +56,10 @@ func (t *xtype) field(i int) StructField {
 	va := gtype.Field(i)
 	rf := t.rtype.Field(i)
 
-	// beware of approximate types!
-	//
-	// t.field(i) could be something like Field(1) of `type List struct { First interface{}; Rest *List }`
-	// which cannot be created by reflect.StructOf():
-	// Rest is actually *interface{} even though it pretends to be *List
-	// so we must return the xtype{gotype: *List, rtype: *interface{}}
-	// which is approximate and must NOT be cached!
-	//
-	// checking whether it's actually an approximate type or not
-	// requires a recursive traversal of va.Type() and rf.Type.
-	//
-	// So the quick and dirty solution is NEVER to cache the type
-	tf := t.universe.maketype4(gtypeToKind(nil, va.Type()), xfNoCache, va.Type(), rf.Type)
-
 	return StructField{
 		Name:      va.Name(),
 		Pkg:       (*Package)(va.Pkg()),
-		Type:      tf,
+		Type:      t.universe.maketype(va.Type(), rf.Type), // lock already held
 		Tag:       rf.Tag,
 		Offset:    rf.Offset,
 		Index:     rf.Index,
