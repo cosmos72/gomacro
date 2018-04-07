@@ -428,20 +428,34 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 
 // create and return a function that, given a reflect.Value, returns its method specified by mtd
 func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) r.Value) {
-	rtype := t.ReflectType()
 	index := mtd.Index
 	tfunc := mtd.Type
 	rtclosure := c.removeFirstParam(tfunc).ReflectType()
 
-	fieldindex, addressof, deref := c.computeFieldIndex(t, mtd)
+	tfield, fieldindex, addressof, deref := c.computeFieldIndex(t, mtd)
+	rtfield := tfield.ReflectType()
 
-	if t.NumMethod() == rtype.NumMethod() && t.Named() && xr.QName1(t) == xr.QName1(rtype) {
+	rmtd, ok := rtfield.MethodByName(mtd.Name)
+
+	if ok && xr.QName1(tfield) == xr.QName1(rtfield) && c.compatibleMethodType(tfield, mtd, rmtd) {
 		// closures for methods declared by compiled code are available
 		// simply with reflect.Value.Method(index). Easy.
+		index := rmtd.Index
+
 		switch len(fieldindex) {
 		case 0:
-			ret = func(obj r.Value) r.Value {
-				return obj.Method(index)
+			if addressof {
+				ret = func(obj r.Value) r.Value {
+					return obj.Addr().Method(index)
+				}
+			} else if deref {
+				ret = func(obj r.Value) r.Value {
+					return obj.Elem().Method(index)
+				}
+			} else {
+				ret = func(obj r.Value) r.Value {
+					return obj.Method(index)
+				}
 			}
 		case 1:
 			fieldindex := fieldindex[0]
@@ -471,6 +485,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 		// not once per goroutine!
 		funs := mtd.Funs
 		nin := tfunc.NumIn()
+		variadic := tfunc.IsVariadic()
 
 		if funs == nil {
 			c.Errorf("method declared but not yet implemented: %s.%s", tname, methodname)
@@ -503,8 +518,12 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 						fullargs := make([]r.Value, nin)
 						fullargs[0] = obj
 						copy(fullargs[1:], args)
-						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-						return fun.Call(fullargs)
+						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs
+						if variadic {
+							return fun.CallSlice(fullargs)
+						} else {
+							return fun.Call(fullargs)
+						}
 					})
 				}
 			case 1:
@@ -526,7 +545,11 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 						fullargs[0] = obj
 						copy(fullargs[1:], args)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-						return fun.Call(fullargs)
+						if variadic {
+							return fun.CallSlice(fullargs)
+						} else {
+							return fun.Call(fullargs)
+						}
 					})
 				}
 			default:
@@ -546,13 +569,28 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 						fullargs[0] = obj
 						copy(fullargs[1:], args)
 						// Debugf("invoking <%v> with args %v", fun.Type(), fullargs)
-						return fun.Call(fullargs)
+						if variadic {
+							return fun.CallSlice(fullargs)
+						} else {
+							return fun.Call(fullargs)
+						}
 					})
 				}
 			}
 		}
 	}
 	return ret
+}
+
+// return true if t is not an interface and mtd.Type().ReflectType() == rmtd.Type,
+// or if t is an interface and rmtd.Type is the same as mtd.Type().ReflectType() _minus_ the receiver
+func (c *Comp) compatibleMethodType(t xr.Type, mtd xr.Method, rmtd r.Method) bool {
+	rt1 := mtd.Type.ReflectType()
+	rt2 := rmtd.Type
+	if t.Kind() != r.Interface {
+		return rt1 == rt2
+	}
+	return rt1.NumIn() - 1 == rt2.NumIn() && c.removeFirstParam(mtd.Type).ReflectType() == rt2
 }
 
 func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(r.Value) r.Value {
@@ -587,7 +625,7 @@ func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(r.V
 // compute and return the dereferences and addressof to perform while descending
 // the embedded fields described by mtd.FieldIndex []int
 // also check that addressof will be performed on addressable fields
-func (c *Comp) computeFieldIndex(t xr.Type, mtd xr.Method) (fieldindex []int, addressof bool, deref bool) {
+func (c *Comp) computeFieldIndex(t xr.Type, mtd xr.Method) (fieldtype xr.Type, fieldindex []int, addressof bool, deref bool) {
 	fieldindex = append([]int{}, mtd.FieldIndex...) // make a copy, we will modify fieldIndex
 	indirect := false                               // executed a dereference ?
 
@@ -653,14 +691,16 @@ func (c *Comp) computeFieldIndex(t xr.Type, mtd xr.Method) (fieldindex []int, ad
 				}
 			*/
 		}
+		t = c.Universe.PtrTo(t)
 	} else if deref && t.Elem().AssignableTo(trecv) {
+		t = t.Elem()
 		if debug {
 			c.Debugf("method call <%v> will dereference receiver <%v>", tfunc, t)
 		}
 	} else {
 		c.Errorf("cannot use <%v> as <%v> in receiver of method <%v>", t, trecv, tfunc)
 	}
-	return fieldindex, addressof, deref
+	return t, fieldindex, addressof, deref
 }
 
 // compileMethodAsFunc compiles a method as a function, for example time.Duration.String.
