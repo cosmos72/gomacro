@@ -144,6 +144,27 @@ The main missing features are:
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 
+## Examples
+
+Some short, notable examples:
+
+### plot mathematical functions
+
+* install libraries: `go get gonum.org/v1/plot gonum.org/v1/plot/plotter gonum.org/v1/plot/vg`
+* start the interpreter: `gomacro`
+* at interpreter prompt, paste the whole Go code listed at https://github.com/gonum/plot/wiki/Example-plots#functions
+  (it ends just before the section "Histograms")
+* still at interpreter prompt, enter `main()`
+If all goes well, it will create a file named "functions.png" in current directory containing the plotted functions.
+
+### simple mandelbrot web server
+
+* install libraries: `go get github.com/sverrirab/mandelbrot-go`
+* chdir to mandelbrot-go source folder: `cd; cd go/src/github.com/sverrirab/mandelbrot-go`
+* start interpreter with arguments: `gomacro -i mbrot.go`
+* at interpreter prompt, enter `init(); main()`
+* visit http://localhost:8090/
+Be patient, rendering and zooming mandelbrot set with an interpreter is a little slow.
 
 ## Why it was created
 
