@@ -98,10 +98,11 @@ func (tty TtyReadline) Read(prompt string) ([]byte, error) {
 		tty.term.AppendHistory(line)
 	}
 	if n := len(line); n != 0 || err != io.EOF {
-		bytes := make([]byte, n+1)
-		copy(bytes, line)
-		bytes[n] = '\n'
-		return bytes, err
+		b := make([]byte, n+1)
+		copy(b, line)
+		b[n] = '\n'
+		b = bytes.Replace(b, paragraph_separator_bytes, nl_bytes, -1)
+		return b, err
 	}
 	return nil, err
 }
