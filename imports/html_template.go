@@ -45,7 +45,6 @@ func init() {
 		"HTMLAttr":	TypeOf((*template.HTMLAttr)(nil)).Elem(),
 		"JS":	TypeOf((*template.JS)(nil)).Elem(),
 		"JSStr":	TypeOf((*template.JSStr)(nil)).Elem(),
-		"Srcset":	TypeOf((*template.Srcset)(nil)).Elem(),
 		"Template":	TypeOf((*template.Template)(nil)).Elem(),
 		"URL":	TypeOf((*template.URL)(nil)).Elem(),
 	}, 

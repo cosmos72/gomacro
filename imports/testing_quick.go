@@ -5,9 +5,9 @@ package imports
 
 import (
 	. "reflect"
+	"math/rand"
 	"reflect"
 	"testing/quick"
-	"math/rand"
 )
 
 // reflection: allow interpreted code to import "testing/quick"

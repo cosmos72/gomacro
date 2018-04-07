@@ -40,7 +40,7 @@ func init() {
 	}, Untypeds: map[string]string{
 		"MaxScanTokenSize":	"int:65536",
 	}, Wrappers: map[string][]string{
-		"ReadWriter":	[]string{"Available","Buffered","Discard","Flush","Peek","Read","ReadByte","ReadBytes","ReadFrom","ReadLine","ReadRune","ReadSlice","ReadString","Reset","Size","UnreadByte","UnreadRune","Write","WriteByte","WriteRune","WriteString","WriteTo",},
+		"ReadWriter":	[]string{"Available","Buffered","Discard","Flush","Peek","Read","ReadByte","ReadBytes","ReadFrom","ReadLine","ReadRune","ReadSlice","ReadString","Reset","UnreadByte","UnreadRune","Write","WriteByte","WriteRune","WriteString","WriteTo",},
 	}, 
 	}
 }

@@ -28,7 +28,6 @@ func init() {
 		"June":	ValueOf(time.June),
 		"Kitchen":	ValueOf(time.Kitchen),
 		"LoadLocation":	ValueOf(time.LoadLocation),
-		"LoadLocationFromTZData":	ValueOf(time.LoadLocationFromTZData),
 		"Local":	ValueOf(&time.Local).Elem(),
 		"March":	ValueOf(time.March),
 		"May":	ValueOf(time.May),

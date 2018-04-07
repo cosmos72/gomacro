@@ -28,7 +28,6 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
-	"runtime/debug"
 	// "runtime/debug"
 
 	"github.com/cosmos72/gomacro/typeutil"
@@ -63,7 +62,7 @@ func warnOnSuspiciousCache(t *xtype) {
 		}
 	}
 	if bad {
-		debugf("caching suspicious type %v => %v\n%s", t.GoType(), t.ReflectType(), debug.Stack())
+		debugf("caching suspicious/incomplete type %v => %v", t.GoType(), t.ReflectType())
 	}
 }
 

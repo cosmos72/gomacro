@@ -21,7 +21,6 @@ func init() {
 		"ECDSAWithP256AndSHA256":	ValueOf(tls.ECDSAWithP256AndSHA256),
 		"ECDSAWithP384AndSHA384":	ValueOf(tls.ECDSAWithP384AndSHA384),
 		"ECDSAWithP521AndSHA512":	ValueOf(tls.ECDSAWithP521AndSHA512),
-		"ECDSAWithSHA1":	ValueOf(tls.ECDSAWithSHA1),
 		"Listen":	ValueOf(tls.Listen),
 		"LoadX509KeyPair":	ValueOf(tls.LoadX509KeyPair),
 		"NewLRUClientSessionCache":	ValueOf(tls.NewLRUClientSessionCache),

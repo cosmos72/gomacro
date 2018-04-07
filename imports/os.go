@@ -5,8 +5,8 @@ package imports
 
 import (
 	. "reflect"
-	"os"
 	"time"
+	"os"
 )
 
 // reflection: allow interpreted code to import "os"
@@ -25,7 +25,6 @@ func init() {
 		"ErrClosed":	ValueOf(&os.ErrClosed).Elem(),
 		"ErrExist":	ValueOf(&os.ErrExist).Elem(),
 		"ErrInvalid":	ValueOf(&os.ErrInvalid).Elem(),
-		"ErrNoDeadline":	ValueOf(&os.ErrNoDeadline).Elem(),
 		"ErrNotExist":	ValueOf(&os.ErrNotExist).Elem(),
 		"ErrPermission":	ValueOf(&os.ErrPermission).Elem(),
 		"Executable":	ValueOf(os.Executable),
@@ -49,7 +48,6 @@ func init() {
 		"IsNotExist":	ValueOf(os.IsNotExist),
 		"IsPathSeparator":	ValueOf(os.IsPathSeparator),
 		"IsPermission":	ValueOf(os.IsPermission),
-		"IsTimeout":	ValueOf(os.IsTimeout),
 		"Kill":	ValueOf(&os.Kill).Elem(),
 		"Lchown":	ValueOf(os.Lchown),
 		"Link":	ValueOf(os.Link),

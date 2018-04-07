@@ -39,7 +39,7 @@ func init() {
 		"RoundingMode":	TypeOf((*big.RoundingMode)(nil)).Elem(),
 		"Word":	TypeOf((*big.Word)(nil)).Elem(),
 	}, Untypeds: map[string]string{
-		"MaxBase":	"rune:62",
+		"MaxBase":	"rune:36",
 		"MaxExp":	"int:2147483647",
 		"MaxPrec":	"int:4294967295",
 		"MinExp":	"int:-2147483648",

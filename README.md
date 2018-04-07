@@ -107,6 +107,22 @@ Gomacro can be used as:
 
 ## Installation
 
+### Prerequites
+
+- [Go 1.9+](https://golang.org/doc/install)
+
+### Supported platforms
+
+Gomacro is pure Go, and in theory it should work on any platform supported by the Go compiler.  
+The following combinations are tested and known to work:
+
+- Linux: amd64, 386, arm64, arm (on Linux it can also import 3rd party libraries at runtime)
+- Mac OS X: amd64, 386
+- Windows: amd64, 386
+- FreeBSD: amd64, 386
+
+### How to install
+
   The command
   ```
   go get -u github.com/cosmos72/gomacro
@@ -115,15 +131,15 @@ Gomacro can be used as:
 
 ## Current Status
 
-Fairly complete.
+Almost complete.
 
 The main missing features are:
 
-* interpreted interfaces are supported, but not extensively tested yet.
-* out-of-order code. Types, variables and functions must be declared **before** using them.
-* switching to a different package
-  (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
-* goto is partially implemented, needs to be completed
+* importing 3rd party libraries on non-Linux systems. Gomacro uses the Go 'plugin' package for this, and it currently works only on Linux.
+* some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
+* out-of-order code. Types, constants, variables and functions must be declared **before** using them.
+* switching to a different package (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
+* goto is partially implemented - can only jump back, not forward
 * type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)

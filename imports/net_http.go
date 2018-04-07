@@ -5,11 +5,11 @@ package imports
 
 import (
 	. "reflect"
+	"bufio"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
-	"bufio"
-	"net"
 )
 
 // reflection: allow interpreted code to import "net/http"
@@ -363,7 +363,7 @@ type P_net_http_ResponseWriter struct {
 	Object	interface{}
 	Header_	func(interface{}) http.Header
 	Write_	func(interface{}, []byte) (int, error)
-	WriteHeader_	func(_proxy_obj_ interface{}, statusCode int) 
+	WriteHeader_	func(interface{}, int) 
 }
 func (P *P_net_http_ResponseWriter) Header() http.Header {
 	return P.Header_(P.Object)
@@ -371,8 +371,8 @@ func (P *P_net_http_ResponseWriter) Header() http.Header {
 func (P *P_net_http_ResponseWriter) Write(unnamed0 []byte) (int, error) {
 	return P.Write_(P.Object, unnamed0)
 }
-func (P *P_net_http_ResponseWriter) WriteHeader(statusCode int)  {
-	P.WriteHeader_(P.Object, statusCode)
+func (P *P_net_http_ResponseWriter) WriteHeader(unnamed0 int)  {
+	P.WriteHeader_(P.Object, unnamed0)
 }
 
 // --------------- proxy for net/http.RoundTripper ---------------

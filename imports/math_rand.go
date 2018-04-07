@@ -28,7 +28,6 @@ func init() {
 		"Perm":	ValueOf(rand.Perm),
 		"Read":	ValueOf(rand.Read),
 		"Seed":	ValueOf(rand.Seed),
-		"Shuffle":	ValueOf(rand.Shuffle),
 		"Uint32":	ValueOf(rand.Uint32),
 		"Uint64":	ValueOf(rand.Uint64),
 	}, Types: map[string]Type{

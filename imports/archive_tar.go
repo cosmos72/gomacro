@@ -17,10 +17,6 @@ func init() {
 		"ErrWriteAfterClose":	ValueOf(&tar.ErrWriteAfterClose).Elem(),
 		"ErrWriteTooLong":	ValueOf(&tar.ErrWriteTooLong).Elem(),
 		"FileInfoHeader":	ValueOf(tar.FileInfoHeader),
-		"FormatGNU":	ValueOf(tar.FormatGNU),
-		"FormatPAX":	ValueOf(tar.FormatPAX),
-		"FormatUSTAR":	ValueOf(tar.FormatUSTAR),
-		"FormatUnknown":	ValueOf(tar.FormatUnknown),
 		"NewReader":	ValueOf(tar.NewReader),
 		"NewWriter":	ValueOf(tar.NewWriter),
 		"TypeBlock":	ValueOf(tar.TypeBlock),
@@ -38,7 +34,6 @@ func init() {
 		"TypeXGlobalHeader":	ValueOf(tar.TypeXGlobalHeader),
 		"TypeXHeader":	ValueOf(tar.TypeXHeader),
 	}, Types: map[string]Type{
-		"Format":	TypeOf((*tar.Format)(nil)).Elem(),
 		"Header":	TypeOf((*tar.Header)(nil)).Elem(),
 		"Reader":	TypeOf((*tar.Reader)(nil)).Elem(),
 		"Writer":	TypeOf((*tar.Writer)(nil)).Elem(),

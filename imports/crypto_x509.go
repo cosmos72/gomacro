@@ -12,7 +12,6 @@ import (
 func init() {
 	Packages["crypto/x509"] = Package{
 	Binds: map[string]Value{
-		"CANotAuthorizedForExtKeyUsage":	ValueOf(x509.CANotAuthorizedForExtKeyUsage),
 		"CANotAuthorizedForThisName":	ValueOf(x509.CANotAuthorizedForThisName),
 		"CreateCertificate":	ValueOf(x509.CreateCertificate),
 		"CreateCertificateRequest":	ValueOf(x509.CreateCertificateRequest),
@@ -35,8 +34,6 @@ func init() {
 		"ExtKeyUsageIPSECEndSystem":	ValueOf(x509.ExtKeyUsageIPSECEndSystem),
 		"ExtKeyUsageIPSECTunnel":	ValueOf(x509.ExtKeyUsageIPSECTunnel),
 		"ExtKeyUsageIPSECUser":	ValueOf(x509.ExtKeyUsageIPSECUser),
-		"ExtKeyUsageMicrosoftCommercialCodeSigning":	ValueOf(x509.ExtKeyUsageMicrosoftCommercialCodeSigning),
-		"ExtKeyUsageMicrosoftKernelCodeSigning":	ValueOf(x509.ExtKeyUsageMicrosoftKernelCodeSigning),
 		"ExtKeyUsageMicrosoftServerGatedCrypto":	ValueOf(x509.ExtKeyUsageMicrosoftServerGatedCrypto),
 		"ExtKeyUsageNetscapeServerGatedCrypto":	ValueOf(x509.ExtKeyUsageNetscapeServerGatedCrypto),
 		"ExtKeyUsageOCSPSigning":	ValueOf(x509.ExtKeyUsageOCSPSigning),
@@ -58,10 +55,7 @@ func init() {
 		"MD5WithRSA":	ValueOf(x509.MD5WithRSA),
 		"MarshalECPrivateKey":	ValueOf(x509.MarshalECPrivateKey),
 		"MarshalPKCS1PrivateKey":	ValueOf(x509.MarshalPKCS1PrivateKey),
-		"MarshalPKCS1PublicKey":	ValueOf(x509.MarshalPKCS1PublicKey),
-		"MarshalPKCS8PrivateKey":	ValueOf(x509.MarshalPKCS8PrivateKey),
 		"MarshalPKIXPublicKey":	ValueOf(x509.MarshalPKIXPublicKey),
-		"NameConstraintsWithoutSANs":	ValueOf(x509.NameConstraintsWithoutSANs),
 		"NameMismatch":	ValueOf(x509.NameMismatch),
 		"NewCertPool":	ValueOf(x509.NewCertPool),
 		"NotAuthorizedToSign":	ValueOf(x509.NotAuthorizedToSign),
@@ -77,7 +71,6 @@ func init() {
 		"ParseDERCRL":	ValueOf(x509.ParseDERCRL),
 		"ParseECPrivateKey":	ValueOf(x509.ParseECPrivateKey),
 		"ParsePKCS1PrivateKey":	ValueOf(x509.ParsePKCS1PrivateKey),
-		"ParsePKCS1PublicKey":	ValueOf(x509.ParsePKCS1PublicKey),
 		"ParsePKCS8PrivateKey":	ValueOf(x509.ParsePKCS8PrivateKey),
 		"ParsePKIXPublicKey":	ValueOf(x509.ParsePKIXPublicKey),
 		"RSA":	ValueOf(x509.RSA),
@@ -89,9 +82,7 @@ func init() {
 		"SHA512WithRSA":	ValueOf(x509.SHA512WithRSA),
 		"SHA512WithRSAPSS":	ValueOf(x509.SHA512WithRSAPSS),
 		"SystemCertPool":	ValueOf(x509.SystemCertPool),
-		"TooManyConstraints":	ValueOf(x509.TooManyConstraints),
 		"TooManyIntermediates":	ValueOf(x509.TooManyIntermediates),
-		"UnconstrainedName":	ValueOf(x509.UnconstrainedName),
 		"UnknownPublicKeyAlgorithm":	ValueOf(x509.UnknownPublicKeyAlgorithm),
 		"UnknownSignatureAlgorithm":	ValueOf(x509.UnknownSignatureAlgorithm),
 	}, Types: map[string]Type{

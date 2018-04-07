@@ -5,8 +5,8 @@ package imports
 
 import (
 	. "reflect"
-	"net"
 	"time"
+	"net"
 )
 
 // reflection: allow interpreted code to import "net"

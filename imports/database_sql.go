@@ -26,7 +26,6 @@ func init() {
 		"LevelWriteCommitted":	ValueOf(sql.LevelWriteCommitted),
 		"Named":	ValueOf(sql.Named),
 		"Open":	ValueOf(sql.Open),
-		"OpenDB":	ValueOf(sql.OpenDB),
 		"Register":	ValueOf(sql.Register),
 	}, Types: map[string]Type{
 		"ColumnType":	TypeOf((*sql.ColumnType)(nil)).Elem(),
