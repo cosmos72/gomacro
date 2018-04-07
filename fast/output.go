@@ -27,6 +27,7 @@ package fast
 
 import (
 	"fmt"
+	"go/types"
 	"io"
 	r "reflect"
 	"sort"
@@ -43,32 +44,57 @@ func (imp Import) String() string {
 	return fmt.Sprintf("{%s %q, %d binds, %d types}", imp.Name, imp.Path, len(imp.Binds), len(imp.Types))
 }
 
+func typestringer(path string) func(xr.Type) string {
+	name := base.FileName(path)
+	if name == path {
+		return xr.Type.String
+	}
+	qualifier := func(pkg *types.Package) string {
+		pkgpath := pkg.Path()
+		if pkgpath == path {
+			// base.Debugf("replaced package path %q -> %s", path, name)
+			return name
+		}
+		// base.Debugf("keep package path %q, does not match %q", pkgpath, path)
+		return pkgpath
+	}
+	return func(t xr.Type) string {
+		return types.TypeString(t.GoType(), qualifier)
+	}
+}
+
 func (ir *Interp) ShowPackage(name string) {
 	if len(name) != 0 {
 		ir.ShowImportedPackage(name)
 		return
 	}
-	// show current package
+	// show current package and its outer scopes
+	stack := make([]*Interp, 0)
+	interp := ir
 	for {
-		c := ir.Comp
-		env := ir.env
-		ir.ShowAsPackage()
+		stack = append(stack, interp)
+		c := interp.Comp
+		env := interp.env
 		for i := 0; i < c.UpCost && env != nil; i++ {
 			env = env.Outer
 		}
 		c = c.Outer
 		if env == nil || c == nil {
-			return
+			break
 		}
-		ir = &Interp{c, env}
+		interp = &Interp{c, env}
+	}
+	for i := len(stack) - 1; i >= 0; i-- {
+		stack[i].ShowAsPackage()
 	}
 }
 
 func (ir *Interp) ShowAsPackage() {
 	c := ir.Comp
 	out := c.Stdout
+	stringer := typestringer(c.Path)
 	if binds := c.Binds; len(binds) > 0 {
-		fmt.Fprintf(out, "// ----- %s binds -----\n", c.Path)
+		showPackageHeader(out, c.Name, c.Path, "binds")
 
 		keys := make([]string, len(binds))
 		i := 0
@@ -83,15 +109,15 @@ func (ir *Interp) ShowAsPackage() {
 				continue
 			}
 			if bind.Const() {
-				showValue(out, k, bind.ConstValue(), bind.Type)
+				showValue(out, k, bind.ConstValue(), bind.Type, stringer)
 				continue
 			}
 			expr := c.Symbol(bind.AsSymbol(0))
-			showValue(out, k, ir.RunExpr1(expr), expr.Type)
+			showValue(out, k, ir.RunExpr1(expr), expr.Type, stringer)
 		}
 		fmt.Fprintln(out)
 	}
-	showTypes(out, c.Path, c.Types)
+	showTypes(out, c.Name, c.Path, c.Types, stringer)
 }
 
 func (ir *Interp) ShowImportedPackage(name string) {
@@ -104,9 +130,11 @@ func (ir *Interp) ShowImportedPackage(name string) {
 		ir.Comp.Warnf("not an imported package: %q", name)
 		return
 	}
-	out := ir.Comp.Stdout
+	c := ir.Comp
+	out := c.Stdout
+	stringer := typestringer(imp.Path)
 	if binds := imp.Binds; len(binds) > 0 {
-		fmt.Fprintf(out, "// ----- %s binds -----\n", imp.Path)
+		showPackageHeader(out, imp.Name, imp.Path, "binds")
 
 		keys := make([]string, len(binds))
 		i := 0
@@ -116,16 +144,16 @@ func (ir *Interp) ShowImportedPackage(name string) {
 		}
 		sort.Strings(keys)
 		for _, k := range keys {
-			showValue(out, k, binds[k], imp.BindTypes[k])
+			showValue(out, k, binds[k], imp.BindTypes[k], stringer)
 		}
 		fmt.Fprintln(out)
 	}
-	showTypes(out, imp.Path, imp.Types)
+	showTypes(out, imp.Name, imp.Path, imp.Types, stringer)
 }
 
-func showTypes(out io.Writer, path string, types map[string]xr.Type) {
+func showTypes(out io.Writer, name string, path string, types map[string]xr.Type, stringer func(xr.Type) string) {
 	if len(types) > 0 {
-		fmt.Fprintf(out, "// ----- %s types -----\n", path)
+		showPackageHeader(out, name, path, "types")
 
 		keys := make([]string, len(types))
 		i := 0
@@ -137,25 +165,36 @@ func showTypes(out io.Writer, path string, types map[string]xr.Type) {
 		for _, k := range keys {
 			t := types[k]
 			if t != nil {
-				showType(out, k, t)
+				showType(out, k, t, stringer)
 			}
 		}
 		fmt.Fprintln(out)
 	}
 }
 
-const spaces15 = "               "
-
-func showValue(out io.Writer, name string, v r.Value, t xr.Type) {
-	n := len(name) & 15
-	if v == base.Nil || v == base.None {
-		fmt.Fprintf(out, "%s%s = nil\t// %v\n", name, spaces15[n:], t)
+func showPackageHeader(out io.Writer, name string, path string, kind string) {
+	if name == path {
+		fmt.Fprintf(out, "// ----- %s %s -----\n", name, kind)
+	} else if name == base.FileName(path) {
+		fmt.Fprintf(out, "// ----- %q %s -----\n", path, kind)
 	} else {
-		fmt.Fprintf(out, "%s%s = %v\t// %v\n", name, spaces15[n:], v, t)
+		fmt.Fprintf(out, "// ----- %s %q %s -----\n", name, path, kind)
 	}
 }
 
-func showType(out io.Writer, name string, t xr.Type) {
+const spaces15 = "               "
+
+func showValue(out io.Writer, name string, v r.Value, t xr.Type, stringer func(xr.Type) string) {
 	n := len(name) & 15
-	fmt.Fprintf(out, "%s%s %v <%v>\n", name, spaces15[n:], t.Kind(), t)
+	str := stringer(t)
+	if v == base.Nil || v == base.None {
+		fmt.Fprintf(out, "%s%s = nil\t// %s\n", name, spaces15[n:], str)
+	} else {
+		fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], v, str)
+	}
+}
+
+func showType(out io.Writer, name string, t xr.Type, stringer func(xr.Type) string) {
+	n := len(name) & 15
+	fmt.Fprintf(out, "%s%s = %v\t// %v\n", name, spaces15[n:], stringer(t), t.Kind())
 }
