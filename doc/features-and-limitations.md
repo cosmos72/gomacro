@@ -57,10 +57,6 @@ Some features are still missing or incomplete:
 * unimplemented conversion typed constant -> interpreted interface (see fast/literal.go:207)
   Workaround: assign the constant to a variable, then convert the variable to the interpreted interface
 
-* bug: on systems without Go toolchain installed, a few imports including "net/http" fail with xreflect panic "internal error"
-
-* bug: import "gonum.org/v1/plot/plotter" and import "gonum.org/v1/plot/plotutil" fail with stack overflow due to infinite recursion
-
 * bug: if gomacro is linked as a shared library (see https://stackoverflow.com/questions/1757090/shared-library-in-go)
   some method calls on constants do not work. example:
     import "os"

@@ -72,8 +72,7 @@ func call_variadic_ret0(c *Call, maxdepth int) func(env *Env) {
 			}
 			funv.Call(argv)
 		}
-	}
-	if call == nil {
+	default:
 		call = func(env *Env) {
 			funv := exprfun(env)
 			argv := make([]r.Value, len(argfunsX1))
