@@ -29,6 +29,8 @@ import (
 	"go/ast"
 	"go/token"
 	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type Assign struct {
@@ -88,11 +90,11 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 		canreorder = canreorder && places[i].IsVar() // ach, needed. see for example i := 0; i, x[i] = 1, 2  // set i = 1, x[0] = 2
 	}
 	if rn == 1 && ln > 1 {
-		exprs[0] = c.Expr(rhs[0])
+		exprs[0] = c.Expr(rhs[0], nil)
 		canreorder = false
 	} else {
 		for i, ri := range rhs {
-			exprs[i] = c.Expr1(ri)
+			exprs[i] = c.Expr1(ri, nil)
 			canreorder = canreorder && exprs[i].Const()
 		}
 	}
@@ -321,11 +323,12 @@ func (c *Comp) LookupVar(name string) *Var {
 
 // Place compiles the left-hand-side of an assignment
 func (c *Comp) Place(node ast.Expr) *Place {
-	return c.placeOrAddress(node, false)
+	return c.placeOrAddress(node, PlaceSettable, nil)
 }
 
 // PlaceOrAddress compiles the left-hand-side of an assignment or the location of an address-of
-func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
+// t is optional, used for type inference
+func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption, t xr.Type) *Place {
 	for {
 		if in != nil {
 			c.Pos = in.Pos()
@@ -336,7 +339,10 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
 			if opt == PlaceSettable {
 				c.Errorf("%s composite literal", opt)
 			}
-			e := c.Expr1(node)
+			if t != nil {
+				t = t.Elem()
+			}
+			e := c.Expr1(node, t)
 			fun := e.AsX1()
 			var addr func(*Env) r.Value
 			switch e.Type.Kind() {
@@ -371,7 +377,7 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption) *Place {
 			in = node.X
 			continue
 		case *ast.StarExpr:
-			e := c.Expr1(node.X)
+			e := c.Expr1(node.X, nil)
 			if e.Const() {
 				c.Errorf("%s a constant: %v <%v>", opt, node, e.Type)
 				return nil

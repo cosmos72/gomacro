@@ -340,10 +340,10 @@ func (c *Comp) CompileNode(node ast.Node) *Expr {
 	case ast.Decl:
 		c.Decl(node)
 	case ast.Expr:
-		return c.Expr(node)
+		return c.Expr(node, nil)
 	case *ast.ExprStmt:
 		// special case of statement
-		return c.Expr(node.X)
+		return c.Expr(node.X, nil)
 	case ast.Stmt:
 		c.Stmt(node)
 	case *ast.File:

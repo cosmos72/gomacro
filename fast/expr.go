@@ -43,7 +43,7 @@ func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits
 				n, expectedValuesN, nodes)
 			return nil
 		}
-		e := c.Expr(nodes[0])
+		e := c.Expr(nodes[0], nil)
 		if actualN := e.NumOut(); actualN != expectedValuesN {
 			var plural string
 			if actualN != 1 {
@@ -64,14 +64,16 @@ func (c *Comp) Exprs(nodes []ast.Expr) []*Expr {
 	if n := len(nodes); n != 0 {
 		inits = make([]*Expr, n)
 		for i := range nodes {
-			inits[i] = c.Expr1(nodes[i])
+			inits[i] = c.Expr1(nodes[i], nil)
 		}
 	}
 	return inits
 }
 
 // Expr compiles an expression that returns a single value
-func (c *Comp) Expr1(in ast.Expr) *Expr {
+// t is optional and used for type inference on composite literals,
+// see https://golang.org/ref/spec#Composite_literals
+func (c *Comp) Expr1(in ast.Expr, t xr.Type) *Expr {
 	for {
 		if in != nil {
 			c.Pos = in.Pos()
@@ -87,7 +89,7 @@ func (c *Comp) Expr1(in ast.Expr) *Expr {
 			return c.TypeAssert1(node)
 		case *ast.UnaryExpr:
 			if node.Op == token.ARROW {
-				xe := c.Expr1(node.X)
+				xe := c.Expr1(node.X, nil)
 				return c.Recv1(node, xe)
 			} else {
 				return c.UnaryExpr(node)
@@ -95,7 +97,7 @@ func (c *Comp) Expr1(in ast.Expr) *Expr {
 		}
 		break
 	}
-	e := c.Expr(in)
+	e := c.Expr(in, t)
 	nout := e.NumOut()
 	switch nout {
 	case 0:
@@ -108,8 +110,10 @@ func (c *Comp) Expr1(in ast.Expr) *Expr {
 	}
 }
 
-// Expr compiles an expression
-func (c *Comp) Expr(in ast.Expr) *Expr {
+// Expr compiles an expression.
+// t is optional and used for type inference on composite literals,
+// see https://golang.org/ref/spec#Composite_literals
+func (c *Comp) Expr(in ast.Expr, t xr.Type) *Expr {
 	for {
 		if in != nil {
 			c.Pos = in.Pos()
@@ -123,7 +127,8 @@ func (c *Comp) Expr(in ast.Expr) *Expr {
 		case *ast.CallExpr:
 			return c.CallExpr(node)
 		case *ast.CompositeLit:
-			return c.CompositeLit(node)
+			// propagate inferred type
+			return c.CompositeLit(node, t)
 		case *ast.FuncLit:
 			return c.FuncLit(node)
 		case *ast.Ident:
@@ -160,7 +165,7 @@ func (c *Comp) Expr1OrType(node ast.Expr) (e *Expr, t xr.Type) {
 			t = c.Type(node)
 		}
 	}()
-	e = c.Expr1(node)
+	e = c.Expr1(node, nil)
 	panicking = false
 	return
 }

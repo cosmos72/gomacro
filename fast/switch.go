@@ -84,7 +84,7 @@ func (c *Comp) Switch(node *ast.SwitchStmt, labels []string) {
 		tag = c.exprUntypedLit(r.Bool, constant.MakeBool(true))
 		tagnode = &ast.Ident{NamePos: node.Pos() + 6, Name: "true"} // only for error messages
 	} else {
-		tag = c.Expr1(tagnode)
+		tag = c.Expr1(tagnode, nil)
 	}
 	if !tag.Const() {
 		// cannot invoke tag.Fun() multiple times because side effects must be applied only once!
@@ -172,7 +172,7 @@ func (c *Comp) switchCase(node *ast.CaseClause, tagnode ast.Expr, tag *Expr, can
 	// compile a comparison of tag against each expression
 	sometrue := false
 	for _, enode := range node.List {
-		e := c.Expr1(enode)
+		e := c.Expr1(enode, nil)
 		if e.Const() {
 			e.ConstTo(tag.Type)
 		}

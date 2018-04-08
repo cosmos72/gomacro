@@ -161,7 +161,7 @@ func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	n := len(node.Args)
 	args := make([]*Expr, n)
 
-	args[0] = c.Expr1(node.Args[0])
+	args[0] = c.Expr1(node.Args[0], nil)
 	t0 := args[0].Type
 	if t0.Kind() != r.Slice {
 		c.Errorf("first argument to %s must be slice; have <%s>", sym.Name, t0)
@@ -176,7 +176,7 @@ func compileAppend(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		telem = t0 // second argument is a slice too
 	}
 	for i := 1; i < n; i++ {
-		argi := c.Expr1(node.Args[i])
+		argi := c.Expr1(node.Args[i], nil)
 		if argi.Const() {
 			argi.ConstTo(telem)
 		} else if ti := argi.Type; ti == nil || !ti.AssignableTo(telem) {
@@ -204,7 +204,7 @@ func callCap(val r.Value) int {
 
 func compileCap(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	// argument of builtin cap() cannot be a literal
-	arg := c.Expr1(node.Args[0])
+	arg := c.Expr1(node.Args[0], nil)
 	tin := arg.Type
 	tout := c.TypeOfInt()
 	switch tin.Kind() {
@@ -240,7 +240,7 @@ func callClose(val r.Value) {
 }
 
 func compileClose(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	arg := c.Expr1(node.Args[0])
+	arg := c.Expr1(node.Args[0], nil)
 	tin := arg.Type
 	if tin.Kind() != r.Chan {
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "channel")
@@ -262,8 +262,8 @@ func callComplex128(re float64, im float64) complex128 {
 }
 
 func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	re := c.Expr1(node.Args[0])
-	im := c.Expr1(node.Args[1])
+	re := c.Expr1(node.Args[0], nil)
+	im := c.Expr1(node.Args[1], nil)
 	if re.Untyped() {
 		if im.Untyped() {
 			re.ConstTo(c.TypeOfFloat64())
@@ -324,8 +324,8 @@ func copyStringToBytes(dst []byte, src string) int {
 
 func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args := []*Expr{
-		c.Expr1(node.Args[0]),
-		c.Expr1(node.Args[1]),
+		c.Expr1(node.Args[0], nil),
+		c.Expr1(node.Args[1], nil),
 	}
 	if args[1].Const() {
 		// we also accept a string literal as second argument
@@ -364,8 +364,8 @@ func callDelete(vmap r.Value, vkey r.Value) {
 }
 
 func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	emap := c.Expr1(node.Args[0])
-	ekey := c.Expr1(node.Args[1])
+	emap := c.Expr1(node.Args[0], nil)
+	ekey := c.Expr1(node.Args[1], nil)
 	tmap := emap.Type
 	if tmap.Kind() != r.Map {
 		c.Errorf("first argument to delete must be map; have %v", tmap)
@@ -445,7 +445,7 @@ func callLenString(val string) int {
 }
 
 func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	arg := c.Expr1(node.Args[0])
+	arg := c.Expr1(node.Args[0], nil)
 	if arg.Const() {
 		arg.ConstTo(arg.DefaultType())
 	}
@@ -565,7 +565,7 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args[0] = c.exprValue(argtypes[0], tin.ReflectType()) // no need to build TypeOfReflectType
 	te := c.TypeOfInt()
 	for i := 1; i < nargs; i++ {
-		argi := c.Expr1(node.Args[i])
+		argi := c.Expr1(node.Args[i], nil)
 		if argi.Const() {
 			argi.ConstTo(te)
 		} else if ti := argi.Type; ti == nil || (!ti.IdenticalTo(te) && !ti.AssignableTo(te)) {
@@ -605,7 +605,7 @@ func callPanic(arg interface{}) {
 }
 
 func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	arg := c.Expr1(node.Args[0])
+	arg := c.Expr1(node.Args[0], nil)
 	arg.To(c, c.TypeOfInterface())
 	t := c.TypeOf(callPanic)
 	sym.Type = t
@@ -664,7 +664,7 @@ func callImag64(val complex128) float64 {
 }
 
 func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	arg := c.Expr1(node.Args[0])
+	arg := c.Expr1(node.Args[0], nil)
 	if arg.Const() {
 		arg.ConstTo(arg.DefaultType())
 	}

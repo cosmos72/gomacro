@@ -41,8 +41,8 @@ import (
 func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr { return c.indexExpr(node, true) }
 func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr { return c.indexExpr(node, false) }
 func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
-	obj := c.Expr1(node.X)
-	idx := c.Expr1(node.Index)
+	obj := c.Expr1(node.X, nil)
+	idx := c.Expr1(node.Index, nil)
 	if obj.Untyped() {
 		obj.ConstTo(obj.DefaultType())
 	}
@@ -881,8 +881,8 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	return exprFun(tval, fun)
 }
 func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
-	obj := c.Expr1(node.X)
-	idx := c.Expr1(node.Index)
+	obj := c.Expr1(node.X, nil)
+	idx := c.Expr1(node.Index, nil)
 	if obj.Untyped() {
 		obj.ConstTo(obj.DefaultType())
 	}

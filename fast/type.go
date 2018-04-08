@@ -290,7 +290,7 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
 		// "The length is part of the array's type; it must evaluate to a non-negative constant
 		// representable by a value of type int. "
 		var count int
-		init := c.Expr(n)
+		init := c.Expr(n, nil)
 		if !init.Const() {
 			c.Errorf("array length is not a constant: %v", node)
 			return
@@ -409,7 +409,7 @@ func rtypeof(v r.Value, t xr.Type) r.Type {
 
 // TypeAssert2 compiles a multi-valued type assertion
 func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
-	val := c.Expr1(node.X)
+	val := c.Expr1(node.X, nil)
 	tin := val.Type
 	tout := c.Type(node.Type)
 	rtout := tout.ReflectType()
@@ -522,7 +522,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 	if node.Type == nil {
 		c.Errorf("invalid type assertion: expecting actual type, found type switch: %v", node)
 	}
-	val := c.Expr1(node.X)
+	val := c.Expr1(node.X, nil)
 	tin := val.Type
 	tout := c.Type(node.Type)
 	kout := tout.Kind()

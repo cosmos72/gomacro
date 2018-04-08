@@ -36,8 +36,8 @@ import (
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
-	x := c.Expr1(node.X)
-	y := c.Expr1(node.Y)
+	x := c.Expr1(node.X, nil)
+	y := c.Expr1(node.Y, nil)
 	return c.BinaryExpr1(node, x, y)
 }
 

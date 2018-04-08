@@ -46,7 +46,7 @@ func (c *Comp) Range(node *ast.RangeStmt, labels []string) {
 	var nbinds [2]int
 
 	c, _ = c.pushEnvIfFlag(&nbinds, true)
-	erange := c.Expr1(node.X)
+	erange := c.Expr1(node.X, nil)
 	t := erange.Type
 	if erange.Untyped() {
 		t = erange.DefaultType()

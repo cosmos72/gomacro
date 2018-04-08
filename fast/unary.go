@@ -53,7 +53,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		return c.AddressOf(node)
 	}
 
-	xe := c.Expr1(node.X)
+	xe := c.Expr1(node.X, nil)
 	if xe.Type == nil {
 		return c.invalidUnaryExpr(node, xe)
 	}

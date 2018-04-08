@@ -92,7 +92,7 @@ func (c *Comp) TypeSwitch(node *ast.TypeSwitchStmt, labels []string) {
 	}
 
 	tagnode, varname := c.typeswitchNode(node.Assign)
-	tagexpr := c.Expr1(tagnode)
+	tagexpr := c.Expr1(tagnode, nil)
 	if tagexpr.Type.Kind() != r.Interface {
 		c.Errorf("cannot type switch on non-interface type <%v>: %v", tagexpr.Type, tagnode)
 	}

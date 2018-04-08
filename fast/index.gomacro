@@ -49,8 +49,8 @@ func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr {
 }
 
 func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
-	obj := c.Expr1(node.X)
-	idx := c.Expr1(node.Index)
+	obj := c.Expr1(node.X, nil)
+	idx := c.Expr1(node.Index, nil)
 	if obj.Untyped() {
 		obj.ConstTo(obj.DefaultType())
 	}
@@ -433,8 +433,8 @@ func (c *Comp) mapIndex1(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 
 // IndexPlace compiles obj[idx] returning a Place, i.e. a settable (and addressable, if possible) reflect.Value
 func (c *Comp) IndexPlace(node *ast.IndexExpr, opt PlaceOption) *Place {
-	obj := c.Expr1(node.X)
-	idx := c.Expr1(node.Index)
+	obj := c.Expr1(node.X, nil)
+	idx := c.Expr1(node.Index, nil)
 	if obj.Untyped() {
 		obj.ConstTo(obj.DefaultType())
 	}

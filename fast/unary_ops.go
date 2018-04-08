@@ -196,13 +196,13 @@ func (c *Comp) StarExpr(node *ast.StarExpr) *Expr {
 		case *ast.UnaryExpr:
 			if e.Op == token.AND {
 				// optimize * & x -> x, but check that x is addressable
-				c.placeOrAddress(e.X, PlaceAddress)
-				return c.Expr1(e.X)
+				c.placeOrAddress(e.X, PlaceAddress, nil)
+				return c.Expr1(e.X, nil)
 			}
 		}
 		break
 	}
-	addr := c.Expr1(expr) // panics if addr returns zero values, warns if returns multiple values
+	addr := c.Expr1(expr, nil) // panics if addr returns zero values, warns if returns multiple values
 	taddr := addr.Type
 	if taddr.Kind() != r.Ptr {
 		c.Errorf("unary operation * on non-pointer <%v>: %v", taddr, node)

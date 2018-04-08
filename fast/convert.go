@@ -35,7 +35,7 @@ import (
 
 // Convert compiles a type conversion expression
 func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
-	e := c.Expr1(node)
+	e := c.Expr1(node, nil)
 	if e.Untyped() {
 		e.ConstTo(t)
 	}

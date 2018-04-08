@@ -71,7 +71,7 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		case *ast.EmptyStmt:
 			// nothing to do
 		case *ast.ExprStmt:
-			expr := c.Expr(node.X)
+			expr := c.Expr(node.X, nil)
 			if !expr.Const() {
 				c.Append(expr.AsStmt(), in.Pos())
 			}
@@ -289,7 +289,7 @@ func (c *Comp) For(node *ast.ForStmt, labels []string) {
 	}
 	flag, fun, err := true, (func(*Env) bool)(nil), false // "for { }" without a condition means "for true { }"
 	if node.Cond != nil {
-		pred := c.Expr(node.Cond)
+		pred := c.Expr(node.Cond, nil)
 		flag, fun, err = pred.TryAsPred()
 		if err {
 			c.invalidPred(node.Cond, pred)
@@ -407,7 +407,7 @@ func (c *Comp) If(node *ast.IfStmt) {
 	if node.Init != nil {
 		c.Stmt(node.Init)
 	}
-	pred := c.Expr(node.Cond)
+	pred := c.Expr(node.Cond, nil)
 	flag, fun, err := pred.TryAsPred()
 	if err {
 		c.invalidPred(node.Cond, pred)

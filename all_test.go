@@ -270,6 +270,11 @@ func for_range_string(s string) int32 {
 	return v0
 }
 
+type Pair = struct { // unnamed!
+	A rune
+	B string
+}
+
 var testcases = []TestCase{
 	TestCase{A, "1+1", "1+1", 1 + 1, nil},
 	TestCase{A, "1+'A'", "1+'A'", 'B', nil}, // rune i.e. int32 should win over untyped constant (or int)
@@ -543,24 +548,19 @@ var testcases = []TestCase{
 		list_args(i,m,mcopy)`,
 		[]interface{}{1, nil_map_int_string, map[int]string{0: "foo"}}, nil},
 
-	TestCase{A, "field_set_1", `pair.A = 'k'; pair.B = "m"; pair`, struct {
-		A rune
-		B string
-	}{'k', "m"}, nil},
-	TestCase{A, "field_set_2", `pair.A, pair.B = 'x', "y"; pair`, struct {
-		A rune
-		B string
-	}{'x', "y"}, nil},
-	TestCase{F, "field_set_3", `triple.Pair.A, triple.C = 'a', 1.0; triple.Pair`, struct {
-		A rune
-		B string
-	}{'a', ""}, nil},
-	TestCase{F, "field_set_embedded_1", `triple.A, triple.B = 'b', "xy"; triple.Pair`, struct {
-		A rune
-		B string
-	}{'b', "xy"}, nil},
+	TestCase{A, "field_set_1", `pair.A = 'k'; pair.B = "m"; pair`, Pair{'k', "m"}, nil},
+	TestCase{A, "field_set_2", `pair.A, pair.B = 'x', "y"; pair`, Pair{'x', "y"}, nil},
+	TestCase{F, "field_set_3", `triple.Pair.A, triple.C = 'a', 1.0; triple.Pair`, Pair{'a', ""}, nil},
+	TestCase{F, "field_set_embedded_1", `triple.A, triple.B = 'b', "xy"; triple.Pair`, Pair{'b', "xy"}, nil},
 	TestCase{F, "field_addr_1", "ppair := &triple.Pair; ppair.A", 'b', nil},
 	TestCase{F, "field_addr_2", "ppair.A++; triple.Pair.A", 'c', nil},
+
+	TestCase{F, "infer_type_compositelit_1", `[]Pair{{'a', "b"}, {'c', "d"}}`, []Pair{{'a', "b"}, {'c', "d"}}, nil},
+	TestCase{F, "infer_type_compositelit_2", `[]*Pair{{'a', "b"}, {'c', "d"}}`, []*Pair{{'a', "b"}, {'c', "d"}}, nil},
+	TestCase{F, "infer_type_compositelit_3", `[...]Pair{{'e', "f"}, {'g', "h"}}`, [...]Pair{{'e', "f"}, {'g', "h"}}, nil},
+	TestCase{F, "infer_type_compositelit_4", `map[int]Pair{1:{'i', "j"}, 2:{}}`, map[int]Pair{1: {'i', "j"}, 2: {}}, nil},
+	TestCase{F, "infer_type_compositelit_5", `map[int]map[int]int{1:{2:3}}`, map[int]map[int]int{1: {2: 3}}, nil},
+	TestCase{F, "infer_type_compositelit_6", `map[int]*map[int]int{1:{2:3}}`, map[int]*map[int]int{1: {2: 3}}, nil},
 
 	TestCase{C, "import", `import ( "fmt"; "time"; "io" )`, "io", nil},
 	TestCase{F, "import", `import ( "fmt"; "time"; "io" )`, nil, []interface{}{}},

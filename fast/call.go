@@ -80,7 +80,7 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 // callExpr compiles the common part between CallExpr and Go statement
 func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	if fun == nil {
-		fun = c.Expr1(node.Fun)
+		fun = c.Expr1(node.Fun, nil)
 	}
 	t := fun.Type
 	var builtin bool
@@ -99,7 +99,7 @@ func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	var args []*Expr
 	if len(node.Args) == 1 {
 		// support foo(bar()) where bar() returns multiple values
-		arg := c.Expr(node.Args[0])
+		arg := c.Expr(node.Args[0], nil)
 		if arg.NumOut() == 0 {
 			c.Errorf("function argument returns zero values: %v ", node.Args[0])
 		}

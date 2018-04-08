@@ -200,11 +200,11 @@ func (c *Comp) selectCase(clause *ast.CommClause, bind *Bind) selectEntry {
 
 	case *ast.SendStmt:
 		// ch <- v
-		echan := c.Expr1(node.Chan)
+		echan := c.Expr1(node.Chan, nil)
 		if echan.Type.Kind() != r.Chan {
 			c.Errorf("cannot use %v <%v> as channel in select case", node, echan.Type)
 		}
-		esend := c.Expr1(node.Value)
+		esend := c.Expr1(node.Value, nil)
 		tactual := esend.Type
 		texpected := echan.Type.Elem()
 		if !tactual.AssignableTo(texpected) {
@@ -234,7 +234,7 @@ func (c *Comp) selectRecv(stmt ast.Stmt, node ast.Expr) *Expr {
 			continue
 		case *ast.UnaryExpr:
 			if expr.Op == token.ARROW {
-				e := c.Expr1(expr.X)
+				e := c.Expr1(expr.X, nil)
 				if e.Type.Kind() != r.Chan {
 					c.Errorf("cannot use %v <%v> as channel in select case", node, e.Type)
 				}

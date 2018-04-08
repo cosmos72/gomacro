@@ -32,7 +32,7 @@ import (
 
 // SliceExpr compiles slice[lo:hi] and slice[lo:hi:max]
 func (c *Comp) SliceExpr(node *ast.SliceExpr) *Expr {
-	e := c.Expr1(node.X)
+	e := c.Expr1(node.X, nil)
 	if e.Const() {
 		e.ConstTo(e.DefaultType())
 	}
@@ -59,7 +59,7 @@ func (c *Comp) sliceIndex(node ast.Expr) *Expr {
 	if node == nil {
 		return nil
 	}
-	idx := c.Expr1(node)
+	idx := c.Expr1(node, nil)
 	if idx.Const() {
 		idx.ConstTo(c.TypeOfInt())
 		if idx.Value.(int) < 0 {
@@ -277,6 +277,6 @@ func (c *Comp) sliceArrayMustBeAddressable(node *ast.SliceExpr, e *Expr) {
 			c.Errorf("cannot slice: array must be addressable: %v <%v>", node, e.Type)
 		}
 	}()
-	c.placeOrAddress(node.X, PlaceAddress)
+	c.placeOrAddress(node.X, PlaceAddress, nil)
 	panicking = false
 }

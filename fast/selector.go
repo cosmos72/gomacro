@@ -590,7 +590,7 @@ func (c *Comp) compatibleMethodType(t xr.Type, mtd xr.Method, rmtd r.Method) boo
 	if t.Kind() != r.Interface {
 		return rt1 == rt2
 	}
-	return rt1.NumIn() - 1 == rt2.NumIn() && c.removeFirstParam(mtd.Type).ReflectType() == rt2
+	return rt1.NumIn()-1 == rt2.NumIn() && c.removeFirstParam(mtd.Type).ReflectType() == rt2
 }
 
 func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(r.Value) r.Value {
@@ -880,7 +880,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 
 // SelectorPlace compiles a.b returning a settable and/or addressable Place
 func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
-	obje := c.Expr1(node.X)
+	obje := c.Expr1(node.X, nil)
 	te := obje.Type
 	name := node.Sel.Name
 	ispointer := false
@@ -956,7 +956,7 @@ func (c *Comp) checkAddressableField(node *ast.SelectorExpr) {
 			c.Errorf("cannot assign to %v\n\t%v", node, rec)
 		}
 	}()
-	c.placeOrAddress(node.X, PlaceAddress)
+	c.placeOrAddress(node.X, PlaceAddress, nil)
 	panicking = false
 }
 
