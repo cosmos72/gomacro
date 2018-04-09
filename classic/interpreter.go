@@ -213,7 +213,7 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 			return false
 		case strings.HasPrefix(":unload", cmd):
 			if len(args) > 1 {
-				g.UnloadImport(args[1])
+				g.UnloadPackage(args[1])
 			}
 			return true
 		case strings.HasPrefix(":write", cmd):
