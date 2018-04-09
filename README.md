@@ -8,35 +8,19 @@ It has very few dependencies: go/ast, go/types, reflect, github.com/peterh/liner
 for legacy reasons (no longer used by the default interpreter), golang.org/sync/syncmap.
 
 Gomacro can be used as:
-* a standalone executable with interactive Go REPL:
-  just run `gomacro` from your command line.
-  Available options:
+* a standalone executable with interactive Go REPL:  
+  just run `gomacro` from your command line, then type Go code. Example:
     ```
-    -c,   --collect          collect declarations and statements, to print them later
-    -e,   --expr EXPR        evaluate expression
-    -f,   --force-overwrite  option -w will overwrite existing files
-    -h,   --help             show this help and exit
-    -i,   --repl             interactive. start a REPL after evaluating expression, files and dirs.
-                             default: start a REPL only if no expressions, files or dirs are specified
-    -m,   --macro-only       do not execute code, only parse and macroexpand it.
-                             useful to run gomacro as a Go preprocessor
-    -n,   --no-trap          do not trap panics in the interpreter
-    -t,   --trap             trap panics in the interpreter (default)
-    -s,   --silent           silent. do NOT show startup message, prompt, and expressions results.
-                             default when executing files and dirs.
-    -v,   --verbose          verbose. show startup message, prompt, and expressions results.
-                             default when executing an expression.
-    -vv,  --very-verbose     as -v, and in addition show the type of expressions results.
-                             default when executing a REPL
-    -w,   --write-decls      write collected declarations and statements to *.go files.
-                             implies -c
-    -x,   --exec             execute parsed code (default). disabled by -m
+    $ gomacro
+    [greeting message...]
+    
+    gomacro> import "fmt"
+    gomacro> fmt.Println("hello, world!")
+    hello, world!
+    14      // int
+    <nil>   // error
+    gomacro>
     ```
-
-    Options are processed in order, except for -i that is always processed as last.
-
-    Collected declarations and statements can be also written to standard output
-    or to a file with the REPL command :write
 
 * an interactive tool to make science more productive and more fun.
   If you use compiled Go with scientific libraries (physics, bioinformatics, statistics...)
