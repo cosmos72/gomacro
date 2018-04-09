@@ -156,10 +156,10 @@ func (g *Globals) UnloadImport(path string) {
 	delete(imports.Packages, path)
 	dot := strings.IndexByte(path, '.')
 	if slash < 0 || dot > slash {
-		g.Warnf("unloaded standard library package %q. attempts to import it again may trigger a reload", path)
+		g.Warnf("unloaded standard library package %q. attempts to import it again will trigger a recompile", path)
 		return
 	}
-	g.Debugf("unloaded package %q. attempts to import it again may trigger a reload", path)
+	g.Debugf("unloaded package %q. attempts to import it again will trigger a recompile", path)
 }
 
 // CollectAst accumulates declarations in ir.Decls and statements in ir.Stmts

@@ -52,7 +52,8 @@ func (ir *ThreadGlobals) ShowHelp(out io.Writer) {
 :help           show this help
 :inspect EXPR   inspect expression interactively
 :options [OPTS] show or toggle interpreter options
-:unload PACKAGE unload PACKAGE. Later attempts to import it may still reload it.
+:unload PKGPATH remove package PKGPATH from the list of known packages.
+                later attempts to import it will trigger a recompile
 :quit           quit the interpreter
 :write [FILE]   write collected declarations and/or statements to standard output or to FILE
                 use :o Declarations and/or :o Statements to start collecting them
