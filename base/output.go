@@ -300,15 +300,17 @@ func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
 }
 
 func (st *Stringer) rvalueToPrintable(format string, value r.Value) interface{} {
+	var i interface{}
 	if value == None {
-		return "/*no value*/"
+		i = "/*no value*/"
 	} else if value == Nil {
-		return nil
+		i = nil
 	} else if value.CanInterface() {
-		return st.toPrintable(format, value.Interface())
+		i = st.toPrintable(format, value.Interface())
 	} else {
-		return value
+		i = value
 	}
+	return i
 }
 
 func (st *Stringer) typeToPrintable(t r.Type) interface{} {
@@ -324,8 +326,11 @@ func (st *Stringer) typeToPrintable(t r.Type) interface{} {
 }
 
 func (st *Stringer) structToPrintable(format string, v r.Value) string {
-	buf := bytes.Buffer{}
 	n := v.NumField()
+	if n == 0 {
+		return "{}"
+	}
+	var buf bytes.Buffer
 	t := v.Type()
 	ch := '{'
 	for i := 0; i < n; i++ {

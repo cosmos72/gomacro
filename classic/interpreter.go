@@ -258,7 +258,7 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 			// macroexpand + collect + eval
 			xvalue, xvalues, xtype, xtypes := env.fastEval(form)
 			value, values, typ = xvalue, xvalues, xtype
-			types := make([]interface{}, len(xtypes))
+			types = make([]interface{}, len(xtypes))
 			for i, xt := range xtypes {
 				types[i] = xt
 			}
@@ -270,30 +270,23 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 	// print phase
 	opts := env.Options
 	if opts&OptShowEval != 0 {
-		if len(values) != 0 {
-			if opts&OptShowEvalType != 0 {
-				for i, vi := range values {
-					var ti interface{}
-					if types != nil && len(types) > i {
-						ti = types[i]
-					} else {
-						ti = ValueType(vi)
-					}
-					env.Fprintf(env.Stdout, "%v\t// %v\n", vi, ti)
+		if len(values) == 0 && value != None {
+			values = []r.Value{value}
+			types = []interface{}{typ}
+		}
+		if opts&OptShowEvalType != 0 {
+			for i, vi := range values {
+				var ti interface{}
+				if types != nil && i < len(types) {
+					ti = types[i]
+				} else {
+					ti = ValueType(vi)
 				}
-			} else {
-				for _, vi := range values {
-					env.Fprintf(env.Stdout, "%v\n", vi)
-				}
+				env.Fprintf(env.Stdout, "%v\t// %v\n", vi, ti)
 			}
-		} else if value != None {
-			if opts&OptShowEvalType != 0 {
-				if typ == nil {
-					typ = ValueType(value)
-				}
-				env.Fprintf(env.Stdout, "%v\t// %v\n", value, typ)
-			} else {
-				env.Fprintf(env.Stdout, "%v\n", value)
+		} else {
+			for _, vi := range values {
+				env.Fprintf(env.Stdout, "%v\n", vi)
 			}
 		}
 	}
