@@ -34,6 +34,7 @@ import (
 	r "reflect"
 	"strings"
 
+	"github.com/cosmos72/gomacro/imports"
 	mp "github.com/cosmos72/gomacro/parser"
 	mt "github.com/cosmos72/gomacro/token"
 
@@ -138,6 +139,27 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 		return nil
 	}
 	return nodes
+}
+
+func (g *Globals) UnloadImport(path string) {
+	if n := len(path); n > 1 && path[0] == '"' && path[n-1] == '"' {
+		path = path[1 : n-1] // remove quotes
+	}
+	slash := strings.IndexByte(path, '/')
+	if _, found := imports.Packages[path]; !found {
+		if slash < 0 {
+			g.Debugf("nothing to unload: cannot find imported package %q. Remember to specify the full package path, not only its name", path)
+		} else {
+			g.Debugf("nothing to unload: cannot find imported package %q", path)
+		}
+	}
+	delete(imports.Packages, path)
+	dot := strings.IndexByte(path, '.')
+	if slash < 0 || dot > slash {
+		g.Warnf("unloaded standard library package %q. attempts to import it again may trigger a reload", path)
+		return
+	}
+	g.Debugf("unloaded package %q. attempts to import it again may trigger a reload", path)
 }
 
 // CollectAst accumulates declarations in ir.Decls and statements in ir.Stmts
