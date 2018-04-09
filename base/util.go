@@ -26,7 +26,9 @@
 package base
 
 import (
+	"os"
 	r "reflect"
+	"strings"
 )
 
 func PackValues(val0 r.Value, vals []r.Value) []r.Value {
@@ -68,4 +70,47 @@ func IsNillableKind(k r.Kind) bool {
 	default:
 		return false
 	}
+}
+
+// always use forward slashes. they work also on Windows...
+func unixpath(path string) string {
+	if os.PathSeparator != '/' && len(path) != 0 {
+		path = strings.Replace(path, string(os.PathSeparator), "/", -1)
+	}
+	return path
+}
+
+// find user's home directory, see https://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
+// without importing "os/user" - which requires cgo to work thus makes cross-compile difficult, see https://github.com/golang/go/issues/11797
+func UserHomeDir() string {
+	home := os.Getenv("HOME")
+	if len(home) == 0 {
+		home = os.Getenv("USERPROFILE")
+		if len(home) == 0 {
+			home = os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
+		}
+	}
+	return unixpath(home)
+}
+
+func Subdir(dirs ...string) string {
+	return strings.Join(dirs, "/") // should be os.PathSeparator, but it complicates DirName()
+}
+
+var GomacroDir = Subdir("github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
+
+func GoPath() string {
+	dir := unixpath(os.Getenv("GOPATH"))
+	if len(dir) == 0 {
+		dir = UserHomeDir()
+		if len(dir) == 0 {
+			Errorf("cannot determine Go source directory: both $GOPATH and $HOME are unset or empty")
+		}
+		dir = Subdir(dir, "go")
+	}
+	return dir
+}
+
+func GoSrcPath() string {
+	return Subdir(GoPath(), "src")
 }

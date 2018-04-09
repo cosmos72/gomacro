@@ -72,20 +72,7 @@ func (ir *Interp) cmdPackage(cmd string) {
 	}
 }
 
-// find user's home directory, see https://stackoverflow.com/questions/2552416/how-can-i-find-the-users-home-dir-in-a-cross-platform-manner-using-c
-// without importing "os/user" - which requires cgo to work thus makes cross-compile difficult, see https://github.com/golang/go/issues/11797
-func userHomeDir() string {
-	home := os.Getenv("HOME")
-	if len(home) == 0 {
-		home = os.Getenv("USERPROFILE")
-		if len(home) == 0 {
-			home = os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-		}
-	}
-	return home
-}
-
-var historyfile = fmt.Sprintf("%s%c%s", userHomeDir(), os.PathSeparator, ".gomacro_history")
+var historyfile = Subdir(UserHomeDir(), ".gomacro_history")
 
 func (ir *Interp) ReplStdin() {
 	if ir.Options&OptShowPrompt != 0 {

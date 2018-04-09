@@ -41,17 +41,24 @@ import (
 type ImportMode int
 
 const (
-	// ImPlugin import mechanism is:
-	// 1. write a file $GOPATH/src/gomacro_imports/$PKGPATH/$PKGNAME.go containing a single func Exports() (...multiple values...)
-	// 2. invoke "go build -buildmode=plugin" on the file to create a shared library
-	// 3. load such shared library with plugin.Open().Lookup("Export").Call()
-	ImPlugin ImportMode = iota
-
 	// ImBuiltin import mechanism is:
-	// 1. write a file $GOPATH/src/github.com/cosmos72/gomacro/$PKGPATH.go containing a single func init()
+	// 1. write a file $GOPATH/src/github.com/cosmos72/gomacro/imports/$PKGPATH.go containing a single func init()
 	//    i.e. *inside* gomacro sources
 	// 2. tell the user to recompile gomacro
-	ImBuiltin
+	ImBuiltin ImportMode = iota
+
+	// ImThirdParty import mechanism is the same as ImBuiltin, except that files are created in a thirdparty/ subdirectory:
+	// 1. write a file $GOPATH/src/github.com/cosmos72/gomacro/imports/thirdparty/$PKGPATH.go containing a single func init()
+	//    i.e. *inside* gomacro sources
+	// 2. tell the user to recompile gomacro
+	ImThirdParty
+
+	// ImPlugin import mechanism is:
+	// 1. write a file $GOPATH/src/gomacro_imports/$PKGPATH/$PKGNAME.go containing a var Packages map[string]Package
+	//    and a single func init() to populate it
+	// 2. invoke "go build -buildmode=plugin" on the file to create a shared library
+	// 3. load such shared library with plugin.Open().Lookup("Packages")
+	ImPlugin
 
 	// ImInception import mechanism is:
 	// 1. write a file $GOPATH/src/$PKGPATH/x_package.go containing a single func init()
@@ -77,6 +84,16 @@ func DefaultImporter() *Importer {
 		imp.compat = compat
 	}
 	return &imp
+}
+
+func (imp *Importer) setPluginOpen() bool {
+	if imp.PluginOpen == Nil {
+		imp.PluginOpen = imports.Packages["plugin"].Binds["Open"]
+		if imp.PluginOpen == Nil {
+			imp.PluginOpen = None // cache the failure
+		}
+	}
+	return imp.PluginOpen != None
 }
 
 func (imp *Importer) Import(path string) (*types.Package, error) {
@@ -117,35 +134,43 @@ func (g *Globals) ImportPackage(name, path string) *PackageRef {
 		mode = ImBuiltin
 	case "_i":
 		mode = ImInception
+	case "_3":
+		mode = ImThirdParty
+	default:
+		havePluginOpen := g.Importer.setPluginOpen()
+		if havePluginOpen {
+			mode = ImPlugin
+		} else {
+			mode = ImThirdParty
+		}
 	}
 	file := g.createImportFile(path, gpkg, mode)
-	if mode != ImPlugin {
-		return nil
-	}
 	ref = &PackageRef{Name: name, Path: path}
-	if len(file) == 0 {
-		// empty package. still cache it for future use.
+	if len(file) == 0 || mode != ImPlugin {
+		// either the package exports nothing, or user must rebuild gomacro.
+		// in both cases, still cache it to avoid recreating the file.
 		imports.Packages[path] = ref.Package
 		return ref
 	}
 	soname := g.compilePlugin(file, g.Stdout, g.Stderr)
-	ifun := g.loadPlugin(soname, "Exports")
-	fun := ifun.(func() (map[string]r.Value, map[string]r.Type, map[string]r.Type, map[string]string, map[string][]string))
-	binds, types, proxies, untypeds, wrappers := fun()
+	ipkgs := g.loadPluginSymbol(soname, "Packages")
+	pkgs := *ipkgs.(*map[string]imports.PackageUnderlying)
 
-	// done. cache package for future use.
-	ref.Package = imports.Package{
-		Binds:    binds,
-		Types:    types,
-		Proxies:  proxies,
-		Untypeds: untypeds,
-		Wrappers: wrappers,
+	// cache *all* found packages for future use
+	imports.Packages.Merge(pkgs)
+
+	// but return only requested one
+	pkg, found := imports.Packages[path]
+	if !found {
+		g.Errorf("error loading package %q: the compiled plugin %q does not contain it! internal error? %v", path, soname)
 	}
-	imports.Packages[path] = ref.Package
+	ref.Package = pkg
 	return ref
 }
 
 func (g *Globals) createImportFile(path string, pkg *types.Package, mode ImportMode) string {
+	file := g.computeImportFilename(path, mode)
+
 	buf := bytes.Buffer{}
 	isEmpty := g.writeImportFile(&buf, path, pkg, mode)
 	if isEmpty {
@@ -153,15 +178,14 @@ func (g *Globals) createImportFile(path string, pkg *types.Package, mode ImportM
 		return ""
 	}
 
-	file := computeImportFilename(path, mode)
 	err := ioutil.WriteFile(file, buf.Bytes(), os.FileMode(0666))
 	if err != nil {
 		g.Errorf("error writing file %q: %v", file, err)
 	}
-	if mode != ImPlugin {
-		g.Warnf("created file %q, recompile gomacro to use it", file)
-	} else {
+	if mode == ImPlugin {
 		g.Debugf("created file %q...", file)
+	} else {
+		g.Warnf("created file %q, recompile gomacro to use it", file)
 	}
 	return file
 }
@@ -182,20 +206,24 @@ func sanitizeIdentifier2(str string, replacement rune) string {
 	return string(runes)
 }
 
-const gomacro_dir = "github.com/cosmos72/gomacro"
-
-func computeImportFilename(path string, mode ImportMode) string {
-	srcdir := getGoSrcPath()
+func (g *Globals) computeImportFilename(path string, mode ImportMode) string {
+	gosrc_dir := GoSrcPath()
 
 	switch mode {
 	case ImBuiltin:
-		return fmt.Sprintf("%s/%s/imports/%s.go", srcdir, gomacro_dir, sanitizeIdentifier(path))
+		// user will need to recompile gomacro
+		return Subdir(gosrc_dir, GomacroDir, "imports", sanitizeIdentifier(path)+".go")
 	case ImInception:
-		return fmt.Sprintf("%s/%s/x_package.go", srcdir, path)
+		// user will need to recompile gosrc_dir / path
+		return Subdir(gosrc_dir, path, "x_package.go")
+	case ImThirdParty:
+		// either plugin.Open is not available, or user explicitly requested import _3 "package".
+		// In both cases, user will need to recompile gomacro
+		return Subdir(gosrc_dir, GomacroDir, "imports", "thirdparty", sanitizeIdentifier(path)+".go")
 	}
 
-	file := FileName(path)
-	file = fmt.Sprintf("%s/gomacro_imports/%s/%s.go", srcdir, path, file)
+	file := FileName(path) + ".go"
+	file = Subdir(gosrc_dir, "gomacro_imports", path, file)
 	dir := DirName(file)
 	err := os.MkdirAll(dir, 0700)
 	if err != nil {

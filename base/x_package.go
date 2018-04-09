@@ -28,6 +28,7 @@ func init() {
 			"ImBuiltin":               r.ValueOf(ImBuiltin),
 			"ImInception":             r.ValueOf(ImInception),
 			"ImPlugin":                r.ValueOf(ImPlugin),
+			"ImThirdParty":            r.ValueOf(ImThirdParty),
 			"IsCategory":              r.ValueOf(IsCategory),
 			"IsGensym":                r.ValueOf(IsGensym),
 			"IsGensymEmbedded":        r.ValueOf(IsGensymEmbedded),

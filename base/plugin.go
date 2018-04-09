@@ -26,37 +26,13 @@
 package base
 
 import (
-	"fmt"
 	"io"
-	"os"
 	"os/exec"
 	r "reflect"
-
-	"github.com/cosmos72/gomacro/imports"
 )
 
-func getGoPath() string {
-	dir := os.Getenv("GOPATH")
-	if len(dir) == 0 {
-		dir = os.Getenv("HOME")
-		if len(dir) == 0 {
-			Errorf("cannot determine go source directory: both $GOPATH and $HOME are unset or empty")
-		}
-		dir += "/go"
-	}
-	return dir
-}
-
-func getGoSrcPath() string {
-	return getGoPath() + "/src"
-}
-
 func (g *Globals) compilePlugin(filepath string, stdout io.Writer, stderr io.Writer) string {
-	// panics if plugin.Open is not available
-	// -> skip generating .go file and compiling it
-	g.loadPlugin("", "")
-
-	gosrcdir := getGoSrcPath()
+	gosrcdir := GoSrcPath()
 	gosrclen := len(gosrcdir)
 	filelen := len(filepath)
 	if filelen < gosrclen || filepath[0:gosrclen] != gosrcdir {
@@ -80,24 +56,20 @@ func (g *Globals) compilePlugin(filepath string, stdout io.Writer, stderr io.Wri
 	// i.e.	foo/bar/main.go is compiled to foo/bar/bar.so
 	filename := FileName(dirname)
 
-	return fmt.Sprintf("%s/%s.so", dirname, filename)
+	return Subdir(dirname, filename+".so")
 }
 
-func (g *Globals) loadPlugin(soname string, symbolName string) interface{} {
-	// use imports.Packages["plugin"] and reflection instead of hard-coding call to plugin.Open()
+func (g *Globals) loadPluginSymbol(soname string, symbolName string) interface{} {
+	// use imports.Packages["plugin"].Binds["Open"] and reflection instead of hard-coding call to plugin.Open()
 	// reasons:
 	// * import ( "plugin" ) does not work on all platforms (creates broken gomacro.exe on Windows/386)
-	// * allow caller to provide us with a different implementation in Imported.PluginOpen
+	// * allow caller to provide us with a different implementation,
+	//   either in imports.Packages["plugin"].Binds["Open"]
+	//   or in Globals.Importer.PluginOpen
 
 	imp := g.Importer
-	if imp.PluginOpen == Nil {
-		imp.PluginOpen = imports.Packages["plugin"].Binds["Open"]
-		if imp.PluginOpen == Nil {
-			imp.PluginOpen = None // cache the failure
-		}
-	}
-	if imp.PluginOpen == None {
-		g.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux / Mac OS X - cannot import packages at runtime")
+	if !imp.setPluginOpen() {
+		g.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
 	}
 	if len(soname) == 0 || len(symbolName) == 0 {
 		// caller is just checking whether PluginOpen() is available

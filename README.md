@@ -2,7 +2,7 @@
 
 gomacro is a fairly complete Go interpreter, implemented in pure Go. It offers both
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
-(except in one very specific case: import of a 3d-party package).
+(except in one very specific case: import of a 3d-party package at runtime).
 
 It has very few dependencies: go/ast, go/types, reflect, github.com/peterh/liner and,
 for legacy reasons (no longer used by the default interpreter), golang.org/sync/syncmap.
@@ -120,6 +120,7 @@ The following combinations are tested and known to work:
 - Mac OS X: amd64, 386
 - Windows: amd64, 386
 - FreeBSD: amd64, 386
+- Android: arm64
 
 ### How to install
 
@@ -127,7 +128,7 @@ The following combinations are tested and known to work:
   ```
   go get -u github.com/cosmos72/gomacro
   ```
-  downloads, compiles and installs gomacro
+  downloads, compiles and installs gomacro and its dependencies
 
 ## Current Status
 
@@ -135,7 +136,7 @@ Almost complete.
 
 The main missing features are:
 
-* importing 3rd party libraries on non-Linux systems. Gomacro uses the Go 'plugin' package for this, and it currently works only on Linux.
+* importing 3rd party libraries on non-Linux systems is cumbersome - see [Importing packages](#Importing packages)
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * out-of-order code. Types, constants, variables and functions must be declared **before** using them.
 * switching to a different package (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
@@ -165,6 +166,80 @@ Some short, notable examples:
 * at interpreter prompt, enter `init(); main()`
 * visit http://localhost:8090/  
   Be patient, rendering and zooming mandelbrot set with an interpreter is a little slow.
+
+Further examples are listed by [Gophernotes](https://github.com/gopherdata/gophernotes/#example-notebooks-dowload-and-run-them-locally-follow-the-links-to-view-in-github-or-use-the-jupyter-notebook-viewer)
+
+## Importing packages
+
+Gomacro supports the standard Go syntax `import`, including package renaming. Examples:
+```
+import "fmt"
+import (
+    "io"
+    "net/http"
+    r "reflect"
+)
+```
+Third party packages - i.e. packages not in Go standard library - can also be imported
+with the same syntax, as long as the package is **already** installed.
+
+To install a package, follow its installation procedure: quite often it is the command `go get PACKAGE-PATH`
+
+The next steps depend on the system you are running gomacro on:
+
+### Linux
+
+If you are running gomacro on Linux, `import` will then just work. Example:
+```
+$ go get gonum.org/v1/plot
+$ gomacro
+[greeting message...]
+
+gomacro> import "gonum.org/v1/plot"
+// debug: created file "/home/max/src/gomacro_imports/gonum.org/v1/plot/plot.go"...
+// debug: compiling "/home/max/go/src/gomacro_imports/gonum.org/v1/plot/plot.go" ...
+gomacro> plot.New()
+&{...} // *plot.Plot
+<nil>  // error
+```
+
+Note: internally, gomacro will compile and load a Go plugin containing the package's exported declarations.
+Currently, Go plugins are fully functional only on Linux.
+
+
+### Other systems
+
+On Mac OS X, Windows, Android and *BSD you still use `import`, but there are some more steps.
+Example:
+```
+$ go get gonum.org/v1/plot
+$ gomacro
+[greeting message...]
+
+gomacro> import "gonum.org/v1/plot"
+// warning: created file "/home/max/go/src/github.com/cosmos72/gomacro/imports/thirdparty/gonum_org_v1_plot.go", recompile gomacro to use it
+```
+
+Now quit gomacro, recompile and reinstall it:
+```
+gomacro> :quit
+$ go install github.com/cosmos72/gomacro
+```
+
+Finally restart it. Your import is now linked **inside** gomacro and will work:
+```
+$ gomacro
+[greeting message...]
+
+gomacro> import "gonum.org/v1/plot"
+gomacro> plot.New()
+&{...} // *plot.Plot
+<nil>  // error
+```
+
+Note: if you need several packages, you can first `import` all of them,
+then quit and recompile gomacro only once.
+
 
 ## Why it was created
 

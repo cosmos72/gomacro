@@ -29,6 +29,7 @@ import (
 	. "reflect"
 
 	"github.com/cosmos72/gomacro/imports/syscall"
+	"github.com/cosmos72/gomacro/imports/thirdparty"
 )
 
 type PackageUnderlying = struct { // unnamed
@@ -61,24 +62,7 @@ func init() {
 		},
 	}
 	Packages.Merge(syscall.Packages)
-}
-
-func (pkg *Package) LazyInit() {
-	if pkg.Binds == nil {
-		pkg.Binds = make(map[string]Value)
-	}
-	if pkg.Types == nil {
-		pkg.Types = make(map[string]Type)
-	}
-	if pkg.Proxies == nil {
-		pkg.Proxies = make(map[string]Type)
-	}
-	if pkg.Untypeds == nil {
-		pkg.Untypeds = make(map[string]string)
-	}
-	if pkg.Wrappers == nil {
-		pkg.Wrappers = make(map[string][]string)
-	}
+	Packages.Merge(thirdparty.Packages)
 }
 
 func (pkgs PackageMap) Merge(srcs map[string]PackageUnderlying) {
@@ -97,6 +81,24 @@ func (pkgs PackageMap) MergePackage(path string, src PackageUnderlying) {
 		pkg = Package(src)
 		pkg.LazyInit()
 		pkgs[path] = pkg
+	}
+}
+
+func (pkg *Package) LazyInit() {
+	if pkg.Binds == nil {
+		pkg.Binds = make(map[string]Value)
+	}
+	if pkg.Types == nil {
+		pkg.Types = make(map[string]Type)
+	}
+	if pkg.Proxies == nil {
+		pkg.Proxies = make(map[string]Type)
+	}
+	if pkg.Untypeds == nil {
+		pkg.Untypeds = make(map[string]string)
+	}
+	if pkg.Wrappers == nil {
+		pkg.Wrappers = make(map[string][]string)
 	}
 }
 
