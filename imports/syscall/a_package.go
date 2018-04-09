@@ -17,28 +17,29 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * error.go
+ * a_package.go
  *
- *  Created on: Mar 18, 2017
+ *  Created on: Apr 09, 2018
  *      Author: Massimiliano Ghilardi
  */
 
-package ast2
+package syscall
 
 import (
-	"errors"
-	"fmt"
+	. "reflect"
 )
 
-func badIndex(index int, size int) AstWithNode {
-	if size > 0 {
-		errorf("index out of range: %d not in 0...%d", index, size-1)
-	} else {
-		errorf("index out of range: %d, slice is empty", index)
-	}
-	return nil
+type Package = struct { // unnamed
+	Binds   map[string]Value
+	Types   map[string]Type
+	Proxies map[string]Type
+	// Untypeds contains a string representation of untyped constants,
+	// stored without loss of precision
+	Untypeds map[string]string
+	// Wrappers is the list of wrapper methods for named types.
+	// Stored explicitly because reflect package cannot distinguish
+	// between explicit methods and wrapper methods for embedded fields
+	Wrappers map[string][]string
 }
 
-func errorf(format string, args ...interface{}) {
-	panic(errors.New(fmt.Sprintf(format, args...)))
-}
+var Packages = make(map[string]Package)

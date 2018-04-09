@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017 Massimiliano Ghilardi
+ * Copyright (C) 2017-2018 Massimiliano Ghilardi
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Lesser General Public License as published
@@ -90,7 +90,7 @@ var historyfile = fmt.Sprintf("%s%c%s", userHomeDir(), os.PathSeparator, ".gomac
 func (ir *Interp) ReplStdin() {
 	if ir.Options&OptShowPrompt != 0 {
 		fmt.Fprint(ir.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
-// Copyright (C) 2017 Massimiliano Ghilardi
+// Copyright (C) 2017-2018 Massimiliano Ghilardi
 // License LGPL v3+: GNU Lesser GPL version 3 or later <https://gnu.org/licenses/lgpl>
 // This is free software with ABSOLUTELY NO WARRANTY.
 //
