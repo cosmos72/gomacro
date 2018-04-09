@@ -187,13 +187,13 @@ gomacro> plot.New()
 <nil>  // error
 ```
 
-Note: internally, gomacro will compile and load a Go plugin containing the package's exported declarations.
+Note: internally, gomacro will compile and load a Go plugin containing the package's exported declarations.  
 Currently, Go plugins are fully functional only on Linux.
 
 
 ### Other systems
 
-On Mac OS X, Windows, Android and *BSD you still use `import`, but there are some more steps.
+On Mac OS X, Windows, Android and *BSD you can still use `import`, but there are some more steps.
 Example:
 ```
 $ go get gonum.org/v1/plot
