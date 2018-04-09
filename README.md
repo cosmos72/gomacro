@@ -118,9 +118,9 @@ The following combinations are tested and known to work:
 
 Almost complete.
 
-The main missing features are:
+The main limitations and missing features are:
 
-* importing 3rd party libraries on non-Linux systems is cumbersome - see [Importing packages](#Importing packages)
+* importing 3rd party libraries on non-Linux systems is cumbersome - see [Importing packages](#importing-packages).
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * out-of-order code. Types, constants, variables and functions must be declared **before** using them.
 * switching to a different package (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
@@ -131,7 +131,7 @@ The [documentation](doc/) also contains the [full list of features and limitatio
 
 ## Examples
 
-Some short, notable examples:
+Some short, notable examples - to run them on non-Linux platforms, see [Importing packages](#importing-packages) first.
 
 ### plot mathematical functions
 
