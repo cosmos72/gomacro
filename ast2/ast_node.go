@@ -279,7 +279,9 @@ func (x SwitchStmt) New() Ast   { return SwitchStmt{&ast.SwitchStmt{Switch: x.X.
 func (x TypeAssertExpr) New() Ast {
 	return TypeAssertExpr{&ast.TypeAssertExpr{Lparen: x.X.Lparen, Rparen: x.X.Rparen}}
 }
-func (x TypeSpec) New() Ast       { return TypeSpec{&ast.TypeSpec{Doc: x.X.Doc, Comment: x.X.Comment}} }
+func (x TypeSpec) New() Ast {
+	return TypeSpec{&ast.TypeSpec{Doc: x.X.Doc, Assign: x.X.Assign, Comment: x.X.Comment}}
+}
 func (x TypeSwitchStmt) New() Ast { return TypeSwitchStmt{&ast.TypeSwitchStmt{Switch: x.X.Switch}} }
 func (x UnaryExpr) New() Ast      { return UnaryExpr{&ast.UnaryExpr{OpPos: x.X.OpPos, Op: x.X.Op}} }
 func (x ValueSpec) New() Ast      { return ValueSpec{&ast.ValueSpec{Doc: x.X.Doc, Comment: x.X.Comment}} }

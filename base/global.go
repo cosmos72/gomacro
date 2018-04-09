@@ -141,6 +141,8 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	return nodes
 }
 
+// remove package 'path' from the list of known packages.
+// later attempts to import it again will trigger a recompile.
 func (g *Globals) UnloadPackage(path string) {
 	if n := len(path); n > 1 && path[0] == '"' && path[n-1] == '"' {
 		path = path[1 : n-1] // remove quotes

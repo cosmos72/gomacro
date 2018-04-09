@@ -39,9 +39,9 @@ import (
 func (c *Comp) DeclType(node ast.Spec) {
 	if node, ok := node.(*ast.TypeSpec); ok {
 		name := node.Name.Name
-		// PATCH: support type aliases
-		if unary, ok := node.Type.(*ast.UnaryExpr); ok && unary.Op == token.ASSIGN {
-			t := c.Type(unary.X)
+		// support type aliases
+		if node.Assign != token.NoPos {
+			t := c.Type(node.Type)
 			c.DeclTypeAlias(name, t)
 			return
 		}
@@ -87,7 +87,7 @@ func (c *Comp) DeclTypeAlias(name string, t xr.Type) xr.Type {
 
 // DeclNamedType executes a named type forward declaration.
 // Returns nil if name == "_"
-// Otherwise it must be followed by Comp.SetUnderlyingType()
+// Otherwise it must be followed by Comp.SetUnderlyingType(t) where t is the returned type
 func (c *Comp) DeclNamedType(name string) xr.Type {
 	if name == "_" {
 		return nil

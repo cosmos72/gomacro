@@ -369,7 +369,7 @@ func (p *parser) next() {
 			// The comment is on same line as the previous token; it
 			// cannot be a lead comment but may be a line comment.
 			comment, endline = p.consumeCommentGroup(0)
-			if p.file.Line(p.pos) != endline {
+			if p.file.Line(p.pos) != endline || p.tok == token.EOF {
 				// The next token is on a different line, thus
 				// the last comment group is a line comment.
 				p.lineComment = comment
@@ -1770,8 +1770,8 @@ func (p *parser) parseSimpleStmt(mode int) (ast.Stmt, bool) {
 		}
 		// The label declaration typically starts at x[0].Pos(), but the label
 		// declaration may be erroneous due to a token after that position (and
-		// before the ':'). If SpuriousErrors is not set, the (only) error re-
-		// ported for the line is the illegal label error instead of the token
+		// before the ':'). If SpuriousErrors is not set, the (only) error
+		// reported for the line is the illegal label error instead of the token
 		// before the ':' that caused the problem. Thus, use the (latest) colon
 		// position for error reporting.
 		p.error(colon, "illegal label declaration")
@@ -2410,14 +2410,11 @@ func (p *parser) parseTypeSpec(doc *ast.CommentGroup, _ token.Token, _ int) ast.
 	spec := &ast.TypeSpec{Doc: doc, Name: ident}
 	p.declare(spec, nil, p.topScope, ast.Typ, ident)
 
-	// PATCH: support type aliases
 	if p.tok == token.ASSIGN {
-		pos := p.pos
+		spec.Assign = p.pos
 		p.next()
-		spec.Type = &ast.UnaryExpr{OpPos: pos, Op: token.ASSIGN, X: p.parseType()}
-	} else {
-		spec.Type = p.parseType()
 	}
+	spec.Type = p.parseType()
 	p.expectSemi() // call before accessing p.linecomment
 	spec.Comment = p.lineComment
 
