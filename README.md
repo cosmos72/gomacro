@@ -24,7 +24,8 @@ Gomacro can be used as:
 
 * an interactive tool to make science more productive and more fun.
   If you use compiled Go with scientific libraries (physics, bioinformatics, statistics...)
-  you can import the same libraries from gomacro REPL (requires Go 1.8+ and Linux),
+  you can import the same libraries from gomacro REPL (immediate on Go 1.8+ and Linux,
+  requires restarting on other platforms, see [Importing packages](#importing-packages) below),
   call them interactively, inspect the results, feed them to other functions/libraries,
   all in a single session.
   The imported libraries will be **compiled**, not interpreted,
@@ -125,7 +126,6 @@ The main limitations and missing features are:
 * out-of-order code. Types, constants, variables and functions must be declared **before** using them.
 * switching to a different package (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented - can only jump back, not forward
-* type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 
