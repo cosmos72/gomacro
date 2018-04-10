@@ -34,31 +34,36 @@ import (
 )
 
 // eval a single import
-func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
-	switch node := node.(type) {
+func (env *Env) evalImportDecl(decl ast.Spec) (r.Value, []r.Value) {
+	switch node := decl.(type) {
 	case *ast.ImportSpec:
-		path := UnescapeString(node.Path.Value)
-		path = env.sanitizeImportPath(path)
-		var name string
-		if node.Name != nil {
-			name = node.Name.Name
-		} else {
-			name = FileName(path)
-		}
-		pkg := env.ImportPackage(name, path)
-		if pkg != nil {
-			// if import appears *inside* a block, it is local for that block
-			if name == "." {
-				// dot import, i.e. import . "the/package/path"
-				env.MergePackage(pkg.Package)
-			} else {
-				env.DefineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
-			}
-		}
-		return r.ValueOf(path), nil
+		return env.evalImport(node)
 	default:
-		return env.Errorf("unimplemented import: %v", node)
+		return env.Errorf("unimplemented import: %v", decl)
 	}
+}
+
+// eval a single import
+func (env *Env) evalImport(imp *ast.ImportSpec) (r.Value, []r.Value) {
+	path := UnescapeString(imp.Path.Value)
+	path = env.sanitizeImportPath(path)
+	var name string
+	if imp.Name != nil {
+		name = imp.Name.Name
+	} else {
+		name = FileName(path)
+	}
+	pkg := env.ImportPackage(name, path)
+	if pkg != nil {
+		// if import appears *inside* a block, it is local for that block
+		if name == "." {
+			// dot import, i.e. import . "the/package/path"
+			env.MergePackage(pkg.Package)
+		} else {
+			env.DefineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
+		}
+	}
+	return r.ValueOf(name), nil
 }
 
 func (ir *ThreadGlobals) sanitizeImportPath(path string) string {

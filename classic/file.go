@@ -27,18 +27,18 @@ package classic
 
 import (
 	"go/ast"
-	r "reflect"
 )
 
-func (env *Env) evalFile(node *ast.File) (r.Value, []r.Value) {
-	env.PackagePath = node.Name.Name
+func (env *Env) evalFile(node *ast.File) {
+	env.Name = node.Name.Name
+	env.Path = env.Name
+	env.PackagePath = env.Name
 
-	// TODO eval node.Imports
-	var ret r.Value
-	var rets []r.Value
+	for _, imp := range node.Imports {
+		env.evalImport(imp)
+	}
 
 	for _, decl := range node.Decls {
-		ret, rets = env.evalDecl(decl)
+		env.evalDecl(decl)
 	}
-	return ret, rets
 }

@@ -52,7 +52,7 @@ func (env *Env) evalDeclGen(node *ast.GenDecl) (r.Value, []r.Value) {
 	switch tok {
 	case token.IMPORT:
 		for _, decl := range node.Specs {
-			ret, rets = env.evalImport(decl)
+			ret, rets = env.evalImportDecl(decl)
 		}
 	case token.CONST:
 		var defaultType ast.Expr

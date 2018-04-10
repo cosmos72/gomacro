@@ -77,16 +77,19 @@ func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
 func (env *Env) EvalNode(node ast.Node) (r.Value, []r.Value) {
 	switch node := node.(type) {
 	case ast.Decl:
-		return env.evalDecl(node)
+		env.evalDecl(node)
 	case ast.Expr:
+		// Go expressions *DO* return values
 		return env.evalExpr(node)
 	case ast.Stmt:
-		return env.evalStatement(node)
+		env.evalStatement(node)
 	case *ast.File:
-		return env.evalFile(node)
+		env.evalFile(node)
 	default:
 		return env.Errorf("unimplemented Eval for %v <%v>", node, r.TypeOf(node))
 	}
+	// Go declarations, statements and files do not return values
+	return None, nil
 }
 
 func (env *Env) EvalNode1(node ast.Node) r.Value {
