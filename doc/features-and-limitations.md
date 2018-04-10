@@ -1,12 +1,12 @@
 Gomacro default interpreter supports:
 * history/readline (uses https://github.com/peterh/liner)
 * multiline input
-* line comments starting with #! in addition to //
-* basic types: booleans, integers, floats, complex numbers, strings (and iota)
+* comments starting with #! in addition to // and /* ... */
+* all basic types: booleans, integers, floats, complex numbers, strings (and iota)
 * interfaces imported from compiled code, as for example `interface{}`, `error`, `fmt.Stringer`...
 * new interfaces can be declared inside interpreted code
 * constant, variable and type declaration, including untyped constants
-* Go 1.9 type aliases (experimental)
+* Go 1.9 type aliases
 * unary and binary operators
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= <<= >>=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
@@ -15,7 +15,7 @@ Gomacro default interpreter supports:
 * seamless invocation of compiled functions from interpreter, and vice-versa
 * channel send and receive
 * goroutines, i.e. go function(args)
-* function and method calls, including multiple return values
+* function and method calls, including multiple return values and variadic calls
 * function and method declarations (including variadic functions/methods,
   and methods with pointer receiver)
 * named return values
@@ -26,8 +26,7 @@ Gomacro default interpreter supports:
 * select, switch, type switch, fallthrough
 * all builtins: append, cap, close, comples, defer, delete, imag, len, make, new, panic, print, println, real, recover
 * imports: Go standard packages "just work". Importing other packages requires either the "plugin" package
-  (available only for Go 1.8+ on Linux) or, in alternative, adding an `init()` function to the package,
-  then compiling it statically inside gomacro (see [github issue #13](https://github.com/cosmos72/gomacro/issues/13) for more details)
+  (available only for Go 1.8+ on Linux) or, in alternative, recompiling gomacro after the import (all other platforms)
 * macro declarations, for example `macro foo(a, b, c interface{}) interface{} { return b }`
 * macro calls, for example `foo; x; y; z`
 * macroexpansion: code walker, MacroExpand and MacroExpand1
@@ -44,19 +43,14 @@ Gomacro default interpreter supports:
 * nesting macros, quotes and unquotes
 
 Some features are still missing or incomplete:
-* interpreted interfaces are supported, but not extensively tested yet.
 * out-of-order code. Types, variables and functions must be declared **before** using them.
 * switching to a different package
   (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
-* goto is partially implemented, needs to be completed
-* type inference in composite literals - see [github issue #9](https://github.com/cosmos72/gomacro/issues/9)
-
+* goto is partially implemented, can only jump back - not forward
 * incomplete interface -> interface type assertions and type switches:
   they do not support yet interpreted types stored in interfaces, and interpreted interfaces.
-
 * unimplemented conversion typed constant -> interpreted interface (see fast/literal.go:207)
   Workaround: assign the constant to a variable, then convert the variable to the interpreted interface
-
 * bug: if gomacro is linked as a shared library (see https://stackoverflow.com/questions/1757090/shared-library-in-go)
   some method calls on constants do not work. example:
     import "os"
