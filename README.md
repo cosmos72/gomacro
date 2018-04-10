@@ -102,7 +102,7 @@ Gomacro is pure Go, and in theory it should work on any platform supported by th
 The following combinations are tested and known to work:
 
 - Linux: amd64, 386, arm64, arm (on Linux it can also import 3rd party libraries at runtime)
-- Mac OS X: amd64
+- Mac OS X: amd64, 386 (386 binaries running on amd64 system)
 - Windows: amd64, 386
 - FreeBSD: amd64, 386
 - Android: arm64
