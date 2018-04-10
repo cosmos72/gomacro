@@ -32,7 +32,7 @@ import (
 )
 
 func (g *Globals) compilePlugin(filepath string, stdout io.Writer, stderr io.Writer) string {
-	gosrcdir := GoSrcPath()
+	gosrcdir := GoSrcDir
 	gosrclen := len(gosrcdir)
 	filelen := len(filepath)
 	if filelen < gosrclen || filepath[0:gosrclen] != gosrcdir {

@@ -488,7 +488,7 @@ again:
 		if rtexpected.Kind() == r.Interface && rtactual.Implements(rtexpected) {
 			v = v.Convert(rtexpected)
 		} else {
-			Errorf("internal error: constant %v <%v> was assumed to have type <%v>", value, r.TypeOf(value), t.ReflectType())
+			Errorf("internal error: constant %v <%v> was assumed to have type <%v>", value, rtactual, rtexpected)
 		}
 	}
 	switch v.Kind() {

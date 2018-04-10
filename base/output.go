@@ -145,6 +145,20 @@ func (st *Stringer) Position() token.Position {
 	return st.Fileset.Position(st.Pos)
 }
 
+func (ref *PackageRef) String() string {
+	return fmt.Sprintf("{%s %q, %d binds, %d types}", ref.Name, ref.Path, len(ref.Binds), len(ref.Types))
+}
+
+func ShowPackageHeader(out io.Writer, name string, path string, kind string) {
+	if name == path {
+		fmt.Fprintf(out, "// ----- %s %s -----\n", name, kind)
+	} else if name == FileName(path) {
+		fmt.Fprintf(out, "// ----- %q %s -----\n", path, kind)
+	} else {
+		fmt.Fprintf(out, "// ----- %s %q %s -----\n", name, path, kind)
+	}
+}
+
 var typeOfReflectValue = r.TypeOf(r.Value{})
 
 type unsafeType struct {

@@ -102,7 +102,7 @@ Gomacro is pure Go, and in theory it should work on any platform supported by th
 The following combinations are tested and known to work:
 
 - Linux: amd64, 386, arm64, arm (on Linux it can also import 3rd party libraries at runtime)
-- Mac OS X: amd64, 386
+- Mac OS X: amd64
 - Windows: amd64, 386
 - FreeBSD: amd64, 386
 - Android: arm64
@@ -126,6 +126,7 @@ The main limitations and missing features are:
 * out-of-order code. Types, constants, variables and functions must be declared **before** using them.
 * switching to a different package (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented - can only jump back, not forward
+* dot-import (discouraged in Go) does not work. Example: `import . "fmt"`
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 

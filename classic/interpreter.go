@@ -272,7 +272,9 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 	if opts&OptShowEval != 0 {
 		if len(values) == 0 && value != None {
 			values = []r.Value{value}
-			types = []interface{}{typ}
+                        if typ != nil {
+				types = []interface{}{typ}
+			}
 		}
 		if opts&OptShowEvalType != 0 {
 			for i, vi := range values {

@@ -94,7 +94,7 @@ func (ir *Interp) ShowAsPackage() {
 	out := c.Stdout
 	stringer := typestringer(c.Path)
 	if binds := c.Binds; len(binds) > 0 {
-		showPackageHeader(out, c.Name, c.Path, "binds")
+		base.ShowPackageHeader(out, c.Name, c.Path, "binds")
 
 		keys := make([]string, len(binds))
 		i := 0
@@ -134,7 +134,7 @@ func (ir *Interp) ShowImportedPackage(name string) {
 	out := c.Stdout
 	stringer := typestringer(imp.Path)
 	if binds := imp.Binds; len(binds) > 0 {
-		showPackageHeader(out, imp.Name, imp.Path, "binds")
+		base.ShowPackageHeader(out, imp.Name, imp.Path, "binds")
 
 		keys := make([]string, len(binds))
 		i := 0
@@ -153,7 +153,7 @@ func (ir *Interp) ShowImportedPackage(name string) {
 
 func showTypes(out io.Writer, name string, path string, types map[string]xr.Type, stringer func(xr.Type) string) {
 	if len(types) > 0 {
-		showPackageHeader(out, name, path, "types")
+		base.ShowPackageHeader(out, name, path, "types")
 
 		keys := make([]string, len(types))
 		i := 0
@@ -169,16 +169,6 @@ func showTypes(out io.Writer, name string, path string, types map[string]xr.Type
 			}
 		}
 		fmt.Fprintln(out)
-	}
-}
-
-func showPackageHeader(out io.Writer, name string, path string, kind string) {
-	if name == path {
-		fmt.Fprintf(out, "// ----- %s %s -----\n", name, kind)
-	} else if name == base.FileName(path) {
-		fmt.Fprintf(out, "// ----- %q %s -----\n", path, kind)
-	} else {
-		fmt.Fprintf(out, "// ----- %s %q %s -----\n", name, path, kind)
 	}
 }
 

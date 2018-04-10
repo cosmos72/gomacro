@@ -47,8 +47,13 @@ func (env *Env) evalImport(node ast.Spec) (r.Value, []r.Value) {
 		}
 		pkg := env.ImportPackage(name, path)
 		if pkg != nil {
-			fileEnv := env.FileEnv()
-			fileEnv.DefineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
+			// if import appears *inside* a block, it is local for that block
+			if name == "." {
+				// dot import, i.e. import . "the/package/path"
+				env.MergePackage(pkg.Package)
+			} else {
+				env.DefineConst(name, r.TypeOf(pkg), r.ValueOf(pkg))
+			}
 		}
 		return r.ValueOf(path), nil
 	default:

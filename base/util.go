@@ -26,6 +26,7 @@
 package base
 
 import (
+	"go/build"
 	"os"
 	r "reflect"
 	"strings"
@@ -94,23 +95,14 @@ func UserHomeDir() string {
 }
 
 func Subdir(dirs ...string) string {
-	return strings.Join(dirs, "/") // should be os.PathSeparator, but it complicates DirName()
+	// should use string(os.PathSeparator) instead of "/', but:
+	// 1) package names use '/', not os.PathSeparator
+	// 2) it would complicate DirName()
+	return strings.Join(dirs, "/")
 }
 
-var GomacroDir = Subdir("github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
+var (
+	GoSrcDir = Subdir(build.Default.GOPATH, "src")
 
-func GoPath() string {
-	dir := unixpath(os.Getenv("GOPATH"))
-	if len(dir) == 0 {
-		dir = UserHomeDir()
-		if len(dir) == 0 {
-			Errorf("cannot determine Go source directory: both $GOPATH and $HOME are unset or empty")
-		}
-		dir = Subdir(dir, "go")
-	}
-	return dir
-}
-
-func GoSrcPath() string {
-	return Subdir(GoPath(), "src")
-}
+	GomacroDir = Subdir(GoSrcDir, "github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
+)

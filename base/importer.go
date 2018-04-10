@@ -207,23 +207,21 @@ func sanitizeIdentifier2(str string, replacement rune) string {
 }
 
 func (g *Globals) computeImportFilename(path string, mode ImportMode) string {
-	gosrc_dir := GoSrcPath()
-
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
-		return Subdir(gosrc_dir, GomacroDir, "imports", sanitizeIdentifier(path)+".go")
+		return Subdir(GomacroDir, "imports", sanitizeIdentifier(path)+".go")
 	case ImInception:
-		// user will need to recompile gosrc_dir / path
-		return Subdir(gosrc_dir, path, "x_package.go")
+		// user will need to recompile gosrcdir / path
+		return Subdir(GoSrcDir, path, "x_package.go")
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
-		return Subdir(gosrc_dir, GomacroDir, "imports", "thirdparty", sanitizeIdentifier(path)+".go")
+		return Subdir(GomacroDir, "imports", "thirdparty", sanitizeIdentifier(path)+".go")
 	}
 
 	file := FileName(path) + ".go"
-	file = Subdir(gosrc_dir, "gomacro_imports", path, file)
+	file = Subdir(GoSrcDir, "gomacro_imports", path, file)
 	dir := DirName(file)
 	err := os.MkdirAll(dir, 0700)
 	if err != nil {
