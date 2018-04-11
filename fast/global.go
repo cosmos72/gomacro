@@ -401,7 +401,7 @@ type Place struct {
 	// For map[key], Fun returns the map itself (which may NOT be settable).
 	// Call Fun only once, it may have side effects!
 	Fun func(*Env) r.Value
-	// Fddr is nil for variables.
+	// Addr is nil for variables.
 	// For non-variables, it will return the address of the place.
 	// For map[key], it is nil since map[key] is not addressable
 	// Call Addr only once, it may have side effects!

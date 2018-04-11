@@ -147,8 +147,14 @@ func (imp *Import) Show(out io.Writer) {
 		sort.Strings(keys)
 		for _, k := range keys {
 			bind := imp.Binds[k]
-			idx := bind.Desc.Index()
-			showValue(out, k, imp.Vals[idx], bind.Type, stringer)
+			var v r.Value
+			if bind.Const() {
+				v = r.ValueOf(bind.Value)
+			} else {
+				idx := bind.Desc.Index()
+				v = imp.Vals[idx]
+			}
+			showValue(out, k, v, bind.Type, stringer)
 		}
 		fmt.Fprintln(out)
 	}
