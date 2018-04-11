@@ -8,12 +8,12 @@ It has very few dependencies: go/ast, go/types, reflect, github.com/peterh/liner
 for legacy reasons (no longer used by the default interpreter), golang.org/sync/syncmap.
 
 Gomacro can be used as:
-* a standalone executable with interactive Go REPL:  
+* a standalone executable with interactive Go REPL:
   just run `gomacro` from your command line, then type Go code. Example:
     ```
     $ gomacro
     [greeting message...]
-    
+
     gomacro> import "fmt"
     gomacro> fmt.Println("hello, world!")
     hello, world!
@@ -98,7 +98,7 @@ Gomacro can be used as:
 
 ### Supported platforms
 
-Gomacro is pure Go, and in theory it should work on any platform supported by the Go compiler.  
+Gomacro is pure Go, and in theory it should work on any platform supported by the Go compiler.
 The following combinations are tested and known to work:
 
 - Linux: amd64, 386, arm64, arm (on Linux it can also import 3rd party libraries at runtime)
@@ -126,6 +126,7 @@ The main limitations and missing features are:
 * out-of-order code. Types, constants, variables and functions must be declared **before** using them.
 * switching to a different package (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented - can only jump back, not forward
+* slice[index] is too strict and rejects named integer types as time.Duration
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 
@@ -139,7 +140,7 @@ Some short, notable examples - to run them on non-Linux platforms, see [Importin
 * start the interpreter: `gomacro`
 * at interpreter prompt, paste the whole Go code listed at https://github.com/gonum/plot/wiki/Example-plots#functions
   (the source code starts after the picture under the section "Functions", and ends just before the section "Histograms")
-* still at interpreter prompt, enter `main()`  
+* still at interpreter prompt, enter `main()`
   If all goes well, it will create a file named "functions.png" in current directory containing the plotted functions.
 
 ### simple mandelbrot web server
@@ -148,7 +149,7 @@ Some short, notable examples - to run them on non-Linux platforms, see [Importin
 * chdir to mandelbrot-go source folder: `cd; cd go/src/github.com/sverrirab/mandelbrot-go`
 * start interpreter with arguments: `gomacro -i mbrot.go`
 * at interpreter prompt, enter `init(); main()`
-* visit http://localhost:8090/  
+* visit http://localhost:8090/
   Be patient, rendering and zooming mandelbrot set with an interpreter is a little slow.
 
 Further examples are listed by [Gophernotes](https://github.com/gopherdata/gophernotes/#example-notebooks-dowload-and-run-them-locally-follow-the-links-to-view-in-github-or-use-the-jupyter-notebook-viewer)
@@ -187,7 +188,7 @@ gomacro> plot.New()
 <nil>  // error
 ```
 
-Note: internally, gomacro will compile and load a Go plugin containing the package's exported declarations.  
+Note: internally, gomacro will compile and load a Go plugin containing the package's exported declarations.
 Currently, Go plugins are fully functional only on Linux.
 
 
