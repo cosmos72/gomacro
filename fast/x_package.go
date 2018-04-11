@@ -16,11 +16,15 @@ func init() {
 			"AnyDepth":            r.ValueOf(AnyDepth),
 			"ConstBind":           r.ValueOf(ConstBind),
 			"ConstBindDescriptor": r.ValueOf(ConstBindDescriptor),
+			"EFlag4Value":         r.ValueOf(EFlag4Value),
+			"EIsNil":              r.ValueOf(EIsNil),
+			"EIsTypeAssert":       r.ValueOf(EIsTypeAssert),
 			"FileDepth":           r.ValueOf(FileDepth),
 			"FuncBind":            r.ValueOf(FuncBind),
 			"IntBind":             r.ValueOf(IntBind),
 			"Interrupt":           r.ValueOf(&Interrupt).Elem(),
 			"MakeBindDescriptor":  r.ValueOf(MakeBindDescriptor),
+			"MakeEFlag":           r.ValueOf(MakeEFlag),
 			"New":                 r.ValueOf(New),
 			"NewComp":             r.ValueOf(NewComp),
 			"NewEnv":              r.ValueOf(NewEnv),
@@ -28,8 +32,8 @@ func init() {
 			"NewThreadGlobals":    r.ValueOf(NewThreadGlobals),
 			"NoIndex":             r.ValueOf(NoIndex),
 			"OptDefaults":         r.ValueOf(OptDefaults),
-			"OptKeepUntyped":      r.ValueOf(OptKeepUntyped),
 			"OptIsCompiled":       r.ValueOf(OptIsCompiled),
+			"OptKeepUntyped":      r.ValueOf(OptKeepUntyped),
 			"PlaceAddress":        r.ValueOf(PlaceAddress),
 			"PlaceSettable":       r.ValueOf(PlaceSettable),
 			"PoolCapacity":        r.ValueOf(PoolCapacity),
@@ -49,6 +53,7 @@ func init() {
 			"Comp":               r.TypeOf((*Comp)(nil)).Elem(),
 			"CompGlobals":        r.TypeOf((*CompGlobals)(nil)).Elem(),
 			"CompileOptions":     r.TypeOf((*CompileOptions)(nil)).Elem(),
+			"EFlags":             r.TypeOf((*EFlags)(nil)).Elem(),
 			"Env":                r.TypeOf((*Env)(nil)).Elem(),
 			"Expr":               r.TypeOf((*Expr)(nil)).Elem(),
 			"FuncInfo":           r.TypeOf((*FuncInfo)(nil)).Elem(),
@@ -69,26 +74,19 @@ func init() {
 			"TypeAssertionError": r.TypeOf((*TypeAssertionError)(nil)).Elem(),
 			"UntypedLit":         r.TypeOf((*UntypedLit)(nil)).Elem(),
 			"Var":                r.TypeOf((*Var)(nil)).Elem(),
-		}, Proxies: map[string]r.Type{
-			"I": r.TypeOf((*I_github_com_cosmos72_gomacro_fast)(nil)).Elem(),
 		}, Untypeds: map[string]string{
 			"AnyDepth":     "int:-1",
 			"FileDepth":    "int:-2",
 			"PoolCapacity": "int:32",
 			"TopDepth":     "int:-3",
 		}, Wrappers: map[string][]string{
-			"Bind":              []string{"ConstTo", "DefaultType", "ReflectValue", "Untyped", "UntypedKind"},
-			"Comp":              []string{"CollectAst", "CollectNode", "CollectPackageImports", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "Gensym", "GensymEmbedded", "GensymPrivate", "IncLine", "IncLineBytes", "Init", "LookupPackage", "ParseBytes", "Position", "Sprintf", "ToString", "TypeOfBool", "TypeOfBuiltin", "TypeOfComplex128", "TypeOfComplex64", "TypeOfError", "TypeOfFloat32", "TypeOfFloat64", "TypeOfFunction", "TypeOfImport", "TypeOfInt", "TypeOfInt16", "TypeOfInt32", "TypeOfInt64", "TypeOfInt8", "TypeOfInterface", "TypeOfMacro", "TypeOfString", "TypeOfUint", "TypeOfUint16", "TypeOfUint32", "TypeOfUint64", "TypeOfUint8", "TypeOfUintptr", "TypeOfUntypedLit", "WarnExtraValues", "Warnf", "WriteDeclsToFile", "WriteDeclsToStream"},
-			"CompThreadGlobals": []string{"CollectAst", "CollectNode", "CollectPackageImports", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "Gensym", "GensymEmbedded", "GensymPrivate", "ImportPackage", "IncLine", "IncLineBytes", "Init", "LookupPackage", "ParseBytes", "Position", "Sprintf", "ToString", "WarnExtraValues", "Warnf", "WriteDeclsToFile", "WriteDeclsToStream"},
-			"Expr":              []string{"ReflectValue", "Untyped", "UntypedKind"},
-			"Place":             []string{"Address", "AsPlace", "AsSymbol"},
-			"Symbol":            []string{"AsSymbol", "Const", "ConstTo", "ConstValue", "DefaultType", "ReflectValue", "String", "Untyped", "UntypedKind"},
-			"ThreadGlobals":     []string{"CollectAst", "CollectNode", "CollectPackageImports", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "Gensym", "GensymEmbedded", "GensymPrivate", "ImportPackage", "IncLine", "IncLineBytes", "Init", "LookupPackage", "ParseBytes", "Position", "Sprintf", "ToString", "WarnExtraValues", "Warnf", "WriteDeclsToFile", "WriteDeclsToStream"},
+			"Bind":          []string{"ConstTo", "DefaultType", "ReflectValue", "Untyped", "UntypedKind"},
+			"Comp":          []string{"CollectAst", "CollectNode", "CollectPackageImportsWithRename", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "Gensym", "GensymEmbedded", "GensymPrivate", "IncLine", "IncLineBytes", "LookupPackage", "ParseBytes", "Position", "Print", "ReadMultiline", "Sprintf", "ToString", "TypeOfBool", "TypeOfBuiltin", "TypeOfComplex128", "TypeOfComplex64", "TypeOfError", "TypeOfFloat32", "TypeOfFloat64", "TypeOfFunction", "TypeOfImport", "TypeOfInt", "TypeOfInt16", "TypeOfInt32", "TypeOfInt64", "TypeOfInt8", "TypeOfInterface", "TypeOfMacro", "TypeOfString", "TypeOfUint", "TypeOfUint16", "TypeOfUint32", "TypeOfUint64", "TypeOfUint8", "TypeOfUintptr", "TypeOfUntypedLit", "UnloadPackage", "WarnExtraValues", "Warnf", "WriteDeclsToFile", "WriteDeclsToStream"},
+			"CompGlobals":   []string{"CollectAst", "CollectNode", "CollectPackageImportsWithRename", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "Gensym", "GensymEmbedded", "GensymPrivate", "ImportPackage", "IncLine", "IncLineBytes", "LookupPackage", "ParseBytes", "Position", "Print", "ReadMultiline", "Sprintf", "ToString", "UnloadPackage", "WarnExtraValues", "Warnf", "WriteDeclsToFile", "WriteDeclsToStream"},
+			"Expr":          []string{"IsNil", "ReflectValue", "Untyped", "UntypedKind"},
+			"Place":         []string{"Address", "AsPlace", "AsSymbol"},
+			"Symbol":        []string{"AsSymbol", "Const", "ConstTo", "ConstValue", "DefaultType", "ReflectValue", "String", "Untyped", "UntypedKind"},
+			"ThreadGlobals": []string{"CollectAst", "CollectNode", "CollectPackageImportsWithRename", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "Gensym", "GensymEmbedded", "GensymPrivate", "ImportPackage", "IncLine", "IncLineBytes", "LookupPackage", "ParseBytes", "Position", "Print", "ReadMultiline", "Sprintf", "ToString", "UnloadPackage", "WarnExtraValues", "Warnf", "WriteDeclsToFile", "WriteDeclsToStream"},
 		},
 	}
-}
-
-// --------------- proxy for github.com/cosmos72/gomacro/fast.I ---------------
-type I_github_com_cosmos72_gomacro_fast struct {
-	Object interface{}
 }

@@ -41,26 +41,6 @@ import (
 var (
 	zeroTypes          = []xr.Type{}
 	rtypeOfSliceOfByte = r.TypeOf([]byte{})
-
-/*
-	typeOfPtrBool       = xr.PtrTo(xr.TypeOfBool)
-	typeOfPtrInt        = xr.PtrTo(xr.TypeOfInt)
-	typeOfPtrInt8       = xr.PtrTo(xr.TypeOfInt)
-	typeOfPtrInt16      = xr.PtrTo(xr.TypeOfInt16)
-	typeOfPtrInt32      = xr.PtrTo(xr.TypeOfInt32)
-	typeOfPtrInt64      = xr.PtrTo(xr.TypeOfInt64)
-	typeOfPtrUint       = xr.PtrTo(xr.TypeOfUint)
-	typeOfPtrUint8      = xr.PtrTo(xr.TypeOfUint)
-	typeOfPtrUint16     = xr.PtrTo(xr.TypeOfUint16)
-	typeOfPtrUint32     = xr.PtrTo(xr.TypeOfUint32)
-	typeOfPtrUint64     = xr.PtrTo(xr.TypeOfUint64)
-	typeOfPtrUintptr    = xr.PtrTo(xr.TypeOfUintptr)
-	typeOfPtrFloat32    = xr.PtrTo(xr.TypeOfFloat32)
-	typeOfPtrFloat64    = xr.PtrTo(xr.TypeOfFloat64)
-	typeOfPtrComplex64  = xr.PtrTo(xr.TypeOfComplex64)
-	typeOfPtrComplex128 = xr.PtrTo(xr.TypeOfComplex128)
-	typeOfPtrString     = xr.PtrTo(xr.TypeOfString)
-*/
 )
 
 // =================================== iota ===================================

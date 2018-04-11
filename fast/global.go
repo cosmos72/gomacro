@@ -37,19 +37,7 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// opaqueTypeOf returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
-func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
-	if k := rtype.Kind(); k != r.Struct {
-		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
-	}
-	v := g.Universe
-	t := v.NamedOf(rtype.Name(), "fast", r.Struct)
-	t.SetUnderlying(v.TypeOf(struct{}{}))
-	t.UnsafeForceReflectType(rtype)
-	v.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes
-	// g.Debugf("initialized opaque type %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
-	return t
-}
+type I = interface{}
 
 // ================================= Untyped =================================
 
@@ -209,14 +197,6 @@ func (e *Expr) Out(i int) xr.Type {
 		return e.Type
 	}
 	return e.Types[i]
-}
-
-// Outs returns the types that an expression will produce when evaluated
-func (e *Expr) Outs() []xr.Type {
-	if e.Types == nil {
-		return []xr.Type{e.Type}
-	}
-	return e.Types
 }
 
 func (e *Expr) String() string {
@@ -581,26 +561,16 @@ type Env struct {
 	AddressTaken  bool // true if &Env.IntBinds[index] was executed... then we cannot reuse IntBinds
 }
 
-type (
-	I interface{}
-	/*
-		XBool func(*Env) bool
-		XInt        func(*Env) int
-		XInt8       func(*Env) int8
-		XInt16      func(*Env) int16
-		XInt32      func(*Env) int32
-		XInt64      func(*Env) int64
-		XUint       func(*Env) uint
-		XUint8      func(*Env) uint8
-		XUint16     func(*Env) uint16
-		XUint32     func(*Env) uint32
-		XUint64     func(*Env) uint64
-		XUintptr    func(*Env) uintptr
-		XFloat32    func(*Env) float32
-		XFloat64    func(*Env) float64
-		XComplex64  func(*Env) complex64
-		XComplex128 func(*Env) complex128
-		XString     func(*Env) string
-		XV          func(*Env) (r.Value, []r.Value)
-	*/
-)
+// opaqueTypeOf returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
+func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
+	if k := rtype.Kind(); k != r.Struct {
+		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
+	}
+	v := g.Universe
+	t := v.NamedOf(rtype.Name(), "fast", r.Struct)
+	t.SetUnderlying(v.TypeOf(struct{}{}))
+	t.UnsafeForceReflectType(rtype)
+	v.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes
+	// g.Debugf("initialized opaque type %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
+	return t
+}
