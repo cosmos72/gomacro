@@ -61,30 +61,30 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 			switch t.Kind() {
 			case r.Bool:
 				ret = func(env *Env, v r.Value) {
-					env.Binds[index].SetBool(v.Bool())
+					env.Vals[index].SetBool(v.Bool())
 				}
 			case r.Int, r.Int8, r.Int32, r.Int64:
 				ret = func(env *Env, v r.Value) {
-					env.Binds[index].SetInt(v.Int())
+					env.Vals[index].SetInt(v.Int())
 				}
 			case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
 				ret = func(env *Env, v r.Value) {
-					env.Binds[index].SetUint(v.Uint())
+					env.Vals[index].SetUint(v.Uint())
 				}
 			case r.Float32, r.Float64:
 				ret = func(env *Env, v r.Value) {
-					env.Binds[index].SetFloat(v.Float())
+					env.Vals[index].SetFloat(v.Float())
 				}
 			case r.Complex64, r.Complex128:
 				ret = func(env *Env, v r.Value) {
-					env.Binds[index].SetComplex(v.Complex())
+					env.Vals[index].SetComplex(v.Complex())
 				}
 			case r.String:
 				ret = func(env *Env, v r.Value) {
 					if v.Kind() != r.String {
 						v = v.Convert(TypeOfString)
 					}
-					env.Binds[index].SetString(v.String())
+					env.Vals[index].SetString(v.String())
 				}
 			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
 				ret = func(env *Env, v r.Value) {
@@ -93,44 +93,44 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					} else if v.Type() != rt {
 						v = v.Convert(rt)
 					}
-					env.Binds[index].Set(v)
+					env.Vals[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
 					if v.Type() != rt {
 						v = v.Convert(rt)
 					}
-					env.Binds[index].Set(v)
+					env.Vals[index].Set(v)
 				}
 			}
 		case 1:
 			switch t.Kind() {
 			case r.Bool:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Binds[index].SetBool(v.Bool())
+					env.Outer.Vals[index].SetBool(v.Bool())
 				}
 			case r.Int, r.Int8, r.Int32, r.Int64:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Binds[index].SetInt(v.Int())
+					env.Outer.Vals[index].SetInt(v.Int())
 				}
 			case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Binds[index].SetUint(v.Uint())
+					env.Outer.Vals[index].SetUint(v.Uint())
 				}
 			case r.Float32, r.Float64:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Binds[index].SetFloat(v.Float())
+					env.Outer.Vals[index].SetFloat(v.Float())
 				}
 			case r.Complex64, r.Complex128:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Binds[index].SetComplex(v.Complex())
+					env.Outer.Vals[index].SetComplex(v.Complex())
 				}
 			case r.String:
 				ret = func(env *Env, v r.Value) {
 					if v.Kind() != r.String {
 						v = v.Convert(TypeOfString)
 					}
-					env.Outer.Binds[index].SetString(v.String())
+					env.Outer.Vals[index].SetString(v.String())
 				}
 			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
 				ret = func(env *Env, v r.Value) {
@@ -139,44 +139,44 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					} else if v.Type() != rt {
 						v = v.Convert(rt)
 					}
-					env.Outer.Binds[index].Set(v)
+					env.Outer.Vals[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
 					if v.Type() != rt {
 						v = v.Convert(rt)
 					}
-					env.Outer.Binds[index].Set(v)
+					env.Outer.Vals[index].Set(v)
 				}
 			}
 		case 2:
 			switch t.Kind() {
 			case r.Bool:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Outer.Binds[index].SetBool(v.Bool())
+					env.Outer.Outer.Vals[index].SetBool(v.Bool())
 				}
 			case r.Int, r.Int8, r.Int32, r.Int64:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Outer.Binds[index].SetInt(v.Int())
+					env.Outer.Outer.Vals[index].SetInt(v.Int())
 				}
 			case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Outer.Binds[index].SetUint(v.Uint())
+					env.Outer.Outer.Vals[index].SetUint(v.Uint())
 				}
 			case r.Float32, r.Float64:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Outer.Binds[index].SetFloat(v.Float())
+					env.Outer.Outer.Vals[index].SetFloat(v.Float())
 				}
 			case r.Complex64, r.Complex128:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Outer.Binds[index].SetComplex(v.Complex())
+					env.Outer.Outer.Vals[index].SetComplex(v.Complex())
 				}
 			case r.String:
 				ret = func(env *Env, v r.Value) {
 					if v.Kind() != r.String {
 						v = v.Convert(TypeOfString)
 					}
-					env.Outer.Outer.Binds[index].SetString(v.String())
+					env.Outer.Outer.Vals[index].SetString(v.String())
 				}
 			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
 				ret = func(env *Env, v r.Value) {
@@ -185,14 +185,14 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					} else if v.Type() != rt {
 						v = v.Convert(rt)
 					}
-					env.Outer.Outer.Binds[index].Set(v)
+					env.Outer.Outer.Vals[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
 					if v.Type() != rt {
 						v = v.Convert(rt)
 					}
-					env.Outer.Outer.Binds[index].Set(v)
+					env.Outer.Outer.Vals[index].Set(v)
 				}
 			}
 		default:
@@ -203,7 +203,7 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-					o.Binds[index].SetBool(v.Bool())
+					o.Vals[index].SetBool(v.Bool())
 				}
 			case r.Int, r.Int8, r.Int32, r.Int64:
 				ret = func(env *Env, v r.Value) {
@@ -211,7 +211,7 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-					o.Binds[index].SetInt(v.Int())
+					o.Vals[index].SetInt(v.Int())
 				}
 			case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
 				ret = func(env *Env, v r.Value) {
@@ -219,7 +219,7 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-					o.Binds[index].SetUint(v.Uint())
+					o.Vals[index].SetUint(v.Uint())
 				}
 			case r.Float32, r.Float64:
 				ret = func(env *Env, v r.Value) {
@@ -227,7 +227,7 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-					o.Binds[index].SetFloat(v.Float())
+					o.Vals[index].SetFloat(v.Float())
 				}
 			case r.Complex64, r.Complex128:
 				ret = func(env *Env, v r.Value) {
@@ -235,7 +235,7 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					for i := 3; i < upn; i++ {
 						o = o.Outer
 					}
-					o.Binds[index].SetComplex(v.Complex())
+					o.Vals[index].SetComplex(v.Complex())
 				}
 			case r.String:
 				ret = func(env *Env, v r.Value) {
@@ -246,7 +246,7 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					if v.Kind() != r.String {
 						v = v.Convert(TypeOfString)
 					}
-					o.Binds[index].SetString(v.String())
+					o.Vals[index].SetString(v.String())
 				}
 			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
 				ret = func(env *Env, v r.Value) {
@@ -259,7 +259,7 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					} else if v.Type() != rt {
 						v = v.Convert(rt)
 					}
-					o.Binds[index].Set(v)
+					o.Vals[index].Set(v)
 				}
 			default:
 				ret = func(env *Env, v r.Value) {
@@ -270,7 +270,7 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					if v.Type() != rt {
 						v = v.Convert(rt)
 					}
-					o.Binds[index].Set(v)
+					o.Vals[index].Set(v)
 				}
 			}
 		}
@@ -285,63 +285,63 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 			switch t.Kind() {
 			case r.Bool:
 				ret = func(env *Env, v r.Value) {
-					*(*bool)(unsafe.Pointer(&env.IntBinds[index])) = v.Bool()
+					*(*bool)(unsafe.Pointer(&env.Ints[index])) = v.Bool()
 				}
 			case r.Int:
 				ret = func(env *Env, v r.Value) {
-					*(*int)(unsafe.Pointer(&env.IntBinds[index])) = int(v.Int())
+					*(*int)(unsafe.Pointer(&env.Ints[index])) = int(v.Int())
 				}
 			case r.Int8:
 				ret = func(env *Env, v r.Value) {
-					*(*int8)(unsafe.Pointer(&env.IntBinds[index])) = int8(v.Int())
+					*(*int8)(unsafe.Pointer(&env.Ints[index])) = int8(v.Int())
 				}
 			case r.Int16:
 				ret = func(env *Env, v r.Value) {
-					*(*int16)(unsafe.Pointer(&env.IntBinds[index])) = int16(v.Int())
+					*(*int16)(unsafe.Pointer(&env.Ints[index])) = int16(v.Int())
 				}
 			case r.Int32:
 				ret = func(env *Env, v r.Value) {
-					*(*int32)(unsafe.Pointer(&env.IntBinds[index])) = int32(v.Int())
+					*(*int32)(unsafe.Pointer(&env.Ints[index])) = int32(v.Int())
 				}
 			case r.Int64:
 				ret = func(env *Env, v r.Value) {
-					*(*int64)(unsafe.Pointer(&env.IntBinds[index])) = v.Int()
+					*(*int64)(unsafe.Pointer(&env.Ints[index])) = v.Int()
 				}
 			case r.Uint:
 				ret = func(env *Env, v r.Value) {
-					*(*uint)(unsafe.Pointer(&env.IntBinds[index])) = uint(v.Uint())
+					*(*uint)(unsafe.Pointer(&env.Ints[index])) = uint(v.Uint())
 				}
 			case r.Uint8:
 				ret = func(env *Env, v r.Value) {
-					*(*uint8)(unsafe.Pointer(&env.IntBinds[index])) = uint8(v.Uint())
+					*(*uint8)(unsafe.Pointer(&env.Ints[index])) = uint8(v.Uint())
 				}
 			case r.Uint16:
 				ret = func(env *Env, v r.Value) {
-					*(*uint16)(unsafe.Pointer(&env.IntBinds[index])) = uint16(v.Uint())
+					*(*uint16)(unsafe.Pointer(&env.Ints[index])) = uint16(v.Uint())
 				}
 			case r.Uint32:
 				ret = func(env *Env, v r.Value) {
-					*(*uint32)(unsafe.Pointer(&env.IntBinds[index])) = uint32(v.Uint())
+					*(*uint32)(unsafe.Pointer(&env.Ints[index])) = uint32(v.Uint())
 				}
 			case r.Uint64:
 				ret = func(env *Env, v r.Value) {
-					env.IntBinds[index] = v.Uint()
+					env.Ints[index] = v.Uint()
 				}
 			case r.Uintptr:
 				ret = func(env *Env, v r.Value) {
-					*(*uintptr)(unsafe.Pointer(&env.IntBinds[index])) = uintptr(v.Uint())
+					*(*uintptr)(unsafe.Pointer(&env.Ints[index])) = uintptr(v.Uint())
 				}
 			case r.Float32:
 				ret = func(env *Env, v r.Value) {
-					*(*float32)(unsafe.Pointer(&env.IntBinds[index])) = float32(v.Float())
+					*(*float32)(unsafe.Pointer(&env.Ints[index])) = float32(v.Float())
 				}
 			case r.Float64:
 				ret = func(env *Env, v r.Value) {
-					*(*float64)(unsafe.Pointer(&env.IntBinds[index])) = v.Float()
+					*(*float64)(unsafe.Pointer(&env.Ints[index])) = v.Float()
 				}
 			case r.Complex64:
 				ret = func(env *Env, v r.Value) {
-					*(*complex64)(unsafe.Pointer(&env.IntBinds[index])) = complex64(v.Complex())
+					*(*complex64)(unsafe.Pointer(&env.Ints[index])) = complex64(v.Complex())
 				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
@@ -351,63 +351,63 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 			switch t.Kind() {
 			case r.Bool:
 				ret = func(env *Env, v r.Value) {
-					*(*bool)(unsafe.Pointer(&env.Outer.IntBinds[index])) = v.Bool()
+					*(*bool)(unsafe.Pointer(&env.Outer.Ints[index])) = v.Bool()
 				}
 			case r.Int:
 				ret = func(env *Env, v r.Value) {
-					*(*int)(unsafe.Pointer(&env.Outer.IntBinds[index])) = int(v.Int())
+					*(*int)(unsafe.Pointer(&env.Outer.Ints[index])) = int(v.Int())
 				}
 			case r.Int8:
 				ret = func(env *Env, v r.Value) {
-					*(*int8)(unsafe.Pointer(&env.Outer.IntBinds[index])) = int8(v.Int())
+					*(*int8)(unsafe.Pointer(&env.Outer.Ints[index])) = int8(v.Int())
 				}
 			case r.Int16:
 				ret = func(env *Env, v r.Value) {
-					*(*int16)(unsafe.Pointer(&env.Outer.IntBinds[index])) = int16(v.Int())
+					*(*int16)(unsafe.Pointer(&env.Outer.Ints[index])) = int16(v.Int())
 				}
 			case r.Int32:
 				ret = func(env *Env, v r.Value) {
-					*(*int32)(unsafe.Pointer(&env.Outer.IntBinds[index])) = int32(v.Int())
+					*(*int32)(unsafe.Pointer(&env.Outer.Ints[index])) = int32(v.Int())
 				}
 			case r.Int64:
 				ret = func(env *Env, v r.Value) {
-					*(*int64)(unsafe.Pointer(&env.Outer.IntBinds[index])) = v.Int()
+					*(*int64)(unsafe.Pointer(&env.Outer.Ints[index])) = v.Int()
 				}
 			case r.Uint:
 				ret = func(env *Env, v r.Value) {
-					*(*uint)(unsafe.Pointer(&env.Outer.IntBinds[index])) = uint(v.Uint())
+					*(*uint)(unsafe.Pointer(&env.Outer.Ints[index])) = uint(v.Uint())
 				}
 			case r.Uint8:
 				ret = func(env *Env, v r.Value) {
-					*(*uint8)(unsafe.Pointer(&env.Outer.IntBinds[index])) = uint8(v.Uint())
+					*(*uint8)(unsafe.Pointer(&env.Outer.Ints[index])) = uint8(v.Uint())
 				}
 			case r.Uint16:
 				ret = func(env *Env, v r.Value) {
-					*(*uint16)(unsafe.Pointer(&env.Outer.IntBinds[index])) = uint16(v.Uint())
+					*(*uint16)(unsafe.Pointer(&env.Outer.Ints[index])) = uint16(v.Uint())
 				}
 			case r.Uint32:
 				ret = func(env *Env, v r.Value) {
-					*(*uint32)(unsafe.Pointer(&env.Outer.IntBinds[index])) = uint32(v.Uint())
+					*(*uint32)(unsafe.Pointer(&env.Outer.Ints[index])) = uint32(v.Uint())
 				}
 			case r.Uint64:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.IntBinds[index] = v.Uint()
+					env.Outer.Ints[index] = v.Uint()
 				}
 			case r.Uintptr:
 				ret = func(env *Env, v r.Value) {
-					*(*uintptr)(unsafe.Pointer(&env.Outer.IntBinds[index])) = uintptr(v.Uint())
+					*(*uintptr)(unsafe.Pointer(&env.Outer.Ints[index])) = uintptr(v.Uint())
 				}
 			case r.Float32:
 				ret = func(env *Env, v r.Value) {
-					*(*float32)(unsafe.Pointer(&env.Outer.IntBinds[index])) = float32(v.Float())
+					*(*float32)(unsafe.Pointer(&env.Outer.Ints[index])) = float32(v.Float())
 				}
 			case r.Float64:
 				ret = func(env *Env, v r.Value) {
-					*(*float64)(unsafe.Pointer(&env.Outer.IntBinds[index])) = v.Float()
+					*(*float64)(unsafe.Pointer(&env.Outer.Ints[index])) = v.Float()
 				}
 			case r.Complex64:
 				ret = func(env *Env, v r.Value) {
-					*(*complex64)(unsafe.Pointer(&env.Outer.IntBinds[index])) = complex64(v.Complex())
+					*(*complex64)(unsafe.Pointer(&env.Outer.Ints[index])) = complex64(v.Complex())
 				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
@@ -417,63 +417,63 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 			switch t.Kind() {
 			case r.Bool:
 				ret = func(env *Env, v r.Value) {
-					*(*bool)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = v.Bool()
+					*(*bool)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = v.Bool()
 				}
 			case r.Int:
 				ret = func(env *Env, v r.Value) {
-					*(*int)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = int(v.Int())
+					*(*int)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = int(v.Int())
 				}
 			case r.Int8:
 				ret = func(env *Env, v r.Value) {
-					*(*int8)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = int8(v.Int())
+					*(*int8)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = int8(v.Int())
 				}
 			case r.Int16:
 				ret = func(env *Env, v r.Value) {
-					*(*int16)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = int16(v.Int())
+					*(*int16)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = int16(v.Int())
 				}
 			case r.Int32:
 				ret = func(env *Env, v r.Value) {
-					*(*int32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = int32(v.Int())
+					*(*int32)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = int32(v.Int())
 				}
 			case r.Int64:
 				ret = func(env *Env, v r.Value) {
-					*(*int64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = v.Int()
+					*(*int64)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = v.Int()
 				}
 			case r.Uint:
 				ret = func(env *Env, v r.Value) {
-					*(*uint)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = uint(v.Uint())
+					*(*uint)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = uint(v.Uint())
 				}
 			case r.Uint8:
 				ret = func(env *Env, v r.Value) {
-					*(*uint8)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = uint8(v.Uint())
+					*(*uint8)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = uint8(v.Uint())
 				}
 			case r.Uint16:
 				ret = func(env *Env, v r.Value) {
-					*(*uint16)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = uint16(v.Uint())
+					*(*uint16)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = uint16(v.Uint())
 				}
 			case r.Uint32:
 				ret = func(env *Env, v r.Value) {
-					*(*uint32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = uint32(v.Uint())
+					*(*uint32)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = uint32(v.Uint())
 				}
 			case r.Uint64:
 				ret = func(env *Env, v r.Value) {
-					env.Outer.Outer.IntBinds[index] = v.Uint()
+					env.Outer.Outer.Ints[index] = v.Uint()
 				}
 			case r.Uintptr:
 				ret = func(env *Env, v r.Value) {
-					*(*uintptr)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = uintptr(v.Uint())
+					*(*uintptr)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = uintptr(v.Uint())
 				}
 			case r.Float32:
 				ret = func(env *Env, v r.Value) {
-					*(*float32)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = float32(v.Float())
+					*(*float32)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = float32(v.Float())
 				}
 			case r.Float64:
 				ret = func(env *Env, v r.Value) {
-					*(*float64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = v.Float()
+					*(*float64)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = v.Float()
 				}
 			case r.Complex64:
 				ret = func(env *Env, v r.Value) {
-					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.IntBinds[index])) = complex64(v.Complex())
+					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = complex64(v.Complex())
 				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
@@ -486,105 +486,105 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*bool)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = v.Bool()
+					*(*bool)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = v.Bool()
 				}
 			case r.Int:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*int)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = int(v.Int())
+					*(*int)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = int(v.Int())
 				}
 			case r.Int8:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*int8)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = int8(v.Int())
+					*(*int8)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = int8(v.Int())
 				}
 			case r.Int16:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*int16)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = int16(v.Int())
+					*(*int16)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = int16(v.Int())
 				}
 			case r.Int32:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*int32)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = int32(v.Int())
+					*(*int32)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = int32(v.Int())
 				}
 			case r.Int64:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*int64)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = v.Int()
+					*(*int64)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = v.Int()
 				}
 			case r.Uint:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*uint)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = uint(v.Uint())
+					*(*uint)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = uint(v.Uint())
 				}
 			case r.Uint8:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*uint8)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = uint8(v.Uint())
+					*(*uint8)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = uint8(v.Uint())
 				}
 			case r.Uint16:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*uint16)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = uint16(v.Uint())
+					*(*uint16)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = uint16(v.Uint())
 				}
 			case r.Uint32:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*uint32)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = uint32(v.Uint())
+					*(*uint32)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = uint32(v.Uint())
 				}
 			case r.Uint64:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					env.Outer.Outer.Outer.IntBinds[index] = v.Uint()
+					env.Outer.Outer.Outer.Ints[index] = v.Uint()
 				}
 			case r.Uintptr:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*uintptr)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = uintptr(v.Uint())
+					*(*uintptr)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = uintptr(v.Uint())
 				}
 			case r.Float32:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*float32)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = float32(v.Float())
+					*(*float32)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = float32(v.Float())
 				}
 			case r.Float64:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*float64)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = v.Float()
+					*(*float64)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = v.Float()
 				}
 			case r.Complex64:
 				ret = func(env *Env, v r.Value) {
 					for i := 3; i < upn; i++ {
 						env = env.Outer
 					}
-					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.Outer.IntBinds[index])) = complex64(v.Complex())
+					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = complex64(v.Complex())
 				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)

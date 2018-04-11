@@ -42,9 +42,6 @@ func eTrue(*Env) bool {
 	return true
 }
 
-func eNone(*Env) {
-}
-
 func eNil(*Env) r.Value {
 	return Nil
 }
@@ -57,6 +54,20 @@ func nop() {
 }
 
 var valueOfNopFunc = r.ValueOf(nop)
+
+// opaqueType returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
+func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
+	if k := rtype.Kind(); k != r.Struct {
+		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
+	}
+	v := g.Universe
+	t := v.NamedOf(rtype.Name(), "fast", r.Struct)
+	t.SetUnderlying(v.TypeOf(struct{}{}))
+	t.UnsafeForceReflectType(rtype)
+	v.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes
+	// g.Debugf("initialized opaque type %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
+	return t
+}
 
 func asIdent(node ast.Expr) *ast.Ident {
 	ident, _ := node.(*ast.Ident)
@@ -1663,77 +1674,77 @@ func unwrapBind(bind *Bind, t xr.Type) *Expr {
 	switch t.Kind() {
 	case r.Bool:
 		ret = func(env *Env) bool {
-			return env.Binds[idx].Bool()
+			return env.Vals[idx].Bool()
 		}
 	case r.Int:
 		ret = func(env *Env) int {
-			return int(env.Binds[idx].Int())
+			return int(env.Vals[idx].Int())
 		}
 	case r.Int8:
 		ret = func(env *Env) int8 {
-			return int8(env.Binds[idx].Int())
+			return int8(env.Vals[idx].Int())
 		}
 	case r.Int16:
 		ret = func(env *Env) int16 {
-			return int16(env.Binds[idx].Int())
+			return int16(env.Vals[idx].Int())
 		}
 	case r.Int32:
 		ret = func(env *Env) int32 {
-			return int32(env.Binds[idx].Int())
+			return int32(env.Vals[idx].Int())
 		}
 	case r.Int64:
 		ret = func(env *Env) int64 {
-			return env.Binds[idx].Int()
+			return env.Vals[idx].Int()
 		}
 	case r.Uint:
 		ret = func(env *Env) uint {
-			return uint(env.Binds[idx].Uint())
+			return uint(env.Vals[idx].Uint())
 		}
 	case r.Uint8:
 		ret = func(env *Env) uint8 {
-			return uint8(env.Binds[idx].Uint())
+			return uint8(env.Vals[idx].Uint())
 		}
 	case r.Uint16:
 		ret = func(env *Env) uint16 {
-			return uint16(env.Binds[idx].Uint())
+			return uint16(env.Vals[idx].Uint())
 		}
 	case r.Uint32:
 		ret = func(env *Env) uint32 {
-			return uint32(env.Binds[idx].Uint())
+			return uint32(env.Vals[idx].Uint())
 		}
 	case r.Uint64:
 		ret = func(env *Env) uint64 {
-			return env.Binds[idx].Uint()
+			return env.Vals[idx].Uint()
 		}
 	case r.Uintptr:
 		ret = func(env *Env) uintptr {
-			return uintptr(env.Binds[idx].Uint())
+			return uintptr(env.Vals[idx].Uint())
 		}
 	case r.Float32:
 		ret = func(env *Env) float32 {
-			return float32(env.Binds[idx].Float())
+			return float32(env.Vals[idx].Float())
 		}
 	case r.Float64:
 		ret = func(env *Env) float64 {
-			return env.Binds[idx].Float()
+			return env.Vals[idx].Float()
 		}
 	case r.Complex64:
 		ret = func(env *Env) complex64 {
-			return complex64(env.Binds[idx].Complex())
+			return complex64(env.Vals[idx].Complex())
 		}
 	case r.Complex128:
 		ret = func(env *Env) complex128 {
-			return env.Binds[idx].Complex()
+			return env.Vals[idx].Complex()
 		}
 	case r.String:
 		ret = func(env *Env) string {
-			return env.Binds[idx].String()
+			return env.Vals[idx].String()
 		}
 	default:
 		rtype := t.ReflectType()
 		zero := r.Zero(rtype)
 		ret = func(env *Env) r.Value {
-			v := env.Binds[idx]
+			v := env.Vals[idx]
 			if !v.IsValid() {
 				v = zero
 			} else if v.Type() != rtype {
@@ -1753,77 +1764,77 @@ func unwrapBindUp1(bind *Bind, t xr.Type) *Expr {
 	switch t.Kind() {
 	case r.Bool:
 		ret = func(env *Env) bool {
-			return env.Outer.Binds[idx].Bool()
+			return env.Outer.Vals[idx].Bool()
 		}
 	case r.Int:
 		ret = func(env *Env) int {
-			return int(env.Outer.Binds[idx].Int())
+			return int(env.Outer.Vals[idx].Int())
 		}
 	case r.Int8:
 		ret = func(env *Env) int8 {
-			return int8(env.Outer.Binds[idx].Int())
+			return int8(env.Outer.Vals[idx].Int())
 		}
 	case r.Int16:
 		ret = func(env *Env) int16 {
-			return int16(env.Outer.Binds[idx].Int())
+			return int16(env.Outer.Vals[idx].Int())
 		}
 	case r.Int32:
 		ret = func(env *Env) int32 {
-			return int32(env.Outer.Binds[idx].Int())
+			return int32(env.Outer.Vals[idx].Int())
 		}
 	case r.Int64:
 		ret = func(env *Env) int64 {
-			return env.Outer.Binds[idx].Int()
+			return env.Outer.Vals[idx].Int()
 		}
 	case r.Uint:
 		ret = func(env *Env) uint {
-			return uint(env.Outer.Binds[idx].Uint())
+			return uint(env.Outer.Vals[idx].Uint())
 		}
 	case r.Uint8:
 		ret = func(env *Env) uint8 {
-			return uint8(env.Outer.Binds[idx].Uint())
+			return uint8(env.Outer.Vals[idx].Uint())
 		}
 	case r.Uint16:
 		ret = func(env *Env) uint16 {
-			return uint16(env.Outer.Binds[idx].Uint())
+			return uint16(env.Outer.Vals[idx].Uint())
 		}
 	case r.Uint32:
 		ret = func(env *Env) uint32 {
-			return uint32(env.Outer.Binds[idx].Uint())
+			return uint32(env.Outer.Vals[idx].Uint())
 		}
 	case r.Uint64:
 		ret = func(env *Env) uint64 {
-			return env.Outer.Binds[idx].Uint()
+			return env.Outer.Vals[idx].Uint()
 		}
 	case r.Uintptr:
 		ret = func(env *Env) uintptr {
-			return uintptr(env.Outer.Binds[idx].Uint())
+			return uintptr(env.Outer.Vals[idx].Uint())
 		}
 	case r.Float32:
 		ret = func(env *Env) float32 {
-			return float32(env.Outer.Binds[idx].Float())
+			return float32(env.Outer.Vals[idx].Float())
 		}
 	case r.Float64:
 		ret = func(env *Env) float64 {
-			return env.Outer.Binds[idx].Float()
+			return env.Outer.Vals[idx].Float()
 		}
 	case r.Complex64:
 		ret = func(env *Env) complex64 {
-			return complex64(env.Outer.Binds[idx].Complex())
+			return complex64(env.Outer.Vals[idx].Complex())
 		}
 	case r.Complex128:
 		ret = func(env *Env) complex128 {
-			return env.Outer.Binds[idx].Complex()
+			return env.Outer.Vals[idx].Complex()
 		}
 	case r.String:
 		ret = func(env *Env) string {
-			return env.Outer.Binds[idx].String()
+			return env.Outer.Vals[idx].String()
 		}
 	default:
 		rtype := t.ReflectType()
 		zero := r.Zero(rtype)
 		ret = func(env *Env) r.Value {
-			v := env.Outer.Binds[idx]
+			v := env.Outer.Vals[idx]
 			if !v.IsValid() {
 				v = zero
 			} else if v.Type() != rtype {

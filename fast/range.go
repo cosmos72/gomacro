@@ -105,7 +105,7 @@ func (c *Comp) rangeChan(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 
 	if placekey == nil {
 		c.append(func(env *Env) (Stmt, *Env) {
-			_, ok := env.Binds[idxchan].Recv()
+			_, ok := env.Vals[idxchan].Recv()
 			var ip int
 			if ok {
 				ip = env.IP + 1
@@ -121,10 +121,10 @@ func (c *Comp) rangeChan(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 		idxrecv := bindrecv.Desc.Index()
 
 		c.append(func(env *Env) (Stmt, *Env) {
-			v, ok := env.Binds[idxchan].Recv()
+			v, ok := env.Vals[idxchan].Recv()
 			var ip int
 			if ok {
-				env.Binds[idxrecv] = v
+				env.Vals[idxrecv] = v
 				ip = env.IP + 1
 			} else {
 				ip = jump.Break
@@ -163,12 +163,12 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	idxkeys := bindkeys.Desc.Index()
 	c.append(func(env *Env) (Stmt, *Env) {
 		// convert []r.Value slice into a []rtkey slice, to avoid reflect.Value.Interface() while iterating
-		vkeys := env.Binds[idxmap].MapKeys()
+		vkeys := env.Vals[idxmap].MapKeys()
 		keys := r.MakeSlice(rtkeyslice, len(vkeys), len(vkeys))
 		for i, vkey := range vkeys {
 			keys.Index(i).Set(vkey)
 		}
-		env.Binds[idxkeys] = keys
+		env.Vals[idxkeys] = keys
 		env.IP++
 		return env.Code[env.IP], env
 	})
@@ -192,8 +192,8 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	if bindkey == nil {
 		// check iteration index against # of keys
 		c.append(func(env *Env) (Stmt, *Env) {
-			n := env.Binds[idxkeys].Len()
-			i := *(*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			n := env.Vals[idxkeys].Len()
+			i := *(*int)(unsafe.Pointer(&env.Ints[idxnext]))
 			var ip int
 			if i < n {
 				ip = env.IP + 1
@@ -208,12 +208,12 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 		// and copy current map key into bindkey
 		idxkey := bindkey.Desc.Index()
 		c.append(func(env *Env) (Stmt, *Env) {
-			vkeys := env.Binds[idxkeys]
+			vkeys := env.Vals[idxkeys]
 			n := vkeys.Len()
-			i := *(*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			i := *(*int)(unsafe.Pointer(&env.Ints[idxnext]))
 			var ip int
 			if i < n {
-				env.Binds[idxkey] = vkeys.Index(i)
+				env.Vals[idxkey] = vkeys.Index(i)
 				ip = env.IP + 1
 			} else {
 				ip = jump.Break
@@ -237,8 +237,8 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 		rtype := tval.ReflectType()
 		zero := r.Zero(rtype)
 		c.append(func(env *Env) (Stmt, *Env) {
-			vmap := env.Binds[idxmap]
-			key := env.Binds[idxkey]
+			vmap := env.Vals[idxmap]
+			key := env.Vals[idxkey]
 			o := env
 			for j := 0; j < upval; j++ {
 				o = o.Outer
@@ -249,7 +249,7 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 			} else if val.Type() != rtype {
 				val = val.Convert(rtype)
 			}
-			o.Binds[idxval].Set(val)
+			o.Vals[idxval].Set(val)
 			env.IP++
 			return env.Code[env.IP], env
 		})
@@ -263,7 +263,7 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 
 	// increase iteration index and jump back to start
 	c.append(func(env *Env) (Stmt, *Env) {
-		(*(*int)(unsafe.Pointer(&env.IntBinds[idxnext])))++
+		(*(*int)(unsafe.Pointer(&env.Ints[idxnext])))++
 		ip := jump.Start
 		env.IP = ip
 		return env.Code[ip], env
@@ -375,8 +375,8 @@ func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	}
 	if placeval == nil {
 		c.append(func(env *Env) (Stmt, *Env) {
-			s := env.Binds[idxrange].String()
-			pnext := (*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			s := env.Vals[idxrange].String()
+			pnext := (*int)(unsafe.Pointer(&env.Ints[idxnext]))
 			next := *pnext
 
 			_, size := utf8.DecodeRuneInString(s[next:])
@@ -395,8 +395,8 @@ func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 		idxval := placeval.Var.Desc.Index()
 		upval := placeval.Var.Upn
 		c.append(func(env *Env) (Stmt, *Env) {
-			s := env.Binds[idxrange].String()
-			pnext := (*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			s := env.Vals[idxrange].String()
+			pnext := (*int)(unsafe.Pointer(&env.Ints[idxnext]))
 			next := *pnext
 
 			r, size := utf8.DecodeRuneInString(s[next:])
@@ -408,7 +408,7 @@ func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 				for i := 0; i < upval; i++ {
 					o = o.Outer
 				}
-				*(*int32)(unsafe.Pointer(&env.IntBinds[idxval])) = r
+				*(*int32)(unsafe.Pointer(&env.Ints[idxval])) = r
 				ip = env.IP + 1
 			} else {
 				ip = jump.Break
@@ -419,8 +419,8 @@ func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	} else {
 		idxrune := bindrune.Desc.Index()
 		c.append(func(env *Env) (Stmt, *Env) {
-			s := env.Binds[idxrange].String()
-			pnext := (*int)(unsafe.Pointer(&env.IntBinds[idxnext]))
+			s := env.Vals[idxrange].String()
+			pnext := (*int)(unsafe.Pointer(&env.Ints[idxnext]))
 			next := *pnext
 
 			r, size := utf8.DecodeRuneInString(s[next:])
@@ -428,7 +428,7 @@ func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 			if size != 0 {
 				next += size
 				*pnext = next
-				*(*int32)(unsafe.Pointer(&env.IntBinds[idxrune])) = r
+				*(*int32)(unsafe.Pointer(&env.Ints[idxrune])) = r
 				ip = env.IP + 1
 			} else {
 				ip = jump.Break

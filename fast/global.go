@@ -232,7 +232,7 @@ type Builtin struct {
 
 // ================================= Function =================================
 
-// Function represents a function that accesses *CompEnv in the fast interpreter
+// Function represents a function that accesses *Interp in the fast interpreter
 type Function struct {
 	Fun  interface{}
 	Type xr.Type
@@ -430,21 +430,6 @@ func (opt PlaceOption) String() string {
 	}
 }
 
-// ================================= Import =================================
-
-// Import represents an imported package.
-// we cannot name it "Package" because it conflicts with go/ast.Package
-type Import struct {
-	// no need to split compile-time bind descriptors map from runtime values slice,
-	// because an import is a singleton - cannot be "instantiated" multiple times.
-	// Instead function or block activation record (*Env) can:
-	// think about goroutines, recursive functions or even loops.
-	Binds      map[string]r.Value
-	BindTypes  map[string]xr.Type
-	Types      map[string]xr.Type
-	Name, Path string
-}
-
 // ================================== Comp, Env =================================
 
 type CompileOptions int
@@ -548,29 +533,38 @@ const (
 	SigDefer // request to install a defer function
 )
 
+// ================================= Env =================================
+
 // Env is the interpreter's runtime environment
 type Env struct {
-	Binds         []r.Value
-	IntBinds      []uint64
+	Vals          []r.Value
+	Ints          []uint64
 	Outer         *Env
 	IP            int
 	Code          []Stmt
 	DebugPos      []token.Pos // for debugging interpreted code: position of each statement
 	ThreadGlobals *ThreadGlobals
 	UsedByClosure bool // a bitfield would introduce more races among goroutines
-	AddressTaken  bool // true if &Env.IntBinds[index] was executed... then we cannot reuse IntBinds
+	AddressTaken  bool // true if &Env.Ints[index] was executed... then we cannot reuse IntBinds
 }
 
-// opaqueTypeOf returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
-func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
-	if k := rtype.Kind(); k != r.Struct {
-		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
-	}
-	v := g.Universe
-	t := v.NamedOf(rtype.Name(), "fast", r.Struct)
-	t.SetUnderlying(v.TypeOf(struct{}{}))
-	t.UnsafeForceReflectType(rtype)
-	v.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes
-	// g.Debugf("initialized opaque type %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
-	return t
+// ================================= Import =================================
+
+// Import represents an imported package.
+// we cannot name it "Package" because it conflicts with ast2.Package
+type Import struct {
+	// model as a combination of Comp and Env, because to support the command 'package PATH'
+	// we must convert Comp+Env to Import and vice-versa.
+	// This has the added benefit of allowing packages to freely mix
+	// interpreted and compiled binds and types.
+	Binds     map[string]r.Value
+	BindTypes map[string]xr.Type
+	Types     map[string]xr.Type
+	/*
+		Binds      map[string]*Bind
+		Types      map[string]xr.Type
+		Values     []r.Value
+		Ints       []uint64
+	*/
+	Name, Path string
 }

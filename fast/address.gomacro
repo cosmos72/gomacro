@@ -75,8 +75,8 @@ import (
 	}
 	if t == nil {
 		// no need to set env.AddressTaken = true
-		// because env.Binds[index] actually contains a pointer to the variable
-		bind = ~'{env .Binds[index].Addr()}
+		// because env.Vals[index] actually contains a pointer to the variable
+		bind = ~'{env .Vals[index].Addr()}
 		rettype = ~'{r.Value}
 		return ~"{
 			ret = func(env *Env) (~,rettype) {
@@ -104,7 +104,7 @@ import (
 		} else {
 			ret = func(env *Env) (~,rettype) {
 				~,@decls
-				return env.Binds[index].Addr().Interface().(~,rettype)
+				return env.Vals[index].Addr().Interface().(~,rettype)
 			}
 		}
 	}

@@ -190,7 +190,7 @@ func (ir *Interp) ValueOf(name string) (value r.Value) {
 		for i := 0; i < sym.Upn; i++ {
 			env = env.Outer
 		}
-		return env.Binds[sym.Desc.Index()]
+		return env.Vals[sym.Desc.Index()]
 	default:
 		expr := ir.Comp.Symbol(sym)
 		return ir.RunExpr1(expr)
@@ -209,7 +209,7 @@ func (ir *Interp) prepareEnv(minDelta int) *Env {
 	if minDelta < 0 {
 		minDelta = 0
 	}
-	capacity, min := cap(env.Binds), c.BindNum
+	capacity, min := cap(env.Vals), c.BindNum
 	// c.Debugf("prepareEnv() before: c.BindNum = %v, minDelta = %v, len(env.Binds) = %v, cap(env.Binds) = %v, env = %p", c.BindNum, minDelta, len(env.Binds), cap(env.Binds), env)
 
 	if capacity < min {
@@ -222,15 +222,15 @@ func (ir *Interp) prepareEnv(minDelta int) *Env {
 			capacity = min + minDelta
 		}
 		binds := make([]r.Value, min, capacity)
-		copy(binds, env.Binds)
-		env.Binds = binds
+		copy(binds, env.Vals)
+		env.Vals = binds
 	}
-	if len(env.Binds) < min {
-		env.Binds = env.Binds[0:min:cap(env.Binds)]
+	if len(env.Vals) < min {
+		env.Vals = env.Vals[0:min:cap(env.Vals)]
 	}
 	// c.Debugf("prepareEnv() after:  c.BindNum = %v, minDelta = %v, len(env.Binds) = %v, cap(env.Binds) = %v, env = %p", c.BindNum, minDelta, len(env.Binds), cap(env.Binds), env)
 
-	capacity, min = cap(env.IntBinds), c.IntBindNum
+	capacity, min = cap(env.Ints), c.IntBindNum
 	if capacity < min {
 		if capacity <= min/2 {
 			capacity = min
@@ -241,11 +241,11 @@ func (ir *Interp) prepareEnv(minDelta int) *Env {
 			capacity = min + minDelta
 		}
 		binds := make([]uint64, min, capacity)
-		copy(binds, env.IntBinds)
-		env.IntBinds = binds
+		copy(binds, env.Ints)
+		env.Ints = binds
 	}
-	if len(env.IntBinds) < min {
-		env.IntBinds = env.IntBinds[0:min:cap(env.IntBinds)]
+	if len(env.Ints) < min {
+		env.Ints = env.Ints[0:min:cap(env.Ints)]
 	}
 	return env
 }

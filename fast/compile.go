@@ -173,18 +173,18 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 		env = &Env{}
 	}
 	if nbinds <= 1 {
-		env.Binds = ignoredBinds
-	} else if cap(env.Binds) < nbinds {
-		env.Binds = make([]r.Value, nbinds)
+		env.Vals = ignoredBinds
+	} else if cap(env.Vals) < nbinds {
+		env.Vals = make([]r.Value, nbinds)
 	} else {
-		env.Binds = env.Binds[0:nbinds]
+		env.Vals = env.Vals[0:nbinds]
 	}
 	if nintbinds <= 1 {
-		env.IntBinds = ignoredIntBinds
-	} else if cap(env.IntBinds) < nintbinds {
-		env.IntBinds = make([]uint64, nintbinds)
+		env.Ints = ignoredIntBinds
+	} else if cap(env.Ints) < nintbinds {
+		env.Ints = make([]uint64, nintbinds)
 	} else {
-		env.IntBinds = env.IntBinds[0:nintbinds]
+		env.Ints = env.Ints[0:nintbinds]
 	}
 	env.Outer = outer
 	env.IP = outer.IP
@@ -206,18 +206,18 @@ func newEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
 		env = &Env{}
 	}
 	if nbinds <= 1 {
-		env.Binds = ignoredBinds
-	} else if cap(env.Binds) < nbinds {
-		env.Binds = make([]r.Value, nbinds)
+		env.Vals = ignoredBinds
+	} else if cap(env.Vals) < nbinds {
+		env.Vals = make([]r.Value, nbinds)
 	} else {
-		env.Binds = env.Binds[0:nbinds]
+		env.Vals = env.Vals[0:nbinds]
 	}
 	if nintbinds <= 1 {
-		env.IntBinds = ignoredIntBinds
-	} else if cap(env.IntBinds) < nintbinds {
-		env.IntBinds = make([]uint64, nintbinds)
+		env.Ints = ignoredIntBinds
+	} else if cap(env.Ints) < nintbinds {
+		env.Ints = make([]uint64, nintbinds)
 	} else {
-		env.IntBinds = env.IntBinds[0:nintbinds]
+		env.Ints = env.Ints[0:nintbinds]
 	}
 	env.Outer = outer
 	env.ThreadGlobals = tg
@@ -244,7 +244,7 @@ func (env *Env) FreeEnv() {
 		return
 	}
 	if env.AddressTaken {
-		env.IntBinds = nil
+		env.Ints = nil
 		env.AddressTaken = false
 	}
 	env.Outer = nil

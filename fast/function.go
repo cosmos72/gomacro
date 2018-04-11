@@ -124,7 +124,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 		stmt = func(env *Env) (Stmt, *Env) {
 			fun := f(env)
 			// Debugf("setting env.Binds[%d] = %v <%v>", funcindex, fun.Interface(), fun.Type())
-			env.Binds[funcindex] = fun
+			env.Vals[funcindex] = fun
 			env.IP++
 			return env.Code[env.IP], env
 		}

@@ -75,7 +75,7 @@ func (c *Comp) Select(node *ast.SelectStmt, labels []string) {
 			}
 		}
 		chosen, recv, _ := r.Select(cases)
-		env.Binds[idxrecv] = recv
+		env.Vals[idxrecv] = recv
 		ip := ips[chosen]
 		env.IP = ip
 		return env.Code[ip], env
@@ -160,7 +160,7 @@ func (c *Comp) selectCase(clause *ast.CommClause, bind *Bind) selectEntry {
 				if id1 != nil && id1.Name != "_" {
 					idx := bind.Desc.Index()
 					c2.DeclVar0(id1.Name, c.TypeOfBool(), c.exprBool(func(env *Env) bool {
-						return env.Outer.Binds[idx].IsValid()
+						return env.Outer.Vals[idx].IsValid()
 					}))
 				}
 			} else if len(clause.Body) != 0 {
@@ -189,7 +189,7 @@ func (c *Comp) selectCase(clause *ast.CommClause, bind *Bind) selectEntry {
 				}
 				idx := bind.Desc.Index()
 				c.SetPlace(place, token.ASSIGN, c.exprBool(func(env *Env) bool {
-					return env.Binds[idx].IsValid()
+					return env.Vals[idx].IsValid()
 				}))
 			}
 

@@ -307,7 +307,7 @@ func (c *Comp) declUnnamedBind(init *Expr, o *Comp, upn int) *Symbol {
 					v = conv(v)
 				}
 				// no need to create a settable reflect.Value
-				env.Binds[index] = v
+				env.Vals[index] = v
 				env.IP++
 				return env.Code[env.IP], env
 			})
@@ -318,7 +318,7 @@ func (c *Comp) declUnnamedBind(init *Expr, o *Comp, upn int) *Symbol {
 					v = conv(v)
 				}
 				// no need to create a settable reflect.Value
-				env.Outer.Binds[index] = v
+				env.Outer.Vals[index] = v
 				env.IP++
 				return env.Code[env.IP], env
 			})
@@ -333,7 +333,7 @@ func (c *Comp) declUnnamedBind(init *Expr, o *Comp, upn int) *Symbol {
 					v = conv(v)
 				}
 				// no need to create a settable reflect.Value
-				o.Binds[index] = v
+				o.Vals[index] = v
 				env.IP++
 				return env.Code[env.IP], env
 			})
@@ -392,7 +392,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			rtype := t.ReflectType()
 			c.append(func(env *Env) (Stmt, *Env) {
 				// base.Debugf("declaring %v", bind)
-				env.Binds[index] = r.New(rtype).Elem()
+				env.Vals[index] = r.New(rtype).Elem()
 				env.IP++
 				return env.Code[env.IP], env
 			})
@@ -417,7 +417,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 					ret, _ := f(env)
 					place := r.New(rtype).Elem()
 					place.Set(conv(ret))
-					env.Binds[index] = place
+					env.Vals[index] = place
 					env.IP++
 					return env.Code[env.IP], env
 				}
@@ -426,7 +426,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 					ret, _ := f(env)
 					place := r.New(rtype).Elem()
 					place.Set(ret)
-					env.Binds[index] = place
+					env.Vals[index] = place
 					env.IP++
 					return env.Code[env.IP], env
 				}
@@ -437,7 +437,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 					ret := fun(env)
 					place := r.New(rtype).Elem()
 					place.Set(conv(ret))
-					env.Binds[index] = place
+					env.Vals[index] = place
 					env.IP++
 					return env.Code[env.IP], env
 				}
@@ -446,7 +446,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 					ret := fun(env)
 					place := r.New(rtype).Elem()
 					place.Set(ret)
-					env.Binds[index] = place
+					env.Vals[index] = place
 					env.IP++
 					return env.Code[env.IP], env
 				}
@@ -473,7 +473,7 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 	case FuncBind:
 		// declaring a function in Env.Binds[], the reflect.Value must not be addressable or settable
 		return func(env *Env, v r.Value) {
-			env.Binds[index] = v.Convert(rtype)
+			env.Vals[index] = v.Convert(rtype)
 		}
 	case VarBind:
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
@@ -483,7 +483,7 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 				v = v.Convert(rtype)
 			}
 			place.Set(v)
-			env.Binds[index] = place
+			env.Vals[index] = place
 		}
 	case IntBind:
 		// no difference between declaration and assignment for IntBind
@@ -549,7 +549,7 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 	bind := c.AddFuncBind(name, t)
 	index := bind.Desc.Index()
 	ret := func(env *Env) (Stmt, *Env) {
-		env.Binds[index] = funv
+		env.Vals[index] = funv
 		env.IP++
 		return env.Code[env.IP], env
 	}
