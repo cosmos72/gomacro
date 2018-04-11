@@ -65,12 +65,14 @@ func newTopInterp(path string) *Interp {
 	envGlobals := &ThreadGlobals{Globals: globals}
 	ce := &Interp{
 		Comp: &Comp{
-			UpCost:      1,
-			Depth:       0,
-			Outer:       nil,
-			Name:        name,
-			Path:        path,
 			CompGlobals: compGlobals,
+			CompBinds: CompBinds{
+				Name: name,
+				Path: path,
+			},
+			UpCost: 1,
+			Depth:  0,
+			Outer:  nil,
 		},
 		env: &Env{
 			Outer:         nil,
@@ -78,12 +80,12 @@ func newTopInterp(path string) *Interp {
 		},
 	}
 	// tell xreflect about our packages "fast" and "main"
-	compGlobals.Universe.CachePackage(types.NewPackage("fast", "fast"))
-	compGlobals.Universe.CachePackage(types.NewPackage("main", "main"))
+	universe.CachePackage(types.NewPackage("fast", "fast"))
+	universe.CachePackage(types.NewPackage("main", "main"))
 
-	// no need to scavenge for Builtin, Function, Import, Macro and UntypedLit fields and methods.
+	// no need to scavenge for Builtin, Function,  Macro and UntypedLit fields and methods.
 	// actually, making them opaque helps securing against malicious interpreted code.
-	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfImport, rtypeOfMacro, rtypeOfUntypedLit} {
+	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfPtrImport, rtypeOfMacro, rtypeOfUntypedLit} {
 		compGlobals.opaqueType(rtype)
 	}
 
@@ -101,12 +103,14 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 	outerEnv := outer.env
 	ir := &Interp{
 		Comp: &Comp{
-			UpCost:      1,
-			Depth:       outerComp.Depth + 1,
-			Outer:       outerComp,
-			Name:        name,
-			Path:        path,
 			CompGlobals: outerComp.CompGlobals,
+			CompBinds: CompBinds{
+				Name: name,
+				Path: path,
+			},
+			UpCost: 1,
+			Depth:  outerComp.Depth + 1,
+			Outer:  outerComp,
 		},
 		env: &Env{
 			Outer:         outerEnv,
@@ -252,16 +256,6 @@ func (env *Env) FreeEnv() {
 	env.ThreadGlobals = nil
 	common.Pool[n] = env // pool is an array, be careful NOT to copy it!
 	common.PoolSize = n + 1
-}
-
-func (c *Comp) IsCompiled() bool {
-	return c.CompileOptions.IsCompiled()
-}
-
-func (c *Comp) ErrorIfCompiled(x interface{}) {
-	if c.IsCompiled() {
-		c.Errorf("internal error: compiler for %v has flag OptIsCompiled set. this should not happen!", x)
-	}
 }
 
 func (env *Env) Top() *Env {

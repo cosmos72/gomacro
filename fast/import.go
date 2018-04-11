@@ -81,52 +81,62 @@ func (c *Comp) ImportPackage(name, path string) *Import {
 	if pkgref == nil {
 		return nil
 	}
-	binds, bindtypes := g.parseImportBinds(pkgref.Binds, pkgref.Untypeds)
-
-	imp := Import{
-		Binds:     binds,
-		BindTypes: bindtypes,
-		Types:     g.parseImportTypes(pkgref.Types, pkgref.Wrappers),
-		Name:      name,
-		Path:      path,
-	}
-
-	g.loadProxies(pkgref.Proxies, imp.Types)
-
+	imp := g.NewImport(pkgref)
 	c.declImport0(name, imp)
-	return &imp
+	return imp
 }
 
 // declImport0 compiles an import declaration.
 // Note: does not loads proxies, use ImportPackage for that
-func (c *Comp) declImport0(name string, imp Import) {
+func (c *Comp) declImport0(name string, imp *Import) {
 	// treat imported package as a constant,
 	// because to compile code we need the declarations it contains:
 	// importing them at runtime would be too late.
-	t := c.TypeOfImport()
-	bind := c.AddBind(name, ConstBind, t)
-	bind.Value = imp // cfile.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
+	bind := c.AddBind(name, ConstBind, c.TypeOfPtrImport())
+	bind.Value = imp // Comp.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 }
 
-func (g *CompGlobals) parseImportBinds(binds map[string]r.Value, untypeds map[string]string) (map[string]r.Value, map[string]xr.Type) {
-	retbinds := make(map[string]r.Value)
-	rettypes := make(map[string]xr.Type)
-	for name, bind := range binds {
+func (g *CompGlobals) NewImport(pkgref *PackageRef) *Import {
+	imp := &Import{}
+	imp.Name = pkgref.Name
+	imp.Path = pkgref.Path
+	imp.loadBinds(g, pkgref)
+	imp.loadTypes(g, pkgref)
+
+	g.loadProxies(pkgref.Proxies, imp.Types)
+	return imp
+}
+
+func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
+	vals := make([]r.Value, len(pkgref.Binds))
+	untypeds := pkgref.Untypeds
+	o := &g.Output
+	for name, val := range pkgref.Binds {
 		if untyped, ok := untypeds[name]; ok {
-			value, typ, ok := g.parseImportUntyped(untyped)
+			val, typ, ok := g.parseUntyped(untyped)
 			if ok {
-				retbinds[name] = value
-				rettypes[name] = typ
+				bind := imp.CompBinds.AddBind(o, name, ConstBind, typ)
+				bind.Value = val.Interface()
 				continue
 			}
 		}
-		retbinds[name] = bind
-		rettypes[name] = g.Universe.FromReflectType(bind.Type())
+		class := FuncBind
+		if val.IsValid() && val.CanAddr() && val.CanSet() {
+			class = VarBind
+		}
+		typ := g.Universe.FromReflectType(val.Type())
+		idx := imp.CompBinds.AddBind(o, name, class, typ).Desc.Index()
+		if len(vals) <= idx {
+			tmp := make([]r.Value, idx*2)
+			copy(tmp, vals)
+			vals = tmp
+		}
+		vals[idx] = val
 	}
-	return retbinds, rettypes
+	imp.Vals = vals
 }
 
-func (g *CompGlobals) parseImportUntyped(untyped string) (r.Value, xr.Type, bool) {
+func (g *CompGlobals) parseUntyped(untyped string) (r.Value, xr.Type, bool) {
 	gkind, value := UnmarshalUntyped(untyped)
 	if gkind == types.Invalid {
 		return Nil, nil, false
@@ -135,18 +145,19 @@ func (g *CompGlobals) parseImportUntyped(untyped string) (r.Value, xr.Type, bool
 	return r.ValueOf(lit), g.TypeOfUntypedLit(), true
 }
 
-func (g *CompGlobals) parseImportTypes(rtypes map[string]r.Type, wrappers map[string][]string) map[string]xr.Type {
+func (imp *Import) loadTypes(g *CompGlobals, pkgref *PackageRef) {
 	v := g.Universe
-	xtypes := make(map[string]xr.Type)
-	for name, rtype := range rtypes {
+	types := make(map[string]xr.Type)
+	wrappers := pkgref.Wrappers
+	for name, rtype := range pkgref.Types {
 		// Universe.FromReflectType uses cached *types.Package if possible
 		t := v.FromReflectType(rtype)
 		if twrappers := wrappers[name]; len(twrappers) != 0 {
 			t.RemoveMethods(twrappers, "")
 		}
-		xtypes[name] = t
+		types[name] = t
 	}
-	return xtypes
+	imp.Types = types
 }
 
 // loadProxies adds to thread-global maps the proxies found in import

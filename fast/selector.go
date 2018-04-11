@@ -41,6 +41,12 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	}
 	t = e.Type
 	eorig := e
+	name := node.Sel.Name
+	if t.Kind() == r.Ptr && t.ReflectType() == rtypeOfPtrImport && e.Const() {
+		// access symbol from imported package, for example fmt.Printf
+		imp := e.Value.(*Import)
+		return c.selectorImport(imp, name)
+	}
 	if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
 		t = t.Elem()
 		fun := e.AsX1()
@@ -48,14 +54,8 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 			return fun(env).Elem()
 		})
 	}
-	name := node.Sel.Name
 	switch t.Kind() {
 	case r.Struct:
-		if t.ReflectType() == rtypeOfImport && e.Const() {
-			// access symbol from imported package, for example fmt.Printf
-			imp := e.Value.(Import)
-			return c.selectorImport(&imp, name)
-		}
 		field, fieldok, mtd, mtdok := c.LookupFieldOrMethod(t, name)
 		if fieldok {
 			return c.compileField(e, field)
@@ -80,16 +80,21 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 // selectorImport compiles foo.bar where 'foo' is an imported package
 func (c *Comp) selectorImport(imp *Import, name string) *Expr {
 	if bind, ok := imp.Binds[name]; ok {
-		t := imp.BindTypes[name]
+		t := bind.Type
+		if bind.Desc.Class() == IntBind {
+			c.Errorf("unimplemented %s.%s, bind is %v", imp.Name, name, bind.Type)
+		}
+		val := imp.Vals[bind.Desc.Index()]
+
 		var value interface{}
-		if bind.IsValid() && bind.CanInterface() {
-			if bind.CanAddr() {
-				// bind is an imported variable. do NOT extract its value, otherwise the fast interpreter
+		if val.IsValid() && val.CanInterface() {
+			if val.CanAddr() {
+				// val is an imported variable. do NOT extract its value, otherwise the fast interpreter
 				// will (incorrectly) assume that it's a constant and will perform constant propagation
-				fun := importedBindAsFun(t, bind)
+				fun := importedBindAsFun(t, val)
 				return exprFun(t, fun)
 			}
-			value = bind.Interface()
+			value = val.Interface()
 		} else {
 			value = xr.Zero(t)
 		}
@@ -883,6 +888,11 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 	obje := c.Expr1(node.X, nil)
 	te := obje.Type
 	name := node.Sel.Name
+	if te.ReflectType() == rtypeOfPtrImport && obje.Const() {
+		// access symbol from imported package, for example fmt.Printf
+		imp := obje.Value.(*Import)
+		return c.selectorPlaceImport(imp, name, opt)
+	}
 	ispointer := false
 	switch te.Kind() {
 	case r.Ptr:
@@ -899,11 +909,6 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 		})
 		fallthrough
 	case r.Struct:
-		if !ispointer && te.ReflectType() == rtypeOfImport && obje.Const() {
-			// access symbol from imported package, for example fmt.Printf
-			imp := obje.Value.(Import)
-			return c.selectorPlaceImport(&imp, name, opt)
-		}
 		field, fieldn := c.LookupField(te, name)
 		if fieldn == 0 {
 			break
@@ -925,21 +930,27 @@ func (c *Comp) SelectorPlace(node *ast.SelectorExpr, opt PlaceOption) *Place {
 // selectorImport compiles pkgname.varname returning a settable and/or addressable Place
 func (c *Comp) selectorPlaceImport(imp *Import, name string, opt PlaceOption) *Place {
 	if bind, ok := imp.Binds[name]; ok {
-		// a settable reflect.Value is always addressable.
-		// the converse is not guaranteed: unexported fields can be addressed but not set.
-		// see implementation of reflect.Value.CanAddr() and reflect.Value.CanSet() for details
-		if bind.IsValid() && bind.CanAddr() {
-			return &Place{
-				Var: Var{Type: imp.BindTypes[name]},
-				Fun: func(*Env) r.Value {
-					return bind
-				},
-				Addr: func(*Env) r.Value {
-					return bind.Addr()
-				},
+		switch bind.Desc.Class() {
+		case IntBind:
+			c.Errorf("unimplemented %s %s %s.%s: bind is %s", opt, bind.Type.Kind(), imp.Name, name, IntBind)
+		case VarBind:
+			val := imp.Vals[bind.Desc.Index()]
+			// a settable reflect.Value is always addressable.
+			// the converse is not guaranteed: unexported fields can be addressed but not set.
+			// see implementation of reflect.Value.CanAddr() and reflect.Value.CanSet() for details
+			if val.IsValid() && val.CanAddr() && val.CanSet() {
+				return &Place{
+					Var: Var{Type: bind.Type},
+					Fun: func(*Env) r.Value {
+						return val
+					},
+					Addr: func(*Env) r.Value {
+						return val.Addr()
+					},
+				}
 			}
 		}
-		c.Errorf("%s %s %s.%s", opt, bind.Kind(), imp.Name, name)
+		c.Errorf("%s %s %s.%s", opt, bind.Type.Kind(), imp.Name, name)
 	}
 	c.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
 	return nil

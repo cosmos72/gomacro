@@ -331,7 +331,6 @@ func (c *Comp) funcMaker(info *FuncInfo, resultfuns []I, funcbody func(*Env)) *f
 
 // actually create the function
 func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) r.Value {
-	c.ErrorIfCompiled(t)
 
 	m := c.funcMaker(info, resultfuns, funcbody)
 

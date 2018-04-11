@@ -57,10 +57,18 @@ var valueOfNopFunc = r.ValueOf(nop)
 
 // opaqueType returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
 func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
-	if k := rtype.Kind(); k != r.Struct {
+	v := g.Universe
+	switch k := rtype.Kind(); k {
+	case r.Ptr:
+		telem := g.opaqueType(rtype.Elem())
+		t := v.PtrTo(telem)
+		v.ReflectTypes[rtype] = t
+		return t
+	case r.Struct:
+		break
+	default:
 		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
 	}
-	v := g.Universe
 	t := v.NamedOf(rtype.Name(), "fast", r.Struct)
 	t.SetUnderlying(v.TypeOf(struct{}{}))
 	t.UnsafeForceReflectType(rtype)

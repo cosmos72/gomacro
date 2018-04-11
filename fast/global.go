@@ -436,13 +436,8 @@ type CompileOptions int
 
 const (
 	OptKeepUntyped CompileOptions = 1 << iota // if set, Compile() on expressions will keep all untyped constants as such (in expressions where Go compiler would compute an untyped constant too)
-	OptIsCompiled                             // if set, packages is at least partially compiled. Effect: variables may be pre-existing, so Comp.intBinds cannot be used
 	OptDefaults    CompileOptions = 0
 )
-
-func (opts CompileOptions) IsCompiled() bool {
-	return opts&OptIsCompiled != 0
-}
 
 type Code struct {
 	List       []Stmt
@@ -497,24 +492,28 @@ type CompGlobals struct {
 	proxy2interf map[r.Type]xr.Type // proxy -> interface
 }
 
+type CompBinds struct {
+	Binds      map[string]*Bind
+	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
+	IntBindNum int
+	Types      map[string]xr.Type
+	Name       string // set by "package" directive
+	Path       string
+}
+
 // Comp is a tree-of-closures builder: it transforms ast.Nodes into closures
 // for faster execution. Consider it a poor man's compiler (hence the name)
 type Comp struct {
 	*CompGlobals
-	Binds      map[string]*Bind
-	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
-	IntBindNum int
+	CompBinds
 	// UpCost is the number of *Env.Outer hops to perform at runtime to reach the *Env corresponding to *Comp.Outer
 	// usually equals one. will be zero if this *Comp defines no local variables/functions.
 	UpCost         int
 	Depth          int
-	Types          map[string]xr.Type
 	Code           Code      // "compiled" code
 	Loop           *LoopInfo // != nil when compiling a for or switch
 	Func           *FuncInfo // != nil when compiling a function
 	Outer          *Comp
-	Name           string // set by "package" directive
-	Path           string
 	CompileOptions CompileOptions
 }
 
@@ -535,17 +534,21 @@ const (
 
 // ================================= Env =================================
 
+type EnvBinds struct {
+	Vals []r.Value
+	Ints []uint64
+}
+
 // Env is the interpreter's runtime environment
 type Env struct {
-	Vals          []r.Value
-	Ints          []uint64
+	EnvBinds
 	Outer         *Env
 	IP            int
 	Code          []Stmt
 	DebugPos      []token.Pos // for debugging interpreted code: position of each statement
 	ThreadGlobals *ThreadGlobals
 	UsedByClosure bool // a bitfield would introduce more races among goroutines
-	AddressTaken  bool // true if &Env.Ints[index] was executed... then we cannot reuse IntBinds
+	AddressTaken  bool // true if &Env.Ints[index] was executed... then we cannot reuse Ints
 }
 
 // ================================= Import =================================
@@ -553,18 +556,10 @@ type Env struct {
 // Import represents an imported package.
 // we cannot name it "Package" because it conflicts with ast2.Package
 type Import struct {
-	// model as a combination of Comp and Env, because to support the command 'package PATH'
+	// model as a combination of CompBinds and EnvBinds, because to support the command 'package PATH'
 	// we must convert Comp+Env to Import and vice-versa.
 	// This has the added benefit of allowing packages to freely mix
 	// interpreted and compiled binds and types.
-	Binds     map[string]r.Value
-	BindTypes map[string]xr.Type
-	Types     map[string]xr.Type
-	/*
-		Binds      map[string]*Bind
-		Types      map[string]xr.Type
-		Values     []r.Value
-		Ints       []uint64
-	*/
-	Name, Path string
+	CompBinds
+	EnvBinds
 }

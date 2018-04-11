@@ -32,7 +32,6 @@ func init() {
 			"NewThreadGlobals":    r.ValueOf(NewThreadGlobals),
 			"NoIndex":             r.ValueOf(NoIndex),
 			"OptDefaults":         r.ValueOf(OptDefaults),
-			"OptIsCompiled":       r.ValueOf(OptIsCompiled),
 			"OptKeepUntyped":      r.ValueOf(OptKeepUntyped),
 			"PlaceAddress":        r.ValueOf(PlaceAddress),
 			"PlaceSettable":       r.ValueOf(PlaceSettable),

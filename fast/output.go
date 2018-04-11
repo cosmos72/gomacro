@@ -40,7 +40,7 @@ func (b Builtin) String() string {
 	return fmt.Sprintf("%p", b.Compile)
 }
 
-func (imp Import) String() string {
+func (imp *Import) String() string {
 	return fmt.Sprintf("{%s %q, %d binds, %d types}", imp.Name, imp.Path, len(imp.Binds), len(imp.Types))
 }
 
@@ -121,17 +121,19 @@ func (ir *Interp) ShowAsPackage() {
 }
 
 func (ir *Interp) ShowImportedPackage(name string) {
-	var imp Import
+	var imp *Import
 	var ok bool
-	if bind := ir.Comp.Binds[name]; bind != nil && bind.Const() && bind.Type != nil && bind.Type.ReflectType() == rtypeOfImport {
-		imp, ok = bind.Value.(Import)
+	if bind := ir.Comp.Binds[name]; bind != nil && bind.Const() && bind.Type != nil && bind.Type.ReflectType() == rtypeOfPtrImport {
+		imp, ok = bind.Value.(*Import)
 	}
 	if !ok {
 		ir.Comp.Warnf("not an imported package: %q", name)
 		return
 	}
-	c := ir.Comp
-	out := c.Stdout
+	imp.Show(ir.Comp.Stdout)
+}
+
+func (imp *Import) Show(out io.Writer) {
 	stringer := typestringer(imp.Path)
 	if binds := imp.Binds; len(binds) > 0 {
 		base.ShowPackageHeader(out, imp.Name, imp.Path, "binds")
@@ -144,7 +146,9 @@ func (ir *Interp) ShowImportedPackage(name string) {
 		}
 		sort.Strings(keys)
 		for _, k := range keys {
-			showValue(out, k, binds[k], imp.BindTypes[k], stringer)
+			bind := imp.Binds[k]
+			idx := bind.Desc.Index()
+			showValue(out, k, imp.Vals[idx], bind.Type, stringer)
 		}
 		fmt.Fprintln(out)
 	}

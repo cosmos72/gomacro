@@ -226,12 +226,22 @@ func (c *Comp) AddFuncBind(name string, t xr.Type) *Bind {
 // AddBind reserves space for a subsequent constant, function or variable declaration
 func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 	if class == IntBind || class == VarBind {
-		if !c.IsCompiled() && (base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64) {
+		if base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64 {
+			// optimize booleans, integers, floats and complex64 by storing them in Env.Ints []uint64
 			class = IntBind
 		} else {
 			class = VarBind
 		}
 	}
+	return c.CompBinds.AddBind(&c.Output, name, class, t)
+}
+
+// AddBind reserves space for a subsequent constant, function or variable declaration
+func (c *CompBinds) AddBind(o *base.Output, name string, class BindClass, t xr.Type) *Bind {
+	// do NOT replace VarBind -> IntBind here: done by Comp.AddBind() above,
+	// and we are also invoked by Import.loadBinds() which needs to store
+	// booleans, integers, floats and complex64 into reflect.Value
+	// because such compiled global variables already exist with their own address
 	var index = NoIndex
 	if name == "_" {
 		// never store bindings for "_" in c.Binds
@@ -245,7 +255,7 @@ func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 	if len(name) == 0 {
 		// unnamed function result, or unnamed switch/range/... expression
 	} else if bind := c.Binds[name]; bind != nil {
-		c.Warnf("redefined identifier: %v", name)
+		o.Warnf("redefined identifier: %v", name)
 		oldclass := bind.Desc.Class()
 		if (oldclass == IntBind) == (class == IntBind) {
 			// both are IntBind, or neither is.

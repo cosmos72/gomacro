@@ -233,10 +233,10 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		}
 		if bind == nil {
 			c.Errorf("undefined %q in %v <%v>", name, node, r.TypeOf(node))
-		} else if !bind.Const() || bind.Type.ReflectType() != rtypeOfImport {
+		} else if !bind.Const() || bind.Type.ReflectType() != rtypeOfPtrImport {
 			c.Errorf("not a package: %q in %v <%v>", name, node, r.TypeOf(node))
 		}
-		imp, ok := bind.Value.(Import)
+		imp, ok := bind.Value.(*Import)
 		if !ok {
 			c.Errorf("not a package: %q in %v <%v>", name, node, r.TypeOf(node))
 		}
@@ -833,7 +833,7 @@ func (g *CompGlobals) TypeOfInterface() xr.Type {
 var (
 	rtypeOfBuiltin     = r.TypeOf(Builtin{})
 	rtypeOfFunction    = r.TypeOf(Function{})
-	rtypeOfImport      = r.TypeOf(Import{})
+	rtypeOfPtrImport   = r.TypeOf((*Import)(nil))
 	rtypeOfMacro       = r.TypeOf(Macro{})
 	rtypeOfUntypedLit  = r.TypeOf(UntypedLit{})
 	rtypeOfReflectType = r.TypeOf((*r.Type)(nil)).Elem()
@@ -849,8 +849,8 @@ func (g *CompGlobals) TypeOfFunction() xr.Type {
 	return g.Universe.ReflectTypes[rtypeOfFunction]
 }
 
-func (g *CompGlobals) TypeOfImport() xr.Type {
-	return g.Universe.ReflectTypes[rtypeOfImport]
+func (g *CompGlobals) TypeOfPtrImport() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfPtrImport]
 }
 
 func (g *CompGlobals) TypeOfMacro() xr.Type {
