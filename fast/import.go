@@ -76,18 +76,21 @@ func (g *CompGlobals) sanitizeImportPath(path string) string {
 // ImportPackage imports a package. Usually invoked as Comp.FileComp().ImportPackage(name, path)
 // because imports are usually top-level statements in a source file.
 // But we also support local imports, i.e. import statements inside a function or block.
-func (c *Comp) ImportPackage(name, path string) *Import {
+func (c *Comp) ImportPackage(name, path string) {
 	g := c.CompGlobals
 	pkgref := g.ImportPackage(name, path)
-	if pkgref == nil {
-		return nil
+	if pkgref == nil || name == "_" {
+		return
 	}
 	imp := g.NewImport(pkgref)
-	c.declImport0(name, imp)
-	return imp
+	if name == "." {
+		c.declDotImport0(imp)
+	} else {
+		c.declImport0(name, imp)
+	}
 }
 
-// declImport0 compiles an import declaration.
+// declDotImport0 compiles an import declaration.
 // Note: does not loads proxies, use ImportPackage for that
 func (c *Comp) declImport0(name string, imp *Import) {
 	// treat imported package as a constant,
@@ -95,6 +98,70 @@ func (c *Comp) declImport0(name string, imp *Import) {
 	// importing them at runtime would be too late.
 	bind := c.AddBind(name, ConstBind, c.TypeOfPtrImport())
 	bind.Value = imp // Comp.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
+}
+
+// declDotImport0 compiles an import . "path" declaration, i.e. a dot-import.
+// Note: does not loads proxies, use ImportPackage for that
+func (c *Comp) declDotImport0(imp *Import) {
+	// Note 2: looking at the difference between the above Comp.declImport0() and this ugly monster,
+	// shows one more reason why dot-imports are dirty and discouraged.
+	if c.Types == nil {
+		c.Types = make(map[string]xr.Type)
+	}
+	for name, typ := range imp.Types {
+		if t, exists := c.Types[name]; exists {
+			c.Warnf("redefined type: %v", t)
+		}
+		c.Types[name] = typ
+	}
+
+	var indexv, cindexv []int // mapping between Import.Vals[index] and Env.Vals[cindex]
+
+	var funv []func(*Env) r.Value
+	var findexv []int
+
+	for name, bind := range imp.Binds {
+		// use c.CompBinds.AddBind() to prevent optimization VarBind -> IntBind
+		// also, if class == IntBind, we must preserve the address of imp.Ints[idx]
+		// thus we must convert it into a VarBind (argh!)
+		class := bind.Desc.Class()
+		if class == IntBind {
+			class = VarBind
+		}
+		cbind := c.CompBinds.AddBind(&c.Output, name, class, bind.Type)
+		cidx := cbind.Desc.Index()
+		switch bind.Desc.Class() {
+		case ConstBind:
+			cbind.Value = bind.Value
+		case IntBind:
+			if cidx == NoIndex {
+				continue
+			}
+			// this is painful. and slow
+			fun := imp.intPlace(c, bind, PlaceSettable).Fun
+			funv = append(funv, fun)
+			findexv = append(findexv, cidx)
+		default:
+			if cidx == NoIndex {
+				continue
+			}
+			indexv = append(indexv, bind.Desc.Index())
+			cindexv = append(cindexv, cidx)
+		}
+	}
+	if len(indexv) != 0 || len(funv) != 0 {
+		impvals := imp.Vals
+		c.append(func(env *Env) (Stmt, *Env) {
+			for i, index := range indexv {
+				env.Vals[cindexv[i]] = impvals[index]
+			}
+			for i, fun := range funv {
+				env.Vals[findexv[i]] = fun(nil) // fun(env) is unnecessary
+			}
+			env.IP++
+			return env.Code[env.IP], env
+		})
+	}
 }
 
 func (g *CompGlobals) NewImport(pkgref *PackageRef) *Import {

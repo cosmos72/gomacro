@@ -562,7 +562,10 @@ var testcases = []TestCase{
 	TestCase{F, "infer_type_compositelit_5", `map[int]map[int]int{1:{2:3}}`, map[int]map[int]int{1: {2: 3}}, nil},
 	TestCase{F, "infer_type_compositelit_6", `map[int]*map[int]int{1:{2:3}}`, map[int]*map[int]int{1: {2: 3}}, nil},
 
-	TestCase{A, "import", `import ( "fmt"; "time"; "io" )`, nil, []interface{}{}},
+	TestCase{A, "import", `import ( "fmt"; "time"; "io"; "errors"; "reflect" )`, nil, []interface{}{}},
+	TestCase{A, "dot_import_1", `import . "errors"`, nil, []interface{}{}},
+	TestCase{A, "dot_import_2", `reflect.ValueOf(New) == reflect.ValueOf(errors.New)`, true, nil}, // a small but very strict check... good
+
 	TestCase{A, "goroutine_1", `go seti(9); time.Sleep(time.Second/50); i`, 9, nil},
 
 	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},
