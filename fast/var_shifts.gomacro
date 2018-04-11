@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017 Massimiliano Ghilardi
+ * Copyright (C) 2017-2018 Massimiliano Ghilardi
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Lesser General Public License as published
@@ -160,7 +160,7 @@ import (
 	opset := op_to_assign(op)
 	var bind, cbind ast.Node
 
-	var assign *ast.AssignStmt = ~"{*(*~,typ)(unsafe.Pointer(& ~,env .IntBinds[index])) += ~,expr}
+	var assign *ast.AssignStmt = ~"{*(*~,typ)(unsafe.Pointer(& ~,env .Ints[index])) += ~,expr}
 	assign.Tok = opset
 	bind = assign
 
@@ -168,32 +168,32 @@ import (
 		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 			var result *ast.BinaryExpr = ~"{lhs.Int() + ~,expr}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetInt(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetInt(~,result)}
 		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			var result *ast.BinaryExpr = ~"{lhs.Uint() + ~,expr}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetUint(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetUint(~,result)}
 			if t.Kind() == r.Uint64 {
-				var assign *ast.AssignStmt = ~"{~,env . IntBinds[index] += ~,expr}
+				var assign *ast.AssignStmt = ~"{~,env . Ints[index] += ~,expr}
 				assign.Tok = opset
 				bind = assign
 			}
 		case r.Float32, r.Float64:
 			var result *ast.BinaryExpr = ~"{lhs.Float() + ~,expr}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetFloat(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetFloat(~,result)}
 		case r.Complex64:
 			var result *ast.BinaryExpr = ~"{lhs.Complex() + ~,expr}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetComplex(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetComplex(~,result)}
 		case r.Complex128:
 			var result *ast.BinaryExpr = ~"{lhs.Complex() + ~,expr}
 			result.Op = op
-			bind = ~"{lhs := ~,env . Binds[index]; lhs.SetComplex(~,result)}
+			bind = ~"{lhs := ~,env . Vals[index]; lhs.SetComplex(~,result)}
 		case r.String:
 			var result *ast.BinaryExpr = ~"{lhs.String() + ~,expr}
 			result.Op = op
-			bind = ~"{lhs := ~,env . Binds[index]; lhs.SetString(~,result)}
+			bind = ~"{lhs := ~,env . Vals[index]; lhs.SetString(~,result)}
 	}
 
 	if cbind == nil {

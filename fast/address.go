@@ -47,9 +47,11 @@ func (c *Comp) addressOf(expr ast.Expr, t xr.Type) *Expr {
 			expr = e.X
 			continue
 		case *ast.StarExpr:
+
 			if t != nil {
 				t = t.Elem()
 			}
+
 			ret := c.Expr1(e.X, t)
 			if ret.Type.Kind() != r.Ptr {
 				c.Errorf("unary operation * on non-pointer <%v>: %v", ret.Type, e)
