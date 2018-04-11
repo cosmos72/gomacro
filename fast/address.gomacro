@@ -89,9 +89,9 @@ import (
 	addresstaken = ~"{{env.AddressTaken = true}}
 	rettype = ~"{* ~,typ}
 	if t.Kind() == r.Uint64 {
-		bind = ~'{&env.IntBinds[index]}
+		bind = ~'{&env.Ints[index]}
 	} else {
-		bind = ~"{(*~,typ)(unsafe.Pointer(&env.IntBinds[index]))}
+		bind = ~"{(*~,typ)(unsafe.Pointer(&env.Ints[index]))}
 	}
 
 	return ~"{

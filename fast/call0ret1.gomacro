@@ -124,26 +124,26 @@ import (
 			case maxdepth - 1:
 				var cachedfun func() ~,rettyp
 				ret = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+					funv := env.ThreadGlobals.FileEnv.Vals[funindex]
 					~,cachefun
 					// Debugf("calling %v with args []", r.TypeOf(cachedfun))
 					return cachedfun()
 				}
 			case 0:
 				ret = func(env *Env) ~,rettyp {
-					fun := env.Binds[funindex].Interface().(func() ~,rettyp)
+					fun := env.Vals[funindex].Interface().(func() ~,rettyp)
 					// Debugf("calling %v with args []", r.TypeOf(fun))
 					return fun()
 				}
 			case 1:
 				ret = func(env *Env) ~,rettyp {
-					fun := env.Outer.Binds[funindex].Interface().(func() ~,rettyp)
+					fun := env.Outer.Vals[funindex].Interface().(func() ~,rettyp)
 					// Debugf("calling %v with args []", r.TypeOf(fun))
 					return fun()
 				}
 			case 2:
 				ret = func(env *Env) ~,rettyp {
-					fun := env.Outer.Outer.Binds[funindex].Interface().(func() ~,rettyp)
+					fun := env.Outer.Outer.Vals[funindex].Interface().(func() ~,rettyp)
 					// Debugf("calling %v with args []", r.TypeOf(fun))
 					return fun()
 				}

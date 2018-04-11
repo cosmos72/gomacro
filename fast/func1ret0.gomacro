@@ -60,7 +60,7 @@ import (
 		bind = ~"{
 			place := r.New(~,tident).Elem()
 			place.Set(r.ValueOf(~,name))
-			env.Binds[~,index] = place
+			env.Vals[~,index] = place
 		}
 	} else {
 		typeident := maketypeident(t)
@@ -69,18 +69,18 @@ import (
 				bind = ~"{
 					place := r.New(~,typeident).Elem()
 					place.SetComplex(~,name)
-					env.Binds[~,index] = place
+					env.Vals[~,index] = place
 				}
 			case r.String:
 				bind = ~"{
 					place := r.New(~,typeident).Elem()
 					place.SetString(~,name)
-					env.Binds[~,index] = place
+					env.Vals[~,index] = place
 				}
 			case r.Uint64:
-				bind = ~"{env.IntBinds[~,index] = ~,name}
+				bind = ~"{env.Ints[~,index] = ~,name}
 			default:
-				bind = ~"{*(*~,typ)(unsafe.Pointer(&env.IntBinds[~,index])) = ~,name}
+				bind = ~"{*(*~,typ)(unsafe.Pointer(&env.Ints[~,index])) = ~,name}
 		}
 	}
 	return bind
@@ -136,7 +136,7 @@ import (
 						if arg0 := args[0]; arg0 != Nil && arg0 != None {
 							place.Set(arg0.Convert(rtarg0))
 						}
-						env.Binds[param0index] = place
+						env.Vals[param0index] = place
 					}
 					// execute the body
 					funcbody(env)

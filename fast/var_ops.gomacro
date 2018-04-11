@@ -161,7 +161,7 @@ import (
 	opset := op_to_assign(op)
 	var bind, cbind ast.Node
 
-	var assign *ast.AssignStmt = ~"{*(*~,typ)(unsafe.Pointer(& ~,env .IntBinds[index])) += ~,expr}
+	var assign *ast.AssignStmt = ~"{*(*~,typ)(unsafe.Pointer(& ~,env .Ints[index])) += ~,expr}
 	assign.Tok = opset
 	bind = assign
 
@@ -169,15 +169,15 @@ import (
 		case r.Bool:
 			var result *ast.BinaryExpr = ~"{lhs.Bool() + ~,expr}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetBool(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetBool(~,result)}
 		case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 			var result *ast.BinaryExpr = ~"{lhs.Int() + int64(~,expr)}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetInt(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetInt(~,result)}
 		case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
 			var result *ast.BinaryExpr = ~"{lhs.Uint() + uint64(~,expr)}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetUint(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetUint(~,result)}
 			if t.Kind() == r.Uint64 {
 				var assign *ast.AssignStmt = ~"{~,env . IntBinds[index] += ~,expr}
 				assign.Tok = opset
@@ -186,19 +186,19 @@ import (
 		case r.Float32, r.Float64:
 			var result *ast.BinaryExpr = ~"{lhs.Float() + float64(~,expr)}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetFloat(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetFloat(~,result)}
 		case r.Complex64:
 			var result *ast.BinaryExpr = ~"{lhs.Complex() + complex128(~,expr)}
 			result.Op = op
-			cbind = ~"{lhs := ~,env . Binds[index]; lhs.SetComplex(~,result)}
+			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetComplex(~,result)}
 		case r.Complex128:
 			var result *ast.BinaryExpr = ~"{lhs.Complex() + ~,expr}
 			result.Op = op
-			bind = ~"{lhs := ~,env . Binds[index]; lhs.SetComplex(~,result)}
+			bind = ~"{lhs := ~,env . Vals[index]; lhs.SetComplex(~,result)}
 		case r.String:
 			var result *ast.BinaryExpr = ~"{lhs.String() + ~,expr}
 			result.Op = op
-			bind = ~"{lhs := ~,env . Binds[index]; lhs.SetString(~,result)}
+			bind = ~"{lhs := ~,env . Vals[index]; lhs.SetString(~,result)}
 	}
 
 	if cbind == nil {

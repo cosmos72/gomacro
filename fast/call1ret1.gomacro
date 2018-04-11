@@ -131,7 +131,7 @@ import (
 			if arg.Const() {
 				argconst := ~,argconv
 				ret = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+					funv := env.ThreadGlobals.FileEnv.Vals[funindex]
 					~,cachefun
 					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
 					return cachedfun(argconst)
@@ -139,7 +139,7 @@ import (
 			} else {
 				argfun := arg.Fun.(func(env *Env) ~,argtyp)
 				ret = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.FileEnv.Binds[funindex]
+					funv := env.ThreadGlobals.FileEnv.Vals[funindex]
 					~,cachefun
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
@@ -150,14 +150,14 @@ import (
 			argfun := arg.WithFun().(func(env *Env) ~,argtyp)
 			if funsym != nil && funupn == 0 {
 				ret = func(env *Env) ~,rettyp {
-					fun := env.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
+					fun := env.Vals[funindex].Interface().(func(~,argtyp) ~,rettyp)
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
 					return fun(arg)
 				}
 			} else if funsym != nil && funupn == 1 {
 				ret = func(env *Env) ~,rettyp {
-					fun := env.Outer.Binds[funindex].Interface().(func(~,argtyp) ~,rettyp)
+					fun := env.Outer.Vals[funindex].Interface().(func(~,argtyp) ~,rettyp)
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)
 					return fun(arg)

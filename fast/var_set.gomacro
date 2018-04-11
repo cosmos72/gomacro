@@ -68,29 +68,29 @@ import (
 		bind = ~"{~,env . Binds[index] .Set(~,exprv)}
 	} else {
 		typename := &ast.Ident{Name: t.Name()}
-		bind = ~"{*(*~,typename)(unsafe.Pointer(& ~,env .IntBinds[index])) = ~,expr}
+		bind = ~"{*(*~,typename)(unsafe.Pointer(& ~,env .Ints[index])) = ~,expr}
 		switch t.Kind() {
 			case r.Bool:
-				cbind = ~"{~,env . Binds[index].SetBool(~,expr)}
+				cbind = ~"{~,env . Vals[index].SetBool(~,expr)}
 			case r.Int, r.Int8, r.Int16, r.Int32:
-				cbind = ~"{~,env . Binds[index].SetInt(int64(~,expr))}
+				cbind = ~"{~,env . Vals[index].SetInt(int64(~,expr))}
 			case r.Int64:
-				cbind = ~"{~,env . Binds[index].SetInt(~,expr)}
+				cbind = ~"{~,env . Vals[index].SetInt(~,expr)}
 			case r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uintptr:
-				cbind = ~"{~,env . Binds[index].SetUint(uint64(~,expr))}
+				cbind = ~"{~,env . Vals[index].SetUint(uint64(~,expr))}
 			case r.Uint64:
 				bind = ~"{~,env . IntBinds[index] = ~,expr}
-				cbind = ~"{~,env . Binds[index].SetUint(~,expr)}
+				cbind = ~"{~,env . Vals[index].SetUint(~,expr)}
 			case r.Float32:
-				cbind = ~"{~,env . Binds[index].SetFloat(float64(~,expr))}
+				cbind = ~"{~,env . Vals[index].SetFloat(float64(~,expr))}
 			case r.Float64:
-				cbind = ~"{~,env . Binds[index].SetFloat(~,expr)}
+				cbind = ~"{~,env . Vals[index].SetFloat(~,expr)}
 			case r.Complex64:
-				cbind = ~"{~,env . Binds[index] .SetComplex(complex128(~,expr))}
+				cbind = ~"{~,env . Vals[index] .SetComplex(complex128(~,expr))}
 			case r.Complex128:
-				bind = ~"{~,env . Binds[index] .SetComplex(~,expr)}
+				bind = ~"{~,env . Vals[index] .SetComplex(~,expr)}
 			case r.String:
-				bind = ~"{~,env . Binds[index] .SetString(~,expr)}
+				bind = ~"{~,env . Vals[index] .SetString(~,expr)}
 		}
 	}
 
