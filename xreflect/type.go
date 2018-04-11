@@ -203,12 +203,14 @@ func (t *xtype) Pkg() *Package {
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // the package name will be the empty string.
 func (t *xtype) PkgName() string {
-	switch gtype := t.gtype.(type) {
-	case *types.Named:
-		return gtype.Obj().Pkg().Name()
-	default:
-		return ""
+	if gtype, ok := t.gtype.(*types.Named); ok {
+		pkg := gtype.Obj().Pkg()
+		// pkg may be nil for builtin named types, as for example 'error'
+		if pkg != nil {
+			return pkg.Name()
+		}
 	}
+	return ""
 }
 
 // PkgPath returns a named type's package path, that is, the import path
@@ -216,12 +218,14 @@ func (t *xtype) PkgName() string {
 // If the type was predeclared (string, error) or unnamed (*T, struct{}, []int),
 // the package path will be the empty string.
 func (t *xtype) PkgPath() string {
-	switch gtype := t.gtype.(type) {
-	case *types.Named:
-		return gtype.Obj().Pkg().Path()
-	default:
-		return ""
+	if gtype, ok := t.gtype.(*types.Named); ok {
+		pkg := gtype.Obj().Pkg()
+		// pkg may be nil for builtin named types, as for example 'error'
+		if pkg != nil {
+			return pkg.Path()
+		}
 	}
+	return ""
 }
 
 // Size returns the number of bytes needed to store

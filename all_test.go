@@ -631,6 +631,9 @@ var testcases = []TestCase{
 	TestCase{F, "concrete_method_to_func", "cf0 := time.Duration.Seconds; cf0(time.Hour)", 3600.0, nil},
 	TestCase{F, "concrete_method_to_closure", "cl1 := time.Hour.Seconds; cl1()", 3600.0, nil},
 
+	// tricky because Comp.compileObjGetMethod() asks for the package path of 'error', which has nil package
+	TestCase{A, "interface_0", `errors.New("abc").Error()`, "abc", nil},
+
 	TestCase{A, "interface_1", "var st fmt.Stringer = time.Second; st", time.Second, nil},
 	TestCase{A, "interface_method_to_closure_1", "bind := st.String; bind()", "1s", nil},
 	TestCase{F, "interface_2", "st = pair; nil", nil, nil},
