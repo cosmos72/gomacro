@@ -29,8 +29,9 @@ import (
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/ast2"
+	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (env *Env) Eval(src interface{}) (r.Value, []r.Value) {
@@ -41,7 +42,7 @@ func (env *Env) Eval1(src interface{}) r.Value {
 	return env.EvalAst1(env.Parse(src))
 }
 
-func (env *Env) EvalAst1(in Ast) r.Value {
+func (env *Env) EvalAst1(in ast2.Ast) r.Value {
 	value, extraValues := env.EvalAst(in)
 	if len(extraValues) > 1 {
 		env.WarnExtraValues(extraValues)
@@ -49,19 +50,19 @@ func (env *Env) EvalAst1(in Ast) r.Value {
 	return value
 }
 
-func (env *Env) EvalAst(in Ast) (r.Value, []r.Value) {
+func (env *Env) EvalAst(in ast2.Ast) (r.Value, []r.Value) {
 	switch in := in.(type) {
-	case AstWithNode:
+	case ast2.AstWithNode:
 		if in != nil {
-			return env.EvalNode(ToNode(in))
+			return env.EvalNode(ast2.ToNode(in))
 		}
-	case AstWithSlice:
+	case ast2.AstWithSlice:
 		if in != nil {
 			var ret r.Value
 			var rets []r.Value
 			n := in.Size()
 			for i := 0; i < n; i++ {
-				ret, rets = env.EvalNode(ToNode(in.Get(i)))
+				ret, rets = env.EvalNode(ast2.ToNode(in.Get(i)))
 			}
 			return ret, rets
 		}
@@ -100,45 +101,39 @@ func (env *Env) EvalNode1(node ast.Node) r.Value {
 	return value
 }
 
-// parse, without macroexpansion
-func (env *Env) ParseOnly(src interface{}) Ast {
-	var form Ast
-	switch src := src.(type) {
-	case Ast:
-		form = src
-	case ast.Node:
-		form = ToAst(src)
-	default:
-		bytes := ReadBytes(src)
-		nodes := env.ParseBytes(bytes)
-
-		if env.Options&OptShowParse != 0 {
-			env.Debugf("after parse: %v", nodes)
-		}
-		switch len(nodes) {
-		case 0:
-			form = nil
-		case 1:
-			form = ToAst(nodes[0])
-		default:
-			form = NodeSlice{X: nodes}
+// macroexpand + collect + eval.
+// if opt&CmdOptFast != 0 calls env.fastEval(), otherwise calls env.classicEval()
+func (env *Env) evalAst(form ast2.Ast, opt CmdOpt) ([]r.Value, []xr.Type) {
+	var values []r.Value
+	var types []xr.Type
+	if form != nil {
+		if opt&CmdOptFast != 0 {
+			values, types = PackValuesAndTypes(env.fastEval(form))
+		} else {
+			values = PackValues(env.classicEval(form))
 		}
 	}
-	return form
+	return values, types
 }
 
-// Parse, with macroexpansion
-func (env *Env) Parse(src interface{}) Ast {
-	form := env.ParseOnly(src)
-
+// macroexpand + collect + eval
+func (env *Env) classicEval(form ast2.Ast) (r.Value, []r.Value) {
 	// macroexpansion phase.
 	form, _ = env.MacroExpandAstCodewalk(form)
 
 	if env.Options&OptShowMacroExpand != 0 {
 		env.Debugf("after macroexpansion: %v", form.Interface())
 	}
+
+	// collect phase
 	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
 		env.CollectAst(form)
 	}
-	return form
+
+	// eval phase
+	if env.Options&OptMacroExpandOnly != 0 {
+		return r.ValueOf(form.Interface()), nil
+	} else {
+		return env.EvalAst(form)
+	}
 }

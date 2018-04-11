@@ -26,11 +26,10 @@
 package classic
 
 import (
-	"fmt"
-	"io"
+	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/ast2"
+	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/imports"
 )
@@ -63,7 +62,7 @@ func NewEnv(outer *Env, path string) *Env {
 	env := &Env{
 		iotaOffset: 1,
 		Outer:      outer,
-		Name:       path,
+		Name:       FileName(path),
 		Path:       path,
 	}
 	if outer == nil {
@@ -117,6 +116,8 @@ func (env *Env) ChangePackage(path string) *Env {
 	if path == currpath {
 		return env
 	}
+	// FIXME really store into imports.Packages fenv's interpreted functions, types, variable and constants ?
+	// We need a way to find fenv by name later, but storing it in imports.Packages seems excessive.
 	imports.Packages.MergePackage(currpath, fenv.AsPackage())
 
 	nenv := NewEnv(fenv.TopEnv(), path)
@@ -162,32 +163,45 @@ func (env *Env) ValueOf(name string) (value r.Value) {
 	return
 }
 
-func (env *Env) ReadMultiline(in Readline, opts ReadOptions) (str string, firstToken int) {
-	str, firstToken, err := ReadMultiline(in, opts, "gomacro> ")
-	if err != nil && err != io.EOF {
-		fmt.Fprintf(env.Stderr, "// read error: %s\n", err)
+// parse, without macroexpansion
+func (env *Env) ParseOnly(src interface{}) ast2.Ast {
+	var form ast2.Ast
+	switch src := src.(type) {
+	case ast2.Ast:
+		form = src
+	case ast.Node:
+		form = ast2.ToAst(src)
+	default:
+		bytes := ReadBytes(src)
+		nodes := env.ParseBytes(bytes)
+
+		if env.Options&OptShowParse != 0 {
+			env.Debugf("after parse: %v", nodes)
+		}
+		switch len(nodes) {
+		case 0:
+			form = nil
+		case 1:
+			form = ast2.ToAst(nodes[0])
+		default:
+			form = ast2.NodeSlice{X: nodes}
+		}
 	}
-	return str, firstToken
+	return form
 }
 
-// macroexpand + collect + eval
-func (env *Env) classicEval(form Ast) (r.Value, []r.Value) {
+// Parse, with macroexpansion
+func (env *Env) Parse(src interface{}) ast2.Ast {
+	form := env.ParseOnly(src)
+
 	// macroexpansion phase.
 	form, _ = env.MacroExpandAstCodewalk(form)
 
 	if env.Options&OptShowMacroExpand != 0 {
 		env.Debugf("after macroexpansion: %v", form.Interface())
 	}
-
-	// collect phase
 	if env.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
 		env.CollectAst(form)
 	}
-
-	// eval phase
-	if env.Options&OptMacroExpandOnly != 0 {
-		return r.ValueOf(form.Interface()), nil
-	} else {
-		return env.EvalAst(form)
-	}
+	return form
 }

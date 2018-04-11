@@ -26,8 +26,35 @@
 package classic
 
 import (
+	"bufio"
 	"go/ast"
+	"os"
+
+	. "github.com/cosmos72/gomacro/base"
 )
+
+func (ir *Interp) EvalFile(filePath string, pkgPath string) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		ir.Errorf("error opening file '%s': %v", filePath, err)
+		return
+	}
+	defer file.Close()
+
+	savePath := ir.Env.ThreadGlobals.PackagePath
+	saveOpts := ir.Env.Options
+
+	ir.ChangePackage(pkgPath)
+	ir.Env.Options &^= OptShowEval
+
+	defer func() {
+		ir.ChangePackage(savePath)
+		ir.Env.Options = saveOpts
+	}()
+
+	in := bufio.NewReader(file)
+	ir.Repl(in)
+}
 
 func (env *Env) evalFile(node *ast.File) {
 	env.Name = node.Name.Name

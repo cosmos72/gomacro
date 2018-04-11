@@ -30,13 +30,25 @@ import (
 	"os"
 	r "reflect"
 	"strings"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func PackValues(val0 r.Value, vals []r.Value) []r.Value {
-	if len(vals) == 0 && val0 != None {
-		vals = []r.Value{val0}
+func PackValues(val0 r.Value, values []r.Value) []r.Value {
+	if len(values) == 0 && val0 != None {
+		values = []r.Value{val0}
 	}
-	return vals
+	return values
+}
+
+func PackValuesAndTypes(val0 r.Value, values []r.Value, typ0 xr.Type, types []xr.Type) ([]r.Value, []xr.Type) {
+	if len(values) == 0 && val0 != None {
+		values = []r.Value{val0}
+	}
+	if len(types) == 0 && typ0 != nil {
+		types = []xr.Type{typ0}
+	}
+	return values, types
 }
 
 func UnpackValues(vals []r.Value) (r.Value, []r.Value) {

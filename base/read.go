@@ -39,24 +39,18 @@ import (
 func ReadBytes(src interface{}) []byte {
 	switch s := src.(type) {
 	case []byte:
-		if s != nil {
-			return s
-		}
+		return s
 	case string:
 		return []byte(s)
 	case *bytes.Buffer:
 		// is io.Reader, but src is already available in []byte form
-		if s != nil {
-			return s.Bytes()
-		}
+		return s.Bytes()
 	case io.Reader:
-		if s != nil {
-			var buf bytes.Buffer
-			if _, err := io.Copy(&buf, s); err != nil {
-				Error(err)
-			}
-			return buf.Bytes()
+		var buf bytes.Buffer
+		if _, err := io.Copy(&buf, s); err != nil {
+			Error(err)
 		}
+		return buf.Bytes()
 	}
 	Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
 	return nil
@@ -65,24 +59,18 @@ func ReadBytes(src interface{}) []byte {
 func ReadString(src interface{}) string {
 	switch s := src.(type) {
 	case []byte:
-		if s != nil {
-			return string(s)
-		}
+		return string(s)
 	case string:
 		return s
 	case *bytes.Buffer:
 		// is io.Reader, but src is already available in string form
-		if s != nil {
-			return s.String()
-		}
+		return s.String()
 	case io.Reader:
-		if s != nil {
-			var buf bytes.Buffer
-			if _, err := io.Copy(&buf, s); err != nil {
-				Error(err)
-			}
-			return buf.String()
+		var buf bytes.Buffer
+		if _, err := io.Copy(&buf, s); err != nil {
+			Error(err)
 		}
+		return buf.String()
 	}
 	Errorf("unsupported source, cannot read from: %v <%v>", src, r.TypeOf(src))
 	return ""
@@ -151,6 +139,8 @@ func (m mode) String() string {
 	}
 }
 
+// return read string, position of first non-comment token and error (if any)
+// on EOF, return "", -1, io.EOF
 func ReadMultiline(in Readline, opts ReadOptions, prompt string) (src string, firstToken int, err error) {
 	var line, buf []byte
 	m := mNormal

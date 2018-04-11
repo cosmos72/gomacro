@@ -37,6 +37,7 @@ import (
 	"github.com/cosmos72/gomacro/imports"
 	mp "github.com/cosmos72/gomacro/parser"
 	mt "github.com/cosmos72/gomacro/token"
+	xr "github.com/cosmos72/gomacro/xreflect"
 
 	. "github.com/cosmos72/gomacro/ast2"
 )
@@ -120,6 +121,17 @@ func IsGensymPrivate(name string) bool {
 	return strings.HasPrefix(name, StrGensymPrivate)
 }
 
+// read phase
+// return read string and position of first non-comment token.
+// return "", -1 on EOF
+func (g *Globals) ReadMultiline(in Readline, opts ReadOptions) (str string, firstToken int) {
+	str, firstToken, err := ReadMultiline(in, opts, "gomacro> ")
+	if err != nil && err != io.EOF {
+		fmt.Fprintf(g.Stderr, "// read error: %s\n", err)
+	}
+	return str, firstToken
+}
+
 // parse phase. no macroexpansion.
 func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	var parser mp.Parser
@@ -139,6 +151,28 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 		return nil
 	}
 	return nodes
+}
+
+// print phase
+func (g *Globals) Print(values []r.Value, types []xr.Type) {
+	opts := g.Options
+	if opts&OptShowEval != 0 {
+		if opts&OptShowEvalType != 0 {
+			for i, vi := range values {
+				var ti interface{}
+				if types != nil && i < len(types) {
+					ti = types[i]
+				} else {
+					ti = ValueType(vi)
+				}
+				g.Fprintf(g.Stdout, "%v\t// %v\n", vi, ti)
+			}
+		} else {
+			for _, vi := range values {
+				g.Fprintf(g.Stdout, "%v\n", vi)
+			}
+		}
+	}
 }
 
 // remove package 'path' from the list of known packages.
