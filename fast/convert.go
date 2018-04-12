@@ -36,18 +36,30 @@ import (
 // Convert compiles a type conversion expression
 func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 	e := c.Expr1(node, nil)
+
+	return c.convert(e, t, node)
+}
+
+// Convert compiles a type conversion expression
+func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 	if e.Untyped() {
 		e.ConstTo(t)
 	}
 
 	if e.Type != nil && e.Type.IdenticalTo(t) {
 		return e
+	} else if e.Type != nil && e.Type.ReflectType() == t.ReflectType() {
+		if e.Const() {
+			return c.exprValue(t, e.Value)
+		} else {
+			return exprFun(t, e.Fun)
+		}
 	} else if e.Type == nil && IsNillableKind(t.Kind()) {
 		e.Type = t
 		e.Value = xr.Zero(t).Interface()
 	} else if e.Type != nil && e.Type.ConvertibleTo(t) {
 	} else {
-		c.Errorf("cannot convert %v to %v: %v", e.Type, t, node)
+		c.Errorf("cannot convert %v to %v: %v", e.Type, t, nodeOpt)
 		return nil
 	}
 	rtype := t.ReflectType()
@@ -154,7 +166,11 @@ func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
 			}
 		}
 	}
-	return exprFun(t, ret)
+	eret := exprFun(t, ret)
+	if e.Const() {
+		eret.EvalConst(OptKeepUntyped)
+	}
+	return eret
 }
 
 // Converter returns a function that converts reflect.Value from tin to tout

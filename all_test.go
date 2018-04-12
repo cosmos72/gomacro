@@ -79,6 +79,10 @@ func TestFast(t *testing.T) {
 
 type shouldpanic struct{}
 
+func (shouldpanic) String() string {
+	return "shouldpanic"
+}
+
 // a value that the interpreter cannot produce.
 // only matches if the interpreter panicked
 var panics shouldpanic
@@ -563,6 +567,7 @@ var testcases = []TestCase{
 	TestCase{F, "infer_type_compositelit_6", `map[int]*map[int]int{1:{2:3}}`, map[int]*map[int]int{1: {2: 3}}, nil},
 
 	TestCase{A, "import", `import ( "fmt"; "time"; "io"; "errors"; "reflect" )`, nil, []interface{}{}},
+	TestCase{A, "import_constant", `const micro = time.Microsecond; micro`, time.Microsecond, nil},
 	TestCase{A, "dot_import_1", `import . "errors"`, nil, []interface{}{}},
 	TestCase{A, "dot_import_2", `reflect.ValueOf(New) == reflect.ValueOf(errors.New)`, true, nil}, // a small but very strict check... good
 
@@ -603,20 +608,18 @@ var testcases = []TestCase{
 	TestCase{A, "time_utc_set_1", ` time.UTC = nil; time.UTC == nil`, true, nil},
 	TestCase{A, "time_utc_set_2", ` time.UTC = utc; time.UTC.String()`, "UTC", nil},
 
+	TestCase{A, "index_is_named_type", `"abc"[time.Nanosecond]`, uint8('b'), nil},
+	TestCase{A, "panic_at_runtime", `"abc"[micro]`, panics, nil},
+	TestCase{F, "panic_at_compile", `func panic_at_compile() uint8 { return "abc"[micro] }`, panics, nil},
+
 	TestCase{A, "literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
 	TestCase{A, "literal_array_address", "&[...]int{3:4,5:6}", &[...]int{3: 4, 5: 6}, nil},
 	TestCase{A, "literal_map", `map[int]string{1: "foo", 2: "bar"}`, map[int]string{1: "foo", 2: "bar"}, nil},
 	TestCase{A, "literal_map_address", `&map[int]byte{6:7, 8:9}`, &map[int]byte{6: 7, 8: 9}, nil},
 	TestCase{A, "literal_slice", "[]rune{'a','b','c'}", []rune{'a', 'b', 'c'}, nil},
 	TestCase{A, "literal_slice_address", "&[]rune{'x','y'}", &[]rune{'x', 'y'}, nil},
-	TestCase{A, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, struct {
-		A rune
-		B string
-	}{A: 0x73, B: "\x94"}, nil},
-	TestCase{A, "literal_struct_address", `&Pair{1,"2"}`, &struct {
-		A rune
-		B string
-	}{A: 1, B: "2"}, nil},
+	TestCase{A, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, Pair{A: 0x73, B: "\x94"}, nil},
+	TestCase{A, "literal_struct_address", `&Pair{1,"2"}`, &Pair{A: 1, B: "2"}, nil},
 
 	TestCase{A, "method_decl_1", `func (p *Pair) SetA(a rune) { p.A = a }; nil`, nil, nil},
 	TestCase{A, "method_decl_2", `func (p Pair) SetAV(a rune) { p.A = a }; nil`, nil, nil},

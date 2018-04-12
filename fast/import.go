@@ -188,12 +188,20 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 				continue
 			}
 		}
+		k := val.Kind()
 		class := FuncBind
+		// distinguish typed constants, variables and functions
 		if val.IsValid() && val.CanAddr() && val.CanSet() {
 			class = VarBind
+		} else if k == r.Invalid || (IsOptimizedKind(k) && val.CanInterface()) {
+			class = ConstBind
 		}
 		typ := g.Universe.FromReflectType(val.Type())
-		idx := imp.CompBinds.AddBind(o, name, class, typ).Desc.Index()
+		bind := imp.CompBinds.AddBind(o, name, class, typ)
+		if class == ConstBind && k != r.Invalid {
+			bind.Value = val.Interface()
+		}
+		idx := bind.Desc.Index()
 		if len(vals) <= idx {
 			tmp := make([]r.Value, idx*2)
 			copy(tmp, vals)

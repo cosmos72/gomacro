@@ -38,7 +38,7 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr { return c.indexExpr(node, true) }
+func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr  { return c.indexExpr(node, true) }
 func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr { return c.indexExpr(node, false) }
 func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	obj := c.Expr1(node.X, nil)
@@ -62,8 +62,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
-			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() },
-			)
+			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() })
 			ret = c.vectorIndex(node, deref, idx)
 			break
 		}
@@ -78,11 +77,14 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	return ret
 }
 func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
-	idxconst := idx.Const()
-	if idxconst {
-		idx.ConstTo(c.TypeOfInt())
-	} else if idx.Type == nil || !idx.Type.AssignableTo(c.TypeOfInt()) {
-		c.Errorf("non-integer %s index: %v <%v>", obj.Type.Kind(), node.Index, idx.Type)
+	k := idx.Type.Kind()
+	cat := base.KindToCategory(k)
+	if cat == r.Int || cat == r.Uint || idx.Untyped() {
+		if !c.TypeOfInt().IdenticalTo(idx.Type) {
+			idx = c.convert(idx, c.TypeOfInt(), node.Index)
+		}
+	} else {
+		c.Errorf("non-integer %s index: %v <%v>", k, node.Index, idx.Type)
 	}
 
 	t := obj.Type
@@ -93,7 +95,7 @@ func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	t = t.Elem()
 	objfun := obj.AsX1()
 	var fun I
-	if idxconst {
+	if idx.Const() {
 		i := idx.Value.(int)
 		switch t.Kind() {
 		case r.Bool:
@@ -363,7 +365,20 @@ func (c *Comp) stringIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 			return str[i]
 		}
 	}
-	return c.exprUint8(fun)
+
+	e := c.exprUint8(fun)
+	if obj.Const() && idx.Const() {
+		panicking := true
+		defer func() {
+			if panicking {
+				recover()
+				c.Errorf("string index out of range: %v", node)
+			}
+		}()
+		e.EvalConst(OptKeepUntyped)
+		panicking = false
+	}
+	return e
 }
 func (c *Comp) mapIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	t := obj.Type
