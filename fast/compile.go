@@ -58,6 +58,7 @@ func newTopInterp(path string) *Interp {
 
 	compGlobals := &CompGlobals{
 		Universe:     universe,
+		KnownImports: make(map[string]*Import),
 		interf2proxy: make(map[r.Type]r.Type),
 		proxy2interf: make(map[r.Type]xr.Type),
 		Globals:      globals,

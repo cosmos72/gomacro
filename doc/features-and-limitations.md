@@ -44,8 +44,6 @@ Gomacro default interpreter supports:
 
 Some features are still missing or incomplete:
 * out-of-order code. Types, variables and functions must be declared **before** using them.
-* switching to a different package
-  (if you absolutely need it, the older and slower `gomacro.classic.Interp` supports switching to a different package)
 * goto is partially implemented, can only jump back - not forward
 * incomplete interface -> interface type assertions and type switches:
   they do not support yet interpreted types stored in interfaces, and interpreted interfaces.

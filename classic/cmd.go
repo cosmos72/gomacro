@@ -89,14 +89,10 @@ func (ir *Interp) Cmd(src string, in Readline) (string, CmdOpt) {
 			src = " " + src[1:] // slower than src = src[1:], but gives accurate column positions in error messages
 		}
 	}
-	if opt&CmdOptFast != 0 {
-		// change package not implemented yet
-	} else {
-		// :package and package are the same command
-		if src == "package" || strings.HasPrefix(src, "package ") {
-			_, arg := split2(src, ' ')
-			src, opt = ir.cmdPackage(arg, opt, in)
-		}
+	// :package and package are the same command
+	if src == "package" || strings.HasPrefix(src, "package ") {
+		_, arg := split2(src, ' ')
+		src, opt = ir.cmdPackage(arg, opt, in)
 	}
 	return src, opt
 }
@@ -191,40 +187,47 @@ func (ir *Interp) cmdOptions(arg string, opt CmdOpt, in Readline) (string, CmdOp
 	return "", opt
 }
 
-// src can be empty, a package name or a package path in quotes
-func (ir *Interp) cmdPackage(src string, cmdopt CmdOpt, in Readline) (string, CmdOpt) {
+// change package. path can be empty or a package path with or without quotes
+func (ir *Interp) cmdPackage(path string, cmdopt CmdOpt, in Readline) (string, CmdOpt) {
 	env := ir.Env
-	src = strings.TrimSpace(src)
-	n := len(src)
-	switch {
-	case n == 0:
+	path = strings.TrimSpace(path)
+	n := len(path)
+	if n >= 2 && path[0] == '"' && path[n-1] == '"' {
+		path = path[1 : n-1]
+		n -= 2
+	}
+	if cmdopt&CmdOptFast != 0 {
+		ir.fastCmdPackage(path)
+	} else if n == 0 {
 		fmt.Fprintf(env.Stdout, "// current package: %s %q\n", env.Name, env.Path)
-	case src[0] == '"' && src[n-1] == '"':
-		src = src[1 : n-1]
-		fallthrough
-	default:
-		ir.Env = ir.Env.ChangePackage(src)
+	} else {
+		ir.ChangePackage(path)
 	}
 	return "", cmdopt
 }
 
-func (ir *Interp) cmdQuit(arg string, opt CmdOpt, in Readline) (string, CmdOpt) {
+func (ir *Interp) cmdQuit(_ string, opt CmdOpt, in Readline) (string, CmdOpt) {
 	return "", opt | CmdOptQuit
 }
 
-func (ir *Interp) cmdUnload(arg string, opt CmdOpt, in Readline) (string, CmdOpt) {
-	if len(arg) > 1 {
-		ir.Env.Globals.UnloadPackage(arg)
+// remove package 'path' from the list of known packages
+func (ir *Interp) cmdUnload(path string, opt CmdOpt, in Readline) (string, CmdOpt) {
+	if len(path) != 0 {
+		if opt&CmdOptFast != 0 {
+			ir.fastUnloadPackage(path)
+		} else {
+			ir.Env.Globals.UnloadPackage(path)
+		}
 	}
 	return "", opt
 }
 
-func (ir *Interp) cmdWrite(arg string, opt CmdOpt, in Readline) (string, CmdOpt) {
+func (ir *Interp) cmdWrite(filepath string, opt CmdOpt, in Readline) (string, CmdOpt) {
 	env := ir.Env
-	if len(arg) == 0 {
+	if len(filepath) == 0 {
 		env.WriteDeclsToStream(env.Stdout)
 	} else {
-		env.WriteDeclsToFile(arg)
+		env.WriteDeclsToFile(filepath)
 	}
 	return "", opt
 }

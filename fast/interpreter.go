@@ -84,19 +84,6 @@ func (ir *Interp) Eval(src string) (r.Value, []r.Value) {
 	return ir.RunExpr(c.Compile(c.Parse(src)))
 }
 
-func (ir *Interp) ChangePackage(name, path string) {
-	if len(path) == 0 {
-		path = name
-	} else {
-		name = FileName(path)
-	}
-	c := ir.Comp
-	currpath := c.Path
-	if path == currpath {
-		return
-	}
-}
-
 // DeclConst compiles a constant declaration
 func (ir *Interp) DeclConst(name string, t xr.Type, value I) {
 	ir.Comp.DeclConst0(name, t, value)

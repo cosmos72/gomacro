@@ -120,13 +120,23 @@ func (g *Globals) LookupPackage(name, path string) *PackageRef {
 }
 
 func (g *Globals) ImportPackage(name, path string) *PackageRef {
+	ref, err := g.ImportPackageOrError(name, path)
+	if err != nil {
+		panic(err)
+	}
+	return ref
+}
+
+func (g *Globals) ImportPackageOrError(name, path string) (*PackageRef, error) {
 	ref := g.LookupPackage(name, path)
 	if ref != nil {
-		return ref
+		return ref, nil
 	}
 	gpkg, err := g.Importer.Import(path) // loads names and types, not the values!
 	if err != nil {
-		g.Errorf("error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v", path, err)
+		return nil, g.MakeRuntimeError(
+			"error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v",
+			path, err)
 	}
 	var mode ImportMode
 	switch name {
@@ -150,7 +160,7 @@ func (g *Globals) ImportPackage(name, path string) *PackageRef {
 		// either the package exports nothing, or user must rebuild gomacro.
 		// in both cases, still cache it to avoid recreating the file.
 		imports.Packages[path] = ref.Package
-		return ref
+		return ref, nil
 	}
 	soname := g.compilePlugin(file, g.Stdout, g.Stderr)
 	ipkgs := g.loadPluginSymbol(soname, "Packages")
@@ -162,10 +172,12 @@ func (g *Globals) ImportPackage(name, path string) *PackageRef {
 	// but return only requested one
 	pkg, found := imports.Packages[path]
 	if !found {
-		g.Errorf("error loading package %q: the compiled plugin %q does not contain it! internal error? %v", path, soname)
+		return nil, g.MakeRuntimeError(
+			"error loading package %q: the compiled plugin %q does not contain it! internal error? %v",
+			path, soname)
 	}
 	ref.Package = pkg
-	return ref
+	return ref, nil
 }
 
 func (g *Globals) createImportFile(path string, pkg *types.Package, mode ImportMode) string {

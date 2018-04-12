@@ -82,13 +82,14 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 		// modified parser converts 'package foo' to ast.GenDecl{Tok: token.Package}
 		if len(node.Specs) == 1 {
 			if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
-				if len(decl.Names) == 1 {
-					name := decl.Names[0]
-					if name.Name == "main" {
-						break
+				if len(decl.Values) == 1 {
+					if lit, ok := decl.Values[0].(*ast.BasicLit); ok {
+						if lit.Kind == token.STRING && lit.Value == "main" {
+							break
+						}
 					}
 					// c.changePackage(name)
-					c.Errorf("switching package not yet implemented, found: %v <%v>", node, r.TypeOf(node))
+					c.Debugf("cannot switch package from fast.Comp.Compile(), use Interp.Repl() instead: %v <%v>", node, r.TypeOf(node))
 				}
 			}
 		}

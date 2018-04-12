@@ -566,7 +566,7 @@ var testcases = []TestCase{
 	TestCase{F, "infer_type_compositelit_5", `map[int]map[int]int{1:{2:3}}`, map[int]map[int]int{1: {2: 3}}, nil},
 	TestCase{F, "infer_type_compositelit_6", `map[int]*map[int]int{1:{2:3}}`, map[int]*map[int]int{1: {2: 3}}, nil},
 
-	TestCase{A, "import", `import ( "fmt"; "time"; "io"; "errors"; "reflect" )`, nil, []interface{}{}},
+	TestCase{A, "import", `import ( "errors"; "fmt"; "io"; "math/rand"; "reflect"; "time" )`, nil, []interface{}{}},
 	TestCase{A, "import_constant", `const micro = time.Microsecond; micro`, time.Microsecond, nil},
 	TestCase{A, "dot_import_1", `import . "errors"`, nil, []interface{}{}},
 	TestCase{A, "dot_import_2", `reflect.ValueOf(New) == reflect.ValueOf(errors.New)`, true, nil}, // a small but very strict check... good
@@ -588,7 +588,7 @@ var testcases = []TestCase{
 	TestCase{A, "builtin_copy_2", "vs", []byte("8y57r"), nil},
 	TestCase{A, "builtin_delete_1", "delete(mi,64); mi", map[rune]byte{'a': 7}, nil},
 	TestCase{A, "builtin_real_1", "real(0.5+1.75i)", real(0.5 + 1.75i), nil},
-	TestCase{A, "builtin_real_2", "var cplx complex64 = 1.5+0.25i; real(cplx)", real(complex64(1.5 + 0.25i)), nil},
+	TestCase{A, "builtin_real_2", "const cplx complex64 = 1.5+0.25i; real(cplx)", real(complex64(1.5 + 0.25i)), nil},
 	TestCase{A, "builtin_imag_1", "imag(0.5+1.75i)", imag(0.5 + 1.75i), nil},
 	TestCase{A, "builtin_imag_2", "imag(cplx)", imag(complex64(1.5 + 0.25i)), nil},
 	TestCase{A, "builtin_complex_1", "complex(0,1)", complex(0, 1), nil},
@@ -610,7 +610,8 @@ var testcases = []TestCase{
 
 	TestCase{A, "index_is_named_type", `"abc"[time.Nanosecond]`, uint8('b'), nil},
 	TestCase{A, "panic_at_runtime", `"abc"[micro]`, panics, nil},
-	TestCase{F, "panic_at_compile", `func panic_at_compile() uint8 { return "abc"[micro] }`, panics, nil},
+	TestCase{F, "panic_oob_at_compile", `(func() uint8 { return "abc"[micro] })`, panics, nil}, // string index out of range
+	TestCase{F, "panic_non_const_initialization", `const _ = rand.Int()`, panics, nil},         // const initializer is not a constant
 
 	TestCase{A, "literal_array", "[3]int{1,2:3}", [3]int{1, 0, 3}, nil},
 	TestCase{A, "literal_array_address", "&[...]int{3:4,5:6}", &[...]int{3: 4, 5: 6}, nil},

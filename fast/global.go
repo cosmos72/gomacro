@@ -488,6 +488,7 @@ type ThreadGlobals struct {
 type CompGlobals struct {
 	*Globals
 	Universe     *xr.Universe
+	KnownImports map[string]*Import // map[path]*Import cache of known imports
 	interf2proxy map[r.Type]r.Type  // interface -> proxy
 	proxy2interf map[r.Type]xr.Type // proxy -> interface
 }
@@ -559,7 +560,8 @@ type Import struct {
 	// model as a combination of CompBinds and EnvBinds, because to support the command 'package PATH'
 	// we must convert Comp+Env to Import and vice-versa.
 	// This has the added benefit of allowing packages to freely mix
-	// interpreted and compiled binds and types.
+	// interpreted and compiled constants, functions, variables and types.
 	CompBinds
-	EnvBinds
+	*EnvBinds
+	env *Env
 }

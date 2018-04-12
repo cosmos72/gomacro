@@ -79,6 +79,10 @@ func (err RuntimeError) Error() string {
 	return msg
 }
 
+func (st *Stringer) MakeRuntimeError(format string, args ...interface{}) RuntimeError {
+	return RuntimeError{st, format, args}
+}
+
 func Error(err error) interface{} {
 	panic(err)
 }

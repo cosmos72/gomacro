@@ -26,6 +26,7 @@
 package classic
 
 import (
+	"fmt"
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/ast2"
@@ -64,6 +65,21 @@ func (env *Env) fastUpdateOptions() {
 func (env *Env) fastShowPackage(name string) {
 	f := env.fastInterp()
 	f.ShowPackage(name)
+}
+
+func (env *Env) fastCmdPackage(path string) {
+	f := env.fastInterp()
+	if len(path) == 0 {
+		c := f.Comp
+		fmt.Fprintf(env.Stdout, "// current package: %s %q\n", c.Name, c.Path)
+	} else {
+		f.ChangePackage(base.FileName(path), path)
+	}
+}
+
+func (env *Env) fastUnloadPackage(path string) {
+	f := env.fastInterp()
+	f.Comp.UnloadPackage(path)
 }
 
 // temporary helper to invoke the new fast interpreter.
