@@ -400,6 +400,7 @@ var testcases = []TestCase{
 		B string
 	}{}, nil},
 	TestCase{A, "type_struct_2", "type Triple struct { Pair; C float32 }; var triple Triple; triple.C", float32(0), nil},
+	TestCase{A, "type_struct_3", "type TripleP struct { *Pair; D float64 }; var tp TripleP; tp.D", float64(0), nil},
 	TestCase{A, "field_get_1", "pair.A", rune(0), nil},
 	TestCase{A, "field_get_2", "pair.B", "", nil},
 	TestCase{F, "field_anonymous_1", "triple.Pair", struct {
@@ -407,7 +408,11 @@ var testcases = []TestCase{
 		B string
 	}{}, nil},
 	TestCase{F, "field_embedded_1", "triple.A", rune(0), nil},
-	TestCase{F, "field_embedded_2", "triple.Pair.B", "", nil},
+	TestCase{F, "field_embedded_2", "triple.B", "", nil},
+	TestCase{F, "field_embedded_3", "triple.Pair.A", rune(0), nil},
+	TestCase{F, "field_embedded_4", "triple.Pair.B", "", nil},
+	TestCase{F, "field_embedded_4", "tp.A", panics, nil},
+	TestCase{F, "field_embedded_5", "tp.Pair = &triple.Pair; tp.B", "", nil},
 
 	TestCase{A, "address_0", "var vf = 1.25; *&vf == vf", true, nil},
 	TestCase{A, "address_1", "var pvf = &vf; *pvf", 1.25, nil},
@@ -629,8 +634,10 @@ var testcases = []TestCase{
 	TestCase{A, "method_on_ptr", `pair.SetA(33); pair.A`, rune(33), nil},
 	TestCase{A, "method_on_val_1", `pair.SetAV(11); pair.A`, rune(33), nil}, // method on value gets a copy of the receiver - changes to not propagate
 	TestCase{A, "method_on_val_2", `pair.String()`, "! y", nil},
-	TestCase{F, "method_embedded_on_ptr", `triple.SetA('+'); triple.A`, '+', nil},
-	TestCase{F, "method_embedded_on_val", `triple.SetAV('*'); triple.A`, '+', nil},
+	TestCase{F, "method_embedded=val_recv=ptr", `triple.SetA('1'); triple.A`, '1', nil},
+	TestCase{F, "method_embedded=val_recv=val", `triple.SetAV('2'); triple.A`, '1', nil},
+	TestCase{F, "method_embedded=ptr_recv=val", `tp.SetAV('3'); tp.A`, '1', nil}, // set by triple.SetA('1') above
+	TestCase{F, "method_embedded=ptr_recv=ptr", `tp.SetA('4'); tp.A`, '4', nil},
 
 	TestCase{F, "concrete_method_to_func", "cf0 := time.Duration.Seconds; cf0(time.Hour)", 3600.0, nil},
 	TestCase{F, "concrete_method_to_closure", "cl1 := time.Hour.Seconds; cl1()", 3600.0, nil},

@@ -37,6 +37,78 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+// =========================== forget package ==================================
+
+// remove package 'path' from the list of known packages.
+// later attempts to import it again will trigger a recompile.
+func (g *CompGlobals) UnloadPackage(path string) {
+	g.Globals.UnloadPackage(path)
+	delete(g.KnownImports, path)
+}
+
+// ========================== switch to package ================================
+
+func (ir *Interp) ChangePackage(name, path string) {
+	if len(path) == 0 {
+		path = name
+	} else {
+		name = FileName(path)
+	}
+	c := ir.Comp
+	if path == c.Path {
+		return
+	}
+	// load requested package if it exists, but do not define any binding in current one
+	newp, err := c.ImportPackageOrError("_", path)
+	if err != nil {
+		c.Debugf("%v", err)
+	}
+	oldp := ir.asImport()
+
+	c.CompGlobals.KnownImports[oldp.Path] = oldp // overwrite any cached import with same path as current Interp
+
+	top := &Interp{c.TopComp(), ir.env.Top()}
+	if newp != nil {
+		newp.Name = name
+		*ir = newp.asInterpreter(top)
+		c.Debugf("switched to package %v", newp)
+	} else {
+		// requested package does not exist - create an empty one
+		ir.Comp = NewComp(top.Comp, nil)
+		ir.env = NewEnv(top.env, 0, 0)
+		ir.Comp.Name = name
+		ir.Comp.Path = path
+		c.Debugf("switched to new package %v", path)
+	}
+	ir.env.ThreadGlobals.PackagePath = path
+}
+
+// convert *Interp to *Import. used to change package from 'ir'
+func (ir *Interp) asImport() *Import {
+	env := ir.env
+	env.UsedByClosure = true // do not try to recycle this Env
+	return &Import{
+		CompBinds: ir.Comp.CompBinds,
+		EnvBinds:  &ir.env.EnvBinds,
+		env:       env,
+	}
+}
+
+// convert *Import to *Interp. used to change package to 'imp'
+func (imp *Import) asInterpreter(outer *Interp) Interp {
+	c := NewComp(outer.Comp, nil)
+	c.CompBinds = imp.CompBinds
+	env := imp.env
+	// preserve env.IP, env.Code[], env.DebugPos[]
+	if env.Outer == nil {
+		env.Outer = outer.env
+	}
+	env.ThreadGlobals = outer.env.ThreadGlobals
+	return Interp{c, env}
+}
+
+// =========================== import package =================================
+
 // Import compiles an import statement
 func (c *Comp) Import(node ast.Spec) {
 	switch node := node.(type) {
@@ -176,79 +248,9 @@ func (c *Comp) declDotImport0(imp *Import) {
 	}
 }
 
-func (ir *Interp) ChangePackage(name, path string) {
-	if len(path) == 0 {
-		path = name
-	} else {
-		name = FileName(path)
-	}
-	c := ir.Comp
-	if path == c.Path {
-		return
-	}
-	// load requested package if it exists, but do not define any binding in current one
-	newp, err := c.ImportPackageOrError("_", path)
-	if err != nil {
-		c.Debugf("%v", err)
-	}
-	oldp := ir.asImport()
-
-	c.CompGlobals.KnownImports[oldp.Path] = oldp // overwrite any cached import with same path as current Interp
-
-	top := &Interp{c.TopComp(), ir.env.Top()}
-	if newp != nil {
-		newp.Name = name
-		*ir = newp.asInterpreter(top)
-		c.Debugf("switched to package %v", newp)
-	} else {
-		// requested package does not exist - create an empty one
-		ir.Comp = NewComp(top.Comp, nil)
-		ir.env = NewEnv(top.env, 0, 0)
-		ir.Comp.Name = name
-		ir.Comp.Path = path
-		c.Debugf("switched to new package %v", path)
-	}
-	ir.env.ThreadGlobals.PackagePath = path
-}
-
-// convert *Interp to *Import. used to change package from 'ir'
-func (ir *Interp) asImport() *Import {
-	// do not try to recycle this Env
-	env := ir.env
-	env.UsedByClosure = true
-	env.AddressTaken = true
-	return &Import{
-		CompBinds: ir.Comp.CompBinds,
-		EnvBinds:  &ir.env.EnvBinds,
-		env:       env,
-	}
-}
-
-// convert *Import to *Interp. used to change package to 'imp'
-func (imp *Import) asInterpreter(outer *Interp) Interp {
-	c := NewComp(outer.Comp, nil)
-	c.CompBinds = imp.CompBinds
-	env := imp.env
-	// preserve env.IP, env.Code[], env.DebugPos[]
-	if env.Outer == nil {
-		env.Outer = outer.env
-	}
-	env.ThreadGlobals = outer.env.ThreadGlobals
-	return Interp{c, env}
-}
-
-// remove package 'path' from the list of known packages.
-// later attempts to import it again will trigger a recompile.
-func (g *CompGlobals) UnloadPackage(path string) {
-	g.Globals.UnloadPackage(path)
-	delete(g.KnownImports, path)
-}
-
 func (g *CompGlobals) NewImport(pkgref *PackageRef) *Import {
 	env := &Env{
-		// do not try to recycle this Env
-		UsedByClosure: true,
-		AddressTaken:  true,
+		UsedByClosure: true, // do not try to recycle this Env
 	}
 	imp := &Import{
 		EnvBinds: &env.EnvBinds,
@@ -342,6 +344,8 @@ func (g *CompGlobals) loadProxies(proxies map[string]r.Type, xtypes map[string]x
 		g.proxy2interf[proxy] = xtype
 	}
 }
+
+// ======================== use package symbols ===============================
 
 // selectorPlace compiles pkgname.varname returning a settable and/or addressable Place
 func (imp *Import) selectorPlace(c *Comp, name string, opt PlaceOption) *Place {

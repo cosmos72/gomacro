@@ -23,7 +23,6 @@ func init() {
 			"FuncBind":            r.ValueOf(FuncBind),
 			"IntBind":             r.ValueOf(IntBind),
 			"Interrupt":           r.ValueOf(&Interrupt).Elem(),
-			"MakeBindDescriptor":  r.ValueOf(MakeBindDescriptor),
 			"MakeEFlag":           r.ValueOf(MakeEFlag),
 			"New":                 r.ValueOf(New),
 			"NewComp":             r.ValueOf(NewComp),

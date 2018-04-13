@@ -227,7 +227,12 @@ func (c *Comp) AddFuncBind(name string, t xr.Type) *Bind {
 // AddBind reserves space for a subsequent constant, function or variable declaration
 func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 	if class == IntBind || class == VarBind {
-		if base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64 {
+		// respect c.IntBindMax: if != 0, it's the maximum number of IntBind variables we can declare
+		// reason: see comment in IntBindMax definition. Shortly, Ent.Ints[] address was taken
+		// thus we cannot reallocate it => we must stop at its capacity, stored in c.IntBindMax
+		// by Interp.PrepareEnv()
+		if (c.IntBindMax == 0 || c.IntBindNum < c.IntBindMax) &&
+			(base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64) {
 			// optimize booleans, integers, floats and complex64 by storing them in Env.Ints []uint64
 			class = IntBind
 		} else {
@@ -242,11 +247,11 @@ func (c *CompBinds) AddBind(o *base.Output, name string, class BindClass, t xr.T
 	// do NOT replace VarBind -> IntBind here: done by Comp.AddBind() above,
 	// and we are also invoked by Import.loadBinds() which needs to store
 	// booleans, integers, floats and complex64 into reflect.Value
-	// because such compiled global variables already exist with their own address
+	// because such compiled global variables already exist at their own address
 	var index = NoIndex
 	if name == "_" {
 		// never store bindings for "_" in c.Binds
-		desc := MakeBindDescriptor(class, index)
+		desc := class.MakeDescriptor(index)
 		bind := &Bind{Lit: Lit{Type: t}, Desc: desc, Name: name}
 		return bind
 	}
@@ -271,7 +276,7 @@ func (c *CompBinds) AddBind(o *base.Output, name string, class BindClass, t xr.T
 	default: // case FuncBind, VarBind:
 		if index == NoIndex {
 			if c.BindNum == NoIndex {
-				c.BindNum++
+				c.BindNum++ // skip NoIndex, used by constants and _
 			}
 			index = c.BindNum
 			c.BindNum++
@@ -279,13 +284,13 @@ func (c *CompBinds) AddBind(o *base.Output, name string, class BindClass, t xr.T
 	case IntBind:
 		if index == NoIndex {
 			if c.IntBindNum == NoIndex {
-				c.IntBindNum++
+				c.IntBindNum++ // skip NoIndex, used by constants and _
 			}
 			index = c.IntBindNum
 			c.IntBindNum++
 		}
 	}
-	desc := MakeBindDescriptor(class, index)
+	desc := class.MakeDescriptor(index)
 	bind := &Bind{Lit: Lit{Type: t}, Desc: desc, Name: name}
 	if len(name) != 0 {
 		// skip unnamed function results, and unnamed switch/range/... expression

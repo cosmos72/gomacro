@@ -185,28 +185,32 @@ func (ir *Interp) ValueOf(name string) (value r.Value) {
 }
 
 func (ir *Interp) PrepareEnv() *Env {
-	return ir.prepareEnv(128)
+	// allocate Env.Ints[] in large chunks while we can:
+	// once an Env.Ints[idx] address is taken, we can no longer reallocate it
+	return ir.prepareEnv(16, 1024)
 }
 
-func (ir *Interp) prepareEnv(minDelta int) *Env {
+func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 	c := ir.Comp
 	env := ir.env
 	// usually we know at Env creation how many slots are needed in c.Env.Binds
 	// but here we are modifying an existing Env...
-	if minDelta < 0 {
-		minDelta = 0
+	if minValDelta < 0 {
+		minValDelta = 0
+	}
+	if minIntDelta < 0 {
+		minIntDelta = 0
 	}
 	capacity, min := cap(env.Vals), c.BindNum
-	// c.Debugf("prepareEnv() before: c.BindNum = %v, minDelta = %v, len(env.Binds) = %v, cap(env.Binds) = %v, env = %p", c.BindNum, minDelta, len(env.Binds), cap(env.Binds), env)
+	// c.Debugf("prepareEnv() before: c.BindNum = %v, minValDelta = %v, len(env.Binds) = %v, cap(env.Binds) = %v, env = %p", c.BindNum, minValDelta, len(env.Binds), cap(env.Binds), env)
 
 	if capacity < min {
-		if capacity <= min/2 {
+		capacity *= 2
+		if capacity < min {
 			capacity = min
-		} else {
-			capacity *= 2
 		}
-		if capacity-min < minDelta {
-			capacity = min + minDelta
+		if capacity-cap(env.Vals) < minValDelta {
+			capacity = cap(env.Vals) + minValDelta
 		}
 		binds := make([]r.Value, min, capacity)
 		copy(binds, env.Vals)
@@ -219,20 +223,25 @@ func (ir *Interp) prepareEnv(minDelta int) *Env {
 
 	capacity, min = cap(env.Ints), c.IntBindNum
 	if capacity < min {
-		if capacity <= min/2 {
-			capacity = min
-		} else {
-			capacity *= 2
+		if env.IntAddressTaken {
+			c.Errorf("internal error: attempt to reallocate Env.Ints[] after one of its addresses was taken")
 		}
-		if capacity-min < minDelta {
-			capacity = min + minDelta
+		capacity *= 2
+		if capacity < min {
+			capacity = min
+		}
+		if capacity-cap(env.Ints) < minIntDelta {
+			capacity = cap(env.Ints) + minIntDelta
 		}
 		binds := make([]uint64, min, capacity)
 		copy(binds, env.Ints)
 		env.Ints = binds
 	}
 	if len(env.Ints) < min {
-		env.Ints = env.Ints[0:min:cap(env.Ints)]
+		env.Ints = env.Ints[0:min:cap(env.Ints)] // does not reallocate
+	}
+	if env.IntAddressTaken {
+		c.IntBindMax = cap(env.Ints)
 	}
 	return env
 }

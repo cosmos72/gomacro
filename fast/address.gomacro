@@ -74,8 +74,9 @@ import (
 		}
 	}
 	if t == nil {
-		// no need to set env.AddressTaken = true
-		// because env.Vals[index] actually contains a pointer to the variable
+		// env.Vals[index] actually contains the variable's address
+		// no need to set special flags like env.IntAddressTaken.
+		// that's needed instead when taking the address of env.Ints[index]
 		bind = ~'{env .Vals[index].Addr()}
 		rettype = ~'{r.Value}
 		return ~"{
@@ -86,7 +87,7 @@ import (
 		}
 	}
 
-	addresstaken = ~"{{env.AddressTaken = true}}
+	addresstaken = ~"{{env.IntAddressTaken = true}}
 	rettype = ~"{* ~,typ}
 	if t.Kind() == r.Uint64 {
 		bind = ~'{&env.Ints[index]}

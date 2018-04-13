@@ -96,7 +96,7 @@ func fieldByName(t *xtype, qname QName, offset uintptr, index []int) (field Stru
 		gfield := gtype.Field(i)
 		if matchFieldByName(qname, gfield) {
 			if count == 0 {
-				field = t.field(i) // lock already held
+				field = t.field(i) // lock already held. makes a copy
 				field.Offset += offset
 				field.Index = concat(index, field.Index) // make a copy of index
 				// debugf("fieldByName: %d-th field of <%v> matches: %#v", i, t.rtype, field)
@@ -110,7 +110,7 @@ func fieldByName(t *xtype, qname QName, offset uintptr, index []int) (field Stru
 			tovisit = append(tovisit, efield)
 		}
 	}
-	return
+	return field, count, tovisit
 }
 
 // return true if gfield name matches given name, or if it's anonymous and its *type* name matches given name
@@ -154,13 +154,14 @@ func cacheFieldByName(t *xtype, qname QName, field *StructField, count int) {
 	t.universe.fieldcache = true
 }
 
-// anonymousFields returns the anonymous fields of a (named or unnamed) struct type
+// anonymousFields returns the anonymous fields of a struct type (either named or unnamed)
+// also accepts a pointer to a struct type
 func anonymousFields(t *xtype, offset uintptr, index []int) []StructField {
 	var tovisit []StructField
-	gt := t.gtype.Underlying()
-	if gptr, ok := gt.(*types.Pointer); ok {
-		gt = gptr.Elem().Underlying()
+	if t.kind == reflect.Ptr {
+		t = unwrap(t.elem()) // not t.Elem(), it would acquire Universe lock
 	}
+	gt := t.gtype.Underlying()
 	gtype, ok := gt.(*types.Struct)
 	if !ok {
 		return tovisit

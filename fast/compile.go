@@ -248,9 +248,9 @@ func (env *Env) FreeEnv() {
 	if n >= PoolCapacity {
 		return
 	}
-	if env.AddressTaken {
+	if env.IntAddressTaken {
 		env.Ints = nil
-		env.AddressTaken = false
+		env.IntAddressTaken = false
 	}
 	env.Outer = nil
 	env.Code = nil

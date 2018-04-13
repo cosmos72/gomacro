@@ -53,6 +53,9 @@ func (t *xtype) field(i int) StructField {
 	}
 	gtype := t.gtype.Underlying().(*types.Struct)
 
+	if i < 0 || i >= gtype.NumFields() {
+		xerrorf(t, "Field(%v) out of bounds, struct type has %v fields: %v", i, gtype.NumFields(), t)
+	}
 	va := gtype.Field(i)
 	rf := t.rtype.Field(i)
 

@@ -248,7 +248,10 @@ type Macro struct {
 
 // ================================= BindClass =================================
 
-type BindClass int
+// BindDescriptor uses two bits to store the class.
+// use all remaining bits as unsigned => we lose only one bit
+// when representing non-negative ints
+type BindClass uint
 
 const (
 	ConstBind = BindClass(iota)
@@ -281,7 +284,7 @@ const (
 	ConstBindDescriptor = BindDescriptor(ConstBind) // bind descriptor for all constants
 )
 
-func MakeBindDescriptor(class BindClass, index int) BindDescriptor {
+func (class BindClass) MakeDescriptor(index int) BindDescriptor {
 	class &= bindClassMask
 	return BindDescriptor(index<<bindIndexShift | int(class))
 }
@@ -497,6 +500,12 @@ type CompBinds struct {
 	Binds      map[string]*Bind
 	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
 	IntBindNum int
+	// if address of some Env.Ints[index] was taken, we must honor it:
+	// we can no longer reallocate Env.Ints[], thus we cannot declare IntBind variables
+	// beyond Env.Ints[] capacity. In such case, we set IntBindMax to cap(Env.Ints):
+	// Comp.AddBind() will allocate IntBind variables only up to IntBindMax,
+	// then switch and allocate them as VarBind instead (they are slower and each one allocates memory)
+	IntBindMax int
 	Types      map[string]xr.Type
 	Name       string // set by "package" directive
 	Path       string
@@ -543,13 +552,13 @@ type EnvBinds struct {
 // Env is the interpreter's runtime environment
 type Env struct {
 	EnvBinds
-	Outer         *Env
-	IP            int
-	Code          []Stmt
-	DebugPos      []token.Pos // for debugging interpreted code: position of each statement
-	ThreadGlobals *ThreadGlobals
-	UsedByClosure bool // a bitfield would introduce more races among goroutines
-	AddressTaken  bool // true if &Env.Ints[index] was executed... then we cannot reuse Ints
+	Outer           *Env
+	IP              int
+	Code            []Stmt
+	DebugPos        []token.Pos // for debugging interpreted code: position of each statement
+	ThreadGlobals   *ThreadGlobals
+	UsedByClosure   bool // a bitfield would introduce more races among goroutines
+	IntAddressTaken bool // true if &Env.Ints[index] was executed... then we cannot reuse or reallocate Ints
 }
 
 // ================================= Import =================================

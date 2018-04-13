@@ -92,6 +92,12 @@ func (c *Comp) selectorType(node *ast.SelectorExpr, t xr.Type) *Expr {
 func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool, xr.Method, bool) {
 	field, fieldn := c.LookupField(t, name)
 	mtd, mtdn := c.LookupMethod(t, name)
+	if c.Options&OptDebugField != 0 {
+		c.Debugf("LookupFieldOrMethod for %v.%v found %d fields:  %#v", t, name, fieldn, field)
+	}
+	if c.Options&OptDebugMethod != 0 {
+		c.Debugf("LookupFieldOrMethod for %v.%v found %d methods: %#v", t, name, mtdn, mtd)
+	}
 	fielddepth := len(field.Index)
 	mtddepth := len(mtd.FieldIndex) + 1
 	if fieldn != 0 && mtdn != 0 {
@@ -125,7 +131,7 @@ func (c *Comp) LookupMethod(t xr.Type, name string) (mtd xr.Method, numfound int
 }
 
 // field0 is a variant of reflect.Value.Field, also accepts pointer values
-// and dereferences pointer ONLY if index is negative (actually used index will be ^index)
+// and dereferences pointer ONLY if index < 0 (actually used index will be ^index)
 func field0(v r.Value, index int) r.Value {
 	if index < 0 {
 		v = v.Elem()
@@ -135,35 +141,47 @@ func field0(v r.Value, index int) r.Value {
 }
 
 // fieldByIndex is a variant of reflect.Value.FieldByIndex, also accepts pointer values
-// and dereferences pointers ONLY if index[i] is negative (actually used index will be ^index[i])
+// and dereferences pointers ONLY if index[i] < 0 (actually used index will be ^index[i])
 func fieldByIndex(v r.Value, index []int) r.Value {
 	for _, x := range index {
 		if x < 0 {
-			v = v.Elem()
 			x = ^x
+			v = v.Elem()
 		}
 		v = v.Field(x)
 	}
 	return v
 }
 
-func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
-	objfun := e.AsX1()
-	t := e.Type
-	var fun I
+// descend embedded fields, detect any pointer-to-struct that must be dereferenced
+func descendEmbeddedFields(t xr.Type, field xr.StructField) []int {
 	index := field.Index
+	n := len(index)
+	var copied bool
 
-	// descend embedded fields
-	for i, x := range index {
-		if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
-			// embedded field (or initial value) is a pointer, dereference it.
+	for i, x := range field.Index {
+		// dereference pointer-to-struct
+		if t.Kind() == r.Ptr {
+			if !copied {
+				// make a copy before modifying it
+				index = make([]int, n)
+				copy(index, field.Index)
+				copied = true
+			}
+			index[i] = ^x // remember we will need a dereference at runtime
 			t = t.Elem()
-			index[i] = ^x // remember we neeed a pointer dereference at runtime
 		}
 		t = t.Field(x).Type
 	}
+	return index
+}
 
-	t = field.Type
+func (c *Comp) compileField(e *Expr, field xr.StructField) *Expr {
+	objfun := e.AsX1()
+	index := descendEmbeddedFields(e.Type, field)
+	t := field.Type
+	var fun I
+
 	// c.Debugf("compileField: field=%#v", field)
 	if len(index) == 1 {
 		index0 := index[0]
@@ -406,11 +424,14 @@ func (c *Comp) compileMethod(node *ast.SelectorExpr, e *Expr, mtd xr.Method) *Ex
 
 // create and return a function that, given a reflect.Value, returns its method specified by mtd
 func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) r.Value) {
+	if c.Options&OptDebugMethod != 0 {
+		c.Debugf("compileObjGetMethod for %v.%v: method is %#v", t, mtd.Name, mtd)
+	}
 	index := mtd.Index
 	tfunc := mtd.Type
 	rtclosure := c.removeFirstParam(tfunc).ReflectType()
 
-	tfield, fieldindex, addressof, deref := c.computeFieldIndex(t, mtd)
+	tfield, fieldindex, addressof, deref := c.computeMethodFieldIndex(t, mtd)
 	rtfield := tfield.ReflectType()
 
 	rmtd, ok := rtfield.MethodByName(mtd.Name)
@@ -438,7 +459,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 		case 1:
 			fieldindex := fieldindex[0]
 			ret = func(obj r.Value) r.Value {
-				obj = field0(obj, fieldindex)
+				return field0(obj, fieldindex)
 				return obj.Method(index)
 			}
 		default:
@@ -603,19 +624,24 @@ func compileInterfaceGetMethod(fieldindex []int, deref bool, index int) func(r.V
 // compute and return the dereferences and addressof to perform while descending
 // the embedded fields described by mtd.FieldIndex []int
 // also check that addressof will be performed on addressable fields
-func (c *Comp) computeFieldIndex(t xr.Type, mtd xr.Method) (fieldtype xr.Type, fieldindex []int, addressof bool, deref bool) {
-	fieldindex = append([]int{}, mtd.FieldIndex...) // make a copy, we will modify fieldIndex
-	indirect := false                               // executed a dereference ?
+func (c *Comp) computeMethodFieldIndex(t xr.Type, mtd xr.Method) (fieldtype xr.Type, fieldindex []int, addressof bool, deref bool) {
+	fieldindex = mtd.FieldIndex
+	var copied, indirect bool
 
 	// descend embedded fields
-	for i, index := range fieldindex {
-		if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
+	for i, x := range mtd.FieldIndex {
+		if t.Kind() == r.Ptr {
 			// embedded field (or initial value) is a pointer, dereference it.
 			t = t.Elem()
 			indirect = true
-			fieldindex[i] = ^index // remember we need a pointer dereference at runtime
+			if !copied {
+				copied = true
+				fieldindex = make([]int, len(mtd.FieldIndex))
+				copy(fieldindex, mtd.FieldIndex)
+			}
+			fieldindex[i] = ^x // remember we need a pointer dereference at runtime
 		}
-		t = t.Field(index).Type
+		t = t.Field(x).Type
 	}
 	tfunc := mtd.Type
 	trecv := tfunc.In(0)
@@ -660,7 +686,7 @@ func (c *Comp) computeFieldIndex(t xr.Type, mtd xr.Method) (fieldtype xr.Type, f
 			}
 			// FIXME restore and complete these addressability checks
 			/*
-				if len(fieldindex) != 0 {
+				if len(index) != 0 {
 					// must execute addressof at runtime, just check that struct is addressable
 					c.addressOf(node.X)
 				} else {
@@ -686,15 +712,21 @@ func (c *Comp) computeFieldIndex(t xr.Type, mtd xr.Method) (fieldtype xr.Type, f
 func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 	tsave := t
 	fieldindex := mtd.FieldIndex
+	var copied bool
 
 	// descend embedded fields
-	for i, index := range fieldindex {
+	for i, x := range mtd.FieldIndex {
 		if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
 			// embedded field (or initial value) is a pointer, dereference it.
+			if !copied {
+				copied = true
+				fieldindex = make([]int, len(mtd.FieldIndex))
+				copy(fieldindex, mtd.FieldIndex)
+			}
+			fieldindex[i] = ^x // remember we neeed a pointer dereference at runtime
 			t = t.Elem()
-			fieldindex[i] = ^index // remember we neeed a pointer dereference at runtime
 		}
-		t = t.Field(index).Type
+		t = t.Field(x).Type
 	}
 
 	index := mtd.Index
@@ -918,9 +950,10 @@ func (c *Comp) checkAddressableField(node *ast.SelectorExpr) {
 func (c *Comp) compileFieldPlace(obje *Expr, field xr.StructField) *Place {
 	// c.Debugf("compileFieldPlace: field=%#v", field)
 	objfun := obje.AsX1()
+	index := descendEmbeddedFields(obje.Type, field)
 	t := field.Type
 	var fun, addr func(*Env) r.Value
-	index := field.Index
+
 	if len(index) == 1 {
 		index0 := index[0]
 		fun = func(env *Env) r.Value {

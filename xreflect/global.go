@@ -74,7 +74,7 @@ type StructField struct {
 	Pkg       *Package
 	Type      Type              // field type
 	Tag       reflect.StructTag // field tag string
-	Offset    uintptr           // offset within struct, in bytes
+	Offset    uintptr           // offset within struct, in bytes. meaningful only if all Deref[] are false
 	Index     []int             // index sequence for reflect.Type.FieldByIndex or reflect.Value.FieldByIndex
 	Anonymous bool              // is an embedded field. If true, Name should be empty or equal to the type's name
 }
