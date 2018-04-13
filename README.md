@@ -125,7 +125,6 @@ The main limitations and missing features are:
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * out-of-order code. Types, constants, variables and functions must be declared **before** using them.
 * goto is partially implemented - can only jump back, not forward
-* slice[index] is too strict and rejects named integer types as time.Duration
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 

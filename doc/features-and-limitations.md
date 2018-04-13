@@ -3,14 +3,15 @@ Gomacro default interpreter supports:
 * multiline input
 * comments starting with #! in addition to // and /* ... */
 * all basic types: booleans, integers, floats, complex numbers, strings (and iota)
-* interfaces imported from compiled code, as for example `interface{}`, `error`, `fmt.Stringer`...
-* new interfaces can be declared inside interpreted code
+* use existing compiled interfaces, as `io.Reader`
+* creating new interface types
 * constant, variable and type declaration, including untyped constants
 * Go 1.9 type aliases
 * unary and binary operators
 * assignment, i.e. operators = += -= *= /= %= &= |= ^= &^= <<= >>=
 * composite types: arrays, channels, maps, pointers, slices, strings, structs
 * composite literals
+* embedded fields and method wrappers for embedded fields
 * type assertions
 * seamless invocation of compiled functions from interpreter, and vice-versa
 * channel send and receive
@@ -43,7 +44,7 @@ Gomacro default interpreter supports:
 * nesting macros, quotes and unquotes
 
 Some features are still missing or incomplete:
-* out-of-order code. Types, variables and functions must be declared **before** using them.
+* out-of-order code. Types, variables, constants and functions must be declared **before** using them.
 * goto is partially implemented, can only jump back - not forward
 * incomplete interface -> interface type assertions and type switches:
   they do not support yet interpreted types stored in interfaces, and interpreted interfaces.
