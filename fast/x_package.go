@@ -35,6 +35,7 @@ func init() {
 			"PlaceSettable":       r.ValueOf(PlaceSettable),
 			"PoolCapacity":        r.ValueOf(PoolCapacity),
 			"SigDefer":            r.ValueOf(SigDefer),
+			"SigInterrupt":        r.ValueOf(SigInterrupt),
 			"SigNone":             r.ValueOf(SigNone),
 			"SigReturn":           r.ValueOf(SigReturn),
 			"TopDepth":            r.ValueOf(TopDepth),

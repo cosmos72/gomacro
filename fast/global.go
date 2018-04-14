@@ -543,6 +543,23 @@ const (
 	SigInterrupt // user pressed Ctrl+C, process received SIGINT, or similar
 )
 
+func (sig Signal) String() string {
+	var s string
+	switch sig {
+	case SigNone:
+		s = "// no signal"
+	case SigReturn:
+		s = "// return signal"
+	case SigDefer:
+		s = "// defer signal"
+	case SigInterrupt:
+		s = "// interrupted"
+	default:
+		s = "// unknown signal"
+	}
+	return s
+}
+
 // ================================= Env =================================
 
 type EnvBinds struct {

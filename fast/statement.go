@@ -233,7 +233,11 @@ func (c *Comp) Defer(node *ast.DeferStmt) {
 				f.Call(args)
 			}
 		}
-		g.Signal = SigDefer
+		// give priority to SigInterrupt. this is inherently racy,
+		// we want defers to run even on user break (Ctrl+C(
+		if g.Signal != SigInterrupt {
+			g.Signal = SigDefer
+		}
 		return g.Interrupt, env
 	})
 	c.Code.WithDefers = true
@@ -551,16 +555,20 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 			assign(env, vals[i])
 		}
 		// append the return epilogue
-		common := env.ThreadGlobals
-		common.Signal = SigReturn
-		return common.Interrupt, env
+		g := env.ThreadGlobals
+		if g.Signal != SigInterrupt { // give priority to SigInterrupt
+			g.Signal = SigReturn
+		}
+		return g.Interrupt, env
 	}, node.Pos())
 }
 
 func stmtReturn(env *Env) (Stmt, *Env) {
-	common := env.ThreadGlobals
-	common.Signal = SigReturn
-	return common.Interrupt, env
+	g := env.ThreadGlobals
+	if g.Signal != SigInterrupt { // give priority to SigInterrupt
+		g.Signal = SigReturn
+	}
+	return g.Interrupt, env
 }
 
 // containLocalBinds return true if one or more of the given statements (but not their contents:
