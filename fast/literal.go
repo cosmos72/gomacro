@@ -131,20 +131,20 @@ func isLiteralNumber(x I, n int64) bool {
 }
 
 func (untyp *UntypedLit) IsLiteralNumber(n int64) bool {
-	obj := untyp.Obj
-	switch obj.Kind() {
+	val := untyp.Val
+	switch val.Kind() {
 	case constant.Int:
-		m, exact := constant.Int64Val(obj)
+		m, exact := constant.Int64Val(val)
 		return exact && m == n
 	case constant.Float:
-		m, exact := constant.Float64Val(obj)
+		m, exact := constant.Float64Val(val)
 		return exact && float64(int64(m)) == m && int64(m) == n
 	case constant.Complex:
-		m, exact := constant.Float64Val(constant.Imag(obj))
+		m, exact := constant.Float64Val(constant.Imag(val))
 		if !exact || m != 0.0 {
 			return false
 		}
-		m, exact = constant.Float64Val(constant.Real(obj))
+		m, exact = constant.Float64Val(constant.Real(val))
 		return exact && float64(int64(m)) == m && int64(m) == n
 	default:
 		return false
@@ -216,26 +216,26 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 // performs actual untyped -> typed conversion and subsequent overflow checks.
 // returns the constant converted to given type
 func (untyp *UntypedLit) ConstTo(t xr.Type) I {
-	obj := untyp.Obj
-	var val interface{}
+	val := untyp.Val
+	var ret interface{}
 again:
 	switch t.Kind() {
 	case r.Bool:
-		if obj.Kind() != constant.Bool {
+		if val.Kind() != constant.Bool {
 			Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
 		}
-		val = constant.BoolVal(obj)
+		ret = constant.BoolVal(val)
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
 		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
 		r.Float32, r.Float64, r.Complex64, r.Complex128:
 
-		n := untyp.extractNumber(obj, t)
+		n := untyp.extractNumber(val, t)
 		return convertLiteralCheckOverflow(n, t)
 	case r.String:
-		if untyp.Obj.Kind() != constant.String {
+		if untyp.Val.Kind() != constant.String {
 			Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
 		}
-		val = UnescapeString(obj.ExactString())
+		ret = UnescapeString(val.ExactString())
 	case r.Interface:
 		// this can happen too... for example in "var foo interface{} = 7"
 		// and it requires to convert the untyped constant to its default type.
@@ -249,11 +249,11 @@ again:
 		Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
 		return nil
 	}
-	v := r.ValueOf(val)
+	v := r.ValueOf(ret)
 	if v.Type() != t.ReflectType() {
-		val = v.Convert(t.ReflectType())
+		ret = v.Convert(t.ReflectType())
 	}
-	return val
+	return ret
 }
 
 // ================================= DefaultType =================================

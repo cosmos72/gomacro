@@ -290,7 +290,8 @@ func (gen *genimport) writeUntypeds() {
 			switch obj := obj.(type) {
 			case *types.Const:
 				if t, ok := obj.Type().(*types.Basic); ok && t.Info()&types.IsUntyped != 0 {
-					str := MarshalUntyped(t.Kind(), obj.Val())
+					rkind := UntypedKindToReflectKind(t.Kind())
+					str := MarshalUntyped(rkind, obj.Val())
 					if len(str) != 0 {
 						d.header()
 						fmt.Fprintf(gen.out, "\n\t\t%q:\t%q,", name, str)

@@ -478,7 +478,7 @@ func (c *Comp) IncDec(node *ast.IncDecStmt) {
 	} else {
 		op = token.ADD
 	}
-	one := c.exprUntypedLit(untypedOne.Kind, untypedOne.Obj)
+	one := c.exprUntypedLit(untypedOne.Kind, untypedOne.Val)
 	c.SetPlace(place, op, one)
 }
 

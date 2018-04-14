@@ -50,13 +50,21 @@ func (env *Env) Inspect(in Readline, str string, fastInterpreter bool) {
 	var v r.Value
 	var xt xr.Type
 	if fastInterpreter {
-		v, _, xt, _ = env.fastEval(form)
+		vs, xts := env.fastEval(form)
+		if len(vs) != 0 {
+			v = vs[0]
+		}
+		if len(xts) != 0 {
+			xt = xts[0]
+		}
 	} else {
 		v = env.EvalAst1(form)
 	}
 	var t r.Type
-	if v != Nil && v != None {
+	if v != Nil && v != None && v.CanInterface() {
 		t = r.TypeOf(v.Interface()) // show concrete type
+	} else if xt != nil {
+		t = xt.ReflectType()
 	}
 	switch dereferenceValue(v).Kind() {
 	case r.Array, r.Slice, r.String, r.Struct:

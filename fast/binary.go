@@ -111,7 +111,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 		return c.exprUntypedLit(r.Bool, constant.MakeBool(flag))
 	case token.EQL, token.LSS, token.GTR, token.NEQ, token.LEQ, token.GEQ:
 		// comparison gives an untyped bool
-		flag := constant.Compare(x.Obj, op, y.Obj)
+		flag := constant.Compare(x.Val, op, y.Val)
 		return c.exprUntypedLit(r.Bool, constant.MakeBool(flag))
 	case token.SHL, token.SHL_ASSIGN:
 		return c.ShiftUntyped(node, token.SHL, x, y)
@@ -125,7 +125,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 			// untyped integer division
 			op2 = token.QUO_ASSIGN
 		}
-		zobj := constant.BinaryOp(x.Obj, op2, y.Obj)
+		zobj := constant.BinaryOp(x.Val, op2, y.Val)
 		zkind := constantKindToUntypedLitKind(zobj.Kind())
 		// c.Debugf("untyped binary expression %v %s %v returned {%v %v}", x, op2, y, zkind, zobj)
 		// reflect.Int32 (i.e. rune) has precedence over reflect.Int
@@ -137,7 +137,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 			}
 		}
 		if zkind == r.Invalid {
-			c.Errorf("invalid binary operation: %v %v %v", x.Obj, op, y.Obj)
+			c.Errorf("invalid binary operation: %v %v %v", x.Val, op, y.Val)
 		}
 		return c.exprUntypedLit(zkind, zobj)
 	}
@@ -174,15 +174,15 @@ func tokenWithoutAssign(op token.Token) token.Token {
 var warnUntypedShift, warnUntypedShift2 = true, true
 
 func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, y UntypedLit) *Expr {
-	if y.Obj.Kind() != constant.Int {
-		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
+	if y.Val.Kind() != constant.Int {
+		c.Errorf("invalid shift: %v %v %v", x.Val, op, y.Val)
 	}
-	yn64, exact := constant.Uint64Val(y.Obj)
+	yn64, exact := constant.Uint64Val(y.Val)
 	yn := uint(yn64)
 	if !exact || uint64(yn) != yn64 {
-		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
+		c.Errorf("invalid shift: %v %v %v", x.Val, op, y.Val)
 	}
-	xn := x.Obj
+	xn := x.Val
 	xkind := x.Kind
 	switch xkind {
 	case r.Int, r.Int32:
@@ -204,11 +204,11 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 		}
 		xkind = r.Int
 	default:
-		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
+		c.Errorf("invalid shift: %v %v %v", x.Val, op, y.Val)
 	}
 	zobj := constant.Shift(xn, op, yn)
 	if zobj.Kind() == constant.Unknown {
-		c.Errorf("invalid shift: %v %v %v", x.Obj, op, y.Obj)
+		c.Errorf("invalid shift: %v %v %v", x.Val, op, y.Val)
 	}
 	return c.exprUntypedLit(xkind, zobj)
 }

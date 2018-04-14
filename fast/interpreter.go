@@ -243,5 +243,11 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 	if env.IntAddressTaken {
 		c.IntBindMax = cap(env.Ints)
 	}
+	// in case we received a SigInterrupt in the previous Eval()
+	env.ThreadGlobals.Signal = SigNone
 	return env
+}
+
+func (ir *Interp) Interrupt() {
+	ir.env.ThreadGlobals.interrupt()
 }

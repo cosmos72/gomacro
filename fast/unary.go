@@ -93,7 +93,7 @@ func (c *Comp) UnaryExprUntyped(node *ast.UnaryExpr, xe *Expr) *Expr {
 	switch op {
 	case token.ADD, token.SUB, token.XOR, token.NOT:
 		xlit := xe.Value.(UntypedLit)
-		ret := constant.UnaryOp(op, xlit.Obj, 0)
+		ret := constant.UnaryOp(op, xlit.Val, 0)
 		if ret == constant.MakeUnknown() {
 			return c.invalidUnaryExpr(node, xe)
 		}

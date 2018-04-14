@@ -29,21 +29,24 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	r "reflect"
 	"runtime/debug"
 	"strings"
 	"time"
 
 	. "github.com/cosmos72/gomacro/base"
+	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type Interp struct {
 	*Env
+	currOpt CmdOpt
 }
 
 func New() *Interp {
 	top := NewEnv(nil, "builtin")
 	env := NewEnv(top, "main")
-	return &Interp{env}
+	return &Interp{Env: env}
 }
 
 func (ir *Interp) ChangePackage(path string) {
@@ -63,7 +66,10 @@ func (ir *Interp) ReplStdin() {
 `)
 	}
 	tty, _ := MakeTtyReadline(historyfile)
-	defer tty.Close(historyfile) // restore normal tty mode!
+	defer tty.Close(historyfile) // restore normal tty mode
+
+	c := StartSignalHandler(ir.Interrupt)
+	defer StopSignalHandler(c)
 
 	ir.Line = 0
 	for ir.ReadParseEvalPrint(tty) {
@@ -74,6 +80,10 @@ func (ir *Interp) ReplStdin() {
 
 func (ir *Interp) Repl(in *bufio.Reader) {
 	r := MakeBufReadline(in, ir.Stdout)
+
+	c := StartSignalHandler(ir.Interrupt)
+	defer StopSignalHandler(c)
+
 	for ir.ReadParseEvalPrint(r) {
 	}
 }
@@ -157,13 +167,31 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 		}
 	}
 
+	ir.currOpt = opt // store options where Interp.Interrupt() can find them
+
 	// parse phase. no macroexpansion/collect yet
 	form := env.ParseOnly(src)
 
 	// macroexpand + collect + eval phase
-	values, types := env.evalAst(form, opt)
+	var values []r.Value
+	var types []xr.Type
+	if form != nil {
+		if opt&CmdOptFast != 0 {
+			values, types = env.fastEval(form)
+		} else {
+			values = env.classicEval(form)
+		}
+	}
 
 	// print phase
 	g.Print(values, types)
 	return true
+}
+
+func (ir *Interp) Interrupt(sig os.Signal) {
+	if ir.currOpt&CmdOptFast != 0 {
+		ir.Env.fastInterrupt()
+	} else {
+		// TODO not implemented
+	}
 }

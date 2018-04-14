@@ -31,7 +31,6 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (env *Env) Eval(src interface{}) (r.Value, []r.Value) {
@@ -101,23 +100,8 @@ func (env *Env) EvalNode1(node ast.Node) r.Value {
 	return value
 }
 
-// macroexpand + collect + eval.
-// if opt&CmdOptFast != 0 calls env.fastEval(), otherwise calls env.classicEval()
-func (env *Env) evalAst(form ast2.Ast, opt CmdOpt) ([]r.Value, []xr.Type) {
-	var values []r.Value
-	var types []xr.Type
-	if form != nil {
-		if opt&CmdOptFast != 0 {
-			values, types = PackValuesAndTypes(env.fastEval(form))
-		} else {
-			values = PackValues(env.classicEval(form))
-		}
-	}
-	return values, types
-}
-
 // macroexpand + collect + eval
-func (env *Env) classicEval(form ast2.Ast) (r.Value, []r.Value) {
+func (env *Env) classicEval(form ast2.Ast) []r.Value {
 	// macroexpansion phase.
 	form, _ = env.MacroExpandAstCodewalk(form)
 
@@ -132,8 +116,8 @@ func (env *Env) classicEval(form ast2.Ast) (r.Value, []r.Value) {
 
 	// eval phase
 	if env.Options&OptMacroExpandOnly != 0 {
-		return r.ValueOf(form.Interface()), nil
+		return PackValues(r.ValueOf(form.Interface()), nil)
 	} else {
-		return env.EvalAst(form)
+		return PackValues(env.EvalAst(form))
 	}
 }

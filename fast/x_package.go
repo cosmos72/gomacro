@@ -22,7 +22,6 @@ func init() {
 			"FileDepth":           r.ValueOf(FileDepth),
 			"FuncBind":            r.ValueOf(FuncBind),
 			"IntBind":             r.ValueOf(IntBind),
-			"Interrupt":           r.ValueOf(&Interrupt).Elem(),
 			"MakeEFlag":           r.ValueOf(MakeEFlag),
 			"New":                 r.ValueOf(New),
 			"NewComp":             r.ValueOf(NewComp),

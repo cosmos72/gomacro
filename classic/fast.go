@@ -84,7 +84,7 @@ func (env *Env) fastUnloadPackage(path string) {
 
 // temporary helper to invoke the new fast interpreter.
 // executes macroexpand + collect + compile + eval
-func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type) {
+func (env *Env) fastEval(form ast2.Ast) ([]r.Value, []xr.Type) {
 	f := env.fastInterp()
 	f.Comp.Stringer.Copy(&env.Stringer) // sync Fileset, Pos, Line
 	f.Comp.Options = env.Options        // sync Options
@@ -104,7 +104,7 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type)
 
 	if env.Options&base.OptMacroExpandOnly != 0 {
 		x := form.Interface()
-		return r.ValueOf(x), nil, f.Comp.TypeOf(x), nil
+		return []r.Value{r.ValueOf(x)}, []xr.Type{f.Comp.TypeOf(x)}
 	}
 
 	// compile phase
@@ -115,8 +115,16 @@ func (env *Env) fastEval(form ast2.Ast) (r.Value, []r.Value, xr.Type, []xr.Type)
 
 	// eval phase
 	if expr == nil {
-		return base.None, nil, nil, nil
+		return nil, nil
 	}
 	value, values := f.RunExpr(expr)
-	return value, values, expr.Type, expr.Types
+	return base.PackValuesAndTypes(value, values, expr.Type, expr.Types)
+}
+
+func (env *Env) fastInterrupt() {
+	f, _ := env.FastInterp.(*fast.Interp)
+	if f == nil {
+		return
+	}
+	f.Interrupt()
 }

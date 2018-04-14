@@ -36,7 +36,7 @@ import (
 )
 
 type UntypedVal struct {
-	Kind reflect.Kind
+	Kind reflect.Kind // default type. matches Val.Kind() except for rune literals, where Kind == reflect.Int32
 	Val  constant.Value
 }
 
@@ -63,14 +63,13 @@ func UntypedKindToReflectKind(gkind types.BasicKind) reflect.Kind {
 	return kind
 }
 
-func MarshalUntyped(kind types.BasicKind, val constant.Value) string {
-	rkind := UntypedKindToReflectKind(kind)
-	lit := UntypedVal{rkind, val}
+func MarshalUntyped(kind reflect.Kind, val constant.Value) string {
+	lit := UntypedVal{kind, val}
 	return lit.Marshal()
 }
 
 func UnmarshalUntyped(marshalled string) (reflect.Kind, constant.Value) {
-	lit := UnmarshalUntypedLit(marshalled)
+	lit := UnmarshalUntypedVal(marshalled)
 	return lit.Kind, lit.Val
 }
 
@@ -101,7 +100,7 @@ func (lit *UntypedVal) Marshal() string {
 	return s
 }
 
-func UnmarshalUntypedLit(marshalled string) *UntypedVal {
+func UnmarshalUntypedVal(marshalled string) *UntypedVal {
 	var skind, str string
 	if sep := strings.IndexByte(marshalled, ':'); sep >= 0 {
 		skind = marshalled[:sep]

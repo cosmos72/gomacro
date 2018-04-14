@@ -43,24 +43,24 @@ type I = interface{}
 
 // UntypedLit represents an untyped literal value, i.e. an untyped constant
 type UntypedLit struct {
-	Kind       r.Kind // default type. matches Obj.Kind() except for rune literals, where Kind == reflect.Int32
-	Obj        constant.Value
+	Kind       r.Kind // default type. matches Val.Kind() except for rune literals, where Kind == reflect.Int32
+	Val        constant.Value
 	BasicTypes *[]xr.Type
 }
 
 var (
-	untypedZero = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(0)}
-	untypedOne  = UntypedLit{Kind: r.Int, Obj: constant.MakeInt64(1)}
+	untypedZero = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(0)}
+	untypedOne  = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(1)}
 )
 
 // pretty-print untyped constants
 func (untyp UntypedLit) String() string {
-	obj := untyp.Obj
+	val := untyp.Val
 	var strkind, strobj interface{} = untyp.Kind, nil
 	if untyp.Kind == r.Int32 {
 		strkind = "rune"
-		if obj.Kind() == constant.Int {
-			if i, exact := constant.Int64Val(obj); exact {
+		if val.Kind() == constant.Int {
+			if i, exact := constant.Int64Val(val); exact {
 				if i >= 0 && i <= 0x10FFFF {
 					strobj = fmt.Sprintf("%q", i)
 				}
@@ -68,7 +68,7 @@ func (untyp UntypedLit) String() string {
 		}
 	}
 	if strobj == nil {
-		strobj = obj.ExactString()
+		strobj = val.ExactString()
 	}
 	return fmt.Sprintf("{%v %v}", strkind, strobj)
 }
@@ -476,7 +476,7 @@ type ThreadGlobals struct {
 	FileEnv      *Env
 	TopEnv       *Env
 	Interrupt    Stmt
-	Signal       Signal // set by interrupts: Return, Defer...
+	Signal       Signal // set by defer, return and ThreadGlobals.interrupt(os.Signal)
 	PoolSize     int
 	Pool         [PoolCapacity]*Env
 	InstallDefer func()      // defer function to be installed
@@ -539,7 +539,8 @@ type Signal int
 const (
 	SigNone Signal = iota
 	SigReturn
-	SigDefer // request to install a defer function
+	SigDefer     // request to install a defer function
+	SigInterrupt // user pressed Ctrl+C, process received SIGINT, or similar
 )
 
 // ================================= Env =================================

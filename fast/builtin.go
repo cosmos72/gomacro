@@ -56,9 +56,9 @@ func (top *Comp) removeIota() {
 }
 
 func (top *Comp) incrementIota() {
-	iota := top.Binds["iota"].Lit.Value.(UntypedLit).Obj
-	iota = constant.BinaryOp(iota, token.ADD, untypedOne.Obj)
-	top.Binds["iota"] = top.BindUntyped(UntypedLit{Kind: r.Int, Obj: iota})
+	iota := top.Binds["iota"].Lit.Value.(UntypedLit).Val
+	iota = constant.BinaryOp(iota, token.ADD, untypedOne.Val)
+	top.Binds["iota"] = top.BindUntyped(UntypedLit{Kind: r.Int, Val: iota})
 }
 
 // ============================== initialization ===============================

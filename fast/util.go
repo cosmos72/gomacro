@@ -88,7 +88,7 @@ func (e *Expr) TryAsPred() (value bool, fun func(*Env) bool, err bool) {
 		if untyp.Kind != r.Bool {
 			return false, nil, true
 		}
-		return constant.BoolVal(untyp.Obj), nil, false
+		return constant.BoolVal(untyp.Val), nil, false
 	}
 	if e.Type.Kind() != r.Bool {
 		return false, nil, true
