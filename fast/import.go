@@ -27,7 +27,6 @@ package fast
 
 import (
 	"go/ast"
-	"go/types"
 	r "reflect"
 	"strconv"
 	"strings"
@@ -304,11 +303,11 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 }
 
 func (g *CompGlobals) parseUntyped(untyped string) (r.Value, xr.Type, bool) {
-	gkind, value := UnmarshalUntyped(untyped)
-	if gkind == types.Invalid {
+	kind, value := UnmarshalUntyped(untyped)
+	if kind == r.Invalid {
 		return Nil, nil, false
 	}
-	lit := UntypedLit{Kind: xr.ToReflectKind(gkind), Obj: value, BasicTypes: &g.Universe.BasicTypes}
+	lit := UntypedLit{Kind: kind, Obj: value, BasicTypes: &g.Universe.BasicTypes}
 	return r.ValueOf(lit), g.TypeOfUntypedLit(), true
 }
 

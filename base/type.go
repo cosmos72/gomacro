@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * types.go
+ * type.go
  *
  *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi

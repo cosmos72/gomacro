@@ -79,6 +79,10 @@ func (err RuntimeError) Error() string {
 	return msg
 }
 
+func makeRuntimeError(format string, args ...interface{}) error {
+	return RuntimeError{nil, format, args}
+}
+
 func (st *Stringer) MakeRuntimeError(format string, args ...interface{}) RuntimeError {
 	return RuntimeError{st, format, args}
 }

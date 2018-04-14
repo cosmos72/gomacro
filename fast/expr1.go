@@ -34,10 +34,6 @@ import (
 )
 
 func (c *Comp) litValue(value I) Lit {
-	if untyp, ok := value.(UntypedLit); ok && untyp.BasicTypes != &c.Universe.BasicTypes {
-		untyp.BasicTypes = &c.Universe.BasicTypes
-		value = untyp
-	}
 	return Lit{Type: c.TypeOf(value), Value: value}
 }
 
