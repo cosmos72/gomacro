@@ -105,7 +105,7 @@ The following combinations are tested and known to work:
 - Mac OS X: amd64, 386 (386 binaries running on amd64 system)
 - Windows: amd64, 386
 - FreeBSD: amd64, 386
-- Android: arm64
+- Android: arm64, arm (using [Termux](https://termux.com/) and the Go compiler distributed with it)
 
 ### How to install
 
