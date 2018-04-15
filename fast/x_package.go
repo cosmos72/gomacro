@@ -34,10 +34,6 @@ func init() {
 			"PlaceAddress":        r.ValueOf(PlaceAddress),
 			"PlaceSettable":       r.ValueOf(PlaceSettable),
 			"PoolCapacity":        r.ValueOf(PoolCapacity),
-			"SigDefer":            r.ValueOf(SigDefer),
-			"SigInterrupt":        r.ValueOf(SigInterrupt),
-			"SigNone":             r.ValueOf(SigNone),
-			"SigReturn":           r.ValueOf(SigReturn),
 			"TopDepth":            r.ValueOf(TopDepth),
 			"VarBind":             r.ValueOf(VarBind),
 		}, Types: map[string]r.Type{
@@ -65,7 +61,6 @@ func init() {
 			"NamedType":          r.TypeOf((*NamedType)(nil)).Elem(),
 			"Place":              r.TypeOf((*Place)(nil)).Elem(),
 			"PlaceOption":        r.TypeOf((*PlaceOption)(nil)).Elem(),
-			"Signal":             r.TypeOf((*Signal)(nil)).Elem(),
 			"Stmt":               r.TypeOf((*Stmt)(nil)).Elem(),
 			"Symbol":             r.TypeOf((*Symbol)(nil)).Elem(),
 			"ThreadGlobals":      r.TypeOf((*ThreadGlobals)(nil)).Elem(),

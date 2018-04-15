@@ -233,11 +233,7 @@ func (c *Comp) Defer(node *ast.DeferStmt) {
 				f.Call(args)
 			}
 		}
-		// give priority to SigInterrupt. this is inherently racy,
-		// we want defers to run even on user break (Ctrl+C(
-		if g.Signal != SigInterrupt {
-			g.Signal = SigDefer
-		}
+		g.Signals.Set(SigDefer)
 		return g.Interrupt, env
 	})
 	c.Code.WithDefers = true
@@ -556,18 +552,14 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 		}
 		// append the return epilogue
 		g := env.ThreadGlobals
-		if g.Signal != SigInterrupt { // give priority to SigInterrupt
-			g.Signal = SigReturn
-		}
+		g.Signals.Set(SigReturn)
 		return g.Interrupt, env
 	}, node.Pos())
 }
 
 func stmtReturn(env *Env) (Stmt, *Env) {
 	g := env.ThreadGlobals
-	if g.Signal != SigInterrupt { // give priority to SigInterrupt
-		g.Signal = SigReturn
-	}
+	g.Signals.Set(SigReturn)
 	return g.Interrupt, env
 }
 

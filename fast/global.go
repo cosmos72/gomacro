@@ -476,7 +476,7 @@ type ThreadGlobals struct {
 	FileEnv      *Env
 	TopEnv       *Env
 	Interrupt    Stmt
-	Signal       Signal // set by defer, return and ThreadGlobals.interrupt(os.Signal)
+	Signals      Signals // set by defer, return and ThreadGlobals.interrupt(os.Signal)
 	PoolSize     int
 	Pool         [PoolCapacity]*Env
 	InstallDefer func()      // defer function to be installed
@@ -533,32 +533,6 @@ const (
 	FileDepth = -2
 	TopDepth  = -3
 )
-
-type Signal int
-
-const (
-	SigNone Signal = iota
-	SigReturn
-	SigDefer     // request to install a defer function
-	SigInterrupt // user pressed Ctrl+C, process received SIGINT, or similar
-)
-
-func (sig Signal) String() string {
-	var s string
-	switch sig {
-	case SigNone:
-		s = "// no signal"
-	case SigReturn:
-		s = "// return signal"
-	case SigDefer:
-		s = "// defer signal"
-	case SigInterrupt:
-		s = "// interrupted"
-	default:
-		s = "// unknown signal"
-	}
-	return s
-}
 
 // ================================= Env =================================
 

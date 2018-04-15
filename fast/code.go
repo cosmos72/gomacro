@@ -27,6 +27,8 @@ package fast
 
 import (
 	"go/token"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
 func (code *Code) Clear() {
@@ -59,11 +61,11 @@ func (code *Code) AsExpr() *Expr {
 // then return env.ThreadGlobals.Interrupt, env
 func spinInterrupt(env *Env) (Stmt, *Env) {
 	g := env.ThreadGlobals
-	switch g.Signal {
-	case SigNone:
-		g.Signal = SigReturn
-	case SigInterrupt:
-		g.Signal = SigNone
+	sig := g.Signals.Get()
+	if sig == SigNone {
+		g.Signals.Set(SigReturn)
+	} else if sig&SigInterrupt != 0 {
+		g.Signals.Clear(SigInterrupt)
 		panic(SigInterrupt)
 	}
 	return g.Interrupt, env
@@ -88,9 +90,8 @@ func popDefer(g *ThreadGlobals, deferOf *Env, isDefer bool) {
 func restore(g *ThreadGlobals, flag bool, interrupt Stmt) {
 	g.IsDefer = flag
 	g.Interrupt = interrupt
-	sig := g.Signal
-	g.Signal = SigNone
-	if sig == SigInterrupt {
+	g.Signals.Clear(SigDefer | SigReturn)
+	if g.Signals.Clear(SigInterrupt) {
 		panic(SigInterrupt)
 	}
 }
@@ -104,7 +105,7 @@ func maybeRepanic(g *ThreadGlobals) bool {
 }
 
 func (g *ThreadGlobals) interrupt() {
-	g.Signal = SigInterrupt
+	g.Signals.Set(SigInterrupt)
 }
 
 // Exec returns a func(*Env) that will execute the compiled code
@@ -137,9 +138,8 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 			execWithDefers(env, all, pos)
 			return
 		}
-		sig := g.Signal
-		g.Signal = SigNone
-		if sig == SigInterrupt {
+		g.Signals.Clear(SigDefer | SigReturn)
+		if g.Signals.Clear(SigInterrupt) {
 			panic(SigInterrupt)
 		}
 		saveInterrupt := g.Interrupt
@@ -165,7 +165,7 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 														if stmt, env = stmt(env); stmt != nil {
 															if stmt, env = stmt(env); stmt != nil {
 																if stmt, env = stmt(env); stmt != nil {
-																	if g.Signal == SigNone {
+																	if g.Signals.IsEmpty() {
 																		continue
 																	}
 																}
@@ -203,16 +203,15 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 			stmt, env = stmt(env)
 			stmt, env = stmt(env)
 
-			if g.Signal != SigNone {
+			if !g.Signals.IsEmpty() {
 				break
 			}
 		}
 	finish:
 		// restore env.ThreadGlobals.Interrupt and Signal before returning
 		g.Interrupt = saveInterrupt
-		sig = g.Signal
-		g.Signal = SigNone
-		if sig == SigInterrupt {
+		g.Signals.Clear(SigDefer | SigReturn)
+		if g.Signals.Clear(SigInterrupt) {
 			panic(SigInterrupt)
 		}
 		return
@@ -223,9 +222,8 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 	g := env.ThreadGlobals
 
-	sig := g.Signal
-	g.Signal = SigNone
-	if sig == SigInterrupt {
+	g.Signals.Clear(SigDefer | SigReturn)
+	if g.Signals.Clear(SigInterrupt) {
 		panic(SigInterrupt)
 	}
 	defer restore(g, g.IsDefer, g.Interrupt) // restore g.IsDefer, g.Signal and g.Interrupt on return
@@ -270,7 +268,7 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 													if stmt, env = stmt(env); stmt != nil {
 														if stmt, env = stmt(env); stmt != nil {
 															if stmt, env = stmt(env); stmt != nil {
-																if g.Signal == SigNone {
+																if g.Signals.IsEmpty() {
 																	continue
 																}
 															}
@@ -287,15 +285,16 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 				}
 			}
 		}
-		if g.Signal != SigDefer {
-			goto finish
+		for g.Signals.Clear(SigDefer) {
+			fun := g.InstallDefer
+			g.InstallDefer = nil
+			defer rundefer(fun)
+			stmt = env.Code[env.IP]
+			if stmt == nil {
+				goto finish
+			}
 		}
-		g.Signal = SigNone
-		fun := g.InstallDefer
-		g.InstallDefer = nil
-		defer rundefer(fun)
-		stmt = env.Code[env.IP]
-		if stmt == nil {
+		if !g.Signals.IsEmpty() {
 			goto finish
 		}
 		continue
@@ -319,17 +318,16 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 		stmt, env = stmt(env)
 		stmt, env = stmt(env)
 
-		for sig := g.Signal; sig != SigNone; {
-			if sig != SigDefer {
-				goto finish
-			}
-			g.Signal = SigNone
+		for g.Signals.Clear(SigDefer) {
 			fun := g.InstallDefer
 			g.InstallDefer = nil
 			defer rundefer(fun)
 			stmt = env.Code[env.IP]
 			// single step
 			stmt, env = stmt(env)
+		}
+		if !g.Signals.IsEmpty() {
+			goto finish
 		}
 	}
 finish:
