@@ -29,6 +29,7 @@ import (
 	"os"
 	"os/signal"
 	"sync/atomic"
+	"unsafe"
 )
 
 // =======================================================================
@@ -58,67 +59,74 @@ func signalHandlerGoroutine(c chan os.Signal, handler func(os.Signal)) {
 
 // =======================================================================
 
-type Signal uintptr
+type Signal uint16
 
 const (
-	SigNone  Signal = 0
 	SigDefer Signal = 1 << iota // request to install a defer function
 	SigReturn
 	SigInterrupt // user pressed Ctrl+C, process received SIGINT, or similar
+
+	SigNone = Signal(0) // no signal
+	SigAll  = ^SigNone  // mask of all possible signals
 )
 
 func (sig Signal) String() string {
 	var s string
 	switch sig {
 	case SigNone:
-		s = "// no signal"
+		s = "// signal: none"
 	case SigReturn:
-		s = "// return signal"
+		s = "// signal: return"
 	case SigDefer:
-		s = "// defer signal"
+		s = "// signal: defer"
 	case SigInterrupt:
-		s = "// interrupted"
+		s = "// signal: interrupt"
 	default:
-		s = "// unknown signal"
+		s = "// signal: unknown"
 	}
 	return s
 }
 
 type Signals struct {
-	mask Signal
+	Sync  Signal
+	async Signal
 }
 
-func (s *Signals) Get() Signal {
-	return Signal(atomic.LoadUintptr((*uintptr)(&s.mask)))
+func (s *Signals) addr() *uint32 {
+	return (*uint32)(unsafe.Pointer(s))
 }
 
 func (s *Signals) IsEmpty() bool {
-	return s.Get() == 0
+	return atomic.LoadUint32(s.addr()) == 0
 }
 
-func (s *Signals) Set(bit Signal) {
+func (s *Signals) SetAsync(bits Signal) {
+	mask := Signals{SigAll, bits}
+	maskbits := *mask.addr()
+	addr := s.addr()
 	for {
-		curr := s.Get()
-		toset := curr | bit
+		curr := atomic.LoadUint32(addr)
+		toset := curr | maskbits
 		if curr == toset {
 			break
 		}
-		if atomic.CompareAndSwapUintptr((*uintptr)(&s.mask), uintptr(curr), uintptr(toset)) {
+		if atomic.CompareAndSwapUint32(addr, curr, toset) {
 			break
 		}
 	}
 }
 
-// return true if bit was set, false if it was already unset
-func (s *Signals) Clear(bit Signal) bool {
-	bit = ^bit
+func (s *Signals) ClearAsync(bits Signal) bool {
+	mask := Signals{SigAll, ^bits}
+	maskbits := *mask.addr()
+	addr := s.addr()
 	for {
-		curr := s.Get()
-		toset := curr & bit
+		curr := atomic.LoadUint32(addr)
+		toset := curr & maskbits
 		if curr == toset {
 			return false
 		}
-		if atomic.CompareAndSwapUintptr((*uintptr)(&s.mask), uintptr(curr), uintptr(toset)) {
+		if atomic.CompareAndSwapUint32(addr, curr, toset) {
 			return true
 		}
 	}

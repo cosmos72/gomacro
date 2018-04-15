@@ -33,10 +33,10 @@ type none struct{}
 
 // the following constants must match with github.com/cosmos72/gomacro/xreflect/gensym.go
 const (
-	StrGensymInterface = "\U0001202A" // name of extra struct field needed by the interpreter when creating interface proxies
-	StrGensymPrivate   = "\U00012038" // prefix to generate names for unexported struct fields
-	StrGensymEmbedded  = "\U00012039" // prefix to generate names for embedded struct fields
-	StrGensym          = "\U00012035" // prefix to generate names in macros
+	StrGensymInterface string = "\U0001202A" // name of extra struct field needed by the interpreter when creating interface proxies
+	StrGensymPrivate   string = "\U00012038" // prefix to generate names for unexported struct fields
+	StrGensymEmbedded  string = "\U00012039" // prefix to generate names for embedded struct fields
+	StrGensym          string = "\U00012035" // prefix to generate names in macros
 	// the symbols above are chosen somewhat arbitrarily. Reasons:
 	// * accepted by Go compiler as identifier names in source code
 	// * belong to an ancient language no longer spoken, so hopefully low collision risk

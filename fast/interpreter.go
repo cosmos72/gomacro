@@ -244,7 +244,9 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 		c.IntBindMax = cap(env.Ints)
 	}
 	// in case we received a SigInterrupt in the meantime
-	env.ThreadGlobals.Signals.Clear(SigDefer | SigReturn | SigInterrupt)
+	g := env.ThreadGlobals
+	g.Signals.Sync = SigNone
+	g.Signals.ClearAsync(SigAll)
 	return env
 }
 

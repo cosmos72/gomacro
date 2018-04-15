@@ -233,7 +233,7 @@ func (c *Comp) Defer(node *ast.DeferStmt) {
 				f.Call(args)
 			}
 		}
-		g.Signals.Set(SigDefer)
+		g.Signals.Sync = SigDefer
 		return g.Interrupt, env
 	})
 	c.Code.WithDefers = true
@@ -552,14 +552,14 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 		}
 		// append the return epilogue
 		g := env.ThreadGlobals
-		g.Signals.Set(SigReturn)
+		g.Signals.Sync = SigReturn
 		return g.Interrupt, env
 	}, node.Pos())
 }
 
 func stmtReturn(env *Env) (Stmt, *Env) {
 	g := env.ThreadGlobals
-	g.Signals.Set(SigReturn)
+	g.Signals.Sync = SigReturn
 	return g.Interrupt, env
 }
 

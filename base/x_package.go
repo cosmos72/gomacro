@@ -88,6 +88,7 @@ func init() {
 			"ReadString":                 r.ValueOf(ReadString),
 			"RemoveLastByte":             r.ValueOf(RemoveLastByte),
 			"ShowPackageHeader":          r.ValueOf(ShowPackageHeader),
+			"SigAll":                     r.ValueOf(SigAll),
 			"SigDefer":                   r.ValueOf(SigDefer),
 			"SigInterrupt":               r.ValueOf(SigInterrupt),
 			"SigNone":                    r.ValueOf(SigNone),
@@ -158,7 +159,8 @@ func init() {
 			"ZeroStrings":                r.ValueOf(&ZeroStrings).Elem(),
 			"ZeroTypes":                  r.ValueOf(&ZeroTypes).Elem(),
 			"ZeroValues":                 r.ValueOf(&ZeroValues).Elem(),
-		}, Types: map[string]r.Type{
+		},
+		Types: map[string]r.Type{
 			"BufReadline":      r.TypeOf((*BufReadline)(nil)).Elem(),
 			"Globals":          r.TypeOf((*Globals)(nil)).Elem(),
 			"ImportMode":       r.TypeOf((*ImportMode)(nil)).Elem(),
@@ -176,15 +178,11 @@ func init() {
 			"TypeVisitor":      r.TypeOf((*TypeVisitor)(nil)).Elem(),
 			"UntypedVal":       r.TypeOf((*UntypedVal)(nil)).Elem(),
 			"WhichMacroExpand": r.TypeOf((*WhichMacroExpand)(nil)).Elem(),
-		}, Proxies: map[string]r.Type{
+		},
+		Proxies: map[string]r.Type{
 			"Readline": r.TypeOf((*P_github_com_cosmos72_gomacro_base_Readline)(nil)).Elem(),
-		}, Untypeds: map[string]string{
-			"MinUint":            "int:0",
-			"StrGensym":          "string:𒀵",
-			"StrGensymEmbedded":  "string:𒀹",
-			"StrGensymInterface": "string:𒀪",
-			"StrGensymPrivate":   "string:𒀸",
-		}, Wrappers: map[string][]string{
+		},
+		Wrappers: map[string][]string{
 			"Globals":    []string{"CollectPackageImportsWithRename", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "IncLine", "IncLineBytes", "MakeRuntimeError", "Position", "Sprintf", "ToString", "WarnExtraValues", "Warnf"},
 			"Output":     []string{"Copy", "Errorf", "Fprintf", "IncLine", "IncLineBytes", "MakeRuntimeError", "Position", "Sprintf", "ToString"},
 			"PackageRef": []string{"LazyInit", "Merge"},

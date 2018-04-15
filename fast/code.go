@@ -61,11 +61,9 @@ func (code *Code) AsExpr() *Expr {
 // then return env.ThreadGlobals.Interrupt, env
 func spinInterrupt(env *Env) (Stmt, *Env) {
 	g := env.ThreadGlobals
-	sig := g.Signals.Get()
-	if sig == SigNone {
-		g.Signals.Set(SigReturn)
-	} else if sig&SigInterrupt != 0 {
-		g.Signals.Clear(SigInterrupt)
+	if g.Signals.IsEmpty() {
+		g.Signals.Sync = SigReturn
+	} else if g.Signals.ClearAsync(SigInterrupt) {
 		panic(SigInterrupt)
 	}
 	return g.Interrupt, env
@@ -90,8 +88,8 @@ func popDefer(g *ThreadGlobals, deferOf *Env, isDefer bool) {
 func restore(g *ThreadGlobals, flag bool, interrupt Stmt) {
 	g.IsDefer = flag
 	g.Interrupt = interrupt
-	g.Signals.Clear(SigDefer | SigReturn)
-	if g.Signals.Clear(SigInterrupt) {
+	g.Signals.Sync = SigNone
+	if g.Signals.ClearAsync(SigInterrupt) {
 		panic(SigInterrupt)
 	}
 }
@@ -105,7 +103,7 @@ func maybeRepanic(g *ThreadGlobals) bool {
 }
 
 func (g *ThreadGlobals) interrupt() {
-	g.Signals.Set(SigInterrupt)
+	g.Signals.SetAsync(SigInterrupt)
 }
 
 // Exec returns a func(*Env) that will execute the compiled code
@@ -138,9 +136,11 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 			execWithDefers(env, all, pos)
 			return
 		}
-		g.Signals.Clear(SigDefer | SigReturn)
-		if g.Signals.Clear(SigInterrupt) {
-			panic(SigInterrupt)
+		g.Signals.Sync = SigNone
+		if !g.Signals.IsEmpty() {
+			if g.Signals.ClearAsync(SigInterrupt) {
+				panic(SigInterrupt)
+			}
 		}
 		saveInterrupt := g.Interrupt
 		g.Interrupt = nil
@@ -210,9 +210,11 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 	finish:
 		// restore env.ThreadGlobals.Interrupt and Signal before returning
 		g.Interrupt = saveInterrupt
-		g.Signals.Clear(SigDefer | SigReturn)
-		if g.Signals.Clear(SigInterrupt) {
-			panic(SigInterrupt)
+		g.Signals.Sync = SigNone
+		if !g.Signals.IsEmpty() {
+			if g.Signals.ClearAsync(SigInterrupt) {
+				panic(SigInterrupt)
+			}
 		}
 		return
 	}
@@ -222,8 +224,8 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 	g := env.ThreadGlobals
 
-	g.Signals.Clear(SigDefer | SigReturn)
-	if g.Signals.Clear(SigInterrupt) {
+	g.Signals.Sync = SigNone
+	if g.Signals.ClearAsync(SigInterrupt) {
 		panic(SigInterrupt)
 	}
 	defer restore(g, g.IsDefer, g.Interrupt) // restore g.IsDefer, g.Signal and g.Interrupt on return
@@ -285,7 +287,8 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 				}
 			}
 		}
-		for g.Signals.Clear(SigDefer) {
+		for g.Signals.Sync == SigDefer {
+			g.Signals.Sync = SigNone
 			fun := g.InstallDefer
 			g.InstallDefer = nil
 			defer rundefer(fun)
@@ -318,7 +321,8 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 		stmt, env = stmt(env)
 		stmt, env = stmt(env)
 
-		for g.Signals.Clear(SigDefer) {
+		for g.Signals.Sync == SigDefer {
+			g.Signals.Sync = SigNone
 			fun := g.InstallDefer
 			g.InstallDefer = nil
 			defer rundefer(fun)
