@@ -101,7 +101,7 @@ func (s *Signals) IsEmpty() bool {
 }
 
 func (s *Signals) SetAsync(bits Signal) {
-	mask := Signals{SigAll, bits}
+	mask := Signals{0, bits}
 	maskbits := *mask.addr()
 	addr := s.addr()
 	for {
