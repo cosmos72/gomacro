@@ -65,7 +65,7 @@ Other limitations:
   and using it in compiled code reveals the difference.
 
   Reason: gomacro relies on the Go reflect package to create new types,
-  but there is no function `reflect.InterfaceOf()` or any other way to create new **named** types,
+  but there is no function `reflect.NamedOf()` or any other way to create new **named** types,
   so gomacro uses `reflect.StructOf` which can only create unnamed types.
 
 * recursive types are emulated too.
