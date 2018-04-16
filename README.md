@@ -2,7 +2,7 @@
 
 gomacro is a fairly complete Go interpreter, implemented in pure Go. It offers both
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
-(except in one very specific case: import of a 3<sup>rd</sup>-party package at runtime).
+(except in one very specific case: import of a 3<sup>rd</sup> party package at runtime).
 
 It has very few dependencies: go/ast, go/types, reflect, github.com/peterh/liner and,
 for legacy reasons (no longer used by the default interpreter), golang.org/sync/syncmap.
@@ -101,7 +101,7 @@ Gomacro can be used as:
 Gomacro is pure Go, and in theory it should work on any platform supported by the Go compiler.
 The following combinations are tested and known to work:
 
-- Linux: amd64, 386, arm64, arm (on Linux it can also import 3rd party libraries at runtime)
+- Linux: amd64, 386, arm64, arm (on Linux it can also import 3<sup>rd</sup> party libraries at runtime)
 - Mac OS X: amd64, 386 (386 binaries running on amd64 system)
 - Windows: amd64, 386
 - FreeBSD: amd64, 386
@@ -121,7 +121,7 @@ Almost complete.
 
 The main limitations and missing features are:
 
-* importing 3rd party libraries on non-Linux systems is cumbersome - see [Importing packages](#importing-packages).
+* importing 3<sup>rd</sup> party libraries on non-Linux systems is cumbersome - see [Importing packages](#importing-packages).
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * out-of-order code. Types, constants, variables and functions must be declared **before** using them.
 * goto is partially implemented - can only jump back, not forward
