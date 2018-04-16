@@ -69,15 +69,16 @@ var cmds = Cmds{
 // execute one of the REPL commands starting with ':'
 // return any remainder string to be evaluated, and the options to evaluate it
 func (ir *Interp) Cmd(src string, in Readline) (string, CmdOpt) {
+	g := ir.Env.Globals
 	var opt CmdOpt
-	if ir.Env.Globals.Options&OptFastInterpreter != 0 {
+	if g.Options&OptFastInterpreter != 0 {
 		opt |= CmdOptFast
 	}
 
 	src = strings.TrimSpace(src)
 	n := len(src)
-	if n > 0 && src[0] == ':' {
-		prefix, arg := split2(src[1:], ' ') // skip ':'
+	if n > 0 && src[0] == g.ReplCmdChar {
+		prefix, arg := split2(src[1:], ' ') // skip g.ReplCmdChar
 		cmd, found := cmds.Lookup(prefix)
 		if found {
 			src, opt = cmd.Func(ir, arg, opt, in)
@@ -152,8 +153,8 @@ func (ir *Interp) cmdFast(arg string, opt CmdOpt, in Readline) (string, CmdOpt) 
 }
 
 func (ir *Interp) cmdHelp(arg string, opt CmdOpt, in Readline) (string, CmdOpt) {
-	tg := ir.Env.ThreadGlobals
-	tg.ShowHelp(tg.Globals.Stdout)
+	g := ir.Env.ThreadGlobals.Globals
+	g.ShowHelp()
 	return "", opt
 }
 

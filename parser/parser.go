@@ -45,7 +45,7 @@ type parser struct {
 	lineComment *ast.CommentGroup // last line comment
 
 	tok0        token.Token // patch: Previous token
-	specialChar rune        // patch: prefix for quote operators ' ` , ,@
+	macroChar rune        // patch: prefix for quote operators ' ` , ,@
 
 	// Next token
 	pos token.Pos   // token position
@@ -87,11 +87,11 @@ func (p *parser) init(fset *mt.FileSet, filename string, lineOffset int, src []b
 	if mode&ParseComments != 0 {
 		m = scanner.ScanComments
 	}
-	if p.specialChar == '\x00' {
-		p.specialChar = '~'
+	if p.macroChar == '\x00' {
+		p.macroChar = '~'
 	}
 	eh := func(pos token.Position, msg string) { p.errors.Add(pos, msg) }
-	p.scanner.Init(p.file, src, eh, m, p.specialChar)
+	p.scanner.Init(p.file, src, eh, m, p.macroChar)
 
 	p.mode = mode
 	p.trace = mode&Trace != 0 // for convenience (p.trace is used frequently)

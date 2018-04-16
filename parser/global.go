@@ -34,9 +34,9 @@ type Parser struct {
 	parser
 }
 
-func (p *parser) Configure(mode Mode, specialChar rune) {
+func (p *parser) Configure(mode Mode, macroChar rune) {
 	p.mode = mode
-	p.specialChar = specialChar
+	p.macroChar = macroChar
 }
 
 func (p *parser) Init(fileset *mt.FileSet, filename string, lineOffset int, src []byte) {

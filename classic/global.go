@@ -73,7 +73,7 @@ type TypedValue struct {
  */
 type Methods map[string]TypedValue
 
-type CmdOpt int
+type CmdOpt uint32
 
 const (
 	CmdOptFast = 1 << iota // use fast interpreter

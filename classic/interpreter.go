@@ -57,13 +57,13 @@ var historyfile = Subdir(UserHomeDir(), ".gomacro_history")
 
 func (ir *Interp) ReplStdin() {
 	if ir.Options&OptShowPrompt != 0 {
-		fmt.Fprint(ir.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
+		fmt.Fprintf(ir.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
 // Copyright (C) 2017-2018 Massimiliano Ghilardi
 // License LGPL v3+: GNU Lesser GPL version 3 or later <https://gnu.org/licenses/lgpl>
 // This is free software with ABSOLUTELY NO WARRANTY.
 //
-// Type :help for help
-`)
+// Type %chelp for help
+`, ir.Globals.ReplCmdChar)
 	}
 	tty, _ := MakeTtyReadline(historyfile)
 	defer tty.Close(historyfile) // restore normal tty mode

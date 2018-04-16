@@ -53,7 +53,8 @@ type Globals struct {
 	Declarations []ast.Decl
 	Statements   []ast.Stmt
 	ParserMode   mp.Mode
-	SpecialChar  rune
+	MacroChar    rune // prefix for macro-related keywords macro, quote, quasiquote, splice... The default is '~'
+	ReplCmdChar  byte // prefix for special REPL commands env, help, inspect, quit, unload... The default is ':'
 }
 
 func NewGlobals() *Globals {
@@ -77,8 +78,30 @@ func NewGlobals() *Globals {
 		Declarations: nil,
 		Statements:   nil,
 		ParserMode:   0,
-		SpecialChar:  '~',
+		MacroChar:    '~',
+		ReplCmdChar:  ':', // Jupyter and gophernotes would probably set this to '%'
 	}
+}
+
+func (g *Globals) ShowHelp() {
+	c := g.ReplCmdChar
+	fmt.Fprintf(g.Stdout, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
+
+// interpreter commands:
+%cclassic [CODE]  execute CODE using the classic interpreter
+%cenv [name]      show available functions, variables and constants
+                 in current package, or from imported package "name"
+%cfast [CODE]     execute CODE using the fast interpreter (default)
+%chelp            show this help
+%cinspect EXPR    inspect expression interactively
+%coptions [OPTS]  show or toggle interpreter options
+%cpackage PKGPATH switch to package PKGPATH, importing it if possible.
+%cquit            quit the interpreter
+%cunload PKGPATH  remove package PKGPATH from the list of known packages.
+                 later attempts to import it will trigger a recompile
+%cwrite [FILE]    write collected declarations and/or statements to standard output or to FILE
+                 use %co Declarations and/or %co Statements to start collecting them
+`, c, c, c, c, c, c, c, c, c, c, c, c)
 }
 
 func (g *Globals) Gensym() string {
@@ -142,7 +165,7 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	} else {
 		mode &^= mp.Trace
 	}
-	parser.Configure(mode, g.SpecialChar)
+	parser.Configure(mode, g.MacroChar)
 	parser.Init(g.Fileset, g.Filename, g.Line, src)
 
 	nodes, err := parser.Parse()
