@@ -90,11 +90,12 @@ func outerEnv3(env *Env, upn int) *Env {
 	for ; upn >= 3; upn -= 3 {
 		env = env.Outer.Outer.Outer
 	}
-	if upn > 0 {
+	switch upn {
+	case 2:
 		env = env.Outer
-		if upn > 1 {
-			env = env.Outer
-		}
+		fallthrough
+	case 1:
+		env = env.Outer
 	}
 	return env
 }

@@ -246,7 +246,7 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 	// in case we received a SigInterrupt in the meantime
 	g := env.ThreadGlobals
 	g.Signals.Sync = SigNone
-	g.Signals.ClearAsync(SigAll)
+	g.Signals.Async = SigNone
 	return env
 }
 

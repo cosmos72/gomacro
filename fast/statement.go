@@ -345,7 +345,7 @@ func (c *Comp) For(node *ast.ForStmt, labels []string) {
 	if fun == nil && !flag {
 		// "for false { }" means that body, post and jump back to condition are never executed...
 		// still compiled above (to check for errors) but drop the generated code
-		c.Code.List = c.Code.List[0:jump.Cond]
+		c.Code.Truncate(jump.Cond)
 	}
 	jump.Break = c.Code.Len()
 
@@ -432,7 +432,7 @@ func (c *Comp) If(node *ast.IfStmt) {
 	if fun == nil && !flag {
 		// 'then' branch is never executed...
 		// still compiled above (to check for errors) but drop the generated code
-		c.Code.List = c.Code.List[0:jump.Then]
+		c.Code.Truncate(jump.Then)
 	}
 	// compile a 'goto' between 'then' and 'else' branches
 	if fun != nil && node.Else != nil {
@@ -461,7 +461,7 @@ func (c *Comp) If(node *ast.IfStmt) {
 		if fun == nil && flag {
 			// 'else' branch is never executed...
 			// still compiled above (to check for errors) but drop the generated code
-			c.Code.List = c.Code.List[0:jump.Else]
+			c.Code.Truncate(jump.Else)
 		}
 	}
 	jump.End = c.Code.Len()

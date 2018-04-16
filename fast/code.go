@@ -41,6 +41,15 @@ func (code *Code) Len() int {
 	return len(code.List)
 }
 
+func (code *Code) Truncate(n int) {
+	if len(code.List) > n {
+		code.List = code.List[0:n]
+	}
+	if len(code.DebugPos) > n {
+		code.DebugPos = code.DebugPos[0:n]
+	}
+}
+
 func (code *Code) Append(stmt Stmt, pos token.Pos) {
 	if stmt != nil {
 		code.List = append(code.List, stmt)
@@ -61,9 +70,11 @@ func (code *Code) AsExpr() *Expr {
 // then return env.ThreadGlobals.Interrupt, env
 func spinInterrupt(env *Env) (Stmt, *Env) {
 	g := env.ThreadGlobals
-	if g.Signals.IsEmpty() {
+	if g.Signals.Sync == SigNone {
 		g.Signals.Sync = SigReturn
-	} else if g.Signals.ClearAsync(SigInterrupt) {
+	}
+	if g.Signals.Async == SigInterrupt {
+		g.Signals.Async = SigNone
 		panic(SigInterrupt)
 	}
 	return g.Interrupt, env
@@ -89,7 +100,8 @@ func restore(g *ThreadGlobals, flag bool, interrupt Stmt) {
 	g.IsDefer = flag
 	g.Interrupt = interrupt
 	g.Signals.Sync = SigNone
-	if g.Signals.ClearAsync(SigInterrupt) {
+	if g.Signals.Async == SigInterrupt {
+		g.Signals.Async = SigNone
 		panic(SigInterrupt)
 	}
 }
@@ -103,7 +115,7 @@ func maybeRepanic(g *ThreadGlobals) bool {
 }
 
 func (g *ThreadGlobals) interrupt() {
-	g.Signals.SetAsync(SigInterrupt)
+	g.Signals.Async = SigInterrupt
 }
 
 // Exec returns a func(*Env) that will execute the compiled code
@@ -137,10 +149,9 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 			return
 		}
 		g.Signals.Sync = SigNone
-		if !g.Signals.IsEmpty() {
-			if g.Signals.ClearAsync(SigInterrupt) {
-				panic(SigInterrupt)
-			}
+		if g.Signals.Async == SigInterrupt {
+			g.Signals.Async = SigNone
+			panic(SigInterrupt)
 		}
 		saveInterrupt := g.Interrupt
 		g.Interrupt = nil
@@ -211,10 +222,9 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 		// restore env.ThreadGlobals.Interrupt and Signal before returning
 		g.Interrupt = saveInterrupt
 		g.Signals.Sync = SigNone
-		if !g.Signals.IsEmpty() {
-			if g.Signals.ClearAsync(SigInterrupt) {
-				panic(SigInterrupt)
-			}
+		if g.Signals.Async == SigInterrupt {
+			g.Signals.Async = SigNone
+			panic(SigInterrupt)
 		}
 		return
 	}
@@ -225,7 +235,8 @@ func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
 	g := env.ThreadGlobals
 
 	g.Signals.Sync = SigNone
-	if g.Signals.ClearAsync(SigInterrupt) {
+	if g.Signals.Async == SigInterrupt {
+		g.Signals.Async = SigNone
 		panic(SigInterrupt)
 	}
 	defer restore(g, g.IsDefer, g.Interrupt) // restore g.IsDefer, g.Signal and g.Interrupt on return

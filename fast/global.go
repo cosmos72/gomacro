@@ -254,7 +254,7 @@ type Macro struct {
 type BindClass uint
 
 const (
-	ConstBind = BindClass(iota)
+	ConstBind BindClass = iota
 	FuncBind
 	VarBind
 	IntBind
@@ -273,7 +273,8 @@ func (class BindClass) String() string {
 
 // ================================== BindDescriptor =================================
 
-// the zero value of BindDescriptor is a valid descriptor for all constants
+// the zero value of BindDescriptor is a valid descriptor for all constants,
+// and also for functions and variables named "_"
 type BindDescriptor BindClass
 
 const (

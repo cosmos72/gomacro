@@ -390,10 +390,13 @@ func (imp *Import) selector(c *Comp, name string) *Expr {
 	switch bind.Desc.Class() {
 	case ConstBind:
 		return exprLit(bind.Lit, bind.AsSymbol(0))
+	case FuncBind, VarBind:
+		return imp.symbol(c, bind)
 	case IntBind:
 		return imp.intSymbol(c, bind)
 	default:
-		return imp.symbol(c, bind)
+		c.Errorf("package symbol %s.%s has unknown class %s", imp.Name, name, bind.Desc.Class())
+		return nil
 	}
 }
 
