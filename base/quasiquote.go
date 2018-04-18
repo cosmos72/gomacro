@@ -165,6 +165,15 @@ func MakeQuote2(form UnaryExpr, toQuote AstWithNode) UnaryExpr {
 	return UnaryExpr{expr}
 }
 
+// MakeNestedQuote invokes parser.MakeQuote() multiple times, passing op=toks[i] at each call
+func MakeNestedQuote(form AstWithNode, toks []token.Token, pos []token.Pos) AstWithNode {
+	for i := len(toks) - 1; i >= 0; i-- {
+		expr, _ := mp.MakeQuote(nil, toks[i], pos[i], form.Node())
+		form = UnaryExpr{expr}
+	}
+	return form
+}
+
 // DuplicateNestedUnquotes is a support function to handle the following complication:
 // in Common Lisp, the right-most unquote pairs with the left-most comma!
 // we implement the same mechanics, so we must drill down to the last unquote/unquote_splice
@@ -174,9 +183,9 @@ func MakeQuote2(form UnaryExpr, toQuote AstWithNode) UnaryExpr {
 //   quasiquote{quasiquote{1; unquote{2}; unquote{unquote_splice{x}}}}
 // must return
 //   quasiquote{1; unquote{2}; unquote{7}; unquote{8}}
-func DuplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
+func DuplicateNestedUnquotes(src UnaryExpr, depth int, toappend Ast) Ast {
 	if depth == 0 {
-		return content
+		return toappend
 	}
 	head, tail := MakeQuote(src)
 	var form Ast = src
@@ -192,17 +201,20 @@ func DuplicateNestedUnquotes(src UnaryExpr, depth int, content Ast) Ast {
 		tail = newTail
 	}
 	// cheat: we know that BlockStmt.Append() always returns the receiver unmodified
-	if content != nil {
-		tail.Append(content)
+	if toappend != nil {
+		tail.Append(toappend)
 	}
 	return head
 }
 
+// return the expression inside nested mt.UNQUOTE and/or mt.UNQUOTE_SPLICE contained in 'unquote'
 func DescendNestedUnquotes(unquote UnaryExpr) (lastUnquote UnaryExpr, depth int) {
 	depth = 1
 	for {
 		form := unquote.Get(0).Get(1)
-		form = UnwrapTrivialAst(form)
+		// do NOT UnwrapTrivialAst(form): we want the BlockStmt
+
+		// Debugf("DescendNestedUnquotes: %v // %T", UnwrapTrivialAst(form).Interface(), UnwrapTrivialAst(form).Interface())
 
 		if form != nil && form.Size() == 1 {
 			if block, ok := form.(BlockStmt); ok {
@@ -218,6 +230,39 @@ func DescendNestedUnquotes(unquote UnaryExpr) (lastUnquote UnaryExpr, depth int)
 				}
 			}
 		}
+		// Debugf("DescendNestedUnquotes: returning depth = %d, %v // %T", depth, unquote.Interface(), unquote.Interface())
 		return unquote, depth
+	}
+}
+
+// return the sequence of nested mt.UNQUOTE and/or mt.UNQUOTE_SPLICE contained in 'unquote'
+func CollectNestedUnquotes(unquote UnaryExpr) ([]token.Token, []token.Pos) {
+	// Debugf("CollectNestedUnquotes: %v // %T", unquote.X, unquote.X)
+
+	var toks []token.Token
+	var pos []token.Pos
+	for {
+		unary := unquote.X
+		toks = append(toks, unary.Op)
+		pos = append(pos, unary.OpPos)
+
+		form := unquote.Get(0).Get(1)
+		// do NOT UnwrapTrivialAst(form): we want the BlockStmt
+
+		if form != nil && form.Size() == 1 {
+			if block, ok := form.(BlockStmt); ok {
+				form = UnwrapTrivialAst(block.Get(0))
+				if form != nil && form.Size() == 1 {
+					if expr, ok := form.(UnaryExpr); ok {
+						if op := expr.X.Op; op == mt.UNQUOTE || op == mt.UNQUOTE_SPLICE {
+							unquote = expr
+							continue
+						}
+					}
+				}
+			}
+		}
+		// Debugf("CollectNestedUnquotes: returning toks = %v, pos = %v // %T", toks, pos)
+		return toks, pos
 	}
 }

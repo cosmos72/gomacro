@@ -77,10 +77,10 @@ func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythi
 	saved := in
 
 	if expr, ok := in.(UnaryExpr); ok {
-		isBlockWithinExpr := false
-		switch expr.X.Op {
+		op := expr.X.Op
+		switch op {
 		case mt.MACRO:
-			isBlockWithinExpr = true
+			break
 		case mt.QUOTE:
 			// QUOTE prevents macroexpansion only if found outside any QUASIQUOTE
 			if quasiquoteDepth == 0 {
@@ -97,15 +97,14 @@ func (c *Comp) macroExpandCodewalk(in Ast, quasiquoteDepth int) (out Ast, anythi
 		}
 		inChild := UnwrapTrivialAst(in.Get(0).Get(1))
 		outChild, expanded := c.macroExpandCodewalk(inChild, quasiquoteDepth)
-		if isBlockWithinExpr {
+		if op == mt.MACRO {
 			return outChild, expanded
-		} else {
-			out := in
-			if expanded {
-				out = MakeQuote2(expr, outChild.(AstWithNode))
-			}
-			return out, expanded
 		}
+		out := in
+		if expanded {
+			out = MakeQuote2(expr, outChild.(AstWithNode))
+		}
+		return out, expanded
 	}
 Recurse:
 	if in == nil {
