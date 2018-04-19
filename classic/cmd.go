@@ -91,7 +91,7 @@ func (ir *Interp) Cmd(src string, in Readline) (string, CmdOpt) {
 		}
 	}
 	// :package and package are the same command
-	if src == "package" || strings.HasPrefix(src, "package ") {
+	if g.Options&OptMacroExpandOnly == 0 && (src == "package" || strings.HasPrefix(src, "package ")) {
 		_, arg := split2(src, ' ')
 		src, opt = ir.cmdPackage(arg, opt, in)
 	}

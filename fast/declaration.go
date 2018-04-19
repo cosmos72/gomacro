@@ -79,24 +79,40 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 			c.DeclVars(decl)
 		}
 	case token.PACKAGE:
-		// modified parser converts 'package foo' to ast.GenDecl{Tok: token.Package}
+		/*
+			modified parser converts 'package foo' to:
+
+			ast.GenDecl{
+				Tok: token.PACKAGE,
+				Specs: []ast.Spec{
+					&ast.ValueSpec{
+						Values: []ast.Expr{
+							&ast.BasicLit{
+								Kind:  token.String,
+								Value: "path/to/package",
+							},
+						},
+					},
+				},
+			}
+		*/
 		if len(node.Specs) == 1 {
 			if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
 				if len(decl.Values) == 1 {
 					if lit, ok := decl.Values[0].(*ast.BasicLit); ok {
-						if lit.Kind == token.STRING && lit.Value == "main" {
+						if lit.Kind == token.STRING && (lit.Value == c.Name || base.MaybeUnescapeString(lit.Value) == c.Path) {
 							break
 						}
 					}
 					// c.changePackage(name)
-					c.Debugf("cannot switch package from fast.Comp.Compile(), use Interp.Repl() instead: %v <%v>", node, r.TypeOf(node))
+					c.Debugf("cannot switch package from fast.Comp.Compile(), use Interp.Repl() instead: %v // %T", node, node)
 				}
 			}
 		}
-		c.Errorf("unsupported package syntax, expecting a single package name, found: %v <%v>", node, r.TypeOf(node))
+		c.Errorf("unsupported package syntax, expecting a single package name, found: %v // %T", node, node)
 	default:
-		c.Errorf("unsupported declaration kind, expecting token.IMPORT, token.PACKAGE, token.CONST, token.TYPE or token.VAR, found %v: %v <%v>",
-			node.Tok, node, r.TypeOf(node))
+		c.Errorf("unsupported declaration kind, expecting token.IMPORT, token.PACKAGE, token.CONST, token.TYPE or token.VAR, found %v: %v // %T",
+			node.Tok, node, node)
 	}
 }
 

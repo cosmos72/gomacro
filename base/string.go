@@ -50,6 +50,18 @@ func UnescapeString(str string) string {
 	return ret
 }
 
+func MaybeUnescapeString(str string) string {
+	n := len(str)
+	if n >= 2 && (str[0] == '"' || str[0] == '`' || str[0] == '\'') && str[n-1] == str[0] {
+		ret, err := strconv.Unquote(str)
+		if err != nil {
+			Error(err)
+		}
+		return ret
+	}
+	return str
+}
+
 func FindFirstToken(src []byte) int {
 	n := len(src)
 	const (
