@@ -51,7 +51,6 @@ func init() {
 			"MaxUint":                 r.ValueOf(MaxUint),
 			"MaxUint16":               r.ValueOf(MaxUint16),
 			"MinInt":                  r.ValueOf(MinInt),
-			"MinUint":                 r.ValueOf(MinUint),
 			"NewGlobals":              r.ValueOf(NewGlobals),
 			"Nil":                     r.ValueOf(&Nil).Elem(),
 			"None":                    r.ValueOf(&None).Elem(),

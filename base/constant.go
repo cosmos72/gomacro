@@ -45,7 +45,6 @@ const (
 
 	MaxUint16 = ^uint16(0)
 	MaxUint   = ^uint(0)
-	MinUint   = 0
 	MaxInt    = int(MaxUint >> 1)
 	MinInt    = ^MaxInt
 )

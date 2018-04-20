@@ -36,6 +36,8 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/fast"
+	mp "github.com/cosmos72/gomacro/parser"
+	mt "github.com/cosmos72/gomacro/token"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -272,6 +274,11 @@ func for_range_string(s string) int32 {
 		v0 += r << (uint8(i) * 8)
 	}
 	return v0
+}
+
+func makequote(op token.Token, node ast.Node) *ast.UnaryExpr {
+	unary, _ := mp.MakeQuote(nil, op, token.NoPos, node)
+	return unary
 }
 
 type Pair = struct { // unnamed!
@@ -852,6 +859,20 @@ var testcases = []TestCase{
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 		&ast.ExprStmt{X: &ast.Ident{Name: "one"}},
 	}}, nil},
+	TestCase{A, "unquote_splice_3", `~"~"{zero ; ~,~,@ab ; one}`,
+		makequote(mt.QUASIQUOTE, &ast.BlockStmt{List: []ast.Stmt{
+			&ast.ExprStmt{X: &ast.Ident{Name: "zero"}},
+			&ast.ExprStmt{X: makequote(mt.UNQUOTE, &ast.Ident{Name: "a"})},
+			&ast.ExprStmt{X: makequote(mt.UNQUOTE, &ast.Ident{Name: "b"})},
+			&ast.ExprStmt{X: &ast.Ident{Name: "one"}},
+		}}), nil},
+	TestCase{A, "unquote_splice_4", `~"~"{zero ; ~,@~,@ab ; one}`,
+		makequote(mt.QUASIQUOTE, &ast.BlockStmt{List: []ast.Stmt{
+			&ast.ExprStmt{X: &ast.Ident{Name: "zero"}},
+			&ast.ExprStmt{X: makequote(mt.UNQUOTE_SPLICE, &ast.Ident{Name: "a"})},
+			&ast.ExprStmt{X: makequote(mt.UNQUOTE_SPLICE, &ast.Ident{Name: "b"})},
+			&ast.ExprStmt{X: &ast.Ident{Name: "one"}},
+		}}), nil},
 	TestCase{A, "macro", "~macro second_arg(a,b,c interface{}) interface{} { return b }; v = 98; v", uint32(98), nil},
 	TestCase{A, "macro_call", "second_arg;1;v;3", uint32(98), nil},
 	TestCase{A, "macro_nested", "second_arg;1;{second_arg;2;3;4};5", 3, nil},
