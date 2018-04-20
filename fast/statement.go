@@ -46,6 +46,30 @@ func popEnv(env *Env) (Stmt, *Env) {
 	return outer.Code[outer.IP], outer
 }
 
+func isBreakpoint(expr *Expr) bool {
+	return expr.Const() && expr.UntypedKind() == r.String && expr.Value.(UntypedLit).Val.ExactString() == `"break"`
+}
+
+func makeStmtBreakpoint(c *Comp) Stmt {
+	return func(env *Env) (Stmt, *Env) {
+		ir := Interp{c, env}
+		g := c.Globals
+
+		prompt := g.Prompt
+		g.Prompt = "godebug> "
+		defer func() {
+			g.Prompt = prompt
+		}()
+
+		g.Line = 0
+		for ir.ReadParseEvalPrint() {
+			g.Line = 0
+		}
+		env.IP++
+		return env.Code[env.IP], env
+	}
+}
+
 func (c *Comp) Stmt(in ast.Stmt) {
 	var labels []string
 	for {
@@ -74,6 +98,8 @@ func (c *Comp) Stmt(in ast.Stmt) {
 			expr := c.Expr(node.X, nil)
 			if !expr.Const() {
 				c.Append(expr.AsStmt(), in.Pos())
+			} else if isBreakpoint(expr) {
+				c.Append(makeStmtBreakpoint(c), in.Pos())
 			}
 		case *ast.ForStmt:
 			c.For(node, labels)

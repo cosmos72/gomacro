@@ -72,11 +72,3 @@ type TypedValue struct {
  * }
  */
 type Methods map[string]TypedValue
-
-type CmdOpt uint32
-
-const (
-	CmdOptFast = 1 << iota // use fast interpreter
-	CmdOptQuit
-	CmdOptForceEval // temporarily re-enable evaluation even if in macroexpand-only mode
-)

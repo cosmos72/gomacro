@@ -40,7 +40,6 @@ import (
 
 type Interp struct {
 	*Env
-	currOpt CmdOpt
 }
 
 func New() *Interp {
@@ -56,14 +55,15 @@ func (ir *Interp) ChangePackage(path string) {
 var historyfile = Subdir(UserHomeDir(), ".gomacro_history")
 
 func (ir *Interp) ReplStdin() {
-	if ir.Options&OptShowPrompt != 0 {
+	g := ir.Globals
+	if g.Options&OptShowPrompt != 0 {
 		fmt.Fprintf(ir.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
 // Copyright (C) 2017-2018 Massimiliano Ghilardi
 // License LGPL v3+: GNU Lesser GPL version 3 or later <https://gnu.org/licenses/lgpl>
 // This is free software with ABSOLUTELY NO WARRANTY.
 //
 // Type %chelp for help
-`, ir.Globals.ReplCmdChar)
+`, g.ReplCmdChar)
 	}
 	tty, _ := MakeTtyReadline(historyfile)
 	defer tty.Close(historyfile) // restore normal tty mode
@@ -71,8 +71,14 @@ func (ir *Interp) ReplStdin() {
 	c := StartSignalHandler(ir.Interrupt)
 	defer StopSignalHandler(c)
 
+	savetty := g.Readline
+	g.Readline = tty
+	defer func() {
+		g.Readline = savetty
+	}()
+
 	ir.Line = 0
-	for ir.ReadParseEvalPrint(tty) {
+	for ir.ReadParseEvalPrint() {
 		ir.Line = 0
 	}
 	os.Stdout.WriteString("\n")
@@ -84,27 +90,34 @@ func (ir *Interp) Repl(in *bufio.Reader) {
 	c := StartSignalHandler(ir.Interrupt)
 	defer StopSignalHandler(c)
 
-	for ir.ReadParseEvalPrint(r) {
+	g := ir.Globals
+	savetty := g.Readline
+	g.Readline = r
+	defer func() {
+		g.Readline = savetty
+	}()
+
+	for ir.ReadParseEvalPrint() {
 	}
 }
 
-func (ir *Interp) ReadParseEvalPrint(in Readline) (callAgain bool) {
-	str, firstToken := ir.Read(in)
+func (ir *Interp) ReadParseEvalPrint() (callAgain bool) {
+	str, firstToken := ir.Read()
 	if firstToken < 0 {
 		// skip comment-only lines and continue, but fail on EOF or other errors
 		return len(str) != 0
 	}
-	return ir.ParseEvalPrint(str[firstToken:], in)
+	return ir.ParseEvalPrint(str[firstToken:])
 }
 
 // return read string and position of first non-comment token.
 // return "", -1 on EOF
-func (ir *Interp) Read(in Readline) (string, int) {
+func (ir *Interp) Read() (string, int) {
 	var opts ReadOptions
 	if ir.Options&OptShowPrompt != 0 {
 		opts |= ReadOptShowPrompt
 	}
-	str, firstToken := ir.Env.Globals.ReadMultiline(in, opts)
+	str, firstToken := ir.Env.Globals.ReadMultiline(opts)
 	if firstToken < 0 {
 		ir.IncLine(str)
 	} else if firstToken > 0 {
@@ -113,7 +126,7 @@ func (ir *Interp) Read(in Readline) (string, int) {
 	return str, firstToken
 }
 
-func (ir *Interp) ParseEvalPrint(str string, in Readline) (callAgain bool) {
+func (ir *Interp) ParseEvalPrint(str string) (callAgain bool) {
 	var t1 time.Time
 	trap := ir.Options&OptTrapPanic != 0
 	duration := ir.Options&OptShowTime != 0
@@ -136,19 +149,19 @@ func (ir *Interp) ParseEvalPrint(str string, in Readline) (callAgain bool) {
 			ir.Debugf("eval time %v", delta)
 		}
 	}()
-	callAgain = ir.parseEvalPrint(str, in)
+	callAgain = ir.parseEvalPrint(str)
 	trap = false // no panic happened
 	return callAgain
 }
 
-func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
+func (ir *Interp) parseEvalPrint(src string) (callAgain bool) {
 	if len(strings.TrimSpace(src)) == 0 {
 		return true // no input. don't print anything
 	}
 	env := ir.Env
 	g := env.Globals
 
-	src, opt := ir.Cmd(src, in)
+	src, opt := ir.Cmd(src)
 
 	callAgain = opt&CmdOptQuit == 0
 	if len(src) == 0 || !callAgain {
@@ -176,11 +189,7 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 	var values []r.Value
 	var types []xr.Type
 	if form != nil {
-		if opt&CmdOptFast != 0 {
-			values, types = env.fastEval(form)
-		} else {
-			values = env.classicEval(form)
-		}
+		values = env.classicEval(form)
 	}
 
 	// print phase
@@ -189,9 +198,5 @@ func (ir *Interp) parseEvalPrint(src string, in Readline) (callAgain bool) {
 }
 
 func (ir *Interp) Interrupt(sig os.Signal) {
-	if ir.currOpt&CmdOptFast != 0 {
-		ir.Env.fastInterrupt()
-	} else {
-		// TODO not implemented
-	}
+	// TODO not implemented
 }

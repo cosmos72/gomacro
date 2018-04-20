@@ -42,16 +42,25 @@ import (
 	. "github.com/cosmos72/gomacro/ast2"
 )
 
+type CmdOpt uint32
+
+const (
+	CmdOptQuit      = 1 << iota
+	CmdOptForceEval // temporarily re-enable evaluation even if in macroexpand-only mode
+)
+
 type Globals struct {
 	Output
 	Options      Options
 	PackagePath  string
 	Filename     string
-	GensymN      uint
 	Importer     *Importer
 	Imports      []*ast.GenDecl
 	Declarations []ast.Decl
 	Statements   []ast.Stmt
+	Prompt       string
+	Readline     Readline
+	GensymN      uint
 	ParserMode   mp.Mode
 	MacroChar    rune // prefix for macro-related keywords macro, quote, quasiquote, splice... The default is '~'
 	ReplCmdChar  byte // prefix for special REPL commands env, help, inspect, quit, unload... The default is ':'
@@ -72,11 +81,12 @@ func NewGlobals() *Globals {
 		Options:      OptTrapPanic, // set by default
 		PackagePath:  "main",
 		Filename:     "repl.go",
-		GensymN:      0,
 		Importer:     DefaultImporter(),
 		Imports:      nil,
 		Declarations: nil,
 		Statements:   nil,
+		Prompt:       "gomacro> ",
+		GensymN:      0,
 		ParserMode:   0,
 		MacroChar:    '~',
 		ReplCmdChar:  ':', // Jupyter and gophernotes would probably set this to '%'
@@ -88,10 +98,8 @@ func (g *Globals) ShowHelp() {
 	fmt.Fprintf(g.Stdout, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
 
 // interpreter commands:
-%cclassic [CODE]  execute CODE using the classic interpreter
 %cenv [name]      show available functions, variables and constants
                  in current package, or from imported package "name"
-%cfast [CODE]     execute CODE using the fast interpreter (default)
 %chelp            show this help
 %cinspect EXPR    inspect expression interactively
 %coptions [OPTS]  show or toggle interpreter options
@@ -101,7 +109,7 @@ func (g *Globals) ShowHelp() {
                  later attempts to import it will trigger a recompile
 %cwrite [FILE]    write collected declarations and/or statements to standard output or to FILE
                  use %co Declarations and/or %co Statements to start collecting them
-`, c, c, c, c, c, c, c, c, c, c, c, c)
+`, c, c, c, c, c, c, c, c, c, c)
 }
 
 func (g *Globals) Gensym() string {
@@ -147,8 +155,8 @@ func IsGensymPrivate(name string) bool {
 // read phase
 // return read string and position of first non-comment token.
 // return "", -1 on EOF
-func (g *Globals) ReadMultiline(in Readline, opts ReadOptions) (str string, firstToken int) {
-	str, firstToken, err := ReadMultiline(in, opts, "gomacro> ")
+func (g *Globals) ReadMultiline(opts ReadOptions) (str string, firstToken int) {
+	str, firstToken, err := ReadMultiline(g.Readline, opts, g.Prompt)
 	if err != nil && err != io.EOF {
 		fmt.Fprintf(g.Stderr, "// read error: %s\n", err)
 	}

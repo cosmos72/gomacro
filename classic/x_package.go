@@ -26,7 +26,6 @@ func init() {
 			"Env":           r.TypeOf((*Env)(nil)).Elem(),
 			"Error_builtin": r.TypeOf((*Error_builtin)(nil)).Elem(),
 			"Function":      r.TypeOf((*Function)(nil)).Elem(),
-			"Inspector":     r.TypeOf((*Inspector)(nil)).Elem(),
 			"Interp":        r.TypeOf((*Interp)(nil)).Elem(),
 			"Macro":         r.TypeOf((*Macro)(nil)).Elem(),
 			"Methods":       r.TypeOf((*Methods)(nil)).Elem(),

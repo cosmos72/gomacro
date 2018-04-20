@@ -26,6 +26,7 @@
 package base
 
 import (
+	r "reflect"
 	"sort"
 	"strings"
 
@@ -44,7 +45,7 @@ const (
 	OptTrapPanic Options = 1 << iota
 	OptPanicStackTrace
 	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
-	OptFastInterpreter // use the new (and incomplete) fast interpreter
+	_                  // was: OptFastInterpreter // use the new fast interpreter
 	OptCollectDeclarations
 	OptCollectStatements
 	OptShowCompile
@@ -75,7 +76,6 @@ var optNames = map[Options]string{
 	OptTrapPanic:           "TrapPanic",
 	OptPanicStackTrace:     "StackTrace.OnPanic",
 	OptMacroExpandOnly:     "MacroExpandOnly",
-	OptFastInterpreter:     "FastInterpreter",
 	OptCollectDeclarations: "Declarations.Collect",
 	OptCollectStatements:   "Statements.Collect",
 	OptShowCompile:         "Compile.Show",
@@ -140,4 +140,11 @@ func (m WhichMacroExpand) String() string {
 	default:
 		return "MacroExpand"
 	}
+}
+
+func typeOf(value r.Value) r.Type {
+	if value == None || value == Nil {
+		return TypeOfInterface
+	}
+	return value.Type()
 }

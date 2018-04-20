@@ -41,14 +41,11 @@ func PackValues(val0 r.Value, values []r.Value) []r.Value {
 	return values
 }
 
-func PackValuesAndTypes(val0 r.Value, values []r.Value, typ0 xr.Type, types []xr.Type) ([]r.Value, []xr.Type) {
-	if len(values) == 0 && val0 != None {
-		values = []r.Value{val0}
-	}
+func PackTypes(typ0 xr.Type, types []xr.Type) []xr.Type {
 	if len(types) == 0 && typ0 != nil {
 		types = []xr.Type{typ0}
 	}
-	return values, types
+	return types
 }
 
 func UnpackValues(vals []r.Value) (r.Value, []r.Value) {

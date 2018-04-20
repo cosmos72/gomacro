@@ -83,6 +83,9 @@ func MakeTtyReadline(historyfile string) (TtyReadline, error) {
 		}()
 	*/
 
+	if len(historyfile) == 0 {
+		return tty, nil
+	}
 	f, err := os.Open(historyfile)
 	if err != nil {
 		return tty, err

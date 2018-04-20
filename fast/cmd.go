@@ -19,14 +19,13 @@
  *
  * cmd.go
  *
- *  Created on: Apr 11, 2018
+ *  Created on: Apr 20, 2018
  *      Author: Massimiliano Ghilardi
  */
 
-package classic
+package fast
 
 import (
-	"fmt"
 	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -53,21 +52,23 @@ func (cmds Cmds) Lookup(prefix string) (Cmd, bool) {
 	return Cmd{}, false
 }
 
-var cmds = Cmds{
-	'e': Cmd{"env", (*Interp).cmdEnv},
-	'h': Cmd{"help", (*Interp).cmdHelp},
-	'i': Cmd{"inspect", (*Interp).cmdInspect},
-	'o': Cmd{"options", (*Interp).cmdOptions},
-	'p': Cmd{"package", (*Interp).cmdPackage},
-	'q': Cmd{"quit", (*Interp).cmdQuit},
-	'u': Cmd{"unload", (*Interp).cmdUnload},
-	'w': Cmd{"write", (*Interp).cmdWrite},
+var cmds = Cmds{}
+
+func init() {
+	cmds['e'] = Cmd{"env", (*Interp).cmdEnv}
+	cmds['h'] = Cmd{"help", (*Interp).cmdHelp}
+	cmds['i'] = Cmd{"inspect", (*Interp).cmdInspect}
+	cmds['o'] = Cmd{"options", (*Interp).cmdOptions}
+	cmds['p'] = Cmd{"package", (*Interp).cmdPackage}
+	cmds['q'] = Cmd{"quit", (*Interp).cmdQuit}
+	cmds['u'] = Cmd{"unload", (*Interp).cmdUnload}
+	cmds['w'] = Cmd{"write", (*Interp).cmdWrite}
 }
 
 // execute one of the REPL commands starting with ':'
 // return any remainder string to be evaluated, and the options to evaluate it
 func (ir *Interp) Cmd(src string) (string, CmdOpt) {
-	g := ir.Env.Globals
+	g := ir.Comp.Globals
 	var opt CmdOpt
 
 	src = strings.TrimSpace(src)
@@ -107,52 +108,60 @@ func split2(s string, separator rune) (string, string) {
 }
 
 func (ir *Interp) cmdEnv(arg string, opt CmdOpt) (string, CmdOpt) {
-	ir.Env.ShowPackage(arg)
+	ir.ShowPackage(arg)
 	return "", opt
 }
 
 func (ir *Interp) cmdHelp(arg string, opt CmdOpt) (string, CmdOpt) {
-	g := ir.Env.ThreadGlobals.Globals
+	g := ir.Comp.Globals
 	g.ShowHelp()
 	return "", opt
 }
 
 func (ir *Interp) cmdInspect(arg string, opt CmdOpt) (string, CmdOpt) {
-	env := ir.Env
+	g := ir.Comp.Globals
 	if len(arg) == 0 {
-		fmt.Fprint(env.Stdout, "// inspect: missing argument\n")
+		g.Fprintf(g.Stdout, "// inspect: missing argument\n")
 	} else {
-		env.Inspect(arg)
+		ir.Inspect(arg)
 	}
 	return "", opt
 }
 
 func (ir *Interp) cmdOptions(arg string, opt CmdOpt) (string, CmdOpt) {
-	env := ir.Env
-	g := env.Globals
+	c := ir.Comp
+	g := c.Globals
 
 	if len(arg) != 0 {
 		g.Options ^= ParseOptions(arg)
+
+		debugdepth := 0
+		if g.Options&OptDebugFromReflect != 0 {
+			debugdepth = 1
+		}
+		c.CompGlobals.Universe.DebugDepth = debugdepth
+
 	} else {
-		fmt.Fprintf(env.Stdout, "// current options: %v\n", g.Options)
-		fmt.Fprintf(env.Stdout, "// unset   options: %v\n", ^g.Options)
+		g.Fprintf(g.Stdout, "// current options: %v\n", g.Options)
+		g.Fprintf(g.Stdout, "// unset   options: %v\n", ^g.Options)
 	}
 	return "", opt
 }
 
 // change package. path can be empty or a package path with or without quotes
 func (ir *Interp) cmdPackage(path string, cmdopt CmdOpt) (string, CmdOpt) {
-	env := ir.Env
 	path = strings.TrimSpace(path)
 	n := len(path)
 	if n >= 2 && path[0] == '"' && path[n-1] == '"' {
 		path = path[1 : n-1]
 		n -= 2
 	}
-	if n == 0 {
-		fmt.Fprintf(env.Stdout, "// current package: %s %q\n", env.Name, env.Path)
+	if len(path) == 0 {
+		c := ir.Comp
+		g := c.Globals
+		g.Fprintf(g.Stdout, "// current package: %s %q\n", c.Name, c.Path)
 	} else {
-		ir.ChangePackage(path)
+		ir.ChangePackage(FileName(path), path)
 	}
 	return "", cmdopt
 }
@@ -164,17 +173,17 @@ func (ir *Interp) cmdQuit(_ string, opt CmdOpt) (string, CmdOpt) {
 // remove package 'path' from the list of known packages
 func (ir *Interp) cmdUnload(path string, opt CmdOpt) (string, CmdOpt) {
 	if len(path) != 0 {
-		ir.Env.Globals.UnloadPackage(path)
+		ir.Comp.UnloadPackage(path)
 	}
 	return "", opt
 }
 
 func (ir *Interp) cmdWrite(filepath string, opt CmdOpt) (string, CmdOpt) {
-	env := ir.Env
+	g := ir.Comp.Globals
 	if len(filepath) == 0 {
-		env.WriteDeclsToStream(env.Stdout)
+		g.WriteDeclsToStream(g.Stdout)
 	} else {
-		env.WriteDeclsToFile(filepath)
+		g.WriteDeclsToFile(filepath)
 	}
 	return "", opt
 }

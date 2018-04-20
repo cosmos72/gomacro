@@ -17,28 +17,32 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * main.go
+ * inspect.go
  *
- *  Created on: Feb 13, 2017
+ *  Created on: Apr 20, 2017
  *      Author: Massimiliano Ghilardi
  */
 
-package main
+package fast
 
 import (
-	"os"
+	r "reflect"
 
-	"github.com/cosmos72/gomacro/cmd"
+	. "github.com/cosmos72/gomacro/base"
 )
 
-func main() {
-	args := os.Args[1:]
-
-	cmd := cmd.New()
-
-	err := cmd.Main(args)
-	if err != nil {
-		g := cmd.Interp.Comp.Globals
-		g.Fprintf(g.Stderr, "%s\n", err)
+func (ir *Interp) Inspect(str string) {
+	c := ir.Comp
+	expr := c.Compile(c.Parse(str))
+	v := ir.RunExpr1(expr)
+	xt := expr.Type
+	var t r.Type
+	if v.IsValid() && v.CanInterface() && v != None {
+		t = r.TypeOf(v.Interface()) // show concrete type
+	} else if xt != nil {
+		t = xt.ReflectType()
 	}
+	ip := NewInspector(str, v, t, xt, ir.Comp.Globals)
+	ip.Show()
+	ip.Repl()
 }

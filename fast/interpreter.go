@@ -26,8 +26,14 @@
 package fast
 
 import (
+	"bufio"
+	"fmt"
 	"go/ast"
+	"os"
 	r "reflect"
+	"runtime/debug"
+	"strings"
+	"time"
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
@@ -250,6 +256,179 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 	return env
 }
 
-func (ir *Interp) Interrupt() {
+var historyfile = Subdir(UserHomeDir(), ".gomacro_history")
+
+func (ir *Interp) ReplStdin() {
+	g := ir.Comp.CompGlobals
+
+	if g.Options&OptShowPrompt != 0 {
+		fmt.Fprintf(g.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
+// Copyright (C) 2017-2018 Massimiliano Ghilardi
+// License LGPL v3+: GNU Lesser GPL version 3 or later <https://gnu.org/licenses/lgpl>
+// This is free software with ABSOLUTELY NO WARRANTY.
+//
+// Type %chelp for help
+`, g.ReplCmdChar)
+	}
+	tty, _ := MakeTtyReadline(historyfile)
+	defer tty.Close(historyfile) // restore normal tty mode
+
+	ch := StartSignalHandler(ir.Interrupt)
+	defer StopSignalHandler(ch)
+
+	savetty := g.Readline
+	g.Readline = tty
+	defer func() {
+		g.Readline = savetty
+	}()
+
+	g.Line = 0
+	for ir.ReadParseEvalPrint() {
+		g.Line = 0
+	}
+	os.Stdout.WriteString("\n")
+}
+
+func (ir *Interp) Repl(in *bufio.Reader) {
+	g := ir.Comp.CompGlobals
+
+	r := MakeBufReadline(in, g.Stdout)
+
+	ch := StartSignalHandler(ir.Interrupt)
+	defer StopSignalHandler(ch)
+
+	savetty := g.Readline
+	g.Readline = r
+	defer func() {
+		g.Readline = savetty
+	}()
+
+	for ir.ReadParseEvalPrint() {
+	}
+}
+
+func (ir *Interp) ReadParseEvalPrint() (callAgain bool) {
+	str, firstToken := ir.Read()
+	if firstToken < 0 {
+		// skip comment-only lines and continue, but fail on EOF or other errors
+		return len(str) != 0
+	}
+	return ir.ParseEvalPrint(str[firstToken:])
+}
+
+// return read string and position of first non-comment token.
+// return "", -1 on EOF
+func (ir *Interp) Read() (string, int) {
+	g := ir.Comp.Globals
+	var opts ReadOptions
+
+	if g.Options&OptShowPrompt != 0 {
+		opts |= ReadOptShowPrompt
+	}
+	str, firstToken := g.ReadMultiline(opts)
+	if firstToken < 0 {
+		g.IncLine(str)
+	} else if firstToken > 0 {
+		g.IncLine(str[0:firstToken])
+	}
+	return str, firstToken
+}
+
+func (ir *Interp) ParseEvalPrint(str string) (callAgain bool) {
+	g := ir.Comp.Globals
+	var t1 time.Time
+	trap := g.Options&OptTrapPanic != 0
+	duration := g.Options&OptShowTime != 0
+	if duration {
+		t1 = time.Now()
+	}
+	defer func() {
+		g.IncLine(str)
+		if trap {
+			rec := recover()
+			if g.Options&OptPanicStackTrace != 0 {
+				fmt.Fprintf(g.Stderr, "%v\n%s", rec, debug.Stack())
+			} else {
+				fmt.Fprintf(g.Stderr, "%v\n", rec)
+			}
+			callAgain = true
+		}
+		if duration {
+			delta := time.Since(t1)
+			g.Debugf("eval time %v", delta)
+		}
+	}()
+	callAgain = ir.parseEvalPrint(str)
+	trap = false // no panic happened
+	return callAgain
+}
+
+func (ir *Interp) parseEvalPrint(src string) (callAgain bool) {
+	if len(strings.TrimSpace(src)) == 0 {
+		return true // no input. don't print anything
+	}
+	c := ir.Comp
+	g := c.Globals
+	env := ir.env
+
+	src, opt := ir.Cmd(src)
+
+	callAgain = opt&CmdOptQuit == 0
+	if len(src) == 0 || !callAgain {
+		return callAgain
+	}
+
+	if opt&CmdOptForceEval != 0 {
+		// temporarily disable collection of declarations and statements,
+		// and temporarily re-enable eval (i.e. disable macroexpandonly)
+		const todisable = OptMacroExpandOnly | OptCollectDeclarations | OptCollectStatements
+		if g.Options&todisable != 0 {
+			g.Options &^= todisable
+			defer func() {
+				g.Options |= todisable
+			}()
+		}
+	}
+
+	env.ThreadGlobals.CmdOpt = opt // store options where Interp.Interrupt() can find them
+
+	// parse + macroexpansion
+	form := ir.Parse(src)
+
+	// collect phase
+	if g.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
+		g.CollectAst(form)
+	}
+
+	values, types := ir.fastEval(form)
+	// print phase
+	g.Print(values, types)
+	return true
+}
+
+func (ir *Interp) fastEval(form ast2.Ast) ([]r.Value, []xr.Type) {
+	c := ir.Comp
+	g := c.CompGlobals
+
+	if g.Options&OptMacroExpandOnly != 0 {
+		x := form.Interface()
+		return []r.Value{r.ValueOf(x)}, []xr.Type{c.TypeOf(x)}
+	}
+
+	// compile phase
+	expr := c.Compile(form)
+	if g.Options&OptShowCompile != 0 {
+		g.Fprintf(g.Stdout, "%v\n", expr)
+	}
+
+	// eval phase
+	if expr == nil {
+		return nil, nil
+	}
+	val, vals := ir.RunExpr(expr)
+	return PackValues(val, vals), PackTypes(expr.Type, expr.Types)
+}
+
+func (ir *Interp) Interrupt(os.Signal) {
 	ir.env.ThreadGlobals.interrupt()
 }

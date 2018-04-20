@@ -36,12 +36,13 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
-	"github.com/cosmos72/gomacro/classic"
+	"github.com/cosmos72/gomacro/fast"
 )
 
 type Cmd struct {
-	Interp                                   *classic.Interp
-	WriteDeclsAndStmtsToFile, OverwriteFiles bool
+	Interp                   *fast.Interp
+	WriteDeclsAndStmtsToFile bool
+	OverwriteFiles           bool
 }
 
 func New() *Cmd {
@@ -51,9 +52,10 @@ func New() *Cmd {
 }
 
 func (cmd *Cmd) Init() {
-	ir := classic.New()
-	ir.ParserMode = 0
-	ir.Options = OptFastInterpreter | OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
+	ir := fast.New()
+	g := ir.Comp.Globals
+	g.ParserMode = 0
+	g.Options = OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 	cmd.Interp = ir
 	cmd.WriteDeclsAndStmtsToFile = false
 	cmd.OverwriteFiles = false
@@ -64,7 +66,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		cmd.Init()
 	}
 	ir := cmd.Interp
-	g := ir.Globals
+	g := ir.Comp.Globals
 
 	var set, clear Options
 	var repl, forcerepl = true, false
@@ -144,7 +146,8 @@ func (cmd *Cmd) Main(args []string) (err error) {
 }
 
 func (cmd *Cmd) Usage() error {
-	fmt.Fprint(cmd.Interp.Stdout, `usage: gomacro [OPTIONS] [files-and-dirs]
+	g := cmd.Interp.Comp.Globals
+	fmt.Fprint(g.Stdout, `usage: gomacro [OPTIONS] [files-and-dirs]
 
   Recognized options:
     -c,   --collect          collect declarations and statements, to print them later
@@ -224,7 +227,7 @@ const disclaimer = `// ---------------------------------------------------------
 `
 
 func (cmd *Cmd) EvalFile(filename string) (err error) {
-	g := cmd.Interp.Globals
+	g := cmd.Interp.Comp.Globals
 	g.Declarations = nil
 	g.Statements = nil
 	saveFilename := g.Filename
@@ -270,7 +273,17 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 }
 
 func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
+	ir := cmd.Interp
+	g := ir.Comp.CompGlobals
+	g.Options &^= OptShowPrompt // parsing a file: suppress prompt
+	g.Line = 0
+
+	in := MakeBufReadline(bufio.NewReader(src), g.Stdout)
+
+	savein := g.Readline
+	g.Readline = in
 	defer func() {
+		g.Readline = savein
 		if rec := recover(); rec != nil {
 			switch rec := rec.(type) {
 			case error:
@@ -280,23 +293,19 @@ func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 			}
 		}
 	}()
-	in := MakeBufReadline(bufio.NewReader(src), cmd.Interp.Stdout)
-	ir := cmd.Interp
-	env := ir.Env
-	env.Options &^= OptShowPrompt // parsing a file: suppress prompt
-	env.Line = 0
 
 	// perform the first iteration manually, to collect comments
-	str, firstToken := env.ReadMultiline(in, ReadOptCollectAllComments)
+	str, firstToken := g.ReadMultiline(ReadOptCollectAllComments)
 	if firstToken >= 0 {
 		comments = str[0:firstToken]
 		if firstToken > 0 {
 			str = str[firstToken:]
-			env.IncLine(comments)
+			g.IncLine(comments)
 		}
 	}
-	if ir.ParseEvalPrint(str, in) {
-		for ir.ReadParseEvalPrint(in) {
+
+	if ir.ParseEvalPrint(str) {
+		for ir.ReadParseEvalPrint() {
 		}
 	}
 	return comments, nil

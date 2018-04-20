@@ -486,6 +486,7 @@ type ThreadGlobals struct {
 	DeferOfFun   *Env        // function whose defer are running
 	StartDefer   bool        // true if next executed function body is a defer
 	IsDefer      bool        // true if function body being executed is a defer
+	CmdOpt       CmdOpt
 }
 
 // CompGlobals contains interpreter compile bookeeping information
