@@ -221,21 +221,15 @@ func (untyp *UntypedLit) ConstTo(t xr.Type) I {
 again:
 	switch t.Kind() {
 	case r.Bool:
-		if val.Kind() != constant.Bool {
-			Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
+		if val.Kind() == constant.Bool {
+			ret = constant.BoolVal(val)
 		}
-		ret = constant.BoolVal(val)
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
 		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
 		r.Float32, r.Float64, r.Complex64, r.Complex128:
 
 		n := untyp.extractNumber(val, t)
 		return convertLiteralCheckOverflow(n, t)
-	case r.String:
-		if untyp.Val.Kind() != constant.String {
-			Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
-		}
-		ret = UnescapeString(val.ExactString())
 	case r.Interface:
 		// this can happen too... for example in "var foo interface{} = 7"
 		// and it requires to convert the untyped constant to its default type.
@@ -244,8 +238,44 @@ again:
 			t = untyp.DefaultType()
 			goto again
 		}
-		fallthrough
-	default:
+	case r.Slice:
+		// https://golang.org/ref/spec#String_literals states:
+		//
+		// 4. Converting a value of a string type to a slice of bytes type
+		// yields a slice whose successive elements are the bytes of the string.
+		//
+		// 5. Converting a value of a string type to a slice of runes type
+		// yields a slice containing the individual Unicode code points of the string.
+		if val.Kind() == constant.String {
+			s := UnescapeString(val.ExactString())
+			switch t.Elem().Kind() {
+			case r.Uint8:
+				ret = []byte(s)
+			case r.Int32:
+				ret = []rune(s)
+			}
+		}
+	case r.String:
+		switch val.Kind() {
+		case constant.String:
+			// untyped string -> string
+			ret = UnescapeString(val.ExactString())
+		case constant.Int:
+			// https://golang.org/ref/spec#String_literals states:
+			//
+			// 1. Converting a signed or unsigned integer value to a string type yields
+			// a string containing the UTF-8 representation of the integer.
+			// Values outside the range of valid Unicode code points are converted to "\uFFFD".
+
+			i, exact := constant.Int64Val(val)
+			if exact {
+				ret = string(i)
+			} else {
+				ret = "\uFFFD"
+			}
+		}
+	}
+	if ret == nil {
 		Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
 		return nil
 	}
