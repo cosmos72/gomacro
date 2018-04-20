@@ -29,24 +29,36 @@ import (
 	r "reflect"
 )
 
+type DebugOpt uint
+
+const (
+	DebugCont DebugOpt = iota
+	DebugNext
+	DebugStep
+	DebugFinish
+)
+
 func isBreakpoint(expr *Expr) bool {
 	return expr.Const() && expr.UntypedKind() == r.String && expr.Value.(UntypedLit).Val.ExactString() == `"break"`
 }
 
 func makeStmtBreakpoint(c *Comp) Stmt {
-	// create an inner Comp to preserve compiled code and binds
-	debugComp := NewComp(c, nil)
 
 	return func(env *Env) (Stmt, *Env) {
-		debugEnv := NewEnv(env, 0, 0)
-		ir := Interp{debugComp, debugEnv}
-		ir.debug()
-		env.IP++
-		return env.Code[env.IP], env
+		// create an inner Comp to preserve existing binds
+		// create an inner Env to preserve compiled code and IP
+		ir := Interp{NewComp(c, nil), NewEnv(env, 0, 0)}
+		var stmt Stmt
+		switch ir.debug() {
+		default:
+			env.IP++
+			stmt = env.Code[env.IP]
+		}
+		return stmt, env
 	}
 }
 
-func (ir *Interp) debug() {
+func (ir *Interp) debug() DebugOpt {
 	g := ir.Comp.Globals
 
 	env := ir.env.Outer
@@ -67,4 +79,5 @@ func (ir *Interp) debug() {
 	for ir.ReadParseEvalPrint() {
 		g.Line = 0
 	}
+	return DebugCont
 }
