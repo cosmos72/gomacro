@@ -474,10 +474,46 @@ const (
 type ExecFlags uint
 
 const (
-	StartDefer  ExecFlags = 1 << iota // true next executed function body is a defer
-	IsDefer                           // function body being executed is a defer
-	IsDebugging                       // function body is executed with debugging enabled
+	EFStartDefer ExecFlags = 1 << iota // true next executed function body is a defer
+	EFDefer                            // function body being executed is a defer
+	EFDebug                            // function body is executed with debugging enabled
 )
+
+func (ef ExecFlags) StartDefer() bool {
+	return ef&EFStartDefer != 0
+}
+
+func (ef ExecFlags) IsDefer() bool {
+	return ef&EFDefer != 0
+}
+
+func (ef ExecFlags) IsDebug() bool {
+	return ef&EFDebug != 0
+}
+
+func (ef *ExecFlags) SetDefer(flag bool) {
+	if flag {
+		(*ef) |= EFDefer
+	} else {
+		(*ef) &^= EFDefer
+	}
+}
+
+func (ef *ExecFlags) SetStartDefer(flag bool) {
+	if flag {
+		(*ef) |= EFStartDefer
+	} else {
+		(*ef) &^= EFStartDefer
+	}
+}
+
+func (ef *ExecFlags) SetDebug(flag bool) {
+	if flag {
+		(*ef) |= EFDebug
+	} else {
+		(*ef) &^= EFDebug
+	}
+}
 
 // ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
 type ThreadGlobals struct {
@@ -494,30 +530,6 @@ type ThreadGlobals struct {
 	DeferOfFun   *Env        // function whose defer are running
 	ExecFlags    ExecFlags
 	CmdOpt       CmdOpt
-}
-
-func (g *ThreadGlobals) StartDefer() bool {
-	return g.ExecFlags&StartDefer != 0
-}
-
-func (g *ThreadGlobals) IsDefer() bool {
-	return g.ExecFlags&IsDefer != 0
-}
-
-func (g *ThreadGlobals) SetIsDefer(flag bool) {
-	if flag {
-		g.ExecFlags |= IsDefer
-	} else {
-		g.ExecFlags &^= IsDefer
-	}
-}
-
-func (g *ThreadGlobals) SetStartDefer(flag bool) {
-	if flag {
-		g.ExecFlags |= StartDefer
-	} else {
-		g.ExecFlags &^= StartDefer
-	}
 }
 
 // CompGlobals contains interpreter compile bookeeping information

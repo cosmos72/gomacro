@@ -60,7 +60,7 @@ func signalHandlerGoroutine(c chan os.Signal, handler func(os.Signal)) {
 
 // =======================================================================
 
-type Signal uint16
+type Signal uint8
 
 const (
 	SigDefer Signal = 1 << iota // request to install a defer function
@@ -71,7 +71,7 @@ const (
 type DebugOp = Signal
 
 const (
-	SigDebugContinue = SigInterrupt + 1 + iota
+	SigDebugContinue Signal = SigInterrupt + 1 + iota
 	SigDebugFinish
 	SigDebugNext
 	SigDebugStep
@@ -80,10 +80,6 @@ const (
 	SigNone = Signal(0) // no signal
 	SigAll  = ^SigNone  // mask of all possible signals
 )
-
-func (sig Signal) IsSigDebug() bool {
-	return sig >= SigDebugContinue && sig <= SigDebugRepl
-}
 
 func (sig Signal) String() string {
 	var s string
@@ -114,7 +110,9 @@ func (sig Signal) String() string {
 
 type Signals struct {
 	Sync  Signal
+	Debug Signal
 	Async Signal
+	_     Signal
 }
 
 func (s *Signals) IsEmpty() bool {
