@@ -75,7 +75,7 @@ func (c *Comp) Stmt(in ast.Stmt) {
 			if !expr.Const() {
 				c.Append(expr.AsStmt(), in.Pos())
 			} else if isBreakpoint(expr) {
-				c.Append(makeStmtBreakpoint(c), in.Pos())
+				// c.Append(makeStmtBreakpoint(c), in.Pos())
 			}
 		case *ast.ForStmt:
 			c.For(node, labels)
