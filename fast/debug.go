@@ -26,27 +26,54 @@
 package fast
 
 import (
-	r "reflect"
+	"go/ast"
+	"go/token"
 )
 
-type DebugOpt uint
+// debugger operation
+type DebugOp uint
 
 const (
-	DebugCont DebugOpt = iota
+	DebugCont DebugOp = iota
+	DebugFinish
 	DebugNext
 	DebugStep
-	DebugFinish
+	DebugRepl
 )
 
-func isBreakpoint(expr *Expr) bool {
-	return expr.Const() && expr.UntypedKind() == r.String && expr.Value.(UntypedLit).Val.ExactString() == `"break"`
+// return true if statement is either "break" or _ = "break"
+func isBreakpoint(stmt ast.Stmt) bool {
+	switch node := stmt.(type) {
+	case *ast.ExprStmt:
+		return isBreakLiteral(node.X)
+	case *ast.AssignStmt:
+		if node.Tok == token.ASSIGN && len(node.Lhs) == 1 && len(node.Rhs) == 1 {
+			return isUnderscore(node.Lhs[0]) && isBreakLiteral(node.Rhs[0])
+		}
+	}
+	return false
 }
 
-func makeStmtBreakpoint(c *Comp) Stmt {
+func isUnderscore(node ast.Expr) bool {
+	switch node := node.(type) {
+	case *ast.Ident:
+		return node.Name == "_"
+	}
+	return false
+}
 
+func isBreakLiteral(node ast.Expr) bool {
+	switch node := node.(type) {
+	case *ast.BasicLit:
+		return node.Kind == token.STRING && node.Value == `"break"`
+	}
+	return false
+}
+
+func (c *Comp) breakpoint() Stmt {
 	return func(env *Env) (Stmt, *Env) {
-		// create an inner Comp to preserve existing binds
-		// create an inner Env to preserve compiled code and IP
+		// create an inner Comp to preserve existing Binds
+		// create an inner Env to preserve compiled Code and IP
 		ir := Interp{NewComp(c, nil), NewEnv(env, 0, 0)}
 		var stmt Stmt
 		switch ir.debug() {
@@ -58,26 +85,16 @@ func makeStmtBreakpoint(c *Comp) Stmt {
 	}
 }
 
-func (ir *Interp) debug() DebugOpt {
-	g := ir.Comp.Globals
-
-	env := ir.env.Outer
-	pos := env.DebugPos
-	if env.IP < len(pos) && g.Fileset != nil {
-		g.Fprintf(g.Stdout, "// breakpoint at %s\n", g.Fileset.Position(pos[env.IP]))
-	} else {
-		g.Fprintf(g.Stdout, "// breakpoint\n")
+func (ir *Interp) debug() DebugOp {
+	if Debugger == nil {
+		ir.Comp.Warnf("// breakpoint: no debugger installed, resuming execution (warned only once)")
+		Debugger = stubDebugger
 	}
+	return Debugger(ir, ir.env)
+}
 
-	prompt := g.Prompt
-	g.Prompt = "godebug> "
-	defer func() {
-		g.Prompt = prompt
-	}()
+var Debugger func(ir *Interp, env *Env) DebugOp
 
-	g.Line = 0
-	for ir.ReadParseEvalPrint() {
-		g.Line = 0
-	}
+func stubDebugger(ir *Interp, env *Env) DebugOp {
 	return DebugCont
 }

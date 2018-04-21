@@ -74,7 +74,7 @@ func (ir *Interp) Cmd(src string) (string, CmdOpt) {
 	src = strings.TrimSpace(src)
 	n := len(src)
 	if n > 0 && src[0] == g.ReplCmdChar {
-		prefix, arg := split2(src[1:], ' ') // skip g.ReplCmdChar
+		prefix, arg := Split2(src[1:], ' ') // skip g.ReplCmdChar
 		cmd, found := cmds.Lookup(prefix)
 		if found {
 			src, opt = cmd.Func(ir, arg, opt)
@@ -88,23 +88,10 @@ func (ir *Interp) Cmd(src string) (string, CmdOpt) {
 	}
 	// :package and package are the same command
 	if g.Options&OptMacroExpandOnly == 0 && (src == "package" || strings.HasPrefix(src, "package ")) {
-		_, arg := split2(src, ' ')
+		_, arg := Split2(src, ' ')
 		src, opt = ir.cmdPackage(arg, opt)
 	}
 	return src, opt
-}
-
-// split 's' into a prefix and suffix separated by 'separator'.
-// suffix is trimmed with strings.TrimSpace() before returning it
-func split2(s string, separator rune) (string, string) {
-	var prefix, suffix string
-	if space := strings.IndexByte(s, ' '); space > 0 {
-		prefix = s[:space]
-		suffix = strings.TrimSpace(s[space+1:])
-	} else {
-		prefix = s
-	}
-	return prefix, suffix
 }
 
 func (ir *Interp) cmdEnv(arg string, opt CmdOpt) (string, CmdOpt) {

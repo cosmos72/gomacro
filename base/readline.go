@@ -97,7 +97,7 @@ func MakeTtyReadline(historyfile string) (TtyReadline, error) {
 
 func (tty TtyReadline) Read(prompt string) ([]byte, error) {
 	line, err := tty.term.Prompt(prompt)
-	if len(line) != 0 {
+	if len(line) >= 3 {
 		tty.term.AppendHistory(line)
 	}
 	if n := len(line); n != 0 || err != io.EOF {

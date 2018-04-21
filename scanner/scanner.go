@@ -119,6 +119,7 @@ func (s *Scanner) Init(file *mt.File, src []byte, err ErrorHandler, mode Mode, m
 	if file.Size() != len(src) {
 		panic(fmt.Sprintf("file size (%d) does not match src len (%d)", file.Size(), len(src)))
 	}
+	file.SetSourceForContent(src)
 	s.file = file
 	s.dir, _ = filepath.Split(file.Name())
 	s.src = src

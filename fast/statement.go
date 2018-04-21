@@ -51,6 +51,10 @@ func (c *Comp) Stmt(in ast.Stmt) {
 	for {
 		if in != nil {
 			c.Pos = in.Pos()
+			if isBreakpoint(in) {
+				c.append(c.breakpoint())
+				return
+			}
 		}
 		switch node := in.(type) {
 		case nil:
@@ -74,8 +78,6 @@ func (c *Comp) Stmt(in ast.Stmt) {
 			expr := c.Expr(node.X, nil)
 			if !expr.Const() {
 				c.Append(expr.AsStmt(), in.Pos())
-			} else if isBreakpoint(expr) {
-				// c.Append(makeStmtBreakpoint(c), in.Pos())
 			}
 		case *ast.ForStmt:
 			c.For(node, labels)

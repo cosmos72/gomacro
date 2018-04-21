@@ -35,26 +35,37 @@ import (
 )
 
 type Inspector struct {
-	names []string
-	vs    []r.Value
-	ts    []r.Type
-	xts   []xr.Type
-	g     *Globals
+	names   []string
+	vs      []r.Value
+	ts      []r.Type
+	xts     []xr.Type
+	globals *Globals
 }
 
-func NewInspector(name string, v r.Value, t r.Type, xt xr.Type, g *Globals) *Inspector {
+func NewInspector(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *Globals) *Inspector {
 	return &Inspector{
-		names: []string{name},
-		vs:    []r.Value{v},
-		ts:    []r.Type{t},
-		xts:   []xr.Type{xt},
-		g:     g,
+		names:   []string{name},
+		vs:      []r.Value{val},
+		ts:      []r.Type{typ},
+		xts:     []xr.Type{xtyp},
+		globals: globals,
 	}
 }
 
 func (ip *Inspector) Help() {
-	g := ip.g
-	g.Fprintf(g.Stdout, "%s", "// inspect commands: <number> help methods quit top up\n")
+	g := ip.globals
+	g.Fprintf(g.Stdout, "%s", `
+// inspector commands:
+NUMBER      enter n-th struct field, or n-th element of array, slice or string
+.           show current expression
+?           show this help
+help        show this help
+methods     show methods
+quit        exit inspector
+top         return to top-level expression
+up          return to outer expression
+// abbreviations are allowed if unambiguous.
+`)
 }
 
 func (ip *Inspector) Show() {
@@ -74,9 +85,10 @@ func (ip *Inspector) Show() {
 }
 
 func (ip *Inspector) Repl() error {
-	g := ip.g
+	g := ip.globals
+	g.Fprintf(g.Stdout, "%s", "// type ? for inspector help\n")
 	for len(ip.names) > 0 {
-		prompt := g.Sprintf("goinspect %s> ", strings.Join(ip.names, "."))
+		prompt := g.Sprintf("inspect %s> ", strings.Join(ip.names, "."))
 		bytes, err := g.Readline.Read(prompt)
 		if err != nil {
 			return err
@@ -106,7 +118,11 @@ func (ip *Inspector) Eval(cmd string) error {
 	case cmd == "", cmd == ".":
 		ip.Show()
 	case cmd == "-", strings.HasPrefix("up", cmd):
-		ip.Leave()
+		if len(ip.names) > 1 {
+			ip.Leave()
+		} else {
+			ip.Show()
+		}
 	default:
 		ip.Enter(cmd)
 	}
@@ -134,11 +150,11 @@ func (ip *Inspector) Leave() {
 }
 
 func (ip *Inspector) showVar(str string, v r.Value, t r.Type) {
-	ip.g.Fprintf(ip.g.Stdout, "%s\t= %v\t// %v\n", str, v, t)
+	ip.globals.Fprintf(ip.globals.Stdout, "%s\t= %v\t// %v\n", str, v, t)
 }
 
 func (ip *Inspector) showFields(v r.Value) {
-	g := ip.g
+	g := ip.globals
 	n := v.NumField()
 	for i := 0; i < n; i++ {
 		f := v.Field(i)
@@ -150,7 +166,7 @@ func (ip *Inspector) showFields(v r.Value) {
 }
 
 func (ip *Inspector) showIndexes(v r.Value) {
-	g := ip.g
+	g := ip.globals
 	n := v.Len()
 	for i := 0; i < n; i++ {
 		f := v.Index(i)
@@ -162,7 +178,7 @@ func (ip *Inspector) showIndexes(v r.Value) {
 }
 
 func (ip *Inspector) showMethods(t r.Type, xt xr.Type) {
-	g := ip.g
+	g := ip.globals
 	switch {
 	case xt != nil:
 		if xt.Kind() == r.Ptr {
@@ -193,10 +209,10 @@ func (ip *Inspector) showMethods(t r.Type, xt xr.Type) {
 }
 
 func (ip *Inspector) Enter(cmd string) {
-	g := ip.g
+	g := ip.globals
 	i, err := strconv.Atoi(cmd)
 	if err != nil {
-		g.Fprintf(g.Stdout, "unknown inspect command \"%s\". Type ? for help\n", cmd)
+		g.Fprintf(g.Stdout, "unknown inspector command \"%s\". Type ? for help\n", cmd)
 		return
 	}
 	depth := len(ip.names)
@@ -260,7 +276,7 @@ func dereferenceValue(v r.Value) r.Value {
 
 func (ip *Inspector) validRange(i, n int) bool {
 	if i < 0 || i >= n {
-		g := ip.g
+		g := ip.globals
 		g.Fprintf(g.Stdout, "%s contains %d elements, cannot inspect element %d\n",
 			strings.Join(ip.names, "."), n, i)
 		return false

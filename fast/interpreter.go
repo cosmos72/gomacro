@@ -27,7 +27,6 @@ package fast
 
 import (
 	"bufio"
-	"fmt"
 	"go/ast"
 	"os"
 	r "reflect"
@@ -262,7 +261,7 @@ func (ir *Interp) ReplStdin() {
 	g := ir.Comp.CompGlobals
 
 	if g.Options&OptShowPrompt != 0 {
-		fmt.Fprintf(g.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
+		g.Fprintf(g.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
 // Copyright (C) 2017-2018 Massimiliano Ghilardi
 // License LGPL v3+: GNU Lesser GPL version 3 or later <https://gnu.org/licenses/lgpl>
 // This is free software with ABSOLUTELY NO WARRANTY.
@@ -325,7 +324,7 @@ func (ir *Interp) Read() (string, int) {
 	if g.Options&OptShowPrompt != 0 {
 		opts |= ReadOptShowPrompt
 	}
-	str, firstToken := g.ReadMultiline(opts)
+	str, firstToken := g.ReadMultiline(opts, ir.Comp.Prompt)
 	if firstToken < 0 {
 		g.IncLine(str)
 	} else if firstToken > 0 {
@@ -347,9 +346,9 @@ func (ir *Interp) ParseEvalPrint(str string) (callAgain bool) {
 		if trap {
 			rec := recover()
 			if g.Options&OptPanicStackTrace != 0 {
-				fmt.Fprintf(g.Stderr, "%v\n%s", rec, debug.Stack())
+				g.Fprintf(g.Stderr, "%v\n%s", rec, debug.Stack())
 			} else {
-				fmt.Fprintf(g.Stderr, "%v\n", rec)
+				g.Fprintf(g.Stderr, "%v\n", rec)
 			}
 			callAgain = true
 		}

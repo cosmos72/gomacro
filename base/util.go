@@ -82,6 +82,19 @@ func IsNillableKind(k r.Kind) bool {
 	}
 }
 
+// split 's' into a prefix and suffix separated by 'separator'.
+// suffix is trimmed with strings.TrimSpace() before returning it
+func Split2(s string, separator rune) (string, string) {
+	var prefix, suffix string
+	if space := strings.IndexByte(s, ' '); space > 0 {
+		prefix = s[:space]
+		suffix = strings.TrimSpace(s[space+1:])
+	} else {
+		prefix = s
+	}
+	return prefix, suffix
+}
+
 // always use forward slashes. they work also on Windows...
 func unixpath(path string) string {
 	if os.PathSeparator != '/' && len(path) != 0 {

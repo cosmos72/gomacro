@@ -44,7 +44,7 @@ type parser struct {
 	leadComment *ast.CommentGroup // last lead comment
 	lineComment *ast.CommentGroup // last line comment
 
-	tok0        token.Token // patch: Previous token
+	tok0      token.Token // patch: Previous token
 	macroChar rune        // patch: prefix for quote operators ' ` , ,@
 
 	// Next token

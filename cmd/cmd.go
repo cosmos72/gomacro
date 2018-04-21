@@ -37,12 +37,13 @@ import (
 
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/fast"
+	_ "github.com/cosmos72/gomacro/fast/debug" // install debugger as side effect
 )
 
 type Cmd struct {
-	Interp                   *fast.Interp
-	WriteDeclsAndStmtsToFile bool
-	OverwriteFiles           bool
+	Interp             *fast.Interp
+	WriteDeclsAndStmts bool
+	OverwriteFiles     bool
 }
 
 func New() *Cmd {
@@ -57,7 +58,7 @@ func (cmd *Cmd) Init() {
 	g.ParserMode = 0
 	g.Options = OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
 	cmd.Interp = ir
-	cmd.WriteDeclsAndStmtsToFile = false
+	cmd.WriteDeclsAndStmts = false
 	cmd.OverwriteFiles = false
 }
 
@@ -70,7 +71,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 
 	var set, clear Options
 	var repl, forcerepl = true, false
-	cmd.WriteDeclsAndStmtsToFile = false
+	cmd.WriteDeclsAndStmts = false
 	cmd.OverwriteFiles = false
 
 	for len(args) > 0 {
@@ -115,7 +116,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			set |= OptShowEval | OptShowEvalType
 			clear &^= OptShowEval | OptShowEvalType
 		case "-w", "--write-decls":
-			cmd.WriteDeclsAndStmtsToFile = true
+			cmd.WriteDeclsAndStmts = true
 		case "-x", "--exec":
 			clear |= OptMacroExpandOnly
 			set &^= OptMacroExpandOnly
@@ -126,7 +127,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 				return nil
 			}
 			repl = false
-			if cmd.WriteDeclsAndStmtsToFile {
+			if cmd.WriteDeclsAndStmts {
 				g.Options |= OptCollectDeclarations | OptCollectStatements
 			}
 			g.Options &^= OptShowPrompt | OptShowEval | OptShowEvalType // cleared by default, overridden by -s, -v and -vv
@@ -247,7 +248,7 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 		return err
 	}
 
-	if cmd.WriteDeclsAndStmtsToFile {
+	if cmd.WriteDeclsAndStmts {
 		outname := filename
 		if dot := strings.LastIndexByte(outname, '.'); dot >= 0 {
 			// sanity check: dot must be in the file name, NOT in its path
@@ -295,7 +296,7 @@ func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
 	}()
 
 	// perform the first iteration manually, to collect comments
-	str, firstToken := g.ReadMultiline(ReadOptCollectAllComments)
+	str, firstToken := g.ReadMultiline(ReadOptCollectAllComments, g.Prompt)
 	if firstToken >= 0 {
 		comments = str[0:firstToken]
 		if firstToken > 0 {

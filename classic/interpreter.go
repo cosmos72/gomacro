@@ -117,7 +117,7 @@ func (ir *Interp) Read() (string, int) {
 	if ir.Options&OptShowPrompt != 0 {
 		opts |= ReadOptShowPrompt
 	}
-	str, firstToken := ir.Env.Globals.ReadMultiline(opts)
+	str, firstToken := ir.Env.Globals.ReadMultiline(opts, "gomacro> ")
 	if firstToken < 0 {
 		ir.IncLine(str)
 	} else if firstToken > 0 {

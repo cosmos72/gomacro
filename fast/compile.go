@@ -57,11 +57,12 @@ func newTopInterp(path string) *Interp {
 	universe := xr.NewUniverse()
 
 	compGlobals := &CompGlobals{
+		Globals:      globals,
 		Universe:     universe,
 		KnownImports: make(map[string]*Import),
 		interf2proxy: make(map[r.Type]r.Type),
 		proxy2interf: make(map[r.Type]xr.Type),
-		Globals:      globals,
+		Prompt:       "gomacro> ",
 	}
 	envGlobals := &ThreadGlobals{Globals: globals}
 	ce := &Interp{

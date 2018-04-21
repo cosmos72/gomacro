@@ -98,8 +98,8 @@ func (g *Globals) ShowHelp() {
 	fmt.Fprintf(g.Stdout, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
 
 // interpreter commands:
-%cenv [name]      show available functions, variables and constants
-                 in current package, or from imported package "name"
+%cenv [NAME]      show available functions, variables and constants
+                 in current package, or from imported package NAME
 %chelp            show this help
 %cinspect EXPR    inspect expression interactively
 %coptions [OPTS]  show or toggle interpreter options
@@ -109,6 +109,7 @@ func (g *Globals) ShowHelp() {
                  later attempts to import it will trigger a recompile
 %cwrite [FILE]    write collected declarations and/or statements to standard output or to FILE
                  use %co Declarations and/or %co Statements to start collecting them
+// abbreviations are allowed if unambiguous.
 `, c, c, c, c, c, c, c, c, c, c)
 }
 
@@ -155,8 +156,8 @@ func IsGensymPrivate(name string) bool {
 // read phase
 // return read string and position of first non-comment token.
 // return "", -1 on EOF
-func (g *Globals) ReadMultiline(opts ReadOptions) (str string, firstToken int) {
-	str, firstToken, err := ReadMultiline(g.Readline, opts, g.Prompt)
+func (g *Globals) ReadMultiline(opts ReadOptions, prompt string) (str string, firstToken int) {
+	str, firstToken, err := ReadMultiline(g.Readline, opts, prompt)
 	if err != nil && err != io.EOF {
 		fmt.Fprintf(g.Stderr, "// read error: %s\n", err)
 	}
