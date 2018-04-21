@@ -471,6 +471,14 @@ const (
 	PoolCapacity = 32
 )
 
+type ExecFlags uint
+
+const (
+	StartDefer  ExecFlags = 1 << iota // true next executed function body is a defer
+	IsDefer                           // function body being executed is a defer
+	IsDebugging                       // function body is executed with debugging enabled
+)
+
 // ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
 type ThreadGlobals struct {
 	*Globals
@@ -484,9 +492,32 @@ type ThreadGlobals struct {
 	Panic        interface{} // current panic. needed for recover()
 	PanicFun     *Env        // the currently panicking function
 	DeferOfFun   *Env        // function whose defer are running
-	StartDefer   bool        // true if next executed function body is a defer
-	IsDefer      bool        // true if function body being executed is a defer
+	ExecFlags    ExecFlags
 	CmdOpt       CmdOpt
+}
+
+func (g *ThreadGlobals) StartDefer() bool {
+	return g.ExecFlags&StartDefer != 0
+}
+
+func (g *ThreadGlobals) IsDefer() bool {
+	return g.ExecFlags&IsDefer != 0
+}
+
+func (g *ThreadGlobals) SetIsDefer(flag bool) {
+	if flag {
+		g.ExecFlags |= IsDefer
+	} else {
+		g.ExecFlags &^= IsDefer
+	}
+}
+
+func (g *ThreadGlobals) SetStartDefer(flag bool) {
+	if flag {
+		g.ExecFlags |= StartDefer
+	} else {
+		g.ExecFlags &^= StartDefer
+	}
 }
 
 // CompGlobals contains interpreter compile bookeeping information

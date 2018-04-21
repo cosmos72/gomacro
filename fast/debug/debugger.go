@@ -40,6 +40,7 @@ continue      resume normal execution
 ?             show this help
 help          show this help
 inspect EXPR  inspect expression interactively
+next          execute a single statement, skipping functions
 print   EXPR  print expression, statement or declaration
 // abbreviations are allowed if unambiguous.
 `)
@@ -48,23 +49,24 @@ print   EXPR  print expression, statement or declaration
 
 		backtrace [N] show function stack frames
 		finish        run until the end of current function
-		next          execute a single statement, skipping functions
 		step          execute a single statement, entering functions
 	*/
 }
 
-func (d *Debugger) Show() {
+func (d *Debugger) Show(breakpoint bool) {
 	env := d.env
 	pos := env.DebugPos
 	g := d.globals
 	if env.IP < len(pos) && g.Fileset != nil {
 		source, pos := g.Fileset.Source(pos[env.IP])
-		g.Fprintf(g.Stdout, "// breakpoint at %s - type ? for debugger help\n", pos)
+		if breakpoint {
+			g.Fprintf(g.Stdout, "// breakpoint at %s - type ? for debugger help\n", pos)
+		}
 		if len(source) != 0 {
 			g.Fprintf(g.Stdout, "%s\n", source)
 			d.showCaret(source, pos.Column)
 		}
-	} else {
+	} else if breakpoint {
 		g.Fprintf(g.Stdout, "// breakpoint. type ? for debugger help\n")
 	}
 }
@@ -98,7 +100,7 @@ func (d *Debugger) Repl() DebugOp {
 		src, firstToken := g.ReadMultiline(opts, "debug> ")
 		if firstToken < 0 && len(src) == 0 {
 			// EOF
-			op = DebugCont
+			op = DebugContinue
 			break
 		} else {
 			op = d.Eval(src)

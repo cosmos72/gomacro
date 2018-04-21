@@ -28,18 +28,26 @@ package fast
 import (
 	"go/ast"
 	"go/token"
+
+	. "github.com/cosmos72/gomacro/base"
 )
 
-// debugger operation
-type DebugOp uint
+var CurrentDebugger Debugger
 
-const (
-	DebugCont DebugOp = iota
-	DebugFinish
-	DebugNext
-	DebugStep
-	DebugRepl
-)
+type Debugger interface {
+	Breakpoint(ir *Interp, env *Env) DebugOp
+	At(ir *Interp, env *Env) DebugOp
+}
+
+type stubDebugger struct{}
+
+func (d stubDebugger) Breakpoint(ir *Interp, env *Env) DebugOp {
+	return SigDebugContinue
+}
+
+func (d stubDebugger) At(ir *Interp, env *Env) DebugOp {
+	return SigDebugContinue
+}
 
 // return true if statement is either "break" or _ = "break"
 func isBreakpoint(stmt ast.Stmt) bool {
@@ -76,25 +84,28 @@ func (c *Comp) breakpoint() Stmt {
 		// create an inner Env to preserve compiled Code and IP
 		ir := Interp{NewComp(c, nil), NewEnv(env, 0, 0)}
 		var stmt Stmt
-		switch ir.debug() {
-		default:
+		op := ir.debug(true)
+		switch op {
+		case SigDebugContinue:
 			env.IP++
 			stmt = env.Code[env.IP]
+		default:
+			g := env.ThreadGlobals
+			stmt = g.Interrupt
+			g.Signals.Sync = op
 		}
 		return stmt, env
 	}
 }
 
-func (ir *Interp) debug() DebugOp {
-	if Debugger == nil {
+func (ir *Interp) debug(breakpoint bool) DebugOp {
+	if CurrentDebugger == nil {
 		ir.Comp.Warnf("// breakpoint: no debugger installed, resuming execution (warned only once)")
-		Debugger = stubDebugger
+		CurrentDebugger = stubDebugger{}
 	}
-	return Debugger(ir, ir.env)
-}
-
-var Debugger func(ir *Interp, env *Env) DebugOp
-
-func stubDebugger(ir *Interp, env *Env) DebugOp {
-	return DebugCont
+	if breakpoint {
+		return CurrentDebugger.Breakpoint(ir, ir.env)
+	} else {
+		return CurrentDebugger.At(ir, ir.env)
+	}
 }

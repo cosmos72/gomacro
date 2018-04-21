@@ -31,11 +31,19 @@ import (
 
 func init() {
 	// install debugger
-	fast.Debugger = debugger
+	fast.CurrentDebugger = debuggerInterf{}
 }
 
-func debugger(ir *fast.Interp, env *fast.Env) DebugOp {
+type debuggerInterf struct{}
+
+func (debuggerInterf) Breakpoint(ir *fast.Interp, env *fast.Env) DebugOp {
 	d := NewDebugger(ir, env)
-	d.Show()
+	d.Show(true)
+	return d.Repl()
+}
+
+func (debuggerInterf) At(ir *fast.Interp, env *fast.Env) DebugOp {
+	d := NewDebugger(ir, env)
+	d.Show(false)
 	return d.Repl()
 }

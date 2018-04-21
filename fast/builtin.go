@@ -683,7 +683,7 @@ func callRecover(v r.Value) r.Value {
 	env := v.Interface().(*Env)
 	g := env.ThreadGlobals
 	debug := g.Options&base.OptDebugPanicRecover != 0
-	if !g.IsDefer {
+	if g.ExecFlags&IsDefer == 0 {
 		if debug {
 			base.Debugf("recover() not directly inside a defer")
 		}

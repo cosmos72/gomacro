@@ -30,14 +30,14 @@ import (
 	"github.com/cosmos72/gomacro/fast"
 )
 
-type DebugOp = fast.DebugOp
+type DebugOp = base.DebugOp
 
 const (
-	DebugCont   = fast.DebugCont
-	DebugFinish = fast.DebugFinish
-	DebugNext   = fast.DebugNext
-	DebugStep   = fast.DebugStep
-	DebugRepl   = fast.DebugRepl
+	DebugContinue = base.SigDebugContinue
+	DebugFinish   = base.SigDebugFinish
+	DebugNext     = base.SigDebugNext
+	DebugStep     = base.SigDebugStep
+	DebugRepl     = base.SigDebugRepl
 )
 
 type Debugger struct {

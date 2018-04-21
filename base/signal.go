@@ -26,6 +26,7 @@
 package base
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"sync/atomic"
@@ -65,24 +66,48 @@ const (
 	SigDefer Signal = 1 << iota // request to install a defer function
 	SigReturn
 	SigInterrupt // user pressed Ctrl+C, process received SIGINT, or similar
+)
+
+type DebugOp = Signal
+
+const (
+	SigDebugContinue = SigInterrupt + 1 + iota
+	SigDebugFinish
+	SigDebugNext
+	SigDebugStep
+	SigDebugRepl
 
 	SigNone = Signal(0) // no signal
 	SigAll  = ^SigNone  // mask of all possible signals
 )
+
+func (sig Signal) IsSigDebug() bool {
+	return sig >= SigDebugContinue && sig <= SigDebugRepl
+}
 
 func (sig Signal) String() string {
 	var s string
 	switch sig {
 	case SigNone:
 		s = "// signal: none"
-	case SigReturn:
-		s = "// signal: return"
 	case SigDefer:
 		s = "// signal: defer"
+	case SigReturn:
+		s = "// signal: return"
 	case SigInterrupt:
 		s = "// signal: interrupt"
+	case SigDebugContinue:
+		s = "// signal: debugger continue"
+	case SigDebugFinish:
+		s = "// signal: debugger finish"
+	case SigDebugNext:
+		s = "// signal: debugger next"
+	case SigDebugStep:
+		s = "// signal: debugger step"
+	case SigDebugRepl:
+		s = "// signal: debugger repl"
 	default:
-		s = "// signal: unknown"
+		s = fmt.Sprintf("// signal: unknown(%d)", uint16(sig))
 	}
 	return s
 }
@@ -95,4 +120,3 @@ type Signals struct {
 func (s *Signals) IsEmpty() bool {
 	return atomic.LoadUint32((*uint32)(unsafe.Pointer(s))) == 0
 }
-

@@ -87,7 +87,7 @@ func (d *Debugger) cmdBacktrace(arg string) DebugOp {
 }
 
 func (d *Debugger) cmdContinue(arg string) DebugOp {
-	return DebugCont
+	return DebugContinue
 }
 
 func (d *Debugger) cmdEnv(arg string) DebugOp {

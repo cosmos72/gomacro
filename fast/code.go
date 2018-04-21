@@ -86,18 +86,20 @@ func pushDefer(g *ThreadGlobals, deferOf *Env, panicking bool) (retg *ThreadGlob
 		g.PanicFun = deferOf
 	}
 	g.DeferOfFun = deferOf
-	g.StartDefer = true
-	return g, deferOf_, g.IsDefer
+	g.ExecFlags |= StartDefer
+	return g, deferOf_, g.ExecFlags&IsDefer != 0
 }
 
 func popDefer(g *ThreadGlobals, deferOf *Env, isDefer bool) {
 	g.DeferOfFun = deferOf
-	g.StartDefer = false
-	g.IsDefer = isDefer
+	g.ExecFlags &^= StartDefer | IsDefer
+	if isDefer {
+		g.ExecFlags |= IsDefer
+	}
 }
 
-func restore(g *ThreadGlobals, flag bool, interrupt Stmt) {
-	g.IsDefer = flag
+func restore(g *ThreadGlobals, isDefer bool, interrupt Stmt) {
+	g.SetIsDefer(isDefer)
 	g.Interrupt = interrupt
 	g.Signals.Sync = SigNone
 	if g.Signals.Async == SigInterrupt {
@@ -133,7 +135,7 @@ func (code *Code) Exec() func(*Env) {
 	if defers {
 		// code to support defer is slower... isolate it in a separate function
 		return func(env *Env) {
-			execWithDefers(env, all, pos)
+			execWithFlags(env, all, pos)
 		}
 	} else {
 		return exec(all, pos)
@@ -143,9 +145,9 @@ func (code *Code) Exec() func(*Env) {
 func exec(all []Stmt, pos []token.Pos) func(*Env) {
 	return func(env *Env) {
 		g := env.ThreadGlobals
-		if g.IsDefer || g.StartDefer {
-			// code to support defer is slower... isolate it in a separate function
-			execWithDefers(env, all, pos)
+		if g.ExecFlags != 0 {
+			// code to support defer and debugger is slower... isolate it in a separate function
+			execWithFlags(env, all, pos)
 			return
 		}
 		g.Signals.Sync = SigNone
@@ -221,32 +223,39 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 	finish:
 		// restore env.ThreadGlobals.Interrupt and Signal before returning
 		g.Interrupt = saveInterrupt
-		g.Signals.Sync = SigNone
 		if g.Signals.Async == SigInterrupt {
 			g.Signals.Async = SigNone
 			panic(SigInterrupt)
 		}
+		if g.Signals.Sync.IsSigDebug() {
+			reExecWithFlags(env, all, pos, stmt, env.IP)
+			return
+		}
+		g.Signals.Sync = SigNone
 		return
 	}
 }
 
-// execWithDefers executes the given compiled code, including support for defer()
-func execWithDefers(env *Env, all []Stmt, pos []token.Pos) {
+// execWithFlags executes the given compiled code, including support for defer() and debugger
+func execWithFlags(env *Env, all []Stmt, pos []token.Pos) {
+	env.ThreadGlobals.Signals.Sync = SigNone
+	reExecWithFlags(env, all, pos, all[0], 0)
+}
+
+func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 	g := env.ThreadGlobals
 
-	g.Signals.Sync = SigNone
 	if g.Signals.Async == SigInterrupt {
 		g.Signals.Async = SigNone
 		panic(SigInterrupt)
 	}
-	defer restore(g, g.IsDefer, g.Interrupt) // restore g.IsDefer, g.Signal and g.Interrupt on return
+	defer restore(g, g.IsDefer(), g.Interrupt) // restore g.IsDefer, g.Signal and g.Interrupt on return
 	g.Interrupt = nil
-	g.IsDefer = g.StartDefer
-	g.StartDefer = false
+	g.SetIsDefer(g.StartDefer())
+	g.SetStartDefer(false)
 
 	funenv := env
-	stmt := all[0]
-	env.IP = 0
+	env.IP = ip
 	env.Code = all
 	env.DebugPos = pos
 
