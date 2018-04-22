@@ -35,6 +35,7 @@ func (env *Env) Inspect(str string) {
 	inspector := env.Globals.Inspector
 	if inspector == nil {
 		env.Errorf("no inspector set: call Interp.SetInspector() first")
+		return
 	}
 
 	form := env.Parse(str)
@@ -47,5 +48,5 @@ func (env *Env) Inspect(str string) {
 			t = v.Type()
 		}
 	}
-	inspector(str, v, t, nil, env.Globals)
+	inspector.Inspect(str, v, t, nil, env.Globals)
 }

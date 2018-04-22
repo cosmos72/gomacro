@@ -515,7 +515,10 @@ func (ef *ExecFlags) SetDebug(flag bool) {
 	}
 }
 
-type Debugger func(ir *Interp, env *Env, breakpoint bool) DebugOp
+type Debugger interface {
+	Breakpoint(ir *Interp, env *Env) DebugOp
+	At(ir *Interp, env *Env) DebugOp
+}
 
 // ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
 type ThreadGlobals struct {

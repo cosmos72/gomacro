@@ -37,6 +37,7 @@ func (ir *Interp) Inspect(src string) {
 	inspector := g.Inspector
 	if inspector == nil {
 		c.Errorf("no inspector set: call Interp.SetInspector() first")
+		return
 	}
 	expr := c.Compile(c.Parse(src))
 	val := ir.RunExpr1(expr)
@@ -52,5 +53,5 @@ func (ir *Interp) Inspect(src string) {
 			typ = val.Type()
 		}
 	}
-	inspector(src, val, typ, xtyp, ir.Comp.Globals)
+	inspector.Inspect(src, val, typ, xtyp, ir.Comp.Globals)
 }

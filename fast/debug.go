@@ -81,11 +81,23 @@ func (ir *Interp) debug(breakpoint bool) DebugOp {
 	g := ir.env.ThreadGlobals
 	if g.Debugger == nil {
 		ir.Comp.Warnf("// breakpoint: no debugger set with Interp.SetDebugger(), resuming execution (warned only once)")
-		g.Debugger = stubDebugger
+		g.Debugger = stubDebugger{}
 	}
-	return g.Debugger(ir, ir.env, breakpoint)
+	var op DebugOp
+	if breakpoint {
+		op = g.Debugger.Breakpoint(ir, ir.env)
+	} else {
+		op = g.Debugger.At(ir, ir.env)
+	}
+	return op
 }
 
-func stubDebugger(ir *Interp, env *Env, breakpoint bool) DebugOp {
+type stubDebugger struct{}
+
+func (s stubDebugger) Breakpoint(ir *Interp, env *Env) DebugOp {
+	return SigDebugContinue
+}
+
+func (s stubDebugger) At(ir *Interp, env *Env) DebugOp {
 	return SigDebugContinue
 }

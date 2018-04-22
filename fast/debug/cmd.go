@@ -74,6 +74,7 @@ func (d *Debugger) Cmd(src string) DebugOp {
 		prefix, arg := base.Split2(src, ' ')
 		cmd, found := cmds.Lookup(prefix)
 		if found {
+			d.lastcmd = src
 			op = cmd.Func(d, arg)
 		} else {
 			d.Help()

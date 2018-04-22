@@ -37,26 +37,24 @@ import (
 
 type Inspector struct {
 	names   []string
-	vs      []r.Value
-	ts      []r.Type
-	xts     []xr.Type
+	vals      []r.Value
+	types      []r.Type
+	xtypes     []xr.Type
 	globals *base.Globals
 }
 
-func InspectorFunc(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *base.Globals) {
-	ip := NewInspector(name, val, typ, xtyp, globals)
+func (ip *Inspector) Inspect(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *base.Globals) {
+	ip.Init(name, val, typ, xtyp, globals)
 	ip.Show()
 	ip.Repl()
 }
 
-func NewInspector(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *base.Globals) *Inspector {
-	return &Inspector{
-		names:   []string{name},
-		vs:      []r.Value{val},
-		ts:      []r.Type{typ},
-		xts:     []xr.Type{xtyp},
-		globals: globals,
-	}
+func (ip *Inspector) Init(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *base.Globals) {
+	ip.names = []string{name}
+	ip.vals = []r.Value{val}
+	ip.types = []r.Type{typ}
+	ip.xtypes = []xr.Type{xtyp}
+	ip.globals = globals
 }
 
 func (ip *Inspector) Help() {
@@ -78,8 +76,8 @@ up          return to outer expression
 func (ip *Inspector) Show() {
 	depth := len(ip.names)
 	name := strings.Join(ip.names, ".")
-	v := ip.vs[depth-1]
-	t := ip.ts[depth-1]
+	v := ip.vals[depth-1]
+	t := ip.types[depth-1]
 	ip.showVar(name, v, t)
 
 	v = dereferenceValue(v) // dereference pointers on-the-fly
@@ -114,8 +112,8 @@ func (ip *Inspector) Eval(cmd string) error {
 	case cmd == "?", strings.HasPrefix("help", cmd):
 		ip.Help()
 	case strings.HasPrefix("methods", cmd):
-		t := ip.ts[len(ip.ts)-1]
-		xt := ip.xts[len(ip.xts)-1]
+		t := ip.types[len(ip.types)-1]
+		xt := ip.xtypes[len(ip.xtypes)-1]
 		ip.showMethods(t, xt)
 	case strings.HasPrefix("quit", cmd):
 		return errors.New("user quit")
@@ -138,8 +136,8 @@ func (ip *Inspector) Eval(cmd string) error {
 
 func (ip *Inspector) Top() {
 	ip.names = ip.names[0:1]
-	ip.vs = ip.vs[0:1]
-	ip.ts = ip.ts[0:1]
+	ip.vals = ip.vals[0:1]
+	ip.types = ip.types[0:1]
 }
 
 func (ip *Inspector) Leave() {
@@ -149,8 +147,8 @@ func (ip *Inspector) Leave() {
 	}
 	depth--
 	ip.names = ip.names[:depth]
-	ip.vs = ip.vs[:depth]
-	ip.ts = ip.ts[:depth]
+	ip.vals = ip.vals[:depth]
+	ip.types = ip.types[:depth]
 	if depth > 0 {
 		ip.Show()
 	}
@@ -223,7 +221,7 @@ func (ip *Inspector) Enter(cmd string) {
 		return
 	}
 	depth := len(ip.names)
-	v := dereferenceValue(ip.vs[depth-1])
+	v := dereferenceValue(ip.vals[depth-1])
 	var n int
 	var fname string
 	var f r.Value
@@ -258,8 +256,8 @@ func (ip *Inspector) Enter(cmd string) {
 	switch dereferenceValue(f).Kind() { // dereference pointers on-the-fly
 	case r.Array, r.Slice, r.String, r.Struct:
 		ip.names = append(ip.names, fname)
-		ip.vs = append(ip.vs, f)
-		ip.ts = append(ip.ts, t)
+		ip.vals = append(ip.vals, f)
+		ip.types = append(ip.types, t)
 		ip.Show()
 	default:
 		ip.showVar(fname, f, t)

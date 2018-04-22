@@ -384,8 +384,10 @@ func singleStep(env *Env) (Stmt, *Env) {
 		g.DebugDepth = env.DebugCallDepth
 	case SigDebugNext:
 		g.DebugDepth = env.DebugCallDepth + 1
-	case SigDebugStep, SigDebugRepl:
+	case SigDebugStep:
 		g.DebugDepth = MaxInt
+	case SigDebugRepl:
+		break
 	default:
 		g.Signals.Debug = SigNone
 		g.DebugDepth = 0
@@ -393,7 +395,7 @@ func singleStep(env *Env) (Stmt, *Env) {
 	}
 	// prevent further changes to g.DebugDepth
 	if g.Signals.Debug != SigNone {
-		g.Signals.Debug = SigDebugNext
+		g.Signals.Debug = SigDebugRepl
 	}
 
 	if env.DebugCallDepth < g.DebugDepth {

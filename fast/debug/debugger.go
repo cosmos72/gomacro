@@ -106,13 +106,17 @@ func (d *Debugger) Repl() DebugOp {
 	op := DebugRepl
 	for op == DebugRepl {
 		src, firstToken := g.ReadMultiline(opts, "debug> ")
-		if firstToken < 0 && len(src) == 0 {
+		empty := len(src) == 0
+		if firstToken < 0 && empty {
 			// EOF
 			op = DebugContinue
 			break
-		} else {
-			op = d.Eval(src)
 		}
+		if empty {
+			// keyboard enter repeats last command
+			src = d.lastcmd
+		}
+		op = d.Eval(src)
 	}
 	return op
 }

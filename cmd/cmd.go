@@ -55,8 +55,8 @@ func New() *Cmd {
 
 func (cmd *Cmd) Init() {
 	ir := fast.New()
-	ir.SetDebugger(debug.DebuggerFunc)
-	ir.SetInspector(inspect.InspectorFunc)
+	ir.SetDebugger(&debug.Debugger{})
+	ir.SetInspector(&inspect.Inspector{})
 
 	g := ir.Comp.Globals
 	g.ParserMode = 0

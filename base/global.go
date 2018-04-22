@@ -49,7 +49,9 @@ const (
 	CmdOptForceEval // temporarily re-enable evaluation even if in macroexpand-only mode
 )
 
-type Inspector func(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *Globals)
+type Inspector interface {
+	Inspect(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *Globals)
+}
 
 type Globals struct {
 	Output
