@@ -189,12 +189,13 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	env.Outer = outer
 	env.IP = outer.IP
 	env.Code = outer.Code
-	env.DebugPos = outer.DebugPos
 	env.ThreadGlobals = tg
+	env.DebugPos = outer.DebugPos
+	env.DebugCallDepth = outer.DebugCallDepth
 	return env
 }
 
-func newEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
+func newEnv4Func(outer *Env, nbinds int, nintbinds int, debugComp *Comp) *Env {
 	tg := outer.ThreadGlobals
 	pool := &tg.Pool // pool is an array, do NOT copy it!
 	index := tg.PoolSize - 1
@@ -222,6 +223,8 @@ func newEnv4Func(outer *Env, nbinds int, nintbinds int) *Env {
 	}
 	env.Outer = outer
 	env.ThreadGlobals = tg
+	env.DebugComp = debugComp
+	env.DebugCallDepth = outer.DebugCallDepth + 1
 	// Debugf("newEnv4Func(%p->%p) binds=%d intbinds=%d", outer, env, nbinds, nintbinds)
 	return env
 }

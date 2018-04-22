@@ -247,7 +247,6 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 		panic(SigInterrupt)
 	}
 	defer restore(g, g.ExecFlags.IsDefer(), g.Interrupt) // restore g.IsDefer, g.Signal and g.Interrupt on return
-	g.Interrupt = nil
 	ef := &g.ExecFlags
 	ef.SetDefer(ef.StartDefer())
 	ef.SetStartDefer(false)
@@ -274,6 +273,11 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 		}
 	}
 
+	if stmt == nil {
+		goto signal
+	}
+again:
+	g.Interrupt = nil
 	for j := 0; j < 5; j++ {
 		if stmt, env = stmt(env); stmt != nil {
 			if stmt, env = stmt(env); stmt != nil {
@@ -313,11 +317,11 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 			defer rundefer(fun)
 			stmt = env.Code[env.IP]
 			if stmt == nil {
-				goto finish
+				goto signal
 			}
 		}
 		if !g.Signals.IsEmpty() {
-			goto finish
+			goto signal
 		}
 		continue
 	}
@@ -345,17 +349,71 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 			fun := g.InstallDefer
 			g.InstallDefer = nil
 			defer rundefer(fun)
-			stmt = env.Code[env.IP]
 			// single step
+			stmt = env.Code[env.IP]
 			stmt, env = stmt(env)
 		}
 		if !g.Signals.IsEmpty() {
-			goto finish
+			goto signal
 		}
 	}
-finish:
+signal:
+	for g.Signals.Debug != SigNone {
+		g.Interrupt = spinInterrupt
+		stmt, env = singleStep(env)
+		/*DELETEME*/ g.Debugf("singleStep returned stmt = %p, env = %p with signals = %#v\n", stmt, env, g.Signals)
+		// a Sync or Async signal may be pending.
+		if g.Signals.Sync == SigReturn || g.Signals.Async != SigNone {
+			break
+		}
+		if g.Signals.IsEmpty() || g.Signals.Sync == SigDefer {
+			goto again
+		}
+	}
 	panicking = false
 	// no need to restore g.IsDefer, g.Signal, g.Interrupt:
 	// done by defer restore(g, g.IsDefer, interrupt) above
 	return
+}
+
+func singleStep(env *Env) (Stmt, *Env) {
+	stmt := env.Code[env.IP]
+	g := env.ThreadGlobals
+	switch g.Signals.Debug {
+	case SigDebugFinish:
+		g.DebugDepth = env.DebugCallDepth
+	case SigDebugNext:
+		g.DebugDepth = env.DebugCallDepth + 1
+	case SigDebugStep, SigDebugRepl:
+		g.DebugDepth = MaxInt
+	default:
+		g.Signals.Debug = SigNone
+		g.DebugDepth = 0
+		return stmt, env // resume normal execution
+	}
+	// prevent further changes to g.DebugDepth
+	if g.Signals.Debug != SigNone {
+		g.Signals.Debug = SigDebugNext
+	}
+
+	if env.DebugCallDepth < g.DebugDepth {
+		c := env.DebugComp
+		if c != nil {
+			ir := Interp{c, env}
+			op := ir.debug(true)
+			if op == SigDebugContinue {
+				g.Signals.Debug = SigNone
+			} else {
+				g := env.ThreadGlobals
+				g.Signals.Debug = op
+			}
+		}
+	}
+
+	// single step
+	stmt, env = stmt(env)
+	if g.Signals.Debug != SigNone {
+		stmt = g.Interrupt
+	}
+	return stmt, env
 }

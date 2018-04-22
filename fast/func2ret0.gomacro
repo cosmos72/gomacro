@@ -106,7 +106,7 @@ import (
 				// function is closed over the env used to DECLARE it
 				env.MarkUsedByClosure()
 				return r.ValueOf(func(arg0 ~,arg0typ, arg1 ~,arg1typ) {
-					env := newEnv4Func(env, nbinds, nintbinds)
+					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					// copy arg0, arg1 into allocated binds
 					~,arg0bind
 					~,arg1bind
@@ -218,6 +218,7 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	if !IsOptimizedKind(karg0) || !IsOptimizedKind(karg1) {
 		return nil
 	}
+	// do not keep a reference to funcMaker
 	indexes := [2]int{
 		m.parambinds[0].Desc.Index(),
 		m.parambinds[1].Desc.Index(),
@@ -225,6 +226,12 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
 	funcbody := m.funcbody
+
+	var debugC *Comp
+	if c.Globals.Options&OptDebugger != 0 {
+		// keep a reference to c only if needed
+		debugC = c
+	}
 
 	mfuncxy2ret0; nil
 

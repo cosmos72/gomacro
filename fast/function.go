@@ -401,11 +401,17 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	funcbody := m.funcbody
 	rtype := t.ReflectType()
 
+	var debugC *Comp
+	if c.Globals.Options&base.OptDebugger != 0 {
+		// keep a reference to c only if needed
+		debugC = c
+	}
+
 	return func(env *Env) r.Value {
 		// function is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
 		return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
-			env := newEnv4Func(env, nbinds, nintbinds)
+			env := newEnv4Func(env, nbinds, nintbinds, debugC)
 
 			if funcbody != nil {
 				// copy runtime arguments into allocated binds
@@ -448,11 +454,17 @@ func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody f
 	nbinds := m.nbinds
 	nintbinds := m.nintbinds
 
+	var debugC *Comp
+	if c.Globals.Options&base.OptDebugger != 0 {
+		// keep a reference to c only if needed
+		debugC = c
+	}
+
 	return func(env *Env) func(args []r.Value) []r.Value {
 		// macro is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
 		return func(args []r.Value) []r.Value {
-			env := newEnv4Func(env, nbinds, nintbinds)
+			env := newEnv4Func(env, nbinds, nintbinds, debugC)
 
 			if funcbody != nil {
 				// copy runtime arguments into allocated binds

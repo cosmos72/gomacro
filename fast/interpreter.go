@@ -305,6 +305,8 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 	if g.Options&OptDebugger != 0 {
 		// for debugger
 		env.DebugComp = c
+	} else {
+		env.DebugComp = nil
 	}
 	return env
 }
@@ -381,6 +383,7 @@ func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
 
 	callAgain = opt&CmdOptQuit == 0
 	if len(src) == 0 || !callAgain {
+		trap = false // no panic happened
 		return callAgain
 	}
 
@@ -406,7 +409,6 @@ func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
 	g.Print(values, types)
 
 	trap = false // no panic happened
-
 	return callAgain
 }
 

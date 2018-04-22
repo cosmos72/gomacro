@@ -523,7 +523,7 @@ type ThreadGlobals struct {
 	FileEnv      *Env
 	TopEnv       *Env
 	Interrupt    Stmt
-	Signals      Signals // set by defer, return and ThreadGlobals.interrupt(os.Signal)
+	Signals      Signals // set by defer, return, breakpoint, debugger and ThreadGlobals.interrupt(os.Signal)
 	PoolSize     int
 	Pool         [PoolCapacity]*Env
 	InstallDefer func()      // defer function to be installed
@@ -532,6 +532,7 @@ type ThreadGlobals struct {
 	DeferOfFun   *Env        // function whose defer are running
 	ExecFlags    ExecFlags
 	CmdOpt       CmdOpt
+	DebugDepth   int // depth of function to debug with single-step
 	Debugger     Debugger
 }
 
@@ -599,6 +600,7 @@ type Env struct {
 	ThreadGlobals   *ThreadGlobals
 	DebugPos        []token.Pos // for debugging interpreted code: position of each statement
 	DebugComp       *Comp       // for debugging interpreted code: compiler with Binds, and to rebuild an Interp if needed
+	DebugCallDepth  int         // depth of call stack
 	UsedByClosure   bool        // a bitfield would introduce more races among goroutines
 	IntAddressTaken bool        // true if &Env.Ints[index] was executed... then we cannot reuse or reallocate Ints
 }

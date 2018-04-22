@@ -64,16 +64,14 @@ func isBreakLiteral(node ast.Expr) bool {
 func (c *Comp) breakpoint() Stmt {
 	return func(env *Env) (Stmt, *Env) {
 		ir := Interp{c, env}
-		var stmt Stmt
 		op := ir.debug(true)
-		switch op {
-		case SigDebugContinue:
-			env.IP++
-			stmt = env.Code[env.IP]
-		default:
+		env.IP++
+		stmt := env.Code[env.IP]
+		if op != SigDebugContinue {
 			g := env.ThreadGlobals
 			stmt = g.Interrupt
-			g.Signals.Sync = op
+			g.Signals.Debug = op
+			/*DELETEME*/ g.Debugf("after breakpoint: single-stepping with stmt = %p, env = %p, signals = %#v\n", stmt, env, g.Signals)
 		}
 		return stmt, env
 	}

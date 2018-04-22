@@ -423,9 +423,15 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	exprfun := call.Fun.AsX1()
 	argfunsX1 := call.MakeArgfunsX1()
 
+	var debugC *Comp
+	if c2.Globals.Options&OptDebugger != 0 {
+		// keep a reference to c2 only if needed
+		debugC = c2
+	}
+
 	stmt := func(env *Env) (Stmt, *Env) {
 		// create a new Env to hold the new ThreadGlobals and (initially empty) Pool
-		env2 := newEnv4Func(env, 0, 0)
+		env2 := newEnv4Func(env, 0, 0, debugC)
 		tg := env.ThreadGlobals
 		env2.ThreadGlobals = &ThreadGlobals{
 			FileEnv: tg.FileEnv,

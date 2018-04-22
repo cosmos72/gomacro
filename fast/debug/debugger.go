@@ -120,7 +120,13 @@ func (d *Debugger) Print(src string) {
 	g := d.globals
 	trap := g.Options&base.OptTrapPanic != 0
 
+	// do NOT debug expression evaluated at debugger prompt!
+	sig := &d.env.ThreadGlobals.Signals
+	sigdebug := sig.Debug
+	sig.Debug = base.SigNone
+
 	defer func() {
+		sig.Debug = sigdebug
 		if trap {
 			rec := recover()
 			if g.Options&base.OptPanicStackTrace != 0 {
