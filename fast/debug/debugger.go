@@ -54,20 +54,23 @@ print   EXPR  print expression, statement or declaration
 }
 
 func (d *Debugger) Show(breakpoint bool) {
+	// d.env is the Env being debugged.
+	// to execute code at debugger prompt, use d.interp
 	env := d.env
 	pos := env.DebugPos
 	g := d.globals
-	if env.IP < len(pos) && g.Fileset != nil {
-		source, pos := g.Fileset.Source(pos[env.IP])
+	ip := env.IP
+	if ip < len(pos) && g.Fileset != nil {
+		source, pos := g.Fileset.Source(pos[ip])
 		if breakpoint {
-			g.Fprintf(g.Stdout, "// breakpoint at %s - type ? for debugger help\n", pos)
+			g.Fprintf(g.Stdout, "// breakpoint at %s IP=%d. type ? for debugger help\n", pos, ip)
 		}
 		if len(source) != 0 {
 			g.Fprintf(g.Stdout, "%s\n", source)
 			d.showCaret(source, pos.Column)
 		}
 	} else if breakpoint {
-		g.Fprintf(g.Stdout, "// breakpoint. type ? for debugger help\n")
+		g.Fprintf(g.Stdout, "// breakpoint at IP=%d. type ? for debugger help\n", ip)
 	}
 }
 

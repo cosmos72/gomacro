@@ -125,7 +125,7 @@ func (c *Comp) DeclConsts(node ast.Spec, defaultType ast.Expr, defaultExprs []as
 			defaultType = node.Type
 			defaultExprs = node.Values
 		}
-		names, t, inits := c.prepareDeclConstsOrVars(tostrings(node.Names), defaultType, defaultExprs)
+		names, t, inits := c.prepareDeclConstsOrVars(toStrings(node.Names), defaultType, defaultExprs)
 		c.DeclConsts0(names, t, inits)
 	default:
 		c.Errorf("unsupported constant declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
@@ -137,8 +137,8 @@ func (c *Comp) DeclVars(node ast.Spec) {
 	c.Pos = node.Pos()
 	switch node := node.(type) {
 	case *ast.ValueSpec:
-		names, t, inits := c.prepareDeclConstsOrVars(tostrings(node.Names), node.Type, node.Values)
-		c.DeclVars0(names, t, inits)
+		names, t, inits := c.prepareDeclConstsOrVars(toStrings(node.Names), node.Type, node.Values)
+		c.DeclVars0(names, t, inits, toPos(node.Names))
 	default:
 		c.Errorf("unsupported variable declaration: expecting <*ast.ValueSpec>, found: %v <%v>", node, r.TypeOf(node))
 	}
@@ -147,25 +147,39 @@ func (c *Comp) DeclVars(node ast.Spec) {
 // DeclVarsShort compiles a set of variable short declarations i.e. "x1, x2... := expr1, expr2..."
 func (c *Comp) DeclVarsShort(lhs []ast.Expr, rhs []ast.Expr) {
 	n := len(lhs)
+	if n == 0 {
+		return
+	}
 	names := make([]string, n)
+	pos := make([]token.Pos, n)
 	for i := range lhs {
 		if ident, ok := lhs[i].(*ast.Ident); ok {
 			names[i] = ident.Name
+			pos[i] = ident.NamePos
 		} else {
 			c.Errorf("non-name %v on left side of :=", lhs[i])
 		}
 	}
 	_, t, inits := c.prepareDeclConstsOrVars(names, nil, rhs)
-	c.DeclVars0(names, t, inits)
+	c.DeclVars0(names, t, inits, pos)
 }
 
-func tostrings(idents []*ast.Ident) []string {
+func toStrings(idents []*ast.Ident) []string {
 	n := len(idents)
 	names := make([]string, n)
 	for i, ident := range idents {
 		names[i] = ident.Name
 	}
 	return names
+}
+
+func toPos(idents []*ast.Ident) []token.Pos {
+	n := len(idents)
+	pos := make([]token.Pos, n)
+	for i, ident := range idents {
+		pos[i] = ident.NamePos
+	}
+	return pos
 }
 
 func (c *Comp) prepareDeclConstsOrVars(names []string, typ ast.Expr, exprs []ast.Expr) (names_out []string, t xr.Type, inits []*Expr) {
@@ -196,19 +210,23 @@ func (c *Comp) DeclConsts0(names []string, t xr.Type, inits []*Expr) {
 }
 
 // DeclVars0 compiles a set of variable declarations
-func (c *Comp) DeclVars0(names []string, t xr.Type, inits []*Expr) {
+func (c *Comp) DeclVars0(names []string, t xr.Type, inits []*Expr, pos []token.Pos) {
 	n := len(names)
 	ni := len(inits)
-	if ni == 0 {
-		for i := 0; i < n; i++ {
-			c.DeclVar0(names[i], t, nil)
-		}
-	} else if ni == n {
-		for i := 0; i < n; i++ {
-			c.DeclVar0(names[i], t, inits[i])
+	if ni == 0 || ni == n {
+		npos := len(pos)
+		for i, name := range names {
+			var init *Expr
+			if i < ni {
+				init = inits[i]
+			}
+			if i < npos {
+				c.Pos = pos[i]
+			}
+			c.DeclVar0(name, t, init)
 		}
 	} else if ni == 1 && n > 1 {
-		c.DeclMultiVar0(names, t, inits[0])
+		c.DeclMultiVar0(names, t, inits[0], pos)
 	} else {
 		c.Errorf("cannot declare %d variables from %d expressions: %v", n, ni, names)
 	}
@@ -524,14 +542,18 @@ func (c *Comp) DeclBindRuntimeValue(bind *Bind) func(*Env, r.Value) {
 }
 
 // DeclMultiVar0 compiles multiple variable declarations from a single multi-valued expression
-func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr) {
+func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.Pos) {
 	if t == nil {
 		if init == nil {
 			c.Errorf("no value and no type, cannot declare variables: %v", names)
 		}
 	}
 	n := len(names)
+	npos := len(pos)
 	if n == 1 {
+		if npos != 0 {
+			c.Pos = pos[0]
+		}
 		c.DeclVar0(names[0], t, init)
 		return
 	}
@@ -556,6 +578,9 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr) {
 		decls[i] = c.DeclBindRuntimeValue(bind)
 	}
 	fun := init.AsXV(0)
+	if npos != 0 {
+		c.Pos = pos[0]
+	}
 	c.append(func(env *Env) (Stmt, *Env) {
 		// call the multi-valued function. we know ni > 1, so just use the []r.Value
 		_, rets := fun(env)

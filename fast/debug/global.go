@@ -41,6 +41,14 @@ const (
 )
 
 func DebuggerFunc(ir *fast.Interp, env *fast.Env, breakpoint bool) DebugOp {
+
+	{ /*DELETEME*/
+		/*
+			g := ir.Comp.Globals
+			g.Fprintf(g.Stdout, "Debugger invoked at IP=%d, statement = %p\n", env.IP, env.Code[env.IP])
+		*/
+	}
+
 	// create an inner Interp to preserve existing Binds, compiled Code and IP
 	//
 	// this is needed to allow compiling and evaluating code at a breakpoint
@@ -61,7 +69,7 @@ type Debugger struct {
 func NewDebugger(interp *fast.Interp, env *fast.Env) *Debugger {
 	return &Debugger{
 		interp:  interp,
-		env:     env.Outer,
+		env:     env,
 		globals: interp.Comp.Globals,
 	}
 }

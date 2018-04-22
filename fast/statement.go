@@ -48,12 +48,13 @@ func popEnv(env *Env) (Stmt, *Env) {
 
 func (c *Comp) Stmt(in ast.Stmt) {
 	var labels []string
+	/*DELETEME*/ // codelen := len(c.Code.List)
 	for {
 		if in != nil {
 			c.Pos = in.Pos()
 			if isBreakpoint(in) {
 				c.append(c.breakpoint())
-				return
+				break
 			}
 		}
 		switch node := in.(type) {
@@ -104,9 +105,62 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		case *ast.TypeSwitchStmt:
 			c.TypeSwitch(node, labels)
 		default:
-			c.Errorf("unimplemented statement: %v <%v>", node, r.TypeOf(node))
+			c.Errorf("unimplemented statement: %v // %T", node, node)
 		}
-		return
+		break
+	}
+	/*DELETEME*/ // c.showStatementsSource(in, codelen)
+}
+
+/*DELETEME*/
+func (c *Comp) showStatementsSource(in ast.Stmt, startIP int) {
+	n1, n2 := len(c.Code.List), len(c.Code.DebugPos)
+	if n1 != n2 {
+		c.Warnf("code mismatch: len(c.Code.List) = %d differs from len(c.Code.DebugPos) = %d",
+			n1, n2)
+	}
+	g := c.Globals
+	g.Fprintf(g.Stdout, "source for statement: %v // %T\n", in, in)
+	for ip := startIP; ip < n2; ip++ {
+		c.showStatementSource(ip)
+	}
+}
+
+/*DELETEME*/
+func (c *Comp) showStatementSource(ip int) {
+	code := c.Code
+	list := code.List
+	debugp := code.DebugPos
+	g := c.Globals
+	if ip < len(debugp) && g.Fileset != nil {
+		p := debugp[ip]
+		source, pos := g.Fileset.Source(p)
+		if ip < len(list) {
+			g.Fprintf(g.Stdout, "IP = % 3d: statement %p at [% 3d] %s\n", ip, list[ip], p, pos)
+		} else {
+			g.Fprintf(g.Stdout, "IP = % 3d: unknown statement at [% 3d] %s\n", ip, p, pos)
+		}
+		if len(source) != 0 {
+			g.Fprintf(g.Stdout, "%s\n", source)
+			c.showCaret(source, pos.Column)
+		}
+	}
+}
+
+var spaces = []byte("                                                                      ")
+
+func (c *Comp) showCaret(source string, col int) {
+	col--
+	n := len(source)
+	if col >= 0 && col < n && n >= 3 {
+		out := c.Globals.Stdout
+		chunk := len(spaces)
+		for col >= chunk {
+			out.Write(spaces)
+			col -= chunk
+		}
+		out.Write(spaces[:col])
+		out.Write([]byte("^^^\n"))
 	}
 }
 

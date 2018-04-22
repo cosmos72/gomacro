@@ -189,6 +189,7 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	env.Outer = outer
 	env.IP = outer.IP
 	env.Code = outer.Code
+	env.DebugPos = outer.DebugPos
 	env.ThreadGlobals = tg
 	return env
 }
@@ -249,6 +250,8 @@ func (env *Env) FreeEnv() {
 	}
 	env.Outer = nil
 	env.Code = nil
+	env.DebugPos = nil
+	env.DebugComp = nil
 	env.ThreadGlobals = nil
 	common.Pool[n] = env // pool is an array, be careful NOT to copy it!
 	common.PoolSize = n + 1

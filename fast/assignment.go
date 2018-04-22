@@ -53,6 +53,7 @@ func (a *Assign) init(c *Comp, place *Place) {
 // Assign compiles an *ast.AssignStmt into an assignment to one or more place
 func (c *Comp) Assign(node *ast.AssignStmt) {
 	c.Pos = node.Pos()
+	// c.Debugf("compiling assignment at [% 3d] %s: %v // %T", c.Pos, c.Fileset.Position(c.Pos), node, node)
 
 	lhs, rhs := node.Lhs, node.Rhs
 	if node.Tok == token.DEFINE {
@@ -98,6 +99,7 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 			canreorder = canreorder && exprs[i].Const()
 		}
 	}
+
 	if ln == rn && (ln <= 1 || canreorder) {
 		for i := range lhs {
 			c.assign1(lhs[i], node.Tok, rhs[i], places[i], exprs[i])
@@ -304,6 +306,9 @@ func (c *Comp) assign1(lhs ast.Expr, op token.Token, rhs ast.Expr, place *Place,
 		node := &ast.AssignStmt{Lhs: []ast.Expr{lhs}, Tok: op, Rhs: []ast.Expr{rhs}} // for nice error messages
 		c.Errorf("error compiling assignment: %v\n\t%v", node, rec)
 	}()
+	c.Pos = lhs.Pos()
+	// c.Debugf("compiling assign1 at [% 3d] %s: %v // %T", c.Pos, c.Fileset.Position(c.Pos), lhs, lhs)
+
 	if place.IsVar() {
 		c.SetVar(&place.Var, op, init)
 	} else {
