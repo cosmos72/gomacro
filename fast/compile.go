@@ -36,12 +36,6 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func NewThreadGlobals() *ThreadGlobals {
-	return &ThreadGlobals{
-		Globals: NewGlobals(),
-	}
-}
-
 func New() *Interp {
 	top := newTopInterp("builtin")
 	top.env.UsedByClosure = true // do not free this *Env

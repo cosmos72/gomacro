@@ -58,18 +58,18 @@ func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
 
 // ValueInterface() is a zero-value-safe version of reflect.Value.Interface()
 func ValueInterface(v r.Value) interface{} {
-	if v == Nil || v == None || !v.IsValid() || !v.CanInterface() {
+	if !v.IsValid() || !v.CanInterface() || v == None {
 		return nil
 	}
 	return v.Interface()
 }
 
 // ValueType() is a zero-value-safe version of reflect.Value.Type()
-func ValueType(v r.Value) r.Type {
-	if v == Nil || v == None || !v.IsValid() {
+func ValueType(value r.Value) r.Type {
+	if !value.IsValid() || value == None {
 		return nil
 	}
-	return v.Type()
+	return value.Type()
 }
 
 func IsNillableKind(k r.Kind) bool {

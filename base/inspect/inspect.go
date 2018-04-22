@@ -23,7 +23,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package base
+package inspect
 
 import (
 	"errors"
@@ -31,6 +31,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -39,10 +40,16 @@ type Inspector struct {
 	vs      []r.Value
 	ts      []r.Type
 	xts     []xr.Type
-	globals *Globals
+	globals *base.Globals
 }
 
-func NewInspector(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *Globals) *Inspector {
+func InspectorFunc(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *base.Globals) {
+	ip := NewInspector(name, val, typ, xtyp, globals)
+	ip.Show()
+	ip.Repl()
+}
+
+func NewInspector(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *base.Globals) *Inspector {
 	return &Inspector{
 		names:   []string{name},
 		vs:      []r.Value{val},
@@ -158,7 +165,7 @@ func (ip *Inspector) showFields(v r.Value) {
 	n := v.NumField()
 	for i := 0; i < n; i++ {
 		f := v.Field(i)
-		t := typeOf(f)
+		t := base.ValueType(f)
 		f = dereferenceValue(f)
 		g.Fprintf(g.Stdout, "    %d. ", i)
 		ip.showVar(v.Type().Field(i).Name, f, t)
@@ -170,7 +177,7 @@ func (ip *Inspector) showIndexes(v r.Value) {
 	n := v.Len()
 	for i := 0; i < n; i++ {
 		f := v.Index(i)
-		t := typeOf(f)
+		t := base.ValueType(f)
 		f = dereferenceValue(f)
 		g.Fprintf(g.Stdout, "    %d. ", i)
 		ip.showVar("", f, t)
@@ -236,11 +243,11 @@ func (ip *Inspector) Enter(cmd string) {
 		fname = v.Type().Field(i).Name
 		f = v.Field(i)
 	default:
-		g.Fprintf(g.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", typeOf(v))
+		g.Fprintf(g.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", base.ValueType(v))
 		return
 	}
 	var t r.Type
-	if f != Nil && f != None {
+	if f.IsValid() && f != base.None {
 		if f.CanInterface() {
 			t = r.TypeOf(f.Interface()) // concrete type
 		} else {
@@ -266,8 +273,10 @@ func dereferenceValue(v r.Value) r.Value {
 			v = v.Elem()
 			continue
 		case r.Interface:
-			v = r.ValueOf(v.Interface())
-			continue
+			if v.CanInterface() {
+				v = r.ValueOf(v.Interface())
+				continue
+			}
 		}
 		break
 	}

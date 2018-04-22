@@ -515,6 +515,8 @@ func (ef *ExecFlags) SetDebug(flag bool) {
 	}
 }
 
+type Debugger func(ir *Interp, env *Env, breakpoint bool) DebugOp
+
 // ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
 type ThreadGlobals struct {
 	*Globals
@@ -530,6 +532,7 @@ type ThreadGlobals struct {
 	DeferOfFun   *Env        // function whose defer are running
 	ExecFlags    ExecFlags
 	CmdOpt       CmdOpt
+	Debugger     Debugger
 }
 
 // CompGlobals contains interpreter compile bookeeping information

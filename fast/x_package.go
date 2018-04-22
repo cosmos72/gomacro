@@ -27,7 +27,6 @@ func init() {
 			"NewComp":             r.ValueOf(NewComp),
 			"NewEnv":              r.ValueOf(NewEnv),
 			"NewInnerInterp":      r.ValueOf(NewInnerInterp),
-			"NewThreadGlobals":    r.ValueOf(NewThreadGlobals),
 			"NoIndex":             r.ValueOf(NoIndex),
 			"OptDefaults":         r.ValueOf(OptDefaults),
 			"OptKeepUntyped":      r.ValueOf(OptKeepUntyped),

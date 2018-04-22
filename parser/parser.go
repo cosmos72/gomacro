@@ -87,6 +87,9 @@ func (p *parser) init(fset *mt.FileSet, filename string, lineOffset int, src []b
 	if mode&ParseComments != 0 {
 		m = scanner.ScanComments
 	}
+	if mode&CopySources != 0 {
+		p.file.SetSourceForContent(src)
+	}
 	if p.macroChar == '\x00' {
 		p.macroChar = '~'
 	}

@@ -49,6 +49,8 @@ const (
 	CmdOptForceEval // temporarily re-enable evaluation even if in macroexpand-only mode
 )
 
+type Inspector func(name string, val r.Value, typ r.Type, xtyp xr.Type, globals *Globals)
+
 type Globals struct {
 	Output
 	Options      Options
@@ -64,6 +66,7 @@ type Globals struct {
 	ParserMode   mp.Mode
 	MacroChar    rune // prefix for macro-related keywords macro, quote, quasiquote, splice... The default is '~'
 	ReplCmdChar  byte // prefix for special REPL commands env, help, inspect, quit, unload... The default is ':'
+	Inspector    Inspector
 }
 
 func NewGlobals() *Globals {
@@ -173,6 +176,12 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 		mode |= mp.Trace
 	} else {
 		mode &^= mp.Trace
+	}
+	if g.Options&OptDebugger != 0 {
+		// to show source code in debugger
+		mode |= mp.CopySources
+	} else {
+		mode &^= mp.CopySources
 	}
 	parser.Configure(mode, g.MacroChar)
 	parser.Init(g.Fileset, g.Filename, g.Line, src)

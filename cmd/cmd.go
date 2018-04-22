@@ -36,8 +36,9 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/inspect"
 	"github.com/cosmos72/gomacro/fast"
-	_ "github.com/cosmos72/gomacro/fast/debug" // install debugger as side effect
+	"github.com/cosmos72/gomacro/fast/debug"
 )
 
 type Cmd struct {
@@ -54,9 +55,12 @@ func New() *Cmd {
 
 func (cmd *Cmd) Init() {
 	ir := fast.New()
+	ir.SetDebugger(debug.DebuggerFunc)
+	ir.SetInspector(inspect.InspectorFunc)
+
 	g := ir.Comp.Globals
 	g.ParserMode = 0
-	g.Options = OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType // | OptShowAfterMacroExpansion // | OptDebugMacroExpand // |  OptDebugQuasiquote  // | OptShowEvalDuration // | OptShowAfterParse
+	g.Options = OptTrapPanic | OptDebugger | OptShowPrompt | OptShowEval | OptShowEvalType
 	cmd.Interp = ir
 	cmd.WriteDeclsAndStmts = false
 	cmd.OverwriteFiles = false

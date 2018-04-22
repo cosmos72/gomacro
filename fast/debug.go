@@ -32,23 +32,6 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-var CurrentDebugger Debugger
-
-type Debugger interface {
-	Breakpoint(ir *Interp, env *Env) DebugOp
-	At(ir *Interp, env *Env) DebugOp
-}
-
-type stubDebugger struct{}
-
-func (d stubDebugger) Breakpoint(ir *Interp, env *Env) DebugOp {
-	return SigDebugContinue
-}
-
-func (d stubDebugger) At(ir *Interp, env *Env) DebugOp {
-	return SigDebugContinue
-}
-
 // return true if statement is either "break" or _ = "break"
 func isBreakpoint(stmt ast.Stmt) bool {
 	switch node := stmt.(type) {
@@ -99,13 +82,14 @@ func (c *Comp) breakpoint() Stmt {
 }
 
 func (ir *Interp) debug(breakpoint bool) DebugOp {
-	if CurrentDebugger == nil {
-		ir.Comp.Warnf("// breakpoint: no debugger installed, resuming execution (warned only once)")
-		CurrentDebugger = stubDebugger{}
+	g := ir.env.ThreadGlobals
+	if g.Debugger == nil {
+		ir.Comp.Warnf("// breakpoint: no debugger set with Interp.SetDebugger(), resuming execution (warned only once)")
+		g.Debugger = stubDebugger
 	}
-	if breakpoint {
-		return CurrentDebugger.Breakpoint(ir, ir.env)
-	} else {
-		return CurrentDebugger.At(ir, ir.env)
-	}
+	return g.Debugger(ir, ir.env, breakpoint)
+}
+
+func stubDebugger(ir *Interp, env *Env, breakpoint bool) DebugOp {
+	return SigDebugContinue
 }

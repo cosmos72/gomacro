@@ -29,20 +29,23 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
-	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (env *Env) Inspect(str string) {
+	inspector := env.Globals.Inspector
+	if inspector == nil {
+		env.Errorf("no inspector set: call Interp.SetInspector() first")
+	}
+
 	form := env.Parse(str)
 	v := env.EvalAst1(form)
 	var t r.Type
-	var xt xr.Type
-	if v != Nil && v != None && v.CanInterface() {
-		t = r.TypeOf(v.Interface()) // show concrete type
-	} else if xt != nil {
-		t = xt.ReflectType()
+	if v.IsValid() && v != None {
+		if v.CanInterface() {
+			t = r.TypeOf(v.Interface()) // show concrete type
+		} else {
+			t = v.Type()
+		}
 	}
-	ip := NewInspector(str, v, t, xt, env.Globals)
-	ip.Show()
-	ip.Repl()
+	inspector(str, v, t, nil, env.Globals)
 }

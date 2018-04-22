@@ -31,18 +31,26 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
-func (ir *Interp) Inspect(str string) {
+func (ir *Interp) Inspect(src string) {
 	c := ir.Comp
-	expr := c.Compile(c.Parse(str))
-	v := ir.RunExpr1(expr)
-	xt := expr.Type
-	var t r.Type
-	if v.IsValid() && v.CanInterface() && v != None {
-		t = r.TypeOf(v.Interface()) // show concrete type
-	} else if xt != nil {
-		t = xt.ReflectType()
+	g := c.Globals
+	inspector := g.Inspector
+	if inspector == nil {
+		c.Errorf("no inspector set: call Interp.SetInspector() first")
 	}
-	ip := NewInspector(str, v, t, xt, ir.Comp.Globals)
-	ip.Show()
-	ip.Repl()
+	expr := c.Compile(c.Parse(src))
+	val := ir.RunExpr1(expr)
+	xtyp := expr.Type
+	var typ r.Type
+	if xtyp != nil {
+		typ = xtyp.ReflectType()
+	}
+	if val.IsValid() && val != None {
+		if val.CanInterface() {
+			typ = r.TypeOf(val.Interface()) // show concrete type
+		} else if typ == nil {
+			typ = val.Type()
+		}
+	}
+	inspector(src, val, typ, xtyp, ir.Comp.Globals)
 }

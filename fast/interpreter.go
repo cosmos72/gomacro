@@ -47,6 +47,14 @@ type Interp struct {
 	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
 }
 
+func (ir *Interp) SetInspector(inspector Inspector) {
+	ir.Comp.Globals.Inspector = inspector
+}
+
+func (ir *Interp) SetDebugger(debugger Debugger) {
+	ir.env.ThreadGlobals.Debugger = debugger
+}
+
 func (ir *Interp) RunExpr1(e *Expr) r.Value {
 	if e == nil {
 		return None

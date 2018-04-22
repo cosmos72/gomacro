@@ -40,6 +40,12 @@ const (
 	DebugRepl     = base.SigDebugRepl
 )
 
+func DebuggerFunc(ir *fast.Interp, env *fast.Env, breakpoint bool) DebugOp {
+	d := NewDebugger(ir, env)
+	d.Show(breakpoint)
+	return d.Repl()
+}
+
 type Debugger struct {
 	interp  *fast.Interp
 	env     *fast.Env
