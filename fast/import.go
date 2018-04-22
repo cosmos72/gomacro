@@ -75,6 +75,9 @@ func (ir *Interp) ChangePackage(name, path string) {
 		// requested package does not exist - create an empty one
 		ir.Comp = NewComp(top.Comp, nil)
 		ir.env = NewEnv(top.env, 0, 0)
+		if c.Globals.Options&OptDebugger != 0 {
+			ir.env.DebugComp = ir.Comp
+		}
 		ir.Comp.Name = name
 		ir.Comp.Path = path
 		c.Debugf("switched to new package %v", path)

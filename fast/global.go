@@ -596,10 +596,11 @@ type Env struct {
 	Outer           *Env
 	IP              int
 	Code            []Stmt
-	DebugPos        []token.Pos // for debugging interpreted code: position of each statement
 	ThreadGlobals   *ThreadGlobals
-	UsedByClosure   bool // a bitfield would introduce more races among goroutines
-	IntAddressTaken bool // true if &Env.Ints[index] was executed... then we cannot reuse or reallocate Ints
+	DebugPos        []token.Pos // for debugging interpreted code: position of each statement
+	DebugComp       *Comp       // for debugging interpreted code: compiler with Binds, and to rebuild an Interp if needed
+	UsedByClosure   bool        // a bitfield would introduce more races among goroutines
+	IntAddressTaken bool        // true if &Env.Ints[index] was executed... then we cannot reuse or reallocate Ints
 }
 
 // ================================= Import =================================

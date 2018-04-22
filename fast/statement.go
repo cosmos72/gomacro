@@ -631,21 +631,28 @@ func (c *Comp) pushEnvIfDefine(nbinds *[2]int, tok token.Token) (inner *Comp, lo
 // pushEnvIfFlag compiles a PushEnv statement if flag is true
 // returns the *Comp to use to compile statement list.
 func (c *Comp) pushEnvIfFlag(nbinds *[2]int, flag bool) (*Comp, bool) {
+	var debugC *Comp
 	if flag {
 		// push new *Env at runtime. we will know # of binds in the block only later, so use a closure on them
 		c.append(func(env *Env) (Stmt, *Env) {
 			inner := NewEnv(env, nbinds[0], nbinds[1])
+			inner.DebugComp = debugC
 			inner.IP++
 			// Debugf("PushEnv(%p->%p), IP = %d of %d, pushed %d binds and %d intbinds", env, inner, inner.IP, nbinds[0], nbinds[1])
 			return inner.Code[inner.IP], inner
 		})
 	}
-	inner := NewComp(c, &c.Code)
-	if !flag {
-		inner.UpCost = 0
-		inner.Depth--
+	innerC := NewComp(c, &c.Code)
+	if flag {
+		if c.Globals.Options&OptDebugger != 0 {
+			// for debugger, inject the inner *Comp into the inner *Env
+			debugC = innerC
+		}
+	} else {
+		innerC.UpCost = 0
+		innerC.Depth--
 	}
-	return inner, flag
+	return innerC, flag
 }
 
 // popEnvIfLocalBinds compiles a PopEnv statement if locals is true. also sets *nbinds and *nintbinds

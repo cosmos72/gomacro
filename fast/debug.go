@@ -63,9 +63,7 @@ func isBreakLiteral(node ast.Expr) bool {
 
 func (c *Comp) breakpoint() Stmt {
 	return func(env *Env) (Stmt, *Env) {
-		// create an inner Comp to preserve existing Binds
-		// create an inner Env to preserve compiled Code and IP
-		ir := Interp{NewComp(c, nil), NewEnv(env, 0, 0)}
+		ir := Interp{c, env}
 		var stmt Stmt
 		op := ir.debug(true)
 		switch op {

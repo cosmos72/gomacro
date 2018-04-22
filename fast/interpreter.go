@@ -55,6 +55,75 @@ func (ir *Interp) SetDebugger(debugger Debugger) {
 	ir.env.ThreadGlobals.Debugger = debugger
 }
 
+// return read string and position of first non-comment token.
+// return "", -1 on EOF
+func (ir *Interp) Read() (string, int) {
+	g := ir.Comp.Globals
+	var opts ReadOptions
+
+	if g.Options&OptShowPrompt != 0 {
+		opts |= ReadOptShowPrompt
+	}
+	src, firstToken := g.ReadMultiline(opts, ir.Comp.Prompt)
+	if firstToken < 0 {
+		g.IncLine(src)
+	} else if firstToken > 0 {
+		g.IncLine(src[0:firstToken])
+	}
+	return src, firstToken
+}
+
+// parse + macroexpansion + collect declarations & statements
+func (ir *Interp) Parse(src string) ast2.Ast {
+	if len(src) == 0 {
+		return nil
+	}
+	form := ir.Comp.Parse(src)
+	if form == nil {
+		return nil
+	}
+	// collect phase
+	g := ir.Comp.Globals
+	if g.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
+		g.CollectAst(form)
+	}
+	return form
+}
+
+// combined Parse + Compile
+func (ir *Interp) Compile(src string) *Expr {
+	return ir.CompileAst(ir.Parse(src))
+}
+
+func (ir *Interp) CompileNode(node ast.Node) *Expr {
+	return ir.CompileAst(ast2.ToAst(node))
+}
+
+func (ir *Interp) CompileAst(form ast2.Ast) *Expr {
+	if form == nil {
+		return nil
+	}
+	c := ir.Comp
+	g := c.CompGlobals
+
+	if g.Options&OptMacroExpandOnly != 0 {
+		x := form.Interface()
+		return c.exprValue(c.TypeOf(x), x)
+	}
+
+	// compile phase
+	expr := c.Compile(form)
+	if g.Options&OptShowCompile != 0 {
+		g.Fprintf(g.Stdout, "%v\n", expr)
+	}
+	return expr
+}
+
+// combined Parse + Compile + RunExpr
+func (ir *Interp) Eval(src string) (r.Value, []r.Value) {
+	return ir.RunExpr(ir.Compile(src))
+}
+
 func (ir *Interp) RunExpr1(e *Expr) r.Value {
 	if e == nil {
 		return None
@@ -71,30 +140,6 @@ func (ir *Interp) RunExpr(e *Expr) (r.Value, []r.Value) {
 	env := ir.PrepareEnv()
 	fun := e.AsXV(ir.Comp.CompileOptions)
 	return fun(env)
-}
-
-func (ir *Interp) Parse(src string) ast2.Ast {
-	return ir.Comp.Parse(src)
-}
-
-// combined Parse + Compile
-func (ir *Interp) Compile(src string) *Expr {
-	c := ir.Comp
-	return c.Compile(c.Parse(src))
-}
-
-func (ir *Interp) CompileNode(node ast.Node) *Expr {
-	return ir.Comp.CompileNode(node)
-}
-
-func (ir *Interp) CompileAst(form ast2.Ast) *Expr {
-	return ir.Comp.Compile(form)
-}
-
-// combined Parse + Compile + RunExpr
-func (ir *Interp) Eval(src string) (r.Value, []r.Value) {
-	c := ir.Comp
-	return ir.RunExpr(c.Compile(c.Parse(src)))
 }
 
 // DeclConst compiles a constant declaration
@@ -181,19 +226,16 @@ func (ir *Interp) ValueOf(name string) (value r.Value) {
 		return sym.Bind.ConstValue()
 	case IntBind:
 		value = ir.AddressOfVar(name)
-		if value != Nil {
+		if value.IsValid() {
 			value = value.Elem() // dereference
 		}
 		return value
-	case VarBind:
+	default:
 		env := ir.PrepareEnv()
 		for i := 0; i < sym.Upn; i++ {
 			env = env.Outer
 		}
 		return env.Vals[sym.Desc.Index()]
-	default:
-		expr := ir.Comp.Symbol(sym)
-		return ir.RunExpr1(expr)
 	}
 }
 
@@ -260,6 +302,10 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 	g := env.ThreadGlobals
 	g.Signals.Sync = SigNone
 	g.Signals.Async = SigNone
+	if g.Options&OptDebugger != 0 {
+		// for debugger
+		env.DebugComp = c
+	}
 	return env
 }
 
@@ -315,68 +361,21 @@ func (ir *Interp) Repl(in *bufio.Reader) {
 }
 
 func (ir *Interp) ReadParseEvalPrint() (callAgain bool) {
-	str, firstToken := ir.Read()
+	src, firstToken := ir.Read()
 	if firstToken < 0 {
 		// skip comment-only lines and continue, but fail on EOF or other errors
-		return len(str) != 0
+		return len(src) != 0
 	}
-	return ir.ParseEvalPrint(str[firstToken:])
+	return ir.ParseEvalPrint(src)
 }
 
-// return read string and position of first non-comment token.
-// return "", -1 on EOF
-func (ir *Interp) Read() (string, int) {
-	g := ir.Comp.Globals
-	var opts ReadOptions
+func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
+	if len(src) == 0 || len(strings.TrimSpace(src)) == 0 {
+		return true // no input => no form
+	}
 
-	if g.Options&OptShowPrompt != 0 {
-		opts |= ReadOptShowPrompt
-	}
-	str, firstToken := g.ReadMultiline(opts, ir.Comp.Prompt)
-	if firstToken < 0 {
-		g.IncLine(str)
-	} else if firstToken > 0 {
-		g.IncLine(str[0:firstToken])
-	}
-	return str, firstToken
-}
-
-func (ir *Interp) ParseEvalPrint(str string) (callAgain bool) {
-	g := ir.Comp.Globals
-	var t1 time.Time
-	trap := g.Options&OptTrapPanic != 0
-	duration := g.Options&OptShowTime != 0
-	if duration {
-		t1 = time.Now()
-	}
-	defer func() {
-		g.IncLine(str)
-		if trap {
-			rec := recover()
-			if g.Options&OptPanicStackTrace != 0 {
-				g.Fprintf(g.Stderr, "%v\n%s", rec, debug.Stack())
-			} else {
-				g.Fprintf(g.Stderr, "%v\n", rec)
-			}
-			callAgain = true
-		}
-		if duration {
-			delta := time.Since(t1)
-			g.Debugf("eval time %v", delta)
-		}
-	}()
-	callAgain = ir.parseEvalPrint(str)
-	trap = false // no panic happened
-	return callAgain
-}
-
-func (ir *Interp) parseEvalPrint(src string) (callAgain bool) {
-	if len(strings.TrimSpace(src)) == 0 {
-		return true // no input. don't print anything
-	}
-	c := ir.Comp
-	g := c.Globals
-	env := ir.env
+	t1, trap, duration := ir.beforeEval()
+	defer ir.afterEval(src, &callAgain, &trap, t1, duration)
 
 	src, opt := ir.Cmd(src)
 
@@ -385,50 +384,75 @@ func (ir *Interp) parseEvalPrint(src string) (callAgain bool) {
 		return callAgain
 	}
 
+	g := ir.Comp.Globals
+	if toenable := cmdOptForceEval(g, opt); toenable != 0 {
+		defer func() {
+			g.Options |= toenable
+		}()
+	}
+
+	ir.env.ThreadGlobals.CmdOpt = opt // store options where Interp.Interrupt() can find them
+
+	// parse + macroexpansion
+	form := ir.Parse(src)
+
+	// compile
+	expr := ir.CompileAst(form)
+
+	// run expression
+	values, types := ir.runexpr(expr)
+
+	// print phase
+	g.Print(values, types)
+
+	trap = false // no panic happened
+
+	return callAgain
+}
+
+func (ir *Interp) beforeEval() (t1 time.Time, trap bool, duration bool) {
+	g := ir.Comp.Globals
+	trap = g.Options&OptTrapPanic != 0
+	duration = g.Options&OptShowTime != 0
+	if duration {
+		t1 = time.Now()
+	}
+	return t1, trap, duration
+}
+
+func (ir *Interp) afterEval(src string, callAgain *bool, trap *bool, t1 time.Time, duration bool) {
+	g := ir.Comp.Globals
+	g.IncLine(src)
+	if *trap {
+		rec := recover()
+		if g.Options&OptPanicStackTrace != 0 {
+			g.Fprintf(g.Stderr, "%v\n%s", rec, debug.Stack())
+		} else {
+			g.Fprintf(g.Stderr, "%v\n", rec)
+		}
+		*callAgain = true
+	}
+	if duration {
+		delta := time.Since(t1)
+		g.Debugf("eval time %v", delta)
+	}
+}
+
+func cmdOptForceEval(g *Globals, opt CmdOpt) (toenable Options) {
 	if opt&CmdOptForceEval != 0 {
 		// temporarily disable collection of declarations and statements,
 		// and temporarily re-enable eval (i.e. disable macroexpandonly)
 		const todisable = OptMacroExpandOnly | OptCollectDeclarations | OptCollectStatements
 		if g.Options&todisable != 0 {
 			g.Options &^= todisable
-			defer func() {
-				g.Options |= todisable
-			}()
+			return todisable
 		}
 	}
-
-	env.ThreadGlobals.CmdOpt = opt // store options where Interp.Interrupt() can find them
-
-	// parse + macroexpansion
-	form := ir.Parse(src)
-
-	// collect phase
-	if g.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
-		g.CollectAst(form)
-	}
-
-	values, types := ir.fastEval(form)
-	// print phase
-	g.Print(values, types)
-	return true
+	return 0
 }
 
-func (ir *Interp) fastEval(form ast2.Ast) ([]r.Value, []xr.Type) {
-	c := ir.Comp
-	g := c.CompGlobals
-
-	if g.Options&OptMacroExpandOnly != 0 {
-		x := form.Interface()
-		return []r.Value{r.ValueOf(x)}, []xr.Type{c.TypeOf(x)}
-	}
-
-	// compile phase
-	expr := c.Compile(form)
-	if g.Options&OptShowCompile != 0 {
-		g.Fprintf(g.Stdout, "%v\n", expr)
-	}
-
-	// eval phase
+// run expression
+func (ir *Interp) runexpr(expr *Expr) ([]r.Value, []xr.Type) {
 	if expr == nil {
 		return nil, nil
 	}

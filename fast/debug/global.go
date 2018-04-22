@@ -41,6 +41,12 @@ const (
 )
 
 func DebuggerFunc(ir *fast.Interp, env *fast.Env, breakpoint bool) DebugOp {
+	// create an inner Interp to preserve existing Binds, compiled Code and IP
+	//
+	// this is needed to allow compiling and evaluating code at a breakpoint
+	// without disturbing the code being debugged
+	ir = fast.NewInnerInterp(ir, "debug", "debug")
+
 	d := NewDebugger(ir, env)
 	d.Show(breakpoint)
 	return d.Repl()
