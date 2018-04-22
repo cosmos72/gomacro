@@ -589,6 +589,7 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 
 	exprs := c.Exprs(resultExprs)
 	for i := 0; i < n; i++ {
+		c.Pos = resultExprs[i].Pos()
 		c.SetVar(resultBinds[i].AsVar(upn, PlaceSettable), token.ASSIGN, exprs[i])
 	}
 	c.Append(stmtReturn, node.Pos())
@@ -615,6 +616,7 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 			assign(env, vals[i])
 		}
 		// append the return epilogue
+		env.IP++
 		g := env.ThreadGlobals
 		g.Signals.Sync = SigReturn
 		return g.Interrupt, env
@@ -622,6 +624,7 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 }
 
 func stmtReturn(env *Env) (Stmt, *Env) {
+	env.IP++
 	g := env.ThreadGlobals
 	g.Signals.Sync = SigReturn
 	return g.Interrupt, env

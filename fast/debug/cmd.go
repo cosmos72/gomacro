@@ -60,6 +60,7 @@ var cmds = Cmds{
 	'h': Cmd{"help", (*Debugger).cmdHelp},
 	'?': Cmd{"?", (*Debugger).cmdHelp},
 	'i': Cmd{"inspect", (*Debugger).cmdInspect},
+	'l': Cmd{"list", (*Debugger).cmdList},
 	'n': Cmd{"next", (*Debugger).cmdNext},
 	'p': Cmd{"print", (*Debugger).cmdPrint},
 	's': Cmd{"step", (*Debugger).cmdStep},
@@ -115,6 +116,11 @@ func (d *Debugger) cmdInspect(arg string) DebugOp {
 	return DebugRepl
 }
 
+func (d *Debugger) cmdList(arg string) DebugOp {
+	d.Show(false)
+	return DebugRepl
+}
+
 func (d *Debugger) cmdNext(arg string) DebugOp {
 	return DebugNext
 }
@@ -124,7 +130,7 @@ func (d *Debugger) cmdPrint(arg string) DebugOp {
 		g := d.globals
 		g.Fprintf(g.Stdout, "// print: missing argument\n")
 	} else {
-		d.Print(arg)
+		d.Eval(arg)
 	}
 	return DebugRepl
 }

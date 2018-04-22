@@ -36,20 +36,21 @@ func (d *Debugger) Help() {
 	g.Fprintf(g.Stdout, "%s", `// debugger commands:
 env [NAME]    show available functions, variables and constants
               in current scope, or from imported package NAME
-continue      resume normal execution
 ?             show this help
 help          show this help
 inspect EXPR  inspect expression interactively
-next          execute a single statement, skipping functions
 print   EXPR  print expression, statement or declaration
+list          show current source code
+continue      resume normal execution
+finish        run until the end of current function
+next          execute a single statement, skipping functions
+step          execute a single statement, entering functions
 // abbreviations are allowed if unambiguous.
 `)
 	/*
 		not implemented yet:
 
 		backtrace [N] show function stack frames
-		finish        run until the end of current function
-		step          execute a single statement, entering functions
 	*/
 }
 
@@ -116,16 +117,12 @@ func (d *Debugger) Repl() DebugOp {
 			// keyboard enter repeats last command
 			src = d.lastcmd
 		}
-		op = d.Eval(src)
+		op = d.Cmd(src)
 	}
 	return op
 }
 
-func (d *Debugger) Eval(src string) DebugOp {
-	return d.Cmd(src)
-}
-
-func (d *Debugger) Print(src string) {
+func (d *Debugger) Eval(src string) {
 	g := d.globals
 	trap := g.Options&base.OptTrapPanic != 0
 
