@@ -60,17 +60,22 @@ func (d *Debugger) Show(breakpoint bool) {
 	pos := env.DebugPos
 	g := d.globals
 	ip := env.IP
+
+	var label string
+	if breakpoint {
+		label = "breakpoint"
+	} else {
+		label = "stopped"
+	}
 	if ip < len(pos) && g.Fileset != nil {
 		source, pos := g.Fileset.Source(pos[ip])
-		if breakpoint {
-			g.Fprintf(g.Stdout, "// breakpoint at %s IP=%d. type ? for debugger help\n", pos, ip)
-		}
+		g.Fprintf(g.Stdout, "// %s at %s IP=%d. type ? for debugger help\n", label, pos, ip)
 		if len(source) != 0 {
 			g.Fprintf(g.Stdout, "%s\n", source)
 			d.showCaret(source, pos.Column)
 		}
-	} else if breakpoint {
-		g.Fprintf(g.Stdout, "// breakpoint at IP=%d. type ? for debugger help\n", ip)
+	} else {
+		g.Fprintf(g.Stdout, "// %s at IP=%d. type ? for debugger help\n", label, ip)
 	}
 }
 

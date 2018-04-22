@@ -400,7 +400,7 @@ func singleStep(env *Env) (Stmt, *Env) {
 		c := env.DebugComp
 		if c != nil {
 			ir := Interp{c, env}
-			op := ir.debug(true)
+			op := ir.debug(false) // not a breakpoint
 			if op == SigDebugContinue {
 				g.Signals.Debug = SigNone
 			} else {
