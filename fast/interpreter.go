@@ -113,6 +113,10 @@ func (ir *Interp) CompileAst(form ast2.Ast) *Expr {
 
 	// compile phase
 	expr := c.Compile(form)
+
+	if g.Options&OptKeepUntyped == 0 && expr != nil && expr.Untyped() {
+		expr.ConstTo(expr.DefaultType())
+	}
 	if g.Options&OptShowCompile != 0 {
 		g.Fprintf(g.Stdout, "%v\n", expr)
 	}
@@ -138,7 +142,7 @@ func (ir *Interp) RunExpr(e *Expr) (r.Value, []r.Value) {
 		return None, nil
 	}
 	env := ir.PrepareEnv()
-	fun := e.AsXV(ir.Comp.CompileOptions())
+	fun := e.AsXV(COptDefaults)
 	return fun(env)
 }
 

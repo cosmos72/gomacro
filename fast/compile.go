@@ -282,7 +282,7 @@ func (env *Env) File() *Env {
 func (c *Comp) Parse(src string) Ast {
 	c.Line = 0
 	nodes := c.ParseBytes([]byte(src))
-	forms := AnyToAst(nodes, "Parse")
+	forms := anyToAst(nodes, "Parse")
 
 	forms, _ = c.MacroExpandCodewalk(forms)
 	if c.Options&OptShowMacroExpand != 0 {

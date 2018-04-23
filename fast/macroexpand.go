@@ -270,7 +270,7 @@ func (c *Comp) MacroExpand1(in Ast) (out Ast, expanded bool) {
 		case 1:
 			any := results[0].Interface()
 			if any != nil {
-				out = AnyToAst(any, "macroexpansion")
+				out = anyToAst(any, "macroexpansion")
 				break
 			}
 			fallthrough

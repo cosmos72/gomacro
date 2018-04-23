@@ -141,7 +141,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 				if x == nil {
 					continue
 				} else if !splices[i] {
-					out = out.Append(AnyToAst(x, positions[i]))
+					out = out.Append(anyToAst(x, positions[i]))
 				} else {
 					xs := AnyToAstWithSlice(x, positions[i])
 					n := xs.Size()
@@ -294,7 +294,7 @@ func (c *Comp) quasiquote(in Ast, depth int, canSplice bool) (*Expr, bool) {
 				if debug {
 					Debugf("Quasiquote: env = %p, <%v> returned %v <%v>", env, r.TypeOf(fun), x, r.TypeOf(x))
 				}
-				out.Set(i, AnyToAst(x, positions[i]))
+				out.Set(i, anyToAst(x, positions[i]))
 			}
 		}
 		return r.ValueOf(out.Interface()).Convert(rtype)
@@ -306,7 +306,7 @@ func (c *Comp) quoteUnquoteSplice(op token.Token, pos token.Pos, position token.
 		var node ast.Node
 		if fun != nil {
 			x := ValueInterface(fun(env))
-			form := AnyToAst(x, position)
+			form := anyToAst(x, position)
 			switch form := form.(type) {
 			case AstWithNode:
 				node = form.Node()

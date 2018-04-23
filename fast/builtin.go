@@ -384,7 +384,7 @@ func callEval(argv r.Value, interpv r.Value) r.Value {
 	if !argv.IsValid() {
 		return argv
 	}
-	form := ast2.AnyToAst(argv.Interface(), "Eval")
+	form := anyToAst(argv.Interface(), "Eval")
 	form = base.SimplifyAstForQuote(form, true)
 
 	interp := interpv.Interface().(*Interp)
@@ -402,7 +402,7 @@ func callEvalType(argv r.Value, interpv r.Value) r.Value {
 	if !argv.IsValid() {
 		return zeroOfReflectType
 	}
-	form := ast2.AnyToAst(argv.Interface(), "EvalType")
+	form := anyToAst(argv.Interface(), "EvalType")
 	form = base.UnwrapTrivialAst(form)
 	node := form.Interface().(ast.Expr)
 
@@ -479,7 +479,7 @@ func callMacroExpandDispatch(argv r.Value, interpv r.Value, caller string) (r.Va
 	if !argv.IsValid() {
 		return r.Zero(rtypeOfNode), base.False
 	}
-	form := ast2.AnyToAst(argv.Interface(), caller)
+	form := anyToAst(argv.Interface(), caller)
 	form = base.SimplifyAstForQuote(form, true)
 
 	interp := interpv.Interface().(*Interp)
@@ -1150,4 +1150,11 @@ func (c *Comp) badBuiltinCallArgNum(name interface{}, nmin uint16, nmax uint16, 
 func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, tactual xr.Type, texpected interface{}) *Call {
 	c.Errorf("cannot use %v <%v> as %v in builtin %s()", arg, tactual, texpected, name)
 	return nil
+}
+
+func anyToAst(any interface{}, caller interface{}) ast2.Ast {
+	if untyped, ok := any.(UntypedLit); ok {
+		any = untyped.ConstTo(untyped.DefaultType())
+	}
+	return ast2.AnyToAst(any, caller)
 }
