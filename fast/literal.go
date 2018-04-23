@@ -29,6 +29,7 @@ import (
 	"go/ast"
 	"go/constant"
 	"go/token"
+	"math/big"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -160,10 +161,13 @@ func (e *Expr) ConstTo(t xr.Type) I {
 	if !e.Const() {
 		Errorf("internal error: expression is not constant, use Expr.To() instead of Expr.ConstTo() to convert from <%v> to <%v>", e.Type, t)
 	}
-	val := e.Lit.ConstTo(t)
-	if e.Fun != nil {
-		// no longer valid, recompute it
-		e.Fun = nil
+	val, fun := e.Lit.ConstTo2(t)
+	if fun != nil {
+		// no longer a constant
+		e.Lit.Value = nil
+		e.Fun = fun
+	} else if e.Fun != nil {
+		// e.Fun is no longer valid, recompute it
 		e.WithFun()
 	}
 	return val
@@ -173,6 +177,11 @@ func (e *Expr) ConstTo(t xr.Type) I {
 // panics if Lit is a typed constant of different type
 // actually performs type conversion (and subsequent overflow checks) ONLY on untyped constants.
 func (lit *Lit) ConstTo(t xr.Type) I {
+	val, _ := lit.ConstTo2(t)
+	return val
+}
+
+func (lit *Lit) ConstTo2(t xr.Type) (I, func(*Env) r.Value) {
 	value := lit.Value
 	// Debugf("Lit.ConstTo(): converting constant %v <%v> (stored as <%v>) to <%v>", value, TypeOf(value), lit.Type, t)
 	if t == nil {
@@ -180,24 +189,25 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 		if value != nil {
 			Errorf("cannot convert constant %v <%v> to <nil>", value, lit.Type)
 		}
-		return nil
+		return nil, nil
 	}
 	// stricter than t == lit.Type
 	tfrom := lit.Type
 	if tfrom != nil && t != nil && tfrom.IdenticalTo(t) {
-		return value
+		return value, nil
 	}
 	switch x := value.(type) {
 	case UntypedLit:
+		val, fun := x.ConstTo2(t)
 		lit.Type = t
-		lit.Value = x.ConstTo(t)
-		// Debugf("Lit.ConstTo(): converted untyped constant %v to %v <%v> (stored as <%v>)", x, lit.Value, TypeOf(lit.Value), t)
-		return lit.Value
+		lit.Value = val
+		// Debugf("Lit.ConstTo(): converted untyped constant %v to %v <%v> (stored as <%v>)", x, val, TypeOf(val), t)
+		return val, fun
 	case nil:
 		// literal nil can only be converted to nillable types
 		if IsNillableKind(t.Kind()) {
 			lit.Type = t
-			return nil
+			return nil, nil
 			// lit.Value = r.Zero(t).Interface()
 			// return lit.Value
 		}
@@ -206,18 +216,24 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 		lit.Type = t
 		// FIXME: use (*Comp).Converter(), requires a *Comp parameter
 		lit.Value = r.ValueOf(value).Convert(t.ReflectType()).Interface()
-		return lit.Value
+		return lit.Value, nil
 	}
 	Errorf("cannot convert typed constant %v <%v> to <%v>%s", value, lit.Type, t, interfaceMissingMethod(lit.Type, t))
-	return nil
+	return nil, nil
 }
 
 // ConstTo checks that an UntypedLit can be used as the given type.
 // performs actual untyped -> typed conversion and subsequent overflow checks.
 // returns the constant converted to given type
 func (untyp *UntypedLit) ConstTo(t xr.Type) I {
+	val, _ := untyp.ConstTo2(t)
+	return val
+}
+
+func (untyp *UntypedLit) ConstTo2(t xr.Type) (I, func(*Env) r.Value) {
 	val := untyp.Val
-	var ret interface{}
+	var ret I
+	var fun func(*Env) r.Value
 again:
 	switch t.Kind() {
 	case r.Bool:
@@ -229,7 +245,7 @@ again:
 		r.Float32, r.Float64, r.Complex64, r.Complex128:
 
 		n := untyp.extractNumber(val, t)
-		return convertLiteralCheckOverflow(n, t)
+		return convertLiteralCheckOverflow(n, t), nil
 	case r.Interface:
 		// this can happen too... for example in "var foo interface{} = 7"
 		// and it requires to convert the untyped constant to its default type.
@@ -274,16 +290,74 @@ again:
 				ret = "\uFFFD"
 			}
 		}
+	case r.Ptr:
+		ret, fun = untyp.constToMathBig(t)
 	}
 	if ret == nil {
 		Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
-		return nil
+		return nil, nil
 	}
 	v := r.ValueOf(ret)
 	if v.Type() != t.ReflectType() {
 		ret = v.Convert(t.ReflectType())
 	}
-	return ret
+	return ret, fun
+}
+
+// EXTENSION: conversion from untyped constant to big.Int, bit.Rat, big.Float
+func (untyp *UntypedLit) constToMathBig(t xr.Type) (I, func(*Env) r.Value) {
+	if k := untyp.Kind; k != r.Int && k != r.Int32 /*rune*/ && k != r.Float64 {
+		return nil, nil
+	}
+	var ret I
+	var fun func(*Env) r.Value
+	switch t.ReflectType() {
+	case rtypeOfPtrBigInt:
+		s := untyp.Val.ExactString()
+		var b big.Int
+		if _, ok := b.SetString(s, 10); ok {
+			ret = &b
+			fun = func(*Env) r.Value {
+				// clone the big.Int at every evaluation
+				var x big.Int
+				x.Set(&b)
+				return r.ValueOf(&x)
+			}
+		}
+	case rtypeOfPtrBigRat:
+		s := untyp.Val.ExactString()
+		var b big.Rat
+		if _, ok := b.SetString(s); ok {
+			ret = &b
+			fun = func(*Env) r.Value {
+				// clone the big.Rat at every evaluation
+				var x big.Rat
+				x.Set(&b)
+				return r.ValueOf(&x)
+			}
+		}
+	case rtypeOfPtrBigFloat:
+		s := untyp.Val.ExactString()
+		snum, sden := Split2(s, '/')
+		var b big.Float
+		_, ok := b.SetString(snum)
+		if ok && len(sden) != 0 {
+			var b2 big.Float
+			if _, ok = b2.SetString(sden); ok {
+				b.Quo(&b, &b2)
+			}
+		}
+		if ok {
+			ret = &b
+			fun = func(*Env) r.Value {
+				// clone the big.Float at every evaluation
+				var x big.Float
+				x.Set(&b)
+				return r.ValueOf(&x)
+			}
+		}
+	}
+	return ret, fun
 }
 
 // ================================= DefaultType =================================

@@ -29,6 +29,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"math/big"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
@@ -837,6 +838,10 @@ var (
 	rtypeOfMacro       = r.TypeOf(Macro{})
 	rtypeOfUntypedLit  = r.TypeOf(UntypedLit{})
 	rtypeOfReflectType = r.TypeOf((*r.Type)(nil)).Elem()
+
+	rtypeOfPtrBigFloat = r.TypeOf((*big.Float)(nil))
+	rtypeOfPtrBigInt   = r.TypeOf((*big.Int)(nil))
+	rtypeOfPtrBigRat   = r.TypeOf((*big.Rat)(nil))
 
 	zeroOfReflectType = r.Zero(rtypeOfReflectType)
 )

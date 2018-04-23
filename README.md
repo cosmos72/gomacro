@@ -128,6 +128,32 @@ The main limitations and missing features are:
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 
+## Extensions
+
+Compared to compiled Go, gomacro supports three important extensions:
+
+* untyped constants can be manipulated directly at REPL. Examples:
+    ```
+	gomacro> 1<<100
+	{int 1267650600228229401496703205376}   // fast.UntypedLit
+	gomacro> const c = 1<<100; c * c / 100000000000
+	{int 16069380442589902755419620923411626025222029937827}        // fast.UntypedLit
+	```
+  This provides a handy arbitrary-precision calculator
+* untyped constants can be converted implicitly to *big.Int, *big.Rat and *big.Float. Examples:
+    ```
+	import "math/big"
+	var i *big.Int = 1<<1000                 // would overflow int
+	var r *big.Rat = 1.000000000000000000001 // different from 1.0
+	var f *big.Float = 1e1234                // would overflow float64
+    ```
+  Note: every time such a conversion is evaluated, it creates a new value - no risk to modify the constant.
+* macros, quoting and quasiquoting (to be documented)
+
+and slightly relaxed checks:
+
+* unused variables and unused return values never cause errors
+
 ## Examples
 
 Some short, notable examples - to run them on non-Linux platforms, see [Importing packages](#importing-packages) first.

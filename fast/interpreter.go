@@ -142,7 +142,7 @@ func (ir *Interp) RunExpr(e *Expr) (r.Value, []r.Value) {
 		return None, nil
 	}
 	env := ir.PrepareEnv()
-	fun := e.AsXV(COptDefaults)
+	fun := e.AsXV(COptKeepUntyped)
 	return fun(env)
 }
 

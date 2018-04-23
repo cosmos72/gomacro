@@ -28,6 +28,7 @@ package main
 import (
 	"go/ast"
 	"go/token"
+	"math/big"
 	r "reflect"
 	"testing"
 	"time"
@@ -276,7 +277,23 @@ func for_range_string(s string) int32 {
 	return v0
 }
 
-func makequote(op token.Token, node ast.Node) *ast.UnaryExpr {
+func makeQuote(node ast.Node) *ast.UnaryExpr {
+	return makequote2(mt.QUOTE, node)
+}
+
+func makeQUASIQUOTE(node ast.Node) *ast.UnaryExpr {
+	return makequote2(mt.QUASIQUOTE, node)
+}
+
+func makeUNQUOTE(node ast.Node) *ast.UnaryExpr {
+	return makequote2(mt.UNQUOTE, node)
+}
+
+func makeUNQUOTE_SPLICE(node ast.Node) *ast.UnaryExpr {
+	return makequote2(mt.UNQUOTE_SPLICE, node)
+}
+
+func makequote2(op token.Token, node ast.Node) *ast.UnaryExpr {
 	unary, _ := mp.MakeQuote(nil, op, token.NoPos, node)
 	return unary
 }
@@ -284,6 +301,23 @@ func makequote(op token.Token, node ast.Node) *ast.UnaryExpr {
 type Pair = struct { // unnamed!
 	A rune
 	B string
+}
+
+var bigInt = new(big.Int)
+var bigRat = new(big.Rat)
+var bigFloat = new(big.Float)
+
+func init() {
+	bigInt.SetInt64(1)
+	bigInt.Lsh(bigInt, 1000)
+
+	bigRat.SetFrac64(1000000001, 1000000000)
+	bigRat.Mul(bigRat, bigRat)
+	bigRat.Mul(bigRat, bigRat)
+
+	bigFloat.Parse("1e308", 10)
+	bigFloat.Mul(bigFloat, bigFloat)
+	bigFloat.Mul(bigFloat, bigFloat)
 }
 
 var testcases = []TestCase{
@@ -580,12 +614,16 @@ var testcases = []TestCase{
 	TestCase{F, "infer_type_compositelit_5", `map[int]map[int]int{1:{2:3}}`, map[int]map[int]int{1: {2: 3}}, nil},
 	TestCase{F, "infer_type_compositelit_6", `map[int]*map[int]int{1:{2:3}}`, map[int]*map[int]int{1: {2: 3}}, nil},
 
-	TestCase{A, "import", `import ( "errors"; "fmt"; "io"; "math/rand"; "reflect"; "time" )`, nil, []interface{}{}},
+	TestCase{A, "import", `import ( "errors"; "fmt"; "io"; "math/big"; "math/rand"; "reflect"; "time" )`, nil, []interface{}{}},
 	TestCase{A, "import_constant", `const micro = time.Microsecond; micro`, time.Microsecond, nil},
 	TestCase{A, "dot_import_1", `import . "errors"`, nil, []interface{}{}},
 	TestCase{A, "dot_import_2", `reflect.ValueOf(New) == reflect.ValueOf(errors.New)`, true, nil}, // a small but very strict check... good
 
 	TestCase{A, "goroutine_1", `go seti(9); time.Sleep(time.Second/50); i`, 9, nil},
+
+	TestCase{F, "big.Int", `(func() *big.Int { return 1<<1000 })()`, bigInt, nil},
+	TestCase{F, "big.Rat", `(func() *big.Rat { var x *big.Rat = 1.000000001; x.Mul(x,x); x.Mul(x,x); return x })()`, bigRat, nil},
+	TestCase{F, "big.Float", `(func() *big.Float { var x *big.Float = 1e308; x.Mul(x,x); x.Mul(x,x); return x })()`, bigFloat, nil},
 
 	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},
 	TestCase{A, "builtin_cap", "cap(va)", 2, nil},
@@ -812,18 +850,18 @@ var testcases = []TestCase{
 		&ast.ExprStmt{X: &ast.Ident{Name: "b"}},
 	}}, nil},
 	TestCase{A, "quote_4", `~'{"foo"+"bar"}`, &ast.BinaryExpr{
-		Op: token.ADD,
 		X:  &ast.BasicLit{Kind: token.STRING, Value: `"foo"`},
+		Op: token.ADD,
 		Y:  &ast.BasicLit{Kind: token.STRING, Value: `"bar"`},
 	}, nil},
 	TestCase{A, "quasiquote_1", `~quasiquote{1 + ~unquote{2+3}}`, &ast.BinaryExpr{
-		Op: token.ADD,
 		X:  &ast.BasicLit{Kind: token.INT, Value: "1"},
+		Op: token.ADD,
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "5"},
 	}, nil},
 	TestCase{A, "quasiquote_2", `~"{2 * ~,{3<<1}}`, &ast.BinaryExpr{
-		Op: token.MUL,
 		X:  &ast.BasicLit{Kind: token.INT, Value: "2"},
+		Op: token.MUL,
 		Y:  &ast.BasicLit{Kind: token.INT, Value: "6"},
 	}, nil},
 	TestCase{A, "quasiquote_3", `~"{func(int) {}}`, &ast.FuncLit{
@@ -862,17 +900,17 @@ var testcases = []TestCase{
 		&ast.ExprStmt{X: &ast.Ident{Name: "one"}},
 	}}, nil},
 	TestCase{A, "unquote_splice_3", `~"~"{zero ; ~,~,@ab ; one}`,
-		makequote(mt.QUASIQUOTE, &ast.BlockStmt{List: []ast.Stmt{
+		makeQUASIQUOTE(&ast.BlockStmt{List: []ast.Stmt{
 			&ast.ExprStmt{X: &ast.Ident{Name: "zero"}},
-			&ast.ExprStmt{X: makequote(mt.UNQUOTE, &ast.Ident{Name: "a"})},
-			&ast.ExprStmt{X: makequote(mt.UNQUOTE, &ast.Ident{Name: "b"})},
+			&ast.ExprStmt{X: makeUNQUOTE(&ast.Ident{Name: "a"})},
+			&ast.ExprStmt{X: makeUNQUOTE(&ast.Ident{Name: "b"})},
 			&ast.ExprStmt{X: &ast.Ident{Name: "one"}},
 		}}), nil},
 	TestCase{A, "unquote_splice_4", `~"~"{zero ; ~,@~,@ab ; one}`,
-		makequote(mt.QUASIQUOTE, &ast.BlockStmt{List: []ast.Stmt{
+		makeQUASIQUOTE(&ast.BlockStmt{List: []ast.Stmt{
 			&ast.ExprStmt{X: &ast.Ident{Name: "zero"}},
-			&ast.ExprStmt{X: makequote(mt.UNQUOTE_SPLICE, &ast.Ident{Name: "a"})},
-			&ast.ExprStmt{X: makequote(mt.UNQUOTE_SPLICE, &ast.Ident{Name: "b"})},
+			&ast.ExprStmt{X: makeUNQUOTE_SPLICE(&ast.Ident{Name: "a"})},
+			&ast.ExprStmt{X: makeUNQUOTE_SPLICE(&ast.Ident{Name: "b"})},
 			&ast.ExprStmt{X: &ast.Ident{Name: "one"}},
 		}}), nil},
 	TestCase{A, "macro", "~macro second_arg(a,b,c interface{}) interface{} { return b }; v = 98; v", uint32(98), nil},
