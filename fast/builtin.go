@@ -388,8 +388,13 @@ func callEval(argv r.Value, interpv r.Value) r.Value {
 	form = base.SimplifyAstForQuote(form, true)
 
 	interp := interpv.Interface().(*Interp)
-	e := interp.CompileAst(form)
-	return interp.RunExpr1(e)
+
+	// use Comp.Compile(), which always compiles, instead of interp.CompileAst():
+	// the latter compiles only if option MacroExpandOnly is unset
+	c := interp.Comp
+	expr := c.Compile(form)
+
+	return interp.RunExpr1(expr)
 }
 
 // --- EvalType() ---

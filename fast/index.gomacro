@@ -81,7 +81,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	}
 	if obj.Const() && idx.Const() {
 		// constant propagation
-		ret.EvalConst(OptKeepUntyped)
+		ret.EvalConst(COptKeepUntyped)
 	}
 	return ret
 }
@@ -276,7 +276,7 @@ func (c *Comp) stringIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 				c.Errorf("string index out of range: %v", node)
 			}
 		}()
-		e.EvalConst(OptKeepUntyped)
+		e.EvalConst(COptKeepUntyped)
 		panicking = false
 	}
 	return e
