@@ -41,12 +41,22 @@ type Options uint
 type WhichMacroExpand uint
 
 const (
-	OptTrapPanic Options = 1 << iota
-	OptPanicStackTrace
-	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
-	OptDebugger        // enable debugger support. "break" and _ = "break" start the debugger
-	OptCollectDeclarations
+	OptCollectDeclarations Options = 1 << iota
 	OptCollectStatements
+	OptDebugger // enable debugger support. "break" and _ = "break" start the debugger
+	OptKeepUntyped
+	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
+	OptPanicStackTrace
+	OptTrapPanic
+	OptDebugCallStack
+	OptDebugField
+	OptDebugFromReflect
+	OptDebugMacroExpand
+	OptDebugMethod
+	OptDebugParse
+	OptDebugRecover
+	OptDebugQuasiquote
+	OptDebugSleepOnSwitch // to torture-test "switch" implementation for race conditions
 	OptShowCompile
 	OptShowEval
 	OptShowEvalType
@@ -54,15 +64,6 @@ const (
 	OptShowParse
 	OptShowPrompt
 	OptShowTime
-	OptDebugCallStack
-	OptDebugField
-	OptDebugMacroExpand
-	OptDebugMethod
-	OptDebugPanicRecover
-	OptDebugParse
-	OptDebugQuasiquote
-	OptDebugSleepOnSwitch // to torture-test "switch" implementation for race conditions
-	OptDebugFromReflect
 )
 
 const (
@@ -72,12 +73,22 @@ const (
 )
 
 var optNames = map[Options]string{
-	OptTrapPanic:           "TrapPanic",
-	OptPanicStackTrace:     "StackTrace.OnPanic",
-	OptMacroExpandOnly:     "MacroExpandOnly",
-	OptDebugger:            "Debugger",
 	OptCollectDeclarations: "Declarations.Collect",
 	OptCollectStatements:   "Statements.Collect",
+	OptDebugger:            "Debugger",
+	OptKeepUntyped:         "Untyped.Keep",
+	OptMacroExpandOnly:     "MacroExpandOnly",
+	OptPanicStackTrace:     "StackTrace.OnPanic",
+	OptTrapPanic:           "Trap.Panic",
+	OptDebugCallStack:      "?CallStack.Debug",
+	OptDebugField:          "?Field.Debug",
+	OptDebugFromReflect:    "?FromReflect.Debug",
+	OptDebugMacroExpand:    "?MacroExpand.Debug",
+	OptDebugMethod:         "?Method.Debug",
+	OptDebugParse:          "?Parse.Debug",
+	OptDebugRecover:        "?Recover.Debug",
+	OptDebugQuasiquote:     "?Quasiquote.Debug",
+	OptDebugSleepOnSwitch:  "?SwitchSleep.Debug",
 	OptShowCompile:         "Compile.Show",
 	OptShowEval:            "Eval.Show",
 	OptShowEvalType:        "Type.Eval.Show",
@@ -85,15 +96,6 @@ var optNames = map[Options]string{
 	OptShowParse:           "Parse.Show",
 	OptShowPrompt:          "Prompt.Show",
 	OptShowTime:            "Time.Show",
-	OptDebugCallStack:      "?CallStack.Debug",
-	OptDebugField:          "?Field.Debug",
-	OptDebugMacroExpand:    "?MacroExpand.Debug",
-	OptDebugMethod:         "?Method.Debug",
-	OptDebugPanicRecover:   "?PanicRecover.Debug",
-	OptDebugParse:          "?Parse.Debug",
-	OptDebugQuasiquote:     "?Quasiquote.Debug",
-	OptDebugSleepOnSwitch:  "?SwitchSleep.Debug",
-	OptDebugFromReflect:    "?FromReflect.Debug",
 }
 
 var optValues = map[string]Options{}

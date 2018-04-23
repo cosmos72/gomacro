@@ -92,7 +92,7 @@ func (c *Comp) BinaryExpr1(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 	}
 	if bothConst {
 		// constant propagation
-		z.EvalConst(OptKeepUntyped)
+		z.EvalConst(COptKeepUntyped)
 	}
 	return z
 }
@@ -174,13 +174,26 @@ func tokenWithoutAssign(op token.Token) token.Token {
 var warnUntypedShift, warnUntypedShift2 = true, true
 
 func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, y UntypedLit) *Expr {
-	if y.Val.Kind() != constant.Int {
-		c.Errorf("invalid shift: %v %v %v", x.Val, op, y.Val)
+	var yn64 uint64
+	var exact bool
+
+	switch y.Val.Kind() {
+	case constant.Int:
+		yn64, exact = constant.Uint64Val(y.Val)
+	case constant.Float:
+		yf, fexact := constant.Float64Val(y.Val)
+		if fexact {
+			yn64 = uint64(yf)
+			exact = float64(yn64) == yf
+		}
+		// c.Debugf("ShiftUntyped: %v %v %v, rhs converted to %v <float64> => %v <uint64> (exact = %v)", x.Val, op, y.Val, yf, yn64, exact)
 	}
-	yn64, exact := constant.Uint64Val(y.Val)
+	if !exact {
+		c.Errorf("invalid shift: %v %v %v", x.Val.ExactString(), op, y.Val.ExactString())
+	}
 	yn := uint(yn64)
-	if !exact || uint64(yn) != yn64 {
-		c.Errorf("invalid shift: %v %v %v", x.Val, op, y.Val)
+	if uint64(yn) != yn64 {
+		c.Errorf("invalid shift: %v %v %v", x.Val.ExactString(), op, y.Val.ExactString())
 	}
 	xn := x.Val
 	xkind := x.Kind

@@ -439,8 +439,8 @@ func (opt PlaceOption) String() string {
 type CompileOptions int
 
 const (
-	OptKeepUntyped CompileOptions = 1 << iota // if set, Compile() on expressions will keep all untyped constants as such (in expressions where Go compiler would compute an untyped constant too)
-	OptDefaults    CompileOptions = 0
+	COptKeepUntyped CompileOptions = 1 << iota // if set, Compile() on expressions will keep all untyped constants as such (in expressions where Go compiler would compute an untyped constant too)
+	COptDefaults    CompileOptions = 0
 )
 
 type Code struct {
@@ -549,6 +549,14 @@ type CompGlobals struct {
 	Prompt       string
 }
 
+func (cg *CompGlobals) CompileOptions() CompileOptions {
+	var opts CompileOptions
+	if cg.Options&OptKeepUntyped != 0 {
+		opts = COptKeepUntyped
+	}
+	return opts
+}
+
 type CompBinds struct {
 	Binds      map[string]*Bind
 	BindNum    int // len(Binds) == BindNum + IntBindNum + # of constants
@@ -571,13 +579,12 @@ type Comp struct {
 	CompBinds
 	// UpCost is the number of *Env.Outer hops to perform at runtime to reach the *Env corresponding to *Comp.Outer
 	// usually equals one. will be zero if this *Comp defines no local variables/functions.
-	UpCost         int
-	Depth          int
-	Code           Code      // "compiled" code
-	Loop           *LoopInfo // != nil when compiling a for or switch
-	Func           *FuncInfo // != nil when compiling a function
-	Outer          *Comp
-	CompileOptions CompileOptions
+	UpCost int
+	Depth  int
+	Code   Code      // "compiled" code
+	Loop   *LoopInfo // != nil when compiling a for or switch
+	Func   *FuncInfo // != nil when compiling a function
+	Outer  *Comp
 }
 
 const (

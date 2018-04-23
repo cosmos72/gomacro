@@ -168,7 +168,7 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 	}
 	eret := exprFun(t, ret)
 	if e.Const() {
-		eret.EvalConst(OptKeepUntyped)
+		eret.EvalConst(COptKeepUntyped)
 	}
 	return eret
 }

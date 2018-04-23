@@ -62,7 +62,7 @@ func init() {
 			"OptDebugFromReflect":        r.ValueOf(OptDebugFromReflect),
 			"OptDebugMacroExpand":        r.ValueOf(OptDebugMacroExpand),
 			"OptDebugMethod":             r.ValueOf(OptDebugMethod),
-			"OptDebugPanicRecover":       r.ValueOf(OptDebugPanicRecover),
+			"OptDebugPanicRecover":       r.ValueOf(OptDebugRecover),
 			"OptDebugParse":              r.ValueOf(OptDebugParse),
 			"OptDebugQuasiquote":         r.ValueOf(OptDebugQuasiquote),
 			"OptDebugSleepOnSwitch":      r.ValueOf(OptDebugSleepOnSwitch),

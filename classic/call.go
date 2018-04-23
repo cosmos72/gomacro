@@ -62,7 +62,7 @@ func (env *Env) evalFuncCall(envName string, body *ast.BlockStmt, t r.Type, argN
 				// return is implemented with a panic(eReturn{})
 				results = env.convertFuncCallResults(t, p.results, true)
 			default: // some interpreted or compiled code invoked panic()
-				if env.Options&OptDebugPanicRecover != 0 {
+				if env.Options&OptDebugRecover != 0 {
 					env.Debugf("captured panic for defers: env = %v, panic = %#v", env.Name, p)
 				}
 				frame.panick = p

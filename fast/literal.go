@@ -330,12 +330,20 @@ func (untyp *UntypedLit) DefaultType() xr.Type {
 // the receiver (untyp UntypedLit) and the second argument (t reflect.Type) are only used to pretty-print the panic error message
 func (untyp *UntypedLit) extractNumber(src constant.Value, t xr.Type) interface{} {
 	var n interface{}
+	cat := KindToCategory(t.Kind())
 	var exact bool
 	switch src.Kind() {
 	case constant.Int:
-		n, exact = constant.Int64Val(src)
-		if !exact {
+		switch cat {
+		case r.Int:
+			n, exact = constant.Int64Val(src)
+		case r.Uint:
 			n, exact = constant.Uint64Val(src)
+		default:
+			n, exact = constant.Int64Val(src)
+			if !exact {
+				n, exact = constant.Uint64Val(src)
+			}
 		}
 	case constant.Float:
 		n, exact = constant.Float64Val(src)
@@ -352,7 +360,7 @@ func (untyp *UntypedLit) extractNumber(src constant.Value, t xr.Type) interface{
 	}
 	// allow inexact conversions to float64 and complex128:
 	// floating point is intrinsically inexact, and Go compiler allows them too
-	if !exact && src.Kind() == constant.Int {
+	if !exact && (cat == r.Int || cat == r.Uint) {
 		Errorf("untyped constant %v overflows <%v>", untyp, t)
 		return nil
 	}

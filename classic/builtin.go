@@ -304,7 +304,7 @@ func funcRecover(env *Env, args []r.Value) (r.Value, []r.Value) {
 	// thus recover() is invoked inside deferred functions: find their caller's env
 	ret := Nil
 
-	trace := env.Options&OptDebugPanicRecover != 0
+	trace := env.Options&OptDebugRecover != 0
 	caller := env.CallerFrame()
 	if trace {
 		env.Debugf("recover(): env = %v, stack is:", env.Name)

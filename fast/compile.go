@@ -124,11 +124,10 @@ func NewComp(outer *Comp, code *Code) *Comp {
 		return &Comp{UpCost: 1}
 	}
 	c := Comp{
-		UpCost:         1,
-		Depth:          outer.Depth + 1,
-		Outer:          outer,
-		CompileOptions: outer.CompileOptions,
-		CompGlobals:    outer.CompGlobals,
+		UpCost:      1,
+		Depth:       outer.Depth + 1,
+		Outer:       outer,
+		CompGlobals: outer.CompGlobals,
 	}
 	// Debugf("NewComp(%p->%p) %s", outer, &c, debug.Stack())
 	if code != nil {
@@ -307,7 +306,7 @@ func (c *Comp) Compile(in Ast) *Expr {
 				list = append(list, e)
 			}
 		}
-		return exprList(list, c.CompileOptions)
+		return exprList(list, c.CompileOptions())
 	}
 	c.Errorf("unsupported Ast node, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
 	return nil

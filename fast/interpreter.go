@@ -138,7 +138,7 @@ func (ir *Interp) RunExpr(e *Expr) (r.Value, []r.Value) {
 		return None, nil
 	}
 	env := ir.PrepareEnv()
-	fun := e.AsXV(ir.Comp.CompileOptions)
+	fun := e.AsXV(ir.Comp.CompileOptions())
 	return fun(env)
 }
 

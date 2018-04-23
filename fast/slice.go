@@ -50,7 +50,7 @@ func (c *Comp) SliceExpr(node *ast.SliceExpr) *Expr {
 	}
 	// constant propagation
 	if e.Const() && (lo == nil || lo.Const()) && (hi == nil || hi.Const()) && (max == nil || max.Const()) {
-		ret.EvalConst(OptKeepUntyped)
+		ret.EvalConst(COptKeepUntyped)
 	}
 	return ret
 }

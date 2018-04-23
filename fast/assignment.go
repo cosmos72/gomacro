@@ -169,7 +169,7 @@ func (c *Comp) assignPrepareRhs(node *ast.AssignStmt, places []*Place, exprs []*
 				needconvs = true
 			}
 		}
-		f := expr.AsXV(OptDefaults)
+		f := expr.AsXV(COptDefaults)
 		if needconvs {
 			return nil, func(env *Env) (r.Value, []r.Value) {
 				_, vs := f(env)
