@@ -29,10 +29,10 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"math/big"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -298,7 +298,7 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
 		} else if init.Untyped() {
 			count = init.ConstTo(c.TypeOfInt()).(int)
 		} else {
-			count = convertLiteralCheckOverflow(init.Value, c.TypeOfInt()).(int)
+			count = untyped.ConvertLiteralCheckOverflow(init.Value, c.TypeOfInt()).(int)
 		}
 		if count < 0 {
 			c.Errorf("array length [%v] is negative: %v", count, node)
@@ -838,10 +838,6 @@ var (
 	rtypeOfMacro       = r.TypeOf(Macro{})
 	rtypeOfUntypedLit  = r.TypeOf(UntypedLit{})
 	rtypeOfReflectType = r.TypeOf((*r.Type)(nil)).Elem()
-
-	rtypeOfPtrBigFloat = r.TypeOf((*big.Float)(nil))
-	rtypeOfPtrBigInt   = r.TypeOf((*big.Int)(nil))
-	rtypeOfPtrBigRat   = r.TypeOf((*big.Rat)(nil))
 
 	zeroOfReflectType = r.Zero(rtypeOfReflectType)
 )

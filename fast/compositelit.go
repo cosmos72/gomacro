@@ -30,6 +30,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -141,7 +142,7 @@ func (c *Comp) compositeLitElements(t xr.Type, ellipsis bool, node *ast.Composit
 			} else if ekey.Untyped() {
 				key = ekey.ConstTo(c.TypeOfInt()).(int)
 			} else {
-				key = convertLiteralCheckOverflow(ekey.Value, c.TypeOfInt()).(int)
+				key = untyped.ConvertLiteralCheckOverflow(ekey.Value, c.TypeOfInt()).(int)
 			}
 			lastkey = key
 			elv = elkv.Value

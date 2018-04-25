@@ -1159,7 +1159,7 @@ func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, tactual xr.Type,
 
 func anyToAst(any interface{}, caller interface{}) ast2.Ast {
 	if untyped, ok := any.(UntypedLit); ok {
-		any = untyped.ConstTo(untyped.DefaultType())
+		any = untyped.Convert(untyped.DefaultType())
 	}
 	return ast2.AnyToAst(any, caller)
 }

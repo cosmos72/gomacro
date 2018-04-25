@@ -34,6 +34,7 @@ import (
 	"sort"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -41,37 +42,12 @@ type I = interface{}
 
 // ================================= Untyped =================================
 
-// UntypedLit represents an untyped literal value, i.e. an untyped constant
-type UntypedLit struct {
-	Kind       r.Kind // default type. matches Val.Kind() except for rune literals, where Kind == reflect.Int32
-	Val        constant.Value
-	BasicTypes *[]xr.Type
-}
+type UntypedLit = untyped.Lit
 
 var (
 	untypedZero = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(0)}
 	untypedOne  = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(1)}
 )
-
-// pretty-print untyped constants
-func (untyp UntypedLit) String() string {
-	val := untyp.Val
-	var strkind, strobj interface{} = untyp.Kind, nil
-	if untyp.Kind == r.Int32 {
-		strkind = "rune"
-		if val.Kind() == constant.Int {
-			if i, exact := constant.Int64Val(val); exact {
-				if i >= 0 && i <= 0x10FFFF {
-					strobj = fmt.Sprintf("%q", i)
-				}
-			}
-		}
-	}
-	if strobj == nil {
-		strobj = val.ExactString()
-	}
-	return fmt.Sprintf("{%v %v}", strkind, strobj)
-}
 
 // ================================= Lit =================================
 

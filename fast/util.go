@@ -266,7 +266,7 @@ func valueAsX1(any I, t xr.Type, opts CompileOptions) func(*Env) r.Value {
 			t = untyp.DefaultType()
 		}
 		// Debugf("late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t)
-		any = untyp.ConstTo(t)
+		any = untyp.Convert(t)
 	}
 	v := r.ValueOf(any)
 	if t != nil {
@@ -293,7 +293,7 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 			} else {
 				// Debugf("valueAsXV: late conversion of untyped constant %v <%v> to <%v>", untyp, r.TypeOf(untyp), t.ReflectType())
 			}
-			any = untyp.ConstTo(t)
+			any = untyp.Convert(t)
 		}
 	}
 	v := r.ValueOf(any)

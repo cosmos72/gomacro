@@ -32,6 +32,7 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/untyped"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -101,7 +102,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 	op := node.Op
 	switch op {
 	case token.LAND, token.LOR:
-		xb, yb := x.ConstTo(c.TypeOfBool()).(bool), y.ConstTo(c.TypeOfBool()).(bool)
+		xb, yb := x.Convert(c.TypeOfBool()).(bool), y.Convert(c.TypeOfBool()).(bool)
 		var flag bool
 		if op == token.LAND {
 			flag = xb && yb
@@ -126,7 +127,7 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 			op2 = token.QUO_ASSIGN
 		}
 		zobj := constant.BinaryOp(x.Val, op2, y.Val)
-		zkind := constantKindToUntypedLitKind(zobj.Kind())
+		zkind := untyped.ConstantKindToUntypedLitKind(zobj.Kind())
 		// c.Debugf("untyped binary expression %v %s %v returned {%v %v}", x, op2, y, zkind, zobj)
 		// reflect.Int32 (i.e. rune) has precedence over reflect.Int
 		if zobj.Kind() == constant.Int {
@@ -211,9 +212,9 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 			sign = constant.Sign(constant.Real(xn))
 		}
 		if sign >= 0 {
-			xn = constant.MakeUint64(x.ConstTo(c.TypeOfUint64()).(uint64))
+			xn = constant.MakeUint64(x.Convert(c.TypeOfUint64()).(uint64))
 		} else {
-			xn = constant.MakeInt64(x.ConstTo(c.TypeOfInt64()).(int64))
+			xn = constant.MakeInt64(x.Convert(c.TypeOfInt64()).(int64))
 		}
 		xkind = r.Int
 	default:
