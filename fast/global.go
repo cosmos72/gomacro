@@ -516,6 +516,7 @@ type ThreadGlobals struct {
 	ExecFlags    ExecFlags
 	CmdOpt       CmdOpt
 	DebugDepth   int // depth of function to debug with single-step
+	CallDepth    int // depth of call stack. updated ONLY at function entry. use env.CallDepth instead
 	Debugger     Debugger
 }
 
@@ -590,7 +591,7 @@ type Env struct {
 	ThreadGlobals   *ThreadGlobals
 	DebugPos        []token.Pos // for debugging interpreted code: position of each statement
 	DebugComp       *Comp       // for debugging interpreted code: compiler with Binds, and to rebuild an Interp if needed
-	DebugCallDepth  int         // depth of call stack
+	CallDepth       int         // for debugging interpreted code: depth of call stack
 	UsedByClosure   bool        // a bitfield would introduce more races among goroutines
 	IntAddressTaken bool        // true if &Env.Ints[index] was executed... then we cannot reuse or reallocate Ints
 }

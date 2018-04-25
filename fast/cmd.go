@@ -55,6 +55,7 @@ func (cmds Cmds) Lookup(prefix string) (Cmd, bool) {
 var cmds = Cmds{}
 
 func init() {
+	cmds['d'] = Cmd{"debug", (*Interp).cmdDebug}
 	cmds['e'] = Cmd{"env", (*Interp).cmdEnv}
 	cmds['h'] = Cmd{"help", (*Interp).cmdHelp}
 	cmds['i'] = Cmd{"inspect", (*Interp).cmdInspect}
@@ -92,6 +93,16 @@ func (ir *Interp) Cmd(src string) (string, CmdOpt) {
 		src, opt = ir.cmdPackage(arg, opt)
 	}
 	return src, opt
+}
+
+func (ir *Interp) cmdDebug(arg string, opt CmdOpt) (string, CmdOpt) {
+	g := ir.Comp.Globals
+	if len(arg) == 0 {
+		g.Fprintf(g.Stdout, "// debug: missing argument\n")
+	} else {
+		g.Print(ir.Debug(arg))
+	}
+	return "", opt
 }
 
 func (ir *Interp) cmdEnv(arg string, opt CmdOpt) (string, CmdOpt) {

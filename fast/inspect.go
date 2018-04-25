@@ -39,9 +39,8 @@ func (ir *Interp) Inspect(src string) {
 		c.Errorf("no inspector set: call Interp.SetInspector() first")
 		return
 	}
-	expr := c.Compile(c.Parse(src))
-	val, _ := ir.RunExpr(expr)
-	xtyp := expr.Type
+	// not ir.Compile because it only macroexpands if OptMacroExpandOnly is set
+	val, xtyp := ir.RunExpr1(c.Compile(c.Parse(src)))
 	var typ r.Type
 	if xtyp != nil {
 		typ = xtyp.ReflectType()

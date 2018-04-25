@@ -26,12 +26,13 @@
 package debug
 
 import (
+	"go/token"
 	"runtime/debug"
 
 	"github.com/cosmos72/gomacro/base"
 )
 
-func (d *Debugger) Help() {
+func (d *Debugger) ShowHelp() {
 	g := d.globals
 	g.Fprintf(g.Stdout, "%s", `// debugger commands:
 env [NAME]    show available functions, variables and constants
@@ -54,7 +55,7 @@ step          execute a single statement, entering functions
 	*/
 }
 
-func (d *Debugger) Show(breakpoint bool) {
+func (d *Debugger) Show(breakpoint bool) bool {
 	// d.env is the Env being debugged.
 	// to execute code at debugger prompt, use d.interp
 	env := d.env
@@ -69,15 +70,20 @@ func (d *Debugger) Show(breakpoint bool) {
 		label = "stopped"
 	}
 	if ip < len(pos) && g.Fileset != nil {
-		source, pos := g.Fileset.Source(pos[ip])
-		g.Fprintf(g.Stdout, "// %s at %s IP=%d. type ? for debugger help\n", label, pos, ip)
+		p := pos[ip]
+		if p == token.NoPos {
+			return false
+		}
+		source, pos := g.Fileset.Source(p)
+		g.Fprintf(g.Stdout, "// %s at %s IP=%d, call depth=%d. type ? for debugger help\n", label, pos, ip, env.CallDepth)
 		if len(source) != 0 {
 			g.Fprintf(g.Stdout, "%s\n", source)
 			d.showCaret(source, pos.Column)
 		}
 	} else {
-		g.Fprintf(g.Stdout, "// %s at IP=%d. type ? for debugger help\n", label, ip)
+		g.Fprintf(g.Stdout, "// %s at IP=%d, call depth=%d. type ? for debugger help\n", label, ip, env.CallDepth)
 	}
+	return true
 }
 
 var spaces = []byte("                                                                      ")
@@ -103,7 +109,6 @@ func (d *Debugger) Repl() DebugOp {
 	if g.Options&base.OptShowPrompt != 0 {
 		opts |= base.ReadOptShowPrompt
 	}
-
 	op := DebugRepl
 	for op == DebugRepl {
 		src, firstToken := g.ReadMultiline(opts, "debug> ")
@@ -113,9 +118,12 @@ func (d *Debugger) Repl() DebugOp {
 			op = DebugContinue
 			break
 		}
-		if empty {
+		if empty || src == "\n" {
 			// keyboard enter repeats last command
 			src = d.lastcmd
+		}
+		if g.Options&base.OptDebugDebugger != 0 {
+			g.Debugf("Debugger: command is %q", src)
 		}
 		op = d.Cmd(src)
 	}
@@ -144,11 +152,8 @@ func (d *Debugger) Eval(src string) {
 	}()
 
 	ir := d.interp
-	expr := ir.Compile(src)
-	values := base.PackValues(ir.RunExpr(expr))
-	types := base.PackTypes(expr.Type, expr.Types)
 
-	g.Print(values, types)
+	g.Print(ir.Eval(src))
 
 	trap = false // no panic happened
 }

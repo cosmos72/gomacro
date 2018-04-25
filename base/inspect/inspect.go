@@ -57,7 +57,7 @@ func (ip *Inspector) Init(name string, val r.Value, typ r.Type, xtyp xr.Type, gl
 	ip.globals = globals
 }
 
-func (ip *Inspector) Help() {
+func (ip *Inspector) ShowHelp() {
 	g := ip.globals
 	g.Fprintf(g.Stdout, "%s", `
 // inspector commands:
@@ -110,7 +110,7 @@ func (ip *Inspector) Repl() error {
 func (ip *Inspector) Eval(cmd string) error {
 	switch {
 	case cmd == "?", strings.HasPrefix("help", cmd):
-		ip.Help()
+		ip.ShowHelp()
 	case strings.HasPrefix("methods", cmd):
 		t := ip.types[len(ip.types)-1]
 		xt := ip.xtypes[len(ip.xtypes)-1]

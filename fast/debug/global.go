@@ -63,6 +63,9 @@ func (d *Debugger) main(interp *fast.Interp, env *fast.Env, breakpoint bool) Deb
 	d.interp = fast.NewInnerInterp(interp, "debug", "debug")
 	d.env = env
 	d.globals = env.ThreadGlobals.Globals
-	d.Show(breakpoint)
+	if !d.Show(breakpoint) {
+		// skip synthetic statements
+		return DebugRepl
+	}
 	return d.Repl()
 }

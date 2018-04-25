@@ -161,12 +161,12 @@ var ignoredBinds = []r.Value{Nil}
 var ignoredIntBinds = []uint64{0}
 
 func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
-	tg := outer.ThreadGlobals
-	pool := &tg.Pool // pool is an array, do NOT copy it!
-	index := tg.PoolSize - 1
+	g := outer.ThreadGlobals
+	pool := &g.Pool // pool is an array, do NOT copy it!
+	index := g.PoolSize - 1
 	var env *Env
 	if index >= 0 {
-		tg.PoolSize = index
+		g.PoolSize = index
 		env = pool[index]
 		pool[index] = nil
 	} else {
@@ -189,19 +189,19 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	env.Outer = outer
 	env.IP = outer.IP
 	env.Code = outer.Code
-	env.ThreadGlobals = tg
+	env.ThreadGlobals = g
 	env.DebugPos = outer.DebugPos
-	env.DebugCallDepth = outer.DebugCallDepth
+	env.CallDepth = g.CallDepth
 	return env
 }
 
 func newEnv4Func(outer *Env, nbinds int, nintbinds int, debugComp *Comp) *Env {
-	tg := outer.ThreadGlobals
-	pool := &tg.Pool // pool is an array, do NOT copy it!
-	index := tg.PoolSize - 1
+	g := outer.ThreadGlobals
+	pool := &g.Pool // pool is an array, do NOT copy it!
+	index := g.PoolSize - 1
 	var env *Env
 	if index >= 0 {
-		tg.PoolSize = index
+		g.PoolSize = index
 		env = pool[index]
 		pool[index] = nil
 	} else {
@@ -222,9 +222,9 @@ func newEnv4Func(outer *Env, nbinds int, nintbinds int, debugComp *Comp) *Env {
 		env.Ints = env.Ints[0:nintbinds]
 	}
 	env.Outer = outer
-	env.ThreadGlobals = tg
+	env.ThreadGlobals = g
 	env.DebugComp = debugComp
-	env.DebugCallDepth = outer.DebugCallDepth + 1
+	env.CallDepth = g.CallDepth + 1
 	// Debugf("newEnv4Func(%p->%p) binds=%d intbinds=%d", outer, env, nbinds, nintbinds)
 	return env
 }

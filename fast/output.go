@@ -113,7 +113,8 @@ func (ir *Interp) ShowAsPackage() {
 				continue
 			}
 			expr := c.Symbol(bind.AsSymbol(0))
-			showValue(out, k, ir.RunExpr1(expr), expr.Type, stringer)
+			v, t := ir.RunExpr1(expr)
+			showValue(out, k, v, t, stringer)
 		}
 		fmt.Fprintln(out)
 	}

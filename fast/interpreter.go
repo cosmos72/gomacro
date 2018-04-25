@@ -124,32 +124,69 @@ func (ir *Interp) CompileAst(form ast2.Ast) *Expr {
 }
 
 // combined Parse + Compile + RunExpr
-func (ir *Interp) Eval(src string) (r.Value, []r.Value) {
+func (ir *Interp) Eval(src string) ([]r.Value, []xr.Type) {
 	return ir.RunExpr(ir.Compile(src))
 }
 
-func (ir *Interp) RunExpr1(e *Expr) r.Value {
+// run without debugging. to execute with single-step debugging, use Interp.DebugExpr() instead
+func (ir *Interp) RunExpr1(e *Expr) (r.Value, xr.Type) {
 	if e == nil {
-		return None
+		return None, nil
 	}
 	// do NOT use e.AsX1(), it converts untyped constants to their default type => may overflow
 	e.CheckX1()
-	v, _ := ir.RunExpr(e)
-	return v
+	vs, ts := ir.RunExpr(e)
+	return vs[0], ts[0]
 }
 
-func (ir *Interp) RunExpr(e *Expr) (r.Value, []r.Value) {
+// run without debugging. to execute with single-step debugging, use Interp.DebugExpr() instead
+func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
 	if e == nil {
-		return None, nil
+		return nil, nil
 	}
 	env := ir.PrepareEnv()
 
 	if ir.Comp.Globals.Options&OptKeepUntyped == 0 && e.Untyped() {
 		e.ConstTo(e.DefaultType())
 	}
+	env.applyDebugSignal(SigNone)
 
 	fun := e.AsXV(COptKeepUntyped)
-	return fun(env)
+	v, vs := fun(env)
+	return PackValuesAndTypes(v, vs, e.Type, e.Types)
+}
+
+// execute with single-step debugging. to run without debugging, use Interp.DebugExpr() instead
+func (ir *Interp) DebugExpr1(e *Expr) (r.Value, xr.Type) {
+	if e == nil {
+		return None, nil
+	}
+	// do NOT use e.AsX1(), it converts untyped constants to their default type => may overflow
+	e.CheckX1()
+	vs, ts := ir.DebugExpr(e)
+	return vs[0], ts[0]
+}
+
+// execute with single-step debugging. to run without debugging, use Interp.DebugExpr() instead
+func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
+	if e == nil {
+		return nil, nil
+	}
+	env := ir.PrepareEnv()
+
+	if ir.Comp.Globals.Options&OptKeepUntyped == 0 && e.Untyped() {
+		e.ConstTo(e.DefaultType())
+	}
+	env.applyDebugSignal(SigDebugStep)
+
+	fun := e.AsXV(COptKeepUntyped)
+	v, vs := fun(env)
+	return PackValuesAndTypes(v, vs, e.Type, e.Types)
+}
+
+// combined Parse + Compile + DebugExpr
+func (ir *Interp) Debug(src string) ([]r.Value, []xr.Type) {
+	return ir.DebugExpr(ir.Compile(src))
 }
 
 // DeclConst compiles a constant declaration
@@ -207,15 +244,16 @@ func (ir *Interp) apply() {
 func (ir *Interp) AddressOfVar(name string) (addr r.Value) {
 	c := ir.Comp
 	sym := c.TryResolve(name)
+	var v r.Value
 	if sym != nil {
 		switch sym.Desc.Class() {
 		case VarBind, IntBind:
 			va := sym.AsVar(PlaceAddress)
 			expr := va.Address(c.Depth)
-			return ir.RunExpr1(expr)
+			v, _ = ir.RunExpr1(expr)
 		}
 	}
-	return Nil
+	return v
 }
 
 // replacement of reflect.TypeOf() that uses xreflect.TypeOf()
@@ -413,7 +451,7 @@ func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
 	expr := ir.CompileAst(form)
 
 	// run expression
-	values, types := ir.runexpr(expr)
+	values, types := ir.RunExpr(expr)
 
 	// print phase
 	g.Print(values, types)
@@ -461,15 +499,6 @@ func cmdOptForceEval(g *Globals, opt CmdOpt) (toenable Options) {
 		}
 	}
 	return 0
-}
-
-// run expression
-func (ir *Interp) runexpr(expr *Expr) ([]r.Value, []xr.Type) {
-	if expr == nil {
-		return nil, nil
-	}
-	val, vals := ir.RunExpr(expr)
-	return PackValues(val, vals), PackTypes(expr.Type, expr.Types)
 }
 
 func (ir *Interp) Interrupt(os.Signal) {

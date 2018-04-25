@@ -122,7 +122,7 @@ func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 		}()
 	}
 
-	rets = PackValues(ir.Eval(test.program))
+	rets, _ = ir.Eval(test.program)
 	panicking = false
 	test.compareResults(t, rets)
 }

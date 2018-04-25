@@ -103,6 +103,7 @@ func (g *Globals) ShowHelp() {
 	fmt.Fprintf(g.Stdout, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
 
 // interpreter commands:
+%cdebug EXPR      debug expression or statement interactively
 %cenv [NAME]      show available functions, variables and constants
                  in current package, or from imported package NAME
 %chelp            show this help
@@ -115,7 +116,7 @@ func (g *Globals) ShowHelp() {
 %cwrite [FILE]    write collected declarations and/or statements to standard output or to FILE
                  use %co Declarations and/or %co Statements to start collecting them
 // abbreviations are allowed if unambiguous.
-`, c, c, c, c, c, c, c, c, c, c)
+`, c, c, c, c, c, c, c, c, c, c, c)
 }
 
 func (g *Globals) Gensym() string {

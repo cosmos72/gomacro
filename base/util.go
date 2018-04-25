@@ -48,6 +48,10 @@ func PackTypes(typ0 xr.Type, types []xr.Type) []xr.Type {
 	return types
 }
 
+func PackValuesAndTypes(val0 r.Value, values []r.Value, typ0 xr.Type, types []xr.Type) ([]r.Value, []xr.Type) {
+	return PackValues(val0, values), PackTypes(typ0, types)
+}
+
 func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
 	val0 := None
 	if len(vals) > 0 {

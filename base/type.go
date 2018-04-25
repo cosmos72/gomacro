@@ -49,6 +49,7 @@ const (
 	OptPanicStackTrace
 	OptTrapPanic
 	OptDebugCallStack
+	OptDebugDebugger // print debug information related to the debugger
 	OptDebugField
 	OptDebugFromReflect
 	OptDebugMacroExpand
@@ -81,6 +82,7 @@ var optNames = map[Options]string{
 	OptPanicStackTrace:     "StackTrace.OnPanic",
 	OptTrapPanic:           "Trap.Panic",
 	OptDebugCallStack:      "?CallStack.Debug",
+	OptDebugDebugger:       "?Debugger.Debug",
 	OptDebugField:          "?Field.Debug",
 	OptDebugFromReflect:    "?FromReflect.Debug",
 	OptDebugMacroExpand:    "?MacroExpand.Debug",

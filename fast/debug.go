@@ -32,6 +32,16 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 )
 
+type stubDebugger struct{}
+
+func (s stubDebugger) Breakpoint(ir *Interp, env *Env) DebugOp {
+	return SigDebugContinue
+}
+
+func (s stubDebugger) At(ir *Interp, env *Env) DebugOp {
+	return SigDebugContinue
+}
+
 // return true if statement is either "break" or _ = "break"
 func isBreakpoint(stmt ast.Stmt) bool {
 	switch node := stmt.(type) {
@@ -67,14 +77,45 @@ func (c *Comp) breakpoint() Stmt {
 		op := ir.debug(true)
 		env.IP++
 		stmt := env.Code[env.IP]
-		if op != SigDebugContinue {
+		if op != SigNone {
 			g := env.ThreadGlobals
 			stmt = g.Interrupt
-			g.Signals.Debug = op
-			/*DELETEME*/ g.Debugf("after breakpoint: single-stepping with stmt = %p, env = %p, signals = %#v\n", stmt, env, g.Signals)
+			if g.Options&OptDebugDebugger != 0 {
+				g.Debugf("after breakpoint: single-stepping with stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, env.IP, g.ExecFlags, g.Signals)
+			}
 		}
 		return stmt, env
 	}
+}
+
+func singleStep(env *Env) (Stmt, *Env) {
+	stmt := env.Code[env.IP]
+	g := env.ThreadGlobals
+	if g.Signals.Debug == SigNone {
+		return stmt, env // resume normal execution
+	}
+
+	if env.CallDepth < g.DebugDepth {
+		if g.Options&OptDebugDebugger != 0 {
+			g.Debugf("single-stepping: stmt = %p, env = %p, IP = %v, env.CallDepth = %d, g.DebugDepth = %d", stmt, env, env.IP, env.CallDepth, g.DebugDepth)
+		}
+		c := env.DebugComp
+		if c != nil {
+			ir := Interp{c, env}
+			op := ir.debug(false) // not a breakpoint
+			if op != SigNone {
+				g := env.ThreadGlobals
+				g.Signals.Debug = op
+			}
+		}
+	}
+
+	// single step
+	stmt, env = stmt(env)
+	if g.Signals.Debug != SigNone {
+		stmt = g.Interrupt
+	}
+	return stmt, env
 }
 
 func (ir *Interp) debug(breakpoint bool) DebugOp {
@@ -89,15 +130,41 @@ func (ir *Interp) debug(breakpoint bool) DebugOp {
 	} else {
 		op = g.Debugger.At(ir, ir.env)
 	}
+	if g.Options&OptDebugDebugger != 0 {
+		g.Debugf("Debugger returned op = %v", op)
+	}
+	return ir.env.applyDebugSignal(op)
+}
+
+func (env *Env) applyDebugSignal(op DebugOp) DebugOp {
+	g := env.ThreadGlobals
+	saveOp := op
+	saveDepth := g.DebugDepth
+	switch op {
+	case SigDebugFinish:
+		g.DebugDepth = env.CallDepth
+	case SigDebugNext:
+		g.DebugDepth = env.CallDepth + 1
+	case SigDebugStep:
+		g.DebugDepth = MaxInt
+	case SigDebugRepl:
+		break
+	default:
+		op = SigNone
+		g.DebugDepth = 0
+	}
+	// prevent further changes to g.DebugDepth
+	if g.Options&OptDebugDebugger != 0 {
+		if op == saveOp {
+			g.Debugf("applyDebugSignal: op = %v, updated g.DebugDepth from %v to %v", op, saveDepth, g.DebugDepth)
+		} else {
+			g.Debugf("applyDebugSignal: op = %v, replaced with %v and updated g.DebugDepth from %v to %v", saveOp, op, saveDepth, g.DebugDepth)
+		}
+	}
+	if op != SigNone {
+		op = SigDebugRepl
+	}
+	g.ExecFlags.SetDebug(op != SigNone)
+	g.Signals.Debug = op
 	return op
-}
-
-type stubDebugger struct{}
-
-func (s stubDebugger) Breakpoint(ir *Interp, env *Env) DebugOp {
-	return SigDebugContinue
-}
-
-func (s stubDebugger) At(ir *Interp, env *Env) DebugOp {
-	return SigDebugContinue
 }
