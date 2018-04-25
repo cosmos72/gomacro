@@ -130,7 +130,7 @@ The [documentation](doc/) also contains the [full list of features and limitatio
 
 ## Extensions
 
-Compared to compiled Go, gomacro supports three important extensions:
+Compared to compiled Go, gomacro supports three extensions:
 
 * untyped constants can be manipulated directly at REPL. Examples:
     ```
