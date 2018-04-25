@@ -1,4 +1,4 @@
-## gomacro - interactive Go interpreter with macros
+## gomacro - interactive Go interpreter and debugger with macros
 
 gomacro is an almost complete Go interpreter, implemented in pure Go. It offers both
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
@@ -274,15 +274,16 @@ Since version 2.6, gomacro also has an integrated debugger.
 There are two ways to use it:
 * type `:debug STATEMENT-OR-FUNCTION-CALL` at the prompt.
 * add a statement (an expression is not enough) `"break"` or `_ = "break"` to your code,
-  then execute it normally
+  then execute it normally.
+
 In both cases, execution will be suspended and you will get a `debug> ` prompt, which accepts the following
-commands:
+commands:  
+`step`, `next`, `finish`, `continue`, `env [NAME]`, `inspect EXPR`, `list`, `print EXPR-OR-STATEMENT`
 
-step, next, finish, continue, env [NAME], inspect EXPR, list, print EXPR-OR-STATEMENT
-
-commands can be abbreviated, and `print` fully supports expressions or statements with side effects,
-including function calls and modifying local variables.
-Without arguments, `env` prints all global and local variables.
+Commands can be abbreviated, and `print` fully supports expressions or statements with side effects,
+including function calls and modifying local variables.  
+Without arguments, `env` prints all global and local variables.  
+An empty command (i.e. just pressing enter) repeats the last command.
 
 Only interpreted statements can be debugged:
 expressions and compiled code will be executed, but you cannot step into them.
