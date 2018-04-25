@@ -143,6 +143,11 @@ func (ir *Interp) RunExpr(e *Expr) (r.Value, []r.Value) {
 		return None, nil
 	}
 	env := ir.PrepareEnv()
+
+	if ir.Comp.Globals.Options&OptKeepUntyped == 0 && e.Untyped() {
+		e.ConstTo(e.DefaultType())
+	}
+
 	fun := e.AsXV(COptKeepUntyped)
 	return fun(env)
 }

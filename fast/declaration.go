@@ -577,7 +577,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.
 		bind := c.AddBind(name, VarBind, ti)
 		decls[i] = c.DeclBindRuntimeValue(bind)
 	}
-	fun := init.AsXV(0)
+	fun := init.AsXV(COptDefaults)
 	if npos != 0 {
 		c.Pos = pos[0]
 	}
