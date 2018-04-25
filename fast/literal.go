@@ -123,7 +123,8 @@ func (e *Expr) ConstTo(t xr.Type) I {
 	if !e.Const() {
 		Errorf("internal error: expression is not constant, use Expr.To() instead of Expr.ConstTo() to convert from <%v> to <%v>", e.Type, t)
 	}
-	val, fun := e.Lit.ConstTo2(t)
+	val := e.Lit.ConstTo(t)
+	fun := makeMathBigFun(val)
 	if fun != nil {
 		// no longer a constant
 		e.Lit.Value = nil
@@ -177,11 +178,6 @@ func (lit *Lit) ConstTo(t xr.Type) I {
 	}
 	Errorf("cannot convert typed constant %v <%v> to <%v>%s", value, lit.Type, t, interfaceMissingMethod(lit.Type, t))
 	return nil
-}
-
-func (lit *Lit) ConstTo2(t xr.Type) (I, func(*Env) r.Value) {
-	val := lit.ConstTo(t)
-	return val, makeMathBigFun(val)
 }
 
 // return a closure that duplicates at each invokation any *big.Int, *big.Rat, *big.Float passed as 'val'
