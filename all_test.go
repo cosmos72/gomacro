@@ -315,7 +315,9 @@ func init() {
 	bigRat.Mul(bigRat, bigRat)
 	bigRat.Mul(bigRat, bigRat)
 
-	bigFloat.Parse("1e308", 10)
+	// use the same precision as constant.Value
+	bigFloat.SetPrec(512)
+	bigFloat.SetString("1e1234")
 	bigFloat.Mul(bigFloat, bigFloat)
 	bigFloat.Mul(bigFloat, bigFloat)
 }
@@ -623,7 +625,7 @@ var testcases = []TestCase{
 
 	TestCase{F, "big.Int", `(func() *big.Int { return 1<<1000 })()`, bigInt, nil},
 	TestCase{F, "big.Rat", `(func() *big.Rat { var x *big.Rat = 1.000000001; x.Mul(x,x); x.Mul(x,x); return x })()`, bigRat, nil},
-	TestCase{F, "big.Float", `(func() *big.Float { var x *big.Float = 1e308; x.Mul(x,x); x.Mul(x,x); return x })()`, bigFloat, nil},
+	TestCase{F, "big.Float", `(func() *big.Float { var x *big.Float = 1e1234; x.Mul(x,x); x.Mul(x,x); return x })()`, bigFloat, nil},
 
 	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},
 	TestCase{A, "builtin_cap", "cap(va)", 2, nil},

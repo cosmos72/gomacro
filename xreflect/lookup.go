@@ -87,7 +87,7 @@ func fieldByName(t *xtype, qname QName, offset uintptr, index []int) (field Stru
 	}
 	gtype, ok := t.gtype.Underlying().(*types.Struct)
 	if !ok {
-		debugf("fieldByName: type is %s, not struct. bailing out", t.kind)
+		// debugf("fieldByName: type is %s, not struct. bailing out", t.kind)
 		return
 	}
 	n := t.NumField()

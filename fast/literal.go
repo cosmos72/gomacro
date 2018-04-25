@@ -31,6 +31,7 @@ import (
 	"go/token"
 	"math/big"
 	r "reflect"
+	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
@@ -291,7 +292,7 @@ again:
 			}
 		}
 	case r.Ptr:
-		ret, fun = untyp.constToMathBig(t)
+		ret, fun = untyp.toMathBig(t)
 	}
 	if ret == nil {
 		Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
@@ -305,41 +306,136 @@ again:
 }
 
 // EXTENSION: conversion from untyped constant to big.Int, bit.Rat, big.Float
-func (untyp *UntypedLit) constToMathBig(t xr.Type) (I, func(*Env) r.Value) {
-	if k := untyp.Kind; k != r.Int && k != r.Int32 /*rune*/ && k != r.Float64 {
-		return nil, nil
-	}
-	var ret I
+func (untyp *UntypedLit) toMathBig(t xr.Type) (I, func(*Env) r.Value) {
 	var fun func(*Env) r.Value
-	switch t.ReflectType() {
-	case rtypeOfPtrBigInt:
-		s := untyp.Val.ExactString()
-		var b big.Int
-		if _, ok := b.SetString(s, 10); ok {
-			ret = &b
-			fun = func(*Env) r.Value {
-				// clone the big.Int at every evaluation
-				var x big.Int
-				x.Set(&b)
-				return r.ValueOf(&x)
+	var ret I
+	if k := untyp.Val.Kind(); k == constant.Int || k == constant.Float {
+		switch t.ReflectType() {
+		case rtypeOfPtrBigInt:
+			if a := untyp.BigInt(); a != nil {
+				ret = a
+				fun = func(*Env) r.Value {
+					var b big.Int
+					// make a copy of a at every evaluation
+					b.Set(a)
+					return r.ValueOf(&b)
+				}
+			}
+		case rtypeOfPtrBigRat:
+			if a := untyp.BigRat(); a != nil {
+				ret = a
+				fun = func(*Env) r.Value {
+					var b big.Rat
+					// make a copy of a at every evaluation
+					b.Set(a)
+					return r.ValueOf(&b)
+				}
+			}
+		case rtypeOfPtrBigFloat:
+			if a := untyp.BigFloat(); a != nil {
+				ret = a
+				fun = func(*Env) r.Value {
+					var b big.Float
+					// make a copy of a at every evaluation
+					b.Set(a)
+					return r.ValueOf(&b)
+				}
 			}
 		}
-	case rtypeOfPtrBigRat:
-		s := untyp.Val.ExactString()
-		var b big.Rat
-		if _, ok := b.SetString(s); ok {
+	}
+	return ret, fun
+}
+
+func (untyp *UntypedLit) BigInt() *big.Int {
+	var b big.Int
+	var ret *big.Int
+
+	if i, exact := untyp.Int64(); exact {
+		ret = b.SetInt64(i)
+	} else if n, exact := untyp.Uint64(); exact {
+		ret = b.SetUint64(n)
+	} else if i := untyp.rawBigInt(); i != nil {
+		ret = b.Set(i)
+	} else if r := untyp.rawBigRat(); r != nil {
+		if !r.IsInt() {
+			return nil
+		}
+		ret = b.Set(r.Num())
+	} else if f := untyp.rawBigFloat(); f != nil {
+		if !f.IsInt() {
+			return nil
+		}
+		if i, acc := f.Int(&b); acc == big.Exact {
+			if i != &b {
+				b.Set(i)
+			}
 			ret = &b
-			fun = func(*Env) r.Value {
-				// clone the big.Rat at every evaluation
-				var x big.Rat
-				x.Set(&b)
-				return r.ValueOf(&x)
+		}
+	}
+	if ret == nil {
+		// no luck... try to go through string representation
+		s := untyp.Val.ExactString()
+		if _, ok := b.SetString(s, 0); ok {
+			ret = &b
+		}
+	}
+	return ret
+}
+
+func (untyp *UntypedLit) BigRat() *big.Rat {
+	var b big.Rat
+	var ret *big.Rat
+
+	if i, exact := untyp.Int64(); exact {
+		ret = b.SetInt64(i)
+	} else if i := untyp.rawBigInt(); i != nil {
+		ret = b.SetInt(i)
+	} else if r := untyp.rawBigRat(); r != nil {
+		ret = b.Set(r)
+	} else if f := untyp.rawBigFloat(); f != nil {
+		if f.IsInt() {
+			if i, acc := f.Int(nil); acc == big.Exact {
+				ret = b.SetInt(i)
 			}
 		}
-	case rtypeOfPtrBigFloat:
+	}
+
+	if ret == nil {
+		// no luck... try to go through string representation
+		s := untyp.Val.ExactString()
+		_, ok := b.SetString(s)
+		if ok {
+			ret = &b
+		}
+	}
+	return ret
+}
+
+func (untyp *UntypedLit) BigFloat() *big.Float {
+	var b big.Float
+	var ret *big.Float
+
+	if i, exact := untyp.Int64(); exact {
+		ret = b.SetInt64(i)
+		// Debugf("UntypedLit.BigFloat(): converted int64 %v to *big.Float %v", i, b)
+	} else if f, exact := untyp.Float64(); exact {
+		ret = b.SetFloat64(f)
+		// Debugf("UntypedLit.BigFloat(): converted float64 %v to *big.Float %v", f, b)
+	} else if i := untyp.rawBigInt(); i != nil {
+		ret = b.SetInt(i)
+		// Debugf("UntypedLit.BigFloat(): converted *big.Int %v to *big.Float %v", *i, b)
+	} else if r := untyp.rawBigRat(); r != nil {
+		ret = b.SetRat(r)
+		// Debugf("UntypedLit.BigFloat(): converted *big.Rat %v to *big.Float %v", *r, b)
+	} else if f := untyp.rawBigFloat(); f != nil {
+		ret = b.Set(f)
+		// Debugf("UntypedLit.BigFloat(): converted *big.Float %v to *big.Float %v", *f, b)
+	}
+
+	if ret == nil {
+		// no luck... try to go through string representation
 		s := untyp.Val.ExactString()
 		snum, sden := Split2(s, '/')
-		var b big.Float
 		_, ok := b.SetString(snum)
 		if ok && len(sden) != 0 {
 			var b2 big.Float
@@ -349,15 +445,73 @@ func (untyp *UntypedLit) constToMathBig(t xr.Type) (I, func(*Env) r.Value) {
 		}
 		if ok {
 			ret = &b
-			fun = func(*Env) r.Value {
-				// clone the big.Float at every evaluation
-				var x big.Float
-				x.Set(&b)
-				return r.ValueOf(&x)
-			}
+			// Debugf("UntypedLit.BigFloat(): converted constant.Value %v %v to *big.Float %v", untyp.Val.Kind(), s, b)
 		}
 	}
-	return ret, fun
+	return ret
+}
+
+func (untyp *UntypedLit) Int64() (int64, bool) {
+	if c := untyp.Val; c.Kind() == constant.Int {
+		return constant.Int64Val(c)
+	}
+	return 0, false
+}
+
+func (untyp *UntypedLit) Uint64() (uint64, bool) {
+	if c := untyp.Val; c.Kind() == constant.Int {
+		return constant.Uint64Val(c)
+	}
+	return 0, false
+}
+
+func (untyp *UntypedLit) Float64() (float64, bool) {
+	if c := untyp.Val; c.Kind() == constant.Float {
+		return constant.Float64Val(c)
+	}
+	return 0, false
+}
+
+func (untyp *UntypedLit) rawBigInt() *big.Int {
+	if untyp.Val.Kind() != constant.Int {
+		return nil
+	}
+	v := r.ValueOf(untyp.Val)
+	if v.Kind() == r.Struct {
+		v = v.Field(0)
+	}
+	if v.Type() != r.TypeOf((*big.Int)(nil)) {
+		return nil
+	}
+	return (*big.Int)(unsafe.Pointer(v.Pointer()))
+}
+
+func (untyp *UntypedLit) rawBigRat() *big.Rat {
+	if untyp.Val.Kind() != constant.Float {
+		return nil
+	}
+	v := r.ValueOf(untyp.Val)
+	if v.Kind() == r.Struct {
+		v = v.Field(0)
+	}
+	if v.Type() != r.TypeOf((*big.Rat)(nil)) {
+		return nil
+	}
+	return (*big.Rat)(unsafe.Pointer(v.Pointer()))
+}
+
+func (untyp *UntypedLit) rawBigFloat() *big.Float {
+	if untyp.Val.Kind() != constant.Float {
+		return nil
+	}
+	v := r.ValueOf(untyp.Val)
+	if v.Kind() == r.Struct {
+		v = v.Field(0)
+	}
+	if v.Type() != r.TypeOf((*big.Float)(nil)) {
+		return nil
+	}
+	return (*big.Float)(unsafe.Pointer(v.Pointer()))
 }
 
 // ================================= DefaultType =================================
