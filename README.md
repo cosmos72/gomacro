@@ -21,6 +21,8 @@ Gomacro can be used as:
     gomacro>
     ```
 
+* a Go source code debugger: see [Debugger](#debugger)
+
 * an interactive tool to make science more productive and more fun.
   If you use compiled Go with scientific libraries (physics, bioinformatics, statistics...)
   you can import the same libraries from gomacro REPL (immediate on Go 1.8+ and Linux,
@@ -129,7 +131,9 @@ The [documentation](doc/) also contains the [full list of features and limitatio
 
 ## Extensions
 
-Compared to compiled Go, gomacro supports three extensions:
+Compared to compiled Go, gomacro supports four extensions:
+
+* an integrated debugger, see [Debugger](#debugger)
 
 * untyped constants can be manipulated directly at REPL. Examples:
     ```
@@ -264,6 +268,24 @@ gomacro> plot.New()
 Note: if you need several packages, you can first `import` all of them,
 then quit and recompile gomacro only once.
 
+## Debugger
+
+Since version 2.6, gomacro also has an integrated debugger.
+There are two ways to use it:
+* type `:debug STATEMENT-OR-FUNCTION-CALL` at the prompt.
+* add a statement (an expression is not enough) `"break"` or `_ = "break"` to your code,
+  then execute it normally
+In both cases, execution will be suspended and you will get a `debug> ` prompt, which accepts the following
+commands:
+
+step, next, finish, continue, env [NAME], inspect EXPR, list, print EXPR-OR-STATEMENT
+
+commands can be abbreviated, and `print` fully supports expressions or statements with side effects,
+including function calls and modifying local variables.
+Without arguments, `env` prints all global and local variables.
+
+Only interpreted statements can be debugged:
+expressions and compiled code will be executed, but you cannot step into them.
 
 ## Why it was created
 
