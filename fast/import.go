@@ -310,7 +310,7 @@ func (g *CompGlobals) parseUntyped(untyped string) (r.Value, xr.Type, bool) {
 	if kind == r.Invalid {
 		return Nil, nil, false
 	}
-	lit := UntypedLit{Kind: kind, Val: value, BasicTypes: &g.Universe.BasicTypes}
+	lit := MakeUntypedLit(kind, value, &g.Universe.BasicTypes)
 	return r.ValueOf(lit), g.TypeOfUntypedLit(), true
 }
 

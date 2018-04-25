@@ -336,7 +336,7 @@ func (untyp *Lit) rawBigFloat() *big.Float {
 func (untyp *Lit) DefaultType() xr.Type {
 	switch untyp.Kind {
 	case r.Bool, r.Int32, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
-		if basicTypes := untyp.BasicTypes; basicTypes == nil {
+		if basicTypes := untyp.basicTypes; basicTypes == nil {
 			base.Errorf("UntypedLit.DefaultType(): malformed untyped constant %v, has nil BasicTypes!", untyp)
 			return nil
 		} else {

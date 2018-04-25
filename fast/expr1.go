@@ -38,7 +38,7 @@ func (c *Comp) litValue(value I) Lit {
 }
 
 func (c *Comp) exprUntypedLit(kind r.Kind, obj constant.Value) *Expr {
-	return &Expr{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: UntypedLit{kind, obj, &c.Universe.BasicTypes}}}
+	return &Expr{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: MakeUntypedLit(kind, obj, &c.Universe.BasicTypes)}}
 }
 
 func (c *Comp) exprValue(t xr.Type, value I) *Expr {

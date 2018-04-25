@@ -37,7 +37,11 @@ import (
 type Lit struct {
 	Kind       r.Kind // default type. matches Val.Kind() except for rune literals, where Kind == reflect.Int32
 	Val        constant.Value
-	BasicTypes *[]xr.Type
+	basicTypes *[]xr.Type
+}
+
+func MakeLit(kind r.Kind, val constant.Value, basicTypes *[]xr.Type) Lit {
+	return Lit{kind, val, basicTypes}
 }
 
 // pretty-print untyped constants

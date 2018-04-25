@@ -68,8 +68,8 @@ func (ce *Interp) addBuiltins() {
 
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	ce.DeclConst("false", nil, UntypedLit{r.Bool, constant.MakeBool(false), basicTypes})
-	ce.DeclConst("true", nil, UntypedLit{r.Bool, constant.MakeBool(true), basicTypes})
+	ce.DeclConst("false", nil, MakeUntypedLit(r.Bool, constant.MakeBool(false), basicTypes))
+	ce.DeclConst("true", nil, MakeUntypedLit(r.Bool, constant.MakeBool(true), basicTypes))
 
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
 	ce.DeclConst("nil", nil, nil)
@@ -95,6 +95,7 @@ func (ce *Interp) addBuiltins() {
 
 	ce.DeclEnvFunc("Interp", Function{callIdentity, ce.Comp.TypeOf(funI_I)})
 	ce.DeclEnvFunc("Eval", Function{callEval, ce.Comp.TypeOf(funI2_I)})
+	ce.DeclEnvFunc("EvalKeepUntyped", Function{callEvalKeepUntyped, ce.Comp.TypeOf(funI2_I)})
 	ce.DeclEnvFunc("EvalType", Function{callEvalType, ce.Comp.TypeOf(funI2_T)})
 	ce.DeclEnvFunc("MacroExpand", Function{callMacroExpand, tfunI2_Nb})
 	ce.DeclEnvFunc("MacroExpand1", Function{callMacroExpand1, tfunI2_Nb})
@@ -381,20 +382,45 @@ func funI2_I(interface{}, interface{}) interface{} {
 }
 
 func callEval(argv r.Value, interpv r.Value) r.Value {
+	// always convert untyped constants to their default type.
+	// To retrieve untyped constants, use EvalKeepUntyped()
+	return callEval3(argv, interpv, COptDefaults)
+}
+
+func callEvalKeepUntyped(argv r.Value, interpv r.Value) r.Value {
+	return callEval3(argv, interpv, COptKeepUntyped)
+}
+
+func callEval3(argv r.Value, interpv r.Value, opt CompileOptions) r.Value {
 	if !argv.IsValid() {
 		return argv
 	}
 	form := anyToAst(argv.Interface(), "Eval")
 	form = base.SimplifyAstForQuote(form, true)
 
-	interp := interpv.Interface().(*Interp)
+	ir := interpv.Interface().(*Interp)
 
-	// use Comp.Compile(), which always compiles, instead of interp.CompileAst():
+	// use Comp.Compile(), which always compiles, instead of Interp.CompileAst():
 	// the latter compiles only if option MacroExpandOnly is unset
-	c := interp.Comp
-	expr := c.Compile(form)
+	e := ir.Comp.Compile(form)
 
-	return interp.RunExpr1(expr)
+	if e == nil {
+		return base.None
+	}
+	e.CheckX1()
+
+	if opt&COptKeepUntyped == 0 && e.Untyped() {
+		e.ConstTo(e.DefaultType())
+	}
+
+	// do not use Interp.RunExpr() or Interp.RunExpr1()
+	// because they convert untyped constants to their default type
+	// if Interp.Comp.Globals.Options&OptKeepUntyped == 0
+	env := ir.PrepareEnv()
+
+	fun := e.AsXV(COptKeepUntyped)
+	v, _ := fun(env)
+	return v
 }
 
 // --- EvalType() ---
