@@ -286,6 +286,8 @@ Also,
 
 Only interpreted statements can be debugged: expressions and compiled code will be executed, but you cannot step into them.
 
+The debugger is quite new, and may have some minor glitches.
+
 ## Why it was created
 
 First of all, to experiment with Go :)
