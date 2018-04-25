@@ -241,7 +241,7 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	if xe.Untyped() {
 		xuntyp := xe.Value.(UntypedLit)
 		if ye.Const() {
-			// untyped << typed
+			// untyped << constant
 			yuntyp := MakeUntypedLit(r.Int, constant.MakeUint64(r.ValueOf(ye.Value).Uint()), &c.Universe.BasicTypes)
 			return c.ShiftUntyped(node, node.Op, xuntyp, yuntyp)
 		}
