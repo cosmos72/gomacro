@@ -142,16 +142,16 @@ Compared to compiled Go, gomacro supports three important extensions:
   This provides a handy arbitrary-precision calculator.
 
   Note: operations on large untyped integer constants are always exact,
-  while operations on large untyped float constants are implemented with go/constant.Value,
+  while operations on large untyped float constants are implemented with `go/constant.Value`,
   and are exact as long as both numerator and denominator are <= 5e1232.
 
-  Beyond that, go/constant.Value switches from `*big.Rat` to `*big.Float`
+  Beyond that, `go/constant.Value` switches from `*big.Rat` to `*big.Float`
   with precision = 512, which can accumulate rounding errors.
 
   If you need **exact** results, convert the untyped float constant to `*big.Rat`
   (see next item) before exceeding 5e1232.
 
-* untyped constants can be converted implicitly to *big.Int, *big.Rat and *big.Float. Examples:
+* untyped constants can be converted implicitly to `*big.Int`, `*big.Rat` and `*big.Float`. Examples:
     ```
 	import "math/big"
 	var i *big.Int = 1<<1000                 // exact - would overflow int
