@@ -132,9 +132,10 @@ func (ir *Interp) RunExpr1(e *Expr) r.Value {
 	if e == nil {
 		return None
 	}
-	env := ir.PrepareEnv()
-	fun := e.AsX1()
-	return fun(env)
+	// do NOT use e.AsX1(), it converts untyped constants to their default type => may overflow
+	e.CheckX1()
+	v, _ := ir.RunExpr(e)
+	return v
 }
 
 func (ir *Interp) RunExpr(e *Expr) (r.Value, []r.Value) {

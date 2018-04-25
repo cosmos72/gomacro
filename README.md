@@ -139,15 +139,31 @@ Compared to compiled Go, gomacro supports three important extensions:
 	gomacro> const c = 1<<100; c * c / 100000000000
 	{int 16069380442589902755419620923411626025222029937827}        // fast.UntypedLit
 	```
-  This provides a handy arbitrary-precision calculator
+  This provides a handy arbitrary-precision calculator.
+
+  Note: operations on large untyped integer constants are always exact,
+  while operations on large untyped float constants are implemented with go/constant.Value,
+  and are exact as long as both numerator and denominator are <= 5e1232.
+
+  Beyond that, go/constant.Value switches from `*big.Rat` to `*big.Float`
+  with precision = 512, which can accumulate rounding errors.
+
+  If you need **exact** results, convert the untyped float constant to `*big.Rat`
+  (see next item) before exceeding 5e1232.
+
 * untyped constants can be converted implicitly to *big.Int, *big.Rat and *big.Float. Examples:
     ```
 	import "math/big"
-	var i *big.Int = 1<<1000                 // would overflow int
-	var r *big.Rat = 1.000000000000000000001 // different from 1.0
-	var f *big.Float = 1e1234                // would overflow float64
+	var i *big.Int = 1<<1000                 // exact - would overflow int
+	var r *big.Rat = 1.000000000000000000001 // exact - different from 1.0
+	var s *big.Rat = 5e1232                  // exact - would overflow float64
+	var t *big.Rat = 1e1234                  // approximate, exceeds 5e1232
+	var f *big.Float = 1e646456992           // largest untyped float constant that is different from +Inf
     ```
   Note: every time such a conversion is evaluated, it creates a new value - no risk to modify the constant.
+
+  Be aware that converting a huge value to string, as typing `f` at REPL would do, can be very slow.
+
 * macros, quoting and quasiquoting (to be documented)
 
 and slightly relaxed checks:

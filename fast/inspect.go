@@ -40,7 +40,7 @@ func (ir *Interp) Inspect(src string) {
 		return
 	}
 	expr := c.Compile(c.Parse(src))
-	val := ir.RunExpr1(expr)
+	val, _ := ir.RunExpr(expr)
 	xtyp := expr.Type
 	var typ r.Type
 	if xtyp != nil {
