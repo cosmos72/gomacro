@@ -134,9 +134,9 @@ Compared to compiled Go, gomacro supports three extensions:
 * untyped constants can be manipulated directly at REPL. Examples:
     ```
 	gomacro> 1<<100
-	{int 1267650600228229401496703205376}   // fast.UntypedLit
+	{int 1267650600228229401496703205376}	// untyped.Lit
 	gomacro> const c = 1<<100; c * c / 100000000000
-	{int 16069380442589902755419620923411626025222029937827}        // fast.UntypedLit
+	{int 16069380442589902755419620923411626025222029937827}	// untyped.Lit
 	```
   This provides a handy arbitrary-precision calculator.
 
