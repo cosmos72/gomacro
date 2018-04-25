@@ -81,9 +81,10 @@ func newTopInterp(path string) *Interp {
 
 	// no need to scavenge for Builtin, Function,  Macro and UntypedLit fields and methods.
 	// actually, making them opaque helps securing against malicious interpreted code.
-	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfPtrImport, rtypeOfMacro, rtypeOfUntypedLit} {
-		compGlobals.opaqueType(rtype)
+	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfPtrImport, rtypeOfMacro} {
+		compGlobals.opaqueType(rtype, "fast")
 	}
+	compGlobals.opaqueType(rtypeOfUntypedLit, "untyped")
 
 	envGlobals.TopEnv = ce.env
 	ce.addBuiltins()

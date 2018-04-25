@@ -55,21 +55,26 @@ func nop() {
 
 var valueOfNopFunc = r.ValueOf(nop)
 
-// opaqueType returns an xr.Type with the same name and package as r.TypeOf(val) but without fields or methods
-func (g *CompGlobals) opaqueType(rtype r.Type) xr.Type {
+// opaqueType returns an xr.Type corresponding to rtype but without fields or methods and with the given pkgpath
+func (g *CompGlobals) opaqueType(rtype r.Type, pkgpath string) xr.Type {
+	return g.opaqueNamedType(rtype, rtype.Name(), pkgpath)
+}
+
+// opaqueNamedType returns an xr.Type corresponding to rtype but without fields or methods and with the given name and pkgpath
+func (g *CompGlobals) opaqueNamedType(rtype r.Type, name string, pkgpath string) xr.Type {
 	v := g.Universe
 	switch k := rtype.Kind(); k {
 	case r.Ptr:
-		telem := g.opaqueType(rtype.Elem())
+		telem := g.opaqueType(rtype.Elem(), pkgpath)
 		t := v.PtrTo(telem)
 		v.ReflectTypes[rtype] = t
 		return t
 	case r.Struct:
 		break
 	default:
-		g.Errorf("internal error: unimplemented opaqueTypeOf for kind=%v, expecting kind=Struct", k)
+		g.Errorf("internal error: unimplemented opaqueNamedType for kind=%v, expecting kind=Struct", k)
 	}
-	t := v.NamedOf(rtype.Name(), "fast", r.Struct)
+	t := v.NamedOf(name, pkgpath, r.Struct)
 	t.SetUnderlying(v.TypeOf(struct{}{}))
 	t.UnsafeForceReflectType(rtype)
 	v.ReflectTypes[rtype] = t // also cache Type in g.Universe.ReflectTypes

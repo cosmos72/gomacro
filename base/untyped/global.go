@@ -33,7 +33,7 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-// UntypedLit represents an untyped literal value, i.e. an untyped constant
+// Lit represents an untyped literal value, i.e. an untyped constant
 type Lit struct {
 	Kind       r.Kind // default type. matches Val.Kind() except for rune literals, where Kind == reflect.Int32
 	Val        constant.Value
