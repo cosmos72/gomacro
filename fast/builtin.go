@@ -35,6 +35,7 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -247,8 +248,7 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	im := c.Expr1(node.Args[1], nil)
 	if re.Untyped() {
 		if im.Untyped() {
-			re.ConstTo(c.TypeOfFloat64())
-			im.ConstTo(c.TypeOfFloat64())
+			return compileComplexUntyped(c, sym, node, re.Value.(UntypedLit), im.Value.(UntypedLit))
 		} else {
 			re.ConstTo(im.Type)
 		}
@@ -267,11 +267,11 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		kim = r.Float64
 	}
 	if kre != r.Float64 {
-		c.Errorf("invalid operation: %v (arguments have type %v, expected floating-point)",
+		c.Errorf("invalid operation: %v (arguments have type %v, expected integer or floating-point)",
 			node, re.Type)
 	}
 	if kim != r.Float64 {
-		c.Errorf("invalid operation: %v (arguments have type %v, expected floating-point)",
+		c.Errorf("invalid operation: %v (arguments have type %v, expected integer or floating-point)",
 			node, im.Type)
 	}
 	tin := re.Type
@@ -289,11 +289,48 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		return c.badBuiltinCallArgType(sym.Name, node.Args[0], tin, "floating point")
 	}
 	touts := []xr.Type{tout}
-	t := c.Universe.FuncOf([]xr.Type{tin}, touts, false)
-	sym.Type = t
-	fun := exprLit(Lit{Type: t, Value: call}, &sym)
+	tfun := c.Universe.FuncOf([]xr.Type{tin}, touts, false)
+	sym.Type = tfun
+	fun := exprLit(Lit{Type: tfun, Value: call}, &sym)
 	// complex() of two constants is constant: it can be computed at compile time
-	return &Call{Fun: fun, Args: []*Expr{re, im}, Const: re.Const() && im.Const(), OutTypes: touts}
+	return &Call{Fun: fun, Args: []*Expr{re, im}, OutTypes: touts, Const: re.Const() && im.Const()}
+}
+
+var complexImagOne = constant.MakeFromLiteral("1i", token.IMAG, 0)
+
+func compileComplexUntyped(c *Comp, sym Symbol, node *ast.CallExpr, re UntypedLit, im UntypedLit) *Call {
+	checkComplexUntypedArg(c, node, re, "first")
+	checkComplexUntypedArg(c, node, im, "second")
+	rev := re.Val
+	imv := constant.BinaryOp(im.Val, token.MUL, complexImagOne)
+	val := MakeUntypedLit(r.Complex128, constant.BinaryOp(rev, token.ADD, imv), &c.Universe.BasicTypes)
+	touts := []xr.Type{c.TypeOfUntypedLit()}
+	tfun := c.Universe.FuncOf(nil, touts, false)
+	sym.Type = tfun
+	fun := exprLit(Lit{Type: tfun, Value: val}, &sym)
+	// complex() of two untyped constants is both untyped and constant: it can be computed at compile time
+	return &Call{Fun: fun, Args: nil, OutTypes: touts, Const: true}
+}
+
+func checkComplexUntypedArg(c *Comp, node *ast.CallExpr, arg UntypedLit, label string) {
+	switch arg.Kind {
+	case r.Int, r.Int32 /*rune*/, r.Float64:
+		return
+	case r.Complex128:
+		im := constant.Imag(arg.Val)
+		switch im.Kind() {
+		case constant.Int:
+			if x, exact := constant.Int64Val(im); x == 0 && exact {
+				return
+			}
+		case constant.Float:
+			if x, exact := constant.Float64Val(im); x == 0.0 && exact {
+				return
+			}
+		}
+	}
+	c.Errorf("invalid operation: %v (first argument is untyped %v, expected untyped integer, untyped float, or untyped complex with zero imaginary part)",
+		node, arg)
 }
 
 // --- copy() ---
@@ -677,6 +714,9 @@ func callImag64(val complex128) float64 {
 func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	arg := c.Expr1(node.Args[0], nil)
 	if arg.Const() {
+		if arg.Untyped() {
+			return compileRealImagUntyped(c, sym, node, arg.Value.(UntypedLit))
+		}
 		arg.ConstTo(arg.DefaultType())
 	}
 	tin := arg.Type
@@ -705,6 +745,26 @@ func compileRealImag(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	fun := exprLit(Lit{Type: t, Value: call}, &sym)
 	// real() and imag() of a constant are constants: they can be computed at compile time
 	return newCall1(fun, arg, arg.Const(), tout)
+}
+
+func compileRealImagUntyped(c *Comp, sym Symbol, node *ast.CallExpr, arg UntypedLit) *Call {
+	val := arg.Val
+	if sym.Name == "real" {
+		val = constant.Real(val)
+	} else {
+		val = constant.Imag(val)
+	}
+	// convert constant.Value result to UntypedLit of appropriate kind
+	kind := untyped.ConstantKindToUntypedLitKind(val.Kind())
+	arg = MakeUntypedLit(kind, val, &c.Universe.BasicTypes)
+
+	touts := []xr.Type{c.TypeOfUntypedLit()}
+	tfun := c.Universe.FuncOf(nil, touts, false)
+	sym.Type = tfun
+
+	fun := exprLit(Lit{Type: tfun, Value: arg}, &sym)
+	// real() and imag() of untyped constant is both untyped and constant: it can be computed at compile time
+	return &Call{Fun: fun, Args: nil, OutTypes: touts, Const: true}
 }
 
 var nilInterface = r.Zero(base.TypeOfInterface)
@@ -790,6 +850,8 @@ func (c *Comp) call_builtin(call *Call) I {
 	}
 	var ret I
 	switch fun := call.Fun.Value.(type) {
+	case UntypedLit: // complex(), real(), imag() of untyped constants
+		ret = fun
 	case func(float32, float32) complex64: // complex
 		arg0fun := argfuns[0].(func(*Env) float32)
 		arg1fun := argfuns[1].(func(*Env) float32)

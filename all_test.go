@@ -27,6 +27,7 @@ package main
 
 import (
 	"go/ast"
+	"go/constant"
 	"go/token"
 	"math/big"
 	r "reflect"
@@ -35,6 +36,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/untyped"
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/fast"
 	mp "github.com/cosmos72/gomacro/parser"
@@ -48,6 +50,7 @@ const (
 	S TestFor = 1 << iota // set option OptDebugSleepOnSwitch
 	C                     // test for classic interpreter
 	F                     // test for fast interpreter
+	U                     // test for fast interpreter, returning untyped constant
 	A = C | F             // test for both interpreters
 )
 
@@ -110,6 +113,11 @@ func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 		ir.Comp.Options |= OptDebugSleepOnSwitch
 	} else {
 		ir.Comp.Options &^= OptDebugSleepOnSwitch
+	}
+	if test.testfor&U != 0 {
+		ir.Comp.Options |= OptKeepUntyped
+	} else {
+		ir.Comp.Options &^= OptKeepUntyped
 	}
 
 	var rets []r.Value
@@ -350,10 +358,24 @@ var testcases = []TestCase{
 	TestCase{F, "const_4", "const c4 = c3/3; c4", (0.1 + 0.2) / 3, nil},
 
 	TestCase{F, "const_complex_1", "const c5 = complex(c3, c4); c5", 0.3 + 0.1i, nil},
+	TestCase{F | U, "untyped_const_complex_1", "c5",
+		untyped.MakeLit(
+			r.Complex128,
+			constant.BinaryOp(
+				constant.MakeFromLiteral("0.3", token.FLOAT, 0),
+				token.ADD,
+				constant.MakeFromLiteral("0.1i", token.IMAG, 0)),
+			nil),
+		nil,
+	},
 
 	TestCase{F, "untyped_1", "2.0 >> 1", 1, nil},
 	TestCase{A, "untyped_2", "1/2", 0, nil},
 	TestCase{A, "untyped_unary", "-+^6", -+^6, nil},
+	TestCase{F | U, "untyped_const_large", "1<<100",
+		untyped.MakeLit(r.Int, constant.Shift(constant.MakeInt64(1), token.SHL, 100), nil),
+		nil,
+	},
 
 	TestCase{A, "iota_1", "const c5 = iota^7; c5", 7, nil},
 	TestCase{A, "iota_2", "const ( c6 = iota+6; c7=iota+6 ); c6", 6, nil},
@@ -647,6 +669,23 @@ var testcases = []TestCase{
 	TestCase{A, "builtin_imag_2", "imag(cplx)", imag(complex64(1.5 + 0.25i)), nil},
 	TestCase{A, "builtin_complex_1", "complex(0,1)", complex(0, 1), nil},
 	TestCase{A, "builtin_complex_2", "v6 = 0.1; complex(v6,-v6)", complex(float32(0.1), -float32(0.1)), nil},
+
+	TestCase{F | U, "untyped_builtin_real_1", "real(0.5+1.75i)",
+		untyped.MakeLit(r.Float64, constant.MakeFloat64(0.5), nil), // 0.5 is exactly representable by float64
+		nil},
+	TestCase{F | U, "untyped_builtin_imag_1", "imag(1.5+0.25i)",
+		untyped.MakeLit(r.Float64, constant.MakeFloat64(0.25), nil), // 0.25 is exactly representable by float64
+		nil},
+	TestCase{F | U, "untyped_builtin_complex_1", "complex(1, 2)",
+		untyped.MakeLit(
+			r.Complex128,
+			constant.BinaryOp(
+				constant.MakeInt64(1),
+				token.ADD,
+				constant.MakeFromLiteral("2i", token.IMAG, 0)),
+			nil),
+		nil,
+	},
 
 	TestCase{A, "time_duration_0", `var td time.Duration = 1; td`, time.Duration(1), nil},
 	TestCase{A, "time_duration_1", `- td`, time.Duration(-1), nil},
@@ -945,11 +984,22 @@ func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interfa
 		return
 	}
 	actual := actualv.Interface()
+	if actual == nil || expected == nil {
+		if actual != nil || expected != nil {
+			c.fail(t, actual, expected)
+		}
+		return
+	}
 	if !r.DeepEqual(actual, expected) {
 		if r.TypeOf(actual) == r.TypeOf(expected) {
 			if actualNode, ok := actual.(ast.Node); ok {
 				if expectedNode, ok := expected.(ast.Node); ok {
 					c.compareAst(t, ToAst(actualNode), ToAst(expectedNode))
+					return
+				}
+			} else if actualUntyped, ok := actual.(untyped.Lit); ok {
+				if expectedUntyped, ok := expected.(untyped.Lit); ok {
+					c.compareUntyped(t, actualUntyped, expectedUntyped)
 					return
 				}
 			} else if actualv.Kind() == r.Chan {
@@ -995,6 +1045,13 @@ func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 				return
 			}
 		}
+	}
+	c.fail(t, actual, expected)
+}
+
+func (c *TestCase) compareUntyped(t *testing.T, actual untyped.Lit, expected untyped.Lit) {
+	if actual.Kind == expected.Kind && actual.Val.Kind() == expected.Val.Kind() && constant.Compare(actual.Val, token.EQL, expected.Val) {
+		return
 	}
 	c.fail(t, actual, expected)
 }

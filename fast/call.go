@@ -133,7 +133,14 @@ func (c *Comp) call_any(call *Call) *Expr {
 	// but call_builtin does not know about them
 	if call.Fun.Const() {
 		if call.Builtin {
-			expr.Fun = c.call_builtin(call)
+			fun := c.call_builtin(call)
+			if _, untyped := fun.(UntypedLit); untyped {
+				// complex(), real(), imag() of untyped constants produce an untyped constant, not a function
+				expr.Value = fun
+				return expr
+			} else {
+				expr.Fun = fun
+			}
 		} else {
 			// normal calls do not expect function to be a constant.
 			call.Fun.WithFun()
