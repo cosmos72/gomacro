@@ -106,15 +106,7 @@ func (ir *Interp) ShowAsPackage() {
 		sort.Strings(keys)
 		for _, k := range keys {
 			if bind := binds[k]; bind != nil {
-				var v r.Value
-				if bind.Const() {
-					v = r.ValueOf(bind.Value)
-				} else {
-					expr := c.Symbol(bind.AsSymbol(0))
-					// no need for Interp.RunExpr(): expr is a local variable,
-					// not a statement or a function call that may be stopped by the debugger
-					v = expr.AsX1()(env)
-				}
+				v := bind.RuntimeValue(c, env)
 				showValue(out, k, v, bind.Type, stringer)
 			}
 		}
@@ -133,11 +125,12 @@ func (ir *Interp) ShowImportedPackage(name string) {
 		ir.Comp.Warnf("not an imported package: %q", name)
 		return
 	}
-	imp.Show(ir.Comp.Stdout)
+	imp.Show(ir.Comp.CompGlobals)
 }
 
-func (imp *Import) Show(out io.Writer) {
+func (imp *Import) Show(g *CompGlobals) {
 	stringer := typestringer(imp.Path)
+	out := g.Stdout
 	if binds := imp.Binds; len(binds) > 0 {
 		base.ShowPackageHeader(out, imp.Name, imp.Path, "binds")
 
@@ -148,15 +141,15 @@ func (imp *Import) Show(out io.Writer) {
 			i++
 		}
 		sort.Strings(keys)
+		c := &Comp{
+			// incomplete, but enough for bind.RuntimeValue
+			CompGlobals: g,
+			CompBinds:   imp.CompBinds,
+		}
+		env := imp.env
 		for _, k := range keys {
 			bind := imp.Binds[k]
-			var v r.Value
-			if bind.Const() {
-				v = r.ValueOf(bind.Value)
-			} else {
-				idx := bind.Desc.Index()
-				v = imp.Vals[idx]
-			}
+			v := bind.RuntimeValue(c, env)
 			showValue(out, k, v, bind.Type, stringer)
 		}
 		fmt.Fprintln(out)

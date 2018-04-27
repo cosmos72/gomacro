@@ -26,7 +26,6 @@
 package debug
 
 import (
-	r "reflect"
 	"sort"
 
 	"github.com/cosmos72/gomacro/fast"
@@ -71,23 +70,12 @@ func (d *Debugger) showEnv(env *fast.Env) {
 		return binds[i].Name < binds[j].Name
 	})
 	for _, bind := range binds {
-		value := getBindValue(c, env, bind)
+		value := bind.RuntimeValue(c, env)
 		g.Fprintf(g.Stdout, "%s\t= %v\t// %v\n", bind.Name, value, bind.Type)
 	}
 }
 
 // =============================================================================
-
-func getBindValue(c *fast.Comp, env *fast.Env, bind *fast.Bind) r.Value {
-	e := c.Symbol(bind.AsSymbol(0))
-	var value r.Value
-	if e.Const() {
-		value = r.ValueOf(e.Value)
-	} else {
-		value = e.AsX1()(env)
-	}
-	return value
-}
 
 func (d *Debugger) showBinds(c *fast.Comp, env *fast.Env, binds []*fast.Bind) {
 	g := d.globals
@@ -100,7 +88,7 @@ func (d *Debugger) showBinds(c *fast.Comp, env *fast.Env, binds []*fast.Bind) {
 }
 
 func (d *Debugger) showBind(c *fast.Comp, env *fast.Env, bind *fast.Bind) {
-	value := getBindValue(c, env, bind)
+	value := bind.RuntimeValue(c, env)
 	var ivalue interface{} = value
 	if !value.IsValid() {
 		ivalue = "nil"

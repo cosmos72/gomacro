@@ -92,19 +92,13 @@ func (lit *Lit) UntypedKind() r.Kind {
 	}
 }
 
-func (lit *Lit) ReflectValue() r.Value {
-	if lit.Untyped() {
-		// do not modify original Lit type
-		tmp := *lit
-		lit = &tmp
-		lit.ConstTo(lit.DefaultType())
-	}
+func (lit *Lit) ConstValue() r.Value {
 	v := r.ValueOf(lit.Value)
 	if lit.Type != nil {
 		rtype := lit.Type.ReflectType()
 		if !v.IsValid() {
 			v = r.Zero(rtype)
-		} else if v.Type() != rtype {
+		} else if !lit.Untyped() && v.Type() != rtype {
 			v = v.Convert(rtype)
 		}
 	}
@@ -309,16 +303,32 @@ func (bind *Bind) Const() bool {
 	return bind.Desc.Class() == ConstBind
 }
 
+// return bind value for constant binds.
+// if bind is untyped constant, returns UntypedLit wrapped in reflect.Value
 func (bind *Bind) ConstValue() r.Value {
 	if !bind.Const() {
 		return Nil
 	}
-	return bind.Lit.ReflectValue()
+	return bind.Lit.ConstValue()
 }
 
-func (c *Comp) BindUntyped(value UntypedLit) *Bind {
-	value = MakeUntypedLit(value.Kind, value.Val, &c.Universe.BasicTypes)
-	return &Bind{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: value}, Desc: ConstBindDescriptor}
+// return bind value.
+// if bind is untyped constant, returns UntypedLit wrapped in reflect.Value
+func (bind *Bind) RuntimeValue(c *Comp, env *Env) r.Value {
+	class := bind.Desc.Class()
+	var v r.Value
+	switch class {
+	case ConstBind:
+		v = bind.Lit.ConstValue()
+	case IntBind:
+		expr := c.intSymbol(bind.AsSymbol(0))
+		// no need for Interp.RunExpr(): expr is a local variable,
+		// not a statement or a function call that may be stopped by the debugger
+		v = expr.AsX1()(env)
+	default:
+		v = env.Vals[bind.Desc.Index()]
+	}
+	return v
 }
 
 func (bind *Bind) AsVar(upn int, opt PlaceOption) *Var {
@@ -334,6 +344,11 @@ func (bind *Bind) AsVar(upn int, opt PlaceOption) *Var {
 
 func (bind *Bind) AsSymbol(upn int) *Symbol {
 	return &Symbol{Bind: *bind, Upn: upn}
+}
+
+func (c *Comp) BindUntyped(value UntypedLit) *Bind {
+	value = MakeUntypedLit(value.Kind, value.Val, &c.Universe.BasicTypes)
+	return &Bind{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: value}, Desc: ConstBindDescriptor}
 }
 
 type NamedType struct {
