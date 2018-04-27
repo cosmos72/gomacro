@@ -32,7 +32,6 @@ package fast
 
 import (
 	r "reflect"
-
 	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )

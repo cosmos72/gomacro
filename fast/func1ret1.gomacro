@@ -102,8 +102,8 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	kret0 := t.Out(0).Kind()
 
 	indexes := &[2]int{
-		m.parambinds[0].Desc.Index(),
-		m.resultbinds[0].Desc.Index(),
+		m.Param[0].Desc.Index(),
+		m.Result[0].Desc.Index(),
 	}
 	var ret func(*Env) r.Value
 
