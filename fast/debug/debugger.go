@@ -47,7 +47,8 @@ continue        resume normal execution
 finish          run until the end of current function
 next            execute a single statement, skipping functions
 step            execute a single statement, entering functions
-// abbreviations are allowed if unambiguous.
+vars            show local variables
+// abbreviations are allowed if unambiguous. enter repeats last command.
 `)
 	/*
 		not implemented yet:

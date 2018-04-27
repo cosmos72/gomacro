@@ -26,9 +26,6 @@
 package debug
 
 import (
-	r "reflect"
-
-	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/fast"
 )
 
@@ -64,55 +61,17 @@ func (d *Debugger) showFunctionCall(env *fast.Env) {
 		return
 	}
 	m := c.FuncMaker
-	params := getBindValues(c, env, m.Param)
-	results := getBindValues(c, env, m.Result)
 
 	g.Fprintf(g.Stdout, "%p\tfunc %s(", env, m.Name)
-	showBinds(g, m.Param, params)
+	d.showBinds(c, env, m.Param)
 	g.Fprintf(g.Stdout, ") ")
-	if len(results) > 1 {
+	if len(m.Result) > 1 {
 		g.Fprintf(g.Stdout, "(")
 	}
-	showBinds(g, m.Result, results)
-	if len(results) > 1 {
+	d.showBinds(c, env, m.Result)
+	if len(m.Result) > 1 {
 		g.Fprintf(g.Stdout, ")\n")
 	} else {
 		g.Fprintf(g.Stdout, "\n")
-	}
-}
-
-func getBindValues(c *fast.Comp, env *fast.Env, binds []*fast.Bind) []r.Value {
-	values := make([]r.Value, len(binds))
-	for i, bind := range binds {
-		values[i] = getBindValue(c, env, bind)
-	}
-	return values
-}
-
-func getBindValue(c *fast.Comp, env *fast.Env, bind *fast.Bind) r.Value {
-	e := c.Symbol(bind.AsSymbol(0))
-	var value r.Value
-	if e.Const() {
-		value = r.ValueOf(e.Value)
-	} else {
-		value = e.AsX1()(env)
-	}
-	return value
-}
-
-func showBinds(g *base.Globals, binds []*fast.Bind, values []r.Value) {
-	for i, bind := range binds {
-		if i != 0 {
-			g.Fprintf(g.Stdout, ", ")
-		}
-		showBind(g, bind, values[i])
-	}
-}
-
-func showBind(g *base.Globals, bind *fast.Bind, value r.Value) {
-	if name := bind.Name; len(name) != 0 {
-		g.Fprintf(g.Stdout, "%s=%v <%v>", name, value, bind.Type)
-	} else {
-		g.Fprintf(g.Stdout, "%v <%v>", value, bind.Type)
 	}
 }

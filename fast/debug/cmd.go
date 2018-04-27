@@ -64,6 +64,7 @@ var cmds = Cmds{
 	'n': Cmd{"next", (*Debugger).cmdNext},
 	'p': Cmd{"print", (*Debugger).cmdPrint},
 	's': Cmd{"step", (*Debugger).cmdStep},
+	'v': Cmd{"vars", (*Debugger).cmdVars},
 }
 
 // execute one of the debugger commands
@@ -139,4 +140,9 @@ func (d *Debugger) cmdPrint(arg string) DebugOp {
 
 func (d *Debugger) cmdStep(arg string) DebugOp {
 	return DebugStep
+}
+
+func (d *Debugger) cmdVars(arg string) DebugOp {
+	d.Vars()
+	return DebugRepl
 }
