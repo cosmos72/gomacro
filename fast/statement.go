@@ -563,7 +563,7 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 		return
 	}
 
-	resultBinds := cinfo.Results
+	resultBinds := cinfo.Result
 	resultExprs := node.Results
 	n := len(resultBinds)
 	switch len(resultExprs) {

@@ -34,13 +34,13 @@ import (
 )
 
 type funcMaker struct {
+	Name      string
 	nbind     int
 	nintbind  int
 	Param     []*Bind
 	Result    []*Bind
 	resultfun []I
 	funcbody  func(*Env)
-	FuncName  string
 }
 
 // DeclFunc compiles a function, macro or method declaration
@@ -84,7 +84,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 		funcbind = c.AddBind(funcname, FuncBind, t)
 	}
 	cf := NewComp(c, nil)
-	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
+	info, resultfuns := cf.funcBinds(funcname, functype, t, paramnames, resultnames)
 	cf.Func = info
 
 	if body := funcdecl.Body; body != nil {
@@ -180,7 +180,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 	methodindex, methods := c.methodAdd(funcdecl, t)
 
 	cf := NewComp(c, nil)
-	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
+	info, resultfuns := cf.funcBinds(funcdecl.Name.Name, functype, t, paramnames, resultnames)
 	cf.Func = info
 
 	body := funcdecl.Body
@@ -225,7 +225,7 @@ func (c *Comp) FuncLit(funclit *ast.FuncLit) *Expr {
 	t, paramnames, resultnames := c.TypeFunction(functype)
 
 	cf := NewComp(c, nil)
-	info, resultfuns := cf.funcBinds(functype, t, paramnames, resultnames)
+	info, resultfuns := cf.funcBinds("", functype, t, paramnames, resultnames)
 	cf.Func = info
 
 	body := funclit.Body
@@ -244,7 +244,7 @@ func (c *Comp) FuncLit(funclit *ast.FuncLit) *Expr {
 }
 
 // prepare the function parameter binds, result binds and FuncInfo
-func (c *Comp) funcBinds(functype *ast.FuncType, t xr.Type, paramnames, resultnames []string) (info *FuncInfo, resultfuns []I) {
+func (c *Comp) funcBinds(funcname string, functype *ast.FuncType, t xr.Type, paramnames, resultnames []string) (info *FuncInfo, resultfuns []I) {
 
 	parambinds := c.funcParamBinds(functype, t, paramnames)
 
@@ -256,8 +256,9 @@ func (c *Comp) funcBinds(functype *ast.FuncType, t xr.Type, paramnames, resultna
 		}
 	}
 	return &FuncInfo{
-		Params:       parambinds,
-		Results:      resultbinds,
+		Name:         funcname,
+		Param:        parambinds,
+		Result:       resultbinds,
 		NamedResults: namedresults,
 	}, resultfuns
 }
@@ -320,14 +321,17 @@ func (c *Comp) funcResultBinds(functype *ast.FuncType, t xr.Type, names []string
 }
 
 func (c *Comp) funcMaker(info *FuncInfo, resultfuns []I, funcbody func(*Env)) *funcMaker {
-	return &funcMaker{
+	m := &funcMaker{
+		Name:      info.Name,
 		nbind:     c.BindNum,
 		nintbind:  c.IntBindNum,
-		Param:     info.Params,
-		Result:    info.Results,
+		Param:     info.Param,
+		Result:    info.Result,
 		resultfun: resultfuns,
 		funcbody:  funcbody,
 	}
+	c.FuncMaker = m // store it for debugger command 'backtrace'
+	return m
 }
 
 // actually create the function

@@ -442,8 +442,9 @@ func (l *LoopInfo) HasLabel(label string) bool {
 }
 
 type FuncInfo struct {
-	Params       []*Bind
-	Results      []*Bind
+	Name         string
+	Param        []*Bind
+	Result       []*Bind
 	NamedResults bool
 }
 
@@ -566,7 +567,7 @@ type Comp struct {
 	Loop      *LoopInfo // != nil when compiling a for or switch
 	Func      *FuncInfo // != nil when compiling a function
 	Outer     *Comp
-	FuncMaker *funcMaker // used by debugger command 'backtrace'
+	FuncMaker *funcMaker // used by debugger command 'backtrace' to obtain function name, type and binds for arguments and results
 }
 
 const (

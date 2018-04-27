@@ -86,6 +86,7 @@ func (d *Debugger) Cmd(src string) DebugOp {
 }
 
 func (d *Debugger) cmdBacktrace(arg string) DebugOp {
+	d.Backtrace(arg)
 	return DebugRepl
 }
 
@@ -103,7 +104,7 @@ func (d *Debugger) cmdFinish(arg string) DebugOp {
 }
 
 func (d *Debugger) cmdHelp(arg string) DebugOp {
-	d.ShowHelp()
+	d.Help()
 	return DebugRepl
 }
 

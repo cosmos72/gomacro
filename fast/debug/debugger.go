@@ -32,20 +32,21 @@ import (
 	"github.com/cosmos72/gomacro/base"
 )
 
-func (d *Debugger) ShowHelp() {
+func (d *Debugger) Help() {
 	g := d.globals
 	g.Fprintf(g.Stdout, "%s", `// debugger commands:
-env [NAME]    show available functions, variables and constants
-              in current scope, or from imported package NAME
-?             show this help
-help          show this help
-inspect EXPR  inspect expression interactively
-print   EXPR  print expression, statement or declaration
-list          show current source code
-continue      resume normal execution
-finish        run until the end of current function
-next          execute a single statement, skipping functions
-step          execute a single statement, entering functions
+backtrace       show call stack
+env [NAME]      show available functions, variables and constants
+                in current scope, or from imported package NAME
+?               show this help
+help            show this help
+inspect EXPR    inspect expression interactively
+print   EXPR    print expression, statement or declaration
+list            show current source code
+continue        resume normal execution
+finish          run until the end of current function
+next            execute a single statement, skipping functions
+step            execute a single statement, entering functions
 // abbreviations are allowed if unambiguous.
 `)
 	/*

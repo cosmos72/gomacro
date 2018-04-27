@@ -250,13 +250,14 @@ func (env *Env) MarkUsedByClosure() {
 	}
 }
 
-// FreeEnv tells the interpreter that given Env is no longer needed.
+// FreeEnv tells the interpreter that given nested *Env is no longer needed.
 func (env *Env) FreeEnv() {
 	g := env.ThreadGlobals
 	g.CurrEnv = env.Outer
 	env.freeEnv(g)
 }
 
+// freeEnv4Func tells the interpreter that given function body *Env is no longer needed.
 func (env *Env) freeEnv4Func() {
 	g := env.ThreadGlobals
 	g.CurrEnv = env.Caller
