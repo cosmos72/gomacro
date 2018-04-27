@@ -28,6 +28,8 @@ package fast
 import (
 	r "reflect"
 	"unsafe"
+
+	"github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) Resolve(name string) *Symbol {
@@ -579,78 +581,85 @@ func (c *Comp) symbol(sym *Symbol) *Expr {
 	return &Expr{Lit: Lit{Type: sym.Type}, Fun: fun, Sym: sym}
 }
 
+func (bind *Bind) intBind(o *base.Output) *Expr {
+	idx := bind.Desc.Index()
+	var fun I
+	switch bind.Type.Kind() {
+	case r.Bool:
+		fun = func(env *Env) bool {
+			return *(*bool)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Int:
+		fun = func(env *Env) int {
+			return *(*int)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Int8:
+		fun = func(env *Env) int8 {
+			return *(*int8)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Int16:
+		fun = func(env *Env) int16 {
+			return *(*int16)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Int32:
+		fun = func(env *Env) int32 {
+			return *(*int32)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Int64:
+		fun = func(env *Env) int64 {
+			return *(*int64)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Uint:
+		fun = func(env *Env) uint {
+			return *(*uint)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Uint8:
+		fun = func(env *Env) uint8 {
+			return *(*uint8)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Uint16:
+		fun = func(env *Env) uint16 {
+			return *(*uint16)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Uint32:
+		fun = func(env *Env) uint32 {
+			return *(*uint32)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Uint64:
+		fun = func(env *Env) uint64 {
+			return env.Ints[idx]
+		}
+	case r.Uintptr:
+		fun = func(env *Env) uintptr {
+			return *(*uintptr)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Float32:
+		fun = func(env *Env) float32 {
+			return *(*float32)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Float64:
+		fun = func(env *Env) float64 {
+			return *(*float64)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	case r.Complex64:
+		fun = func(env *Env) complex64 {
+			return *(*complex64)(unsafe.Pointer(&env.Ints[idx]))
+		}
+	default:
+		o.Errorf("unsupported symbol type, cannot use for optimized read: %s %s <%v>", bind.Desc.Class(), bind.Name, bind.Type)
+		return nil
+	}
+	return &Expr{Lit: Lit{Type: bind.Type}, Fun: fun, Sym: bind.AsSymbol(0)}
+}
+
 func (c *Comp) intSymbol(sym *Symbol) *Expr {
+	upn := sym.Upn
 	k := sym.Type.Kind()
 	idx := sym.Desc.Index()
-	upn := sym.Upn
 	var fun I
 	switch upn {
 	case 0:
-		switch k {
-		case r.Bool:
-			fun = func(env *Env) bool {
-				return *(*bool)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Int:
-			fun = func(env *Env) int {
-				return *(*int)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Int8:
-			fun = func(env *Env) int8 {
-				return *(*int8)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Int16:
-			fun = func(env *Env) int16 {
-				return *(*int16)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Int32:
-			fun = func(env *Env) int32 {
-				return *(*int32)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Int64:
-			fun = func(env *Env) int64 {
-				return *(*int64)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Uint:
-			fun = func(env *Env) uint {
-				return *(*uint)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Uint8:
-			fun = func(env *Env) uint8 {
-				return *(*uint8)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Uint16:
-			fun = func(env *Env) uint16 {
-				return *(*uint16)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Uint32:
-			fun = func(env *Env) uint32 {
-				return *(*uint32)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Uint64:
-			fun = func(env *Env) uint64 {
-				return env.Ints[idx]
-			}
-		case r.Uintptr:
-			fun = func(env *Env) uintptr {
-				return *(*uintptr)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Float32:
-			fun = func(env *Env) float32 {
-				return *(*float32)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Float64:
-			fun = func(env *Env) float64 {
-				return *(*float64)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		case r.Complex64:
-			fun = func(env *Env) complex64 {
-				return *(*complex64)(unsafe.Pointer(&env.Ints[idx]))
-			}
-		default:
-			c.Errorf("unsupported symbol type, cannot use for optimized read: %s %s <%v>", sym.Desc.Class(), sym.Name, sym.Type)
-			return nil
-		}
+		return sym.Bind.intBind(&c.Globals.Output)
 	case 1:
 		switch k {
 		case r.Bool:
@@ -713,9 +722,6 @@ func (c *Comp) intSymbol(sym *Symbol) *Expr {
 			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Ints[idx]))
 			}
-		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
-			return nil
 		}
 	case 2:
 		switch k {
@@ -779,9 +785,6 @@ func (c *Comp) intSymbol(sym *Symbol) *Expr {
 			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.Ints[idx]))
 			}
-		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
-			return nil
 		}
 	default:
 		switch k {
@@ -860,10 +863,10 @@ func (c *Comp) intSymbol(sym *Symbol) *Expr {
 				env = outerEnv3(env, upn)
 				return *(*complex64)(unsafe.Pointer(&env.Ints[idx]))
 			}
-		default:
-			c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
-			return nil
 		}
+	}
+	if fun == nil {
+		c.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 	}
 	return &Expr{Lit: Lit{Type: sym.Type}, Fun: fun, Sym: sym}
 }

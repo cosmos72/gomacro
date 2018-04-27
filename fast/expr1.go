@@ -45,6 +45,13 @@ func (c *Comp) exprValue(t xr.Type, value I) *Expr {
 	if t == nil {
 		t = c.TypeOf(value)
 	}
+	return exprValue(t, value)
+}
+
+func exprValue(t xr.Type, value I) *Expr {
+	if t == nil {
+		base.Errorf("internal error! exprValue() value = %v invoked with type = nil", value)
+	}
 	return &Expr{Lit: Lit{Type: t, Value: value}, EFlags: EFlag4Value(value)}
 }
 

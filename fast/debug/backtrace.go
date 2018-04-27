@@ -63,12 +63,12 @@ func (d *Debugger) showFunctionCall(env *fast.Env) {
 	m := c.FuncMaker
 
 	g.Fprintf(g.Stdout, "%p\tfunc %s(", env, m.Name)
-	d.showBinds(c, env, m.Param)
+	d.showBinds(env, m.Param)
 	g.Fprintf(g.Stdout, ") ")
 	if len(m.Result) > 1 {
 		g.Fprintf(g.Stdout, "(")
 	}
-	d.showBinds(c, env, m.Result)
+	d.showBinds(env, m.Result)
 	if len(m.Result) > 1 {
 		g.Fprintf(g.Stdout, ")\n")
 	} else {

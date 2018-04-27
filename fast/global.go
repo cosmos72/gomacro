@@ -314,14 +314,14 @@ func (bind *Bind) ConstValue() r.Value {
 
 // return bind value.
 // if bind is untyped constant, returns UntypedLit wrapped in reflect.Value
-func (bind *Bind) RuntimeValue(c *Comp, env *Env) r.Value {
+func (bind *Bind) RuntimeValue(env *Env) r.Value {
 	class := bind.Desc.Class()
 	var v r.Value
 	switch class {
 	case ConstBind:
 		v = bind.Lit.ConstValue()
 	case IntBind:
-		expr := c.intSymbol(bind.AsSymbol(0))
+		expr := bind.intBind(&env.ThreadGlobals.Output)
 		// no need for Interp.RunExpr(): expr is a local variable,
 		// not a statement or a function call that may be stopped by the debugger
 		v = expr.AsX1()(env)

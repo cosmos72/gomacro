@@ -45,7 +45,7 @@ func (c *Comp) SelectorExpr(node *ast.SelectorExpr) *Expr {
 	if t.Kind() == r.Ptr && t.ReflectType() == rtypeOfPtrImport && e.Const() {
 		// access symbol from imported package, for example fmt.Printf
 		imp := e.Value.(*Import)
-		return imp.selector(c, name)
+		return imp.selector(name, &c.Stringer)
 	}
 	if t.Kind() == r.Ptr && t.Elem().Kind() == r.Struct {
 		t = t.Elem()

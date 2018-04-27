@@ -274,10 +274,10 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 	o := &g.Output
 	for name, val := range pkgref.Binds {
 		if untyped, ok := untypeds[name]; ok {
-			val, typ, ok := g.parseUntyped(untyped)
-			if ok {
+			untypedlit, typ := g.parseUntyped(untyped)
+			if typ != nil {
 				bind := imp.CompBinds.AddBind(o, name, ConstBind, typ)
-				bind.Value = val.Interface()
+				bind.Value = untypedlit
 				continue
 			}
 		}
@@ -305,13 +305,13 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 	imp.Vals = vals
 }
 
-func (g *CompGlobals) parseUntyped(untyped string) (r.Value, xr.Type, bool) {
+func (g *CompGlobals) parseUntyped(untyped string) (UntypedLit, xr.Type) {
 	kind, value := UnmarshalUntyped(untyped)
 	if kind == r.Invalid {
-		return Nil, nil, false
+		return UntypedLit{}, nil
 	}
 	lit := MakeUntypedLit(kind, value, &g.Universe.BasicTypes)
-	return r.ValueOf(lit), g.TypeOfUntypedLit(), true
+	return lit, g.TypeOfUntypedLit()
 }
 
 func (imp *Import) loadTypes(g *CompGlobals, pkgref *PackageRef) {
@@ -385,20 +385,20 @@ func (imp *Import) selectorPlace(c *Comp, name string, opt PlaceOption) *Place {
 }
 
 // selector compiles foo.bar where 'foo' is an imported package
-func (imp *Import) selector(c *Comp, name string) *Expr {
+func (imp *Import) selector(name string, st *Stringer) *Expr {
 	bind, ok := imp.Binds[name]
 	if !ok {
-		c.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
+		st.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
 	}
 	switch bind.Desc.Class() {
 	case ConstBind:
 		return exprLit(bind.Lit, bind.AsSymbol(0))
 	case FuncBind, VarBind:
-		return imp.symbol(c, bind)
+		return imp.symbol(bind, st)
 	case IntBind:
-		return imp.intSymbol(c, bind)
+		return imp.intSymbol(bind, st)
 	default:
-		c.Errorf("package symbol %s.%s has unknown class %s", imp.Name, name, bind.Desc.Class())
+		st.Errorf("package symbol %s.%s has unknown class %s", imp.Name, name, bind.Desc.Class())
 		return nil
 	}
 }
@@ -406,94 +406,94 @@ func (imp *Import) selector(c *Comp, name string) *Expr {
 // create an expression that will return the value of imported variable described by bind.
 //
 // mandatory optimization: for basic kinds, unwrap reflect.Value
-func (imp *Import) symbol(c *Comp, bind *Bind) *Expr {
+func (imp *Import) symbol(bind *Bind, st *Stringer) *Expr {
 	idx := bind.Desc.Index()
 	if idx == NoIndex {
-		c.Errorf("undefined identifier %s._", imp.Name)
+		st.Errorf("undefined identifier %s._", imp.Name)
 	}
 	// optimization: read imp.Vals[] at compile time:
-	// val remains valid even if imp.Vals[] is reallocated
+	// v remains valid even if imp.Vals[] is reallocated
 	v := imp.Vals[idx]
 	t := bind.Type
 	if !v.IsValid() {
-		return c.exprValue(t, xr.Zero(t).Interface())
+		return exprValue(t, xr.Zero(t).Interface())
 	}
 	var fun I
 	switch t.Kind() {
 	case r.Bool:
-		fun = func(env *Env) bool {
+		fun = func(*Env) bool {
 			return v.Bool()
 		}
 	case r.Int:
-		fun = func(env *Env) int {
+		fun = func(*Env) int {
 			return int(v.Int())
 		}
 	case r.Int8:
-		fun = func(env *Env) int8 {
+		fun = func(*Env) int8 {
 			return int8(v.Int())
 		}
 	case r.Int16:
-		fun = func(env *Env) int16 {
+		fun = func(*Env) int16 {
 			return int16(v.Int())
 		}
 	case r.Int32:
-		fun = func(env *Env) int32 {
+		fun = func(*Env) int32 {
 			return int32(v.Int())
 		}
 	case r.Int64:
-		fun = func(env *Env) int64 {
+		fun = func(*Env) int64 {
 			return v.Int()
 		}
 	case r.Uint:
-		fun = func(env *Env) uint {
+		fun = func(*Env) uint {
 			return uint(v.Uint())
 		}
 	case r.Uint8:
-		fun = func(env *Env) uint8 {
+		fun = func(*Env) uint8 {
 			return uint8(v.Uint())
 		}
 	case r.Uint16:
-		fun = func(env *Env) uint16 {
+		fun = func(*Env) uint16 {
 			return uint16(v.Uint())
 		}
 	case r.Uint32:
-		fun = func(env *Env) uint32 {
+		fun = func(*Env) uint32 {
 			return uint32(v.Uint())
 		}
 	case r.Uint64:
-		fun = func(env *Env) uint64 {
+		fun = func(*Env) uint64 {
 			return v.Uint()
 		}
 	case r.Uintptr:
-		fun = func(env *Env) uintptr {
+		fun = func(*Env) uintptr {
 			return uintptr(v.Uint())
 		}
 	case r.Float32:
-		fun = func(env *Env) float32 {
+		fun = func(*Env) float32 {
 			return float32(v.Float())
 		}
 	case r.Float64:
-		fun = func(env *Env) float64 {
+		fun = func(*Env) float64 {
 			return v.Float()
 		}
 	case r.Complex64:
-		fun = func(env *Env) complex64 {
+		fun = func(*Env) complex64 {
 			return complex64(v.Complex())
 		}
 	case r.Complex128:
-		fun = func(env *Env) complex128 {
+		fun = func(*Env) complex128 {
 			return v.Complex()
 		}
 	case r.String:
-		fun = func(env *Env) string {
+		fun = func(*Env) string {
 			return v.String()
 		}
 	default:
-		fun = func(env *Env) r.Value {
+		fun = func(*Env) r.Value {
 			return v
 		}
 	}
-	// val is an imported variable. do NOT store its value in *Expr,
+	// v is an imported variable. do NOT store its value in *Expr,
 	// because that's how constants are represented:
 	// fast interpreter will then (incorrectly) perform constant propagation.
 	return exprFun(t, fun)
@@ -502,81 +502,81 @@ func (imp *Import) symbol(c *Comp, bind *Bind) *Expr {
 // create an expression that will return the value of imported variable described by bind.
 //
 // mandatory optimization: for basic kinds, do not wrap in reflect.Value
-func (imp *Import) intSymbol(c *Comp, bind *Bind) *Expr {
-	t := bind.Type
-	var fun I
+func (imp *Import) intSymbol(bind *Bind, st *Stringer) *Expr {
 	idx := bind.Desc.Index()
 	if idx == NoIndex {
-		c.Errorf("undefined identifier %s._", imp.Name)
+		st.Errorf("undefined identifier %s._", imp.Name)
 	}
-	impenv := imp.env
+	t := bind.Type
+	env := imp.env
+	var fun I
 	switch t.Kind() {
 	case r.Bool:
-		fun = func(env *Env) bool {
-			return *(*bool)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) bool {
+			return *(*bool)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Int:
-		fun = func(env *Env) int {
-			return *(*int)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) int {
+			return *(*int)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Int8:
-		fun = func(env *Env) int8 {
-			return *(*int8)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) int8 {
+			return *(*int8)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Int16:
-		fun = func(env *Env) int16 {
-			return *(*int16)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) int16 {
+			return *(*int16)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Int32:
-		fun = func(env *Env) int32 {
-			return *(*int32)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) int32 {
+			return *(*int32)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Int64:
-		fun = func(env *Env) int64 {
-			return *(*int64)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) int64 {
+			return *(*int64)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Uint:
-		fun = func(env *Env) uint {
-			return *(*uint)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) uint {
+			return *(*uint)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Uint8:
-		fun = func(env *Env) uint8 {
-			return *(*uint8)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) uint8 {
+			return *(*uint8)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Uint16:
-		fun = func(env *Env) uint16 {
-			return *(*uint16)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) uint16 {
+			return *(*uint16)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Uint32:
-		fun = func(env *Env) uint32 {
-			return *(*uint32)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) uint32 {
+			return *(*uint32)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Uint64:
-		fun = func(env *Env) uint64 {
-			return impenv.Ints[idx]
+		fun = func(*Env) uint64 {
+			return env.Ints[idx]
 		}
 	case r.Uintptr:
-		fun = func(env *Env) uintptr {
-			return *(*uintptr)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) uintptr {
+			return *(*uintptr)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Float32:
-		fun = func(env *Env) float32 {
-			return *(*float32)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) float32 {
+			return *(*float32)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Float64:
-		fun = func(env *Env) float64 {
-			return *(*float64)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) float64 {
+			return *(*float64)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	case r.Complex64:
-		fun = func(env *Env) complex64 {
-			return *(*complex64)(unsafe.Pointer(&impenv.Ints[idx]))
+		fun = func(*Env) complex64 {
+			return *(*complex64)(unsafe.Pointer(&env.Ints[idx]))
 		}
 	default:
-		c.Errorf("unsupported symbol type, cannot use for optimized read: %v %v.%v <%v>",
+		st.Errorf("unsupported symbol type, cannot use for optimized read: %v %v.%v <%v>",
 			bind.Desc.Class(), imp.Name, bind.Name, bind.Type)
 		return nil
 	}
-	// Do NOT store impenv.Ints[idx] into *Expr, because that's how constants are represented:
+	// Do NOT store env.Ints[idx] into *Expr, because that's how constants are represented:
 	// fast interpreter will then (incorrectly) perform constant propagation.
 	return exprFun(t, fun)
 }

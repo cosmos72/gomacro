@@ -106,7 +106,7 @@ func (ir *Interp) ShowAsPackage() {
 		sort.Strings(keys)
 		for _, k := range keys {
 			if bind := binds[k]; bind != nil {
-				v := bind.RuntimeValue(c, env)
+				v := bind.RuntimeValue(env)
 				showValue(out, k, v, bind.Type, stringer)
 			}
 		}
@@ -141,15 +141,10 @@ func (imp *Import) Show(g *CompGlobals) {
 			i++
 		}
 		sort.Strings(keys)
-		c := &Comp{
-			// incomplete, but enough for bind.RuntimeValue
-			CompGlobals: g,
-			CompBinds:   imp.CompBinds,
-		}
 		env := imp.env
 		for _, k := range keys {
 			bind := imp.Binds[k]
-			v := bind.RuntimeValue(c, env)
+			v := bind.RuntimeValue(env)
 			showValue(out, k, v, bind.Type, stringer)
 		}
 		fmt.Fprintln(out)
