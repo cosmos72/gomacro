@@ -91,7 +91,8 @@ func (ir *Interp) ShowPackage(name string) {
 
 func (ir *Interp) ShowAsPackage() {
 	c := ir.Comp
-	out := c.Stdout
+	env := ir.PrepareEnv()
+	out := c.Globals.Stdout
 	stringer := typestringer(c.Path)
 	if binds := c.Binds; len(binds) > 0 {
 		base.ShowPackageHeader(out, c.Name, c.Path, "binds")
@@ -104,17 +105,18 @@ func (ir *Interp) ShowAsPackage() {
 		}
 		sort.Strings(keys)
 		for _, k := range keys {
-			bind := binds[k]
-			if bind == nil {
-				continue
+			if bind := binds[k]; bind != nil {
+				var v r.Value
+				if bind.Const() {
+					v = r.ValueOf(bind.Value)
+				} else {
+					expr := c.Symbol(bind.AsSymbol(0))
+					// no need for Interp.RunExpr(): expr is a local variable,
+					// not a statement or a function call that may be stopped by the debugger
+					v = expr.AsX1()(env)
+				}
+				showValue(out, k, v, bind.Type, stringer)
 			}
-			if bind.Const() {
-				showValue(out, k, bind.ConstValue(), bind.Type, stringer)
-				continue
-			}
-			expr := c.Symbol(bind.AsSymbol(0))
-			v, t := ir.RunExpr1(expr)
-			showValue(out, k, v, t, stringer)
 		}
 		fmt.Fprintln(out)
 	}

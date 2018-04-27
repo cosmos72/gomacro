@@ -101,10 +101,15 @@ func (d *Debugger) showBinds(c *fast.Comp, env *fast.Env, binds []*fast.Bind) {
 
 func (d *Debugger) showBind(c *fast.Comp, env *fast.Env, bind *fast.Bind) {
 	value := getBindValue(c, env, bind)
+	var ivalue interface{} = value
+	if !value.IsValid() {
+		ivalue = "nil"
+	}
+
 	g := d.globals
 	if name := bind.Name; len(name) != 0 {
-		g.Fprintf(g.Stdout, "%s=%v <%v>", name, value, bind.Type)
+		g.Fprintf(g.Stdout, "%s=%v <%v>", name, ivalue, bind.Type)
 	} else {
-		g.Fprintf(g.Stdout, "%v <%v>", value, bind.Type)
+		g.Fprintf(g.Stdout, "%v <%v>", ivalue, bind.Type)
 	}
 }
