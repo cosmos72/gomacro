@@ -151,12 +151,15 @@ func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
 	}
 	env.applyDebugSignal(SigNone)
 
+	g := env.ThreadGlobals
+	defer g.setCurrEnv(g.setCurrEnv(env))
+
 	fun := e.AsXV(COptKeepUntyped)
 	v, vs := fun(env)
 	return PackValuesAndTypes(v, vs, e.Type, e.Types)
 }
 
-// execute with single-step debugging. to run without debugging, use Interp.DebugExpr() instead
+// execute with single-step debugging. to run without debugging, use Interp.RunExpr() instead
 func (ir *Interp) DebugExpr1(e *Expr) (r.Value, xr.Type) {
 	if e == nil {
 		return None, nil
@@ -167,7 +170,7 @@ func (ir *Interp) DebugExpr1(e *Expr) (r.Value, xr.Type) {
 	return vs[0], ts[0]
 }
 
-// execute with single-step debugging. to run without debugging, use Interp.DebugExpr() instead
+// execute with single-step debugging. to run without debugging, use Interp.RunExpr() instead
 func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
 	if e == nil {
 		return nil, nil
@@ -178,6 +181,8 @@ func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
 		e.ConstTo(e.DefaultType())
 	}
 	env.applyDebugSignal(SigDebugStep)
+	g := env.ThreadGlobals
+	defer g.setCurrEnv(g.setCurrEnv(env))
 
 	fun := e.AsXV(COptKeepUntyped)
 	v, vs := fun(env)
@@ -187,6 +192,13 @@ func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
 // combined Parse + Compile + DebugExpr
 func (ir *Interp) Debug(src string) ([]r.Value, []xr.Type) {
 	return ir.DebugExpr(ir.Compile(src))
+}
+
+// set CurrEnv, returns previous value
+func (g *ThreadGlobals) setCurrEnv(env *Env) *Env {
+	old := g.CurrEnv
+	g.CurrEnv = env
+	return old
 }
 
 // DeclConst compiles a constant declaration
@@ -347,7 +359,8 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 		c.IntBindMax = cap(env.Ints)
 	}
 	g := env.ThreadGlobals
-	g.Caller = env
+	// do NOT set g.CurrEnv = env, it messes up the call stack. done by Interp.RunExpr* and Interp.DebugExpr*
+	// g.CurrEnv = env
 	// in case we received a SigInterrupt in the meantime
 	g.Signals.Sync = SigNone
 	g.Signals.Async = SigNone

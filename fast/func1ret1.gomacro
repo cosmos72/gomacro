@@ -191,7 +191,7 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 				// extract result
 				ret0 = ~,ret0bind
-				env.FreeEnv()
+				env.freeEnv4Func()
 				return
 			})
 		}

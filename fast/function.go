@@ -430,7 +430,7 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			for i, expr := range resultexprs {
 				rets[i] = expr(env)
 			}
-			env.FreeEnv()
+			env.freeEnv4Func()
 			return rets
 		})
 	}
@@ -483,7 +483,7 @@ func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody f
 			for i, expr := range resultexprs {
 				rets[i] = expr(env)
 			}
-			env.FreeEnv()
+			env.freeEnv4Func()
 			return rets
 		}
 	}

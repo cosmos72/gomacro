@@ -75,7 +75,6 @@ func newTopInterp(path string) *Interp {
 			ThreadGlobals: envGlobals,
 		},
 	}
-	envGlobals.Caller = ir.env
 	// tell xreflect about our packages "fast" and "main"
 	universe.CachePackage(types.NewPackage("fast", "fast"))
 	universe.CachePackage(types.NewPackage("main", "main"))
@@ -114,12 +113,13 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 		env: &Env{
 			Outer:         outerEnv,
 			ThreadGlobals: g,
+			CallDepth:     outerEnv.CallDepth,
 		},
 	}
 	if outerEnv.Outer == nil {
 		g.FileEnv = ir.env
 	}
-	g.Caller = ir.env
+	// do NOT set g.CurrEnv = ir.Env, it messes up the call stack
 	return ir
 }
 
@@ -163,7 +163,7 @@ func (c *Comp) FileComp() *Comp {
 var ignoredBinds = []r.Value{Nil}
 var ignoredIntBinds = []uint64{0}
 
-func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
+func NewEnv(outer *Env, nbind int, nintbind int) *Env {
 	g := outer.ThreadGlobals
 	pool := &g.Pool // pool is an array, do NOT copy it!
 	index := g.PoolSize - 1
@@ -175,19 +175,19 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	} else {
 		env = &Env{}
 	}
-	if nbinds <= 1 {
+	if nbind <= 1 {
 		env.Vals = ignoredBinds
-	} else if cap(env.Vals) < nbinds {
-		env.Vals = make([]r.Value, nbinds)
+	} else if cap(env.Vals) < nbind {
+		env.Vals = make([]r.Value, nbind)
 	} else {
-		env.Vals = env.Vals[0:nbinds]
+		env.Vals = env.Vals[0:nbind]
 	}
-	if nintbinds <= 1 {
+	if nintbind <= 1 {
 		env.Ints = ignoredIntBinds
-	} else if cap(env.Ints) < nintbinds {
-		env.Ints = make([]uint64, nintbinds)
+	} else if cap(env.Ints) < nintbind {
+		env.Ints = make([]uint64, nintbind)
 	} else {
-		env.Ints = env.Ints[0:nintbinds]
+		env.Ints = env.Ints[0:nintbind]
 	}
 	env.Outer = outer
 	env.IP = outer.IP
@@ -195,7 +195,11 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	env.ThreadGlobals = g
 	env.DebugPos = outer.DebugPos
 	env.CallDepth = outer.CallDepth
-	g.Caller = env
+	// this is a nested *Env, not a function body: to obtain the caller function,
+	// follow env.Outer.Outer... chain until you find an *Env with non-nil Caller
+	// env.Caller = nil
+	// DebugCallStack Debugf("NewEnv(%p->%p) nbind=%d nintbind=%d calldepth: %d->%d", outer, env, nbind, nintbind, outer.CallDepth, env.CallDepth)
+	g.CurrEnv = env
 	return env
 }
 
@@ -228,9 +232,15 @@ func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 	env.Outer = outer
 	env.ThreadGlobals = g
 	env.DebugComp = debugComp
-	env.CallDepth = g.Caller.CallDepth + 1
-	g.Caller = env
-	// Debugf("newEnv4Func(%p->%p) binds=%d intbinds=%d", outer, env, nbinds, nintbinds)
+	caller := g.CurrEnv
+	env.Caller = caller
+	if caller == nil {
+		env.CallDepth = 1
+	} else {
+		env.CallDepth = caller.CallDepth + 1
+	}
+	// DebugCallStack Debugf("newEnv4Func(%p->%p) nbind=%d nintbind=%d calldepth: %d->%d", caller, env, nbind, nintbind, env.CallDepth-1, env.CallDepth)
+	g.CurrEnv = env
 	return env
 }
 
@@ -243,9 +253,18 @@ func (env *Env) MarkUsedByClosure() {
 // FreeEnv tells the interpreter that given Env is no longer needed.
 func (env *Env) FreeEnv() {
 	g := env.ThreadGlobals
-	g.Caller = env.Outer // restore caller *Env
+	g.CurrEnv = env.Outer
+	env.freeEnv(g)
+}
 
-	// Debugf("FreeEnv(%p->%p), IP = %d of %d", env, env.Outer, env.Outer.IP, len(env.Outer.Code))
+func (env *Env) freeEnv4Func() {
+	g := env.ThreadGlobals
+	g.CurrEnv = env.Caller
+	env.freeEnv(g)
+}
+
+func (env *Env) freeEnv(g *ThreadGlobals) {
+	// DebugCallStack Debugf("FreeEnv(%p->%p), calldepth: %d->%d", env, caller, env.CallDepth, caller.CallDepth)
 	if env.UsedByClosure {
 		// in use, cannot recycle
 		return
@@ -262,6 +281,7 @@ func (env *Env) FreeEnv() {
 	env.Code = nil
 	env.DebugPos = nil
 	env.DebugComp = nil
+	env.Caller = nil
 	env.ThreadGlobals = nil
 	g.Pool[n] = env // pool is an array, be careful NOT to copy it!
 	g.PoolSize = n + 1

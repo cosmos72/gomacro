@@ -54,7 +54,7 @@ func (c *Comp) func0ret0(t xr.Type, m *funcMaker) func(env *Env) r.Value {
 			// execute the body
 			funcbody(env)
 
-			env.FreeEnv()
+			env.freeEnv4Func()
 		})
 	}
 }

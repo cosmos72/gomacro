@@ -186,7 +186,7 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					// execute the body
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}

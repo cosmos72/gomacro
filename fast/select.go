@@ -116,7 +116,7 @@ func (c *Comp) selectDefault(node *ast.CommClause) selectEntry {
 func (c *Comp) selectCase(clause *ast.CommClause, bind *Bind) selectEntry {
 
 	var entry selectEntry
-	var nbinds [2]int
+	var nbind [2]int
 	stmt := clause.Comm
 	c2 := c
 	locals := false
@@ -151,7 +151,7 @@ func (c *Comp) selectCase(clause *ast.CommClause, bind *Bind) selectEntry {
 			entry = selectEntry{Dir: r.SelectRecv, Chan: echan.AsX1()}
 
 			if id0 != nil && id0.Name != "_" || id1 != nil && id1.Name != "_" {
-				c2, locals = c.pushEnvIfFlag(&nbinds, true)
+				c2, locals = c.pushEnvIfFlag(&nbind, true)
 
 				if id0 != nil && id0.Name != "_" {
 					t := echan.Type.Elem()
@@ -164,7 +164,7 @@ func (c *Comp) selectCase(clause *ast.CommClause, bind *Bind) selectEntry {
 					}))
 				}
 			} else if len(clause.Body) != 0 {
-				c2, locals = c.pushEnvIfLocalBinds(&nbinds, clause.Body...)
+				c2, locals = c.pushEnvIfLocalBinds(&nbind, clause.Body...)
 			}
 
 		case token.ASSIGN:
@@ -194,7 +194,7 @@ func (c *Comp) selectCase(clause *ast.CommClause, bind *Bind) selectEntry {
 			}
 
 			if len(clause.Body) != 0 {
-				c2, locals = c.pushEnvIfLocalBinds(&nbinds, clause.Body...)
+				c2, locals = c.pushEnvIfLocalBinds(&nbind, clause.Body...)
 			}
 		}
 
@@ -220,7 +220,7 @@ func (c *Comp) selectCase(clause *ast.CommClause, bind *Bind) selectEntry {
 		c2.List(clause.Body)
 	}
 	if c2 != c {
-		c2.popEnvIfFlag(&nbinds, locals)
+		c2.popEnvIfFlag(&nbind, locals)
 	}
 	c.jumpOut(0, c.Loop.Break)
 	return entry

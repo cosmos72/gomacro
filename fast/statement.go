@@ -48,7 +48,7 @@ func popEnv(env *Env) (Stmt, *Env) {
 
 func (c *Comp) Stmt(in ast.Stmt) {
 	var labels []string
-	/*DELETEME*/ // codelen := len(c.Code.List)
+	// DebugSource // codelen := len(c.Code.List)
 	for {
 		if in != nil {
 			c.Pos = in.Pos()
@@ -109,10 +109,10 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		}
 		break
 	}
-	/*DELETEME*/ // c.showStatementsSource(in, codelen)
+	// DebugSource // c.showStatementsSource(in, codelen)
 }
 
-/*DELETEME*/
+/* DebugSource */
 func (c *Comp) showStatementsSource(in ast.Stmt, startIP int) {
 	n1, n2 := len(c.Code.List), len(c.Code.DebugPos)
 	if n1 != n2 {
@@ -126,7 +126,7 @@ func (c *Comp) showStatementsSource(in ast.Stmt, startIP int) {
 	}
 }
 
-/*DELETEME*/
+/* DebugSource */
 func (c *Comp) showStatementSource(ip int) {
 	code := c.Code
 	list := code.List
@@ -674,7 +674,7 @@ func containLocalBinds(list ...ast.Stmt) bool {
 
 // pushEnvIfLocalBinds compiles a PushEnv statement if list contains local binds
 // returns the *Comp to use to compile statement list.
-func (c *Comp) pushEnvIfLocalBinds(nbinds *[2]int, list ...ast.Stmt) (inner *Comp, locals bool) {
+func (c *Comp) pushEnvIfLocalBinds(nbind *[2]int, list ...ast.Stmt) (inner *Comp, locals bool) {
 	if len(list) == 0 {
 		inner.Errorf("internal error: pushEnvIfLocalBinds() invoked on empty statement list")
 	}
@@ -682,23 +682,23 @@ func (c *Comp) pushEnvIfLocalBinds(nbinds *[2]int, list ...ast.Stmt) (inner *Com
 	// no need to create a new *Env at runtime
 	// note: we still create a new *Comp at compile time to handle constant/type declarations
 	locals = containLocalBinds(list...)
-	return c.pushEnvIfFlag(nbinds, locals)
+	return c.pushEnvIfFlag(nbind, locals)
 }
 
 // pushEnvIfDefine compiles a PushEnv statement if tok is token.DEFINE
 // returns the *Comp to use to compile statement list.
-func (c *Comp) pushEnvIfDefine(nbinds *[2]int, tok token.Token) (inner *Comp, locals bool) {
-	return c.pushEnvIfFlag(nbinds, tok == token.DEFINE)
+func (c *Comp) pushEnvIfDefine(nbind *[2]int, tok token.Token) (inner *Comp, locals bool) {
+	return c.pushEnvIfFlag(nbind, tok == token.DEFINE)
 }
 
 // pushEnvIfFlag compiles a PushEnv statement if flag is true
 // returns the *Comp to use to compile statement list.
-func (c *Comp) pushEnvIfFlag(nbinds *[2]int, flag bool) (*Comp, bool) {
+func (c *Comp) pushEnvIfFlag(nbind *[2]int, flag bool) (*Comp, bool) {
 	var debugC *Comp
 	if flag {
 		// push new *Env at runtime. we will know # of binds in the block only later, so use a closure on them
 		c.append(func(env *Env) (Stmt, *Env) {
-			inner := NewEnv(env, nbinds[0], nbinds[1])
+			inner := NewEnv(env, nbind[0], nbind[1])
 			inner.DebugComp = debugC
 			inner.IP++
 			// Debugf("PushEnv(%p->%p), IP = %d of %d, pushed %d binds and %d intbinds", env, inner, inner.IP, nbinds[0], nbinds[1])

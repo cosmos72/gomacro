@@ -145,7 +145,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -176,7 +176,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -207,7 +207,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -237,7 +237,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -267,7 +267,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -297,7 +297,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -327,7 +327,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -357,7 +357,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -387,7 +387,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -417,7 +417,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -447,7 +447,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -477,7 +477,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -507,7 +507,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -537,7 +537,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -567,7 +567,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -595,14 +595,13 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -630,13 +629,12 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -677,7 +675,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -708,7 +706,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -739,7 +737,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -769,7 +767,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -799,7 +797,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -829,7 +827,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -859,7 +857,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -889,7 +887,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -919,7 +917,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -949,7 +947,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -979,7 +977,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1009,7 +1007,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1039,7 +1037,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1069,7 +1067,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1099,7 +1097,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1127,14 +1125,13 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1162,13 +1159,12 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1209,7 +1205,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1240,7 +1236,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1271,7 +1267,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1301,7 +1297,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1331,7 +1327,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1361,7 +1357,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1391,7 +1387,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1421,7 +1417,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1451,7 +1447,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1481,7 +1477,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1511,7 +1507,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1541,7 +1537,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1571,7 +1567,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1601,7 +1597,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1631,7 +1627,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1659,14 +1655,13 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1694,13 +1689,12 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1741,7 +1735,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1772,7 +1766,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1803,7 +1797,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1833,7 +1827,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1863,7 +1857,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1893,7 +1887,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1923,7 +1917,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1953,7 +1947,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -1983,7 +1977,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2013,7 +2007,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2043,7 +2037,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2073,7 +2067,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2103,7 +2097,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2133,7 +2127,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2163,7 +2157,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2191,14 +2185,13 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2226,13 +2219,12 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2273,7 +2265,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2304,7 +2296,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2335,7 +2327,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2365,7 +2357,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2395,7 +2387,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2425,7 +2417,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2455,7 +2447,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2485,7 +2477,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2515,7 +2507,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2545,7 +2537,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2575,7 +2567,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2605,7 +2597,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2635,7 +2627,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2665,7 +2657,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2695,7 +2687,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2723,14 +2715,13 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2758,13 +2749,12 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2805,7 +2795,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2836,7 +2826,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2867,7 +2857,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2897,7 +2887,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2927,7 +2917,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2957,7 +2947,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -2987,7 +2977,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3017,7 +3007,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3047,7 +3037,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3077,7 +3067,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3107,7 +3097,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3137,7 +3127,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3167,7 +3157,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3197,7 +3187,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3227,7 +3217,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3255,14 +3245,13 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3290,13 +3279,12 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3337,7 +3325,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3368,7 +3356,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3399,7 +3387,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3429,7 +3417,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3459,7 +3447,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3489,7 +3477,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3519,7 +3507,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3549,7 +3537,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3579,7 +3567,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3609,7 +3597,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3639,7 +3627,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3669,7 +3657,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3699,7 +3687,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3729,7 +3717,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3759,7 +3747,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3787,14 +3775,13 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3822,13 +3809,12 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3869,7 +3855,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3900,7 +3886,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3931,7 +3917,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3961,7 +3947,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -3991,7 +3977,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4021,7 +4007,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4051,7 +4037,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4081,7 +4067,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4111,7 +4097,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4141,7 +4127,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4171,7 +4157,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4201,7 +4187,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4231,7 +4217,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4261,7 +4247,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4291,7 +4277,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4319,14 +4305,13 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4354,13 +4339,12 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4401,7 +4385,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4432,7 +4416,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4463,7 +4447,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4493,7 +4477,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4523,7 +4507,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4553,7 +4537,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4583,7 +4567,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4613,7 +4597,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4643,7 +4627,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4673,7 +4657,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4703,7 +4687,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4733,7 +4717,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4763,7 +4747,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4793,7 +4777,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4823,7 +4807,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4851,14 +4835,13 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4886,13 +4869,12 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4933,7 +4915,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4964,7 +4946,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -4995,7 +4977,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5025,7 +5007,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5055,7 +5037,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5085,7 +5067,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5115,7 +5097,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5145,7 +5127,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5175,7 +5157,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5205,7 +5187,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5235,7 +5217,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5265,7 +5247,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5295,7 +5277,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5325,7 +5307,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5355,7 +5337,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5383,14 +5365,13 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5418,13 +5399,12 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5465,7 +5445,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5496,7 +5476,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5527,7 +5507,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5557,7 +5537,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5587,7 +5567,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5617,7 +5597,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5647,7 +5627,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5677,7 +5657,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5707,7 +5687,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5737,7 +5717,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5767,7 +5747,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5797,7 +5777,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5827,7 +5807,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5857,7 +5837,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5887,7 +5867,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5915,14 +5895,13 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5950,13 +5929,12 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -5997,7 +5975,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6028,7 +6006,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6059,7 +6037,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6089,7 +6067,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6119,7 +6097,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6149,7 +6127,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6179,7 +6157,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6209,7 +6187,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6239,7 +6217,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6269,7 +6247,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6299,7 +6277,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6329,7 +6307,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6359,7 +6337,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6389,7 +6367,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6419,7 +6397,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6447,14 +6425,13 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6482,13 +6459,12 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6529,7 +6505,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6560,7 +6536,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6591,7 +6567,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6621,7 +6597,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6651,7 +6627,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6681,7 +6657,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6711,7 +6687,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6741,7 +6717,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6771,7 +6747,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6801,7 +6777,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6831,7 +6807,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6861,7 +6837,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6891,7 +6867,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6921,7 +6897,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6951,7 +6927,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -6979,14 +6955,13 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7014,13 +6989,12 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7061,7 +7035,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7092,7 +7066,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7123,7 +7097,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7153,7 +7127,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7183,7 +7157,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7213,7 +7187,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7243,7 +7217,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7273,7 +7247,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7303,7 +7277,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7333,7 +7307,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7363,7 +7337,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7393,7 +7367,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7423,7 +7397,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7453,7 +7427,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7483,7 +7457,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7511,14 +7485,13 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7546,13 +7519,12 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7593,7 +7565,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7624,7 +7596,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7655,7 +7627,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7685,7 +7657,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7715,7 +7687,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7745,7 +7717,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7775,7 +7747,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7805,7 +7777,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7835,7 +7807,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7865,7 +7837,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7895,7 +7867,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7925,7 +7897,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7955,7 +7927,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -7985,7 +7957,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8015,7 +7987,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8043,14 +8015,13 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8078,13 +8049,12 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8120,8 +8090,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8129,7 +8098,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8155,8 +8124,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8164,7 +8132,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8190,8 +8158,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8199,7 +8166,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8224,8 +8191,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8233,7 +8199,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8258,8 +8224,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8267,7 +8232,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8292,8 +8257,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8301,7 +8265,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8326,8 +8290,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8335,7 +8298,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8360,8 +8323,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8369,7 +8331,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8394,8 +8356,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8403,7 +8364,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8428,8 +8389,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8437,7 +8397,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8462,8 +8422,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8471,7 +8430,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8496,8 +8455,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8505,7 +8463,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8530,8 +8488,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8539,7 +8496,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8564,8 +8521,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8573,7 +8529,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8598,8 +8554,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8607,7 +8562,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8632,20 +8587,18 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8670,20 +8623,18 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8719,8 +8670,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8728,7 +8678,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8754,8 +8704,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8763,7 +8712,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8789,8 +8738,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8798,7 +8746,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8823,8 +8771,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8832,7 +8779,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8857,8 +8804,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8866,7 +8812,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8891,8 +8837,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8900,7 +8845,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8925,8 +8870,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8934,7 +8878,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8959,8 +8903,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8968,7 +8911,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -8993,8 +8936,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9002,7 +8944,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -9027,8 +8969,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9036,7 +8977,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -9061,8 +9002,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9070,7 +9010,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -9095,8 +9035,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9104,7 +9043,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -9129,8 +9068,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9138,7 +9076,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -9163,8 +9101,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9172,7 +9109,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -9197,8 +9134,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9206,7 +9142,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -9231,20 +9167,18 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg1,
-						)
+						place.SetComplex(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -9269,19 +9203,17 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}

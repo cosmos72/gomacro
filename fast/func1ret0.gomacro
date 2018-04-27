@@ -108,7 +108,7 @@ import (
 					// execute the body
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}

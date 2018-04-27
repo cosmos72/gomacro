@@ -99,7 +99,7 @@ func popDefer(g *ThreadGlobals, deferOf *Env, isDefer bool) {
 func restore(g *ThreadGlobals, isDefer bool, interrupt Stmt, caller *Env) {
 	g.ExecFlags.SetDefer(isDefer)
 	g.Interrupt = interrupt
-	g.Caller = caller
+	g.CurrEnv = caller
 	g.Signals.Sync = SigNone
 	if g.Signals.Async == SigInterrupt {
 		g.Signals.Async = SigNone
@@ -252,7 +252,7 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 		g.Signals.Async = SigNone
 		panic(SigInterrupt)
 	}
-	caller := g.Caller
+	caller := g.CurrEnv
 	// restore g.IsDefer, g.Signal, g.DebugCallDepth, g.Interrupt and g.Caller on return
 	defer restore(g, g.ExecFlags.IsDefer(), g.Interrupt, caller)
 	ef.SetDefer(ef.StartDefer())

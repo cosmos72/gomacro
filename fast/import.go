@@ -88,7 +88,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 // convert *Interp to *Import. used to change package from 'ir'
 func (ir *Interp) asImport() *Import {
 	env := ir.env
-	env.UsedByClosure = true // do not try to recycle this Env
+	env.MarkUsedByClosure() // do not try to recycle this Env
 	return &Import{
 		CompBinds: ir.Comp.CompBinds,
 		EnvBinds:  &ir.env.EnvBinds,

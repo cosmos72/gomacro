@@ -71,7 +71,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -93,7 +93,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -115,7 +115,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -137,7 +137,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -159,7 +159,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -181,7 +181,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -203,7 +203,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -225,7 +225,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -247,7 +247,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -269,7 +269,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -291,7 +291,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -314,7 +314,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -337,7 +337,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -360,7 +360,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -383,7 +383,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -403,14 +403,13 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env := newEnv4Func(env, nbinds, nintbinds, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[param0index] = place
 					}
 
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -431,13 +430,12 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[param0index] = place
 					}
 					funcbody(env)
 
-					env.FreeEnv()
+					env.freeEnv4Func()
 				})
 			}
 		}
@@ -447,8 +445,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			rtype := t.ReflectType()
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.MakeFunc(rtype, func([]r.Value) []r.Value { return ZeroValues },
-					)
+					return r.MakeFunc(rtype, func([]r.Value) []r.Value { return ZeroValues })
 				}
 			} else {
 				return func(env *Env) r.Value {
