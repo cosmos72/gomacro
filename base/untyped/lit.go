@@ -27,6 +27,7 @@ package untyped
 
 import (
 	"go/constant"
+	"go/token"
 	"math/big"
 	r "reflect"
 	"unsafe"
@@ -62,6 +63,8 @@ func (untyp *Lit) EqualInt64(i int64) bool {
 	}
 }
 
+var constantValZero = constant.MakeInt64(0)
+
 // ================================= Convert =================================
 
 // Convert checks that an UntypedLit can be converted exactly to the given type.
@@ -78,7 +81,18 @@ again:
 		}
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
 		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
-		r.Float32, r.Float64, r.Complex64, r.Complex128:
+		r.Float32, r.Float64:
+
+		if untyp.Kind == r.Complex128 && constant.Compare(constant.Imag(val), token.EQL, constantValZero) {
+			// allow conversion from untyped complex to untyped integer or float,
+			// provided that untyped complex has zero imaginary part.
+			//
+			// Required by the example var s uint = complex(1, 0)
+			// mentioned at https://golang.org/ref/spec#Complex_numbers
+			val = constant.Real(val)
+		}
+		fallthrough
+	case r.Complex64, r.Complex128:
 
 		n := untyp.extractNumber(val, t)
 		return ConvertLiteralCheckOverflow(n, t)
