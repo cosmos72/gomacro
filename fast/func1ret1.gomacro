@@ -181,7 +181,7 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			// function is closed over the env used to DECLARE it
 			env.MarkUsedByClosure()
 			return r.ValueOf(func(arg0 ~,arg0typ) (ret0 ~,ret0typ) {
-				env := newEnv4Func(env, nbinds, nintbinds, debugC)
+				env := newEnv4Func(env, nbind, nintbind, debugC)
 
 				// copy arg into allocated binds
 				~,arg0bind
@@ -226,8 +226,8 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	decl := ~"{
 		~func foo (m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) func(*Env) r.Value {
 			// do NOT keep a reference to funcMaker
-			nbinds := m.nbinds
-			nintbinds := m.nintbinds
+			nbind := m.nbind
+			nintbind := m.nintbind
 			funcbody := m.funcbody
 			var ret func(*Env) r.Value
 

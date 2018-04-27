@@ -96,10 +96,10 @@ func popDefer(g *ThreadGlobals, deferOf *Env, isDefer bool) {
 	g.ExecFlags.SetDefer(isDefer)
 }
 
-func restore(g *ThreadGlobals, isDefer bool, interrupt Stmt, callDepth int) {
+func restore(g *ThreadGlobals, isDefer bool, interrupt Stmt, caller *Env) {
 	g.ExecFlags.SetDefer(isDefer)
-	g.CallDepth = callDepth
 	g.Interrupt = interrupt
+	g.Caller = caller
 	g.Signals.Sync = SigNone
 	if g.Signals.Async == SigInterrupt {
 		g.Signals.Async = SigNone
@@ -158,9 +158,6 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 		env.IP = 0
 		env.Code = all
 		env.DebugPos = pos
-
-		saveDepth := g.CallDepth
-		g.CallDepth = env.CallDepth
 
 		for j := 0; j < 5; j++ {
 			if stmt, env = stmt(env); stmt != nil {
@@ -224,7 +221,6 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 		g.Interrupt = saveInterrupt
 		if g.Signals.Async == SigInterrupt {
 			g.Signals.Async = SigNone
-			g.CallDepth = saveDepth
 			panic(SigInterrupt)
 		}
 		if g.Signals.Debug != SigNone {
@@ -232,7 +228,6 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 			return
 		}
 		g.Signals.Sync = SigNone
-		g.CallDepth = saveDepth
 		return
 	}
 }
@@ -257,8 +252,9 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 		g.Signals.Async = SigNone
 		panic(SigInterrupt)
 	}
-	// restore g.IsDefer, g.Signal, g.DebugCallDepth and g.Interrupt on return
-	defer restore(g, g.ExecFlags.IsDefer(), g.Interrupt, g.CallDepth)
+	caller := g.Caller
+	// restore g.IsDefer, g.Signal, g.DebugCallDepth, g.Interrupt and g.Caller on return
+	defer restore(g, g.ExecFlags.IsDefer(), g.Interrupt, caller)
 	ef.SetDefer(ef.StartDefer())
 	ef.SetStartDefer(false)
 	ef.SetDebug(g.Signals.Debug != SigNone)
@@ -267,7 +263,6 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 	env.IP = ip
 	env.Code = all
 	env.DebugPos = pos
-	g.CallDepth = env.CallDepth
 
 	panicking, panicking2 := true, false
 	rundefer := func(fun func()) {

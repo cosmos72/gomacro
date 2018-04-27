@@ -515,8 +515,8 @@ type ThreadGlobals struct {
 	DeferOfFun   *Env        // function whose defer are running
 	ExecFlags    ExecFlags
 	CmdOpt       CmdOpt
-	DebugDepth   int // depth of function to debug with single-step
-	CallDepth    int // depth of call stack. updated ONLY at function entry. use env.CallDepth instead
+	DebugDepth   int  // depth of function to debug with single-step
+	Caller       *Env // caller of current function. used ONLY at function entry by debugger
 	Debugger     Debugger
 }
 
@@ -560,12 +560,13 @@ type Comp struct {
 	CompBinds
 	// UpCost is the number of *Env.Outer hops to perform at runtime to reach the *Env corresponding to *Comp.Outer
 	// usually equals one. will be zero if this *Comp defines no local variables/functions.
-	UpCost int
-	Depth  int
-	Code   Code      // "compiled" code
-	Loop   *LoopInfo // != nil when compiling a for or switch
-	Func   *FuncInfo // != nil when compiling a function
-	Outer  *Comp
+	UpCost    int
+	Depth     int
+	Code      Code      // "compiled" code
+	Loop      *LoopInfo // != nil when compiling a for or switch
+	Func      *FuncInfo // != nil when compiling a function
+	Outer     *Comp
+	FuncMaker *funcMaker // used by debugger command 'backtrace'
 }
 
 const (

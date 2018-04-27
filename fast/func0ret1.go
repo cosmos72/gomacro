@@ -38,8 +38,8 @@ import (
 
 func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 
 	var debugC *Comp
@@ -61,7 +61,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) bool)
+			resultfun := m.resultfun[0].(func(*Env) bool)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -88,7 +88,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) int)
+			resultfun := m.resultfun[0].(func(*Env) int)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -115,7 +115,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) int8)
+			resultfun := m.resultfun[0].(func(*Env) int8)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -142,7 +142,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) int16)
+			resultfun := m.resultfun[0].(func(*Env) int16)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -169,7 +169,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) int32)
+			resultfun := m.resultfun[0].(func(*Env) int32)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -196,7 +196,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) int64)
+			resultfun := m.resultfun[0].(func(*Env) int64)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -223,7 +223,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) uint)
+			resultfun := m.resultfun[0].(func(*Env) uint)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -250,7 +250,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) uint8)
+			resultfun := m.resultfun[0].(func(*Env) uint8)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -277,7 +277,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) uint16)
+			resultfun := m.resultfun[0].(func(*Env) uint16)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -304,7 +304,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) uint32)
+			resultfun := m.resultfun[0].(func(*Env) uint32)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -331,7 +331,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) uint64)
+			resultfun := m.resultfun[0].(func(*Env) uint64)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -358,7 +358,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) uintptr)
+			resultfun := m.resultfun[0].(func(*Env) uintptr)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -385,7 +385,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) float32)
+			resultfun := m.resultfun[0].(func(*Env) float32)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -412,7 +412,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) float64)
+			resultfun := m.resultfun[0].(func(*Env) float64)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -439,7 +439,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) complex64)
+			resultfun := m.resultfun[0].(func(*Env) complex64)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -466,7 +466,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) complex128)
+			resultfun := m.resultfun[0].(func(*Env) complex128)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
@@ -493,7 +493,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 				}
 			}
 
-			resultfun := m.resultfuns[0].(func(*Env) string)
+			resultfun := m.resultfun[0].(func(*Env) string)
 			return func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()

@@ -34,12 +34,13 @@ import (
 )
 
 type funcMaker struct {
-	nbinds      int
-	nintbinds   int
-	parambinds  []*Bind
-	resultbinds []*Bind
-	resultfuns  []I
-	funcbody    func(*Env)
+	nbind     int
+	nintbind  int
+	Param     []*Bind
+	Result    []*Bind
+	resultfun []I
+	funcbody  func(*Env)
+	FuncName  string
 }
 
 // DeclFunc compiles a function, macro or method declaration
@@ -320,12 +321,12 @@ func (c *Comp) funcResultBinds(functype *ast.FuncType, t xr.Type, names []string
 
 func (c *Comp) funcMaker(info *FuncInfo, resultfuns []I, funcbody func(*Env)) *funcMaker {
 	return &funcMaker{
-		nbinds:      c.BindNum,
-		nintbinds:   c.IntBindNum,
-		parambinds:  info.Params,
-		resultbinds: info.Results,
-		resultfuns:  resultfuns,
-		funcbody:    funcbody,
+		nbind:     c.BindNum,
+		nintbind:  c.IntBindNum,
+		Param:     info.Params,
+		Result:    info.Results,
+		resultfun: resultfuns,
+		funcbody:  funcbody,
 	}
 }
 
@@ -384,20 +385,20 @@ func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody fu
 // fallback: create a non-optimized function
 func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
-	paramdecls := make([]func(*Env, r.Value), len(m.parambinds))
-	for i, bind := range m.parambinds {
+	paramdecls := make([]func(*Env, r.Value), len(m.Param))
+	for i, bind := range m.Param {
 		if bind.Desc.Index() != NoIndex {
 			paramdecls[i] = c.DeclBindRuntimeValue(bind)
 		}
 	}
-	resultexprs := make([]func(*Env) r.Value, len(m.resultfuns))
-	for i, resultfun := range m.resultfuns {
-		resultexprs[i] = funAsX1(resultfun, m.resultbinds[i].Type)
+	resultexprs := make([]func(*Env) r.Value, len(m.resultfun))
+	for i, resultfun := range m.resultfun {
+		resultexprs[i] = funAsX1(resultfun, m.Result[i].Type)
 	}
 
 	// do NOT keep a reference to funcMaker
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	rtype := t.ReflectType()
 
@@ -439,20 +440,20 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 func (c *Comp) macroCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody func(*Env)) func(*Env) func(args []r.Value) []r.Value {
 	m := c.funcMaker(info, resultfuns, funcbody)
 
-	paramdecls := make([]func(*Env, r.Value), len(m.parambinds))
-	for i, bind := range m.parambinds {
+	paramdecls := make([]func(*Env, r.Value), len(m.Param))
+	for i, bind := range m.Param {
 		if bind.Desc.Index() != NoIndex {
 			paramdecls[i] = c.DeclBindRuntimeValue(bind)
 		}
 	}
-	resultexprs := make([]func(*Env) r.Value, len(m.resultfuns))
-	for i, resultfun := range m.resultfuns {
-		resultexprs[i] = funAsX1(resultfun, m.resultbinds[i].Type)
+	resultexprs := make([]func(*Env) r.Value, len(m.resultfun))
+	for i, resultfun := range m.resultfun {
+		resultexprs[i] = funAsX1(resultfun, m.Result[i].Type)
 	}
 
 	// do NOT keep a reference to funcMaker
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 
 	var debugC *Comp
 	if c.Globals.Options&base.OptDebugger != 0 {

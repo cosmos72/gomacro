@@ -44,13 +44,13 @@ func (c *Comp) func0ret0(t xr.Type, m *funcMaker) func(env *Env) r.Value {
 		debugC = c
 	}
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbind := m.nbind
+	nintbind := m.nintbind
 	return func(env *Env) r.Value {
 		// function is closed over the env used to DECLARE it
 		env.MarkUsedByClosure()
 		return r.ValueOf(func() {
-			env := newEnv4Func(env, nbinds, nintbinds, debugC)
+			env := newEnv4Func(env, nbind, nintbind, debugC)
 			// execute the body
 			funcbody(env)
 

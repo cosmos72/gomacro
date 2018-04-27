@@ -54,12 +54,12 @@ import (
 				})
 			}
 		}
-		resultfun := m.resultfuns[0].(func (*Env) ~,ret0typ)
+		resultfun := m.resultfun[0].(func (*Env) ~,ret0typ)
 		return func(env *Env) r.Value {
 			// function is closed over the env used to DECLARE it
 			env.MarkUsedByClosure()
 			return r.ValueOf(func() (ret0 ~,ret0typ) {
-				env := newEnv4Func(env, nbinds, nintbinds, debugC)
+				env := newEnv4Func(env, nbind, nintbind, debugC)
 
 				// execute the body
 				funcbody(env)
@@ -75,8 +75,8 @@ import (
 
 func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	// do NOT keep a reference to funcMaker
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbind := m.nbind
+	nintbind := m.nintbind
 	funcbody := m.funcbody
 
 	var debugC *Comp

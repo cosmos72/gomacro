@@ -47,8 +47,8 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	}
 
 	indexes := &[2]int{
-		m.parambinds[0].Desc.Index(),
-		m.parambinds[1].Desc.Index(),
+		m.Param[0].Desc.Index(),
+		m.Param[1].Desc.Index(),
 	}
 	var debugC *Comp
 	if c.Globals.Options&OptDebugger != 0 {
@@ -113,8 +113,8 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 }
 func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -645,8 +645,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 }
 func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -1177,8 +1177,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 }
 func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -1709,8 +1709,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 }
 func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -2241,8 +2241,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 }
 func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -2773,8 +2773,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 }
 func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -3305,8 +3305,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 }
 func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -3837,8 +3837,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 }
 func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -4369,8 +4369,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 }
 func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -4901,8 +4901,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 }
 func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -5433,8 +5433,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 }
 func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -5965,8 +5965,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 }
 func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -6497,8 +6497,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 }
 func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -7029,8 +7029,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 }
 func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -7561,8 +7561,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 }
 func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -8093,8 +8093,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 }
 func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {
@@ -8692,8 +8692,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 }
 func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
 	var ret func(*Env) r.Value
 	switch karg1 {

@@ -40,10 +40,10 @@ import (
 
 func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbinds := m.nbind
+	nintbinds := m.nintbind
 	funcbody := m.funcbody
-	param0index := m.parambinds[0].Desc.Index()
+	param0index := m.Param[0].Desc.Index()
 
 	var debugC *Comp
 	if c.Globals.Options&OptDebugger != 0 {

@@ -102,7 +102,7 @@ import (
 				// function is closed over the env used to DECLARE it
 				env.MarkUsedByClosure()
 				return r.ValueOf(func(arg0 ~,arg0typ) {
-					env := newEnv4Func(env, nbinds, nintbinds, debugC)
+					env := newEnv4Func(env, nbind, nintbind, debugC)
 					// copy arg0 into allocated binds
 					~,arg0bind
 					// execute the body
@@ -128,7 +128,7 @@ import (
 				env.MarkUsedByClosure()
 				rtarg0 := targ0.ReflectType()
 				return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
-					env := newEnv4Func(env, nbinds, nintbinds, debugC)
+					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					// copy arg0 into allocated binds
 					if param0index != NoIndex {
@@ -150,10 +150,10 @@ import (
 
 func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	// do NOT keep a reference to funcMaker
-	nbinds := m.nbinds
-	nintbinds := m.nintbinds
+	nbind := m.nbind
+	nintbind := m.nintbind
 	funcbody := m.funcbody
-	param0index := m.parambinds[0].Desc.Index()
+	param0index := m.Param[0].Desc.Index()
 
 	var debugC *Comp
 	if c.Globals.Options&OptDebugger != 0 {

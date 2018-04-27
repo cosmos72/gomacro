@@ -59,7 +59,7 @@ func newTopInterp(path string) *Interp {
 		Prompt:       "gomacro> ",
 	}
 	envGlobals := &ThreadGlobals{Globals: globals}
-	ce := &Interp{
+	ir := &Interp{
 		Comp: &Comp{
 			CompGlobals: compGlobals,
 			CompBinds: CompBinds{
@@ -75,6 +75,7 @@ func newTopInterp(path string) *Interp {
 			ThreadGlobals: envGlobals,
 		},
 	}
+	envGlobals.Caller = ir.env
 	// tell xreflect about our packages "fast" and "main"
 	universe.CachePackage(types.NewPackage("fast", "fast"))
 	universe.CachePackage(types.NewPackage("main", "main"))
@@ -86,9 +87,9 @@ func newTopInterp(path string) *Interp {
 	}
 	compGlobals.opaqueType(rtypeOfUntypedLit, "untyped")
 
-	envGlobals.TopEnv = ce.env
-	ce.addBuiltins()
-	return ce
+	envGlobals.TopEnv = ir.env
+	ir.addBuiltins()
+	return ir
 }
 
 func NewInnerInterp(outer *Interp, name string, path string) *Interp {
@@ -98,6 +99,7 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 
 	outerComp := outer.Comp
 	outerEnv := outer.env
+	g := outerEnv.ThreadGlobals
 	ir := &Interp{
 		Comp: &Comp{
 			CompGlobals: outerComp.CompGlobals,
@@ -111,12 +113,13 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 		},
 		env: &Env{
 			Outer:         outerEnv,
-			ThreadGlobals: outerEnv.ThreadGlobals,
+			ThreadGlobals: g,
 		},
 	}
 	if outerEnv.Outer == nil {
-		outerEnv.ThreadGlobals.FileEnv = ir.env
+		g.FileEnv = ir.env
 	}
+	g.Caller = ir.env
 	return ir
 }
 
@@ -191,11 +194,12 @@ func NewEnv(outer *Env, nbinds int, nintbinds int) *Env {
 	env.Code = outer.Code
 	env.ThreadGlobals = g
 	env.DebugPos = outer.DebugPos
-	env.CallDepth = g.CallDepth
+	env.CallDepth = outer.CallDepth
+	g.Caller = env
 	return env
 }
 
-func newEnv4Func(outer *Env, nbinds int, nintbinds int, debugComp *Comp) *Env {
+func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 	g := outer.ThreadGlobals
 	pool := &g.Pool // pool is an array, do NOT copy it!
 	index := g.PoolSize - 1
@@ -207,24 +211,25 @@ func newEnv4Func(outer *Env, nbinds int, nintbinds int, debugComp *Comp) *Env {
 	} else {
 		env = &Env{}
 	}
-	if nbinds <= 1 {
+	if nbind <= 1 {
 		env.Vals = ignoredBinds
-	} else if cap(env.Vals) < nbinds {
-		env.Vals = make([]r.Value, nbinds)
+	} else if cap(env.Vals) < nbind {
+		env.Vals = make([]r.Value, nbind)
 	} else {
-		env.Vals = env.Vals[0:nbinds]
+		env.Vals = env.Vals[0:nbind]
 	}
-	if nintbinds <= 1 {
+	if nintbind <= 1 {
 		env.Ints = ignoredIntBinds
-	} else if cap(env.Ints) < nintbinds {
-		env.Ints = make([]uint64, nintbinds)
+	} else if cap(env.Ints) < nintbind {
+		env.Ints = make([]uint64, nintbind)
 	} else {
-		env.Ints = env.Ints[0:nintbinds]
+		env.Ints = env.Ints[0:nintbind]
 	}
 	env.Outer = outer
 	env.ThreadGlobals = g
 	env.DebugComp = debugComp
-	env.CallDepth = g.CallDepth + 1
+	env.CallDepth = g.Caller.CallDepth + 1
+	g.Caller = env
 	// Debugf("newEnv4Func(%p->%p) binds=%d intbinds=%d", outer, env, nbinds, nintbinds)
 	return env
 }
@@ -237,13 +242,15 @@ func (env *Env) MarkUsedByClosure() {
 
 // FreeEnv tells the interpreter that given Env is no longer needed.
 func (env *Env) FreeEnv() {
+	g := env.ThreadGlobals
+	g.Caller = env.Outer // restore caller *Env
+
 	// Debugf("FreeEnv(%p->%p), IP = %d of %d", env, env.Outer, env.Outer.IP, len(env.Outer.Code))
 	if env.UsedByClosure {
 		// in use, cannot recycle
 		return
 	}
-	common := env.ThreadGlobals
-	n := common.PoolSize
+	n := g.PoolSize
 	if n >= PoolCapacity {
 		return
 	}
@@ -256,8 +263,8 @@ func (env *Env) FreeEnv() {
 	env.DebugPos = nil
 	env.DebugComp = nil
 	env.ThreadGlobals = nil
-	common.Pool[n] = env // pool is an array, be careful NOT to copy it!
-	common.PoolSize = n + 1
+	g.Pool[n] = env // pool is an array, be careful NOT to copy it!
+	g.PoolSize = n + 1
 }
 
 func (env *Env) Top() *Env {
