@@ -57,7 +57,7 @@ type Globals struct {
 	Output
 	Options      Options
 	PackagePath  string
-	Filename     string
+	Filepath     string
 	Importer     *Importer
 	Imports      []*ast.GenDecl
 	Declarations []ast.Decl
@@ -85,7 +85,7 @@ func NewGlobals() *Globals {
 		},
 		Options:      OptTrapPanic, // set by default
 		PackagePath:  "main",
-		Filename:     "repl.go",
+		Filepath:     "repl.go",
 		Importer:     DefaultImporter(),
 		Imports:      nil,
 		Declarations: nil,
@@ -103,18 +103,18 @@ func (g *Globals) ShowHelp() {
 	fmt.Fprintf(g.Stdout, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
 
 // interpreter commands:
-%cdebug EXPR      debug expression or statement interactively
-%cenv [NAME]      show available functions, variables and constants
-                 in current package, or from imported package NAME
-%chelp            show this help
-%cinspect EXPR    inspect expression interactively
-%coptions [OPTS]  show or toggle interpreter options
-%cpackage PKGPATH switch to package PKGPATH, importing it if possible.
-%cquit            quit the interpreter
-%cunload PKGPATH  remove package PKGPATH from the list of known packages.
-                 later attempts to import it will trigger a recompile
-%cwrite [FILE]    write collected declarations and/or statements to standard output or to FILE
-                 use %co Declarations and/or %co Statements to start collecting them
+%cdebug EXPR        debug expression or statement interactively
+%cenv [NAME]        show available functions, variables and constants
+                   in current package, or from imported package NAME
+%chelp              show this help
+%cinspect EXPR      inspect expression interactively
+%coptions [OPTS]    show or toggle interpreter options
+%cpackage "PKGPATH" switch to package PKGPATH, importing it if possible.
+%cquit              quit the interpreter
+%cunload "PKGPATH"  remove package PKGPATH from the list of known packages.
+                   later attempts to import it will trigger a recompile
+%cwrite [FILE]      write collected declarations and/or statements to standard output or to FILE
+                   use %co Declarations and/or %co Statements to start collecting them
 // abbreviations are allowed if unambiguous.
 `, c, c, c, c, c, c, c, c, c, c, c)
 }
@@ -187,7 +187,7 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 		mode &^= mp.CopySources
 	}
 	parser.Configure(mode, g.MacroChar)
-	parser.Init(g.Fileset, g.Filename, g.Line, src)
+	parser.Init(g.Fileset, g.Filepath, g.Line, src)
 
 	nodes, err := parser.Parse()
 	if err != nil {

@@ -66,11 +66,14 @@ func (ir *Interp) ChangePackage(name, path string) {
 
 	c.CompGlobals.KnownImports[oldp.Path] = oldp // overwrite any cached import with same path as current Interp
 
+	trace := c.Globals.Options&OptShowPrompt != 0
 	top := &Interp{c.TopComp(), ir.env.Top()}
 	if newp != nil {
 		newp.Name = name
 		*ir = newp.asInterpreter(top)
-		c.Debugf("switched to package %v", newp)
+		if trace {
+			c.Debugf("switched to package %v", newp)
+		}
 	} else {
 		// requested package does not exist - create an empty one
 		ir.Comp = NewComp(top.Comp, nil)
@@ -80,9 +83,13 @@ func (ir *Interp) ChangePackage(name, path string) {
 		}
 		ir.Comp.Name = name
 		ir.Comp.Path = path
-		c.Debugf("switched to new package %v", path)
+		if trace {
+			c.Debugf("switched to new package %v", path)
+		}
 	}
-	ir.env.ThreadGlobals.PackagePath = path
+	g := ir.env.ThreadGlobals
+	g.FileEnv = ir.env
+	g.PackagePath = path
 }
 
 // convert *Interp to *Import. used to change package from 'ir'

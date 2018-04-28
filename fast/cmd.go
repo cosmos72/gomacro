@@ -146,20 +146,20 @@ func (ir *Interp) cmdOptions(arg string, opt CmdOpt) (string, CmdOpt) {
 	return "", opt
 }
 
-// change package. path can be empty or a package path with or without quotes
+// change package. path can be empty or a package path WITH quotes
+// 'package NAME' where NAME is without quotes has no effect.
 func (ir *Interp) cmdPackage(path string, cmdopt CmdOpt) (string, CmdOpt) {
+	c := ir.Comp
+	g := c.Globals
 	path = strings.TrimSpace(path)
 	n := len(path)
-	if n >= 2 && path[0] == '"' && path[n-1] == '"' {
-		path = path[1 : n-1]
-		n -= 2
-	}
 	if len(path) == 0 {
-		c := ir.Comp
-		g := c.Globals
 		g.Fprintf(g.Stdout, "// current package: %s %q\n", c.Name, c.Path)
-	} else {
+	} else if n > 2 && path[0] == '"' && path[n-1] == '"' {
+		path = path[1 : n-1]
 		ir.ChangePackage(FileName(path), path)
+	} else if g.Options&OptShowPrompt != 0 {
+		g.Debugf(`package %s has no effect. To switch to a different package, use package "PACKAGE/FULL/PATH" - note the quotes`, path)
 	}
 	return "", cmdopt
 }

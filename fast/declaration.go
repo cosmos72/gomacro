@@ -105,7 +105,7 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 						}
 					}
 					// c.changePackage(name)
-					c.Debugf("cannot switch package from fast.Comp.Compile(), use Interp.Repl() instead: %v // %T", node, node)
+					c.Debugf("cannot switch package from fast.Comp.Compile(), use Interp.ChangePackage() instead: %v // %T", node, node)
 				}
 			}
 		}

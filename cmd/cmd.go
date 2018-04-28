@@ -26,9 +26,7 @@
 package cmd
 
 import (
-	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -89,7 +87,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 				buf.WriteByte('\n')      // because ReadMultiLine() needs a final '\n'
 				g.Options |= OptShowEval // set by default, overridden by -s, -v and -vv
 				g.Options = (g.Options | set) &^ clear
-				_, err := cmd.EvalReader(buf)
+				err := cmd.EvalReader(buf)
 				if err != nil {
 					return err
 				}
@@ -231,23 +229,12 @@ const disclaimer = `// ---------------------------------------------------------
 
 `
 
-func (cmd *Cmd) EvalFile(filename string) (err error) {
+func (cmd *Cmd) EvalFile(filename string) error {
 	g := cmd.Interp.Comp.Globals
 	g.Declarations = nil
 	g.Statements = nil
-	saveFilename := g.Filename
 
-	f, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		f.Close()
-		g.Filename = saveFilename
-	}()
-	g.Filename = filename
-	var comments string
-	comments, err = cmd.EvalReader(f)
+	comments, err := cmd.Interp.EvalFile(filename)
 	if err != nil {
 		return err
 	}
@@ -277,41 +264,10 @@ func (cmd *Cmd) EvalFile(filename string) (err error) {
 	return nil
 }
 
-func (cmd *Cmd) EvalReader(src io.Reader) (comments string, err error) {
-	ir := cmd.Interp
-	g := ir.Comp.CompGlobals
-	g.Options &^= OptShowPrompt // parsing a file: suppress prompt
-	g.Line = 0
-
-	in := MakeBufReadline(bufio.NewReader(src), g.Stdout)
-
-	savein := g.Readline
-	g.Readline = in
-	defer func() {
-		g.Readline = savein
-		if rec := recover(); rec != nil {
-			switch rec := rec.(type) {
-			case error:
-				err = rec
-			default:
-				err = errors.New(fmt.Sprint(rec))
-			}
-		}
-	}()
-
-	// perform the first iteration manually, to collect comments
-	str, firstToken := g.ReadMultiline(ReadOptCollectAllComments, g.Prompt)
-	if firstToken >= 0 {
-		comments = str[0:firstToken]
-		if firstToken > 0 {
-			str = str[firstToken:]
-			g.IncLine(comments)
-		}
+func (cmd *Cmd) EvalReader(src io.Reader) error {
+	_, err := cmd.Interp.EvalReader(src)
+	if err != nil {
+		return err
 	}
-
-	if ir.ParseEvalPrint(str) {
-		for ir.ReadParseEvalPrint() {
-		}
-	}
-	return comments, nil
+	return nil
 }

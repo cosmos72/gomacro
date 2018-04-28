@@ -127,19 +127,21 @@ func (ir *Interp) cmdOptions(arg string, opt CmdOpt) (string, CmdOpt) {
 	return "", opt
 }
 
-// change package. path can be empty or a package path with or without quotes
+// change package. path can be empty or a package path WITH quotes
+// 'package NAME' where NAME is without quotes has no effect.
 func (ir *Interp) cmdPackage(path string, cmdopt CmdOpt) (string, CmdOpt) {
 	env := ir.Env
+	g := env.Globals
 	path = strings.TrimSpace(path)
 	n := len(path)
-	if n >= 2 && path[0] == '"' && path[n-1] == '"' {
+	if n == 0 {
+		g.Fprintf(g.Stdout, "// current package: %s %q\n", env.Name, env.Path)
+	} else if n > 2 && path[0] == '"' && path[n-1] == '"' {
 		path = path[1 : n-1]
 		n -= 2
-	}
-	if n == 0 {
-		fmt.Fprintf(env.Stdout, "// current package: %s %q\n", env.Name, env.Path)
-	} else {
 		ir.ChangePackage(path)
+	} else if g.Options&OptShowPrompt != 0 {
+		g.Debugf(`package %s has no effect. To switch to a different package, use package "PACKAGE/FULL/PATH" - note the quotes`, path)
 	}
 	return "", cmdopt
 }
@@ -150,6 +152,9 @@ func (ir *Interp) cmdQuit(_ string, opt CmdOpt) (string, CmdOpt) {
 
 // remove package 'path' from the list of known packages
 func (ir *Interp) cmdUnload(path string, opt CmdOpt) (string, CmdOpt) {
+	if n := len(path); n >= 2 && path[0] == '"' && path[n-1] == '"' {
+		path = path[1 : n-1]
+	}
 	if len(path) != 0 {
 		ir.Env.Globals.UnloadPackage(path)
 	}

@@ -112,18 +112,28 @@ func (env *Env) MergePackage(pkg imports.Package) {
 }
 
 func (env *Env) ChangePackage(path string) *Env {
-	fenv := env.FileEnv()
-	currpath := fenv.ThreadGlobals.PackagePath
+	g := env.ThreadGlobals
+	currpath := g.PackagePath
 	if path == currpath {
 		return env
 	}
+	fenv := env.FileEnv()
+	if fenv.ThreadGlobals != g {
+		env.Warnf("ChangePackage: env.ThreadGlobals = %#v\n\tenv.FileEnv().ThreadGlobals = %#v", g, fenv.ThreadGlobals)
+	}
+
 	// FIXME really store into imports.Packages fenv's interpreted functions, types, variable and constants ?
 	// We need a way to find fenv by name later, but storing it in imports.Packages seems excessive.
 	imports.Packages.MergePackage(currpath, fenv.AsPackage())
 
 	nenv := NewEnv(fenv.TopEnv(), path)
 	nenv.MergePackage(imports.Packages[path])
+	nenv.ThreadGlobals = env.ThreadGlobals
 	nenv.ThreadGlobals.PackagePath = path
+
+	if env.Globals.Options&OptShowPrompt != 0 {
+		env.Debugf("switched to package %q\n%s", path)
+	}
 
 	return nenv
 }
