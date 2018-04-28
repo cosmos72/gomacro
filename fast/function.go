@@ -314,8 +314,7 @@ func (c *Comp) funcResultBinds(functype *ast.FuncType, t xr.Type, names []string
 		bind := c.DeclVar0(name, t.Out(i), nil)
 		binds[i] = bind
 		// compile the extraction of results from runtime env
-		sym := bind.AsSymbol(0)
-		funs[i] = c.Symbol(sym).WithFun()
+		funs[i] = c.Bind(bind).WithFun()
 	}
 	return
 }

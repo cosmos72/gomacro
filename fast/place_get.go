@@ -34,6 +34,7 @@ import (
 	r "reflect"
 )
 
+// compile a read operation on a place
 func (c *Comp) GetPlace(place *Place) *Expr {
 	if place.IsVar() {
 		return c.Symbol(place.Var.AsSymbol())

@@ -252,7 +252,7 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 			return env.Code[env.IP], env
 		})
 	} else {
-		emap := c.Symbol(bindmap.AsSymbol(0))
+		emap := c.Bind(bindmap)
 		c.SetPlace(placeval, token.ASSIGN, c.mapIndex1(nil, emap, ekey))
 	}
 
@@ -276,8 +276,8 @@ func (c *Comp) rangeSlice(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	if node.Value != nil || t.Kind() != r.Array {
 		// Go spec: one-variable range on array ONLY evaluates the array length, not the array itself
 		// save range variable in an unnamed bind
-		sym := c.DeclVar0("", nil, erange).AsSymbol(0)
-		erange = c.Symbol(sym)
+		bind := c.DeclVar0("", nil, erange)
+		erange = c.Bind(bind)
 	}
 
 	if t.Kind() == r.Array {
@@ -288,8 +288,8 @@ func (c *Comp) rangeSlice(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 		elen0 := exprFun(c.TypeOfInt(), func(env *Env) int {
 			return rangefun(env).Len()
 		})
-		symlen := c.DeclVar0("", nil, elen0).AsSymbol(0)
-		elen = c.Symbol(symlen)
+		bindlen := c.DeclVar0("", nil, elen0)
+		elen = c.Bind(bindlen)
 	}
 
 	placekey, placeval := c.rangeVars(node, c.TypeOfInt(), t.Elem())
@@ -369,7 +369,7 @@ func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	jump.Start = c.Code.Len()
 
 	if placekey != nil {
-		c.SetPlace(placekey, token.ASSIGN, c.Symbol(bindnext.AsSymbol(0)))
+		c.SetPlace(placekey, token.ASSIGN, c.Bind(bindnext))
 	}
 	if placeval == nil {
 		c.append(func(env *Env) (Stmt, *Env) {
@@ -434,7 +434,7 @@ func (c *Comp) rangeString(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 			env.IP = ip
 			return env.Code[ip], env
 		})
-		c.SetPlace(placeval, token.ASSIGN, c.Symbol(bindrune.AsSymbol(0)))
+		c.SetPlace(placeval, token.ASSIGN, c.Bind(bindrune))
 	}
 
 	// compile the body
