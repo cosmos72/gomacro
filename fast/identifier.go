@@ -105,7 +105,7 @@ func (sym *Symbol) Expr(depth int, st *base.Stringer) *Expr {
 	case VarBind, FuncBind:
 		return sym.expr(depth, st)
 	case IntBind:
-		return sym.intExpr(st)
+		return sym.intExpr(depth, st)
 	default:
 		st.Errorf("unknown symbol class %s", sym.Desc.Class())
 	}
@@ -689,7 +689,7 @@ func (bind *Bind) intExpr(st *base.Stringer) *Expr {
 }
 
 // return an expression that will read Symbol optimized value at runtime
-func (sym *Symbol) intExpr(st *base.Stringer) *Expr {
+func (sym *Symbol) intExpr(depth int, st *base.Stringer) *Expr {
 	upn := sym.Upn
 	k := sym.Type.Kind()
 	idx := sym.Desc.Index()
@@ -821,6 +821,69 @@ func (sym *Symbol) intExpr(st *base.Stringer) *Expr {
 		case r.Complex64:
 			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.Ints[idx]))
+			}
+		}
+	case depth - 1:
+		switch k {
+		case r.Bool:
+			fun = func(env *Env) bool {
+				return *(*bool)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Int:
+			fun = func(env *Env) int {
+				return *(*int)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Int8:
+			fun = func(env *Env) int8 {
+				return *(*int8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Int16:
+			fun = func(env *Env) int16 {
+				return *(*int16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Int32:
+			fun = func(env *Env) int32 {
+				return *(*int32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Int64:
+			fun = func(env *Env) int64 {
+				return *(*int64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Uint:
+			fun = func(env *Env) uint {
+				return *(*uint)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Uint8:
+			fun = func(env *Env) uint8 {
+				return *(*uint8)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Uint16:
+			fun = func(env *Env) uint16 {
+				return *(*uint16)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Uint32:
+			fun = func(env *Env) uint32 {
+				return *(*uint32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Uint64:
+			fun = func(env *Env) uint64 {
+				return env.ThreadGlobals.FileEnv.Ints[idx]
+			}
+		case r.Uintptr:
+			fun = func(env *Env) uintptr {
+				return *(*uintptr)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Float32:
+			fun = func(env *Env) float32 {
+				return *(*float32)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Float64:
+			fun = func(env *Env) float64 {
+				return *(*float64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
+			}
+		case r.Complex64:
+			fun = func(env *Env) complex64 {
+				return *(*complex64)(unsafe.Pointer(&env.ThreadGlobals.FileEnv.Ints[idx]))
 			}
 		}
 	default:

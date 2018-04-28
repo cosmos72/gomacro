@@ -31,6 +31,7 @@ import (
 	"github.com/cosmos72/gomacro/fast"
 )
 
+// show local variables
 func (d *Debugger) Vars() {
 	env := d.env
 	var envs []*fast.Env
@@ -47,7 +48,7 @@ func (d *Debugger) Vars() {
 }
 
 func (d *Debugger) showEnvs(envs []*fast.Env) {
-	// show outermost scope
+	// show outermost scope first
 	for i := len(envs) - 1; i >= 0; i-- {
 		d.showEnv(envs[i])
 	}
@@ -59,7 +60,7 @@ func (d *Debugger) showEnv(env *fast.Env) {
 		return
 	}
 	g := d.globals
-	g.Fprintf(g.Stdout, "// ------------------------\n")
+	g.Fprintf(g.Stdout, "// ----------\n")
 	binds := make([]*fast.Bind, len(c.Binds))
 	i := 0
 	for _, bind := range c.Binds {
