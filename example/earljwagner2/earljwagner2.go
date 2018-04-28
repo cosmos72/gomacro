@@ -18,7 +18,7 @@ func fail(format string, args ...interface{}) {
 // with another (corrected) interpreted function,
 // without losing the packages already loaded in the intepreter
 func main() {
-	// 1. allocate the fast interpreter. Reason: the fast.Interp.EvalFile() does not have yet a second argument 'pkgpath'
+	// 1. create the fast interpreter.
 	ir := fast.New()
 
 	// 2. switch to package "github.com/cosmos72/gomacro/example/earljwagner2"
