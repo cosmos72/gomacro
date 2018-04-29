@@ -79,9 +79,9 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 	var funcbind *Bind
 	if ismacro {
 		// use a ConstBind, as builtins do
-		funcbind = c.AddBind(funcname, ConstBind, c.TypeOfMacro())
+		funcbind = c.NewBind(funcname, ConstBind, c.TypeOfMacro())
 	} else {
-		funcbind = c.AddBind(funcname, FuncBind, t)
+		funcbind = c.NewBind(funcname, FuncBind, t)
 	}
 	cf := NewComp(c, nil)
 	info, resultfuns := cf.funcBinds(funcname, functype, t, paramnames, resultnames)
@@ -286,7 +286,7 @@ func (c *Comp) funcParamBinds(functype *ast.FuncType, t xr.Type, names []string)
 		if namedparams && unnamedparams {
 			c.Errorf("cannot mix named and unnamed parameters in function declaration: %v", functype)
 		}
-		bind := c.AddBind(name, VarBind, t.In(i))
+		bind := c.NewBind(name, VarBind, t.In(i))
 		binds[i] = bind
 	}
 	return binds

@@ -51,7 +51,7 @@ func (c *Comp) Select(node *ast.SelectStmt, labels []string) {
 	}
 
 	// unnamed bind, contains received value. Nil means nothing received
-	bindrecv := c.AddBind("", VarBind, c.TypeOfInterface())
+	bindrecv := c.NewBind("", VarBind, c.TypeOfInterface())
 	idxrecv := bindrecv.Desc.Index()
 
 	list := node.Body.List

@@ -193,8 +193,8 @@ func (c *Comp) typeswitchNode(stmt ast.Stmt) (ast.Expr, string) {
 // finally returns another expression that retrieves the expression value
 // with its concrete type
 func (c *Comp) typeswitchTag(e *Expr) *Bind {
-	bind := c.AddBind("", VarBind, e.Type)               // e.Type must be an interface type...
-	tbind := c.AddBind("", VarBind, c.TypeOfInterface()) // no need to store as xr.Type
+	bind := c.NewBind("", VarBind, e.Type)               // e.Type must be an interface type...
+	tbind := c.NewBind("", VarBind, c.TypeOfInterface()) // no need to store as xr.Type
 	if tbind.Desc.Index() != bind.Desc.Index()+1 {
 		c.Errorf("internal error: consecutive binds have non-consecutive indexes %d and %d",
 			bind.Desc.Index()+1, tbind.Desc.Index())
@@ -470,7 +470,7 @@ func (c *Comp) typeswitchBody(list []ast.Stmt, varname string, t xr.Type, bind *
 func (c *Comp) typeswitchVar(varname string, t xr.Type, sym *Symbol) {
 	sidx := sym.Bind.Desc.Index()
 
-	bind := c.AddBind(varname, VarBind, t)
+	bind := c.NewBind(varname, VarBind, t)
 	idx := bind.Desc.Index()
 
 	if sym.Upn != 1 {

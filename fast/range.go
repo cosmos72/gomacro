@@ -117,7 +117,7 @@ func (c *Comp) rangeChan(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 		})
 	} else {
 		// unnamed bind, contains last received value
-		bindrecv := c.AddBind("", VarBind, c.TypeOfInterface())
+		bindrecv := c.NewBind("", VarBind, c.TypeOfInterface())
 		idxrecv := bindrecv.Desc.Index()
 
 		c.append(func(env *Env) (Stmt, *Env) {
@@ -157,7 +157,7 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 	idxmap := bindmap.Desc.Index()
 
 	// unnamed bind, contains map keys
-	bindkeys := c.AddBind("", VarBind, tkeyslice)
+	bindkeys := c.NewBind("", VarBind, tkeyslice)
 	idxkeys := bindkeys.Desc.Index()
 	c.append(func(env *Env) (Stmt, *Env) {
 		// convert []r.Value slice into a []rtkey slice, to avoid reflect.Value.Interface() while iterating

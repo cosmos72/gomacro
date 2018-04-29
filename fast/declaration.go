@@ -244,22 +244,22 @@ func (c *Comp) DeclConst0(name string, t xr.Type, value I) {
 	} else {
 		value = lit.ConstTo(t)
 	}
-	bind := c.AddBind(name, ConstBind, t)
+	bind := c.NewBind(name, ConstBind, t)
 	bind.Value = value // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 }
 
 // AddFuncBind reserves space for a subsequent function declaration
-func (c *Comp) AddFuncBind(name string, t xr.Type) *Bind {
-	bind := c.AddBind(name, FuncBind, t)
+func (c *Comp) NewFuncBind(name string, t xr.Type) *Bind {
+	bind := c.NewBind(name, FuncBind, t)
 	if bind.Desc.Class() != FuncBind {
-		c.Errorf("internal error! Comp.AddBind(name=%q, class=FuncBind, type=%v) returned class=%v, expecting FuncBind",
+		c.Errorf("internal error! Comp.NewBind(name=%q, class=FuncBind, type=%v) returned class=%v, expecting FuncBind",
 			name, t, bind.Desc.Class())
 	}
 	return bind
 }
 
 // AddBind reserves space for a subsequent constant, function or variable declaration
-func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
+func (c *Comp) NewBind(name string, class BindClass, t xr.Type) *Bind {
 	if class == IntBind || class == VarBind {
 		// respect c.IntBindMax: if != 0, it's the maximum number of IntBind variables we can declare
 		// reason: see comment in IntBindMax definition. Shortly, Ent.Ints[] address was taken
@@ -273,11 +273,11 @@ func (c *Comp) AddBind(name string, class BindClass, t xr.Type) *Bind {
 			class = VarBind
 		}
 	}
-	return c.CompBinds.AddBind(&c.Output, name, class, t)
+	return c.CompBinds.NewBind(&c.Output, name, class, t)
 }
 
 // AddBind reserves space for a subsequent constant, function or variable declaration
-func (c *CompBinds) AddBind(o *base.Output, name string, class BindClass, t xr.Type) *Bind {
+func (c *CompBinds) NewBind(o *base.Output, name string, class BindClass, t xr.Type) *Bind {
 	// do NOT replace VarBind -> IntBind here: done by Comp.AddBind() above,
 	// and we are also invoked by Import.loadBinds() which needs to store
 	// booleans, integers, floats and complex64 into reflect.Value
@@ -335,7 +335,7 @@ func (c *CompBinds) AddBind(o *base.Output, name string, class BindClass, t xr.T
 
 func (c *Comp) declUnnamedBind(init *Expr, o *Comp, upn int) *Symbol {
 	t := init.Type
-	bind := o.AddBind("", VarBind, t)
+	bind := o.NewBind("", VarBind, t)
 	// c.Debugf("declUnnamedBind: allocated bind %v, upn = %d", bind, upn)
 	switch bind.Desc.Class() {
 	case IntBind:
@@ -413,7 +413,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 			c.Warnf("initializer returns %d values, using only the first one to declare variable: %v", n, name)
 		}
 	}
-	bind := c.AddBind(name, VarBind, t)
+	bind := c.NewBind(name, VarBind, t)
 	desc := bind.Desc
 	switch desc.Class() {
 	default:
@@ -574,7 +574,7 @@ func (c *Comp) DeclMultiVar0(names []string, t xr.Type, init *Expr, pos []token.
 				ti = t // declared variable has type t, not the i-th type returned by multi-valued expression
 			}
 		}
-		bind := c.AddBind(name, VarBind, ti)
+		bind := c.NewBind(name, VarBind, ti)
 		decls[i] = c.DeclBindRuntimeValue(bind)
 	}
 	fun := init.AsXV(COptDefaults)
@@ -603,7 +603,7 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 	if t.Kind() != r.Func {
 		c.Errorf("DeclFunc0(%s): expecting a function, received %v <%v>", name, fun, t)
 	}
-	bind := c.AddFuncBind(name, t)
+	bind := c.NewFuncBind(name, t)
 	index := bind.Desc.Index()
 	ret := func(env *Env) (Stmt, *Env) {
 		env.Vals[index] = funv
@@ -617,7 +617,7 @@ func (c *Comp) DeclFunc0(name string, fun I) *Bind {
 // DeclEnvFunc0 compiles a function declaration that accesses interpreter's Env. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclEnvFunc0(name string, envfun Function) *Bind {
 	t := c.TypeOfFunction()
-	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
+	bind := c.NewBind(name, ConstBind, t) // not a regular function... its type is not accurate
 	bind.Value = envfun                   // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 	return bind
 }
@@ -625,7 +625,7 @@ func (c *Comp) DeclEnvFunc0(name string, envfun Function) *Bind {
 // DeclBuiltin0 compiles a builtin function declaration. For caller's convenience, returns allocated Bind
 func (c *Comp) DeclBuiltin0(name string, builtin Builtin) *Bind {
 	t := c.TypeOfBuiltin()
-	bind := c.AddBind(name, ConstBind, t) // not a regular function... its type is not accurate
+	bind := c.NewBind(name, ConstBind, t) // not a regular function... its type is not accurate
 	bind.Value = builtin                  // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 	return bind
 }

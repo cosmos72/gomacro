@@ -43,37 +43,35 @@ import (
 // note that Interp.Eval() does **not** look for special commands!
 //
 // Cmd.Name is the command name **without** the initial ':'
-//          it must be a valid Go identifier and must not be empty.
-//          Using a reserved Go keyword (const, for, func, if, package, return, switch, type, var...)
-//          or predefined identifier (bool, int, rune, true, false, nil...)
-//          is a bad idea because it interferes with gomacro preprocessor mode.
-//          Current limitation: Cmd.Name[0] must be ASCII.
+//   it must be a valid Go identifier and must not be empty.
+//   Using a reserved Go keyword (const, for, func, if, package, return, switch, type, var...)
+//   or predefined identifier (bool, int, rune, true, false, nil...)
+//   is a bad idea because it interferes with gomacro preprocessor mode.
+//   Current limitation: Cmd.Name[0] must be ASCII.
 //
 // Cmd.Help is the help string that will be displayed by :help
-//          please look at current :help output and use the same layout if possible.
+//   please look at current :help output and use the same layout if possible.
 //
 // Cmd.Func is the command implementation. it receives as arguments:
-//     * the current Interp object,
-//     * the (possibly multi-line) argument string typed by the user
-//       note: it will always have balanced amounts of {} [] () '' "" and ``
-//     * the current command options
+//   - the current Interp object,
+//   - the (possibly multi-line) argument string typed by the user
+//     note: it will always have balanced amounts of {} [] () '' "" and ``
+//   - the current command options
 //
 // Cmd.Func can perform any action desired by the implementor,
 // including calls to Interp methods, and it must return:
-//     * a string to be subsequently evaluated by the interpreter.
-//       return the empty string if the command does not need any subsequent evaluation,
-//       or if it performed the evaluation by itself.
-//     * the updated command options.
-//       return the received 'opt' argument unless you need to update it.
+//   - a string to be subsequently evaluated by the interpreter.
+//     return the empty string if the command does not need any subsequent evaluation,
+//     or if it performed the evaluation by itself.
+//   - the updated command options.
+//     return the received 'opt' argument unless you need to update it.
 //
 // If Cmd.Func needs to print something, it's recommended to use
-//    ```
-//    g := interp.Comp.Globals
-//    g.Fprintf(g.Stdout, FORMAT, ARGS...)
-//    ```
-//    instead of the various fmt.*Print* functions, in order to
-//    pretty-print interpreter-generated objects (g.Fprintf)
-//    and to honour configured redirections (g.Stdout)
+//      g := interp.Comp.Globals
+//      g.Fprintf(g.Stdout, FORMAT, ARGS...)
+//   instead of the various fmt.*Print* functions, in order to
+//   pretty-print interpreter-generated objects (g.Fprintf)
+//   and to honour configured redirections (g.Stdout)
 //
 // To register a new special command, use Commands.Add()
 // To unregister an existing special command, use Commands.Del()
@@ -85,7 +83,7 @@ type Cmd struct {
 }
 
 // if cmd.Name starts with prefix return 0;
-// else if cmd.Name < prefix return -1
+// else if cmd.Name < prefix return -1;
 // else return 1
 func (cmd *Cmd) Match(prefix string) int {
 	name := cmd.Name
@@ -111,6 +109,10 @@ type Cmds struct {
 	m map[byte][]Cmd
 }
 
+// search for a Cmd whose name starts with prefix.
+// return (zero value, io.EOF) if no match.
+// return (cmd, nil) if exactly one match.
+// return (zero value, list of match names) if more than one match
 func (cmds Cmds) Lookup(prefix string) (Cmd, error) {
 	if len(prefix) != 0 {
 		if vec, ok := cmds.m[prefix[0]]; ok {
@@ -177,6 +179,7 @@ func binarySearch(vec []Cmd, exact string) (int, bool) {
 	return lo, false
 }
 
+// return the list of currently registered special commands
 func (cmds Cmds) List() []Cmd {
 	var list []Cmd
 	for _, vec := range cmds.m {

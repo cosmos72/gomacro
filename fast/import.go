@@ -189,7 +189,7 @@ func (c *Comp) declImport0(name string, imp *Import) {
 	// treat imported package as a constant,
 	// because to compile code we need the declarations it contains:
 	// importing them at runtime would be too late.
-	bind := c.AddBind(name, ConstBind, c.TypeOfPtrImport())
+	bind := c.NewBind(name, ConstBind, c.TypeOfPtrImport())
 	bind.Value = imp // Comp.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 }
 
@@ -221,7 +221,7 @@ func (c *Comp) declDotImport0(imp *Import) {
 		if class == IntBind {
 			class = VarBind
 		}
-		cbind := c.CompBinds.AddBind(&c.Output, name, class, bind.Type)
+		cbind := c.CompBinds.NewBind(&c.Output, name, class, bind.Type)
 		cidx := cbind.Desc.Index()
 		switch bind.Desc.Class() {
 		case ConstBind:
@@ -283,7 +283,7 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 		if untyped, ok := untypeds[name]; ok {
 			untypedlit, typ := g.parseUntyped(untyped)
 			if typ != nil {
-				bind := imp.CompBinds.AddBind(o, name, ConstBind, typ)
+				bind := imp.CompBinds.NewBind(o, name, ConstBind, typ)
 				bind.Value = untypedlit
 				continue
 			}
@@ -297,7 +297,7 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 			class = ConstBind
 		}
 		typ := g.Universe.FromReflectType(val.Type())
-		bind := imp.CompBinds.AddBind(o, name, class, typ)
+		bind := imp.CompBinds.NewBind(o, name, class, typ)
 		if class == ConstBind && k != r.Invalid {
 			bind.Value = val.Interface()
 		}

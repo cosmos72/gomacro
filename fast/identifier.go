@@ -65,7 +65,7 @@ func (c *Comp) IdentPlace(name string, opt PlaceOption) *Place {
 			return nil
 		}
 		// assignment to _ is allowed: it does nothing
-		bind := c.AddBind(name, VarBind, c.TypeOfInterface())
+		bind := c.NewBind(name, VarBind, c.TypeOfInterface())
 		return &Place{Var: *bind.AsVar(0, PlaceSettable)}
 	}
 	sym := c.Resolve(name)
