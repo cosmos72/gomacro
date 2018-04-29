@@ -220,7 +220,7 @@ func (c *Comp) typeswitchTag(e *Expr) *Bind {
 			return env.Code[env.IP], env
 		})
 	default:
-		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind",
+		c.Errorf("internal error! Comp.NewBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind",
 			"", bind.Type, bind.Desc.Class())
 		return nil
 	}

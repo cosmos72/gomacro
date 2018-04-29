@@ -560,7 +560,7 @@ type CompBinds struct {
 	// if address of some Env.Ints[index] was taken, we must honor it:
 	// we can no longer reallocate Env.Ints[], thus we cannot declare IntBind variables
 	// beyond Env.Ints[] capacity. In such case, we set IntBindMax to cap(Env.Ints):
-	// Comp.AddBind() will allocate IntBind variables only up to IntBindMax,
+	// Comp.NewBind() will allocate IntBind variables only up to IntBindMax,
 	// then switch and allocate them as VarBind instead (they are slower and each one allocates memory)
 	IntBindMax int
 	Types      map[string]xr.Type

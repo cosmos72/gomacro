@@ -271,7 +271,7 @@ func (c *Comp) funcParamBinds(functype *ast.FuncType, t xr.Type, names []string)
 	ismethod := t.IsMethod()
 	for i := 0; i < nin; i++ {
 		// names[i] == "" means that argument is unnamed, and thus ignored inside the function.
-		// change to "_" so that AddBind will not allocate a bind for it - correct optimization...
+		// change to "_" so that NewBind will not allocate a bind for it - correct optimization...
 		// just remember to check for such case when creating the function
 		name := names[i]
 		if !ismethod || i != 0 {

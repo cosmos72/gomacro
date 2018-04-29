@@ -214,7 +214,7 @@ func (c *Comp) declDotImport0(imp *Import) {
 	var findexv []int
 
 	for name, bind := range imp.Binds {
-		// use c.CompBinds.AddBind() to prevent optimization VarBind -> IntBind
+		// use c.CompBinds.NewBind() to prevent optimization VarBind -> IntBind
 		// also, if class == IntBind, we must preserve the address of impenv.Ints[idx]
 		// thus we must convert it into a VarBind (argh!)
 		class := bind.Desc.Class()

@@ -248,7 +248,7 @@ func (c *Comp) DeclConst0(name string, t xr.Type, value I) {
 	bind.Value = value // c.Binds[] is a map[string]*Bind => changes to *Bind propagate to the map
 }
 
-// AddFuncBind reserves space for a subsequent function declaration
+// NewFuncBind reserves space for a subsequent function declaration
 func (c *Comp) NewFuncBind(name string, t xr.Type) *Bind {
 	bind := c.NewBind(name, FuncBind, t)
 	if bind.Desc.Class() != FuncBind {
@@ -258,7 +258,7 @@ func (c *Comp) NewFuncBind(name string, t xr.Type) *Bind {
 	return bind
 }
 
-// AddBind reserves space for a subsequent constant, function or variable declaration
+// NewBind reserves space for a subsequent constant, function or variable declaration
 func (c *Comp) NewBind(name string, class BindClass, t xr.Type) *Bind {
 	if class == IntBind || class == VarBind {
 		// respect c.IntBindMax: if != 0, it's the maximum number of IntBind variables we can declare
@@ -276,9 +276,9 @@ func (c *Comp) NewBind(name string, class BindClass, t xr.Type) *Bind {
 	return c.CompBinds.NewBind(&c.Output, name, class, t)
 }
 
-// AddBind reserves space for a subsequent constant, function or variable declaration
+// NewBind reserves space for a subsequent constant, function or variable declaration
 func (c *CompBinds) NewBind(o *base.Output, name string, class BindClass, t xr.Type) *Bind {
-	// do NOT replace VarBind -> IntBind here: done by Comp.AddBind() above,
+	// do NOT replace VarBind -> IntBind here: done by Comp.NewBind() above,
 	// and we are also invoked by Import.loadBinds() which needs to store
 	// booleans, integers, floats and complex64 into reflect.Value
 	// because such compiled global variables already exist at their own address
@@ -389,7 +389,7 @@ func (c *Comp) declUnnamedBind(init *Expr, o *Comp, upn int) *Symbol {
 			})
 		}
 	default:
-		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind",
+		c.Errorf("internal error! Comp.NewBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind",
 			"", t, bind.Desc.Class())
 		return nil
 	}
@@ -417,7 +417,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 	desc := bind.Desc
 	switch desc.Class() {
 	default:
-		c.Errorf("internal error! Comp.AddBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind",
+		c.Errorf("internal error! Comp.NewBind(name=%q, class=VarBind, type=%v) returned class=%v, expecting VarBind or IntBind",
 			name, t, desc.Class())
 		return bind
 	case IntBind:
