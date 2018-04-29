@@ -53,15 +53,40 @@ func (cmds Cmds) Lookup(prefix string) (Cmd, bool) {
 	return Cmd{}, false
 }
 
-var cmds = Cmds{
-	'e': Cmd{"env", (*Interp).cmdEnv},
-	'h': Cmd{"help", (*Interp).cmdHelp},
-	'i': Cmd{"inspect", (*Interp).cmdInspect},
-	'o': Cmd{"options", (*Interp).cmdOptions},
-	'p': Cmd{"package", (*Interp).cmdPackage},
-	'q': Cmd{"quit", (*Interp).cmdQuit},
-	'u': Cmd{"unload", (*Interp).cmdUnload},
-	'w': Cmd{"write", (*Interp).cmdWrite},
+func (cmds Cmds) ShowHelp(g *Globals) {
+	c := g.ReplCmdChar
+	fmt.Fprintf(g.Stdout, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
+
+// interpreter commands:
+%cdebug EXPR        debug expression or statement interactively
+%cenv [NAME]        show available functions, variables and constants
+                   in current package, or from imported package NAME
+%chelp              show this help
+%cinspect EXPR      inspect expression interactively
+%coptions [OPTS]    show or toggle interpreter options
+%cpackage "PKGPATH" switch to package PKGPATH, importing it if possible.
+%cquit              quit the interpreter
+%cunload "PKGPATH"  remove package PKGPATH from the list of known packages.
+                   later attempts to import it will trigger a recompile
+%cwrite [FILE]      write collected declarations and/or statements to standard output or to FILE
+                   use %co Declarations and/or %co Statements to start collecting them
+// abbreviations are allowed if unambiguous.
+`, c, c, c, c, c, c, c, c, c, c, c)
+}
+
+var cmds Cmds
+
+func init() {
+	cmds = Cmds{
+		'e': Cmd{"env", (*Interp).cmdEnv},
+		'h': Cmd{"help", (*Interp).cmdHelp},
+		'i': Cmd{"inspect", (*Interp).cmdInspect},
+		'o': Cmd{"options", (*Interp).cmdOptions},
+		'p': Cmd{"package", (*Interp).cmdPackage},
+		'q': Cmd{"quit", (*Interp).cmdQuit},
+		'u': Cmd{"unload", (*Interp).cmdUnload},
+		'w': Cmd{"write", (*Interp).cmdWrite},
+	}
 }
 
 // execute one of the REPL commands starting with ':'
@@ -100,7 +125,7 @@ func (ir *Interp) cmdEnv(arg string, opt CmdOpt) (string, CmdOpt) {
 
 func (ir *Interp) cmdHelp(arg string, opt CmdOpt) (string, CmdOpt) {
 	g := ir.Env.ThreadGlobals.Globals
-	g.ShowHelp()
+	cmds.ShowHelp(g)
 	return "", opt
 }
 

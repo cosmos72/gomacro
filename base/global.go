@@ -98,27 +98,6 @@ func NewGlobals() *Globals {
 	}
 }
 
-func (g *Globals) ShowHelp() {
-	c := g.ReplCmdChar
-	fmt.Fprintf(g.Stdout, `// type Go code to execute it. example: func add(x, y int) int { return x + y }
-
-// interpreter commands:
-%cdebug EXPR        debug expression or statement interactively
-%cenv [NAME]        show available functions, variables and constants
-                   in current package, or from imported package NAME
-%chelp              show this help
-%cinspect EXPR      inspect expression interactively
-%coptions [OPTS]    show or toggle interpreter options
-%cpackage "PKGPATH" switch to package PKGPATH, importing it if possible.
-%cquit              quit the interpreter
-%cunload "PKGPATH"  remove package PKGPATH from the list of known packages.
-                   later attempts to import it will trigger a recompile
-%cwrite [FILE]      write collected declarations and/or statements to standard output or to FILE
-                   use %co Declarations and/or %co Statements to start collecting them
-// abbreviations are allowed if unambiguous.
-`, c, c, c, c, c, c, c, c, c, c, c)
-}
-
 func (g *Globals) Gensym() string {
 	n := g.GensymN
 	g.GensymN++
