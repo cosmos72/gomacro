@@ -131,9 +131,13 @@ The [documentation](doc/) also contains the [full list of features and limitatio
 
 ## Extensions
 
-Compared to compiled Go, gomacro supports four extensions:
+Compared to compiled Go, gomacro supports several extensions:
 
 * an integrated debugger, see [Debugger](#debugger)
+
+* configurable special commands. Type `:help` at REPL to list them,
+  and see [cmd.go:37](https://github.com/cosmos72/gomacro/blob/master/fast/cmd.go#L37)
+  for the documentation and API to define new ones.
 
 * untyped constants can be manipulated directly at REPL. Examples:
     ```
