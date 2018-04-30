@@ -33,6 +33,7 @@ import (
 	r "reflect"
 	"sort"
 
+	"github.com/cosmos72/gomacro/atomic"
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
@@ -515,9 +516,17 @@ type Debugger interface {
 	At(ir *Interp, env *Env) DebugOp
 }
 
+// IrGlobals contains interpreter configuration
+type IrGlobals struct {
+	Globals
+	gls  map[uintptr]*ThreadGlobals
+	lock atomic.SpinLock
+}
+
 // ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
 type ThreadGlobals struct {
-	*Globals
+	*IrGlobals
+	goid         uintptr // owner goroutine id
 	FileEnv      *Env
 	TopEnv       *Env
 	Interrupt    Stmt
@@ -537,7 +546,7 @@ type ThreadGlobals struct {
 
 // CompGlobals contains interpreter compile bookeeping information
 type CompGlobals struct {
-	*Globals
+	*IrGlobals
 	Universe     *xr.Universe
 	KnownImports map[string]*Import // map[path]*Import cache of known imports
 	interf2proxy map[r.Type]r.Type  // interface -> proxy

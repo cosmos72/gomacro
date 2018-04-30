@@ -341,7 +341,7 @@ func (ir *Interp) cmdEnv(arg string, opt CmdOpt) (string, CmdOpt) {
 }
 
 func (ir *Interp) cmdHelp(arg string, opt CmdOpt) (string, CmdOpt) {
-	Commands.ShowHelp(ir.Comp.Globals)
+	Commands.ShowHelp(&ir.Comp.Globals)
 	return "", opt
 }
 

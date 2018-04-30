@@ -334,7 +334,7 @@ func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
 		return callAgain
 	}
 
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	if toenable := cmdOptForceEval(g, opt); toenable != 0 {
 		defer func() {
 			g.Options |= toenable

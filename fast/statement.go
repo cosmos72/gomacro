@@ -31,6 +31,7 @@ import (
 	r "reflect"
 	"sort"
 
+	"github.com/cosmos72/gls"
 	. "github.com/cosmos72/gomacro/base"
 )
 
@@ -430,15 +431,11 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	}
 
 	stmt := func(env *Env) (Stmt, *Env) {
-		// create a new Env to hold the new ThreadGlobals and (initially empty) Pool
-		env2 := newEnv4Func(env, 0, 0, debugC)
 		tg := env.ThreadGlobals
-		env2.ThreadGlobals = &ThreadGlobals{
-			FileEnv: tg.FileEnv,
-			TopEnv:  tg.TopEnv,
-			// Interrupt, Signal, PoolSize and Pool are zero-initialized, fine with that
-			Globals: tg.Globals,
-		}
+		// create a new Env to hold the new ThreadGlobals (created in the goroutine below) and (initially empty) Pool
+		env2 := newEnv(tg, env, 0, 0)
+		env2.DebugComp = debugC
+
 		// env2.MarkUsedByClosure() // redundant, done by exprfun(env2) below
 
 		// function and arguments are evaluated in the caller's goroutine
@@ -450,7 +447,14 @@ func (c *Comp) Go(node *ast.GoStmt) {
 		}
 		// the call is executed in a new goroutine.
 		// make it easy and do not try to optimize this call.
-		go funv.Call(argv)
+		go func() {
+			tg2 := tg.new(gls.GoID())
+			env2.ThreadGlobals = tg2
+			tg2.glsStore()
+			defer tg2.glsDel()
+
+			funv.Call(argv)
+		}()
 
 		env.IP++
 		return env.Code[env.IP], env

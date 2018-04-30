@@ -28,100 +28,12 @@ package fast
 import (
 	"go/ast"
 	"go/token"
-	"go/types"
 	r "reflect"
 
+	"github.com/cosmos72/gls"
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
-	xr "github.com/cosmos72/gomacro/xreflect"
 )
-
-func New() *Interp {
-	top := newTopInterp("builtin")
-	top.env.UsedByClosure = true // do not free this *Env
-	file := NewInnerInterp(top, "main", "main")
-	file.env.UsedByClosure = true // do not free this *Env
-	return file
-}
-
-func newTopInterp(path string) *Interp {
-	name := FileName(path)
-
-	globals := NewGlobals()
-	universe := xr.NewUniverse()
-
-	compGlobals := &CompGlobals{
-		Globals:      globals,
-		Universe:     universe,
-		KnownImports: make(map[string]*Import),
-		interf2proxy: make(map[r.Type]r.Type),
-		proxy2interf: make(map[r.Type]xr.Type),
-		Prompt:       "gomacro> ",
-	}
-	envGlobals := &ThreadGlobals{Globals: globals}
-	ir := &Interp{
-		Comp: &Comp{
-			CompGlobals: compGlobals,
-			CompBinds: CompBinds{
-				Name: name,
-				Path: path,
-			},
-			UpCost: 1,
-			Depth:  0,
-			Outer:  nil,
-		},
-		env: &Env{
-			Outer:         nil,
-			ThreadGlobals: envGlobals,
-		},
-	}
-	// tell xreflect about our packages "fast" and "main"
-	universe.CachePackage(types.NewPackage("fast", "fast"))
-	universe.CachePackage(types.NewPackage("main", "main"))
-
-	// no need to scavenge for Builtin, Function,  Macro and UntypedLit fields and methods.
-	// actually, making them opaque helps securing against malicious interpreted code.
-	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfPtrImport, rtypeOfMacro} {
-		compGlobals.opaqueType(rtype, "fast")
-	}
-	compGlobals.opaqueType(rtypeOfUntypedLit, "untyped")
-
-	envGlobals.TopEnv = ir.env
-	ir.addBuiltins()
-	return ir
-}
-
-func NewInnerInterp(outer *Interp, name string, path string) *Interp {
-	if len(name) == 0 {
-		name = FileName(path)
-	}
-
-	outerComp := outer.Comp
-	outerEnv := outer.env
-	g := outerEnv.ThreadGlobals
-	ir := &Interp{
-		Comp: &Comp{
-			CompGlobals: outerComp.CompGlobals,
-			CompBinds: CompBinds{
-				Name: name,
-				Path: path,
-			},
-			UpCost: 1,
-			Depth:  outerComp.Depth + 1,
-			Outer:  outerComp,
-		},
-		env: &Env{
-			Outer:         outerEnv,
-			ThreadGlobals: g,
-			CallDepth:     outerEnv.CallDepth,
-		},
-	}
-	if outerEnv.Outer == nil {
-		g.FileEnv = ir.env
-	}
-	// do NOT set g.CurrEnv = ir.Env, it messes up the call stack
-	return ir
-}
 
 func NewComp(outer *Comp, code *Code) *Comp {
 	if outer == nil {
@@ -159,17 +71,67 @@ func (c *Comp) FileComp() *Comp {
 	return c
 }
 
+func NewIrGlobals() *IrGlobals {
+	return &IrGlobals{
+		Globals: *NewGlobals(),
+		gls:     make(map[uintptr]*ThreadGlobals),
+	}
+}
+
+func (g *IrGlobals) glsGet(goid uintptr) *ThreadGlobals {
+	g.lock.Lock()
+	ret := g.gls[goid]
+	g.lock.Unlock()
+	return ret
+}
+
+func (tg *ThreadGlobals) getThreadGlobals4Goid(goid uintptr) *ThreadGlobals {
+	g := tg.IrGlobals
+	ret := g.glsGet(goid)
+	if ret == nil {
+		ret = tg.new(goid)
+		ret.glsStore()
+	}
+	return ret
+}
+
+func (tg *ThreadGlobals) glsStore() {
+	g := tg.IrGlobals
+	goid := tg.goid
+	g.lock.Lock()
+	g.gls[goid] = tg
+	g.lock.Unlock()
+}
+
+func (tg *ThreadGlobals) glsDel() {
+	g := tg.IrGlobals
+	goid := tg.goid
+	g.lock.Lock()
+	delete(g.gls, goid)
+	g.lock.Unlock()
+}
+
+func (tg *ThreadGlobals) new(goid uintptr) *ThreadGlobals {
+	return &ThreadGlobals{
+		IrGlobals: tg.IrGlobals,
+		goid:      goid,
+		FileEnv:   tg.FileEnv,
+		TopEnv:    tg.TopEnv,
+		// Interrupt, Signal, PoolSize and Pool are zero-initialized, fine with that
+	}
+}
+
 // if a function Env only declares ignored binds, it gets this scratch buffers
 var ignoredBinds = []r.Value{Nil}
 var ignoredIntBinds = []uint64{0}
 
-func NewEnv(outer *Env, nbind int, nintbind int) *Env {
-	g := outer.ThreadGlobals
-	pool := &g.Pool // pool is an array, do NOT copy it!
-	index := g.PoolSize - 1
+// common part between NewEnv(), newEnv4Func() and newEnv4Go()
+func newEnv(tg *ThreadGlobals, outer *Env, nbind int, nintbind int) *Env {
+	pool := &tg.Pool // pool is an array, do NOT copy it!
+	index := tg.PoolSize - 1
 	var env *Env
 	if index >= 0 {
-		g.PoolSize = index
+		tg.PoolSize = index
 		env = pool[index]
 		pool[index] = nil
 	} else {
@@ -190,49 +152,38 @@ func NewEnv(outer *Env, nbind int, nintbind int) *Env {
 		env.Ints = env.Ints[0:nintbind]
 	}
 	env.Outer = outer
+	env.ThreadGlobals = tg
+	return env
+}
+
+// return a new, nested Env with given number of binds and intbinds
+func NewEnv(outer *Env, nbind int, nintbind int) *Env {
+	tg := outer.ThreadGlobals
+	env := newEnv(tg, outer, nbind, nintbind)
+
 	env.IP = outer.IP
 	env.Code = outer.Code
-	env.ThreadGlobals = g
 	env.DebugPos = outer.DebugPos
 	env.CallDepth = outer.CallDepth
 	// this is a nested *Env, not a function body: to obtain the caller function,
 	// follow env.Outer.Outer... chain until you find an *Env with non-nil Caller
 	// env.Caller = nil
 	// DebugCallStack Debugf("NewEnv(%p->%p) nbind=%d nintbind=%d calldepth: %d->%d", outer, env, nbind, nintbind, outer.CallDepth, env.CallDepth)
-	g.CurrEnv = env
+	tg.CurrEnv = env
 	return env
 }
 
 func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
-	g := outer.ThreadGlobals
-	pool := &g.Pool // pool is an array, do NOT copy it!
-	index := g.PoolSize - 1
-	var env *Env
-	if index >= 0 {
-		g.PoolSize = index
-		env = pool[index]
-		pool[index] = nil
-	} else {
-		env = &Env{}
+	goid := gls.GoID()
+	tg := outer.ThreadGlobals
+	if tg.goid != goid {
+		// no luck... get the correct ThreadGlobals for goid
+		tg = tg.getThreadGlobals4Goid(goid)
 	}
-	if nbind <= 1 {
-		env.Vals = ignoredBinds
-	} else if cap(env.Vals) < nbind {
-		env.Vals = make([]r.Value, nbind)
-	} else {
-		env.Vals = env.Vals[0:nbind]
-	}
-	if nintbind <= 1 {
-		env.Ints = ignoredIntBinds
-	} else if cap(env.Ints) < nintbind {
-		env.Ints = make([]uint64, nintbind)
-	} else {
-		env.Ints = env.Ints[0:nintbind]
-	}
-	env.Outer = outer
-	env.ThreadGlobals = g
+	env := newEnv(tg, outer, nbind, nintbind)
+
 	env.DebugComp = debugComp
-	caller := g.CurrEnv
+	caller := tg.CurrEnv
 	env.Caller = caller
 	if caller == nil {
 		env.CallDepth = 1
@@ -240,7 +191,7 @@ func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 		env.CallDepth = caller.CallDepth + 1
 	}
 	// DebugCallStack Debugf("newEnv4Func(%p->%p) nbind=%d nintbind=%d calldepth: %d->%d", caller, env, nbind, nintbind, env.CallDepth-1, env.CallDepth)
-	g.CurrEnv = env
+	tg.CurrEnv = env
 	return env
 }
 

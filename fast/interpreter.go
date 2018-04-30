@@ -29,10 +29,12 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"go/types"
 	"io"
 	"os"
 	r "reflect"
 
+	"github.com/cosmos72/gls"
 	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -43,6 +45,97 @@ import (
 type Interp struct {
 	Comp *Comp
 	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
+}
+
+func New() *Interp {
+	top := newTopInterp("builtin")
+	top.env.UsedByClosure = true // do not free this *Env
+	file := NewInnerInterp(top, "main", "main")
+	file.env.UsedByClosure = true // do not free this *Env
+	return file
+}
+
+func newTopInterp(path string) *Interp {
+	name := FileName(path)
+
+	g := NewIrGlobals()
+	universe := xr.NewUniverse()
+
+	cg := &CompGlobals{
+		IrGlobals:    g,
+		Universe:     universe,
+		KnownImports: make(map[string]*Import),
+		interf2proxy: make(map[r.Type]r.Type),
+		proxy2interf: make(map[r.Type]xr.Type),
+		Prompt:       "gomacro> ",
+	}
+	goid := gls.GoID()
+	tg := &ThreadGlobals{IrGlobals: g, goid: goid}
+	// early register tg in goroutine-local data
+	g.gls[goid] = tg
+
+	ir := &Interp{
+		Comp: &Comp{
+			CompGlobals: cg,
+			CompBinds: CompBinds{
+				Name: name,
+				Path: path,
+			},
+			UpCost: 1,
+			Depth:  0,
+			Outer:  nil,
+		},
+		env: &Env{
+			Outer:         nil,
+			ThreadGlobals: tg,
+		},
+	}
+	// tell xreflect about our packages "fast" and "main"
+	universe.CachePackage(types.NewPackage("fast", "fast"))
+	universe.CachePackage(types.NewPackage("main", "main"))
+
+	// no need to scavenge for Builtin, Function,  Macro and UntypedLit fields and methods.
+	// actually, making them opaque helps securing against malicious interpreted code.
+	for _, rtype := range []r.Type{rtypeOfBuiltin, rtypeOfFunction, rtypeOfPtrImport, rtypeOfMacro} {
+		cg.opaqueType(rtype, "fast")
+	}
+	cg.opaqueType(rtypeOfUntypedLit, "untyped")
+
+	tg.TopEnv = ir.env
+	ir.addBuiltins()
+	return ir
+}
+
+func NewInnerInterp(outer *Interp, name string, path string) *Interp {
+	if len(name) == 0 {
+		name = FileName(path)
+	}
+
+	outerComp := outer.Comp
+	outerEnv := outer.env
+	g := outerEnv.ThreadGlobals
+	ir := &Interp{
+		Comp: &Comp{
+			CompGlobals: outerComp.CompGlobals,
+			CompBinds: CompBinds{
+				Name: name,
+				Path: path,
+			},
+			UpCost: 1,
+			Depth:  outerComp.Depth + 1,
+			Outer:  outerComp,
+		},
+		env: &Env{
+			Outer:         outerEnv,
+			ThreadGlobals: g,
+			CallDepth:     outerEnv.CallDepth,
+		},
+	}
+	if outerEnv.Outer == nil {
+		g.FileEnv = ir.env
+	}
+	// do NOT set g.CurrEnv = ir.Env, it messes up the call stack
+	return ir
 }
 
 func (ir *Interp) SetInspector(inspector Inspector) {

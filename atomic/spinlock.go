@@ -17,40 +17,32 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * inspect.go
+ * spinlock.go
  *
- *  Created on: Apr 20, 2017
+ *  Created on: Apr 30 2018
  *      Author: Massimiliano Ghilardi
  */
 
-package fast
+package atomic
 
 import (
-	r "reflect"
-
-	. "github.com/cosmos72/gomacro/base"
+	"runtime"
+	"sync/atomic"
 )
 
-func (ir *Interp) Inspect(src string) {
-	c := ir.Comp
-	g := c.Globals
-	inspector := g.Inspector
-	if inspector == nil {
-		c.Errorf("no inspector set: call Interp.SetInspector() first")
-		return
-	}
-	// not ir.Compile because it only macroexpands if OptMacroExpandOnly is set
-	val, xtyp := ir.RunExpr1(c.Compile(c.Parse(src)))
-	var typ r.Type
-	if xtyp != nil {
-		typ = xtyp.ReflectType()
-	}
-	if val.IsValid() && val != None {
-		if val.CanInterface() {
-			typ = r.TypeOf(val.Interface()) // show concrete type
-		} else if typ == nil {
-			typ = val.Type()
+type SpinLock int32
+
+func (s *SpinLock) Lock() {
+	for i := 0; i < 10; i++ {
+		if atomic.CompareAndSwapInt32((*int32)(s), 0, 1) {
+			return
 		}
 	}
-	inspector.Inspect(src, val, typ, xtyp, &ir.Comp.Globals)
+	for !atomic.CompareAndSwapInt32((*int32)(s), 0, 1) {
+		runtime.Gosched()
+	}
+}
+
+func (s *SpinLock) Unlock() {
+	atomic.StoreInt32((*int32)(s), 0)
 }
