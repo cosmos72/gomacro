@@ -299,10 +299,10 @@ func (ir *Interp) Cmd(src string) (string, CmdOpt) {
 	g := &ir.Comp.Globals
 	var opt CmdOpt
 
-	src = strings.TrimSpace(src)
-	n := len(src)
-	if n > 0 && src[0] == g.ReplCmdChar {
-		prefix, arg := Split2(src[1:], ' ') // skip g.ReplCmdChar
+	trim := strings.TrimSpace(src)
+	n := len(trim)
+	if n > 0 && trim[0] == g.ReplCmdChar {
+		prefix, arg := Split2(trim[1:], ' ') // skip g.ReplCmdChar
 		cmd, err := Commands.Lookup(prefix)
 		if err == nil {
 			src, opt = cmd.Func(ir, arg, opt)
@@ -316,10 +316,8 @@ func (ir *Interp) Cmd(src string) (string, CmdOpt) {
 			g.Warnf("ambiguous command %q matches: %s", prefix, err)
 			return "", opt
 		}
-	}
-	// :package and package are the same command
-	if g.Options&OptMacroExpandOnly == 0 && (src == "package" || strings.HasPrefix(src, "package ")) {
-		_, arg := Split2(src, ' ')
+	} else if g.Options&OptMacroExpandOnly == 0 && (trim == "package" || strings.HasPrefix(trim, "package ")) {
+		_, arg := Split2(trim, ' ')
 		src, opt = ir.cmdPackage(arg, opt)
 	}
 	return src, opt

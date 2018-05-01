@@ -44,7 +44,7 @@ import (
 // and the interpreter's runtime environment Env
 type Interp struct {
 	Comp *Comp
-	env  *Env // not exported. to access it, call CompEnv.PrepareEnv()
+	env  *Env // not exported. to access it, call Interp.PrepareEnv()
 }
 
 func New() *Interp {
