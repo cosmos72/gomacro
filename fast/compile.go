@@ -123,7 +123,7 @@ func (run *Run) new(goid uintptr) *Run {
 var ignoredBinds = []r.Value{Nil}
 var ignoredIntBinds = []uint64{0}
 
-// common part between NewEnv(), newEnv4Func() and newEnv4Go()
+// common part between NewEnv() and newEnv4Func()
 func newEnv(run *Run, outer *Env, nbind int, nintbind int) *Env {
 	pool := &run.Pool // pool is an array, do NOT copy it!
 	index := run.PoolSize - 1
@@ -158,8 +158,38 @@ func newEnv(run *Run, outer *Env, nbind int, nintbind int) *Env {
 // return a new, nested Env with given number of binds and intbinds
 func NewEnv(outer *Env, nbind int, nintbind int) *Env {
 	run := outer.Run
-	env := newEnv(run, outer, nbind, nintbind)
 
+	// manually inline
+	// env := newEnv(run, outer, nbind, nintbind)
+	var env *Env
+	{
+		pool := &run.Pool // pool is an array, do NOT copy it!
+		index := run.PoolSize - 1
+		if index >= 0 {
+			run.PoolSize = index
+			env = pool[index]
+			pool[index] = nil
+		} else {
+			env = &Env{}
+		}
+		if nbind <= 1 {
+			env.Vals = ignoredBinds
+		} else if cap(env.Vals) < nbind {
+			env.Vals = make([]r.Value, nbind)
+		} else {
+			env.Vals = env.Vals[0:nbind]
+		}
+		if nintbind <= 1 {
+			env.Ints = ignoredIntBinds
+		} else if cap(env.Ints) < nintbind {
+			env.Ints = make([]uint64, nintbind)
+		} else {
+			env.Ints = env.Ints[0:nintbind]
+		}
+		env.Outer = outer
+		env.Run = run
+		env.FileEnv = outer.FileEnv
+	}
 	env.IP = outer.IP
 	env.Code = outer.Code
 	env.DebugPos = outer.DebugPos
@@ -179,8 +209,37 @@ func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 		// no luck... get the correct ThreadGlobals for goid
 		run = run.getRun4Goid(goid)
 	}
-	env := newEnv(run, outer, nbind, nintbind)
-
+	// manually inline
+	// env := newEnv(run, outer, nbind, nintbind)
+	var env *Env
+	{
+		pool := &run.Pool // pool is an array, do NOT copy it!
+		index := run.PoolSize - 1
+		if index >= 0 {
+			run.PoolSize = index
+			env = pool[index]
+			pool[index] = nil
+		} else {
+			env = &Env{}
+		}
+		if nbind <= 1 {
+			env.Vals = ignoredBinds
+		} else if cap(env.Vals) < nbind {
+			env.Vals = make([]r.Value, nbind)
+		} else {
+			env.Vals = env.Vals[0:nbind]
+		}
+		if nintbind <= 1 {
+			env.Ints = ignoredIntBinds
+		} else if cap(env.Ints) < nintbind {
+			env.Ints = make([]uint64, nintbind)
+		} else {
+			env.Ints = env.Ints[0:nintbind]
+		}
+		env.Outer = outer
+		env.Run = run
+		env.FileEnv = outer.FileEnv
+	}
 	env.DebugComp = debugComp
 	caller := run.CurrEnv
 	env.Caller = caller
