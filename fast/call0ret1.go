@@ -73,7 +73,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() bool
 
 					ret = func(env *Env) bool {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() bool)
@@ -123,7 +123,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() int
 
 					ret = func(env *Env) int {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int)
@@ -173,7 +173,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() int8
 
 					ret = func(env *Env) int8 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int8)
@@ -222,7 +222,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() int16
 
 					ret = func(env *Env) int16 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int16)
@@ -271,7 +271,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() int32
 
 					ret = func(env *Env) int32 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int32)
@@ -321,7 +321,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() int64
 
 					ret = func(env *Env) int64 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int64)
@@ -370,7 +370,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() uint
 
 					ret = func(env *Env) uint {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint)
@@ -419,7 +419,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() uint8
 
 					ret = func(env *Env) uint8 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint8)
@@ -468,7 +468,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() uint16
 
 					ret = func(env *Env) uint16 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint16)
@@ -517,7 +517,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() uint32
 
 					ret = func(env *Env) uint32 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint32)
@@ -567,7 +567,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() uint64
 
 					ret = func(env *Env) uint64 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint64)
@@ -616,7 +616,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() uintptr
 
 					ret = func(env *Env) uintptr {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uintptr)
@@ -665,7 +665,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() float32
 
 					ret = func(env *Env) float32 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() float32)
@@ -715,7 +715,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() float64
 
 					ret = func(env *Env) float64 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() float64)
@@ -764,7 +764,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					var cachedfun func() complex64
 
 					ret = func(env *Env) complex64 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() complex64)
@@ -813,7 +813,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 				case maxdepth - 1:
 					var cachedfun func() complex128
 					ret = func(env *Env) complex128 {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() complex128)
@@ -862,7 +862,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 				case maxdepth - 1:
 					var cachedfun func() string
 					ret = func(env *Env) string {
-						funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
 							cachedfun = funv.Interface().(func() string)

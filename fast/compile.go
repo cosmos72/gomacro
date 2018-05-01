@@ -74,28 +74,28 @@ func (c *Comp) FileComp() *Comp {
 func NewIrGlobals() *IrGlobals {
 	return &IrGlobals{
 		Globals: *NewGlobals(),
-		gls:     make(map[uintptr]*ThreadGlobals),
+		gls:     make(map[uintptr]*Run),
 	}
 }
 
-func (g *IrGlobals) glsGet(goid uintptr) *ThreadGlobals {
+func (g *IrGlobals) glsGet(goid uintptr) *Run {
 	g.lock.Lock()
 	ret := g.gls[goid]
 	g.lock.Unlock()
 	return ret
 }
 
-func (tg *ThreadGlobals) getThreadGlobals4Goid(goid uintptr) *ThreadGlobals {
-	g := tg.IrGlobals
+func (run *Run) getRun4Goid(goid uintptr) *Run {
+	g := run.IrGlobals
 	ret := g.glsGet(goid)
 	if ret == nil {
-		ret = tg.new(goid)
+		ret = run.new(goid)
 		ret.glsStore()
 	}
 	return ret
 }
 
-func (tg *ThreadGlobals) glsStore() {
+func (tg *Run) glsStore() {
 	g := tg.IrGlobals
 	goid := tg.goid
 	g.lock.Lock()
@@ -103,7 +103,7 @@ func (tg *ThreadGlobals) glsStore() {
 	g.lock.Unlock()
 }
 
-func (tg *ThreadGlobals) glsDel() {
+func (tg *Run) glsDel() {
 	g := tg.IrGlobals
 	goid := tg.goid
 	g.lock.Lock()
@@ -111,12 +111,10 @@ func (tg *ThreadGlobals) glsDel() {
 	g.lock.Unlock()
 }
 
-func (tg *ThreadGlobals) new(goid uintptr) *ThreadGlobals {
-	return &ThreadGlobals{
-		IrGlobals: tg.IrGlobals,
+func (run *Run) new(goid uintptr) *Run {
+	return &Run{
+		IrGlobals: run.IrGlobals,
 		goid:      goid,
-		FileEnv:   tg.FileEnv,
-		TopEnv:    tg.TopEnv,
 		// Interrupt, Signal, PoolSize and Pool are zero-initialized, fine with that
 	}
 }
@@ -126,12 +124,12 @@ var ignoredBinds = []r.Value{Nil}
 var ignoredIntBinds = []uint64{0}
 
 // common part between NewEnv(), newEnv4Func() and newEnv4Go()
-func newEnv(tg *ThreadGlobals, outer *Env, nbind int, nintbind int) *Env {
-	pool := &tg.Pool // pool is an array, do NOT copy it!
-	index := tg.PoolSize - 1
+func newEnv(run *Run, outer *Env, nbind int, nintbind int) *Env {
+	pool := &run.Pool // pool is an array, do NOT copy it!
+	index := run.PoolSize - 1
 	var env *Env
 	if index >= 0 {
-		tg.PoolSize = index
+		run.PoolSize = index
 		env = pool[index]
 		pool[index] = nil
 	} else {
@@ -152,14 +150,15 @@ func newEnv(tg *ThreadGlobals, outer *Env, nbind int, nintbind int) *Env {
 		env.Ints = env.Ints[0:nintbind]
 	}
 	env.Outer = outer
-	env.ThreadGlobals = tg
+	env.Run = run
+	env.FileEnv = outer.FileEnv
 	return env
 }
 
 // return a new, nested Env with given number of binds and intbinds
 func NewEnv(outer *Env, nbind int, nintbind int) *Env {
-	tg := outer.ThreadGlobals
-	env := newEnv(tg, outer, nbind, nintbind)
+	run := outer.Run
+	env := newEnv(run, outer, nbind, nintbind)
 
 	env.IP = outer.IP
 	env.Code = outer.Code
@@ -169,21 +168,21 @@ func NewEnv(outer *Env, nbind int, nintbind int) *Env {
 	// follow env.Outer.Outer... chain until you find an *Env with non-nil Caller
 	// env.Caller = nil
 	// DebugCallStack Debugf("NewEnv(%p->%p) nbind=%d nintbind=%d calldepth: %d->%d", outer, env, nbind, nintbind, outer.CallDepth, env.CallDepth)
-	tg.CurrEnv = env
+	run.CurrEnv = env
 	return env
 }
 
 func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 	goid := gls.GoID()
-	tg := outer.ThreadGlobals
-	if tg.goid != goid {
+	run := outer.Run
+	if run.goid != goid {
 		// no luck... get the correct ThreadGlobals for goid
-		tg = tg.getThreadGlobals4Goid(goid)
+		run = run.getRun4Goid(goid)
 	}
-	env := newEnv(tg, outer, nbind, nintbind)
+	env := newEnv(run, outer, nbind, nintbind)
 
 	env.DebugComp = debugComp
-	caller := tg.CurrEnv
+	caller := run.CurrEnv
 	env.Caller = caller
 	if caller == nil {
 		env.CallDepth = 1
@@ -191,7 +190,7 @@ func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 		env.CallDepth = caller.CallDepth + 1
 	}
 	// DebugCallStack Debugf("newEnv4Func(%p->%p) nbind=%d nintbind=%d calldepth: %d->%d", caller, env, nbind, nintbind, env.CallDepth-1, env.CallDepth)
-	tg.CurrEnv = env
+	run.CurrEnv = env
 	return env
 }
 
@@ -203,25 +202,25 @@ func (env *Env) MarkUsedByClosure() {
 
 // FreeEnv tells the interpreter that given nested *Env is no longer needed.
 func (env *Env) FreeEnv() {
-	g := env.ThreadGlobals
-	g.CurrEnv = env.Outer
-	env.freeEnv(g)
+	run := env.Run
+	run.CurrEnv = env.Outer
+	env.freeEnv(run)
 }
 
 // freeEnv4Func tells the interpreter that given function body *Env is no longer needed.
 func (env *Env) freeEnv4Func() {
-	g := env.ThreadGlobals
-	g.CurrEnv = env.Caller
-	env.freeEnv(g)
+	run := env.Run
+	run.CurrEnv = env.Caller
+	env.freeEnv(run)
 }
 
-func (env *Env) freeEnv(g *ThreadGlobals) {
+func (env *Env) freeEnv(run *Run) {
 	// DebugCallStack Debugf("FreeEnv(%p->%p), calldepth: %d->%d", env, caller, env.CallDepth, caller.CallDepth)
 	if env.UsedByClosure {
 		// in use, cannot recycle
 		return
 	}
-	n := g.PoolSize
+	n := run.PoolSize
 	if n >= PoolCapacity {
 		return
 	}
@@ -234,9 +233,10 @@ func (env *Env) freeEnv(g *ThreadGlobals) {
 	env.DebugPos = nil
 	env.DebugComp = nil
 	env.Caller = nil
-	env.ThreadGlobals = nil
-	g.Pool[n] = env // pool is an array, be careful NOT to copy it!
-	g.PoolSize = n + 1
+	env.Run = nil
+	env.FileEnv = nil
+	run.Pool[n] = env // pool is an array, be careful NOT to copy it!
+	run.PoolSize = n + 1
 }
 
 func (env *Env) Top() *Env {
@@ -248,12 +248,16 @@ func (env *Env) Top() *Env {
 	return env
 }
 
-func (env *Env) File() *Env {
-	for ; env != nil; env = env.Outer {
-		outer := env.Outer
-		if outer == nil || outer.Outer == nil {
-			break
-		}
+func (env *Env) Up(n int) *Env {
+	for ; n >= 3; n -= 3 {
+		env = env.Outer.Outer.Outer
+	}
+	switch n {
+	case 2:
+		env = env.Outer
+		fallthrough
+	case 1:
+		env = env.Outer
 	}
 	return env
 }

@@ -321,7 +321,7 @@ func (bind *Bind) RuntimeValue(env *Env) r.Value {
 	case ConstBind:
 		v = bind.Lit.ConstValue()
 	case IntBind:
-		expr := bind.intExpr(&env.ThreadGlobals.Stringer)
+		expr := bind.intExpr(&env.Run.Stringer)
 		// no need for Interp.RunExpr(): expr is a local variable,
 		// not a statement or a function call that may be stopped by the debugger
 		v = expr.AsX1()(env)
@@ -519,16 +519,14 @@ type Debugger interface {
 // IrGlobals contains interpreter configuration
 type IrGlobals struct {
 	Globals
-	gls  map[uintptr]*ThreadGlobals
+	gls  map[uintptr]*Run
 	lock atomic.SpinLock
 }
 
-// ThreadGlobals contains per-goroutine interpreter runtime bookeeping information
-type ThreadGlobals struct {
+// Run contains per-goroutine interpreter runtime bookeeping information
+type Run struct {
 	*IrGlobals
 	goid         uintptr // owner goroutine id
-	FileEnv      *Env
-	TopEnv       *Env
 	Interrupt    Stmt
 	Signals      Signals // set by defer, return, breakpoint, debugger and ThreadGlobals.interrupt(os.Signal)
 	PoolSize     int
@@ -613,7 +611,8 @@ type Env struct {
 	Outer           *Env
 	IP              int
 	Code            []Stmt
-	ThreadGlobals   *ThreadGlobals
+	Run             *Run
+	FileEnv         *Env
 	DebugPos        []token.Pos // for debugging interpreted code: position of each statement
 	DebugComp       *Comp       // for debugging interpreted code: compiler with Binds, and to rebuild an Interp if needed
 	Caller          *Env        // for debugging interpreted code: previous function in call stack. nil for nested *Env

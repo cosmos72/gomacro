@@ -69,7 +69,7 @@ func (code *Code) AsExpr() *Expr {
 // To signal an interrupt, a statement must set env.ThreadGlobals.Signal to the desired signal,
 // then return env.ThreadGlobals.Interrupt, env
 func spinInterrupt(env *Env) (Stmt, *Env) {
-	g := env.ThreadGlobals
+	g := env.Run
 	if g.Signals.Sync == SigNone {
 		g.Signals.Sync = SigReturn
 	}
@@ -80,7 +80,7 @@ func spinInterrupt(env *Env) (Stmt, *Env) {
 	return g.Interrupt, env
 }
 
-func pushDefer(g *ThreadGlobals, deferOf *Env, panicking bool) (retg *ThreadGlobals, deferOf_ *Env, isDefer bool) {
+func pushDefer(g *Run, deferOf *Env, panicking bool) (retg *Run, deferOf_ *Env, isDefer bool) {
 	deferOf_ = g.DeferOfFun
 	if panicking {
 		g.PanicFun = deferOf
@@ -90,13 +90,13 @@ func pushDefer(g *ThreadGlobals, deferOf *Env, panicking bool) (retg *ThreadGlob
 	return g, deferOf_, g.ExecFlags.IsDefer()
 }
 
-func popDefer(g *ThreadGlobals, deferOf *Env, isDefer bool) {
+func popDefer(g *Run, deferOf *Env, isDefer bool) {
 	g.DeferOfFun = deferOf
 	g.ExecFlags.SetStartDefer(false)
 	g.ExecFlags.SetDefer(isDefer)
 }
 
-func restore(g *ThreadGlobals, isDefer bool, interrupt Stmt, caller *Env) {
+func restore(g *Run, isDefer bool, interrupt Stmt, caller *Env) {
 	g.ExecFlags.SetDefer(isDefer)
 	g.Interrupt = interrupt
 	g.CurrEnv = caller
@@ -107,7 +107,7 @@ func restore(g *ThreadGlobals, isDefer bool, interrupt Stmt, caller *Env) {
 	}
 }
 
-func maybeRepanic(g *ThreadGlobals) bool {
+func maybeRepanic(g *Run) bool {
 	if g.PanicFun != nil {
 		panic(g.Panic)
 	}
@@ -115,7 +115,7 @@ func maybeRepanic(g *ThreadGlobals) bool {
 	return false
 }
 
-func (g *ThreadGlobals) interrupt() {
+func (g *Run) interrupt() {
 	g.Signals.Async = SigInterrupt
 }
 
@@ -140,7 +140,7 @@ func (code *Code) Exec() func(*Env) {
 
 func exec(all []Stmt, pos []token.Pos) func(*Env) {
 	return func(env *Env) {
-		g := env.ThreadGlobals
+		g := env.Run
 		g.Signals.Sync = SigNone
 		if g.ExecFlags != 0 {
 			// code to support defer and debugger is slower... isolate it in a separate function
@@ -235,13 +235,13 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 // execWithFlags returns a function that will execute the given compiled code, including support for defer() and debugger
 func execWithFlags(all []Stmt, pos []token.Pos) func(*Env) {
 	return func(env *Env) {
-		env.ThreadGlobals.Signals.Sync = SigNone
+		env.Run.Signals.Sync = SigNone
 		reExecWithFlags(env, all, pos, all[0], 0)
 	}
 }
 
 func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
-	g := env.ThreadGlobals
+	g := env.Run
 
 	ef := &g.ExecFlags
 	trace := g.Options&OptDebugDebugger != 0

@@ -62,9 +62,9 @@ import (
 			env = ~,decls
 		}}
 	} else if upn == FileDepth {
-		decls = ~'{{env = env.ThreadGlobals.FileEnv}}
+		decls = ~'{{env = env.FileEnv}}
 	} else if upn == TopDepth {
-		decls = ~'{{env = env.ThreadGlobals.TopEnv}}
+		decls = ~'{{env = env.FileEnv.Outer}}
 	} else {
 		decls = ~'{
 			env = env.Outer.Outer.Outer

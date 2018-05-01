@@ -124,7 +124,7 @@ import (
 			case maxdepth - 1:
 				var cachedfun func() ~,rettyp
 				ret = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+					funv := env.FileEnv.Vals[funindex]
 					~,cachefun
 					// Debugf("calling %v with args []", r.TypeOf(cachedfun))
 					return cachedfun()

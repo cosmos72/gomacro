@@ -130,7 +130,7 @@ func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
 	}
 	env.applyDebugSignal(SigNone)
 
-	g := env.ThreadGlobals
+	g := env.Run
 	defer g.setCurrEnv(g.setCurrEnv(env))
 
 	fun := e.AsXV(COptKeepUntyped)
@@ -160,7 +160,7 @@ func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
 		e.ConstTo(e.DefaultType())
 	}
 	env.applyDebugSignal(SigDebugStep)
-	g := env.ThreadGlobals
+	g := env.Run
 	defer g.setCurrEnv(g.setCurrEnv(env))
 
 	fun := e.AsXV(COptKeepUntyped)
@@ -174,7 +174,7 @@ func (ir *Interp) Debug(src string) ([]r.Value, []xr.Type) {
 }
 
 // set CurrEnv, returns previous value
-func (g *ThreadGlobals) setCurrEnv(env *Env) *Env {
+func (g *Run) setCurrEnv(env *Env) *Env {
 	old := g.CurrEnv
 	g.CurrEnv = env
 	return old
@@ -241,7 +241,7 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 	if env.IntAddressTaken {
 		c.IntBindMax = cap(env.Ints)
 	}
-	g := env.ThreadGlobals
+	g := env.Run
 	// do NOT set g.CurrEnv = env, it messes up the call stack. done by Interp.RunExpr* and Interp.DebugExpr*
 	// g.CurrEnv = env
 	// in case we received a SigInterrupt in the meantime
@@ -341,7 +341,7 @@ func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
 		}()
 	}
 
-	ir.env.ThreadGlobals.CmdOpt = opt // store options where Interp.Interrupt() can find them
+	ir.env.Run.CmdOpt = opt // store options where Interp.Interrupt() can find them
 
 	// parse + macroexpansion
 	form := ir.Parse(src)

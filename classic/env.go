@@ -37,7 +37,6 @@ import (
 type ThreadGlobals struct {
 	*Globals
 	AllMethods map[r.Type]Methods // methods implemented by interpreted code
-	FastInterp interface{}        // *fast.Interp // temporary...
 	currOpt    CmdOpt
 }
 

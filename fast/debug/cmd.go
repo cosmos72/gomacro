@@ -79,7 +79,7 @@ func (d *Debugger) Cmd(src string) DebugOp {
 			d.lastcmd = src
 			op = cmd.Func(d, arg)
 		} else {
-			g := d.env.ThreadGlobals.Globals
+			g := d.globals
 			g.Fprintf(g.Stdout, "// unknown debugger command, type ? for help: %s\n", src)
 		}
 	}

@@ -137,7 +137,7 @@ func (d *Debugger) Eval(src string) {
 	trap := g.Options&base.OptTrapPanic != 0
 
 	// do NOT debug expression evaluated at debugger prompt!
-	sig := &d.env.ThreadGlobals.Signals
+	sig := &d.env.Run.Signals
 	sigdebug := sig.Debug
 	sig.Debug = base.SigNone
 

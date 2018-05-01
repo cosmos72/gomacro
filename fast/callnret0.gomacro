@@ -109,7 +109,7 @@ func (c *Comp) call0ret0(call *Call, maxdepth int) func(env *Env) {
 	switch funupn {
 	case maxdepth - 1:
 		return func(env *Env) {
-			funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+			funv := env.FileEnv.Vals[funindex]
 			if cachedfunv != funv {
 				cachedfunv = funv
 				cachedfun = funv.Interface().(func())
@@ -173,7 +173,7 @@ func (c *Comp) call0ret0(call *Call, maxdepth int) func(env *Env) {
 			if funsym != nil && funupn == maxdepth - 1 {
 				var cachedfun func(~,argtyp)
 				ret = func(env *Env) {
-					funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+					funv := env.FileEnv.Vals[funindex]
 					~,cachefun
 					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
 					cachedfun(argconst)
@@ -190,7 +190,7 @@ func (c *Comp) call0ret0(call *Call, maxdepth int) func(env *Env) {
 			if funsym != nil && funupn == maxdepth - 1 {
 				var cachedfun func(~,argtyp)
 				ret = func(env *Env) {
-					funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+					funv := env.FileEnv.Vals[funindex]
 					~,cachefun
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), arg)
@@ -287,7 +287,7 @@ func (c *Comp) call1ret0(call *Call, maxdepth int) func(env *Env) {
 		if funsym != nil && funupn == maxdepth - 1 {
 			var cachedfun func(~,arg0typ, ~,arg1typ)
 			ret = func(env *Env) {
-				funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+				funv := env.FileEnv.Vals[funindex]
 				~,cachefun
 				arg0 := arg0fun(env)
 				arg1 := arg1fun(env)

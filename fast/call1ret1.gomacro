@@ -131,7 +131,7 @@ import (
 			if arg.Const() {
 				argconst := ~,argconv
 				ret = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+					funv := env.FileEnv.Vals[funindex]
 					~,cachefun
 					// Debugf("calling %v with args [%v]", r.TypeOf(cachedfun), argconst)
 					return cachedfun(argconst)
@@ -139,7 +139,7 @@ import (
 			} else {
 				argfun := arg.Fun.(func(env *Env) ~,argtyp)
 				ret = func(env *Env) ~,rettyp {
-					funv := env.ThreadGlobals.FileEnv.Vals[funindex]
+					funv := env.FileEnv.Vals[funindex]
 					~,cachefun
 					arg := argfun(env)
 					// Debugf("calling %v with args [%v]", r.TypeOf(fun), arg)

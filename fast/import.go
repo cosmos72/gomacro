@@ -87,9 +87,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 			c.Debugf("switched to new package %v", path)
 		}
 	}
-	g := ir.env.ThreadGlobals
-	g.FileEnv = ir.env
-	g.PackagePath = path
+	ir.env.Run.Globals.PackagePath = path
 }
 
 // convert *Interp to *Import. used to change package from 'ir'
@@ -112,7 +110,7 @@ func (imp *Import) asInterpreter(outer *Interp) Interp {
 	if env.Outer == nil {
 		env.Outer = outer.env
 	}
-	env.ThreadGlobals = outer.env.ThreadGlobals
+	env.Run = outer.env.Run
 	return Interp{c, env}
 }
 

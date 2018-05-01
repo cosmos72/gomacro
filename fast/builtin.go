@@ -672,7 +672,7 @@ func callPrintln(out interface{}, args ...interface{}) {
 }
 
 func getStdout(env *Env) r.Value {
-	return r.ValueOf(env.ThreadGlobals.Stdout)
+	return r.ValueOf(env.Run.Stdout)
 }
 
 func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
@@ -772,7 +772,7 @@ var nilInterface = r.Zero(base.TypeOfInterface)
 // we can use whatever signature we want, as long as call_builtin supports it
 func callRecover(v r.Value) r.Value {
 	env := v.Interface().(*Env)
-	g := env.ThreadGlobals
+	g := env.Run
 	debug := g.Options&base.OptDebugRecover != 0
 	if !g.ExecFlags.IsDefer() {
 		if debug {

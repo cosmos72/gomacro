@@ -204,7 +204,7 @@ func (c *Comp) methodDecl(funcdecl *ast.FuncDecl) {
 		methodname := funcdecl.Name
 		stmt = func(env *Env) (Stmt, *Env) {
 			(*methods)[methodindex] = f(env)
-			env.ThreadGlobals.Debugf("implemented method %s.%s", tname, methodname)
+			env.Run.Debugf("implemented method %s.%s", tname, methodname)
 			env.IP++
 			return env.Code[env.IP], env
 		}

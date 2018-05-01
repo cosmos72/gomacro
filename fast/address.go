@@ -1204,7 +1204,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *bool {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*bool)(unsafe.Pointer(&env.Ints[index]))
@@ -1212,7 +1212,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *bool {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*bool)
 				}
 			}
@@ -1220,7 +1220,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*int)(unsafe.Pointer(&env.Ints[index]))
@@ -1228,7 +1228,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*int)
 				}
 			}
@@ -1236,7 +1236,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int8 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*int8)(unsafe.Pointer(&env.Ints[index]))
@@ -1244,7 +1244,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int8 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*int8)
 				}
 			}
@@ -1252,7 +1252,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int16 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*int16)(unsafe.Pointer(&env.Ints[index]))
@@ -1260,7 +1260,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int16 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*int16)
 				}
 			}
@@ -1268,7 +1268,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int32 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*int32)(unsafe.Pointer(&env.Ints[index]))
@@ -1276,7 +1276,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int32 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*int32)
 				}
 			}
@@ -1284,7 +1284,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int64 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*int64)(unsafe.Pointer(&env.Ints[index]))
@@ -1292,7 +1292,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int64 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*int64)
 				}
 			}
@@ -1300,7 +1300,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*uint)(unsafe.Pointer(&env.Ints[index]))
@@ -1308,7 +1308,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*uint)
 				}
 			}
@@ -1316,7 +1316,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint8 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*uint8)(unsafe.Pointer(&env.Ints[index]))
@@ -1324,7 +1324,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint8 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*uint8)
 				}
 			}
@@ -1332,7 +1332,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint16 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*uint16)(unsafe.Pointer(&env.Ints[index]))
@@ -1340,7 +1340,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint16 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*uint16)
 				}
 			}
@@ -1348,7 +1348,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint32 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*uint32)(unsafe.Pointer(&env.Ints[index]))
@@ -1356,7 +1356,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint32 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*uint32)
 				}
 			}
@@ -1364,7 +1364,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint64 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return &env.Ints[index]
@@ -1372,7 +1372,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint64 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*uint64)
 				}
 			}
@@ -1380,7 +1380,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uintptr {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*uintptr)(unsafe.Pointer(&env.Ints[index]))
@@ -1388,7 +1388,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uintptr {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*uintptr)
 				}
 			}
@@ -1396,7 +1396,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *float32 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*float32)(unsafe.Pointer(&env.Ints[index]))
@@ -1404,7 +1404,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *float32 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*float32)
 				}
 			}
@@ -1412,7 +1412,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *float64 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*float64)(unsafe.Pointer(&env.Ints[index]))
@@ -1420,7 +1420,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *float64 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*float64)
 				}
 			}
@@ -1428,7 +1428,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *complex64 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 
 					env.IntAddressTaken = true
 					return (*complex64)(unsafe.Pointer(&env.Ints[index]))
@@ -1436,14 +1436,14 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *complex64 {
-					env = env.ThreadGlobals.FileEnv
+					env = env.FileEnv
 					return env.Vals[index].Addr().Interface().(*complex64)
 				}
 			}
 		default:
 
 			ret = func(env *Env) r.Value {
-				env = env.ThreadGlobals.FileEnv
+				env = env.FileEnv
 				return env.Vals[index].Addr()
 
 			}
@@ -1454,7 +1454,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *bool {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*bool)(unsafe.Pointer(&env.Ints[index]))
@@ -1462,7 +1462,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *bool {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*bool)
 				}
 			}
@@ -1470,7 +1470,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*int)(unsafe.Pointer(&env.Ints[index]))
@@ -1478,7 +1478,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*int)
 				}
 			}
@@ -1486,7 +1486,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int8 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*int8)(unsafe.Pointer(&env.Ints[index]))
@@ -1494,7 +1494,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int8 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*int8)
 				}
 			}
@@ -1502,7 +1502,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int16 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*int16)(unsafe.Pointer(&env.Ints[index]))
@@ -1510,7 +1510,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int16 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*int16)
 				}
 			}
@@ -1518,7 +1518,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int32 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*int32)(unsafe.Pointer(&env.Ints[index]))
@@ -1526,7 +1526,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int32 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*int32)
 				}
 			}
@@ -1534,7 +1534,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *int64 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*int64)(unsafe.Pointer(&env.Ints[index]))
@@ -1542,7 +1542,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *int64 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*int64)
 				}
 			}
@@ -1550,7 +1550,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*uint)(unsafe.Pointer(&env.Ints[index]))
@@ -1558,7 +1558,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*uint)
 				}
 			}
@@ -1566,7 +1566,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint8 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*uint8)(unsafe.Pointer(&env.Ints[index]))
@@ -1574,7 +1574,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint8 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*uint8)
 				}
 			}
@@ -1582,7 +1582,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint16 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*uint16)(unsafe.Pointer(&env.Ints[index]))
@@ -1590,7 +1590,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint16 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*uint16)
 				}
 			}
@@ -1598,7 +1598,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint32 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*uint32)(unsafe.Pointer(&env.Ints[index]))
@@ -1606,7 +1606,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint32 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*uint32)
 				}
 			}
@@ -1614,7 +1614,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uint64 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return &env.Ints[index]
@@ -1622,7 +1622,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uint64 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*uint64)
 				}
 			}
@@ -1630,7 +1630,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *uintptr {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*uintptr)(unsafe.Pointer(&env.Ints[index]))
@@ -1638,7 +1638,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *uintptr {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*uintptr)
 				}
 			}
@@ -1646,7 +1646,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *float32 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*float32)(unsafe.Pointer(&env.Ints[index]))
@@ -1654,7 +1654,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *float32 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*float32)
 				}
 			}
@@ -1662,7 +1662,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *float64 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*float64)(unsafe.Pointer(&env.Ints[index]))
@@ -1670,7 +1670,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *float64 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*float64)
 				}
 			}
@@ -1678,7 +1678,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 
 			if intbinds {
 				ret = func(env *Env) *complex64 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 
 					env.IntAddressTaken = true
 					return (*complex64)(unsafe.Pointer(&env.Ints[index]))
@@ -1686,14 +1686,14 @@ func (va *Var) Address(maxdepth int) *Expr {
 				}
 			} else {
 				ret = func(env *Env) *complex64 {
-					env = env.ThreadGlobals.TopEnv
+					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*complex64)
 				}
 			}
 		default:
 
 			ret = func(env *Env) r.Value {
-				env = env.ThreadGlobals.TopEnv
+				env = env.FileEnv.Outer
 				return env.Vals[index].Addr()
 
 			}

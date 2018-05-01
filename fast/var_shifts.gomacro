@@ -137,9 +137,9 @@ import (
 			env = ~"{~,env . Outer}
 		}
 	} else if upn == -2 {
-		env = ~'{env.ThreadGlobals.FileEnv}
+		env = ~'{env.FileEnv}
 	} else if upn == -3 {
-		env = ~'{env.ThreadGlobals.TopEnv}
+		env = ~'{env.FileEnv.Outer}
 	} else {
 		loop = ~'{
 			o := env.Outer.Outer.Outer

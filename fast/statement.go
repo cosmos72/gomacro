@@ -282,7 +282,7 @@ func (c *Comp) Defer(node *ast.DeferStmt) {
 			args[i] = v
 		}
 		env.IP++
-		g := env.ThreadGlobals
+		g := env.Run
 		if ellipsis {
 			g.InstallDefer = func() {
 				f.CallSlice(args)
@@ -431,7 +431,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 	}
 
 	stmt := func(env *Env) (Stmt, *Env) {
-		tg := env.ThreadGlobals
+		tg := env.Run
 		// create a new Env to hold the new ThreadGlobals (created in the goroutine below) and (initially empty) Pool
 		env2 := newEnv(tg, env, 0, 0)
 		env2.DebugComp = debugC
@@ -449,7 +449,7 @@ func (c *Comp) Go(node *ast.GoStmt) {
 		// make it easy and do not try to optimize this call.
 		go func() {
 			tg2 := tg.new(gls.GoID())
-			env2.ThreadGlobals = tg2
+			env2.Run = tg2
 			tg2.glsStore()
 			defer tg2.glsDel()
 
@@ -621,7 +621,7 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 		}
 		// append the return epilogue
 		env.IP++
-		g := env.ThreadGlobals
+		g := env.Run
 		g.Signals.Sync = SigReturn
 		return g.Interrupt, env
 	}, node.Pos())
@@ -629,7 +629,7 @@ func (c *Comp) returnMultiValues(node *ast.ReturnStmt, resultBinds []*Bind, upn 
 
 func stmtReturn(env *Env) (Stmt, *Env) {
 	env.IP++
-	g := env.ThreadGlobals
+	g := env.Run
 	g.Signals.Sync = SigReturn
 	return g.Interrupt, env
 }

@@ -78,7 +78,7 @@ func (c *Comp) breakpoint() Stmt {
 		env.IP++
 		stmt := env.Code[env.IP]
 		if op != SigNone {
-			g := env.ThreadGlobals
+			g := env.Run
 			stmt = g.Interrupt
 			if g.Options&OptDebugDebugger != 0 {
 				g.Debugf("after breakpoint: single-stepping with stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, env.IP, g.ExecFlags, g.Signals)
@@ -90,7 +90,7 @@ func (c *Comp) breakpoint() Stmt {
 
 func singleStep(env *Env) (Stmt, *Env) {
 	stmt := env.Code[env.IP]
-	g := env.ThreadGlobals
+	g := env.Run
 	if g.Signals.Debug == SigNone {
 		return stmt, env // resume normal execution
 	}
@@ -104,7 +104,7 @@ func singleStep(env *Env) (Stmt, *Env) {
 			ir := Interp{c, env}
 			op := ir.debug(false) // not a breakpoint
 			if op != SigNone {
-				g := env.ThreadGlobals
+				g := env.Run
 				g.Signals.Debug = op
 			}
 		}
@@ -119,7 +119,7 @@ func singleStep(env *Env) (Stmt, *Env) {
 }
 
 func (ir *Interp) debug(breakpoint bool) DebugOp {
-	g := ir.env.ThreadGlobals
+	g := ir.env.Run
 	if g.Debugger == nil {
 		ir.Comp.Warnf("// breakpoint: no debugger set with Interp.SetDebugger(), resuming execution (warned only once)")
 		g.Debugger = stubDebugger{}
@@ -137,7 +137,7 @@ func (ir *Interp) debug(breakpoint bool) DebugOp {
 }
 
 func (env *Env) applyDebugSignal(op DebugOp) DebugOp {
-	g := env.ThreadGlobals
+	g := env.Run
 	saveOp := op
 	saveDepth := g.DebugDepth
 	switch op {

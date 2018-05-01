@@ -70,7 +70,7 @@ func newTopInterp(path string) *Interp {
 		Prompt:       "gomacro> ",
 	}
 	goid := gls.GoID()
-	tg := &ThreadGlobals{IrGlobals: g, goid: goid}
+	tg := &Run{IrGlobals: g, goid: goid}
 	// early register tg in goroutine-local data
 	g.gls[goid] = tg
 
@@ -86,8 +86,8 @@ func newTopInterp(path string) *Interp {
 			Outer:  nil,
 		},
 		env: &Env{
-			Outer:         nil,
-			ThreadGlobals: tg,
+			Outer: nil,
+			Run:   tg,
 		},
 	}
 	// tell xreflect about our packages "fast" and "main"
@@ -101,7 +101,6 @@ func newTopInterp(path string) *Interp {
 	}
 	cg.opaqueType(rtypeOfUntypedLit, "untyped")
 
-	tg.TopEnv = ir.env
 	ir.addBuiltins()
 	return ir
 }
@@ -113,8 +112,22 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 
 	outerComp := outer.Comp
 	outerEnv := outer.env
-	g := outerEnv.ThreadGlobals
-	ir := &Interp{
+	g := outerEnv.Run
+
+	env := &Env{
+		Outer:     outerEnv,
+		Run:       g,
+		FileEnv:   outerEnv.FileEnv,
+		CallDepth: outerEnv.CallDepth,
+	}
+	if outerEnv.Outer == nil {
+		env.FileEnv = env
+	} else {
+		env.FileEnv = outerEnv.FileEnv
+	}
+
+	// do NOT set g.CurrEnv = ir.Env, it messes up the call stack
+	return &Interp{
 		Comp: &Comp{
 			CompGlobals: outerComp.CompGlobals,
 			CompBinds: CompBinds{
@@ -125,17 +138,8 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 			Depth:  outerComp.Depth + 1,
 			Outer:  outerComp,
 		},
-		env: &Env{
-			Outer:         outerEnv,
-			ThreadGlobals: g,
-			CallDepth:     outerEnv.CallDepth,
-		},
+		env: env,
 	}
-	if outerEnv.Outer == nil {
-		g.FileEnv = ir.env
-	}
-	// do NOT set g.CurrEnv = ir.Env, it messes up the call stack
-	return ir
 }
 
 func (ir *Interp) SetInspector(inspector Inspector) {
@@ -143,11 +147,11 @@ func (ir *Interp) SetInspector(inspector Inspector) {
 }
 
 func (ir *Interp) SetDebugger(debugger Debugger) {
-	ir.env.ThreadGlobals.Debugger = debugger
+	ir.env.Run.Debugger = debugger
 }
 
 func (ir *Interp) Interrupt(os.Signal) {
-	ir.env.ThreadGlobals.interrupt()
+	ir.env.Run.interrupt()
 }
 
 // ============================================================================
