@@ -280,7 +280,7 @@ func (env *Env) freeEnv(run *Run) {
 		return
 	}
 	n := run.PoolSize
-	if n >= PoolCapacity {
+	if n >= poolCapacity {
 		return
 	}
 	if env.IntAddressTaken {

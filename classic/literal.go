@@ -115,6 +115,9 @@ func (env *Env) evalLiteral0(node *ast.BasicLit) interface{} {
 
 func (env *Env) evalCompositeLiteral(node *ast.CompositeLit) (r.Value, []r.Value) {
 	t, ellipsis := env.evalType2(node.Type, false)
+	if t == nil {
+		env.Errorf("unimplemented type inference in composite literal: %v", node)
+	}
 	obj := Nil
 	switch t.Kind() {
 	case r.Map:

@@ -351,10 +351,6 @@ func (c *Comp) BindUntyped(value UntypedLit) *Bind {
 	return &Bind{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: value}, Desc: ConstBindDescriptor}
 }
 
-type NamedType struct {
-	Name, Path string
-}
-
 // ================================== Symbol, Var, Place =================================
 
 // Symbol represents a resolved constant, function, variable or builtin
@@ -464,7 +460,7 @@ type FuncInfo struct {
 }
 
 const (
-	PoolCapacity = 32
+	poolCapacity = 32
 )
 
 type ExecFlags uint
@@ -539,7 +535,7 @@ type Run struct {
 	Debugger     Debugger
 	DebugDepth   int // depth of function to debug with single-step
 	PoolSize     int
-	Pool         [PoolCapacity]*Env
+	Pool         [poolCapacity]*Env
 }
 
 // CompGlobals contains interpreter compile bookeeping information

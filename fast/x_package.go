@@ -30,7 +30,6 @@ func init() {
 			"OptKeepUntyped":      r.ValueOf(COptKeepUntyped),
 			"PlaceAddress":        r.ValueOf(PlaceAddress),
 			"PlaceSettable":       r.ValueOf(PlaceSettable),
-			"PoolCapacity":        r.ValueOf(PoolCapacity),
 			"VarBind":             r.ValueOf(VarBind),
 		}, Types: map[string]r.Type{
 			"Assign":             r.TypeOf((*Assign)(nil)).Elem(),
@@ -54,7 +53,6 @@ func init() {
 			"Lit":                r.TypeOf((*Lit)(nil)).Elem(),
 			"LoopInfo":           r.TypeOf((*LoopInfo)(nil)).Elem(),
 			"Macro":              r.TypeOf((*Macro)(nil)).Elem(),
-			"NamedType":          r.TypeOf((*NamedType)(nil)).Elem(),
 			"Place":              r.TypeOf((*Place)(nil)).Elem(),
 			"PlaceOption":        r.TypeOf((*PlaceOption)(nil)).Elem(),
 			"Stmt":               r.TypeOf((*Stmt)(nil)).Elem(),
@@ -63,12 +61,7 @@ func init() {
 			"TypeAssertionError": r.TypeOf((*TypeAssertionError)(nil)).Elem(),
 			"UntypedLit":         r.TypeOf((*UntypedLit)(nil)).Elem(),
 			"Var":                r.TypeOf((*Var)(nil)).Elem(),
-		}, Untypeds: map[string]string{
-			"AnyDepth":     "int:-1",
-			"FileDepth":    "int:-2",
-			"PoolCapacity": "int:32",
-			"TopDepth":     "int:-3",
-		}, Wrappers: map[string][]string{
+		}, Untypeds: map[string]string{}, Wrappers: map[string][]string{
 			"Bind":        []string{"ConstTo", "DefaultType", "ReflectValue", "Untyped", "UntypedKind"},
 			"Comp":        []string{"CollectAst", "CollectNode", "CollectPackageImportsWithRename", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "Gensym", "GensymEmbedded", "GensymPrivate", "IncLine", "IncLineBytes", "LookupPackage", "ParseBytes", "Position", "Print", "ReadMultiline", "Sprintf", "ToString", "TypeOfBool", "TypeOfBuiltin", "TypeOfComplex128", "TypeOfComplex64", "TypeOfError", "TypeOfFloat32", "TypeOfFloat64", "TypeOfFunction", "TypeOfImport", "TypeOfInt", "TypeOfInt16", "TypeOfInt32", "TypeOfInt64", "TypeOfInt8", "TypeOfInterface", "TypeOfMacro", "TypeOfString", "TypeOfUint", "TypeOfUint16", "TypeOfUint32", "TypeOfUint64", "TypeOfUint8", "TypeOfUintptr", "TypeOfUntypedLit", "UnloadPackage", "WarnExtraValues", "Warnf", "WriteDeclsToFile", "WriteDeclsToStream"},
 			"CompGlobals": []string{"CollectAst", "CollectNode", "CollectPackageImportsWithRename", "Copy", "Debugf", "Error", "Errorf", "Fprintf", "Gensym", "GensymEmbedded", "GensymPrivate", "ImportPackage", "IncLine", "IncLineBytes", "LookupPackage", "ParseBytes", "Position", "Print", "ReadMultiline", "Sprintf", "ToString", "UnloadPackage", "WarnExtraValues", "Warnf", "WriteDeclsToFile", "WriteDeclsToStream"},
