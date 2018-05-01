@@ -112,14 +112,15 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 
 	outerComp := outer.Comp
 	outerEnv := outer.env
-	g := outerEnv.Run
+	run := outerEnv.Run
 
 	env := &Env{
 		Outer:     outerEnv,
-		Run:       g,
+		Run:       run,
 		FileEnv:   outerEnv.FileEnv,
 		CallDepth: outerEnv.CallDepth,
 	}
+
 	if outerEnv.Outer == nil {
 		env.FileEnv = env
 	} else {
@@ -128,7 +129,7 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 
 	// do NOT set g.CurrEnv = ir.Env, it messes up the call stack
 	return &Interp{
-		Comp: &Comp{
+		&Comp{
 			CompGlobals: outerComp.CompGlobals,
 			CompBinds: CompBinds{
 				Name: name,
@@ -138,7 +139,7 @@ func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 			Depth:  outerComp.Depth + 1,
 			Outer:  outerComp,
 		},
-		env: env,
+		env,
 	}
 }
 

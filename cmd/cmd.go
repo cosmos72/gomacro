@@ -56,7 +56,7 @@ func (cmd *Cmd) Init() {
 	ir.SetDebugger(&debug.Debugger{})
 	ir.SetInspector(&inspect.Inspector{})
 
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	g.ParserMode = 0
 	g.Options = OptDebugger | OptKeepUntyped | OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType
 	cmd.Interp = ir
