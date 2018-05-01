@@ -120,7 +120,7 @@ func (c *Comp) showStatementsSource(in ast.Stmt, startIP int) {
 		c.Warnf("code mismatch: len(c.Code.List) = %d differs from len(c.Code.DebugPos) = %d",
 			n1, n2)
 	}
-	g := c.Globals
+	g := &c.Globals
 	g.Fprintf(g.Stdout, "source for statement: %v // %T\n", in, in)
 	for ip := startIP; ip < n2; ip++ {
 		c.showStatementSource(ip)
@@ -132,7 +132,7 @@ func (c *Comp) showStatementSource(ip int) {
 	code := c.Code
 	list := code.List
 	debugp := code.DebugPos
-	g := c.Globals
+	g := &c.Globals
 	if ip < len(debugp) && g.Fileset != nil {
 		p := debugp[ip]
 		source, pos := g.Fileset.Source(p)

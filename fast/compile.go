@@ -73,8 +73,8 @@ func (c *Comp) FileComp() *Comp {
 
 func NewIrGlobals() *IrGlobals {
 	return &IrGlobals{
-		Globals: *NewGlobals(),
 		gls:     make(map[uintptr]*Run),
+		Globals: *NewGlobals(),
 	}
 }
 

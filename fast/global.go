@@ -514,9 +514,9 @@ type Debugger interface {
 
 // IrGlobals contains interpreter configuration
 type IrGlobals struct {
-	Globals
 	gls  map[uintptr]*Run
 	lock atomic.SpinLock
+	Globals
 }
 
 // Run contains per-goroutine interpreter runtime bookeeping information

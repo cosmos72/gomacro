@@ -33,7 +33,7 @@ import (
 
 func (ir *Interp) Inspect(src string) {
 	c := ir.Comp
-	g := c.Globals
+	g := &c.Globals
 	inspector := g.Inspector
 	if inspector == nil {
 		c.Errorf("no inspector set: call Interp.SetInspector() first")

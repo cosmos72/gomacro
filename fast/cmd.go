@@ -67,7 +67,7 @@ import (
 //     return the received 'opt' argument unless you need to update it.
 //
 // If Cmd.Func needs to print something, it's recommended to use
-//      g := interp.Comp.Globals
+//      g := &interp.Comp.Globals
 //      g.Fprintf(g.Stdout, FORMAT, ARGS...)
 //   instead of the various fmt.*Print* functions, in order to
 //   pretty-print interpreter-generated objects (g.Fprintf)
@@ -296,7 +296,7 @@ func init() {
 // execute one of the REPL commands starting with ':'
 // return any remainder string to be evaluated, and the options to evaluate it
 func (ir *Interp) Cmd(src string) (string, CmdOpt) {
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	var opt CmdOpt
 
 	src = strings.TrimSpace(src)
@@ -326,7 +326,7 @@ func (ir *Interp) Cmd(src string) (string, CmdOpt) {
 }
 
 func (ir *Interp) cmdDebug(arg string, opt CmdOpt) (string, CmdOpt) {
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	if len(arg) == 0 {
 		g.Fprintf(g.Stdout, "// debug: missing argument\n")
 	} else {
@@ -346,7 +346,7 @@ func (ir *Interp) cmdHelp(arg string, opt CmdOpt) (string, CmdOpt) {
 }
 
 func (ir *Interp) cmdInspect(arg string, opt CmdOpt) (string, CmdOpt) {
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	if len(arg) == 0 {
 		g.Fprintf(g.Stdout, "// inspect: missing argument\n")
 	} else {
@@ -357,7 +357,7 @@ func (ir *Interp) cmdInspect(arg string, opt CmdOpt) (string, CmdOpt) {
 
 func (ir *Interp) cmdOptions(arg string, opt CmdOpt) (string, CmdOpt) {
 	c := ir.Comp
-	g := c.Globals
+	g := &c.Globals
 
 	if len(arg) != 0 {
 		g.Options ^= ParseOptions(arg)
@@ -379,7 +379,7 @@ func (ir *Interp) cmdOptions(arg string, opt CmdOpt) (string, CmdOpt) {
 // 'package NAME' where NAME is without quotes has no effect.
 func (ir *Interp) cmdPackage(path string, cmdopt CmdOpt) (string, CmdOpt) {
 	c := ir.Comp
-	g := c.Globals
+	g := &c.Globals
 	path = strings.TrimSpace(path)
 	n := len(path)
 	if len(path) == 0 {
@@ -406,7 +406,7 @@ func (ir *Interp) cmdUnload(path string, opt CmdOpt) (string, CmdOpt) {
 }
 
 func (ir *Interp) cmdWrite(filepath string, opt CmdOpt) (string, CmdOpt) {
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	if len(filepath) == 0 {
 		g.WriteDeclsToStream(g.Stdout)
 	} else {

@@ -40,9 +40,9 @@ import (
 
 // remove package 'path' from the list of known packages.
 // later attempts to import it again will trigger a recompile.
-func (g *CompGlobals) UnloadPackage(path string) {
-	g.Globals.UnloadPackage(path)
-	delete(g.KnownImports, path)
+func (cg *CompGlobals) UnloadPackage(path string) {
+	cg.Globals.UnloadPackage(path)
+	delete(cg.KnownImports, path)
 }
 
 // ========================== switch to package ================================

@@ -42,7 +42,7 @@ import (
 // return read string and position of first non-comment token.
 // return "", -1 on EOF
 func (ir *Interp) Read() (string, int) {
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	var opts ReadOptions
 
 	if g.Options&OptShowPrompt != 0 {
@@ -67,7 +67,7 @@ func (ir *Interp) Parse(src string) ast2.Ast {
 		return nil
 	}
 	// collect phase
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	if g.Options&(OptCollectDeclarations|OptCollectStatements) != 0 {
 		g.CollectAst(form)
 	}
@@ -360,7 +360,7 @@ func (ir *Interp) ParseEvalPrint(src string) (callAgain bool) {
 }
 
 func (ir *Interp) beforeEval() (t1 time.Time, trap bool, duration bool) {
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	trap = g.Options&OptTrapPanic != 0
 	duration = g.Options&OptShowTime != 0
 	if duration {
@@ -370,7 +370,7 @@ func (ir *Interp) beforeEval() (t1 time.Time, trap bool, duration bool) {
 }
 
 func (ir *Interp) afterEval(src string, callAgain *bool, trap *bool, t1 time.Time, duration bool) {
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 	g.IncLine(src)
 	if *trap {
 		rec := recover()
