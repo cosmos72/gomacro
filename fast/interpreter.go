@@ -34,8 +34,8 @@ import (
 	"os"
 	r "reflect"
 
-	"github.com/cosmos72/gls"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/gls"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 

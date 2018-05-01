@@ -30,9 +30,9 @@ import (
 	"go/token"
 	r "reflect"
 
-	"github.com/cosmos72/gls"
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/gls"
 )
 
 func NewComp(outer *Comp, code *Code) *Comp {

@@ -31,8 +31,8 @@ import (
 	r "reflect"
 	"sort"
 
-	"github.com/cosmos72/gls"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/gls"
 )
 
 func stmtNop(env *Env) (Stmt, *Env) {
