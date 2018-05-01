@@ -528,18 +528,18 @@ type Run struct {
 	*IrGlobals
 	goid         uintptr // owner goroutine id
 	Interrupt    Stmt
-	Signals      Signals // set by defer, return, breakpoint, debugger and ThreadGlobals.interrupt(os.Signal)
-	PoolSize     int
-	Pool         [PoolCapacity]*Env
+	Signals      Signals     // set by defer, return, breakpoint, debugger and ThreadGlobals.interrupt(os.Signal)
+	CurrEnv      *Env        // caller of current function. used ONLY at function entry to build call stack
 	InstallDefer func()      // defer function to be installed
 	Panic        interface{} // current panic. needed for recover()
 	PanicFun     *Env        // the currently panicking function
 	DeferOfFun   *Env        // function whose defer are running
 	ExecFlags    ExecFlags
 	CmdOpt       CmdOpt
-	DebugDepth   int  // depth of function to debug with single-step
-	CurrEnv      *Env // caller of current function. used ONLY at function entry by debugger
 	Debugger     Debugger
+	DebugDepth   int // depth of function to debug with single-step
+	PoolSize     int
+	Pool         [PoolCapacity]*Env
 }
 
 // CompGlobals contains interpreter compile bookeeping information
@@ -590,13 +590,6 @@ type Comp struct {
 	Outer     *Comp
 	FuncMaker *funcMaker // used by debugger command 'backtrace' to obtain function name, type and binds for arguments and results
 }
-
-const (
-	// conventional values
-	AnyDepth  = -1
-	FileDepth = -2
-	TopDepth  = -3
-)
 
 // ================================= Env =================================
 

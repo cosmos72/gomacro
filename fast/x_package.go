@@ -13,13 +13,11 @@ import (
 func init() {
 	imports.Packages["github.com/cosmos72/gomacro/fast"] = imports.Package{
 		Binds: map[string]r.Value{
-			"AnyDepth":            r.ValueOf(AnyDepth),
 			"ConstBind":           r.ValueOf(ConstBind),
 			"ConstBindDescriptor": r.ValueOf(ConstBindDescriptor),
 			"EFlag4Value":         r.ValueOf(EFlag4Value),
 			"EIsNil":              r.ValueOf(EIsNil),
 			"EIsTypeAssert":       r.ValueOf(EIsTypeAssert),
-			"FileDepth":           r.ValueOf(FileDepth),
 			"FuncBind":            r.ValueOf(FuncBind),
 			"IntBind":             r.ValueOf(IntBind),
 			"MakeEFlag":           r.ValueOf(MakeEFlag),
@@ -33,7 +31,6 @@ func init() {
 			"PlaceAddress":        r.ValueOf(PlaceAddress),
 			"PlaceSettable":       r.ValueOf(PlaceSettable),
 			"PoolCapacity":        r.ValueOf(PoolCapacity),
-			"TopDepth":            r.ValueOf(TopDepth),
 			"VarBind":             r.ValueOf(VarBind),
 		}, Types: map[string]r.Type{
 			"Assign":             r.TypeOf((*Assign)(nil)).Elem(),
