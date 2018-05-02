@@ -507,6 +507,15 @@ func (ef *ExecFlags) SetDebug(flag bool) {
 	}
 }
 
+type DebugOp struct {
+	Depth int
+}
+
+var (
+	DebugOpContinue = DebugOp{0}
+	DebugOpStep     = DebugOp{MaxInt}
+)
+
 type Debugger interface {
 	Breakpoint(ir *Interp, env *Env) DebugOp
 	At(ir *Interp, env *Env) DebugOp

@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * global.go
+ * api.go
  *
  *  Created on Apr 21, 2018
  *      Author Massimiliano Ghilardi
@@ -30,14 +30,12 @@ import (
 	"github.com/cosmos72/gomacro/fast"
 )
 
-type DebugOp = base.DebugOp
+type DebugOp = fast.DebugOp
 
-const (
-	DebugContinue = base.SigDebugContinue
-	DebugFinish   = base.SigDebugFinish
-	DebugNext     = base.SigDebugNext
-	DebugStep     = base.SigDebugStep
-	DebugRepl     = base.SigDebugRepl
+var (
+	DebugOpContinue = fast.DebugOpContinue
+	DebugOpStep     = fast.DebugOpStep
+	DebugOpRepl     = DebugOp{-1}
 )
 
 type Debugger struct {
@@ -65,7 +63,7 @@ func (d *Debugger) main(interp *fast.Interp, env *fast.Env, breakpoint bool) Deb
 	d.globals = &interp.Comp.Globals
 	if !d.Show(breakpoint) {
 		// skip synthetic statements
-		return DebugRepl
+		return DebugOp{Depth: env.Run.DebugDepth}
 	}
 	return d.Repl()
 }

@@ -35,11 +35,11 @@ import (
 type stubDebugger struct{}
 
 func (s stubDebugger) Breakpoint(ir *Interp, env *Env) DebugOp {
-	return SigDebugContinue
+	return DebugOpContinue
 }
 
 func (s stubDebugger) At(ir *Interp, env *Env) DebugOp {
-	return SigDebugContinue
+	return DebugOpContinue
 }
 
 // return true if statement is either "break" or _ = "break"
@@ -74,10 +74,10 @@ func isBreakLiteral(node ast.Expr) bool {
 func (c *Comp) breakpoint() Stmt {
 	return func(env *Env) (Stmt, *Env) {
 		ir := Interp{c, env}
-		op := ir.debug(true)
+		sig := ir.debug(true)
 		env.IP++
 		stmt := env.Code[env.IP]
-		if op != SigNone {
+		if sig != SigNone {
 			g := env.Run
 			stmt = g.Interrupt
 			if g.Options&OptDebugDebugger != 0 {
@@ -90,35 +90,35 @@ func (c *Comp) breakpoint() Stmt {
 
 func singleStep(env *Env) (Stmt, *Env) {
 	stmt := env.Code[env.IP]
-	g := env.Run
-	if g.Signals.Debug == SigNone {
+	run := env.Run
+	if run.Signals.Debug == SigNone {
 		return stmt, env // resume normal execution
 	}
 
-	if env.CallDepth < g.DebugDepth {
-		if g.Options&OptDebugDebugger != 0 {
-			g.Debugf("single-stepping: stmt = %p, env = %p, IP = %v, env.CallDepth = %d, g.DebugDepth = %d", stmt, env, env.IP, env.CallDepth, g.DebugDepth)
+	if env.CallDepth < run.DebugDepth {
+		if run.Options&OptDebugDebugger != 0 {
+			run.Debugf("single-stepping: stmt = %p, env = %p, IP = %v, env.CallDepth = %d, g.DebugDepth = %d", stmt, env, env.IP, env.CallDepth, run.DebugDepth)
 		}
 		c := env.DebugComp
 		if c != nil {
 			ir := Interp{c, env}
-			op := ir.debug(false) // not a breakpoint
-			if op != SigNone {
-				g := env.Run
-				g.Signals.Debug = op
+			sig := ir.debug(false) // not a breakpoint
+			if sig != SigNone {
+				run := env.Run
+				run.Signals.Debug = sig
 			}
 		}
 	}
 
 	// single step
 	stmt, env = stmt(env)
-	if g.Signals.Debug != SigNone {
-		stmt = g.Interrupt
+	if run.Signals.Debug != SigNone {
+		stmt = run.Interrupt
 	}
 	return stmt, env
 }
 
-func (ir *Interp) debug(breakpoint bool) DebugOp {
+func (ir *Interp) debug(breakpoint bool) Signal {
 	g := ir.env.Run
 	if g.Debugger == nil {
 		ir.Comp.Warnf("// breakpoint: no debugger set with Interp.SetDebugger(), resuming execution (warned only once)")
@@ -133,38 +133,28 @@ func (ir *Interp) debug(breakpoint bool) DebugOp {
 	if g.Options&OptDebugDebugger != 0 {
 		g.Debugf("Debugger returned op = %v", op)
 	}
-	return ir.env.applyDebugSignal(op)
+	return ir.env.applyDebugOp(op)
 }
 
-func (env *Env) applyDebugSignal(op DebugOp) DebugOp {
-	g := env.Run
+func (env *Env) applyDebugOp(op DebugOp) Signal {
+	run := env.Run
 	saveOp := op
-	saveDepth := g.DebugDepth
-	switch op {
-	case SigDebugFinish:
-		g.DebugDepth = env.CallDepth
-	case SigDebugNext:
-		g.DebugDepth = env.CallDepth + 1
-	case SigDebugStep:
-		g.DebugDepth = MaxInt
-	case SigDebugRepl:
-		break
-	default:
-		op = SigNone
-		g.DebugDepth = 0
+	var sig Signal
+	if op.Depth > 0 {
+		sig = SigDebug
+	} else {
+		sig = SigNone
+		op.Depth = 0
 	}
-	// prevent further changes to g.DebugDepth
-	if g.Options&OptDebugDebugger != 0 {
+	if run.Options&OptDebugDebugger != 0 {
 		if op == saveOp {
-			g.Debugf("applyDebugSignal: op = %v, updated g.DebugDepth from %v to %v", op, saveDepth, g.DebugDepth)
+			run.Debugf("applyDebugSignal: op = %v, updated run.DebugDepth from %v to %v", op, run.DebugDepth, op.Depth)
 		} else {
-			g.Debugf("applyDebugSignal: op = %v, replaced with %v and updated g.DebugDepth from %v to %v", saveOp, op, saveDepth, g.DebugDepth)
+			run.Debugf("applyDebugSignal: op = %v, replaced with %v and updated run.DebugDepth from %v to %v", saveOp, op, run.DebugDepth, op.Depth)
 		}
 	}
-	if op != SigNone {
-		op = SigDebugRepl
-	}
-	g.ExecFlags.SetDebug(op != SigNone)
-	g.Signals.Debug = op
-	return op
+	run.DebugDepth = op.Depth
+	run.ExecFlags.SetDebug(sig != SigNone)
+	run.Signals.Debug = sig
+	return sig
 }

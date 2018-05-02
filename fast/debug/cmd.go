@@ -69,7 +69,7 @@ var cmds = Cmds{
 
 // execute one of the debugger commands
 func (d *Debugger) Cmd(src string) DebugOp {
-	op := DebugRepl
+	op := DebugOpRepl
 	src = strings.TrimSpace(src)
 	n := len(src)
 	if n > 0 {
@@ -88,25 +88,25 @@ func (d *Debugger) Cmd(src string) DebugOp {
 
 func (d *Debugger) cmdBacktrace(arg string) DebugOp {
 	d.Backtrace(arg)
-	return DebugRepl
+	return DebugOpRepl
 }
 
 func (d *Debugger) cmdContinue(arg string) DebugOp {
-	return DebugContinue
+	return DebugOpContinue
 }
 
 func (d *Debugger) cmdEnv(arg string) DebugOp {
 	d.interp.ShowPackage(arg)
-	return DebugRepl
+	return DebugOpRepl
 }
 
 func (d *Debugger) cmdFinish(arg string) DebugOp {
-	return DebugFinish
+	return DebugOp{d.env.CallDepth}
 }
 
 func (d *Debugger) cmdHelp(arg string) DebugOp {
 	d.Help()
-	return DebugRepl
+	return DebugOpRepl
 }
 
 func (d *Debugger) cmdInspect(arg string) DebugOp {
@@ -116,16 +116,16 @@ func (d *Debugger) cmdInspect(arg string) DebugOp {
 	} else {
 		d.interp.Inspect(arg)
 	}
-	return DebugRepl
+	return DebugOpRepl
 }
 
 func (d *Debugger) cmdList(arg string) DebugOp {
 	d.Show(false)
-	return DebugRepl
+	return DebugOpRepl
 }
 
 func (d *Debugger) cmdNext(arg string) DebugOp {
-	return DebugNext
+	return DebugOp{d.env.CallDepth + 1}
 }
 
 func (d *Debugger) cmdPrint(arg string) DebugOp {
@@ -135,14 +135,14 @@ func (d *Debugger) cmdPrint(arg string) DebugOp {
 	} else {
 		d.Eval(arg)
 	}
-	return DebugRepl
+	return DebugOpRepl
 }
 
 func (d *Debugger) cmdStep(arg string) DebugOp {
-	return DebugStep
+	return DebugOpStep
 }
 
 func (d *Debugger) cmdVars(arg string) DebugOp {
 	d.Vars()
-	return DebugRepl
+	return DebugOpRepl
 }

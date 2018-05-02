@@ -43,7 +43,7 @@ func (d *Debugger) Backtrace(arg string) DebugOp {
 		}
 	}
 	d.showFunctionCalls(calls)
-	return DebugRepl
+	return DebugOpRepl
 }
 
 func (d *Debugger) showFunctionCalls(calls []*fast.Env) {

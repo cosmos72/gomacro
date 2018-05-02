@@ -128,7 +128,7 @@ func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
 	if ir.Comp.Globals.Options&OptKeepUntyped == 0 && e.Untyped() {
 		e.ConstTo(e.DefaultType())
 	}
-	env.applyDebugSignal(SigNone)
+	env.applyDebugOp(DebugOpContinue)
 
 	g := env.Run
 	defer g.setCurrEnv(g.setCurrEnv(env))
@@ -159,7 +159,7 @@ func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
 	if ir.Comp.Globals.Options&OptKeepUntyped == 0 && e.Untyped() {
 		e.ConstTo(e.DefaultType())
 	}
-	env.applyDebugSignal(SigDebugStep)
+	env.applyDebugOp(DebugOpStep)
 	g := env.Run
 	defer g.setCurrEnv(g.setCurrEnv(env))
 

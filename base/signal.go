@@ -66,16 +66,7 @@ const (
 	SigDefer Signal = 1 << iota // request to install a defer function
 	SigReturn
 	SigInterrupt // user pressed Ctrl+C, process received SIGINT, or similar
-)
-
-type DebugOp = Signal
-
-const (
-	SigDebugContinue Signal = SigInterrupt + 1 + iota
-	SigDebugFinish
-	SigDebugNext
-	SigDebugStep
-	SigDebugRepl
+	SigDebug     // debugger asked to execute in single-step mode
 
 	SigNone = Signal(0) // no signal
 	SigAll  = ^SigNone  // mask of all possible signals
@@ -92,16 +83,8 @@ func (sig Signal) String() string {
 		s = "// signal: return"
 	case SigInterrupt:
 		s = "// signal: interrupt"
-	case SigDebugContinue:
-		s = "// signal: debugger continue"
-	case SigDebugFinish:
-		s = "// signal: debugger finish"
-	case SigDebugNext:
-		s = "// signal: debugger next"
-	case SigDebugStep:
-		s = "// signal: debugger step"
-	case SigDebugRepl:
-		s = "// signal: debugger repl"
+	case SigDebug:
+		s = "// signal: debug"
 	default:
 		s = fmt.Sprintf("// signal: unknown(%d)", uint16(sig))
 	}

@@ -111,13 +111,13 @@ func (d *Debugger) Repl() DebugOp {
 	if g.Options&base.OptShowPrompt != 0 {
 		opts |= base.ReadOptShowPrompt
 	}
-	op := DebugRepl
-	for op == DebugRepl {
+	op := DebugOpRepl
+	for op == DebugOpRepl {
 		src, firstToken := g.ReadMultiline(opts, "debug> ")
 		empty := len(src) == 0
 		if firstToken < 0 && empty {
 			// EOF
-			op = DebugContinue
+			op = DebugOpContinue
 			break
 		}
 		if empty || src == "\n" {
