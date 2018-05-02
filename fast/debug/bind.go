@@ -37,12 +37,10 @@ func (d *Debugger) Vars() {
 	var envs []*fast.Env
 	for env != nil {
 		envs = append(envs, env)
-		if env.Caller != nil {
-			// function body
-			break
-		}
-		// nested env
 		env = env.Outer
+		if env == nil || env.FileEnv == env {
+			break // omit global variables
+		}
 	}
 	d.showEnvs(envs)
 }
