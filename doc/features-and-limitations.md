@@ -23,7 +23,7 @@ Gomacro default interpreter supports:
 * extracting methods from types and from instances.
   For example `time.Duration.String` returns a `func(time.Duration) string`
   and `time.Duration(1s).String` returns a `func() string`
-* if, for, for-range, break, continue, fallthrough, return (goto is only partially implemented)
+* if, for, for-range, break, continue, fallthrough, return (goto is not implemented)
 * select, switch, type switch, fallthrough
 * all builtins: append, cap, close, comples, defer, delete, imag, len, make, new, panic, print, println, real, recover
 * imports: Go standard packages "just work". Importing other packages requires either the "plugin" package
@@ -45,7 +45,7 @@ Gomacro default interpreter supports:
 
 Some features are still missing or incomplete:
 * out-of-order code. Types, variables, constants and functions must be declared **before** using them.
-* goto is partially implemented, can only jump back - not forward
+* goto is not implemented
 * incomplete interface -> interface type assertions and type switches:
   they do not support yet interpreted types stored in interfaces, and interpreted interfaces.
 * unimplemented conversion typed constant -> interpreted interface (see fast/literal.go:207)

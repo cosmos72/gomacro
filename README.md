@@ -125,7 +125,7 @@ The main limitations and missing features are:
 * importing 3<sup>rd</sup> party libraries on non-Linux systems is cumbersome - see [Importing packages](#importing-packages).
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * out-of-order code. Types, constants, variables and functions must be declared **before** using them.
-* goto is partially implemented - can only jump back, not forward
+* goto is not implemented
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 
