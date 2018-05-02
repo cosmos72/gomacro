@@ -1139,9 +1139,17 @@ func (p *parser) parseBlockStmt() *ast.BlockStmt {
 	}
 
 	lbrace := p.expect(token.LBRACE)
-	p.openScope()
-	list := p.parseStmtList()
-	p.closeScope()
+
+	var list []ast.Stmt
+	if len(p.targetStack) == 0 {
+		p.openLabelScope()
+		list = p.parseStmtList()
+		p.closeLabelScope()
+	} else {
+		p.openScope()
+		list = p.parseStmtList()
+		p.closeScope()
+	}
 	rbrace := p.expect(token.RBRACE)
 
 	return &ast.BlockStmt{Lbrace: lbrace, List: list, Rbrace: rbrace}
