@@ -58,7 +58,7 @@ func (cmd *Cmd) Init() {
 
 	g := &ir.Comp.Globals
 	g.ParserMode = 0
-	g.Options = OptDebugger | OptKeepUntyped | OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType
+	g.Options = OptDebugger | OptCtrlCEnterDebugger | OptKeepUntyped | OptTrapPanic | OptShowPrompt | OptShowEval | OptShowEvalType
 	cmd.Interp = ir
 	cmd.WriteDeclsAndStmts = false
 	cmd.OverwriteFiles = false

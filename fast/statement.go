@@ -265,7 +265,7 @@ func (c *Comp) Defer(node *ast.DeferStmt) {
 	fun := call.Fun.AsX1()
 	argfuns := call.MakeArgfunsX1()
 	ellipsis := call.Ellipsis
-	c.append(func(env *Env) (Stmt, *Env) {
+	c.Append(func(env *Env) (Stmt, *Env) {
 		// Go specs: arguments of a defer call are evaluated immediately.
 		// the call itself is executed when the function containing defer returns,
 		// either normally or with a panic
@@ -282,19 +282,19 @@ func (c *Comp) Defer(node *ast.DeferStmt) {
 			args[i] = v
 		}
 		env.IP++
-		g := env.Run
+		run := env.Run
 		if ellipsis {
-			g.InstallDefer = func() {
+			run.InstallDefer = func() {
 				f.CallSlice(args)
 			}
 		} else {
-			g.InstallDefer = func() {
+			run.InstallDefer = func() {
 				f.Call(args)
 			}
 		}
-		g.Signals.Sync = SigDefer
-		return g.Interrupt, env
-	})
+		run.Signals.Sync = SigDefer
+		return run.Interrupt, env
+	}, node.Pos())
 	c.Code.WithDefers = true
 }
 

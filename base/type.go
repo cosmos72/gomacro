@@ -43,7 +43,8 @@ type WhichMacroExpand uint
 const (
 	OptCollectDeclarations Options = 1 << iota
 	OptCollectStatements
-	OptDebugger // enable debugger support. "break" and _ = "break" start the debugger
+	OptCtrlCEnterDebugger // Ctrl+C enters the debugger instead of injecting a panic. requires OptDebugger
+	OptDebugger           // enable debugger support. "break" and _ = "break" are breakpoints and enter the debugger
 	OptKeepUntyped
 	OptMacroExpandOnly // do not compile or execute code, only parse and macroexpand it
 	OptPanicStackTrace
@@ -76,6 +77,7 @@ const (
 var optNames = map[Options]string{
 	OptCollectDeclarations: "Declarations.Collect",
 	OptCollectStatements:   "Statements.Collect",
+	OptCtrlCEnterDebugger:  "CtrlC.Debugger.Enter",
 	OptDebugger:            "Debugger",
 	OptKeepUntyped:         "Untyped.Keep",
 	OptMacroExpandOnly:     "MacroExpandOnly",

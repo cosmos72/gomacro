@@ -78,10 +78,10 @@ func (c *Comp) breakpoint() Stmt {
 		env.IP++
 		stmt := env.Code[env.IP]
 		if sig != SigNone {
-			g := env.Run
-			stmt = g.Interrupt
-			if g.Options&OptDebugDebugger != 0 {
-				g.Debugf("after breakpoint: single-stepping with stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, env.IP, g.ExecFlags, g.Signals)
+			run := env.Run
+			stmt = run.Interrupt
+			if run.Options&OptDebugDebugger != 0 {
+				run.Debugf("after breakpoint: single-stepping with stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, env.IP, run.ExecFlags, run.Signals)
 			}
 		}
 		return stmt, env
@@ -119,25 +119,30 @@ func singleStep(env *Env) (Stmt, *Env) {
 }
 
 func (ir *Interp) debug(breakpoint bool) Signal {
-	g := ir.env.Run
-	if g.Debugger == nil {
+	run := ir.env.Run
+	if run.Debugger == nil {
 		ir.Comp.Warnf("// breakpoint: no debugger set with Interp.SetDebugger(), resuming execution (warned only once)")
-		g.Debugger = stubDebugger{}
+		run.Debugger = stubDebugger{}
 	}
 	var op DebugOp
 	if breakpoint {
-		op = g.Debugger.Breakpoint(ir, ir.env)
+		op = run.Debugger.Breakpoint(ir, ir.env)
 	} else {
-		op = g.Debugger.At(ir, ir.env)
+		op = run.Debugger.At(ir, ir.env)
 	}
-	if g.Options&OptDebugDebugger != 0 {
-		g.Debugf("Debugger returned op = %v", op)
+	if run.Options&OptDebugDebugger != 0 {
+		run.Debugf("Debugger returned op = %v", op)
 	}
-	return ir.env.applyDebugOp(op)
+	return run.applyDebugOp(op)
 }
 
-func (env *Env) applyDebugOp(op DebugOp) Signal {
-	run := env.Run
+func (run *Run) applyDebugOp(op DebugOp) Signal {
+	if op.Panic != nil {
+		if run.Options&OptDebugDebugger != 0 {
+			run.Debugf("applyDebugOp: op = %v, signaling panic(%v)", op, op.Panic)
+		}
+		panic(op.Panic)
+	}
 	saveOp := op
 	var sig Signal
 	if op.Depth > 0 {
@@ -148,9 +153,9 @@ func (env *Env) applyDebugOp(op DebugOp) Signal {
 	}
 	if run.Options&OptDebugDebugger != 0 {
 		if op == saveOp {
-			run.Debugf("applyDebugSignal: op = %v, updated run.DebugDepth from %v to %v", op, run.DebugDepth, op.Depth)
+			run.Debugf("applyDebugOp: op = %v, updated run.DebugDepth from %v to %v", op, run.DebugDepth, op.Depth)
 		} else {
-			run.Debugf("applyDebugSignal: op = %v, replaced with %v and updated run.DebugDepth from %v to %v", saveOp, op, run.DebugDepth, op.Depth)
+			run.Debugf("applyDebugOp: op = %v, replaced with %v and updated run.DebugDepth from %v to %v", saveOp, op, run.DebugDepth, op.Depth)
 		}
 	}
 	run.DebugDepth = op.Depth

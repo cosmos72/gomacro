@@ -27,9 +27,11 @@ package debug
 
 import (
 	"go/token"
+	"reflect"
 	"runtime/debug"
 
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/xreflect"
 )
 
 func (d *Debugger) Help() {
@@ -41,6 +43,7 @@ env [NAME]      show available functions, variables and constants
 ?               show this help
 help            show this help
 inspect EXPR    inspect expression interactively
+kill   [EXPR]   terminate execution with panic(EXPR)
 print   EXPR    print expression, statement or declaration
 list            show current source code
 continue        resume normal execution
@@ -132,7 +135,7 @@ func (d *Debugger) Repl() DebugOp {
 	return op
 }
 
-func (d *Debugger) Eval(src string) {
+func (d *Debugger) Eval(src string) ([]reflect.Value, []xreflect.Type) {
 	g := d.globals
 	trap := g.Options&base.OptTrapPanic != 0
 
@@ -152,10 +155,8 @@ func (d *Debugger) Eval(src string) {
 			}
 		}
 	}()
-
-	ir := d.interp
-
-	g.Print(ir.Eval(src))
+	vals, types := d.interp.Eval(src)
 
 	trap = false // no panic happened
+	return vals, types
 }

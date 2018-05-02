@@ -35,7 +35,7 @@ type DebugOp = fast.DebugOp
 var (
 	DebugOpContinue = fast.DebugOpContinue
 	DebugOpStep     = fast.DebugOpStep
-	DebugOpRepl     = DebugOp{-1}
+	DebugOpRepl     = DebugOp{-1, nil}
 )
 
 type Debugger struct {

@@ -463,7 +463,7 @@ const (
 	poolCapacity = 32
 )
 
-type ExecFlags uint
+type ExecFlags uint32
 
 const (
 	EFStartDefer ExecFlags = 1 << iota // true next executed function body is a defer
@@ -508,12 +508,16 @@ func (ef *ExecFlags) SetDebug(flag bool) {
 }
 
 type DebugOp struct {
+	// statements at env.CallDepth < Depth will be executed in single-stepping mode,
+	// i.e. invoking the debugger after every statement
 	Depth int
+	// value to panic() in order to terminate execution
+	Panic interface{}
 }
 
 var (
-	DebugOpContinue = DebugOp{0}
-	DebugOpStep     = DebugOp{MaxInt}
+	DebugOpContinue = DebugOp{0, nil}
+	DebugOpStep     = DebugOp{MaxInt, nil}
 )
 
 type Debugger interface {
@@ -533,13 +537,13 @@ type Run struct {
 	*IrGlobals
 	goid         uintptr // owner goroutine id
 	Interrupt    Stmt
-	Signals      Signals     // set by defer, return, breakpoint, debugger and ThreadGlobals.interrupt(os.Signal)
+	Signals      Signals // set by defer, return, breakpoint, debugger and Run.interrupt(os.Signal)
+	ExecFlags    ExecFlags
 	CurrEnv      *Env        // caller of current function. used ONLY at function entry to build call stack
 	InstallDefer func()      // defer function to be installed
-	Panic        interface{} // current panic. needed for recover()
-	PanicFun     *Env        // the currently panicking function
 	DeferOfFun   *Env        // function whose defer are running
-	ExecFlags    ExecFlags
+	PanicFun     *Env        // the currently panicking function
+	Panic        interface{} // current panic. needed for recover()
 	CmdOpt       CmdOpt
 	Debugger     Debugger
 	DebugDepth   int // depth of function to debug with single-step

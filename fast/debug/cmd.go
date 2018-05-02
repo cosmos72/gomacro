@@ -60,6 +60,7 @@ var cmds = Cmds{
 	'h': Cmd{"help", (*Debugger).cmdHelp},
 	'?': Cmd{"?", (*Debugger).cmdHelp},
 	'i': Cmd{"inspect", (*Debugger).cmdInspect},
+	'k': Cmd{"kill", (*Debugger).cmdKill},
 	'l': Cmd{"list", (*Debugger).cmdList},
 	'n': Cmd{"next", (*Debugger).cmdNext},
 	'p': Cmd{"print", (*Debugger).cmdPrint},
@@ -101,7 +102,7 @@ func (d *Debugger) cmdEnv(arg string) DebugOp {
 }
 
 func (d *Debugger) cmdFinish(arg string) DebugOp {
-	return DebugOp{d.env.CallDepth}
+	return DebugOp{d.env.CallDepth, nil}
 }
 
 func (d *Debugger) cmdHelp(arg string) DebugOp {
@@ -119,21 +120,41 @@ func (d *Debugger) cmdInspect(arg string) DebugOp {
 	return DebugOpRepl
 }
 
+func (d *Debugger) cmdKill(arg string) DebugOp {
+	var panick interface{}
+	if len(arg) != 0 {
+		vals, _ := d.Eval(arg)
+		if len(vals) != 0 && vals[0].IsValid() {
+			val := vals[0]
+			if val.CanInterface() {
+				panick = val.Interface()
+			} else {
+				panick = val
+			}
+		}
+	}
+	if panick == nil {
+		panick = base.SigInterrupt
+	}
+	return DebugOp{0, panick}
+}
+
 func (d *Debugger) cmdList(arg string) DebugOp {
 	d.Show(false)
 	return DebugOpRepl
 }
 
 func (d *Debugger) cmdNext(arg string) DebugOp {
-	return DebugOp{d.env.CallDepth + 1}
+	return DebugOp{d.env.CallDepth + 1, nil}
 }
 
 func (d *Debugger) cmdPrint(arg string) DebugOp {
+	g := d.globals
 	if len(arg) == 0 {
-		g := d.globals
 		g.Fprintf(g.Stdout, "// print: missing argument\n")
 	} else {
-		d.Eval(arg)
+		vals, types := d.Eval(arg)
+		g.Print(vals, types)
 	}
 	return DebugOpRepl
 }

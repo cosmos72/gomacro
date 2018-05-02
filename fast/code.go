@@ -69,15 +69,25 @@ func (code *Code) AsExpr() *Expr {
 // To signal an interrupt, a statement must set env.ThreadGlobals.Signal to the desired signal,
 // then return env.ThreadGlobals.Interrupt, env
 func spinInterrupt(env *Env) (Stmt, *Env) {
-	g := env.Run
-	if g.Signals.Sync == SigNone {
-		g.Signals.Sync = SigReturn
+	run := env.Run
+	if run.Signals.IsEmpty() {
+		run.Signals.Sync = SigReturn
+	} else if sig := run.Signals.Async; sig != SigNone {
+		run.applyAsyncSignal(sig)
 	}
-	if g.Signals.Async == SigInterrupt {
-		g.Signals.Async = SigNone
+	return run.Interrupt, env
+}
+
+func (run *Run) applyAsyncSignal(sig Signal) {
+	run.Signals.Async = SigNone
+	switch sig {
+	case SigNone:
+		break
+	case SigDebug:
+		run.applyDebugOp(DebugOpStep)
+	default:
 		panic(SigInterrupt)
 	}
-	return g.Interrupt, env
 }
 
 func pushDefer(g *Run, deferOf *Env, panicking bool) (retg *Run, deferOf_ *Env, isDefer bool) {
@@ -90,33 +100,40 @@ func pushDefer(g *Run, deferOf *Env, panicking bool) (retg *Run, deferOf_ *Env, 
 	return g, deferOf_, g.ExecFlags.IsDefer()
 }
 
-func popDefer(g *Run, deferOf *Env, isDefer bool) {
-	g.DeferOfFun = deferOf
-	g.ExecFlags.SetStartDefer(false)
-	g.ExecFlags.SetDefer(isDefer)
+func popDefer(run *Run, deferOf *Env, isDefer bool) {
+	run.DeferOfFun = deferOf
+	run.ExecFlags.SetStartDefer(false)
+	run.ExecFlags.SetDefer(isDefer)
 }
 
-func restore(g *Run, isDefer bool, interrupt Stmt, caller *Env) {
-	g.ExecFlags.SetDefer(isDefer)
-	g.Interrupt = interrupt
-	g.CurrEnv = caller
-	g.Signals.Sync = SigNone
-	if g.Signals.Async == SigInterrupt {
-		g.Signals.Async = SigNone
-		panic(SigInterrupt)
+func restore(run *Run, isDefer bool, interrupt Stmt, caller *Env) {
+	run.ExecFlags.SetDefer(isDefer)
+	run.Interrupt = interrupt
+	run.CurrEnv = caller
+	run.Signals.Sync = SigNone
+	if sig := run.Signals.Async; sig == SigInterrupt {
+		// do NOT handle async SigDebug here
+		run.applyAsyncSignal(sig)
 	}
 }
 
-func maybeRepanic(g *Run) bool {
-	if g.PanicFun != nil {
-		panic(g.Panic)
+func maybeRepanic(run *Run) bool {
+	if run.PanicFun != nil {
+		panic(run.Panic)
 	}
 	// either not panicking or recover() invoked, no longer panicking
 	return false
 }
 
-func (g *Run) interrupt() {
-	g.Signals.Async = SigInterrupt
+func (run *Run) interrupt() {
+	const CtrlCDebug = OptDebugger | OptCtrlCEnterDebugger
+	var sig Signal
+	if run.Options&CtrlCDebug == CtrlCDebug {
+		sig = SigDebug
+	} else {
+		sig = SigInterrupt
+	}
+	run.Signals.Async = sig
 }
 
 // Exec returns a func(*Env) that will execute the compiled code
@@ -140,19 +157,18 @@ func (code *Code) Exec() func(*Env) {
 
 func exec(all []Stmt, pos []token.Pos) func(*Env) {
 	return func(env *Env) {
-		g := env.Run
-		g.Signals.Sync = SigNone
-		if g.ExecFlags != 0 {
+		run := env.Run
+		run.Signals.Sync = SigNone
+		if run.ExecFlags != 0 {
 			// code to support defer and debugger is slower... isolate it in a separate function
 			reExecWithFlags(env, all, pos, all[0], 0)
 			return
 		}
-		if g.Signals.Async == SigInterrupt {
-			g.Signals.Async = SigNone
-			panic(SigInterrupt)
+		if sig := run.Signals.Async; sig != SigNone {
+			run.applyAsyncSignal(sig)
 		}
-		saveInterrupt := g.Interrupt
-		g.Interrupt = nil
+		saveInterrupt := run.Interrupt
+		run.Interrupt = nil
 
 		stmt := all[0]
 		env.IP = 0
@@ -174,7 +190,7 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 														if stmt, env = stmt(env); stmt != nil {
 															if stmt, env = stmt(env); stmt != nil {
 																if stmt, env = stmt(env); stmt != nil {
-																	if g.Signals.IsEmpty() {
+																	if run.Signals.IsEmpty() {
 																		continue
 																	}
 																}
@@ -194,7 +210,7 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 			goto finish
 		}
 
-		g.Interrupt = spinInterrupt
+		run.Interrupt = spinInterrupt
 		for {
 			stmt, env = stmt(env)
 			stmt, env = stmt(env)
@@ -212,22 +228,21 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 			stmt, env = stmt(env)
 			stmt, env = stmt(env)
 
-			if !g.Signals.IsEmpty() {
+			if !run.Signals.IsEmpty() {
 				break
 			}
 		}
 	finish:
 		// restore env.ThreadGlobals.Interrupt and Signal before returning
-		g.Interrupt = saveInterrupt
-		if g.Signals.Async == SigInterrupt {
-			g.Signals.Async = SigNone
-			panic(SigInterrupt)
+		run.Interrupt = saveInterrupt
+		if sig := run.Signals.Async; sig != SigNone {
+			run.applyAsyncSignal(sig) // may set run.Signals.Debug if OptCtrlCEnterDebugger is set
 		}
-		if g.Signals.Debug != SigNone {
+		if run.Signals.Debug != SigNone {
 			reExecWithFlags(env, all, pos, stmt, env.IP)
 			return
 		}
-		g.Signals.Sync = SigNone
+		run.Signals.Sync = SigNone
 		return
 	}
 }
@@ -241,23 +256,22 @@ func execWithFlags(all []Stmt, pos []token.Pos) func(*Env) {
 }
 
 func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
-	g := env.Run
+	run := env.Run
 
-	ef := &g.ExecFlags
-	trace := g.Options&OptDebugDebugger != 0
+	ef := &run.ExecFlags
+	trace := run.Options&OptDebugDebugger != 0
 	if trace {
-		g.Debugf("reExecWithFlags:  executing function   stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, ip, *ef, g.Signals)
+		run.Debugf("reExecWithFlags:  executing function   stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, ip, *ef, run.Signals)
 	}
-	if g.Signals.Async == SigInterrupt {
-		g.Signals.Async = SigNone
-		panic(SigInterrupt)
+	if sig := run.Signals.Async; sig != SigNone {
+		run.applyAsyncSignal(sig)
 	}
-	caller := g.CurrEnv
+	caller := run.CurrEnv
 	// restore g.IsDefer, g.Signal, g.DebugCallDepth, g.Interrupt and g.Caller on return
-	defer restore(g, g.ExecFlags.IsDefer(), g.Interrupt, caller)
+	defer restore(run, run.ExecFlags.IsDefer(), run.Interrupt, caller)
 	ef.SetDefer(ef.StartDefer())
 	ef.SetStartDefer(false)
-	ef.SetDebug(g.Signals.Debug != SigNone)
+	ef.SetDebug(run.Signals.Debug != SigNone)
 
 	funenv := env
 	env.IP = ip
@@ -269,22 +283,22 @@ func reExecWithFlags(env *Env, all []Stmt, pos []token.Pos, stmt Stmt, ip int) {
 		if panicking || panicking2 {
 			panicking = true
 			panicking2 = false
-			g.Panic = recover()
+			run.Panic = recover()
 		}
-		defer popDefer(pushDefer(g, funenv, panicking))
+		defer popDefer(pushDefer(run, funenv, panicking))
 		panicking2 = true // detect panics inside defer
 		fun()
 		panicking2 = false
 		if panicking {
-			panicking = maybeRepanic(g)
+			panicking = maybeRepanic(run)
 		}
 	}
 
-	if stmt == nil || !g.Signals.IsEmpty() {
+	if stmt == nil || !run.Signals.IsEmpty() {
 		goto signal
 	}
 again:
-	g.Interrupt = nil
+	run.Interrupt = nil
 	for j := 0; j < 5; j++ {
 		if stmt, env = stmt(env); stmt != nil {
 			if stmt, env = stmt(env); stmt != nil {
@@ -300,7 +314,7 @@ again:
 													if stmt, env = stmt(env); stmt != nil {
 														if stmt, env = stmt(env); stmt != nil {
 															if stmt, env = stmt(env); stmt != nil {
-																if g.Signals.IsEmpty() {
+																if run.Signals.IsEmpty() {
 																	continue
 																}
 															}
@@ -317,23 +331,23 @@ again:
 				}
 			}
 		}
-		for g.Signals.Sync == SigDefer {
-			g.Signals.Sync = SigNone
-			fun := g.InstallDefer
-			g.InstallDefer = nil
+		for run.Signals.Sync == SigDefer {
+			run.Signals.Sync = SigNone
+			fun := run.InstallDefer
+			run.InstallDefer = nil
 			defer rundefer(fun)
 			stmt = env.Code[env.IP]
 			if stmt == nil {
 				goto signal
 			}
 		}
-		if !g.Signals.IsEmpty() {
+		if !run.Signals.IsEmpty() {
 			goto signal
 		}
 		continue
 	}
 
-	g.Interrupt = spinInterrupt
+	run.Interrupt = spinInterrupt
 	for {
 		stmt, env = stmt(env)
 		stmt, env = stmt(env)
@@ -351,32 +365,40 @@ again:
 		stmt, env = stmt(env)
 		stmt, env = stmt(env)
 
-		for g.Signals.Sync == SigDefer {
-			g.Signals.Sync = SigNone
-			fun := g.InstallDefer
-			g.InstallDefer = nil
+		for run.Signals.Sync == SigDefer {
+			run.Signals.Sync = SigNone
+			fun := run.InstallDefer
+			run.InstallDefer = nil
 			defer rundefer(fun)
 			// single step
 			stmt = env.Code[env.IP]
 			stmt, env = stmt(env)
 		}
-		if !g.Signals.IsEmpty() {
+		if !run.Signals.IsEmpty() {
 			goto signal
 		}
 	}
 signal:
-	for g.Signals.Debug != SigNone {
-		g.Interrupt = spinInterrupt
+	if sig := run.Signals.Async; sig != SigNone {
+		// if OptCtrlCEnterDebugger is set, convert early
+		// Signals.Async = SigDebug to Signals.Debug = SigDebug
+		run.applyAsyncSignal(sig)
+	}
+
+	for run.Signals.Debug != SigNone {
+		run.Interrupt = spinInterrupt
 		stmt, env = singleStep(env)
 		if trace {
-			g.Debugf("singleStep returned stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, env.IP, g.ExecFlags, g.Signals)
+			run.Debugf("singleStep returned stmt = %p, env = %p, IP = %v, execFlags = %v, signals = %#v", stmt, env, env.IP, run.ExecFlags, run.Signals)
 		}
 		// a Sync or Async signal may be pending.
-		if g.Signals.Sync == SigReturn || g.Signals.Async != SigNone {
-			break
-		}
-		if g.Signals.IsEmpty() || g.Signals.Sync == SigDefer {
+		sig := run.Signals.Sync
+		if run.Signals.IsEmpty() || sig == SigDefer {
 			goto again
+		} else if sig == SigReturn {
+			break
+		} else if sig = run.Signals.Async; sig != SigNone {
+			run.applyAsyncSignal(sig)
 		}
 	}
 	panicking = false
