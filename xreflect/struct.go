@@ -118,7 +118,7 @@ func (field *StructField) sanitize(i int) {
 		name = t.elem().Name()
 	}
 	if len(name) == 0 {
-		name = StrGensymEmbedded + fmt.Sprintf("%d", i)
+		name = fmt.Sprintf("%s%d", StrGensymAnonymous, i)
 	}
 	field.Name = name
 	field.Anonymous = true
@@ -157,7 +157,7 @@ func toExportedFieldName(name string, t Type, anonymous bool) string {
 	}
 	if !ast.IsExported(name) {
 		if anonymous {
-			return GensymEmbedded(name)
+			return GensymAnonymous(name)
 		} else {
 			return GensymPrivate(name)
 		}

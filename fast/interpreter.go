@@ -70,9 +70,9 @@ func newTopInterp(path string) *Interp {
 		Prompt:       "gomacro> ",
 	}
 	goid := gls.GoID()
-	tg := &Run{IrGlobals: g, goid: goid}
-	// early register tg in goroutine-local data
-	g.gls[goid] = tg
+	run := &Run{IrGlobals: g, goid: goid}
+	// early register run in goroutine-local data
+	g.gls[goid] = run
 
 	ir := &Interp{
 		Comp: &Comp{
@@ -87,7 +87,7 @@ func newTopInterp(path string) *Interp {
 		},
 		env: &Env{
 			Outer: nil,
-			Run:   tg,
+			Run:   run,
 		},
 	}
 	// tell xreflect about our packages "fast" and "main"
@@ -289,7 +289,8 @@ func (ir *Interp) EvalReader(src io.Reader) (comments string, err error) {
 	g.Line = 0
 	in := MakeBufReadline(bufio.NewReader(src), g.Stdout)
 	g.Readline = in
-	g.Options &^= OptShowPrompt // parsing a file: suppress prompt
+	// parsing a file: suppress prompt and printing expression results
+	g.Options &^= OptShowPrompt | OptShowEval | OptShowEvalType
 	defer func() {
 		g.Readline = savein
 		g.Options = saveopts

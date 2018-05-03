@@ -121,22 +121,23 @@ func (d *Debugger) cmdInspect(arg string) DebugOp {
 }
 
 func (d *Debugger) cmdKill(arg string) DebugOp {
-	var panick interface{}
+	var panick interface{} = base.SigInterrupt
 	if len(arg) != 0 {
 		vals, _ := d.Eval(arg)
-		if len(vals) != 0 && vals[0].IsValid() {
-			val := vals[0]
-			if val.CanInterface() {
-				panick = val.Interface()
+		if len(vals) != 0 {
+			if !vals[0].IsValid() {
+				panick = nil
 			} else {
-				panick = val
+				val := vals[0]
+				if val.CanInterface() {
+					panick = val.Interface()
+				} else {
+					panick = val
+				}
 			}
 		}
 	}
-	if panick == nil {
-		panick = base.SigInterrupt
-	}
-	return DebugOp{0, panick}
+	return DebugOp{0, &panick}
 }
 
 func (d *Debugger) cmdList(arg string) DebugOp {

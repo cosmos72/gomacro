@@ -139,9 +139,9 @@ func (ir *Interp) debug(breakpoint bool) Signal {
 func (run *Run) applyDebugOp(op DebugOp) Signal {
 	if op.Panic != nil {
 		if run.Options&OptDebugDebugger != 0 {
-			run.Debugf("applyDebugOp: op = %v, signaling panic(%v)", op, op.Panic)
+			run.Debugf("applyDebugOp: op = %v, signaling panic(%v)", op, *op.Panic)
 		}
-		panic(op.Panic)
+		panic(*op.Panic)
 	}
 	saveOp := op
 	var sig Signal

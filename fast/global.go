@@ -511,11 +511,13 @@ type DebugOp struct {
 	// statements at env.CallDepth < Depth will be executed in single-stepping mode,
 	// i.e. invoking the debugger after every statement
 	Depth int
-	// value to panic() in order to terminate execution
-	Panic interface{}
+	// nil = do not panic.
+	// otherwise, address of value to panic() in order to terminate execution
+	Panic *interface{}
 }
 
 var (
+	// NEVER modify these!
 	DebugOpContinue = DebugOp{0, nil}
 	DebugOpStep     = DebugOp{MaxInt, nil}
 )

@@ -142,7 +142,6 @@ func TestInterface1(t *testing.T) {
 	rtype := reflect.PtrTo(
 		reflect.StructOf([]reflect.StructField{
 			approxInterfaceHeader(),
-			approxInterfaceEmbeddeds(nil),
 			reflect.StructField{Name: "Cap", Type: methodtyp.ReflectType()},
 			reflect.StructField{Name: "Len", Type: methodtyp.ReflectType()},
 		}))
@@ -371,7 +370,6 @@ func TestFromReflect4(t *testing.T) {
 	rtype := reflect.PtrTo(
 		reflect.StructOf([]reflect.StructField{
 			approxInterfaceHeader(),
-			approxInterfaceEmbeddeds(nil),
 			reflect.StructField{Name: "String", Type: reflect.TypeOf((*ToString)(nil)).Elem()},
 		}))
 	typ := u.NamedOf("Stringer", "io", reflect.Interface)
@@ -384,7 +382,6 @@ func TestFromReflect4(t *testing.T) {
 	expected := reflect.PtrTo(
 		reflect.StructOf([]reflect.StructField{
 			approxInterfaceHeader(),
-			approxInterfaceEmbeddeds(nil),
 			reflect.StructField{Name: "String", Type: reflect.TypeOf((*func() string)(nil)).Elem()},
 		}))
 	is(t, typ.Kind(), reflect.Interface)

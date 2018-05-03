@@ -104,13 +104,13 @@ func (g *Globals) Gensym() string {
 	return fmt.Sprintf("%s%d", StrGensym, n)
 }
 
-func (g *Globals) GensymEmbedded(name string) string {
+func (g *Globals) GensymAnonymous(name string) string {
 	if len(name) == 0 {
 		n := g.GensymN
 		g.GensymN++
 		name = fmt.Sprintf("%d", n)
 	}
-	return StrGensymEmbedded + name
+	return StrGensymAnonymous + name
 }
 
 func (g *Globals) GensymPrivate(name string) string {
@@ -130,8 +130,8 @@ func IsGensymInterface(name string) bool {
 	return name == StrGensymInterface
 }
 
-func IsGensymEmbedded(name string) bool {
-	return strings.HasPrefix(name, StrGensymEmbedded)
+func IsGensymAnonymous(name string) bool {
+	return strings.HasPrefix(name, StrGensymAnonymous)
 }
 
 func IsGensymPrivate(name string) bool {

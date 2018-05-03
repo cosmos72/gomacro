@@ -27,32 +27,31 @@ package xreflect
 
 import (
 	"fmt"
-        
 )
 
 // the following constants must match with github.com/cosmos72/gomacro/base/constants.go
 const (
 	StrGensymInterface = "\U0001202A" // name of extra struct field needed by the interpreter when creating interpreted interfaces
 	StrGensymPrivate   = "\U00012038" // prefix to generate names for unexported struct fields.
-	StrGensymEmbedded  = "\U00012039" // prefix to generate names for embedded struct fields.
+	StrGensymAnonymous = "\U00012039" // prefix to generate names for anonymous struct fields.
 )
 
 var gensymn = 0
 
-func GensymEmbedded(name string) string {
-	if len(name) == 0 {
-		n := gensymn
-		gensymn++
-		name = fmt.Sprintf("%d", n)
+func GensymAnonymous(name string) string {
+	if len(name) != 0 {
+		return StrGensymAnonymous + name
 	}
-	return StrGensymEmbedded + name
+	n := gensymn
+	gensymn++
+	return fmt.Sprintf("%s%d", StrGensymAnonymous, n)
 }
 
 func GensymPrivate(name string) string {
-	if len(name) == 0 {
-		n := gensymn
-		gensymn++
-		name = fmt.Sprintf("%d", n)
+	if len(name) != 0 {
+		return StrGensymPrivate + name
 	}
-	return StrGensymPrivate + name
+	n := gensymn
+	gensymn++
+	return fmt.Sprintf("%s%d", StrGensymPrivate, n)
 }

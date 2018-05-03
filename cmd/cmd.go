@@ -69,7 +69,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		cmd.Init()
 	}
 	ir := cmd.Interp
-	g := ir.Comp.Globals
+	g := &ir.Comp.Globals
 
 	var set, clear Options
 	var repl, forcerepl = true, false
@@ -109,8 +109,8 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			set |= OptTrapPanic | OptPanicStackTrace
 			clear &= OptTrapPanic | OptPanicStackTrace
 		case "-s", "--silent":
-			set &^= OptShowEval | OptShowEvalType
-			clear |= OptShowEval | OptShowEvalType
+			set &^= OptShowPrompt | OptShowEval | OptShowEvalType
+			clear |= OptShowPrompt | OptShowEval | OptShowEvalType
 		case "-v", "--verbose":
 			set = (set | OptShowEval) &^ OptShowEvalType
 			clear = (clear &^ OptShowEval) | OptShowEvalType
@@ -149,7 +149,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 }
 
 func (cmd *Cmd) Usage() error {
-	g := cmd.Interp.Comp.Globals
+	g := &cmd.Interp.Comp.Globals
 	fmt.Fprint(g.Stdout, `usage: gomacro [OPTIONS] [files-and-dirs]
 
   Recognized options:
@@ -230,7 +230,7 @@ const disclaimer = `// ---------------------------------------------------------
 `
 
 func (cmd *Cmd) EvalFile(filename string) error {
-	g := cmd.Interp.Comp.Globals
+	g := &cmd.Interp.Comp.Globals
 	g.Declarations = nil
 	g.Statements = nil
 

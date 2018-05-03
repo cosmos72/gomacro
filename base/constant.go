@@ -35,7 +35,7 @@ type none struct{}
 const (
 	StrGensymInterface string = "\U0001202A" // name of extra struct field needed by the interpreter when creating interface proxies
 	StrGensymPrivate   string = "\U00012038" // prefix to generate names for unexported struct fields
-	StrGensymEmbedded  string = "\U00012039" // prefix to generate names for embedded struct fields
+	StrGensymAnonymous string = "\U00012039" // prefix to generate names for anonymous struct fields
 	StrGensym          string = "\U00012035" // prefix to generate names in macros
 	// the symbols above are chosen somewhat arbitrarily. Reasons:
 	// * accepted by Go compiler as identifier names in source code
