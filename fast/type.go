@@ -261,7 +261,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		// type can be omitted in many case - then we must perform type inference
 		break
 	default:
-		// TODO which types are still missing?
+		// which types are still missing?
 		c.Errorf("unimplemented type: %v <%v>", node, r.TypeOf(node))
 	}
 	if t != nil {
