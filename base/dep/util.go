@@ -23,7 +23,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package decl
+package dep
 
 import (
 	"sort"
@@ -65,10 +65,9 @@ func dup(list []string) []string {
 	return ret
 }
 
-// append, sort and remove duplicates from lists
-func sort_unique(list []string) []string {
-	list = dup(list)
-	if len(list) == 0 {
+// sort and remove duplicates from lists
+func sort_unique_inplace(list []string) []string {
+	if len(list) <= 1 {
 		return list
 	}
 	sort.Strings(list)
@@ -86,12 +85,4 @@ func sort_unique(list []string) []string {
 		out++
 	}
 	return list[:out]
-}
-
-// sort by kind, then by name
-func sort_decls(list []*Decl) {
-	sort.Slice(list, func(i, j int) bool {
-		a, b := list[i], list[j]
-		return a.Kind < b.Kind || (a.Kind == b.Kind && a.Name < b.Name)
-	})
 }

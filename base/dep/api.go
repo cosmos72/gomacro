@@ -23,11 +23,12 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package decl
+package dep
 
 import (
 	"fmt"
 	"go/ast"
+	"go/token"
 )
 
 // Support for out-of-order code
@@ -35,20 +36,25 @@ import (
 type Kind int
 
 const (
-	// sort by typical order of appearance
-	Type Kind = iota
-	Const
-	Var
+	Const Kind = iota
 	Func
+	Import
+	Macro
 	Method
+	Type
+	TypeFwd
+	Var
 )
 
 var kinds = map[Kind]string{
-	Type:   "Type",
-	Const:  "Const",
-	Var:    "Var",
-	Func:   "Func",
-	Method: "Method",
+	Const:   "Const",
+	Func:    "Func",
+	Import:  "Import",
+	Macro:   "Macro",
+	Method:  "Method",
+	Type:    "Type",
+	TypeFwd: "TypeFwd", // forward type declaration
+	Var:     "Var",
 }
 
 func (k Kind) String() string {
@@ -59,33 +65,46 @@ func (k Kind) String() string {
 	return fmt.Sprintf("Kind%d", int(k))
 }
 
-type Decl struct {
-	Kind    Kind
-	Name    string
-	Node    ast.Node
-	AllDeps []string // names of types, constants and variables used in Node's declaration
-	Deps    []string
-	Iota    int // for constants, value of iota to use
+// for multiple const or var declarations in a single *ast.ValueSpec
+type Extra struct {
+	Ident *ast.Ident
+	Type  ast.Expr
+	Value ast.Expr
 }
 
-type Loader struct {
-	Decls  map[string]*Decl
+type Decl struct {
+	Kind  Kind
+	Name  string
+	Node  ast.Node // nil for multiple const or var declarations in a single *ast.ValueSpec - in such case, see Extra
+	Deps  []string // names of types, constants and variables used in Node's declaration
+	Pos   token.Pos
+	Iota  int // for constants, value of iota to use
+	Extra *Extra
+}
+
+type DeclMap map[string]*Decl
+
+type DeclList []*Decl
+
+type Scope struct {
+	Decls  DeclMap
+	Outer  *Scope
 	Gensym int
 }
 
-func NewLoader() *Loader {
-	return &Loader{
+func NewLoader() *Scope {
+	return &Scope{
 		Decls: make(map[string]*Decl),
 	}
 }
 
 type Sorter struct {
-	Loader Loader
+	Loader Scope
 }
 
 func NewSorter() *Sorter {
 	return &Sorter{
-		Loader: Loader{
+		Loader: Scope{
 			Decls: make(map[string]*Decl),
 		},
 	}

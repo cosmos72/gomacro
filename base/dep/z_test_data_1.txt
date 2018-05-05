@@ -1,0 +1,81 @@
+/*
+ * gomacro - A Go interpreter with Lisp-like macros
+ *
+ * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Lesser General Public License as published
+ *     by the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Lesser General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Lesser General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
+ *
+ *
+ * global.go
+ *
+ *  Created on Apr 01, 2017
+ *      Author Massimiliano Ghilardi
+ */
+
+package fast
+
+import (
+	"go/token"
+	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
+)
+
+// ================================== Comp, Env =================================
+
+// Stmt represents a statement in the fast interpreter
+type Stmt func(*Env) (Stmt, *Env)
+
+type Code struct {
+	List []Stmt
+}
+
+type DebugOp struct {
+}
+
+// Run contains per-goroutine interpreter runtime bookeeping information
+type Run struct {
+	CurrEnv      *Env        // caller of current function. used ONLY at function entry to build call stack
+	InstallDefer func()      // defer function to be installed
+	DeferOfFun   *Env        // function whose defer are running
+	PanicFun     *Env        // the currently panicking function
+	Panic        interface{} // current panic. needed for recover()
+	Debugger     Debugger
+	PoolSize     int
+	Pool         [poolCapacity]*Env
+}
+
+// Comp is a tree-of-closures builder: it transforms ast.Nodes into closures
+// for faster execution. Consider it a poor man's compiler (hence the name)
+type Comp struct {
+	Code  Code // "compiled" code
+	Outer *Comp
+}
+
+// ================================= Env =================================
+
+type EnvBinds struct {
+	Vals []r.Value
+	Ints []uint64
+}
+
+// Env is the interpreter's runtime environment
+type Env struct {
+	EnvBinds
+	Outer     *Env
+	IP        int
+	Code      []Stmt
+	Run       *Run
+	DebugComp *Comp // for debugging interpreted code: compiler with Binds, and to rebuild an Interp if needed
+}

@@ -17,13 +17,13 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * all_test.go
+ * z_test.go
  *
  *  Created on: May 03, 2018
  *      Author: Massimiliano Ghilardi
  */
 
-package decl
+package dep
 
 import (
 	"fmt"
@@ -57,16 +57,30 @@ func TestSortUnique2(t *testing.T) {
 }
 
 func _testSortUnique(t *testing.T, in []string, expect []string) {
-	out := sort_unique(in)
+	out := sort_unique_inplace(in)
 	if !reflect.DeepEqual(out, expect) {
 		t.Errorf("expected %v, actual %v", expect, out)
 	}
 }
 
-func TestLoader(t *testing.T) {
-	// filename := "api.go"
-	filename := "../../fast/global.go"
+func TestSorter(t *testing.T) {
+	tests := []struct {
+		Name string
+		Path string
+	}{
+		{"api", "api.go"},
+		{"z_test_data_1", "z_test_data_1.txt"},
+		{"z_test_data_2", "z_test_data_2.txt"},
+		{"fast_global", "../../fast/global.go"},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			_testSorter(t, test.Path)
+		})
+	}
+}
 
+func _testSorter(t *testing.T, filename string) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		t.Errorf("read file %q failed: %v", filename, err)
@@ -85,17 +99,8 @@ func TestLoader(t *testing.T) {
 	s := NewSorter()
 	s.LoadNodes(nodes)
 
-	s.removeAllUnresolvableDeps()
-
-	fmt.Print("---- all decls ----\n")
-	for _, decl := range s.Loader.Decls {
-		fmt.Printf("%s\t%s\t%v\n", decl.Name, decl.Kind, decl)
-	}
+	sorted := s.Sort()
 
 	fmt.Print("---- sorted decls ----\n")
-	decls := s.Sort()
-	for _, decl := range decls {
-		fmt.Printf("%s\t%s\t%v\n", decl.Name, decl.Kind, decl)
-	}
-
+	sorted.Print()
 }
