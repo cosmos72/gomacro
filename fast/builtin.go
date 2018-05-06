@@ -46,10 +46,19 @@ var (
 
 // =================================== iota ===================================
 
-func (top *Comp) addIota() {
+func (top *Comp) addIota(iota int) {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	top.Binds["iota"] = top.BindUntyped(untypedZero)
+	var lit UntypedLit
+	switch iota {
+	case 0:
+		lit = untypedZero
+	case 1:
+		lit = untypedOne
+	default:
+		lit = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(int64(iota))}
+	}
+	top.Binds["iota"] = top.BindUntyped(lit)
 }
 
 func (top *Comp) removeIota() {

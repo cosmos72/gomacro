@@ -32,6 +32,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/dep"
 	"github.com/cosmos72/gomacro/gls"
 )
 
@@ -335,24 +336,74 @@ func (c *Comp) Parse(src string) Ast {
 }
 
 func (c *Comp) Compile(in Ast) *Expr {
-	switch form := in.(type) {
-	case nil:
+	if in == nil {
 		return nil
-	case AstWithNode:
-		return c.CompileNode(form.Node())
-	case AstWithSlice:
-		n := form.Size()
-		var list []*Expr
-		for i := 0; i < n; i++ {
-			e := c.Compile(form.Get(i))
+	}
+	switch node := in.Interface().(type) {
+	case *ast.File:
+		// complicated, use general technique below
+	case ast.Node:
+		// shortcut
+		return c.CompileNode(node)
+	}
+	// support out-of-order code
+	sorter := dep.NewSorter()
+	sorter.LoadAst(in)
+
+	var decls []*dep.Decl
+	for {
+		some := sorter.Some()
+		if len(some) == 0 {
+			break
+		}
+		decls = append(decls, some...)
+	}
+
+	switch n := len(decls); n {
+	case 0:
+		return nil
+	case 1:
+		return c.compileDecl(decls[0])
+	default:
+		exprs := make([]*Expr, 0, n)
+		for _, decl := range decls {
+			e := c.compileDecl(decl)
 			if e != nil {
-				list = append(list, e)
+				exprs = append(exprs, e)
 			}
 		}
-		return exprList(list, c.CompileOptions())
+		return exprList(exprs, c.CompileOptions())
 	}
-	c.Errorf("unsupported Ast node, expecting <AstWithNode> or <AstWithSlice>, found %v <%v>", in, r.TypeOf(in))
 	return nil
+}
+
+func (c *Comp) compileDecl(decl *dep.Decl) *Expr {
+	if decl == nil {
+		return nil
+	}
+	if decl.Node == nil && decl.Extra == nil {
+		// may happen for second and later variables in VarMulti,
+		// which CANNOT be declared individually
+		return nil
+	}
+	if extra := decl.Extra; extra != nil {
+		// decl.Node may declare multiple constants or variables:
+		// do not use it!
+		// instead get the single const or var declaration from Extra
+		switch decl.Kind {
+		case dep.Const:
+			top := c.TopComp()
+			top.addIota(extra.Iota)
+			defer top.removeIota()
+
+			c.DeclConsts(extra.Spec(), nil, nil)
+			return c.Code.AsExpr()
+		case dep.Var:
+			c.DeclVars(extra.Spec())
+			return c.Code.AsExpr()
+		}
+	}
+	return c.CompileNode(decl.Node)
 }
 
 // compileExpr is a wrapper for Compile
@@ -379,6 +430,14 @@ func (c *Comp) CompileNode(node ast.Node) *Expr {
 		c.Decl(node)
 	case ast.Expr:
 		return c.Expr(node, nil)
+	case *ast.ImportSpec:
+		// dep.Sorter.Some() returns naked *ast.ImportSpec,
+		// instead of *ast.GenDecl containing one or more *ast.ImportSpec as parser does
+		c.Import(node)
+	case *ast.TypeSpec:
+		// dep.Sorter.Some() returns naked *ast.TypeSpec,
+		// instead of *ast.GenDecl containing one or more *ast.TypeSpec as parser does
+		c.DeclType(node)
 	case *ast.ExprStmt:
 		// special case of statement
 		return c.Expr(node.X, nil)

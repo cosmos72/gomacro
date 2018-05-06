@@ -44,7 +44,11 @@ Gomacro default interpreter supports:
 * nesting macros, quotes and unquotes
 
 Some features are still missing or incomplete:
-* out-of-order code. Types, variables, constants and functions must be declared **before** using them.
+* out-of-order code is under testing - some corner cases, as for example in keys of composite literals, are not supported.
+  Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly if you separate multiple
+  declarations with ; on a single line.  
+  Support for "batch mode" is in progress - it reads as much source code as possible before executing it.
+  and it's useful mostly to execute whole files or directories.
 * goto is not implemented
 * incomplete interface -> interface type assertions and type switches:
   they do not support yet interpreted types stored in interfaces, and interpreted interfaces.

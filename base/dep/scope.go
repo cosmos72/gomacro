@@ -186,11 +186,11 @@ func (s *Scope) Consts(node ast.Spec, iota int, defaults *ConstDeps) []string {
 // constant
 func (s *Scope) Const(ident *ast.Ident, node ast.Spec, iota int, typ ast.Expr, value ast.Expr, deps []string) *Decl {
 	decl := NewDecl(Const, ident.Name, node, ident.Pos(), deps)
-	decl.Iota = iota
 	decl.Extra = &Extra{
 		Ident: ident,
 		Type:  typ,
 		Value: value,
+		Iota:  iota,
 	}
 	return s.add(decl)
 }

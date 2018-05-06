@@ -78,6 +78,19 @@ type Extra struct {
 	Ident *ast.Ident
 	Type  ast.Expr
 	Value ast.Expr
+	Iota  int // for constants, value of iota to use
+}
+
+// convert *Extra to ast.Spec
+func (extra *Extra) Spec() *ast.ValueSpec {
+	spec := &ast.ValueSpec{
+		Names: []*ast.Ident{extra.Ident},
+		Type:  extra.Type,
+	}
+	if extra.Value != nil {
+		spec.Values = []ast.Expr{extra.Value}
+	}
+	return spec
 }
 
 type Decl struct {
@@ -86,7 +99,6 @@ type Decl struct {
 	Node  ast.Node // nil for multiple const or var declarations in a single *ast.ValueSpec - in such case, see Extra
 	Deps  []string // names of types, constants and variables used in Node's declaration
 	Pos   token.Pos
-	Iota  int // for constants, value of iota to use
 	Extra *Extra
 }
 
