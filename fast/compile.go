@@ -392,9 +392,11 @@ func (c *Comp) compileDecl(decl *dep.Decl) *Expr {
 		// instead get the single const or var declaration from Extra
 		switch decl.Kind {
 		case dep.Const:
-			top := c.TopComp()
-			top.addIota(extra.Iota)
-			defer top.removeIota()
+			// see Comp.GenDecl() in declaration.go for a discussion
+			// on the scope where to declare iota, and what to do
+			// with any previous declaration of iota in the same scope
+			defer c.endIota(c.beginIota())
+			c.setIota(extra.Iota)
 
 			c.DeclConsts(extra.Spec(), nil, nil)
 			return c.Code.AsExpr()

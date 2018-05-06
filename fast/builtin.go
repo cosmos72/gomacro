@@ -46,29 +46,28 @@ var (
 
 // =================================== iota ===================================
 
-func (top *Comp) addIota(iota int) {
+// returns the previous definition of iota - to be restored by Comp.endIota() below
+func (c *Comp) beginIota() *Bind {
+	if c.Binds == nil {
+		c.Binds = make(map[string]*Bind)
+	}
+	return c.Binds["iota"]
+}
+
+func (c *Comp) endIota(orig *Bind) {
+	if orig == nil {
+		delete(c.Binds, "iota")
+	} else {
+		c.Binds["iota"] = orig
+	}
+}
+
+func (c *Comp) setIota(iota int) {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	var lit UntypedLit
-	switch iota {
-	case 0:
-		lit = untypedZero
-	case 1:
-		lit = untypedOne
-	default:
-		lit = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(int64(iota))}
-	}
-	top.Binds["iota"] = top.BindUntyped(lit)
-}
 
-func (top *Comp) removeIota() {
-	delete(top.Binds, "iota")
-}
-
-func (top *Comp) incrementIota() {
-	iota := top.Binds["iota"].Lit.Value.(UntypedLit).Val
-	iota = constant.BinaryOp(iota, token.ADD, untypedOne.Val)
-	top.Binds["iota"] = top.BindUntyped(UntypedLit{Kind: r.Int, Val: iota})
+	// Binds are supposed to be immutable. to avoid issues, create a new Bind every time
+	c.Binds["iota"] = c.BindUntyped(r.Int, constant.MakeInt64(int64(iota)))
 }
 
 // ============================== initialization ===============================

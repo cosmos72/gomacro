@@ -45,14 +45,11 @@ type I = interface{}
 
 type UntypedLit = untyped.Lit
 
+var untypedOne = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(1)}
+
 func MakeUntypedLit(kind r.Kind, val constant.Value, basicTypes *[]xr.Type) UntypedLit {
 	return untyped.MakeLit(kind, val, basicTypes)
 }
-
-var (
-	untypedZero = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(0)}
-	untypedOne  = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(1)}
-)
 
 // ================================= Lit =================================
 
@@ -346,9 +343,9 @@ func (bind *Bind) AsSymbol(upn int) *Symbol {
 	return &Symbol{Bind: *bind, Upn: upn}
 }
 
-func (c *Comp) BindUntyped(value UntypedLit) *Bind {
-	value = MakeUntypedLit(value.Kind, value.Val, &c.Universe.BasicTypes)
-	return &Bind{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: value}, Desc: ConstBindDescriptor}
+func (c *Comp) BindUntyped(kind r.Kind, value constant.Value) *Bind {
+	untypedlit := MakeUntypedLit(kind, value, &c.Universe.BasicTypes)
+	return &Bind{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: untypedlit}, Desc: ConstBindDescriptor}
 }
 
 // ================================== Symbol, Var, Place =================================

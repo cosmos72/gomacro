@@ -59,16 +59,23 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 	case token.CONST:
 		var defaultType ast.Expr
 		var defaultExprs []ast.Expr
-		top := c.TopComp()
-		top.addIota(0)
-		defer top.removeIota()
-		for _, decl := range node.Specs {
+		// https://go-review.googlesource.com/c/go/+/71750
+		// states "each block has its own version of iota"
+		// which is also implied, although somewhat subtly,
+		// by the latest definition of iota in Go language specs.
+		//
+		// So declare iota in the current scope, not in c.topComp()
+		//
+		// question: what happens if some previous code already declared iota
+		// in the current scope? This implementation temporarily shadows it.
+		defer c.endIota(c.beginIota())
+		for i, decl := range node.Specs {
+			c.setIota(i)
 			c.DeclConsts(decl, defaultType, defaultExprs)
 			if valueSpec, ok := decl.(*ast.ValueSpec); ok && valueSpec.Values != nil {
 				defaultType = valueSpec.Type
 				defaultExprs = valueSpec.Values
 			}
-			top.incrementIota()
 		}
 	case token.TYPE:
 		for _, decl := range node.Specs {
