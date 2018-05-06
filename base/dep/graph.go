@@ -78,17 +78,25 @@ func (g *graph) Sort() DeclList {
 	return sorted
 }
 
-// remove from g.Nodes the nodes that have no dependencies and return them
+// remove from g.Nodes the nodes that have no dependencies and return them.
+// Implementation choice: remove at most a single node -> better preserves source code ordering
 func (g *graph) RemoveNodesNoDeps() DeclList {
-	var ret DeclList
-	for name, node := range g.Nodes {
+	var ret *Decl
+	for name, decl := range g.Nodes {
 		if len(g.Edges[name]) == 0 {
-			delete(g.Edges, name)
-			delete(g.Nodes, name)
-			ret = append(ret, node)
+			// among nodes with no dependencies, choose the one with smallest Pos
+			if ret == nil || decl.Pos < ret.Pos {
+				ret = decl
+			}
 		}
 	}
-	return ret
+	if ret == nil {
+		return nil
+	}
+	name := ret.Name
+	delete(g.Edges, name)
+	delete(g.Nodes, name)
+	return DeclList{ret}
 }
 
 // remove from g.Edges dependencies that are not in g.Nodes
