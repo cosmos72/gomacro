@@ -43,11 +43,15 @@ func (f *fwdDeclList) add(decl *Decl) {
 	f.Set[name] = void{}
 }
 
+const DEBUG_GRAPH = false
+
 func (g *graph) Sort() DeclList {
 	g.RemoveUnresolvableDeps()
 
-	fmt.Print("---- all decls ----\n")
-	g.Nodes.Print()
+	if DEBUG_GRAPH {
+		fmt.Print("---- all decls ----\n")
+		g.Nodes.Print()
+	}
 
 	sorted := make(DeclList, 0, len(g.Nodes))
 	fwd := fwdDeclList{Set: make(set)}

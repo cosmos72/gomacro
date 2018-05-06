@@ -36,13 +36,6 @@ import (
 	"github.com/cosmos72/gomacro/base"
 )
 
-func NewScope(s *Scope) *Scope {
-	return &Scope{
-		Decls: make(DeclMap),
-		Outer: s,
-	}
-}
-
 func (s *Scope) Ast(form ast2.Ast) []string {
 	var deps []string
 	switch form := form.(type) {
@@ -60,6 +53,10 @@ func (s *Scope) Ast(form ast2.Ast) []string {
 	return deps
 }
 
+func (s *Scope) Nodes(nodes []ast.Node) {
+	s.Ast(ast2.NodeSlice{nodes})
+}
+
 func (s *Scope) Node(node ast.Node) []string {
 	var deps []string
 	switch node := node.(type) {
@@ -67,19 +64,17 @@ func (s *Scope) Node(node ast.Node) []string {
 	case ast.Decl:
 		deps = s.Decl(node)
 	case ast.Expr:
-		// nothing to do
+		s.add(Expr, fmt.Sprintf("<expr%d>", s.Gensym), node, node.Pos(), nil)
+		s.Gensym++
 	case ast.Stmt:
-		// nothing to do
+		s.add(Stmt, fmt.Sprintf("<stmt%d>", s.Gensym), node, node.Pos(), nil)
+		s.Gensym++
 	case *ast.File:
 		deps = s.File(node)
 	default:
 		base.Errorf("Scope.Ast(): unsupported node type, expecting ast.Decl, ast.Expr, ast.Stmt or *ast.File, found %v // %T", node, node)
 	}
 	return sort_unique_inplace(deps)
-}
-
-func (s *Scope) Nodes(nodes []ast.Node) {
-	s.Ast(ast2.NodeSlice{nodes})
 }
 
 func (s *Scope) Decl(node ast.Node) []string {
@@ -120,22 +115,25 @@ func (s *Scope) GenDecl(node *ast.GenDecl) []string {
 	case token.CONST:
 		var defaults ConstDeps
 		iota := 0
-		for _, decl := range node.Specs {
-			deps = append(deps, s.Consts(decl, iota, &defaults)...)
+		for _, spec := range node.Specs {
+			deps = append(deps, s.Consts(spec, iota, &defaults)...)
 			iota++
 		}
 	case token.IMPORT:
-		for _, decl := range node.Specs {
-			s.Import(decl)
+		for _, spec := range node.Specs {
+			s.Import(spec)
 		}
 	case token.PACKAGE:
+		for _, spec := range node.Specs {
+			s.Package(spec)
+		}
 	case token.TYPE:
-		for _, decl := range node.Specs {
-			deps = append(deps, s.Type(decl)...)
+		for _, spec := range node.Specs {
+			deps = append(deps, s.Type(spec)...)
 		}
 	case token.VAR:
-		for _, decl := range node.Specs {
-			deps = append(deps, s.Vars(decl)...)
+		for _, spec := range node.Specs {
+			deps = append(deps, s.Vars(spec)...)
 		}
 	default:
 		base.Errorf("Scope.GenDecl(): unsupported declaration kind, expecting token.IMPORT, token.PACKAGE, token.CONST, token.TYPE or token.VAR, found %v: %v // %T",
@@ -199,6 +197,22 @@ func (s *Scope) Const(ident *ast.Ident, node ast.Spec, iota int, typ ast.Expr, v
 	return decl
 }
 
+func unquote(src string) string {
+	ret, err := strconv.Unquote(src)
+	if err != nil && len(src) >= 2 {
+		if ch := src[0]; ch == src[len(src)-1] && (ch == '\'' || ch == '"' || ch == '`') {
+			ret = src[1 : len(src)-1]
+		} else {
+			ret = src
+		}
+	}
+	return ret
+}
+
+func basename(path string) string {
+	return path[1+strings.LastIndexByte(path, '/'):]
+}
+
 // import
 func (s *Scope) Import(node ast.Spec) {
 	if node, ok := node.(*ast.ImportSpec); ok {
@@ -208,24 +222,31 @@ func (s *Scope) Import(node ast.Spec) {
 				name = ident.Name
 			}
 		} else {
-			name = node.Path.Value
-			str, err := strconv.Unquote(name)
-			if err != nil {
-				if len(name) >= 2 {
-					name = name[1 : len(name)-1]
-				}
-			} else {
-				name = str
-			}
-			name = name[1+strings.LastIndex(str, "/"):]
+			name = basename(unquote(node.Path.Value))
 		}
 		if len(name) == 0 {
-			name = fmt.Sprintf(".%d", s.Gensym)
+			name = fmt.Sprintf("<import%d>", s.Gensym)
 			s.Gensym++
 		}
 		s.add(Import, name, node, node.Pos(), nil)
 	} else {
 		base.Errorf("Scope.Import(): unsupported import: expecting *ast.ImportSpec, found: %v // %T", node, node)
+	}
+}
+
+// package
+func (s *Scope) Package(node ast.Spec) {
+	if node, ok := node.(*ast.ValueSpec); ok {
+		var pos token.Pos
+		if len(node.Names) != 0 {
+			pos = node.Names[0].Pos()
+		} else if len(node.Values) != 0 {
+			pos = node.Values[0].Pos()
+		}
+		s.add(Package, fmt.Sprintf("<package%d>", s.Gensym), node, pos, nil)
+		s.Gensym++
+	} else {
+		base.Errorf("Scope.Package(): unsupported package: expecting *ast.ValueSpec, found: %v // %T", node, node)
 	}
 }
 
@@ -366,7 +387,7 @@ func (s *Scope) AstExpr(in ast2.Ast) []string {
 		in = ast2.BlockStmt{node.Body}
 		// open a new scope
 		s = NewScope(s)
-	case *ast.BlockStmt, *ast.StructType:
+	case *ast.BlockStmt, *ast.FuncType, *ast.InterfaceType, *ast.StructType:
 		// open a new scope
 		s = NewScope(s)
 	case *ast.KeyValueExpr:

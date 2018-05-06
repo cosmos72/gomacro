@@ -99,8 +99,12 @@ func _testSorter(t *testing.T, filename string) {
 	s := NewSorter()
 	s.LoadNodes(nodes)
 
-	sorted := s.Sort()
-
-	fmt.Print("---- sorted decls ----\n")
-	sorted.Print()
+	for {
+		sorted := s.Some()
+		if len(sorted) == 0 {
+			break
+		}
+		fmt.Print("---- sorted decls ----\n")
+		sorted.Print()
+	}
 }

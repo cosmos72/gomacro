@@ -37,24 +37,32 @@ type Kind int
 
 const (
 	Const Kind = iota
+	Expr
 	Func
 	Import
 	Macro
 	Method
+	Package
+	Stmt
 	Type
 	TypeFwd
 	Var
+	VarMulti
 )
 
 var kinds = map[Kind]string{
-	Const:   "Const",
-	Func:    "Func",
-	Import:  "Import",
-	Macro:   "Macro",
-	Method:  "Method",
-	Type:    "Type",
-	TypeFwd: "TypeFwd", // forward type declaration
-	Var:     "Var",
+	Const:    "Const",
+	Expr:     "Expr",
+	Func:     "Func",
+	Import:   "Import",
+	Macro:    "Macro",
+	Method:   "Method",
+	Package:  "Package",
+	Stmt:     "Stmt",
+	Type:     "Type",
+	TypeFwd:  "TypeFwd", // forward type declaration
+	Var:      "Var",
+	VarMulti: "VarMulti", // variables initialized with multi-value expression
 }
 
 func (k Kind) String() string {
@@ -92,19 +100,21 @@ type Scope struct {
 	Gensym int
 }
 
-func NewLoader() *Scope {
+func NewScope(outer *Scope) *Scope {
 	return &Scope{
 		Decls: make(map[string]*Decl),
+		Outer: outer,
 	}
 }
 
 type Sorter struct {
-	Loader Scope
+	scope Scope
+	queue []ast.Node
 }
 
 func NewSorter() *Sorter {
 	return &Sorter{
-		Loader: Scope{
+		scope: Scope{
 			Decls: make(map[string]*Decl),
 		},
 	}

@@ -36,7 +36,7 @@ import (
 	"github.com/cosmos72/gomacro/token"
 )
 
-func TestReader(t *testing.T) {
+func TestToNodes(t *testing.T) {
 	tests := []struct {
 		Name string
 		Path string
@@ -46,12 +46,12 @@ func TestReader(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
-			_testReader(t, test.Path)
+			_testToNodes(t, test.Path)
 		})
 	}
 }
 
-func _testReader(t *testing.T, filename string) {
+func _testToNodes(t *testing.T, filename string) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		t.Errorf("read file %q failed: %v", filename, err)
@@ -69,9 +69,9 @@ func _testReader(t *testing.T, filename string) {
 		t.Errorf("parse file %q failed: %v", filename, err)
 		return
 	}
-	r := AstReader(NodeSlice{nodes})
+	nodes = ToNodes(NodeSlice{nodes})
 
-	for r.Next(); !r.Empty(); r.Next() {
-		st.Fprintf(os.Stdout, "%v\n", r.Node)
+	for _, node := range nodes {
+		st.Fprintf(os.Stdout, "%v\n", node)
 	}
 }
