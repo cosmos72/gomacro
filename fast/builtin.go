@@ -47,27 +47,24 @@ var (
 // =================================== iota ===================================
 
 // returns the previous definition of iota - to be restored by Comp.endIota() below
-func (c *Comp) beginIota() *Bind {
-	if c.Binds == nil {
-		c.Binds = make(map[string]*Bind)
-	}
-	return c.Binds["iota"]
+func (top *Comp) beginIota() *Bind {
+	return top.Binds["iota"]
 }
 
-func (c *Comp) endIota(orig *Bind) {
+func (top *Comp) endIota(orig *Bind) {
 	if orig == nil {
-		delete(c.Binds, "iota")
+		delete(top.Binds, "iota")
 	} else {
-		c.Binds["iota"] = orig
+		top.Binds["iota"] = orig
 	}
 }
 
-func (c *Comp) setIota(iota int) {
+func (top *Comp) setIota(iota int) {
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
 
 	// Binds are supposed to be immutable. to avoid issues, create a new Bind every time
-	c.Binds["iota"] = c.BindUntyped(r.Int, constant.MakeInt64(int64(iota)))
+	top.Binds["iota"] = top.BindUntyped(r.Int, constant.MakeInt64(int64(iota)))
 }
 
 // ============================== initialization ===============================

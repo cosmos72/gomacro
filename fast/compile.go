@@ -395,8 +395,9 @@ func (c *Comp) compileDecl(decl *dep.Decl) *Expr {
 			// see Comp.GenDecl() in declaration.go for a discussion
 			// on the scope where to declare iota, and what to do
 			// with any previous declaration of iota in the same scope
-			defer c.endIota(c.beginIota())
-			c.setIota(extra.Iota)
+			top := c.TopComp()
+			defer top.endIota(top.beginIota())
+			top.setIota(extra.Iota)
 
 			c.DeclConsts(extra.Spec(), nil, nil)
 			return c.Code.AsExpr()

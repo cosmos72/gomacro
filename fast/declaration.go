@@ -64,13 +64,12 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 		// which is also implied, although somewhat subtly,
 		// by the latest definition of iota in Go language specs.
 		//
-		// So declare iota in the current scope, not in c.topComp()
-		//
-		// question: what happens if some previous code already declared iota
-		// in the current scope? This implementation temporarily shadows it.
-		defer c.endIota(c.beginIota())
+		// So declare iota in the top scope, but restore the original bind after the const declarations,
+		// because an in-progress outer const declaration may have a current value for it.
+		top := c.TopComp()
+		defer top.endIota(top.beginIota())
 		for i, decl := range node.Specs {
-			c.setIota(i)
+			top.setIota(i)
 			c.DeclConsts(decl, defaultType, defaultExprs)
 			if valueSpec, ok := decl.(*ast.ValueSpec); ok && valueSpec.Values != nil {
 				defaultType = valueSpec.Type
