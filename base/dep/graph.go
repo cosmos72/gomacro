@@ -61,10 +61,6 @@ func (g *graph) Sort() DeclList {
 		if len(buf) == 0 {
 			buf = g.RemoveTypeFwd()
 			if len(buf) == 0 {
-				fmt.Print("---- partial decls ----\n")
-				for _, node := range sorted {
-					node.Print()
-				}
 				g.circularDependencyError()
 			}
 		}
