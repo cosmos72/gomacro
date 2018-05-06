@@ -44,12 +44,13 @@ Gomacro default interpreter supports:
 * nesting macros, quotes and unquotes
 
 Some features are still missing or incomplete:
-* out-of-order code is under testing - some corner cases, as for example in keys of composite literals, are not supported.
-  Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly if you separate multiple
-  declarations with ; on a single line.  
-  Support for "batch mode" is in progress - it reads as much source code as possible before executing it.
-  and it's useful mostly to execute whole files or directories.
 * goto is not implemented
+* out-of-order code is under testing - some corner cases, as for example out-of-order declarations
+  used in keys of composite literals, are not supported.  
+  Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly
+  if you separate multiple declarations with ; on a single line. Example: `var a = b; var b = 42`  
+  Support for "batch mode" is in progress - it reads as much source code as possible before executing it,
+  and it's useful mostly to execute whole files or directories.
 * incomplete interface -> interface type assertions and type switches:
   they do not support yet interpreted types stored in interfaces, and interpreted interfaces.
 * unimplemented conversion typed constant -> interpreted interface (see fast/literal.go:207)
@@ -59,6 +60,7 @@ Some features are still missing or incomplete:
     import "os"
     os.ModeAppend.IsDir()
   interface conversion: interface {} is func() bool, not func() bool
+  This is probably a Go 1.10 compiler bug.
 
 
 Other limitations:

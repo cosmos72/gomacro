@@ -124,12 +124,13 @@ The main limitations and missing features are:
 
 * importing 3<sup>rd</sup> party libraries on non-Linux systems is cumbersome - see [Importing packages](#importing-packages).
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
-* out-of-order code is under testing - some corner cases, as for example in keys of composite literals, are not supported.
-  Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly if you separate multiple
-  declarations with ; on a single line.  
-  Support for "batch mode" is in progress - it reads as much source code as possible before executing it.
-  and it's useful mostly to execute whole files or directories.
 * goto is not implemented
+* out-of-order code is under testing - some corner cases, as for example out-of-order declarations
+  used in keys of composite literals, are not supported.  
+  Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly
+  if you separate multiple declarations with ; on a single line. Example: `var a = b; var b = 42`  
+  Support for "batch mode" is in progress - it reads as much source code as possible before executing it,
+  and it's useful mostly to execute whole files or directories.
 
 The [documentation](doc/) also contains the [full list of features and limitations](doc/features-and-limitations.md)
 
