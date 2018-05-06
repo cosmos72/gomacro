@@ -90,6 +90,10 @@ type Decl struct {
 	Extra *Extra
 }
 
+func NewDecl(kind Kind, name string, node ast.Node, pos token.Pos, deps []string) *Decl {
+	return &Decl{Kind: kind, Name: name, Node: node, Deps: sort_unique_inplace(deps), Pos: pos}
+}
+
 type DeclMap map[string]*Decl
 
 type DeclList []*Decl

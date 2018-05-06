@@ -64,11 +64,9 @@ func (s *Scope) Node(node ast.Node) []string {
 	case ast.Decl:
 		deps = s.Decl(node)
 	case ast.Expr:
-		s.add(Expr, fmt.Sprintf("<expr%d>", s.Gensym), node, node.Pos(), nil)
-		s.Gensym++
+		s.add(NewDeclExpr(node, &s.Gensym))
 	case ast.Stmt:
-		s.add(Stmt, fmt.Sprintf("<stmt%d>", s.Gensym), node, node.Pos(), nil)
-		s.Gensym++
+		s.add(NewDeclStmt(node, &s.Gensym))
 	case *ast.File:
 		deps = s.File(node)
 	default:
@@ -187,14 +185,14 @@ func (s *Scope) Consts(node ast.Spec, iota int, defaults *ConstDeps) []string {
 
 // constant
 func (s *Scope) Const(ident *ast.Ident, node ast.Spec, iota int, typ ast.Expr, value ast.Expr, deps []string) *Decl {
-	decl := s.add(Const, ident.Name, node, ident.Pos(), deps)
+	decl := NewDecl(Const, ident.Name, node, ident.Pos(), deps)
 	decl.Iota = iota
 	decl.Extra = &Extra{
 		Ident: ident,
 		Type:  typ,
 		Value: value,
 	}
-	return decl
+	return s.add(decl)
 }
 
 func unquote(src string) string {
@@ -215,39 +213,12 @@ func basename(path string) string {
 
 // import
 func (s *Scope) Import(node ast.Spec) {
-	if node, ok := node.(*ast.ImportSpec); ok {
-		var name string
-		if ident := node.Name; ident != nil {
-			if ident.Name != "." {
-				name = ident.Name
-			}
-		} else {
-			name = basename(unquote(node.Path.Value))
-		}
-		if len(name) == 0 {
-			name = fmt.Sprintf("<import%d>", s.Gensym)
-			s.Gensym++
-		}
-		s.add(Import, name, node, node.Pos(), nil)
-	} else {
-		base.Errorf("Scope.Import(): unsupported import: expecting *ast.ImportSpec, found: %v // %T", node, node)
-	}
+	s.add(NewDeclImport(node, &s.Gensym))
 }
 
 // package
 func (s *Scope) Package(node ast.Spec) {
-	if node, ok := node.(*ast.ValueSpec); ok {
-		var pos token.Pos
-		if len(node.Names) != 0 {
-			pos = node.Names[0].Pos()
-		} else if len(node.Values) != 0 {
-			pos = node.Values[0].Pos()
-		}
-		s.add(Package, fmt.Sprintf("<package%d>", s.Gensym), node, pos, nil)
-		s.Gensym++
-	} else {
-		base.Errorf("Scope.Package(): unsupported package: expecting *ast.ValueSpec, found: %v // %T", node, node)
-	}
+	s.add(NewDeclPackage(node, &s.Gensym))
 }
 
 // variables
@@ -288,20 +259,15 @@ func (s *Scope) Vars(node ast.Spec) []string {
 func (s *Scope) varsMultiValueExpr(node *ast.ValueSpec) []string {
 	deps := append(s.Expr(node.Type), s.Expr(node.Values[0])...)
 	for _, ident := range node.Names {
-		s.add(Var, ident.Name, node, ident.Pos(), deps)
+		s.add(NewDeclVarMulti(ident, node, deps))
+		node = nil // store node only in the first VarMulti
 	}
 	return deps
 }
 
 // variable
 func (s *Scope) Var(ident *ast.Ident, node ast.Spec, typ ast.Expr, value ast.Expr, deps []string) *Decl {
-	decl := s.add(Var, ident.Name, node, ident.Pos(), deps)
-	decl.Extra = &Extra{
-		Ident: ident,
-		Type:  typ,
-		Value: value,
-	}
-	return decl
+	return s.add(NewDeclVar(ident, node, typ, value, deps))
 }
 
 // function or method
@@ -310,6 +276,7 @@ func (s *Scope) Func(node *ast.FuncDecl) []string {
 
 	name := node.Name.Name
 	deps := inner.Expr(node.Type)
+
 	kind := Func
 	if node.Recv != nil && len(node.Recv.List) != 0 {
 		types := inner.Expr(node.Recv)
@@ -335,7 +302,7 @@ func (s *Scope) Func(node *ast.FuncDecl) []string {
 	// check function body for global constants, types, variables!
 	deps = append(deps, inner.Expr(node.Body)...)
 
-	s.add(kind, name, node, node.Name.Pos(), deps)
+	s.add(NewDeclFunc(kind, name, node, deps))
 	return deps
 }
 
@@ -343,14 +310,9 @@ func (s *Scope) Func(node *ast.FuncDecl) []string {
 func (s *Scope) Type(node ast.Spec) []string {
 	var deps []string
 	if node, ok := node.(*ast.TypeSpec); ok {
-		name := node.Name.Name
 		deps = s.Expr(node.Type)
-		deps = sort_unique_inplace(deps)
 
-		// support self-referencing types, as for example: type List struct { First int; Rest *List }
-		deps = remove_item_inplace(name, deps)
-
-		s.add(Type, name, node, node.Name.Pos(), deps)
+		s.add(NewDeclType(node, deps))
 	} else {
 		base.Errorf("Scope.Type(): unexpected declaration type, expecting *ast.TypeSpec, found: %v // %T", node, node)
 	}
@@ -447,8 +409,7 @@ func (s *Scope) selectorExpr(node *ast.SelectorExpr) []string {
 	return deps
 }
 
-func (s *Scope) add(kind Kind, name string, node ast.Node, pos token.Pos, deps []string) *Decl {
-	decl := &Decl{Kind: kind, Name: name, Node: node, Deps: sort_unique_inplace(deps), Pos: pos}
-	s.Decls[name] = decl
+func (s *Scope) add(decl *Decl) *Decl {
+	s.Decls[decl.Name] = decl
 	return decl
 }

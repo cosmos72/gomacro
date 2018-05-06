@@ -27,9 +27,13 @@ package dep
 
 import (
 	"fmt"
+	"go/ast"
+	"go/token"
 	"io"
 	"os"
 	"sort"
+
+	"github.com/cosmos72/gomacro/base"
 )
 
 // ===================== DeclMap =====================
@@ -107,6 +111,83 @@ func (list DeclList) Print() {
 }
 
 // ======================= Decl ======================
+
+func NewDeclImport(spec ast.Spec, counter *int) *Decl {
+	node, ok := spec.(*ast.ImportSpec)
+	if !ok {
+		base.Errorf("NewDeclImport(): unsupported import: expecting *ast.ImportSpec, found: %v // %T", spec, spec)
+	}
+
+	var name string
+	if ident := node.Name; ident != nil {
+		if ident.Name != "." {
+			name = ident.Name
+		}
+	} else {
+		name = basename(unquote(node.Path.Value))
+	}
+	if len(name) == 0 {
+		name = fmt.Sprintf("<import%d>", *counter)
+		*counter++
+	}
+	return NewDecl(Import, name, node, node.Pos(), nil)
+}
+
+func NewDeclPackage(spec ast.Spec, counter *int) *Decl {
+	node, ok := spec.(*ast.ValueSpec)
+	if !ok {
+		base.Errorf("NewDeclPackage(): unsupported package: expecting *ast.ValueSpec, found: %v // %T", spec, spec)
+	}
+
+	var pos token.Pos
+	if len(node.Names) != 0 {
+		pos = node.Names[0].Pos()
+	} else if len(node.Values) != 0 {
+		pos = node.Values[0].Pos()
+	}
+	name := fmt.Sprintf("<package%d>", *counter)
+	*counter++
+	return NewDecl(Package, name, node, pos, nil)
+}
+
+func NewDeclExpr(node ast.Expr, counter *int) *Decl {
+	name := fmt.Sprintf("<expr%d>", *counter)
+	*counter++
+	return NewDecl(Expr, name, node, node.Pos(), nil)
+}
+
+func NewDeclFunc(kind Kind, name string, node *ast.FuncDecl, deps []string) *Decl {
+	return NewDecl(kind, name, node, node.Name.Pos(), deps)
+}
+
+func NewDeclStmt(node ast.Stmt, counter *int) *Decl {
+	name := fmt.Sprintf("<stmt%d>", *counter)
+	*counter++
+	return NewDecl(Stmt, name, node, node.Pos(), nil)
+}
+
+func NewDeclType(node *ast.TypeSpec, deps []string) *Decl {
+	name := node.Name.Name
+	deps = sort_unique_inplace(deps)
+	// support self-referencing types, as for example: type List struct { First int; Rest *List }
+	deps = remove_item_inplace(name, deps)
+
+	return &Decl{Kind: Type, Name: name, Node: node, Deps: deps, Pos: node.Name.Pos()}
+}
+
+func NewDeclVar(ident *ast.Ident, node ast.Spec, typ ast.Expr, value ast.Expr, deps []string) *Decl {
+	decl := NewDecl(Var, ident.Name, node, ident.Pos(), deps)
+	decl.Extra = &Extra{
+		Ident: ident,
+		Type:  typ,
+		Value: value,
+	}
+	return decl
+}
+
+func NewDeclVarMulti(ident *ast.Ident, node *ast.ValueSpec, deps []string) *Decl {
+	return NewDecl(VarMulti, ident.Name, node, ident.Pos(), deps)
+}
 
 func (decl *Decl) depSet() set {
 	ret := make(set, len(decl.Deps))

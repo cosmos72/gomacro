@@ -44,11 +44,6 @@ func (s *Sorter) LoadAst(form ast2.Ast) {
 	s.queue = ast2.ToNodesAppend(s.queue, form)
 }
 
-// remove all dependencies that cannot be resolved, i.e. not present among s.Loader.Decls
-func (s *Sorter) RemoveUnresolvableDeps() {
-	s.scope.Decls.RemoveUnresolvableDeps()
-}
-
 // return one of:
 // * a list of imports
 // * a list of declarations
@@ -69,7 +64,7 @@ func (s *Sorter) Some() DeclList {
 }
 
 func (s *Sorter) popPackages() []*Decl {
-	var specs []ast.Spec
+	var list DeclList
 	i, n := 0, len(s.queue)
 loop:
 	for ; i < n; i++ {
@@ -79,7 +74,9 @@ loop:
 			continue
 		case *ast.GenDecl:
 			if node != nil && node.Tok == token.PACKAGE {
-				specs = append(specs, node.Specs...)
+				for _, spec := range node.Specs {
+					list = append(list, NewDeclPackage(spec, &s.scope.Gensym))
+				}
 				continue
 			}
 		}
@@ -89,22 +86,14 @@ loop:
 	if i > 0 {
 		s.queue = s.queue[i:]
 	}
-	if len(specs) == 0 {
+	if len(list) == 0 {
 		return nil
 	}
-	s.scope.Decls = make(map[string]*Decl)
-
-	for _, spec := range specs {
-		s.scope.Package(spec)
-	}
-	list := s.scope.Decls.List().SortByPos()
-
-	s.scope.Decls = nil
-	return list
+	return list.SortByPos()
 }
 
 func (s *Sorter) popImports() []*Decl {
-	var specs []ast.Spec
+	var list DeclList
 	i, n := 0, len(s.queue)
 loop:
 	for ; i < n; i++ {
@@ -114,7 +103,9 @@ loop:
 			continue
 		case *ast.GenDecl:
 			if node != nil && node.Tok == token.IMPORT {
-				specs = append(specs, node.Specs...)
+				for _, spec := range node.Specs {
+					list = append(list, NewDeclImport(spec, &s.scope.Gensym))
+				}
 				continue
 			}
 		}
@@ -124,18 +115,10 @@ loop:
 	if i > 0 {
 		s.queue = s.queue[i:]
 	}
-	if len(specs) == 0 {
+	if len(list) == 0 {
 		return nil
 	}
-	s.scope.Decls = make(map[string]*Decl)
-
-	for _, spec := range specs {
-		s.scope.Import(spec)
-	}
-	list := s.scope.Decls.List().SortByPos()
-
-	s.scope.Decls = nil
-	return list
+	return list.SortByPos()
 }
 
 func (s *Sorter) popDecls() []*Decl {
@@ -183,7 +166,7 @@ loop:
 }
 
 func (s *Sorter) popStmts() []*Decl {
-	var nodes []ast.Node
+	var list DeclList
 	i, n := 0, len(s.queue)
 loop:
 	for ; i < n; i++ {
@@ -193,12 +176,12 @@ loop:
 			continue
 		case ast.Expr:
 			if node != nil {
-				nodes = append(nodes, node)
+				list = append(list, NewDeclExpr(node, &s.scope.Gensym))
 				continue
 			}
 		case ast.Stmt:
 			if node != nil {
-				nodes = append(nodes, node)
+				list = append(list, NewDeclStmt(node, &s.scope.Gensym))
 				continue
 			}
 		}
@@ -208,14 +191,8 @@ loop:
 	if i > 0 {
 		s.queue = s.queue[i:]
 	}
-	if len(nodes) == 0 {
+	if len(list) == 0 {
 		return nil
 	}
-	s.scope.Decls = make(map[string]*Decl)
-
-	s.scope.Nodes(nodes)
-	list := s.scope.Decls.List().SortByPos()
-
-	s.scope.Decls = nil
-	return list
+	return list.SortByPos()
 }
