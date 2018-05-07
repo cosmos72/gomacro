@@ -169,9 +169,9 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		arg1bind := fsetarg(arg1typ, ~'targ1, ~'arg1, ~'{indexes[1]})
 		return ~"{
 			if funcbody == nil {
+				funv := r.ValueOf(func(~,arg0typ, ~,arg1typ) {})
 				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(~,arg0typ, ~,arg1typ) {
-					})
+					return funv
 				}
 				break
 			}
@@ -194,10 +194,11 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	return ~"{
 		rtype := t.ReflectType()
 		if funcbody == nil {
+			funv := r.MakeFunc(rtype, func([]r.Value) []r.Value {
+				return nil
+			})
 			ret = func(env *Env) r.Value {
-				return r.MakeFunc(rtype, func([]r.Value) []r.Value {
-					return ZeroValues
-				})
+				return funv
 			}
 			break
 		}

@@ -93,9 +93,9 @@ import (
 		arg0bind := fsetarg(arg0typ, ~'targ0, ~'arg0, ~'param0index)
 		return ~"{
 			if funcbody == nil {
+				funv := r.ValueOf(func(~,arg0typ) {})
 				return func(env *Env) r.Value {
-					return r.ValueOf(func(~,arg0typ) {
-					})
+					return funv
 				}
 			}
 			return func(env *Env) r.Value {
@@ -117,10 +117,11 @@ import (
 	return ~"{
 		rtype := t.ReflectType()
 		if funcbody == nil {
+			funv := r.MakeFunc(rtype, func([]r.Value) []r.Value {
+					return nil
+			})
 			return func(env *Env) r.Value {
-				return r.MakeFunc(rtype, func([]r.Value) []r.Value {
-					return ZeroValues
-				})
+				return funv
 			}
 		} else {
 			return func(env *Env) r.Value {

@@ -122,12 +122,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -153,12 +152,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -184,12 +182,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -214,12 +211,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -244,12 +240,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -274,12 +269,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -304,12 +298,10 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -334,12 +326,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -364,12 +355,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -394,12 +384,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -424,12 +413,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -454,12 +442,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -484,12 +471,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -514,12 +500,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -544,12 +529,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -574,12 +558,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -609,12 +592,11 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(bool,
+				funv := r.ValueOf(func(bool,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -654,12 +636,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -685,12 +666,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -716,12 +696,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -746,12 +725,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -776,12 +754,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -806,12 +783,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -836,12 +812,10 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -866,12 +840,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -896,12 +869,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -926,12 +898,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -956,12 +927,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -986,12 +956,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1016,12 +985,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1046,12 +1014,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1076,12 +1043,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1106,12 +1072,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1141,12 +1106,11 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int,
+				funv := r.ValueOf(func(int,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1186,12 +1150,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1217,12 +1180,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1248,12 +1210,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1278,12 +1239,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1308,12 +1268,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1338,12 +1297,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1368,12 +1326,10 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1398,12 +1354,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1428,12 +1383,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1458,12 +1412,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1488,12 +1441,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1518,12 +1470,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1548,12 +1499,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1578,12 +1528,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1608,12 +1557,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1638,12 +1586,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1673,12 +1620,11 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int8,
+				funv := r.ValueOf(func(int8,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1718,12 +1664,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1749,12 +1694,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1780,12 +1724,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1810,12 +1753,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1840,12 +1782,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1870,12 +1811,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1900,12 +1840,10 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1930,12 +1868,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1960,12 +1897,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -1990,12 +1926,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2020,12 +1955,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2050,12 +1984,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2080,12 +2013,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2110,12 +2042,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2140,12 +2071,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2170,12 +2100,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2205,12 +2134,11 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int16,
+				funv := r.ValueOf(func(int16,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2250,12 +2178,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2281,12 +2208,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2312,12 +2238,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2342,12 +2267,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2372,12 +2296,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2402,12 +2325,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2432,12 +2354,10 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2462,12 +2382,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2492,12 +2411,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2522,12 +2440,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2552,12 +2469,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2582,12 +2498,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2612,12 +2527,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2642,12 +2556,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2672,12 +2585,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2702,12 +2614,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2737,12 +2648,11 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int32,
+				funv := r.ValueOf(func(int32,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2782,12 +2692,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2813,12 +2722,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2844,12 +2752,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2874,12 +2781,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2904,12 +2810,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2934,12 +2839,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2964,12 +2868,10 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -2994,12 +2896,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3024,12 +2925,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3054,12 +2954,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3084,12 +2983,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3114,12 +3012,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3144,12 +3041,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3174,12 +3070,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3204,12 +3099,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3234,12 +3128,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3269,12 +3162,11 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(int64,
+				funv := r.ValueOf(func(int64,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3314,12 +3206,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3345,12 +3236,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3376,12 +3266,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3406,12 +3295,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3436,12 +3324,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3466,12 +3353,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3496,12 +3382,10 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3526,12 +3410,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3556,12 +3439,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3586,12 +3468,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3616,12 +3497,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3646,12 +3526,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3676,12 +3555,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3706,12 +3584,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3736,12 +3613,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3766,12 +3642,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3801,12 +3676,11 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint,
+				funv := r.ValueOf(func(uint,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3846,12 +3720,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3877,12 +3750,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3908,12 +3780,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3938,12 +3809,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3968,12 +3838,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -3998,12 +3867,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4028,12 +3896,10 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4058,12 +3924,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4088,12 +3953,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4118,12 +3982,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4148,12 +4011,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4178,12 +4040,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4208,12 +4069,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4238,12 +4098,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4268,12 +4127,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4298,12 +4156,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4333,12 +4190,11 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint8,
+				funv := r.ValueOf(func(uint8,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4378,12 +4234,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4409,12 +4264,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4440,12 +4294,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4470,12 +4323,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4500,12 +4352,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4530,12 +4381,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4560,12 +4410,10 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4590,12 +4438,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4620,12 +4467,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4650,12 +4496,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4680,12 +4525,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4710,12 +4554,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4740,12 +4583,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4770,12 +4612,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4800,12 +4641,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4830,12 +4670,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4865,12 +4704,11 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint16,
+				funv := r.ValueOf(func(uint16,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4910,12 +4748,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4941,12 +4778,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -4972,12 +4808,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5002,12 +4837,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5032,12 +4866,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5062,12 +4895,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5092,12 +4924,10 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5122,12 +4952,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5152,12 +4981,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5182,12 +5010,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5212,12 +5039,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5242,12 +5068,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5272,12 +5097,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5302,12 +5126,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5332,12 +5155,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5362,12 +5184,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5397,12 +5218,11 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint32,
+				funv := r.ValueOf(func(uint32,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5442,12 +5262,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5473,12 +5292,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5504,12 +5322,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5534,12 +5351,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5564,12 +5380,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5594,12 +5409,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5624,12 +5438,10 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5654,12 +5466,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5684,12 +5495,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5714,12 +5524,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5744,12 +5553,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5774,12 +5582,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5804,12 +5611,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5834,12 +5640,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5864,12 +5669,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5894,12 +5698,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5929,12 +5732,11 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uint64,
+				funv := r.ValueOf(func(uint64,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -5974,12 +5776,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6005,12 +5806,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6036,12 +5836,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6066,12 +5865,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6096,12 +5894,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6126,12 +5923,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6156,12 +5952,10 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6186,12 +5980,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6216,12 +6009,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6246,12 +6038,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6276,12 +6067,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6306,12 +6096,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6336,12 +6125,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6366,12 +6154,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6396,12 +6183,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6426,12 +6212,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6461,12 +6246,11 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(uintptr,
+				funv := r.ValueOf(func(uintptr,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6506,12 +6290,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6537,12 +6320,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6568,12 +6350,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6598,12 +6379,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6628,12 +6408,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6658,12 +6437,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6688,12 +6466,10 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6718,12 +6494,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6748,12 +6523,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6778,12 +6552,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6808,12 +6581,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6838,12 +6610,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6868,12 +6639,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6898,12 +6668,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6928,12 +6697,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6958,12 +6726,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -6993,12 +6760,11 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float32,
+				funv := r.ValueOf(func(float32,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7038,12 +6804,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7069,12 +6834,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7100,12 +6864,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7130,12 +6893,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7160,12 +6922,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7190,12 +6951,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7220,12 +6980,10 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7250,12 +7008,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7280,12 +7037,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7310,12 +7066,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7340,12 +7095,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7370,12 +7124,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7400,12 +7153,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7430,12 +7182,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7460,12 +7211,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7490,12 +7240,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7525,12 +7274,11 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(float64,
+				funv := r.ValueOf(func(float64,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7570,12 +7318,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7601,12 +7348,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7632,12 +7378,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7662,12 +7407,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7692,12 +7436,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7722,12 +7465,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7752,12 +7494,10 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7782,12 +7522,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7812,12 +7551,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7842,12 +7580,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7872,12 +7609,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7902,12 +7638,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7932,12 +7667,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7962,12 +7696,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -7992,12 +7725,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8022,12 +7754,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8057,12 +7788,11 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex64,
+				funv := r.ValueOf(func(complex64,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8102,12 +7832,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8137,12 +7866,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8172,12 +7900,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8206,12 +7933,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8240,12 +7966,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8274,12 +7999,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8308,12 +8032,10 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8342,12 +8064,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8376,12 +8097,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8410,12 +8130,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8444,12 +8163,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8478,12 +8196,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8512,12 +8229,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8546,12 +8262,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8580,12 +8295,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8614,12 +8328,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8652,12 +8365,11 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(complex128,
+				funv := r.ValueOf(func(complex128,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8701,12 +8413,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						bool) {
-					})
-				}
+					bool) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8736,12 +8447,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						int) {
-					})
-				}
+					int) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8771,12 +8481,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						int8) {
-					})
-				}
+					int8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8805,12 +8514,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						int16) {
-					})
-				}
+					int16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8839,12 +8547,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						int32) {
-					})
-				}
+					int32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8873,12 +8580,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Int64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						int64) {
-					})
-				}
+					int64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8907,12 +8613,10 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						uint) {
-					})
-				}
+					uint) {})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8941,12 +8645,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						uint8) {
-					})
-				}
+					uint8) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -8975,12 +8678,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						uint16) {
-					})
-				}
+					uint16) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -9009,12 +8711,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						uint32) {
-					})
-				}
+					uint32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -9043,12 +8744,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						uint64) {
-					})
-				}
+					uint64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -9077,12 +8777,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						uintptr) {
-					})
-				}
+					uintptr) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -9111,12 +8810,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Float32:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						float32) {
-					})
-				}
+					float32) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -9145,12 +8843,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Float64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						float64) {
-					})
-				}
+					float64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -9179,12 +8876,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						complex64) {
-					})
-				}
+					complex64) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -9213,12 +8909,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						complex128) {
-					})
-				}
+					complex128) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
@@ -9251,12 +8946,11 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 	case r.String:
 		{
 			if funcbody == nil {
-				ret = func(env *Env) r.Value {
-					return r.ValueOf(func(string,
+				funv := r.ValueOf(func(string,
 
-						string) {
-					})
-				}
+					string) {
+				})
+				ret = func(env *Env) r.Value { return funv }
 
 				break
 			}
