@@ -37,7 +37,7 @@ and use cases for goroutine-local storage more in detail.
 Beta.
 
 Lightly tested on 386, amd64, arm, arm64 with Go 1.10.1.
-Other architectures (mips, mips64, ppc64, s390x) supported in theory but not tested.
+Other architectures (mips, mipsle, mips64, ppc64, s390x) supported in theory but not tested.
 
 ### How it works ###
 
@@ -59,7 +59,7 @@ This is also **fast**, probably orders of magnitude faster than most other solut
 #### Why not the same goroutine ID? ####
 
 To avoid fiddling with the internal layout of `runtime.g` struct,
-only its address is taken.
+we only take its address.
 
 Accessing the `goid` field would require knowing its offset within the struct,
 which is both tedious and error-prone to retrieve, since it's an unexported
