@@ -335,6 +335,7 @@ func (c *Comp) Parse(src string) Ast {
 	return forms
 }
 
+// compile code. support out-of-order declarations
 func (c *Comp) Compile(in Ast) *Expr {
 	if in == nil {
 		return nil
@@ -344,20 +345,13 @@ func (c *Comp) Compile(in Ast) *Expr {
 		// complicated, use general technique below
 	case ast.Node:
 		// shortcut
-		return c.CompileNode(node)
+		return c.compileNode(node)
 	}
 	// support out-of-order code
 	sorter := dep.NewSorter()
 	sorter.LoadAst(in)
 
-	var decls []*dep.Decl
-	for {
-		some := sorter.Some()
-		if len(some) == 0 {
-			break
-		}
-		decls = append(decls, some...)
-	}
+	decls := sorter.All()
 
 	switch n := len(decls); n {
 	case 0:
@@ -377,13 +371,13 @@ func (c *Comp) Compile(in Ast) *Expr {
 	return nil
 }
 
+// compile code. support out-of-order declarations too
+func (c *Comp) CompileNode(node ast.Node) *Expr {
+	return c.Compile(ToAst(node))
+}
+
 func (c *Comp) compileDecl(decl *dep.Decl) *Expr {
 	if decl == nil {
-		return nil
-	}
-	if decl.Node == nil && decl.Extra == nil {
-		// may happen for second and later variables in VarMulti,
-		// which CANNOT be declared individually
 		return nil
 	}
 	if extra := decl.Extra; extra != nil {
@@ -406,7 +400,12 @@ func (c *Comp) compileDecl(decl *dep.Decl) *Expr {
 			return c.Code.AsExpr()
 		}
 	}
-	return c.CompileNode(decl.Node)
+	if node := decl.Node; node != nil {
+		return c.compileNode(node)
+	}
+	// may happen for second and later variables in VarMulti,
+	// which CANNOT be declared individually
+	return nil
 }
 
 // compileExpr is a wrapper for Compile
@@ -419,7 +418,9 @@ func (c *Comp) compileExpr(in Ast) *Expr {
 	return cf.Compile(in)
 }
 
-func (c *Comp) CompileNode(node ast.Node) *Expr {
+// common backend for Compile, CompileNode, File, compileDecl.
+// does NOT support out-of-order declarations
+func (c *Comp) compileNode(node ast.Node) *Expr {
 	if n := c.Code.Len(); n != 0 {
 		c.Warnf("Compile: discarding %d previously compiled statements from code buffer", n)
 	}
@@ -447,7 +448,10 @@ func (c *Comp) CompileNode(node ast.Node) *Expr {
 	case ast.Stmt:
 		c.Stmt(node)
 	case *ast.File:
-		c.File(node)
+		// not c.File(node): unnecessary and risks an infinite recursion
+		for _, decl := range node.Decls {
+			c.Decl(decl)
+		}
 	default:
 		c.Errorf("unsupported node type, expecting <ast.Decl>, <ast.Expr>, <ast.Stmt> or <*ast.File>, found %v <%v>", node, r.TypeOf(node))
 		return nil
@@ -455,10 +459,11 @@ func (c *Comp) CompileNode(node ast.Node) *Expr {
 	return c.Code.AsExpr()
 }
 
+// compile file. support out-of-order declarations too
 func (c *Comp) File(node *ast.File) {
-	c.Name = node.Name.Name
-	for _, decl := range node.Decls {
-		c.Decl(decl)
+	if node != nil {
+		c.Name = node.Name.Name
+		c.Compile(File{node})
 	}
 }
 

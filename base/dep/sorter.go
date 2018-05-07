@@ -63,6 +63,19 @@ func (s *Sorter) Some() DeclList {
 	return decls
 }
 
+func (s *Sorter) All() DeclList {
+	var all DeclList
+
+	for {
+		decls := s.Some()
+		if len(decls) == 0 {
+			break
+		}
+		all = append(all, decls...)
+	}
+	return all
+}
+
 func (s *Sorter) popPackages() []*Decl {
 	var list DeclList
 	i, n := 0, len(s.queue)
