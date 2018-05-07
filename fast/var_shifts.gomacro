@@ -240,8 +240,8 @@ import (
 			case 0:         setplace_const; ~,opnode; 0; ~,typ
 			case 1:         setplace_const; ~,opnode; 1; ~,typ
 			case 2:         setplace_const; ~,opnode; 2; ~,typ
-			default:        setplace_const; ~,opnode;-1; ~,typ
 			case c.Depth-1: setplace_const; ~,opnode;-2; ~,typ
+			default:        setplace_const; ~,opnode;-1; ~,typ
 		}
 	}
 }
@@ -252,8 +252,8 @@ import (
 			case 0:         setplace_expr; ~,opnode; 0; ~,typ
 			case 1:         setplace_expr; ~,opnode; 1; ~,typ
 			case 2:         setplace_expr; ~,opnode; 2; ~,typ
-			default:        setplace_expr; ~,opnode;-1; ~,typ
 			case c.Depth-1: setplace_expr; ~,opnode;-2; ~,typ
+			default:        setplace_expr; ~,opnode;-1; ~,typ
 		}
 	}
 }

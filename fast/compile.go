@@ -136,19 +136,19 @@ func newEnv(run *Run, outer *Env, nbind int, nintbind int) *Env {
 	} else {
 		env = &Env{}
 	}
-	if nbind <= 1 {
-		env.Vals = ignoredBinds
-	} else if cap(env.Vals) < nbind {
-		env.Vals = make([]r.Value, nbind)
-	} else {
+	if cap(env.Vals) >= nbind {
 		env.Vals = env.Vals[0:nbind]
-	}
-	if nintbind <= 1 {
-		env.Ints = ignoredIntBinds
-	} else if cap(env.Ints) < nintbind {
-		env.Ints = make([]uint64, nintbind)
+	} else if nbind <= 1 {
+		env.Vals = ignoredBinds
 	} else {
+		env.Vals = make([]r.Value, nbind)
+	}
+	if cap(env.Ints) >= nintbind {
 		env.Ints = env.Ints[0:nintbind]
+	} else if nintbind <= 1 {
+		env.Ints = ignoredIntBinds
+	} else {
+		env.Ints = make([]uint64, nintbind)
 	}
 	env.Outer = outer
 	env.Run = run
@@ -173,19 +173,19 @@ func NewEnv(outer *Env, nbind int, nintbind int) *Env {
 		} else {
 			env = &Env{}
 		}
-		if nbind <= 1 {
-			env.Vals = ignoredBinds
-		} else if cap(env.Vals) < nbind {
-			env.Vals = make([]r.Value, nbind)
-		} else {
+		if cap(env.Vals) >= nbind {
 			env.Vals = env.Vals[0:nbind]
-		}
-		if nintbind <= 1 {
-			env.Ints = ignoredIntBinds
-		} else if cap(env.Ints) < nintbind {
-			env.Ints = make([]uint64, nintbind)
+		} else if nbind <= 1 {
+			env.Vals = ignoredBinds
 		} else {
+			env.Vals = make([]r.Value, nbind)
+		}
+		if cap(env.Ints) >= nintbind {
 			env.Ints = env.Ints[0:nintbind]
+		} else if nintbind <= 1 {
+			env.Ints = ignoredIntBinds
+		} else {
+			env.Ints = make([]uint64, nintbind)
 		}
 		env.Outer = outer
 		env.Run = run
@@ -223,19 +223,19 @@ func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 		} else {
 			env = &Env{}
 		}
-		if nbind <= 1 {
-			env.Vals = ignoredBinds
-		} else if cap(env.Vals) < nbind {
-			env.Vals = make([]r.Value, nbind)
-		} else {
+		if cap(env.Vals) >= nbind {
 			env.Vals = env.Vals[0:nbind]
-		}
-		if nintbind <= 1 {
-			env.Ints = ignoredIntBinds
-		} else if cap(env.Ints) < nintbind {
-			env.Ints = make([]uint64, nintbind)
+		} else if nbind <= 1 {
+			env.Vals = ignoredBinds
 		} else {
+			env.Vals = make([]r.Value, nbind)
+		}
+		if cap(env.Ints) >= nintbind {
 			env.Ints = env.Ints[0:nintbind]
+		} else if nintbind <= 1 {
+			env.Ints = ignoredIntBinds
+		} else {
+			env.Ints = make([]uint64, nintbind)
 		}
 		env.Outer = outer
 		env.Run = run

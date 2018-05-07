@@ -238,12 +238,11 @@ func exec(all []Stmt, pos []token.Pos) func(*Env) {
 		if sig := run.Signals.Async; sig != SigNone {
 			run.applyAsyncSignal(sig) // may set run.Signals.Debug if OptCtrlCEnterDebugger is set
 		}
-		if run.Signals.Debug != SigNone {
+		if run.Signals.Debug == SigNone {
+			run.Signals.Sync = SigNone
+		} else {
 			reExecWithFlags(env, all, pos, stmt, env.IP)
-			return
 		}
-		run.Signals.Sync = SigNone
-		return
 	}
 }
 

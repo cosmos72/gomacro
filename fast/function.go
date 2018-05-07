@@ -388,6 +388,25 @@ func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody fu
 // fallback: create a non-optimized function
 func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
+	// do NOT keep a reference to funcMaker
+	nbinds := m.nbind
+	nintbinds := m.nintbind
+	funcbody := m.funcbody
+	rtype := t.ReflectType()
+
+	if funcbody == nil {
+		// pre-fill rets with zero values
+		rets := make([]r.Value, len(m.Result))
+		for i, bind := range m.Result {
+			rets[i] = xr.Zero(bind.Type)
+		}
+		return func(env *Env) r.Value {
+			return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
+				return rets
+			})
+		}
+	}
+
 	paramdecls := make([]func(*Env, r.Value), len(m.Param))
 	for i, bind := range m.Param {
 		if bind.Desc.Index() != NoIndex {
@@ -398,12 +417,6 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	for i, resultfun := range m.resultfun {
 		resultexprs[i] = funAsX1(resultfun, m.Result[i].Type)
 	}
-
-	// do NOT keep a reference to funcMaker
-	nbinds := m.nbind
-	nintbinds := m.nintbind
-	funcbody := m.funcbody
-	rtype := t.ReflectType()
 
 	var debugC *Comp
 	if c.Globals.Options&base.OptDebugger != 0 {
@@ -417,17 +430,16 @@ func (c *Comp) funcGeneric(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		return r.MakeFunc(rtype, func(args []r.Value) []r.Value {
 			env := newEnv4Func(env, nbinds, nintbinds, debugC)
 
-			if funcbody != nil {
-				// copy runtime arguments into allocated binds
-				for i, decl := range paramdecls {
-					if decl != nil {
-						// decl == nil means the argument is ignored inside the function
-						decl(env, args[i])
-					}
+			// copy runtime arguments into allocated binds
+			for i, decl := range paramdecls {
+				if decl != nil {
+					// decl == nil means the argument is ignored inside the function
+					decl(env, args[i])
 				}
-				// execute the body
-				funcbody(env)
 			}
+			// execute the body
+			funcbody(env)
+
 			// read results from allocated binds and return them
 			rets := make([]r.Value, len(resultexprs))
 			for i, expr := range resultexprs {

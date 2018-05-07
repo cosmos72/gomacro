@@ -140,7 +140,7 @@ import (
 	} else if upn == -2 {
 		env = ~'{env.FileEnv}
 	} else if upn == -3 {
-		env = ~'{env.TopEnv.Outer}
+		env = ~'{env.FileEnv.Outer}
 	} else {
 		loop = ~'{
 			o := env.Outer.Outer.Outer
@@ -245,8 +245,8 @@ import (
 			case 0:         setplace_const; ~,opnode; 0; ~,typ
 			case 1:         setplace_const; ~,opnode; 1; ~,typ
 			case 2:         setplace_const; ~,opnode; 2; ~,typ
-			default:        setplace_const; ~,opnode;-1; ~,typ
 			case c.Depth-1: setplace_const; ~,opnode;-2; ~,typ
+			default:        setplace_const; ~,opnode;-1; ~,typ
 		}
 	}
 }
@@ -257,8 +257,8 @@ import (
 			case 0:         setplace_expr; ~,opnode; 0; ~,typ
 			case 1:         setplace_expr; ~,opnode; 1; ~,typ
 			case 2:         setplace_expr; ~,opnode; 2; ~,typ
-			default:        setplace_expr; ~,opnode;-1; ~,typ
 			case c.Depth-1: setplace_expr; ~,opnode;-2; ~,typ
+			default:        setplace_expr; ~,opnode;-1; ~,typ
 		}
 	}
 }
@@ -436,8 +436,8 @@ func (c *Comp) varMulExpr(va *Var, fun I) {
 			case 0:			place_quopow2; 0; ~,typ
 			case 1:			place_quopow2; 1; ~,typ
 			case 2:			place_quopow2; 2; ~,typ
-			default:        place_quopow2;-1; ~,typ
 			case c.Depth-1: place_quopow2;-2; ~,typ
+			default:        place_quopow2;-1; ~,typ
 		}
 	}
 }
@@ -448,8 +448,8 @@ func (c *Comp) varMulExpr(va *Var, fun I) {
 			case 0:			place_quopow2_u; 0; ~,typ
 			case 1:			place_quopow2_u; 1; ~,typ
 			case 2:			place_quopow2_u; 2; ~,typ
-			default:        place_quopow2_u;-1; ~,typ
 			case c.Depth-1: place_quopow2_u;-2; ~,typ
+			default:        place_quopow2_u;-1; ~,typ
 		}
 	}
 }

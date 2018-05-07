@@ -195,6 +195,52 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 					env.Outer.Outer.Vals[index].Set(v)
 				}
 			}
+		case c.Depth - 1:
+			switch t.Kind() {
+			case r.Bool:
+				ret = func(env *Env, v r.Value) {
+					env.FileEnv.Vals[index].SetBool(v.Bool())
+				}
+			case r.Int, r.Int8, r.Int32, r.Int64:
+				ret = func(env *Env, v r.Value) {
+					env.FileEnv.Vals[index].SetInt(v.Int())
+				}
+			case r.Uint, r.Uint8, r.Uint32, r.Uint64, r.Uintptr:
+				ret = func(env *Env, v r.Value) {
+					env.FileEnv.Vals[index].SetUint(v.Uint())
+				}
+			case r.Float32, r.Float64:
+				ret = func(env *Env, v r.Value) {
+					env.FileEnv.Vals[index].SetFloat(v.Float())
+				}
+			case r.Complex64, r.Complex128:
+				ret = func(env *Env, v r.Value) {
+					env.FileEnv.Vals[index].SetComplex(v.Complex())
+				}
+			case r.String:
+				ret = func(env *Env, v r.Value) {
+					if v.Kind() != r.String {
+						v = v.Convert(TypeOfString)
+					}
+					env.FileEnv.Vals[index].SetString(v.String())
+				}
+			case r.Chan, r.Interface, r.Map, r.Ptr, r.Slice:
+				ret = func(env *Env, v r.Value) {
+					if v == Nil || v == None {
+						v = zero
+					} else if v.Type() != rt {
+						v = v.Convert(rt)
+					}
+					env.FileEnv.Vals[index].Set(v)
+				}
+			default:
+				ret = func(env *Env, v r.Value) {
+					if v.Type() != rt {
+						v = v.Convert(rt)
+					}
+					env.FileEnv.Vals[index].Set(v)
+				}
+			}
 		default:
 			switch t.Kind() {
 			case r.Bool:
@@ -474,6 +520,72 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 			case r.Complex64:
 				ret = func(env *Env, v r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = complex64(v.Complex())
+				}
+			default:
+				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
+				return nil
+			}
+		case c.Depth - 1:
+			switch t.Kind() {
+			case r.Bool:
+				ret = func(env *Env, v r.Value) {
+					*(*bool)(unsafe.Pointer(&env.FileEnv.Ints[index])) = v.Bool()
+				}
+			case r.Int:
+				ret = func(env *Env, v r.Value) {
+					*(*int)(unsafe.Pointer(&env.FileEnv.Ints[index])) = int(v.Int())
+				}
+			case r.Int8:
+				ret = func(env *Env, v r.Value) {
+					*(*int8)(unsafe.Pointer(&env.FileEnv.Ints[index])) = int8(v.Int())
+				}
+			case r.Int16:
+				ret = func(env *Env, v r.Value) {
+					*(*int16)(unsafe.Pointer(&env.FileEnv.Ints[index])) = int16(v.Int())
+				}
+			case r.Int32:
+				ret = func(env *Env, v r.Value) {
+					*(*int32)(unsafe.Pointer(&env.FileEnv.Ints[index])) = int32(v.Int())
+				}
+			case r.Int64:
+				ret = func(env *Env, v r.Value) {
+					*(*int64)(unsafe.Pointer(&env.FileEnv.Ints[index])) = v.Int()
+				}
+			case r.Uint:
+				ret = func(env *Env, v r.Value) {
+					*(*uint)(unsafe.Pointer(&env.FileEnv.Ints[index])) = uint(v.Uint())
+				}
+			case r.Uint8:
+				ret = func(env *Env, v r.Value) {
+					*(*uint8)(unsafe.Pointer(&env.FileEnv.Ints[index])) = uint8(v.Uint())
+				}
+			case r.Uint16:
+				ret = func(env *Env, v r.Value) {
+					*(*uint16)(unsafe.Pointer(&env.FileEnv.Ints[index])) = uint16(v.Uint())
+				}
+			case r.Uint32:
+				ret = func(env *Env, v r.Value) {
+					*(*uint32)(unsafe.Pointer(&env.FileEnv.Ints[index])) = uint32(v.Uint())
+				}
+			case r.Uint64:
+				ret = func(env *Env, v r.Value) {
+					env.FileEnv.Ints[index] = v.Uint()
+				}
+			case r.Uintptr:
+				ret = func(env *Env, v r.Value) {
+					*(*uintptr)(unsafe.Pointer(&env.FileEnv.Ints[index])) = uintptr(v.Uint())
+				}
+			case r.Float32:
+				ret = func(env *Env, v r.Value) {
+					*(*float32)(unsafe.Pointer(&env.FileEnv.Ints[index])) = float32(v.Float())
+				}
+			case r.Float64:
+				ret = func(env *Env, v r.Value) {
+					*(*float64)(unsafe.Pointer(&env.FileEnv.Ints[index])) = v.Float()
+				}
+			case r.Complex64:
+				ret = func(env *Env, v r.Value) {
+					*(*complex64)(unsafe.Pointer(&env.FileEnv.Ints[index])) = complex64(v.Complex())
 				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
