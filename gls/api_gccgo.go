@@ -11,6 +11,7 @@ package gls
 // note that the returned value is DIFFERENT from most other goroutine libraries:
 // this GoID() returns the address, converted to uintptr, of the runtime.g struct.
 // NOT the runtime.g.goid field returned by most other libraries.
+//go:nosplit
 func GoID() uintptr {
 	return goid()
 }

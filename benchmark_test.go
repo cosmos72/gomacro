@@ -26,6 +26,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	r "reflect"
 	"testing"
 
@@ -40,14 +41,15 @@ import (
 	"github.com/cosmos72/gomacro/fast"
 )
 
-const (
-	collatz_arg   = 837799 // sequence climbs to 1487492288, which also fits 32-bit ints
-	sum_arg       = 1000
-	fib_arg       = 12
-	bigswitch_arg = 100
-)
+var (
+	collatz_arg     = uint(837799) // sequence climbs to 1487492288, which also fits 32-bit ints
+	collatz_arg_int = int(837799)
+	sum_arg         = 1000
+	fib_arg         = 12
+	bigswitch_arg   = 100
 
-var verbose = false
+	verbose = len(os.Args) == 0
+)
 
 /*
 	--------- 2017-05-21: results on Intel Core i7 4770 ---------------
@@ -613,7 +615,7 @@ func BenchmarkCollatzBytecodeInterfaces(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		coll.Vars[0] = collatz_arg
+		coll.Vars[0] = collatz_arg_int
 		coll.Exec(0)
 	}
 }
@@ -623,7 +625,7 @@ func off_TestCollatzClosureInts(t *testing.T) {
 	f := closure_ints.DeclCollatz(env)
 
 	expected := int(collatz(collatz_arg))
-	actual := f(collatz_arg)
+	actual := f(collatz_arg_int)
 	if actual != expected {
 		t.Errorf("expecting %v, found %v\n", expected, actual)
 	}
@@ -636,14 +638,14 @@ func BenchmarkCollatzClosureInts(b *testing.B) {
 	b.ResetTimer()
 	var total int
 	for i := 0; i < b.N; i++ {
-		total += coll(collatz_arg)
+		total += coll(collatz_arg_int)
 	}
 }
 
 func BenchmarkCollatzClosureValues(b *testing.B) {
 	env := closure_values.NewEnv(nil)
 	coll := closure_values.DeclCollatz(env, 0)
-	n := r.ValueOf(collatz_arg)
+	n := r.ValueOf(collatz_arg_int)
 
 	b.ResetTimer()
 	var total int
@@ -715,7 +717,7 @@ func BenchmarkSumFast2(b *testing.B) {
 func BenchmarkSumClassic(b *testing.B) {
 	ir := classic.New()
 	ir.Eval("var i, n, total int")
-	ir.ValueOf("n").SetInt(sum_arg)
+	ir.ValueOf("n").SetInt(int64(sum_arg))
 	form := ir.Parse("total = 0; for i = 1; i <= n; i++ { total += i }; total")
 
 	b.ResetTimer()
