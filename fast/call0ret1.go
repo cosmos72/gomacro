@@ -75,8 +75,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) bool {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() bool)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -125,8 +125,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) int {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -175,8 +175,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) int8 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int8)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -224,8 +224,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) int16 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int16)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -273,8 +273,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) int32 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int32)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -323,8 +323,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) int64 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() int64)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -372,8 +372,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) uint {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -421,8 +421,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) uint8 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint8)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -470,8 +470,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) uint16 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint16)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -519,8 +519,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) uint32 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint32)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -569,8 +569,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) uint64 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uint64)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -618,8 +618,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) uintptr {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() uintptr)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -667,8 +667,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) float32 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() float32)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -717,8 +717,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) float64 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() float64)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -766,8 +766,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) complex64 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() complex64)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -815,8 +815,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) complex128 {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() complex128)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}
@@ -864,8 +864,8 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 					ret = func(env *Env) string {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
-							cachedfunv = funv
 							cachedfun = funv.Interface().(func() string)
+							cachedfunv = funv
 						}
 						return cachedfun()
 					}

@@ -371,7 +371,7 @@ func (s *Scope) AstExpr(in ast2.Ast) []string {
 		}
 		return deps
 	}
-	if form, ok := in.(ast2.Ident); ok && !s.isLocal(form.X.Name) {
+	if form, ok := in.(ast2.Ident); ok && form.X != nil && !s.isLocal(form.X.Name) {
 		deps = append(deps, form.X.Name)
 	}
 
@@ -403,7 +403,7 @@ func (s *Scope) isLocal(name string) bool {
 // so keep both
 func (s *Scope) selectorExpr(node *ast.SelectorExpr) []string {
 	deps := s.Expr(node.X)
-	if typ, ok := node.X.(*ast.Ident); ok && !s.isLocal(typ.Name) {
+	if typ, ok := node.X.(*ast.Ident); ok && typ != nil && !s.isLocal(typ.Name) {
 		deps = append(deps, typ.Name+"."+node.Sel.Name)
 	}
 	return deps

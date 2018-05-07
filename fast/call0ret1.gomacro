@@ -103,8 +103,8 @@ import (
 
 	cachefun := ~"{
 		if cachedfunv != funv {
-			cachedfunv = funv
 			cachedfun = funv.Interface().(func() ~,rettyp)
+			cachedfunv = funv
 		}
 	}
 
