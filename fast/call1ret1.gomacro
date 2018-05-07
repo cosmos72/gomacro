@@ -268,13 +268,13 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 		// do NOT optimize all cases... too many combinations
 		case r.Bool:      {mcallx1ret1; bool}
 		case r.Int:       {mcallx1ret1; int}
-		case r.Int8:      if karg == kret {mcall1ret1; int8; int8}       else {mcallx1ret1compact; int8}
-		case r.Int16:     if karg == kret {mcall1ret1; int16; int16}     else {mcallx1ret1compact; int16}
-		case r.Int32:     {mcallx1ret1; int32}
+		case r.Int8:      if karg == kret {mcall1ret1; int8; int8}
+		case r.Int16:     if karg == kret {mcall1ret1; int16; int16}
+		case r.Int32:     if karg == kret {mcall1ret1; int32; int32}     else {mcallx1ret1compact; int32}
 		case r.Int64:     {mcallx1ret1; int64}
 		case r.Uint:      {mcallx1ret1; uint}
-		case r.Uint8:     if karg == kret {mcall1ret1; uint8; uint8}     else {mcallx1ret1compact; uint8}
-		case r.Uint16:    if karg == kret {mcall1ret1; uint16; uint16}   else {mcallx1ret1compact; uint16}
+		case r.Uint8:     if karg == kret {mcall1ret1; uint8; uint8}
+		case r.Uint16:    if karg == kret {mcall1ret1; uint16; uint16}
 		case r.Uint32:    if karg == kret {mcall1ret1; uint32; uint32}   else {mcallx1ret1compact; uint32}
 		case r.Uint64:    {mcallx1ret1; uint64}
 		case r.Uintptr:   if karg == kret {mcall1ret1; uintptr; uintptr} else {mcallx1ret1compact; uintptr}
