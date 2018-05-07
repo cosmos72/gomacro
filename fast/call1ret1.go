@@ -1958,7 +1958,18 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 				}
 
 			}
+		} else {
+			ret = func(env *Env) int8 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
+				}
+
+				ret0 := funv.Call(argv)[0]
+				return int8(ret0.Int())
+			}
 		}
+
 	case r.Int16:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
@@ -2013,7 +2024,18 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 				}
 
 			}
+		} else {
+			ret = func(env *Env) int16 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
+				}
+
+				ret0 := funv.Call(argv)[0]
+				return int16(ret0.Int())
+			}
 		}
+
 	case r.Int32:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
@@ -2069,177 +2091,14 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg {
-			case r.Bool:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) bool)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(bool) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) int)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(int) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int8:
-				{
-					argfun := arg.WithFun().(func(env *Env) int8)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(int8) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int16:
-				{
-					argfun := arg.WithFun().(func(env *Env) int16)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(int16) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int32:
-				{
-					argfun := arg.WithFun().(func(env *Env) int32)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(int32) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int64:
-				{
-					argfun := arg.WithFun().(func(env *Env) int64)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(int64) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(uint) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint8:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint8)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(uint8) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint16:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint16)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(uint16) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint32:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint32)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(uint32) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint64:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint64)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(uint64) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uintptr:
-				{
-					argfun := arg.WithFun().(func(env *Env) uintptr)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(uintptr) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Float32:
-				{
-					argfun := arg.WithFun().(func(env *Env) float32)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(float32) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
+			ret = func(env *Env) int32 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
 				}
 
-			case r.Float64:
-				{
-					argfun := arg.WithFun().(func(env *Env) float64)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(float64) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex64:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex64)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(complex64) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex128:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex128)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(complex128) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.String:
-				{
-					argfun := arg.WithFun().(func(env *Env) string)
-					ret = func(env *Env) int32 {
-						fun := exprfun(env).Interface().(func(string) int32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			default:
-				ret = func(env *Env) int32 {
-					funv := exprfun(env)
-					argv := []r.Value{
-						argfun(env),
-					}
-
-					ret0 := funv.Call(argv)[0]
-					return int32(ret0.Int())
-				}
+				ret0 := funv.Call(argv)[0]
+				return int32(ret0.Int())
 			}
 		}
 
@@ -4137,7 +3996,18 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 				}
 
 			}
+		} else {
+			ret = func(env *Env) uint8 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
+				}
+
+				ret0 := funv.Call(argv)[0]
+				return uint8(ret0.Uint())
+			}
 		}
+
 	case r.Uint16:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
@@ -4192,7 +4062,18 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 				}
 
 			}
+		} else {
+			ret = func(env *Env) uint16 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
+				}
+
+				ret0 := funv.Call(argv)[0]
+				return uint16(ret0.Uint())
+			}
 		}
+
 	case r.Uint32:
 		if karg == kret {
 			if funsym != nil && funupn == maxdepth-1 {
@@ -4248,177 +4129,14 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg {
-			case r.Bool:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) bool)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(bool) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) int)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(int) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int8:
-				{
-					argfun := arg.WithFun().(func(env *Env) int8)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(int8) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int16:
-				{
-					argfun := arg.WithFun().(func(env *Env) int16)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(int16) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int32:
-				{
-					argfun := arg.WithFun().(func(env *Env) int32)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(int32) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int64:
-				{
-					argfun := arg.WithFun().(func(env *Env) int64)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(int64) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(uint) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint8:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint8)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(uint8) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint16:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint16)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(uint16) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint32:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint32)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(uint32) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint64:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint64)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(uint64) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uintptr:
-				{
-					argfun := arg.WithFun().(func(env *Env) uintptr)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(uintptr) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Float32:
-				{
-					argfun := arg.WithFun().(func(env *Env) float32)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(float32) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
+			ret = func(env *Env) uint32 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
 				}
 
-			case r.Float64:
-				{
-					argfun := arg.WithFun().(func(env *Env) float64)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(float64) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex64:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex64)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(complex64) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex128:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex128)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(complex128) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.String:
-				{
-					argfun := arg.WithFun().(func(env *Env) string)
-					ret = func(env *Env) uint32 {
-						fun := exprfun(env).Interface().(func(string) uint32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			default:
-				ret = func(env *Env) uint32 {
-					funv := exprfun(env)
-					argv := []r.Value{
-						argfun(env),
-					}
-
-					ret0 := funv.Call(argv)[0]
-					return uint32(ret0.Uint())
-				}
+				ret0 := funv.Call(argv)[0]
+				return uint32(ret0.Uint())
 			}
 		}
 
@@ -5397,177 +5115,14 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg {
-			case r.Bool:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) bool)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(bool) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) int)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(int) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int8:
-				{
-					argfun := arg.WithFun().(func(env *Env) int8)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(int8) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int16:
-				{
-					argfun := arg.WithFun().(func(env *Env) int16)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(int16) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int32:
-				{
-					argfun := arg.WithFun().(func(env *Env) int32)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(int32) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int64:
-				{
-					argfun := arg.WithFun().(func(env *Env) int64)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(int64) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(uint) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint8:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint8)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(uint8) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint16:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint16)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(uint16) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint32:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint32)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(uint32) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint64:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint64)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(uint64) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uintptr:
-				{
-					argfun := arg.WithFun().(func(env *Env) uintptr)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(uintptr) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Float32:
-				{
-					argfun := arg.WithFun().(func(env *Env) float32)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(float32) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
+			ret = func(env *Env) uintptr {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
 				}
 
-			case r.Float64:
-				{
-					argfun := arg.WithFun().(func(env *Env) float64)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(float64) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex64:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex64)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(complex64) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex128:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex128)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(complex128) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.String:
-				{
-					argfun := arg.WithFun().(func(env *Env) string)
-					ret = func(env *Env) uintptr {
-						fun := exprfun(env).Interface().(func(string) uintptr)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			default:
-				ret = func(env *Env) uintptr {
-					funv := exprfun(env)
-					argv := []r.Value{
-						argfun(env),
-					}
-
-					ret0 := funv.Call(argv)[0]
-					return uintptr(ret0.Uint())
-				}
+				ret0 := funv.Call(argv)[0]
+				return uintptr(ret0.Uint())
 			}
 		}
 
@@ -5626,404 +5181,188 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg {
-			case r.Bool:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) bool)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(bool) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) int)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(int) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int8:
-				{
-					argfun := arg.WithFun().(func(env *Env) int8)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(int8) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int16:
-				{
-					argfun := arg.WithFun().(func(env *Env) int16)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(int16) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int32:
-				{
-					argfun := arg.WithFun().(func(env *Env) int32)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(int32) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int64:
-				{
-					argfun := arg.WithFun().(func(env *Env) int64)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(int64) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(uint) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint8:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint8)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(uint8) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint16:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint16)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(uint16) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint32:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint32)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(uint32) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint64:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint64)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(uint64) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uintptr:
-				{
-					argfun := arg.WithFun().(func(env *Env) uintptr)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(uintptr) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Float32:
-				{
-					argfun := arg.WithFun().(func(env *Env) float32)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(float32) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
+			ret = func(env *Env) float32 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
 				}
 
-			case r.Float64:
-				{
-					argfun := arg.WithFun().(func(env *Env) float64)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(float64) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex64:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex64)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(complex64) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex128:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex128)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(complex128) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.String:
-				{
-					argfun := arg.WithFun().(func(env *Env) string)
-					ret = func(env *Env) float32 {
-						fun := exprfun(env).Interface().(func(string) float32)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			default:
-				ret = func(env *Env) float32 {
-					funv := exprfun(env)
-					argv := []r.Value{
-						argfun(env),
-					}
-
-					ret0 := funv.Call(argv)[0]
-					return float32(ret0.Float())
-				}
+				ret0 := funv.Call(argv)[0]
+				return float32(ret0.Float())
 			}
 		}
 
 	case r.Float64:
-		if karg == kret {
-			if funsym != nil && funupn == maxdepth-1 {
-				var cachedfun func(float64) float64
+		switch karg {
+		case r.Bool:
 
-				if arg.Const() {
-					argconst := r.ValueOf(arg.Value).Float()
-
-					ret = func(env *Env) float64 {
-						funv := env.FileEnv.Vals[funindex]
-						if cachedfunv != funv {
-							cachedfunv = funv
-							cachedfun = funv.Interface().(func(float64) float64)
-						}
-						return cachedfun(argconst)
-					}
-				} else {
-					argfun := arg.Fun.(func(env *Env) float64)
-					ret = func(env *Env) float64 {
-						funv := env.FileEnv.Vals[funindex]
-						if cachedfunv != funv {
-							cachedfunv = funv
-							cachedfun = funv.Interface().(func(float64) float64)
-						}
-
-						arg := argfun(env)
-						return cachedfun(arg)
-					}
-				}
-			} else {
-				argfun := arg.WithFun().(func(env *Env) float64)
-				if funsym != nil && funupn == 0 {
-					ret = func(env *Env) float64 {
-						fun := env.Vals[funindex].Interface().(func(float64) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				} else if funsym != nil && funupn == 1 {
-					ret = func(env *Env) float64 {
-						fun := env.Outer.Vals[funindex].Interface().(func(float64) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				} else {
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(float64) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			}
-		} else {
-			switch karg {
-			case r.Bool:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) bool)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(bool) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) int)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(int) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int8:
-				{
-					argfun := arg.WithFun().(func(env *Env) int8)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(int8) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int16:
-				{
-					argfun := arg.WithFun().(func(env *Env) int16)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(int16) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int32:
-				{
-					argfun := arg.WithFun().(func(env *Env) int32)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(int32) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int64:
-				{
-					argfun := arg.WithFun().(func(env *Env) int64)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(int64) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(uint) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint8:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint8)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(uint8) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint16:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint16)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(uint16) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint32:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint32)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(uint32) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint64:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint64)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(uint64) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uintptr:
-				{
-					argfun := arg.WithFun().(func(env *Env) uintptr)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(uintptr) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Float32:
-				{
-					argfun := arg.WithFun().(func(env *Env) float32)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(float32) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Float64:
-				{
-					argfun := arg.WithFun().(func(env *Env) float64)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(float64) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex64:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex64)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(complex64) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex128:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex128)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(complex128) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.String:
-				{
-					argfun := arg.WithFun().(func(env *Env) string)
-					ret = func(env *Env) float64 {
-						fun := exprfun(env).Interface().(func(string) float64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			default:
+			{
+				argfun := arg.WithFun().(func(env *Env) bool)
 				ret = func(env *Env) float64 {
-					funv := exprfun(env)
-					argv := []r.Value{
-						argfun(env),
-					}
-
-					ret0 := funv.Call(argv)[0]
-					return ret0.Float()
+					fun := exprfun(env).Interface().(func(bool) float64)
+					arg := argfun(env)
+					return fun(arg)
 				}
+			}
+		case r.Int:
+
+			{
+				argfun := arg.WithFun().(func(env *Env) int)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(int) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Int8:
+			{
+				argfun := arg.WithFun().(func(env *Env) int8)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(int8) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Int16:
+			{
+				argfun := arg.WithFun().(func(env *Env) int16)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(int16) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Int32:
+			{
+				argfun := arg.WithFun().(func(env *Env) int32)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(int32) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Int64:
+			{
+				argfun := arg.WithFun().(func(env *Env) int64)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(int64) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(uint) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint8:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint8)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(uint8) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint16:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint16)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(uint16) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint32:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint32)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(uint32) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint64:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint64)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(uint64) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uintptr:
+			{
+				argfun := arg.WithFun().(func(env *Env) uintptr)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(uintptr) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Float32:
+			{
+				argfun := arg.WithFun().(func(env *Env) float32)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(float32) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		case r.Float64:
+			{
+				argfun := arg.WithFun().(func(env *Env) float64)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(float64) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		case r.Complex64:
+			{
+				argfun := arg.WithFun().(func(env *Env) complex64)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(complex64) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		case r.Complex128:
+			{
+				argfun := arg.WithFun().(func(env *Env) complex128)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(complex128) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		case r.String:
+			{
+				argfun := arg.WithFun().(func(env *Env) string)
+				ret = func(env *Env) float64 {
+					fun := exprfun(env).Interface().(func(string) float64)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		default:
+			ret = func(env *Env) float64 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
+				}
+
+				ret0 := funv.Call(argv)[0]
+				return ret0.Float()
 			}
 		}
 
@@ -6082,404 +5421,188 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 
 			}
 		} else {
-			switch karg {
-			case r.Bool:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) bool)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(bool) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) int)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(int) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int8:
-				{
-					argfun := arg.WithFun().(func(env *Env) int8)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(int8) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int16:
-				{
-					argfun := arg.WithFun().(func(env *Env) int16)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(int16) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int32:
-				{
-					argfun := arg.WithFun().(func(env *Env) int32)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(int32) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int64:
-				{
-					argfun := arg.WithFun().(func(env *Env) int64)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(int64) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(uint) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint8:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint8)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(uint8) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint16:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint16)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(uint16) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint32:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint32)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(uint32) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint64:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint64)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(uint64) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uintptr:
-				{
-					argfun := arg.WithFun().(func(env *Env) uintptr)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(uintptr) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Float32:
-				{
-					argfun := arg.WithFun().(func(env *Env) float32)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(float32) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
+			ret = func(env *Env) complex64 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
 				}
 
-			case r.Float64:
-				{
-					argfun := arg.WithFun().(func(env *Env) float64)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(float64) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex64:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex64)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(complex64) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex128:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex128)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(complex128) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.String:
-				{
-					argfun := arg.WithFun().(func(env *Env) string)
-					ret = func(env *Env) complex64 {
-						fun := exprfun(env).Interface().(func(string) complex64)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			default:
-				ret = func(env *Env) complex64 {
-					funv := exprfun(env)
-					argv := []r.Value{
-						argfun(env),
-					}
-
-					ret0 := funv.Call(argv)[0]
-					return complex64(ret0.Complex())
-				}
+				ret0 := funv.Call(argv)[0]
+				return complex64(ret0.Complex())
 			}
 		}
 
 	case r.Complex128:
-		if karg == kret {
-			if funsym != nil && funupn == maxdepth-1 {
-				var cachedfun func(complex128) complex128
+		switch karg {
+		case r.Bool:
 
-				if arg.Const() {
-					argconst := r.ValueOf(arg.Value).Complex()
-
-					ret = func(env *Env) complex128 {
-						funv := env.FileEnv.Vals[funindex]
-						if cachedfunv != funv {
-							cachedfunv = funv
-							cachedfun = funv.Interface().(func(complex128) complex128)
-						}
-						return cachedfun(argconst)
-					}
-				} else {
-					argfun := arg.Fun.(func(env *Env) complex128)
-					ret = func(env *Env) complex128 {
-						funv := env.FileEnv.Vals[funindex]
-						if cachedfunv != funv {
-							cachedfunv = funv
-							cachedfun = funv.Interface().(func(complex128) complex128)
-						}
-
-						arg := argfun(env)
-						return cachedfun(arg)
-					}
-				}
-			} else {
-				argfun := arg.WithFun().(func(env *Env) complex128)
-				if funsym != nil && funupn == 0 {
-					ret = func(env *Env) complex128 {
-						fun := env.Vals[funindex].Interface().(func(complex128) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				} else if funsym != nil && funupn == 1 {
-					ret = func(env *Env) complex128 {
-						fun := env.Outer.Vals[funindex].Interface().(func(complex128) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				} else {
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(complex128) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			}
-		} else {
-			switch karg {
-			case r.Bool:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) bool)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(bool) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int:
-
-				{
-					argfun := arg.WithFun().(func(env *Env) int)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(int) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int8:
-				{
-					argfun := arg.WithFun().(func(env *Env) int8)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(int8) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int16:
-				{
-					argfun := arg.WithFun().(func(env *Env) int16)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(int16) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int32:
-				{
-					argfun := arg.WithFun().(func(env *Env) int32)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(int32) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Int64:
-				{
-					argfun := arg.WithFun().(func(env *Env) int64)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(int64) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(uint) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint8:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint8)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(uint8) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint16:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint16)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(uint16) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint32:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint32)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(uint32) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uint64:
-				{
-					argfun := arg.WithFun().(func(env *Env) uint64)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(uint64) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Uintptr:
-				{
-					argfun := arg.WithFun().(func(env *Env) uintptr)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(uintptr) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-			case r.Float32:
-				{
-					argfun := arg.WithFun().(func(env *Env) float32)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(float32) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Float64:
-				{
-					argfun := arg.WithFun().(func(env *Env) float64)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(float64) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex64:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex64)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(complex64) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.Complex128:
-				{
-					argfun := arg.WithFun().(func(env *Env) complex128)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(complex128) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			case r.String:
-				{
-					argfun := arg.WithFun().(func(env *Env) string)
-					ret = func(env *Env) complex128 {
-						fun := exprfun(env).Interface().(func(string) complex128)
-						arg := argfun(env)
-						return fun(arg)
-					}
-				}
-
-			default:
+			{
+				argfun := arg.WithFun().(func(env *Env) bool)
 				ret = func(env *Env) complex128 {
-					funv := exprfun(env)
-					argv := []r.Value{
-						argfun(env),
-					}
-
-					ret0 := funv.Call(argv)[0]
-					return ret0.Complex()
+					fun := exprfun(env).Interface().(func(bool) complex128)
+					arg := argfun(env)
+					return fun(arg)
 				}
+			}
+		case r.Int:
+
+			{
+				argfun := arg.WithFun().(func(env *Env) int)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(int) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Int8:
+			{
+				argfun := arg.WithFun().(func(env *Env) int8)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(int8) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Int16:
+			{
+				argfun := arg.WithFun().(func(env *Env) int16)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(int16) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Int32:
+			{
+				argfun := arg.WithFun().(func(env *Env) int32)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(int32) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Int64:
+			{
+				argfun := arg.WithFun().(func(env *Env) int64)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(int64) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(uint) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint8:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint8)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(uint8) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint16:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint16)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(uint16) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint32:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint32)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(uint32) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uint64:
+			{
+				argfun := arg.WithFun().(func(env *Env) uint64)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(uint64) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Uintptr:
+			{
+				argfun := arg.WithFun().(func(env *Env) uintptr)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(uintptr) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+		case r.Float32:
+			{
+				argfun := arg.WithFun().(func(env *Env) float32)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(float32) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		case r.Float64:
+			{
+				argfun := arg.WithFun().(func(env *Env) float64)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(float64) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		case r.Complex64:
+			{
+				argfun := arg.WithFun().(func(env *Env) complex64)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(complex64) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		case r.Complex128:
+			{
+				argfun := arg.WithFun().(func(env *Env) complex128)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(complex128) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		case r.String:
+			{
+				argfun := arg.WithFun().(func(env *Env) string)
+				ret = func(env *Env) complex128 {
+					fun := exprfun(env).Interface().(func(string) complex128)
+					arg := argfun(env)
+					return fun(arg)
+				}
+			}
+
+		default:
+			ret = func(env *Env) complex128 {
+				funv := exprfun(env)
+				argv := []r.Value{
+					argfun(env),
+				}
+
+				ret0 := funv.Call(argv)[0]
+				return ret0.Complex()
 			}
 		}
 

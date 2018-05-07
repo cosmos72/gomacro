@@ -241,6 +241,16 @@ import (
 	}
 }
 
+:macro mcallx1ret1minimal(rettyp ast.Node) ast.Node {
+	return ~"{
+		if karg == kret {
+			mcall1ret1; ~,rettyp; ~,rettyp
+		} else {
+		    mcall1ret1;   nil;    ~,rettyp
+		}
+    }
+}
+
 func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 	expr := call.Fun
 	exprfun := expr.AsX1()
@@ -266,23 +276,23 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 
 	switch kret {
 		// do NOT optimize all cases... too many combinations
-		case r.Bool:      {mcallx1ret1; bool}
-		case r.Int:       {mcallx1ret1; int}
-		case r.Int8:      if karg == kret {mcall1ret1; int8; int8}
-		case r.Int16:     if karg == kret {mcall1ret1; int16; int16}
-		case r.Int32:     if karg == kret {mcall1ret1; int32; int32}     else {mcallx1ret1compact; int32}
-		case r.Int64:     {mcallx1ret1; int64}
-		case r.Uint:      {mcallx1ret1; uint}
-		case r.Uint8:     if karg == kret {mcall1ret1; uint8; uint8}
-		case r.Uint16:    if karg == kret {mcall1ret1; uint16; uint16}
-		case r.Uint32:    if karg == kret {mcall1ret1; uint32; uint32}   else {mcallx1ret1compact; uint32}
-		case r.Uint64:    {mcallx1ret1; uint64}
-		case r.Uintptr:   if karg == kret {mcall1ret1; uintptr; uintptr} else {mcallx1ret1compact; uintptr}
-		case r.Float32:   if karg == kret {mcall1ret1; float32; float32} else {mcallx1ret1compact; float32}
-		case r.Float64:   if karg == kret {mcall1ret1; float64; float64} else {mcallx1ret1compact; float64}
-		case r.Complex64: if karg == kret {mcall1ret1; complex64;  complex64}   else {mcallx1ret1compact; complex64}
-		case r.Complex128:if karg == kret {mcall1ret1; complex128; complex128}  else {mcallx1ret1compact; complex128}
-		case r.String:    {mcallx1ret1; string}
+		case r.Bool:      {mcallx1ret1;        bool}
+		case r.Int:       {mcallx1ret1;        int}
+		case r.Int8:      {mcallx1ret1minimal; int8}
+		case r.Int16:     {mcallx1ret1minimal; int16}
+		case r.Int32:     {mcallx1ret1minimal; int32}
+		case r.Int64:     {mcallx1ret1;        int64}
+		case r.Uint:      {mcallx1ret1;        uint}
+		case r.Uint8:     {mcallx1ret1minimal; uint8}
+		case r.Uint16:    {mcallx1ret1minimal; uint16}
+		case r.Uint32:    {mcallx1ret1minimal; uint32}
+		case r.Uint64:    {mcallx1ret1;        uint64}
+		case r.Uintptr:   {mcallx1ret1minimal; uintptr}
+		case r.Float32:   {mcallx1ret1minimal; float32}
+		case r.Float64:   {mcallx1ret1compact; float64}
+		case r.Complex64: {mcallx1ret1minimal; complex64}
+		case r.Complex128:{mcallx1ret1compact; complex128}
+		case r.String:    {mcallx1ret1;        string}
 	}
 	if ret == nil {
 		{mcall1ret1;  nil; nil} // cannot optimize more this one...
