@@ -90,13 +90,15 @@ func (field *StructField) toReflectField(forceExported bool) reflect.StructField
 		name = toExportedFieldName(name, field.Type, field.Anonymous)
 	}
 	return reflect.StructField{
-		Name:      name,
-		PkgPath:   pkgpath,
-		Type:      field.Type.ReflectType(),
-		Tag:       field.Tag,
-		Offset:    field.Offset,
-		Index:     field.Index,
-		Anonymous: field.Anonymous,
+		Name:    name,
+		PkgPath: pkgpath,
+		Type:    field.Type.ReflectType(),
+		Tag:     field.Tag,
+		Offset:  field.Offset,
+		Index:   field.Index,
+		// reflect.StructOf() has very limited support for anonymous fields,
+		// do not even try to use it.
+		Anonymous: false,
 	}
 }
 
