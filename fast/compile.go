@@ -300,10 +300,16 @@ func (env *Env) freeEnv(run *Run) {
 }
 
 func (env *Env) Top() *Env {
-	for ; env != nil; env = env.Outer {
-		if env.Outer == nil {
-			break
+	if env == nil {
+		return nil
+	}
+	if file := env.FileEnv; file != nil {
+		if top := file.Outer; top != nil && top.Outer == nil {
+			return top
 		}
+	}
+	for o := env.Outer; o != nil; o = o.Outer {
+		env = o
 	}
 	return env
 }
@@ -341,13 +347,13 @@ func (c *Comp) Compile(in Ast) *Expr {
 		return nil
 	}
 	switch node := in.Interface().(type) {
-	case *ast.File:
+	case *ast.File, ast.Decl, *ast.ValueSpec:
 		// complicated, use general technique below
 	case ast.Node:
 		// shortcut
 		return c.compileNode(node)
 	}
-	// support out-of-order code
+	// order declarations by topological sort on their dependencies
 	sorter := dep.NewSorter()
 	sorter.LoadAst(in)
 
