@@ -580,6 +580,11 @@ var testcases = []TestCase{
 	TestCase{A, "fibonacci", fibonacci_source_string + "; fibonacci(13)", 233, nil},
 	TestCase{A, "function_literal", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
+	TestCase{F, "y_combinator_1", "type F func(F); var f F; f", *new(func(xr.Forward)), nil},
+	TestCase{F, "y_combinator_2", "func Y(f F) { /*f(f)*/ }; Y", func(func(xr.Forward)) {}, nil}, // avoid the infinite recursion, only check the types
+
+	TestCase{0, "y_combinator_3", "Y(Y)", nil, nil}, // does not work yet
+
 	TestCase{A, "closure_1", `
 		func test_closure_1() int {
 			var x int
@@ -1010,6 +1015,9 @@ func (c *TestCase) compareResult(t *testing.T, actualv r.Value, expected interfa
 				if actualv.Len() == expectedv.Len() && actualv.Cap() == expectedv.Cap() {
 					return
 				}
+			} else if actualv.Kind() == r.Func {
+				// for functions just check the type
+				return
 			}
 		}
 		c.fail(t, actual, expected)

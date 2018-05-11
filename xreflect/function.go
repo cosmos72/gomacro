@@ -93,7 +93,7 @@ func (t *xtype) NumIn() int {
 	if params := gtype.Params(); params != nil {
 		n += params.Len()
 	}
-	if t.rtype.NumIn() != n {
+	if t.rtype != rTypeOfForward && t.rtype.NumIn() != n {
 		var srecv string
 		if gtype.Recv() != nil {
 			srecv = fmt.Sprintf(" - including receiver type %v", gtype.Recv().Type())
