@@ -54,15 +54,11 @@ func warnOnSuspiciousCache(t *xtype) {
 	// also, it cannot create unnamed structs containing unexported fields. again, accept whatever we have.
 	// instead complain on mismatch for non-interface, non-named types
 	rt := t.rtype
-	bad := !t.Named() && len(rt.Name()) != 0 && rt.Kind() != reflect.Interface && rt.Kind() != reflect.Struct
-	if !bad {
-		if t.kind != rt.Kind() && rt.Kind() == reflect.Interface {
-			tinterf := unwrap(t.Universe().TypeOfInterface)
-			bad = t.NumMethod() != 0 || tinterf != nil && (t.gunderlying() != tinterf.gtype || rt != tinterf.rtype)
-		}
+	if rt == rTypeOfForward {
+		return
 	}
-	if bad {
-		debugf("caching suspicious/incomplete type %v => %v", t.GoType(), t.ReflectType())
+	if !t.Named() && len(rt.Name()) != 0 && rt.Kind() != reflect.Interface && rt.Kind() != reflect.Struct {
+		xerrorf(t, "caching suspicious type %v => %v", t.gtype, rt)
 	}
 }
 
@@ -72,6 +68,7 @@ func (m *Types) clear() {
 
 func (m *Types) add(t Type) {
 	xt := unwrap(t)
+
 	warnOnSuspiciousCache(xt)
 	switch t.Kind() {
 	case reflect.Func:

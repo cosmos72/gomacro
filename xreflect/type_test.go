@@ -202,7 +202,7 @@ func TestSelfReference(t *testing.T) {
 	typ := u.NamedOf("List", "main", reflect.Struct)
 
 	is(t, typ.Kind(), reflect.Struct)
-	isidenticalgotype(t, typ.gunderlying(), u.TypeOfInterface.GoType())
+	isidenticalgotype(t, typ.gunderlying(), u.TypeOfForward.GoType())
 
 	underlying := u.StructOf([]StructField{
 		StructField{Name: "First", Type: u.BasicTypes[reflect.Int]},
@@ -212,7 +212,7 @@ func TestSelfReference(t *testing.T) {
 	typ1 := typ.Field(1).Type
 	rtype := reflect.TypeOf(struct {
 		First int
-		Rest  interface{}
+		Rest  Forward
 	}{})
 
 	is(t, typ.Kind(), reflect.Struct)
@@ -220,8 +220,8 @@ func TestSelfReference(t *testing.T) {
 	istypeof(t, typ.GoType(), (*types.Named)(nil))
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.NumAllMethod(), rtype.NumMethod())
-	is(t, typ1.ReflectType(), u.TypeOfInterface.ReflectType()) // Rest is actually an interface{}
-	isidenticalgotype(t, typ1.GoType(), typ.GoType())          // but it must pretend to be a main.List
+	is(t, typ1.ReflectType(), rTypeOfForward)         // Rest is actually xreflect.Incomplete
+	isidenticalgotype(t, typ1.GoType(), typ.GoType()) // but it must pretend to be a main.List
 
 	is(t, typ.String(), "main.List")
 	is(t, typ.gunderlying().String(), "struct{First int; Rest main.List}")

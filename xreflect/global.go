@@ -33,6 +33,8 @@ import (
 
 type Package types.Package
 
+type Forward interface{}
+
 // InterfaceHeader is the internal header of interpreted interfaces
 type InterfaceHeader struct {
 	// val and typ must be private! otherwise interpreted code may mess with them and break type safety

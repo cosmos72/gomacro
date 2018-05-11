@@ -53,7 +53,7 @@ var rbasictypes = []reflect.Type{
 	reflect.UnsafePointer: reflect.TypeOf(unsafe.Pointer(nil)),
 }
 
-func (v *Universe) makebasictypes() []Type {
+func (v *Universe) makeBasicTypes() []Type {
 	m := make([]Type, len(rbasictypes))
 	for gkind := types.Bool; gkind <= types.UnsafePointer; gkind++ {
 		kind := ToReflectKind(gkind)
@@ -69,7 +69,7 @@ func (v *Universe) makebasictypes() []Type {
 	return m
 }
 
-func (v *Universe) makeerror() Type {
+func (v *Universe) makeError() Type {
 	t := wrap(&xtype{
 		kind:     reflect.Interface,
 		gtype:    types.Universe.Lookup("error").Type(),
@@ -80,7 +80,7 @@ func (v *Universe) makeerror() Type {
 	return t
 }
 
-func (v *Universe) makeinterface() Type {
+func (v *Universe) makeInterface() Type {
 	t := wrap(&xtype{
 		kind:     reflect.Interface,
 		gtype:    types.NewInterface(nil, nil).Complete(),
@@ -91,11 +91,23 @@ func (v *Universe) makeinterface() Type {
 	return t
 }
 
+func (v *Universe) makeForward() Type {
+	t := wrap(&xtype{
+		kind:     reflect.Invalid,
+		gtype:    types.NewInterface(nil, nil).Complete(),
+		rtype:    rTypeOfForward,
+		universe: v,
+	})
+	v.add(t)
+	return t
+}
+
 func NewUniverse() *Universe {
 	v := &Universe{}
-	v.BasicTypes = v.makebasictypes()
-	v.TypeOfError = v.makeerror()
-	v.TypeOfInterface = v.makeinterface()
+	v.BasicTypes = v.makeBasicTypes()
+	v.TypeOfForward = v.makeForward()
+	v.TypeOfInterface = v.makeInterface()
+	v.TypeOfError = v.makeError()
 	// critical! trying to rebuild "error" type creates a non-indentical copy... lots of conversions would fail
 	v.cache(v.TypeOfError.ReflectType(), v.TypeOfError)
 	v.cache(v.TypeOfInterface.ReflectType(), v.TypeOfInterface)
@@ -107,6 +119,7 @@ const MaxDepth = int(^uint(0) >> 1)
 var (
 	rTypeOfInterface       = reflect.TypeOf((*interface{})(nil)).Elem()
 	rTypeOfInterfaceHeader = reflect.TypeOf(InterfaceHeader{})
+	rTypeOfForward         = reflect.TypeOf((*Forward)(nil)).Elem()
 )
 
 // Bits returns the size of the type in bits.

@@ -474,7 +474,7 @@ var testcases = []TestCase{
 		B string
 	}{}, nil},
 	TestCase{F, "field_anonymous_2", "type Z struct { *Z }; Z{}", struct {
-		Z *interface{}
+		Z *xr.Forward
 	}{}, nil},
 	TestCase{F, "field_embedded_1", "triple.A", rune(0), nil},
 	TestCase{F, "field_embedded_2", "triple.B", "", nil},

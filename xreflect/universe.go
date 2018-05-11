@@ -46,6 +46,7 @@ type Universe struct {
 	ReflectTypes    map[reflect.Type]Type
 	BasicTypes      []Type
 	TypeOfInterface Type
+	TypeOfForward   Type
 	TypeOfError     Type
 	TryResolve      func(name, pkgpath string) Type
 	Packages        map[string]*Package

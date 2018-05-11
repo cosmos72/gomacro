@@ -47,7 +47,7 @@ func (v *Universe) NamedOf(name, pkgpath string, kind reflect.Kind) Type {
 func (v *Universe) namedOf(name, pkgpath string, kind reflect.Kind) Type {
 	underlying := v.BasicTypes[kind]
 	if underlying == nil {
-		underlying = v.TypeOfInterface
+		underlying = v.TypeOfForward
 	}
 	return v.reflectNamedOf(name, pkgpath, kind, underlying.ReflectType())
 }
@@ -63,7 +63,7 @@ func (v *Universe) reflectNamedOf(name, pkgpath string, kind reflect.Kind, rtype
 	return v.maketype3(
 		// kind may be inaccurate or reflect.Invalid;
 		// underlying.GoType() will often be inaccurate and equal to interface{};
-		// rtype will often be inaccurate and equal to interface{}.
+		// rtype will often be inaccurate and equal to Incomplete.
 		// All these issues will be fixed by Type.SetUnderlying()
 		kind,
 		types.NewNamed(typename, underlying.GoType(), nil),
