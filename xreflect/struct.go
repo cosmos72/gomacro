@@ -57,7 +57,25 @@ func (t *xtype) field(i int) StructField {
 		xerrorf(t, "Field(%v) out of bounds, struct type has %v fields: %v", i, gtype.NumFields(), t)
 	}
 	va := gtype.Field(i)
-	rf := t.rtype.Field(i)
+	var rf reflect.StructField
+	if t.rtype != rTypeOfForward {
+		rf = t.rtype.Field(i)
+	} else {
+		// cannot dig in a forward-declared type,
+		// so try to resolve it
+		it := t.universe.gmap.At(t.gtype)
+		if it != nil {
+			rtype := it.(Type).ReflectType()
+			if rtype.Kind() != t.kind {
+				debugf("mismatched Forward type: <%v> has reflect.Type <%v>", t, rtype)
+			}
+			rf = rtype.Field(i)
+		} else {
+			// populate  Field.Index and approximate Field.Type
+			rf.Index = []int{i}
+			rf.Type = rTypeOfForward
+		}
+	}
 
 	return StructField{
 		Name:      va.Name(),

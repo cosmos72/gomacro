@@ -483,6 +483,8 @@ var testcases = []TestCase{
 	TestCase{F, "field_embedded_4", "tp.A", panics, nil},
 	TestCase{F, "field_embedded_5", "tp.Pair = &triple.Pair; tp.B", "", nil},
 
+	TestCase{F, "self_embedded_1", "type X struct { *X }; X{}.X", (*xr.Forward)(nil), nil},
+
 	TestCase{A, "address_0", "var vf = 1.25; *&vf == vf", true, nil},
 	TestCase{A, "address_1", "var pvf = &vf; *pvf", 1.25, nil},
 	TestCase{A, "address_2", "&*pvf == *&pvf", true, nil},

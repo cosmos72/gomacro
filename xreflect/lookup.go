@@ -28,7 +28,24 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
+
+	"github.com/cosmos72/gomacro/typeutil"
 )
+
+type depthMap struct {
+	gmap typeutil.Map
+}
+
+func (m *depthMap) visited(gtype types.Type, depth int) bool {
+	if at := m.gmap.At(gtype); at != nil && at.(int) < depth {
+		// already visited at shallower depth.
+		// avoids infinite loop for self-referencing types
+		// as type X struct { *X }
+		return true
+	}
+	m.gmap.Set(gtype, depth)
+	return false
+}
 
 // FieldByName returns the (possibly embedded) struct field with given name,
 // and the number of fields found at the same (shallowest) depth: 0 if not found.
@@ -54,14 +71,14 @@ func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int)
 		return field, count
 	}
 	var tovisit []StructField
-
-	field, count, tovisit = fieldByName(t, qname, 0, nil)
+	var visited depthMap
+	field, count, tovisit = fieldByName(t, qname, 0, nil, &visited)
 
 	// breadth-first recursion
 	for count == 0 && len(tovisit) != 0 {
 		var next []StructField
 		for _, f := range tovisit {
-			efield, ecount, etovisit := fieldByName(unwrap(f.Type), qname, f.Offset, f.Index)
+			efield, ecount, etovisit := fieldByName(unwrap(f.Type), qname, f.Offset, f.Index, &visited)
 			if count == 0 {
 				if ecount > 0 {
 					field = efield
@@ -80,16 +97,14 @@ func (t *xtype) FieldByName(name, pkgpath string) (field StructField, count int)
 	return field, count
 }
 
-func fieldByName(t *xtype, qname QName, offset uintptr, index []int) (field StructField, count int, tovisit []StructField) {
+func fieldByName(t *xtype, qname QName, offset uintptr, index []int, m *depthMap) (field StructField, count int, tovisit []StructField) {
 	// also support embedded fields: they can be named types or pointers to named types
-	if t.kind == reflect.Ptr {
-		t = unwrap(t.elem())
-	}
-	gtype, ok := t.gtype.Underlying().(*types.Struct)
-	if !ok {
-		// debugf("fieldByName: type is %s, not struct. bailing out", t.kind)
+	t, gtype := derefStruct(t)
+	if gtype == nil || m.visited(gtype, len(index)) {
 		return
 	}
+	// debugf("fieldByName: visiting %v <%v> <%v> at depth %d", t.kind, t.gtype, t.rtype, len(index))
+
 	n := t.NumField()
 	for i := 0; i < n; i++ {
 
@@ -111,6 +126,20 @@ func fieldByName(t *xtype, qname QName, offset uintptr, index []int) (field Stru
 		}
 	}
 	return field, count, tovisit
+}
+
+func derefStruct(t *xtype) (*xtype, *types.Struct) {
+	switch gtype := t.gtype.Underlying().(type) {
+	case *types.Struct:
+		return t, gtype
+	case *types.Pointer:
+		gelem, ok := gtype.Elem().Underlying().(*types.Struct)
+		if ok {
+			// not t.Elem(), it would acquire Universe lock
+			return unwrap(t.elem()), gelem
+		}
+	}
+	return nil, nil
 }
 
 // return true if gfield name matches given name, or if it's anonymous and its *type* name matches given name
@@ -156,21 +185,17 @@ func cacheFieldByName(t *xtype, qname QName, field *StructField, count int) {
 
 // anonymousFields returns the anonymous fields of a struct type (either named or unnamed)
 // also accepts a pointer to a struct type
-func anonymousFields(t *xtype, offset uintptr, index []int) []StructField {
-	var tovisit []StructField
-	if t.kind == reflect.Ptr {
-		t = unwrap(t.elem()) // not t.Elem(), it would acquire Universe lock
-	}
-	gt := t.gtype.Underlying()
-	gtype, ok := gt.(*types.Struct)
-	if !ok {
-		return tovisit
+func anonymousFields(t *xtype, offset uintptr, index []int, m *depthMap) []StructField {
+	t, gtype := derefStruct(t)
+	if gtype == nil || m.visited(gtype, len(index)) {
+		return nil
 	}
 	n := gtype.NumFields()
+	var tovisit []StructField
 	for i := 0; i < n; i++ {
 		gfield := gtype.Field(i)
 		if gfield.Anonymous() {
-			field := t.Field(i)
+			field := t.field(i) // not t.Field(), it would acquire Universe lock
 			field.Offset += offset
 			field.Index = concat(index, field.Index) // make a copy of index
 			tovisit = append(tovisit, field)
@@ -204,9 +229,10 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 		}
 		return method, count
 	}
+	var visited depthMap
 	method, count = methodByName(t, qname, nil)
 	if count == 0 {
-		tovisit := anonymousFields(t, 0, nil)
+		tovisit := anonymousFields(t, 0, nil, &visited)
 		// breadth-first recursion on struct's anonymous fields
 		for count == 0 && len(tovisit) != 0 {
 			var next []StructField
@@ -218,7 +244,7 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 						method = emethod
 					} else {
 						// no recursion if we found something
-						next = append(next, anonymousFields(et, f.Offset, f.Index)...)
+						next = append(next, anonymousFields(et, f.Offset, f.Index, &visited)...)
 					}
 				}
 				count += ecount
@@ -235,9 +261,16 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 // For interfaces, search in *all* methods including wrapper methods for embedded interfaces
 // For all other named types, only search in explicitly declared methods, ignoring wrapper methods for embedded fields.
 func methodByName(t *xtype, qname QName, index []int) (method Method, count int) {
+
+	// debugf("methodByName: visiting %v <%v> <%v> at depth %d", t.kind, t.gtype, t.rtype, len(index))
+
 	// also support embedded fields: they can be interfaces, named types, pointers to named types
-	if t.kind == reflect.Ptr && t.elem().Kind() != reflect.Interface {
-		t = unwrap(t.elem())
+	if t.kind == reflect.Ptr {
+		te := unwrap(t.elem())
+		if te.kind == reflect.Interface || te.kind == reflect.Ptr {
+			return
+		}
+		t = te
 	}
 	n := t.NumMethod()
 	for i := 0; i < n; i++ {

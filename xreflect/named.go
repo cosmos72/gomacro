@@ -87,6 +87,7 @@ func (t *xtype) SetUnderlying(underlying Type) {
 		gunderlying := tunderlying.gtype.Underlying() // in case underlying is named
 		t.kind = gtypeToKind(t, gunderlying)
 		gtype.SetUnderlying(gunderlying)
+		// debugf("SetUnderlying: updated <%v> reflect Type from <%v> to <%v>", gtype, t.rtype, underlying.ReflectType())
 		t.rtype = underlying.ReflectType()
 		if t.kind == reflect.Interface {
 			// propagate methodvalues from underlying interface to named type

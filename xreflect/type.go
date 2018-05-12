@@ -28,7 +28,6 @@ package xreflect
 import (
 	"go/types"
 	"reflect"
-	// "runtime/debug"
 
 	"github.com/cosmos72/gomacro/typeutil"
 )
@@ -49,14 +48,11 @@ func debugOnMismatchCache(gtype types.Type, rtype reflect.Type, cached Type) {
 		gtype, rtype, cached.ReflectType()) //, debug.Stack())
 }
 
-func warnOnSuspiciousCache(t *xtype) {
+func (t *xtype) warnOnSuspiciousCache() {
 	// reflect cannot create new interface types or new named types: accept whatever we have.
 	// also, it cannot create unnamed structs containing unexported fields. again, accept whatever we have.
 	// instead complain on mismatch for non-interface, non-named types
 	rt := t.rtype
-	if rt == rTypeOfForward {
-		return
-	}
 	if !t.Named() && len(rt.Name()) != 0 && rt.Kind() != reflect.Interface && rt.Kind() != reflect.Struct {
 		xerrorf(t, "caching suspicious type %v => %v", t.gtype, rt)
 	}
@@ -69,12 +65,19 @@ func (m *Types) clear() {
 func (m *Types) add(t Type) {
 	xt := unwrap(t)
 
-	warnOnSuspiciousCache(xt)
-	switch t.Kind() {
+	if xt.rtype == rTypeOfForward {
+		if m.gmap.At(xt.gtype) != nil {
+			// debugf("not adding again type to cache: %v <%v> reflect type: <%v>\n%s", xt.kind, xt.gtype, xt.rtype)
+			return
+		}
+	} else {
+		xt.warnOnSuspiciousCache()
+	}
+	switch xt.kind {
 	case reflect.Func:
 		// even function types can be named => they need SetUnderlying() before being complete
 		if !xt.needSetUnderlying() {
-			t.NumIn() // check consistency
+			xt.NumIn() // check consistency
 		}
 	case reflect.Interface:
 		rtype := t.ReflectType()
@@ -84,8 +87,8 @@ func (m *Types) add(t Type) {
 				t, t.Kind(), rtype.Kind(), t.ReflectType())
 		}
 	}
-	m.gmap.Set(t.GoType(), t)
-	// debugf("added type to cache: %v <%v> <%v>", t.Kind(), t.GoType(), t.ReflectType())
+	m.gmap.Set(xt.gtype, t)
+	// debugf("added type to cache: %v <%v> reflect type: <%v>", xt.kind, xt.gtype, xt.rtype)
 }
 
 // all unexported methods assume lock is already held
@@ -98,7 +101,12 @@ func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.
 	ret := v.Types.gmap.At(gtype)
 	if ret != nil {
 		t := ret.(Type)
-		if t.ReflectType() == rtype {
+		switch t.ReflectType() {
+		case rtype:
+			return t
+		case rTypeOfForward:
+			// update t, do not create a new Type
+			t.UnsafeForceReflectType(rtype)
 			return t
 		}
 		if v.debug() {
