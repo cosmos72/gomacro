@@ -582,8 +582,7 @@ var testcases = []TestCase{
 
 	TestCase{F, "y_combinator_1", "type F func(F); var f F; f", *new(func(xr.Forward)), nil},
 	TestCase{F, "y_combinator_2", "func Y(f F) { /*f(f)*/ }; Y", func(func(xr.Forward)) {}, nil}, // avoid the infinite recursion, only check the types
-
-	TestCase{0, "y_combinator_3", "Y(Y)", nil, nil}, // does not work yet
+	TestCase{F, "y_combinator_3", "Y(Y)", nil, []interface{}{}},                                  // also check actual invokation
 
 	TestCase{A, "closure_1", `
 		func test_closure_1() int {

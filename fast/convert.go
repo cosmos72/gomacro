@@ -175,11 +175,9 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 
 // Converter returns a function that converts reflect.Value from tin to tout
 // also supports conversion from interpreted types to interfaces
-func (c *Comp) Converter(tin, tout xr.Type) func(val r.Value) r.Value {
+func (c *Comp) Converter(tin, tout xr.Type) func(r.Value) r.Value {
 	if !tin.ConvertibleTo(tout) {
 		c.Errorf("cannot convert from <%v> to <%v>", tin, tout)
-	} else if tin.IdenticalTo(tout) {
-		return nil
 	}
 	rtin := tin.ReflectType()
 	rtout := tout.ReflectType()
@@ -206,12 +204,72 @@ func (c *Comp) Converter(tin, tout xr.Type) func(val r.Value) r.Value {
 	case xr.IsEmulatedInterface(tout):
 		// conversion from type to emulated interface
 		return c.converterToEmulatedInterface(tin, tout)
+	case rtin == c.Universe.TypeOfForward.ReflectType():
+		// conversion from forward-declared type
+		return c.converterFromForward(tin, tout)
 	case rtout.Kind() == r.Interface:
 		// conversion from interpreted type to compiled interface.
 		// must use a proxy that pre-implement compiled interfaces.
 		return c.converterToProxy(tin, tout)
+	case rtin.Kind() == r.Func && rtout.Kind() == r.Func:
+		// conversion between func() and self-referencing named func type,
+		// as for example type F func(F)
+		return c.converterFunc(tin, tout)
 	default:
-		c.Errorf("unimplemented conversion from <%v> to <%v>", tin, tout)
+		c.Errorf("unimplemented conversion from <%v> to <%v> with reflect.Type <%v> to <%v>",
+			tin, tout, rtin, rtout)
 		return nil
+	}
+}
+
+// conversion from forward-declared type
+func (c *Comp) converterFromForward(tin, tout xr.Type) func(r.Value) r.Value {
+	rtout := tout.ReflectType()
+	return func(val r.Value) r.Value {
+		val = val.Elem()
+		if val.Type() != rtout {
+			val = val.Convert(rtout)
+		}
+		return val
+	}
+}
+
+// conversion between func() and self-referencing named func type,
+// as for example type F func(F)
+func (c *Comp) converterFunc(tin, tout xr.Type) func(r.Value) r.Value {
+	rtin := tin.ReflectType()
+	rtout := tout.ReflectType()
+	nin := rtin.NumIn()
+	nout := rtin.NumOut()
+	if nin != rtout.NumIn() || nout != rtout.NumOut() || rtin.IsVariadic() != rtout.IsVariadic() {
+
+		c.Errorf("unimplemented conversion from <%v> to <%v> with reflect.Type <%v> to <%v>",
+			tin, tout, rtin, rtout)
+	}
+	convarg := make([]func(r.Value) r.Value, nin)
+	for i := 0; i < nin; i++ {
+		// arguments must be adapted to actual func type: rtin
+		convarg[i] = c.Converter(tout.In(i), tin.In(i))
+	}
+	convret := make([]func(r.Value) r.Value, nout)
+	for i := 0; i < nout; i++ {
+		// results must be adapted to expected func type: rtout
+		convret[i] = c.Converter(tin.Out(i), tout.Out(i))
+	}
+	return func(f r.Value) r.Value {
+		return r.MakeFunc(rtout, func(args []r.Value) []r.Value {
+			for i, conv := range convarg {
+				if conv != nil {
+					args[i] = conv(args[i])
+				}
+			}
+			rets := f.Call(args)
+			for i, conv := range convret {
+				if conv != nil {
+					rets[i] = conv(rets[i])
+				}
+			}
+			return rets
+		})
 	}
 }
