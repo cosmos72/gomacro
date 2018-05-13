@@ -351,7 +351,7 @@ func (c *Comp) Compile(in Ast) *Expr {
 		// complicated, use general technique below
 	case ast.Node:
 		// shortcut
-		return c.compileNode(node)
+		return c.compileNode(node, dep.Unknown)
 	}
 	// order declarations by topological sort on their dependencies
 	sorter := dep.NewSorter()
@@ -407,7 +407,7 @@ func (c *Comp) compileDecl(decl *dep.Decl) *Expr {
 		}
 	}
 	if node := decl.Node; node != nil {
-		return c.compileNode(node)
+		return c.compileNode(node, decl.Kind)
 	}
 	// may happen for second and later variables in VarMulti,
 	// which CANNOT be declared individually
@@ -426,7 +426,7 @@ func (c *Comp) compileExpr(in Ast) *Expr {
 
 // common backend for Compile, CompileNode, File, compileDecl.
 // does NOT support out-of-order declarations
-func (c *Comp) compileNode(node ast.Node) *Expr {
+func (c *Comp) compileNode(node ast.Node, kind dep.Kind) *Expr {
 	if n := c.Code.Len(); n != 0 {
 		c.Warnf("Compile: discarding %d previously compiled statements from code buffer", n)
 	}
@@ -447,7 +447,12 @@ func (c *Comp) compileNode(node ast.Node) *Expr {
 	case *ast.TypeSpec:
 		// dep.Sorter.Some() returns naked *ast.TypeSpec,
 		// instead of *ast.GenDecl containing one or more *ast.TypeSpec as parser does
-		c.DeclType(node)
+		if kind == dep.TypeFwd {
+			// forward type declaration
+			c.DeclNamedType(node.Name.Name)
+		} else {
+			c.DeclType(node)
+		}
 	case *ast.ExprStmt:
 		// special case of statement
 		return c.Expr(node.X, nil)

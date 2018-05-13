@@ -76,8 +76,11 @@ func (c *Comp) DeclTypeAlias(name string, t xr.Type) xr.Type {
 	if name == "_" {
 		return t
 	}
-	if _, ok := c.Types[name]; ok {
-		c.Warnf("redefined type alias: %v", name)
+	if et := c.Types[name]; et != nil {
+		// forward-declared types have kind == r.Invalid, see Comp.DeclNamedType() below
+		if et.Kind() != r.Invalid {
+			c.Warnf("redefined type alias: %v", name)
+		}
 		c.Universe.InvalidateCache()
 	} else if c.Types == nil {
 		c.Types = make(map[string]xr.Type)
@@ -93,8 +96,10 @@ func (c *Comp) DeclNamedType(name string) xr.Type {
 	if name == "_" {
 		return nil
 	}
-	if t, ok := c.Types[name]; ok {
-		c.Warnf("redefined type: %v", name)
+	if t := c.Types[name]; t != nil {
+		if t.Kind() != r.Invalid {
+			c.Warnf("redefined type: %v", name)
+		}
 		if xr.QName1(t) != xr.QName2(name, c.FileComp().Path) {
 			// the current type "name" is an alias, discard it
 			c.Universe.InvalidateCache()

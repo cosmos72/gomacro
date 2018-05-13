@@ -36,7 +36,8 @@ import (
 type Kind int
 
 const (
-	Const Kind = iota
+	Unknown Kind = iota
+	Const
 	Expr
 	Func
 	Import
@@ -51,6 +52,7 @@ const (
 )
 
 var kinds = map[Kind]string{
+	Unknown:  "Unknown",
 	Const:    "Const",
 	Expr:     "Expr",
 	Func:     "Func",
