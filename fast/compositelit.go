@@ -38,8 +38,17 @@ func (c *Comp) CompositeLit(node *ast.CompositeLit, t xr.Type) *Expr {
 	var ellipsis bool
 	// node.Type is nil when exploiting type inference
 	if node.Type != nil {
-		t, ellipsis = c.compileType2(node.Type, false)
-	} else if t == nil {
+		var et xr.Type
+		et, ellipsis = c.compileType2(node.Type, false)
+		if et != nil {
+			if t == nil || et.AssignableTo(t) {
+				t = et
+			} else {
+				c.Errorf("invalid type for composite literal: <%v> %v, expecting %v", et, node.Type, t)
+			}
+		}
+	}
+	if t == nil {
 		c.Errorf("no explicit type and no inferred type, cannot compile composite literal: %v", node)
 	}
 	switch t.Kind() {
@@ -52,12 +61,13 @@ func (c *Comp) CompositeLit(node *ast.CompositeLit, t xr.Type) *Expr {
 	case r.Struct:
 		return c.compositeLitStruct(t, node)
 	case r.Ptr:
-		// support pointer-to-literal in composite literals
-		return c.addressOf(node, t)
-	default:
-		c.Errorf("invalid type for composite literal: <%v> %v", t, node.Type)
-		return nil
+		switch t.Elem().Kind() {
+		case r.Array, r.Map, r.Slice, r.Struct:
+			return c.addressOf(node, t)
+		}
 	}
+	c.Errorf("invalid type for composite literal: <%v> %v", t, node.Type)
+	return nil
 }
 
 func (c *Comp) compositeLitArray(t xr.Type, ellipsis bool, node *ast.CompositeLit) *Expr {

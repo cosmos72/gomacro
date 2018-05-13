@@ -347,7 +347,7 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption, t xr.Type) *Place {
 			if t != nil {
 				t = t.Elem()
 			}
-			e := c.Expr1(node, t)
+			e := c.CompositeLit(node, t)
 			fun := e.AsX1()
 			var addr func(*Env) r.Value
 			switch e.Type.Kind() {
