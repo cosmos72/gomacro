@@ -72,7 +72,7 @@ func TestSorter(t *testing.T) {
 		{"z_test_data_1", "z_test_data_1.txt"},
 		{"z_test_data_2", "z_test_data_2.txt"},
 		{"z_test_data_3", "z_test_data_3.txt"},
-		// {"fast_global", "../../fast/global.go"},
+		{"fast_global", "../../fast/global.go"},
 	}
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {

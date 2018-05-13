@@ -17,7 +17,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/lgpl>.
  *
  *
- * sorter.go
+ * graph.go
  *
  *  Created on: May 03, 2018
  *      Author: Massimiliano Ghilardi
@@ -123,6 +123,23 @@ func (g *graph) RemoveDeps(m DeclMap) {
 	}
 }
 
+// for nodes with Kind 'k', remove from g.Edges dependencies that are in m
+func (g *graph) RemoveDepsFor(k Kind, m DeclMap) {
+	for name, decl := range g.Nodes {
+		if decl.Kind != k {
+			continue
+		}
+		if edges, ok := g.Edges[name]; ok {
+			for edge := range edges {
+				if _, ok := m[edge]; ok {
+					// node in m, drop the edge
+					delete(edges, edge)
+				}
+			}
+		}
+	}
+}
+
 // return forward declarations for some types that hopefully break
 // as many circular dependencies as possible
 func (g *graph) RemoveTypeFwd() DeclList {
@@ -161,7 +178,7 @@ func (g *graph) RemoveTypeFwd() DeclList {
 		fwd.Kind = TypeFwd
 		list[i] = &fwd
 	}
-	g.RemoveDeps(list.Map())
+	g.RemoveDepsFor(Type, list.Map())
 	return list
 }
 
