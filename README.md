@@ -102,7 +102,7 @@ Gomacro can be used as:
 Gomacro is pure Go, and in theory it should work on any platform supported by the Go compiler.
 The following combinations are tested and known to work:
 
-- Linux: amd64, 386, arm64, arm (on Linux it can also import 3<sup>rd</sup> party libraries at runtime)
+- Linux: amd64, 386, arm64, arm, mips, ppc64le (on Linux it can also import 3<sup>rd</sup> party libraries at runtime)
 - Mac OS X: amd64, 386 (386 binaries running on amd64 system)
 - Windows: amd64, 386
 - FreeBSD: amd64, 386

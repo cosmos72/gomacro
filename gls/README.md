@@ -36,8 +36,8 @@ and use cases for goroutine-local storage more in detail.
 
 Beta.
 
-Lightly tested on 386, amd64, arm, arm64 with Go 1.10.1.
-Other architectures (mips, mipsle, mips64, ppc64, s390x) supported in theory but not tested.
+Lightly tested on 386, amd64, arm, arm64, mips, ppc64le with Go 1.10.1.
+Other architectures (mips64, mips64le, mipsle, ppc64, s390x) supported in theory but not tested.
 
 ### How it works ###
 
