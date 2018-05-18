@@ -13,7 +13,6 @@ package main
 	rtyp := EvalType(typ).(reflect.Type)
 	funcname := &ast.Ident{Name: "fibonacci_" + rtyp.Name()}
 
-
 	// go/ast.FuncDecl can only represent function declarations
 	// where the function name is an *ast.Ident, not a generic ast.Node
 	//

@@ -330,7 +330,8 @@ func (env *Env) Up(n int) *Env {
 
 // combined Parse + MacroExpandCodeWalk
 func (c *Comp) Parse(src string) Ast {
-	c.Line = 0
+	// do NOT set c.Globals.Line = 0
+	// caller can do it manually if needed
 	nodes := c.ParseBytes([]byte(src))
 	forms := anyToAst(nodes, "Parse")
 
