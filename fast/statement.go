@@ -90,7 +90,16 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		case *ast.IncDecStmt:
 			c.IncDec(node)
 		case *ast.LabeledStmt:
-			labels = append(labels, node.Label.Name)
+			label := node.Label.Name
+			labels = append(labels, label)
+			ip := c.Code.Len()
+			if c.Labels == nil {
+				c.Labels = map[string]*int{label: &ip}
+			} else if addr := c.Labels[label]; addr != nil {
+				*addr = ip
+			} else {
+				c.Labels[label] = &ip
+			}
 			in = node.Stmt
 			continue
 		case *ast.RangeStmt:
@@ -200,10 +209,8 @@ func (c *Comp) Branch(node *ast.BranchStmt) {
 		c.Continue(node)
 	case token.FALLTHROUGH:
 		c.misplacedFallthrough()
-	/*
-		case token.GOTO:
-			c.Goto(node)
-	*/
+	case token.GOTO:
+		c.Goto(node)
 	default:
 		c.Errorf("unimplemented branch statement: %v <%v>", node, r.TypeOf(node))
 	}
@@ -257,6 +264,25 @@ func (c *Comp) Continue(node *ast.BranchStmt) {
 	} else {
 		c.Errorf("continue outside for")
 	}
+}
+
+// Goto compiles a "goto" statement
+func (c *Comp) Goto(node *ast.BranchStmt) {
+	if node.Label == nil {
+		c.Errorf("goto without label: %v", node)
+	}
+	label := node.Label.Name
+	upn := 0
+	// do not cross function boundaries
+	for o := c; o != nil && o.Func == nil; o = o.Outer {
+		if ip := o.Labels[label]; ip != nil {
+			// only keep a reference to the jump target, NOT TO THE WHOLE *Comp!
+			c.jumpOut(upn, ip)
+			return
+		}
+		upn += o.UpCost // count how many Env:s we must exit at runtime
+	}
+	c.Errorf("goto label not found: %v", label)
 }
 
 // Defer compiles a "defer" statement

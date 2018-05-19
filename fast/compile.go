@@ -431,10 +431,14 @@ func (c *Comp) compileNode(node ast.Node, kind dep.Kind) *Expr {
 	if n := c.Code.Len(); n != 0 {
 		c.Warnf("Compile: discarding %d previously compiled statements from code buffer", n)
 	}
-	c.Code.Clear()
 	if node == nil {
 		return nil
 	}
+	c.Code.Clear()
+	c.Loop = nil
+	c.Func = nil
+	c.Labels = nil
+	c.FuncMaker = nil
 	c.Pos = node.Pos()
 	switch node := node.(type) {
 	case ast.Decl:

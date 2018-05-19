@@ -123,6 +123,7 @@ func (p *parser) init(fset *mt.FileSet, filename string, lineOffset int, src []b
 
 	p.labelScope = nil
 	p.targetStack = nil
+	p.openLabelScope()
 
 	p.next()
 }
@@ -1140,16 +1141,9 @@ func (p *parser) parseBlockStmt() *ast.BlockStmt {
 
 	lbrace := p.expect(token.LBRACE)
 
-	var list []ast.Stmt
-	if len(p.targetStack) == 0 {
-		p.openLabelScope()
-		list = p.parseStmtList()
-		p.closeLabelScope()
-	} else {
-		p.openScope()
-		list = p.parseStmtList()
-		p.closeScope()
-	}
+	p.openScope()
+	list := p.parseStmtList()
+	p.closeScope()
 	rbrace := p.expect(token.RBRACE)
 
 	return &ast.BlockStmt{Lbrace: lbrace, List: list, Rbrace: rbrace}

@@ -23,7 +23,7 @@ Gomacro default interpreter supports:
 * extracting methods from types and from instances.
   For example `time.Duration.String` returns a `func(time.Duration) string`
   and `time.Duration(1s).String` returns a `func() string`
-* if, for, for-range, break, continue, fallthrough, return (goto is not implemented)
+* if, for, for-range, break, continue, fallthrough, return (goto is only partially implemented)
 * select, switch, type switch, fallthrough
 * all builtins: append, cap, close, comples, defer, delete, imag, len, make, new, panic, print, println, real, recover
 * imports: Go standard packages "just work". Importing other packages requires either the "plugin" package
@@ -44,7 +44,7 @@ Gomacro default interpreter supports:
 * nesting macros, quotes and unquotes
 
 Some features are still missing or incomplete:
-* goto is not implemented
+* goto can only jump back, not forward
 * out-of-order code is under testing - some corner cases, as for example out-of-order declarations
   used in keys of composite literals, are not supported.  
   Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly

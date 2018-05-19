@@ -440,7 +440,6 @@ type Code struct {
 type LoopInfo struct {
 	Break      *int
 	Continue   *int
-	Labels     map[string]*int
 	ThisLabels []string // sorted. for labeled "switch" and "for"
 }
 
@@ -595,6 +594,7 @@ type Comp struct {
 	Code      Code      // "compiled" code
 	Loop      *LoopInfo // != nil when compiling a for or switch
 	Func      *FuncInfo // != nil when compiling a function
+	Labels    map[string]*int
 	Outer     *Comp
 	FuncMaker *funcMaker // used by debugger command 'backtrace' to obtain function name, type and binds for arguments and results
 }

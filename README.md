@@ -124,7 +124,7 @@ The main limitations and missing features are:
 
 * importing 3<sup>rd</sup> party libraries on non-Linux systems is cumbersome - see [Importing packages](#importing-packages).
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
-* goto is not implemented
+* goto can only jump backward, not forward
 * out-of-order code is under testing - some corner cases, as for example out-of-order declarations
   used in keys of composite literals, are not supported.  
   Clearly, at REPL code is still executed as soon as possible, so it makes a difference mostly

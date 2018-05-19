@@ -125,7 +125,9 @@ func (x GenDecl) Op() token.Token    { return x.X.Tok }
 func (x ReturnStmt) Op() token.Token { return token.RETURN }
 
 func (x BlockStmt) New() Ast { return BlockStmt{&ast.BlockStmt{Lbrace: x.X.Lbrace, Rbrace: x.X.Rbrace}} }
-func (x FieldList) New() Ast { return FieldList{&ast.FieldList{}} }
+func (x FieldList) New() Ast {
+	return FieldList{&ast.FieldList{Opening: x.X.Opening, Closing: x.X.Closing}}
+}
 func (x File) New() Ast {
 	return File{&ast.File{Doc: x.X.Doc, Package: x.X.Package, Name: x.X.Name, Scope: x.X.Scope, Imports: x.X.Imports, Comments: x.X.Comments}}
 }
