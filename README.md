@@ -58,11 +58,8 @@ Gomacro can be used as:
   how to have your application's functions, variable, constants and types
   available in the interpreter.
 
-  Note: gomacro is currently [LGPL](LICENSE), which imposes some restrictions
-  on programs that use gomacro. The author is currently looking for a license
-  that has fewer (but not zero) restrictions. If you are sufficiently expert with licenses,
-  you can help by reading [issue #14](https://github.com/cosmos72/gomacro/issues/14)
-  and indicating a license that satisfies the requirements listed in it.
+  Note: gomacro is currently [MPL 2.0](LICENSE), which imposes some restrictions
+  on programs that use gomacro. 
 
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
@@ -337,3 +334,7 @@ into regular Go source code, without the need for external programs
 (except for the intepreter itself).
 
 As a free bonus, we get support for Eval()
+
+## LEGAL
+
+Gomacro is distributed under the terms of (Mozilla Public License 2.0)[LICENSE].

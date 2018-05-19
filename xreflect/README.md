@@ -9,4 +9,4 @@ that **emulates** the missing features of `reflect` package:
 
 ## License
 
-LGPL v3+
+MPL v2.0+

@@ -8,18 +8,9 @@
  *
  * Copyright (C) 2017-2018 Massimiliano Ghilardi
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Lesser General Public License as published
- *     by the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Lesser General Public License for more details.
- *
- *     You should have received a copy of the GNU Lesser General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *     This Source Code Form is subject to the terms of the Mozilla Public
+ *     License, v. 2.0. If a copy of the MPL was not distributed with this
+ *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
  * func_ret1.go
@@ -115,9 +106,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -126,7 +119,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 bool) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -144,9 +141,10 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -155,7 +153,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 int) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -173,7 +175,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 int8) { return },
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -182,7 +186,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 int8) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -200,9 +208,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -211,7 +219,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 int16) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -229,9 +241,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -240,7 +252,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 int32) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -258,9 +274,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -269,7 +285,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 int64) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -287,9 +307,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -298,7 +318,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 uint) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -316,9 +340,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -327,7 +351,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 uint8) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -345,9 +373,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -356,7 +384,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 uint16) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -374,9 +406,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -385,7 +417,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 uint32) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -403,9 +439,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -414,7 +450,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 uint64) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -432,9 +472,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -443,7 +483,11 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -461,9 +505,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -472,7 +516,10 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 float32) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -490,9 +537,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -501,7 +548,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 float64) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -519,9 +568,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -530,7 +579,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 complex64) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -548,9 +599,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -559,7 +610,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 complex128) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -577,9 +630,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(bool) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(bool,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -588,7 +641,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 bool) (ret0 string) {
+				return r.ValueOf(func(arg0 bool,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*bool)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -616,9 +671,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -627,7 +684,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 bool) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -645,9 +706,10 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -656,7 +718,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 int) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -674,7 +740,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 int8) { return },
+				funv := r.ValueOf(func(int,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -683,7 +751,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 int8) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -701,9 +773,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -712,7 +784,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 int16) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -730,9 +806,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -741,7 +817,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 int32) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -759,9 +839,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -770,7 +850,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 int64) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -788,9 +872,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -799,7 +883,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 uint) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -817,9 +905,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -828,7 +916,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 uint8) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -846,9 +938,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -857,7 +949,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 uint16) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -875,9 +971,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -886,7 +982,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 uint32) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -904,9 +1004,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -915,7 +1015,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 uint64) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -933,9 +1037,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -944,7 +1048,11 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -962,9 +1070,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -973,7 +1081,10 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 float32) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -991,9 +1102,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1002,7 +1113,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 float64) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1020,9 +1133,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1031,7 +1144,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 complex64) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1049,9 +1164,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1060,7 +1175,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 complex128) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1078,9 +1195,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(int,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1089,7 +1206,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int) (ret0 string) {
+				return r.ValueOf(func(arg0 int,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1117,9 +1236,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1128,7 +1249,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 bool) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1146,9 +1271,10 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1157,7 +1283,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 int) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1175,7 +1305,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 int8) { return },
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1184,7 +1316,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 int8) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1202,9 +1338,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1213,7 +1349,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 int16) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1231,9 +1371,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1242,7 +1382,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 int32) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1260,9 +1404,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1271,7 +1415,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 int64) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1289,9 +1437,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1300,7 +1448,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 uint) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1318,9 +1470,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1329,7 +1481,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 uint8) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1347,9 +1503,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1358,7 +1514,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 uint16) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1376,9 +1536,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1387,7 +1547,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 uint32) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1405,9 +1569,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1416,7 +1580,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 uint64) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1434,9 +1602,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1445,7 +1613,11 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1463,9 +1635,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1474,7 +1646,10 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 float32) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1492,9 +1667,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1503,7 +1678,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 float64) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1521,9 +1698,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1532,7 +1709,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 complex64) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1550,9 +1729,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1561,7 +1740,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 complex128) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1579,9 +1760,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int8) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(int8,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1590,7 +1771,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int8) (ret0 string) {
+				return r.ValueOf(func(arg0 int8,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1618,9 +1801,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1629,7 +1814,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 bool) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1647,9 +1836,10 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1658,7 +1848,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 int) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1676,7 +1870,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 int8) { return },
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1685,7 +1881,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 int8) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1703,9 +1903,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1714,7 +1914,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 int16) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1732,9 +1936,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1743,7 +1947,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 int32) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1761,9 +1969,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1772,7 +1980,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 int64) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1790,9 +2002,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1801,7 +2013,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 uint) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1819,9 +2035,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1830,7 +2046,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 uint8) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1848,9 +2068,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1859,7 +2079,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 uint16) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1877,9 +2101,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1888,7 +2112,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 uint32) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1906,9 +2134,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1917,7 +2145,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 uint64) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1935,9 +2167,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1946,7 +2178,11 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1964,9 +2200,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1975,7 +2211,10 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 float32) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -1993,9 +2232,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2004,7 +2243,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 float64) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2022,9 +2263,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2033,7 +2274,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 complex64) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2051,9 +2294,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2062,7 +2305,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 complex128) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2080,9 +2325,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int16) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(int16,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2091,7 +2336,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int16) (ret0 string) {
+				return r.ValueOf(func(arg0 int16,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2119,9 +2366,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2130,7 +2379,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 bool) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2148,9 +2401,10 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2159,7 +2413,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 int) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2177,7 +2435,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 int8) { return },
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2186,7 +2446,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 int8) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2204,9 +2468,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2215,7 +2479,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 int16) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2233,9 +2501,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2244,7 +2512,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 int32) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2262,9 +2534,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2273,7 +2545,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 int64) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2291,9 +2567,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2302,7 +2578,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 uint) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2320,9 +2600,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2331,7 +2611,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 uint8) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2349,9 +2633,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2360,7 +2644,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 uint16) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2378,9 +2666,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2389,7 +2677,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 uint32) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2407,9 +2699,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2418,7 +2710,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 uint64) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2436,9 +2732,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2447,7 +2743,11 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2465,9 +2765,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2476,7 +2776,10 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 float32) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2494,9 +2797,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2505,7 +2808,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 float64) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2523,9 +2828,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2534,7 +2839,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 complex64) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2552,9 +2859,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2563,7 +2870,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 complex128) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2581,9 +2890,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int32) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(int32,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2592,7 +2901,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int32) (ret0 string) {
+				return r.ValueOf(func(arg0 int32,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2620,9 +2931,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2631,7 +2944,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 bool) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2649,9 +2966,10 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2660,7 +2978,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 int) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2678,7 +3000,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 int8) { return },
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2687,7 +3011,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 int8) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2705,9 +3033,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2716,7 +3044,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 int16) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2734,9 +3066,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2745,7 +3077,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 int32) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2763,9 +3099,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2774,7 +3110,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 int64) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2792,9 +3132,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2803,7 +3143,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 uint) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2821,9 +3165,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2832,7 +3176,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 uint8) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2850,9 +3198,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2861,7 +3209,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 uint16) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2879,9 +3231,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2890,7 +3242,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 uint32) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2908,9 +3264,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2919,7 +3275,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 uint64) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2937,9 +3297,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2948,7 +3308,11 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2966,9 +3330,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2977,7 +3341,10 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 float32) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -2995,9 +3362,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3006,7 +3373,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 float64) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3024,9 +3393,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3035,7 +3404,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 complex64) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3053,9 +3424,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3064,7 +3435,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 complex128) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3082,9 +3455,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(int64) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(int64,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3093,7 +3466,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 int64) (ret0 string) {
+				return r.ValueOf(func(arg0 int64,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*int64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3121,9 +3496,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3132,7 +3509,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 bool) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3150,9 +3531,10 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3161,7 +3543,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 int) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3179,7 +3565,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 int8) { return },
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3188,7 +3576,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 int8) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3206,9 +3598,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3217,7 +3609,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 int16) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3235,9 +3631,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3246,7 +3642,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 int32) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3264,9 +3664,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3275,7 +3675,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 int64) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3293,9 +3697,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3304,7 +3708,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 uint) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3322,9 +3730,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3333,7 +3741,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 uint8) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3351,9 +3763,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3362,7 +3774,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 uint16) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3380,9 +3796,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3391,7 +3807,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 uint32) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3409,9 +3829,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3420,7 +3840,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 uint64) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3438,9 +3862,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3449,7 +3873,11 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3467,9 +3895,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3478,7 +3906,10 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 float32) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3496,9 +3927,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3507,7 +3938,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 float64) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3525,9 +3958,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3536,7 +3969,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 complex64) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3554,9 +3989,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3565,7 +4000,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 complex128) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3583,9 +4020,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(uint,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3594,7 +4031,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint) (ret0 string) {
+				return r.ValueOf(func(arg0 uint,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3622,9 +4061,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3633,7 +4074,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 bool) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3651,9 +4096,10 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3662,7 +4108,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 int) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3680,7 +4130,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 int8) { return },
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3689,7 +4141,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 int8) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3707,9 +4163,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3718,7 +4174,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 int16) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3736,9 +4196,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3747,7 +4207,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 int32) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3765,9 +4229,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3776,7 +4240,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 int64) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3794,9 +4262,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3805,7 +4273,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 uint) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3823,9 +4295,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3834,7 +4306,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 uint8) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3852,9 +4328,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3863,7 +4339,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 uint16) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3881,9 +4361,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3892,7 +4372,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 uint32) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3910,9 +4394,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3921,7 +4405,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 uint64) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3939,9 +4427,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3950,7 +4438,11 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3968,9 +4460,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3979,7 +4471,10 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 float32) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -3997,9 +4492,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4008,7 +4503,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 float64) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4026,9 +4523,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4037,7 +4534,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 complex64) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4055,9 +4554,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4066,7 +4565,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 complex128) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4084,9 +4585,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint8) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(uint8,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4095,7 +4596,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint8) (ret0 string) {
+				return r.ValueOf(func(arg0 uint8,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint8)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4123,9 +4626,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4134,7 +4639,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 bool) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4152,9 +4661,10 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4163,7 +4673,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 int) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4181,7 +4695,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 int8) { return },
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4190,7 +4706,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 int8) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4208,9 +4728,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4219,7 +4739,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 int16) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4237,9 +4761,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4248,7 +4772,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 int32) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4266,9 +4794,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4277,7 +4805,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 int64) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4295,9 +4827,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4306,7 +4838,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 uint) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4324,9 +4860,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4335,7 +4871,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 uint8) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4353,9 +4893,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4364,7 +4904,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 uint16) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4382,9 +4926,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4393,7 +4937,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 uint32) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4411,9 +4959,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4422,7 +4970,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 uint64) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4440,9 +4992,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4451,7 +5003,11 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4469,9 +5025,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4480,7 +5036,10 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 float32) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4498,9 +5057,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4509,7 +5068,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 float64) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4527,9 +5088,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4538,7 +5099,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 complex64) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4556,9 +5119,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4567,7 +5130,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 complex128) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4585,9 +5150,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint16) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(uint16,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4596,7 +5161,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint16) (ret0 string) {
+				return r.ValueOf(func(arg0 uint16,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint16)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4624,9 +5191,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4635,7 +5204,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 bool) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4653,9 +5226,10 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4664,7 +5238,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 int) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4682,7 +5260,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 int8) { return },
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4691,7 +5271,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 int8) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4709,9 +5293,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4720,7 +5304,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 int16) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4738,9 +5326,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4749,7 +5337,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 int32) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4767,9 +5359,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4778,7 +5370,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 int64) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4796,9 +5392,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4807,7 +5403,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 uint) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4825,9 +5425,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4836,7 +5436,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 uint8) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4854,9 +5458,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4865,7 +5469,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 uint16) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4883,9 +5491,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4894,7 +5502,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 uint32) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4912,9 +5524,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4923,7 +5535,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 uint64) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4941,9 +5557,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4952,7 +5568,11 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4970,9 +5590,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4981,7 +5601,10 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 float32) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -4999,9 +5622,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5010,7 +5633,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 float64) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5028,9 +5653,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5039,7 +5664,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 complex64) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5057,9 +5684,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5068,7 +5695,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 complex128) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5086,9 +5715,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint32) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(uint32,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5097,7 +5726,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint32) (ret0 string) {
+				return r.ValueOf(func(arg0 uint32,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uint32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5125,9 +5756,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5136,7 +5769,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 bool) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5153,9 +5790,10 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5164,7 +5802,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 int) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5181,7 +5823,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 int8) { return },
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5190,7 +5834,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 int8) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5207,9 +5855,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5218,7 +5866,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 int16) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5235,9 +5887,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5246,7 +5898,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 int32) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5263,9 +5919,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5274,7 +5930,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 int64) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5291,9 +5951,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5302,7 +5962,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 uint) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5319,9 +5983,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5330,7 +5994,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 uint8) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5347,9 +6015,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5358,7 +6026,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 uint16) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5375,9 +6047,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5386,7 +6058,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 uint32) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5403,9 +6079,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5414,7 +6090,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 uint64) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5431,9 +6111,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5442,7 +6122,11 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5459,9 +6143,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5470,7 +6154,10 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 float32) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5487,9 +6174,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5498,7 +6185,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 float64) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5515,9 +6204,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5526,7 +6215,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 complex64) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5543,9 +6234,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5554,7 +6245,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 complex128) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5571,9 +6264,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uint64) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(uint64,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5582,7 +6275,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uint64) (ret0 string) {
+				return r.ValueOf(func(arg0 uint64,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					env.Ints[indexes[0]] = arg0
 
@@ -5609,9 +6304,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5620,7 +6317,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 bool) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5638,9 +6339,10 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5649,7 +6351,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 int) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5667,7 +6373,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 int8) { return },
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5676,7 +6384,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 int8) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5694,9 +6406,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5705,7 +6417,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 int16) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5723,9 +6439,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5734,7 +6450,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 int32) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5752,9 +6472,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5763,7 +6483,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 int64) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5781,9 +6505,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5792,7 +6516,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 uint) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5810,9 +6538,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5821,7 +6549,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 uint8) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5839,9 +6571,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5850,7 +6582,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 uint16) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5868,9 +6604,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5879,7 +6615,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 uint32) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5897,9 +6637,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5908,7 +6648,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 uint64) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5926,9 +6670,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5937,7 +6681,11 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5955,9 +6703,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5966,7 +6714,10 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 float32) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -5984,9 +6735,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5995,7 +6746,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 float64) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6013,9 +6766,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6024,7 +6777,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 complex64) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6042,9 +6797,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6053,7 +6808,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 complex128) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6071,9 +6828,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(uintptr) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(uintptr,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6082,7 +6839,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 uintptr) (ret0 string) {
+				return r.ValueOf(func(arg0 uintptr,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*uintptr)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6110,9 +6869,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6121,7 +6882,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 bool) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6139,9 +6904,10 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6150,7 +6916,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 int) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6168,7 +6938,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 int8) { return },
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6177,7 +6949,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 int8) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6195,9 +6971,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6206,7 +6982,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 int16) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6224,9 +7004,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6235,7 +7015,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 int32) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6253,9 +7037,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6264,7 +7048,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 int64) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6282,9 +7070,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6293,7 +7081,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 uint) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6311,9 +7103,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6322,7 +7114,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 uint8) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6340,9 +7136,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6351,7 +7147,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 uint16) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6369,9 +7169,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6380,7 +7180,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 uint32) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6398,9 +7202,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6409,7 +7213,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 uint64) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6427,9 +7235,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6438,7 +7246,11 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6456,9 +7268,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6467,7 +7279,10 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 float32) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6485,9 +7300,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6496,7 +7311,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 float64) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6514,9 +7331,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6525,7 +7342,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 complex64) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6543,9 +7362,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6554,7 +7373,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 complex128) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6572,9 +7393,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float32) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(float32,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6583,7 +7404,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float32) (ret0 string) {
+				return r.ValueOf(func(arg0 float32,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float32)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6611,9 +7434,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6622,7 +7447,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 bool) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6640,9 +7469,10 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6651,7 +7481,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 int) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6669,7 +7503,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 int8) { return },
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6678,7 +7514,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 int8) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6696,9 +7536,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6707,7 +7547,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 int16) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6725,9 +7569,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6736,7 +7580,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 int32) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6754,9 +7602,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6765,7 +7613,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 int64) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6783,9 +7635,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6794,7 +7646,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 uint) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6812,9 +7668,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6823,7 +7679,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 uint8) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6841,9 +7701,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6852,7 +7712,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 uint16) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6870,9 +7734,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6881,7 +7745,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 uint32) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6899,9 +7767,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6910,7 +7778,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 uint64) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6928,9 +7800,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6939,7 +7811,11 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6957,9 +7833,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6968,7 +7844,10 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 float32) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -6986,9 +7865,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6997,7 +7876,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 float64) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7015,9 +7896,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7026,7 +7907,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 complex64) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7044,9 +7927,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7055,7 +7938,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 complex128) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7073,9 +7958,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(float64) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(float64,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7084,7 +7969,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 float64) (ret0 string) {
+				return r.ValueOf(func(arg0 float64,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*float64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7112,9 +7999,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7123,7 +8012,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 bool) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7141,9 +8034,10 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7152,7 +8046,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 int) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7170,7 +8068,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 int8) { return },
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7179,7 +8079,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 int8) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7197,9 +8101,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7208,7 +8112,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 int16) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7226,9 +8134,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7237,7 +8145,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 int32) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7255,9 +8167,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7266,7 +8178,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 int64) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7284,9 +8200,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7295,7 +8211,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 uint) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7313,9 +8233,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7324,7 +8244,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 uint8) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7342,9 +8266,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7353,7 +8277,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 uint16) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7371,9 +8299,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7382,7 +8310,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 uint32) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7400,9 +8332,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7411,7 +8343,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 uint64) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7429,9 +8365,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7440,7 +8376,11 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7458,9 +8398,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7469,7 +8409,10 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 float32) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7487,9 +8430,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7498,7 +8441,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 float64) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7516,9 +8461,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7527,7 +8472,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 complex64) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7545,9 +8492,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7556,7 +8503,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 complex128) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7574,9 +8523,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex64) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(complex64,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7585,7 +8534,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex64) (ret0 string) {
+				return r.ValueOf(func(arg0 complex64,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 
 					*(*complex64)(unsafe.Pointer(&env.Ints[indexes[0]])) = arg0
@@ -7613,9 +8564,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7624,7 +8577,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 bool) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7646,9 +8603,10 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7657,7 +8615,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 int) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7679,7 +8641,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 int8) { return },
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7688,7 +8652,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 int8) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7710,9 +8678,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7721,7 +8689,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 int16) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7743,9 +8715,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7754,7 +8726,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 int32) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7776,9 +8752,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7787,7 +8763,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 int64) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7809,9 +8789,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7820,7 +8800,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 uint) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7842,9 +8826,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7853,7 +8837,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 uint8) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7875,9 +8863,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7886,7 +8874,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 uint16) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7908,9 +8900,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7919,7 +8911,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 uint32) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7941,9 +8937,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7952,7 +8948,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 uint64) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -7974,9 +8974,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7985,7 +8985,11 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -8007,9 +9011,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8018,7 +9022,10 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 float32) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -8040,9 +9047,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8051,7 +9058,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 float64) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -8073,9 +9082,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8084,7 +9093,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 complex64) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -8106,9 +9117,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8117,7 +9128,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 complex128) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -8139,9 +9152,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(complex128) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(complex128,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8150,7 +9163,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 complex128) (ret0 string) {
+				return r.ValueOf(func(arg0 complex128,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
@@ -8182,9 +9197,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Bool:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 bool) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 bool,
+
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8193,7 +9210,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 bool) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 bool,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8215,9 +9236,10 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 int) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 int,
+				) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8226,7 +9248,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 int) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 int,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8248,7 +9274,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 int8) { return },
+				funv := r.ValueOf(func(string,
+
+				) (ret0 int8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8257,7 +9285,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 int8) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 int8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8279,9 +9311,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 int16) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 int16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8290,7 +9322,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 int16) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 int16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8312,9 +9348,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 int32) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 int32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8323,7 +9359,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 int32) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 int32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8345,9 +9385,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Int64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 int64) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 int64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8356,7 +9396,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 int64) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 int64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8378,9 +9422,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 uint) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 uint) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8389,7 +9433,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 uint) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 uint,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8411,9 +9459,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint8:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 uint8) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 uint8) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8422,7 +9470,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 uint8) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 uint8,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8444,9 +9496,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint16:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 uint16) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 uint16) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8455,7 +9507,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 uint16) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 uint16,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8477,9 +9533,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 uint32) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 uint32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8488,7 +9544,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 uint32) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 uint32,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8510,9 +9570,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uint64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 uint64) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 uint64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8521,7 +9581,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 uint64) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 uint64,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8543,9 +9607,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Uintptr:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 uintptr) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 uintptr) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8554,7 +9618,11 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 uintptr) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 uintptr,
+
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8576,9 +9644,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Float32:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 float32) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 float32) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8587,7 +9655,10 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 float32) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 float32,
+				) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8609,9 +9680,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Float64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 float64) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 float64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8620,7 +9691,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 float64) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 float64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8642,9 +9715,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Complex64:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 complex64) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 complex64) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8653,7 +9726,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 complex64) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 complex64) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8675,9 +9750,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.Complex128:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 complex128) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 complex128) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8686,7 +9761,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 complex128) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 complex128) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
@@ -8708,9 +9785,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 	case r.String:
 		{
 			if funcbody == nil {
-				funv := r.ValueOf(func(string) (ret0 string) {
-					return
-				},
+				funv := r.ValueOf(func(string,
+
+				) (ret0 string) { return },
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8719,7 +9796,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			ret = func(env *Env) r.Value {
 
 				env.MarkUsedByClosure()
-				return r.ValueOf(func(arg0 string) (ret0 string) {
+				return r.ValueOf(func(arg0 string,
+
+				) (ret0 string) {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
