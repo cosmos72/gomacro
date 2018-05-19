@@ -58,8 +58,11 @@ Gomacro can be used as:
   how to have your application's functions, variable, constants and types
   available in the interpreter.
 
-  Note: gomacro is currently [MPL 2.0](LICENSE), which imposes some restrictions
-  on programs that use gomacro. 
+  Note: gomacro license is [MPL 2.0](LICENSE), which imposes some restrictions
+  on programs that use gomacro.
+  See [MPL 2.0 FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) for common questions
+  regarding the license terms and conditions.
+
 
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
@@ -337,4 +340,5 @@ As a free bonus, we get support for Eval()
 
 ## LEGAL
 
-Gomacro is distributed under the terms of (Mozilla Public License 2.0)[LICENSE].
+Gomacro is distributed under the terms of [Mozilla Public License 2.0](LICENSE)
+or any later version.
