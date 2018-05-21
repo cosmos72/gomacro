@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	r "reflect"
+	"runtime"
 	"testing"
 
 	// . "github.com/cosmos72/gomacro/base"
@@ -30,6 +31,7 @@ import (
 	"github.com/cosmos72/gomacro/experiments/closure_maps"
 	"github.com/cosmos72/gomacro/experiments/closure_values"
 	"github.com/cosmos72/gomacro/fast"
+	"github.com/cosmos72/gomacro/jit/amd64"
 )
 
 var (
@@ -662,6 +664,19 @@ func BenchmarkSumCompiler(b *testing.B) {
 	}
 	if verbose {
 		println(total)
+	}
+}
+
+func BenchmarkSumAsmAmd64(b *testing.B) {
+	if runtime.GOARCH != "amd64" {
+		b.SkipNow()
+		return
+	}
+	sum := amd64.DeclSum()
+	b.ResetTimer()
+	var total int
+	for i := 0; i < b.N; i++ {
+		total += sum(sum_arg)
 	}
 }
 
