@@ -447,6 +447,7 @@ func arithJitEmulateReg(uenv *uint64) {
 func BenchmarkArithJitAmd64Reg(b *testing.B) {
 	if runtime.GOARCH != "amd64" {
 		b.SkipNow()
+		return
 	}
 	benchArithJit(b, amd64.DeclArithReg())
 }
@@ -454,6 +455,7 @@ func BenchmarkArithJitAmd64Reg(b *testing.B) {
 func BenchmarkArithJitAmd64Mem(b *testing.B) {
 	if runtime.GOARCH != "amd64" {
 		b.SkipNow()
+		return
 	}
 	benchArithJit(b, amd64.DeclArithMem())
 }
