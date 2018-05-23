@@ -17,6 +17,7 @@
 package amd64
 
 import (
+	"reflect"
 	"syscall"
 	"unsafe"
 )
@@ -32,9 +33,24 @@ type Asm struct {
 	Code Code
 }
 
-type Bind struct {
-	Idx uint16
-	Upn uint16
+type Desc struct {
+	Idx   uint16
+	Upn   uint16
+	Const bool
+}
+
+type Var struct {
+	Val  int64
+	Kind reflect.Kind
+	Desc
+}
+
+func NewVar(idx uint16) *Var {
+	return &Var{Desc: Desc{Idx: idx}}
+}
+
+func Int64(val int64) *Var {
+	return &Var{Val: val, Desc: Desc{Const: true}}
 }
 
 func (asm *Asm) Bytes(bytes ...uint8) *Asm {
@@ -59,7 +75,7 @@ func (asm *Asm) Int64(val int64) *Asm {
 	return asm.Uint64(uint64(val))
 }
 
-func (asm *Asm) Idx(bind Bind) *Asm {
+func (asm *Asm) Idx(bind *Var) *Asm {
 	return asm.Uint32(uint32(bind.Idx) * S)
 }
 

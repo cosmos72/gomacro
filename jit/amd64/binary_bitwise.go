@@ -16,47 +16,74 @@
 
 package amd64
 
-func (asm *Asm) AndInt64(z, a, b Bind) *Asm {
+// z &= a
+func (asm *Asm) And(z, a *Var) *Asm {
+	if a.Const {
+		val := uint64(a.Val)
+		if val == 0 {
+			return asm.Zero(z)
+		} else if val == ^uint64(0) {
+			return asm
+		} else if val == uint64(uint32(val)) {
+			asm.Bytes(0x48, 0x81, 0xa7).Idx(z).Uint32(uint32(val)) //  andq   $val,z(%rdi)
+			return asm
+		}
+	}
 	asm.load_rax(a)
-	asm.Bytes(0x48, 0x23, 0x87).Idx(b) //  andq   b(%rdi),%rax
-	asm.store_rax(z)
+	asm.Bytes(0x48, 0x21, 0x87).Idx(z) //  andq   %rax,z(%rdi)
 	return asm
 }
 
-func (asm *Asm) AndUint64(z, a, b Bind) *Asm {
-	return asm.AndInt64(z, a, b)
-}
-
-func (asm *Asm) OrInt64(z, a, b Bind) *Asm {
+// z |= a
+func (asm *Asm) Or(z, a *Var) *Asm {
+	if a.Const {
+		val := a.Val
+		if val == 0 {
+			return asm
+		} else if val == int64(int32(val)) {
+			asm.Bytes(0x48, 0x81, 0x8f).Idx(z).Int32(int32(val)) //  orq    $val,z(%rdi)
+			return asm
+		}
+	}
 	asm.load_rax(a)
-	asm.Bytes(0x48, 0x0b, 0x87).Idx(b) //  orq    b(%rdi),%rax
-	asm.store_rax(z)
+	asm.Bytes(0x48, 0x09, 0x87).Idx(z) //  orq    %rax,z(%rdi)
 	return asm
 }
 
-func (asm *Asm) OrUint64(z, a, b Bind) *Asm {
-	return asm.OrInt64(z, a, b)
-}
-
-func (asm *Asm) XorInt64(z, a, b Bind) *Asm {
+// z ^= a
+func (asm *Asm) Xor(z, a *Var) *Asm {
+	if a.Const {
+		val := uint64(a.Val)
+		if val == 0 {
+			return asm
+		} else if val == uint64(uint32(val)) {
+			asm.Bytes(0x48, 0x81, 0x87).Idx(z).Uint32(uint32(val)) //  xorq   $val,z(%rdi)
+			return asm
+		}
+	}
 	asm.load_rax(a)
-	asm.Bytes(0x48, 0x33, 0x87).Idx(b) //  xorq   b(%rdi),%rax
-	asm.store_rax(z)
+	asm.Bytes(0x48, 0x31, 0x87).Idx(z) //  xorq   %rax,z(%rdi)
 	return asm
 }
 
-func (asm *Asm) XorUint64(z, a, b Bind) *Asm {
-	return asm.XorInt64(z, a, b)
-}
-
-func (asm *Asm) AndnotInt64(z, a, b Bind) *Asm {
-	asm.load_rax(b)
-	asm.Bytes(0x48, 0xf7, 0xd0)        //  not    %rax
-	asm.Bytes(0x48, 0x23, 0x87).Idx(a) //  andq   a(%rdi),%rax
-	asm.store_rax(z)
+// z &^= a
+func (asm *Asm) Andnot(z, a *Var) *Asm {
+	if a.Const {
+		val := ^a.Val // negate val!
+		if val == 0 {
+			return asm.Zero(z)
+		} else if val == -1 {
+			return asm
+		} else if val == int64(int32(val)) {
+			asm.Bytes(0x48, 0x81, 0xa7).Idx(z).Int32(int32(val)) //  andq   $val,z(%rdi)
+			return asm
+		}
+		asm.load_rax_const(val)
+	} else {
+		asm.load_rax(a)
+		asm.Bytes(0x48, 0xf7, 0xd0) //  not    %rax
+	}
+	asm.Bytes(0x48, 0x21, 0x87).Idx(z) //  andq   %rax,z(%rdi)
 	return asm
 }
 
-func (asm *Asm) AndnotUint64(z, a, b Bind) *Asm {
-	return asm.AndnotInt64(z, a, b)
-}

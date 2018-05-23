@@ -17,55 +17,76 @@
 
 #include "asm_template.h"
 
-
-void AndInt8(u64 *ints) {
-    z(8) = a(8) & b(8);
+void And2_l(u64 *ints) {
+    z(64) &= 0x55667788;
 }
-void AndInt16(u64 *ints) {
-    z(16) = a(16) & b(16);
+void And2_q(u64 *ints) {
+    z(64) &= 0x5566778899aabbccll;
 }
-void AndInt32(u64 *ints) {
-    z(32) = a(32) & b(32);
+void And_l(u64 *ints) {
+    z(64) = a(64) & ~0x55667788ll;
 }
-void AndInt64(u64 *ints) {
+void And_q(u64 *ints) {
+    z(64) = a(64) & ~0x5566778899aabbccll;
+}
+void And(u64 *ints) {
     z(64) = a(64) & b(64);
 }
 
-void OrInt8(u64 *ints) {
-    z(8) = a(8) | b(8);
+
+void Or2_l(u64 *ints) {
+    z(64) |= 0x55667788;
 }
-void OrInt16(u64 *ints) {
-    z(16) = a(16) | b(16);
+void Or2_q(u64 *ints) {
+    z(64) |= 0x5566778899aabbccll;
 }
-void OrInt32(u64 *ints) {
-    z(32) = a(32) | b(32);
+void Or_l(u64 *ints) {
+    z(64) = a(64) | 0x55667788;
 }
-void OrInt64(u64 *ints) {
+void Or_q(u64 *ints) {
+    z(64) = a(64) | 0x5566778899aabbcc;
+}
+void Or(u64 *ints) {
     z(64) = a(64) | b(64);
 }
 
-void XorInt8(u64 *ints) {
-    z(8) = a(8) ^ b(8);
+
+void Xor2_l(u64 *ints) {
+    z(64) ^= 0x55667788;
 }
-void XorInt16(u64 *ints) {
-    z(16) = a(16) ^ b(16);
+void Xor2_q(u64 *ints) {
+    z(64) ^= 0x5566778899aabbccll;
 }
-void XorInt32(u64 *ints) {
-    z(32) = a(32) ^ b(32);
+void Xor_l(u64 *ints) {
+    z(64) = a(64) ^ 0x55667788;
 }
-void XorInt64(u64 *ints) {
+void Xor_q(u64 *ints) {
+    z(64) = a(64) ^ 0x5566778899aabbcc;
+}
+void Xor(u64 *ints) {
     z(64) = a(64) ^ b(64);
 }
 
-void AndnotInt8(u64 *ints) {
-    z(8) = a(8) & ~b(8);
+
+
+void Andnot2_l(u64 *ints) {
+    z(64) &= ~0x55667788;
 }
-void AndnotInt16(u64 *ints) {
-    z(16) = a(16) & ~b(16);
+void Andnot2_q(u64 *ints) {
+    z(64) &= ~0x5566778899aabbccll;
 }
-void AndnotInt32(u64 *ints) {
-    z(32) = a(32) & ~b(32);
+void Andnot_l(u64 *ints) {
+    z(64) = a(64) & ~0x55667788;
 }
-void AndnotInt64(u64 *ints) {
+void Andnot_1l(u64 *ints) {
+    z(64) = 0x55667788 & ~a(64);
+}
+void Andnot_1q(u64 *ints) {
+    z(64) = 0x5566778899aabbcc & ~a(64);
+}
+void Andnot_q(u64 *ints) {
+    z(64) = a(64) & ~0x5566778899aabbcc;
+}
+void Andnot(u64 *ints) {
     z(64) = a(64) & ~b(64);
 }

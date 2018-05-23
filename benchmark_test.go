@@ -21,6 +21,7 @@ import (
 	r "reflect"
 	"runtime"
 	"testing"
+	"unsafe"
 
 	// . "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/classic"
@@ -386,15 +387,18 @@ func BenchmarkSwitchClassic(b *testing.B) {
 
 // ---------------- simple arithmetic ------------------
 
+//go:noinline
 func arith(n int) int {
-	return ((n*2+3)&4 | 5 ^ 6) / (n | 1)
+	return ((((n*2 + 3) | 4) &^ 5) ^ 6) / ((n & 2) | 1)
 }
+
+const arith_source = "((((n*2+3)|4) &^ 5) ^ 6) / ((n & 2) | 1)"
 
 func BenchmarkArithCompiler1(b *testing.B) {
 	total := 0
 	for i := 0; i < b.N; i++ {
 		n := b.N
-		total += ((n*2+3)&4 | 5 ^ 6) / (n | 1)
+		total += ((((n*2 + 3) | 4) &^ 5) ^ 6) / ((n & 2) | 1)
 	}
 	if verbose {
 		println(total)
@@ -411,13 +415,78 @@ func BenchmarkArithCompiler2(b *testing.B) {
 	}
 }
 
+func arithJitEmulateMem(uenv *uint64) {
+	env := (*[3]int64)(unsafe.Pointer(uenv))
+	env[1] = env[0]
+	env[1] *= 2
+	env[1] += 3
+	env[1] |= 4
+	env[1] &^= 5
+	env[1] ^= 6
+	env[2] = env[0]
+	env[2] &= 2
+	env[2] |= 1
+	env[1] /= env[2]
+}
+
+func arithJitEmulateReg(uenv *uint64) {
+	env := (*[3]int64)(unsafe.Pointer(uenv))
+	a := env[0]
+	a *= 2
+	a += 3
+	a |= 4
+	a &^= 5
+	a ^= 6
+	b := env[0]
+	b &= 2
+	b |= 1
+	a /= b
+	env[1] = a
+}
+
+func BenchmarkArithJitAmd64Reg(b *testing.B) {
+	if runtime.GOARCH != "amd64" {
+		b.SkipNow()
+	}
+	benchArithJit(b, amd64.DeclArithReg())
+}
+
+func BenchmarkArithJitAmd64Mem(b *testing.B) {
+	if runtime.GOARCH != "amd64" {
+		b.SkipNow()
+	}
+	benchArithJit(b, amd64.DeclArithMem())
+}
+
+func BenchmarkArithJitEmulReg(b *testing.B) {
+	benchArithJit(b, arithJitEmulateReg)
+}
+
+func BenchmarkArithJitEmulMem(b *testing.B) {
+	benchArithJit(b, arithJitEmulateMem)
+}
+
+func benchArithJit(b *testing.B, f func(*uint64)) {
+	total := 0
+	var env [3]uint64
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		env[0] = uint64(b.N)
+		f(&env[0])
+		total += int(env[1])
+	}
+	if verbose {
+		println(total)
+	}
+}
+
 func BenchmarkArithFast(b *testing.B) {
 	ir := fast.New()
 	ir.DeclVar("n", nil, int(0))
 
 	addr := ir.AddressOfVar("n").Interface().(*int)
 
-	expr := ir.Compile("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+	expr := ir.Compile(arith_source)
 	fun := expr.Fun.(func(*fast.Env) int)
 	env := ir.PrepareEnv()
 	fun(env)
@@ -442,7 +511,7 @@ func BenchmarkArithFast2(b *testing.B) {
 	total := ir.AddressOfVar("total").Interface().(*int)
 
 	// interpreted code performs iteration and arithmetic
-	fun := ir.Compile("for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }").AsX()
+	fun := ir.Compile("for i = 0; i < n; i++ { total += " + arith_source + " }").AsX()
 	env := ir.PrepareEnv()
 	fun(env)
 
@@ -463,7 +532,7 @@ func BenchmarkArithFastConst(b *testing.B) {
 	ir.DeclConst("n", nil, b.N)
 
 	// interpreted code performs only arithmetic - iteration performed here
-	expr := ir.Compile("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+	expr := ir.Compile(arith_source)
 	fun := expr.WithFun().(func(*fast.Env) int)
 	env := ir.PrepareEnv()
 	fun(env)
@@ -486,7 +555,7 @@ func BenchmarkArithFastConst2(b *testing.B) {
 	total := ir.AddressOfVar("total").Interface().(*int)
 
 	// interpreted code performs iteration and arithmetic
-	fun := ir.Compile("for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }").AsX()
+	fun := ir.Compile("for i = 0; i < n; i++ { total += " + arith_source + " }").AsX()
 	env := ir.PrepareEnv()
 	fun(env)
 
@@ -506,7 +575,7 @@ func BenchmarkArithFastCompileLoop(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ir.Compile("total = 0; for i = 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total")
+		ir.Compile("total = 0; for i = 0; i < n; i++ { total += " + arith_source + " }; total")
 	}
 }
 
@@ -514,7 +583,7 @@ func BenchmarkArithClassic(b *testing.B) {
 	ir := classic.New()
 	ir.Eval("n:=0")
 
-	form := ir.Parse("((n*2+3)&4 | 5 ^ 6) / (n|1)")
+	form := ir.Parse(arith_source)
 
 	value := ir.ValueOf("n")
 	var ret r.Value
@@ -538,7 +607,7 @@ func BenchmarkArithClassic2(b *testing.B) {
 	ir.Eval("var n, total int")
 
 	// interpreted code performs iteration and arithmetic
-	form := ir.Parse("total = 0; for i:= 0; i < n; i++ { total += ((n*2+3)&4 | 5 ^ 6) / (n|1) }; total")
+	form := ir.Parse("total = 0; for i:= 0; i < n; i++ { total += " + arith_source + " }; total")
 
 	value := ir.ValueOf("n")
 	ir.EvalAst(form)
@@ -667,7 +736,7 @@ func BenchmarkSumCompiler(b *testing.B) {
 	}
 }
 
-func BenchmarkSumAsmAmd64(b *testing.B) {
+func BenchmarkSumJitAmd64(b *testing.B) {
 	if runtime.GOARCH != "amd64" {
 		b.SkipNow()
 		return

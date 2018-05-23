@@ -16,24 +16,17 @@
 
 package amd64
 
-func (asm *Asm) Zero(z Bind) *Asm {
-	return asm.SetInt64(z, 0)
+func (asm *Asm) Zero(z *Var) *Asm {
+	return asm.Set(z, Int64(0))
 }
 
-func (asm *Asm) SetInt64(z Bind, val int64) *Asm {
-	if val == int64(int32(val)) {
-		return asm.Bytes(0x48, 0xc7, 0x87).Idx(z).Int32(int32(val)) //  movq   $val,z(%rdi)
+func (asm *Asm) Set(z, a *Var) *Asm {
+	if a.Const {
+		if val := a.Val; val == int64(int32(val)) {
+			return asm.Bytes(0x48, 0xc7, 0x87).Idx(z).Int32(int32(val)) //  movq   $val,z(%rdi)
+		}
+	} else if a.Desc == z.Desc {
+		return asm
 	}
-	return asm.load_rax_const(val).store_rax(z)
-}
-
-func (asm *Asm) SetUint64(z Bind, val uint64) *Asm {
-	return asm.SetInt64(z, int64(val))
-}
-
-func (asm *Asm) Set(z, a Bind) *Asm {
-	if a != z {
-		asm.load_rax(z).store_rax(z)
-	}
-	return asm
+	return asm.load_rax(a).store_rax(z)
 }
