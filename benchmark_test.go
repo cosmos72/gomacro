@@ -19,11 +19,9 @@ import (
 	"fmt"
 	"os"
 	r "reflect"
-	"runtime"
 	"testing"
 	"unsafe"
 
-	// . "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/experiments/bytecode_interfaces"
 	"github.com/cosmos72/gomacro/experiments/bytecode_values"
@@ -32,7 +30,7 @@ import (
 	"github.com/cosmos72/gomacro/experiments/closure_maps"
 	"github.com/cosmos72/gomacro/experiments/closure_values"
 	"github.com/cosmos72/gomacro/fast"
-	"github.com/cosmos72/gomacro/jit/amd64"
+	"github.com/cosmos72/gomacro/jit"
 )
 
 var (
@@ -431,11 +429,11 @@ func arithJitEmulate(uenv *uint64) {
 }
 
 func BenchmarkArithJitAmd64(b *testing.B) {
-	if runtime.GOARCH != "amd64" {
+	if !jit.SUPPORTED {
 		b.SkipNow()
 		return
 	}
-	benchArithJit(b, amd64.DeclArith(5))
+	benchArithJit(b, jit.DeclArith(5))
 }
 
 func BenchmarkArithJitEmul(b *testing.B) {
@@ -713,11 +711,11 @@ func BenchmarkSumCompiler(b *testing.B) {
 }
 
 func BenchmarkSumJitAmd64(b *testing.B) {
-	if runtime.GOARCH != "amd64" {
+	if !jit.SUPPORTED {
 		b.SkipNow()
 		return
 	}
-	sum := amd64.DeclSum()
+	sum := jit.DeclSum()
 	b.ResetTimer()
 	var total int
 	for i := 0; i < b.N; i++ {

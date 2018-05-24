@@ -8,17 +8,17 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * bitwise.go
+ * bitwise_amd64.go
  *
  *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
 // %rax &= a
-func (asm *Asm) And(z hwReg, a Arg) *Asm {
-	lo, hi := z.lohi()
+func (asm *Asm) And(z Reg, a Arg) *Asm {
+	lo, hi := asm.lohi(z)
 	if a.Const() {
 		val := a.(*Const).val
 		if val == 0 {
@@ -41,8 +41,8 @@ func (asm *Asm) And(z hwReg, a Arg) *Asm {
 }
 
 // %rax |= a
-func (asm *Asm) Or(z hwReg, a Arg) *Asm {
-	lo, hi := z.lohi()
+func (asm *Asm) Or(z Reg, a Arg) *Asm {
+	lo, hi := asm.lohi(z)
 	if a.Const() {
 		val := a.(*Const).val
 		if val == 0 {
@@ -58,8 +58,8 @@ func (asm *Asm) Or(z hwReg, a Arg) *Asm {
 }
 
 // %rax ^= a
-func (asm *Asm) Xor(z hwReg, a Arg) *Asm {
-	lo, hi := z.lohi()
+func (asm *Asm) Xor(z Reg, a Arg) *Asm {
+	lo, hi := asm.lohi(z)
 	if a.Const() {
 		val := a.(*Const).val
 		if val == 0 {
@@ -75,8 +75,8 @@ func (asm *Asm) Xor(z hwReg, a Arg) *Asm {
 }
 
 // %rax &^= a
-func (asm *Asm) Andnot(z hwReg, a Arg) *Asm {
-	lo, hi := z.lohi()
+func (asm *Asm) Andnot(z Reg, a Arg) *Asm {
+	lo, hi := asm.lohi(z)
 	var tmp hwReg
 	var alloc bool
 	if a.Const() {

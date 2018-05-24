@@ -14,18 +14,15 @@
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
 import (
-	"fmt"
-	"syscall"
 	"unsafe"
 )
 
 const (
-	S        = 8 // sizeof(uint64)
-	PAGESIZE = 4096
-	VERBOSE  = false
+	S       = uint32(unsafe.Sizeof(uint64(0)))
+	VERBOSE = false
 )
 
 func (s *Save) Init(start, end uint16) {
@@ -38,10 +35,11 @@ func (asm *Asm) Init() *Asm {
 
 func (asm *Asm) Init2(saveStart, saveEnd uint16) *Asm {
 	asm.code = asm.code[:0]
-	asm.swRegs = make(map[Reg]hwReg)
-	asm.liveRegs.InitLive()
+	asm.hwRegs.InitLive()
+	asm.regs = make(map[Reg]hwRegCounter)
+	asm.regNext = RegHi + 1
 	asm.save.Init(saveStart, saveEnd)
-	return asm.Bytes(0x48, 0x8b, 0x7c, 0x24, 0x08) // movq 0x8(%rsp), %rdi
+	return asm.preamble()
 }
 
 func (asm *Asm) Bytes(bytes ...uint8) *Asm {
@@ -70,25 +68,29 @@ func (asm *Asm) Idx(a *Var) *Asm {
 	return asm.Uint32(uint32(a.idx) * S)
 }
 
-func (asm *Asm) PushRegs(rs *hwRegs) *hwRegs {
+func (asm *Asm) reg(g Reg) hwReg {
+	return asm.regs[g].hwReg
+}
+
+func (asm *Asm) pushRegs(rs *hwRegs) *hwRegs {
 	var ret hwRegs
 	v := &Var{}
 	for r := rLo; r <= rHi; r++ {
-		if !rs.Contains(r) || !asm.liveRegs.Contains(r) {
+		if !rs.Contains(r) || !asm.hwRegs.Contains(r) {
 			continue
 		}
 		if asm.save.idx >= asm.save.end {
 			errorf("save area is full, cannot push registers")
 		}
 		v.idx = asm.save.idx
-		asm.Store(v, r)
+		asm.storeReg(v, r)
 		asm.save.idx++
 		ret.Set(r)
 	}
 	return &ret
 }
 
-func (asm *Asm) PopRegs(rs *hwRegs) {
+func (asm *Asm) popRegs(rs *hwRegs) {
 	v := &Var{}
 	for r := rHi; r >= rLo; r-- {
 		if !rs.Contains(r) {
@@ -99,69 +101,72 @@ func (asm *Asm) PopRegs(rs *hwRegs) {
 		}
 		asm.save.idx--
 		v.idx = asm.save.idx
-		asm.Load(r, v)
+		asm.load(r, v)
 	}
 }
 
+// allocate a jit-reserved register
+func (asm *Asm) alloc() Reg {
+	z := asm.regNext
+	asm.regNext++
+	asm.Alloc(z)
+	return z
+}
+
+func (asm *Asm) Alloc(z Reg) *Asm {
+	pair := asm.regs[z]
+	if !pair.Valid() {
+		pair.hwReg = asm.hwRegs.Alloc()
+	}
+	pair.count++
+	asm.regs[z] = pair
+	return asm
+}
+
+// combined Alloc + Load
+func (asm *Asm) AllocLoad(z Reg, a Arg) *Asm {
+	return asm.Alloc(z).Load(z, a)
+}
+
+func (asm *Asm) Free(z Reg) *Asm {
+	pair, ok := asm.regs[z]
+	if !ok {
+		return asm
+	}
+	pair.count--
+	if pair.count == 0 {
+		asm.hwRegs.Free(pair.hwReg)
+		delete(asm.regs, z)
+	} else {
+		asm.regs[z] = pair
+	}
+	return asm
+}
+
+// combined Store + Free
+func (asm *Asm) StoreFree(z *Var, g Reg) *Asm {
+	return asm.Store(z, g).Free(g)
+}
+
 func (asm *Asm) hwAlloc(a Arg) (r hwReg, allocated bool) {
-	r = a.Reg()
+	r = a.reg(asm)
 	if r != noReg {
 		return r, false
 	}
-	r = asm.liveRegs.Alloc()
-	asm.Load(r, a)
+	r = asm.hwRegs.Alloc()
+	asm.load(r, a)
 	return r, true
 }
 
 func (asm *Asm) hwAllocConst(val int64) hwReg {
-	r := asm.liveRegs.Alloc()
-	asm.LoadConst(r, val)
+	r := asm.hwRegs.Alloc()
+	asm.loadConst(r, val)
 	return r
-}
-
-func (asm *Asm) hwAlloc3(a Arg, ret *hwReg, allocated *bool) *Asm {
-	*ret, *allocated = asm.hwAlloc(a)
-	return asm
 }
 
 func (asm *Asm) hwFree(r hwReg, allocated bool) *Asm {
 	if r.Valid() && allocated {
-		asm.liveRegs.Free(r)
+		asm.hwRegs.Free(r)
 	}
 	return asm
-}
-
-func (asm *Asm) ret() *Asm {
-	return asm.Bytes(0xc3) // ret
-}
-
-func (asm *Asm) Func() func(*uint64) {
-	asm.ret()
-	if VERBOSE {
-		fmt.Printf("asm: %#v\n", asm.code)
-	}
-	mem, err := syscall.Mmap(-1, 0, (len(asm.code)+PAGESIZE-1)&^(PAGESIZE-1),
-		syscall.PROT_READ|syscall.PROT_WRITE,
-		syscall.MAP_ANONYMOUS|syscall.MAP_PRIVATE)
-	if err != nil {
-		errorf("syscall.Mmap failed: %v", err)
-	}
-	copy(mem, asm.code)
-	err = syscall.Mprotect(mem, syscall.PROT_EXEC|syscall.PROT_READ)
-	if err != nil {
-		syscall.Munmap(mem)
-		errorf("syscall.Mprotect failed: %v", err)
-	}
-	ptr := new(func(*uint64))
-	*(**[]uint8)(unsafe.Pointer(ptr)) = &mem
-	// runtime.SetFinalizer(ptr, munmap)
-	return *ptr
-}
-
-func munmap(obj interface{}) {
-	ptr, ok := obj.(*func(*uint64))
-	if ok && ptr != nil && *ptr != nil {
-		mem := **(**[]uint8)(unsafe.Pointer(ptr))
-		syscall.Munmap(mem)
-	}
 }

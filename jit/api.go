@@ -14,15 +14,21 @@
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
 import (
 	"reflect"
 )
 
+// hardware register. implementation is architecture-dependent
 type hwReg uint8
 
 type hwRegs [rHi + 1]uint32 // hwReg -> use count
+
+type hwRegCounter struct {
+	hwReg
+	count uint32
+}
 
 // software-defined register. mapped to hardware register by Asm
 type Reg uint32
@@ -43,7 +49,7 @@ type Var struct {
 }
 
 type Arg interface {
-	Reg() hwReg // NoReg if not a register
+	reg(asm *Asm) hwReg // noReg if not a register
 	Const() bool
 	Kind() reflect.Kind
 }
@@ -55,8 +61,9 @@ type Save struct {
 }
 
 type Asm struct {
-	code     Code
-	liveRegs hwRegs
-	swRegs   map[Reg]hwReg
-	save     Save
+	code    Code
+	hwRegs  hwRegs
+	regs    map[Reg]hwRegCounter
+	regNext Reg // first available register among jit-reserved ones
+	save    Save
 }

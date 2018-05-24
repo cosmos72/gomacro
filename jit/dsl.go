@@ -14,12 +14,18 @@
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
 type Op uint8
 
 const (
-	ADD Op = iota
+	LOAD Op = iota
+	STORE
+
+	ALLOC
+	FREE
+
+	ADD
 	SUB
 	MUL
 	QUO
@@ -29,9 +35,6 @@ const (
 	OR
 	XOR
 	ANDNOT
-
-	LOAD
-	STORE
 )
 
 func (asm *Asm) Asm(args ...interface{}) *Asm {
@@ -47,27 +50,33 @@ func (asm *Asm) Asm(args ...interface{}) *Asm {
 }
 
 func (asm *Asm) Op(op Op, args ...interface{}) int {
+	var n int
 	switch op {
-	case ADD, SUB, MUL, QUO, REM, AND, OR, XOR, ANDNOT:
+	case LOAD, ADD, SUB, MUL, QUO, REM, AND, OR, XOR, ANDNOT:
 		if len(args) < 2 {
 			errorf("syntax error: expecting OP arg1 arg2, found %v", append([]interface{}{op}, args...)...)
 		}
-		asm.Op2(op, args[0].(hwReg), args[1].(Arg))
-		return 2
-	case LOAD:
-		asm.Load(args[0].(hwReg), args[1].(Arg))
-		return 2
+		asm.Op2(op, args[0].(Reg), args[1].(Arg))
+		n = 2
 	case STORE:
-		asm.Store(args[0].(*Var), args[1].(hwReg))
-		return 2
+		asm.Store(args[0].(*Var), args[1].(Reg))
+		n = 2
+	case ALLOC:
+		asm.Alloc(args[0].(Reg))
+		n = 1
+	case FREE:
+		asm.Free(args[0].(Reg))
+		n = 1
 	default:
 		errorf("unknown operator: %v", op)
 	}
-	return 0
+	return n
 }
 
-func (asm *Asm) Op2(op Op, z hwReg, a Arg) *Asm {
+func (asm *Asm) Op2(op Op, z Reg, a Arg) *Asm {
 	switch op {
+	case LOAD:
+		asm.Load(z, a)
 	case ADD:
 		asm.Add(z, a)
 	case SUB:

@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
 /*
   jit-compiled version of:
@@ -32,14 +32,13 @@ func DeclSum() func(arg int) int {
 	_, Total, I := NewVar(n), NewVar(total), NewVar(i)
 
 	var asm Asm
-	init := asm.Init().Set(I, Int64(1)).Func()
+	init := asm.Init().Store(I, Int64(1)).Func()
 	pred := func(env *[3]uint64) bool {
 		return int(env[i]) <= int(env[n])
 	}
-	var r hwReg
-	var alloc bool
-	next := asm.Init().hwAlloc3(I, &r, &alloc).Add(r, Int64(1)).Store(I, r).Func()
-	loop := asm.Init().hwAlloc3(Total, &r, &alloc).Add(r, I).Store(Total, r).Func()
+	r := RegLo
+	next := asm.Init().AllocLoad(r, I).Add(r, Int64(1)).Store(I, r).Func()
+	loop := asm.Init().AllocLoad(r, Total).Add(r, I).Store(Total, r).Func()
 
 	return func(arg int) int {
 		env := [3]uint64{n: uint64(arg)}
@@ -63,24 +62,26 @@ func DeclArith(envlen int) func(env *uint64) {
 	N, A := NewVar(n), NewVar(a)
 
 	var asm Asm
+	r, s := RegLo, RegLo+1
 	asm.Init2(2, uint16(envlen))
-	r, ralloc := asm.hwAlloc(N)
-	//	asm.Mul(r, Int64(2)).Add(r, Int64(3)).Or(r, Int64(4)).Andnot(r, Int64(5)).Xor(r, Int64(6))
 	asm.Asm(
+		//	asm.Alloc(r).Load(r, N).Mul(r, Int64(2)).Add(r, Int64(3)).Or(r, Int64(4)).Andnot(r, Int64(5)).Xor(r, Int64(6))
+		ALLOC, r,
+		LOAD, r, N,
 		MUL, r, Int64(2),
 		ADD, r, Int64(3),
 		OR, r, Int64(4),
 		ANDNOT, r, Int64(5),
 		XOR, r, Int64(6),
-	)
-	s, salloc := asm.hwAlloc(N)
-	// asm.And(s, Int64(2)).Or(s, Int64(1)).asm.Quo(r, s).Store(A, r)
-	asm.Asm(
+		// asm.Alloc(s).Load(s, N).And(s, Int64(2)).Or(s, Int64(1)).asm.Quo(r, s).Store(A, r).Free(s).Free(r)
+		ALLOC, s,
+		LOAD, s, N,
 		AND, s, Int64(2),
 		OR, s, Int64(1),
 		QUO, r, s,
 		STORE, A, r,
+		FREE, s,
+		FREE, r,
 	)
-	asm.hwFree(s, salloc).hwFree(r, ralloc)
 	return asm.Func()
 }

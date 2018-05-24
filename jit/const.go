@@ -8,19 +8,29 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * output.go
+ * const.go
  *
- *  Created on May 20, 2018
+ *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
-import (
-	"errors"
-	"fmt"
-)
+import "reflect"
 
-func errorf(format string, args ...interface{}) {
-	panic(errors.New(fmt.Sprintf(format, args...)))
+func Int64(val int64) *Const {
+	return &Const{val: val}
+}
+
+// implement Arg interface
+func (c *Const) reg(asm *Asm) hwReg {
+	return noReg
+}
+
+func (c *Const) Const() bool {
+	return true
+}
+
+func (c *Const) Kind() reflect.Kind {
+	return c.kind
 }

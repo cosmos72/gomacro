@@ -14,37 +14,24 @@
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
 import (
-	_ "fmt"
-	"math/rand"
-	_ "runtime"
+	"fmt"
 	"testing"
-	_ "unsafe"
+	"unsafe"
 )
+
+// the content of this file is portable, but obviously
+// it requires a working JIT implementation underneath.
+// so enable only on architectures supported by JIT.
 
 const verbose = false
 
-func TestLoadStore(t *testing.T) {
-	var asm Asm
-	v := NewVar(0)
-	ints := [1]uint64{0}
-	for reg := rLo; reg <= rHi; reg++ {
-		if reg == rBP || reg == rSP || reg == rDI {
-			continue
-		}
-		val := int64(rand.Uint64())
-		f := asm.Init().LoadConst(reg, val).Store(v, reg).Func()
-		f(&ints[0])
-		actual := int64(ints[0])
-		if actual != val {
-			t.Errorf("LoadConst+Store returned %d, expecting %d", actual, val)
-		}
-	}
-}
-
 func TestSum(t *testing.T) {
+	if !SUPPORTED {
+		t.SkipNow()
+	}
 	const (
 		n        = 10
 		expected = n * (n + 1) / 2
@@ -59,20 +46,22 @@ func TestSum(t *testing.T) {
 	}
 }
 
-/*
 func TestAdd(t *testing.T) {
+	if !SUPPORTED {
+		t.SkipNow()
+	}
 	var asm Asm
-	v1, v2, v3 := NewVar(1), NewVar(2), NewVar(3)
-	f := asm.Init().Set(v1, v2).Add(v1, v3).Func()
-	code := asm.Code
-	runtime.GC()
+	v1, v2, v3 := NewVar(0), NewVar(1), NewVar(2)
+	r := RegLo
+	f := asm.Init().Alloc(r).Load(r, v1).Add(r, v2).Store(v3, r).Free(r).Func()
 
-	mem := **(**[]uint8)(unsafe.Pointer(&f))
 	if verbose {
+		code := asm.code
+		mem := **(**[]uint8)(unsafe.Pointer(&f))
 		fmt.Printf("f    = %p\n", f)
 		fmt.Printf("addr = %p\n", mem)
 		fmt.Printf("mem  = %v\n", mem)
-		fmt.Printf("code = %v\n", code)
+		fmt.Printf("code = %#v\n", code)
 	}
 	const (
 		a = 7
@@ -80,18 +69,20 @@ func TestAdd(t *testing.T) {
 		c = a + b
 	)
 
-	ints := [...]uint64{2: a, 3: b}
+	ints := [3]uint64{0: a, 1: b}
 	f(&ints[0])
-	if ints[1] != c {
+	if ints[2] != c {
 		t.Errorf("Add returned %v, expecting %d", ints[1], c)
 	} else if verbose {
 		t.Logf("ints = %v\n", ints)
 	}
 
 }
-*/
 
 func TestArith(t *testing.T) {
+	if !SUPPORTED {
+		t.SkipNow()
+	}
 	const (
 		n        int = 9
 		expected int = ((((n*2 + 3) | 4) &^ 5) ^ 6) / ((n & 2) | 1)

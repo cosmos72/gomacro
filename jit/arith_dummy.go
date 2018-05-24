@@ -1,3 +1,5 @@
+// +build !amd64
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -8,29 +10,35 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * const.go
+ * arith_dummy.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
-import "reflect"
-
-func Int64(val int64) *Const {
-	return &Const{val: val}
+// %reg_z += a
+func (asm *Asm) Add(z Reg, a Arg) *Asm {
+	return asm
 }
 
-// implement Arg interface
-func (c *Const) Reg() hwReg {
-	return noReg
+// %reg_z -= a
+func (asm *Asm) Sub(z Reg, a Arg) *Asm {
+	return asm
 }
 
-func (c *Const) Const() bool {
-	return true
+// %reg_z *= a
+func (asm *Asm) Mul(z Reg, a Arg) *Asm {
+	return asm
 }
 
-func (c *Const) Kind() reflect.Kind {
-	return c.kind
+// %reg_z /= a
+func (asm *Asm) Quo(z Reg, a Arg) *Asm {
+	return asm
+}
+
+// %reg %= a
+func (asm *Asm) Rem(z Reg, a Arg) *Asm {
+	return asm
 }

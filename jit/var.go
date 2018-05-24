@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
 import "reflect"
 
@@ -23,7 +23,7 @@ func NewVar(idx uint16) *Var {
 }
 
 // implement Arg interface
-func (v *Var) Reg() hwReg {
+func (v *Var) reg(asm *Asm) hwReg {
 	return noReg
 }
 

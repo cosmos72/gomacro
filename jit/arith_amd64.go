@@ -8,13 +8,13 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arith.go
+ * arith_amd64.go
  *
  *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
  */
 
-package amd64
+package jit
 
 import (
 	"reflect"
@@ -23,8 +23,8 @@ import (
 )
 
 // %reg_z += a
-func (asm *Asm) Add(z hwReg, a Arg) *Asm {
-	lo, hi := z.lohi()
+func (asm *Asm) Add(z Reg, a Arg) *Asm {
+	lo, hi := asm.lohi(z)
 	if a.Const() {
 		val := a.(*Const).val
 		if val == 0 {
@@ -40,8 +40,8 @@ func (asm *Asm) Add(z hwReg, a Arg) *Asm {
 }
 
 // %reg_z -= a
-func (asm *Asm) Sub(z hwReg, a Arg) *Asm {
-	lo, hi := z.lohi()
+func (asm *Asm) Sub(z Reg, a Arg) *Asm {
+	lo, hi := asm.lohi(z)
 	if a.Const() {
 		val := a.(*Const).val
 		if val == 0 {
@@ -57,8 +57,8 @@ func (asm *Asm) Sub(z hwReg, a Arg) *Asm {
 }
 
 // %reg_z *= a
-func (asm *Asm) Mul(z hwReg, a Arg) *Asm {
-	lo, hi := z.lohi()
+func (asm *Asm) Mul(z Reg, a Arg) *Asm {
+	lo, hi := asm.lohi(z)
 	if a.Const() {
 		val := a.(*Const).val
 		if val == 0 {
@@ -78,31 +78,33 @@ func (asm *Asm) Mul(z hwReg, a Arg) *Asm {
 // ---------------- QUO --------------------
 
 // %reg_z /= a
-func (asm *Asm) Quo(z hwReg, a Arg) *Asm {
+func (asm *Asm) Quo(z Reg, a Arg) *Asm {
 	return asm.quorem(z, a, false)
 }
 
 // ---------------- REM --------------------
 
 // %reg %= a
-func (asm *Asm) Rem(z hwReg, a Arg) *Asm {
+func (asm *Asm) Rem(z Reg, a Arg) *Asm {
 	return asm.quorem(z, a, true)
 }
 
 // FIXME: golang remainder rules are NOT the same as C !
-func (asm *Asm) quorem(z hwReg, a Arg, rem bool) *Asm {
+func (asm *Asm) quorem(z Reg, a Arg, rem bool) *Asm {
 	tosave := newHwRegs(rDX)
-	if z != rAX {
+	rz := asm.reg(z)
+	if rz != rAX {
 		tosave.Set(rAX)
 	}
-	tosave = asm.PushRegs(tosave)
-	var b hwReg
-	if a.Reg().Valid() && tosave.Contains(a.Reg()) {
-		b = asm.liveRegs.Alloc()
-		asm.Mov(b, a.Reg())
+	tosave = asm.pushRegs(tosave)
+	var b Reg
+	ra := a.reg(asm)
+	if tosave.Contains(ra) {
+		b = asm.alloc()
+		asm.Load(b, a)
 		a = b
 	}
-	asm.Mov(rAX, z) // nop if z == AX
+	asm.mov(rAX, rz) // nop if z == AX
 
 	switch a := a.(type) {
 	case *Var:
@@ -126,14 +128,14 @@ func (asm *Asm) quorem(z hwReg, a Arg, rem bool) *Asm {
 		}
 		asm.hwFree(tmp, alloc)
 	}
-	if b.Valid() {
-		asm.liveRegs.Free(b)
+	if b != NoReg {
+		asm.Free(b)
 	}
 	if rem {
-		asm.Mov(z, rDX) // nop if z == DX
+		asm.mov(rz, rDX) // nop if z == DX
 	} else {
-		asm.Mov(z, rAX) // nop if z == AX
+		asm.mov(rz, rAX) // nop if z == AX
 	}
-	asm.PopRegs(tosave)
+	asm.popRegs(tosave)
 	return asm
 }
