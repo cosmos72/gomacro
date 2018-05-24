@@ -87,7 +87,7 @@ func RegSet(rs ...Reg) Regs {
 }
 
 func (rs *Regs) Init() {
-	*rs = SP.mask() | BP.mask()
+	*rs = SP.mask() | BP.mask() | DI.mask()
 }
 
 func (rs *Regs) Set(r Reg) {
@@ -131,7 +131,7 @@ func (asm *Asm) Mov(dst Reg, src Reg) *Asm {
 
 func (asm *Asm) Store(dst *Var, r Reg) *Asm {
 	lo, hi := r.lohi()
-	return asm.Bytes(0x48|hi*4, 0x89, 0x87|lo*8).Idx(dst) //  movq   %reg,dst(%rdi)
+	return asm.Bytes(0x48|hi*4, 0x89, 0x87|lo*8).Idx(dst) //   movq   %reg,dst(%rdi)
 }
 
 func (asm *Asm) Load(r Reg, src *Var) *Asm {
@@ -139,7 +139,7 @@ func (asm *Asm) Load(r Reg, src *Var) *Asm {
 		return asm.LoadConst(r, src.Val)
 	}
 	lo, hi := r.lohi()
-	return asm.Bytes(0x48|hi*4, 0x8b, 0x87|lo*8).Idx(src) //  movq   src(%rdi),%reg
+	return asm.Bytes(0x48|hi*4, 0x8b, 0x87|lo*8).Idx(src) //   movq   src(%rdi),%reg
 }
 
 func (asm *Asm) LoadConst(r Reg, val int64) *Asm {
@@ -148,7 +148,7 @@ func (asm *Asm) LoadConst(r Reg, val int64) *Asm {
 		if hi != 0 {
 			asm.Bytes(0x41)
 		}
-		return asm.Bytes(0xb8 + lo).Uint32(uint32(val)) //                 movl   $val,%regl // zero extend
+		return asm.Bytes(0xb8 + lo).Uint32(uint32(val)) //            movl   $val,%regl // zero extend
 	} else if val == int64(int32(val)) {
 		return asm.Bytes(0x48|hi, 0xc7, 0xc0|lo).Int32(int32(val)) // movq   $val,%reg  // sign extend
 	} else {
