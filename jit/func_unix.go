@@ -39,7 +39,7 @@ func (asm *Asm) Func() func(*uint64) {
 	}
 	mem, err := syscall.Mmap(-1, 0, (len(asm.code)+PAGESIZE-1)&^(PAGESIZE-1),
 		syscall.PROT_READ|syscall.PROT_WRITE,
-		syscall.MAP_ANONYMOUS|syscall.MAP_PRIVATE)
+		syscall.MAP_ANON|syscall.MAP_PRIVATE)
 	if err != nil {
 		errorf("syscall.Mmap failed: %v", err)
 	}
