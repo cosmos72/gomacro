@@ -36,11 +36,12 @@ func DeclSum() func(arg int) int {
 	pred := func(env *[3]uint64) bool {
 		return int(env[i]) <= int(env[n])
 	}
-	next := asm.Init().Add(I, Int64(1)).Func()
-	loop := asm.Init().Add(Total, I).Func()
+	var r Reg
+	next := asm.Init().ToReg2(I, &r).Add(r, Int64(1)).Store(I, r).Func()
+	loop := asm.Init().ToReg2(Total, &r).Add(r, I).Store(Total, r).Func()
 
 	return func(arg int) int {
-		var env = [3]uint64{n: uint64(arg)}
+		env := [3]uint64{n: uint64(arg)}
 
 		for init(&env[0]); pred(&env); next(&env[0]) {
 			loop(&env[0])
@@ -56,24 +57,15 @@ func DeclSum() func(arg int) int {
 		return ((((n*2+3)|4) &^ 5) ^ 6) / ((n & 2) | 1)
 	}
 */
-func DeclArithMem() func(env *uint64) {
+func DeclArith(envlen int) func(env *uint64) {
 	const n, a, b = 0, 1, 2
 	N, A, B := NewVar(n), NewVar(a), NewVar(b)
 
 	var asm Asm
-	asm.Init().Set(A, N).Mul(A, Int64(2)).Add(A, Int64(3)).Or(A, Int64(4)).Andnot(A, Int64(5)).Xor(A, Int64(6))
-	asm.Set(B, N).And(B, Int64(2)).Or(B, Int64(1))
-	asm.Quo(A, B)
-	return asm.Func()
-}
-
-func DeclArithReg() func(env *uint64) {
-	const n, a, b = 0, 1, 2
-	N, A, B := NewVar(n), NewVar(a), NewVar(b)
-
-	var asm Asm
-	asm.Init().load_rax(N).Mul_ax(Int64(2)).Add_ax(Int64(3)).Or_ax(Int64(4)).Andnot_ax(Int64(5)).Xor_ax(Int64(6)).store_rax(A)
-	asm.load_rax(N).And_ax(Int64(2)).Or_ax(Int64(1)).store_rax(B)
-	asm.Quo(A, B)
+	var r, s Reg
+	asm.Init2(2, uint16(envlen)).ToReg2(N, &r).Mul(r, Int64(2)).Add(r, Int64(3)). /*Or(r, Int64(4)).Andnot(r, Int64(5)).Xor(r, Int64(6)).*/ Store(A, r)
+	asm.ToReg2(N, &s). /*And(s, Int64(2)).Or(s, Int64(1)).*/ Store(B, s).FreeReg(s)
+	asm.Quo(r, B).FreeReg(r)
+	_, _ = A, B
 	return asm.Func()
 }

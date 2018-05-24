@@ -415,21 +415,7 @@ func BenchmarkArithCompiler2(b *testing.B) {
 	}
 }
 
-func arithJitEmulateMem(uenv *uint64) {
-	env := (*[3]int64)(unsafe.Pointer(uenv))
-	env[1] = env[0]
-	env[1] *= 2
-	env[1] += 3
-	env[1] |= 4
-	env[1] &^= 5
-	env[1] ^= 6
-	env[2] = env[0]
-	env[2] &= 2
-	env[2] |= 1
-	env[1] /= env[2]
-}
-
-func arithJitEmulateReg(uenv *uint64) {
+func arithJitEmulate(uenv *uint64) {
 	env := (*[3]int64)(unsafe.Pointer(uenv))
 	a := env[0]
 	a *= 2
@@ -444,33 +430,21 @@ func arithJitEmulateReg(uenv *uint64) {
 	env[1] = a
 }
 
-func BenchmarkArithJitAmd64Reg(b *testing.B) {
+func BenchmarkArithJitAmd64(b *testing.B) {
 	if runtime.GOARCH != "amd64" {
 		b.SkipNow()
 		return
 	}
-	benchArithJit(b, amd64.DeclArithReg())
+	benchArithJit(b, amd64.DeclArith(5))
 }
 
-func BenchmarkArithJitAmd64Mem(b *testing.B) {
-	if runtime.GOARCH != "amd64" {
-		b.SkipNow()
-		return
-	}
-	benchArithJit(b, amd64.DeclArithMem())
-}
-
-func BenchmarkArithJitEmulReg(b *testing.B) {
-	benchArithJit(b, arithJitEmulateReg)
-}
-
-func BenchmarkArithJitEmulMem(b *testing.B) {
-	benchArithJit(b, arithJitEmulateMem)
+func BenchmarkArithJitEmul(b *testing.B) {
+	benchArithJit(b, arithJitEmulate)
 }
 
 func benchArithJit(b *testing.B, f func(*uint64)) {
 	total := 0
-	var env [3]uint64
+	var env [5]uint64
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		env[0] = uint64(b.N)

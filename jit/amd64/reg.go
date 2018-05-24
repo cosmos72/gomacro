@@ -16,59 +16,142 @@
 
 package amd64
 
-func (asm *Asm) store_rax(z *Var) *Asm {
-	return asm.Bytes(0x48, 0x89, 0x87).Idx(z) //    movq   %rax,z(%rdi)
+// ------------------- Reg -------------------------
+
+type Reg uint8
+
+type Regs uint16
+
+const (
+	NoReg Reg = iota
+	AX
+	CX
+	DX
+	BX
+	SP
+	BP
+	SI
+	DI
+	R8
+	R9
+	R10
+	R11
+	R12
+	R13
+	R14
+	R15
+	FirstReg Reg = AX
+	LastReg  Reg = R15
+)
+
+func (r Reg) Valid() bool {
+	return r >= AX && r <= R15
 }
 
-func (asm *Asm) store_rdx(z *Var) *Asm {
-	return asm.Bytes(0x48, 0x89, 0x97).Idx(z) //    movq   %rdx,z(%rdi)
-}
-
-func (asm *Asm) load_rax(a *Var) *Asm {
-	if a.Const {
-		return asm.load_rax_const(a.Val)
+func (r Reg) Validate() {
+	if !r.Valid() {
+		errorf("invalid register: %d", r)
 	}
-	return asm.Bytes(0x48, 0x8b, 0x87).Idx(a) //    movq   a(%rdi),%rax
 }
 
-func (asm *Asm) load_rax_const(val int64) *Asm {
-	if val != int64(int32(val)) {
-		return asm.Bytes(0x48, 0xb8).Int64(val) //              movabs $val,%rax
-	} else if val < 0 {
-		return asm.Bytes(0x48, 0xc7, 0xc0).Int32(int32(val)) // movq   $val,%rax
+func (r Reg) bits() uint8 {
+	r.Validate()
+	return uint8(r) - 1
+}
+
+func (r Reg) mask() Regs {
+	return Regs(1) << r.bits()
+}
+
+func (r Reg) lo() uint8 {
+	return r.bits() & 0x7
+}
+
+func (r Reg) hi() uint8 {
+	return (r.bits() & 0x8) >> 3
+}
+
+func (r Reg) lohi() (uint8, uint8) {
+	bits := r.bits()
+	return bits & 0x7, (bits & 0x8) >> 3
+}
+
+// ------------------- Regs -------------------------
+
+func RegSet(rs ...Reg) Regs {
+	var ret Regs
+	for _, r := range rs {
+		ret |= r.mask()
 	}
-	return asm.Bytes(0xb8).Int32(int32(val)) //                     movl   $val,%eax
+	return ret
 }
 
-func (asm *Asm) load_rdx(a *Var) *Asm {
-	if a.Const {
-		return asm.load_rdx_const(a.Val)
+func (rs *Regs) Init() {
+	*rs = SP.mask() | BP.mask()
+}
+
+func (rs *Regs) Set(r Reg) {
+	*rs |= r.mask()
+}
+
+func (rs *Regs) Unset(r Reg) {
+	*rs &^= r.mask()
+}
+
+func (rs *Regs) Contains(r Reg) bool {
+	return *rs&r.mask() != 0
+}
+
+func (rs *Regs) Alloc() Reg {
+	for r := FirstReg; r <= LastReg; r++ {
+		mask := r.mask()
+		if *rs&mask == 0 {
+			*rs |= mask
+			return r
+		}
 	}
-	return asm.Bytes(0x48, 0x8b, 0x97).Idx(a) //    movq   a(%rdi),%rdx
+	errorf("no free registers")
+	return NoReg
 }
 
-func (asm *Asm) load_rdx_const(val int64) *Asm {
-	if val != int64(int32(val)) {
-		return asm.Bytes(0x48, 0xba).Int64(val) //              movabs $val,%rdx
-	} else if val < 0 {
-		return asm.Bytes(0x48, 0xc7, 0xc2).Int32(int32(val)) // movq   $val,%rdx
+func (rs *Regs) Free(r Reg) {
+	*rs &^= r.mask()
+}
+
+// ---------------- Asm.Mov, Asm.Store, Asm.Load -------------------------
+
+func (asm *Asm) Mov(dst Reg, src Reg) *Asm {
+	if dst == src {
+		return asm
 	}
-	return asm.Bytes(0xba).Int32(int32(val)) //                     movl   $val,%edx
+	slo, shi := src.lohi()
+	dlo, dhi := dst.lohi()
+	return asm.Bytes(0x48|dhi|shi*4, 0x89, 0xc0+dlo+slo*8) //  movq   %reg_src,%reg_dst
 }
 
-func (asm *Asm) load_rsi(a *Var) *Asm {
-	if a.Const {
-		return asm.load_rsi_const(a.Val)
+func (asm *Asm) Store(dst *Var, r Reg) *Asm {
+	lo, hi := r.lohi()
+	return asm.Bytes(0x48|hi*4, 0x89, 0x87|lo*8).Idx(dst) //  movq   %reg,dst(%rdi)
+}
+
+func (asm *Asm) Load(r Reg, src *Var) *Asm {
+	if src.Const {
+		return asm.LoadConst(r, src.Val)
 	}
-	return asm.Bytes(0x48, 0x8b, 0xb7).Idx(a) // mov    a(%rdi),%rsi            
+	lo, hi := r.lohi()
+	return asm.Bytes(0x48|hi*4, 0x8b, 0x87|lo*8).Idx(src) //  movq   src(%rdi),%reg
 }
 
-func (asm *Asm) load_rsi_const(val int64) *Asm {
-	if val != int64(int32(val)) {
-		return asm.Bytes(0x48, 0xbe).Int64(val) //              movabs $val,%rsi
-	} else if val < 0 {
-		return asm.Bytes(0x48, 0xc7, 0xc6).Int32(int32(val)) // movq   $val,%rsi
+func (asm *Asm) LoadConst(r Reg, val int64) *Asm {
+	lo, hi := r.lohi()
+	if val == int64(uint32(val)) {
+		if hi != 0 {
+			asm.Bytes(0x41)
+		}
+		return asm.Bytes(0xb8 + lo).Uint32(uint32(val)) //                 movl   $val,%regl // zero extend
+	} else if val == int64(int32(val)) {
+		return asm.Bytes(0x48|hi, 0xc7, 0xc0|lo).Int32(int32(val)) // movq   $val,%reg  // sign extend
+	} else {
+		return asm.Bytes(0x48|hi, 0xb8+lo).Int64(val) //              movabs $val,%reg
 	}
-	return asm.Bytes(0xc7, 0x06).Int32(int32(val))       //         movl   $val,%rsi
 }
-

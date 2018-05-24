@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * binary_bitwise.go
+ * bitwise.go
  *
  *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
@@ -21,7 +21,7 @@ func (asm *Asm) And_ax(a *Var) *Asm {
 	if a.Const {
 		val := uint64(a.Val)
 		if val == 0 {
-			return asm.load_rax_const(0)
+			return asm.LoadConst(AX, 0)
 		} else if val == ^uint64(0) {
 			return asm
 		} else if val == uint64(uint32(val)) {
@@ -29,7 +29,7 @@ func (asm *Asm) And_ax(a *Var) *Asm {
 			return asm
 		}
 	}
-	asm.load_rdx(a)
+	asm.Load(DX, a)
 	asm.Bytes(0x48, 0x21, 0xd0) //  andq   %rdx,%rax
 	return asm
 }
@@ -45,7 +45,7 @@ func (asm *Asm) Or_ax(a *Var) *Asm {
 			return asm
 		}
 	}
-	asm.load_rdx(a)
+	asm.Load(DX, a)
 	asm.Bytes(0x48, 0x09, 0xd0) //  orq    %rdx,%rax
 	return asm
 }
@@ -61,7 +61,7 @@ func (asm *Asm) Xor_ax(a *Var) *Asm {
 			return asm
 		}
 	}
-	asm.load_rdx(a)
+	asm.Load(DX, a)
 	asm.Bytes(0x48, 0x31, 0xd0) //  xorq   %rdx,%rax
 	return asm
 }
@@ -71,16 +71,16 @@ func (asm *Asm) Andnot_ax(a *Var) *Asm {
 	if a.Const {
 		val := ^uint64(a.Val) // negate val!
 		if val == 0 {
-			return asm.load_rax_const(0)
+			return asm.LoadConst(AX, 0)
 		} else if val == ^uint64(0) {
 			return asm
 		} else if val == uint64(uint32(val)) {
 			asm.Bytes(0x25).Uint32(uint32(val)) //  andl   $val,%eax
 			return asm
 		}
-		asm.load_rdx_const(int64(val))
+		asm.LoadConst(DX, int64(val))
 	} else {
-		asm.load_rdx(a)
+		asm.Load(DX, a)
 		asm.Bytes(0x48, 0xf7, 0xd2) //  not    %rdx
 	}
 	asm.Bytes(0x48, 0x21, 0xd0) //  andq   %rdx,%rax

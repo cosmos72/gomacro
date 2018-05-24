@@ -28,5 +28,6 @@ func (asm *Asm) Set(z, a *Var) *Asm {
 	} else if a.Desc == z.Desc {
 		return asm
 	}
-	return asm.load_rax(a).store_rax(z)
+	var r Reg
+	return asm.ToReg2(a, &r).Store(z, r).FreeReg(r)
 }

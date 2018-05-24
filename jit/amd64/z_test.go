@@ -17,14 +17,46 @@
 package amd64
 
 import (
-	"fmt"
-	"runtime"
+	_ "fmt"
+	"math/rand"
+	_ "runtime"
 	"testing"
-	"unsafe"
+	_ "unsafe"
 )
 
 const verbose = false
 
+func TestLoadStore(t *testing.T) {
+	var asm Asm
+	v := NewVar(0)
+	ints := [1]uint64{0}
+	for _, reg := range [...]Reg{AX, CX, DX, BX /*BP,SP*/, SI /*DI,*/, R8, R9, R10, R11, R12, R13, R14, R15} {
+		val := int64(rand.Uint64())
+		f := asm.Init().LoadConst(reg, val).Store(v, reg).Func()
+		f(&ints[0])
+		actual := int64(ints[0])
+		if actual != val {
+			t.Errorf("LoadConst+Store returned %d, expecting %d", actual, val)
+		}
+	}
+}
+
+func TestSum(t *testing.T) {
+	const (
+		n        = 10
+		expected = n * (n + 1) / 2
+	)
+	f := DeclSum()
+
+	actual := f(n)
+	if actual != expected {
+		t.Errorf("sum(%v) returned %v, expecting %d", n, actual, expected)
+	} else if verbose {
+		t.Logf("sum(%v) = %v\n", n, actual)
+	}
+}
+
+/*
 func TestAdd(t *testing.T) {
 	var asm Asm
 	v1, v2, v3 := NewVar(1), NewVar(2), NewVar(3)
@@ -55,40 +87,20 @@ func TestAdd(t *testing.T) {
 
 }
 
-func TestSum(t *testing.T) {
-	const (
-		n        = 10
-		expected = n * (n + 1) / 2
-	)
-	f := DeclSum()
-
-	actual := f(n)
-	if actual != expected {
-		t.Errorf("sum(%v) returned %v, expecting %d", n, actual, expected)
-	} else if verbose {
-		t.Logf("sum(%v) = %v\n", n, actual)
-	}
-}
-
-func TestArithMem(t *testing.T) {
-	testArith(t, "arith_mem", DeclArithMem())
-}
-
-func TestArithReg(t *testing.T) {
-	testArith(t, "arith_reg", DeclArithReg())
-}
-
-func testArith(t *testing.T, name string, f func(*uint64)) {
+func TestArith(t *testing.T) {
 	const (
 		n        int = 9
 		expected int = ((((n*2 + 3) | 4) &^ 5) ^ 6) / ((n & 2) | 1)
 	)
-	env := [3]uint64{uint64(n), 0, 0}
+	env := [5]uint64{uint64(n), 0, 0}
+	f := DeclArith(len(env))
+
 	f(&env[0])
 	actual := int(env[1])
 	if actual != expected {
-		t.Errorf("%s(%v) returned %v, expecting %d", name, n, actual, expected)
+		t.Errorf("arith(%d) returned %d, expecting %d", n, actual, expected)
 	} else if verbose {
-		t.Logf("%s(%v) = %v\n", name, n, actual)
+		t.Logf("arith(%d) = %d\n", n, actual)
 	}
 }
+*/
