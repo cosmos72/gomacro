@@ -36,9 +36,10 @@ func DeclSum() func(arg int) int {
 	pred := func(env *[3]uint64) bool {
 		return int(env[i]) <= int(env[n])
 	}
-	var r Reg
-	next := asm.Init().ToReg2(I, &r).Add(r, Int64(1)).Store(I, r).Func()
-	loop := asm.Init().ToReg2(Total, &r).Add(r, I).Store(Total, r).Func()
+	var r hwReg
+	var alloc bool
+	next := asm.Init().hwAlloc3(I, &r, &alloc).Add(r, Int64(1)).Store(I, r).Func()
+	loop := asm.Init().hwAlloc3(Total, &r, &alloc).Add(r, I).Store(Total, r).Func()
 
 	return func(arg int) int {
 		env := [3]uint64{n: uint64(arg)}
@@ -58,14 +59,28 @@ func DeclSum() func(arg int) int {
 	}
 */
 func DeclArith(envlen int) func(env *uint64) {
-	const n, a, b = 0, 1, 2
-	N, A, B := NewVar(n), NewVar(a), NewVar(b)
+	const n, a = 0, 1
+	N, A := NewVar(n), NewVar(a)
 
 	var asm Asm
-	var r, s Reg
-	asm.Init2(2, uint16(envlen)).ToReg2(N, &r).Mul(r, Int64(2)).Add(r, Int64(3)). /*Or(r, Int64(4)).Andnot(r, Int64(5)).Xor(r, Int64(6)).*/ Store(A, r)
-	asm.ToReg2(N, &s). /*And(s, Int64(2)).Or(s, Int64(1)).*/ Store(B, s).FreeReg(s)
-	asm.Quo(r, B).FreeReg(r)
-	_, _ = A, B
+	asm.Init2(2, uint16(envlen))
+	r, ralloc := asm.hwAlloc(N)
+	//	asm.Mul(r, Int64(2)).Add(r, Int64(3)).Or(r, Int64(4)).Andnot(r, Int64(5)).Xor(r, Int64(6))
+	asm.Asm(
+		MUL, r, Int64(2),
+		ADD, r, Int64(3),
+		OR, r, Int64(4),
+		ANDNOT, r, Int64(5),
+		XOR, r, Int64(6),
+	)
+	s, salloc := asm.hwAlloc(N)
+	// asm.And(s, Int64(2)).Or(s, Int64(1)).asm.Quo(r, s).Store(A, r)
+	asm.Asm(
+		AND, s, Int64(2),
+		OR, s, Int64(1),
+		QUO, r, s,
+		STORE, A, r,
+	)
+	asm.hwFree(s, salloc).hwFree(r, ralloc)
 	return asm.Func()
 }

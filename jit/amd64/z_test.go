@@ -30,7 +30,10 @@ func TestLoadStore(t *testing.T) {
 	var asm Asm
 	v := NewVar(0)
 	ints := [1]uint64{0}
-	for _, reg := range [...]Reg{AX, CX, DX, BX /*BP,SP*/, SI /*DI,*/, R8, R9, R10, R11, R12, R13, R14, R15} {
+	for reg := rLo; reg <= rHi; reg++ {
+		if reg == rBP || reg == rSP || reg == rDI {
+			continue
+		}
 		val := int64(rand.Uint64())
 		f := asm.Init().LoadConst(reg, val).Store(v, reg).Func()
 		f(&ints[0])
@@ -86,6 +89,7 @@ func TestAdd(t *testing.T) {
 	}
 
 }
+*/
 
 func TestArith(t *testing.T) {
 	const (
@@ -103,4 +107,3 @@ func TestArith(t *testing.T) {
 		t.Logf("arith(%d) = %d\n", n, actual)
 	}
 }
-*/
