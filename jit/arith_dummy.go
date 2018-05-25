@@ -42,3 +42,8 @@ func (asm *Asm) Quo(z Reg, a Arg) *Asm {
 func (asm *Asm) Rem(z Reg, a Arg) *Asm {
 	return asm
 }
+
+// %reg_z = - %reg_z
+func (asm *Asm) Neg(z Reg) *Asm {
+	return asm
+}

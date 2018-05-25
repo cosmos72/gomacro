@@ -53,7 +53,7 @@ func TestAdd(t *testing.T) {
 	var asm Asm
 	v1, v2, v3 := NewVar(0), NewVar(1), NewVar(2)
 	r := RegLo
-	f := asm.Init().Alloc(r).Load(r, v1).Add(r, v2).Store(v3, r).Free(r).Func()
+	f := asm.Init().Alloc(r).Load(r, v1).Neg(r).Not(r).Add(r, v2).Not(r).Neg(r).Store(v3, r).Free(r).Func()
 
 	if verbose {
 		code := asm.code

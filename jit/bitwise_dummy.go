@@ -37,3 +37,8 @@ func (asm *Asm) Xor(z Reg, a Arg) *Asm {
 func (asm *Asm) Andnot(z Reg, a Arg) *Asm {
 	return asm
 }
+
+// %reg_z = ^ %reg_z
+func (asm *Asm) Not(z Reg) *Asm {
+	return asm
+}

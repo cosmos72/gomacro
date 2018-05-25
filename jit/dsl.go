@@ -35,6 +35,9 @@ const (
 	OR
 	XOR
 	ANDNOT
+
+	NEG
+	NOT
 )
 
 func (asm *Asm) Asm(args ...interface{}) *Asm {
@@ -67,10 +70,28 @@ func (asm *Asm) Op(op Op, args ...interface{}) int {
 	case FREE:
 		asm.Free(args[0].(Reg))
 		n = 1
+	case NEG, NOT:
+		if len(args) < 1 {
+			errorf("syntax error: expecting OP arg1, found %v", op)
+		}
+		asm.Op1(op, args[0].(Reg))
+		n = 1
 	default:
 		errorf("unknown operator: %v", op)
 	}
 	return n
+}
+
+func (asm *Asm) Op1(op Op, z Reg) *Asm {
+	switch op {
+	case NEG:
+		asm.Neg(z)
+	case NOT:
+		asm.Not(z)
+	default:
+		errorf("unknown unary operator: %v", op)
+	}
+	return asm
 }
 
 func (asm *Asm) Op2(op Op, z Reg, a Arg) *Asm {

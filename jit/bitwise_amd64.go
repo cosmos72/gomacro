@@ -16,7 +16,7 @@
 
 package jit
 
-// %rax &= a
+// %reg_z &= a
 func (asm *Asm) And(z Reg, a Arg) *Asm {
 	lo, hi := asm.lohi(z)
 	if a.Const() {
@@ -40,7 +40,7 @@ func (asm *Asm) And(z Reg, a Arg) *Asm {
 	return asm
 }
 
-// %rax |= a
+// %reg_z |= a
 func (asm *Asm) Or(z Reg, a Arg) *Asm {
 	lo, hi := asm.lohi(z)
 	if a.Const() {
@@ -57,7 +57,7 @@ func (asm *Asm) Or(z Reg, a Arg) *Asm {
 	return asm
 }
 
-// %rax ^= a
+// %reg_z ^= a
 func (asm *Asm) Xor(z Reg, a Arg) *Asm {
 	lo, hi := asm.lohi(z)
 	if a.Const() {
@@ -74,7 +74,7 @@ func (asm *Asm) Xor(z Reg, a Arg) *Asm {
 	return asm
 }
 
-// %rax &^= a
+// %reg_z &^= a
 func (asm *Asm) Andnot(z Reg, a Arg) *Asm {
 	lo, hi := asm.lohi(z)
 	var tmp hwReg
@@ -92,9 +92,16 @@ func (asm *Asm) Andnot(z Reg, a Arg) *Asm {
 		alloc = true
 	} else {
 		tmp, alloc = asm.hwAlloc(a)
-		asm.Bytes(0x48, 0xf7, 0xd2) //  not    %reg_tmp
+		asm.Bytes(0x48|tmp.hi(), 0xf7, 0xd0|tmp.lo()) //  not    %reg_tmp
 	}
 	asm.Bytes(0x48+hi+tmp.hi()*4, 0x21, 0xc0+lo+tmp.lo()*8) //      and  %reg_tmp,%reg_z
 	asm.hwFree(tmp, alloc)
+	return asm
+}
+
+// %reg_z = ^ %reg_z
+func (asm *Asm) Not(z Reg) *Asm {
+	lo, hi := asm.lohi(z)
+	asm.Bytes(0x48+hi, 0xf7, 0xd0+lo) //  not    %reg_z
 	return asm
 }

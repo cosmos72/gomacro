@@ -23,7 +23,7 @@ import (
 const (
 	NoReg Reg = 0          // means "no register"
 	RegLo Reg = 1          // first user-available register = 1
-	RegHi Reg = 0xf0000000 // last user-available register = 0xf0000000
+	RegHi Reg = 0x80000000 // last user-available register = 0x80000000
 )
 
 // implement Arg interface

@@ -84,7 +84,7 @@ func (asm *Asm) Quo(z Reg, a Arg) *Asm {
 
 // ---------------- REM --------------------
 
-// %reg %= a
+// %reg_z %= a
 func (asm *Asm) Rem(z Reg, a Arg) *Asm {
 	return asm.quorem(z, a, true)
 }
@@ -137,5 +137,12 @@ func (asm *Asm) quorem(z Reg, a Arg, rem bool) *Asm {
 		asm.mov(rz, rAX) // nop if z == AX
 	}
 	asm.popRegs(tosave)
+	return asm
+}
+
+// %reg_z = - %reg_z
+func (asm *Asm) Neg(z Reg) *Asm {
+	lo, hi := asm.lohi(z)
+	asm.Bytes(0x48+hi, 0xf7, 0xd8+lo) //  neg    %reg_z
 	return asm
 }
