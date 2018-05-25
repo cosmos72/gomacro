@@ -207,7 +207,7 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 	case *ast.FuncType:
 		t, _, _ = c.TypeFunction(node)
 	case *ast.Ident:
-		t = c.TypeIdent(node.Name)
+		t = c.ResolveType(node.Name)
 	case *ast.InterfaceType:
 		t = c.TypeInterface(node)
 	case *ast.MapType:
@@ -371,14 +371,22 @@ func (c *Comp) typeFieldsOrParams(list []*ast.Field, allowEllipsis bool) (types 
 	return types, names, ellipsis
 }
 
-func (c *Comp) TypeIdent(name string) xr.Type {
-	for co := c; co != nil; co = co.Outer {
-		if t, ok := co.Types[name]; ok {
-			return t
+func (c *Comp) TryResolveType(name string) xr.Type {
+	var t xr.Type
+	for ; c != nil; c = c.Outer {
+		if t = c.Types[name]; t != nil {
+			break
 		}
 	}
-	c.Errorf("undefined identifier: %v", name)
-	return nil
+	return t
+}
+
+func (c *Comp) ResolveType(name string) xr.Type {
+	t := c.TryResolveType(name)
+	if t == nil {
+		c.Errorf("undefined identifier: %v", name)
+	}
+	return t
 }
 
 func (c *Comp) makeStructFields(pkg *xr.Package, names []string, types []xr.Type) []xr.StructField {

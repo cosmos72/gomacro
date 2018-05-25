@@ -56,7 +56,7 @@ func (buf BufReadline) Read(prompt string) ([]byte, error) {
 // -------------------- TtyReadline --------------------
 
 type TtyReadline struct {
-	term *liner.State
+	Term *liner.State
 }
 
 func MakeTtyReadline(historyfile string) (TtyReadline, error) {
@@ -82,14 +82,14 @@ func MakeTtyReadline(historyfile string) (TtyReadline, error) {
 		return tty, err
 	}
 	defer f.Close()
-	_, err = tty.term.ReadHistory(f)
+	_, err = tty.Term.ReadHistory(f)
 	return tty, err
 }
 
 func (tty TtyReadline) Read(prompt string) ([]byte, error) {
-	line, err := tty.term.Prompt(prompt)
+	line, err := tty.Term.Prompt(prompt)
 	if len(line) >= 3 {
-		tty.term.AppendHistory(line)
+		tty.Term.AppendHistory(line)
 	}
 	if n := len(line); n != 0 || err != io.EOF {
 		b := make([]byte, n+1)
@@ -103,19 +103,19 @@ func (tty TtyReadline) Read(prompt string) ([]byte, error) {
 
 func (tty TtyReadline) Close(historyfile string) (err error) {
 	if len(historyfile) == 0 {
-		return tty.term.Close()
+		return tty.Term.Close()
 	}
 	f, err1 := os.OpenFile(historyfile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 	if err1 != nil {
 		err = fmt.Errorf("could not open %q to append history: %v", historyfile, err1)
 	} else {
 		defer f.Close()
-		_, err2 := tty.term.WriteHistory(f)
+		_, err2 := tty.Term.WriteHistory(f)
 		if err2 != nil {
 			err = fmt.Errorf("could not write history to %q: %v", historyfile, err2)
 		}
 	}
-	err3 := tty.term.Close()
+	err3 := tty.Term.Close()
 	if err3 != nil {
 		err = err3
 	}

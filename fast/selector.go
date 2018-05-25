@@ -81,6 +81,15 @@ func (c *Comp) selectorType(node *ast.SelectorExpr, t xr.Type) *Expr {
 
 // lookup fields and methods at the same time... it's and error if both exist at the same depth
 func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool, xr.Method, bool) {
+	field, fieldok, mtd, mtdok, err := c.TryLookupFieldOrMethod(t, name)
+	if err != nil {
+		c.Error(err)
+	}
+	return field, fieldok, mtd, mtdok
+}
+
+// lookup fields and methods at the same time... it's and error if both exist at the same depth
+func (c *Comp) TryLookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool, xr.Method, bool, error) {
 	field, fieldn := c.LookupField(t, name)
 	mtd, mtdn := c.LookupMethod(t, name)
 	if c.Options&OptDebugField != 0 {
@@ -91,6 +100,7 @@ func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool
 	}
 	fielddepth := len(field.Index)
 	mtddepth := len(mtd.FieldIndex) + 1
+	var err error
 	if fieldn != 0 && mtdn != 0 {
 		if fielddepth < mtddepth {
 			// prefer the field
@@ -99,16 +109,19 @@ func (c *Comp) LookupFieldOrMethod(t xr.Type, name string) (xr.StructField, bool
 			// prefer the method
 			fieldn = 0
 		} else {
-			c.Errorf("type %v has %d field(s) and %d method(s) named %q at depth %d",
+			err = c.MakeRuntimeError("type %v has %d field(s) and %d method(s) named %q at depth %d",
 				t, fieldn, mtdn, name, fielddepth)
 		}
 	}
 	if fieldn > 1 {
-		c.Errorf("type %v has %d fields named %q at depth %d", t, fieldn, name, fielddepth)
+		err = c.MakeRuntimeError("type %v has %d fields named %q at depth %d", t, fieldn, name, fielddepth)
 	} else if mtdn > 1 {
-		c.Errorf("type %v has %d methods named %q at depth %d", t, mtdn, name, mtddepth)
+		err = c.MakeRuntimeError("type %v has %d methods named %q at depth %d", t, mtdn, name, mtddepth)
 	}
-	return field, fieldn == 1, mtd, mtdn == 1
+	if err != nil {
+		return field, fieldn == 1, mtd, mtdn == 1, err
+	}
+	return field, fieldn == 1, mtd, mtdn == 1, nil
 }
 
 // LookupField performs a breadth-first search for struct field with given name

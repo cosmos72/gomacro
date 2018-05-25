@@ -24,6 +24,8 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
@@ -274,6 +276,7 @@ func (ir *Interp) ReplStdin() {
 	defer func() {
 		g.Readline = savetty
 	}()
+	tty.Term.SetWordCompleter(ir.CompleteWords)
 
 	g.Line = 0
 	for ir.ReadParseEvalPrint() {
@@ -389,4 +392,97 @@ func cmdOptForceEval(g *Globals, opt CmdOpt) (toenable Options) {
 		}
 	}
 	return 0
+}
+
+// implement code completion API github.com/pererh/liner.WordCompleter
+// Currently only supports global symbols and imported packages,
+// optionally followed by a dot-separated sequence of identifiers
+func (ir *Interp) CompleteWords(line string, pos int) (head string, completions []string, tail string) {
+
+	return // unfinished, do not enable yet
+
+	if pos > len(line) {
+		pos = len(line)
+	}
+	head = line[:pos]
+	tail = line[pos:]
+	words := strings.Split(head, ".")
+	// find the longest sequence of ident.ident.ident...
+	for i := len(words) - 1; i >= 0; i-- {
+		if !isIdentifier(words[i]) {
+			words = words[i+1:]
+			break
+		}
+	}
+	if len(words) != 0 {
+		c := ir.Comp
+		if sym := c.TryResolve(words[0]); sym != nil {
+			completions = ir.completeWords(&sym.Bind, words[1:])
+		} else if typ := c.TryResolveType(words[0]); typ != nil {
+			completions = ir.completeWords(typ, words[1:])
+		}
+	}
+	return head, completions, tail
+}
+
+// implement code completion on variable.ident.ident.ident...
+func (ir *Interp) completeWords(node interface{}, words []string) []string {
+	c := ir.Comp
+	i, n := 0, len(words)
+	for i+1 < n {
+		switch obj := node.(type) {
+		case *Bind:
+			if obj.Const() {
+				if imp, ok := obj.Value.(*Import); ok {
+					// complete on imported package contents
+					node = imp
+					continue
+				}
+			} else {
+				// complete on symbol type
+				node = obj.Type
+				continue
+			}
+		case *Import:
+			if i != 0 {
+				break
+			} else if bind := obj.Binds[words[i]]; bind != nil {
+				// complete on imported package binds
+				node = bind
+				i++
+				continue
+			} else if typ := obj.Types[words[i]]; typ != nil {
+				// complete on imported package types
+				node = typ
+				i++
+				continue
+			}
+		case xr.Type:
+			/* field, fieldok, mtd, mtdok := */ c.LookupFieldOrMethod(obj, words[i])
+
+		}
+		break
+	}
+	return nil
+}
+
+func isIdentifier(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	for i, ch := range s {
+		if ch < utf8.RuneSelf {
+			if ch >= 'A' && ch <= 'Z' || ch == '_' || ch >= 'a' && ch <= 'z' {
+				continue
+			} else if i != 0 && ch >= '0' && ch <= '9' {
+				continue
+			}
+		} else if unicode.IsLetter(ch) {
+			continue
+		} else if i != 0 && unicode.IsDigit(ch) {
+			continue
+		}
+		return false
+	}
+	return true
 }
