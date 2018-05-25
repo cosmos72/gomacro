@@ -1,4 +1,4 @@
-// +build !darwin,!dragonfly,!freebsd,!linux,!netbsd,!openbsd
+// +build !darwin,!dragonfly,!freebsd,!linux,!netbsd,!openbsd,!windows
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros
@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * func_nonunix.go
+ * sys_dummy.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi

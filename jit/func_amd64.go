@@ -20,7 +20,7 @@ package jit
 
 const SUPPORTED = true
 
-func (asm *Asm) preamble() *Asm {
+func (asm *Asm) prologue() *Asm {
 	return asm.Bytes(0x48, 0x8b, 0x7c, 0x24, 0x08) // movq 0x8(%rsp), %rdi
 }
 

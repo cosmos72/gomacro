@@ -39,7 +39,7 @@ func (asm *Asm) Init2(saveStart, saveEnd uint16) *Asm {
 	asm.regs = make(map[Reg]hwRegCounter)
 	asm.regNext = RegHi + 1
 	asm.save.Init(saveStart, saveEnd)
-	return asm.preamble()
+	return asm.prologue()
 }
 
 func (asm *Asm) Bytes(bytes ...uint8) *Asm {

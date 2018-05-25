@@ -20,7 +20,7 @@ package jit
 
 const SUPPORTED = false
 
-func (asm *Asm) preamble() *Asm {
+func (asm *Asm) prologue() *Asm {
 	return asm
 }
 
