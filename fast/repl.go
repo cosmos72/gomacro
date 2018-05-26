@@ -22,6 +22,7 @@ import (
 	"os"
 	r "reflect"
 	"runtime/debug"
+	"sort"
 	"strings"
 	"time"
 	"unicode"
@@ -398,9 +399,6 @@ func cmdOptForceEval(g *Globals, opt CmdOpt) (toenable Options) {
 // Currently only supports global symbols and imported packages,
 // optionally followed by a dot-separated sequence of identifiers
 func (ir *Interp) CompleteWords(line string, pos int) (head string, completions []string, tail string) {
-
-	return // unfinished, do not enable yet
-
 	if pos > len(line) {
 		pos = len(line)
 	}
@@ -414,20 +412,39 @@ func (ir *Interp) CompleteWords(line string, pos int) (head string, completions 
 			break
 		}
 	}
-	if len(words) != 0 {
-		c := ir.Comp
-		if sym := c.TryResolve(words[0]); sym != nil {
-			completions = ir.completeWords(&sym.Bind, words[1:])
-		} else if typ := c.TryResolveType(words[0]); typ != nil {
-			completions = ir.completeWords(typ, words[1:])
+	completions = ir.Comp.CompleteWords(words)
+	if len(completions) != 0 {
+		if pos := strings.IndexByte(head, '.'); pos >= 0 {
+			head = head[:pos+1]
+		} else {
+			head = ""
 		}
 	}
 	return head, completions, tail
 }
 
-// implement code completion on variable.ident.ident.ident...
-func (ir *Interp) completeWords(node interface{}, words []string) []string {
-	c := ir.Comp
+// implement code completion on symbol.ident.ident.ident...
+func (c *Comp) CompleteWords(words []string) []string {
+	var completions []string
+	switch len(words) {
+	case 0:
+	case 1:
+		completions = c.completeWord(words[0])
+	default:
+		var node interface{}
+		if sym := c.TryResolve(words[0]); sym != nil {
+			node = &sym.Bind
+		} else if typ := c.TryResolveType(words[0]); typ != nil {
+			node = typ
+		} else {
+			break
+		}
+		completions = c.completeWords(node, words)
+	}
+	return completions
+}
+
+func (c *Comp) completeWords(node interface{}, words []string) []string {
 	i, n := 0, len(words)
 	for i+1 < n {
 		switch obj := node.(type) {
@@ -458,11 +475,43 @@ func (ir *Interp) completeWords(node interface{}, words []string) []string {
 				continue
 			}
 		case xr.Type:
-			/* field, fieldok, mtd, mtdok := */ c.LookupFieldOrMethod(obj, words[i])
-
+			field, fieldok, _, _, err := c.TryLookupFieldOrMethod(obj, words[i])
+			if err != nil {
+				break
+			} else if fieldok {
+				node = field.Type
+				i++
+				continue
+			}
+			// {type,value}.method.anything will never compile
 		}
-		break
+		return nil
 	}
+	return c.completeLastWord(node, words[i])
+}
+
+func (c *Comp) completeWord(word string) []string {
+	var completions []string
+	size := len(word)
+	for co := c; co != nil; co = co.Outer {
+		for name := range co.Binds {
+			if len(name) >= size && name[:size] == word {
+				completions = append(completions, name)
+			}
+		}
+	}
+	for co := c; co != nil; co = co.Outer {
+		for name := range co.Types {
+			if len(name) >= size && name[:size] == word {
+				completions = append(completions, name)
+			}
+		}
+	}
+	return sortUnique(completions)
+}
+
+func (c *Comp) completeLastWord(node interface{}, word string) []string {
+	// TODO
 	return nil
 }
 
@@ -485,4 +534,21 @@ func isIdentifier(s string) bool {
 		return false
 	}
 	return true
+}
+
+func sortUnique(vec []string) []string {
+	if n := len(vec); n > 1 {
+		sort.Strings(vec)
+		prev := vec[0]
+		j := 1
+		for i := 1; i < n; i++ {
+			if s := vec[i]; s != prev {
+				vec[j] = s
+				prev = s
+				j++
+			}
+		}
+		vec = vec[:j]
+	}
+	return vec
 }
