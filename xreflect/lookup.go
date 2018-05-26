@@ -296,6 +296,41 @@ func cacheMethodByName(t *xtype, qname QName, method *Method, count int) {
 	t.universe.methodcache = true
 }
 
+// visit type's direct and embedded fields in breadth-first order
+func (v *Universe) VisitFields(t Type, visitor func(StructField)) {
+	xt := unwrap(t)
+	if xt == nil {
+		return
+	}
+	var curr, tovisit []*xtype
+	curr = []*xtype{xt}
+	var seen typeutil.Map
+
+	for len(curr) != 0 {
+		for _, xt := range curr {
+			if xt == nil {
+				continue
+			}
+			// embedded fields can be named types or pointers to named types
+			xt, _ = derefStruct(xt)
+			if xt.kind != reflect.Struct || seen.At(xt.gtype) != nil {
+				continue
+			}
+			seen.Set(xt.gtype, xt.gtype)
+
+			for i, n := 0, xt.NumField(); i < n; i++ {
+				field := xt.field(i)
+				visitor(field)
+				if field.Anonymous {
+					tovisit = append(tovisit, unwrap(field.Type))
+				}
+			}
+		}
+		curr = tovisit
+		tovisit = nil
+	}
+}
+
 func invalidateCache(gtype types.Type, t interface{}) {
 	if t, ok := t.(Type); ok {
 		t := unwrap(t)

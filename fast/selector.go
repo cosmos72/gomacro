@@ -124,6 +124,46 @@ func (c *Comp) TryLookupFieldOrMethod(t xr.Type, name string) (xr.StructField, b
 	return field, fieldn == 1, mtd, mtdn == 1, nil
 }
 
+// list direct and embedded field names that start with prefix,
+// and  explicit and wrapper methods that start with prefix
+func (c *Comp) listFieldsAndMethods(t xr.Type, prefix string) []string {
+	var names []string
+	size := len(prefix)
+
+	collectMethods := func(typ xr.Type) {
+		if t.Kind() == r.Ptr {
+			t = t.Elem()
+			if t.Kind() == r.Interface {
+				// ignore pointer-to-interface
+				return
+			}
+		}
+		for i, n := 0, typ.NumMethod(); i < n; i++ {
+			if name := typ.Method(i).Name; len(name) >= size && name[:size] == prefix {
+				names = append(names, name)
+			}
+		}
+	}
+	if t.Kind() == r.Ptr {
+		t = t.Elem()
+		if t.Kind() == r.Interface {
+			// ignore pointer-to-interface
+			return nil
+		}
+	}
+	collectMethods(t)
+	if t.Kind() == r.Struct {
+		size := len(prefix)
+		c.Universe.VisitFields(t, func(field xr.StructField) {
+			if name := field.Name; len(name) >= size && name[:size] == prefix {
+				names = append(names, name)
+			}
+			collectMethods(field.Type)
+		})
+	}
+	return names
+}
+
 // LookupField performs a breadth-first search for struct field with given name
 func (c *Comp) LookupField(t xr.Type, name string) (field xr.StructField, numfound int) {
 	return t.FieldByName(name, c.FileComp().Path)

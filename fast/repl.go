@@ -26,7 +26,6 @@ import (
 	"strings"
 	"time"
 	"unicode"
-	"unicode/utf8"
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
@@ -405,19 +404,32 @@ func (ir *Interp) CompleteWords(line string, pos int) (head string, completions 
 	head = line[:pos]
 	tail = line[pos:]
 	words := strings.Split(head, ".")
+	n := len(words)
 	// find the longest sequence of ident.ident.ident...
-	for i := len(words) - 1; i >= 0; i-- {
-		if !isIdentifier(words[i]) {
-			words = words[i+1:]
+
+	for i := n - 1; i >= 0; i-- {
+		if i == n-1 && len(words[i]) == 0 {
+			// last word can be empty: it means TAB immediately after '.'
+			continue
+		}
+		word := tailIdentifier(words[i])
+		if len(word) != len(words[i]) {
+			if len(word) == 0 {
+				words = words[i+1:]
+			} else {
+				words[i] = word
+			}
 			break
 		}
 	}
 	completions = ir.Comp.CompleteWords(words)
 	if len(completions) != 0 {
-		if pos := strings.IndexByte(head, '.'); pos >= 0 {
+		fixed := len(head) - len(tailIdentifier(head))
+		pos := strings.LastIndexByte(head, '.')
+		if pos >= 0 && pos >= fixed {
 			head = head[:pos+1]
 		} else {
-			head = ""
+			head = head[:fixed]
 		}
 	}
 	return head, completions, tail
@@ -439,7 +451,7 @@ func (c *Comp) CompleteWords(words []string) []string {
 		} else {
 			break
 		}
-		completions = c.completeWords(node, words)
+		completions = c.completeWords(node, words[1:])
 	}
 	return completions
 }
@@ -455,11 +467,10 @@ func (c *Comp) completeWords(node interface{}, words []string) []string {
 					node = imp
 					continue
 				}
-			} else {
-				// complete on symbol type
-				node = obj.Type
-				continue
 			}
+			// complete on symbol type
+			node = obj.Type
+			continue
 		case *Import:
 			if i != 0 {
 				break
@@ -511,29 +522,71 @@ func (c *Comp) completeWord(word string) []string {
 }
 
 func (c *Comp) completeLastWord(node interface{}, word string) []string {
-	// TODO
-	return nil
+	var completions []string
+	size := len(word)
+	for {
+		switch obj := node.(type) {
+		case *Bind:
+			if obj.Const() {
+				if imp, ok := obj.Value.(*Import); ok {
+					// complete on imported package contents
+					node = imp
+					continue
+				}
+			}
+			// complete on symbol type
+			node = obj.Type
+			continue
+		case *Import:
+			for name := range obj.Binds {
+				if len(name) >= size && name[:size] == word {
+					completions = append(completions, name)
+				}
+			}
+			for name := range obj.Types {
+				if len(name) >= size && name[:size] == word {
+					completions = append(completions, name)
+				}
+			}
+		case xr.Type:
+			completions = c.listFieldsAndMethods(obj, word)
+		}
+		break
+	}
+	return sortUnique(completions)
 }
 
-func isIdentifier(s string) bool {
+// return the trailing substring of s that is a valid identifier
+func tailIdentifier(s string) string {
 	if len(s) == 0 {
-		return false
+		return s
 	}
-	for i, ch := range s {
-		if ch < utf8.RuneSelf {
+	// work on unicode runes, not on bytes
+	chars := []rune(s)
+	var i, n = 0, len(chars)
+	var digit bool
+	for i = n - 1; i >= 0; i-- {
+		ch := chars[i]
+		if ch < 0x80 {
 			if ch >= 'A' && ch <= 'Z' || ch == '_' || ch >= 'a' && ch <= 'z' {
-				continue
-			} else if i != 0 && ch >= '0' && ch <= '9' {
-				continue
+				digit = false
+			} else if ch >= '0' && ch <= '9' {
+				digit = true
+			} else {
+				break
 			}
 		} else if unicode.IsLetter(ch) {
-			continue
-		} else if i != 0 && unicode.IsDigit(ch) {
-			continue
+			digit = false
+		} else if unicode.IsDigit(ch) {
+			digit = true
+		} else {
+			break
 		}
-		return false
 	}
-	return true
+	if digit {
+		i++
+	}
+	return string(chars[i+1:])
 }
 
 func sortUnique(vec []string) []string {

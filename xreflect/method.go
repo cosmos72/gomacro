@@ -65,31 +65,37 @@ func (t *xtype) NumExplicitMethod() int {
 //       goNamedType.Underlying().NumMethods() to retrieve the number of methods
 //       of a named interface
 func (t *xtype) NumAllMethod() int {
-	return goTypeNumAllMethod(t.gtype)
+	return goTypeNumAllMethod(t.gtype, make(map[types.Type]struct{}))
 }
 
 // recursively count total number of methods for type t,
 // including wrapper methods for embedded fields or embedded interfaces
-func goTypeNumAllMethod(gt types.Type) int {
+func goTypeNumAllMethod(gt types.Type, visited map[types.Type]struct{}) int {
 	count := 0
-again:
-	switch t := gt.(type) {
-	case *types.Named:
-		count += t.NumMethods()
-		u := t.Underlying()
-		if u != gt {
-			gt = u
-			goto again
+	for {
+		if _, ok := visited[gt]; ok {
+			break
 		}
-	case *types.Interface:
-		count += t.NumMethods()
-	case *types.Struct:
-		n := t.NumFields()
-		for i := 0; i < n; i++ {
-			if f := t.Field(i); f.Anonymous() {
-				count += goTypeNumAllMethod(f.Type())
+		visited[gt] = struct{}{}
+		switch t := gt.(type) {
+		case *types.Named:
+			count += t.NumMethods()
+			u := t.Underlying()
+			if u != gt {
+				gt = u
+				continue
+			}
+		case *types.Interface:
+			count += t.NumMethods()
+		case *types.Struct:
+			n := t.NumFields()
+			for i := 0; i < n; i++ {
+				if f := t.Field(i); f.Anonymous() {
+					count += goTypeNumAllMethod(f.Type(), visited)
+				}
 			}
 		}
+		break
 	}
 	return count
 }
