@@ -1,5 +1,3 @@
-// +build !amd64,!arm64
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -10,9 +8,9 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arith_dummy.go
+ * arith_amd64.go
  *
- *  Created on May 24, 2018
+ *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
  */
 
@@ -20,6 +18,9 @@ package jit
 
 // %reg_z += a
 func (asm *Asm) Add(z Reg, a Arg) *Asm {
+	tmp, alloc := asm.hwAlloc(a)
+	asm.Bytes(0x8b, tmp.lo()).Uint16(uint16(asm.lo(z))*0x21) //  add  %reg_z,%reg_z,%reg_tmp
+	asm.hwFree(tmp, alloc)
 	return asm
 }
 

@@ -41,6 +41,10 @@ typedef uint64_t u64;
 #define ua(l) (*(u##l *)A)
 #define ub(l) (*(u##l *)B)
 
+#if defined(__amd64) || defined(__amd64__) || defined(__i386) || defined(__i386__)
 i64 _(i64 ax);
+#else
+# define _(arg) arg
+#endif
 
 #endif /* gomacro_asm_template_h */

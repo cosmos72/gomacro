@@ -47,13 +47,23 @@ func (asm *Asm) Bytes(bytes ...uint8) *Asm {
 	return asm
 }
 
+func (asm *Asm) Uint16(val uint16) *Asm {
+	asm.code = append(asm.code, uint8(val), uint8(val>>8))
+	return asm
+}
+
 func (asm *Asm) Uint32(val uint32) *Asm {
 	asm.code = append(asm.code, uint8(val), uint8(val>>8), uint8(val>>16), uint8(val>>24))
 	return asm
 }
 
 func (asm *Asm) Uint64(val uint64) *Asm {
-	return asm.Uint32(uint32(val)).Uint32(uint32(val >> 32))
+	asm.code = append(asm.code, uint8(val), uint8(val>>8), uint8(val>>16), uint8(val>>24), uint8(val>>32), uint8(val>>40), uint8(val>>48), uint8(val>>56))
+	return asm
+}
+
+func (asm *Asm) Int16(val int16) *Asm {
+	return asm.Uint16(uint16(val))
 }
 
 func (asm *Asm) Int32(val int32) *Asm {
