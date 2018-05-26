@@ -29,8 +29,8 @@ import (
 	"github.com/cosmos72/gomacro/experiments/closure_ints"
 	"github.com/cosmos72/gomacro/experiments/closure_maps"
 	"github.com/cosmos72/gomacro/experiments/closure_values"
+	"github.com/cosmos72/gomacro/experiments/jit"
 	"github.com/cosmos72/gomacro/fast"
-	"github.com/cosmos72/gomacro/jit"
 )
 
 var (
@@ -428,16 +428,16 @@ func arithJitEmulate(uenv *uint64) {
 	env[1] = a
 }
 
-func BenchmarkArithJitAmd64(b *testing.B) {
+func BenchmarkArithJitEmul(b *testing.B) {
+	benchArithJit(b, arithJitEmulate)
+}
+
+func BenchmarkArithJit(b *testing.B) {
 	if !jit.SUPPORTED {
 		b.SkipNow()
 		return
 	}
 	benchArithJit(b, jit.DeclArith(5))
-}
-
-func BenchmarkArithJitEmul(b *testing.B) {
-	benchArithJit(b, arithJitEmulate)
 }
 
 func benchArithJit(b *testing.B, f func(*uint64)) {
@@ -710,7 +710,7 @@ func BenchmarkSumCompiler(b *testing.B) {
 	}
 }
 
-func BenchmarkSumJitAmd64(b *testing.B) {
+func BenchmarkSumJit(b *testing.B) {
 	if !jit.SUPPORTED {
 		b.SkipNow()
 		return

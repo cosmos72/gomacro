@@ -162,7 +162,6 @@ func (g *Globals) ParseBytes(src []byte) []ast.Node {
 	nodes, err := parser.Parse()
 	if err != nil {
 		Error(err)
-		return nil
 	}
 	return nodes
 }
