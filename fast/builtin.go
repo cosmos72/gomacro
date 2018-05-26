@@ -97,8 +97,8 @@ func (ce *Interp) addBuiltins() {
 	ce.DeclEnvFunc("MacroExpand", Function{callMacroExpand, tfunI2_Nb})
 	ce.DeclEnvFunc("MacroExpand1", Function{callMacroExpand1, tfunI2_Nb})
 	ce.DeclEnvFunc("MacroExpandCodeWalk", Function{callMacroExpandCodeWalk, tfunI2_Nb})
+	ce.DeclEnvFunc("Parse", Function{callParse, ce.Comp.TypeOf(funSI_I)})
 	/*
-		binds["Parse"] = r.ValueOf(Function{funcParse, 1})
 		binds["Read"] = r.ValueOf(ReadString)
 		binds["ReadDir"] = r.ValueOf(callReadDir)
 		binds["ReadFile"] = r.ValueOf(callReadFile)
@@ -657,6 +657,29 @@ func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	return newCall1(fun, arg, false)
 }
 
+// --- Parse() ---
+
+func funSI_I(string, interface{}) interface{} {
+	return nil
+}
+
+func callParse(argv r.Value, interpv r.Value) r.Value {
+	if !argv.IsValid() {
+		return argv
+	}
+	ir := interpv.Interface().(*Interp)
+
+	if argv.Kind() == r.Interface {
+		argv = argv.Elem()
+	}
+	if argv.Kind() != r.String {
+		ir.Comp.Errorf("cannot convert %v to string: %v", argv.Type(), argv)
+	}
+
+	form := ir.Comp.Parse(argv.String())
+	return r.ValueOf(&form).Elem() // always return type ast2.Ast
+}
+
 // --- print(), println() ---
 
 func callPrint(out interface{}, args ...interface{}) {
@@ -1070,7 +1093,7 @@ func (c *Comp) call_builtin(call *Call) I {
 			arg1 := argfuns[1](env)
 			return fun(arg0, arg1)
 		}
-	case func(r.Value, r.Value) r.Value: // Eval(), EvalType()
+	case func(r.Value, r.Value) r.Value: // Eval(), EvalType(), Parse()
 		argfunsX1 := call.MakeArgfunsX1()
 		argfuns := [2]func(env *Env) r.Value{
 			argfunsX1[0],
