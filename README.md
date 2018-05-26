@@ -7,7 +7,7 @@ an interactive REPL and a scripting mode, and does not require a Go toolchain at
 It has two dependencies beyond the Go standard library: github.com/peterh/liner and golang.org/x/sys
 
 Gomacro can be used as:
-* a standalone executable with interactive Go REPL:
+* a standalone executable with interactive Go REPL, line editing and code completion:
   just run `gomacro` from your command line, then type Go code. Example:
     ```
     $ gomacro
@@ -20,7 +20,13 @@ Gomacro can be used as:
     <nil>   // error
     gomacro>
     ```
+  press TAB to autocomplete a word, and press it again to cycle on possible completions.
 
+  Line editing follows mostly Emacs: Ctrl+A or Home jumps to start of line,
+  Ctrl+E or End jumps to end of line, Ald+D deletes word starting at cursor...
+  For the full list of key bindings, see https://github.com/peterh/liner
+  
+  
 * a Go source code debugger: see [Debugger](#debugger)
 
 * an interactive tool to make science more productive and more fun.

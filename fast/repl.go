@@ -504,13 +504,15 @@ func (c *Comp) completeWords(node interface{}, words []string) []string {
 	return c.completeLastWord(node, words[i])
 }
 
-var keywords = make(map[string]struct{})
+var keywords []string
 
 func init() {
-	for tok := token.BREAK; tok <= token.VAR; tok++ {
-		keywords[tok.String()] = struct{}{}
+	lo, hi := token.BREAK, token.VAR+1
+	keywords = make([]string, hi-lo+1)
+	for tok := lo; tok < hi; tok++ {
+		keywords[tok-lo] = tok.String()
 	}
-	keywords["macro"] = struct{}{}
+	keywords[hi-lo] = "macro"
 }
 
 // complete a single, partial word
@@ -534,7 +536,7 @@ func (c *Comp) completeWord(word string) []string {
 			}
 		}
 		// complete keywords
-		for name := range keywords {
+		for _, name := range keywords {
 			if len(name) >= size && name[:size] == word {
 				completions = append(completions, name)
 			}
