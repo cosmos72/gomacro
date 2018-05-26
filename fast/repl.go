@@ -19,6 +19,7 @@ package fast
 import (
 	"bufio"
 	"go/ast"
+	"go/token"
 	"os"
 	r "reflect"
 	"runtime/debug"
@@ -396,7 +397,8 @@ func cmdOptForceEval(g *Globals, opt CmdOpt) (toenable Options) {
 
 // implement code completion API github.com/pererh/liner.WordCompleter
 // Currently only supports global symbols and imported packages,
-// optionally followed by a dot-separated sequence of identifiers
+// optionally followed by a dot-separated sequence of field or method names,
+// including embedded fields and wrapper methods.
 func (ir *Interp) CompleteWords(line string, pos int) (head string, completions []string, tail string) {
 	if pos > len(line) {
 		pos = len(line)
@@ -414,11 +416,12 @@ func (ir *Interp) CompleteWords(line string, pos int) (head string, completions 
 		}
 		word := tailIdentifier(words[i])
 		if len(word) != len(words[i]) {
-			if len(word) == 0 {
-				words = words[i+1:]
-			} else {
+			if len(word) != 0 {
 				words[i] = word
+			} else {
+				i++
 			}
+			words = words[i:]
 			break
 		}
 	}
@@ -435,7 +438,7 @@ func (ir *Interp) CompleteWords(line string, pos int) (head string, completions 
 	return head, completions, tail
 }
 
-// implement code completion on symbol.ident.ident.ident...
+// implement code completion on ident.ident.ident.ident...
 func (c *Comp) CompleteWords(words []string) []string {
 	var completions []string
 	switch len(words) {
@@ -501,18 +504,37 @@ func (c *Comp) completeWords(node interface{}, words []string) []string {
 	return c.completeLastWord(node, words[i])
 }
 
+var keywords = make(map[string]struct{})
+
+func init() {
+	for tok := token.BREAK; tok <= token.VAR; tok++ {
+		keywords[tok.String()] = struct{}{}
+	}
+	keywords["macro"] = struct{}{}
+}
+
+// complete a single, partial word
 func (c *Comp) completeWord(word string) []string {
 	var completions []string
-	size := len(word)
-	for co := c; co != nil; co = co.Outer {
-		for name := range co.Binds {
-			if len(name) >= size && name[:size] == word {
-				completions = append(completions, name)
+	if size := len(word); size != 0 {
+		// complete binds
+		for co := c; co != nil; co = co.Outer {
+			for name := range co.Binds {
+				if len(name) >= size && name[:size] == word {
+					completions = append(completions, name)
+				}
 			}
 		}
-	}
-	for co := c; co != nil; co = co.Outer {
-		for name := range co.Types {
+		// complete types
+		for co := c; co != nil; co = co.Outer {
+			for name := range co.Types {
+				if len(name) >= size && name[:size] == word {
+					completions = append(completions, name)
+				}
+			}
+		}
+		// complete keywords
+		for name := range keywords {
 			if len(name) >= size && name[:size] == word {
 				completions = append(completions, name)
 			}
@@ -521,6 +543,7 @@ func (c *Comp) completeWord(word string) []string {
 	return sortUnique(completions)
 }
 
+// complete the last partial word of a sequence ident.ident.ident...
 func (c *Comp) completeLastWord(node interface{}, word string) []string {
 	var completions []string
 	size := len(word)
