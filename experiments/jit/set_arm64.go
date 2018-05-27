@@ -31,10 +31,10 @@ func (asm *Asm) load(dst hwReg, src Arg) *Asm {
 	case *Var:
 		off := idx(a)
 		if off <= 32760 && off&7 == 0 {
-			return asm.Uint32(0xf94003a0 | off<<10 | dst.lo()) // ldr   xdst, [x29, #src]
+			return asm.Uint32(0xf94003a0 | off<<7 | dst.lo()) // ldr   xdst, [x29, #src]
 		}
 		tmp := asm.hwAllocConst(int64(off))
-		asm.Uint32(0xf8606ba0 | tmp.lo()<<16 | dst.lo()) //	          ldr   xdst, [x29, xtmp]
+		asm.Uint32(0xf8606ba0 | tmp.lo()<<16 | dst.lo()) //	     ldr   xdst, [x29, xtmp]
 		return asm.hwFree(tmp, true)
 	default:
 		errorf("invalid src type: %#v // %T", a, a)
@@ -78,9 +78,9 @@ func (asm *Asm) store(dst *Var, src Arg) *Asm {
 func (asm *Asm) storeReg(dst *Var, src hwReg) *Asm {
 	off := idx(dst)
 	if off <= 32760 && off&7 == 0 {
-		return asm.Uint32(0xf90003a0 | off<<10 | src.lo()) // str   xsrc, [x29, #dst]
+		return asm.Uint32(0xf90003a0 | off<<7 | src.lo()) // str   xsrc, [x29, #dst]
 	}
 	tmp := asm.hwAllocConst(int64(off))
-	asm.Uint32(0xf8206ba0 | tmp.lo()<<16 | src.lo()) //	          str   xsrc, [x29, xtmp]
+	asm.Uint32(0xf8206ba0 | tmp.lo()<<16 | src.lo()) //	      str   xsrc, [x29, xtmp]
 	return asm.hwFree(tmp, true)
 }
