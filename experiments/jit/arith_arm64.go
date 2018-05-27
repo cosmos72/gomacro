@@ -1,3 +1,5 @@
+// +build arm64
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -18,8 +20,13 @@ package jit
 
 // %reg_z += a
 func (asm *Asm) Add(z Reg, a Arg) *Asm {
+	if a.Const() {
+		if val := uint64(a.(*Const).val); val < 4096 {
+			return asm.Uint32(0x91<<24|uint32(val)<<10|asm.lo(z)*0x21) // add  %reg_z,%reg_z,$val
+		}
+	}
 	tmp, alloc := asm.hwAlloc(a)
-	asm.Bytes(0x8b, tmp.lo()).Uint16(uint16(asm.lo(z))*0x21) //  add  %reg_z,%reg_z,%reg_tmp
+	asm.Uint32(0x8b<<24|tmp.lo()<<16|asm.lo(z)*0x21) //  add  %reg_z,%reg_z,%reg_tmp
 	asm.hwFree(tmp, alloc)
 	return asm
 }

@@ -55,7 +55,11 @@ const (
 	rHi hwReg = x30
 )
 
-var alwaysLiveHwRegs = hwRegs{}
+var alwaysLiveHwRegs = hwRegs{
+	x28: 1, // pointer to goroutine-local data
+        x29: 1, // jit *uint64 pointer-to-variables
+        x30: 1, // link register?
+}
 
 func (r hwReg) Valid() bool {
 	return r >= rLo && r <= rHi
@@ -67,11 +71,11 @@ func (r hwReg) Validate() {
 	}
 }
 
-func (r hwReg) lo() uint8 {
+func (r hwReg) lo() uint32 {
 	r.Validate()
-	return uint8(r) - 1
+	return uint32(r) - 1
 }
 
-func (asm *Asm) lo(g Reg) uint8 {
+func (asm *Asm) lo(g Reg) uint32 {
 	return asm.reg(g).lo()
 }

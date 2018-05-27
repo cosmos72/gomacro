@@ -1,4 +1,4 @@
-// +build !amd64
+// +build !amd64,!arm64
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros

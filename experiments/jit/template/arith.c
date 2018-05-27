@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * binary_arith.c
+ * arith.c
  *
  *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
