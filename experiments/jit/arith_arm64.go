@@ -103,7 +103,24 @@ func (asm *Asm) Quo(z Reg, a Arg) *Asm {
 
 // xz %= a
 func (asm *Asm) Rem(z Reg, a Arg) *Asm {
-	// TODO
+	if a.Const() {
+		c := a.(*Const)
+		val := c.val
+		if val == 0 {
+			// cause a runtime fault by clearing x29 then dereferencing it
+			return asm.loadConst(x29, 0).storeReg(&Var{}, x29)
+		} else if val&(val-1) == 0 {
+			// transform xz %= power-of-two
+			// into      zx &= power-of-two - 1
+			return asm.And(z, &Const{c.kind, val - 1})
+		}
+	}
+	den, alloc := asm.hwAlloc(a) //                                       // den = a
+	quo := asm.hwRegs.Alloc()
+	asm.Uint32(0x9ac00c00 | den.lo()<<16 | asm.lo(z)<<5 | quo.lo())       // sdiv  quo, xz, den      // quo = xz / den
+	asm.Uint32(0x9b008000 | den.lo()<<16 | quo.lo()<<5 | asm.lo(z)*0x401) // msub  xz, quo, den, xz  // xz  = xz - quo * den
+	asm.hwFree(quo, true)
+	asm.hwFree(den, alloc)
 	return asm
 }
 

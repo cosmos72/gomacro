@@ -103,3 +103,7 @@ func mul_56789(z int64) int64 {
 func quo(z int64, a int64) int64 {
 	return z / a
 }
+//go:nosplit
+func rem(z int64, a int64) int64 {
+	return z % a
+}
