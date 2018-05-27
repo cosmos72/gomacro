@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arith_amd64.go
+ * arith_arm64.go
  *
  *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
@@ -22,11 +22,11 @@ package jit
 func (asm *Asm) Add(z Reg, a Arg) *Asm {
 	if a.Const() {
 		if val := uint64(a.(*Const).val); val < 4096 {
-			return asm.Uint32(0x91<<24|uint32(val)<<10|asm.lo(z)*0x21) // add  %reg_z,%reg_z,$val
+			return asm.Uint32(0x91<<24|uint32(val)<<10|asm.lo(z)*0x21)  // add  xz, xz, $val
 		}
 	}
 	tmp, alloc := asm.hwAlloc(a)
-	asm.Uint32(0x8b<<24|tmp.lo()<<16|asm.lo(z)*0x21) //  add  %reg_z,%reg_z,%reg_tmp
+	asm.Uint32(0x8b<<24|tmp.lo()<<16|asm.lo(z)*0x21) //  add  xz, xz, xtmp
 	asm.hwFree(tmp, alloc)
 	return asm
 }

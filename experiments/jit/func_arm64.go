@@ -1,4 +1,4 @@
-// +build !amd64,!arm64
+// +build arm64
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros
@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * func_dummy.go
+ * func_amd64.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
@@ -18,12 +18,12 @@
 
 package jit
 
-const SUPPORTED = false
+const SUPPORTED = true
 
 func (asm *Asm) prologue() *Asm {
-	return asm
+	return asm.Uint32(0xf94007fd) // ldr x29, [sp, #8]
 }
 
 func (asm *Asm) epilogue() *Asm {
-	return asm
+	return asm.Uint32(0xd65f03c0) // ret
 }

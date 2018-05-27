@@ -46,9 +46,10 @@ func (asm *Asm) loadConst(dst hwReg, val int64) *Asm {
 	lo := dst.lo()
 	u := uint64(val)
 	asm.Uint32(0xd2800000|uint32(u&0xffff)<<5|lo) //	     mov   xdst, #val16
-	for shift := uint32(0xa0); u != 0; shift += 0x20 {
+        u >>= 16
+	for shift := uint32(1); u != 0 && shift <= 3; shift++ {
 		if mask := uint32(u&0xffff); mask != 0 {
-			asm.Uint32(0xf2<<24|shift<<16|mask<<5|lo) // movk  xdst, #mask, lsl #shift
+			asm.Uint32(0xf2800000|shift<<21|mask<<5|lo) // movk  xdst, #mask, lsl #shift
 		}
 		u >>= 16
 	}

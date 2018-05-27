@@ -1,4 +1,5 @@
 gomacro
+a.out
 *.o
 *.exe
 *.test

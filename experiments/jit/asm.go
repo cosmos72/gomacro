@@ -22,7 +22,7 @@ import (
 
 const (
 	S       = uint32(unsafe.Sizeof(uint64(0)))
-	VERBOSE = false
+	VERBOSE = true
 )
 
 func (s *Save) Init(start, end uint16) {

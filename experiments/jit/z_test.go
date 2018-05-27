@@ -18,15 +18,45 @@ package jit
 
 import (
 	"fmt"
+        "math/rand"
 	"testing"
 	"unsafe"
 )
 
 // the content of this file is portable, but obviously
 // it requires a working JIT implementation underneath.
-// so enable only on architectures supported by JIT.
+// so run the tests only on architectures supported by JIT.
 
 const verbose = false
+
+func TestNop(t *testing.T) {
+	var asm Asm
+        f := asm.Init().Func()
+	ints := [1]uint64{0}
+	f(&ints[0])        
+}
+
+func TestLoadStore(t *testing.T) {
+	if !SUPPORTED {
+		t.SkipNow()
+	}
+	var asm Asm
+        asm.Init()
+	v := NewVar(0)
+	ints := [1]uint64{0}
+	for r := rLo; r <= rHi; r++ {
+		if asm.hwRegs.Contains(r) {
+			continue
+		}
+		val := int64(rand.Uint64())
+		f := asm.Init().loadConst(r, val).storeReg(v, r).Func()
+		f(&ints[0])
+		actual := int64(ints[0])
+		if actual != val {
+			t.Errorf("LoadConst+Store returned %d, expecting %d", actual, val)
+		}
+	}
+}
 
 func TestSum(t *testing.T) {
 	if !SUPPORTED {

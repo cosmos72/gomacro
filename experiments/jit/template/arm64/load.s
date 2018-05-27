@@ -228,3 +228,19 @@ load_c:
 	ret
 	.cfi_endproc
 
+	.p2align 4,,15
+	.globl	load_from_stack
+	.type	load_from_stack, @function
+load_from_stack:
+	.cfi_startproc
+	ldr     x0, [sp, #8] 
+	ldr     x1, [sp, #8] 
+	ldr     x2, [sp, #8] 
+	ldr     x3, [sp, #8] 
+	ldr     x4, [sp, #8] 
+	ldr     x28, [sp, #8] 
+	ldr     x29, [sp, #8] 
+	ldr     x30, [sp, #8] 
+	ret
+	.cfi_endproc
+
