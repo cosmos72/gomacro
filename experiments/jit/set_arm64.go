@@ -31,10 +31,10 @@ func (asm *Asm) load(dst hwReg, src Arg) *Asm {
 	case *Var:
 		off := idx(a)
 		if off <= 32760 && off&7 == 0 {
-			return asm.Uint32(0xf94003a0|off<<10|dst.lo()) // ldr   xdst, [x29, #src]
+			return asm.Uint32(0xf94003a0 | off<<10 | dst.lo()) // ldr   xdst, [x29, #src]
 		}
 		tmp := asm.hwAllocConst(int64(off))
-		asm.Uint32(0xf8606ba0|tmp.lo()<<16|dst.lo()) //	          ldr   xdst, [x29, xtmp]
+		asm.Uint32(0xf8606ba0 | tmp.lo()<<16 | dst.lo()) //	          ldr   xdst, [x29, xtmp]
 		return asm.hwFree(tmp, true)
 	default:
 		errorf("invalid src type: %#v // %T", a, a)
@@ -45,22 +45,22 @@ func (asm *Asm) load(dst hwReg, src Arg) *Asm {
 func (asm *Asm) loadConst(dst hwReg, val int64) *Asm {
 	lo := dst.lo()
 	u := uint64(val)
-	asm.Uint32(0xd2800000|uint32(u&0xffff)<<5|lo) //	     mov   xdst, #val16
-        u >>= 16
+	asm.Uint32(0xd2800000 | uint32(u&0xffff)<<5 | lo) //	     mov   xdst, #val16
+	u >>= 16
 	for shift := uint32(1); u != 0 && shift <= 3; shift++ {
-		if mask := uint32(u&0xffff); mask != 0 {
-			asm.Uint32(0xf2800000|shift<<21|mask<<5|lo) // movk  xdst, #mask, lsl #shift
+		if mask := uint32(u & 0xffff); mask != 0 {
+			asm.Uint32(0xf2800000 | shift<<21 | mask<<5 | lo) // movk  xdst, #mask, lsl #shift
 		}
 		u >>= 16
 	}
-       	return asm
+	return asm
 }
 
 func (asm *Asm) mov(dst hwReg, src hwReg) *Asm {
 	if dst == src {
 		return asm
 	}
-	return asm.Uint32(0xaa0003e0|src.lo()<<16|dst.lo()) //  mov   xdst, xsrc
+	return asm.Uint32(0xaa0003e0 | src.lo()<<16 | dst.lo()) //  mov   xdst, xsrc
 }
 
 func (asm *Asm) store(dst *Var, src Arg) *Asm {
@@ -78,9 +78,9 @@ func (asm *Asm) store(dst *Var, src Arg) *Asm {
 func (asm *Asm) storeReg(dst *Var, src hwReg) *Asm {
 	off := idx(dst)
 	if off <= 32760 && off&7 == 0 {
-		return asm.Uint32(0xf90003a0|off<<10|src.lo()) // str   xsrc, [x29, #dst]
+		return asm.Uint32(0xf90003a0 | off<<10 | src.lo()) // str   xsrc, [x29, #dst]
 	}
 	tmp := asm.hwAllocConst(int64(off))
-	asm.Uint32(0xf8206ba0|tmp.lo()<<16|src.lo()) //	          str   xsrc, [x29, xtmp]
+	asm.Uint32(0xf8206ba0 | tmp.lo()<<16 | src.lo()) //	          str   xsrc, [x29, xtmp]
 	return asm.hwFree(tmp, true)
 }

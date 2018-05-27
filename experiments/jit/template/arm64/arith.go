@@ -29,72 +29,12 @@ func add_3(z int64) int64 {
 	return z + 3
 }
 //go:nosplit
-func add_4(z int64) int64 {
-	return z + 4
-}
-//go:nosplit
-func add_5(z int64) int64 {
-	return z + 5
-}
-//go:nosplit
-func add_6(z int64) int64 {
-	return z + 6
-}
-//go:nosplit
-func add_7(z int64) int64 {
-	return z + 7
-}
-//go:nosplit
-func add_8(z int64) int64 {
-	return z + 8
-}
-//go:nosplit
-func add_16(z int64) int64 {
-	return z + 16
-}
-//go:nosplit
-func add_32(z int64) int64 {
-	return z + 32
-}
-//go:nosplit
-func add_64(z int64) int64 {
-	return z + 64
-}
-//go:nosplit
-func add_127(z int64) int64 {
-	return z + 127
-}
-//go:nosplit
-func add_128(z int64) int64 {
-	return z + 128
-}
-//go:nosplit
 func add_255(z int64) int64 {
 	return z + 255
 }
 //go:nosplit
 func add_256(z int64) int64 {
 	return z + 256
-}
-//go:nosplit
-func add_511(z int64) int64 {
-	return z + 511
-}
-//go:nosplit
-func add_512(z int64) int64 {
-	return z + 512
-}
-//go:nosplit
-func add_1023(z int64) int64 {
-	return z + 1023
-}
-//go:nosplit
-func add_1024(z int64) int64 {
-	return z + 1024
-}
-//go:nosplit
-func add_2047(z int64) int64 {
-	return z + 2047
 }
 //go:nosplit
 func add_2048(z int64) int64 {
@@ -104,23 +44,62 @@ func add_2048(z int64) int64 {
 func add_4095(z int64) int64 {
 	return z + 4095
 }
+
+
+
 //go:nosplit
-func add_4096(z int64) int64 {
-	return z + 4096
+func sub_1(z int64) int64 {
+	return z - 1
 }
 //go:nosplit
-func add_8191(z int64) int64 {
-	return z + 8191
+func sub_2(z int64) int64 {
+	return z - 2
 }
 //go:nosplit
-func add_8192(z int64) int64 {
-	return z + 8192
+func sub_3(z int64) int64 {
+	return z - 3
 }
 //go:nosplit
-func add_16383(z int64) int64 {
-	return z + 16383
+func sub_255(z int64) int64 {
+	return z - 255
 }
 //go:nosplit
-func add_16384(z int64) int64 {
-	return z + 16384
+func sub_256(z int64) int64 {
+	return z - 256
+}
+//go:nosplit
+func sub_2048(z int64) int64 {
+	return z - 2048
+}
+//go:nosplit
+func sub_4095(z int64) int64 {
+	return z - 4095
+}
+
+
+
+
+//go:nosplit
+func mul_2(z int64) int64 {
+	return z * 2
+}
+//go:nosplit
+func mul_3(z int64) int64 {
+	return z * 3
+}
+//go:nosplit
+func mul_333(z int64) int64 {
+	return z * 333
+}
+//go:nosplit
+func mul_56789(z int64) int64 {
+	return z * 56789
+}
+
+
+
+
+//go:nosplit
+func quo(z int64, a int64) int64 {
+	return z / a
 }

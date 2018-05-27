@@ -57,8 +57,8 @@ const (
 
 var alwaysLiveHwRegs = hwRegs{
 	x28: 1, // pointer to goroutine-local data
-        x29: 1, // jit *uint64 pointer-to-variables
-        x30: 1, // link register?
+	x29: 1, // jit *uint64 pointer-to-variables
+	x30: 1, // link register?
 }
 
 func (r hwReg) Valid() bool {

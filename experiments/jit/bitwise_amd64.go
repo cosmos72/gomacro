@@ -80,7 +80,6 @@ func (asm *Asm) Xor(z Reg, a Arg) *Asm {
 func (asm *Asm) Andnot(z Reg, a Arg) *Asm {
 	lo, hi := asm.lohi(z)
 	var tmp hwReg
-	var alloc bool
 	if a.Const() {
 		val := ^a.(*Const).val // negate val!
 		if val == 0 {
@@ -91,13 +90,14 @@ func (asm *Asm) Andnot(z Reg, a Arg) *Asm {
 			return asm.Bytes(0x48+hi, 0x81, 0xe0+lo).Int32(int32(val)) // andq  $val,%reg_z // sign extend
 		}
 		tmp = asm.hwAllocConst(val)
-		alloc = true
 	} else {
-		tmp, alloc = asm.hwAlloc(a)
-		asm.Bytes(0x48|tmp.hi(), 0xf7, 0xd0|tmp.lo()) //  not    %reg_tmp
+		// always allocate a register, because we need to complement it
+		tmp = asm.hwRegs.Alloc()
+		asm.load(tmp, a)
+		asm.Bytes(0x48|tmp.hi(), 0xf7, 0xd0|tmp.lo()) //            not    %reg_tmp
 	}
 	asm.Bytes(0x48+hi+tmp.hi()*4, 0x21, 0xc0+lo+tmp.lo()*8) //      and  %reg_tmp,%reg_z
-	asm.hwFree(tmp, alloc)
+	asm.hwFree(tmp, true)
 	return asm
 }
 
