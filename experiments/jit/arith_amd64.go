@@ -18,12 +18,6 @@
 
 package jit
 
-import (
-	"reflect"
-
-	"github.com/cosmos72/gomacro/base"
-)
-
 // %reg_z += a
 func (asm *Asm) Add(z Reg, a Arg) *Asm {
 	lo, hi := asm.lohi(z)
@@ -77,22 +71,32 @@ func (asm *Asm) Mul(z Reg, a Arg) *Asm {
 	return asm
 }
 
-// ---------------- QUO --------------------
+// ---------------- DIV --------------------
 
-// %reg_z /= a
-func (asm *Asm) Quo(z Reg, a Arg) *Asm {
-	return asm.quorem(z, a, false)
+// %reg_z /= a // signed division
+func (asm *Asm) SDiv(z Reg, a Arg) *Asm {
+	return asm.divrem(z, a, div|signed)
+}
+
+// %reg_z /= a // unsigned division
+func (asm *Asm) UDiv(z Reg, a Arg) *Asm {
+	return asm.divrem(z, a, div|unsigned)
 }
 
 // ---------------- REM --------------------
 
-// %reg_z %= a
-func (asm *Asm) Rem(z Reg, a Arg) *Asm {
-	return asm.quorem(z, a, true)
+// %reg_z %= a // signed remainder
+func (asm *Asm) SRem(z Reg, a Arg) *Asm {
+	return asm.divrem(z, a, rem|signed)
+}
+
+// %reg_z %= a // unsigned remainder
+func (asm *Asm) URem(z Reg, a Arg) *Asm {
+	return asm.divrem(z, a, rem|unsigned)
 }
 
 // FIXME: golang remainder rules are NOT the same as C !
-func (asm *Asm) quorem(z Reg, a Arg, rem bool) *Asm {
+func (asm *Asm) divrem(z Reg, a Arg, k divkind) *Asm {
 	tosave := newHwRegs(rDX)
 	rz := asm.reg(z)
 	if rz != rAX {
@@ -110,21 +114,19 @@ func (asm *Asm) quorem(z Reg, a Arg, rem bool) *Asm {
 
 	switch a := a.(type) {
 	case *Var:
-		switch base.KindToCategory(a.Kind()) {
-		case reflect.Uint:
+		if k&unsigned != 0 {
 			asm.Bytes(0x31, 0xd2)              //  xor    %edx,%edx
 			asm.Bytes(0x48, 0xf7, 0xb7).Idx(a) //  divq   a(%rdi)
-		default:
+		} else {
 			asm.Bytes(0x48, 0x99)              //  cqto
 			asm.Bytes(0x48, 0xf7, 0xbf).Idx(a) //  idivq  a(%rdi)
 		}
 	default:
 		tmp, alloc := asm.hwAlloc(a)
-		switch base.KindToCategory(a.Kind()) {
-		case reflect.Uint:
+		if k&unsigned != 0 {
 			asm.Bytes(0x31, 0xd2)                         //  xor    %edx,%edx
 			asm.Bytes(0x48+tmp.hi(), 0xf7, 0xf0+tmp.lo()) //  div    %reg_tmp
-		default:
+		} else {
 			asm.Bytes(0x48, 0x99)                         //  cqto
 			asm.Bytes(0x48+tmp.hi(), 0xf7, 0xf8+tmp.lo()) //  idiv   %reg_tmp
 		}
@@ -133,7 +135,7 @@ func (asm *Asm) quorem(z Reg, a Arg, rem bool) *Asm {
 	if b != NoReg {
 		asm.Free(b)
 	}
-	if rem {
+	if k&rem != 0 {
 		asm.mov(rz, rDX) // nop if z == DX
 	} else {
 		asm.mov(rz, rAX) // nop if z == AX

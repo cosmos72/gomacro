@@ -17,58 +17,58 @@
 
 #include "asm_template.h"
 
-i64 Add_l_ax(u64 *ints, i64 ax) {
+i64 Add_l(i64 ax) {
     return _(ax) + 0x55667788;
 }
-i64 Add_q_ax(u64 *ints, i64 ax) {
+i64 Add_q(i64 ax) {
     return _(ax) + 0x5566778899aabbcc;
 }
-i64 Add_ax(u64 *ints, i64 ax) {
+i64 Add(i64 ax) {
     return _(ax) + a(64);
 }
 
 
-i64 Sub_l_ax(u64 *ints, i64 ax) {
+i64 Sub_l(i64 ax) {
     return _(ax) - 0x55667788;
 }
-i64 Sub_q_ax(u64 *ints, i64 ax) {
+i64 Sub_q(i64 ax) {
     return _(ax) - 0x5566778899aabbcc;
 }
-i64 Sub_ax(u64 *ints, i64 ax) {
+i64 Sub(i64 ax) {
     return _(ax) - a(64);
 }
 
 
-i64 Mul_l_ax(u64 *ints, i64 ax) {
+i64 Mul_l(i64 ax) {
     return _(ax) * 0x55667788;
 }
-i64 Mul_q_ax(u64 *ints, i64 ax) {
+i64 Mul_q(i64 ax) {
     return _(ax) * 0x5566778899aabbcc;
 }
-i64 Mul_ax(u64 *ints, i64 ax) {
+i64 Mul(i64 ax) {
     return _(ax) * a(64);
 }
 
 
-i64 Quo_l_ax(u64 *ints, i64 ax) {
+i64 Quo_l(i64 ax) {
     return _(ax) / 0x55667788;
 }
-i64 Quo_q_ax(u64 *ints, i64 ax) {
+i64 Quo_q(i64 ax) {
     return _(ax) / 0x5566778899aabbcc;
 }
-i64 Quo_ax(u64 *ints, i64 ax) {
+i64 Quo(i64 ax) {
     return _(ax) / a(64);
 }
 
 
-u64 QuoU_ax(u64 *ints, u64 ax) {
+u64 QuoU(u64 ax) {
     return _(ax) / ua(64);
 }
 
 
-i64 Rem_ax(u64 *ints, i64 ax) {
+i64 Rem(i64 ax) {
     return _(ax) % a(64);
 }
-u64 RemU_ax(u64 *ints, u64 ax) {
+u64 RemU(u64 ax) {
     return _(ax) % ua(64);
 }

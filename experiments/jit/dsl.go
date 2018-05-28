@@ -28,8 +28,10 @@ const (
 	ADD
 	SUB
 	MUL
-	QUO
-	REM
+	SDIV // signed   quotient
+	UDIV // unsigned quotient
+	SREM // signed   remainder
+	UREM // unsigned remainder
 
 	AND
 	OR
@@ -38,6 +40,13 @@ const (
 
 	NEG
 	NOT
+)
+
+type divkind int
+
+const (
+	signed, unsigned divkind = 0, 1
+	div, rem         divkind = 0, 2
 )
 
 func (asm *Asm) Asm(args ...interface{}) *Asm {
@@ -55,7 +64,7 @@ func (asm *Asm) Asm(args ...interface{}) *Asm {
 func (asm *Asm) Op(op Op, args ...interface{}) int {
 	var n int
 	switch op {
-	case LOAD, ADD, SUB, MUL, QUO, REM, AND, OR, XOR, ANDNOT:
+	case LOAD, ADD, SUB, MUL, SDIV, UDIV, SREM, UREM, AND, OR, XOR, ANDNOT:
 		if len(args) < 2 {
 			errorf("syntax error: expecting OP arg1 arg2, found %v", append([]interface{}{op}, args...)...)
 		}
@@ -104,10 +113,14 @@ func (asm *Asm) Op2(op Op, z Reg, a Arg) *Asm {
 		asm.Sub(z, a)
 	case MUL:
 		asm.Mul(z, a)
-	case QUO:
-		asm.Quo(z, a)
-	case REM:
-		asm.Rem(z, a)
+	case SDIV:
+		asm.SDiv(z, a)
+	case UDIV:
+		asm.UDiv(z, a)
+	case SREM:
+		asm.SRem(z, a)
+	case UREM:
+		asm.URem(z, a)
 	case AND:
 		asm.And(z, a)
 	case OR:

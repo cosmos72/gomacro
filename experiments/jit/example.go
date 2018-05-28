@@ -78,7 +78,7 @@ func DeclArith(envlen int) func(env *uint64) {
 		LOAD, s, N,
 		AND, s, Int64(2),
 		OR, s, Int64(1),
-		QUO, r, s,
+		SDIV, r, s,
 		STORE, A, r,
 		FREE, s,
 		FREE, r,

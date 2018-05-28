@@ -33,13 +33,23 @@ func (asm *Asm) Mul(z Reg, a Arg) *Asm {
 	return asm
 }
 
-// %reg_z /= a
-func (asm *Asm) Quo(z Reg, a Arg) *Asm {
+// %reg_z /= a    signed division
+func (asm *Asm) SDiv(z Reg, a Arg) *Asm {
 	return asm
 }
 
-// %reg %= a
-func (asm *Asm) Rem(z Reg, a Arg) *Asm {
+// %reg_z /= a    unsigned division
+func (asm *Asm) UDiv(z Reg, a Arg) *Asm {
+	return asm
+}
+
+// %reg_z %= a    signed remainder
+func (asm *Asm) SRem(z Reg, a Arg) *Asm {
+	return asm
+}
+
+// %reg_z %= a    unsigned remainder
+func (asm *Asm) URem(z Reg, a Arg) *Asm {
 	return asm
 }
 

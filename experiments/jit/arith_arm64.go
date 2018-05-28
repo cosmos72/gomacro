@@ -84,8 +84,25 @@ func (asm *Asm) Mul(z Reg, a Arg) *Asm {
 	return asm
 }
 
-// xz /= a
-func (asm *Asm) Quo(z Reg, a Arg) *Asm {
+// xz /= a       signed division
+func (asm *Asm) SDiv(z Reg, a Arg) *Asm {
+	return asm.div(z, a, signed)
+}
+
+// xz /= a       unsigned division
+func (asm *Asm) UDiv(z Reg, a Arg) *Asm {
+	return asm.div(z, a, unsigned)
+}
+
+// xz %= a       signed remainder
+func (asm *Asm) SRem(z Reg, a Arg) *Asm {
+}
+
+// xz %= a       unsigned remainder
+func (asm *Asm) URem(z Reg, a Arg) *Asm {
+}
+
+func (asm *Asm) div(z Reg, a Arg, k divkind) *Asm {
 	if a.Const() {
 		val := a.(*Const).val
 		if val == 0 {
@@ -96,13 +113,16 @@ func (asm *Asm) Quo(z Reg, a Arg) *Asm {
 		}
 	}
 	tmp, alloc := asm.hwAlloc(a)
-	asm.Uint32(0x9ac00c00 | tmp.lo()<<16 | asm.lo(z)*0x21) //  sdiv  xz, xz, xtmp
+	var flag uint32
+	if k&unsigned == 0 {
+		flag = 0x400
+	}
+	asm.Uint32(0x9ac00800 | flag | tmp.lo()<<16 | asm.lo(z)*0x21) //  {s,u}div  xz, xz, xtmp
 	asm.hwFree(tmp, alloc)
 	return asm
 }
 
-// xz %= a
-func (asm *Asm) Rem(z Reg, a Arg) *Asm {
+func (asm *Asm) rem(z Reg, a Arg, k divkind) *Asm {
 	if a.Const() {
 		c := a.(*Const)
 		val := c.val
@@ -117,8 +137,12 @@ func (asm *Asm) Rem(z Reg, a Arg) *Asm {
 	}
 	den, alloc := asm.hwAlloc(a) //                                       // den = a
 	quo := asm.hwRegs.Alloc()
-	asm.Uint32(0x9ac00c00 | den.lo()<<16 | asm.lo(z)<<5 | quo.lo())       // sdiv  quo, xz, den      // quo = xz / den
-	asm.Uint32(0x9b008000 | den.lo()<<16 | quo.lo()<<5 | asm.lo(z)*0x401) // msub  xz, quo, den, xz  // xz  = xz - quo * den
+	var flag uint32
+	if k&unsigned == 0 {
+		flag = 0x400
+	}
+	asm.Uint32(0x9ac08000 | flag | den.lo()<<16 | asm.lo(z)<<5 | quo.lo()) // {s,u}div  quo, xz, den  // quo = xz / den
+	asm.Uint32(0x9b008000 | den.lo()<<16 | quo.lo()<<5 | asm.lo(z)*0x401)  // msub  xz, quo, den, xz  // xz  = xz - quo * den
 	asm.hwFree(quo, true)
 	asm.hwFree(den, alloc)
 	return asm
