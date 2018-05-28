@@ -291,6 +291,9 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 			bind.Value = val.Interface()
 		}
 		idx := bind.Desc.Index()
+		if idx == NoIndex {
+			continue
+		}
 		if len(vals) <= idx {
 			tmp := make([]r.Value, idx*2)
 			copy(tmp, vals)

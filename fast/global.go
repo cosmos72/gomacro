@@ -244,13 +244,13 @@ const (
 	bindClassMask  = BindClass(0x3)
 	bindIndexShift = 2
 
-	NoIndex             = int(0)                    // index of constants, functions and variables named "_"
+	NoIndex             = int(-1)                   // index of constants, functions and variables named "_"
 	ConstBindDescriptor = BindDescriptor(ConstBind) // bind descriptor for all constants
 )
 
 func (class BindClass) MakeDescriptor(index int) BindDescriptor {
 	class &= bindClassMask
-	return BindDescriptor(index<<bindIndexShift | int(class))
+	return BindDescriptor((index+1)<<bindIndexShift | int(class))
 }
 
 // IntBind returns true if BindIndex refers to a slot in Env.IntBinds (the default is a slot in Env.Binds)
@@ -261,7 +261,7 @@ func (desc BindDescriptor) Class() BindClass {
 // Index returns the slice index to use in Env.Binds or Env.IntBinds to access a variable or function.
 // returns NoIndex for variables and functions named "_"
 func (desc BindDescriptor) Index() int {
-	index := int(desc >> bindIndexShift)
+	index := int(desc>>bindIndexShift) - 1
 	// debugf("BindDescriptor=%v, class=%v, index=%v", desc, desc.Class(), index)
 	return index
 }

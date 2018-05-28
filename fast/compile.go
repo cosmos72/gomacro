@@ -111,10 +111,6 @@ func (run *Run) new(goid uintptr) *Run {
 	}
 }
 
-// if a function Env only declares ignored binds, it gets this scratch buffers
-var ignoredBinds = []r.Value{Nil}
-var ignoredIntBinds = []uint64{0}
-
 // common part between NewEnv() and newEnv4Func()
 func newEnv(run *Run, outer *Env, nbind int, nintbind int) *Env {
 	pool := &run.Pool // pool is an array, do NOT copy it!
@@ -129,15 +125,11 @@ func newEnv(run *Run, outer *Env, nbind int, nintbind int) *Env {
 	}
 	if cap(env.Vals) >= nbind {
 		env.Vals = env.Vals[0:nbind]
-	} else if nbind <= 1 {
-		env.Vals = ignoredBinds
 	} else {
 		env.Vals = make([]r.Value, nbind)
 	}
 	if cap(env.Ints) >= nintbind {
 		env.Ints = env.Ints[0:nintbind]
-	} else if nintbind <= 1 {
-		env.Ints = ignoredIntBinds
 	} else {
 		env.Ints = make([]uint64, nintbind)
 	}
@@ -166,15 +158,11 @@ func NewEnv(outer *Env, nbind int, nintbind int) *Env {
 		}
 		if cap(env.Vals) >= nbind {
 			env.Vals = env.Vals[0:nbind]
-		} else if nbind <= 1 {
-			env.Vals = ignoredBinds
 		} else {
 			env.Vals = make([]r.Value, nbind)
 		}
 		if cap(env.Ints) >= nintbind {
 			env.Ints = env.Ints[0:nintbind]
-		} else if nintbind <= 1 {
-			env.Ints = ignoredIntBinds
 		} else {
 			env.Ints = make([]uint64, nintbind)
 		}
@@ -216,15 +204,11 @@ func newEnv4Func(outer *Env, nbind int, nintbind int, debugComp *Comp) *Env {
 		}
 		if cap(env.Vals) >= nbind {
 			env.Vals = env.Vals[0:nbind]
-		} else if nbind <= 1 {
-			env.Vals = ignoredBinds
 		} else {
 			env.Vals = make([]r.Value, nbind)
 		}
 		if cap(env.Ints) >= nintbind {
 			env.Ints = env.Ints[0:nintbind]
-		} else if nintbind <= 1 {
-			env.Ints = ignoredIntBinds
 		} else {
 			env.Ints = make([]uint64, nintbind)
 		}

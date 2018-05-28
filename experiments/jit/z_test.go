@@ -41,15 +41,15 @@ func TestLoadStore(t *testing.T) {
 		t.SkipNow()
 	}
 	var asm Asm
-        asm.Init()
 	v := NewVar(0)
 	ints := [1]uint64{0}
 	for r := rLo; r <= rHi; r++ {
+		asm.Init()
 		if asm.hwRegs.Contains(r) {
 			continue
 		}
 		val := int64(rand.Uint64())
-		f := asm.Init().loadConst(r, val).storeReg(v, r).Func()
+		f := asm.loadConst(r, val).storeReg(v, r).Func()
 		f(&ints[0])
 		actual := int64(ints[0])
 		if actual != val {
