@@ -96,10 +96,12 @@ func (asm *Asm) UDiv(z Reg, a Arg) *Asm {
 
 // xz %= a       signed remainder
 func (asm *Asm) SRem(z Reg, a Arg) *Asm {
+	return asm.rem(z, a, signed)
 }
 
 // xz %= a       unsigned remainder
 func (asm *Asm) URem(z Reg, a Arg) *Asm {
+	return asm.rem(z, a, unsigned)
 }
 
 func (asm *Asm) div(z Reg, a Arg, k divkind) *Asm {
