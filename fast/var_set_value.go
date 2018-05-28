@@ -39,7 +39,8 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 		c.Errorf("cannot assign to %v %s", desc.Class(), va.Name)
 		return nil
 	case VarBind:
-		// if current package is compiled, also variables with kind = Bool, Int*, Uint*, Float*, Complex64 will have class == VarBind
+		// if current package is at least partially compiled, also variables
+		// with kind = Bool, Int*, Uint*, Float*, Complex* may have class == VarBind
 
 		index := desc.Index()
 		if index == NoIndex {
@@ -380,6 +381,10 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 				ret = func(env *Env, v r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.Ints[index])) = complex64(v.Complex())
 				}
+			case r.Complex128:
+				ret = func(env *Env, v r.Value) {
+					*(*complex128)(unsafe.Pointer(&env.Ints[index])) = v.Complex()
+				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
 				return nil
@@ -445,6 +450,10 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 			case r.Complex64:
 				ret = func(env *Env, v r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.Outer.Ints[index])) = complex64(v.Complex())
+				}
+			case r.Complex128:
+				ret = func(env *Env, v r.Value) {
+					*(*complex128)(unsafe.Pointer(&env.Outer.Ints[index])) = v.Complex()
 				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
@@ -512,6 +521,10 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 				ret = func(env *Env, v r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = complex64(v.Complex())
 				}
+			case r.Complex128:
+				ret = func(env *Env, v r.Value) {
+					*(*complex128)(unsafe.Pointer(&env.Outer.Outer.Ints[index])) = v.Complex()
+				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
 				return nil
@@ -577,6 +590,10 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 			case r.Complex64:
 				ret = func(env *Env, v r.Value) {
 					*(*complex64)(unsafe.Pointer(&env.FileEnv.Ints[index])) = complex64(v.Complex())
+				}
+			case r.Complex128:
+				ret = func(env *Env, v r.Value) {
+					*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) = v.Complex()
 				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)
@@ -688,6 +705,13 @@ func (c *Comp) varSetValue(va *Var) func(*Env, r.Value) {
 						env = env.Outer
 					}
 					*(*complex64)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = complex64(v.Complex())
+				}
+			case r.Complex128:
+				ret = func(env *Env, v r.Value) {
+					for i := 3; i < upn; i++ {
+						env = env.Outer
+					}
+					*(*complex128)(unsafe.Pointer(&env.Outer.Outer.Outer.Ints[index])) = v.Complex()
 				}
 			default:
 				c.Errorf("unsupported type, cannot use for optimized assignment: %s <%v>", va.Name, t)

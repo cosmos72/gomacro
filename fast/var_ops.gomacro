@@ -178,14 +178,10 @@ import (
 			var result *ast.BinaryExpr = ~"{lhs.Float() + float64(~,expr)}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetFloat(~,result)}
-		case r.Complex64:
+		case r.Complex64, r.Complex128:
 			var result *ast.BinaryExpr = ~"{lhs.Complex() + complex128(~,expr)}
 			result.Op = op
 			cbind = ~"{lhs := ~,env . Vals[index]; lhs.SetComplex(~,result)}
-		case r.Complex128:
-			var result *ast.BinaryExpr = ~"{lhs.Complex() + ~,expr}
-			result.Op = op
-			bind = ~"{lhs := ~,env . Vals[index]; lhs.SetComplex(~,result)}
 		case r.String:
 			var result *ast.BinaryExpr = ~"{lhs.String() + ~,expr}
 			result.Op = op

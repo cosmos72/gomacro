@@ -4952,23 +4952,31 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.Bool:
 		{
 			x := x.(func(*Env) bool)
-			fun = func(env *Env) (zero bool) {
+			fun = func(env *Env) (zero bool,
+
+			) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Int:
 		{
 			x := x.(func(*Env) int)
-			fun = func(env *Env) (zero int) {
+			fun = func(env *Env) (zero int,
+
+			) {
 				x(env)
 				return
+
 			}
 		}
 	case r.Int8:
 		{
 			x := x.(func(*Env) int8)
-			fun = func(env *Env) (zero int8) {
+			fun = func(env *Env) (zero int8,
+
+			) {
 				x(env)
 				return
 
@@ -4977,7 +4985,9 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.Int16:
 		{
 			x := x.(func(*Env) int16)
-			fun = func(env *Env) (zero int16) {
+			fun = func(env *Env) (zero int16,
+
+			) {
 				x(env)
 				return
 
@@ -4986,7 +4996,9 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.Int32:
 		{
 			x := x.(func(*Env) int32)
-			fun = func(env *Env) (zero int32) {
+			fun = func(env *Env) (zero int32,
+
+			) {
 				x(env)
 				return
 
@@ -4995,7 +5007,9 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.Int64:
 		{
 			x := x.(func(*Env) int64)
-			fun = func(env *Env) (zero int64) {
+			fun = func(env *Env) (zero int64,
+
+			) {
 				x(env)
 				return
 
@@ -5059,7 +5073,9 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.Float32:
 		{
 			x := x.(func(*Env) float32)
-			fun = func(env *Env) (zero float32) {
+			fun = func(env *Env) (zero float32,
+
+			) {
 				x(env)
 				return
 
@@ -5069,7 +5085,9 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.Float64:
 		{
 			x := x.(func(*Env) float64)
-			fun = func(env *Env) (zero float64) {
+			fun = func(env *Env) (zero float64,
+
+			) {
 				x(env)
 				return
 
@@ -5079,7 +5097,9 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.Complex64:
 		{
 			x := x.(func(*Env) complex64)
-			fun = func(env *Env) (zero complex64) {
+			fun = func(env *Env) (zero complex64,
+
+			) {
 				x(env)
 				return
 
@@ -5089,7 +5109,9 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.Complex128:
 		{
 			x := x.(func(*Env) complex128)
-			fun = func(env *Env) (zero complex128) {
+			fun = func(env *Env) (zero complex128,
+
+			) {
 				x(env)
 				return
 
@@ -5099,7 +5121,9 @@ func (c *Comp) exprZero(xe *Expr) *Expr {
 	case r.String:
 		{
 			x := x.(func(*Env) string)
-			fun = func(env *Env) (zero string) {
+			fun = func(env *Env) (zero string,
+
+			) {
 				x(env)
 				return
 

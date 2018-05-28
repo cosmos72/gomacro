@@ -381,8 +381,9 @@ var testcases = []TestCase{
 	TestCase{A, "var_5", "var v5 string; v5", "", nil},
 	TestCase{A, "var_6", "var v6 float32; v6", float32(0), nil},
 	TestCase{A, "var_7", "var v7 complex64; v7", complex64(0), nil},
-	TestCase{A, "var_8", "var err error; err", nil, nil},
-	TestCase{A, "var_9", `ve, vf := "", 1.23; ve`, "", nil},
+	TestCase{A, "var_9", "var v8 complex128; v8", complex128(0), nil},
+	TestCase{A, "var_9", "var err error; err", nil, nil},
+	TestCase{A, "var_10", `ve, vf := "", 1.23; ve`, "", nil},
 	TestCase{A, "var_pointer", "var vp *string; vp", (*string)(nil), nil},
 	TestCase{A, "var_map", "var vm *map[error]bool; vm", (*map[error]bool)(nil), nil},
 	TestCase{A, "var_slice", "var vs []byte; vs", ([]byte)(nil), nil},
@@ -446,8 +447,9 @@ var testcases = []TestCase{
 	TestCase{A, "typed_unary_2", "+-^v2", uint8(8), nil},
 	TestCase{A, "typed_unary_3", "v3 = 12; +^-v3", uint16(11), nil},
 	TestCase{A, "typed_unary_4", "v7 = 2.5i; -v7", complex64(-2.5i), nil},
+	TestCase{A, "typed_unary_5", "v8 = 3.75i; -v8", complex128(-3.75i), nil},
 
-	TestCase{A, "type_int8", "type t8 int8; var v8 t8; v8", int8(0), nil},
+	TestCase{A, "type_int8", "type t8 int8; var u8 t8; u8", int8(0), nil},
 	TestCase{A, "type_complicated", "type tfff func(int,int) func(error, func(bool)) string; var vfff tfff; vfff", (func(int, int) func(error, func(bool)) string)(nil), nil},
 	TestCase{C, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", csi, nil},
 	TestCase{F, "type_interface", "type Stringer interface { String() string }; var s Stringer; s", fsi, nil},
@@ -503,16 +505,18 @@ var testcases = []TestCase{
 	TestCase{A, "set_const_3", "v3 = 60000;   v3", uint16(60000), nil},
 	TestCase{A, "set_const_4", "v  = 987;      v", uint32(987), nil},
 	TestCase{A, "set_const_5", `v5 = "8y57r"; v5`, "8y57r", nil},
-	TestCase{A, "set_const_6", "v6 = 0.12345678901234; v6", float32(0.12345678901234), nil},        // v6 is declared float32
-	TestCase{A, "set_const_7", "v7 = 0.98765432109i; v7", complex(0, float32(0.98765432109)), nil}, // v7 is declared complex64
+	TestCase{A, "set_const_6", "v6 = 0.12345678901234; v6", float32(0.12345678901234), nil}, // v6 is declared float32
+	TestCase{A, "set_const_7", "v7 = 0.98765432109i; v7", complex64(0.98765432109i), nil},   // v7 is declared complex64
+	TestCase{A, "set_const_8", "v8 = 0.98765432109i; v8", complex128(0.98765432109i), nil},  // v8 is declared complex128
 
 	TestCase{A, "set_expr_1", "v1 = v1 == v1;    v1", true, nil},
 	TestCase{A, "set_expr_2", "v2 -= 7;      v2", uint8(2), nil},
 	TestCase{A, "set_expr_3", "v3 %= 7;      v3", uint16(60000) % 7, nil},
 	TestCase{A, "set_expr_4", "v  = v * 10;      v", uint32(9870), nil},
 	TestCase{A, "set_expr_5", `v5 = v5 + "iuh";  v5`, "8y57riuh", nil},
-	TestCase{A, "set_expr_6", "v6 = 1/v6;        v6", 1 / float32(0.12345678901234), nil},                              // v6 is declared float32
-	TestCase{A, "set_expr_7", "v7 = v7 * v7;     v7", complex(-float32(0.98765432109)*float32(0.98765432109), 0), nil}, // v7 is declared complex64
+	TestCase{A, "set_expr_6", "v6 = 1/v6;        v6", 1 / float32(0.12345678901234), nil},                          // v6 is declared float32
+	TestCase{A, "set_expr_7", "v7 = v7 * v7;     v7", -complex64(0.98765432109) * complex64(0.98765432109), nil},   // v7 is declared complex64
+	TestCase{A, "set_expr_8", "v8 = v8 * v8;     v8", -complex128(0.98765432109) * complex128(0.98765432109), nil}, // v8 is declared complex64
 
 	TestCase{A, "add_2", "v2 += 255;    v2", uint8(1), nil}, // overflow
 	TestCase{A, "add_3", "v3 += 536;    v3", uint16(60000)%7 + 536, nil},
@@ -520,6 +524,7 @@ var testcases = []TestCase{
 	TestCase{A, "add_5", `v5 += "@#$";  v5`, "8y57riuh@#$", nil},
 	TestCase{A, "add_6", "v6 += 0.975319; v6", 1/float32(0.12345678901234) + float32(0.975319), nil}, // v6 is declared float32
 	TestCase{A, "add_7", "v7 = 1; v7 += 0.999999i; v7", complex(float32(1), float32(0.999999)), nil}, // v7 is declared complex64
+	TestCase{A, "add_7", "v8 = 1; v8 += 0.999999i; v8", complex(1, 0.999999), nil},                   // v8 is declared complex128
 
 	TestCase{A, "mul_1", "v2 = 4;  v2 *= 3; v2", uint8(12), nil},
 	TestCase{A, "rem_1", "v3 = 12; v3 %= 7; v3", uint16(5), nil},
@@ -622,6 +627,8 @@ var testcases = []TestCase{
 		i, m, m[i] = 1, nil, "foo"
 		list_args(i,m,mcopy)`,
 		[]interface{}{1, nil_map_int_string, map[int]string{0: "foo"}}, nil},
+	TestCase{F, "multi_assignment_1", "v7, v8 = func () (complex64, complex128) { return 1.0, 2.0 }(); v7", complex64(1.0), nil},
+	TestCase{F, "multi_assignment_2", "v8 ", complex128(2.0), nil},
 
 	TestCase{A, "field_set_1", `pair.A = 'k'; pair.B = "m"; pair`, Pair{'k', "m"}, nil},
 	TestCase{A, "field_set_2", `pair.A, pair.B = 'x', "y"; pair`, Pair{'x', "y"}, nil},

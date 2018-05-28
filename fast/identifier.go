@@ -672,6 +672,10 @@ func (bind *Bind) intExpr(st *base.Stringer) *Expr {
 		fun = func(env *Env) complex64 {
 			return *(*complex64)(unsafe.Pointer(&env.Ints[idx]))
 		}
+	case r.Complex128:
+		fun = func(env *Env) complex128 {
+			return *(*complex128)(unsafe.Pointer(&env.Ints[idx]))
+		}
 	default:
 		st.Errorf("unsupported symbol type, cannot use for optimized read: %s %s <%v>", bind.Desc.Class(), bind.Name, bind.Type)
 		return nil
@@ -750,6 +754,10 @@ func (sym *Symbol) intExpr(depth int, st *base.Stringer) *Expr {
 			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Ints[idx]))
 			}
+		case r.Complex128:
+			fun = func(env *Env) complex128 {
+				return *(*complex128)(unsafe.Pointer(&env.Outer.Ints[idx]))
+			}
 		}
 	case 2:
 		switch k {
@@ -813,6 +821,10 @@ func (sym *Symbol) intExpr(depth int, st *base.Stringer) *Expr {
 			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.Outer.Outer.Ints[idx]))
 			}
+		case r.Complex128:
+			fun = func(env *Env) complex128 {
+				return *(*complex128)(unsafe.Pointer(&env.Outer.Outer.Ints[idx]))
+			}
 		}
 	case depth - 1:
 		switch k {
@@ -875,6 +887,10 @@ func (sym *Symbol) intExpr(depth int, st *base.Stringer) *Expr {
 		case r.Complex64:
 			fun = func(env *Env) complex64 {
 				return *(*complex64)(unsafe.Pointer(&env.FileEnv.Ints[idx]))
+			}
+		case r.Complex128:
+			fun = func(env *Env) complex128 {
+				return *(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[idx]))
 			}
 		}
 	default:
@@ -953,6 +969,11 @@ func (sym *Symbol) intExpr(depth int, st *base.Stringer) *Expr {
 			fun = func(env *Env) complex64 {
 				env = env.Up(upn)
 				return *(*complex64)(unsafe.Pointer(&env.Ints[idx]))
+			}
+		case r.Complex128:
+			fun = func(env *Env) complex128 {
+				env = env.Up(upn)
+				return *(*complex128)(unsafe.Pointer(&env.Ints[idx]))
 			}
 		}
 	}

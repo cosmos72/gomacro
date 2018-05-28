@@ -111,12 +111,6 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	var bind ast.Node
 	typeident := maketypeident(t)
 	switch t.Kind() {
-		case r.Complex128:
-			bind = ~"{
-				place := r.New(~,typeident).Elem()
-				place.SetComplex(~,name)
-				env.Vals[~,index] = place
-			}
 		case r.String:
 			bind = ~"{
 				place := r.New(~,typeident).Elem()
@@ -139,8 +133,6 @@ func (c *Comp) func1ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	} else {
 		typeident := maketypeident(t)
 		switch t.Kind() {
-			case r.Complex128:
-				bind = ~"{env.Vals[~,index].Complex()}
 			case r.String:
 				bind = ~"{env.Vals[~,index].String()}
 			case r.Uint64:

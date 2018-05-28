@@ -570,6 +570,10 @@ func (imp *Import) intSymbol(bind *Bind, st *Stringer) *Expr {
 		fun = func(*Env) complex64 {
 			return *(*complex64)(unsafe.Pointer(&env.Ints[idx]))
 		}
+	case r.Complex128:
+		fun = func(*Env) complex128 {
+			return *(*complex128)(unsafe.Pointer(&env.Ints[idx]))
+		}
 	default:
 		st.Errorf("unsupported symbol type, cannot use for optimized read: %v %v.%v <%v>",
 			bind.Desc.Class(), imp.Name, bind.Name, bind.Type)
@@ -651,6 +655,10 @@ func (imp *Import) intPlace(c *Comp, bind *Bind, opt PlaceOption) *Place {
 	case r.Complex64:
 		addr = func(env *Env) r.Value {
 			return r.ValueOf((*complex64)(unsafe.Pointer(&impenv.Ints[idx])))
+		}
+	case r.Complex128:
+		addr = func(env *Env) r.Value {
+			return r.ValueOf((*complex128)(unsafe.Pointer(&impenv.Ints[idx])))
 		}
 	default:
 		c.Errorf("%s unsupported variable type <%v>: %s %s.%s",

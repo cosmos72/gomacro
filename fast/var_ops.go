@@ -1905,80 +1905,131 @@ func (c *Comp) varAddConst(va *Var, val I) {
 			switch upn {
 			case 0:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() +
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.Ints[index])) += val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() + complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case 1:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Outer.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() +
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.
+							Outer.Ints[index])) += val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Outer.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() + complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case 2:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Outer.Outer.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() +
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.
+							Outer.Outer.Ints[index])) += val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Outer.Outer.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() + complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case c.Depth - 1:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.FileEnv.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() +
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) += val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.FileEnv.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() + complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			default:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					o := env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						o = o.Outer
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						*(*complex128)(unsafe.Pointer(&o.Ints[index])) += val
 
-					{
-						lhs := o.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() +
-							val,
-						)
+						env.IP++
+						return env.Code[env.IP], env
 					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
 
-					env.IP++
-					return env.Code[env.IP], env
+						{
+							lhs := o.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() + complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			}
 		case r.String:
@@ -3920,80 +3971,131 @@ func (c *Comp) varAddExpr(va *Var, fun I) {
 		switch upn {
 		case 0:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() +
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.Ints[index])) += fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() + complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case 1:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Outer.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() +
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.
+						Outer.Ints[index])) += fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Outer.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() + complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case 2:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Outer.Outer.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() +
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.
+						Outer.Outer.Ints[index])) += fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Outer.Outer.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() + complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case c.Depth - 1:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.FileEnv.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() +
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) += fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.FileEnv.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() + complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		default:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				o := env.Outer.Outer.Outer
-				for i := 3; i < upn; i++ {
-					o = o.Outer
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
+					*(*complex128)(unsafe.Pointer(&o.Ints[index])) += fun(env)
 
-				{
-					lhs := o.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() +
-						fun(env),
-					)
+					env.IP++
+					return env.Code[env.IP], env
 				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
 
-				env.IP++
-				return env.Code[env.IP], env
+					{
+						lhs := o.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() + complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		}
 	case func(*Env) string:
@@ -5957,80 +6059,131 @@ func (c *Comp) varSubConst(va *Var, val I) {
 			switch upn {
 			case 0:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() -
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.Ints[index])) -= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() - complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case 1:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Outer.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() -
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.
+							Outer.Ints[index])) -= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Outer.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() - complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case 2:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Outer.Outer.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() -
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.
+							Outer.Outer.Ints[index])) -= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Outer.Outer.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() - complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case c.Depth - 1:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.FileEnv.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() -
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) -= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.FileEnv.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() - complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			default:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					o := env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						o = o.Outer
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						*(*complex128)(unsafe.Pointer(&o.Ints[index])) -= val
 
-					{
-						lhs := o.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() -
-							val,
-						)
+						env.IP++
+						return env.Code[env.IP], env
 					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
 
-					env.IP++
-					return env.Code[env.IP], env
+						{
+							lhs := o.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() - complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			}
 		default:
@@ -7891,80 +8044,131 @@ func (c *Comp) varSubExpr(va *Var, fun I) {
 		switch upn {
 		case 0:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() -
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.Ints[index])) -= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() - complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case 1:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Outer.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() -
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.
+						Outer.Ints[index])) -= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Outer.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() - complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case 2:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Outer.Outer.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() -
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.
+						Outer.Outer.Ints[index])) -= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Outer.Outer.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() - complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case c.Depth - 1:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.FileEnv.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() -
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) -= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.FileEnv.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() - complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		default:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				o := env.Outer.Outer.Outer
-				for i := 3; i < upn; i++ {
-					o = o.Outer
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
+					*(*complex128)(unsafe.Pointer(&o.Ints[index])) -= fun(env)
 
-				{
-					lhs := o.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() -
-						fun(env),
-					)
+					env.IP++
+					return env.Code[env.IP], env
 				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
 
-				env.IP++
-				return env.Code[env.IP], env
+					{
+						lhs := o.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() - complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		}
 	default:
@@ -9852,80 +10056,131 @@ func (c *Comp) varMulConst(va *Var, val I) {
 			switch upn {
 			case 0:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() *
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.Ints[index])) *= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() * complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case 1:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Outer.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() *
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.
+							Outer.Ints[index])) *= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Outer.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() * complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case 2:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Outer.Outer.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() *
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.
+							Outer.Outer.Ints[index])) *= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Outer.Outer.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() * complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case c.Depth - 1:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.FileEnv.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() *
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) *= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.FileEnv.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() * complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			default:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					o := env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						o = o.Outer
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						*(*complex128)(unsafe.Pointer(&o.Ints[index])) *= val
 
-					{
-						lhs := o.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() *
-							val,
-						)
+						env.IP++
+						return env.Code[env.IP], env
 					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
 
-					env.IP++
-					return env.Code[env.IP], env
+						{
+							lhs := o.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() * complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			}
 		default:
@@ -11786,80 +12041,131 @@ func (c *Comp) varMulExpr(va *Var, fun I) {
 		switch upn {
 		case 0:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() *
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.Ints[index])) *= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() * complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case 1:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Outer.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() *
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.
+						Outer.Ints[index])) *= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Outer.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() * complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case 2:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Outer.Outer.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() *
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.
+						Outer.Outer.Ints[index])) *= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Outer.Outer.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() * complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case c.Depth - 1:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.FileEnv.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() *
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) *= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.FileEnv.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() * complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		default:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				o := env.Outer.Outer.Outer
-				for i := 3; i < upn; i++ {
-					o = o.Outer
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
+					*(*complex128)(unsafe.Pointer(&o.Ints[index])) *= fun(env)
 
-				{
-					lhs := o.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() *
-						fun(env),
-					)
+					env.IP++
+					return env.Code[env.IP], env
 				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
 
-				env.IP++
-				return env.Code[env.IP], env
+					{
+						lhs := o.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() * complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		}
 	default:
@@ -15056,80 +15362,131 @@ func (c *Comp) varQuoConst(va *Var, val I) {
 			switch upn {
 			case 0:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() /
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.Ints[index])) /= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() / complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case 1:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Outer.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() /
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.
+							Outer.Ints[index])) /= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Outer.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() / complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case 2:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.
-							Outer.Outer.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() /
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.
+							Outer.Outer.Ints[index])) /= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.
+								Outer.Outer.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() / complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			case c.Depth - 1:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					{
-						lhs := env.FileEnv.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() /
-							val,
-						)
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) /= val
 
-					env.IP++
-					return env.Code[env.IP], env
+						env.IP++
+						return env.Code[env.IP], env
+					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						{
+							lhs := env.FileEnv.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() / complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			default:
 
-				ret = func(env *Env) (Stmt, *Env) {
-					o := env.Outer.Outer.Outer
-					for i := 3; i < upn; i++ {
-						o = o.Outer
-					}
+				if intbinds {
+					ret = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
+						*(*complex128)(unsafe.Pointer(&o.Ints[index])) /= val
 
-					{
-						lhs := o.
-							Vals[index]
-						lhs.SetComplex(lhs.Complex() /
-							val,
-						)
+						env.IP++
+						return env.Code[env.IP], env
 					}
+				} else {
+					ret = func(env *Env) (Stmt, *Env) {
+						o := env.Outer.Outer.Outer
+						for i := 3; i < upn; i++ {
+							o = o.Outer
+						}
 
-					env.IP++
-					return env.Code[env.IP], env
+						{
+							lhs := o.
+								Vals[index]
+							lhs.SetComplex(lhs.Complex() / complex128(val,
+							),
+							)
+						}
+
+						env.IP++
+						return env.Code[env.IP], env
+					}
 				}
 			}
 		default:
@@ -16990,80 +17347,131 @@ func (c *Comp) varQuoExpr(va *Var, fun I) {
 		switch upn {
 		case 0:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() /
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.Ints[index])) /= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() / complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case 1:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Outer.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() /
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.
+						Outer.Ints[index])) /= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Outer.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() / complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case 2:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.
-						Outer.Outer.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() /
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.
+						Outer.Outer.Ints[index])) /= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.
+							Outer.Outer.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() / complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		case c.Depth - 1:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				{
-					lhs := env.FileEnv.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() /
-						fun(env),
-					)
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					*(*complex128)(unsafe.Pointer(&env.FileEnv.Ints[index])) /= fun(env)
 
-				env.IP++
-				return env.Code[env.IP], env
+					env.IP++
+					return env.Code[env.IP], env
+				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					{
+						lhs := env.FileEnv.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() / complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		default:
 
-			ret = func(env *Env) (Stmt, *Env) {
-				o := env.Outer.Outer.Outer
-				for i := 3; i < upn; i++ {
-					o = o.Outer
-				}
+			if intbinds {
+				ret = func(env *Env) (Stmt, *Env) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
+					*(*complex128)(unsafe.Pointer(&o.Ints[index])) /= fun(env)
 
-				{
-					lhs := o.
-						Vals[index]
-					lhs.SetComplex(lhs.Complex() /
-						fun(env),
-					)
+					env.IP++
+					return env.Code[env.IP], env
 				}
+			} else {
+				ret = func(env *Env) (Stmt, *Env) {
+					o := env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						o = o.Outer
+					}
 
-				env.IP++
-				return env.Code[env.IP], env
+					{
+						lhs := o.
+							Vals[index]
+						lhs.SetComplex(lhs.Complex() / complex128(fun(env),
+						),
+						)
+					}
+
+					env.IP++
+					return env.Code[env.IP], env
+				}
 			}
 		}
 	default:

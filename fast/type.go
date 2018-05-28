@@ -640,7 +640,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 		ret = func(env *Env) complex128 {
 			v, t := extractor(fun(env))
 			v = typeassert(v, t, tin, tout)
-			return v.Convert(rtout).Complex()
+			return v.Complex()
 		}
 	case r.String:
 		ret = func(env *Env) string {

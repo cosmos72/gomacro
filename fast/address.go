@@ -278,6 +278,19 @@ func (va *Var) Address(maxdepth int) *Expr {
 					return env.Vals[index].Addr().Interface().(*complex64)
 				}
 			}
+		case r.Complex128:
+
+			if intbinds {
+				ret = func(env *Env) *complex128 {
+					env.IntAddressTaken = true
+					return (*complex128)(unsafe.Pointer(&env.Ints[index]))
+
+				}
+			} else {
+				ret = func(env *Env) *complex128 {
+					return env.Vals[index].Addr().Interface().(*complex128)
+				}
+			}
 		default:
 
 			ret = func(env *Env) r.Value {
@@ -554,6 +567,24 @@ func (va *Var) Address(maxdepth int) *Expr {
 					env = env.
 						Outer
 					return env.Vals[index].Addr().Interface().(*complex64)
+				}
+			}
+		case r.Complex128:
+
+			if intbinds {
+				ret = func(env *Env) *complex128 {
+					env = env.
+						Outer
+
+					env.IntAddressTaken = true
+					return (*complex128)(unsafe.Pointer(&env.Ints[index]))
+
+				}
+			} else {
+				ret = func(env *Env) *complex128 {
+					env = env.
+						Outer
+					return env.Vals[index].Addr().Interface().(*complex128)
 				}
 			}
 		default:
@@ -835,6 +866,24 @@ func (va *Var) Address(maxdepth int) *Expr {
 					env = env.
 						Outer.Outer
 					return env.Vals[index].Addr().Interface().(*complex64)
+				}
+			}
+		case r.Complex128:
+
+			if intbinds {
+				ret = func(env *Env) *complex128 {
+					env = env.
+						Outer.Outer
+
+					env.IntAddressTaken = true
+					return (*complex128)(unsafe.Pointer(&env.Ints[index]))
+
+				}
+			} else {
+				ret = func(env *Env) *complex128 {
+					env = env.
+						Outer.Outer
+					return env.Vals[index].Addr().Interface().(*complex128)
 				}
 			}
 		default:
@@ -1178,6 +1227,28 @@ func (va *Var) Address(maxdepth int) *Expr {
 					return env.Vals[index].Addr().Interface().(*complex64)
 				}
 			}
+		case r.Complex128:
+
+			if intbinds {
+				ret = func(env *Env) *complex128 {
+					env = env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						env = env.Outer
+					}
+
+					env.IntAddressTaken = true
+					return (*complex128)(unsafe.Pointer(&env.Ints[index]))
+
+				}
+			} else {
+				ret = func(env *Env) *complex128 {
+					env = env.Outer.Outer.Outer
+					for i := 3; i < upn; i++ {
+						env = env.Outer
+					}
+					return env.Vals[index].Addr().Interface().(*complex128)
+				}
+			}
 		default:
 
 			ret = func(env *Env) r.Value {
@@ -1431,6 +1502,22 @@ func (va *Var) Address(maxdepth int) *Expr {
 					return env.Vals[index].Addr().Interface().(*complex64)
 				}
 			}
+		case r.Complex128:
+
+			if intbinds {
+				ret = func(env *Env) *complex128 {
+					env = env.FileEnv
+
+					env.IntAddressTaken = true
+					return (*complex128)(unsafe.Pointer(&env.Ints[index]))
+
+				}
+			} else {
+				ret = func(env *Env) *complex128 {
+					env = env.FileEnv
+					return env.Vals[index].Addr().Interface().(*complex128)
+				}
+			}
 		default:
 
 			ret = func(env *Env) r.Value {
@@ -1679,6 +1766,22 @@ func (va *Var) Address(maxdepth int) *Expr {
 				ret = func(env *Env) *complex64 {
 					env = env.FileEnv.Outer
 					return env.Vals[index].Addr().Interface().(*complex64)
+				}
+			}
+		case r.Complex128:
+
+			if intbinds {
+				ret = func(env *Env) *complex128 {
+					env = env.FileEnv.Outer
+
+					env.IntAddressTaken = true
+					return (*complex128)(unsafe.Pointer(&env.Ints[index]))
+
+				}
+			} else {
+				ret = func(env *Env) *complex128 {
+					env = env.FileEnv.Outer
+					return env.Vals[index].Addr().Interface().(*complex128)
 				}
 			}
 		default:

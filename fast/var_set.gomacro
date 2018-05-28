@@ -79,7 +79,7 @@ import (
 			case r.Complex64:
 				cbind = ~"{~,env . Vals[index] .SetComplex(complex128(~,expr))}
 			case r.Complex128:
-				bind = ~"{~,env . Vals[index] .SetComplex(~,expr)}
+				cbind = ~"{~,env . Vals[index] .SetComplex(~,expr)}
 			case r.String:
 				bind = ~"{~,env . Vals[index] .SetString(~,expr)}
 		}

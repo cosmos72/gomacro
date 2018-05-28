@@ -128,12 +128,6 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	} else {
 		typeident := maketypeident(t)
 		switch t.Kind() {
-			case r.Complex128:
-				bind = ~"{
-					place := r.New(~,typeident).Elem()
-					place.SetComplex(~,name)
-					env.Vals[~,index] = place
-				}
 			case r.String:
 				bind = ~"{
 					place := r.New(~,typeident).Elem()

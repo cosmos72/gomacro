@@ -263,8 +263,9 @@ func (c *Comp) NewBind(name string, class BindClass, t xr.Type) *Bind {
 		// thus we cannot reallocate it => we must stop at its capacity, stored in c.IntBindMax
 		// by Interp.PrepareEnv()
 		if (c.IntBindMax == 0 || c.IntBindNum < c.IntBindMax) &&
-			(base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64) || t.Kind() == r.Complex64) {
-			// optimize booleans, integers, floats and complex64 by storing them in Env.Ints []uint64
+			base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64, r.Complex128) {
+			// optimize booleans, integers, floats and complexes by storing them in Env.Ints []uint64
+			// note: complex128 occupies two uint64 slots!
 			class = IntBind
 		} else {
 			class = VarBind
@@ -283,8 +284,7 @@ func (c *CompBinds) NewBind(o *base.Output, name string, class BindClass, t xr.T
 	if name == "_" {
 		// never store bindings for "_" in c.Binds
 		desc := class.MakeDescriptor(index)
-		bind := &Bind{Lit: Lit{Type: t}, Desc: desc, Name: name}
-		return bind
+		return &Bind{Lit: Lit{Type: t}, Desc: desc, Name: name}
 	}
 	if c.Binds == nil {
 		c.Binds = make(map[string]*Bind)
@@ -296,8 +296,12 @@ func (c *CompBinds) NewBind(o *base.Output, name string, class BindClass, t xr.T
 		oldclass := bind.Desc.Class()
 		if (oldclass == IntBind) == (class == IntBind) {
 			// both are IntBind, or neither is.
-			// we can reuse the bind index
-			index = bind.Desc.Index()
+			if bind.Type.Kind() == r.Complex128 || t.Kind() != r.Complex128 {
+				// the new bind occupies fewer slots than the old one,
+				// or occupies the same number of slots
+				// => we can reuse the bind index
+				index = bind.Desc.Index()
+			}
 		}
 	}
 	// allocate a slot either in Binds or in IntBinds
@@ -306,19 +310,17 @@ func (c *CompBinds) NewBind(o *base.Output, name string, class BindClass, t xr.T
 		index = NoIndex
 	default: // case FuncBind, VarBind:
 		if index == NoIndex {
-			if c.BindNum == NoIndex {
-				c.BindNum++ // skip NoIndex, used by constants and _
-			}
 			index = c.BindNum
 			c.BindNum++
 		}
 	case IntBind:
 		if index == NoIndex {
-			if c.IntBindNum == NoIndex {
-				c.IntBindNum++ // skip NoIndex, used by constants and _
-			}
 			index = c.IntBindNum
 			c.IntBindNum++
+			if t.Kind() == r.Complex128 {
+				// complex128 occupies two slots
+				c.IntBindNum++
+			}
 		}
 	}
 	desc := class.MakeDescriptor(index)

@@ -23,7 +23,6 @@ package fast
 
 import (
 	r "reflect"
-
 	. "github.com/cosmos72/gomacro/base"
 )
 
@@ -70,7 +69,9 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
-							cachedfun = funv.Interface().(func(bool) bool)
+							cachedfun = funv.Interface().(func(bool,
+
+							) bool)
 						}
 						return cachedfun(argconst)
 					}
@@ -80,7 +81,9 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
-							cachedfun = funv.Interface().(func(bool) bool)
+							cachedfun = funv.Interface().(func(bool,
+
+							) bool)
 						}
 
 						arg := argfun(env)
@@ -91,19 +94,25 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 				argfun := arg.WithFun().(func(env *Env) bool)
 				if funsym != nil && funupn == 0 {
 					ret = func(env *Env) bool {
-						fun := env.Vals[funindex].Interface().(func(bool) bool)
+						fun := env.Vals[funindex].Interface().(func(bool,
+
+						) bool)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				} else if funsym != nil && funupn == 1 {
 					ret = func(env *Env) bool {
-						fun := env.Outer.Vals[funindex].Interface().(func(bool) bool)
+						fun := env.Outer.Vals[funindex].Interface().(func(bool,
+
+						) bool)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				} else {
 					ret = func(env *Env) bool {
-						fun := exprfun(env).Interface().(func(bool) bool)
+						fun := exprfun(env).Interface().(func(bool,
+
+						) bool)
 						arg := argfun(env)
 						return fun(arg)
 					}
@@ -126,7 +135,9 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
-							cachedfun = funv.Interface().(func(int) bool)
+							cachedfun = funv.Interface().(func(int,
+
+							) bool)
 						}
 						return cachedfun(argconst)
 					}
@@ -136,7 +147,9 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
-							cachedfun = funv.Interface().(func(int) bool)
+							cachedfun = funv.Interface().(func(int,
+
+							) bool)
 						}
 
 						arg := argfun(env)
@@ -147,19 +160,25 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 				argfun := arg.WithFun().(func(env *Env) int)
 				if funsym != nil && funupn == 0 {
 					ret = func(env *Env) bool {
-						fun := env.Vals[funindex].Interface().(func(int) bool)
+						fun := env.Vals[funindex].Interface().(func(int,
+
+						) bool)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				} else if funsym != nil && funupn == 1 {
 					ret = func(env *Env) bool {
-						fun := env.Outer.Vals[funindex].Interface().(func(int) bool)
+						fun := env.Outer.Vals[funindex].Interface().(func(int,
+
+						) bool)
 						arg := argfun(env)
 						return fun(arg)
 					}
 				} else {
 					ret = func(env *Env) bool {
-						fun := exprfun(env).Interface().(func(int) bool)
+						fun := exprfun(env).Interface().(func(int,
+
+						) bool)
 						arg := argfun(env)
 						return fun(arg)
 					}
@@ -182,7 +201,9 @@ func (c *Comp) call1ret1(call *Call, maxdepth int) I {
 						funv := env.FileEnv.Vals[funindex]
 						if cachedfunv != funv {
 							cachedfunv = funv
-							cachedfun = funv.Interface().(func(int8) bool)
+							cachedfun = funv.Interface().(func(int8,
+
+							) bool)
 						}
 						return cachedfun(argconst)
 					}

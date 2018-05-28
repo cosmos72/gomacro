@@ -127,6 +127,7 @@ import (
 		case r.Float32:    address; ~,depth; float32
 		case r.Float64:    address; ~,depth; float64
 		case r.Complex64:  address; ~,depth; complex64
+		case r.Complex128: address; ~,depth; complex128
 		default:           address; ~,depth; nil
 		}
 	}

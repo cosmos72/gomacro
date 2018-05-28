@@ -559,6 +559,12 @@ func (c *Comp) typeswitchVar(varname string, t xr.Type, sym *Symbol) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
+	case r.Complex128:
+		stmt = func(env *Env) (Stmt, *Env) {
+			*(*complex128)(unsafe.Pointer(&env.Ints[idx])) = env.Outer.Vals[sidx].Complex()
+			env.IP++
+			return env.Code[env.IP], env
+		}
 	default:
 		rtype := t.ReflectType()
 		zero := r.Zero(rtype)
