@@ -336,9 +336,11 @@ func callSlice(args ...interface{}) []interface{} {
 
 func funcValues(env *Env, args []r.Value) (r.Value, []r.Value) {
 	for i, arg := range args {
-		// go through interface{} to forget any "static" compile-time type information
 		if arg != None && arg != Nil {
-			args[i] = r.ValueOf(arg.Interface())
+			if arg.Kind() == r.Interface {
+				arg = arg.Elem() // extract concrete type
+			}
+			args[i] = arg
 		}
 	}
 	return UnpackValues(args)

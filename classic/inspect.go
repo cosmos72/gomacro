@@ -33,11 +33,10 @@ func (env *Env) Inspect(str string) {
 	v := env.EvalAst1(form)
 	var t r.Type
 	if v.IsValid() && v != None {
-		if v.CanInterface() {
-			t = r.TypeOf(v.Interface()) // show concrete type
-		} else {
-			t = v.Type()
+		if v.Kind() == r.Interface {
+			v = v.Elem() // extract concrete type
 		}
+		t = v.Type()
 	}
 	inspector.Inspect(str, v, t, nil, env.Globals)
 }

@@ -237,11 +237,10 @@ func (ip *Inspector) Enter(cmd string) {
 	}
 	var t r.Type
 	if f.IsValid() && f != base.None {
-		if f.CanInterface() {
-			t = r.TypeOf(f.Interface()) // concrete type
-		} else {
-			t = f.Type()
+		if f.Kind() == r.Interface {
+			f = f.Elem() // concrete type
 		}
+		t = f.Type()
 	}
 
 	switch dereferenceValue(f).Kind() { // dereference pointers on-the-fly
@@ -258,14 +257,9 @@ func (ip *Inspector) Enter(cmd string) {
 func dereferenceValue(v r.Value) r.Value {
 	for {
 		switch v.Kind() {
-		case r.Ptr:
+		case r.Interface, r.Ptr:
 			v = v.Elem()
 			continue
-		case r.Interface:
-			if v.CanInterface() {
-				v = r.ValueOf(v.Interface())
-				continue
-			}
 		}
 		break
 	}

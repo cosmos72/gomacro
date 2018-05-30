@@ -37,11 +37,10 @@ func (ir *Interp) Inspect(src string) {
 		typ = xtyp.ReflectType()
 	}
 	if val.IsValid() && val != None {
-		if val.CanInterface() {
-			typ = r.TypeOf(val.Interface()) // show concrete type
-		} else if typ == nil {
-			typ = val.Type()
+		if val.Kind() == r.Interface {
+			val = val.Elem() // extract concrete type
 		}
+		typ = val.Type()
 	}
 	inspector.Inspect(src, val, typ, xtyp, &ir.Comp.Globals)
 }

@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * type_test.go
+ * z_test.go
  *
  *  Created on May 07, 2017
  *      Author Massimiliano Ghilardi
@@ -20,7 +20,7 @@ import (
 	"go/types"
 	"io"
 	"os"
-	"reflect"
+	r "reflect"
 	"testing"
 	"time"
 
@@ -50,7 +50,7 @@ func istrue(t *testing.T, actual bool) {
 }
 
 func isdeepequal(t *testing.T, actual interface{}, expected interface{}) {
-	if !reflect.DeepEqual(actual, expected) {
+	if !r.DeepEqual(actual, expected) {
 		fail2(t, actual, expected)
 	}
 }
@@ -74,7 +74,44 @@ func isidenticalgotype(t *testing.T, actual types.Type, expected types.Type) {
 }
 
 func istypeof(t *testing.T, actual interface{}, expected interface{}) {
-	is(t, reflect.TypeOf(actual), reflect.TypeOf(expected))
+	is(t, r.TypeOf(actual), r.TypeOf(expected))
+}
+
+func TestCanonical(t *testing.T) {
+	type testCase struct {
+		expected, actual r.Type
+	}
+	tint := r.TypeOf(int(0))
+	tints := []r.Type{tint}
+	funcIntInt := func(x int) int {
+		return x
+	}
+	fieldsAB := []r.StructField{
+		{Name: "A", Type: tint},
+		{Name: "B", Type: tint},
+	}
+	fieldsXY := []r.StructField{
+		{Name: "X", Type: r.TypeOf((*error)(nil)).Elem()},
+		{Name: "Y", Type: r.TypeOf((*Forward)(nil)).Elem()},
+	}
+
+	testCases := []testCase{
+		{r.TypeOf([0]int{}), r.ArrayOf(0, tint)},
+		{r.TypeOf(make(chan int)), r.ChanOf(r.BothDir, tint)},
+		{r.TypeOf(funcIntInt), r.FuncOf(tints, tints, false)},
+		{r.TypeOf(make(map[int]int)), r.MapOf(tint, tint)},
+		{r.TypeOf((*int)(nil)), r.PtrTo(tint)},
+		{r.TypeOf([]int{}), r.SliceOf(tint)},
+		{r.TypeOf(struct{ A, B int }{}), r.StructOf(fieldsAB)},
+		{r.TypeOf(struct {
+			X error
+			Y Forward
+		}{}), r.StructOf(fieldsXY)},
+	}
+
+	for _, tc := range testCases {
+		is(t, tc.actual, tc.expected)
+	}
 }
 
 func TestBasic(t *testing.T) {
@@ -82,7 +119,7 @@ func TestBasic(t *testing.T) {
 		if rtype == nil {
 			continue
 		}
-		kind := reflect.Kind(i)
+		kind := r.Kind(i)
 		typ := u.BasicTypes[kind]
 		is(t, typ.Kind(), rtype.Kind())
 		is(t, typ.Name(), rtype.Name())
@@ -96,9 +133,9 @@ func TestBasic(t *testing.T) {
 }
 
 func TestArray(t *testing.T) {
-	typ := u.ArrayOf(7, u.BasicTypes[reflect.Uint8])
-	rtype := reflect.TypeOf([7]uint8{})
-	is(t, typ.Kind(), reflect.Array)
+	typ := u.ArrayOf(7, u.BasicTypes[r.Uint8])
+	rtype := r.TypeOf([7]uint8{})
+	is(t, typ.Kind(), r.Array)
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
 	istypeof(t, typ.GoType(), (*types.Array)(nil))
@@ -106,9 +143,9 @@ func TestArray(t *testing.T) {
 }
 
 func TestFunction(t *testing.T) {
-	typ := u.FuncOf([]Type{u.BasicTypes[reflect.Bool], u.BasicTypes[reflect.Int16]}, []Type{u.BasicTypes[reflect.String]}, false)
-	rtype := reflect.TypeOf(func(bool, int16) string { return "" })
-	is(t, typ.Kind(), reflect.Func)
+	typ := u.FuncOf([]Type{u.BasicTypes[r.Bool], u.BasicTypes[r.Int16]}, []Type{u.BasicTypes[r.String]}, false)
+	rtype := r.TypeOf(func(bool, int16) string { return "" })
+	is(t, typ.Kind(), r.Func)
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
 	istypeof(t, typ.GoType(), (*types.Signature)(nil))
@@ -116,10 +153,10 @@ func TestFunction(t *testing.T) {
 }
 
 func TestInterface1(t *testing.T) {
-	methodtyp := u.FuncOf(nil, []Type{u.BasicTypes[reflect.Int]}, false)
+	methodtyp := u.FuncOf(nil, []Type{u.BasicTypes[r.Int]}, false)
 	typ := u.InterfaceOf([]string{"Cap", "Len"}, []Type{methodtyp, methodtyp}, nil).Complete()
 
-	is(t, typ.Kind(), reflect.Interface)
+	is(t, typ.Kind(), r.Interface)
 	is(t, typ.Name(), "")
 	is(t, typ.NumExplicitMethod(), 2)
 	actual := typ.Method(0)
@@ -130,11 +167,11 @@ func TestInterface1(t *testing.T) {
 	is(t, true, types.Identical(methodtyp.GoType(), actual.Type.GoType()))
 	istypeof(t, typ.GoType(), (*types.Interface)(nil))
 
-	rtype := reflect.PtrTo(
-		reflect.StructOf([]reflect.StructField{
+	rtype := r.PtrTo(
+		r.StructOf([]r.StructField{
 			approxInterfaceHeader(),
-			reflect.StructField{Name: "Cap", Type: methodtyp.ReflectType()},
-			reflect.StructField{Name: "Len", Type: methodtyp.ReflectType()},
+			r.StructField{Name: "Cap", Type: methodtyp.ReflectType()},
+			r.StructField{Name: "Len", Type: methodtyp.ReflectType()},
 		}))
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.String(), "interface{Cap() int; Len() int}")
@@ -142,10 +179,10 @@ func TestInterface1(t *testing.T) {
 
 // test implementing 'error' interface
 func TestInterfaceError(t *testing.T) {
-	methodtyp := u.FuncOf(nil, []Type{u.BasicTypes[reflect.String]}, false)
+	methodtyp := u.FuncOf(nil, []Type{u.BasicTypes[r.String]}, false)
 	typ := u.InterfaceOf([]string{"Error"}, []Type{methodtyp}, nil).Complete()
 
-	is(t, typ.Kind(), reflect.Interface)
+	is(t, typ.Kind(), r.Interface)
 	is(t, typ.Name(), "")
 	is(t, typ.NumExplicitMethod(), 1)
 	is(t, typ.NumAllMethod(), 1)
@@ -157,9 +194,9 @@ func TestInterfaceError(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	typ := u.MapOf(u.TypeOfInterface, u.BasicTypes[reflect.Bool])
-	rtype := reflect.TypeOf(map[interface{}]bool{})
-	is(t, typ.Kind(), reflect.Map)
+	typ := u.MapOf(u.TypeOfInterface, u.BasicTypes[r.Bool])
+	rtype := r.TypeOf(map[interface{}]bool{})
+	is(t, typ.Kind(), r.Map)
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.NumAllMethod(), 0)
@@ -167,10 +204,10 @@ func TestMap(t *testing.T) {
 }
 
 func TestMethod(t *testing.T) {
-	typ := u.NamedOf("MyInt", "main", reflect.Int)
-	typ.SetUnderlying(u.BasicTypes[reflect.Int])
-	rtype := reflect.TypeOf(int(0))
-	is(t, typ.Kind(), reflect.Int)
+	typ := u.NamedOf("MyInt", "main", r.Int)
+	typ.SetUnderlying(u.BasicTypes[r.Int])
+	rtype := r.TypeOf(int(0))
+	is(t, typ.Kind(), r.Int)
 	is(t, typ.Name(), "MyInt")
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.NumAllMethod(), 0)
@@ -178,11 +215,11 @@ func TestMethod(t *testing.T) {
 }
 
 func TestNamed(t *testing.T) {
-	typ := u.NamedOf("MyMap", "main", reflect.Map)
-	underlying := u.MapOf(u.TypeOfInterface, u.BasicTypes[reflect.Bool])
+	typ := u.NamedOf("MyMap", "main", r.Map)
+	underlying := u.MapOf(u.TypeOfInterface, u.BasicTypes[r.Bool])
 	typ.SetUnderlying(underlying)
-	rtype := reflect.TypeOf(map[interface{}]bool{})
-	is(t, typ.Kind(), reflect.Map)
+	rtype := r.TypeOf(map[interface{}]bool{})
+	is(t, typ.Kind(), r.Map)
 	is(t, typ.Name(), "MyMap")
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.NumAllMethod(), rtype.NumMethod())
@@ -190,23 +227,23 @@ func TestNamed(t *testing.T) {
 }
 
 func TestSelfReference(t *testing.T) {
-	typ := u.NamedOf("List", "main", reflect.Struct)
+	typ := u.NamedOf("List", "main", r.Struct)
 
-	is(t, typ.Kind(), reflect.Struct)
+	is(t, typ.Kind(), r.Struct)
 	isidenticalgotype(t, typ.gunderlying(), u.TypeOfForward.GoType())
 
 	underlying := u.StructOf([]StructField{
-		StructField{Name: "First", Type: u.BasicTypes[reflect.Int]},
+		StructField{Name: "First", Type: u.BasicTypes[r.Int]},
 		StructField{Name: "Rest", Type: typ},
 	})
 	typ.SetUnderlying(underlying)
 	typ1 := typ.Field(1).Type
-	rtype := reflect.TypeOf(struct {
+	rtype := r.TypeOf(struct {
 		First int
 		Rest  Forward
 	}{})
 
-	is(t, typ.Kind(), reflect.Struct)
+	is(t, typ.Kind(), r.Struct)
 	is(t, typ.Name(), "List")
 	istypeof(t, typ.GoType(), (*types.Named)(nil))
 	is(t, typ.ReflectType(), rtype)
@@ -220,14 +257,14 @@ func TestSelfReference(t *testing.T) {
 
 func TestStruct(t *testing.T) {
 	typ := u.StructOf([]StructField{
-		StructField{Name: "First", Type: u.BasicTypes[reflect.Int]},
+		StructField{Name: "First", Type: u.BasicTypes[r.Int]},
 		StructField{Name: "Rest", Type: u.TypeOfInterface},
 	})
-	rtype := reflect.TypeOf(struct {
+	rtype := r.TypeOf(struct {
 		First int
 		Rest  interface{}
 	}{})
-	is(t, typ.Kind(), reflect.Struct)
+	is(t, typ.Kind(), r.Struct)
 	is(t, typ.Name(), "")
 	is(t, typ.ReflectType(), rtype)
 	istypeof(t, typ.GoType(), (*types.Struct)(nil))
@@ -243,21 +280,21 @@ func TestStruct(t *testing.T) {
 }
 
 func TestEmbedded(t *testing.T) {
-	etyp := u.NamedOf("Box", "", reflect.Struct)
+	etyp := u.NamedOf("Box", "", r.Struct)
 	etyp.SetUnderlying(u.StructOf([]StructField{
-		StructField{Name: "Value", Type: u.BasicTypes[reflect.Int]},
+		StructField{Name: "Value", Type: u.BasicTypes[r.Int]},
 	}))
-	ertype := reflect.TypeOf(struct {
+	ertype := r.TypeOf(struct {
 		Value int
 	}{})
-	is(t, etyp.Kind(), reflect.Struct)
+	is(t, etyp.Kind(), r.Struct)
 	is(t, etyp.Name(), "Box")
 	is(t, etyp.ReflectType(), ertype)
 	istypeof(t, etyp.GoType(), (*types.Named)(nil))
 	istypeof(t, etyp.GoType().Underlying(), (*types.Struct)(nil))
 
 	typ := u.StructOf([]StructField{
-		StructField{Name: "Label", Type: u.BasicTypes[reflect.String]},
+		StructField{Name: "Label", Type: u.BasicTypes[r.String]},
 		StructField{Type: u.PtrTo(etyp)}, // empty name => anonymous, and autodetect name from type
 	})
 	is(t, typ.String(), "struct{Label string; *Box}")
@@ -282,7 +319,7 @@ func TestEmbedded(t *testing.T) {
 }
 
 func TestFromReflect0(t *testing.T) {
-	rtype := reflect.TypeOf((*func(bool, int8, <-chan uint16, []float32, [2]float64, []complex64) map[interface{}]*string)(nil)).Elem()
+	rtype := r.TypeOf((*func(bool, int8, <-chan uint16, []float32, [2]float64, []complex64) map[interface{}]*string)(nil)).Elem()
 	v := NewUniverse()
 	v.RebuildDepth = MaxDepth
 	typ := v.FromReflectType(rtype)
@@ -290,7 +327,7 @@ func TestFromReflect0(t *testing.T) {
 }
 
 func TestFromReflect1(t *testing.T) {
-	rtype := reflect.TypeOf(time.Duration(0))
+	rtype := r.TypeOf(time.Duration(0))
 	typ := u.FromReflectType(rtype)
 	is(t, typ.ReflectType(), rtype)
 	is(t, typ.String(), "time.Duration")
@@ -306,8 +343,8 @@ func TestFromReflect2(t *testing.T) {
 		G []float64
 		M map[string]*complex64
 	}
-	in := reflect.TypeOf(Bag{})
-	expected := reflect.TypeOf(struct {
+	in := r.TypeOf(Bag{})
+	expected := r.TypeOf(struct {
 		C <-chan bool
 		I int32
 		U uintptr
@@ -319,7 +356,7 @@ func TestFromReflect2(t *testing.T) {
 	v.RebuildDepth = MaxDepth
 	typ := v.FromReflectType(in)
 	actual := typ.ReflectType()
-	is(t, typ.Kind(), reflect.Struct)
+	is(t, typ.Kind(), r.Struct)
 	is(t, typ.Name(), "Bag")
 	is(t, actual, expected)
 	is(t, actual.ConvertibleTo(in), true)
@@ -329,18 +366,18 @@ func TestFromReflect2(t *testing.T) {
 }
 
 func TestFromReflect3(t *testing.T) {
-	rtype := reflect.TypeOf((*io.Reader)(nil)).Elem()
+	rtype := r.TypeOf((*io.Reader)(nil)).Elem()
 	v := NewUniverse()
 	v.RebuildDepth = 2
 	typ := v.FromReflectType(rtype)
 
 	actual := typ.ReflectType()
-	expected := reflect.PtrTo(
-		reflect.StructOf([]reflect.StructField{
+	expected := r.PtrTo(
+		r.StructOf([]r.StructField{
 			approxInterfaceHeader(),
-			reflect.StructField{Name: "Read", Type: reflect.TypeOf((*func([]uint8) (int, error))(nil)).Elem()},
+			r.StructField{Name: "Read", Type: r.TypeOf((*func([]uint8) (int, error))(nil)).Elem()},
 		}))
-	is(t, typ.Kind(), reflect.Interface)
+	is(t, typ.Kind(), r.Interface)
 	is(t, actual, expected)
 	is(t, typ.String(), "io.Reader")
 	is(t, typ.gunderlying().String(), "interface{Read([]uint8) (int, error)}")
@@ -358,24 +395,24 @@ func TestFromReflect3(t *testing.T) {
 
 func TestFromReflect4(t *testing.T) {
 	type ToString func() string
-	rtype := reflect.PtrTo(
-		reflect.StructOf([]reflect.StructField{
+	rtype := r.PtrTo(
+		r.StructOf([]r.StructField{
 			approxInterfaceHeader(),
-			reflect.StructField{Name: "String", Type: reflect.TypeOf((*ToString)(nil)).Elem()},
+			r.StructField{Name: "String", Type: r.TypeOf((*ToString)(nil)).Elem()},
 		}))
-	typ := u.NamedOf("Stringer", "io", reflect.Interface)
+	typ := u.NamedOf("Stringer", "io", r.Interface)
 	v := NewUniverse()
 	v.RebuildDepth = MaxDepth
 	underlying := v.FromReflectType(rtype)
 	typ.SetUnderlying(underlying)
 
 	actual := typ.ReflectType()
-	expected := reflect.PtrTo(
-		reflect.StructOf([]reflect.StructField{
+	expected := r.PtrTo(
+		r.StructOf([]r.StructField{
 			approxInterfaceHeader(),
-			reflect.StructField{Name: "String", Type: reflect.TypeOf((*func() string)(nil)).Elem()},
+			r.StructField{Name: "String", Type: r.TypeOf((*func() string)(nil)).Elem()},
 		}))
-	is(t, typ.Kind(), reflect.Interface)
+	is(t, typ.Kind(), r.Interface)
 	is(t, actual, expected)
 	is(t, typ.NumExplicitMethod(), 1)
 	is(t, typ.NumAllMethod(), 1)
@@ -392,7 +429,7 @@ func TestFromReflect4(t *testing.T) {
 }
 
 func TestFromReflect5(t *testing.T) {
-	rtype := reflect.TypeOf((*reflect.Type)(nil)).Elem()
+	rtype := r.TypeOf((*r.Type)(nil)).Elem()
 	typ := u.FromReflectType(rtype)
 
 	is(t, typ.String(), "reflect.Type")
@@ -421,8 +458,8 @@ type Response4Test struct {
 func TestFromReflectMutualRecursion(t *testing.T) {
 	defer de(bug(u))
 
-	rtype1 := reflect.TypeOf(Request4Test{})
-	rtype2 := reflect.TypeOf(Response4Test{})
+	rtype1 := r.TypeOf(Request4Test{})
+	rtype2 := r.TypeOf(Response4Test{})
 
 	typ1 := u.FromReflectType(rtype1)
 	typ2 := typ1.Field(1).Type.Elem()
@@ -443,13 +480,13 @@ func TestFromReflectMutualRecursion(t *testing.T) {
 func TestInterfaceIoReader(t *testing.T) {
 	u.RebuildDepth = 0
 
-	in := []Type{u.SliceOf(u.BasicTypes[reflect.Uint8])}
-	out := []Type{u.BasicTypes[reflect.Int], u.TypeOfError}
+	in := []Type{u.SliceOf(u.BasicTypes[r.Uint8])}
+	out := []Type{u.BasicTypes[r.Int], u.TypeOfError}
 	methodtyp := u.FuncOf(in, out, false)
 	typ := u.InterfaceOf([]string{"Read"}, []Type{methodtyp}, nil).Complete()
 	gtyp := typ.GoType()
 
-	is(t, typ.Kind(), reflect.Interface)
+	is(t, typ.Kind(), r.Interface)
 	is(t, typ.Name(), "")
 	is(t, typ.NumExplicitMethod(), 1)
 	is(t, typ.NumAllMethod(), 1)
@@ -457,7 +494,7 @@ func TestInterfaceIoReader(t *testing.T) {
 	// ---------------------------
 	treader := u.TypeOf((*io.Reader)(nil)).Elem()
 
-	is(t, treader.Kind(), reflect.Interface)
+	is(t, treader.Kind(), r.Interface)
 	is(t, treader.Name(), "Reader")
 	is(t, treader.NumExplicitMethod(), 1)
 	is(t, treader.NumAllMethod(), 1)
@@ -517,17 +554,17 @@ func TestInterfaceIoReader(t *testing.T) {
 
 // return the Type equivalent to "type io.Reader interface { io.Reader, io.Writer }"
 func makeIoReaderWriterType() Type {
-	in := []Type{u.SliceOf(u.BasicTypes[reflect.Uint8])}
-	out := []Type{u.BasicTypes[reflect.Int], u.TypeOfError}
+	in := []Type{u.SliceOf(u.BasicTypes[r.Uint8])}
+	out := []Type{u.BasicTypes[r.Int], u.TypeOfError}
 	method := u.FuncOf(in, out, false)
 	read_interf := u.InterfaceOf([]string{"Read"}, []Type{method}, nil).Complete()
-	reader := u.NamedOf("Reader", "io", reflect.Interface)
+	reader := u.NamedOf("Reader", "io", r.Interface)
 	reader.SetUnderlying(read_interf)
 	write_interf := u.InterfaceOf([]string{"Write"}, []Type{method}, nil).Complete()
-	writer := u.NamedOf("Writer", "io", reflect.Interface)
+	writer := u.NamedOf("Writer", "io", r.Interface)
 	writer.SetUnderlying(write_interf)
 	rw_interf := u.InterfaceOf(nil, nil, []Type{reader, writer}).Complete()
-	readwriter := u.NamedOf("ReadWriter", "io", reflect.Interface)
+	readwriter := u.NamedOf("ReadWriter", "io", r.Interface)
 	readwriter.SetUnderlying(rw_interf)
 	return readwriter
 }

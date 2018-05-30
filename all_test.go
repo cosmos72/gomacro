@@ -524,7 +524,7 @@ var testcases = []TestCase{
 	TestCase{A, "add_5", `v5 += "@#$";  v5`, "8y57riuh@#$", nil},
 	TestCase{A, "add_6", "v6 += 0.975319; v6", 1/float32(0.12345678901234) + float32(0.975319), nil}, // v6 is declared float32
 	TestCase{A, "add_7", "v7 = 1; v7 += 0.999999i; v7", complex(float32(1), float32(0.999999)), nil}, // v7 is declared complex64
-	TestCase{A, "add_7", "v8 = 1; v8 += 0.999999i; v8", complex(1, 0.999999), nil},                   // v8 is declared complex128
+	TestCase{A, "add_8", "v8 = 1; v8 += 0.999999i; v8", complex(1, 0.999999), nil},                   // v8 is declared complex128
 
 	TestCase{A, "mul_1", "v2 = 4;  v2 *= 3; v2", uint8(12), nil},
 	TestCase{A, "rem_1", "v3 = 12; v3 %= 7; v3", uint16(5), nil},
