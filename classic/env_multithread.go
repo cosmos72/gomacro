@@ -40,9 +40,10 @@ func (x *BindMap) Ensure() *BindMap {
 	if m != nil {
 		return x
 	}
+	m = make(map[string]r.Value)
 	x.l.Lock()
 	if x.m == nil {
-		x.m = make(map[string]r.Value)
+		x.m = m
 	}
 	x.l.Unlock()
 	return x
@@ -114,9 +115,10 @@ func (x *TypeMap) Ensure() *TypeMap {
 	if m != nil {
 		return x
 	}
+	m = make(map[string]r.Type)
 	x.l.Lock()
 	if x.m == nil {
-		x.m = make(map[string]r.Type)
+		x.m = m
 	}
 	x.l.Unlock()
 	return x
