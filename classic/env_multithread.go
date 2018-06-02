@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * env.go
+ * env_multithread.go
  *
  *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi
@@ -21,105 +21,148 @@ package classic
 import (
 	r "reflect"
 
-	"golang.org/x/sync/syncmap"
+	"sync"
 )
 
 const MultiThread = true
 
-type BindMap syncmap.Map
-
-// ALWAYS use pointers to syncmap.Map, because https://godoc.org/golang.org/x/sync/syncmap#Map
-// states "A Map must not be copied after first use."
-func (m *BindMap) Ensure() *BindMap {
-	return m
+type BindMap struct {
+	l sync.RWMutex
+	m map[string]r.Value
 }
 
-func (m *BindMap) Clear() {
-	*m = BindMap{}
+// ALWAYS use pointers to BindMap, because it contains a sync.RWMutex
+// and https://golang.org/pkg/sync/#RWMutex states "A RWMutex must not be copied after first use."
+func (x *BindMap) Ensure() *BindMap {
+	x.l.RLock()
+	m := x.m
+	x.l.RUnlock()
+	if m != nil {
+		return x
+	}
+	x.l.Lock()
+	if x.m == nil {
+		x.m = make(map[string]r.Value)
+	}
+	x.l.Unlock()
+	return x
 }
 
-func (m *BindMap) Merge(binds map[string]r.Value) {
+func (x *BindMap) Clear() {
+	x.l.Lock()
+	x.m = make(map[string]r.Value)
+	x.l.Unlock()
+}
+
+func (x *BindMap) Merge(binds map[string]r.Value) {
+	// make a copy. we do NOT want to modify binds!
+	x.l.Lock()
+	m := x.m
 	for k, v := range binds {
-		(*syncmap.Map)(m).Store(k, v)
+		m[k] = v
 	}
+	x.l.Unlock()
 }
 
-func (m *BindMap) AsMap() map[string]r.Value {
-	ret := make(map[string]r.Value)
-	(*syncmap.Map)(m).Range(func(k, v interface{}) bool {
-		ret[k.(string)] = v.(r.Value)
-		return true
-	})
-	return ret
-}
-
-func (m *BindMap) Get(key string) (r.Value, bool) {
-	val, ok := (*syncmap.Map)(m).Load(key)
-	if !ok {
-		return r.Value{}, false
+func (x *BindMap) AsMap() map[string]r.Value {
+	out := make(map[string]r.Value)
+	x.l.RLock()
+	for k, v := range x.m {
+		out[k] = v
 	}
-	return val.(r.Value), ok
+	x.l.RUnlock()
+	return out
 }
 
-func (m *BindMap) Get1(key string) r.Value {
-	val, _ := (*syncmap.Map)(m).Load(key)
-	return val.(r.Value)
+func (x *BindMap) Get(key string) (r.Value, bool) {
+	x.l.RLock()
+	val, ok := x.m[key]
+	x.l.RUnlock()
+	return val, ok
 }
 
-func (m *BindMap) Set(key string, val r.Value) {
-	(*syncmap.Map)(m).Store(key, val)
+func (x *BindMap) Get1(key string) r.Value {
+	x.l.RLock()
+	val := x.m[key]
+	x.l.RUnlock()
+	return val
 }
 
-func (m *BindMap) Del(key string) {
-	(*syncmap.Map)(m).Delete(key)
+func (x *BindMap) Set(key string, val r.Value) {
+	x.l.Lock()
+	x.m[key] = val
+	x.l.Unlock()
+}
+
+func (x *BindMap) Del(key string) {
+	x.l.Lock()
+	delete(x.m, key)
+	x.l.Unlock()
 }
 
 // -----------------------------------------
 
-type TypeMap syncmap.Map
-
-// ALWAYS use pointers to TypeMap, because https://godoc.org/golang.org/x/sync/syncmap#Map
-// states "A Map must not be copied after first use."
-func (m *TypeMap) Ensure() *TypeMap {
-	return m
+type TypeMap struct {
+	l sync.RWMutex
+	m map[string]r.Type
 }
 
-func (m *TypeMap) Clear() {
-	*m = TypeMap{}
-}
-
-func (m *TypeMap) Merge(binds map[string]r.Type) {
-	for k, v := range binds {
-		(*syncmap.Map)(m).Store(k, v)
+func (x *TypeMap) Ensure() *TypeMap {
+	x.l.RLock()
+	m := x.m
+	x.l.RUnlock()
+	if m != nil {
+		return x
 	}
-}
-
-func (m *TypeMap) AsMap() map[string]r.Type {
-	ret := make(map[string]r.Type)
-	(*syncmap.Map)(m).Range(func(k, v interface{}) bool {
-		ret[k.(string)] = v.(r.Type)
-		return true
-	})
-	return ret
-}
-
-func (m *TypeMap) Get(key string) (r.Type, bool) {
-	val, ok := (*syncmap.Map)(m).Load(key)
-	if !ok {
-		return nil, false
+	x.l.Lock()
+	if x.m == nil {
+		x.m = make(map[string]r.Type)
 	}
-	return val.(r.Type), ok
+	x.l.Unlock()
+	return x
 }
 
-func (m *TypeMap) Get1(key string) r.Type {
-	val, _ := (*syncmap.Map)(m).Load(key)
-	return val.(r.Type)
+func (x *TypeMap) Clear() {
+	x.l.Lock()
+	x.m = make(map[string]r.Type)
+	x.l.Unlock()
 }
 
-func (m *TypeMap) Set(key string, val r.Type) {
-	(*syncmap.Map)(m).Store(key, val)
+func (x *TypeMap) Merge(types map[string]r.Type) {
+	// make a copy. we do NOT want to modify types!
+	x.l.Lock()
+	m := x.m
+	for k, v := range types {
+		m[k] = v
+	}
+	x.l.Unlock()
 }
 
-func (m *TypeMap) Del(key string) {
-	(*syncmap.Map)(m).Delete(key)
+func (x *TypeMap) AsMap() map[string]r.Type {
+	out := make(map[string]r.Type)
+	x.l.RLock()
+	for k, t := range x.m {
+		out[k] = t
+	}
+	x.l.RUnlock()
+	return out
+}
+
+func (x *TypeMap) Get(key string) (r.Type, bool) {
+	x.l.RLock()
+	val, ok := x.m[key]
+	x.l.RUnlock()
+	return val, ok
+}
+
+func (x *TypeMap) Set(key string, val r.Type) {
+	x.l.Lock()
+	x.m[key] = val
+	x.l.Unlock()
+}
+
+func (x *TypeMap) Del(key string) {
+	x.l.Lock()
+	delete(x.m, key)
+	x.l.Unlock()
 }

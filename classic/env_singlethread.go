@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * env.go
+ * env_singlethread.go
  *
  *  Created on: Feb 19, 2017
  *      Author: Massimiliano Ghilardi
