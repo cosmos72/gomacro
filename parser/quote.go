@@ -120,7 +120,7 @@ func MakeQuote(p_or_nil *parser, op token.Token, pos token.Pos, node ast.Node) (
 	case ast.Expr:
 		stmt = &ast.ExprStmt{X: node}
 	default:
-		msg := fmt.Sprintf("%v: expecting statement or expression, found %T %#v", op, node)
+		msg := fmt.Sprintf("%v: expecting statement or expression, found %T %#v", op, node, node)
 		if p_or_nil != nil {
 			p_or_nil.error(node.Pos(), msg)
 		} else {
