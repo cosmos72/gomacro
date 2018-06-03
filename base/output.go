@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
-	"go/printer"
 	"go/token"
 	"io"
 	r "reflect"
@@ -28,6 +27,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	"github.com/cosmos72/gomacro/printer"
 	mt "github.com/cosmos72/gomacro/token"
 )
 

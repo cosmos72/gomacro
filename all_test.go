@@ -966,6 +966,37 @@ var testcases = []TestCase{
 	TestCase{C, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
 	TestCase{A, "eval", "Eval(~quote{1+2})", 3, nil},
 	TestCase{C, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
+	TestCase{A, "parse_template_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
+		&ast.GenDecl{
+			Tok: token.TYPE,
+			Specs: []ast.Spec{
+				&ast.TypeSpec{
+					Name: &ast.Ident{Name: "Pair"},
+					Type: &ast.CompositeLit{
+						Type: &ast.StructType{
+							Fields: &ast.FieldList{
+								List: []*ast.Field{
+									&ast.Field{
+										Names: []*ast.Ident{{Name: "First"}},
+										Type:  &ast.Ident{Name: "T1"},
+									},
+									&ast.Field{
+										Names: []*ast.Ident{{Name: "Second"}},
+										Type:  &ast.Ident{Name: "T2"},
+									},
+								},
+							},
+						},
+						Elts: []ast.Expr{
+							&ast.Ident{Name: "T1"},
+							&ast.Ident{Name: "T2"},
+						},
+					},
+				},
+			},
+		}, nil},
+
+	TestCase{0, "parse_template_func", "~quote{template [T] func Sum([]T) T { }}", nil, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
@@ -1055,7 +1086,7 @@ func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 			}
 		}
 	}
-	c.fail(t, actual, expected)
+	c.fail(t, actual.Interface(), expected.Interface())
 }
 
 func (c *TestCase) compareUntyped(t *testing.T, actual untyped.Lit, expected untyped.Lit) {
