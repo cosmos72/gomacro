@@ -731,6 +731,8 @@ scanAgain:
 				lit = comment
 			} else if ch == '/' {
 				tok = s.switch2(token.QUO, token.QUO_ASSIGN)
+			} else if ch == '#' {
+				tok = mt.HASH
 			} else {
 				s.error(s.file.Offset(pos), fmt.Sprintf("illegal character %#U", ch))
 				insertSemi = s.insertSemi // preserve insertSemi info

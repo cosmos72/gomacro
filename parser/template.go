@@ -23,6 +23,22 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
+// parse prefix#[T1,T2...] as &ast.IndexExpr{ &ast.CompositeLit{Type: Foo, Elts: [T1, T2...]} }
+func (p *parser) parseHash(prefix ast.Expr) ast.Expr {
+	p.next()
+	lbrack := p.expect(token.LBRACK)
+	list := p.parseTypeList()
+	rbrack := p.expect(token.RBRACK)
+	return &ast.IndexExpr{
+		X:      prefix,
+		Lbrack: lbrack,
+		Index:  &ast.CompositeLit{Type: nil, Lbrace: lbrack, Elts: list, Rbrace: rbrack},
+		Rbrack: rbrack,
+	}
+}
+
+// parse template[T1,T2...] type ...
+// and template[T1,T2...] func ...
 func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 	if p.trace {
 		defer un(trace(p, "TemplateDecl"))

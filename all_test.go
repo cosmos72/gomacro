@@ -966,7 +966,7 @@ var testcases = []TestCase{
 	TestCase{C, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
 	TestCase{A, "eval", "Eval(~quote{1+2})", 3, nil},
 	TestCase{C, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
-	TestCase{A, "parse_template_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
+	TestCase{A, "parse_decl_template_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
 		&ast.GenDecl{
 			Tok: token.TYPE,
 			Specs: []ast.Spec{
@@ -996,7 +996,7 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{A, "parse_template_func", "~quote{template [T] func Sum([]T) T { }}",
+	TestCase{A, "parse_decl_template_func", "~quote{template [T] func Sum([]T) T { }}",
 		&ast.FuncDecl{
 			Recv: &ast.FieldList{
 				List: []*ast.Field{
@@ -1028,7 +1028,7 @@ var testcases = []TestCase{
 			Body: &ast.BlockStmt{},
 		}, nil},
 
-	TestCase{A, "parse_template_method", "~quote{template [T] func (x Pair) Rest() T { }}",
+	TestCase{A, "parse_decl_template_method", "~quote{template [T] func (x Pair) Rest() T { }}",
 		&ast.FuncDecl{
 			Recv: &ast.FieldList{
 				List: []*ast.Field{
@@ -1055,6 +1055,17 @@ var testcases = []TestCase{
 				},
 			},
 			Body: &ast.BlockStmt{},
+		}, nil},
+
+	TestCase{A, "parse_qual_template_name", "~quote{Pair#[T1, T2]}",
+		&ast.IndexExpr{
+			X: &ast.Ident{Name: "Pair"},
+			Index: &ast.CompositeLit{
+				Elts: []ast.Expr{
+					&ast.Ident{Name: "T1"},
+					&ast.Ident{Name: "T2"},
+				},
+			},
 		}, nil},
 }
 

@@ -813,7 +813,13 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 		// TODO(gri): should treat[] like parentheses and undo one level of depth
 		p.expr1(x.X, token.HighestPrec, 1)
 		p.print(x.Lbrack, token.LBRACK)
-		p.expr0(x.Index, depth+1)
+		switch index := x.Index.(type) {
+		case *ast.CompositeLit:
+			// Pair#[A,B] is parsed as &ast.IndexExpr{X: Pair, Index: &ast.CompositeLit{Elts: [A,B]}}
+			p.exprList(index.Lbrace, index.Elts, depth+1, 0, index.Rbrace)
+		default:
+			p.expr0(index, depth+1)
+		}
 		p.print(x.Rbrack, token.RBRACK)
 
 	case *ast.SliceExpr:
