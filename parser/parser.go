@@ -500,7 +500,7 @@ func syncStmt(p *parser) {
 		case token.BREAK, token.CONST, token.CONTINUE, token.DEFER,
 			token.FALLTHROUGH, token.FOR, token.GO, token.GOTO,
 			token.IF, token.RETURN, token.SELECT, token.SWITCH,
-			token.TYPE, token.VAR, mt.FUNCTION:
+			token.TYPE, token.VAR, mt.FUNCTION, mt.TEMPLATE:
 			// Return only if parser made some progress since last
 			// sync or if it has not reached 10 sync calls without
 			// progress. Otherwise consume at least one token to
@@ -535,7 +535,7 @@ func syncStmt(p *parser) {
 func syncDecl(p *parser) {
 	for {
 		switch p.tok {
-		case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.FUNCTION:
+		case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.FUNCTION, mt.TEMPLATE:
 			// see comments in syncStmt
 			if p.pos == p.syncPos && p.syncCnt < 10 {
 				p.syncCnt++
@@ -2240,8 +2240,8 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 	}
 
 	switch p.tok {
-	case token.CONST, token.TYPE, token.VAR,
-		mt.FUNCTION: // patch: allow function/method declarations inside statements. extremely useful for ~quote and ~quasiquote
+	case token.CONST, token.TYPE, token.VAR, mt.FUNCTION, mt.TEMPLATE:
+		// patch: allow function/method declarations inside statements. extremely useful for ~quote and ~quasiquote
 		s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
 	case
 		// tokens that may start an expression
@@ -2535,19 +2535,23 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 	if p.trace {
 		defer un(trace(p, "TemplateDecl"))
 	}
+	var lbrack, rbrack token.Pos
+	var templateTypes []ast.Expr
+
 	p.expect(mt.TEMPLATE)
-	p.expect(token.LBRACK)
+	lbrack = p.expect(token.LBRACK)
+
 	bad := func() ast.Decl {
 		pos := p.expect(token.RBRACK)
 		sync(p)
 		return &ast.BadDecl{From: pos, To: p.pos}
 	}
-	var templateTypes []ast.Expr
 loop:
 	for {
 		tok := p.tok
 		switch tok {
 		case token.RBRACK:
+			rbrack = p.pos
 			p.next()
 			break loop
 		case token.ILLEGAL, token.EOF, token.RPAREN, token.RBRACE:
@@ -2568,11 +2572,11 @@ loop:
 	switch tok := p.tok; tok {
 	case token.TYPE:
 		decl := p.parseGenDecl(tok, p.parseTypeSpec)
-		return templateTypeDecl(templateTypes, decl)
+		return templateTypeDecl(lbrack, templateTypes, rbrack, decl)
 
 	case token.FUNC, mt.FUNCTION:
 		decl := p.parseFuncDecl(tok)
-		return templateFuncDecl(templateTypes, decl)
+		return templateFuncDecl(lbrack, templateTypes, rbrack, decl)
 
 	default:
 		pos := p.pos
@@ -2582,11 +2586,23 @@ loop:
 	}
 }
 
-func templateTypeDecl(templateTypes []ast.Expr, decl *ast.GenDecl) *ast.GenDecl {
+func templateTypeDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.Pos, decl *ast.GenDecl) *ast.GenDecl {
+	for _, spec := range decl.Specs {
+		if typespec, ok := spec.(*ast.TypeSpec); ok {
+			// hack: store template types in *ast.CompositeLit.
+			// it is never used inside *ast.TypeSpec and has exacly the required fields
+			typespec.Type = &ast.CompositeLit{
+				Type:   typespec.Type,
+				Lbrace: lbrack,
+				Elts:   templateTypes,
+				Rbrace: rbrack,
+			}
+		}
+	}
 	return decl
 }
 
-func templateFuncDecl(templateTypes []ast.Expr, decl *ast.FuncDecl) *ast.FuncDecl {
+func templateFuncDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.Pos, decl *ast.FuncDecl) *ast.FuncDecl {
 	return decl
 }
 
