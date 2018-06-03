@@ -2531,6 +2531,65 @@ func (p *parser) parseFuncOrMacroDecl(tok token.Token) *ast.FuncDecl {
 	return decl
 }
 
+func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
+	if p.trace {
+		defer un(trace(p, "TemplateDecl"))
+	}
+	p.expect(mt.TEMPLATE)
+	p.expect(token.LBRACK)
+	bad := func() ast.Decl {
+		pos := p.expect(token.RBRACK)
+		sync(p)
+		return &ast.BadDecl{From: pos, To: p.pos}
+	}
+	var templateTypes []ast.Expr
+loop:
+	for {
+		tok := p.tok
+		switch tok {
+		case token.RBRACK:
+			p.next()
+			break loop
+		case token.ILLEGAL, token.EOF, token.RPAREN, token.RBRACE:
+			return bad()
+		}
+
+		templateTypes = append(templateTypes, p.parseType())
+
+		tok = p.tok
+		if tok == token.RBRACK {
+			continue
+		} else if tok == token.COMMA {
+			p.next()
+		} else {
+			return bad()
+		}
+	}
+	switch tok := p.tok; tok {
+	case token.TYPE:
+		decl := p.parseGenDecl(tok, p.parseTypeSpec)
+		return templateTypeDecl(templateTypes, decl)
+
+	case token.FUNC, mt.FUNCTION:
+		decl := p.parseFuncDecl(tok)
+		return templateFuncDecl(templateTypes, decl)
+
+	default:
+		pos := p.pos
+		p.errorExpected(pos, "type or func")
+		sync(p)
+		return &ast.BadDecl{From: pos, To: p.pos}
+	}
+}
+
+func templateTypeDecl(templateTypes []ast.Expr, decl *ast.GenDecl) *ast.GenDecl {
+	return decl
+}
+
+func templateFuncDecl(templateTypes []ast.Expr, decl *ast.FuncDecl) *ast.FuncDecl {
+	return decl
+}
+
 func (p *parser) parseDecl(sync func(*parser)) ast.Decl {
 	if p.trace {
 		defer un(trace(p, "Declaration"))
@@ -2549,6 +2608,9 @@ func (p *parser) parseDecl(sync func(*parser)) ast.Decl {
 
 	case mt.MACRO: // patch: parse a macro declaration
 		return p.parseMacroDecl()
+
+	case mt.TEMPLATE:
+		return p.parseTemplateDecl(sync)
 
 	default:
 		pos := p.pos
