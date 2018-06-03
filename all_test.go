@@ -915,7 +915,7 @@ var testcases = []TestCase{
 		Type: &ast.FuncType{
 			Params: &ast.FieldList{
 				List: []*ast.Field{
-					&ast.Field{
+					{
 						Names: nil,
 						Type: &ast.Ident{
 							Name: "int",
@@ -976,11 +976,11 @@ var testcases = []TestCase{
 						Type: &ast.StructType{
 							Fields: &ast.FieldList{
 								List: []*ast.Field{
-									&ast.Field{
+									{
 										Names: []*ast.Ident{{Name: "First"}},
 										Type:  &ast.Ident{Name: "T1"},
 									},
-									&ast.Field{
+									{
 										Names: []*ast.Ident{{Name: "Second"}},
 										Type:  &ast.Ident{Name: "T2"},
 									},
@@ -996,7 +996,66 @@ var testcases = []TestCase{
 			},
 		}, nil},
 
-	TestCase{0, "parse_template_func", "~quote{template [T] func Sum([]T) T { }}", nil, nil},
+	TestCase{A, "parse_template_func", "~quote{template [T] func Sum([]T) T { }}",
+		&ast.FuncDecl{
+			Recv: &ast.FieldList{
+				List: []*ast.Field{
+					nil,
+					{
+						Type: &ast.Ident{Name: "T"},
+					},
+				},
+			},
+			Name: &ast.Ident{Name: "Sum"},
+			Type: &ast.FuncType{
+				Params: &ast.FieldList{
+					List: []*ast.Field{
+						{
+							Type: &ast.ArrayType{
+								Elt: &ast.Ident{Name: "T"},
+							},
+						},
+					},
+				},
+				Results: &ast.FieldList{
+					List: []*ast.Field{
+						{
+							Type: &ast.Ident{Name: "T"},
+						},
+					},
+				},
+			},
+			Body: &ast.BlockStmt{},
+		}, nil},
+
+	TestCase{A, "parse_template_method", "~quote{template [T] func (x Pair) Rest() T { }}",
+		&ast.FuncDecl{
+			Recv: &ast.FieldList{
+				List: []*ast.Field{
+					{
+						Names: []*ast.Ident{{Name: "x"}},
+						Type:  &ast.Ident{Name: "Pair"},
+					},
+					{
+						Type: &ast.Ident{Name: "T"},
+					},
+				},
+			},
+			Name: &ast.Ident{Name: "Rest"},
+			Type: &ast.FuncType{
+				Params: &ast.FieldList{
+					List: []*ast.Field{},
+				},
+				Results: &ast.FieldList{
+					List: []*ast.Field{
+						{
+							Type: &ast.Ident{Name: "T"},
+						},
+					},
+				},
+			},
+			Body: &ast.BlockStmt{},
+		}, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
