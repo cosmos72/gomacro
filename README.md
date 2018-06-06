@@ -96,6 +96,9 @@ Gomacro can be used as:
 	Sum#[complex64]                 // returns func(...complex64) complex64
 	Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
 
+	Sum#[string]                         // returns func(...string) string
+	Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
+
 	template[T,U] func Transform(slice []T, trans func(T) U) []U {
 		ret := make([]U, len(slice))
 		for i := range slice {
