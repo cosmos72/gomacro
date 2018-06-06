@@ -111,19 +111,20 @@ func templateTypeDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.P
 }
 
 func templateFuncDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.Pos, decl *ast.FuncDecl) *ast.FuncDecl {
-	// hack: store template types as second and further function receivers.
-	// they are never used for functions and macros.
+	// hack: store template types as second function receiver.
+	// it's never used for functions and macros.
 	recv := decl.Recv
 	if recv == nil {
 		recv = &ast.FieldList{Opening: lbrack, Closing: rbrack}
 		decl.Recv = recv
 	}
-	list := make([]*ast.Field, 1+len(templateTypes))
+	list := []*ast.Field{
+		nil,
+		// add template types as second receiver
+		&ast.Field{Type: &ast.CompositeLit{Elts: templateTypes}},
+	}
 	if len(recv.List) != 0 {
 		list[0] = recv.List[0]
-	}
-	for i, typ := range templateTypes {
-		list[i+1] = &ast.Field{Type: typ}
 	}
 	recv.List = list
 	return decl

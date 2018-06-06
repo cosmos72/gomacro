@@ -299,10 +299,12 @@ func (p *printer) receiver(fields *ast.FieldList) {
 }
 
 func (p *printer) funcTemplateArgs(fields *ast.FieldList) {
-	if fields != nil && len(fields.List) > 1 {
-		p.print(fields.Opening, token.LBRACK)
-		p.parameters0(fields.Opening, fields.List[1:], fields.Closing)
-		p.print(fields.Closing, token.RBRACK)
+	if fields != nil && len(fields.List) >= 2 {
+		if c, _ := fields.List[1].Type.(*ast.CompositeLit); c != nil {
+			p.print(fields.Opening, token.LBRACK)
+			p.exprList(fields.Opening, c.Elts, 1, 0, fields.Closing)
+			p.print(fields.Closing, token.RBRACK)
+		}
 	}
 }
 

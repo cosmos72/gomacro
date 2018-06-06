@@ -1002,7 +1002,11 @@ var testcases = []TestCase{
 				List: []*ast.Field{
 					nil,
 					{
-						Type: &ast.Ident{Name: "T"},
+						Type: &ast.CompositeLit{
+							Elts: []ast.Expr{
+								&ast.Ident{Name: "T"},
+							},
+						},
 					},
 				},
 			},
@@ -1037,7 +1041,11 @@ var testcases = []TestCase{
 						Type:  &ast.Ident{Name: "Pair"},
 					},
 					{
-						Type: &ast.Ident{Name: "T"},
+						Type: &ast.CompositeLit{
+							Elts: []ast.Expr{
+								&ast.Ident{Name: "T"},
+							},
+						},
 					},
 				},
 			},

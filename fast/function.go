@@ -34,7 +34,7 @@ type funcMaker struct {
 	funcbody  func(*Env)
 }
 
-// DeclFunc compiles a function, macro or method declaration
+// FuncDecl compiles a function, macro or method declaration
 // For closure declarations, use FuncLit()
 func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 	var ismacro bool
@@ -46,7 +46,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 			c.methodDecl(funcdecl)
 			return
 		default:
-			c.Errorf("invalid function/method declaration: found %d receivers, expecting at most one: %v", n, funcdecl)
+			c.TemplateFuncDecl(funcdecl)
 			return
 		}
 	}
