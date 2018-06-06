@@ -1065,7 +1065,30 @@ var testcases = []TestCase{
 			Body: &ast.BlockStmt{},
 		}, nil},
 
-	TestCase{A, "parse_qual_template_name", "~quote{Pair#[T1, T2]}",
+	TestCase{A, "parse_qual_template_name_1", "~quote{Pair#[]}",
+		&ast.IndexExpr{
+			X:     &ast.Ident{Name: "Pair"},
+			Index: &ast.CompositeLit{},
+		}, nil},
+
+	TestCase{A, "parse_qual_template_name_2", "~quote{Pair#[x + 1]}",
+		&ast.IndexExpr{
+			X: &ast.Ident{Name: "Pair"},
+			Index: &ast.CompositeLit{
+				Elts: []ast.Expr{
+					&ast.BinaryExpr{
+						X:  &ast.Ident{Name: "x"},
+						Op: token.ADD,
+						Y: &ast.BasicLit{
+							Kind:  token.INT,
+							Value: "1",
+						},
+					},
+				},
+			},
+		}, nil},
+
+	TestCase{A, "parse_qual_template_name_3", "~quote{Pair#[T1, T2]}",
 		&ast.IndexExpr{
 			X: &ast.Ident{Name: "Pair"},
 			Index: &ast.CompositeLit{

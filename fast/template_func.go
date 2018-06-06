@@ -111,11 +111,12 @@ func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr, node *ast.Inde
 	}
 	n := len(templateArgs)
 	if n != len(fun.Params) {
-		c.Errorf("template function %q expects exactly %d template parameters %v, found %d: %v", name, len(fun.Params), fun.Params, n, templateArgs)
+		c.Errorf("template function expects exactly %d template parameters %v, found %d: %v", len(fun.Params), fun.Params, n, node)
 	}
 	vals := make([]I, n)
 	types := make([]xr.Type, n)
-	key := r.New(r.ArrayOf(n, rTypeOfInterface)).Elem() // slices cannot be used as map keys... use an array and reflection
+	// slices cannot be used as map keys. use an array and reflection
+	key := r.New(r.ArrayOf(n, rTypeOfInterface)).Elem()
 
 	for i, templateArg := range templateArgs {
 		e, t := c.Expr1OrType(templateArg)
@@ -139,6 +140,7 @@ func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr, node *ast.Inde
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
 		expr = upc.instantiateTemplateFunc(fun, vals, types, node)
+		// cache instantiated template function
 		fun.Instances[ikey] = expr
 	}
 

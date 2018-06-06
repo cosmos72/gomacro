@@ -27,7 +27,14 @@ import (
 func (p *parser) parseHash(prefix ast.Expr) ast.Expr {
 	p.next()
 	lbrack := p.expect(token.LBRACK)
-	list := p.parseTypeList()
+	var list []ast.Expr
+	if p.tok != token.RBRACK {
+		list = append(list, p.parseRhsOrType())
+		for p.tok == token.COMMA {
+			p.next()
+			list = append(list, p.parseRhsOrType())
+		}
+	}
 	rbrack := p.expect(token.RBRACK)
 	return &ast.IndexExpr{
 		X:      prefix,
@@ -44,7 +51,7 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 		defer un(trace(p, "TemplateDecl"))
 	}
 	var lbrack, rbrack token.Pos
-	var templateTypes []ast.Expr
+	var templateParams []ast.Expr
 
 	p.expect(mt.TEMPLATE)
 	lbrack = p.expect(token.LBRACK)
@@ -66,7 +73,7 @@ loop:
 			return bad()
 		}
 
-		templateTypes = append(templateTypes, p.parseType())
+		templateParams = append(templateParams, p.parseRhsOrType())
 
 		tok = p.tok
 		if tok == token.RBRACK {
@@ -80,11 +87,11 @@ loop:
 	switch tok := p.tok; tok {
 	case token.TYPE:
 		decl := p.parseGenDecl(tok, p.parseTypeSpec)
-		return templateTypeDecl(lbrack, templateTypes, rbrack, decl)
+		return templateTypeDecl(lbrack, templateParams, rbrack, decl)
 
 	case token.FUNC, mt.FUNCTION:
 		decl := p.parseFuncDecl(tok)
-		return templateFuncDecl(lbrack, templateTypes, rbrack, decl)
+		return templateFuncDecl(lbrack, templateParams, rbrack, decl)
 
 	default:
 		pos := p.pos
@@ -94,7 +101,7 @@ loop:
 	}
 }
 
-func templateTypeDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.Pos, decl *ast.GenDecl) *ast.GenDecl {
+func templateTypeDecl(lbrack token.Pos, templateParams []ast.Expr, rbrack token.Pos, decl *ast.GenDecl) *ast.GenDecl {
 	for _, spec := range decl.Specs {
 		if typespec, ok := spec.(*ast.TypeSpec); ok {
 			// hack: store template types in *ast.CompositeLit.
@@ -102,7 +109,7 @@ func templateTypeDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.P
 			typespec.Type = &ast.CompositeLit{
 				Type:   typespec.Type,
 				Lbrace: lbrack,
-				Elts:   templateTypes,
+				Elts:   templateParams,
 				Rbrace: rbrack,
 			}
 		}
@@ -110,7 +117,7 @@ func templateTypeDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.P
 	return decl
 }
 
-func templateFuncDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.Pos, decl *ast.FuncDecl) *ast.FuncDecl {
+func templateFuncDecl(lbrack token.Pos, templateParams []ast.Expr, rbrack token.Pos, decl *ast.FuncDecl) *ast.FuncDecl {
 	// hack: store template types as second function receiver.
 	// it's never used for functions and macros.
 	recv := decl.Recv
@@ -121,7 +128,7 @@ func templateFuncDecl(lbrack token.Pos, templateTypes []ast.Expr, rbrack token.P
 	list := []*ast.Field{
 		nil,
 		// add template types as second receiver
-		&ast.Field{Type: &ast.CompositeLit{Elts: templateTypes}},
+		&ast.Field{Type: &ast.CompositeLit{Elts: templateParams}},
 	}
 	if len(recv.List) != 0 {
 		list[0] = recv.List[0]
