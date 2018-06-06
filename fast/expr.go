@@ -177,7 +177,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	if ident, _ := node.X.(*ast.Ident); ident != nil {
 		cindex, _ := node.Index.(*ast.CompositeLit)
 		if cindex != nil && cindex.Type == nil {
-			return c.TemplateFunc(ident.Name, cindex.Elts)
+			return c.TemplateFunc(ident.Name, cindex.Elts, node)
 		}
 	}
 	return c.indexExpr0(node, multivalued)

@@ -79,9 +79,9 @@ func (c *Comp) TemplateFuncDecl(decl *ast.FuncDecl) {
 	}
 }
 
-// TemplateFunc compiles a template function name#[T1, T2...]
-// instantiating it if needed
-func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr) *Expr {
+// TemplateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
+// node is used only for error messages
+func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr, node *ast.IndexExpr) *Expr {
 	sym, upc := c.tryResolve(name)
 	if sym == nil {
 		c.Errorf("undefined identifier: %v", name)
@@ -118,7 +118,7 @@ func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr) *Expr {
 	if expr == nil {
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
-		expr = upc.instantiateTemplateFunc(fun, vals, types)
+		expr = upc.instantiateTemplateFunc(fun, vals, types, node)
 	}
 
 	efun := expr.AsX1()
@@ -157,8 +157,9 @@ func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr) *Expr {
 	return exprFun(expr.Type, retfun)
 }
 
-// TemplateFunc instantiates and compiles a template function
-func (c *Comp) instantiateTemplateFunc(fun *TemplateFunc, vals []I, types []xr.Type) *Expr {
+// TemplateFunc instantiates and compiles a template function.
+// node and origC are used only for error messages
+func (c *Comp) instantiateTemplateFunc(fun *TemplateFunc, vals []I, types []xr.Type, node *ast.IndexExpr) *Expr {
 
 	// create a new nested Comp, and inject template arguments in it
 	c = NewComp(c, nil)
@@ -173,7 +174,15 @@ func (c *Comp) instantiateTemplateFunc(fun *TemplateFunc, vals []I, types []xr.T
 			c.declTypeAlias(name, t)
 		}
 	}
+	panicking := true
+	defer func() {
+		if panicking {
+			c.ErrorAt(node.Pos(), "error instantiating template function: %v\n\t%v", node, recover())
+		}
+	}()
 	// compile an expression that, when evaluated at runtime in the *Env
 	// where the template function was declared, returns the instantiated function
-	return c.FuncLit(fun.Decl)
+	expr := c.FuncLit(fun.Decl)
+	panicking = false
+	return expr
 }

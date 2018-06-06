@@ -94,6 +94,20 @@ func (st *Stringer) Errorf(format string, args ...interface{}) (r.Value, []r.Val
 	panic(RuntimeError{st, format, args})
 }
 
+func (st *Stringer) ErrorAt(pos token.Pos, format string, args ...interface{}) (r.Value, []r.Value) {
+	if st != nil {
+		args = st.toPrintables(format, args)
+		if st.Fileset != nil {
+			position := st.Fileset.Position(pos).String()
+			if position != "" && position != "-" {
+				args = append([]interface{}{position}, args...)
+				format = "%s: " + format
+			}
+		}
+	}
+	panic(RuntimeError{nil, format, args})
+}
+
 func Warnf(format string, args ...interface{}) {
 	str := fmt.Sprintf(format, args...)
 	fmt.Printf("// warning: %s\n", str)
