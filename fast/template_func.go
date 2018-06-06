@@ -19,7 +19,9 @@ package fast
 import (
 	"go/ast"
 	r "reflect"
+	"strings"
 
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -31,6 +33,23 @@ type TemplateFunc struct {
 	// key is [N]interface{}{T1, T2...}
 	// value is *TemplateFuncInstance to allow replacing instantiated template functions at runtime (by recompiling them)
 	Instances map[I]*Expr
+}
+
+func (f *TemplateFunc) String() string {
+	if f == nil {
+		return "<nil>"
+	}
+	var buf strings.Builder
+	buf.WriteString("template[")
+	for i, param := range f.Params {
+		if i != 0 {
+			buf.WriteString(", ")
+		}
+		buf.WriteString(param)
+	}
+	buf.WriteString("] ")
+	(*base.Stringer).Fprintf(nil, &buf, "%v", f.Decl.Type)
+	return buf.String()
 }
 
 // TemplateFuncDecl stores a template function or method declaration
@@ -114,11 +133,13 @@ func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr, node *ast.Inde
 		}
 	}
 
-	expr, _ := fun.Instances[key.Interface()]
+	ikey := key.Interface()
+	expr, _ := fun.Instances[ikey]
 	if expr == nil {
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
 		expr = upc.instantiateTemplateFunc(fun, vals, types, node)
+		fun.Instances[ikey] = expr
 	}
 
 	efun := expr.AsX1()
