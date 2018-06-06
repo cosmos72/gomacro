@@ -177,7 +177,7 @@ func (ir *Interp) DeclType(t xr.Type) {
 
 // DeclType declares a type alias
 func (ir *Interp) DeclTypeAlias(alias string, t xr.Type) {
-	ir.Comp.DeclTypeAlias0(alias, t)
+	ir.Comp.declTypeAlias(alias, t)
 }
 
 // DeclVar compiles a variable declaration

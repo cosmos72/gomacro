@@ -234,6 +234,8 @@ func (class BindClass) String() string {
 		return "const"
 	case FuncBind:
 		return "func"
+	case TemplateFuncBind:
+		return "template func"
 	default:
 		return "var"
 	}

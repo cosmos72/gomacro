@@ -29,9 +29,7 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr { return c.indexExpr(node, true) }
-func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr { return c.indexExpr(node, false) }
-func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
+func (c *Comp) indexExpr0(node *ast.IndexExpr, multivalued bool) *Expr {
 	obj := c.Expr1(node.X, nil)
 	idx := c.Expr1(node.Index, nil)
 	if obj.Untyped() {
@@ -53,8 +51,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
-			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() },
-			)
+			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() })
 			ret = c.vectorIndex(node, deref, idx)
 			break
 		}

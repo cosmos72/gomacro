@@ -24,7 +24,7 @@ import (
 )
 
 func (c *Comp) Resolve(name string) *Symbol {
-	sym := c.TryResolve(name)
+	sym, _ := c.tryResolve(name)
 	if sym == nil {
 		c.Errorf("undefined identifier: %v", name)
 	}
@@ -32,15 +32,20 @@ func (c *Comp) Resolve(name string) *Symbol {
 }
 
 func (c *Comp) TryResolve(name string) *Symbol {
+	sym, _ := c.tryResolve(name)
+	return sym
+}
+
+func (c *Comp) tryResolve(name string) (*Symbol, *Comp) {
 	upn := 0
 	for ; c != nil; c = c.Outer {
 		if bind, ok := c.Binds[name]; ok {
 			// c.Debugf("TryResolve: %s is upn=%d %v", name, upn, bind)
-			return bind.AsSymbol(upn)
+			return bind.AsSymbol(upn), c
 		}
 		upn += c.UpCost // c.UpCost is zero if *Comp has no local variables/functions so it will NOT have a corresponding *Env at runtime
 	}
-	return nil
+	return nil, nil
 }
 
 // Ident compiles a read operation on a constant, variable or function
@@ -97,6 +102,8 @@ func (sym *Symbol) Expr(depth int, st *base.Stringer) *Expr {
 		return sym.expr(depth, st)
 	case IntBind:
 		return sym.intExpr(depth, st)
+	case TemplateFuncBind:
+		st.Errorf("template function name must be followed by #[...] template arguments: %v", sym.Name)
 	default:
 		st.Errorf("unknown symbol class %s", sym.Desc.Class())
 	}
