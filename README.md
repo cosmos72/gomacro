@@ -90,8 +90,10 @@ Gomacro can be used as:
 		}
 		return sum
 	}
+	Sum#[int]         // returns func(...int) int
 	Sum#[int] (1,2,3) // returns int(6)
-	
+
+	Sum#[complex64]                 // returns func(...complex64) complex64
 	Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
 
 	template[T,U] func Transform(slice []T, trans func(T) U) []U {
@@ -101,9 +103,10 @@ Gomacro can be used as:
 		}
 		return ret
 	}
+	Transform#[string,int] // returns func([]string, func(string) int) []int
 	
 	// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
-	
+
 	Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
 	```
   Current limitations: partial or full template specializations not supported yet.  

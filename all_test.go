@@ -1089,8 +1089,9 @@ var testcases = []TestCase{
 	TestCase{F, "template_func_3", `Sum#[complex64]`, func(...complex64) complex64 { return 0 }, nil},
 	TestCase{F, "template_func_4", `Sum#[int](1, 2, 3)`, 6, nil},
 	TestCase{F, "template_func_5", `Sum#[complex64](1.1+2.2i, 3.3)`, complex64(1.1+2.2i) + complex64(3.3), nil},
+	TestCase{F, "template_func_6", `Sum#[string]("abc","def","xy","z")`, "abcdefxyz", nil},
 
-	TestCase{F, "template_func_6", `
+	TestCase{F, "template_func_7", `
 		template[T,U] func Transform(slice []T, trans func(T) U) []U {
 			ret := make([]U, len(slice))
 			for i := range slice {
@@ -1099,7 +1100,7 @@ var testcases = []TestCase{
 			return ret
 		}`, nil, []interface{}{},
 	},
-	TestCase{F, "template_func_7", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
+	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
 		[]int{3, 2, 1}, nil},
 }
 
