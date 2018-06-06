@@ -292,36 +292,36 @@ gomacro contains an experimental version of Go generics.
 
 They are in early stage of development, and at the moment only generic functions are supported.
 Syntax and examples:
-	```
-	template[T] func Sum(args ...T) T {
-		var sum T // exploit zero value of T
-		for _, elem := range args {
-			sum += elem
-		}
-		return sum
+```
+template[T] func Sum(args ...T) T {
+	var sum T // exploit zero value of T
+	for _, elem := range args {
+		sum += elem
 	}
-	Sum#[int]         // returns func(...int) int
-	Sum#[int] (1,2,3) // returns int(6)
+	return sum
+}
+Sum#[int]         // returns func(...int) int
+Sum#[int] (1,2,3) // returns int(6)
 
-	Sum#[complex64]                 // returns func(...complex64) complex64
-	Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
+Sum#[complex64]                 // returns func(...complex64) complex64
+Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
 
-	Sum#[string]                         // returns func(...string) string
-	Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
+Sum#[string]                         // returns func(...string) string
+Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
 
-	template[T,U] func Transform(slice []T, trans func(T) U) []U {
-		ret := make([]U, len(slice))
-		for i := range slice {
-			ret[i] = trans(slice[i])
-		}
-		return ret
+template[T,U] func Transform(slice []T, trans func(T) U) []U {
+	ret := make([]U, len(slice))
+	for i := range slice {
+		ret[i] = trans(slice[i])
 	}
-	Transform#[string,int] // returns func([]string, func(string) int) []int
+	return ret
+}
+Transform#[string,int] // returns func([]string, func(string) int) []int
 
-	// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
+// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
 
-	Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
-	```
+Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
+```
 Current limitations:
 * partial or full template specializations not supported yet.
 * instantiation is on-demand, but template arguments #[...] must be explicit.
