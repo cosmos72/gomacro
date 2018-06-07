@@ -234,10 +234,14 @@ func (class BindClass) String() string {
 		return "const"
 	case FuncBind:
 		return "func"
+	case VarBind:
+		return "var"
+	case IntBind:
+		return "intvar"
 	case TemplateFuncBind:
 		return "template func"
 	default:
-		return "var"
+		return fmt.Sprintf("unknown%d", uint(class))
 	}
 }
 

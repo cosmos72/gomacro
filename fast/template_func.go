@@ -17,13 +17,18 @@
 package fast
 
 import (
+	"bytes"
 	"go/ast"
 	r "reflect"
-	"strings"
 
 	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
+
+type TemplateFuncInstance struct {
+	Func func(*Env) r.Value
+	Type xr.Type
+}
 
 type TemplateFunc struct {
 	Decl           *ast.FuncLit // template function declaration. use a *ast.FuncLit because we will compile it with Comp.FuncLit()
@@ -32,14 +37,15 @@ type TemplateFunc struct {
 	// cache of instantiated and compiled functions.
 	// key is [N]interface{}{T1, T2...}
 	// value is *TemplateFuncInstance to allow replacing instantiated template functions at runtime (by recompiling them)
-	Instances map[I]*Expr
+	Instances map[I]*TemplateFuncInstance
 }
 
 func (f *TemplateFunc) String() string {
 	if f == nil {
 		return "<nil>"
 	}
-	var buf strings.Builder
+	var buf bytes.Buffer // strings.Builder requires Go >= 1.10
+
 	buf.WriteString("template[")
 	for i, param := range f.Params {
 		if i != 0 {
@@ -94,7 +100,7 @@ func (c *Comp) TemplateFuncDecl(decl *ast.FuncDecl) {
 			Body: decl.Body,
 		},
 		Params:    typeParams,
-		Instances: make(map[I]*Expr),
+		Instances: make(map[I]*TemplateFuncInstance),
 	}
 }
 
@@ -135,18 +141,28 @@ func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr, node *ast.Inde
 	}
 
 	ikey := key.Interface()
-	expr, _ := fun.Instances[ikey]
-	if expr == nil {
+	instance, _ := fun.Instances[ikey]
+	if instance != nil {
+		if c.Globals.Options&base.OptDebugTemplate != 0 {
+			c.Debugf("found instantiated template function %v", node)
+		}
+	} else {
+		if c.Globals.Options&base.OptDebugTemplate != 0 {
+			c.Debugf("instantiating template function %v", node)
+		}
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
-		expr = upc.instantiateTemplateFunc(fun, vals, types, node)
+		instance = upc.instantiateTemplateFunc(fun, vals, types, node)
 		// cache instantiated template function
-		fun.Instances[ikey] = expr
+		fun.Instances[ikey] = instance
 	}
 
-	efun := expr.AsX1()
+	efun := instance.Func
 	var retfun func(*Env) r.Value
 
+	if c.Globals.Options&base.OptDebugTemplate != 0 {
+		c.Debugf("template function: %v, upn = %v, instance = %v", node, sym.Upn, instance)
+	}
 	// switch to the correct *Env before evaluating expr
 	switch upn := sym.Upn; upn {
 	case 0:
@@ -177,12 +193,12 @@ func (c *Comp) TemplateFunc(name string, templateArgs []ast.Expr, node *ast.Inde
 	}
 
 	// always return a new *Expr, in case caller modifies it
-	return exprFun(expr.Type, retfun)
+	return exprFun(instance.Type, retfun)
 }
 
 // TemplateFunc instantiates and compiles a template function.
 // node and origC are used only for error messages
-func (c *Comp) instantiateTemplateFunc(fun *TemplateFunc, vals []I, types []xr.Type, node *ast.IndexExpr) *Expr {
+func (c *Comp) instantiateTemplateFunc(fun *TemplateFunc, vals []I, types []xr.Type, node *ast.IndexExpr) *TemplateFuncInstance {
 
 	// create a new nested Comp, and inject template arguments in it
 	c = NewComp(c, nil)
@@ -207,5 +223,5 @@ func (c *Comp) instantiateTemplateFunc(fun *TemplateFunc, vals []I, types []xr.T
 	// where the template function was declared, returns the instantiated function
 	expr := c.FuncLit(fun.Decl)
 	panicking = false
-	return expr
+	return &TemplateFuncInstance{Func: expr.AsX1(), Type: expr.Type}
 }
