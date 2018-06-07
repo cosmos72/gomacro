@@ -29,7 +29,7 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-func (c *Comp) indexExpr0(node *ast.IndexExpr, multivalued bool) *Expr {
+func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	obj := c.Expr1(node.X, nil)
 	idx := c.Expr1(node.Index, nil)
 	if obj.Untyped() {

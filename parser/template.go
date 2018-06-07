@@ -25,7 +25,10 @@ import (
 
 // parse prefix#[T1,T2...] as &ast.IndexExpr{ &ast.CompositeLit{Type: Foo, Elts: [T1, T2...]} }
 func (p *parser) parseHash(prefix ast.Expr) ast.Expr {
-	p.next()
+	if p.trace {
+		defer un(trace(p, "Hash"))
+	}
+	p.expect(mt.HASH)
 	lbrack := p.expect(token.LBRACK)
 	var list []ast.Expr
 	if p.tok != token.RBRACK {

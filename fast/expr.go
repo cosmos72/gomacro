@@ -164,21 +164,17 @@ func (c *Comp) Expr1OrType(node ast.Expr) (e *Expr, t xr.Type) {
 // IndexExpr compiles a read operation on obj[idx]
 // or a template function name#[T1, T2...]
 func (c *Comp) IndexExpr(node *ast.IndexExpr) *Expr {
+	if e := c.TemplateFunc(node); e != nil {
+		return e
+	}
 	return c.indexExpr(node, true)
 }
 
 // IndexExpr1 compiles a single-valued read operation on obj[idx]
 // or a template function name#[T1, T2...]
 func (c *Comp) IndexExpr1(node *ast.IndexExpr) *Expr {
-	return c.indexExpr(node, false)
-}
-
-func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
-	if ident, _ := node.X.(*ast.Ident); ident != nil {
-		cindex, _ := node.Index.(*ast.CompositeLit)
-		if cindex != nil && cindex.Type == nil {
-			return c.TemplateFunc(ident.Name, cindex.Elts, node)
-		}
+	if e := c.TemplateFunc(node); e != nil {
+		return e
 	}
-	return c.indexExpr0(node, multivalued)
+	return c.indexExpr(node, false)
 }

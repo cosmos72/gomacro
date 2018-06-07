@@ -28,37 +28,41 @@ import (
 )
 
 // DeclType compiles a type declaration.
-func (c *Comp) DeclType(node ast.Spec) {
-	if node, ok := node.(*ast.TypeSpec); ok {
-		name := node.Name.Name
-		// support type aliases
-		if node.Assign != token.NoPos {
-			t := c.Type(node.Type)
-			c.DeclTypeAlias(name, t)
-			return
-		}
-		// support self-referencing types, as for example: type List struct { First int; Rest *List }
-		oldt := c.Types[name]
-		panicking := true
-		defer func() {
-			// On compile error, restore pre-existing declaration
-			if !panicking || c.Types == nil {
-				// nothing to do
-			} else if oldt != nil {
-				c.Types[name] = oldt
-			} else {
-				delete(c.Types, name)
-			}
-		}()
-		t := c.DeclNamedType(name)
-		u := c.Type(node.Type)
-		if t != nil { // t == nil means name == "_", discard the result of type declaration
-			c.SetUnderlyingType(t, u)
-		}
-		panicking = false
-	} else {
-		c.Errorf("unexpected declaration type, expecting <*ast.TypeSpec>, found: %v <%v>", node, r.TypeOf(node))
+func (c *Comp) DeclType(spec ast.Spec) {
+	node, ok := spec.(*ast.TypeSpec)
+	if !ok {
+		c.Errorf("unexpected type declaration, expecting *ast.TypeSpec, found: %v // %T", spec, spec)
 	}
+	if lit, _ := node.Type.(*ast.CompositeLit); lit != nil {
+		c.DeclTemplateType(node)
+		return
+	}
+	name := node.Name.Name
+	// support type aliases
+	if node.Assign != token.NoPos {
+		t := c.Type(node.Type)
+		c.DeclTypeAlias(name, t)
+		return
+	}
+	// support self-referencing types, as for example: type List struct { First int; Rest *List }
+	oldt := c.Types[name]
+	panicking := true
+	defer func() {
+		// On compile error, restore pre-existing declaration
+		if !panicking || c.Types == nil {
+			// nothing to do
+		} else if oldt != nil {
+			c.Types[name] = oldt
+		} else {
+			delete(c.Types, name)
+		}
+	}()
+	t := c.DeclNamedType(name)
+	u := c.Type(node.Type)
+	if t != nil { // t == nil means name == "_", discard the result of type declaration
+		c.SetUnderlyingType(t, u)
+	}
+	panicking = false
 }
 
 // DeclTypeAlias compiles a typealias declaration, i.e. type Foo = /*...*/
@@ -208,6 +212,8 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 		t, _, _ = c.TypeFunction(node)
 	case *ast.Ident:
 		t = c.ResolveType(node.Name)
+	case *ast.IndexExpr:
+		t = c.TemplateType(node)
 	case *ast.InterfaceType:
 		t = c.TypeInterface(node)
 	case *ast.MapType:
@@ -843,6 +849,7 @@ var (
 	rtypeOfMacro           = r.TypeOf(Macro{})
 	rtypeOfPtrImport       = r.TypeOf((*Import)(nil))
 	rtypeOfPtrTemplateFunc = r.TypeOf((*TemplateFunc)(nil))
+	rtypeOfPtrTemplateType = r.TypeOf((*TemplateType)(nil))
 	rtypeOfReflectType     = r.TypeOf((*r.Type)(nil)).Elem()
 	rtypeOfUntypedLit      = r.TypeOf(UntypedLit{})
 
@@ -867,6 +874,10 @@ func (g *CompGlobals) TypeOfPtrImport() xr.Type {
 
 func (g *CompGlobals) TypeOfPtrTemplateFunc() xr.Type {
 	return g.Universe.ReflectTypes[rtypeOfPtrTemplateFunc]
+}
+
+func (g *CompGlobals) TypeOfPtrTemplateType() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfPtrTemplateType]
 }
 
 func (g *CompGlobals) TypeOfUntypedLit() xr.Type {

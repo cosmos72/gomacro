@@ -318,6 +318,16 @@ type Pair = struct { // unnamed!
 	B string
 }
 
+type PairX2 = struct { // unnamed!
+	First  complex64
+	Second struct{}
+}
+
+type PairX3 = struct { // unnamed!
+	First  bool
+	Second interface{}
+}
+
 var bigInt = new(big.Int)
 var bigRat = new(big.Rat)
 var bigFloat = new(big.Float)
@@ -395,7 +405,7 @@ var testcases = []TestCase{
 	TestCase{A, "var_2", "var v2 uint8 = 7; v2", uint8(7), nil},
 	TestCase{A, "var_3", "var v3 uint16 = 12; v3", uint16(12), nil},
 	TestCase{A, "var_4", "var v uint32 = 99; v", uint32(99), nil},
-	TestCase{A, "var_5", "var v5 string; v5", "", nil},
+	TestCase{A, "var_5", "var vs string; vs", "", nil},
 	TestCase{A, "var_6", "var v6 float32; v6", float32(0), nil},
 	TestCase{A, "var_7", "var v7 complex64; v7", complex64(0), nil},
 	TestCase{A, "var_9", "var v8 complex128; v8", complex128(0), nil},
@@ -403,7 +413,7 @@ var testcases = []TestCase{
 	TestCase{A, "var_10", `ve, vf := "", 1.23; ve`, "", nil},
 	TestCase{A, "var_pointer", "var vp *string; vp", (*string)(nil), nil},
 	TestCase{A, "var_map", "var vm *map[error]bool; vm", (*map[error]bool)(nil), nil},
-	TestCase{A, "var_slice", "var vs []byte; vs", ([]byte)(nil), nil},
+	TestCase{A, "var_slice", "var vbs []byte; vbs", ([]byte)(nil), nil},
 	TestCase{A, "var_array", "var va [2]rune; va", [2]rune{}, nil},
 	TestCase{A, "var_interface_1", "var vi interface{} = 1; vi", 1, nil},
 	TestCase{A, "var_interface_2", "var vnil interface{}; vnil", nil, nil},
@@ -453,7 +463,7 @@ var testcases = []TestCase{
 	TestCase{A, "eql_nil_1", "err == nil", true, nil},
 	TestCase{A, "eql_nil_2", "vp == nil", true, nil},
 	TestCase{A, "eql_nil_3", "vm == nil", true, nil},
-	TestCase{A, "eql_nil_4", "vs == nil", true, nil},
+	TestCase{A, "eql_nil_4", "vbs == nil", true, nil},
 	TestCase{A, "eql_nil_5", "vi == nil", false, nil},
 	TestCase{A, "eql_nil_6", "vnil == nil", true, nil},
 	TestCase{A, "eql_halfnil_1", "var vhalfnil interface{} = vm; vhalfnil == nil", false, nil},
@@ -498,13 +508,13 @@ var testcases = []TestCase{
 	TestCase{A, "address_0", "var vf = 1.25; *&vf == vf", true, nil},
 	TestCase{A, "address_1", "var pvf = &vf; *pvf", 1.25, nil},
 	TestCase{A, "address_2", "&*pvf == *&pvf", true, nil},
-	TestCase{A, "address_3", "var pvs = &vs; v1 = (*pvs == nil); v1", true, nil},
+	TestCase{A, "address_3", "var pvs = &vbs; v1 = (*pvs == nil); v1", true, nil},
 
 	TestCase{A, "make_chan", "cx := make(chan interface{}, 2); cx", make(chan interface{}, 2), nil},
 	TestCase{A, "make_map", "m := make(map[int]string); m", make(map[int]string), nil},
 	TestCase{A, "make_slice", "y := make([]uint8, 7); y[0] = 100; y[3] = 103; y", []uint8{100, 0, 0, 103, 0, 0, 0}, nil},
 	TestCase{A, "expr_index_string_1", `"abc"[2]`, byte('c'), nil},
-	TestCase{A, "expr_index_string_2", `v5 = "foo"; v0 = 0; v5[v0]`, byte('f'), nil},
+	TestCase{A, "expr_index_string_2", `vs = "foo"; v0 = 0; vs[v0]`, byte('f'), nil},
 	TestCase{A, "expr_index_array_1", `va[1]`, rune(0), nil},
 	TestCase{A, "expr_index_array_2", `(&va)[0]`, rune(0), nil},
 	TestCase{A, "expr_index_map", `var m2 map[rune]string; m2['x']`, nil, []interface{}{"", false}},
@@ -521,7 +531,7 @@ var testcases = []TestCase{
 	TestCase{A, "set_const_2", "v2 = 9;       v2", uint8(9), nil},
 	TestCase{A, "set_const_3", "v3 = 60000;   v3", uint16(60000), nil},
 	TestCase{A, "set_const_4", "v  = 987;      v", uint32(987), nil},
-	TestCase{A, "set_const_5", `v5 = "8y57r"; v5`, "8y57r", nil},
+	TestCase{A, "set_const_5", `vs = "8y57r"; vs`, "8y57r", nil},
 	TestCase{A, "set_const_6", "v6 = 0.12345678901234; v6", float32(0.12345678901234), nil}, // v6 is declared float32
 	TestCase{A, "set_const_7", "v7 = 0.98765432109i; v7", complex64(0.98765432109i), nil},   // v7 is declared complex64
 	TestCase{A, "set_const_8", "v8 = 0.98765432109i; v8", complex128(0.98765432109i), nil},  // v8 is declared complex128
@@ -530,7 +540,7 @@ var testcases = []TestCase{
 	TestCase{A, "set_expr_2", "v2 -= 7;      v2", uint8(2), nil},
 	TestCase{A, "set_expr_3", "v3 %= 7;      v3", uint16(60000) % 7, nil},
 	TestCase{A, "set_expr_4", "v  = v * 10;      v", uint32(9870), nil},
-	TestCase{A, "set_expr_5", `v5 = v5 + "iuh";  v5`, "8y57riuh", nil},
+	TestCase{A, "set_expr_5", `vs = vs + "iuh";  vs`, "8y57riuh", nil},
 	TestCase{A, "set_expr_6", "v6 = 1/v6;        v6", 1 / float32(0.12345678901234), nil},                          // v6 is declared float32
 	TestCase{A, "set_expr_7", "v7 = v7 * v7;     v7", -complex64(0.98765432109) * complex64(0.98765432109), nil},   // v7 is declared complex64
 	TestCase{A, "set_expr_8", "v8 = v8 * v8;     v8", -complex128(0.98765432109) * complex128(0.98765432109), nil}, // v8 is declared complex64
@@ -538,7 +548,7 @@ var testcases = []TestCase{
 	TestCase{A, "add_2", "v2 += 255;    v2", uint8(1), nil}, // overflow
 	TestCase{A, "add_3", "v3 += 536;    v3", uint16(60000)%7 + 536, nil},
 	TestCase{A, "add_4", "v  += 111;     v", uint32(9870 + 111), nil},
-	TestCase{A, "add_5", `v5 += "@#$";  v5`, "8y57riuh@#$", nil},
+	TestCase{A, "add_5", `vs += "@#$";  vs`, "8y57riuh@#$", nil},
 	TestCase{A, "add_6", "v6 += 0.975319; v6", 1/float32(0.12345678901234) + float32(0.975319), nil}, // v6 is declared float32
 	TestCase{A, "add_7", "v7 = 1; v7 += 0.999999i; v7", complex(float32(1), float32(0.999999)), nil}, // v7 is declared complex64
 	TestCase{A, "add_8", "v8 = 1; v8 += 0.999999i; v8", complex(1, 0.999999), nil},                   // v8 is declared complex128
@@ -573,6 +583,7 @@ var testcases = []TestCase{
 	TestCase{A, "continue_4", "k", 25, nil},
 
 	TestCase{A, "for_range_array", `v0 = 0; for _, s := range [2]string{"a", "bc"} { v0 += len(s) }; v0`, 3, nil},
+	TestCase{A, "for_range_ptr_array", `v0 = 0; var vis string; for _, vis = range &[...]string{"999", "1234"} { v0 += len(vis) }; v0`, 7, nil},
 	TestCase{A, "for_range_chan", `v0 = 0; c := make(chan int, 2); c <- 1; c <- 2; close(c); for e := range c { v0 += e }; v0`, 3, nil},
 	TestCase{A, "for_range_map", `var vrune rune; m2 = map[rune]string{'x':"x", 'y':"y", 'z':"z"}; for k,v := range m2 { vrune += k + rune(v[0]) }; vrune`, ('x' + 'y' + 'z') * 2, nil},
 	TestCase{A, "for_range_slice", `v0 = 0; for _, s := range [ ]string{"a", "bc"} { v0 += len(s) }; v0`, 3, nil},
@@ -672,9 +683,9 @@ var testcases = []TestCase{
 	TestCase{F, "big.Rat", `(func() *big.Rat { var x *big.Rat = 1.000000001; x.Mul(x,x); x.Mul(x,x); return x })()`, bigRat, nil},
 	TestCase{F, "big.Float", `(func() *big.Float { var x *big.Float = 1e1234; x.Mul(x,x); x.Mul(x,x); return x })()`, bigFloat, nil},
 
-	TestCase{A, "builtin_append", "append(vs,0,1,2)", []byte{0, 1, 2}, nil},
+	TestCase{A, "builtin_append", "append(vbs,0,1,2)", []byte{0, 1, 2}, nil},
 	TestCase{A, "builtin_cap", "cap(va)", 2, nil},
-	TestCase{A, "builtin_len", "len(v5)", len("8y57riuh@#$"), nil},
+	TestCase{A, "builtin_len", "len(vs)", len("8y57riuh@#$"), nil},
 	TestCase{A, "builtin_new", "new(int)", new(int), nil},
 	TestCase{A, "builtin_make_1", "make(map[int]int)", make(map[int]int), nil},
 	TestCase{A, "builtin_make_2", "make(map[int]int, 10)", make(map[int]int), nil}, // capacity is ignored
@@ -682,9 +693,9 @@ var testcases = []TestCase{
 	TestCase{A, "builtin_make_5", "make([]rune, 3, 4)", make([]rune, 3, 4), nil},
 	TestCase{A, "builtin_make_6", "make(chan byte)", make(chan byte), nil},
 	TestCase{A, "builtin_make_7", "make(chan byte, 2)", make(chan byte, 2), nil},
-	TestCase{A, "builtin_make_8", "vs = make([]byte, 5); vs", make([]byte, 5), nil},
-	TestCase{A, "builtin_copy_1", "copy(vs, v5)", 5, nil},
-	TestCase{A, "builtin_copy_2", "vs", []byte("8y57r"), nil},
+	TestCase{A, "builtin_make_8", "vbs = make([]byte, 5); vbs", make([]byte, 5), nil},
+	TestCase{A, "builtin_copy_1", "copy(vbs, vs)", 5, nil},
+	TestCase{A, "builtin_copy_2", "vbs", []byte("8y57r"), nil},
 	TestCase{A, "builtin_delete_1", "delete(mi,64); mi", map[rune]byte{'a': 7}, nil},
 	TestCase{A, "builtin_real_1", "real(0.5+1.75i)", real(0.5 + 1.75i), nil},
 	TestCase{A, "builtin_real_2", "const cplx complex64 = 1.5+0.25i; real(cplx)", real(complex64(1.5 + 0.25i)), nil},
@@ -1142,6 +1153,10 @@ var testcases = []TestCase{
 	},
 	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
 		[]int{3, 2, 1}, nil},
+
+	TestCase{F, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, []interface{}{}},
+	TestCase{F, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
+	TestCase{F, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {

@@ -105,3 +105,99 @@ Implementation choice: `Pair#[int, string]` is represented as
 The simpler `&ast.CompositeLit{Type: Pair, Elts: [T1, T2...]} }` would suffice
 for the parser, but compiling it is much more ambiguous, since it could be
 interpreted as the composite literal `Pair{T1, T2}`
+
+#### Composite Literals ####
+
+The parser had to be extended to recognize things like `Pair#[T1,T2] {}`
+as a valid composite literal.
+
+In practice, `isTypeName()` and `isLiteralType()` now return true for *ast.IndexExpr.
+
+This solution should be better examined or tested to check whether the increased
+syntax ambiguity is a problem, but an official implementation will surely create
+new ast.Node types to hold template declarations and template uses, bypassing
+this potential problem.
+
+### Declaration ###
+
+The declaration of template types and functions is straightforward.
+
+For each template declaration found, the compiler now collects it in the same
+`map[string]*Bind` used for const, var and func declarations.
+
+Such declarations store in the *Bind their **source code** as an ast.Node, in order to
+retrieve and compile it on-demand when the template type or function needs to be
+instantiated.
+
+This is easy for an interpreter, but more tricky for a compiler:
+since a package A may use a template B.C declared in package B,
+the compiler may need to instantiate B.C while compiling A.
+
+There are at least two solutions:
+1. for each compiled package, store in the compiled archive packagename.a
+   the **source code** of each template, alongside with binary code.
+
+   This may not play well with commercial, binary-only libraries since,
+   with a little effort, the source code of templates could be extracted.
+
+2. for each compiled package, require its source code to be available
+   in order to instantiate its templates.
+
+   This has the same problem as above, only in stronger form:
+   the **full** source code of B must be available when compiling A.
+
+Another question is: where to store the B.C instantiated while compiling A ?
+
+For templates declared in the standard library and instantiated by non-root users,
+$GOROOT may not be writeable, so it should probably be stored in
+$GOPATH/pkg/$GOOS_$GOARCH/path/to/package, using a name like B.<somehash>.a
+
+### Instantiation ###
+
+Instantiantion is a regular compile, with some careful setup.
+
+Since a template may access global symbols in the scope where it was declared,
+it must be compiled in that **same** scope. Better yet, it can be compiled
+in a new inner scope, that defines the template arguments to use for instantiation.
+
+An example can help to understand the abstract sentence above:
+suppose package B contains
+```
+package B
+
+const N = 10
+
+template[T] type Array [N]T
+```
+
+and is later used by package A as
+```
+package A
+
+import "B"
+
+var arr B.Array#[int]
+```
+
+the technique described abstractly above means: to compile `B.Array#[int]`,
+pretend that package B contains the following (pseudo-code, it's not valid Go):
+```
+{ // open new scope
+
+	type T = int // inject the concrete template argument
+
+	// inject the template declaration literally - no replacements needed
+	type Array [N]T // finds T immediately above, and N in outer scope
+}
+```
+
+There are two small issues with this approach:
+
+1. the name `Array` may conflict with the template parameters names - in this case `T`.
+   Solutions: `Array` name may be replaced/augmented with a generated hash, or some
+   inner compiler function could be used that compiles an **anonymous** type with
+   underlying type `[N]T`.
+   The best solution also depends on the desired behaviour of reflect.Type.Name():
+   what name should it return for a type `Array#[int]` ?
+
+2. compiling recursive template functions or types requires some additional trickery
