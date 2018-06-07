@@ -18,7 +18,7 @@ named 'templates' in this document.
 
 Adding a new syntax to declare template types, function and methods is easy:
 it's just a matter of inventing the syntax and choosing a representation in
-terms of go/ast.Nodes
+terms of `go/ast.Node`s
 
 Current syntax is:
 ```
@@ -26,14 +26,14 @@ template [T1, T2...] type ...
 template [T1, T2...] func ...
 ```
 
-Template type declarations are represented with *ast.TypeSpec as usual,
-with the difference that TypeSpec.Type now contains
+Template type declarations are represented with `*ast.TypeSpec` as usual,
+with the difference that `TypeSpec.Type` now contains
 `&ast.CompositeLit{Type: <type declaration>, Elts: [T1, T2 ...]}`
 
-Template function and method declarations are represented with *ast.FuncDecl
-as usual, with the difference that len(FuncDecl.Recv.List) > 1:
-the first receiver is nil for functions and non-nil for methods,
-further receivers are &ast.Field{Names: nil, Type: <i-th template arg>}
+Template function and method declarations are represented with `*ast.FuncDecl`
+as usual, with the difference that `FuncDecl.Recv.List` now has two elements:
+the first element is nil for functions and non-nil for methods,
+the second element is `&ast.Field{Names: nil, Type: &ast.CompositeLit{Elts: [T1, T2 ...]}}`
 
 #### Using templates ####
 
@@ -111,9 +111,9 @@ interpreted as the composite literal `Pair{T1, T2}`
 The parser had to be extended to recognize things like `Pair#[T1,T2] {}`
 as a valid composite literal.
 
-In practice, `isTypeName()` and `isLiteralType()` now return true for *ast.IndexExpr.
+In practice, `isTypeName()` and `isLiteralType()` now return true for `*ast.IndexExpr`.
 
-This solution should be better examined or tested to check whether the increased
+This solution should be better examined to understand whether the increased
 syntax ambiguity is a problem, but an official implementation will surely create
 new ast.Node types to hold template declarations and template uses, bypassing
 this potential problem.
@@ -150,7 +150,7 @@ Another question is: where to store the B.C instantiated while compiling A ?
 
 For templates declared in the standard library and instantiated by non-root users,
 $GOROOT may not be writeable, so it should probably be stored in
-$GOPATH/pkg/$GOOS_$GOARCH/path/to/package, using a name like B.<somehash>.a
+$GOPATH/pkg/$GOOS_$GOARCH/path/to/package, using a name like B.somehash.a
 
 ### Instantiation ###
 
