@@ -295,9 +295,10 @@ Syntax and examples:
 ```
 template[T,U] type Pair { First T; Second U }
 
-var pair Pair#[complex64, struct{}]        
+var pair Pair#[complex64, struct{}]
 
-// pair := Pair#[complex64, struct{}] {} does not work yet
+// equivalent:
+pair := Pair#[complex64, struct{}] {}
 
 
 template[T] func Sum(args ...T) T {
