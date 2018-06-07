@@ -500,7 +500,7 @@ func syncStmt(p *parser) {
 		case token.BREAK, token.CONST, token.CONTINUE, token.DEFER,
 			token.FALLTHROUGH, token.FOR, token.GO, token.GOTO,
 			token.IF, token.RETURN, token.SELECT, token.SWITCH,
-			token.TYPE, token.VAR, mt.FUNCTION:
+			token.TYPE, token.VAR, mt.FUNCTION, mt.TEMPLATE:
 			// Return only if parser made some progress since last
 			// sync or if it has not reached 10 sync calls without
 			// progress. Otherwise consume at least one token to
@@ -535,7 +535,7 @@ func syncStmt(p *parser) {
 func syncDecl(p *parser) {
 	for {
 		switch p.tok {
-		case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.FUNCTION:
+		case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.FUNCTION, mt.TEMPLATE:
 			// see comments in syncStmt
 			if p.pos == p.syncPos && p.syncCnt < 10 {
 				p.syncCnt++
@@ -1065,7 +1065,12 @@ func (p *parser) parseChanType() *ast.ChanType {
 func (p *parser) tryIdentOrType() ast.Expr {
 	switch p.tok {
 	case token.IDENT:
-		return p.parseTypeName()
+		ident := p.parseTypeName()
+		if p.tok != mt.HASH {
+			return ident
+		}
+		// parse Foo#[T1,T2...]
+		return p.parseHash(ident)
 	case token.LBRACK:
 		return p.parseArrayType()
 	case token.STRUCT:
@@ -1181,8 +1186,11 @@ func (p *parser) parseOperand(lhs bool) ast.Expr {
 
 	switch p.tok {
 	case token.IDENT:
-		x := p.parseIdent()
-		if !lhs {
+		var x ast.Expr = p.parseIdent()
+		if p.tok == mt.HASH {
+			// parse Foo#[T1,T2...]
+			x = p.parseHash(x)
+		} else if !lhs {
 			p.resolve(x)
 		}
 		return x
@@ -1264,14 +1272,26 @@ func (p *parser) parseIndexOrSlice(x ast.Expr) ast.Expr {
 		defer un(trace(p, "IndexOrSlice"))
 	}
 
-	const N = 3 // change the 3 to 2 to disable 3-index slices
 	lbrack := p.expect(token.LBRACK)
 	p.exprLev++
-	var index [N]ast.Expr
-	var colons [N - 1]token.Pos
+	var index0 ast.Expr
 	if p.tok != token.COLON {
-		index[0] = p.parseRhs()
+		index0 = p.parseRhsOrType()
+		if p.tok == token.COMMA {
+			// parse [A, B...]
+			var list = []ast.Expr{index0}
+			for p.tok == token.COMMA {
+				p.next()
+				list = append(list, p.parseType())
+			}
+			p.exprLev--
+			rbrack := p.expect(token.RBRACK)
+			return &ast.IndexExpr{X: x, Lbrack: lbrack, Index: &ast.CompositeLit{Elts: list}, Rbrack: rbrack}
+		}
 	}
+	const N = 3 // change the 3 to 2 to disable 3-index slices
+	var colons [N - 1]token.Pos
+	var index = [N]ast.Expr{index0}
 	ncolons := 0
 	for p.tok == token.COLON && ncolons < len(colons) {
 		colons[ncolons] = p.pos
@@ -2240,8 +2260,8 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 	}
 
 	switch p.tok {
-	case token.CONST, token.TYPE, token.VAR,
-		mt.FUNCTION: // patch: allow function/method declarations inside statements. extremely useful for ~quote and ~quasiquote
+	case token.CONST, token.TYPE, token.VAR, mt.FUNCTION, mt.TEMPLATE:
+		// patch: allow function/method declarations inside statements. extremely useful for ~quote and ~quasiquote
 		s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
 	case
 		// tokens that may start an expression
@@ -2549,6 +2569,9 @@ func (p *parser) parseDecl(sync func(*parser)) ast.Decl {
 
 	case mt.MACRO: // patch: parse a macro declaration
 		return p.parseMacroDecl()
+
+	case mt.TEMPLATE:
+		return p.parseTemplateDecl(sync)
 
 	default:
 		pos := p.pos

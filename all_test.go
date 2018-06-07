@@ -128,15 +128,14 @@ func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
 const fibonacci_source_string = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
+
 const shellsort_source_string = `
-var shellshort_gaps = &[...]int{701, 301, 132, 57, 23, 10, 4, 1}
+var shellshort_gaps = [...]int{701, 301, 132, 57, 23, 10, 4, 1}
 
 func shellsort(v []int) {
-	var i, j, n, gi, gapn, gap, temp int
+	var i, j, n, temp int
 	n = len(v)
-	gapn = len(shellshort_gaps) // fast interpreter currently lacks for-range
-	for gi = 0; gi < gapn; gi++ {
-		gap = shellshort_gaps[gi]
+	for _, gap := range shellshort_gaps {
 		for i = gap; i < n; i++ {
 			temp = v[i]
 			for j = i; j >= gap && v[j-gap] > temp; j -= gap {
@@ -145,8 +144,26 @@ func shellsort(v []int) {
 			v[j] = temp
 		}
 	}
-}
-`
+}`
+
+const template_shellsort_source_string = `
+var tshellshort_gaps = [...]int{701, 301, 132, 57, 23, 10, 4, 1}
+
+template[T] func tshellsort(v []T) {
+	var temp T
+	var i, j, n, int
+	n = len(v)
+	for _, gap := range tshellshort_gaps {
+		for i = gap; i < n; i++ {
+			temp = v[i]
+			for j = i; j >= gap && v[j-gap] > temp; j -= gap {
+				v[j] = v[j-gap]
+			}
+			v[j] = temp
+		}
+	}
+}`
+
 const switch_source_string = `func bigswitch(n int) int {
 	for i := 0; i < 1000; i++ {
 		switch n&15 {
@@ -915,7 +932,7 @@ var testcases = []TestCase{
 		Type: &ast.FuncType{
 			Params: &ast.FieldList{
 				List: []*ast.Field{
-					&ast.Field{
+					{
 						Names: nil,
 						Type: &ast.Ident{
 							Name: "int",
@@ -966,6 +983,165 @@ var testcases = []TestCase{
 	TestCase{C, "values", "Values(3,4,5)", nil, []interface{}{3, 4, 5}},
 	TestCase{A, "eval", "Eval(~quote{1+2})", 3, nil},
 	TestCase{C, "eval_quote", "Eval(~quote{Values(3,4,5)})", nil, []interface{}{3, 4, 5}},
+	TestCase{A, "parse_decl_template_type", "~quote{template [T1,T2] type Pair struct { First T1; Second T2 }}",
+		&ast.GenDecl{
+			Tok: token.TYPE,
+			Specs: []ast.Spec{
+				&ast.TypeSpec{
+					Name: &ast.Ident{Name: "Pair"},
+					Type: &ast.CompositeLit{
+						Type: &ast.StructType{
+							Fields: &ast.FieldList{
+								List: []*ast.Field{
+									{
+										Names: []*ast.Ident{{Name: "First"}},
+										Type:  &ast.Ident{Name: "T1"},
+									},
+									{
+										Names: []*ast.Ident{{Name: "Second"}},
+										Type:  &ast.Ident{Name: "T2"},
+									},
+								},
+							},
+						},
+						Elts: []ast.Expr{
+							&ast.Ident{Name: "T1"},
+							&ast.Ident{Name: "T2"},
+						},
+					},
+				},
+			},
+		}, nil},
+
+	TestCase{A, "parse_decl_template_func", "~quote{template [T] func Sum([]T) T { }}",
+		&ast.FuncDecl{
+			Recv: &ast.FieldList{
+				List: []*ast.Field{
+					nil,
+					{
+						Type: &ast.CompositeLit{
+							Elts: []ast.Expr{
+								&ast.Ident{Name: "T"},
+							},
+						},
+					},
+				},
+			},
+			Name: &ast.Ident{Name: "Sum"},
+			Type: &ast.FuncType{
+				Params: &ast.FieldList{
+					List: []*ast.Field{
+						{
+							Type: &ast.ArrayType{
+								Elt: &ast.Ident{Name: "T"},
+							},
+						},
+					},
+				},
+				Results: &ast.FieldList{
+					List: []*ast.Field{
+						{
+							Type: &ast.Ident{Name: "T"},
+						},
+					},
+				},
+			},
+			Body: &ast.BlockStmt{},
+		}, nil},
+
+	TestCase{A, "parse_decl_template_method", "~quote{template [T] func (x Pair) Rest() T { }}",
+		&ast.FuncDecl{
+			Recv: &ast.FieldList{
+				List: []*ast.Field{
+					{
+						Names: []*ast.Ident{{Name: "x"}},
+						Type:  &ast.Ident{Name: "Pair"},
+					},
+					{
+						Type: &ast.CompositeLit{
+							Elts: []ast.Expr{
+								&ast.Ident{Name: "T"},
+							},
+						},
+					},
+				},
+			},
+			Name: &ast.Ident{Name: "Rest"},
+			Type: &ast.FuncType{
+				Params: &ast.FieldList{
+					List: []*ast.Field{},
+				},
+				Results: &ast.FieldList{
+					List: []*ast.Field{
+						{
+							Type: &ast.Ident{Name: "T"},
+						},
+					},
+				},
+			},
+			Body: &ast.BlockStmt{},
+		}, nil},
+
+	TestCase{A, "parse_qual_template_name_1", "~quote{Pair#[]}",
+		&ast.IndexExpr{
+			X:     &ast.Ident{Name: "Pair"},
+			Index: &ast.CompositeLit{},
+		}, nil},
+
+	TestCase{A, "parse_qual_template_name_2", "~quote{Pair#[x + 1]}",
+		&ast.IndexExpr{
+			X: &ast.Ident{Name: "Pair"},
+			Index: &ast.CompositeLit{
+				Elts: []ast.Expr{
+					&ast.BinaryExpr{
+						X:  &ast.Ident{Name: "x"},
+						Op: token.ADD,
+						Y: &ast.BasicLit{
+							Kind:  token.INT,
+							Value: "1",
+						},
+					},
+				},
+			},
+		}, nil},
+
+	TestCase{A, "parse_qual_template_name_3", "~quote{Pair#[T1, T2]}",
+		&ast.IndexExpr{
+			X: &ast.Ident{Name: "Pair"},
+			Index: &ast.CompositeLit{
+				Elts: []ast.Expr{
+					&ast.Ident{Name: "T1"},
+					&ast.Ident{Name: "T2"},
+				},
+			},
+		}, nil},
+
+	TestCase{F, "template_func_1", `
+		template[T] func Sum(args ...T) T {
+			var sum T
+			for _, elem := range args {
+				sum += elem
+			}
+			return sum
+		}`, nil, []interface{}{},
+	},
+	TestCase{F, "template_func_2", `Sum#[int]`, func(...int) int { return 0 }, nil},
+	TestCase{F, "template_func_3", `Sum#[complex64]`, func(...complex64) complex64 { return 0 }, nil},
+	TestCase{F, "template_func_4", `Sum#[int](1, 2, 3)`, 6, nil},
+	TestCase{F, "template_func_5", `Sum#[complex64](1.1+2.2i, 3.3)`, complex64(1.1+2.2i) + complex64(3.3), nil},
+	TestCase{F, "template_func_6", `Sum#[string]("abc","def","xy","z")`, "abcdefxyz", nil},
+
+	TestCase{F, "template_func_7", `
+		template[T,U] func Transform(slice []T, trans func(T) U) []U {
+			ret := make([]U, len(slice))
+			for i := range slice {
+				ret[i] = trans(slice[i])
+			}
+			return ret
+		}`, nil, []interface{}{},
+	},
+	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
+		[]int{3, 2, 1}, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
@@ -1055,7 +1231,7 @@ func (c *TestCase) compareAst(t *testing.T, actual Ast, expected Ast) {
 			}
 		}
 	}
-	c.fail(t, actual, expected)
+	c.fail(t, actual.Interface(), expected.Interface())
 }
 
 func (c *TestCase) compareUntyped(t *testing.T, actual untyped.Lit, expected untyped.Lit) {

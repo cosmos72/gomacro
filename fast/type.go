@@ -80,6 +80,22 @@ func (c *Comp) DeclTypeAlias(name string, t xr.Type) xr.Type {
 	return t
 }
 
+// DeclTypeAlias0 declares a type alias
+// in Go, types are computed only at compile time - no need for a runtime *Env
+func (c *Comp) declTypeAlias(alias string, t xr.Type) xr.Type {
+	if alias == "" || alias == "_" {
+		// never define bindings for "_"
+		return t
+	}
+	if _, ok := c.Types[alias]; ok {
+		c.Warnf("redefined type: %v", alias)
+	} else if c.Types == nil {
+		c.Types = make(map[string]xr.Type)
+	}
+	c.Types[alias] = t
+	return t
+}
+
 // DeclNamedType executes a named type forward declaration.
 // Returns nil if name == "_"
 // Otherwise it must be followed by Comp.SetUnderlyingType(t) where t is the returned type
@@ -116,23 +132,7 @@ func (c *Comp) DeclType0(t xr.Type) xr.Type {
 	if t == nil {
 		return nil
 	}
-	return c.DeclTypeAlias0(t.Name(), t)
-}
-
-// DeclTypeAlias0 declares a type alias
-// in Go, types are computed only at compile time - no need for a runtime *Env
-func (c *Comp) DeclTypeAlias0(alias string, t xr.Type) xr.Type {
-	if alias == "" || alias == "_" {
-		// never define bindings for "_"
-		return t
-	}
-	if _, ok := c.Types[alias]; ok {
-		c.Warnf("redefined type: %v", alias)
-	} else if c.Types == nil {
-		c.Types = make(map[string]xr.Type)
-	}
-	c.Types[alias] = t
-	return t
+	return c.declTypeAlias(t.Name(), t)
 }
 
 // Type compiles a type expression.
@@ -836,12 +836,15 @@ func (g *CompGlobals) TypeOfInterface() xr.Type {
 }
 
 var (
-	rtypeOfBuiltin     = r.TypeOf(Builtin{})
-	rtypeOfFunction    = r.TypeOf(Function{})
-	rtypeOfPtrImport   = r.TypeOf((*Import)(nil))
-	rtypeOfMacro       = r.TypeOf(Macro{})
-	rtypeOfUntypedLit  = r.TypeOf(UntypedLit{})
-	rtypeOfReflectType = r.TypeOf((*r.Type)(nil)).Elem()
+	rTypeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
+
+	rtypeOfBuiltin         = r.TypeOf(Builtin{})
+	rtypeOfFunction        = r.TypeOf(Function{})
+	rtypeOfMacro           = r.TypeOf(Macro{})
+	rtypeOfPtrImport       = r.TypeOf((*Import)(nil))
+	rtypeOfPtrTemplateFunc = r.TypeOf((*TemplateFunc)(nil))
+	rtypeOfReflectType     = r.TypeOf((*r.Type)(nil)).Elem()
+	rtypeOfUntypedLit      = r.TypeOf(UntypedLit{})
 
 	zeroOfReflectType = r.Zero(rtypeOfReflectType)
 )
@@ -854,12 +857,16 @@ func (g *CompGlobals) TypeOfFunction() xr.Type {
 	return g.Universe.ReflectTypes[rtypeOfFunction]
 }
 
+func (g *CompGlobals) TypeOfMacro() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfMacro]
+}
+
 func (g *CompGlobals) TypeOfPtrImport() xr.Type {
 	return g.Universe.ReflectTypes[rtypeOfPtrImport]
 }
 
-func (g *CompGlobals) TypeOfMacro() xr.Type {
-	return g.Universe.ReflectTypes[rtypeOfMacro]
+func (g *CompGlobals) TypeOfPtrTemplateFunc() xr.Type {
+	return g.Universe.ReflectTypes[rtypeOfPtrTemplateFunc]
 }
 
 func (g *CompGlobals) TypeOfUntypedLit() xr.Type {

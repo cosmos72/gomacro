@@ -22,6 +22,8 @@ const (
 	FUNCTION
 	LAMBDA
 	TYPECASE
+	TEMPLATE // template
+	HASH     // #
 )
 
 var tokens map[base.Token]string
@@ -45,6 +47,8 @@ func init() {
 	for k, v := range tokens {
 		keywords[v[1:]] = k // skip ~ in lookup table
 	}
+	tokens[TEMPLATE] = "template"
+	tokens[HASH] = "#"
 }
 
 // Lookup maps a identifier to its keyword token.
@@ -53,6 +57,10 @@ func Lookup(lit string) base.Token {
 		// allow the spelling "macro" because "~macro" is really ugly in source code...
 		// especially when writing :~macro
 		return MACRO
+	} else if lit == "template" {
+		return TEMPLATE
+	} else if lit == "#" {
+		return HASH
 	}
 	return token.Lookup(lit)
 }

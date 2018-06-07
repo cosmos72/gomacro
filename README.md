@@ -1,4 +1,4 @@
-## gomacro - interactive Go interpreter and debugger with macros
+## gomacro - interactive Go interpreter and debugger with generics and macros
 
 gomacro is an almost complete Go interpreter, implemented in pure Go. It offers both
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
@@ -26,7 +26,8 @@ Gomacro can be used as:
   Ctrl+E or End jumps to end of line, Ald+D deletes word starting at cursor...
   For the full list of key bindings, see https://github.com/peterh/liner
   
-  
+* a tool to experiment with Go **generics**: see [Generics](#generics)
+
 * a Go source code debugger: see [Debugger](#debugger)
 
 * an interactive tool to make science more productive and more fun.
@@ -143,6 +144,8 @@ The [documentation](doc/) also contains the [full list of features and limitatio
 ## Extensions
 
 Compared to compiled Go, gomacro supports several extensions:
+
+* generics (experimental) - see [Generics](#generics)
 
 * an integrated debugger, see [Debugger](#debugger)
 
@@ -282,6 +285,47 @@ gomacro> plot.New()
 
 Note: if you need several packages, you can first `import` all of them,
 then quit and recompile gomacro only once.
+
+## Generics
+
+gomacro contains an experimental version of Go generics.
+
+They are in early stage of development, and at the moment only generic functions are supported.
+Syntax and examples:
+```
+template[T] func Sum(args ...T) T {
+	var sum T // exploit zero value of T
+	for _, elem := range args {
+		sum += elem
+	}
+	return sum
+}
+Sum#[int]         // returns func(...int) int
+Sum#[int] (1,2,3) // returns int(6)
+
+Sum#[complex64]                 // returns func(...complex64) complex64
+Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
+
+Sum#[string]                         // returns func(...string) string
+Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
+
+template[T,U] func Transform(slice []T, trans func(T) U) []U {
+	ret := make([]U, len(slice))
+	for i := range slice {
+		ret[i] = trans(slice[i])
+	}
+	return ret
+}
+Transform#[string,int] // returns func([]string, func(string) int) []int
+
+// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
+
+Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
+```
+Current limitations:
+* partial or full template specializations not supported yet.
+* instantiation is on-demand, but template arguments #[...] must be explicit.
+* template methods and template types not supported yet.
 
 ## Debugger
 

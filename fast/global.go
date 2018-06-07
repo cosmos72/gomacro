@@ -47,8 +47,8 @@ func MakeUntypedLit(kind r.Kind, val constant.Value, basicTypes *[]xr.Type) Unty
 // Lit represents a literal value, i.e. a typed or untyped constant
 type Lit struct {
 
-	// Type is nil only for literal nils.
-	// for all other literals, it is reflect.TypeOf(Lit.Value)
+	// Type is nil for literal nils.
+	// For all other literals, Type is xr.TypeOf(Lit.Value)
 	//
 	// when Lit is embedded in other structs that represent non-constant expressions,
 	// Type is the first type returned by the expression (nil if returns no values)
@@ -62,6 +62,10 @@ type Lit struct {
 	//
 	// when Lit is embedded in other structs that represent non-constant expressions,
 	// Value is usually nil
+	//
+	// when Lit is embedded in a Bind with class == TemplateFuncBind,
+	// Value is the *TemplateFunc containing the function source code
+	// to be specialized and compiled upon instantiation.
 	Value I
 }
 
@@ -221,6 +225,7 @@ const (
 	FuncBind
 	VarBind
 	IntBind
+	TemplateFuncBind
 )
 
 func (class BindClass) String() string {
@@ -229,8 +234,14 @@ func (class BindClass) String() string {
 		return "const"
 	case FuncBind:
 		return "func"
-	default:
+	case VarBind:
 		return "var"
+	case IntBind:
+		return "intvar"
+	case TemplateFuncBind:
+		return "template func"
+	default:
+		return fmt.Sprintf("unknown%d", uint(class))
 	}
 }
 
@@ -241,10 +252,10 @@ func (class BindClass) String() string {
 type BindDescriptor BindClass
 
 const (
-	bindClassMask  = BindClass(0x3)
-	bindIndexShift = 2
+	bindClassMask  = BindClass(0x7)
+	bindIndexShift = 3
 
-	NoIndex             = int(-1)                   // index of constants, functions and variables named "_"
+	NoIndex             = int(-1)                   // index of functions, variables named "_" and of constants
 	ConstBindDescriptor = BindDescriptor(ConstBind) // bind descriptor for all constants
 )
 
@@ -306,15 +317,17 @@ func (bind *Bind) ConstValue() r.Value {
 func (bind *Bind) RuntimeValue(env *Env) r.Value {
 	var v r.Value
 	switch bind.Desc.Class() {
-	case ConstBind:
+	case ConstBind, TemplateFuncBind:
 		v = bind.Lit.ConstValue()
 	case IntBind:
 		expr := bind.intExpr(&env.Run.Stringer)
 		// no need for Interp.RunExpr(): expr is a local variable,
 		// not a statement or a function call that may be stopped by the debugger
 		v = expr.AsX1()(env)
-	default:
+	case VarBind:
 		v = env.Vals[bind.Desc.Index()]
+	default:
+		Errorf("Symbol %q: unsupported class: %v", bind.Name, bind.Desc.Class())
 	}
 	return v
 }
