@@ -293,7 +293,7 @@ gomacro contains an experimental version of Go generics.
 They are in early stage of development, and at the moment only generic types and functions are supported.
 Syntax and examples:
 ```
-template[T,U] type Pair { First T; Second U }
+template[T,U] type Pair struct { First T; Second U }
 
 var pair Pair#[complex64, struct{}]
 
