@@ -226,6 +226,7 @@ const (
 	VarBind
 	IntBind
 	TemplateFuncBind
+	TemplateTypeBind
 )
 
 func (class BindClass) String() string {
@@ -240,6 +241,8 @@ func (class BindClass) String() string {
 		return "intvar"
 	case TemplateFuncBind:
 		return "template func"
+	case TemplateTypeBind:
+		return "template type"
 	default:
 		return fmt.Sprintf("unknown%d", uint(class))
 	}

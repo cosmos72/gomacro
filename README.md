@@ -290,9 +290,16 @@ then quit and recompile gomacro only once.
 
 gomacro contains an experimental version of Go generics.
 
-They are in early stage of development, and at the moment only generic functions are supported.
+They are in early stage of development, and at the moment only generic types and functions are supported.
 Syntax and examples:
 ```
+template[T,U] type Pair { First T; Second U }
+
+var pair Pair#[complex64, struct{}]        
+
+// pair := Pair#[complex64, struct{}] {} does not work yet
+
+
 template[T] func Sum(args ...T) T {
 	var sum T // exploit zero value of T
 	for _, elem := range args {
@@ -325,7 +332,8 @@ Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len
 Current limitations:
 * partial or full template specializations not supported yet.
 * instantiation is on-demand, but template arguments #[...] must be explicit.
-* template methods and template types not supported yet.
+* template methods not supported yet.
+* template types and functions cannot yet be recursive, i.e. they cannot reference themselves
 
 ## Debugger
 

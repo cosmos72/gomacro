@@ -34,9 +34,12 @@ type funcMaker struct {
 	funcbody  func(*Env)
 }
 
-// FuncDecl compiles a function, macro or method declaration
+// DeclFunc compiles a function, macro or method declaration
 // For closure declarations, use FuncLit()
-func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
+//
+// This method is named DeclFunc instead of FuncDecl
+// for uniformity with DeclType, DeclConst*, DeclVar*, DeclTemplate*
+func (c *Comp) DeclFunc(funcdecl *ast.FuncDecl) {
 	var ismacro bool
 	if funcdecl.Recv != nil {
 		switch n := len(funcdecl.Recv.List); n {
@@ -46,7 +49,7 @@ func (c *Comp) FuncDecl(funcdecl *ast.FuncDecl) {
 			c.methodDecl(funcdecl)
 			return
 		default:
-			c.TemplateFuncDecl(funcdecl)
+			c.DeclTemplateFunc(funcdecl)
 			return
 		}
 	}

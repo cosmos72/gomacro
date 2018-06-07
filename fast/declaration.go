@@ -34,7 +34,7 @@ func (c *Comp) Decl(node ast.Decl) {
 	case *ast.GenDecl:
 		c.GenDecl(node)
 	case *ast.FuncDecl:
-		c.FuncDecl(node)
+		c.DeclFunc(node)
 	default:
 		c.Errorf("unsupported declaration, expecting <*ast.GenDecl> or <*ast.FuncDecl>, found: %v <%v>", node, r.TypeOf(node))
 	}

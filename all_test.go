@@ -318,6 +318,11 @@ type Pair = struct { // unnamed!
 	B string
 }
 
+type PairX = struct { // unnamed!
+	First  complex64
+	Second struct{}
+}
+
 var bigInt = new(big.Int)
 var bigRat = new(big.Rat)
 var bigFloat = new(big.Float)
@@ -1143,6 +1148,9 @@ var testcases = []TestCase{
 	},
 	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
 		[]int{3, 2, 1}, nil},
+
+	TestCase{F, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, []interface{}{}},
+	TestCase{F, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX{}, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
