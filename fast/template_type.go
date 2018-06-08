@@ -64,7 +64,7 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 
 // TemplateType compiles a template type name#[T1, T2...] instantiating it if needed.
 func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
-	maker := c.compileTemplateArgs(node, TemplateTypeBind)
+	maker := c.templateMaker(node, TemplateTypeBind)
 	if maker == nil {
 		return nil
 	}
@@ -100,7 +100,6 @@ func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, 
 	maker.injectBinds(c, typ.Params)
 
 	key := maker.ikey
-
 	panicking := true
 	defer func() {
 		if panicking {
@@ -110,27 +109,26 @@ func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, 
 	}()
 	// compile the type instantiation
 	//
-	debug := c.Globals.Options&base.OptDebugTemplate != 0
 	var t xr.Type
 	if !typ.Alias && maker.sym.Name != "_" {
-		if debug {
+		if c.Globals.Options&base.OptDebugTemplate != 0 {
 			c.Debugf("forward-declaring template type before instantiation: %v", node)
 		}
-		// support for recursive types, as for example
+		// support for template recursive types, as for example
 		//   template[T] type List struct { First T; Rest *List#[T] }
 		// requires to cache List#[T] as instantiated **before** actually instantiating it.
 		//
 		// This is similar to the technique used for non-template recursive types, as
 		//    type List struct { First int; Rest *List }
 		// with the difference that the cache is typ.Instances[key] instead of Comp.Types[name]
-		t = c.Universe.NamedOf(maker.TypeString(), c.FileComp().Path, r.Invalid /*kind not yet known*/)
+		t = c.Universe.NamedOf(maker.Name(), c.FileComp().Path, r.Invalid /*kind not yet known*/)
 		typ.Instances[key] = t
-	}
-	u := c.Type(typ.Decl)
-	if t == nil { // t == nil means it's either an alias, or name == "_" (discards the result of type declaration)
-		t = u
-	} else {
+		u := c.Type(typ.Decl)
 		c.SetUnderlyingType(t, u)
+	} else {
+		// either the template type is an alias, or name == "_" (discards the result of type declaration)
+		t = c.Type(typ.Decl)
+		typ.Instances[key] = t
 	}
 	panicking = false
 	return t

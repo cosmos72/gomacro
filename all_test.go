@@ -1164,9 +1164,14 @@ var testcases = []TestCase{
 	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
 		[]int{3, 2, 1}, nil},
 
+	TestCase{F, "recursive_template_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, []interface{}{}},
+	TestCase{F, "recursive_template_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
+	TestCase{F, "recursive_template_func_3", `count#[uint32](2,3)`, uint32(5), nil},
+
 	TestCase{F, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, []interface{}{}},
 	TestCase{F, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
 	TestCase{F, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
+
 	TestCase{F, "recursive_template_type_1", `template[T] type ListX struct { First T; Rest *ListX#[T] }`, nil, []interface{}{}},
 	TestCase{F, "recursive_template_type_2", `var lx ListX#[error]; lx`, ListX2{}, nil},
 	TestCase{F, "recursive_template_type_3", `ListX#[interface{}]{}`, ListX3{}, nil},

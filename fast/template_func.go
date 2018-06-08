@@ -27,7 +27,7 @@ import (
 )
 
 type TemplateFuncInstance struct {
-	Func func(*Env) r.Value
+	Func *func(*Env) r.Value
 	Type xr.Type
 }
 
@@ -42,13 +42,13 @@ type TemplateFunc struct {
 }
 
 type templateMaker struct {
-	comp    *Comp
-	sym     *Symbol
-	ifun    I
-	vals    []I
-	types   []xr.Type
-	ikey    I
-	typestr string
+	comp  *Comp
+	sym   *Symbol
+	ifun  I
+	vals  []I
+	types []xr.Type
+	ikey  I
+	name  string
 }
 
 func (maker *templateMaker) injectBinds(c *Comp, names []string) {
@@ -63,9 +63,9 @@ func (maker *templateMaker) injectBinds(c *Comp, names []string) {
 }
 
 // return the qualified name of the function or type to instantiate, for example "Pair#[int,string]"
-func (maker *templateMaker) TypeString() string {
-	if len(maker.typestr) != 0 {
-		return maker.typestr
+func (maker *templateMaker) Name() string {
+	if len(maker.name) != 0 {
+		return maker.name
 	}
 	var buf bytes.Buffer
 	buf.WriteString(maker.sym.Name)
@@ -81,8 +81,8 @@ func (maker *templateMaker) TypeString() string {
 		fmt.Fprint(&buf, val)
 	}
 	buf.WriteByte(']')
-	maker.typestr = buf.String()
-	return maker.typestr
+	maker.name = buf.String()
+	return maker.name
 }
 
 func (f *TemplateFunc) String() string {
@@ -162,7 +162,7 @@ func splitTemplateArgs(node *ast.IndexExpr) (string, []ast.Expr, bool) {
 	return "", nil, false
 }
 
-func (c *Comp) compileTemplateArgs(node *ast.IndexExpr, which BindClass) *templateMaker {
+func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMaker {
 	name, templateArgs, ok := splitTemplateArgs(node)
 	if !ok {
 		return nil
@@ -218,7 +218,7 @@ func (c *Comp) compileTemplateArgs(node *ast.IndexExpr, which BindClass) *templa
 
 // TemplateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
 func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
-	maker := c.compileTemplateArgs(node, TemplateFuncBind)
+	maker := c.templateMaker(node, TemplateFuncBind)
 	if maker == nil {
 		return nil
 	}
@@ -237,13 +237,19 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
 		instance = maker.comp.instantiateTemplateFunc(maker, fun, node)
-		// cache instantiated template function
-		fun.Instances[key] = instance
 	}
 
-	efun := instance.Func
-	var retfun func(*Env) r.Value
-
+	var efun, retfun func(*Env) r.Value
+	eaddr := instance.Func
+	if *eaddr == nil {
+		// currently instantiating it, see comment in Comp.instantiateTemplateFunc() below.
+		// We must try again later to dereference instance.Func.
+		efun = func(env *Env) r.Value {
+			return (*eaddr)(env)
+		}
+	} else {
+		efun = *eaddr
+	}
 	upn := maker.sym.Upn
 	if c.Globals.Options&base.OptDebugTemplate != 0 {
 		c.Debugf("template function: %v, upn = %v, instance = %v", node, upn, instance)
@@ -292,17 +298,41 @@ func (c *Comp) instantiateTemplateFunc(maker *templateMaker, fun *TemplateFunc, 
 	// and inject template arguments into it
 	maker.injectBinds(c, fun.Params)
 
+	key := maker.ikey
 	panicking := true
 	defer func() {
 		if panicking {
+			delete(fun.Instances, key)
 			c.ErrorAt(node.Pos(), "error instantiating template function: %v\n\t%v", node, recover())
 		}
 	}()
+
+	if c.Globals.Options&base.OptDebugTemplate != 0 {
+		c.Debugf("forward-declaring template function before instantiation: %v", node)
+	}
+	// support for template recursive functions, as for example
+	//   template[T] func fib(n T) T { if n <= 2 { return 1 }; return fib#[T](n-1) + fib#[T](n-2) }
+	// requires to cache fib#[T] as instantiated **before** actually instantiating it.
+	//
+	// This is similar to the technique used for non-template recursive function, as
+	//    func fib(n int) int { if n <= 2 { return 1 }; return fib(n-1) + fib(n-2) }
+	// with the difference that the cache is fun.Instances[key] instead of Comp.Binds[name]
+
+	// for such trick to work, we must:
+	// 1. compute in advance the instantiated function type
+	// 2. check TemplateFuncInstance.Func: if it's nil, take its address and dereference it later at runtime
+	t, _, _ := c.TypeFunction(fun.Decl.Type)
+
+	instance := &TemplateFuncInstance{Type: t, Func: new(func(*Env) r.Value)}
+	fun.Instances[key] = instance
+
 	// compile an expression that, when evaluated at runtime in the *Env
 	// where the template function was declared, returns the instantiated function
-	//
-	// recursive template functions not implemented yet
 	expr := c.FuncLit(fun.Decl)
+
+	*instance.Func = expr.AsX1()
+	instance.Type = expr.Type
+
 	panicking = false
-	return &TemplateFuncInstance{Func: expr.AsX1(), Type: expr.Type}
+	return instance
 }
