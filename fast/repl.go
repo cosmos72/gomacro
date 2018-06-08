@@ -258,8 +258,8 @@ func (ir *Interp) ReplStdin() {
 	g := ir.Comp.CompGlobals
 
 	if g.Options&OptShowPrompt != 0 {
-		g.Fprintf(g.Stdout, `// GOMACRO, an interactive Go interpreter with macros <https://github.com/cosmos72/gomacro>
-// Copyright (C) 2017-2018 Massimiliano Ghilardi
+		g.Fprintf(g.Stdout, `// GOMACRO, an interactive Go interpreter with generics and macros
+// Copyright (C) 2017-2018 Massimiliano Ghilardi <https://github.com/cosmos72/gomacro>
 // License MPL v2.0+: Mozilla Public License version 2.0 or later <http://mozilla.org/MPL/2.0/>
 // This is free software with ABSOLUTELY NO WARRANTY.
 //

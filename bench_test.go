@@ -20,7 +20,6 @@ import (
 	"os"
 	r "reflect"
 	"testing"
-	"unsafe"
 
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/experiments/bytecode_interfaces"
@@ -29,7 +28,6 @@ import (
 	"github.com/cosmos72/gomacro/experiments/closure_ints"
 	"github.com/cosmos72/gomacro/experiments/closure_maps"
 	"github.com/cosmos72/gomacro/experiments/closure_values"
-	"github.com/cosmos72/gomacro/experiments/jit"
 	"github.com/cosmos72/gomacro/fast"
 )
 
@@ -413,47 +411,6 @@ func BenchmarkArithCompiler2(b *testing.B) {
 	}
 }
 
-func arithJitEmulate(uenv *uint64) {
-	env := (*[3]int64)(unsafe.Pointer(uenv))
-	a := env[0]
-	a *= 2
-	a += 3
-	a |= 4
-	a &^= 5
-	a ^= 6
-	b := env[0]
-	b &= 2
-	b |= 1
-	a /= b
-	env[1] = a
-}
-
-func BenchmarkArithJitEmul(b *testing.B) {
-	benchArithJit(b, arithJitEmulate)
-}
-
-func BenchmarkArithJit(b *testing.B) {
-	if !jit.SUPPORTED {
-		b.SkipNow()
-		return
-	}
-	benchArithJit(b, jit.DeclArith(5))
-}
-
-func benchArithJit(b *testing.B, f func(*uint64)) {
-	total := 0
-	var env [5]uint64
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		env[0] = uint64(b.N)
-		f(&env[0])
-		total += int(env[1])
-	}
-	if verbose {
-		println(total)
-	}
-}
-
 func BenchmarkArithFast(b *testing.B) {
 	ir := fast.New()
 	ir.DeclVar("n", nil, int(0))
@@ -707,19 +664,6 @@ func BenchmarkSumCompiler(b *testing.B) {
 	}
 	if verbose {
 		println(total)
-	}
-}
-
-func BenchmarkSumJit(b *testing.B) {
-	if !jit.SUPPORTED {
-		b.SkipNow()
-		return
-	}
-	sum := jit.DeclSum()
-	b.ResetTimer()
-	var total int
-	for i := 0; i < b.N; i++ {
-		total += sum(sum_arg)
 	}
 }
 
