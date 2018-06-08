@@ -290,14 +290,17 @@ then quit and recompile gomacro only once.
 
 gomacro contains an experimental version of Go generics.
 
+For the experience report written while implementing them, see [doc/generics.md](doc/generics.md)
+
 They are in early stage of development, and at the moment only generic types and functions are supported.
 Syntax and examples:
 ```
-template[T,U] type Pair { First T; Second U }
+template[T,U] type Pair struct { First T; Second U }
 
-var pair Pair#[complex64, struct{}]        
+var pair Pair#[complex64, struct{}]
 
-// pair := Pair#[complex64, struct{}] {} does not work yet
+// equivalent:
+pair := Pair#[complex64, struct{}] {}
 
 
 template[T] func Sum(args ...T) T {
