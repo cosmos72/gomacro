@@ -328,6 +328,16 @@ type PairX3 = struct { // unnamed!
 	Second interface{}
 }
 
+type ListX2 = struct { // unnamed!
+	First error
+	Rest  *xr.Forward
+}
+
+type ListX3 = struct { // unnamed!
+	First interface{}
+	Rest  *xr.Forward
+}
+
 var bigInt = new(big.Int)
 var bigRat = new(big.Rat)
 var bigFloat = new(big.Float)
@@ -1157,6 +1167,9 @@ var testcases = []TestCase{
 	TestCase{F, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, []interface{}{}},
 	TestCase{F, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
 	TestCase{F, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
+	TestCase{F, "recursive_template_type_1", `template[T] type ListX struct { First T; Rest *ListX#[T] }`, nil, []interface{}{}},
+	TestCase{F, "recursive_template_type_2", `var lx ListX#[error]; lx`, ListX2{}, nil},
+	TestCase{F, "recursive_template_type_3", `ListX#[interface{}]{}`, ListX3{}, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {

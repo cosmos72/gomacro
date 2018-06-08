@@ -18,6 +18,7 @@ package fast
 
 import (
 	"bytes"
+	"fmt"
 	"go/ast"
 	r "reflect"
 
@@ -41,12 +42,47 @@ type TemplateFunc struct {
 }
 
 type templateMaker struct {
-	comp  *Comp
-	sym   *Symbol
-	ifun  I
-	vals  []I
-	types []xr.Type
-	ikey  I
+	comp    *Comp
+	sym     *Symbol
+	ifun    I
+	vals    []I
+	types   []xr.Type
+	ikey    I
+	typestr string
+}
+
+func (maker *templateMaker) injectBinds(c *Comp, names []string) {
+	for i, name := range names {
+		t := maker.types[i]
+		if val := maker.vals[i]; val != nil {
+			c.DeclConst0(name, t, val)
+		} else {
+			c.declTypeAlias(name, t)
+		}
+	}
+}
+
+// return the qualified name of the function or type to instantiate, for example "Pair#[int,string]"
+func (maker *templateMaker) TypeString() string {
+	if len(maker.typestr) != 0 {
+		return maker.typestr
+	}
+	var buf bytes.Buffer
+	buf.WriteString(maker.sym.Name)
+	buf.WriteString("#[")
+
+	for i, val := range maker.vals {
+		if i != 0 {
+			buf.WriteByte(',')
+		}
+		if val == nil {
+			val = maker.types[i].ReflectType()
+		}
+		fmt.Fprint(&buf, val)
+	}
+	buf.WriteByte(']')
+	maker.typestr = buf.String()
+	return maker.typestr
 }
 
 func (f *TemplateFunc) String() string {
@@ -177,7 +213,7 @@ func (c *Comp) compileTemplateArgs(node *ast.IndexExpr, which BindClass) *templa
 			key.Index(i).Set(r.ValueOf(t.ReflectType()))
 		}
 	}
-	return &templateMaker{upc, sym, ifun, vals, types, key.Interface()}
+	return &templateMaker{upc, sym, ifun, vals, types, key.Interface(), ""}
 }
 
 // TemplateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
@@ -240,20 +276,8 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 			return efun(env)
 		}
 	}
-
 	// always return a new *Expr, in case caller modifies it
 	return exprFun(instance.Type, retfun)
-}
-
-func (maker *templateMaker) injectBinds(c *Comp, names []string) {
-	for i, name := range names {
-		t := maker.types[i]
-		if val := maker.vals[i]; val != nil {
-			c.DeclConst0(name, t, val)
-		} else {
-			c.declTypeAlias(name, t)
-		}
-	}
 }
 
 // instantiateTemplateFunc instantiates and compiles a template function.
