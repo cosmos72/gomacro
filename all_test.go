@@ -330,12 +330,12 @@ type PairX3 = struct { // unnamed!
 
 type ListX2 = struct { // unnamed!
 	First error
-	Rest  *xr.Forward
+	Rest  xr.Forward
 }
 
 type ListX3 = struct { // unnamed!
 	First interface{}
-	Rest  *xr.Forward
+	Rest  xr.Forward
 }
 
 var bigInt = new(big.Int)
@@ -504,7 +504,7 @@ var testcases = []TestCase{
 		B string
 	}{}, nil},
 	TestCase{F, "field_anonymous_2", "type Z struct { *Z }; Z{}", struct {
-		Z *xr.Forward
+		Z xr.Forward
 	}{}, nil},
 	TestCase{F, "field_embedded_1", "triple.A", rune(0), nil},
 	TestCase{F, "field_embedded_2", "triple.B", "", nil},
@@ -513,7 +513,8 @@ var testcases = []TestCase{
 	TestCase{F, "field_embedded_4", "tp.A", panics, nil},
 	TestCase{F, "field_embedded_5", "tp.Pair = &triple.Pair; tp.B", "", nil},
 
-	TestCase{F, "self_embedded_1", "type X struct { *X }; X{}.X", (*xr.Forward)(nil), nil},
+	TestCase{F, "self_embedded_1", "type X struct { *X }; X{}.X", (xr.Forward)(nil), nil},
+	TestCase{F, "self_embedded_2", "var x X; x.X = &x; x.X.X.X.X.X.X.X.X == &x", true, nil},
 
 	TestCase{A, "address_0", "var vf = 1.25; *&vf == vf", true, nil},
 	TestCase{A, "address_1", "var pvf = &vf; *pvf", 1.25, nil},

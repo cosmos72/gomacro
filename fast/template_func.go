@@ -196,7 +196,7 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 	vals := make([]I, n)
 	types := make([]xr.Type, n)
 	// slices cannot be used as map keys. use an array and reflection
-	key := r.New(r.ArrayOf(n, rTypeOfInterface)).Elem()
+	key := r.New(r.ArrayOf(n, rtypeOfInterface)).Elem()
 
 	for i, templateArg := range templateArgs {
 		e, t := c.Expr1OrType(templateArg)
