@@ -55,7 +55,7 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 	}
 	rtype := t.ReflectType()
 	if e.Const() {
-		val := r.ValueOf(e.Value).Convert(rtype).Interface()
+		val := convert(r.ValueOf(e.Value), rtype).Interface()
 		return c.exprValue(t, val)
 	}
 	fun := e.AsX1()
@@ -63,87 +63,87 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 	switch t.Kind() {
 	case r.Bool:
 		ret = func(env *Env) bool {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return val.Bool()
 		}
 	case r.Int:
 		ret = func(env *Env) int {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return int(val.Int())
 		}
 	case r.Int8:
 		ret = func(env *Env) int8 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return int8(val.Int())
 		}
 	case r.Int16:
 		ret = func(env *Env) int16 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return int16(val.Int())
 		}
 	case r.Int32:
 		ret = func(env *Env) int32 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return int32(val.Int())
 		}
 	case r.Int64:
 		ret = func(env *Env) int64 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return val.Int()
 		}
 	case r.Uint:
 		ret = func(env *Env) uint {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return uint(val.Uint())
 		}
 	case r.Uint8:
 		ret = func(env *Env) uint8 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return uint8(val.Uint())
 		}
 	case r.Uint16:
 		ret = func(env *Env) uint16 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return uint16(val.Uint())
 		}
 	case r.Uint32:
 		ret = func(env *Env) uint32 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return uint32(val.Uint())
 		}
 	case r.Uint64:
 		ret = func(env *Env) uint64 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return val.Uint()
 		}
 	case r.Uintptr:
 		ret = func(env *Env) uintptr {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return uintptr(val.Uint())
 		}
 	case r.Float32:
 		ret = func(env *Env) float32 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return float32(val.Float())
 		}
 	case r.Float64:
 		ret = func(env *Env) float64 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return val.Float()
 		}
 	case r.Complex64:
 		ret = func(env *Env) complex64 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return complex64(val.Complex())
 		}
 	case r.Complex128:
 		ret = func(env *Env) complex128 {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return val.Complex()
 		}
 	case r.String:
 		ret = func(env *Env) string {
-			val := fun(env).Convert(rtype)
+			val := convert(fun(env), rtype)
 			return val.String()
 		}
 	default:
@@ -263,4 +263,13 @@ func (c *Comp) converterFunc(tin, tout xr.Type) func(r.Value) r.Value {
 			return rets
 		})
 	}
+}
+
+// conversion between compatible types.
+// also implements conversion from xr.Forward.
+func convert(v r.Value, rtout r.Type) r.Value {
+	if v.Kind() == r.Interface {
+		v = v.Elem()
+	}
+	return v.Convert(rtout)
 }
