@@ -459,7 +459,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 				if v == Nil {
 					return fail[0], fail
 				}
-				v = v.Convert(rtout)
+				v = convert(v, rtout)
 				return v, []r.Value{v, True}
 			}
 			break
@@ -474,7 +474,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 					return fail[0], fail
 				}
-				v = v.Convert(rtout)
+				v = convert(v, rtout)
 				return v, []r.Value{v, True}
 			}
 			break
@@ -493,7 +493,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 				(t != nil && !t.IdenticalTo(tout) && !t.Implements(tout)) {
 				return fail[0], fail
 			}
-			v = v.Convert(rtout)
+			v = convert(v, rtout)
 			return v, []r.Value{v, True}
 		}
 
@@ -663,7 +663,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 				if v == Nil {
 					typeassertpanic(nil, nil, tin, tout)
 				}
-				return v.Convert(rtout)
+				return convert(v, rtout)
 			}
 		} else if tin.Implements(tout) {
 			// type assertion to interface.
@@ -675,7 +675,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 					typeassertpanic(nil, nil, tin, tout)
 				}
-				return v.Convert(rtout)
+				return convert(v, rtout)
 			}
 		} else {
 			// type assertion to interface.
@@ -692,7 +692,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 					(t != nil && !t.AssignableTo(tout) && !t.Implements(tout)) {
 					typeassertpanic(rt, t, tin, tout)
 				}
-				return v.Convert(rtout)
+				return convert(v, rtout)
 			}
 		}
 	default:
