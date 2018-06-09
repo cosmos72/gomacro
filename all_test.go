@@ -515,6 +515,7 @@ var testcases = []TestCase{
 
 	TestCase{F, "self_embedded_1", "type X struct { *X }; X{}.X", (xr.Forward)(nil), nil},
 	TestCase{F, "self_embedded_2", "var x X; x.X = &x; x.X.X.X.X.X.X.X.X == &x", true, nil},
+	TestCase{F, "self_embedded_3", "x.X.X.X == x.X.X.X.X.X", true, nil},
 
 	TestCase{A, "address_0", "var vf = 1.25; *&vf == vf", true, nil},
 	TestCase{A, "address_1", "var pvf = &vf; *pvf", 1.25, nil},
