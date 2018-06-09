@@ -129,41 +129,6 @@ func (test *TestCase) fast(t *testing.T, ir *fast.Interp) {
 const sum_source_string = "func sum(n int) int { total := 0; for i := 1; i <= n; i++ { total += i }; return total }"
 const fibonacci_source_string = "func fibonacci(n int) int { if n <= 2 { return 1 }; return fibonacci(n-1) + fibonacci(n-2) }"
 
-const shellsort_source_string = `
-var shellshort_gaps = [...]int{701, 301, 132, 57, 23, 10, 4, 1}
-
-func shellsort(v []int) {
-	var i, j, n, temp int
-	n = len(v)
-	for _, gap := range shellshort_gaps {
-		for i = gap; i < n; i++ {
-			temp = v[i]
-			for j = i; j >= gap && v[j-gap] > temp; j -= gap {
-				v[j] = v[j-gap]
-			}
-			v[j] = temp
-		}
-	}
-}`
-
-const template_shellsort_source_string = `
-var tshellshort_gaps = [...]int{701, 301, 132, 57, 23, 10, 4, 1}
-
-template[T] func tshellsort(v []T) {
-	var temp T
-	var i, j, n, int
-	n = len(v)
-	for _, gap := range tshellshort_gaps {
-		for i = gap; i < n; i++ {
-			temp = v[i]
-			for j = i; j >= gap && v[j-gap] > temp; j -= gap {
-				v[j] = v[j-gap]
-			}
-			v[j] = temp
-		}
-	}
-}`
-
 const switch_source_string = `func bigswitch(n int) int {
 	for i := 0; i < 1000; i++ {
 		switch n&15 {

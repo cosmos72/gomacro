@@ -10,9 +10,9 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * expr_test.go
+ * bench_jit_test.go
  *
- *  Created on: Mar 06 2017
+ *  Created on: Jun 06 2018
  *      Author: Massimiliano Ghilardi
  */
 package main
@@ -79,4 +79,3 @@ func BenchmarkSumJit(b *testing.B) {
 		total += sum(sum_arg)
 	}
 }
-
