@@ -836,6 +836,9 @@ func (g *CompGlobals) TypeOfInterface() xr.Type {
 }
 
 var (
+	rtypeOfInterface = r.TypeOf((*interface{})(nil)).Elem()
+	rtypeOfForward   = r.TypeOf((*xr.Forward)(nil)).Elem()
+
 	rtypeOfBuiltin     = r.TypeOf(Builtin{})
 	rtypeOfFunction    = r.TypeOf(Function{})
 	rtypeOfPtrImport   = r.TypeOf((*Import)(nil))
