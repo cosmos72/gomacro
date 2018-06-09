@@ -184,20 +184,80 @@ pretend that package B contains the following (pseudo-code, it's not valid Go):
 ```
 { // open new scope
 
-	type T = int // inject the concrete template argument
+	type T = int // inject the template argument
 
 	// inject the template declaration literally - no replacements needed
-	type Array [N]T // finds T immediately above, and N in outer scope
+	type Array#[T] [N]T // finds T immediately above, and N in outer scope
 }
 ```
 
-There are two small issues with this approach:
+There is a peculiarity in this approach that must be handled carefully:
+`type Array#[T]` should not be taken too literally. It conveys the
+intention, but the exact mechanics are more subtle:
 
-1. the name `Array` may conflict with the template parameters names - in this case `T`.
-   Solutions: `Array` name may be replaced/augmented with a generated hash, or some
-   inner compiler function could be used that compiles an **anonymous** type with
-   underlying type `[N]T`.
-   The best solution also depends on the desired behaviour of reflect.Type.Name():
-   what name should it return for a type `Array#[int]` ?
+1. the name `Array` is a template type. It must have an associated cache
+   that keeps track of already-instantiated types based on it, otherwise
+   each `Array#[Foo]` will trigger an instantiation (= a compile) even
+   if it exists already.
+2. such cache has the same role as the list of existing (non-template)
+   types, functions, constants and variables: looks up identifiers and
+   resolves them.
+3. Go supports (non-template) recursive functions and types,
+   and we want to also support recursive template functions and types,
+   as for example `template[T] List { First T; Rest *List#[T] }`
+   See the next paragraph for details.
 
-2. compiling recursive template functions or types requires some additional trickery
+### Recursive templates ###
+
+Let's start with a non-template example for concreteness:
+```
+type IntList struct { First int; Rest *IntList }
+```
+Compiling it in Go is conceptually three-step process:
+1. forward-declare `IntList`, i.e. create a new named type `IntList`
+   with no underlying type (i.e. it's incomplete) and add it to the current
+   scope.
+2. compile the underlying type `struct { First int; Rest *IntList }`.
+   It will find the **incomplete** type `IntList` in the current scope,
+   but that's ok because it uses a **pointer** to `IntList`,
+   not an `IntList` - Go, as C/C++/Java and many other languages,
+   allow and can implement pointers to incomplete types because at the
+   assembler level they are all implemented in the same way: a machine word
+   (`void *`, `unsafe.Pointer`, etc.) with pointer semantics.
+   For completeness: also slices, maps, channels and functions signatures
+   of incomplete types are accepted in Go.
+3. complete the forward-declared `IntList` by setting its underlying type to
+   the result of step 2. 
+
+Recursive template types and functions can be implemented very similarly:
+instantiating
+```
+template[T] List struct { First T; Rest *List#[T] }
+```
+as for example `List#[string]`, is almost the same process: it starts
+with the technique described in the paragraph [Instantiation](#instantiation)
+above:
+```
+{ // open new scope
+
+	type T = string // inject the template argument
+
+	// inject the template declaration literally - no replacements needed
+	// except for conceptually replacing List -> List#[T] in the declaration
+	// (not in the body)
+	type List#[T] struct { First T; Rest *List#[T] }
+}
+```
+and it continues with the analogous of the three-step process described above:
+1. forward-declare `List#[string]` i.e. add to the cache of instantiated types
+   a new named type `List#[string]` with no underlying type (i.e. it's
+   incomplete)
+2. compile the underlying type `struct { First T; Rest *List#[T] }` in the scope
+   just prepared above for the instantiation.
+   It will find the **incomplete** type `List#[string]` in the cache of
+   instantiated types, but that's ok because its uses a **pointer** to
+   `List#[string]`, not a `List#[string]`. As we said, pointers to incomplete
+   types are accepted.
+3. complete the forward-declared `List#[string]` by setting its underlying type
+   to the result of step 2.
+

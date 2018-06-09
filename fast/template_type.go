@@ -19,6 +19,7 @@ package fast
 import (
 	"go/ast"
 	"go/token"
+	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
@@ -63,7 +64,7 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 
 // TemplateType compiles a template type name#[T1, T2...] instantiating it if needed.
 func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
-	maker := c.compileTemplateArgs(node, TemplateTypeBind)
+	maker := c.templateMaker(node, TemplateTypeBind)
 	if maker == nil {
 		return nil
 	}
@@ -82,8 +83,6 @@ func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
 		// hard part: instantiate the template type.
 		// must be instantiated in the same *Comp where it was declared!
 		instance = maker.comp.instantiateTemplateType(maker, typ, node)
-		// cache instantiated template function
-		typ.Instances[key] = instance
 	}
 	return instance
 }
@@ -100,28 +99,36 @@ func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, 
 	// and inject template arguments in it
 	maker.injectBinds(c, typ.Params)
 
+	key := maker.ikey
 	panicking := true
 	defer func() {
 		if panicking {
+			delete(typ.Instances, key) // remove the cached instance if present
 			c.ErrorAt(node.Pos(), "error instantiating template type: %v\n\t%v", node, recover())
 		}
 	}()
 	// compile the type instantiation
 	//
 	var t xr.Type
-	if !typ.Alias {
-		// support self-referencing types, as for example
-		//   template[T] type List struct { First T; Rest *List }
+	if !typ.Alias && maker.sym.Name != "_" {
+		if c.Globals.Options&base.OptDebugTemplate != 0 {
+			c.Debugf("forward-declaring template type before instantiation: %v", node)
+		}
+		// support for template recursive types, as for example
+		//   template[T] type List struct { First T; Rest *List#[T] }
+		// requires to cache List#[T] as instantiated **before** actually instantiating it.
 		//
-		// temporary hack: this currently forces to write 'Rest *List' instead of 'Rest *List[T]'
-		// and prevents using List#[...] inside the declaration of List
-		t = c.DeclNamedType(maker.sym.Name)
-	}
-	u := c.Type(typ.Decl)
-	if t == nil { // t == nil means it's either an alias, or name == "_" (discards the result of type declaration)
-		t = u
-	} else {
+		// This is similar to the technique used for non-template recursive types, as
+		//    type List struct { First int; Rest *List }
+		// with the difference that the cache is typ.Instances[key] instead of Comp.Types[name]
+		t = c.Universe.NamedOf(maker.Name(), c.FileComp().Path, r.Invalid /*kind not yet known*/)
+		typ.Instances[key] = t
+		u := c.Type(typ.Decl)
 		c.SetUnderlyingType(t, u)
+	} else {
+		// either the template type is an alias, or name == "_" (discards the result of type declaration)
+		t = c.Type(typ.Decl)
+		typ.Instances[key] = t
 	}
 	panicking = false
 	return t
