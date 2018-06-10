@@ -210,7 +210,7 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 			key.Index(i).Set(r.ValueOf(vals[i]))
 		} else {
 			types[i] = t
-			key.Index(i).Set(r.ValueOf(t.ReflectType()))
+			key.Index(i).Set(r.ValueOf(xr.MakeKey(t)))
 		}
 	}
 	return &templateMaker{upc, sym, ifun, vals, types, key.Interface(), ""}

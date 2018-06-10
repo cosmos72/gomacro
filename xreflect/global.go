@@ -127,3 +127,32 @@ func QNameGo2(name string, pkg *types.Package) QName {
 func QNameGo(obj types.Object) QName {
 	return QNameGo2(obj.Name(), obj.Pkg())
 }
+
+// Key is a Type wrapper suitable for use with operator == and as map[T1]T2 key
+type Key struct {
+	universe *Universe
+	gtype    types.Type
+}
+
+func MakeKey(t Type) Key {
+	xt := unwrap(t)
+	if xt == nil {
+		return Key{}
+	}
+	i := xt.universe.gmap.At(xt.gtype)
+	if i != nil {
+		xt = unwrap(i.(Type))
+	}
+	return Key{xt.universe, xt.gtype}
+}
+
+func (k Key) Type() Type {
+	if k.universe == nil || k.gtype == nil {
+		return nil
+	}
+	i := k.universe.gmap.At(k.gtype)
+	if i == nil {
+		return nil
+	}
+	return i.(Type)
+}
