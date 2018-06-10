@@ -270,10 +270,32 @@ func (p *printer) exprList(prev0 token.Pos, list []ast.Expr, depth int, mode exp
 	}
 }
 
-func (p *printer) parameters(fields *ast.FieldList) {
-	p.print(fields.Opening, token.LPAREN)
-	p.parameters0(fields.Opening, fields.List, fields.Closing)
-	p.print(fields.Closing, token.RPAREN)
+// print the prefix template[T1,T2...] for[Foo#[T1],Bar#[T2],...]
+func (p *printer) templatePrefix(c *ast.CompositeLit) {
+	p.print(mt.TEMPLATE, token.LBRACK)
+	params, specialize := splitTemplateArgs(c)
+	p.exprList(c.Lbrace, params, 1, 0, c.Rbrace)
+	p.print(token.RBRACK, blank)
+	if specialize != nil {
+		p.print(token.FOR, token.LBRACK)
+		p.exprList(specialize.Lbrace, specialize.Elts, 1, 0, specialize.Rbrace)
+		p.print(token.RBRACK, blank)
+	}
+}
+
+func splitTemplateArgs(c *ast.CompositeLit) ([]ast.Expr, *ast.CompositeLit) {
+	list := c.Elts
+	var specialize *ast.CompositeLit
+	var i, n int
+	for i, n = 0, len(list); i < n; i++ {
+		if _, ok := list[i].(*ast.BadExpr); ok {
+			if i+1 < n {
+				specialize, _ = list[i+1].(*ast.CompositeLit)
+			}
+			break
+		}
+	}
+	return list[:i], specialize
 }
 
 func (p *printer) receiver(fields *ast.FieldList) {
@@ -298,14 +320,18 @@ func (p *printer) receiver(fields *ast.FieldList) {
 	}
 }
 
-func (p *printer) funcTemplateArgs(fields *ast.FieldList) {
+func funcTemplateArgs(fields *ast.FieldList) *ast.CompositeLit {
+	var c *ast.CompositeLit
 	if fields != nil && len(fields.List) >= 2 {
-		if c, _ := fields.List[1].Type.(*ast.CompositeLit); c != nil {
-			p.print(fields.Opening, token.LBRACK)
-			p.exprList(fields.Opening, c.Elts, 1, 0, fields.Closing)
-			p.print(fields.Closing, token.RBRACK)
-		}
+		c, _ = fields.List[1].Type.(*ast.CompositeLit)
 	}
+	return c
+}
+
+func (p *printer) parameters(fields *ast.FieldList) {
+	p.print(fields.Opening, token.LPAREN)
+	p.parameters0(fields.Opening, fields.List, fields.Closing)
+	p.print(fields.Closing, token.RPAREN)
 }
 
 func (p *printer) parameters0(open token.Pos, fields []*ast.Field, close token.Pos) {
@@ -1543,9 +1569,7 @@ func (p *printer) genDecl(d *ast.GenDecl) {
 			if c, ok := typ.Type.(*ast.CompositeLit); ok {
 				// print template arguments.
 				// Assume they are identical for all Specs in the list
-				p.print(mt.TEMPLATE, token.LBRACK)
-				p.exprList(token.NoPos, c.Elts, 1, 0, token.NoPos)
-				p.print(token.RBRACK, blank)
+				p.templatePrefix(c)
 			}
 		}
 	}
@@ -1717,12 +1741,13 @@ func (p *printer) funcDecl(d *ast.FuncDecl) {
 	p.setComment(d.Doc)
 
 	p.print(d.Pos())
-	if d.Recv != nil && len(d.Recv.List) > 1 {
+
+	c := funcTemplateArgs(d.Recv)
+	if c != nil {
 		// template function or template method
-		p.print(mt.TEMPLATE)
-		p.funcTemplateArgs(d.Recv)
-		p.print(blank)
+		p.templatePrefix(c)
 	}
+
 	p.print(token.FUNC, blank)
 	if d.Recv != nil {
 		p.receiver(d.Recv) // method: print receiver

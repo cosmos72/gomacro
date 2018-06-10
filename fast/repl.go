@@ -510,28 +510,26 @@ func (c *Comp) completeWords(node interface{}, words []string) []string {
 var keywords []string
 
 func init() {
-	lo, hi := token.BREAK, token.VAR+1
-	keywords = make([]string, hi-lo+1)
-	for tok := lo; tok < hi; tok++ {
+	lo, hi := token.BREAK, token.VAR
+	keywords = make([]string, hi-lo+3)
+	for tok := lo; tok <= hi; tok++ {
 		keywords[tok-lo] = tok.String()
 	}
-	keywords[hi-lo] = "macro"
+	keywords[hi-lo+1] = "macro"
+	keywords[hi-lo+2] = "template"
 }
 
 // complete a single, partial word
 func (c *Comp) completeWord(word string) []string {
 	var completions []string
 	if size := len(word); size != 0 {
-		// complete binds
+		// complete binds and types
 		for co := c; co != nil; co = co.Outer {
 			for name := range co.Binds {
 				if len(name) >= size && name[:size] == word {
 					completions = append(completions, name)
 				}
 			}
-		}
-		// complete types
-		for co := c; co != nil; co = co.Outer {
 			for name := range co.Types {
 				if len(name) >= size && name[:size] == word {
 					completions = append(completions, name)
