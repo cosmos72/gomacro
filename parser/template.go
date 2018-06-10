@@ -23,27 +23,18 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
-// parse prefix#[T1,T2...] as &ast.IndexExpr{ &ast.CompositeLit{Type: Foo, Elts: [T1, T2...]} }
+// parse prefix#[T1,T2...] as &ast.IndexExpr{ &ast.CompositeLit{Type: prefix, Elts: [T1, T2...]} }
 func (p *parser) parseHash(prefix ast.Expr) ast.Expr {
 	if p.trace {
 		defer un(trace(p, "Hash"))
 	}
 	p.expect(mt.HASH)
-	lbrack := p.expect(token.LBRACK)
-	var list []ast.Expr
-	if p.tok != token.RBRACK {
-		list = append(list, p.parseRhsOrType())
-		for p.tok == token.COMMA {
-			p.next()
-			list = append(list, p.parseRhsOrType())
-		}
-	}
-	rbrack := p.expect(token.RBRACK)
+	params := p.parseTemplateParams()
 	return &ast.IndexExpr{
 		X:      prefix,
-		Lbrack: lbrack,
-		Index:  &ast.CompositeLit{Type: nil, Lbrace: lbrack, Elts: list, Rbrace: rbrack},
-		Rbrack: rbrack,
+		Lbrack: params.Lbrace,
+		Index:  params,
+		Rbrack: params.Rbrace,
 	}
 }
 
@@ -53,85 +44,85 @@ func (p *parser) parseTemplateDecl(sync func(*parser)) ast.Decl {
 	if p.trace {
 		defer un(trace(p, "TemplateDecl"))
 	}
-	var lbrack, rbrack token.Pos
-	var templateParams []ast.Expr
-
 	p.expect(mt.TEMPLATE)
-	lbrack = p.expect(token.LBRACK)
+	params := p.parseTemplateParams()
 
-	bad := func() ast.Decl {
-		pos := p.expect(token.RBRACK)
-		sync(p)
-		return &ast.BadDecl{From: pos, To: p.pos}
-	}
-loop:
-	for {
-		tok := p.tok
-		switch tok {
-		case token.RBRACK:
-			rbrack = p.pos
-			p.next()
-			break loop
-		case token.ILLEGAL, token.EOF, token.RPAREN, token.RBRACE:
-			return bad()
-		}
-
-		templateParams = append(templateParams, p.parseRhsOrType())
-
-		tok = p.tok
-		if tok == token.RBRACK {
-			continue
-		} else if tok == token.COMMA {
-			p.next()
-		} else {
-			return bad()
-		}
+	var specialize *ast.CompositeLit
+	if p.tok == token.FOR {
+		p.next()
+		specialize = p.parseTemplateParams()
+		params.Elts = append(params.Elts, &ast.BadExpr{}, specialize)
 	}
 	switch tok := p.tok; tok {
 	case token.TYPE:
 		decl := p.parseGenDecl(tok, p.parseTypeSpec)
-		return templateTypeDecl(lbrack, templateParams, rbrack, decl)
+		return templateTypeDecl(params, decl)
 
 	case token.FUNC, mt.FUNCTION:
 		decl := p.parseFuncDecl(tok)
-		return templateFuncDecl(lbrack, templateParams, rbrack, decl)
+		return templateFuncDecl(params, decl)
 
 	default:
 		pos := p.pos
-		p.errorExpected(pos, "type or func")
+		if specialize == nil {
+			p.errorExpected(pos, "'type', 'func' or 'for' after 'template[...]'")
+		} else {
+			p.errorExpected(pos, "'type' or 'func' after 'template[...] for[...]'")
+		}
 		sync(p)
 		return &ast.BadDecl{From: pos, To: p.pos}
 	}
 }
 
-func templateTypeDecl(lbrack token.Pos, templateParams []ast.Expr, rbrack token.Pos, decl *ast.GenDecl) *ast.GenDecl {
+// parse [T1,T2...] in a template declaration
+func (p *parser) parseTemplateParams() *ast.CompositeLit {
+	var list []ast.Expr
+
+	lbrack := p.expect(token.LBRACK)
+	if p.tok != token.RBRACK {
+		list = append(list, p.parseRhsOrType())
+		for p.tok == token.COMMA {
+			p.next()
+			list = append(list, p.parseRhsOrType())
+		}
+	}
+	rbrack := p.expect(token.RBRACK)
+
+	return &ast.CompositeLit{
+		Lbrace: lbrack,
+		Elts:   list,
+		Rbrace: rbrack,
+	}
+}
+
+func templateTypeDecl(params *ast.CompositeLit, decl *ast.GenDecl) *ast.GenDecl {
 	for _, spec := range decl.Specs {
 		if typespec, ok := spec.(*ast.TypeSpec); ok {
-			// hack: store template types in *ast.CompositeLit.
+			// hack: store template params in *ast.CompositeLit.
 			// it is never used inside *ast.TypeSpec and has exacly the required fields
 			typespec.Type = &ast.CompositeLit{
 				Type:   typespec.Type,
-				Lbrace: lbrack,
-				Elts:   templateParams,
-				Rbrace: rbrack,
+				Lbrace: params.Lbrace,
+				Elts:   params.Elts,
+				Rbrace: params.Rbrace,
 			}
 		}
 	}
 	return decl
 }
 
-func templateFuncDecl(lbrack token.Pos, templateParams []ast.Expr, rbrack token.Pos, decl *ast.FuncDecl) *ast.FuncDecl {
+func templateFuncDecl(params *ast.CompositeLit, decl *ast.FuncDecl) *ast.FuncDecl {
 	// hack: store template types as second function receiver.
 	// it's never used for functions and macros.
 	recv := decl.Recv
 	if recv == nil {
-		recv = &ast.FieldList{Opening: lbrack, Closing: rbrack}
+		recv = &ast.FieldList{Opening: params.Lbrace, Closing: params.Rbrace}
 		decl.Recv = recv
 	}
 	list := []*ast.Field{
 		nil,
 		// add template types as second receiver
-		&ast.Field{Type: &ast.CompositeLit{Elts: templateParams}},
+		&ast.Field{Type: params},
 	}
 	if len(recv.List) != 0 {
 		list[0] = recv.List[0]
