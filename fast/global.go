@@ -320,14 +320,14 @@ func (bind *Bind) ConstValue() r.Value {
 func (bind *Bind) RuntimeValue(env *Env) r.Value {
 	var v r.Value
 	switch bind.Desc.Class() {
-	case ConstBind, TemplateFuncBind:
+	case ConstBind, TemplateFuncBind, TemplateTypeBind:
 		v = bind.Lit.ConstValue()
 	case IntBind:
 		expr := bind.intExpr(&env.Run.Stringer)
 		// no need for Interp.RunExpr(): expr is a local variable,
 		// not a statement or a function call that may be stopped by the debugger
 		v = expr.AsX1()(env)
-	case VarBind:
+	case VarBind, FuncBind:
 		v = env.Vals[bind.Desc.Index()]
 	default:
 		Errorf("Symbol %q: unsupported class: %v", bind.Name, bind.Desc.Class())
