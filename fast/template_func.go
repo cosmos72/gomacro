@@ -26,15 +26,24 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+// an instantiated (and compiled) template function.
 type TemplateFuncInstance struct {
 	Func *func(*Env) r.Value
 	Type xr.Type
 }
 
-type TemplateFunc struct {
+// a template function declaration.
+// either general, or partially specialized or fully specialized
+type TemplateFuncDecl struct {
 	Decl           *ast.FuncLit // template function declaration. use a *ast.FuncLit because we will compile it with Comp.FuncLit()
 	Params         []string     // template param names
-	SpecializedFor []ast.Expr   // not used yet
+	SpecializedFor []ast.Expr   // for partial or full specialization
+}
+
+// template function
+type TemplateFunc struct {
+	// declarations. either general, or partially specialized or fully specialized
+	Decls []TemplateFuncDecl
 	// cache of instantiated and compiled functions.
 	// key is [N]interface{}{T1, T2...}
 	// value is *TemplateFuncInstance to allow replacing instantiated functions at runtime (by recompiling them)
@@ -89,17 +98,20 @@ func (f *TemplateFunc) String() string {
 	if f == nil {
 		return "<nil>"
 	}
+	if len(f.Decls) == 0 {
+		return "template [???] func (???)"
+	}
 	var buf bytes.Buffer // strings.Builder requires Go >= 1.10
-
 	buf.WriteString("template[")
-	for i, param := range f.Params {
+	decl := f.Decls[0]
+	for i, param := range decl.Params {
 		if i != 0 {
 			buf.WriteString(", ")
 		}
 		buf.WriteString(param)
 	}
 	buf.WriteString("] ")
-	(*base.Stringer).Fprintf(nil, &buf, "%v", f.Decl.Type)
+	(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
 	return buf.String()
 }
 
@@ -122,7 +134,7 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 			decl.Recv.List[1].Type, decl)
 	}
 
-	paramNames := c.templateParamNames(lit.Elts, "function or method", decl)
+	params, specializedFor := c.templateParams(lit.Elts, "function or method", decl)
 
 	bind := c.NewBind(decl.Name.Name, TemplateFuncBind, c.TypeOfPtrTemplateFunc())
 
@@ -130,26 +142,36 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 	// it merely creates the bind for on-demand instantiation by other code
 
 	bind.Value = &TemplateFunc{
-		Decl: &ast.FuncLit{
-			Type: decl.Type,
-			Body: decl.Body,
+		Decls: []TemplateFuncDecl{
+			{
+				Decl: &ast.FuncLit{
+					Type: decl.Type,
+					Body: decl.Body,
+				},
+				Params:         params,
+				SpecializedFor: specializedFor,
+			},
 		},
-		Params:    paramNames,
 		Instances: make(map[I]*TemplateFuncInstance),
 	}
 }
 
-func (c *Comp) templateParamNames(params []ast.Expr, errlabel string, node ast.Node) []string {
-	names := make([]string, len(params))
+func (c *Comp) templateParams(params []ast.Expr, errlabel string, node ast.Node) ([]string, []ast.Expr) {
+	names := make([]string, 0, len(params))
+	var exprs []ast.Expr
 	for i, param := range params {
-		if ident, _ := param.(*ast.Ident); ident != nil {
-			names[i] = ident.Name
-		} else {
-			c.Errorf("invalid template %s declaration: template parameter %d should be an identifier, found %T: %v",
+		switch param := param.(type) {
+		case *ast.Ident:
+			names = append(names, param.Name)
+		case *ast.BadExpr:
+		case *ast.CompositeLit:
+			exprs = param.Elts
+		default:
+			c.Errorf("invalid template %s declaration: template parameter %d should be *ast.Ident or *ast.CompositeLit, found %T: %v",
 				errlabel, i, param, node)
 		}
 	}
-	return names
+	return names, exprs
 }
 
 func splitTemplateArgs(node *ast.IndexExpr) (string, []ast.Expr, bool) {
@@ -172,26 +194,30 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 		c.Errorf("undefined identifier: %v", name)
 	}
 	n := len(templateArgs)
-	var paramNames []string
+	var params []string
 	ifun := sym.Value
 	ok = false
 	if ifun != nil && sym.Desc.Class() == which {
 		switch which {
 		case TemplateFuncBind:
 			fun, _ := ifun.(*TemplateFunc)
-			ok = fun != nil
-			paramNames = fun.Params
+			ok = fun != nil && len(fun.Decls) != 0
+			if ok {
+				params = fun.Decls[0].Params
+			}
 		case TemplateTypeBind:
 			typ, _ := ifun.(*TemplateType)
-			ok = typ != nil
-			paramNames = typ.Params
+			ok = typ != nil && len(typ.Decls) != 0
+			if ok {
+				params = typ.Decls[0].Params
+			}
 		}
 	}
 	if !ok {
 		c.Errorf("symbol is not a %v, cannot use #[...] on it: %s", which, name)
 	}
-	if n != len(paramNames) {
-		c.Errorf("%v expects exactly %d template parameters %v, found %d: %v", which, len(paramNames), paramNames, n, node)
+	if n != len(params) {
+		c.Errorf("%v expects exactly %d template parameters %v, found %d: %v", which, len(params), params, n, node)
 	}
 	vals := make([]I, n)
 	types := make([]xr.Type, n)
@@ -290,13 +316,18 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 // node is used only for error messages
 func (c *Comp) instantiateTemplateFunc(maker *templateMaker, fun *TemplateFunc, node *ast.IndexExpr) *TemplateFuncInstance {
 
+	if len(fun.Decls) == 0 {
+		c.ErrorAt(node.Pos(), "template function has no specializations to instantiate: %v", node)
+	}
+	decl := fun.Decls[0]
+
 	// create a new nested Comp
 	c = NewComp(c, nil)
 	c.UpCost = 0
 	c.Depth--
 
 	// and inject template arguments into it
-	maker.injectBinds(c, fun.Params)
+	maker.injectBinds(c, decl.Params)
 
 	key := maker.ikey
 	panicking := true
@@ -321,14 +352,14 @@ func (c *Comp) instantiateTemplateFunc(maker *templateMaker, fun *TemplateFunc, 
 	// for such trick to work, we must:
 	// 1. compute in advance the instantiated function type
 	// 2. check TemplateFuncInstance.Func: if it's nil, take its address and dereference it later at runtime
-	t, _, _ := c.TypeFunction(fun.Decl.Type)
+	t, _, _ := c.TypeFunction(decl.Decl.Type)
 
 	instance := &TemplateFuncInstance{Type: t, Func: new(func(*Env) r.Value)}
 	fun.Instances[key] = instance
 
 	// compile an expression that, when evaluated at runtime in the *Env
 	// where the template function was declared, returns the instantiated function
-	expr := c.FuncLit(fun.Decl)
+	expr := c.FuncLit(decl.Decl)
 
 	*instance.Func = expr.AsX1()
 	instance.Type = expr.Type
