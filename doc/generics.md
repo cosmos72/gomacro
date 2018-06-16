@@ -327,10 +327,11 @@ If one has some familiarity with C++ templates, it is easy to see that
 the partial and full specialization rules described above are Turing complete
 just like C++ templates.
 
-The reason is: partial and full specializations are a compile-time `if`,
-instantiating a template from another one is a compile-time `while`,
-and compile-time computation on integers can be implemented with `len()`
-on array types.
+The reason is:
+* partial and full specializations are a compile-time `if`
+* instantiating a template from inside another one is a compile-time `while`
+* compile-time computation on integers can be implemented with normal arithmetics,
+  plus `len()` on array types or pointer-to-array types.
 
 For example, this is a compile-time computation of fibonacci numbers
 using the rules proposed above:
@@ -349,3 +350,35 @@ template<> struct Fib<1> { enum { value = 1 }; };
 template<> struct Fib<0> { enum { value = 0 }; };
 enum { Fib10 = Fib<10>::value };
 ```
+
+This seems to present a conundrum:
+1. allow partial template specialization and, as a consequence, compile-time
+   Turing-completeness, with the **extremely** unreadable syntax required to use it
+2. or forbid partial template specialization, preserving readability as much
+   as possible, but severely limiting the usefulness of templates?
+
+If Go adds compile-time Turing-completeness, whatever its syntax,
+it is such an enticing feature that many programmers will certainly use it.
+Some programmers may **heavily** use it, and the result could be something
+resembling the well-known C++ libraries STL and Boost:
+
+professional code, that heavily uses templates, very useful and very used,
+but written in a dialect very different from the basic language (C++ in this case),
+almost unreadable for average programmers skilled mostly on non-template code,
+and difficult to read even for experts.
+
+In my opinion, there is only one solution to the conundrum:
+<b>add another, readable syntax to perform compile-time computation.</b>
+
+As minimum, such syntax would be used in most cases for compile-time
+Turing-completeness **instead** of the extremely unreadable template
+specializations, simply because it has the same features
+(compile-time Turing-completeness) but is more readable.
+
+Ideally, such syntax could also be used to simplify writing complex
+template code.
+
+To give some context, Go is not foreign to compile-time computation:
+`//go:generate` allows to execute arbitrary commands at compile-time,
+and Go code generation tools and techniques are accepted and
+quite in widespread use (at least compared to many other languages).
