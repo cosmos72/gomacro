@@ -25,12 +25,19 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+// a template type declaration.
+// either general, or partially specialized or fully specialized
+type TemplateTypeDecl struct {
+	Decl   ast.Expr   // type declaration body. use an ast.Expr because we will compile it with Comp.Type()
+	Alias  bool       // true if declaration is an alias: 'type Foo = ...'
+	Params []string   // template param names
+	For    []ast.Expr // for partial or full specialization
+}
+
 type TemplateType struct {
-	Decl           ast.Expr      // type declaration body. use an ast.Expr because we will compile it with Comp.Type()
-	Alias          bool          // true if declaration is an alias: 'type Foo = ...'
-	Params         []string      // template param names
-	SpecializedFor []ast.Expr    // not used yet
-	Instances      map[I]xr.Type // cache of instantiated types. key is [N]interface{}{T1, T2...}
+	Master    TemplateTypeDecl            // master (i.e. non specialized) declaration
+	Special   map[string]TemplateTypeDecl // partially or fully specialized declarations. key is TemplateTypeDecl.For converted to string
+	Instances map[I]xr.Type               // cache of instantiated types. key is [N]interface{}{T1, T2...}
 }
 
 // DeclTemplateType stores a template type declaration
@@ -47,19 +54,44 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 		c.Errorf("invalid template type declaration: expecting an *ast.CompositeLit, found &ast.CompositeLit{Type: &ast.CompositeLit{}}: %v",
 			spec)
 	}
-	paramNames := c.templateParamNames(lit.Elts, "type", spec)
+	params, fors := c.templateParams(lit.Elts, "type", spec)
 
-	bind := c.NewBind(spec.Name.Name, TemplateTypeBind, c.TypeOfPtrTemplateFunc())
-
-	// a template type declaration has no runtime effect:
-	// it merely creates the bind for on-demand instantiation by other code
-
-	bind.Value = &TemplateType{
-		Decl:      lit.Type,
-		Alias:     spec.Assign != token.NoPos,
-		Params:    paramNames,
-		Instances: make(map[I]xr.Type),
+	tdecl := TemplateTypeDecl{
+		Decl:   lit.Type,
+		Alias:  spec.Assign != token.NoPos,
+		Params: params,
+		For:    fors,
 	}
+	name := spec.Name.Name
+
+	if len(fors) == 0 {
+		// master (i.e. not specialized) declaration
+		bind := c.NewBind(name, TemplateTypeBind, c.TypeOfPtrTemplateFunc())
+		// a template type declaration has no runtime effect:
+		// it merely creates the bind for on-demand instantiation by other code
+
+		bind.Value = &TemplateType{
+			Master:    tdecl,
+			Special:   make(map[string]TemplateTypeDecl),
+			Instances: make(map[I]xr.Type),
+		}
+		return
+	}
+
+	// partially or fully specialized declaration
+	bind := c.Binds[name]
+	if bind == nil {
+		c.Errorf("undefined identifier: %v", name)
+	}
+	typ, ok := bind.Value.(*TemplateType)
+	if !ok {
+		c.Errorf("symbol is not a template type, cannot declare type specializations on it: %s // %v", name, bind.Type)
+	}
+	key := c.Globals.Sprintf("%v", &ast.IndexExpr{X: spec.Name, Index: &ast.CompositeLit{Elts: fors}})
+	if _, ok := typ.Special[key]; ok {
+		c.Warnf("redefined template type specialization: %s", key)
+	}
+	typ.Special[key] = tdecl
 }
 
 // TemplateType compiles a template type name#[T1, T2...] instantiating it if needed.
@@ -97,7 +129,8 @@ func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, 
 	c.Depth--
 
 	// and inject template arguments in it
-	maker.injectBinds(c, typ.Params)
+	decl := typ.Master
+	maker.injectBinds(c, decl.Params)
 
 	key := maker.ikey
 	panicking := true
@@ -110,7 +143,7 @@ func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, 
 	// compile the type instantiation
 	//
 	var t xr.Type
-	if !typ.Alias && maker.sym.Name != "_" {
+	if !decl.Alias && maker.sym.Name != "_" {
 		if c.Globals.Options&base.OptDebugTemplate != 0 {
 			c.Debugf("forward-declaring template type before instantiation: %v", node)
 		}
@@ -123,11 +156,11 @@ func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, 
 		// with the difference that the cache is typ.Instances[key] instead of Comp.Types[name]
 		t = c.Universe.NamedOf(maker.Name(), c.FileComp().Path, r.Invalid /*kind not yet known*/)
 		typ.Instances[key] = t
-		u := c.Type(typ.Decl)
+		u := c.Type(decl.Decl)
 		c.SetUnderlyingType(t, u)
 	} else {
 		// either the template type is an alias, or name == "_" (discards the result of type declaration)
-		t = c.Type(typ.Decl)
+		t = c.Type(decl.Decl)
 		typ.Instances[key] = t
 	}
 	panicking = false

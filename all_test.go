@@ -84,6 +84,8 @@ func (shouldpanic) String() string {
 // only matches if the interpreter panicked
 var panics shouldpanic
 
+var none = []interface{}{}
+
 func (test *TestCase) classic(t *testing.T, ir *classic.Interp) {
 	var rets []r.Value
 	panicking := true
@@ -566,7 +568,7 @@ var testcases = []TestCase{
 	TestCase{A, "for_range_slice", `v0 = 0; for _, s := range [ ]string{"a", "bc"} { v0 += len(s) }; v0`, 3, nil},
 	TestCase{A, "for_range_string", `vrune = 0; for i, r := range "abc\u00ff" { vrune += r << (uint8(i)*8) }; vrune`, for_range_string("abc\u00ff"), nil},
 
-	TestCase{A, "function_0", "func nop() { }; nop()", nil, []interface{}{}},
+	TestCase{A, "function_0", "func nop() { }; nop()", nil, none},
 	TestCase{A, "function_1", "func seven() int { return 7 }; seven()", 7, nil},
 	TestCase{A, "function_2", "i=0; func seti(ii int) { i=ii }; seti(-493); i", -493, nil},
 	TestCase{A, "function_3", "func ident(x uint) uint { return x }; ident(42)", uint(42), nil},
@@ -585,10 +587,10 @@ var testcases = []TestCase{
 
 	TestCase{F, "y_combinator_1", "type F func(F); var f F; &f", new(xr.Forward), nil},     // xr.Forward is contagious
 	TestCase{F, "y_combinator_2", "func Y(f F) { /*f(f)*/ }; Y", func(xr.Forward) {}, nil}, // avoid the infinite recursion, only check the types
-	TestCase{F, "y_combinator_3", "Y(Y)", nil, []interface{}{}},                            // also check actual invokations
-	TestCase{F, "y_combinator_4", "f=Y; f(Y)", nil, []interface{}{}},
-	TestCase{F, "y_combinator_5", "Y(f)", nil, []interface{}{}},
-	TestCase{F, "y_combinator_6", "f(f)", nil, []interface{}{}},
+	TestCase{F, "y_combinator_3", "Y(Y)", nil, none},                                       // also check actual invokations
+	TestCase{F, "y_combinator_4", "f=Y; f(Y)", nil, none},
+	TestCase{F, "y_combinator_5", "Y(f)", nil, none},
+	TestCase{F, "y_combinator_6", "f(f)", nil, none},
 
 	TestCase{A, "closure_1", `
 		func test_closure_1() int {
@@ -652,9 +654,9 @@ var testcases = []TestCase{
 	TestCase{F, "infer_type_compositelit_5", `map[int]map[int]int{1:{2:3}}`, map[int]map[int]int{1: {2: 3}}, nil},
 	TestCase{F, "infer_type_compositelit_6", `map[int]*map[int]int{1:{2:3}}`, map[int]*map[int]int{1: {2: 3}}, nil},
 
-	TestCase{A, "import", `import ( "errors"; "fmt"; "io"; "math/big"; "math/rand"; "reflect"; "time" )`, nil, []interface{}{}},
+	TestCase{A, "import", `import ( "errors"; "fmt"; "io"; "math/big"; "math/rand"; "reflect"; "time" )`, nil, none},
 	TestCase{A, "import_constant", `const micro = time.Microsecond; micro`, time.Microsecond, nil},
-	TestCase{A, "dot_import_1", `import . "errors"`, nil, []interface{}{}},
+	TestCase{A, "dot_import_1", `import . "errors"`, nil, none},
 	TestCase{A, "dot_import_2", `reflect.ValueOf(New) == reflect.ValueOf(errors.New)`, true, nil}, // a small but very strict check... good
 
 	TestCase{A, "goroutine_1", `go seti(9); time.Sleep(time.Second/50); i`, 9, nil},
@@ -893,7 +895,7 @@ var testcases = []TestCase{
 	TestCase{A, "typeassert_3", `xi.(int)`, nil, []interface{}{0, false}},
 	TestCase{A, "typeassert_4", `xi = nil; xi.(error)`, nil, []interface{}{error(nil), false}},
 	TestCase{A, "typeassert_5", `xi = 7; xi.(int)+2`, 9, nil},
-	TestCase{F, "typeassert_6", `type T struct { Val int }; func (t T) String() string { return "T" }`, nil, []interface{}{}},
+	TestCase{F, "typeassert_6", `type T struct { Val int }; func (t T) String() string { return "T" }`, nil, none},
 	TestCase{F, "typeassert_7", `stringer = T{}; nil`, nil, nil},
 	TestCase{F, "typeassert_8", `st1 := stringer.(T); st1`, struct{ Val int }{0}, nil},
 	TestCase{F, "typeassert_9", `stringer.(T)`, nil, []interface{}{struct{ Val int }{0}, true}},
@@ -1117,7 +1119,7 @@ var testcases = []TestCase{
 				sum += elem
 			}
 			return sum
-		}`, nil, []interface{}{},
+		}`, nil, none,
 	},
 	TestCase{F, "template_func_2", `Sum#[int]`, func(...int) int { return 0 }, nil},
 	TestCase{F, "template_func_3", `Sum#[complex64]`, func(...complex64) complex64 { return 0 }, nil},
@@ -1132,22 +1134,26 @@ var testcases = []TestCase{
 				ret[i] = trans(slice[i])
 			}
 			return ret
-		}`, nil, []interface{}{},
+		}`, nil, none,
 	},
 	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
 		[]int{3, 2, 1}, nil},
 
-	TestCase{F, "recursive_template_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, []interface{}{}},
+	TestCase{F, "recursive_template_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, none},
 	TestCase{F, "recursive_template_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
 	TestCase{F, "recursive_template_func_3", `count#[uint32](2,3)`, uint32(5), nil},
 
-	TestCase{F, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, []interface{}{}},
+	TestCase{F, "specialized_template_func_1", `template[] for[struct{}] func count(a, b struct{}) struct{} { return b }`, nil, none},
+
+	TestCase{F, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, none},
 	TestCase{F, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
 	TestCase{F, "template_type_3", `PairX#[bool, interface{}] {true, "foo"}`, PairX3{true, "foo"}, nil},
 
-	TestCase{F, "recursive_template_type_1", `template[T] type ListX struct { First T; Rest *ListX#[T] }`, nil, []interface{}{}},
+	TestCase{F, "recursive_template_type_1", `template[T] type ListX struct { First T; Rest *ListX#[T] }`, nil, none},
 	TestCase{F, "recursive_template_type_2", `var lx ListX#[error]; lx`, ListX2{}, nil},
 	TestCase{F, "recursive_template_type_3", `ListX#[interface{}]{}`, ListX3{}, nil},
+
+	TestCase{F, "specialized_template_type_1", `template[] for[struct{}] type ListX struct { }`, nil, none},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {
