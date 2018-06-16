@@ -410,9 +410,21 @@ define unambiguously, and difficult to store in the compiled code.
 
 So, a tentative definition of whether a function can be invoked
 at compile time is:
-1. is defined in the current package
+1. is defined in the current package (so source code
+   is available in order to check points 1. and 2. below)
 2. does not use global variables, imported packages, print()
    or println()
 3. calls only functions that (transitively) respect 1. and 2.
 4. as a consequence, calls to closures are allowed, provided
    that the function creating the closure respects 1, 2 and 3.
+
+An alternative, wider definition could be: only pure functions
+can be invoked at compile time. A function is pure if:
+1. does not use global variables, print() or println(), or assembler
+2. either does not call other functions, or only calls pure functions
+As a special case, all builtin functions except `print()` and `println()`
+are considered pure.
+This alternative definition allows calling function in other
+packages at compile-time, provided they are pure.
+Thus it requires storing in compiled packages a flag for each function,
+indicating whether it is pure or not.
