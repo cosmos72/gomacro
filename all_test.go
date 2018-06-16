@@ -1160,6 +1160,11 @@ var testcases = []TestCase{
 	TestCase{F, "specialized_template_type_1", `template[] for[struct{}] type ListX struct { }`, nil, none},
 	TestCase{F, "specialized_template_type_2", `template [T] for[T,T] type PairX struct { Left, Right T }`, nil, none},
 	TestCase{F, "specialized_template_type_3", `PairX#[bool,bool]{false,true}`, struct{ Left, Right bool }{false, true}, nil},
+
+	TestCase{F, "turing_complete_template_1", `template[N] type Fib [len((*Fib#[N-1])(nil)) + len((*Fib#[N-2])(nil))] int`, nil, none},
+	TestCase{F, "turing_complete_template_2", `template[] for[1] type Fib [1]int`, nil, none},
+	TestCase{F, "turing_complete_template_3", `template[] for[0] type Fib [0]int`, nil, none},
+	TestCase{F, "turing_complete_template_4", `const Fib30 = len((*Fib#[30])(nil)); Fib30`, 832040, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {

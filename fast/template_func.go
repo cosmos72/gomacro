@@ -144,11 +144,11 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 	instance, _ := fun.Instances[key]
 	if instance != nil {
 		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("found instantiated template function %v", node)
+			c.Debugf("found instantiated template function %v", maker)
 		}
 	} else {
 		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("instantiating template function %v", node)
+			c.Debugf("instantiating template function %v", maker)
 		}
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
@@ -168,7 +168,7 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 	}
 	upn := maker.sym.Upn
 	if c.Globals.Options&base.OptDebugTemplate != 0 {
-		c.Debugf("template function: %v, upn = %v, instance = %v", node, upn, instance)
+		c.Debugf("template function: %v, upn = %v, instance = %v", maker, upn, instance)
 	}
 	// switch to the correct *Env before evaluating expr
 	switch upn {
@@ -222,12 +222,12 @@ func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexEx
 	defer func() {
 		if panicking {
 			delete(fun.Instances, key)
-			c.ErrorAt(node.Pos(), "error instantiating template function: %v\n\t%v", node, recover())
+			c.ErrorAt(node.Pos(), "error instantiating template function: %v\n\t%v", maker, recover())
 		}
 	}()
 
 	if c.Globals.Options&base.OptDebugTemplate != 0 {
-		c.Debugf("forward-declaring template function before instantiation: %v", node)
+		c.Debugf("forward-declaring template function before instantiation: %v", maker)
 	}
 	// support for template recursive functions, as for example
 	//   template[T] func fib(n T) T { if n <= 2 { return 1 }; return fib#[T](n-1) + fib#[T](n-2) }

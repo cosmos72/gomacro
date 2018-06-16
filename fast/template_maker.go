@@ -78,7 +78,7 @@ func (special *templateTypeCandidate) injectBinds(c *Comp) {
 }
 
 // return the qualified name of the function or type to instantiate, for example "Pair#[int,string]"
-func (maker *templateMaker) Name() string {
+func (maker *templateMaker) String() string {
 	if len(maker.name) != 0 {
 		return maker.name
 	}
@@ -140,6 +140,9 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 	// slices cannot be used as map keys. use an array and reflection
 	key := r.New(r.ArrayOf(n, rtypeOfInterface)).Elem()
 
+	// make a copy of templateArgs, then replace constant expressions with their values
+	templateArgs = append([]ast.Expr(nil), templateArgs...)
+
 	for i, templateArg := range templateArgs {
 		e, t := c.Expr1OrType(templateArg)
 		if e != nil {
@@ -149,6 +152,7 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 			// UntypedLit is unsuitable as map key, because its == is not usable
 			vals[i] = e.EvalConst(COptDefaults)
 			types[i] = e.Type // also remember the type
+			templateArgs[i] = c.constToAstExpr(vals[i], templateArg.Pos())
 			key.Index(i).Set(r.ValueOf(vals[i]))
 		} else {
 			types[i] = t
@@ -156,6 +160,50 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 		}
 	}
 	return &templateMaker{upc, sym, ifun, templateArgs, vals, types, key.Interface(), "", node.Pos()}
+}
+
+// convert true to &ast.Ident{Name: "true"}, convert false similarly,
+// convert integers to &ast.BasicLit{Kind: token.INT, Value: fmt.Sprint(val)}
+// convert float32, float64 and strings analogously,
+// convert complex64 and complex128 to &ast.BinaryExpr{X: real(...), Op: token.Add, Y: imag(...)}
+func (c *Comp) constToAstExpr(val interface{}, pos token.Pos) ast.Expr {
+	var kind token.Token
+	var str string
+	v := r.ValueOf(val)
+	switch v.Kind() {
+	case r.Bool:
+		return &ast.Ident{NamePos: pos, Name: fmt.Sprint(val)}
+	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64,
+		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr:
+		kind = token.INT
+		str = fmt.Sprint(val)
+	case r.Float32, r.Float64:
+		kind = token.FLOAT
+		str = fmt.Sprintf("%g", val)
+	case r.Complex64, r.Complex128:
+		return &ast.BinaryExpr{
+			X: &ast.BasicLit{
+				Kind:     token.FLOAT,
+				Value:    fmt.Sprintf("%g", real(v.Complex())),
+				ValuePos: pos,
+			},
+			Op: token.ADD,
+			Y: &ast.BasicLit{
+				Kind:  token.IMAG,
+				Value: fmt.Sprintf("%g", imag(v.Complex())),
+			},
+		}
+	case r.String:
+		kind = token.STRING
+		str = fmt.Sprintf("%q", val)
+	default:
+		c.Errorf("unexpected const type, cannot convert to ast.Expr: %v // %T", val, val)
+	}
+	return &ast.BasicLit{
+		Kind:     kind,
+		Value:    str,
+		ValuePos: pos,
+	}
 }
 
 func splitTemplateArgs(node *ast.IndexExpr) (string, []ast.Expr, bool) {
@@ -201,7 +249,7 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 	var ok1, ok2 bool
 
 	if debug {
-		g.Debugf("choosing template function for %s from %d specializations", maker.Name(), 1+len(fun.Special))
+		g.Debugf("choosing template function for %s from %d specializations", maker.String(), 1+len(fun.Special))
 	}
 
 	for key, special := range fun.Special {
@@ -227,7 +275,7 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 			}
 		}
 		if debug {
-			g.Debugf("adding template function %s to candidate specializations", key)
+			g.Debugf("adding   template function specialization  %s to candidates", key)
 		}
 		candidates[key] = &templateFuncCandidate{
 			decl:  special,
@@ -245,7 +293,7 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 		}
 		fallthrough
 	case 0:
-		g.Errorf("no template function specialization matches %v", maker.Name())
+		g.Errorf("no template function specialization matches %v", maker.String())
 	default:
 		names := make([]string, n)
 		var i int
@@ -254,7 +302,7 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 			i++
 		}
 		sort.Strings(names)
-		g.Errorf("multiple candidates match template function %v:\n\t%s", maker.Name(), strings.Join(names, "\n\t"))
+		g.Errorf("multiple candidates match template function %v:\n\t%s", maker.String(), strings.Join(names, "\n\t"))
 	}
 	return "", nil
 }
@@ -274,7 +322,7 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 	var ok1, ok2 bool
 
 	if debug {
-		g.Debugf("choosing template type for %s from %d specializations", maker.Name(), 1+len(typ.Special))
+		g.Debugf("choosing template type for %s from %d specializations", maker.String(), 1+len(typ.Special))
 	}
 
 	for key, special := range typ.Special {
@@ -300,7 +348,7 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 			}
 		}
 		if debug {
-			g.Debugf("adding template type %s to candidate specializations", key)
+			g.Debugf("adding   template type specialization  %s to candidates", key)
 		}
 		candidates[key] = &templateTypeCandidate{
 			decl:  special,
@@ -318,7 +366,7 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 		}
 		fallthrough
 	case 0:
-		g.Errorf("no template type specialization matches %v", maker.Name())
+		g.Errorf("no template type specialization matches %v", maker.String())
 	default:
 		names := make([]string, n)
 		var i int
@@ -327,7 +375,7 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 			i++
 		}
 		sort.Strings(names)
-		g.Errorf("multiple candidates match template type %v:\n\t%s", maker.Name(), strings.Join(names, "\n\t"))
+		g.Errorf("multiple candidates match template type %v:\n\t%s", maker.String(), strings.Join(names, "\n\t"))
 	}
 	return "", nil
 }
@@ -337,21 +385,13 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 func (maker *templateMaker) patternMatches(names []string, patterns []ast.Expr, exprs []ast.Expr) ([]interface{}, []xr.Type, bool) {
 	vals := make([]interface{}, len(names))
 	types := make([]xr.Type, len(names))
-	g := maker.comp.Globals
-	debug := g.Options&base.OptDebugTemplate != 0
 	ok := true
 
 	for i, pattern := range patterns {
 		ok = maker.patternMatch(names, vals, types, ast2.ToAst(pattern), ast2.ToAst(exprs[i]))
-		if debug {
-			g.Debugf("names %v\tpattern %v\tmatches %v ?\t%t", names, pattern, exprs[i], ok)
-		}
 		if !ok {
 			break
 		}
-	}
-	if debug {
-		g.Debugf("names %v\tpatterns %v\tmatch %v ?\t%t", names, patterns, exprs, ok)
 	}
 	return vals, types, ok
 }

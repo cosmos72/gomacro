@@ -261,3 +261,91 @@ and it continues with the analogous of the three-step process described above:
 3. complete the forward-declared `List#[string]` by setting its underlying type
    to the result of step 2.
 
+### Partial and full specialization ###
+
+This is a desirable feature of C++ templates.
+Although not overly difficult to implement, it introduces a lot of complexity:
+C++ templates are Turing-complete because of it.
+
+In extreme summary it means that, in addition to the general declaration of a template,
+one can also declare special cases.
+
+Example 1: given the template function declaration
+```
+template[T] func nonzero(a, b T) T { if a != 0 { return a }; return b }
+```
+one can declare the special case "T is a map of something" as:
+```
+template[K,V] for[map[K]V] func nonzero(a, b map[K]V) map[K]V { if a != nil { return a }; return b }
+```
+and the special case "T is struct{}" as:
+```
+template[] for[struct{}] func nonzero(a, b struct{}) struct{} { return struct{}{} }
+```
+Note that the number of template arguments **can** be different in each specialized declaration.
+
+A specialized declaration with zero template arguments is named "full specialization"
+or "fully specialized"; all other specialized declarations are named "partial
+specialization" or "partially specialized".
+
+The compiler is expected to automatically decide which specialization to use,
+based on the criteria "use the most specialized declaration that is applicable".
+
+In case there is no single "most specialized declaration", the compiler
+is expected to produce a (hopefully descriptive) error.
+
+Implementation note: choosing the "most specialized declaration" requires the
+following steps:
+1. keep a list of candidates, initially containing only the general declaration.
+2. for each specialization, pattern-match it against the code to compile
+   (for example `nonzero#[map[int]string]`).
+   If it does not match, ignore it and repeat step 2. with the next specialization.
+   It it matches, name it "new candidate" and continue to step 3.
+3. compute the types and constants required to match the new candidate against the
+   code to compile. For example, the candidate `template[K,V] for[map[K]V] func nonzero(...) ...`
+   matches the code `nonzero#[map[int]string]` if `K = int` and `V = string`
+4. perform a loop, comparing the new candidate selected at step 2. against each candidate
+   currently in the list. If the new candidate is more is more specialized than a current one,
+   the latter is removed from the candidate list.
+5. add the new candidate to the candidate list, storing also the types and constants
+   computed at step 3.
+6. if there are more specializations, return to step 2. with the next specialization.
+
+The comparison at step 4. "candidate A is more specialized than candidate B"
+can be implemented as: B pattern-matches A, but A does not pattern-match B.
+
+Pattern-matching compares the ast.Node tree structure and the contents
+of each *ast.Ident and *ast.BasicList, but it should also expand type aliases
+and compute the value of constant expressions before comparing them.
+
+It is not yet clear whether it is feasible for pattern-matching to also expand
+template types in case they are type aliases too.
+
+### Turing completeness ###
+
+If one has some familiarity with C++ templates, it is easy to see that
+the partial and full specialization rules described above are Turing complete
+just like C++ templates.
+
+The reason is: partial and full specializations are a compile-time `if`,
+instantiating a template from another one is a compile-time `while`,
+and compile-time computation on integers can be implemented with `len()`
+on array types.
+
+For example, this is a compile-time computation of fibonacci numbers
+using the rules proposed above:
+
+```
+template[N] type Fib [len((*Fib#[N-1])(nil)) + len((*Fib#[N-2])(nil))] int
+template[] for[1] type Fib [1]int
+template[] for[0] type Fib [0]int
+const Fib10 = len((*Fib#[10])(nil))
+```
+arguably, the Go code above is even **less** readable than the already convoluted
+C++ equivalent:
+```
+template<int N> struct Fib { enum { value = Fib<N-1>::value + Fib<N-1>::value }; };
+template<> struct Fib<1> { enum { value = 1 }; };
+template<> struct Fib<0> { enum { value = 0 }; };
+enum { Fib10 = Fib<10>::value };
+```
