@@ -66,6 +66,10 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 
 	if len(fors) == 0 {
 		// master (i.e. not specialized) declaration
+		if len(params) == 0 {
+			c.Errorf("cannot declare template type with zero template parameters: %v", spec)
+		}
+
 		bind := c.NewBind(name, TemplateTypeBind, c.TypeOfPtrTemplateFunc())
 		// a template type declaration has no runtime effect:
 		// it merely creates the bind for on-demand instantiation by other code
@@ -88,6 +92,9 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 		c.Errorf("symbol is not a template type, cannot declare type specializations on it: %s // %v", name, bind.Type)
 	}
 	key := c.Globals.Sprintf("%v", &ast.IndexExpr{X: spec.Name, Index: &ast.CompositeLit{Elts: fors}})
+	if len(typ.Master.Params) != len(fors) {
+		c.Errorf("template type specialization for %d parameters, expecting %d: %s", len(fors), len(typ.Master.Params), key)
+	}
 	if _, ok := typ.Special[key]; ok {
 		c.Warnf("redefined template type specialization: %s", key)
 	}
