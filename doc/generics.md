@@ -325,13 +325,14 @@ template types in case they are type aliases too.
 
 If one has some familiarity with C++ templates, it is easy to see that
 the partial and full specialization rules described above are Turing complete
-just like C++ templates.
+at compile-time, just like C++ templates.
 
 The reason is:
 * partial and full specializations are a compile-time `if`
 * instantiating a template from inside another one is a compile-time `while`
-* compile-time computation on integers can be implemented with normal arithmetics,
-  plus `len()` on array types or pointer-to-array types.
+* compile-time computation on integers can be implemented with normal arithmetics
+* intermediate results can be stored in the number of elements of an array type,
+  and extracted with `len()`
 
 For example, this is a compile-time computation of fibonacci numbers
 using the rules proposed above:
@@ -382,3 +383,36 @@ To give some context, Go is not foreign to compile-time computation:
 `//go:generate` allows to execute arbitrary commands at compile-time,
 and Go code generation tools and techniques are accepted and
 quite in widespread use (at least compared to many other languages).
+
+### Compile-time function evaluation ###
+
+Following the suggestion of the previous chapter, a very simple syntax
+to perform compile-time computation could be `const EXPRESSION`,
+as for example:
+```
+func fib(n int) int { if n <= 1 { return n }; return fib(n-1)+fib(n-2) }
+const fib30 = const fib(30)
+```
+This is readable, and the programmer's intention is clear too:
+invoke `fib(30)` and treat the result as a constant - which implies
+`fib(30)` must be invoked at compile time.
+
+Question: which functions can be invoked at compile time?  
+Answer: a minimal set could be: all functions in current package,
+provided they do not use imported packages, print() or println(),
+or invoke other functions that (transitively) use them.
+
+Question: global variables should be accessible by functions
+invoked at compile time?  
+Answer: tentatively no, because if such variables are modified at
+compile-time, their value at program startup becomes difficult to
+define unambiguously, and difficult to store in the compiled code.
+
+So, a tentative definition of whether a function can be invoked
+at compile time is:
+1. is defined in the current package
+2. does not use global variables, imported packages, print()
+   or println()
+3. calls only functions that (transitively) respect 1. and 2.
+4. as a consequence, calls to closures are allowed, provided
+   that the function creating the closure respects 1, 2 and 3.
