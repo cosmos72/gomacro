@@ -18,7 +18,6 @@ package fast
 
 import (
 	"bytes"
-	"fmt"
 	"go/ast"
 	r "reflect"
 
@@ -45,50 +44,6 @@ type TemplateFunc struct {
 	Master    TemplateFuncDecl            // master (i.e. non specialized) declaration
 	Special   map[string]TemplateFuncDecl // partially or fully specialized declarations. key is TemplateFuncDecl.For converted to string
 	Instances map[I]*TemplateFuncInstance // cache of instantiated functions. key is [N]interface{}{T1, T2...}
-}
-
-type templateMaker struct {
-	comp  *Comp
-	sym   *Symbol
-	ifun  I
-	vals  []I
-	types []xr.Type
-	ikey  I
-	name  string
-}
-
-func (maker *templateMaker) injectBinds(c *Comp, names []string) {
-	for i, name := range names {
-		t := maker.types[i]
-		if val := maker.vals[i]; val != nil {
-			c.DeclConst0(name, t, val)
-		} else {
-			c.declTypeAlias(name, t)
-		}
-	}
-}
-
-// return the qualified name of the function or type to instantiate, for example "Pair#[int,string]"
-func (maker *templateMaker) Name() string {
-	if len(maker.name) != 0 {
-		return maker.name
-	}
-	var buf bytes.Buffer
-	buf.WriteString(maker.sym.Name)
-	buf.WriteString("#[")
-
-	for i, val := range maker.vals {
-		if i != 0 {
-			buf.WriteByte(',')
-		}
-		if val == nil {
-			val = maker.types[i].ReflectType()
-		}
-		fmt.Fprint(&buf, val)
-	}
-	buf.WriteByte(']')
-	maker.name = buf.String()
-	return maker.name
 }
 
 func (f *TemplateFunc) String() string {
@@ -171,92 +126,6 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 	fun.Special[key] = fdecl
 }
 
-func (c *Comp) templateParams(params []ast.Expr, errlabel string, node ast.Node) ([]string, []ast.Expr) {
-	names := make([]string, 0, len(params))
-	var exprs []ast.Expr
-	for i, param := range params {
-		switch param := param.(type) {
-		case *ast.Ident:
-			names = append(names, param.Name)
-		case *ast.BadExpr:
-		case *ast.CompositeLit:
-			exprs = param.Elts
-		default:
-			c.Errorf("invalid template %s declaration: template parameter %d should be *ast.Ident or *ast.CompositeLit, found %T: %v",
-				errlabel, i, param, node)
-		}
-	}
-	return names, exprs
-}
-
-func splitTemplateArgs(node *ast.IndexExpr) (string, []ast.Expr, bool) {
-	if ident, _ := node.X.(*ast.Ident); ident != nil {
-		cindex, _ := node.Index.(*ast.CompositeLit)
-		if cindex != nil && cindex.Type == nil {
-			return ident.Name, cindex.Elts, true
-		}
-	}
-	return "", nil, false
-}
-
-func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMaker {
-	name, templateArgs, ok := splitTemplateArgs(node)
-	if !ok {
-		return nil
-	}
-	sym, upc := c.tryResolve(name)
-	if sym == nil {
-		c.Errorf("undefined identifier: %v", name)
-	}
-	n := len(templateArgs)
-	var params []string
-	ifun := sym.Value
-	ok = false
-	if ifun != nil && sym.Desc.Class() == which {
-		switch which {
-		case TemplateFuncBind:
-			fun, _ := ifun.(*TemplateFunc)
-			ok = fun != nil
-			if ok {
-				params = fun.Master.Params
-			}
-		case TemplateTypeBind:
-			typ, _ := ifun.(*TemplateType)
-			ok = typ != nil
-			if ok {
-				params = typ.Master.Params
-			}
-		}
-	}
-	if !ok {
-		c.Errorf("symbol is not a %v, cannot use #[...] on it: %s", which, name)
-	}
-	if n != len(params) {
-		c.Errorf("%v expects exactly %d template parameters %v, found %d: %v", which, len(params), params, n, node)
-	}
-	vals := make([]I, n)
-	types := make([]xr.Type, n)
-	// slices cannot be used as map keys. use an array and reflection
-	key := r.New(r.ArrayOf(n, rtypeOfInterface)).Elem()
-
-	for i, templateArg := range templateArgs {
-		e, t := c.Expr1OrType(templateArg)
-		if e != nil {
-			if !e.Const() {
-				c.Errorf("argument of template function %q is not a constant: %v", name, templateArg)
-			}
-			// UntypedLit is unsuitable as map key, because its == is not usable
-			vals[i] = e.EvalConst(COptDefaults)
-			types[i] = e.Type // also remember the type
-			key.Index(i).Set(r.ValueOf(vals[i]))
-		} else {
-			types[i] = t
-			key.Index(i).Set(r.ValueOf(xr.MakeKey(t)))
-		}
-	}
-	return &templateMaker{upc, sym, ifun, vals, types, key.Interface(), ""}
-}
-
 // TemplateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
 func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 	maker := c.templateMaker(node, TemplateFuncBind)
@@ -277,7 +146,7 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 		}
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
-		instance = maker.comp.instantiateTemplateFunc(maker, fun, node)
+		instance = maker.instantiateFunc(fun, node)
 	}
 
 	var efun, retfun func(*Env) r.Value
@@ -329,16 +198,18 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 
 // instantiateTemplateFunc instantiates and compiles a template function.
 // node is used only for error messages
-func (c *Comp) instantiateTemplateFunc(maker *templateMaker, fun *TemplateFunc, node *ast.IndexExpr) *TemplateFuncInstance {
+func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexExpr) *TemplateFuncInstance {
+
+	// choose the specialization to use
+	special := maker.chooseFunc(fun)
 
 	// create a new nested Comp
-	c = NewComp(c, nil)
+	c := NewComp(maker.comp, nil)
 	c.UpCost = 0
 	c.Depth--
 
 	// and inject template arguments into it
-	decl := fun.Master
-	maker.injectBinds(c, decl.Params)
+	special.injectBinds(c)
 
 	key := maker.ikey
 	panicking := true
@@ -363,14 +234,14 @@ func (c *Comp) instantiateTemplateFunc(maker *templateMaker, fun *TemplateFunc, 
 	// for such trick to work, we must:
 	// 1. compute in advance the instantiated function type
 	// 2. check TemplateFuncInstance.Func: if it's nil, take its address and dereference it later at runtime
-	t, _, _ := c.TypeFunction(decl.Decl.Type)
+	t, _, _ := c.TypeFunction(special.decl.Decl.Type)
 
 	instance := &TemplateFuncInstance{Type: t, Func: new(func(*Env) r.Value)}
 	fun.Instances[key] = instance
 
 	// compile an expression that, when evaluated at runtime in the *Env
 	// where the template function was declared, returns the instantiated function
-	expr := c.FuncLit(decl.Decl)
+	expr := c.FuncLit(special.decl.Decl)
 
 	*instance.Func = expr.AsX1()
 	instance.Type = expr.Type
