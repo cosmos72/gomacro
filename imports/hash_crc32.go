@@ -4,32 +4,32 @@
 package imports
 
 import (
-	. "reflect"
 	"hash/crc32"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "hash/crc32"
 func init() {
 	Packages["hash/crc32"] = Package{
-	Binds: map[string]Value{
-		"Castagnoli":	ValueOf(uint32(crc32.Castagnoli)),
-		"Checksum":	ValueOf(crc32.Checksum),
-		"ChecksumIEEE":	ValueOf(crc32.ChecksumIEEE),
-		"IEEE":	ValueOf(uint32(crc32.IEEE)),
-		"IEEETable":	ValueOf(&crc32.IEEETable).Elem(),
-		"Koopman":	ValueOf(uint32(crc32.Koopman)),
-		"MakeTable":	ValueOf(crc32.MakeTable),
-		"New":	ValueOf(crc32.New),
-		"NewIEEE":	ValueOf(crc32.NewIEEE),
-		"Size":	ValueOf(crc32.Size),
-		"Update":	ValueOf(crc32.Update),
-	}, Types: map[string]Type{
-		"Table":	TypeOf((*crc32.Table)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"Castagnoli":	"int:2197175160",
-		"IEEE":	"int:3988292384",
-		"Koopman":	"int:3945912366",
-		"Size":	"int:4",
-	}, 
+		Binds: map[string]Value{
+			"Castagnoli":   ValueOf(uint32(crc32.Castagnoli)),
+			"Checksum":     ValueOf(crc32.Checksum),
+			"ChecksumIEEE": ValueOf(crc32.ChecksumIEEE),
+			"IEEE":         ValueOf(uint32(crc32.IEEE)),
+			"IEEETable":    ValueOf(&crc32.IEEETable).Elem(),
+			"Koopman":      ValueOf(uint32(crc32.Koopman)),
+			"MakeTable":    ValueOf(crc32.MakeTable),
+			"New":          ValueOf(crc32.New),
+			"NewIEEE":      ValueOf(crc32.NewIEEE),
+			"Size":         ValueOf(crc32.Size),
+			"Update":       ValueOf(crc32.Update),
+		}, Types: map[string]Type{
+			"Table": TypeOf((*crc32.Table)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"Castagnoli": "int:2197175160",
+			"IEEE":       "int:3988292384",
+			"Koopman":    "int:3945912366",
+			"Size":       "int:4",
+		},
 	}
 }

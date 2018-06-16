@@ -4,25 +4,25 @@
 package imports
 
 import (
-	. "reflect"
 	"mime"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "mime"
 func init() {
 	Packages["mime"] = Package{
-	Binds: map[string]Value{
-		"AddExtensionType":	ValueOf(mime.AddExtensionType),
-		"BEncoding":	ValueOf(mime.BEncoding),
-		"ErrInvalidMediaParameter":	ValueOf(&mime.ErrInvalidMediaParameter).Elem(),
-		"ExtensionsByType":	ValueOf(mime.ExtensionsByType),
-		"FormatMediaType":	ValueOf(mime.FormatMediaType),
-		"ParseMediaType":	ValueOf(mime.ParseMediaType),
-		"QEncoding":	ValueOf(mime.QEncoding),
-		"TypeByExtension":	ValueOf(mime.TypeByExtension),
-	}, Types: map[string]Type{
-		"WordDecoder":	TypeOf((*mime.WordDecoder)(nil)).Elem(),
-		"WordEncoder":	TypeOf((*mime.WordEncoder)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"AddExtensionType":         ValueOf(mime.AddExtensionType),
+			"BEncoding":                ValueOf(mime.BEncoding),
+			"ErrInvalidMediaParameter": ValueOf(&mime.ErrInvalidMediaParameter).Elem(),
+			"ExtensionsByType":         ValueOf(mime.ExtensionsByType),
+			"FormatMediaType":          ValueOf(mime.FormatMediaType),
+			"ParseMediaType":           ValueOf(mime.ParseMediaType),
+			"QEncoding":                ValueOf(mime.QEncoding),
+			"TypeByExtension":          ValueOf(mime.TypeByExtension),
+		}, Types: map[string]Type{
+			"WordDecoder": TypeOf((*mime.WordDecoder)(nil)).Elem(),
+			"WordEncoder": TypeOf((*mime.WordEncoder)(nil)).Elem(),
+		},
 	}
 }

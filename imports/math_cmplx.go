@@ -4,41 +4,41 @@
 package imports
 
 import (
-	. "reflect"
 	"math/cmplx"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "math/cmplx"
 func init() {
 	Packages["math/cmplx"] = Package{
-	Binds: map[string]Value{
-		"Abs":	ValueOf(cmplx.Abs),
-		"Acos":	ValueOf(cmplx.Acos),
-		"Acosh":	ValueOf(cmplx.Acosh),
-		"Asin":	ValueOf(cmplx.Asin),
-		"Asinh":	ValueOf(cmplx.Asinh),
-		"Atan":	ValueOf(cmplx.Atan),
-		"Atanh":	ValueOf(cmplx.Atanh),
-		"Conj":	ValueOf(cmplx.Conj),
-		"Cos":	ValueOf(cmplx.Cos),
-		"Cosh":	ValueOf(cmplx.Cosh),
-		"Cot":	ValueOf(cmplx.Cot),
-		"Exp":	ValueOf(cmplx.Exp),
-		"Inf":	ValueOf(cmplx.Inf),
-		"IsInf":	ValueOf(cmplx.IsInf),
-		"IsNaN":	ValueOf(cmplx.IsNaN),
-		"Log":	ValueOf(cmplx.Log),
-		"Log10":	ValueOf(cmplx.Log10),
-		"NaN":	ValueOf(cmplx.NaN),
-		"Phase":	ValueOf(cmplx.Phase),
-		"Polar":	ValueOf(cmplx.Polar),
-		"Pow":	ValueOf(cmplx.Pow),
-		"Rect":	ValueOf(cmplx.Rect),
-		"Sin":	ValueOf(cmplx.Sin),
-		"Sinh":	ValueOf(cmplx.Sinh),
-		"Sqrt":	ValueOf(cmplx.Sqrt),
-		"Tan":	ValueOf(cmplx.Tan),
-		"Tanh":	ValueOf(cmplx.Tanh),
-	}, 
+		Binds: map[string]Value{
+			"Abs":   ValueOf(cmplx.Abs),
+			"Acos":  ValueOf(cmplx.Acos),
+			"Acosh": ValueOf(cmplx.Acosh),
+			"Asin":  ValueOf(cmplx.Asin),
+			"Asinh": ValueOf(cmplx.Asinh),
+			"Atan":  ValueOf(cmplx.Atan),
+			"Atanh": ValueOf(cmplx.Atanh),
+			"Conj":  ValueOf(cmplx.Conj),
+			"Cos":   ValueOf(cmplx.Cos),
+			"Cosh":  ValueOf(cmplx.Cosh),
+			"Cot":   ValueOf(cmplx.Cot),
+			"Exp":   ValueOf(cmplx.Exp),
+			"Inf":   ValueOf(cmplx.Inf),
+			"IsInf": ValueOf(cmplx.IsInf),
+			"IsNaN": ValueOf(cmplx.IsNaN),
+			"Log":   ValueOf(cmplx.Log),
+			"Log10": ValueOf(cmplx.Log10),
+			"NaN":   ValueOf(cmplx.NaN),
+			"Phase": ValueOf(cmplx.Phase),
+			"Polar": ValueOf(cmplx.Polar),
+			"Pow":   ValueOf(cmplx.Pow),
+			"Rect":  ValueOf(cmplx.Rect),
+			"Sin":   ValueOf(cmplx.Sin),
+			"Sinh":  ValueOf(cmplx.Sinh),
+			"Sqrt":  ValueOf(cmplx.Sqrt),
+			"Tan":   ValueOf(cmplx.Tan),
+			"Tanh":  ValueOf(cmplx.Tanh),
+		},
 	}
 }

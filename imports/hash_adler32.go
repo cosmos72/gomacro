@@ -4,19 +4,19 @@
 package imports
 
 import (
-	. "reflect"
 	"hash/adler32"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "hash/adler32"
 func init() {
 	Packages["hash/adler32"] = Package{
-	Binds: map[string]Value{
-		"Checksum":	ValueOf(adler32.Checksum),
-		"New":	ValueOf(adler32.New),
-		"Size":	ValueOf(adler32.Size),
-	}, Untypeds: map[string]string{
-		"Size":	"int:4",
-	}, 
+		Binds: map[string]Value{
+			"Checksum": ValueOf(adler32.Checksum),
+			"New":      ValueOf(adler32.New),
+			"Size":     ValueOf(adler32.Size),
+		}, Untypeds: map[string]string{
+			"Size": "int:4",
+		},
 	}
 }

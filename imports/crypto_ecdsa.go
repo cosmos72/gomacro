@@ -4,20 +4,20 @@
 package imports
 
 import (
-	. "reflect"
 	"crypto/ecdsa"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "crypto/ecdsa"
 func init() {
 	Packages["crypto/ecdsa"] = Package{
-	Binds: map[string]Value{
-		"GenerateKey":	ValueOf(ecdsa.GenerateKey),
-		"Sign":	ValueOf(ecdsa.Sign),
-		"Verify":	ValueOf(ecdsa.Verify),
-	}, Types: map[string]Type{
-		"PrivateKey":	TypeOf((*ecdsa.PrivateKey)(nil)).Elem(),
-		"PublicKey":	TypeOf((*ecdsa.PublicKey)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"GenerateKey": ValueOf(ecdsa.GenerateKey),
+			"Sign":        ValueOf(ecdsa.Sign),
+			"Verify":      ValueOf(ecdsa.Verify),
+		}, Types: map[string]Type{
+			"PrivateKey": TypeOf((*ecdsa.PrivateKey)(nil)).Elem(),
+			"PublicKey":  TypeOf((*ecdsa.PublicKey)(nil)).Elem(),
+		},
 	}
 }

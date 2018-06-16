@@ -20,15 +20,18 @@ package arm64
 func load_16() uint64 {
 	return 0xffff
 }
+
 //go:nosplit
 func load_32() (uint64, uint64) {
 	return 0x10000, 0xffffffff
 }
+
 //go:nosplit
 func load_48() (uint64, uint64) {
 	return 0x100000000, 0xffffffffffff
 }
+
 //go:nosplit
-func load_64() (uint64,uint64) {
+func load_64() (uint64, uint64) {
 	return 0x1000000000000, 0xffffffffffffffff
 }

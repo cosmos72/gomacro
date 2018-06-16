@@ -22,9 +22,9 @@
 package fast
 
 import (
-	r "reflect"
 	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
+	r "reflect"
 )
 
 func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
@@ -45,8 +45,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 bool) { return },
-					)
+					return r.ValueOf(func() (ret0 bool) { return })
 				}
 			}
 
@@ -72,8 +71,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 int) { return },
-					)
+					return r.ValueOf(func() (ret0 int) { return })
 				}
 			}
 
@@ -99,8 +97,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 int8) { return },
-					)
+					return r.ValueOf(func() (ret0 int8) { return })
 				}
 			}
 
@@ -126,8 +123,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 int16) { return },
-					)
+					return r.ValueOf(func() (ret0 int16) { return })
 				}
 			}
 
@@ -153,8 +149,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 int32) { return },
-					)
+					return r.ValueOf(func() (ret0 int32) { return })
 				}
 			}
 
@@ -179,8 +174,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 int64) { return },
-					)
+					return r.ValueOf(func() (ret0 int64) { return })
 				}
 			}
 
@@ -204,8 +198,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 uint) { return },
-					)
+					return r.ValueOf(func() (ret0 uint) { return })
 				}
 			}
 
@@ -229,8 +222,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 uint8) { return },
-					)
+					return r.ValueOf(func() (ret0 uint8) { return })
 				}
 			}
 
@@ -254,8 +246,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 uint16) { return },
-					)
+					return r.ValueOf(func() (ret0 uint16) { return })
 				}
 			}
 
@@ -279,8 +270,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 uint32) { return },
-					)
+					return r.ValueOf(func() (ret0 uint32) { return })
 				}
 			}
 
@@ -304,8 +294,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 uint64) { return },
-					)
+					return r.ValueOf(func() (ret0 uint64) { return })
 				}
 			}
 
@@ -329,8 +318,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 uintptr) { return },
-					)
+					return r.ValueOf(func() (ret0 uintptr) { return })
 				}
 			}
 
@@ -354,8 +342,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 float32) { return },
-					)
+					return r.ValueOf(func() (ret0 float32) { return })
 				}
 			}
 
@@ -379,8 +366,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 float64) { return },
-					)
+					return r.ValueOf(func() (ret0 float64) { return })
 				}
 			}
 
@@ -404,8 +390,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 complex64) { return },
-					)
+					return r.ValueOf(func() (ret0 complex64) { return })
 				}
 			}
 
@@ -429,8 +414,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 complex128) { return },
-					)
+					return r.ValueOf(func() (ret0 complex128) { return })
 				}
 			}
 
@@ -454,8 +438,7 @@ func (c *Comp) func0ret1(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			if funcbody == nil {
 				return func(env *Env) r.Value {
-					return r.ValueOf(func() (ret0 string) { return },
-					)
+					return r.ValueOf(func() (ret0 string) { return })
 				}
 			}
 

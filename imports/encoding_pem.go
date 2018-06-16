@@ -4,19 +4,19 @@
 package imports
 
 import (
-	. "reflect"
 	"encoding/pem"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "encoding/pem"
 func init() {
 	Packages["encoding/pem"] = Package{
-	Binds: map[string]Value{
-		"Decode":	ValueOf(pem.Decode),
-		"Encode":	ValueOf(pem.Encode),
-		"EncodeToMemory":	ValueOf(pem.EncodeToMemory),
-	}, Types: map[string]Type{
-		"Block":	TypeOf((*pem.Block)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Decode":         ValueOf(pem.Decode),
+			"Encode":         ValueOf(pem.Encode),
+			"EncodeToMemory": ValueOf(pem.EncodeToMemory),
+		}, Types: map[string]Type{
+			"Block": TypeOf((*pem.Block)(nil)).Elem(),
+		},
 	}
 }

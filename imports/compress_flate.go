@@ -4,51 +4,52 @@
 package imports
 
 import (
-	. "reflect"
 	"compress/flate"
 	"io"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "compress/flate"
 func init() {
 	Packages["compress/flate"] = Package{
-	Binds: map[string]Value{
-		"BestCompression":	ValueOf(flate.BestCompression),
-		"BestSpeed":	ValueOf(flate.BestSpeed),
-		"DefaultCompression":	ValueOf(flate.DefaultCompression),
-		"HuffmanOnly":	ValueOf(flate.HuffmanOnly),
-		"NewReader":	ValueOf(flate.NewReader),
-		"NewReaderDict":	ValueOf(flate.NewReaderDict),
-		"NewWriter":	ValueOf(flate.NewWriter),
-		"NewWriterDict":	ValueOf(flate.NewWriterDict),
-		"NoCompression":	ValueOf(flate.NoCompression),
-	}, Types: map[string]Type{
-		"CorruptInputError":	TypeOf((*flate.CorruptInputError)(nil)).Elem(),
-		"InternalError":	TypeOf((*flate.InternalError)(nil)).Elem(),
-		"ReadError":	TypeOf((*flate.ReadError)(nil)).Elem(),
-		"Reader":	TypeOf((*flate.Reader)(nil)).Elem(),
-		"Resetter":	TypeOf((*flate.Resetter)(nil)).Elem(),
-		"WriteError":	TypeOf((*flate.WriteError)(nil)).Elem(),
-		"Writer":	TypeOf((*flate.Writer)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Reader":	TypeOf((*P_compress_flate_Reader)(nil)).Elem(),
-		"Resetter":	TypeOf((*P_compress_flate_Resetter)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"BestCompression":	"int:9",
-		"BestSpeed":	"int:1",
-		"DefaultCompression":	"int:-1",
-		"HuffmanOnly":	"int:-2",
-		"NoCompression":	"int:0",
-	}, 
+		Binds: map[string]Value{
+			"BestCompression":    ValueOf(flate.BestCompression),
+			"BestSpeed":          ValueOf(flate.BestSpeed),
+			"DefaultCompression": ValueOf(flate.DefaultCompression),
+			"HuffmanOnly":        ValueOf(flate.HuffmanOnly),
+			"NewReader":          ValueOf(flate.NewReader),
+			"NewReaderDict":      ValueOf(flate.NewReaderDict),
+			"NewWriter":          ValueOf(flate.NewWriter),
+			"NewWriterDict":      ValueOf(flate.NewWriterDict),
+			"NoCompression":      ValueOf(flate.NoCompression),
+		}, Types: map[string]Type{
+			"CorruptInputError": TypeOf((*flate.CorruptInputError)(nil)).Elem(),
+			"InternalError":     TypeOf((*flate.InternalError)(nil)).Elem(),
+			"ReadError":         TypeOf((*flate.ReadError)(nil)).Elem(),
+			"Reader":            TypeOf((*flate.Reader)(nil)).Elem(),
+			"Resetter":          TypeOf((*flate.Resetter)(nil)).Elem(),
+			"WriteError":        TypeOf((*flate.WriteError)(nil)).Elem(),
+			"Writer":            TypeOf((*flate.Writer)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Reader":   TypeOf((*P_compress_flate_Reader)(nil)).Elem(),
+			"Resetter": TypeOf((*P_compress_flate_Resetter)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"BestCompression":    "int:9",
+			"BestSpeed":          "int:1",
+			"DefaultCompression": "int:-1",
+			"HuffmanOnly":        "int:-2",
+			"NoCompression":      "int:0",
+		},
 	}
 }
 
 // --------------- proxy for compress/flate.Reader ---------------
 type P_compress_flate_Reader struct {
-	Object	interface{}
-	Read_	func(_proxy_obj_ interface{}, p []byte) (n int, err error)
-	ReadByte_	func(interface{}) (byte, error)
+	Object    interface{}
+	Read_     func(_proxy_obj_ interface{}, p []byte) (n int, err error)
+	ReadByte_ func(interface{}) (byte, error)
 }
+
 func (P *P_compress_flate_Reader) Read(p []byte) (n int, err error) {
 	return P.Read_(P.Object, p)
 }
@@ -58,9 +59,10 @@ func (P *P_compress_flate_Reader) ReadByte() (byte, error) {
 
 // --------------- proxy for compress/flate.Resetter ---------------
 type P_compress_flate_Resetter struct {
-	Object	interface{}
-	Reset_	func(_proxy_obj_ interface{}, r io.Reader, dict []byte) error
+	Object interface{}
+	Reset_ func(_proxy_obj_ interface{}, r io.Reader, dict []byte) error
 }
+
 func (P *P_compress_flate_Resetter) Reset(r io.Reader, dict []byte) error {
 	return P.Reset_(P.Object, r, dict)
 }

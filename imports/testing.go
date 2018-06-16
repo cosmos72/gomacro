@@ -11,34 +11,34 @@ import (
 // reflection: allow interpreted code to import "testing"
 func init() {
 	Packages["testing"] = Package{
-	Binds: map[string]Value{
-		"AllocsPerRun":	ValueOf(testing.AllocsPerRun),
-		"Benchmark":	ValueOf(testing.Benchmark),
-		"CoverMode":	ValueOf(testing.CoverMode),
-		"Coverage":	ValueOf(testing.Coverage),
-		"Main":	ValueOf(testing.Main),
-		"MainStart":	ValueOf(testing.MainStart),
-		"RegisterCover":	ValueOf(testing.RegisterCover),
-		"RunBenchmarks":	ValueOf(testing.RunBenchmarks),
-		"RunExamples":	ValueOf(testing.RunExamples),
-		"RunTests":	ValueOf(testing.RunTests),
-		"Short":	ValueOf(testing.Short),
-		"Verbose":	ValueOf(testing.Verbose),
-	}, Types: map[string]Type{
-		"B":	TypeOf((*testing.B)(nil)).Elem(),
-		"BenchmarkResult":	TypeOf((*testing.BenchmarkResult)(nil)).Elem(),
-		"Cover":	TypeOf((*testing.Cover)(nil)).Elem(),
-		"CoverBlock":	TypeOf((*testing.CoverBlock)(nil)).Elem(),
-		"InternalBenchmark":	TypeOf((*testing.InternalBenchmark)(nil)).Elem(),
-		"InternalExample":	TypeOf((*testing.InternalExample)(nil)).Elem(),
-		"InternalTest":	TypeOf((*testing.InternalTest)(nil)).Elem(),
-		"M":	TypeOf((*testing.M)(nil)).Elem(),
-		"PB":	TypeOf((*testing.PB)(nil)).Elem(),
-		"T":	TypeOf((*testing.T)(nil)).Elem(),
-		"TB":	TypeOf((*testing.TB)(nil)).Elem(),
-	}, Wrappers: map[string][]string{
-		"B":	[]string{"Error","Errorf","Fail","FailNow","Failed","Fatal","Fatalf","Helper","Log","Logf","Name","Skip","SkipNow","Skipf","Skipped",},
-		"T":	[]string{"Error","Errorf","Fail","FailNow","Failed","Fatal","Fatalf","Helper","Log","Logf","Name","Skip","SkipNow","Skipf","Skipped",},
-	}, 
+		Binds: map[string]Value{
+			"AllocsPerRun":  ValueOf(testing.AllocsPerRun),
+			"Benchmark":     ValueOf(testing.Benchmark),
+			"CoverMode":     ValueOf(testing.CoverMode),
+			"Coverage":      ValueOf(testing.Coverage),
+			"Main":          ValueOf(testing.Main),
+			"MainStart":     ValueOf(testing.MainStart),
+			"RegisterCover": ValueOf(testing.RegisterCover),
+			"RunBenchmarks": ValueOf(testing.RunBenchmarks),
+			"RunExamples":   ValueOf(testing.RunExamples),
+			"RunTests":      ValueOf(testing.RunTests),
+			"Short":         ValueOf(testing.Short),
+			"Verbose":       ValueOf(testing.Verbose),
+		}, Types: map[string]Type{
+			"B":                 TypeOf((*testing.B)(nil)).Elem(),
+			"BenchmarkResult":   TypeOf((*testing.BenchmarkResult)(nil)).Elem(),
+			"Cover":             TypeOf((*testing.Cover)(nil)).Elem(),
+			"CoverBlock":        TypeOf((*testing.CoverBlock)(nil)).Elem(),
+			"InternalBenchmark": TypeOf((*testing.InternalBenchmark)(nil)).Elem(),
+			"InternalExample":   TypeOf((*testing.InternalExample)(nil)).Elem(),
+			"InternalTest":      TypeOf((*testing.InternalTest)(nil)).Elem(),
+			"M":                 TypeOf((*testing.M)(nil)).Elem(),
+			"PB":                TypeOf((*testing.PB)(nil)).Elem(),
+			"T":                 TypeOf((*testing.T)(nil)).Elem(),
+			"TB":                TypeOf((*testing.TB)(nil)).Elem(),
+		}, Wrappers: map[string][]string{
+			"B": []string{"Error", "Errorf", "Fail", "FailNow", "Failed", "Fatal", "Fatalf", "Helper", "Log", "Logf", "Name", "Skip", "SkipNow", "Skipf", "Skipped"},
+			"T": []string{"Error", "Errorf", "Fail", "FailNow", "Failed", "Fatal", "Fatalf", "Helper", "Log", "Logf", "Name", "Skip", "SkipNow", "Skipf", "Skipped"},
+		},
 	}
 }

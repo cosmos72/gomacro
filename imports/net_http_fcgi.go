@@ -4,18 +4,18 @@
 package imports
 
 import (
-	. "reflect"
 	"net/http/fcgi"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "net/http/fcgi"
 func init() {
 	Packages["net/http/fcgi"] = Package{
-	Binds: map[string]Value{
-		"ErrConnClosed":	ValueOf(&fcgi.ErrConnClosed).Elem(),
-		"ErrRequestAborted":	ValueOf(&fcgi.ErrRequestAborted).Elem(),
-		"ProcessEnv":	ValueOf(fcgi.ProcessEnv),
-		"Serve":	ValueOf(fcgi.Serve),
-	}, 
+		Binds: map[string]Value{
+			"ErrConnClosed":     ValueOf(&fcgi.ErrConnClosed).Elem(),
+			"ErrRequestAborted": ValueOf(&fcgi.ErrRequestAborted).Elem(),
+			"ProcessEnv":        ValueOf(fcgi.ProcessEnv),
+			"Serve":             ValueOf(fcgi.Serve),
+		},
 	}
 }

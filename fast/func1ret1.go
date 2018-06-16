@@ -110,7 +110,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -143,7 +145,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 				funv := r.ValueOf(func(bool,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -175,7 +179,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -207,7 +213,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -239,7 +247,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -271,7 +281,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -303,7 +315,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -335,7 +349,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -367,7 +383,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -399,7 +417,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -431,7 +451,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -463,7 +485,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -495,7 +519,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -526,7 +552,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -556,7 +584,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -586,7 +616,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -616,7 +648,9 @@ func func1ret1Bool(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -658,7 +692,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -691,7 +727,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 				funv := r.ValueOf(func(int,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -723,7 +761,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -755,7 +795,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -787,7 +829,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -819,7 +863,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -851,7 +897,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -883,7 +931,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -915,7 +965,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -947,7 +999,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -979,7 +1033,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1011,7 +1067,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1043,7 +1101,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1074,7 +1134,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1104,7 +1166,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1134,7 +1198,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1164,7 +1230,9 @@ func func1ret1Int(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1206,7 +1274,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1239,7 +1309,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 				funv := r.ValueOf(func(int8,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1271,7 +1343,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1303,7 +1377,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1335,7 +1411,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1367,7 +1445,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1399,7 +1479,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1431,7 +1513,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1463,7 +1547,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1495,7 +1581,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1527,7 +1615,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1559,7 +1649,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1591,7 +1683,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1622,7 +1716,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1652,7 +1748,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1682,7 +1780,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1712,7 +1812,9 @@ func func1ret1Int8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1754,7 +1856,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1787,7 +1891,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 				funv := r.ValueOf(func(int16,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1819,7 +1925,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1851,7 +1959,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1883,7 +1993,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1915,7 +2027,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1947,7 +2061,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -1979,7 +2095,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2011,7 +2129,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2043,7 +2163,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2075,7 +2197,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2107,7 +2231,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2139,7 +2265,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2170,7 +2298,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2200,7 +2330,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2230,7 +2362,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2260,7 +2394,9 @@ func func1ret1Int16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2302,7 +2438,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2335,7 +2473,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 				funv := r.ValueOf(func(int32,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2367,7 +2507,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2399,7 +2541,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2431,7 +2575,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2463,7 +2609,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2495,7 +2643,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2527,7 +2677,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2559,7 +2711,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2591,7 +2745,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2623,7 +2779,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2655,7 +2813,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2687,7 +2847,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2718,7 +2880,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2748,7 +2912,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2778,7 +2944,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2808,7 +2976,9 @@ func func1ret1Int32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2850,7 +3020,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2883,7 +3055,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 				funv := r.ValueOf(func(int64,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2915,7 +3089,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2947,7 +3123,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -2979,7 +3157,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3011,7 +3191,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3043,7 +3225,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3075,7 +3259,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3107,7 +3293,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3139,7 +3327,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3171,7 +3361,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3203,7 +3395,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3235,7 +3429,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3266,7 +3462,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3296,7 +3494,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3326,7 +3526,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3356,7 +3558,9 @@ func func1ret1Int64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3398,7 +3602,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3431,7 +3637,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 				funv := r.ValueOf(func(uint,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3463,7 +3671,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3495,7 +3705,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3527,7 +3739,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3559,7 +3773,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3591,7 +3807,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3623,7 +3841,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3655,7 +3875,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3687,7 +3909,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3719,7 +3943,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3751,7 +3977,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3783,7 +4011,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3814,7 +4044,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3844,7 +4076,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3874,7 +4108,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3904,7 +4140,9 @@ func func1ret1Uint(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3946,7 +4184,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -3979,7 +4219,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 				funv := r.ValueOf(func(uint8,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4011,7 +4253,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4043,7 +4287,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4075,7 +4321,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4107,7 +4355,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4139,7 +4389,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4171,7 +4423,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4203,7 +4457,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4235,7 +4491,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4267,7 +4525,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4299,7 +4559,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4331,7 +4593,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4362,7 +4626,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4392,7 +4658,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4422,7 +4690,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4452,7 +4722,9 @@ func func1ret1Uint8(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4494,7 +4766,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4527,7 +4801,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 				funv := r.ValueOf(func(uint16,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4559,7 +4835,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4591,7 +4869,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4623,7 +4903,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4655,7 +4937,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4687,7 +4971,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4719,7 +5005,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4751,7 +5039,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4783,7 +5073,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4815,7 +5107,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4847,7 +5141,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4879,7 +5175,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4910,7 +5208,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4940,7 +5240,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -4970,7 +5272,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5000,7 +5304,9 @@ func func1ret1Uint16(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5042,7 +5348,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5075,7 +5383,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 				funv := r.ValueOf(func(uint32,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5107,7 +5417,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5139,7 +5451,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5171,7 +5485,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5203,7 +5519,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5235,7 +5553,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5267,7 +5587,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5299,7 +5621,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5331,7 +5655,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5363,7 +5689,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5395,7 +5723,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5427,7 +5757,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5458,7 +5790,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5488,7 +5822,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5518,7 +5854,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5548,7 +5886,9 @@ func func1ret1Uint32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5590,7 +5930,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5623,7 +5965,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 				funv := r.ValueOf(func(uint64,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5655,7 +5999,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5687,7 +6033,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5719,7 +6067,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5751,7 +6101,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5783,7 +6135,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5815,7 +6169,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5847,7 +6203,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5879,7 +6237,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5911,7 +6271,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5943,7 +6305,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -5975,7 +6339,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6006,7 +6372,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6036,7 +6404,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6066,7 +6436,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6096,7 +6468,9 @@ func func1ret1Uint64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6138,7 +6512,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6171,7 +6547,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 				funv := r.ValueOf(func(uintptr,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6203,7 +6581,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6235,7 +6615,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6267,7 +6649,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6299,7 +6683,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6331,7 +6717,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6363,7 +6751,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6395,7 +6785,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6427,7 +6819,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6459,7 +6853,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6491,7 +6887,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6523,7 +6921,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6554,7 +6954,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6584,7 +6986,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6614,7 +7018,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6644,7 +7050,9 @@ func func1ret1Uintptr(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6686,7 +7094,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6719,7 +7129,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 				funv := r.ValueOf(func(float32,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6751,7 +7163,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6783,7 +7197,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6815,7 +7231,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6847,7 +7265,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6879,7 +7299,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6911,7 +7333,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6943,7 +7367,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -6975,7 +7401,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7007,7 +7435,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7039,7 +7469,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7071,7 +7503,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7102,7 +7536,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7132,7 +7568,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7162,7 +7600,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7192,7 +7632,9 @@ func func1ret1Float32(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7234,7 +7676,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7267,7 +7711,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 				funv := r.ValueOf(func(float64,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7299,7 +7745,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7331,7 +7779,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7363,7 +7813,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7395,7 +7847,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7427,7 +7881,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7459,7 +7915,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7491,7 +7949,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7523,7 +7983,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7555,7 +8017,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7587,7 +8051,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7619,7 +8085,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7650,7 +8118,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7680,7 +8150,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7710,7 +8182,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7740,7 +8214,9 @@ func func1ret1Float64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7782,7 +8258,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7815,7 +8293,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 				funv := r.ValueOf(func(complex64,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7847,7 +8327,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7879,7 +8361,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7911,7 +8395,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7943,7 +8429,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -7975,7 +8463,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8007,7 +8497,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8039,7 +8531,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8071,7 +8565,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8103,7 +8599,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8135,7 +8633,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8167,7 +8667,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8198,7 +8700,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8228,7 +8732,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8258,7 +8764,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8288,7 +8796,9 @@ func func1ret1Complex64(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8330,7 +8840,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8363,7 +8875,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 				funv := r.ValueOf(func(complex128,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8395,7 +8909,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8427,7 +8943,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8459,7 +8977,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8491,7 +9011,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8523,7 +9045,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8555,7 +9079,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8587,7 +9113,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8619,7 +9147,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8651,7 +9181,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8683,7 +9215,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8715,7 +9249,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8746,7 +9282,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8776,7 +9314,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8806,7 +9346,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8836,7 +9378,9 @@ func func1ret1Complex128(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8878,7 +9422,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 
 				) (ret0 bool,
 
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8895,8 +9441,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8916,7 +9461,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 				funv := r.ValueOf(func(string,
 
 				) (ret0 int,
-				) { return },
+				) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8933,8 +9480,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8953,7 +9499,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 int8) { return },
+				) (ret0 int8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -8970,8 +9518,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8990,7 +9537,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 int16) { return },
+				) (ret0 int16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9007,8 +9556,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9027,7 +9575,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 int32) { return },
+				) (ret0 int32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9044,8 +9594,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9064,7 +9613,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 int64) { return },
+				) (ret0 int64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9081,8 +9632,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9101,7 +9651,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 uint) { return },
+				) (ret0 uint) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9118,8 +9670,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9138,7 +9689,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 uint8) { return },
+				) (ret0 uint8) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9155,8 +9708,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9175,7 +9727,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 uint16) { return },
+				) (ret0 uint16) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9192,8 +9746,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9212,7 +9765,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 uint32) { return },
+				) (ret0 uint32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9229,8 +9784,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9249,7 +9803,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 uint64) { return },
+				) (ret0 uint64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9266,8 +9822,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9286,7 +9841,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 uintptr) { return },
+				) (ret0 uintptr) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9303,8 +9860,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9323,7 +9879,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 float32) { return },
+				) (ret0 float32) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9339,8 +9897,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9359,7 +9916,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 float64) { return },
+				) (ret0 float64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9374,8 +9933,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9394,7 +9952,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 complex64) { return },
+				) (ret0 complex64) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9409,8 +9969,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9429,7 +9988,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 complex128) { return },
+				) (ret0 complex128) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9444,8 +10005,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9464,7 +10024,9 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-				) (ret0 string) { return },
+				) (ret0 string) {
+					return
+				},
 				)
 				ret = func(env *Env) r.Value { return funv }
 
@@ -9479,8 +10041,7 @@ func func1ret1String(m *funcMaker, indexes *[2]int, kret0 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 

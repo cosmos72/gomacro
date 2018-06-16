@@ -4,20 +4,20 @@
 package imports
 
 import (
-	. "reflect"
 	"compress/lzw"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "compress/lzw"
 func init() {
 	Packages["compress/lzw"] = Package{
-	Binds: map[string]Value{
-		"LSB":	ValueOf(lzw.LSB),
-		"MSB":	ValueOf(lzw.MSB),
-		"NewReader":	ValueOf(lzw.NewReader),
-		"NewWriter":	ValueOf(lzw.NewWriter),
-	}, Types: map[string]Type{
-		"Order":	TypeOf((*lzw.Order)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"LSB":       ValueOf(lzw.LSB),
+			"MSB":       ValueOf(lzw.MSB),
+			"NewReader": ValueOf(lzw.NewReader),
+			"NewWriter": ValueOf(lzw.NewWriter),
+		}, Types: map[string]Type{
+			"Order": TypeOf((*lzw.Order)(nil)).Elem(),
+		},
 	}
 }

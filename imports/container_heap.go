@@ -4,36 +4,37 @@
 package imports
 
 import (
-	. "reflect"
 	"container/heap"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "container/heap"
 func init() {
 	Packages["container/heap"] = Package{
-	Binds: map[string]Value{
-		"Fix":	ValueOf(heap.Fix),
-		"Init":	ValueOf(heap.Init),
-		"Pop":	ValueOf(heap.Pop),
-		"Push":	ValueOf(heap.Push),
-		"Remove":	ValueOf(heap.Remove),
-	}, Types: map[string]Type{
-		"Interface":	TypeOf((*heap.Interface)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Interface":	TypeOf((*P_container_heap_Interface)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Fix":    ValueOf(heap.Fix),
+			"Init":   ValueOf(heap.Init),
+			"Pop":    ValueOf(heap.Pop),
+			"Push":   ValueOf(heap.Push),
+			"Remove": ValueOf(heap.Remove),
+		}, Types: map[string]Type{
+			"Interface": TypeOf((*heap.Interface)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Interface": TypeOf((*P_container_heap_Interface)(nil)).Elem(),
+		},
 	}
 }
 
 // --------------- proxy for container/heap.Interface ---------------
 type P_container_heap_Interface struct {
-	Object	interface{}
-	Len_	func(interface{}) int
-	Less_	func(_proxy_obj_ interface{}, i int, j int) bool
-	Pop_	func(interface{}) interface{}
-	Push_	func(_proxy_obj_ interface{}, x interface{}) 
-	Swap_	func(_proxy_obj_ interface{}, i int, j int) 
+	Object interface{}
+	Len_   func(interface{}) int
+	Less_  func(_proxy_obj_ interface{}, i int, j int) bool
+	Pop_   func(interface{}) interface{}
+	Push_  func(_proxy_obj_ interface{}, x interface{})
+	Swap_  func(_proxy_obj_ interface{}, i int, j int)
 }
+
 func (P *P_container_heap_Interface) Len() int {
 	return P.Len_(P.Object)
 }
@@ -43,9 +44,9 @@ func (P *P_container_heap_Interface) Less(i int, j int) bool {
 func (P *P_container_heap_Interface) Pop() interface{} {
 	return P.Pop_(P.Object)
 }
-func (P *P_container_heap_Interface) Push(x interface{})  {
+func (P *P_container_heap_Interface) Push(x interface{}) {
 	P.Push_(P.Object, x)
 }
-func (P *P_container_heap_Interface) Swap(i int, j int)  {
+func (P *P_container_heap_Interface) Swap(i int, j int) {
 	P.Swap_(P.Object, i, j)
 }

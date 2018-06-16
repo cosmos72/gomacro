@@ -4,86 +4,89 @@
 package imports
 
 import (
-	. "reflect"
 	"fmt"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "fmt"
 func init() {
 	Packages["fmt"] = Package{
-	Binds: map[string]Value{
-		"Errorf":	ValueOf(fmt.Errorf),
-		"Fprint":	ValueOf(fmt.Fprint),
-		"Fprintf":	ValueOf(fmt.Fprintf),
-		"Fprintln":	ValueOf(fmt.Fprintln),
-		"Fscan":	ValueOf(fmt.Fscan),
-		"Fscanf":	ValueOf(fmt.Fscanf),
-		"Fscanln":	ValueOf(fmt.Fscanln),
-		"Print":	ValueOf(fmt.Print),
-		"Printf":	ValueOf(fmt.Printf),
-		"Println":	ValueOf(fmt.Println),
-		"Scan":	ValueOf(fmt.Scan),
-		"Scanf":	ValueOf(fmt.Scanf),
-		"Scanln":	ValueOf(fmt.Scanln),
-		"Sprint":	ValueOf(fmt.Sprint),
-		"Sprintf":	ValueOf(fmt.Sprintf),
-		"Sprintln":	ValueOf(fmt.Sprintln),
-		"Sscan":	ValueOf(fmt.Sscan),
-		"Sscanf":	ValueOf(fmt.Sscanf),
-		"Sscanln":	ValueOf(fmt.Sscanln),
-	}, Types: map[string]Type{
-		"Formatter":	TypeOf((*fmt.Formatter)(nil)).Elem(),
-		"GoStringer":	TypeOf((*fmt.GoStringer)(nil)).Elem(),
-		"ScanState":	TypeOf((*fmt.ScanState)(nil)).Elem(),
-		"Scanner":	TypeOf((*fmt.Scanner)(nil)).Elem(),
-		"State":	TypeOf((*fmt.State)(nil)).Elem(),
-		"Stringer":	TypeOf((*fmt.Stringer)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Formatter":	TypeOf((*P_fmt_Formatter)(nil)).Elem(),
-		"GoStringer":	TypeOf((*P_fmt_GoStringer)(nil)).Elem(),
-		"ScanState":	TypeOf((*P_fmt_ScanState)(nil)).Elem(),
-		"Scanner":	TypeOf((*P_fmt_Scanner)(nil)).Elem(),
-		"State":	TypeOf((*P_fmt_State)(nil)).Elem(),
-		"Stringer":	TypeOf((*P_fmt_Stringer)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Errorf":   ValueOf(fmt.Errorf),
+			"Fprint":   ValueOf(fmt.Fprint),
+			"Fprintf":  ValueOf(fmt.Fprintf),
+			"Fprintln": ValueOf(fmt.Fprintln),
+			"Fscan":    ValueOf(fmt.Fscan),
+			"Fscanf":   ValueOf(fmt.Fscanf),
+			"Fscanln":  ValueOf(fmt.Fscanln),
+			"Print":    ValueOf(fmt.Print),
+			"Printf":   ValueOf(fmt.Printf),
+			"Println":  ValueOf(fmt.Println),
+			"Scan":     ValueOf(fmt.Scan),
+			"Scanf":    ValueOf(fmt.Scanf),
+			"Scanln":   ValueOf(fmt.Scanln),
+			"Sprint":   ValueOf(fmt.Sprint),
+			"Sprintf":  ValueOf(fmt.Sprintf),
+			"Sprintln": ValueOf(fmt.Sprintln),
+			"Sscan":    ValueOf(fmt.Sscan),
+			"Sscanf":   ValueOf(fmt.Sscanf),
+			"Sscanln":  ValueOf(fmt.Sscanln),
+		}, Types: map[string]Type{
+			"Formatter":  TypeOf((*fmt.Formatter)(nil)).Elem(),
+			"GoStringer": TypeOf((*fmt.GoStringer)(nil)).Elem(),
+			"ScanState":  TypeOf((*fmt.ScanState)(nil)).Elem(),
+			"Scanner":    TypeOf((*fmt.Scanner)(nil)).Elem(),
+			"State":      TypeOf((*fmt.State)(nil)).Elem(),
+			"Stringer":   TypeOf((*fmt.Stringer)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Formatter":  TypeOf((*P_fmt_Formatter)(nil)).Elem(),
+			"GoStringer": TypeOf((*P_fmt_GoStringer)(nil)).Elem(),
+			"ScanState":  TypeOf((*P_fmt_ScanState)(nil)).Elem(),
+			"Scanner":    TypeOf((*P_fmt_Scanner)(nil)).Elem(),
+			"State":      TypeOf((*P_fmt_State)(nil)).Elem(),
+			"Stringer":   TypeOf((*P_fmt_Stringer)(nil)).Elem(),
+		},
 	}
 }
 
 // --------------- proxy for fmt.Formatter ---------------
 type P_fmt_Formatter struct {
-	Object	interface{}
-	Format_	func(_proxy_obj_ interface{}, f fmt.State, c rune) 
+	Object  interface{}
+	Format_ func(_proxy_obj_ interface{}, f fmt.State, c rune)
 }
-func (P *P_fmt_Formatter) Format(f fmt.State, c rune)  {
+
+func (P *P_fmt_Formatter) Format(f fmt.State, c rune) {
 	P.Format_(P.Object, f, c)
 }
 
 // --------------- proxy for fmt.GoStringer ---------------
 type P_fmt_GoStringer struct {
-	Object	interface{}
-	GoString_	func(interface{}) string
+	Object    interface{}
+	GoString_ func(interface{}) string
 }
+
 func (P *P_fmt_GoStringer) GoString() string {
 	return P.GoString_(P.Object)
 }
 
 // --------------- proxy for fmt.ScanState ---------------
 type P_fmt_ScanState struct {
-	Object	interface{}
-	Read_	func(_proxy_obj_ interface{}, buf []byte) (n int, err error)
-	ReadRune_	func(interface{}) (r rune, size int, err error)
-	SkipSpace_	func(interface{}) 
-	Token_	func(_proxy_obj_ interface{}, skipSpace bool, f func(rune) bool) (token []byte, err error)
-	UnreadRune_	func(interface{}) error
-	Width_	func(interface{}) (wid int, ok bool)
+	Object      interface{}
+	Read_       func(_proxy_obj_ interface{}, buf []byte) (n int, err error)
+	ReadRune_   func(interface{}) (r rune, size int, err error)
+	SkipSpace_  func(interface{})
+	Token_      func(_proxy_obj_ interface{}, skipSpace bool, f func(rune) bool) (token []byte, err error)
+	UnreadRune_ func(interface{}) error
+	Width_      func(interface{}) (wid int, ok bool)
 }
+
 func (P *P_fmt_ScanState) Read(buf []byte) (n int, err error) {
 	return P.Read_(P.Object, buf)
 }
 func (P *P_fmt_ScanState) ReadRune() (r rune, size int, err error) {
 	return P.ReadRune_(P.Object)
 }
-func (P *P_fmt_ScanState) SkipSpace()  {
+func (P *P_fmt_ScanState) SkipSpace() {
 	P.SkipSpace_(P.Object)
 }
 func (P *P_fmt_ScanState) Token(skipSpace bool, f func(rune) bool) (token []byte, err error) {
@@ -98,21 +101,23 @@ func (P *P_fmt_ScanState) Width() (wid int, ok bool) {
 
 // --------------- proxy for fmt.Scanner ---------------
 type P_fmt_Scanner struct {
-	Object	interface{}
-	Scan_	func(_proxy_obj_ interface{}, state fmt.ScanState, verb rune) error
+	Object interface{}
+	Scan_  func(_proxy_obj_ interface{}, state fmt.ScanState, verb rune) error
 }
+
 func (P *P_fmt_Scanner) Scan(state fmt.ScanState, verb rune) error {
 	return P.Scan_(P.Object, state, verb)
 }
 
 // --------------- proxy for fmt.State ---------------
 type P_fmt_State struct {
-	Object	interface{}
-	Flag_	func(_proxy_obj_ interface{}, c int) bool
-	Precision_	func(interface{}) (prec int, ok bool)
-	Width_	func(interface{}) (wid int, ok bool)
-	Write_	func(_proxy_obj_ interface{}, b []byte) (n int, err error)
+	Object     interface{}
+	Flag_      func(_proxy_obj_ interface{}, c int) bool
+	Precision_ func(interface{}) (prec int, ok bool)
+	Width_     func(interface{}) (wid int, ok bool)
+	Write_     func(_proxy_obj_ interface{}, b []byte) (n int, err error)
 }
+
 func (P *P_fmt_State) Flag(c int) bool {
 	return P.Flag_(P.Object, c)
 }
@@ -128,9 +133,10 @@ func (P *P_fmt_State) Write(b []byte) (n int, err error) {
 
 // --------------- proxy for fmt.Stringer ---------------
 type P_fmt_Stringer struct {
-	Object	interface{}
-	String_	func(interface{}) string
+	Object  interface{}
+	String_ func(interface{}) string
 }
+
 func (P *P_fmt_Stringer) String() string {
 	return P.String_(P.Object)
 }

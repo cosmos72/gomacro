@@ -4,47 +4,48 @@
 package imports
 
 import (
-	. "reflect"
 	"net/http/httputil"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "net/http/httputil"
 func init() {
 	Packages["net/http/httputil"] = Package{
-	Binds: map[string]Value{
-		"DumpRequest":	ValueOf(httputil.DumpRequest),
-		"DumpRequestOut":	ValueOf(httputil.DumpRequestOut),
-		"DumpResponse":	ValueOf(httputil.DumpResponse),
-		"ErrClosed":	ValueOf(&httputil.ErrClosed).Elem(),
-		"ErrLineTooLong":	ValueOf(&httputil.ErrLineTooLong).Elem(),
-		"ErrPersistEOF":	ValueOf(&httputil.ErrPersistEOF).Elem(),
-		"ErrPipeline":	ValueOf(&httputil.ErrPipeline).Elem(),
-		"NewChunkedReader":	ValueOf(httputil.NewChunkedReader),
-		"NewChunkedWriter":	ValueOf(httputil.NewChunkedWriter),
-		"NewClientConn":	ValueOf(httputil.NewClientConn),
-		"NewProxyClientConn":	ValueOf(httputil.NewProxyClientConn),
-		"NewServerConn":	ValueOf(httputil.NewServerConn),
-		"NewSingleHostReverseProxy":	ValueOf(httputil.NewSingleHostReverseProxy),
-	}, Types: map[string]Type{
-		"BufferPool":	TypeOf((*httputil.BufferPool)(nil)).Elem(),
-		"ClientConn":	TypeOf((*httputil.ClientConn)(nil)).Elem(),
-		"ReverseProxy":	TypeOf((*httputil.ReverseProxy)(nil)).Elem(),
-		"ServerConn":	TypeOf((*httputil.ServerConn)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"BufferPool":	TypeOf((*P_net_http_httputil_BufferPool)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"DumpRequest":               ValueOf(httputil.DumpRequest),
+			"DumpRequestOut":            ValueOf(httputil.DumpRequestOut),
+			"DumpResponse":              ValueOf(httputil.DumpResponse),
+			"ErrClosed":                 ValueOf(&httputil.ErrClosed).Elem(),
+			"ErrLineTooLong":            ValueOf(&httputil.ErrLineTooLong).Elem(),
+			"ErrPersistEOF":             ValueOf(&httputil.ErrPersistEOF).Elem(),
+			"ErrPipeline":               ValueOf(&httputil.ErrPipeline).Elem(),
+			"NewChunkedReader":          ValueOf(httputil.NewChunkedReader),
+			"NewChunkedWriter":          ValueOf(httputil.NewChunkedWriter),
+			"NewClientConn":             ValueOf(httputil.NewClientConn),
+			"NewProxyClientConn":        ValueOf(httputil.NewProxyClientConn),
+			"NewServerConn":             ValueOf(httputil.NewServerConn),
+			"NewSingleHostReverseProxy": ValueOf(httputil.NewSingleHostReverseProxy),
+		}, Types: map[string]Type{
+			"BufferPool":   TypeOf((*httputil.BufferPool)(nil)).Elem(),
+			"ClientConn":   TypeOf((*httputil.ClientConn)(nil)).Elem(),
+			"ReverseProxy": TypeOf((*httputil.ReverseProxy)(nil)).Elem(),
+			"ServerConn":   TypeOf((*httputil.ServerConn)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"BufferPool": TypeOf((*P_net_http_httputil_BufferPool)(nil)).Elem(),
+		},
 	}
 }
 
 // --------------- proxy for net/http/httputil.BufferPool ---------------
 type P_net_http_httputil_BufferPool struct {
-	Object	interface{}
-	Get_	func(interface{}) []byte
-	Put_	func(interface{}, []byte) 
+	Object interface{}
+	Get_   func(interface{}) []byte
+	Put_   func(interface{}, []byte)
 }
+
 func (P *P_net_http_httputil_BufferPool) Get() []byte {
 	return P.Get_(P.Object)
 }
-func (P *P_net_http_httputil_BufferPool) Put(unnamed0 []byte)  {
+func (P *P_net_http_httputil_BufferPool) Put(unnamed0 []byte) {
 	P.Put_(P.Object, unnamed0)
 }

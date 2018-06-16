@@ -4,24 +4,24 @@
 package imports
 
 import (
-	. "reflect"
 	"encoding/csv"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "encoding/csv"
 func init() {
 	Packages["encoding/csv"] = Package{
-	Binds: map[string]Value{
-		"ErrBareQuote":	ValueOf(&csv.ErrBareQuote).Elem(),
-		"ErrFieldCount":	ValueOf(&csv.ErrFieldCount).Elem(),
-		"ErrQuote":	ValueOf(&csv.ErrQuote).Elem(),
-		"ErrTrailingComma":	ValueOf(&csv.ErrTrailingComma).Elem(),
-		"NewReader":	ValueOf(csv.NewReader),
-		"NewWriter":	ValueOf(csv.NewWriter),
-	}, Types: map[string]Type{
-		"ParseError":	TypeOf((*csv.ParseError)(nil)).Elem(),
-		"Reader":	TypeOf((*csv.Reader)(nil)).Elem(),
-		"Writer":	TypeOf((*csv.Writer)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"ErrBareQuote":     ValueOf(&csv.ErrBareQuote).Elem(),
+			"ErrFieldCount":    ValueOf(&csv.ErrFieldCount).Elem(),
+			"ErrQuote":         ValueOf(&csv.ErrQuote).Elem(),
+			"ErrTrailingComma": ValueOf(&csv.ErrTrailingComma).Elem(),
+			"NewReader":        ValueOf(csv.NewReader),
+			"NewWriter":        ValueOf(csv.NewWriter),
+		}, Types: map[string]Type{
+			"ParseError": TypeOf((*csv.ParseError)(nil)).Elem(),
+			"Reader":     TypeOf((*csv.Reader)(nil)).Elem(),
+			"Writer":     TypeOf((*csv.Writer)(nil)).Elem(),
+		},
 	}
 }

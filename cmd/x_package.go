@@ -4,17 +4,17 @@
 package cmd
 
 import (
-	r "reflect"
 	"github.com/cosmos72/gomacro/imports"
+	r "reflect"
 )
 
 // reflection: allow interpreted code to import "github.com/cosmos72/gomacro/cmd"
 func init() {
 	imports.Packages["github.com/cosmos72/gomacro/cmd"] = imports.Package{
-	Binds: map[string]r.Value{
-		"New":	r.ValueOf(New),
-	}, Types: map[string]r.Type{
-		"Cmd":	r.TypeOf((*Cmd)(nil)).Elem(),
-	}, 
+		Binds: map[string]r.Value{
+			"New": r.ValueOf(New),
+		}, Types: map[string]r.Type{
+			"Cmd": r.TypeOf((*Cmd)(nil)).Elem(),
+		},
 	}
 }

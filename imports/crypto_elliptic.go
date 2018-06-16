@@ -4,41 +4,42 @@
 package imports
 
 import (
-	. "reflect"
 	"crypto/elliptic"
 	"math/big"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "crypto/elliptic"
 func init() {
 	Packages["crypto/elliptic"] = Package{
-	Binds: map[string]Value{
-		"GenerateKey":	ValueOf(elliptic.GenerateKey),
-		"Marshal":	ValueOf(elliptic.Marshal),
-		"P224":	ValueOf(elliptic.P224),
-		"P256":	ValueOf(elliptic.P256),
-		"P384":	ValueOf(elliptic.P384),
-		"P521":	ValueOf(elliptic.P521),
-		"Unmarshal":	ValueOf(elliptic.Unmarshal),
-	}, Types: map[string]Type{
-		"Curve":	TypeOf((*elliptic.Curve)(nil)).Elem(),
-		"CurveParams":	TypeOf((*elliptic.CurveParams)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Curve":	TypeOf((*P_crypto_elliptic_Curve)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"GenerateKey": ValueOf(elliptic.GenerateKey),
+			"Marshal":     ValueOf(elliptic.Marshal),
+			"P224":        ValueOf(elliptic.P224),
+			"P256":        ValueOf(elliptic.P256),
+			"P384":        ValueOf(elliptic.P384),
+			"P521":        ValueOf(elliptic.P521),
+			"Unmarshal":   ValueOf(elliptic.Unmarshal),
+		}, Types: map[string]Type{
+			"Curve":       TypeOf((*elliptic.Curve)(nil)).Elem(),
+			"CurveParams": TypeOf((*elliptic.CurveParams)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Curve": TypeOf((*P_crypto_elliptic_Curve)(nil)).Elem(),
+		},
 	}
 }
 
 // --------------- proxy for crypto/elliptic.Curve ---------------
 type P_crypto_elliptic_Curve struct {
-	Object	interface{}
-	Add_	func(_proxy_obj_ interface{}, x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int)
-	Double_	func(_proxy_obj_ interface{}, x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int)
-	IsOnCurve_	func(_proxy_obj_ interface{}, x *big.Int, y *big.Int) bool
-	Params_	func(interface{}) *elliptic.CurveParams
-	ScalarBaseMult_	func(_proxy_obj_ interface{}, k []byte) (x *big.Int, y *big.Int)
-	ScalarMult_	func(_proxy_obj_ interface{}, x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int)
+	Object          interface{}
+	Add_            func(_proxy_obj_ interface{}, x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int)
+	Double_         func(_proxy_obj_ interface{}, x1 *big.Int, y1 *big.Int) (x *big.Int, y *big.Int)
+	IsOnCurve_      func(_proxy_obj_ interface{}, x *big.Int, y *big.Int) bool
+	Params_         func(interface{}) *elliptic.CurveParams
+	ScalarBaseMult_ func(_proxy_obj_ interface{}, k []byte) (x *big.Int, y *big.Int)
+	ScalarMult_     func(_proxy_obj_ interface{}, x1 *big.Int, y1 *big.Int, k []byte) (x *big.Int, y *big.Int)
 }
+
 func (P *P_crypto_elliptic_Curve) Add(x1 *big.Int, y1 *big.Int, x2 *big.Int, y2 *big.Int) (x *big.Int, y *big.Int) {
 	return P.Add_(P.Object, x1, y1, x2, y2)
 }

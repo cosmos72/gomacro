@@ -49,7 +49,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					bool) {})
+					bool) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -72,7 +73,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					int) {})
+					int) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -95,7 +97,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					int8) {})
+					int8) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -118,7 +121,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					int16) {})
+					int16) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -141,7 +145,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					int32) {})
+					int32) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -164,7 +169,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					int64) {})
+					int64) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -187,7 +193,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					uint) {})
+					uint) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -210,7 +217,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					uint8) {})
+					uint8) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -233,7 +241,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					uint16) {})
+					uint16) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -256,7 +265,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					uint32) {})
+					uint32) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -279,7 +289,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					uint64) {})
+					uint64) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -303,7 +314,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					uintptr) {})
+					uintptr) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -327,7 +339,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					float32) {})
+					float32) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -351,7 +364,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					float64) {})
+					float64) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -375,7 +389,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					complex64) {})
+					complex64) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -399,7 +414,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					complex128) {})
+					complex128) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -410,8 +426,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfComplex128).Elem()
-						place.SetComplex(arg0,
-						)
+						place.SetComplex(arg0)
 						env.Vals[param0index] = place
 					}
 
@@ -427,7 +442,8 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 			if funcbody == nil {
 				funv := r.ValueOf(func(
 
-					string) {})
+					string) {
+				})
 				return func(env *Env) r.Value { return funv }
 
 			}
@@ -439,8 +455,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[param0index] = place
 					}
 					funcbody(env)
@@ -454,8 +469,7 @@ func (c *Comp) func1ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 		{
 			rtype := t.ReflectType()
 			if funcbody == nil {
-				funv := r.MakeFunc(rtype, func([]r.Value) []r.Value { return nil },
-				)
+				funv := r.MakeFunc(rtype, func([]r.Value) []r.Value { return nil })
 				return func(env *Env) r.Value { return funv }
 
 			} else {
