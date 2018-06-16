@@ -114,23 +114,25 @@ func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
 		}
 		// hard part: instantiate the template type.
 		// must be instantiated in the same *Comp where it was declared!
-		instance = maker.comp.instantiateTemplateType(maker, typ, node)
+		instance = maker.instantiateType(typ, node)
 	}
 	return instance
 }
 
 // instantiateTemplateType instantiates and compiles a template function.
 // node is used only for error messages
-func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, node *ast.IndexExpr) xr.Type {
+func (maker *templateMaker) instantiateType(typ *TemplateType, node *ast.IndexExpr) xr.Type {
+
+	// choose the specialization to use
+	special := maker.chooseType(typ)
 
 	// create a new nested Comp
-	c = NewComp(c, nil)
+	c := NewComp(maker.comp, nil)
 	c.UpCost = 0
 	c.Depth--
 
 	// and inject template arguments in it
-	decl := typ.Master
-	maker.injectBinds(c, decl.Params)
+	special.injectBinds(c)
 
 	key := maker.ikey
 	panicking := true
@@ -143,7 +145,7 @@ func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, 
 	// compile the type instantiation
 	//
 	var t xr.Type
-	if !decl.Alias && maker.sym.Name != "_" {
+	if !special.decl.Alias && maker.sym.Name != "_" {
 		if c.Globals.Options&base.OptDebugTemplate != 0 {
 			c.Debugf("forward-declaring template type before instantiation: %v", node)
 		}
@@ -156,11 +158,11 @@ func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, 
 		// with the difference that the cache is typ.Instances[key] instead of Comp.Types[name]
 		t = c.Universe.NamedOf(maker.Name(), c.FileComp().Path, r.Invalid /*kind not yet known*/)
 		typ.Instances[key] = t
-		u := c.Type(decl.Decl)
+		u := c.Type(special.decl.Decl)
 		c.SetUnderlyingType(t, u)
 	} else {
 		// either the template type is an alias, or name == "_" (discards the result of type declaration)
-		t = c.Type(decl.Decl)
+		t = c.Type(special.decl.Decl)
 		typ.Instances[key] = t
 	}
 	panicking = false
