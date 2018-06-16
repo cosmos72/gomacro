@@ -4,21 +4,21 @@
 package imports
 
 import (
-	. "reflect"
 	"crypto/des"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "crypto/des"
 func init() {
 	Packages["crypto/des"] = Package{
-	Binds: map[string]Value{
-		"BlockSize":	ValueOf(des.BlockSize),
-		"NewCipher":	ValueOf(des.NewCipher),
-		"NewTripleDESCipher":	ValueOf(des.NewTripleDESCipher),
-	}, Types: map[string]Type{
-		"KeySizeError":	TypeOf((*des.KeySizeError)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"BlockSize":	"int:8",
-	}, 
+		Binds: map[string]Value{
+			"BlockSize":          ValueOf(des.BlockSize),
+			"NewCipher":          ValueOf(des.NewCipher),
+			"NewTripleDESCipher": ValueOf(des.NewTripleDESCipher),
+		}, Types: map[string]Type{
+			"KeySizeError": TypeOf((*des.KeySizeError)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"BlockSize": "int:8",
+		},
 	}
 }

@@ -4,16 +4,16 @@
 package imports
 
 import (
-	. "reflect"
 	"image/color/palette"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "image/color/palette"
 func init() {
 	Packages["image/color/palette"] = Package{
-	Binds: map[string]Value{
-		"Plan9":	ValueOf(&palette.Plan9).Elem(),
-		"WebSafe":	ValueOf(&palette.WebSafe).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Plan9":   ValueOf(&palette.Plan9).Elem(),
+			"WebSafe": ValueOf(&palette.WebSafe).Elem(),
+		},
 	}
 }

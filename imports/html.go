@@ -4,16 +4,16 @@
 package imports
 
 import (
-	. "reflect"
 	"html"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "html"
 func init() {
 	Packages["html"] = Package{
-	Binds: map[string]Value{
-		"EscapeString":	ValueOf(html.EscapeString),
-		"UnescapeString":	ValueOf(html.UnescapeString),
-	}, 
+		Binds: map[string]Value{
+			"EscapeString":   ValueOf(html.EscapeString),
+			"UnescapeString": ValueOf(html.UnescapeString),
+		},
 	}
 }

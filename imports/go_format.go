@@ -4,16 +4,16 @@
 package imports
 
 import (
-	. "reflect"
 	"go/format"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "go/format"
 func init() {
 	Packages["go/format"] = Package{
-	Binds: map[string]Value{
-		"Node":	ValueOf(format.Node),
-		"Source":	ValueOf(format.Source),
-	}, 
+		Binds: map[string]Value{
+			"Node":   ValueOf(format.Node),
+			"Source": ValueOf(format.Source),
+		},
 	}
 }

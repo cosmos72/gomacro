@@ -4,40 +4,41 @@
 package imports
 
 import (
-	. "reflect"
 	"context"
+	. "reflect"
 	"time"
 )
 
 // reflection: allow interpreted code to import "context"
 func init() {
 	Packages["context"] = Package{
-	Binds: map[string]Value{
-		"Background":	ValueOf(context.Background),
-		"Canceled":	ValueOf(&context.Canceled).Elem(),
-		"DeadlineExceeded":	ValueOf(&context.DeadlineExceeded).Elem(),
-		"TODO":	ValueOf(context.TODO),
-		"WithCancel":	ValueOf(context.WithCancel),
-		"WithDeadline":	ValueOf(context.WithDeadline),
-		"WithTimeout":	ValueOf(context.WithTimeout),
-		"WithValue":	ValueOf(context.WithValue),
-	}, Types: map[string]Type{
-		"CancelFunc":	TypeOf((*context.CancelFunc)(nil)).Elem(),
-		"Context":	TypeOf((*context.Context)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Context":	TypeOf((*P_context_Context)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Background":       ValueOf(context.Background),
+			"Canceled":         ValueOf(&context.Canceled).Elem(),
+			"DeadlineExceeded": ValueOf(&context.DeadlineExceeded).Elem(),
+			"TODO":             ValueOf(context.TODO),
+			"WithCancel":       ValueOf(context.WithCancel),
+			"WithDeadline":     ValueOf(context.WithDeadline),
+			"WithTimeout":      ValueOf(context.WithTimeout),
+			"WithValue":        ValueOf(context.WithValue),
+		}, Types: map[string]Type{
+			"CancelFunc": TypeOf((*context.CancelFunc)(nil)).Elem(),
+			"Context":    TypeOf((*context.Context)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Context": TypeOf((*P_context_Context)(nil)).Elem(),
+		},
 	}
 }
 
 // --------------- proxy for context.Context ---------------
 type P_context_Context struct {
-	Object	interface{}
-	Deadline_	func(interface{}) (deadline time.Time, ok bool)
-	Done_	func(interface{}) <-chan struct{}
-	Err_	func(interface{}) error
-	Value_	func(_proxy_obj_ interface{}, key interface{}) interface{}
+	Object    interface{}
+	Deadline_ func(interface{}) (deadline time.Time, ok bool)
+	Done_     func(interface{}) <-chan struct{}
+	Err_      func(interface{}) error
+	Value_    func(_proxy_obj_ interface{}, key interface{}) interface{}
 }
+
 func (P *P_context_Context) Deadline() (deadline time.Time, ok bool) {
 	return P.Deadline_(P.Object)
 }

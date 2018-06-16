@@ -4,18 +4,18 @@
 package imports
 
 import (
-	. "reflect"
 	"go/importer"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "go/importer"
 func init() {
 	Packages["go/importer"] = Package{
-	Binds: map[string]Value{
-		"Default":	ValueOf(importer.Default),
-		"For":	ValueOf(importer.For),
-	}, Types: map[string]Type{
-		"Lookup":	TypeOf((*importer.Lookup)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Default": ValueOf(importer.Default),
+			"For":     ValueOf(importer.For),
+		}, Types: map[string]Type{
+			"Lookup": TypeOf((*importer.Lookup)(nil)).Elem(),
+		},
 	}
 }

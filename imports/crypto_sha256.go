@@ -4,25 +4,25 @@
 package imports
 
 import (
-	. "reflect"
 	"crypto/sha256"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "crypto/sha256"
 func init() {
 	Packages["crypto/sha256"] = Package{
-	Binds: map[string]Value{
-		"BlockSize":	ValueOf(sha256.BlockSize),
-		"New":	ValueOf(sha256.New),
-		"New224":	ValueOf(sha256.New224),
-		"Size":	ValueOf(sha256.Size),
-		"Size224":	ValueOf(sha256.Size224),
-		"Sum224":	ValueOf(sha256.Sum224),
-		"Sum256":	ValueOf(sha256.Sum256),
-	}, Untypeds: map[string]string{
-		"BlockSize":	"int:64",
-		"Size":	"int:32",
-		"Size224":	"int:28",
-	}, 
+		Binds: map[string]Value{
+			"BlockSize": ValueOf(sha256.BlockSize),
+			"New":       ValueOf(sha256.New),
+			"New224":    ValueOf(sha256.New224),
+			"Size":      ValueOf(sha256.Size),
+			"Size224":   ValueOf(sha256.Size224),
+			"Sum224":    ValueOf(sha256.Sum224),
+			"Sum256":    ValueOf(sha256.Sum256),
+		}, Untypeds: map[string]string{
+			"BlockSize": "int:64",
+			"Size":      "int:32",
+			"Size224":   "int:28",
+		},
 	}
 }

@@ -4,20 +4,20 @@
 package imports
 
 import (
-	. "reflect"
 	"crypto/aes"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "crypto/aes"
 func init() {
 	Packages["crypto/aes"] = Package{
-	Binds: map[string]Value{
-		"BlockSize":	ValueOf(aes.BlockSize),
-		"NewCipher":	ValueOf(aes.NewCipher),
-	}, Types: map[string]Type{
-		"KeySizeError":	TypeOf((*aes.KeySizeError)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"BlockSize":	"int:16",
-	}, 
+		Binds: map[string]Value{
+			"BlockSize": ValueOf(aes.BlockSize),
+			"NewCipher": ValueOf(aes.NewCipher),
+		}, Types: map[string]Type{
+			"KeySizeError": TypeOf((*aes.KeySizeError)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"BlockSize": "int:16",
+		},
 	}
 }

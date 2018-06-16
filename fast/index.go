@@ -51,8 +51,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
-			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() },
-			)
+			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() })
 			ret = c.vectorIndex(node, deref, idx)
 			break
 		}

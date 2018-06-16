@@ -4,23 +4,23 @@
 package imports
 
 import (
-	. "reflect"
 	"path"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "path"
 func init() {
 	Packages["path"] = Package{
-	Binds: map[string]Value{
-		"Base":	ValueOf(path.Base),
-		"Clean":	ValueOf(path.Clean),
-		"Dir":	ValueOf(path.Dir),
-		"ErrBadPattern":	ValueOf(&path.ErrBadPattern).Elem(),
-		"Ext":	ValueOf(path.Ext),
-		"IsAbs":	ValueOf(path.IsAbs),
-		"Join":	ValueOf(path.Join),
-		"Match":	ValueOf(path.Match),
-		"Split":	ValueOf(path.Split),
-	}, 
+		Binds: map[string]Value{
+			"Base":          ValueOf(path.Base),
+			"Clean":         ValueOf(path.Clean),
+			"Dir":           ValueOf(path.Dir),
+			"ErrBadPattern": ValueOf(&path.ErrBadPattern).Elem(),
+			"Ext":           ValueOf(path.Ext),
+			"IsAbs":         ValueOf(path.IsAbs),
+			"Join":          ValueOf(path.Join),
+			"Match":         ValueOf(path.Match),
+			"Split":         ValueOf(path.Split),
+		},
 	}
 }

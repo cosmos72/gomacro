@@ -4,20 +4,20 @@
 package imports
 
 import (
-	. "reflect"
 	"net/http/pprof"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "net/http/pprof"
 func init() {
 	Packages["net/http/pprof"] = Package{
-	Binds: map[string]Value{
-		"Cmdline":	ValueOf(pprof.Cmdline),
-		"Handler":	ValueOf(pprof.Handler),
-		"Index":	ValueOf(pprof.Index),
-		"Profile":	ValueOf(pprof.Profile),
-		"Symbol":	ValueOf(pprof.Symbol),
-		"Trace":	ValueOf(pprof.Trace),
-	}, 
+		Binds: map[string]Value{
+			"Cmdline": ValueOf(pprof.Cmdline),
+			"Handler": ValueOf(pprof.Handler),
+			"Index":   ValueOf(pprof.Index),
+			"Profile": ValueOf(pprof.Profile),
+			"Symbol":  ValueOf(pprof.Symbol),
+			"Trace":   ValueOf(pprof.Trace),
+		},
 	}
 }

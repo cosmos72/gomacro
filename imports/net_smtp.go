@@ -4,35 +4,36 @@
 package imports
 
 import (
-	. "reflect"
 	"net/smtp"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "net/smtp"
 func init() {
 	Packages["net/smtp"] = Package{
-	Binds: map[string]Value{
-		"CRAMMD5Auth":	ValueOf(smtp.CRAMMD5Auth),
-		"Dial":	ValueOf(smtp.Dial),
-		"NewClient":	ValueOf(smtp.NewClient),
-		"PlainAuth":	ValueOf(smtp.PlainAuth),
-		"SendMail":	ValueOf(smtp.SendMail),
-	}, Types: map[string]Type{
-		"Auth":	TypeOf((*smtp.Auth)(nil)).Elem(),
-		"Client":	TypeOf((*smtp.Client)(nil)).Elem(),
-		"ServerInfo":	TypeOf((*smtp.ServerInfo)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"Auth":	TypeOf((*P_net_smtp_Auth)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"CRAMMD5Auth": ValueOf(smtp.CRAMMD5Auth),
+			"Dial":        ValueOf(smtp.Dial),
+			"NewClient":   ValueOf(smtp.NewClient),
+			"PlainAuth":   ValueOf(smtp.PlainAuth),
+			"SendMail":    ValueOf(smtp.SendMail),
+		}, Types: map[string]Type{
+			"Auth":       TypeOf((*smtp.Auth)(nil)).Elem(),
+			"Client":     TypeOf((*smtp.Client)(nil)).Elem(),
+			"ServerInfo": TypeOf((*smtp.ServerInfo)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"Auth": TypeOf((*P_net_smtp_Auth)(nil)).Elem(),
+		},
 	}
 }
 
 // --------------- proxy for net/smtp.Auth ---------------
 type P_net_smtp_Auth struct {
-	Object	interface{}
-	Next_	func(_proxy_obj_ interface{}, fromServer []byte, more bool) (toServer []byte, err error)
-	Start_	func(_proxy_obj_ interface{}, server *smtp.ServerInfo) (proto string, toServer []byte, err error)
+	Object interface{}
+	Next_  func(_proxy_obj_ interface{}, fromServer []byte, more bool) (toServer []byte, err error)
+	Start_ func(_proxy_obj_ interface{}, server *smtp.ServerInfo) (proto string, toServer []byte, err error)
 }
+
 func (P *P_net_smtp_Auth) Next(fromServer []byte, more bool) (toServer []byte, err error) {
 	return P.Next_(P.Object, fromServer, more)
 }

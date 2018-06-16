@@ -4,18 +4,18 @@
 package imports
 
 import (
-	. "reflect"
 	"container/list"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "container/list"
 func init() {
 	Packages["container/list"] = Package{
-	Binds: map[string]Value{
-		"New":	ValueOf(list.New),
-	}, Types: map[string]Type{
-		"Element":	TypeOf((*list.Element)(nil)).Elem(),
-		"List":	TypeOf((*list.List)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"New": ValueOf(list.New),
+		}, Types: map[string]Type{
+			"Element": TypeOf((*list.Element)(nil)).Elem(),
+			"List":    TypeOf((*list.List)(nil)).Elem(),
+		},
 	}
 }

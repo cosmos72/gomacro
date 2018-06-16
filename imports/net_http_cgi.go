@@ -4,19 +4,19 @@
 package imports
 
 import (
-	. "reflect"
 	"net/http/cgi"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "net/http/cgi"
 func init() {
 	Packages["net/http/cgi"] = Package{
-	Binds: map[string]Value{
-		"Request":	ValueOf(cgi.Request),
-		"RequestFromMap":	ValueOf(cgi.RequestFromMap),
-		"Serve":	ValueOf(cgi.Serve),
-	}, Types: map[string]Type{
-		"Handler":	TypeOf((*cgi.Handler)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Request":        ValueOf(cgi.Request),
+			"RequestFromMap": ValueOf(cgi.RequestFromMap),
+			"Serve":          ValueOf(cgi.Serve),
+		}, Types: map[string]Type{
+			"Handler": TypeOf((*cgi.Handler)(nil)).Elem(),
+		},
 	}
 }

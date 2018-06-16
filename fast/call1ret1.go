@@ -22,8 +22,8 @@
 package fast
 
 import (
-	r "reflect"
 	. "github.com/cosmos72/gomacro/base"
+	r "reflect"
 )
 
 func (c *Comp) call1ret1(call *Call, maxdepth int) I {

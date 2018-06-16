@@ -4,23 +4,23 @@
 package imports
 
 import (
-	. "reflect"
 	"go/printer"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "go/printer"
 func init() {
 	Packages["go/printer"] = Package{
-	Binds: map[string]Value{
-		"Fprint":	ValueOf(printer.Fprint),
-		"RawFormat":	ValueOf(printer.RawFormat),
-		"SourcePos":	ValueOf(printer.SourcePos),
-		"TabIndent":	ValueOf(printer.TabIndent),
-		"UseSpaces":	ValueOf(printer.UseSpaces),
-	}, Types: map[string]Type{
-		"CommentedNode":	TypeOf((*printer.CommentedNode)(nil)).Elem(),
-		"Config":	TypeOf((*printer.Config)(nil)).Elem(),
-		"Mode":	TypeOf((*printer.Mode)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Fprint":    ValueOf(printer.Fprint),
+			"RawFormat": ValueOf(printer.RawFormat),
+			"SourcePos": ValueOf(printer.SourcePos),
+			"TabIndent": ValueOf(printer.TabIndent),
+			"UseSpaces": ValueOf(printer.UseSpaces),
+		}, Types: map[string]Type{
+			"CommentedNode": TypeOf((*printer.CommentedNode)(nil)).Elem(),
+			"Config":        TypeOf((*printer.Config)(nil)).Elem(),
+			"Mode":          TypeOf((*printer.Mode)(nil)).Elem(),
+		},
 	}
 }

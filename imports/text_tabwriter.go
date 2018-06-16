@@ -11,19 +11,19 @@ import (
 // reflection: allow interpreted code to import "text/tabwriter"
 func init() {
 	Packages["text/tabwriter"] = Package{
-	Binds: map[string]Value{
-		"AlignRight":	ValueOf(tabwriter.AlignRight),
-		"Debug":	ValueOf(tabwriter.Debug),
-		"DiscardEmptyColumns":	ValueOf(tabwriter.DiscardEmptyColumns),
-		"Escape":	ValueOf(tabwriter.Escape),
-		"FilterHTML":	ValueOf(tabwriter.FilterHTML),
-		"NewWriter":	ValueOf(tabwriter.NewWriter),
-		"StripEscape":	ValueOf(tabwriter.StripEscape),
-		"TabIndent":	ValueOf(tabwriter.TabIndent),
-	}, Types: map[string]Type{
-		"Writer":	TypeOf((*tabwriter.Writer)(nil)).Elem(),
-	}, Untypeds: map[string]string{
-		"Escape":	"rune:255",
-	}, 
+		Binds: map[string]Value{
+			"AlignRight":          ValueOf(tabwriter.AlignRight),
+			"Debug":               ValueOf(tabwriter.Debug),
+			"DiscardEmptyColumns": ValueOf(tabwriter.DiscardEmptyColumns),
+			"Escape":              ValueOf(tabwriter.Escape),
+			"FilterHTML":          ValueOf(tabwriter.FilterHTML),
+			"NewWriter":           ValueOf(tabwriter.NewWriter),
+			"StripEscape":         ValueOf(tabwriter.StripEscape),
+			"TabIndent":           ValueOf(tabwriter.TabIndent),
+		}, Types: map[string]Type{
+			"Writer": TypeOf((*tabwriter.Writer)(nil)).Elem(),
+		}, Untypeds: map[string]string{
+			"Escape": "rune:255",
+		},
 	}
 }

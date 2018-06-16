@@ -4,18 +4,18 @@
 package imports
 
 import (
-	. "reflect"
 	"crypto/rand"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "crypto/rand"
 func init() {
 	Packages["crypto/rand"] = Package{
-	Binds: map[string]Value{
-		"Int":	ValueOf(rand.Int),
-		"Prime":	ValueOf(rand.Prime),
-		"Read":	ValueOf(rand.Read),
-		"Reader":	ValueOf(&rand.Reader).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Int":    ValueOf(rand.Int),
+			"Prime":  ValueOf(rand.Prime),
+			"Read":   ValueOf(rand.Read),
+			"Reader": ValueOf(&rand.Reader).Elem(),
+		},
 	}
 }

@@ -4,15 +4,15 @@
 package imports
 
 import (
-	. "reflect"
 	"errors"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "errors"
 func init() {
 	Packages["errors"] = Package{
-	Binds: map[string]Value{
-		"New":	ValueOf(errors.New),
-	}, 
+		Binds: map[string]Value{
+			"New": ValueOf(errors.New),
+		},
 	}
 }

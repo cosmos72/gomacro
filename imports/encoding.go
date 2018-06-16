@@ -4,59 +4,63 @@
 package imports
 
 import (
-	. "reflect"
 	"encoding"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "encoding"
 func init() {
 	Packages["encoding"] = Package{
-	Types: map[string]Type{
-		"BinaryMarshaler":	TypeOf((*encoding.BinaryMarshaler)(nil)).Elem(),
-		"BinaryUnmarshaler":	TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem(),
-		"TextMarshaler":	TypeOf((*encoding.TextMarshaler)(nil)).Elem(),
-		"TextUnmarshaler":	TypeOf((*encoding.TextUnmarshaler)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"BinaryMarshaler":	TypeOf((*P_encoding_BinaryMarshaler)(nil)).Elem(),
-		"BinaryUnmarshaler":	TypeOf((*P_encoding_BinaryUnmarshaler)(nil)).Elem(),
-		"TextMarshaler":	TypeOf((*P_encoding_TextMarshaler)(nil)).Elem(),
-		"TextUnmarshaler":	TypeOf((*P_encoding_TextUnmarshaler)(nil)).Elem(),
-	}, 
+		Types: map[string]Type{
+			"BinaryMarshaler":   TypeOf((*encoding.BinaryMarshaler)(nil)).Elem(),
+			"BinaryUnmarshaler": TypeOf((*encoding.BinaryUnmarshaler)(nil)).Elem(),
+			"TextMarshaler":     TypeOf((*encoding.TextMarshaler)(nil)).Elem(),
+			"TextUnmarshaler":   TypeOf((*encoding.TextUnmarshaler)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"BinaryMarshaler":   TypeOf((*P_encoding_BinaryMarshaler)(nil)).Elem(),
+			"BinaryUnmarshaler": TypeOf((*P_encoding_BinaryUnmarshaler)(nil)).Elem(),
+			"TextMarshaler":     TypeOf((*P_encoding_TextMarshaler)(nil)).Elem(),
+			"TextUnmarshaler":   TypeOf((*P_encoding_TextUnmarshaler)(nil)).Elem(),
+		},
 	}
 }
 
 // --------------- proxy for encoding.BinaryMarshaler ---------------
 type P_encoding_BinaryMarshaler struct {
-	Object	interface{}
-	MarshalBinary_	func(interface{}) (data []byte, err error)
+	Object         interface{}
+	MarshalBinary_ func(interface{}) (data []byte, err error)
 }
+
 func (P *P_encoding_BinaryMarshaler) MarshalBinary() (data []byte, err error) {
 	return P.MarshalBinary_(P.Object)
 }
 
 // --------------- proxy for encoding.BinaryUnmarshaler ---------------
 type P_encoding_BinaryUnmarshaler struct {
-	Object	interface{}
-	UnmarshalBinary_	func(_proxy_obj_ interface{}, data []byte) error
+	Object           interface{}
+	UnmarshalBinary_ func(_proxy_obj_ interface{}, data []byte) error
 }
+
 func (P *P_encoding_BinaryUnmarshaler) UnmarshalBinary(data []byte) error {
 	return P.UnmarshalBinary_(P.Object, data)
 }
 
 // --------------- proxy for encoding.TextMarshaler ---------------
 type P_encoding_TextMarshaler struct {
-	Object	interface{}
-	MarshalText_	func(interface{}) (text []byte, err error)
+	Object       interface{}
+	MarshalText_ func(interface{}) (text []byte, err error)
 }
+
 func (P *P_encoding_TextMarshaler) MarshalText() (text []byte, err error) {
 	return P.MarshalText_(P.Object)
 }
 
 // --------------- proxy for encoding.TextUnmarshaler ---------------
 type P_encoding_TextUnmarshaler struct {
-	Object	interface{}
-	UnmarshalText_	func(_proxy_obj_ interface{}, text []byte) error
+	Object         interface{}
+	UnmarshalText_ func(_proxy_obj_ interface{}, text []byte) error
 }
+
 func (P *P_encoding_TextUnmarshaler) UnmarshalText(text []byte) error {
 	return P.UnmarshalText_(P.Object, text)
 }

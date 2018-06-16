@@ -4,25 +4,25 @@
 package imports
 
 import (
-	. "reflect"
 	"encoding/hex"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "encoding/hex"
 func init() {
 	Packages["encoding/hex"] = Package{
-	Binds: map[string]Value{
-		"Decode":	ValueOf(hex.Decode),
-		"DecodeString":	ValueOf(hex.DecodeString),
-		"DecodedLen":	ValueOf(hex.DecodedLen),
-		"Dump":	ValueOf(hex.Dump),
-		"Dumper":	ValueOf(hex.Dumper),
-		"Encode":	ValueOf(hex.Encode),
-		"EncodeToString":	ValueOf(hex.EncodeToString),
-		"EncodedLen":	ValueOf(hex.EncodedLen),
-		"ErrLength":	ValueOf(&hex.ErrLength).Elem(),
-	}, Types: map[string]Type{
-		"InvalidByteError":	TypeOf((*hex.InvalidByteError)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"Decode":         ValueOf(hex.Decode),
+			"DecodeString":   ValueOf(hex.DecodeString),
+			"DecodedLen":     ValueOf(hex.DecodedLen),
+			"Dump":           ValueOf(hex.Dump),
+			"Dumper":         ValueOf(hex.Dumper),
+			"Encode":         ValueOf(hex.Encode),
+			"EncodeToString": ValueOf(hex.EncodeToString),
+			"EncodedLen":     ValueOf(hex.EncodedLen),
+			"ErrLength":      ValueOf(&hex.ErrLength).Elem(),
+		}, Types: map[string]Type{
+			"InvalidByteError": TypeOf((*hex.InvalidByteError)(nil)).Elem(),
+		},
 	}
 }

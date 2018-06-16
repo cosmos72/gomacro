@@ -22,8 +22,8 @@
 package fast
 
 import (
-	"go/token"
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"

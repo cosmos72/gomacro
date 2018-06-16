@@ -20,91 +20,103 @@ package arm64
 func and_1(z int64) int64 {
 	return z & 1
 }
+
 //go:nosplit
 func and_2(z int64) int64 {
 	return z & 2
 }
+
 //go:nosplit
 func and_3(z int64) int64 {
 	return z & 3
 }
+
 //go:nosplit
 func and_255(z int64) int64 {
 	return z & 255
 }
+
 //go:nosplit
 func and_256(z int64) int64 {
 	return z & 256
 }
+
 //go:nosplit
 func and_2048(z int64) int64 {
 	return z & 2048
 }
+
 //go:nosplit
 func and_4095(z int64) int64 {
 	return z & 4095
 }
 
-
-
 //go:nosplit
 func or_1(z int64) int64 {
 	return z | 1
 }
+
 //go:nosplit
 func or_2(z int64) int64 {
 	return z | 2
 }
+
 //go:nosplit
 func or_3(z int64) int64 {
 	return z | 3
 }
+
 //go:nosplit
 func or_255(z int64) int64 {
 	return z | 255
 }
+
 //go:nosplit
 func or_256(z int64) int64 {
 	return z | 256
 }
+
 //go:nosplit
 func or_2048(z int64) int64 {
 	return z | 2048
 }
+
 //go:nosplit
 func or_4095(z int64) int64 {
 	return z | 4095
 }
 
-
-
 //go:nosplit
 func xor_1(z int64) int64 {
 	return z ^ 1
 }
+
 //go:nosplit
 func xor_2(z int64) int64 {
 	return z ^ 2
 }
+
 //go:nosplit
 func xor_3(z int64) int64 {
 	return z ^ 3
 }
+
 //go:nosplit
 func xor_255(z int64) int64 {
 	return z ^ 255
 }
+
 //go:nosplit
 func xor_256(z int64) int64 {
 	return z ^ 256
 }
+
 //go:nosplit
 func xor_2048(z int64) int64 {
 	return z ^ 2048
 }
+
 //go:nosplit
 func xor_4095(z int64) int64 {
 	return z ^ 4095
 }
-
-

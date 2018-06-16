@@ -11,12 +11,12 @@ import (
 // reflection: allow interpreted code to import "unicode/utf16"
 func init() {
 	Packages["unicode/utf16"] = Package{
-	Binds: map[string]Value{
-		"Decode":	ValueOf(utf16.Decode),
-		"DecodeRune":	ValueOf(utf16.DecodeRune),
-		"Encode":	ValueOf(utf16.Encode),
-		"EncodeRune":	ValueOf(utf16.EncodeRune),
-		"IsSurrogate":	ValueOf(utf16.IsSurrogate),
-	}, 
+		Binds: map[string]Value{
+			"Decode":      ValueOf(utf16.Decode),
+			"DecodeRune":  ValueOf(utf16.DecodeRune),
+			"Encode":      ValueOf(utf16.Encode),
+			"EncodeRune":  ValueOf(utf16.EncodeRune),
+			"IsSurrogate": ValueOf(utf16.IsSurrogate),
+		},
 	}
 }

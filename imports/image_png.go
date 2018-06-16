@@ -4,43 +4,44 @@
 package imports
 
 import (
-	. "reflect"
 	"image/png"
+	. "reflect"
 )
 
 // reflection: allow interpreted code to import "image/png"
 func init() {
 	Packages["image/png"] = Package{
-	Binds: map[string]Value{
-		"BestCompression":	ValueOf(png.BestCompression),
-		"BestSpeed":	ValueOf(png.BestSpeed),
-		"Decode":	ValueOf(png.Decode),
-		"DecodeConfig":	ValueOf(png.DecodeConfig),
-		"DefaultCompression":	ValueOf(png.DefaultCompression),
-		"Encode":	ValueOf(png.Encode),
-		"NoCompression":	ValueOf(png.NoCompression),
-	}, Types: map[string]Type{
-		"CompressionLevel":	TypeOf((*png.CompressionLevel)(nil)).Elem(),
-		"Encoder":	TypeOf((*png.Encoder)(nil)).Elem(),
-		"EncoderBuffer":	TypeOf((*png.EncoderBuffer)(nil)).Elem(),
-		"EncoderBufferPool":	TypeOf((*png.EncoderBufferPool)(nil)).Elem(),
-		"FormatError":	TypeOf((*png.FormatError)(nil)).Elem(),
-		"UnsupportedError":	TypeOf((*png.UnsupportedError)(nil)).Elem(),
-	}, Proxies: map[string]Type{
-		"EncoderBufferPool":	TypeOf((*P_image_png_EncoderBufferPool)(nil)).Elem(),
-	}, 
+		Binds: map[string]Value{
+			"BestCompression":    ValueOf(png.BestCompression),
+			"BestSpeed":          ValueOf(png.BestSpeed),
+			"Decode":             ValueOf(png.Decode),
+			"DecodeConfig":       ValueOf(png.DecodeConfig),
+			"DefaultCompression": ValueOf(png.DefaultCompression),
+			"Encode":             ValueOf(png.Encode),
+			"NoCompression":      ValueOf(png.NoCompression),
+		}, Types: map[string]Type{
+			"CompressionLevel":  TypeOf((*png.CompressionLevel)(nil)).Elem(),
+			"Encoder":           TypeOf((*png.Encoder)(nil)).Elem(),
+			"EncoderBuffer":     TypeOf((*png.EncoderBuffer)(nil)).Elem(),
+			"EncoderBufferPool": TypeOf((*png.EncoderBufferPool)(nil)).Elem(),
+			"FormatError":       TypeOf((*png.FormatError)(nil)).Elem(),
+			"UnsupportedError":  TypeOf((*png.UnsupportedError)(nil)).Elem(),
+		}, Proxies: map[string]Type{
+			"EncoderBufferPool": TypeOf((*P_image_png_EncoderBufferPool)(nil)).Elem(),
+		},
 	}
 }
 
 // --------------- proxy for image/png.EncoderBufferPool ---------------
 type P_image_png_EncoderBufferPool struct {
-	Object	interface{}
-	Get_	func(interface{}) *png.EncoderBuffer
-	Put_	func(interface{}, *png.EncoderBuffer) 
+	Object interface{}
+	Get_   func(interface{}) *png.EncoderBuffer
+	Put_   func(interface{}, *png.EncoderBuffer)
 }
+
 func (P *P_image_png_EncoderBufferPool) Get() *png.EncoderBuffer {
 	return P.Get_(P.Object)
 }
-func (P *P_image_png_EncoderBufferPool) Put(unnamed0 *png.EncoderBuffer)  {
+func (P *P_image_png_EncoderBufferPool) Put(unnamed0 *png.EncoderBuffer) {
 	P.Put_(P.Object, unnamed0)
 }

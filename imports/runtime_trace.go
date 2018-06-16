@@ -11,9 +11,9 @@ import (
 // reflection: allow interpreted code to import "runtime/trace"
 func init() {
 	Packages["runtime/trace"] = Package{
-	Binds: map[string]Value{
-		"Start":	ValueOf(trace.Start),
-		"Stop":	ValueOf(trace.Stop),
-	}, 
+		Binds: map[string]Value{
+			"Start": ValueOf(trace.Start),
+			"Stop":  ValueOf(trace.Stop),
+		},
 	}
 }
