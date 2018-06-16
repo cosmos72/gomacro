@@ -98,6 +98,9 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 	if len(fors) == 0 {
 		// master (i.e. not specialized) declaration
 
+		if len(params) == 0 {
+			c.Errorf("cannot declare template function with zero template parameters: %v", decl.Type)
+		}
 		bind := c.NewBind(name, TemplateFuncBind, c.TypeOfPtrTemplateFunc())
 
 		// a template function declaration has no runtime effect:
@@ -120,6 +123,9 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 		c.Errorf("symbol is not a template function, cannot declare function specializations on it: %s // %v", name, bind.Type)
 	}
 	key := c.Globals.Sprintf("%v", &ast.IndexExpr{X: decl.Name, Index: &ast.CompositeLit{Elts: fors}})
+	if len(fun.Master.Params) != len(fors) {
+		c.Errorf("template function specialization for %d parameters, expecting %d: %s", len(fors), len(fun.Master.Params), key)
+	}
 	if _, ok := fun.Special[key]; ok {
 		c.Warnf("redefined template function specialization: %s", key)
 	}
@@ -201,7 +207,7 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexExpr) *TemplateFuncInstance {
 
 	// choose the specialization to use
-	special := maker.chooseFunc(fun)
+	name, special := maker.chooseFunc(fun)
 
 	// create a new nested Comp
 	c := NewComp(maker.comp, nil)
@@ -221,6 +227,7 @@ func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexEx
 	}()
 
 	if c.Globals.Options&base.OptDebugTemplate != 0 {
+		c.Debugf("choosed template function specialization: %v", name)
 		c.Debugf("forward-declaring template function before instantiation: %v", node)
 	}
 	// support for template recursive functions, as for example

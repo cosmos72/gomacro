@@ -21,7 +21,11 @@ import (
 	"fmt"
 	"go/ast"
 	r "reflect"
+	"sort"
+	"strings"
 
+	"github.com/cosmos72/gomacro/ast2"
+	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -37,15 +41,38 @@ type templateMaker struct {
 }
 
 type templateTypeCandidate struct {
-	decl  TemplateTypeDecl
-	vals  []I
-	types []xr.Type
+	decl   TemplateTypeDecl
+	params []string
+	vals   []I
+	types  []xr.Type
 }
 
 type templateFuncCandidate struct {
 	decl  TemplateFuncDecl
 	vals  []I
 	types []xr.Type
+}
+
+func (special *templateFuncCandidate) injectBinds(c *Comp) {
+	for i, name := range special.decl.Params {
+		t := special.types[i]
+		if val := special.vals[i]; val != nil {
+			c.DeclConst0(name, t, val)
+		} else {
+			c.declTypeAlias(name, t)
+		}
+	}
+}
+
+func (special *templateTypeCandidate) injectBinds(c *Comp) {
+	for i, name := range special.decl.Params {
+		t := special.types[i]
+		if val := special.vals[i]; val != nil {
+			c.DeclConst0(name, t, val)
+		} else {
+			c.declTypeAlias(name, t)
+		}
+	}
 }
 
 // return the qualified name of the function or type to instantiate, for example "Pair#[int,string]"
@@ -159,17 +186,70 @@ func (c *Comp) templateParams(params []ast.Expr, errlabel string, node ast.Node)
 
 // return the most specialized function declaration applicable to used params.
 // panics if there is no single most specialized declaration.
-func (maker *templateMaker) chooseFunc(fun *TemplateFunc) *templateFuncCandidate {
-	candidate := templateFuncCandidate{
-		decl:  fun.Master,
-		vals:  maker.vals,
-		types: maker.types,
+func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFuncCandidate) {
+	candidates := map[string]*templateFuncCandidate{
+		maker.sym.Name + "#[...]": &templateFuncCandidate{
+			decl:  fun.Master,
+			vals:  maker.vals,
+			types: maker.types,
+		},
 	}
-	/*
-		for name, special := range fun.Special {
+	g := maker.comp.Globals
+	debug := g.Options&base.OptDebugTemplate != 0
+	var ok1, ok2 bool
+
+	if debug {
+		g.Debugf("choosing template function for %s from %d specializations", maker.Name(), 1+len(fun.Special))
+	}
+
+	for key, special := range fun.Special {
+		vals, types, ok := maker.patternMatches(special.Params, special.For, maker.exprs)
+		if !ok {
+			continue
 		}
-	*/
-	return &candidate
+		// check whether special is more specialized than all other candidates
+		for declKey, candidate := range candidates {
+			decl := candidate.decl
+			if len(decl.For) == 0 {
+				ok1, ok2 = false, true
+			} else {
+				_, _, ok1 = maker.patternMatches(special.Params, special.For, decl.For)
+				_, _, ok2 = maker.patternMatches(decl.Params, decl.For, special.For)
+			}
+			if !ok1 && ok2 {
+				// special is more specialized, remove the other
+				delete(candidates, declKey)
+				if debug {
+					g.Debugf("template function %s is more specialized than %s", key, declKey)
+				}
+			}
+			if debug {
+				g.Debugf("adding template function %s to candidate specializations", key)
+			}
+			candidates[key] = &templateFuncCandidate{
+				decl:  special,
+				vals:  vals,
+				types: types,
+			}
+		}
+	}
+	switch n := len(candidates); n {
+	case 0, 1:
+		for key, candidate := range candidates {
+			return key, candidate
+		}
+		maker.comp.Errorf("no template function specialization matches %v", maker.Name())
+	default:
+		names := make([]string, n)
+		var i int
+		for name := range candidates {
+			names[i] = name
+			i++
+		}
+		sort.Strings(names)
+		maker.comp.Errorf("multiple candidates match %v:\n\t%s", maker.Name(), strings.Join(names, "\n\t"))
+	}
+	return "", nil
 }
 
 // return the most specialized type declaration applicable to used params.
@@ -183,24 +263,94 @@ func (maker *templateMaker) chooseType(typ *TemplateType) *templateTypeCandidate
 	return &candidate
 }
 
-func (special *templateFuncCandidate) injectBinds(c *Comp) {
-	for i, name := range special.decl.Params {
-		t := special.types[i]
-		if val := special.vals[i]; val != nil {
-			c.DeclConst0(name, t, val)
-		} else {
-			c.declTypeAlias(name, t)
+// if template specialization 'patterns' parametrized on 'names' matches 'exprs',
+// return the constants and types required for the match
+func (maker *templateMaker) patternMatches(names []string, patterns []ast.Expr, exprs []ast.Expr) ([]interface{}, []xr.Type, bool) {
+	vals := make([]interface{}, len(names))
+	types := make([]xr.Type, len(names))
+	g := maker.comp.Globals
+	debug := g.Options&base.OptDebugTemplate != 0
+	ok := true
+
+	for i, pattern := range patterns {
+		ok = maker.patternMatch(names, vals, types, ast2.ToAst(pattern), ast2.ToAst(exprs[i]))
+		if debug {
+			g.Debugf("names %v\tpattern %v\tmatches %v ?\t%t", names, pattern, exprs[i], ok)
 		}
+		if !ok {
+			break
+		}
+	}
+	if debug {
+		g.Debugf("names %v\tpatterns %v\tmatch %v ?\t%t", names, patterns, exprs, ok)
+	}
+	return vals, types, ok
+}
+
+// if template specialization 'pattern1' parametrized on 'names' matches 'expr1',
+// fill 'vals' and 'types' with the constants and types required for the match
+func (maker *templateMaker) patternMatch(names []string,
+	vals []interface{}, types []xr.Type, pattern ast2.Ast, expr ast2.Ast) bool {
+
+	switch node := pattern.Interface().(type) {
+	case *ast.Ident:
+		for i, name := range names {
+			if name == node.Name {
+				return maker.patternMatched(i, vals, types, expr)
+			}
+		}
+		e, ok := expr.Interface().(*ast.Ident)
+		return ok && node.Name == e.Name
+	case *ast.BasicLit:
+		e, ok := expr.Interface().(*ast.BasicLit)
+		return ok && node.Kind == e.Kind && node.Value == e.Value
+	default:
+		if pattern.Op() == expr.Op() && pattern.Size() == expr.Size() {
+			for i, n := 0, pattern.Size(); i < n; i++ {
+				if !maker.patternMatch(names, vals, types, pattern.Get(i), expr.Get(i)) {
+					return false
+				}
+			}
+			return true
+		}
+		return false
 	}
 }
 
-func (special *templateTypeCandidate) injectBinds(c *Comp) {
-	for i, name := range special.decl.Params {
-		t := special.types[i]
-		if val := special.vals[i]; val != nil {
-			c.DeclConst0(name, t, val)
+// if template specialization 'pattern1' parametrized on 'names' matches 'expr1',
+// fill 'vals' and 'types' with the constants and types required for the match
+func (maker *templateMaker) patternMatched(i int, vals []interface{}, types []xr.Type, expr ast2.Ast) (ok bool) {
+	expr1, eok := expr.Interface().(ast.Expr)
+	if !eok {
+		return false
+	}
+	panicking := true
+	defer func() {
+		if panicking {
+			recover()
+			ok = false
+		}
+	}()
+	e, typ := maker.comp.Expr1OrType(expr1)
+	panicking = false
+
+	if e != nil {
+		if e.Const() {
+			val := e.EvalConst(COptDefaults)
+			if vals[i] == nil {
+				vals[i] = val
+				ok = true
+			} else {
+				ok = vals[i] == val
+			}
+		}
+	} else if typ != nil {
+		if types[i] == nil {
+			types[i] = typ
+			ok = true
 		} else {
-			c.declTypeAlias(name, t)
+			ok = typ.IdenticalTo(types[i])
 		}
 	}
+	return ok
 }

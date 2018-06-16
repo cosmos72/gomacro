@@ -1143,7 +1143,11 @@ var testcases = []TestCase{
 	TestCase{F, "recursive_template_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
 	TestCase{F, "recursive_template_func_3", `count#[uint32](2,3)`, uint32(5), nil},
 
-	TestCase{F, "specialized_template_func_1", `template[] for[struct{}] func count(a, b struct{}) struct{} { return b }`, nil, none},
+	TestCase{F, "specialized_template_func_1", `template[] for[bool] func count(a, b bool) bool { return a || b }`, nil, none},
+	TestCase{F, "specialized_template_func_2", `count#[bool]`, func(bool, bool) bool { return false }, nil},
+	TestCase{F, "specialized_template_func_3", `count#[bool](false, true)`, true, nil},
+	TestCase{F, "specialized_template_func_4", `template[T] for[*T] func count(a, b *T) *T { return a }`, nil, none},
+	TestCase{F, "specialized_template_func_5", `count#[*int]`, func(*int, *int) *int { return nil }, nil},
 
 	TestCase{F, "template_type_1", `template [T1,T2] type PairX struct { First T1; Second T2 }`, nil, none},
 	TestCase{F, "template_type_2", `var px PairX#[complex64, struct{}]; px`, PairX2{}, nil},
