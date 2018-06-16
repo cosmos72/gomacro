@@ -1158,6 +1158,8 @@ var testcases = []TestCase{
 	TestCase{F, "recursive_template_type_3", `ListX#[interface{}]{}`, ListX3{}, nil},
 
 	TestCase{F, "specialized_template_type_1", `template[] for[struct{}] type ListX struct { }`, nil, none},
+	TestCase{F, "specialized_template_type_2", `template [T] for[T,T] type PairX struct { Left, Right T }`, nil, none},
+	TestCase{F, "specialized_template_type_3", `PairX#[bool,bool]{false,true}`, struct{ Left, Right bool }{false, true}, nil},
 }
 
 func (c *TestCase) compareResults(t *testing.T, actual []r.Value) {

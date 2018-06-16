@@ -207,7 +207,7 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexExpr) *TemplateFuncInstance {
 
 	// choose the specialization to use
-	name, special := maker.chooseFunc(fun)
+	_, special := maker.chooseFunc(fun)
 
 	// create a new nested Comp
 	c := NewComp(maker.comp, nil)
@@ -227,7 +227,6 @@ func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexEx
 	}()
 
 	if c.Globals.Options&base.OptDebugTemplate != 0 {
-		c.Debugf("choosed template function specialization: %v", name)
 		c.Debugf("forward-declaring template function before instantiation: %v", node)
 	}
 	// support for template recursive functions, as for example

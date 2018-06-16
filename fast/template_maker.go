@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
+	"go/token"
 	r "reflect"
 	"sort"
 	"strings"
@@ -38,6 +39,7 @@ type templateMaker struct {
 	types []xr.Type
 	ikey  I
 	name  string
+	pos   token.Pos
 }
 
 type templateTypeCandidate struct {
@@ -153,7 +155,7 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 			key.Index(i).Set(r.ValueOf(xr.MakeKey(t)))
 		}
 	}
-	return &templateMaker{upc, sym, ifun, templateArgs, vals, types, key.Interface(), ""}
+	return &templateMaker{upc, sym, ifun, templateArgs, vals, types, key.Interface(), "", node.Pos()}
 }
 
 func splitTemplateArgs(node *ast.IndexExpr) (string, []ast.Expr, bool) {
@@ -218,27 +220,32 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 			}
 			if !ok1 && ok2 {
 				// special is more specialized, remove the other
-				delete(candidates, declKey)
 				if debug {
-					g.Debugf("template function %s is more specialized than %s", key, declKey)
+					g.Debugf("template function %s is more specialized than %s, removing the latter", key, declKey)
 				}
+				delete(candidates, declKey)
 			}
-			if debug {
-				g.Debugf("adding template function %s to candidate specializations", key)
-			}
-			candidates[key] = &templateFuncCandidate{
-				decl:  special,
-				vals:  vals,
-				types: types,
-			}
+		}
+		if debug {
+			g.Debugf("adding template function %s to candidate specializations", key)
+		}
+		candidates[key] = &templateFuncCandidate{
+			decl:  special,
+			vals:  vals,
+			types: types,
 		}
 	}
 	switch n := len(candidates); n {
-	case 0, 1:
+	case 1:
 		for key, candidate := range candidates {
+			if debug {
+				g.Debugf("chosen   template function specialization: %v", key)
+			}
 			return key, candidate
 		}
-		maker.comp.Errorf("no template function specialization matches %v", maker.Name())
+		fallthrough
+	case 0:
+		g.Errorf("no template function specialization matches %v", maker.Name())
 	default:
 		names := make([]string, n)
 		var i int
@@ -247,20 +254,82 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 			i++
 		}
 		sort.Strings(names)
-		maker.comp.Errorf("multiple candidates match %v:\n\t%s", maker.Name(), strings.Join(names, "\n\t"))
+		g.Errorf("multiple candidates match template function %v:\n\t%s", maker.Name(), strings.Join(names, "\n\t"))
 	}
 	return "", nil
 }
 
 // return the most specialized type declaration applicable to used params.
 // panics if there is no single most specialized declaration.
-func (maker *templateMaker) chooseType(typ *TemplateType) *templateTypeCandidate {
-	candidate := templateTypeCandidate{
-		decl:  typ.Master,
-		vals:  maker.vals,
-		types: maker.types,
+func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateTypeCandidate) {
+	candidates := map[string]*templateTypeCandidate{
+		maker.sym.Name + "#[...]": &templateTypeCandidate{
+			decl:  typ.Master,
+			vals:  maker.vals,
+			types: maker.types,
+		},
 	}
-	return &candidate
+	g := maker.comp.Globals
+	debug := g.Options&base.OptDebugTemplate != 0
+	var ok1, ok2 bool
+
+	if debug {
+		g.Debugf("choosing template type for %s from %d specializations", maker.Name(), 1+len(typ.Special))
+	}
+
+	for key, special := range typ.Special {
+		vals, types, ok := maker.patternMatches(special.Params, special.For, maker.exprs)
+		if !ok {
+			continue
+		}
+		// check whether special is more specialized than all other candidates
+		for declKey, candidate := range candidates {
+			decl := candidate.decl
+			if len(decl.For) == 0 {
+				ok1, ok2 = false, true
+			} else {
+				_, _, ok1 = maker.patternMatches(special.Params, special.For, decl.For)
+				_, _, ok2 = maker.patternMatches(decl.Params, decl.For, special.For)
+			}
+			if !ok1 && ok2 {
+				// special is more specialized, remove the other
+				if debug {
+					g.Debugf("template type %s is more specialized than %s, removing the latter", key, declKey)
+				}
+				delete(candidates, declKey)
+			}
+		}
+		if debug {
+			g.Debugf("adding template type %s to candidate specializations", key)
+		}
+		candidates[key] = &templateTypeCandidate{
+			decl:  special,
+			vals:  vals,
+			types: types,
+		}
+	}
+	switch n := len(candidates); n {
+	case 1:
+		for key, candidate := range candidates {
+			if debug {
+				g.Debugf("chosen   template type specialization: %v", key)
+			}
+			return key, candidate
+		}
+		fallthrough
+	case 0:
+		g.Errorf("no template type specialization matches %v", maker.Name())
+	default:
+		names := make([]string, n)
+		var i int
+		for name := range candidates {
+			names[i] = name
+			i++
+		}
+		sort.Strings(names)
+		g.Errorf("multiple candidates match template type %v:\n\t%s", maker.Name(), strings.Join(names, "\n\t"))
+	}
+	return "", nil
 }
 
 // if template specialization 'patterns' parametrized on 'names' matches 'exprs',

@@ -131,7 +131,7 @@ func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
 func (maker *templateMaker) instantiateType(typ *TemplateType, node *ast.IndexExpr) xr.Type {
 
 	// choose the specialization to use
-	special := maker.chooseType(typ)
+	_, special := maker.chooseType(typ)
 
 	// create a new nested Comp
 	c := NewComp(maker.comp, nil)
