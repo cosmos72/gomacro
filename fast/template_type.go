@@ -113,11 +113,11 @@ func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
 	instance, _ := typ.Instances[key]
 	if instance != nil {
 		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("found instantiated template type %v", node)
+			c.Debugf("found instantiated template type %v", maker)
 		}
 	} else {
 		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("instantiating template type %v", node)
+			c.Debugf("instantiating template type %v", maker)
 		}
 		// hard part: instantiate the template type.
 		// must be instantiated in the same *Comp where it was declared!
@@ -131,7 +131,7 @@ func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
 func (maker *templateMaker) instantiateType(typ *TemplateType, node *ast.IndexExpr) xr.Type {
 
 	// choose the specialization to use
-	special := maker.chooseType(typ)
+	_, special := maker.chooseType(typ)
 
 	// create a new nested Comp
 	c := NewComp(maker.comp, nil)
@@ -146,7 +146,7 @@ func (maker *templateMaker) instantiateType(typ *TemplateType, node *ast.IndexEx
 	defer func() {
 		if panicking {
 			delete(typ.Instances, key) // remove the cached instance if present
-			c.ErrorAt(node.Pos(), "error instantiating template type: %v\n\t%v", node, recover())
+			c.ErrorAt(node.Pos(), "error instantiating template type: %v\n\t%v", maker, recover())
 		}
 	}()
 	// compile the type instantiation
@@ -154,7 +154,7 @@ func (maker *templateMaker) instantiateType(typ *TemplateType, node *ast.IndexEx
 	var t xr.Type
 	if !special.decl.Alias && maker.sym.Name != "_" {
 		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("forward-declaring template type before instantiation: %v", node)
+			c.Debugf("forward-declaring template type before instantiation: %v", maker)
 		}
 		// support for template recursive types, as for example
 		//   template[T] type List struct { First T; Rest *List#[T] }
@@ -163,7 +163,7 @@ func (maker *templateMaker) instantiateType(typ *TemplateType, node *ast.IndexEx
 		// This is similar to the technique used for non-template recursive types, as
 		//    type List struct { First int; Rest *List }
 		// with the difference that the cache is typ.Instances[key] instead of Comp.Types[name]
-		t = c.Universe.NamedOf(maker.Name(), c.FileComp().Path, r.Invalid /*kind not yet known*/)
+		t = c.Universe.NamedOf(maker.String(), c.FileComp().Path, r.Invalid /*kind not yet known*/)
 		typ.Instances[key] = t
 		u := c.Type(special.decl.Decl)
 		c.SetUnderlyingType(t, u)
