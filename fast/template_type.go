@@ -28,15 +28,16 @@ import (
 // a template type declaration.
 // either general, or partially specialized or fully specialized
 type TemplateTypeDecl struct {
-	Decl           ast.Expr   // type declaration body. use an ast.Expr because we will compile it with Comp.Type()
-	Alias          bool       // true if declaration is an alias: 'type Foo = ...'
-	Params         []string   // template param names
-	SpecializedFor []ast.Expr // for partial or full specialization
+	Decl   ast.Expr   // type declaration body. use an ast.Expr because we will compile it with Comp.Type()
+	Alias  bool       // true if declaration is an alias: 'type Foo = ...'
+	Params []string   // template param names
+	For    []ast.Expr // for partial or full specialization
 }
 
 type TemplateType struct {
-	Decls     []TemplateTypeDecl // declarations. either general, or partially specialized or fully specialized
-	Instances map[I]xr.Type      // cache of instantiated types. key is [N]interface{}{T1, T2...}
+	Master    TemplateTypeDecl            // master (i.e. non specialized) declaration
+	Special   map[string]TemplateTypeDecl // partially or fully specialized declarations. key is TemplateTypeDecl.For converted to string
+	Instances map[I]xr.Type               // cache of instantiated types. key is [N]interface{}{T1, T2...}
 }
 
 // DeclTemplateType stores a template type declaration
@@ -53,24 +54,44 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 		c.Errorf("invalid template type declaration: expecting an *ast.CompositeLit, found &ast.CompositeLit{Type: &ast.CompositeLit{}}: %v",
 			spec)
 	}
-	params, specializedFor := c.templateParams(lit.Elts, "type", spec)
+	params, fors := c.templateParams(lit.Elts, "type", spec)
 
-	bind := c.NewBind(spec.Name.Name, TemplateTypeBind, c.TypeOfPtrTemplateFunc())
-
-	// a template type declaration has no runtime effect:
-	// it merely creates the bind for on-demand instantiation by other code
-
-	bind.Value = &TemplateType{
-		Decls: []TemplateTypeDecl{
-			{
-				Decl:           lit.Type,
-				Alias:          spec.Assign != token.NoPos,
-				Params:         params,
-				SpecializedFor: specializedFor,
-			},
-		},
-		Instances: make(map[I]xr.Type),
+	tdecl := TemplateTypeDecl{
+		Decl:   lit.Type,
+		Alias:  spec.Assign != token.NoPos,
+		Params: params,
+		For:    fors,
 	}
+	name := spec.Name.Name
+
+	if len(fors) == 0 {
+		// master (i.e. not specialized) declaration
+		bind := c.NewBind(name, TemplateTypeBind, c.TypeOfPtrTemplateFunc())
+		// a template type declaration has no runtime effect:
+		// it merely creates the bind for on-demand instantiation by other code
+
+		bind.Value = &TemplateType{
+			Master:    tdecl,
+			Special:   make(map[string]TemplateTypeDecl),
+			Instances: make(map[I]xr.Type),
+		}
+		return
+	}
+
+	// partially or fully specialized declaration
+	bind := c.Binds[name]
+	if bind == nil {
+		c.Errorf("undefined identifier: %v", name)
+	}
+	typ, ok := bind.Value.(*TemplateType)
+	if !ok {
+		c.Errorf("symbol is not a template type, cannot declare type specializations on it: %s // %v", name, bind.Type)
+	}
+	key := c.Globals.Sprintf("%v", &ast.IndexExpr{X: spec.Name, Index: &ast.CompositeLit{Elts: fors}})
+	if _, ok := typ.Special[key]; ok {
+		c.Warnf("redefined template type specialization: %s", key)
+	}
+	typ.Special[key] = tdecl
 }
 
 // TemplateType compiles a template type name#[T1, T2...] instantiating it if needed.
@@ -102,17 +123,13 @@ func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
 // node is used only for error messages
 func (c *Comp) instantiateTemplateType(maker *templateMaker, typ *TemplateType, node *ast.IndexExpr) xr.Type {
 
-	if len(typ.Decls) == 0 {
-		c.ErrorAt(node.Pos(), "template type has no specializations to instantiate: %v", node)
-	}
-	decl := typ.Decls[0]
-
 	// create a new nested Comp
 	c = NewComp(c, nil)
 	c.UpCost = 0
 	c.Depth--
 
 	// and inject template arguments in it
+	decl := typ.Master
 	maker.injectBinds(c, decl.Params)
 
 	key := maker.ikey
