@@ -17,6 +17,7 @@
 package fast
 
 import (
+	"bytes"
 	"go/ast"
 	"go/token"
 	r "reflect"
@@ -38,6 +39,27 @@ type TemplateType struct {
 	Master    TemplateTypeDecl            // master (i.e. non specialized) declaration
 	Special   map[string]TemplateTypeDecl // partially or fully specialized declarations. key is TemplateTypeDecl.For converted to string
 	Instances map[I]xr.Type               // cache of instantiated types. key is [N]interface{}{T1, T2...}
+}
+
+func (t *TemplateType) String() string {
+	if t == nil {
+		return "<nil>"
+	}
+	var buf bytes.Buffer // strings.Builder requires Go >= 1.10
+	buf.WriteString("template[")
+	decl := t.Master
+	for i, param := range decl.Params {
+		if i != 0 {
+			buf.WriteString(", ")
+		}
+		buf.WriteString(param)
+	}
+	buf.WriteString("] type /*name*/ ")
+	if decl.Alias {
+		buf.WriteString("= ")
+	}
+	(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl)
+	return buf.String()
 }
 
 // DeclTemplateType stores a template type declaration
@@ -70,7 +92,7 @@ func (c *Comp) DeclTemplateType(spec *ast.TypeSpec) {
 			c.Errorf("cannot declare template type with zero template parameters: %v", spec)
 		}
 
-		bind := c.NewBind(name, TemplateTypeBind, c.TypeOfPtrTemplateFunc())
+		bind := c.NewBind(name, TemplateTypeBind, c.TypeOfPtrTemplateType())
 		// a template type declaration has no runtime effect:
 		// it merely creates the bind for on-demand instantiation by other code
 
