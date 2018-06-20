@@ -95,17 +95,17 @@ func (bind *Bind) Expr(st *base.Stringer) *Expr {
 
 // Expr returns an expression that will read the given Symbol at runtime
 func (sym *Symbol) Expr(depth int, st *base.Stringer) *Expr {
-	switch sym.Desc.Class() {
+	switch class := sym.Desc.Class(); class {
 	case ConstBind:
 		return exprLit(sym.Lit, sym)
 	case VarBind, FuncBind:
 		return sym.expr(depth, st)
 	case IntBind:
 		return sym.intExpr(depth, st)
-	case TemplateFuncBind:
-		st.Errorf("template function name must be followed by #[...] template arguments: %v", sym.Name)
+	case TemplateFuncBind, TemplateTypeBind:
+		st.Errorf("%s name must be followed by #[...] template arguments: %v", class, sym.Name)
 	default:
-		st.Errorf("unknown symbol class %s", sym.Desc.Class())
+		st.Errorf("unknown symbol class %s", class)
 	}
 	return nil
 }

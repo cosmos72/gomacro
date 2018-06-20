@@ -54,11 +54,32 @@ func (t *TemplateType) String() string {
 		}
 		buf.WriteString(param)
 	}
-	buf.WriteString("] type /*name*/ ")
+	buf.WriteString("] type ")
 	if decl.Alias {
 		buf.WriteString("= ")
 	}
-	(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl)
+	var str string
+	switch e := decl.Decl.(type) {
+	case *ast.ArrayType:
+		if e.Len == nil {
+			str = "slice"
+		} else {
+			str = "array"
+		}
+	case *ast.ChanType:
+		str = "chan"
+	case *ast.FuncType:
+		str = "func"
+	case *ast.InterfaceType:
+		str = "interface"
+	case *ast.MapType:
+		str = "map"
+	case *ast.StructType:
+		str = "struct"
+	default:
+		(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl)
+	}
+	buf.WriteString(str)
 	return buf.String()
 }
 
