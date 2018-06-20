@@ -146,17 +146,50 @@ func (c *Comp) Expr(in ast.Expr, t xr.Type) *Expr {
 	}
 }
 
-// Expr1OrType compiles an single-valued expression or a type
-// FIXME lookup simultaneously for both types and expressions
-func (c *Comp) Expr1OrType(node ast.Expr) (e *Expr, t xr.Type) {
+// Expr1OrType compiles an single-valued expression or a type.
+// performs simultaneous lookup for type names, constants, variables and functions
+func (c *Comp) Expr1OrType(expr ast.Expr) (e *Expr, t xr.Type) {
+	node := expr
+	for {
+		switch n := node.(type) {
+		case *ast.StarExpr:
+			node = n.X
+			continue
+		case *ast.ParenExpr:
+			node = n.X
+			continue
+		case *ast.Ident:
+			name := n.Name
+			for o := c; o != nil; o = o.Outer {
+				bind, okb := o.Binds[name]
+				var okt bool
+				if okb {
+					_, okt = bind.Value.(*TemplateType) // template types are stored in Comp.Bind[]
+					okb = !okt
+				}
+				if okb {
+					return c.Expr1(expr, nil), nil
+				} else if _, ok := o.Types[name]; ok || okt {
+					return nil, c.Type(expr)
+				}
+			}
+		case *ast.IndexExpr:
+			if lit, ok := n.Index.(*ast.CompositeLit); ok && lit.Type == nil {
+				// foo#[a, b...] can be a template function or a template type
+				node = n.X
+				continue
+			}
+		}
+		break
+	}
 	panicking := true
 	defer func() {
 		if panicking {
 			recover()
-			t = c.Type(node)
+			t = c.Type(expr)
 		}
 	}()
-	e = c.Expr1(node, nil)
+	e = c.Expr1(expr, nil)
 	panicking = false
 	return
 }
