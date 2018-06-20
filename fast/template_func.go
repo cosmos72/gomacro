@@ -19,6 +19,7 @@ package fast
 import (
 	"bytes"
 	"go/ast"
+	"go/token"
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
@@ -254,4 +255,86 @@ func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexEx
 
 	panicking = false
 	return instance
+}
+
+/*
+ *
+ *
+ * type inference on template functions
+ *
+ *
+ */
+
+type templateInferrer struct {
+	comp     *Comp
+	tfun     *TemplateFunc
+	params   []string
+	patterns []ast.Expr
+	targs    []xr.Type
+	matches  []xr.Type
+	node     *ast.CallExpr // for error messages
+}
+
+func (c *Comp) inferTemplateFunc(node *ast.CallExpr, fun *Expr, args []*Expr) *Expr {
+	tfun, ok := fun.Value.(*TemplateFunc)
+	if !ok {
+		c.Errorf("internal error: Comp.inferTemplateFunc() invoked on non-template function %v: %v", fun.Type, node.Fun)
+	}
+	master := tfun.Master
+	typ := master.Decl.Type
+
+	var patterns []ast.Expr
+	ellipsis := node.Ellipsis != token.NoPos
+	variadic := false
+	// collect template function param types
+	if params := typ.Params; params != nil {
+		if n := len(params.List); n != 0 {
+			_, variadic = params.List[n-1].Type.(*ast.Ellipsis)
+			for _, param := range params.List {
+				for _ = range param.Names {
+					patterns = append(patterns, param.Type)
+				}
+			}
+		}
+	}
+	if variadic && !ellipsis {
+		c.Errorf("unimplemented type inference on variadic template function: %v", node)
+	} else if !variadic && ellipsis {
+		c.Errorf("invalid use of ... in call to non-variadic template function: %v", node)
+	}
+
+	// collect call arg types
+	nargs := len(args)
+	var targs []xr.Type
+	if nargs == 1 {
+		arg := args[0]
+		nargs = arg.NumOut()
+		if nargs == 1 {
+			targs = []xr.Type{arg.Type}
+		} else {
+			targs = arg.Types
+		}
+	} else {
+		targs = make([]xr.Type, nargs)
+		for i, arg := range args {
+			targs[i] = arg.Type
+		}
+	}
+	if nargs != len(patterns) {
+		c.Errorf("template function %v has %d params, cannot call with %d values: %v", tfun, len(patterns), nargs, node)
+	}
+	inf := templateInferrer{c, tfun, master.Params, patterns, nil, targs, node}
+	return inf.inferArgs()
+}
+
+func (inf *templateInferrer) inferArgs() *Expr {
+	inf.matches = make([]xr.Type, len(inf.params))
+	for i := range inf.targs {
+		inf.inferArg(i)
+	}
+	inf.comp.Errorf("unimplemented type inference on template function: %v", inf.node)
+	return nil
+}
+
+func (inf *templateInferrer) inferArg(i int) {
 }

@@ -103,7 +103,9 @@ func (sym *Symbol) Expr(depth int, st *base.Stringer) *Expr {
 	case IntBind:
 		return sym.intExpr(depth, st)
 	case TemplateFuncBind, TemplateTypeBind:
-		st.Errorf("%s name must be followed by #[...] template arguments: %v", class, sym.Name)
+		// dirty... allows var x = template_func_name
+		return exprValue(sym.Type, sym.Value)
+		// st.Errorf("%s name must be followed by #[...] template arguments: %v", class, sym.Name)
 	default:
 		st.Errorf("unknown symbol class %s", class)
 	}
