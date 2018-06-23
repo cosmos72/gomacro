@@ -19,7 +19,6 @@ package fast
 import (
 	"bytes"
 	"go/ast"
-	"go/token"
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
@@ -48,6 +47,10 @@ type TemplateFunc struct {
 }
 
 func (f *TemplateFunc) String() string {
+	return f.Signature("")
+}
+
+func (f *TemplateFunc) Signature(name string) string {
 	if f == nil {
 		return "<nil>"
 	}
@@ -61,7 +64,14 @@ func (f *TemplateFunc) String() string {
 		buf.WriteString(param)
 	}
 	buf.WriteString("] ")
-	(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
+	if len(name) == 0 {
+		(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
+	} else {
+		(*base.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
+			Name: &ast.Ident{Name: name},
+			Type: decl.Decl.Type,
+		})
+	}
 	return buf.String()
 }
 
@@ -136,6 +146,12 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 // TemplateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
 func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 	maker := c.templateMaker(node, TemplateFuncBind)
+	return c.templateFunc(maker, node)
+}
+
+// templateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
+// node is used only for error messages
+func (c *Comp) templateFunc(maker *templateMaker, node ast.Node) *Expr {
 	if maker == nil {
 		return nil
 	}
@@ -143,13 +159,15 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 	key := maker.ikey
 
 	instance, _ := fun.Instances[key]
+	g := c.Globals
+	debug := g.Options&base.OptDebugTemplate != 0
 	if instance != nil {
-		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("found instantiated template function %v", maker)
+		if debug {
+			g.Debugf("found instantiated template function %v", maker)
 		}
 	} else {
-		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("instantiating template function %v", maker)
+		if debug {
+			g.Debugf("instantiating template function %v", maker)
 		}
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
@@ -168,8 +186,8 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 		efun = *eaddr
 	}
 	upn := maker.sym.Upn
-	if c.Globals.Options&base.OptDebugTemplate != 0 {
-		c.Debugf("template function: %v, upn = %v, instance = %v", maker, upn, instance)
+	if debug {
+		g.Debugf("template function: %v, upn = %v, instance = %v", maker, upn, instance)
 	}
 	// switch to the correct *Env before evaluating expr
 	switch upn {
@@ -205,7 +223,7 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 
 // instantiateTemplateFunc instantiates and compiles a template function.
 // node is used only for error messages
-func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexExpr) *TemplateFuncInstance {
+func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node ast.Node) *TemplateFuncInstance {
 
 	// choose the specialization to use
 	_, special := maker.chooseFunc(fun)
@@ -255,86 +273,4 @@ func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexEx
 
 	panicking = false
 	return instance
-}
-
-/*
- *
- *
- * type inference on template functions
- *
- *
- */
-
-type templateInferrer struct {
-	comp     *Comp
-	tfun     *TemplateFunc
-	params   []string
-	patterns []ast.Expr
-	targs    []xr.Type
-	matches  []xr.Type
-	node     *ast.CallExpr // for error messages
-}
-
-func (c *Comp) inferTemplateFunc(node *ast.CallExpr, fun *Expr, args []*Expr) *Expr {
-	tfun, ok := fun.Value.(*TemplateFunc)
-	if !ok {
-		c.Errorf("internal error: Comp.inferTemplateFunc() invoked on non-template function %v: %v", fun.Type, node.Fun)
-	}
-	master := tfun.Master
-	typ := master.Decl.Type
-
-	var patterns []ast.Expr
-	ellipsis := node.Ellipsis != token.NoPos
-	variadic := false
-	// collect template function param types
-	if params := typ.Params; params != nil {
-		if n := len(params.List); n != 0 {
-			_, variadic = params.List[n-1].Type.(*ast.Ellipsis)
-			for _, param := range params.List {
-				for _ = range param.Names {
-					patterns = append(patterns, param.Type)
-				}
-			}
-		}
-	}
-	if variadic && !ellipsis {
-		c.Errorf("unimplemented type inference on variadic template function: %v", node)
-	} else if !variadic && ellipsis {
-		c.Errorf("invalid use of ... in call to non-variadic template function: %v", node)
-	}
-
-	// collect call arg types
-	nargs := len(args)
-	var targs []xr.Type
-	if nargs == 1 {
-		arg := args[0]
-		nargs = arg.NumOut()
-		if nargs == 1 {
-			targs = []xr.Type{arg.Type}
-		} else {
-			targs = arg.Types
-		}
-	} else {
-		targs = make([]xr.Type, nargs)
-		for i, arg := range args {
-			targs[i] = arg.Type
-		}
-	}
-	if nargs != len(patterns) {
-		c.Errorf("template function %v has %d params, cannot call with %d values: %v", tfun, len(patterns), nargs, node)
-	}
-	inf := templateInferrer{c, tfun, master.Params, patterns, nil, targs, node}
-	return inf.inferArgs()
-}
-
-func (inf *templateInferrer) inferArgs() *Expr {
-	inf.matches = make([]xr.Type, len(inf.params))
-	for i := range inf.targs {
-		inf.inferArg(i)
-	}
-	inf.comp.Errorf("unimplemented type inference on template function: %v", inf.node)
-	return nil
-}
-
-func (inf *templateInferrer) inferArg(i int) {
 }
