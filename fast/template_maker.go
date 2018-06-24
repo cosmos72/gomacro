@@ -254,7 +254,7 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 			types: maker.types,
 		},
 	}
-	g := maker.comp.Globals
+	g := &maker.comp.Globals
 	debug := g.Options&base.OptDebugTemplate != 0
 	var ok1, ok2 bool
 
@@ -327,7 +327,7 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 			types: maker.types,
 		},
 	}
-	g := maker.comp.Globals
+	g := &maker.comp.Globals
 	debug := g.Options&base.OptDebugTemplate != 0
 	var ok1, ok2 bool
 

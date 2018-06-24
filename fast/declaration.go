@@ -21,6 +21,10 @@ import (
 	"go/token"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/reflect"
+
+	"github.com/cosmos72/gomacro/base/strings"
+
 	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -97,7 +101,7 @@ func (c *Comp) GenDecl(node *ast.GenDecl) {
 			if decl, ok := node.Specs[0].(*ast.ValueSpec); ok {
 				if len(decl.Values) == 1 {
 					if lit, ok := decl.Values[0].(*ast.BasicLit); ok {
-						if lit.Kind == token.STRING && (lit.Value == c.Name || base.MaybeUnescapeString(lit.Value) == c.Path) {
+						if lit.Kind == token.STRING && (lit.Value == c.Name || strings.MaybeUnescapeString(lit.Value) == c.Path) {
 							break
 						}
 					}
@@ -263,7 +267,7 @@ func (c *Comp) NewBind(name string, class BindClass, t xr.Type) *Bind {
 		// thus we cannot reallocate it => we must stop at its capacity, stored in c.IntBindMax
 		// by Interp.PrepareEnv()
 		if (c.IntBindMax == 0 || c.IntBindNum < c.IntBindMax) &&
-			base.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64, r.Complex128) {
+			reflect.IsCategory(t.Kind(), r.Bool, r.Int, r.Uint, r.Float64, r.Complex128) {
 			// optimize booleans, integers, floats and complexes by storing them in Env.Ints []uint64
 			// note: complex128 occupies two uint64 slots!
 			class = IntBind

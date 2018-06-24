@@ -22,6 +22,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 type eBreak struct {
@@ -215,7 +216,7 @@ func (env *Env) evalReturn(node *ast.ReturnStmt) (r.Value, []r.Value) {
 	var rets []r.Value
 	if len(node.Results) == 1 {
 		// return foo() returns *all* the values returned by foo, not just the first one
-		rets = PackValues(env.evalExpr(node.Results[0]))
+		rets = reflect.PackValues(env.evalExpr(node.Results[0]))
 	} else {
 		rets = env.evalExprs(node.Results)
 	}

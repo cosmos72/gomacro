@@ -23,6 +23,7 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -77,7 +78,7 @@ func (t *TemplateType) String() string {
 	case *ast.StructType:
 		str = "struct"
 	default:
-		(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl)
+		(*output.Stringer).Fprintf(nil, &buf, "%v", decl.Decl)
 	}
 	buf.WriteString(str)
 	return buf.String()
@@ -153,14 +154,17 @@ func (c *Comp) TemplateType(node *ast.IndexExpr) xr.Type {
 	typ := maker.ifun.(*TemplateType)
 	key := maker.ikey
 
+	g := &c.Globals
+	debug := g.Options&base.OptDebugTemplate != 0
+
 	instance, _ := typ.Instances[key]
 	if instance != nil {
-		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("found instantiated template type %v", maker)
+		if debug {
+			g.Debugf("found instantiated template type %v", maker)
 		}
 	} else {
-		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("instantiating template type %v", maker)
+		if debug {
+			g.Debugf("instantiating template type %v", maker)
 		}
 		// hard part: instantiate the template type.
 		// must be instantiated in the same *Comp where it was declared!

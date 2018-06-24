@@ -25,6 +25,8 @@ import (
 	r "reflect"
 	"unsafe"
 
+	"github.com/cosmos72/gomacro/base/reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -33,7 +35,7 @@ func (c *Comp) func2ret0(t xr.Type, m *funcMaker) func(*Env) r.Value {
 	karg0 := t.In(0).Kind()
 	karg1 := t.In(1).Kind()
 
-	if !IsOptimizedKind(karg0) || !IsOptimizedKind(karg1) {
+	if !reflect.IsOptimizedKind(karg0) || !reflect.IsOptimizedKind(karg1) {
 		return nil
 	}
 
@@ -117,7 +119,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -150,7 +153,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -183,7 +187,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -215,7 +220,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -247,7 +253,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -278,7 +285,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 				funv := r.ValueOf(func(bool,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -308,7 +316,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -338,7 +347,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -368,7 +378,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -398,7 +409,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -428,7 +440,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -458,7 +471,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -488,7 +502,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -518,7 +533,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -548,7 +564,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -577,7 +594,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -605,7 +623,8 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(bool,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -622,8 +641,7 @@ func func2ret0Bool(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -651,7 +669,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -684,7 +703,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -717,7 +737,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -749,7 +770,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -781,7 +803,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -812,7 +835,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 				funv := r.ValueOf(func(int,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -842,7 +866,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -872,7 +897,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -902,7 +928,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -932,7 +959,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -962,7 +990,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -992,7 +1021,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1022,7 +1052,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1052,7 +1083,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1082,7 +1114,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1111,7 +1144,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1139,7 +1173,8 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 			if funcbody == nil {
 				funv := r.ValueOf(func(int,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1156,8 +1191,7 @@ func func2ret0Int(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fun
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -1185,7 +1219,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1218,7 +1253,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1251,7 +1287,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1283,7 +1320,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1315,7 +1353,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1346,7 +1385,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 				funv := r.ValueOf(func(int8,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1376,7 +1416,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1406,7 +1447,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1436,7 +1478,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1466,7 +1509,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1496,7 +1540,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1526,7 +1571,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1556,7 +1602,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1586,7 +1633,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1616,7 +1664,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1645,7 +1694,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1673,7 +1723,8 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(int8,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1690,8 +1741,7 @@ func func2ret0Int8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -1719,7 +1769,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1752,7 +1803,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1785,7 +1837,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1817,7 +1870,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1849,7 +1903,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1880,7 +1935,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 				funv := r.ValueOf(func(int16,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1910,7 +1966,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1940,7 +1997,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -1970,7 +2028,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2000,7 +2059,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2030,7 +2090,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2060,7 +2121,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2090,7 +2152,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2120,7 +2183,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2150,7 +2214,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2179,7 +2244,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2207,7 +2273,8 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int16,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2224,8 +2291,7 @@ func func2ret0Int16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -2253,7 +2319,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2286,7 +2353,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2319,7 +2387,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2351,7 +2420,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2383,7 +2453,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2414,7 +2485,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 				funv := r.ValueOf(func(int32,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2444,7 +2516,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2474,7 +2547,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2504,7 +2578,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2534,7 +2609,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2564,7 +2640,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2594,7 +2671,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2624,7 +2702,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2654,7 +2733,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2684,7 +2764,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2713,7 +2794,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2741,7 +2823,8 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int32,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2758,8 +2841,7 @@ func func2ret0Int32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -2787,7 +2869,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2820,7 +2903,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2853,7 +2937,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2885,7 +2970,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2917,7 +3003,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2948,7 +3035,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 				funv := r.ValueOf(func(int64,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -2978,7 +3066,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3008,7 +3097,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3038,7 +3128,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3068,7 +3159,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3098,7 +3190,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3128,7 +3221,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3158,7 +3252,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3188,7 +3283,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3218,7 +3314,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3247,7 +3344,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3275,7 +3373,8 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(int64,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3292,8 +3391,7 @@ func func2ret0Int64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -3321,7 +3419,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3354,7 +3453,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3387,7 +3487,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3419,7 +3520,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3451,7 +3553,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3482,7 +3585,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 				funv := r.ValueOf(func(uint,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3512,7 +3616,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3542,7 +3647,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3572,7 +3678,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3602,7 +3709,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3632,7 +3740,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3662,7 +3771,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3692,7 +3802,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3722,7 +3833,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3752,7 +3864,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3781,7 +3894,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3809,7 +3923,8 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3826,8 +3941,7 @@ func func2ret0Uint(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) fu
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -3855,7 +3969,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3888,7 +4003,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3921,7 +4037,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3953,7 +4070,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -3985,7 +4103,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4016,7 +4135,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 				funv := r.ValueOf(func(uint8,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4046,7 +4166,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4076,7 +4197,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4106,7 +4228,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4136,7 +4259,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4166,7 +4290,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4196,7 +4321,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4226,7 +4352,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4256,7 +4383,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4286,7 +4414,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4315,7 +4444,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4343,7 +4473,8 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint8,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4360,8 +4491,7 @@ func func2ret0Uint8(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) f
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -4389,7 +4519,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4422,7 +4553,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4455,7 +4587,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4487,7 +4620,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4519,7 +4653,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4550,7 +4685,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 				funv := r.ValueOf(func(uint16,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4580,7 +4716,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4610,7 +4747,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4640,7 +4778,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4670,7 +4809,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4700,7 +4840,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4730,7 +4871,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4760,7 +4902,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4790,7 +4933,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4820,7 +4964,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4849,7 +4994,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4877,7 +5023,8 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint16,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4894,8 +5041,7 @@ func func2ret0Uint16(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -4923,7 +5069,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4956,7 +5103,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -4989,7 +5137,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5021,7 +5170,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5053,7 +5203,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5084,7 +5235,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 				funv := r.ValueOf(func(uint32,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5114,7 +5266,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5144,7 +5297,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5174,7 +5328,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5204,7 +5359,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5234,7 +5390,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5264,7 +5421,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5294,7 +5452,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5324,7 +5483,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5354,7 +5514,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5383,7 +5544,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5411,7 +5573,8 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint32,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5428,8 +5591,7 @@ func func2ret0Uint32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -5457,7 +5619,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5489,7 +5652,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5521,7 +5685,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5552,7 +5717,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5583,7 +5749,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5613,7 +5780,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 				funv := r.ValueOf(func(uint64,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5642,7 +5810,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5671,7 +5840,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5700,7 +5870,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5729,7 +5900,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5758,7 +5930,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5787,7 +5960,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5816,7 +5990,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5845,7 +6020,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5874,7 +6050,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5902,7 +6079,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5929,7 +6107,8 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(uint64,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -5945,8 +6124,7 @@ func func2ret0Uint64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -5974,7 +6152,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6007,7 +6186,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6040,7 +6220,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6072,7 +6253,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6104,7 +6286,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6135,7 +6318,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 				funv := r.ValueOf(func(uintptr,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6165,7 +6349,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6195,7 +6380,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6225,7 +6411,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6255,7 +6442,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6285,7 +6473,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6315,7 +6504,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6345,7 +6535,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6375,7 +6566,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6405,7 +6597,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6434,7 +6627,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6462,7 +6656,8 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(uintptr,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6479,8 +6674,7 @@ func func2ret0Uintptr(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -6508,7 +6702,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6541,7 +6736,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6574,7 +6770,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6606,7 +6803,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6638,7 +6836,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6669,7 +6868,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 				funv := r.ValueOf(func(float32,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6699,7 +6899,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6729,7 +6930,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6759,7 +6961,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6789,7 +6992,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6819,7 +7023,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6849,7 +7054,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6879,7 +7085,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6909,7 +7116,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6939,7 +7147,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6968,7 +7177,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -6996,7 +7206,8 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float32,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7013,8 +7224,7 @@ func func2ret0Float32(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -7042,7 +7252,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7075,7 +7286,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7108,7 +7320,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7140,7 +7353,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7172,7 +7386,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7203,7 +7418,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 				funv := r.ValueOf(func(float64,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7233,7 +7449,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7263,7 +7480,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7293,7 +7511,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7323,7 +7542,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7353,7 +7573,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7383,7 +7604,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7413,7 +7635,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7443,7 +7666,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7473,7 +7697,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7502,7 +7727,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7530,7 +7756,8 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 			if funcbody == nil {
 				funv := r.ValueOf(func(float64,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7547,8 +7774,7 @@ func func2ret0Float64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp)
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -7576,7 +7802,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7609,7 +7836,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7642,7 +7870,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7674,7 +7903,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7706,7 +7936,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7737,7 +7968,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 				funv := r.ValueOf(func(complex64,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7767,7 +7999,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7797,7 +8030,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7827,7 +8061,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7857,7 +8092,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7887,7 +8123,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7917,7 +8154,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7947,7 +8185,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -7977,7 +8216,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8007,7 +8247,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8036,7 +8277,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8064,7 +8306,8 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex64,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8081,8 +8324,7 @@ func func2ret0Complex64(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Com
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -8110,7 +8352,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8143,7 +8386,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8176,7 +8420,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8208,7 +8453,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8240,7 +8486,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8271,7 +8518,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 				funv := r.ValueOf(func(complex128,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8301,7 +8549,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8331,7 +8580,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8361,7 +8611,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8391,7 +8642,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8421,7 +8673,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8451,7 +8704,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8481,7 +8735,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8511,7 +8766,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8541,7 +8797,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8570,7 +8827,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8598,7 +8856,8 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 			if funcbody == nil {
 				funv := r.ValueOf(func(complex128,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8615,8 +8874,7 @@ func func2ret0Complex128(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Co
 
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 
@@ -8644,7 +8902,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					bool,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8660,8 +8919,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8681,7 +8939,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8697,8 +8956,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8718,7 +8976,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int8,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8734,8 +8993,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8754,7 +9012,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int16,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8770,8 +9029,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8790,7 +9048,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 
 					int32,
 
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8806,8 +9065,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8825,7 +9083,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 				funv := r.ValueOf(func(string,
 
 					int64,
-				) {})
+				) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8841,8 +9100,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8859,7 +9117,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					uint) {})
+					uint) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8875,8 +9134,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8893,7 +9151,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					uint8) {})
+					uint8) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8909,8 +9168,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8927,7 +9185,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					uint16) {})
+					uint16) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8943,8 +9202,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8961,7 +9219,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					uint32) {})
+					uint32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -8977,8 +9236,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -8995,7 +9253,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					uint64) {})
+					uint64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -9011,8 +9270,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9029,7 +9287,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					uintptr) {})
+					uintptr) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -9045,8 +9304,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9063,7 +9321,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					float32) {})
+					float32) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -9079,8 +9338,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9097,7 +9355,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					float64) {})
+					float64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -9113,8 +9372,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9131,7 +9389,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					complex64) {})
+					complex64) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -9146,8 +9405,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9164,7 +9422,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					complex128) {})
+					complex128) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -9178,8 +9437,7 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 
@@ -9196,7 +9454,8 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 			if funcbody == nil {
 				funv := r.ValueOf(func(string,
 
-					string) {})
+					string) {
+				})
 				ret = func(env *Env) r.Value { return funv }
 
 				break
@@ -9210,14 +9469,12 @@ func func2ret0String(m *funcMaker, indexes *[2]int, karg1 r.Kind, debugC *Comp) 
 					env := newEnv4Func(env, nbind, nintbind, debugC)
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg0,
-						)
+						place.SetString(arg0)
 						env.Vals[indexes[0]] = place
 					}
 					{
 						place := r.New(TypeOfString).Elem()
-						place.SetString(arg1,
-						)
+						place.SetString(arg1)
 						env.Vals[indexes[1]] = place
 					}
 

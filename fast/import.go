@@ -24,6 +24,11 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/genimport"
+	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/paths"
+	"github.com/cosmos72/gomacro/base/reflect"
+	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -42,7 +47,7 @@ func (ir *Interp) ChangePackage(name, path string) {
 	if len(path) == 0 {
 		path = name
 	} else {
-		name = FileName(path)
+		name = paths.FileName(path)
 	}
 	c := ir.Comp
 	if path == c.Path {
@@ -121,7 +126,7 @@ func (c *Comp) Import(node ast.Spec) {
 		if node.Name != nil {
 			name = node.Name.Name
 		} else {
-			name = FileName(path)
+			name = paths.FileName(path)
 		}
 		// yes, we support local imports
 		// i.e. a function or block can import packages
@@ -157,7 +162,7 @@ func (c *Comp) ImportPackageOrError(name, path string) (*Import, error) {
 	g := c.CompGlobals
 	imp := g.KnownImports[path]
 	if imp == nil {
-		pkgref, err := g.ImportPackageOrError(name, path)
+		pkgref, err := g.Importer.ImportPackageOrError(name, path)
 		if err != nil {
 			return nil, err
 		}
@@ -246,7 +251,7 @@ func (c *Comp) declDotImport0(imp *Import) {
 	}
 }
 
-func (g *CompGlobals) NewImport(pkgref *PackageRef) *Import {
+func (g *CompGlobals) NewImport(pkgref *genimport.PackageRef) *Import {
 	env := &Env{
 		UsedByClosure: true, // do not try to recycle this Env
 	}
@@ -264,7 +269,7 @@ func (g *CompGlobals) NewImport(pkgref *PackageRef) *Import {
 	return imp
 }
 
-func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
+func (imp *Import) loadBinds(g *CompGlobals, pkgref *genimport.PackageRef) {
 	vals := make([]r.Value, len(pkgref.Binds))
 	untypeds := pkgref.Untypeds
 	o := &g.Output
@@ -282,7 +287,7 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 		// distinguish typed constants, variables and functions
 		if val.IsValid() && val.CanAddr() && val.CanSet() {
 			class = VarBind
-		} else if k == r.Invalid || (IsOptimizedKind(k) && val.CanInterface()) {
+		} else if k == r.Invalid || (reflect.IsOptimizedKind(k) && val.CanInterface()) {
 			class = ConstBind
 		}
 		typ := g.Universe.FromReflectType(val.Type())
@@ -304,16 +309,16 @@ func (imp *Import) loadBinds(g *CompGlobals, pkgref *PackageRef) {
 	imp.Vals = vals
 }
 
-func (g *CompGlobals) parseUntyped(untyped string) (UntypedLit, xr.Type) {
-	kind, value := UnmarshalUntyped(untyped)
-	if kind == r.Invalid {
+func (g *CompGlobals) parseUntyped(untypedstr string) (UntypedLit, xr.Type) {
+	kind, value := untyped.Unmarshal(untypedstr)
+	if kind == untyped.None {
 		return UntypedLit{}, nil
 	}
-	lit := MakeUntypedLit(kind, value, &g.Universe.BasicTypes)
+	lit := untyped.MakeLit(kind, value, &g.Universe.BasicTypes)
 	return lit, g.TypeOfUntypedLit()
 }
 
-func (imp *Import) loadTypes(g *CompGlobals, pkgref *PackageRef) {
+func (imp *Import) loadTypes(g *CompGlobals, pkgref *genimport.PackageRef) {
 	v := g.Universe
 	types := make(map[string]xr.Type)
 	wrappers := pkgref.Wrappers
@@ -384,7 +389,7 @@ func (imp *Import) selectorPlace(c *Comp, name string, opt PlaceOption) *Place {
 }
 
 // selector compiles foo.bar where 'foo' is an imported package
-func (imp *Import) selector(name string, st *Stringer) *Expr {
+func (imp *Import) selector(name string, st *output.Stringer) *Expr {
 	bind, ok := imp.Binds[name]
 	if !ok {
 		st.Errorf("package %v %q has no symbol %s", imp.Name, imp.Path, name)
@@ -405,7 +410,7 @@ func (imp *Import) selector(name string, st *Stringer) *Expr {
 // create an expression that will return the value of imported variable described by bind.
 //
 // mandatory optimization: for basic kinds, unwrap reflect.Value
-func (imp *Import) symbol(bind *Bind, st *Stringer) *Expr {
+func (imp *Import) symbol(bind *Bind, st *output.Stringer) *Expr {
 	idx := bind.Desc.Index()
 	if idx == NoIndex {
 		st.Errorf("undefined identifier %s._", imp.Name)
@@ -501,7 +506,7 @@ func (imp *Import) symbol(bind *Bind, st *Stringer) *Expr {
 // create an expression that will return the value of imported variable described by bind.
 //
 // mandatory optimization: for basic kinds, do not wrap in reflect.Value
-func (imp *Import) intSymbol(bind *Bind, st *Stringer) *Expr {
+func (imp *Import) intSymbol(bind *Bind, st *output.Stringer) *Expr {
 	idx := bind.Desc.Index()
 	if idx == NoIndex {
 		st.Errorf("undefined identifier %s._", imp.Name)

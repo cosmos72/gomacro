@@ -22,6 +22,7 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/imports"
 )
 
@@ -53,7 +54,7 @@ func NewEnv(outer *Env, path string) *Env {
 	env := &Env{
 		iotaOffset: 1,
 		Outer:      outer,
-		Name:       FileName(path),
+		Name:       paths.FileName(path),
 		Path:       path,
 	}
 	if outer == nil {

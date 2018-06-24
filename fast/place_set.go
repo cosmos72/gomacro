@@ -25,6 +25,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 func (c *Comp) placeSetZero(place *Place) {
@@ -35,7 +36,7 @@ func (c *Comp) placeSetZero(place *Place) {
 func (c *Comp) placeSetConst(place *Place, val I) {
 	rt := place.Type.ReflectType()
 	v := r.ValueOf(val)
-	if ValueType(v) == nil {
+	if reflect.ValueType(v) == nil {
 		v = r.Zero(rt)
 	} else {
 		v = convert(v, rt)
@@ -55,7 +56,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 		c.append(ret)
 		return
 	}
-	switch KindToCategory(rt.Kind()) {
+	switch reflect.KindToCategory(rt.Kind()) {
 	case r.Bool:
 
 		{

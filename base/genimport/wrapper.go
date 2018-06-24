@@ -8,13 +8,13 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * genimport_wrapper.go
+ * wrapper.go
  *
  *  Created on May 26, 2017
  *      Author Massimiliano Ghilardi
  */
 
-package base
+package genimport
 
 import (
 	"go/types"

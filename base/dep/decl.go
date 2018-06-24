@@ -24,7 +24,7 @@ import (
 	"os"
 	"sort"
 
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 )
 
 // ===================== DeclMap =====================
@@ -106,7 +106,7 @@ func (list DeclList) Print() {
 func NewDeclImport(spec ast.Spec, counter *int) *Decl {
 	node, ok := spec.(*ast.ImportSpec)
 	if !ok {
-		base.Errorf("NewDeclImport(): unsupported import: expecting *ast.ImportSpec, found: %v // %T", spec, spec)
+		output.Errorf("NewDeclImport(): unsupported import: expecting *ast.ImportSpec, found: %v // %T", spec, spec)
 	}
 
 	var name string
@@ -127,7 +127,7 @@ func NewDeclImport(spec ast.Spec, counter *int) *Decl {
 func NewDeclPackage(spec ast.Spec, counter *int) *Decl {
 	node, ok := spec.(*ast.ValueSpec)
 	if !ok {
-		base.Errorf("NewDeclPackage(): unsupported package: expecting *ast.ValueSpec, found: %v // %T", spec, spec)
+		output.Errorf("NewDeclPackage(): unsupported package: expecting *ast.ValueSpec, found: %v // %T", spec, spec)
 	}
 
 	var pos token.Pos

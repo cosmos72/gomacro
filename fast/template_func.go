@@ -22,6 +22,7 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -65,9 +66,9 @@ func (f *TemplateFunc) Signature(name string) string {
 	}
 	buf.WriteString("] ")
 	if len(name) == 0 {
-		(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
+		(*output.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
 	} else {
-		(*base.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
+		(*output.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
 			Name: &ast.Ident{Name: name},
 			Type: decl.Decl.Type,
 		})
@@ -159,7 +160,7 @@ func (c *Comp) templateFunc(maker *templateMaker, node ast.Node) *Expr {
 	key := maker.ikey
 
 	instance, _ := fun.Instances[key]
-	g := c.Globals
+	g := &c.Globals
 	debug := g.Options&base.OptDebugTemplate != 0
 	if instance != nil {
 		if debug {

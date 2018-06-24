@@ -8,20 +8,22 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * import_scanner.go
+ * scanner.go
  *
  *  Created on Mar 06, 2017
  *      Author Massimiliano Ghilardi
  */
 
-package base
+package genimport
 
 import (
 	"fmt"
 	"go/types"
 	r "reflect"
 	"sort"
-	"strings"
+
+	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/paths"
 )
 
 type TypeVisitor func(name string, t types.Type) bool
@@ -33,7 +35,7 @@ type typeWithElem interface {
 
 var depth int = 0
 
-func (o *Output) trace(msg ...interface{}) {
+func traceargs(o *Output, msg ...interface{}) {
 	const dots = ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . "
 	const n = len(dots)
 	i := 2 * depth
@@ -47,17 +49,17 @@ func (o *Output) trace(msg ...interface{}) {
 }
 
 func trace(o *Output, caller string, name string, x interface{}) *Output {
-	o.trace(caller, "(", name, x)
+	traceargs(o, caller, "(", name, x)
 	depth++
 	return o
 }
 
 func un(o *Output) {
 	depth--
-	o.trace(")")
+	traceargs(o, ")")
 }
 
-func (o *Output) traverseType(name string, in types.Type, visitor TypeVisitor) {
+func traverseType(o *Output, name string, in types.Type, visitor TypeVisitor) {
 	for {
 		// defer un(trace(o, "traverseType", name, r.TypeOf(in)))
 
@@ -81,7 +83,7 @@ func (o *Output) traverseType(name string, in types.Type, visitor TypeVisitor) {
 				// avoid infinite recursion!
 				if in != u {
 					if _, ok := u.(*types.Interface); !ok {
-						o.traverseType(recv.Name(), u, visitor)
+						traverseType(o, recv.Name(), u, visitor)
 					}
 				}
 			}
@@ -90,23 +92,23 @@ func (o *Output) traverseType(name string, in types.Type, visitor TypeVisitor) {
 				n := tuple.Len()
 				for i := 0; i < n; i++ {
 					v := tuple.At(i)
-					o.traverseType(v.Name(), v.Type(), visitor)
+					traverseType(o, v.Name(), v.Type(), visitor)
 				}
 			}
 		case *types.Interface:
 			n := t.NumMethods()
 			for i := 0; i < n; i++ {
 				method := t.Method(i)
-				o.traverseType(method.Name(), method.Type(), visitor)
+				traverseType(o, method.Name(), method.Type(), visitor)
 			}
 		case *types.Struct:
 			n := t.NumFields()
 			for i := 0; i < n; i++ {
 				field := t.Field(i)
-				o.traverseType(field.Name(), field.Type(), visitor)
+				traverseType(o, field.Name(), field.Type(), visitor)
 			}
 		case *types.Map:
-			o.traverseType("", t.Key(), visitor)
+			traverseType(o, "", t.Key(), visitor)
 			name = ""
 			in = t.Elem()
 			continue
@@ -133,7 +135,7 @@ func (ie *importExtractor) visitPackage(pkg *types.Package, requireAllInterfaceM
 		obj := scope.Lookup(name)
 		t := extractInterface(obj, requireAllInterfaceMethodsExported)
 		if t != nil {
-			ie.o.traverseType("", t, ie.visitType)
+			traverseType(ie.o, "", t, ie.visitType)
 		}
 	}
 }
@@ -184,31 +186,13 @@ func allMethodsExported(intf *types.Interface) bool {
 	return true
 }
 
-// return the string after last '/' in path
-func FileName(path string) string {
-	return path[1+strings.LastIndexByte(path, '/'):]
-}
-
-// return the string up to (and including) last '/' in path
-func DirName(path string) string {
-	return path[0 : 1+strings.LastIndexByte(path, '/')]
-}
-
-// remove last byte from string
-func RemoveLastByte(s string) string {
-	if n := len(s); n != 0 {
-		s = s[:n-1]
-	}
-	return s
-}
-
 // we need to collect only the imports that actually appear in package's interfaces methods
 // because Go rejects programs with unused imports.
 //
 // To avoid naming conflicts when importing two different packages
 // that end with the same name, as for example image/draw and golang.org/x/image/draw,
 // we rename conflicting packages and return a map[path]renamed
-func (o *Output) CollectPackageImportsWithRename(pkg *types.Package, requireAllInterfaceMethodsExported bool) map[string]string {
+func collectPackageImportsWithRename(o *Output, pkg *types.Package, requireAllInterfaceMethodsExported bool) map[string]string {
 	ie := importExtractor{
 		// we always need to import the package itself
 		imports: map[string]bool{pkg.Path(): true},
@@ -217,15 +201,15 @@ func (o *Output) CollectPackageImportsWithRename(pkg *types.Package, requireAllI
 	ie.visitPackage(pkg, requireAllInterfaceMethodsExported)
 
 	// for deterministic renaming, use a sorted []string instead of a map[string]bool
-	paths := getKeys(ie.imports)
-	sort.Strings(paths)
+	pathlist := getKeys(ie.imports)
+	sort.Strings(pathlist)
 
-	nametopath := renamePackages(paths)
+	nametopath := renamePackages(pathlist)
 	pathtoname := transposeKeyValue(nametopath)
 
-	// do NOT rename the package we are scanning!
+	// prevent renaming the package we are scanning!
 	path := pkg.Path()
-	name := FileName(path)
+	name := paths.FileName(path)
 	if name2 := pathtoname[path]; name2 != name {
 		// some *other* path may be associated to name.
 		// in case, swap the names of the two packages
@@ -248,10 +232,10 @@ func renamePackages(in []string) map[string]string {
 	return out
 }
 
-// given a path and a map[name]path, extract the path last name.
+// given a package path and a map[name]path, extract the path last name.
 // Change it (if needed) to a value that is NOT in map and return it.
 func renamePackage(path string, out map[string]string) string {
-	name := FileName(path)
+	name := paths.FileName(path)
 	if _, exists := out[name]; !exists {
 		return name
 	}
@@ -266,7 +250,7 @@ func renamePackage(path string, out map[string]string) string {
 			return namei
 		}
 	}
-	Errorf("failed to find a non-conflicting rename for package %q", path)
+	output.Errorf("failed to find a non-conflicting rename for package %q", path)
 	return "???"
 }
 

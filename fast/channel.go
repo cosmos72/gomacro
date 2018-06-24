@@ -25,6 +25,8 @@ import (
 	"go/ast"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/reflect"
+
 	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -201,8 +203,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 		channelfun := xe.AsX1()
 		switch telem.Kind() {
 		case r.Bool:
-			if telem.ReflectType() != KindToType(r.Bool,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Bool) {
 				fun = func(env *Env) bool {
 					retv, _ := channelfun(env).Recv()
 					return retv.Bool()
@@ -219,8 +220,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int:
-			if telem.ReflectType() != KindToType(r.Int,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Int) {
 				fun = func(env *Env) int {
 					retv, _ := channelfun(env).Recv()
 					return int(retv.Int())
@@ -237,8 +237,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int8:
-			if telem.ReflectType() != KindToType(r.Int8,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Int8) {
 				fun = func(env *Env) int8 {
 					retv, _ := channelfun(env).Recv()
 					return int8(retv.Int())
@@ -255,8 +254,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int16:
-			if telem.ReflectType() != KindToType(r.Int16,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Int16) {
 				fun = func(env *Env) int16 {
 					retv, _ := channelfun(env).Recv()
 					return int16(retv.Int())
@@ -273,8 +271,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int32:
-			if telem.ReflectType() != KindToType(r.Int32,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Int32) {
 				fun = func(env *Env) int32 {
 					retv, _ := channelfun(env).Recv()
 					return int32(retv.Int())
@@ -291,8 +288,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Int64:
-			if telem.ReflectType() != KindToType(r.Int64,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Int64) {
 				fun = func(env *Env) int64 {
 					retv, _ := channelfun(env).Recv()
 					return retv.Int()
@@ -309,8 +305,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint:
-			if telem.ReflectType() != KindToType(r.Uint,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Uint) {
 				fun = func(env *Env) uint {
 					retv, _ := channelfun(env).Recv()
 					return uint(retv.Uint())
@@ -327,8 +322,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint8:
-			if telem.ReflectType() != KindToType(r.Uint8,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Uint8) {
 				fun = func(env *Env) uint8 {
 					retv, _ := channelfun(env).Recv()
 					return uint8(retv.Uint())
@@ -345,8 +339,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint16:
-			if telem.ReflectType() != KindToType(r.Uint16,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Uint16) {
 				fun = func(env *Env) uint16 {
 					retv, _ := channelfun(env).Recv()
 					return uint16(retv.Uint())
@@ -363,8 +356,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint32:
-			if telem.ReflectType() != KindToType(r.Uint32,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Uint32) {
 				fun = func(env *Env) uint32 {
 					retv, _ := channelfun(env).Recv()
 					return uint32(retv.Uint())
@@ -381,8 +373,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uint64:
-			if telem.ReflectType() != KindToType(r.Uint64,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Uint64) {
 				fun = func(env *Env) uint64 {
 					retv, _ := channelfun(env).Recv()
 					return retv.Uint()
@@ -399,8 +390,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Uintptr:
-			if telem.ReflectType() != KindToType(r.Uintptr,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Uintptr) {
 				fun = func(env *Env) uintptr {
 					retv, _ := channelfun(env).Recv()
 					return uintptr(retv.Uint())
@@ -417,8 +407,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Float32:
-			if telem.ReflectType() != KindToType(r.Float32,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Float32) {
 				fun = func(env *Env) float32 {
 					retv, _ := channelfun(env).Recv()
 					return float32(retv.Float())
@@ -435,8 +424,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Float64:
-			if telem.ReflectType() != KindToType(r.Float64,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Float64) {
 				fun = func(env *Env) float64 {
 					retv, _ := channelfun(env).Recv()
 					return retv.Float()
@@ -453,8 +441,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Complex64:
-			if telem.ReflectType() != KindToType(r.Complex64,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Complex64) {
 				fun = func(env *Env) complex64 {
 					retv, _ := channelfun(env).Recv()
 					return complex64(retv.Complex())
@@ -471,8 +458,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.Complex128:
-			if telem.ReflectType() != KindToType(r.Complex128,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.Complex128) {
 				fun = func(env *Env) complex128 {
 					retv, _ := channelfun(env).Recv()
 					return retv.Complex()
@@ -489,8 +475,7 @@ func (c *Comp) Recv1(node *ast.UnaryExpr, xe *Expr) *Expr {
 				}
 			}
 		case r.String:
-			if telem.ReflectType() != KindToType(r.String,
-			) {
+			if telem.ReflectType() != reflect.KindToType(r.String) {
 				fun = func(env *Env) string {
 					retv, _ := channelfun(env).Recv()
 					return retv.String()
@@ -545,7 +530,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 	var stmt Stmt
 	if expr.Const() {
 		v := r.ValueOf(expr.Value)
-		if KindToType(kelem) == rtelem {
+		if reflect.KindToType(kelem) == rtelem {
 			switch kelem {
 			case
 
@@ -906,7 +891,7 @@ func (c *Comp) Send(node *ast.SendStmt) {
 		}
 
 	} else {
-		if KindToType(kelem) == rtelem {
+		if reflect.KindToType(kelem) == rtelem {
 			switch kelem {
 			case
 

@@ -22,27 +22,15 @@ import (
 	"go/token"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 type inferType struct {
 	Type    xr.Type
-	Untyped r.Kind // for untyped literals
-	Value   I      // in case we infer a constant, not a type
+	Untyped untyped.Kind // for untyped literals
+	Value   I            // in case we infer a constant, not a type
 	Exact   bool
-}
-
-func untypedKindString(untyped r.Kind) string {
-	var s string
-	switch untyped {
-	case r.Invalid:
-		s = "nil"
-	case r.Int32:
-		s = "untyped rune"
-	default:
-		s = "untyped " + untyped.String()
-	}
-	return s
 }
 
 func (inf *inferType) String() string {
@@ -53,7 +41,7 @@ func (inf *inferType) String() string {
 	if inf.Type != nil {
 		s = inf.Type.String()
 	} else {
-		s = untypedKindString(inf.Untyped)
+		s = inf.Untyped.String()
 	}
 	return "<" + s + ">"
 }
@@ -137,7 +125,7 @@ func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *E
 	} else {
 		targs = make([]inferType, nargs)
 		for i, arg := range args {
-			if kind := arg.UntypedKind(); kind != r.Invalid {
+			if kind := arg.UntypedKind(); kind != untyped.None {
 				targs[i] = inferType{Untyped: kind}
 			} else {
 				targs[i] = inferType{Type: arg.Type}
@@ -171,7 +159,7 @@ func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
 		node := inf.patterns[i]
 		if targ.Type != nil {
 			inf.arg(node, targ.Type, exact)
-		} else if targ.Untyped != r.Invalid {
+		} else if targ.Untyped != untyped.None {
 			// skip untyped constant, handled below
 		} else if targ.Value != nil {
 			inf.constant(node, targ.Value, exact)
@@ -182,7 +170,7 @@ func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
 
 	// second pass: untyped constants
 	for i, targ := range inf.targs {
-		if targ.Type == nil && targ.Untyped != r.Invalid {
+		if targ.Type == nil && targ.Untyped != untyped.None {
 			inf.untyped(inf.patterns[i], targ.Untyped, exact)
 		}
 	}
@@ -330,12 +318,12 @@ func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 
 }
 
-func (inf *inferFuncType) untyped(node ast.Expr, untyped r.Kind, exact bool) {
+func (inf *inferFuncType) untyped(node ast.Expr, kind untyped.Kind, exact bool) {
 	ident, ok := node.(*ast.Ident)
 	if !ok {
-		inf.fail(node, untypedKindString(untyped))
+		inf.fail(node, kind)
 	}
-	inf.unimplemented(ident, untypedKindString(untyped))
+	inf.unimplemented(ident, kind)
 }
 
 func (inf *inferFuncType) combine(node ast.Expr, inferred *inferType, with inferType) {

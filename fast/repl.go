@@ -30,6 +30,8 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/paths"
+	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -129,7 +131,7 @@ func (ir *Interp) RunExpr(e *Expr) ([]r.Value, []xr.Type) {
 
 	fun := e.AsXV(COptKeepUntyped)
 	v, vs := fun(env)
-	return PackValues(v, vs), PackTypes(e.Type, e.Types)
+	return reflect.PackValues(v, vs), reflect.PackTypes(e.Type, e.Types)
 }
 
 // execute with single-step debugging. to run without debugging, use Interp.RunExpr() instead
@@ -159,7 +161,7 @@ func (ir *Interp) DebugExpr(e *Expr) ([]r.Value, []xr.Type) {
 
 	fun := e.AsXV(COptKeepUntyped)
 	v, vs := fun(env)
-	return PackValues(v, vs), PackTypes(e.Type, e.Types)
+	return reflect.PackValues(v, vs), reflect.PackTypes(e.Type, e.Types)
 }
 
 // combined Parse + Compile + DebugExpr
@@ -252,7 +254,7 @@ func (ir *Interp) prepareEnv(minValDelta int, minIntDelta int) *Env {
 
 // ====================== Repl() and friends =====================
 
-var historyfile = Subdir(UserHomeDir(), ".gomacro_history")
+var historyfile = paths.Subdir(paths.UserHomeDir(), ".gomacro_history")
 
 func (ir *Interp) ReplStdin() {
 	g := ir.Comp.CompGlobals

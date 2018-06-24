@@ -19,14 +19,7 @@ package base
 import (
 	"sort"
 	"strings"
-
-	"github.com/cosmos72/gomacro/imports"
 )
-
-type PackageRef struct {
-	imports.Package
-	Name, Path string
-}
 
 type Options uint
 type WhichMacroExpand uint

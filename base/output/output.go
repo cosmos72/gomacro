@@ -14,7 +14,7 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package base
+package output
 
 import (
 	"bytes"
@@ -27,6 +27,8 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/ast2"
+	"github.com/cosmos72/gomacro/base/paths"
+	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/printer"
 	mt "github.com/cosmos72/gomacro/token"
 )
@@ -70,7 +72,7 @@ func (err RuntimeError) Error() string {
 	return msg
 }
 
-func makeRuntimeError(format string, args ...interface{}) error {
+func MakeRuntimeError(format string, args ...interface{}) error {
 	return RuntimeError{nil, format, args}
 }
 
@@ -158,14 +160,10 @@ func (st *Stringer) Position() token.Position {
 	return st.Fileset.Position(st.Pos)
 }
 
-func (ref *PackageRef) String() string {
-	return fmt.Sprintf("{%s %q, %d binds, %d types}", ref.Name, ref.Path, len(ref.Binds), len(ref.Types))
-}
-
 func ShowPackageHeader(out io.Writer, name string, path string, kind string) {
 	if name == path {
 		fmt.Fprintf(out, "// ----- %s %s -----\n", name, kind)
-	} else if name == FileName(path) {
+	} else if name == paths.FileName(path) {
 		fmt.Fprintf(out, "// ----- %q %s -----\n", path, kind)
 	} else {
 		fmt.Fprintf(out, "// ----- %s %q %s -----\n", name, path, kind)
@@ -279,7 +277,7 @@ func (st *Stringer) toPrintable(format string, value interface{}) (ret interface
 		converted := false
 		for i := 0; i < n; i++ {
 			vi := v.Index(i)
-			if vi == Nil {
+			if !vi.IsValid() {
 				values[i] = nil
 			} else if !vi.CanInterface() {
 				values[i] = vi
@@ -328,10 +326,10 @@ func (st *Stringer) nodeToPrintable(node ast.Node) interface{} {
 
 func (st *Stringer) rvalueToPrintable(format string, value r.Value) interface{} {
 	var i interface{}
-	if value == None {
-		i = "/*no value*/"
-	} else if value == Nil {
+	if !value.IsValid() {
 		i = nil
+	} else if value == reflect.None {
+		i = "/*no value*/"
 	} else if value.CanInterface() {
 		i = st.toPrintable(format, value.Interface())
 	} else {

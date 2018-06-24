@@ -26,6 +26,8 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/paths"
+	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/gls"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -47,7 +49,7 @@ func New() *Interp {
 }
 
 func newTopInterp(path string) *Interp {
-	name := FileName(path)
+	name := paths.FileName(path)
 
 	g := NewIrGlobals()
 	universe := xr.NewUniverse()
@@ -98,7 +100,7 @@ func newTopInterp(path string) *Interp {
 
 func NewInnerInterp(outer *Interp, name string, path string) *Interp {
 	if len(name) == 0 {
-		name = FileName(path)
+		name = paths.FileName(path)
 	}
 
 	outerComp := outer.Comp
@@ -226,7 +228,7 @@ func (ir *Interp) TypeOf(val interface{}) xr.Type {
 func (ir *Interp) ValueOf(name string) (value r.Value) {
 	sym := ir.Comp.TryResolve(name)
 	if sym == nil {
-		return Nil
+		return reflect.Nil
 	}
 	switch sym.Desc.Class() {
 	case ConstBind:
