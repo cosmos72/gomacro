@@ -25,9 +25,8 @@ import (
 	"go/ast"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/base/reflect"
-
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -53,7 +52,8 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 	case r.Ptr:
 		if t.Elem().Kind() == r.Array {
 			objfun := obj.AsX1()
-			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() })
+			deref := exprFun(t.Elem(), func(env *Env) r.Value { return objfun(env).Elem() },
+			)
 			ret = c.vectorIndex(node, deref, idx)
 			break
 		}

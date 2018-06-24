@@ -20,7 +20,7 @@ import (
 	"go/token"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 
@@ -226,7 +226,7 @@ import (
 
 		t := place.Type
 		rt := t.ReflectType()
-		cat := KindToCategory(t.Kind())
+		cat := reflect.KindToCategory(t.Kind())
 		if keyfun == nil {
 			switch cat {
 				~,@caselist
@@ -295,7 +295,7 @@ import (
 		keyfun := place.MapKey
 		t := place.Type
 		rt := t.ReflectType()
-		cat := KindToCategory(t.Kind())
+		cat := reflect.KindToCategory(t.Kind())
 		if keyfun == nil {
 			switch cat {
 				~,@caselist
@@ -352,7 +352,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 
 	ypositive := true
 	yv := r.ValueOf(val)
-	ycat := KindToCategory(yv.Kind())
+	ycat := reflect.KindToCategory(yv.Kind())
 	var y uint64
 	switch ycat {
 	case r.Int:

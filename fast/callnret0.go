@@ -23,7 +23,6 @@ package fast
 
 import (
 	r "reflect"
-
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
