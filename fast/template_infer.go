@@ -17,6 +17,7 @@
 package fast
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	r "reflect"
@@ -24,9 +25,37 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-type inferredType struct {
-	Type  xr.Type
-	Exact bool
+type inferType struct {
+	Type    xr.Type
+	Untyped r.Kind // for untyped literals
+	Value   I      // in case we infer a constant, not a type
+	Exact   bool
+}
+
+func untypedKindString(untyped r.Kind) string {
+	var s string
+	switch untyped {
+	case r.Invalid:
+		s = "nil"
+	case r.Int32:
+		s = "untyped rune"
+	default:
+		s = "untyped " + untyped.String()
+	}
+	return s
+}
+
+func (inf *inferType) String() string {
+	if inf.Value != nil {
+		return fmt.Sprint(inf.Value)
+	}
+	var s string
+	if inf.Type != nil {
+		s = inf.Type.String()
+	} else {
+		s = untypedKindString(inf.Untyped)
+	}
+	return "<" + s + ">"
 }
 
 // type inference on template functions
@@ -34,9 +63,9 @@ type inferFuncType struct {
 	comp     *Comp
 	tfun     *TemplateFunc
 	funcname string
-	inferred map[string]inferredType
+	inferred map[string]inferType
 	patterns []ast.Expr
-	targs    []xr.Type
+	targs    []inferType
 	call     *ast.CallExpr // for error messages
 }
 
@@ -97,27 +126,30 @@ func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *E
 
 	// collect call arg types
 	nargs := len(args)
-	var targs []xr.Type
+	var targs []inferType
 	if nargs == 1 {
 		arg := args[0]
 		nargs = arg.NumOut()
-		if nargs == 1 {
-			targs = []xr.Type{arg.Type}
-		} else {
-			targs = arg.Types
+		targs = make([]inferType, nargs)
+		for i := 0; i < nargs; i++ {
+			targs[i] = inferType{Type: arg.Out(i)}
 		}
 	} else {
-		targs = make([]xr.Type, nargs)
+		targs = make([]inferType, nargs)
 		for i, arg := range args {
-			targs[i] = arg.Type
+			if kind := arg.UntypedKind(); kind != r.Invalid {
+				targs[i] = inferType{Untyped: kind}
+			} else {
+				targs[i] = inferType{Type: arg.Type}
+			}
 		}
 	}
 	if nargs != len(patterns) {
 		c.Errorf("template function %v has %d params, cannot call with %d values: %v", tfun, len(patterns), nargs, call)
 	}
-	inferred := make(map[string]inferredType)
+	inferred := make(map[string]inferType)
 	for _, name := range master.Params {
-		inferred[name] = inferredType{}
+		inferred[name] = inferType{}
 	}
 	inf := inferFuncType{comp: c, tfun: tfun, funcname: funcname, inferred: inferred, patterns: patterns, targs: targs, call: call}
 	vals, types := inf.args()
@@ -132,9 +164,29 @@ func (c *Comp) inferTemplateFunc(call *ast.CallExpr, fun *Expr, args []*Expr) *E
 
 // infer type of template function from arguments
 func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
+	exact := false // allow implicit type conversions
+
+	// first pass: types and typed constants
 	for i, targ := range inf.targs {
-		inf.arg(inf.patterns[i], targ, false)
+		node := inf.patterns[i]
+		if targ.Type != nil {
+			inf.arg(node, targ.Type, exact)
+		} else if targ.Untyped != r.Invalid {
+			// skip untyped constant, handled below
+		} else if targ.Value != nil {
+			inf.constant(node, targ.Value, exact)
+		} else {
+			inf.fail(node, targ)
+		}
 	}
+
+	// second pass: untyped constants
+	for i, targ := range inf.targs {
+		if targ.Type == nil && targ.Untyped != r.Invalid {
+			inf.untyped(inf.patterns[i], targ.Untyped, exact)
+		}
+	}
+
 	params := inf.tfun.Master.Params
 	n := len(params)
 	vals = make([]I, n)
@@ -145,19 +197,23 @@ func (inf *inferFuncType) args() (vals []I, types []xr.Type) {
 			inf.comp.Errorf("failed to infer %v in call to template function: %v", name, inf.call)
 		}
 		types[i] = inferred.Type
-		// TODO: also infer values
+		vals[i] = inferred.Value
 	}
 	return vals, types
 }
 
 // partially infer type of template function for a single parameter
-func (inf *inferFuncType) arg(pattern ast.Expr, targ xr.Type, exact bool) xr.Type {
+func (inf *inferFuncType) arg(pattern ast.Expr, targ xr.Type, exact bool) {
 	stars := 0
-	tret := targ
 	for {
-		switch node := pattern.(type) {
-		case *ast.Ident:
+		if targ == nil {
+			inf.fail(pattern, targ)
+		}
+		if node, ok := pattern.(*ast.Ident); ok {
 			inf.ident(node, targ, exact)
+			break
+		}
+		switch node := pattern.(type) {
 		case *ast.ArrayType:
 			pattern, targ, exact = inf.arrayType(node, targ, exact)
 			continue
@@ -210,7 +266,6 @@ func (inf *inferFuncType) arg(pattern ast.Expr, targ xr.Type, exact bool) xr.Typ
 		}
 		break
 	}
-	return tret
 }
 
 // partially infer type of template function from an array or slice parameter
@@ -221,7 +276,7 @@ func (inf *inferFuncType) arrayType(node *ast.ArrayType, targ xr.Type, exact boo
 		inf.is(node, targ, r.Array)
 		if _, ok := node.Len.(*ast.Ellipsis); !ok {
 			// [n]array
-			inf.constant(node.Len, targ.Len())
+			inf.constant(node.Len, targ.Len(), exact)
 		}
 	}
 	return node.Elt, targ.Elem(), true
@@ -239,7 +294,7 @@ func (inf *inferFuncType) chanType(node *ast.ChanType, targ xr.Type, exact bool)
 }
 
 // partially infer type of template function for a constant parameter
-func (inf *inferFuncType) constant(node ast.Expr, val interface{}) {
+func (inf *inferFuncType) constant(node ast.Expr, val I, exact bool) {
 	// TODO
 	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: template function with parameter type %v and argument %v: %v",
 		node, val, inf.call)
@@ -251,7 +306,7 @@ func (inf *inferFuncType) funcType(node *ast.FuncType, targ xr.Type, exact bool)
 	return inf.unimplemented(node, targ)
 }
 
-// partially infer type of template function for a func parameter
+// partially infer type of template function for an identifier parameter
 func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 	c := inf.comp
 	name := node.Name
@@ -259,37 +314,50 @@ func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 	if !ok {
 		// name must be an existing type
 		t := c.TryResolveType(name)
-		if t == nil {
-			c.ErrorAt(node.Pos(), "undefined identifier: %v", name)
-		}
-		if !targ.AssignableTo(t) {
-			inf.comp.ErrorAt(node.Pos(),
-				"type inference: mismatched types for %v: %v cannot be assigned to %v: %v",
-				name, targ, t, inf.call)
+		if t != nil {
+			if !targ.AssignableTo(t) {
+				inf.comp.ErrorAt(node.Pos(),
+					"type inference: in %v, mismatched types for %v: %v cannot be assigned to %v: %v",
+					inf, name, targ, t, inf.call)
+			}
 		}
 		return
 	}
 
 	// inferring one of the function template parameters
-	if inferred.Type == nil {
-		inf.inferred[name] = inferredType{Type: targ, Exact: exact}
-		return
+	inf.combine(node, &inferred, inferType{Type: targ, Exact: exact})
+	inf.inferred[name] = inferred
+
+}
+
+func (inf *inferFuncType) untyped(node ast.Expr, untyped r.Kind, exact bool) {
+	ident, ok := node.(*ast.Ident)
+	if !ok {
+		inf.fail(node, untypedKindString(untyped))
 	}
-	if !inferred.Type.IdenticalTo(targ) {
+	inf.unimplemented(ident, untypedKindString(untyped))
+}
+
+func (inf *inferFuncType) combine(node ast.Expr, inferred *inferType, with inferType) {
+	targ := with.Type
+	exact := with.Exact
+	if inferred.Type == nil {
+		inferred.Type = targ
+	} else if !inferred.Type.IdenticalTo(targ) {
 		if exact && inferred.Exact {
-			inf.fail3(node, inferred.Type, targ)
+			inf.fail3(node, inferred, targ)
 		}
 		fwd := targ.AssignableTo(inferred.Type)
 		rev := inferred.Type.AssignableTo(targ)
 		if inferred.Exact {
 			if fwd {
-				inf.fail3(node, inferred.Type, targ)
+				inf.fail3(node, inferred, targ)
 			}
 		} else if exact {
 			if rev {
 				inferred.Type = targ
 			} else {
-				inf.fail3(node, inferred.Type, targ)
+				inf.fail3(node, inferred, targ)
 			}
 		} else {
 			if fwd && rev {
@@ -300,14 +368,13 @@ func (inf *inferFuncType) ident(node *ast.Ident, targ xr.Type, exact bool) {
 			} else if rev {
 				inferred.Type = targ
 			} else {
-				inf.fail3(node, inferred.Type, targ)
+				inf.fail3(node, inferred, targ)
 			}
 		}
 	}
 	if exact {
 		inferred.Exact = true
 	}
-	inf.inferred[name] = inferred
 }
 
 // partially infer type of template function for an interface parameter
@@ -347,19 +414,19 @@ func (inf *inferFuncType) is(node ast.Expr, targ xr.Type, kind r.Kind) {
 	}
 }
 
-func (inf *inferFuncType) fail(node ast.Expr, targ xr.Type) {
+func (inf *inferFuncType) fail(node ast.Expr, targ I) {
 	inf.comp.ErrorAt(node.Pos(),
-		"type inference: in %v, parameter %v cannot match argument type <%v>: %v",
+		"type inference: in %v, parameter %v cannot match argument type %v: %v",
 		inf, node, targ, inf.call)
 }
 
-func (inf *inferFuncType) fail3(node ast.Expr, tinferred xr.Type, targ xr.Type) {
+func (inf *inferFuncType) fail3(node ast.Expr, tinferred *inferType, targ xr.Type) {
 	inf.comp.ErrorAt(node.Pos(),
-		"type inference: in %v, parameter %v cannot match both <%v> and <%v>: %v",
+		"type inference: in %v, parameter %v cannot match both %v and <%v>: %v",
 		inf, node, tinferred, targ, inf.call)
 }
 
-func (inf *inferFuncType) unimplemented(node ast.Expr, targ xr.Type) (ast.Expr, xr.Type, bool) {
+func (inf *inferFuncType) unimplemented(node ast.Expr, targ I) (ast.Expr, xr.Type, bool) {
 	inf.comp.ErrorAt(node.Pos(), "unimplemented type inference: in %v, parameter type %v with argument type %v: %v",
 		inf, node, targ, inf.call)
 	return nil, nil, false
