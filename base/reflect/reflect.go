@@ -8,16 +8,47 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * literal.go
+ * reflect.go
  *
- *  Created on Apr 11, 2017
- *      Author Massimiliano Ghilardi
+ *  Created on: Apr 11, 2017
+ *      Author: Massimiliano Ghilardi
  */
 
-package base
+package reflect
 
 import (
 	r "reflect"
+
+	xr "github.com/cosmos72/gomacro/xreflect"
+)
+
+type none struct{}
+
+var (
+	Nil = r.Value{}
+
+	None = r.ValueOf(none{}) // used to indicate "no value"
+
+	TypeOfInt   = r.TypeOf(int(0))
+	TypeOfInt8  = r.TypeOf(int8(0))
+	TypeOfInt16 = r.TypeOf(int16(0))
+	TypeOfInt32 = r.TypeOf(int32(0))
+	TypeOfInt64 = r.TypeOf(int64(0))
+
+	TypeOfUint    = r.TypeOf(uint(0))
+	TypeOfUint8   = r.TypeOf(uint8(0))
+	TypeOfUint16  = r.TypeOf(uint16(0))
+	TypeOfUint32  = r.TypeOf(uint32(0))
+	TypeOfUint64  = r.TypeOf(uint64(0))
+	TypeOfUintptr = r.TypeOf(uintptr(0))
+
+	TypeOfFloat32    = r.TypeOf(float32(0))
+	TypeOfFloat64    = r.TypeOf(float64(0))
+	TypeOfComplex64  = r.TypeOf(complex64(0))
+	TypeOfComplex128 = r.TypeOf(complex128(0))
+
+	TypeOfBool   = r.TypeOf(false)
+	TypeOfString = r.TypeOf("")
 )
 
 func KindToCategory(k r.Kind) r.Kind {
@@ -108,4 +139,56 @@ func ConvertValue(v r.Value, to r.Type) r.Value {
 		}
 	}
 	return v.Convert(to)
+}
+
+func PackValues(val0 r.Value, values []r.Value) []r.Value {
+	if len(values) == 0 && val0 != None {
+		values = []r.Value{val0}
+	}
+	return values
+}
+
+func PackTypes(typ0 xr.Type, types []xr.Type) []xr.Type {
+	if len(types) == 0 && typ0 != nil {
+		types = []xr.Type{typ0}
+	}
+	return types
+}
+
+func PackValuesAndTypes(val0 r.Value, values []r.Value, typ0 xr.Type, types []xr.Type) ([]r.Value, []xr.Type) {
+	return PackValues(val0, values), PackTypes(typ0, types)
+}
+
+func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
+	val0 := None
+	if len(vals) > 0 {
+		val0 = vals[0]
+	}
+	return val0, vals
+}
+
+// ValueInterface() is a zero-value-safe version of reflect.Value.Interface()
+func ValueInterface(v r.Value) interface{} {
+	if !v.IsValid() || !v.CanInterface() || v == None {
+		return nil
+	}
+	return v.Interface()
+}
+
+// ValueType() is a zero-value-safe version of reflect.Value.Type()
+func ValueType(value r.Value) r.Type {
+	if !value.IsValid() || value == None {
+		return nil
+	}
+	return value.Type()
+}
+
+func IsNillableKind(k r.Kind) bool {
+	switch k {
+	case r.Invalid, // nil is nillable...
+		r.Chan, r.Func, r.Interface, r.Map, r.Ptr, r.Slice:
+		return true
+	default:
+		return false
+	}
 }

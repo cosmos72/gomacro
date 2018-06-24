@@ -25,7 +25,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -40,7 +40,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 
 	v := r.ValueOf(val)
 	rt := t.ReflectType()
-	if ValueType(v) == nil {
+	if reflect.ValueType(v) == nil {
 		v = r.Zero(rt)
 	} else {
 		v = convert(v, rt)

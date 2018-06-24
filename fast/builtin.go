@@ -24,6 +24,10 @@ import (
 	"io"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/reflect"
+
+	"github.com/cosmos72/gomacro/base/output"
+
 	"github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/untyped"
@@ -55,7 +59,7 @@ func (top *Comp) setIota(iota int) {
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
 
 	// Binds are supposed to be immutable. to avoid issues, create a new Bind every time
-	top.Binds["iota"] = top.BindUntyped(r.Int, constant.MakeInt64(int64(iota)))
+	top.Binds["iota"] = top.BindUntyped(untyped.Int, constant.MakeInt64(int64(iota)))
 }
 
 // ============================== initialization ===============================
@@ -65,8 +69,8 @@ func (ce *Interp) addBuiltins() {
 
 	// https://golang.org/ref/spec#Constants
 	// "Literal constants, true, false, iota, and certain constant expressions containing only untyped constant operands are untyped."
-	ce.DeclConst("false", nil, MakeUntypedLit(r.Bool, constant.MakeBool(false), basicTypes))
-	ce.DeclConst("true", nil, MakeUntypedLit(r.Bool, constant.MakeBool(true), basicTypes))
+	ce.DeclConst("false", nil, untyped.MakeLit(untyped.Bool, constant.MakeBool(false), basicTypes))
+	ce.DeclConst("true", nil, untyped.MakeLit(untyped.Bool, constant.MakeBool(true), basicTypes))
 
 	// https://golang.org/ref/spec#Variables : "[...] the predeclared identifier nil, which has no type"
 	ce.DeclConst("nil", nil, nil)
@@ -252,12 +256,12 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		im.ConstTo(re.Type)
 	}
 	c.toSameFuncType(node, re, im)
-	kre := base.KindToCategory(re.Type.Kind())
+	kre := reflect.KindToCategory(re.Type.Kind())
 	if re.Const() && kre != r.Float64 {
 		re.ConstTo(c.TypeOfFloat64())
 		kre = r.Float64
 	}
-	kim := base.KindToCategory(im.Type.Kind())
+	kim := reflect.KindToCategory(im.Type.Kind())
 	if im.Const() && kim != r.Float64 {
 		im.ConstTo(c.TypeOfFloat64())
 		kim = r.Float64
@@ -299,7 +303,7 @@ func compileComplexUntyped(c *Comp, sym Symbol, node *ast.CallExpr, re UntypedLi
 	checkComplexUntypedArg(c, node, im, "second")
 	rev := re.Val
 	imv := constant.BinaryOp(im.Val, token.MUL, complexImagOne)
-	val := MakeUntypedLit(r.Complex128, constant.BinaryOp(rev, token.ADD, imv), &c.Universe.BasicTypes)
+	val := untyped.MakeLit(untyped.Complex, constant.BinaryOp(rev, token.ADD, imv), &c.Universe.BasicTypes)
 	touts := []xr.Type{c.TypeOfUntypedLit()}
 	tfun := c.Universe.FuncOf(nil, touts, false)
 	sym.Type = tfun
@@ -310,9 +314,9 @@ func compileComplexUntyped(c *Comp, sym Symbol, node *ast.CallExpr, re UntypedLi
 
 func checkComplexUntypedArg(c *Comp, node *ast.CallExpr, arg UntypedLit, label string) {
 	switch arg.Kind {
-	case r.Int, r.Int32 /*rune*/, r.Float64:
+	case untyped.Int, untyped.Rune, untyped.Float:
 		return
-	case r.Complex128:
+	case untyped.Complex:
 		im := constant.Imag(arg.Val)
 		switch im.Kind() {
 		case constant.Int:
@@ -782,8 +786,8 @@ func compileRealImagUntyped(c *Comp, sym Symbol, node *ast.CallExpr, arg Untyped
 		val = constant.Imag(val)
 	}
 	// convert constant.Value result to UntypedLit of appropriate kind
-	kind := untyped.ConstantKindToUntypedLitKind(val.Kind())
-	arg = MakeUntypedLit(kind, val, &c.Universe.BasicTypes)
+	kind := untyped.MakeKind(val.Kind())
+	arg = untyped.MakeLit(kind, val, &c.Universe.BasicTypes)
 
 	touts := []xr.Type{c.TypeOfUntypedLit()}
 	tfun := c.Universe.FuncOf(nil, touts, false)
@@ -799,41 +803,41 @@ var nilInterface = r.Zero(base.TypeOfInterface)
 // we can use whatever signature we want, as long as call_builtin supports it
 func callRecover(v r.Value) r.Value {
 	env := v.Interface().(*Env)
-	g := env.Run
-	debug := g.Options&base.OptDebugRecover != 0
-	if !g.ExecFlags.IsDefer() {
+	run := env.Run
+	debug := run.Options&base.OptDebugRecover != 0
+	if !run.ExecFlags.IsDefer() {
 		if debug {
-			base.Debugf("recover() not directly inside a defer")
+			output.Debugf("recover() not directly inside a defer")
 		}
 		return nilInterface
 	}
-	if g.PanicFun == nil {
+	if run.PanicFun == nil {
 		if debug {
-			base.Debugf("recover() no panic")
+			output.Debugf("recover() no panic")
 		}
 		return nilInterface
 	}
-	if g.DeferOfFun != g.PanicFun {
+	if run.DeferOfFun != run.PanicFun {
 		if debug {
-			base.Debugf("recover() inside defer of function %p, not defer of the current panicking function %p", g.DeferOfFun, g.PanicFun)
+			output.Debugf("recover() inside defer of function %p, not defer of the current panicking function %p", run.DeferOfFun, run.PanicFun)
 		}
 		return nilInterface
 	}
-	rec := g.Panic
+	rec := run.Panic
 	if rec == nil {
 		if debug {
-			base.Debugf("recover() consuming current panic: nil")
+			output.Debugf("recover() consuming current panic: nil")
 		}
 		v = nilInterface
 	} else {
 		if debug {
-			base.Debugf("recover() consuming current panic: %v <%v>", rec, r.TypeOf(rec))
+			output.Debugf("recover() consuming current panic: %v <%v>", rec, r.TypeOf(rec))
 		}
 		v = r.ValueOf(rec).Convert(base.TypeOfInterface) // keep the interface{} type
 	}
 	// consume the current panic
-	g.Panic = nil
-	g.PanicFun = nil
+	run.Panic = nil
+	run.PanicFun = nil
 	return v
 }
 
@@ -857,7 +861,7 @@ func (c *Comp) call_builtin(call *Call) I {
 	// builtin functions are always literals, i.e. funindex == NoIndex thus not stored in Env.Binds[]
 	// we must retrieve them directly from c.Fun.Value
 	if !call.Fun.Const() {
-		base.Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", call.Fun)
+		output.Errorf("internal error: call_builtin() invoked for non-constant function %#v. use one of the callXretY() instead", call.Fun)
 	}
 	var name string
 	if call.Fun.Sym != nil {
@@ -1193,7 +1197,7 @@ func (c *Comp) call_builtin(call *Call) I {
 			return fun(arg0, arg1, arg2)
 		}
 	default:
-		base.Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
+		output.Errorf("unimplemented call_builtin() for function type %v", r.TypeOf(fun))
 	}
 	return ret
 }

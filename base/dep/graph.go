@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 )
 
 func (f *fwdDeclList) add(decl *Decl) {
@@ -244,5 +244,5 @@ func (g *graph) circularDependencyError() {
 			fmt.Fprintf(&buf, "\t%s uses %s\n", cycle[i], name)
 		}
 	}
-	base.Errorf("%s", buf.String())
+	output.Errorf("%s", buf.String())
 }

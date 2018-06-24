@@ -20,7 +20,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 )
 
 func (c *Comp) Resolve(name string) *Symbol {
@@ -79,7 +79,7 @@ func (c *Comp) Symbol(sym *Symbol) *Expr {
 }
 
 // Expr returns an expression that will read the given Bind at runtime
-func (bind *Bind) Expr(st *base.Stringer) *Expr {
+func (bind *Bind) Expr(st *output.Stringer) *Expr {
 	switch bind.Desc.Class() {
 	case ConstBind:
 		return exprLit(bind.Lit, bind.AsSymbol(0))
@@ -94,7 +94,7 @@ func (bind *Bind) Expr(st *base.Stringer) *Expr {
 }
 
 // Expr returns an expression that will read the given Symbol at runtime
-func (sym *Symbol) Expr(depth int, st *base.Stringer) *Expr {
+func (sym *Symbol) Expr(depth int, st *output.Stringer) *Expr {
 	switch class := sym.Desc.Class(); class {
 	case ConstBind:
 		return exprLit(sym.Lit, sym)
@@ -103,7 +103,9 @@ func (sym *Symbol) Expr(depth int, st *base.Stringer) *Expr {
 	case IntBind:
 		return sym.intExpr(depth, st)
 	case TemplateFuncBind, TemplateTypeBind:
-		st.Errorf("%s name must be followed by #[...] template arguments: %v", class, sym.Name)
+		// dirty... allows var x = template_func_name
+		return &Expr{Lit: Lit{Type: sym.Type, Value: sym.Value}, Sym: sym}
+		// st.Errorf("%s name must be followed by #[...] template arguments: %v", class, sym.Name)
 	default:
 		st.Errorf("unknown symbol class %s", class)
 	}
@@ -126,7 +128,7 @@ func outerEnv3(env *Env, upn int) *Env {
 }
 
 // return an expression that will read Bind value at runtime
-func (bind *Bind) expr(st *base.Stringer) *Expr {
+func (bind *Bind) expr(st *output.Stringer) *Expr {
 	idx := bind.Desc.Index()
 	var fun I
 
@@ -209,7 +211,7 @@ func (bind *Bind) expr(st *base.Stringer) *Expr {
 }
 
 // return an expression that will read Symbol value at runtime
-func (sym *Symbol) expr(depth int, st *base.Stringer) *Expr {
+func (sym *Symbol) expr(depth int, st *output.Stringer) *Expr {
 	idx := sym.Desc.Index()
 	upn := sym.Upn
 	kind := sym.Type.Kind()
@@ -615,7 +617,7 @@ func (sym *Symbol) expr(depth int, st *base.Stringer) *Expr {
 }
 
 // return an expression that will read Bind optimized value at runtime
-func (bind *Bind) intExpr(st *base.Stringer) *Expr {
+func (bind *Bind) intExpr(st *output.Stringer) *Expr {
 	idx := bind.Desc.Index()
 	var fun I
 	switch bind.Type.Kind() {
@@ -691,7 +693,7 @@ func (bind *Bind) intExpr(st *base.Stringer) *Expr {
 }
 
 // return an expression that will read Symbol optimized value at runtime
-func (sym *Symbol) intExpr(depth int, st *base.Stringer) *Expr {
+func (sym *Symbol) intExpr(depth int, st *output.Stringer) *Expr {
 	upn := sym.Upn
 	k := sym.Type.Kind()
 	idx := sym.Desc.Index()

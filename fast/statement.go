@@ -23,6 +23,7 @@ import (
 	"sort"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/gls"
 )
 
@@ -656,7 +657,7 @@ func stmtReturn(env *Env) (Stmt, *Env) {
 // ignores types, constants and anything named "_"
 func containLocalBinds(list ...ast.Stmt) bool {
 	if len(list) == 0 {
-		Errorf("internal error: containLocalBinds() invoked on empty statement list")
+		output.Errorf("internal error: containLocalBinds() invoked on empty statement list")
 	}
 	for _, node := range list {
 		switch node := node.(type) {

@@ -35,7 +35,7 @@ func (c *Comp) call0ret1(call *Call, maxdepth int) I {
 		funupn = funsym.Upn
 		funindex = funsym.Desc.Index()
 		if funindex == NoIndex {
-			base.Errorf("internal error: call0ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+			c.Errorf("internal error: call0ret1() invoked for constant function %#v. use call_builtin() instead", expr)
 		}
 
 	}

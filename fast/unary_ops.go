@@ -21,12 +21,12 @@ import (
 	"go/token"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
 func (c *Comp) UnaryPlus(node *ast.UnaryExpr, xe *Expr) *Expr {
-	if !IsCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.Complex128) {
+	if !reflect.IsCategory(xe.Type.Kind(), r.Int, r.Uint, r.Float64, r.Complex128) {
 		return c.invalidUnaryExpr(node, xe)
 	}
 	return xe

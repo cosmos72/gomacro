@@ -21,6 +21,7 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -341,12 +342,12 @@ func (c *Comp) funcCreate(t xr.Type, info *FuncInfo, resultfuns []I, funcbody fu
 	for i := 0; optimize && i < nin; i++ {
 		rt := rtype.In(i)
 		k := rt.Kind()
-		optimize = base.IsOptimizedKind(k) && rt == c.Universe.BasicTypes[k].ReflectType()
+		optimize = reflect.IsOptimizedKind(k) && rt == c.Universe.BasicTypes[k].ReflectType()
 	}
 	for i := 0; optimize && i < nout; i++ {
 		rt := rtype.Out(i)
 		k := rt.Kind()
-		optimize = base.IsOptimizedKind(k) && rt == c.Universe.BasicTypes[k].ReflectType()
+		optimize = reflect.IsOptimizedKind(k) && rt == c.Universe.BasicTypes[k].ReflectType()
 	}
 
 	var fun func(*Env) r.Value

@@ -14,43 +14,45 @@
  *      Author Massimiliano Ghilardi
  */
 
-package base
+package genimport
 
 import (
 	"io"
 	"os/exec"
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/base/paths"
 )
 
-func (g *Globals) compilePlugin(filepath string, stdout io.Writer, stderr io.Writer) string {
-	gosrcdir := GoSrcDir
+func compilePlugin(o *Output, filepath string, stdout io.Writer, stderr io.Writer) string {
+	gosrcdir := paths.GoSrcDir
 	gosrclen := len(gosrcdir)
 	filelen := len(filepath)
 	if filelen < gosrclen || filepath[0:gosrclen] != gosrcdir {
-		g.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filepath, gosrcdir)
+		o.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filepath, gosrcdir)
 	}
 
 	cmd := exec.Command("go", "build", "-buildmode=plugin")
-	cmd.Dir = DirName(filepath)
+	cmd.Dir = paths.DirName(filepath)
 	cmd.Stdin = nil
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	g.Debugf("compiling %q ...", filepath)
+	o.Debugf("compiling %q ...", filepath)
 	err := cmd.Run()
 	if err != nil {
-		g.Errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
+		o.Errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
 	}
 
-	dirname := RemoveLastByte(DirName(filepath))
+	dirname := paths.RemoveLastByte(paths.DirName(filepath))
 	// go build uses innermost directory name as shared object name,
 	// i.e.	foo/bar/main.go is compiled to foo/bar/bar.so
-	filename := FileName(dirname)
+	filename := paths.FileName(dirname)
 
-	return Subdir(dirname, filename+".so")
+	return paths.Subdir(dirname, filename+".so")
 }
 
-func (g *Globals) loadPluginSymbol(soname string, symbolName string) interface{} {
+func (imp *Importer) loadPluginSymbol(soname string, symbolName string) interface{} {
 	// use imports.Packages["plugin"].Binds["Open"] and reflection instead of hard-coding call to plugin.Open()
 	// reasons:
 	// * import ( "plugin" ) does not work on all platforms (creates broken gomacro.exe on Windows/386)
@@ -58,9 +60,9 @@ func (g *Globals) loadPluginSymbol(soname string, symbolName string) interface{}
 	//   either in imports.Packages["plugin"].Binds["Open"]
 	//   or in Globals.Importer.PluginOpen
 
-	imp := g.Importer
+	o := imp.output
 	if !imp.setPluginOpen() {
-		g.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
+		o.Errorf("gomacro compiled without support to load plugins - requires Go 1.8+ and Linux - cannot import packages at runtime")
 	}
 	if len(soname) == 0 || len(symbolName) == 0 {
 		// caller is just checking whether PluginOpen() is available
@@ -68,11 +70,11 @@ func (g *Globals) loadPluginSymbol(soname string, symbolName string) interface{}
 	}
 	so, err := reflectcall(imp.PluginOpen, soname)
 	if err != nil {
-		g.Errorf("error loading plugin %q: %v", soname, err)
+		o.Errorf("error loading plugin %q: %v", soname, err)
 	}
 	vsym, err := reflectcall(so.MethodByName("Lookup"), symbolName)
 	if err != nil {
-		g.Errorf("error loading symbol %q from plugin %q: %v", symbolName, soname, err)
+		o.Errorf("error loading symbol %q from plugin %q: %v", symbolName, soname, err)
 	}
 	return vsym.Interface()
 }

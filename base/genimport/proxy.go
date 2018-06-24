@@ -8,17 +8,19 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * genimport_proxy.go
+ * proxy.go
  *
  *  Created on Mar 06, 2017
  *      Author Massimiliano Ghilardi
  */
 
-package base
+package genimport
 
 import (
 	"fmt"
 	"go/types"
+
+	"github.com/cosmos72/gomacro/base/paths"
 )
 
 type writeTypeOpts int
@@ -143,7 +145,7 @@ func (gen *genimport) packageNameQualifier(pkg *types.Package) string {
 	path := pkg.Path()
 	name, ok := gen.pkgrenames[path]
 	if !ok {
-		name = FileName(path)
+		name = paths.FileName(path)
 	}
 	return name
 }

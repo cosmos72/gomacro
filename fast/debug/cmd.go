@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/cosmos72/gomacro/base"
+	bstrings "github.com/cosmos72/gomacro/base/strings"
 )
 
 type Cmd struct {
@@ -65,7 +66,7 @@ func (d *Debugger) Cmd(src string) DebugOp {
 	src = strings.TrimSpace(src)
 	n := len(src)
 	if n > 0 {
-		prefix, arg := base.Split2(src, ' ')
+		prefix, arg := bstrings.Split2(src, ' ')
 		cmd, found := cmds.Lookup(prefix)
 		if found {
 			d.lastcmd = src

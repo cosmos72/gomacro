@@ -18,15 +18,13 @@ package fast
 
 import (
 	r "reflect"
-
-	. "github.com/cosmos72/gomacro/base"
 )
 
 func (c *Comp) call2ret1(call *Call, maxdepth int) I {
 
 	expr := call.Fun
 	if expr.Sym != nil && expr.Sym.Desc.Index() == NoIndex {
-		Errorf("internal error: call2ret1() invoked for constant function %#v. use call_builtin() instead", expr)
+		c.Errorf("internal error: call2ret1() invoked for constant function %#v. use call_builtin() instead", expr)
 	}
 	t := expr.Type
 	rtout := t.Out(0).ReflectType()

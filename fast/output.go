@@ -24,6 +24,8 @@ import (
 	"sort"
 
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/paths"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -36,7 +38,7 @@ func (imp *Import) String() string {
 }
 
 func typestringer(path string) func(xr.Type) string {
-	name := base.FileName(path)
+	name := paths.FileName(path)
 	if name == path {
 		return xr.Type.String
 	}
@@ -86,7 +88,7 @@ func (ir *Interp) ShowAsPackage() {
 	out := c.Globals.Stdout
 	stringer := typestringer(c.Path)
 	if binds := c.Binds; len(binds) > 0 {
-		base.ShowPackageHeader(out, c.Name, c.Path, "binds")
+		output.ShowPackageHeader(out, c.Name, c.Path, "binds")
 
 		keys := make([]string, len(binds))
 		i := 0
@@ -123,7 +125,7 @@ func (imp *Import) Show(g *CompGlobals) {
 	stringer := typestringer(imp.Path)
 	out := g.Stdout
 	if binds := imp.Binds; len(binds) > 0 {
-		base.ShowPackageHeader(out, imp.Name, imp.Path, "binds")
+		output.ShowPackageHeader(out, imp.Name, imp.Path, "binds")
 
 		keys := make([]string, len(binds))
 		i := 0
@@ -145,7 +147,7 @@ func (imp *Import) Show(g *CompGlobals) {
 
 func showTypes(out io.Writer, name string, path string, types map[string]xr.Type, stringer func(xr.Type) string) {
 	if len(types) > 0 {
-		base.ShowPackageHeader(out, name, path, "types")
+		output.ShowPackageHeader(out, name, path, "types")
 
 		keys := make([]string, len(types))
 		i := 0

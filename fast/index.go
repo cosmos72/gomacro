@@ -26,6 +26,7 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -68,7 +69,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 }
 func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	k := idx.Type.Kind()
-	cat := base.KindToCategory(k)
+	cat := reflect.KindToCategory(k)
 	if cat == r.Int || cat == r.Uint || idx.Untyped() {
 		if !c.TypeOfInt().IdenticalTo(idx.Type) {
 			idx = c.convert(idx, c.TypeOfInt(), node.Index)

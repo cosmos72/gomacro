@@ -14,10 +14,11 @@
  *      Author: Massimiliano Ghilardi
  */
 
-package base
+package strings
 
 import (
 	"strconv"
+	"strings"
 )
 
 func UnescapeChar(str string) (rune, error) {
@@ -36,7 +37,7 @@ func UnescapeChar(str string) (rune, error) {
 func UnescapeString(str string) string {
 	ret, err := strconv.Unquote(str)
 	if err != nil {
-		Error(err)
+		panic(err)
 	}
 	return ret
 }
@@ -46,7 +47,7 @@ func MaybeUnescapeString(str string) string {
 	if n >= 2 && (str[0] == '"' || str[0] == '`' || str[0] == '\'') && str[n-1] == str[0] {
 		ret, err := strconv.Unquote(str)
 		if err != nil {
-			Error(err)
+			panic(err)
 		}
 		return ret
 	}
@@ -97,6 +98,19 @@ func FindFirstToken(src []byte) int {
 		}
 	}
 	return n
+}
+
+// split 's' into a prefix and suffix separated by 'separator'.
+// suffix is trimmed with strings.TrimSpace() before returning it
+func Split2(s string, separator rune) (string, string) {
+	var prefix, suffix string
+	if space := strings.IndexByte(s, ' '); space > 0 {
+		prefix = s[:space]
+		suffix = strings.TrimSpace(s[space+1:])
+	} else {
+		prefix = s
+	}
+	return prefix, suffix
 }
 
 /*

@@ -27,6 +27,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/base/untyped"
 	"github.com/cosmos72/gomacro/classic"
 	"github.com/cosmos72/gomacro/fast"
@@ -96,7 +97,7 @@ func (test *TestCase) classic(t *testing.T, ir *classic.Interp) {
 			}
 		}()
 	}
-	rets = PackValues(ir.Eval(test.program))
+	rets = reflect.PackValues(ir.Eval(test.program))
 	panicking = false
 	test.compareResults(t, rets)
 }
@@ -354,7 +355,7 @@ var testcases = []TestCase{
 	TestCase{F, "const_complex_1", "const c5 = complex(c3, c4); c5", 0.3 + 0.1i, nil},
 	TestCase{F | U, "untyped_const_complex_1", "c5",
 		untyped.MakeLit(
-			r.Complex128,
+			untyped.Complex,
 			constant.BinaryOp(
 				constant.MakeFromLiteral("0.3", token.FLOAT, 0),
 				token.ADD,
@@ -367,7 +368,7 @@ var testcases = []TestCase{
 	TestCase{A, "untyped_2", "1/2", 0, nil},
 	TestCase{A, "untyped_unary", "-+^6", -+^6, nil},
 	TestCase{F | U, "untyped_const_large", "1<<100",
-		untyped.MakeLit(r.Int, constant.Shift(constant.MakeInt64(1), token.SHL, 100), nil),
+		untyped.MakeLit(untyped.Int, constant.Shift(constant.MakeInt64(1), token.SHL, 100), nil),
 		nil,
 	},
 
@@ -687,14 +688,14 @@ var testcases = []TestCase{
 	TestCase{A, "builtin_complex_2", "v6 = 0.1; complex(v6,-v6)", complex(float32(0.1), -float32(0.1)), nil},
 
 	TestCase{F | U, "untyped_builtin_real_1", "real(0.5+1.75i)",
-		untyped.MakeLit(r.Float64, constant.MakeFloat64(0.5), nil), // 0.5 is exactly representable by float64
+		untyped.MakeLit(untyped.Float, constant.MakeFloat64(0.5), nil), // 0.5 is exactly representable by float64
 		nil},
 	TestCase{F | U, "untyped_builtin_imag_1", "imag(1.5+0.25i)",
-		untyped.MakeLit(r.Float64, constant.MakeFloat64(0.25), nil), // 0.25 is exactly representable by float64
+		untyped.MakeLit(untyped.Float, constant.MakeFloat64(0.25), nil), // 0.25 is exactly representable by float64
 		nil},
 	TestCase{F | U, "untyped_builtin_complex_1", "complex(1, 2)",
 		untyped.MakeLit(
-			r.Complex128,
+			untyped.Complex,
 			constant.BinaryOp(
 				constant.MakeInt64(1),
 				token.ADD,

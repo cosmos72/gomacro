@@ -24,6 +24,9 @@ import (
 	"sort"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/genimport"
+	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/imports"
 )
 
@@ -67,7 +70,7 @@ func (env *Env) ShowPackage(packageName string) {
 		env.Warnf("not an imported package: %q", packageName)
 		return
 	}
-	val, ok := bind.Interface().(*PackageRef)
+	val, ok := bind.Interface().(*genimport.PackageRef)
 	if !ok {
 		env.Warnf("not an imported package: %q = %v <%v>", packageName, val, typeOf(bind))
 		return
@@ -80,7 +83,7 @@ func (env *Env) showPackage(name string, path string, pkg *imports.Package) {
 	out := env.Stdout
 	binds := pkg.Binds
 	if len(binds) > 0 {
-		ShowPackageHeader(out, name, path, "binds")
+		output.ShowPackageHeader(out, name, path, "binds")
 
 		keys := make([]string, len(binds))
 		i := 0
@@ -96,7 +99,7 @@ func (env *Env) showPackage(name string, path string, pkg *imports.Package) {
 	}
 	types := pkg.Types
 	if len(types) > 0 {
-		ShowPackageHeader(out, name, path, "types")
+		output.ShowPackageHeader(out, name, path, "types")
 
 		keys := make([]string, len(types))
 		i := 0
@@ -119,7 +122,7 @@ func showValue(out io.Writer, name string, v r.Value) {
 	if !v.IsValid() || v == None {
 		fmt.Fprintf(out, "%s%s = nil\t// nil\n", name, spaces15[n:])
 	} else {
-		fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], v, ValueType(v))
+		fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], v, reflect.ValueType(v))
 	}
 }
 

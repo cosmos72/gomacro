@@ -22,6 +22,7 @@ import (
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -47,6 +48,10 @@ type TemplateFunc struct {
 }
 
 func (f *TemplateFunc) String() string {
+	return f.Signature("")
+}
+
+func (f *TemplateFunc) Signature(name string) string {
 	if f == nil {
 		return "<nil>"
 	}
@@ -60,7 +65,14 @@ func (f *TemplateFunc) String() string {
 		buf.WriteString(param)
 	}
 	buf.WriteString("] ")
-	(*base.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
+	if len(name) == 0 {
+		(*output.Stringer).Fprintf(nil, &buf, "%v", decl.Decl.Type)
+	} else {
+		(*output.Stringer).Fprintf(nil, &buf, "%v", &ast.FuncDecl{
+			Name: &ast.Ident{Name: name},
+			Type: decl.Decl.Type,
+		})
+	}
 	return buf.String()
 }
 
@@ -135,6 +147,12 @@ func (c *Comp) DeclTemplateFunc(decl *ast.FuncDecl) {
 // TemplateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
 func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 	maker := c.templateMaker(node, TemplateFuncBind)
+	return c.templateFunc(maker, node)
+}
+
+// templateFunc compiles a template function name#[T1, T2...] instantiating it if needed.
+// node is used only for error messages
+func (c *Comp) templateFunc(maker *templateMaker, node ast.Node) *Expr {
 	if maker == nil {
 		return nil
 	}
@@ -142,13 +160,15 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 	key := maker.ikey
 
 	instance, _ := fun.Instances[key]
+	g := &c.Globals
+	debug := g.Options&base.OptDebugTemplate != 0
 	if instance != nil {
-		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("found instantiated template function %v", maker)
+		if debug {
+			g.Debugf("found instantiated template function %v", maker)
 		}
 	} else {
-		if c.Globals.Options&base.OptDebugTemplate != 0 {
-			c.Debugf("instantiating template function %v", maker)
+		if debug {
+			g.Debugf("instantiating template function %v", maker)
 		}
 		// hard part: instantiate the template function.
 		// must be instantiated in the same *Comp where it was declared!
@@ -167,8 +187,8 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 		efun = *eaddr
 	}
 	upn := maker.sym.Upn
-	if c.Globals.Options&base.OptDebugTemplate != 0 {
-		c.Debugf("template function: %v, upn = %v, instance = %v", maker, upn, instance)
+	if debug {
+		g.Debugf("template function: %v, upn = %v, instance = %v", maker, upn, instance)
 	}
 	// switch to the correct *Env before evaluating expr
 	switch upn {
@@ -204,7 +224,7 @@ func (c *Comp) TemplateFunc(node *ast.IndexExpr) *Expr {
 
 // instantiateTemplateFunc instantiates and compiles a template function.
 // node is used only for error messages
-func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node *ast.IndexExpr) *TemplateFuncInstance {
+func (maker *templateMaker) instantiateFunc(fun *TemplateFunc, node ast.Node) *TemplateFuncInstance {
 
 	// choose the specialization to use
 	_, special := maker.chooseFunc(fun)

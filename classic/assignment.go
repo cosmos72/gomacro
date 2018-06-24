@@ -22,6 +22,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 type placeType struct {
@@ -161,7 +162,7 @@ func (env *Env) assignPlaces(places []placeType, op token.Token, values []r.Valu
 	for i := 0; i < n; i++ {
 		values[i] = env.assignPlace(places[i], op, values[i])
 	}
-	return UnpackValues(values)
+	return reflect.UnpackValues(values)
 }
 
 func (env *Env) assignPlace(place placeType, op token.Token, value r.Value) r.Value {

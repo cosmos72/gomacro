@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package base
+package genimport
 
 import (
 	"bytes"
@@ -26,6 +26,9 @@ import (
 	"os"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/paths"
+	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/imports"
 )
 
@@ -58,16 +61,26 @@ const (
 	ImInception
 )
 
+type PackageRef struct {
+	imports.Package
+	Name, Path string
+}
+
+func (ref *PackageRef) String() string {
+	return fmt.Sprintf("{%s %q, %d binds, %d types}", ref.Name, ref.Path, len(ref.Binds), len(ref.Types))
+}
+
 type Importer struct {
 	from       types.ImporterFrom
 	compat     types.Importer
 	srcDir     string
 	mode       types.ImportMode
 	PluginOpen r.Value // = reflect.ValueOf(plugin.Open)
+	output     *Output
 }
 
-func DefaultImporter() *Importer {
-	imp := Importer{}
+func DefaultImporter(o *Output) *Importer {
+	imp := Importer{output: o}
 	compat := importer.Default()
 	if from, ok := compat.(types.ImporterFrom); ok {
 		imp.from = from
@@ -78,13 +91,13 @@ func DefaultImporter() *Importer {
 }
 
 func (imp *Importer) setPluginOpen() bool {
-	if imp.PluginOpen == Nil {
+	if !imp.PluginOpen.IsValid() {
 		imp.PluginOpen = imports.Packages["plugin"].Binds["Open"]
-		if imp.PluginOpen == Nil {
-			imp.PluginOpen = None // cache the failure
+		if !imp.PluginOpen.IsValid() {
+			imp.PluginOpen = reflect.None // cache the failure
 		}
 	}
-	return imp.PluginOpen != None
+	return imp.PluginOpen != reflect.None
 }
 
 func (imp *Importer) Import(path string) (*types.Package, error) {
@@ -102,7 +115,7 @@ func (imp *Importer) ImportFrom(path string, srcDir string, mode types.ImportMod
 }
 
 // LookupPackage returns a package if already present in cache
-func (g *Globals) LookupPackage(name, path string) *PackageRef {
+func LookupPackage(name, path string) *PackageRef {
 	pkg, found := imports.Packages[path]
 	if !found {
 		return nil
@@ -110,24 +123,25 @@ func (g *Globals) LookupPackage(name, path string) *PackageRef {
 	return &PackageRef{Package: pkg, Name: name, Path: path}
 }
 
-func (g *Globals) ImportPackage(name, path string) *PackageRef {
-	ref, err := g.ImportPackageOrError(name, path)
+func (imp *Importer) ImportPackage(name, path string) *PackageRef {
+	ref, err := imp.ImportPackageOrError(name, path)
 	if err != nil {
 		panic(err)
 	}
 	return ref
 }
 
-func (g *Globals) ImportPackageOrError(name, path string) (*PackageRef, error) {
-	ref := g.LookupPackage(name, path)
+func (imp *Importer) ImportPackageOrError(name, pkgpath string) (*PackageRef, error) {
+	ref := LookupPackage(name, pkgpath)
 	if ref != nil {
 		return ref, nil
 	}
-	gpkg, err := g.Importer.Import(path) // loads names and types, not the values!
+	o := imp.output
+	gpkg, err := imp.Import(pkgpath) // loads names and types, not the values!
 	if err != nil {
-		return nil, g.MakeRuntimeError(
+		return nil, o.MakeRuntimeError(
 			"error loading package %q metadata, maybe you need to download (go get), compile (go build) and install (go install) it? %v",
-			path, err)
+			pkgpath, err)
 	}
 	var mode ImportMode
 	switch name {
@@ -138,57 +152,57 @@ func (g *Globals) ImportPackageOrError(name, path string) (*PackageRef, error) {
 	case "_3":
 		mode = ImThirdParty
 	default:
-		havePluginOpen := g.Importer.setPluginOpen()
+		havePluginOpen := imp.setPluginOpen()
 		if havePluginOpen {
 			mode = ImPlugin
 		} else {
 			mode = ImThirdParty
 		}
 	}
-	file := g.createImportFile(path, gpkg, mode)
-	ref = &PackageRef{Name: name, Path: path}
+	file := createImportFile(imp.output, pkgpath, gpkg, mode)
+	ref = &PackageRef{Name: name, Path: pkgpath}
 	if len(file) == 0 || mode != ImPlugin {
 		// either the package exports nothing, or user must rebuild gomacro.
 		// in both cases, still cache it to avoid recreating the file.
-		imports.Packages[path] = ref.Package
+		imports.Packages[pkgpath] = ref.Package
 		return ref, nil
 	}
-	soname := g.compilePlugin(file, g.Stdout, g.Stderr)
-	ipkgs := g.loadPluginSymbol(soname, "Packages")
+	soname := compilePlugin(o, file, o.Stdout, o.Stderr)
+	ipkgs := imp.loadPluginSymbol(soname, "Packages")
 	pkgs := *ipkgs.(*map[string]imports.PackageUnderlying)
 
 	// cache *all* found packages for future use
 	imports.Packages.Merge(pkgs)
 
 	// but return only requested one
-	pkg, found := imports.Packages[path]
+	pkg, found := imports.Packages[pkgpath]
 	if !found {
-		return nil, g.MakeRuntimeError(
+		return nil, imp.output.MakeRuntimeError(
 			"error loading package %q: the compiled plugin %q does not contain it! internal error? %v",
-			path, soname)
+			pkgpath, soname)
 	}
 	ref.Package = pkg
 	return ref, nil
 }
 
-func (g *Globals) createImportFile(path string, pkg *types.Package, mode ImportMode) string {
-	file := g.computeImportFilename(path, mode)
+func createImportFile(o *Output, pkgpath string, pkg *types.Package, mode ImportMode) string {
+	file := computeImportFilename(pkgpath, mode)
 
 	buf := bytes.Buffer{}
-	isEmpty := g.writeImportFile(&buf, path, pkg, mode)
+	isEmpty := writeImportFile(o, &buf, pkgpath, pkg, mode)
 	if isEmpty {
-		g.Warnf("package %q exports zero constants, functions, types and variables", path)
+		o.Warnf("package %q exports zero constants, functions, types and variables", pkgpath)
 		return ""
 	}
 
 	err := ioutil.WriteFile(file, buf.Bytes(), os.FileMode(0666))
 	if err != nil {
-		g.Errorf("error writing file %q: %v", file, err)
+		o.Errorf("error writing file %q: %v", file, err)
 	}
 	if mode == ImPlugin {
-		g.Debugf("created file %q...", file)
+		o.Debugf("created file %q...", file)
 	} else {
-		g.Warnf("created file %q, recompile gomacro to use it", file)
+		o.Warnf("created file %q, recompile gomacro to use it", file)
 	}
 	return file
 }
@@ -209,26 +223,26 @@ func sanitizeIdentifier2(str string, replacement rune) string {
 	return string(runes)
 }
 
-func (g *Globals) computeImportFilename(path string, mode ImportMode) string {
+func computeImportFilename(path string, mode ImportMode) string {
 	switch mode {
 	case ImBuiltin:
 		// user will need to recompile gomacro
-		return Subdir(GomacroDir, "imports", sanitizeIdentifier(path)+".go")
+		return paths.Subdir(paths.GomacroDir, "imports", sanitizeIdentifier(path)+".go")
 	case ImInception:
 		// user will need to recompile gosrcdir / path
-		return Subdir(GoSrcDir, path, "x_package.go")
+		return paths.Subdir(paths.GoSrcDir, path, "x_package.go")
 	case ImThirdParty:
 		// either plugin.Open is not available, or user explicitly requested import _3 "package".
 		// In both cases, user will need to recompile gomacro
-		return Subdir(GomacroDir, "imports", "thirdparty", sanitizeIdentifier(path)+".go")
+		return paths.Subdir(paths.GomacroDir, "imports", "thirdparty", sanitizeIdentifier(path)+".go")
 	}
 
-	file := FileName(path) + ".go"
-	file = Subdir(GoSrcDir, "gomacro_imports", path, file)
-	dir := DirName(file)
+	file := paths.FileName(path) + ".go"
+	file = paths.Subdir(paths.GoSrcDir, "gomacro_imports", path, file)
+	dir := paths.DirName(file)
 	err := os.MkdirAll(dir, 0700)
 	if err != nil {
-		Errorf("error creating directory %q: %v", dir, err)
+		output.Errorf("error creating directory %q: %v", dir, err)
 	}
 	return file
 }

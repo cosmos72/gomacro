@@ -22,6 +22,8 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/genimport"
+	"github.com/cosmos72/gomacro/base/reflect"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -36,7 +38,7 @@ func (env *Env) evalExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) [
 		}
 		node := nodes[0]
 		// collect multiple values
-		values = PackValues(env.EvalNode(node))
+		values = reflect.PackValues(env.EvalNode(node))
 		n = len(values)
 		if n < expectedValuesN {
 			env.Errorf("value count mismatch: expression returned %d values, cannot assign them to %d places: %v returned %v",
@@ -252,7 +254,7 @@ func (env *Env) evalSelectorExpr(node *ast.SelectorExpr) (r.Value, []r.Value) {
 
 	switch obj.Kind() {
 	case r.Ptr:
-		if pkg, ok := obj.Interface().(*PackageRef); ok {
+		if pkg, ok := obj.Interface().(*genimport.PackageRef); ok {
 			// access symbol from imported package, for example fmt.Printf
 			if bind, ok := pkg.Binds[name]; ok {
 				return bind, nil

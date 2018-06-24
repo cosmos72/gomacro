@@ -26,6 +26,7 @@ import (
 	"time"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/paths"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -43,7 +44,7 @@ func (ir *Interp) ChangePackage(path string) {
 	ir.Env = ir.Env.ChangePackage(path)
 }
 
-var historyfile = Subdir(UserHomeDir(), ".gomacro_history")
+var historyfile = paths.Subdir(paths.UserHomeDir(), ".gomacro_history")
 
 func (ir *Interp) ReplStdin() {
 	g := ir.Globals

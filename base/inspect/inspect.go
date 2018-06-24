@@ -22,6 +22,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/cosmos72/gomacro/base/reflect"
+
 	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -154,7 +156,7 @@ func (ip *Inspector) showFields(v r.Value) {
 	n := v.NumField()
 	for i := 0; i < n; i++ {
 		f := v.Field(i)
-		t := base.ValueType(f)
+		t := reflect.ValueType(f)
 		f = dereferenceValue(f)
 		g.Fprintf(g.Stdout, "    %d. ", i)
 		ip.showVar(v.Type().Field(i).Name, f, t)
@@ -166,7 +168,7 @@ func (ip *Inspector) showIndexes(v r.Value) {
 	n := v.Len()
 	for i := 0; i < n; i++ {
 		f := v.Index(i)
-		t := base.ValueType(f)
+		t := reflect.ValueType(f)
 		f = dereferenceValue(f)
 		g.Fprintf(g.Stdout, "    %d. ", i)
 		ip.showVar("", f, t)
@@ -232,7 +234,7 @@ func (ip *Inspector) Enter(cmd string) {
 		fname = v.Type().Field(i).Name
 		f = v.Field(i)
 	default:
-		g.Fprintf(g.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", base.ValueType(v))
+		g.Fprintf(g.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", reflect.ValueType(v))
 		return
 	}
 	var t r.Type

@@ -21,6 +21,8 @@ import (
 	"go/ast"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/reflect"
+
 	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -130,7 +132,7 @@ func (g *CompGlobals) extractFromProxy(v r.Value) (r.Value, xr.Type) {
 	// base.Debugf("type assertion: concrete value = %v <%v>", i, t)
 	if rt != nil && rt.Kind() == r.Ptr && g.proxy2interf[rt.Elem()] != nil {
 		v = v.Elem().Field(0)
-		if j, ok := base.ValueInterface(v).(xr.InterfaceHeader); ok {
+		if j, ok := reflect.ValueInterface(v).(xr.InterfaceHeader); ok {
 			// base.Debugf("type assertion: unwrapped value = %v <%T>", j, j)
 			v = j.Value()
 			xt = j.Type()

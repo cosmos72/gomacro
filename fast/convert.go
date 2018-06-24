@@ -17,10 +17,10 @@
 package fast
 
 import (
+	"github.com/cosmos72/gomacro/base/reflect"
 	"go/ast"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -45,7 +45,7 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 		} else {
 			return exprFun(t, e.Fun)
 		}
-	} else if e.Type == nil && IsNillableKind(t.Kind()) {
+	} else if e.Type == nil && reflect.IsNillableKind(t.Kind()) {
 		e.Type = t
 		e.Value = xr.Zero(t).Interface()
 	} else if e.Type != nil && e.Type.ConvertibleTo(t) {

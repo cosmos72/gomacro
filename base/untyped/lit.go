@@ -23,7 +23,9 @@ import (
 	r "reflect"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/reflect"
+	"github.com/cosmos72/gomacro/base/strings"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -74,7 +76,7 @@ again:
 		r.Uint, r.Uint8, r.Uint16, r.Uint32, r.Uint64, r.Uintptr,
 		r.Float32, r.Float64:
 
-		if untyp.Kind == r.Complex128 && constant.Compare(constant.Imag(val), token.EQL, constantValZero) {
+		if untyp.Kind == Complex && constant.Compare(constant.Imag(val), token.EQL, constantValZero) {
 			// allow conversion from untyped complex to untyped integer or float,
 			// provided that untyped complex has zero imaginary part.
 			//
@@ -104,7 +106,7 @@ again:
 		// 5. Converting a value of a string type to a slice of runes type
 		// yields a slice containing the individual Unicode code points of the string.
 		if val.Kind() == constant.String {
-			s := base.UnescapeString(val.ExactString())
+			s := strings.UnescapeString(val.ExactString())
 			switch t.Elem().Kind() {
 			case r.Uint8:
 				ret = []byte(s)
@@ -116,7 +118,7 @@ again:
 		switch val.Kind() {
 		case constant.String:
 			// untyped string -> string
-			ret = base.UnescapeString(val.ExactString())
+			ret = strings.UnescapeString(val.ExactString())
 		case constant.Int:
 			// https://golang.org/ref/spec#String_literals states:
 			//
@@ -135,7 +137,7 @@ again:
 		ret = untyp.toMathBig(t)
 	}
 	if ret == nil {
-		base.Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
+		output.Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
 		return nil
 	}
 	v := r.ValueOf(ret)
@@ -256,7 +258,7 @@ func (untyp *Lit) BigFloat() *big.Float {
 	if ret == nil {
 		// no luck... try to go through string representation
 		s := untyp.Val.ExactString()
-		snum, sden := base.Split2(s, '/')
+		snum, sden := strings.Split2(s, '/')
 		_, ok := b.SetString(snum)
 		if ok && len(sden) != 0 {
 			var b2 big.Float
@@ -340,16 +342,16 @@ func (untyp *Lit) rawBigFloat() *big.Float {
 // DefaultType returns the default type of an untyped constant.
 func (untyp *Lit) DefaultType() xr.Type {
 	switch untyp.Kind {
-	case r.Bool, r.Int32, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
+	case Bool, Rune, Int, Float, Complex, String:
 		if basicTypes := untyp.basicTypes; basicTypes == nil {
-			base.Errorf("UntypedLit.DefaultType(): malformed untyped constant %v, has nil BasicTypes!", untyp)
+			output.Errorf("UntypedLit.DefaultType(): malformed untyped constant %v, has nil BasicTypes!", untyp)
 			return nil
 		} else {
 			return (*basicTypes)[untyp.Kind]
 		}
 
 	default:
-		base.Errorf("unexpected untyped constant %v, its default type is not known", untyp)
+		output.Errorf("unexpected untyped constant %v, its default type is not known", untyp)
 		return nil
 	}
 }
@@ -361,7 +363,7 @@ func (untyp *Lit) DefaultType() xr.Type {
 // the receiver (untyp UntypedLit) and the second argument (t reflect.Type) are only used to pretty-print the panic error message
 func (untyp *Lit) extractNumber(src constant.Value, t xr.Type) interface{} {
 	var n interface{}
-	cat := base.KindToCategory(t.Kind())
+	cat := reflect.KindToCategory(t.Kind())
 	var exact bool
 	switch src.Kind() {
 	case constant.Int:
@@ -381,18 +383,18 @@ func (untyp *Lit) extractNumber(src constant.Value, t xr.Type) interface{} {
 	case constant.Complex:
 		re := untyp.extractNumber(constant.Real(src), t)
 		im := untyp.extractNumber(constant.Imag(src), t)
-		rfloat := r.ValueOf(re).Convert(base.TypeOfFloat64).Float()
-		ifloat := r.ValueOf(im).Convert(base.TypeOfFloat64).Float()
+		rfloat := r.ValueOf(re).Convert(reflect.TypeOfFloat64).Float()
+		ifloat := r.ValueOf(im).Convert(reflect.TypeOfFloat64).Float()
 		n = complex(rfloat, ifloat)
 		exact = true
 	default:
-		base.Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
+		output.Errorf("cannot convert untyped constant %v to <%v>", untyp, t)
 		return nil
 	}
 	// allow inexact conversions to float64 and complex128:
 	// floating point is intrinsically inexact, and Go compiler allows them too
 	if !exact && (cat == r.Int || cat == r.Uint) {
-		base.Errorf("untyped constant %v overflows <%v>", untyp, t)
+		output.Errorf("untyped constant %v overflows <%v>", untyp, t)
 		return nil
 	}
 	return n
@@ -403,28 +405,28 @@ func (untyp *Lit) extractNumber(src constant.Value, t xr.Type) interface{} {
 func ConvertLiteralCheckOverflow(src interface{}, to xr.Type) interface{} {
 	v := r.ValueOf(src)
 	rto := to.ReflectType()
-	vto := base.ConvertValue(v, rto)
+	vto := reflect.ConvertValue(v, rto)
 
 	k, kto := v.Kind(), vto.Kind()
 	if k == kto {
 		return vto.Interface() // no numeric conversion happened
 	}
-	c, cto := base.KindToCategory(k), base.KindToCategory(kto)
+	c, cto := reflect.KindToCategory(k), reflect.KindToCategory(kto)
 	if cto == r.Int || cto == r.Uint {
 		if c == r.Float64 || c == r.Complex128 {
 			// float-to-integer conversion. check for truncation
-			t1 := base.ValueType(v)
-			vback := base.ConvertValue(vto, t1)
+			t1 := reflect.ValueType(v)
+			vback := reflect.ConvertValue(vto, t1)
 			if src != vback.Interface() {
-				base.Errorf("constant %v truncated to %v", src, to)
+				output.Errorf("constant %v truncated to %v", src, to)
 				return nil
 			}
 		} else {
 			// integer-to-integer conversion. convert back and compare the interfaces for overflows
-			t1 := base.ValueType(v)
+			t1 := reflect.ValueType(v)
 			vback := vto.Convert(t1)
 			if src != vback.Interface() {
-				base.Errorf("constant %v overflows <%v>", src, to)
+				output.Errorf("constant %v overflows <%v>", src, to)
 				return nil
 			}
 		}

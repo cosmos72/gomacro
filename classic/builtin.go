@@ -24,6 +24,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 func funcAppend(env *Env, args []r.Value) (r.Value, []r.Value) {
@@ -343,7 +344,7 @@ func funcValues(env *Env, args []r.Value) (r.Value, []r.Value) {
 			args[i] = arg
 		}
 	}
-	return UnpackValues(args)
+	return reflect.UnpackValues(args)
 }
 
 func (top *Env) addIota() {

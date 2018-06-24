@@ -8,13 +8,13 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * import_wrappers.go
+ * gen.go
  *
  *  Created on May 26, 2017
  *      Author Massimiliano Ghilardi
  */
 
-package base
+package genimport
 
 import (
 	"bytes"
@@ -24,10 +24,16 @@ import (
 	"math"
 	"strconv"
 	"strings"
+
+	"github.com/cosmos72/gomacro/base/output"
+	"github.com/cosmos72/gomacro/base/paths"
+	"github.com/cosmos72/gomacro/base/untyped"
 )
 
+type Output = output.Output
+
 type genimport struct {
-	globals     *Globals
+	output      *Output
 	mode        ImportMode
 	gpkg        *types.Package
 	scope       *types.Scope
@@ -40,9 +46,9 @@ type genimport struct {
 	reflect     string
 }
 
-func (g *Globals) writeImportFile(out *bytes.Buffer, path string, gpkg *types.Package, mode ImportMode) (isEmpty bool) {
+func writeImportFile(o *Output, out *bytes.Buffer, path string, gpkg *types.Package, mode ImportMode) (isEmpty bool) {
 
-	gen := g.newGenImport(out, path, gpkg, mode)
+	gen := newGenImport(o, out, path, gpkg, mode)
 	if gen == nil {
 		return true
 	}
@@ -50,7 +56,7 @@ func (g *Globals) writeImportFile(out *bytes.Buffer, path string, gpkg *types.Pa
 	return false
 }
 
-func (g *Globals) newGenImport(out *bytes.Buffer, path string, gpkg *types.Package, mode ImportMode) *genimport {
+func newGenImport(o *Output, out *bytes.Buffer, path string, gpkg *types.Package, mode ImportMode) *genimport {
 	scope := gpkg.Scope()
 	names := scope.Names()
 
@@ -68,9 +74,9 @@ func (g *Globals) newGenImport(out *bytes.Buffer, path string, gpkg *types.Packa
 		return nil
 	}
 
-	gen := &genimport{globals: g, mode: mode, gpkg: gpkg, scope: scope, names: names, out: out, path: path}
+	gen := &genimport{output: o, mode: mode, gpkg: gpkg, scope: scope, names: names, out: out, path: path}
 
-	name := FileName(path)
+	name := paths.FileName(path)
 	name = sanitizeIdentifier(name)
 	gen.name = name
 
@@ -140,13 +146,12 @@ func (d *mapdecl) footer1(comma bool) {
 }
 
 func (gen *genimport) collectPackageImportsWithRename(requireAllInterfaceMethodsExported bool) {
-	gen.pkgrenames = gen.globals.CollectPackageImportsWithRename(gen.gpkg, requireAllInterfaceMethodsExported)
+	gen.pkgrenames = collectPackageImportsWithRename(gen.output, gen.gpkg, requireAllInterfaceMethodsExported)
 }
 
 func (gen *genimport) writePreamble() {
 	mode := gen.mode
 	out := gen.out
-	path := gen.path
 
 	var alias, filepkg string
 	switch mode {
@@ -167,7 +172,7 @@ func (gen *genimport) writePreamble() {
 
 package %s
 
-import (`, alias, path, filepkg)
+import (`, alias, gen.path, filepkg)
 
 	var imports string
 	if mode == ImInception {
@@ -180,13 +185,17 @@ import (`, alias, path, filepkg)
 	for path, name := range gen.pkgrenames {
 		if mode == ImInception && path == gen.path {
 			continue // writing inside the package: it should not import itself
-		} else if name == FileName(path) {
+		} else if name == paths.FileName(path) {
 			fmt.Fprintf(out, "\n\t%q", path)
 		} else {
 			fmt.Fprintf(out, "\n\t%s %q", name, path)
 		}
 	}
 	fmt.Fprintf(out, "\n)\n")
+
+	if mode == ImInception {
+		gen.pkgrenames[gen.path] = "" // writing inside the package: remove the package prefix
+	}
 
 	if mode == ImPlugin {
 		fmt.Fprint(out, `
@@ -210,7 +219,7 @@ func main() {
 // reflection: allow interpreted code to import %q
 func init() {
 	%sPackages[%q] = %sPackage{
-	`, path, imports, path, imports)
+	`, gen.path, imports, gen.path, imports)
 }
 
 func (gen *genimport) writeBinds() {
@@ -227,7 +236,7 @@ func (gen *genimport) writeBinds() {
 					// this is just an approximation, use Package.Untypeds for exact value
 					if val.Kind() == constant.Int {
 						str := val.ExactString()
-						conv1, conv2 = gen.globals.detectIntKind(gen.path, name, str)
+						conv1, conv2 = detectIntKind(gen.output, gen.path, name, str)
 					}
 				}
 				d.header()
@@ -281,8 +290,8 @@ func (gen *genimport) writeUntypeds() {
 			switch obj := obj.(type) {
 			case *types.Const:
 				if t, ok := obj.Type().(*types.Basic); ok && t.Info()&types.IsUntyped != 0 {
-					rkind := UntypedKindToReflectKind(t.Kind())
-					str := MarshalUntyped(rkind, obj.Val())
+					kind := untyped.GoUntypedToKind(t.Kind())
+					str := untyped.Marshal(kind, obj.Val())
 					if len(str) != 0 {
 						d.header()
 						fmt.Fprintf(gen.out, "\n\t\t%q:\t%q,", name, str)
@@ -333,7 +342,7 @@ func (gen *genimport) writeInterfaceProxies() {
 	}
 }
 
-func (g *Globals) detectIntKind(path, name, str string) (string, string) {
+func detectIntKind(o *Output, path, name, str string) (string, string) {
 	i, err := strconv.ParseInt(str, 0, 64)
 	if err == nil {
 		if i == int64(int32(i)) {
@@ -362,7 +371,7 @@ func (g *Globals) detectIntKind(path, name, str string) (string, string) {
 			// float32 loses no precision vs. float64
 			prefix = "float32"
 		}
-		g.Warnf("package %q: integer constant %s = %s overflows both int64 and uint64, converting to %s", path, name, str, prefix)
+		o.Warnf("package %q: integer constant %s = %s overflows both int64 and uint64, converting to %s", path, name, str, prefix)
 		return prefix + "(", ")"
 	}
 }

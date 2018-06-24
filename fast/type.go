@@ -23,6 +23,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/base/untyped"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -415,7 +416,7 @@ func rtypeof(v r.Value, t xr.Type) r.Type {
 	if t != nil {
 		return t.ReflectType()
 	}
-	return ValueType(v)
+	return reflect.ValueType(v)
 }
 
 // TypeAssert2 compiles a multi-valued type assertion
@@ -441,10 +442,10 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 
 	fail := []r.Value{xr.Zero(tout), False} // returned by type assertion in case of failure
 	switch {
-	case IsOptimizedKind(kout):
+	case reflect.IsOptimizedKind(kout):
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v, t := extractor(fun(env))
-			if ValueType(v) != rtout || (t != nil && !t.AssignableTo(tout)) {
+			if reflect.ValueType(v) != rtout || (t != nil && !t.AssignableTo(tout)) {
 				return fail[0], fail
 			}
 			return v, []r.Value{v, True}
@@ -471,7 +472,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 				v, _ := extractor(fun(env))
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
-				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
+				if reflect.IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 					return fail[0], fail
 				}
 				v = convert(v, rtout)
@@ -485,7 +486,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			v, t := extractor(fun(env))
 			// nil is not a valid tout, check for it.
 			// IsNil() can be invoked only on nillable types...
-			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
+			if reflect.IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 				return fail[0], fail
 			}
 			rt := rtypeof(v, t)
@@ -497,13 +498,13 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 			return v, []r.Value{v, True}
 		}
 
-	case IsNillableKind(kout):
+	case reflect.IsNillableKind(kout):
 		// type assertion to concrete (nillable) type
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v, t := extractor(fun(env))
 			// nil is not a valid tout, check for it.
 			// IsNil() can be invoked only on nillable types...
-			if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
+			if reflect.IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 				return fail[0], fail
 			}
 			rt := rtypeof(v, t)
@@ -672,7 +673,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 				v, _ := extractor(fun(env))
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
-				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
+				if reflect.IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 					typeassertpanic(nil, nil, tin, tout)
 				}
 				return convert(v, rtout)
@@ -684,7 +685,7 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 				v, t := extractor(fun(env))
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
-				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
+				if reflect.IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 					typeassertpanic(nil, nil, tin, tout)
 				}
 				rt := rtypeof(v, t)
@@ -696,13 +697,13 @@ func (c *Comp) TypeAssert1(node *ast.TypeAssertExpr) *Expr {
 			}
 		}
 	default:
-		if IsNillableKind(kout) {
+		if reflect.IsNillableKind(kout) {
 			// type assertion to concrete (nillable) type
 			ret = func(env *Env) r.Value {
 				v, t := extractor(fun(env))
 				// nil is not a valid tout, check for it.
 				// IsNil() can be invoked only on nillable types...
-				if IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
+				if reflect.IsNillableKind(v.Kind()) && (v == Nil || v.IsNil()) {
 					typeassertpanic(nil, nil, tin, tout)
 				}
 				rt := rtypeof(v, t)

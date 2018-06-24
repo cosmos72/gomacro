@@ -26,6 +26,7 @@ import (
 
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/inspect"
+	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/fast"
 	"github.com/cosmos72/gomacro/fast/debug"
 )
@@ -202,7 +203,7 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 	for _, file := range files {
 		filename := file.Name()
 		if !file.IsDir() && strings.HasSuffix(filename, ".gomacro") {
-			filename = Subdir(dirname, filename)
+			filename = paths.Subdir(dirname, filename)
 			err := cmd.EvalFile(filename)
 			if err != nil {
 				return err

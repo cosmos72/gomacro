@@ -22,7 +22,7 @@ import (
 	"go/token"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/base/untyped"
 	mt "github.com/cosmos72/gomacro/token"
 )
@@ -100,35 +100,35 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 		} else {
 			flag = xb || yb
 		}
-		return c.exprUntypedLit(r.Bool, constant.MakeBool(flag))
+		return c.exprUntypedLit(untyped.Bool, constant.MakeBool(flag))
 	case token.EQL, token.LSS, token.GTR, token.NEQ, token.LEQ, token.GEQ:
 		// comparison gives an untyped bool
 		flag := constant.Compare(x.Val, op, y.Val)
-		return c.exprUntypedLit(r.Bool, constant.MakeBool(flag))
+		return c.exprUntypedLit(untyped.Bool, constant.MakeBool(flag))
 	case token.SHL, token.SHL_ASSIGN:
 		return c.ShiftUntyped(node, token.SHL, x, y)
 	case token.SHR, token.SHR_ASSIGN:
 		return c.ShiftUntyped(node, token.SHR, x, y)
 	default:
 		op2 := tokenWithoutAssign(op)
-		xint := base.KindToCategory(x.Kind) == r.Int
-		yint := base.KindToCategory(y.Kind) == r.Int
+		xint := x.Kind == untyped.Int || x.Kind == untyped.Rune
+		yint := y.Kind == untyped.Int || y.Kind == untyped.Rune
 		if op2 == token.QUO && xint && yint {
 			// untyped integer division
 			op2 = token.QUO_ASSIGN
 		}
 		zobj := constant.BinaryOp(x.Val, op2, y.Val)
-		zkind := untyped.ConstantKindToUntypedLitKind(zobj.Kind())
+		zkind := untyped.MakeKind(zobj.Kind())
 		// c.Debugf("untyped binary expression %v %s %v returned {%v %v}", x, op2, y, zkind, zobj)
-		// reflect.Int32 (i.e. rune) has precedence over reflect.Int
+		// untyped.Rune has precedence over untyped.Int
 		if zobj.Kind() == constant.Int {
-			if xint && x.Kind != r.Int {
+			if xint && x.Kind != untyped.Int {
 				zkind = x.Kind
-			} else if yint && y.Kind != r.Int {
+			} else if yint && y.Kind != untyped.Int {
 				zkind = y.Kind
 			}
 		}
-		if zkind == r.Invalid {
+		if zkind == untyped.None {
 			c.Errorf("invalid binary operation: %v %v %v", x.Val, op, y.Val)
 		}
 		return c.exprUntypedLit(zkind, zobj)
@@ -190,16 +190,16 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 	xn := x.Val
 	xkind := x.Kind
 	switch xkind {
-	case r.Int, r.Int32:
+	case untyped.Int, untyped.Rune:
 		// nothing to do
-	case r.Float64, r.Complex128:
+	case untyped.Float, untyped.Complex:
 		if warnUntypedShift {
 			c.Warnf("known limitation (warned only once): untyped floating point constant shifted by untyped constant. returning untyped integer instead of deducing the type from the surrounding context: %v",
 				node)
 			warnUntypedShift = false
 		}
 		sign := constant.Sign(xn)
-		if xkind == r.Complex128 {
+		if xkind == untyped.Complex {
 			sign = constant.Sign(constant.Real(xn))
 		}
 		if sign >= 0 {
@@ -207,7 +207,7 @@ func (c *Comp) ShiftUntyped(node *ast.BinaryExpr, op token.Token, x UntypedLit, 
 		} else {
 			xn = constant.MakeInt64(x.Convert(c.TypeOfInt64()).(int64))
 		}
-		xkind = r.Int
+		xkind = untyped.Int
 	default:
 		c.Errorf("invalid shift: %v %v %v", x.Val, op, y.Val)
 	}
@@ -226,14 +226,14 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 		return c.ShiftUntyped(node, node.Op, xe.Value.(UntypedLit), ye.Value.(UntypedLit))
 	}
 	xet, yet := xe.DefaultType(), ye.DefaultType()
-	if xet == nil || !base.IsCategory(xet.Kind(), r.Int, r.Uint) {
+	if xet == nil || !reflect.IsCategory(xet.Kind(), r.Int, r.Uint) {
 		return c.invalidBinaryExpr(node, xe, ye)
 	}
 	if xe.Untyped() {
 		xuntyp := xe.Value.(UntypedLit)
 		if ye.Const() {
 			// untyped << constant
-			yuntyp := MakeUntypedLit(r.Int, constant.MakeUint64(r.ValueOf(ye.Value).Uint()), &c.Universe.BasicTypes)
+			yuntyp := untyped.MakeLit(untyped.Int, constant.MakeUint64(r.ValueOf(ye.Value).Uint()), &c.Universe.BasicTypes)
 			return c.ShiftUntyped(node, node.Op, xuntyp, yuntyp)
 		}
 		// untyped << expression
@@ -252,12 +252,12 @@ func (c *Comp) prepareShift(node *ast.BinaryExpr, xe *Expr, ye *Expr) *Expr {
 	}
 	if ye.Untyped() {
 		// untyped constants do not distinguish between int and uint
-		if yet == nil || !base.IsCategory(yet.Kind(), r.Int) {
+		if yet == nil || !reflect.IsCategory(yet.Kind(), r.Int) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 		ye.ConstTo(c.TypeOfUint64())
 	} else {
-		if yet == nil || !base.IsCategory(yet.Kind(), r.Uint) {
+		if yet == nil || !reflect.IsCategory(yet.Kind(), r.Uint) {
 			return c.invalidBinaryExpr(node, xe, ye)
 		}
 	}

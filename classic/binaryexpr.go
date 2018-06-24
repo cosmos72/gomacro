@@ -21,6 +21,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	mt "github.com/cosmos72/gomacro/token"
 )
 
@@ -241,9 +242,9 @@ func binaryResultType(xt, yt r.Type) r.Type {
 	}
 	// prefer named types
 	xk, yk := xt.Kind(), yt.Kind()
-	if KindToType(xk) == xt {
+	if reflect.KindToType(xk) == xt {
 		return yt
-	} else if KindToType(yk) == yt {
+	} else if reflect.KindToType(yk) == yt {
 		return xt
 	}
 	// prefer types appearing later in reflect.Kind list
@@ -383,8 +384,8 @@ func (env *Env) evalBinaryExprMisc(xv r.Value, op token.Token, yv r.Value) bool 
 	if xv == yv {
 		return eql
 	}
-	xnil := xv == Nil || IsNillableKind(xv.Kind()) && xv.IsNil()
-	ynil := yv == Nil || IsNillableKind(yv.Kind()) && yv.IsNil()
+	xnil := xv == Nil || reflect.IsNillableKind(xv.Kind()) && xv.IsNil()
+	ynil := yv == Nil || reflect.IsNillableKind(yv.Kind()) && yv.IsNil()
 	if xnil || ynil {
 		return eql == (xnil == ynil)
 	}

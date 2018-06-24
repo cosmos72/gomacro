@@ -26,7 +26,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -75,7 +75,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 	k := va.Type.Kind()
 	index := va.Desc.Index()
 	if index == NoIndex {
-		base.Errorf("cannot take the address of %s: _", va.Desc.Class())
+		output.Errorf("cannot take the address of %s: _", va.Desc.Class())
 		return nil
 	}
 	var ret I

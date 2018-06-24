@@ -137,8 +137,6 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 	}
 	vals := make([]I, n)
 	types := make([]xr.Type, n)
-	// slices cannot be used as map keys. use an array and reflection
-	key := r.New(r.ArrayOf(n, rtypeOfInterface)).Elem()
 
 	// make a copy of templateArgs, then replace constant expressions with their values
 	templateArgs = append([]ast.Expr(nil), templateArgs...)
@@ -153,13 +151,25 @@ func (c *Comp) templateMaker(node *ast.IndexExpr, which BindClass) *templateMake
 			vals[i] = e.EvalConst(COptDefaults)
 			types[i] = e.Type // also remember the type
 			templateArgs[i] = c.constToAstExpr(vals[i], templateArg.Pos())
-			key.Index(i).Set(r.ValueOf(vals[i]))
 		} else {
 			types[i] = t
-			key.Index(i).Set(r.ValueOf(xr.MakeKey(t)))
 		}
 	}
-	return &templateMaker{upc, sym, ifun, templateArgs, vals, types, key.Interface(), "", node.Pos()}
+	return &templateMaker{upc, sym, ifun, templateArgs, vals, types, makeTemplateKey(vals, types), "", node.Pos()}
+}
+
+func makeTemplateKey(vals []I, types []xr.Type) I {
+	// slices cannot be used as map keys. use an array and reflection
+	key := r.New(r.ArrayOf(len(types), rtypeOfInterface)).Elem()
+
+	for i, t := range types {
+		if val := vals[i]; val == nil {
+			key.Index(i).Set(r.ValueOf(xr.MakeKey(t)))
+		} else {
+			key.Index(i).Set(r.ValueOf(val))
+		}
+	}
+	return key.Interface()
 }
 
 // convert true to &ast.Ident{Name: "true"}, convert false similarly,
@@ -244,7 +254,7 @@ func (maker *templateMaker) chooseFunc(fun *TemplateFunc) (string, *templateFunc
 			types: maker.types,
 		},
 	}
-	g := maker.comp.Globals
+	g := &maker.comp.Globals
 	debug := g.Options&base.OptDebugTemplate != 0
 	var ok1, ok2 bool
 
@@ -317,7 +327,7 @@ func (maker *templateMaker) chooseType(typ *TemplateType) (string, *templateType
 			types: maker.types,
 		},
 	}
-	g := maker.comp.Globals
+	g := &maker.comp.Globals
 	debug := g.Options&base.OptDebugTemplate != 0
 	var ok1, ok2 bool
 

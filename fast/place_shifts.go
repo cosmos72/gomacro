@@ -25,7 +25,7 @@ import (
 	"go/token"
 	r "reflect"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 func (c *Comp) placeShlConst(place *Place, val I) {
@@ -42,7 +42,7 @@ func (c *Comp) placeShlConst(place *Place, val I) {
 
 		t := place.Type
 		rt := t.ReflectType()
-		cat := KindToCategory(t.Kind())
+		cat := reflect.KindToCategory(t.Kind())
 		if keyfun == nil {
 			switch cat {
 			case r.Int:
@@ -124,7 +124,7 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 	keyfun := place.MapKey
 	t := place.Type
 	rt := t.ReflectType()
-	cat := KindToCategory(t.Kind())
+	cat := reflect.KindToCategory(t.Kind())
 	if keyfun == nil {
 		switch cat {
 		case r.Int:
@@ -529,7 +529,7 @@ func (c *Comp) placeShrConst(place *Place, val I) {
 
 		t := place.Type
 		rt := t.ReflectType()
-		cat := KindToCategory(t.Kind())
+		cat := reflect.KindToCategory(t.Kind())
 		if keyfun == nil {
 			switch cat {
 			case r.Int:
@@ -611,7 +611,7 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 	keyfun := place.MapKey
 	t := place.Type
 	rt := t.ReflectType()
-	cat := KindToCategory(t.Kind())
+	cat := reflect.KindToCategory(t.Kind())
 	if keyfun == nil {
 		switch cat {
 		case r.Int:
@@ -1013,7 +1013,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 
 	ypositive := true
 	yv := r.ValueOf(val)
-	ycat := KindToCategory(yv.Kind())
+	ycat := reflect.KindToCategory(yv.Kind())
 	var y uint64
 	switch ycat {
 	case r.Int:
@@ -1052,7 +1052,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 
 		t := place.Type
 		rt := t.ReflectType()
-		cat := KindToCategory(t.Kind())
+		cat := reflect.KindToCategory(t.Kind())
 		if keyfun == nil {
 			switch cat {
 			case r.Int:

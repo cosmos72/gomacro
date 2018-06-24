@@ -83,10 +83,7 @@ func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 		t = fun.Type
 		builtin = true
 	}
-	if t.Kind() != r.Func {
-		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
-		return nil
-	}
+	// compile args early, and use them to infer template function instantiation
 	var args []*Expr
 	if len(node.Args) == 1 {
 		// support foo(bar()) where bar() returns multiple values
@@ -100,6 +97,19 @@ func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	}
 	if lastarg != nil {
 		args = append(args, lastarg)
+	}
+	switch t.Kind() {
+	case r.Func:
+	case r.Ptr:
+		if t.ReflectType() == rtypeOfPtrTemplateFunc {
+			fun = c.inferTemplateFunc(node, fun, args)
+			t = fun.Type
+			break
+		}
+		fallthrough
+	default:
+		c.Errorf("call of non-function: %v <%v>", node.Fun, t)
+		return nil
 	}
 	ellipsis := node.Ellipsis != token.NoPos
 	c.checkCallArgs(node, t, args, ellipsis)

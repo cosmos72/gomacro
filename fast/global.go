@@ -24,6 +24,8 @@ import (
 	r "reflect"
 	"sort"
 
+	"github.com/cosmos72/gomacro/base/output"
+
 	"github.com/cosmos72/gomacro/atomic"
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/untyped"
@@ -36,11 +38,7 @@ type I = interface{}
 
 type UntypedLit = untyped.Lit
 
-var untypedOne = UntypedLit{Kind: r.Int, Val: constant.MakeInt64(1)}
-
-func MakeUntypedLit(kind r.Kind, val constant.Value, basicTypes *[]xr.Type) UntypedLit {
-	return untyped.MakeLit(kind, val, basicTypes)
-}
+var untypedOne = UntypedLit{Kind: untyped.Int, Val: constant.MakeInt64(1)}
 
 // ================================= Lit =================================
 
@@ -77,11 +75,11 @@ func (lit *Lit) Untyped() bool {
 
 // UntypedKind returns the reflect.Kind of untyped constants,
 // i.e. their "default type"
-func (lit *Lit) UntypedKind() r.Kind {
+func (lit *Lit) UntypedKind() untyped.Kind {
 	if untyp, ok := lit.Value.(UntypedLit); ok {
 		return untyp.Kind
 	} else {
-		return r.Invalid
+		return untyped.None
 	}
 }
 
@@ -330,7 +328,7 @@ func (bind *Bind) RuntimeValue(env *Env) r.Value {
 	case VarBind, FuncBind:
 		v = env.Vals[bind.Desc.Index()]
 	default:
-		Errorf("Symbol %q: unsupported class: %v", bind.Name, bind.Desc.Class())
+		output.Errorf("Symbol %q: unsupported class: %v", bind.Name, bind.Desc.Class())
 	}
 	return v
 }
@@ -341,7 +339,7 @@ func (bind *Bind) AsVar(upn int, opt PlaceOption) *Var {
 	case VarBind, IntBind:
 		return &Var{Upn: upn, Desc: bind.Desc, Type: bind.Type, Name: bind.Name}
 	default:
-		Errorf("%s a %s: %s <%v>", opt, class, bind.Name, bind.Type)
+		output.Errorf("%s a %s: %s <%v>", opt, class, bind.Name, bind.Type)
 		return nil
 	}
 }
@@ -350,8 +348,8 @@ func (bind *Bind) AsSymbol(upn int) *Symbol {
 	return &Symbol{Bind: *bind, Upn: upn}
 }
 
-func (c *Comp) BindUntyped(kind r.Kind, value constant.Value) *Bind {
-	untypedlit := MakeUntypedLit(kind, value, &c.Universe.BasicTypes)
+func (c *Comp) BindUntyped(kind untyped.Kind, value constant.Value) *Bind {
+	untypedlit := untyped.MakeLit(kind, value, &c.Universe.BasicTypes)
 	return &Bind{Lit: Lit{Type: c.TypeOfUntypedLit(), Value: untypedlit}, Desc: ConstBindDescriptor}
 }
 

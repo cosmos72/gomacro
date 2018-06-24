@@ -26,6 +26,7 @@ import (
 	r "reflect"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 func (c *Comp) placeAddConst(place *Place, val I) {
@@ -41,7 +42,7 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -854,7 +855,7 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -1615,7 +1616,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -2371,7 +2372,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -3116,7 +3117,7 @@ func (c *Comp) placeQuoExpr(place *Place, fun I) {
 	c.append(ret)
 }
 func (c *Comp) placeRemConst(place *Place, val I) {
-	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
+	if reflect.IsCategory(place.Type.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, 0) {
 			c.Errorf("division by %v <%v>", val, place.Type)
 			return
@@ -3134,7 +3135,7 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -3679,7 +3680,7 @@ func (c *Comp) placeRemExpr(place *Place, fun I) {
 	c.append(ret)
 }
 func (c *Comp) placeAndConst(place *Place, val I) {
-	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
+	if reflect.IsCategory(place.Type.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
 			c.placeForSideEffects(place)
 			return
@@ -3697,7 +3698,7 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -4242,7 +4243,7 @@ func (c *Comp) placeAndExpr(place *Place, fun I) {
 	c.append(ret)
 }
 func (c *Comp) placeOrConst(place *Place, val I) {
-	if IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
+	if reflect.IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		c.placeForSideEffects(place)
 		return
 	}
@@ -4254,7 +4255,7 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -4799,7 +4800,7 @@ func (c *Comp) placeOrExpr(place *Place, fun I) {
 	c.append(ret)
 }
 func (c *Comp) placeXorConst(place *Place, val I) {
-	if IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
+	if reflect.IsCategory(place.Type.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		c.placeForSideEffects(place)
 		return
 	}
@@ -4811,7 +4812,7 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -5356,7 +5357,7 @@ func (c *Comp) placeXorExpr(place *Place, fun I) {
 	c.append(ret)
 }
 func (c *Comp) placeAndnotConst(place *Place, val I) {
-	if IsCategory(place.Type.Kind(), r.Int, r.Uint) {
+	if reflect.IsCategory(place.Type.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
 
 			c.placeSetZero(place)
@@ -5374,7 +5375,7 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch KindToCategory(place.Type.Kind()) {
+			switch reflect.KindToCategory(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 

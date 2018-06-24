@@ -24,7 +24,7 @@ import (
 	"unicode/utf8"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -220,7 +220,7 @@ func (c *Comp) rangeMap(node *ast.RangeStmt, erange *Expr, jump *rangeJump) {
 
 	if placeval == nil {
 		// nothing to do
-	} else if placeval.IsVar() && !base.IsOptimizedKind(placeval.Type.Kind()) {
+	} else if placeval.IsVar() && !reflect.IsOptimizedKind(placeval.Type.Kind()) {
 		idxkey := bindkey.Desc.Index()
 		idxval := placeval.Var.Desc.Index()
 		upval := placeval.Var.Upn
