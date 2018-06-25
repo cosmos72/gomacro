@@ -283,7 +283,7 @@ import (
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 				~,@caselist
 			}
 		} else {

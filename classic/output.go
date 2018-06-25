@@ -122,7 +122,7 @@ func showValue(out io.Writer, name string, v r.Value) {
 	if !v.IsValid() || v == None {
 		fmt.Fprintf(out, "%s%s = nil\t// nil\n", name, spaces15[n:])
 	} else {
-		fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], v, reflect.ValueType(v))
+		fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], v, reflect.Type(v))
 	}
 }
 

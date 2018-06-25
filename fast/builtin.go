@@ -90,7 +90,7 @@ func (ce *Interp) addBuiltins() {
 	ce.DeclBuiltin("println", Builtin{compilePrint, 0, base.MaxUint16})
 	ce.DeclBuiltin("real", Builtin{compileRealImag, 1, 1})
 	ce.DeclBuiltin("recover", Builtin{compileRecover, 0, 0})
-	// ce.DeclBuiltin("recover", Function{callRecover, ce.Comp.TypeOf((*func() interface{})(nil)).Elem()})
+	// ce.DeclBuiltin("recover", Function{callRecover, ce.Comp.TypeOf((*func() I)(nil)).Elem()})
 
 	tfunI2_Nb := ce.Comp.TypeOf(funI2_Nb)
 
@@ -108,7 +108,7 @@ func (ce *Interp) addBuiltins() {
 		binds["ReadFile"] = r.ValueOf(callReadFile)
 		binds["ReadMultiline"] = r.ValueOf(ReadMultiline)
 		binds["Slice"] = r.ValueOf(callSlice)
-		binds["String"] = r.ValueOf(func(args ...interface{}) string {
+		binds["String"] = r.ValueOf(func(args ...I) string {
 			return env.toString("", args...)
 		})
 		// return multiple values, extracting the concrete type of each interface
@@ -256,12 +256,12 @@ func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 		im.ConstTo(re.Type)
 	}
 	c.toSameFuncType(node, re, im)
-	kre := reflect.KindToCategory(re.Type.Kind())
+	kre := reflect.Category(re.Type.Kind())
 	if re.Const() && kre != r.Float64 {
 		re.ConstTo(c.TypeOfFloat64())
 		kre = r.Float64
 	}
-	kim := reflect.KindToCategory(im.Type.Kind())
+	kim := reflect.Category(im.Type.Kind())
 	if im.Const() && kim != r.Float64 {
 		im.ConstTo(c.TypeOfFloat64())
 		kim = r.Float64
@@ -403,7 +403,7 @@ func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // --- Env() ---
 
-func funI_I(interface{}) interface{} {
+func funI_I(I) I {
 	return nil
 }
 
@@ -414,7 +414,7 @@ func callIdentity(v r.Value) r.Value {
 
 // --- Eval() ---
 
-func funI2_I(interface{}, interface{}) interface{} {
+func funI2_I(I, I) I {
 	return nil
 }
 
@@ -462,7 +462,7 @@ func callEval3(argv r.Value, interpv r.Value, opt CompileOptions) r.Value {
 
 // --- EvalType() ---
 
-func funI2_T(interface{}, interface{}) r.Type {
+func funI2_T(I, I) r.Type {
 	return nil
 }
 
@@ -535,7 +535,7 @@ func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // --- MacroExpand(), MacroExpand1(), MacroExpandCodeWalk() ---
 
-func funI2_Nb(interface{}, interface{}) (ast.Node, bool) {
+func funI2_Nb(I, I) (ast.Node, bool) {
 	return nil, false
 }
 
@@ -656,7 +656,7 @@ func compileNew(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // --- panic() ---
 
-func callPanic(arg interface{}) {
+func callPanic(arg I) {
 	panic(arg)
 }
 
@@ -671,7 +671,7 @@ func compilePanic(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 
 // --- Parse() ---
 
-func funSI_I(string, interface{}) interface{} {
+func funSI_I(string, I) I {
 	return nil
 }
 
@@ -694,11 +694,11 @@ func callParse(argv r.Value, interpv r.Value) r.Value {
 
 // --- print(), println() ---
 
-func callPrint(out interface{}, args ...interface{}) {
+func callPrint(out I, args ...I) {
 	fmt.Fprint(out.(io.Writer), args...)
 }
 
-func callPrintln(out interface{}, args ...interface{}) {
+func callPrintln(out I, args ...I) {
 	fmt.Fprintln(out.(io.Writer), args...)
 }
 
@@ -833,7 +833,7 @@ func callRecover(v r.Value) r.Value {
 		if debug {
 			output.Debugf("recover() consuming current panic: %v <%v>", rec, r.TypeOf(rec))
 		}
-		v = r.ValueOf(rec).Convert(base.TypeOfInterface) // keep the interface{} type
+		v = r.ValueOf(rec).Convert(base.TypeOfInterface) // keep the I type
 	}
 	// consume the current panic
 	run.Panic = nil
@@ -1017,7 +1017,7 @@ func (c *Comp) call_builtin(call *Call) I {
 				return fun(arg0.Interface().([]byte), arg1)
 			}
 		}
-	case func(interface{}): // panic()
+	case func(I): // panic()
 		argfunsX1 := call.MakeArgfunsX1()
 		argfun := argfunsX1[0]
 		if name == "panic" {
@@ -1031,7 +1031,7 @@ func (c *Comp) call_builtin(call *Call) I {
 				fun(arg)
 			}
 		}
-	case func(interface{}, ...interface{}): // print, println()
+	case func(I, ...I): // print, println()
 		argfunsX1 := call.MakeArgfunsX1()
 		if call.Ellipsis {
 			argfuns := [2]func(*Env) r.Value{
@@ -1040,12 +1040,12 @@ func (c *Comp) call_builtin(call *Call) I {
 			}
 			ret = func(env *Env) {
 				arg := argfuns[0](env).Interface()
-				argslice := argfuns[1](env).Interface().([]interface{})
+				argslice := argfuns[1](env).Interface().([]I)
 				fun(arg, argslice...)
 			}
 		} else {
 			ret = func(env *Env) {
-				args := make([]interface{}, len(argfunsX1))
+				args := make([]I, len(argfunsX1))
 				for i, argfun := range argfunsX1 {
 					args[i] = argfun(env).Interface()
 				}
@@ -1252,7 +1252,7 @@ func (c *Comp) callFunction(node *ast.CallExpr, fun *Expr) (newfun *Expr, lastar
 	return newfun, lastarg
 }
 
-func (c *Comp) badBuiltinCallArgNum(name interface{}, nmin uint16, nmax uint16, args []ast.Expr) *Call {
+func (c *Comp) badBuiltinCallArgNum(name I, nmin uint16, nmax uint16, args []ast.Expr) *Call {
 	prefix := "not enough"
 	nargs := len(args)
 	if nargs > int(nmax) {
@@ -1271,12 +1271,12 @@ func (c *Comp) badBuiltinCallArgNum(name interface{}, nmin uint16, nmax uint16, 
 	return nil
 }
 
-func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, tactual xr.Type, texpected interface{}) *Call {
+func (c *Comp) badBuiltinCallArgType(name string, arg ast.Expr, tactual xr.Type, texpected I) *Call {
 	c.Errorf("cannot use %v <%v> as %v in builtin %s()", arg, tactual, texpected, name)
 	return nil
 }
 
-func anyToAst(any interface{}, caller interface{}) ast2.Ast {
+func anyToAst(any I, caller I) ast2.Ast {
 	if untyped, ok := any.(UntypedLit); ok {
 		any = untyped.Convert(untyped.DefaultType())
 	}

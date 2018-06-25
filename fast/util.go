@@ -298,7 +298,7 @@ func valueAsXV(any I, t xr.Type, opts CompileOptions) func(*Env) (r.Value, []r.V
 	v := r.ValueOf(any)
 	if t != nil {
 		rtype := t.ReflectType()
-		if reflect.ValueType(v) == nil {
+		if reflect.Type(v) == nil {
 			v = r.Zero(rtype)
 		} else if convertuntyped || !untyped {
 			v = convert(v, rtype)

@@ -51,7 +51,7 @@ var (
 	TypeOfString = r.TypeOf("")
 )
 
-func KindToCategory(k r.Kind) r.Kind {
+func Category(k r.Kind) r.Kind {
 	switch k {
 	case r.Int, r.Int8, r.Int16, r.Int32, r.Int64:
 		return r.Int
@@ -67,7 +67,7 @@ func KindToCategory(k r.Kind) r.Kind {
 }
 
 func IsCategory(k r.Kind, categories ...r.Kind) bool {
-	k = KindToCategory(k)
+	k = Category(k)
 	for _, c := range categories {
 		if k == c {
 			return true
@@ -118,7 +118,7 @@ func KindToType(k r.Kind) r.Type {
 // extends reflect.Value.Convert(t) by allowing conversions from/to complex numbers.
 // does not check for overflows or truncation.
 func ConvertValue(v r.Value, to r.Type) r.Value {
-	t := ValueType(v)
+	t := Type(v)
 	if t == to {
 		return v
 	}
@@ -155,10 +155,6 @@ func PackTypes(typ0 xr.Type, types []xr.Type) []xr.Type {
 	return types
 }
 
-func PackValuesAndTypes(val0 r.Value, values []r.Value, typ0 xr.Type, types []xr.Type) ([]r.Value, []xr.Type) {
-	return PackValues(val0, values), PackTypes(typ0, types)
-}
-
 func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
 	val0 := None
 	if len(vals) > 0 {
@@ -167,16 +163,16 @@ func UnpackValues(vals []r.Value) (r.Value, []r.Value) {
 	return val0, vals
 }
 
-// ValueInterface() is a zero-value-safe version of reflect.Value.Interface()
-func ValueInterface(v r.Value) interface{} {
+// Interface() is a zero-value-safe version of reflect.Value.Interface()
+func Interface(v r.Value) interface{} {
 	if !v.IsValid() || !v.CanInterface() || v == None {
 		return nil
 	}
 	return v.Interface()
 }
 
-// ValueType() is a zero-value-safe version of reflect.Value.Type()
-func ValueType(value r.Value) r.Type {
+// Type() is a zero-value-safe version of reflect.Value.Type()
+func Type(value r.Value) r.Type {
 	if !value.IsValid() || value == None {
 		return nil
 	}

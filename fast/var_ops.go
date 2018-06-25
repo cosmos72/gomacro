@@ -12187,7 +12187,7 @@ func (c *Comp) varQuoPow2(va *Var, val I) bool {
 	ypositive := true
 	yv := r.ValueOf(val)
 	var y uint64
-	switch reflect.KindToCategory(yv.Kind()) {
+	switch reflect.Category(yv.Kind()) {
 	case r.Int:
 		sy := yv.Int()
 		if sy < 0 {
@@ -32200,7 +32200,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		if init.Untyped() {
 			init.ConstTo(c.TypeOfUint64())
 			err = nil
-		} else if init.Type == nil || reflect.KindToCategory(init.Type.Kind()) != r.Uint {
+		} else if init.Type == nil || reflect.Category(init.Type.Kind()) != r.Uint {
 			err = fmt.Sprintf("\n\treason: type %v is %v, expecting unsigned integer", init.Type, init.Type.Kind())
 		} else {
 			err = nil

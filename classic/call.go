@@ -199,7 +199,7 @@ func (env *Env) evalCall(node *ast.CallExpr) (r.Value, []r.Value) {
 	default:
 		break
 	}
-	return env.Errorf("call of non-function %v <%v>: %v", reflect.ValueInterface(fun), reflect.ValueType(fun), node)
+	return env.Errorf("call of non-function %v <%v>: %v", reflect.Interface(fun), reflect.Type(fun), node)
 }
 
 func (env *Env) evalConstructorArgs(fun Constructor, node *ast.CallExpr) (r.Type, []r.Value) {

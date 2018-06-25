@@ -117,7 +117,7 @@ func setProxyField(place r.Value, mtd r.Value) {
 // extract a value from a proxy struct (one of the imports.* structs) that implements an interface
 // this is the inverse of the function returned by Comp.converterToProxy() above
 func (g *CompGlobals) extractFromProxy(v r.Value) (r.Value, xr.Type) {
-	// base.Debugf("type assertion: value = %v <%v>", v, base.ValueType(v))
+	// base.Debugf("type assertion: value = %v <%v>", v, base.Type(v))
 
 	// v.Kind() is allowed also on invalid r.Value, and it returns r.Invalid
 	if v.Kind() == r.Interface {
@@ -132,7 +132,7 @@ func (g *CompGlobals) extractFromProxy(v r.Value) (r.Value, xr.Type) {
 	// base.Debugf("type assertion: concrete value = %v <%v>", i, t)
 	if rt != nil && rt.Kind() == r.Ptr && g.proxy2interf[rt.Elem()] != nil {
 		v = v.Elem().Field(0)
-		if j, ok := reflect.ValueInterface(v).(xr.InterfaceHeader); ok {
+		if j, ok := reflect.Interface(v).(xr.InterfaceHeader); ok {
 			// base.Debugf("type assertion: unwrapped value = %v <%T>", j, j)
 			v = j.Value()
 			xt = j.Type()

@@ -60,7 +60,7 @@ var constantValZero = constant.MakeInt64(0)
 
 // ================================= Convert =================================
 
-// Convert checks that an UntypedLit can be converted exactly to the given type.
+// Convert checks that an untyped.Lit can be converted exactly to the given type.
 // performs actual untyped -> typed conversion and subsequent overflow checks.
 // returns the constant.Value converted to given type
 func (untyp *Lit) Convert(t xr.Type) interface{} {
@@ -240,19 +240,19 @@ func (untyp *Lit) BigFloat() *big.Float {
 
 	if i, exact := untyp.Int64(); exact {
 		ret = b.SetInt64(i)
-		// Debugf("UntypedLit.BigFloat(): converted int64 %v to *big.Float %v", i, b)
+		// Debugf("untyped.Lit.BigFloat(): converted int64 %v to *big.Float %v", i, b)
 	} else if f, exact := untyp.Float64(); exact {
 		ret = b.SetFloat64(f)
-		// Debugf("UntypedLit.BigFloat(): converted float64 %v to *big.Float %v", f, b)
+		// Debugf("untyped.Lit.BigFloat(): converted float64 %v to *big.Float %v", f, b)
 	} else if i := untyp.rawBigInt(); i != nil {
 		ret = b.SetInt(i)
-		// Debugf("UntypedLit.BigFloat(): converted *big.Int %v to *big.Float %v", *i, b)
+		// Debugf("untyped.Lit.BigFloat(): converted *big.Int %v to *big.Float %v", *i, b)
 	} else if r := untyp.rawBigRat(); r != nil {
 		ret = b.SetRat(r)
-		// Debugf("UntypedLit.BigFloat(): converted *big.Rat %v to *big.Float %v", *r, b)
+		// Debugf("untyped.Lit.BigFloat(): converted *big.Rat %v to *big.Float %v", *r, b)
 	} else if f := untyp.rawBigFloat(); f != nil {
 		ret = b.Set(f)
-		// Debugf("UntypedLit.BigFloat(): converted *big.Float %v to *big.Float %v", *f, b)
+		// Debugf("untyped.Lit.BigFloat(): converted *big.Float %v to *big.Float %v", *f, b)
 	}
 
 	if ret == nil {
@@ -268,7 +268,7 @@ func (untyp *Lit) BigFloat() *big.Float {
 		}
 		if ok {
 			ret = &b
-			// Debugf("UntypedLit.BigFloat(): converted constant.Value %v %v to *big.Float %v", untyp.Val.Kind(), s, b)
+			// Debugf("untyped.Lit.BigFloat(): converted constant.Value %v %v to *big.Float %v", untyp.Val.Kind(), s, b)
 		}
 	}
 	return ret
@@ -344,7 +344,7 @@ func (untyp *Lit) DefaultType() xr.Type {
 	switch untyp.Kind {
 	case Bool, Rune, Int, Float, Complex, String:
 		if basicTypes := untyp.basicTypes; basicTypes == nil {
-			output.Errorf("UntypedLit.DefaultType(): malformed untyped constant %v, has nil BasicTypes!", untyp)
+			output.Errorf("untyped.Lit.DefaultType(): malformed untyped constant %v, has nil BasicTypes!", untyp)
 			return nil
 		} else {
 			return (*basicTypes)[untyp.Kind]
@@ -360,10 +360,10 @@ func (untyp *Lit) DefaultType() xr.Type {
 
 // extractNumber converts the untyped constant src to an integer, float or complex.
 // panics if src has different kind from constant.Int, constant.Float and constant.Complex
-// the receiver (untyp UntypedLit) and the second argument (t reflect.Type) are only used to pretty-print the panic error message
+// the receiver (untyp *Lit) and the second argument (t reflect.Type) are only used to pretty-print the panic error message
 func (untyp *Lit) extractNumber(src constant.Value, t xr.Type) interface{} {
 	var n interface{}
-	cat := reflect.KindToCategory(t.Kind())
+	cat := reflect.Category(t.Kind())
 	var exact bool
 	switch src.Kind() {
 	case constant.Int:
@@ -411,11 +411,11 @@ func ConvertLiteralCheckOverflow(src interface{}, to xr.Type) interface{} {
 	if k == kto {
 		return vto.Interface() // no numeric conversion happened
 	}
-	c, cto := reflect.KindToCategory(k), reflect.KindToCategory(kto)
+	c, cto := reflect.Category(k), reflect.Category(kto)
 	if cto == r.Int || cto == r.Uint {
 		if c == r.Float64 || c == r.Complex128 {
 			// float-to-integer conversion. check for truncation
-			t1 := reflect.ValueType(v)
+			t1 := reflect.Type(v)
 			vback := reflect.ConvertValue(vto, t1)
 			if src != vback.Interface() {
 				output.Errorf("constant %v truncated to %v", src, to)
@@ -423,7 +423,7 @@ func ConvertLiteralCheckOverflow(src interface{}, to xr.Type) interface{} {
 			}
 		} else {
 			// integer-to-integer conversion. convert back and compare the interfaces for overflows
-			t1 := reflect.ValueType(v)
+			t1 := reflect.Type(v)
 			vback := vto.Convert(t1)
 			if src != vback.Interface() {
 				output.Errorf("constant %v overflows <%v>", src, to)

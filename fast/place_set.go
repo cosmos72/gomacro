@@ -36,7 +36,7 @@ func (c *Comp) placeSetZero(place *Place) {
 func (c *Comp) placeSetConst(place *Place, val I) {
 	rt := place.Type.ReflectType()
 	v := r.ValueOf(val)
-	if reflect.ValueType(v) == nil {
+	if reflect.Type(v) == nil {
 		v = r.Zero(rt)
 	} else {
 		v = convert(v, rt)
@@ -56,7 +56,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 		c.append(ret)
 		return
 	}
-	switch reflect.KindToCategory(rt.Kind()) {
+	switch reflect.Category(rt.Kind()) {
 	case r.Bool:
 
 		{

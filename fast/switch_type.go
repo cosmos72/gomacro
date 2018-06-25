@@ -203,7 +203,7 @@ func (c *Comp) typeswitchTag(e *Expr) *Bind {
 		init := e.AsX1()
 		c.append(func(env *Env) (Stmt, *Env) {
 			v, xt := extractor(init(env)) // extract value with concrete type
-			// Debugf("typeswitchTag = %v <%v>", v, ValueType(v))
+			// Debugf("typeswitchTag = %v <%v>", v, Type(v))
 			// no need to create a settable reflect.Value
 			env.Vals[index] = v
 			env.Vals[index+1] = r.ValueOf(xt)
@@ -293,7 +293,7 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, varname string, bind *Bind, 
 			// case nil:
 			stmt = func(env *Env) (Stmt, *Env) {
 				v := env.Vals[idx]
-				// Debugf("typeswitchCase: comparing %v <%v> against nil type", v, ValueType(v))
+				// Debugf("typeswitchCase: comparing %v <%v> against nil type", v, Type(v))
 				var ip int
 				if v.IsValid() {
 					ip = iend
@@ -307,7 +307,7 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, varname string, bind *Bind, 
 			// case emulated_interface:
 			stmt = func(env *Env) (Stmt, *Env) {
 				v := env.Vals[idx]
-				// Debugf("typeswitchCase: comparing %v <%v> against interface type %v", v, ValueType(v), rtype)
+				// Debugf("typeswitchCase: comparing %v <%v> against interface type %v", v, Type(v), rtype)
 				ip := iend
 				if v.IsValid() {
 					// rtype may be an interpreted type:
@@ -330,7 +330,7 @@ func (c *Comp) typeswitchCase(node *ast.CaseClause, varname string, bind *Bind, 
 			// case interface:
 			stmt = func(env *Env) (Stmt, *Env) {
 				v := env.Vals[idx]
-				// Debugf("typeswitchCase: comparing %v <%v> against interface type %v", v, ValueType(v), rtype)
+				// Debugf("typeswitchCase: comparing %v <%v> against interface type %v", v, Type(v), rtype)
 				ip := iend
 				if v.IsValid() {
 					if v.Type().Implements(rtype) {
