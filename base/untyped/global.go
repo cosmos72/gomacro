@@ -52,7 +52,7 @@ func (k Kind) String() string {
 }
 
 func (k Kind) Category() r.Kind {
-	return reflect.KindToCategory(r.Kind(k))
+	return reflect.Category(r.Kind(k))
 }
 
 // Lit represents an untyped literal value, i.e. an untyped constant

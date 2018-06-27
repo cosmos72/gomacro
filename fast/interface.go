@@ -45,7 +45,9 @@ func (c *Comp) TypeInterface(node *ast.InterfaceType) xr.Type {
 			embeddedtypes = append(embeddedtypes, typ)
 		}
 	}
-	return c.Universe.InterfaceOf(methodnames, methodtypes, embeddedtypes)
+	universe := c.Universe
+	pkg := universe.LoadPackage(c.FileComp().Path)
+	return universe.InterfaceOf(pkg, methodnames, methodtypes, embeddedtypes)
 }
 
 // InterfaceProxy returns the proxy struct that implements a compiled interface
@@ -117,7 +119,7 @@ func setProxyField(place r.Value, mtd r.Value) {
 // extract a value from a proxy struct (one of the imports.* structs) that implements an interface
 // this is the inverse of the function returned by Comp.converterToProxy() above
 func (g *CompGlobals) extractFromProxy(v r.Value) (r.Value, xr.Type) {
-	// base.Debugf("type assertion: value = %v <%v>", v, base.ValueType(v))
+	// base.Debugf("type assertion: value = %v <%v>", v, base.Type(v))
 
 	// v.Kind() is allowed also on invalid r.Value, and it returns r.Invalid
 	if v.Kind() == r.Interface {
@@ -132,7 +134,7 @@ func (g *CompGlobals) extractFromProxy(v r.Value) (r.Value, xr.Type) {
 	// base.Debugf("type assertion: concrete value = %v <%v>", i, t)
 	if rt != nil && rt.Kind() == r.Ptr && g.proxy2interf[rt.Elem()] != nil {
 		v = v.Elem().Field(0)
-		if j, ok := reflect.ValueInterface(v).(xr.InterfaceHeader); ok {
+		if j, ok := reflect.Interface(v).(xr.InterfaceHeader); ok {
 			// base.Debugf("type assertion: unwrapped value = %v <%T>", j, j)
 			v = j.Value()
 			xt = j.Type()
@@ -160,6 +162,7 @@ func (c *Comp) converterToEmulatedInterface(tin, tout xr.Type) func(val r.Value)
 		// xr.Type.MethodByName wants T, not *T, even for methods with pointer receiver
 		tsrc = tin.Elem()
 	}
+	debug := c.Options&base.OptDebugMethod != 0
 	for i := 0; i < n; i++ {
 		mtdout := tout.Method(i)
 		mtdin, count := tsrc.MethodByName(mtdout.Name, c.PackagePath) // pkgpath is ignored for exported names
@@ -170,10 +173,14 @@ func (c *Comp) converterToEmulatedInterface(tin, tout xr.Type) func(val r.Value)
 			c.Errorf("cannot convert from <%v> to <%v>: multiple methods match %s %s", tin, tout, mtdout.Name, mtdout.Type)
 		}
 		if !mtdin.Type.AssignableTo(mtdout.Type) {
-			c.Errorf("cannot convert from <%v> to <%v>: mismatched method %s: expecting %s, found %s",
+			c.Errorf("cannot convert from <%v> to <%v>: mismatched method %s: expecting %v, found %v",
 				tin, tout, mtdout.Name, mtdout.Type, mtdin.Type)
 		}
 		obj2methodFuncs[i] = c.compileObjGetMethod(tin, mtdin)
+		if debug {
+			c.Debugf("compiled  method conversion from %v.%s <%v> (concrete method %d) to %v.%s <%v> (interface method %d)",
+				tin, mtdin.Name, mtdin.Type, mtdin.Index, tout, mtdout.Name, mtdout.Type, mtdout.Index)
+		}
 	}
 	rtout := tout.ReflectType()
 

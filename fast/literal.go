@@ -62,7 +62,7 @@ func isLiteral(x interface{}) bool {
 		return true
 	}
 	rtype := r.TypeOf(x)
-	switch reflect.KindToCategory(rtype.Kind()) {
+	switch reflect.Category(rtype.Kind()) {
 	case r.Bool, r.Int, r.Uint, r.Float64, r.Complex128, r.String:
 		return true
 	}
@@ -75,7 +75,7 @@ func isLiteralNumber(x I, n int64) bool {
 		return false
 	}
 	v := r.ValueOf(x)
-	switch reflect.KindToCategory(v.Kind()) {
+	switch reflect.Category(v.Kind()) {
 	case r.Bool:
 		return false
 	case r.Int:

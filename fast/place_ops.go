@@ -42,7 +42,7 @@ func (c *Comp) placeAddConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -855,7 +855,7 @@ func (c *Comp) placeSubConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -1616,7 +1616,7 @@ func (c *Comp) placeMulConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -2372,7 +2372,7 @@ func (c *Comp) placeQuoConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -3135,7 +3135,7 @@ func (c *Comp) placeRemConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -3698,7 +3698,7 @@ func (c *Comp) placeAndConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -4255,7 +4255,7 @@ func (c *Comp) placeOrConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -4812,7 +4812,7 @@ func (c *Comp) placeXorConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 
@@ -5375,7 +5375,7 @@ func (c *Comp) placeAndnotConst(place *Place, val I) {
 		v := r.ValueOf(val)
 
 		if keyfun == nil {
-			switch reflect.KindToCategory(place.Type.Kind()) {
+			switch reflect.Category(place.Type.Kind()) {
 			case r.Int:
 				val := v.Int()
 

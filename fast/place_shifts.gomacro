@@ -226,7 +226,7 @@ import (
 
 		t := place.Type
 		rt := t.ReflectType()
-		cat := reflect.KindToCategory(t.Kind())
+		cat := reflect.Category(t.Kind())
 		if keyfun == nil {
 			switch cat {
 				~,@caselist
@@ -295,7 +295,7 @@ import (
 		keyfun := place.MapKey
 		t := place.Type
 		rt := t.ReflectType()
-		cat := reflect.KindToCategory(t.Kind())
+		cat := reflect.Category(t.Kind())
 		if keyfun == nil {
 			switch cat {
 				~,@caselist
@@ -352,7 +352,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 
 	ypositive := true
 	yv := r.ValueOf(val)
-	ycat := reflect.KindToCategory(yv.Kind())
+	ycat := reflect.Category(yv.Kind())
 	var y uint64
 	switch ycat {
 	case r.Int:

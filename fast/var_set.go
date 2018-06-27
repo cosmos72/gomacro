@@ -40,7 +40,7 @@ func (c *Comp) varSetConst(va *Var, val I) {
 
 	v := r.ValueOf(val)
 	rt := t.ReflectType()
-	if reflect.ValueType(v) == nil {
+	if reflect.Type(v) == nil {
 		v = r.Zero(rt)
 	} else {
 		v = convert(v, rt)

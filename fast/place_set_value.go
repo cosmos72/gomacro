@@ -41,7 +41,7 @@ func (c *Comp) placeSetValue(place *Place) func(lhs, key, val r.Value) {
 		}
 	}
 	var ret func(r.Value, r.Value, r.Value)
-	switch reflect.KindToCategory(rtype.Kind()) {
+	switch reflect.Category(rtype.Kind()) {
 	case r.Bool:
 		ret = func(lhs, key, val r.Value) {
 			lhs.SetBool(val.Bool())

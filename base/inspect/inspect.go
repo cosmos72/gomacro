@@ -156,7 +156,7 @@ func (ip *Inspector) showFields(v r.Value) {
 	n := v.NumField()
 	for i := 0; i < n; i++ {
 		f := v.Field(i)
-		t := reflect.ValueType(f)
+		t := reflect.Type(f)
 		f = dereferenceValue(f)
 		g.Fprintf(g.Stdout, "    %d. ", i)
 		ip.showVar(v.Type().Field(i).Name, f, t)
@@ -168,7 +168,7 @@ func (ip *Inspector) showIndexes(v r.Value) {
 	n := v.Len()
 	for i := 0; i < n; i++ {
 		f := v.Index(i)
-		t := reflect.ValueType(f)
+		t := reflect.Type(f)
 		f = dereferenceValue(f)
 		g.Fprintf(g.Stdout, "    %d. ", i)
 		ip.showVar("", f, t)
@@ -234,7 +234,7 @@ func (ip *Inspector) Enter(cmd string) {
 		fname = v.Type().Field(i).Name
 		f = v.Field(i)
 	default:
-		g.Fprintf(g.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", reflect.ValueType(v))
+		g.Fprintf(g.Stdout, "cannot enter <%v>: expecting array, slice, string or struct\n", reflect.Type(v))
 		return
 	}
 	var t r.Type

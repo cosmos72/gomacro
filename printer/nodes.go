@@ -798,9 +798,17 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 			p.print(token.RPAREN)
 		} else {
 			// no parenthesis needed
-			p.print(x.Op)
-			if x.Op == token.RANGE {
+			op := x.Op
+			p.print(op)
+			switch op {
+			case token.RANGE:
 				// TODO(gri) Remove this code if it cannot be reached.
+				p.print(blank)
+			case mt.QUOTE, mt.QUASIQUOTE, mt.UNQUOTE, mt.UNQUOTE_SPLICE:
+				if flit, ok := x.X.(*ast.FuncLit); ok {
+					p.block(flit.Body, 1)
+					return
+				}
 				p.print(blank)
 			}
 			p.expr1(x.X, prec, depth)

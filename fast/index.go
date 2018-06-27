@@ -69,7 +69,7 @@ func (c *Comp) indexExpr(node *ast.IndexExpr, multivalued bool) *Expr {
 }
 func (c *Comp) vectorIndex(node *ast.IndexExpr, obj *Expr, idx *Expr) *Expr {
 	k := idx.Type.Kind()
-	cat := reflect.KindToCategory(k)
+	cat := reflect.Category(k)
 	if cat == r.Int || cat == r.Uint || idx.Untyped() {
 		if !c.TypeOfInt().IdenticalTo(idx.Type) {
 			idx = c.convert(idx, c.TypeOfInt(), node.Index)

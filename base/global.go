@@ -184,7 +184,7 @@ func (g *Globals) Print(values []r.Value, types []xr.Type) {
 				if types != nil && i < len(types) {
 					ti = types[i]
 				} else {
-					ti = reflect.ValueType(vi)
+					ti = reflect.Type(vi)
 				}
 				g.Fprintf(g.Stdout, "%v\t// %v\n", vi, ti)
 			}

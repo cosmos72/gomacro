@@ -416,7 +416,7 @@ func rtypeof(v r.Value, t xr.Type) r.Type {
 	if t != nil {
 		return t.ReflectType()
 	}
-	return reflect.ValueType(v)
+	return reflect.Type(v)
 }
 
 // TypeAssert2 compiles a multi-valued type assertion
@@ -445,7 +445,7 @@ func (c *Comp) TypeAssert2(node *ast.TypeAssertExpr) *Expr {
 	case reflect.IsOptimizedKind(kout):
 		ret = func(env *Env) (r.Value, []r.Value) {
 			v, t := extractor(fun(env))
-			if reflect.ValueType(v) != rtout || (t != nil && !t.AssignableTo(tout)) {
+			if reflect.Type(v) != rtout || (t != nil && !t.AssignableTo(tout)) {
 				return fail[0], fail
 			}
 			return v, []r.Value{v, True}
@@ -853,7 +853,7 @@ var (
 	rtypeOfPtrTemplateFunc = r.TypeOf((*TemplateFunc)(nil))
 	rtypeOfPtrTemplateType = r.TypeOf((*TemplateType)(nil))
 	rtypeOfReflectType     = r.TypeOf((*r.Type)(nil)).Elem()
-	rtypeOfUntypedLit      = r.TypeOf(UntypedLit{})
+	rtypeOfUntypedLit      = r.TypeOf((*UntypedLit)(nil)).Elem()
 
 	zeroOfReflectType = r.Zero(rtypeOfReflectType)
 )
