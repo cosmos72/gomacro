@@ -185,9 +185,8 @@ import (`, alias, gen.path, filepkg)
 	for path, name := range gen.pkgrenames {
 		if mode == ImInception && path == gen.path {
 			continue // writing inside the package: it should not import itself
-		} else if name == paths.FileName(path) {
-			fmt.Fprintf(out, "\n\t%q", path)
 		} else {
+			// always name the imported package: its name may differ from paths.FileName(path)
 			fmt.Fprintf(out, "\n\t%s %q", name, path)
 		}
 	}

@@ -26,6 +26,8 @@ import (
 	"os"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/strings"
+
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/reflect"
@@ -120,6 +122,9 @@ func LookupPackage(name, path string) *PackageRef {
 	if !found {
 		return nil
 	}
+	if len(name) == 0 {
+		name = strings.TailIdentifier(paths.FileName(path))
+	}
 	return &PackageRef{Package: pkg, Name: name, Path: path}
 }
 
@@ -152,6 +157,9 @@ func (imp *Importer) ImportPackageOrError(name, pkgpath string) (*PackageRef, er
 	case "_3":
 		mode = ImThirdParty
 	default:
+		if len(name) == 0 {
+			name = gpkg.Name()
+		}
 		havePluginOpen := imp.setPluginOpen()
 		if havePluginOpen {
 			mode = ImPlugin
