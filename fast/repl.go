@@ -26,12 +26,12 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"unicode"
 
 	"github.com/cosmos72/gomacro/ast2"
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/base/reflect"
+	bstrings "github.com/cosmos72/gomacro/base/strings"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -586,35 +586,7 @@ func (c *Comp) completeLastWord(node interface{}, word string) []string {
 
 // return the trailing substring of s that is a valid identifier
 func TailIdentifier(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	// work on unicode runes, not on bytes
-	chars := []rune(s)
-	var i, n = 0, len(chars)
-	var digit bool
-	for i = n - 1; i >= 0; i-- {
-		ch := chars[i]
-		if ch < 0x80 {
-			if ch >= 'A' && ch <= 'Z' || ch == '_' || ch >= 'a' && ch <= 'z' {
-				digit = false
-			} else if ch >= '0' && ch <= '9' {
-				digit = true
-			} else {
-				break
-			}
-		} else if unicode.IsLetter(ch) {
-			digit = false
-		} else if unicode.IsDigit(ch) {
-			digit = true
-		} else {
-			break
-		}
-	}
-	if digit {
-		i++
-	}
-	return string(chars[i+1:])
+	return bstrings.TailIdentifier(s)
 }
 
 func sortUnique(vec []string) []string {
