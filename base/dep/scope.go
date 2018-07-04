@@ -288,8 +288,9 @@ func (s *Scope) Func(node *ast.FuncDecl) []string {
 		deps = append(deps, types...)
 		kind = Method
 	}
-	// support recursive functions
-	s.Decls[name] = &Decl{Kind: kind, Name: name}
+	// support recursive functions: forward-declare the function
+	// decl := &Decl{Kind: kind, Name: name}
+	// s.Decls.add(decl)
 
 	// check function body for global constants, types, variables!
 	deps = append(deps, inner.Expr(node.Body)...)
@@ -402,6 +403,5 @@ func (s *Scope) selectorExpr(node *ast.SelectorExpr) []string {
 }
 
 func (s *Scope) add(decl *Decl) *Decl {
-	s.Decls[decl.Name] = decl
-	return decl
+	return s.Decls.add(decl)
 }
