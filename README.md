@@ -70,7 +70,6 @@ Gomacro can be used as:
   See [MPL 2.0 FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) for common questions
   regarding the license terms and conditions.
 
-
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
 
@@ -296,7 +295,7 @@ gomacro contains an experimental version of Go generics.
 
 For the experience report written while implementing them, see [doc/generics.md](doc/generics.md)
 
-They are in early stage of development, and at the moment only generic types and functions are supported.
+They are in beta status, and at the moment only generic types and functions are supported.
 Syntax and examples:
 ```
 template[T,U] type Pair struct { First T; Second U }
@@ -335,21 +334,58 @@ Transform#[string,int] // returns func([]string, func(string) int) []int
 // returns []int{3, 2, 1} i.e. the len() of each string in input slice:
 
 Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
+
+// Partial and full specialization of templates are supported.
+// Together with recursive templates, they also (incidentally)
+// provide Turing completeness at compile-time:
+
+// The following example uses recursion and full specialization
+// to compute fibonacci sequence at compile time.
+
+// general case: encode Fib#[N] in the length of array type.
+template[N] type Fib [
+	len((*Fib#[N-1])(nil)) +
+	len((*Fib#[N-2])(nil))   ]int
+
+template[] for[2] type Fib [1]int // specialization for Fib#[2]
+template[] for[1] type Fib [1]int // specialization for Fib#[1]
+
+const Fib30 = len((*Fib#[30])(nil)) // compile-time constant
+
 ```
 Current limitations:
-* partial or full template specializations not supported yet.
 * instantiation is on-demand, but template arguments #[...] must be explicit.
 * template methods not supported yet.
-* template types and functions cannot yet be recursive, i.e. they cannot reference themselves
+
+Observation: the compile-time Turing completeness provided by these C++-style templates
+is really poorly readable, for three reasons:
+* iteration must be written as recursion
+* `if` must be written as template specialization, outside the main template
+* integers must be encoded inside types, for example in the length of array types
+
+In the author's opinion, compile-time Turing completeness is a very enticing
+feature for several use cases and for a non-trivial percentage of developers.
+
+If the only way to get such feature is with poorly readable (ab)use of templates,
+the result is a lot of poorly readable template code.
+
+If Turing-complete templates are ever added to Go (or any other language)
+it is thus very important to also provide an alternative, more natural syntax
+to perform Turing-complete computation at compile-time. An example
+could be: `const foo(args)` where the function `foo` must respect certain
+constraints (to be defined) in order to be callable at compile time.
+
+For a more detailed discussion, see [doc/generics.md](doc/generics.md).
 
 ## Debugger
 
 Since version 2.6, gomacro also has an integrated debugger.
-There are two ways to use it:
+There are three ways to enter it:
+* hit CTRL+C while interpreted code is running.
 * type `:debug STATEMENT-OR-FUNCTION-CALL` at the prompt.
 * add a statement (an expression is not enough) `"break"` or `_ = "break"` to your code, then execute it normally.
 
-In both cases, execution will be suspended and you will get a `debug>` prompt, which accepts the following commands:  
+In all cases, execution will be suspended and you will get a `debug>` prompt, which accepts the following commands:  
 `step`, `next`, `finish`, `continue`, `env [NAME]`, `inspect EXPR`, `list`, `print EXPR-OR-STATEMENT`
 
 Also,
