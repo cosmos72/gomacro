@@ -17,8 +17,10 @@
 package paths
 
 import (
+	"fmt"
 	"go/build"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -68,8 +70,20 @@ func Subdir(dirs ...string) string {
 	return strings.Join(dirs, "/")
 }
 
-var (
-	GoSrcDir = Subdir(build.Default.GOPATH, "src")
+func findGomacroDir() string {
+	pkg := filepath.Join("github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
+	for _, dir := range filepath.SplitList(build.Default.GOPATH) {
+		path := filepath.Join(dir, "src", pkg)
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+	fmt.Printf("// WARNING: could not find %q in $GOPATH\n", pkg)
+	return GoSrcDir
+}
 
-	GomacroDir = Subdir(GoSrcDir, "github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
+var (
+	GoSrcDir = Subdir(filepath.SplitList(build.Default.GOPATH)[0], "src")
+
+	GomacroDir = findGomacroDir()
 )
