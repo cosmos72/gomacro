@@ -71,11 +71,11 @@ func Subdir(dirs ...string) string {
 }
 
 var (
-	GoPkgDir = filepath.Join("github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
+	GoPkg = filepath.Join("github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
 
 	GoSrcDir = Subdir(filepath.SplitList(build.Default.GOPATH)[0], "src")
 
-	GomacroDir = findGomacroDir(GoPkgDir)
+	GomacroDir = findGomacroDir(GoPkg)
 )
 
 func findGomacroDir(pkg string) string {
@@ -86,6 +86,7 @@ func findGomacroDir(pkg string) string {
 			return path
 		}
 	}
-	fmt.Printf("// warning: could not find package %q in $GOPATH = %q, assuming package is located in %q\n", pkg, gopath, Subdir(GoSrcDir, pkg))
-	return GoSrcDir
+	defaultDir := Subdir(GoSrcDir, pkg)
+	fmt.Printf("// warning: could not find package %q in $GOPATH = %q, assuming package is located in %q\n", pkg, gopath, defaultDir)
+	return defaultDir
 }
