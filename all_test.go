@@ -393,6 +393,7 @@ var testcases = []TestCase{
 	TestCase{A, "var_pointer", "var vp *string; vp", (*string)(nil), nil},
 	TestCase{A, "var_map", "var vm *map[error]bool; vm", (*map[error]bool)(nil), nil},
 	TestCase{A, "var_slice", "var vbs []byte; vbs", ([]byte)(nil), nil},
+	TestCase{A, "var_named_slice", "type Bytes []byte; var vns Bytes; vns", ([]byte)(nil), nil},
 	TestCase{A, "var_array", "var va [2]rune; va", [2]rune{}, nil},
 	TestCase{A, "var_interface_1", "var vi interface{} = 1; vi", 1, nil},
 	TestCase{A, "var_interface_2", "var vnil interface{}; vnil", nil, nil},
@@ -668,7 +669,8 @@ var testcases = []TestCase{
 	TestCase{F, "big.Rat", `(func() *big.Rat { var x *big.Rat = 1.000000001; x.Mul(x,x); x.Mul(x,x); return x })()`, bigRat, nil},
 	TestCase{F, "big.Float", `(func() *big.Float { var x *big.Float = 1e1234; x.Mul(x,x); x.Mul(x,x); return x })()`, bigFloat, nil},
 
-	TestCase{A, "builtin_append", "append(vbs,0,1,2)", []byte{0, 1, 2}, nil},
+	TestCase{A, "builtin_append_1", "append(vbs,0,1,2)", []byte{0, 1, 2}, nil},
+	TestCase{A, "builtin_append_2", "append(vns,3,4)", []byte{3, 4}, nil},
 	TestCase{A, "builtin_cap", "cap(va)", 2, nil},
 	TestCase{A, "builtin_len", "len(vs)", len("8y57riuh@#$"), nil},
 	TestCase{A, "builtin_new", "new(int)", new(int), nil},
