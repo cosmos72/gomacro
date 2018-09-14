@@ -660,7 +660,7 @@ func (c *Comp) computeMethodFieldIndex(t xr.Type, mtd xr.Method) (fieldtype xr.T
 				fieldindex = make([]int, len(mtd.FieldIndex))
 				copy(fieldindex, mtd.FieldIndex)
 			}
-			fieldindex[i] = ^x // remember we need a pointer dereference at runtime
+			fieldindex[i] = x
 		}
 		t = t.Field(x).Type
 	}
@@ -744,7 +744,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				fieldindex = make([]int, len(mtd.FieldIndex))
 				copy(fieldindex, mtd.FieldIndex)
 			}
-			fieldindex[i] = ^x // remember we neeed a pointer dereference at runtime
+			fieldindex[i] = x
 			t = t.Elem()
 		}
 		t = t.Field(x).Type
@@ -765,19 +765,11 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 		// receiver is pointer-to-tsave
 		if tsave.Kind() != r.Ptr {
 			tsave = c.Universe.PtrTo(tsave)
-			if len(fieldindex) != 0 && fieldindex[0] >= 0 {
-				// remember we neeed a pointer dereference at runtime
-				fieldindex[0] = ^fieldindex[0]
-			}
 		}
 	} else {
 		// receiver is tsave
 		if tsave.Kind() == r.Ptr {
 			tsave = tsave.Elem()
-			if len(fieldindex) != 0 && fieldindex[0] < 0 {
-				// no pointer dereference at runtime
-				fieldindex[0] = ^fieldindex[0]
-			}
 		}
 	}
 	tfunc = c.changeFirstParam(tsave, tfunc)
