@@ -22,6 +22,8 @@ import (
 	"go/token"
 	r "reflect"
 
+	"github.com/cosmos72/gomacro/base/strings"
+
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/reflect"
 	"github.com/cosmos72/gomacro/base/untyped"
@@ -255,9 +257,10 @@ func (c *Comp) compileType2(node ast.Expr, allowEllipsis bool) (t xr.Type, ellip
 	case *ast.StructType:
 		// c.Debugf("evalType() struct declaration: %v <%v>", node, r.TypeOf(node))
 		types, names := c.TypeFields(node.Fields)
-		// c.Debugf("evalType() struct names and types: %v %v", types, names)
+		tags := c.fieldsTags(node.Fields)
+		// c.Debugf("evalType() struct names = %v types = %v tags = %v", names, types, tags)
 		pkg := universe.LoadPackage(c.FileComp().Path)
-		fields := c.makeStructFields(pkg, names, types)
+		fields := c.makeStructFields(pkg, names, types, tags)
 		// c.Debugf("compileType2() declaring struct type. fields=%#v", fields)
 		t = universe.StructOf(fields)
 	case nil:
@@ -396,20 +399,39 @@ func (c *Comp) ResolveType(name string) xr.Type {
 	return t
 }
 
-func (c *Comp) makeStructFields(pkg *xr.Package, names []string, types []xr.Type) []xr.StructField {
+func (c *Comp) makeStructFields(pkg *xr.Package, names []string, types []xr.Type, tags []string) []xr.StructField {
 	// pkgIdentifier := sanitizeIdentifier(pkgPath)
 	fields := make([]xr.StructField, len(names))
 	for i, name := range names {
-		t := types[i]
 		fields[i] = xr.StructField{
 			Name:      name,
 			Pkg:       pkg,
-			Type:      t,
-			Tag:       "",
+			Type:      types[i],
+			Tag:       r.StructTag(tags[i]),
 			Anonymous: len(name) == 0,
 		}
 	}
 	return fields
+}
+
+func (c *Comp) fieldsTags(fields *ast.FieldList) []string {
+	var tags []string
+	if fields != nil {
+		for _, field := range fields.List {
+			var tag string
+			if lit := field.Tag; lit != nil && lit.Kind == token.STRING {
+				tag = strings.MaybeUnescapeString(lit.Value)
+			}
+			if len(field.Names) == 0 {
+				tags = append(tags, tag)
+			} else {
+				for range field.Names {
+					tags = append(tags, tag)
+				}
+			}
+		}
+	}
+	return tags
 }
 
 func rtypeof(v r.Value, t xr.Type) r.Type {
