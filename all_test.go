@@ -879,9 +879,12 @@ var testcases = []TestCase{
 	TestCase{A, "select_4", "vi = nil; select { case cx<-2: vi=2; default: vi=0 }; vi", 2, nil},
 	TestCase{A, "select_5", "vi = nil; select { case cx<-3: vi=3; default: vi=0 }; vi", 0, nil},
 	TestCase{A, "select_6", "vi = nil; select { case cx<-4: vi=4; case x:=<-cx: vi=x; default: vi=0 }; vi", 1, nil},
+	TestCase{A, "for_select_1", "for { select { }; break }", nil, none},
+	// FIXME: break is confused by select { default: }
+	TestCase{C, "for_select_2", "for { select { default: }; break }", nil, none},
 	// non-empty 'select' needs a local bind, and 'for' must know it
-	TestCase{A, "for_select_1", "_ = func() { for { select { }; break } }", nil, none},
-	TestCase{A, "for_select_2", "_ = func() { for { select { case <-cx: default: return } } }", nil, none},
+	TestCase{A, "for_select_3", "_ = func() { for { select { }; return } }", nil, none},
+	TestCase{A, "for_select_4", "_ = func() { for { select { case <-cx: default: return } } }", nil, none},
 
 	TestCase{A, "switch_1", "vi=nil; switch { case false: ; default: vi='1' }; vi", '1', nil},
 	TestCase{A, "switch_2", "vi=nil; switch v:=20; v { case 20: vi='2'; vi='3' }; vi", '3', nil},
@@ -902,6 +905,8 @@ var testcases = []TestCase{
 		time.Sleep(time.Second/10)
 		list_args(v0, vi)
 	`, []interface{}{10, 20}, nil},
+	TestCase{A, "for_switch_1", "for { switch { }; break }", nil, none},
+	TestCase{A, "for_switch_2", "for { switch { default: }; break }", nil, none},
 
 	TestCase{A, "typeswitch_1", `vi = nil; var x interface{} = "abc"; switch y := x.(type) { default: vi = 0; case string: vi = len(y) }; vi`, 3, nil},
 	TestCase{A, "typeswitch_2", `vi = nil; switch x.(type) { default: vi = 0; case byte, bool: vi = 1; case interface{}: vi = 2 }; vi`, 2, nil},
