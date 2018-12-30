@@ -34,9 +34,9 @@ func identicalType(t, u Type) bool {
 	return xt == yt || xt.identicalTo(yt)
 }
 
-func debugOnMismatchCache(gtype types.Type, rtype reflect.Type, cached Type) {
-	debugf("overwriting mismatched reflect.Type found in cache for type %v:\n\tnew reflect.Type: %v\n\told reflect.Type: %v",
-		gtype, rtype, cached.ReflectType()) //, debug.Stack())
+func debugOnMismatchCache(m *typeutil.Map, gtype types.Type, rtype reflect.Type, cached Type) {
+	debugf("overwriting mismatched reflect.Type found in cache for type %v (hash 0x%x):\n\tnew reflect.Type: %v\n\told reflect.Type: %v",
+		typeutil.String(gtype), m.Hasher().Hash(gtype), rtype, cached.ReflectType()) //, debug.Stack())
 }
 
 func (t *xtype) warnOnSuspiciousCache() {
@@ -101,7 +101,7 @@ func (v *Universe) maketype3(kind reflect.Kind, gtype types.Type, rtype reflect.
 			return t
 		}
 		if v.debug() {
-			debugOnMismatchCache(gtype, rtype, t)
+			debugOnMismatchCache(&v.Types.gmap, gtype, rtype, t)
 		}
 	}
 	t := wrap(&xtype{kind: kind, gtype: gtype, rtype: rtype, universe: v})
@@ -235,7 +235,14 @@ func (t *xtype) String() string {
 	if t == nil {
 		return "<nil>"
 	}
-	return t.gtype.String()
+	return typeutil.String(t.gtype)
+}
+
+func (t *xtype) string2(name string) string {
+	if t == nil {
+		return "<nil>"
+	}
+	return typeutil.String2(name, t.gtype)
 }
 
 /*
