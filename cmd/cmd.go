@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/inspect"
 	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/fast"
@@ -114,6 +115,8 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		case "-x", "--exec":
 			clear |= OptMacroExpandOnly
 			set &^= OptMacroExpandOnly
+		case "-g", "--genimport":
+			return genimport.GoGenerateMain(args[1:], NewGlobals().Importer)
 		default:
 			arg := args[0]
 			if len(arg) > 0 && arg[0] == '-' {
@@ -148,6 +151,8 @@ func (cmd *Cmd) Usage() error {
     -c,   --collect          collect declarations and statements, to print them later
     -e,   --expr EXPR        evaluate expression
     -f,   --force-overwrite  option -w will overwrite existing files
+    -g,   --genimport <path> write x_package.go bindings for this Go import path
+                             (omit path to import current dir and write x_package.go here).
     -h,   --help             show this help and exit
     -i,   --repl             interactive. start a REPL after evaluating expression, files and dirs.
                              default: start a REPL only if no expressions, files or dirs are specified
