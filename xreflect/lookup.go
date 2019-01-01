@@ -205,11 +205,18 @@ func (t *xtype) MethodByName(name, pkgpath string) (method Method, count int) {
 	if name == "_" || (!t.Named() && t.kind != reflect.Interface) {
 		return
 	}
-	qname := QName2(name, pkgpath)
 	v := t.universe
 	if v.ThreadSafe {
 		defer un(lock(v))
 	}
+	return t.methodByName(name, pkgpath)
+}
+
+func (t *xtype) methodByName(name, pkgpath string) (method Method, count int) {
+	if name == "_" || (!t.Named() && t.kind != reflect.Interface) {
+		return
+	}
+	qname := QName2(name, pkgpath)
 	method, found := t.methodcache[qname]
 	if found {
 		index := method.Index

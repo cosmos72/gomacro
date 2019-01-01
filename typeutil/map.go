@@ -19,7 +19,7 @@ import (
 // == cannot be used to check for equivalence, and thus we cannot
 // simply use a Go map.
 //
-// Just as with map[K]V, a nil *Map is a valid empty map.
+// Just as with map[K]V, a nil *Map is a valid, read-only empty map.
 //
 // Not thread-safe.
 //
@@ -58,6 +58,31 @@ type entry struct {
 //
 func (m *Map) SetHasher(hasher Hasher) {
 	m.hasher = hasher
+}
+
+// Hasher gets the hasher used by Map, if present.
+//
+// All Hashers are functionally equivalent but contain internal state
+// used to cache the results of hashing previously seen types.
+//
+// A single Hasher created by MakeHasher() may be shared among many
+// Maps.  This is recommended if the instances have many keys in
+// common, as it will amortize the cost of hash computation.
+//
+// A Hasher may grow without bound as new types are seen.  Even when a
+// type is deleted from the map, the Hasher never shrinks, since other
+// types in the map may reference the deleted type indirectly.
+//
+// Hashers are not thread-safe, and read-only operations such as
+// Map.Lookup require updates to the hasher, so a full Mutex lock (not a
+// read-lock) is require around all Map operations if a shared
+// hasher is accessed from multiple threads.
+func (m *Map) Hasher() Hasher {
+	var ret Hasher
+	if m != nil {
+		ret = m.hasher
+	}
+	return ret
 }
 
 // Delete removes the entry with the given key, if any.
@@ -300,7 +325,7 @@ func (h Hasher) hashFor(t types.Type) uint32 {
 		if t.Variadic() {
 			hash *= 8863
 		}
-		// PATCH: also consider the receiver type
+		// PATCH: also include the receiver type
 		return hash + 3*h.hashTuple(t.Params()) + 5*h.hashTuple(t.Results()) + 7*h.hashVar(t.Recv())
 
 	case *types.Interface:

@@ -604,16 +604,26 @@ func TestInterfaceIoReadWriter(t *testing.T) {
 	is(t, m.Name, "Read")
 	is(t, m.Type.NumIn(), 2) // receiver and []uint8
 	is(t, m.Type.NumOut(), 2)
-	is(t, m.Type.String(), "func([]uint8) (int, error)")
-	isidenticalgotype(t, m.Type.In(0).GoType(), rw.gunderlying())
+
+	// go/types.Type.String() does not show the receiver
+	is(t, m.Type.GoType().String(), "func([]uint8) (int, error)")
+	// instead xreflect.Type.String() also shows it
+	is(t, m.Type.String(), "func (interface{io.Reader; io.Writer}).([]uint8) (int, error)")
+
+	// isidenticalgotype(t, m.Type.In(0).GoType(), rw.gunderlying()) // changed in Go 1.12.beta1
 
 	m, count = rw.MethodByName("Write", "")
 	is(t, count, 1)
 	is(t, m.Name, "Write")
 	is(t, m.Type.NumIn(), 2) // receiver and []uint8
 	is(t, m.Type.NumOut(), 2)
-	is(t, m.Type.String(), "func([]uint8) (int, error)")
-	isidenticalgotype(t, m.Type.In(0).GoType(), rw.gunderlying())
+
+	// go/types.Type.String() does not show the receiver
+	is(t, m.Type.GoType().String(), "func([]uint8) (int, error)")
+	// instead xreflect.Type.String() also shows it
+	is(t, m.Type.String(), "func (interface{io.Reader; io.Writer}).([]uint8) (int, error)")
+
+	// isidenticalgotype(t, m.Type.In(0).GoType(), rw.gunderlying()) // changed in Go 1.12.beta1
 
 	trw := u.TypeOf((*io.ReadWriter)(nil)).Elem()
 
