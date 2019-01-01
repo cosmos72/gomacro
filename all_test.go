@@ -487,8 +487,8 @@ var testcases = []TestCase{
 	TestCase{F, "field_embedded_2", "triple.B", "", nil},
 	TestCase{F, "field_embedded_3", "triple.Pair.A", rune(0), nil},
 	TestCase{F, "field_embedded_4", "triple.Pair.B", "", nil},
-	TestCase{F, "field_embedded_4", "tp.A", panics, nil},
-	TestCase{F, "field_embedded_5", "tp.Pair = &triple.Pair; tp.B", "", nil},
+	TestCase{F, "field_embedded_5", "tp.A", panics, nil},
+	TestCase{F, "field_embedded_6", "tp.Pair = &triple.Pair; tp.B", "", nil},
 
 	TestCase{F, "self_embedded_1", "type X struct { *X }; X{}.X", (xr.Forward)(nil), nil},
 	TestCase{F, "self_embedded_2", "var x X; x.X = &x; x.X.X.X.X.X.X.X.X == &x", true, nil},

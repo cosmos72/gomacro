@@ -223,8 +223,9 @@ func (ir *Interp) TypeOf(val interface{}) xr.Type {
 }
 
 // ValueOf retrieves the value of a constant, function or variable
-// The returned value is settable and addressable only for variables
-// returns the zero value if name is not found
+// in the current package.
+// The returned value is settable and addressable only for variables.
+// Returns the zero value if name is not found
 func (ir *Interp) ValueOf(name string) (value r.Value) {
 	sym := ir.Comp.TryResolve(name)
 	if sym == nil {

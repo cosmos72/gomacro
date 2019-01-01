@@ -112,6 +112,60 @@ func (imp *Import) asInterpreter(outer *Interp) Interp {
 
 // =========================== import package =================================
 
+// ImportPackage imports a package. Panics if the import fails.
+// If name is the empty string, it defaults to the identifier
+// specified in the package clause of the imported package
+func (ir *Interp) ImportPackage(name, path string) *Import {
+	return ir.Comp.ImportPackage(name, path)
+}
+
+// ImportPackageOrError imports a package.
+// If name is the empty string, it defaults to the identifier
+// specified in the package clause of the imported package
+func (ir *Interp) ImportPackageOrError(name, path string) (*Import, error) {
+	return ir.Comp.ImportPackageOrError(name, path)
+}
+
+// ImportPackage imports a package. Panics if the import fails.
+// Usually invoked as Comp.FileComp().ImportPackage(name, path)
+// because imports are usually top-level statements in a source file.
+// But we also support local imports, i.e. import statements inside a function or block.
+func (c *Comp) ImportPackage(name, path string) *Import {
+	imp, err := c.ImportPackageOrError(name, path)
+	if err != nil {
+		panic(err)
+	}
+	return imp
+}
+
+// ImportPackageOrError imports a package.
+// If name is the empty string, it defaults to the identifier
+// specified in the package clause of the imported package
+func (c *Comp) ImportPackageOrError(name, path string) (*Import, error) {
+	g := c.CompGlobals
+	imp := g.KnownImports[path]
+	if imp == nil {
+		pkgref, err := g.Importer.ImportPackageOrError(name, path)
+		if err != nil {
+			return nil, err
+		}
+		imp = g.NewImport(pkgref)
+	}
+	if name == "." {
+		c.declDotImport0(imp)
+	} else if name != "_" {
+		// https://golang.org/ref/spec#Package_clause states:
+		// If the PackageName is omitted, it defaults to the identifier
+		// specified in the package clause of the imported package
+		if len(name) == 0 {
+			name = imp.Name
+		}
+		c.declImport0(name, imp)
+	}
+	g.KnownImports[path] = imp
+	return imp, nil
+}
+
 // Import compiles an import statement
 func (c *Comp) Import(node ast.Spec) {
 	switch node := node.(type) {
@@ -144,41 +198,6 @@ func (g *CompGlobals) sanitizeImportPath(path string) string {
 		g.Errorf("invalid import %q: contains \".\"", path)
 	}
 	return path
-}
-
-// ImportPackage imports a package. Usually invoked as Comp.FileComp().ImportPackage(name, path)
-// because imports are usually top-level statements in a source file.
-// But we also support local imports, i.e. import statements inside a function or block.
-func (c *Comp) ImportPackage(name, path string) {
-	_, err := c.ImportPackageOrError(name, path)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func (c *Comp) ImportPackageOrError(name, path string) (*Import, error) {
-	g := c.CompGlobals
-	imp := g.KnownImports[path]
-	if imp == nil {
-		pkgref, err := g.Importer.ImportPackageOrError(name, path)
-		if err != nil {
-			return nil, err
-		}
-		imp = g.NewImport(pkgref)
-	}
-	if name == "." {
-		c.declDotImport0(imp)
-	} else if name != "_" {
-		// https://golang.org/ref/spec#Package_clause states:
-		// If the PackageName is omitted, it defaults to the identifier
-		// specified in the package clause of the imported package
-		if len(name) == 0 {
-			name = imp.Name
-		}
-		c.declImport0(name, imp)
-	}
-	g.KnownImports[path] = imp
-	return imp, nil
 }
 
 // declDotImport0 compiles an import declaration.
