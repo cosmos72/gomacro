@@ -211,12 +211,15 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		v.RebuildDepth--
 	}
 	gtype := xt.gtype.(*types.Named)
+	cache := makeGmethodMap(gtype)
+
 	for _, rtype := range rtypes {
 		for i, ni := 0, rtype.NumMethod(); i < ni; i++ {
 			rmethod := rtype.Method(i)
-			if gmethodByName(gtype, rmethod.Name, rmethod.PkgPath) != nil {
+			qname := QName2(rmethod.Name, rmethod.PkgPath)
+			if cache[qname] {
 				if debug {
-					m, _ := xt.methodByName(rmethod.Name, "")
+					m, _ := xt.methodByName(rmethod.Name, rmethod.PkgPath)
 					v.debugf("method already present: %v", m)
 				}
 				continue
@@ -228,7 +231,7 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 			n2 := xt.NumExplicitMethod()
 			if n1 == n2 {
 				if debug {
-					m, _ := xt.methodByName(rmethod.Name, "")
+					m, _ := xt.methodByName(rmethod.Name, rmethod.PkgPath)
 					v.debugf("method already present (case 2, should not happen): %v", m)
 				}
 				continue
@@ -237,6 +240,7 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 				xt.methodvalues = append(xt.methodvalues, nilv)
 			}
 			xt.methodvalues[n1] = rmethod.Func
+			cache[qname] = true
 			if debug {
 				m := xt.method(n1)
 				v.debugf("added method %v", m)
@@ -246,15 +250,13 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 	return t
 }
 
-func gmethodByName(gtype *types.Named, name string, pkgpath string) *types.Func {
-	qname := QName2(name, pkgpath)
-	for i, n := 0, gtype.NumMethods(); i < n; i++ {
-		gmethod := gtype.Method(i)
-		if qname == QNameGo(gmethod) {
-			return gmethod
-		}
+func makeGmethodMap(gtype *types.Named) map[QName]bool {
+	n := gtype.NumMethods()
+	m := make(map[QName]bool)
+	for i := 0; i < n; i++ {
+		m[QNameGo(gtype.Method(i))] = true
 	}
-	return nil
+	return m
 }
 
 func (v *Universe) fromReflectField(rfield *reflect.StructField) StructField {
