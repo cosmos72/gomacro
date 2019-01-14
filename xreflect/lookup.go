@@ -120,14 +120,16 @@ func fieldByName(t *xtype, qname QName, offset uintptr, index []int, m *depthMap
 }
 
 func derefStruct(t *xtype) (*xtype, *types.Struct) {
-	switch gtype := t.gtype.Underlying().(type) {
-	case *types.Struct:
-		return t, gtype
-	case *types.Pointer:
-		gelem, ok := gtype.Elem().Underlying().(*types.Struct)
-		if ok {
-			// not t.Elem(), it would acquire Universe lock
-			return unwrap(t.elem()), gelem
+	if t != nil {
+		switch gtype := t.gtype.Underlying().(type) {
+		case *types.Struct:
+			return t, gtype
+		case *types.Pointer:
+			gelem, ok := gtype.Elem().Underlying().(*types.Struct)
+			if ok {
+				// not t.Elem(), it would acquire Universe lock
+				return unwrap(t.elem()), gelem
+			}
 		}
 	}
 	return nil, nil
@@ -315,12 +317,9 @@ func (v *Universe) VisitFields(t Type, visitor func(StructField)) {
 
 	for len(curr) != 0 {
 		for _, xt := range curr {
-			if xt == nil {
-				continue
-			}
 			// embedded fields can be named types or pointers to named types
 			xt, _ = derefStruct(xt)
-			if xt.kind != reflect.Struct || seen.At(xt.gtype) != nil {
+			if xt == nil || xt.kind != reflect.Struct || seen.At(xt.gtype) != nil {
 				continue
 			}
 			seen.Set(xt.gtype, xt.gtype)
