@@ -44,6 +44,8 @@ var rbasictypes = []reflect.Type{
 	reflect.UnsafePointer: reflect.TypeOf(unsafe.Pointer(nil)),
 }
 
+var ReflectBasicTypes = rbasictypes
+
 func (v *Universe) makeBasicTypes() []Type {
 	m := make([]Type, len(rbasictypes))
 	for gkind := types.Bool; gkind <= types.UnsafePointer; gkind++ {

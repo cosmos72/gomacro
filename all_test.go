@@ -739,6 +739,10 @@ var testcases = []TestCase{
 	TestCase{A, "literal_struct", `Pair{A: 0x73, B: "\x94"}`, Pair{A: 0x73, B: "\x94"}, nil},
 	TestCase{A, "literal_struct_address", `&Pair{1,"2"}`, &Pair{A: 1, B: "2"}, nil},
 
+	TestCase{A, "named_func_type_1", `import "context"
+      _, cancel := context.WithCancel(context.Background())
+      cancel()`, nil, none},
+
 	TestCase{A, "method_decl_1", `func (p *Pair) SetA(a rune) { p.A = a }; nil`, nil, nil},
 	TestCase{A, "method_decl_2", `func (p Pair) SetAV(a rune) { p.A = a }; nil`, nil, nil},
 	TestCase{A, "method_decl_3", `func (p Pair) String() string { return fmt.Sprintf("%c %s", p.A, p.B) }; nil`, nil, nil},
