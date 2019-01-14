@@ -191,6 +191,16 @@ func (m *Map) Keys() []types.Type {
 	return keys
 }
 
+// Values returns a new slice containing the set of map values.
+// The order is unspecified.
+func (m *Map) Values() []interface{} {
+	values := make([]interface{}, 0, m.Len())
+	m.Iterate(func(_ types.Type, value interface{}) {
+		values = append(values, value)
+	})
+	return values
+}
+
 func (m *Map) toString(values bool) string {
 	if m == nil {
 		return "{}"

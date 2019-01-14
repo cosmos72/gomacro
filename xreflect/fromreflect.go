@@ -45,15 +45,29 @@ func (v *Universe) FromReflectType(rtype reflect.Type) Type {
 	}
 	defer v.partialTypes.clear()
 
+	if v.debug() {
+		v.debugf("FromReflectType: %v", rtype)
+		defer de(bug(v))
+	}
+
 	t := v.fromReflectType(rtype)
 
 	// add methods only after generating all requested types.
 	// reason: cannot add methods to incomplete types,
 	// their t.gunderlying() will often be interface{}
-	v.partialTypes.gmap.Iterate(func(gtype types.Type, i interface{}) {
-		t := i.(Type)
-		v.addmethods(t, t.ReflectType())
-	})
+	//
+	// we need to iterate multiple times because new types
+	// may be added to v.partialTypes.gmap while iterating
+	for v.partialTypes.gmap.Len() != 0 {
+		vec := v.partialTypes.gmap.Values()
+		v.partialTypes.clear()
+		for _, interf := range vec {
+			if interf != nil {
+				ti := interf.(Type)
+				v.addmethods(ti, ti.ReflectType())
+			}
+		}
+	}
 	return t
 }
 
@@ -65,10 +79,12 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	if t != nil && t.ReflectType() == rtype {
 		return t
 	}
+	debug := v.debug()
 	if t = v.ReflectTypes[rtype]; t != nil {
-		// debugf("found rtype in cache: %v -> %v (%v)", rtype, t, t.ReflectType())
-		if rtype != t.ReflectType() {
-			v.debugf("warning: mismatched rtype cache: %v -> %v (%v)", rtype, t, t.ReflectType())
+		if debug {
+			if rtype != t.ReflectType() {
+				v.debugf("warning: mismatched rtype cache: %v -> %v (%v)", rtype, t, t.ReflectType())
+			}
 		}
 		// time.Sleep(100 * time.Millisecond)
 		return t
@@ -78,6 +94,10 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	if tryresolve != nil && len(name) != 0 {
 		t = tryresolve(name, rtype.PkgPath())
 		if t != nil {
+			if debug {
+				v.debugf("found named type using TryResolve: %v -> %v", t, rtype)
+			}
+			v.queueForAddMethods(t, rtype)
 			return t
 		}
 	}
@@ -95,7 +115,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 	if len(name) != 0 {
 		if !v.rebuild() {
 			if t = v.namedTypeFromImport(rtype); unwrap(t) != nil {
-				// debugf("found type in import: %v -> %v", t, t.ReflectType())
+				v.queueForAddMethods(t, rtype)
 				return t
 			}
 		}
@@ -103,7 +123,7 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 		t = v.reflectNamedOf(name, rtype.PkgPath(), rtype.Kind(), rtype)
 		v.cache(rtype, t) // support self-referencing types
 	}
-	if v.debug() {
+	if debug {
 		v.debugf("%s %v", rtype.Kind(), rtype)
 		defer de(bug(v))
 	}
@@ -148,11 +168,19 @@ func (v *Universe) fromReflectType(rtype reflect.Type) Type {
 			t.UnsafeForceReflectType(rtype)
 		}
 	}
+	v.queueForAddMethods(t, rtype)
+	return t
+}
+
+func (v *Universe) queueForAddMethods(t Type, rtype reflect.Type) bool {
 	if rtype.NumMethod() != 0 || rtype.Kind() != reflect.Ptr && reflect.PtrTo(rtype).NumMethod() != 0 {
 		// FromReflectType() will invoke addmethods(t, t.ReflectType()) on all v.partialTypes
+		v.debugf("will scan methods of: %v", t)
 		v.partialTypes.add(t)
+		return true
 	}
-	return t
+	v.debugf("no methods to scan for: %v", rtype)
+	return false
 }
 
 func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
@@ -202,7 +230,7 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		return t
 	}
 	if debug {
-		v.debugf("adding methods to %v", xt)
+		v.debugf("adding methods to: %v", xt)
 		defer de(bug(v))
 	}
 	xt.methodvalues = make([]reflect.Value, 0, ntotal)

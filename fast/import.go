@@ -261,8 +261,8 @@ func (g *CompGlobals) NewImport(pkgref *PackageRef) *Import {
 	if pkgref != nil {
 		imp.Name = pkgref.Name
 		imp.Path = pkgref.Path
-		imp.loadBinds(g, pkgref)
 		imp.loadTypes(g, pkgref)
+		imp.loadBinds(g, pkgref)
 		g.loadProxies(pkgref.Proxies, imp.Types)
 	}
 	return imp
