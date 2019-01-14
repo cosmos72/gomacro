@@ -19,7 +19,7 @@ import (
 // == cannot be used to check for equivalence, and thus we cannot
 // simply use a Go map.
 //
-// Just as with map[K]V, a nil *Map is a valid empty map.
+// Just as with map[K]V, a nil Map is a valid empty map.
 //
 // Not thread-safe.
 //
