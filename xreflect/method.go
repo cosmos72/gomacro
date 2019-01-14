@@ -17,18 +17,16 @@
 package xreflect
 
 import (
-	"bytes"
-	"fmt"
 	"go/ast"
 	"go/types"
 	"reflect"
+
+	"github.com/cosmos72/gomacro/typeutil"
 )
 
+// return detailed string representation of a method signature, including its receiver if present
 func (m Method) String() string {
-	gt := m.Type.GoType().(*types.Signature)
-	var buf bytes.Buffer
-	types.WriteSignature(&buf, gt, nil)
-	return fmt.Sprintf("%s%s", m.Name, buf.String())
+	return typeutil.String2(m.Name, m.GoFun.Type())
 }
 
 // For interfaces, NumMethod returns *total* number of methods for interface t,

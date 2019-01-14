@@ -161,12 +161,15 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		// fromReflectInterface() already added methods to interface.
 		return t
 	}
-	if rtype.Kind() != reflect.Ptr {
-		// use pointer-to-type to get methods with both value and pointer receiver
-		rtype = reflect.PtrTo(rtype)
+	// collect methods with both value and pointer receiver
+	rtypes := [2]reflect.Type{rtype, rtype}
+	if rtype.Kind() == reflect.Ptr {
+		rtypes[0] = rtype.Elem()
+	} else {
+		rtypes[1] = reflect.PtrTo(rtype)
 	}
-	n := rtype.NumMethod()
-	if n == 0 {
+	ntotal := rtypes[0].NumMethod() + rtypes[1].NumMethod()
+	if ntotal == 0 {
 		return t
 	}
 	if xt.kind == reflect.Ptr {
@@ -186,39 +189,72 @@ func (v *Universe) addmethods(t Type, rtype reflect.Type) Type {
 		// debugf("NOT adding methods to unnamed type %v", t)
 		return t
 	}
+	debug := v.debug()
 	if xt.kind != gtypeToKind(xt, xt.gtype) {
-		if v.debug() {
-			debugf("NOT adding methods to incomplete named type %v. call SetUnderlying() first.", xt)
+		if debug {
+			v.debugf("NOT adding methods to incomplete named type %v. call SetUnderlying() first.", xt)
 		}
 		return t
 	}
 	if xt.methodvalues != nil {
 		// prevent another infinite recursion: Type.AddMethod() may reference the type itself in its methods
 		// debugf("NOT adding again %d methods to %v", n, tm)
-	} else {
-		// debugf("adding %d methods to %v", n, tm)
-		xt.methodvalues = make([]reflect.Value, 0, n)
-		nilv := reflect.Value{}
-		if v.rebuild() {
-			v.RebuildDepth--
-		}
-		for i := 0; i < n; i++ {
+		return t
+	}
+	if debug {
+		v.debugf("adding methods to %v", xt)
+		defer de(bug(v))
+	}
+	xt.methodvalues = make([]reflect.Value, 0, ntotal)
+	nilv := reflect.Value{}
+	if v.rebuild() {
+		v.RebuildDepth--
+	}
+	gtype := xt.gtype.(*types.Named)
+	for _, rtype := range rtypes {
+		for i, ni := 0, rtype.NumMethod(); i < ni; i++ {
 			rmethod := rtype.Method(i)
+			if gmethodByName(gtype, rmethod.Name, rmethod.PkgPath) != nil {
+				if debug {
+					m, _ := xt.methodByName(rmethod.Name, "")
+					v.debugf("method already present: %v", m)
+				}
+				continue
+			}
+
 			signature := v.fromReflectMethod(rmethod.Type)
 			n1 := xt.NumExplicitMethod()
 			xt.AddMethod(rmethod.Name, signature)
 			n2 := xt.NumExplicitMethod()
 			if n1 == n2 {
-				// method was already present
+				if debug {
+					m, _ := xt.methodByName(rmethod.Name, "")
+					v.debugf("method already present (case 2, should not happen): %v", m)
+				}
 				continue
 			}
 			for len(xt.methodvalues) < n2 {
 				xt.methodvalues = append(xt.methodvalues, nilv)
 			}
 			xt.methodvalues[n1] = rmethod.Func
+			if debug {
+				m := xt.method(n1)
+				v.debugf("added method %v", m)
+			}
 		}
 	}
 	return t
+}
+
+func gmethodByName(gtype *types.Named, name string, pkgpath string) *types.Func {
+	qname := QName2(name, pkgpath)
+	for i, n := 0, gtype.NumMethods(); i < n; i++ {
+		gmethod := gtype.Method(i)
+		if qname == QNameGo(gmethod) {
+			return gmethod
+		}
+	}
+	return nil
 }
 
 func (v *Universe) fromReflectField(rfield *reflect.StructField) StructField {

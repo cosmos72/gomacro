@@ -142,6 +142,32 @@ func TestFunc(t *testing.T) {
 	is(t, fun.String(), String2(fun.Name(), fun.Type()))
 }
 
+func TestMap(t *testing.T) {
+	typ := newNamed(t, "MyInt", types.Typ[types.Int])
+	sig1 := newSignature(t,
+		newVar(t, "obj", typ), // value reveicer
+		nil,
+		newTuple(t,
+			newVar(t, "", types.Typ[types.String]),
+		),
+		false,
+	)
+	sig2 := newSignature(t,
+		newVar(t, "obj", types.NewPointer(typ)), // pointer reveicer
+		nil,
+		newTuple(t,
+			newVar(t, "", types.Typ[types.String]),
+		),
+		false,
+	)
+	m := Map{}
+	m.Set(sig1, 1)
+	m.Set(sig2, 2)
+	is(t, m.Len(), 2)
+	is(t, m.At(sig1), 1)
+	is(t, m.At(sig2), 2)
+}
+
 func newVar(t *testing.T, namestr string, typ types.Type) *types.Var {
 	v := types.NewVar(token.NoPos, nil, namestr, typ)
 	isfalse(t, v.Anonymous())
