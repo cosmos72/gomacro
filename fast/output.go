@@ -166,17 +166,47 @@ func showTypes(out io.Writer, name string, path string, types map[string]xr.Type
 
 const spaces15 = "               "
 
-func showValue(out io.Writer, name string, v r.Value, t xr.Type, stringer func(xr.Type) string) {
-	n := len(name) & 15
-	str := stringer(t)
-	if v == base.Nil || v == base.None {
-		fmt.Fprintf(out, "%s%s = nil\t// %s\n", name, spaces15[n:], str)
-	} else {
-		fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], v, str)
-	}
-}
-
 func showType(out io.Writer, name string, t xr.Type, stringer func(xr.Type) string) {
 	n := len(name) & 15
 	fmt.Fprintf(out, "%s%s = %v\t// %v\n", name, spaces15[n:], stringer(t), t.Kind())
+}
+
+func showValue(out io.Writer, name string, v r.Value, t xr.Type, stringer func(xr.Type) string) {
+	n := len(name) & 15
+	fmt.Fprintf(out, "%s%s = %v\t// %s\n", name, spaces15[n:], valueString(v, 0), stringer(t))
+}
+
+// convert a reflect.Value to string, intercepting any panic
+func valueString(v r.Value, depth int) (s string) {
+	ok := false
+	defer func() {
+		if !ok {
+			recover()
+			s = valueString2(v, depth)
+		}
+	}()
+	if !v.IsValid() || v == base.None {
+		s = "nil"
+	} else {
+		s = fmt.Sprintf("%v", v)
+	}
+	ok = true
+	return s
+}
+
+func valueString2(v r.Value, depth int) (s string) {
+	ok := false
+	defer func() {
+		if !ok {
+			err := recover()
+			if depth == 0 {
+				s = "(error printing value: " + valueString(r.ValueOf(err), depth+1) + ")"
+			} else {
+				s = "(error printing error)"
+			}
+		}
+	}()
+	s = fmt.Sprintf("%#v", v)
+	ok = true
+	return s
 }
