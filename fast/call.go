@@ -23,7 +23,6 @@ import (
 	"go/token"
 	r "reflect"
 
-	"github.com/cosmos72/gomacro/base"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -248,6 +247,29 @@ func (c *Comp) checkCallArgs(node *ast.CallExpr, t xr.Type, args []*Expr, ellips
 	}
 }
 
+func (call *Call) canOptimize() bool {
+	rtype := call.Fun.Type.ReflectType()
+	if rtype.Name() != "" {
+		// no optimization for named func type
+		return false
+	}
+	for i, n := 0, rtype.NumIn(); i < n; i++ {
+		ti := rtype.In(i)
+		if ti.Kind() == r.UnsafePointer || ti != xr.ReflectBasicTypes[ti.Kind()] {
+			// no optimization for func argument whose type is not a basic type
+			return false
+		}
+	}
+	for i, n := 0, rtype.NumOut(); i < n; i++ {
+		ti := rtype.Out(i)
+		if ti.Kind() == r.UnsafePointer || ti != xr.ReflectBasicTypes[ti.Kind()] {
+			// no optimization for func return value whose type is not a basic type
+			return false
+		}
+	}
+	return true
+}
+
 // mandatory optimization: fast_interpreter ASSUMES that expressions
 // returning bool, int, uint, float, complex, string do NOT wrap them in reflect.Value
 func (c *Comp) call_ret0(call *Call, maxdepth int) func(env *Env) {
@@ -257,34 +279,54 @@ func (c *Comp) call_ret0(call *Call, maxdepth int) func(env *Env) {
 		return call_variadic_ret0(call, maxdepth)
 	}
 	// optimize fun(t1, t2)
-	exprfun := call.Fun.AsX1()
 	var ret func(*Env)
-	switch len(call.Args) {
-	case 0:
-		ret = c.call0ret0(call, maxdepth)
-	case 1:
-		ret = c.call1ret0(call, maxdepth)
-	case 2:
-		ret = c.call2ret0(call, maxdepth)
-	case 3:
-		argfunsX1 := call.MakeArgfunsX1()
-		argfuns := [3]func(*Env) r.Value{
-			argfunsX1[0],
-			argfunsX1[1],
-			argfunsX1[2],
-		}
-		ret = func(env *Env) {
-			funv := exprfun(env)
-			argv := []r.Value{
-				argfuns[0](env),
-				argfuns[1](env),
-				argfuns[2](env),
-			}
-			callxr(funv, argv)
+	if call.canOptimize() {
+		switch len(call.Args) {
+		case 0:
+			ret = c.call0ret0(call, maxdepth)
+		case 1:
+			ret = c.call1ret0(call, maxdepth)
+		case 2:
+			ret = c.call2ret0(call, maxdepth)
 		}
 	}
 	if ret == nil {
-		argfunsX1 := call.MakeArgfunsX1()
+		ret = c.callnret0(call, maxdepth)
+	}
+	return ret
+}
+
+// mandatory optimization: fast_interpreter ASSUMES that expressions
+// returning no values are compiled as func(*Env)
+func (c *Comp) callnret0(call *Call, maxdepth int) func(env *Env) {
+	exprfun := call.Fun.AsX1()
+	argfunsX1 := call.MakeArgfunsX1()
+	var ret func(*Env)
+	switch len(argfunsX1) {
+	case 0:
+		ret = func(env *Env) {
+			funv := exprfun(env)
+			callxr(funv, nil)
+		}
+	case 1:
+		argfun := argfunsX1[0]
+		ret = func(env *Env) {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfun(env),
+			}
+			callxr(funv, argv)
+		}
+	case 2:
+		ret = func(env *Env) {
+			funv := exprfun(env)
+			argv := []r.Value{
+				argfunsX1[0](env),
+				argfunsX1[1](env),
+			}
+			callxr(funv, argv)
+		}
+	default:
 		ret = func(env *Env) {
 			funv := exprfun(env)
 			argv := make([]r.Value, len(argfunsX1))
@@ -306,14 +348,17 @@ func (c *Comp) call_ret1(call *Call, maxdepth int) I {
 		return call_variadic_ret1(call, maxdepth)
 	}
 	var ret I
-	switch len(call.Args) {
-	case 0:
-		ret = c.call0ret1(call, maxdepth)
-	case 1:
-		ret = c.call1ret1(call, maxdepth)
-	case 2:
-		ret = c.call2ret1(call, maxdepth)
-	default:
+	if call.canOptimize() {
+		switch len(call.Args) {
+		case 0:
+			ret = c.call0ret1(call, maxdepth)
+		case 1:
+			ret = c.call1ret1(call, maxdepth)
+		case 2:
+			ret = c.call2ret1(call, maxdepth)
+		}
+	}
+	if ret == nil {
 		ret = c.callnret1(call, maxdepth)
 	}
 	return ret
@@ -330,12 +375,11 @@ func (c *Comp) call_ret2plus(call *Call, maxdepth int) func(env *Env) (r.Value, 
 	exprfun := expr.AsX1()
 	argfunsX1 := call.MakeArgfunsX1()
 	var ret func(*Env) (r.Value, []r.Value)
-	// slightly optimize fun() (tret0, tret1)
 	switch len(call.Args) {
 	case 0:
 		ret = func(env *Env) (r.Value, []r.Value) {
 			funv := exprfun(env)
-			retv := callxr(funv, base.ZeroValues)
+			retv := callxr(funv, nil)
 			return retv[0], retv
 		}
 	case 1:
