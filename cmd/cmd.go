@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/inspect"
 	"github.com/cosmos72/gomacro/fast"
 	"github.com/cosmos72/gomacro/fast/debug"
@@ -86,6 +87,15 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			}
 		case "-f", "--force-overwrite":
 			cmd.OverwriteFiles = true
+		case "-g", "--genimport":
+			repl = false
+			g := ir.Comp.Globals      // make a copy
+			g.Stdout = ioutil.Discard // silence debug messages
+			g.Stderr = ioutil.Discard // silence warning and error messages
+			err := genimport.GoGenerateMain(args[1:], &g)
+			if err != nil {
+				return err
+			}
 		case "-h", "--help":
 			return cmd.Usage()
 		case "-i", "--repl":
@@ -116,8 +126,7 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		default:
 			arg := args[0]
 			if len(arg) > 0 && arg[0] == '-' {
-				fmt.Fprintf(g.Stderr, "gomacro: unrecognized option '%s'.\nTry 'gomacro --help' for more information\n", arg)
-				return nil
+				return fmt.Errorf("gomacro: unrecognized option '%s'.\nTry 'gomacro --help' for more information", arg)
 			}
 			repl = false
 			if cmd.WriteDeclsAndStmts {
@@ -147,6 +156,9 @@ func (cmd *Cmd) Usage() error {
     -c,   --collect          collect declarations and statements, to print them later
     -e,   --expr EXPR        evaluate expression
     -f,   --force-overwrite  option -w will overwrite existing files
+    -g,   --genimport [PATH] write x_package.go bindings for specified import path and exit.
+                             Use "gomacro -g ." or omit path to import the current dir.
+                             Used in "//go:generate gomacro -g ." directives.
     -h,   --help             show this help and exit
     -i,   --repl             interactive. start a REPL after evaluating expression, files and dirs.
                              default: start a REPL only if no expressions, files or dirs are specified
