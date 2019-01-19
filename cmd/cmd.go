@@ -88,6 +88,16 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			}
 		case "-f", "--force-overwrite":
 			cmd.OverwriteFiles = true
+		case "-g", "--genimport":
+			repl = false
+			o := g.Output             // make a copy
+			o.Stdout = ioutil.Discard // silence debug messages
+			o.Stderr = ioutil.Discard // silence warning and error messages
+			imp := genimport.DefaultImporter(&o)
+			err := genimport.GoGenerateMain(args[1:], imp)
+			if err != nil {
+				return err
+			}
 		case "-h", "--help":
 			return cmd.Usage()
 		case "-i", "--repl":
@@ -115,17 +125,10 @@ func (cmd *Cmd) Main(args []string) (err error) {
 		case "-x", "--exec":
 			clear |= OptMacroExpandOnly
 			set &^= OptMacroExpandOnly
-		case "-g", "--genimport":
-			repl = false
-			err := genimport.GoGenerateMain(args[1:], NewGlobals().Importer)
-			if err != nil {
-				return err
-			}
 		default:
 			arg := args[0]
 			if len(arg) > 0 && arg[0] == '-' {
-				fmt.Fprintf(g.Stderr, "gomacro: unrecognized option '%s'.\nTry 'gomacro --help' for more information\n", arg)
-				return nil
+				return fmt.Errorf("gomacro: unrecognized option '%s'.\nTry 'gomacro --help' for more information", arg)
 			}
 			repl = false
 			if cmd.WriteDeclsAndStmts {
@@ -155,7 +158,7 @@ func (cmd *Cmd) Usage() error {
     -c,   --collect          collect declarations and statements, to print them later
     -e,   --expr EXPR        evaluate expression
     -f,   --force-overwrite  option -w will overwrite existing files
-    -g,   --genimport <path> write x_package.go bindings for this Go import path and exit.
+    -g,   --genimport [PATH] write x_package.go bindings for specified import path and exit.
                              Use "gomacro -g ." or omit path to import the current dir.
                              Used in "//go:generate gomacro -g ." directives.
     -h,   --help             show this help and exit

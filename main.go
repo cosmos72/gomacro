@@ -29,7 +29,8 @@ func main() {
 
 	err := cmd.Main(args)
 	if err != nil {
-		g := cmd.Interp.Comp.Globals
-		g.Fprintf(g.Stderr, "%s\n", err)
+		o := &cmd.Interp.Comp.Output
+		o.Fprintf(o.Stderr, "%s\n", err)
+		os.Exit(1)
 	}
 }

@@ -2,11 +2,12 @@ package genimport
 
 import (
 	"fmt"
+	"go/build"
 	"os"
 	"strings"
 )
 
-var sep = string(os.PathSeparator)
+const sep = string(os.PathSeparator)
 
 // GoGenerateMain allows gomacro to be run under
 // go generate. It is used to write new x_package.go
@@ -22,8 +23,8 @@ var sep = string(os.PathSeparator)
 //`//go:generate gomacro -g github.com/cosmos72/gomacro/classic`
 //
 // to specify the exact import path. The second, specific
-// form, may be necessary if we cannot detect
-// the GOPATH variable in your environment.
+// form, may be necessary if we cannot detect the GOPATH
+// environment variable.
 //
 func GoGenerateMain(arg []string, imp *Importer) error {
 	var pkgpath string
@@ -32,9 +33,9 @@ func GoGenerateMain(arg []string, imp *Importer) error {
 	case narg == 0 || (narg > 0 && arg[0] == "."):
 		cwd, err := os.Getwd()
 		if err != nil {
-			return fmt.Errorf("gomacro -g error trying to get current dir: '%v'", err)
+			return fmt.Errorf("gomacro -g: error getting current dir: %v", err)
 		}
-		gopath := os.Getenv("GOPATH")
+		gopath := build.Default.GOPATH
 		prefix := gopath + sep + "src" + sep
 		if strings.HasPrefix(cwd, prefix) {
 			pkgpath = cwd[len(prefix):]
@@ -43,14 +44,10 @@ func GoGenerateMain(arg []string, imp *Importer) error {
 			// since traditionally all packages are
 			// after $GOPATH/src/
 			splt := strings.SplitN(cwd, sep+"src"+sep, 2)
-			if len(splt) > 1 {
-				pkgpath = splt[1]
-			} else {
-				return fmt.Errorf(
-					"error: under gomacro -g <import path>" +
-						" must specify import path" +
-						" as we could not guess it.")
+			if len(splt) <= 1 {
+				return fmt.Errorf("gomacro -g: unable to detect current package, please specify it")
 			}
+			pkgpath = splt[1]
 		}
 	default:
 		pkgpath = arg[0]
