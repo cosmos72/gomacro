@@ -52,9 +52,13 @@ Misc:
         dec     %rax
         push    %rax
         pop     %rax
-        movzbw  %al,%cx
-        movzbl  %al,%rcx
-        movzwl  %ax,%rcx
+        movzx  %al,%cx
+        movzx  %al,%rcx
+        movzx  %ax,%rcx
+        movsx  %al,%cx
+        movsx  %al,%rcx
+        movsx  %ax,%rcx
+        movsx  %eax,%rcx
         ret
 	.cfi_endproc
 

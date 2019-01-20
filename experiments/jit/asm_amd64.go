@@ -24,6 +24,28 @@ func assert(flag bool) {
 	}
 }
 
+// %reg_z = const
+func (asm *Asm) mov_const(z hwReg, c uint64) *Asm {
+	if c == 0 {
+		return asm.xor_reg_self(z)
+	}
+	if s := int64(c); s == int64(int32(s)) {
+		return asm.op_reg_const(z, hwMOV, int32(s))
+	}
+	zlo, zhi := z.lohi()
+	return asm.Bytes(0x48|zhi, 0xB8|zlo).Uint64(c)
+}
+
+// %reg_z ^= %reg_z // compact way to zero a register
+func (asm *Asm) xor_reg_self(z hwReg) *Asm {
+	zlo, zhi := z.lohi()
+	if zhi == 0 {
+		return asm.Bytes(0x31, 0xC0|zlo|zlo<<3)
+	} else {
+		return asm.Bytes(0x48|zhi<<1|zhi<<2, 0x31, 0xC0|zlo|zlo<<3)
+	}
+}
+
 // %reg_z OP= const
 func (asm *Asm) op_reg_const(z hwReg, op hwOp, c int32) *Asm {
 	zlo, zhi := z.lohi()
@@ -31,7 +53,7 @@ func (asm *Asm) op_reg_const(z hwReg, op hwOp, c int32) *Asm {
 	if op == hwMOV {
 		// hwMOV has different encoding and only supports
 		// 32-bit signed immediate constants.
-		// Use movabs for 64-bit unsigned immediate constants.
+		// Use mov_const for 64bit wide constants.
 		return asm.Bytes(0x48|zhi, 0xC7, 0xC0|zlo).Int32(c)
 	}
 

@@ -334,3 +334,27 @@ Const_s32:
         ret
 	.cfi_endproc
 
+	.p2align 4,,15
+	.globl	Const_u64
+	.type	Const_u64, @function
+Const_u64:
+	.cfi_startproc
+	movabs	$0x1234567890ABCDEF,%rax
+	movabs	$0x1234567890ABCDEF,%rcx
+	movabs	$0x1234567890ABCDEF,%rdx
+	movabs	$0x1234567890ABCDEF,%rbx
+	movabs	$0x1234567890ABCDEF,%rsp
+	movabs	$0x1234567890ABCDEF,%rbp
+	movabs	$0x1234567890ABCDEF,%rsi
+	movabs	$0x1234567890ABCDEF,%rdi
+	movabs	$0x1234567890ABCDEF,%r8
+	movabs	$0x1234567890ABCDEF,%r9
+	movabs	$0x1234567890ABCDEF,%r10
+	movabs	$0x1234567890ABCDEF,%r11
+	movabs	$0x1234567890ABCDEF,%r12
+	movabs	$0x1234567890ABCDEF,%r13
+	movabs	$0x1234567890ABCDEF,%r14
+	movabs	$0x1234567890ABCDEF,%r15
+        ret
+	.cfi_endproc
+
