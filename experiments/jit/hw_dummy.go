@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * hwreg_dummy.go
+ * hw_dummy.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi

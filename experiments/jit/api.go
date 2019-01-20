@@ -30,6 +30,13 @@ type hwRegCounter struct {
 	count uint32
 }
 
+// hardware memory location.
+type hwMem struct {
+	off uint32
+	siz uint8 // 1, 2, 4 or 8
+	reg hwReg
+}
+
 // software-defined register. mapped to hardware register by Asm
 type Reg uint32
 
