@@ -18,20 +18,25 @@ package arch
 
 import (
 	"fmt"
-	"reflect"
 )
 
+// hardware memory location.
+type Mem struct {
+	off int32
+	reg Reg // also defines width and signedness
+}
+
 func (m Mem) String() string {
-	return fmt.Sprintf("[%v+%v]/*%v*/", m.reg, m.off, m.kind)
+	return fmt.Sprintf("[%v+%v]/*%v*/", m.reg.id, m.off, m.reg.kind)
 }
 
 // implement Arg interface
-func (m Mem) Reg() Reg {
-	return NoReg
+func (m Mem) RegId() RegId {
+	return NoRegId
 }
 
-func (m Mem) Kind() reflect.Kind {
-	return m.kind
+func (m Mem) Kind() Kind {
+	return m.reg.kind
 }
 
 func (m Mem) Const() bool {
@@ -39,35 +44,5 @@ func (m Mem) Const() bool {
 }
 
 func MakeVar(index uint16) Mem {
-	return Mem{off: int32(index) * 8, kind: reflect.Int64, reg: RDI}
-}
-
-var sizeof = [...]Size{
-	reflect.Bool:          1,
-	reflect.Int8:          1,
-	reflect.Int16:         2,
-	reflect.Int32:         4,
-	reflect.Int64:         8,
-	reflect.Uint8:         1,
-	reflect.Uint16:        2,
-	reflect.Uint32:        4,
-	reflect.Uint64:        8,
-	reflect.Float32:       4,
-	reflect.Float64:       8,
-	reflect.Complex64:     8,
-	reflect.Complex128:    16,
-	reflect.Int:           Size(reflect.TypeOf(int(0)).Size()),
-	reflect.Uint:          Size(reflect.TypeOf(uint(0)).Size()),
-	reflect.Uintptr:       Size(reflect.TypeOf(uintptr(0)).Size()),
-	reflect.Ptr:           Size(reflect.TypeOf((*int)(nil)).Size()),
-	reflect.UnsafePointer: 0, // highest numbered reflect.Kind
-}
-
-func SizeOf(a Arg) Size {
-	k := a.Kind()
-	size := sizeof[k]
-	if size == 0 {
-		giveupf("unsupported reflect.Kind %v", k)
-	}
-	return size
+	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: KInt64}}
 }

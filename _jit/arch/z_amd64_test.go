@@ -21,7 +21,6 @@ package arch
 import (
 	"fmt"
 	"math/rand"
-	"reflect"
 	"testing"
 	"unsafe"
 )
@@ -36,21 +35,22 @@ func TestNop(t *testing.T) {
 }
 
 func TestMov(t *testing.T) {
-	c := Const{kind: reflect.Int64}
+	c := Const{kind: KInt64}
 	m := MakeVar(0)
 	binds := [...]uint64{0}
 	var asm Asm
-	for r := RLo; r <= RHi; r++ {
+	for id := RLo; id <= RHi; id++ {
 		asm.Init()
-		if asm.Regs.Contains(r) {
+		if asm.RegIds.Contains(id) {
 			continue
 		}
+		r := Reg{id: id, kind: KInt64}
 		c.val = int64(rand.Uint64())
 		f := asm.Mov(r, c).Mov(m, r).Func()
 		f(&binds[0])
 		actual := int64(binds[0])
 		if actual != c.val {
-			t.Errorf("Mov+Mov returned %d, expecting %d", actual, c.val)
+			t.Errorf("Mov returned %d, expecting %d", actual, c.val)
 		}
 	}
 }
@@ -107,11 +107,12 @@ func TestAdd(t *testing.T) {
 	var asm Asm
 	v1, v2, v3 := MakeVar(0), MakeVar(1), MakeVar(2)
 
-	for r := RLo; r <= RHi; r++ {
+	for id := RLo; id <= RHi; id++ {
 		asm.Init()
-		if asm.Regs.Contains(r) {
+		if asm.RegIds.Contains(id) {
 			continue
 		}
+		r := Reg{id: id, kind: KInt64}
 		f := asm.Asm(MOV, r, v1, //
 			NEG, r, //
 			NOT, r, //

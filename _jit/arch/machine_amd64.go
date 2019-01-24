@@ -20,7 +20,6 @@ package arch
 
 import (
 	"errors"
-	"reflect"
 )
 
 const SUPPORTED = true
@@ -39,7 +38,10 @@ const (
 	XOR Op = 0x30
 	// CMP Op = 0x38 // compare, set flags
 	// XCHG Op = 0x86 // exchange. xchg %reg, %reg has different encoding
-	MOV Op = 0x88
+	MOV    Op = 0x88
+	EXTEND Op = 0xB6 // sign extend or zero extend
+	NARROW Op = 0xFF // opposite of extend
+
 )
 
 type UnaryOp uint8
@@ -50,7 +52,7 @@ const (
 )
 
 const (
-	NoReg Reg = iota
+	NoRegId RegId = iota
 	RAX
 	RCX
 	RDX
@@ -67,66 +69,53 @@ const (
 	R13
 	R14
 	R15
-	RLo Reg = RAX
-	RHi Reg = R15
+	RLo RegId = RAX
+	RHi RegId = R15
 )
 
-var alwaysLiveRegs = Regs{RSP: 1, RBP: 1, RDI: 1 /* &Env.IntBinds[0] */}
+var alwaysLiveRegIds = RegIds{RSP: 1, RBP: 1, RDI: 1 /* &Env.IntBinds[0] */}
 
 var regName = [...]string{
-	NoReg: "unknown register",
-	RAX:   "%rax",
-	RCX:   "%rcx",
-	RDX:   "%rdx",
-	RBX:   "%rbx",
-	RSP:   "%rsp",
-	RBP:   "%rbp",
-	RSI:   "%rsi",
-	RDI:   "%rdi",
-	R8:    "%r8",
-	R9:    "%r9",
-	R10:   "%r10",
-	R11:   "%r11",
-	R12:   "%r12",
-	R13:   "%r13",
-	R14:   "%r14",
-	R15:   "%r15",
+	NoRegId: "unknown register",
+	RAX:     "%rax",
+	RCX:     "%rcx",
+	RDX:     "%rdx",
+	RBX:     "%rbx",
+	RSP:     "%rsp",
+	RBP:     "%rbp",
+	RSI:     "%rsi",
+	RDI:     "%rdi",
+	R8:      "%r8",
+	R9:      "%r9",
+	R10:     "%r10",
+	R11:     "%r11",
+	R12:     "%r12",
+	R13:     "%r13",
+	R14:     "%r14",
+	R15:     "%r15",
 }
 
 func (r Reg) Valid() bool {
-	return r >= RLo && r <= RHi
+	return r.id >= RLo && r.id <= RHi
 }
 
 func (r Reg) Validate() {
 	if !r.Valid() {
-		giveupf("invalid register: %d", r)
+		giveupf("invalid register: %d", r.id)
 	}
 }
 
 func (r Reg) String() string {
-	if !r.Valid() {
-		r = NoReg
+	id := NoRegId
+	if r.Valid() {
+		id = r.id
 	}
-	return regName[r]
-}
-
-// implement Arg interface
-func (r Reg) Reg() Reg {
-	return r
-}
-
-func (r Reg) Kind() reflect.Kind {
-	// update after implementing floating-point registers
-	return reflect.Int64
-}
-
-func (r Reg) Const() bool {
-	return false
+	return regName[id]
 }
 
 func (r Reg) bits() uint8 {
 	r.Validate()
-	return uint8(r) - 1
+	return uint8(r.id) - 1
 }
 
 func (r Reg) lo() uint8 {

@@ -18,19 +18,23 @@ package arch
 
 import (
 	"fmt"
-	"reflect"
 )
+
+type Const struct {
+	val  int64
+	kind Kind
+}
 
 func (c Const) String() string {
 	return fmt.Sprintf("0x%x/*%v*/", c.kind, c.val)
 }
 
 // implement Arg interface
-func (c Const) Reg() Reg {
-	return NoReg
+func (c Const) RegId() RegId {
+	return NoRegId
 }
 
-func (c Const) Kind() reflect.Kind {
+func (c Const) Kind() Kind {
 	return c.kind
 }
 
@@ -39,5 +43,5 @@ func (c Const) Const() bool {
 }
 
 func Int64(val int64) Const {
-	return Const{val: val, kind: reflect.Int64}
+	return Const{val: val, kind: KInt64}
 }

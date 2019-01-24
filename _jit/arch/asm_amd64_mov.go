@@ -45,3 +45,9 @@ func (asm *Asm) XorRegSelf(dst Reg) *Asm {
 		return asm.Bytes(0x48|dhi<<1|dhi<<2, 0x31, 0xC0|dlo|dlo<<3)
 	}
 }
+
+// movsx, movzx or mov
+func (asm *Asm) ExtendNarrow(op Op, dst Arg, src Arg) *Asm {
+	// TODO
+	return asm
+}

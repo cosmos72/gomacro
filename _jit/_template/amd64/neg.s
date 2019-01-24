@@ -5,6 +5,57 @@
 	.type	Neg, @function
 Neg:
 	.cfi_startproc
+	neg	%al
+	neg	%cl
+	neg	%dl
+	neg	%bl
+	neg	%spl
+	neg	%bpl
+	neg	%sil
+	neg	%dil
+	neg	%r8b
+	neg	%r9b
+	neg	%r10b
+	neg	%r11b
+	neg	%r12b
+	neg	%r13b
+	neg	%r14b
+	neg	%r15b
+        nop
+	neg	%ax
+	neg	%cx
+	neg	%dx
+	neg	%bx
+	neg	%sp
+	neg	%bp
+	neg	%si
+	neg	%di
+	neg	%r8w
+	neg	%r9w
+	neg	%r10w
+	neg	%r11w
+	neg	%r12w
+	neg	%r13w
+	neg	%r14w
+	neg	%r15w
+        nop
+	neg	%eax
+	neg	%ecx
+	neg	%edx
+	neg	%ebx
+	neg	%esp
+	neg	%ebp
+	neg	%esi
+	neg	%edi
+	neg	%r8d
+	neg	%r9d
+	neg	%r10d
+	neg	%r11d
+	neg	%r12d
+	neg	%r13d
+	neg	%r14d
+	neg	%r15d
+        nop
 	neg	%rax
 	neg	%rcx
 	neg	%rdx

@@ -16,32 +16,11 @@
 
 package arch
 
-import (
-	"reflect"
-)
-
-// hardware register. implementation is architecture-dependent
-type Reg uint8
-
-type Regs [RHi + 1]uint32 // Reg -> use count
-
-type Const struct {
-	val  int64
-	kind reflect.Kind
-}
-
 type Size uint8 // 1, 2, 4 or 8
 
-// hardware memory location.
-type Mem struct {
-	off  int32
-	kind reflect.Kind // also defines the size in bytes
-	reg  Reg
-}
-
 type Arg interface {
-	Reg() Reg // noReg if not a register
-	Kind() reflect.Kind
+	RegId() RegId // NoReg if not a register
+	Kind() Kind
 	Const() bool
 }
 
@@ -52,8 +31,16 @@ type Save struct {
 }
 
 type Asm struct {
-	code    Code
-	Regs    Regs
-	NextReg Reg // first available register among usable ones
-	Save    Save
+	code      Code
+	RegIds      RegIds
+	NextRegId RegId // first available register among usable ones
+	Save      Save
+}
+
+func SizeOf(a Arg) Size {
+	size := a.Kind().Size()
+	if size == 0 {
+		giveupf("unsupported Kind %v", a.Kind())
+	}
+	return size
 }

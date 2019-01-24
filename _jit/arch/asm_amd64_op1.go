@@ -51,7 +51,7 @@ func (asm *Asm) Op1Mem(op UnaryOp, m Mem) *Asm {
 	var offlen, moff uint8
 	switch {
 	// (%rbp) and (%r13) sources must use 1-byte offset even if m.off == 0
-	case m.off == 0 && dst != RBP && dst != R13:
+	case m.off == 0 && dst.id != RBP && dst.id != R13:
 		offlen = 0
 		moff = 0
 	case m.off == int32(int8(m.off)):
@@ -81,7 +81,7 @@ func (asm *Asm) Op1Mem(op UnaryOp, m Mem) *Asm {
 	default:
 		giveupf("SizeOf(m) must be 1,2,4 or 8, found: %v", m)
 	}
-	if dst == RSP || dst == R12 {
+	if dst.id == RSP || dst.id == R12 {
 		asm.Bytes(0x24) // amd64 quirk
 	}
 	switch offlen {

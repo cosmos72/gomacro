@@ -30,8 +30,8 @@ func (asm *Asm) Init() *Asm {
 
 func (asm *Asm) Init2(saveStart, saveEnd uint16) *Asm {
 	asm.code = asm.code[:0:cap(asm.code)]
-	asm.Regs.InitLive()
-	asm.NextReg = RLo
+	asm.RegIds.InitLive()
+	asm.NextRegId = RLo
 	asm.Save.Init(saveStart, saveEnd)
 	return asm.Prologue()
 }
@@ -111,28 +111,28 @@ func (asm *Asm) popRegs(rs *Regs) {
 }
 */
 
-func (asm *Asm) alloc() Reg {
-	var r Reg
+func (asm *Asm) alloc(kind Kind) Reg {
+	var id RegId
 	for {
-		if asm.NextReg > RHi {
+		if asm.NextRegId > RHi {
 			giveupf("no free register")
 		}
-		r = asm.NextReg
-		asm.NextReg++
-		if asm.Regs[r] == 0 {
-			asm.Regs[r] = 1
+		id = asm.NextRegId
+		asm.NextRegId++
+		if asm.RegIds[id] == 0 {
+			asm.RegIds[id] = 1
 			break
 		}
 	}
-	return r
+	return Reg{id: id, kind: kind}
 }
 
 func (asm *Asm) Alloc(a Arg) (r Reg, allocated bool) {
-	r = a.Reg()
-	if r != NoReg {
-		return r, false
+	id := a.RegId()
+	if id != NoRegId {
+		return Reg{id: id, kind: a.Kind()}, false
 	}
-	return asm.alloc(), true
+	return asm.alloc(a.Kind()), true
 }
 
 // combined Alloc + Load
@@ -145,11 +145,11 @@ func (asm *Asm) AllocLoad(a Arg) (r Reg, allocated bool) {
 }
 
 func (asm *Asm) free(r Reg) *Asm {
-	count := asm.Regs[r]
+	count := asm.RegIds[r.id]
 	if count <= 0 {
 		return asm
 	}
-	asm.Regs[r] = count - 1
+	asm.RegIds[r.id] = count - 1
 	return asm
 }
 
