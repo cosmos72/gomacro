@@ -31,11 +31,12 @@ func TestDisasm(t *testing.T) {
 
 	v1, v2, v3 := MakeVar(0), MakeVar(1), MakeVar(2)
 
-	for r := RLo; r <= RHi; r++ {
+	for id := RLo; id <= RHi; id++ {
 		asm.Init()
-		if asm.Regs.Contains(r) {
+		if asm.RegIds.Contains(id) {
 			continue
 		}
+		r := MakeReg(id, KInt64)
 		asm.Asm(MOV, r, v1, //
 			NEG, r, //
 			NOT, r, //
@@ -50,8 +51,28 @@ func TestDisasm(t *testing.T) {
 		if err == nil {
 			fmt.Printf("Disasm:\n")
 			for _, insn := range insns {
-				fmt.Printf("0x%x:\t%s\t\t%s\n", insn.Address, insn.Mnemonic, insn.OpStr)
+				Show(insn)
 			}
+		}
+	}
+}
+
+func TestDisasmSum(t *testing.T) {
+	engine, _ := New()
+	var asm Asm
+
+	Total, I := MakeVar(1), MakeVar(2)
+	asm.Init().Asm( //
+		MOV, I, Int64(1),
+		ADD, I, Int64(1),
+		ADD, Total, I)
+
+	insns, err := engine.Disasm(asm.Code(), 0x10000, 0)
+
+	if err == nil {
+		fmt.Printf("Disasm:\n")
+		for _, insn := range insns {
+			Show(insn)
 		}
 	}
 }

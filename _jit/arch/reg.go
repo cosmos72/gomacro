@@ -25,6 +25,10 @@ type Reg struct {
 	kind Kind // defines width and signedness
 }
 
+func MakeReg(id RegId, kind Kind) Reg {
+	return Reg{id: id, kind: kind}
+}
+
 // implement Arg interface
 func (r Reg) RegId() RegId {
 	return r.id

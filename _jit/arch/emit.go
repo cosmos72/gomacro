@@ -149,7 +149,11 @@ func (asm *Asm) free(r Reg) *Asm {
 	if count <= 0 {
 		return asm
 	}
-	asm.RegIds[r.id] = count - 1
+	count--
+	asm.RegIds[r.id] = count
+	if count == 0 && asm.NextRegId > r.id {
+		asm.NextRegId = r.id
+	}
 	return asm
 }
 

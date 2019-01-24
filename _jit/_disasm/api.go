@@ -19,6 +19,8 @@
 package disasm
 
 import (
+	"fmt"
+
 	"github.com/bnagy/gapstone"
 )
 
@@ -34,4 +36,12 @@ func New() (Engine, error) {
 	}
 	engine.SetOption(gapstone.CS_OPT_SYNTAX, gapstone.CS_OPT_SYNTAX_ATT)
 	return engine, nil
+}
+
+func Show(insn gapstone.Instruction) {
+	fmt.Printf("0x%x:\t%x%s%s\t%s\n", insn.Address, insn.Bytes, spaces(2*len(insn.Bytes)), insn.Mnemonic, insn.OpStr)
+}
+
+func spaces(n int) string {
+	return "                "[n%16:]
 }
