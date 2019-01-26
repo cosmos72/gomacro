@@ -24,6 +24,31 @@ import (
 
 const SUPPORTED = true
 
+// ============================================================================
+// unary operation
+type Op1 uint8
+
+const (
+	NOT Op1 = 0x10
+	NEG Op1 = 0x18
+	// INC
+	// DEC
+)
+
+var op1Name = map[Op1]string{
+	NOT: "NOT",
+	NEG: "NEG",
+}
+
+func (op Op1) String() string {
+	s, ok := op1Name[op]
+	if !ok {
+		s = "unknown unary operation"
+	}
+	return s
+}
+
+// ============================================================================
 // binary operation
 type Op2 uint8
 
@@ -41,13 +66,30 @@ const (
 	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
 )
 
-type Op1 uint8
+var op2Name = map[Op2]string{
+	ADD: "ADD",
+	OR:  "OR",
+	ADC: "ADC",
+	SBB: "SBB",
+	AND: "AND",
+	SUB: "SUB",
+	XOR: "XOR",
+	// CMP: "CMP",
+	// XCHG: "XCHG",
+	MOV:  "MOV",
+	CAST: "CAST",
+}
 
-const (
-	NOT Op1 = 0x10
-	NEG Op1 = 0x18
-)
+func (op Op2) String() string {
+	s, ok := op2Name[op]
+	if !ok {
+		s = "unknown binary operation"
+	}
+	return s
+}
 
+// ============================================================================
+// register
 const (
 	NoRegId RegId = iota
 	RAX
@@ -210,15 +252,15 @@ func (r Reg) lohi() (uint8, uint8) {
 }
 
 // return number of assembler bytes needed to encode m.off
-func (m Mem) offlen(id RegId) uint8 {
+func (m Mem) offlen(id RegId) (uint8, uint8) {
 	switch {
 	// (%rbp) and (%r13) registers must use 1-byte offset even if m.off == 0
 	case m.off == 0 && id != RBP && id != R13:
-		return 0
+		return 0, 0
 	case m.off == int32(int8(m.off)):
-		return 1
+		return 1, 0x40
 	default:
-		return 4
+		return 4, 0x80
 	}
 }
 

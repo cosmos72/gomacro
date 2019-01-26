@@ -39,7 +39,7 @@ func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
 		case Const:
 			asm.op2RegConst(op, dst, src)
 		default:
-			errorf("unsupported source type, expecting Reg, Mem or Const: %v %v %v", op, dst, src)
+			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v %v", op, dst, src)
 		}
 	case Mem:
 		switch src := src.(type) {
@@ -50,12 +50,12 @@ func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
 		case Const:
 			asm.op2MemConst(op, dst, src)
 		default:
-			errorf("unsupported source type, expecting Reg, Mem or Const: %v %v %v", op, dst, src)
+			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v %v", src, op, dst, src)
 		}
 	case Const:
 		errorf("destination cannot be a constant: %v %v %v", op, dst, src)
 	default:
-		errorf("unsupported destination type, expecting Reg or Mem: %v %v %v", op, dst, src)
+		errorf("unsupported destination type %T, expecting Reg or Mem: %v %v %v", dst, op, dst, src)
 	}
 	return asm
 }
@@ -124,19 +124,39 @@ func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
 	dst := m.reg
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
-	op_ := uint8(op)
-	// assert(SizeOf(m) == 8) // TODO mem access by 1, 2 or 4 bytes
 
-	switch m.offlen(dst.id) {
-	case 0:
-		asm.Bytes(0x48|dhi|shi<<2, 0x01|op_, dlo|slo<<3).
-			quirk24(dst)
+	assert(SizeOf(m) == SizeOf(dst))
+	siz := SizeOf(dst)
+	offlen, offbit := m.offlen(dst.id)
+
+	switch siz {
 	case 1:
-		asm.Bytes(0x48|dhi|shi<<2, 0x01|op_, 0x40|dlo|slo<<3).
-			quirk24(dst).Int8(int8(m.off))
+		if src.id < RSP && dhi == 0 {
+			asm.Bytes(uint8(op), offbit|dlo|slo<<3)
+		} else {
+			asm.Bytes(0x40|dhi|shi<<2, uint8(op), offbit|dlo|slo<<3)
+		}
+	case 2:
+		if dhi|shi<<2 == 0 {
+			asm.Bytes(0x66, 0x01|uint8(op), offbit|dlo|slo<<3)
+		} else {
+			asm.Bytes(0x66, 0x40|dhi|shi<<2, 0x01|uint8(op), offbit|dlo|slo<<3)
+		}
 	case 4:
-		asm.Bytes(0x48|dhi|shi<<2, 0x01|op_, 0x80|dlo|slo<<3).
-			quirk24(dst).Int32(m.off)
+		if dhi|shi<<2 == 0 {
+			asm.Bytes(0x01|uint8(op), offbit|dlo|slo<<3)
+		} else {
+			asm.Bytes(0x40|dhi|shi<<2, 0x01|uint8(op), offbit|dlo|slo<<3)
+		}
+	case 8:
+		asm.Bytes(0x48|dhi|shi<<2, 0x01|uint8(op), offbit|dlo|slo<<3)
+	}
+	asm.quirk24(dst)
+	switch offlen {
+	case 1:
+		asm.Int8(int8(m.off))
+	case 4:
+		asm.Int32(m.off)
 	}
 	return asm
 }
@@ -146,20 +166,39 @@ func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
 	src := m.reg
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
-	op_ := uint8(op)
-	// assert(SizeOf(m) == 8) // TODO mem access by 1, 2 or 4 bytes
 
-	offlen := m.offlen(dst.id)
-	switch offlen {
-	case 0:
-		asm.Bytes(0x48|dhi<<2|shi, 0x03|op_, dlo<<3|slo).
-			quirk24(src)
+	assert(SizeOf(m) == SizeOf(dst))
+	siz := SizeOf(src)
+	offlen, offbit := m.offlen(src.id)
+
+	switch siz {
 	case 1:
-		asm.Bytes(0x48|dhi<<2|shi, 0x03|op_, 0x40|dlo<<3|slo).
-			quirk24(src).Int8(int8(m.off))
+		if dst.id < RSP && shi == 0 {
+			asm.Bytes(0x02|uint8(op), offbit|dlo<<3|slo)
+		} else {
+			asm.Bytes(0x40|dhi<<2|shi, 0x02|uint8(op), offbit|dlo<<3|slo)
+		}
+	case 2:
+		if dhi|shi<<2 == 0 {
+			asm.Bytes(0x66, 0x03|uint8(op), offbit|dlo<<3|slo)
+		} else {
+			asm.Bytes(0x66, 0x40|dhi<<2|shi, 0x03|uint8(op), offbit|dlo<<3|slo)
+		}
 	case 4:
-		asm.Bytes(0x48|dhi<<2|shi, 0x03|op_, 0x80|dlo<<3|slo).
-			quirk24(src).Int32(m.off)
+		if dhi|shi<<2 == 0 {
+			asm.Bytes(0x03|uint8(op), offbit|dlo<<3|slo)
+		} else {
+			asm.Bytes(0x40|dhi<<2|shi, 0x03|uint8(op), offbit|dlo<<3|slo)
+		}
+	case 8:
+		asm.Bytes(0x48|dhi<<2|shi, 0x03|uint8(op), offbit|dlo<<3|slo)
+	}
+	asm.quirk24(src)
+	switch offlen {
+	case 1:
+		asm.Int8(int8(m.off))
+	case 4:
+		asm.Int32(m.off)
 	}
 	return asm
 }

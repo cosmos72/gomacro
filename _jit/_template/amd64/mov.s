@@ -69,7 +69,6 @@ Misc:
 	.type	Mov, @function
 Mov:
 	.cfi_startproc
-
         // reg8 += reg8
 	mov	%al,%al
 	mov	%al,%cl
@@ -1169,11 +1168,11 @@ Mov:
 
 
 	.p2align 4,,15
-	.globl	MovMemReg
-	.type	MovMemReg, @function
-MovMemReg:
+	.globl	MovMemReg8
+	.type	MovMemReg8, @function
+MovMemReg8:
 	.cfi_startproc
-        // mem8 += reg8
+        // mem8[0] += reg8
 	mov	%al,(%rax)
 	mov	%al,(%rcx)
 	mov	%al,(%rdx)
@@ -1447,7 +1446,561 @@ MovMemReg:
 	mov	%r15b,(%r15)
         nop
         nop
-        // mem16 += reg16
+        // mem8[off8] += reg8
+	mov	%al,0x7F(%rax)
+	mov	%al,0x7F(%rcx)
+	mov	%al,0x7F(%rdx)
+	mov	%al,0x7F(%rbx)
+	mov	%al,0x7F(%rsp)
+	mov	%al,0x7F(%rbp)
+	mov	%al,0x7F(%rsi)
+	mov	%al,0x7F(%rdi)
+	mov	%al,0x7F(%r8)
+	mov	%al,0x7F(%r9)
+	mov	%al,0x7F(%r10)
+	mov	%al,0x7F(%r11)
+	mov	%al,0x7F(%r12)
+	mov	%al,0x7F(%r13)
+	mov	%al,0x7F(%r14)
+	mov	%al,0x7F(%r15)
+	nop
+	mov	%cl,0x7F(%rax)
+	mov	%cl,0x7F(%rcx)
+	mov	%cl,0x7F(%rdx)
+	mov	%cl,0x7F(%rbx)
+	mov	%cl,0x7F(%rsp)
+	mov	%cl,0x7F(%rbp)
+	mov	%cl,0x7F(%rsi)
+	mov	%cl,0x7F(%rdi)
+	mov	%cl,0x7F(%r8)
+	mov	%cl,0x7F(%r9)
+	mov	%cl,0x7F(%r10)
+	mov	%cl,0x7F(%r11)
+	mov	%cl,0x7F(%r12)
+	mov	%cl,0x7F(%r13)
+	mov	%cl,0x7F(%r14)
+	mov	%cl,0x7F(%r15)
+	nop
+	mov	%dl,0x7F(%rax)
+	mov	%dl,0x7F(%rcx)
+	mov	%dl,0x7F(%rdx)
+	mov	%dl,0x7F(%rbx)
+	mov	%dl,0x7F(%rsp)
+	mov	%dl,0x7F(%rbp)
+	mov	%dl,0x7F(%rsi)
+	mov	%dl,0x7F(%rdi)
+	mov	%dl,0x7F(%r8)
+	mov	%dl,0x7F(%r9)
+	mov	%dl,0x7F(%r10)
+	mov	%dl,0x7F(%r11)
+	mov	%dl,0x7F(%r12)
+	mov	%dl,0x7F(%r13)
+	mov	%dl,0x7F(%r14)
+	mov	%dl,0x7F(%r15)
+	nop
+	mov	%bl,0x7F(%rax)
+	mov	%bl,0x7F(%rcx)
+	mov	%bl,0x7F(%rdx)
+	mov	%bl,0x7F(%rbx)
+	mov	%bl,0x7F(%rsp)
+	mov	%bl,0x7F(%rbp)
+	mov	%bl,0x7F(%rsi)
+	mov	%bl,0x7F(%rdi)
+	mov	%bl,0x7F(%r8)
+	mov	%bl,0x7F(%r9)
+	mov	%bl,0x7F(%r10)
+	mov	%bl,0x7F(%r11)
+	mov	%bl,0x7F(%r12)
+	mov	%bl,0x7F(%r13)
+	mov	%bl,0x7F(%r14)
+	mov	%bl,0x7F(%r15)
+	nop
+	mov	%spl,0x7F(%rax)
+	mov	%spl,0x7F(%rcx)
+	mov	%spl,0x7F(%rdx)
+	mov	%spl,0x7F(%rbx)
+	mov	%spl,0x7F(%rsp)
+	mov	%spl,0x7F(%rbp)
+	mov	%spl,0x7F(%rsi)
+	mov	%spl,0x7F(%rdi)
+	mov	%spl,0x7F(%r8)
+	mov	%spl,0x7F(%r9)
+	mov	%spl,0x7F(%r10)
+	mov	%spl,0x7F(%r11)
+	mov	%spl,0x7F(%r12)
+	mov	%spl,0x7F(%r13)
+	mov	%spl,0x7F(%r14)
+	mov	%spl,0x7F(%r15)
+	nop
+	mov	%bpl,0x7F(%rax)
+	mov	%bpl,0x7F(%rcx)
+	mov	%bpl,0x7F(%rdx)
+	mov	%bpl,0x7F(%rbx)
+	mov	%bpl,0x7F(%rsp)
+	mov	%bpl,0x7F(%rbp)
+	mov	%bpl,0x7F(%rsi)
+	mov	%bpl,0x7F(%rdi)
+	mov	%bpl,0x7F(%r8)
+	mov	%bpl,0x7F(%r9)
+	mov	%bpl,0x7F(%r10)
+	mov	%bpl,0x7F(%r11)
+	mov	%bpl,0x7F(%r12)
+	mov	%bpl,0x7F(%r13)
+	mov	%bpl,0x7F(%r14)
+	mov	%bpl,0x7F(%r15)
+	nop
+	mov	%sil,0x7F(%rax)
+	mov	%sil,0x7F(%rcx)
+	mov	%sil,0x7F(%rdx)
+	mov	%sil,0x7F(%rbx)
+	mov	%sil,0x7F(%rsp)
+	mov	%sil,0x7F(%rbp)
+	mov	%sil,0x7F(%rsi)
+	mov	%sil,0x7F(%rdi)
+	mov	%sil,0x7F(%r8)
+	mov	%sil,0x7F(%r9)
+	mov	%sil,0x7F(%r10)
+	mov	%sil,0x7F(%r11)
+	mov	%sil,0x7F(%r12)
+	mov	%sil,0x7F(%r13)
+	mov	%sil,0x7F(%r14)
+	mov	%sil,0x7F(%r15)
+	nop
+	mov	%dil,0x7F(%rax)
+	mov	%dil,0x7F(%rcx)
+	mov	%dil,0x7F(%rdx)
+	mov	%dil,0x7F(%rbx)
+	mov	%dil,0x7F(%rsp)
+	mov	%dil,0x7F(%rbp)
+	mov	%dil,0x7F(%rsi)
+	mov	%dil,0x7F(%rdi)
+	mov	%dil,0x7F(%r8)
+	mov	%dil,0x7F(%r9)
+	mov	%dil,0x7F(%r10)
+	mov	%dil,0x7F(%r11)
+	mov	%dil,0x7F(%r12)
+	mov	%dil,0x7F(%r13)
+	mov	%dil,0x7F(%r14)
+	mov	%dil,0x7F(%r15)
+	nop
+	mov	%r8b, 0x7F(%rax)
+	mov	%r8b, 0x7F(%rcx)
+	mov	%r8b, 0x7F(%rdx)
+	mov	%r8b, 0x7F(%rbx)
+	mov	%r8b, 0x7F(%rsp)
+	mov	%r8b, 0x7F(%rbp)
+	mov	%r8b, 0x7F(%rsi)
+	mov	%r8b, 0x7F(%rdi)
+	mov	%r8b, 0x7F(%r8)
+	mov	%r8b, 0x7F(%r9)
+	mov	%r8b, 0x7F(%r10)
+	mov	%r8b, 0x7F(%r11)
+	mov	%r8b, 0x7F(%r12)
+	mov	%r8b, 0x7F(%r13)
+	mov	%r8b, 0x7F(%r14)
+	mov	%r8b, 0x7F(%r15)
+	nop
+	mov	%r9b, 0x7F(%rax)
+	mov	%r9b, 0x7F(%rcx)
+	mov	%r9b, 0x7F(%rdx)
+	mov	%r9b, 0x7F(%rbx)
+	mov	%r9b, 0x7F(%rsp)
+	mov	%r9b, 0x7F(%rbp)
+	mov	%r9b, 0x7F(%rsi)
+	mov	%r9b, 0x7F(%rdi)
+	mov	%r9b, 0x7F(%r8)
+	mov	%r9b, 0x7F(%r9)
+	mov	%r9b, 0x7F(%r10)
+	mov	%r9b, 0x7F(%r11)
+	mov	%r9b, 0x7F(%r12)
+	mov	%r9b, 0x7F(%r13)
+	mov	%r9b, 0x7F(%r14)
+	mov	%r9b, 0x7F(%r15)
+	nop
+	mov	%r10b,0x7F(%rax)
+	mov	%r10b,0x7F(%rcx)
+	mov	%r10b,0x7F(%rdx)
+	mov	%r10b,0x7F(%rbx)
+	mov	%r10b,0x7F(%rsp)
+	mov	%r10b,0x7F(%rbp)
+	mov	%r10b,0x7F(%rsi)
+	mov	%r10b,0x7F(%rdi)
+	mov	%r10b,0x7F(%r8)
+	mov	%r10b,0x7F(%r9)
+	mov	%r10b,0x7F(%r10)
+	mov	%r10b,0x7F(%r11)
+	mov	%r10b,0x7F(%r12)
+	mov	%r10b,0x7F(%r13)
+	mov	%r10b,0x7F(%r14)
+	mov	%r10b,0x7F(%r15)
+	nop
+	mov	%r11b,0x7F(%rax)
+	mov	%r11b,0x7F(%rcx)
+	mov	%r11b,0x7F(%rdx)
+	mov	%r11b,0x7F(%rbx)
+	mov	%r11b,0x7F(%rsp)
+	mov	%r11b,0x7F(%rbp)
+	mov	%r11b,0x7F(%rsi)
+	mov	%r11b,0x7F(%rdi)
+	mov	%r11b,0x7F(%r8)
+	mov	%r11b,0x7F(%r9)
+	mov	%r11b,0x7F(%r10)
+	mov	%r11b,0x7F(%r11)
+	mov	%r11b,0x7F(%r12)
+	mov	%r11b,0x7F(%r13)
+	mov	%r11b,0x7F(%r14)
+	mov	%r11b,0x7F(%r15)
+	nop
+	mov	%r12b,0x7F(%rax)
+	mov	%r12b,0x7F(%rcx)
+	mov	%r12b,0x7F(%rdx)
+	mov	%r12b,0x7F(%rbx)
+	mov	%r12b,0x7F(%rsp)
+	mov	%r12b,0x7F(%rbp)
+	mov	%r12b,0x7F(%rsi)
+	mov	%r12b,0x7F(%rdi)
+	mov	%r12b,0x7F(%r8)
+	mov	%r12b,0x7F(%r9)
+	mov	%r12b,0x7F(%r10)
+	mov	%r12b,0x7F(%r11)
+	mov	%r12b,0x7F(%r12)
+	mov	%r12b,0x7F(%r13)
+	mov	%r12b,0x7F(%r14)
+	mov	%r12b,0x7F(%r15)
+	nop
+	mov	%r13b,0x7F(%rax)
+	mov	%r13b,0x7F(%rcx)
+	mov	%r13b,0x7F(%rdx)
+	mov	%r13b,0x7F(%rbx)
+	mov	%r13b,0x7F(%rsp)
+	mov	%r13b,0x7F(%rbp)
+	mov	%r13b,0x7F(%rsi)
+	mov	%r13b,0x7F(%rdi)
+	mov	%r13b,0x7F(%r8)
+	mov	%r13b,0x7F(%r9)
+	mov	%r13b,0x7F(%r10)
+	mov	%r13b,0x7F(%r11)
+	mov	%r13b,0x7F(%r12)
+	mov	%r13b,0x7F(%r13)
+	mov	%r13b,0x7F(%r14)
+	mov	%r13b,0x7F(%r15)
+	nop
+	mov	%r14b,0x7F(%rax)
+	mov	%r14b,0x7F(%rcx)
+	mov	%r14b,0x7F(%rdx)
+	mov	%r14b,0x7F(%rbx)
+	mov	%r14b,0x7F(%rsp)
+	mov	%r14b,0x7F(%rbp)
+	mov	%r14b,0x7F(%rsi)
+	mov	%r14b,0x7F(%rdi)
+	mov	%r14b,0x7F(%r8)
+	mov	%r14b,0x7F(%r9)
+	mov	%r14b,0x7F(%r10)
+	mov	%r14b,0x7F(%r11)
+	mov	%r14b,0x7F(%r12)
+	mov	%r14b,0x7F(%r13)
+	mov	%r14b,0x7F(%r14)
+	mov	%r14b,0x7F(%r15)
+	nop
+	mov	%r15b,0x7F(%rax)
+	mov	%r15b,0x7F(%rcx)
+	mov	%r15b,0x7F(%rdx)
+	mov	%r15b,0x7F(%rbx)
+	mov	%r15b,0x7F(%rsp)
+	mov	%r15b,0x7F(%rbp)
+	mov	%r15b,0x7F(%rsi)
+	mov	%r15b,0x7F(%rdi)
+	mov	%r15b,0x7F(%r8)
+	mov	%r15b,0x7F(%r9)
+	mov	%r15b,0x7F(%r10)
+	mov	%r15b,0x7F(%r11)
+	mov	%r15b,0x7F(%r12)
+	mov	%r15b,0x7F(%r13)
+	mov	%r15b,0x7F(%r14)
+	mov	%r15b,0x7F(%r15)
+        nop
+        nop
+        // mem8[off32] += reg8
+	mov	%al,0x12345678(%rax)
+	mov	%al,0x12345678(%rcx)
+	mov	%al,0x12345678(%rdx)
+	mov	%al,0x12345678(%rbx)
+	mov	%al,0x12345678(%rsp)
+	mov	%al,0x12345678(%rbp)
+	mov	%al,0x12345678(%rsi)
+	mov	%al,0x12345678(%rdi)
+	mov	%al,0x12345678(%r8)
+	mov	%al,0x12345678(%r9)
+	mov	%al,0x12345678(%r10)
+	mov	%al,0x12345678(%r11)
+	mov	%al,0x12345678(%r12)
+	mov	%al,0x12345678(%r13)
+	mov	%al,0x12345678(%r14)
+	mov	%al,0x12345678(%r15)
+	nop
+	mov	%cl,0x12345678(%rax)
+	mov	%cl,0x12345678(%rcx)
+	mov	%cl,0x12345678(%rdx)
+	mov	%cl,0x12345678(%rbx)
+	mov	%cl,0x12345678(%rsp)
+	mov	%cl,0x12345678(%rbp)
+	mov	%cl,0x12345678(%rsi)
+	mov	%cl,0x12345678(%rdi)
+	mov	%cl,0x12345678(%r8)
+	mov	%cl,0x12345678(%r9)
+	mov	%cl,0x12345678(%r10)
+	mov	%cl,0x12345678(%r11)
+	mov	%cl,0x12345678(%r12)
+	mov	%cl,0x12345678(%r13)
+	mov	%cl,0x12345678(%r14)
+	mov	%cl,0x12345678(%r15)
+	nop
+	mov	%dl,0x12345678(%rax)
+	mov	%dl,0x12345678(%rcx)
+	mov	%dl,0x12345678(%rdx)
+	mov	%dl,0x12345678(%rbx)
+	mov	%dl,0x12345678(%rsp)
+	mov	%dl,0x12345678(%rbp)
+	mov	%dl,0x12345678(%rsi)
+	mov	%dl,0x12345678(%rdi)
+	mov	%dl,0x12345678(%r8)
+	mov	%dl,0x12345678(%r9)
+	mov	%dl,0x12345678(%r10)
+	mov	%dl,0x12345678(%r11)
+	mov	%dl,0x12345678(%r12)
+	mov	%dl,0x12345678(%r13)
+	mov	%dl,0x12345678(%r14)
+	mov	%dl,0x12345678(%r15)
+	nop
+	mov	%bl,0x12345678(%rax)
+	mov	%bl,0x12345678(%rcx)
+	mov	%bl,0x12345678(%rdx)
+	mov	%bl,0x12345678(%rbx)
+	mov	%bl,0x12345678(%rsp)
+	mov	%bl,0x12345678(%rbp)
+	mov	%bl,0x12345678(%rsi)
+	mov	%bl,0x12345678(%rdi)
+	mov	%bl,0x12345678(%r8)
+	mov	%bl,0x12345678(%r9)
+	mov	%bl,0x12345678(%r10)
+	mov	%bl,0x12345678(%r11)
+	mov	%bl,0x12345678(%r12)
+	mov	%bl,0x12345678(%r13)
+	mov	%bl,0x12345678(%r14)
+	mov	%bl,0x12345678(%r15)
+	nop
+	mov	%spl,0x12345678(%rax)
+	mov	%spl,0x12345678(%rcx)
+	mov	%spl,0x12345678(%rdx)
+	mov	%spl,0x12345678(%rbx)
+	mov	%spl,0x12345678(%rsp)
+	mov	%spl,0x12345678(%rbp)
+	mov	%spl,0x12345678(%rsi)
+	mov	%spl,0x12345678(%rdi)
+	mov	%spl,0x12345678(%r8)
+	mov	%spl,0x12345678(%r9)
+	mov	%spl,0x12345678(%r10)
+	mov	%spl,0x12345678(%r11)
+	mov	%spl,0x12345678(%r12)
+	mov	%spl,0x12345678(%r13)
+	mov	%spl,0x12345678(%r14)
+	mov	%spl,0x12345678(%r15)
+	nop
+	mov	%bpl,0x12345678(%rax)
+	mov	%bpl,0x12345678(%rcx)
+	mov	%bpl,0x12345678(%rdx)
+	mov	%bpl,0x12345678(%rbx)
+	mov	%bpl,0x12345678(%rsp)
+	mov	%bpl,0x12345678(%rbp)
+	mov	%bpl,0x12345678(%rsi)
+	mov	%bpl,0x12345678(%rdi)
+	mov	%bpl,0x12345678(%r8)
+	mov	%bpl,0x12345678(%r9)
+	mov	%bpl,0x12345678(%r10)
+	mov	%bpl,0x12345678(%r11)
+	mov	%bpl,0x12345678(%r12)
+	mov	%bpl,0x12345678(%r13)
+	mov	%bpl,0x12345678(%r14)
+	mov	%bpl,0x12345678(%r15)
+	nop
+	mov	%sil,0x12345678(%rax)
+	mov	%sil,0x12345678(%rcx)
+	mov	%sil,0x12345678(%rdx)
+	mov	%sil,0x12345678(%rbx)
+	mov	%sil,0x12345678(%rsp)
+	mov	%sil,0x12345678(%rbp)
+	mov	%sil,0x12345678(%rsi)
+	mov	%sil,0x12345678(%rdi)
+	mov	%sil,0x12345678(%r8)
+	mov	%sil,0x12345678(%r9)
+	mov	%sil,0x12345678(%r10)
+	mov	%sil,0x12345678(%r11)
+	mov	%sil,0x12345678(%r12)
+	mov	%sil,0x12345678(%r13)
+	mov	%sil,0x12345678(%r14)
+	mov	%sil,0x12345678(%r15)
+	nop
+	mov	%dil,0x12345678(%rax)
+	mov	%dil,0x12345678(%rcx)
+	mov	%dil,0x12345678(%rdx)
+	mov	%dil,0x12345678(%rbx)
+	mov	%dil,0x12345678(%rsp)
+	mov	%dil,0x12345678(%rbp)
+	mov	%dil,0x12345678(%rsi)
+	mov	%dil,0x12345678(%rdi)
+	mov	%dil,0x12345678(%r8)
+	mov	%dil,0x12345678(%r9)
+	mov	%dil,0x12345678(%r10)
+	mov	%dil,0x12345678(%r11)
+	mov	%dil,0x12345678(%r12)
+	mov	%dil,0x12345678(%r13)
+	mov	%dil,0x12345678(%r14)
+	mov	%dil,0x12345678(%r15)
+	nop
+	mov	%r8b, 0x12345678(%rax)
+	mov	%r8b, 0x12345678(%rcx)
+	mov	%r8b, 0x12345678(%rdx)
+	mov	%r8b, 0x12345678(%rbx)
+	mov	%r8b, 0x12345678(%rsp)
+	mov	%r8b, 0x12345678(%rbp)
+	mov	%r8b, 0x12345678(%rsi)
+	mov	%r8b, 0x12345678(%rdi)
+	mov	%r8b, 0x12345678(%r8)
+	mov	%r8b, 0x12345678(%r9)
+	mov	%r8b, 0x12345678(%r10)
+	mov	%r8b, 0x12345678(%r11)
+	mov	%r8b, 0x12345678(%r12)
+	mov	%r8b, 0x12345678(%r13)
+	mov	%r8b, 0x12345678(%r14)
+	mov	%r8b, 0x12345678(%r15)
+	nop
+	mov	%r9b, 0x12345678(%rax)
+	mov	%r9b, 0x12345678(%rcx)
+	mov	%r9b, 0x12345678(%rdx)
+	mov	%r9b, 0x12345678(%rbx)
+	mov	%r9b, 0x12345678(%rsp)
+	mov	%r9b, 0x12345678(%rbp)
+	mov	%r9b, 0x12345678(%rsi)
+	mov	%r9b, 0x12345678(%rdi)
+	mov	%r9b, 0x12345678(%r8)
+	mov	%r9b, 0x12345678(%r9)
+	mov	%r9b, 0x12345678(%r10)
+	mov	%r9b, 0x12345678(%r11)
+	mov	%r9b, 0x12345678(%r12)
+	mov	%r9b, 0x12345678(%r13)
+	mov	%r9b, 0x12345678(%r14)
+	mov	%r9b, 0x12345678(%r15)
+	nop
+	mov	%r10b,0x12345678(%rax)
+	mov	%r10b,0x12345678(%rcx)
+	mov	%r10b,0x12345678(%rdx)
+	mov	%r10b,0x12345678(%rbx)
+	mov	%r10b,0x12345678(%rsp)
+	mov	%r10b,0x12345678(%rbp)
+	mov	%r10b,0x12345678(%rsi)
+	mov	%r10b,0x12345678(%rdi)
+	mov	%r10b,0x12345678(%r8)
+	mov	%r10b,0x12345678(%r9)
+	mov	%r10b,0x12345678(%r10)
+	mov	%r10b,0x12345678(%r11)
+	mov	%r10b,0x12345678(%r12)
+	mov	%r10b,0x12345678(%r13)
+	mov	%r10b,0x12345678(%r14)
+	mov	%r10b,0x12345678(%r15)
+	nop
+	mov	%r11b,0x12345678(%rax)
+	mov	%r11b,0x12345678(%rcx)
+	mov	%r11b,0x12345678(%rdx)
+	mov	%r11b,0x12345678(%rbx)
+	mov	%r11b,0x12345678(%rsp)
+	mov	%r11b,0x12345678(%rbp)
+	mov	%r11b,0x12345678(%rsi)
+	mov	%r11b,0x12345678(%rdi)
+	mov	%r11b,0x12345678(%r8)
+	mov	%r11b,0x12345678(%r9)
+	mov	%r11b,0x12345678(%r10)
+	mov	%r11b,0x12345678(%r11)
+	mov	%r11b,0x12345678(%r12)
+	mov	%r11b,0x12345678(%r13)
+	mov	%r11b,0x12345678(%r14)
+	mov	%r11b,0x12345678(%r15)
+	nop
+	mov	%r12b,0x12345678(%rax)
+	mov	%r12b,0x12345678(%rcx)
+	mov	%r12b,0x12345678(%rdx)
+	mov	%r12b,0x12345678(%rbx)
+	mov	%r12b,0x12345678(%rsp)
+	mov	%r12b,0x12345678(%rbp)
+	mov	%r12b,0x12345678(%rsi)
+	mov	%r12b,0x12345678(%rdi)
+	mov	%r12b,0x12345678(%r8)
+	mov	%r12b,0x12345678(%r9)
+	mov	%r12b,0x12345678(%r10)
+	mov	%r12b,0x12345678(%r11)
+	mov	%r12b,0x12345678(%r12)
+	mov	%r12b,0x12345678(%r13)
+	mov	%r12b,0x12345678(%r14)
+	mov	%r12b,0x12345678(%r15)
+	nop
+	mov	%r13b,0x12345678(%rax)
+	mov	%r13b,0x12345678(%rcx)
+	mov	%r13b,0x12345678(%rdx)
+	mov	%r13b,0x12345678(%rbx)
+	mov	%r13b,0x12345678(%rsp)
+	mov	%r13b,0x12345678(%rbp)
+	mov	%r13b,0x12345678(%rsi)
+	mov	%r13b,0x12345678(%rdi)
+	mov	%r13b,0x12345678(%r8)
+	mov	%r13b,0x12345678(%r9)
+	mov	%r13b,0x12345678(%r10)
+	mov	%r13b,0x12345678(%r11)
+	mov	%r13b,0x12345678(%r12)
+	mov	%r13b,0x12345678(%r13)
+	mov	%r13b,0x12345678(%r14)
+	mov	%r13b,0x12345678(%r15)
+	nop
+	mov	%r14b,0x12345678(%rax)
+	mov	%r14b,0x12345678(%rcx)
+	mov	%r14b,0x12345678(%rdx)
+	mov	%r14b,0x12345678(%rbx)
+	mov	%r14b,0x12345678(%rsp)
+	mov	%r14b,0x12345678(%rbp)
+	mov	%r14b,0x12345678(%rsi)
+	mov	%r14b,0x12345678(%rdi)
+	mov	%r14b,0x12345678(%r8)
+	mov	%r14b,0x12345678(%r9)
+	mov	%r14b,0x12345678(%r10)
+	mov	%r14b,0x12345678(%r11)
+	mov	%r14b,0x12345678(%r12)
+	mov	%r14b,0x12345678(%r13)
+	mov	%r14b,0x12345678(%r14)
+	mov	%r14b,0x12345678(%r15)
+	nop
+	mov	%r15b,0x12345678(%rax)
+	mov	%r15b,0x12345678(%rcx)
+	mov	%r15b,0x12345678(%rdx)
+	mov	%r15b,0x12345678(%rbx)
+	mov	%r15b,0x12345678(%rsp)
+	mov	%r15b,0x12345678(%rbp)
+	mov	%r15b,0x12345678(%rsi)
+	mov	%r15b,0x12345678(%rdi)
+	mov	%r15b,0x12345678(%r8)
+	mov	%r15b,0x12345678(%r9)
+	mov	%r15b,0x12345678(%r10)
+	mov	%r15b,0x12345678(%r11)
+	mov	%r15b,0x12345678(%r12)
+	mov	%r15b,0x12345678(%r13)
+	mov	%r15b,0x12345678(%r14)
+	mov	%r15b,0x12345678(%r15)
+        ret
+	.cfi_endproc
+
+	.p2align 4,,15
+	.globl	MovMemReg16
+	.type	MovMemReg16, @function
+MovMemReg16:
+	.cfi_startproc
+        // mem16[0] += reg16
 	mov	%ax,(%rax)
 	mov	%ax,(%rcx)
 	mov	%ax,(%rdx)
@@ -1721,7 +2274,561 @@ MovMemReg:
 	mov	%r15w,(%r15)
         nop
         nop
-        // mem32 += reg32
+        // mem16[off8] += reg16
+	mov	%ax,0x7F(%rax)
+	mov	%ax,0x7F(%rcx)
+	mov	%ax,0x7F(%rdx)
+	mov	%ax,0x7F(%rbx)
+	mov	%ax,0x7F(%rsp)
+	mov	%ax,0x7F(%rbp)
+	mov	%ax,0x7F(%rsi)
+	mov	%ax,0x7F(%rdi)
+	mov	%ax,0x7F(%r8)
+	mov	%ax,0x7F(%r9)
+	mov	%ax,0x7F(%r10)
+	mov	%ax,0x7F(%r11)
+	mov	%ax,0x7F(%r12)
+	mov	%ax,0x7F(%r13)
+	mov	%ax,0x7F(%r14)
+	mov	%ax,0x7F(%r15)
+	nop
+	mov	%cx,0x7F(%rax)
+	mov	%cx,0x7F(%rcx)
+	mov	%cx,0x7F(%rdx)
+	mov	%cx,0x7F(%rbx)
+	mov	%cx,0x7F(%rsp)
+	mov	%cx,0x7F(%rbp)
+	mov	%cx,0x7F(%rsi)
+	mov	%cx,0x7F(%rdi)
+	mov	%cx,0x7F(%r8)
+	mov	%cx,0x7F(%r9)
+	mov	%cx,0x7F(%r10)
+	mov	%cx,0x7F(%r11)
+	mov	%cx,0x7F(%r12)
+	mov	%cx,0x7F(%r13)
+	mov	%cx,0x7F(%r14)
+	mov	%cx,0x7F(%r15)
+	nop
+	mov	%dx,0x7F(%rax)
+	mov	%dx,0x7F(%rcx)
+	mov	%dx,0x7F(%rdx)
+	mov	%dx,0x7F(%rbx)
+	mov	%dx,0x7F(%rsp)
+	mov	%dx,0x7F(%rbp)
+	mov	%dx,0x7F(%rsi)
+	mov	%dx,0x7F(%rdi)
+	mov	%dx,0x7F(%r8)
+	mov	%dx,0x7F(%r9)
+	mov	%dx,0x7F(%r10)
+	mov	%dx,0x7F(%r11)
+	mov	%dx,0x7F(%r12)
+	mov	%dx,0x7F(%r13)
+	mov	%dx,0x7F(%r14)
+	mov	%dx,0x7F(%r15)
+	nop
+	mov	%bx,0x7F(%rax)
+	mov	%bx,0x7F(%rcx)
+	mov	%bx,0x7F(%rdx)
+	mov	%bx,0x7F(%rbx)
+	mov	%bx,0x7F(%rsp)
+	mov	%bx,0x7F(%rbp)
+	mov	%bx,0x7F(%rsi)
+	mov	%bx,0x7F(%rdi)
+	mov	%bx,0x7F(%r8)
+	mov	%bx,0x7F(%r9)
+	mov	%bx,0x7F(%r10)
+	mov	%bx,0x7F(%r11)
+	mov	%bx,0x7F(%r12)
+	mov	%bx,0x7F(%r13)
+	mov	%bx,0x7F(%r14)
+	mov	%bx,0x7F(%r15)
+	nop
+	mov	%sp,0x7F(%rax)
+	mov	%sp,0x7F(%rcx)
+	mov	%sp,0x7F(%rdx)
+	mov	%sp,0x7F(%rbx)
+	mov	%sp,0x7F(%rsp)
+	mov	%sp,0x7F(%rbp)
+	mov	%sp,0x7F(%rsi)
+	mov	%sp,0x7F(%rdi)
+	mov	%sp,0x7F(%r8)
+	mov	%sp,0x7F(%r9)
+	mov	%sp,0x7F(%r10)
+	mov	%sp,0x7F(%r11)
+	mov	%sp,0x7F(%r12)
+	mov	%sp,0x7F(%r13)
+	mov	%sp,0x7F(%r14)
+	mov	%sp,0x7F(%r15)
+	nop
+	mov	%bp,0x7F(%rax)
+	mov	%bp,0x7F(%rcx)
+	mov	%bp,0x7F(%rdx)
+	mov	%bp,0x7F(%rbx)
+	mov	%bp,0x7F(%rsp)
+	mov	%bp,0x7F(%rbp)
+	mov	%bp,0x7F(%rsi)
+	mov	%bp,0x7F(%rdi)
+	mov	%bp,0x7F(%r8)
+	mov	%bp,0x7F(%r9)
+	mov	%bp,0x7F(%r10)
+	mov	%bp,0x7F(%r11)
+	mov	%bp,0x7F(%r12)
+	mov	%bp,0x7F(%r13)
+	mov	%bp,0x7F(%r14)
+	mov	%bp,0x7F(%r15)
+	nop
+	mov	%si,0x7F(%rax)
+	mov	%si,0x7F(%rcx)
+	mov	%si,0x7F(%rdx)
+	mov	%si,0x7F(%rbx)
+	mov	%si,0x7F(%rsp)
+	mov	%si,0x7F(%rbp)
+	mov	%si,0x7F(%rsi)
+	mov	%si,0x7F(%rdi)
+	mov	%si,0x7F(%r8)
+	mov	%si,0x7F(%r9)
+	mov	%si,0x7F(%r10)
+	mov	%si,0x7F(%r11)
+	mov	%si,0x7F(%r12)
+	mov	%si,0x7F(%r13)
+	mov	%si,0x7F(%r14)
+	mov	%si,0x7F(%r15)
+	nop
+	mov	%di,0x7F(%rax)
+	mov	%di,0x7F(%rcx)
+	mov	%di,0x7F(%rdx)
+	mov	%di,0x7F(%rbx)
+	mov	%di,0x7F(%rsp)
+	mov	%di,0x7F(%rbp)
+	mov	%di,0x7F(%rsi)
+	mov	%di,0x7F(%rdi)
+	mov	%di,0x7F(%r8)
+	mov	%di,0x7F(%r9)
+	mov	%di,0x7F(%r10)
+	mov	%di,0x7F(%r11)
+	mov	%di,0x7F(%r12)
+	mov	%di,0x7F(%r13)
+	mov	%di,0x7F(%r14)
+	mov	%di,0x7F(%r15)
+	nop
+	mov	%r8w, 0x7F(%rax)
+	mov	%r8w, 0x7F(%rcx)
+	mov	%r8w, 0x7F(%rdx)
+	mov	%r8w, 0x7F(%rbx)
+	mov	%r8w, 0x7F(%rsp)
+	mov	%r8w, 0x7F(%rbp)
+	mov	%r8w, 0x7F(%rsi)
+	mov	%r8w, 0x7F(%rdi)
+	mov	%r8w, 0x7F(%r8)
+	mov	%r8w, 0x7F(%r9)
+	mov	%r8w, 0x7F(%r10)
+	mov	%r8w, 0x7F(%r11)
+	mov	%r8w, 0x7F(%r12)
+	mov	%r8w, 0x7F(%r13)
+	mov	%r8w, 0x7F(%r14)
+	mov	%r8w, 0x7F(%r15)
+	nop
+	mov	%r9w, 0x7F(%rax)
+	mov	%r9w, 0x7F(%rcx)
+	mov	%r9w, 0x7F(%rdx)
+	mov	%r9w, 0x7F(%rbx)
+	mov	%r9w, 0x7F(%rsp)
+	mov	%r9w, 0x7F(%rbp)
+	mov	%r9w, 0x7F(%rsi)
+	mov	%r9w, 0x7F(%rdi)
+	mov	%r9w, 0x7F(%r8)
+	mov	%r9w, 0x7F(%r9)
+	mov	%r9w, 0x7F(%r10)
+	mov	%r9w, 0x7F(%r11)
+	mov	%r9w, 0x7F(%r12)
+	mov	%r9w, 0x7F(%r13)
+	mov	%r9w, 0x7F(%r14)
+	mov	%r9w, 0x7F(%r15)
+	nop
+	mov	%r10w,0x7F(%rax)
+	mov	%r10w,0x7F(%rcx)
+	mov	%r10w,0x7F(%rdx)
+	mov	%r10w,0x7F(%rbx)
+	mov	%r10w,0x7F(%rsp)
+	mov	%r10w,0x7F(%rbp)
+	mov	%r10w,0x7F(%rsi)
+	mov	%r10w,0x7F(%rdi)
+	mov	%r10w,0x7F(%r8)
+	mov	%r10w,0x7F(%r9)
+	mov	%r10w,0x7F(%r10)
+	mov	%r10w,0x7F(%r11)
+	mov	%r10w,0x7F(%r12)
+	mov	%r10w,0x7F(%r13)
+	mov	%r10w,0x7F(%r14)
+	mov	%r10w,0x7F(%r15)
+	nop
+	mov	%r11w,0x7F(%rax)
+	mov	%r11w,0x7F(%rcx)
+	mov	%r11w,0x7F(%rdx)
+	mov	%r11w,0x7F(%rbx)
+	mov	%r11w,0x7F(%rsp)
+	mov	%r11w,0x7F(%rbp)
+	mov	%r11w,0x7F(%rsi)
+	mov	%r11w,0x7F(%rdi)
+	mov	%r11w,0x7F(%r8)
+	mov	%r11w,0x7F(%r9)
+	mov	%r11w,0x7F(%r10)
+	mov	%r11w,0x7F(%r11)
+	mov	%r11w,0x7F(%r12)
+	mov	%r11w,0x7F(%r13)
+	mov	%r11w,0x7F(%r14)
+	mov	%r11w,0x7F(%r15)
+	nop
+	mov	%r12w,0x7F(%rax)
+	mov	%r12w,0x7F(%rcx)
+	mov	%r12w,0x7F(%rdx)
+	mov	%r12w,0x7F(%rbx)
+	mov	%r12w,0x7F(%rsp)
+	mov	%r12w,0x7F(%rbp)
+	mov	%r12w,0x7F(%rsi)
+	mov	%r12w,0x7F(%rdi)
+	mov	%r12w,0x7F(%r8)
+	mov	%r12w,0x7F(%r9)
+	mov	%r12w,0x7F(%r10)
+	mov	%r12w,0x7F(%r11)
+	mov	%r12w,0x7F(%r12)
+	mov	%r12w,0x7F(%r13)
+	mov	%r12w,0x7F(%r14)
+	mov	%r12w,0x7F(%r15)
+	nop
+	mov	%r13w,0x7F(%rax)
+	mov	%r13w,0x7F(%rcx)
+	mov	%r13w,0x7F(%rdx)
+	mov	%r13w,0x7F(%rbx)
+	mov	%r13w,0x7F(%rsp)
+	mov	%r13w,0x7F(%rbp)
+	mov	%r13w,0x7F(%rsi)
+	mov	%r13w,0x7F(%rdi)
+	mov	%r13w,0x7F(%r8)
+	mov	%r13w,0x7F(%r9)
+	mov	%r13w,0x7F(%r10)
+	mov	%r13w,0x7F(%r11)
+	mov	%r13w,0x7F(%r12)
+	mov	%r13w,0x7F(%r13)
+	mov	%r13w,0x7F(%r14)
+	mov	%r13w,0x7F(%r15)
+	nop
+	mov	%r14w,0x7F(%rax)
+	mov	%r14w,0x7F(%rcx)
+	mov	%r14w,0x7F(%rdx)
+	mov	%r14w,0x7F(%rbx)
+	mov	%r14w,0x7F(%rsp)
+	mov	%r14w,0x7F(%rbp)
+	mov	%r14w,0x7F(%rsi)
+	mov	%r14w,0x7F(%rdi)
+	mov	%r14w,0x7F(%r8)
+	mov	%r14w,0x7F(%r9)
+	mov	%r14w,0x7F(%r10)
+	mov	%r14w,0x7F(%r11)
+	mov	%r14w,0x7F(%r12)
+	mov	%r14w,0x7F(%r13)
+	mov	%r14w,0x7F(%r14)
+	mov	%r14w,0x7F(%r15)
+	nop
+	mov	%r15w,0x7F(%rax)
+	mov	%r15w,0x7F(%rcx)
+	mov	%r15w,0x7F(%rdx)
+	mov	%r15w,0x7F(%rbx)
+	mov	%r15w,0x7F(%rsp)
+	mov	%r15w,0x7F(%rbp)
+	mov	%r15w,0x7F(%rsi)
+	mov	%r15w,0x7F(%rdi)
+	mov	%r15w,0x7F(%r8)
+	mov	%r15w,0x7F(%r9)
+	mov	%r15w,0x7F(%r10)
+	mov	%r15w,0x7F(%r11)
+	mov	%r15w,0x7F(%r12)
+	mov	%r15w,0x7F(%r13)
+	mov	%r15w,0x7F(%r14)
+	mov	%r15w,0x7F(%r15)
+        nop
+        nop
+        // mem16[off32] += reg16
+	mov	%ax,0x12345678(%rax)
+	mov	%ax,0x12345678(%rcx)
+	mov	%ax,0x12345678(%rdx)
+	mov	%ax,0x12345678(%rbx)
+	mov	%ax,0x12345678(%rsp)
+	mov	%ax,0x12345678(%rbp)
+	mov	%ax,0x12345678(%rsi)
+	mov	%ax,0x12345678(%rdi)
+	mov	%ax,0x12345678(%r8)
+	mov	%ax,0x12345678(%r9)
+	mov	%ax,0x12345678(%r10)
+	mov	%ax,0x12345678(%r11)
+	mov	%ax,0x12345678(%r12)
+	mov	%ax,0x12345678(%r13)
+	mov	%ax,0x12345678(%r14)
+	mov	%ax,0x12345678(%r15)
+	nop
+	mov	%cx,0x12345678(%rax)
+	mov	%cx,0x12345678(%rcx)
+	mov	%cx,0x12345678(%rdx)
+	mov	%cx,0x12345678(%rbx)
+	mov	%cx,0x12345678(%rsp)
+	mov	%cx,0x12345678(%rbp)
+	mov	%cx,0x12345678(%rsi)
+	mov	%cx,0x12345678(%rdi)
+	mov	%cx,0x12345678(%r8)
+	mov	%cx,0x12345678(%r9)
+	mov	%cx,0x12345678(%r10)
+	mov	%cx,0x12345678(%r11)
+	mov	%cx,0x12345678(%r12)
+	mov	%cx,0x12345678(%r13)
+	mov	%cx,0x12345678(%r14)
+	mov	%cx,0x12345678(%r15)
+	nop
+	mov	%dx,0x12345678(%rax)
+	mov	%dx,0x12345678(%rcx)
+	mov	%dx,0x12345678(%rdx)
+	mov	%dx,0x12345678(%rbx)
+	mov	%dx,0x12345678(%rsp)
+	mov	%dx,0x12345678(%rbp)
+	mov	%dx,0x12345678(%rsi)
+	mov	%dx,0x12345678(%rdi)
+	mov	%dx,0x12345678(%r8)
+	mov	%dx,0x12345678(%r9)
+	mov	%dx,0x12345678(%r10)
+	mov	%dx,0x12345678(%r11)
+	mov	%dx,0x12345678(%r12)
+	mov	%dx,0x12345678(%r13)
+	mov	%dx,0x12345678(%r14)
+	mov	%dx,0x12345678(%r15)
+	nop
+	mov	%bx,0x12345678(%rax)
+	mov	%bx,0x12345678(%rcx)
+	mov	%bx,0x12345678(%rdx)
+	mov	%bx,0x12345678(%rbx)
+	mov	%bx,0x12345678(%rsp)
+	mov	%bx,0x12345678(%rbp)
+	mov	%bx,0x12345678(%rsi)
+	mov	%bx,0x12345678(%rdi)
+	mov	%bx,0x12345678(%r8)
+	mov	%bx,0x12345678(%r9)
+	mov	%bx,0x12345678(%r10)
+	mov	%bx,0x12345678(%r11)
+	mov	%bx,0x12345678(%r12)
+	mov	%bx,0x12345678(%r13)
+	mov	%bx,0x12345678(%r14)
+	mov	%bx,0x12345678(%r15)
+	nop
+	mov	%sp,0x12345678(%rax)
+	mov	%sp,0x12345678(%rcx)
+	mov	%sp,0x12345678(%rdx)
+	mov	%sp,0x12345678(%rbx)
+	mov	%sp,0x12345678(%rsp)
+	mov	%sp,0x12345678(%rbp)
+	mov	%sp,0x12345678(%rsi)
+	mov	%sp,0x12345678(%rdi)
+	mov	%sp,0x12345678(%r8)
+	mov	%sp,0x12345678(%r9)
+	mov	%sp,0x12345678(%r10)
+	mov	%sp,0x12345678(%r11)
+	mov	%sp,0x12345678(%r12)
+	mov	%sp,0x12345678(%r13)
+	mov	%sp,0x12345678(%r14)
+	mov	%sp,0x12345678(%r15)
+	nop
+	mov	%bp,0x12345678(%rax)
+	mov	%bp,0x12345678(%rcx)
+	mov	%bp,0x12345678(%rdx)
+	mov	%bp,0x12345678(%rbx)
+	mov	%bp,0x12345678(%rsp)
+	mov	%bp,0x12345678(%rbp)
+	mov	%bp,0x12345678(%rsi)
+	mov	%bp,0x12345678(%rdi)
+	mov	%bp,0x12345678(%r8)
+	mov	%bp,0x12345678(%r9)
+	mov	%bp,0x12345678(%r10)
+	mov	%bp,0x12345678(%r11)
+	mov	%bp,0x12345678(%r12)
+	mov	%bp,0x12345678(%r13)
+	mov	%bp,0x12345678(%r14)
+	mov	%bp,0x12345678(%r15)
+	nop
+	mov	%si,0x12345678(%rax)
+	mov	%si,0x12345678(%rcx)
+	mov	%si,0x12345678(%rdx)
+	mov	%si,0x12345678(%rbx)
+	mov	%si,0x12345678(%rsp)
+	mov	%si,0x12345678(%rbp)
+	mov	%si,0x12345678(%rsi)
+	mov	%si,0x12345678(%rdi)
+	mov	%si,0x12345678(%r8)
+	mov	%si,0x12345678(%r9)
+	mov	%si,0x12345678(%r10)
+	mov	%si,0x12345678(%r11)
+	mov	%si,0x12345678(%r12)
+	mov	%si,0x12345678(%r13)
+	mov	%si,0x12345678(%r14)
+	mov	%si,0x12345678(%r15)
+	nop
+	mov	%di,0x12345678(%rax)
+	mov	%di,0x12345678(%rcx)
+	mov	%di,0x12345678(%rdx)
+	mov	%di,0x12345678(%rbx)
+	mov	%di,0x12345678(%rsp)
+	mov	%di,0x12345678(%rbp)
+	mov	%di,0x12345678(%rsi)
+	mov	%di,0x12345678(%rdi)
+	mov	%di,0x12345678(%r8)
+	mov	%di,0x12345678(%r9)
+	mov	%di,0x12345678(%r10)
+	mov	%di,0x12345678(%r11)
+	mov	%di,0x12345678(%r12)
+	mov	%di,0x12345678(%r13)
+	mov	%di,0x12345678(%r14)
+	mov	%di,0x12345678(%r15)
+	nop
+	mov	%r8w, 0x12345678(%rax)
+	mov	%r8w, 0x12345678(%rcx)
+	mov	%r8w, 0x12345678(%rdx)
+	mov	%r8w, 0x12345678(%rbx)
+	mov	%r8w, 0x12345678(%rsp)
+	mov	%r8w, 0x12345678(%rbp)
+	mov	%r8w, 0x12345678(%rsi)
+	mov	%r8w, 0x12345678(%rdi)
+	mov	%r8w, 0x12345678(%r8)
+	mov	%r8w, 0x12345678(%r9)
+	mov	%r8w, 0x12345678(%r10)
+	mov	%r8w, 0x12345678(%r11)
+	mov	%r8w, 0x12345678(%r12)
+	mov	%r8w, 0x12345678(%r13)
+	mov	%r8w, 0x12345678(%r14)
+	mov	%r8w, 0x12345678(%r15)
+	nop
+	mov	%r9w, 0x12345678(%rax)
+	mov	%r9w, 0x12345678(%rcx)
+	mov	%r9w, 0x12345678(%rdx)
+	mov	%r9w, 0x12345678(%rbx)
+	mov	%r9w, 0x12345678(%rsp)
+	mov	%r9w, 0x12345678(%rbp)
+	mov	%r9w, 0x12345678(%rsi)
+	mov	%r9w, 0x12345678(%rdi)
+	mov	%r9w, 0x12345678(%r8)
+	mov	%r9w, 0x12345678(%r9)
+	mov	%r9w, 0x12345678(%r10)
+	mov	%r9w, 0x12345678(%r11)
+	mov	%r9w, 0x12345678(%r12)
+	mov	%r9w, 0x12345678(%r13)
+	mov	%r9w, 0x12345678(%r14)
+	mov	%r9w, 0x12345678(%r15)
+	nop
+	mov	%r10w,0x12345678(%rax)
+	mov	%r10w,0x12345678(%rcx)
+	mov	%r10w,0x12345678(%rdx)
+	mov	%r10w,0x12345678(%rbx)
+	mov	%r10w,0x12345678(%rsp)
+	mov	%r10w,0x12345678(%rbp)
+	mov	%r10w,0x12345678(%rsi)
+	mov	%r10w,0x12345678(%rdi)
+	mov	%r10w,0x12345678(%r8)
+	mov	%r10w,0x12345678(%r9)
+	mov	%r10w,0x12345678(%r10)
+	mov	%r10w,0x12345678(%r11)
+	mov	%r10w,0x12345678(%r12)
+	mov	%r10w,0x12345678(%r13)
+	mov	%r10w,0x12345678(%r14)
+	mov	%r10w,0x12345678(%r15)
+	nop
+	mov	%r11w,0x12345678(%rax)
+	mov	%r11w,0x12345678(%rcx)
+	mov	%r11w,0x12345678(%rdx)
+	mov	%r11w,0x12345678(%rbx)
+	mov	%r11w,0x12345678(%rsp)
+	mov	%r11w,0x12345678(%rbp)
+	mov	%r11w,0x12345678(%rsi)
+	mov	%r11w,0x12345678(%rdi)
+	mov	%r11w,0x12345678(%r8)
+	mov	%r11w,0x12345678(%r9)
+	mov	%r11w,0x12345678(%r10)
+	mov	%r11w,0x12345678(%r11)
+	mov	%r11w,0x12345678(%r12)
+	mov	%r11w,0x12345678(%r13)
+	mov	%r11w,0x12345678(%r14)
+	mov	%r11w,0x12345678(%r15)
+	nop
+	mov	%r12w,0x12345678(%rax)
+	mov	%r12w,0x12345678(%rcx)
+	mov	%r12w,0x12345678(%rdx)
+	mov	%r12w,0x12345678(%rbx)
+	mov	%r12w,0x12345678(%rsp)
+	mov	%r12w,0x12345678(%rbp)
+	mov	%r12w,0x12345678(%rsi)
+	mov	%r12w,0x12345678(%rdi)
+	mov	%r12w,0x12345678(%r8)
+	mov	%r12w,0x12345678(%r9)
+	mov	%r12w,0x12345678(%r10)
+	mov	%r12w,0x12345678(%r11)
+	mov	%r12w,0x12345678(%r12)
+	mov	%r12w,0x12345678(%r13)
+	mov	%r12w,0x12345678(%r14)
+	mov	%r12w,0x12345678(%r15)
+	nop
+	mov	%r13w,0x12345678(%rax)
+	mov	%r13w,0x12345678(%rcx)
+	mov	%r13w,0x12345678(%rdx)
+	mov	%r13w,0x12345678(%rbx)
+	mov	%r13w,0x12345678(%rsp)
+	mov	%r13w,0x12345678(%rbp)
+	mov	%r13w,0x12345678(%rsi)
+	mov	%r13w,0x12345678(%rdi)
+	mov	%r13w,0x12345678(%r8)
+	mov	%r13w,0x12345678(%r9)
+	mov	%r13w,0x12345678(%r10)
+	mov	%r13w,0x12345678(%r11)
+	mov	%r13w,0x12345678(%r12)
+	mov	%r13w,0x12345678(%r13)
+	mov	%r13w,0x12345678(%r14)
+	mov	%r13w,0x12345678(%r15)
+	nop
+	mov	%r14w,0x12345678(%rax)
+	mov	%r14w,0x12345678(%rcx)
+	mov	%r14w,0x12345678(%rdx)
+	mov	%r14w,0x12345678(%rbx)
+	mov	%r14w,0x12345678(%rsp)
+	mov	%r14w,0x12345678(%rbp)
+	mov	%r14w,0x12345678(%rsi)
+	mov	%r14w,0x12345678(%rdi)
+	mov	%r14w,0x12345678(%r8)
+	mov	%r14w,0x12345678(%r9)
+	mov	%r14w,0x12345678(%r10)
+	mov	%r14w,0x12345678(%r11)
+	mov	%r14w,0x12345678(%r12)
+	mov	%r14w,0x12345678(%r13)
+	mov	%r14w,0x12345678(%r14)
+	mov	%r14w,0x12345678(%r15)
+	nop
+	mov	%r15w,0x12345678(%rax)
+	mov	%r15w,0x12345678(%rcx)
+	mov	%r15w,0x12345678(%rdx)
+	mov	%r15w,0x12345678(%rbx)
+	mov	%r15w,0x12345678(%rsp)
+	mov	%r15w,0x12345678(%rbp)
+	mov	%r15w,0x12345678(%rsi)
+	mov	%r15w,0x12345678(%rdi)
+	mov	%r15w,0x12345678(%r8)
+	mov	%r15w,0x12345678(%r9)
+	mov	%r15w,0x12345678(%r10)
+	mov	%r15w,0x12345678(%r11)
+	mov	%r15w,0x12345678(%r12)
+	mov	%r15w,0x12345678(%r13)
+	mov	%r15w,0x12345678(%r14)
+	mov	%r15w,0x12345678(%r15)
+        ret
+	.cfi_endproc
+
+	.p2align 4,,15
+	.globl	MovMemReg32
+	.type	MovMemReg32, @function
+MovMemReg32:
+	.cfi_startproc
+        // mem32[0] += reg32
 	mov	%eax,(%rax)
 	mov	%eax,(%rcx)
 	mov	%eax,(%rdx)
@@ -1995,7 +3102,561 @@ MovMemReg:
 	mov	%r15d,(%r15)
         nop
         nop
-        // mem64 += reg64
+        // mem32[off8] += reg32
+	mov	%eax,0x7F(%rax)
+	mov	%eax,0x7F(%rcx)
+	mov	%eax,0x7F(%rdx)
+	mov	%eax,0x7F(%rbx)
+	mov	%eax,0x7F(%rsp)
+	mov	%eax,0x7F(%rbp)
+	mov	%eax,0x7F(%rsi)
+	mov	%eax,0x7F(%rdi)
+	mov	%eax,0x7F(%r8)
+	mov	%eax,0x7F(%r9)
+	mov	%eax,0x7F(%r10)
+	mov	%eax,0x7F(%r11)
+	mov	%eax,0x7F(%r12)
+	mov	%eax,0x7F(%r13)
+	mov	%eax,0x7F(%r14)
+	mov	%eax,0x7F(%r15)
+	nop
+	mov	%ecx,0x7F(%rax)
+	mov	%ecx,0x7F(%rcx)
+	mov	%ecx,0x7F(%rdx)
+	mov	%ecx,0x7F(%rbx)
+	mov	%ecx,0x7F(%rsp)
+	mov	%ecx,0x7F(%rbp)
+	mov	%ecx,0x7F(%rsi)
+	mov	%ecx,0x7F(%rdi)
+	mov	%ecx,0x7F(%r8)
+	mov	%ecx,0x7F(%r9)
+	mov	%ecx,0x7F(%r10)
+	mov	%ecx,0x7F(%r11)
+	mov	%ecx,0x7F(%r12)
+	mov	%ecx,0x7F(%r13)
+	mov	%ecx,0x7F(%r14)
+	mov	%ecx,0x7F(%r15)
+	nop
+	mov	%edx,0x7F(%rax)
+	mov	%edx,0x7F(%rcx)
+	mov	%edx,0x7F(%rdx)
+	mov	%edx,0x7F(%rbx)
+	mov	%edx,0x7F(%rsp)
+	mov	%edx,0x7F(%rbp)
+	mov	%edx,0x7F(%rsi)
+	mov	%edx,0x7F(%rdi)
+	mov	%edx,0x7F(%r8)
+	mov	%edx,0x7F(%r9)
+	mov	%edx,0x7F(%r10)
+	mov	%edx,0x7F(%r11)
+	mov	%edx,0x7F(%r12)
+	mov	%edx,0x7F(%r13)
+	mov	%edx,0x7F(%r14)
+	mov	%edx,0x7F(%r15)
+	nop
+	mov	%ebx,0x7F(%rax)
+	mov	%ebx,0x7F(%rcx)
+	mov	%ebx,0x7F(%rdx)
+	mov	%ebx,0x7F(%rbx)
+	mov	%ebx,0x7F(%rsp)
+	mov	%ebx,0x7F(%rbp)
+	mov	%ebx,0x7F(%rsi)
+	mov	%ebx,0x7F(%rdi)
+	mov	%ebx,0x7F(%r8)
+	mov	%ebx,0x7F(%r9)
+	mov	%ebx,0x7F(%r10)
+	mov	%ebx,0x7F(%r11)
+	mov	%ebx,0x7F(%r12)
+	mov	%ebx,0x7F(%r13)
+	mov	%ebx,0x7F(%r14)
+	mov	%ebx,0x7F(%r15)
+	nop
+	mov	%esp,0x7F(%rax)
+	mov	%esp,0x7F(%rcx)
+	mov	%esp,0x7F(%rdx)
+	mov	%esp,0x7F(%rbx)
+	mov	%esp,0x7F(%rsp)
+	mov	%esp,0x7F(%rbp)
+	mov	%esp,0x7F(%rsi)
+	mov	%esp,0x7F(%rdi)
+	mov	%esp,0x7F(%r8)
+	mov	%esp,0x7F(%r9)
+	mov	%esp,0x7F(%r10)
+	mov	%esp,0x7F(%r11)
+	mov	%esp,0x7F(%r12)
+	mov	%esp,0x7F(%r13)
+	mov	%esp,0x7F(%r14)
+	mov	%esp,0x7F(%r15)
+	nop
+	mov	%ebp,0x7F(%rax)
+	mov	%ebp,0x7F(%rcx)
+	mov	%ebp,0x7F(%rdx)
+	mov	%ebp,0x7F(%rbx)
+	mov	%ebp,0x7F(%rsp)
+	mov	%ebp,0x7F(%rbp)
+	mov	%ebp,0x7F(%rsi)
+	mov	%ebp,0x7F(%rdi)
+	mov	%ebp,0x7F(%r8)
+	mov	%ebp,0x7F(%r9)
+	mov	%ebp,0x7F(%r10)
+	mov	%ebp,0x7F(%r11)
+	mov	%ebp,0x7F(%r12)
+	mov	%ebp,0x7F(%r13)
+	mov	%ebp,0x7F(%r14)
+	mov	%ebp,0x7F(%r15)
+	nop
+	mov	%esi,0x7F(%rax)
+	mov	%esi,0x7F(%rcx)
+	mov	%esi,0x7F(%rdx)
+	mov	%esi,0x7F(%rbx)
+	mov	%esi,0x7F(%rsp)
+	mov	%esi,0x7F(%rbp)
+	mov	%esi,0x7F(%rsi)
+	mov	%esi,0x7F(%rdi)
+	mov	%esi,0x7F(%r8)
+	mov	%esi,0x7F(%r9)
+	mov	%esi,0x7F(%r10)
+	mov	%esi,0x7F(%r11)
+	mov	%esi,0x7F(%r12)
+	mov	%esi,0x7F(%r13)
+	mov	%esi,0x7F(%r14)
+	mov	%esi,0x7F(%r15)
+	nop
+	mov	%edi,0x7F(%rax)
+	mov	%edi,0x7F(%rcx)
+	mov	%edi,0x7F(%rdx)
+	mov	%edi,0x7F(%rbx)
+	mov	%edi,0x7F(%rsp)
+	mov	%edi,0x7F(%rbp)
+	mov	%edi,0x7F(%rsi)
+	mov	%edi,0x7F(%rdi)
+	mov	%edi,0x7F(%r8)
+	mov	%edi,0x7F(%r9)
+	mov	%edi,0x7F(%r10)
+	mov	%edi,0x7F(%r11)
+	mov	%edi,0x7F(%r12)
+	mov	%edi,0x7F(%r13)
+	mov	%edi,0x7F(%r14)
+	mov	%edi,0x7F(%r15)
+	nop
+	mov	%r8d, 0x7F(%rax)
+	mov	%r8d, 0x7F(%rcx)
+	mov	%r8d, 0x7F(%rdx)
+	mov	%r8d, 0x7F(%rbx)
+	mov	%r8d, 0x7F(%rsp)
+	mov	%r8d, 0x7F(%rbp)
+	mov	%r8d, 0x7F(%rsi)
+	mov	%r8d, 0x7F(%rdi)
+	mov	%r8d, 0x7F(%r8)
+	mov	%r8d, 0x7F(%r9)
+	mov	%r8d, 0x7F(%r10)
+	mov	%r8d, 0x7F(%r11)
+	mov	%r8d, 0x7F(%r12)
+	mov	%r8d, 0x7F(%r13)
+	mov	%r8d, 0x7F(%r14)
+	mov	%r8d, 0x7F(%r15)
+	nop
+	mov	%r9d, 0x7F(%rax)
+	mov	%r9d, 0x7F(%rcx)
+	mov	%r9d, 0x7F(%rdx)
+	mov	%r9d, 0x7F(%rbx)
+	mov	%r9d, 0x7F(%rsp)
+	mov	%r9d, 0x7F(%rbp)
+	mov	%r9d, 0x7F(%rsi)
+	mov	%r9d, 0x7F(%rdi)
+	mov	%r9d, 0x7F(%r8)
+	mov	%r9d, 0x7F(%r9)
+	mov	%r9d, 0x7F(%r10)
+	mov	%r9d, 0x7F(%r11)
+	mov	%r9d, 0x7F(%r12)
+	mov	%r9d, 0x7F(%r13)
+	mov	%r9d, 0x7F(%r14)
+	mov	%r9d, 0x7F(%r15)
+	nop
+	mov	%r10d,0x7F(%rax)
+	mov	%r10d,0x7F(%rcx)
+	mov	%r10d,0x7F(%rdx)
+	mov	%r10d,0x7F(%rbx)
+	mov	%r10d,0x7F(%rsp)
+	mov	%r10d,0x7F(%rbp)
+	mov	%r10d,0x7F(%rsi)
+	mov	%r10d,0x7F(%rdi)
+	mov	%r10d,0x7F(%r8)
+	mov	%r10d,0x7F(%r9)
+	mov	%r10d,0x7F(%r10)
+	mov	%r10d,0x7F(%r11)
+	mov	%r10d,0x7F(%r12)
+	mov	%r10d,0x7F(%r13)
+	mov	%r10d,0x7F(%r14)
+	mov	%r10d,0x7F(%r15)
+	nop
+	mov	%r11d,0x7F(%rax)
+	mov	%r11d,0x7F(%rcx)
+	mov	%r11d,0x7F(%rdx)
+	mov	%r11d,0x7F(%rbx)
+	mov	%r11d,0x7F(%rsp)
+	mov	%r11d,0x7F(%rbp)
+	mov	%r11d,0x7F(%rsi)
+	mov	%r11d,0x7F(%rdi)
+	mov	%r11d,0x7F(%r8)
+	mov	%r11d,0x7F(%r9)
+	mov	%r11d,0x7F(%r10)
+	mov	%r11d,0x7F(%r11)
+	mov	%r11d,0x7F(%r12)
+	mov	%r11d,0x7F(%r13)
+	mov	%r11d,0x7F(%r14)
+	mov	%r11d,0x7F(%r15)
+	nop
+	mov	%r12d,0x7F(%rax)
+	mov	%r12d,0x7F(%rcx)
+	mov	%r12d,0x7F(%rdx)
+	mov	%r12d,0x7F(%rbx)
+	mov	%r12d,0x7F(%rsp)
+	mov	%r12d,0x7F(%rbp)
+	mov	%r12d,0x7F(%rsi)
+	mov	%r12d,0x7F(%rdi)
+	mov	%r12d,0x7F(%r8)
+	mov	%r12d,0x7F(%r9)
+	mov	%r12d,0x7F(%r10)
+	mov	%r12d,0x7F(%r11)
+	mov	%r12d,0x7F(%r12)
+	mov	%r12d,0x7F(%r13)
+	mov	%r12d,0x7F(%r14)
+	mov	%r12d,0x7F(%r15)
+	nop
+	mov	%r13d,0x7F(%rax)
+	mov	%r13d,0x7F(%rcx)
+	mov	%r13d,0x7F(%rdx)
+	mov	%r13d,0x7F(%rbx)
+	mov	%r13d,0x7F(%rsp)
+	mov	%r13d,0x7F(%rbp)
+	mov	%r13d,0x7F(%rsi)
+	mov	%r13d,0x7F(%rdi)
+	mov	%r13d,0x7F(%r8)
+	mov	%r13d,0x7F(%r9)
+	mov	%r13d,0x7F(%r10)
+	mov	%r13d,0x7F(%r11)
+	mov	%r13d,0x7F(%r12)
+	mov	%r13d,0x7F(%r13)
+	mov	%r13d,0x7F(%r14)
+	mov	%r13d,0x7F(%r15)
+	nop
+	mov	%r14d,0x7F(%rax)
+	mov	%r14d,0x7F(%rcx)
+	mov	%r14d,0x7F(%rdx)
+	mov	%r14d,0x7F(%rbx)
+	mov	%r14d,0x7F(%rsp)
+	mov	%r14d,0x7F(%rbp)
+	mov	%r14d,0x7F(%rsi)
+	mov	%r14d,0x7F(%rdi)
+	mov	%r14d,0x7F(%r8)
+	mov	%r14d,0x7F(%r9)
+	mov	%r14d,0x7F(%r10)
+	mov	%r14d,0x7F(%r11)
+	mov	%r14d,0x7F(%r12)
+	mov	%r14d,0x7F(%r13)
+	mov	%r14d,0x7F(%r14)
+	mov	%r14d,0x7F(%r15)
+	nop
+	mov	%r15d,0x7F(%rax)
+	mov	%r15d,0x7F(%rcx)
+	mov	%r15d,0x7F(%rdx)
+	mov	%r15d,0x7F(%rbx)
+	mov	%r15d,0x7F(%rsp)
+	mov	%r15d,0x7F(%rbp)
+	mov	%r15d,0x7F(%rsi)
+	mov	%r15d,0x7F(%rdi)
+	mov	%r15d,0x7F(%r8)
+	mov	%r15d,0x7F(%r9)
+	mov	%r15d,0x7F(%r10)
+	mov	%r15d,0x7F(%r11)
+	mov	%r15d,0x7F(%r12)
+	mov	%r15d,0x7F(%r13)
+	mov	%r15d,0x7F(%r14)
+	mov	%r15d,0x7F(%r15)
+        nop
+        nop
+        // mem32[off32] += reg32
+	mov	%eax,0x12345678(%rax)
+	mov	%eax,0x12345678(%rcx)
+	mov	%eax,0x12345678(%rdx)
+	mov	%eax,0x12345678(%rbx)
+	mov	%eax,0x12345678(%rsp)
+	mov	%eax,0x12345678(%rbp)
+	mov	%eax,0x12345678(%rsi)
+	mov	%eax,0x12345678(%rdi)
+	mov	%eax,0x12345678(%r8)
+	mov	%eax,0x12345678(%r9)
+	mov	%eax,0x12345678(%r10)
+	mov	%eax,0x12345678(%r11)
+	mov	%eax,0x12345678(%r12)
+	mov	%eax,0x12345678(%r13)
+	mov	%eax,0x12345678(%r14)
+	mov	%eax,0x12345678(%r15)
+	nop
+	mov	%ecx,0x12345678(%rax)
+	mov	%ecx,0x12345678(%rcx)
+	mov	%ecx,0x12345678(%rdx)
+	mov	%ecx,0x12345678(%rbx)
+	mov	%ecx,0x12345678(%rsp)
+	mov	%ecx,0x12345678(%rbp)
+	mov	%ecx,0x12345678(%rsi)
+	mov	%ecx,0x12345678(%rdi)
+	mov	%ecx,0x12345678(%r8)
+	mov	%ecx,0x12345678(%r9)
+	mov	%ecx,0x12345678(%r10)
+	mov	%ecx,0x12345678(%r11)
+	mov	%ecx,0x12345678(%r12)
+	mov	%ecx,0x12345678(%r13)
+	mov	%ecx,0x12345678(%r14)
+	mov	%ecx,0x12345678(%r15)
+	nop
+	mov	%edx,0x12345678(%rax)
+	mov	%edx,0x12345678(%rcx)
+	mov	%edx,0x12345678(%rdx)
+	mov	%edx,0x12345678(%rbx)
+	mov	%edx,0x12345678(%rsp)
+	mov	%edx,0x12345678(%rbp)
+	mov	%edx,0x12345678(%rsi)
+	mov	%edx,0x12345678(%rdi)
+	mov	%edx,0x12345678(%r8)
+	mov	%edx,0x12345678(%r9)
+	mov	%edx,0x12345678(%r10)
+	mov	%edx,0x12345678(%r11)
+	mov	%edx,0x12345678(%r12)
+	mov	%edx,0x12345678(%r13)
+	mov	%edx,0x12345678(%r14)
+	mov	%edx,0x12345678(%r15)
+	nop
+	mov	%ebx,0x12345678(%rax)
+	mov	%ebx,0x12345678(%rcx)
+	mov	%ebx,0x12345678(%rdx)
+	mov	%ebx,0x12345678(%rbx)
+	mov	%ebx,0x12345678(%rsp)
+	mov	%ebx,0x12345678(%rbp)
+	mov	%ebx,0x12345678(%rsi)
+	mov	%ebx,0x12345678(%rdi)
+	mov	%ebx,0x12345678(%r8)
+	mov	%ebx,0x12345678(%r9)
+	mov	%ebx,0x12345678(%r10)
+	mov	%ebx,0x12345678(%r11)
+	mov	%ebx,0x12345678(%r12)
+	mov	%ebx,0x12345678(%r13)
+	mov	%ebx,0x12345678(%r14)
+	mov	%ebx,0x12345678(%r15)
+	nop
+	mov	%esp,0x12345678(%rax)
+	mov	%esp,0x12345678(%rcx)
+	mov	%esp,0x12345678(%rdx)
+	mov	%esp,0x12345678(%rbx)
+	mov	%esp,0x12345678(%rsp)
+	mov	%esp,0x12345678(%rbp)
+	mov	%esp,0x12345678(%rsi)
+	mov	%esp,0x12345678(%rdi)
+	mov	%esp,0x12345678(%r8)
+	mov	%esp,0x12345678(%r9)
+	mov	%esp,0x12345678(%r10)
+	mov	%esp,0x12345678(%r11)
+	mov	%esp,0x12345678(%r12)
+	mov	%esp,0x12345678(%r13)
+	mov	%esp,0x12345678(%r14)
+	mov	%esp,0x12345678(%r15)
+	nop
+	mov	%ebp,0x12345678(%rax)
+	mov	%ebp,0x12345678(%rcx)
+	mov	%ebp,0x12345678(%rdx)
+	mov	%ebp,0x12345678(%rbx)
+	mov	%ebp,0x12345678(%rsp)
+	mov	%ebp,0x12345678(%rbp)
+	mov	%ebp,0x12345678(%rsi)
+	mov	%ebp,0x12345678(%rdi)
+	mov	%ebp,0x12345678(%r8)
+	mov	%ebp,0x12345678(%r9)
+	mov	%ebp,0x12345678(%r10)
+	mov	%ebp,0x12345678(%r11)
+	mov	%ebp,0x12345678(%r12)
+	mov	%ebp,0x12345678(%r13)
+	mov	%ebp,0x12345678(%r14)
+	mov	%ebp,0x12345678(%r15)
+	nop
+	mov	%esi,0x12345678(%rax)
+	mov	%esi,0x12345678(%rcx)
+	mov	%esi,0x12345678(%rdx)
+	mov	%esi,0x12345678(%rbx)
+	mov	%esi,0x12345678(%rsp)
+	mov	%esi,0x12345678(%rbp)
+	mov	%esi,0x12345678(%rsi)
+	mov	%esi,0x12345678(%rdi)
+	mov	%esi,0x12345678(%r8)
+	mov	%esi,0x12345678(%r9)
+	mov	%esi,0x12345678(%r10)
+	mov	%esi,0x12345678(%r11)
+	mov	%esi,0x12345678(%r12)
+	mov	%esi,0x12345678(%r13)
+	mov	%esi,0x12345678(%r14)
+	mov	%esi,0x12345678(%r15)
+	nop
+	mov	%edi,0x12345678(%rax)
+	mov	%edi,0x12345678(%rcx)
+	mov	%edi,0x12345678(%rdx)
+	mov	%edi,0x12345678(%rbx)
+	mov	%edi,0x12345678(%rsp)
+	mov	%edi,0x12345678(%rbp)
+	mov	%edi,0x12345678(%rsi)
+	mov	%edi,0x12345678(%rdi)
+	mov	%edi,0x12345678(%r8)
+	mov	%edi,0x12345678(%r9)
+	mov	%edi,0x12345678(%r10)
+	mov	%edi,0x12345678(%r11)
+	mov	%edi,0x12345678(%r12)
+	mov	%edi,0x12345678(%r13)
+	mov	%edi,0x12345678(%r14)
+	mov	%edi,0x12345678(%r15)
+	nop
+	mov	%r8d, 0x12345678(%rax)
+	mov	%r8d, 0x12345678(%rcx)
+	mov	%r8d, 0x12345678(%rdx)
+	mov	%r8d, 0x12345678(%rbx)
+	mov	%r8d, 0x12345678(%rsp)
+	mov	%r8d, 0x12345678(%rbp)
+	mov	%r8d, 0x12345678(%rsi)
+	mov	%r8d, 0x12345678(%rdi)
+	mov	%r8d, 0x12345678(%r8)
+	mov	%r8d, 0x12345678(%r9)
+	mov	%r8d, 0x12345678(%r10)
+	mov	%r8d, 0x12345678(%r11)
+	mov	%r8d, 0x12345678(%r12)
+	mov	%r8d, 0x12345678(%r13)
+	mov	%r8d, 0x12345678(%r14)
+	mov	%r8d, 0x12345678(%r15)
+	nop
+	mov	%r9d, 0x12345678(%rax)
+	mov	%r9d, 0x12345678(%rcx)
+	mov	%r9d, 0x12345678(%rdx)
+	mov	%r9d, 0x12345678(%rbx)
+	mov	%r9d, 0x12345678(%rsp)
+	mov	%r9d, 0x12345678(%rbp)
+	mov	%r9d, 0x12345678(%rsi)
+	mov	%r9d, 0x12345678(%rdi)
+	mov	%r9d, 0x12345678(%r8)
+	mov	%r9d, 0x12345678(%r9)
+	mov	%r9d, 0x12345678(%r10)
+	mov	%r9d, 0x12345678(%r11)
+	mov	%r9d, 0x12345678(%r12)
+	mov	%r9d, 0x12345678(%r13)
+	mov	%r9d, 0x12345678(%r14)
+	mov	%r9d, 0x12345678(%r15)
+	nop
+	mov	%r10d,0x12345678(%rax)
+	mov	%r10d,0x12345678(%rcx)
+	mov	%r10d,0x12345678(%rdx)
+	mov	%r10d,0x12345678(%rbx)
+	mov	%r10d,0x12345678(%rsp)
+	mov	%r10d,0x12345678(%rbp)
+	mov	%r10d,0x12345678(%rsi)
+	mov	%r10d,0x12345678(%rdi)
+	mov	%r10d,0x12345678(%r8)
+	mov	%r10d,0x12345678(%r9)
+	mov	%r10d,0x12345678(%r10)
+	mov	%r10d,0x12345678(%r11)
+	mov	%r10d,0x12345678(%r12)
+	mov	%r10d,0x12345678(%r13)
+	mov	%r10d,0x12345678(%r14)
+	mov	%r10d,0x12345678(%r15)
+	nop
+	mov	%r11d,0x12345678(%rax)
+	mov	%r11d,0x12345678(%rcx)
+	mov	%r11d,0x12345678(%rdx)
+	mov	%r11d,0x12345678(%rbx)
+	mov	%r11d,0x12345678(%rsp)
+	mov	%r11d,0x12345678(%rbp)
+	mov	%r11d,0x12345678(%rsi)
+	mov	%r11d,0x12345678(%rdi)
+	mov	%r11d,0x12345678(%r8)
+	mov	%r11d,0x12345678(%r9)
+	mov	%r11d,0x12345678(%r10)
+	mov	%r11d,0x12345678(%r11)
+	mov	%r11d,0x12345678(%r12)
+	mov	%r11d,0x12345678(%r13)
+	mov	%r11d,0x12345678(%r14)
+	mov	%r11d,0x12345678(%r15)
+	nop
+	mov	%r12d,0x12345678(%rax)
+	mov	%r12d,0x12345678(%rcx)
+	mov	%r12d,0x12345678(%rdx)
+	mov	%r12d,0x12345678(%rbx)
+	mov	%r12d,0x12345678(%rsp)
+	mov	%r12d,0x12345678(%rbp)
+	mov	%r12d,0x12345678(%rsi)
+	mov	%r12d,0x12345678(%rdi)
+	mov	%r12d,0x12345678(%r8)
+	mov	%r12d,0x12345678(%r9)
+	mov	%r12d,0x12345678(%r10)
+	mov	%r12d,0x12345678(%r11)
+	mov	%r12d,0x12345678(%r12)
+	mov	%r12d,0x12345678(%r13)
+	mov	%r12d,0x12345678(%r14)
+	mov	%r12d,0x12345678(%r15)
+	nop
+	mov	%r13d,0x12345678(%rax)
+	mov	%r13d,0x12345678(%rcx)
+	mov	%r13d,0x12345678(%rdx)
+	mov	%r13d,0x12345678(%rbx)
+	mov	%r13d,0x12345678(%rsp)
+	mov	%r13d,0x12345678(%rbp)
+	mov	%r13d,0x12345678(%rsi)
+	mov	%r13d,0x12345678(%rdi)
+	mov	%r13d,0x12345678(%r8)
+	mov	%r13d,0x12345678(%r9)
+	mov	%r13d,0x12345678(%r10)
+	mov	%r13d,0x12345678(%r11)
+	mov	%r13d,0x12345678(%r12)
+	mov	%r13d,0x12345678(%r13)
+	mov	%r13d,0x12345678(%r14)
+	mov	%r13d,0x12345678(%r15)
+	nop
+	mov	%r14d,0x12345678(%rax)
+	mov	%r14d,0x12345678(%rcx)
+	mov	%r14d,0x12345678(%rdx)
+	mov	%r14d,0x12345678(%rbx)
+	mov	%r14d,0x12345678(%rsp)
+	mov	%r14d,0x12345678(%rbp)
+	mov	%r14d,0x12345678(%rsi)
+	mov	%r14d,0x12345678(%rdi)
+	mov	%r14d,0x12345678(%r8)
+	mov	%r14d,0x12345678(%r9)
+	mov	%r14d,0x12345678(%r10)
+	mov	%r14d,0x12345678(%r11)
+	mov	%r14d,0x12345678(%r12)
+	mov	%r14d,0x12345678(%r13)
+	mov	%r14d,0x12345678(%r14)
+	mov	%r14d,0x12345678(%r15)
+	nop
+	mov	%r15d,0x12345678(%rax)
+	mov	%r15d,0x12345678(%rcx)
+	mov	%r15d,0x12345678(%rdx)
+	mov	%r15d,0x12345678(%rbx)
+	mov	%r15d,0x12345678(%rsp)
+	mov	%r15d,0x12345678(%rbp)
+	mov	%r15d,0x12345678(%rsi)
+	mov	%r15d,0x12345678(%rdi)
+	mov	%r15d,0x12345678(%r8)
+	mov	%r15d,0x12345678(%r9)
+	mov	%r15d,0x12345678(%r10)
+	mov	%r15d,0x12345678(%r11)
+	mov	%r15d,0x12345678(%r12)
+	mov	%r15d,0x12345678(%r13)
+	mov	%r15d,0x12345678(%r14)
+	mov	%r15d,0x12345678(%r15)
+        ret
+	.cfi_endproc
+
+	.p2align 4,,15
+	.globl	MovMemReg64
+	.type	MovMemReg64, @function
+MovMemReg64:
+	.cfi_startproc
+        // mem64[0] += reg64
 	mov	%rax,(%rax)
 	mov	%rax,(%rcx)
 	mov	%rax,(%rdx)
@@ -2267,846 +3928,554 @@ MovMemReg:
 	mov	%r15,(%r13)
 	mov	%r15,(%r14)
 	mov	%r15,(%r15)
-	ret
-	.cfi_endproc
-
-
-	.p2align 4,,15
-	.globl	MovMem8Reg
-	.type	MovMem8Reg, @function
-MovMem8Reg:
-	.cfi_startproc
-	mov	%rax,0x7f(%rax)
-	mov	%rax,0x7f(%rcx)
-	mov	%rax,0x7f(%rdx)
-	mov	%rax,0x7f(%rbx)
-	mov	%rax,0x7f(%rsp)
-	mov	%rax,0x7f(%rbp)
-	mov	%rax,0x7f(%rsi)
-	mov	%rax,0x7f(%rdi)
-	mov	%rax,0x7f(%r8)
-	mov	%rax,0x7f(%r9)
-	mov	%rax,0x7f(%r10)
-	mov	%rax,0x7f(%r11)
-	mov	%rax,0x7f(%r12)
-	mov	%rax,0x7f(%r13)
-	mov	%rax,0x7f(%r14)
-	mov	%rax,0x7f(%r15)
+        nop
+        nop
+        // mem64[off8] += reg64
+	mov	%rax,0x7F(%rax)
+	mov	%rax,0x7F(%rcx)
+	mov	%rax,0x7F(%rdx)
+	mov	%rax,0x7F(%rbx)
+	mov	%rax,0x7F(%rsp)
+	mov	%rax,0x7F(%rbp)
+	mov	%rax,0x7F(%rsi)
+	mov	%rax,0x7F(%rdi)
+	mov	%rax,0x7F(%r8)
+	mov	%rax,0x7F(%r9)
+	mov	%rax,0x7F(%r10)
+	mov	%rax,0x7F(%r11)
+	mov	%rax,0x7F(%r12)
+	mov	%rax,0x7F(%r13)
+	mov	%rax,0x7F(%r14)
+	mov	%rax,0x7F(%r15)
 	nop
-	mov	%rcx,0x7f(%rax)
-	mov	%rcx,0x7f(%rcx)
-	mov	%rcx,0x7f(%rdx)
-	mov	%rcx,0x7f(%rbx)
-	mov	%rcx,0x7f(%rsp)
-	mov	%rcx,0x7f(%rbp)
-	mov	%rcx,0x7f(%rsi)
-	mov	%rcx,0x7f(%rdi)
-	mov	%rcx,0x7f(%r8)
-	mov	%rcx,0x7f(%r9)
-	mov	%rcx,0x7f(%r10)
-	mov	%rcx,0x7f(%r11)
-	mov	%rcx,0x7f(%r12)
-	mov	%rcx,0x7f(%r13)
-	mov	%rcx,0x7f(%r14)
-	mov	%rcx,0x7f(%r15)
+	mov	%rcx,0x7F(%rax)
+	mov	%rcx,0x7F(%rcx)
+	mov	%rcx,0x7F(%rdx)
+	mov	%rcx,0x7F(%rbx)
+	mov	%rcx,0x7F(%rsp)
+	mov	%rcx,0x7F(%rbp)
+	mov	%rcx,0x7F(%rsi)
+	mov	%rcx,0x7F(%rdi)
+	mov	%rcx,0x7F(%r8)
+	mov	%rcx,0x7F(%r9)
+	mov	%rcx,0x7F(%r10)
+	mov	%rcx,0x7F(%r11)
+	mov	%rcx,0x7F(%r12)
+	mov	%rcx,0x7F(%r13)
+	mov	%rcx,0x7F(%r14)
+	mov	%rcx,0x7F(%r15)
 	nop
-	mov	%rdx,0x7f(%rax)
-	mov	%rdx,0x7f(%rcx)
-	mov	%rdx,0x7f(%rdx)
-	mov	%rdx,0x7f(%rbx)
-	mov	%rdx,0x7f(%rsp)
-	mov	%rdx,0x7f(%rbp)
-	mov	%rdx,0x7f(%rsi)
-	mov	%rdx,0x7f(%rdi)
-	mov	%rdx,0x7f(%r8)
-	mov	%rdx,0x7f(%r9)
-	mov	%rdx,0x7f(%r10)
-	mov	%rdx,0x7f(%r11)
-	mov	%rdx,0x7f(%r12)
-	mov	%rdx,0x7f(%r13)
-	mov	%rdx,0x7f(%r14)
-	mov	%rdx,0x7f(%r15)
+	mov	%rdx,0x7F(%rax)
+	mov	%rdx,0x7F(%rcx)
+	mov	%rdx,0x7F(%rdx)
+	mov	%rdx,0x7F(%rbx)
+	mov	%rdx,0x7F(%rsp)
+	mov	%rdx,0x7F(%rbp)
+	mov	%rdx,0x7F(%rsi)
+	mov	%rdx,0x7F(%rdi)
+	mov	%rdx,0x7F(%r8)
+	mov	%rdx,0x7F(%r9)
+	mov	%rdx,0x7F(%r10)
+	mov	%rdx,0x7F(%r11)
+	mov	%rdx,0x7F(%r12)
+	mov	%rdx,0x7F(%r13)
+	mov	%rdx,0x7F(%r14)
+	mov	%rdx,0x7F(%r15)
 	nop
-	mov	%rbx,0x7f(%rax)
-	mov	%rbx,0x7f(%rcx)
-	mov	%rbx,0x7f(%rdx)
-	mov	%rbx,0x7f(%rbx)
-	mov	%rbx,0x7f(%rsp)
-	mov	%rbx,0x7f(%rbp)
-	mov	%rbx,0x7f(%rsi)
-	mov	%rbx,0x7f(%rdi)
-	mov	%rbx,0x7f(%r8)
-	mov	%rbx,0x7f(%r9)
-	mov	%rbx,0x7f(%r10)
-	mov	%rbx,0x7f(%r11)
-	mov	%rbx,0x7f(%r12)
-	mov	%rbx,0x7f(%r13)
-	mov	%rbx,0x7f(%r14)
-	mov	%rbx,0x7f(%r15)
+	mov	%rbx,0x7F(%rax)
+	mov	%rbx,0x7F(%rcx)
+	mov	%rbx,0x7F(%rdx)
+	mov	%rbx,0x7F(%rbx)
+	mov	%rbx,0x7F(%rsp)
+	mov	%rbx,0x7F(%rbp)
+	mov	%rbx,0x7F(%rsi)
+	mov	%rbx,0x7F(%rdi)
+	mov	%rbx,0x7F(%r8)
+	mov	%rbx,0x7F(%r9)
+	mov	%rbx,0x7F(%r10)
+	mov	%rbx,0x7F(%r11)
+	mov	%rbx,0x7F(%r12)
+	mov	%rbx,0x7F(%r13)
+	mov	%rbx,0x7F(%r14)
+	mov	%rbx,0x7F(%r15)
 	nop
-	mov	%rsp,0x7f(%rax)
-	mov	%rsp,0x7f(%rcx)
-	mov	%rsp,0x7f(%rdx)
-	mov	%rsp,0x7f(%rbx)
-	mov	%rsp,0x7f(%rsp)
-	mov	%rsp,0x7f(%rbp)
-	mov	%rsp,0x7f(%rsi)
-	mov	%rsp,0x7f(%rdi)
-	mov	%rsp,0x7f(%r8)
-	mov	%rsp,0x7f(%r9)
-	mov	%rsp,0x7f(%r10)
-	mov	%rsp,0x7f(%r11)
-	mov	%rsp,0x7f(%r12)
-	mov	%rsp,0x7f(%r13)
-	mov	%rsp,0x7f(%r14)
-	mov	%rsp,0x7f(%r15)
+	mov	%rsp,0x7F(%rax)
+	mov	%rsp,0x7F(%rcx)
+	mov	%rsp,0x7F(%rdx)
+	mov	%rsp,0x7F(%rbx)
+	mov	%rsp,0x7F(%rsp)
+	mov	%rsp,0x7F(%rbp)
+	mov	%rsp,0x7F(%rsi)
+	mov	%rsp,0x7F(%rdi)
+	mov	%rsp,0x7F(%r8)
+	mov	%rsp,0x7F(%r9)
+	mov	%rsp,0x7F(%r10)
+	mov	%rsp,0x7F(%r11)
+	mov	%rsp,0x7F(%r12)
+	mov	%rsp,0x7F(%r13)
+	mov	%rsp,0x7F(%r14)
+	mov	%rsp,0x7F(%r15)
 	nop
-	mov	%rbp,0x7f(%rax)
-	mov	%rbp,0x7f(%rcx)
-	mov	%rbp,0x7f(%rdx)
-	mov	%rbp,0x7f(%rbx)
-	mov	%rbp,0x7f(%rsp)
-	mov	%rbp,0x7f(%rbp)
-	mov	%rbp,0x7f(%rsi)
-	mov	%rbp,0x7f(%rdi)
-	mov	%rbp,0x7f(%r8)
-	mov	%rbp,0x7f(%r9)
-	mov	%rbp,0x7f(%r10)
-	mov	%rbp,0x7f(%r11)
-	mov	%rbp,0x7f(%r12)
-	mov	%rbp,0x7f(%r13)
-	mov	%rbp,0x7f(%r14)
-	mov	%rbp,0x7f(%r15)
+	mov	%rbp,0x7F(%rax)
+	mov	%rbp,0x7F(%rcx)
+	mov	%rbp,0x7F(%rdx)
+	mov	%rbp,0x7F(%rbx)
+	mov	%rbp,0x7F(%rsp)
+	mov	%rbp,0x7F(%rbp)
+	mov	%rbp,0x7F(%rsi)
+	mov	%rbp,0x7F(%rdi)
+	mov	%rbp,0x7F(%r8)
+	mov	%rbp,0x7F(%r9)
+	mov	%rbp,0x7F(%r10)
+	mov	%rbp,0x7F(%r11)
+	mov	%rbp,0x7F(%r12)
+	mov	%rbp,0x7F(%r13)
+	mov	%rbp,0x7F(%r14)
+	mov	%rbp,0x7F(%r15)
 	nop
-	mov	%rsi,0x7f(%rax)
-	mov	%rsi,0x7f(%rcx)
-	mov	%rsi,0x7f(%rdx)
-	mov	%rsi,0x7f(%rbx)
-	mov	%rsi,0x7f(%rsp)
-	mov	%rsi,0x7f(%rbp)
-	mov	%rsi,0x7f(%rsi)
-	mov	%rsi,0x7f(%rdi)
-	mov	%rsi,0x7f(%r8)
-	mov	%rsi,0x7f(%r9)
-	mov	%rsi,0x7f(%r10)
-	mov	%rsi,0x7f(%r11)
-	mov	%rsi,0x7f(%r12)
-	mov	%rsi,0x7f(%r13)
-	mov	%rsi,0x7f(%r14)
-	mov	%rsi,0x7f(%r15)
+	mov	%rsi,0x7F(%rax)
+	mov	%rsi,0x7F(%rcx)
+	mov	%rsi,0x7F(%rdx)
+	mov	%rsi,0x7F(%rbx)
+	mov	%rsi,0x7F(%rsp)
+	mov	%rsi,0x7F(%rbp)
+	mov	%rsi,0x7F(%rsi)
+	mov	%rsi,0x7F(%rdi)
+	mov	%rsi,0x7F(%r8)
+	mov	%rsi,0x7F(%r9)
+	mov	%rsi,0x7F(%r10)
+	mov	%rsi,0x7F(%r11)
+	mov	%rsi,0x7F(%r12)
+	mov	%rsi,0x7F(%r13)
+	mov	%rsi,0x7F(%r14)
+	mov	%rsi,0x7F(%r15)
 	nop
-	mov	%rdi,0x7f(%rax)
-	mov	%rdi,0x7f(%rcx)
-	mov	%rdi,0x7f(%rdx)
-	mov	%rdi,0x7f(%rbx)
-	mov	%rdi,0x7f(%rsp)
-	mov	%rdi,0x7f(%rbp)
-	mov	%rdi,0x7f(%rsi)
-	mov	%rdi,0x7f(%rdi)
-	mov	%rdi,0x7f(%r8)
-	mov	%rdi,0x7f(%r9)
-	mov	%rdi,0x7f(%r10)
-	mov	%rdi,0x7f(%r11)
-	mov	%rdi,0x7f(%r12)
-	mov	%rdi,0x7f(%r13)
-	mov	%rdi,0x7f(%r14)
-	mov	%rdi,0x7f(%r15)
+	mov	%rdi,0x7F(%rax)
+	mov	%rdi,0x7F(%rcx)
+	mov	%rdi,0x7F(%rdx)
+	mov	%rdi,0x7F(%rbx)
+	mov	%rdi,0x7F(%rsp)
+	mov	%rdi,0x7F(%rbp)
+	mov	%rdi,0x7F(%rsi)
+	mov	%rdi,0x7F(%rdi)
+	mov	%rdi,0x7F(%r8)
+	mov	%rdi,0x7F(%r9)
+	mov	%rdi,0x7F(%r10)
+	mov	%rdi,0x7F(%r11)
+	mov	%rdi,0x7F(%r12)
+	mov	%rdi,0x7F(%r13)
+	mov	%rdi,0x7F(%r14)
+	mov	%rdi,0x7F(%r15)
 	nop
-	mov	%r8, 0x7f(%rax)
-	mov	%r8, 0x7f(%rcx)
-	mov	%r8, 0x7f(%rdx)
-	mov	%r8, 0x7f(%rbx)
-	mov	%r8, 0x7f(%rsp)
-	mov	%r8, 0x7f(%rbp)
-	mov	%r8, 0x7f(%rsi)
-	mov	%r8, 0x7f(%rdi)
-	mov	%r8, 0x7f(%r8)
-	mov	%r8, 0x7f(%r9)
-	mov	%r8, 0x7f(%r10)
-	mov	%r8, 0x7f(%r11)
-	mov	%r8, 0x7f(%r12)
-	mov	%r8, 0x7f(%r13)
-	mov	%r8, 0x7f(%r14)
-	mov	%r8, 0x7f(%r15)
+	mov	%r8, 0x7F(%rax)
+	mov	%r8, 0x7F(%rcx)
+	mov	%r8, 0x7F(%rdx)
+	mov	%r8, 0x7F(%rbx)
+	mov	%r8, 0x7F(%rsp)
+	mov	%r8, 0x7F(%rbp)
+	mov	%r8, 0x7F(%rsi)
+	mov	%r8, 0x7F(%rdi)
+	mov	%r8, 0x7F(%r8)
+	mov	%r8, 0x7F(%r9)
+	mov	%r8, 0x7F(%r10)
+	mov	%r8, 0x7F(%r11)
+	mov	%r8, 0x7F(%r12)
+	mov	%r8, 0x7F(%r13)
+	mov	%r8, 0x7F(%r14)
+	mov	%r8, 0x7F(%r15)
 	nop
-	mov	%r9, 0x7f(%rax)
-	mov	%r9, 0x7f(%rcx)
-	mov	%r9, 0x7f(%rdx)
-	mov	%r9, 0x7f(%rbx)
-	mov	%r9, 0x7f(%rsp)
-	mov	%r9, 0x7f(%rbp)
-	mov	%r9, 0x7f(%rsi)
-	mov	%r9, 0x7f(%rdi)
-	mov	%r9, 0x7f(%r8)
-	mov	%r9, 0x7f(%r9)
-	mov	%r9, 0x7f(%r10)
-	mov	%r9, 0x7f(%r11)
-	mov	%r9, 0x7f(%r12)
-	mov	%r9, 0x7f(%r13)
-	mov	%r9, 0x7f(%r14)
-	mov	%r9, 0x7f(%r15)
+	mov	%r9, 0x7F(%rax)
+	mov	%r9, 0x7F(%rcx)
+	mov	%r9, 0x7F(%rdx)
+	mov	%r9, 0x7F(%rbx)
+	mov	%r9, 0x7F(%rsp)
+	mov	%r9, 0x7F(%rbp)
+	mov	%r9, 0x7F(%rsi)
+	mov	%r9, 0x7F(%rdi)
+	mov	%r9, 0x7F(%r8)
+	mov	%r9, 0x7F(%r9)
+	mov	%r9, 0x7F(%r10)
+	mov	%r9, 0x7F(%r11)
+	mov	%r9, 0x7F(%r12)
+	mov	%r9, 0x7F(%r13)
+	mov	%r9, 0x7F(%r14)
+	mov	%r9, 0x7F(%r15)
 	nop
-	mov	%r10,0x7f(%rax)
-	mov	%r10,0x7f(%rcx)
-	mov	%r10,0x7f(%rdx)
-	mov	%r10,0x7f(%rbx)
-	mov	%r10,0x7f(%rsp)
-	mov	%r10,0x7f(%rbp)
-	mov	%r10,0x7f(%rsi)
-	mov	%r10,0x7f(%rdi)
-	mov	%r10,0x7f(%r8)
-	mov	%r10,0x7f(%r9)
-	mov	%r10,0x7f(%r10)
-	mov	%r10,0x7f(%r11)
-	mov	%r10,0x7f(%r12)
-	mov	%r10,0x7f(%r13)
-	mov	%r10,0x7f(%r14)
-	mov	%r10,0x7f(%r15)
+	mov	%r10,0x7F(%rax)
+	mov	%r10,0x7F(%rcx)
+	mov	%r10,0x7F(%rdx)
+	mov	%r10,0x7F(%rbx)
+	mov	%r10,0x7F(%rsp)
+	mov	%r10,0x7F(%rbp)
+	mov	%r10,0x7F(%rsi)
+	mov	%r10,0x7F(%rdi)
+	mov	%r10,0x7F(%r8)
+	mov	%r10,0x7F(%r9)
+	mov	%r10,0x7F(%r10)
+	mov	%r10,0x7F(%r11)
+	mov	%r10,0x7F(%r12)
+	mov	%r10,0x7F(%r13)
+	mov	%r10,0x7F(%r14)
+	mov	%r10,0x7F(%r15)
 	nop
-	mov	%r11,0x7f(%rax)
-	mov	%r11,0x7f(%rcx)
-	mov	%r11,0x7f(%rdx)
-	mov	%r11,0x7f(%rbx)
-	mov	%r11,0x7f(%rsp)
-	mov	%r11,0x7f(%rbp)
-	mov	%r11,0x7f(%rsi)
-	mov	%r11,0x7f(%rdi)
-	mov	%r11,0x7f(%r8)
-	mov	%r11,0x7f(%r9)
-	mov	%r11,0x7f(%r10)
-	mov	%r11,0x7f(%r11)
-	mov	%r11,0x7f(%r12)
-	mov	%r11,0x7f(%r13)
-	mov	%r11,0x7f(%r14)
-	mov	%r11,0x7f(%r15)
+	mov	%r11,0x7F(%rax)
+	mov	%r11,0x7F(%rcx)
+	mov	%r11,0x7F(%rdx)
+	mov	%r11,0x7F(%rbx)
+	mov	%r11,0x7F(%rsp)
+	mov	%r11,0x7F(%rbp)
+	mov	%r11,0x7F(%rsi)
+	mov	%r11,0x7F(%rdi)
+	mov	%r11,0x7F(%r8)
+	mov	%r11,0x7F(%r9)
+	mov	%r11,0x7F(%r10)
+	mov	%r11,0x7F(%r11)
+	mov	%r11,0x7F(%r12)
+	mov	%r11,0x7F(%r13)
+	mov	%r11,0x7F(%r14)
+	mov	%r11,0x7F(%r15)
 	nop
-	mov	%r12,0x7f(%rax)
-	mov	%r12,0x7f(%rcx)
-	mov	%r12,0x7f(%rdx)
-	mov	%r12,0x7f(%rbx)
-	mov	%r12,0x7f(%rsp)
-	mov	%r12,0x7f(%rbp)
-	mov	%r12,0x7f(%rsi)
-	mov	%r12,0x7f(%rdi)
-	mov	%r12,0x7f(%r8)
-	mov	%r12,0x7f(%r9)
-	mov	%r12,0x7f(%r10)
-	mov	%r12,0x7f(%r11)
-	mov	%r12,0x7f(%r12)
-	mov	%r12,0x7f(%r13)
-	mov	%r12,0x7f(%r14)
-	mov	%r12,0x7f(%r15)
+	mov	%r12,0x7F(%rax)
+	mov	%r12,0x7F(%rcx)
+	mov	%r12,0x7F(%rdx)
+	mov	%r12,0x7F(%rbx)
+	mov	%r12,0x7F(%rsp)
+	mov	%r12,0x7F(%rbp)
+	mov	%r12,0x7F(%rsi)
+	mov	%r12,0x7F(%rdi)
+	mov	%r12,0x7F(%r8)
+	mov	%r12,0x7F(%r9)
+	mov	%r12,0x7F(%r10)
+	mov	%r12,0x7F(%r11)
+	mov	%r12,0x7F(%r12)
+	mov	%r12,0x7F(%r13)
+	mov	%r12,0x7F(%r14)
+	mov	%r12,0x7F(%r15)
 	nop
-	mov	%r13,0x7f(%rax)
-	mov	%r13,0x7f(%rcx)
-	mov	%r13,0x7f(%rdx)
-	mov	%r13,0x7f(%rbx)
-	mov	%r13,0x7f(%rsp)
-	mov	%r13,0x7f(%rbp)
-	mov	%r13,0x7f(%rsi)
-	mov	%r13,0x7f(%rdi)
-	mov	%r13,0x7f(%r8)
-	mov	%r13,0x7f(%r9)
-	mov	%r13,0x7f(%r10)
-	mov	%r13,0x7f(%r11)
-	mov	%r13,0x7f(%r12)
-	mov	%r13,0x7f(%r13)
-	mov	%r13,0x7f(%r14)
-	mov	%r13,0x7f(%r15)
+	mov	%r13,0x7F(%rax)
+	mov	%r13,0x7F(%rcx)
+	mov	%r13,0x7F(%rdx)
+	mov	%r13,0x7F(%rbx)
+	mov	%r13,0x7F(%rsp)
+	mov	%r13,0x7F(%rbp)
+	mov	%r13,0x7F(%rsi)
+	mov	%r13,0x7F(%rdi)
+	mov	%r13,0x7F(%r8)
+	mov	%r13,0x7F(%r9)
+	mov	%r13,0x7F(%r10)
+	mov	%r13,0x7F(%r11)
+	mov	%r13,0x7F(%r12)
+	mov	%r13,0x7F(%r13)
+	mov	%r13,0x7F(%r14)
+	mov	%r13,0x7F(%r15)
 	nop
-	mov	%r14,0x7f(%rax)
-	mov	%r14,0x7f(%rcx)
-	mov	%r14,0x7f(%rdx)
-	mov	%r14,0x7f(%rbx)
-	mov	%r14,0x7f(%rsp)
-	mov	%r14,0x7f(%rbp)
-	mov	%r14,0x7f(%rsi)
-	mov	%r14,0x7f(%rdi)
-	mov	%r14,0x7f(%r8)
-	mov	%r14,0x7f(%r9)
-	mov	%r14,0x7f(%r10)
-	mov	%r14,0x7f(%r11)
-	mov	%r14,0x7f(%r12)
-	mov	%r14,0x7f(%r13)
-	mov	%r14,0x7f(%r14)
-	mov	%r14,0x7f(%r15)
+	mov	%r14,0x7F(%rax)
+	mov	%r14,0x7F(%rcx)
+	mov	%r14,0x7F(%rdx)
+	mov	%r14,0x7F(%rbx)
+	mov	%r14,0x7F(%rsp)
+	mov	%r14,0x7F(%rbp)
+	mov	%r14,0x7F(%rsi)
+	mov	%r14,0x7F(%rdi)
+	mov	%r14,0x7F(%r8)
+	mov	%r14,0x7F(%r9)
+	mov	%r14,0x7F(%r10)
+	mov	%r14,0x7F(%r11)
+	mov	%r14,0x7F(%r12)
+	mov	%r14,0x7F(%r13)
+	mov	%r14,0x7F(%r14)
+	mov	%r14,0x7F(%r15)
 	nop
-	mov	%r15,0x7f(%rax)
-	mov	%r15,0x7f(%rcx)
-	mov	%r15,0x7f(%rdx)
-	mov	%r15,0x7f(%rbx)
-	mov	%r15,0x7f(%rsp)
-	mov	%r15,0x7f(%rbp)
-	mov	%r15,0x7f(%rsi)
-	mov	%r15,0x7f(%rdi)
-	mov	%r15,0x7f(%r8)
-	mov	%r15,0x7f(%r9)
-	mov	%r15,0x7f(%r10)
-	mov	%r15,0x7f(%r11)
-	mov	%r15,0x7f(%r12)
-	mov	%r15,0x7f(%r13)
-	mov	%r15,0x7f(%r14)
-	mov	%r15,0x7f(%r15)
-	ret
-	.cfi_endproc
-
-
-	.p2align 4,,15
-	.globl	MovMem32Reg
-	.type	MovMem32Reg, @function
-MovMem32Reg:
-	.cfi_startproc
-	mov	%rax,0x7f563412(%rax)
-	mov	%rax,0x7f563412(%rcx)
-	mov	%rax,0x7f563412(%rdx)
-	mov	%rax,0x7f563412(%rbx)
-	mov	%rax,0x7f563412(%rsp)
-	mov	%rax,0x7f563412(%rbp)
-	mov	%rax,0x7f563412(%rsi)
-	mov	%rax,0x7f563412(%rdi)
-	mov	%rax,0x7f563412(%r8)
-	mov	%rax,0x7f563412(%r9)
-	mov	%rax,0x7f563412(%r10)
-	mov	%rax,0x7f563412(%r11)
-	mov	%rax,0x7f563412(%r12)
-	mov	%rax,0x7f563412(%r13)
-	mov	%rax,0x7f563412(%r14)
-	mov	%rax,0x7f563412(%r15)
+	mov	%r15,0x7F(%rax)
+	mov	%r15,0x7F(%rcx)
+	mov	%r15,0x7F(%rdx)
+	mov	%r15,0x7F(%rbx)
+	mov	%r15,0x7F(%rsp)
+	mov	%r15,0x7F(%rbp)
+	mov	%r15,0x7F(%rsi)
+	mov	%r15,0x7F(%rdi)
+	mov	%r15,0x7F(%r8)
+	mov	%r15,0x7F(%r9)
+	mov	%r15,0x7F(%r10)
+	mov	%r15,0x7F(%r11)
+	mov	%r15,0x7F(%r12)
+	mov	%r15,0x7F(%r13)
+	mov	%r15,0x7F(%r14)
+	mov	%r15,0x7F(%r15)
+        nop
+        nop
+        // mem64[off32] += reg64
+	mov	%rax,0x12345678(%rax)
+	mov	%rax,0x12345678(%rcx)
+	mov	%rax,0x12345678(%rdx)
+	mov	%rax,0x12345678(%rbx)
+	mov	%rax,0x12345678(%rsp)
+	mov	%rax,0x12345678(%rbp)
+	mov	%rax,0x12345678(%rsi)
+	mov	%rax,0x12345678(%rdi)
+	mov	%rax,0x12345678(%r8)
+	mov	%rax,0x12345678(%r9)
+	mov	%rax,0x12345678(%r10)
+	mov	%rax,0x12345678(%r11)
+	mov	%rax,0x12345678(%r12)
+	mov	%rax,0x12345678(%r13)
+	mov	%rax,0x12345678(%r14)
+	mov	%rax,0x12345678(%r15)
 	nop
-	mov	%rcx,0x7f563412(%rax)
-	mov	%rcx,0x7f563412(%rcx)
-	mov	%rcx,0x7f563412(%rdx)
-	mov	%rcx,0x7f563412(%rbx)
-	mov	%rcx,0x7f563412(%rsp)
-	mov	%rcx,0x7f563412(%rbp)
-	mov	%rcx,0x7f563412(%rsi)
-	mov	%rcx,0x7f563412(%rdi)
-	mov	%rcx,0x7f563412(%r8)
-	mov	%rcx,0x7f563412(%r9)
-	mov	%rcx,0x7f563412(%r10)
-	mov	%rcx,0x7f563412(%r11)
-	mov	%rcx,0x7f563412(%r12)
-	mov	%rcx,0x7f563412(%r13)
-	mov	%rcx,0x7f563412(%r14)
-	mov	%rcx,0x7f563412(%r15)
+	mov	%rcx,0x12345678(%rax)
+	mov	%rcx,0x12345678(%rcx)
+	mov	%rcx,0x12345678(%rdx)
+	mov	%rcx,0x12345678(%rbx)
+	mov	%rcx,0x12345678(%rsp)
+	mov	%rcx,0x12345678(%rbp)
+	mov	%rcx,0x12345678(%rsi)
+	mov	%rcx,0x12345678(%rdi)
+	mov	%rcx,0x12345678(%r8)
+	mov	%rcx,0x12345678(%r9)
+	mov	%rcx,0x12345678(%r10)
+	mov	%rcx,0x12345678(%r11)
+	mov	%rcx,0x12345678(%r12)
+	mov	%rcx,0x12345678(%r13)
+	mov	%rcx,0x12345678(%r14)
+	mov	%rcx,0x12345678(%r15)
 	nop
-	mov	%rdx,0x7f563412(%rax)
-	mov	%rdx,0x7f563412(%rcx)
-	mov	%rdx,0x7f563412(%rdx)
-	mov	%rdx,0x7f563412(%rbx)
-	mov	%rdx,0x7f563412(%rsp)
-	mov	%rdx,0x7f563412(%rbp)
-	mov	%rdx,0x7f563412(%rsi)
-	mov	%rdx,0x7f563412(%rdi)
-	mov	%rdx,0x7f563412(%r8)
-	mov	%rdx,0x7f563412(%r9)
-	mov	%rdx,0x7f563412(%r10)
-	mov	%rdx,0x7f563412(%r11)
-	mov	%rdx,0x7f563412(%r12)
-	mov	%rdx,0x7f563412(%r13)
-	mov	%rdx,0x7f563412(%r14)
-	mov	%rdx,0x7f563412(%r15)
+	mov	%rdx,0x12345678(%rax)
+	mov	%rdx,0x12345678(%rcx)
+	mov	%rdx,0x12345678(%rdx)
+	mov	%rdx,0x12345678(%rbx)
+	mov	%rdx,0x12345678(%rsp)
+	mov	%rdx,0x12345678(%rbp)
+	mov	%rdx,0x12345678(%rsi)
+	mov	%rdx,0x12345678(%rdi)
+	mov	%rdx,0x12345678(%r8)
+	mov	%rdx,0x12345678(%r9)
+	mov	%rdx,0x12345678(%r10)
+	mov	%rdx,0x12345678(%r11)
+	mov	%rdx,0x12345678(%r12)
+	mov	%rdx,0x12345678(%r13)
+	mov	%rdx,0x12345678(%r14)
+	mov	%rdx,0x12345678(%r15)
 	nop
-	mov	%rbx,0x7f563412(%rax)
-	mov	%rbx,0x7f563412(%rcx)
-	mov	%rbx,0x7f563412(%rdx)
-	mov	%rbx,0x7f563412(%rbx)
-	mov	%rbx,0x7f563412(%rsp)
-	mov	%rbx,0x7f563412(%rbp)
-	mov	%rbx,0x7f563412(%rsi)
-	mov	%rbx,0x7f563412(%rdi)
-	mov	%rbx,0x7f563412(%r8)
-	mov	%rbx,0x7f563412(%r9)
-	mov	%rbx,0x7f563412(%r10)
-	mov	%rbx,0x7f563412(%r11)
-	mov	%rbx,0x7f563412(%r12)
-	mov	%rbx,0x7f563412(%r13)
-	mov	%rbx,0x7f563412(%r14)
-	mov	%rbx,0x7f563412(%r15)
+	mov	%rbx,0x12345678(%rax)
+	mov	%rbx,0x12345678(%rcx)
+	mov	%rbx,0x12345678(%rdx)
+	mov	%rbx,0x12345678(%rbx)
+	mov	%rbx,0x12345678(%rsp)
+	mov	%rbx,0x12345678(%rbp)
+	mov	%rbx,0x12345678(%rsi)
+	mov	%rbx,0x12345678(%rdi)
+	mov	%rbx,0x12345678(%r8)
+	mov	%rbx,0x12345678(%r9)
+	mov	%rbx,0x12345678(%r10)
+	mov	%rbx,0x12345678(%r11)
+	mov	%rbx,0x12345678(%r12)
+	mov	%rbx,0x12345678(%r13)
+	mov	%rbx,0x12345678(%r14)
+	mov	%rbx,0x12345678(%r15)
 	nop
-	mov	%rsp,0x7f563412(%rax)
-	mov	%rsp,0x7f563412(%rcx)
-	mov	%rsp,0x7f563412(%rdx)
-	mov	%rsp,0x7f563412(%rbx)
-	mov	%rsp,0x7f563412(%rsp)
-	mov	%rsp,0x7f563412(%rbp)
-	mov	%rsp,0x7f563412(%rsi)
-	mov	%rsp,0x7f563412(%rdi)
-	mov	%rsp,0x7f563412(%r8)
-	mov	%rsp,0x7f563412(%r9)
-	mov	%rsp,0x7f563412(%r10)
-	mov	%rsp,0x7f563412(%r11)
-	mov	%rsp,0x7f563412(%r12)
-	mov	%rsp,0x7f563412(%r13)
-	mov	%rsp,0x7f563412(%r14)
-	mov	%rsp,0x7f563412(%r15)
+	mov	%rsp,0x12345678(%rax)
+	mov	%rsp,0x12345678(%rcx)
+	mov	%rsp,0x12345678(%rdx)
+	mov	%rsp,0x12345678(%rbx)
+	mov	%rsp,0x12345678(%rsp)
+	mov	%rsp,0x12345678(%rbp)
+	mov	%rsp,0x12345678(%rsi)
+	mov	%rsp,0x12345678(%rdi)
+	mov	%rsp,0x12345678(%r8)
+	mov	%rsp,0x12345678(%r9)
+	mov	%rsp,0x12345678(%r10)
+	mov	%rsp,0x12345678(%r11)
+	mov	%rsp,0x12345678(%r12)
+	mov	%rsp,0x12345678(%r13)
+	mov	%rsp,0x12345678(%r14)
+	mov	%rsp,0x12345678(%r15)
 	nop
-	mov	%rbp,0x7f563412(%rax)
-	mov	%rbp,0x7f563412(%rcx)
-	mov	%rbp,0x7f563412(%rdx)
-	mov	%rbp,0x7f563412(%rbx)
-	mov	%rbp,0x7f563412(%rsp)
-	mov	%rbp,0x7f563412(%rbp)
-	mov	%rbp,0x7f563412(%rsi)
-	mov	%rbp,0x7f563412(%rdi)
-	mov	%rbp,0x7f563412(%r8)
-	mov	%rbp,0x7f563412(%r9)
-	mov	%rbp,0x7f563412(%r10)
-	mov	%rbp,0x7f563412(%r11)
-	mov	%rbp,0x7f563412(%r12)
-	mov	%rbp,0x7f563412(%r13)
-	mov	%rbp,0x7f563412(%r14)
-	mov	%rbp,0x7f563412(%r15)
+	mov	%rbp,0x12345678(%rax)
+	mov	%rbp,0x12345678(%rcx)
+	mov	%rbp,0x12345678(%rdx)
+	mov	%rbp,0x12345678(%rbx)
+	mov	%rbp,0x12345678(%rsp)
+	mov	%rbp,0x12345678(%rbp)
+	mov	%rbp,0x12345678(%rsi)
+	mov	%rbp,0x12345678(%rdi)
+	mov	%rbp,0x12345678(%r8)
+	mov	%rbp,0x12345678(%r9)
+	mov	%rbp,0x12345678(%r10)
+	mov	%rbp,0x12345678(%r11)
+	mov	%rbp,0x12345678(%r12)
+	mov	%rbp,0x12345678(%r13)
+	mov	%rbp,0x12345678(%r14)
+	mov	%rbp,0x12345678(%r15)
 	nop
-	mov	%rsi,0x7f563412(%rax)
-	mov	%rsi,0x7f563412(%rcx)
-	mov	%rsi,0x7f563412(%rdx)
-	mov	%rsi,0x7f563412(%rbx)
-	mov	%rsi,0x7f563412(%rsp)
-	mov	%rsi,0x7f563412(%rbp)
-	mov	%rsi,0x7f563412(%rsi)
-	mov	%rsi,0x7f563412(%rdi)
-	mov	%rsi,0x7f563412(%r8)
-	mov	%rsi,0x7f563412(%r9)
-	mov	%rsi,0x7f563412(%r10)
-	mov	%rsi,0x7f563412(%r11)
-	mov	%rsi,0x7f563412(%r12)
-	mov	%rsi,0x7f563412(%r13)
-	mov	%rsi,0x7f563412(%r14)
-	mov	%rsi,0x7f563412(%r15)
+	mov	%rsi,0x12345678(%rax)
+	mov	%rsi,0x12345678(%rcx)
+	mov	%rsi,0x12345678(%rdx)
+	mov	%rsi,0x12345678(%rbx)
+	mov	%rsi,0x12345678(%rsp)
+	mov	%rsi,0x12345678(%rbp)
+	mov	%rsi,0x12345678(%rsi)
+	mov	%rsi,0x12345678(%rdi)
+	mov	%rsi,0x12345678(%r8)
+	mov	%rsi,0x12345678(%r9)
+	mov	%rsi,0x12345678(%r10)
+	mov	%rsi,0x12345678(%r11)
+	mov	%rsi,0x12345678(%r12)
+	mov	%rsi,0x12345678(%r13)
+	mov	%rsi,0x12345678(%r14)
+	mov	%rsi,0x12345678(%r15)
 	nop
-	mov	%rdi,0x7f563412(%rax)
-	mov	%rdi,0x7f563412(%rcx)
-	mov	%rdi,0x7f563412(%rdx)
-	mov	%rdi,0x7f563412(%rbx)
-	mov	%rdi,0x7f563412(%rsp)
-	mov	%rdi,0x7f563412(%rbp)
-	mov	%rdi,0x7f563412(%rsi)
-	mov	%rdi,0x7f563412(%rdi)
-	mov	%rdi,0x7f563412(%r8)
-	mov	%rdi,0x7f563412(%r9)
-	mov	%rdi,0x7f563412(%r10)
-	mov	%rdi,0x7f563412(%r11)
-	mov	%rdi,0x7f563412(%r12)
-	mov	%rdi,0x7f563412(%r13)
-	mov	%rdi,0x7f563412(%r14)
-	mov	%rdi,0x7f563412(%r15)
+	mov	%rdi,0x12345678(%rax)
+	mov	%rdi,0x12345678(%rcx)
+	mov	%rdi,0x12345678(%rdx)
+	mov	%rdi,0x12345678(%rbx)
+	mov	%rdi,0x12345678(%rsp)
+	mov	%rdi,0x12345678(%rbp)
+	mov	%rdi,0x12345678(%rsi)
+	mov	%rdi,0x12345678(%rdi)
+	mov	%rdi,0x12345678(%r8)
+	mov	%rdi,0x12345678(%r9)
+	mov	%rdi,0x12345678(%r10)
+	mov	%rdi,0x12345678(%r11)
+	mov	%rdi,0x12345678(%r12)
+	mov	%rdi,0x12345678(%r13)
+	mov	%rdi,0x12345678(%r14)
+	mov	%rdi,0x12345678(%r15)
 	nop
-	mov	%r8, 0x7f563412(%rax)
-	mov	%r8, 0x7f563412(%rcx)
-	mov	%r8, 0x7f563412(%rdx)
-	mov	%r8, 0x7f563412(%rbx)
-	mov	%r8, 0x7f563412(%rsp)
-	mov	%r8, 0x7f563412(%rbp)
-	mov	%r8, 0x7f563412(%rsi)
-	mov	%r8, 0x7f563412(%rdi)
-	mov	%r8, 0x7f563412(%r8)
-	mov	%r8, 0x7f563412(%r9)
-	mov	%r8, 0x7f563412(%r10)
-	mov	%r8, 0x7f563412(%r11)
-	mov	%r8, 0x7f563412(%r12)
-	mov	%r8, 0x7f563412(%r13)
-	mov	%r8, 0x7f563412(%r14)
-	mov	%r8, 0x7f563412(%r15)
+	mov	%r8, 0x12345678(%rax)
+	mov	%r8, 0x12345678(%rcx)
+	mov	%r8, 0x12345678(%rdx)
+	mov	%r8, 0x12345678(%rbx)
+	mov	%r8, 0x12345678(%rsp)
+	mov	%r8, 0x12345678(%rbp)
+	mov	%r8, 0x12345678(%rsi)
+	mov	%r8, 0x12345678(%rdi)
+	mov	%r8, 0x12345678(%r8)
+	mov	%r8, 0x12345678(%r9)
+	mov	%r8, 0x12345678(%r10)
+	mov	%r8, 0x12345678(%r11)
+	mov	%r8, 0x12345678(%r12)
+	mov	%r8, 0x12345678(%r13)
+	mov	%r8, 0x12345678(%r14)
+	mov	%r8, 0x12345678(%r15)
 	nop
-	mov	%r9, 0x7f563412(%rax)
-	mov	%r9, 0x7f563412(%rcx)
-	mov	%r9, 0x7f563412(%rdx)
-	mov	%r9, 0x7f563412(%rbx)
-	mov	%r9, 0x7f563412(%rsp)
-	mov	%r9, 0x7f563412(%rbp)
-	mov	%r9, 0x7f563412(%rsi)
-	mov	%r9, 0x7f563412(%rdi)
-	mov	%r9, 0x7f563412(%r8)
-	mov	%r9, 0x7f563412(%r9)
-	mov	%r9, 0x7f563412(%r10)
-	mov	%r9, 0x7f563412(%r11)
-	mov	%r9, 0x7f563412(%r12)
-	mov	%r9, 0x7f563412(%r13)
-	mov	%r9, 0x7f563412(%r14)
-	mov	%r9, 0x7f563412(%r15)
+	mov	%r9, 0x12345678(%rax)
+	mov	%r9, 0x12345678(%rcx)
+	mov	%r9, 0x12345678(%rdx)
+	mov	%r9, 0x12345678(%rbx)
+	mov	%r9, 0x12345678(%rsp)
+	mov	%r9, 0x12345678(%rbp)
+	mov	%r9, 0x12345678(%rsi)
+	mov	%r9, 0x12345678(%rdi)
+	mov	%r9, 0x12345678(%r8)
+	mov	%r9, 0x12345678(%r9)
+	mov	%r9, 0x12345678(%r10)
+	mov	%r9, 0x12345678(%r11)
+	mov	%r9, 0x12345678(%r12)
+	mov	%r9, 0x12345678(%r13)
+	mov	%r9, 0x12345678(%r14)
+	mov	%r9, 0x12345678(%r15)
 	nop
-	mov	%r10,0x7f563412(%rax)
-	mov	%r10,0x7f563412(%rcx)
-	mov	%r10,0x7f563412(%rdx)
-	mov	%r10,0x7f563412(%rbx)
-	mov	%r10,0x7f563412(%rsp)
-	mov	%r10,0x7f563412(%rbp)
-	mov	%r10,0x7f563412(%rsi)
-	mov	%r10,0x7f563412(%rdi)
-	mov	%r10,0x7f563412(%r8)
-	mov	%r10,0x7f563412(%r9)
-	mov	%r10,0x7f563412(%r10)
-	mov	%r10,0x7f563412(%r11)
-	mov	%r10,0x7f563412(%r12)
-	mov	%r10,0x7f563412(%r13)
-	mov	%r10,0x7f563412(%r14)
-	mov	%r10,0x7f563412(%r15)
+	mov	%r10,0x12345678(%rax)
+	mov	%r10,0x12345678(%rcx)
+	mov	%r10,0x12345678(%rdx)
+	mov	%r10,0x12345678(%rbx)
+	mov	%r10,0x12345678(%rsp)
+	mov	%r10,0x12345678(%rbp)
+	mov	%r10,0x12345678(%rsi)
+	mov	%r10,0x12345678(%rdi)
+	mov	%r10,0x12345678(%r8)
+	mov	%r10,0x12345678(%r9)
+	mov	%r10,0x12345678(%r10)
+	mov	%r10,0x12345678(%r11)
+	mov	%r10,0x12345678(%r12)
+	mov	%r10,0x12345678(%r13)
+	mov	%r10,0x12345678(%r14)
+	mov	%r10,0x12345678(%r15)
 	nop
-	mov	%r11,0x7f563412(%rax)
-	mov	%r11,0x7f563412(%rcx)
-	mov	%r11,0x7f563412(%rdx)
-	mov	%r11,0x7f563412(%rbx)
-	mov	%r11,0x7f563412(%rsp)
-	mov	%r11,0x7f563412(%rbp)
-	mov	%r11,0x7f563412(%rsi)
-	mov	%r11,0x7f563412(%rdi)
-	mov	%r11,0x7f563412(%r8)
-	mov	%r11,0x7f563412(%r9)
-	mov	%r11,0x7f563412(%r10)
-	mov	%r11,0x7f563412(%r11)
-	mov	%r11,0x7f563412(%r12)
-	mov	%r11,0x7f563412(%r13)
-	mov	%r11,0x7f563412(%r14)
-	mov	%r11,0x7f563412(%r15)
+	mov	%r11,0x12345678(%rax)
+	mov	%r11,0x12345678(%rcx)
+	mov	%r11,0x12345678(%rdx)
+	mov	%r11,0x12345678(%rbx)
+	mov	%r11,0x12345678(%rsp)
+	mov	%r11,0x12345678(%rbp)
+	mov	%r11,0x12345678(%rsi)
+	mov	%r11,0x12345678(%rdi)
+	mov	%r11,0x12345678(%r8)
+	mov	%r11,0x12345678(%r9)
+	mov	%r11,0x12345678(%r10)
+	mov	%r11,0x12345678(%r11)
+	mov	%r11,0x12345678(%r12)
+	mov	%r11,0x12345678(%r13)
+	mov	%r11,0x12345678(%r14)
+	mov	%r11,0x12345678(%r15)
 	nop
-	mov	%r12,0x7f563412(%rax)
-	mov	%r12,0x7f563412(%rcx)
-	mov	%r12,0x7f563412(%rdx)
-	mov	%r12,0x7f563412(%rbx)
-	mov	%r12,0x7f563412(%rsp)
-	mov	%r12,0x7f563412(%rbp)
-	mov	%r12,0x7f563412(%rsi)
-	mov	%r12,0x7f563412(%rdi)
-	mov	%r12,0x7f563412(%r8)
-	mov	%r12,0x7f563412(%r9)
-	mov	%r12,0x7f563412(%r10)
-	mov	%r12,0x7f563412(%r11)
-	mov	%r12,0x7f563412(%r12)
-	mov	%r12,0x7f563412(%r13)
-	mov	%r12,0x7f563412(%r14)
-	mov	%r12,0x7f563412(%r15)
+	mov	%r12,0x12345678(%rax)
+	mov	%r12,0x12345678(%rcx)
+	mov	%r12,0x12345678(%rdx)
+	mov	%r12,0x12345678(%rbx)
+	mov	%r12,0x12345678(%rsp)
+	mov	%r12,0x12345678(%rbp)
+	mov	%r12,0x12345678(%rsi)
+	mov	%r12,0x12345678(%rdi)
+	mov	%r12,0x12345678(%r8)
+	mov	%r12,0x12345678(%r9)
+	mov	%r12,0x12345678(%r10)
+	mov	%r12,0x12345678(%r11)
+	mov	%r12,0x12345678(%r12)
+	mov	%r12,0x12345678(%r13)
+	mov	%r12,0x12345678(%r14)
+	mov	%r12,0x12345678(%r15)
 	nop
-	mov	%r13,0x7f563412(%rax)
-	mov	%r13,0x7f563412(%rcx)
-	mov	%r13,0x7f563412(%rdx)
-	mov	%r13,0x7f563412(%rbx)
-	mov	%r13,0x7f563412(%rsp)
-	mov	%r13,0x7f563412(%rbp)
-	mov	%r13,0x7f563412(%rsi)
-	mov	%r13,0x7f563412(%rdi)
-	mov	%r13,0x7f563412(%r8)
-	mov	%r13,0x7f563412(%r9)
-	mov	%r13,0x7f563412(%r10)
-	mov	%r13,0x7f563412(%r11)
-	mov	%r13,0x7f563412(%r12)
-	mov	%r13,0x7f563412(%r13)
-	mov	%r13,0x7f563412(%r14)
-	mov	%r13,0x7f563412(%r15)
+	mov	%r13,0x12345678(%rax)
+	mov	%r13,0x12345678(%rcx)
+	mov	%r13,0x12345678(%rdx)
+	mov	%r13,0x12345678(%rbx)
+	mov	%r13,0x12345678(%rsp)
+	mov	%r13,0x12345678(%rbp)
+	mov	%r13,0x12345678(%rsi)
+	mov	%r13,0x12345678(%rdi)
+	mov	%r13,0x12345678(%r8)
+	mov	%r13,0x12345678(%r9)
+	mov	%r13,0x12345678(%r10)
+	mov	%r13,0x12345678(%r11)
+	mov	%r13,0x12345678(%r12)
+	mov	%r13,0x12345678(%r13)
+	mov	%r13,0x12345678(%r14)
+	mov	%r13,0x12345678(%r15)
 	nop
-	mov	%r14,0x7f563412(%rax)
-	mov	%r14,0x7f563412(%rcx)
-	mov	%r14,0x7f563412(%rdx)
-	mov	%r14,0x7f563412(%rbx)
-	mov	%r14,0x7f563412(%rsp)
-	mov	%r14,0x7f563412(%rbp)
-	mov	%r14,0x7f563412(%rsi)
-	mov	%r14,0x7f563412(%rdi)
-	mov	%r14,0x7f563412(%r8)
-	mov	%r14,0x7f563412(%r9)
-	mov	%r14,0x7f563412(%r10)
-	mov	%r14,0x7f563412(%r11)
-	mov	%r14,0x7f563412(%r12)
-	mov	%r14,0x7f563412(%r13)
-	mov	%r14,0x7f563412(%r14)
-	mov	%r14,0x7f563412(%r15)
+	mov	%r14,0x12345678(%rax)
+	mov	%r14,0x12345678(%rcx)
+	mov	%r14,0x12345678(%rdx)
+	mov	%r14,0x12345678(%rbx)
+	mov	%r14,0x12345678(%rsp)
+	mov	%r14,0x12345678(%rbp)
+	mov	%r14,0x12345678(%rsi)
+	mov	%r14,0x12345678(%rdi)
+	mov	%r14,0x12345678(%r8)
+	mov	%r14,0x12345678(%r9)
+	mov	%r14,0x12345678(%r10)
+	mov	%r14,0x12345678(%r11)
+	mov	%r14,0x12345678(%r12)
+	mov	%r14,0x12345678(%r13)
+	mov	%r14,0x12345678(%r14)
+	mov	%r14,0x12345678(%r15)
 	nop
-	mov	%r15,0x7f563412(%rax)
-	mov	%r15,0x7f563412(%rcx)
-	mov	%r15,0x7f563412(%rdx)
-	mov	%r15,0x7f563412(%rbx)
-	mov	%r15,0x7f563412(%rsp)
-	mov	%r15,0x7f563412(%rbp)
-	mov	%r15,0x7f563412(%rsi)
-	mov	%r15,0x7f563412(%rdi)
-	mov	%r15,0x7f563412(%r8)
-	mov	%r15,0x7f563412(%r9)
-	mov	%r15,0x7f563412(%r10)
-	mov	%r15,0x7f563412(%r11)
-	mov	%r15,0x7f563412(%r12)
-	mov	%r15,0x7f563412(%r13)
-	mov	%r15,0x7f563412(%r14)
-	mov	%r15,0x7f563412(%r15)
-	ret
-	.cfi_endproc
-        
-        
-	.p2align 4,,15
-	.globl	MovRegMem
-	.type	MovRegMem, @function
-MovRegMem:
-	.cfi_startproc
-	mov	(%rax),%rax
-	mov	(%rax),%rcx
-	mov	(%rax),%rdx
-	mov	(%rax),%rbx
-	mov	(%rax),%rsp
-	mov	(%rax),%rbp
-	mov	(%rax),%rsi
-	mov	(%rax),%rdi
-	mov	(%rax),%r8
-	mov	(%rax),%r9
-	mov	(%rax),%r10
-	mov	(%rax),%r11
-	mov	(%rax),%r12
-	mov	(%rax),%r13
-	mov	(%rax),%r14
-	mov	(%rax),%r15
-	nop
-	mov	(%rcx),%rax
-	mov	(%rcx),%rcx
-	mov	(%rcx),%rdx
-	mov	(%rcx),%rbx
-	mov	(%rcx),%rsp
-	mov	(%rcx),%rbp
-	mov	(%rcx),%rsi
-	mov	(%rcx),%rdi
-	mov	(%rcx),%r8
-	mov	(%rcx),%r9
-	mov	(%rcx),%r10
-	mov	(%rcx),%r11
-	mov	(%rcx),%r12
-	mov	(%rcx),%r13
-	mov	(%rcx),%r14
-	mov	(%rcx),%r15
-	nop
-	mov	(%rdx),%rax
-	mov	(%rdx),%rcx
-	mov	(%rdx),%rdx
-	mov	(%rdx),%rbx
-	mov	(%rdx),%rsp
-	mov	(%rdx),%rbp
-	mov	(%rdx),%rsi
-	mov	(%rdx),%rdi
-	mov	(%rdx),%r8
-	mov	(%rdx),%r9
-	mov	(%rdx),%r10
-	mov	(%rdx),%r11
-	mov	(%rdx),%r12
-	mov	(%rdx),%r13
-	mov	(%rdx),%r14
-	mov	(%rdx),%r15
-	nop
-	mov	(%rbx),%rax
-	mov	(%rbx),%rcx
-	mov	(%rbx),%rdx
-	mov	(%rbx),%rbx
-	mov	(%rbx),%rsp
-	mov	(%rbx),%rbp
-	mov	(%rbx),%rsi
-	mov	(%rbx),%rdi
-	mov	(%rbx),%r8
-	mov	(%rbx),%r9
-	mov	(%rbx),%r10
-	mov	(%rbx),%r11
-	mov	(%rbx),%r12
-	mov	(%rbx),%r13
-	mov	(%rbx),%r14
-	mov	(%rbx),%r15
-	nop
-	mov	(%rsp),%rax
-	mov	(%rsp),%rcx
-	mov	(%rsp),%rdx
-	mov	(%rsp),%rbx
-	mov	(%rsp),%rsp
-	mov	(%rsp),%rbp
-	mov	(%rsp),%rsi
-	mov	(%rsp),%rdi
-	mov	(%rsp),%r8
-	mov	(%rsp),%r9
-	mov	(%rsp),%r10
-	mov	(%rsp),%r11
-	mov	(%rsp),%r12
-	mov	(%rsp),%r13
-	mov	(%rsp),%r14
-	mov	(%rsp),%r15
-	nop
-	mov	(%rbp),%rax
-	mov	(%rbp),%rcx
-	mov	(%rbp),%rdx
-	mov	(%rbp),%rbx
-	mov	(%rbp),%rsp
-	mov	(%rbp),%rbp
-	mov	(%rbp),%rsi
-	mov	(%rbp),%rdi
-	mov	(%rbp),%r8
-	mov	(%rbp),%r9
-	mov	(%rbp),%r10
-	mov	(%rbp),%r11
-	mov	(%rbp),%r12
-	mov	(%rbp),%r13
-	mov	(%rbp),%r14
-	mov	(%rbp),%r15
-	nop
-	mov	(%rsi),%rax
-	mov	(%rsi),%rcx
-	mov	(%rsi),%rdx
-	mov	(%rsi),%rbx
-	mov	(%rsi),%rsp
-	mov	(%rsi),%rbp
-	mov	(%rsi),%rsi
-	mov	(%rsi),%rdi
-	mov	(%rsi),%r8
-	mov	(%rsi),%r9
-	mov	(%rsi),%r10
-	mov	(%rsi),%r11
-	mov	(%rsi),%r12
-	mov	(%rsi),%r13
-	mov	(%rsi),%r14
-	mov	(%rsi),%r15
-	nop
-	mov	(%rdi),%rax
-	mov	(%rdi),%rcx
-	mov	(%rdi),%rdx
-	mov	(%rdi),%rbx
-	mov	(%rdi),%rsp
-	mov	(%rdi),%rbp
-	mov	(%rdi),%rsi
-	mov	(%rdi),%rdi
-	mov	(%rdi),%r8
-	mov	(%rdi),%r9
-	mov	(%rdi),%r10
-	mov	(%rdi),%r11
-	mov	(%rdi),%r12
-	mov	(%rdi),%r13
-	mov	(%rdi),%r14
-	mov	(%rdi),%r15
-	nop
-	mov	(%r8), %rax
-	mov	(%r8), %rcx
-	mov	(%r8), %rdx
-	mov	(%r8), %rbx
-	mov	(%r8), %rsp
-	mov	(%r8), %rbp
-	mov	(%r8), %rsi
-	mov	(%r8), %rdi
-	mov	(%r8), %r8
-	mov	(%r8), %r9
-	mov	(%r8), %r10
-	mov	(%r8), %r11
-	mov	(%r8), %r12
-	mov	(%r8), %r13
-	mov	(%r8), %r14
-	mov	(%r8), %r15
-	nop
-	mov	(%r9), %rax
-	mov	(%r9), %rcx
-	mov	(%r9), %rdx
-	mov	(%r9), %rbx
-	mov	(%r9), %rsp
-	mov	(%r9), %rbp
-	mov	(%r9), %rsi
-	mov	(%r9), %rdi
-	mov	(%r9), %r8
-	mov	(%r9), %r9
-	mov	(%r9), %r10
-	mov	(%r9), %r11
-	mov	(%r9), %r12
-	mov	(%r9), %r13
-	mov	(%r9), %r14
-	mov	(%r9), %r15
-	nop
-	mov	(%r10),%rax
-	mov	(%r10),%rcx
-	mov	(%r10),%rdx
-	mov	(%r10),%rbx
-	mov	(%r10),%rsp
-	mov	(%r10),%rbp
-	mov	(%r10),%rsi
-	mov	(%r10),%rdi
-	mov	(%r10),%r8
-	mov	(%r10),%r9
-	mov	(%r10),%r10
-	mov	(%r10),%r11
-	mov	(%r10),%r12
-	mov	(%r10),%r13
-	mov	(%r10),%r14
-	mov	(%r10),%r15
-	nop
-	mov	(%r11),%rax
-	mov	(%r11),%rcx
-	mov	(%r11),%rdx
-	mov	(%r11),%rbx
-	mov	(%r11),%rsp
-	mov	(%r11),%rbp
-	mov	(%r11),%rsi
-	mov	(%r11),%rdi
-	mov	(%r11),%r8
-	mov	(%r11),%r9
-	mov	(%r11),%r10
-	mov	(%r11),%r11
-	mov	(%r11),%r12
-	mov	(%r11),%r13
-	mov	(%r11),%r14
-	mov	(%r11),%r15
-	nop
-	mov	(%r12),%rax
-	mov	(%r12),%rcx
-	mov	(%r12),%rdx
-	mov	(%r12),%rbx
-	mov	(%r12),%rsp
-	mov	(%r12),%rbp
-	mov	(%r12),%rsi
-	mov	(%r12),%rdi
-	mov	(%r12),%r8
-	mov	(%r12),%r9
-	mov	(%r12),%r10
-	mov	(%r12),%r11
-	mov	(%r12),%r12
-	mov	(%r12),%r13
-	mov	(%r12),%r14
-	mov	(%r12),%r15
-	nop
-	mov	(%r13),%rax
-	mov	(%r13),%rcx
-	mov	(%r13),%rdx
-	mov	(%r13),%rbx
-	mov	(%r13),%rsp
-	mov	(%r13),%rbp
-	mov	(%r13),%rsi
-	mov	(%r13),%rdi
-	mov	(%r13),%r8
-	mov	(%r13),%r9
-	mov	(%r13),%r10
-	mov	(%r13),%r11
-	mov	(%r13),%r12
-	mov	(%r13),%r13
-	mov	(%r13),%r14
-	mov	(%r13),%r15
-	nop
-	mov	(%r14),%rax
-	mov	(%r14),%rcx
-	mov	(%r14),%rdx
-	mov	(%r14),%rbx
-	mov	(%r14),%rsp
-	mov	(%r14),%rbp
-	mov	(%r14),%rsi
-	mov	(%r14),%rdi
-	mov	(%r14),%r8
-	mov	(%r14),%r9
-	mov	(%r14),%r10
-	mov	(%r14),%r11
-	mov	(%r14),%r12
-	mov	(%r14),%r13
-	mov	(%r14),%r14
-	mov	(%r14),%r15
-	nop
-	mov	(%r15),%rax
-	mov	(%r15),%rcx
-	mov	(%r15),%rdx
-	mov	(%r15),%rbx
-	mov	(%r15),%rsp
-	mov	(%r15),%rbp
-	mov	(%r15),%rsi
-	mov	(%r15),%rdi
-	mov	(%r15),%r8
-	mov	(%r15),%r9
-	mov	(%r15),%r10
-	mov	(%r15),%r11
-	mov	(%r15),%r12
-	mov	(%r15),%r13
-	mov	(%r15),%r14
-	mov	(%r15),%r15
+	mov	%r15,0x12345678(%rax)
+	mov	%r15,0x12345678(%rcx)
+	mov	%r15,0x12345678(%rdx)
+	mov	%r15,0x12345678(%rbx)
+	mov	%r15,0x12345678(%rsp)
+	mov	%r15,0x12345678(%rbp)
+	mov	%r15,0x12345678(%rsi)
+	mov	%r15,0x12345678(%rdi)
+	mov	%r15,0x12345678(%r8)
+	mov	%r15,0x12345678(%r9)
+	mov	%r15,0x12345678(%r10)
+	mov	%r15,0x12345678(%r11)
+	mov	%r15,0x12345678(%r12)
+	mov	%r15,0x12345678(%r13)
+	mov	%r15,0x12345678(%r14)
+	mov	%r15,0x12345678(%r15)
 	ret
 	.cfi_endproc
 
@@ -3116,558 +4485,2482 @@ MovRegMem:
 	.type	MovRegMem8, @function
 MovRegMem8:
 	.cfi_startproc
-	mov	0x7f(%rax),%rax
-	mov	0x7f(%rax),%rcx
-	mov	0x7f(%rax),%rdx
-	mov	0x7f(%rax),%rbx
-	mov	0x7f(%rax),%rsp
-	mov	0x7f(%rax),%rbp
-	mov	0x7f(%rax),%rsi
-	mov	0x7f(%rax),%rdi
-	mov	0x7f(%rax),%r8
-	mov	0x7f(%rax),%r9
-	mov	0x7f(%rax),%r10
-	mov	0x7f(%rax),%r11
-	mov	0x7f(%rax),%r12
-	mov	0x7f(%rax),%r13
-	mov	0x7f(%rax),%r14
-	mov	0x7f(%rax),%r15
+        // reg8 = mem8[0]
+	mov	(%rax),%al
+	mov	(%rax),%cl
+	mov	(%rax),%dl
+	mov	(%rax),%bl
+	mov	(%rax),%spl
+	mov	(%rax),%bpl
+	mov	(%rax),%sil
+	mov	(%rax),%dil
+	mov	(%rax),%r8b
+	mov	(%rax),%r9b
+	mov	(%rax),%r10b
+	mov	(%rax),%r11b
+	mov	(%rax),%r12b
+	mov	(%rax),%r13b
+	mov	(%rax),%r14b
+	mov	(%rax),%r15b
 	nop
-	mov	0x7f(%rcx),%rax
-	mov	0x7f(%rcx),%rcx
-	mov	0x7f(%rcx),%rdx
-	mov	0x7f(%rcx),%rbx
-	mov	0x7f(%rcx),%rsp
-	mov	0x7f(%rcx),%rbp
-	mov	0x7f(%rcx),%rsi
-	mov	0x7f(%rcx),%rdi
-	mov	0x7f(%rcx),%r8
-	mov	0x7f(%rcx),%r9
-	mov	0x7f(%rcx),%r10
-	mov	0x7f(%rcx),%r11
-	mov	0x7f(%rcx),%r12
-	mov	0x7f(%rcx),%r13
-	mov	0x7f(%rcx),%r14
-	mov	0x7f(%rcx),%r15
+	mov	(%rcx),%al
+	mov	(%rcx),%cl
+	mov	(%rcx),%dl
+	mov	(%rcx),%bl
+	mov	(%rcx),%spl
+	mov	(%rcx),%bpl
+	mov	(%rcx),%sil
+	mov	(%rcx),%dil
+	mov	(%rcx),%r8b
+	mov	(%rcx),%r9b
+	mov	(%rcx),%r10b
+	mov	(%rcx),%r11b
+	mov	(%rcx),%r12b
+	mov	(%rcx),%r13b
+	mov	(%rcx),%r14b
+	mov	(%rcx),%r15b
 	nop
-	mov	0x7f(%rdx),%rax
-	mov	0x7f(%rdx),%rcx
-	mov	0x7f(%rdx),%rdx
-	mov	0x7f(%rdx),%rbx
-	mov	0x7f(%rdx),%rsp
-	mov	0x7f(%rdx),%rbp
-	mov	0x7f(%rdx),%rsi
-	mov	0x7f(%rdx),%rdi
-	mov	0x7f(%rdx),%r8
-	mov	0x7f(%rdx),%r9
-	mov	0x7f(%rdx),%r10
-	mov	0x7f(%rdx),%r11
-	mov	0x7f(%rdx),%r12
-	mov	0x7f(%rdx),%r13
-	mov	0x7f(%rdx),%r14
-	mov	0x7f(%rdx),%r15
+	mov	(%rdx),%al
+	mov	(%rdx),%cl
+	mov	(%rdx),%dl
+	mov	(%rdx),%bl
+	mov	(%rdx),%spl
+	mov	(%rdx),%bpl
+	mov	(%rdx),%sil
+	mov	(%rdx),%dil
+	mov	(%rdx),%r8b
+	mov	(%rdx),%r9b
+	mov	(%rdx),%r10b
+	mov	(%rdx),%r11b
+	mov	(%rdx),%r12b
+	mov	(%rdx),%r13b
+	mov	(%rdx),%r14b
+	mov	(%rdx),%r15b
 	nop
-	mov	0x7f(%rbx),%rax
-	mov	0x7f(%rbx),%rcx
-	mov	0x7f(%rbx),%rdx
-	mov	0x7f(%rbx),%rbx
-	mov	0x7f(%rbx),%rsp
-	mov	0x7f(%rbx),%rbp
-	mov	0x7f(%rbx),%rsi
-	mov	0x7f(%rbx),%rdi
-	mov	0x7f(%rbx),%r8
-	mov	0x7f(%rbx),%r9
-	mov	0x7f(%rbx),%r10
-	mov	0x7f(%rbx),%r11
-	mov	0x7f(%rbx),%r12
-	mov	0x7f(%rbx),%r13
-	mov	0x7f(%rbx),%r14
-	mov	0x7f(%rbx),%r15
+	mov	(%rbx),%al
+	mov	(%rbx),%cl
+	mov	(%rbx),%dl
+	mov	(%rbx),%bl
+	mov	(%rbx),%spl
+	mov	(%rbx),%bpl
+	mov	(%rbx),%sil
+	mov	(%rbx),%dil
+	mov	(%rbx),%r8b
+	mov	(%rbx),%r9b
+	mov	(%rbx),%r10b
+	mov	(%rbx),%r11b
+	mov	(%rbx),%r12b
+	mov	(%rbx),%r13b
+	mov	(%rbx),%r14b
+	mov	(%rbx),%r15b
 	nop
-	mov	0x7f(%rsp),%rax
-	mov	0x7f(%rsp),%rcx
-	mov	0x7f(%rsp),%rdx
-	mov	0x7f(%rsp),%rbx
-	mov	0x7f(%rsp),%rsp
-	mov	0x7f(%rsp),%rbp
-	mov	0x7f(%rsp),%rsi
-	mov	0x7f(%rsp),%rdi
-	mov	0x7f(%rsp),%r8
-	mov	0x7f(%rsp),%r9
-	mov	0x7f(%rsp),%r10
-	mov	0x7f(%rsp),%r11
-	mov	0x7f(%rsp),%r12
-	mov	0x7f(%rsp),%r13
-	mov	0x7f(%rsp),%r14
-	mov	0x7f(%rsp),%r15
+	mov	(%rsp),%al
+	mov	(%rsp),%cl
+	mov	(%rsp),%dl
+	mov	(%rsp),%bl
+	mov	(%rsp),%spl
+	mov	(%rsp),%bpl
+	mov	(%rsp),%sil
+	mov	(%rsp),%dil
+	mov	(%rsp),%r8b
+	mov	(%rsp),%r9b
+	mov	(%rsp),%r10b
+	mov	(%rsp),%r11b
+	mov	(%rsp),%r12b
+	mov	(%rsp),%r13b
+	mov	(%rsp),%r14b
+	mov	(%rsp),%r15b
 	nop
-	mov	0x7f(%rbp),%rax
-	mov	0x7f(%rbp),%rcx
-	mov	0x7f(%rbp),%rdx
-	mov	0x7f(%rbp),%rbx
-	mov	0x7f(%rbp),%rsp
-	mov	0x7f(%rbp),%rbp
-	mov	0x7f(%rbp),%rsi
-	mov	0x7f(%rbp),%rdi
-	mov	0x7f(%rbp),%r8
-	mov	0x7f(%rbp),%r9
-	mov	0x7f(%rbp),%r10
-	mov	0x7f(%rbp),%r11
-	mov	0x7f(%rbp),%r12
-	mov	0x7f(%rbp),%r13
-	mov	0x7f(%rbp),%r14
-	mov	0x7f(%rbp),%r15
+	mov	(%rbp),%al
+	mov	(%rbp),%cl
+	mov	(%rbp),%dl
+	mov	(%rbp),%bl
+	mov	(%rbp),%spl
+	mov	(%rbp),%bpl
+	mov	(%rbp),%sil
+	mov	(%rbp),%dil
+	mov	(%rbp),%r8b
+	mov	(%rbp),%r9b
+	mov	(%rbp),%r10b
+	mov	(%rbp),%r11b
+	mov	(%rbp),%r12b
+	mov	(%rbp),%r13b
+	mov	(%rbp),%r14b
+	mov	(%rbp),%r15b
 	nop
-	mov	0x7f(%rsi),%rax
-	mov	0x7f(%rsi),%rcx
-	mov	0x7f(%rsi),%rdx
-	mov	0x7f(%rsi),%rbx
-	mov	0x7f(%rsi),%rsp
-	mov	0x7f(%rsi),%rbp
-	mov	0x7f(%rsi),%rsi
-	mov	0x7f(%rsi),%rdi
-	mov	0x7f(%rsi),%r8
-	mov	0x7f(%rsi),%r9
-	mov	0x7f(%rsi),%r10
-	mov	0x7f(%rsi),%r11
-	mov	0x7f(%rsi),%r12
-	mov	0x7f(%rsi),%r13
-	mov	0x7f(%rsi),%r14
-	mov	0x7f(%rsi),%r15
+	mov	(%rsi),%al
+	mov	(%rsi),%cl
+	mov	(%rsi),%dl
+	mov	(%rsi),%bl
+	mov	(%rsi),%spl
+	mov	(%rsi),%bpl
+	mov	(%rsi),%sil
+	mov	(%rsi),%dil
+	mov	(%rsi),%r8b
+	mov	(%rsi),%r9b
+	mov	(%rsi),%r10b
+	mov	(%rsi),%r11b
+	mov	(%rsi),%r12b
+	mov	(%rsi),%r13b
+	mov	(%rsi),%r14b
+	mov	(%rsi),%r15b
 	nop
-	mov	0x7f(%rdi),%rax
-	mov	0x7f(%rdi),%rcx
-	mov	0x7f(%rdi),%rdx
-	mov	0x7f(%rdi),%rbx
-	mov	0x7f(%rdi),%rsp
-	mov	0x7f(%rdi),%rbp
-	mov	0x7f(%rdi),%rsi
-	mov	0x7f(%rdi),%rdi
-	mov	0x7f(%rdi),%r8
-	mov	0x7f(%rdi),%r9
-	mov	0x7f(%rdi),%r10
-	mov	0x7f(%rdi),%r11
-	mov	0x7f(%rdi),%r12
-	mov	0x7f(%rdi),%r13
-	mov	0x7f(%rdi),%r14
-	mov	0x7f(%rdi),%r15
+	mov	(%rdi),%al
+	mov	(%rdi),%cl
+	mov	(%rdi),%dl
+	mov	(%rdi),%bl
+	mov	(%rdi),%spl
+	mov	(%rdi),%bpl
+	mov	(%rdi),%sil
+	mov	(%rdi),%dil
+	mov	(%rdi),%r8b
+	mov	(%rdi),%r9b
+	mov	(%rdi),%r10b
+	mov	(%rdi),%r11b
+	mov	(%rdi),%r12b
+	mov	(%rdi),%r13b
+	mov	(%rdi),%r14b
+	mov	(%rdi),%r15b
 	nop
-	mov	0x7f(%r8), %rax
-	mov	0x7f(%r8), %rcx
-	mov	0x7f(%r8), %rdx
-	mov	0x7f(%r8), %rbx
-	mov	0x7f(%r8), %rsp
-	mov	0x7f(%r8), %rbp
-	mov	0x7f(%r8), %rsi
-	mov	0x7f(%r8), %rdi
-	mov	0x7f(%r8), %r8
-	mov	0x7f(%r8), %r9
-	mov	0x7f(%r8), %r10
-	mov	0x7f(%r8), %r11
-	mov	0x7f(%r8), %r12
-	mov	0x7f(%r8), %r13
-	mov	0x7f(%r8), %r14
-	mov	0x7f(%r8), %r15
+	mov	(%r8), %al
+	mov	(%r8), %cl
+	mov	(%r8), %dl
+	mov	(%r8), %bl
+	mov	(%r8), %spl
+	mov	(%r8), %bpl
+	mov	(%r8), %sil
+	mov	(%r8), %dil
+	mov	(%r8), %r8b
+	mov	(%r8), %r9b
+	mov	(%r8), %r10b
+	mov	(%r8), %r11b
+	mov	(%r8), %r12b
+	mov	(%r8), %r13b
+	mov	(%r8), %r14b
+	mov	(%r8), %r15b
 	nop
-	mov	0x7f(%r9), %rax
-	mov	0x7f(%r9), %rcx
-	mov	0x7f(%r9), %rdx
-	mov	0x7f(%r9), %rbx
-	mov	0x7f(%r9), %rsp
-	mov	0x7f(%r9), %rbp
-	mov	0x7f(%r9), %rsi
-	mov	0x7f(%r9), %rdi
-	mov	0x7f(%r9), %r8
-	mov	0x7f(%r9), %r9
-	mov	0x7f(%r9), %r10
-	mov	0x7f(%r9), %r11
-	mov	0x7f(%r9), %r12
-	mov	0x7f(%r9), %r13
-	mov	0x7f(%r9), %r14
-	mov	0x7f(%r9), %r15
+	mov	(%r9), %al
+	mov	(%r9), %cl
+	mov	(%r9), %dl
+	mov	(%r9), %bl
+	mov	(%r9), %spl
+	mov	(%r9), %bpl
+	mov	(%r9), %sil
+	mov	(%r9), %dil
+	mov	(%r9), %r8b
+	mov	(%r9), %r9b
+	mov	(%r9), %r10b
+	mov	(%r9), %r11b
+	mov	(%r9), %r12b
+	mov	(%r9), %r13b
+	mov	(%r9), %r14b
+	mov	(%r9), %r15b
 	nop
-	mov	0x7f(%r10),%rax
-	mov	0x7f(%r10),%rcx
-	mov	0x7f(%r10),%rdx
-	mov	0x7f(%r10),%rbx
-	mov	0x7f(%r10),%rsp
-	mov	0x7f(%r10),%rbp
-	mov	0x7f(%r10),%rsi
-	mov	0x7f(%r10),%rdi
-	mov	0x7f(%r10),%r8
-	mov	0x7f(%r10),%r9
-	mov	0x7f(%r10),%r10
-	mov	0x7f(%r10),%r11
-	mov	0x7f(%r10),%r12
-	mov	0x7f(%r10),%r13
-	mov	0x7f(%r10),%r14
-	mov	0x7f(%r10),%r15
+	mov	(%r10),%al
+	mov	(%r10),%cl
+	mov	(%r10),%dl
+	mov	(%r10),%bl
+	mov	(%r10),%spl
+	mov	(%r10),%bpl
+	mov	(%r10),%sil
+	mov	(%r10),%dil
+	mov	(%r10),%r8b
+	mov	(%r10),%r9b
+	mov	(%r10),%r10b
+	mov	(%r10),%r11b
+	mov	(%r10),%r12b
+	mov	(%r10),%r13b
+	mov	(%r10),%r14b
+	mov	(%r10),%r15b
 	nop
-	mov	0x7f(%r11),%rax
-	mov	0x7f(%r11),%rcx
-	mov	0x7f(%r11),%rdx
-	mov	0x7f(%r11),%rbx
-	mov	0x7f(%r11),%rsp
-	mov	0x7f(%r11),%rbp
-	mov	0x7f(%r11),%rsi
-	mov	0x7f(%r11),%rdi
-	mov	0x7f(%r11),%r8
-	mov	0x7f(%r11),%r9
-	mov	0x7f(%r11),%r10
-	mov	0x7f(%r11),%r11
-	mov	0x7f(%r11),%r12
-	mov	0x7f(%r11),%r13
-	mov	0x7f(%r11),%r14
-	mov	0x7f(%r11),%r15
+	mov	(%r11),%al
+	mov	(%r11),%cl
+	mov	(%r11),%dl
+	mov	(%r11),%bl
+	mov	(%r11),%spl
+	mov	(%r11),%bpl
+	mov	(%r11),%sil
+	mov	(%r11),%dil
+	mov	(%r11),%r8b
+	mov	(%r11),%r9b
+	mov	(%r11),%r10b
+	mov	(%r11),%r11b
+	mov	(%r11),%r12b
+	mov	(%r11),%r13b
+	mov	(%r11),%r14b
+	mov	(%r11),%r15b
 	nop
-	mov	0x7f(%r12),%rax
-	mov	0x7f(%r12),%rcx
-	mov	0x7f(%r12),%rdx
-	mov	0x7f(%r12),%rbx
-	mov	0x7f(%r12),%rsp
-	mov	0x7f(%r12),%rbp
-	mov	0x7f(%r12),%rsi
-	mov	0x7f(%r12),%rdi
-	mov	0x7f(%r12),%r8
-	mov	0x7f(%r12),%r9
-	mov	0x7f(%r12),%r10
-	mov	0x7f(%r12),%r11
-	mov	0x7f(%r12),%r12
-	mov	0x7f(%r12),%r13
-	mov	0x7f(%r12),%r14
-	mov	0x7f(%r12),%r15
+	mov	(%r12),%al
+	mov	(%r12),%cl
+	mov	(%r12),%dl
+	mov	(%r12),%bl
+	mov	(%r12),%spl
+	mov	(%r12),%bpl
+	mov	(%r12),%sil
+	mov	(%r12),%dil
+	mov	(%r12),%r8b
+	mov	(%r12),%r9b
+	mov	(%r12),%r10b
+	mov	(%r12),%r11b
+	mov	(%r12),%r12b
+	mov	(%r12),%r13b
+	mov	(%r12),%r14b
+	mov	(%r12),%r15b
 	nop
-	mov	0x7f(%r13),%rax
-	mov	0x7f(%r13),%rcx
-	mov	0x7f(%r13),%rdx
-	mov	0x7f(%r13),%rbx
-	mov	0x7f(%r13),%rsp
-	mov	0x7f(%r13),%rbp
-	mov	0x7f(%r13),%rsi
-	mov	0x7f(%r13),%rdi
-	mov	0x7f(%r13),%r8
-	mov	0x7f(%r13),%r9
-	mov	0x7f(%r13),%r10
-	mov	0x7f(%r13),%r11
-	mov	0x7f(%r13),%r12
-	mov	0x7f(%r13),%r13
-	mov	0x7f(%r13),%r14
-	mov	0x7f(%r13),%r15
+	mov	(%r13),%al
+	mov	(%r13),%cl
+	mov	(%r13),%dl
+	mov	(%r13),%bl
+	mov	(%r13),%spl
+	mov	(%r13),%bpl
+	mov	(%r13),%sil
+	mov	(%r13),%dil
+	mov	(%r13),%r8b
+	mov	(%r13),%r9b
+	mov	(%r13),%r10b
+	mov	(%r13),%r11b
+	mov	(%r13),%r12b
+	mov	(%r13),%r13b
+	mov	(%r13),%r14b
+	mov	(%r13),%r15b
 	nop
-	mov	0x7f(%r14),%rax
-	mov	0x7f(%r14),%rcx
-	mov	0x7f(%r14),%rdx
-	mov	0x7f(%r14),%rbx
-	mov	0x7f(%r14),%rsp
-	mov	0x7f(%r14),%rbp
-	mov	0x7f(%r14),%rsi
-	mov	0x7f(%r14),%rdi
-	mov	0x7f(%r14),%r8
-	mov	0x7f(%r14),%r9
-	mov	0x7f(%r14),%r10
-	mov	0x7f(%r14),%r11
-	mov	0x7f(%r14),%r12
-	mov	0x7f(%r14),%r13
-	mov	0x7f(%r14),%r14
-	mov	0x7f(%r14),%r15
+	mov	(%r14),%al
+	mov	(%r14),%cl
+	mov	(%r14),%dl
+	mov	(%r14),%bl
+	mov	(%r14),%spl
+	mov	(%r14),%bpl
+	mov	(%r14),%sil
+	mov	(%r14),%dil
+	mov	(%r14),%r8b
+	mov	(%r14),%r9b
+	mov	(%r14),%r10b
+	mov	(%r14),%r11b
+	mov	(%r14),%r12b
+	mov	(%r14),%r13b
+	mov	(%r14),%r14b
+	mov	(%r14),%r15b
 	nop
-	mov	0x7f(%r15),%rax
-	mov	0x7f(%r15),%rcx
-	mov	0x7f(%r15),%rdx
-	mov	0x7f(%r15),%rbx
-	mov	0x7f(%r15),%rsp
-	mov	0x7f(%r15),%rbp
-	mov	0x7f(%r15),%rsi
-	mov	0x7f(%r15),%rdi
-	mov	0x7f(%r15),%r8
-	mov	0x7f(%r15),%r9
-	mov	0x7f(%r15),%r10
-	mov	0x7f(%r15),%r11
-	mov	0x7f(%r15),%r12
-	mov	0x7f(%r15),%r13
-	mov	0x7f(%r15),%r14
-	mov	0x7f(%r15),%r15
-	ret
+	mov	(%r15),%al
+	mov	(%r15),%cl
+	mov	(%r15),%dl
+	mov	(%r15),%bl
+	mov	(%r15),%spl
+	mov	(%r15),%bpl
+	mov	(%r15),%sil
+	mov	(%r15),%dil
+	mov	(%r15),%r8b
+	mov	(%r15),%r9b
+	mov	(%r15),%r10b
+	mov	(%r15),%r11b
+	mov	(%r15),%r12b
+	mov	(%r15),%r13b
+	mov	(%r15),%r14b
+	mov	(%r15),%r15b
+        nop
+        nop
+        // mem8[off8] += reg8
+	mov	0x7F(%rax),%al
+	mov	0x7F(%rax),%cl
+	mov	0x7F(%rax),%dl
+	mov	0x7F(%rax),%bl
+	mov	0x7F(%rax),%spl
+	mov	0x7F(%rax),%bpl
+	mov	0x7F(%rax),%sil
+	mov	0x7F(%rax),%dil
+	mov	0x7F(%rax),%r8b
+	mov	0x7F(%rax),%r9b
+	mov	0x7F(%rax),%r10b
+	mov	0x7F(%rax),%r11b
+	mov	0x7F(%rax),%r12b
+	mov	0x7F(%rax),%r13b
+	mov	0x7F(%rax),%r14b
+	mov	0x7F(%rax),%r15b
+	nop
+	mov	0x7F(%rcx),%al
+	mov	0x7F(%rcx),%cl
+	mov	0x7F(%rcx),%dl
+	mov	0x7F(%rcx),%bl
+	mov	0x7F(%rcx),%spl
+	mov	0x7F(%rcx),%bpl
+	mov	0x7F(%rcx),%sil
+	mov	0x7F(%rcx),%dil
+	mov	0x7F(%rcx),%r8b
+	mov	0x7F(%rcx),%r9b
+	mov	0x7F(%rcx),%r10b
+	mov	0x7F(%rcx),%r11b
+	mov	0x7F(%rcx),%r12b
+	mov	0x7F(%rcx),%r13b
+	mov	0x7F(%rcx),%r14b
+	mov	0x7F(%rcx),%r15b
+	nop
+	mov	0x7F(%rdx),%al
+	mov	0x7F(%rdx),%cl
+	mov	0x7F(%rdx),%dl
+	mov	0x7F(%rdx),%bl
+	mov	0x7F(%rdx),%spl
+	mov	0x7F(%rdx),%bpl
+	mov	0x7F(%rdx),%sil
+	mov	0x7F(%rdx),%dil
+	mov	0x7F(%rdx),%r8b
+	mov	0x7F(%rdx),%r9b
+	mov	0x7F(%rdx),%r10b
+	mov	0x7F(%rdx),%r11b
+	mov	0x7F(%rdx),%r12b
+	mov	0x7F(%rdx),%r13b
+	mov	0x7F(%rdx),%r14b
+	mov	0x7F(%rdx),%r15b
+	nop
+	mov	0x7F(%rbx),%al
+	mov	0x7F(%rbx),%cl
+	mov	0x7F(%rbx),%dl
+	mov	0x7F(%rbx),%bl
+	mov	0x7F(%rbx),%spl
+	mov	0x7F(%rbx),%bpl
+	mov	0x7F(%rbx),%sil
+	mov	0x7F(%rbx),%dil
+	mov	0x7F(%rbx),%r8b
+	mov	0x7F(%rbx),%r9b
+	mov	0x7F(%rbx),%r10b
+	mov	0x7F(%rbx),%r11b
+	mov	0x7F(%rbx),%r12b
+	mov	0x7F(%rbx),%r13b
+	mov	0x7F(%rbx),%r14b
+	mov	0x7F(%rbx),%r15b
+	nop
+	mov	0x7F(%rsp),%al
+	mov	0x7F(%rsp),%cl
+	mov	0x7F(%rsp),%dl
+	mov	0x7F(%rsp),%bl
+	mov	0x7F(%rsp),%spl
+	mov	0x7F(%rsp),%bpl
+	mov	0x7F(%rsp),%sil
+	mov	0x7F(%rsp),%dil
+	mov	0x7F(%rsp),%r8b
+	mov	0x7F(%rsp),%r9b
+	mov	0x7F(%rsp),%r10b
+	mov	0x7F(%rsp),%r11b
+	mov	0x7F(%rsp),%r12b
+	mov	0x7F(%rsp),%r13b
+	mov	0x7F(%rsp),%r14b
+	mov	0x7F(%rsp),%r15b
+	nop
+	mov	0x7F(%rbp),%al
+	mov	0x7F(%rbp),%cl
+	mov	0x7F(%rbp),%dl
+	mov	0x7F(%rbp),%bl
+	mov	0x7F(%rbp),%spl
+	mov	0x7F(%rbp),%bpl
+	mov	0x7F(%rbp),%sil
+	mov	0x7F(%rbp),%dil
+	mov	0x7F(%rbp),%r8b
+	mov	0x7F(%rbp),%r9b
+	mov	0x7F(%rbp),%r10b
+	mov	0x7F(%rbp),%r11b
+	mov	0x7F(%rbp),%r12b
+	mov	0x7F(%rbp),%r13b
+	mov	0x7F(%rbp),%r14b
+	mov	0x7F(%rbp),%r15b
+	nop
+	mov	0x7F(%rsi),%al
+	mov	0x7F(%rsi),%cl
+	mov	0x7F(%rsi),%dl
+	mov	0x7F(%rsi),%bl
+	mov	0x7F(%rsi),%spl
+	mov	0x7F(%rsi),%bpl
+	mov	0x7F(%rsi),%sil
+	mov	0x7F(%rsi),%dil
+	mov	0x7F(%rsi),%r8b
+	mov	0x7F(%rsi),%r9b
+	mov	0x7F(%rsi),%r10b
+	mov	0x7F(%rsi),%r11b
+	mov	0x7F(%rsi),%r12b
+	mov	0x7F(%rsi),%r13b
+	mov	0x7F(%rsi),%r14b
+	mov	0x7F(%rsi),%r15b
+	nop
+	mov	0x7F(%rdi),%al
+	mov	0x7F(%rdi),%cl
+	mov	0x7F(%rdi),%dl
+	mov	0x7F(%rdi),%bl
+	mov	0x7F(%rdi),%spl
+	mov	0x7F(%rdi),%bpl
+	mov	0x7F(%rdi),%sil
+	mov	0x7F(%rdi),%dil
+	mov	0x7F(%rdi),%r8b
+	mov	0x7F(%rdi),%r9b
+	mov	0x7F(%rdi),%r10b
+	mov	0x7F(%rdi),%r11b
+	mov	0x7F(%rdi),%r12b
+	mov	0x7F(%rdi),%r13b
+	mov	0x7F(%rdi),%r14b
+	mov	0x7F(%rdi),%r15b
+	nop
+	mov	0x7F(%r8), %al
+	mov	0x7F(%r8), %cl
+	mov	0x7F(%r8), %dl
+	mov	0x7F(%r8), %bl
+	mov	0x7F(%r8), %spl
+	mov	0x7F(%r8), %bpl
+	mov	0x7F(%r8), %sil
+	mov	0x7F(%r8), %dil
+	mov	0x7F(%r8), %r8b
+	mov	0x7F(%r8), %r9b
+	mov	0x7F(%r8), %r10b
+	mov	0x7F(%r8), %r11b
+	mov	0x7F(%r8), %r12b
+	mov	0x7F(%r8), %r13b
+	mov	0x7F(%r8), %r14b
+	mov	0x7F(%r8), %r15b
+	nop
+	mov	0x7F(%r9), %al
+	mov	0x7F(%r9), %cl
+	mov	0x7F(%r9), %dl
+	mov	0x7F(%r9), %bl
+	mov	0x7F(%r9), %spl
+	mov	0x7F(%r9), %bpl
+	mov	0x7F(%r9), %sil
+	mov	0x7F(%r9), %dil
+	mov	0x7F(%r9), %r8b
+	mov	0x7F(%r9), %r9b
+	mov	0x7F(%r9), %r10b
+	mov	0x7F(%r9), %r11b
+	mov	0x7F(%r9), %r12b
+	mov	0x7F(%r9), %r13b
+	mov	0x7F(%r9), %r14b
+	mov	0x7F(%r9), %r15b
+	nop
+	mov	0x7F(%r10),%al
+	mov	0x7F(%r10),%cl
+	mov	0x7F(%r10),%dl
+	mov	0x7F(%r10),%bl
+	mov	0x7F(%r10),%spl
+	mov	0x7F(%r10),%bpl
+	mov	0x7F(%r10),%sil
+	mov	0x7F(%r10),%dil
+	mov	0x7F(%r10),%r8b
+	mov	0x7F(%r10),%r9b
+	mov	0x7F(%r10),%r10b
+	mov	0x7F(%r10),%r11b
+	mov	0x7F(%r10),%r12b
+	mov	0x7F(%r10),%r13b
+	mov	0x7F(%r10),%r14b
+	mov	0x7F(%r10),%r15b
+	nop
+	mov	0x7F(%r11),%al
+	mov	0x7F(%r11),%cl
+	mov	0x7F(%r11),%dl
+	mov	0x7F(%r11),%bl
+	mov	0x7F(%r11),%spl
+	mov	0x7F(%r11),%bpl
+	mov	0x7F(%r11),%sil
+	mov	0x7F(%r11),%dil
+	mov	0x7F(%r11),%r8b
+	mov	0x7F(%r11),%r9b
+	mov	0x7F(%r11),%r10b
+	mov	0x7F(%r11),%r11b
+	mov	0x7F(%r11),%r12b
+	mov	0x7F(%r11),%r13b
+	mov	0x7F(%r11),%r14b
+	mov	0x7F(%r11),%r15b
+	nop
+	mov	0x7F(%r12),%al
+	mov	0x7F(%r12),%cl
+	mov	0x7F(%r12),%dl
+	mov	0x7F(%r12),%bl
+	mov	0x7F(%r12),%spl
+	mov	0x7F(%r12),%bpl
+	mov	0x7F(%r12),%sil
+	mov	0x7F(%r12),%dil
+	mov	0x7F(%r12),%r8b
+	mov	0x7F(%r12),%r9b
+	mov	0x7F(%r12),%r10b
+	mov	0x7F(%r12),%r11b
+	mov	0x7F(%r12),%r12b
+	mov	0x7F(%r12),%r13b
+	mov	0x7F(%r12),%r14b
+	mov	0x7F(%r12),%r15b
+	nop
+	mov	0x7F(%r13),%al
+	mov	0x7F(%r13),%cl
+	mov	0x7F(%r13),%dl
+	mov	0x7F(%r13),%bl
+	mov	0x7F(%r13),%spl
+	mov	0x7F(%r13),%bpl
+	mov	0x7F(%r13),%sil
+	mov	0x7F(%r13),%dil
+	mov	0x7F(%r13),%r8b
+	mov	0x7F(%r13),%r9b
+	mov	0x7F(%r13),%r10b
+	mov	0x7F(%r13),%r11b
+	mov	0x7F(%r13),%r12b
+	mov	0x7F(%r13),%r13b
+	mov	0x7F(%r13),%r14b
+	mov	0x7F(%r13),%r15b
+	nop
+	mov	0x7F(%r14),%al
+	mov	0x7F(%r14),%cl
+	mov	0x7F(%r14),%dl
+	mov	0x7F(%r14),%bl
+	mov	0x7F(%r14),%spl
+	mov	0x7F(%r14),%bpl
+	mov	0x7F(%r14),%sil
+	mov	0x7F(%r14),%dil
+	mov	0x7F(%r14),%r8b
+	mov	0x7F(%r14),%r9b
+	mov	0x7F(%r14),%r10b
+	mov	0x7F(%r14),%r11b
+	mov	0x7F(%r14),%r12b
+	mov	0x7F(%r14),%r13b
+	mov	0x7F(%r14),%r14b
+	mov	0x7F(%r14),%r15b
+	nop
+	mov	0x7F(%r15),%al
+	mov	0x7F(%r15),%cl
+	mov	0x7F(%r15),%dl
+	mov	0x7F(%r15),%bl
+	mov	0x7F(%r15),%spl
+	mov	0x7F(%r15),%bpl
+	mov	0x7F(%r15),%sil
+	mov	0x7F(%r15),%dil
+	mov	0x7F(%r15),%r8b
+	mov	0x7F(%r15),%r9b
+	mov	0x7F(%r15),%r10b
+	mov	0x7F(%r15),%r11b
+	mov	0x7F(%r15),%r12b
+	mov	0x7F(%r15),%r13b
+	mov	0x7F(%r15),%r14b
+	mov	0x7F(%r15),%r15b
+        nop
+        nop
+        // mem8[off32] += reg8
+	mov	0x12345678(%rax),%al
+	mov	0x12345678(%rax),%cl
+	mov	0x12345678(%rax),%dl
+	mov	0x12345678(%rax),%bl
+	mov	0x12345678(%rax),%spl
+	mov	0x12345678(%rax),%bpl
+	mov	0x12345678(%rax),%sil
+	mov	0x12345678(%rax),%dil
+	mov	0x12345678(%rax),%r8b
+	mov	0x12345678(%rax),%r9b
+	mov	0x12345678(%rax),%r10b
+	mov	0x12345678(%rax),%r11b
+	mov	0x12345678(%rax),%r12b
+	mov	0x12345678(%rax),%r13b
+	mov	0x12345678(%rax),%r14b
+	mov	0x12345678(%rax),%r15b
+	nop
+	mov	0x12345678(%rcx),%al
+	mov	0x12345678(%rcx),%cl
+	mov	0x12345678(%rcx),%dl
+	mov	0x12345678(%rcx),%bl
+	mov	0x12345678(%rcx),%spl
+	mov	0x12345678(%rcx),%bpl
+	mov	0x12345678(%rcx),%sil
+	mov	0x12345678(%rcx),%dil
+	mov	0x12345678(%rcx),%r8b
+	mov	0x12345678(%rcx),%r9b
+	mov	0x12345678(%rcx),%r10b
+	mov	0x12345678(%rcx),%r11b
+	mov	0x12345678(%rcx),%r12b
+	mov	0x12345678(%rcx),%r13b
+	mov	0x12345678(%rcx),%r14b
+	mov	0x12345678(%rcx),%r15b
+	nop
+	mov	0x12345678(%rdx),%al
+	mov	0x12345678(%rdx),%cl
+	mov	0x12345678(%rdx),%dl
+	mov	0x12345678(%rdx),%bl
+	mov	0x12345678(%rdx),%spl
+	mov	0x12345678(%rdx),%bpl
+	mov	0x12345678(%rdx),%sil
+	mov	0x12345678(%rdx),%dil
+	mov	0x12345678(%rdx),%r8b
+	mov	0x12345678(%rdx),%r9b
+	mov	0x12345678(%rdx),%r10b
+	mov	0x12345678(%rdx),%r11b
+	mov	0x12345678(%rdx),%r12b
+	mov	0x12345678(%rdx),%r13b
+	mov	0x12345678(%rdx),%r14b
+	mov	0x12345678(%rdx),%r15b
+	nop
+	mov	0x12345678(%rbx),%al
+	mov	0x12345678(%rbx),%cl
+	mov	0x12345678(%rbx),%dl
+	mov	0x12345678(%rbx),%bl
+	mov	0x12345678(%rbx),%spl
+	mov	0x12345678(%rbx),%bpl
+	mov	0x12345678(%rbx),%sil
+	mov	0x12345678(%rbx),%dil
+	mov	0x12345678(%rbx),%r8b
+	mov	0x12345678(%rbx),%r9b
+	mov	0x12345678(%rbx),%r10b
+	mov	0x12345678(%rbx),%r11b
+	mov	0x12345678(%rbx),%r12b
+	mov	0x12345678(%rbx),%r13b
+	mov	0x12345678(%rbx),%r14b
+	mov	0x12345678(%rbx),%r15b
+	nop
+	mov	0x12345678(%rsp),%al
+	mov	0x12345678(%rsp),%cl
+	mov	0x12345678(%rsp),%dl
+	mov	0x12345678(%rsp),%bl
+	mov	0x12345678(%rsp),%spl
+	mov	0x12345678(%rsp),%bpl
+	mov	0x12345678(%rsp),%sil
+	mov	0x12345678(%rsp),%dil
+	mov	0x12345678(%rsp),%r8b
+	mov	0x12345678(%rsp),%r9b
+	mov	0x12345678(%rsp),%r10b
+	mov	0x12345678(%rsp),%r11b
+	mov	0x12345678(%rsp),%r12b
+	mov	0x12345678(%rsp),%r13b
+	mov	0x12345678(%rsp),%r14b
+	mov	0x12345678(%rsp),%r15b
+	nop
+	mov	0x12345678(%rbp),%al
+	mov	0x12345678(%rbp),%cl
+	mov	0x12345678(%rbp),%dl
+	mov	0x12345678(%rbp),%bl
+	mov	0x12345678(%rbp),%spl
+	mov	0x12345678(%rbp),%bpl
+	mov	0x12345678(%rbp),%sil
+	mov	0x12345678(%rbp),%dil
+	mov	0x12345678(%rbp),%r8b
+	mov	0x12345678(%rbp),%r9b
+	mov	0x12345678(%rbp),%r10b
+	mov	0x12345678(%rbp),%r11b
+	mov	0x12345678(%rbp),%r12b
+	mov	0x12345678(%rbp),%r13b
+	mov	0x12345678(%rbp),%r14b
+	mov	0x12345678(%rbp),%r15b
+	nop
+	mov	0x12345678(%rsi),%al
+	mov	0x12345678(%rsi),%cl
+	mov	0x12345678(%rsi),%dl
+	mov	0x12345678(%rsi),%bl
+	mov	0x12345678(%rsi),%spl
+	mov	0x12345678(%rsi),%bpl
+	mov	0x12345678(%rsi),%sil
+	mov	0x12345678(%rsi),%dil
+	mov	0x12345678(%rsi),%r8b
+	mov	0x12345678(%rsi),%r9b
+	mov	0x12345678(%rsi),%r10b
+	mov	0x12345678(%rsi),%r11b
+	mov	0x12345678(%rsi),%r12b
+	mov	0x12345678(%rsi),%r13b
+	mov	0x12345678(%rsi),%r14b
+	mov	0x12345678(%rsi),%r15b
+	nop
+	mov	0x12345678(%rdi),%al
+	mov	0x12345678(%rdi),%cl
+	mov	0x12345678(%rdi),%dl
+	mov	0x12345678(%rdi),%bl
+	mov	0x12345678(%rdi),%spl
+	mov	0x12345678(%rdi),%bpl
+	mov	0x12345678(%rdi),%sil
+	mov	0x12345678(%rdi),%dil
+	mov	0x12345678(%rdi),%r8b
+	mov	0x12345678(%rdi),%r9b
+	mov	0x12345678(%rdi),%r10b
+	mov	0x12345678(%rdi),%r11b
+	mov	0x12345678(%rdi),%r12b
+	mov	0x12345678(%rdi),%r13b
+	mov	0x12345678(%rdi),%r14b
+	mov	0x12345678(%rdi),%r15b
+	nop
+	mov	0x12345678(%r8), %al
+	mov	0x12345678(%r8), %cl
+	mov	0x12345678(%r8), %dl
+	mov	0x12345678(%r8), %bl
+	mov	0x12345678(%r8), %spl
+	mov	0x12345678(%r8), %bpl
+	mov	0x12345678(%r8), %sil
+	mov	0x12345678(%r8), %dil
+	mov	0x12345678(%r8), %r8b
+	mov	0x12345678(%r8), %r9b
+	mov	0x12345678(%r8), %r10b
+	mov	0x12345678(%r8), %r11b
+	mov	0x12345678(%r8), %r12b
+	mov	0x12345678(%r8), %r13b
+	mov	0x12345678(%r8), %r14b
+	mov	0x12345678(%r8), %r15b
+	nop
+	mov	0x12345678(%r9), %al
+	mov	0x12345678(%r9), %cl
+	mov	0x12345678(%r9), %dl
+	mov	0x12345678(%r9), %bl
+	mov	0x12345678(%r9), %spl
+	mov	0x12345678(%r9), %bpl
+	mov	0x12345678(%r9), %sil
+	mov	0x12345678(%r9), %dil
+	mov	0x12345678(%r9), %r8b
+	mov	0x12345678(%r9), %r9b
+	mov	0x12345678(%r9), %r10b
+	mov	0x12345678(%r9), %r11b
+	mov	0x12345678(%r9), %r12b
+	mov	0x12345678(%r9), %r13b
+	mov	0x12345678(%r9), %r14b
+	mov	0x12345678(%r9), %r15b
+	nop
+	mov	0x12345678(%r10),%al
+	mov	0x12345678(%r10),%cl
+	mov	0x12345678(%r10),%dl
+	mov	0x12345678(%r10),%bl
+	mov	0x12345678(%r10),%spl
+	mov	0x12345678(%r10),%bpl
+	mov	0x12345678(%r10),%sil
+	mov	0x12345678(%r10),%dil
+	mov	0x12345678(%r10),%r8b
+	mov	0x12345678(%r10),%r9b
+	mov	0x12345678(%r10),%r10b
+	mov	0x12345678(%r10),%r11b
+	mov	0x12345678(%r10),%r12b
+	mov	0x12345678(%r10),%r13b
+	mov	0x12345678(%r10),%r14b
+	mov	0x12345678(%r10),%r15b
+	nop
+	mov	0x12345678(%r11),%al
+	mov	0x12345678(%r11),%cl
+	mov	0x12345678(%r11),%dl
+	mov	0x12345678(%r11),%bl
+	mov	0x12345678(%r11),%spl
+	mov	0x12345678(%r11),%bpl
+	mov	0x12345678(%r11),%sil
+	mov	0x12345678(%r11),%dil
+	mov	0x12345678(%r11),%r8b
+	mov	0x12345678(%r11),%r9b
+	mov	0x12345678(%r11),%r10b
+	mov	0x12345678(%r11),%r11b
+	mov	0x12345678(%r11),%r12b
+	mov	0x12345678(%r11),%r13b
+	mov	0x12345678(%r11),%r14b
+	mov	0x12345678(%r11),%r15b
+	nop
+	mov	0x12345678(%r12),%al
+	mov	0x12345678(%r12),%cl
+	mov	0x12345678(%r12),%dl
+	mov	0x12345678(%r12),%bl
+	mov	0x12345678(%r12),%spl
+	mov	0x12345678(%r12),%bpl
+	mov	0x12345678(%r12),%sil
+	mov	0x12345678(%r12),%dil
+	mov	0x12345678(%r12),%r8b
+	mov	0x12345678(%r12),%r9b
+	mov	0x12345678(%r12),%r10b
+	mov	0x12345678(%r12),%r11b
+	mov	0x12345678(%r12),%r12b
+	mov	0x12345678(%r12),%r13b
+	mov	0x12345678(%r12),%r14b
+	mov	0x12345678(%r12),%r15b
+	nop
+	mov	0x12345678(%r13),%al
+	mov	0x12345678(%r13),%cl
+	mov	0x12345678(%r13),%dl
+	mov	0x12345678(%r13),%bl
+	mov	0x12345678(%r13),%spl
+	mov	0x12345678(%r13),%bpl
+	mov	0x12345678(%r13),%sil
+	mov	0x12345678(%r13),%dil
+	mov	0x12345678(%r13),%r8b
+	mov	0x12345678(%r13),%r9b
+	mov	0x12345678(%r13),%r10b
+	mov	0x12345678(%r13),%r11b
+	mov	0x12345678(%r13),%r12b
+	mov	0x12345678(%r13),%r13b
+	mov	0x12345678(%r13),%r14b
+	mov	0x12345678(%r13),%r15b
+	nop
+	mov	0x12345678(%r14),%al
+	mov	0x12345678(%r14),%cl
+	mov	0x12345678(%r14),%dl
+	mov	0x12345678(%r14),%bl
+	mov	0x12345678(%r14),%spl
+	mov	0x12345678(%r14),%bpl
+	mov	0x12345678(%r14),%sil
+	mov	0x12345678(%r14),%dil
+	mov	0x12345678(%r14),%r8b
+	mov	0x12345678(%r14),%r9b
+	mov	0x12345678(%r14),%r10b
+	mov	0x12345678(%r14),%r11b
+	mov	0x12345678(%r14),%r12b
+	mov	0x12345678(%r14),%r13b
+	mov	0x12345678(%r14),%r14b
+	mov	0x12345678(%r14),%r15b
+	nop
+	mov	0x12345678(%r15),%al
+	mov	0x12345678(%r15),%cl
+	mov	0x12345678(%r15),%dl
+	mov	0x12345678(%r15),%bl
+	mov	0x12345678(%r15),%spl
+	mov	0x12345678(%r15),%bpl
+	mov	0x12345678(%r15),%sil
+	mov	0x12345678(%r15),%dil
+	mov	0x12345678(%r15),%r8b
+	mov	0x12345678(%r15),%r9b
+	mov	0x12345678(%r15),%r10b
+	mov	0x12345678(%r15),%r11b
+	mov	0x12345678(%r15),%r12b
+	mov	0x12345678(%r15),%r13b
+	mov	0x12345678(%r15),%r14b
+	mov	0x12345678(%r15),%r15b
+        ret
+	.cfi_endproc
+        
+	.p2align 4,,15
+	.globl	MovRegMem16
+	.type	MovRegMem16, @function
+MovRegMem16:
+	.cfi_startproc
+        // reg16 = mem16[0]
+	mov	(%rax),%ax
+	mov	(%rax),%cx
+	mov	(%rax),%dx
+	mov	(%rax),%bx
+	mov	(%rax),%sp
+	mov	(%rax),%bp
+	mov	(%rax),%si
+	mov	(%rax),%di
+	mov	(%rax),%r8w
+	mov	(%rax),%r9w
+	mov	(%rax),%r10w
+	mov	(%rax),%r11w
+	mov	(%rax),%r12w
+	mov	(%rax),%r13w
+	mov	(%rax),%r14w
+	mov	(%rax),%r15w
+	nop
+	mov	(%rcx),%ax
+	mov	(%rcx),%cx
+	mov	(%rcx),%dx
+	mov	(%rcx),%bx
+	mov	(%rcx),%sp
+	mov	(%rcx),%bp
+	mov	(%rcx),%si
+	mov	(%rcx),%di
+	mov	(%rcx),%r8w
+	mov	(%rcx),%r9w
+	mov	(%rcx),%r10w
+	mov	(%rcx),%r11w
+	mov	(%rcx),%r12w
+	mov	(%rcx),%r13w
+	mov	(%rcx),%r14w
+	mov	(%rcx),%r15w
+	nop
+	mov	(%rdx),%ax
+	mov	(%rdx),%cx
+	mov	(%rdx),%dx
+	mov	(%rdx),%bx
+	mov	(%rdx),%sp
+	mov	(%rdx),%bp
+	mov	(%rdx),%si
+	mov	(%rdx),%di
+	mov	(%rdx),%r8w
+	mov	(%rdx),%r9w
+	mov	(%rdx),%r10w
+	mov	(%rdx),%r11w
+	mov	(%rdx),%r12w
+	mov	(%rdx),%r13w
+	mov	(%rdx),%r14w
+	mov	(%rdx),%r15w
+	nop
+	mov	(%rbx),%ax
+	mov	(%rbx),%cx
+	mov	(%rbx),%dx
+	mov	(%rbx),%bx
+	mov	(%rbx),%sp
+	mov	(%rbx),%bp
+	mov	(%rbx),%si
+	mov	(%rbx),%di
+	mov	(%rbx),%r8w
+	mov	(%rbx),%r9w
+	mov	(%rbx),%r10w
+	mov	(%rbx),%r11w
+	mov	(%rbx),%r12w
+	mov	(%rbx),%r13w
+	mov	(%rbx),%r14w
+	mov	(%rbx),%r15w
+	nop
+	mov	(%rsp),%ax
+	mov	(%rsp),%cx
+	mov	(%rsp),%dx
+	mov	(%rsp),%bx
+	mov	(%rsp),%sp
+	mov	(%rsp),%bp
+	mov	(%rsp),%si
+	mov	(%rsp),%di
+	mov	(%rsp),%r8w
+	mov	(%rsp),%r9w
+	mov	(%rsp),%r10w
+	mov	(%rsp),%r11w
+	mov	(%rsp),%r12w
+	mov	(%rsp),%r13w
+	mov	(%rsp),%r14w
+	mov	(%rsp),%r15w
+	nop
+	mov	(%rbp),%ax
+	mov	(%rbp),%cx
+	mov	(%rbp),%dx
+	mov	(%rbp),%bx
+	mov	(%rbp),%sp
+	mov	(%rbp),%bp
+	mov	(%rbp),%si
+	mov	(%rbp),%di
+	mov	(%rbp),%r8w
+	mov	(%rbp),%r9w
+	mov	(%rbp),%r10w
+	mov	(%rbp),%r11w
+	mov	(%rbp),%r12w
+	mov	(%rbp),%r13w
+	mov	(%rbp),%r14w
+	mov	(%rbp),%r15w
+	nop
+	mov	(%rsi),%ax
+	mov	(%rsi),%cx
+	mov	(%rsi),%dx
+	mov	(%rsi),%bx
+	mov	(%rsi),%sp
+	mov	(%rsi),%bp
+	mov	(%rsi),%si
+	mov	(%rsi),%di
+	mov	(%rsi),%r8w
+	mov	(%rsi),%r9w
+	mov	(%rsi),%r10w
+	mov	(%rsi),%r11w
+	mov	(%rsi),%r12w
+	mov	(%rsi),%r13w
+	mov	(%rsi),%r14w
+	mov	(%rsi),%r15w
+	nop
+	mov	(%rdi),%ax
+	mov	(%rdi),%cx
+	mov	(%rdi),%dx
+	mov	(%rdi),%bx
+	mov	(%rdi),%sp
+	mov	(%rdi),%bp
+	mov	(%rdi),%si
+	mov	(%rdi),%di
+	mov	(%rdi),%r8w
+	mov	(%rdi),%r9w
+	mov	(%rdi),%r10w
+	mov	(%rdi),%r11w
+	mov	(%rdi),%r12w
+	mov	(%rdi),%r13w
+	mov	(%rdi),%r14w
+	mov	(%rdi),%r15w
+	nop
+	mov	(%r8), %ax
+	mov	(%r8), %cx
+	mov	(%r8), %dx
+	mov	(%r8), %bx
+	mov	(%r8), %sp
+	mov	(%r8), %bp
+	mov	(%r8), %si
+	mov	(%r8), %di
+	mov	(%r8), %r8w
+	mov	(%r8), %r9w
+	mov	(%r8), %r10w
+	mov	(%r8), %r11w
+	mov	(%r8), %r12w
+	mov	(%r8), %r13w
+	mov	(%r8), %r14w
+	mov	(%r8), %r15w
+	nop
+	mov	(%r9), %ax
+	mov	(%r9), %cx
+	mov	(%r9), %dx
+	mov	(%r9), %bx
+	mov	(%r9), %sp
+	mov	(%r9), %bp
+	mov	(%r9), %si
+	mov	(%r9), %di
+	mov	(%r9), %r8w
+	mov	(%r9), %r9w
+	mov	(%r9), %r10w
+	mov	(%r9), %r11w
+	mov	(%r9), %r12w
+	mov	(%r9), %r13w
+	mov	(%r9), %r14w
+	mov	(%r9), %r15w
+	nop
+	mov	(%r10),%ax
+	mov	(%r10),%cx
+	mov	(%r10),%dx
+	mov	(%r10),%bx
+	mov	(%r10),%sp
+	mov	(%r10),%bp
+	mov	(%r10),%si
+	mov	(%r10),%di
+	mov	(%r10),%r8w
+	mov	(%r10),%r9w
+	mov	(%r10),%r10w
+	mov	(%r10),%r11w
+	mov	(%r10),%r12w
+	mov	(%r10),%r13w
+	mov	(%r10),%r14w
+	mov	(%r10),%r15w
+	nop
+	mov	(%r11),%ax
+	mov	(%r11),%cx
+	mov	(%r11),%dx
+	mov	(%r11),%bx
+	mov	(%r11),%sp
+	mov	(%r11),%bp
+	mov	(%r11),%si
+	mov	(%r11),%di
+	mov	(%r11),%r8w
+	mov	(%r11),%r9w
+	mov	(%r11),%r10w
+	mov	(%r11),%r11w
+	mov	(%r11),%r12w
+	mov	(%r11),%r13w
+	mov	(%r11),%r14w
+	mov	(%r11),%r15w
+	nop
+	mov	(%r12),%ax
+	mov	(%r12),%cx
+	mov	(%r12),%dx
+	mov	(%r12),%bx
+	mov	(%r12),%sp
+	mov	(%r12),%bp
+	mov	(%r12),%si
+	mov	(%r12),%di
+	mov	(%r12),%r8w
+	mov	(%r12),%r9w
+	mov	(%r12),%r10w
+	mov	(%r12),%r11w
+	mov	(%r12),%r12w
+	mov	(%r12),%r13w
+	mov	(%r12),%r14w
+	mov	(%r12),%r15w
+	nop
+	mov	(%r13),%ax
+	mov	(%r13),%cx
+	mov	(%r13),%dx
+	mov	(%r13),%bx
+	mov	(%r13),%sp
+	mov	(%r13),%bp
+	mov	(%r13),%si
+	mov	(%r13),%di
+	mov	(%r13),%r8w
+	mov	(%r13),%r9w
+	mov	(%r13),%r10w
+	mov	(%r13),%r11w
+	mov	(%r13),%r12w
+	mov	(%r13),%r13w
+	mov	(%r13),%r14w
+	mov	(%r13),%r15w
+	nop
+	mov	(%r14),%ax
+	mov	(%r14),%cx
+	mov	(%r14),%dx
+	mov	(%r14),%bx
+	mov	(%r14),%sp
+	mov	(%r14),%bp
+	mov	(%r14),%si
+	mov	(%r14),%di
+	mov	(%r14),%r8w
+	mov	(%r14),%r9w
+	mov	(%r14),%r10w
+	mov	(%r14),%r11w
+	mov	(%r14),%r12w
+	mov	(%r14),%r13w
+	mov	(%r14),%r14w
+	mov	(%r14),%r15w
+	nop
+	mov	(%r15),%ax
+	mov	(%r15),%cx
+	mov	(%r15),%dx
+	mov	(%r15),%bx
+	mov	(%r15),%sp
+	mov	(%r15),%bp
+	mov	(%r15),%si
+	mov	(%r15),%di
+	mov	(%r15),%r8w
+	mov	(%r15),%r9w
+	mov	(%r15),%r10w
+	mov	(%r15),%r11w
+	mov	(%r15),%r12w
+	mov	(%r15),%r13w
+	mov	(%r15),%r14w
+	mov	(%r15),%r15w
+        nop
+        nop
+        // mem16[off8] += reg16
+	mov	0x7F(%rax),%ax
+	mov	0x7F(%rax),%cx
+	mov	0x7F(%rax),%dx
+	mov	0x7F(%rax),%bx
+	mov	0x7F(%rax),%sp
+	mov	0x7F(%rax),%bp
+	mov	0x7F(%rax),%si
+	mov	0x7F(%rax),%di
+	mov	0x7F(%rax),%r8w
+	mov	0x7F(%rax),%r9w
+	mov	0x7F(%rax),%r10w
+	mov	0x7F(%rax),%r11w
+	mov	0x7F(%rax),%r12w
+	mov	0x7F(%rax),%r13w
+	mov	0x7F(%rax),%r14w
+	mov	0x7F(%rax),%r15w
+	nop
+	mov	0x7F(%rcx),%ax
+	mov	0x7F(%rcx),%cx
+	mov	0x7F(%rcx),%dx
+	mov	0x7F(%rcx),%bx
+	mov	0x7F(%rcx),%sp
+	mov	0x7F(%rcx),%bp
+	mov	0x7F(%rcx),%si
+	mov	0x7F(%rcx),%di
+	mov	0x7F(%rcx),%r8w
+	mov	0x7F(%rcx),%r9w
+	mov	0x7F(%rcx),%r10w
+	mov	0x7F(%rcx),%r11w
+	mov	0x7F(%rcx),%r12w
+	mov	0x7F(%rcx),%r13w
+	mov	0x7F(%rcx),%r14w
+	mov	0x7F(%rcx),%r15w
+	nop
+	mov	0x7F(%rdx),%ax
+	mov	0x7F(%rdx),%cx
+	mov	0x7F(%rdx),%dx
+	mov	0x7F(%rdx),%bx
+	mov	0x7F(%rdx),%sp
+	mov	0x7F(%rdx),%bp
+	mov	0x7F(%rdx),%si
+	mov	0x7F(%rdx),%di
+	mov	0x7F(%rdx),%r8w
+	mov	0x7F(%rdx),%r9w
+	mov	0x7F(%rdx),%r10w
+	mov	0x7F(%rdx),%r11w
+	mov	0x7F(%rdx),%r12w
+	mov	0x7F(%rdx),%r13w
+	mov	0x7F(%rdx),%r14w
+	mov	0x7F(%rdx),%r15w
+	nop
+	mov	0x7F(%rbx),%ax
+	mov	0x7F(%rbx),%cx
+	mov	0x7F(%rbx),%dx
+	mov	0x7F(%rbx),%bx
+	mov	0x7F(%rbx),%sp
+	mov	0x7F(%rbx),%bp
+	mov	0x7F(%rbx),%si
+	mov	0x7F(%rbx),%di
+	mov	0x7F(%rbx),%r8w
+	mov	0x7F(%rbx),%r9w
+	mov	0x7F(%rbx),%r10w
+	mov	0x7F(%rbx),%r11w
+	mov	0x7F(%rbx),%r12w
+	mov	0x7F(%rbx),%r13w
+	mov	0x7F(%rbx),%r14w
+	mov	0x7F(%rbx),%r15w
+	nop
+	mov	0x7F(%rsp),%ax
+	mov	0x7F(%rsp),%cx
+	mov	0x7F(%rsp),%dx
+	mov	0x7F(%rsp),%bx
+	mov	0x7F(%rsp),%sp
+	mov	0x7F(%rsp),%bp
+	mov	0x7F(%rsp),%si
+	mov	0x7F(%rsp),%di
+	mov	0x7F(%rsp),%r8w
+	mov	0x7F(%rsp),%r9w
+	mov	0x7F(%rsp),%r10w
+	mov	0x7F(%rsp),%r11w
+	mov	0x7F(%rsp),%r12w
+	mov	0x7F(%rsp),%r13w
+	mov	0x7F(%rsp),%r14w
+	mov	0x7F(%rsp),%r15w
+	nop
+	mov	0x7F(%rbp),%ax
+	mov	0x7F(%rbp),%cx
+	mov	0x7F(%rbp),%dx
+	mov	0x7F(%rbp),%bx
+	mov	0x7F(%rbp),%sp
+	mov	0x7F(%rbp),%bp
+	mov	0x7F(%rbp),%si
+	mov	0x7F(%rbp),%di
+	mov	0x7F(%rbp),%r8w
+	mov	0x7F(%rbp),%r9w
+	mov	0x7F(%rbp),%r10w
+	mov	0x7F(%rbp),%r11w
+	mov	0x7F(%rbp),%r12w
+	mov	0x7F(%rbp),%r13w
+	mov	0x7F(%rbp),%r14w
+	mov	0x7F(%rbp),%r15w
+	nop
+	mov	0x7F(%rsi),%ax
+	mov	0x7F(%rsi),%cx
+	mov	0x7F(%rsi),%dx
+	mov	0x7F(%rsi),%bx
+	mov	0x7F(%rsi),%sp
+	mov	0x7F(%rsi),%bp
+	mov	0x7F(%rsi),%si
+	mov	0x7F(%rsi),%di
+	mov	0x7F(%rsi),%r8w
+	mov	0x7F(%rsi),%r9w
+	mov	0x7F(%rsi),%r10w
+	mov	0x7F(%rsi),%r11w
+	mov	0x7F(%rsi),%r12w
+	mov	0x7F(%rsi),%r13w
+	mov	0x7F(%rsi),%r14w
+	mov	0x7F(%rsi),%r15w
+	nop
+	mov	0x7F(%rdi),%ax
+	mov	0x7F(%rdi),%cx
+	mov	0x7F(%rdi),%dx
+	mov	0x7F(%rdi),%bx
+	mov	0x7F(%rdi),%sp
+	mov	0x7F(%rdi),%bp
+	mov	0x7F(%rdi),%si
+	mov	0x7F(%rdi),%di
+	mov	0x7F(%rdi),%r8w
+	mov	0x7F(%rdi),%r9w
+	mov	0x7F(%rdi),%r10w
+	mov	0x7F(%rdi),%r11w
+	mov	0x7F(%rdi),%r12w
+	mov	0x7F(%rdi),%r13w
+	mov	0x7F(%rdi),%r14w
+	mov	0x7F(%rdi),%r15w
+	nop
+	mov	0x7F(%r8), %ax
+	mov	0x7F(%r8), %cx
+	mov	0x7F(%r8), %dx
+	mov	0x7F(%r8), %bx
+	mov	0x7F(%r8), %sp
+	mov	0x7F(%r8), %bp
+	mov	0x7F(%r8), %si
+	mov	0x7F(%r8), %di
+	mov	0x7F(%r8), %r8w
+	mov	0x7F(%r8), %r9w
+	mov	0x7F(%r8), %r10w
+	mov	0x7F(%r8), %r11w
+	mov	0x7F(%r8), %r12w
+	mov	0x7F(%r8), %r13w
+	mov	0x7F(%r8), %r14w
+	mov	0x7F(%r8), %r15w
+	nop
+	mov	0x7F(%r9), %ax
+	mov	0x7F(%r9), %cx
+	mov	0x7F(%r9), %dx
+	mov	0x7F(%r9), %bx
+	mov	0x7F(%r9), %sp
+	mov	0x7F(%r9), %bp
+	mov	0x7F(%r9), %si
+	mov	0x7F(%r9), %di
+	mov	0x7F(%r9), %r8w
+	mov	0x7F(%r9), %r9w
+	mov	0x7F(%r9), %r10w
+	mov	0x7F(%r9), %r11w
+	mov	0x7F(%r9), %r12w
+	mov	0x7F(%r9), %r13w
+	mov	0x7F(%r9), %r14w
+	mov	0x7F(%r9), %r15w
+	nop
+	mov	0x7F(%r10),%ax
+	mov	0x7F(%r10),%cx
+	mov	0x7F(%r10),%dx
+	mov	0x7F(%r10),%bx
+	mov	0x7F(%r10),%sp
+	mov	0x7F(%r10),%bp
+	mov	0x7F(%r10),%si
+	mov	0x7F(%r10),%di
+	mov	0x7F(%r10),%r8w
+	mov	0x7F(%r10),%r9w
+	mov	0x7F(%r10),%r10w
+	mov	0x7F(%r10),%r11w
+	mov	0x7F(%r10),%r12w
+	mov	0x7F(%r10),%r13w
+	mov	0x7F(%r10),%r14w
+	mov	0x7F(%r10),%r15w
+	nop
+	mov	0x7F(%r11),%ax
+	mov	0x7F(%r11),%cx
+	mov	0x7F(%r11),%dx
+	mov	0x7F(%r11),%bx
+	mov	0x7F(%r11),%sp
+	mov	0x7F(%r11),%bp
+	mov	0x7F(%r11),%si
+	mov	0x7F(%r11),%di
+	mov	0x7F(%r11),%r8w
+	mov	0x7F(%r11),%r9w
+	mov	0x7F(%r11),%r10w
+	mov	0x7F(%r11),%r11w
+	mov	0x7F(%r11),%r12w
+	mov	0x7F(%r11),%r13w
+	mov	0x7F(%r11),%r14w
+	mov	0x7F(%r11),%r15w
+	nop
+	mov	0x7F(%r12),%ax
+	mov	0x7F(%r12),%cx
+	mov	0x7F(%r12),%dx
+	mov	0x7F(%r12),%bx
+	mov	0x7F(%r12),%sp
+	mov	0x7F(%r12),%bp
+	mov	0x7F(%r12),%si
+	mov	0x7F(%r12),%di
+	mov	0x7F(%r12),%r8w
+	mov	0x7F(%r12),%r9w
+	mov	0x7F(%r12),%r10w
+	mov	0x7F(%r12),%r11w
+	mov	0x7F(%r12),%r12w
+	mov	0x7F(%r12),%r13w
+	mov	0x7F(%r12),%r14w
+	mov	0x7F(%r12),%r15w
+	nop
+	mov	0x7F(%r13),%ax
+	mov	0x7F(%r13),%cx
+	mov	0x7F(%r13),%dx
+	mov	0x7F(%r13),%bx
+	mov	0x7F(%r13),%sp
+	mov	0x7F(%r13),%bp
+	mov	0x7F(%r13),%si
+	mov	0x7F(%r13),%di
+	mov	0x7F(%r13),%r8w
+	mov	0x7F(%r13),%r9w
+	mov	0x7F(%r13),%r10w
+	mov	0x7F(%r13),%r11w
+	mov	0x7F(%r13),%r12w
+	mov	0x7F(%r13),%r13w
+	mov	0x7F(%r13),%r14w
+	mov	0x7F(%r13),%r15w
+	nop
+	mov	0x7F(%r14),%ax
+	mov	0x7F(%r14),%cx
+	mov	0x7F(%r14),%dx
+	mov	0x7F(%r14),%bx
+	mov	0x7F(%r14),%sp
+	mov	0x7F(%r14),%bp
+	mov	0x7F(%r14),%si
+	mov	0x7F(%r14),%di
+	mov	0x7F(%r14),%r8w
+	mov	0x7F(%r14),%r9w
+	mov	0x7F(%r14),%r10w
+	mov	0x7F(%r14),%r11w
+	mov	0x7F(%r14),%r12w
+	mov	0x7F(%r14),%r13w
+	mov	0x7F(%r14),%r14w
+	mov	0x7F(%r14),%r15w
+	nop
+	mov	0x7F(%r15),%ax
+	mov	0x7F(%r15),%cx
+	mov	0x7F(%r15),%dx
+	mov	0x7F(%r15),%bx
+	mov	0x7F(%r15),%sp
+	mov	0x7F(%r15),%bp
+	mov	0x7F(%r15),%si
+	mov	0x7F(%r15),%di
+	mov	0x7F(%r15),%r8w
+	mov	0x7F(%r15),%r9w
+	mov	0x7F(%r15),%r10w
+	mov	0x7F(%r15),%r11w
+	mov	0x7F(%r15),%r12w
+	mov	0x7F(%r15),%r13w
+	mov	0x7F(%r15),%r14w
+	mov	0x7F(%r15),%r15w
+        nop
+        nop
+        // mem16[off32] += reg16
+	mov	0x12345678(%rax),%ax
+	mov	0x12345678(%rax),%cx
+	mov	0x12345678(%rax),%dx
+	mov	0x12345678(%rax),%bx
+	mov	0x12345678(%rax),%sp
+	mov	0x12345678(%rax),%bp
+	mov	0x12345678(%rax),%si
+	mov	0x12345678(%rax),%di
+	mov	0x12345678(%rax),%r8w
+	mov	0x12345678(%rax),%r9w
+	mov	0x12345678(%rax),%r10w
+	mov	0x12345678(%rax),%r11w
+	mov	0x12345678(%rax),%r12w
+	mov	0x12345678(%rax),%r13w
+	mov	0x12345678(%rax),%r14w
+	mov	0x12345678(%rax),%r15w
+	nop
+	mov	0x12345678(%rcx),%ax
+	mov	0x12345678(%rcx),%cx
+	mov	0x12345678(%rcx),%dx
+	mov	0x12345678(%rcx),%bx
+	mov	0x12345678(%rcx),%sp
+	mov	0x12345678(%rcx),%bp
+	mov	0x12345678(%rcx),%si
+	mov	0x12345678(%rcx),%di
+	mov	0x12345678(%rcx),%r8w
+	mov	0x12345678(%rcx),%r9w
+	mov	0x12345678(%rcx),%r10w
+	mov	0x12345678(%rcx),%r11w
+	mov	0x12345678(%rcx),%r12w
+	mov	0x12345678(%rcx),%r13w
+	mov	0x12345678(%rcx),%r14w
+	mov	0x12345678(%rcx),%r15w
+	nop
+	mov	0x12345678(%rdx),%ax
+	mov	0x12345678(%rdx),%cx
+	mov	0x12345678(%rdx),%dx
+	mov	0x12345678(%rdx),%bx
+	mov	0x12345678(%rdx),%sp
+	mov	0x12345678(%rdx),%bp
+	mov	0x12345678(%rdx),%si
+	mov	0x12345678(%rdx),%di
+	mov	0x12345678(%rdx),%r8w
+	mov	0x12345678(%rdx),%r9w
+	mov	0x12345678(%rdx),%r10w
+	mov	0x12345678(%rdx),%r11w
+	mov	0x12345678(%rdx),%r12w
+	mov	0x12345678(%rdx),%r13w
+	mov	0x12345678(%rdx),%r14w
+	mov	0x12345678(%rdx),%r15w
+	nop
+	mov	0x12345678(%rbx),%ax
+	mov	0x12345678(%rbx),%cx
+	mov	0x12345678(%rbx),%dx
+	mov	0x12345678(%rbx),%bx
+	mov	0x12345678(%rbx),%sp
+	mov	0x12345678(%rbx),%bp
+	mov	0x12345678(%rbx),%si
+	mov	0x12345678(%rbx),%di
+	mov	0x12345678(%rbx),%r8w
+	mov	0x12345678(%rbx),%r9w
+	mov	0x12345678(%rbx),%r10w
+	mov	0x12345678(%rbx),%r11w
+	mov	0x12345678(%rbx),%r12w
+	mov	0x12345678(%rbx),%r13w
+	mov	0x12345678(%rbx),%r14w
+	mov	0x12345678(%rbx),%r15w
+	nop
+	mov	0x12345678(%rsp),%ax
+	mov	0x12345678(%rsp),%cx
+	mov	0x12345678(%rsp),%dx
+	mov	0x12345678(%rsp),%bx
+	mov	0x12345678(%rsp),%sp
+	mov	0x12345678(%rsp),%bp
+	mov	0x12345678(%rsp),%si
+	mov	0x12345678(%rsp),%di
+	mov	0x12345678(%rsp),%r8w
+	mov	0x12345678(%rsp),%r9w
+	mov	0x12345678(%rsp),%r10w
+	mov	0x12345678(%rsp),%r11w
+	mov	0x12345678(%rsp),%r12w
+	mov	0x12345678(%rsp),%r13w
+	mov	0x12345678(%rsp),%r14w
+	mov	0x12345678(%rsp),%r15w
+	nop
+	mov	0x12345678(%rbp),%ax
+	mov	0x12345678(%rbp),%cx
+	mov	0x12345678(%rbp),%dx
+	mov	0x12345678(%rbp),%bx
+	mov	0x12345678(%rbp),%sp
+	mov	0x12345678(%rbp),%bp
+	mov	0x12345678(%rbp),%si
+	mov	0x12345678(%rbp),%di
+	mov	0x12345678(%rbp),%r8w
+	mov	0x12345678(%rbp),%r9w
+	mov	0x12345678(%rbp),%r10w
+	mov	0x12345678(%rbp),%r11w
+	mov	0x12345678(%rbp),%r12w
+	mov	0x12345678(%rbp),%r13w
+	mov	0x12345678(%rbp),%r14w
+	mov	0x12345678(%rbp),%r15w
+	nop
+	mov	0x12345678(%rsi),%ax
+	mov	0x12345678(%rsi),%cx
+	mov	0x12345678(%rsi),%dx
+	mov	0x12345678(%rsi),%bx
+	mov	0x12345678(%rsi),%sp
+	mov	0x12345678(%rsi),%bp
+	mov	0x12345678(%rsi),%si
+	mov	0x12345678(%rsi),%di
+	mov	0x12345678(%rsi),%r8w
+	mov	0x12345678(%rsi),%r9w
+	mov	0x12345678(%rsi),%r10w
+	mov	0x12345678(%rsi),%r11w
+	mov	0x12345678(%rsi),%r12w
+	mov	0x12345678(%rsi),%r13w
+	mov	0x12345678(%rsi),%r14w
+	mov	0x12345678(%rsi),%r15w
+	nop
+	mov	0x12345678(%rdi),%ax
+	mov	0x12345678(%rdi),%cx
+	mov	0x12345678(%rdi),%dx
+	mov	0x12345678(%rdi),%bx
+	mov	0x12345678(%rdi),%sp
+	mov	0x12345678(%rdi),%bp
+	mov	0x12345678(%rdi),%si
+	mov	0x12345678(%rdi),%di
+	mov	0x12345678(%rdi),%r8w
+	mov	0x12345678(%rdi),%r9w
+	mov	0x12345678(%rdi),%r10w
+	mov	0x12345678(%rdi),%r11w
+	mov	0x12345678(%rdi),%r12w
+	mov	0x12345678(%rdi),%r13w
+	mov	0x12345678(%rdi),%r14w
+	mov	0x12345678(%rdi),%r15w
+	nop
+	mov	0x12345678(%r8), %ax
+	mov	0x12345678(%r8), %cx
+	mov	0x12345678(%r8), %dx
+	mov	0x12345678(%r8), %bx
+	mov	0x12345678(%r8), %sp
+	mov	0x12345678(%r8), %bp
+	mov	0x12345678(%r8), %si
+	mov	0x12345678(%r8), %di
+	mov	0x12345678(%r8), %r8w
+	mov	0x12345678(%r8), %r9w
+	mov	0x12345678(%r8), %r10w
+	mov	0x12345678(%r8), %r11w
+	mov	0x12345678(%r8), %r12w
+	mov	0x12345678(%r8), %r13w
+	mov	0x12345678(%r8), %r14w
+	mov	0x12345678(%r8), %r15w
+	nop
+	mov	0x12345678(%r9), %ax
+	mov	0x12345678(%r9), %cx
+	mov	0x12345678(%r9), %dx
+	mov	0x12345678(%r9), %bx
+	mov	0x12345678(%r9), %sp
+	mov	0x12345678(%r9), %bp
+	mov	0x12345678(%r9), %si
+	mov	0x12345678(%r9), %di
+	mov	0x12345678(%r9), %r8w
+	mov	0x12345678(%r9), %r9w
+	mov	0x12345678(%r9), %r10w
+	mov	0x12345678(%r9), %r11w
+	mov	0x12345678(%r9), %r12w
+	mov	0x12345678(%r9), %r13w
+	mov	0x12345678(%r9), %r14w
+	mov	0x12345678(%r9), %r15w
+	nop
+	mov	0x12345678(%r10),%ax
+	mov	0x12345678(%r10),%cx
+	mov	0x12345678(%r10),%dx
+	mov	0x12345678(%r10),%bx
+	mov	0x12345678(%r10),%sp
+	mov	0x12345678(%r10),%bp
+	mov	0x12345678(%r10),%si
+	mov	0x12345678(%r10),%di
+	mov	0x12345678(%r10),%r8w
+	mov	0x12345678(%r10),%r9w
+	mov	0x12345678(%r10),%r10w
+	mov	0x12345678(%r10),%r11w
+	mov	0x12345678(%r10),%r12w
+	mov	0x12345678(%r10),%r13w
+	mov	0x12345678(%r10),%r14w
+	mov	0x12345678(%r10),%r15w
+	nop
+	mov	0x12345678(%r11),%ax
+	mov	0x12345678(%r11),%cx
+	mov	0x12345678(%r11),%dx
+	mov	0x12345678(%r11),%bx
+	mov	0x12345678(%r11),%sp
+	mov	0x12345678(%r11),%bp
+	mov	0x12345678(%r11),%si
+	mov	0x12345678(%r11),%di
+	mov	0x12345678(%r11),%r8w
+	mov	0x12345678(%r11),%r9w
+	mov	0x12345678(%r11),%r10w
+	mov	0x12345678(%r11),%r11w
+	mov	0x12345678(%r11),%r12w
+	mov	0x12345678(%r11),%r13w
+	mov	0x12345678(%r11),%r14w
+	mov	0x12345678(%r11),%r15w
+	nop
+	mov	0x12345678(%r12),%ax
+	mov	0x12345678(%r12),%cx
+	mov	0x12345678(%r12),%dx
+	mov	0x12345678(%r12),%bx
+	mov	0x12345678(%r12),%sp
+	mov	0x12345678(%r12),%bp
+	mov	0x12345678(%r12),%si
+	mov	0x12345678(%r12),%di
+	mov	0x12345678(%r12),%r8w
+	mov	0x12345678(%r12),%r9w
+	mov	0x12345678(%r12),%r10w
+	mov	0x12345678(%r12),%r11w
+	mov	0x12345678(%r12),%r12w
+	mov	0x12345678(%r12),%r13w
+	mov	0x12345678(%r12),%r14w
+	mov	0x12345678(%r12),%r15w
+	nop
+	mov	0x12345678(%r13),%ax
+	mov	0x12345678(%r13),%cx
+	mov	0x12345678(%r13),%dx
+	mov	0x12345678(%r13),%bx
+	mov	0x12345678(%r13),%sp
+	mov	0x12345678(%r13),%bp
+	mov	0x12345678(%r13),%si
+	mov	0x12345678(%r13),%di
+	mov	0x12345678(%r13),%r8w
+	mov	0x12345678(%r13),%r9w
+	mov	0x12345678(%r13),%r10w
+	mov	0x12345678(%r13),%r11w
+	mov	0x12345678(%r13),%r12w
+	mov	0x12345678(%r13),%r13w
+	mov	0x12345678(%r13),%r14w
+	mov	0x12345678(%r13),%r15w
+	nop
+	mov	0x12345678(%r14),%ax
+	mov	0x12345678(%r14),%cx
+	mov	0x12345678(%r14),%dx
+	mov	0x12345678(%r14),%bx
+	mov	0x12345678(%r14),%sp
+	mov	0x12345678(%r14),%bp
+	mov	0x12345678(%r14),%si
+	mov	0x12345678(%r14),%di
+	mov	0x12345678(%r14),%r8w
+	mov	0x12345678(%r14),%r9w
+	mov	0x12345678(%r14),%r10w
+	mov	0x12345678(%r14),%r11w
+	mov	0x12345678(%r14),%r12w
+	mov	0x12345678(%r14),%r13w
+	mov	0x12345678(%r14),%r14w
+	mov	0x12345678(%r14),%r15w
+	nop
+	mov	0x12345678(%r15),%ax
+	mov	0x12345678(%r15),%cx
+	mov	0x12345678(%r15),%dx
+	mov	0x12345678(%r15),%bx
+	mov	0x12345678(%r15),%sp
+	mov	0x12345678(%r15),%bp
+	mov	0x12345678(%r15),%si
+	mov	0x12345678(%r15),%di
+	mov	0x12345678(%r15),%r8w
+	mov	0x12345678(%r15),%r9w
+	mov	0x12345678(%r15),%r10w
+	mov	0x12345678(%r15),%r11w
+	mov	0x12345678(%r15),%r12w
+	mov	0x12345678(%r15),%r13w
+	mov	0x12345678(%r15),%r14w
+	mov	0x12345678(%r15),%r15w
+        ret
 	.cfi_endproc
 
-
+        
 	.p2align 4,,15
 	.globl	MovRegMem32
 	.type	MovRegMem32, @function
 MovRegMem32:
 	.cfi_startproc
-	mov	0x7f563412(%rax),%rax
-	mov	0x7f563412(%rax),%rcx
-	mov	0x7f563412(%rax),%rdx
-	mov	0x7f563412(%rax),%rbx
-	mov	0x7f563412(%rax),%rsp
-	mov	0x7f563412(%rax),%rbp
-	mov	0x7f563412(%rax),%rsi
-	mov	0x7f563412(%rax),%rdi
-	mov	0x7f563412(%rax),%r8
-	mov	0x7f563412(%rax),%r9
-	mov	0x7f563412(%rax),%r10
-	mov	0x7f563412(%rax),%r11
-	mov	0x7f563412(%rax),%r12
-	mov	0x7f563412(%rax),%r13
-	mov	0x7f563412(%rax),%r14
-	mov	0x7f563412(%rax),%r15
+        // reg32 = mem32[0]
+	mov	(%rax),%eax
+	mov	(%rax),%ecx
+	mov	(%rax),%edx
+	mov	(%rax),%ebx
+	mov	(%rax),%esp
+	mov	(%rax),%ebp
+	mov	(%rax),%esi
+	mov	(%rax),%edi
+	mov	(%rax),%r8d
+	mov	(%rax),%r9d
+	mov	(%rax),%r10d
+	mov	(%rax),%r11d
+	mov	(%rax),%r12d
+	mov	(%rax),%r13d
+	mov	(%rax),%r14d
+	mov	(%rax),%r15d
 	nop
-	mov	0x7f563412(%rcx),%rax
-	mov	0x7f563412(%rcx),%rcx
-	mov	0x7f563412(%rcx),%rdx
-	mov	0x7f563412(%rcx),%rbx
-	mov	0x7f563412(%rcx),%rsp
-	mov	0x7f563412(%rcx),%rbp
-	mov	0x7f563412(%rcx),%rsi
-	mov	0x7f563412(%rcx),%rdi
-	mov	0x7f563412(%rcx),%r8
-	mov	0x7f563412(%rcx),%r9
-	mov	0x7f563412(%rcx),%r10
-	mov	0x7f563412(%rcx),%r11
-	mov	0x7f563412(%rcx),%r12
-	mov	0x7f563412(%rcx),%r13
-	mov	0x7f563412(%rcx),%r14
-	mov	0x7f563412(%rcx),%r15
+	mov	(%rcx),%eax
+	mov	(%rcx),%ecx
+	mov	(%rcx),%edx
+	mov	(%rcx),%ebx
+	mov	(%rcx),%esp
+	mov	(%rcx),%ebp
+	mov	(%rcx),%esi
+	mov	(%rcx),%edi
+	mov	(%rcx),%r8d
+	mov	(%rcx),%r9d
+	mov	(%rcx),%r10d
+	mov	(%rcx),%r11d
+	mov	(%rcx),%r12d
+	mov	(%rcx),%r13d
+	mov	(%rcx),%r14d
+	mov	(%rcx),%r15d
 	nop
-	mov	0x7f563412(%rdx),%rax
-	mov	0x7f563412(%rdx),%rcx
-	mov	0x7f563412(%rdx),%rdx
-	mov	0x7f563412(%rdx),%rbx
-	mov	0x7f563412(%rdx),%rsp
-	mov	0x7f563412(%rdx),%rbp
-	mov	0x7f563412(%rdx),%rsi
-	mov	0x7f563412(%rdx),%rdi
-	mov	0x7f563412(%rdx),%r8
-	mov	0x7f563412(%rdx),%r9
-	mov	0x7f563412(%rdx),%r10
-	mov	0x7f563412(%rdx),%r11
-	mov	0x7f563412(%rdx),%r12
-	mov	0x7f563412(%rdx),%r13
-	mov	0x7f563412(%rdx),%r14
-	mov	0x7f563412(%rdx),%r15
+	mov	(%rdx),%eax
+	mov	(%rdx),%ecx
+	mov	(%rdx),%edx
+	mov	(%rdx),%ebx
+	mov	(%rdx),%esp
+	mov	(%rdx),%ebp
+	mov	(%rdx),%esi
+	mov	(%rdx),%edi
+	mov	(%rdx),%r8d
+	mov	(%rdx),%r9d
+	mov	(%rdx),%r10d
+	mov	(%rdx),%r11d
+	mov	(%rdx),%r12d
+	mov	(%rdx),%r13d
+	mov	(%rdx),%r14d
+	mov	(%rdx),%r15d
 	nop
-	mov	0x7f563412(%rbx),%rax
-	mov	0x7f563412(%rbx),%rcx
-	mov	0x7f563412(%rbx),%rdx
-	mov	0x7f563412(%rbx),%rbx
-	mov	0x7f563412(%rbx),%rsp
-	mov	0x7f563412(%rbx),%rbp
-	mov	0x7f563412(%rbx),%rsi
-	mov	0x7f563412(%rbx),%rdi
-	mov	0x7f563412(%rbx),%r8
-	mov	0x7f563412(%rbx),%r9
-	mov	0x7f563412(%rbx),%r10
-	mov	0x7f563412(%rbx),%r11
-	mov	0x7f563412(%rbx),%r12
-	mov	0x7f563412(%rbx),%r13
-	mov	0x7f563412(%rbx),%r14
-	mov	0x7f563412(%rbx),%r15
+	mov	(%rbx),%eax
+	mov	(%rbx),%ecx
+	mov	(%rbx),%edx
+	mov	(%rbx),%ebx
+	mov	(%rbx),%esp
+	mov	(%rbx),%ebp
+	mov	(%rbx),%esi
+	mov	(%rbx),%edi
+	mov	(%rbx),%r8d
+	mov	(%rbx),%r9d
+	mov	(%rbx),%r10d
+	mov	(%rbx),%r11d
+	mov	(%rbx),%r12d
+	mov	(%rbx),%r13d
+	mov	(%rbx),%r14d
+	mov	(%rbx),%r15d
 	nop
-	mov	0x7f563412(%rsp),%rax
-	mov	0x7f563412(%rsp),%rcx
-	mov	0x7f563412(%rsp),%rdx
-	mov	0x7f563412(%rsp),%rbx
-	mov	0x7f563412(%rsp),%rsp
-	mov	0x7f563412(%rsp),%rbp
-	mov	0x7f563412(%rsp),%rsi
-	mov	0x7f563412(%rsp),%rdi
-	mov	0x7f563412(%rsp),%r8
-	mov	0x7f563412(%rsp),%r9
-	mov	0x7f563412(%rsp),%r10
-	mov	0x7f563412(%rsp),%r11
-	mov	0x7f563412(%rsp),%r12
-	mov	0x7f563412(%rsp),%r13
-	mov	0x7f563412(%rsp),%r14
-	mov	0x7f563412(%rsp),%r15
+	mov	(%rsp),%eax
+	mov	(%rsp),%ecx
+	mov	(%rsp),%edx
+	mov	(%rsp),%ebx
+	mov	(%rsp),%esp
+	mov	(%rsp),%ebp
+	mov	(%rsp),%esi
+	mov	(%rsp),%edi
+	mov	(%rsp),%r8d
+	mov	(%rsp),%r9d
+	mov	(%rsp),%r10d
+	mov	(%rsp),%r11d
+	mov	(%rsp),%r12d
+	mov	(%rsp),%r13d
+	mov	(%rsp),%r14d
+	mov	(%rsp),%r15d
 	nop
-	mov	0x7f563412(%rbp),%rax
-	mov	0x7f563412(%rbp),%rcx
-	mov	0x7f563412(%rbp),%rdx
-	mov	0x7f563412(%rbp),%rbx
-	mov	0x7f563412(%rbp),%rsp
-	mov	0x7f563412(%rbp),%rbp
-	mov	0x7f563412(%rbp),%rsi
-	mov	0x7f563412(%rbp),%rdi
-	mov	0x7f563412(%rbp),%r8
-	mov	0x7f563412(%rbp),%r9
-	mov	0x7f563412(%rbp),%r10
-	mov	0x7f563412(%rbp),%r11
-	mov	0x7f563412(%rbp),%r12
-	mov	0x7f563412(%rbp),%r13
-	mov	0x7f563412(%rbp),%r14
-	mov	0x7f563412(%rbp),%r15
+	mov	(%rbp),%eax
+	mov	(%rbp),%ecx
+	mov	(%rbp),%edx
+	mov	(%rbp),%ebx
+	mov	(%rbp),%esp
+	mov	(%rbp),%ebp
+	mov	(%rbp),%esi
+	mov	(%rbp),%edi
+	mov	(%rbp),%r8d
+	mov	(%rbp),%r9d
+	mov	(%rbp),%r10d
+	mov	(%rbp),%r11d
+	mov	(%rbp),%r12d
+	mov	(%rbp),%r13d
+	mov	(%rbp),%r14d
+	mov	(%rbp),%r15d
 	nop
-	mov	0x7f563412(%rsi),%rax
-	mov	0x7f563412(%rsi),%rcx
-	mov	0x7f563412(%rsi),%rdx
-	mov	0x7f563412(%rsi),%rbx
-	mov	0x7f563412(%rsi),%rsp
-	mov	0x7f563412(%rsi),%rbp
-	mov	0x7f563412(%rsi),%rsi
-	mov	0x7f563412(%rsi),%rdi
-	mov	0x7f563412(%rsi),%r8
-	mov	0x7f563412(%rsi),%r9
-	mov	0x7f563412(%rsi),%r10
-	mov	0x7f563412(%rsi),%r11
-	mov	0x7f563412(%rsi),%r12
-	mov	0x7f563412(%rsi),%r13
-	mov	0x7f563412(%rsi),%r14
-	mov	0x7f563412(%rsi),%r15
+	mov	(%rsi),%eax
+	mov	(%rsi),%ecx
+	mov	(%rsi),%edx
+	mov	(%rsi),%ebx
+	mov	(%rsi),%esp
+	mov	(%rsi),%ebp
+	mov	(%rsi),%esi
+	mov	(%rsi),%edi
+	mov	(%rsi),%r8d
+	mov	(%rsi),%r9d
+	mov	(%rsi),%r10d
+	mov	(%rsi),%r11d
+	mov	(%rsi),%r12d
+	mov	(%rsi),%r13d
+	mov	(%rsi),%r14d
+	mov	(%rsi),%r15d
 	nop
-	mov	0x7f563412(%rdi),%rax
-	mov	0x7f563412(%rdi),%rcx
-	mov	0x7f563412(%rdi),%rdx
-	mov	0x7f563412(%rdi),%rbx
-	mov	0x7f563412(%rdi),%rsp
-	mov	0x7f563412(%rdi),%rbp
-	mov	0x7f563412(%rdi),%rsi
-	mov	0x7f563412(%rdi),%rdi
-	mov	0x7f563412(%rdi),%r8
-	mov	0x7f563412(%rdi),%r9
-	mov	0x7f563412(%rdi),%r10
-	mov	0x7f563412(%rdi),%r11
-	mov	0x7f563412(%rdi),%r12
-	mov	0x7f563412(%rdi),%r13
-	mov	0x7f563412(%rdi),%r14
-	mov	0x7f563412(%rdi),%r15
+	mov	(%rdi),%eax
+	mov	(%rdi),%ecx
+	mov	(%rdi),%edx
+	mov	(%rdi),%ebx
+	mov	(%rdi),%esp
+	mov	(%rdi),%ebp
+	mov	(%rdi),%esi
+	mov	(%rdi),%edi
+	mov	(%rdi),%r8d
+	mov	(%rdi),%r9d
+	mov	(%rdi),%r10d
+	mov	(%rdi),%r11d
+	mov	(%rdi),%r12d
+	mov	(%rdi),%r13d
+	mov	(%rdi),%r14d
+	mov	(%rdi),%r15d
 	nop
-	mov	0x7f563412(%r8), %rax
-	mov	0x7f563412(%r8), %rcx
-	mov	0x7f563412(%r8), %rdx
-	mov	0x7f563412(%r8), %rbx
-	mov	0x7f563412(%r8), %rsp
-	mov	0x7f563412(%r8), %rbp
-	mov	0x7f563412(%r8), %rsi
-	mov	0x7f563412(%r8), %rdi
-	mov	0x7f563412(%r8), %r8
-	mov	0x7f563412(%r8), %r9
-	mov	0x7f563412(%r8), %r10
-	mov	0x7f563412(%r8), %r11
-	mov	0x7f563412(%r8), %r12
-	mov	0x7f563412(%r8), %r13
-	mov	0x7f563412(%r8), %r14
-	mov	0x7f563412(%r8), %r15
+	mov	(%r8), %eax
+	mov	(%r8), %ecx
+	mov	(%r8), %edx
+	mov	(%r8), %ebx
+	mov	(%r8), %esp
+	mov	(%r8), %ebp
+	mov	(%r8), %esi
+	mov	(%r8), %edi
+	mov	(%r8), %r8d
+	mov	(%r8), %r9d
+	mov	(%r8), %r10d
+	mov	(%r8), %r11d
+	mov	(%r8), %r12d
+	mov	(%r8), %r13d
+	mov	(%r8), %r14d
+	mov	(%r8), %r15d
 	nop
-	mov	0x7f563412(%r9), %rax
-	mov	0x7f563412(%r9), %rcx
-	mov	0x7f563412(%r9), %rdx
-	mov	0x7f563412(%r9), %rbx
-	mov	0x7f563412(%r9), %rsp
-	mov	0x7f563412(%r9), %rbp
-	mov	0x7f563412(%r9), %rsi
-	mov	0x7f563412(%r9), %rdi
-	mov	0x7f563412(%r9), %r8
-	mov	0x7f563412(%r9), %r9
-	mov	0x7f563412(%r9), %r10
-	mov	0x7f563412(%r9), %r11
-	mov	0x7f563412(%r9), %r12
-	mov	0x7f563412(%r9), %r13
-	mov	0x7f563412(%r9), %r14
-	mov	0x7f563412(%r9), %r15
+	mov	(%r9), %eax
+	mov	(%r9), %ecx
+	mov	(%r9), %edx
+	mov	(%r9), %ebx
+	mov	(%r9), %esp
+	mov	(%r9), %ebp
+	mov	(%r9), %esi
+	mov	(%r9), %edi
+	mov	(%r9), %r8d
+	mov	(%r9), %r9d
+	mov	(%r9), %r10d
+	mov	(%r9), %r11d
+	mov	(%r9), %r12d
+	mov	(%r9), %r13d
+	mov	(%r9), %r14d
+	mov	(%r9), %r15d
 	nop
-	mov	0x7f563412(%r10),%rax
-	mov	0x7f563412(%r10),%rcx
-	mov	0x7f563412(%r10),%rdx
-	mov	0x7f563412(%r10),%rbx
-	mov	0x7f563412(%r10),%rsp
-	mov	0x7f563412(%r10),%rbp
-	mov	0x7f563412(%r10),%rsi
-	mov	0x7f563412(%r10),%rdi
-	mov	0x7f563412(%r10),%r8
-	mov	0x7f563412(%r10),%r9
-	mov	0x7f563412(%r10),%r10
-	mov	0x7f563412(%r10),%r11
-	mov	0x7f563412(%r10),%r12
-	mov	0x7f563412(%r10),%r13
-	mov	0x7f563412(%r10),%r14
-	mov	0x7f563412(%r10),%r15
+	mov	(%r10),%eax
+	mov	(%r10),%ecx
+	mov	(%r10),%edx
+	mov	(%r10),%ebx
+	mov	(%r10),%esp
+	mov	(%r10),%ebp
+	mov	(%r10),%esi
+	mov	(%r10),%edi
+	mov	(%r10),%r8d
+	mov	(%r10),%r9d
+	mov	(%r10),%r10d
+	mov	(%r10),%r11d
+	mov	(%r10),%r12d
+	mov	(%r10),%r13d
+	mov	(%r10),%r14d
+	mov	(%r10),%r15d
 	nop
-	mov	0x7f563412(%r11),%rax
-	mov	0x7f563412(%r11),%rcx
-	mov	0x7f563412(%r11),%rdx
-	mov	0x7f563412(%r11),%rbx
-	mov	0x7f563412(%r11),%rsp
-	mov	0x7f563412(%r11),%rbp
-	mov	0x7f563412(%r11),%rsi
-	mov	0x7f563412(%r11),%rdi
-	mov	0x7f563412(%r11),%r8
-	mov	0x7f563412(%r11),%r9
-	mov	0x7f563412(%r11),%r10
-	mov	0x7f563412(%r11),%r11
-	mov	0x7f563412(%r11),%r12
-	mov	0x7f563412(%r11),%r13
-	mov	0x7f563412(%r11),%r14
-	mov	0x7f563412(%r11),%r15
+	mov	(%r11),%eax
+	mov	(%r11),%ecx
+	mov	(%r11),%edx
+	mov	(%r11),%ebx
+	mov	(%r11),%esp
+	mov	(%r11),%ebp
+	mov	(%r11),%esi
+	mov	(%r11),%edi
+	mov	(%r11),%r8d
+	mov	(%r11),%r9d
+	mov	(%r11),%r10d
+	mov	(%r11),%r11d
+	mov	(%r11),%r12d
+	mov	(%r11),%r13d
+	mov	(%r11),%r14d
+	mov	(%r11),%r15d
 	nop
-	mov	0x7f563412(%r12),%rax
-	mov	0x7f563412(%r12),%rcx
-	mov	0x7f563412(%r12),%rdx
-	mov	0x7f563412(%r12),%rbx
-	mov	0x7f563412(%r12),%rsp
-	mov	0x7f563412(%r12),%rbp
-	mov	0x7f563412(%r12),%rsi
-	mov	0x7f563412(%r12),%rdi
-	mov	0x7f563412(%r12),%r8
-	mov	0x7f563412(%r12),%r9
-	mov	0x7f563412(%r12),%r10
-	mov	0x7f563412(%r12),%r11
-	mov	0x7f563412(%r12),%r12
-	mov	0x7f563412(%r12),%r13
-	mov	0x7f563412(%r12),%r14
-	mov	0x7f563412(%r12),%r15
+	mov	(%r12),%eax
+	mov	(%r12),%ecx
+	mov	(%r12),%edx
+	mov	(%r12),%ebx
+	mov	(%r12),%esp
+	mov	(%r12),%ebp
+	mov	(%r12),%esi
+	mov	(%r12),%edi
+	mov	(%r12),%r8d
+	mov	(%r12),%r9d
+	mov	(%r12),%r10d
+	mov	(%r12),%r11d
+	mov	(%r12),%r12d
+	mov	(%r12),%r13d
+	mov	(%r12),%r14d
+	mov	(%r12),%r15d
 	nop
-	mov	0x7f563412(%r13),%rax
-	mov	0x7f563412(%r13),%rcx
-	mov	0x7f563412(%r13),%rdx
-	mov	0x7f563412(%r13),%rbx
-	mov	0x7f563412(%r13),%rsp
-	mov	0x7f563412(%r13),%rbp
-	mov	0x7f563412(%r13),%rsi
-	mov	0x7f563412(%r13),%rdi
-	mov	0x7f563412(%r13),%r8
-	mov	0x7f563412(%r13),%r9
-	mov	0x7f563412(%r13),%r10
-	mov	0x7f563412(%r13),%r11
-	mov	0x7f563412(%r13),%r12
-	mov	0x7f563412(%r13),%r13
-	mov	0x7f563412(%r13),%r14
-	mov	0x7f563412(%r13),%r15
+	mov	(%r13),%eax
+	mov	(%r13),%ecx
+	mov	(%r13),%edx
+	mov	(%r13),%ebx
+	mov	(%r13),%esp
+	mov	(%r13),%ebp
+	mov	(%r13),%esi
+	mov	(%r13),%edi
+	mov	(%r13),%r8d
+	mov	(%r13),%r9d
+	mov	(%r13),%r10d
+	mov	(%r13),%r11d
+	mov	(%r13),%r12d
+	mov	(%r13),%r13d
+	mov	(%r13),%r14d
+	mov	(%r13),%r15d
 	nop
-	mov	0x7f563412(%r14),%rax
-	mov	0x7f563412(%r14),%rcx
-	mov	0x7f563412(%r14),%rdx
-	mov	0x7f563412(%r14),%rbx
-	mov	0x7f563412(%r14),%rsp
-	mov	0x7f563412(%r14),%rbp
-	mov	0x7f563412(%r14),%rsi
-	mov	0x7f563412(%r14),%rdi
-	mov	0x7f563412(%r14),%r8
-	mov	0x7f563412(%r14),%r9
-	mov	0x7f563412(%r14),%r10
-	mov	0x7f563412(%r14),%r11
-	mov	0x7f563412(%r14),%r12
-	mov	0x7f563412(%r14),%r13
-	mov	0x7f563412(%r14),%r14
-	mov	0x7f563412(%r14),%r15
+	mov	(%r14),%eax
+	mov	(%r14),%ecx
+	mov	(%r14),%edx
+	mov	(%r14),%ebx
+	mov	(%r14),%esp
+	mov	(%r14),%ebp
+	mov	(%r14),%esi
+	mov	(%r14),%edi
+	mov	(%r14),%r8d
+	mov	(%r14),%r9d
+	mov	(%r14),%r10d
+	mov	(%r14),%r11d
+	mov	(%r14),%r12d
+	mov	(%r14),%r13d
+	mov	(%r14),%r14d
+	mov	(%r14),%r15d
 	nop
-	mov	0x7f563412(%r15),%rax
-	mov	0x7f563412(%r15),%rcx
-	mov	0x7f563412(%r15),%rdx
-	mov	0x7f563412(%r15),%rbx
-	mov	0x7f563412(%r15),%rsp
-	mov	0x7f563412(%r15),%rbp
-	mov	0x7f563412(%r15),%rsi
-	mov	0x7f563412(%r15),%rdi
-	mov	0x7f563412(%r15),%r8
-	mov	0x7f563412(%r15),%r9
-	mov	0x7f563412(%r15),%r10
-	mov	0x7f563412(%r15),%r11
-	mov	0x7f563412(%r15),%r12
-	mov	0x7f563412(%r15),%r13
-	mov	0x7f563412(%r15),%r14
-	mov	0x7f563412(%r15),%r15
-	ret
+	mov	(%r15),%eax
+	mov	(%r15),%ecx
+	mov	(%r15),%edx
+	mov	(%r15),%ebx
+	mov	(%r15),%esp
+	mov	(%r15),%ebp
+	mov	(%r15),%esi
+	mov	(%r15),%edi
+	mov	(%r15),%r8d
+	mov	(%r15),%r9d
+	mov	(%r15),%r10d
+	mov	(%r15),%r11d
+	mov	(%r15),%r12d
+	mov	(%r15),%r13d
+	mov	(%r15),%r14d
+	mov	(%r15),%r15d
+        nop
+        nop
+        // mem32[off8] += reg32
+	mov	0x7F(%rax),%eax
+	mov	0x7F(%rax),%ecx
+	mov	0x7F(%rax),%edx
+	mov	0x7F(%rax),%ebx
+	mov	0x7F(%rax),%esp
+	mov	0x7F(%rax),%ebp
+	mov	0x7F(%rax),%esi
+	mov	0x7F(%rax),%edi
+	mov	0x7F(%rax),%r8d
+	mov	0x7F(%rax),%r9d
+	mov	0x7F(%rax),%r10d
+	mov	0x7F(%rax),%r11d
+	mov	0x7F(%rax),%r12d
+	mov	0x7F(%rax),%r13d
+	mov	0x7F(%rax),%r14d
+	mov	0x7F(%rax),%r15d
+	nop
+	mov	0x7F(%rcx),%eax
+	mov	0x7F(%rcx),%ecx
+	mov	0x7F(%rcx),%edx
+	mov	0x7F(%rcx),%ebx
+	mov	0x7F(%rcx),%esp
+	mov	0x7F(%rcx),%ebp
+	mov	0x7F(%rcx),%esi
+	mov	0x7F(%rcx),%edi
+	mov	0x7F(%rcx),%r8d
+	mov	0x7F(%rcx),%r9d
+	mov	0x7F(%rcx),%r10d
+	mov	0x7F(%rcx),%r11d
+	mov	0x7F(%rcx),%r12d
+	mov	0x7F(%rcx),%r13d
+	mov	0x7F(%rcx),%r14d
+	mov	0x7F(%rcx),%r15d
+	nop
+	mov	0x7F(%rdx),%eax
+	mov	0x7F(%rdx),%ecx
+	mov	0x7F(%rdx),%edx
+	mov	0x7F(%rdx),%ebx
+	mov	0x7F(%rdx),%esp
+	mov	0x7F(%rdx),%ebp
+	mov	0x7F(%rdx),%esi
+	mov	0x7F(%rdx),%edi
+	mov	0x7F(%rdx),%r8d
+	mov	0x7F(%rdx),%r9d
+	mov	0x7F(%rdx),%r10d
+	mov	0x7F(%rdx),%r11d
+	mov	0x7F(%rdx),%r12d
+	mov	0x7F(%rdx),%r13d
+	mov	0x7F(%rdx),%r14d
+	mov	0x7F(%rdx),%r15d
+	nop
+	mov	0x7F(%rbx),%eax
+	mov	0x7F(%rbx),%ecx
+	mov	0x7F(%rbx),%edx
+	mov	0x7F(%rbx),%ebx
+	mov	0x7F(%rbx),%esp
+	mov	0x7F(%rbx),%ebp
+	mov	0x7F(%rbx),%esi
+	mov	0x7F(%rbx),%edi
+	mov	0x7F(%rbx),%r8d
+	mov	0x7F(%rbx),%r9d
+	mov	0x7F(%rbx),%r10d
+	mov	0x7F(%rbx),%r11d
+	mov	0x7F(%rbx),%r12d
+	mov	0x7F(%rbx),%r13d
+	mov	0x7F(%rbx),%r14d
+	mov	0x7F(%rbx),%r15d
+	nop
+	mov	0x7F(%rsp),%eax
+	mov	0x7F(%rsp),%ecx
+	mov	0x7F(%rsp),%edx
+	mov	0x7F(%rsp),%ebx
+	mov	0x7F(%rsp),%esp
+	mov	0x7F(%rsp),%ebp
+	mov	0x7F(%rsp),%esi
+	mov	0x7F(%rsp),%edi
+	mov	0x7F(%rsp),%r8d
+	mov	0x7F(%rsp),%r9d
+	mov	0x7F(%rsp),%r10d
+	mov	0x7F(%rsp),%r11d
+	mov	0x7F(%rsp),%r12d
+	mov	0x7F(%rsp),%r13d
+	mov	0x7F(%rsp),%r14d
+	mov	0x7F(%rsp),%r15d
+	nop
+	mov	0x7F(%rbp),%eax
+	mov	0x7F(%rbp),%ecx
+	mov	0x7F(%rbp),%edx
+	mov	0x7F(%rbp),%ebx
+	mov	0x7F(%rbp),%esp
+	mov	0x7F(%rbp),%ebp
+	mov	0x7F(%rbp),%esi
+	mov	0x7F(%rbp),%edi
+	mov	0x7F(%rbp),%r8d
+	mov	0x7F(%rbp),%r9d
+	mov	0x7F(%rbp),%r10d
+	mov	0x7F(%rbp),%r11d
+	mov	0x7F(%rbp),%r12d
+	mov	0x7F(%rbp),%r13d
+	mov	0x7F(%rbp),%r14d
+	mov	0x7F(%rbp),%r15d
+	nop
+	mov	0x7F(%rsi),%eax
+	mov	0x7F(%rsi),%ecx
+	mov	0x7F(%rsi),%edx
+	mov	0x7F(%rsi),%ebx
+	mov	0x7F(%rsi),%esp
+	mov	0x7F(%rsi),%ebp
+	mov	0x7F(%rsi),%esi
+	mov	0x7F(%rsi),%edi
+	mov	0x7F(%rsi),%r8d
+	mov	0x7F(%rsi),%r9d
+	mov	0x7F(%rsi),%r10d
+	mov	0x7F(%rsi),%r11d
+	mov	0x7F(%rsi),%r12d
+	mov	0x7F(%rsi),%r13d
+	mov	0x7F(%rsi),%r14d
+	mov	0x7F(%rsi),%r15d
+	nop
+	mov	0x7F(%rdi),%eax
+	mov	0x7F(%rdi),%ecx
+	mov	0x7F(%rdi),%edx
+	mov	0x7F(%rdi),%ebx
+	mov	0x7F(%rdi),%esp
+	mov	0x7F(%rdi),%ebp
+	mov	0x7F(%rdi),%esi
+	mov	0x7F(%rdi),%edi
+	mov	0x7F(%rdi),%r8d
+	mov	0x7F(%rdi),%r9d
+	mov	0x7F(%rdi),%r10d
+	mov	0x7F(%rdi),%r11d
+	mov	0x7F(%rdi),%r12d
+	mov	0x7F(%rdi),%r13d
+	mov	0x7F(%rdi),%r14d
+	mov	0x7F(%rdi),%r15d
+	nop
+	mov	0x7F(%r8), %eax
+	mov	0x7F(%r8), %ecx
+	mov	0x7F(%r8), %edx
+	mov	0x7F(%r8), %ebx
+	mov	0x7F(%r8), %esp
+	mov	0x7F(%r8), %ebp
+	mov	0x7F(%r8), %esi
+	mov	0x7F(%r8), %edi
+	mov	0x7F(%r8), %r8d
+	mov	0x7F(%r8), %r9d
+	mov	0x7F(%r8), %r10d
+	mov	0x7F(%r8), %r11d
+	mov	0x7F(%r8), %r12d
+	mov	0x7F(%r8), %r13d
+	mov	0x7F(%r8), %r14d
+	mov	0x7F(%r8), %r15d
+	nop
+	mov	0x7F(%r9), %eax
+	mov	0x7F(%r9), %ecx
+	mov	0x7F(%r9), %edx
+	mov	0x7F(%r9), %ebx
+	mov	0x7F(%r9), %esp
+	mov	0x7F(%r9), %ebp
+	mov	0x7F(%r9), %esi
+	mov	0x7F(%r9), %edi
+	mov	0x7F(%r9), %r8d
+	mov	0x7F(%r9), %r9d
+	mov	0x7F(%r9), %r10d
+	mov	0x7F(%r9), %r11d
+	mov	0x7F(%r9), %r12d
+	mov	0x7F(%r9), %r13d
+	mov	0x7F(%r9), %r14d
+	mov	0x7F(%r9), %r15d
+	nop
+	mov	0x7F(%r10),%eax
+	mov	0x7F(%r10),%ecx
+	mov	0x7F(%r10),%edx
+	mov	0x7F(%r10),%ebx
+	mov	0x7F(%r10),%esp
+	mov	0x7F(%r10),%ebp
+	mov	0x7F(%r10),%esi
+	mov	0x7F(%r10),%edi
+	mov	0x7F(%r10),%r8d
+	mov	0x7F(%r10),%r9d
+	mov	0x7F(%r10),%r10d
+	mov	0x7F(%r10),%r11d
+	mov	0x7F(%r10),%r12d
+	mov	0x7F(%r10),%r13d
+	mov	0x7F(%r10),%r14d
+	mov	0x7F(%r10),%r15d
+	nop
+	mov	0x7F(%r11),%eax
+	mov	0x7F(%r11),%ecx
+	mov	0x7F(%r11),%edx
+	mov	0x7F(%r11),%ebx
+	mov	0x7F(%r11),%esp
+	mov	0x7F(%r11),%ebp
+	mov	0x7F(%r11),%esi
+	mov	0x7F(%r11),%edi
+	mov	0x7F(%r11),%r8d
+	mov	0x7F(%r11),%r9d
+	mov	0x7F(%r11),%r10d
+	mov	0x7F(%r11),%r11d
+	mov	0x7F(%r11),%r12d
+	mov	0x7F(%r11),%r13d
+	mov	0x7F(%r11),%r14d
+	mov	0x7F(%r11),%r15d
+	nop
+	mov	0x7F(%r12),%eax
+	mov	0x7F(%r12),%ecx
+	mov	0x7F(%r12),%edx
+	mov	0x7F(%r12),%ebx
+	mov	0x7F(%r12),%esp
+	mov	0x7F(%r12),%ebp
+	mov	0x7F(%r12),%esi
+	mov	0x7F(%r12),%edi
+	mov	0x7F(%r12),%r8d
+	mov	0x7F(%r12),%r9d
+	mov	0x7F(%r12),%r10d
+	mov	0x7F(%r12),%r11d
+	mov	0x7F(%r12),%r12d
+	mov	0x7F(%r12),%r13d
+	mov	0x7F(%r12),%r14d
+	mov	0x7F(%r12),%r15d
+	nop
+	mov	0x7F(%r13),%eax
+	mov	0x7F(%r13),%ecx
+	mov	0x7F(%r13),%edx
+	mov	0x7F(%r13),%ebx
+	mov	0x7F(%r13),%esp
+	mov	0x7F(%r13),%ebp
+	mov	0x7F(%r13),%esi
+	mov	0x7F(%r13),%edi
+	mov	0x7F(%r13),%r8d
+	mov	0x7F(%r13),%r9d
+	mov	0x7F(%r13),%r10d
+	mov	0x7F(%r13),%r11d
+	mov	0x7F(%r13),%r12d
+	mov	0x7F(%r13),%r13d
+	mov	0x7F(%r13),%r14d
+	mov	0x7F(%r13),%r15d
+	nop
+	mov	0x7F(%r14),%eax
+	mov	0x7F(%r14),%ecx
+	mov	0x7F(%r14),%edx
+	mov	0x7F(%r14),%ebx
+	mov	0x7F(%r14),%esp
+	mov	0x7F(%r14),%ebp
+	mov	0x7F(%r14),%esi
+	mov	0x7F(%r14),%edi
+	mov	0x7F(%r14),%r8d
+	mov	0x7F(%r14),%r9d
+	mov	0x7F(%r14),%r10d
+	mov	0x7F(%r14),%r11d
+	mov	0x7F(%r14),%r12d
+	mov	0x7F(%r14),%r13d
+	mov	0x7F(%r14),%r14d
+	mov	0x7F(%r14),%r15d
+	nop
+	mov	0x7F(%r15),%eax
+	mov	0x7F(%r15),%ecx
+	mov	0x7F(%r15),%edx
+	mov	0x7F(%r15),%ebx
+	mov	0x7F(%r15),%esp
+	mov	0x7F(%r15),%ebp
+	mov	0x7F(%r15),%esi
+	mov	0x7F(%r15),%edi
+	mov	0x7F(%r15),%r8d
+	mov	0x7F(%r15),%r9d
+	mov	0x7F(%r15),%r10d
+	mov	0x7F(%r15),%r11d
+	mov	0x7F(%r15),%r12d
+	mov	0x7F(%r15),%r13d
+	mov	0x7F(%r15),%r14d
+	mov	0x7F(%r15),%r15d
+        nop
+        nop
+        // mem32[off32] += reg32
+	mov	0x12345678(%rax),%eax
+	mov	0x12345678(%rax),%ecx
+	mov	0x12345678(%rax),%edx
+	mov	0x12345678(%rax),%ebx
+	mov	0x12345678(%rax),%esp
+	mov	0x12345678(%rax),%ebp
+	mov	0x12345678(%rax),%esi
+	mov	0x12345678(%rax),%edi
+	mov	0x12345678(%rax),%r8d
+	mov	0x12345678(%rax),%r9d
+	mov	0x12345678(%rax),%r10d
+	mov	0x12345678(%rax),%r11d
+	mov	0x12345678(%rax),%r12d
+	mov	0x12345678(%rax),%r13d
+	mov	0x12345678(%rax),%r14d
+	mov	0x12345678(%rax),%r15d
+	nop
+	mov	0x12345678(%rcx),%eax
+	mov	0x12345678(%rcx),%ecx
+	mov	0x12345678(%rcx),%edx
+	mov	0x12345678(%rcx),%ebx
+	mov	0x12345678(%rcx),%esp
+	mov	0x12345678(%rcx),%ebp
+	mov	0x12345678(%rcx),%esi
+	mov	0x12345678(%rcx),%edi
+	mov	0x12345678(%rcx),%r8d
+	mov	0x12345678(%rcx),%r9d
+	mov	0x12345678(%rcx),%r10d
+	mov	0x12345678(%rcx),%r11d
+	mov	0x12345678(%rcx),%r12d
+	mov	0x12345678(%rcx),%r13d
+	mov	0x12345678(%rcx),%r14d
+	mov	0x12345678(%rcx),%r15d
+	nop
+	mov	0x12345678(%rdx),%eax
+	mov	0x12345678(%rdx),%ecx
+	mov	0x12345678(%rdx),%edx
+	mov	0x12345678(%rdx),%ebx
+	mov	0x12345678(%rdx),%esp
+	mov	0x12345678(%rdx),%ebp
+	mov	0x12345678(%rdx),%esi
+	mov	0x12345678(%rdx),%edi
+	mov	0x12345678(%rdx),%r8d
+	mov	0x12345678(%rdx),%r9d
+	mov	0x12345678(%rdx),%r10d
+	mov	0x12345678(%rdx),%r11d
+	mov	0x12345678(%rdx),%r12d
+	mov	0x12345678(%rdx),%r13d
+	mov	0x12345678(%rdx),%r14d
+	mov	0x12345678(%rdx),%r15d
+	nop
+	mov	0x12345678(%rbx),%eax
+	mov	0x12345678(%rbx),%ecx
+	mov	0x12345678(%rbx),%edx
+	mov	0x12345678(%rbx),%ebx
+	mov	0x12345678(%rbx),%esp
+	mov	0x12345678(%rbx),%ebp
+	mov	0x12345678(%rbx),%esi
+	mov	0x12345678(%rbx),%edi
+	mov	0x12345678(%rbx),%r8d
+	mov	0x12345678(%rbx),%r9d
+	mov	0x12345678(%rbx),%r10d
+	mov	0x12345678(%rbx),%r11d
+	mov	0x12345678(%rbx),%r12d
+	mov	0x12345678(%rbx),%r13d
+	mov	0x12345678(%rbx),%r14d
+	mov	0x12345678(%rbx),%r15d
+	nop
+	mov	0x12345678(%rsp),%eax
+	mov	0x12345678(%rsp),%ecx
+	mov	0x12345678(%rsp),%edx
+	mov	0x12345678(%rsp),%ebx
+	mov	0x12345678(%rsp),%esp
+	mov	0x12345678(%rsp),%ebp
+	mov	0x12345678(%rsp),%esi
+	mov	0x12345678(%rsp),%edi
+	mov	0x12345678(%rsp),%r8d
+	mov	0x12345678(%rsp),%r9d
+	mov	0x12345678(%rsp),%r10d
+	mov	0x12345678(%rsp),%r11d
+	mov	0x12345678(%rsp),%r12d
+	mov	0x12345678(%rsp),%r13d
+	mov	0x12345678(%rsp),%r14d
+	mov	0x12345678(%rsp),%r15d
+	nop
+	mov	0x12345678(%rbp),%eax
+	mov	0x12345678(%rbp),%ecx
+	mov	0x12345678(%rbp),%edx
+	mov	0x12345678(%rbp),%ebx
+	mov	0x12345678(%rbp),%esp
+	mov	0x12345678(%rbp),%ebp
+	mov	0x12345678(%rbp),%esi
+	mov	0x12345678(%rbp),%edi
+	mov	0x12345678(%rbp),%r8d
+	mov	0x12345678(%rbp),%r9d
+	mov	0x12345678(%rbp),%r10d
+	mov	0x12345678(%rbp),%r11d
+	mov	0x12345678(%rbp),%r12d
+	mov	0x12345678(%rbp),%r13d
+	mov	0x12345678(%rbp),%r14d
+	mov	0x12345678(%rbp),%r15d
+	nop
+	mov	0x12345678(%rsi),%eax
+	mov	0x12345678(%rsi),%ecx
+	mov	0x12345678(%rsi),%edx
+	mov	0x12345678(%rsi),%ebx
+	mov	0x12345678(%rsi),%esp
+	mov	0x12345678(%rsi),%ebp
+	mov	0x12345678(%rsi),%esi
+	mov	0x12345678(%rsi),%edi
+	mov	0x12345678(%rsi),%r8d
+	mov	0x12345678(%rsi),%r9d
+	mov	0x12345678(%rsi),%r10d
+	mov	0x12345678(%rsi),%r11d
+	mov	0x12345678(%rsi),%r12d
+	mov	0x12345678(%rsi),%r13d
+	mov	0x12345678(%rsi),%r14d
+	mov	0x12345678(%rsi),%r15d
+	nop
+	mov	0x12345678(%rdi),%eax
+	mov	0x12345678(%rdi),%ecx
+	mov	0x12345678(%rdi),%edx
+	mov	0x12345678(%rdi),%ebx
+	mov	0x12345678(%rdi),%esp
+	mov	0x12345678(%rdi),%ebp
+	mov	0x12345678(%rdi),%esi
+	mov	0x12345678(%rdi),%edi
+	mov	0x12345678(%rdi),%r8d
+	mov	0x12345678(%rdi),%r9d
+	mov	0x12345678(%rdi),%r10d
+	mov	0x12345678(%rdi),%r11d
+	mov	0x12345678(%rdi),%r12d
+	mov	0x12345678(%rdi),%r13d
+	mov	0x12345678(%rdi),%r14d
+	mov	0x12345678(%rdi),%r15d
+	nop
+	mov	0x12345678(%r8), %eax
+	mov	0x12345678(%r8), %ecx
+	mov	0x12345678(%r8), %edx
+	mov	0x12345678(%r8), %ebx
+	mov	0x12345678(%r8), %esp
+	mov	0x12345678(%r8), %ebp
+	mov	0x12345678(%r8), %esi
+	mov	0x12345678(%r8), %edi
+	mov	0x12345678(%r8), %r8d
+	mov	0x12345678(%r8), %r9d
+	mov	0x12345678(%r8), %r10d
+	mov	0x12345678(%r8), %r11d
+	mov	0x12345678(%r8), %r12d
+	mov	0x12345678(%r8), %r13d
+	mov	0x12345678(%r8), %r14d
+	mov	0x12345678(%r8), %r15d
+	nop
+	mov	0x12345678(%r9), %eax
+	mov	0x12345678(%r9), %ecx
+	mov	0x12345678(%r9), %edx
+	mov	0x12345678(%r9), %ebx
+	mov	0x12345678(%r9), %esp
+	mov	0x12345678(%r9), %ebp
+	mov	0x12345678(%r9), %esi
+	mov	0x12345678(%r9), %edi
+	mov	0x12345678(%r9), %r8d
+	mov	0x12345678(%r9), %r9d
+	mov	0x12345678(%r9), %r10d
+	mov	0x12345678(%r9), %r11d
+	mov	0x12345678(%r9), %r12d
+	mov	0x12345678(%r9), %r13d
+	mov	0x12345678(%r9), %r14d
+	mov	0x12345678(%r9), %r15d
+	nop
+	mov	0x12345678(%r10),%eax
+	mov	0x12345678(%r10),%ecx
+	mov	0x12345678(%r10),%edx
+	mov	0x12345678(%r10),%ebx
+	mov	0x12345678(%r10),%esp
+	mov	0x12345678(%r10),%ebp
+	mov	0x12345678(%r10),%esi
+	mov	0x12345678(%r10),%edi
+	mov	0x12345678(%r10),%r8d
+	mov	0x12345678(%r10),%r9d
+	mov	0x12345678(%r10),%r10d
+	mov	0x12345678(%r10),%r11d
+	mov	0x12345678(%r10),%r12d
+	mov	0x12345678(%r10),%r13d
+	mov	0x12345678(%r10),%r14d
+	mov	0x12345678(%r10),%r15d
+	nop
+	mov	0x12345678(%r11),%eax
+	mov	0x12345678(%r11),%ecx
+	mov	0x12345678(%r11),%edx
+	mov	0x12345678(%r11),%ebx
+	mov	0x12345678(%r11),%esp
+	mov	0x12345678(%r11),%ebp
+	mov	0x12345678(%r11),%esi
+	mov	0x12345678(%r11),%edi
+	mov	0x12345678(%r11),%r8d
+	mov	0x12345678(%r11),%r9d
+	mov	0x12345678(%r11),%r10d
+	mov	0x12345678(%r11),%r11d
+	mov	0x12345678(%r11),%r12d
+	mov	0x12345678(%r11),%r13d
+	mov	0x12345678(%r11),%r14d
+	mov	0x12345678(%r11),%r15d
+	nop
+	mov	0x12345678(%r12),%eax
+	mov	0x12345678(%r12),%ecx
+	mov	0x12345678(%r12),%edx
+	mov	0x12345678(%r12),%ebx
+	mov	0x12345678(%r12),%esp
+	mov	0x12345678(%r12),%ebp
+	mov	0x12345678(%r12),%esi
+	mov	0x12345678(%r12),%edi
+	mov	0x12345678(%r12),%r8d
+	mov	0x12345678(%r12),%r9d
+	mov	0x12345678(%r12),%r10d
+	mov	0x12345678(%r12),%r11d
+	mov	0x12345678(%r12),%r12d
+	mov	0x12345678(%r12),%r13d
+	mov	0x12345678(%r12),%r14d
+	mov	0x12345678(%r12),%r15d
+	nop
+	mov	0x12345678(%r13),%eax
+	mov	0x12345678(%r13),%ecx
+	mov	0x12345678(%r13),%edx
+	mov	0x12345678(%r13),%ebx
+	mov	0x12345678(%r13),%esp
+	mov	0x12345678(%r13),%ebp
+	mov	0x12345678(%r13),%esi
+	mov	0x12345678(%r13),%edi
+	mov	0x12345678(%r13),%r8d
+	mov	0x12345678(%r13),%r9d
+	mov	0x12345678(%r13),%r10d
+	mov	0x12345678(%r13),%r11d
+	mov	0x12345678(%r13),%r12d
+	mov	0x12345678(%r13),%r13d
+	mov	0x12345678(%r13),%r14d
+	mov	0x12345678(%r13),%r15d
+	nop
+	mov	0x12345678(%r14),%eax
+	mov	0x12345678(%r14),%ecx
+	mov	0x12345678(%r14),%edx
+	mov	0x12345678(%r14),%ebx
+	mov	0x12345678(%r14),%esp
+	mov	0x12345678(%r14),%ebp
+	mov	0x12345678(%r14),%esi
+	mov	0x12345678(%r14),%edi
+	mov	0x12345678(%r14),%r8d
+	mov	0x12345678(%r14),%r9d
+	mov	0x12345678(%r14),%r10d
+	mov	0x12345678(%r14),%r11d
+	mov	0x12345678(%r14),%r12d
+	mov	0x12345678(%r14),%r13d
+	mov	0x12345678(%r14),%r14d
+	mov	0x12345678(%r14),%r15d
+	nop
+	mov	0x12345678(%r15),%eax
+	mov	0x12345678(%r15),%ecx
+	mov	0x12345678(%r15),%edx
+	mov	0x12345678(%r15),%ebx
+	mov	0x12345678(%r15),%esp
+	mov	0x12345678(%r15),%ebp
+	mov	0x12345678(%r15),%esi
+	mov	0x12345678(%r15),%edi
+	mov	0x12345678(%r15),%r8d
+	mov	0x12345678(%r15),%r9d
+	mov	0x12345678(%r15),%r10d
+	mov	0x12345678(%r15),%r11d
+	mov	0x12345678(%r15),%r12d
+	mov	0x12345678(%r15),%r13d
+	mov	0x12345678(%r15),%r14d
+	mov	0x12345678(%r15),%r15d
+        ret
 	.cfi_endproc
-
-

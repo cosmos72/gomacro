@@ -21,7 +21,7 @@ import (
 )
 
 func debugf(format string, args ...interface{}) {
-	fmt.Printf("//debug jit: "+format+"\n", args...)
+	fmt.Printf("// debug jit: "+format+"\n", args...)
 }
 
 func errorf(format string, args ...interface{}) {

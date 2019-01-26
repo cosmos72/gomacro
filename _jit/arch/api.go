@@ -32,7 +32,7 @@ type Save struct {
 
 type Asm struct {
 	code      Code
-	RegIds      RegIds
+	RegIds    RegIds
 	NextRegId RegId // first available register among usable ones
 	Save      Save
 }
