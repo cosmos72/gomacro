@@ -150,8 +150,9 @@ func TestCast(t *testing.T) {
 	var asm Asm
 	asm.Init()
 
-	const n uint64 = 0xEFCDAB8967452301
-	actual := [...]uint64{n, 0, 0, 0, 0, 0, 0}
+	const n = uint64(0xEFCDAB8967452301)
+	const hi = ^uint64(0)
+	actual := [...]uint64{n, hi, hi, hi, hi, hi, hi}
 	expected := [...]uint64{
 		n,
 		uint64(uint8(n & 0xFF)), uint64(uint16(n & 0xFFFF)), uint64(uint32(n & 0xFFFFFFFF)),
@@ -169,17 +170,17 @@ func TestCast(t *testing.T) {
 	}
 	r := asm.RegAlloc(Uint64)
 	asm.Asm(
-		CAST, V[1], N[1], // MOV, V[1], r,
-		CAST, V[2], N[2], // MOV, V[2], r,
-		CAST, V[3], N[3], // MOV, V[3], r,
-		CAST, V[4], N[4], // MOV, V[4], r,
-		CAST, V[5], N[5], // MOV, V[5], r,
-		CAST, V[6], N[6], // MOV, V[6], r,
+		CAST, V[1], N[1],
+		CAST, V[2], N[2],
+		CAST, V[3], N[3],
+		CAST, V[4], N[4],
+		CAST, V[5], N[5],
+		CAST, V[6], N[6],
 	).RegFree(r)
 	f := asm.Func()
 	f(&actual[0])
 	if actual != expected {
-		t.Errorf("Cast returned %v, expecting %v", actual, expected)
+		t.Errorf("CAST returned %v, expecting %v", actual, expected)
 	}
 }
 

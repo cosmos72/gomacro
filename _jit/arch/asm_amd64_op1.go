@@ -18,56 +18,62 @@
 
 package arch
 
-func (asm *Asm) Op1(op Op1, dst Arg) *Asm {
-	switch dst := dst.(type) {
+func (asm *Asm) Op1(op Op1, a Arg) *Asm {
+	switch a := a.(type) {
 	case Reg:
-		asm.Op1Reg(op, dst)
+		asm.Op1Reg(op, a)
 	case Mem:
-		asm.Op1Mem(op, dst)
+		asm.Op1Mem(op, a)
 	case Const:
-		errorf("destination cannot be a constant: %v %v", op, dst)
+		errorf("destination cannot be a constant: %v %v", op, a)
 	default:
-		errorf("unsupported destination type, expecting Reg or Mem: %v %v", op, dst)
+		errorf("unsupported destination type %T, expecting Reg or Mem: %v %v", a, op, a)
 	}
 	return asm
 }
 
-// unary operation OP, either NOT or NEG
 // OP %reg_dst
-func (asm *Asm) Op1Reg(op Op1, dst Reg) *Asm {
-	dlo, dhi := dst.lohi()
+func (asm *Asm) Op1Reg(op Op1, r Reg) *Asm {
+	rlo, rhi := r.lohi()
+	oplo, ophi := op.lohi()
 
-	return asm.Bytes(0x48|dhi, 0xF7, 0xC0|uint8(op)|dlo)
+	switch SizeOf(r) {
+	case 1:
+		if r.id >= RSP {
+			asm.Bytes(0x40 | rhi)
+		}
+		asm.Bytes(0xF6|ophi, 0xC0|oplo|rlo)
+	case 2:
+		asm.Bytes(0x66)
+		fallthrough
+	case 4:
+		if rhi != 0 {
+			asm.Bytes(0x41)
+		}
+		asm.Bytes(0xF7|ophi, 0xC0|oplo|rlo)
+	case 8:
+		asm.Bytes(0x48|rhi, 0xF7|ophi, 0xC0|oplo|rlo)
+	default:
+		errorf("unsupported register size %v, expecting 1,2,4 or 8 bytes: %v %v", SizeOf(r), op, r)
+	}
+	return asm
 }
 
-// unary operation OP, either NOT or NEG
 // OP off_m(%reg_m)
 func (asm *Asm) Op1Mem(op Op1, m Mem) *Asm {
 
-	dst := m.reg
-	dlo, dhi := dst.lohi()
-	op_ := uint8(op)
+	r := m.reg
+	rlo, dhi := r.lohi()
+	oplo, ophi := op.lohi()
 
-	var offlen, moff uint8
-	switch {
-	// (%rbp) and (%r13) sources must use 1-byte offset even if m.off == 0
-	case m.off == 0 && dst.id != RBP && dst.id != R13:
-		offlen = 0
-		moff = 0
-	case m.off == int32(int8(m.off)):
-		offlen = 1
-		moff = 0x40
-	default:
-		offlen = 4
-		moff = 0x80
-	}
+	offlen, offbit := m.offlen(r.id)
 
 	switch SizeOf(m) {
 	case 1:
 		if dhi != 0 {
 			asm.Bytes(0x41)
 		}
-		asm.Bytes(0xF6, op_|moff|dlo)
+		asm.Bytes(0xF6|ophi, offbit|oplo|rlo)
 	case 2:
 		asm.Bytes(0x66)
 		fallthrough
@@ -75,15 +81,13 @@ func (asm *Asm) Op1Mem(op Op1, m Mem) *Asm {
 		if dhi != 0 {
 			asm.Bytes(0x41)
 		}
-		asm.Bytes(0xF7, op_|moff|dlo)
+		asm.Bytes(0xF7|ophi, offbit|oplo|rlo)
 	case 8:
-		asm.Bytes(0x48|dhi, 0xF7, op_|moff|dlo)
+		asm.Bytes(0x48|dhi, 0xF7|ophi, offbit|oplo|rlo)
 	default:
-		errorf("SizeOf(m) must be 1,2,4 or 8, found: %v", m)
+		errorf("unsupported memory size %v, expecting 1,2,4 or 8 bytes: %v %v", SizeOf(m), op, m)
 	}
-	if dst.id == RSP || dst.id == R12 {
-		asm.Bytes(0x24) // amd64 quirk
-	}
+	asm.quirk24(r)
 	switch offlen {
 	case 1:
 		asm.Int8(int8(m.off))

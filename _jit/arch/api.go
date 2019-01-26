@@ -40,7 +40,7 @@ type Asm struct {
 func SizeOf(a Arg) Size {
 	size := a.Kind().Size()
 	if size == 0 {
-		errorf("unsupported Kind %v", a.Kind())
+		errorf("unsupported register/memory kind: %v", a.Kind())
 	}
 	return size
 }

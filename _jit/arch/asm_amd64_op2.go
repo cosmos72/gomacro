@@ -137,11 +137,8 @@ func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
 			asm.Bytes(0x40|dhi|shi<<2, uint8(op), offbit|dlo|slo<<3)
 		}
 	case 2:
-		if dhi|shi<<2 == 0 {
-			asm.Bytes(0x66, 0x01|uint8(op), offbit|dlo|slo<<3)
-		} else {
-			asm.Bytes(0x66, 0x40|dhi|shi<<2, 0x01|uint8(op), offbit|dlo|slo<<3)
-		}
+		asm.Bytes(0x66)
+		fallthrough
 	case 4:
 		if dhi|shi<<2 == 0 {
 			asm.Bytes(0x01|uint8(op), offbit|dlo|slo<<3)
@@ -179,11 +176,8 @@ func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
 			asm.Bytes(0x40|dhi<<2|shi, 0x02|uint8(op), offbit|dlo<<3|slo)
 		}
 	case 2:
-		if dhi|shi<<2 == 0 {
-			asm.Bytes(0x66, 0x03|uint8(op), offbit|dlo<<3|slo)
-		} else {
-			asm.Bytes(0x66, 0x40|dhi<<2|shi, 0x03|uint8(op), offbit|dlo<<3|slo)
-		}
+		asm.Bytes(0x66)
+		fallthrough
 	case 4:
 		if dhi|shi<<2 == 0 {
 			asm.Bytes(0x03|uint8(op), offbit|dlo<<3|slo)

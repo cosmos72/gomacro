@@ -1,6 +1,7 @@
 gomacro
 gomacro.test
 a.out
+*~
 *.o
 *.exe
 *.test
