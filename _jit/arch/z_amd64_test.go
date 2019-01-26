@@ -35,7 +35,7 @@ func TestNop(t *testing.T) {
 }
 
 func TestMov(t *testing.T) {
-	c := Const{kind: KInt64}
+	c := Const{kind: Int64}
 	m := MakeVar(0)
 	binds := [...]uint64{0}
 	var asm Asm
@@ -44,7 +44,7 @@ func TestMov(t *testing.T) {
 		if asm.RegIds.Contains(id) {
 			continue
 		}
-		r := Reg{id: id, kind: KInt64}
+		r := Reg{id: id, kind: Int64}
 		c.val = int64(rand.Uint64())
 		f := asm.Mov(r, c).Mov(m, r).Func()
 		f(&binds[0])
@@ -86,11 +86,11 @@ func DeclSum() func(arg int64) int64 {
 	_, Total, I := MakeVar(n), MakeVar(total), MakeVar(i)
 
 	var asm Asm
-	init := asm.Init().Mov(I, Int64(1)).Func()
+	init := asm.Init().Mov(I, ConstInt64(1)).Func()
 	pred := func(env *[3]uint64) bool {
 		return int64(env[i]) <= int64(env[n])
 	}
-	next := asm.Init().Op2(ADD, I, Int64(1)).Func()
+	next := asm.Init().Op2(ADD, I, ConstInt64(1)).Func()
 	loop := asm.Init().Op2(ADD, Total, I).Func()
 
 	return func(arg int64) int64 {
@@ -112,7 +112,7 @@ func TestAdd(t *testing.T) {
 		if asm.RegIds.Contains(id) {
 			continue
 		}
-		r := Reg{id: id, kind: KInt64}
+		r := Reg{id: id, kind: Int64}
 		f := asm.Asm(MOV, r, v1, //
 			NEG, r, //
 			NOT, r, //

@@ -42,6 +42,47 @@ func (c Const) Const() bool {
 	return true
 }
 
-func Int64(val int64) Const {
-	return Const{val: val, kind: KInt64}
+// convert Const to a different kind
+func (c Const) Cast(to Kind) Const {
+	val := c.val
+	// sign-extend or zero-extend to 64 bits
+	switch c.kind {
+	case Bool:
+		if val != 0 {
+			// non-zero means true => convert to 1
+			val = 1
+		}
+	case Int:
+		val = int64(int(val))
+	case Int8:
+		val = int64(int8(val))
+	case Int16:
+		val = int64(int16(val))
+	case Int32:
+		val = int64(int32(val))
+	case Int64:
+		// nothing to do
+	case Uint:
+		val = int64(uint(val))
+	case Uint8:
+		val = int64(uint8(val))
+	case Uint16:
+		val = int64(uint16(val))
+	case Uint32:
+		val = int64(uint32(val))
+	case Uint64:
+		val = int64(uint64(val)) // should be a nop
+	case Uintptr:
+		val = int64(uintptr(val))
+	case Float32, Float64:
+		errorf("float constants not supported yet")
+	default:
+		errorf("invalid constant kind: %v", c)
+	}
+	// let caller truncate val as needed
+	return Const{val: val, kind: to}
+}
+
+func ConstInt64(val int64) Const {
+	return Const{val: val, kind: Int64}
 }

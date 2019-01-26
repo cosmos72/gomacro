@@ -20,7 +20,7 @@ import (
 	"fmt"
 )
 
-func giveupf(format string, args ...interface{}) *Asm {
+func panicf(format string, args ...interface{}) *Asm {
 	panic(fmt.Errorf("jit/amd64 internal error: "+format, args...))
 	return nil
 }

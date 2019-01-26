@@ -24,31 +24,28 @@ import (
 
 const SUPPORTED = true
 
-type TernaryOp struct{} // not used on amd64
-
-type Op uint8
+// binary operation
+type Op2 uint8
 
 const (
-	ADD Op = 0
-	OR  Op = 0x08
+	ADD Op2 = 0
+	OR  Op2 = 0x08
 	// ADC Op = 0x10 // add with carry
 	// SBB Op = 0x18 // subtract with borrow
-	AND Op = 0x20
-	SUB Op = 0x28
-	XOR Op = 0x30
+	AND Op2 = 0x20
+	SUB Op2 = 0x28
+	XOR Op2 = 0x30
 	// CMP Op = 0x38 // compare, set flags
 	// XCHG Op = 0x86 // exchange. xchg %reg, %reg has different encoding
-	MOV    Op = 0x88
-	EXTEND Op = 0xB6 // sign extend or zero extend
-	NARROW Op = 0xFF // opposite of extend
-
+	MOV  Op2 = 0x88
+	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
 )
 
-type UnaryOp uint8
+type Op1 uint8
 
 const (
-	NOT UnaryOp = 0x10
-	NEG UnaryOp = 0x18
+	NOT Op1 = 0x10
+	NEG Op1 = 0x18
 )
 
 const (
@@ -101,7 +98,7 @@ func (r Reg) Valid() bool {
 
 func (r Reg) Validate() {
 	if !r.Valid() {
-		giveupf("invalid register: %d", r.id)
+		panicf("invalid register: %d", r.id)
 	}
 }
 

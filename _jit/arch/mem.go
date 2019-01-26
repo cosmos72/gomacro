@@ -44,5 +44,5 @@ func (m Mem) Const() bool {
 }
 
 func MakeVar(index uint16) Mem {
-	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: KInt64}}
+	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: Int64}}
 }

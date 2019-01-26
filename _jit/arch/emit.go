@@ -115,7 +115,7 @@ func (asm *Asm) alloc(kind Kind) Reg {
 	var id RegId
 	for {
 		if asm.NextRegId > RHi {
-			giveupf("no free register")
+			panicf("no free register")
 		}
 		id = asm.NextRegId
 		asm.NextRegId++

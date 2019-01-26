@@ -18,53 +18,54 @@
 
 package arch
 
-func (asm *Asm) Op3(op TernaryOp, dst Arg, a Arg, b Arg) *Asm {
-	return errorf("TernaryOp is not supported on amd64")
-}
-
-func (asm *Asm) Op2(op Op, dst Arg, src Arg) *Asm {
+func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
+	if op == CAST {
+		if dst.Kind() != src.Kind() {
+			return asm.Cast(dst, src)
+		}
+		op = MOV
+	}
+	assert(dst.Kind() == src.Kind())
+	if isNop2(op, dst, src) {
+		return asm
+	}
 	switch dst := dst.(type) {
 	case Reg:
 		switch src := src.(type) {
 		case Reg:
-			asm.Op2RegReg(op, dst, src)
+			asm.op2RegReg(op, dst, src)
 		case Mem:
-			asm.Op2RegMem(op, dst, src)
+			asm.op2RegMem(op, dst, src)
 		case Const:
-			asm.Op2RegConst(op, dst, src)
+			asm.op2RegConst(op, dst, src)
 		default:
-			giveupf("unsupported source type, expecting Reg, Mem or Const: %v %v %v", op, dst, src)
+			panicf("unsupported source type, expecting Reg, Mem or Const: %v %v %v", op, dst, src)
 		}
 	case Mem:
 		switch src := src.(type) {
 		case Reg:
-			asm.Op2MemReg(op, dst, src)
+			asm.op2MemReg(op, dst, src)
 		case Mem:
-			asm.Op2MemMem(op, dst, src)
+			asm.op2MemMem(op, dst, src)
 		case Const:
-			asm.Op2MemConst(op, dst, src)
+			asm.op2MemConst(op, dst, src)
 		default:
-			giveupf("unsupported source type, expecting Reg, Mem or Const: %v %v %v", op, dst, src)
+			panicf("unsupported source type, expecting Reg, Mem or Const: %v %v %v", op, dst, src)
 		}
 	case Const:
-		giveupf("destination cannot be a constant: %v %v %v", op, dst, src)
+		panicf("destination cannot be a constant: %v %v %v", op, dst, src)
 	default:
-		giveupf("unsupported destination type, expecting Reg or Mem: %v %v %v", op, dst, src)
+		panicf("unsupported destination type, expecting Reg or Mem: %v %v %v", op, dst, src)
 	}
 	return asm
 }
 
 // %reg_dst OP= const
-func (asm *Asm) Op2RegConst(op Op, dst Reg, src Const) *Asm {
-	dlo, dhi := dst.lohi()
-
+func (asm *Asm) op2RegConst(op Op2, dst Reg, src Const) *Asm {
 	if op == MOV {
-		return asm.MovRegConst(dst, src)
-	} else if op == EXTEND || op == NARROW {
-		return asm.ExtendNarrow(op, dst, src)
-	} else if isNop2(op, dst, src) {
-		return asm
+		return asm.movRegConst(dst, src)
 	}
+	dlo, dhi := dst.lohi()
 	op_ := uint8(op)
 	c := src.val
 	if c == int64(int8(c)) {
@@ -78,18 +79,15 @@ func (asm *Asm) Op2RegConst(op Op, dst Reg, src Const) *Asm {
 	} else {
 		// constant is 64 bit wide, must load it in a register
 		r := asm.alloc(src.kind)
-		asm.MovRegConst(r, src)
-		asm.Op2RegReg(op, dst, r)
+		asm.movRegConst(r, src)
+		asm.op2RegReg(op, dst, r)
 		asm.free(r)
 	}
 	return asm
 }
 
 // %reg_dst OP= %reg_src
-func (asm *Asm) Op2RegReg(op Op, dst Reg, src Reg) *Asm {
-	if op == EXTEND || op == NARROW {
-		return asm.ExtendNarrow(op, dst, src)
-	}
+func (asm *Asm) op2RegReg(op Op2, dst Reg, src Reg) *Asm {
 	assert(dst.Kind() == src.Kind())
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
@@ -100,14 +98,7 @@ func (asm *Asm) Op2RegReg(op Op, dst Reg, src Reg) *Asm {
 }
 
 // off_m(%reg_m) OP= %reg_src
-func (asm *Asm) Op2MemReg(op Op, m Mem, src Reg) *Asm {
-	if op == EXTEND || op == NARROW {
-		return asm.ExtendNarrow(op, m, src)
-	}
-	assert(m.Kind() == src.Kind())
-	if isNop2(op, m, src) {
-		return asm
-	}
+func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
 	assert(SizeOf(m) == 8) // TODO mem access by 1, 2 or 4 bytes
 	dst := m.reg
 	dlo, dhi := dst.lohi()
@@ -140,14 +131,7 @@ func (asm *Asm) Op2MemReg(op Op, m Mem, src Reg) *Asm {
 }
 
 // %reg_dst OP= off_m(%reg_m)
-func (asm *Asm) Op2RegMem(op Op, dst Reg, m Mem) *Asm {
-	if op == EXTEND || op == NARROW {
-		return asm.ExtendNarrow(op, dst, m)
-	}
-	assert(dst.Kind() == m.Kind())
-	if isNop2(op, dst, m) {
-		return asm
-	}
+func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
 	src := m.reg
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
@@ -179,44 +163,30 @@ func (asm *Asm) Op2RegMem(op Op, dst Reg, m Mem) *Asm {
 }
 
 // off_dst(%reg_dst) OP= off_src(%reg_src)
-func (asm *Asm) Op2MemMem(op Op, dst Mem, src Mem) *Asm {
-	if op == EXTEND || op == NARROW {
-		return asm.ExtendNarrow(op, dst, src)
-	}
-	assert(dst.Kind() == src.Kind())
-	if isNop2(op, dst, src) {
-		return asm
-	}
+func (asm *Asm) op2MemMem(op Op2, dst Mem, src Mem) *Asm {
 	// not natively supported by amd64,
 	// must load src in a register
 	r := asm.alloc(src.Kind())
-	asm.Op2RegMem(MOV, r, src)
-	asm.Op2MemReg(op, dst, r)
+	asm.op2RegMem(MOV, r, src)
+	asm.op2MemReg(op, dst, r)
 	return asm.free(r)
 }
 
 // off_dst(%reg_dst) OP= const
-func (asm *Asm) Op2MemConst(op Op, dst Mem, src Const) *Asm {
-	if op == EXTEND || op == NARROW {
-		return asm.ExtendNarrow(op, dst, src)
-	}
-	assert(dst.Kind() == src.Kind())
-	if isNop2(op, dst, src) {
-		return asm
-	}
+func (asm *Asm) op2MemConst(op Op2, dst Mem, src Const) *Asm {
 	// not natively supported by amd64,
 	// must load src in a register
 	r := asm.alloc(src.kind)
-	asm.MovRegConst(r, src)
-	asm.Op2MemReg(op, dst, r)
+	asm.movRegConst(r, src)
+	asm.op2MemReg(op, dst, r)
 	return asm.free(r)
 }
 
 // dst OP= src is a nop ?
-func isNop2(op Op, dst Arg, src Arg) bool {
+func isNop2(op Op2, dst Arg, src Arg) bool {
 	if dst == src {
 		switch op {
-		case AND, OR, MOV, EXTEND, NARROW:
+		case AND, OR, MOV, CAST:
 			return true
 		default:
 			return false

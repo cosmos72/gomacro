@@ -40,7 +40,7 @@ type Asm struct {
 func SizeOf(a Arg) Size {
 	size := a.Kind().Size()
 	if size == 0 {
-		giveupf("unsupported Kind %v", a.Kind())
+		panicf("unsupported Kind %v", a.Kind())
 	}
 	return size
 }

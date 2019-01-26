@@ -23,9 +23,9 @@ func (asm *Asm) Mov(dst Arg, src Arg) *Asm {
 }
 
 // %reg_dst = const
-func (asm *Asm) MovRegConst(dst Reg, c Const) *Asm {
+func (asm *Asm) movRegConst(dst Reg, c Const) *Asm {
 	if c.val == 0 {
-		return asm.XorRegSelf(dst)
+		return asm.xorRegSelf(dst)
 	}
 	dlo, dhi := dst.lohi()
 	// 32-bit signed immediate constants, use mov
@@ -37,7 +37,7 @@ func (asm *Asm) MovRegConst(dst Reg, c Const) *Asm {
 }
 
 // %reg_dst ^= %reg_dst // compact way to zero a register
-func (asm *Asm) XorRegSelf(dst Reg) *Asm {
+func (asm *Asm) xorRegSelf(dst Reg) *Asm {
 	dlo, dhi := dst.lohi()
 	if dhi == 0 {
 		return asm.Bytes(0x31, 0xC0|dlo|dlo<<3)
@@ -47,7 +47,58 @@ func (asm *Asm) XorRegSelf(dst Reg) *Asm {
 }
 
 // movsx, movzx or mov
-func (asm *Asm) ExtendNarrow(op Op, dst Arg, src Arg) *Asm {
+func (asm *Asm) Cast(dst Arg, src Arg) *Asm {
+	if src == dst {
+		return asm
+	} else if src.Kind().Size() == dst.Kind().Size() {
+		return asm.Op2(MOV, dst, src)
+	}
+	switch dst := dst.(type) {
+	case Reg:
+		switch src := src.(type) {
+		case Reg:
+			asm.castRegReg(dst, src)
+		case Mem:
+			asm.castRegMem(dst, src)
+		case Const:
+			src = src.Cast(dst.kind)
+			asm.movRegConst(dst, src)
+		default:
+			errorf("Cast: unsupported source type, expecting Reg, Mem or Const: %v %v %v", CAST, dst, src)
+		}
+	case Mem:
+		switch src := src.(type) {
+		case Reg:
+			// assume that user code cannot use the same register
+			// twice with different kinds
+			r := MakeReg(src.id, dst.Kind())
+			asm.castRegReg(r, src)
+			asm.op2MemReg(MOV, dst, r)
+		case Mem:
+			r := asm.alloc(dst.Kind())
+			asm.castRegMem(r, src)
+			asm.op2MemReg(MOV, dst, r)
+			asm.free(r)
+		case Const:
+			src = src.Cast(dst.Kind())
+			asm.op2MemConst(MOV, dst, src)
+		default:
+			panicf("Cast: unsupported source type, expecting Reg, Mem or Const: %v %v %v", CAST, dst, src)
+		}
+	case Const:
+		panicf("Cast: destination cannot be a constant: %v %v %v", CAST, dst, src)
+	default:
+		panicf("Cast: unsupported destination type, expecting Reg or Mem: %v %v %v", CAST, dst, src)
+	}
+	return asm
+}
+
+func (asm *Asm) castRegReg(dst Reg, src Reg) *Asm {
+	// TODO
+	return asm
+}
+
+func (asm *Asm) castRegMem(dst Reg, src Mem) *Asm {
 	// TODO
 	return asm
 }

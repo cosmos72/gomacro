@@ -27,17 +27,14 @@ func (asm *Asm) Asm(args ...interface{}) *Asm {
 func (asm *Asm) Op(args ...interface{}) int {
 	var n int
 	switch op := args[0].(type) {
-	case TernaryOp:
-		asm.Op3(op, args[1].(Arg), args[2].(Arg), args[3].(Arg))
-		n = 3
-	case Op:
+	case Op2:
 		asm.Op2(op, args[1].(Arg), args[2].(Arg))
 		n = 2
-	case UnaryOp:
+	case Op1:
 		asm.Op1(op, args[1].(Arg))
 		n = 1
 	default:
-		errorf("syntax error: expecting TernaryOp, Op or UnaryOp [args], found %v", op)
+		errorf("syntax error: expecting Op2 or Op1 [args], found %v", op)
 	}
 	return n
 }

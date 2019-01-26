@@ -18,23 +18,23 @@
 
 package arch
 
-func (asm *Asm) Op1(op UnaryOp, dst Arg) *Asm {
+func (asm *Asm) Op1(op Op1, dst Arg) *Asm {
 	switch dst := dst.(type) {
 	case Reg:
 		asm.Op1Reg(op, dst)
 	case Mem:
 		asm.Op1Mem(op, dst)
 	case Const:
-		giveupf("destination cannot be a constant: %v %v", op, dst)
+		panicf("destination cannot be a constant: %v %v", op, dst)
 	default:
-		giveupf("unsupported destination type, expecting Reg or Mem: %v %v", op, dst)
+		panicf("unsupported destination type, expecting Reg or Mem: %v %v", op, dst)
 	}
 	return asm
 }
 
 // unary operation OP, either NOT or NEG
 // OP %reg_dst
-func (asm *Asm) Op1Reg(op UnaryOp, dst Reg) *Asm {
+func (asm *Asm) Op1Reg(op Op1, dst Reg) *Asm {
 	dlo, dhi := dst.lohi()
 
 	return asm.Bytes(0x48|dhi, 0xF7, 0xC0|uint8(op)|dlo)
@@ -42,7 +42,7 @@ func (asm *Asm) Op1Reg(op UnaryOp, dst Reg) *Asm {
 
 // unary operation OP, either NOT or NEG
 // OP off_m(%reg_m)
-func (asm *Asm) Op1Mem(op UnaryOp, m Mem) *Asm {
+func (asm *Asm) Op1Mem(op Op1, m Mem) *Asm {
 
 	dst := m.reg
 	dlo, dhi := dst.lohi()
@@ -79,7 +79,7 @@ func (asm *Asm) Op1Mem(op UnaryOp, m Mem) *Asm {
 	case 8:
 		asm.Bytes(0x48|dhi, 0xF7, op_|moff|dlo)
 	default:
-		giveupf("SizeOf(m) must be 1,2,4 or 8, found: %v", m)
+		panicf("SizeOf(m) must be 1,2,4 or 8, found: %v", m)
 	}
 	if dst.id == RSP || dst.id == R12 {
 		asm.Bytes(0x24) // amd64 quirk
