@@ -36,7 +36,7 @@ func TestNop(t *testing.T) {
 
 func TestMov(t *testing.T) {
 	c := Const{kind: Int64}
-	m := MakeVar(0)
+	m := MakeVar0(0)
 	binds := [...]uint64{0}
 	var asm Asm
 	for id := RLo; id <= RHi; id++ {
@@ -83,7 +83,7 @@ func TestSum(t *testing.T) {
 */
 func DeclSum() func(arg int64) int64 {
 	const n, total, i = 0, 1, 2
-	_, Total, I := MakeVar(n), MakeVar(total), MakeVar(i)
+	_, Total, I := MakeVar0(n), MakeVar0(total), MakeVar0(i)
 
 	var asm Asm
 	init := asm.Init().Mov(I, ConstInt64(1)).Func()
@@ -105,7 +105,7 @@ func DeclSum() func(arg int64) int64 {
 
 func TestAdd(t *testing.T) {
 	var asm Asm
-	v1, v2, v3 := MakeVar(0), MakeVar(1), MakeVar(2)
+	v1, v2, v3 := MakeVar0(0), MakeVar0(1), MakeVar0(2)
 
 	for id := RLo; id <= RHi; id++ {
 		asm.Init()
@@ -143,6 +143,43 @@ func TestAdd(t *testing.T) {
 		} else if verbose {
 			t.Logf("ints = %v\n", ints)
 		}
+	}
+}
+
+func TestCast(t *testing.T) {
+	var asm Asm
+	asm.Init()
+
+	const n uint64 = 0xEFCDAB8967452301
+	actual := [...]uint64{n, 0, 0, 0, 0, 0, 0}
+	expected := [...]uint64{
+		n,
+		uint64(uint8(n & 0xFF)), uint64(uint16(n & 0xFFFF)), uint64(uint32(n & 0xFFFFFFFF)),
+		uint64(int8(n & 0xFF)), uint64(int16(n & 0xFFFF)), uint64(int32(n & 0xFFFFFFFF)),
+	}
+	N := [...]Mem{
+		MakeVar0K(0, Uint64),
+		MakeVar0K(0, Uint8), MakeVar0K(0, Uint16), MakeVar0K(0, Uint32),
+		MakeVar0K(0, Int8), MakeVar0K(0, Int16), MakeVar0K(0, Int32),
+	}
+	V := [...]Mem{
+		MakeVar0K(0, Uint64),
+		MakeVar0K(1, Uint64), MakeVar0K(2, Uint64), MakeVar0K(3, Uint64),
+		MakeVar0K(4, Uint64), MakeVar0K(5, Uint64), MakeVar0K(6, Uint64),
+	}
+	r := asm.RegAlloc(Uint64)
+	asm.Asm(
+		CAST, V[1], N[1], // MOV, V[1], r,
+		CAST, V[2], N[2], // MOV, V[2], r,
+		CAST, V[3], N[3], // MOV, V[3], r,
+		CAST, V[4], N[4], // MOV, V[4], r,
+		CAST, V[5], N[5], // MOV, V[5], r,
+		CAST, V[6], N[6], // MOV, V[6], r,
+	).RegFree(r)
+	f := asm.Func()
+	f(&actual[0])
+	if actual != expected {
+		t.Errorf("Cast returned %v, expecting %v", actual, expected)
 	}
 }
 

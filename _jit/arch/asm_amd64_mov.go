@@ -50,7 +50,7 @@ func (asm *Asm) xorRegSelf(dst Reg) *Asm {
 func (asm *Asm) Cast(dst Arg, src Arg) *Asm {
 	if src == dst {
 		return asm
-	} else if src.Kind().Size() == dst.Kind().Size() {
+	} else if SizeOf(src) == SizeOf(dst) {
 		return asm.Op2(MOV, dst, src)
 	}
 	switch dst := dst.(type) {
@@ -69,36 +69,127 @@ func (asm *Asm) Cast(dst Arg, src Arg) *Asm {
 	case Mem:
 		switch src := src.(type) {
 		case Reg:
-			// assume that user code cannot use the same register
-			// twice with different kinds
-			r := MakeReg(src.id, dst.Kind())
-			asm.castRegReg(r, src)
-			asm.op2MemReg(MOV, dst, r)
+			asm.castMemReg(dst, src)
 		case Mem:
-			r := asm.alloc(dst.Kind())
-			asm.castRegMem(r, src)
-			asm.op2MemReg(MOV, dst, r)
-			asm.free(r)
+			asm.castMemMem(dst, src)
 		case Const:
 			src = src.Cast(dst.Kind())
 			asm.op2MemConst(MOV, dst, src)
 		default:
-			panicf("Cast: unsupported source type, expecting Reg, Mem or Const: %v %v %v", CAST, dst, src)
+			errorf("Cast: unsupported source type, expecting Reg, Mem or Const: %v %v %v", CAST, dst, src)
 		}
 	case Const:
-		panicf("Cast: destination cannot be a constant: %v %v %v", CAST, dst, src)
+		errorf("Cast: destination cannot be a constant: %v %v %v", CAST, dst, src)
 	default:
-		panicf("Cast: unsupported destination type, expecting Reg or Mem: %v %v %v", CAST, dst, src)
+		errorf("Cast: unsupported destination type, expecting Reg or Mem: %v %v %v", CAST, dst, src)
 	}
 	return asm
 }
 
 func (asm *Asm) castRegReg(dst Reg, src Reg) *Asm {
-	// TODO
+	var op uint8 = 0xB6 // movzx
+	if dst.kind.Signed() {
+		op = 0xBE // movsx
+	}
+	dlo, dhi := dst.lohi()
+	slo, shi := src.lohi()
+	switch SizeOf(src) {
+	case 1:
+		// movzbq, movsbq
+	case 2:
+		op++ // movzwq, movswq
+	case 4:
+		if dst.kind.Signed() {
+			// movsd i.e. movslq
+			return asm.Bytes(0x48|dhi<<2|shi, 0x63, 0xC0|dlo<<3|slo)
+		}
+		// amd64 does not have zero-extend 32bit -> 64bit
+		// because operations that write into 32bit registers
+		// already zero the upper 32 bits.
+		// So just compile as a regular MOV
+		fallthrough
+	case 8:
+		return asm.op2RegReg(MOV, MakeReg(dst.id, src.kind), src)
+	default:
+		errorf("invalid register size %v, expecting 1, 2, 4 or 8: %v %v %v",
+			SizeOf(src), CAST, dst, src)
+	}
+	// for simplicity, assume Sizeof(dst) == 8
+	return asm.Bytes(0x48|dhi<<2|shi, 0x0F, op, 0xC0|dlo<<3|slo)
+}
+
+func (asm *Asm) castRegMem(dst Reg, m Mem) *Asm {
+	src := m.reg
+
+	var op uint8 = 0xB6 // movzx
+	if src.kind.Signed() {
+		op = 0xBE // movsx
+	}
+	dlo, dhi := dst.lohi()
+	slo, shi := src.lohi()
+	offlen := m.offlen(src.id)
+	debugf("castRegMem() dst = %v, src = %v", dst, src)
+	switch SizeOf(src) {
+	case 1:
+		// movzbq, movsbq
+	case 2:
+		op++ // movzwq, movswq
+	case 4:
+		if src.kind.Signed() {
+			// sign-extend 32bit -> 64bit
+			// movsd i.e. movslq
+			switch offlen {
+			case 0:
+				asm.Bytes(0x48|dhi<<2|shi, 0x63, dlo<<3|slo).
+					quirk24(src)
+			case 1:
+				asm.Bytes(0x48|dhi<<2|shi, 0x63, 0x40|dlo<<3|slo).
+					quirk24(src).Int8(int8(m.off))
+			case 4:
+				asm.Bytes(0x48|dhi<<2|shi, 0x63, 0x80|dlo<<3|slo).
+					quirk24(src).Int32(m.off)
+			}
+			return asm
+		}
+		// amd64 does not have zero-extend 32bit -> 64bit
+		// because operations that write into 32bit registers
+		// already zero the upper 32 bits.
+		// So just compile as a regular MOV
+		debugf("zero-extend 32bit -> 64bit: dst = %v, src = %v", dst, m)
+		fallthrough
+	case 8:
+		return asm.op2RegMem(MOV, MakeReg(dst.id, src.kind), m)
+	default:
+		errorf("invalid register size %v, expecting 1, 2, 4 or 8: %v %v %v",
+			SizeOf(src), CAST, dst, src)
+	}
+	// for simplicity, assume Sizeof(dst) == 8
+	switch offlen {
+	case 0:
+		asm.Bytes(0x48|dhi<<2|shi, 0x0F, op, dlo<<3|slo).
+			quirk24(src)
+	case 1:
+		asm.Bytes(0x48|dhi<<2|shi, 0x0F, op, 0x40|dlo<<3|slo).
+			quirk24(src).Int8(int8(m.off))
+	case 4:
+		asm.Bytes(0x48|dhi<<2|shi, 0x0F, op, 0x80|dlo<<3|slo).
+			quirk24(src).Int32(m.off)
+	}
 	return asm
 }
 
-func (asm *Asm) castRegMem(dst Reg, src Mem) *Asm {
-	// TODO
-	return asm
+func (asm *Asm) castMemReg(m Mem, src Reg) *Asm {
+	dst := m.reg
+	// assume that user code cannot use the same register
+	// twice with different kinds
+	r := MakeReg(src.id, dst.kind)
+	asm.castRegReg(r, src)
+	return asm.op2MemReg(MOV, m, r)
+}
+
+func (asm *Asm) castMemMem(dst Mem, src Mem) *Asm {
+	r := asm.RegAlloc(dst.Kind())
+	asm.castRegMem(r, src)
+	asm.op2MemReg(MOV, dst, r)
+	return asm.RegFree(r)
 }

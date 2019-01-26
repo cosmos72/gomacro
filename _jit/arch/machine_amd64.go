@@ -30,8 +30,8 @@ type Op2 uint8
 const (
 	ADD Op2 = 0
 	OR  Op2 = 0x08
-	// ADC Op = 0x10 // add with carry
-	// SBB Op = 0x18 // subtract with borrow
+	ADC Op2 = 0x10 // add with carry
+	SBB Op2 = 0x18 // subtract with borrow
 	AND Op2 = 0x20
 	SUB Op2 = 0x28
 	XOR Op2 = 0x30
@@ -72,7 +72,64 @@ const (
 
 var alwaysLiveRegIds = RegIds{RSP: 1, RBP: 1, RDI: 1 /* &Env.IntBinds[0] */}
 
-var regName = [...]string{
+var regName1 = [...]string{
+	NoRegId: "unknown 1-byte register",
+	RAX:     "%al",
+	RCX:     "%cl",
+	RDX:     "%dl",
+	RBX:     "%bl",
+	RSP:     "%spl",
+	RBP:     "%bpl",
+	RSI:     "%sil",
+	RDI:     "%dil",
+	R8:      "%r8b",
+	R9:      "%r9b",
+	R10:     "%r10b",
+	R11:     "%r11b",
+	R12:     "%r12b",
+	R13:     "%r13b",
+	R14:     "%r14b",
+	R15:     "%r15b",
+}
+var regName2 = [...]string{
+	NoRegId: "unknown 2-byte register",
+	RAX:     "%ax",
+	RCX:     "%cx",
+	RDX:     "%dx",
+	RBX:     "%bx",
+	RSP:     "%sp",
+	RBP:     "%bp",
+	RSI:     "%si",
+	RDI:     "%di",
+	R8:      "%r8w",
+	R9:      "%r9w",
+	R10:     "%r10w",
+	R11:     "%r11w",
+	R12:     "%r12w",
+	R13:     "%r13w",
+	R14:     "%r14w",
+	R15:     "%r15w",
+}
+var regName4 = [...]string{
+	NoRegId: "unknown 4-byte register",
+	RAX:     "%eax",
+	RCX:     "%ecx",
+	RDX:     "%edx",
+	RBX:     "%ebx",
+	RSP:     "%esp",
+	RBP:     "%ebp",
+	RSI:     "%esi",
+	RDI:     "%edi",
+	R8:      "%r8d",
+	R9:      "%r9d",
+	R10:     "%r10d",
+	R11:     "%r11d",
+	R12:     "%r12d",
+	R13:     "%r13d",
+	R14:     "%r14d",
+	R15:     "%r15d",
+}
+var regName8 = [...]string{
 	NoRegId: "unknown register",
 	RAX:     "%rax",
 	RCX:     "%rcx",
@@ -92,14 +149,29 @@ var regName = [...]string{
 	R15:     "%r15",
 }
 
+func (id RegId) Valid() bool {
+	return id >= RLo && id <= RHi
+}
+
+func (id RegId) Validate() {
+	if !id.Valid() {
+		errorf("invalid register: %v", id)
+	}
+}
+
+func (id RegId) String() string {
+	if !id.Valid() {
+		id = NoRegId
+	}
+	return regName8[id]
+}
+
 func (r Reg) Valid() bool {
-	return r.id >= RLo && r.id <= RHi
+	return r.id.Valid()
 }
 
 func (r Reg) Validate() {
-	if !r.Valid() {
-		panicf("invalid register: %d", r.id)
-	}
+	r.id.Validate()
 }
 
 func (r Reg) String() string {
@@ -107,7 +179,16 @@ func (r Reg) String() string {
 	if r.Valid() {
 		id = r.id
 	}
-	return regName[id]
+	switch r.kind.Size() {
+	case 1:
+		return regName1[id]
+	case 2:
+		return regName2[id]
+	case 4:
+		return regName4[id]
+	default:
+		return regName8[id]
+	}
 }
 
 func (r Reg) bits() uint8 {
@@ -126,6 +207,26 @@ func (r Reg) hi() uint8 {
 func (r Reg) lohi() (uint8, uint8) {
 	bits := r.bits()
 	return bits & 0x7, (bits & 0x8) >> 3
+}
+
+// return number of assembler bytes needed to encode m.off
+func (m Mem) offlen(id RegId) uint8 {
+	switch {
+	// (%rbp) and (%r13) registers must use 1-byte offset even if m.off == 0
+	case m.off == 0 && id != RBP && id != R13:
+		return 0
+	case m.off == int32(int8(m.off)):
+		return 1
+	default:
+		return 4
+	}
+}
+
+func (asm *Asm) quirk24(r Reg) *Asm {
+	if r.id == RSP || r.id == R12 {
+		asm.Bytes(0x24) // amd64 quirk
+	}
+	return asm
 }
 
 func (asm *Asm) Prologue() *Asm {

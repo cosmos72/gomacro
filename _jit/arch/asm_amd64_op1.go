@@ -25,9 +25,9 @@ func (asm *Asm) Op1(op Op1, dst Arg) *Asm {
 	case Mem:
 		asm.Op1Mem(op, dst)
 	case Const:
-		panicf("destination cannot be a constant: %v %v", op, dst)
+		errorf("destination cannot be a constant: %v %v", op, dst)
 	default:
-		panicf("unsupported destination type, expecting Reg or Mem: %v %v", op, dst)
+		errorf("unsupported destination type, expecting Reg or Mem: %v %v", op, dst)
 	}
 	return asm
 }
@@ -79,7 +79,7 @@ func (asm *Asm) Op1Mem(op Op1, m Mem) *Asm {
 	case 8:
 		asm.Bytes(0x48|dhi, 0xF7, op_|moff|dlo)
 	default:
-		panicf("SizeOf(m) must be 1,2,4 or 8, found: %v", m)
+		errorf("SizeOf(m) must be 1,2,4 or 8, found: %v", m)
 	}
 	if dst.id == RSP || dst.id == R12 {
 		asm.Bytes(0x24) // amd64 quirk

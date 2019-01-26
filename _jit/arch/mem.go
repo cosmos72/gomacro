@@ -23,11 +23,11 @@ import (
 // hardware memory location.
 type Mem struct {
 	off int32
-	reg Reg // also defines width and signedness
+	reg Reg // also defines kind, width and signedness
 }
 
 func (m Mem) String() string {
-	return fmt.Sprintf("[%v+%v]/*%v*/", m.reg.id, m.off, m.reg.kind)
+	return fmt.Sprintf("%v[%v+%v]", m.reg.kind, m.reg.id, m.off)
 }
 
 // implement Arg interface
@@ -43,6 +43,14 @@ func (m Mem) Const() bool {
 	return false
 }
 
-func MakeVar(index uint16) Mem {
+func MakeVar0(index uint16) Mem {
 	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: Int64}}
+}
+
+func MakeVar0K(index uint16, k Kind) Mem {
+	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: k}}
+}
+
+func MakeMem(off int32, id RegId, k Kind) Mem {
+	return Mem{off: off, reg: Reg{id: id, kind: k}}
 }

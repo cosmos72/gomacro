@@ -20,12 +20,10 @@ import (
 	"fmt"
 )
 
-func panicf(format string, args ...interface{}) *Asm {
-	panic(fmt.Errorf("jit/amd64 internal error: "+format, args...))
-	return nil
+func debugf(format string, args ...interface{}) {
+	fmt.Printf("//debug jit: "+format+"\n", args...)
 }
 
-func errorf(format string, args ...interface{}) *Asm {
-	panic(fmt.Errorf(format, args...))
-	return nil
+func errorf(format string, args ...interface{}) {
+	panic(fmt.Errorf("jit assembler error: "+format, args...))
 }

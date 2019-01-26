@@ -111,11 +111,11 @@ func (asm *Asm) popRegs(rs *Regs) {
 }
 */
 
-func (asm *Asm) alloc(kind Kind) Reg {
+func (asm *Asm) RegAlloc(kind Kind) Reg {
 	var id RegId
 	for {
 		if asm.NextRegId > RHi {
-			panicf("no free register")
+			errorf("no free register")
 		}
 		id = asm.NextRegId
 		asm.NextRegId++
@@ -132,7 +132,7 @@ func (asm *Asm) Alloc(a Arg) (r Reg, allocated bool) {
 	if id != NoRegId {
 		return Reg{id: id, kind: a.Kind()}, false
 	}
-	return asm.alloc(a.Kind()), true
+	return asm.RegAlloc(a.Kind()), true
 }
 
 // combined Alloc + Load
@@ -144,7 +144,7 @@ func (asm *Asm) AllocLoad(a Arg) (r Reg, allocated bool) {
 	return r, allocated
 }
 
-func (asm *Asm) free(r Reg) *Asm {
+func (asm *Asm) RegFree(r Reg) *Asm {
 	count := asm.RegIds[r.id]
 	if count <= 0 {
 		return asm
@@ -159,7 +159,7 @@ func (asm *Asm) free(r Reg) *Asm {
 
 func (asm *Asm) Free(r Reg, allocated bool) *Asm {
 	if r.Valid() && allocated {
-		asm.free(r)
+		asm.RegFree(r)
 	}
 	return asm
 }
@@ -168,7 +168,7 @@ func (asm *Asm) Free(r Reg, allocated bool) *Asm {
 func (asm *Asm) StoreFree(a Arg, r Reg, allocated bool) *Asm {
 	if allocated {
 		asm.Mov(a, r)
-		asm.free(r)
+		asm.RegFree(r)
 	}
 	return asm
 }

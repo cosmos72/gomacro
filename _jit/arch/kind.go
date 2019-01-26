@@ -67,6 +67,15 @@ func (k Kind) Size() Size {
 	return 0
 }
 
+func (k Kind) Signed() bool {
+	switch k {
+	case Bool, Uint, Uint8, Uint16, Uint32, Uint64, Uintptr, Ptr:
+		return false
+	default:
+		return true
+	}
+}
+
 func (k Kind) String() string {
 	return reflect.Kind(k).String()
 }
