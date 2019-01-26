@@ -5,6 +5,57 @@
 	.type	Not, @function
 Not:
 	.cfi_startproc
+	not	%al
+	not	%cl
+	not	%dl
+	not	%bl
+	not	%spl
+	not	%bpl
+	not	%sil
+	not	%dil
+	not	%r8b
+	not	%r9b
+	not	%r10b
+	not	%r11b
+	not	%r12b
+	not	%r13b
+	not	%r14b
+	not	%r15b
+        nop
+	not	%ax
+	not	%cx
+	not	%dx
+	not	%bx
+	not	%sp
+	not	%bp
+	not	%si
+	not	%di
+	not	%r8w
+	not	%r9w
+	not	%r10w
+	not	%r11w
+	not	%r12w
+	not	%r13w
+	not	%r14w
+	not	%r15w
+        nop
+	not	%eax
+	not	%ecx
+	not	%edx
+	not	%ebx
+	not	%esp
+	not	%ebp
+	not	%esi
+	not	%edi
+	not	%r8d
+	not	%r9d
+	not	%r10d
+	not	%r11d
+	not	%r12d
+	not	%r13d
+	not	%r14d
+	not	%r15d
+        nop
 	not	%rax
 	not	%rcx
 	not	%rdx
