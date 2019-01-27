@@ -27,14 +27,23 @@ func (asm *Asm) Asm(args ...interface{}) *Asm {
 func (asm *Asm) Op(args ...interface{}) int {
 	var n int
 	switch op := args[0].(type) {
-	case Op2:
-		asm.Op2(op, args[1].(Arg), args[2].(Arg))
-		n = 2
+	case Op0:
+		asm.Op0(op)
+		n = 0
 	case Op1:
 		asm.Op1(op, args[1].(Arg))
 		n = 1
+	case Op2:
+		asm.Op2(op, args[1].(Arg), args[2].(Arg))
+		n = 2
+	case Op3:
+		asm.Op3(op, args[1].(Arg), args[2].(Arg), args[3].(Arg))
+		n = 3
+	case Op4:
+		asm.Op4(op, args[1].(Arg), args[2].(Arg), args[3].(Arg), args[4].(Arg))
+		n = 4
 	default:
-		errorf("syntax error: expecting Op2 or Op1 [args], found %v", op)
+		errorf("syntax error: expecting Op0,Op1,Op2,Op3 or Op4 [args], found %v", op)
 	}
 	return n
 }

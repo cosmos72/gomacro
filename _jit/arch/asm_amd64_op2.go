@@ -94,6 +94,8 @@ func (asm *Asm) op2RegReg(op Op2, dst Reg, src Reg) *Asm {
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
 
+	assert(op != LEA)
+
 	switch SizeOf(dst) { // == SizeOf(src)
 	case 1:
 		if dst.id < RSP && src.id < RSP {
@@ -128,6 +130,8 @@ func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
 	assert(SizeOf(m) == SizeOf(dst))
 	siz := SizeOf(dst)
 	offlen, offbit := m.offlen(dst.id)
+
+	assert(op != LEA)
 
 	switch siz {
 	case 1:
@@ -167,6 +171,10 @@ func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
 	assert(SizeOf(m) == SizeOf(dst))
 	siz := SizeOf(src)
 	offlen, offbit := m.offlen(src.id)
+
+	if op == LEA {
+		assert(siz == 8)
+	}
 
 	switch siz {
 	case 1:

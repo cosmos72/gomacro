@@ -25,6 +25,22 @@ import (
 const SUPPORTED = true
 
 // ============================================================================
+// no-arg operation
+type Op0 uint8
+
+const (
+	RET Op0 = 0xC3
+)
+
+func (op Op0) String() string {
+	s := "RET"
+	if op != RET {
+		s = "unknown zero-arg operation"
+	}
+	return s
+}
+
+// ============================================================================
 // unary operation
 type Op1 uint8
 
@@ -69,6 +85,7 @@ const (
 	// CMP Op = 0x38 // compare, set flags
 	// XCHG Op = 0x86 // exchange. xchg %reg, %reg has different encoding
 	MOV  Op2 = 0x88
+	LEA  Op2 = 0x8D
 	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
 )
 
@@ -90,6 +107,30 @@ func (op Op2) String() string {
 	s, ok := op2Name[op]
 	if !ok {
 		s = "unknown binary operation"
+	}
+	return s
+}
+
+// ============================================================================
+// ternary operation - not used on amd64
+type Op3 struct{}
+
+func (op Op3) String() string {
+	return "unknown ternary operation"
+}
+
+// ============================================================================
+// quaternary operation
+type Op4 uint8
+
+const (
+	LEA_4 Op4 = 0x8D
+)
+
+func (op Op4) String() string {
+	s := "LEA"
+	if op != LEA_4 {
+		s = "unknown quaternary operation"
 	}
 	return s
 }

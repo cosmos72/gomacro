@@ -19,7 +19,7 @@ package jit
 import (
 	"reflect"
 
-	"github.com/cosmos72/gomacro/jit/arch"
+	"github.com/cosmos72/gomacro/_jit/arch"
 )
 
 // software-defined register. mapped to hardware register by Asm
@@ -37,10 +37,9 @@ type Var struct {
 }
 
 type Arg interface {
-	reg(asm *Asm) hwReg // noReg if not a register
+	reg(asm *Asm) arch.Reg // noReg if not a register
 	Kind() reflect.Kind
 	Const() bool
-	Eq(other Arg) bool // true if same constant, register or memory location
 }
 
 type Asm struct {
