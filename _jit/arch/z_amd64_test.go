@@ -184,6 +184,26 @@ func TestCast(t *testing.T) {
 	}
 }
 
+func TestLea(t *testing.T) {
+	const (
+		n, m     int64 = 1020304, 9
+		expected int64 = n * m
+	)
+	N := MakeVar0(0)
+	env := [...]uint64{uint64(n)}
+
+	var asm Asm
+	f := asm.Init().Asm(MUL, N, ConstInt64(m)).Func()
+	f(&env[0])
+
+	actual := int64(env[0])
+	if actual != expected {
+		t.Errorf("MUL %d 5 returned %d, expecting %d", n, actual, expected)
+	} else if verbose {
+		t.Logf("MUL %d 5 = %d\n", n, actual)
+	}
+}
+
 /*
 func TestArith(t *testing.T) {
 	if !SUPPORTED {

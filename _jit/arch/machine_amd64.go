@@ -87,6 +87,7 @@ const (
 	MOV  Op2 = 0x88
 	LEA  Op2 = 0x8D
 	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
+	MUL  Op2 = 0xF6
 )
 
 var op2Name = map[Op2]string{
@@ -124,12 +125,12 @@ func (op Op3) String() string {
 type Op4 uint8
 
 const (
-	LEA_4 Op4 = 0x8D
+	LEA4 Op4 = 0x8D
 )
 
 func (op Op4) String() string {
 	s := "LEA"
-	if op != LEA_4 {
+	if op != LEA4 {
 		s = "unknown quaternary operation"
 	}
 	return s

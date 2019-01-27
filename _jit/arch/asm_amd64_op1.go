@@ -21,9 +21,9 @@ package arch
 func (asm *Asm) Op1(op Op1, a Arg) *Asm {
 	switch a := a.(type) {
 	case Reg:
-		asm.Op1Reg(op, a)
+		asm.op1Reg(op, a)
 	case Mem:
-		asm.Op1Mem(op, a)
+		asm.op1Mem(op, a)
 	case Const:
 		errorf("destination cannot be a constant: %v %v", op, a)
 	default:
@@ -33,7 +33,7 @@ func (asm *Asm) Op1(op Op1, a Arg) *Asm {
 }
 
 // OP %reg_dst
-func (asm *Asm) Op1Reg(op Op1, r Reg) *Asm {
+func (asm *Asm) op1Reg(op Op1, r Reg) *Asm {
 	rlo, rhi := r.lohi()
 	oplo, ophi := op.lohi()
 
@@ -60,7 +60,7 @@ func (asm *Asm) Op1Reg(op Op1, r Reg) *Asm {
 }
 
 // OP off_m(%reg_m)
-func (asm *Asm) Op1Mem(op Op1, m Mem) *Asm {
+func (asm *Asm) op1Mem(op Op1, m Mem) *Asm {
 
 	r := m.reg
 	rlo, dhi := r.lohi()

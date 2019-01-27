@@ -19,16 +19,13 @@
 package arch
 
 func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, d Arg) *Asm {
+	assert(op == LEA4)
 
 	dst := a.(Reg)
-	assert(SizeOf(dst) == 8)
 	m := b.(Mem)
-	assert(SizeOf(m) == 8)
-
 	var reg Reg
 	var scale int64
 	if c != nil {
-		assert(SizeOf(c) == 8)
 		reg = c.(Reg)
 	}
 	if d != nil {
@@ -37,11 +34,17 @@ func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, d Arg) *Asm {
 	}
 	if reg.id == NoRegId || scale == 0 {
 		return asm.op2RegMem(LEA, dst, m)
+	} else if m.reg.id == NoRegId && scale == 1 {
+		return asm.op2RegMem(LEA, dst, MakeMem(m.off, reg.id, m.reg.kind))
 	}
-	if reg.id == RSP {
-		errorf("LEA: register RSP cannot be scaled: %v %v %v %v %v",
-			op, dst, m, reg, scale)
-	}
+	return asm.lea4(dst, m, reg, scale)
+}
+
+func (asm *Asm) lea4(dst Reg, m Mem, reg Reg, scale int64) *Asm {
+	op := LEA4
+	assert(SizeOf(dst) == 8)
+	assert(SizeOf(m) == 8)
+	assert(SizeOf(reg) == 8)
 	var scalebit uint8
 	switch scale {
 	case 1:
@@ -57,9 +60,21 @@ func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, d Arg) *Asm {
 			op, dst, m, reg, scale)
 	}
 	dlo, dhi := dst.lohi()
-	mlo, mhi := m.reg.lohi()
+	var mlo, mhi uint8
+	var offlen, offbit uint8
+	if m.reg.Valid() {
+		mlo, mhi = m.reg.lohi()
+		offlen, offbit = m.offlen(m.reg.id)
+	} else {
+		// no mem register
+		offlen = 4
+		scalebit |= 0x05
+	}
+	if reg.id == RSP {
+		errorf("LEA: register RSP cannot be scaled: %v %v %v %v %v",
+			op, dst, m, reg, scale)
+	}
 	rlo, rhi := reg.lohi()
-	offlen, offbit := m.offlen(m.reg.id)
 
 	asm.Bytes(0x48|dhi<<2|rhi<<1|mhi, uint8(op), offbit|0x04|dlo<<3, scalebit|rlo<<3|mlo)
 	switch offlen {

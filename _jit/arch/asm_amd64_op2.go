@@ -64,7 +64,11 @@ func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
 func (asm *Asm) op2RegConst(op Op2, dst Reg, src Const) *Asm {
 	if op == MOV {
 		return asm.movRegConst(dst, src)
+	} else if op == MUL {
+		return asm.mul2RegConst(dst, src)
 	}
+	assert(op != LEA)
+
 	dlo, dhi := dst.lohi()
 	op_ := uint8(op)
 	c := src.val
@@ -90,11 +94,13 @@ func (asm *Asm) op2RegConst(op Op2, dst Reg, src Const) *Asm {
 func (asm *Asm) op2RegReg(op Op2, dst Reg, src Reg) *Asm {
 	if isNop2(op, dst, src) {
 		return asm
+	} else if op == MUL {
+		return asm.mul2RegReg(dst, src)
 	}
+	assert(op != LEA)
+
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
-
-	assert(op != LEA)
 
 	switch SizeOf(dst) { // == SizeOf(src)
 	case 1:
@@ -123,6 +129,11 @@ func (asm *Asm) op2RegReg(op Op2, dst Reg, src Reg) *Asm {
 
 // off_m(%reg_m) OP= %reg_src
 func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
+	if op == MUL {
+		return asm.mul2MemReg(m, src)
+	}
+	assert(op != LEA)
+
 	dst := m.reg
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
@@ -130,8 +141,6 @@ func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
 	assert(SizeOf(m) == SizeOf(dst))
 	siz := SizeOf(dst)
 	offlen, offbit := m.offlen(dst.id)
-
-	assert(op != LEA)
 
 	switch siz {
 	case 1:
@@ -164,6 +173,9 @@ func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
 
 // %reg_dst OP= off_m(%reg_m)
 func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
+	if op == MUL {
+		return asm.mul2RegMem(dst, m)
+	}
 	src := m.reg
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
@@ -209,7 +221,10 @@ func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
 func (asm *Asm) op2MemMem(op Op2, dst Mem, src Mem) *Asm {
 	if isNop2(op, dst, src) {
 		return asm
+	} else if op == MUL {
+		return asm.mul2MemMem(dst, src)
 	}
+	assert(op != LEA)
 	// not natively supported by amd64,
 	// must load src in a register
 	r := asm.RegAlloc(src.Kind())
@@ -220,6 +235,12 @@ func (asm *Asm) op2MemMem(op Op2, dst Mem, src Mem) *Asm {
 
 // off_dst(%reg_dst) OP= const
 func (asm *Asm) op2MemConst(op Op2, dst Mem, src Const) *Asm {
+	if op == MUL {
+		return asm.mul2MemConst(dst, src)
+	} else if op == MOV {
+		return asm.movMemConst(dst, src)
+	}
+	assert(op != LEA)
 	// not natively supported by amd64,
 	// must load src in a register
 	r := asm.RegAlloc(src.kind)
@@ -244,6 +265,8 @@ func isNop2(op Op2, dst Arg, src Arg) bool {
 			return c.val == -1
 		case ADD, OR, SUB, XOR:
 			return c.val == 0
+		case MUL:
+			return c.val == 1
 		default:
 			return false
 		}

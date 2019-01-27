@@ -36,6 +36,12 @@ func (asm *Asm) movRegConst(dst Reg, c Const) *Asm {
 	return asm.Bytes(0x48|dhi, 0xB8|dlo).Int64(c.val)
 }
 
+// off_dst(%reg_dst) = const
+func (asm *Asm) movMemConst(m Mem, c Const) *Asm {
+	r := asm.RegAlloc(m.Kind())
+	return asm.movRegConst(r, c).Op2(MOV, m, r).RegFree(r)
+}
+
 // %reg_dst ^= %reg_dst // compact way to zero a register
 func (asm *Asm) xorRegSelf(dst Reg) *Asm {
 	dlo, dhi := dst.lohi()

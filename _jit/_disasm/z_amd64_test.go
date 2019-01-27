@@ -58,7 +58,6 @@ func TestDisasm(t *testing.T) {
 }
 
 func TestDisasmSum(t *testing.T) {
-	engine, _ := New()
 	var asm Asm
 
 	Total, I := MakeVar0(1), MakeVar0(2)
@@ -67,7 +66,7 @@ func TestDisasmSum(t *testing.T) {
 		ADD, I, ConstInt64(1),
 		ADD, Total, I)
 
-	insns, err := engine.Disasm(asm.Code(), 0x10000, 0)
+	insns, err := Disasm(asm.Code())
 
 	if err == nil {
 		fmt.Printf("Disasm:\n")
@@ -101,8 +100,31 @@ func TestDisasmCast(t *testing.T) {
 		CAST, V[6], N[6], // MOV, V[6], r,
 	).RegFree(r)
 
-	engine, _ := New()
-	insns, err := engine.Disasm(asm.Code(), 0x10000, 0)
+	insns, err := Disasm(asm.Code())
+
+	if err == nil {
+		fmt.Printf("Disasm:\n")
+		for _, insn := range insns {
+			Show(insn)
+		}
+	}
+}
+
+func TestDisasmLea(t *testing.T) {
+	const (
+		n, m     int64 = 1020304, 9
+		expected int64 = n * m
+	)
+	N := MakeVar0(0)
+
+	var asm Asm
+	r := asm.Init().RegAlloc(N.Kind())
+	asm.Asm(
+		MUL, N, ConstInt64(m),
+		LEA, r, N)
+	asm.RegFree(r)
+
+	insns, err := Disasm(asm.Code())
 
 	if err == nil {
 		fmt.Printf("Disasm:\n")

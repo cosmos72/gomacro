@@ -45,3 +45,11 @@ func Show(insn gapstone.Instruction) {
 func spaces(n int) string {
 	return "                "[n%16:]
 }
+
+func Disasm(code []uint8) ([]gapstone.Instruction, error) {
+	engine, err := New()
+	if err != nil {
+		return nil, err
+	}
+	return engine.Disasm(code, 0x10000, 0)
+}

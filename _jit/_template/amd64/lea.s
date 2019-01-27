@@ -1043,6 +1043,154 @@ Lea:
 	lea	(%rax,%r13,8),%rax
 	lea	(%rax,%r14,8),%rax
 	lea	(%rax,%r15,8),%rax
+        nop
+        nop
+        // reg64 = &[reg64*1]
+	lea	(,%rax,1),%rax
+	lea	(,%rax,1),%rcx
+	lea	(,%rax,1),%rdx
+	lea	(,%rax,1),%rbx
+	lea	(,%rax,1),%rsp
+	lea	(,%rax,1),%rbp
+	lea	(,%rax,1),%rsi
+	lea	(,%rax,1),%rdi
+	lea	(,%rax,1),%r8
+	lea	(,%rax,1),%r9
+	lea	(,%rax,1),%r10
+	lea	(,%rax,1),%r11
+	lea	(,%rax,1),%r12
+	lea	(,%rax,1),%r13
+	lea	(,%rax,1),%r14
+	lea	(,%rax,1),%r15
+	nop
+	lea	(,%rax,1),%rax
+	lea	(,%rcx,1),%rax
+	lea	(,%rdx,1),%rax
+	lea	(,%rbx,1),%rax
+	// lea  (,%rsp,1),%rax
+        xor     %rsp, %rsp
+	lea	(,%rbp,1),%rax
+	lea	(,%rsi,1),%rax
+	lea	(,%rdi,1),%rax
+	lea	(,%r8 ,1),%rax
+	lea	(,%r9 ,1),%rax
+	lea	(,%r10,1),%rax
+	lea	(,%r11,1),%rax
+	lea	(,%r12,1),%rax
+	lea	(,%r13,1),%rax
+	lea	(,%r14,1),%rax
+	lea	(,%r15,1),%rax
+        nop
+        nop
+        // reg64 = &[reg64*2]
+	lea	(,%rax,2),%rax
+	lea	(,%rax,2),%rcx
+	lea	(,%rax,2),%rdx
+	lea	(,%rax,2),%rbx
+	lea	(,%rax,2),%rsp
+	lea	(,%rax,2),%rbp
+	lea	(,%rax,2),%rsi
+	lea	(,%rax,2),%rdi
+	lea	(,%rax,2),%r8
+	lea	(,%rax,2),%r9
+	lea	(,%rax,2),%r10
+	lea	(,%rax,2),%r11
+	lea	(,%rax,2),%r12
+	lea	(,%rax,2),%r13
+	lea	(,%rax,2),%r14
+	lea	(,%rax,2),%r15
+	nop
+	lea	(,%rax,2),%rax
+	lea	(,%rcx,2),%rax
+	lea	(,%rdx,2),%rax
+	lea	(,%rbx,2),%rax
+	// lea  (,%rsp,2),%rax
+        xor     %rsp, %rsp
+	lea	(,%rbp,2),%rax
+	lea	(,%rsi,2),%rax
+	lea	(,%rdi,2),%rax
+	lea	(,%r8 ,2),%rax
+	lea	(,%r9 ,2),%rax
+	lea	(,%r10,2),%rax
+	lea	(,%r11,2),%rax
+	lea	(,%r12,2),%rax
+	lea	(,%r13,2),%rax
+	lea	(,%r14,2),%rax
+	lea	(,%r15,2),%rax
+        nop
+        nop
+        // reg64 = &[reg64*4]
+	lea	(,%rax,4),%rax
+	lea	(,%rax,4),%rcx
+	lea	(,%rax,4),%rdx
+	lea	(,%rax,4),%rbx
+	lea	(,%rax,4),%rsp
+	lea	(,%rax,4),%rbp
+	lea	(,%rax,4),%rsi
+	lea	(,%rax,4),%rdi
+	lea	(,%rax,4),%r8
+	lea	(,%rax,4),%r9
+	lea	(,%rax,4),%r10
+	lea	(,%rax,4),%r11
+	lea	(,%rax,4),%r12
+	lea	(,%rax,4),%r13
+	lea	(,%rax,4),%r14
+	lea	(,%rax,4),%r15
+	nop
+	lea	(,%rax,4),%rax
+	lea	(,%rcx,4),%rax
+	lea	(,%rdx,4),%rax
+	lea	(,%rbx,4),%rax
+	// lea  (,%rsp,4),%rax
+        xor     %rsp, %rsp
+	lea	(,%rbp,4),%rax
+	lea	(,%rsi,4),%rax
+	lea	(,%rdi,4),%rax
+	lea	(,%r8 ,4),%rax
+	lea	(,%r9 ,4),%rax
+	lea	(,%r10,4),%rax
+	lea	(,%r11,4),%rax
+	lea	(,%r12,4),%rax
+	lea	(,%r13,4),%rax
+	lea	(,%r14,4),%rax
+	lea	(,%r15,4),%rax
+        nop
+        nop
+        // reg64 = &[reg64*8]
+	lea	(,%rax,8),%rax
+	lea	(,%rax,8),%rcx
+	lea	(,%rax,8),%rdx
+	lea	(,%rax,8),%rbx
+	lea	(,%rax,8),%rsp
+	lea	(,%rax,8),%rbp
+	lea	(,%rax,8),%rsi
+	lea	(,%rax,8),%rdi
+	lea	(,%rax,8),%r8
+	lea	(,%rax,8),%r9
+	lea	(,%rax,8),%r10
+	lea	(,%rax,8),%r11
+	lea	(,%rax,8),%r12
+	lea	(,%rax,8),%r13
+	lea	(,%rax,8),%r14
+	lea	(,%rax,8),%r15
+	nop
+	lea	(,%rax,8),%rax
+	lea	(,%rcx,8),%rax
+	lea	(,%rdx,8),%rax
+	lea	(,%rbx,8),%rax
+	// lea  (,%rsp,8),%rax
+        xor     %rsp, %rsp
+	lea	(,%rbp,8),%rax
+	lea	(,%rsi,8),%rax
+	lea	(,%rdi,8),%rax
+	lea	(,%r8 ,8),%rax
+	lea	(,%r9 ,8),%rax
+	lea	(,%r10,8),%rax
+	lea	(,%r11,8),%rax
+	lea	(,%r12,8),%rax
+	lea	(,%r13,8),%rax
+	lea	(,%r14,8),%rax
+	lea	(,%r15,8),%rax
 	ret
 	.cfi_endproc
 
