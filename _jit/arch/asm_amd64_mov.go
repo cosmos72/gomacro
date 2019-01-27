@@ -22,10 +22,25 @@ func (asm *Asm) Mov(dst Arg, src Arg) *Asm {
 	return asm.Op2(MOV, dst, src)
 }
 
+// zero a register: use XOR
+func (asm *Asm) zeroReg(dst Reg) *Asm {
+	dlo, dhi := dst.lohi()
+	if dhi == 0 {
+		return asm.Bytes(0x31, 0xC0|dlo|dlo<<3)
+	} else {
+		return asm.Bytes(0x48|dhi<<1|dhi<<2, 0x31, 0xC0|dlo|dlo<<3)
+	}
+}
+
+// zero a memory location
+func (asm *Asm) zeroMem(dst Mem) *Asm {
+	return asm.movMemConst(dst, Const{val: 0, kind: dst.Kind()})
+}
+
 // %reg_dst = const
 func (asm *Asm) movRegConst(dst Reg, c Const) *Asm {
 	if c.val == 0 {
-		return asm.xorRegSelf(dst)
+		return asm.zeroReg(dst)
 	}
 	dlo, dhi := dst.lohi()
 	// 32-bit signed immediate constants, use mov
@@ -40,16 +55,6 @@ func (asm *Asm) movRegConst(dst Reg, c Const) *Asm {
 func (asm *Asm) movMemConst(m Mem, c Const) *Asm {
 	r := asm.RegAlloc(m.Kind())
 	return asm.movRegConst(r, c).Op2(MOV, m, r).RegFree(r)
-}
-
-// %reg_dst ^= %reg_dst // compact way to zero a register
-func (asm *Asm) xorRegSelf(dst Reg) *Asm {
-	dlo, dhi := dst.lohi()
-	if dhi == 0 {
-		return asm.Bytes(0x31, 0xC0|dlo|dlo<<3)
-	} else {
-		return asm.Bytes(0x48|dhi<<1|dhi<<2, 0x31, 0xC0|dlo|dlo<<3)
-	}
 }
 
 // movsx, movzx or mov

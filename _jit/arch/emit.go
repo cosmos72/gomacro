@@ -45,6 +45,11 @@ func (asm *Asm) Bytes(bytes ...uint8) *Asm {
 	return asm
 }
 
+func (asm *Asm) Uint8(val uint8) *Asm {
+	asm.code = append(asm.code, val)
+	return asm
+}
+
 func (asm *Asm) Uint16(val uint16) *Asm {
 	asm.code = append(asm.code, uint8(val), uint8(val>>8))
 	return asm
@@ -61,7 +66,7 @@ func (asm *Asm) Uint64(val uint64) *Asm {
 }
 
 func (asm *Asm) Int8(val int8) *Asm {
-	return asm.Bytes(uint8(val))
+	return asm.Uint8(uint8(val))
 }
 
 func (asm *Asm) Int16(val int16) *Asm {
