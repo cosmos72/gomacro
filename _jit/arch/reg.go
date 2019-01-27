@@ -42,6 +42,14 @@ func (r Reg) Const() bool {
 	return false
 }
 
+func (r Reg) Valid() bool {
+	return r.id.Valid()
+}
+
+func (r Reg) Validate() {
+	r.id.Validate()
+}
+
 // ===================================
 
 type RegIds [RHi + 1]uint32 // Reg -> use count

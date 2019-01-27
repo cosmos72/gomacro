@@ -87,6 +87,8 @@ const (
 	MOV  Op2 = 0x88
 	LEA  Op2 = 0x8D
 	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
+	SHL  Op2 = 0xE0 // shift left. has different encoding
+	SHR  Op2 = 0xE8 // shift right. has different encoding
 	MUL  Op2 = 0xF6
 )
 
@@ -102,6 +104,7 @@ var op2Name = map[Op2]string{
 	// XCHG: "XCHG",
 	MOV:  "MOV",
 	CAST: "CAST",
+	MUL:  "MUL",
 }
 
 func (op Op2) String() string {
@@ -113,11 +116,23 @@ func (op Op2) String() string {
 }
 
 // ============================================================================
-// ternary operation - not used on amd64
-type Op3 struct{}
+// ternary operation
+type Op3 uint8
+
+const (
+	MUL3 Op3 = 0xFF // ??
+)
+
+var op3Name = map[Op3]string{
+	MUL3: "MUL3",
+}
 
 func (op Op3) String() string {
-	return "unknown ternary operation"
+	s, ok := op3Name[op]
+	if !ok {
+		s = "unknown ternary operation"
+	}
+	return s
 }
 
 // ============================================================================
@@ -129,7 +144,7 @@ const (
 )
 
 func (op Op4) String() string {
-	s := "LEA"
+	s := "LEA4"
 	if op != LEA4 {
 		s = "unknown quaternary operation"
 	}
@@ -254,14 +269,6 @@ func (id RegId) String() string {
 		id = NoRegId
 	}
 	return regName8[id]
-}
-
-func (r Reg) Valid() bool {
-	return r.id.Valid()
-}
-
-func (r Reg) Validate() {
-	r.id.Validate()
 }
 
 func (r Reg) String() string {

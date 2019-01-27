@@ -26,7 +26,7 @@ func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
 		op = MOV
 	}
 	assert(dst.Kind() == src.Kind())
-	if isNop2(op, dst, src) {
+	if asm.optimize(op, dst, src) {
 		return asm
 	}
 	switch dst := dst.(type) {
@@ -62,9 +62,12 @@ func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
 
 // %reg_dst OP= const
 func (asm *Asm) op2RegConst(op Op2, dst Reg, src Const) *Asm {
-	if op == MOV {
+	switch op {
+	case MOV:
 		return asm.movRegConst(dst, src)
-	} else if op == MUL {
+	case SHL, SHR:
+		return asm.shiftRegConst(op, dst, src)
+	case MUL:
 		return asm.mul2RegConst(dst, src)
 	}
 	assert(op != LEA)
@@ -92,10 +95,11 @@ func (asm *Asm) op2RegConst(op Op2, dst Reg, src Const) *Asm {
 
 // %reg_dst OP= %reg_src
 func (asm *Asm) op2RegReg(op Op2, dst Reg, src Reg) *Asm {
-	if isNop2(op, dst, src) {
-		return asm
-	} else if op == MUL {
+	switch op {
+	case MUL:
 		return asm.mul2RegReg(dst, src)
+	case SHL, SHR:
+		return asm.shiftRegReg(op, dst, src)
 	}
 	assert(op != LEA)
 
@@ -129,8 +133,11 @@ func (asm *Asm) op2RegReg(op Op2, dst Reg, src Reg) *Asm {
 
 // off_m(%reg_m) OP= %reg_src
 func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
-	if op == MUL {
+	switch op {
+	case MUL:
 		return asm.mul2MemReg(m, src)
+	case SHL, SHR:
+		return asm.shiftMemReg(op, m, src)
 	}
 	assert(op != LEA)
 
@@ -173,14 +180,17 @@ func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
 
 // %reg_dst OP= off_m(%reg_m)
 func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
-	if op == MUL {
+	switch op {
+	case MUL:
 		return asm.mul2RegMem(dst, m)
+	case SHL, SHR:
+		return asm.shiftRegMem(op, dst, m)
 	}
 	src := m.reg
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
 
-	assert(SizeOf(m) == SizeOf(dst))
+	assert(SizeOf(src) == SizeOf(dst))
 	siz := SizeOf(src)
 	offlen, offbit := m.offlen(src.id)
 
@@ -205,7 +215,11 @@ func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
 			asm.Bytes(0x40|dhi<<2|shi, 0x03|uint8(op), offbit|dlo<<3|slo)
 		}
 	case 8:
-		asm.Bytes(0x48|dhi<<2|shi, 0x03|uint8(op), offbit|dlo<<3|slo)
+		op_ := uint8(op)
+		if op != LEA {
+			op_ |= 0x03
+		}
+		asm.Bytes(0x48|dhi<<2|shi, op_, offbit|dlo<<3|slo)
 	}
 	asm.quirk24(src)
 	switch offlen {
@@ -219,10 +233,11 @@ func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
 
 // off_dst(%reg_dst) OP= off_src(%reg_src)
 func (asm *Asm) op2MemMem(op Op2, dst Mem, src Mem) *Asm {
-	if isNop2(op, dst, src) {
-		return asm
-	} else if op == MUL {
+	switch op {
+	case MUL:
 		return asm.mul2MemMem(dst, src)
+	case SHL, SHR:
+		return asm.shiftMemMem(op, dst, src)
 	}
 	assert(op != LEA)
 	// not natively supported by amd64,
@@ -235,10 +250,13 @@ func (asm *Asm) op2MemMem(op Op2, dst Mem, src Mem) *Asm {
 
 // off_dst(%reg_dst) OP= const
 func (asm *Asm) op2MemConst(op Op2, dst Mem, src Const) *Asm {
-	if op == MUL {
-		return asm.mul2MemConst(dst, src)
-	} else if op == MOV {
+	switch op {
+	case MOV:
 		return asm.movMemConst(dst, src)
+	case SHL, SHR:
+		return asm.shiftMemConst(op, dst, src)
+	case MUL:
+		return asm.mul2MemConst(dst, src)
 	}
 	assert(op != LEA)
 	// not natively supported by amd64,
@@ -249,26 +267,84 @@ func (asm *Asm) op2MemConst(op Op2, dst Mem, src Const) *Asm {
 	return asm.RegFree(r)
 }
 
-// dst OP= src is a nop ?
-func isNop2(op Op2, dst Arg, src Arg) bool {
+func (asm *Asm) optimize(op Op2, dst Arg, src Arg) bool {
 	if dst == src {
 		switch op {
 		case AND, OR, MOV, CAST:
+			return true // operation is nop
+		case SUB, XOR:
+			asm.Op2(MOV, dst, Const{val: 0, kind: dst.Kind()})
 			return true
-		default:
-			return false
 		}
 	}
-	if c, ok := src.(Const); ok {
-		switch op {
-		case AND:
-			return c.val == -1
-		case ADD, OR, SUB, XOR:
-			return c.val == 0
-		case MUL:
-			return c.val == 1
-		default:
-			return false
+	c, ok := src.(Const)
+	if !ok {
+		return false
+	}
+	n := c.Cast(Int64).val
+	src = Const{val: n, kind: dst.Kind()}
+	switch op {
+	case ADD:
+		switch n {
+		case 0:
+			return true
+		case 1:
+			asm.Op1(INC, dst)
+			return true
+		case -1:
+			asm.Op1(DEC, dst)
+			return true
+		}
+	case OR:
+		switch n {
+		case 0:
+			return true
+		case -1:
+			asm.Op2(MOV, dst, src)
+			return true
+		}
+	case AND:
+		switch n {
+		case 0:
+			asm.Op2(MOV, dst, src)
+			return true
+		case -1:
+			return true
+		}
+	case SUB:
+		switch n {
+		case 0:
+			return true
+		case 1:
+			asm.Op1(DEC, dst)
+			return true
+		case -1:
+			asm.Op1(INC, dst)
+			return true
+		}
+	case XOR:
+		switch n {
+		case 0:
+			return true
+		case -1:
+			asm.Op1(NOT, dst)
+			return true
+		}
+	case CAST:
+		asm.Op2(MOV, dst, src)
+		return true
+	case SHL, SHR:
+		switch n {
+		case 0:
+			return true
+		}
+	case MUL:
+		switch n {
+		case 0:
+			asm.Op2(MOV, dst, src)
+			return true
+		case 1:
+			return true
 		}
 	}
 	return false

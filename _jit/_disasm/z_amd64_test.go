@@ -116,12 +116,14 @@ func TestDisasmLea(t *testing.T) {
 		expected int64 = n * m
 	)
 	N := MakeVar0(0)
+	M := MakeVar0(1)
 
 	var asm Asm
 	r := asm.Init().RegAlloc(N.Kind())
 	asm.Asm(
 		MUL, N, ConstInt64(m),
-		LEA, r, N)
+		LEA, r, N,
+		LEA, r, M)
 	asm.RegFree(r)
 
 	insns, err := Disasm(asm.Code())
