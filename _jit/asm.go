@@ -17,171 +17,91 @@
 package jit
 
 import (
-	"unsafe"
+	"github.com/cosmos72/gomacro/_jit/arch"
 )
 
 const (
-	S       = uint32(unsafe.Sizeof(uint64(0)))
 	VERBOSE = false
 )
 
-func (s *Save) Init(start, end uint16) {
-	s.start, s.idx, s.end = start, start, end
+type regUse struct {
+	reg   arch.Reg
+	count uint32
 }
 
-func (asm *Asm) Init() *Asm {
-	return asm.Init2(0, 0)
+type Asm struct {
+	arch    arch.Asm
+	regs    map[Reg]*regUse // regUse structs are shared among aliases
+	nextReg Reg             // first available register among usable ones
 }
 
-func (asm *Asm) Init2(saveStart, saveEnd uint16) *Asm {
-	asm.code = asm.code[:0]
-	asm.hwRegs.InitLive()
-	asm.regs = make(map[Reg]hwRegCounter)
-	asm.regNext = RegHi + 1
-	asm.save.Init(saveStart, saveEnd)
-	return asm.prologue()
-}
-
-func (asm *Asm) Bytes(bytes ...uint8) *Asm {
-	asm.code = append(asm.code, bytes...)
-	return asm
-}
-
-func (asm *Asm) Uint16(val uint16) *Asm {
-	asm.code = append(asm.code, uint8(val), uint8(val>>8))
-	return asm
-}
-
-func (asm *Asm) Uint32(val uint32) *Asm {
-	asm.code = append(asm.code, uint8(val), uint8(val>>8), uint8(val>>16), uint8(val>>24))
-	return asm
-}
-
-func (asm *Asm) Uint64(val uint64) *Asm {
-	asm.code = append(asm.code, uint8(val), uint8(val>>8), uint8(val>>16), uint8(val>>24), uint8(val>>32), uint8(val>>40), uint8(val>>48), uint8(val>>56))
-	return asm
-}
-
-func (asm *Asm) Int8(val int8) *Asm {
-	return asm.Bytes(uint8(val))
-}
-
-func (asm *Asm) Int16(val int16) *Asm {
-	return asm.Uint16(uint16(val))
-}
-
-func (asm *Asm) Int32(val int32) *Asm {
-	return asm.Uint32(uint32(val))
-}
-
-func (asm *Asm) Int64(val int64) *Asm {
-	return asm.Uint64(uint64(val))
-}
-
-func (asm *Asm) Idx(a *Var) *Asm {
-	return asm.Uint32(uint32(a.idx) * S)
-}
-
-func (asm *Asm) reg(g Reg) hwReg {
-	return asm.regs[g].hwReg
-}
-
-func (asm *Asm) pushRegs(rs *hwRegs) *hwRegs {
-	var ret hwRegs
-	v := &Var{}
-	for r := rLo; r <= rHi; r++ {
-		if !rs.Contains(r) || !asm.hwRegs.Contains(r) {
-			continue
-		}
-		if asm.save.idx >= asm.save.end {
-			errorf("save area is full, cannot push registers")
-		}
-		v.idx = asm.save.idx
-		asm.storeReg(v, r)
-		asm.save.idx++
-		ret.Set(r)
+func (asm *Asm) Reg(z Reg) arch.Reg {
+	var r arch.Reg
+	use := asm.regs[z]
+	if use != nil {
+		r = use.reg
 	}
-	return &ret
-}
-
-func (asm *Asm) popRegs(rs *hwRegs) {
-	v := &Var{}
-	for r := rHi; r >= rLo; r-- {
-		if !rs.Contains(r) {
-			continue
-		}
-		if asm.save.idx <= asm.save.start {
-			errorf("save area is empty, cannot pop registers")
-		}
-		asm.save.idx--
-		v.idx = asm.save.idx
-		asm.load(r, v)
-	}
+	return r
 }
 
 // allocate a jit-reserved register
-func (asm *Asm) alloc() Reg {
-	z := asm.regNext
-	asm.regNext++
-	asm.Alloc(z)
+func (asm *Asm) NewReg(kind arch.Kind) Reg {
+	z := asm.nextReg
+	asm.nextReg++
+	asm.Alloc(z, kind)
 	return z
 }
 
-func (asm *Asm) Alloc(z Reg) *Asm {
-	pair := asm.regs[z]
-	if !pair.Valid() {
-		pair.hwReg = asm.hwRegs.Alloc()
+func (asm *Asm) Alloc(z Reg, kind arch.Kind) *Asm {
+	use := asm.regs[z]
+	if use != nil {
+		errorf("register %v is already allocated as %v, cannot allocate it again",
+			z, use.reg)
 	}
-	pair.count++
-	asm.regs[z] = pair
+	asm.regs[z] = &regUse{
+		reg:   asm.arch.RegAlloc(kind),
+		count: 1,
+	}
 	return asm
 }
 
 // combined Alloc + Load
-func (asm *Asm) AllocLoad(z Reg, a Arg) *Asm {
-	return asm.Alloc(z).Load(z, a)
+func (asm *Asm) AllocLoad(dst Reg, src Arg) *Asm {
+	use := asm.regs[dst]
+	if use != nil {
+		errorf("register %v is already allocated as %v, cannot allocate it again",
+			dst, use.reg)
+	}
+	if z, ok := src.(Reg); ok {
+		use := asm.regs[z]
+		if use == nil {
+			errorf("register %v is not allocated, cannot use it", z)
+		}
+		if dst != z {
+			// allocate dst as alias for z
+			asm.regs[dst] = use
+		}
+		return asm
+	}
+	return asm.Alloc(dst, src.Kind(asm)).Load(dst, src)
 }
 
 func (asm *Asm) Free(z Reg) *Asm {
-	pair, ok := asm.regs[z]
-	if !ok {
+	use := asm.regs[z]
+	if use == nil {
 		return asm
 	}
-	pair.count--
-	if pair.count == 0 {
-		asm.hwRegs.Free(pair.hwReg)
-		delete(asm.regs, z)
-	} else {
-		asm.regs[z] = pair
+	if use.count > 0 {
+		use.count--
+		if use.count == 0 {
+			asm.arch.RegFree(use.reg)
+		}
 	}
+	delete(asm.regs, z)
 	return asm
 }
 
 // combined Store + Free
-func (asm *Asm) StoreFree(z *Var, g Reg) *Asm {
-	return asm.Store(z, g).Free(g)
-}
-
-func (asm *Asm) hwAlloc(a Arg) (r hwReg, allocated bool) {
-	r = a.reg(asm)
-	if r != noReg {
-		return r, false
-	}
-	r = asm.hwRegs.Alloc()
-	asm.load(r, a)
-	return r, true
-}
-
-func (asm *Asm) hwAllocConst(val int64) hwReg {
-	r := asm.hwRegs.Alloc()
-	asm.loadConst(r, val)
-	return r
-}
-
-func (asm *Asm) hwFree(a Arg, r hwReg, allocated bool) *Asm {
-	if r.Valid() && allocated {
-		asm.storeReg(a.(*Var), r)
-		asm.hwRegs.Free(r)
-	}
-	return asm
+func (asm *Asm) StoreFree(dst Var, src Reg) *Asm {
+	return asm.Store(dst, src).Free(src)
 }

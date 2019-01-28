@@ -26,8 +26,8 @@ func (asm *Asm) Init() *Asm {
 
 func (asm *Asm) Init2(saveStart, saveEnd uint16) *Asm {
 	asm.code = asm.code[:0:cap(asm.code)]
-	asm.RegIds.InitLive()
-	asm.NextRegId = RLo
+	asm.regIds.InitLive()
+	asm.nextRegId = RLo
 	asm.save.ArchInit(saveStart, saveEnd)
 	return asm.Prologue()
 }
@@ -85,13 +85,13 @@ func (asm *Asm) Int64(val int64) *Asm {
 func (asm *Asm) RegAlloc(kind Kind) Reg {
 	var id RegId
 	for {
-		if asm.NextRegId > RHi {
+		if asm.nextRegId > RHi {
 			errorf("no free register")
 		}
-		id = asm.NextRegId
-		asm.NextRegId++
-		if asm.RegIds[id] == 0 {
-			asm.RegIds[id] = 1
+		id = asm.nextRegId
+		asm.nextRegId++
+		if asm.regIds[id] == 0 {
+			asm.regIds[id] = 1
 			break
 		}
 	}
@@ -116,14 +116,14 @@ func (asm *Asm) AllocLoad(a Arg) (r Reg, allocated bool) {
 }
 
 func (asm *Asm) RegFree(r Reg) *Asm {
-	count := asm.RegIds[r.id]
+	count := asm.regIds[r.id]
 	if count <= 0 {
 		return asm
 	}
 	count--
-	asm.RegIds[r.id] = count
-	if count == 0 && asm.NextRegId > r.id {
-		asm.NextRegId = r.id
+	asm.regIds[r.id] = count
+	if count == 0 && asm.nextRegId > r.id {
+		asm.nextRegId = r.id
 	}
 	return asm
 }

@@ -34,8 +34,8 @@ type Save struct {
 
 type Asm struct {
 	code      Code
-	RegIds    RegIds
-	NextRegId RegId // first available register among usable ones
+	regIds    RegIds
+	nextRegId RegId // first available register among usable ones
 	save      Save
 }
 

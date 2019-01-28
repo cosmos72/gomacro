@@ -41,7 +41,7 @@ func TestMov(t *testing.T) {
 	var asm Asm
 	for id := RLo; id <= RHi; id++ {
 		asm.Init()
-		if asm.RegIds.InUse(id) {
+		if asm.regIds.IsUsed(id) {
 			continue
 		}
 		r := Reg{id: id, kind: Int64}
@@ -109,7 +109,7 @@ func TestAdd(t *testing.T) {
 
 	for id := RLo; id <= RHi; id++ {
 		asm.Init()
-		if asm.RegIds.InUse(id) {
+		if asm.regIds.IsUsed(id) {
 			continue
 		}
 		r := Reg{id: id, kind: Int64}

@@ -17,8 +17,11 @@
 package jit
 
 import (
-	"reflect"
+	"github.com/cosmos72/gomacro/_jit/arch"
 )
+
+// software-defined register. mapped to hardware register by Asm
+type Reg uint32
 
 const (
 	NoReg Reg = 0          // means "no register"
@@ -27,22 +30,14 @@ const (
 )
 
 // implement Arg interface
-func (g Reg) reg(asm *Asm) hwReg {
-	return asm.reg(g)
+func (g Reg) Reg(asm *Asm) arch.Reg {
+	return asm.Reg(g)
 }
 
-func (g Reg) Kind() reflect.Kind {
-	// update after implementing floating point ops
-	return reflect.Int64
+func (g Reg) Kind(asm *Asm) arch.Kind {
+	return asm.Reg(g).Kind()
 }
 
 func (g Reg) Const() bool {
-	return false
-}
-
-func (g Reg) Eq(other Arg) bool {
-	if g2, ok := other.(*Const); ok {
-		return g == g2
-	}
 	return false
 }

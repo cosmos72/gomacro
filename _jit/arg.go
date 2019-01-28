@@ -8,9 +8,9 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * const.go
+ * arg.go
  *
- *  Created on May 20, 2018
+ *  Created on Jan 29, 2018
  *      Author Massimiliano Ghilardi
  */
 
@@ -20,24 +20,8 @@ import (
 	"github.com/cosmos72/gomacro/_jit/arch"
 )
 
-type Const struct {
-	val  int64
-	kind arch.Kind
-}
-
-func ConstInt64(val int64) *Const {
-	return &Const{val: val, kind: arch.Int64}
-}
-
-// implement Arg interface
-func (c Const) Reg(asm *Asm) arch.Reg {
-	return arch.Reg{}
-}
-
-func (c Const) Kind() arch.Kind {
-	return c.kind
-}
-
-func (c Const) Const() bool {
-	return true
+type Arg interface {
+	Reg(asm *Asm) arch.Reg // arch.Reg{} if not a register
+	Kind(asm *Asm) arch.Kind
+	Const() bool
 }

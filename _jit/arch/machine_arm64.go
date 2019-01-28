@@ -16,12 +16,38 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package arch
 
-const SUPPORTED = true
+const SUPPORTED = false
+
+type Op0 struct{}
+type Op1 struct{}
+type Op2 struct{}
+type Op3 struct{}
+type Op4 struct{}
+
+func (asm *Asm) Op0(op Op0) *Asm {
+	return asm
+}
+
+func (asm *Asm) Op1(op Op1, dst Arg) *Asm {
+	return asm
+}
+
+func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
+	return asm
+}
+
+func (asm *Asm) Op3(op Op3, dst Arg, a Arg, b Arg) *Asm {
+	return asm
+}
+
+func (asm *Asm) Op4(op Op4, dst Arg, a Arg, b Arg, c Arg) *Asm {
+	return asm
+}
 
 const (
-	NoReg Reg = iota
+	NoRegId RegId = iota
 	X0
 	X1
 	X2
@@ -53,14 +79,16 @@ const (
 	X28
 	X29
 	X30
-	RLo hwReg = X0
-	RHi hwReg = X30
+	X31
+	RLo = X0
+	RHi = X31
 )
 
-var alwaysLiveRegs = Regs{
+var alwaysLiveRegs = RegIds{
 	X28: 1, // pointer to goroutine-local data
 	X29: 1, // jit *uint64 pointer-to-variables
 	X30: 1, // link register?
+	X31: 1, // instruction pointer? return address?
 }
 
 func (r Reg) Valid() bool {

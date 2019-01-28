@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * const.go
+ * output.go
  *
  *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
@@ -17,27 +17,13 @@
 package jit
 
 import (
-	"github.com/cosmos72/gomacro/_jit/arch"
+	"fmt"
 )
 
-type Const struct {
-	val  int64
-	kind arch.Kind
+func debugf(format string, args ...interface{}) {
+	fmt.Printf("// debug jit: "+format+"\n", args...)
 }
 
-func ConstInt64(val int64) *Const {
-	return &Const{val: val, kind: arch.Int64}
-}
-
-// implement Arg interface
-func (c Const) Reg(asm *Asm) arch.Reg {
-	return arch.Reg{}
-}
-
-func (c Const) Kind() arch.Kind {
-	return c.kind
-}
-
-func (c Const) Const() bool {
-	return true
+func errorf(format string, args ...interface{}) {
+	panic(fmt.Errorf("jit assembler error: "+format, args...))
 }

@@ -57,7 +57,7 @@ type RegIds [RHi + 1]uint32 // Reg -> use count
 func newRegs(ids ...RegId) *RegIds {
 	var ret RegIds
 	for _, id := range ids {
-		ret.Set(id)
+		ret.IncUse(id)
 	}
 	return &ret
 }
@@ -66,18 +66,18 @@ func (rs *RegIds) InitLive() {
 	*rs = alwaysLiveRegIds
 }
 
-func (rs *RegIds) InUse(r RegId) bool {
+func (rs *RegIds) IsUsed(r RegId) bool {
 	return r >= RLo && r <= RHi && rs[r] != 0
 }
 
-func (rs *RegIds) Set(r RegId) {
+func (rs *RegIds) IncUse(r RegId) {
 	if r >= RLo && r <= RHi {
 		rs[r]++
 	}
 }
 
-func (rs *RegIds) Unset(r RegId) {
-	if rs.InUse(r) {
+func (rs *RegIds) DecUse(r RegId) {
+	if rs.IsUsed(r) {
 		rs[r]--
 	}
 }

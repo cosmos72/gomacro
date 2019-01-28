@@ -54,9 +54,9 @@ func (asm *Asm) Op2Misc(op Op2Misc, arg1 interface{}, arg2 interface{}) *Asm {
 
 func (asm *Asm) Push(id RegId, pushed *bool) *Asm {
 	id.Validate()
-	if asm.RegIds[id] == 0 {
+	if asm.regIds[id] == 0 {
 		// mark in use, caller wants this register
-		asm.RegIds[id]++
+		asm.regIds[id]++
 		*pushed = false
 		return asm
 	}
@@ -73,8 +73,8 @@ func (asm *Asm) Push(id RegId, pushed *bool) *Asm {
 func (asm *Asm) Pop(id RegId, pushed bool) *Asm {
 	id.Validate()
 	if !pushed {
-		if asm.RegIds[id] > 0 {
-			asm.RegIds[id]--
+		if asm.regIds[id] > 0 {
+			asm.regIds[id]--
 		}
 		return asm
 	}

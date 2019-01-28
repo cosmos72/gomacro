@@ -25,7 +25,7 @@ func (asm *Asm) Add(dst Arg, a Arg, b Arg) *Asm {
 	} else if dst.Eq(b) {
 		return asm.add2(dst, a)
 	}
-	r, alloc := asm.hwAlloc(dst)
+	r, alloc := asm.Alloc()
 	asm.load(r, a)
 	asm.hwOp2(hwADD, r, asm.hw(b))
 	return asm.hwFree(dst, r, alloc)

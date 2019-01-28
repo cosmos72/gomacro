@@ -16,17 +16,43 @@
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package arch
 
-const SUPPORTED = true
+const SUPPORTED = false
+
+type Op0 struct{}
+type Op1 struct{}
+type Op2 struct{}
+type Op3 struct{}
+type Op4 struct{}
+
+func (asm *Asm) Op0(op Op0) *Asm {
+	return asm
+}
+
+func (asm *Asm) Op1(op Op1, dst Arg) *Asm {
+	return asm
+}
+
+func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
+	return asm
+}
+
+func (asm *Asm) Op3(op Op3, dst Arg, a Arg, b Arg) *Asm {
+	return asm
+}
+
+func (asm *Asm) Op4(op Op4, dst Arg, a Arg, b Arg, c Arg) *Asm {
+	return asm
+}
 
 const (
-	NoReg Reg = iota
-	RLo       = NoReg
-	RHi       = NoReg
+	NoRegId RegId = iota
+	RLo           = NoRegId
+	RHi           = NoRegId
 )
 
-func (r Reg) Valid() bool {
+func (r RegId) Valid() bool {
 	return false
 }
 
