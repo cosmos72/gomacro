@@ -25,7 +25,9 @@ func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
 		}
 		op = MOV
 	}
-	assert(dst.Kind() == src.Kind())
+	if op != SHL && op != SHR {
+		assert(dst.Kind() == src.Kind())
+	}
 	if asm.optimize(op, dst, src) {
 		return asm
 	}
@@ -157,7 +159,7 @@ func (asm *Asm) op2MemReg(op Op2, m Mem, src Reg) *Asm {
 			asm.Bytes(0x40|dhi|shi<<2, uint8(op), offbit|dlo|slo<<3)
 		}
 	case 2:
-		asm.Bytes(0x66)
+		asm.Byte(0x66)
 		fallthrough
 	case 4:
 		if dhi|shi<<2 == 0 {
@@ -206,7 +208,7 @@ func (asm *Asm) op2RegMem(op Op2, dst Reg, m Mem) *Asm {
 			asm.Bytes(0x40|dhi<<2|shi, 0x02|uint8(op), offbit|dlo<<3|slo)
 		}
 	case 2:
-		asm.Bytes(0x66)
+		asm.Byte(0x66)
 		fallthrough
 	case 4:
 		if dhi|shi<<2 == 0 {

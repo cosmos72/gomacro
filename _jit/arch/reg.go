@@ -66,7 +66,7 @@ func (rs *RegIds) InitLive() {
 	*rs = alwaysLiveRegIds
 }
 
-func (rs *RegIds) Contains(r RegId) bool {
+func (rs *RegIds) InUse(r RegId) bool {
 	return r >= RLo && r <= RHi && rs[r] != 0
 }
 
@@ -77,7 +77,7 @@ func (rs *RegIds) Set(r RegId) {
 }
 
 func (rs *RegIds) Unset(r RegId) {
-	if rs.Contains(r) {
+	if rs.InUse(r) {
 		rs[r]--
 	}
 }

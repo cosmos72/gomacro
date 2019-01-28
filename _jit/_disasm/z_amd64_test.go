@@ -33,7 +33,7 @@ func TestDisasm(t *testing.T) {
 
 	for id := RLo; id <= RHi; id++ {
 		asm.Init()
-		if asm.RegIds.Contains(id) {
+		if asm.RegIds.InUse(id) {
 			continue
 		}
 		r := MakeReg(id, Int64)
@@ -66,14 +66,7 @@ func TestDisasmSum(t *testing.T) {
 		ADD, I, ConstInt64(1),
 		ADD, Total, I)
 
-	insns, err := Disasm(asm.Code())
-
-	if err == nil {
-		fmt.Printf("Disasm:\n")
-		for _, insn := range insns {
-			Show(insn)
-		}
-	}
+	PrintDisasm(asm.Code())
 }
 
 func TestDisasmCast(t *testing.T) {
@@ -100,20 +93,12 @@ func TestDisasmCast(t *testing.T) {
 		CAST, V[6], N[6], // MOV, V[6], r,
 	).RegFree(r)
 
-	insns, err := Disasm(asm.Code())
-
-	if err == nil {
-		fmt.Printf("Disasm:\n")
-		for _, insn := range insns {
-			Show(insn)
-		}
-	}
+	PrintDisasm(asm.Code())
 }
 
 func TestDisasmLea(t *testing.T) {
 	const (
-		n, m     int64 = 1020304, 9
-		expected int64 = n * m
+		m int64 = 9
 	)
 	N := MakeVar0(0)
 	M := MakeVar0(1)
@@ -126,12 +111,25 @@ func TestDisasmLea(t *testing.T) {
 		LEA, r, M)
 	asm.RegFree(r)
 
-	insns, err := Disasm(asm.Code())
+	PrintDisasm(asm.Code())
+}
 
-	if err == nil {
-		fmt.Printf("Disasm:\n")
-		for _, insn := range insns {
-			Show(insn)
-		}
-	}
+func TestDisasmShift(t *testing.T) {
+	N := MakeVar0(0)
+	M := MakeVar0(1)
+
+	var asm Asm
+	asm.Init()
+	asm.RegIds[RCX]++
+	r := MakeReg(RCX, Uint8)
+	asm.Asm(
+		SHL, M, ConstInt64(0), // nop
+		SHL, M, ConstInt64(1),
+		SHL, N, r,
+		SHR, M, ConstInt64(3),
+		SHR, N, r,
+	)
+	asm.RegIds[RCX]--
+
+	PrintDisasm(asm.Code())
 }

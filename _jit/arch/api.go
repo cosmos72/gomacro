@@ -26,15 +26,17 @@ type Arg interface {
 
 type Code []uint8
 
+// memory area where spill registers can be saved
 type Save struct {
-	start, idx, end uint16 // memory area where spill registers can be saved
+	reg             Reg    // points to memory area
+	start, idx, end uint16 // offsets in memory area
 }
 
 type Asm struct {
 	code      Code
 	RegIds    RegIds
 	NextRegId RegId // first available register among usable ones
-	Save      Save
+	save      Save
 }
 
 func SizeOf(a Arg) Size {

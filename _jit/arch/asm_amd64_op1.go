@@ -40,15 +40,15 @@ func (asm *Asm) op1Reg(op Op1, r Reg) *Asm {
 	switch SizeOf(r) {
 	case 1:
 		if r.id >= RSP {
-			asm.Bytes(0x40 | rhi)
+			asm.Byte(0x40 | rhi)
 		}
 		asm.Bytes(0xF6|ophi, 0xC0|oplo|rlo)
 	case 2:
-		asm.Bytes(0x66)
+		asm.Byte(0x66)
 		fallthrough
 	case 4:
 		if rhi != 0 {
-			asm.Bytes(0x41)
+			asm.Byte(0x41)
 		}
 		asm.Bytes(0xF7|ophi, 0xC0|oplo|rlo)
 	case 8:
@@ -71,15 +71,15 @@ func (asm *Asm) op1Mem(op Op1, m Mem) *Asm {
 	switch SizeOf(m) {
 	case 1:
 		if dhi != 0 {
-			asm.Bytes(0x41)
+			asm.Byte(0x41)
 		}
 		asm.Bytes(0xF6|ophi, offbit|oplo|rlo)
 	case 2:
-		asm.Bytes(0x66)
+		asm.Byte(0x66)
 		fallthrough
 	case 4:
 		if dhi != 0 {
-			asm.Bytes(0x41)
+			asm.Byte(0x41)
 		}
 		asm.Bytes(0xF7|ophi, offbit|oplo|rlo)
 	case 8:

@@ -53,3 +53,15 @@ func Disasm(code []uint8) ([]gapstone.Instruction, error) {
 	}
 	return engine.Disasm(code, 0x10000, 0)
 }
+
+func PrintDisasm(code []uint8) {
+	insns, err := Disasm(code)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("Disasm:\n")
+		for _, insn := range insns {
+			Show(insn)
+		}
+	}
+}

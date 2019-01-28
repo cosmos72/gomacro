@@ -20,10 +20,6 @@ const (
 	VERBOSE = false
 )
 
-func (s *Save) Init(start, end uint16) {
-	s.start, s.idx, s.end = start, start, end
-}
-
 func (asm *Asm) Init() *Asm {
 	return asm.Init2(0, 0)
 }
@@ -32,12 +28,17 @@ func (asm *Asm) Init2(saveStart, saveEnd uint16) *Asm {
 	asm.code = asm.code[:0:cap(asm.code)]
 	asm.RegIds.InitLive()
 	asm.NextRegId = RLo
-	asm.Save.Init(saveStart, saveEnd)
+	asm.save.ArchInit(saveStart, saveEnd)
 	return asm.Prologue()
 }
 
 func (asm *Asm) Code() Code {
 	return asm.code
+}
+
+func (asm *Asm) Byte(val uint8) *Asm {
+	asm.code = append(asm.code, val)
+	return asm
 }
 
 func (asm *Asm) Bytes(bytes ...uint8) *Asm {
@@ -80,41 +81,6 @@ func (asm *Asm) Int32(val int32) *Asm {
 func (asm *Asm) Int64(val int64) *Asm {
 	return asm.Uint64(uint64(val))
 }
-
-/*
-func (asm *Asm) pushRegs(rs *Regs) *Regs {
-	var ret Regs
-	v := &Var{}
-	for r := Lo; r <= Hi; r++ {
-		if !rs.Contains(r) {
-			continue
-		}
-		if asm.Save.idx >= asm.Save.end {
-			errorf("save area is full, cannot push registers")
-		}
-		v.idx = asm.save.idx
-		asm.storeReg(v, r)
-		asm.save.idx++
-		ret.Set(r)
-	}
-	return &ret
-}
-
-func (asm *Asm) popRegs(rs *Regs) {
-	v := &Var{}
-	for r := rHi; r >= rLo; r-- {
-		if !rs.Contains(r) {
-			continue
-		}
-		if asm.save.idx <= asm.save.start {
-			errorf("save area is empty, cannot pop registers")
-		}
-		asm.save.idx--
-		v.idx = asm.save.idx
-		asm.load(r, v)
-	}
-}
-*/
 
 func (asm *Asm) RegAlloc(kind Kind) Reg {
 	var id RegId

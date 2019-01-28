@@ -20,6 +20,7 @@ package arch
 
 import (
 	"errors"
+	"fmt"
 )
 
 const SUPPORTED = true
@@ -30,12 +31,18 @@ type Op0 uint8
 
 const (
 	RET Op0 = 0xC3
+	NOP Op0 = 0x90
 )
 
+var op0Name = map[Op0]string{
+	RET: "RET",
+	NOP: "NOP",
+}
+
 func (op Op0) String() string {
-	s := "RET"
-	if op != RET {
-		s = "unknown zero-arg operation"
+	s, ok := op0Name[op]
+	if !ok {
+		s = fmt.Sprintf("Op0(%d)", int(op))
 	}
 	return s
 }
@@ -61,7 +68,7 @@ var op1Name = map[Op1]string{
 func (op Op1) String() string {
 	s, ok := op1Name[op]
 	if !ok {
-		s = "unknown unary operation"
+		s = fmt.Sprintf("Op1(%d)", int(op))
 	}
 	return s
 }
@@ -110,7 +117,7 @@ var op2Name = map[Op2]string{
 func (op Op2) String() string {
 	s, ok := op2Name[op]
 	if !ok {
-		s = "unknown binary operation"
+		s = fmt.Sprintf("Op2(%d)", int(op))
 	}
 	return s
 }
@@ -130,7 +137,7 @@ var op3Name = map[Op3]string{
 func (op Op3) String() string {
 	s, ok := op3Name[op]
 	if !ok {
-		s = "unknown ternary operation"
+		s = fmt.Sprintf("Op3(%d)", int(op))
 	}
 	return s
 }
@@ -327,11 +334,34 @@ func (asm *Asm) quirk24(r Reg) *Asm {
 }
 
 func (asm *Asm) Prologue() *Asm {
-	return asm.Bytes(0x48, 0x8b, 0x7c, 0x24, 0x08) // movq 0x8(%rsp), %rdi
+	// movq 0x8(%rsp), %rdi
+	// return asm.Bytes(0x48, 0x8b, 0x7c, 0x24, 0x08)
+	return asm.op2RegMem(MOV,
+		MakeReg(RDI, Uint64),
+		MakeMem(8, RSP, Uint64))
 }
 
 func (asm *Asm) Epilogue() *Asm {
-	return asm.Bytes(0xc3) // ret
+	return asm.Op0(RET)
+}
+
+func (asm *Asm) archPush(id RegId) {
+	s := asm.save
+	asm.op2MemReg(MOV,
+		Mem{off: int32(s.idx) * 8, reg: s.reg},
+		Reg{id: id, kind: Uint64})
+}
+
+func (asm *Asm) archPop(id RegId) {
+	s := asm.save
+	asm.op2RegMem(MOV,
+		Reg{id: id, kind: Uint64},
+		Mem{off: int32(s.idx) * 8, reg: s.reg})
+}
+
+func (s *Save) ArchInit(start, end uint16) {
+	s.reg = MakeReg(RSP, Uint64)
+	s.start, s.idx, s.end = start, start, end
 }
 
 var assertError = errors.New("jit/amd64 internal error, assertion failed")
