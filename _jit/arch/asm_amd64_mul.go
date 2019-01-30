@@ -18,7 +18,7 @@
 
 package arch
 
-func (asm *Asm) mul2RegConst(dst Reg, c Const) *Asm {
+func (asm *Asm) mul2ConstReg(c Const, dst Reg) *Asm {
 	n := c.val
 	switch n {
 	case 0:
@@ -26,47 +26,48 @@ func (asm *Asm) mul2RegConst(dst Reg, c Const) *Asm {
 	case 1:
 		return asm
 	case 3, 5, 9:
-		return asm.lea4(dst, MakeMem(0, dst.id, dst.kind), dst, n-1)
+		return asm.lea4(MakeMem(0, dst.id, dst.kind), dst, n-1, dst)
 	}
 	if n&(n-1) == 0 {
 		// TODO shift
 	}
 	// TODO
-	errorf("unimplemented: MUL %v %v", dst, c)
+	errorf("unimplemented: MUL %v %v", c, dst)
 	return asm
 }
 
-func (asm *Asm) mul2RegReg(dst Reg, src Reg) *Asm {
+func (asm *Asm) mul2RegReg(src Reg, dst Reg) *Asm {
 	// TODO
-	errorf("unimplemented: MUL %v %v", dst, src)
+	errorf("unimplemented: MUL %v %v", src, dst)
 	return asm
 }
 
-func (asm *Asm) mul2RegMem(dst Reg, m Mem) *Asm {
+func (asm *Asm) mul2MemReg(src_m Mem, dst Reg) *Asm {
 	// TODO
-	errorf("unimplemented: MUL %v %v", dst, m)
+	errorf("unimplemented: MUL %v %v", src_m, dst)
 	return asm
 }
 
-func (asm *Asm) mul2MemConst(m Mem, c Const) *Asm {
+func (asm *Asm) mul2ConstMem(c Const, m Mem) *Asm {
 	switch c.val {
 	case -1:
 		return asm.op1Mem(NEG, m)
 	case 0:
-		return asm.movMemConst(m, c)
+		return asm.movConstMem(c, m)
 	case 1:
 		return asm
 	default:
 		r, allocated := asm.AllocLoad(m)
-		return asm.mul2RegConst(r, c).StoreFree(m, r, allocated)
+		return asm.mul2ConstReg(c, r).StoreFree(r, allocated, m)
 	}
 }
 
-func (asm *Asm) mul2MemReg(m Mem, src Reg) *Asm {
+func (asm *Asm) mul2RegMem(src Reg, dst_m Mem) *Asm {
 	// TODO
+	errorf("unimplemented: MUL %v %v", src, dst_m)
 	return asm
 }
 
-func (asm *Asm) mul2MemMem(dst Mem, src Mem) *Asm {
+func (asm *Asm) mul2MemMem(src_m Mem, dst_m Mem) *Asm {
 	return asm
 }

@@ -81,3 +81,17 @@ func (rs *RegIds) DecUse(r RegId) {
 		rs[r]--
 	}
 }
+
+// ===================================
+
+func (asm *Asm) RegIsUsed(id RegId) bool {
+	return asm.regIds.IsUsed(id)
+}
+
+func (asm *Asm) RegIncUse(id RegId) {
+	asm.regIds.IncUse(id)
+}
+
+func (asm *Asm) RegDecUse(id RegId) {
+	asm.regIds.DecUse(id)
+}

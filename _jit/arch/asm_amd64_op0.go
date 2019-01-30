@@ -19,5 +19,5 @@
 package arch
 
 func (asm *Asm) Op0(op Op0) *Asm {
-	return asm.Bytes(uint8(op))
+	return asm.Byte(uint8(op))
 }

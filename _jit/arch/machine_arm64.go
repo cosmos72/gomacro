@@ -34,15 +34,15 @@ func (asm *Asm) Op1(op Op1, dst Arg) *Asm {
 	return asm
 }
 
-func (asm *Asm) Op2(op Op2, dst Arg, src Arg) *Asm {
+func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
 	return asm
 }
 
-func (asm *Asm) Op3(op Op3, dst Arg, a Arg, b Arg) *Asm {
+func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	return asm
 }
 
-func (asm *Asm) Op4(op Op4, dst Arg, a Arg, b Arg, c Arg) *Asm {
+func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
 	return asm
 }
 

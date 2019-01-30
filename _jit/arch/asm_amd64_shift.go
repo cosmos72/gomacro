@@ -19,7 +19,7 @@
 package arch
 
 // %reg_dst SHIFT= const
-func (asm *Asm) shiftRegConst(op Op2, dst Reg, c Const) *Asm {
+func (asm *Asm) shiftConstReg(op Op2, c Const, dst Reg) *Asm {
 	n := c.val
 	assert(n > 0) // shift by 0 is optimized away
 	siz := SizeOf(dst)
@@ -55,7 +55,7 @@ func (asm *Asm) shiftRegConst(op Op2, dst Reg, c Const) *Asm {
 }
 
 // off_dst(%reg_dst) SHIFT= const
-func (asm *Asm) shiftMemConst(op Op2, m Mem, c Const) *Asm {
+func (asm *Asm) shiftConstMem(op Op2, c Const, m Mem) *Asm {
 	n := c.val
 	assert(n > 0) // shift by 0 is optimized away
 	siz := SizeOf(m)
@@ -102,9 +102,9 @@ func (asm *Asm) shiftMemConst(op Op2, m Mem, c Const) *Asm {
 }
 
 // %reg_dst SHIFT= %reg_src
-func (asm *Asm) shiftRegReg(op Op2, dst Reg, src Reg) *Asm {
+func (asm *Asm) shiftRegReg(op Op2, src Reg, dst Reg) *Asm {
 	if src != MakeReg(RCX, Uint8) {
-		errorf("unimplemented, can only shift by %%cl: %v %v %v", op, dst, src)
+		errorf("unimplemented, can only shift by %%cl: %v %v %v", op, src, dst)
 	}
 	siz := SizeOf(dst)
 	dlo, dhi := dst.lohi()
@@ -130,14 +130,14 @@ func (asm *Asm) shiftRegReg(op Op2, dst Reg, src Reg) *Asm {
 }
 
 // off_dst(%reg_dst) SHIFT= %reg_src
-func (asm *Asm) shiftMemReg(op Op2, m Mem, src Reg) *Asm {
+func (asm *Asm) shiftRegMem(op Op2, src Reg, dst_m Mem) *Asm {
 	if src != MakeReg(RCX, Uint8) {
-		errorf("unimplemented shift Mem by Reg != %%cl: %v %v %v", op, m, src)
+		errorf("unimplemented shift Mem by Reg != %%cl: %v %v %v", op, src, dst_m)
 	}
-	siz := SizeOf(m)
-	dst := m.reg
+	siz := SizeOf(dst_m)
+	dst := dst_m.reg
 	dlo, dhi := dst.lohi()
-	offlen, offbit := m.offlen(dst.id)
+	offlen, offbit := dst_m.offlen(dst.id)
 	op_ := uint8(op) &^ 0xC0
 
 	switch siz {
@@ -160,35 +160,35 @@ func (asm *Asm) shiftMemReg(op Op2, m Mem, src Reg) *Asm {
 	asm.quirk24(dst)
 	switch offlen {
 	case 1:
-		asm.Int8(int8(m.off))
+		asm.Int8(int8(dst_m.off))
 	case 4:
-		asm.Int32(m.off)
+		asm.Int32(dst_m.off)
 	}
 	return asm
 }
 
 // %reg_dst SHIFT= off_src(%reg_src)
-func (asm *Asm) shiftRegMem(op Op2, dst Reg, m Mem) *Asm {
+func (asm *Asm) shiftMemReg(op Op2, src_m Mem, dst Reg) *Asm {
 	if dst.id == RCX {
-		errorf("unimplemented shift RCX by Mem: %v %v %v", op, dst, m)
+		errorf("unimplemented shift RCX by Mem: %v %v %v", op, src_m, dst)
 	}
 	var pushed bool
 	asm.Push(RCX, &pushed)
-	asm.op2RegMem(MOV, MakeReg(RCX, m.Kind()), m)
-	asm.shiftRegReg(op, dst, MakeReg(RCX, Uint8))
+	asm.op2MemReg(MOV, src_m, MakeReg(RCX, src_m.Kind()))
+	asm.shiftRegReg(op, MakeReg(RCX, Uint8), dst)
 	asm.Pop(RCX, pushed)
 	return asm
 }
 
 // off_dst(%reg_dst) SHIFT= off_src(%reg_src)
-func (asm *Asm) shiftMemMem(op Op2, dst Mem, src Mem) *Asm {
-	if dst.reg.id == RCX {
-		errorf("unimplemented shift Mem[RCX] by Mem: %v %v %v", op, dst, src)
+func (asm *Asm) shiftMemMem(op Op2, src_m Mem, dst_m Mem) *Asm {
+	if dst_m.reg.id == RCX {
+		errorf("unimplemented shift Mem[RCX] by Mem: %v %v %v", op, src_m, dst_m)
 	}
 	var pushed bool
 	asm.Push(RCX, &pushed)
-	asm.op2RegMem(MOV, MakeReg(RCX, src.Kind()), src)
-	asm.shiftMemReg(op, dst, MakeReg(RCX, Uint8))
+	asm.op2MemReg(MOV, src_m, MakeReg(RCX, src_m.Kind()))
+	asm.shiftRegMem(op, MakeReg(RCX, Uint8), dst_m)
 	asm.Pop(RCX, pushed)
 	return asm
 }

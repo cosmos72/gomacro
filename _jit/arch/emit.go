@@ -36,12 +36,12 @@ func (asm *Asm) Code() Code {
 	return asm.code
 }
 
-func (asm *Asm) Byte(val uint8) *Asm {
-	asm.code = append(asm.code, val)
+func (asm *Asm) Byte(b byte) *Asm {
+	asm.code = append(asm.code, b)
 	return asm
 }
 
-func (asm *Asm) Bytes(bytes ...uint8) *Asm {
+func (asm *Asm) Bytes(bytes ...byte) *Asm {
 	asm.code = append(asm.code, bytes...)
 	return asm
 }
@@ -110,7 +110,7 @@ func (asm *Asm) Alloc(a Arg) (r Reg, allocated bool) {
 func (asm *Asm) AllocLoad(a Arg) (r Reg, allocated bool) {
 	r, allocated = asm.Alloc(a)
 	if allocated {
-		asm.Mov(r, a)
+		asm.Mov(a, r)
 	}
 	return r, allocated
 }
@@ -136,9 +136,9 @@ func (asm *Asm) Free(r Reg, allocated bool) *Asm {
 }
 
 // combined Store + Free
-func (asm *Asm) StoreFree(a Arg, r Reg, allocated bool) *Asm {
+func (asm *Asm) StoreFree(r Reg, allocated bool, a Arg) *Asm {
 	if allocated {
-		asm.Mov(a, r)
+		asm.Mov(r, a)
 		asm.RegFree(r)
 	}
 	return asm

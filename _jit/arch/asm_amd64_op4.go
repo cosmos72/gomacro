@@ -21,26 +21,27 @@ package arch
 func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, d Arg) *Asm {
 	assert(op == LEA4)
 
-	dst := a.(Reg)
-	m := b.(Mem)
+	src_m := a.(Mem)
 	var reg Reg
 	var scale int64
+	if b != nil {
+		reg = b.(Reg)
+	}
 	if c != nil {
-		reg = c.(Reg)
+		assert(SizeOf(c) == 8)
+		scale = c.(Const).val
 	}
-	if d != nil {
-		assert(SizeOf(d) == 8)
-		scale = d.(Const).val
-	}
+	dst := d.(Reg)
+
 	if reg.id == NoRegId || scale == 0 {
-		return asm.op2RegMem(LEA, dst, m)
-	} else if m.reg.id == NoRegId && scale == 1 {
-		return asm.op2RegMem(LEA, dst, MakeMem(m.off, reg.id, m.reg.kind))
+		return asm.op2MemReg(LEA, src_m, dst)
+	} else if src_m.reg.id == NoRegId && scale == 1 {
+		return asm.op2MemReg(LEA, MakeMem(src_m.off, reg.id, src_m.reg.kind), dst)
 	}
-	return asm.lea4(dst, m, reg, scale)
+	return asm.lea4(src_m, reg, scale, dst)
 }
 
-func (asm *Asm) lea4(dst Reg, m Mem, reg Reg, scale int64) *Asm {
+func (asm *Asm) lea4(m Mem, reg Reg, scale int64, dst Reg) *Asm {
 	op := LEA4
 	assert(SizeOf(dst) == 8)
 	assert(SizeOf(m) == 8)
@@ -57,7 +58,7 @@ func (asm *Asm) lea4(dst Reg, m Mem, reg Reg, scale int64) *Asm {
 		scalebit = 0xC0
 	default:
 		errorf("LEA: unsupported scale %v, expecting 1,2,4 or 8: %v %v %v %v %v",
-			op, dst, m, reg, scale)
+			op, m, reg, scale, dst)
 	}
 	dlo, dhi := dst.lohi()
 	var mlo, mhi uint8
@@ -72,7 +73,7 @@ func (asm *Asm) lea4(dst Reg, m Mem, reg Reg, scale int64) *Asm {
 	}
 	if reg.id == RSP {
 		errorf("LEA: register RSP cannot be scaled: %v %v %v %v %v",
-			op, dst, m, reg, scale)
+			op, m, reg, scale, dst)
 	}
 	rlo, rhi := reg.lohi()
 

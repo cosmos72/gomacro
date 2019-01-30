@@ -46,7 +46,7 @@ func TestMov(t *testing.T) {
 		}
 		r := Reg{id: id, kind: Int64}
 		c.val = int64(rand.Uint64())
-		f := asm.Mov(r, c).Mov(m, r).Func()
+		f := asm.Mov(c, r).Mov(r, m).Func()
 		f(&binds[0])
 		actual := int64(binds[0])
 		if actual != c.val {
@@ -86,12 +86,12 @@ func DeclSum() func(arg int64) int64 {
 	_, Total, I := MakeVar0(n), MakeVar0(total), MakeVar0(i)
 
 	var asm Asm
-	init := asm.Init().Mov(I, ConstInt64(1)).Func()
+	init := asm.Init().Mov(ConstInt64(1), I).Func()
 	pred := func(env *[3]uint64) bool {
 		return int64(env[i]) <= int64(env[n])
 	}
-	next := asm.Init().Op2(ADD, I, ConstInt64(1)).Func()
-	loop := asm.Init().Op2(ADD, Total, I).Func()
+	next := asm.Init().Op2(ADD, ConstInt64(1), I).Func()
+	loop := asm.Init().Op2(ADD, I, Total).Func()
 
 	return func(arg int64) int64 {
 		env := [3]uint64{n: uint64(arg)}
@@ -113,13 +113,13 @@ func TestAdd(t *testing.T) {
 			continue
 		}
 		r := Reg{id: id, kind: Int64}
-		f := asm.Asm(MOV, r, v1, //
+		f := asm.Asm(MOV, v1, r, //
 			NEG, r, //
 			NOT, r, //
-			ADD, r, v2, //
+			ADD, v2, r, //
 			NOT, r, //
 			NEG, r, //
-			MOV, v3, r, //
+			MOV, r, v3, //
 		).Func()
 
 		if verbose {
@@ -170,12 +170,12 @@ func TestCast(t *testing.T) {
 	}
 	r := asm.RegAlloc(Uint64)
 	asm.Asm(
-		CAST, V[1], N[1],
-		CAST, V[2], N[2],
-		CAST, V[3], N[3],
-		CAST, V[4], N[4],
-		CAST, V[5], N[5],
-		CAST, V[6], N[6],
+		CAST, N[1], V[1],
+		CAST, N[2], V[2],
+		CAST, N[3], V[3],
+		CAST, N[4], V[4],
+		CAST, N[5], V[5],
+		CAST, N[6], V[6],
 	).RegFree(r)
 	f := asm.Func()
 	f(&actual[0])
@@ -193,7 +193,7 @@ func TestLea(t *testing.T) {
 	env := [...]uint64{uint64(n)}
 
 	var asm Asm
-	f := asm.Init().Asm(MUL, N, ConstInt64(m)).Func()
+	f := asm.Init().Asm(MUL, ConstInt64(m), N).Func()
 	f(&env[0])
 
 	actual := int64(env[0])

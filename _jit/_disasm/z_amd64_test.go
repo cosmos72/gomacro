@@ -33,17 +33,17 @@ func TestDisasm(t *testing.T) {
 
 	for id := RLo; id <= RHi; id++ {
 		asm.Init()
-		if asm.RegIds.InUse(id) {
+		if asm.RegIsUsed(id) {
 			continue
 		}
 		r := MakeReg(id, Int64)
-		asm.Asm(MOV, r, v1, //
+		asm.Asm(MOV, v1, r, //
 			NEG, r, //
 			NOT, r, //
-			ADD, r, v2, //
+			ADD, v2, r, //
 			NOT, r, //
 			NEG, r, //
-			MOV, v3, r, //
+			MOV, r, v3, //
 		)
 
 		insns, err := engine.Disasm(asm.Code(), 0x10000, 0)
@@ -62,9 +62,9 @@ func TestDisasmSum(t *testing.T) {
 
 	Total, I := MakeVar0(1), MakeVar0(2)
 	asm.Init().Asm( //
-		MOV, I, ConstInt64(1),
-		ADD, I, ConstInt64(1),
-		ADD, Total, I)
+		MOV, ConstInt64(1), I,
+		ADD, ConstInt64(1), I,
+		ADD, I, Total)
 
 	PrintDisasm(asm.Code())
 }
@@ -106,9 +106,9 @@ func TestDisasmLea(t *testing.T) {
 	var asm Asm
 	r := asm.Init().RegAlloc(N.Kind())
 	asm.Asm(
-		MUL, N, ConstInt64(m),
-		LEA, r, N,
-		LEA, r, M)
+		MUL, ConstInt64(m), N,
+		LEA, N, r,
+		LEA, M, r)
 	asm.RegFree(r)
 
 	PrintDisasm(asm.Code())
@@ -120,16 +120,16 @@ func TestDisasmShift(t *testing.T) {
 
 	var asm Asm
 	asm.Init()
-	asm.RegIds[RCX]++
+	asm.RegIncUse(RCX)
 	r := MakeReg(RCX, Uint8)
 	asm.Asm(
-		SHL, M, ConstInt64(0), // nop
-		SHL, M, ConstInt64(1),
-		SHL, N, r,
-		SHR, M, ConstInt64(3),
-		SHR, N, r,
+		SHL, ConstInt64(0), M, // nop
+		SHL, ConstInt64(1), M,
+		SHL, r, N,
+		SHR, ConstInt64(3), M,
+		SHR, r, N,
 	)
-	asm.RegIds[RCX]--
+	asm.RegDecUse(RCX)
 
 	PrintDisasm(asm.Code())
 }

@@ -18,6 +18,7 @@ package arch
 
 import (
 	"fmt"
+	"reflect"
 )
 
 type Const struct {
@@ -83,6 +84,31 @@ func (c Const) Cast(to Kind) Const {
 	return Const{val: val, kind: to}
 }
 
+func MakeConst(val int64, kind Kind) Const {
+	return Const{val: val, kind: kind}
+}
+
 func ConstInt64(val int64) Const {
 	return Const{val: val, kind: Int64}
+}
+
+func ConstInterface(ival interface{}) Const {
+	v := reflect.ValueOf(ival)
+	kind := Kind(v.Kind())
+	var val int64
+	switch kind {
+	case Bool:
+		if v.Bool() {
+			val = 1
+		}
+	case Int, Int8, Int16, Int32, Int64:
+		val = v.Int()
+	case Uint, Uint8, Uint16, Uint32, Uint64, Uintptr:
+		val = int64(v.Uint())
+	case Float32, Float64:
+		errorf("float constants not supported yet")
+	default:
+		errorf("invalid constant kind: %v", kind)
+	}
+	return Const{val: val, kind: kind}
 }
