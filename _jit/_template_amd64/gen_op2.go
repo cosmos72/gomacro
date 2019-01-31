@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/cosmos72/gomacro/jit/arch"
+	"github.com/cosmos72/gomacro/_jit/arch"
 )
 
 type genOp2 struct {
@@ -39,11 +39,12 @@ func NewGenOp2(w io.Writer, opname string) *genOp2 {
 func (g *genOp2) generate() {
 	g.fileHeader()
 	if g.opname != "xchg" {
-		g.opRegConst()
+		g.opConstReg()
+		g.opConstMem()
 	}
 	g.opRegReg()
-	g.opRegMem()
 	g.opMemReg()
+	g.opRegMem()
 }
 
 func (g *genOp2) fileHeader() {
@@ -71,10 +72,18 @@ func (g *genOp2) funcFooter() {
 `)
 }
 
-func (g *genOp2) opRegConst() {
-	g.funcHeader("RegConst")
+func (g *genOp2) opConstReg() {
+	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
+		g.opConstRegKind(k)
+	}
+}
+
+func (g *genOp2) opConstRegKind(k arch.Kind) {
+	kbits := k.Size() * 8
+	conststr := map[arch.Size]string{8: "$0x33", 16: "$0xaabb", 32: "$0x11223344", 64: "$0x55667788"}[kbits]
+	g.funcHeader(fmt.Sprintf("ConstReg%d", kbits))
 	for r := arch.RLo; r <= arch.RHi; r++ {
-		fmt.Fprintf(g.w, "\t%s\t$0x55667788,%v\n", g.opname, r)
+		fmt.Fprintf(g.w, "\t%s\t%s,%v\n", g.opname, conststr, arch.MakeReg(r, k))
 	}
 	g.funcFooter()
 }
@@ -94,15 +103,15 @@ func (g *genOp2) opRegReg() {
 	g.funcFooter()
 }
 
-func (g *genOp2) opRegMem() {
+func (g *genOp2) opMemReg() {
 	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
-		g.opRegMemKind(k)
+		g.opMemRegKind(k)
 	}
 }
 
-func (g *genOp2) opRegMemKind(k arch.Kind) {
+func (g *genOp2) opMemRegKind(k arch.Kind) {
 	klen := k.Size() * 8
-	g.funcHeader(fmt.Sprintf("RegMem%d", klen))
+	g.funcHeader(fmt.Sprintf("MemReg%d", klen))
 	offstr := [...]string{"", "0x7F", "0x78563412"}
 	for i, offlen := range [...]uint8{0, 8, 32} {
 		fmt.Fprintf(g.w, "\t// reg%d OP= mem%d[off%d]\n", klen, klen, offlen)
@@ -119,15 +128,43 @@ func (g *genOp2) opRegMemKind(k arch.Kind) {
 	g.funcFooter()
 }
 
-func (g *genOp2) opMemReg() {
+func (g *genOp2) opConstMem() {
 	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
-		g.opMemRegKind(k)
+		for _, constbits := range [...]arch.Size{8, 16, 32} {
+			conststr := map[arch.Size]string{8: "$0x33", 16: "$0xaabb", 32: "$0x11223344"}[constbits]
+			g.opConstMemKind(k, constbits, conststr)
+		}
 	}
 }
 
-func (g *genOp2) opMemRegKind(k arch.Kind) {
+func (g *genOp2) opConstMemKind(k arch.Kind, constbits arch.Size, conststr string) {
+	kbits := k.Size() * 8
+	if constbits > kbits || constbits == 16 && kbits > 16 {
+		return
+	}
+	g.funcHeader(fmt.Sprintf("Const%dMem%d", constbits, kbits))
+	suffixstr := map[arch.Size]string{1: "b", 2: "w", 4: "l", 8: "q"}[k.Size()]
+	offstr := [...]string{"", "0x7F", "0x78563412"}
+	for i, offlen := range [...]uint8{0, 8, 32} {
+		fmt.Fprintf(g.w, "\t// mem%d[off%d] OP= const%d\n", kbits, offlen, kbits)
+		for dst := arch.RLo; dst <= arch.RHi; dst++ {
+			fmt.Fprintf(g.w, "\t%s%s\t%v,%s(%v)\n", g.opname, suffixstr,
+				conststr, offstr[i], arch.MakeReg(dst, arch.Uintptr))
+		}
+		fmt.Fprint(g.w, "\tnop\n")
+	}
+	g.funcFooter()
+}
+
+func (g *genOp2) opRegMem() {
+	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
+		g.opRegMemKind(k)
+	}
+}
+
+func (g *genOp2) opRegMemKind(k arch.Kind) {
 	klen := k.Size() * 8
-	g.funcHeader(fmt.Sprintf("MemReg%d", klen))
+	g.funcHeader(fmt.Sprintf("RegMem%d", klen))
 	offstr := [...]string{"", "0x7F", "0x78563412"}
 	for i, offlen := range [...]uint8{0, 8, 32} {
 		fmt.Fprintf(g.w, "\t// mem%d[off%d] OP= reg%d\n", klen, offlen, klen)
