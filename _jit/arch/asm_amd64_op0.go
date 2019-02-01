@@ -18,6 +18,33 @@
 
 package arch
 
+import (
+	"fmt"
+)
+
+// ============================================================================
+// no-arg operation
+type Op0 uint8
+
+const (
+	RET Op0 = 0xC3
+	NOP Op0 = 0x90
+)
+
+var op0Name = map[Op0]string{
+	RET: "RET",
+	NOP: "NOP",
+}
+
+func (op Op0) String() string {
+	s, ok := op0Name[op]
+	if !ok {
+		s = fmt.Sprintf("Op0(%d)", int(op))
+	}
+	return s
+}
+
+// ============================================================================
 func (asm *Asm) Op0(op Op0) *Asm {
 	return asm.Byte(uint8(op))
 }

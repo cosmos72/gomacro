@@ -20,143 +20,9 @@ package arch
 
 import (
 	"errors"
-	"fmt"
 )
 
 const SUPPORTED = true
-
-// ============================================================================
-// no-arg operation
-type Op0 uint8
-
-const (
-	RET Op0 = 0xC3
-	NOP Op0 = 0x90
-)
-
-var op0Name = map[Op0]string{
-	RET: "RET",
-	NOP: "NOP",
-}
-
-func (op Op0) String() string {
-	s, ok := op0Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op0(%d)", int(op))
-	}
-	return s
-}
-
-// ============================================================================
-// unary operation
-type Op1 uint8
-
-const (
-	NOT Op1 = 0x10
-	NEG Op1 = 0x18
-	INC Op1 = 0x20
-	DEC Op1 = 0x28
-)
-
-var op1Name = map[Op1]string{
-	NOT: "NOT",
-	NEG: "NEG",
-	INC: "INC",
-	DEC: "DEC",
-}
-
-func (op Op1) String() string {
-	s, ok := op1Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op1(%d)", int(op))
-	}
-	return s
-}
-
-func (op Op1) lohi() (uint8, uint8) {
-	return uint8(op & 0x18), uint8(op >> 2)
-}
-
-// ============================================================================
-// binary operation
-type Op2 uint8
-
-const (
-	ADD Op2 = 0
-	OR  Op2 = 0x08
-	ADC Op2 = 0x10 // add with carry
-	SBB Op2 = 0x18 // subtract with borrow
-	AND Op2 = 0x20
-	SUB Op2 = 0x28
-	XOR Op2 = 0x30
-	// CMP Op = 0x38 // compare, set flags
-	// XCHG Op = 0x86 // exchange. xchg %reg, %reg has different encoding
-	MOV  Op2 = 0x88
-	LEA  Op2 = 0x8D
-	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
-	SHL  Op2 = 0xE0 // shift left. has different encoding
-	SHR  Op2 = 0xE8 // shift right. has different encoding
-	MUL  Op2 = 0xF6
-)
-
-var op2Name = map[Op2]string{
-	ADD: "ADD",
-	OR:  "OR",
-	ADC: "ADC",
-	SBB: "SBB",
-	AND: "AND",
-	SUB: "SUB",
-	XOR: "XOR",
-	// CMP: "CMP",
-	// XCHG: "XCHG",
-	MOV:  "MOV",
-	CAST: "CAST",
-	MUL:  "MUL",
-}
-
-func (op Op2) String() string {
-	s, ok := op2Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op2(%d)", int(op))
-	}
-	return s
-}
-
-// ============================================================================
-// ternary operation
-type Op3 uint8
-
-const (
-	MUL3 Op3 = 0xFF // ??
-)
-
-var op3Name = map[Op3]string{
-	MUL3: "MUL3",
-}
-
-func (op Op3) String() string {
-	s, ok := op3Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op3(%d)", int(op))
-	}
-	return s
-}
-
-// ============================================================================
-// quaternary operation
-type Op4 uint8
-
-const (
-	LEA4 Op4 = 0x8D
-)
-
-func (op Op4) String() string {
-	s := "LEA4"
-	if op != LEA4 {
-		s = "unknown quaternary operation"
-	}
-	return s
-}
 
 // ============================================================================
 // register
@@ -314,7 +180,7 @@ func (r Reg) lohi() (uint8, uint8) {
 }
 
 // return number of assembler bytes needed to encode m.off
-func (m Mem) offlen(id RegId) (uint8, uint8) {
+func (m Mem) offlen(id RegId) (offlen uint8, offbit uint8) {
 	switch {
 	// (%rbp) and (%r13) registers must use 1-byte offset even if m.off == 0
 	case m.off == 0 && id != RBP && id != R13:

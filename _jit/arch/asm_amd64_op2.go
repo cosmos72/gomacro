@@ -18,18 +18,77 @@
 
 package arch
 
+import (
+	"fmt"
+)
+
+// ============================================================================
+// binary operation
+type Op2 uint8
+
+const (
+	ADD Op2 = 0
+	OR  Op2 = 0x08
+	ADC Op2 = 0x10 // add with carry
+	SBB Op2 = 0x18 // subtract with borrow
+	AND Op2 = 0x20
+	SUB Op2 = 0x28
+	XOR Op2 = 0x30
+	// CMP Op = 0x38 // compare, set flags
+	// XCHG Op = 0x86 // exchange. xchg %reg, %reg has different encoding
+	MOV  Op2 = 0x88
+	LEA  Op2 = 0x8D
+	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
+	SHL  Op2 = 0xE0 // shift left. has different encoding
+	SHR  Op2 = 0xE8 // shift right. has different encoding
+	MUL  Op2 = 0xF6
+	DIV  Op2 = 0xFE // TODO divide
+	REM  Op2 = 0xFF // TODO remainder
+)
+
+var op2Name = map[Op2]string{
+	ADD: "ADD",
+	OR:  "OR",
+	ADC: "ADC",
+	SBB: "SBB",
+	AND: "AND",
+	SUB: "SUB",
+	XOR: "XOR",
+	// CMP: "CMP",
+	// XCHG: "XCHG",
+	MOV:  "MOV",
+	CAST: "CAST",
+	MUL:  "MUL",
+	DIV:  "DIV",
+	REM:  "REM",
+}
+
+func (op Op2) String() string {
+	s, ok := op2Name[op]
+	if !ok {
+		s = fmt.Sprintf("Op2(%d)", int(op))
+	}
+	return s
+}
+
+// ============================================================================
 func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
 	if op == CAST {
-		if src.Kind() != dst.Kind() {
+		if SizeOf(src) != SizeOf(dst) {
 			return asm.Cast(src, dst)
 		}
 		op = MOV
 	}
-	if op != SHL && op != SHR {
+	if op == MOV {
+		assert(SizeOf(src) == SizeOf(dst))
+	} else if op != SHL && op != SHR {
 		assert(src.Kind() == dst.Kind())
 	}
 	if asm.optimize(op, src, dst) {
 		return asm
+	}
+	if op == DIV || op == REM {
+		errorf("unimplemented operation %v: %v %v %v", op, op, src, dst)
 	}
 	switch dst := dst.(type) {
 	case Reg:
@@ -74,6 +133,91 @@ func (asm *Asm) op2ConstReg(op Op2, c Const, dst Reg) *Asm {
 	}
 	assert(op != LEA)
 
+	switch dst.kind.Size() {
+	case 1:
+		asm.op2ConstReg8(op, c, dst)
+	case 2:
+		asm.op2ConstReg16(op, c, dst)
+	case 4:
+		asm.op2ConstReg32(op, c, dst)
+	case 8:
+		asm.op2ConstReg64(op, c, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) op2ConstReg8(op Op2, c Const, dst Reg) *Asm {
+	op_ := uint8(op)
+	dlo, dhi := dst.lohi()
+	val := c.val
+	if val == int64(int8(val)) {
+		if dst.id == RAX {
+			asm.Bytes(0x04 | op_)
+		} else if dst.id < RSP {
+			asm.Bytes(0x80, 0xC0|op_|dlo)
+		} else {
+			asm.Bytes(0x40|dhi, 0xC0|op_|dlo)
+		}
+		asm.Int8(int8(val))
+	} else {
+		errorf("sign-extended constant overflows 8-bit destination: %v %v %v", op, c, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) op2ConstReg16(op Op2, c Const, dst Reg) *Asm {
+	op_ := uint8(op)
+	dlo, dhi := dst.lohi()
+	val := c.val
+	if val == int64(int8(val)) {
+		if dhi == 0 {
+			asm.Bytes(0x66, 0x83, 0xc0|op_|dlo)
+		} else {
+			asm.Bytes(0x66, 0x40|dhi, 0x83, 0xc0|op_|dlo)
+		}
+		asm.Int8(int8(val))
+	} else if val == int64(int16(val)) {
+		if dst.id == RAX {
+			asm.Bytes(0x66, 0x05|op_)
+		} else if dhi == 0 {
+			asm.Bytes(0x66, 0x81, 0xc0|op_|dlo)
+		} else {
+			asm.Bytes(0x66, 0x40|dhi, 0x81, 0xc0|op_|dlo)
+		}
+		asm.Int16(int16(val))
+	} else {
+		errorf("sign-extended constant overflows 16-bit destination: %v %v %v", op, c, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) op2ConstReg32(op Op2, c Const, dst Reg) *Asm {
+	op_ := uint8(op)
+	dlo, dhi := dst.lohi()
+	val := c.val
+	if val == int64(int8(val)) {
+		if dhi == 0 {
+			asm.Bytes(0x83, 0xc0|op_|dlo)
+		} else {
+			asm.Bytes(0x40|dhi, 0x83, 0xc0|op_|dlo)
+		}
+		asm.Int8(int8(val))
+	} else if val == int64(int32(val)) {
+		if dst.id == RAX {
+			asm.Bytes(0x05 | op_)
+		} else if dhi == 0 {
+			asm.Bytes(0x81, 0xc0|op_|dlo)
+		} else {
+			asm.Bytes(0x40|dhi, 0x81, 0xc0|op_|dlo)
+		}
+		asm.Int32(int32(val))
+	} else {
+		errorf("sign-extended constant overflows 32-bit destination: %v %v %v", op, c, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) op2ConstReg64(op Op2, c Const, dst Reg) *Asm {
 	dlo, dhi := dst.lohi()
 	op_ := uint8(op)
 	val := c.val
@@ -81,14 +225,15 @@ func (asm *Asm) op2ConstReg(op Op2, c Const, dst Reg) *Asm {
 		asm.Bytes(0x48|dhi, 0x83, 0xC0|op_|dlo, uint8(int8(val)))
 	} else if val == int64(int32(val)) {
 		if dst.id == RAX {
-			asm.Bytes(0x48|dhi, 0x05|op_).Int32(int32(val))
+			asm.Bytes(0x48|dhi, 0x05|op_)
 		} else {
-			asm.Bytes(0x48|dhi, 0x81, 0xC0|op_|dlo).Int32(int32(val))
+			asm.Bytes(0x48|dhi, 0x81, 0xC0|op_|dlo)
 		}
+		asm.Int32(int32(val))
 	} else {
 		// constant is 64 bit wide, must load it in a register
 		r := asm.RegAlloc(c.kind)
-		asm.movConstReg(c, r)
+		asm.movConstReg64(c, r)
 		asm.op2RegReg(op, r, dst)
 		asm.RegFree(r)
 	}
@@ -261,13 +406,64 @@ func (asm *Asm) op2ConstMem(op Op2, c Const, m Mem) *Asm {
 		return asm.mul2ConstMem(c, m)
 	}
 	assert(op != LEA)
-	// TODO: natively supported by amd64
-	// if src is a sign-extended 32 bit constant
-	// currently, loads src in a register
-	r := asm.RegAlloc(c.kind)
-	asm.movConstReg(c, r)
-	asm.op2RegMem(op, r, m)
-	return asm.RegFree(r)
+	op_ := uint8(op)
+	dst := m.reg
+	dlo, dhi := dst.lohi()
+	offlen, offbit := m.offlen(dst.id)
+	val := c.val
+	switch dst.kind.Size() {
+	case 1:
+		if dhi == 0 {
+			asm.Bytes(0x80, offbit|op_|dlo)
+		} else {
+			asm.Bytes(0x40|dhi, 0x80, offbit|op_|dlo)
+		}
+	case 2:
+		asm.Byte(0x66)
+		fallthrough
+	case 4:
+		if val == int64(int8(val)) {
+			if dhi == 0 {
+				asm.Bytes(0x83, offbit|op_|dlo)
+			} else {
+				asm.Bytes(0x40|dhi, 0x83, offbit|op_|dlo)
+			}
+		} else {
+			if dhi == 0 {
+				asm.Bytes(0x81, offbit|op_|dlo)
+			} else {
+				asm.Bytes(0x40|dhi, 0x81, offbit|op_|dlo)
+			}
+		}
+	case 8:
+		if val == int64(int8(val)) {
+			asm.Bytes(0x48|dhi, 0x83, offbit|op_|dlo)
+		} else if val == int64(int32(val)) {
+			asm.Bytes(0x48|dhi, 0x81, offbit|op_|dlo)
+		} else {
+			// not natively supported by amd64,
+			// must allocate a register
+			r := asm.RegAlloc(c.kind)
+			asm.movConstReg64(c, r).op2RegMem(op, r, m)
+			return asm.RegFree(r)
+		}
+	}
+	asm.quirk24(dst)
+	switch offlen {
+	case 1:
+		asm.Int8(int8(m.off))
+	case 4:
+		asm.Int32(m.off)
+	}
+
+	if val == int64(int8(val)) {
+		asm.Int8(int8(val))
+	} else if dst.kind.Size() == 2 {
+		asm.Int16(int16(val))
+	} else {
+		asm.Int32(int32(val))
+	}
+	return asm
 }
 
 func (asm *Asm) optimize(op Op2, src Arg, dst Arg) bool {
@@ -347,6 +543,9 @@ func (asm *Asm) optimize(op Op2, src Arg, dst Arg) bool {
 			asm.Op2(MOV, src, dst)
 			return true
 		case 1:
+			return true
+		case -1:
+			asm.Op1(NEG, dst)
 			return true
 		}
 	}

@@ -1,9 +1,10 @@
-gomacro
-gomacro.test
+/gomacro
+/gomacro.test
 a.out
 *~
 *.o
 *.exe
 *.test
-*.dump.s
-example/example
+*.dump
+/example/example
+/_jit/_template_amd64/_template_amd64

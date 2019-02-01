@@ -73,25 +73,33 @@ func TestDisasmCast(t *testing.T) {
 	const n uint64 = 0xEFCDAB8967452301
 	N := [...]Mem{
 		MakeVar0K(0, Uint64),
-		MakeVar0K(0, Uint8), MakeVar0K(0, Uint16), MakeVar0K(0, Uint32),
-		MakeVar0K(0, Int8), MakeVar0K(0, Int16), MakeVar0K(0, Int32),
+		MakeVar0K(1, Uint8), MakeVar0K(2, Uint16), MakeVar0K(3, Uint32),
+		MakeVar0K(4, Int8), MakeVar0K(5, Int16), MakeVar0K(6, Int32),
 	}
 	V := [...]Mem{
-		MakeVar0K(0, Uint64),
-		MakeVar0K(1, Uint64), MakeVar0K(2, Uint64), MakeVar0K(3, Uint64),
-		MakeVar0K(4, Uint64), MakeVar0K(5, Uint64), MakeVar0K(6, Uint64),
+		MakeVar0K(8, Uint64),
+		MakeVar0K(9, Uint64), MakeVar0K(10, Uint64), MakeVar0K(11, Uint64),
+		MakeVar0K(12, Uint64), MakeVar0K(13, Uint64), MakeVar0K(14, Uint64),
 	}
 	var asm Asm
 	asm.Init()
-	r := asm.RegAlloc(Uint64)
 	asm.Asm(
-		CAST, V[1], N[1], // MOV, V[1], r,
-		CAST, V[2], N[2], // MOV, V[2], r,
-		CAST, V[3], N[3], // MOV, V[3], r,
-		CAST, V[4], N[4], // MOV, V[4], r,
-		CAST, V[5], N[5], // MOV, V[5], r,
-		CAST, V[6], N[6], // MOV, V[6], r,
-	).RegFree(r)
+		NOP,
+		CAST, N[1], V[1],
+		CAST, N[2], V[2],
+		CAST, N[3], V[3],
+		CAST, N[4], V[4],
+		CAST, N[5], V[5],
+		CAST, N[6], V[6],
+		NOP,
+		CAST, V[1], N[1],
+		CAST, V[2], N[2],
+		CAST, V[3], N[3],
+		CAST, V[4], N[4],
+		CAST, V[5], N[5],
+		CAST, V[6], N[6],
+		RET,
+	)
 
 	PrintDisasm(asm.Code())
 }

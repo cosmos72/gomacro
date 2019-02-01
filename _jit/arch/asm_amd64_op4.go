@@ -18,6 +18,27 @@
 
 package arch
 
+import (
+	"fmt"
+)
+
+// ============================================================================
+// quaternary operation
+type Op4 uint8
+
+const (
+	LEA4 Op4 = 0x8D
+)
+
+func (op Op4) String() string {
+	s := "LEA4"
+	if op != LEA4 {
+		s = fmt.Sprintf("Op4(%d)", int(op))
+	}
+	return s
+}
+
+// ============================================================================
 func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, d Arg) *Asm {
 	assert(op == LEA4)
 

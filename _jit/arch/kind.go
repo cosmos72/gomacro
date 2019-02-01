@@ -76,6 +76,10 @@ func (k Kind) Signed() bool {
 	}
 }
 
+func (k Kind) IsFloat() bool {
+	return k == Float32 || k == Float64
+}
+
 func (k Kind) String() string {
 	return reflect.Kind(k).String()
 }

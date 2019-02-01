@@ -18,6 +18,7 @@
 
 package arch
 
+// ============================================================================
 func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 	return asm.Op2(MOV, src, dst)
 }
@@ -42,21 +43,128 @@ func (asm *Asm) movConstReg(c Const, dst Reg) *Asm {
 	if c.val == 0 {
 		return asm.zeroReg(dst)
 	}
+	switch dst.kind.Size() {
+	case 1:
+		asm.movConstReg8(c, dst)
+	case 2:
+		asm.movConstReg16(c, dst)
+	case 4:
+		asm.movConstReg32(c, dst)
+	case 8:
+		asm.movConstReg64(c, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) movConstReg8(c Const, dst Reg) *Asm {
 	dlo, dhi := dst.lohi()
+	val := c.val
+	if val == int64(int8(val)) {
+		if dst.id < RSP {
+			asm.Bytes(0xB0 | dlo)
+		} else {
+			asm.Bytes(0x40|dhi, 0xB0|dlo)
+		}
+		asm.Int8(int8(val))
+	} else {
+		errorf("sign-extended constant overflows 8-bit destination: %v %v %v", MOV, c, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) movConstReg16(c Const, dst Reg) *Asm {
+	dlo, dhi := dst.lohi()
+	val := c.val
+	if val == int64(int16(val)) {
+		if dhi == 0 {
+			asm.Bytes(0x66, 0xB8|dlo)
+		} else {
+			asm.Bytes(0x66, 0x40|dhi, 0xB8|dlo)
+		}
+		asm.Int16(int16(val))
+	} else {
+		errorf("sign-extended constant overflows 16-bit destination: %v %v %v", MOV, c, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) movConstReg32(c Const, dst Reg) *Asm {
+	dlo, dhi := dst.lohi()
+	val := c.val
+	if val == int64(int32(val)) {
+		if dhi == 0 {
+			asm.Byte(0xB8 | dlo)
+		} else {
+			asm.Bytes(40|dhi, 0xB8|dlo)
+		}
+		asm.Int32(int32(val))
+	} else {
+		errorf("sign-extended constant overflows 16-bit destination: %v %v %v", MOV, c, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) movConstReg64(c Const, dst Reg) *Asm {
+	dlo, dhi := dst.lohi()
+	val := c.val
 	// 32-bit signed immediate constants, use mov
-	if c.val == int64(int32(c.val)) {
-		return asm.Bytes(0x48|dhi, 0xC7, 0xC0|dlo).Int32(int32(c.val))
+	if val == int64(int32(val)) {
+		return asm.Bytes(0x48|dhi, 0xC7, 0xC0|dlo).Int32(int32(val))
 	}
 	// 64-bit constant, must use movabs
-	return asm.Bytes(0x48|dhi, 0xB8|dlo).Int64(c.val)
+	return asm.Bytes(0x48|dhi, 0xB8|dlo).Int64(val)
 }
 
 // off_dst(%reg_dst) = const
-func (asm *Asm) movConstMem(c Const, dst Mem) *Asm {
-	r := asm.RegAlloc(dst.Kind())
-	return asm.movConstReg(c, r).Op2(MOV, r, dst).RegFree(r)
+func (asm *Asm) movConstMem(c Const, m Mem) *Asm {
+	dst := m.reg
+	dlo, dhi := dst.lohi()
+	offlen, offbit := m.offlen(dst.id)
+	val := c.val
+	switch dst.kind.Size() {
+	case 1:
+		if dhi == 0 {
+			asm.Bytes(0xC6, offbit|dlo)
+		} else {
+			asm.Bytes(0x40|dhi, 0xC6, offbit|dlo)
+		}
+	case 2:
+		asm.Byte(0x66)
+		fallthrough
+	case 4:
+		if dhi == 0 {
+			asm.Bytes(0xC7, offbit|dlo)
+		} else {
+			asm.Bytes(0x40|dhi, 0xC7, offbit|dlo)
+		}
+	case 8:
+		if val == int64(int32(val)) {
+			asm.Bytes(0x48|dhi, 0xC7, offbit|dlo)
+		} else {
+			r := asm.RegAlloc(dst.Kind())
+			return asm.movConstReg64(c, r).Op2(MOV, r, dst).RegFree(r)
+		}
+	}
+	asm.quirk24(dst)
+	switch offlen {
+	case 1:
+		asm.Int8(int8(m.off))
+	case 4:
+		asm.Int32(m.off)
+	}
+
+	switch dst.kind.Size() {
+	case 1:
+		asm.Int8(int8(val))
+	case 2:
+		asm.Int16(int16(val))
+	case 4, 8:
+		asm.Int32(int32(val))
+	}
+	return asm
 }
 
+// ============================================================================
 // movsx, movzx or mov
 func (asm *Asm) Cast(src Arg, dst Arg) *Asm {
 	if src == dst {
@@ -188,13 +296,21 @@ func (asm *Asm) castRegMem(src Reg, dst_m Mem) *Asm {
 	// assume that user code cannot use the same register
 	// multiple times with different kinds
 	r := MakeReg(src.id, dst.kind)
-	asm.castRegReg(r, src)
+	asm.castRegReg(src, r)
 	return asm.op2RegMem(MOV, r, dst_m)
 }
 
 func (asm *Asm) castMemMem(src Mem, dst Mem) *Asm {
-	r := asm.RegAlloc(dst.Kind())
-	asm.castMemReg(src, r)
-	asm.op2RegMem(MOV, r, dst)
-	return asm.RegFree(r)
+	if SizeOf(src) > SizeOf(dst) && !src.Kind().IsFloat() {
+		// just read the lowest bytes from src
+		asm.op2MemMem(MOV,
+			MakeMem(src.off, src.reg.id, dst.reg.kind),
+			dst)
+	} else {
+		r := asm.RegAlloc(dst.Kind())
+		asm.castMemReg(src, r)
+		asm.op2RegMem(MOV, r, dst)
+		asm.RegFree(r)
+	}
+	return asm
 }

@@ -18,6 +18,41 @@
 
 package arch
 
+import (
+	"fmt"
+)
+
+// ============================================================================
+// unary operation
+type Op1 uint8
+
+const (
+	NOT Op1 = 0x10
+	NEG Op1 = 0x18
+	INC Op1 = 0x20
+	DEC Op1 = 0x28
+)
+
+var op1Name = map[Op1]string{
+	NOT: "NOT",
+	NEG: "NEG",
+	INC: "INC",
+	DEC: "DEC",
+}
+
+func (op Op1) String() string {
+	s, ok := op1Name[op]
+	if !ok {
+		s = fmt.Sprintf("Op1(%d)", int(op))
+	}
+	return s
+}
+
+func (op Op1) lohi() (uint8, uint8) {
+	return uint8(op & 0x18), uint8(op >> 2)
+}
+
+// ============================================================================
 func (asm *Asm) Op1(op Op1, a Arg) *Asm {
 	switch a := a.(type) {
 	case Reg:
