@@ -31,7 +31,7 @@ func (c Const) String() string {
 }
 
 // implement Arg interface
-func (c Const) RegId() RegId {
+func (c Const) UsedRegId() RegId {
 	return NoRegId
 }
 

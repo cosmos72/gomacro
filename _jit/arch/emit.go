@@ -99,9 +99,8 @@ func (asm *Asm) RegAlloc(kind Kind) Reg {
 }
 
 func (asm *Asm) Alloc(a Arg) (r Reg, allocated bool) {
-	id := a.RegId()
-	if id != NoRegId {
-		return Reg{id: id, kind: a.Kind()}, false
+	if r, ok := a.(Reg); ok {
+		return r, false
 	}
 	return asm.RegAlloc(a.Kind()), true
 }

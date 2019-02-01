@@ -19,7 +19,7 @@ package arch
 type Size uint8 // 1, 2, 4 or 8
 
 type Arg interface {
-	RegId() RegId // NoReg if not a register
+	UsedRegId() RegId // register used by Arg, or NoReg if Arg is Const
 	Kind() Kind
 	Const() bool
 }

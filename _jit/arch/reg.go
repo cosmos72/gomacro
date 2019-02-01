@@ -30,7 +30,7 @@ func MakeReg(id RegId, kind Kind) Reg {
 }
 
 // implement Arg interface
-func (r Reg) RegId() RegId {
+func (r Reg) UsedRegId() RegId {
 	return r.id
 }
 

@@ -62,15 +62,14 @@ func TestDisasmSum(t *testing.T) {
 
 	Total, I := MakeVar0(1), MakeVar0(2)
 	asm.Init().Asm( //
-		MOV, ConstInt64(1), I,
-		ADD, ConstInt64(1), I,
+		MOV, ConstInt64(0xFF), I,
+		ADD, ConstInt64(2), I,
 		ADD, I, Total)
 
 	PrintDisasm(asm.Code())
 }
 
 func TestDisasmCast(t *testing.T) {
-	const n uint64 = 0xEFCDAB8967452301
 	N := [...]Mem{
 		MakeVar0K(0, Uint64),
 		MakeVar0K(1, Uint8), MakeVar0K(2, Uint16), MakeVar0K(3, Uint32),
