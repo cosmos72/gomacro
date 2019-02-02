@@ -116,19 +116,18 @@ const (
 	REM  = arch.REM
 
 	// Op3
-	ADD3  = arch.ADD3
-	OR3   = arch.OR3
-	ADC3  = arch.ADC3
-	SBB3  = arch.SBB3
-	AND3  = arch.AND3
-	SUB3  = arch.SUB3
-	XOR3  = arch.XOR3
-	CAST3 = arch.CAST3
-	SHL3  = arch.SHL3
-	SHR3  = arch.SHR3
-	MUL3  = arch.MUL3
-	DIV3  = arch.DIV3
-	REM3  = arch.REM3
+	ADD3 = arch.ADD3
+	OR3  = arch.OR3
+	ADC3 = arch.ADC3
+	SBB3 = arch.SBB3
+	AND3 = arch.AND3
+	SUB3 = arch.SUB3
+	XOR3 = arch.XOR3
+	SHL3 = arch.SHL3
+	SHR3 = arch.SHR3
+	MUL3 = arch.MUL3
+	DIV3 = arch.DIV3
+	REM3 = arch.REM3
 
 	// Op4
 	LEA4 = arch.LEA4

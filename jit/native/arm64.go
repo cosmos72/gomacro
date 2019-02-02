@@ -98,7 +98,8 @@ const (
 	X28     = arch.X28
 	X29     = arch.X29
 	X30     = arch.X30
-	X31     = arch.X31
+	XZR     = arch.XZR
+	XSP     = arch.XSP
 	RLo     = arch.RLo
 	RHi     = arch.RHi
 
