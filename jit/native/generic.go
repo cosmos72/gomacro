@@ -16,7 +16,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package native
+package arch
 
 import (
 	arch "github.com/cosmos72/gomacro/jit/generic"
