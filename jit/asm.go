@@ -17,7 +17,7 @@
 package jit
 
 import (
-	"github.com/cosmos72/gomacro/jit/arch"
+	arch "github.com/cosmos72/gomacro/jit/native"
 )
 
 const (

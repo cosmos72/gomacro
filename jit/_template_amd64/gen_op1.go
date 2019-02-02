@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * _gen_op2.go
+ * gen_op1.go
  *
  *  Created on Jan 28, 2019
  *      Author Massimiliano Ghilardi

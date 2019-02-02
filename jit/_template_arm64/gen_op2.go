@@ -95,11 +95,16 @@ func (g *genOp2) opRegReg() {
 	g.funcHeader("RegReg")
 	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
 		fmt.Fprintf(g.w, "\t// reg%d OP= reg%d\n", k.Size()*8, k.Size()*8)
-		for src := arch.RLo; src <= arch.RHi; src++ {
-			for dst := arch.RLo; dst <= arch.RHi; dst++ {
-				fmt.Fprintf(g.w, "\t%s\t%v,%v\n", g.opname, arch.MakeReg(src, k), arch.MakeReg(dst, k))
-			}
-			fmt.Fprint(g.w, "\tnop\n")
+		for r := arch.RLo; r <= arch.RHi; r++ {
+			fmt.Fprintf(g.w, "\t%s\t%v,%v,%v\n", g.opname, arch.MakeReg(r, k), r, r)
+		}
+		fmt.Fprint(g.w, "\tnop\n")
+		for r := arch.RLo; r <= arch.RHi; r++ {
+			fmt.Fprintf(g.w, "\t%s\t%v,%v,%v\n", g.opname, r, arch.MakeReg(r, k), r)
+		}
+		fmt.Fprint(g.w, "\tnop\n")
+		for r := arch.RLo; r <= arch.RHi; r++ {
+			fmt.Fprintf(g.w, "\t%s\t%v,%v,%v\n", g.opname, r, r, arch.MakeReg(r, k))
 		}
 		fmt.Fprint(g.w, "\tnop\n")
 	}

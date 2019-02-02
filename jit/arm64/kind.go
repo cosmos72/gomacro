@@ -1,0 +1,1 @@
+../generic/kind.go
