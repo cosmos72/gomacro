@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * machine_arm64.go
+ * arm64.go
  *
  *  Created on May 26, 2018
  *      Author Massimiliano Ghilardi
@@ -18,33 +18,11 @@
 
 package arch
 
-const SUPPORTED = false
+import (
+	"errors"
+)
 
-type Op0 struct{}
-type Op1 struct{}
-type Op2 struct{}
-type Op3 struct{}
-type Op4 struct{}
-
-func (asm *Asm) Op0(op Op0) *Asm {
-	return asm
-}
-
-func (asm *Asm) Op1(op Op1, dst Arg) *Asm {
-	return asm
-}
-
-func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
-	return asm
-}
-
-func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
-	return asm
-}
-
-func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
-	return asm
-}
+const SUPPORTED = false // not working yet
 
 const (
 	NoRegId RegId = iota
@@ -84,26 +62,20 @@ const (
 	RHi = X31
 )
 
-var alwaysLiveRegs = RegIds{
+var alwaysLiveRegIds = RegIds{
 	X28: 1, // pointer to goroutine-local data
 	X29: 1, // jit *uint64 pointer-to-variables
 	X30: 1, // link register?
 	X31: 1, // instruction pointer? return address?
 }
 
-func (r Reg) Valid() bool {
-	return r >= rLo && r <= rHi
-}
-
-func (r Reg) Validate() {
-	if !r.Valid() {
-		errorf("invalid register: %d", r)
-	}
+func (id RegId) Valid() bool {
+	return id >= RLo && id <= RHi
 }
 
 func (r Reg) lo() uint32 {
 	r.Validate()
-	return uint32(r) - 1
+	return uint32(r.id) - 1
 }
 
 func (asm *Asm) Prologue() *Asm {
@@ -112,6 +84,17 @@ func (asm *Asm) Prologue() *Asm {
 
 func (asm *Asm) Epilogue() *Asm {
 	return asm.Uint32(0xd65f03c0) // ret
+}
+
+func (asm *Asm) archPush(id RegId) {
+	errorf("archPush not implemented")
+}
+
+func (asm *Asm) archPop(id RegId) {
+	errorf("archPush not implemented")
+}
+
+func (s *Save) ArchInit(start uint16, end uint16) {
 }
 
 var assertError = errors.New("jit/arm64 internal error, assertion failed")

@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * asm_amd64_mov.go
+ * amd64_mov.go
  *
  *  Created on Jan 23, 2019
  *      Author Massimiliano Ghilardi

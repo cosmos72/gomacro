@@ -1,3 +1,5 @@
+// +build !darwin,!dragonfly,!freebsd,!linux,!netbsd,!openbsd,!windows
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -8,20 +10,17 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * api.go
+ * sys_unsupported.go
  *
- *  Created on May 20, 2018
+ *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package arch
 
-import (
-	"github.com/cosmos72/gomacro/_jit/arch"
-)
+func nop(*uint64) {
+}
 
-type Var struct {
-	idx  uint16
-	upn  uint16
-	kind arch.Kind
+func (asm *Asm) Func() func(*uint64) {
+	return nop
 }

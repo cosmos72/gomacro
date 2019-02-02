@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * machine_dummy.go
+ * unsupported.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
@@ -19,6 +19,18 @@
 package arch
 
 const SUPPORTED = false
+
+const (
+	NoRegId RegId = iota
+	RLo           = NoRegId
+	RHi           = NoRegId
+)
+
+func (r RegId) Valid() bool {
+	return false
+}
+
+var alwaysLiveRegIds RegIds // empty
 
 type Op0 struct{}
 type Op1 struct{}
@@ -46,14 +58,23 @@ func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
 	return asm
 }
 
-const (
-	NoRegId RegId = iota
-	RLo           = NoRegId
-	RHi           = NoRegId
-)
-
-func (r RegId) Valid() bool {
-	return false
+func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
+	return asm
 }
 
-var alwaysLiveHwRegs = Regs{}
+func (asm *Asm) Prologue() *Asm {
+	return asm
+}
+
+func (asm *Asm) Epilogue() *Asm {
+	return asm
+}
+
+func (asm *Asm) archPush(id RegId) {
+}
+
+func (asm *Asm) archPop(id RegId) {
+}
+
+func (s *Save) ArchInit(start uint16, end uint16) {
+}

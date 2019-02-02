@@ -1,4 +1,4 @@
-// +build amd64
+// +build arm64
 
 /*
  * gomacro - A Go interpreter with Lisp-like macros
@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * asm_amd64_op0.go
+ * arm64_op0.go
  *
  *  Created on Jan 27, 2019
  *      Author Massimiliano Ghilardi
@@ -27,13 +27,17 @@ import (
 type Op0 uint8
 
 const (
+/*
 	RET Op0 = 0xC3
 	NOP Op0 = 0x90
+*/
 )
 
 var op0Name = map[Op0]string{
-	RET: "RET",
-	NOP: "NOP",
+	/*
+		RET: "RET",
+		NOP: "NOP",
+	*/
 }
 
 func (op Op0) String() string {

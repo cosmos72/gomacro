@@ -1,5 +1,3 @@
-// +build !darwin,!dragonfly,!freebsd,!linux,!netbsd,!openbsd,!windows
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -10,17 +8,20 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * sys_dummy.go
+ * arg.go
  *
- *  Created on May 24, 2018
+ *  Created on Jan 29, 2018
  *      Author Massimiliano Ghilardi
  */
 
-package arch
+package jit
 
-func nop(*uint64) {
-}
+import (
+	"github.com/cosmos72/gomacro/jit/arch"
+)
 
-func (asm *Asm) Func() func(*uint64) {
-	return nop
+type Arg interface {
+	Reg(asm *Asm) arch.Reg // arch.Reg{} if not a register
+	Kind(asm *Asm) arch.Kind
+	Const() bool
 }

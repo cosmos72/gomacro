@@ -17,7 +17,7 @@
 package jit
 
 import (
-	"github.com/cosmos72/gomacro/_jit/arch"
+	"github.com/cosmos72/gomacro/jit/arch"
 )
 
 // software-defined register. mapped to hardware register by Asm

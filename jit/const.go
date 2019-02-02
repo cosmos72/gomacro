@@ -8,20 +8,36 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arg.go
+ * const.go
  *
- *  Created on Jan 29, 2018
+ *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
  */
 
 package jit
 
 import (
-	"github.com/cosmos72/gomacro/_jit/arch"
+	"github.com/cosmos72/gomacro/jit/arch"
 )
 
-type Arg interface {
-	Reg(asm *Asm) arch.Reg // arch.Reg{} if not a register
-	Kind(asm *Asm) arch.Kind
-	Const() bool
+type Const struct {
+	val  int64
+	kind arch.Kind
+}
+
+func ConstInt64(val int64) *Const {
+	return &Const{val: val, kind: arch.Int64}
+}
+
+// implement Arg interface
+func (c Const) Reg(asm *Asm) arch.Reg {
+	return arch.Reg{}
+}
+
+func (c Const) Kind() arch.Kind {
+	return c.kind
+}
+
+func (c Const) Const() bool {
+	return true
 }

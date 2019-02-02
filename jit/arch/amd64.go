@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * machine_amd64.go
+ * amd64.go
  *
  *  Created on May 20, 2018
  *      Author Massimiliano Ghilardi
@@ -131,12 +131,6 @@ func (id RegId) Valid() bool {
 	return id >= RLo && id <= RHi
 }
 
-func (id RegId) Validate() {
-	if !id.Valid() {
-		errorf("invalid register: %v", id)
-	}
-}
-
 func (id RegId) String() string {
 	if !id.Valid() {
 		id = NoRegId
@@ -177,6 +171,14 @@ func (r Reg) hi() uint8 {
 func (r Reg) lohi() (uint8, uint8) {
 	bits := r.bits()
 	return bits & 0x7, (bits & 0x8) >> 3
+}
+
+func MakeVar0(index uint16) Mem {
+	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: Int64}}
+}
+
+func MakeVar0K(index uint16, k Kind) Mem {
+	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: k}}
 }
 
 // return number of assembler bytes needed to encode m.off

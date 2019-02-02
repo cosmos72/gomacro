@@ -43,14 +43,6 @@ func (m Mem) Const() bool {
 	return false
 }
 
-func MakeVar0(index uint16) Mem {
-	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: Int64}}
-}
-
-func MakeVar0K(index uint16, k Kind) Mem {
-	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: k}}
-}
-
 func MakeMem(off int32, id RegId, k Kind) Mem {
 	return Mem{off: off, reg: Reg{id: id, kind: k}}
 }

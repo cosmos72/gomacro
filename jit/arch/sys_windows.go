@@ -38,7 +38,7 @@ func (asm *Asm) Func() func(*uint64) {
 	if len(asm.code) == 0 {
 		return nop
 	}
-	asm.epilogue()
+	asm.Epilogue()
 	if VERBOSE {
 		fmt.Printf("asm: %#v\n", asm.code)
 	}

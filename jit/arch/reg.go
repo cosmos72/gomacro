@@ -19,6 +19,12 @@ package arch
 // hardware register. implementation is architecture-dependent
 type RegId uint8
 
+func (id RegId) Validate() {
+	if !id.Valid() {
+		errorf("invalid register: %v", id)
+	}
+}
+
 // register + kind
 type Reg struct {
 	id   RegId

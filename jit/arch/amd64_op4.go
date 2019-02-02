@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * asm_amd64_op4.go
+ * amd64_op4.go
  *
  *  Created on Jan 27, 2019
  *      Author Massimiliano Ghilardi
@@ -39,7 +39,7 @@ func (op Op4) String() string {
 }
 
 // ============================================================================
-func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, d Arg) *Asm {
+func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
 	assert(op == LEA4)
 
 	src_m := a.(Mem)
@@ -52,14 +52,14 @@ func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, d Arg) *Asm {
 		assert(SizeOf(c) == 8)
 		scale = c.(Const).val
 	}
-	dst := d.(Reg)
+	dreg := dst.(Reg)
 
 	if reg.id == NoRegId || scale == 0 {
-		return asm.op2MemReg(LEA, src_m, dst)
+		return asm.op2MemReg(LEA, src_m, dreg)
 	} else if src_m.reg.id == NoRegId && scale == 1 {
-		return asm.op2MemReg(LEA, MakeMem(src_m.off, reg.id, src_m.reg.kind), dst)
+		return asm.op2MemReg(LEA, MakeMem(src_m.off, reg.id, src_m.reg.kind), dreg)
 	}
-	return asm.lea4(src_m, reg, scale, dst)
+	return asm.lea4(src_m, reg, scale, dreg)
 }
 
 func (asm *Asm) lea4(m Mem, reg Reg, scale int64, dst Reg) *Asm {
