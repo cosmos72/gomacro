@@ -25,43 +25,51 @@ import (
 type Op2 uint8
 
 const (
+	AND = Op2(AND3)
+	ADD = Op2(ADD3)
+	ADC = Op2(ADC3) // add with carry
+	MUL = Op2(MUL3)
+	SHL = Op2(SHL3) // shift left
+	SHR = Op2(SHR3) // shift right
+	OR  = Op2(OR3)
+	XOR = Op2(XOR3)
+	SUB = Op2(SUB3)
+	SBB = Op2(SBB3) // subtract with borrow
+
+	MOV  Op2 = 0x2B // implemented as OR3 xzr,src,dst
+	CAST Op2 = 0xFF // TODO pick a value. sign extend, zero extend or narrow.
+
 /*
-	ADD Op2 = 0
-	OR  Op2 = 0x08
-	ADC Op2 = 0x10 // add with carry
-	SBB Op2 = 0x18 // subtract with borrow
-	AND Op2 = 0x20
-	SUB Op2 = 0x28
-	XOR Op2 = 0x30
-	// CMP Op = 0x38 // compare, set flags
-	// XCHG Op = 0x86 // exchange
-	MOV  Op2 = 0x88
-	LEA  Op2 = 0x8D
-	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
-	SHL  Op2 = 0xE0 // shift left
-	SHR  Op2 = 0xE8 // shift right
-	MUL  Op2 = 0xF6
-	DIV  Op2 = 0xFE // divide
-	REM  Op2 = 0xFF // remainder
+	CMP  Op2 = ?? // compare, set flags
+	XCHG Op2 = ?? // exchange
+	DIV  Op2 = ?? // divide
+	REM  Op2 = ?? // remainder
+
+	NEG2 Op2
+	NOT2 Op2
 */
 )
 
 var op2Name = map[Op2]string{
+	ADD:  "ADD",
+	AND:  "AND",
+	ADC:  "ADC",
+	MUL:  "MUL",
+	SHL:  "SHL",
+	OR:   "OR",
+	XOR:  "XOR",
+	SUB:  "SUB",
+	SBB:  "SBB",
+	MOV:  "MOV",
+	CAST: "CAST",
 	/*
-		ADD: "ADD",
-		OR:  "OR",
-		ADC: "ADC",
-		SBB: "SBB",
-		AND: "AND",
-		SUB: "SUB",
-		XOR: "XOR",
-		// CMP: "CMP",
-		// XCHG: "XCHG",
-		MOV:  "MOV",
-		CAST: "CAST",
-		MUL:  "MUL",
+		CMP:  "CMP",
+		XCHG: "XCHG",
 		DIV:  "DIV",
 		REM:  "REM",
+
+		NEG2: "NEG2",
+		NOT2: "NOT2",
 	*/
 }
 
@@ -74,13 +82,19 @@ func (op Op2) String() string {
 }
 
 // ============================================================================
-func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
-	// return asm.Op2(MOV, src, dst)
-	errorf("Mov not implemented: %v %v", src, dst)
-	return asm
-}
-
 func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
-	errorf("Op2 not implemented: %v %v %v", op, src, dst)
-	return asm
+	if op == CAST {
+		if SizeOf(src) != SizeOf(dst) {
+			return asm.Cast(src, dst)
+		}
+		op = MOV
+	}
+	if op == MOV {
+		return asm.Mov(src, dst)
+	}
+	// dst OP= src
+	//    translates to
+	// dst = dst OP src
+	//    note the argument order
+	return asm.Op3(Op3(op), dst, src, dst)
 }

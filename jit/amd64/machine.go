@@ -18,10 +18,10 @@ package arch
 
 import (
 	"errors"
+	"fmt"
 )
 
 const SUPPORTED = true
-
 const Name = "amd64"
 
 // ============================================================================
@@ -51,80 +51,76 @@ const (
 var alwaysLiveRegIds = RegIds{RSP: 1, RBP: 1, RDI: 1 /* &Env.IntBinds[0] */}
 
 var regName1 = [...]string{
-	NoRegId: "unknown 1-byte register",
-	RAX:     "%al",
-	RCX:     "%cl",
-	RDX:     "%dl",
-	RBX:     "%bl",
-	RSP:     "%spl",
-	RBP:     "%bpl",
-	RSI:     "%sil",
-	RDI:     "%dil",
-	R8:      "%r8b",
-	R9:      "%r9b",
-	R10:     "%r10b",
-	R11:     "%r11b",
-	R12:     "%r12b",
-	R13:     "%r13b",
-	R14:     "%r14b",
-	R15:     "%r15b",
+	RAX: "%al",
+	RCX: "%cl",
+	RDX: "%dl",
+	RBX: "%bl",
+	RSP: "%spl",
+	RBP: "%bpl",
+	RSI: "%sil",
+	RDI: "%dil",
+	R8:  "%r8b",
+	R9:  "%r9b",
+	R10: "%r10b",
+	R11: "%r11b",
+	R12: "%r12b",
+	R13: "%r13b",
+	R14: "%r14b",
+	R15: "%r15b",
 }
 var regName2 = [...]string{
-	NoRegId: "unknown 2-byte register",
-	RAX:     "%ax",
-	RCX:     "%cx",
-	RDX:     "%dx",
-	RBX:     "%bx",
-	RSP:     "%sp",
-	RBP:     "%bp",
-	RSI:     "%si",
-	RDI:     "%di",
-	R8:      "%r8w",
-	R9:      "%r9w",
-	R10:     "%r10w",
-	R11:     "%r11w",
-	R12:     "%r12w",
-	R13:     "%r13w",
-	R14:     "%r14w",
-	R15:     "%r15w",
+	RAX: "%ax",
+	RCX: "%cx",
+	RDX: "%dx",
+	RBX: "%bx",
+	RSP: "%sp",
+	RBP: "%bp",
+	RSI: "%si",
+	RDI: "%di",
+	R8:  "%r8w",
+	R9:  "%r9w",
+	R10: "%r10w",
+	R11: "%r11w",
+	R12: "%r12w",
+	R13: "%r13w",
+	R14: "%r14w",
+	R15: "%r15w",
 }
 var regName4 = [...]string{
-	NoRegId: "unknown 4-byte register",
-	RAX:     "%eax",
-	RCX:     "%ecx",
-	RDX:     "%edx",
-	RBX:     "%ebx",
-	RSP:     "%esp",
-	RBP:     "%ebp",
-	RSI:     "%esi",
-	RDI:     "%edi",
-	R8:      "%r8d",
-	R9:      "%r9d",
-	R10:     "%r10d",
-	R11:     "%r11d",
-	R12:     "%r12d",
-	R13:     "%r13d",
-	R14:     "%r14d",
-	R15:     "%r15d",
+	RAX: "%eax",
+	RCX: "%ecx",
+	RDX: "%edx",
+	RBX: "%ebx",
+	RSP: "%esp",
+	RBP: "%ebp",
+	RSI: "%esi",
+	RDI: "%edi",
+	R8:  "%r8d",
+	R9:  "%r9d",
+	R10: "%r10d",
+	R11: "%r11d",
+	R12: "%r12d",
+	R13: "%r13d",
+	R14: "%r14d",
+	R15: "%r15d",
 }
 var regName8 = [...]string{
-	NoRegId: "unknown register",
-	RAX:     "%rax",
-	RCX:     "%rcx",
-	RDX:     "%rdx",
-	RBX:     "%rbx",
-	RSP:     "%rsp",
-	RBP:     "%rbp",
-	RSI:     "%rsi",
-	RDI:     "%rdi",
-	R8:      "%r8",
-	R9:      "%r9",
-	R10:     "%r10",
-	R11:     "%r11",
-	R12:     "%r12",
-	R13:     "%r13",
-	R14:     "%r14",
-	R15:     "%r15",
+	RAX: "%rax",
+	RCX: "%rcx",
+	RDX: "%rdx",
+	RBX: "%rbx",
+	RSP: "%rsp",
+	RBP: "%rbp",
+	RSI: "%rsi",
+	RDI: "%rdi",
+	R8:  "%r8",
+	R9:  "%r9",
+	R10: "%r10",
+	R11: "%r11",
+	R12: "%r12",
+	R13: "%r13",
+	R14: "%r14",
+	R15: "%r15",
 }
 
 func (id RegId) Valid() bool {
@@ -133,15 +129,15 @@ func (id RegId) Valid() bool {
 
 func (id RegId) String() string {
 	if !id.Valid() {
-		id = NoRegId
+		return fmt.Sprintf("%%unknown_reg(%d)", uint8(id))
 	}
 	return regName8[id]
 }
 
 func (r Reg) String() string {
-	id := NoRegId
-	if r.Valid() {
-		id = r.id
+	id := r.id
+	if !id.Valid() {
+		return fmt.Sprintf("%%unknown_reg(%d,%v)", uint8(id), r.kind)
 	}
 	switch r.kind.Size() {
 	case 1:

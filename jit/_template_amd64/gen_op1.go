@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/cosmos72/gomacro/jit/arch"
+	arch "github.com/cosmos72/gomacro/jit/amd64"
 )
 
 type genOp1 struct {

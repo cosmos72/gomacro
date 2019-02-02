@@ -25,17 +25,13 @@ import (
 type Op0 uint8
 
 const (
-/*
-	RET Op0 = 0xC3
-	NOP Op0 = 0x90
-*/
+	NOP Op0 = 0xD5
+	RET Op0 = 0xD6
 )
 
 var op0Name = map[Op0]string{
-	/*
-		RET: "RET",
-		NOP: "NOP",
-	*/
+	RET: "RET",
+	NOP: "NOP",
 }
 
 func (op Op0) String() string {
@@ -46,7 +42,18 @@ func (op Op0) String() string {
 	return s
 }
 
+func (op Op0) val() uint32 {
+	switch op {
+	case NOP:
+		return 0xD503201F
+	case RET:
+		return 0xD65F03C0
+	default:
+		return uint32(op) << 24
+	}
+}
+
 // ============================================================================
 func (asm *Asm) Op0(op Op0) *Asm {
-	return asm.Byte(uint8(op))
+	return asm.Uint32(op.val())
 }

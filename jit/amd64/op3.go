@@ -25,19 +25,18 @@ import (
 type Op3 uint8
 
 const (
-	ADD3  Op3 = Op3(ADD)
-	OR3   Op3 = Op3(OR)
-	ADC3  Op3 = Op3(ADC) // add with carry
-	SBB3  Op3 = Op3(SBB) // subtract with borrow
-	AND3  Op3 = Op3(AND)
-	SUB3  Op3 = Op3(SUB)
-	XOR3  Op3 = Op3(XOR)
-	CAST3 Op3 = Op3(CAST) // sign extend, zero extend or narrow
-	SHL3  Op3 = Op3(SHL)  // shift left
-	SHR3  Op3 = Op3(SHR)  // shift right
-	MUL3  Op3 = Op3(MUL)
-	DIV3  Op3 = Op3(DIV)
-	REM3  Op3 = Op3(REM)
+	ADD3 Op3 = Op3(ADD)
+	OR3  Op3 = Op3(OR)
+	ADC3 Op3 = Op3(ADC) // add with carry
+	SBB3 Op3 = Op3(SBB) // subtract with borrow
+	AND3 Op3 = Op3(AND)
+	SUB3 Op3 = Op3(SUB)
+	XOR3 Op3 = Op3(XOR)
+	SHL3 Op3 = Op3(SHL) // shift left
+	SHR3 Op3 = Op3(SHR) // shift right
+	MUL3 Op3 = Op3(MUL)
+	DIV3 Op3 = Op3(DIV)
+	REM3 Op3 = Op3(REM)
 )
 
 func (op Op3) String() string {

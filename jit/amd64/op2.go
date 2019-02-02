@@ -39,7 +39,7 @@ const (
 	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
 	SHL  Op2 = 0xE0 // shift left. has different encoding
 	SHR  Op2 = 0xE8 // shift right. has different encoding
-	MUL  Op2 = 0xF6
+	MUL  Op2 = 0xF6 // TODO finish implementation
 	DIV  Op2 = 0xFE // TODO divide
 	REM  Op2 = 0xFF // TODO remainder
 )
@@ -55,7 +55,10 @@ var op2Name = map[Op2]string{
 	// CMP: "CMP",
 	// XCHG: "XCHG",
 	MOV:  "MOV",
+	LEA:  "LEA",
 	CAST: "CAST",
+	SHL:  "SHL",
+	SHR:  "SHR",
 	MUL:  "MUL",
 	DIV:  "DIV",
 	REM:  "REM",

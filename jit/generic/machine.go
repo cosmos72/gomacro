@@ -16,10 +16,10 @@
 
 package arch
 
-const (
-	SUPPORTED = false
-	Name      = "generic"
+const SUPPORTED = false
+const Name = "generic"
 
+const (
 	NoRegId RegId = iota
 	RLo           = NoRegId
 	RHi           = NoRegId
