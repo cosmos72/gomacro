@@ -26,9 +26,16 @@ import (
 
 type Engine = gapstone.Engine
 
-func New() (Engine, error) {
+type Arch int
+
+const (
+	AMD64 = Arch(gapstone.CS_ARCH_X86)
+	ARM64 = Arch(gapstone.CS_ARCH_ARM64)
+)
+
+func New(arch Arch) (Engine, error) {
 	engine, err := gapstone.New(
-		gapstone.CS_ARCH_X86,
+		int(arch),
 		gapstone.CS_MODE_64,
 	)
 	if err != nil {
@@ -46,16 +53,16 @@ func spaces(n int) string {
 	return "                "[n%16:]
 }
 
-func Disasm(code []uint8) ([]gapstone.Instruction, error) {
-	engine, err := New()
+func Disasm(arch Arch, code []uint8) ([]gapstone.Instruction, error) {
+	engine, err := New(arch)
 	if err != nil {
 		return nil, err
 	}
 	return engine.Disasm(code, 0x10000, 0)
 }
 
-func PrintDisasm(code []uint8) {
-	insns, err := Disasm(code)
+func PrintDisasm(arch Arch, code []uint8) {
+	insns, err := Disasm(arch, code)
 	if err != nil {
 		fmt.Println(err)
 	} else {

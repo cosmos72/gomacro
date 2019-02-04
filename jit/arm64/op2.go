@@ -56,6 +56,7 @@ var op2Name = map[Op2]string{
 	ADC:  "ADC",
 	MUL:  "MUL",
 	SHL:  "SHL",
+	SHR:  "SHR",
 	OR:   "OR",
 	XOR:  "XOR",
 	SUB:  "SUB",

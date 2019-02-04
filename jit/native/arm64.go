@@ -66,50 +66,87 @@ const (
 	KHi     = arch.KHi
 
 	// RegId
-	NoRegId = arch.NoRegId
-	X0      = arch.X0
-	X1      = arch.X1
-	X2      = arch.X2
-	X3      = arch.X3
-	X4      = arch.X4
-	X5      = arch.X5
-	X6      = arch.X6
-	X7      = arch.X7
-	X8      = arch.X8
-	X9      = arch.X9
-	X10     = arch.X10
-	X11     = arch.X11
-	X12     = arch.X12
-	X13     = arch.X13
-	X14     = arch.X14
-	X15     = arch.X15
-	X16     = arch.X16
-	X17     = arch.X17
-	X18     = arch.X18
-	X19     = arch.X19
-	X20     = arch.X20
-	X21     = arch.X21
-	X22     = arch.X22
-	X23     = arch.X23
-	X24     = arch.X24
-	X25     = arch.X25
-	X26     = arch.X26
-	X27     = arch.X27
-	X28     = arch.X28
-	X29     = arch.X29
-	X30     = arch.X30
-	XZR     = arch.XZR
-	XSP     = arch.XSP
-	RLo     = arch.RLo
-	RHi     = arch.RHi
+	NoRegId  = arch.NoRegId
+	X0       = arch.X0
+	X1       = arch.X1
+	X2       = arch.X2
+	X3       = arch.X3
+	X4       = arch.X4
+	X5       = arch.X5
+	X6       = arch.X6
+	X7       = arch.X7
+	X8       = arch.X8
+	X9       = arch.X9
+	X10      = arch.X10
+	X11      = arch.X11
+	X12      = arch.X12
+	X13      = arch.X13
+	X14      = arch.X14
+	X15      = arch.X15
+	X16      = arch.X16
+	X17      = arch.X17
+	X18      = arch.X18
+	X19      = arch.X19
+	X20      = arch.X20
+	X21      = arch.X21
+	X22      = arch.X22
+	X23      = arch.X23
+	X24      = arch.X24
+	X25      = arch.X25
+	X26      = arch.X26
+	X27      = arch.X27
+	X28      = arch.X28
+	X29      = arch.X29
+	X30      = arch.X30
+	XZR, XSP = arch.XZR, arch.XSP
+	RLo      = arch.RLo
+	RHi      = arch.RHi
 
 	// Op0
+	NOP = arch.NOP
+	RET = arch.RET
 
 	// Op1
 
 	// Op2
+	ADD  = arch.ADD
+	AND  = arch.AND
+	ADC  = arch.ADC
+	MUL  = arch.MUL
+	SHL  = arch.SHL
+	SHR  = arch.SHR
+	OR   = arch.OR
+	XOR  = arch.XOR
+	SUB  = arch.SUB
+	SBB  = arch.SBB
+	MOV  = arch.MOV
+	CAST = arch.CAST
+	/*
+		CMP  = arch.CMP
+		XCHG = arch.XCHG
+		DIV  = arch.DIV
+		REM  = arch.REM
+		NEG2 = arch.NEG2
+		NOT2 = arch.NOT2
+	*/
+
+	// Op2Misc
+	PUSH = arch.PUSH
+	POP  = arch.POP
 
 	// Op3
+	ADD3 = arch.ADD3
+	OR3  = arch.OR3
+	ADC3 = arch.ADC3
+	SBB3 = arch.SBB3
+	AND3 = arch.AND3
+	SUB3 = arch.SUB3
+	XOR3 = arch.XOR3
+	SHL3 = arch.SHL3
+	SHR3 = arch.SHR3
+	MUL3 = arch.MUL3
+	DIV3 = arch.DIV3
+	REM3 = arch.REM3
 
 	// Op4
 )

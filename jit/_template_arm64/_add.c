@@ -16,19 +16,25 @@
 
 #include <stdint.h>
 
-uint8_t inc8(uint8_t a) {
+uint32_t add1_32(uint32_t a) {
 	return a + 1;
 }
-uint16_t inc16(uint16_t a) {
-	return a + 1;
+uint32_t add9_32(uint32_t a) {
+	return a + 9;
 }
-uint32_t inc32(uint32_t a) {
-	return a + 1;
-}
-uint64_t inc64(uint64_t a) {
-	return a + 1;
+uint32_t add255_32(uint32_t a) {
+	return a + 255;
 }
 
+uint64_t add1_64(uint64_t a) {
+	return a + 1;
+}
+uint64_t add9_64(uint64_t a) {
+	return a + 9;
+}
+uint64_t add255_64(uint64_t a) {
+	return a + 255;
+}
 
 uint8_t add8(uint8_t a, uint8_t b) {
 	return a + b;

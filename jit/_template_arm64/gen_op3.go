@@ -38,14 +38,15 @@ func newGenOp3(w io.Writer, opname string) *genOp3 {
 
 func (g *genOp3) generate() {
 	g.fileHeader()
-	g.opRegReg()
-	if false {
-		if g.opname != "xchg" {
-			g.opConstReg()
-			g.opConstMem()
-		}
-		g.opMemReg()
-		g.opRegMem()
+	g.opRegRegReg()
+	switch g.opname {
+	case "add", "sub":
+		g.opAddSubRegRegConst()
+	case "and", "orr", "eor":
+		g.opBitwiseRegRegConst()
+	case "lsl", "lsr", "asr":
+		g.opShiftRegRegConst()
+	default:
 	}
 }
 
@@ -74,27 +75,8 @@ func (g *genOp3) funcFooter() {
 `)
 }
 
-func (g *genOp3) opConstReg() {
-	for _, k := range [...]arch.Kind{arch.Uint32, arch.Uint64} {
-		g.opConstRegKind(k, 8)
-		if k.Size() != 1 {
-			g.opConstRegKind(k, k.Size()*8)
-		}
-	}
-}
-
-func (g *genOp3) opConstRegKind(k arch.Kind, constbits arch.Size) {
-	kbits := k.Size() * 8
-	conststr := map[arch.Size]string{8: "$0x33", 16: "$0xaabb", 32: "$0x11223344", 64: "$0x55667788"}[constbits]
-	g.funcHeader(fmt.Sprintf("Const%dReg%d", constbits, kbits))
-	for r := arch.RLo; r <= arch.RHi; r++ {
-		fmt.Fprintf(g.w, "\t%s\t%s,%v\n", g.opname, conststr, arch.MakeReg(r, k))
-	}
-	g.funcFooter()
-}
-
-func (g *genOp3) opRegReg() {
-	g.funcHeader("RegReg")
+func (g *genOp3) opRegRegReg() {
+	g.funcHeader("RegRegReg")
 	for _, k := range [...]arch.Kind{arch.Uint32, arch.Uint64} {
 		kbits := k.Size() * 8
 		fmt.Fprintf(g.w, "\t// reg%d OP= reg%d, reg%d\n", kbits, kbits, kbits)
@@ -115,78 +97,127 @@ func (g *genOp3) opRegReg() {
 	g.funcFooter()
 }
 
-func (g *genOp3) opMemReg() {
-	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
-		g.opMemRegKind(k)
+// add|sub xn, xm, 12-bit-immediate shifted by 0|12
+func (g *genOp3) opAddSubRegRegConst() {
+	for _, k := range [...]arch.Kind{arch.Uint32, arch.Uint64} {
+		g.opAddSubRegRegConstKind(k, k.Size()*8)
 	}
 }
 
-func (g *genOp3) opMemRegKind(k arch.Kind) {
-	klen := k.Size() * 8
-	g.funcHeader(fmt.Sprintf("MemReg%d", klen))
-	offstr := [...]string{"", "0x7F", "0x78563412"}
-	for i, offlen := range [...]uint8{0, 8, 32} {
-		fmt.Fprintf(g.w, "\t// reg%d OP= mem%d[off%d]\n", klen, klen, offlen)
-		for src := arch.RLo; src <= arch.RHi; src++ {
-			for dst := arch.RLo; dst <= arch.RHi; dst++ {
-				fmt.Fprintf(g.w, "\t%s\t%s(%v),%v\n", g.opname,
-					offstr[i], arch.MakeReg(src, arch.Uintptr),
-					arch.MakeReg(dst, k))
+// add|sub xn, xm, 12-bit-immediate shifted by 0|12
+func (g *genOp3) opAddSubRegRegConstKind(k arch.Kind, kbits arch.Size) {
+	g.funcHeader(fmt.Sprintf("Reg%dReg%dConst", kbits, kbits))
+	rlo := arch.MakeReg(arch.RLo, k)
+	conststr := "#0x0"
+	for r := arch.RLo; r < arch.RHi; r++ {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,%s\n", g.opname, arch.MakeReg(r, k), rlo, conststr)
+	}
+	for r := arch.RLo; r < arch.RHi; r++ {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,%s\n", g.opname, rlo, arch.MakeReg(r, k), conststr)
+	}
+	for constval := 1; constval <= 0xFFFFFF; constval *= 2 {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,#%#x\n", g.opname, rlo, rlo, constval)
+	}
+	g.funcFooter()
+}
+
+// lsl|lsr|asr xn, xm, {0..63}
+func (g *genOp3) opShiftRegRegConst() {
+	for _, k := range [...]arch.Kind{arch.Uint32, arch.Uint64} {
+		g.opShiftRegRegConstKind(k, k.Size()*8)
+	}
+}
+
+// lsl|lsr|asr xn, xm, {0..63}
+func (g *genOp3) opShiftRegRegConstKind(k arch.Kind, kbits arch.Size) {
+	g.funcHeader(fmt.Sprintf("Reg%dReg%dConst", kbits, kbits))
+	rlo := arch.MakeReg(arch.RLo, k)
+	conststr := "#31"
+	for r := arch.RLo; r < arch.RHi; r++ {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,%s\n", g.opname, arch.MakeReg(r, k), rlo, conststr)
+	}
+	for r := arch.RLo; r < arch.RHi; r++ {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,%s\n", g.opname, rlo, arch.MakeReg(r, k), conststr)
+	}
+	for constval := arch.Size(0); constval < kbits; constval++ {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,#%#x\n", g.opname, rlo, rlo, constval)
+	}
+	g.funcFooter()
+}
+
+// and|orr|eor xn, xm, complicated immediate constant
+func (g *genOp3) opBitwiseRegRegConst() {
+	for _, k := range [...]arch.Kind{arch.Uint32, arch.Uint64} {
+		g.opBitwiseRegRegConstKind(k, k.Size()*8)
+	}
+}
+
+// and|orr|eor xn, xm, complicated immediate constant
+func (g *genOp3) opBitwiseRegRegConstKind(k arch.Kind, kbits arch.Size) {
+	g.funcHeader(fmt.Sprintf("Reg%dReg%dConst", kbits, kbits))
+	rlo := arch.MakeReg(arch.RLo, k)
+	conststr := "#0x1"
+	for r := arch.RLo; r < arch.RHi; r++ {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,%s\n", g.opname, arch.MakeReg(r, k), rlo, conststr)
+	}
+	for r := arch.RLo; r < arch.RHi; r++ {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,%s\n", g.opname, rlo, arch.MakeReg(r, k), conststr)
+	}
+	for _, constval := range opBitwiseConstants(kbits) {
+		fmt.Fprintf(g.w, "\t%s\t%v,%v,#%#x\n", g.opname, rlo, rlo, constval)
+	}
+	g.funcFooter()
+}
+
+// list all possible immediate constants for bitwise operations
+// on 32-bit or 64-bit registers
+func opBitwiseConstants(kbits arch.Size) []uint64 {
+	switch kbits {
+	case 32:
+		return opBitwiseConstants32()
+	default:
+		return opBitwiseConstants64()
+	}
+}
+
+// list all possible immediate constants for bitwise operations
+// on 64-bit registers
+func opBitwiseConstants32() []uint64 {
+	var result []uint64
+	var bitmask uint32
+	var size, length, e, rotation uint8
+	for size = 2; size <= 32; size *= 2 {
+		for length = 1; length < size; length++ {
+			bitmask = 0xffffffff >> (32 - length)
+			for e = size; e < 32; e *= 2 {
+				bitmask |= bitmask << e
 			}
-			fmt.Fprint(g.w, "\tnop\n")
-		}
-		fmt.Fprint(g.w, "\tnop\n")
-	}
-	g.funcFooter()
-}
-
-func (g *genOp3) opConstMem() {
-	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
-		g.opConstMemKind(k, 8)
-		if k.Size() != 1 {
-			g.opConstMemKind(k, k.Size()*8)
-		}
-	}
-}
-
-func (g *genOp3) opConstMemKind(k arch.Kind, constbits arch.Size) {
-	kbits := k.Size() * 8
-	g.funcHeader(fmt.Sprintf("Const%dMem%d", constbits, kbits))
-	suffixstr := map[arch.Size]string{1: "b", 2: "w", 4: "l", 8: "q"}[k.Size()]
-	offstr := [...]string{"", "0x7F", "0x78563412"}
-	conststr := map[arch.Size]string{8: "$0x33", 16: "$0xaabb", 32: "$0x11223344", 64: "$0x55667788"}[constbits]
-	for i, offlen := range [...]uint8{0, 8, 32} {
-		fmt.Fprintf(g.w, "\t// mem%d[off%d] OP= const%d\n", kbits, offlen, kbits)
-		for dst := arch.RLo; dst <= arch.RHi; dst++ {
-			fmt.Fprintf(g.w, "\t%s%s\t%v,%s(%v)\n", g.opname, suffixstr,
-				conststr, offstr[i], arch.MakeReg(dst, arch.Uintptr))
-		}
-		fmt.Fprint(g.w, "\tnop\n")
-	}
-	g.funcFooter()
-}
-
-func (g *genOp3) opRegMem() {
-	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
-		g.opRegMemKind(k)
-	}
-}
-
-func (g *genOp3) opRegMemKind(k arch.Kind) {
-	klen := k.Size() * 8
-	g.funcHeader(fmt.Sprintf("RegMem%d", klen))
-	offstr := [...]string{"", "0x7F", "0x78563412"}
-	for i, offlen := range [...]uint8{0, 8, 32} {
-		fmt.Fprintf(g.w, "\t// mem%d[off%d] OP= reg%d\n", klen, offlen, klen)
-		for src := arch.RLo; src <= arch.RHi; src++ {
-			for dst := arch.RLo; dst <= arch.RHi; dst++ {
-				fmt.Fprintf(g.w, "\t%s\t%v,%s(%v)\n", g.opname,
-					arch.MakeReg(src, k),
-					offstr[i], arch.MakeReg(dst, arch.Uintptr))
+			for rotation = 0; rotation < size; rotation++ {
+				result = append(result, uint64(bitmask))
+				bitmask = (bitmask >> 1) | (bitmask << 31)
 			}
-			fmt.Fprint(g.w, "\tnop\n")
 		}
-		fmt.Fprint(g.w, "\tnop\n")
 	}
-	g.funcFooter()
+	return result
+}
+
+// list all possible immediate constants for bitwise operations
+// on 64-bit registers
+func opBitwiseConstants64() []uint64 {
+	var result []uint64
+	var bitmask uint64
+	var size, length, e, rotation uint8
+	for size = 2; size <= 64; size *= 2 {
+		for length = 1; length < size; length++ {
+			bitmask = 0xffffffffffffffff >> (64 - length)
+			for e = size; e < 64; e *= 2 {
+				bitmask |= bitmask << e
+			}
+			for rotation = 0; rotation < size; rotation++ {
+				result = append(result, bitmask)
+				bitmask = (bitmask >> 1) | (bitmask << 63)
+			}
+		}
+	}
+	return result
 }

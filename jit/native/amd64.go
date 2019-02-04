@@ -115,6 +115,10 @@ const (
 	DIV  = arch.DIV
 	REM  = arch.REM
 
+	// Op2Misc
+	PUSH = arch.PUSH
+	POP  = arch.POP
+
 	// Op3
 	ADD3 = arch.ADD3
 	OR3  = arch.OR3

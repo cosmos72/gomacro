@@ -1,5 +1,3 @@
-// +build amd64
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -10,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * z_amd64_test.go
+ * zamd64_test.go
  *
  *  Created on Jan 23, 2019
  *      Author Massimiliano Ghilardi
@@ -19,14 +17,12 @@
 package disasm
 
 import (
-	"fmt"
 	"testing"
 
-	. "github.com/cosmos72/gomacro/jit/arch"
+	. "github.com/cosmos72/gomacro/jit/amd64"
 )
 
-func TestDisasm(t *testing.T) {
-	engine, _ := New()
+func TestAmd64Sample(t *testing.T) {
 	var asm Asm
 
 	v1, v2, v3 := MakeVar0(0), MakeVar0(1), MakeVar0(2)
@@ -46,18 +42,11 @@ func TestDisasm(t *testing.T) {
 			MOV, r, v3, //
 		)
 
-		insns, err := engine.Disasm(asm.Code(), 0x10000, 0)
-
-		if err == nil {
-			fmt.Printf("Disasm:\n")
-			for _, insn := range insns {
-				Show(insn)
-			}
-		}
+		PrintDisasm(AMD64, asm.Code())
 	}
 }
 
-func TestDisasmSum(t *testing.T) {
+func TestAmd64Sum(t *testing.T) {
 	var asm Asm
 
 	Total, I := MakeVar0(1), MakeVar0(2)
@@ -66,10 +55,10 @@ func TestDisasmSum(t *testing.T) {
 		ADD, ConstInt64(2), I,
 		ADD, I, Total)
 
-	PrintDisasm(asm.Code())
+	PrintDisasm(AMD64, asm.Code())
 }
 
-func TestDisasmCast(t *testing.T) {
+func TestAmd64Cast(t *testing.T) {
 	N := [...]Mem{
 		MakeVar0K(0, Uint64),
 		MakeVar0K(1, Uint8), MakeVar0K(2, Uint16), MakeVar0K(3, Uint32),
@@ -100,10 +89,10 @@ func TestDisasmCast(t *testing.T) {
 		RET,
 	)
 
-	PrintDisasm(asm.Code())
+	PrintDisasm(AMD64, asm.Code())
 }
 
-func TestDisasmLea(t *testing.T) {
+func TestAmd64Lea(t *testing.T) {
 	const (
 		m int64 = 9
 	)
@@ -118,10 +107,10 @@ func TestDisasmLea(t *testing.T) {
 		LEA, M, r)
 	asm.RegFree(r)
 
-	PrintDisasm(asm.Code())
+	PrintDisasm(AMD64, asm.Code())
 }
 
-func TestDisasmShift(t *testing.T) {
+func TestAmd64Shift(t *testing.T) {
 	N := MakeVar0(0)
 	M := MakeVar0(1)
 
@@ -138,5 +127,5 @@ func TestDisasmShift(t *testing.T) {
 	)
 	asm.RegDecUse(RCX)
 
-	PrintDisasm(asm.Code())
+	PrintDisasm(AMD64, asm.Code())
 }
