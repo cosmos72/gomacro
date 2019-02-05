@@ -33,7 +33,8 @@ func TestArm64Sample(t *testing.T) {
 		r := MakeReg(id+0, Int64)
 		s := MakeReg(id+1, Int64)
 		t := MakeReg(id+2, Int64)
-		asm.Asm(MOV, r, s, //
+		c := ConstInt64(0xFFF000)
+		asm.Asm(MOV, c, r, //
 			ADD3, r, s, t, //
 			SUB3, r, s, t, //
 			AND3, r, s, t, //
@@ -41,11 +42,11 @@ func TestArm64Sample(t *testing.T) {
 			XOR3, r, s, t, //
 			SHL3, r, s, t, //
 			SHR3, r, s, t, //
-			ADD3, r, ConstInt64(1), t, //
-			SUB3, r, ConstInt64(1), t, //
-			AND3, r, ConstInt64(1), t, //
-			OR3, r, ConstInt64(1), t, //
-			XOR3, r, ConstInt64(1), t, //
+			ADD3, r, c, t, //
+			SUB3, r, c, t, //
+			AND3, r, c, t, //
+			OR3, r, c, t, //
+			XOR3, r, c, t, //
 		)
 
 		PrintDisasm(ARM64, asm.Code())

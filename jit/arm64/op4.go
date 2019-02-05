@@ -36,6 +36,6 @@ func (op Op4) String() string {
 
 // ============================================================================
 func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
-	errorf("Op4 not implemented: %v %v %v %v", op, a, b, c, dst)
+	errorf("Op4 not implemented: %v %v, %v, %v", a, b, c, dst)
 	return asm
 }

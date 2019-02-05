@@ -52,6 +52,6 @@ func (op Op1) String() string {
 
 // ============================================================================
 func (asm *Asm) Op1(op Op1, a Arg) *Asm {
-	errorf("Op1 not implemented: %v %v", op, a)
+	errorf("Op1 not implemented: %v, %v", op, a)
 	return asm
 }

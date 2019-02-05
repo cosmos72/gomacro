@@ -17,6 +17,7 @@
 package arch
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -24,6 +25,8 @@ func debugf(format string, args ...interface{}) {
 	fmt.Printf("// debug jit: "+format+"\n", args...)
 }
 
+var errorPrefix = "jit/" + Name + " assembler error: "
+
 func errorf(format string, args ...interface{}) {
-	panic(fmt.Errorf("jit assembler error: "+format, args...))
+	panic(errors.New(errorPrefix + fmt.Sprintf(format, args...)))
 }

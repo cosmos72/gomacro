@@ -114,16 +114,16 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	}
 	rdst, rdok := dst.(Reg)
 	if !rdok {
-		errorf("unimplemented destination type %T, expecting Reg: %v %v %v %v", dst, op, a, b, dst)
+		errorf("unimplemented destination type %T, expecting Reg: %v %v, %v, %v", dst, op, a, b, dst)
 	} else if _, ok := dst.(Const); ok {
-		errorf("destination cannot be a constant: %v %v %v %v", dst, op, a, b, dst)
+		errorf("destination cannot be a constant: %v %v, %v, %v", op, a, b, dst)
 	}
 	ra, raok := a.(Reg)
 	rb, rbok := b.(Reg)
 	ca, caok := a.(Const)
 	cb, cbok := b.(Const)
 	if caok && cbok {
-		errorf("at least one operand must be non-constant: %v %v %v %v", a, op, a, b, dst)
+		errorf("at least one operand must be non-constant: %v %v, %v, %v", op, a, b, dst)
 	} else if caok && rbok && op.isCommutative() {
 		return asm.op3RegConstReg(op, rb, ca, rdst)
 	} else if raok && cbok {
@@ -131,7 +131,7 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	} else if raok && rbok {
 		return asm.op3RegRegReg(op, ra, rb, rdst)
 	}
-	errorf("unimplemented Op3 with argument types %T %T: %v %v %v %v", a, b, op, a, b, dst)
+	errorf("unimplemented Op3 with argument types %T %T: %v %v, %v, %v", a, b, op, a, b, dst)
 	return nil
 }
 
@@ -150,12 +150,12 @@ func (asm *Asm) op3RegRegReg(op Op3, a Reg, b Reg, dst Reg) *Asm {
 	return asm
 }
 
-func (asm *Asm) op3RegConstReg(op Op3, a Reg, c Const, dst Reg) *Asm {
+func (asm *Asm) op3RegConstReg(op Op3, a Reg, cb Const, dst Reg) *Asm {
 	imm3 := op.immediate()
-	immcval, ok := imm3.Encode64(c.val, dst.Kind())
+	immcval, ok := imm3.Encode64(cb.val, dst.Kind())
 	if !ok {
-		rb := asm.RegAlloc(c.kind)
-		return asm.op3RegRegReg(op, a, rb, dst).RegFree(rb)
+		rb := asm.RegAlloc(cb.kind)
+		return asm.movConstReg(cb, rb).op3RegRegReg(op, a, rb, dst).RegFree(rb)
 	}
 	opval := op.immval()
 
@@ -169,9 +169,9 @@ func (asm *Asm) op3RegConstReg(op Op3, a Reg, c Const, dst Reg) *Asm {
 	case Imm3AddSub, Imm3Bitwise:
 		asm.Uint32(kbit | opval | immcval | a.val()<<5 | dst.val())
 	case Imm3Shift:
-		errorf("unimplemented shift with immediate constant: %v %v %v %v", op, a, c, dst)
+		errorf("unimplemented shift with immediate constant: %v %v, %v, %v", op, a, cb, dst)
 	default:
-		errorf("unknown immediate constant encoding %v for %v: %v %v %v %v", imm3, op, op, a, c, dst)
+		errorf("unknown immediate constant encoding %v for %v: %v %v, %v, %v", imm3, op, op, a, cb, dst)
 	}
 	return asm
 }
