@@ -41,7 +41,7 @@ func TestArm64Sample(t *testing.T) {
 			XOR3, r, s, t, //
 			SHL3, r, s, t, //
 			SHR3, r, s, t, //
-			AND3, r, ConstInt64(1), t, //
+			ADD3, r, ConstInt64(1), t, //
 			SUB3, r, ConstInt64(1), t, //
 			AND3, r, ConstInt64(1), t, //
 			OR3, r, ConstInt64(1), t, //

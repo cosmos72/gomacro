@@ -46,20 +46,12 @@ func (asm *Asm) zeroMem(dst Mem) *Asm {
 }
 
 func (asm *Asm) movRegReg(src Reg, dst Reg) *Asm {
-	var kbit uint32
-	switch dst.kind.Size() {
-	case 1, 2, 4:
-		kbit = 0x80 << 24
-		fallthrough
-	case 8:
-		// arm64 implements "mov src,dst" as "orr xzr,src,dst"
-		asm.Uint32(kbit | 0x2A0003E0 | src.val()<<16 | dst.val())
-	}
-	return asm
+	// arm64 implements "mov src,dst" as "orr xzr,src,dst"
+	return asm.Uint32(dst.kind.kbit() | 0x2A0003E0 | src.val()<<16 | dst.val())
 }
 
 func (asm *Asm) movRegConst(c Const, dst Reg) *Asm {
-	var kbit, cbit, cval uint32
+	var cbit, cval uint32
 	if c.val >= 0 && c.val < 0x10000 {
 		cval = uint32(c.val)
 		cbit = 0x80 << 24
@@ -68,14 +60,7 @@ func (asm *Asm) movRegConst(c Const, dst Reg) *Asm {
 	} else {
 		errorf("unimplemented MOV const,reg with large constant: %v %v %v", MOV, c, dst)
 	}
-	switch dst.kind.Size() {
-	case 1, 2, 4:
-		kbit = 0x80 << 24
-		fallthrough
-	case 8:
-		asm.Uint32(cbit | kbit | 0x12800000 | cval<<5 | dst.val())
-	}
-	return asm
+	return asm.Uint32(cbit | dst.kind.kbit() | 0x12800000 | cval<<5 | dst.val())
 }
 
 // ============================================================================

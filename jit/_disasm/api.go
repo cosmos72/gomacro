@@ -34,9 +34,13 @@ const (
 )
 
 func New(arch Arch) (Engine, error) {
+	var mode uint = gapstone.CS_MODE_64
+	if arch == ARM64 {
+		mode = gapstone.CS_MODE_ARM // | gapstone.CS_MODE_V8
+	}
 	engine, err := gapstone.New(
 		int(arch),
-		gapstone.CS_MODE_64,
+		mode,
 	)
 	if err != nil {
 		return engine, err

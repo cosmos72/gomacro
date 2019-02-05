@@ -97,6 +97,17 @@ func (id RegId) String() string {
 	return s
 }
 
+// return the bitmask to be or-ed to the instruction
+// to specify the registers width
+func (k Kind) kbit() uint32 {
+	switch k.Size() {
+	case 8:
+		return 0x80 << 24
+	default:
+		return 0
+	}
+}
+
 func (r Reg) String() string {
 	var s string
 	id := r.id

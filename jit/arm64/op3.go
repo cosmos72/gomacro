@@ -136,17 +136,16 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 }
 
 func (asm *Asm) op3RegRegReg(op Op3, a Reg, b Reg, dst Reg) *Asm {
-	var kbit, signedshr uint32
+	var signedshr uint32
 	if op == SHR3 && dst.kind.Signed() {
 		signedshr = 0xC00
 	}
 	switch dst.kind.Size() {
 	case 1, 2, 4:
 		// TODO mask result for size 1, 2
-		kbit = 0x80 << 24
 		fallthrough
 	case 8:
-		asm.Uint32(kbit | (signedshr ^ op.val()) | b.val()<<16 | a.val()<<5 | dst.val())
+		asm.Uint32(dst.kind.kbit() | (signedshr ^ op.val()) | b.val()<<16 | a.val()<<5 | dst.val())
 	}
 	return asm
 }
@@ -160,11 +159,10 @@ func (asm *Asm) op3RegConstReg(op Op3, a Reg, c Const, dst Reg) *Asm {
 	}
 	opval := op.immval()
 
-	var kbit uint32
+	kbit := dst.kind.kbit()
 	switch dst.kind.Size() {
 	case 1, 2, 4:
 		// TODO mask result for size 1, 2
-		kbit = 0x80 << 24
 	}
 
 	switch imm3 {
