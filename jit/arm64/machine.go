@@ -125,17 +125,29 @@ func (r Reg) String() string {
 	return s
 }
 
+// validate and return uint32 mask representing r.id
+// note that XSP/XZR is not considered valid
 func (r Reg) val() uint32 {
 	r.Validate()
 	return uint32(r.id) - 1
 }
 
+// validate and return uint32 mask representing r.id
+// if allowX31 is true, also allows r.id == XSP/XZR
+func (r Reg) valOrX31(allowX31 bool) uint32 {
+	if !allowX31 || r.id != XZR {
+		r.Validate()
+	}
+	return uint32(r.id) - 1
+}
+
 func (asm *Asm) Prologue() *Asm {
-	return asm.Uint32(0xf94007fd) // ldr x29, [sp, #8]
+	// return asm.Uint32(0xf94007fd) // ldr x29, [sp, #8]
+	return asm.load(MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
 }
 
 func (asm *Asm) Epilogue() *Asm {
-	return asm.Uint32(0xd65f03c0) // ret
+	return asm.Op0(RET) // ret
 }
 
 func (asm *Asm) archPush(id RegId) {

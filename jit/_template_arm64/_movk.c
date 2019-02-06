@@ -12,6 +12,10 @@ uint64_t movk_0xFFF000(void) {
 	return 0xFFF000;
 }
 
+uint64_t movk_0xFFF000FFF000(void) {
+	return 0xFFF000FFF000ull;
+}
+
 uint64_t movk_0x2000001(void) {
 	return 0x2000001;
 }

@@ -94,10 +94,12 @@ func (asm *Asm) RegIsUsed(id RegId) bool {
 	return asm.regIds.IsUsed(id)
 }
 
-func (asm *Asm) RegIncUse(id RegId) {
+func (asm *Asm) RegIncUse(id RegId) *Asm {
 	asm.regIds.IncUse(id)
+	return asm
 }
 
-func (asm *Asm) RegDecUse(id RegId) {
+func (asm *Asm) RegDecUse(id RegId) *Asm {
 	asm.regIds.DecUse(id)
+	return asm
 }

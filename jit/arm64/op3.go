@@ -151,11 +151,20 @@ func (asm *Asm) op3RegRegReg(op Op3, a Reg, b Reg, dst Reg) *Asm {
 }
 
 func (asm *Asm) op3RegConstReg(op Op3, a Reg, cb Const, dst Reg) *Asm {
+	if asm.tryOp3RegConstReg(op, a, uint64(cb.val), dst) {
+		return asm
+	}
+	rb := asm.RegAlloc(cb.kind)
+	return asm.movConstReg(cb, rb).op3RegRegReg(op, a, rb, dst).RegFree(rb)
+}
+
+// try to encode operation into a single instruction.
+// return false if not possible because constant must be loaded in a register
+func (asm *Asm) tryOp3RegConstReg(op Op3, a Reg, cval uint64, dst Reg) bool {
 	imm3 := op.immediate()
-	immcval, ok := imm3.Encode64(cb.val, dst.Kind())
+	immcval, ok := imm3.Encode64(cval, dst.Kind())
 	if !ok {
-		rb := asm.RegAlloc(cb.kind)
-		return asm.movConstReg(cb, rb).op3RegRegReg(op, a, rb, dst).RegFree(rb)
+		return false
 	}
 	opval := op.immval()
 
@@ -167,13 +176,16 @@ func (asm *Asm) op3RegConstReg(op Op3, a Reg, cb Const, dst Reg) *Asm {
 
 	switch imm3 {
 	case Imm3AddSub, Imm3Bitwise:
-		asm.Uint32(kbit | opval | immcval | a.val()<<5 | dst.val())
+		// for op == OR3, also accept a == XZR
+		asm.Uint32(kbit | opval | immcval | a.valOrX31(op == OR3)<<5 | dst.val())
 	case Imm3Shift:
+		cb := MakeConst(int64(cval), dst.kind)
 		errorf("unimplemented shift with immediate constant: %v %v, %v, %v", op, a, cb, dst)
 	default:
+		cb := MakeConst(int64(cval), dst.kind)
 		errorf("unknown immediate constant encoding %v for %v: %v %v, %v, %v", imm3, op, op, a, cb, dst)
 	}
-	return asm
+	return true
 }
 
 func (op Op3) isCommutative() bool {
@@ -196,10 +208,10 @@ func (asm *Asm) optimize(op Op3, a Arg, b Arg, dst Arg) bool {
 type Immediate3 uint8
 
 const (
-	Imm3None    = iota
-	Imm3AddSub  // 12 bits wide, possibly shifted left by 12 bits
-	Imm3Bitwise // complicated
-	Imm3Shift   // 0..63 for 64 bit registers; 0..31 for 32 bit registers
+	Imm3None    Immediate3 = iota
+	Imm3AddSub             // 12 bits wide, possibly shifted left by 12 bits
+	Imm3Bitwise            // complicated
+	Imm3Shift              // 0..63 for 64 bit registers; 0..31 for 32 bit registers
 )
 
 // return the style of immediate constants
@@ -218,29 +230,28 @@ func (op Op3) immediate() Immediate3 {
 }
 
 // return false if val cannot be encoded using imm style
-func (imm Immediate3) Encode64(val int64, kind Kind) (e uint32, ok bool) {
+func (imm Immediate3) Encode64(val uint64, kind Kind) (e uint32, ok bool) {
 	kbits := kind.Size() * 8
-	u := uint64(val)
 	switch imm {
 	case Imm3AddSub:
 		// 12 bits wide, possibly shifted left by 12 bits
-		if u == u&0xFFF {
-			return uint32(u << 10), true
-		} else if u == u&0xFFF000 {
-			return 0x400000 | uint32(u>>2), true
+		if val == val&0xFFF {
+			return uint32(val << 10), true
+		} else if val == val&0xFFF000 {
+			return 0x400000 | uint32(val>>2), true
 		}
 	case Imm3Bitwise:
 		// complicated
 		if kbits <= 32 {
-			e, ok = imm3Bitwise32[u]
+			e, ok = imm3Bitwise32[val]
 		} else {
-			e, ok = imm3Bitwise64[u]
+			e, ok = imm3Bitwise64[val]
 		}
 		return e, ok
 	case Imm3Shift:
-		if u >= 0 && u < uint64(kbits) {
+		if val >= 0 && val < uint64(kbits) {
 			// actual encoding is complicated
-			return uint32(u), true
+			return uint32(val), true
 		}
 	}
 	return 0, false

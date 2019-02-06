@@ -92,6 +92,10 @@ func ConstInt64(val int64) Const {
 	return Const{val: val, kind: Int64}
 }
 
+func ConstUint64(val uint64) Const {
+	return Const{val: int64(val), kind: Uint64}
+}
+
 func ConstInterface(ival interface{}) Const {
 	v := reflect.ValueOf(ival)
 	kind := Kind(v.Kind())

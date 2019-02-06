@@ -62,3 +62,7 @@ void padd64(uint64_t *a, uint64_t *b, uint64_t *dst) {
 	*dst = *a + *b;
 }
 
+void padd64_unaligned(uint8_t *a, uint8_t b, uint64_t *dst) {
+	*dst = *(uint64_t*)(a+b);
+}
+

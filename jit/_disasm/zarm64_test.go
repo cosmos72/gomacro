@@ -30,11 +30,16 @@ func TestArm64Sample(t *testing.T) {
 		if asm.RegIsUsed(id) || asm.RegIsUsed(id+1) || asm.RegIsUsed(id+2) {
 			continue
 		}
-		r := MakeReg(id+0, Int64)
-		s := MakeReg(id+1, Int64)
-		t := MakeReg(id+2, Int64)
-		c := ConstInt64(0xFFF000)
+		r := MakeReg(id+0, Uint64)
+		s := MakeReg(id+1, Uint64)
+		t := MakeReg(id+2, Uint64)
+		m := MakeMem(8, id, Uint64)
+		c := ConstUint64(0xFFFF000000000000)
+		asm.RegIncUse(id).RegIncUse(id + 1).RegIncUse(id + 2)
 		asm.Asm(MOV, c, r, //
+			// MOV, c, m, //
+			MOV, m, r, //
+			NOP,           //
 			ADD3, r, s, t, //
 			SUB3, r, s, t, //
 			AND3, r, s, t, //
@@ -42,12 +47,14 @@ func TestArm64Sample(t *testing.T) {
 			XOR3, r, s, t, //
 			SHL3, r, s, t, //
 			SHR3, r, s, t, //
-			ADD3, r, c, t, //
+			NOP,           //
+			ADD3, c, r, t, // test commutativity optimization
 			SUB3, r, c, t, //
-			AND3, r, c, t, //
-			OR3, r, c, t, //
+			AND3, c, r, t, //
+			OR3, c, r, t, //
 			XOR3, r, c, t, //
-		)
+		).Epilogue()
+		asm.RegDecUse(id).RegDecUse(id + 1).RegDecUse(id + 2)
 
 		PrintDisasm(ARM64, asm.Code())
 	}
