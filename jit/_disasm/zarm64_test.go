@@ -34,10 +34,10 @@ func TestArm64Sample(t *testing.T) {
 		s := MakeReg(id+1, Uint64)
 		t := MakeReg(id+2, Uint64)
 		m := MakeMem(8, id, Uint64)
-		c := ConstUint64(0xFFFF000000000000)
+		c := ConstUint64(0xFFF)
 		asm.RegIncUse(id).RegIncUse(id + 1).RegIncUse(id + 2)
 		asm.Asm(MOV, c, r, //
-			// MOV, c, m, //
+			MOV, c, m, //
 			MOV, m, r, //
 			NOP,           //
 			ADD3, r, s, t, //
