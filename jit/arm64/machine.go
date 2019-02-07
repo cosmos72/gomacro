@@ -69,7 +69,7 @@ var (
 
 var alwaysLiveRegIds = RegIds{
 	X28: 1, // pointer to goroutine-local data
-	X29: 1, // jit *uint64 pointer-to-variables
+	// X29: 1, // usually employed as pointer to jit variables
 	X30: 1, // return address register
 	XZR: 1, // zero register / stack pointer
 }
@@ -141,10 +141,15 @@ func (r Reg) valOrX31(allowX31 bool) uint32 {
 	return uint32(r.id) - 1
 }
 
+// Prologue used to add the following instruction to generated code,
+// but now it does nothing, because adding ANY code is the user's responsibility:
+//   ldr x29, [sp, #8]
+// equivalent to:
+// asm.Asm(MOV, MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
 func (asm *Asm) Prologue() *Asm {
-	// return asm.Uint32(0xf94007fd) // ldr x29, [sp, #8]
+	// return asm.Uint32(0xf94007fd)
 	// equivalent:
-	// return asm.Load(MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
+	// return asm.Asm(MOV, MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
 	return asm
 }
 

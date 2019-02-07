@@ -22,14 +22,62 @@ import (
 	"testing"
 )
 
-func TestArm64Sample(t *testing.T) {
+func Init(asm *Asm) *Asm {
+	return asm.Init().RegIncUse(X29).Asm(MOV, MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
+}
+
+func TestNop(t *testing.T) {
+	var f func()
+	var asm Asm
+	asm.Init().Func(&f)
+	f()
+}
+
+func TestZero(t *testing.T) {
+	var f func() uint64
 	var asm Asm
 
-	xzr := MakeReg(XZR, Uint64)
 	asm.Init()
 	asm.Asm( //
-		MOV, xzr, MakeMem(8, XSP, Uint64),
-		RET
-	)
+		ZERO, MakeMem(8, XSP, Uint64),
+	).Func(&f)
 
+	actual := f()
+	var expected uint64
+	if actual != expected {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
+func TestConst(t *testing.T) {
+	var f func() uint64
+	var asm Asm
+	var expected uint64 = 7
+
+	asm.Init()
+	asm.Asm( //
+		MOV, ConstUint64(expected), MakeMem(8, XSP, Uint64),
+	).Func(&f)
+
+	actual := f()
+	if actual != expected {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
+func TestLoadStore(t *testing.T) {
+	var f func() uint64
+	var asm Asm
+	var expected uint64 = 0x12345678abcdef0
+
+	r := asm.Init().RegAlloc(Uint64)
+	asm.Asm( //
+		MOV, ConstUint64(expected), r,
+		MOV, r, MakeMem(8, XSP, Uint64),
+	).Func(&f)
+
+	actual := f()
+	if actual != expected {
+		t.Errorf("expected 0x%x, actual 0x%x", expected, actual)
+	}
 }

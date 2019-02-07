@@ -27,12 +27,15 @@ import (
 
 var verbose = false
 
+func Init(asm *Asm) *Asm {
+	return asm.Init().RegIncUse(RDI).Asm(MOV, MakeMem(8, RSP, Uint64), MakeReg(RDI, Uint64))
+}
+
 func TestNop(t *testing.T) {
 	var asm Asm
-	var f func(*uint64)
+	var f func()
 	asm.Init().Func(&f)
-	binds := [...]uint64{0}
-	f(&binds[0])
+	f()
 }
 
 func TestMov(t *testing.T) {
@@ -42,7 +45,7 @@ func TestMov(t *testing.T) {
 	binds := [...]uint64{0}
 	var asm Asm
 	for id := RLo; id <= RHi; id++ {
-		asm.Init()
+		Init(&asm)
 		if asm.regIds.IsUsed(id) {
 			continue
 		}
@@ -89,12 +92,12 @@ func DeclSum() func(arg int64) int64 {
 	_, Total, I := MakeVar0(n), MakeVar0(total), MakeVar0(i)
 
 	var asm Asm
-	asm.Init().Mov(ConstInt64(1), I).Func(&init)
+	Init(&asm).Mov(ConstInt64(1), I).Func(&init)
 	pred := func(env *[3]uint64) bool {
 		return int64(env[i]) <= int64(env[n])
 	}
-	asm.Init().Op2(ADD, ConstInt64(1), I).Func(&next)
-	asm.Init().Op2(ADD, I, Total).Func(&loop)
+	Init(&asm).Op2(ADD, ConstInt64(1), I).Func(&next)
+	Init(&asm).Op2(ADD, I, Total).Func(&loop)
 
 	return func(arg int64) int64 {
 		env := [3]uint64{n: uint64(arg)}
@@ -112,7 +115,7 @@ func TestAdd(t *testing.T) {
 	v1, v2, v3 := MakeVar0(0), MakeVar0(1), MakeVar0(2)
 
 	for id := RLo; id <= RHi; id++ {
-		asm.Init()
+		Init(&asm)
 		if asm.regIds.IsUsed(id) {
 			continue
 		}
@@ -153,7 +156,7 @@ func TestAdd(t *testing.T) {
 func TestCast(t *testing.T) {
 	var f func(*uint64)
 	var asm Asm
-	asm.Init()
+	Init(&asm)
 
 	const n = uint64(0xEFCDAB8967452301)
 	const hi = ^uint64(0)
@@ -199,7 +202,7 @@ func TestLea(t *testing.T) {
 	env := [...]uint64{uint64(n)}
 
 	var asm Asm
-	asm.Init().Asm(MUL, ConstInt64(m), N).Func(&f)
+	Init(&asm).Asm(MUL, ConstInt64(m), N).Func(&f)
 	f(&env[0])
 
 	actual := int64(env[0])

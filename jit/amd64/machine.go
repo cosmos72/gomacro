@@ -48,7 +48,7 @@ const (
 	RHi RegId = R15
 )
 
-var alwaysLiveRegIds = RegIds{RSP: 1, RBP: 1, RDI: 1 /* &Env.IntBinds[0] */}
+var alwaysLiveRegIds = RegIds{RSP: 1, RBP: 1}
 
 var regName1 = [...]string{
 	RAX: "%al",
@@ -197,10 +197,16 @@ func (asm *Asm) quirk24(r Reg) *Asm {
 	return asm
 }
 
+// Prologue used to add the following instruction to generated code,
+// but now it does nothing, because adding ANY code is the user's responsibility:
+//   movq 0x8(%rsp), %rdi
+// equivalent to
+//   asm.Asm(MOV, MakeMem(8, RSP, Uint64), MakeReg(RDI, Uint64))
 func (asm *Asm) Prologue() *Asm {
-	// movq 0x8(%rsp), %rdi
 	// return asm.Bytes(0x48, 0x8b, 0x7c, 0x24, 0x08)
-	return asm.op2MemReg(MOV, MakeMem(8, RSP, Uint64), MakeReg(RDI, Uint64))
+	// equivalent:
+	// return asm.op2MemReg(MOV, MakeMem(8, RSP, Uint64), MakeReg(RDI, Uint64))
+	return asm
 }
 
 func (asm *Asm) Epilogue() *Asm {

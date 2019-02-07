@@ -39,6 +39,11 @@ type Asm struct {
 	save      Save
 }
 
+func New() *Asm {
+	var asm Asm
+	return asm.Init()
+}
+
 func SizeOf(a Arg) Size {
 	size := a.Kind().Size()
 	if size == 0 {

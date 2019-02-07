@@ -67,8 +67,9 @@ func TestArm64ZeroReg(t *testing.T) {
 
 	var asm Asm
 	asm.Init().Asm(
+		ZERO, r,
 		MOV, xzr, r,
-		MOV, xzr, m,
+		ZERO, m,
 		RET)
 
 	PrintDisasm(ARM64, asm.Code())

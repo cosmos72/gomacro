@@ -31,7 +31,7 @@ const (
 	ARM64 = Arch(gapstone.CS_ARCH_ARM64)
 )
 
-func New(arch Arch) (Engine, error) {
+func NewDisasm(arch Arch) (Engine, error) {
 	var mode uint = gapstone.CS_MODE_64
 	if arch == ARM64 {
 		mode = gapstone.CS_MODE_ARM // | gapstone.CS_MODE_V8
@@ -56,7 +56,7 @@ func spaces(n int) string {
 }
 
 func Disasm(arch Arch, code []uint8) ([]gapstone.Instruction, error) {
-	engine, err := New(arch)
+	engine, err := NewDisasm(arch)
 	if err != nil {
 		return nil, err
 	}
