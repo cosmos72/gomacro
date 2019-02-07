@@ -1,3 +1,5 @@
+// +build arm64
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -8,14 +10,26 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * main.go
+ * znativerun_test.go
  *
- *  Created on Feb 02, 2019
+ *  Created on Feb 07, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package main
+package arch
 
-func main() {
-	println(Add8, Add16, Add32, Add64, Zero)
+import (
+	"testing"
+)
+
+func TestArm64Sample(t *testing.T) {
+	var asm Asm
+
+	xzr := MakeReg(XZR, Uint64)
+	asm.Init()
+	asm.Asm( //
+		MOV, xzr, MakeMem(8, XSP, Uint64),
+		RET
+	)
+
 }

@@ -143,7 +143,9 @@ func (r Reg) valOrX31(allowX31 bool) uint32 {
 
 func (asm *Asm) Prologue() *Asm {
 	// return asm.Uint32(0xf94007fd) // ldr x29, [sp, #8]
-	return asm.load(MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
+	// equivalent:
+	// return asm.Load(MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
+	return asm
 }
 
 func (asm *Asm) Epilogue() *Asm {

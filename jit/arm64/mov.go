@@ -28,7 +28,7 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 		case Reg:
 			asm.movRegReg(src, dst)
 		case Mem:
-			asm.load(src, dst)
+			asm.Load(src, dst)
 		default:
 			errorf("unknown source type %T, expecting Const, Reg or Mem: %v %v, %v", src, MOV, src, dst)
 		}
@@ -37,7 +37,7 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 		case Const:
 			asm.movConstMem(src, dst)
 		case Reg:
-			asm.store(src, dst)
+			asm.Store(src, dst)
 		case Mem:
 			asm.movMemMem(src, dst)
 		default:
@@ -46,7 +46,7 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 	case Const:
 		errorf("destination cannot be a constant: %v %v, %v", MOV, src, dst)
 	default:
-		errorf("unimplemented destination type %T, expecting Reg: %v %v, %v", dst, MOV, src, dst)
+		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, MOV, src, dst)
 	}
 	return asm
 }
@@ -58,28 +58,17 @@ const (
 	store loadstore = 0x39000000
 )
 
-func (asm *Asm) load(src Mem, dst Reg) *Asm {
+func (asm *Asm) Load(src Mem, dst Reg) *Asm {
 	return asm.loadstore(load, src, dst)
 }
 
-func (asm *Asm) store(src Reg, dst Mem) *Asm {
+func (asm *Asm) Store(src Reg, dst Mem) *Asm {
 	return asm.loadstore(store, dst, src)
-}
-
-// zero a register
-func (asm *Asm) zeroReg(dst Reg) *Asm {
-	return asm.movConstReg(MakeConst(0, dst.kind), dst)
-}
-
-// zero a memory location
-func (asm *Asm) zeroMem(dst Mem) *Asm {
-	errorf("unimplemented: zeroMem")
-	return asm
 }
 
 func (asm *Asm) movRegReg(src Reg, dst Reg) *Asm {
 	// arm64 implements "mov src,dst" as "orr xzr,src,dst"
-	return asm.Uint32(dst.kind.kbit() | 0x2A0003E0 | src.val()<<16 | dst.val())
+	return asm.Uint32(dst.kind.kbit() | 0x2A0003E0 | src.valOrX31(true)<<16 | dst.val())
 }
 
 func (asm *Asm) movConstReg(c Const, dst Reg) *Asm {
@@ -127,22 +116,22 @@ func (asm *Asm) loadstore(op loadstore, m Mem, r Reg) *Asm {
 	switch m.Kind().Size() {
 	case 1:
 		if off >= 0 && off <= 4095 {
-			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<10 | m.reg.valOrX31(true)<<5 | r.val())
+			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<10 | m.reg.valOrX31(true)<<5 | r.valOrX31(true))
 		}
 	case 2:
 		sizebit = 0x4 << 28
 		if off >= 0 && off <= 8190 && off%2 == 0 {
-			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<9 | m.reg.valOrX31(true)<<5 | r.val())
+			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<9 | m.reg.valOrX31(true)<<5 | r.valOrX31(true))
 		}
 	case 4:
 		sizebit = 0x8 << 28
 		if off >= 0 && off <= 16380 && off%4 == 0 {
-			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<8 | m.reg.valOrX31(true)<<5 | r.val())
+			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<8 | m.reg.valOrX31(true)<<5 | r.valOrX31(true))
 		}
 	case 8:
 		sizebit = 0xC << 28
 		if off >= 0 && off <= 32760 && off%8 == 0 {
-			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<7 | m.reg.valOrX31(true)<<5 | r.val())
+			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<7 | m.reg.valOrX31(true)<<5 | r.valOrX31(true))
 		}
 	}
 	// load offset in a register. we could also try "ldur" or "stur"...
@@ -155,13 +144,16 @@ func (asm *Asm) loadstore(op loadstore, m Mem, r Reg) *Asm {
 }
 
 func (asm *Asm) movConstMem(c Const, dst Mem) *Asm {
+	if c.val == 0 {
+		return asm.zeroMem(dst)
+	}
 	r := asm.RegAlloc(dst.Kind())
-	return asm.movConstReg(c, r).store(r, dst).RegFree(r)
+	return asm.movConstReg(c, r).Store(r, dst).RegFree(r)
 }
 
 func (asm *Asm) movMemMem(src Mem, dst Mem) *Asm {
 	r := asm.RegAlloc(src.Kind())
-	return asm.load(src, r).store(r, dst).RegFree(r)
+	return asm.Load(src, r).Store(r, dst).RegFree(r)
 }
 
 // ============================================================================

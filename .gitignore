@@ -9,4 +9,6 @@ a.out
 _gen_*.s
 /example/example
 /jit/_template_amd64/_template_amd64
+/jit/_template_arm64/_bitwise_immediate/_bitwise_immediate
+/jit/_template_arm64/_go/_go
 /jit/_template_arm64/_template_arm64

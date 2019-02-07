@@ -59,3 +59,17 @@ func TestArm64Sample(t *testing.T) {
 		PrintDisasm(ARM64, asm.Code())
 	}
 }
+
+func TestArm64ZeroReg(t *testing.T) {
+	r := MakeReg(RLo, Uint64)
+	xzr := MakeReg(XZR, Uint64)
+	m := MakeMem(8, XSP, Uint64)
+
+	var asm Asm
+	asm.Init().Asm(
+		MOV, xzr, r,
+		MOV, xzr, m,
+		RET)
+
+	PrintDisasm(ARM64, asm.Code())
+}

@@ -8,14 +8,14 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * main.go
+ * zero.go
  *
- *  Created on Feb 02, 2019
+ *  Created on Feb 07, 2019
  *      Author Massimiliano Ghilardi
  */
 
 package main
 
-func main() {
-	println(Add8, Add16, Add32, Add64, Zero)
+func Zero() uint64 {
+	return 0
 }

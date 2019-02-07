@@ -29,3 +29,13 @@ uint64_t zero64() {
 	return 0;
 }
 
+void pzero64(uint64_t *addr) {
+	*addr = 0;
+}
+
+void pone64(uint64_t *addr) {
+	*addr = 1;
+}
+
+
+
