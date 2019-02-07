@@ -200,10 +200,7 @@ func (asm *Asm) quirk24(r Reg) *Asm {
 func (asm *Asm) Prologue() *Asm {
 	// movq 0x8(%rsp), %rdi
 	// return asm.Bytes(0x48, 0x8b, 0x7c, 0x24, 0x08)
-	return asm.op2MemReg(MOV,
-		MakeMem(8, RSP, Uint64),
-		Reg{RDI, Uint64},
-	)
+	return asm.op2MemReg(MOV, MakeMem(8, RSP, Uint64), MakeReg(RDI, Uint64))
 }
 
 func (asm *Asm) Epilogue() *Asm {

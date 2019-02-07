@@ -31,12 +31,9 @@ type memarea struct {
 	addr, size uintptr
 }
 
-func nop(*uint64) {
-}
-
-func (asm *Asm) Func() func(*uint64) {
+func (asm *Asm) mmap() memarea {
 	if len(asm.code) == 0 {
-		return nop
+		errorf("mmap(): code is empty")
 	}
 	asm.Epilogue()
 	if VERBOSE {
@@ -54,10 +51,7 @@ func (asm *Asm) Func() func(*uint64) {
 		windows.VirtualFree(mem, 0, windows.MEM_RELEASE)
 		errorf("sys/windows.VirtualProtect failed: %v", err)
 	}
-	var f func(*uint64)
-	*(**memarea)(unsafe.Pointer(&f)) = &memarea{mem, size}
-	// runtime.SetFinalizer(&f, munmap)
-	return f
+	return memarea{mem, size}
 }
 
 // memory copy. a bit slow, but avoids depending on CGO
@@ -67,10 +61,8 @@ func memcpy(dst uintptr, src uintptr, size uintptr) {
 	}
 }
 
-func munmap(obj interface{}) {
-	f, ok := obj.(func(*uint64))
-	if ok && f != nil {
-		area := *(**memarea)(unsafe.Pointer(&f))
+func munmap(mem memarea) {
+	if mem.addr != 0 {
 		windows.VirtualFree(area.addr, 0, windows.MEM_RELEASE)
 	}
 }

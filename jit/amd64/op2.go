@@ -89,7 +89,7 @@ func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
 		return asm
 	}
 	if op == DIV || op == REM {
-		errorf("unimplemented operation %v: %v %v %v", op, op, src, dst)
+		errorf("unimplemented operation %v: %v %v, %v", op, op, src, dst)
 	}
 	switch dst := dst.(type) {
 	case Reg:
@@ -101,7 +101,7 @@ func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
 		case Const:
 			asm.op2ConstReg(op, src, dst)
 		default:
-			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v %v", op, src, dst)
+			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v, %v", src, op, src, dst)
 		}
 	case Mem:
 		switch src := src.(type) {
@@ -112,12 +112,12 @@ func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
 		case Const:
 			asm.op2ConstMem(op, src, dst)
 		default:
-			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v %v", src, op, src, dst)
+			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v, %v", src, op, src, dst)
 		}
 	case Const:
 		errorf("destination cannot be a constant: %v %v %v", op, src, dst)
 	default:
-		errorf("unsupported destination type %T, expecting Reg or Mem: %v %v %v", dst, op, src, dst)
+		errorf("unsupported destination type %T, expecting Reg or Mem: %v %v, %v", dst, op, src, dst)
 	}
 	return asm
 }

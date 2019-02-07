@@ -76,8 +76,8 @@ func (asm *Asm) lea4(m Mem, reg Reg, scale int64, dst Reg) *Asm {
 	case 8:
 		scalebit = 0xC0
 	default:
-		errorf("LEA: unsupported scale %v, expecting 1,2,4 or 8: %v %v %v %v %v",
-			op, m, reg, scale, dst)
+		errorf("LEA: unsupported scale %v, expecting 1,2,4 or 8: %v %v, %v, %v, %v",
+			scale, op, m, reg, scale, dst)
 	}
 	dlo, dhi := dst.lohi()
 	var mlo, mhi uint8
@@ -91,7 +91,7 @@ func (asm *Asm) lea4(m Mem, reg Reg, scale int64, dst Reg) *Asm {
 		scalebit |= 0x05
 	}
 	if reg.id == RSP {
-		errorf("LEA: register RSP cannot be scaled: %v %v %v %v %v",
+		errorf("LEA: register RSP cannot be scaled: %v %v, %v, %v, %v",
 			op, m, reg, scale, dst)
 	}
 	rlo, rhi := reg.lohi()

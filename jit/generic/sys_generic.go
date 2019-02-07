@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * sys_unsupported.go
+ * sys_generic.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
@@ -18,9 +18,14 @@
 
 package arch
 
-func nop(*uint64) {
+import (
+	"runtime"
+)
+
+type memarea struct {
 }
 
-func (asm *Asm) Func() func(*uint64) {
-	return nop
+func (asm *Asm) mmap() memarea {
+	errorf("Asm: unsupported operating system %v, cannot mmap() created code", runtime.GOOS)
+	return memarea{}
 }

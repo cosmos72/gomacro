@@ -20,19 +20,17 @@ package arch
 
 import (
 	"fmt"
-	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
 
 var PAGESIZE = unix.Getpagesize()
 
-func nop(*uint64) {
-}
+type memarea []byte
 
-func (asm *Asm) Func() func(*uint64) {
+func (asm *Asm) mmap() memarea {
 	if len(asm.code) == 0 {
-		return nop
+		errorf("mmap(): code is empty")
 	}
 	asm.Epilogue()
 	if VERBOSE {
@@ -49,16 +47,11 @@ func (asm *Asm) Func() func(*uint64) {
 		unix.Munmap(mem)
 		errorf("sys/unix.Mprotect failed: %v", err)
 	}
-	var f func(*uint64)
-	*(**[]uint8)(unsafe.Pointer(&f)) = &mem
-	// runtime.SetFinalizer(&f, munmap)
-	return f
+	return mem
 }
 
-func munmap(obj interface{}) {
-	f, ok := obj.(func(*uint64))
-	if ok && f != nil {
-		mem := **(**[]uint8)(unsafe.Pointer(&f))
+func munmap(mem memarea) {
+	if len(mem) != 0 {
 		unix.Munmap(mem)
 	}
 }

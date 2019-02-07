@@ -29,12 +29,14 @@ var verbose = false
 
 func TestNop(t *testing.T) {
 	var asm Asm
-	f := asm.Init().Func()
+	var f func(*uint64)
+	asm.Init().Func(&f)
 	binds := [...]uint64{0}
 	f(&binds[0])
 }
 
 func TestMov(t *testing.T) {
+	var f func(*uint64)
 	c := Const{kind: Int64}
 	m := MakeVar0(0)
 	binds := [...]uint64{0}
@@ -46,7 +48,7 @@ func TestMov(t *testing.T) {
 		}
 		r := Reg{id: id, kind: Int64}
 		c.val = int64(rand.Uint64())
-		f := asm.Mov(c, r).Mov(r, m).Func()
+		asm.Mov(c, r).Mov(r, m).Func(&f)
 		f(&binds[0])
 		actual := int64(binds[0])
 		if actual != c.val {
@@ -82,16 +84,17 @@ func TestSum(t *testing.T) {
 	}
 */
 func DeclSum() func(arg int64) int64 {
+	var init, next, loop func(*uint64)
 	const n, total, i = 0, 1, 2
 	_, Total, I := MakeVar0(n), MakeVar0(total), MakeVar0(i)
 
 	var asm Asm
-	init := asm.Init().Mov(ConstInt64(1), I).Func()
+	asm.Init().Mov(ConstInt64(1), I).Func(&init)
 	pred := func(env *[3]uint64) bool {
 		return int64(env[i]) <= int64(env[n])
 	}
-	next := asm.Init().Op2(ADD, ConstInt64(1), I).Func()
-	loop := asm.Init().Op2(ADD, I, Total).Func()
+	asm.Init().Op2(ADD, ConstInt64(1), I).Func(&next)
+	asm.Init().Op2(ADD, I, Total).Func(&loop)
 
 	return func(arg int64) int64 {
 		env := [3]uint64{n: uint64(arg)}
@@ -104,6 +107,7 @@ func DeclSum() func(arg int64) int64 {
 }
 
 func TestAdd(t *testing.T) {
+	var f func(*uint64)
 	var asm Asm
 	v1, v2, v3 := MakeVar0(0), MakeVar0(1), MakeVar0(2)
 
@@ -113,14 +117,14 @@ func TestAdd(t *testing.T) {
 			continue
 		}
 		r := Reg{id: id, kind: Int64}
-		f := asm.Asm(MOV, v1, r, //
+		asm.Asm(MOV, v1, r, //
 			NEG, r, //
 			NOT, r, //
 			ADD, v2, r, //
 			NOT, r, //
 			NEG, r, //
 			MOV, r, v3, //
-		).Func()
+		).Func(&f)
 
 		if verbose {
 			code := asm.code
@@ -147,6 +151,7 @@ func TestAdd(t *testing.T) {
 }
 
 func TestCast(t *testing.T) {
+	var f func(*uint64)
 	var asm Asm
 	asm.Init()
 
@@ -177,7 +182,7 @@ func TestCast(t *testing.T) {
 		CAST, N[5], V[5],
 		CAST, N[6], V[6],
 	).RegFree(r)
-	f := asm.Func()
+	asm.Func(&f)
 	f(&actual[0])
 	if actual != expected {
 		t.Errorf("CAST returned %v, expecting %v", actual, expected)
@@ -185,6 +190,7 @@ func TestCast(t *testing.T) {
 }
 
 func TestLea(t *testing.T) {
+	var f func(*uint64)
 	const (
 		n, m     int64 = 1020304, 9
 		expected int64 = n * m
@@ -193,7 +199,7 @@ func TestLea(t *testing.T) {
 	env := [...]uint64{uint64(n)}
 
 	var asm Asm
-	f := asm.Init().Asm(MUL, ConstInt64(m), N).Func()
+	asm.Init().Asm(MUL, ConstInt64(m), N).Func(&f)
 	f(&env[0])
 
 	actual := int64(env[0])
@@ -206,9 +212,6 @@ func TestLea(t *testing.T) {
 
 /*
 func TestArith(t *testing.T) {
-	if !SUPPORTED {
-		t.SkipNow()
-	}
 	const (
 		n        int = 9
 		expected int = ((((n*2 + 3) | 4) &^ 5) ^ 6) / ((n & 2) | 1)
