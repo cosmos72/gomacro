@@ -30,11 +30,17 @@ func TestArm64Sample(t *testing.T) {
 		if asm.RegIsUsed(id) || asm.RegIsUsed(id+1) || asm.RegIsUsed(id+2) {
 			continue
 		}
-		r := MakeReg(id+0, Uint64)
-		s := MakeReg(id+1, Uint64)
-		t := MakeReg(id+2, Uint64)
-		m := MakeMem(8, id, Uint64)
-		c := ConstUint64(0xFFF)
+		r := MakeReg(id+0, Int64)
+		s := MakeReg(id+1, Int64)
+		t := MakeReg(id+2, Int64)
+		m := MakeMem(8, id, Int64)
+		c := ConstInt64(0xFFF)
+		one := ConstUint8(1)
+		ur := MakeReg(id+0, Uint64)
+		us := MakeReg(id+1, Uint64)
+		ut := MakeReg(id+2, Uint64)
+		br := MakeReg(id+0, Uint8)
+		bt := MakeReg(id+2, Uint8)
 		asm.RegIncUse(id).RegIncUse(id + 1).RegIncUse(id + 2)
 		asm.Asm(MOV, c, r, //
 			MOV, c, m, //
@@ -45,14 +51,29 @@ func TestArm64Sample(t *testing.T) {
 			AND3, r, s, t, //
 			OR3, r, s, t, //
 			XOR3, r, s, t, //
-			SHL3, r, s, t, //
-			SHR3, r, s, t, //
-			NOP,           //
-			ADD3, c, r, t, // test commutativity optimization
+			SHL3, r, us, t, //
+			SHR3, ur, us, ut, //
+			SHR3, r, us, t, //
+			NOP, //
+			// test commutativity optimization
+			ADD3, c, r, t, //
 			SUB3, r, c, t, //
 			AND3, c, r, t, //
 			OR3, c, r, t, //
 			XOR3, r, c, t, //
+			SHL3, r, one, t, //
+			SHR3, ur, one, ut, //
+			SHR3, r, one, t, //
+			NOP, //
+			NOP, //
+			// test 8-bit registers
+			ADD3, one, br, bt, //
+			SUB3, br, one, bt, //
+			AND3, one, br, bt, //
+			OR3, one, br, bt, //
+			XOR3, br, one, bt, //
+			SHL3, br, one, bt, //
+			SHR3, br, one, bt, //
 		).Epilogue()
 		asm.RegDecUse(id).RegDecUse(id + 1).RegDecUse(id + 2)
 

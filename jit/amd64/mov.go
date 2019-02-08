@@ -21,21 +21,6 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 	return asm.Op2(MOV, src, dst)
 }
 
-// zero a register: use XOR
-func (asm *Asm) zeroReg(dst Reg) *Asm {
-	dlo, dhi := dst.lohi()
-	if dhi == 0 {
-		return asm.Bytes(0x31, 0xC0|dlo|dlo<<3)
-	} else {
-		return asm.Bytes(0x48|dhi<<1|dhi<<2, 0x31, 0xC0|dlo|dlo<<3)
-	}
-}
-
-// zero a memory location
-func (asm *Asm) zeroMem(dst Mem) *Asm {
-	return asm.movConstMem(Const{val: 0, kind: dst.Kind()}, dst)
-}
-
 // %reg_dst = const
 func (asm *Asm) movConstReg(c Const, dst Reg) *Asm {
 	if c.val == 0 {

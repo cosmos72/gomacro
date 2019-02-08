@@ -25,7 +25,7 @@ import (
 type Op1 uint8
 
 const (
-	ZERO Op1 = 0
+	ZERO Op1 = 1
 
 /*
 	NOT Op1 = 0x10
@@ -82,7 +82,6 @@ func (asm *Asm) Zero(dst Arg) *Asm {
 // zero a register
 func (asm *Asm) zeroReg(dst Reg) *Asm {
 	// equivalent: return asm.movRegReg(MakeReg(XZR, dst.kind), dst)
-
 	return asm.movConstReg(MakeConst(0, dst.kind), dst)
 }
 

@@ -25,17 +25,19 @@ import (
 type Op1 uint8
 
 const (
-	NOT Op1 = 0x10
-	NEG Op1 = 0x18
-	INC Op1 = 0x20
-	DEC Op1 = 0x28
+	ZERO Op1 = 0x08
+	NOT  Op1 = 0x10
+	NEG  Op1 = 0x18
+	INC  Op1 = 0x20
+	DEC  Op1 = 0x28
 )
 
 var op1Name = map[Op1]string{
-	NOT: "NOT",
-	NEG: "NEG",
-	INC: "INC",
-	DEC: "DEC",
+	ZERO: "ZERO",
+	NOT:  "NOT",
+	NEG:  "NEG",
+	INC:  "INC",
+	DEC:  "DEC",
 }
 
 func (op Op1) String() string {
@@ -60,13 +62,16 @@ func (asm *Asm) Op1(op Op1, a Arg) *Asm {
 	case Const:
 		errorf("destination cannot be a constant: %v %v", op, a)
 	default:
-		errorf("unsupported destination type %T, expecting Reg or Mem: %v %v", a, op, a)
+		errorf("unknown destination type %T, expecting Reg or Mem: %v %v", a, op, a)
 	}
 	return asm
 }
 
 // OP %reg_dst
 func (asm *Asm) op1Reg(op Op1, r Reg) *Asm {
+	if op == ZERO {
+		return asm.zeroReg(r)
+	}
 	rlo, rhi := r.lohi()
 	oplo, ophi := op.lohi()
 
@@ -94,7 +99,9 @@ func (asm *Asm) op1Reg(op Op1, r Reg) *Asm {
 
 // OP off_m(%reg_m)
 func (asm *Asm) op1Mem(op Op1, m Mem) *Asm {
-
+	if op == ZERO {
+		return asm.zeroMem(m)
+	}
 	r := m.reg
 	rlo, dhi := r.lohi()
 	oplo, ophi := op.lohi()
@@ -128,4 +135,33 @@ func (asm *Asm) op1Mem(op Op1, m Mem) *Asm {
 		asm.Int32(m.off)
 	}
 	return asm
+}
+
+// zero a register or memory location
+func (asm *Asm) Zero(dst Arg) *Asm {
+	switch dst := dst.(type) {
+	case Reg:
+		asm.zeroReg(dst)
+	case Mem:
+		asm.zeroMem(dst)
+	case Const:
+		errorf("destination cannot be a constant: %v %v", ZERO, dst)
+	default:
+		errorf("unknown destination type %T, expecting Reg or Mem: %v %v", dst, ZERO, dst)
+	}
+	return asm
+}
+
+func (asm *Asm) zeroReg(dst Reg) *Asm {
+	dlo, dhi := dst.lohi()
+	if dhi == 0 {
+		return asm.Bytes(0x31, 0xC0|dlo|dlo<<3)
+	} else {
+		return asm.Bytes(0x48|dhi<<1|dhi<<2, 0x31, 0xC0|dlo|dlo<<3)
+	}
+}
+
+// zero a memory location
+func (asm *Asm) zeroMem(dst Mem) *Asm {
+	return asm.movConstMem(Const{val: 0, kind: dst.Kind()}, dst)
 }

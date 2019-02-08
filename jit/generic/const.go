@@ -92,6 +92,14 @@ func ConstInt64(val int64) Const {
 	return Const{val: val, kind: Int64}
 }
 
+func ConstUint8(val uint8) Const {
+	return Const{val: int64(val), kind: Uint8}
+}
+
+func ConstUint32(val uint32) Const {
+	return Const{val: int64(val), kind: Uint32}
+}
+
 func ConstUint64(val uint64) Const {
 	return Const{val: int64(val), kind: Uint64}
 }

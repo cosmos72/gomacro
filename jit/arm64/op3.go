@@ -106,17 +106,24 @@ func (op Op3) immval() uint32 {
 // ============================================================================
 func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	assert(a.Kind() == dst.Kind())
-	if op != SHL3 && op != SHR3 {
+	if op == SHL3 || op == SHR3 {
+		assert(!b.Kind().Signed())
+	} else {
 		assert(b.Kind() == dst.Kind())
 	}
 	if asm.optimize(op, a, b, dst) {
 		return asm
 	}
-	rdst, rdok := dst.(Reg)
-	if !rdok {
+	var rdst Reg
+	switch dst := dst.(type) {
+	case Reg:
+		rdst = dst
+	case Mem:
 		errorf("unimplemented destination type %T, expecting Reg: %v %v, %v, %v", dst, op, a, b, dst)
-	} else if _, ok := dst.(Const); ok {
+	case Const:
 		errorf("destination cannot be a constant: %v %v, %v, %v", op, a, b, dst)
+	default:
+		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v, %v", dst, op, a, b, dst)
 	}
 	ra, raok := a.(Reg)
 	rb, rbok := b.(Reg)
@@ -169,23 +176,67 @@ func (asm *Asm) tryOp3RegConstReg(op Op3, a Reg, cval uint64, dst Reg) bool {
 	opval := op.immval()
 
 	kbit := dst.kind.kbit()
-	switch dst.kind.Size() {
-	case 1, 2, 4:
-		// TODO mask result for size 1, 2
-	}
 
 	switch imm3 {
 	case Imm3AddSub, Imm3Bitwise:
 		// for op == OR3, also accept a == XZR
 		asm.Uint32(kbit | opval | immcval | a.valOrX31(op == OR3)<<5 | dst.val())
 	case Imm3Shift:
-		cb := MakeConst(int64(cval), dst.kind)
-		errorf("unimplemented shift with immediate constant: %v %v, %v, %v", op, a, cb, dst)
+		asm.shiftRegConstReg(op, a, cval, dst)
 	default:
-		cb := MakeConst(int64(cval), dst.kind)
-		errorf("unknown immediate constant encoding %v for %v: %v %v, %v, %v", imm3, op, op, a, cb, dst)
+		cb := ConstInt64(int64(cval))
+		errorf("unknown constant encoding style %v for %v: %v %v, %v, %v", imm3, op, op, a, cb, dst)
 	}
+	asm.zeroHighBits(op, dst)
 	return true
+}
+
+func (asm *Asm) shiftRegConstReg(op Op3, a Reg, cval uint64, dst Reg) {
+	dsize := dst.kind.Size()
+	if cval >= 8*uint64(dsize) {
+		cb := ConstInt64(int64(cval))
+		errorf("constant is out of range for shift: %v %v, %v, %v", op, a, cb, dst)
+	}
+	switch op {
+	case SHL3:
+		switch dsize {
+		case 1, 2, 4:
+			asm.Uint32(0x53000000 | uint32(32-cval)<<16 | uint32(31-cval)<<10 | a.val()<<5 | dst.val())
+		case 8:
+			asm.Uint32(0xD3400000 | uint32(64-cval)<<16 | uint32(63-cval)<<10 | a.val()<<5 | dst.val())
+		}
+	case SHR3:
+		var unsignedbit uint32
+		if !dst.kind.Signed() {
+			unsignedbit = 0x40 << 24
+		}
+		switch dsize {
+		case 1, 2, 4:
+			asm.Uint32(unsignedbit | 0x13007C00 | uint32(cval)<<16 | a.val()<<5 | dst.val())
+		case 8:
+			asm.Uint32(unsignedbit | 0x9340FC00 | uint32(cval)<<16 | a.val()<<5 | dst.val())
+		}
+	}
+}
+
+func (asm *Asm) zeroHighBits(op Op3, dst Reg) {
+	dkind := dst.kind
+	switch dsize := dkind.Size(); dsize {
+	case 1, 2:
+		switch op {
+		case OR3, AND3, XOR3:
+			break
+		case SHR3, DIV3:
+			if !dkind.Signed() {
+				break
+			}
+			fallthrough
+		case ADD3, ADC3, SBB3, SUB3, SHL3, MUL3, REM3:
+			dst = MakeReg(dst.id, Uint32)
+			c := ConstUint32(uint32(1)<<(dsize*8) - 1)
+			asm.op3RegConstReg(AND3, dst, c, dst)
+		}
+	}
 }
 
 func (op Op3) isCommutative() bool {
