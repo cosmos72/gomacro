@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
 
 	arch "github.com/cosmos72/gomacro/jit/arm64"
 )
@@ -26,6 +27,18 @@ import (
 type genOp2 struct {
 	opname, opName string
 	w              io.Writer
+}
+
+func GenOp2() {
+	for _, opname := range [...]string{"mov", "neg", "mvn", "sxtb", "sxth", "sxtw"} {
+		f, err := os.Create("_gen_" + opname + ".s")
+		if err != nil {
+			panic(err)
+		}
+		g := newGenOp2(f, opname)
+		g.generate()
+		f.Close()
+	}
 }
 
 func newGenOp2(w io.Writer, opname string) *genOp2 {
@@ -71,18 +84,40 @@ func (g *genOp2) funcFooter() {
 
 func (g *genOp2) opRegReg() {
 	g.funcHeader("RegReg")
-	for _, k := range [...]arch.Kind{arch.Uint32, arch.Uint64} {
-		kbits := k.Size() * 8
-		fmt.Fprintf(g.w, "\t// OP reg%d, reg%d\n", kbits, kbits)
-		rlo := arch.MakeReg(arch.RLo, k)
-		for id := arch.RLo; id < arch.RHi; id++ {
-			fmt.Fprintf(g.w, "\t%s\t%v, %v\n", g.opname, arch.MakeReg(id, k), rlo)
+	if g.opname[:3] == "sxt" {
+		k1 := arch.Uint32
+		for _, k2 := range [...]arch.Kind{arch.Uint32, arch.Uint64} {
+			if g.opname == "sxtw" && k2 == arch.Uint32 {
+				continue
+			}
+			k1bits := k1.Size() * 8
+			k2bits := k2.Size() * 8
+			fmt.Fprintf(g.w, "\t// OP reg%d, reg%d\n", k2bits, k1bits)
+			rlo1 := arch.MakeReg(arch.RLo, k1)
+			rlo2 := arch.MakeReg(arch.RLo, k2)
+			for id := arch.RLo; id < arch.RHi; id++ {
+				fmt.Fprintf(g.w, "\t%s\t%v, %v\n", g.opname, rlo2, arch.MakeReg(id, k1))
+			}
+			fmt.Fprint(g.w, "\tnop\n")
+			for id := arch.RLo; id < arch.RHi; id++ {
+				fmt.Fprintf(g.w, "\t%s\t%v, %v\n", g.opname, arch.MakeReg(id, k2), rlo1)
+			}
+			fmt.Fprint(g.w, "\tnop\n")
 		}
-		fmt.Fprint(g.w, "\tnop\n")
-		for id := arch.RLo; id < arch.RHi; id++ {
-			fmt.Fprintf(g.w, "\t%s\t%v, %v\n", g.opname, rlo, arch.MakeReg(id, k))
+	} else {
+		for _, k := range [...]arch.Kind{arch.Uint32, arch.Uint64} {
+			kbits := k.Size() * 8
+			fmt.Fprintf(g.w, "\t// OP reg%d, reg%d\n", kbits, kbits)
+			rlo := arch.MakeReg(arch.RLo, k)
+			for id := arch.RLo; id < arch.RHi; id++ {
+				fmt.Fprintf(g.w, "\t%s\t%v, %v\n", g.opname, arch.MakeReg(id, k), rlo)
+			}
+			fmt.Fprint(g.w, "\tnop\n")
+			for id := arch.RLo; id < arch.RHi; id++ {
+				fmt.Fprintf(g.w, "\t%s\t%v, %v\n", g.opname, rlo, arch.MakeReg(id, k))
+			}
+			fmt.Fprint(g.w, "\tnop\n")
 		}
-		fmt.Fprint(g.w, "\tnop\n")
 	}
 	g.funcFooter()
 }

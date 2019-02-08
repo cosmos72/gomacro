@@ -36,17 +36,18 @@ const (
 	SUB = Op2(SUB3)
 	SBB = Op2(SBB3) // subtract with borrow
 
-	MOV  Op2 = 0x2B // implemented as OR3 xzr,src,dst
+	DIV = Op2(DIV3)
+	REM = Op2(REM3)
+
+	MOV Op2 = 0x2B // implemented as OR3 xzr,src,dst
+
+	NEG2 Op2 = 0xFD
+	NOT2 Op2 = 0xFE
 	CAST Op2 = 0xFF // TODO pick a value. sign extend, zero extend or narrow.
 
 /*
 	CMP  Op2 = ?? // compare, set flags
 	XCHG Op2 = ?? // exchange
-	DIV  Op2 = ?? // divide
-	REM  Op2 = ?? // remainder
-
-	NEG2 Op2
-	NOT2 Op2
 */
 )
 
@@ -61,16 +62,15 @@ var op2Name = map[Op2]string{
 	XOR:  "XOR",
 	SUB:  "SUB",
 	SBB:  "SBB",
+	DIV:  "DIV",
+	REM:  "REM",
 	MOV:  "MOV",
 	CAST: "CAST",
+	NEG2: "NEG2",
+	NOT2: "NOT2",
 	/*
 		CMP:  "CMP",
 		XCHG: "XCHG",
-		DIV:  "DIV",
-		REM:  "REM",
-
-		NEG2: "NEG2",
-		NOT2: "NOT2",
 	*/
 }
 

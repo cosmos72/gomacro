@@ -42,7 +42,7 @@ func TestAmd64Sample(t *testing.T) {
 			MOV, r, v3, //
 		)
 
-		PrintDisasm(AMD64, asm.Code())
+		PrintDisasm(t.Name(), AMD64, asm.Code())
 	}
 }
 
@@ -55,7 +55,7 @@ func TestAmd64Sum(t *testing.T) {
 		ADD, ConstInt64(2), I,
 		ADD, I, Total)
 
-	PrintDisasm(AMD64, asm.Code())
+	PrintDisasm(t.Name(), AMD64, asm.Code())
 }
 
 func TestAmd64Cast(t *testing.T) {
@@ -89,7 +89,7 @@ func TestAmd64Cast(t *testing.T) {
 		RET,
 	)
 
-	PrintDisasm(AMD64, asm.Code())
+	PrintDisasm(t.Name(), AMD64, asm.Code())
 }
 
 func TestAmd64Lea(t *testing.T) {
@@ -107,7 +107,7 @@ func TestAmd64Lea(t *testing.T) {
 		LEA, M, r)
 	asm.RegFree(r)
 
-	PrintDisasm(AMD64, asm.Code())
+	PrintDisasm(t.Name(), AMD64, asm.Code())
 }
 
 func TestAmd64Shift(t *testing.T) {
@@ -127,5 +127,5 @@ func TestAmd64Shift(t *testing.T) {
 	)
 	asm.RegDecUse(RCX)
 
-	PrintDisasm(AMD64, asm.Code())
+	PrintDisasm(t.Name(), AMD64, asm.Code())
 }

@@ -63,12 +63,12 @@ func Disasm(arch Arch, code []uint8) ([]gapstone.Instruction, error) {
 	return engine.Disasm(code, 0x10000, 0)
 }
 
-func PrintDisasm(arch Arch, code []uint8) {
+func PrintDisasm(name string, arch Arch, code []uint8) {
 	insns, err := Disasm(arch, code)
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Printf("Disasm:\n")
+		fmt.Printf("%s:\n", name)
 		for _, insn := range insns {
 			Show(insn)
 		}

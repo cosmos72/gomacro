@@ -20,6 +20,13 @@ package arch
 func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 	assert(SizeOf(src) == SizeOf(dst))
 
+	if dst.Const() {
+		errorf("destination cannot be a constant: %v %v, %v", MOV, src, dst)
+	}
+	if src == dst {
+		return asm
+	}
+
 	switch dst := dst.(type) {
 	case Reg:
 		switch src := src.(type) {
@@ -43,8 +50,6 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 		default:
 			errorf("unknown source type %T, expecting Const, Reg or Mem: %v %v, %v", src, MOV, src, dst)
 		}
-	case Const:
-		errorf("destination cannot be a constant: %v %v, %v", MOV, src, dst)
 	default:
 		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, MOV, src, dst)
 	}
@@ -163,6 +168,95 @@ func (asm *Asm) Cast(src Arg, dst Arg) *Asm {
 	} else if SizeOf(src) == SizeOf(dst) {
 		return asm.Op2(MOV, src, dst)
 	}
-	errorf("unimplemented: %v %v, %v", CAST, src, dst)
+
+	switch dst := dst.(type) {
+	case Reg:
+		switch src := src.(type) {
+		case Reg:
+			asm.castRegReg(src, dst)
+		case Mem:
+			asm.castMemReg(src, dst)
+		case Const:
+			src = src.Cast(dst.kind)
+			asm.movConstReg(src, dst)
+		default:
+			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v %v", src, CAST, src, dst)
+		}
+	case Mem:
+		switch src := src.(type) {
+		case Reg:
+			asm.castRegMem(src, dst)
+		case Mem:
+			asm.castMemMem(src, dst)
+		case Const:
+			src = src.Cast(dst.Kind())
+			asm.movConstMem(src, dst)
+		default:
+			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v %v", src, CAST, src, dst)
+		}
+	case Const:
+		errorf("destination cannot be a constant: %v %v %v", CAST, src, dst)
+	default:
+		errorf("unsupported destination type %T, expecting Reg or Mem: %v %v %v", dst, CAST, src, dst)
+	}
 	return asm
+}
+
+func (asm *Asm) castMemMem(src Mem, dst Mem) *Asm {
+	r1 := asm.RegAlloc(src.Kind())
+	r2 := MakeReg(r1.id, dst.Kind())
+	return asm.Load(src, r1).castRegReg(r1, r2).Store(r2, dst).RegFree(r1)
+}
+
+func (asm *Asm) castMemReg(src Mem, dst Reg) *Asm {
+	r := MakeReg(dst.id, src.Kind())
+	asm.Load(src, r)
+	return asm.castRegReg(r, dst)
+}
+
+func (asm *Asm) castRegMem(src Reg, dst Mem) *Asm {
+	r := MakeReg(src.id, dst.Kind())
+	if SizeOf(src) < SizeOf(dst) {
+		// extend src. we can safely overwrite its high bits: they are junk
+		return asm.castRegReg(src, r).Store(r, dst)
+	} else {
+		// just ignore src high bits
+		return asm.Store(r, dst)
+	}
+}
+
+func (asm *Asm) castRegReg(src Reg, dst Reg) *Asm {
+	skind := src.kind
+	dkind := dst.kind
+	ssize := skind.Size()
+	dsize := dkind.Size()
+	if ssize >= dsize {
+		// truncate. easy, just ignore src high bits
+		return asm.Mov(MakeReg(src.id, dst.kind), dst)
+	} else if skind.Signed() {
+		// sign-extend: use one of
+		// use "sxtb	src, dst"
+		// or  "sxth	src, dst"
+		// or  "sxtw	src, dst"
+		errorf("unimplemented sign-extend: %v %v, %v", CAST, src, dst)
+		return asm
+	} else {
+		// zero-extend
+		if ssize == 4 {
+			// zero-extend 32 bit -> 64 bit: use
+			// "mov dst, src"
+			// must be kept even if src == dst to zero high bits,
+			// so use Asm.movRegReg() instead of too smart Asm.Mov()
+			return asm.movRegReg(src, MakeReg(dst.id, skind))
+		}
+		// zero-extend, src is 8 bit or 16 bit. use one of:
+		// "and dst, src, #0xff"
+		// "and dst, src, #0xffff"
+		if dsize <= 4 {
+			dkind = Uint32
+		}
+		r := MakeReg(src.id, dkind)
+		c := MakeConst(int64(0xffff)>>(16-ssize*8), dkind)
+		return asm.op3RegConstReg(AND3, r, c, dst)
+	}
 }

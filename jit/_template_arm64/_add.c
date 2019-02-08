@@ -16,26 +16,6 @@
 
 #include <stdint.h>
 
-uint32_t add1_32(uint32_t a) {
-	return a + 1;
-}
-uint32_t add9_32(uint32_t a) {
-	return a + 9;
-}
-uint32_t add255_32(uint32_t a) {
-	return a + 255;
-}
-
-uint64_t add1_64(uint64_t a) {
-	return a + 1;
-}
-uint64_t add9_64(uint64_t a) {
-	return a + 9;
-}
-uint64_t add255_64(uint64_t a) {
-	return a + 255;
-}
-
 uint8_t add8(uint8_t a, uint8_t b) {
 	return a + b;
 }
@@ -49,20 +29,17 @@ uint64_t add64(uint64_t a, uint64_t b) {
 	return a + b;
 }
 
-void padd8(uint8_t *a, uint8_t *b, uint8_t *dst) {
-	*dst = *a + *b;
-}
-void padd16(uint16_t *a, uint16_t *b, uint16_t *dst) {
-	*dst = *a + *b;
-}
-void padd32(uint32_t *a, uint32_t *b, uint32_t *dst) {
-	*dst = *a + *b;
-}
-void padd64(uint64_t *a, uint64_t *b, uint64_t *dst) {
-	*dst = *a + *b;
-}
 
-void padd64_unaligned(uint8_t *a, uint8_t b, uint64_t *dst) {
-	*dst = *(uint64_t*)(a+b);
+int8_t sadd8(int8_t a, int8_t b) {
+	return a + b;
+}
+int16_t sadd16(int16_t a, int16_t b) {
+	return a + b;
+}
+int32_t sadd32(int32_t a, int32_t b) {
+	return a + b;
+}
+int64_t sadd64(int64_t a, int64_t b) {
+	return a + b;
 }
 

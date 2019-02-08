@@ -17,12 +17,13 @@
 package disasm
 
 import (
+	"fmt"
 	"testing"
 
 	. "github.com/cosmos72/gomacro/jit/arm64"
 )
 
-func TestArm64Sample(t *testing.T) {
+func TestArm64Sample(T *testing.T) {
 	var asm Asm
 
 	for id := RLo; id+2 <= RHi; id++ {
@@ -77,7 +78,7 @@ func TestArm64Sample(t *testing.T) {
 		).Epilogue()
 		asm.RegDecUse(id).RegDecUse(id + 1).RegDecUse(id + 2)
 
-		PrintDisasm(ARM64, asm.Code())
+		PrintDisasm(T.Name(), ARM64, asm.Code())
 	}
 }
 
@@ -93,5 +94,25 @@ func TestArm64ZeroReg(t *testing.T) {
 		ZERO, m,
 		RET)
 
-	PrintDisasm(ARM64, asm.Code())
+	PrintDisasm(t.Name(), ARM64, asm.Code())
+}
+
+func TestArm64Cast(t *testing.T) {
+	var asm Asm
+	for _, skind := range [...]Kind{ // Int8, Int16, Int32, Int64,
+		Uint8, Uint16, Uint32, Uint64} {
+
+		src := MakeReg(RLo, skind)
+		for _, dkind := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
+			dst := MakeReg(RLo+1, dkind)
+			asm.Init().Asm(CAST, src, dst)
+			if len(asm.Code()) == 0 {
+				fmt.Printf("%s %v->%v: no code\n", t.Name(), skind, dkind)
+			} else {
+				PrintDisasm(fmt.Sprintf("%s %v->%v", t.Name(), skind, dkind),
+					ARM64, asm.Code())
+			}
+		}
+	}
+
 }

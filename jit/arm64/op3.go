@@ -28,17 +28,16 @@ const (
 	AND3 Op3 = 0x0A
 	ADD3 Op3 = 0x0B
 	ADC3 Op3 = 0x1A // add with carry
-	MUL3 Op3 = 0x1B
-	SHL3 Op3 = 0x1C // shift left
-	SHR3 Op3 = 0x1D // shift right
+	SHL3 Op3 = 0x1B // shift left
+	SHR3 Op3 = 0x1C // shift right
 	OR3  Op3 = 0x2A
 	XOR3 Op3 = 0x4A
 	SUB3 Op3 = 0x4B
 	SBB3 Op3 = 0x5A // subtract with borrow
 
-	// FIXME replace with correct values
-	DIV3 Op3 = 0xFE
-	REM3 Op3 = 0xFF
+	MUL3 Op3 = 0x30
+	DIV3 Op3 = 0x31
+	REM3 Op3 = 0x32
 )
 
 var op3Name = map[Op3]string{
@@ -51,6 +50,7 @@ var op3Name = map[Op3]string{
 	XOR3: "XOR3",
 	SHL3: "SHL3",
 	SHR3: "SHR3",
+
 	MUL3: "MUL3",
 	DIV3: "DIV3",
 	REM3: "REM3",
@@ -76,6 +76,13 @@ func (op Op3) val() uint32 {
 	case MUL3:
 		// 0x1B007C00 because MUL3 a,b,c is an alias for MADD4 xzr,a,b,c
 		return 0x1B007C00
+	case DIV3:
+		// unsigned division is 0x1AC00800
+		// signed division is 0x1AC00C00
+		return 0x1AC00800
+	case REM3:
+		errorf("internal error, operation %v needs to be implemented as {s|u}div followed by msub", op)
+		return 0
 	default:
 		return uint32(op) << 24
 	}
@@ -111,7 +118,10 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	} else {
 		assert(b.Kind() == dst.Kind())
 	}
-	if asm.optimize(op, a, b, dst) {
+	if dst.Const() {
+		errorf("destination cannot be a constant: %v %v, %v, %v", op, a, b, dst)
+	}
+	if asm.optimize3(op, a, b, dst) {
 		return asm
 	}
 	var rdst Reg
@@ -120,8 +130,6 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 		rdst = dst
 	case Mem:
 		errorf("unimplemented destination type %T, expecting Reg: %v %v, %v, %v", dst, op, a, b, dst)
-	case Const:
-		errorf("destination cannot be a constant: %v %v, %v, %v", op, a, b, dst)
 	default:
 		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v, %v", dst, op, a, b, dst)
 	}
@@ -143,17 +151,22 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 }
 
 func (asm *Asm) op3RegRegReg(op Op3, a Reg, b Reg, dst Reg) *Asm {
-	var signedshr uint32
-	if op == SHR3 && dst.kind.Signed() {
-		signedshr = 0xC00
+	var opbits uint32
+	if dst.kind.Signed() {
+		switch op {
+		case SHR3:
+			// arithmetic right shift
+			opbits = 0xC00
+		case DIV3:
+			// signed division
+			opbits = 0xC00
+			// TODO must sign-extend a, b to at least 32 bits
+		}
 	}
-	switch dst.kind.Size() {
-	case 1, 2, 4:
-		// TODO mask result for size 1, 2
-		fallthrough
-	case 8:
-		asm.Uint32(dst.kind.kbit() | (signedshr ^ op.val()) | b.val()<<16 | a.val()<<5 | dst.val())
-	}
+	asm.extendHighBits(op, a)
+	asm.extendHighBits(op, b)
+	// TODO: on arm64, division by zero returns zero instead of panic
+	asm.Uint32(dst.kind.kbit() | (opbits ^ op.val()) | b.val()<<16 | a.val()<<5 | dst.val())
 	return asm
 }
 
@@ -177,6 +190,7 @@ func (asm *Asm) tryOp3RegConstReg(op Op3, a Reg, cval uint64, dst Reg) bool {
 
 	kbit := dst.kind.kbit()
 
+	asm.extendHighBits(op, a)
 	switch imm3 {
 	case Imm3AddSub, Imm3Bitwise:
 		// for op == OR3, also accept a == XZR
@@ -187,7 +201,6 @@ func (asm *Asm) tryOp3RegConstReg(op Op3, a Reg, cval uint64, dst Reg) bool {
 		cb := ConstInt64(int64(cval))
 		errorf("unknown constant encoding style %v for %v: %v %v, %v, %v", imm3, op, op, a, cb, dst)
 	}
-	asm.zeroHighBits(op, dst)
 	return true
 }
 
@@ -219,22 +232,26 @@ func (asm *Asm) shiftRegConstReg(op Op3, a Reg, cval uint64, dst Reg) {
 	}
 }
 
-func (asm *Asm) zeroHighBits(op Op3, dst Reg) {
-	dkind := dst.kind
-	switch dsize := dkind.Size(); dsize {
-	case 1, 2:
-		switch op {
-		case OR3, AND3, XOR3:
-			break
-		case SHR3, DIV3:
-			if !dkind.Signed() {
-				break
-			}
-			fallthrough
-		case ADD3, ADC3, SBB3, SUB3, SHL3, MUL3, REM3:
-			dst = MakeReg(dst.id, Uint32)
-			c := ConstUint32(uint32(1)<<(dsize*8) - 1)
-			asm.op3RegConstReg(AND3, dst, c, dst)
+// arm64 has no native operations to work on 8 bit and 16 bit registers.
+// Actually, it only has ldr (load) and str (store), but no arithmetic
+// or bitwise operations.
+// So we emulate them similarly to what compilers do:
+// use 32 bit registers and ignore high bits in operands and results.
+// Exception: right-shift, division and remainder move data
+// from high bits to low bits, so we must zero-extend or sign-extend
+// the operands
+func (asm *Asm) extendHighBits(op Op3, r Reg) {
+	rkind := r.kind
+	rsize := rkind.Size()
+	if rsize > 2 {
+		return
+	}
+	switch op {
+	case SHR3, DIV3, REM3:
+		if rkind.Signed() {
+			asm.Cast(r, MakeReg(r.id, Int32))
+		} else {
+			asm.Cast(r, MakeReg(r.id, Uint32))
 		}
 	}
 }
@@ -247,8 +264,101 @@ func (op Op3) isCommutative() bool {
 	return false
 }
 
-func (asm *Asm) optimize(op Op3, a Arg, b Arg, dst Arg) bool {
-	// TODO
+func (asm *Asm) optimize3(op Op3, a Arg, b Arg, dst Arg) bool {
+	if a == b {
+		switch op {
+		case AND3, OR3:
+			if b == dst {
+				// operation is NOP
+				return true
+			}
+			asm.Mov(a, dst)
+			return true
+		case SUB3, XOR3:
+			asm.Zero(dst)
+			return true
+		}
+	}
+	c, ok := b.(Const)
+	if !ok {
+		if op.isCommutative() {
+			a, b = b, a
+			c, ok = b.(Const)
+		}
+		if !ok {
+			return false
+		}
+	}
+	n := c.Cast(Int64).val
+	c = MakeConst(n, dst.Kind())
+	switch op {
+	case ADD3:
+		switch n {
+		case 0:
+			asm.Mov(a, dst)
+			return true
+		}
+	case OR3:
+		switch n {
+		case 0:
+			asm.Mov(a, dst)
+			return true
+		case -1:
+			asm.Mov(c, dst)
+			return true
+		}
+	case AND3:
+		switch n {
+		case 0:
+			asm.Mov(a, dst)
+			return true
+		case -1:
+			asm.Mov(c, dst)
+			return true
+		}
+	case SUB3:
+		switch n {
+		case 0:
+			asm.Mov(a, dst)
+			return true
+		}
+	case XOR3:
+		switch n {
+		case 0:
+			asm.Mov(a, dst)
+			return true
+		case -1:
+			asm.Op2(NOT2, a, dst)
+			return true
+		}
+	case SHL3, SHR3:
+		switch n {
+		case 0:
+			asm.Mov(a, dst)
+			return true
+		}
+	case MUL3:
+		switch n {
+		case 0:
+			asm.Zero(dst)
+			return true
+		case 1:
+			asm.Mov(a, dst)
+			return true
+		case -1:
+			asm.Op2(NEG2, a, dst)
+			return true
+		}
+	case DIV3:
+		switch n {
+		case 1:
+			asm.Mov(a, dst)
+			return true
+		case -1:
+			asm.Op2(NEG2, a, dst)
+			return true
+		}
+	}
 	return false
 }
 

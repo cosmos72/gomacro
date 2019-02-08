@@ -17,5 +17,7 @@
 package main
 
 func main() {
-	println(Add8, Add16, Add32, Add64, Zero)
+	println(Add8, Add16, Add32, Add64, Zero,
+		Div8, Div16, Div32, Div64,
+		UDiv8, UDiv16, UDiv32, UDiv64)
 }

@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
 
 	arch "github.com/cosmos72/gomacro/jit/arm64"
 )
@@ -26,6 +27,22 @@ import (
 type genOp3 struct {
 	opname, opName string
 	w              io.Writer
+}
+
+func GenOp3() {
+	for _, opname := range [...]string{
+		"adc", "add", "sub", "sbc",
+		"mul", "sdiv", "udiv",
+		"and", "orr", "eor", "lsl", "lsr", "asr",
+	} {
+		f, err := os.Create("_gen_" + opname + ".s")
+		if err != nil {
+			panic(err)
+		}
+		g := newGenOp3(f, opname)
+		g.generate()
+		f.Close()
+	}
 }
 
 func newGenOp3(w io.Writer, opname string) *genOp3 {
