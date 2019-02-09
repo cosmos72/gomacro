@@ -60,6 +60,7 @@ const (
 	XZR, XSP = iota, iota // depending on context, zero register or stack pointer
 	RLo      = X0
 	RHi      = XZR
+	RSP      = XSP
 )
 
 var (
@@ -75,7 +76,7 @@ var alwaysLiveRegIds = RegIds{
 }
 
 func (id RegId) Valid() bool {
-	return id >= RLo && id < RHi // XZR is valid only in few, hand-checked cases
+	return id >= RLo && id < RHi // XZR/XSP is valid only in few, hand-checked cases
 }
 
 func makeRegNames(prefix string) (ret [RHi + 1]string) {

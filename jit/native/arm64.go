@@ -101,6 +101,7 @@ const (
 	XZR, XSP = arch.XZR, arch.XSP
 	RLo      = arch.RLo
 	RHi      = arch.RHi
+	RSP      = arch.RSP
 
 	// Op0
 	NOP = arch.NOP

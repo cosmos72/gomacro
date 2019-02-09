@@ -48,7 +48,8 @@ const (
 	RHi RegId = R15
 )
 
-var alwaysLiveRegIds = RegIds{RSP: 1, RBP: 1}
+// keep RCX available for shifts
+var alwaysLiveRegIds = RegIds{RCX: 1, RSP: 1, RBP: 1}
 
 var regName1 = [...]string{
 	RAX: "%al",
