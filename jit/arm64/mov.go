@@ -17,6 +17,23 @@
 package arch
 
 // ============================================================================
+type loadstore uint32
+
+const (
+	load  loadstore = 0x39400000
+	store loadstore = 0x39000000
+)
+
+func (asm *Asm) Load(src Mem, dst Reg) *Asm {
+	assert(SizeOf(src) == SizeOf(dst))
+	return asm.loadstore(load, src, dst)
+}
+
+func (asm *Asm) Store(src Reg, dst Mem) *Asm {
+	assert(SizeOf(src) == SizeOf(dst))
+	return asm.loadstore(store, dst, src)
+}
+
 func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 	assert(SizeOf(src) == SizeOf(dst))
 
@@ -56,21 +73,6 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, MOV, src, dst)
 	}
 	return asm
-}
-
-type loadstore uint32
-
-const (
-	load  loadstore = 0x39400000
-	store loadstore = 0x39000000
-)
-
-func (asm *Asm) Load(src Mem, dst Reg) *Asm {
-	return asm.loadstore(load, src, dst)
-}
-
-func (asm *Asm) Store(src Reg, dst Mem) *Asm {
-	return asm.loadstore(store, dst, src)
 }
 
 func (asm *Asm) movRegReg(src Reg, dst Reg) *Asm {

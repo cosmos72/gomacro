@@ -61,6 +61,14 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 	return asm
 }
 
+func (asm *Asm) Load(src Mem, dst Reg) *Asm {
+	return asm
+}
+
+func (asm *Asm) Store(src Reg, dst Mem) *Asm {
+	return asm
+}
+
 func (asm *Asm) Prologue() *Asm {
 	return asm
 }
@@ -69,11 +77,5 @@ func (asm *Asm) Epilogue() *Asm {
 	return asm
 }
 
-func (asm *Asm) archPush(id RegId) {
-}
-
-func (asm *Asm) archPop(id RegId) {
-}
-
-func (s *Save) ArchInit(start uint16, end uint16) {
+func (s *Save) ArchInit(start SaveSlot, end SaveSlot) {
 }

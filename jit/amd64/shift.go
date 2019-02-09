@@ -170,11 +170,11 @@ func (asm *Asm) shiftMemReg(op Op2, src_m Mem, dst Reg) *Asm {
 	if dst.id == RCX {
 		errorf("unimplemented shift RCX by Mem: %v %v %v", op, src_m, dst)
 	}
-	var pushed bool
-	asm.Push(RCX, &pushed)
+	var index SaveSlot
+	asm.Push(MakeReg(RCX, Uint64), &index)
 	asm.op2MemReg(MOV, src_m, MakeReg(RCX, src_m.Kind()))
 	asm.shiftRegReg(op, MakeReg(RCX, Uint8), dst)
-	asm.Pop(RCX, pushed)
+	asm.Pop(MakeReg(RCX, Uint64), &index)
 	return asm
 }
 
@@ -183,10 +183,10 @@ func (asm *Asm) shiftMemMem(op Op2, src_m Mem, dst_m Mem) *Asm {
 	if dst_m.reg.id == RCX {
 		errorf("unimplemented shift Mem[RCX] by Mem: %v %v %v", op, src_m, dst_m)
 	}
-	var pushed bool
-	asm.Push(RCX, &pushed)
+	var index SaveSlot
+	asm.Push(MakeReg(RCX, Uint64), &index)
 	asm.op2MemReg(MOV, src_m, MakeReg(RCX, src_m.Kind()))
 	asm.shiftRegMem(op, MakeReg(RCX, Uint8), dst_m)
-	asm.Pop(RCX, pushed)
+	asm.Pop(MakeReg(RCX, Uint64), &index)
 	return asm
 }

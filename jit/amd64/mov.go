@@ -21,6 +21,16 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 	return asm.Op2(MOV, src, dst)
 }
 
+func (asm *Asm) Load(src Mem, dst Reg) *Asm {
+	assert(SizeOf(src) == SizeOf(dst))
+	return asm.op2MemReg(MOV, src, dst)
+}
+
+func (asm *Asm) Store(src Reg, dst Mem) *Asm {
+	assert(SizeOf(src) == SizeOf(dst))
+	return asm.op2RegMem(MOV, src, dst)
+}
+
 // %reg_dst = const
 func (asm *Asm) movConstReg(c Const, dst Reg) *Asm {
 	if c.val == 0 {

@@ -31,7 +31,7 @@ func (m Mem) String() string {
 }
 
 // implement Arg interface
-func (m Mem) UsedRegId() RegId {
+func (m Mem) RegId() RegId {
 	return m.reg.id
 }
 

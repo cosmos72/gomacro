@@ -213,25 +213,10 @@ func (asm *Asm) Epilogue() *Asm {
 	return asm.Op0(RET)
 }
 
-func (asm *Asm) archPush(id RegId) {
-	s := asm.save
-	asm.op2RegMem(MOV,
-		Reg{id: id, kind: Uint64},
-		Mem{off: int32(s.idx) * 8, reg: s.reg},
-	)
-}
-
-func (asm *Asm) archPop(id RegId) {
-	s := asm.save
-	asm.op2MemReg(MOV,
-		Mem{off: int32(s.idx) * 8, reg: s.reg},
-		Reg{id: id, kind: Uint64},
-	)
-}
-
-func (s *Save) ArchInit(start, end uint16) {
+func (s *Save) ArchInit(start, end SaveSlot) {
 	s.reg = Reg{RSP, Uint64}
-	s.start, s.idx, s.end = start, start, end
+	s.start, s.next, s.end = start, start, end
+	s.bitmap = make([]bool, end-start)
 }
 
 var assertError = errors.New("jit/amd64 internal error, assertion failed")

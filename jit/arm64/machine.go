@@ -152,15 +152,10 @@ func (asm *Asm) Epilogue() *Asm {
 	return asm.Op0(RET) // ret
 }
 
-func (asm *Asm) archPush(id RegId) {
-	errorf("archPush not implemented")
-}
-
-func (asm *Asm) archPop(id RegId) {
-	errorf("archPush not implemented")
-}
-
-func (s *Save) ArchInit(start uint16, end uint16) {
+func (s *Save) ArchInit(start SaveSlot, end SaveSlot) {
+	s.reg = Reg{XSP, Uint64}
+	s.start, s.next, s.end = start, start, end
+	s.bitmap = make([]bool, end-start)
 }
 
 var assertError = errors.New("jit/arm64 internal error, assertion failed")

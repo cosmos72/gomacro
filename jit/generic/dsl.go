@@ -31,22 +31,22 @@ func (asm *Asm) Op(args ...interface{}) int {
 		asm.Op0(op)
 		n = 0
 	case Op1:
-		asm.Op1(op, args[1].(Arg))
+		asm.Op1(op, asm.Arg(args[1]))
 		n = 1
 	case Op2Misc:
 		asm.Op2Misc(op, args[1], args[2])
 		n = 2
 	case Op2:
-		asm.Op2(op, args[1].(Arg), args[2].(Arg))
+		asm.Op2(op, asm.Arg(args[1]), asm.Arg(args[2]))
 		n = 2
 	case Op3:
-		asm.Op3(op, args[1].(Arg), args[2].(Arg), args[3].(Arg))
+		asm.Op3(op, asm.Arg(args[1]), asm.Arg(args[2]), asm.Arg(args[3]))
 		n = 3
 	case Op4:
-		asm.Op4(op, args[1].(Arg), args[2].(Arg), args[3].(Arg), args[4].(Arg))
+		asm.Op4(op, asm.Arg(args[1]), asm.Arg(args[2]), asm.Arg(args[3]), asm.Arg(args[4]))
 		n = 4
 	default:
-		errorf("syntax error: expecting Op0,Op1,Op2,Op3,Op4 or Op2Misc [args], found %v", op)
+		errorf("syntax error: expecting Op0,Op1,Op2,Op3,Op4 or Op2Misc [args], found %v // %T", op, op)
 	}
 	return n
 }

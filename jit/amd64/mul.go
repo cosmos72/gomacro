@@ -55,8 +55,8 @@ func (asm *Asm) mul2ConstMem(c Const, m Mem) *Asm {
 	case 1:
 		return asm
 	default:
-		r, allocated := asm.AllocLoad(m)
-		return asm.mul2ConstReg(c, r).StoreFree(r, allocated, m)
+		r := asm.RegAlloc(m.Kind())
+		return asm.Mov(m, r).mul2ConstReg(c, r).Mov(r, m).RegFree(r)
 	}
 }
 

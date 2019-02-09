@@ -19,24 +19,33 @@ package arch
 type Size uint8 // 1, 2, 4 or 8
 
 type Arg interface {
-	UsedRegId() RegId // register used by Arg, or NoReg if Arg is Const
+	RegId() RegId // register used by Arg, or NoReg if Arg is Const
 	Kind() Kind
 	Const() bool
 }
 
 type Code []uint8
 
+type SaveSlot uint16
+
+const (
+	InvalidSlot = ^SaveSlot(0)
+)
+
 // memory area where spill registers can be saved
 type Save struct {
-	reg             Reg    // points to memory area
-	start, idx, end uint16 // offsets in memory area
+	reg              Reg       // points to memory area
+	start, next, end SaveSlot // memory area indexes
+	bitmap           []bool    // bitmap of used/free indexes
 }
 
 type Asm struct {
-	code      Code
-	regIds    RegIds
-	nextRegId RegId // first available register among usable ones
-	save      Save
+	code        Code
+	nextRegId   RegId   // first available register
+	nextSoftReg SoftReg // first available soft register
+	softRegs    SoftRegs
+	save        Save
+	regIds      RegIds
 }
 
 func New() *Asm {

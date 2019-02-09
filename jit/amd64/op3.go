@@ -65,7 +65,7 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 		asm.Op2(op2, b, dst)
 	} else if op.isCommutative() && b == dst {
 		asm.Op2(op2, a, dst)
-	} else if r, ok := dst.(Reg); ok && r.id != dst.UsedRegId() {
+	} else if r, ok := dst.(Reg); ok && r.id != b.RegId() {
 		asm.Mov(a, dst).Op2(op2, b, dst)
 	} else {
 		r := asm.RegAlloc(dst.Kind())

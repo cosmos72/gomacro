@@ -16,7 +16,7 @@
 
 package arch
 
-// hardware register. implementation is architecture-dependent
+// machine register. implementation is architecture-dependent
 type RegId uint8
 
 func (id RegId) Validate() {
@@ -36,7 +36,7 @@ func MakeReg(id RegId, kind Kind) Reg {
 }
 
 // implement Arg interface
-func (r Reg) UsedRegId() RegId {
+func (r Reg) RegId() RegId {
 	return r.id
 }
 

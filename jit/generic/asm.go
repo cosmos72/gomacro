@@ -24,11 +24,12 @@ func (asm *Asm) Init() *Asm {
 	return asm.Init2(0, 0)
 }
 
-func (asm *Asm) Init2(saveStart, saveEnd uint16) *Asm {
+func (asm *Asm) Init2(saveStart, saveEnd SaveSlot) *Asm {
 	asm.code = asm.code[:0:cap(asm.code)]
-	asm.regIds.InitLive()
 	asm.nextRegId = RLo
+	asm.softRegs = make(SoftRegs)
 	asm.save.ArchInit(saveStart, saveEnd)
+	asm.regIds.InitLive()
 	return asm.Prologue()
 }
 
@@ -82,11 +83,13 @@ func (asm *Asm) Int64(val int64) *Asm {
 	return asm.Uint64(uint64(val))
 }
 
-func (asm *Asm) RegAlloc(kind Kind) Reg {
+// ===================================
+
+func (asm *Asm) tryRegAlloc(kind Kind) Reg {
 	var id RegId
 	for {
 		if asm.nextRegId > RHi {
-			errorf("no free register")
+			return Reg{}
 		}
 		id = asm.nextRegId
 		asm.nextRegId++
@@ -98,20 +101,12 @@ func (asm *Asm) RegAlloc(kind Kind) Reg {
 	return Reg{id: id, kind: kind}
 }
 
-func (asm *Asm) Alloc(a Arg) (r Reg, allocated bool) {
-	if r, ok := a.(Reg); ok {
-		return r, false
+func (asm *Asm) RegAlloc(kind Kind) Reg {
+	r := asm.tryRegAlloc(kind)
+	if !r.Valid() {
+		errorf("no free register")
 	}
-	return asm.RegAlloc(a.Kind()), true
-}
-
-// combined Alloc + Load
-func (asm *Asm) AllocLoad(a Arg) (r Reg, allocated bool) {
-	r, allocated = asm.Alloc(a)
-	if allocated {
-		asm.Mov(a, r)
-	}
-	return r, allocated
+	return r
 }
 
 func (asm *Asm) RegFree(r Reg) *Asm {
@@ -127,18 +122,57 @@ func (asm *Asm) RegFree(r Reg) *Asm {
 	return asm
 }
 
-func (asm *Asm) Free(r Reg, allocated bool) *Asm {
-	if r.Valid() && allocated {
-		asm.RegFree(r)
+// ===================================
+
+// convert SoftReg to Arg
+func (asm *Asm) Arg(x interface{}) Arg {
+	switch x := x.(type) {
+	case SoftReg:
+		return asm.SoftReg(x)
+	case Arg:
+		return x
+	default:
+		errorf("unknown argument type %T, expecting Const, Reg, Mem or SoftReg", x)
+		return nil
 	}
-	return asm
 }
 
-// combined Store + Free
-func (asm *Asm) StoreFree(r Reg, allocated bool, a Arg) *Asm {
-	if allocated {
-		asm.Mov(r, a)
-		asm.RegFree(r)
+// convert SoftReg to Arg
+func (asm *Asm) SoftReg(s SoftReg) Arg {
+	a := asm.softRegs[s]
+	if a == nil {
+		errorf("soft register %v not allocated", s)
 	}
-	return asm
+	return a
+}
+
+func (asm *Asm) Alloc(s SoftReg, kind Kind) Arg {
+	var a Arg
+	if r := asm.tryRegAlloc(kind); r.Valid() {
+		a = r
+	} else {
+		idx := asm.save.Alloc()
+		if idx == InvalidSlot {
+			errorf("no free register, and save area is full. Cannot allocate soft register %v", s)
+		}
+		a = MakeMem(int32(idx)*8, asm.save.reg.id, kind)
+	}
+	asm.softRegs[s] = a
+	return a
+}
+
+func (asm *Asm) Free(s SoftReg) {
+	a := asm.softRegs[s]
+	if a == nil {
+		errorf("cannot free unallocated soft register %v", s)
+	}
+	switch a := a.(type) {
+	case Reg:
+		asm.RegFree(a)
+	case Mem:
+		asm.save.Free(SaveSlot(a.off / 8))
+	default:
+		errorf("soft register %v is mapped to unknown type %T, expecting Reg or Mem", s, a)
+	}
+	delete(asm.softRegs, s)
 }
