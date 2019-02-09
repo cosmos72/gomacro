@@ -42,6 +42,9 @@ const (
 	MUL  Op2 = 0xF6 // TODO finish implementation
 	DIV  Op2 = 0xFE // TODO divide
 	REM  Op2 = 0xFF // TODO remainder
+
+	NEG2 Op2 = 0x40
+	NOT2 Op2 = 0x48
 )
 
 var op2Name = map[Op2]string{
@@ -62,6 +65,8 @@ var op2Name = map[Op2]string{
 	MUL:  "MUL",
 	DIV:  "DIV",
 	REM:  "REM",
+	NEG2: "NEG2",
+	NOT2: "NOT2",
 }
 
 func (op Op2) String() string {
@@ -74,22 +79,50 @@ func (op Op2) String() string {
 
 // ============================================================================
 func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
-	if op == CAST {
+	// validate kinds
+	switch op {
+	case CAST:
 		if SizeOf(src) != SizeOf(dst) {
 			return asm.Cast(src, dst)
 		}
 		op = MOV
-	}
-	if op == MOV {
+		fallthrough
+	case MOV:
 		assert(SizeOf(src) == SizeOf(dst))
-	} else if op != SHL && op != SHR {
+	case SHL, SHR:
+		assert(!src.Kind().Signed())
+	default:
 		assert(src.Kind() == dst.Kind())
 	}
+	// validate dst
+	switch dst.(type) {
+	case Reg, Mem:
+		break
+	case Const:
+		errorf("destination cannot be a constant: %v %v %v", op, src, dst)
+	default:
+		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, op, src, dst)
+	}
+
 	if asm.optimize(op, src, dst) {
 		return asm
 	}
-	if op == DIV || op == REM {
+
+	switch op {
+	case DIV, REM:
 		errorf("unimplemented operation %v: %v %v, %v", op, op, src, dst)
+	case NEG2, NOT2:
+		var op1 Op1
+		if op == NEG2 {
+			op1 = NEG
+		} else {
+			op1 = NOT
+		}
+		if src == dst {
+			return asm.Op1(op1, dst)
+		} else {
+			return asm.Mov(src, dst).Op1(op1, dst)
+		}
 	}
 	switch dst := dst.(type) {
 	case Reg:
@@ -114,10 +147,6 @@ func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
 		default:
 			errorf("unknown source type %T, expecting Reg, Mem or Const: %v %v, %v", src, op, src, dst)
 		}
-	case Const:
-		errorf("destination cannot be a constant: %v %v %v", op, src, dst)
-	default:
-		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, op, src, dst)
 	}
 	return asm
 }

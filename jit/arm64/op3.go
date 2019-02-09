@@ -112,15 +112,24 @@ func (op Op3) immval() uint32 {
 
 // ============================================================================
 func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
+	// validate kinds
 	assert(a.Kind() == dst.Kind())
-	if op == SHL3 || op == SHR3 {
+	switch op {
+	case SHL3, SHR3:
 		assert(!b.Kind().Signed())
-	} else {
+	default:
 		assert(b.Kind() == dst.Kind())
 	}
-	if dst.Const() {
+	// validate dst
+	switch dst.(type) {
+	case Reg, Mem:
+		break
+	case Const:
 		errorf("destination cannot be a constant: %v %v, %v, %v", op, a, b, dst)
+	default:
+		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v, %v", dst, op, a, b, dst)
 	}
+
 	if asm.optimize3(op, a, b, dst) {
 		return asm
 	}
@@ -134,8 +143,6 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 		rdst = asm.RegAlloc(dst.Kind())
 		defer asm.RegFree(rdst)
 		tdst = true
-	default:
-		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v, %v", dst, op, a, b, dst)
 	}
 	if op.isCommutative() && a.Const() && !b.Const() {
 		a, b = b, a
@@ -194,7 +201,6 @@ func (asm *Asm) op3RegRegReg(op Op3, a Reg, b Reg, dst Reg) *Asm {
 		case DIV3:
 			// signed division
 			opbits = 0xC00
-			// TODO must sign-extend a, b to at least 32 bits
 		}
 	}
 	asm.extendHighBits(op, a)

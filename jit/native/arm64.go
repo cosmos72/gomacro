@@ -107,32 +107,39 @@ const (
 	RET = arch.RET
 
 	// Op1
+	ZERO = arch.ZERO
+	INC  = arch.INC
+	DEC  = arch.DEC
+	NOT  = arch.NOT
+	NEG  = arch.NEG
 
 	// Op2
 	ADD  = arch.ADD
 	AND  = arch.AND
 	ADC  = arch.ADC
-	MUL  = arch.MUL
-	SHL  = arch.SHL
-	SHR  = arch.SHR
 	OR   = arch.OR
 	XOR  = arch.XOR
 	SUB  = arch.SUB
 	SBB  = arch.SBB
+	SHL  = arch.SHL
+	SHR  = arch.SHR
+	MUL  = arch.MUL
+	DIV  = arch.DIV
+	REM  = arch.REM
 	MOV  = arch.MOV
 	CAST = arch.CAST
+	NEG2 = arch.NEG2
+	NOT2 = arch.NOT2
 	/*
 		CMP  = arch.CMP
 		XCHG = arch.XCHG
-		DIV  = arch.DIV
-		REM  = arch.REM
-		NEG2 = arch.NEG2
-		NOT2 = arch.NOT2
 	*/
 
 	// Op2Misc
-	PUSH = arch.PUSH
-	POP  = arch.POP
+	ALLOC = arch.ALLOC
+	FREE  = arch.FREE
+	PUSH  = arch.PUSH
+	POP   = arch.POP
 
 	// Op3
 	ADD3 = arch.ADD3

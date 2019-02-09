@@ -91,10 +91,11 @@ const (
 	NOP = arch.NOP
 
 	// Op1
-	NOT = arch.NOT
-	NEG = arch.NEG
-	INC = arch.INC
-	DEC = arch.DEC
+	ZERO = arch.ZERO
+	INC  = arch.INC
+	DEC  = arch.DEC
+	NOT  = arch.NOT
+	NEG  = arch.NEG
 
 	// Op2
 	ADD = arch.ADD
@@ -114,10 +115,14 @@ const (
 	MUL  = arch.MUL
 	DIV  = arch.DIV
 	REM  = arch.REM
+	NEG2 = arch.NEG2
+	NOT2 = arch.NOT2
 
 	// Op2Misc
-	PUSH = arch.PUSH
-	POP  = arch.POP
+	ALLOC = arch.ALLOC
+	FREE  = arch.FREE
+	PUSH  = arch.PUSH
+	POP   = arch.POP
 
 	// Op3
 	ADD3 = arch.ADD3

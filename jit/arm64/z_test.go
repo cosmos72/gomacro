@@ -269,3 +269,34 @@ func TestArm64Mem(t *testing.T) {
 			expected, actual)
 	}
 }
+
+func TestArm64SoftReg(t *testing.T) {
+	var asm Asm
+	asm.Init()
+
+	var a, b, c SoftReg = 0, 1, 2
+	asm.Asm(
+		ALLOC, a, Uint64,
+		ALLOC, b, Uint64,
+		ALLOC, c, Uint64,
+		MOV, ConstUint64(1), a,
+		MOV, ConstUint64(2), b,
+		ADD3, a, b, c,
+		FREE, a, Uint64,
+		FREE, b, Uint64,
+		FREE, c, Uint64,
+	).Epilogue()
+
+	actual := asm.Code()
+	expected := MakeCode(
+		0xd2800020, // movz	x0, #0x1
+		0xd2800041, // movz	x1, #0x2
+		0x8b010002, // add	x2, x0, x1
+		0xd65f03c0, // ret
+	)
+
+	if !SameCode(actual, expected) {
+		t.Errorf("miscompiled code:\n\texpected %s\n\tactual   %s",
+			expected, actual)
+	}
+}

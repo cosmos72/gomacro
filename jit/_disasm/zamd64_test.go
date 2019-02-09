@@ -119,13 +119,32 @@ func TestAmd64Shift(t *testing.T) {
 	asm.RegIncUse(RCX)
 	r := MakeReg(RCX, Uint8)
 	asm.Asm(
-		SHL, ConstInt64(0), M, // nop
-		SHL, ConstInt64(1), M,
+		SHL, ConstUint64(0), M, // nop
+		SHL, ConstUint64(1), M,
 		SHL, r, N,
-		SHR, ConstInt64(3), M,
+		SHR, ConstUint64(3), M,
 		SHR, r, N,
 	)
 	asm.RegDecUse(RCX)
 
+	PrintDisasm(t, AMD64, asm.Code())
+}
+
+func TestAmd64SoftReg(t *testing.T) {
+	var asm Asm
+	asm.Init()
+
+	var a, b, c SoftReg = 0, 1, 2
+	asm.Asm(
+		ALLOC, a, Uint64,
+		ALLOC, b, Uint64,
+		ALLOC, c, Uint64,
+		MOV, ConstUint64(1), a,
+		MOV, ConstUint64(2), b,
+		ADD3, a, b, c,
+		FREE, a, Uint64,
+		FREE, b, Uint64,
+		FREE, c, Uint64,
+	).Epilogue()
 	PrintDisasm(t, AMD64, asm.Code())
 }

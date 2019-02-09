@@ -31,11 +31,11 @@ func (r RegId) Valid() bool {
 
 var alwaysLiveRegIds RegIds // empty
 
-type Op0 struct{}
-type Op1 struct{}
-type Op2 struct{}
-type Op3 struct{}
-type Op4 struct{}
+type Op0 uint8
+type Op1 uint8
+type Op2 uint8
+type Op3 uint8
+type Op4 uint8
 
 func (asm *Asm) Op0(op Op0) *Asm {
 	return asm

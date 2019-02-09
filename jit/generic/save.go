@@ -23,13 +23,17 @@ import (
 type Op2Misc uint8
 
 const (
-	PUSH Op2Misc = 1
-	POP  Op2Misc = 2
+	ALLOC Op2Misc = 1 // allocate soft register
+	FREE  Op2Misc = 2 // free soft register
+	PUSH  Op2Misc = 3
+	POP   Op2Misc = 4
 )
 
 var op2MiscName = map[Op2Misc]string{
-	PUSH: "PUSH",
-	POP:  "POP",
+	ALLOC: "ALLOC",
+	FREE:  "FREE",
+	PUSH:  "PUSH",
+	POP:   "POP",
 }
 
 func (op Op2Misc) String() string {
@@ -42,6 +46,10 @@ func (op Op2Misc) String() string {
 
 func (asm *Asm) Op2Misc(op Op2Misc, arg1 interface{}, arg2 interface{}) *Asm {
 	switch op {
+	case ALLOC:
+		asm.Alloc(arg1.(SoftReg), arg2.(Kind))
+	case FREE:
+		asm.Free(arg1.(SoftReg)) // arg2 not used
 	case PUSH:
 		asm.Push(arg1.(Reg), arg2.(*SaveSlot))
 	case POP:
