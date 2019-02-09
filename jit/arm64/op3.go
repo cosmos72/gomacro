@@ -125,12 +125,15 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 		return asm
 	}
 	var ra, rb, rdst Reg
+	var ta, tdst bool // Reg is a temporary register?
+
 	switch dst := dst.(type) {
 	case Reg:
 		rdst = dst
 	case Mem:
 		rdst = asm.RegAlloc(dst.Kind())
 		defer asm.RegFree(rdst)
+		tdst = true
 	default:
 		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v, %v", dst, op, a, b, dst)
 	}
@@ -141,8 +144,14 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	case Reg:
 		ra = xa
 	case Mem:
-		ra = asm.RegAlloc(xa.Kind())
-		defer asm.RegFree(ra)
+		if tdst {
+			// reuse temporary register rdst
+			ra = rdst
+		} else {
+			ra = asm.RegAlloc(xa.Kind())
+			defer asm.RegFree(ra)
+		}
+		ta = true
 		asm.Load(xa, ra)
 	case Const:
 		ra = asm.RegAlloc(xa.kind)
@@ -155,8 +164,13 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	case Reg:
 		asm.op3RegRegReg(op, ra, xb, rdst)
 	case Mem:
-		rb = asm.RegAlloc(xb.Kind())
-		defer asm.RegFree(rb)
+		if tdst && (!ta || ra != rdst) {
+			// reuse temporary register rdst
+			rb = rdst
+		} else {
+			rb = asm.RegAlloc(xb.Kind())
+			defer asm.RegFree(rb)
+		}
 		asm.Load(xb, rb)
 		asm.op3RegRegReg(op, ra, rb, rdst)
 	case Const:
@@ -164,8 +178,8 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	default:
 		errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v, %v", b, op, a, b, dst)
 	}
-	if mdst, ok := dst.(Mem); ok {
-		asm.Store(rdst, mdst)
+	if tdst {
+		asm.Store(rdst, dst.(Mem))
 	}
 	return asm
 }

@@ -101,7 +101,7 @@ func TestArm64Sample(t *testing.T) {
 	)
 
 	if !SameCode(actual, expected) {
-		t.Errorf("miscompiled code:\n\texpected %#v\n\tactual   %#v",
+		t.Errorf("miscompiled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}
 }
@@ -140,7 +140,132 @@ func TestArm64Cast(t *testing.T) {
 	)
 
 	if !SameCode(actual, expected) {
-		t.Errorf("miscompiled code:\n\texpected %#v\n\tactual   %#v",
+		t.Errorf("miscompiled code:\n\texpected %s\n\tactual   %s",
+			expected, actual)
+	}
+}
+
+func TestArm64Mem(t *testing.T) {
+	var asm Asm
+	asm.Init()
+
+	id := RLo
+	for _, skind := range [...]Kind{
+		Int8, Int16, Int32, Int64,
+		Uint8, Uint16, Uint32, Uint64,
+	} {
+		asm.RegIncUse(id)
+
+		s := MakeMem(0, id, skind)
+		c := MakeConst(0xFF, skind)
+		for _, dkind := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
+
+			d := MakeMem(8, id, dkind)
+			if skind == dkind {
+				asm.Asm(ADD3, s, c, d)
+			} else {
+				asm.Asm(CAST, s, d)
+			}
+		}
+		asm.Asm(NOP)
+	}
+	asm.Epilogue()
+
+	actual := asm.Code()
+	expected := MakeCode(
+		0x39400001, // ldrb	w1, [x0]
+		0x39002001, // strb	w1, [x0, #8]
+		0x39400001, // ldrb	w1, [x0]
+		0x13001c21, // sxtb	w1, w1
+		0x79001001, // strh	w1, [x0, #8]
+		0x39400001, // ldrb	w1, [x0]
+		0x13001c21, // sxtb	w1, w1
+		0xb9000801, // str	w1, [x0, #8]
+		0x39400001, // ldrb	w1, [x0]
+		0x93401c21, // sxtb	x1, w1
+		0xf9000401, // str	x1, [x0, #8]
+		0xd503201f, // nop
+		0x79400001, // ldrh	w1, [x0]
+		0x39002001, // strb	w1, [x0, #8]
+		0x79400001, // ldrh	w1, [x0]
+		0x79001001, // strh	w1, [x0, #8]
+		0x79400001, // ldrh	w1, [x0]
+		0x13003c21, // sxth	w1, w1
+		0xb9000801, // str	w1, [x0, #8]
+		0x79400001, // ldrh	w1, [x0]
+		0x93403c21, // sxth	x1, w1
+		0xf9000401, // str	x1, [x0, #8]
+		0xd503201f, // nop
+		0xb9400001, // ldr	w1, [x0]
+		0x39002001, // strb	w1, [x0, #8]
+		0xb9400001, // ldr	w1, [x0]
+		0x79001001, // strh	w1, [x0, #8]
+		0xb9400001, // ldr	w1, [x0]
+		0xb9000801, // str	w1, [x0, #8]
+		0xb9400001, // ldr	w1, [x0]
+		0x93407c21, // sxtw	x1, w1
+		0xf9000401, // str	x1, [x0, #8]
+		0xd503201f, // nop
+		0xf9400001, // ldr	x1, [x0]
+		0x39002001, // strb	w1, [x0, #8]
+		0xf9400001, // ldr	x1, [x0]
+		0x79001001, // strh	w1, [x0, #8]
+		0xf9400001, // ldr	x1, [x0]
+		0xb9000801, // str	w1, [x0, #8]
+		0xf9400001, // ldr	x1, [x0]
+		0xf9000401, // str	x1, [x0, #8]
+		0xd503201f, // nop
+		0x39400001, // ldrb	w1, [x0]
+		0x1103fc21, // add	w1, w1, #0xff
+		0x39002001, // strb	w1, [x0, #8]
+		0x39400001, // ldrb	w1, [x0]
+		0x12001c21, // and	w1, w1, #0xff
+		0x79001001, // strh	w1, [x0, #8]
+		0x39400001, // ldrb	w1, [x0]
+		0x12001c21, // and	w1, w1, #0xff
+		0xb9000801, // str	w1, [x0, #8]
+		0x39400001, // ldrb	w1, [x0]
+		0x92401c21, // and	x1, x1, #0xff
+		0xf9000401, // str	x1, [x0, #8]
+		0xd503201f, // nop
+		0x79400001, // ldrh	w1, [x0]
+		0x39002001, // strb	w1, [x0, #8]
+		0x79400001, // ldrh	w1, [x0]
+		0x1103fc21, // add	w1, w1, #0xff
+		0x79001001, // strh	w1, [x0, #8]
+		0x79400001, // ldrh	w1, [x0]
+		0x12003c21, // and	w1, w1, #0xffff
+		0xb9000801, // str	w1, [x0, #8]
+		0x79400001, // ldrh	w1, [x0]
+		0x92403c21, // and	x1, x1, #0xffff
+		0xf9000401, // str	x1, [x0, #8]
+		0xd503201f, // nop
+		0xb9400001, // ldr	w1, [x0]
+		0x39002001, // strb	w1, [x0, #8]
+		0xb9400001, // ldr	w1, [x0]
+		0x79001001, // strh	w1, [x0, #8]
+		0xb9400001, // ldr	w1, [x0]
+		0x1103fc21, // add	w1, w1, #0xff
+		0xb9000801, // str	w1, [x0, #8]
+		0xb9400001, // ldr	w1, [x0]
+		0x2a0103e1, // mov	w1, w1
+		0xf9000401, // str	x1, [x0, #8]
+		0xd503201f, // nop
+		0xf9400001, // ldr	x1, [x0]
+		0x39002001, // strb	w1, [x0, #8]
+		0xf9400001, // ldr	x1, [x0]
+		0x79001001, // strh	w1, [x0, #8]
+		0xf9400001, // ldr	x1, [x0]
+		0xb9000801, // str	w1, [x0, #8]
+		0xf9400001, // ldr	x1, [x0]
+		0x9103fc21, // add	x1, x1, #0xff
+		0xf9000401, // str	x1, [x0, #8]
+		0xd503201f, // nop
+		0xd65f03c0, // ret
+	)
+
+	if !SameCode(actual, expected) {
+		t.Errorf("miscompiled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}
 }

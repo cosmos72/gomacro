@@ -175,3 +175,28 @@ func assert(flag bool) {
 		panic(assertError)
 	}
 }
+
+// print arm64 machine code as sequence of 4-byte instructions
+func (c Code) String() string {
+	const hexdigit string = "0123456789abcdef"
+	i, j, n := 0, 0, len(c)
+	buf := make([]byte, (n+3)/4*9)
+	for ; i+4 <= n; i += 4 {
+		buf[j+0] = hexdigit[c[i+3]>>4]
+		buf[j+1] = hexdigit[c[i+3]&0xF]
+		buf[j+2] = hexdigit[c[i+2]>>4]
+		buf[j+3] = hexdigit[c[i+2]&0xF]
+		buf[j+4] = hexdigit[c[i+1]>>4]
+		buf[j+5] = hexdigit[c[i+1]&0xF]
+		buf[j+6] = hexdigit[c[i+0]>>4]
+		buf[j+7] = hexdigit[c[i+0]&0xF]
+		buf[j+8] = ' '
+		j += 9
+	}
+	for k := n - 1; k >= i; k-- {
+		buf[j+0] = hexdigit[c[k]>>4]
+		buf[j+1] = hexdigit[c[k]&0xF]
+		j += 2
+	}
+	return string(buf[:j])
+}

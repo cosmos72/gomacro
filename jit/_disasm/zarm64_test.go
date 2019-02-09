@@ -112,3 +112,31 @@ func TestArm64Cast(t *testing.T) {
 	}
 	PrintDisasm(t, ARM64, asm.Code())
 }
+
+func TestArm64Mem(t *testing.T) {
+	var asm Asm
+	asm.Init()
+
+	id := RLo
+	asm.RegIncUse(id)
+
+	for _, skind := range [...]Kind{
+		Int8, Int16, Int32, Int64,
+		Uint8, Uint16, Uint32, Uint64,
+	} {
+		s := MakeMem(0, id, skind)
+		c := MakeConst(0xFF, skind)
+		for _, dkind := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
+
+			d := MakeMem(8, id, dkind)
+			if skind == dkind {
+				asm.Asm(ADD3, s, c, d)
+			} else {
+				asm.Asm(CAST, s, d)
+			}
+		}
+		asm.Asm(NOP)
+	}
+	asm.Epilogue()
+	PrintDisasm(t, ARM64, asm.Code())
+}

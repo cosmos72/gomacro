@@ -67,12 +67,14 @@ func PrintDisasm(t *testing.T, arch Arch, code []uint8) {
 }
 
 func Show(t *testing.T, arch Arch, insn gapstone.Instruction) {
+	var prefix string
 	bytes := insn.Bytes
 	if arch == ARM64 && len(bytes) == 4 {
 		// print high byte first
+		prefix = "0x"
 		bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
 	}
-	t.Logf(" %x%s%s\t%s", bytes, spaces(2*len(insn.Bytes)), insn.Mnemonic, insn.OpStr)
+	t.Logf(" %s%x%s%s\t%s", prefix, bytes, spaces(2*len(insn.Bytes)), insn.Mnemonic, insn.OpStr)
 }
 
 func spaces(n int) string {
