@@ -170,14 +170,6 @@ func (r Reg) lohi() (uint8, uint8) {
 	return bits & 0x7, (bits & 0x8) >> 3
 }
 
-func MakeVar0(index uint16) Mem {
-	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: Int64}}
-}
-
-func MakeVar0K(index uint16, k Kind) Mem {
-	return Mem{off: int32(index) * 8, reg: Reg{id: RDI, kind: k}}
-}
-
 // return number of assembler bytes needed to encode m.off
 func (m Mem) offlen(id RegId) (offlen uint8, offbit uint8) {
 	switch {

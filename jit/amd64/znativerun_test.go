@@ -28,7 +28,7 @@ import (
 var verbose = false
 
 func Init(asm *Asm) *Asm {
-	return asm.Init().RegIncUse(RDI).Asm(MOV, MakeMem(8, RSP, Uint64), MakeReg(RDI, Uint64))
+	return asm.Init().RegIncUse(RSI).Asm(MOV, MakeMem(8, RSP, Uint64), MakeReg(RSI, Uint64))
 }
 
 func TestNop(t *testing.T) {
@@ -41,7 +41,7 @@ func TestNop(t *testing.T) {
 func TestMov(t *testing.T) {
 	var f func(*uint64)
 	c := Const{kind: Int64}
-	m := MakeVar0(0)
+	m := Var(0)
 	binds := [...]uint64{0}
 	var asm Asm
 	for id := RLo; id <= RHi; id++ {
@@ -89,7 +89,7 @@ func TestSum(t *testing.T) {
 func DeclSum() func(arg int64) int64 {
 	var init, next, loop func(*uint64)
 	const n, total, i = 0, 1, 2
-	_, Total, I := MakeVar0(n), MakeVar0(total), MakeVar0(i)
+	_, Total, I := Var(n), Var(total), Var(i)
 
 	var asm Asm
 	Init(&asm).Mov(ConstInt64(1), I).Func(&init)
@@ -112,7 +112,7 @@ func DeclSum() func(arg int64) int64 {
 func TestAdd(t *testing.T) {
 	var f func(*uint64)
 	var asm Asm
-	v1, v2, v3 := MakeVar0(0), MakeVar0(1), MakeVar0(2)
+	v1, v2, v3 := Var(0), Var(1), Var(2)
 
 	for id := RLo; id <= RHi; id++ {
 		Init(&asm)
@@ -167,14 +167,14 @@ func TestCast(t *testing.T) {
 		uint64(int8(n & 0xFF)), uint64(int16(n & 0xFFFF)), uint64(int32(n & 0xFFFFFFFF)),
 	}
 	N := [...]Mem{
-		MakeVar0K(0, Uint64),
-		MakeVar0K(0, Uint8), MakeVar0K(0, Uint16), MakeVar0K(0, Uint32),
-		MakeVar0K(0, Int8), MakeVar0K(0, Int16), MakeVar0K(0, Int32),
+		VarK(0, Uint64),
+		VarK(0, Uint8), VarK(0, Uint16), VarK(0, Uint32),
+		VarK(0, Int8), VarK(0, Int16), VarK(0, Int32),
 	}
 	V := [...]Mem{
-		MakeVar0K(0, Uint64),
-		MakeVar0K(1, Uint64), MakeVar0K(2, Uint64), MakeVar0K(3, Uint64),
-		MakeVar0K(4, Uint64), MakeVar0K(5, Uint64), MakeVar0K(6, Uint64),
+		VarK(0, Uint64),
+		VarK(1, Uint64), VarK(2, Uint64), VarK(3, Uint64),
+		VarK(4, Uint64), VarK(5, Uint64), VarK(6, Uint64),
 	}
 	r := asm.RegAlloc(Uint64)
 	asm.Asm(
@@ -198,7 +198,7 @@ func TestLea(t *testing.T) {
 		n, m     int64 = 1020304, 9
 		expected int64 = n * m
 	)
-	N := MakeVar0(0)
+	N := Var(0)
 	env := [...]uint64{uint64(n)}
 
 	var asm Asm

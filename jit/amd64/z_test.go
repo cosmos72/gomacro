@@ -20,6 +20,14 @@ import (
 	"testing"
 )
 
+func Var(index uint16) Mem {
+	return Mem{off: int32(index) * 8, reg: Reg{id: RSI, kind: Int64}}
+}
+
+func VarK(index uint16, k Kind) Mem {
+	return Mem{off: int32(index) * 8, reg: Reg{id: RSI, kind: k}}
+}
+
 func SameCode(actual Code, expected Code) bool {
 	if len(actual) != len(expected) {
 		return false

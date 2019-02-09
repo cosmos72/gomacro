@@ -88,12 +88,28 @@ func MakeConst(val int64, kind Kind) Const {
 	return Const{val: val, kind: kind}
 }
 
+func ConstInt8(val int8) Const {
+	return Const{val: int64(val), kind: Int8}
+}
+
+func ConstInt16(val int16) Const {
+	return Const{val: int64(val), kind: Int16}
+}
+
+func ConstInt32(val int32) Const {
+	return Const{val: int64(val), kind: Int32}
+}
+
 func ConstInt64(val int64) Const {
 	return Const{val: val, kind: Int64}
 }
 
 func ConstUint8(val uint8) Const {
 	return Const{val: int64(val), kind: Uint8}
+}
+
+func ConstUint16(val uint16) Const {
+	return Const{val: int64(val), kind: Uint16}
 }
 
 func ConstUint32(val uint32) Const {

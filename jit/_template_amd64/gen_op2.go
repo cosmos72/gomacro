@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
 
 	arch "github.com/cosmos72/gomacro/jit/amd64"
 )
@@ -36,15 +37,38 @@ func NewGenOp2(w io.Writer, opname string) *genOp2 {
 	}
 }
 
+func GenOp2() {
+	for _, opname := range [...]string{"add", "and", "mov", "or", "sub", "xchg", "xor", "imul"} {
+		f, err := os.Create("_gen_" + opname + ".s")
+		if err != nil {
+			panic(err)
+		}
+		g := NewGenOp2(f, opname)
+		g.generate()
+		f.Close()
+	}
+}
+
 func (g *genOp2) generate() {
 	g.fileHeader()
-	if g.opname != "xchg" {
+
+	switch g.opname {
+	case "xchg":
+	case "imul":
+	default:
 		g.opConstReg()
 		g.opConstMem()
 	}
 	g.opRegReg()
 	g.opMemReg()
-	g.opRegMem()
+
+	switch g.opname {
+	case "imul":
+		g.opRegConst8Reg()
+		g.opMemConst8Reg()
+	default:
+		g.opRegMem()
+	}
 }
 
 func (g *genOp2) fileHeader() {
@@ -91,9 +115,32 @@ func (g *genOp2) opConstRegKind(k arch.Kind, constbits arch.Size) {
 	g.funcFooter()
 }
 
+func (g *genOp2) opRegConst8Reg() {
+	g.funcHeader("RegConst8Reg")
+	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
+		if g.opname == "imul" && k.Size() == 1 {
+			continue
+		}
+		fmt.Fprintf(g.w, "\t// reg%d = reg%d OP const8\n", k.Size()*8, k.Size()*8)
+		for src := arch.RLo; src <= arch.RHi; src++ {
+			for dst := arch.RLo; dst <= arch.RHi; dst++ {
+				for _, cval := range [...]int8{-128, 0, 127} {
+					fmt.Fprintf(g.w, "\t%s\t$%#x,%v,%v\n", g.opname, cval, arch.MakeReg(src, k), arch.MakeReg(dst, k))
+				}
+			}
+			fmt.Fprint(g.w, "\tnop\n")
+		}
+		fmt.Fprint(g.w, "\tnop\n")
+	}
+	g.funcFooter()
+}
+
 func (g *genOp2) opRegReg() {
 	g.funcHeader("RegReg")
 	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
+		if g.opname == "imul" && k.Size() == 1 {
+			continue
+		}
 		fmt.Fprintf(g.w, "\t// reg%d OP= reg%d\n", k.Size()*8, k.Size()*8)
 		for src := arch.RLo; src <= arch.RHi; src++ {
 			for dst := arch.RLo; dst <= arch.RHi; dst++ {
@@ -101,6 +148,38 @@ func (g *genOp2) opRegReg() {
 			}
 			fmt.Fprint(g.w, "\tnop\n")
 		}
+		fmt.Fprint(g.w, "\tnop\n")
+	}
+	g.funcFooter()
+}
+
+func (g *genOp2) opMemConst8Reg() {
+	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
+		g.opMemConst8RegKind(k)
+	}
+}
+
+func (g *genOp2) opMemConst8RegKind(k arch.Kind) {
+	klen := k.Size() * 8
+	if g.opname == "imul" && klen == 8 {
+		return
+	}
+	g.funcHeader(fmt.Sprintf("MemConst8Reg%d", klen))
+	offstr := [...]string{"", "0x7F", "0x78563412"}
+	for i, offlen := range [...]uint8{0, 8, 32} {
+		fmt.Fprintf(g.w, "\t// reg%d = mem%d[off%d] OP const8\n", klen, klen, offlen)
+		for src := arch.RLo; src <= arch.RHi; src++ {
+			for dst := arch.RLo; dst <= arch.RHi; dst++ {
+				for _, cval := range [...]int8{-128, 0, 127} {
+					fmt.Fprintf(g.w, "\t%s\t$%#x,%s(%v),%v\n", g.opname, cval,
+						offstr[i], arch.MakeReg(src, arch.Uintptr),
+						arch.MakeReg(dst, k))
+				}
+				fmt.Fprint(g.w, "\tnop\n")
+			}
+			fmt.Fprint(g.w, "\tnop\n")
+		}
+		fmt.Fprint(g.w, "\tnop\n")
 		fmt.Fprint(g.w, "\tnop\n")
 	}
 	g.funcFooter()
@@ -114,6 +193,9 @@ func (g *genOp2) opMemReg() {
 
 func (g *genOp2) opMemRegKind(k arch.Kind) {
 	klen := k.Size() * 8
+	if g.opname == "imul" && klen == 8 {
+		return
+	}
 	g.funcHeader(fmt.Sprintf("MemReg%d", klen))
 	offstr := [...]string{"", "0x7F", "0x78563412"}
 	for i, offlen := range [...]uint8{0, 8, 32} {

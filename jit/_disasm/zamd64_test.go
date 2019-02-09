@@ -22,10 +22,18 @@ import (
 	. "github.com/cosmos72/gomacro/jit/amd64"
 )
 
-func TestAmd64Sample(t *testing.T) {
+func Var(index uint16) Mem {
+	return MakeMem(int32(index)*8, RSI, Int64)
+}
+
+func VarK(index uint16, k Kind) Mem {
+	return MakeMem(int32(index)*8, RSI, k)
+}
+
+func TestAmd64Unary(t *testing.T) {
 	var asm Asm
 
-	v1, v2, v3 := MakeVar0(0), MakeVar0(1), MakeVar0(2)
+	v1, v2, v3 := Var(0), Var(1), Var(2)
 
 	for id := RLo; id <= RHi; id++ {
 		asm.Init()
@@ -36,9 +44,11 @@ func TestAmd64Sample(t *testing.T) {
 		asm.Asm(MOV, v1, r, //
 			NEG, r, //
 			NOT, r, //
+			INC, r, //
 			ADD, v2, r, //
 			NOT, r, //
 			NEG, r, //
+			INC, r, //
 			MOV, r, v3, //
 		)
 
@@ -49,7 +59,7 @@ func TestAmd64Sample(t *testing.T) {
 func TestAmd64Sum(t *testing.T) {
 	var asm Asm
 
-	Total, I := MakeVar0(1), MakeVar0(2)
+	Total, I := Var(1), Var(2)
 	asm.Init().Asm( //
 		MOV, ConstInt64(0xFF), I,
 		ADD, ConstInt64(2), I,
@@ -58,16 +68,28 @@ func TestAmd64Sum(t *testing.T) {
 	PrintDisasm(t, AMD64, asm.Code())
 }
 
+func TestAmd64Mul(t *testing.T) {
+	var asm Asm
+
+	Total, I := Var(1), Var(2)
+	asm.Init().Asm( //
+		MUL, ConstInt64(9), I,
+		MUL, ConstInt64(0x7F), I,
+		MUL, I, Total)
+
+	PrintDisasm(t, AMD64, asm.Code())
+}
+
 func TestAmd64Cast(t *testing.T) {
 	N := [...]Mem{
-		MakeVar0K(0, Uint64),
-		MakeVar0K(1, Uint8), MakeVar0K(2, Uint16), MakeVar0K(3, Uint32),
-		MakeVar0K(4, Int8), MakeVar0K(5, Int16), MakeVar0K(6, Int32),
+		VarK(0, Uint64),
+		VarK(1, Uint8), VarK(2, Uint16), VarK(3, Uint32),
+		VarK(4, Int8), VarK(5, Int16), VarK(6, Int32),
 	}
 	V := [...]Mem{
-		MakeVar0K(8, Uint64),
-		MakeVar0K(9, Uint64), MakeVar0K(10, Uint64), MakeVar0K(11, Uint64),
-		MakeVar0K(12, Uint64), MakeVar0K(13, Uint64), MakeVar0K(14, Uint64),
+		VarK(8, Uint64),
+		VarK(9, Uint64), VarK(10, Uint64), VarK(11, Uint64),
+		VarK(12, Uint64), VarK(13, Uint64), VarK(14, Uint64),
 	}
 	var asm Asm
 	asm.Init()
@@ -96,8 +118,8 @@ func TestAmd64Lea(t *testing.T) {
 	const (
 		m int64 = 9
 	)
-	N := MakeVar0(0)
-	M := MakeVar0(1)
+	N := Var(0)
+	M := Var(1)
 
 	var asm Asm
 	r := asm.Init().RegAlloc(N.Kind())
@@ -111,8 +133,8 @@ func TestAmd64Lea(t *testing.T) {
 }
 
 func TestAmd64Shift(t *testing.T) {
-	N := MakeVar0(0)
-	M := MakeVar0(1)
+	N := Var(0)
+	M := Var(1)
 
 	var asm Asm
 	asm.Init()

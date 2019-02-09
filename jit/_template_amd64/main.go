@@ -16,26 +16,7 @@
 
 package main
 
-import "os"
-
 func main() {
-	for _, opname := range [...]string{"inc", "dec", "neg", "not"} {
-		f, err := os.Create("_gen_" + opname + ".s")
-		if err != nil {
-			panic(err)
-		}
-		g := NewGenOp1(f, opname)
-		g.generate()
-		f.Close()
-	}
-
-	for _, opname := range [...]string{"add", "and", "mov", "or", "sub", "xchg", "xor"} {
-		f, err := os.Create("_gen_" + opname + ".s")
-		if err != nil {
-			panic(err)
-		}
-		g := NewGenOp2(f, opname)
-		g.generate()
-		f.Close()
-	}
+	GenOp1()
+	GenOp2()
 }

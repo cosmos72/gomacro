@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"os"
 
 	arch "github.com/cosmos72/gomacro/jit/amd64"
 )
@@ -33,6 +34,18 @@ func NewGenOp1(w io.Writer, opname string) *genOp1 {
 		opname: opname,
 		opName: string(opname[0]-'a'+'A') + opname[1:],
 		w:      w,
+	}
+}
+
+func GenOp1() {
+	for _, opname := range [...]string{"inc", "dec", "neg", "not"} {
+		f, err := os.Create("_gen_" + opname + ".s")
+		if err != nil {
+			panic(err)
+		}
+		g := NewGenOp1(f, opname)
+		g.generate()
+		f.Close()
 	}
 }
 
