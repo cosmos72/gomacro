@@ -81,3 +81,28 @@ func TestLoadStore(t *testing.T) {
 		t.Errorf("expected 0x%x, actual 0x%x", expected, actual)
 	}
 }
+
+func TestUnary(t *testing.T) {
+	var c uint64 = 0x64776657f7754abc
+	binds := [...]uint64{c}
+
+	var asm Asm
+	r := Init(&asm).RegAlloc(Uint64)
+	v := MakeMem(0, X29, Uint64)
+
+	var f func(*uint64)
+	asm.Asm( //
+		MOV, v, r,
+		NEG, r,
+		NOT, r,
+		MOV, r, v,
+	).Func(&f)
+	f(&binds[0])
+
+	expected := ^-c
+	actual := binds[0]
+
+	if actual != expected {
+		t.Errorf("expected 0x%x, actual 0x%x", expected, actual)
+	}
+}

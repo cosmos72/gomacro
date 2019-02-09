@@ -140,3 +140,21 @@ func TestArm64Mem(t *testing.T) {
 	asm.Epilogue()
 	PrintDisasm(t, ARM64, asm.Code())
 }
+
+func TestArm64Unary(t *testing.T) {
+
+	var asm Asm
+	asm.Init()
+	r := MakeReg(X27, Uint64)
+	s := MakeReg(X28, Uint64)
+	v := MakeMem(0, X29, Uint64)
+
+	asm.Asm( //
+		MOV, v, r,
+		NEG2, r, s,
+		NOT2, s, r,
+		MOV, r, v,
+	)
+	asm.Epilogue()
+	PrintDisasm(t, ARM64, asm.Code())
+}
