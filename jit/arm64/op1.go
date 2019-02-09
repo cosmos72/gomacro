@@ -25,24 +25,19 @@ import (
 type Op1 uint8
 
 const (
-	ZERO Op1 = 1
-
-/*
-	NOT Op1 = 0x10
-	NEG Op1 = 0x18
-	INC Op1 = 0x20
-	DEC Op1 = 0x28
-*/
+	ZERO = Op1(0x10)
+	INC  = Op1(ADD3)
+	DEC  = Op1(SUB3)
+	NEG  = Op1(NEG2)
+	NOT  = Op1(NOT2)
 )
 
 var op1Name = map[Op1]string{
 	ZERO: "ZERO",
-	/*
-		NOT: "NOT",
-		NEG: "NEG",
-		INC: "INC",
-		DEC: "DEC",
-	*/
+	INC:  "INC",
+	DEC:  "DEC",
+	NOT:  "NOT",
+	NEG:  "NEG",
 }
 
 func (op Op1) String() string {
@@ -58,8 +53,12 @@ func (asm *Asm) Op1(op Op1, a Arg) *Asm {
 	switch op {
 	case ZERO:
 		asm.Zero(a)
+	case INC, DEC:
+		asm.Op3(Op3(op), a, MakeConst(1, a.Kind()), a)
+	case NEG, NOT:
+		asm.Op2(Op2(op), a, a)
 	default:
-		errorf("unimplemented Op1 %v: %v, %v", op, op, a)
+		errorf("unknown Op1 instruction: %v %v", op, a)
 	}
 	return asm
 }
@@ -68,7 +67,7 @@ func (asm *Asm) Op1(op Op1, a Arg) *Asm {
 func (asm *Asm) Zero(dst Arg) *Asm {
 	switch dst := dst.(type) {
 	case Const:
-		errorf("cannot zero a constant: %v, %v", ZERO, dst)
+		errorf("cannot zero a constant: %v %v", ZERO, dst)
 	case Reg:
 		asm.zeroReg(dst)
 	case Mem:
@@ -81,7 +80,7 @@ func (asm *Asm) Zero(dst Arg) *Asm {
 
 // zero a register
 func (asm *Asm) zeroReg(dst Reg) *Asm {
-	// equivalent: return asm.movRegReg(MakeReg(XZR, dst.kind), dst)
+	// alternative: return asm.movRegReg(MakeReg(XZR, dst.kind), dst)
 	return asm.movConstReg(MakeConst(0, dst.kind), dst)
 }
 

@@ -28,16 +28,16 @@ const (
 	AND3 Op3 = 0x0A
 	ADD3 Op3 = 0x0B
 	ADC3 Op3 = 0x1A // add with carry
-	SHL3 Op3 = 0x1B // shift left
-	SHR3 Op3 = 0x1C // shift right
 	OR3  Op3 = 0x2A
 	XOR3 Op3 = 0x4A
 	SUB3 Op3 = 0x4B
 	SBB3 Op3 = 0x5A // subtract with borrow
 
-	MUL3 Op3 = 0x30
-	DIV3 Op3 = 0x31
-	REM3 Op3 = 0x32
+	SHL3 Op3 = 0x30 // shift left
+	SHR3 Op3 = 0x31 // shift right
+	MUL3 Op3 = 0x32
+	DIV3 Op3 = 0x33
+	REM3 Op3 = 0x34
 )
 
 var op3Name = map[Op3]string{
@@ -48,9 +48,9 @@ var op3Name = map[Op3]string{
 	AND3: "AND3",
 	SUB3: "SUB3",
 	XOR3: "XOR3",
+
 	SHL3: "SHL3",
 	SHR3: "SHR3",
-
 	MUL3: "MUL3",
 	DIV3: "DIV3",
 	REM3: "REM3",
