@@ -99,12 +99,14 @@ func TestArm64ZeroReg(t *testing.T) {
 
 func TestArm64Cast(t *testing.T) {
 	var asm Asm
-	for _, skind := range [...]Kind{ // Int8, Int16, Int32, Int64,
-		Uint8, Uint16, Uint32, Uint64} {
+	for _, skind := range [...]Kind{
+		Int8, Int16, Int32, Int64,
+		Uint8, Uint16, Uint32, Uint64,
+	} {
 
 		src := MakeReg(RLo, skind)
 		for _, dkind := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
-			dst := MakeReg(RLo+1, dkind)
+			dst := MakeReg(RLo, dkind)
 			asm.Init().Asm(CAST, src, dst)
 			if len(asm.Code()) == 0 {
 				fmt.Printf("%s %v->%v: no code\n", t.Name(), skind, dkind)

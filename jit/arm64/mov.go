@@ -33,7 +33,9 @@ func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
 		case Const:
 			asm.movConstReg(src, dst)
 		case Reg:
-			asm.movRegReg(src, dst)
+			if src.id != dst.id {
+				asm.movRegReg(src, dst)
+			}
 		case Mem:
 			asm.Load(src, dst)
 		default:
@@ -234,12 +236,13 @@ func (asm *Asm) castRegReg(src Reg, dst Reg) *Asm {
 		// truncate. easy, just ignore src high bits
 		return asm.Mov(MakeReg(src.id, dst.kind), dst)
 	} else if skind.Signed() {
-		// sign-extend: use one of
-		// use "sxtb	src, dst"
-		// or  "sxth	src, dst"
-		// or  "sxtw	src, dst"
-		errorf("unimplemented sign-extend: %v %v, %v", CAST, src, dst)
-		return asm
+		// sign-extend. use one of:
+		// "sxtb	src, dst"
+		// "sxth	src, dst"
+		// "sxtw	src, dst"
+		kbit := uint32(dsize&8) * 0x10080000
+		op := 0x13000C00 | uint32(ssize*2-1)<<12
+		return asm.Uint32(kbit | op | src.val()<<5 | dst.val())
 	} else {
 		// zero-extend
 		if ssize == 4 {

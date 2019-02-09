@@ -76,35 +76,68 @@ func TestArm64Sample(t *testing.T) {
 	).Epilogue()
 	asm.RegDecUse(id).RegDecUse(id + 1).RegDecUse(id + 2)
 
-	/*
-		0xf94007fd	ldr	x29, [sp, #8]
-		0xd281ffe0	mov	x0, #0xfff
-		0xd281ffe3	mov	x3, #0xfff
-		0xf9000403	str	x3, [x0, #8]
-		0xf9400400	ldr	x0, [x0, #8]
-		0xd503201f	nop
-		0x8b010002	add	x2, x0, x1
-		0xcb010002	sub	x2, x0, x1
-		0x8a010002	and	x2, x0, x1
-		0xaa010002	orr	x2, x0, x1
-		0xca010002	eor	x2, x0, x1
-		0x9ac12002	lsl	x2, x0, x1
-		0x9ac12402	lsr	x2, x0, x1
-		0xd503201f	nop
-		0x913ffc02	add	x2, x0, #0xfff
-		0xd13ffc02	sub	x2, x0, #0xfff
-		0x92402c02	and	x2, x0, #0xfff
-		0xb2402c02	orr	x2, x0, #0xfff
-		0xd2402c02	eor	x2, x0, #0xfff
-		0xd65f03c0	ret
-	*/
+	actual := asm.Code()
+	expected := MakeCode(
+		0xf94007fd, //	ldr	x29, [sp, #8]
+		0xd281ffe0, //	mov	x0, #0xfff
+		0xd281ffe3, //	mov	x3, #0xfff
+		0xf9000403, //	str	x3, [x0, #8]
+		0xf9400400, //	ldr	x0, [x0, #8]
+		0xd503201f, //	nop
+		0x8b010002, //	add	x2, x0, x1
+		0xcb010002, //	sub	x2, x0, x1
+		0x8a010002, //	and	x2, x0, x1
+		0xaa010002, //	orr	x2, x0, x1
+		0xca010002, //	eor	x2, x0, x1
+		0x9ac12002, //	lsl	x2, x0, x1
+		0x9ac12402, //	lsr	x2, x0, x1
+		0xd503201f, //	nop
+		0x913ffc02, //	add	x2, x0, #0xfff
+		0xd13ffc02, //	sub	x2, x0, #0xfff
+		0x92402c02, //	and	x2, x0, #0xfff
+		0xb2402c02, //	orr	x2, x0, #0xfff
+		0xd2402c02, //	eor	x2, x0, #0xfff
+		0xd65f03c0, //	ret
+	)
+
+	if !SameCode(actual, expected) {
+		t.Errorf("miscompiled code:\n\texpected %#v\n\tactual   %#v",
+			expected, actual)
+	}
+}
+
+func TestArm64Cast(t *testing.T) {
+	var asm Asm
+
+	id := RLo
+	asm.Init()
+
+	for _, skind := range [...]Kind{
+		Int8, Int16, Int32, Int64,
+		Uint8, Uint16, Uint32, Uint64,
+	} {
+		src := MakeReg(id, skind)
+		for _, dkind := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
+			dst := MakeReg(id, dkind)
+			asm.Asm(CAST, src, dst)
+		}
+	}
 
 	actual := asm.Code()
 	expected := MakeCode(
-		0xf94007fd, 0xd281ffe0, 0xd281ffe3, 0xf9000403, 0xf9400400,
-		0xd503201f, 0x8b010002, 0xcb010002, 0x8a010002, 0xaa010002,
-		0xca010002, 0x9ac12002, 0x9ac12402, 0xd503201f, 0x913ffc02,
-		0xd13ffc02, 0x92402c02, 0xb2402c02, 0xd2402c02, 0xd65f03c0)
+		0x13001c00, // sxtb	w0, w0
+		0x13001c00, // sxtb	w0, w0
+		0x93401c00, // sxtb	x0, w0
+		0x13003c00, // sxth	w0, w0
+		0x93403c00, // sxth	x0, w0
+		0x93407c00, // sxtw	x0, w0
+		0x12001c00, // and	w0, w0, #0xff
+		0x12001c00, // and	w0, w0, #0xff
+		0x92401c00, // and	x0, x0, #0xff
+		0x12003c00, // and	w0, w0, #0xffff
+		0x92403c00, // and	x0, x0, #0xffff
+		0x2a0003e0, // mov	w0, w0
+	)
 
 	if !SameCode(actual, expected) {
 		t.Errorf("miscompiled code:\n\texpected %#v\n\tactual   %#v",
