@@ -17,7 +17,7 @@
 package disasm
 
 import (
-	"fmt"
+	"testing"
 
 	"github.com/bnagy/gapstone"
 )
@@ -47,14 +47,6 @@ func NewDisasm(arch Arch) (Engine, error) {
 	return engine, nil
 }
 
-func Show(insn gapstone.Instruction) {
-	fmt.Printf("0x%x:\t%x%s%s\t%s\n", insn.Address, insn.Bytes, spaces(2*len(insn.Bytes)), insn.Mnemonic, insn.OpStr)
-}
-
-func spaces(n int) string {
-	return "                "[n%16:]
-}
-
 func Disasm(arch Arch, code []uint8) ([]gapstone.Instruction, error) {
 	engine, err := NewDisasm(arch)
 	if err != nil {
@@ -63,14 +55,26 @@ func Disasm(arch Arch, code []uint8) ([]gapstone.Instruction, error) {
 	return engine.Disasm(code, 0x10000, 0)
 }
 
-func PrintDisasm(name string, arch Arch, code []uint8) {
+func PrintDisasm(t *testing.T, arch Arch, code []uint8) {
 	insns, err := Disasm(arch, code)
 	if err != nil {
-		fmt.Println(err)
+		t.Error(err)
 	} else {
-		fmt.Printf("%s:\n", name)
 		for _, insn := range insns {
-			Show(insn)
+			Show(t, arch, insn)
 		}
 	}
+}
+
+func Show(t *testing.T, arch Arch, insn gapstone.Instruction) {
+	bytes := insn.Bytes
+	if arch == ARM64 && len(bytes) == 4 {
+		// print high byte first
+		bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]
+	}
+	t.Logf(" %x%s%s\t%s", bytes, spaces(2*len(insn.Bytes)), insn.Mnemonic, insn.OpStr)
+}
+
+func spaces(n int) string {
+	return "                "[n%16:]
 }

@@ -182,7 +182,7 @@ func (asm *Asm) Cast(src Arg, dst Arg) *Asm {
 			src = src.Cast(dst.kind)
 			asm.movConstReg(src, dst)
 		default:
-			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v %v", src, CAST, src, dst)
+			errorf("unsupported source type %T, expecting Const, Reg or Mem: %v %v %v", src, CAST, src, dst)
 		}
 	case Mem:
 		switch src := src.(type) {
@@ -194,7 +194,7 @@ func (asm *Asm) Cast(src Arg, dst Arg) *Asm {
 			src = src.Cast(dst.Kind())
 			asm.movConstMem(src, dst)
 		default:
-			errorf("unsupported source type %T, expecting Reg, Mem or Const: %v %v %v", src, CAST, src, dst)
+			errorf("unsupported source type %T, expecting Const, Reg or Mem: %v %v %v", src, CAST, src, dst)
 		}
 	case Const:
 		errorf("destination cannot be a constant: %v %v %v", CAST, src, dst)

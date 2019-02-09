@@ -124,30 +124,50 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	if asm.optimize3(op, a, b, dst) {
 		return asm
 	}
-	var rdst Reg
+	var ra, rb, rdst Reg
 	switch dst := dst.(type) {
 	case Reg:
 		rdst = dst
 	case Mem:
-		errorf("unimplemented destination type %T, expecting Reg: %v %v, %v, %v", dst, op, a, b, dst)
+		rdst = asm.RegAlloc(dst.Kind())
+		defer asm.RegFree(rdst)
 	default:
 		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v, %v", dst, op, a, b, dst)
 	}
-	ra, raok := a.(Reg)
-	rb, rbok := b.(Reg)
-	ca, caok := a.(Const)
-	cb, cbok := b.(Const)
-	if caok && cbok {
-		errorf("at least one operand must be non-constant: %v %v, %v, %v", op, a, b, dst)
-	} else if caok && rbok && op.isCommutative() {
-		return asm.op3RegConstReg(op, rb, ca, rdst)
-	} else if raok && cbok {
-		return asm.op3RegConstReg(op, ra, cb, rdst)
-	} else if raok && rbok {
-		return asm.op3RegRegReg(op, ra, rb, rdst)
+	if op.isCommutative() && a.Const() && !b.Const() {
+		a, b = b, a
 	}
-	errorf("unimplemented Op3 with argument types %T %T: %v %v, %v, %v", a, b, op, a, b, dst)
-	return nil
+	switch xa := a.(type) {
+	case Reg:
+		ra = xa
+	case Mem:
+		ra = asm.RegAlloc(xa.Kind())
+		defer asm.RegFree(ra)
+		asm.Load(xa, ra)
+	case Const:
+		ra = asm.RegAlloc(xa.kind)
+		defer asm.RegFree(ra)
+		asm.movConstReg(xa, ra)
+	default:
+		errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v, %v", a, op, a, b, dst)
+	}
+	switch xb := b.(type) {
+	case Reg:
+		asm.op3RegRegReg(op, ra, xb, rdst)
+	case Mem:
+		rb = asm.RegAlloc(xb.Kind())
+		defer asm.RegFree(rb)
+		asm.Load(xb, rb)
+		asm.op3RegRegReg(op, ra, rb, rdst)
+	case Const:
+		asm.op3RegConstReg(op, ra, xb, rdst)
+	default:
+		errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v, %v", b, op, a, b, dst)
+	}
+	if mdst, ok := dst.(Mem); ok {
+		asm.Store(rdst, mdst)
+	}
+	return asm
 }
 
 func (asm *Asm) op3RegRegReg(op Op3, a Reg, b Reg, dst Reg) *Asm {

@@ -17,7 +17,6 @@
 package disasm
 
 import (
-	"fmt"
 	"testing"
 
 	. "github.com/cosmos72/gomacro/jit/arm64"
@@ -78,11 +77,11 @@ func TestArm64Sample(T *testing.T) {
 		).Epilogue()
 		asm.RegDecUse(id).RegDecUse(id + 1).RegDecUse(id + 2)
 
-		PrintDisasm(T.Name(), ARM64, asm.Code())
+		PrintDisasm(T, ARM64, asm.Code())
 	}
 }
 
-func TestArm64ZeroReg(t *testing.T) {
+func TestArm64Zero(t *testing.T) {
 	r := MakeReg(RLo, Uint64)
 	xzr := MakeReg(XZR, Uint64)
 	m := MakeMem(8, XSP, Uint64)
@@ -94,11 +93,12 @@ func TestArm64ZeroReg(t *testing.T) {
 		ZERO, m,
 		RET)
 
-	PrintDisasm(t.Name(), ARM64, asm.Code())
+	PrintDisasm(t, ARM64, asm.Code())
 }
 
 func TestArm64Cast(t *testing.T) {
 	var asm Asm
+	asm.Init()
 	for _, skind := range [...]Kind{
 		Int8, Int16, Int32, Int64,
 		Uint8, Uint16, Uint32, Uint64,
@@ -107,14 +107,8 @@ func TestArm64Cast(t *testing.T) {
 		src := MakeReg(RLo, skind)
 		for _, dkind := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
 			dst := MakeReg(RLo, dkind)
-			asm.Init().Asm(CAST, src, dst)
-			if len(asm.Code()) == 0 {
-				fmt.Printf("%s %v->%v: no code\n", t.Name(), skind, dkind)
-			} else {
-				PrintDisasm(fmt.Sprintf("%s %v->%v", t.Name(), skind, dkind),
-					ARM64, asm.Code())
-			}
+			asm.Asm(CAST, src, dst)
 		}
 	}
-
+	PrintDisasm(t, ARM64, asm.Code())
 }
