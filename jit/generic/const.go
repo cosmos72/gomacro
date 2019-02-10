@@ -27,7 +27,7 @@ type Const struct {
 }
 
 func (c Const) String() string {
-	return fmt.Sprintf("0x%x/*%v*/", c.val, c.kind)
+	return fmt.Sprintf("%v(0x%x)", c.kind, c.val)
 }
 
 // implement Arg interface

@@ -23,6 +23,7 @@ import (
 type Kind uint8 // narrow version of reflect.Kind
 
 const (
+	Invalid = Kind(reflect.Invalid)
 	Bool    = Kind(reflect.Bool)
 	Int     = Kind(reflect.Int)
 	Int8    = Kind(reflect.Int8)

@@ -1,5 +1,3 @@
-// +build arm64
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -10,10 +8,32 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * func_arm64.go
+ * softreg.go
  *
- *  Created on May 24, 2018
+ *  Created on Feb 10, 2019
  *      Author Massimiliano Ghilardi
  */
 
 package jit
+
+import (
+	arch "github.com/cosmos72/gomacro/jit/native"
+)
+
+// subset of Arg interface
+type SoftReg struct {
+	id   arch.SoftReg
+	kind Kind
+}
+
+func (s SoftReg) Kind() Kind {
+	return s.kind
+}
+
+func (s SoftReg) Const() bool {
+	return false
+}
+
+func (s SoftReg) Valid() bool {
+	return s.kind != Invalid
+}

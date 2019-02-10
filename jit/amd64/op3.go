@@ -90,7 +90,7 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	op2 := Op2(op)
 	if a == dst {
 		asm.Op2(op2, b, dst)
-	} else if op.isCommutative() && b == dst {
+	} else if op.IsCommutative() && b == dst {
 		asm.Op2(op2, a, dst)
 	} else if r, ok := dst.(Reg); ok && r.id != b.RegId() {
 		asm.Mov(a, dst).Op2(op2, b, dst)

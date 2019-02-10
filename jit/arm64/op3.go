@@ -144,7 +144,7 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 		defer asm.RegFree(rdst)
 		tdst = true
 	}
-	if op.isCommutative() && a.Const() && !b.Const() {
+	if op.IsCommutative() && a.Const() && !b.Const() {
 		a, b = b, a
 	}
 	switch xa := a.(type) {

@@ -23,16 +23,19 @@ import (
 )
 
 type (
-	Asm   = arch.Asm
-	Arg   = arch.Arg
-	Code  = arch.Code
-	Const = arch.Const
-	Kind  = arch.Kind
-	Mem   = arch.Mem
-	RegId = arch.RegId
-	Reg   = arch.Reg
-	Save  = arch.Save
-	Size  = arch.Size
+	Asm      = arch.Asm
+	Arg      = arch.Arg
+	Code     = arch.Code
+	Const    = arch.Const
+	Kind     = arch.Kind
+	Mem      = arch.Mem
+	RegId    = arch.RegId
+	RegIds   = arch.RegIds
+	Reg      = arch.Reg
+	Save     = arch.Save
+	Size     = arch.Size
+	SoftReg  = arch.SoftReg
+	SoftRegs = arch.SoftRegs
 
 	Op0     = arch.Op0
 	Op1     = arch.Op1
@@ -49,6 +52,7 @@ const (
 	Name           = arch.Name
 
 	// Kind
+	Invalid = arch.Invalid
 	Bool    = arch.Bool
 	Int     = arch.Int
 	Int8    = arch.Int8
@@ -140,6 +144,10 @@ func MakeReg(id RegId, kind Kind) Reg {
 	return arch.MakeReg(id, kind)
 }
 
-func Sizeof(a Arg) Size {
+func SizeOf(a Arg) Size {
 	return arch.SizeOf(a)
+}
+
+func NewAsm() *Asm {
+	return arch.NewAsm()
 }

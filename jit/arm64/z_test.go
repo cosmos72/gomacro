@@ -101,7 +101,7 @@ func TestArm64Sample(t *testing.T) {
 	)
 
 	if !SameCode(actual, expected) {
-		t.Errorf("miscompiled code:\n\texpected %s\n\tactual   %s",
+		t.Errorf("bad assembled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}
 }
@@ -140,7 +140,7 @@ func TestArm64Cast(t *testing.T) {
 	)
 
 	if !SameCode(actual, expected) {
-		t.Errorf("miscompiled code:\n\texpected %s\n\tactual   %s",
+		t.Errorf("bad assembled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}
 }
@@ -265,7 +265,7 @@ func TestArm64Mem(t *testing.T) {
 	)
 
 	if !SameCode(actual, expected) {
-		t.Errorf("miscompiled code:\n\texpected %s\n\tactual   %s",
+		t.Errorf("bad assembled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}
 }

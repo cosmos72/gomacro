@@ -20,6 +20,11 @@ const (
 	VERBOSE = false
 )
 
+func NewAsm() *Asm {
+	var asm Asm
+	return asm.Init()
+}
+
 func (asm *Asm) Init() *Asm {
 	return asm.Init2(0, 0)
 }

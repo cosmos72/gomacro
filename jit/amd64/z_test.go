@@ -67,7 +67,7 @@ func TestAmd64SoftReg(t *testing.T) {
 	}
 
 	if !SameCode(actual, expected) {
-		t.Errorf("miscompiled code:\n\texpected %x\n\tactual   %x",
+		t.Errorf("bad assembled code:\n\texpected %x\n\tactual   %x",
 			expected, actual)
 	}
 }

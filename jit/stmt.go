@@ -1,5 +1,3 @@
-// +build !amd64,!arm64
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -10,20 +8,32 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * func_dummy.go
+ * stmt.go
  *
- *  Created on May 24, 2018
+ *  Created on Feb 10, 2019
  *      Author Massimiliano Ghilardi
  */
 
 package jit
 
-const SUPPORTED = false
-
-func (asm *Asm) prologue() *Asm {
-	return asm
+// subset of Arg interface
+type Stmt interface {
+	stmt()
 }
 
-func (asm *Asm) epilogue() *Asm {
-	return asm
+type Stmt1 struct {
+	x    Expr
+	inst Inst1
+}
+
+type Stmt2 struct {
+	x    Expr
+	y    Expr
+	inst Inst2
+}
+
+func (stmt *Stmt1) stmt() {
+}
+
+func (stmt *Stmt2) stmt() {
 }

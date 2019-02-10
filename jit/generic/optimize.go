@@ -124,7 +124,7 @@ func (asm *Asm) optimize2(op Op2, src Arg, dst Arg) bool {
 	return false
 }
 
-func (op Op3) isCommutative() bool {
+func (op Op3) IsCommutative() bool {
 	switch op {
 	case ADD3, OR3, ADC3, AND3, XOR3, MUL3:
 		return true
@@ -149,7 +149,7 @@ func (asm *Asm) optimize3(op Op3, a Arg, b Arg, dst Arg) bool {
 	}
 	c, ok := b.(Const)
 	if !ok {
-		if op.isCommutative() {
+		if op.IsCommutative() {
 			a, b = b, a
 			c, ok = b.(Const)
 		}
