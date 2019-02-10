@@ -31,9 +31,6 @@ var PAGESIZE = unix.Getpagesize()
 type memarea []byte
 
 func (asm *Asm) mmap() memarea {
-	if len(asm.code) == 0 {
-		errorf("mmap(): code is empty")
-	}
 	asm.Epilogue()
 	if VERBOSE {
 		fmt.Printf("asm: %#v\n", asm.code)
