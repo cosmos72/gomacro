@@ -24,7 +24,7 @@ import (
 
 const (
 	// register pointing to local variables
-	RVAR = arch.R28
+	RVAR = arch.X28
 
 	// register pointing to stack
 	RSP = arch.RSP
