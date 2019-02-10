@@ -42,12 +42,12 @@ const (
 
 var op3Name = map[Op3]string{
 	ADD3: "ADD3",
-	OR3:  "OR3",
-	ADC3: "ADC3",
-	SBB3: "SBB3",
 	AND3: "AND3",
-	SUB3: "SUB3",
+	ADC3: "ADC3",
+	OR3:  "OR3",
 	XOR3: "XOR3",
+	SBB3: "SBB3",
+	SUB3: "SUB3",
 
 	SHL3: "SHL3",
 	SHR3: "SHR3",
@@ -294,112 +294,6 @@ func (asm *Asm) extendHighBits(op Op3, r Reg) {
 			asm.Cast(r, MakeReg(r.id, Uint32))
 		}
 	}
-}
-
-func (op Op3) isCommutative() bool {
-	switch op {
-	case ADD3, OR3, ADC3, AND3, XOR3, MUL3:
-		return true
-	}
-	return false
-}
-
-func (asm *Asm) optimize3(op Op3, a Arg, b Arg, dst Arg) bool {
-	if a == b {
-		switch op {
-		case AND3, OR3:
-			if b == dst {
-				// operation is NOP
-				return true
-			}
-			asm.Mov(a, dst)
-			return true
-		case SUB3, XOR3:
-			asm.Zero(dst)
-			return true
-		}
-	}
-	c, ok := b.(Const)
-	if !ok {
-		if op.isCommutative() {
-			a, b = b, a
-			c, ok = b.(Const)
-		}
-		if !ok {
-			return false
-		}
-	}
-	n := c.Cast(Int64).val
-	c = MakeConst(n, dst.Kind())
-	switch op {
-	case ADD3:
-		switch n {
-		case 0:
-			asm.Mov(a, dst)
-			return true
-		}
-	case OR3:
-		switch n {
-		case 0:
-			asm.Mov(a, dst)
-			return true
-		case -1:
-			asm.Mov(c, dst)
-			return true
-		}
-	case AND3:
-		switch n {
-		case 0:
-			asm.Mov(a, dst)
-			return true
-		case -1:
-			asm.Mov(c, dst)
-			return true
-		}
-	case SUB3:
-		switch n {
-		case 0:
-			asm.Mov(a, dst)
-			return true
-		}
-	case XOR3:
-		switch n {
-		case 0:
-			asm.Mov(a, dst)
-			return true
-		case -1:
-			asm.Op2(NOT2, a, dst)
-			return true
-		}
-	case SHL3, SHR3:
-		switch n {
-		case 0:
-			asm.Mov(a, dst)
-			return true
-		}
-	case MUL3:
-		switch n {
-		case 0:
-			asm.Zero(dst)
-			return true
-		case 1:
-			asm.Mov(a, dst)
-			return true
-		case -1:
-			asm.Op2(NEG2, a, dst)
-			return true
-		}
-	case DIV3:
-		switch n {
-		case 1:
-			asm.Mov(a, dst)
-			return true
-		case -1:
-			asm.Op2(NEG2, a, dst)
-			return true
-		}
-	}
-	return false
 }
 
 // ============================================================================

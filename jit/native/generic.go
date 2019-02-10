@@ -71,57 +71,57 @@ const (
 	RHi     = arch.RHi
 
 	// Op0
-	RET Op0 = 0x00
-	NOP Op0 = 0x01
+	NOP = arch.NOP
+	RET = arch.RET
 
 	// Op1
-	ZERO Op1 = 0x10
-	INC  Op1 = 0x11
-	DEC  Op1 = 0x12
-	NEG  Op1 = 0x13
-	NOT  Op1 = 0x14
+	ZERO = arch.ZERO
+	INC  = arch.INC
+	DEC  = arch.DEC
+	NOT  = arch.NOT
+	NEG  = arch.NEG
 
 	// Op2
-	ADD  Op2 = 0x20
-	AND  Op2 = 0x21
-	ADC  Op2 = 0x22
-	OR   Op2 = 0x23
-	XOR  Op2 = 0x24
-	SUB  Op2 = 0x25
-	SBB  Op2 = 0x26
-	SHL  Op2 = 0x27
-	SHR  Op2 = 0x28
-	MUL  Op2 = 0x29
-	DIV  Op2 = 0x2A
-	REM  Op2 = 0x2B
-	MOV  Op2 = 0x2C
-	CAST Op2 = 0x2D
-	NEG2     = Op2(NEG)
-	NOT2     = Op2(NOT)
+	ADD  = arch.ADD
+	AND  = arch.AND
+	ADC  = arch.ADC
+	OR   = arch.OR
+	XOR  = arch.XOR
+	SUB  = arch.SUB
+	SBB  = arch.SBB
+	SHL  = arch.SHL
+	SHR  = arch.SHR
+	MUL  = arch.MUL
+	DIV  = arch.DIV
+	REM  = arch.REM
+	MOV  = arch.MOV
+	CAST = arch.CAST
+	NEG2 = arch.NEG2
+	NOT2 = arch.NOT2
 	/*
 		CMP  = arch.CMP
 		XCHG = arch.XCHG
 	*/
 
 	// Op2Misc
-	ALLOC Op2Misc = 0x01
-	FREE  Op2Misc = 0x02
-	PUSH  Op2Misc = 0x03
-	POP   Op2Misc = 0x04
+	ALLOC = arch.ALLOC
+	FREE  = arch.FREE
+	PUSH  = arch.PUSH
+	POP   = arch.POP
 
 	// Op3
-	ADD3 = Op3(ADD)
-	OR3  = Op3(OR)
-	ADC3 = Op3(ADC)
-	SBB3 = Op3(SBB)
-	AND3 = Op3(AND)
-	SUB3 = Op3(SUB)
-	XOR3 = Op3(XOR)
-	SHL3 = Op3(SHL)
-	SHR3 = Op3(SHR)
-	MUL3 = Op3(MUL)
-	DIV3 = Op3(DIV)
-	REM3 = Op3(REM)
+	ADD3 = arch.ADD3
+	OR3  = arch.OR3
+	ADC3 = arch.ADC3
+	SBB3 = arch.SBB3
+	AND3 = arch.AND3
+	SUB3 = arch.SUB3
+	XOR3 = arch.XOR3
+	SHL3 = arch.SHL3
+	SHR3 = arch.SHR3
+	MUL3 = arch.MUL3
+	DIV3 = arch.DIV3
+	REM3 = arch.REM3
 
 	// Op4
 )

@@ -99,12 +99,12 @@ func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
 	case Reg, Mem:
 		break
 	case Const:
-		errorf("destination cannot be a constant: %v %v %v", op, src, dst)
+		errorf("destination cannot be a constant: %v %v, %v", op, src, dst)
 	default:
 		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, op, src, dst)
 	}
 
-	if asm.optimize(op, src, dst) {
+	if asm.optimize2(op, src, dst) {
 		return asm
 	}
 
@@ -494,90 +494,4 @@ func (asm *Asm) op2ConstMem(op Op2, c Const, m Mem) *Asm {
 		asm.Int32(int32(val))
 	}
 	return asm
-}
-
-func (asm *Asm) optimize(op Op2, src Arg, dst Arg) bool {
-	if src == dst {
-		switch op {
-		case AND, OR, MOV, CAST:
-			return true // operation is nop
-		case SUB, XOR:
-			asm.Op2(MOV, MakeConst(0, dst.Kind()), dst)
-			return true
-		}
-	}
-	c, ok := src.(Const)
-	if !ok {
-		return false
-	}
-	n := c.Cast(Int64).val
-	src = MakeConst(n, dst.Kind())
-	switch op {
-	case ADD:
-		switch n {
-		case 0:
-			return true
-		case 1:
-			asm.Op1(INC, dst)
-			return true
-		case -1:
-			asm.Op1(DEC, dst)
-			return true
-		}
-	case OR:
-		switch n {
-		case 0:
-			return true
-		case -1:
-			asm.Op2(MOV, src, dst)
-			return true
-		}
-	case AND:
-		switch n {
-		case 0:
-			asm.Op2(MOV, src, dst)
-			return true
-		case -1:
-			return true
-		}
-	case SUB:
-		switch n {
-		case 0:
-			return true
-		case 1:
-			asm.Op1(DEC, dst)
-			return true
-		case -1:
-			asm.Op1(INC, dst)
-			return true
-		}
-	case XOR:
-		switch n {
-		case 0:
-			return true
-		case -1:
-			asm.Op1(NOT, dst)
-			return true
-		}
-	case CAST:
-		asm.Op2(MOV, src, dst)
-		return true
-	case SHL, SHR:
-		switch n {
-		case 0:
-			return true
-		}
-	case MUL:
-		switch n {
-		case 0:
-			asm.Op2(MOV, src, dst)
-			return true
-		case 1:
-			return true
-		case -1:
-			asm.Op1(NEG, dst)
-			return true
-		}
-	}
-	return false
 }

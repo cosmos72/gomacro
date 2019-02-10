@@ -50,8 +50,8 @@ func (asm *Asm) mul2ConstReg(c Const, dst Reg) *Asm {
 			return asm.lea4(MakeMem(0, dst.id, dst.kind), dst, n-1, dst)
 		}
 	}
-	if n&(n-1) == 0 {
-		// TODO shift
+	if shift, ok := log2uint(uint64(n)); ok && n > 0 {
+		return asm.op2ConstReg(SHL, ConstUint8(shift), dst)
 	}
 	if n == int64(int8(n)) {
 		return asm.mul3RegConst8Reg(dst, int8(n), dst)

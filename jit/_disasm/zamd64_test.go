@@ -71,11 +71,13 @@ func TestAmd64Sum(t *testing.T) {
 func TestAmd64Mul(t *testing.T) {
 	var asm Asm
 
-	Total, I := Var(1), Var(2)
+	I, J := Var(0), Var(1)
 	asm.Init().Asm( //
 		MUL, ConstInt64(9), I,
+		MUL, ConstInt64(16), I,
 		MUL, ConstInt64(0x7F), I,
-		MUL, I, Total)
+		MUL3, ConstInt64(0x11), I, J,
+		MUL3, I, J, I)
 
 	PrintDisasm(t, AMD64, asm.Code())
 }
