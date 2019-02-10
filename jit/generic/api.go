@@ -16,6 +16,8 @@
 
 package arch
 
+const SUPPORTED = ASM_SUPPORTED && MMAP_SUPPORTED
+
 type Size uint8 // 1, 2, 4 or 8
 
 type Arg interface {
@@ -34,9 +36,9 @@ const (
 
 // memory area where spill registers can be saved
 type Save struct {
-	reg              Reg       // points to memory area
+	reg              Reg      // points to memory area
 	start, next, end SaveSlot // memory area indexes
-	bitmap           []bool    // bitmap of used/free indexes
+	bitmap           []bool   // bitmap of used/free indexes
 }
 
 type Asm struct {

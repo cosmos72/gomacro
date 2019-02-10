@@ -25,6 +25,8 @@ import (
 	"golang.org/x/sys/windows"
 )
 
+const MMAP_SUPPORTED = true
+
 var PAGESIZE = windows.Getpagesize()
 
 type memarea struct {

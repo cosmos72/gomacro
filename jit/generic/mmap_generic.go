@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * sys_generic.go
+ * os_generic.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
@@ -21,6 +21,8 @@ package arch
 import (
 	"runtime"
 )
+
+const MMAP_SUPPORTED = false
 
 type memarea struct {
 }

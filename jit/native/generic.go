@@ -43,8 +43,10 @@ type (
 )
 
 const (
-	SUPPORTED = arch.SUPPORTED
-	Name      = arch.Name
+	ASM_SUPPORTED  = arch.ASM_SUPPORTED
+	MMAP_SUPPORTED = arch.MMAP_SUPPORTED
+	SUPPORTED      = ASM_SUPPORTED && MMAP_SUPPORTED
+	Name           = arch.Name
 
 	// Kind
 	Bool    = arch.Bool

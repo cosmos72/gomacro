@@ -16,7 +16,7 @@
 
 package arch
 
-const SUPPORTED = false
+const ASM_SUPPORTED = false
 const Name = "generic"
 
 const (

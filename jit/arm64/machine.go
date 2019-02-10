@@ -21,7 +21,7 @@ import (
 	"fmt"
 )
 
-const SUPPORTED = false // not working yet
+const ASM_SUPPORTED = true
 const Name = "arm64"
 
 const (

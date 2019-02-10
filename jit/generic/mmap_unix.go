@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * sys_unix.go
+ * os_unix.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
@@ -23,6 +23,8 @@ import (
 
 	"golang.org/x/sys/unix"
 )
+
+const MMAP_SUPPORTED = true
 
 var PAGESIZE = unix.Getpagesize()
 

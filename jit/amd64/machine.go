@@ -21,7 +21,7 @@ import (
 	"fmt"
 )
 
-const SUPPORTED = true
+const ASM_SUPPORTED = true
 const Name = "amd64"
 
 // ============================================================================
