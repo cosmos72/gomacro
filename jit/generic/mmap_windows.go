@@ -58,13 +58,23 @@ func (asm *Asm) mmap() memarea {
 
 // memory copy. a bit slow, but avoids depending on CGO
 func memcpy(dst uintptr, src uintptr, size uintptr) {
-	for i := uintptr(0); i < size; i++ {
+	var i uintptr
+	for ; i+32 <= size; i += 32 {
+		*(*uint64)(unsafe.Pointer(dst + i + 0)) = *(*uint64)(unsafe.Pointer(src + i + 0))
+		*(*uint64)(unsafe.Pointer(dst + i + 8)) = *(*uint64)(unsafe.Pointer(src + i + 8))
+		*(*uint64)(unsafe.Pointer(dst + i + 16)) = *(*uint64)(unsafe.Pointer(src + i + 16))
+		*(*uint64)(unsafe.Pointer(dst + i + 24)) = *(*uint64)(unsafe.Pointer(src + i + 24))
+	}
+	for ; i+8 <= size; i += 8 {
+		*(*uint64)(unsafe.Pointer(dst + i)) = *(*uint64)(unsafe.Pointer(src + i))
+	}
+	for ; i < size; i++ {
 		*(*uint8)(unsafe.Pointer(dst + i)) = *(*uint8)(unsafe.Pointer(src + i))
 	}
 }
 
 func munmap(mem memarea) {
 	if mem.addr != 0 {
-		windows.VirtualFree(area.addr, 0, windows.MEM_RELEASE)
+		windows.VirtualFree(mem.addr, 0, windows.MEM_RELEASE)
 	}
 }

@@ -47,7 +47,7 @@ func (asm *Asm) Func(funcaddr interface{}) {
 		fmt.Printf("funcaddr = %p\n", header.addr)
 		fmt.Printf("*funcaddr = %p\n", *header.addr)
 	*/
-	mem := asm.Epilogue().mmap()
+	mem := asm.mmap()
 	*header.addr = &mem
 	/*
 		fmt.Printf("&mem = %p\n", &mem)
