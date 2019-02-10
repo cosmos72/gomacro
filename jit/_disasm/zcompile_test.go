@@ -8,18 +8,19 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * z_test.go
+ * zcompile_test.go
  *
  *  Created on Feb 10, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package disasm
 
 import (
 	"testing"
 
-	arch "github.com/cosmos72/gomacro/jit/native"
+	. "github.com/cosmos72/gomacro/jit"
+	arch "github.com/cosmos72/gomacro/jit/amd64"
 )
 
 const (
@@ -39,7 +40,7 @@ func SameCode(actual Code, expected Code) bool {
 	return true
 }
 
-func TestExpr1(t *testing.T) {
+func TestCompileExpr1(t *testing.T) {
 	var c Comp
 	c.Init()
 	r := MakeReg(RLo, Uint64)
@@ -48,7 +49,7 @@ func TestExpr1(t *testing.T) {
 			NEG, NewExpr1(NOT, r),
 		),
 	)
-	actual := c.code
+	actual := c.Code()
 	expected := Code{
 		arch.ALLOC, S0, Uint64,
 		arch.NOT2, r, S0,
@@ -61,7 +62,7 @@ func TestExpr1(t *testing.T) {
 	}
 }
 
-func TestExpr2(t *testing.T) {
+func TestCompileExpr2(t *testing.T) {
 	var c Comp
 	c.Init()
 	c7 := MakeConst(7, Uint64)
@@ -73,7 +74,7 @@ func TestExpr2(t *testing.T) {
 			ADD, NewExpr2(MUL, c7, r1), NewExpr2(SUB, c9, r2),
 		),
 	)
-	actual := c.code
+	actual := c.Code()
 	expected := Code{
 		arch.ALLOC, S0, Uint64,
 		arch.MUL3, c7, r1, S0,
@@ -87,4 +88,10 @@ func TestExpr2(t *testing.T) {
 		t.Errorf("miscompiled code:\n\texpected %v\n\tactual   %v",
 			expected, actual)
 	}
+
+	var asm Asm
+	asm.Init()
+	asm.Asm(c.Code()...)
+	asm.Epilogue()
+	PrintDisasm(t, AMD64, asm.Code())
 }

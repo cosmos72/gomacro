@@ -36,6 +36,10 @@ func (c *Comp) Init() *Comp {
 	return c
 }
 
+func (c *Comp) Code() Code {
+	return c.code
+}
+
 func (c *Comp) AllocSoftReg(kind Kind) SoftReg {
 	id := c.nextSoftReg
 	c.nextSoftReg++
@@ -49,23 +53,23 @@ func (c *Comp) FreeSoftReg(s SoftReg) {
 	c.code.SoftReg(arch.FREE, s.id, s.kind)
 }
 
-func (c *Comp) Compile(t Stmt) {
+func (c *Comp) Stmt(t Stmt) {
 	switch t := t.(type) {
 	case *Stmt1:
-		errorf("unimplemented: Compile(Stmt1)")
+		errorf("unimplemented: Stmt(Stmt1)")
 	case *Stmt2:
-		errorf("unimplemented: Compile(Stmt2)")
+		errorf("unimplemented: Stmt(Stmt2)")
 	default:
 		errorf("unknown Stmt type %T: %v", t, t)
 	}
 }
 
-func (c *Comp) compile(e Expr) (Expr, SoftReg) {
+func (c *Comp) Expr(e Expr) (Expr, SoftReg) {
 	var dst Expr
 	var dstsoft SoftReg
 	switch e := e.(type) {
 	case *Expr1:
-		src, soft1 := c.compile(e.x)
+		src, soft1 := c.Expr(e.x)
 		if soft1.Valid() {
 			dstsoft = SoftReg{soft1.id, e.kind}
 		} else {
@@ -77,8 +81,8 @@ func (c *Comp) compile(e Expr) (Expr, SoftReg) {
 			c.FreeSoftReg(soft1)
 		}
 	case *Expr2:
-		src1, soft1 := c.compile(e.x)
-		src2, soft2 := c.compile(e.y)
+		src1, soft1 := c.Expr(e.x)
+		src2, soft2 := c.Expr(e.y)
 		if soft1.Valid() {
 			dstsoft = SoftReg{soft1.id, e.kind}
 		} else if soft2.Valid() && arch.Op3(e.op).IsCommutative() {
