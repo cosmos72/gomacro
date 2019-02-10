@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	. "github.com/cosmos72/gomacro/jit"
-	arch "github.com/cosmos72/gomacro/jit/amd64"
+	arch "github.com/cosmos72/gomacro/jit/native"
 )
 
 const (
@@ -65,16 +65,22 @@ func TestCompileExpr1(t *testing.T) {
 func TestCompileExpr2(t *testing.T) {
 	var c Comp
 	c.Init()
+
+	var asm arch.Asm
+	asm.Init()
+
 	c7 := MakeConst(7, Uint64)
 	c9 := MakeConst(9, Uint64)
-	r1 := MakeReg(RLo, Uint64)
-	r2 := MakeReg(RLo+1, Uint64)
+	r1 := asm.RegAlloc(Uint64)
+	r2 := asm.RegAlloc(Uint64)
 	c.Expr(
 		NewExpr2(
 			ADD, NewExpr2(MUL, c7, r1), NewExpr2(SUB, c9, r2),
 		),
 	)
 	actual := c.Code()
+	t.Log(actual...)
+
 	expected := Code{
 		arch.ALLOC, S0, Uint64,
 		arch.MUL3, c7, r1, S0,
@@ -89,8 +95,6 @@ func TestCompileExpr2(t *testing.T) {
 			expected, actual)
 	}
 
-	var asm Asm
-	asm.Init()
 	asm.Asm(c.Code()...)
 	asm.Epilogue()
 	PrintDisasm(t, AMD64, asm.Code())
