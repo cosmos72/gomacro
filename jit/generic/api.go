@@ -20,12 +20,6 @@ const SUPPORTED = ASM_SUPPORTED && MMAP_SUPPORTED
 
 type Size uint8 // 1, 2, 4 or 8
 
-type Arg interface {
-	RegId() RegId // register used by Arg, or NoReg if Arg is Const
-	Kind() Kind
-	Const() bool
-}
-
 type Code []uint8
 
 type SaveSlot uint16
@@ -33,6 +27,12 @@ type SaveSlot uint16
 const (
 	InvalidSlot = ^SaveSlot(0)
 )
+
+type Arg interface {
+	RegId() RegId // register used by Arg, or NoReg if Arg is Const
+	Kind() Kind
+	Const() bool
+}
 
 // memory area where spill registers can be saved
 type Save struct {
@@ -48,11 +48,6 @@ type Asm struct {
 	softRegs    SoftRegs
 	save        Save
 	regIds      RegIds
-}
-
-func New() *Asm {
-	var asm Asm
-	return asm.Init()
 }
 
 func SizeOf(a Arg) Size {

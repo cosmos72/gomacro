@@ -25,5 +25,5 @@ func debugf(format string, args ...interface{}) {
 }
 
 func errorf(format string, args ...interface{}) {
-	panic(fmt.Errorf("jit assembler error: "+format, args...))
+	panic(fmt.Errorf("jit compiler error: "+format, args...))
 }

@@ -8,25 +8,18 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * mov.go
+ * comp.go
  *
- *  Created on May 20, 2018
+ *  Created on Feb 10, 2019
  *      Author Massimiliano Ghilardi
  */
 
 package jit
 
-func (asm *Asm) Load(dst Reg, src Arg) *Asm {
-	// TODO
-	return asm
-}
+import (
+	. "github.com/cosmos72/gomacro/jit/native"
+)
 
-func (asm *Asm) Store(dst Var, src Arg) *Asm {
-	// TODO
-	return asm
-}
-
-func (asm *Asm) Zero(dst Var) *Asm {
-	// TODO
-	return asm
+type Comp struct {
+	asm Asm
 }
