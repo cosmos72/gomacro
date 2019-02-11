@@ -70,3 +70,74 @@ func (op Op1) String() string {
 	}
 	return s
 }
+
+// ============================================================================
+// two-arg instruction
+type Op2 uint8
+
+const (
+	ADD = Op2(token.ADD)
+	SUB = Op2(token.SUB)
+	ADC = Op2(token.ADD + token.VAR) // add with carry
+	SBB = Op2(token.SUB + token.VAR) // subtract with borrow
+	MUL = Op2(token.MUL)
+	DIV = Op2(token.QUO) // divide
+	QUO = DIV            // alias for DIV
+	REM = Op2(token.REM) // remainder
+
+	AND     = Op2(token.AND)
+	OR      = Op2(token.OR)
+	XOR     = Op2(token.XOR)
+	SHL     = Op2(token.SHL)
+	SHR     = Op2(token.SHR)
+	AND_NOT = Op2(token.AND_NOT)
+
+	LAND = Op2(token.LAND) // &&
+	LOR  = Op2(token.LOR)  // ||
+
+	MOV  = Op2(token.ASSIGN) // =
+	CAST = Op2(token.TYPE)   // somewhat arbitrary choice
+	LEA  = Op2(token.ARROW)  // amd64 only. somewhat arbitrary choice
+	// CMP  = ??
+	// XCHG = ??
+
+	// two-arg versions of NOT, NEG above
+	NEG2 = Op2(NEG)
+	NOT2 = Op2(NOT)
+)
+
+var op2Name = map[Op2]string{
+	ADD: "ADD",
+	SUB: "SUB",
+	ADC: "ADC",
+	SBB: "SBB",
+	MUL: "MUL",
+	DIV: "DIV",
+	REM: "REM",
+
+	AND:     "AND",
+	OR:      "OR",
+	XOR:     "XOR",
+	SHL:     "SHL",
+	SHR:     "SHR",
+	AND_NOT: "AND_NOT",
+
+	LAND: "LAND",
+	LOR:  "LOR",
+
+	MOV:  "MOV",
+	CAST: "CAST",
+	LEA:  "LEA",
+	// CMP:  "CMP",
+	// XCHG: "XCHG",
+	NEG2: "NEG2",
+	NOT2: "NOT2",
+}
+
+func (op Op2) String() string {
+	s, ok := op2Name[op]
+	if !ok {
+		s = fmt.Sprintf("Op2(%d)", int(op))
+	}
+	return s
+}

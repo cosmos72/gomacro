@@ -30,7 +30,7 @@ var op1val = map[Op1]uint8{
 func (op Op1) lohi() (uint8, uint8) {
 	val, ok := op1val[op]
 	if !ok {
-		errorf("unknown Op0 instruction: %v", op)
+		errorf("unknown Op1 instruction: %v", op)
 	}
 	return val & 0x18, val >> 2
 }

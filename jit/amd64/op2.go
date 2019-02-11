@@ -16,65 +16,38 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// binary operation
-type Op2 uint8
+// two-arg operation
 
-const (
-	ADD Op2 = 0
-	OR  Op2 = 0x08
-	ADC Op2 = 0x10 // add with carry
-	SBB Op2 = 0x18 // subtract with borrow
-	AND Op2 = 0x20
-	SUB Op2 = 0x28
-	XOR Op2 = 0x30
-	// CMP Op = 0x38 // compare, set flags
-	// XCHG Op = 0x86 // exchange. xchg %reg, %reg has different encoding
-	MOV  Op2 = 0x88
-	LEA  Op2 = 0x8D
-	CAST Op2 = 0xB6 // sign extend, zero extend or narrow
-	SHL  Op2 = 0xE0 // shift left. has different encoding
-	SHR  Op2 = 0xE8 // shift right. has different encoding
-	MUL  Op2 = 0xF6 // TODO finish implementation
-	DIV  Op2 = 0xFE // TODO divide
-	REM  Op2 = 0xFF // TODO remainder
+var op2val = map[Op2]uint8{
+	ADD: 0x00,
+	OR:  0x08,
+	ADC: 0x10, // add with carry
+	SBB: 0x18, // subtract with borrow
+	AND: 0x20,
+	SUB: 0x28,
+	XOR: 0x30,
+	// CMP: 0x38, // compare, set flags
+	// XCHG: 0x86, // exchange. xchg %reg, %reg has different encoding
+	MOV:  0x88,
+	LEA:  0x8D,
+	CAST: 0xB6, // sign extend, zero extend or narrow
+	SHL:  0xE0, // shift left. has different encoding
+	SHR:  0xE8, // shift right. has different encoding
+	MUL:  0xF6,
+	DIV:  0xFE, // TODO divide
+	REM:  0xFF, // TODO remainder
 
-	NEG2 Op2 = 0x40
-	NOT2 Op2 = 0x48
-)
-
-var op2Name = map[Op2]string{
-	ADD: "ADD",
-	OR:  "OR",
-	ADC: "ADC",
-	SBB: "SBB",
-	AND: "AND",
-	SUB: "SUB",
-	XOR: "XOR",
-	// CMP: "CMP",
-	// XCHG: "XCHG",
-	MOV:  "MOV",
-	LEA:  "LEA",
-	CAST: "CAST",
-	SHL:  "SHL",
-	SHR:  "SHR",
-	MUL:  "MUL",
-	DIV:  "DIV",
-	REM:  "REM",
-	NEG2: "NEG2",
-	NOT2: "NOT2",
+	NEG2: 0x40,
+	NOT2: 0x48,
 }
 
-func (op Op2) String() string {
-	s, ok := op2Name[op]
+func (op Op2) val() uint8 {
+	val, ok := op2val[op]
 	if !ok {
-		s = fmt.Sprintf("Op2(%d)", int(op))
+		errorf("unknown Op2 instruction: %v", op)
 	}
-	return s
+	return val
 }
 
 // ============================================================================
@@ -110,14 +83,9 @@ func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
 
 	switch op {
 	case DIV, REM:
-		errorf("unimplemented operation %v: %v %v, %v", op, op, src, dst)
+		errorf("unimplemented instruction %v: %v %v, %v", op, op, src, dst)
 	case NEG2, NOT2:
-		var op1 Op1
-		if op == NEG2 {
-			op1 = NEG
-		} else {
-			op1 = NOT
-		}
+		op1 := Op1(op) // NEG2 -> NEG, NOT2 -> NOT
 		if src == dst {
 			return asm.Op1(op1, dst)
 		} else {
@@ -177,7 +145,7 @@ func (asm *Asm) op2ConstReg(op Op2, c Const, dst Reg) *Asm {
 }
 
 func (asm *Asm) op2ConstReg8(op Op2, c Const, dst Reg) *Asm {
-	op_ := uint8(op)
+	op_ := op.val()
 	dlo, dhi := dst.lohi()
 	val := c.val
 	if val == int64(int8(val)) {
@@ -196,7 +164,7 @@ func (asm *Asm) op2ConstReg8(op Op2, c Const, dst Reg) *Asm {
 }
 
 func (asm *Asm) op2ConstReg16(op Op2, c Const, dst Reg) *Asm {
-	op_ := uint8(op)
+	op_ := op.val()
 	dlo, dhi := dst.lohi()
 	val := c.val
 	if val == int64(int8(val)) {
@@ -222,7 +190,7 @@ func (asm *Asm) op2ConstReg16(op Op2, c Const, dst Reg) *Asm {
 }
 
 func (asm *Asm) op2ConstReg32(op Op2, c Const, dst Reg) *Asm {
-	op_ := uint8(op)
+	op_ := op.val()
 	dlo, dhi := dst.lohi()
 	val := c.val
 	if val == int64(int8(val)) {
@@ -248,8 +216,8 @@ func (asm *Asm) op2ConstReg32(op Op2, c Const, dst Reg) *Asm {
 }
 
 func (asm *Asm) op2ConstReg64(op Op2, c Const, dst Reg) *Asm {
+	op_ := op.val()
 	dlo, dhi := dst.lohi()
-	op_ := uint8(op)
 	val := c.val
 	if val == int64(int8(val)) {
 		asm.Bytes(0x48|dhi, 0x83, 0xC0|op_|dlo, uint8(int8(val)))
@@ -280,30 +248,31 @@ func (asm *Asm) op2RegReg(op Op2, src Reg, dst Reg) *Asm {
 	}
 	assert(op != LEA)
 
+	op_ := op.val()
 	slo, shi := src.lohi()
 	dlo, dhi := dst.lohi()
 
 	switch SizeOf(src) { // == SizeOf(dst)
 	case 1:
 		if src.id < RSP && dst.id < RSP {
-			asm.Bytes(uint8(op), 0xC0|dlo|slo<<3)
+			asm.Bytes(op_, 0xC0|dlo|slo<<3)
 		} else {
-			asm.Bytes(0x40|dhi|shi<<2, uint8(op), 0xC0|dlo|slo<<3)
+			asm.Bytes(0x40|dhi|shi<<2, op_, 0xC0|dlo|slo<<3)
 		}
 	case 2:
 		if dhi|shi<<2 == 0 {
-			asm.Bytes(0x66, 0x01|uint8(op), 0xC0|dlo|slo<<3)
+			asm.Bytes(0x66, 0x01|op_, 0xC0|dlo|slo<<3)
 		} else {
-			asm.Bytes(0x66, 0x40|dhi|shi<<2, 0x01|uint8(op), 0xC0|dlo|slo<<3)
+			asm.Bytes(0x66, 0x40|dhi|shi<<2, 0x01|op_, 0xC0|dlo|slo<<3)
 		}
 	case 4:
 		if dhi|shi<<2 == 0 {
-			asm.Bytes(0x01|uint8(op), 0xC0|dlo|slo<<3)
+			asm.Bytes(0x01|op_, 0xC0|dlo|slo<<3)
 		} else {
-			asm.Bytes(0x40|dhi|shi<<2, 0x01|uint8(op), 0xC0|dlo|slo<<3)
+			asm.Bytes(0x40|dhi|shi<<2, 0x01|op_, 0xC0|dlo|slo<<3)
 		}
 	case 8:
-		asm.Bytes(0x48|dhi|shi<<2, 0x01|uint8(op), 0xC0|dlo|slo<<3)
+		asm.Bytes(0x48|dhi|shi<<2, 0x01|op_, 0xC0|dlo|slo<<3)
 	}
 	return asm
 }
@@ -318,6 +287,7 @@ func (asm *Asm) op2RegMem(op Op2, src Reg, dst_m Mem) *Asm {
 	}
 	assert(op != LEA)
 
+	op_ := op.val()
 	dst := dst_m.reg
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
@@ -329,21 +299,21 @@ func (asm *Asm) op2RegMem(op Op2, src Reg, dst_m Mem) *Asm {
 	switch siz {
 	case 1:
 		if src.id < RSP && dhi == 0 {
-			asm.Bytes(uint8(op), offbit|dlo|slo<<3)
+			asm.Bytes(op_, offbit|dlo|slo<<3)
 		} else {
-			asm.Bytes(0x40|dhi|shi<<2, uint8(op), offbit|dlo|slo<<3)
+			asm.Bytes(0x40|dhi|shi<<2, op_, offbit|dlo|slo<<3)
 		}
 	case 2:
 		asm.Byte(0x66)
 		fallthrough
 	case 4:
 		if dhi|shi<<2 == 0 {
-			asm.Bytes(0x01|uint8(op), offbit|dlo|slo<<3)
+			asm.Bytes(0x01|op_, offbit|dlo|slo<<3)
 		} else {
-			asm.Bytes(0x40|dhi|shi<<2, 0x01|uint8(op), offbit|dlo|slo<<3)
+			asm.Bytes(0x40|dhi|shi<<2, 0x01|op_, offbit|dlo|slo<<3)
 		}
 	case 8:
-		asm.Bytes(0x48|dhi|shi<<2, 0x01|uint8(op), offbit|dlo|slo<<3)
+		asm.Bytes(0x48|dhi|shi<<2, 0x01|op_, offbit|dlo|slo<<3)
 	}
 	asm.quirk24(dst)
 	switch offlen {
@@ -363,6 +333,7 @@ func (asm *Asm) op2MemReg(op Op2, src_m Mem, dst Reg) *Asm {
 	case SHL, SHR:
 		return asm.shiftMemReg(op, src_m, dst)
 	}
+	op_ := op.val()
 	src := src_m.reg
 	dlo, dhi := dst.lohi()
 	slo, shi := src.lohi()
@@ -378,21 +349,20 @@ func (asm *Asm) op2MemReg(op Op2, src_m Mem, dst Reg) *Asm {
 	switch siz {
 	case 1:
 		if dst.id < RSP && shi == 0 {
-			asm.Bytes(0x02|uint8(op), offbit|dlo<<3|slo)
+			asm.Bytes(0x02|op_, offbit|dlo<<3|slo)
 		} else {
-			asm.Bytes(0x40|dhi<<2|shi, 0x02|uint8(op), offbit|dlo<<3|slo)
+			asm.Bytes(0x40|dhi<<2|shi, 0x02|op_, offbit|dlo<<3|slo)
 		}
 	case 2:
 		asm.Byte(0x66)
 		fallthrough
 	case 4:
 		if dhi|shi<<2 == 0 {
-			asm.Bytes(0x03|uint8(op), offbit|dlo<<3|slo)
+			asm.Bytes(0x03|op_, offbit|dlo<<3|slo)
 		} else {
-			asm.Bytes(0x40|dhi<<2|shi, 0x03|uint8(op), offbit|dlo<<3|slo)
+			asm.Bytes(0x40|dhi<<2|shi, 0x03|op_, offbit|dlo<<3|slo)
 		}
 	case 8:
-		op_ := uint8(op)
 		if op != LEA {
 			op_ |= 0x03
 		}
@@ -436,7 +406,7 @@ func (asm *Asm) op2ConstMem(op Op2, c Const, m Mem) *Asm {
 		return asm.mul2ConstMem(c, m)
 	}
 	assert(op != LEA)
-	op_ := uint8(op)
+	op_ := op.val()
 	dst := m.reg
 	dlo, dhi := dst.lohi()
 	offlen, offbit := m.offlen(dst.id)
