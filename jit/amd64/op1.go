@@ -16,40 +16,23 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// unary operation
-type Op1 uint8
+// one-arg operation
 
-const (
-	ZERO Op1 = 0x08
-	NOT  Op1 = 0x10
-	NEG  Op1 = 0x18
-	INC  Op1 = 0x20
-	DEC  Op1 = 0x28
-)
-
-var op1Name = map[Op1]string{
-	ZERO: "ZERO",
-	NOT:  "NOT",
-	NEG:  "NEG",
-	INC:  "INC",
-	DEC:  "DEC",
-}
-
-func (op Op1) String() string {
-	s, ok := op1Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op1(%d)", int(op))
-	}
-	return s
+var op1val = map[Op1]uint8{
+	ZERO: 0x08,
+	NOT:  0x10,
+	NEG:  0x18,
+	INC:  0x20,
+	DEC:  0x28,
 }
 
 func (op Op1) lohi() (uint8, uint8) {
-	return uint8(op & 0x18), uint8(op >> 2)
+	val, ok := op1val[op]
+	if !ok {
+		errorf("unknown Op0 instruction: %v", op)
+	}
+	return val & 0x18, val >> 2
 }
 
 // ============================================================================

@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	S0 arch.SoftReg = iota
+	S0 arch.SoftRegId = iota
 	S1
 )
 

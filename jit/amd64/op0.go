@@ -16,33 +16,23 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
 // no-arg operation
-type Op0 uint8
 
-const (
-	RET Op0 = 0xC3
-	NOP Op0 = 0x90
-)
-
-var op0Name = map[Op0]string{
-	RET: "RET",
-	NOP: "NOP",
+var op0val = map[Op0]uint8{
+	RET: 0xC3,
+	NOP: 0x90,
 }
 
-func (op Op0) String() string {
-	s, ok := op0Name[op]
+func (op Op0) val() uint8 {
+	val, ok := op0val[op]
 	if !ok {
-		s = fmt.Sprintf("Op0(%d)", int(op))
+		errorf("unknown Op0 instruction: %v", op)
 	}
-	return s
+	return val
 }
 
 // ============================================================================
 func (asm *Asm) Op0(op Op0) *Asm {
-	return asm.Byte(uint8(op))
+	return asm.Byte(op.val())
 }
