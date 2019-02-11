@@ -124,6 +124,7 @@ func (asm *Asm) loadstore(op loadstore, m Mem, r Reg) *Asm {
 	var sizebit uint32
 	switch m.Kind().Size() {
 	case 1:
+		sizebit = 0
 		if off >= 0 && off <= 4095 {
 			return asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<10 | m.reg.valOrX31(true)<<5 | r.valOrX31(true))
 		}

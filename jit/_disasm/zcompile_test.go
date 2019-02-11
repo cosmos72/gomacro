@@ -20,13 +20,28 @@ import (
 	"testing"
 
 	. "github.com/cosmos72/gomacro/jit"
-	arch "github.com/cosmos72/gomacro/jit/native"
+	arch "github.com/cosmos72/gomacro/jit/redirect"
 )
 
 const (
 	S0 arch.SoftRegId = iota
 	S1
 )
+
+var disasmArch = redirectArch()
+
+// result depends on which assembler is actually imported
+// by "github.com/cosmos72/gomacro/jit/redirect" above
+func redirectArch() Arch {
+	switch arch.Name {
+	case "amd64":
+		return AMD64
+	case "arm64":
+		return ARM64
+	default:
+		return 0
+	}
+}
 
 func SameCode(actual Code, expected Code) bool {
 	if len(actual) != len(expected) {
@@ -73,6 +88,7 @@ func TestCompileExpr2(t *testing.T) {
 	c9 := MakeConst(9, Uint64)
 	r1 := asm.RegAlloc(Uint64)
 	r2 := asm.RegAlloc(Uint64)
+	// compile
 	c.Expr(
 		NewExpr2(
 			ADD, NewExpr2(MUL, c7, r1), NewExpr2(SUB, c9, r2),
@@ -95,7 +111,8 @@ func TestCompileExpr2(t *testing.T) {
 			expected, actual)
 	}
 
+	// assemble
 	asm.Asm(c.Code()...)
 	asm.Epilogue()
-	PrintDisasm(t, AMD64, asm.Code())
+	PrintDisasm(t, disasmArch, asm.Code())
 }
