@@ -16,81 +16,20 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// binary operation
-type Op2 uint8
-
-const (
-	AND = Op2(AND3)
-	ADD = Op2(ADD3)
-	ADC = Op2(ADC3) // add with carry
-	OR  = Op2(OR3)
-	XOR = Op2(XOR3)
-	SUB = Op2(SUB3)
-	SBB = Op2(SBB3) // subtract with borrow
-
-	SHL = Op2(SHL3) // shift left
-	SHR = Op2(SHR3) // shift right
-	MUL = Op2(MUL3)
-	DIV = Op2(DIV3)
-	REM = Op2(REM3)
-
-	MOV  Op2 = 0x20
-	CAST Op2 = 0x21
-	NEG2 Op2 = 0x22
-	NOT2 Op2 = 0x23
-
-/*
-	CMP  Op2 = ?? // compare, set flags
-	XCHG Op2 = ?? // exchange
-*/
-)
-
-var op2Name = map[Op2]string{
-	ADD:  "ADD",
-	AND:  "AND",
-	ADC:  "ADC",
-	MUL:  "MUL",
-	SHL:  "SHL",
-	SHR:  "SHR",
-	OR:   "OR",
-	XOR:  "XOR",
-	SUB:  "SUB",
-	SBB:  "SBB",
-	DIV:  "DIV",
-	REM:  "REM",
-	MOV:  "MOV",
-	CAST: "CAST",
-	NEG2: "NEG2",
-	NOT2: "NOT2",
-	/*
-		CMP:  "CMP",
-		XCHG: "XCHG",
-	*/
-}
-
-func (op Op2) String() string {
-	s, ok := op2Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op2(%d)", int(op))
-	}
-	return s
-}
+// two-arg instruction
 
 func (op Op2) val() uint32 {
+	var val uint32
 	switch op {
 	case NEG2:
-		return 0x4B0003E0
+		val = 0x4B0003E0
 	case NOT2:
-		return 0x2A2003E0
+		val = 0x2A2003E0
 	default:
 		errorf("unknown Op2 instruction: %v", op)
-		return 0
 	}
+	return val
 }
 
 // ============================================================================

@@ -16,26 +16,10 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// quaternary operation
-type Op4 uint8
+// four-arg instruction
 
-const (
-/*
-	LEA4 Op4 = 0x8D
-*/
-)
-
-func (op Op4) String() string {
-	return fmt.Sprintf("Op4(%d)", int(op))
-}
-
-// ============================================================================
 func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
-	errorf("Op4 not implemented: %v %v, %v, %v", a, b, c, dst)
+	errorf("unknown arm64 Op4 instruction: %v %v, %v, %v", a, b, c, dst)
 	return asm
 }

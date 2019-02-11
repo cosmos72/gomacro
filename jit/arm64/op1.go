@@ -16,45 +16,17 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// unary operation
-type Op1 uint8
+// one-arg instruction
 
-const (
-	ZERO = Op1(0x10)
-	INC  = Op1(ADD3)
-	DEC  = Op1(SUB3)
-	NEG  = Op1(NEG2)
-	NOT  = Op1(NOT2)
-)
-
-var op1Name = map[Op1]string{
-	ZERO: "ZERO",
-	INC:  "INC",
-	DEC:  "DEC",
-	NOT:  "NOT",
-	NEG:  "NEG",
-}
-
-func (op Op1) String() string {
-	s, ok := op1Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op1(%d)", int(op))
-	}
-	return s
-}
-
-// ============================================================================
 func (asm *Asm) Op1(op Op1, a Arg) *Asm {
 	switch op {
 	case ZERO:
 		asm.Zero(a)
-	case INC, DEC:
-		asm.Op3(Op3(op), a, MakeConst(1, a.Kind()), a)
+	case INC:
+		asm.Op3(ADD3, a, MakeConst(1, a.Kind()), a)
+	case DEC:
+		asm.Op3(SUB3, a, MakeConst(1, a.Kind()), a)
 	case NEG, NOT:
 		asm.Op2(Op2(op), a, a)
 	default:

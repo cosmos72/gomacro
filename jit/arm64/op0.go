@@ -16,41 +16,20 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// no-arg operation
-type Op0 uint8
-
-const (
-	NOP Op0 = 0xD5
-	RET Op0 = 0xD6
-)
-
-var op0Name = map[Op0]string{
-	RET: "RET",
-	NOP: "NOP",
-}
-
-func (op Op0) String() string {
-	s, ok := op0Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op0(%d)", int(op))
-	}
-	return s
-}
+// no-arg instruction
 
 func (op Op0) val() uint32 {
+	var val uint32
 	switch op {
 	case NOP:
-		return 0xD503201F
+		val = 0xD503201F
 	case RET:
-		return 0xD65F03C0
+		val = 0xD65F03C0
 	default:
-		return uint32(op) << 24
+		errorf("unknown Op0 instruction: %v", op)
 	}
+	return val
 }
 
 // ============================================================================

@@ -77,7 +77,9 @@ func TestArm64Sample(T *testing.T) {
 		).Epilogue()
 		asm.RegDecUse(id).RegDecUse(id + 1).RegDecUse(id + 2)
 
-		PrintDisasm(T, ARM64, asm.Code())
+		if id == RLo || id == RHi {
+			PrintDisasm(T, ARM64, asm.Code())
+		}
 	}
 }
 

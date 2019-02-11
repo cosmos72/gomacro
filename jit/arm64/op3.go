@@ -16,76 +16,45 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// ternary operation
-type Op3 uint8
+// three-arg instruction
 
-const (
-	AND3 Op3 = 0x0A
-	ADD3 Op3 = 0x0B
-	ADC3 Op3 = 0x1A // add with carry
-	OR3  Op3 = 0x2A
-	XOR3 Op3 = 0x4A
-	SUB3 Op3 = 0x4B
-	SBB3 Op3 = 0x5A // subtract with borrow
-
-	SHL3 Op3 = 0x30 // shift left
-	SHR3 Op3 = 0x31 // shift right
-	MUL3 Op3 = 0x32
-	DIV3 Op3 = 0x33
-	REM3 Op3 = 0x34
-)
-
-var op3Name = map[Op3]string{
-	ADD3: "ADD3",
-	AND3: "AND3",
-	ADC3: "ADC3",
-	OR3:  "OR3",
-	XOR3: "XOR3",
-	SBB3: "SBB3",
-	SUB3: "SUB3",
-
-	SHL3: "SHL3",
-	SHR3: "SHR3",
-	MUL3: "MUL3",
-	DIV3: "DIV3",
-	REM3: "REM3",
-}
-
-func (op Op3) String() string {
-	s, ok := op3Name[op]
-	if !ok {
-		s = fmt.Sprintf("Op3(%d)", int(op))
-	}
-	return s
+var op3val = map[Op3]uint8{
+	AND3: 0x0A,
+	ADD3: 0x0B,
+	ADC3: 0x1A, // add with carry
+	OR3:  0x2A,
+	XOR3: 0x4A,
+	SUB3: 0x4B,
+	SBB3: 0x5A, // subtract with borrow
 }
 
 // return 32bit value used to encode operation on Reg,Reg,Reg
 func (op Op3) val() uint32 {
+	var val uint32
 	switch op {
 	case SHL3:
-		return 0x1AC02000
+		val = 0x1AC02000
 	case SHR3:
 		// logical i.e. zero-extended right shift is 0x1AC02400
 		// arithmetic i.e. sign-extended right shift is 0x1AC02800
-		return 0x1AC02400
+		val = 0x1AC02400
 	case MUL3:
 		// 0x1B007C00 because MUL3 a,b,c is an alias for MADD4 xzr,a,b,c
-		return 0x1B007C00
+		val = 0x1B007C00
 	case DIV3:
 		// unsigned division is 0x1AC00800
 		// signed division is 0x1AC00C00
-		return 0x1AC00800
+		val = 0x1AC00800
 	case REM3:
 		errorf("internal error, operation %v needs to be implemented as {s|u}div followed by msub", op)
-		return 0
 	default:
-		return uint32(op) << 24
+		val = uint32(op3val[op]) << 24
+		if val == 0 {
+			errorf("unknown Op2 instruction: %v", op)
+		}
 	}
+	return val
 }
 
 // return 32bit value used to encode operation on Reg,Const,Reg
@@ -105,7 +74,7 @@ func (op Op3) immval() uint32 {
 	case SUB3:
 		return 0x51 << 24
 	default:
-		errorf("cannot encode %v with immediate constant", op)
+		errorf("cannot encode Op2 instruction %v with immediate constant", op)
 		return 0
 	}
 }
@@ -239,7 +208,7 @@ func (asm *Asm) tryOp3RegConstReg(op Op3, a Reg, cval uint64, dst Reg) bool {
 		asm.shiftRegConstReg(op, a, cval, dst)
 	default:
 		cb := ConstInt64(int64(cval))
-		errorf("unknown constant encoding style %v for %v: %v %v, %v, %v", imm3, op, op, a, cb, dst)
+		errorf("unknown constant encoding style %v of %v: %v %v, %v, %v", imm3, op, op, a, cb, dst)
 	}
 	return true
 }
