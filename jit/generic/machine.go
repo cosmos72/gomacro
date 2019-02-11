@@ -16,10 +16,6 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 const ASM_SUPPORTED = false
 const Name = "generic"
 
@@ -36,83 +32,6 @@ func (r RegId) Valid() bool {
 }
 
 var alwaysLiveRegIds RegIds // empty
-
-type Op0 uint8
-type Op1 uint8
-type Op2 uint8
-type Op3 uint8
-type Op4 uint8
-
-const (
-	// Op0
-	RET Op0 = 0x00
-	NOP Op0 = 0x01
-
-	// Op1
-	ZERO Op1 = 0x10
-	INC  Op1 = 0x11
-	DEC  Op1 = 0x12
-	NEG  Op1 = 0x13
-	NOT  Op1 = 0x14
-
-	// Op2
-	ADD  Op2 = 0x20
-	AND  Op2 = 0x21
-	ADC  Op2 = 0x22
-	OR   Op2 = 0x23
-	XOR  Op2 = 0x24
-	SUB  Op2 = 0x25
-	SBB  Op2 = 0x26
-	SHL  Op2 = 0x27
-	SHR  Op2 = 0x28
-	MUL  Op2 = 0x29
-	DIV  Op2 = 0x2A
-	REM  Op2 = 0x2B
-	MOV  Op2 = 0x2C
-	CAST Op2 = 0x2D
-	NEG2     = Op2(NEG)
-	NOT2     = Op2(NOT)
-	/*
-		CMP  = arch.CMP
-		XCHG = arch.XCHG
-	*/
-
-	// Op3
-	ADD3 = Op3(ADD)
-	OR3  = Op3(OR)
-	ADC3 = Op3(ADC)
-	SBB3 = Op3(SBB)
-	AND3 = Op3(AND)
-	SUB3 = Op3(SUB)
-	XOR3 = Op3(XOR)
-	SHL3 = Op3(SHL)
-	SHR3 = Op3(SHR)
-	MUL3 = Op3(MUL)
-	DIV3 = Op3(DIV)
-	REM3 = Op3(REM)
-
-	// Op4
-)
-
-func (op Op0) String() string {
-	return fmt.Sprintf("Op0(%d)", uint8(op))
-}
-
-func (op Op1) String() string {
-	return fmt.Sprintf("Op1(%d)", uint8(op))
-}
-
-func (op Op2) String() string {
-	return fmt.Sprintf("Op2(%d)", uint8(op))
-}
-
-func (op Op3) String() string {
-	return fmt.Sprintf("Op3(%d)", uint8(op))
-}
-
-func (op Op4) String() string {
-	return fmt.Sprintf("Op4(%d)", uint8(op))
-}
 
 func (asm *Asm) Op0(op Op0) *Asm {
 	return asm
