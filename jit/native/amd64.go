@@ -94,8 +94,8 @@ const (
 	RVAR    = arch.RVAR
 
 	// Op0
-	RET = arch.RET
 	NOP = arch.NOP
+	RET = arch.RET
 
 	// Op1
 	ZERO = arch.ZERO
@@ -105,23 +105,26 @@ const (
 	NEG  = arch.NEG
 
 	// Op2
-	ADD = arch.ADD
-	OR  = arch.OR
-	ADC = arch.ADC
-	SBB = arch.SBB
-	AND = arch.AND
-	SUB = arch.SUB
-	XOR = arch.XOR
+	ADD     = arch.ADD
+	SUB     = arch.SUB
+	ADC     = arch.ADC
+	SBB     = arch.SBB
+	MUL     = arch.MUL
+	DIV     = arch.DIV
+	REM     = arch.REM
+	AND     = arch.AND
+	OR      = arch.OR
+	XOR     = arch.XOR
+	SHL     = arch.SHL
+	SHR     = arch.SHR
+	AND_NOT = arch.AND_NOT
+	LAND    = arch.LAND
+	LOR     = arch.LOR
+	MOV     = arch.MOV
+	CAST    = arch.CAST
+	LEA     = arch.LEA // amd64 only
 	// CMP  = arch.CMP
-	// XCHG  = arch.XCHG
-	MOV  = arch.MOV
-	LEA  = arch.LEA
-	CAST = arch.CAST
-	SHL  = arch.SHL
-	SHR  = arch.SHR
-	MUL  = arch.MUL
-	DIV  = arch.DIV
-	REM  = arch.REM
+	// XCHG = arch.XCHG
 	NEG2 = arch.NEG2
 	NOT2 = arch.NOT2
 
@@ -132,21 +135,24 @@ const (
 	POP   = arch.POP
 
 	// Op3
-	ADD3 = arch.ADD3
-	OR3  = arch.OR3
-	ADC3 = arch.ADC3
-	SBB3 = arch.SBB3
-	AND3 = arch.AND3
-	SUB3 = arch.SUB3
-	XOR3 = arch.XOR3
-	SHL3 = arch.SHL3
-	SHR3 = arch.SHR3
-	MUL3 = arch.MUL3
-	DIV3 = arch.DIV3
-	REM3 = arch.REM3
+	ADD3     = arch.ADD3
+	SUB3     = arch.SUB3
+	ADC3     = arch.ADC3
+	SBB3     = arch.SBB3
+	MUL3     = arch.MUL3
+	DIV3     = arch.DIV3
+	REM3     = arch.REM3
+	AND3     = arch.AND3
+	OR3      = arch.OR3
+	XOR3     = arch.XOR3
+	SHL3     = arch.SHL3
+	SHR3     = arch.SHR3
+	AND_NOT3 = arch.AND_NOT3
+	LAND3    = arch.LAND3
+	LOR3     = arch.LOR3
 
 	// Op4
-	LEA4 = arch.LEA4
+	LEA4 = arch.LEA4 // amd64 only
 )
 
 func MakeConst(val int64, kind Kind) Const {
