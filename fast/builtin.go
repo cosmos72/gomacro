@@ -719,7 +719,6 @@ func callPrintln(args ...I) {
 	fmt.Fprintln(w)
 }
 
-
 func compilePrint(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args := c.Exprs(node.Args)
 	for _, arg := range args {

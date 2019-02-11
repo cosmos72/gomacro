@@ -32,7 +32,7 @@ func (asm *Asm) Init() *Asm {
 func (asm *Asm) Init2(saveStart, saveEnd SaveSlot) *Asm {
 	asm.code = asm.code[:0:cap(asm.code)]
 	asm.nextRegId = RLo
-	asm.softRegs = make(SoftRegs)
+	asm.softRegs = make(SoftRegIds)
 	asm.save.ArchInit(saveStart, saveEnd)
 	asm.regIds.InitLive()
 	return asm.Prologue()
@@ -129,21 +129,21 @@ func (asm *Asm) RegFree(r Reg) *Asm {
 
 // ===================================
 
-// convert SoftReg to Arg
+// convert SoftRegId to Arg
 func (asm *Asm) Arg(x interface{}) Arg {
 	switch x := x.(type) {
-	case SoftReg:
-		return asm.SoftReg(x)
+	case SoftRegId:
+		return asm.SoftRegId(x)
 	case Arg:
 		return x
 	default:
-		errorf("unknown argument type %T, expecting Const, Reg, Mem or SoftReg", x)
+		errorf("unknown argument type %T, expecting Const, Reg, Mem or SoftRegId", x)
 		return nil
 	}
 }
 
-// convert SoftReg to Arg
-func (asm *Asm) SoftReg(s SoftReg) Arg {
+// convert SoftRegId to Arg
+func (asm *Asm) SoftRegId(s SoftRegId) Arg {
 	a := asm.softRegs[s]
 	if a == nil {
 		errorf("soft register %v not allocated", s)
@@ -151,7 +151,7 @@ func (asm *Asm) SoftReg(s SoftReg) Arg {
 	return a
 }
 
-func (asm *Asm) Alloc(s SoftReg, kind Kind) Arg {
+func (asm *Asm) Alloc(s SoftRegId, kind Kind) Arg {
 	var a Arg
 	if r := asm.tryRegAlloc(kind); r.Valid() {
 		a = r
@@ -166,7 +166,7 @@ func (asm *Asm) Alloc(s SoftReg, kind Kind) Arg {
 	return a
 }
 
-func (asm *Asm) Free(s SoftReg) {
+func (asm *Asm) Free(s SoftRegId) {
 	a := asm.softRegs[s]
 	if a == nil {
 		errorf("cannot free unallocated soft register %v", s)

@@ -23,36 +23,36 @@ import (
 // soft register.
 // may be mapped by assembler to an actual machine register
 // or to a memory location
-type SoftReg uint32
+type SoftRegId uint32
 
 const (
-	// SLo = 0       // lowest SoftReg available to user code
-	SHi = 0x7FFFFFFF // highest SoftReg available to user code
+	// SLo = 0       // lowest SoftRegId available to user code
+	SHi = 0x7FFFFFFF // highest SoftRegId available to user code
 )
 
-func (s SoftReg) Validate() {
+func (s SoftRegId) Validate() {
 	if s > SHi {
 		errorf("invalid register: %v", s)
 	}
 }
 
-func (s SoftReg) String() string {
+func (s SoftRegId) String() string {
 	return fmt.Sprintf("S%d", uint32(s))
 }
 
 // use Asm to convert softreg to Reg or Mem
-func (s SoftReg) Arg(asm *Asm) Arg {
-	return asm.SoftReg(s)
+func (s SoftRegId) Arg(asm *Asm) Arg {
+	return asm.SoftRegId(s)
 }
 
-func (s SoftReg) RegId(asm *Asm) RegId {
-	return asm.SoftReg(s).RegId()
+func (s SoftRegId) RegId(asm *Asm) RegId {
+	return asm.SoftRegId(s).RegId()
 }
 
-func (s SoftReg) Kind(asm *Asm) Kind {
-	return asm.SoftReg(s).Kind()
+func (s SoftRegId) Kind(asm *Asm) Kind {
+	return asm.SoftRegId(s).Kind()
 }
 
 // ===================================
 
-type SoftRegs map[SoftReg]Arg // SoftReg -> Arg
+type SoftRegIds map[SoftRegId]Arg // SoftRegId -> Arg

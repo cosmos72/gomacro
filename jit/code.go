@@ -17,7 +17,7 @@
 package jit
 
 import (
-	arch "github.com/cosmos72/gomacro/jit/native"
+	arch "github.com/cosmos72/gomacro/jit/redirect"
 )
 
 // will be passed as argument to arch.Asm()
@@ -39,7 +39,7 @@ func (c *Code) Op2(op Op2, a Expr, b Expr, dst SoftReg) *Code {
 }
 
 // ALLOC/FREE
-func (c *Code) SoftReg(op arch.Op2Misc, id arch.SoftReg, kind Kind) SoftReg {
+func (c *Code) SoftReg(op arch.Op2Misc, id SoftRegId, kind Kind) SoftReg {
 	*c = append(*c, op, id, kind)
 	return SoftReg{id, kind}
 }

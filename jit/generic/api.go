@@ -42,12 +42,12 @@ type Save struct {
 }
 
 type Asm struct {
-	code        Code
-	nextRegId   RegId   // first available register
-	nextSoftReg SoftReg // first available soft register
-	softRegs    SoftRegs
-	save        Save
-	regIds      RegIds
+	code          Code
+	nextRegId     RegId     // first available register
+	nextSoftRegId SoftRegId // first available soft register
+	softRegs      SoftRegIds
+	save          Save
+	regIds        RegIds
 }
 
 func SizeOf(a Arg) Size {

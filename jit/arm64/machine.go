@@ -60,7 +60,10 @@ const (
 	XZR, XSP = iota, iota // depending on context, zero register or stack pointer
 	RLo      = X0
 	RHi      = XZR
-	RSP      = XSP
+	// stack pointer
+	RSP = XSP
+	// suggested register to point to local variables
+	RVAR = X29
 )
 
 var (
@@ -70,7 +73,6 @@ var (
 
 var alwaysLiveRegIds = RegIds{
 	X28: 1, // pointer to goroutine-local data
-	// X29: 1, // usually employed as pointer to jit variables
 	X30: 1, // return address register
 	XZR: 1, // zero register / stack pointer
 }

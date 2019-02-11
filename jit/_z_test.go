@@ -18,7 +18,7 @@ package jit
 
 import (
 	"fmt"
-        "math/rand"
+	"math/rand"
 	"testing"
 	"unsafe"
 )
@@ -31,9 +31,9 @@ const verbose = false
 
 func TestNop(t *testing.T) {
 	var asm Asm
-        f := asm.Init().Func()
+	f := asm.Init().Func()
 	ints := [1]uint64{0}
-	f(&ints[0])        
+	f(&ints[0])
 }
 
 func TestLoadStore(t *testing.T) {

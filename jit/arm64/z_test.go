@@ -270,11 +270,11 @@ func TestArm64Mem(t *testing.T) {
 	}
 }
 
-func TestArm64SoftReg(t *testing.T) {
+func TestArm64SoftRegId(t *testing.T) {
 	var asm Asm
 	asm.Init()
 
-	var a, b, c SoftReg = 0, 1, 2
+	var a, b, c SoftRegId = 0, 1, 2
 	asm.Asm(
 		ALLOC, a, Uint64,
 		ALLOC, b, Uint64,

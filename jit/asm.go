@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arch.go
+ * asm.go
  *
  *  Created on Feb 10, 2019
  *      Author Massimiliano Ghilardi
@@ -17,21 +17,19 @@
 package jit
 
 import (
-	arch "github.com/cosmos72/gomacro/jit/native"
+	arch "github.com/cosmos72/gomacro/jit/redirect"
 )
 
 type (
-	Asm     = arch.Asm
-	Arg     = arch.Arg
-	AsmCode = arch.Code
-	Const   = arch.Const
-	Kind    = arch.Kind
-	Mem     = arch.Mem
-	RegId   = arch.RegId
-	RegIds  = arch.RegIds
-	Reg     = arch.Reg
-	Save    = arch.Save
-	Size    = arch.Size
+	Arg       = arch.Arg
+	Const     = arch.Const
+	Kind      = arch.Kind
+	Mem       = arch.Mem
+	RegId     = arch.RegId
+	Reg       = arch.Reg
+	Save      = arch.Save
+	Size      = arch.Size
+	SoftRegId = arch.SoftRegId
 )
 
 const (
@@ -64,6 +62,8 @@ const (
 	NoRegId = arch.NoRegId
 	RLo     = arch.RLo
 	RHi     = arch.RHi
+	RSP     = arch.RSP
+	RVAR    = arch.RVAR
 )
 
 func MakeConst(val int64, kind Kind) Const {
@@ -80,4 +80,15 @@ func MakeReg(id RegId, kind Kind) Reg {
 
 func SizeOf(a Arg) Size {
 	return arch.SizeOf(a)
+}
+
+// local variable
+func MakeVar(idx uint16, kind Kind) Mem {
+	// TODO support fast.Env local variables with upn > 0
+	return arch.MakeMem(int32(idx)*8, RVAR, kind)
+}
+
+// function parameter or return value
+func MakeParam(off int32, kind Kind) Mem {
+	return arch.MakeMem(off, RSP, kind)
 }

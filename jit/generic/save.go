@@ -47,9 +47,9 @@ func (op Op2Misc) String() string {
 func (asm *Asm) Op2Misc(op Op2Misc, arg1 interface{}, arg2 interface{}) *Asm {
 	switch op {
 	case ALLOC:
-		asm.Alloc(arg1.(SoftReg), arg2.(Kind))
+		asm.Alloc(arg1.(SoftRegId), arg2.(Kind))
 	case FREE:
-		asm.Free(arg1.(SoftReg)) // arg2 not used
+		asm.Free(arg1.(SoftRegId)) // arg2 not used
 	case PUSH:
 		asm.Push(arg1.(Reg), arg2.(*SaveSlot))
 	case POP:

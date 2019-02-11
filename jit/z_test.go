@@ -19,11 +19,11 @@ package jit
 import (
 	"testing"
 
-	arch "github.com/cosmos72/gomacro/jit/native"
+	arch "github.com/cosmos72/gomacro/jit/redirect"
 )
 
 const (
-	S0 arch.SoftReg = iota
+	S0 SoftRegId = iota
 	S1
 )
 

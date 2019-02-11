@@ -46,6 +46,8 @@ const (
 	R15
 	RLo RegId = RAX
 	RHi RegId = R15
+	// suggested register to point to local variables
+	RVAR = RSI
 )
 
 // keep RCX available for shifts

@@ -17,12 +17,12 @@
 package jit
 
 import (
-	"github.com/cosmos72/gomacro/jit/native"
+	arch "github.com/cosmos72/gomacro/jit/redirect"
 )
 
 type Comp struct {
 	code        Code
-	nextSoftReg arch.SoftReg
+	nextSoftReg SoftRegId
 }
 
 func NewComp() *Comp {
@@ -85,7 +85,7 @@ func (c *Comp) Expr(e Expr) (Expr, SoftReg) {
 		src2, soft2 := c.Expr(e.y)
 		if soft1.Valid() {
 			dstsoft = SoftReg{soft1.id, e.kind}
-		} else if soft2.Valid() && arch.Op3(e.op).IsCommutative() {
+		} else if soft2.Valid() && e.op.IsCommutative() {
 			dstsoft = SoftReg{soft2.id, e.kind}
 		} else {
 			dstsoft = c.AllocSoftReg(e.kind)

@@ -17,7 +17,7 @@
 package jit
 
 import (
-	arch "github.com/cosmos72/gomacro/jit/native"
+	arch "github.com/cosmos72/gomacro/jit/redirect"
 )
 
 type Op1 uint8 // unary expression operator
@@ -78,6 +78,10 @@ func (op Op1) String() string {
 
 func (op Op2) String() string {
 	return arch.Op3(op).String()
+}
+
+func (op Op2) IsCommutative() bool {
+	return arch.Op3(op).IsCommutative()
 }
 
 func (inst Inst1) String() string {

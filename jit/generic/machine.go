@@ -16,13 +16,19 @@
 
 package arch
 
+import (
+	"fmt"
+)
+
 const ASM_SUPPORTED = false
 const Name = "generic"
 
 const (
-	NoRegId RegId = iota
-	RLo           = NoRegId
-	RHi           = NoRegId
+	NoRegId = RegId(0)
+	RLo     = NoRegId
+	RHi     = NoRegId
+	RSP     = NoRegId
+	RVAR    = NoRegId
 )
 
 func (r RegId) Valid() bool {
@@ -85,8 +91,28 @@ const (
 	DIV3 = Op3(DIV)
 	REM3 = Op3(REM)
 
-// Op4
+	// Op4
 )
+
+func (op Op0) String() string {
+	return fmt.Sprintf("Op0(%d)", uint8(op))
+}
+
+func (op Op1) String() string {
+	return fmt.Sprintf("Op1(%d)", uint8(op))
+}
+
+func (op Op2) String() string {
+	return fmt.Sprintf("Op2(%d)", uint8(op))
+}
+
+func (op Op3) String() string {
+	return fmt.Sprintf("Op3(%d)", uint8(op))
+}
+
+func (op Op4) String() string {
+	return fmt.Sprintf("Op4(%d)", uint8(op))
+}
 
 func (asm *Asm) Op0(op Op0) *Asm {
 	return asm

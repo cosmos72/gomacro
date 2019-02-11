@@ -17,12 +17,12 @@
 package jit
 
 import (
-	arch "github.com/cosmos72/gomacro/jit/native"
+	arch "github.com/cosmos72/gomacro/jit/redirect"
 )
 
-// subset of Arg interface
+// arch.SoftRegId wrapper, implements Expr
 type SoftReg struct {
-	id   arch.SoftReg
+	id   arch.SoftRegId
 	kind Kind
 }
 

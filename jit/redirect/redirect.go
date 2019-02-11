@@ -1,5 +1,3 @@
-// +build !amd64,!arm64
-
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -10,16 +8,18 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * generic.go
+ * redirect.go
  *
- *  Created on Feb 02, 2019
+ *  Created on Feb 11, 2019
  *      Author Massimiliano Ghilardi
  */
 
 package arch
 
+// a single redirection point where to choose the asm implementation:
+// amd64, arm64, native (i.e. autodetect)...
 import (
-	arch "github.com/cosmos72/gomacro/jit/generic"
+	arch "github.com/cosmos72/gomacro/jit/native"
 )
 
 type (

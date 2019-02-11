@@ -40,11 +40,11 @@ func SameCode(actual Code, expected Code) bool {
 	return true
 }
 
-func TestAmd64SoftReg(t *testing.T) {
+func TestAmd64SoftRegId(t *testing.T) {
 	var asm Asm
 	asm.Init()
 
-	var a, b, c SoftReg = 0, 1, 2
+	var a, b, c SoftRegId = 0, 1, 2
 	asm.Asm(
 		ALLOC, a, Uint64,
 		ALLOC, b, Uint64,

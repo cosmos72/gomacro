@@ -23,19 +23,19 @@ import (
 )
 
 type (
-	Asm      = arch.Asm
-	Arg      = arch.Arg
-	Code     = arch.Code
-	Const    = arch.Const
-	Kind     = arch.Kind
-	Mem      = arch.Mem
-	RegId    = arch.RegId
-	RegIds   = arch.RegIds
-	Reg      = arch.Reg
-	Save     = arch.Save
-	Size     = arch.Size
-	SoftReg  = arch.SoftReg
-	SoftRegs = arch.SoftRegs
+	Asm        = arch.Asm
+	Arg        = arch.Arg
+	Code       = arch.Code
+	Const      = arch.Const
+	Kind       = arch.Kind
+	Mem        = arch.Mem
+	RegId      = arch.RegId
+	RegIds     = arch.RegIds
+	Reg        = arch.Reg
+	Save       = arch.Save
+	Size       = arch.Size
+	SoftRegId  = arch.SoftRegId
+	SoftRegIds = arch.SoftRegIds
 
 	Op0     = arch.Op0
 	Op1     = arch.Op1
@@ -108,6 +108,7 @@ const (
 	RLo      = arch.RLo
 	RHi      = arch.RHi
 	RSP      = arch.RSP
+	RVAR     = arch.RVAR
 
 	// Op0
 	NOP = arch.NOP
