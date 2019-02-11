@@ -77,7 +77,8 @@ func TestAmd64Mul(t *testing.T) {
 		MUL, ConstInt64(16), I,
 		MUL, ConstInt64(0x7F), I,
 		MUL3, ConstInt64(0x11), I, J,
-		MUL3, I, J, I)
+		MUL3, I, J, I,
+	)
 
 	PrintDisasm(t, AMD64, asm.Code())
 }
@@ -117,19 +118,19 @@ func TestAmd64Cast(t *testing.T) {
 }
 
 func TestAmd64Lea(t *testing.T) {
-	const (
-		m int64 = 9
-	)
 	N := Var(0)
 	M := Var(1)
 
 	var asm Asm
-	r := asm.Init().RegAlloc(N.Kind())
+	r0 := asm.Init().RegAlloc(N.Kind())
+	r1 := asm.RegAlloc(N.Kind())
 	asm.Asm(
-		MUL, ConstInt64(m), N,
-		LEA, N, r,
-		LEA, M, r)
-	asm.RegFree(r)
+		MUL, ConstInt64(9), N,
+		LEA, N, r0,
+		LEA, M, r0,
+		LEA4, M, r0, ConstInt64(2), r1,
+	)
+	asm.RegFree(r0)
 
 	PrintDisasm(t, AMD64, asm.Code())
 }

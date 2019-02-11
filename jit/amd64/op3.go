@@ -16,53 +16,9 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// ternary operation
-type Op3 uint8
+// tree-arg instruction
 
-const (
-	ADD3 Op3 = Op3(ADD)
-	OR3  Op3 = Op3(OR)
-	ADC3 Op3 = Op3(ADC) // add with carry
-	SBB3 Op3 = Op3(SBB) // subtract with borrow
-	AND3 Op3 = Op3(AND)
-	SUB3 Op3 = Op3(SUB)
-	XOR3 Op3 = Op3(XOR)
-	SHL3 Op3 = Op3(SHL) // shift left
-	SHR3 Op3 = Op3(SHR) // shift right
-	MUL3 Op3 = Op3(MUL)
-	DIV3 Op3 = Op3(DIV)
-	REM3 Op3 = Op3(REM)
-)
-
-var op3Name = map[Op3]string{
-	ADD3: "ADD3",
-	OR3:  "OR3",
-	ADC3: "ADC3",
-	SBB3: "SBB3",
-	AND3: "AND3",
-	SUB3: "SUB3",
-	XOR3: "XOR3",
-	SHL3: "SHL3",
-	SHR3: "SHR3",
-	MUL3: "MUL3",
-	DIV3: "DIV3",
-	REM3: "REM3",
-}
-
-func (op Op3) String() string {
-	s := op3Name[op]
-	if len(s) == 0 {
-		s = fmt.Sprintf("Op3(%d)", int(op))
-	}
-	return s
-}
-
-// ============================================================================
 func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 	// validate kinds
 	assert(a.Kind() == dst.Kind())

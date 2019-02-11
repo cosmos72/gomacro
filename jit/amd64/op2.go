@@ -17,9 +17,9 @@
 package arch
 
 // ============================================================================
-// two-arg operation
+// two-arg instruction
 
-var op2val = map[Op2]uint8{
+var op2val = [256]uint8{
 	ADD: 0x00,
 	OR:  0x08,
 	ADC: 0x10, // add with carry
@@ -43,8 +43,9 @@ var op2val = map[Op2]uint8{
 }
 
 func (op Op2) val() uint8 {
-	val, ok := op2val[op]
-	if !ok {
+	val := op2val[op]
+	// ADD.val() is zero
+	if val == 0 && op != ADD {
 		errorf("unknown Op2 instruction: %v", op)
 	}
 	return val

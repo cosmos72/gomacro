@@ -17,9 +17,9 @@
 package arch
 
 // ============================================================================
-// one-arg operation
+// one-arg instruction
 
-var op1val = map[Op1]uint8{
+var op1val = [256]uint8{
 	ZERO: 0x08,
 	NOT:  0x10,
 	NEG:  0x18,
@@ -28,8 +28,8 @@ var op1val = map[Op1]uint8{
 }
 
 func (op Op1) lohi() (uint8, uint8) {
-	val, ok := op1val[op]
-	if !ok {
+	val := op1val[op]
+	if val == 0 {
 		errorf("unknown Op1 instruction: %v", op)
 	}
 	return val & 0x18, val >> 2

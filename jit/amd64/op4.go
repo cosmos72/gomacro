@@ -16,24 +16,14 @@
 
 package arch
 
-import (
-	"fmt"
-)
-
 // ============================================================================
-// quaternary operation
-type Op4 uint8
+// four-arg instruction
 
-const (
-	LEA4 Op4 = 0x8D
-)
-
-func (op Op4) String() string {
-	s := "LEA4"
+func (op Op4) val() uint8 {
 	if op != LEA4 {
-		s = fmt.Sprintf("Op4(%d)", int(op))
+		errorf("unknown Op4 instruction: %v", op)
 	}
-	return s
+	return 0x8D
 }
 
 // ============================================================================
@@ -47,7 +37,6 @@ func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
 		reg = b.(Reg)
 	}
 	if c != nil {
-		assert(SizeOf(c) == 8)
 		scale = c.(Const).val
 	}
 	dreg := dst.(Reg)
@@ -96,7 +85,7 @@ func (asm *Asm) lea4(m Mem, reg Reg, scale int64, dst Reg) *Asm {
 	}
 	rlo, rhi := reg.lohi()
 
-	asm.Bytes(0x48|dhi<<2|rhi<<1|mhi, uint8(op), offbit|0x04|dlo<<3, scalebit|rlo<<3|mlo)
+	asm.Bytes(0x48|dhi<<2|rhi<<1|mhi, op.val(), offbit|0x04|dlo<<3, scalebit|rlo<<3|mlo)
 	switch offlen {
 	case 1:
 		asm.Int8(int8(m.off))

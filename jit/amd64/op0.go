@@ -17,16 +17,16 @@
 package arch
 
 // ============================================================================
-// no-arg operation
+// no-arg instruction
 
-var op0val = map[Op0]uint8{
+var op0val = [256]uint8{
 	RET: 0xC3,
 	NOP: 0x90,
 }
 
 func (op Op0) val() uint8 {
-	val, ok := op0val[op]
-	if !ok {
+	val := op0val[op]
+	if val == 0 {
 		errorf("unknown Op0 instruction: %v", op)
 	}
 	return val
