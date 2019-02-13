@@ -50,7 +50,9 @@ func init() {
 			"Packages": ValueOf(&Packages).Elem(),
 		},
 		Types: map[string]Type{
-			"Package": TypeOf((*Package)(nil)).Elem(),
+			"Package":           TypeOf((*Package)(nil)).Elem(),
+			"PackageMap":        TypeOf((*PackageMap)(nil)).Elem(),
+			"PackageUnderlying": TypeOf((*PackageUnderlying)(nil)).Elem(),
 		},
 	}
 	Packages.Merge(go1_11.Packages)
@@ -95,8 +97,7 @@ func (pkg *Package) LazyInit() {
 	}
 }
 
-func (dst Package) Merge(src PackageUnderlying) {
-	// exploit the fact that maps are actually handles
+func (dst *Package) Merge(src PackageUnderlying) {
 	for k, v := range src.Binds {
 		dst.Binds[k] = v
 	}
