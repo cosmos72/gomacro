@@ -27,14 +27,14 @@ func InitForBinds(asm *Asm) *Asm {
 	return asm.Asm(MOV, MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
 }
 
-func TestNop(t *testing.T) {
+func TestExecNop(t *testing.T) {
 	var f func()
 	var asm Asm
 	asm.InitArch(Arm64{}).Func(&f)
 	f()
 }
 
-func TestZero(t *testing.T) {
+func TestExecZero(t *testing.T) {
 	var f func() uint64
 	var asm Asm
 	asm.InitArch(Arm64{})
@@ -50,7 +50,7 @@ func TestZero(t *testing.T) {
 	}
 }
 
-func TestConst(t *testing.T) {
+func TestExecConst(t *testing.T) {
 	var f func() uint64
 	var asm Asm
 	var expected uint64 = 7
@@ -66,7 +66,7 @@ func TestConst(t *testing.T) {
 	}
 }
 
-func TestLoadStore(t *testing.T) {
+func TestExecLoadStore(t *testing.T) {
 	var f func() uint64
 	var asm Asm
 	var expected uint64 = 0x12345678abcdef0
@@ -83,7 +83,7 @@ func TestLoadStore(t *testing.T) {
 	}
 }
 
-func TestUnary(t *testing.T) {
+func TestExecUnary(t *testing.T) {
 	var c uint64 = 0x64776657f7754abc
 	binds := [...]uint64{c}
 

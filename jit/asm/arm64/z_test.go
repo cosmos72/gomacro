@@ -43,7 +43,7 @@ func SameCode(actual Code, expected Code) bool {
 	return true
 }
 
-func TestArm64Sample(t *testing.T) {
+func TestSample(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Arm64{})
 
@@ -110,7 +110,7 @@ func TestArm64Sample(t *testing.T) {
 	}
 }
 
-func TestArm64Cast(t *testing.T) {
+func TestCast(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Arm64{})
 
@@ -149,7 +149,7 @@ func TestArm64Cast(t *testing.T) {
 	}
 }
 
-func TestArm64Mem(t *testing.T) {
+func TestMem(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Arm64{})
 
@@ -274,7 +274,7 @@ func TestArm64Mem(t *testing.T) {
 	}
 }
 
-func TestArm64SoftRegId(t *testing.T) {
+func TestSoftRegId(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Arm64{})
 

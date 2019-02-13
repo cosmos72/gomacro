@@ -28,11 +28,11 @@ const (
 	S1
 )
 
-var disasmArch = redirectArch()
+var disasmArch = redirectArchId()
 
 // result depends on which assembler is actually imported
 // by "github.com/cosmos72/gomacro/jit/redirect" above
-func redirectArch() Arch {
+func redirectArchId() ArchId {
 	switch arch.Name {
 	case "amd64":
 		return AMD64

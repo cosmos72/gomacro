@@ -20,20 +20,24 @@ import (
 	"testing"
 
 	"github.com/bnagy/gapstone"
+	"github.com/cosmos72/gomacro/jit/asm"
 )
 
 type Engine = gapstone.Engine
 
-type Arch int
+// reuse ArchId constants from github.com/cosmos72/gomacro/jit/asm
+type ArchId = asm.ArchId
 
 const (
-	AMD64 = Arch(gapstone.CS_ARCH_X86)
-	ARM64 = Arch(gapstone.CS_ARCH_ARM64)
+	AMD64 = asm.AMD64
+	ARM64 = asm.ARM64
 )
 
-func NewDisasm(arch Arch) (Engine, error) {
+func NewDisasm(archId ArchId) (Engine, error) {
+	var arch uint = gapstone.CS_ARCH_X86
 	var mode uint = gapstone.CS_MODE_64
-	if arch == ARM64 {
+	if archId == ARM64 {
+		arch = gapstone.CS_ARCH_ARM64
 		mode = gapstone.CS_MODE_ARM // | gapstone.CS_MODE_V8
 	}
 	engine, err := gapstone.New(
@@ -47,29 +51,29 @@ func NewDisasm(arch Arch) (Engine, error) {
 	return engine, nil
 }
 
-func Disasm(arch Arch, code []uint8) ([]gapstone.Instruction, error) {
-	engine, err := NewDisasm(arch)
+func Disasm(archId ArchId, code []uint8) ([]gapstone.Instruction, error) {
+	engine, err := NewDisasm(archId)
 	if err != nil {
 		return nil, err
 	}
 	return engine.Disasm(code, 0x10000, 0)
 }
 
-func PrintDisasm(t *testing.T, arch Arch, code []uint8) {
-	insns, err := Disasm(arch, code)
+func PrintDisasm(t *testing.T, archId ArchId, code []uint8) {
+	insns, err := Disasm(archId, code)
 	if err != nil {
 		t.Error(err)
 	} else {
 		for _, insn := range insns {
-			Show(t, arch, insn)
+			Show(t, archId, insn)
 		}
 	}
 }
 
-func Show(t *testing.T, arch Arch, insn gapstone.Instruction) {
+func Show(t *testing.T, archId ArchId, insn gapstone.Instruction) {
 	var prefix string
 	bytes := insn.Bytes
-	if arch == ARM64 && len(bytes) == 4 {
+	if archId == ARM64 && len(bytes) == 4 {
 		// print high byte first
 		prefix = "0x"
 		bytes[0], bytes[1], bytes[2], bytes[3] = bytes[3], bytes[2], bytes[1], bytes[0]

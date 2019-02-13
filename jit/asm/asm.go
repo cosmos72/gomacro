@@ -32,7 +32,7 @@ type Asm struct {
 
 func New(id ArchId) *Asm {
 	var asm Asm
-	return asm.InitArch(Archs[id])
+	return asm.InitArchId(id)
 }
 
 func NewArch(arch Arch) *Asm {
@@ -51,11 +51,19 @@ func (asm *Asm) Arch() Arch {
 	return asm.arch
 }
 
+func (asm *Asm) InitArchId(archId ArchId) *Asm {
+	return asm.InitArch2(Archs[archId], 0, 0)
+}
+
+func (asm *Asm) InitArchId2(archId ArchId, saveStart SaveSlot, saveEnd SaveSlot) *Asm {
+	return asm.InitArch2(Archs[archId], saveStart, saveEnd)
+}
+
 func (asm *Asm) InitArch(arch Arch) *Asm {
 	return asm.InitArch2(arch, 0, 0)
 }
 
-func (asm *Asm) InitArch2(arch Arch, saveStart, saveEnd SaveSlot) *Asm {
+func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm {
 	asm.arch = arch
 	var cfg RegIdCfg
 	if arch != nil {
