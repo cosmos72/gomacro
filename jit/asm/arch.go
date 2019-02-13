@@ -27,13 +27,12 @@ const (
 type Arch interface {
 	Id() ArchId
 	Name() string
-	RLo() RegId
-	RHi() RegId
-	RegIdAlwaysLive() RegIds
-	RegIdString(id RegId) string // RegId -> string
+	RegIdCfg() RegIdCfg
 	RegIdValid(id RegId) bool
-	RegString(r Reg) string // Reg -> string
+	RegIdString(id RegId) string // RegId -> string
 	RegValid(r Reg) bool
+	RegString(r Reg) string   // Reg -> string
+	CodeString(c Code) string // Code -> string
 
 	Init(asm *Asm, saveStart, saveEnd SaveSlot) *Asm
 	Prologue(asm *Asm) *Asm
@@ -44,12 +43,6 @@ type Arch interface {
 	Op2(asm *Asm, op Op2, src Arg, dst Arg) *Asm
 	Op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) *Asm
 	Op4(asm *Asm, op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm
-
-	Zero(asm *Asm, dst Arg) *Asm
-	Mov(asm *Asm, src Arg, dst Arg) *Asm
-	Load(asm *Asm, src Mem, dst Reg) *Asm
-	Store(asm *Asm, src Reg, dst Mem) *Asm
-	Cast(asm *Asm, src Arg, dst Arg) *Asm
 }
 
-var Archs = []Arch{} // {Arm64{}, Amd64{}}
+var Archs = [2]Arch{} // {Arm64{}, Amd64{}}

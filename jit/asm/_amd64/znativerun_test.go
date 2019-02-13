@@ -28,13 +28,13 @@ import (
 var verbose = false
 
 func Init(asm *Asm) *Asm {
-	return asm.Init().RegIncUse(RSI).Asm(MOV, MakeMem(8, RSP, Uint64), MakeReg(RSI, Uint64))
+	return asm.InitArch(Arm64{}).RegIncUse(RSI).Asm(MOV, MakeMem(8, RSP, Uint64), MakeReg(RSI, Uint64))
 }
 
 func TestNop(t *testing.T) {
 	var asm Asm
 	var f func()
-	asm.Init().Func(&f)
+	asm.InitArch(Amd64{}).Func(&f)
 	f()
 }
 

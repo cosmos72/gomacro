@@ -14,7 +14,7 @@
  *      Author Massimiliano Ghilardi
  */
 
-package asm
+package arm64
 
 import (
 	"errors"
@@ -22,11 +22,19 @@ import (
 )
 
 func debugf(format string, args ...interface{}) {
-	fmt.Printf("// debug jit: "+format+"\n", args...)
+	fmt.Printf("// debug arm64: "+format+"\n", args...)
 }
 
-var errorPrefix = "assembler error: "
+var errorPrefix = "arm64 assembler error: "
 
 func errorf(format string, args ...interface{}) {
 	panic(errors.New(errorPrefix + fmt.Sprintf(format, args...)))
+}
+
+var assertError = errors.New("arm64 assembler internal error, assertion failed")
+
+func assert(flag bool) {
+	if !flag {
+		panic(assertError)
+	}
 }

@@ -20,19 +20,44 @@ import (
 	"testing"
 )
 
+func MakeCode(instr ...uint32) Code {
+	code := make(Code, len(instr)*4)
+	for i, inst := range instr {
+		code[4*i+0] = byte(inst >> 0)
+		code[4*i+1] = byte(inst >> 8)
+		code[4*i+2] = byte(inst >> 16)
+		code[4*i+3] = byte(inst >> 24)
+	}
+	return code
+}
+
+func SameCode(actual Code, expected Code) bool {
+	if len(actual) != len(expected) {
+		return false
+	}
+	for i := range actual {
+		if actual[i] != expected[i] {
+			return false
+		}
+	}
+	return true
+}
+
 func TestArm64Sample(t *testing.T) {
 	var asm Asm
+	asm.InitArch(Arm64{})
 
-	id := arm64RLo
-	asm.Init()
+	id := RLo
 	x := MakeReg(id+0, Uint64)
 	y := MakeReg(id+1, Uint64)
 	z := MakeReg(id+2, Uint64)
 	m := MakeMem(8, id, Uint64)
 	c := ConstUint64(0xFFF)
-	asm.RegIncUse(id).RegIncUse(id + 1).RegIncUse(id + 2)
+	asm.RegIncUse(id)
+	asm.RegIncUse(id + 1)
+	asm.RegIncUse(id + 2)
 	asm.Asm( //
-		MOV, MakeMem(8, arm64RSP, Uint64), MakeReg(arm64RVAR, Uint64),
+		MOV, MakeMem(8, RSP, Uint64), MakeReg(RVAR, Uint64),
 		MOV, c, x, //
 		MOV, c, m, //
 		MOV, m, x, //
@@ -51,7 +76,9 @@ func TestArm64Sample(t *testing.T) {
 		OR3, c, x, z, //
 		XOR3, x, c, z, //
 	).Epilogue()
-	asm.RegDecUse(id).RegDecUse(id + 1).RegDecUse(id + 2)
+	asm.RegDecUse(id)
+	asm.RegDecUse(id + 1)
+	asm.RegDecUse(id + 2)
 
 	actual := asm.Code()
 	expected := MakeCode(
@@ -85,9 +112,9 @@ func TestArm64Sample(t *testing.T) {
 
 func TestArm64Cast(t *testing.T) {
 	var asm Asm
+	asm.InitArch(Arm64{})
 
-	id := arm64RLo
-	asm.Init()
+	id := RLo
 
 	for _, skind := range [...]Kind{
 		Int8, Int16, Int32, Int64,
@@ -124,9 +151,9 @@ func TestArm64Cast(t *testing.T) {
 
 func TestArm64Mem(t *testing.T) {
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Arm64{})
 
-	id := arm64RLo
+	id := RLo
 	for _, skind := range [...]Kind{
 		Int8, Int16, Int32, Int64,
 		Uint8, Uint16, Uint32, Uint64,
@@ -249,7 +276,7 @@ func TestArm64Mem(t *testing.T) {
 
 func TestArm64SoftRegId(t *testing.T) {
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Arm64{})
 
 	var a, b, c SoftRegId = 0, 1, 2
 	asm.Asm(

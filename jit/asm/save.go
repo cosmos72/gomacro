@@ -62,9 +62,9 @@ func (asm *Asm) Op2Misc(op Op2Misc, arg1 interface{}, arg2 interface{}) *Asm {
 
 func (asm *Asm) Push(r Reg, index *SaveSlot) *Asm {
 	r.Validate()
-	if asm.regIds[r.id] == 0 {
+	if !asm.RegIsUsed(r.id) {
 		// mark in use, caller wants this register
-		asm.regIds[r.id]++
+		asm.RegIncUse(r.id)
 		*index = InvalidSlot
 		return asm
 	}
@@ -81,9 +81,7 @@ func (asm *Asm) Pop(r Reg, index *SaveSlot) *Asm {
 	r.Validate()
 	idx := *index
 	if idx == InvalidSlot {
-		if asm.regIds[r.id] > 0 {
-			asm.regIds[r.id]--
-		}
+		asm.RegDecUse(r.id)
 		return asm
 	}
 	asm.save.Validate(idx)

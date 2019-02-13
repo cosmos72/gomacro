@@ -19,16 +19,16 @@ package arm64
 // ============================================================================
 // one-arg instruction
 
-func arm64_Op1(asm *Asm, op Op1, a Arg) *Asm {
+func (arch Arm64) Op1(asm *Asm, op Op1, a Arg) *Asm {
 	switch op {
 	case ZERO:
-		asm.Zero(a)
+		arch.zero(asm, a)
 	case INC:
-		asm.Op3(ADD3, a, MakeConst(1, a.Kind()), a)
+		arch.op3(asm, ADD3, a, MakeConst(1, a.Kind()), a)
 	case DEC:
-		asm.Op3(SUB3, a, MakeConst(1, a.Kind()), a)
+		arch.op3(asm, SUB3, a, MakeConst(1, a.Kind()), a)
 	case NEG, NOT:
-		asm.Op2(Op2(op), a, a)
+		arch.op2(asm, Op2(op), a, a)
 	default:
 		errorf("unknown Op1 instruction: %v %v", op, a)
 	}
@@ -36,7 +36,7 @@ func arm64_Op1(asm *Asm, op Op1, a Arg) *Asm {
 }
 
 // zero a register or memory location
-func (arch Arm64) Zero(asm *Asm, dst Arg) {
+func (arch Arm64) zero(asm *Asm, dst Arg) Arm64 {
 	switch dst := dst.(type) {
 	case Const:
 		errorf("cannot zero a constant: %v %v", ZERO, dst)
@@ -47,16 +47,17 @@ func (arch Arm64) Zero(asm *Asm, dst Arg) {
 	default:
 		errorf("unknown destination type %T, expecting Reg or Mem: %v, %v", dst, ZERO, dst)
 	}
+	return arch
 }
 
 // zero a register
 func (arch Arm64) zeroReg(asm *Asm, dst Reg) Arm64 {
 	// alternative: return asm.movRegReg(MakeReg(XZR, dst.kind), dst)
-	return arch.movConstReg(asm, MakeConst(0, dst.kind), dst)
+	return arch.movConstReg(asm, MakeConst(0, dst.Kind()), dst)
 }
 
 // zero a memory location
 func (arch Arm64) zeroMem(asm *Asm, dst Mem) Arm64 {
-	arch.Store(asm, MakeReg(XZR, dst.Kind()), dst)
+	arch.store(asm, MakeReg(XZR, dst.Kind()), dst)
 	return arch
 }

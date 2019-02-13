@@ -20,29 +20,6 @@ import (
 	"testing"
 )
 
-func MakeCode(instr ...uint32) Code {
-	code := make(Code, len(instr)*4)
-	for i, inst := range instr {
-		code[4*i+0] = byte(inst >> 0)
-		code[4*i+1] = byte(inst >> 8)
-		code[4*i+2] = byte(inst >> 16)
-		code[4*i+3] = byte(inst >> 24)
-	}
-	return code
-}
-
-func SameCode(actual Code, expected Code) bool {
-	if len(actual) != len(expected) {
-		return false
-	}
-	for i := range actual {
-		if actual[i] != expected[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func EqUint8(t *testing.T, actual uint8, expected uint8) {
 	if actual != expected {
 		t.Errorf("expected %d,\tactual %d", expected, actual)

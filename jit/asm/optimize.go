@@ -30,7 +30,7 @@ func log2uint(n uint64) (uint8, bool) {
 	return uint8(bits.Len64(n) - 1), true
 }
 
-func (asm *Asm) optimize2(op Op2, src Arg, dst Arg) bool {
+func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 	if src == dst {
 		switch op {
 		case AND, OR, MOV, CAST:
@@ -132,7 +132,7 @@ func (op Op3) IsCommutative() bool {
 	return false
 }
 
-func (asm *Asm) optimize3(op Op3, a Arg, b Arg, dst Arg) bool {
+func (asm *Asm) Optimize3(op Op3, a Arg, b Arg, dst Arg) bool {
 	if a == b {
 		switch op {
 		case AND3, OR3:

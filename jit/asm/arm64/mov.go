@@ -24,18 +24,6 @@ const (
 	store loadstore = 0x39000000
 )
 
-func (arch Arm64) Load(asm *Asm, src Mem, dst Reg) {
-	arch.load(asm, src, dst)
-}
-
-func (arch Arm64) Store(asm *Asm, src Reg, dst Mem) {
-	arch.store(asm, src, dst)
-}
-
-func (arch Arm64) Mov(asm *Asm, src Arg, dst Arg) {
-	arch.mov(asm, src, dst)
-}
-
 func (arch Arm64) load(asm *Asm, src Mem, dst Reg) Arm64 {
 	return arch.loadstore(asm, load, src, dst)
 }
@@ -60,11 +48,11 @@ func (arch Arm64) mov(asm *Asm, src Arg, dst Arg) Arm64 {
 		case Const:
 			arch.movConstReg(asm, src, dst)
 		case Reg:
-			if src.id != dst.id {
+			if src.RegId() != dst.RegId() {
 				arch.movRegReg(asm, src, dst)
 			}
 		case Mem:
-			arch.Load(asm, src, dst)
+			arch.load(asm, src, dst)
 		default:
 			errorf("unknown source type %T, expecting Const, Reg or Mem: %v %v, %v", src, MOV, src, dst)
 		}
@@ -73,7 +61,7 @@ func (arch Arm64) mov(asm *Asm, src Arg, dst Arg) Arm64 {
 		case Const:
 			arch.movConstMem(asm, src, dst)
 		case Reg:
-			arch.Store(asm, src, dst)
+			arch.store(asm, src, dst)
 		case Mem:
 			arch.movMemMem(asm, src, dst)
 		default:
@@ -87,76 +75,80 @@ func (arch Arm64) mov(asm *Asm, src Arg, dst Arg) Arm64 {
 
 func (arch Arm64) movRegReg(asm *Asm, src Reg, dst Reg) Arm64 {
 	// arm64 implements "mov src,dst" as "orr xzr,src,dst"
-	asm.Uint32(dst.kind.arm64_kbit() | 0x2A0003E0 | src.arm64_valOrX31(true)<<16 | dst.arm64_val())
+	asm.Uint32(kbit(dst) | 0x2A0003E0 | valOrX31(src.RegId(), true)<<16 | val(dst))
 	return arch
 }
 
 func (arch Arm64) movConstReg(asm *Asm, c Const, dst Reg) Arm64 {
-	xzr := MakeReg(XZR, dst.kind)
+	cval := c.Val()
+	xzr := MakeReg(XZR, dst.Kind())
 	var immcval uint32
 	var movk bool
-	if c.val >= 0 && c.val < 0x10000 {
-		immcval = 0x40<<19 | uint32(c.val)
-	} else if c.val < 0 && c.val >= -0x10000 {
-		immcval = uint32(^c.val)
-	} else if arch.tryOp3RegConstReg(asm, OR3, xzr, uint64(c.val), dst) {
+	if cval >= 0 && cval < 0x10000 {
+		immcval = 0x40<<19 | uint32(cval)
+	} else if cval < 0 && cval >= -0x10000 {
+		immcval = uint32(^cval)
+	} else if arch.tryOp3RegConstReg(asm, OR3, xzr, uint64(cval), dst) {
 		return arch
-	} else if arch.tryOp3RegConstReg(asm, OR3, xzr, uint64(uint32(c.val)), dst) {
-		if dst.kind.Size() == 8 {
-			arch.movk(asm, uint16(c.val>>32), 32, dst)
-			arch.movk(asm, uint16(c.val>>48), 48, dst)
+	} else if arch.tryOp3RegConstReg(asm, OR3, xzr, uint64(uint32(cval)), dst) {
+		if dst.Kind().Size() == 8 {
+			arch.movk(asm, uint16(cval>>32), 32, dst)
+			arch.movk(asm, uint16(cval>>48), 48, dst)
 		}
 		return arch
 	} else {
-		immcval = 0x40<<19 | uint32(c.val&0xFFFF)
+		immcval = 0x40<<19 | uint32(cval&0xFFFF)
 		movk = true
 	}
-	asm.Uint32(dst.kind.arm64_kbit() | 0x12800000 | immcval<<5 | dst.arm64_val())
+	asm.Uint32(kbit(dst) | 0x12800000 | immcval<<5 | val(dst))
 	if movk {
-		arch.movk(asm, uint16(c.val>>16), 16, dst)
-		if dst.kind.Size() == 8 {
-			arch.movk(asm, uint16(c.val>>32), 32, dst)
-			arch.movk(asm, uint16(c.val>>48), 48, dst)
+		arch.movk(asm, uint16(cval>>16), 16, dst)
+		if dst.Kind().Size() == 8 {
+			arch.movk(asm, uint16(cval>>32), 32, dst)
+			arch.movk(asm, uint16(cval>>48), 48, dst)
 		}
 	}
 	return arch
 }
 
 // set some bits of dst, preserving others
-func (arch Arm64) movk(asm *Asm, val uint16, shift uint8, dst Reg) Arm64 {
-	if val != 0 {
-		asm.Uint32(dst.kind.arm64_kbit() | 0xF2800000 | uint32(shift)<<17 | uint32(val)<<5 | dst.arm64_val())
+func (arch Arm64) movk(asm *Asm, cval uint16, shift uint8, dst Reg) Arm64 {
+	if cval != 0 {
+		asm.Uint32(kbit(dst) | 0xF2800000 | uint32(shift)<<17 | uint32(cval)<<5 | val(dst))
 	}
 	return arch
 }
 
 func (arch Arm64) loadstore(asm *Asm, op loadstore, m Mem, r Reg) Arm64 {
 	assert(SizeOf(m) == SizeOf(r))
-	off := m.off
+	off := m.Offset()
 	var sizebit uint32
+	mrid := m.RegId()
+	rid := r.RegId()
+
 	switch m.Kind().Size() {
 	case 1:
 		sizebit = 0
 		if off >= 0 && off <= 4095 {
-			asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<10 | m.reg.arm64_valOrX31(true)<<5 | r.arm64_valOrX31(true))
+			asm.Uint32(sizebit | uint32(op) | uint32(off)<<10 | valOrX31(mrid, true)<<5 | valOrX31(rid, true))
 			return arch
 		}
 	case 2:
 		sizebit = 0x4 << 28
 		if off >= 0 && off <= 8190 && off%2 == 0 {
-			asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<9 | m.reg.arm64_valOrX31(true)<<5 | r.arm64_valOrX31(true))
+			asm.Uint32(sizebit | uint32(op) | uint32(off)<<9 | valOrX31(mrid, true)<<5 | valOrX31(rid, true))
 			return arch
 		}
 	case 4:
 		sizebit = 0x8 << 28
 		if off >= 0 && off <= 16380 && off%4 == 0 {
-			asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<8 | m.reg.arm64_valOrX31(true)<<5 | r.arm64_valOrX31(true))
+			asm.Uint32(sizebit | uint32(op) | uint32(off)<<8 | valOrX31(mrid, true)<<5 | valOrX31(rid, true))
 			return arch
 		}
 	case 8:
 		sizebit = 0xC << 28
 		if off >= 0 && off <= 32760 && off%8 == 0 {
-			asm.Uint32(sizebit | uint32(op) | uint32(m.off)<<7 | m.reg.arm64_valOrX31(true)<<5 | r.arm64_valOrX31(true))
+			asm.Uint32(sizebit | uint32(op) | uint32(off)<<7 | valOrX31(mrid, true)<<5 | valOrX31(rid, true))
 			return arch
 		}
 	}
@@ -164,18 +156,18 @@ func (arch Arm64) loadstore(asm *Asm, op loadstore, m Mem, r Reg) Arm64 {
 	tmp := asm.RegAlloc(Uint64)
 	arch.movConstReg(asm, ConstInt64(int64(off)), tmp)
 
-	asm.Uint32(sizebit | uint32(op^0x1206800) | tmp.arm64_val()<<16 | m.reg.arm64_valOrX31(true)<<5 | r.arm64_val())
+	asm.Uint32(sizebit | uint32(op^0x1206800) | val(tmp)<<16 | valOrX31(mrid, true)<<5 | val(r))
 
 	asm.RegFree(tmp)
 	return arch
 }
 
 func (arch Arm64) movConstMem(asm *Asm, c Const, dst Mem) Arm64 {
-	if c.val == 0 {
+	if c.Val() == 0 {
 		return arch.zeroMem(asm, dst)
 	}
 	r := asm.RegAlloc(dst.Kind())
-	arch.movConstReg(asm, c, r).Store(asm, r, dst)
+	arch.movConstReg(asm, c, r).store(asm, r, dst)
 	asm.RegFree(r)
 	return arch
 }
@@ -196,8 +188,7 @@ func (arch Arm64) cast(asm *Asm, src Arg, dst Arg) Arm64 {
 	if src == dst {
 		return arch
 	} else if SizeOf(src) == SizeOf(dst) {
-		arch.Mov(asm, src, dst)
-		return arch
+		return arch.mov(asm, src, dst)
 	}
 
 	switch dst := dst.(type) {
@@ -208,7 +199,7 @@ func (arch Arm64) cast(asm *Asm, src Arg, dst Arg) Arm64 {
 		case Mem:
 			arch.castMemReg(asm, src, dst)
 		case Const:
-			src = src.Cast(dst.kind)
+			src = src.Cast(dst.Kind())
 			arch.movConstReg(asm, src, dst)
 		default:
 			errorf("unsupported source type %T, expecting Const, Reg or Mem: %v %v %v", src, CAST, src, dst)
@@ -235,19 +226,19 @@ func (arch Arm64) cast(asm *Asm, src Arg, dst Arg) Arm64 {
 
 func (arch Arm64) castMemMem(asm *Asm, src Mem, dst Mem) Arm64 {
 	r1 := asm.RegAlloc(src.Kind())
-	r2 := MakeReg(r1.id, dst.Kind())
+	r2 := MakeReg(r1.RegId(), dst.Kind())
 	arch.load(asm, src, r1).castRegReg(asm, r1, r2).store(asm, r2, dst)
 	asm.RegFree(r1)
 	return arch
 }
 
 func (arch Arm64) castMemReg(asm *Asm, src Mem, dst Reg) Arm64 {
-	r := MakeReg(dst.id, src.Kind())
+	r := MakeReg(dst.RegId(), src.Kind())
 	return arch.load(asm, src, r).castRegReg(asm, r, dst)
 }
 
 func (arch Arm64) castRegMem(asm *Asm, src Reg, dst Mem) Arm64 {
-	r := MakeReg(src.id, dst.Kind())
+	r := MakeReg(src.RegId(), dst.Kind())
 	if SizeOf(src) < SizeOf(dst) {
 		// extend src. we can safely overwrite its high bits: they are junk
 		return arch.castRegReg(asm, src, r).store(asm, r, dst)
@@ -258,13 +249,13 @@ func (arch Arm64) castRegMem(asm *Asm, src Reg, dst Mem) Arm64 {
 }
 
 func (arch Arm64) castRegReg(asm *Asm, src Reg, dst Reg) Arm64 {
-	skind := src.kind
-	dkind := dst.kind
+	skind := src.Kind()
+	dkind := dst.Kind()
 	ssize := skind.Size()
 	dsize := dkind.Size()
 	if ssize >= dsize {
 		// truncate. easy, just ignore src high bits
-		return arch.mov(asm, MakeReg(src.id, dst.kind), dst)
+		return arch.mov(asm, MakeReg(src.RegId(), dst.Kind()), dst)
 	} else if skind.Signed() {
 		// sign-extend. use one of:
 		// "sxtb	src, dst"
@@ -272,7 +263,7 @@ func (arch Arm64) castRegReg(asm *Asm, src Reg, dst Reg) Arm64 {
 		// "sxtw	src, dst"
 		kbit := uint32(dsize&8) * 0x10080000
 		op := 0x13000C00 | uint32(ssize*2-1)<<12
-		asm.Uint32(kbit | op | src.arm64_val()<<5 | dst.arm64_val())
+		asm.Uint32(kbit | op | val(src)<<5 | val(dst))
 		return arch
 	} else {
 		// zero-extend
@@ -281,7 +272,7 @@ func (arch Arm64) castRegReg(asm *Asm, src Reg, dst Reg) Arm64 {
 			// "mov dst, src"
 			// must be kept even if src == dst to zero high bits,
 			// so use Asm.movRegReg() instead of too smart Asm.Mov()
-			return arch.movRegReg(asm, src, MakeReg(dst.id, skind))
+			return arch.movRegReg(asm, src, MakeReg(dst.RegId(), skind))
 		}
 		// zero-extend, src is 8 bit or 16 bit. use one of:
 		// "and dst, src, #0xff"
@@ -289,7 +280,7 @@ func (arch Arm64) castRegReg(asm *Asm, src Reg, dst Reg) Arm64 {
 		if dsize <= 4 {
 			dkind = Uint32
 		}
-		r := MakeReg(src.id, dkind)
+		r := MakeReg(src.RegId(), dkind)
 		c := MakeConst(int64(0xffff)>>(16-ssize*8), dkind)
 		return arch.op3RegConstReg(asm, AND3, r, c, dst)
 	}

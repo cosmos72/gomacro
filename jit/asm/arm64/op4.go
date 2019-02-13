@@ -19,7 +19,7 @@ package arm64
 // ============================================================================
 // four-arg instruction
 
-func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
+func (Arm64) Op4(asm *Asm, op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
 	errorf("unknown arm64 Op4 instruction: %v %v, %v, %v", a, b, c, dst)
 	return asm
 }

@@ -37,6 +37,12 @@ func (id RegId) Validate() {
 	}
 }
 
+// ===================================
+
+type RegIdCfg struct {
+	RLo, RHi, RSP, RVAR RegId
+}
+
 // register + kind
 type Reg struct {
 	id   RegId
@@ -70,22 +76,37 @@ func (r Reg) Validate() {
 
 // ===================================
 
-type RegIds []uint32 // RegId -> use count
-
-func (rs RegIds) IsUsed(r RegId) bool {
-	return r.Valid() && rs[r] != 0
+type RegIds struct {
+	list []uint32 // RegId -> use count
+	rlo  RegId
 }
 
-func (rs RegIds) IncUse(r RegId) {
+func (rs *RegIds) IsUsed(r RegId) bool {
+	return r.Valid() && rs.list[r-rs.rlo] != 0
+}
+
+// return new use count
+func (rs *RegIds) IncUse(r RegId) uint32 {
 	if r.Valid() {
-		rs[r]++
+		addr := &rs.list[r-rs.rlo]
+		if *addr < ^uint32(0) {
+			*addr++
+		}
+		return *addr
 	}
+	return 0
 }
 
-func (rs RegIds) DecUse(r RegId) {
-	if rs.IsUsed(r) {
-		rs[r]--
+// return new use count
+func (rs *RegIds) DecUse(r RegId) uint32 {
+	if r.Valid() {
+		addr := &rs.list[r-rs.rlo]
+		if *addr > 0 {
+			*addr--
+		}
+		return *addr
 	}
+	return 0
 }
 
 // ===================================
@@ -94,12 +115,12 @@ func (asm *Asm) RegIsUsed(id RegId) bool {
 	return asm.regIds.IsUsed(id)
 }
 
-func (asm *Asm) RegIncUse(id RegId) *Asm {
-	asm.regIds.IncUse(id)
-	return asm
+// return new use count
+func (asm *Asm) RegIncUse(id RegId) uint32 {
+	return asm.regIds.IncUse(id)
 }
 
-func (asm *Asm) RegDecUse(id RegId) *Asm {
-	asm.regIds.DecUse(id)
-	return asm
+// return new use count
+func (asm *Asm) RegDecUse(id RegId) uint32 {
+	return asm.regIds.DecUse(id)
 }

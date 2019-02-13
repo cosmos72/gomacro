@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * arm64_op0.go
+ * op0.go
  *
  *  Created on Jan 27, 2019
  *      Author Massimiliano Ghilardi
@@ -19,7 +19,7 @@ package arm64
 // ============================================================================
 // no-arg instruction
 
-func (op Op0) arm64_val() uint32 {
+func op0val(op Op0) uint32 {
 	var val uint32
 	switch op {
 	case NOP:
@@ -33,6 +33,6 @@ func (op Op0) arm64_val() uint32 {
 }
 
 // ============================================================================
-func (arch Arm64) Op0(asm *Asm, op Op0) {
-	asm.Uint32(op.arm64_val())
+func (arch Arm64) Op0(asm *Asm, op Op0) *Asm {
+	return asm.Uint32(op0val(op))
 }

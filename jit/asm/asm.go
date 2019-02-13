@@ -31,13 +31,13 @@ type Asm struct {
 }
 
 func New(id ArchId) *Asm {
-	asm := Asm{arch: Archs[id]}
-	return asm.Init()
+	var asm Asm
+	return asm.InitArch(Archs[id])
 }
 
 func NewArch(arch Arch) *Asm {
-	asm := Asm{arch: arch}
-	return asm.Init()
+	var asm Asm
+	return asm.InitArch(arch)
 }
 
 func (asm *Asm) ArchId() ArchId {
@@ -51,16 +51,30 @@ func (asm *Asm) Arch() Arch {
 	return asm.arch
 }
 
-func (asm *Asm) Init() *Asm {
-	return asm.Init2(0, 0)
+func (asm *Asm) InitArch(arch Arch) *Asm {
+	return asm.InitArch2(arch, 0, 0)
 }
 
-func (asm *Asm) Init2(saveStart, saveEnd SaveSlot) *Asm {
+func (asm *Asm) InitArch2(arch Arch, saveStart, saveEnd SaveSlot) *Asm {
+	asm.arch = arch
+	var cfg RegIdCfg
+	if arch != nil {
+		cfg = asm.arch.RegIdCfg()
+	}
 	asm.code = nil
-	asm.nextRegId = asm.arch.RLo()
+	asm.nextRegId = cfg.RLo
+	asm.nextSoftRegId = 0
 	asm.softRegs = make(SoftRegIds)
-	asm.arch.Init(asm, saveStart, saveEnd)
-	return asm.Prologue()
+	s := asm.save
+	s.start, s.next, s.end = saveStart, saveStart, saveEnd
+	s.reg = Reg{cfg.RSP, Uint64}
+	s.bitmap = make([]bool, saveEnd-saveStart)
+	asm.regIds.list = make([]uint32, cfg.RHi-cfg.RLo+1)
+	if arch != nil {
+		asm.arch.Init(asm, saveStart, saveEnd)
+		asm.arch.Prologue(asm)
+	}
+	return asm
 }
 
 func (asm *Asm) Code() Code {
@@ -118,13 +132,13 @@ func (asm *Asm) Int64(val int64) *Asm {
 func (asm *Asm) tryRegAlloc(kind Kind) Reg {
 	var id RegId
 	for {
-		if asm.nextRegId > asm.arch.RHi() {
+		if asm.nextRegId > asm.arch.RegIdCfg().RHi {
 			return Reg{}
 		}
 		id = asm.nextRegId
 		asm.nextRegId++
-		if asm.regIds[id] == 0 {
-			asm.regIds[id] = 1
+		if !asm.RegIsUsed(id) {
+			asm.RegIncUse(id)
 			break
 		}
 	}
@@ -140,14 +154,17 @@ func (asm *Asm) RegAlloc(kind Kind) Reg {
 }
 
 func (asm *Asm) RegFree(r Reg) *Asm {
-	count := asm.regIds[r.id]
-	if count <= 0 {
+	id := r.id
+	if !asm.RegIsUsed(id) {
 		return asm
 	}
-	count--
-	asm.regIds[r.id] = count
-	if count == 0 && asm.nextRegId > r.id {
-		asm.nextRegId = r.id
+	count := asm.RegDecUse(id)
+	if count == 0 && asm.nextRegId >= id {
+		lo := asm.RegIdCfg().RLo
+		for id > lo && !asm.RegIsUsed(id-1) {
+			id--
+		}
+		asm.nextRegId = id
 	}
 	return asm
 }

@@ -22,22 +22,23 @@ import (
 	"testing"
 )
 
-func Init(asm *Asm) *Asm {
-	return asm.Init().RegIncUse(X29).Asm(MOV, MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
+func InitForBinds(asm *Asm) *Asm {
+	asm.InitArch(Arm64{}).RegIncUse(X29)
+	return asm.Asm(MOV, MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
 }
 
 func TestNop(t *testing.T) {
 	var f func()
 	var asm Asm
-	asm.Init().Func(&f)
+	asm.InitArch(Arm64{}).Func(&f)
 	f()
 }
 
 func TestZero(t *testing.T) {
 	var f func() uint64
 	var asm Asm
+	asm.InitArch(Arm64{})
 
-	asm.Init()
 	asm.Asm( //
 		ZERO, MakeMem(8, XSP, Uint64),
 	).Func(&f)
@@ -54,7 +55,7 @@ func TestConst(t *testing.T) {
 	var asm Asm
 	var expected uint64 = 7
 
-	asm.Init()
+	asm.InitArch(Arm64{})
 	asm.Asm( //
 		MOV, ConstUint64(expected), MakeMem(8, XSP, Uint64),
 	).Func(&f)
@@ -70,7 +71,7 @@ func TestLoadStore(t *testing.T) {
 	var asm Asm
 	var expected uint64 = 0x12345678abcdef0
 
-	r := asm.Init().RegAlloc(Uint64)
+	r := asm.InitArch(Arm64{}).RegAlloc(Uint64)
 	asm.Asm( //
 		MOV, ConstUint64(expected), r,
 		MOV, r, MakeMem(8, XSP, Uint64),
@@ -87,7 +88,7 @@ func TestUnary(t *testing.T) {
 	binds := [...]uint64{c}
 
 	var asm Asm
-	r := Init(&asm).RegAlloc(Uint64)
+	r := InitForBinds(&asm).RegAlloc(Uint64)
 	v := MakeMem(0, X29, Uint64)
 
 	var f func(*uint64)

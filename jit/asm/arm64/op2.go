@@ -19,7 +19,7 @@ package arm64
 // ============================================================================
 // two-arg instruction
 
-func (op Op2) val() uint32 {
+func op2val(op Op2) uint32 {
 	var val uint32
 	switch op {
 	case NEG2:
@@ -33,8 +33,9 @@ func (op Op2) val() uint32 {
 }
 
 // ============================================================================
-func (arch Arm64) Op2(asm *Asm, op Op2, src Arg, dst Arg) {
+func (arch Arm64) Op2(asm *Asm, op Op2, src Arg, dst Arg) *Asm {
 	arch.op2(asm, op, src, dst)
+	return asm
 }
 
 func (arch Arm64) op2(asm *Asm, op Op2, src Arg, dst Arg) Arm64 {
@@ -56,7 +57,7 @@ func (arch Arm64) op2(asm *Asm, op Op2, src Arg, dst Arg) Arm64 {
 		return arch.op3(asm, Op3(op), dst, src, dst)
 	}
 
-	op.val() // validate op
+	op2val(op) // validate op
 
 	assert(src.Kind() == dst.Kind())
 	if dst.Const() {
@@ -87,12 +88,13 @@ func (arch Arm64) op2(asm *Asm, op Op2, src Arg, dst Arg) Arm64 {
 			errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, op, src, dst)
 		}
 	case Const:
+		var c Const
 		if op == NEG2 {
-			src.val = -src.val
+			c = MakeConst(-src.Val(), src.Kind())
 		} else {
-			src.val = ^src.val
+			c = MakeConst(^src.Val(), src.Kind())
 		}
-		return arch.mov(asm, src, dst)
+		return arch.mov(asm, c, dst)
 	default:
 		errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v", src, op, src, dst)
 	}
@@ -100,6 +102,6 @@ func (arch Arm64) op2(asm *Asm, op Op2, src Arg, dst Arg) Arm64 {
 }
 
 func (arch Arm64) op2RegReg(asm *Asm, op Op2, src Reg, dst Reg) Arm64 {
-	asm.Uint32(dst.kind.arm64_kbit() | op.val() | src.arm64_val()<<16 | dst.arm64_val())
+	asm.Uint32(kbit(dst) | op2val(op) | val(src)<<16 | val(dst))
 	return arch
 }

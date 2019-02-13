@@ -16,20 +16,12 @@
 
 package asm
 
-import (
-	"errors"
-)
-
 const (
-	NoRegId = RegId(0)
+	NoRegId RegId = 0
 )
 
-var assertError = errors.New("jit/asm internal error, assertion failed")
-
-func assert(flag bool) {
-	if !flag {
-		panic(assertError)
-	}
+func (asm *Asm) RegIdCfg() RegIdCfg {
+	return asm.arch.RegIdCfg()
 }
 
 func (asm *Asm) Op0(op Op0) *Asm {
@@ -55,19 +47,23 @@ func (asm *Asm) Op4(op Op4, a Arg, b Arg, c Arg, dst Arg) *Asm {
 }
 
 func (asm *Asm) Zero(dst Arg) *Asm {
-	return asm.arch.Zero(asm, dst)
+	return asm.arch.Op1(asm, ZERO, dst)
 }
 
 func (asm *Asm) Mov(src Arg, dst Arg) *Asm {
-	return asm.arch.Mov(asm, src, dst)
+	return asm.arch.Op2(asm, MOV, src, dst)
 }
 
 func (asm *Asm) Load(src Mem, dst Reg) *Asm {
-	return asm.arch.Load(asm, src, dst)
+	return asm.arch.Op2(asm, MOV, src, dst)
 }
 
 func (asm *Asm) Store(src Reg, dst Mem) *Asm {
-	return asm.arch.Store(asm, src, dst)
+	return asm.arch.Op2(asm, MOV, src, dst)
+}
+
+func (asm *Asm) Cast(src Arg, dst Arg) *Asm {
+	return asm.arch.Op2(asm, CAST, src, dst)
 }
 
 func (asm *Asm) Prologue() *Asm {

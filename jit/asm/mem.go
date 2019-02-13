@@ -43,6 +43,10 @@ func (m Mem) Const() bool {
 	return false
 }
 
+func (m Mem) Offset() int32 {
+	return m.off
+}
+
 func MakeMem(off int32, id RegId, kind Kind) Mem {
 	return Mem{off: off, reg: Reg{id: id, kind: kind}}
 }

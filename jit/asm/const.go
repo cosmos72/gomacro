@@ -43,6 +43,10 @@ func (c Const) Const() bool {
 	return true
 }
 
+func (c Const) Val() int64 {
+	return c.val
+}
+
 // convert Const to a different kind
 func (c Const) Cast(to Kind) Const {
 	val := c.val
