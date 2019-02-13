@@ -1,0 +1,1 @@
+../asm/mmap_generic.go

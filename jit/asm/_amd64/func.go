@@ -1,0 +1,1 @@
+../asm/func.go
