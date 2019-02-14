@@ -17,7 +17,7 @@
 package jit
 
 import (
-	arch "github.com/cosmos72/gomacro/jit/old/redirect"
+	"github.com/cosmos72/gomacro/jit/asm"
 )
 
 type Op1 uint8 // unary expression operator
@@ -27,67 +27,67 @@ type Inst1 uint8 // unary statement operator
 type Inst2 uint8 // binary statement operator
 
 const (
-	ADD = Op2(arch.ADD3)
-	SUB = Op2(arch.SUB3)
-	MUL = Op2(arch.MUL3)
-	QUO = Op2(arch.DIV3)
-	REM = Op2(arch.REM3)
-	AND = Op2(arch.AND3)
-	OR  = Op2(arch.OR3)
-	XOR = Op2(arch.XOR3)
-	SHL = Op2(arch.SHL3)
-	SHR = Op2(arch.SHR3)
+	ADD = Op2(asm.ADD3)
+	SUB = Op2(asm.SUB3)
+	MUL = Op2(asm.MUL3)
+	QUO = Op2(asm.DIV3)
+	REM = Op2(asm.REM3)
+	AND = Op2(asm.AND3)
+	OR  = Op2(asm.OR3)
+	XOR = Op2(asm.XOR3)
+	SHL = Op2(asm.SHL3)
+	SHR = Op2(asm.SHR3)
 	/*
-		AND_NOT = Op2(arch.AND_NOT) // &^
-		LAND    = Op2(arch.LAND)    // &&
-		LOR     = Op2(arch.LOR)     // ||
-		EQL     = Op2(arch.EQL)
-		LSS     = Op2(arch.LSS)
-		GTR     = Op2(arch.GTR)
-		NEQ     = Op2(arch.NEQ)
-		LEQ     = Op2(arch.LEQ)
-		GEQ     = Op2(arch.GEQ)
+		AND_NOT = Op2(asm.AND_NOT) // &^
+		LAND    = Op2(asm.LAND)    // &&
+		LOR     = Op2(asm.LOR)     // ||
+		EQL     = Op2(asm.EQL)
+		LSS     = Op2(asm.LSS)
+		GTR     = Op2(asm.GTR)
+		NEQ     = Op2(asm.NEQ)
+		LEQ     = Op2(asm.LEQ)
+		GEQ     = Op2(asm.GEQ)
 	*/
 
-	NEG = Op1(arch.NEG2)
-	NOT = Op1(arch.NOT2)
+	NEG = Op1(asm.NEG2)
+	NOT = Op1(asm.NOT2)
 
-	INC  = Inst1(arch.INC)  // ++
-	DEC  = Inst1(arch.DEC)  // --
-	ZERO = Inst1(arch.ZERO) // = 0
+	INC  = Inst1(asm.INC)  // ++
+	DEC  = Inst1(asm.DEC)  // --
+	ZERO = Inst1(asm.ZERO) // = 0
 
-	ASSIGN     = Inst2(arch.MOV)
-	ADD_ASSIGN = Inst2(arch.ADD)
-	SUB_ASSIGN = Inst2(arch.SUB)
-	MUL_ASSIGN = Inst2(arch.MUL)
-	QUO_ASSIGN = Inst2(arch.DIV)
-	REM_ASSIGN = Inst2(arch.REM)
-	AND_ASSIGN = Inst2(arch.AND)
-	OR_ASSIGN  = Inst2(arch.OR)
-	XOR_ASSIGN = Inst2(arch.XOR)
-	SHL_ASSIGN = Inst2(arch.SHL)
-	SHR_ASSIGN = Inst2(arch.SHR)
+	ASSIGN     = Inst2(asm.MOV)
+	ADD_ASSIGN = Inst2(asm.ADD)
+	SUB_ASSIGN = Inst2(asm.SUB)
+	MUL_ASSIGN = Inst2(asm.MUL)
+	QUO_ASSIGN = Inst2(asm.DIV)
+	REM_ASSIGN = Inst2(asm.REM)
+	AND_ASSIGN = Inst2(asm.AND)
+	OR_ASSIGN  = Inst2(asm.OR)
+	XOR_ASSIGN = Inst2(asm.XOR)
+	SHL_ASSIGN = Inst2(asm.SHL)
+	SHR_ASSIGN = Inst2(asm.SHR)
 	/*
-		AND_NOT_ASSIGN = Inst2(arch.AND_NOT)
+		AND_NOT_ASSIGN = Inst2(asm.AND_NOT)
 	*/
 )
 
 func (op Op1) String() string {
-	return arch.Op2(op).String()
+	return asm.Op2(op).String()
 }
 
 func (op Op2) String() string {
-	return arch.Op3(op).String()
+	return asm.Op3(op).String()
 }
 
 func (op Op2) IsCommutative() bool {
-	return arch.Op3(op).IsCommutative()
+	return asm.Op3(op).IsCommutative()
 }
 
 func (inst Inst1) String() string {
-	return arch.Op1(inst).String()
+	return asm.Op1(inst).String()
 }
 
 func (inst Inst2) String() string {
-	return arch.Op2(inst).String()
+	return asm.Op2(inst).String()
 }

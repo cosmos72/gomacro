@@ -14,11 +14,11 @@
  *      Author Massimiliano Ghilardi
  */
 
-package arm64
+package asm
 
 import (
 	"github.com/cosmos72/gomacro/jit/common"
-	// ensure Arch implementations are loaded and registered
+	// ensure all known Arch implementations are loaded and registered
 	_ "github.com/cosmos72/gomacro/jit/amd64"
 	_ "github.com/cosmos72/gomacro/jit/arm64"
 )
@@ -52,8 +52,11 @@ type (
 
 const (
 	MMAP_SUPPORTED = common.MMAP_SUPPORTED
-	SUPPORTED      = MMAP_SUPPORTED
-	NAME           = "arm64"
+
+	// ArchId
+	NOARCH = common.NOARCH
+	AMD64  = common.AMD64
+	ARM64  = common.ARM64
 
 	// SaveSlot
 	InvalidSlot = common.InvalidSlot
@@ -141,6 +144,9 @@ const (
 	// Op4
 )
 
+// map[ArchId]Arch is a handle, changes effect common.Archs
+var Archs = common.Archs
+
 func ConstInt64(val int64) Const {
 	return common.ConstInt64(val)
 }
@@ -165,7 +171,11 @@ func SizeOf(a Arg) Size {
 	return common.SizeOf(a)
 }
 
-func New(archId ArchId) *Asm {
+func New() *Asm {
+	return common.New(ARCH_ID)
+}
+
+func NewArchId(archId ArchId) *Asm {
 	return common.New(archId)
 }
 

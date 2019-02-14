@@ -17,23 +17,63 @@
 package jit
 
 import (
-	arch "github.com/cosmos72/gomacro/jit/old/redirect"
+	"github.com/cosmos72/gomacro/jit/asm"
 )
 
 type Comp struct {
 	code        Code
 	nextSoftReg SoftRegId
+	arch        Arch
+	asm.RegIdCfg
 }
 
-func NewComp() *Comp {
+func New() *Comp {
 	var c Comp
 	return c.Init()
 }
 
+func NewArchId(archId ArchId) *Comp {
+	var c Comp
+	return c.InitArchId(archId)
+}
+
+func NewArch(arch Arch) *Comp {
+	var c Comp
+	return c.InitArch(arch)
+}
+
 func (c *Comp) Init() *Comp {
+	return c.InitArchId(asm.ARCH_ID)
+}
+
+func (c *Comp) InitArchId(archId ArchId) *Comp {
+	return c.InitArch(Archs[archId])
+}
+
+func (c *Comp) InitArch(arch Arch) *Comp {
+	if arch == nil {
+		errorf("unknown arch")
+	}
 	c.code = nil
 	c.nextSoftReg = 0
+	c.arch = arch
+	c.RegIdCfg = arch.RegIdCfg()
 	return c
+}
+
+func (c *Comp) Arch() Arch {
+	return c.arch
+}
+
+func (c *Comp) ArchId() ArchId {
+	if c.arch == nil {
+		return asm.NOARCH
+	}
+	return c.arch.Id()
+}
+
+func (c *Comp) NewAsm() *Asm {
+	return asm.NewArch(c.arch)
 }
 
 func (c *Comp) Code() Code {
@@ -43,14 +83,14 @@ func (c *Comp) Code() Code {
 func (c *Comp) AllocSoftReg(kind Kind) SoftReg {
 	id := c.nextSoftReg
 	c.nextSoftReg++
-	return c.code.SoftReg(arch.ALLOC, id, kind)
+	return c.code.SoftReg(asm.ALLOC, id, kind)
 }
 
 func (c *Comp) FreeSoftReg(s SoftReg) {
 	if s.id+1 == c.nextSoftReg {
 		c.nextSoftReg--
 	}
-	c.code.SoftReg(arch.FREE, s.id, s.kind)
+	c.code.SoftReg(asm.FREE, s.id, s.kind)
 }
 
 func (c *Comp) Stmt(t Stmt) {

@@ -65,7 +65,7 @@ func (asm *Asm) InitArch(arch Arch) *Asm {
 
 func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm {
 	if arch == nil {
-		errorf("nil arch")
+		errorf("unknown arch")
 	}
 	id := arch.Id()
 	if Archs[id] == nil {

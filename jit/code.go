@@ -17,10 +17,10 @@
 package jit
 
 import (
-	arch "github.com/cosmos72/gomacro/jit/old/redirect"
+	"github.com/cosmos72/gomacro/jit/asm"
 )
 
-// will be passed as argument to arch.Asm()
+// will be passed as argument to asm.Asm()
 type Code []interface{}
 
 func (c *Code) Init() *Code {
@@ -29,17 +29,17 @@ func (c *Code) Init() *Code {
 }
 
 func (c *Code) Op1(op Op1, src Expr, dst SoftReg) *Code {
-	*c = append(*c, arch.Op2(op), asmArg(src), dst.id)
+	*c = append(*c, asm.Op2(op), asmArg(src), dst.id)
 	return c
 }
 
 func (c *Code) Op2(op Op2, a Expr, b Expr, dst SoftReg) *Code {
-	*c = append(*c, arch.Op3(op), asmArg(a), asmArg(b), dst.id)
+	*c = append(*c, asm.Op3(op), asmArg(a), asmArg(b), dst.id)
 	return c
 }
 
 // ALLOC/FREE
-func (c *Code) SoftReg(op arch.Op2Misc, id SoftRegId, kind Kind) SoftReg {
+func (c *Code) SoftReg(op asm.Op2Misc, id SoftRegId, kind Kind) SoftReg {
 	*c = append(*c, op, id, kind)
 	return SoftReg{id, kind}
 }

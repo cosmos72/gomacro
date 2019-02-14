@@ -1,3 +1,5 @@
+// +build amd64
+
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
@@ -8,28 +10,20 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * softreg.go
+ * amd64.go
  *
- *  Created on Feb 10, 2019
+ *  Created on Feb 13, 2019
  *      Author Massimiliano Ghilardi
  */
 
-package jit
+package asm
 
-// SoftRegId wrapper, implements Expr
-type SoftReg struct {
-	id   SoftRegId
-	kind Kind
-}
+import (
+	"github.com/cosmos72/gomacro/jit/amd64"
+)
 
-func (s SoftReg) Kind() Kind {
-	return s.kind
-}
-
-func (s SoftReg) Const() bool {
-	return false
-}
-
-func (s SoftReg) Valid() bool {
-	return s.kind != Invalid
-}
+const (
+	ARCH_ID        = amd64.AMD64
+	ARCH_SUPPORTED = true
+	NAME           = amd64.NAME
+)
