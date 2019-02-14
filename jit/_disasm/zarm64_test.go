@@ -19,7 +19,7 @@ package disasm
 import (
 	"testing"
 
-	. "github.com/cosmos72/gomacro/jit/arm64"
+	. "github.com/cosmos72/gomacro/jit/old/arm64"
 )
 
 func TestArm64Sample(T *testing.T) {

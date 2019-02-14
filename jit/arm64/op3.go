@@ -14,12 +14,12 @@
  *      Author Massimiliano Ghilardi
  */
 
-package arch
+package arm64
 
 // ============================================================================
 // three-arg instruction
 
-var op3val = map[Op3]uint8{
+var op3vals = map[Op3]uint8{
 	AND3: 0x0A,
 	ADD3: 0x0B,
 	ADC3: 0x1A, // add with carry
@@ -30,7 +30,7 @@ var op3val = map[Op3]uint8{
 }
 
 // return 32bit value used to encode operation on Reg,Reg,Reg
-func (op Op3) val() uint32 {
+func op3val(op Op3) uint32 {
 	var val uint32
 	switch op {
 	case SHL3:
@@ -49,7 +49,7 @@ func (op Op3) val() uint32 {
 	case REM3:
 		errorf("internal error, operation %v needs to be implemented as {s|u}div followed by msub", op)
 	default:
-		val = uint32(op3val[op]) << 24
+		val = uint32(op3vals[op]) << 24
 		if val == 0 {
 			errorf("unknown Op2 instruction: %v", op)
 		}
@@ -58,7 +58,7 @@ func (op Op3) val() uint32 {
 }
 
 // return 32bit value used to encode operation on Reg,Const,Reg
-func (op Op3) immval() uint32 {
+func immval(op Op3) uint32 {
 	switch op {
 	case AND3:
 		return 0x12 << 24
@@ -80,7 +80,12 @@ func (op Op3) immval() uint32 {
 }
 
 // ============================================================================
-func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
+func (arch Arm64) Op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) *Asm {
+	arch.op3(asm, op, a, b, dst)
+	return asm
+}
+
+func (arch Arm64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Arm64 {
 	// validate kinds
 	assert(a.Kind() == dst.Kind())
 	switch op {
@@ -99,8 +104,8 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 		errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v, %v", dst, op, a, b, dst)
 	}
 
-	if asm.optimize3(op, a, b, dst) {
-		return asm
+	if asm.Optimize3(op, a, b, dst) {
+		return arch
 	}
 	var ra, rb, rdst Reg
 	var ta, tdst bool // Reg is a temporary register?
@@ -128,17 +133,17 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 			defer asm.RegFree(ra)
 		}
 		ta = true
-		asm.Load(xa, ra)
+		arch.load(asm, xa, ra)
 	case Const:
-		ra = asm.RegAlloc(xa.kind)
+		ra = asm.RegAlloc(xa.Kind())
 		defer asm.RegFree(ra)
-		asm.movConstReg(xa, ra)
+		arch.movConstReg(asm, xa, ra)
 	default:
 		errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v, %v", a, op, a, b, dst)
 	}
 	switch xb := b.(type) {
 	case Reg:
-		asm.op3RegRegReg(op, ra, xb, rdst)
+		arch.op3RegRegReg(asm, op, ra, xb, rdst)
 	case Mem:
 		if tdst && (!ta || ra != rdst) {
 			// reuse temporary register rdst
@@ -147,22 +152,21 @@ func (asm *Asm) Op3(op Op3, a Arg, b Arg, dst Arg) *Asm {
 			rb = asm.RegAlloc(xb.Kind())
 			defer asm.RegFree(rb)
 		}
-		asm.Load(xb, rb)
-		asm.op3RegRegReg(op, ra, rb, rdst)
+		arch.load(asm, xb, rb).op3RegRegReg(asm, op, ra, rb, rdst)
 	case Const:
-		asm.op3RegConstReg(op, ra, xb, rdst)
+		arch.op3RegConstReg(asm, op, ra, xb, rdst)
 	default:
 		errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v, %v", b, op, a, b, dst)
 	}
 	if tdst {
-		asm.Store(rdst, dst.(Mem))
+		arch.store(asm, rdst, dst.(Mem))
 	}
-	return asm
+	return arch
 }
 
-func (asm *Asm) op3RegRegReg(op Op3, a Reg, b Reg, dst Reg) *Asm {
+func (arch Arm64) op3RegRegReg(asm *Asm, op Op3, a Reg, b Reg, dst Reg) Arm64 {
 	var opbits uint32
-	if dst.kind.Signed() {
+	if dst.Kind().Signed() {
 		switch op {
 		case SHR3:
 			// arithmetic right shift
@@ -172,40 +176,42 @@ func (asm *Asm) op3RegRegReg(op Op3, a Reg, b Reg, dst Reg) *Asm {
 			opbits = 0xC00
 		}
 	}
-	asm.extendHighBits(op, a)
-	asm.extendHighBits(op, b)
+	arch.extendHighBits(asm, op, a)
+	arch.extendHighBits(asm, op, b)
 	// TODO: on arm64, division by zero returns zero instead of panic
-	asm.Uint32(dst.kind.kbit() | (opbits ^ op.val()) | b.val()<<16 | a.val()<<5 | dst.val())
-	return asm
+	asm.Uint32(kbit(dst) | (opbits ^ op3val(op)) | val(b)<<16 | val(a)<<5 | val(dst))
+	return arch
 }
 
-func (asm *Asm) op3RegConstReg(op Op3, a Reg, cb Const, dst Reg) *Asm {
-	if asm.tryOp3RegConstReg(op, a, uint64(cb.val), dst) {
-		return asm
+func (arch Arm64) op3RegConstReg(asm *Asm, op Op3, a Reg, cb Const, dst Reg) Arm64 {
+	if arch.tryOp3RegConstReg(asm, op, a, uint64(cb.Val()), dst) {
+		return arch
 	}
-	rb := asm.RegAlloc(cb.kind)
-	return asm.movConstReg(cb, rb).op3RegRegReg(op, a, rb, dst).RegFree(rb)
+	rb := asm.RegAlloc(cb.Kind())
+	arch.movConstReg(asm, cb, rb).op3RegRegReg(asm, op, a, rb, dst)
+	asm.RegFree(rb)
+	return arch
 }
 
 // try to encode operation into a single instruction.
 // return false if not possible because constant must be loaded in a register
-func (asm *Asm) tryOp3RegConstReg(op Op3, a Reg, cval uint64, dst Reg) bool {
-	imm3 := op.immediate()
+func (arch Arm64) tryOp3RegConstReg(asm *Asm, op Op3, a Reg, cval uint64, dst Reg) bool {
+	imm3 := immediate3(op)
 	immcval, ok := imm3.Encode64(cval, dst.Kind())
 	if !ok {
 		return false
 	}
-	opval := op.immval()
+	opval := immval(op)
 
-	kbit := dst.kind.kbit()
+	kbit := kbit(dst)
 
-	asm.extendHighBits(op, a)
+	arch.extendHighBits(asm, op, a)
 	switch imm3 {
 	case Imm3AddSub, Imm3Bitwise:
 		// for op == OR3, also accept a == XZR
-		asm.Uint32(kbit | opval | immcval | a.valOrX31(op == OR3)<<5 | dst.val())
+		asm.Uint32(kbit | opval | immcval | valOrX31(a.RegId(), op == OR3)<<5 | val(dst))
 	case Imm3Shift:
-		asm.shiftRegConstReg(op, a, cval, dst)
+		arch.shiftRegConstReg(asm, op, a, cval, dst)
 	default:
 		cb := ConstInt64(int64(cval))
 		errorf("unknown constant encoding style %v of %v: %v %v, %v, %v", imm3, op, op, a, cb, dst)
@@ -213,8 +219,8 @@ func (asm *Asm) tryOp3RegConstReg(op Op3, a Reg, cval uint64, dst Reg) bool {
 	return true
 }
 
-func (asm *Asm) shiftRegConstReg(op Op3, a Reg, cval uint64, dst Reg) {
-	dsize := dst.kind.Size()
+func (arch Arm64) shiftRegConstReg(asm *Asm, op Op3, a Reg, cval uint64, dst Reg) {
+	dsize := dst.Kind().Size()
 	if cval >= 8*uint64(dsize) {
 		cb := ConstInt64(int64(cval))
 		errorf("constant is out of range for shift: %v %v, %v, %v", op, a, cb, dst)
@@ -223,20 +229,20 @@ func (asm *Asm) shiftRegConstReg(op Op3, a Reg, cval uint64, dst Reg) {
 	case SHL3:
 		switch dsize {
 		case 1, 2, 4:
-			asm.Uint32(0x53000000 | uint32(32-cval)<<16 | uint32(31-cval)<<10 | a.val()<<5 | dst.val())
+			asm.Uint32(0x53000000 | uint32(32-cval)<<16 | uint32(31-cval)<<10 | val(a)<<5 | val(dst))
 		case 8:
-			asm.Uint32(0xD3400000 | uint32(64-cval)<<16 | uint32(63-cval)<<10 | a.val()<<5 | dst.val())
+			asm.Uint32(0xD3400000 | uint32(64-cval)<<16 | uint32(63-cval)<<10 | val(a)<<5 | val(dst))
 		}
 	case SHR3:
 		var unsignedbit uint32
-		if !dst.kind.Signed() {
+		if !dst.Kind().Signed() {
 			unsignedbit = 0x40 << 24
 		}
 		switch dsize {
 		case 1, 2, 4:
-			asm.Uint32(unsignedbit | 0x13007C00 | uint32(cval)<<16 | a.val()<<5 | dst.val())
+			asm.Uint32(unsignedbit | 0x13007C00 | uint32(cval)<<16 | val(a)<<5 | val(dst))
 		case 8:
-			asm.Uint32(unsignedbit | 0x9340FC00 | uint32(cval)<<16 | a.val()<<5 | dst.val())
+			asm.Uint32(unsignedbit | 0x9340FC00 | uint32(cval)<<16 | val(a)<<5 | val(dst))
 		}
 	}
 }
@@ -249,20 +255,21 @@ func (asm *Asm) shiftRegConstReg(op Op3, a Reg, cval uint64, dst Reg) {
 // Exception: right-shift, division and remainder move data
 // from high bits to low bits, so we must zero-extend or sign-extend
 // the operands
-func (asm *Asm) extendHighBits(op Op3, r Reg) {
-	rkind := r.kind
+func (arch Arm64) extendHighBits(asm *Asm, op Op3, r Reg) Arm64 {
+	rkind := r.Kind()
 	rsize := rkind.Size()
 	if rsize > 2 {
-		return
+		return arch
 	}
 	switch op {
 	case SHR3, DIV3, REM3:
 		if rkind.Signed() {
-			asm.Cast(r, MakeReg(r.id, Int32))
+			arch.cast(asm, r, MakeReg(r.RegId(), Int32))
 		} else {
-			asm.Cast(r, MakeReg(r.id, Uint32))
+			arch.cast(asm, r, MakeReg(r.RegId(), Uint32))
 		}
 	}
+	return arch
 }
 
 // ============================================================================
@@ -280,7 +287,7 @@ const (
 
 // return the style of immediate constants
 // embeddable in a single Op3 instruction
-func (op Op3) immediate() Immediate3 {
+func immediate3(op Op3) Immediate3 {
 	switch op {
 	case ADD3, SUB3:
 		return Imm3AddSub

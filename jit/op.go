@@ -17,7 +17,7 @@
 package jit
 
 import (
-	arch "github.com/cosmos72/gomacro/jit/redirect"
+	arch "github.com/cosmos72/gomacro/jit/old/redirect"
 )
 
 type Op1 uint8 // unary expression operator

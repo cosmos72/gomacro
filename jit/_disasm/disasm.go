@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/bnagy/gapstone"
-	"github.com/cosmos72/gomacro/jit/asm"
+	asm "github.com/cosmos72/gomacro/jit/common"
 )
 
 type Engine = gapstone.Engine

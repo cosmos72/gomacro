@@ -14,12 +14,12 @@
  *      Author Massimiliano Ghilardi
  */
 
-package arch
+package arm64
 
 // ============================================================================
 // no-arg instruction
 
-func (op Op0) val() uint32 {
+func op0val(op Op0) uint32 {
 	var val uint32
 	switch op {
 	case NOP:
@@ -33,6 +33,6 @@ func (op Op0) val() uint32 {
 }
 
 // ============================================================================
-func (asm *Asm) Op0(op Op0) *Asm {
-	return asm.Uint32(op.val())
+func (arch Arm64) Op0(asm *Asm, op Op0) *Asm {
+	return asm.Uint32(op0val(op))
 }

@@ -14,12 +14,12 @@
  *      Author Massimiliano Ghilardi
  */
 
-package arch
+package arm64
 
 // ============================================================================
 // two-arg instruction
 
-func (op Op2) val() uint32 {
+func op2val(op Op2) uint32 {
 	var val uint32
 	switch op {
 	case NEG2:
@@ -33,28 +33,31 @@ func (op Op2) val() uint32 {
 }
 
 // ============================================================================
-func (asm *Asm) Op2(op Op2, src Arg, dst Arg) *Asm {
+func (arch Arm64) Op2(asm *Asm, op Op2, src Arg, dst Arg) *Asm {
+	arch.op2(asm, op, src, dst)
+	return asm
+}
+
+func (arch Arm64) op2(asm *Asm, op Op2, src Arg, dst Arg) Arm64 {
 	switch op {
 	case CAST:
 		if SizeOf(src) != SizeOf(dst) {
-			return asm.Cast(src, dst)
+			return arch.cast(asm, src, dst)
 		}
 		fallthrough
 	case MOV:
-		return asm.Mov(src, dst)
+		return arch.mov(asm, src, dst)
 	case NEG2, NOT2:
-		return asm.op2(op, src, dst)
+		break
 	default:
 		// dst OP= src
 		//    translates to
 		// dst = dst OP src
 		//    note the argument order
-		return asm.Op3(Op3(op), dst, src, dst)
+		return arch.op3(asm, Op3(op), dst, src, dst)
 	}
-}
 
-func (asm *Asm) op2(op Op2, src Arg, dst Arg) *Asm {
-	op.val() // validate op
+	op2val(op) // validate op
 
 	assert(src.Kind() == dst.Kind())
 	if dst.Const() {
@@ -65,37 +68,40 @@ func (asm *Asm) op2(op Op2, src Arg, dst Arg) *Asm {
 	case Reg:
 		switch dst := dst.(type) {
 		case Reg:
-			asm.op2RegReg(op, src, dst)
+			arch.op2RegReg(asm, op, src, dst)
 		case Mem:
 			r := asm.RegAlloc(dst.Kind())
-			asm.op2RegReg(op, src, r).Store(r, dst).RegFree(r)
+			arch.op2RegReg(asm, op, src, r).store(asm, r, dst)
+			asm.RegFree(r)
 		default:
 			errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, op, src, dst)
 		}
 	case Mem:
 		switch dst := dst.(type) {
 		case Reg:
-			asm.Load(src, dst).op2RegReg(op, dst, dst)
+			arch.load(asm, src, dst).op2RegReg(asm, op, dst, dst)
 		case Mem:
 			r := asm.RegAlloc(dst.Kind())
-			asm.Load(src, r).op2RegReg(op, r, r).Store(r, dst).RegFree(r)
+			arch.load(asm, src, r).op2RegReg(asm, op, r, r).store(asm, r, dst)
+			asm.RegFree(r)
 		default:
 			errorf("unknown destination type %T, expecting Reg or Mem: %v %v, %v", dst, op, src, dst)
 		}
 	case Const:
+		var c Const
 		if op == NEG2 {
-			src.val = -src.val
+			c = MakeConst(-src.Val(), src.Kind())
 		} else {
-			src.val = ^src.val
+			c = MakeConst(^src.Val(), src.Kind())
 		}
-		return asm.Mov(src, dst)
+		return arch.mov(asm, c, dst)
 	default:
 		errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v", src, op, src, dst)
 	}
-
-	return asm
+	return arch
 }
 
-func (asm *Asm) op2RegReg(op Op2, src Reg, dst Reg) *Asm {
-	return asm.Uint32(dst.kind.kbit() | op.val() | src.val()<<16 | dst.val())
+func (arch Arm64) op2RegReg(asm *Asm, op Op2, src Reg, dst Reg) Arm64 {
+	asm.Uint32(kbit(dst) | op2val(op) | val(src)<<16 | val(dst))
+	return arch
 }

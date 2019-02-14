@@ -19,7 +19,7 @@ package jit
 import (
 	"testing"
 
-	arch "github.com/cosmos72/gomacro/jit/redirect"
+	arch "github.com/cosmos72/gomacro/jit/old/redirect"
 )
 
 const (

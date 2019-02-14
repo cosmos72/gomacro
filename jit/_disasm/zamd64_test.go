@@ -19,7 +19,7 @@ package disasm
 import (
 	"testing"
 
-	. "github.com/cosmos72/gomacro/jit/amd64"
+	. "github.com/cosmos72/gomacro/jit/old/amd64"
 )
 
 func Var(index uint16) Mem {
