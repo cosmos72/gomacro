@@ -52,6 +52,10 @@ const (
 	SUPPORTED      = MMAP_SUPPORTED
 	NAME           = "arm64"
 
+	// ArchId
+	NOARCH = common.NOARCH
+	AMD64  = common.AMD64
+
 	// SaveSlot
 	InvalidSlot = common.InvalidSlot
 

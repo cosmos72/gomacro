@@ -71,6 +71,7 @@ func (Amd64) RegString(r Reg) string {
 	if !id.Valid() {
 		return fmt.Sprintf("%%unknown_reg(%#x,%v)", uint8(id), r.Kind())
 	}
+	id -= RLo
 	var s string
 	switch r.Kind().Size() {
 	case 1:
@@ -95,9 +96,6 @@ func (Amd64) CodeString(c Code) string {
 // equivalent to
 //   asm.Asm(MOV, MakeMem(8, RSP, Uint64), MakeReg(RDI, Uint64))
 func (Amd64) Prologue(asm *Asm) *Asm {
-	// return asm.Bytes(0x48, 0x8b, 0x7c, 0x24, 0x08)
-	// equivalent:
-	// return asm.op2MemReg(MOV, MakeMem(8, RSP, Uint64), MakeReg(RDI, Uint64))
 	return asm
 }
 

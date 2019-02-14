@@ -19,7 +19,7 @@ package arm64
 import (
 	"github.com/cosmos72/gomacro/jit/common"
 	// ensure Arch implementations are loaded and registered
-	// _ "github.com/cosmos72/gomacro/jit/amd64"
+	_ "github.com/cosmos72/gomacro/jit/amd64"
 	_ "github.com/cosmos72/gomacro/jit/arm64"
 )
 

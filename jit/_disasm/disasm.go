@@ -20,18 +20,10 @@ import (
 	"testing"
 
 	"github.com/bnagy/gapstone"
-	asm "github.com/cosmos72/gomacro/jit/common"
+	. "github.com/cosmos72/gomacro/jit/common"
 )
 
 type Engine = gapstone.Engine
-
-// reuse ArchId constants from github.com/cosmos72/gomacro/jit/asm
-type ArchId = asm.ArchId
-
-const (
-	AMD64 = asm.AMD64
-	ARM64 = asm.ARM64
-)
 
 func NewDisasm(archId ArchId) (Engine, error) {
 	var arch uint = gapstone.CS_ARCH_X86

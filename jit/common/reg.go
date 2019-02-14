@@ -16,15 +16,27 @@
 
 package common
 
+import (
+	"fmt"
+)
+
 // machine register
 type RegId uint8
 
+func (id RegId) ArchId() ArchId {
+	return ArchId(1 + id>>7)
+}
+
 func (id RegId) Arch() Arch {
-	return Archs[ArchId(1+id>>7)]
+	return Archs[id.ArchId()]
 }
 
 func (id RegId) String() string {
-	return id.Arch().RegIdString(id)
+	arch := id.Arch()
+	if arch != nil {
+		return arch.RegIdString(id)
+	}
+	return fmt.Sprintf("%%unknown_reg(%#x)", uint8(id))
 }
 
 func (id RegId) Valid() bool {
@@ -64,6 +76,14 @@ func (r Reg) Kind() Kind {
 
 func (r Reg) Const() bool {
 	return false
+}
+
+func (r Reg) String() string {
+	arch := r.id.Arch()
+	if arch != nil {
+		return arch.RegString(r)
+	}
+	return fmt.Sprintf("%%unknown_reg(%#x,%v)", uint8(r.id), r.kind)
 }
 
 func (r Reg) Valid() bool {

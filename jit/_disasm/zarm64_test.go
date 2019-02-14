@@ -19,14 +19,14 @@ package disasm
 import (
 	"testing"
 
-	. "github.com/cosmos72/gomacro/jit/old/arm64"
+	. "github.com/cosmos72/gomacro/jit/arm64"
 )
 
 func TestArm64Sample(T *testing.T) {
 	var asm Asm
 
 	for id := RLo; id+2 <= RHi; id++ {
-		asm.Init()
+		asm.InitArch(Arm64{})
 		if asm.RegIsUsed(id) || asm.RegIsUsed(id+1) || asm.RegIsUsed(id+2) {
 			continue
 		}
@@ -41,7 +41,9 @@ func TestArm64Sample(T *testing.T) {
 		ut := MakeReg(id+2, Uint64)
 		br := MakeReg(id+0, Uint8)
 		bt := MakeReg(id+2, Uint8)
-		asm.RegIncUse(id).RegIncUse(id + 1).RegIncUse(id + 2)
+		asm.RegIncUse(id)
+		asm.RegIncUse(id + 1)
+		asm.RegIncUse(id + 2)
 		asm.Asm(MOV, c, r, //
 			MOV, c, m, //
 			MOV, m, r, //
@@ -75,7 +77,9 @@ func TestArm64Sample(T *testing.T) {
 			SHL3, br, one, bt, //
 			SHR3, br, one, bt, //
 		).Epilogue()
-		asm.RegDecUse(id).RegDecUse(id + 1).RegDecUse(id + 2)
+		asm.RegDecUse(id)
+		asm.RegDecUse(id + 1)
+		asm.RegDecUse(id + 2)
 
 		if id == RLo || id == RHi {
 			PrintDisasm(T, ARM64, asm.Code())
@@ -89,7 +93,8 @@ func TestArm64Zero(t *testing.T) {
 	m := MakeMem(8, XSP, Uint64)
 
 	var asm Asm
-	asm.Init().Asm(
+	asm.InitArch(Arm64{})
+	asm.Asm(
 		ZERO, r,
 		MOV, xzr, r,
 		ZERO, m,
@@ -100,7 +105,7 @@ func TestArm64Zero(t *testing.T) {
 
 func TestArm64Cast(t *testing.T) {
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Arm64{})
 	for _, skind := range [...]Kind{
 		Int8, Int16, Int32, Int64,
 		Uint8, Uint16, Uint32, Uint64,
@@ -117,7 +122,7 @@ func TestArm64Cast(t *testing.T) {
 
 func TestArm64Mem(t *testing.T) {
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Arm64{})
 
 	id := RLo
 	asm.RegIncUse(id)
@@ -146,7 +151,7 @@ func TestArm64Mem(t *testing.T) {
 func TestArm64Unary(t *testing.T) {
 
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Arm64{})
 	r := MakeReg(X27, Uint64)
 	s := MakeReg(X28, Uint64)
 	v := MakeMem(0, X29, Uint64)
@@ -163,7 +168,7 @@ func TestArm64Unary(t *testing.T) {
 
 func TestArm64SoftReg(t *testing.T) {
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Arm64{})
 
 	var a, b, c SoftRegId = 0, 1, 2
 	asm.Asm(

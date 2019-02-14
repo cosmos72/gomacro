@@ -45,7 +45,7 @@ func TestAmd64SoftRegId(t *testing.T) {
 	asm.InitArch(Amd64{})
 
 	var a, b, c SoftRegId = 0, 1, 2
-	asm.Asm(
+	code := []interface{}{
 		ALLOC, a, Uint64,
 		ALLOC, b, Uint64,
 		ALLOC, c, Uint64,
@@ -55,7 +55,10 @@ func TestAmd64SoftRegId(t *testing.T) {
 		FREE, a, Uint64,
 		FREE, b, Uint64,
 		FREE, c, Uint64,
-	).Epilogue()
+		RET,
+	}
+	asm.Asm(code...)
+	// t.Log(code...)
 
 	actual := asm.Code()
 	expected := Code{

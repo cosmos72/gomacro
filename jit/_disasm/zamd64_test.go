@@ -17,9 +17,10 @@
 package disasm
 
 import (
+	"math/rand"
 	"testing"
 
-	. "github.com/cosmos72/gomacro/jit/old/amd64"
+	. "github.com/cosmos72/gomacro/jit/amd64"
 )
 
 func Var(index uint16) Mem {
@@ -30,13 +31,37 @@ func VarK(index uint16, k Kind) Mem {
 	return MakeMem(int32(index)*8, RSI, k)
 }
 
+func InitAmd64(asm *Asm) *Asm {
+	asm.InitArch(Amd64{})
+	asm.RegIncUse(RSI)
+	asm.Load(MakeMem(8, RSP, Uint64), MakeReg(RSI, Uint64))
+	return asm
+}
+
+func TestAmd64Mov(t *testing.T) {
+
+	m := Var(0)
+	var asm Asm
+	for id := RLo; id <= RHi; id++ {
+		InitAmd64(&asm)
+		if asm.RegIsUsed(id) {
+			continue
+		}
+		r := MakeReg(id, Int64)
+		c := ConstInt64(int64(rand.Uint64()))
+		asm.Mov(c, r).Mov(r, m).Epilogue()
+
+		PrintDisasm(t, AMD64, asm.Code())
+	}
+}
+
 func TestAmd64Unary(t *testing.T) {
 	var asm Asm
 
 	v1, v2, v3 := Var(0), Var(1), Var(2)
 
 	for id := RLo; id <= RHi; id++ {
-		asm.Init()
+		asm.InitArch(Amd64{})
 		if asm.RegIsUsed(id) {
 			continue
 		}
@@ -60,7 +85,7 @@ func TestAmd64Sum(t *testing.T) {
 	var asm Asm
 
 	Total, I := Var(1), Var(2)
-	asm.Init().Asm( //
+	asm.InitArch(Amd64{}).Asm( //
 		MOV, ConstInt64(0xFF), I,
 		ADD, ConstInt64(2), I,
 		ADD, I, Total)
@@ -72,7 +97,7 @@ func TestAmd64Mul(t *testing.T) {
 	var asm Asm
 
 	I, J := Var(0), Var(1)
-	asm.Init().Asm( //
+	asm.InitArch(Amd64{}).Asm( //
 		MUL, ConstInt64(9), I,
 		MUL, ConstInt64(16), I,
 		MUL, ConstInt64(0x7F), I,
@@ -95,7 +120,7 @@ func TestAmd64Cast(t *testing.T) {
 		VarK(12, Uint64), VarK(13, Uint64), VarK(14, Uint64),
 	}
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Amd64{})
 	asm.Asm(
 		NOP,
 		CAST, N[1], V[1],
@@ -122,7 +147,7 @@ func TestAmd64Lea(t *testing.T) {
 	M := Var(1)
 
 	var asm Asm
-	r0 := asm.Init().RegAlloc(N.Kind())
+	r0 := asm.InitArch(Amd64{}).RegAlloc(N.Kind())
 	r1 := asm.RegAlloc(N.Kind())
 	asm.Asm(
 		MUL, ConstInt64(9), N,
@@ -140,7 +165,7 @@ func TestAmd64Shift(t *testing.T) {
 	M := Var(1)
 
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Amd64{})
 	asm.RegIncUse(RCX)
 	r := MakeReg(RCX, Uint8)
 	asm.Asm(
@@ -157,7 +182,7 @@ func TestAmd64Shift(t *testing.T) {
 
 func TestAmd64SoftReg(t *testing.T) {
 	var asm Asm
-	asm.Init()
+	asm.InitArch(Amd64{})
 
 	var a, b, c SoftRegId = 0, 1, 2
 	asm.Asm(
