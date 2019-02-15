@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	noregid RegId = iota
+	noregid = RegId(ARM64-1)<<8 + iota
 	X0
 	X1
 	X2

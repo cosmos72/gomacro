@@ -38,6 +38,18 @@ func (c *Code) Op2(op Op2, a Expr, b Expr, dst SoftReg) *Code {
 	return c
 }
 
+func (c *Code) Inst1(inst Inst1, dst Expr) *Code {
+	if inst != NOP {
+		*c = append(*c, asm.Op1(inst), asmArg(dst))
+	}
+	return c
+}
+
+func (c *Code) Inst2(inst Inst2, src Expr, dst Expr) *Code {
+	*c = append(*c, asm.Op2(inst), asmArg(src), asmArg(dst))
+	return c
+}
+
 // ALLOC/FREE
 func (c *Code) SoftReg(op asm.Op2Misc, id SoftRegId, kind Kind) SoftReg {
 	*c = append(*c, op, id, kind)

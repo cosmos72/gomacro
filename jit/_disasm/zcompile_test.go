@@ -17,6 +17,7 @@
 package disasm
 
 import (
+	"fmt"
 	"testing"
 
 	. "github.com/cosmos72/gomacro/jit"
@@ -98,6 +99,50 @@ func TestCompileExpr2(t *testing.T) {
 			asm.SUB3, c9, r2, S1,
 			asm.ADD3, S0, S1, S0,
 			asm.FREE, S1, asm.Uint64,
+		}
+
+		if !SameCode(actual, expected) {
+			t.Errorf("miscompiled code:\n\texpected %v\n\tactual   %v",
+				expected, actual)
+		}
+
+		// assemble
+		a.Asm(c.Code()...)
+		a.Epilogue()
+		PrintDisasm(t, c.ArchId(), a.Code())
+	}
+}
+
+func TestCompileStmt(t *testing.T) {
+	var c Comp
+	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
+		c.InitArchId(archId)
+		fmt.Printf("arch = %v: RVAR = %v\n", c.ArchId(), c.RVAR)
+		a := c.NewAsm()
+
+		m1 := c.MakeVar(0, Uint64)
+		m2 := c.MakeVar(1, Uint32)
+		m3w := c.MakeVar(2, Uint16)
+		m3 := c.MakeVar(2, Uint8)
+		m4 := c.MakeVar(3, Uint8)
+
+		c.Compile(
+			NewStmt1(INC, m1),
+			NewStmt1(DEC, m2),
+			NewStmt1(ZERO, m3w),
+			NewStmt1(NOP, m4),
+			// TODO: CAST
+			NewStmt2(ASSIGN, m4, m3),
+		)
+		actual := c.Code()
+		t.Log(actual...)
+
+		expected := Code{
+			asm.INC, m1,
+			asm.DEC, m2,
+			asm.ZERO, m3w,
+			// asm.NOP, m4, // NOP is optimized away
+			asm.MOV, m3, m4,
 		}
 
 		if !SameCode(actual, expected) {

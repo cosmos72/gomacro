@@ -16,6 +16,10 @@
 
 package common
 
+import (
+	"fmt"
+)
+
 type ArchId uint8
 
 const (
@@ -46,3 +50,11 @@ type Arch interface {
 }
 
 var Archs = make(map[ArchId]Arch) // {ARM64:Arm64{}, AMD64:Amd64{}}
+
+func (archId ArchId) String() string {
+	arch := Archs[archId]
+	if arch != nil {
+		return arch.Name()
+	}
+	return fmt.Sprintf("ArchId(%d)", uint8(archId))
+}

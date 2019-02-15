@@ -23,9 +23,6 @@ import (
 type Op1 uint8 // unary expression operator
 type Op2 uint8 // binary expression operator
 
-type Inst1 uint8 // unary statement operator
-type Inst2 uint8 // binary statement operator
-
 const (
 	ADD     = Op2(asm.ADD3)
 	SUB     = Op2(asm.SUB3)
@@ -48,27 +45,9 @@ const (
 		LEQ     = Op2(asm.LEQ3)
 		GEQ     = Op2(asm.GEQ3)
 	*/
+	// CAST = Op1(asm.CAST)
 	NEG = Op1(asm.NEG2)
 	NOT = Op1(asm.NOT2)
-
-	INC  = Inst1(asm.INC)  // ++
-	DEC  = Inst1(asm.DEC)  // --
-	ZERO = Inst1(asm.ZERO) // = 0
-
-	ASSIGN         = Inst2(asm.MOV)
-	ADD_ASSIGN     = Inst2(asm.ADD2)
-	SUB_ASSIGN     = Inst2(asm.SUB2)
-	MUL_ASSIGN     = Inst2(asm.MUL2)
-	QUO_ASSIGN     = Inst2(asm.DIV2)
-	REM_ASSIGN     = Inst2(asm.REM2)
-	AND_ASSIGN     = Inst2(asm.AND2)
-	OR_ASSIGN      = Inst2(asm.OR2)
-	XOR_ASSIGN     = Inst2(asm.XOR2)
-	SHL_ASSIGN     = Inst2(asm.SHL2)
-	SHR_ASSIGN     = Inst2(asm.SHR2)
-	AND_NOT_ASSIGN = Inst2(asm.AND_NOT2)
-	LAND_ASSIGN    = Inst2(asm.LAND2)
-	LOR_ASSIGN     = Inst2(asm.LOR2)
 )
 
 func (op Op1) String() string {
@@ -81,12 +60,4 @@ func (op Op2) String() string {
 
 func (op Op2) IsCommutative() bool {
 	return asm.Op3(op).IsCommutative()
-}
-
-func (inst Inst1) String() string {
-	return asm.Op1(inst).String()
-}
-
-func (inst Inst2) String() string {
-	return asm.Op2(inst).String()
 }

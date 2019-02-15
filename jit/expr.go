@@ -22,32 +22,23 @@ type Expr interface {
 	Const() bool
 }
 
-// unary expression
+// unary expression OP X
 type Expr1 struct {
-	x    Expr
-	op   Op1
-	kind Kind
+	X  Expr
+	Op Op1
+	K  Kind
 }
 
-// binary expression
+// binary expression X OP Y
 type Expr2 struct {
-	x    Expr
-	y    Expr
-	op   Op2
-	kind Kind
+	X  Expr
+	Y  Expr
+	Op Op2
+	K  Kind
 }
 
 func NewExpr1(op Op1, x Expr) *Expr1 {
 	return &Expr1{x, op, x.Kind()}
-}
-
-// implement Expr interface
-func (e *Expr1) Kind() Kind {
-	return e.kind
-}
-
-func (e *Expr1) Const() bool {
-	return false
 }
 
 func NewExpr2(op Op2, x Expr, y Expr) *Expr2 {
@@ -55,8 +46,17 @@ func NewExpr2(op Op2, x Expr, y Expr) *Expr2 {
 }
 
 // implement Expr interface
+func (e *Expr1) Kind() Kind {
+	return e.K
+}
+
+func (e *Expr1) Const() bool {
+	return false
+}
+
+// implement Expr interface
 func (e *Expr2) Kind() Kind {
-	return e.kind
+	return e.K
 }
 
 func (e *Expr2) Const() bool {

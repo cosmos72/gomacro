@@ -19,7 +19,7 @@ package amd64
 // ============================================================================
 // register
 const (
-	noregid RegId = 1<<8 + iota
+	noregid = RegId(AMD64-1)<<8 + iota
 	RAX
 	RCX
 	RDX
