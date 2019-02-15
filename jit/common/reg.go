@@ -21,10 +21,10 @@ import (
 )
 
 // machine register
-type RegId uint8
+type RegId uint16
 
 func (id RegId) ArchId() ArchId {
-	return ArchId(1 + id>>7)
+	return ArchId(1 + id>>8)
 }
 
 func (id RegId) Arch() Arch {

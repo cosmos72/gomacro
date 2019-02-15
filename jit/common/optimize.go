@@ -33,9 +33,9 @@ func Log2Uint(n uint64) (uint8, bool) {
 func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 	if src == dst {
 		switch op {
-		case AND, OR, MOV, CAST:
+		case AND2, OR2, MOV, CAST:
 			return true // operation is nop
-		case SUB, XOR:
+		case SUB2, XOR2:
 			asm.Zero(dst)
 			return true
 		}
@@ -47,7 +47,7 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 	n := c.Cast(Int64).val
 	src = MakeConst(n, dst.Kind())
 	switch op {
-	case ADD:
+	case ADD2:
 		switch n {
 		case 0:
 			return true
@@ -58,7 +58,7 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 			asm.Op1(DEC, dst)
 			return true
 		}
-	case OR:
+	case OR2:
 		switch n {
 		case 0:
 			return true
@@ -66,7 +66,7 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 			asm.Op2(MOV, src, dst)
 			return true
 		}
-	case AND:
+	case AND2:
 		switch n {
 		case 0:
 			asm.Op2(MOV, src, dst)
@@ -74,7 +74,7 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 		case -1:
 			return true
 		}
-	case SUB:
+	case SUB2:
 		switch n {
 		case 0:
 			return true
@@ -85,23 +85,23 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 			asm.Op1(INC, dst)
 			return true
 		}
-	case XOR:
+	case XOR2:
 		switch n {
 		case 0:
 			return true
 		case -1:
-			asm.Op1(NOT, dst)
+			asm.Op1(NOT1, dst)
 			return true
 		}
 	case CAST:
 		asm.Op2(MOV, src, dst)
 		return true
-	case SHL, SHR:
+	case SHL2, SHR2:
 		switch n {
 		case 0:
 			return true
 		}
-	case MUL:
+	case MUL2:
 		switch n {
 		case 0:
 			asm.Op2(MOV, src, dst)
@@ -109,15 +109,15 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 		case 1:
 			return true
 		case -1:
-			asm.Op1(NEG, dst)
+			asm.Op1(NEG1, dst)
 			return true
 		}
-	case DIV:
+	case DIV2:
 		switch n {
 		case 1:
 			return true
 		case -1:
-			asm.Op1(NEG, dst)
+			asm.Op1(NEG1, dst)
 			return true
 		}
 	}

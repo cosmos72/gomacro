@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * zarm_64_test.go
+ * zarm64_test.go
  *
  *  Created on Jan 23, 2019
  *      Author Massimiliano Ghilardi

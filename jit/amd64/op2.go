@@ -30,7 +30,7 @@ var op2Val = [256]uint8{
 	// CMP: 0x38, // compare, set flags
 	// XCHG: 0x86, // exchange. xchg %reg, %reg has different encoding
 	MOV:  0x88,
-	LEA:  0x8D,
+	LEA2: 0x8D,
 	CAST: 0xB6, // sign extend, zero extend or narrow
 	SHL:  0xE0, // shift left. has different encoding
 	SHR:  0xE8, // shift right. has different encoding
@@ -135,7 +135,7 @@ func (arch Amd64) op2ConstReg(asm *Asm, op Op2, c Const, dst Reg) Amd64 {
 	case MUL:
 		return arch.mul2ConstReg(asm, c, dst)
 	}
-	assert(op != LEA)
+	assert(op != LEA2)
 
 	switch dst.Kind().Size() {
 	case 1:
@@ -252,7 +252,7 @@ func (arch Amd64) op2RegReg(asm *Asm, op Op2, src Reg, dst Reg) Amd64 {
 	case SHL, SHR:
 		return arch.shiftRegReg(asm, op, src, dst)
 	}
-	assert(op != LEA)
+	assert(op != LEA2)
 
 	op_ := op2val(op)
 	slo, shi := lohi(src)
@@ -291,7 +291,7 @@ func (arch Amd64) op2RegMem(asm *Asm, op Op2, src Reg, dst_m Mem) Amd64 {
 	case SHL, SHR:
 		return arch.shiftRegMem(asm, op, src, dst_m)
 	}
-	assert(op != LEA)
+	assert(op != LEA2)
 	assert(SizeOf(src) == SizeOf(dst_m))
 
 	op_ := op2val(op)
@@ -348,7 +348,7 @@ func (arch Amd64) op2MemReg(asm *Asm, op Op2, src_m Mem, dst Reg) Amd64 {
 	siz := SizeOf(src_m)
 	offlen, offbit := offlen(src_m, sregid)
 
-	if op == LEA {
+	if op == LEA2 {
 		assert(siz == 8)
 	}
 
@@ -369,7 +369,7 @@ func (arch Amd64) op2MemReg(asm *Asm, op Op2, src_m Mem, dst Reg) Amd64 {
 			asm.Bytes(0x40|dhi<<2|shi, 0x03|op_, offbit|dlo<<3|slo)
 		}
 	case 8:
-		if op != LEA {
+		if op != LEA2 {
 			op_ |= 0x03
 		}
 		asm.Bytes(0x48|dhi<<2|shi, op_, offbit|dlo<<3|slo)
@@ -392,7 +392,7 @@ func (arch Amd64) op2MemMem(asm *Asm, op Op2, src_m Mem, dst_m Mem) Amd64 {
 	case SHL, SHR:
 		return arch.shiftMemMem(asm, op, src_m, dst_m)
 	}
-	assert(op != LEA)
+	assert(op != LEA2)
 	// not natively supported by amd64,
 	// must load src in a register
 	r := asm.RegAlloc(src_m.Kind())
@@ -412,7 +412,7 @@ func (arch Amd64) op2ConstMem(asm *Asm, op Op2, c Const, m Mem) Amd64 {
 	case MUL:
 		return arch.mul2ConstMem(asm, c, m)
 	}
-	assert(op != LEA)
+	assert(op != LEA2)
 	op_ := op2val(op)
 	dregid := m.RegId()
 	dlo, dhi := lohiId(dregid)

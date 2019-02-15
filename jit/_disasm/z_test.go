@@ -14,18 +14,16 @@
  *      Author Massimiliano Ghilardi
  */
 
-package asm
+package disasm
 
 import (
 	"testing"
 
-	disasm "github.com/cosmos72/gomacro/jit/_disasm"
-	. "github.com/cosmos72/gomacro/jit/asm"
-	"github.com/cosmos72/gomacro/jit/asm/arm64"
+	. "github.com/cosmos72/gomacro/jit/arm64"
 )
 
 func TestSample(T *testing.T) {
-	var arch arm64.Arm64
+	var arch Arm64
 
 	var asm Asm
 	asm.InitArch(arch)
@@ -88,7 +86,7 @@ func TestSample(T *testing.T) {
 		asm.RegDecUse(id + 2)
 
 		if id == cfg.RLo || id == cfg.RHi {
-			disasm.PrintDisasm(T, arch.Id(), asm.Code())
+			PrintDisasm(T, arch.Id(), asm.Code())
 		}
 	}
 }

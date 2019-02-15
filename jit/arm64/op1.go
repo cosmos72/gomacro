@@ -27,7 +27,7 @@ func (arch Arm64) Op1(asm *Asm, op Op1, a Arg) *Asm {
 		arch.op3(asm, ADD3, a, MakeConst(1, a.Kind()), a)
 	case DEC:
 		arch.op3(asm, SUB3, a, MakeConst(1, a.Kind()), a)
-	case NEG, NOT:
+	case NEG1, NOT1:
 		arch.op2(asm, Op2(op), a, a)
 	default:
 		errorf("unknown Op1 instruction: %v %v", op, a)

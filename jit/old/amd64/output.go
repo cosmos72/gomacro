@@ -1,1 +1,0 @@
-../generic/output.go

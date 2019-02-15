@@ -51,16 +51,16 @@ const (
 	ZERO = Op1(token.DEFAULT) // somewhat arbitrary choice
 	INC  = Op1(token.INC)     // ++
 	DEC  = Op1(token.DEC)     // --
-	NEG  = Op1(1)             // - // avoid conflict between NEG2 and SUB
-	NOT  = Op1(2)             // ^ // avoid conflict between NOT2 and XOR
+	NEG1 = Op1(1)             // - // avoid conflict between NEG2 and SUB2
+	NOT1 = Op1(2)             // ^ // avoid conflict between NOT2 and XOR2
 )
 
 var op1Name = map[Op1]string{
 	ZERO: "ZERO",
 	INC:  "INC",
 	DEC:  "DEC",
-	NOT:  "NOT",
-	NEG:  "NEG",
+	NOT1: "NOT1",
+	NEG1: "NEG1",
 }
 
 func (op Op1) String() string {
@@ -76,58 +76,55 @@ func (op Op1) String() string {
 type Op2 uint8
 
 const (
-	ADD = Op2(token.ADD)
-	SUB = Op2(token.SUB)
-	ADC = Op2(token.ADD + token.VAR) // add with carry
-	SBB = Op2(token.SUB + token.VAR) // subtract with borrow
-	MUL = Op2(token.MUL)
-	DIV = Op2(token.QUO) // divide
-	QUO = DIV            // alias for DIV
-	REM = Op2(token.REM) // remainder
+	ADD2 = Op2(token.ADD)
+	SUB2 = Op2(token.SUB)
+	ADC2 = Op2(token.ADD + token.VAR) // add with carry
+	SBB2 = Op2(token.SUB + token.VAR) // subtract with borrow
+	MUL2 = Op2(token.MUL)
+	DIV2 = Op2(token.QUO) // divide
+	QUO2 = DIV2           // alias for DIV
+	REM2 = Op2(token.REM) // remainder
 
-	AND     = Op2(token.AND)
-	OR      = Op2(token.OR)
-	XOR     = Op2(token.XOR)
-	SHL     = Op2(token.SHL)
-	SHR     = Op2(token.SHR)
-	AND_NOT = Op2(token.AND_NOT)
-
-	LAND = Op2(token.LAND) // &&
-	LOR  = Op2(token.LOR)  // ||
+	AND2     = Op2(token.AND)
+	OR2      = Op2(token.OR)
+	XOR2     = Op2(token.XOR)
+	SHL2     = Op2(token.SHL)
+	SHR2     = Op2(token.SHR)
+	AND_NOT2 = Op2(token.AND_NOT)
+	LAND2    = Op2(token.LAND) // &&
+	LOR2     = Op2(token.LOR)  // ||
 
 	MOV  = Op2(token.ASSIGN) // =
 	CAST = Op2(token.TYPE)   // somewhat arbitrary choice
-	LEA  = Op2(token.ARROW)  // amd64 only. somewhat arbitrary choice
+	LEA2 = Op2(token.ARROW)  // amd64 only. somewhat arbitrary choice
 	// CMP  = ??
 	// XCHG = ??
-
-	// two-arg versions of NOT, NEG above
-	NEG2 = Op2(NEG)
-	NOT2 = Op2(NOT)
+	// two-arg versions of NOT1, NEG1 above
+	NEG2 = Op2(NEG1)
+	NOT2 = Op2(NOT1)
 )
 
 var op2Name = map[Op2]string{
-	ADD: "ADD",
-	SUB: "SUB",
-	ADC: "ADC",
-	SBB: "SBB",
-	MUL: "MUL",
-	DIV: "DIV",
-	REM: "REM",
+	ADD2: "ADD2",
+	SUB2: "SUB2",
+	ADC2: "ADC2",
+	SBB2: "SBB2",
+	MUL2: "MUL2",
+	DIV2: "DIV2",
+	REM2: "REM2",
 
-	AND:     "AND",
-	OR:      "OR",
-	XOR:     "XOR",
-	SHL:     "SHL",
-	SHR:     "SHR",
-	AND_NOT: "AND_NOT",
-
-	LAND: "LAND",
-	LOR:  "LOR",
+	AND2:     "AND2",
+	OR2:      "OR2",
+	XOR2:     "XOR2",
+	SHL2:     "SHL2",
+	SHR2:     "SHR2",
+	AND_NOT2: "AND_NOT2",
+	LAND2:    "LAND2",
+	LOR2:     "LOR2",
 
 	MOV:  "MOV",
 	CAST: "CAST",
-	LEA:  "LEA",
+	LEA2: "LEA2",
 	// CMP:  "CMP",
 	// XCHG: "XCHG",
 	NEG2: "NEG2",
@@ -147,23 +144,23 @@ func (op Op2) String() string {
 type Op3 uint8
 
 const (
-	ADD3 = Op3(ADD)
-	SUB3 = Op3(SUB)
-	ADC3 = Op3(ADC)
-	SBB3 = Op3(SBB)
-	MUL3 = Op3(MUL)
-	DIV3 = Op3(DIV)
-	REM3 = Op3(REM)
+	ADD3 = Op3(ADD2)
+	SUB3 = Op3(SUB2)
+	ADC3 = Op3(ADC2)
+	SBB3 = Op3(SBB2)
+	MUL3 = Op3(MUL2)
+	DIV3 = Op3(DIV2)
+	REM3 = Op3(REM2)
 
-	AND3     = Op3(AND)
-	OR3      = Op3(OR)
-	XOR3     = Op3(XOR)
-	SHL3     = Op3(SHL)
-	SHR3     = Op3(SHR)
-	AND_NOT3 = Op3(AND_NOT)
+	AND3     = Op3(AND2)
+	OR3      = Op3(OR2)
+	XOR3     = Op3(XOR2)
+	SHL3     = Op3(SHL2)
+	SHR3     = Op3(SHR2)
+	AND_NOT3 = Op3(AND_NOT2)
 
-	LAND3 = Op3(LAND)
-	LOR3  = Op3(LOR)
+	LAND3 = Op3(LAND2)
+	LOR3  = Op3(LOR2)
 )
 
 var op3Name = map[Op3]string{
@@ -181,9 +178,8 @@ var op3Name = map[Op3]string{
 	SHL3:     "SHL3",
 	SHR3:     "SHR3",
 	AND_NOT3: "AND_NOT3",
-
-	LAND3: "LAND3",
-	LOR3:  "LOR3",
+	LAND3:    "LAND3",
+	LOR3:     "LOR3",
 }
 
 func (op Op3) String() string {
@@ -199,7 +195,7 @@ func (op Op3) String() string {
 type Op4 uint8
 
 const (
-	LEA4 = Op4(LEA) // amd64 only
+	LEA4 = Op4(LEA2) // amd64 only
 )
 
 var op4Name = map[Op4]string{

@@ -151,8 +151,8 @@ func TestAmd64Lea(t *testing.T) {
 	r1 := asm.RegAlloc(N.Kind())
 	asm.Asm(
 		MUL, ConstInt64(9), N,
-		LEA, N, r0,
-		LEA, M, r0,
+		LEA2, N, r0,
+		LEA2, M, r0,
 		LEA4, M, r0, ConstInt64(2), r1,
 	)
 	asm.RegFree(r0)

@@ -47,9 +47,9 @@ func (arch Amd64) op4(asm *Asm, op Op4, a Arg, b Arg, c Arg, dst Arg) Amd64 {
 	dreg := dst.(Reg)
 
 	if reg.RegId() == NoRegId || scale == 0 {
-		return arch.op2MemReg(asm, LEA, src_m, dreg)
+		return arch.op2MemReg(asm, LEA2, src_m, dreg)
 	} else if src_m.RegId() == NoRegId && scale == 1 {
-		return arch.op2MemReg(asm, LEA, MakeMem(src_m.Offset(), reg.RegId(), src_m.Kind()), dreg)
+		return arch.op2MemReg(asm, LEA2, MakeMem(src_m.Offset(), reg.RegId(), src_m.Kind()), dreg)
 	}
 	return arch.lea4(asm, src_m, reg, scale, dreg)
 }
