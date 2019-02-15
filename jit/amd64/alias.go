@@ -50,7 +50,7 @@ type (
 const (
 	MMAP_SUPPORTED = common.MMAP_SUPPORTED
 	SUPPORTED      = MMAP_SUPPORTED
-	NAME           = "arm64"
+	NAME           = "amd64"
 
 	// ArchId
 	NOARCH = common.NOARCH

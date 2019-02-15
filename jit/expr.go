@@ -16,6 +16,10 @@
 
 package jit
 
+import (
+	"fmt"
+)
+
 // subset of Arg interface
 type Expr interface {
 	Kind() Kind
@@ -54,6 +58,13 @@ func (e *Expr1) Const() bool {
 	return false
 }
 
+func (e *Expr1) String() string {
+	if e.Op.IsCast() {
+		return fmt.Sprintf("%v(%v)", e.Op, e.X)
+	}
+	return fmt.Sprintf("(%v %v)", e.Op, e.X)
+}
+
 // implement Expr interface
 func (e *Expr2) Kind() Kind {
 	return e.K
@@ -63,6 +74,10 @@ func (e *Expr2) Const() bool {
 	return false
 }
 
+func (e *Expr2) String() string {
+	return fmt.Sprintf("(%v %v %v)", e.X, e.Op, e.Y)
+}
+
 func IsLeaf(e Expr) bool {
 	switch e.(type) {
 	case *Expr1, *Expr2:
@@ -70,4 +85,61 @@ func IsLeaf(e Expr) bool {
 	default:
 		return true
 	}
+}
+
+// compile expression
+func (c *Comp) Expr(e Expr) (Expr, SoftReg) {
+	var dst Expr
+	var dstsoft SoftReg
+	switch e := e.(type) {
+	case *Expr1:
+		return c.expr1(e)
+	case *Expr2:
+		return c.expr2(e)
+	case Const, Reg, Mem:
+		dst = e
+	}
+	return dst, dstsoft
+}
+
+// compile unary expression
+func (c *Comp) expr1(e *Expr1) (Expr, SoftReg) {
+	var dst Expr
+	var dstsoft SoftReg
+	src, soft1 := c.Expr(e.X)
+	if soft1.Valid() {
+		dstsoft = SoftReg{soft1.id, e.K}
+	} else {
+		dstsoft = c.AllocSoftReg(e.K)
+	}
+	dst = dstsoft
+	c.code.Op1(e.Op, src, dstsoft)
+	if soft1.Valid() && soft1.id != dstsoft.id {
+		c.FreeSoftReg(soft1)
+	}
+	return dst, dstsoft
+}
+
+// compile binary expression
+func (c *Comp) expr2(e *Expr2) (Expr, SoftReg) {
+	var dst Expr
+	var dstsoft SoftReg
+	src1, soft1 := c.Expr(e.X)
+	src2, soft2 := c.Expr(e.Y)
+	if soft1.Valid() {
+		dstsoft = SoftReg{soft1.id, e.K}
+	} else if soft2.Valid() && e.Op.IsCommutative() {
+		dstsoft = SoftReg{soft2.id, e.K}
+	} else {
+		dstsoft = c.AllocSoftReg(e.K)
+	}
+	dst = dstsoft
+	c.code.Op2(e.Op, src1, src2, dstsoft)
+	if soft1.Valid() && soft1.id != dstsoft.id {
+		c.FreeSoftReg(soft1)
+	}
+	if soft2.Valid() && soft2.id != dstsoft.id {
+		c.FreeSoftReg(soft2)
+	}
+	return dst, dstsoft
 }

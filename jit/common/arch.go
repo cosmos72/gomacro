@@ -30,7 +30,7 @@ const (
 
 type Arch interface {
 	Id() ArchId
-	Name() string
+	String() string
 	RegIdCfg() RegIdCfg
 	RegIdValid(id RegId) bool
 	RegIdString(id RegId) string // RegId -> string
@@ -54,7 +54,7 @@ var Archs = make(map[ArchId]Arch) // {ARM64:Arm64{}, AMD64:Amd64{}}
 func (archId ArchId) String() string {
 	arch := Archs[archId]
 	if arch != nil {
-		return arch.Name()
+		return arch.String()
 	}
 	return fmt.Sprintf("ArchId(%d)", uint8(archId))
 }

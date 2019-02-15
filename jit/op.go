@@ -17,6 +17,8 @@
 package jit
 
 import (
+	"fmt"
+
 	"github.com/cosmos72/gomacro/jit/asm"
 )
 
@@ -24,6 +26,26 @@ type Op1 uint8 // unary expression operator
 type Op2 uint8 // binary expression operator
 
 const (
+	// instead of a single CAST, we must implement
+	// one Op1 per destination type:
+	// INT8 ... INT64, UINT8 ... UINT64, etc.
+	INT     = Op1(asm.Int)
+	INT8    = Op1(asm.Int8)
+	INT16   = Op1(asm.Int16)
+	INT32   = Op1(asm.Int32)
+	INT64   = Op1(asm.Int64)
+	UINT    = Op1(asm.Uint)
+	UINT8   = Op1(asm.Uint8)
+	UINT16  = Op1(asm.Uint16)
+	UINT32  = Op1(asm.Uint32)
+	UINT64  = Op1(asm.Uint64)
+	UINTPTR = Op1(asm.Uintptr)
+	FLOAT32 = Op1(asm.Float32)
+	FLOAT64 = Op1(asm.Float64)
+	PTR     = Op1(asm.Ptr)
+	NEG     = Op1(asm.NEG2)
+	NOT     = Op1(asm.NOT2)
+
 	ADD     = Op2(asm.ADD3)
 	SUB     = Op2(asm.SUB3)
 	MUL     = Op2(asm.MUL3)
@@ -45,17 +67,78 @@ const (
 		LEQ     = Op2(asm.LEQ3)
 		GEQ     = Op2(asm.GEQ3)
 	*/
-	// CAST = Op1(asm.CAST)
-	NEG = Op1(asm.NEG2)
-	NOT = Op1(asm.NOT2)
 )
 
+var op1name = map[Op1]string{
+	INT:     "int",
+	INT8:    "int8",
+	INT16:   "int16",
+	INT32:   "int32",
+	INT64:   "int64",
+	UINT:    "uint",
+	UINT8:   "uint8",
+	UINT16:  "uint16",
+	UINT32:  "uint32",
+	UINT64:  "uint64",
+	FLOAT32: "float32",
+	FLOAT64: "float64",
+	PTR:     "pointer",
+	NEG:     "-",
+	NOT:     "^",
+}
+
+var op2name = map[Op2]string{
+	ADD:     "+",
+	SUB:     "-",
+	MUL:     "*",
+	QUO:     "/",
+	REM:     "%",
+	AND:     "&",
+	OR:      "|",
+	XOR:     "^",
+	SHL:     "<<",
+	SHR:     ">>",
+	AND_NOT: "&^",
+	LAND:    "&&",
+	LOR:     "||",
+	/*
+		EQL    :"==",
+		LSS    :"<",
+		GTR    :"<",
+		NEQ    :"!=",
+		LEQ    :"<=",
+		GEQ    :">=",
+	*/
+}
+
+func (op Op1) Valid() bool {
+	_, ok := op1name[op]
+	return ok
+}
+
+func (op Op1) IsCast() bool {
+	return op.Valid() && op >= INT && op <= PTR
+}
+
 func (op Op1) String() string {
-	return asm.Op2(op).String()
+	s, ok := op1name[op]
+	if !ok {
+		s = fmt.Sprintf("Op1(%d)", uint8(op))
+	}
+	return s
+}
+
+func (op Op2) Valid() bool {
+	_, ok := op2name[op]
+	return ok
 }
 
 func (op Op2) String() string {
-	return asm.Op3(op).String()
+	s, ok := op2name[op]
+	if !ok {
+		s = fmt.Sprintf("Op2(%d)", uint8(op))
+	}
+	return s
 }
 
 func (op Op2) IsCommutative() bool {

@@ -26,15 +26,15 @@ type Amd64 struct {
 }
 
 func init() {
-	common.Archs[common.AMD64] = Amd64{}
+	common.Archs[AMD64] = Amd64{}
 }
 
 // implement Arch interface
 func (Amd64) Id() ArchId {
-	return common.AMD64
+	return AMD64
 }
 
-func (Amd64) Name() string {
+func (Amd64) String() string {
 	return NAME
 }
 

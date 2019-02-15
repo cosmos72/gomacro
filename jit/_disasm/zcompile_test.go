@@ -46,12 +46,13 @@ func TestCompileExpr1(t *testing.T) {
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
 		r := MakeReg(c.RLo, Uint64)
-		c.Expr(
-			NewExpr1(
-				NEG, NewExpr1(NOT, r),
-			),
+		e := NewExpr1(
+			NEG, NewExpr1(NOT, r),
 		)
+		c.Expr(e)
 		actual := c.Code()
+
+		t.Log("expr = ", e)
 		t.Log(actual...)
 
 		expected := Code{
@@ -84,12 +85,13 @@ func TestCompileExpr2(t *testing.T) {
 		r1 := a.RegAlloc(Uint64)
 		r2 := a.RegAlloc(Uint64)
 		// compile
-		c.Expr(
-			NewExpr2(
-				ADD, NewExpr2(MUL, c7, r1), NewExpr2(SUB, c9, r2),
-			),
+		e := NewExpr2(
+			ADD, NewExpr2(MUL, c7, r1), NewExpr2(SUB, c9, r2),
 		)
+		c.Expr(e)
 		actual := c.Code()
+
+		t.Log("expr = ", e)
 		t.Log(actual...)
 
 		expected := Code{
@@ -126,15 +128,18 @@ func TestCompileStmt(t *testing.T) {
 		m3 := c.MakeVar(2, Uint8)
 		m4 := c.MakeVar(3, Uint8)
 
-		c.Compile(
+		ts := []Stmt{
 			NewStmt1(INC, m1),
 			NewStmt1(DEC, m2),
 			NewStmt1(ZERO, m3w),
 			NewStmt1(NOP, m4),
 			// TODO: CAST
 			NewStmt2(ASSIGN, m4, m3),
-		)
+		}
+		c.Compile(ts...)
 		actual := c.Code()
+
+		t.Logf("stmt = %v", ts)
 		t.Log(actual...)
 
 		expected := Code{

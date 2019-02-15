@@ -51,8 +51,8 @@ const (
 	ZERO = Op1(token.DEFAULT) // somewhat arbitrary choice
 	INC  = Op1(token.INC)     // ++
 	DEC  = Op1(token.DEC)     // --
-	NEG1 = Op1(1)             // - // avoid conflict between NEG2 and SUB2
-	NOT1 = Op1(2)             // ^ // avoid conflict between NOT2 and XOR2
+	NEG1 = Op1(token.VAR + 1) // - // avoid conflict between NEG2 and SUB2
+	NOT1 = Op1(token.VAR + 2) // ^ // avoid conflict between NOT2 and XOR2
 )
 
 var op1Name = map[Op1]string{
