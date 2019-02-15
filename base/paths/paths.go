@@ -75,6 +75,10 @@ var (
 
 	GoSrcDir = Subdir(filepath.SplitList(build.Default.GOPATH)[0], "src")
 
+	// where to find the Go compiler used to compile gomacro.
+	// needed to build compatible plugins
+	GoRootDir = build.Default.GOROOT
+
 	GomacroDir = findGomacroDir(GoPkg)
 )
 

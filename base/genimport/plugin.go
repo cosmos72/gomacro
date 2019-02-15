@@ -18,33 +18,45 @@ package genimport
 
 import (
 	"io"
+	"os"
 	"os/exec"
+	"path/filepath"
 	r "reflect"
 
 	"github.com/cosmos72/gomacro/base/paths"
 )
 
-func compilePlugin(o *Output, filepath string, stdout io.Writer, stderr io.Writer) string {
+func compilePlugin(o *Output, filePath string, stdout io.Writer, stderr io.Writer) string {
 	gosrcdir := paths.GoSrcDir
 	gosrclen := len(gosrcdir)
-	filelen := len(filepath)
-	if filelen < gosrclen || filepath[0:gosrclen] != gosrcdir {
-		o.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filepath, gosrcdir)
+	filelen := len(filePath)
+	if filelen < gosrclen || filePath[0:gosrclen] != gosrcdir {
+		o.Errorf("source %q is in unsupported directory, cannot compile it: should be inside %q", filePath, gosrcdir)
 	}
 
-	cmd := exec.Command("go", "build", "-buildmode=plugin")
-	cmd.Dir = paths.DirName(filepath)
+	gocmd := "go"
+
+	// prefer to use $GOROOT/bin/go, where $GOROOT is the Go installation that compiled gomacro
+	if gorootdir := paths.GoRootDir; gorootdir != "" {
+		gocmdabs := filepath.Join(gorootdir, "bin", gocmd)
+		info, err := os.Stat(gocmdabs)
+		if err == nil && !info.IsDir() && info.Size() != 0 && info.Mode()&0111 != 0 {
+			gocmd = gocmdabs
+		}
+	}
+	cmd := exec.Command(gocmd, "build", "-buildmode=plugin")
+	cmd.Dir = paths.DirName(filePath)
 	cmd.Stdin = nil
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr
 
-	o.Debugf("compiling %q ...", filepath)
+	o.Debugf("compiling %q ...", filePath)
 	err := cmd.Run()
 	if err != nil {
-		o.Errorf("error executing \"go build -buildmode=plugin\" in directory %q: %v", cmd.Dir, err)
+		o.Errorf("error executing \"%s build -buildmode=plugin\" in directory %q: %v", gocmd, cmd.Dir, err)
 	}
 
-	dirname := paths.RemoveLastByte(paths.DirName(filepath))
+	dirname := paths.RemoveLastByte(paths.DirName(filePath))
 	// go build uses innermost directory name as shared object name,
 	// i.e.	foo/bar/main.go is compiled to foo/bar/bar.so
 	filename := paths.FileName(dirname)
