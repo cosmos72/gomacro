@@ -53,6 +53,6 @@ func (s SoftReg) Validate() {
 }
 
 func (s SoftReg) String() string {
-	return fmt.Sprintf("T%d.%v", uint32(s.id), s.kind)
+	return fmt.Sprintf("T%d", uint32(s.id))
 
 }

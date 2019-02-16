@@ -56,7 +56,6 @@ func TestCompileExpr1(t *testing.T) {
 		actual := c.Code()
 
 		t.Log("expr: ", e)
-		t.Log(actual...)
 
 		expected := Code{
 			asm.ALLOC, S0, Uint64,
@@ -67,6 +66,8 @@ func TestCompileExpr1(t *testing.T) {
 		if i := CompareCode(actual, expected); i >= 0 {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
+		} else {
+			t.Log(actual...)
 		}
 
 		// assemble
@@ -95,7 +96,6 @@ func TestCompileExpr2(t *testing.T) {
 		actual := c.Code()
 
 		t.Log("expr: ", e)
-		t.Log(actual...)
 
 		expected := Code{
 			asm.ALLOC, S0, Uint64,
@@ -109,6 +109,8 @@ func TestCompileExpr2(t *testing.T) {
 		if i := CompareCode(actual, expected); i >= 0 {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
+		} else {
+			t.Log(actual...)
 		}
 
 		// assemble
@@ -142,7 +144,6 @@ func TestCompileStmt1(t *testing.T) {
 		actual := c.Code()
 
 		t.Logf("stmt: %v", ts)
-		t.Log(actual...)
 
 		expected := Code{
 			asm.INC, m1,
@@ -159,6 +160,8 @@ func TestCompileStmt1(t *testing.T) {
 		if i := CompareCode(actual, expected); i >= 0 {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
+		} else {
+			t.Log(actual...)
 		}
 
 		// assemble
@@ -176,8 +179,7 @@ func TestCompileStmt2(t *testing.T) {
 		c.InitArchId(archId)
 		s0 := c.AllocSoftReg(Uint64)
 		s1 := c.AllocSoftReg(Uint64)
-		s2 := MakeSoftReg(s1.Id()+1, Uint64)
-		s0id, s1id, s2id := s0.Id(), s1.Id(), s2.Id()
+		sid0, sid1 := s0.Id(), s1.Id()
 
 		stmt := NewStmt2(ASSIGN, s0,
 			NewExpr1(NEG,
@@ -187,21 +189,19 @@ func TestCompileStmt2(t *testing.T) {
 		actual := c.Code()
 
 		t.Logf("stmt: %v", stmt)
-		t.Log(actual...)
 
 		expected := Code{
-			asm.ALLOC, s0id, asm.Uint64,
-			asm.ALLOC, s1id, asm.Uint64,
-			asm.ALLOC, s2id, asm.Uint64,
-			asm.MUL3, s1id, _7, s2id,
-			asm.NEG2, s2id, s2id,
-			asm.MOV, s2id, s0id,
-			asm.FREE, s2id, asm.Uint64,
+			asm.ALLOC, sid0, asm.Uint64,
+			asm.ALLOC, sid1, asm.Uint64,
+			asm.MUL3, sid1, _7, sid0,
+			asm.NEG2, sid0, sid0,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
+		} else {
+			t.Log(actual...)
 		}
 
 		// assemble

@@ -46,7 +46,10 @@ func (c *Code) Inst1(inst Inst1, dst Expr) *Code {
 }
 
 func (c *Code) Inst2(inst Inst2, src Expr, dst Expr) *Code {
-	*c = append(*c, inst.Asm(), asmArg(src), asmArg(dst))
+	asrc, adst := asmArg(src), asmArg(dst)
+	if inst != ASSIGN || asrc != adst {
+		*c = append(*c, inst.Asm(), asrc, adst)
+	}
 	return c
 }
 

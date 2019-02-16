@@ -138,7 +138,9 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 		dst = dsoft
 	} else if dsoft != dst {
 		// copy dsoft to the requested destination
+		// and free it
 		c.code.Inst2(ASSIGN, dsoft, dst)
+		c.FreeSoftReg(dsoft)
 		dsoft = SoftReg{}
 	}
 	return dst, dsoft
@@ -176,7 +178,9 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 		dst = dsoft
 	} else if dsoft != dst {
 		// copy dsoft to the requested destination
+		// and free it
 		c.code.Inst2(ASSIGN, dsoft, dst)
+		c.FreeSoftReg(dsoft)
 		dsoft = SoftReg{}
 	}
 	return dst, dsoft
