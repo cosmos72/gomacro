@@ -94,8 +94,8 @@ func TestExecUnary(t *testing.T) {
 	var f func(*uint64)
 	asm.Asm( //
 		MOV, v, r,
-		NEG, r,
-		NOT, r,
+		NEG1, r,
+		NOT1, r,
 		MOV, r, v,
 	).Func(&f)
 	f(&binds[0])
