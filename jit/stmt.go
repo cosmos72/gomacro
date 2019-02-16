@@ -98,8 +98,8 @@ func (c *Comp) Stmt(t Stmt) {
 // compile unary statement
 func (c *Comp) stmt1(t *Stmt1) {
 	dst, soft := c.Expr(t.Dst)
-	if t.Inst != NOP && !isMem(dst) {
-		errorf("cannot assign to %v", t.Dst)
+	if t.Inst != NOP {
+		checkAssignable(dst)
 	}
 	c.code.Inst1(t.Inst, dst)
 	c.FreeSoftReg(soft)
@@ -109,13 +109,13 @@ func (c *Comp) stmt1(t *Stmt1) {
 func (c *Comp) stmt2(t *Stmt2) {
 	// evaluate left-hand side first
 	dst, dsoft := c.Expr(t.Dst)
-	if !isMem(dst) {
-		errorf("cannot assign to %v", t.Dst)
-	}
-	src, ssoft := c.Expr(t.Src)
+	checkAssignable(dst)
+	src, ssoft := c.expr(t.Src, dst)
 	c.code.Inst2(t.Inst, src, dst)
 	c.FreeSoftReg(dsoft)
-	c.FreeSoftReg(ssoft)
+	if ssoft.id != dsoft.id {
+		c.FreeSoftReg(ssoft)
+	}
 }
 
 // compile n-ary statement
@@ -129,9 +129,7 @@ func (c *Comp) stmtN(t *StmtN) {
 	// evaluate left-hand side first
 	for i, x := range t.Dst {
 		e, _ := c.Expr(x)
-		if !isMem(e) {
-			errorf("cannot assign to %v", x)
-		}
+		checkAssignable(e)
 		dst[i] = e
 	}
 	for i, x := range t.Src {

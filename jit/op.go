@@ -173,5 +173,5 @@ func (op Op2) String() string {
 }
 
 func (op Op2) IsCommutative() bool {
-	return asm.Op3(op).IsCommutative()
+	return op.Asm().IsCommutative()
 }

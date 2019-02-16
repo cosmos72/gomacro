@@ -22,6 +22,8 @@ package arm64
 func op0val(op Op0) uint32 {
 	var val uint32
 	switch op {
+	case BAD:
+		val = 0x00000000
 	case NOP:
 		val = 0xD503201F
 	case RET:

@@ -76,6 +76,7 @@ func (c *Comp) NewAsm() *Asm {
 	return asm.NewArch(c.arch)
 }
 
+// return compiled assembly code
 func (c *Comp) Code() Code {
 	return c.code
 }
@@ -95,9 +96,13 @@ func (c *Comp) FreeSoftReg(s SoftReg) {
 	}
 }
 
-func isMem(e Expr) bool {
-	_, ok := e.(Mem)
-	return ok
+func checkAssignable(e Expr) {
+	switch e.(type) {
+	case Mem, SoftReg:
+		break
+	default:
+		errorf("cannot assign to %v", e)
+	}
 }
 
 // compile list of statements

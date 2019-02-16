@@ -19,20 +19,16 @@ package amd64
 // ============================================================================
 // no-arg instruction
 
-var op0Val = [256]uint8{
-	RET: 0xC3,
-	NOP: 0x90,
-}
-
-func op0val(op Op0) uint8 {
-	val := op0Val[op]
-	if val == 0 {
+func (arch Amd64) Op0(asm *Asm, op Op0) *Asm {
+	switch op {
+	case BAD:
+		asm.Bytes(0x0F, 0x0B) // UD2
+	case RET:
+		asm.Byte(0xC3)
+	case NOP:
+		asm.Byte(0x90)
+	default:
 		errorf("unknown Op0 instruction: %v", op)
 	}
-	return val
-}
-
-// ============================================================================
-func (arch Amd64) Op0(asm *Asm, op Op0) *Asm {
-	return asm.Byte(op0val(op))
+	return asm
 }

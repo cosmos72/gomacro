@@ -95,57 +95,89 @@ func IsLeaf(e Expr) bool {
 
 // compile expression
 func (c *Comp) Expr(e Expr) (Expr, SoftReg) {
-	var dst Expr
+	return c.expr(e, nil)
+}
+
+func (c *Comp) expr(e Expr, dst Expr) (Expr, SoftReg) {
 	var dstsoft SoftReg
 	switch e := e.(type) {
 	case *Expr1:
-		return c.expr1(e)
+		return c.expr1(e, dst)
 	case *Expr2:
-		return c.expr2(e)
-	case Const, Reg, Mem:
+		return c.expr2(e, dst)
+	case Const, Reg, Mem, SoftReg:
 		dst = e
+	default:
+		errorf("unknown expression type %T: %v", e, e)
 	}
 	return dst, dstsoft
 }
 
 // compile unary expression
-func (c *Comp) expr1(e *Expr1) (Expr, SoftReg) {
-	var dst Expr
-	var dstsoft SoftReg
-	src, soft1 := c.Expr(e.X)
-	if soft1.Valid() {
-		dstsoft = SoftReg{soft1.id, e.K}
-	} else {
-		dstsoft = c.AllocSoftReg(e.K)
+func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
+	dsoft, _ := dst.(SoftReg)
+	var dto Expr
+	if dsoft.Valid() {
+		// forward the request to write into dsoft
+		dto = dst
 	}
-	dst = dstsoft
-	c.code.Op1(e.Op, src, dstsoft)
-	if soft1.Valid() && soft1.id != dstsoft.id {
-		c.FreeSoftReg(soft1)
+	src, ssoft := c.expr(e.X, dto)
+	if !dsoft.Valid() {
+		if ssoft.Valid() {
+			dsoft = SoftReg{ssoft.id, e.K}
+		} else {
+			dsoft = c.AllocSoftReg(e.K)
+		}
 	}
-	return dst, dstsoft
+	c.code.Op1(e.Op, src, dsoft)
+	if ssoft.id != dsoft.id {
+		c.FreeSoftReg(ssoft)
+	}
+	if dst == nil {
+		// no destination requested
+		dst = dsoft
+	} else if dsoft != dst {
+		// copy dsoft to the requested destination
+		c.code.Inst2(ASSIGN, dsoft, dst)
+		dsoft = SoftReg{}
+	}
+	return dst, dsoft
 }
 
 // compile binary expression
-func (c *Comp) expr2(e *Expr2) (Expr, SoftReg) {
-	var dst Expr
-	var dstsoft SoftReg
-	src1, soft1 := c.Expr(e.X)
-	src2, soft2 := c.Expr(e.Y)
-	if soft1.Valid() {
-		dstsoft = SoftReg{soft1.id, e.K}
-	} else if soft2.Valid() && e.Op.IsCommutative() {
-		dstsoft = SoftReg{soft2.id, e.K}
-	} else {
-		dstsoft = c.AllocSoftReg(e.K)
+func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
+	dsoft, _ := dst.(SoftReg)
+	var dto Expr
+	if dsoft.Valid() {
+		// forward the request to write into dsoft
+		dto = dst
 	}
-	dst = dstsoft
-	c.code.Op2(e.Op, src1, src2, dstsoft)
-	if soft1.Valid() && soft1.id != dstsoft.id {
+	src1, soft1 := c.expr(e.X, dto)
+	src2, soft2 := c.Expr(e.Y)
+	if !dsoft.Valid() {
+		if soft1.Valid() {
+			dsoft = SoftReg{soft1.id, e.K}
+		} else if soft2.Valid() && e.Op.IsCommutative() {
+			dsoft = SoftReg{soft2.id, e.K}
+		} else {
+			dsoft = c.AllocSoftReg(e.K)
+		}
+	}
+	dst = dsoft
+	c.code.Op2(e.Op, src1, src2, dsoft)
+	if soft1.id != dsoft.id {
 		c.FreeSoftReg(soft1)
 	}
-	if soft2.Valid() && soft2.id != dstsoft.id {
+	if soft2.id != dsoft.id {
 		c.FreeSoftReg(soft2)
 	}
-	return dst, dstsoft
+	if dst == nil {
+		// no destination requested
+		dst = dsoft
+	} else if dsoft != dst {
+		// copy dsoft to the requested destination
+		c.code.Inst2(ASSIGN, dsoft, dst)
+		dsoft = SoftReg{}
+	}
+	return dst, dsoft
 }

@@ -17,7 +17,6 @@
 package disasm
 
 import (
-	"fmt"
 	"testing"
 
 	. "github.com/cosmos72/gomacro/jit"
@@ -29,16 +28,20 @@ const (
 	S1
 )
 
-func SameCode(actual Code, expected Code) bool {
-	if len(actual) != len(expected) {
-		return false
+func CompareCode(actual Code, expected Code) int {
+
+	if n1, n2 := len(actual), len(expected); n1 != n2 {
+		if n1 < n2 {
+			return n1
+		}
+		return n2
 	}
 	for i := range actual {
 		if actual[i] != expected[i] {
-			return false
+			return i
 		}
 	}
-	return true
+	return -1
 }
 
 func TestCompileExpr1(t *testing.T) {
@@ -52,7 +55,7 @@ func TestCompileExpr1(t *testing.T) {
 		c.Expr(e)
 		actual := c.Code()
 
-		t.Log("expr = ", e)
+		t.Log("expr: ", e)
 		t.Log(actual...)
 
 		expected := Code{
@@ -61,9 +64,9 @@ func TestCompileExpr1(t *testing.T) {
 			asm.NEG2, S0, S0,
 		}
 
-		if !SameCode(actual, expected) {
-			t.Errorf("miscompiled code:\n\texpected %v\n\tactual   %v",
-				expected, actual)
+		if i := CompareCode(actual, expected); i >= 0 {
+			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
+				i, expected, actual)
 		}
 
 		// assemble
@@ -91,7 +94,7 @@ func TestCompileExpr2(t *testing.T) {
 		c.Expr(e)
 		actual := c.Code()
 
-		t.Log("expr = ", e)
+		t.Log("expr: ", e)
 		t.Log(actual...)
 
 		expected := Code{
@@ -103,9 +106,9 @@ func TestCompileExpr2(t *testing.T) {
 			asm.FREE, S1, asm.Uint64,
 		}
 
-		if !SameCode(actual, expected) {
-			t.Errorf("miscompiled code:\n\texpected %v\n\tactual   %v",
-				expected, actual)
+		if i := CompareCode(actual, expected); i >= 0 {
+			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
+				i, expected, actual)
 		}
 
 		// assemble
@@ -115,13 +118,11 @@ func TestCompileExpr2(t *testing.T) {
 	}
 }
 
-func TestCompileStmt(t *testing.T) {
+func TestCompileStmt1(t *testing.T) {
 	var c Comp
 	var s0 SoftRegId
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		fmt.Printf("arch = %v: RVAR = %v\n", c.ArchId(), c.RVAR)
-		a := c.NewAsm()
 
 		m1 := c.MakeVar(0, Uint64)
 		m2 := c.MakeVar(1, Uint32)
@@ -140,7 +141,7 @@ func TestCompileStmt(t *testing.T) {
 		c.Compile(ts...)
 		actual := c.Code()
 
-		t.Logf("stmt = %v", ts)
+		t.Logf("stmt: %v", ts)
 		t.Log(actual...)
 
 		expected := Code{
@@ -155,12 +156,56 @@ func TestCompileStmt(t *testing.T) {
 			asm.MOV, m3, m4,
 		}
 
-		if !SameCode(actual, expected) {
-			t.Errorf("miscompiled code:\n\texpected %v\n\tactual   %v",
-				expected, actual)
+		if i := CompareCode(actual, expected); i >= 0 {
+			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
+				i, expected, actual)
 		}
 
 		// assemble
+		a := c.NewAsm()
+		a.Asm(c.Code()...)
+		a.Epilogue()
+		PrintDisasm(t, c.ArchId(), a.Code())
+	}
+}
+
+func TestCompileStmt2(t *testing.T) {
+	var c Comp
+	_7 := MakeConst(7, Uint64)
+	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
+		c.InitArchId(archId)
+		s0 := c.AllocSoftReg(Uint64)
+		s1 := c.AllocSoftReg(Uint64)
+		s2 := MakeSoftReg(s1.Id()+1, Uint64)
+		s0id, s1id, s2id := s0.Id(), s1.Id(), s2.Id()
+
+		stmt := NewStmt2(ASSIGN, s0,
+			NewExpr1(NEG,
+				NewExpr2(MUL, s1, _7)),
+		)
+		c.Stmt(stmt)
+		actual := c.Code()
+
+		t.Logf("stmt: %v", stmt)
+		t.Log(actual...)
+
+		expected := Code{
+			asm.ALLOC, s0id, asm.Uint64,
+			asm.ALLOC, s1id, asm.Uint64,
+			asm.ALLOC, s2id, asm.Uint64,
+			asm.MUL3, s1id, _7, s2id,
+			asm.NEG2, s2id, s2id,
+			asm.MOV, s2id, s0id,
+			asm.FREE, s2id, asm.Uint64,
+		}
+
+		if i := CompareCode(actual, expected); i >= 0 {
+			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
+				i, expected, actual)
+		}
+
+		// assemble
+		a := c.NewAsm()
 		a.Asm(c.Code()...)
 		a.Epilogue()
 		PrintDisasm(t, c.ArchId(), a.Code())

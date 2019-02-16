@@ -26,11 +26,13 @@ import (
 type Op0 uint8
 
 const (
+	BAD = Op0(token.ILLEGAL)   // invalid instruction, guaranteed to signal exception
 	NOP = Op0(token.SEMICOLON) // somewhat arbitrary choice
 	RET = Op0(token.RETURN)
 )
 
 var op0Name = map[Op0]string{
+	BAD: "BAD",
 	RET: "RET",
 	NOP: "NOP",
 }

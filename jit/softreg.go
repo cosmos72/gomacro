@@ -16,10 +16,22 @@
 
 package jit
 
+import (
+	"fmt"
+)
+
 // SoftRegId wrapper, implements Expr
 type SoftReg struct {
 	id   SoftRegId
 	kind Kind
+}
+
+func MakeSoftReg(id SoftRegId, kind Kind) SoftReg {
+	return SoftReg{id, kind}
+}
+
+func (s SoftReg) Id() SoftRegId {
+	return s.id
 }
 
 func (s SoftReg) Kind() Kind {
@@ -32,4 +44,15 @@ func (s SoftReg) Const() bool {
 
 func (s SoftReg) Valid() bool {
 	return s.kind != Invalid
+}
+
+func (s SoftReg) Validate() {
+	if !s.Valid() {
+		errorf("invalid SoftReg: %v", s)
+	}
+}
+
+func (s SoftReg) String() string {
+	return fmt.Sprintf("T%d.%v", uint32(s.id), s.kind)
+
 }

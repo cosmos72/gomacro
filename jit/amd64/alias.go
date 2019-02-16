@@ -83,6 +83,7 @@ const (
 	NoRegId = common.NoRegId
 
 	// Op0
+	BAD = common.BAD
 	NOP = common.NOP
 	RET = common.RET
 
