@@ -397,7 +397,7 @@ var testcases = []TestCase{
 	TestCase{A, "var_5", "var vs string; vs", "", nil},
 	TestCase{A, "var_6", "var v6 float32; v6", float32(0), nil},
 	TestCase{A, "var_7", "var v7 complex64; v7", complex64(0), nil},
-	TestCase{A, "var_9", "var v8 complex128; v8", complex128(0), nil},
+	TestCase{A, "var_8", "var v8 complex128; v8", complex128(0), nil},
 	TestCase{A, "var_9", "var err error; err", nil, nil},
 	TestCase{A, "var_10", `ve, vf := "", 1.23; ve`, "", nil},
 	TestCase{A, "var_pointer", "var vp *string; vp", (*string)(nil), nil},

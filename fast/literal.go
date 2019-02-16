@@ -118,9 +118,11 @@ func (e *Expr) ConstTo(t xr.Type) I {
 		// no longer a constant
 		e.Lit.Value = nil
 		e.Fun = fun
-	} else if e.Fun != nil {
-		// e.Fun is no longer valid, recompute it
-		e.WithFun()
+	} else {
+		if e.Fun != nil {
+			// e.Fun is no longer valid, recompute it
+			e.WithFun()
+		}
 	}
 	return val
 }

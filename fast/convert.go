@@ -17,9 +17,10 @@
 package fast
 
 import (
-	"github.com/cosmos72/gomacro/base/reflect"
 	"go/ast"
 	r "reflect"
+
+	"github.com/cosmos72/gomacro/base/reflect"
 
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
@@ -43,7 +44,7 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 		if e.Const() {
 			return c.exprValue(t, e.Value)
 		} else {
-			return exprFun(t, e.Fun)
+			return jitIdentity(exprFun(t, e.Fun), e)
 		}
 	} else if e.Type == nil && reflect.IsNillableKind(t.Kind()) {
 		e.Type = t
@@ -160,6 +161,8 @@ func (c *Comp) convert(e *Expr, t xr.Type, nodeOpt ast.Expr) *Expr {
 	eret := exprFun(t, ret)
 	if e.Const() {
 		eret.EvalConst(COptKeepUntyped)
+	} else {
+		eret = jitCast(eret, t, e)
 	}
 	return eret
 }

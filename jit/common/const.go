@@ -18,6 +18,7 @@ package common
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 )
 
@@ -124,9 +125,11 @@ func ConstUint64(val uint64) Const {
 	return Const{val: int64(val), kind: Uint64}
 }
 
-func ConstInterface(ival interface{}) Const {
+var constInterfaceFail = fmt.Errorf("unsupported jit constant kind")
+
+func ConstInterface(ival interface{}, t reflect.Type) (Const, error) {
 	v := reflect.ValueOf(ival)
-	kind := Kind(v.Kind())
+	kind := Kind(t.Kind())
 	var val int64
 	switch kind {
 	case Bool:
@@ -137,10 +140,12 @@ func ConstInterface(ival interface{}) Const {
 		val = v.Int()
 	case Uint, Uint8, Uint16, Uint32, Uint64, Uintptr:
 		val = int64(v.Uint())
-	case Float32, Float64:
-		errorf("float constants not supported yet")
+	case Float32:
+		val = int64(math.Float32bits(float32(v.Float())))
+	case Float64:
+		val = int64(math.Float64bits(v.Float()))
 	default:
-		errorf("invalid constant kind: %v", kind)
+		return Const{}, constInterfaceFail
 	}
-	return Const{val: val, kind: kind}
+	return Const{val: val, kind: kind}, nil
 }

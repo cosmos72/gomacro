@@ -45,7 +45,10 @@ func exprValue(t xr.Type, value I) *Expr {
 	if t == nil {
 		output.Errorf("internal error! exprValue() value = %v invoked with type = nil", value)
 	}
-	return &Expr{Lit: Lit{Type: t, Value: value}, EFlags: EFlag4Value(value)}
+	return &Expr{
+		Lit:    Lit{Type: t, Value: value},
+		EFlags: EFlag4Value(value),
+	}
 }
 
 func exprLit(lit Lit, sym *Symbol) *Expr {

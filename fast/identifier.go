@@ -208,7 +208,9 @@ func (bind *Bind) expr(st *output.Stringer) *Expr {
 			return env.Vals[idx]
 		}
 	}
-	return &Expr{Lit: Lit{Type: bind.Type}, Fun: fun, Sym: bind.AsSymbol(0)}
+	e := &Expr{Lit: Lit{Type: bind.Type}, Fun: fun, Sym: bind.AsSymbol(0)}
+	jitSymbol(e, idx, 0)
+	return e
 }
 
 // return an expression that will read Symbol value at runtime
@@ -614,7 +616,9 @@ func (sym *Symbol) expr(depth int, st *output.Stringer) *Expr {
 			}
 		}
 	}
-	return &Expr{Lit: Lit{Type: sym.Type}, Fun: fun, Sym: sym}
+	e := &Expr{Lit: Lit{Type: sym.Type}, Fun: fun, Sym: sym}
+	jitSymbol(e, idx, upn)
+	return e
 }
 
 // return an expression that will read Bind optimized value at runtime
@@ -690,7 +694,9 @@ func (bind *Bind) intExpr(st *output.Stringer) *Expr {
 		st.Errorf("unsupported symbol type, cannot use for optimized read: %s %s <%v>", bind.Desc.Class(), bind.Name, bind.Type)
 		return nil
 	}
-	return &Expr{Lit: Lit{Type: bind.Type}, Fun: fun, Sym: bind.AsSymbol(0)}
+	e := &Expr{Lit: Lit{Type: bind.Type}, Fun: fun, Sym: bind.AsSymbol(0)}
+	jitIntSymbol(e, idx, 0)
+	return e
 }
 
 // return an expression that will read Symbol optimized value at runtime
@@ -990,5 +996,7 @@ func (sym *Symbol) intExpr(depth int, st *output.Stringer) *Expr {
 	if fun == nil {
 		st.Errorf("unsupported variable type, cannot use for optimized read: %s <%v>", sym.Name, sym.Type)
 	}
-	return &Expr{Lit: Lit{Type: sym.Type}, Fun: fun, Sym: sym}
+	e := &Expr{Lit: Lit{Type: sym.Type}, Fun: fun, Sym: sym}
+	jitIntSymbol(e, idx, upn)
+	return e
 }

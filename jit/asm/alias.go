@@ -17,7 +17,10 @@
 package asm
 
 import (
+	"reflect"
+
 	"github.com/cosmos72/gomacro/jit/common"
+
 	// ensure all known Arch implementations are loaded and registered
 	_ "github.com/cosmos72/gomacro/jit/amd64"
 	_ "github.com/cosmos72/gomacro/jit/arm64"
@@ -52,6 +55,7 @@ type (
 
 const (
 	MMAP_SUPPORTED = common.MMAP_SUPPORTED
+	SUPPORTED      = MMAP_SUPPORTED && ARCH_SUPPORTED
 
 	// ArchId
 	NOARCH = common.NOARCH
@@ -148,12 +152,40 @@ const (
 // map[ArchId]Arch is a handle, changes effect common.Archs
 var Archs = common.Archs
 
+func ConstInt8(val int8) Const {
+	return common.ConstInt8(val)
+}
+
+func ConstInt16(val int16) Const {
+	return common.ConstInt16(val)
+}
+
+func ConstInt32(val int32) Const {
+	return common.ConstInt32(val)
+}
+
 func ConstInt64(val int64) Const {
 	return common.ConstInt64(val)
 }
 
+func ConstUint8(val uint8) Const {
+	return common.ConstUint8(val)
+}
+
+func ConstUint16(val uint16) Const {
+	return common.ConstUint16(val)
+}
+
+func ConstUint32(val uint32) Const {
+	return common.ConstUint32(val)
+}
+
 func ConstUint64(val uint64) Const {
 	return common.ConstUint64(val)
+}
+
+func ConstInterface(ival interface{}, t reflect.Type) (Const, error) {
+	return common.ConstInterface(ival, t)
 }
 
 func MakeConst(val int64, kind Kind) Const {

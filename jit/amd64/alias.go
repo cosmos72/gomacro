@@ -17,6 +17,8 @@
 package amd64
 
 import (
+	"reflect"
+
 	"github.com/cosmos72/gomacro/jit/common"
 )
 
@@ -175,6 +177,10 @@ func ConstUint32(val uint32) Const {
 
 func ConstUint64(val uint64) Const {
 	return common.ConstUint64(val)
+}
+
+func ConstInterface(ival interface{}, t reflect.Type) (Const, error) {
+	return common.ConstInterface(ival, t)
 }
 
 func MakeConst(val int64, kind Kind) Const {

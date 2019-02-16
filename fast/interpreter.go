@@ -62,6 +62,7 @@ func newTopInterp(path string) *Interp {
 		proxy2interf: make(map[r.Type]xr.Type),
 		Prompt:       "gomacro> ",
 	}
+
 	goid := gls.GoID()
 	run := &Run{IrGlobals: g, goid: goid}
 	// early register run in goroutine-local data
