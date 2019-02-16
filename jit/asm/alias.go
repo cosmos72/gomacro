@@ -28,7 +28,7 @@ type (
 	ArchId     = common.ArchId
 	Arg        = common.Arg
 	Asm        = common.Asm
-	Code       = common.Code
+	Code       = common.Code // assembled machine code
 	Const      = common.Const
 	Kind       = common.Kind
 	Mem        = common.Mem

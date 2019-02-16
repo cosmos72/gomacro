@@ -29,24 +29,24 @@ func (c *Code) Init() *Code {
 }
 
 func (c *Code) Op1(op Op1, src Expr, dst SoftReg) *Code {
-	*c = append(*c, asm.Op2(op), asmArg(src), dst.id)
+	*c = append(*c, op.Asm(), asmArg(src), dst.id)
 	return c
 }
 
 func (c *Code) Op2(op Op2, a Expr, b Expr, dst SoftReg) *Code {
-	*c = append(*c, asm.Op3(op), asmArg(a), asmArg(b), dst.id)
+	*c = append(*c, op.Asm(), asmArg(a), asmArg(b), dst.id)
 	return c
 }
 
 func (c *Code) Inst1(inst Inst1, dst Expr) *Code {
 	if inst != NOP {
-		*c = append(*c, asm.Op1(inst), asmArg(dst))
+		*c = append(*c, inst.Asm(), asmArg(dst))
 	}
 	return c
 }
 
 func (c *Code) Inst2(inst Inst2, src Expr, dst Expr) *Code {
-	*c = append(*c, asm.Op2(inst), asmArg(src), asmArg(dst))
+	*c = append(*c, inst.Asm(), asmArg(src), asmArg(dst))
 	return c
 }
 

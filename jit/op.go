@@ -111,13 +111,30 @@ var op2name = map[Op2]string{
 	*/
 }
 
+// =======================================================
+
 func (op Op1) Valid() bool {
 	_, ok := op1name[op]
 	return ok
 }
 
+func (op Op1) Validate() {
+	if !op.Valid() {
+		errorf("unknown Op1: %v", op)
+	}
+}
+
 func (op Op1) IsCast() bool {
 	return op.Valid() && op >= INT && op <= PTR
+}
+
+// convert to asm.Op2
+func (op Op1) Asm() asm.Op2 {
+	op.Validate()
+	if op.IsCast() {
+		return asm.CAST
+	}
+	return asm.Op2(op)
 }
 
 func (op Op1) String() string {
@@ -128,9 +145,23 @@ func (op Op1) String() string {
 	return s
 }
 
+// =======================================================
+
 func (op Op2) Valid() bool {
 	_, ok := op2name[op]
 	return ok
+}
+
+func (op Op2) Validate() {
+	if !op.Valid() {
+		errorf("unknown Op2: %v", op)
+	}
+}
+
+// convert to asm.Op3
+func (op Op2) Asm() asm.Op3 {
+	op.Validate()
+	return asm.Op3(op)
 }
 
 func (op Op2) String() string {

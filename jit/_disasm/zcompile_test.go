@@ -117,6 +117,7 @@ func TestCompileExpr2(t *testing.T) {
 
 func TestCompileStmt(t *testing.T) {
 	var c Comp
+	var s0 SoftRegId
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
 		fmt.Printf("arch = %v: RVAR = %v\n", c.ArchId(), c.RVAR)
@@ -129,12 +130,12 @@ func TestCompileStmt(t *testing.T) {
 		m4 := c.MakeVar(3, Uint8)
 
 		ts := []Stmt{
-			NewStmt1(INC, m1),
-			NewStmt1(DEC, m2),
-			NewStmt1(ZERO, m3w),
-			NewStmt1(NOP, m4),
-			// TODO: CAST
-			NewStmt2(ASSIGN, m4, m3),
+			NewStmt1(INC, m1),                           // m1++
+			NewStmt1(DEC, m2),                           // m2--
+			NewStmt1(ZERO, m3),                          // m3 = 0
+			NewStmt2(ASSIGN, m3w, NewExpr1(UINT16, m3)), // m3w = uint16(m3)
+			NewStmt1(NOP, m4),                           // _ = m4
+			NewStmt2(ASSIGN, m4, m3),                    // m4 = m3
 		}
 		c.Compile(ts...)
 		actual := c.Code()
@@ -145,8 +146,12 @@ func TestCompileStmt(t *testing.T) {
 		expected := Code{
 			asm.INC, m1,
 			asm.DEC, m2,
-			asm.ZERO, m3w,
+			asm.ZERO, m3,
 			// asm.NOP, m4, // NOP is optimized away
+			asm.ALLOC, s0, asm.Uint16,
+			asm.CAST, m3, s0,
+			asm.MOV, s0, m3w,
+			asm.FREE, s0, asm.Uint16,
 			asm.MOV, m3, m4,
 		}
 

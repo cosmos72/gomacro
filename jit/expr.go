@@ -42,7 +42,13 @@ type Expr2 struct {
 }
 
 func NewExpr1(op Op1, x Expr) *Expr1 {
-	return &Expr1{x, op, x.Kind()}
+	kind := x.Kind()
+	if op.IsCast() {
+		// cast Ops have the same values
+		// as the corresponding Kind
+		kind = Kind(op)
+	}
+	return &Expr1{x, op, kind}
 }
 
 func NewExpr2(op Op2, x Expr, y Expr) *Expr2 {

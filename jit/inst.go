@@ -71,9 +71,23 @@ var inst2name = map[Inst2]string{
 	LOR_ASSIGN:     "||=",
 }
 
+// =======================================================
+
 func (inst Inst1) Valid() bool {
 	_, ok := inst1name[inst]
 	return ok
+}
+
+func (inst Inst1) Validate() {
+	if !inst.Valid() {
+		errorf("unknown Inst1: %v", inst)
+	}
+}
+
+// convert to asm.Op1
+func (inst Inst1) Asm() asm.Op1 {
+	inst.Validate()
+	return asm.Op1(inst)
 }
 
 func (inst Inst1) String() string {
@@ -84,9 +98,23 @@ func (inst Inst1) String() string {
 	return s
 }
 
+// =======================================================
+
 func (inst Inst2) Valid() bool {
 	_, ok := inst2name[inst]
 	return ok
+}
+
+func (inst Inst2) Validate() {
+	if !inst.Valid() {
+		errorf("unknown Inst2: %v", inst)
+	}
+}
+
+// convert to asm.Op2
+func (inst Inst2) Asm() asm.Op2 {
+	inst.Validate()
+	return asm.Op2(inst)
 }
 
 func (inst Inst2) String() string {
