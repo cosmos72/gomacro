@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -316,13 +316,13 @@ func (bind *Bind) ConstValue() r.Value {
 
 // return bind value.
 // if bind is untyped constant, returns UntypedLit wrapped in reflect.Value
-func (bind *Bind) RuntimeValue(env *Env) r.Value {
+func (bind *Bind) RuntimeValue(g *CompGlobals, env *Env) r.Value {
 	var v r.Value
 	switch bind.Desc.Class() {
 	case ConstBind, TemplateFuncBind, TemplateTypeBind:
 		v = bind.Lit.ConstValue()
 	case IntBind:
-		expr := bind.intExpr(&env.Run.Stringer)
+		expr := bind.intExpr(g)
 		// no need for Interp.RunExpr(): expr is a local variable,
 		// not a statement or a function call that may be stopped by the debugger
 		v = expr.AsX1()(env)
@@ -563,6 +563,7 @@ type CompGlobals struct {
 	interf2proxy map[r.Type]r.Type  // interface -> proxy
 	proxy2interf map[r.Type]xr.Type // proxy -> interface
 	Prompt       string
+	Jit          *jit.Comp
 }
 
 func (cg *CompGlobals) CompileOptions() CompileOptions {

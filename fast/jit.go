@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -133,13 +133,13 @@ func jitBinaryExpr(e *Expr, op token.Token, xe *Expr, ye *Expr) *Expr {
 // always returns e.
 // currently not supported, needs access to env.Vals[idx]
 // which is a reflect.Value
-func jitSymbol(e *Expr, idx int, upn int) *Expr {
+func (g *CompGlobals) jitSymbol(e *Expr, idx int, upn int) *Expr {
 	return e
 }
 
 // if supported, set e.Jit to jit expression that will access local variable
 // always returns e.
-func jitIntSymbol(e *Expr, idx int, upn int) *Expr {
+func (g *CompGlobals) jitIntSymbol(e *Expr, idx int, upn int) *Expr {
 	if jitConfig != nil && e.Jit == nil {
 		jvar, err := jit.MakeVar(idx, upn, jit.Kind(e.Type.Kind()), *jitConfig)
 		if err == nil {

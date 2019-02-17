@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2018-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -261,7 +261,7 @@ func (ir *Interp) ReplStdin() {
 
 	if g.Options&OptShowPrompt != 0 {
 		g.Fprintf(g.Stdout, `// GOMACRO, an interactive Go interpreter with generics and macros
-// Copyright (C) 2017-2018 Massimiliano Ghilardi <https://github.com/cosmos72/gomacro>
+// Copyright (C) 2018-2019 Massimiliano Ghilardi <https://github.com/cosmos72/gomacro>
 // License MPL v2.0+: Mozilla Public License version 2.0 or later <http://mozilla.org/MPL/2.0/>
 // This is free software with ABSOLUTELY NO WARRANTY.
 //
