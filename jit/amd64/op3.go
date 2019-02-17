@@ -68,9 +68,9 @@ func (arch Amd64) mul3(asm *Asm, a Arg, b Arg, dst Arg) Amd64 {
 		a, b = b, a
 	}
 	if a == dst {
-		return arch.op2(asm, MUL, b, dst)
+		return arch.op2(asm, MUL2, b, dst)
 	} else if b == dst {
-		return arch.op2(asm, MUL, a, dst)
+		return arch.op2(asm, MUL2, a, dst)
 	}
 	rdst, rokdst := dst.(Reg)
 	if !a.Const() && b.Const() {
@@ -96,10 +96,10 @@ func (arch Amd64) mul3(asm *Asm, a Arg, b Arg, dst Arg) Amd64 {
 		}
 	}
 	if rokdst && rdst.RegId() != b.RegId() {
-		return arch.mov(asm, a, dst).op2(asm, MUL, b, dst)
+		return arch.mov(asm, a, dst).op2(asm, MUL2, b, dst)
 	}
 	r := asm.RegAlloc(dst.Kind())
-	arch.mov(asm, a, r).op2(asm, MUL, b, r).mov(asm, r, dst)
+	arch.mov(asm, a, r).op2(asm, MUL2, b, r).mov(asm, r, dst)
 	asm.RegFree(r)
 	return arch
 }

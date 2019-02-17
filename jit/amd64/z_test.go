@@ -29,11 +29,11 @@ func VarK(index uint16, k Kind) Mem {
 }
 
 func SameCode(actual Code, expected Code) bool {
-	if len(actual) != len(expected) {
+	if len(actual.Bytes) != len(expected.Bytes) {
 		return false
 	}
-	for i := range actual {
-		if actual[i] != expected[i] {
+	for i := range actual.Bytes {
+		if actual.Bytes[i] != expected.Bytes[i] {
 			return false
 		}
 	}
@@ -62,11 +62,14 @@ func TestAmd64SoftRegId(t *testing.T) {
 
 	actual := asm.Code()
 	expected := Code{
-		0x48, 0xc7, 0xc0, 0x01, 0x00, 0x00, 0x00, //  movq	$1, %rax
-		0x48, 0xc7, 0xc2, 0x02, 0x00, 0x00, 0x00, //  movq	$2, %rdx
-		0x48, 0x89, 0xc3, //                          movq	%rax, %rbx
-		0x48, 0x01, 0xd3, //                          addq	%rdx, %rbx
-		0xc3, //                                      retq
+		[]uint8{
+			0x48, 0xc7, 0xc0, 0x01, 0x00, 0x00, 0x00, //  movq	$1, %rax
+			0x48, 0xc7, 0xc2, 0x02, 0x00, 0x00, 0x00, //  movq	$2, %rdx
+			0x48, 0x89, 0xc3, //                          movq	%rax, %rbx
+			0x48, 0x01, 0xd3, //                          addq	%rdx, %rbx
+			0xc3, //                                      retq
+		},
+		AMD64,
 	}
 
 	if !SameCode(actual, expected) {

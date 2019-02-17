@@ -18,7 +18,10 @@ package common
 
 type Size uint8 // 1, 2, 4 or 8
 
-type Code []uint8
+type Code struct {
+	Bytes  []uint8
+	ArchId ArchId
+}
 
 type SaveSlot uint16
 

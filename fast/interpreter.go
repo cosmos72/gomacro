@@ -61,7 +61,7 @@ func newTopInterp(path string) *Interp {
 		interf2proxy: make(map[r.Type]r.Type),
 		proxy2interf: make(map[r.Type]xr.Type),
 		Prompt:       "gomacro> ",
-		// JitComp:      jitNew(),
+		JitComp:      jitNew(),
 	}
 
 	goid := gls.GoID()

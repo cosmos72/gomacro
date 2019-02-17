@@ -29,7 +29,8 @@ const (
 	ADD     = Op2(common.ADD3)
 	SUB     = Op2(common.SUB3)
 	MUL     = Op2(common.MUL3)
-	QUO     = Op2(common.DIV3)
+	DIV     = Op2(common.DIV3)
+	QUO     = DIV
 	REM     = Op2(common.REM3)
 	AND     = Op2(common.AND3)
 	OR      = Op2(common.OR3)

@@ -73,7 +73,7 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	}
 	cfg := arch.RegIdConfig()
 	asm.arch = arch
-	asm.code = nil
+	asm.code = Code{ArchId: id}
 	asm.nextRegId = cfg.RLo
 	asm.nextSoftRegId = 0
 	asm.softRegs = make(SoftRegIds)
@@ -93,32 +93,32 @@ func (asm *Asm) Code() Code {
 }
 
 func (asm *Asm) Byte(b byte) *Asm {
-	asm.code = append(asm.code, b)
+	asm.code.Bytes = append(asm.code.Bytes, b)
 	return asm
 }
 
 func (asm *Asm) Bytes(bytes ...byte) *Asm {
-	asm.code = append(asm.code, bytes...)
+	asm.code.Bytes = append(asm.code.Bytes, bytes...)
 	return asm
 }
 
 func (asm *Asm) Uint8(val uint8) *Asm {
-	asm.code = append(asm.code, val)
+	asm.code.Bytes = append(asm.code.Bytes, val)
 	return asm
 }
 
 func (asm *Asm) Uint16(val uint16) *Asm {
-	asm.code = append(asm.code, uint8(val), uint8(val>>8))
+	asm.code.Bytes = append(asm.code.Bytes, uint8(val), uint8(val>>8))
 	return asm
 }
 
 func (asm *Asm) Uint32(val uint32) *Asm {
-	asm.code = append(asm.code, uint8(val), uint8(val>>8), uint8(val>>16), uint8(val>>24))
+	asm.code.Bytes = append(asm.code.Bytes, uint8(val), uint8(val>>8), uint8(val>>16), uint8(val>>24))
 	return asm
 }
 
 func (asm *Asm) Uint64(val uint64) *Asm {
-	asm.code = append(asm.code, uint8(val), uint8(val>>8), uint8(val>>16), uint8(val>>24), uint8(val>>32), uint8(val>>40), uint8(val>>48), uint8(val>>56))
+	asm.code.Bytes = append(asm.code.Bytes, uint8(val), uint8(val>>8), uint8(val>>16), uint8(val>>24), uint8(val>>32), uint8(val>>40), uint8(val>>48), uint8(val>>56))
 	return asm
 }
 

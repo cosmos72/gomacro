@@ -35,7 +35,7 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 		switch op {
 		case AND2, OR2, MOV, CAST:
 			return true // operation is nop
-		case SUB2, XOR2:
+		case SUB2, XOR2, AND_NOT2:
 			asm.Zero(dst)
 			return true
 		}
@@ -93,6 +93,14 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 			asm.Op1(NOT1, dst)
 			return true
 		}
+	case AND_NOT2:
+		switch n {
+		case 0:
+			return true
+		case -1:
+			asm.Op2(MOV, src, dst)
+			return true
+		}
 	case CAST:
 		asm.Op2(MOV, src, dst)
 		return true
@@ -142,7 +150,7 @@ func (asm *Asm) Optimize3(op Op3, a Arg, b Arg, dst Arg) bool {
 			}
 			asm.Mov(a, dst)
 			return true
-		case SUB3, XOR3:
+		case SUB3, XOR3, AND_NOT3:
 			asm.Zero(dst)
 			return true
 		}
@@ -178,10 +186,10 @@ func (asm *Asm) Optimize3(op Op3, a Arg, b Arg, dst Arg) bool {
 	case AND3:
 		switch n {
 		case 0:
-			asm.Mov(a, dst)
+			asm.Zero(dst)
 			return true
 		case -1:
-			asm.Mov(c, dst)
+			asm.Mov(a, dst)
 			return true
 		}
 	case SUB3:
@@ -197,6 +205,15 @@ func (asm *Asm) Optimize3(op Op3, a Arg, b Arg, dst Arg) bool {
 			return true
 		case -1:
 			asm.Op2(NOT2, a, dst)
+			return true
+		}
+	case AND_NOT3:
+		switch n {
+		case 0:
+			asm.Mov(a, dst)
+			return true
+		case -1:
+			asm.Zero(dst)
 			return true
 		}
 	case SHL3, SHR3:

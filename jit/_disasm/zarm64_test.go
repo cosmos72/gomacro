@@ -82,7 +82,7 @@ func TestArm64Sample(T *testing.T) {
 		asm.RegDecUse(id + 2)
 
 		if id == RLo || id == RHi {
-			PrintDisasm(T, ARM64, asm.Code())
+			PrintDisasm(T, asm.Code())
 		}
 	}
 }
@@ -100,7 +100,7 @@ func TestArm64Zero(t *testing.T) {
 		ZERO, m,
 		RET)
 
-	PrintDisasm(t, ARM64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestArm64Cast(t *testing.T) {
@@ -117,7 +117,7 @@ func TestArm64Cast(t *testing.T) {
 			asm.Asm(CAST, src, dst)
 		}
 	}
-	PrintDisasm(t, ARM64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestArm64Mem(t *testing.T) {
@@ -145,7 +145,7 @@ func TestArm64Mem(t *testing.T) {
 		asm.Asm(NOP)
 	}
 	asm.Epilogue()
-	PrintDisasm(t, ARM64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestArm64Unary(t *testing.T) {
@@ -163,7 +163,7 @@ func TestArm64Unary(t *testing.T) {
 		MOV, r, v,
 	)
 	asm.Epilogue()
-	PrintDisasm(t, ARM64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestArm64SoftReg(t *testing.T) {
@@ -182,5 +182,5 @@ func TestArm64SoftReg(t *testing.T) {
 		FREE, b, Uint64,
 		FREE, c, Uint64,
 	).Epilogue()
-	PrintDisasm(t, ARM64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }

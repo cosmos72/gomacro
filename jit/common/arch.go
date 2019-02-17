@@ -58,3 +58,11 @@ func (archId ArchId) String() string {
 	}
 	return fmt.Sprintf("ArchId(%d)", uint8(archId))
 }
+
+func (code Code) String() string {
+	arch := Archs[code.ArchId]
+	if arch != nil {
+		return arch.CodeString(code)
+	}
+	return fmt.Sprintf("%x", code.Bytes)
+}

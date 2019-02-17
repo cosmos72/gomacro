@@ -99,8 +99,8 @@ func DeclSum() func(arg int64) int64 {
 	pred := func(env *[3]uint64) bool {
 		return int64(env[i]) <= int64(env[n])
 	}
-	Init(&asm).Op2(ADD, ConstInt64(1), I).Func(&next)
-	Init(&asm).Op2(ADD, I, Total).Func(&loop)
+	Init(&asm).Op2(ADD2, ConstInt64(1), I).Func(&next)
+	Init(&asm).Op2(ADD2, I, Total).Func(&loop)
 
 	return func(arg int64) int64 {
 		env := [3]uint64{n: uint64(arg)}
@@ -124,11 +124,11 @@ func TestAdd(t *testing.T) {
 		}
 		r := MakeReg(id, Int64)
 		asm.Asm(MOV, v1, r, //
-			NEG, r, //
-			NOT, r, //
-			ADD, v2, r, //
-			NOT, r, //
-			NEG, r, //
+			NEG1, r, //
+			NOT1, r, //
+			ADD2, v2, r, //
+			NOT1, r, //
+			NEG1, r, //
 			MOV, r, v3, //
 		).Func(&f)
 
@@ -205,7 +205,7 @@ func TestLea(t *testing.T) {
 	env := [...]uint64{uint64(n)}
 
 	var asm Asm
-	Init(&asm).Asm(MUL, ConstInt64(m), N).Func(&f)
+	Init(&asm).Asm(MUL2, ConstInt64(m), N).Func(&f)
 	f(&env[0])
 
 	actual := int64(env[0])

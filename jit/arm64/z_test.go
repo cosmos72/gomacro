@@ -21,22 +21,23 @@ import (
 )
 
 func MakeCode(instr ...uint32) Code {
-	code := make(Code, len(instr)*4)
+	bytes := make([]uint8, len(instr)*4)
 	for i, inst := range instr {
-		code[4*i+0] = byte(inst >> 0)
-		code[4*i+1] = byte(inst >> 8)
-		code[4*i+2] = byte(inst >> 16)
-		code[4*i+3] = byte(inst >> 24)
+		bytes[4*i+0] = byte(inst >> 0)
+		bytes[4*i+1] = byte(inst >> 8)
+		bytes[4*i+2] = byte(inst >> 16)
+		bytes[4*i+3] = byte(inst >> 24)
 	}
-	return code
+	return Code{bytes, ARM64}
 }
 
 func SameCode(actual Code, expected Code) bool {
-	if len(actual) != len(expected) {
+
+	if len(actual.Bytes) != len(expected.Bytes) {
 		return false
 	}
-	for i := range actual {
-		if actual[i] != expected[i] {
+	for i := range actual.Bytes {
+		if actual.Bytes[i] != expected.Bytes[i] {
 			return false
 		}
 	}

@@ -86,8 +86,8 @@ func (Amd64) RegString(r Reg) string {
 	return s
 }
 
-func (Amd64) CodeString(c Code) string {
-	return fmt.Sprintf("%x", ([]uint8)(c))
+func (Amd64) CodeString(code Code) string {
+	return fmt.Sprintf("%x", code.Bytes)
 }
 
 // Prologue used to add the following instruction to generated code,

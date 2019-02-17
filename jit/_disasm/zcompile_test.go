@@ -74,7 +74,7 @@ func TestCompileExpr1(t *testing.T) {
 		a := c.NewAsm()
 		a.Asm(c.Code()...)
 		a.Epilogue()
-		PrintDisasm(t, c.ArchId(), a.Code())
+		PrintDisasm(t, a.Code())
 	}
 }
 
@@ -116,7 +116,49 @@ func TestCompileExpr2(t *testing.T) {
 		// assemble
 		a.Asm(c.Code()...)
 		a.Epilogue()
-		PrintDisasm(t, c.ArchId(), a.Code())
+		PrintDisasm(t, a.Code())
+	}
+
+}
+
+func TestCompileExpr3(t *testing.T) {
+	var c Comp
+	var s0 SoftRegId
+	// asm.DIV2, asm.DIV3 not yet implemented on amd64
+	for _, archId := range []ArchId{ /*asm.AMD64,*/ asm.ARM64} {
+		c.InitArchId(archId)
+		a := c.NewAsm()
+
+		c_2 := MakeConst(-2, Int64)
+		m := c.MakeVar(0, 0, Int64)
+		// compile
+		e := NewExpr2(
+			AND_NOT,
+			NewExpr2(DIV, m, c_2),
+			m,
+		)
+		c.Expr(e)
+		actual := c.Code()
+
+		t.Log("expr: ", e)
+
+		expected := Code{
+			asm.ALLOC, s0, Int64,
+			asm.DIV3, m, c_2, s0,
+			asm.AND_NOT3, s0, m, s0,
+		}
+
+		if i := CompareCode(actual, expected); i >= 0 {
+			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
+				i, expected, actual)
+		} else {
+			t.Log(actual...)
+		}
+
+		// assemble
+		a.Asm(c.Code()...)
+		a.Epilogue()
+		PrintDisasm(t, a.Code())
 	}
 }
 
@@ -168,7 +210,7 @@ func TestCompileStmt1(t *testing.T) {
 		a := c.NewAsm()
 		a.Asm(c.Code()...)
 		a.Epilogue()
-		PrintDisasm(t, c.ArchId(), a.Code())
+		PrintDisasm(t, a.Code())
 	}
 }
 
@@ -208,6 +250,6 @@ func TestCompileStmt2(t *testing.T) {
 		a := c.NewAsm()
 		a.Asm(c.Code()...)
 		a.Epilogue()
-		PrintDisasm(t, c.ArchId(), a.Code())
+		PrintDisasm(t, a.Code())
 	}
 }

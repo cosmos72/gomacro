@@ -35,12 +35,12 @@ func (asm *Asm) mmap() memarea {
 	if VERBOSE {
 		fmt.Printf("asm: %#v\n", asm.code)
 	}
-	mem, err := unix.Mmap(-1, 0, (len(asm.code)+PAGESIZE-1)&^(PAGESIZE-1),
+	mem, err := unix.Mmap(-1, 0, (len(asm.code.Bytes)+PAGESIZE-1)&^(PAGESIZE-1),
 		unix.PROT_READ|unix.PROT_WRITE, unix.MAP_ANON|unix.MAP_PRIVATE)
 	if err != nil {
 		errorf("sys/unix.Mmap failed: %v", err)
 	}
-	copy(mem, asm.code)
+	copy(mem, asm.code.Bytes)
 	err = unix.Mprotect(mem, unix.PROT_EXEC|unix.PROT_READ)
 	if err != nil {
 		unix.Munmap(mem)

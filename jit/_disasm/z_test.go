@@ -86,7 +86,7 @@ func TestSample(T *testing.T) {
 		asm.RegDecUse(id + 2)
 
 		if id == cfg.RLo || id == cfg.RHi {
-			PrintDisasm(T, arch.Id(), asm.Code())
+			PrintDisasm(T, asm.Code())
 		}
 	}
 }

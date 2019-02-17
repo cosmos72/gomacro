@@ -51,7 +51,7 @@ func TestAmd64Mov(t *testing.T) {
 		c := ConstInt64(int64(rand.Uint64()))
 		asm.Mov(c, r).Mov(r, m).Epilogue()
 
-		PrintDisasm(t, AMD64, asm.Code())
+		PrintDisasm(t, asm.Code())
 	}
 }
 
@@ -67,17 +67,17 @@ func TestAmd64Unary(t *testing.T) {
 		}
 		r := MakeReg(id, Int64)
 		asm.Asm(MOV, v1, r, //
-			NEG, r, //
-			NOT, r, //
+			NEG1, r, //
+			NOT1, r, //
 			INC, r, //
-			ADD, v2, r, //
-			NOT, r, //
-			NEG, r, //
+			ADD2, v2, r, //
+			NOT1, r, //
+			NEG1, r, //
 			INC, r, //
 			MOV, r, v3, //
 		)
 
-		PrintDisasm(t, AMD64, asm.Code())
+		PrintDisasm(t, asm.Code())
 	}
 }
 
@@ -87,10 +87,10 @@ func TestAmd64Sum(t *testing.T) {
 	Total, I := Var(1), Var(2)
 	asm.InitArch(Amd64{}).Asm( //
 		MOV, ConstInt64(0xFF), I,
-		ADD, ConstInt64(2), I,
-		ADD, I, Total)
+		ADD2, ConstInt64(2), I,
+		ADD2, I, Total)
 
-	PrintDisasm(t, AMD64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestAmd64Mul(t *testing.T) {
@@ -98,14 +98,14 @@ func TestAmd64Mul(t *testing.T) {
 
 	I, J := Var(0), Var(1)
 	asm.InitArch(Amd64{}).Asm( //
-		MUL, ConstInt64(9), I,
-		MUL, ConstInt64(16), I,
-		MUL, ConstInt64(0x7F), I,
+		MUL2, ConstInt64(9), I,
+		MUL2, ConstInt64(16), I,
+		MUL2, ConstInt64(0x7F), I,
 		MUL3, ConstInt64(0x11), I, J,
 		MUL3, I, J, I,
 	)
 
-	PrintDisasm(t, AMD64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestAmd64Cast(t *testing.T) {
@@ -139,7 +139,7 @@ func TestAmd64Cast(t *testing.T) {
 		RET,
 	)
 
-	PrintDisasm(t, AMD64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestAmd64Lea(t *testing.T) {
@@ -150,14 +150,14 @@ func TestAmd64Lea(t *testing.T) {
 	r0 := asm.InitArch(Amd64{}).RegAlloc(N.Kind())
 	r1 := asm.RegAlloc(N.Kind())
 	asm.Asm(
-		MUL, ConstInt64(9), N,
+		MUL2, ConstInt64(9), N,
 		LEA2, N, r0,
 		LEA2, M, r0,
 		LEA4, M, r0, ConstInt64(2), r1,
 	)
 	asm.RegFree(r0)
 
-	PrintDisasm(t, AMD64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestAmd64Shift(t *testing.T) {
@@ -169,15 +169,15 @@ func TestAmd64Shift(t *testing.T) {
 	asm.RegIncUse(RCX)
 	r := MakeReg(RCX, Uint8)
 	asm.Asm(
-		SHL, ConstUint64(0), M, // nop
-		SHL, ConstUint64(1), M,
-		SHL, r, N,
-		SHR, ConstUint64(3), M,
-		SHR, r, N,
+		SHL2, ConstUint64(0), M, // nop
+		SHL2, ConstUint64(1), M,
+		SHL2, r, N,
+		SHR2, ConstUint64(3), M,
+		SHR2, r, N,
 	)
 	asm.RegDecUse(RCX)
 
-	PrintDisasm(t, AMD64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }
 
 func TestAmd64SoftReg(t *testing.T) {
@@ -196,5 +196,5 @@ func TestAmd64SoftReg(t *testing.T) {
 		FREE, b, Uint64,
 		FREE, c, Uint64,
 	).Epilogue()
-	PrintDisasm(t, AMD64, asm.Code())
+	PrintDisasm(t, asm.Code())
 }

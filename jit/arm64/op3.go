@@ -107,6 +107,7 @@ func (arch Arm64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Arm64 {
 	if asm.Optimize3(op, a, b, dst) {
 		return arch
 	}
+
 	var ra, rb, rdst Reg
 	var ta, tdst bool // Reg is a temporary register?
 
@@ -117,6 +118,12 @@ func (arch Arm64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Arm64 {
 		rdst = asm.RegAlloc(dst.Kind())
 		defer asm.RegFree(rdst)
 		tdst = true
+	}
+	var not_dst bool
+	if op == AND_NOT3 {
+		// must be emulated
+		not_dst = true
+		op = AND3
 	}
 	if op.IsCommutative() && a.Const() && !b.Const() {
 		a, b = b, a
@@ -158,6 +165,10 @@ func (arch Arm64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Arm64 {
 	default:
 		errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v, %v", b, op, a, b, dst)
 	}
+	if not_dst {
+		// operation was AND_NOT3: negate dst
+		arch.op2RegReg(asm, NOT2, rdst, rdst)
+	}
 	if tdst {
 		arch.store(asm, rdst, dst.(Mem))
 	}
@@ -173,7 +184,7 @@ func (arch Arm64) op3RegRegReg(asm *Asm, op Op3, a Reg, b Reg, dst Reg) Arm64 {
 			opbits = 0xC00
 		case DIV3:
 			// signed division
-			opbits = 0xC00
+			opbits = 0x400
 		}
 	}
 	arch.extendHighBits(asm, op, a)

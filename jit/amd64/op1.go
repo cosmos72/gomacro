@@ -21,8 +21,8 @@ package amd64
 
 var op1Val = [256]uint8{
 	ZERO: 0x08,
-	NOT:  0x10,
-	NEG:  0x18,
+	NOT1:  0x10,
+	NEG1:  0x18,
 	INC:  0x20,
 	DEC:  0x28,
 }

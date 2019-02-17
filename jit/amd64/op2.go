@@ -20,23 +20,23 @@ package amd64
 // two-arg instruction
 
 var op2Val = [256]uint8{
-	ADD: 0x00,
-	OR:  0x08,
-	ADC: 0x10, // add with carry
-	SBB: 0x18, // subtract with borrow
-	AND: 0x20,
-	SUB: 0x28,
-	XOR: 0x30,
+	ADD2: 0x00,
+	OR2:  0x08,
+	ADC2: 0x10, // add with carry
+	SBB2: 0x18, // subtract with borrow
+	AND2: 0x20,
+	SUB2: 0x28,
+	XOR2: 0x30,
 	// CMP: 0x38, // compare, set flags
 	// XCHG: 0x86, // exchange. xchg %reg, %reg has different encoding
 	MOV:  0x88,
 	LEA2: 0x8D,
 	CAST: 0xB6, // sign extend, zero extend or narrow
-	SHL:  0xE0, // shift left. has different encoding
-	SHR:  0xE8, // shift right. has different encoding
-	MUL:  0xF6,
-	DIV:  0xFE, // TODO divide
-	REM:  0xFF, // TODO remainder
+	SHL2: 0xE0, // shift left. has different encoding
+	SHR2: 0xE8, // shift right. has different encoding
+	MUL2: 0xF6,
+	DIV2: 0xFE, // TODO divide
+	REM2: 0xFF, // TODO remainder
 
 	NEG2: 0x40,
 	NOT2: 0x48,
@@ -45,7 +45,7 @@ var op2Val = [256]uint8{
 func op2val(op Op2) uint8 {
 	val := op2Val[op]
 	// ADD.val() is zero
-	if val == 0 && op != ADD {
+	if val == 0 && op != ADD2 {
 		errorf("unknown Op2 instruction: %v", op)
 	}
 	return val
@@ -68,7 +68,7 @@ func (arch Amd64) op2(asm *Asm, op Op2, src Arg, dst Arg) Amd64 {
 		fallthrough
 	case MOV:
 		assert(SizeOf(src) == SizeOf(dst))
-	case SHL, SHR:
+	case SHL2, SHR2:
 		assert(!src.Kind().Signed())
 	default:
 		assert(src.Kind() == dst.Kind())
@@ -88,7 +88,7 @@ func (arch Amd64) op2(asm *Asm, op Op2, src Arg, dst Arg) Amd64 {
 	}
 
 	switch op {
-	case DIV, REM:
+	case DIV2, REM2:
 		errorf("unimplemented instruction %v: %v %v, %v", op, op, src, dst)
 	case NEG2, NOT2:
 		op1 := Op1(op) // NEG2 -> NEG, NOT2 -> NOT
@@ -96,6 +96,16 @@ func (arch Amd64) op2(asm *Asm, op Op2, src Arg, dst Arg) Amd64 {
 			return arch.op1(asm, op1, dst)
 		} else {
 			return arch.mov(asm, src, dst).op1(asm, op1, dst)
+		}
+	case AND_NOT2:
+		if csrc, ok := src.(Const); ok {
+			src = MakeConst(^csrc.Val(), csrc.Kind())
+			op = AND2
+		} else {
+			r := asm.RegAlloc(src.Kind())
+			arch.mov(asm, src, r).op1(asm, NEG1, r).op2(asm, AND2, r, dst)
+			asm.RegFree(r)
+			return arch
 		}
 	}
 	switch dst := dst.(type) {
@@ -130,9 +140,9 @@ func (arch Amd64) op2ConstReg(asm *Asm, op Op2, c Const, dst Reg) Amd64 {
 	switch op {
 	case MOV:
 		return arch.movConstReg(asm, c, dst)
-	case SHL, SHR:
+	case SHL2, SHR2:
 		return arch.shiftConstReg(asm, op, c, dst)
-	case MUL:
+	case MUL2:
 		return arch.mul2ConstReg(asm, c, dst)
 	}
 	assert(op != LEA2)
@@ -247,9 +257,9 @@ func (arch Amd64) op2ConstReg64(asm *Asm, op Op2, c Const, dst Reg) Amd64 {
 // %reg_dst OP= %reg_src
 func (arch Amd64) op2RegReg(asm *Asm, op Op2, src Reg, dst Reg) Amd64 {
 	switch op {
-	case MUL:
+	case MUL2:
 		return arch.mul2RegReg(asm, src, dst)
-	case SHL, SHR:
+	case SHL2, SHR2:
 		return arch.shiftRegReg(asm, op, src, dst)
 	}
 	assert(op != LEA2)
@@ -286,9 +296,9 @@ func (arch Amd64) op2RegReg(asm *Asm, op Op2, src Reg, dst Reg) Amd64 {
 // off_m(%reg_m) OP= %reg_src
 func (arch Amd64) op2RegMem(asm *Asm, op Op2, src Reg, dst_m Mem) Amd64 {
 	switch op {
-	case MUL:
+	case MUL2:
 		return arch.mul2RegMem(asm, src, dst_m)
-	case SHL, SHR:
+	case SHL2, SHR2:
 		return arch.shiftRegMem(asm, op, src, dst_m)
 	}
 	assert(op != LEA2)
@@ -334,9 +344,9 @@ func (arch Amd64) op2RegMem(asm *Asm, op Op2, src Reg, dst_m Mem) Amd64 {
 // %reg_dst OP= off_m(%reg_m)
 func (arch Amd64) op2MemReg(asm *Asm, op Op2, src_m Mem, dst Reg) Amd64 {
 	switch op {
-	case MUL:
+	case MUL2:
 		return arch.mul2MemReg(asm, src_m, dst)
-	case SHL, SHR:
+	case SHL2, SHR2:
 		return arch.shiftMemReg(asm, op, src_m, dst)
 	}
 	op_ := op2val(op)
@@ -387,9 +397,9 @@ func (arch Amd64) op2MemReg(asm *Asm, op Op2, src_m Mem, dst Reg) Amd64 {
 // off_dst(%reg_dst) OP= off_src(%reg_src)
 func (arch Amd64) op2MemMem(asm *Asm, op Op2, src_m Mem, dst_m Mem) Amd64 {
 	switch op {
-	case MUL:
+	case MUL2:
 		return arch.mul2MemMem(asm, src_m, dst_m)
-	case SHL, SHR:
+	case SHL2, SHR2:
 		return arch.shiftMemMem(asm, op, src_m, dst_m)
 	}
 	assert(op != LEA2)
@@ -407,9 +417,9 @@ func (arch Amd64) op2ConstMem(asm *Asm, op Op2, c Const, m Mem) Amd64 {
 	switch op {
 	case MOV:
 		return arch.movConstMem(asm, c, m)
-	case SHL, SHR:
+	case SHL2, SHR2:
 		return arch.shiftConstMem(asm, op, c, m)
-	case MUL:
+	case MUL2:
 		return arch.mul2ConstMem(asm, c, m)
 	}
 	assert(op != LEA2)

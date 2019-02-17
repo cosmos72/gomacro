@@ -18,7 +18,9 @@ package fast
 
 import (
 	"go/token"
+	"os"
 	r "reflect"
+	"strconv"
 
 	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/jit"
@@ -26,12 +28,18 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
-const JIT_VERBOSE = 1
+var JIT_VERBOSE = jitVerbose()
+
+func jitVerbose() int {
+	i, _ := strconv.Atoi(os.Getenv("GOMACRO_JIT_V"))
+	return i
+}
 
 func jitNew() *jit.Comp {
 	arch := asm.Archs[asm.ARCH_ID]
-	if arch == nil || !asm.SUPPORTED {
-		// unsupported architecture or operating system
+	if arch == nil || !asm.SUPPORTED || os.Getenv("GOMACRO_JIT") == "" {
+		// unsupported architecture or operating system,
+		// or not enabled with environment variable
 		return nil
 	}
 	return jit.NewArch(arch)
@@ -158,7 +166,7 @@ func init() {
 // if supported, replace e.Fun with a jit-compiled equivalent function.
 // always returns e.
 func (g *CompGlobals) jitFun(e *Expr) *Expr {
-	if JIT_VERBOSE > 0 {
+	if JIT_VERBOSE > 0 && g.JitComp != nil {
 		output.Debugf("jit to compile: %v with e.Jit = %v", e, e.Jit)
 	}
 	if g.JitComp != nil && e.Jit != nil {

@@ -21,6 +21,7 @@ import (
 
 	"github.com/bnagy/gapstone"
 	. "github.com/cosmos72/gomacro/jit"
+	"github.com/cosmos72/gomacro/jit/asm"
 )
 
 type Engine = gapstone.Engine
@@ -43,19 +44,20 @@ func NewDisasm(archId ArchId) (Engine, error) {
 	return engine, nil
 }
 
-func Disasm(archId ArchId, code []uint8) ([]gapstone.Instruction, error) {
-	engine, err := NewDisasm(archId)
+func Disasm(code asm.Code) ([]gapstone.Instruction, error) {
+	engine, err := NewDisasm(code.ArchId)
 	if err != nil {
 		return nil, err
 	}
-	return engine.Disasm(code, 0x10000, 0)
+	return engine.Disasm(code.Bytes, 0x10000, 0)
 }
 
-func PrintDisasm(t *testing.T, archId ArchId, code []uint8) {
-	insns, err := Disasm(archId, code)
+func PrintDisasm(t *testing.T, code asm.Code) {
+	insns, err := Disasm(code)
 	if err != nil {
 		t.Error(err)
 	} else {
+		archId := code.ArchId
 		for _, insn := range insns {
 			Show(t, archId, insn)
 		}
