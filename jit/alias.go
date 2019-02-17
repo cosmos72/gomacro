@@ -34,7 +34,7 @@ type (
 	Mem       = common.Mem
 	Reg       = common.Reg
 	RegId     = common.RegId
-	RegIdCfg  = common.RegIdCfg
+	RegIdConfig  = common.RegIdConfig
 	Save      = common.Save
 	Size      = common.Size
 	SoftRegId = common.SoftRegId
@@ -135,7 +135,7 @@ var errMakeVarIdx = fmt.Errorf("jit.MakeVar: index too large, the byte offset ov
 var errMakeVarKind = fmt.Errorf("jit.MakeVar: invalid kind")
 
 // local variable
-func MakeVar(idx int, upn int, kind Kind, config RegIdCfg) (Mem, error) {
+func MakeVar(idx int, upn int, kind Kind, config RegIdConfig) (Mem, error) {
 	// TODO support fast.Env local variables with upn > 0
 	var mem Mem
 	if upn != 0 {
@@ -152,6 +152,6 @@ func MakeVar(idx int, upn int, kind Kind, config RegIdCfg) (Mem, error) {
 }
 
 // function parameter or return value
-func MakeParam(off int32, kind Kind, config RegIdCfg) Mem {
+func MakeParam(off int32, kind Kind, config RegIdConfig) Mem {
 	return common.MakeMem(off, config.RSP, kind)
 }

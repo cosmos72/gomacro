@@ -31,7 +31,7 @@ const (
 type Arch interface {
 	Id() ArchId
 	String() string
-	RegIdCfg() RegIdCfg
+	RegIdConfig() RegIdConfig
 	RegIdValid(id RegId) bool
 	RegIdString(id RegId) string // RegId -> string
 	RegValid(r Reg) bool

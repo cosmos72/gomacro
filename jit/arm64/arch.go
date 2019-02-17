@@ -38,8 +38,8 @@ func (Arm64) String() string {
 	return NAME
 }
 
-func (Arm64) RegIdCfg() RegIdCfg {
-	return RegIdCfg{
+func (Arm64) RegIdConfig() RegIdConfig {
+	return RegIdConfig{
 		RLo:  RLo,
 		RHi:  RHi,
 		RSP:  RSP,

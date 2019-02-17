@@ -20,8 +20,8 @@ const (
 	NoRegId RegId = 0
 )
 
-func (asm *Asm) RegIdCfg() RegIdCfg {
-	return asm.arch.RegIdCfg()
+func (asm *Asm) RegIdConfig() RegIdConfig {
+	return asm.arch.RegIdConfig()
 }
 
 func (asm *Asm) Op0(op Op0) *Asm {

@@ -24,7 +24,7 @@ type Comp struct {
 	code        Code
 	nextSoftReg SoftRegId
 	arch        Arch
-	asm.RegIdCfg
+	asm.RegIdConfig
 }
 
 func New() *Comp {
@@ -57,7 +57,7 @@ func (c *Comp) InitArch(arch Arch) *Comp {
 	c.code = nil
 	c.nextSoftReg = 0
 	c.arch = arch
-	c.RegIdCfg = arch.RegIdCfg()
+	c.RegIdConfig = arch.RegIdConfig()
 	return c
 }
 
@@ -81,6 +81,11 @@ func (c *Comp) Code() Code {
 	return c.code
 }
 
+// discard compiled assembly code
+func (c *Comp) ClearCode() {
+	c.code = nil
+}
+
 func (c *Comp) AllocSoftReg(kind Kind) SoftReg {
 	id := c.nextSoftReg
 	c.nextSoftReg++
@@ -98,11 +103,19 @@ func (c *Comp) FreeSoftReg(s SoftReg) {
 
 func checkAssignable(e Expr) {
 	switch e.(type) {
-	case Mem, SoftReg:
+	case Reg, Mem, SoftReg:
 		break
 	default:
 		errorf("cannot assign to %v", e)
 	}
+}
+
+func (c *Comp) MakeVar(idx int, upn int, kind Kind) Mem {
+	mem, err := MakeVar(idx, upn, kind, c.RegIdConfig)
+	if err != nil {
+		panic(err)
+	}
+	return mem
 }
 
 // compile list of statements

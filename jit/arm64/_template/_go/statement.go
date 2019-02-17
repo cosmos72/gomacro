@@ -8,22 +8,13 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * stmt.go
+ * statement.go
  *
  *  Created on Feb 16, 2019
  *      Author Massimiliano Ghilardi
  */
 
 package main
-
-type Env struct {
-	Binds []uint64
-	Outer *Env
-	IP    int
-	Code  []Stmt
-}
-
-type Stmt func(*Env) (Stmt, *Env)
 
 func Nop(env *Env) (Stmt, *Env) {
 	ip := env.IP + 1

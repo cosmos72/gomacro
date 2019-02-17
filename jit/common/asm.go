@@ -71,7 +71,7 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	if Archs[id] == nil {
 		Archs[id] = arch
 	}
-	cfg := arch.RegIdCfg()
+	cfg := arch.RegIdConfig()
 	asm.arch = arch
 	asm.code = nil
 	asm.nextRegId = cfg.RLo
@@ -143,7 +143,7 @@ func (asm *Asm) Int64(val int64) *Asm {
 func (asm *Asm) tryRegAlloc(kind Kind) Reg {
 	var id RegId
 	for {
-		if asm.nextRegId > asm.arch.RegIdCfg().RHi {
+		if asm.nextRegId > asm.arch.RegIdConfig().RHi {
 			return Reg{}
 		}
 		id = asm.nextRegId
@@ -171,7 +171,7 @@ func (asm *Asm) RegFree(r Reg) *Asm {
 	}
 	count := asm.RegDecUse(id)
 	if count == 0 && asm.nextRegId >= id {
-		lo := asm.RegIdCfg().RLo
+		lo := asm.RegIdConfig().RLo
 		for id > lo && !asm.RegIsUsed(id-1) {
 			id--
 		}

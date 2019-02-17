@@ -51,7 +51,7 @@ func (id RegId) Validate() {
 
 // ===================================
 
-type RegIdCfg struct {
+type RegIdConfig struct {
 	RLo, RHi, RSP, RVAR RegId
 }
 

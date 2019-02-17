@@ -16,15 +16,22 @@
 
 package main
 
+// go:nosplit
 func Add8(a uint8, b uint8) uint8 {
 	return a + b
 }
+
+// go:nosplit
 func Add16(a uint16, b uint16) uint16 {
 	return a + b
 }
+
+// go:nosplit
 func Add32(a uint32, b uint32) uint32 {
 	return a + b
 }
+
+// go:nosplit
 func Add64(a uint64, b uint64) uint64 {
 	return a + b
 }

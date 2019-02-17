@@ -27,7 +27,7 @@ func TestSample(T *testing.T) {
 
 	var asm Asm
 	asm.InitArch(arch)
-	cfg := asm.RegIdCfg()
+	cfg := asm.RegIdConfig()
 
 	for id := cfg.RLo; id+2 <= cfg.RHi; id++ {
 		asm.InitArch(arch)

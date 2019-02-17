@@ -37,7 +37,7 @@ type (
 	Mem        = common.Mem
 	Reg        = common.Reg
 	RegId      = common.RegId
-	RegIdCfg   = common.RegIdCfg
+	RegIdConfig   = common.RegIdConfig
 	RegIds     = common.RegIds
 	Save       = common.Save
 	SaveSlot   = common.SaveSlot
