@@ -419,7 +419,8 @@ func (c *Comp) compileNode(node ast.Node, kind dep.Kind) *Expr {
 	case ast.Decl:
 		c.Decl(node)
 	case ast.Expr:
-		return c.Expr(node, nil)
+		e := c.Expr(node, nil)
+		return c.jitFun(e)
 	case *ast.ImportSpec:
 		// dep.Sorter.Some() returns naked *ast.ImportSpec,
 		// instead of *ast.GenDecl containing one or more *ast.ImportSpec as parser does
@@ -435,7 +436,8 @@ func (c *Comp) compileNode(node ast.Node, kind dep.Kind) *Expr {
 		}
 	case *ast.ExprStmt:
 		// special case of statement
-		return c.Expr(node.X, nil)
+		e := c.Expr(node.X, nil)
+		return c.jitFun(e)
 	case ast.Stmt:
 		c.Stmt(node)
 	case *ast.File:

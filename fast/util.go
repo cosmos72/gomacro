@@ -1111,10 +1111,11 @@ func (e *Expr) exprXVAsI() *Expr {
 	return exprFun(t, ret)
 }
 
-func (e *Expr) AsStmt() Stmt {
+func (e *Expr) AsStmt(c *Comp) Stmt {
 	if e == nil || e.Const() {
 		return nil
 	}
+	c.CompGlobals.jitFun(e)
 	return funAsStmt(e.Fun)
 }
 

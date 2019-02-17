@@ -71,7 +71,7 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		case *ast.ExprStmt:
 			expr := c.Expr(node.X, nil)
 			if !expr.Const() {
-				c.Append(expr.AsStmt(), in.Pos())
+				c.Append(expr.AsStmt(c), in.Pos())
 			}
 		case *ast.ForStmt:
 			c.For(node, labels)

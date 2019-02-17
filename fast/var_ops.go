@@ -32239,7 +32239,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		}
 
 		if !init.Const() {
-			c.append(init.AsStmt())
+			c.append(init.AsStmt(c))
 		}
 
 		return
