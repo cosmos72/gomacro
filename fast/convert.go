@@ -27,8 +27,7 @@ import (
 
 // Convert compiles a type conversion expression
 func (c *Comp) Convert(node ast.Expr, t xr.Type) *Expr {
-	e := c.Expr1(node, nil)
-
+	e := c.expr1(node, nil)
 	return c.convert(e, t, node)
 }
 

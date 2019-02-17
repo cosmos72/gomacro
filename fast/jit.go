@@ -35,6 +35,16 @@ func jitVerbose() int {
 	return i
 }
 
+// offset of struct field Env.Ints
+var envIntsOffset int32 = -1
+
+func init() {
+	f, ok := r.TypeOf((*Env)(nil)).Elem().FieldByName("Ints")
+	if ok && f.Offset == uintptr(int32(f.Offset)) {
+		envIntsOffset = int32(f.Offset)
+	}
+}
+
 func jitNew() *jit.Comp {
 	arch := asm.Archs[asm.ARCH_ID]
 	if arch == nil || !asm.SUPPORTED || os.Getenv("GOMACRO_JIT") == "" {
@@ -99,6 +109,13 @@ func (g *CompGlobals) jitCast(e *Expr, t xr.Type, xe *Expr) *Expr {
 	return e
 }
 
+// if supported, set e.Jit to jit expression that will compute *xe
+// always returns e.
+// unimplemented.
+func (g *CompGlobals) jitDeref(e *Expr) *Expr {
+	return e
+}
+
 // if supported, set e.Jit to jit expression that will compute op xe
 // always returns e.
 func (g *CompGlobals) jitUnaryExpr(e *Expr, op token.Token, xe *Expr) *Expr {
@@ -153,14 +170,10 @@ func (g *CompGlobals) jitIntSymbol(e *Expr, idx int, upn int) *Expr {
 	return e
 }
 
-// offset of "Ints" field inside struct type Env
-var envIntsOffset int32 = -1
-
-func init() {
-	f, ok := r.TypeOf((*Env)(nil)).Elem().FieldByName("Ints")
-	if ok && f.Offset == uintptr(int32(f.Offset)) {
-		envIntsOffset = int32(f.Offset)
-	}
+// if supported, return a jit-compiled statement that will perform va OP= init
+// TODO: Comp.SetVar() should call this function
+func (g *CompGlobals) jitAssignStmt(va *Var, op token.Token, init *Expr) Stmt {
+	return nil
 }
 
 // if supported, replace e.Fun with a jit-compiled equivalent function.

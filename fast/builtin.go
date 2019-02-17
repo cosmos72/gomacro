@@ -245,8 +245,8 @@ func callComplex128(re float64, im float64) complex128 {
 }
 
 func compileComplex(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	re := c.Expr1(node.Args[0], nil)
-	im := c.Expr1(node.Args[1], nil)
+	re := c.expr1(node.Args[0], nil)
+	im := c.expr1(node.Args[1], nil)
 	if re.Untyped() {
 		if im.Untyped() {
 			return compileComplexUntyped(c, sym, node, re.Value.(UntypedLit), im.Value.(UntypedLit))
@@ -343,8 +343,8 @@ func copyStringToBytes(dst []byte, src string) int {
 
 func compileCopy(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args := []*Expr{
-		c.Expr1(node.Args[0], nil),
-		c.Expr1(node.Args[1], nil),
+		c.expr1(node.Args[0], nil),
+		c.expr1(node.Args[1], nil),
 	}
 	if args[1].Const() {
 		// we also accept a string literal as second argument
@@ -383,8 +383,8 @@ func callDelete(vmap r.Value, vkey r.Value) {
 }
 
 func compileDelete(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	emap := c.Expr1(node.Args[0], nil)
-	ekey := c.Expr1(node.Args[1], nil)
+	emap := c.expr1(node.Args[0], nil)
+	ekey := c.expr1(node.Args[1], nil)
 	tmap := emap.Type
 	if tmap.Kind() != r.Map {
 		c.Errorf("first argument to delete must be map; have %v", tmap)
@@ -494,7 +494,7 @@ func callLenString(val string) int {
 }
 
 func compileLen(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
-	arg := c.Expr1(node.Args[0], nil)
+	arg := c.expr1(node.Args[0], nil)
 	if arg.Const() {
 		arg.ConstTo(arg.DefaultType())
 	}
@@ -625,7 +625,7 @@ func compileMake(c *Comp, sym Symbol, node *ast.CallExpr) *Call {
 	args[0] = c.exprValue(argtypes[0], tin.ReflectType()) // no need to build TypeOfReflectType
 	te := c.TypeOfInt()
 	for i := 1; i < nargs; i++ {
-		argi := c.Expr1(node.Args[i], nil)
+		argi := c.expr1(node.Args[i], nil)
 		if argi.Const() {
 			argi.ConstTo(te)
 		} else if ti := argi.Type; ti == nil || (!ti.IdenticalTo(te) && !ti.AssignableTo(te)) {

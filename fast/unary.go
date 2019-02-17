@@ -44,7 +44,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		return c.AddressOf(node)
 	}
 
-	xe := c.Expr1(node.X, nil)
+	xe := c.expr1(node.X, nil)
 	if xe.Type == nil {
 		return c.invalidUnaryExpr(node, xe)
 	}
@@ -76,7 +76,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		// constant propagation
 		z.EvalConst(COptKeepUntyped)
 	} else {
-		// jit-compile z
+		// create jit expression for z
 		c.jitUnaryExpr(z, node.Op, xe)
 	}
 	return z

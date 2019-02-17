@@ -70,7 +70,7 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 // callExpr compiles the common part between CallExpr and Go statement
 func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	if fun == nil {
-		fun = c.Expr1(node.Fun, nil)
+		fun = c.expr1(node.Fun, nil)
 	}
 	t := fun.Type
 	var builtin bool

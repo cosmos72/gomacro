@@ -297,7 +297,7 @@ func (c *Comp) TypeArray(node *ast.ArrayType) (t xr.Type, ellipsis bool) {
 		// "The length is part of the array's type; it must evaluate to a non-negative constant
 		// representable by a value of type int. "
 		var count int
-		init := c.Expr(n, nil)
+		init := c.expr(n, nil)
 		if !init.Const() {
 			c.Errorf("array length is not a constant: %v", node)
 			return

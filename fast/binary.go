@@ -28,8 +28,8 @@ import (
 )
 
 func (c *Comp) BinaryExpr(node *ast.BinaryExpr) *Expr {
-	x := c.Expr1(node.X, nil)
-	y := c.Expr1(node.Y, nil)
+	x := c.expr1(node.X, nil)
+	y := c.expr1(node.Y, nil)
 	return c.BinaryExpr1(node, x, y)
 }
 
@@ -87,7 +87,7 @@ func (c *Comp) BinaryExpr1(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 		// constant propagation
 		z.EvalConst(COptKeepUntyped)
 	} else {
-		// jit-compile z
+		// create jit expression for z
 		c.jitBinaryExpr(z, op, x, y)
 	}
 	return z

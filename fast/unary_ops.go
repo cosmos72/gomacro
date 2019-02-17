@@ -193,7 +193,7 @@ func (c *Comp) StarExpr(node *ast.StarExpr) *Expr {
 		}
 		break
 	}
-	addr := c.Expr1(expr, nil) // panics if addr returns zero values, warns if returns multiple values
+	addr := c.expr1(expr, nil) // panics if addr returns zero values, warns if returns multiple values
 	taddr := addr.Type
 	if taddr.Kind() != r.Ptr {
 		c.Errorf("unary operation * on non-pointer <%v>: %v", taddr, node)
@@ -277,7 +277,8 @@ func (c *Comp) Deref(addr *Expr) *Expr {
 	default:
 		fun = c.derefUnwrap(t, x1)
 	}
-	return exprFun(t, fun)
+	e := exprFun(t, fun)
+	return c.jitDeref(e)
 }
 
 // deref0Unwrap compiles unary operator * on reflect.Value - unwraps reflect.Value.Elem() if possible

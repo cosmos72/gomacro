@@ -312,16 +312,16 @@ func BenchmarkSwitchClassic(b *testing.B) {
 
 //go:noinline
 func arith(n int) int {
-	return ((((n*2 + 3) | 4) &^ 5) ^ 6) / ((n & 2) | 1)
+	return ((((n*2 + 3) | 4) &^ 5) ^ 6) - ((n & 2) | 1)
 }
 
-const arith_source = "((((n*2+3)|4) &^ 5) ^ 6) / ((n & 2) | 1)"
+const arith_source = "((((n*2+3)|4) &^ 5) ^ 6) - ((n & 2) | 1)"
 
 func BenchmarkArithCompiler1(b *testing.B) {
 	total := 0
 	for i := 0; i < b.N; i++ {
 		n := b.N
-		total += ((((n*2 + 3) | 4) &^ 5) ^ 6) / ((n & 2) | 1)
+		total += ((((n*2 + 3) | 4) &^ 5) ^ 6) - ((n & 2) | 1)
 	}
 	if verbose {
 		println(total)

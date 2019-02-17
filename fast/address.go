@@ -43,7 +43,7 @@ func (c *Comp) addressOf(expr ast.Expr, t xr.Type) *Expr {
 				t = t.Elem()
 			}
 
-			ret := c.Expr1(e.X, t)
+			ret := c.expr1(e.X, t)
 			if ret.Type.Kind() != r.Ptr {
 				c.Errorf("unary operation * on non-pointer <%v>: %v", ret.Type, e)
 			}

@@ -69,7 +69,7 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		case *ast.EmptyStmt:
 			// nothing to do
 		case *ast.ExprStmt:
-			expr := c.Expr(node.X, nil)
+			expr := c.expr(node.X, nil)
 			if !expr.Const() {
 				c.Append(expr.AsStmt(c), in.Pos())
 			}
@@ -609,7 +609,7 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 		return
 	}
 
-	exprs := c.Exprs(resultExprs)
+	exprs := c.exprs(resultExprs)
 	for i := 0; i < n; i++ {
 		c.Pos = resultExprs[i].Pos()
 		c.SetVar(resultBinds[i].AsVar(upn, PlaceSettable), token.ASSIGN, exprs[i])

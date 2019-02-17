@@ -34,7 +34,7 @@ func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits
 				n, expectedValuesN, nodes)
 			return nil
 		}
-		e := c.Expr(nodes[0], nil)
+		e := c.expr(nodes[0], nil)
 		if actualN := e.NumOut(); actualN != expectedValuesN {
 			var plural string
 			if actualN != 1 {
@@ -44,27 +44,41 @@ func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits
 		}
 		inits = []*Expr{e}
 	} else {
-		inits = c.Exprs(nodes)
+		inits = c.exprs(nodes)
 	}
 	return inits
 }
 
 // Exprs compiles multiple expressions
 func (c *Comp) Exprs(nodes []ast.Expr) []*Expr {
-	var inits []*Expr
-	if n := len(nodes); n != 0 {
-		inits = make([]*Expr, n)
-		for i := range nodes {
-			inits[i] = c.Expr1(nodes[i], nil)
-		}
+	es := c.exprs(nodes)
+	for _, e := range es {
+		c.jitFun(e)
 	}
-	return inits
+	return es
 }
 
-// Expr compiles an expression that returns a single value
+// same as Exprs, but does not replace e[i].Fun with jit-compiled code
+func (c *Comp) exprs(nodes []ast.Expr) []*Expr {
+	var es []*Expr
+	if n := len(nodes); n != 0 {
+		es = make([]*Expr, n)
+		for i := range nodes {
+			es[i] = c.expr1(nodes[i], nil)
+		}
+	}
+	return es
+}
+
+// Expr1 compiles an expression that returns a single value
 // t is optional and used for type inference on composite literals,
 // see https://golang.org/ref/spec#Composite_literals
 func (c *Comp) Expr1(in ast.Expr, t xr.Type) *Expr {
+	return c.expr1(in, t)
+}
+
+// same as Expr1, but does not replace e.Fun with jit-compiled code
+func (c *Comp) expr1(in ast.Expr, t xr.Type) *Expr {
 	for {
 		if in != nil {
 			c.Pos = in.Pos()
@@ -88,7 +102,7 @@ func (c *Comp) Expr1(in ast.Expr, t xr.Type) *Expr {
 		}
 		break
 	}
-	e := c.Expr(in, t)
+	e := c.expr(in, t)
 	nout := e.NumOut()
 	switch nout {
 	case 0:
@@ -105,6 +119,12 @@ func (c *Comp) Expr1(in ast.Expr, t xr.Type) *Expr {
 // t is optional and used for type inference on composite literals,
 // see https://golang.org/ref/spec#Composite_literals
 func (c *Comp) Expr(in ast.Expr, t xr.Type) *Expr {
+	e := c.expr(in, t)
+	return c.jitFun(e)
+}
+
+// same as Expr, but does not replace e.Fun with jit-compiled code
+func (c *Comp) expr(in ast.Expr, t xr.Type) *Expr {
 	for {
 		if in != nil {
 			c.Pos = in.Pos()
