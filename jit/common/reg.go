@@ -53,6 +53,17 @@ func (id RegId) Validate() {
 
 type RegIdConfig struct {
 	RLo, RHi, RSP, RVAR RegId
+	/**
+	 * first RegId to allocate.
+	 * subsequent allocations will return progressively higher registers,
+	 * eventually reach RHi, wrap around to RLo, and finally reach
+	 * RAllocFirst again when all registers are allocated.
+	 *
+	 * used on amd64 to allocate RAX, RCX and RBX as last
+	 * because some assembly instructions (shift, division)
+	 * are hardcoded to use them
+	 */
+	RAllocFirst RegId
 }
 
 // register + kind
@@ -97,36 +108,86 @@ func (r Reg) Validate() {
 // ===================================
 
 type RegIds struct {
-	list []uint32 // RegId -> use count
-	rlo  RegId
+	inuse    map[RegId]uint32 // RegId -> use count
+	first    RegId            // first RegId to allocate
+	curr     RegId            // next RegId to allocate
+	rlo, rhi RegId
 }
 
-func (rs *RegIds) IsUsed(r RegId) bool {
-	return r.Valid() && rs.list[r-rs.rlo] != 0
-}
-
-// return new use count
-func (rs *RegIds) IncUse(r RegId) uint32 {
-	if r.Valid() {
-		addr := &rs.list[r-rs.rlo]
-		if *addr < ^uint32(0) {
-			*addr++
-		}
-		return *addr
-	}
-	return 0
+func (rs *RegIds) IsUsed(id RegId) bool {
+	return id.Valid() && rs.inuse[id] != 0
 }
 
 // return new use count
-func (rs *RegIds) DecUse(r RegId) uint32 {
-	if r.Valid() {
-		addr := &rs.list[r-rs.rlo]
-		if *addr > 0 {
-			*addr--
-		}
-		return *addr
+func (rs *RegIds) IncUse(id RegId) uint32 {
+	if !id.Valid() {
+		return 0
 	}
-	return 0
+	count := rs.inuse[id]
+	if count < ^uint32(0) {
+		count++
+		rs.inuse[id] = count
+	}
+	return count
+}
+
+// return new use count
+func (rs *RegIds) DecUse(id RegId) uint32 {
+	if !id.Valid() {
+		return 0
+	}
+	count := rs.inuse[id]
+	switch count {
+	case 0:
+		return count
+	case 1:
+		delete(rs.inuse, id)
+	default:
+		rs.inuse[id] = count - 1
+	}
+	return count - 1
+}
+
+// return the RegId immediately after id,
+// wrapping around after RHi.
+// returned RegId may be used or not valid:
+// it is caller's responsibility to check
+// for valid and unused registers
+func (rs *RegIds) Next(id RegId) RegId {
+	if id >= rs.rhi {
+		return rs.rlo
+	}
+	return id + 1
+}
+
+func (rs *RegIds) TryAlloc() RegId {
+	id := rs.curr
+	// fmt.Printf("TryAlloc: RegIds = %+v\n", *rs)
+	for {
+		next := rs.Next(id)
+		// fmt.Printf("trying RegId = %d, next = %d\n", id, next)
+		// time.Sleep(time.Second)
+		if id.Valid() && rs.inuse[id] == 0 {
+			rs.inuse[id] = 1
+			rs.curr = next
+			return id
+		}
+		id = next
+		if id == rs.curr {
+			// did a full circle,
+			// no free register
+			return NoRegId
+		}
+	}
+}
+
+func (rs *RegIds) Free(id RegId) {
+	if id.Valid() && rs.DecUse(id) == 0 && id >= rs.first &&
+		(id < rs.curr || rs.curr < rs.first) {
+
+		rs.curr = id
+	}
+	// fmt.Printf("Free: RegIds = %+v, freed %d\n", *rs, id)
 }
 
 // ===================================
@@ -143,4 +204,25 @@ func (asm *Asm) RegIncUse(id RegId) uint32 {
 // return new use count
 func (asm *Asm) RegDecUse(id RegId) uint32 {
 	return asm.regIds.DecUse(id)
+}
+
+func (asm *Asm) TryRegAlloc(kind Kind) Reg {
+	id := asm.regIds.TryAlloc()
+	if !id.Valid() {
+		return Reg{}
+	}
+	return Reg{id, kind}
+}
+
+func (asm *Asm) RegAlloc(kind Kind) Reg {
+	r := asm.TryRegAlloc(kind)
+	if !r.Valid() {
+		errorf("no free registers")
+	}
+	return r
+}
+
+func (asm *Asm) RegFree(r Reg) *Asm {
+	asm.regIds.Free(r.id)
+	return asm
 }

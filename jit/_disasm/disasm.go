@@ -58,6 +58,7 @@ func PrintDisasm(t *testing.T, code asm.Code) {
 		t.Error(err)
 	} else {
 		archId := code.ArchId
+		t.Logf("----- %v -----", archId)
 		for _, insn := range insns {
 			Show(t, archId, insn)
 		}

@@ -44,6 +44,9 @@ func (Amd64) RegIdConfig() RegIdConfig {
 		RHi:  RHi,
 		RSP:  RSP,
 		RVAR: RVAR,
+		// allocate RAX, RDX, RCX as last because
+		// amd64 shl, shr and div are hardcoded to use them
+		RAllocFirst: RBX,
 	}
 }
 
@@ -104,7 +107,6 @@ func (Amd64) Epilogue(asm *Asm) *Asm {
 }
 
 func (Amd64) Init(asm *Asm, start SaveSlot, end SaveSlot) *Asm {
-	asm.RegIncUse(RCX) // reserve for shifts
 	asm.RegIncUse(RSP) // stack pointer
 	asm.RegIncUse(RBP) // frame pointer
 	return asm

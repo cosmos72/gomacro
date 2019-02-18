@@ -22,7 +22,6 @@ const (
 
 type Asm struct {
 	code          Code
-	nextRegId     RegId     // first available register
 	nextSoftRegId SoftRegId // first available soft register
 	softRegs      SoftRegIds
 	save          Save
@@ -71,18 +70,20 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	if Archs[id] == nil {
 		Archs[id] = arch
 	}
-	cfg := arch.RegIdConfig()
+	config := arch.RegIdConfig()
 	asm.arch = arch
 	asm.code = Code{ArchId: id}
-	asm.nextRegId = cfg.RLo
 	asm.nextSoftRegId = 0
 	asm.softRegs = make(SoftRegIds)
 	s := asm.save
 	s.start, s.next, s.end = saveStart, saveStart, saveEnd
-	s.reg = Reg{cfg.RSP, Uint64}
+	s.reg = Reg{config.RSP, Uint64}
 	s.bitmap = make([]bool, saveEnd-saveStart)
-	asm.regIds.list = make([]uint32, cfg.RHi-cfg.RLo+1)
-	asm.regIds.rlo = cfg.RLo
+	asm.regIds.inuse = make(map[RegId]uint32)
+	asm.regIds.first = config.RAllocFirst
+	asm.regIds.curr = config.RAllocFirst
+	asm.regIds.rlo = config.RLo
+	asm.regIds.rhi = config.RHi
 	arch.Init(asm, saveStart, saveEnd)
 	arch.Prologue(asm)
 	return asm
@@ -140,48 +141,6 @@ func (asm *Asm) Int64(val int64) *Asm {
 
 // ===================================
 
-func (asm *Asm) tryRegAlloc(kind Kind) Reg {
-	var id RegId
-	for {
-		if asm.nextRegId > asm.arch.RegIdConfig().RHi {
-			return Reg{}
-		}
-		id = asm.nextRegId
-		asm.nextRegId++
-		if !asm.RegIsUsed(id) {
-			asm.RegIncUse(id)
-			break
-		}
-	}
-	return Reg{id: id, kind: kind}
-}
-
-func (asm *Asm) RegAlloc(kind Kind) Reg {
-	r := asm.tryRegAlloc(kind)
-	if !r.Valid() {
-		errorf("no free register")
-	}
-	return r
-}
-
-func (asm *Asm) RegFree(r Reg) *Asm {
-	id := r.id
-	if !asm.RegIsUsed(id) {
-		return asm
-	}
-	count := asm.RegDecUse(id)
-	if count == 0 && asm.nextRegId >= id {
-		lo := asm.RegIdConfig().RLo
-		for id > lo && !asm.RegIsUsed(id-1) {
-			id--
-		}
-		asm.nextRegId = id
-	}
-	return asm
-}
-
-// ===================================
-
 // convert SoftRegId to Arg
 func (asm *Asm) Arg(x interface{}) Arg {
 	switch x := x.(type) {
@@ -207,7 +166,7 @@ func (asm *Asm) SoftRegId(s SoftRegId) Arg {
 // allocate a SoftRegId
 func (asm *Asm) Alloc(s SoftRegId, kind Kind) Arg {
 	var a Arg
-	if r := asm.tryRegAlloc(kind); r.Valid() {
+	if r := asm.TryRegAlloc(kind); r.Valid() {
 		a = r
 	} else {
 		idx := asm.save.Alloc()

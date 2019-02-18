@@ -40,10 +40,11 @@ func (Arm64) String() string {
 
 func (Arm64) RegIdConfig() RegIdConfig {
 	return RegIdConfig{
-		RLo:  RLo,
-		RHi:  RHi,
-		RSP:  RSP,
-		RVAR: RVAR,
+		RLo:         RLo,
+		RHi:         RHi,
+		RSP:         RSP,
+		RVAR:        RVAR,
+		RAllocFirst: RLo,
 	}
 }
 
