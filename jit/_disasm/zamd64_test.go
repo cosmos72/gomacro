@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	. "github.com/cosmos72/gomacro/jit/amd64"
+	pkgasm "github.com/cosmos72/gomacro/jit/asm"
 )
 
 func Var(index uint16) Mem {
@@ -96,16 +97,51 @@ func TestAmd64Sum(t *testing.T) {
 func TestAmd64Mul(t *testing.T) {
 	var asm Asm
 
-	I, J := Var(0), Var(1)
-	asm.InitArch(Amd64{}).Asm( //
-		MUL2, ConstInt64(9), I,
-		MUL2, ConstInt64(16), I,
-		MUL2, ConstInt64(0x7F), I,
-		MUL3, ConstInt64(0x11), I, J,
-		MUL3, I, J, I,
-	)
+	for _, k := range []Kind{Int8, Int16, Int32, Int64} {
+		I, J, K := VarK(0, k), VarK(1, k), VarK(2, k)
+		InitAmd64(&asm)
+		asm.Asm( //
+			MUL2, MakeConst(9, k), I,
+			MUL2, MakeConst(16, k), I,
+			MUL2, MakeConst(0x7F, k), I,
+			MUL3, MakeConst(0x11, k), I, J,
+			MUL3, I, J, K,
+		)
 
-	PrintDisasm(t, asm.Code())
+		PrintDisasm(t, asm.Code())
+	}
+}
+
+// broken
+func _TestAmd64Div(t *testing.T) {
+	var asm Asm
+
+	for _, k := range []Kind{Int8, Int16, Int32, Int64} {
+		I, J, K := VarK(0, k), VarK(1, k), VarK(2, k)
+
+		InitAmd64(&asm)
+
+		asm.Asm( //
+			DIV3, I, J, K,
+		)
+
+		if pkgasm.SUPPORTED && pkgasm.ARCH_ID == AMD64 {
+			var f func(*int64)
+			asm.Func(&f)
+
+			PrintDisasm(t, asm.Code())
+
+			var a, b int64 = 17, 3
+			ints := [3]int64{a, b, 0}
+			f(&ints[0])
+			c := a / b
+			if ints[2] != c {
+				t.Errorf("DIV3 returned %v, expecting %v", ints[2], c)
+			}
+		} else {
+			PrintDisasm(t, asm.Code())
+		}
+	}
 }
 
 func TestAmd64Cast(t *testing.T) {

@@ -38,7 +38,7 @@ func NewGenOp1(w io.Writer, opname string) *genOp1 {
 }
 
 func GenOp1() {
-	for _, opname := range [...]string{"inc", "dec", "neg", "not"} {
+	for _, opname := range [...]string{"inc", "dec", "neg", "not", "div", "idiv"} {
 		f, err := os.Create("_gen_" + opname + ".s")
 		if err != nil {
 			panic(err)

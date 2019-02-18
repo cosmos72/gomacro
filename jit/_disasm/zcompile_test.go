@@ -124,8 +124,7 @@ func TestCompileExpr2(t *testing.T) {
 func TestCompileExpr3(t *testing.T) {
 	var c Comp
 	var s0 SoftRegId
-	// asm.DIV2, asm.DIV3 not yet implemented on amd64
-	for _, archId := range []ArchId{ /*asm.AMD64,*/ asm.ARM64} {
+	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
 		a := c.NewAsm()
 
@@ -216,16 +215,20 @@ func TestCompileStmt1(t *testing.T) {
 
 func TestCompileStmt2(t *testing.T) {
 	var c Comp
-	_7 := MakeConst(7, Uint64)
+	_7 := MakeConst(7, Int64)
+	_5 := MakeConst(5, Int64)
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		s0 := c.AllocSoftReg(Uint64)
-		s1 := c.AllocSoftReg(Uint64)
+		s0 := c.AllocSoftReg(Int64)
+		s1 := c.AllocSoftReg(Int64)
 		sid0, sid1 := s0.Id(), s1.Id()
+		sid2 := sid1 + 1
 
 		stmt := NewStmt2(ASSIGN, s0,
-			NewExpr1(NEG,
-				NewExpr2(MUL, s1, _7)),
+			NewExpr2(SUB,
+				NewExpr2(MUL, s1, _7),
+				NewExpr2(DIV, s1, _5),
+			),
 		)
 		c.Stmt(stmt)
 		actual := c.Code()
@@ -233,10 +236,13 @@ func TestCompileStmt2(t *testing.T) {
 		t.Logf("stmt: %v", stmt)
 
 		expected := Code{
-			asm.ALLOC, sid0, asm.Uint64,
-			asm.ALLOC, sid1, asm.Uint64,
+			asm.ALLOC, sid0, Int64,
+			asm.ALLOC, sid1, Int64,
 			asm.MUL3, sid1, _7, sid0,
-			asm.NEG2, sid0, sid0,
+			asm.ALLOC, sid2, Int64,
+			asm.DIV3, sid1, _5, sid2,
+			asm.SUB3, sid0, sid2, sid0,
+			asm.FREE, sid2, Int64,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {

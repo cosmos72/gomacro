@@ -19,6 +19,7 @@ package amd64
 // ============================================================================
 // tree-arg instruction
 
+// dst = a OP b
 func (arch Amd64) Op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) *Asm {
 	arch.op3(asm, op, a, b, dst)
 	return asm
@@ -45,8 +46,11 @@ func (arch Amd64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Amd64 {
 	if asm.Optimize3(op, a, b, dst) {
 		return arch
 	}
-	if op == MUL3 {
+	switch op {
+	case MUL3:
 		return arch.mul3(asm, a, b, dst)
+	case DIV3, REM3:
+		return arch.divrem(asm, op, a, b, dst)
 	}
 	op2 := Op2(op)
 	if a == dst {
@@ -84,7 +88,20 @@ func (arch Amd64) mul3(asm *Asm, a Arg, b Arg, dst Arg) Amd64 {
 			case Reg:
 				arch.mul3RegConst8Reg(asm, a, int8(bval), rdst)
 			case Mem:
-				arch.mul3MemConst8Reg(asm, a, int8(bval), rdst)
+				if a.Kind().Size() == 1 {
+					// to use 16-bit multiplication
+					// we must widen Mem, so we need a register
+					widekind := Uint16
+					if a.Kind().Signed() {
+						widekind = Int16
+					}
+					ra := asm.RegAlloc(widekind)
+					arch.castMemReg(asm, a, ra)
+					arch.mul3RegConst8Reg(asm, ra, int8(bval), rdst)
+					asm.RegFree(ra)
+				} else {
+					arch.mul3MemConst8Reg(asm, a, int8(bval), rdst)
+				}
 			default:
 				errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v, %v", a, MUL3, a, b, dst)
 			}

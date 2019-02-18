@@ -245,7 +245,7 @@ func (arch Amd64) castMemReg(asm *Asm, src_m Mem, dst Reg) Amd64 {
 	dlo, dhi := lohi(dst)
 	slo, shi := lohiId(sregid)
 	offlen, offbit := offlen(src_m, sregid)
-	// debugf("castRegMem() src = %v, dst = %v", src, dst)
+	// debugf("castMemReg() src = %v, dst = %v", src, dst)
 	switch skind.Size() {
 	case 1:
 		// movzbq, movsbq

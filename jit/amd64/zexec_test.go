@@ -112,7 +112,7 @@ func DeclSum() func(arg int64) int64 {
 	}
 }
 
-func TestAdd(t *testing.T) {
+func TestArith(t *testing.T) {
 	var f func(*uint64)
 	var asm Asm
 	v1, v2, v3 := Var(0), Var(1), Var(2)
@@ -149,9 +149,35 @@ func TestAdd(t *testing.T) {
 		ints := [3]uint64{0: a, 1: b}
 		f(&ints[0])
 		if ints[2] != c {
-			t.Errorf("Add returned %v, expecting %d", ints[1], c)
+			t.Errorf("Add returned %v, expecting %d", ints[2], c)
 		} else if verbose {
 			t.Logf("ints = %v\n", ints)
+		}
+	}
+}
+
+// broken
+func _TestDiv(t *testing.T) {
+	var f func(*int64)
+	var asm Asm
+	v0, v1, v2 := Var(0), Var(1), Var(2)
+
+	for a := int64(-5); a < 5; a++ {
+		for b := int64(-5); b < 5; b++ {
+			if b == 0 {
+				continue
+			}
+			Init(&asm)
+			asm.Asm(DIV3, v0, v1, v2).Func(&f)
+
+			ints := [3]int64{a, b, ^int64(0)}
+			f(&ints[0])
+			c := a / b
+			if ints[2] != c {
+				t.Errorf("Div %v %v returned %v, expecting %d", a, b, ints[2], c)
+			} else if verbose {
+				t.Logf("ints = %v\n", ints)
+			}
 		}
 	}
 }

@@ -52,6 +52,7 @@ func op2val(op Op2) uint8 {
 }
 
 // ============================================================================
+// dst OP= src
 func (arch Amd64) Op2(asm *Asm, op Op2, src Arg, dst Arg) *Asm {
 	arch.op2(asm, op, src, dst)
 	return asm
@@ -89,7 +90,7 @@ func (arch Amd64) op2(asm *Asm, op Op2, src Arg, dst Arg) Amd64 {
 
 	switch op {
 	case DIV2, REM2:
-		errorf("unimplemented instruction %v: %v %v, %v", op, op, src, dst)
+		return arch.divrem(asm, Op3(op), dst, src, dst)
 	case NEG2, NOT2:
 		op1 := Op1(op) // NEG2 -> NEG, NOT2 -> NOT
 		if src == dst {
@@ -98,6 +99,7 @@ func (arch Amd64) op2(asm *Asm, op Op2, src Arg, dst Arg) Amd64 {
 			return arch.mov(asm, src, dst).op1(asm, op1, dst)
 		}
 	case AND_NOT2:
+		// no assembler instruction => emulate it
 		if csrc, ok := src.(Const); ok {
 			src = MakeConst(^csrc.Val(), csrc.Kind())
 			op = AND2

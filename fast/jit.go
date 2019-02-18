@@ -49,7 +49,7 @@ func jitNew() *jit.Comp {
 	arch := asm.Archs[asm.ARCH_ID]
 	if arch == nil || !asm.SUPPORTED || os.Getenv("GOMACRO_JIT") == "" {
 		// unsupported architecture or operating system,
-		// or not enabled with environment variable
+		// or not enabled from environment variable
 		return nil
 	}
 	return jit.NewArch(arch)
