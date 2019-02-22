@@ -112,38 +112,6 @@ func TestAmd64Mul(t *testing.T) {
 	}
 }
 
-// broken
-func _TestAmd64Div(t *testing.T) {
-	var asm Asm
-
-	for _, k := range []Kind{Int8, Int16, Int32, Int64} {
-		I, J, K := VarK(0, k), VarK(1, k), VarK(2, k)
-
-		InitAmd64(&asm)
-
-		asm.Asm( //
-			DIV3, I, J, K,
-		)
-
-		if pkgasm.SUPPORTED && pkgasm.ARCH_ID == AMD64 {
-			var f func(*int64)
-			asm.Func(&f)
-
-			PrintDisasm(t, asm.Code())
-
-			var a, b int64 = 17, 3
-			ints := [3]int64{a, b, 0}
-			f(&ints[0])
-			c := a / b
-			if ints[2] != c {
-				t.Errorf("DIV3 returned %v, expecting %v", ints[2], c)
-			}
-		} else {
-			PrintDisasm(t, asm.Code())
-		}
-	}
-}
-
 func TestAmd64Cast(t *testing.T) {
 	N := [...]Mem{
 		VarK(0, Uint64),
@@ -233,4 +201,114 @@ func TestAmd64SoftReg(t *testing.T) {
 		FREE, c, Uint64,
 	).Epilogue()
 	PrintDisasm(t, asm.Code())
+}
+
+func TestAmd64DivA(t *testing.T) {
+	var asm Asm
+
+	// rax := MakeReg(RAX, Uint64)
+	a := ConstInt64(123456)
+	b := ConstInt64(10)
+
+	mret := MakeMem(8, RSP, Int64)
+
+	asm.InitArch(Amd64{})
+
+	asm.Asm( //
+		DIV3, a, b, mret,
+	)
+
+	PrintDisasm(t, asm.Code())
+
+	if pkgasm.SUPPORTED && pkgasm.ARCH_ID == AMD64 {
+		var f func() int64
+		asm.Func(&f)
+		c := f()
+		t.Log(a.Val(), "/", b.Val(), "=", c)
+	}
+}
+
+func TestAmd64DivB(t *testing.T) {
+	var asm Asm
+	asm.InitArch(Amd64{})
+
+	var sa, sb SoftRegId = 0, 1
+	ma := MakeMem(8, RSP, Int64)
+	mb := MakeMem(16, RSP, Int64)
+	mret := MakeMem(24, RSP, Int64)
+
+	asm.Asm( //
+		ALLOC, sa, Int64,
+		ALLOC, sb, Int64,
+		MOV, ma, sa,
+		MOV, mb, sb,
+		DIV3, sa, sb, mret,
+		FREE, sa, Int64,
+		FREE, sb, Int64,
+	)
+
+	PrintDisasm(t, asm.Code())
+
+	if pkgasm.SUPPORTED && pkgasm.ARCH_ID == AMD64 {
+		var f func(int64, int64) int64
+		asm.Func(&f)
+		a := int64(112233)
+		b := int64(11)
+		c := f(a, b)
+		t.Log(a, "/", b, "=", c)
+	}
+}
+
+func TestAmd64DivC(t *testing.T) {
+	var asm Asm
+	asm.InitArch(Amd64{})
+
+	ma := MakeMem(8, RSP, Int64)
+	mb := MakeMem(16, RSP, Int64)
+	mret := MakeMem(24, RSP, Int64)
+
+	asm.Asm( //
+		DIV3, ma, mb, mret,
+	)
+
+	PrintDisasm(t, asm.Code())
+
+	if pkgasm.SUPPORTED && pkgasm.ARCH_ID == AMD64 {
+		var f func(int64, int64) int64
+		asm.Func(&f)
+		a := int64(112233)
+		b := int64(11)
+		c := f(a, b)
+		t.Log(a, "/", b, "=", c)
+	}
+}
+
+func TestAmd64DivD(t *testing.T) {
+	var asm Asm
+	for _, k := range []Kind{Int8, Int16, Int32, Int64} {
+		I, J, K := VarK(0, k), VarK(1, k), VarK(2, k)
+
+		InitAmd64(&asm)
+
+		asm.Asm( //
+			DIV3, I, J, K,
+		)
+
+		if pkgasm.SUPPORTED && pkgasm.ARCH_ID == AMD64 {
+			var f func(*int64)
+			asm.Func(&f)
+
+			PrintDisasm(t, asm.Code())
+
+			var a, b int64 = 17, 3
+			ints := [3]int64{a, b, 0}
+			f(&ints[0])
+			c := a / b
+			if ints[2] != c {
+				t.Errorf("DIV3 returned %v, expecting %v", ints[2], c)
+			}
+		} else {
+			PrintDisasm(t, asm.Code())
+		}
+	}
 }

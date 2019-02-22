@@ -157,7 +157,7 @@ func TestArith(t *testing.T) {
 }
 
 // broken
-func _TestDiv(t *testing.T) {
+func TestDiv(t *testing.T) {
 	var f func(*int64)
 	var asm Asm
 	v0, v1, v2 := Var(0), Var(1), Var(2)

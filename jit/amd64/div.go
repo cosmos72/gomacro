@@ -42,7 +42,6 @@ func checkdivrem(op Op3, a Arg, b Arg, dst Arg) {
 }
 
 func (arch Amd64) divrem(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Amd64 {
-	errorf("unimplemented %v", op)
 
 	checkdivrem(op, a, b, dst)
 
@@ -143,7 +142,7 @@ func (arch Amd64) sdivremMem(asm *Asm, op Op3, a Reg, b Mem, dst Arg) Amd64 {
 		}
 	} else {
 		// 0x48 0x99 == cqto
-		asm.Bytes(0x48, 0x99, 0x48|bhi, 0xF7, 0xF8|blo)
+		asm.Bytes(0x48, 0x99, 0x48|bhi, 0xF7, offbit|0x38|blo)
 	}
 	quirk24(asm, bregid)
 	switch mofflen {
