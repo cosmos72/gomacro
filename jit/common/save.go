@@ -20,6 +20,16 @@ import (
 	"fmt"
 )
 
+type SaveSlot uint16
+
+const (
+	InvalidSlot = ^SaveSlot(0)
+)
+
+// implement AsmCode interface
+func (*SaveSlot) asmcode() {
+}
+
 type Op2Misc uint8
 
 const (
@@ -42,6 +52,10 @@ func (op Op2Misc) String() string {
 		s = fmt.Sprintf("Op2Misc(%d)", int(op))
 	}
 	return s
+}
+
+// implement AsmCode interface
+func (op Op2Misc) asmcode() {
 }
 
 func (asm *Asm) Op2Misc(op Op2Misc, arg1 interface{}, arg2 interface{}) *Asm {

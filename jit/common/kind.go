@@ -84,3 +84,7 @@ func (k Kind) IsFloat() bool {
 func (k Kind) String() string {
 	return reflect.Kind(k).String()
 }
+
+// implement AsmCode interface
+func (k Kind) asmcode() {
+}

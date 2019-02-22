@@ -53,6 +53,10 @@ func (s SoftRegId) Kind(asm *Asm) Kind {
 	return asm.SoftRegId(s).Kind()
 }
 
+// implement AsmCode interface
+func (s SoftRegId) asmcode() {
+}
+
 // ===================================
 
 type SoftRegIds map[SoftRegId]Arg // SoftRegId -> Arg

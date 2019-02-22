@@ -25,19 +25,21 @@ import (
 )
 
 type (
-	ArchId    = common.ArchId
-	Arch      = common.Arch
-	Arg       = common.Arg
-	Asm       = common.Asm
-	Const     = common.Const
-	Kind      = common.Kind
-	Mem       = common.Mem
-	Reg       = common.Reg
-	RegId     = common.RegId
-	RegIdConfig  = common.RegIdConfig
-	Save      = common.Save
-	Size      = common.Size
-	SoftRegId = common.SoftRegId
+	ArchId      = common.ArchId
+	Arch        = common.Arch
+	Arg         = common.Arg
+	Asm         = common.Asm
+	AsmCode     = common.AsmCode
+	Const       = common.Const
+	Kind        = common.Kind
+	MachineCode = common.MachineCode
+	Mem         = common.Mem
+	Reg         = common.Reg
+	RegId       = common.RegId
+	RegIdConfig = common.RegIdConfig
+	Save        = common.Save
+	Size        = common.Size
+	SoftRegId   = common.SoftRegId
 )
 
 const (

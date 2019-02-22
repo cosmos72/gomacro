@@ -27,23 +27,24 @@ import (
 )
 
 type (
-	Arch       = common.Arch
-	ArchId     = common.ArchId
-	Arg        = common.Arg
-	Asm        = common.Asm
-	Code       = common.Code // assembled machine code
-	Const      = common.Const
-	Kind       = common.Kind
-	Mem        = common.Mem
-	Reg        = common.Reg
-	RegId      = common.RegId
-	RegIdConfig   = common.RegIdConfig
-	RegIds     = common.RegIds
-	Save       = common.Save
-	SaveSlot   = common.SaveSlot
-	Size       = common.Size
-	SoftRegId  = common.SoftRegId
-	SoftRegIds = common.SoftRegIds
+	Arch        = common.Arch
+	ArchId      = common.ArchId
+	Arg         = common.Arg
+	Asm         = common.Asm
+	AsmCode     = common.AsmCode // symbolic assembly code
+	Const       = common.Const
+	Kind        = common.Kind
+	MachineCode = common.MachineCode // assembled machine code
+	Mem         = common.Mem
+	Reg         = common.Reg
+	RegId       = common.RegId
+	RegIdConfig = common.RegIdConfig
+	RegIds      = common.RegIds
+	Save        = common.Save
+	SaveSlot    = common.SaveSlot
+	Size        = common.Size
+	SoftRegId   = common.SoftRegId
+	SoftRegIds  = common.SoftRegIds
 
 	Op0     = common.Op0
 	Op1     = common.Op1

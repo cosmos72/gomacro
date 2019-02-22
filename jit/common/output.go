@@ -30,3 +30,15 @@ var errorPrefix = "assembler error: "
 func errorf(format string, args ...interface{}) {
 	panic(errors.New(errorPrefix + fmt.Sprintf(format, args...)))
 }
+
+func (actual MachineCode) Equal(expected MachineCode) bool {
+	if actual.ArchId != expected.ArchId || len(actual.Bytes) != len(expected.Bytes) {
+		return false
+	}
+	for i, b := range actual.Bytes {
+		if b != expected.Bytes[i] {
+			return false
+		}
+	}
+	return true
+}

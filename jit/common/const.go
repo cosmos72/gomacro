@@ -44,6 +44,9 @@ func (c Const) Const() bool {
 	return true
 }
 
+func (c Const) asmcode() {
+}
+
 func (c Const) Val() int64 {
 	return c.val
 }

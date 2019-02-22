@@ -20,7 +20,7 @@ import (
 	"testing"
 )
 
-func MakeCode(instr ...uint32) Code {
+func MakeCode(instr ...uint32) MachineCode {
 	bytes := make([]uint8, len(instr)*4)
 	for i, inst := range instr {
 		bytes[4*i+0] = byte(inst >> 0)
@@ -28,20 +28,7 @@ func MakeCode(instr ...uint32) Code {
 		bytes[4*i+2] = byte(inst >> 16)
 		bytes[4*i+3] = byte(inst >> 24)
 	}
-	return Code{bytes, ARM64}
-}
-
-func SameCode(actual Code, expected Code) bool {
-
-	if len(actual.Bytes) != len(expected.Bytes) {
-		return false
-	}
-	for i := range actual.Bytes {
-		if actual.Bytes[i] != expected.Bytes[i] {
-			return false
-		}
-	}
-	return true
+	return MachineCode{ARM64, bytes}
 }
 
 func TestSample(t *testing.T) {
@@ -105,7 +92,7 @@ func TestSample(t *testing.T) {
 		0xd65f03c0, //	ret
 	)
 
-	if !SameCode(actual, expected) {
+	if !actual.Equal(expected) {
 		t.Errorf("bad assembled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}
@@ -144,7 +131,7 @@ func TestCast(t *testing.T) {
 		0x2a0003e0, // mov	w0, w0
 	)
 
-	if !SameCode(actual, expected) {
+	if !actual.Equal(expected) {
 		t.Errorf("bad assembled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}
@@ -269,7 +256,7 @@ func TestMem(t *testing.T) {
 		0xd65f03c0, // ret
 	)
 
-	if !SameCode(actual, expected) {
+	if !actual.Equal(expected) {
 		t.Errorf("bad assembled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}
@@ -300,7 +287,7 @@ func TestSoftRegId(t *testing.T) {
 		0xd65f03c0, // ret
 	)
 
-	if !SameCode(actual, expected) {
+	if !actual.Equal(expected) {
 		t.Errorf("miscompiled code:\n\texpected %s\n\tactual   %s",
 			expected, actual)
 	}

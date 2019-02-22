@@ -18,21 +18,25 @@ package common
 
 type Size uint8 // 1, 2, 4 or 8
 
-type Code struct {
-	Bytes  []uint8
-	ArchId ArchId
+// symbolic assembly code: instruction or its arguments
+type AsmCode interface {
+	asmcode()
 }
 
-type SaveSlot uint16
+// assembled machine code.
+// Executable if compiled for the same architecture
+// the program is running on - see Asm.Func()
+type MachineCode struct {
+	ArchId ArchId
+	Bytes  []uint8
+}
 
-const (
-	InvalidSlot = ^SaveSlot(0)
-)
-
+// argument of assembly instructions
 type Arg interface {
 	RegId() RegId // register used by Arg, or NoReg if Arg is Const
 	Kind() Kind
 	Const() bool
+	asmcode()
 }
 
 // memory area where spill registers can be saved

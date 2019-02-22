@@ -45,6 +45,10 @@ func (op Op0) String() string {
 	return s
 }
 
+// implement AsmCode interface
+func (op Op0) asmcode() {
+}
+
 // ============================================================================
 // one-arg instruction
 type Op1 uint8
@@ -71,6 +75,10 @@ func (op Op1) String() string {
 		s = fmt.Sprintf("Op1(%d)", uint8(op))
 	}
 	return s
+}
+
+// implement AsmCode interface
+func (op Op1) asmcode() {
 }
 
 // ============================================================================
@@ -141,6 +149,10 @@ func (op Op2) String() string {
 	return s
 }
 
+// implement AsmCode interface
+func (op Op2) asmcode() {
+}
+
 // ============================================================================
 // three-arg instruction
 type Op3 uint8
@@ -192,6 +204,10 @@ func (op Op3) String() string {
 	return s
 }
 
+// implement AsmCode interface
+func (op Op3) asmcode() {
+}
+
 // ============================================================================
 // four-arg instruction
 type Op4 uint8
@@ -210,4 +226,8 @@ func (op Op4) String() string {
 		s = fmt.Sprintf("Op4(%d)", int(op))
 	}
 	return s
+}
+
+// implement AsmCode interface
+func (op Op4) asmcode() {
 }

@@ -156,29 +156,38 @@ func TestArith(t *testing.T) {
 	}
 }
 
-// broken
 func TestDiv(t *testing.T) {
 	var f func(*int64)
 	var asm Asm
 	v0, v1, v2 := Var(0), Var(1), Var(2)
 
+	Init(&asm)
+	asm.Asm(DIV3, v0, v1, v2).Func(&f)
+
+	const maxint64 = int64(^uint64(0) >> 1)
+	const minint64 = ^maxint64
+
 	for a := int64(-5); a < 5; a++ {
 		for b := int64(-5); b < 5; b++ {
-			if b == 0 {
-				continue
-			}
-			Init(&asm)
-			asm.Asm(DIV3, v0, v1, v2).Func(&f)
-
-			ints := [3]int64{a, b, ^int64(0)}
-			f(&ints[0])
-			c := a / b
-			if ints[2] != c {
-				t.Errorf("Div %v %v returned %v, expecting %d", a, b, ints[2], c)
-			} else if verbose {
-				t.Logf("ints = %v\n", ints)
+			if b != 0 {
+				callDiv(t, a, b, f)
+				if a != 1 || b != -1 {
+					// minint64 / -1 not yet supported
+					callDiv(t, a+maxint64, b, f)
+				}
 			}
 		}
+	}
+}
+
+func callDiv(t *testing.T, a int64, b int64, f func(*int64)) {
+	ints := [3]int64{a, b, ^int64(0)}
+	f(&ints[0])
+	c := a / b
+	if ints[2] != c {
+		t.Errorf("Div %v %v returned %v, expecting %d", a, b, ints[2], c)
+	} else if verbose {
+		t.Logf("ints = %v\n", ints)
 	}
 }
 

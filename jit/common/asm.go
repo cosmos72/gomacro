@@ -21,7 +21,7 @@ const (
 )
 
 type Asm struct {
-	code          Code
+	code          MachineCode
 	nextSoftRegId SoftRegId // first available soft register
 	softRegs      SoftRegIds
 	save          Save
@@ -72,7 +72,7 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	}
 	config := arch.RegIdConfig()
 	asm.arch = arch
-	asm.code = Code{ArchId: id}
+	asm.code = MachineCode{ArchId: id}
 	asm.nextSoftRegId = 0
 	asm.softRegs = make(SoftRegIds)
 	s := asm.save
@@ -89,7 +89,7 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	return asm
 }
 
-func (asm *Asm) Code() Code {
+func (asm *Asm) Code() MachineCode {
 	return asm.code
 }
 
@@ -141,8 +141,8 @@ func (asm *Asm) Int64(val int64) *Asm {
 
 // ===================================
 
-// convert SoftRegId to Arg
-func (asm *Asm) Arg(x interface{}) Arg {
+// convert AsmCode to Arg
+func (asm *Asm) Arg(x AsmCode) Arg {
 	switch x := x.(type) {
 	case SoftRegId:
 		return asm.SoftRegId(x)

@@ -21,7 +21,7 @@ import (
 )
 
 // will be passed as argument to asm.Asm()
-type Code []interface{}
+type Code []AsmCode
 
 func (c *Code) Init() *Code {
 	*c = nil
@@ -59,9 +59,9 @@ func (c *Code) SoftReg(op asm.Op2Misc, id SoftRegId, kind Kind) SoftReg {
 	return SoftReg{id, kind}
 }
 
-func asmArg(e Expr) interface{} {
+func asmArg(e Expr) AsmCode {
 	switch e := e.(type) {
-	case Const, Reg, Mem:
+	case AsmCode:
 		return e
 	case SoftReg:
 		return e.id

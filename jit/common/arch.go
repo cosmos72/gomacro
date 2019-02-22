@@ -35,8 +35,8 @@ type Arch interface {
 	RegIdValid(id RegId) bool
 	RegIdString(id RegId) string // RegId -> string
 	RegValid(r Reg) bool
-	RegString(r Reg) string   // Reg -> string
-	CodeString(c Code) string // Code -> string
+	RegString(r Reg) string          // Reg -> string
+	CodeString(c MachineCode) string // Code -> string
 
 	Init(asm *Asm, saveStart, saveEnd SaveSlot) *Asm
 	Prologue(asm *Asm) *Asm
@@ -59,7 +59,7 @@ func (archId ArchId) String() string {
 	return fmt.Sprintf("ArchId(%d)", uint8(archId))
 }
 
-func (code Code) String() string {
+func (code MachineCode) String() string {
 	arch := Archs[code.ArchId]
 	if arch != nil {
 		return arch.CodeString(code)

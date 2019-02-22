@@ -28,24 +28,12 @@ func VarK(index uint16, k Kind) Mem {
 	return MakeMem(int32(index)*8, RSI, k)
 }
 
-func SameCode(actual Code, expected Code) bool {
-	if len(actual.Bytes) != len(expected.Bytes) {
-		return false
-	}
-	for i := range actual.Bytes {
-		if actual.Bytes[i] != expected.Bytes[i] {
-			return false
-		}
-	}
-	return true
-}
-
 func TestAmd64SoftRegId(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Amd64{})
 
 	var a, b, c SoftRegId = 0, 1, 2
-	code := []interface{}{
+	code := []AsmCode{
 		ALLOC, a, Uint64,
 		ALLOC, b, Uint64,
 		ALLOC, c, Uint64,
@@ -61,7 +49,8 @@ func TestAmd64SoftRegId(t *testing.T) {
 	// t.Log(code...)
 
 	actual := asm.Code()
-	expected := Code{
+	expected := MachineCode{
+		AMD64,
 		[]uint8{
 			0x48, 0xc7, 0xc3, 0x01, 0x00, 0x00, 0x00, //  movq	$1, %rbx
 			0x48, 0xc7, 0xc6, 0x02, 0x00, 0x00, 0x00, //  movq	$2, %rsi
@@ -69,10 +58,9 @@ func TestAmd64SoftRegId(t *testing.T) {
 			0x48, 0x01, 0xf7, //                          addq	%rsi, %rdi
 			0xc3, //                                      retq
 		},
-		AMD64,
 	}
 
-	if !SameCode(actual, expected) {
+	if !actual.Equal(expected) {
 		t.Errorf("bad assembled code:\n\texpected %x\n\tactual   %x",
 			expected, actual)
 	}

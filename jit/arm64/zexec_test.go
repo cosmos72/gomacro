@@ -22,9 +22,11 @@ import (
 	"testing"
 )
 
-func InitForBinds(asm *Asm) *Asm {
-	asm.InitArch(Arm64{}).RegIncUse(X29)
-	return asm.Asm(MOV, MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
+func Init(asm *Asm) *Asm {
+	asm.InitArch(Arm64{})
+	asm.RegIncUse(X29)
+	asm.Load(MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
+	return asm
 }
 
 func TestExecNop(t *testing.T) {
@@ -44,7 +46,7 @@ func TestExecZero(t *testing.T) {
 	).Func(&f)
 
 	actual := f()
-	var expected uint64
+	expected := uint64(0)
 	if actual != expected {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
@@ -88,7 +90,7 @@ func TestExecUnary(t *testing.T) {
 	binds := [...]uint64{c}
 
 	var asm Asm
-	r := InitForBinds(&asm).RegAlloc(Uint64)
+	r := Init(&asm).RegAlloc(Uint64)
 	v := MakeMem(0, X29, Uint64)
 
 	var f func(*uint64)

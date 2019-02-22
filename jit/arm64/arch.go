@@ -86,7 +86,7 @@ func (Arm64) RegString(r Reg) string {
 }
 
 // print arm64 machine code as sequence of 4-byte instructions
-func (Arm64) CodeString(code Code) string {
+func (Arm64) CodeString(code MachineCode) string {
 	const hexdigit string = "0123456789abcdef"
 	bytes := code.Bytes
 	i, j, n := 0, 0, len(bytes)

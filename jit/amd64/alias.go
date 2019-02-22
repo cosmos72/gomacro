@@ -23,23 +23,24 @@ import (
 )
 
 type (
-	Arch       = common.Arch
-	ArchId     = common.ArchId
-	Arg        = common.Arg
-	Asm        = common.Asm
-	Code       = common.Code
-	Const      = common.Const
-	Kind       = common.Kind
-	Mem        = common.Mem
-	Reg        = common.Reg
-	RegId      = common.RegId
-	RegIdConfig   = common.RegIdConfig
-	RegIds     = common.RegIds
-	Save       = common.Save
-	SaveSlot   = common.SaveSlot
-	Size       = common.Size
-	SoftRegId  = common.SoftRegId
-	SoftRegIds = common.SoftRegIds
+	Arch        = common.Arch
+	ArchId      = common.ArchId
+	Arg         = common.Arg
+	Asm         = common.Asm
+	AsmCode     = common.AsmCode // symbolic assembly code
+	Const       = common.Const
+	Kind        = common.Kind
+	MachineCode = common.MachineCode // assembled machine code
+	Mem         = common.Mem
+	Reg         = common.Reg
+	RegId       = common.RegId
+	RegIdConfig = common.RegIdConfig
+	RegIds      = common.RegIds
+	Save        = common.Save
+	SaveSlot    = common.SaveSlot
+	Size        = common.Size
+	SoftRegId   = common.SoftRegId
+	SoftRegIds  = common.SoftRegIds
 
 	Op0     = common.Op0
 	Op1     = common.Op1
@@ -93,8 +94,8 @@ const (
 	ZERO = common.ZERO
 	INC  = common.INC
 	DEC  = common.DEC
-	NOT1  = common.NOT1
-	NEG1  = common.NEG1
+	NOT1 = common.NOT1
+	NEG1 = common.NEG1
 
 	// Op2
 	ADD2     = common.ADD2
@@ -112,9 +113,9 @@ const (
 	AND_NOT2 = common.AND_NOT2
 	LAND2    = common.LAND2
 	LOR2     = common.LOR2
-	MOV     = common.MOV
-	CAST    = common.CAST
-	LEA2    = common.LEA2
+	MOV      = common.MOV
+	CAST     = common.CAST
+	LEA2     = common.LEA2
 	// CMP  = common.CMP
 	// XCHG = common.XCHG
 	NEG2 = common.NEG2

@@ -89,7 +89,7 @@ func (Amd64) RegString(r Reg) string {
 	return s
 }
 
-func (Amd64) CodeString(code Code) string {
+func (Amd64) CodeString(code MachineCode) string {
 	return fmt.Sprintf("%x", code.Bytes)
 }
 

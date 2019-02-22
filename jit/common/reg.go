@@ -89,6 +89,9 @@ func (r Reg) Const() bool {
 	return false
 }
 
+func (r Reg) asmcode() {
+}
+
 func (r Reg) String() string {
 	arch := r.id.Arch()
 	if arch != nil {

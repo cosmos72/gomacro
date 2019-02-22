@@ -16,7 +16,7 @@
 
 package common
 
-func (asm *Asm) Asm(args ...interface{}) *Asm {
+func (asm *Asm) Asm(args ...AsmCode) *Asm {
 	n := len(args)
 	for i := 0; i < n; i++ {
 		i += asm.Op(args[i:]...)
@@ -24,7 +24,7 @@ func (asm *Asm) Asm(args ...interface{}) *Asm {
 	return asm
 }
 
-func (asm *Asm) Op(args ...interface{}) int {
+func (asm *Asm) Op(args ...AsmCode) int {
 	var n int
 	switch op := args[0].(type) {
 	case Op0:

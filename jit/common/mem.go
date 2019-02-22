@@ -43,6 +43,9 @@ func (m Mem) Const() bool {
 	return false
 }
 
+func (m Mem) asmcode() {
+}
+
 func (m Mem) Offset() int32 {
 	return m.off
 }
