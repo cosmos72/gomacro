@@ -34,14 +34,14 @@ func Init(asm *Asm) *Asm {
 	return asm
 }
 
-func TestNop(t *testing.T) {
+func TestExecNop(t *testing.T) {
 	var asm Asm
 	var f func()
 	asm.InitArch(Amd64{}).Func(&f)
 	f()
 }
 
-func TestMov(t *testing.T) {
+func TestExecMov(t *testing.T) {
 	var f func(*uint64)
 
 	m := Var(0)
@@ -63,7 +63,7 @@ func TestMov(t *testing.T) {
 	}
 }
 
-func TestSum(t *testing.T) {
+func TestExecSum(t *testing.T) {
 	const (
 		n        = 10
 		expected = n * (n + 1) / 2
@@ -112,7 +112,7 @@ func DeclSum() func(arg int64) int64 {
 	}
 }
 
-func TestArith(t *testing.T) {
+func TestExecArith(t *testing.T) {
 	var f func(*uint64)
 	var asm Asm
 	v1, v2, v3 := Var(0), Var(1), Var(2)
@@ -156,7 +156,7 @@ func TestArith(t *testing.T) {
 	}
 }
 
-func TestDiv(t *testing.T) {
+func TestExecDiv(t *testing.T) {
 	var f func(*int64)
 	var asm Asm
 	v0, v1, v2 := Var(0), Var(1), Var(2)
@@ -191,7 +191,7 @@ func callDiv(t *testing.T, a int64, b int64, f func(*int64)) {
 	}
 }
 
-func TestCast(t *testing.T) {
+func TestExecCast(t *testing.T) {
 	var f func(*uint64)
 	var asm Asm
 	Init(&asm)
@@ -230,7 +230,7 @@ func TestCast(t *testing.T) {
 	}
 }
 
-func TestLea(t *testing.T) {
+func TestExecLea(t *testing.T) {
 	var f func(*uint64)
 	const (
 		n, m     int64 = 1020304, 9
@@ -252,7 +252,7 @@ func TestLea(t *testing.T) {
 }
 
 /*
-func TestArith(t *testing.T) {
+func TestExecArith(t *testing.T) {
 	const (
 		n        int = 9
 		expected int = ((((n*2 + 3) | 4) &^ 5) ^ 6) / ((n & 2) | 1)

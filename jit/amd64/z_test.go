@@ -28,7 +28,7 @@ func VarK(index uint16, k Kind) Mem {
 	return MakeMem(int32(index)*8, RSI, k)
 }
 
-func TestAmd64SoftRegId(t *testing.T) {
+func TestSoftRegId(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Amd64{})
 

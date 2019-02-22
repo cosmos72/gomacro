@@ -22,10 +22,22 @@ import (
 	"testing"
 )
 
+func Param(offset int32, kind Kind) Mem {
+	return MakeMem(offset, XSP, kind)
+}
+
+func VarKind(idx int64, kind Kind) Mem {
+	return MakeMem(int32(idx)*8, X29, kind)
+}
+
+func Var(idx int64) Mem {
+	return MakeMem(int32(idx)*8, X29, Int64)
+}
+
 func Init(asm *Asm) *Asm {
 	asm.InitArch(Arm64{})
 	asm.RegIncUse(X29)
-	asm.Load(MakeMem(8, XSP, Uint64), MakeReg(X29, Uint64))
+	asm.Load(Param(8, Uint64), MakeReg(X29, Uint64))
 	return asm
 }
 
@@ -42,7 +54,7 @@ func TestExecZero(t *testing.T) {
 	asm.InitArch(Arm64{})
 
 	asm.Asm( //
-		ZERO, MakeMem(8, XSP, Uint64),
+		ZERO, Param(8, Uint64),
 	).Func(&f)
 
 	actual := f()
@@ -59,7 +71,7 @@ func TestExecConst(t *testing.T) {
 
 	asm.InitArch(Arm64{})
 	asm.Asm( //
-		MOV, ConstUint64(expected), MakeMem(8, XSP, Uint64),
+		MOV, ConstUint64(expected), Param(8, Uint64),
 	).Func(&f)
 
 	actual := f()
@@ -76,7 +88,7 @@ func TestExecLoadStore(t *testing.T) {
 	r := asm.InitArch(Arm64{}).RegAlloc(Uint64)
 	asm.Asm( //
 		MOV, ConstUint64(expected), r,
-		MOV, r, MakeMem(8, XSP, Uint64),
+		MOV, r, Param(8, Uint64),
 	).Func(&f)
 
 	actual := f()
@@ -91,7 +103,7 @@ func TestExecUnary(t *testing.T) {
 
 	var asm Asm
 	r := Init(&asm).RegAlloc(Uint64)
-	v := MakeMem(0, X29, Uint64)
+	v := VarKind(0, Uint64)
 
 	var f func(*uint64)
 	asm.Asm( //
@@ -107,5 +119,42 @@ func TestExecUnary(t *testing.T) {
 
 	if actual != expected {
 		t.Errorf("expected 0x%x, actual 0x%x", expected, actual)
+	}
+}
+
+func TestExecDiv(t *testing.T) {
+	var f func(*int64)
+	var asm Asm
+	v0, v1, v2 := Var(0), Var(1), Var(2)
+
+	Init(&asm)
+	asm.Asm(DIV3, v0, v1, v2).Func(&f)
+
+	for a := int64(-5); a < 5; a++ {
+		for b := int64(-5); b < 5; b++ {
+			callDiv(t, a, b, f)
+		}
+	}
+	const maxint64 = int64(^uint64(0) >> 1)
+	const minint64 = ^maxint64
+
+	for a := int64(-5); a < 5; a++ {
+		for b := int64(-5); b < 5; b++ {
+			callDiv(t, a+maxint64, b, f)
+		}
+	}
+}
+
+func callDiv(t *testing.T, a int64, b int64, f func(*int64)) {
+	ints := [3]int64{a, b, ^int64(0)}
+	f(&ints[0])
+	var c int64
+	if b != 0 {
+		c = a / b
+	}
+	if ints[2] != c {
+		t.Errorf("Div %v %v returned %v, expecting %d", a, b, ints[2], c)
+	} else {
+		t.Logf("%v / %v = %v", a, b, c)
 	}
 }
