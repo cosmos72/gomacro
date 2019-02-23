@@ -28,8 +28,14 @@ const (
 	MMAP_SUPPORTED = false // crashes executing the second function call (!)
 )
 
-// allocate memory in 64k chunks
-var minAllocSize = windows.Getpagesize() * 16
+// must allocate for exactly one function:
+// offset must be zero, otherwise function raises exception.
+// REASON?
+// probably because we are not calling win32 FlushInstructionCache(),
+// which is not available in Go
+var (
+	pagesize = uintptr(windows.Getpagesize())
+)
 
 type MemPool struct {
 	addr, size, offset uintptr
@@ -40,10 +46,10 @@ type MemArea struct {
 }
 
 func NewMemPool(size int) *MemPool {
-	msize := uintptr((size + minAllocSize - 1) &^ (minAllocSize - 1))
+	msize := (uintptr(size) + pagesize - 1) &^ (pagesize - 1)
 	addr, err := windows.VirtualAlloc(0, msize,
 		windows.MEM_COMMIT|windows.MEM_RESERVE,
-		windows.PAGE_EXECUTE_READ)
+		windows.PAGE_READWRITE)
 	if err != nil {
 		errorf("sys/windows.VirtualAlloc failed: %v", err)
 	}
@@ -70,7 +76,7 @@ func (mem *MemPool) SetReadonly() {
 }
 
 func (mem *MemPool) SetReadWrite() {
-	mem.protect(windows.PAGE_EXECUTE_READWRITE)
+	// mem.protect(windows.PAGE_EXECUTE_READWRITE)
 }
 
 func (mem *MemPool) Copy(code MachineCode) MemArea {
@@ -86,12 +92,15 @@ func (mem *MemPool) Copy(code MachineCode) MemArea {
 	mem.SetReadWrite()
 	memcpy(mem.addr, uintptr(unsafe.Pointer(&code.Bytes[0])), size)
 	mem.SetReadonly()
-	used := (size + 15) &^ 15
+	used := (size + pagesize - 1) &^ (pagesize - 1)
 	if used >= avail {
 		used = avail
 	}
 	ret := MemArea{mem.addr + mem.offset, size}
-	mem.offset += used
+	// use all memory, because any function stored
+	// in the remaining fragment will raise exception
+	// mem.offset += used
+	mem.offset = mem.size
 	return ret
 }
 

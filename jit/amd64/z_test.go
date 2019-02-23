@@ -20,14 +20,6 @@ import (
 	"testing"
 )
 
-func Var(index uint16) Mem {
-	return MakeMem(int32(index)*8, RSI, Int64)
-}
-
-func VarK(index uint16, k Kind) Mem {
-	return MakeMem(int32(index)*8, RSI, k)
-}
-
 func TestSoftRegId(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Amd64{})

@@ -27,6 +27,18 @@ import (
 
 var verbose = false
 
+func Var(index uint16) Mem {
+	return MakeMem(int32(index)*8, RSI, Int64)
+}
+
+func VarK(index uint16, k Kind) Mem {
+	return MakeMem(int32(index)*8, RSI, k)
+}
+
+func Param(index uint16) Mem {
+	return MakeMem(int32(index)*8, RSP, Int64)
+}
+
 func Init(asm *Asm) *Asm {
 	asm.InitArch(Amd64{})
 	asm.RegIncUse(RSI)
@@ -39,6 +51,24 @@ func TestExecNop(t *testing.T) {
 	var f func()
 	asm.InitArch(Amd64{}).Func(&f)
 	f()
+}
+
+func TestExecRet(t *testing.T) {
+	var f func() int64
+
+	var asm Asm
+
+	mret := Param(1)
+
+	c := ConstInt64(int64(rand.Uint64()))
+	for i := 0; i < 4; i++ {
+		asm.InitArch(Amd64{})
+		asm.Mov(c, mret).Func(&f)
+		actual := f()
+		if actual != c.Val() {
+			t.Errorf("Ret returned %d, expecting %d", actual, c.Val())
+		}
+	}
 }
 
 func TestExecMov(t *testing.T) {

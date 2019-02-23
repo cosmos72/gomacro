@@ -81,6 +81,7 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	asm.regIds.curr = config.RAllocFirst
 	asm.regIds.rlo = config.RLo
 	asm.regIds.rhi = config.RHi
+	asm.mem = nil
 	arch.Init(asm, saveStart, saveEnd)
 	arch.Prologue(asm)
 	return asm
@@ -88,6 +89,11 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 
 func (asm *Asm) Code() MachineCode {
 	return asm.code
+}
+
+func (asm *Asm) ClearCode() *Asm {
+	asm.code.Bytes = nil
+	return asm
 }
 
 func (asm *Asm) Byte(b byte) *Asm {
