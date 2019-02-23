@@ -228,7 +228,8 @@ func (g *CompGlobals) jitFun0(e *Expr, kind jit.Kind) I {
 			}
 		}
 	}()
-	asm := jc.NewAsm()
+	asm := jc.Asm()
+	asm.ClearCode()
 	asm.Asm(jc.Code()...)
 	if JIT_VERBOSE > 0 {
 		output.Debugf("jit assembled: %v", asm.Code())

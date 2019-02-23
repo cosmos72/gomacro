@@ -28,8 +28,10 @@ import (
 )
 
 func stmtNop(env *Env) (Stmt, *Env) {
-	env.IP++
-	return env.Code[env.IP], env
+	ip := env.IP
+	ip++
+	env.IP = ip
+	return env.Code[ip], env
 }
 
 func popEnv(env *Env) (Stmt, *Env) {
