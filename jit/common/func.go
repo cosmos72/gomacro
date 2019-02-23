@@ -21,9 +21,11 @@ import (
 	"unsafe"
 )
 
+const MMAP_VERBOSE = false
+
 type interfaceHeader struct {
 	typ  uintptr
-	addr **memarea
+	addr **MemArea
 }
 
 /**
@@ -55,4 +57,18 @@ func (asm *Asm) Func(funcaddr interface{}) {
 		fmt.Printf("funcaddr = %p\n", header.addr)
 		fmt.Printf("*funcaddr = %p\n", *header.addr)
 	*/
+}
+
+// return MemArea containing executable machine code
+func (asm *Asm) mmap() MemArea {
+	asm.Epilogue()
+	if MMAP_VERBOSE {
+		debugf("asm: %#v", asm.code)
+	}
+	size := len(asm.code.Bytes)
+	if asm.mem.Size() < size {
+		// we waste asm.mem.Size() bytes of mmapped memory...
+		asm.mem = NewMemPool(size)
+	}
+	return asm.mem.Copy(asm.code)
 }

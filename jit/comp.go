@@ -25,6 +25,7 @@ type Comp struct {
 	nextSoftReg SoftRegId
 	arch        Arch
 	asm.RegIdConfig
+	asm *Asm
 }
 
 func New() *Comp {
@@ -58,6 +59,9 @@ func (c *Comp) InitArch(arch Arch) *Comp {
 	c.nextSoftReg = 0
 	c.arch = arch
 	c.RegIdConfig = arch.RegIdConfig()
+	if c.asm != nil {
+		c.asm.InitArch(arch)
+	}
 	return c
 }
 
@@ -72,8 +76,12 @@ func (c *Comp) ArchId() ArchId {
 	return c.arch.Id()
 }
 
-func (c *Comp) NewAsm() *Asm {
-	return asm.NewArch(c.arch)
+func (c *Comp) Asm() *Asm {
+	if c.asm == nil {
+		// create asm.Asm on demand
+		c.asm = asm.NewArch(c.arch)
+	}
+	return c.asm
 }
 
 // return compiled assembly code

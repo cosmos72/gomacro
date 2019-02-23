@@ -67,11 +67,11 @@ func TestCompileExpr1(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual...)
+			t.Log(actual)
 		}
 
 		// assemble
-		a := c.NewAsm()
+		a := c.Asm()
 		a.Asm(c.Code()...)
 		a.Epilogue()
 		PrintDisasm(t, a.Code())
@@ -82,7 +82,7 @@ func TestCompileExpr2(t *testing.T) {
 	var c Comp
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		a := c.NewAsm()
+		a := c.Asm()
 
 		c7 := MakeConst(7, Uint64)
 		c9 := MakeConst(9, Uint64)
@@ -110,7 +110,7 @@ func TestCompileExpr2(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual...)
+			t.Log(actual)
 		}
 
 		// assemble
@@ -126,7 +126,7 @@ func TestCompileExpr3(t *testing.T) {
 	var s0 SoftRegId
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		a := c.NewAsm()
+		a := c.Asm()
 
 		c_2 := MakeConst(-2, Int64)
 		m := c.MakeVar(0, 0, Int64)
@@ -151,7 +151,7 @@ func TestCompileExpr3(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual...)
+			t.Log(actual)
 		}
 
 		// assemble
@@ -202,11 +202,11 @@ func TestCompileStmt1(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual...)
+			t.Log(actual)
 		}
 
 		// assemble
-		a := c.NewAsm()
+		a := c.Asm()
 		a.Asm(c.Code()...)
 		a.Epilogue()
 		PrintDisasm(t, a.Code())
@@ -249,11 +249,11 @@ func TestCompileStmt2(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual...)
+			t.Log(actual)
 		}
 
 		// assemble
-		a := c.NewAsm()
+		a := c.Asm()
 		a.Asm(c.Code()...)
 		a.Epilogue()
 		PrintDisasm(t, a.Code())

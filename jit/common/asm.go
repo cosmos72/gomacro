@@ -16,10 +16,6 @@
 
 package common
 
-const (
-	VERBOSE = false
-)
-
 type Asm struct {
 	code          MachineCode
 	nextSoftRegId SoftRegId // first available soft register
@@ -27,6 +23,7 @@ type Asm struct {
 	save          Save
 	regIds        RegIds
 	arch          Arch
+	mem           *MemPool
 }
 
 func New(id ArchId) *Asm {

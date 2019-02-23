@@ -44,7 +44,7 @@ func NewDisasm(archId ArchId) (Engine, error) {
 	return engine, nil
 }
 
-func Disasm(code asm.Code) ([]gapstone.Instruction, error) {
+func Disasm(code asm.MachineCode) ([]gapstone.Instruction, error) {
 	engine, err := NewDisasm(code.ArchId)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func Disasm(code asm.Code) ([]gapstone.Instruction, error) {
 	return engine.Disasm(code.Bytes, 0x10000, 0)
 }
 
-func PrintDisasm(t *testing.T, code asm.Code) {
+func PrintDisasm(t *testing.T, code asm.MachineCode) {
 	insns, err := Disasm(code)
 	if err != nil {
 		t.Error(err)

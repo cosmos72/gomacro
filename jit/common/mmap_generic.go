@@ -10,7 +10,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * os_generic.go
+ * mmap_generic.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
@@ -24,10 +24,24 @@ import (
 
 const MMAP_SUPPORTED = false
 
-type memarea struct {
+type MemPool struct {
 }
 
-func (asm *Asm) mmap() memarea {
-	errorf("Asm: unsupported operating system %v, cannot mmap() created code", runtime.GOOS)
-	return memarea{}
+func (mem *MemPool) Size() int {
+	return 0
+}
+
+func NewMemPool(size int) *MemPool {
+	errorf("MemPool: unsupported operating system %v, cannot create executable memory", runtime.GOOS)
+	return nil
+}
+
+func (mem *MemPool) SetReadonly() {
+}
+
+func (mem *MemPool) SetReadWrite() {
+}
+
+func (mem *MemPool) Copy(code MachineCode) {
+	errorf("MemPool: unsupported operating system %v, cannot copy machine code", runtime.GOOS)
 }
