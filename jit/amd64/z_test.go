@@ -37,8 +37,8 @@ func TestSoftRegId(t *testing.T) {
 		FREE, c, Uint64,
 		RET,
 	}
-	asm.Asm(code...)
-	// t.Log(code...)
+	asm.Assemble(code...)
+	// t.Log(code)
 
 	actual := asm.Code()
 	expected := MachineCode{

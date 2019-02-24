@@ -85,33 +85,33 @@ func (t *Stmt2) String() string {
 func (c *Comp) Stmt(t Stmt) {
 	switch t := t.(type) {
 	case *Stmt1:
-		c.stmt1(t)
+		c.Stmt1(t.Inst, t.Dst)
 	case *Stmt2:
-		c.stmt2(t)
+		c.Stmt2(t.Inst, t.Dst, t.Src)
 	case *StmtN:
-		c.stmtN(t)
+		c.StmtN(t.Dst, t.Src)
 	default:
 		errorf("unknown Stmt type %T: %v", t, t)
 	}
 }
 
 // compile unary statement
-func (c *Comp) stmt1(t *Stmt1) {
-	dst, soft := c.Expr(t.Dst)
-	if t.Inst != NOP {
+func (c *Comp) Stmt1(inst Inst1, tdst Expr) {
+	dst, soft := c.Expr(tdst)
+	if inst != NOP {
 		checkAssignable(dst)
 	}
-	c.code.Inst1(t.Inst, dst)
+	c.code.Inst1(inst, dst)
 	c.FreeSoftReg(soft)
 }
 
 // compile binary statement
-func (c *Comp) stmt2(t *Stmt2) {
+func (c *Comp) Stmt2(inst Inst2, tdst Expr, tsrc Expr) {
 	// evaluate left-hand side first
-	dst, dsoft := c.Expr(t.Dst)
+	dst, dsoft := c.Expr(tdst)
 	checkAssignable(dst)
-	src, ssoft := c.expr(t.Src, dst)
-	c.code.Inst2(t.Inst, src, dst)
+	src, ssoft := c.expr(tsrc, dst)
+	c.code.Inst2(inst, src, dst)
 	c.FreeSoftReg(dsoft)
 	if ssoft.id != dsoft.id {
 		c.FreeSoftReg(ssoft)
@@ -119,20 +119,20 @@ func (c *Comp) stmt2(t *Stmt2) {
 }
 
 // compile n-ary statement
-func (c *Comp) stmtN(t *StmtN) {
-	n := len(t.Dst)
-	if n != len(t.Src) {
-		errorf("assignment mismatch: %d variables but %d values: %v", n, len(t.Src), t)
+func (c *Comp) StmtN(tdst []Expr, tsrc []Expr) {
+	n := len(tdst)
+	if n != len(tsrc) {
+		errorf("assignment mismatch: %d variables but %d values: %v = %v", n, len(tsrc), tdst, tsrc)
 	}
 	dst := make([]Expr, n)
 	src := make([]Expr, n)
 	// evaluate left-hand side first
-	for i, x := range t.Dst {
+	for i, x := range tdst {
 		e, _ := c.Expr(x)
 		checkAssignable(e)
 		dst[i] = e
 	}
-	for i, x := range t.Src {
+	for i, x := range tsrc {
 		e, soft := c.Expr(x)
 		if _, ok := e.(Mem); ok && !soft.Valid() {
 			// source is a local variable. we must evaluate it,

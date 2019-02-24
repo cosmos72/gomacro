@@ -49,9 +49,10 @@ const (
 	NAME           = asm.NAME
 
 	// ArchId
-	NOARCH = common.NOARCH
-	AMD64  = common.AMD64
-	ARM64  = common.ARM64
+	NOARCH  = common.NOARCH
+	AMD64   = common.AMD64
+	ARM64   = common.ARM64
+	ARCH_ID = asm.ARCH_ID // build arch
 
 	// Kind
 	Invalid = common.Invalid

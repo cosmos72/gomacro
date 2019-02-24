@@ -35,24 +35,82 @@ func jitVerbose() int {
 	return i
 }
 
-// offset of struct field Env.Ints
-var envIntsOffset int32 = -1
+// offset of Env struct fields
+var (
+	envInts int32 = -1 // offset of Env.Ints
+	envIP   int32 = -1 // offset of Env.IP
+	envCode int32 = -1 // offset of Env.Code
+	envOk   bool
+)
 
 func init() {
 	f, ok := r.TypeOf((*Env)(nil)).Elem().FieldByName("Ints")
-	if ok && f.Offset == uintptr(int32(f.Offset)) {
-		envIntsOffset = int32(f.Offset)
+	if !ok || f.Offset != uintptr(int32(f.Offset)) {
+		return
 	}
+	envInts = int32(f.Offset)
+	f, ok = r.TypeOf((*Env)(nil)).Elem().FieldByName("IP")
+	if !ok || f.Offset != uintptr(int32(f.Offset)) {
+		return
+	}
+	envIP = int32(f.Offset)
+	f, ok = r.TypeOf((*Env)(nil)).Elem().FieldByName("Code")
+	if !ok || f.Offset != uintptr(int32(f.Offset)) {
+		return
+	}
+	envCode = int32(f.Offset)
+	envOk = true
+
+	// stmtNop = jitMakeInterpNop()
+
+}
+
+func jitMakeInterpNop() Stmt {
+	jc := jit.New()
+	r := jc.Asm().RegAlloc(jit.Uint64)
+	s := jc.Asm().RegAlloc(jit.Uint64)
+	renv := jc.Asm().RegAlloc(jit.Uint64)
+	renvid := renv.RegId()
+	// on amd64 and arm64, in a func(env *Env) ...
+	// the parameter env is on the stack at [RSP+8]
+	env := jit.MakeParam(8, jit.Uint64, jc.RegIdConfig)
+	// copy env from stack to renv register
+	jc.Stmt2(jit.ASSIGN, renv, env)
+	// copy env.IP to r
+	mip := jit.MakeMem(envIP, renvid, jit.Uint64)
+	jc.Stmt2(jit.ASSIGN, r, mip)
+	// increment r
+	jc.Stmt1(jit.INC, r)
+	// copy r to env.IP
+	jc.Stmt2(jit.ASSIGN, mip, r)
+	// multiply r by sizeof(Stmt)
+	jc.Stmt2(jit.MUL_ASSIGN, r, jit.MakeConst(8, jit.Uint64))
+	// copy &env.Code[0] to s
+	jc.Stmt2(jit.ASSIGN, s, jit.MakeMem(envCode, renvid, jit.Uint64))
+	// add r (== env.IP) to s (== &env.Code[0]) to get &env.Code[env.IP]
+	jc.Stmt2(jit.ADD_ASSIGN, s, r)
+	// dereference s to get env.Code[env.IP]
+	jc.Stmt2(jit.ASSIGN, s, jit.MakeMem(0, s.RegId(), jit.Uint64))
+	// copy env from renv register to stack
+	jc.Stmt2(jit.ASSIGN, jit.MakeParam(24, jit.Uint64, jc.RegIdConfig), renv)
+	// copy env.Code[env.IP] from s register to stack
+	jc.Stmt2(jit.ASSIGN, jit.MakeParam(16, jit.Uint64, jc.RegIdConfig), s)
+	var f func(*Env) (Stmt, *Env)
+	jc.Func(&f)
+	return f
 }
 
 func jitNew() *jit.Comp {
 	arch := asm.Archs[asm.ARCH_ID]
-	if arch == nil || !asm.SUPPORTED || os.Getenv("GOMACRO_JIT") == "" {
+	if arch == nil || !asm.SUPPORTED || !envOk || os.Getenv("GOMACRO_JIT") == "" {
 		// unsupported architecture or operating system,
 		// or not enabled from environment variable
 		return nil
 	}
-	return jit.NewArch(arch)
+	jc := jit.NewArch(arch)
+	// tell jit compiler we need register RVAR
+	jc.Asm().RegIncUse(arch.RegIdConfig().RVAR)
+	return jc
 }
 
 func jitLog(e *Expr) {
@@ -198,22 +256,24 @@ func (g *CompGlobals) jitFun(e *Expr) *Expr {
 // implementation of jitFun
 func (g *CompGlobals) jitFun0(e *Expr, kind jit.Kind) I {
 	jc := g.JitComp
+	asm := jc.Asm()
+	jc.ClearCode()
 	// on amd64 and arm64, in a func(env *Env) ...
 	// the parameter env is on the stack at [RSP+8]
 	env := jit.MakeParam(8, jit.Uint64, jc.RegIdConfig)
 	rvarid := jc.RegIdConfig.RVAR
 	rvar := jit.MakeReg(rvarid, jit.Uint64)
 	// copy env from stack to RVAR
-	jc.Stmt(jit.NewStmt2(jit.ASSIGN, rvar, env))
+	jc.Stmt2(jit.ASSIGN, rvar, env)
 	// copy &env.Ints[0] to RVAR
-	jc.Stmt(jit.NewStmt2(jit.ASSIGN, rvar, jit.MakeMem(envIntsOffset, rvarid, jit.Uint64)))
+	jc.Stmt2(jit.ASSIGN, rvar, jit.MakeMem(envInts, rvarid, jit.Uint64))
 	// compile accumulated jit expression
 	val, softval := jc.Expr(e.Jit)
 	// copy result to stack.
 	// on amd64 and arm64, in a func(env *Env) ...
 	// the return value is on the stack at [RSP+16]
 	ret := jit.MakeParam(16, val.Kind(), jc.RegIdConfig)
-	jc.Stmt(jit.NewStmt2(jit.ASSIGN, ret, val))
+	jc.Stmt2(jit.ASSIGN, ret, val)
 	jc.FreeSoftReg(softval)
 	if JIT_VERBOSE > 0 {
 		output.Debugf("jit compiled: %v", jc.Code())
@@ -228,14 +288,12 @@ func (g *CompGlobals) jitFun0(e *Expr, kind jit.Kind) I {
 			}
 		}
 	}()
-	asm := jc.Asm()
-	asm.ClearCode()
-	asm.Asm(jc.Code()...)
+	machinecode := jc.Assemble()
 	if JIT_VERBOSE > 0 {
-		output.Debugf("jit assembled: %v", asm.Code())
+		output.Debugf("jit compiled: %v", jc.Code())
+		output.Debugf("jit assembled: %v", machinecode)
 	}
 	return jitMakeFun(asm, kind)
-	// return nil // unfinished, preserve the original function
 }
 
 func jitMakeFun(asm *jit.Asm, kind jit.Kind) I {

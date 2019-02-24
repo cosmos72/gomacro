@@ -53,7 +53,7 @@ func TestExecZero(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Arm64{})
 
-	asm.Asm( //
+	asm.Assemble( //
 		ZERO, Param(8, Uint64),
 	).Func(&f)
 
@@ -70,7 +70,7 @@ func TestExecConst(t *testing.T) {
 	var expected uint64 = 7
 
 	asm.InitArch(Arm64{})
-	asm.Asm( //
+	asm.Assemble( //
 		MOV, ConstUint64(expected), Param(8, Uint64),
 	).Func(&f)
 
@@ -86,7 +86,7 @@ func TestExecLoadStore(t *testing.T) {
 	var expected uint64 = 0x12345678abcdef0
 
 	r := asm.InitArch(Arm64{}).RegAlloc(Uint64)
-	asm.Asm( //
+	asm.Assemble( //
 		MOV, ConstUint64(expected), r,
 		MOV, r, Param(8, Uint64),
 	).Func(&f)
@@ -106,7 +106,7 @@ func TestExecUnary(t *testing.T) {
 	v := VarKind(0, Uint64)
 
 	var f func(*uint64)
-	asm.Asm( //
+	asm.Assemble( //
 		MOV, v, r,
 		NEG1, r,
 		NOT1, r,
@@ -128,7 +128,7 @@ func TestExecDiv(t *testing.T) {
 	v0, v1, v2 := Var(0), Var(1), Var(2)
 
 	Init(&asm)
-	asm.Asm(DIV3, v0, v1, v2).Func(&f)
+	asm.Assemble(DIV3, v0, v1, v2).Func(&f)
 
 	for a := int64(-5); a < 5; a++ {
 		for b := int64(-5); b < 5; b++ {

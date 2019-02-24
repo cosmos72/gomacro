@@ -16,7 +16,7 @@
 
 package common
 
-func (asm *Asm) Asm(args ...AsmCode) *Asm {
+func (asm *Asm) Assemble(args ...AsmCode) *Asm {
 	n := len(args)
 	for i := 0; i < n; i++ {
 		i += asm.Op(args[i:]...)

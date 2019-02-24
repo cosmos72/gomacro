@@ -67,7 +67,7 @@ func TestAmd64Unary(t *testing.T) {
 			continue
 		}
 		r := MakeReg(id, Int64)
-		asm.Asm(MOV, v1, r, //
+		asm.Assemble(MOV, v1, r, //
 			NEG1, r, //
 			NOT1, r, //
 			INC, r, //
@@ -86,7 +86,7 @@ func TestAmd64Sum(t *testing.T) {
 	var asm Asm
 
 	Total, I := Var(1), Var(2)
-	asm.InitArch(Amd64{}).Asm( //
+	asm.InitArch(Amd64{}).Assemble( //
 		MOV, ConstInt64(0xFF), I,
 		ADD2, ConstInt64(2), I,
 		ADD2, I, Total)
@@ -100,7 +100,7 @@ func TestAmd64Mul(t *testing.T) {
 	for _, k := range []Kind{Int8, Int16, Int32, Int64} {
 		I, J, K := VarK(0, k), VarK(1, k), VarK(2, k)
 		InitAmd64(&asm)
-		asm.Asm( //
+		asm.Assemble( //
 			MUL2, MakeConst(9, k), I,
 			MUL2, MakeConst(16, k), I,
 			MUL2, MakeConst(0x7F, k), I,
@@ -125,7 +125,7 @@ func TestAmd64Cast(t *testing.T) {
 	}
 	var asm Asm
 	asm.InitArch(Amd64{})
-	asm.Asm(
+	asm.Assemble(
 		NOP,
 		CAST, N[1], V[1],
 		CAST, N[2], V[2],
@@ -153,7 +153,7 @@ func TestAmd64Lea(t *testing.T) {
 	var asm Asm
 	r0 := asm.InitArch(Amd64{}).RegAlloc(N.Kind())
 	r1 := asm.RegAlloc(N.Kind())
-	asm.Asm(
+	asm.Assemble(
 		MUL2, ConstInt64(9), N,
 		LEA2, N, r0,
 		LEA2, M, r0,
@@ -172,7 +172,7 @@ func TestAmd64Shift(t *testing.T) {
 	asm.InitArch(Amd64{})
 	asm.RegIncUse(RCX)
 	r := MakeReg(RCX, Uint8)
-	asm.Asm(
+	asm.Assemble(
 		SHL2, ConstUint64(0), M, // nop
 		SHL2, ConstUint64(1), M,
 		SHL2, r, N,
@@ -189,7 +189,7 @@ func TestAmd64SoftReg(t *testing.T) {
 	asm.InitArch(Amd64{})
 
 	var a, b, c SoftRegId = 0, 1, 2
-	asm.Asm(
+	asm.Assemble(
 		ALLOC, a, Uint64,
 		ALLOC, b, Uint64,
 		ALLOC, c, Uint64,
@@ -214,7 +214,7 @@ func TestAmd64DivA(t *testing.T) {
 
 	asm.InitArch(Amd64{})
 
-	asm.Asm( //
+	asm.Assemble( //
 		DIV3, a, b, mret,
 	)
 
@@ -237,7 +237,7 @@ func TestAmd64DivB(t *testing.T) {
 	mb := MakeMem(16, RSP, Int64)
 	mret := MakeMem(24, RSP, Int64)
 
-	asm.Asm( //
+	asm.Assemble( //
 		ALLOC, sa, Int64,
 		ALLOC, sb, Int64,
 		MOV, ma, sa,
@@ -267,7 +267,7 @@ func TestAmd64DivC(t *testing.T) {
 	mb := MakeMem(16, RSP, Int64)
 	mret := MakeMem(24, RSP, Int64)
 
-	asm.Asm( //
+	asm.Assemble( //
 		DIV3, ma, mb, mret,
 	)
 
@@ -290,7 +290,7 @@ func TestAmd64DivD(t *testing.T) {
 
 		InitAmd64(&asm)
 
-		asm.Asm( //
+		asm.Assemble( //
 			DIV3, I, J, K,
 		)
 

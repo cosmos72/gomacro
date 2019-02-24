@@ -44,7 +44,7 @@ func TestSample(t *testing.T) {
 	asm.RegIncUse(id)
 	asm.RegIncUse(id + 1)
 	asm.RegIncUse(id + 2)
-	asm.Asm( //
+	asm.Assemble( //
 		MOV, MakeMem(8, RSP, Uint64), MakeReg(RVAR, Uint64),
 		MOV, c, x, //
 		MOV, c, m, //
@@ -111,7 +111,7 @@ func TestCast(t *testing.T) {
 		src := MakeReg(id, skind)
 		for _, dkind := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
 			dst := MakeReg(id, dkind)
-			asm.Asm(CAST, src, dst)
+			asm.Assemble(CAST, src, dst)
 		}
 	}
 
@@ -154,12 +154,12 @@ func TestMem(t *testing.T) {
 
 			d := MakeMem(8, id, dkind)
 			if skind == dkind {
-				asm.Asm(ADD3, s, c, d)
+				asm.Assemble(ADD3, s, c, d)
 			} else {
-				asm.Asm(CAST, s, d)
+				asm.Assemble(CAST, s, d)
 			}
 		}
-		asm.Asm(NOP)
+		asm.Assemble(NOP)
 	}
 	asm.Epilogue()
 
@@ -267,7 +267,7 @@ func TestSoftRegId(t *testing.T) {
 	asm.InitArch(Arm64{})
 
 	var a, b, c SoftRegId = 0, 1, 2
-	asm.Asm(
+	asm.Assemble(
 		ALLOC, a, Uint64,
 		ALLOC, b, Uint64,
 		ALLOC, c, Uint64,

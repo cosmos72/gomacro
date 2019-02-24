@@ -21,7 +21,10 @@ import (
 )
 
 type Comp struct {
-	code        Code
+	code Code
+	// code[toassemble] is the first AsmCode
+	// not yet assembled
+	toassemble  int
 	nextSoftReg SoftRegId
 	arch        Arch
 	asm.RegIdConfig
@@ -44,7 +47,7 @@ func NewArch(arch Arch) *Comp {
 }
 
 func (c *Comp) Init() *Comp {
-	return c.InitArchId(asm.ARCH_ID)
+	return c.InitArchId(ARCH_ID)
 }
 
 func (c *Comp) InitArchId(archId ArchId) *Comp {
@@ -56,6 +59,7 @@ func (c *Comp) InitArch(arch Arch) *Comp {
 		errorf("unknown arch")
 	}
 	c.code = nil
+	c.toassemble = 0
 	c.nextSoftReg = 0
 	c.arch = arch
 	c.RegIdConfig = arch.RegIdConfig()
@@ -76,6 +80,27 @@ func (c *Comp) ArchId() ArchId {
 	return c.arch.Id()
 }
 
+// return symbolic assembly code
+func (c *Comp) Code() Code {
+	return c.code
+}
+
+// call Comp.Assemble() followed by Comp.Asm().Epilogue()
+func (c *Comp) Epilogue() {
+	c.Assemble()
+	c.Asm().Epilogue()
+}
+
+// discard assembly code and machine code
+func (c *Comp) ClearCode() {
+	c.code = nil
+	c.toassemble = 0
+	if c.asm != nil {
+		c.asm.ClearCode()
+	}
+}
+
+// return assembler
 func (c *Comp) Asm() *Asm {
 	if c.asm == nil {
 		// create asm.Asm on demand
@@ -84,14 +109,33 @@ func (c *Comp) Asm() *Asm {
 	return c.asm
 }
 
-// return compiled assembly code
-func (c *Comp) Code() Code {
-	return c.code
+// assemble the code compiled since previous call
+// to Assemble(), and return machine code
+func (c *Comp) Assemble() MachineCode {
+	asm := c.Asm()
+	if len(c.code) > c.toassemble {
+		asm.Assemble(c.code[c.toassemble:]...)
+		c.toassemble = len(c.code)
+	}
+	return asm.Code()
 }
 
-// discard compiled assembly code
-func (c *Comp) ClearCode() {
-	c.code = nil
+/*
+ * call Assemble(), then set *funcaddr to assembled machine code.
+ *
+ * funcaddr must be a non-nil pointer to function.
+ *
+ * function type MUST match the code created by the programmer,
+ * or BAD things will happen: crash, memory corruption, undefined behaviour...
+ *
+ * Obviously, code created by the programmer must be for the same architecture
+ * the program is currently running on...
+ *
+ * Caller likely needs to call ClearCode() after this function returns
+ */
+func (c *Comp) Func(funcaddr interface{}) {
+	c.Assemble()
+	c.asm.Func(funcaddr)
 }
 
 func (c *Comp) AllocSoftReg(kind Kind) SoftReg {

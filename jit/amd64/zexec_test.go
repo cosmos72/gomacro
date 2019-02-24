@@ -153,7 +153,7 @@ func TestExecArith(t *testing.T) {
 			continue
 		}
 		r := MakeReg(id, Int64)
-		asm.Asm(MOV, v1, r, //
+		asm.Assemble(MOV, v1, r, //
 			NEG1, r, //
 			NOT1, r, //
 			ADD2, v2, r, //
@@ -192,7 +192,7 @@ func TestExecDiv(t *testing.T) {
 	v0, v1, v2 := Var(0), Var(1), Var(2)
 
 	Init(&asm)
-	asm.Asm(DIV3, v0, v1, v2).Func(&f)
+	asm.Assemble(DIV3, v0, v1, v2).Func(&f)
 
 	const maxint64 = int64(^uint64(0) >> 1)
 	const minint64 = ^maxint64
@@ -245,7 +245,7 @@ func TestExecCast(t *testing.T) {
 		VarK(4, Uint64), VarK(5, Uint64), VarK(6, Uint64),
 	}
 	r := asm.RegAlloc(Uint64)
-	asm.Asm(
+	asm.Assemble(
 		CAST, N[1], V[1],
 		CAST, N[2], V[2],
 		CAST, N[3], V[3],
@@ -270,7 +270,7 @@ func TestExecLea(t *testing.T) {
 	env := [...]uint64{uint64(n)}
 
 	var asm Asm
-	Init(&asm).Asm(MUL2, ConstInt64(m), N).Func(&f)
+	Init(&asm).Assemble(MUL2, ConstInt64(m), N).Func(&f)
 	f(&env[0])
 
 	actual := int64(env[0])

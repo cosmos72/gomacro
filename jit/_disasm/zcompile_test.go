@@ -70,11 +70,8 @@ func TestCompileExpr1(t *testing.T) {
 			t.Log(actual)
 		}
 
-		// assemble
-		a := c.Asm()
-		a.Asm(c.Code()...)
-		a.Epilogue()
-		PrintDisasm(t, a.Code())
+		c.Epilogue()
+		PrintDisasm(t, c.Assemble())
 	}
 }
 
@@ -113,10 +110,8 @@ func TestCompileExpr2(t *testing.T) {
 			t.Log(actual)
 		}
 
-		// assemble
-		a.Asm(c.Code()...)
-		a.Epilogue()
-		PrintDisasm(t, a.Code())
+		c.Epilogue()
+		PrintDisasm(t, c.Assemble())
 	}
 
 }
@@ -126,7 +121,6 @@ func TestCompileExpr3(t *testing.T) {
 	var s0 SoftRegId
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		a := c.Asm()
 
 		c_2 := MakeConst(-2, Int64)
 		m := c.MakeVar(0, 0, Int64)
@@ -154,10 +148,8 @@ func TestCompileExpr3(t *testing.T) {
 			t.Log(actual)
 		}
 
-		// assemble
-		a.Asm(c.Code()...)
-		a.Epilogue()
-		PrintDisasm(t, a.Code())
+		c.Epilogue()
+		PrintDisasm(t, c.Assemble())
 	}
 }
 
@@ -205,11 +197,8 @@ func TestCompileStmt1(t *testing.T) {
 			t.Log(actual)
 		}
 
-		// assemble
-		a := c.Asm()
-		a.Asm(c.Code()...)
-		a.Epilogue()
-		PrintDisasm(t, a.Code())
+		c.Epilogue()
+		PrintDisasm(t, c.Assemble())
 	}
 }
 
@@ -252,10 +241,7 @@ func TestCompileStmt2(t *testing.T) {
 			t.Log(actual)
 		}
 
-		// assemble
-		a := c.Asm()
-		a.Asm(c.Code()...)
-		a.Epilogue()
-		PrintDisasm(t, a.Code())
+		c.Epilogue()
+		PrintDisasm(t, c.Assemble())
 	}
 }
