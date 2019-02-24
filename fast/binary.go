@@ -88,7 +88,7 @@ func (c *Comp) BinaryExpr1(node *ast.BinaryExpr, x *Expr, y *Expr) *Expr {
 		z.EvalConst(COptKeepUntyped)
 	} else {
 		// create jit expression for z
-		c.jitBinaryExpr(z, op, x, y)
+		c.Jit.BinaryExpr(z, op, x, y)
 	}
 	return z
 }

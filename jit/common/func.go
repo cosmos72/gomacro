@@ -65,10 +65,19 @@ func (asm *Asm) mmap() MemArea {
 	if MMAP_VERBOSE {
 		debugf("asm: %#v", asm.code)
 	}
-	size := len(asm.code.Bytes)
-	if asm.mem.Size() < size {
-		// we waste asm.mem.Size() bytes of mmapped memory...
-		asm.mem = NewMemPool(size)
+	area := asm.code.MemArea()
+	size := area.Size()
+	if ret := asm.cache.Lookup(area); ret.Size() == size {
+		return ret
 	}
-	return asm.mem.Copy(asm.code)
+	if asm.pool.Size() < size {
+		// we waste asm.mem.Size() bytes of mmapped memory...
+		asm.pool = NewMemPool(size)
+	}
+	ret := asm.pool.Copy(area)
+	if asm.cache == nil {
+		asm.cache = make(Cache)
+	}
+	asm.cache.Add(ret)
+	return ret
 }

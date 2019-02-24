@@ -77,7 +77,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		z.EvalConst(COptKeepUntyped)
 	} else {
 		// create jit expression for z
-		c.jitUnaryExpr(z, node.Op, xe)
+		c.Jit.UnaryExpr(z, node.Op, xe)
 	}
 	return z
 }

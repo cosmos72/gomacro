@@ -563,7 +563,7 @@ type CompGlobals struct {
 	interf2proxy map[r.Type]r.Type  // interface -> proxy
 	proxy2interf map[r.Type]xr.Type // proxy -> interface
 	Prompt       string
-	JitComp          *jit.Comp
+	Jit          *Jit
 }
 
 func (cg *CompGlobals) CompileOptions() CompileOptions {

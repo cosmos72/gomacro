@@ -53,7 +53,7 @@ func (c *Comp) ExprsMultipleValues(nodes []ast.Expr, expectedValuesN int) (inits
 func (c *Comp) Exprs(nodes []ast.Expr) []*Expr {
 	es := c.exprs(nodes)
 	for _, e := range es {
-		c.jitFun(e)
+		c.Jit.Fun(e)
 	}
 	return es
 }
@@ -120,7 +120,7 @@ func (c *Comp) expr1(in ast.Expr, t xr.Type) *Expr {
 // see https://golang.org/ref/spec#Composite_literals
 func (c *Comp) Expr(in ast.Expr, t xr.Type) *Expr {
 	e := c.expr(in, t)
-	return c.jitFun(e)
+	return c.Jit.Fun(e)
 }
 
 // same as Expr, but does not replace e.Fun with jit-compiled code

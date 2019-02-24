@@ -1115,7 +1115,7 @@ func (e *Expr) AsStmt(c *Comp) Stmt {
 	if e == nil || e.Const() {
 		return nil
 	}
-	c.CompGlobals.jitFun(e)
+	c.Jit.Fun(e)
 	return funAsStmt(e.Fun)
 }
 

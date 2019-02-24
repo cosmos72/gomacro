@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * emit.go
+ * asm.go
  *
  *  Created on May 24, 2018
  *      Author Massimiliano Ghilardi
@@ -23,7 +23,8 @@ type Asm struct {
 	save          Save
 	regIds        RegIds
 	arch          Arch
-	mem           *MemPool
+	pool          *MemPool
+	cache         Cache
 }
 
 func New(id ArchId) *Asm {
@@ -81,7 +82,8 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	asm.regIds.curr = config.RAllocFirst
 	asm.regIds.rlo = config.RLo
 	asm.regIds.rhi = config.RHi
-	asm.mem = nil
+	asm.pool = nil
+	asm.cache = nil
 	arch.Init(asm, saveStart, saveEnd)
 	arch.Prologue(asm)
 	return asm

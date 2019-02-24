@@ -27,7 +27,10 @@ const MMAP_SUPPORTED = false
 type MemPool struct {
 }
 
-func (mem *MemPool) Size() int {
+type MemArea struct {
+}
+
+func (pool *MemPool) Size() int {
 	return 0
 }
 
@@ -36,12 +39,30 @@ func NewMemPool(size int) *MemPool {
 	return nil
 }
 
-func (mem *MemPool) SetReadonly() {
+func (pool *MemPool) SetReadonly() {
 }
 
-func (mem *MemPool) SetReadWrite() {
+func (pool *MemPool) SetReadWrite() {
 }
 
-func (mem *MemPool) Copy(code MachineCode) {
-	errorf("MemPool: unsupported operating system %v, cannot copy machine code", runtime.GOOS)
+func (pool *MemPool) Copy(area MemArea) MemArea {
+	errorf("MemPool: unsupported operating system %v, cannot copy machine code to executable memory", runtime.GOOS)
+	return MemArea{}
+}
+
+// convert MachineCode to MemArea
+func (code MachineCode) MemArea() MemArea {
+	return MemArea{}
+}
+
+func (area MemArea) Size() int {
+	return 0
+}
+
+func (area MemArea) Equal(other MemArea) bool {
+	return false
+}
+
+func (area MemArea) Checksum() uint32 {
+	return 0
 }

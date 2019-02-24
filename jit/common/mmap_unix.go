@@ -19,6 +19,8 @@
 package common
 
 import (
+	"hash/crc32"
+
 	"golang.org/x/sys/unix"
 )
 
@@ -46,46 +48,65 @@ func NewMemPool(size int) *MemPool {
 	return &MemPool{bytes, 0}
 }
 
-func (mem *MemPool) Size() int {
-	if mem == nil {
+func (pool *MemPool) Size() int {
+	if pool == nil {
 		return 0
 	}
-	return len(mem.bytes) - mem.offset
+	return len(pool.bytes) - pool.offset
 }
 
-func (mem *MemPool) protect(prot int) {
-	err := unix.Mprotect(mem.bytes, prot)
+func (pool *MemPool) protect(prot int) {
+	err := unix.Mprotect(pool.bytes, prot)
 	if err != nil {
 		errorf("sys/unix.Mprotect failed: %v", err)
 	}
 }
 
-func (mem *MemPool) SetReadonly() {
-	mem.protect(unix.PROT_READ | unix.PROT_EXEC)
+func (pool *MemPool) SetReadonly() {
+	pool.protect(unix.PROT_READ | unix.PROT_EXEC)
 }
 
 func (mem *MemPool) SetReadWrite() {
 	mem.protect(unix.PROT_READ | unix.PROT_WRITE | unix.PROT_EXEC)
 }
 
-func (mem *MemPool) Copy(code MachineCode) MemArea {
-	size := len(code.Bytes)
-	avail := mem.Size()
+func (pool *MemPool) Copy(area MemArea) MemArea {
+	size := area.Size()
+	avail := pool.Size()
 	if size > avail {
-		errorf("MachineCode is %d bytes, cannot copy to %d bytes MemPool", size, avail)
+		errorf("MemArea is %d bytes, cannot copy to %d bytes MemPool", size, avail)
 	}
 	if MMAP_VERBOSE {
-		debugf("copying %d bytes MachineCode to MemPool{addr:%p, size:%d, offset:%d}",
-			size, &mem.bytes[0], len(mem.bytes), mem.offset)
+		debugf("copying %d bytes MemArea to MemPool{addr:%p, size:%d, offset:%d}",
+			size, &pool.bytes[0], len(pool.bytes), pool.offset)
 	}
-	mem.SetReadWrite()
-	copy(mem.bytes[mem.offset:], code.Bytes)
-	mem.SetReadonly()
+	pool.SetReadWrite()
+	copy(pool.bytes[pool.offset:], area)
+	pool.SetReadonly()
 	used := (size + 15) &^ 15
 	if used >= avail {
 		used = avail
 	}
-	ret := mem.bytes[mem.offset : mem.offset+size]
-	mem.offset += used
+	ret := pool.bytes[pool.offset : pool.offset+size]
+	pool.offset += used
 	return ret
+}
+
+// convert MachineCode to MemArea
+func (code MachineCode) MemArea() MemArea {
+	return code.Bytes
+}
+
+func (area MemArea) Size() int {
+	return len(area)
+}
+
+func (area MemArea) Equal(other MemArea) bool {
+	return sliceEqual(area, other)
+}
+
+var crcTable = crc32.MakeTable(crc32.Castagnoli)
+
+func (area MemArea) Checksum() uint32 {
+	return crc32.Checksum(area, crcTable)
 }
