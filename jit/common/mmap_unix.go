@@ -39,8 +39,9 @@ type MemPool struct {
 type MemArea []byte
 
 func NewMemPool(size int) *MemPool {
-	bytes, err := unix.Mmap(-1, 0, (size+minAllocSize-1)&^(minAllocSize-1),
-		unix.PROT_READ|unix.PROT_EXEC,
+	bytes, err := unix.Mmap(-1, 0,
+		(size+minAllocSize-1)&^(minAllocSize-1),
+		unix.PROT_READ,
 		unix.MAP_ANON|unix.MAP_PRIVATE)
 	if err != nil {
 		errorf("sys/unix.Mmap failed: %v", err)
@@ -66,8 +67,8 @@ func (pool *MemPool) SetReadonly() {
 	pool.protect(unix.PROT_READ | unix.PROT_EXEC)
 }
 
-func (mem *MemPool) SetReadWrite() {
-	mem.protect(unix.PROT_READ | unix.PROT_WRITE | unix.PROT_EXEC)
+func (pool *MemPool) SetReadWrite() {
+	pool.protect(unix.PROT_READ | unix.PROT_WRITE | unix.PROT_EXEC)
 }
 
 func (pool *MemPool) Copy(area MemArea) MemArea {

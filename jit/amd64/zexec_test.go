@@ -40,8 +40,19 @@ func Param(index uint16) Mem {
 }
 
 func Init(asm *Asm) *Asm {
+	InitOnce(asm)
+	InitCode(asm)
+	return asm
+}
+
+func InitOnce(asm *Asm) *Asm {
 	asm.InitArch(Amd64{})
 	asm.RegIncUse(RSI)
+	return asm
+}
+
+func InitCode(asm *Asm) *Asm {
+	asm.ClearCode()
 	asm.Load(MakeMem(8, RSP, Uint64), MakeReg(RSI, Uint64))
 	return asm
 }
@@ -77,8 +88,9 @@ func TestExecMov(t *testing.T) {
 	m := Var(0)
 	binds := [...]uint64{0}
 	var asm Asm
+	InitOnce(&asm)
 	for id := RLo; id <= RHi; id++ {
-		Init(&asm)
+		InitCode(&asm)
 		if asm.RegIsUsed(id) {
 			continue
 		}
