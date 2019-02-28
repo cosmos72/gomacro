@@ -186,16 +186,18 @@ func TestAmd64Shift(t *testing.T) {
 
 func TestAmd64Index(t *testing.T) {
 	r := MakeReg(RAX, Uint64)
-	s := ConstInt32(0x3FFFFFFF) // MakeReg(RBX, Uint64)
+	s := MakeReg(RBX, Uint64)
 
 	var asm Asm
 	asm.InitArch(Amd64{})
 
 	for _, k := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
 		v := MakeReg(RCX, k)
+		c := MakeConst(0x33, k)
 		asm.Assemble(
 			GETIDX, r, s, v,
 			SETIDX, r, s, v,
+			SETIDX, r, s, c,
 		)
 	}
 	PrintDisasm(t, asm.Code())

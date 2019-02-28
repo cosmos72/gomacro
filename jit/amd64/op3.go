@@ -84,7 +84,13 @@ func (arch Amd64) index(asm *Asm, op Op3, a Arg, b Arg, val Arg) Amd64 {
 		rval = val
 	case Const:
 		// only SETIDX
-		rconst = true
+		cval := val.Val()
+		if cval == int64(int32(cval)) {
+			rconst = true
+		} else {
+			rval = asm.RegAlloc(val.Kind())
+			defer asm.RegFree(rval)
+		}
 	case Mem:
 		rval = asm.RegAlloc(Uint64)
 		defer asm.RegFree(rval)
@@ -138,7 +144,7 @@ func (arch Amd64) index(asm *Asm, op Op3, a Arg, b Arg, val Arg) Amd64 {
 	switch op {
 	case SETIDX:
 		if rconst {
-			return arch.indexRegRegConst(asm, op, ra, rb, val.(Const))
+			return arch.indexRegRegConst(asm, ra, rb, val.(Const))
 		}
 		arch.mov(asm, rval, rval)
 		arch.indexRegRegReg(asm, op, ra, rb, rval)
@@ -198,7 +204,51 @@ func (arch Amd64) indexRegRegReg(asm *Asm, op Op3, a Reg, b Reg, val Reg) Amd64 
 }
 
 // a[b] = const
-func (arch Amd64) indexRegRegConst(asm *Asm, op Op3, a Reg, b Reg, c Const) Amd64 {
-	errorf("unimplemented %v %T,%T,%T: %v %v,%v,%v", op, a, b, c, op, a, b, c)
+func (arch Amd64) indexRegRegConst(asm *Asm, a Reg, b Reg, c Const) Amd64 {
+	assert(b.RegId() != RSP)
+
+	alo, ahi := lohi(a)
+	blo, bhi := lohi(b)
+	hi := bhi<<1 | ahi
+
+	kind := c.Kind()
+	size := kind.Size()
+	scalebit := map[Size]uint8{1: 0x00, 2: 0x40, 4: 0x80, 8: 0xC0}[size]
+
+	offlen, offbit := offlen(MakeMem(0, a.RegId(), kind), a.RegId())
+
+	switch size {
+	case 1:
+		if hi == 0 {
+			asm.Bytes(0xC6, offbit|0x04, scalebit|blo<<3|alo)
+		} else {
+			asm.Bytes(0x40|hi, 0xC6, offbit|0x04, scalebit|blo<<3|alo)
+		}
+	case 2:
+		asm.Byte(0x66)
+		fallthrough
+	case 4:
+		if hi == 0 {
+			asm.Bytes(0xC7, offbit|0x04, scalebit|blo<<3|alo)
+		} else {
+			asm.Bytes(0x40|hi, 0xC7, offbit|0x04, scalebit|blo<<3|alo)
+		}
+	case 8:
+		asm.Bytes(0x48|hi, 0xC7, offbit|0x04, scalebit|blo<<3|alo)
+	}
+	switch offlen {
+	case 1:
+		asm.Int8(0)
+	case 4:
+		asm.Int32(0)
+	}
+	switch size {
+	case 1:
+		asm.Int8(int8(c.Val()))
+	case 2:
+		asm.Int16(int16(c.Val()))
+	case 4, 8:
+		asm.Int32(int32(c.Val()))
+	}
 	return arch
 }
