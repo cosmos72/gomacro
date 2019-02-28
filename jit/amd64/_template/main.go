@@ -19,4 +19,5 @@ package main
 func main() {
 	GenOp1()
 	GenOp2()
+	GenOp3()
 }

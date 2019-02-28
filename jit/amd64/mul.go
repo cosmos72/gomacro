@@ -158,6 +158,60 @@ func (arch Amd64) mul2MemMem(asm *Asm, src_m Mem, dst_m Mem) Amd64 {
 
 // =============== 3-argument MUL3 ==================
 
+func (arch Amd64) mul3(asm *Asm, a Arg, b Arg, dst Arg) Amd64 {
+	if a.Const() && !b.Const() {
+		a, b = b, a
+	}
+	if a == dst {
+		return arch.op2(asm, MUL2, b, dst)
+	} else if b == dst {
+		return arch.op2(asm, MUL2, a, dst)
+	}
+	rdst, rokdst := dst.(Reg)
+	if !a.Const() && b.Const() {
+		bval := b.(Const).Val()
+		if bval == int64(int8(bval)) {
+			// use amd64 3-argument multiplication
+			if !rokdst {
+				rdst = asm.RegAlloc(dst.Kind())
+			}
+			switch a := a.(type) {
+			case Reg:
+				arch.mul3RegConst8Reg(asm, a, int8(bval), rdst)
+			case Mem:
+				if a.Kind().Size() == 1 {
+					// to use 16-bit multiplication
+					// we must widen Mem, so we need a register
+					widekind := Uint16
+					if a.Kind().Signed() {
+						widekind = Int16
+					}
+					ra := asm.RegAlloc(widekind)
+					arch.castMemReg(asm, a, ra)
+					arch.mul3RegConst8Reg(asm, ra, int8(bval), rdst)
+					asm.RegFree(ra)
+				} else {
+					arch.mul3MemConst8Reg(asm, a, int8(bval), rdst)
+				}
+			default:
+				errorf("unknown argument type %T, expecting Const, Reg or Mem: %v %v, %v, %v", a, MUL3, a, b, dst)
+			}
+			if !rokdst {
+				arch.store(asm, rdst, dst.(Mem))
+				asm.RegFree(rdst)
+			}
+			return arch
+		}
+	}
+	if rokdst && rdst.RegId() != b.RegId() {
+		return arch.mov(asm, a, dst).op2(asm, MUL2, b, dst)
+	}
+	r := asm.RegAlloc(dst.Kind())
+	arch.mov(asm, a, r).op2(asm, MUL2, b, r).mov(asm, r, dst)
+	asm.RegFree(r)
+	return arch
+}
+
 func (arch Amd64) mul3RegConst8Reg(asm *Asm, src Reg, cval int8, dst Reg) Amd64 {
 	src = arch.mul2WidenReg(asm, src)
 	dst = arch.mul2WidenReg(asm, dst)

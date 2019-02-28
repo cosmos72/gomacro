@@ -91,6 +91,8 @@ func (arch Arm64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Arm64 {
 	switch op {
 	case SHL3, SHR3:
 		assert(!b.Kind().Signed())
+	case GETIDX, SETIDX:
+		errorf("unimplemented: %v %v,%v,%v", op, op, a, b, dst)
 	default:
 		assert(b.Kind() == dst.Kind())
 	}

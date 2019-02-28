@@ -21,7 +21,7 @@ import (
 	"io"
 	"os"
 
-	arch "github.com/cosmos72/gomacro/jit/amd64"
+	amd64 "github.com/cosmos72/gomacro/jit/amd64"
 )
 
 type genOp1 struct {
@@ -82,10 +82,10 @@ func (g *genOp1) funcFooter() {
 
 func (g *genOp1) opReg() {
 	g.funcHeader("Reg")
-	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
+	for _, k := range [...]amd64.Kind{amd64.Uint8, amd64.Uint16, amd64.Uint32, amd64.Uint64} {
 		fmt.Fprintf(g.w, "\t// OP reg%d\n", k.Size()*8)
-		for r := arch.RLo; r <= arch.RHi; r++ {
-			fmt.Fprintf(g.w, "\t%s\t%v\n", g.opname, arch.MakeReg(r, k))
+		for r := amd64.RLo; r <= amd64.RHi; r++ {
+			fmt.Fprintf(g.w, "\t%s\t%v\n", g.opname, amd64.MakeReg(r, k))
 		}
 		fmt.Fprint(g.w, "\tnop\n")
 	}
@@ -93,21 +93,21 @@ func (g *genOp1) opReg() {
 }
 
 func (g *genOp1) opMem() {
-	for _, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
+	for _, k := range [...]amd64.Kind{amd64.Uint8, amd64.Uint16, amd64.Uint32, amd64.Uint64} {
 		g.opMemKind(k)
 	}
 }
 
-func (g *genOp1) opMemKind(k arch.Kind) {
-	ksuffix := map[arch.Size]string{1: "b", 2: "w", 4: "l", 8: "q"}
+func (g *genOp1) opMemKind(k amd64.Kind) {
+	ksuffix := map[amd64.Size]string{1: "b", 2: "w", 4: "l", 8: "q"}
 	klen := k.Size() * 8
 	g.funcHeader(fmt.Sprintf("Mem%d", klen))
 	offstr := [...]string{"", "0x7F", "0x78563412"}
 	for i, offlen := range [...]uint8{0, 8, 32} {
 		fmt.Fprintf(g.w, "\t// OP mem%d[off%d]\n", klen, offlen)
-		for r := arch.RLo; r <= arch.RHi; r++ {
+		for r := amd64.RLo; r <= amd64.RHi; r++ {
 			fmt.Fprintf(g.w, "\t%s%s\t%s(%v)\n", g.opname, ksuffix[k.Size()],
-				offstr[i], arch.MakeReg(r, arch.Uintptr))
+				offstr[i], amd64.MakeReg(r, amd64.Uintptr))
 		}
 		fmt.Fprint(g.w, "\tnop\n")
 	}

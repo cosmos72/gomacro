@@ -143,6 +143,8 @@ const (
 	AND_NOT3 = common.AND_NOT3
 	LAND3    = common.LAND3
 	LOR3     = common.LOR3
+	GETIDX   = common.GETIDX
+	SETIDX   = common.SETIDX
 
 	// Op4
 	LEA4 = common.LEA4

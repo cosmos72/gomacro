@@ -106,7 +106,8 @@ const (
 
 	MOV  = Op2(token.ASSIGN) // =
 	CAST = Op2(token.TYPE)   // somewhat arbitrary choice
-	LEA2 = Op2(token.ARROW)  // amd64 only. somewhat arbitrary choice
+
+	LEA2 = Op2(token.ARROW) // amd64 only. somewhat arbitrary choice
 	// CMP  = ??
 	// XCHG = ??
 	// two-arg versions of NOT1, NEG1 above
@@ -172,9 +173,11 @@ const (
 	SHL3     = Op3(SHL2)
 	SHR3     = Op3(SHR2)
 	AND_NOT3 = Op3(AND_NOT2)
+	LAND3    = Op3(LAND2)
+	LOR3     = Op3(LOR2)
 
-	LAND3 = Op3(LAND2)
-	LOR3  = Op3(LOR2)
+	GETIDX = Op3(token.LBRACK) // val = a[b]
+	SETIDX = Op3(token.RBRACK) // a[b] = val
 )
 
 var op3Name = map[Op3]string{
@@ -194,6 +197,9 @@ var op3Name = map[Op3]string{
 	AND_NOT3: "AND_NOT3",
 	LAND3:    "LAND3",
 	LOR3:     "LOR3",
+
+	GETIDX: "GETIDX",
+	SETIDX: "SETIDX",
 }
 
 func (op Op3) String() string {
