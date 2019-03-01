@@ -44,7 +44,7 @@ Gomacro can be used as:
 
 * a library that adds Eval() and scripting capabilities to your Go programs in few lines
   of code:
-	```
+	```go
 	package main
 	import (
 		"fmt"
@@ -173,7 +173,7 @@ Compared to compiled Go, gomacro supports several extensions:
   (see next item) before exceeding 5e1232.
 
 * untyped constants can be converted implicitly to `*big.Int`, `*big.Rat` and `*big.Float`. Examples:
-    ```
+    ```go
 	import "math/big"
 	var i *big.Int = 1<<1000                 // exact - would overflow int
 	var r *big.Rat = 1.000000000000000000001 // exact - different from 1.0
@@ -218,7 +218,7 @@ Further examples are listed by [Gophernotes](https://github.com/gopherdata/gophe
 ## Importing packages
 
 Gomacro supports the standard Go syntax `import`, including package renaming. Examples:
-```
+```go
 import "fmt"
 import (
     "io"
@@ -297,7 +297,7 @@ For the experience report written while implementing them, see [doc/generics.md]
 
 They are in beta status, and at the moment only generic types and functions are supported.
 Syntax and examples:
-```
+```go
 template[T,U] type Pair struct { First T; Second U }
 
 var pair Pair#[complex64, struct{}]
