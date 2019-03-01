@@ -1066,11 +1066,11 @@ func (p *parser) tryIdentOrType() ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		ident := p.parseTypeName()
-		if p.tok != mt.HASH {
-			return ident
+		if GENERICS_V1 && p.tok == mt.HASH {
+			// parse Foo#[T1,T2...]
+			return p.parseHash(ident)
 		}
-		// parse Foo#[T1,T2...]
-		return p.parseHash(ident)
+		return ident
 	case token.LBRACK:
 		return p.parseArrayType()
 	case token.STRUCT:
@@ -1187,7 +1187,7 @@ func (p *parser) parseOperand(lhs bool) ast.Expr {
 	switch p.tok {
 	case token.IDENT:
 		var x ast.Expr = p.parseIdent()
-		if p.tok == mt.HASH {
+		if GENERICS_V1 && p.tok == mt.HASH {
 			// parse Foo#[T1,T2...]
 			x = p.parseHash(x)
 		} else if !lhs {
@@ -2572,8 +2572,11 @@ func (p *parser) parseDecl(sync func(*parser)) ast.Decl {
 	case mt.MACRO: // patch: parse a macro declaration
 		return p.parseMacroDecl()
 
-	case mt.TEMPLATE:
-		return p.parseTemplateDecl(sync)
+	case mt.TEMPLATE: // patch: parse a template declaration
+		if GENERICS_V1 {
+			return p.parseTemplateDecl(sync)
+		}
+		fallthrough
 
 	default:
 		pos := p.pos

@@ -27,8 +27,13 @@ import (
 
 	"github.com/cosmos72/gomacro/ast2"
 	"github.com/cosmos72/gomacro/base"
+
+	"github.com/cosmos72/gomacro/parser"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
+
+// set to false to disable compiling gomacro generics, version 1
+const GENERICS_V1 = parser.GENERICS_V1
 
 type templateMaker struct {
 	comp  *Comp

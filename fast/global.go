@@ -319,7 +319,7 @@ func (bind *Bind) ConstValue() r.Value {
 func (bind *Bind) RuntimeValue(g *CompGlobals, env *Env) r.Value {
 	var v r.Value
 	switch bind.Desc.Class() {
-	case ConstBind, TemplateFuncBind, TemplateTypeBind:
+	case ConstBind:
 		v = bind.Lit.ConstValue()
 	case IntBind:
 		expr := bind.intExpr(g)
@@ -328,6 +328,12 @@ func (bind *Bind) RuntimeValue(g *CompGlobals, env *Env) r.Value {
 		v = expr.AsX1()(env)
 	case VarBind, FuncBind:
 		v = env.Vals[bind.Desc.Index()]
+	case TemplateFuncBind, TemplateTypeBind:
+		if GENERICS_V1 {
+			v = bind.Lit.ConstValue()
+			break
+		}
+		fallthrough
 	default:
 		output.Errorf("Symbol %q: unsupported class: %v", bind.Name, bind.Desc.Class())
 	}

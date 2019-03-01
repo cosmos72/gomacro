@@ -23,6 +23,9 @@ import (
 	mt "github.com/cosmos72/gomacro/token"
 )
 
+// set to false to disable parsing gomacro generics, version 1
+const GENERICS_V1 = true
+
 // parse prefix#[T1,T2...] as &ast.IndexExpr{ &ast.CompositeLit{Type: prefix, Elts: [T1, T2...]} }
 func (p *parser) parseHash(prefix ast.Expr) ast.Expr {
 	if p.trace {

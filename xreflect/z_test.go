@@ -608,7 +608,7 @@ func TestInterfaceIoReadWriter(t *testing.T) {
 	// go/types.Type.String() does not show the receiver
 	is(t, m.Type.GoType().String(), "func([]uint8) (int, error)")
 	// instead xreflect.Type.String() also shows it
-	is(t, m.Type.String(), "func (interface{io.Reader; io.Writer}).([]uint8) (int, error)")
+	is(t, m.Type.String(), "func (interface{Read([]uint8) (int, error)}).([]uint8) (int, error)")
 
 	// isidenticalgotype(t, m.Type.In(0).GoType(), rw.gunderlying()) // changed in Go 1.12.beta1
 
@@ -621,7 +621,7 @@ func TestInterfaceIoReadWriter(t *testing.T) {
 	// go/types.Type.String() does not show the receiver
 	is(t, m.Type.GoType().String(), "func([]uint8) (int, error)")
 	// instead xreflect.Type.String() also shows it
-	is(t, m.Type.String(), "func (interface{io.Reader; io.Writer}).([]uint8) (int, error)")
+	is(t, m.Type.String(), "func (interface{Write([]uint8) (int, error)}).([]uint8) (int, error)")
 
 	// isidenticalgotype(t, m.Type.In(0).GoType(), rw.gunderlying()) // changed in Go 1.12.beta1
 
