@@ -1277,8 +1277,8 @@ func (p *parser) parseIndexOrSlice(x ast.Expr) ast.Expr {
 	var index0 ast.Expr
 	if p.tok != token.COLON {
 		index0 = p.parseRhsOrType()
-		if p.tok == token.COMMA {
-			// parse [A, B...]
+		if GENERICS_V1 && p.tok == token.COMMA {
+			// parse [A, B...] used in templates
 			var list = []ast.Expr{index0}
 			for p.tok == token.COMMA {
 				p.next()
@@ -1477,7 +1477,9 @@ func isTypeName(x ast.Expr) bool {
 	switch t := x.(type) {
 	case *ast.BadExpr:
 	case *ast.Ident:
-	case *ast.IndexExpr: // template type, for example Pair#[T1,T2]
+	case *ast.IndexExpr:
+		// template type, for example Pair#[T1,T2]
+		return GENERICS_V1
 	case *ast.SelectorExpr:
 		_, isIdent := t.X.(*ast.Ident)
 		return isIdent
@@ -1492,7 +1494,9 @@ func isLiteralType(x ast.Expr) bool {
 	switch t := x.(type) {
 	case *ast.BadExpr:
 	case *ast.Ident:
-	case *ast.IndexExpr: // template type, for example Pair#[T1,T2]
+	case *ast.IndexExpr:
+		// template type, for example Pair#[T1,T2]
+		return GENERICS_V1
 	case *ast.SelectorExpr:
 		_, isIdent := t.X.(*ast.Ident)
 		return isIdent
@@ -2262,7 +2266,7 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 	}
 
 	switch p.tok {
-	case token.CONST, token.TYPE, token.VAR, mt.FUNCTION, mt.TEMPLATE:
+	case token.CONST, token.TYPE, token.VAR, mt.FUNCTION:
 		// patch: allow function/method declarations inside statements. extremely useful for ~quote and ~quasiquote
 		s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
 	case
@@ -2310,6 +2314,12 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 	case token.RBRACE:
 		// a semicolon may be omitted before a closing "}"
 		s = &ast.EmptyStmt{Semicolon: p.pos, Implicit: true}
+	case mt.TEMPLATE:
+		if GENERICS_V1 {
+			s = &ast.DeclStmt{Decl: p.parseDecl(syncStmt)}
+			break
+		}
+		fallthrough
 	default:
 		// no statement found
 		pos := p.pos
