@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -70,7 +70,7 @@ func (c *Comp) CallExpr(node *ast.CallExpr) *Expr {
 // callExpr compiles the common part between CallExpr and Go statement
 func (c *Comp) prepareCall(node *ast.CallExpr, fun *Expr) *Call {
 	if fun == nil {
-		fun = c.Expr1(node.Fun, nil)
+		fun = c.expr1(node.Fun, nil)
 	}
 	t := fun.Type
 	var builtin bool

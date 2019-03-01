@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -61,7 +61,9 @@ func newTopInterp(path string) *Interp {
 		interf2proxy: make(map[r.Type]r.Type),
 		proxy2interf: make(map[r.Type]xr.Type),
 		Prompt:       "gomacro> ",
+		Jit:          NewJit(),
 	}
+
 	goid := gls.GoID()
 	run := &Run{IrGlobals: g, goid: goid}
 	// early register run in goroutine-local data

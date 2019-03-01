@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -45,7 +45,10 @@ func exprValue(t xr.Type, value I) *Expr {
 	if t == nil {
 		output.Errorf("internal error! exprValue() value = %v invoked with type = nil", value)
 	}
-	return &Expr{Lit: Lit{Type: t, Value: value}, EFlags: EFlag4Value(value)}
+	return &Expr{
+		Lit:    Lit{Type: t, Value: value},
+		EFlags: EFlag4Value(value),
+	}
 }
 
 func exprLit(lit Lit, sym *Symbol) *Expr {

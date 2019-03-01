@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,8 +28,10 @@ import (
 )
 
 func stmtNop(env *Env) (Stmt, *Env) {
-	env.IP++
-	return env.Code[env.IP], env
+	ip := env.IP
+	ip++
+	env.IP = ip
+	return env.Code[ip], env
 }
 
 func popEnv(env *Env) (Stmt, *Env) {
@@ -69,9 +71,9 @@ func (c *Comp) Stmt(in ast.Stmt) {
 		case *ast.EmptyStmt:
 			// nothing to do
 		case *ast.ExprStmt:
-			expr := c.Expr(node.X, nil)
+			expr := c.expr(node.X, nil)
 			if !expr.Const() {
-				c.Append(expr.AsStmt(), in.Pos())
+				c.Append(expr.AsStmt(c), in.Pos())
 			}
 		case *ast.ForStmt:
 			c.For(node, labels)
@@ -609,7 +611,7 @@ func (c *Comp) Return(node *ast.ReturnStmt) {
 		return
 	}
 
-	exprs := c.Exprs(resultExprs)
+	exprs := c.exprs(resultExprs)
 	for i := 0; i < n; i++ {
 		c.Pos = resultExprs[i].Pos()
 		c.SetVar(resultBinds[i].AsVar(upn, PlaceSettable), token.ASSIGN, exprs[i])

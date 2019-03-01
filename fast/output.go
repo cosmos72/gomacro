@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2018-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -99,7 +99,7 @@ func (ir *Interp) ShowAsPackage() {
 		sort.Strings(keys)
 		for _, k := range keys {
 			if bind := binds[k]; bind != nil {
-				v := bind.RuntimeValue(env)
+				v := bind.RuntimeValue(c.CompGlobals, env)
 				showValue(out, k, v, bind.Type, stringer)
 			}
 		}
@@ -118,10 +118,10 @@ func (ir *Interp) ShowImportedPackage(name string) {
 		ir.Comp.Warnf("not an imported package: %q", name)
 		return
 	}
-	imp.Show(ir.Comp.CompGlobals)
+	imp.Show(ir.Comp.CompGlobals, ir.env)
 }
 
-func (imp *Import) Show(g *CompGlobals) {
+func (imp *Import) Show(g *CompGlobals, env *Env) {
 	stringer := typestringer(imp.Path)
 	out := g.Stdout
 	if binds := imp.Binds; len(binds) > 0 {
@@ -137,7 +137,7 @@ func (imp *Import) Show(g *CompGlobals) {
 		env := imp.env
 		for _, k := range keys {
 			bind := imp.Binds[k]
-			v := bind.RuntimeValue(env)
+			v := bind.RuntimeValue(g, env)
 			showValue(out, k, v, bind.Type, stringer)
 		}
 		fmt.Fprintln(out)

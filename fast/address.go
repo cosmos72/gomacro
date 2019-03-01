@@ -6,7 +6,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -43,7 +43,7 @@ func (c *Comp) addressOf(expr ast.Expr, t xr.Type) *Expr {
 				t = t.Elem()
 			}
 
-			ret := c.Expr1(e.X, t)
+			ret := c.expr1(e.X, t)
 			if ret.Type.Kind() != r.Ptr {
 				c.Errorf("unary operation * on non-pointer <%v>: %v", ret.Type, e)
 			}

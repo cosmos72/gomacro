@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2018-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -74,6 +74,10 @@ var (
 	GoPkg = filepath.Join("github.com", "cosmos72", "gomacro") // vendored copies of gomacro may need to change this
 
 	GoSrcDir = Subdir(filepath.SplitList(build.Default.GOPATH)[0], "src")
+
+	// where to find the Go compiler used to compile gomacro.
+	// needed to build compatible plugins
+	GoRootDir = build.Default.GOROOT
 
 	GomacroDir = findGomacroDir(GoPkg)
 )

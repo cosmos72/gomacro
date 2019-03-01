@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -1111,10 +1111,11 @@ func (e *Expr) exprXVAsI() *Expr {
 	return exprFun(t, ret)
 }
 
-func (e *Expr) AsStmt() Stmt {
+func (e *Expr) AsStmt(c *Comp) Stmt {
 	if e == nil || e.Const() {
 		return nil
 	}
+	c.Jit.Fun(e)
 	return funAsStmt(e.Fun)
 }
 

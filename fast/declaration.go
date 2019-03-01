@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -436,7 +436,7 @@ func (c *Comp) DeclVar0(name string, t xr.Type, init *Expr) *Bind {
 		if index == NoIndex && init != nil {
 			// assigning a constant or expression to _
 			// only keep the expression side effects
-			c.append(init.AsStmt())
+			c.append(init.AsStmt(c))
 			return bind
 		}
 		// declaring a variable in Env.Binds[], we must create a settable and addressable reflect.Value
