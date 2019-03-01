@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -44,7 +44,7 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 		return c.AddressOf(node)
 	}
 
-	xe := c.Expr1(node.X, nil)
+	xe := c.expr1(node.X, nil)
 	if xe.Type == nil {
 		return c.invalidUnaryExpr(node, xe)
 	}
@@ -75,6 +75,9 @@ func (c *Comp) UnaryExpr(node *ast.UnaryExpr) *Expr {
 	if isConst {
 		// constant propagation
 		z.EvalConst(COptKeepUntyped)
+	} else {
+		// create jit expression for z
+		c.Jit.UnaryExpr(z, node.Op, xe)
 	}
 	return z
 }

@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -27,6 +27,7 @@ import (
 	. "github.com/cosmos72/gomacro/base"
 	"github.com/cosmos72/gomacro/base/genimport"
 	"github.com/cosmos72/gomacro/base/inspect"
+	"github.com/cosmos72/gomacro/base/paths"
 	"github.com/cosmos72/gomacro/fast"
 	"github.com/cosmos72/gomacro/fast/debug"
 )
@@ -89,10 +90,11 @@ func (cmd *Cmd) Main(args []string) (err error) {
 			cmd.OverwriteFiles = true
 		case "-g", "--genimport":
 			repl = false
-			g := ir.Comp.Globals      // make a copy
-			g.Stdout = ioutil.Discard // silence debug messages
-			g.Stderr = ioutil.Discard // silence warning and error messages
-			err := genimport.GoGenerateMain(args[1:], &g)
+			o := g.Output             // make a copy
+			o.Stdout = ioutil.Discard // silence debug messages
+			o.Stderr = ioutil.Discard // silence warning and error messages
+			imp := genimport.DefaultImporter(&o)
+			err := genimport.GoGenerateMain(args[1:], imp)
 			if err != nil {
 				return err
 			}
@@ -214,7 +216,7 @@ func (cmd *Cmd) EvalDir(dirname string) error {
 	for _, file := range files {
 		filename := file.Name()
 		if !file.IsDir() && strings.HasSuffix(filename, ".gomacro") {
-			filename = Subdir(dirname, filename)
+			filename = paths.Subdir(dirname, filename)
 			err := cmd.EvalFile(filename)
 			if err != nil {
 				return err

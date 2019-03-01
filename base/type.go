@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -19,14 +19,7 @@ package base
 import (
 	"sort"
 	"strings"
-
-	"github.com/cosmos72/gomacro/imports"
 )
-
-type PackageRef struct {
-	imports.Package
-	Name, Path string
-}
 
 type Options uint
 type WhichMacroExpand uint
@@ -50,6 +43,7 @@ const (
 	OptDebugRecover
 	OptDebugQuasiquote
 	OptDebugSleepOnSwitch // to torture-test "switch" implementation for race conditions
+	OptDebugTemplate
 	OptShowCompile
 	OptShowEval
 	OptShowEvalType
@@ -84,6 +78,7 @@ var optNames = map[Options]string{
 	OptDebugRecover:        "?Recover.Debug",
 	OptDebugQuasiquote:     "?Quasiquote.Debug",
 	OptDebugSleepOnSwitch:  "?SwitchSleep.Debug",
+	OptDebugTemplate:       "?Template.Debug",
 	OptShowCompile:         "Compile.Show",
 	OptShowEval:            "Eval.Show",
 	OptShowEvalType:        "Type.Eval.Show",

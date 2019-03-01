@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -581,7 +581,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 					}
 					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
 					if fun == Nil {
-						Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
 					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 						args = append([]r.Value{obj}, args...)
@@ -605,7 +605,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 					}
 					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
 					if fun == Nil {
-						Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
 					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 						args = append([]r.Value{obj}, args...)
@@ -627,7 +627,7 @@ func (c *Comp) compileObjGetMethod(t xr.Type, mtd xr.Method) (ret func(r.Value) 
 					}
 					fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
 					if fun == Nil {
-						Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+						c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 					}
 					return r.MakeFunc(rtclosure, func(args []r.Value) []r.Value {
 						args = append([]r.Value{obj}, args...)
@@ -905,7 +905,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				}
 				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
 				if fun == Nil {
-					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
 				return fun.Call(args)
 			})
@@ -921,7 +921,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				}
 				fun := (*funs)[index]
 				if fun == Nil {
-					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
 				return fun.Call(args)
 			})
@@ -935,7 +935,7 @@ func (c *Comp) compileMethodAsFunc(t xr.Type, mtd xr.Method) *Expr {
 				}
 				fun := (*funs)[index] // retrieve the function as soon as possible (early bind)
 				if fun == Nil {
-					Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
+					c.Errorf("method is declared but not yet implemented: %s.%s", tname, methodname)
 				}
 				return fun.Call(args)
 			})

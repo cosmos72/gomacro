@@ -6,7 +6,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26,7 +26,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
@@ -43,7 +43,7 @@ func (c *Comp) addressOf(expr ast.Expr, t xr.Type) *Expr {
 				t = t.Elem()
 			}
 
-			ret := c.Expr1(e.X, t)
+			ret := c.expr1(e.X, t)
 			if ret.Type.Kind() != r.Ptr {
 				c.Errorf("unary operation * on non-pointer <%v>: %v", ret.Type, e)
 			}
@@ -75,7 +75,7 @@ func (va *Var) Address(maxdepth int) *Expr {
 	k := va.Type.Kind()
 	index := va.Desc.Index()
 	if index == NoIndex {
-		base.Errorf("cannot take the address of %s: _", va.Desc.Class())
+		output.Errorf("cannot take the address of %s: _", va.Desc.Class())
 		return nil
 	}
 	var ret I

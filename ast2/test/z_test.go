@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2018-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	. "github.com/cosmos72/gomacro/ast2"
-	"github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/output"
 	"github.com/cosmos72/gomacro/parser"
 	"github.com/cosmos72/gomacro/token"
 )
@@ -50,7 +50,7 @@ func _testToNodes(t *testing.T, filename string) {
 	}
 
 	fset := token.NewFileSet()
-	st := base.Stringer{Fileset: fset}
+	st := output.Stringer{Fileset: fset}
 
 	var p parser.Parser
 	p.Init(fset, filename, 0, bytes)

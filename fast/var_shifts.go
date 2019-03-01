@@ -6,7 +6,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -26,7 +26,7 @@ import (
 	r "reflect"
 	"unsafe"
 
-	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 func (c *Comp) varShlConst(va *Var, val I) {
@@ -36,7 +36,7 @@ func (c *Comp) varShlConst(va *Var, val I) {
 	intbinds := va.Desc.Class() == IntBind
 
 	t2 := r.TypeOf(val)
-	if t2 == nil || KindToCategory(t2.Kind()) != r.Uint {
+	if t2 == nil || reflect.Category(t2.Kind()) != r.Uint {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
 	}
 
@@ -1507,7 +1507,7 @@ func (c *Comp) varShlExpr(va *Var, function I) {
 	intbinds := va.Desc.Class() == IntBind
 
 	t2 := funTypeOut(function)
-	if t2 == nil || KindToCategory(t2.Kind()) != r.Uint {
+	if t2 == nil || reflect.Category(t2.Kind()) != r.Uint {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
 	}
 
@@ -2975,7 +2975,7 @@ func (c *Comp) varShrConst(va *Var, val I) {
 	intbinds := va.Desc.Class() == IntBind
 
 	t2 := r.TypeOf(val)
-	if t2 == nil || KindToCategory(t2.Kind()) != r.Uint {
+	if t2 == nil || reflect.Category(t2.Kind()) != r.Uint {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
 	}
 
@@ -4446,7 +4446,7 @@ func (c *Comp) varShrExpr(va *Var, function I) {
 	intbinds := va.Desc.Class() == IntBind
 
 	t2 := funTypeOut(function)
-	if t2 == nil || KindToCategory(t2.Kind()) != r.Uint {
+	if t2 == nil || reflect.Category(t2.Kind()) != r.Uint {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
 	}
 

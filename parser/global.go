@@ -100,7 +100,7 @@ func (p *parser) parseAny() ast.Node {
 		node = p.parsePackage()
 	case token.IMPORT:
 		node = p.parseGenDecl(token.IMPORT, p.parseImportSpec)
-	case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.MACRO, mt.FUNCTION:
+	case token.CONST, token.TYPE, token.VAR, token.FUNC, mt.MACRO, mt.FUNCTION, mt.TEMPLATE:
 		// a "func" at top level can be either a function declaration: func foo(args) /*...*/
 		// or a method declaration: func (receiver) foo(args) /*...*/
 		// or a function literal, i.e. a closure: func(args) /*...*/

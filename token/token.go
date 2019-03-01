@@ -12,8 +12,10 @@ import (
 	base "go/token"
 )
 
+type Token = base.Token
+
 const (
-	QUOTE base.Token = (base.VAR+127)&^127 + iota
+	QUOTE Token = (base.VAR+127)&^127 + iota
 	QUASIQUOTE
 	UNQUOTE
 	UNQUOTE_SPLICE
@@ -22,14 +24,16 @@ const (
 	FUNCTION
 	LAMBDA
 	TYPECASE
+	TEMPLATE // template
+	HASH     // #
 )
 
-var tokens map[base.Token]string
+var tokens map[Token]string
 
-var keywords map[string]base.Token
+var keywords map[string]Token
 
 func init() {
-	tokens = map[base.Token]string{
+	tokens = map[Token]string{
 		SPLICE:         "~splice",
 		QUOTE:          "~quote",
 		QUASIQUOTE:     "~quasiquote",
@@ -41,29 +45,35 @@ func init() {
 		TYPECASE:       "~typecase",
 	}
 
-	keywords = make(map[string]base.Token)
+	keywords = make(map[string]Token)
 	for k, v := range tokens {
 		keywords[v[1:]] = k // skip ~ in lookup table
 	}
+	tokens[TEMPLATE] = "template"
+	tokens[HASH] = "#"
 }
 
 // Lookup maps a identifier to its keyword token.
-func Lookup(lit string) base.Token {
+func Lookup(lit string) Token {
 	if lit == "macro" {
 		// allow the spelling "macro" because "~macro" is really ugly in source code...
 		// especially when writing :~macro
 		return MACRO
+	} else if lit == "template" {
+		return TEMPLATE
+	} else if lit == "#" {
+		return HASH
 	}
 	return token.Lookup(lit)
 }
 
 // LookupSpecial maps a identifier starting with '~' to its keyword token.
-func LookupSpecial(lit string) base.Token {
+func LookupSpecial(lit string) Token {
 	tok, _ := keywords[lit]
 	return tok
 }
 
-func String(tok base.Token) string {
+func String(tok Token) string {
 	if str, ok := tokens[tok]; ok {
 		return str
 	}
@@ -75,28 +85,28 @@ func String(tok base.Token) string {
 // IsLiteral returns true for tokens corresponding to identifiers
 // and basic type literals; it returns false otherwise.
 //
-func IsLiteral(tok base.Token) bool {
+func IsLiteral(tok Token) bool {
 	return tok.IsLiteral()
 }
 
 // IsOperator returns true for tokens corresponding to operators and
 // delimiters; it returns false otherwise.
 //
-func IsOperator(tok base.Token) bool {
+func IsOperator(tok Token) bool {
 	return tok.IsOperator()
 }
 
 // IsKeyword returns true for tokens corresponding to keywords;
 // it returns false otherwise.
 //
-func IsKeyword(tok base.Token) bool {
+func IsKeyword(tok Token) bool {
 	return tok.IsKeyword()
 }
 
 // IsMacroKeyword returns true for tokens corresponding to macro-related keywords;
 // it returns false otherwise.
 //
-func IsMacroKeyword(tok base.Token) bool {
+func IsMacroKeyword(tok Token) bool {
 	_, ok := tokens[tok]
 	return ok
 }

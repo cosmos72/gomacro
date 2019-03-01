@@ -1,4 +1,4 @@
-## gomacro - interactive Go interpreter and debugger with macros
+## gomacro - interactive Go interpreter and debugger with generics and macros
 
 gomacro is an almost complete Go interpreter, implemented in pure Go. It offers both
 an interactive REPL and a scripting mode, and does not require a Go toolchain at runtime
@@ -26,7 +26,8 @@ Gomacro can be used as:
   Ctrl+E or End jumps to end of line, Ald+D deletes word starting at cursor...
   For the full list of key bindings, see https://github.com/peterh/liner
   
-  
+* a tool to experiment with Go **generics**: see [Generics](#generics)
+
 * a Go source code debugger: see [Debugger](#debugger)
 
 * an interactive tool to make science more productive and more fun.
@@ -68,7 +69,6 @@ Gomacro can be used as:
   on programs that use gomacro.
   See [MPL 2.0 FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/) for common questions
   regarding the license terms and conditions.
-
 
 * a way to execute Go source code on-the-fly without a Go compiler:
   you can either run `gomacro FILENAME.go` (works on every supported platform)
@@ -144,6 +144,8 @@ The [documentation](doc/) also contains the [full list of features and limitatio
 ## Extensions
 
 Compared to compiled Go, gomacro supports several extensions:
+
+* generics (experimental) - see [Generics](#generics)
 
 * an integrated debugger, see [Debugger](#debugger)
 
@@ -287,14 +289,103 @@ gomacro> plot.New()
 Note: if you need several packages, you can first `import` all of them,
 then quit and recompile gomacro only once.
 
+## Generics
+
+gomacro contains an experimental version of Go generics.
+
+For the experience report written while implementing them, see [doc/generics.md](doc/generics.md)
+
+They are in beta status, and at the moment only generic types and functions are supported.
+Syntax and examples:
+```
+template[T,U] type Pair struct { First T; Second U }
+
+var pair Pair#[complex64, struct{}]
+
+// equivalent:
+pair := Pair#[complex64, struct{}] {}
+
+
+template[T] func Sum(args ...T) T {
+	var sum T // exploit zero value of T
+	for _, elem := range args {
+		sum += elem
+	}
+	return sum
+}
+Sum#[int]         // returns func(...int) int
+Sum#[int] (1,2,3) // returns int(6)
+
+Sum#[complex64]                 // returns func(...complex64) complex64
+Sum#[complex64] (1.1+2.2i, 3.3) // returns complex64(4.4+2.2i)
+
+Sum#[string]                         // returns func(...string) string
+Sum#[string]("abc.","def.","xy","z") // returns "abc.def.xyz"
+
+template[T,U] func Transform(slice []T, trans func(T) U) []U {
+	ret := make([]U, len(slice))
+	for i := range slice {
+		ret[i] = trans(slice[i])
+	}
+	return ret
+}
+Transform#[string,int] // returns func([]string, func(string) int) []int
+
+// returns []int{3, 2, 1} i.e. the len() of each string in input slice:
+
+Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })
+
+// Partial and full specialization of templates are supported.
+// Together with recursive templates, they also (incidentally)
+// provide Turing completeness at compile-time:
+
+// The following example uses recursion and full specialization
+// to compute fibonacci sequence at compile time.
+
+// general case: encode Fib#[N] in the length of array type.
+template[N] type Fib [
+	len((*Fib#[N-1])(nil)) +
+	len((*Fib#[N-2])(nil))   ]int
+
+template[] for[2] type Fib [1]int // specialization for Fib#[2]
+template[] for[1] type Fib [1]int // specialization for Fib#[1]
+
+const Fib30 = len((*Fib#[30])(nil)) // compile-time constant
+
+```
+Current limitations:
+* instantiation is on-demand, but template arguments #[...] must be explicit.
+* template methods not supported yet.
+
+Observation: the compile-time Turing completeness provided by these C++-style templates
+is really poorly readable, for three reasons:
+* iteration must be written as recursion
+* `if` must be written as template specialization, outside the main template
+* integers must be encoded inside types, for example in the length of array types
+
+In the author's opinion, compile-time Turing completeness is a very enticing
+feature for several use cases and for a non-trivial percentage of developers.
+
+If the only way to get such feature is with poorly readable (ab)use of templates,
+the result is a lot of poorly readable template code.
+
+If Turing-complete templates are ever added to Go (or any other language)
+it is thus very important to also provide an alternative, more natural syntax
+to perform Turing-complete computation at compile-time. An example
+could be: `const foo(args)` where the function `foo` must respect certain
+constraints (to be defined) in order to be callable at compile time.
+
+For a more detailed discussion, see [doc/generics.md](doc/generics.md).
+
 ## Debugger
 
 Since version 2.6, gomacro also has an integrated debugger.
-There are two ways to use it:
+There are three ways to enter it:
+* hit CTRL+C while interpreted code is running.
 * type `:debug STATEMENT-OR-FUNCTION-CALL` at the prompt.
 * add a statement (an expression is not enough) `"break"` or `_ = "break"` to your code, then execute it normally.
 
-In both cases, execution will be suspended and you will get a `debug>` prompt, which accepts the following commands:  
+In all cases, execution will be suspended and you will get a `debug>` prompt, which accepts the following commands:  
 `step`, `next`, `finish`, `continue`, `env [NAME]`, `inspect EXPR`, `list`, `print EXPR-OR-STATEMENT`
 
 Also,

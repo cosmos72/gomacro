@@ -1,7 +1,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -82,11 +82,11 @@ func (c *Comp) Assign(node *ast.AssignStmt) {
 		canreorder = canreorder && places[i].IsVar() // ach, needed. see for example i := 0; i, x[i] = 1, 2  // set i = 1, x[0] = 2
 	}
 	if rn == 1 && ln > 1 {
-		exprs[0] = c.Expr(rhs[0], nil)
+		exprs[0] = c.expr(rhs[0], nil)
 		canreorder = false
 	} else {
 		for i, ri := range rhs {
-			exprs[i] = c.Expr1(ri, nil)
+			exprs[i] = c.expr1(ri, nil)
 			canreorder = canreorder && exprs[i].Const()
 		}
 	}
@@ -373,7 +373,7 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption, t xr.Type) *Place {
 			in = node.X
 			continue
 		case *ast.StarExpr:
-			e := c.Expr1(node.X, nil)
+			e := c.expr1(node.X, nil)
 			if e.Const() {
 				c.Errorf("%s a constant: %v <%v>", opt, node, e.Type)
 				return nil

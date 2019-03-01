@@ -6,7 +6,7 @@
 /*
  * gomacro - A Go interpreter with Lisp-like macros
  *
- * Copyright (C) 2017-2018 Massimiliano Ghilardi
+ * Copyright (C) 2017-2019 Massimiliano Ghilardi
  *
  *     This Source Code Form is subject to the terms of the Mozilla Public
  *     License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -28,6 +28,7 @@ import (
 	"unsafe"
 
 	. "github.com/cosmos72/gomacro/base"
+	"github.com/cosmos72/gomacro/base/reflect"
 )
 
 func (c *Comp) varAddConst(va *Var, val I) {
@@ -12186,7 +12187,7 @@ func (c *Comp) varQuoPow2(va *Var, val I) bool {
 	ypositive := true
 	yv := r.ValueOf(val)
 	var y uint64
-	switch KindToCategory(yv.Kind()) {
+	switch reflect.Category(yv.Kind()) {
 	case r.Int:
 		sy := yv.Int()
 		if sy < 0 {
@@ -17482,7 +17483,7 @@ func (c *Comp) varQuoExpr(va *Var, fun I) {
 }
 func (c *Comp) varRemConst(va *Var, val I) {
 	t := va.Type
-	if IsCategory(t.Kind(), r.Int, r.Uint) {
+	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, 0) {
 			c.Errorf("division by %v <%v>", val, t)
 			return
@@ -20427,7 +20428,7 @@ func (c *Comp) varRemExpr(va *Var, fun I) {
 }
 func (c *Comp) varAndConst(va *Var, val I) {
 	t := va.Type
-	if IsCategory(t.Kind(), r.Int, r.Uint) {
+	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
 			return
 		} else if isLiteralNumber(val, 0) {
@@ -23371,7 +23372,7 @@ func (c *Comp) varAndExpr(va *Var, fun I) {
 }
 func (c *Comp) varOrConst(va *Var, val I) {
 	t := va.Type
-	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
+	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		return
 	}
 
@@ -26309,7 +26310,7 @@ func (c *Comp) varOrExpr(va *Var, fun I) {
 }
 func (c *Comp) varXorConst(va *Var, val I) {
 	t := va.Type
-	if IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
+	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
 		return
 	}
 
@@ -29247,7 +29248,7 @@ func (c *Comp) varXorExpr(va *Var, fun I) {
 }
 func (c *Comp) varAndnotConst(va *Var, val I) {
 	t := va.Type
-	if IsCategory(t.Kind(), r.Int, r.Uint) {
+	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
 
 			c.varSetZero(va)
@@ -32199,7 +32200,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		if init.Untyped() {
 			init.ConstTo(c.TypeOfUint64())
 			err = nil
-		} else if init.Type == nil || KindToCategory(init.Type.Kind()) != r.Uint {
+		} else if init.Type == nil || reflect.Category(init.Type.Kind()) != r.Uint {
 			err = fmt.Sprintf("\n\treason: type %v is %v, expecting unsigned integer", init.Type, init.Type.Kind())
 		} else {
 			err = nil
@@ -32212,7 +32213,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		} else if init.Type == nil {
 			if op != token.ASSIGN {
 				err = fmt.Sprintf("\n\treason: invalid operation %s nil", op)
-			} else if !IsNillableKind(t.Kind()) {
+			} else if !reflect.IsNillableKind(t.Kind()) {
 				err = fmt.Sprintf("\n\treason: cannot assign nil to %v", t)
 			}
 		} else if !init.Type.AssignableTo(t) {
@@ -32238,7 +32239,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 		}
 
 		if !init.Const() {
-			c.append(init.AsStmt())
+			c.append(init.AsStmt(c))
 		}
 
 		return

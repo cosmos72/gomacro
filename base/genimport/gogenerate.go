@@ -5,8 +5,6 @@ import (
 	"go/build"
 	"os"
 	"strings"
-
-	"github.com/cosmos72/gomacro/base"
 )
 
 const sep = string(os.PathSeparator)
@@ -28,7 +26,7 @@ const sep = string(os.PathSeparator)
 // form, may be necessary if we cannot detect the GOPATH
 // environment variable.
 //
-func GoGenerateMain(arg []string, g *base.Globals) error {
+func GoGenerateMain(arg []string, imp *Importer) error {
 	var pkgpath string
 	narg := len(arg)
 	switch {
@@ -54,6 +52,6 @@ func GoGenerateMain(arg []string, g *base.Globals) error {
 	default:
 		pkgpath = arg[0]
 	}
-	_, err := g.ImportPackageOrError("_i", pkgpath)
+	_, err := imp.ImportPackageOrError("_i", pkgpath)
 	return err
 }

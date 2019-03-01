@@ -34,6 +34,7 @@ func init() {
 		Types: map[string]r.Type{
 			"File":    r.TypeOf((*File)(nil)).Elem(),
 			"FileSet": r.TypeOf((*FileSet)(nil)).Elem(),
+			"Token":   r.TypeOf((*Token)(nil)).Elem(),
 		},
 		Proxies: map[string]r.Type{}}
 }
