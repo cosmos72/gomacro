@@ -166,6 +166,34 @@ func TestArm64Unary(t *testing.T) {
 	PrintDisasm(t, asm.Code())
 }
 
+func TestArm64Index(t *testing.T) {
+	r := MakeReg(X0, Uint64)
+	s := MakeReg(X1, Uint64)
+
+	var asm Asm
+	asm.InitArch(Arm64{})
+
+	asm.RegIncUse(X0)
+	asm.RegIncUse(X1)
+	asm.RegIncUse(X2)
+
+	for _, k := range [...]Kind{Uint8, Uint16, Uint32, Uint64} {
+		v := MakeReg(X2, k)
+		c := MakeConst(0x33, k)
+		zero := MakeConst(0, k)
+		asm.Assemble(
+			GETIDX, r, s, v,
+			SETIDX, r, s, v,
+			GETIDX, r, c, v,
+			SETIDX, r, c, v,
+			SETIDX, r, s, zero,
+			SETIDX, r, c, zero,
+			NOP,
+		)
+	}
+	PrintDisasm(t, asm.Code())
+}
+
 func TestArm64SoftReg(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Arm64{})

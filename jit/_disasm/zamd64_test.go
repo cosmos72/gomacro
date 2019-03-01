@@ -197,7 +197,11 @@ func TestAmd64Index(t *testing.T) {
 		asm.Assemble(
 			GETIDX, r, s, v,
 			SETIDX, r, s, v,
+			GETIDX, r, c, v,
+			SETIDX, r, c, v,
 			SETIDX, r, s, c,
+			SETIDX, r, c, c,
+			NOP,
 		)
 	}
 	PrintDisasm(t, asm.Code())

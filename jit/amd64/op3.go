@@ -129,6 +129,9 @@ func (arch Amd64) index(asm *Asm, op Op3, a Arg, b Arg, val Arg) Amd64 {
 				// optimize as MOV Mem Reg
 				arch.load(asm, MakeMem(int32(off), ra.RegId(), k), rval)
 				arch.mov(asm, rval, val)
+			} else if rconst {
+				// optimize as MOV Const Mem
+				arch.movConstMem(asm, val.(Const), MakeMem(int32(off), ra.RegId(), k))
 			} else {
 				// optimize as MOV Reg Mem
 				arch.mov(asm, val, rval)

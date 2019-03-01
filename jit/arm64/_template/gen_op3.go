@@ -34,6 +34,7 @@ func GenOp3() {
 		"adc", "add", "sub", "sbc",
 		"mul", "sdiv", "udiv",
 		"and", "orr", "eor", "lsl", "lsr", "asr",
+		"ldr", "str",
 	} {
 		f, err := os.Create("_gen_" + opname + ".s")
 		if err != nil {
@@ -55,15 +56,20 @@ func newGenOp3(w io.Writer, opname string) *genOp3 {
 
 func (g *genOp3) generate() {
 	g.fileHeader()
-	g.opRegRegReg()
 	switch g.opname {
+	case "ldr", "str":
+		g.opLoadStore()
 	case "add", "sub":
+		g.opRegRegReg()
 		g.opAddSubRegRegConst()
 	case "and", "orr", "eor":
+		g.opRegRegReg()
 		g.opBitwiseRegRegConst()
 	case "lsl", "lsr", "asr":
+		g.opRegRegReg()
 		g.opShiftRegRegConst()
 	default:
+		g.opRegRegReg()
 	}
 }
 
@@ -90,6 +96,36 @@ func (g *genOp3) funcFooter() {
 	.cfi_endproc
 
 `)
+}
+
+func (g *genOp3) opLoadStore() {
+	g.funcHeader("RegRegReg")
+	rlo := arch.MakeReg(arch.RLo, arch.Uint64)
+	widths := [...]string{"b", "h", "", ""}
+	shifts := [...]string{"", ", lsl #1", ", lsl #2", ", lsl #3"}
+	for i, k := range [...]arch.Kind{arch.Uint8, arch.Uint16, arch.Uint32, arch.Uint64} {
+		width := widths[i]
+		shift := shifts[i]
+		kbits := k.Size() * 8
+		fmt.Fprintf(g.w, "\t// %s %d\n", g.opname, kbits)
+		rlok := arch.MakeReg(arch.RLo, k)
+		for id := arch.RLo; id < arch.RHi; id++ {
+			fmt.Fprintf(g.w, "\t%s%s\t%v, [%v, %v%s]\n", g.opname, width,
+				arch.MakeReg(id, k), rlo, rlo, shift)
+		}
+		fmt.Fprint(g.w, "\tnop\n")
+		for id := arch.RLo; id < arch.RHi; id++ {
+			fmt.Fprintf(g.w, "\t%s%s\t%v, [%v, %v%s]\n", g.opname, width,
+				rlok, arch.MakeReg(id, arch.Uint64), rlo, shift)
+		}
+		fmt.Fprint(g.w, "\tnop\n")
+		for id := arch.RLo; id <= arch.RHi; id++ {
+			fmt.Fprintf(g.w, "\t%s%s\t%v, [%v, %v%s]\n", g.opname, width,
+				rlok, rlo, arch.MakeReg(id, arch.Uint64), shift)
+		}
+		fmt.Fprint(g.w, "\tnop\n")
+	}
+	g.funcFooter()
 }
 
 func (g *genOp3) opRegRegReg() {
