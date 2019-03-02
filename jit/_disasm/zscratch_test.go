@@ -65,10 +65,9 @@ func TestAmd64Shift2(t *testing.T) {
 		PrintDisasm(t, c.Assemble())
 	}
 }
-
 func TestAmd64Collatz(t *testing.T) {
 	PrintDisasm(t, asm.MachineCode{
 		asm.AMD64,
-		HexToBinary("488b742408488b7618486b1e0348ffc34889df48d1ef48893e"),
+		HexToBinary("488b742408488b7618486b1e0348ffc34889df48d1ef48893e488b7c24084c8b4f3849ffc14c894f384c8b47404f8b04c848897c24184c89442410"),
 	})
 }
