@@ -24,8 +24,8 @@ import (
 )
 
 const (
-	S0 SoftRegId = iota
-	S1
+	t0 SoftRegId = FirstTempRegId + iota
+	t1
 )
 
 func CompareCode(actual Code, expected Code) int {
@@ -58,9 +58,9 @@ func TestCompileExpr1(t *testing.T) {
 		t.Log("expr: ", e)
 
 		expected := Code{
-			asm.ALLOC, S0, Uint64,
-			asm.NOT2, r, S0,
-			asm.NEG2, S0, S0,
+			asm.ALLOC, t0, Uint64,
+			asm.NOT2, r, t0,
+			asm.NEG2, t0, t0,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {
@@ -95,12 +95,12 @@ func TestCompileExpr2(t *testing.T) {
 		t.Log("expr: ", e)
 
 		expected := Code{
-			asm.ALLOC, S0, Uint64,
-			asm.MUL3, c7, r1, S0,
-			asm.ALLOC, S1, Uint64,
-			asm.SUB3, c9, r2, S1,
-			asm.ADD3, S0, S1, S0,
-			asm.FREE, S1, asm.Uint64,
+			asm.ALLOC, t0, Uint64,
+			asm.MUL3, c7, r1, t0,
+			asm.ALLOC, t1, Uint64,
+			asm.SUB3, c9, r2, t1,
+			asm.ADD3, t0, t1, t0,
+			asm.FREE, t1, asm.Uint64,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {
@@ -118,7 +118,6 @@ func TestCompileExpr2(t *testing.T) {
 
 func TestCompileExpr3(t *testing.T) {
 	var c Comp
-	var s0 SoftRegId
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
 
@@ -136,9 +135,9 @@ func TestCompileExpr3(t *testing.T) {
 		t.Log("expr: ", e)
 
 		expected := Code{
-			asm.ALLOC, s0, Int64,
-			asm.DIV3, m, c_2, s0,
-			asm.AND_NOT3, s0, m, s0,
+			asm.ALLOC, t0, Int64,
+			asm.DIV3, m, c_2, t0,
+			asm.AND_NOT3, t0, m, t0,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {
@@ -204,15 +203,14 @@ func TestCompileStmt2(t *testing.T) {
 	_5 := MakeConst(5, Int64)
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		s0 := c.AllocSoftReg(Int64)
-		s1 := c.AllocSoftReg(Int64)
-		sid0, sid1 := s0.Id(), s1.Id()
-		sid2 := sid1 + 1
+		sreg0 := c.AllocSoftReg(Int64)
+		sreg1 := c.AllocSoftReg(Int64)
+		s0, s1 := sreg0.Id(), sreg1.Id()
 
-		stmt := NewStmt2(ASSIGN, s0,
+		stmt := NewStmt2(ASSIGN, sreg0,
 			NewExpr2(SUB,
-				NewExpr2(MUL, s1, _7),
-				NewExpr2(DIV, s1, _5),
+				NewExpr2(MUL, sreg1, _7),
+				NewExpr2(DIV, sreg1, _5),
 			),
 		)
 		c.Stmt(stmt)
@@ -221,13 +219,13 @@ func TestCompileStmt2(t *testing.T) {
 		t.Logf("stmt: %v", stmt)
 
 		expected := Code{
-			asm.ALLOC, sid0, Int64,
-			asm.ALLOC, sid1, Int64,
-			asm.MUL3, sid1, _7, sid0,
-			asm.ALLOC, sid2, Int64,
-			asm.DIV3, sid1, _5, sid2,
-			asm.SUB3, sid0, sid2, sid0,
-			asm.FREE, sid2, Int64,
+			asm.ALLOC, s0, Int64,
+			asm.ALLOC, s1, Int64,
+			asm.MUL3, s1, _7, s0,
+			asm.ALLOC, t0, Int64,
+			asm.DIV3, s1, _5, t0,
+			asm.SUB3, s0, t0, s0,
+			asm.FREE, t0, Int64,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {
@@ -283,6 +281,54 @@ func TestCompileGetidx(t *testing.T) {
 		}
 
 		c.Epilogue()
+		PrintDisasm(t, c.Assemble())
+	}
+}
+
+func TestCompileInterpStmtNop(t *testing.T) {
+	var c Comp
+	type field struct {
+		index Const
+		kind  Kind
+	}
+	envIP := field{
+		index: ConstUintptr(7),
+		kind:  Int,
+	}
+	envCode := field{
+		index: ConstUintptr(8),
+		kind:  Uintptr,
+	}
+	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
+		c.InitArchId(archId)
+		renv := c.AllocSoftReg(Uint64)
+		rip := c.AllocSoftReg(envIP.kind)
+		rcode := c.AllocSoftReg(Uintptr)
+		// on amd64 and arm64, in a func(env *Env) ...
+		// the parameter env is on the stack at [RSP+8]
+		// renv = stack[env_param]
+		c.Stmt2(ASSIGN, renv, c.MakeParam(8, Uint64))
+		// rip = env.IP
+		c.Stmt2(ASSIGN, rip, NewExprIdx(renv, envIP.index, envIP.kind))
+		// rip++
+		c.Stmt1(INC, rip)
+		// env.IP = rip
+		c.Stmt3(IDX_ASSIGN, renv, envIP.index, rip)
+		// s = env.Code
+		c.Stmt2(ASSIGN, rcode, NewExprIdx(renv, envCode.index, Uintptr))
+		// s = s[rip] i.e. s = env.Code[rip] i.e. s = env.Code[env.IP+1]
+		c.Stmt2(ASSIGN, rcode, NewExprIdx(rcode, rip, Uintptr))
+		// stack[env_result] = renv
+		c.Stmt2(ASSIGN, c.MakeParam(24, Uint64), renv)
+		// stack[stmt_result] = s, with s == env.Code[env.IP+1]
+		c.Stmt2(ASSIGN, c.MakeParam(16, Uint64), rcode)
+		c.FreeSoftReg(renv)
+		c.FreeSoftReg(rip)
+		c.FreeSoftReg(rcode)
+		c.Epilogue()
+
+		t.Log(c.Code())
+
 		PrintDisasm(t, c.Assemble())
 	}
 }

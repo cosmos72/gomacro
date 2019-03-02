@@ -18,6 +18,8 @@ package jit
 
 import (
 	"fmt"
+
+	"github.com/cosmos72/gomacro/jit/common"
 )
 
 // SoftRegId wrapper, implements Expr
@@ -25,6 +27,8 @@ type SoftReg struct {
 	id   SoftRegId
 	kind Kind
 }
+
+const FirstTempRegId = common.FirstTempRegId
 
 func MakeSoftReg(id SoftRegId, kind Kind) SoftReg {
 	return SoftReg{id, kind}
@@ -46,6 +50,10 @@ func (s SoftReg) Valid() bool {
 	return s.kind != Invalid
 }
 
+func (s SoftReg) isTemp() bool {
+	return s.id >= FirstTempRegId
+}
+
 func (s SoftReg) Validate() {
 	if !s.Valid() {
 		errorf("invalid SoftReg: %v", s)
@@ -57,5 +65,8 @@ func (s SoftReg) String() string {
 	if !s.Valid() {
 		suffix = "(bad)"
 	}
-	return fmt.Sprintf("T%d%s", uint32(s.id), suffix)
+	if s.id >= FirstTempRegId {
+		return fmt.Sprintf("t%d%s", uint32(s.id-FirstTempRegId), suffix)
+	}
+	return fmt.Sprintf("s%d%s", uint32(s.id), suffix)
 }

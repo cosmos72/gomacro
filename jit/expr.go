@@ -130,19 +130,19 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 		if ssoft.Valid() {
 			dsoft = SoftReg{ssoft.id, e.K}
 		} else {
-			dsoft = c.AllocSoftReg(e.K)
+			dsoft = c.allocTempReg(e.K)
 		}
 		dst = dsoft
 	}
 	c.code.Op1(e.Op, src, dst)
 	if ssoft.id != dsoft.id {
-		c.FreeSoftReg(ssoft)
+		c.freeTempReg(ssoft)
 	}
 	if dsoft.Valid() && dsoft != dst {
 		// copy dsoft to the requested destination
 		// and free it
 		c.code.Inst2(ASSIGN, dsoft, dst)
-		c.FreeSoftReg(dsoft)
+		c.freeTempReg(dsoft)
 		dsoft = SoftReg{}
 	}
 	return dst, dsoft
@@ -164,22 +164,22 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 		} else if soft2.Valid() && e.Op.IsCommutative() {
 			dsoft = SoftReg{soft2.id, e.K}
 		} else {
-			dsoft = c.AllocSoftReg(e.K)
+			dsoft = c.allocTempReg(e.K)
 		}
 		dst = dsoft
 	}
 	c.code.Op2(e.Op, src1, src2, dst)
 	if soft1.id != dsoft.id {
-		c.FreeSoftReg(soft1)
+		c.freeTempReg(soft1)
 	}
 	if soft2.id != dsoft.id {
-		c.FreeSoftReg(soft2)
+		c.freeTempReg(soft2)
 	}
 	if dsoft.Valid() && dsoft != dst {
 		// copy dsoft to the requested destination
 		// and free it
 		c.code.Inst2(ASSIGN, dsoft, dst)
-		c.FreeSoftReg(dsoft)
+		c.freeTempReg(dsoft)
 		dsoft = SoftReg{}
 	}
 	return dst, dsoft

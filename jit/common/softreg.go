@@ -26,17 +26,16 @@ import (
 type SoftRegId uint32
 
 const (
-	// SLo = 0       // lowest SoftRegId available to user code
-	SHi = 0x7FFFFFFF // highest SoftRegId available to user code
+	FirstTempRegId = ^SoftRegId(0) >> 1
 )
 
 func (s SoftRegId) Validate() {
-	if s > SHi {
-		errorf("invalid register: %v", s)
-	}
 }
 
 func (s SoftRegId) String() string {
+	if s >= FirstTempRegId {
+		return fmt.Sprintf("T%d", uint32(s-FirstTempRegId))
+	}
 	return fmt.Sprintf("S%d", uint32(s))
 }
 

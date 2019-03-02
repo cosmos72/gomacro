@@ -26,6 +26,7 @@ type Comp struct {
 	// not yet assembled
 	toassemble  int
 	nextSoftReg SoftRegId
+	nextTempReg SoftRegId
 	arch        Arch
 	asm.RegIdConfig
 	asm *Asm
@@ -61,6 +62,7 @@ func (c *Comp) InitArch(arch Arch) *Comp {
 	c.code = nil
 	c.toassemble = 0
 	c.nextSoftReg = 0
+	c.nextTempReg = FirstTempRegId
 	c.arch = arch
 	c.RegIdConfig = arch.RegIdConfig()
 	if c.asm != nil {
@@ -103,6 +105,7 @@ func (c *Comp) ClearCode() {
 // forget all allocated registers
 func (c *Comp) ClearRegs() {
 	c.nextSoftReg = 0
+	c.nextTempReg = 0
 	if c.asm != nil {
 		c.asm.ClearRegs()
 	}
@@ -152,10 +155,25 @@ func (c *Comp) AllocSoftReg(kind Kind) SoftReg {
 	return c.code.SoftReg(asm.ALLOC, id, kind)
 }
 
+func (c *Comp) allocTempReg(kind Kind) SoftReg {
+	id := c.nextTempReg
+	c.nextTempReg++
+	return c.code.SoftReg(asm.ALLOC, id, kind)
+}
+
 func (c *Comp) FreeSoftReg(s SoftReg) {
-	if s.Valid() {
+	if s.Valid() && !s.isTemp() {
 		if s.id+1 == c.nextSoftReg {
 			c.nextSoftReg--
+		}
+		c.code.SoftReg(asm.FREE, s.id, s.kind)
+	}
+}
+
+func (c *Comp) freeTempReg(s SoftReg) {
+	if s.Valid() && s.isTemp() {
+		if s.id+1 == c.nextTempReg {
+			c.nextTempReg--
 		}
 		c.code.SoftReg(asm.FREE, s.id, s.kind)
 	}

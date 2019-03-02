@@ -124,7 +124,7 @@ func (c *Comp) Stmt1(inst Inst1, tdst Expr) {
 		checkAssignable(dst)
 	}
 	c.code.Inst1(inst, dst)
-	c.FreeSoftReg(soft)
+	c.freeTempReg(soft)
 }
 
 // compile binary statement
@@ -134,9 +134,9 @@ func (c *Comp) Stmt2(inst Inst2, tdst Expr, tsrc Expr) {
 	checkAssignable(dst)
 	src, ssoft := c.expr(tsrc, dst)
 	c.code.Inst2(inst, src, dst)
-	c.FreeSoftReg(dsoft)
+	c.freeTempReg(dsoft)
 	if ssoft.id != dsoft.id {
-		c.FreeSoftReg(ssoft)
+		c.freeTempReg(ssoft)
 	}
 }
 
@@ -147,9 +147,9 @@ func (c *Comp) Stmt3(inst Inst3, tdst Expr, tdarg Expr, tsrc Expr) {
 	darg, dasoft := c.Expr(tdarg)
 	src, ssoft := c.Expr(tsrc)
 	c.code.Inst3(inst, dst, darg, src)
-	c.FreeSoftReg(dsoft)
-	c.FreeSoftReg(dasoft)
-	c.FreeSoftReg(ssoft)
+	c.freeTempReg(dsoft)
+	c.freeTempReg(dasoft)
+	c.freeTempReg(ssoft)
 }
 
 // compile n-ary statement
@@ -171,7 +171,7 @@ func (c *Comp) StmtN(tdst []Expr, tsrc []Expr) {
 		if _, ok := e.(Mem); ok && !soft.Valid() {
 			// source is a local variable. we must evaluate it,
 			// in case it also appears in left-hand side
-			soft = c.AllocSoftReg(e.Kind())
+			soft = c.allocTempReg(e.Kind())
 			c.code.Inst2(ASSIGN, e, soft)
 			e = soft
 		}
@@ -182,12 +182,12 @@ func (c *Comp) StmtN(tdst []Expr, tsrc []Expr) {
 	}
 	for i := n - 1; i >= 0; i-- {
 		if soft, ok := src[i].(SoftReg); ok && soft.Valid() {
-			c.FreeSoftReg(soft)
+			c.freeTempReg(soft)
 		}
 	}
 	for i := n - 1; i >= 0; i-- {
 		if soft, ok := dst[i].(SoftReg); ok && soft.Valid() {
-			c.FreeSoftReg(soft)
+			c.freeTempReg(soft)
 		}
 	}
 }

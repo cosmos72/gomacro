@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	S0 SoftRegId = iota
-	S1
+	t0 SoftRegId = FirstTempRegId + iota
+	t1
 )
 
 func CompareCode(actual Code, expected Code) int {
@@ -54,9 +54,9 @@ func TestExpr1(t *testing.T) {
 	t.Logf("expr: %v", e)
 	actual := c.code
 	expected := Code{
-		asm.ALLOC, S0, Uint64,
-		asm.NOT2, r, S0,
-		asm.NEG2, S0, S0,
+		asm.ALLOC, t0, Uint64,
+		asm.NOT2, r, t0,
+		asm.NEG2, t0, t0,
 	}
 
 	if i := CompareCode(actual, expected); i >= 0 {
@@ -83,12 +83,12 @@ func TestExpr2(t *testing.T) {
 
 		actual := c.code
 		expected := Code{
-			asm.ALLOC, S0, Uint64,
-			asm.MUL3, c7, r1, S0,
-			asm.ALLOC, S1, Uint64,
-			asm.SUB3, c9, r2, S1,
-			asm.ADD3, S0, S1, S0,
-			asm.FREE, S1, asm.Uint64,
+			asm.ALLOC, t0, Uint64,
+			asm.MUL3, c7, r1, t0,
+			asm.ALLOC, t1, Uint64,
+			asm.SUB3, c9, r2, t1,
+			asm.ADD3, t0, t1, t0,
+			asm.FREE, t1, asm.Uint64,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {
