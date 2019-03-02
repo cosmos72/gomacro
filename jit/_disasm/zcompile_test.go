@@ -245,3 +245,48 @@ func TestCompileStmt2(t *testing.T) {
 		PrintDisasm(t, c.Assemble())
 	}
 }
+
+func TestCompileGetidx(t *testing.T) {
+	var c Comp
+
+	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
+		c.InitArchId(archId)
+
+		stack_in := c.MakeParam(8, Uint64)
+		stack_out := c.MakeParam(16, Uint8)
+		_42 := ConstUint8(42)
+		idx := ConstUint64(3)
+
+		c.Asm().RegIncUse(c.RegIdConfig.RVAR)
+		// on amd64 and arm64, in a func(env *Env) ...
+		// the parameter env is on the stack at [RSP+8]
+		rvar := MakeReg(c.RegIdConfig.RVAR, Uint64)
+		// env = stack[env_param]
+		c.Stmt2(ASSIGN, rvar, stack_in)
+		// rvar = env.Ints equivalent to rvar = &env.Ints[0]
+		c.Stmt2(ASSIGN, rvar, NewExprIdx(rvar, idx, Uint64))
+		// compile accumulated jit expression and copy result to stack.
+		e := _42
+		// on amd64 and arm64, in a func(env *Env) ...
+		// the return value is on the stack at [RSP+16]
+		c.Stmt2(ASSIGN, stack_out, e)
+
+		actual := c.Code()
+
+		expected := Code{
+			asm.MOV, stack_in, rvar,
+			asm.GETIDX, rvar, idx, rvar,
+			asm.MOV, _42, stack_out,
+		}
+
+		if i := CompareCode(actual, expected); i >= 0 {
+			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
+				i, expected, actual)
+		} else {
+			t.Log(actual)
+		}
+
+		c.Epilogue()
+		PrintDisasm(t, c.Assemble())
+	}
+}

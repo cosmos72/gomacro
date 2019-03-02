@@ -28,13 +28,13 @@ func (c *Code) Init() *Code {
 	return c
 }
 
-func (c *Code) Op1(op Op1, src Expr, dst SoftReg) *Code {
-	*c = append(*c, op.Asm(), asmArg(src), dst.id)
+func (c *Code) Op1(op Op1, src Expr, dst Expr) *Code {
+	*c = append(*c, op.Asm(), asmArg(src), asmArg(dst))
 	return c
 }
 
-func (c *Code) Op2(op Op2, a Expr, b Expr, dst SoftReg) *Code {
-	*c = append(*c, op.Asm(), asmArg(a), asmArg(b), dst.id)
+func (c *Code) Op2(op Op2, a Expr, b Expr, dst Expr) *Code {
+	*c = append(*c, op.Asm(), asmArg(a), asmArg(b), asmArg(dst))
 	return c
 }
 

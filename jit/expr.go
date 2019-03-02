@@ -152,15 +152,16 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 
 // compile binary expression
 func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
+	// debugf("expr2: %v -> %v", e, dst)
 	dsoft, _ := dst.(SoftReg)
 	var dto Expr
 	if dsoft.Valid() {
-		// forward the request to write into dsoft
+		// forward the request to write into dst
 		dto = dst
 	}
 	src1, soft1 := c.expr(e.X, dto)
 	src2, soft2 := c.Expr(e.Y)
-	if !dsoft.Valid() {
+	if dst == nil {
 		if soft1.Valid() {
 			dsoft = SoftReg{soft1.id, e.K}
 		} else if soft2.Valid() && e.Op.IsCommutative() {
@@ -168,19 +169,17 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 		} else {
 			dsoft = c.AllocSoftReg(e.K)
 		}
+		dst = dsoft
 	}
-	dst = dsoft
-	c.code.Op2(e.Op, src1, src2, dsoft)
+	// debugf("expr2: dst = %v, dsoft = %v", dst, dsoft)
+	c.code.Op2(e.Op, src1, src2, dst)
 	if soft1.id != dsoft.id {
 		c.FreeSoftReg(soft1)
 	}
 	if soft2.id != dsoft.id {
 		c.FreeSoftReg(soft2)
 	}
-	if dst == nil {
-		// no destination requested
-		dst = dsoft
-	} else if dsoft != dst {
+	if dsoft.Valid() && dsoft != dst {
 		// copy dsoft to the requested destination
 		// and free it
 		c.code.Inst2(ASSIGN, dsoft, dst)

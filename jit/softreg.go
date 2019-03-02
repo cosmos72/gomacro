@@ -53,6 +53,9 @@ func (s SoftReg) Validate() {
 }
 
 func (s SoftReg) String() string {
-	return fmt.Sprintf("T%d", uint32(s.id))
-
+	var suffix string
+	if !s.Valid() {
+		suffix = "(bad)"
+	}
+	return fmt.Sprintf("T%d%s", uint32(s.id), suffix)
 }
