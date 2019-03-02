@@ -126,21 +126,19 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 		dto = dst
 	}
 	src, ssoft := c.expr(e.X, dto)
-	if !dsoft.Valid() {
+	if dst == nil {
 		if ssoft.Valid() {
 			dsoft = SoftReg{ssoft.id, e.K}
 		} else {
 			dsoft = c.AllocSoftReg(e.K)
 		}
+		dst = dsoft
 	}
-	c.code.Op1(e.Op, src, dsoft)
+	c.code.Op1(e.Op, src, dst)
 	if ssoft.id != dsoft.id {
 		c.FreeSoftReg(ssoft)
 	}
-	if dst == nil {
-		// no destination requested
-		dst = dsoft
-	} else if dsoft != dst {
+	if dsoft.Valid() && dsoft != dst {
 		// copy dsoft to the requested destination
 		// and free it
 		c.code.Inst2(ASSIGN, dsoft, dst)
@@ -152,7 +150,6 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 
 // compile binary expression
 func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
-	// debugf("expr2: %v -> %v", e, dst)
 	dsoft, _ := dst.(SoftReg)
 	var dto Expr
 	if dsoft.Valid() {
@@ -171,7 +168,6 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 		}
 		dst = dsoft
 	}
-	// debugf("expr2: dst = %v, dsoft = %v", dst, dsoft)
 	c.code.Op2(e.Op, src1, src2, dst)
 	if soft1.id != dsoft.id {
 		c.FreeSoftReg(soft1)
