@@ -27,7 +27,11 @@ type Mem struct {
 }
 
 func (m Mem) String() string {
-	return fmt.Sprintf("%v[%v+%v]", m.reg.kind, m.reg.id, m.off)
+	arch := m.reg.id.Arch()
+	if arch != nil {
+		return arch.MemString(m)
+	}
+	return fmt.Sprintf("%v@{%v+%v}", m.reg.kind, m.reg.id, m.off)
 }
 
 // implement Arg interface

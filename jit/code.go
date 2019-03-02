@@ -45,16 +45,18 @@ func (c *Code) Inst1(inst Inst1, dst Expr) *Code {
 	return c
 }
 
-func (c *Code) Inst2(inst Inst2, src Expr, dst Expr) *Code {
-	asrc, adst := asmArg(src), asmArg(dst)
+// destination is first argument, as Comp.Stmt2
+func (c *Code) Inst2(inst Inst2, dst Expr, src Expr) *Code {
+	adst, asrc := asmArg(dst), asmArg(src)
 	if inst != ASSIGN || asrc != adst {
 		*c = append(*c, inst.Asm(), asrc, adst)
 	}
 	return c
 }
 
-func (c *Code) Inst3(inst Inst3, src Expr, dst Expr, darg Expr) *Code {
-	asrc, adst, adarg := asmArg(src), asmArg(dst), asmArg(darg)
+// destination is first argument, as Comp.Stmt3
+func (c *Code) Inst3(inst Inst3, dst Expr, darg Expr, src Expr) *Code {
+	adst, adarg, asrc := asmArg(dst), asmArg(darg), asmArg(src)
 	// asm.SETIDX arguments are dst, doffset, src
 	*c = append(*c, inst.Asm(), adst, adarg, asrc)
 	return c

@@ -89,6 +89,11 @@ func (Amd64) RegString(r Reg) string {
 	return s
 }
 
+func (arch Amd64) MemString(m Mem) string {
+	return fmt.Sprintf("%v@{%v+%v}", m.Kind(), m.RegId(), m.Offset())
+
+}
+
 func (Amd64) CodeString(code MachineCode) string {
 	return fmt.Sprintf("%x", code.Bytes)
 }

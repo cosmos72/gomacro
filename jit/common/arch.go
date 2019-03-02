@@ -36,6 +36,7 @@ type Arch interface {
 	RegIdString(id RegId) string // RegId -> string
 	RegValid(r Reg) bool
 	RegString(r Reg) string          // Reg -> string
+	MemString(m Mem) string          // Mem -> string
 	CodeString(c MachineCode) string // Code -> string
 
 	Init(asm *Asm, saveStart, saveEnd SaveSlot) *Asm

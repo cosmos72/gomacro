@@ -85,6 +85,9 @@ func (e *Expr2) Const() bool {
 }
 
 func (e *Expr2) String() string {
+	if e.Op == IDX {
+		return fmt.Sprintf("%v[%v]", e.X, e.Y)
+	}
 	return fmt.Sprintf("(%v %v %v)", e.X, e.Op, e.Y)
 }
 
@@ -130,7 +133,7 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 		if ssoft.Valid() {
 			dsoft = SoftReg{ssoft.id, e.K}
 		} else {
-			dsoft = c.allocTempReg(e.K)
+			dsoft = c.newTempReg(e.K)
 		}
 		dst = dsoft
 	}
@@ -141,7 +144,7 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 	if dsoft.Valid() && dsoft != dst {
 		// copy dsoft to the requested destination
 		// and free it
-		c.code.Inst2(ASSIGN, dsoft, dst)
+		c.code.Inst2(ASSIGN, dst, dsoft)
 		c.freeTempReg(dsoft)
 		dsoft = SoftReg{}
 	}
@@ -164,7 +167,7 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 		} else if soft2.Valid() && e.Op.IsCommutative() {
 			dsoft = SoftReg{soft2.id, e.K}
 		} else {
-			dsoft = c.allocTempReg(e.K)
+			dsoft = c.newTempReg(e.K)
 		}
 		dst = dsoft
 	}
@@ -178,7 +181,7 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 	if dsoft.Valid() && dsoft != dst {
 		// copy dsoft to the requested destination
 		// and free it
-		c.code.Inst2(ASSIGN, dsoft, dst)
+		c.code.Inst2(ASSIGN, dst, dsoft)
 		c.freeTempReg(dsoft)
 		dsoft = SoftReg{}
 	}

@@ -26,6 +26,8 @@ type Inst1 uint8 // unary statement operator
 type Inst2 uint8 // binary statement operator
 type Inst3 uint8 // ternary statement operator
 
+type Inst1Misc uint8 // miscellaneous statement operator
+
 const (
 	INC  = Inst1(asm.INC)  // ++
 	DEC  = Inst1(asm.DEC)  // --
@@ -46,7 +48,12 @@ const (
 	AND_NOT_ASSIGN = Inst2(asm.AND_NOT2)
 	LAND_ASSIGN    = Inst2(asm.LAND2)
 	LOR_ASSIGN     = Inst2(asm.LOR2)
-	IDX_ASSIGN     = Inst3(asm.SETIDX) // a[b] = val
+
+	IDX_ASSIGN = Inst3(asm.SETIDX) // a[b] = val
+
+	// allocate / free soft register
+	ALLOC = Inst1Misc(asm.ALLOC)
+	FREE  = Inst1Misc(asm.FREE)
 )
 
 var inst1name = map[Inst1]string{
@@ -75,6 +82,11 @@ var inst2name = map[Inst2]string{
 
 var inst3name = map[Inst3]string{
 	IDX_ASSIGN: "[]=",
+}
+
+var misc2name = map[Inst1Misc]string{
+	ALLOC: "ALLOC",
+	FREE:  "FREE",
 }
 
 // =======================================================
@@ -154,6 +166,33 @@ func (inst Inst3) String() string {
 	s, ok := inst3name[inst]
 	if !ok {
 		s = fmt.Sprintf("Inst3(%d)", uint8(inst))
+	}
+	return s
+}
+
+// =======================================================
+
+func (inst Inst1Misc) Valid() bool {
+	_, ok := misc2name[inst]
+	return ok
+}
+
+func (inst Inst1Misc) Validate() {
+	if !inst.Valid() {
+		errorf("unknown Inst1Misc: %v", inst)
+	}
+}
+
+// convert to asm.Op2Misc
+func (inst Inst1Misc) Asm() asm.Op2Misc {
+	inst.Validate()
+	return asm.Op2Misc(inst)
+}
+
+func (inst Inst1Misc) String() string {
+	s, ok := misc2name[inst]
+	if !ok {
+		s = fmt.Sprintf("Inst1Misc(%d)", uint8(inst))
 	}
 	return s
 }

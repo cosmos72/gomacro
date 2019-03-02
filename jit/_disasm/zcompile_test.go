@@ -67,7 +67,7 @@ func TestCompileExpr1(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual)
+			t.Log("compiled to:", actual)
 		}
 
 		c.Epilogue()
@@ -107,7 +107,7 @@ func TestCompileExpr2(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual)
+			t.Log("compiled to:", actual)
 		}
 
 		c.Epilogue()
@@ -144,7 +144,7 @@ func TestCompileExpr3(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual)
+			t.Log("compiled to:", actual)
 		}
 
 		c.Epilogue()
@@ -163,18 +163,18 @@ func TestCompileStmt1(t *testing.T) {
 		m3 := c.MakeVar(2, 0, Uint8)
 		m4w := c.MakeVar(3, 0, Uint16)
 
-		ts := []Stmt{
-			NewStmt1(INC, m1),                           // m1++
-			NewStmt1(DEC, m2),                           // m2--
-			NewStmt1(ZERO, m3),                          // m3 = 0
-			NewStmt2(ASSIGN, m3w, NewExpr1(UINT16, m3)), // m3w = uint16(m3)
-			NewStmt1(NOP, m4w),                          // _ = m4w
-			NewStmt2(ASSIGN, m4w, m3w),                  // m4w = m3w
+		source := Source{
+			INC, m1, // m1++
+			DEC, m2, // m2--
+			ZERO, m3, // m3 = 0
+			ASSIGN, m3w, NewExpr1(UINT16, m3), // m3w = uint16(m3)
+			NOP, m4w, // _ = m4w
+			ASSIGN, m4w, m3w, // m4w = m3w
 		}
-		c.Compile(ts...)
+		c.Compile(source)
 		actual := c.Code()
 
-		t.Logf("stmt: %v", ts)
+		t.Logf("source: %v", source)
 
 		expected := Code{
 			asm.INC, m1,
@@ -189,7 +189,7 @@ func TestCompileStmt1(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual)
+			t.Log("compiled to:", actual)
 		}
 
 		c.Epilogue()
@@ -203,20 +203,21 @@ func TestCompileStmt2(t *testing.T) {
 	_5 := MakeConst(5, Int64)
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		sreg0 := c.AllocSoftReg(Int64)
-		sreg1 := c.AllocSoftReg(Int64)
+		sreg0 := c.NewSoftReg(Int64)
+		sreg1 := c.NewSoftReg(Int64)
 		s0, s1 := sreg0.Id(), sreg1.Id()
 
-		stmt := NewStmt2(ASSIGN, sreg0,
+		source := Source{
+			ASSIGN, sreg0,
 			NewExpr2(SUB,
 				NewExpr2(MUL, sreg1, _7),
 				NewExpr2(DIV, sreg1, _5),
 			),
-		)
-		c.Stmt(stmt)
+		}
+		c.Compile(source)
 		actual := c.Code()
 
-		t.Logf("stmt: %v", stmt)
+		t.Log("source:", source)
 
 		expected := Code{
 			asm.ALLOC, s0, Int64,
@@ -232,7 +233,7 @@ func TestCompileStmt2(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual)
+			t.Log("compiled to:", actual)
 		}
 
 		c.Epilogue()
@@ -277,7 +278,7 @@ func TestCompileGetidx(t *testing.T) {
 			t.Errorf("miscompiled code at index %d:\n\texpected %v\n\tactual   %v",
 				i, expected, actual)
 		} else {
-			t.Log(actual)
+			t.Log("compiled to:", actual)
 		}
 
 		c.Epilogue()
@@ -287,47 +288,44 @@ func TestCompileGetidx(t *testing.T) {
 
 func TestCompileInterpStmtNop(t *testing.T) {
 	var c Comp
-	type field struct {
-		index Const
-		kind  Kind
-	}
-	envIP := field{
-		index: ConstUintptr(7),
-		kind:  Int,
-	}
-	envCode := field{
-		index: ConstUintptr(8),
-		kind:  Uintptr,
-	}
+	envIP := ConstUint64(7)
+	envCode := ConstUint64(8)
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		renv := c.AllocSoftReg(Uint64)
-		rip := c.AllocSoftReg(envIP.kind)
-		rcode := c.AllocSoftReg(Uintptr)
-		// on amd64 and arm64, in a func(env *Env) ...
-		// the parameter env is on the stack at [RSP+8]
-		// renv = stack[env_param]
-		c.Stmt2(ASSIGN, renv, c.MakeParam(8, Uint64))
-		// rip = env.IP
-		c.Stmt2(ASSIGN, rip, NewExprIdx(renv, envIP.index, envIP.kind))
-		// rip++
-		c.Stmt1(INC, rip)
-		// env.IP = rip
-		c.Stmt3(IDX_ASSIGN, renv, envIP.index, rip)
-		// s = env.Code
-		c.Stmt2(ASSIGN, rcode, NewExprIdx(renv, envCode.index, Uintptr))
-		// s = s[rip] i.e. s = env.Code[rip] i.e. s = env.Code[env.IP+1]
-		c.Stmt2(ASSIGN, rcode, NewExprIdx(rcode, rip, Uintptr))
-		// stack[env_result] = renv
-		c.Stmt2(ASSIGN, c.MakeParam(24, Uint64), renv)
-		// stack[stmt_result] = s, with s == env.Code[env.IP+1]
-		c.Stmt2(ASSIGN, c.MakeParam(16, Uint64), rcode)
-		c.FreeSoftReg(renv)
-		c.FreeSoftReg(rip)
-		c.FreeSoftReg(rcode)
+		renv := MakeSoftReg(0, Uint64)
+		rip := MakeSoftReg(1, Uint64)
+		rcode := MakeSoftReg(2, Uint64)
+		source := Source{
+			ALLOC, renv,
+			ALLOC, rip,
+			ALLOC, rcode,
+			// on amd64 and arm64, in a func(env *Env) ...
+			// the parameter env is on the stack at [RSP+8]
+			// renv = stack[env_param]
+			ASSIGN, renv, c.MakeParam(8, Uint64),
+			// rip = env.IP
+			ASSIGN, rip, NewExprIdx(renv, envIP, Uint64),
+			// rip++
+			INC, rip,
+			// env.IP = rip
+			IDX_ASSIGN, renv, envIP, rip,
+			// s = env.Code
+			ASSIGN, rcode, NewExprIdx(renv, envCode, Uint64),
+			// s = s[rip] i.e. s = env.Code[rip] i.e. s = env.Code[env.IP+1]
+			ASSIGN, rcode, NewExprIdx(rcode, rip, Uint64),
+			// stack[env_result] = renv
+			ASSIGN, c.MakeParam(24, Uint64), renv,
+			// stack[stmt_result] = s, with s == env.Code[env.IP+1]
+			ASSIGN, c.MakeParam(16, Uint64), rcode,
+			FREE, renv,
+			FREE, rip,
+			FREE, rcode,
+		}
+		c.Compile(source)
 		c.Epilogue()
 
-		t.Log(c.Code())
+		t.Log("source:", source)
+		t.Log("compiled to:", c.Code())
 
 		PrintDisasm(t, c.Assemble())
 	}

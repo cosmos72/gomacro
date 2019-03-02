@@ -98,6 +98,9 @@ func (t *Stmt2) String() string {
 }
 
 func (t *Stmt3) String() string {
+	if t.Inst == IDX_ASSIGN {
+		return fmt.Sprintf("%v[%v] = %v;", t.Dst, t.DArg, t.Src)
+	}
 	return fmt.Sprintf("%v %v %v %v;", t.Dst, t.DArg, t.Inst, t.Src)
 }
 
@@ -133,7 +136,7 @@ func (c *Comp) Stmt2(inst Inst2, tdst Expr, tsrc Expr) {
 	dst, dsoft := c.Expr(tdst)
 	checkAssignable(dst)
 	src, ssoft := c.expr(tsrc, dst)
-	c.code.Inst2(inst, src, dst)
+	c.code.Inst2(inst, dst, src)
 	c.freeTempReg(dsoft)
 	if ssoft.id != dsoft.id {
 		c.freeTempReg(ssoft)
@@ -171,14 +174,14 @@ func (c *Comp) StmtN(tdst []Expr, tsrc []Expr) {
 		if _, ok := e.(Mem); ok && !soft.Valid() {
 			// source is a local variable. we must evaluate it,
 			// in case it also appears in left-hand side
-			soft = c.allocTempReg(e.Kind())
-			c.code.Inst2(ASSIGN, e, soft)
+			soft = c.newTempReg(e.Kind())
+			c.code.Inst2(ASSIGN, soft, e)
 			e = soft
 		}
 		src[i] = e
 	}
 	for i := range src {
-		c.code.Inst2(ASSIGN, src[i], dst[i])
+		c.code.Inst2(ASSIGN, dst[i], src[i])
 	}
 	for i := n - 1; i >= 0; i-- {
 		if soft, ok := src[i].(SoftReg); ok && soft.Valid() {

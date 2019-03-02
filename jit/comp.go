@@ -17,8 +17,13 @@
 package jit
 
 import (
+	"bytes"
+
 	"github.com/cosmos72/gomacro/jit/asm"
 )
+
+// argument of Comp.Compile()
+type Source []interface{}
 
 type Comp struct {
 	code Code
@@ -149,36 +154,6 @@ func (c *Comp) Func(funcaddr interface{}) {
 	c.asm.Func(funcaddr)
 }
 
-func (c *Comp) AllocSoftReg(kind Kind) SoftReg {
-	id := c.nextSoftReg
-	c.nextSoftReg++
-	return c.code.SoftReg(asm.ALLOC, id, kind)
-}
-
-func (c *Comp) allocTempReg(kind Kind) SoftReg {
-	id := c.nextTempReg
-	c.nextTempReg++
-	return c.code.SoftReg(asm.ALLOC, id, kind)
-}
-
-func (c *Comp) FreeSoftReg(s SoftReg) {
-	if s.Valid() && !s.isTemp() {
-		if s.id+1 == c.nextSoftReg {
-			c.nextSoftReg--
-		}
-		c.code.SoftReg(asm.FREE, s.id, s.kind)
-	}
-}
-
-func (c *Comp) freeTempReg(s SoftReg) {
-	if s.Valid() && s.isTemp() {
-		if s.id+1 == c.nextTempReg {
-			c.nextTempReg--
-		}
-		c.code.SoftReg(asm.FREE, s.id, s.kind)
-	}
-}
-
 func checkAssignable(e Expr) {
 	switch e.(type) {
 	case Reg, Mem, SoftReg:
@@ -200,9 +175,54 @@ func (c *Comp) MakeVar(idx int, upn int, kind Kind) Mem {
 	return mem
 }
 
-// compile list of statements
-func (c *Comp) Compile(ts ...Stmt) {
-	for _, t := range ts {
-		c.Stmt(t)
+// compile statements and their arguments
+func (c *Comp) Compile(s Source) {
+	for i := 0; i < len(s); i++ {
+		switch inst := s[i].(type) {
+		case Inst1:
+			c.Stmt1(inst, s[i+1].(Expr))
+			i++
+		case Inst1Misc:
+			c.SoftReg(inst, s[i+1].(SoftReg))
+			i++
+		case Inst2:
+			c.Stmt2(inst, s[i+1].(Expr), s[i+2].(Expr))
+			i += 2
+		case Inst3:
+			c.Stmt3(inst, s[i+1].(Expr), s[i+2].(Expr), s[i+3].(Expr))
+			i += 3
+		default:
+			errorf("unknown instruction type %T, expecting Inst1, Inst2, Inst3 or Inst1Misc", inst)
+		}
 	}
+}
+
+// pretty-print Source
+func (s Source) String() string {
+	var buf bytes.Buffer
+	for i := 0; i < len(s); i++ {
+		if i != 0 {
+			buf.WriteByte(' ')
+		}
+		switch inst := s[i].(type) {
+		case Inst1:
+			buf.WriteString(NewStmt1(inst, s[i+1].(Expr)).String())
+			i++
+		case Inst1Misc:
+			buf.WriteString(inst.String())
+			buf.WriteByte(' ')
+			buf.WriteString(s[i+1].(SoftReg).String())
+			buf.WriteByte(';')
+			i++
+		case Inst2:
+			buf.WriteString(NewStmt2(inst, s[i+1].(Expr), s[i+2].(Expr)).String())
+			i += 2
+		case Inst3:
+			buf.WriteString(NewStmt3(inst, s[i+1].(Expr), s[i+2].(Expr), s[i+3].(Expr)).String())
+			i += 3
+		default:
+			errorf("unknown instruction type %T, expecting Inst1, Inst2 or Inst3", inst)
+		}
+	}
+	return buf.String()
 }

@@ -34,13 +34,11 @@ type Jit struct {
 
 type jitField struct {
 	index jit.Const
-	kind  jit.Kind
 }
 
 func makeJitField(offset uintptr, kind jit.Kind) jitField {
 	return jitField{
 		index: jit.ConstUintptr(offset / uintptr(kind.Size())),
-		kind:  kind,
 	}
 }
 
@@ -55,7 +53,6 @@ var (
 
 func init() {
 	JIT_VERBOSE, _ = strconv.Atoi(os.Getenv("GOMACRO_JIT_V"))
-	// JIT_VERBOSE = 2
 
 	var sizeofUintptr = uintptr(jit.Uintptr.Size())
 
@@ -84,27 +81,30 @@ func init() {
 
 func jitMakeInterpNop() Stmt {
 	jc := jit.New()
-	renv := jc.AllocSoftReg(jit.Uint64)
-	s := jc.AllocSoftReg(jit.Uintptr)
-	t := jc.AllocSoftReg(envIP.kind)
+	renv := jc.NewSoftReg(jit.Uint64)
+	s := jc.NewSoftReg(jit.Uint64)
+	t := jc.NewSoftReg(jit.Uint64)
 	// on amd64 and arm64, in a func(env *Env) ...
 	// the parameter env is on the stack at [RSP+8]
-	// renv = stack[env_param]
-	jc.Stmt2(jit.ASSIGN, renv, jc.MakeParam(8, jit.Uint64))
-	// t = env.IP
-	jc.Stmt2(jit.ASSIGN, t, jit.NewExprIdx(renv, envIP.index, envIP.kind))
-	// t++
-	jc.Stmt1(jit.INC, t)
-	// env.IP = t
-	jc.Stmt3(jit.IDX_ASSIGN, renv, envIP.index, t)
-	// s = env.Code
-	jc.Stmt2(jit.ASSIGN, s, jit.NewExprIdx(renv, envCode.index, jit.Uintptr))
-	// s = s[t] i.e. s = env.Code[t] i.e. s = env.Code[env.IP+1]
-	jc.Stmt2(jit.ASSIGN, s, jit.NewExprIdx(s, t, jit.Uintptr))
-	// stack[env_result] = renv
-	jc.Stmt2(jit.ASSIGN, jc.MakeParam(24, jit.Uint64), renv)
-	// stack[stmt_result] = s, with s == env.Code[env.IP+1]
-	jc.Stmt2(jit.ASSIGN, jc.MakeParam(16, jit.Uint64), s)
+	source := jit.Source{
+		// renv = stack[env_param]
+		jit.ASSIGN, renv, jc.MakeParam(8, jit.Uint64),
+		// t = env.IP
+		jit.ASSIGN, t, jit.NewExprIdx(renv, envIP.index, jit.Uint64),
+		// t++
+		jit.INC, t,
+		// env.IP = t
+		jit.IDX_ASSIGN, renv, envIP.index, t,
+		// s = env.Code
+		jit.ASSIGN, s, jit.NewExprIdx(renv, envCode.index, jit.Uint64),
+		// s = s[t] i.e. s = env.Code[t] i.e. s = env.Code[env.IP+1]
+		jit.ASSIGN, s, jit.NewExprIdx(s, t, jit.Uintptr),
+		// stack[env_result] = renv
+		jit.ASSIGN, jc.MakeParam(24, jit.Uint64), renv,
+		// stack[stmt_result] = s, with s == env.Code[env.IP+1]
+		jit.ASSIGN, jc.MakeParam(16, jit.Uint64), s,
+	}
+	jc.Compile(source)
 	jc.FreeSoftReg(t)
 	jc.FreeSoftReg(s)
 	jc.FreeSoftReg(renv)

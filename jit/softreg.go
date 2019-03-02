@@ -62,11 +62,58 @@ func (s SoftReg) Validate() {
 
 func (s SoftReg) String() string {
 	var suffix string
-	if !s.Valid() {
+	switch s.kind.Size() {
+	case 0:
 		suffix = "(bad)"
+	case 1:
+		suffix = "b"
+	case 2:
+		suffix = "h"
+	case 4:
+		suffix = "w"
+	case 8:
 	}
 	if s.id >= FirstTempRegId {
 		return fmt.Sprintf("t%d%s", uint32(s.id-FirstTempRegId), suffix)
 	}
 	return fmt.Sprintf("s%d%s", uint32(s.id), suffix)
+}
+
+// =======================================================
+
+func (c *Comp) NewSoftReg(kind Kind) SoftReg {
+	id := c.nextSoftReg
+	c.nextSoftReg++
+	return c.code.SoftReg(common.ALLOC, id, kind)
+}
+
+func (c *Comp) newTempReg(kind Kind) SoftReg {
+	id := c.nextTempReg
+	c.nextTempReg++
+	return c.code.SoftReg(common.ALLOC, id, kind)
+}
+
+func (c *Comp) FreeSoftReg(s SoftReg) {
+	if s.Valid() && !s.isTemp() {
+		if s.id+1 == c.nextSoftReg {
+			c.nextSoftReg--
+		}
+		c.code.SoftReg(common.FREE, s.id, s.kind)
+	}
+}
+
+func (c *Comp) freeTempReg(s SoftReg) {
+	if s.Valid() && s.isTemp() {
+		if s.id+1 == c.nextTempReg {
+			c.nextTempReg--
+		}
+		c.code.SoftReg(common.FREE, s.id, s.kind)
+	}
+}
+
+// alloc or free soft reg
+func (c *Comp) SoftReg(inst Inst1Misc, s SoftReg) {
+	if s.Valid() {
+		c.code.SoftReg(inst.Asm(), s.id, s.kind)
+	}
 }

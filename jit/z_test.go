@@ -111,17 +111,17 @@ func TestCompileStmt1(t *testing.T) {
 		m3w := c.MakeVar(2, 0, Uint16)
 		m4w := c.MakeVar(3, 0, Uint16)
 
-		ts := []Stmt{
-			NewStmt1(INC, m1),                           // m1++
-			NewStmt1(DEC, m2),                           // m2--
-			NewStmt1(ZERO, m3),                          // m3 = 0
-			NewStmt2(ASSIGN, m3w, NewExpr1(UINT16, m3)), // m3w = uint16(m3)
-			NewStmt1(NOP, m4w),                          // _ = m4w
-			NewStmt2(ASSIGN, m4w, m3w),                  // m4w = m3w
+		source := Source{
+			INC, m1, // m1++
+			DEC, m2, // m2--
+			ZERO, m3, // m3 = 0
+			ASSIGN, m3w, NewExpr1(UINT16, m3), // m3w = uint16(m3)
+			NOP, m4w, // _ = m4w
+			ASSIGN, m4w, m3w, // m4w = m3w
 		}
-		c.Compile(ts...)
+		c.Compile(source)
 		actual := c.Code()
-		t.Logf("stmt: %v", ts)
+		t.Logf("source: %v", source)
 		expected := Code{
 			asm.INC, m1,
 			asm.DEC, m2,
@@ -145,8 +145,8 @@ func TestCompileStmt2(t *testing.T) {
 	_7 := MakeConst(7, Uint64)
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		s0 := c.AllocSoftReg(Uint64)
-		s1 := c.AllocSoftReg(Uint64)
+		s0 := c.NewSoftReg(Uint64)
+		s1 := c.NewSoftReg(Uint64)
 		sid0, sid1 := s0.Id(), s1.Id()
 
 		stmt := NewStmt2(ASSIGN, s0,

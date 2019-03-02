@@ -85,6 +85,18 @@ func (Arm64) RegString(r Reg) string {
 	return s
 }
 
+func (arch Arm64) MemString(m Mem) string {
+	var regstr string
+	regid := m.RegId()
+	if regid == XZR {
+		regstr = "xsp"
+	} else {
+		regstr = arch.RegIdString(regid)
+	}
+	return fmt.Sprintf("%v@{%s+%v}", m.Kind(), regstr, m.Offset())
+
+}
+
 // print arm64 machine code as sequence of 4-byte instructions
 func (Arm64) CodeString(code MachineCode) string {
 	const hexdigit string = "0123456789abcdef"
