@@ -308,6 +308,22 @@ func (c *Comp) assign1(lhs ast.Expr, op token.Token, rhs ast.Expr, place *Place,
 	panicking = false
 }
 
+// SetVar compiles an assignment to a variable:
+// 'variable op constant' and 'variable op expression'
+func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
+	c.setVar(va, op, init)
+}
+
+// SetPlace compiles an assignment to a place:
+// 'place op constant' and 'place op expression'
+func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
+	if place.IsVar() {
+		c.SetVar(&place.Var, op, init)
+		return
+	}
+	c.setPlace(place, op, init)
+}
+
 // LookupVar compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
 func (c *Comp) LookupVar(name string) *Var {
 	if name == "_" {

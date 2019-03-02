@@ -32190,7 +32190,7 @@ func (c *Comp) varAndnotExpr(va *Var, fun I) {
 	}
 	c.append(ret)
 }
-func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
+func (c *Comp) setVar(va *Var, op token.Token, init *Expr) {
 	t := va.Type
 	var shift bool
 	var err interface{} = ""

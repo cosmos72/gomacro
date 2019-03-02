@@ -43,7 +43,8 @@ func makeJitField(offset uintptr, kind jit.Kind) jitField {
 }
 
 var (
-	JIT_VERBOSE int
+	jit_verbose int  = 0
+	jit_enabled bool = false
 
 	envInts jitField // description of Env.Ints struct field
 	envIP   jitField // description of Env.IP   struct field
@@ -52,31 +53,63 @@ var (
 )
 
 func init() {
-	JIT_VERBOSE, _ = strconv.Atoi(os.Getenv("GOMACRO_JIT_V"))
+	if s := os.Getenv("GOMACRO_JIT_V"); s != "" {
+		jit_verbose, _ = strconv.Atoi(s)
+	}
 
+	jitExtractEnvFields()
+
+	jitCheckSupported()
+}
+
+func jitExtractEnvFields() {
 	var sizeofUintptr = uintptr(jit.Uintptr.Size())
 
-	f, ok := r.TypeOf((*Env)(nil)).Elem().FieldByName("Ints")
+	tenv := r.TypeOf((*Env)(nil)).Elem()
+	f, ok := tenv.FieldByName("Ints")
 	if !ok || f.Offset%sizeofUintptr != 0 {
 		return
 	}
 	envInts = makeJitField(f.Offset, jit.Uintptr)
 
-	f, ok = r.TypeOf((*Env)(nil)).Elem().FieldByName("IP")
+	f, ok = tenv.FieldByName("IP")
 	if !ok || f.Offset%f.Type.Size() != 0 {
 		return
 	}
 	envIP = makeJitField(f.Offset, jit.Kind(f.Type.Kind()))
 
-	f, ok = r.TypeOf((*Env)(nil)).Elem().FieldByName("Code")
+	f, ok = tenv.FieldByName("Code")
 	if !ok || f.Offset%sizeofUintptr != 0 {
 		return
 	}
 	envCode = makeJitField(f.Offset, jit.Uintptr)
 	envOk = true
+}
 
+func jitCheckSupported() {
+	if !envOk {
+		if jit_verbose > 0 {
+			output.Debugf("Jit: failed to extract *Env fields")
+		}
+		jit_enabled = false
+		return
+	}
+	arch := jit.Archs[jit.ARCH_ID]
+	if arch == nil || !jit.SUPPORTED {
+		if jit_verbose > 0 {
+			output.Debugf("Jit: unsupported architecture or operating system")
+		}
+		jit_enabled = false
+		return
+	}
+	if !jit_enabled && os.Getenv("GOMACRO_JIT") == "" {
+		if jit_verbose > 0 {
+			output.Debugf("Jit: not enabled with environment variable GOMACRO_JIT")
+		}
+		return
+	}
+	jit_enabled = true
 	// stmtNop = jitMakeInterpNop()
-
 }
 
 func jitMakeInterpNop() Stmt {
@@ -103,48 +136,33 @@ func jitMakeInterpNop() Stmt {
 		jit.ASSIGN, jc.MakeParam(24, jit.Uint64), renv,
 		// stack[stmt_result] = s, with s == env.Code[env.IP+1]
 		jit.ASSIGN, jc.MakeParam(16, jit.Uint64), s,
+		jit.FREE, renv,
+		jit.FREE, s,
+		jit.FREE, t,
 	}
 	jc.Compile(source)
-	jc.FreeSoftReg(t)
-	jc.FreeSoftReg(s)
-	jc.FreeSoftReg(renv)
 	var f func(*Env) (Stmt, *Env)
 	jc.Func(&f)
 	return f
 }
 
 func NewJit() *Jit {
+	if !jit_enabled {
+		return nil
+	}
 	arch := jit.Archs[jit.ARCH_ID]
-	if arch == nil || !jit.SUPPORTED {
-		if JIT_VERBOSE > 0 {
-			output.Debugf("Jit: unsupported architecture or operating system")
-		}
-		return nil
-	}
-	if !envOk {
-		if JIT_VERBOSE > 0 {
-			output.Debugf("Jit: failed to extract *Env fields")
-		}
-		return nil
-	}
-	if os.Getenv("GOMACRO_JIT") == "" {
-		if JIT_VERBOSE > 0 {
-			output.Debugf("Jit: not enabled with environment variable GOMACRO_JIT")
-		}
-		return nil
-	}
 	var j Jit
 	j.c.InitArch(arch)
 	// tell jit compiler we need register RVAR
 	j.c.Asm().RegIncUse(arch.RegIdConfig().RVAR)
-	if JIT_VERBOSE > 0 {
+	if jit_verbose > 0 {
 		output.Debugf("Jit supported and enabled")
 	}
 	return &j
 }
 
 func (j *Jit) Log(e *Expr) {
-	if JIT_VERBOSE > 2 {
+	if jit_verbose > 2 {
 		output.Debugf("jit expr: %+v => %v", e, e.Jit)
 	}
 }
@@ -268,7 +286,7 @@ func (j *Jit) AssignStmt(va *Var, op token.Token, init *Expr) Stmt {
 // if supported, replace e.Fun with a jit-compiled equivalent function.
 // always returns e.
 func (j *Jit) Fun(e *Expr) *Expr {
-	if JIT_VERBOSE > 2 && j != nil {
+	if jit_verbose > 2 && j != nil {
 		output.Debugf("jit to compile: %v with e.Jit = %v", e, e.Jit)
 	}
 	if j != nil && e.Jit != nil {
@@ -307,13 +325,13 @@ func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
 		jc.ClearRegs()
 		if !assembled {
 			err := recover()
-			if JIT_VERBOSE > 0 {
+			if jit_verbose > 0 {
 				output.Debugf("jit failed: %v", err)
 			}
 		}
 	}()
 	machinecode := jc.Assemble()
-	if JIT_VERBOSE > 1 {
+	if jit_verbose > 1 {
 		output.Debugf("jit compiled:  %v", jc.Code())
 		output.Debugf("jit assembled: %v", machinecode)
 	}

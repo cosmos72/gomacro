@@ -605,9 +605,9 @@ func (c *Comp) varAndnotExpr(va *Var, fun I) {
 }
 
 
-// SetVar compiles an assignment to a variable:
+// setVar compiles an assignment to a variable:
 // 'variable op constant' and 'variable op expression'
-func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
+func (c *Comp) setVar(va *Var, op token.Token, init *Expr) {
 	t := va.Type
 	var shift bool
 	var err interface{} = ""
