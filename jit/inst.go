@@ -18,6 +18,7 @@ package jit
 
 import (
 	"fmt"
+	"go/token"
 
 	"github.com/cosmos72/gomacro/jit/asm"
 )
@@ -80,6 +81,21 @@ var inst2name = map[Inst2]string{
 	LOR_ASSIGN:     "||=",
 }
 
+var tokenToInst2 = map[token.Token]Inst2{
+	token.ASSIGN:         ASSIGN,
+	token.ADD_ASSIGN:     ADD_ASSIGN,
+	token.SUB_ASSIGN:     SUB_ASSIGN,
+	token.MUL_ASSIGN:     MUL_ASSIGN,
+	token.QUO_ASSIGN:     QUO_ASSIGN,
+	token.REM_ASSIGN:     REM_ASSIGN,
+	token.AND_ASSIGN:     AND_ASSIGN,
+	token.OR_ASSIGN:      OR_ASSIGN,
+	token.XOR_ASSIGN:     XOR_ASSIGN,
+	token.SHL_ASSIGN:     SHL_ASSIGN,
+	token.SHR_ASSIGN:     SHR_ASSIGN,
+	token.AND_NOT_ASSIGN: AND_NOT_ASSIGN,
+}
+
 var inst3name = map[Inst3]string{
 	IDX_ASSIGN: "[]=",
 }
@@ -135,6 +151,16 @@ func (inst Inst2) Asm() asm.Op2 {
 	return asm.Op2(inst)
 }
 
+var tokenNoInst2 = fmt.Errorf("failed to convert token.Token to jit.Inst2")
+
+// convert token.Token to Inst2
+func TokenInst2(tok token.Token) (Inst2, error) {
+	inst, ok := tokenToInst2[tok]
+	if !ok {
+		return 0, tokenNoInst2
+	}
+	return inst, nil
+}
 func (inst Inst2) String() string {
 	s, ok := inst2name[inst]
 	if !ok {

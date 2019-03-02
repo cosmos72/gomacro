@@ -17,6 +17,7 @@
 package fast
 
 import (
+	"errors"
 	"go/token"
 	"os"
 	r "reflect"
@@ -152,13 +153,34 @@ func NewJit() *Jit {
 	}
 	arch := jit.Archs[jit.ARCH_ID]
 	var j Jit
-	j.c.InitArch(arch)
+	j.InitArch(arch)
 	// tell jit compiler we need register RVAR
-	j.c.Asm().RegIncUse(arch.RegIdConfig().RVAR)
+	j.Asm().RegIncUse(arch.RegIdConfig().RVAR)
 	if jit_verbose > 0 {
 		output.Debugf("Jit supported and enabled")
 	}
 	return &j
+}
+
+func (j *Jit) InitArch(arch jit.Arch) *Jit {
+	j.c.InitArch(arch)
+	return j
+}
+
+func (j *Jit) Comp() *jit.Comp {
+	return &j.c
+}
+
+func (j *Jit) Asm() *jit.Asm {
+	return j.c.Asm()
+}
+
+func (j *Jit) Code() jit.Code {
+	return j.c.Code()
+}
+
+func (j *Jit) RegIdConfig() jit.RegIdConfig {
+	return j.c.RegIdConfig
 }
 
 func (j *Jit) Log(e *Expr) {
@@ -267,7 +289,7 @@ func (j *Jit) Symbol(e *Expr, idx int, upn int) *Expr {
 // always returns e.
 func (j *Jit) IntSymbol(e *Expr, idx int, upn int) *Expr {
 	if j != nil && e.Jit == nil {
-		jvar, err := jit.MakeVar(idx, upn, jit.Kind(e.Type.Kind()), j.c.RegIdConfig)
+		jvar, err := jit.MakeVar(idx, upn, jit.Kind(e.Type.Kind()), j.RegIdConfig())
 		if err == nil {
 			e.Jit = jvar
 			j.Log(e)
@@ -278,8 +300,46 @@ func (j *Jit) IntSymbol(e *Expr, idx int, upn int) *Expr {
 
 // if supported, return a jit-compiled statement that will perform va OP= init
 // TODO: not yet implemented
-// TODO: Comp.SetVar() should call this function
-func (j *Jit) AssignStmt(va *Var, op token.Token, init *Expr) Stmt {
+func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
+	if jit_verbose > 2 && j != nil {
+		output.Debugf("jit to compile assignment: %v %v %v with e.Jit = %v", va, op, init, init.Jit)
+	}
+	if j == nil || init.Jit == nil {
+		return nil
+	}
+	jvar, err := j.MakeVar(va)
+	if err != nil {
+		if jit_verbose > 0 {
+			output.Debugf("jit failed: %v", err)
+			return nil
+		}
+	}
+	inst, err := jit.TokenInst2(op)
+	if err != nil {
+		if jit_verbose > 0 {
+			output.Debugf("jit failed: %v", err)
+			return nil
+		}
+	}
+	return j.stmt0(jit.NewStmt2(inst, jvar, init.Jit))
+}
+
+var errMakeVarClass = errors.New("unimplemented: jit.MakeVar with class != IntBind")
+
+func (j *Jit) MakeVar(va *Var) (jit.Mem, error) {
+	if va.Desc.Class() != IntBind {
+		return jit.Mem{}, errMakeVarClass
+	}
+	return jit.MakeVar(va.Desc.Index(), va.Upn, jit.Kind(va.Type.Kind()), j.RegIdConfig())
+}
+
+// if supported, return a jit-compiled Stmt that will evaluate Expr.
+// return nil on failure
+// TODO: optimize
+func (j *Jit) AsStmt(e *Expr) Stmt {
+	// if possible, replace e.Fun a jit-compiled equivalent function.
+	j.Fun(e)
+	// caller will use the normal funAsStmt() route to convert to statement
 	return nil
 }
 
@@ -287,7 +347,7 @@ func (j *Jit) AssignStmt(va *Var, op token.Token, init *Expr) Stmt {
 // always returns e.
 func (j *Jit) Fun(e *Expr) *Expr {
 	if jit_verbose > 2 && j != nil {
-		output.Debugf("jit to compile: %v with e.Jit = %v", e, e.Jit)
+		output.Debugf("jit to compile expr: %v with e.Jit = %v", e, e.Jit)
 	}
 	if j != nil && e.Jit != nil {
 		kind := jit.Kind(e.Type.Kind())
@@ -304,7 +364,47 @@ func (j *Jit) Fun(e *Expr) *Expr {
 
 // implementation of Jit.Fun
 func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
-	jc := j.c
+	var success bool
+
+	j.preamble()
+	defer j.cleanup(&success)
+
+	// compile accumulated jit expression and copy result to stack.
+	// on amd64 and arm64, in a func(env *Env) ...
+	// the return value is on the stack at [RSP+16]
+	jc := j.Comp()
+	jc.Stmt2(jit.ASSIGN, jc.MakeParam(16, e.Jit.Kind()), e.Jit)
+	machinecode := jc.Assemble()
+	if jit_verbose > 1 {
+		output.Debugf("jit compiled:  %v", jc.Code())
+		output.Debugf("jit assembled: %v", machinecode)
+	}
+	fun := j.makeFun(kind)
+	success = true
+	return fun
+}
+
+// implementation of Jit.Stmt
+func (j *Jit) stmt0(t jit.Stmt) Stmt {
+	var success bool
+
+	j.preamble()
+	defer j.cleanup(&success)
+
+	jc := j.Comp()
+	jc.Stmt(t)
+	machinecode := jc.Assemble()
+	if jit_verbose > 1 {
+		output.Debugf("jit compiled:  %v", jc.Code())
+		output.Debugf("jit assembled: %v", machinecode)
+	}
+	stmt := j.makeStmt()
+	success = true
+	return stmt
+}
+
+func (j *Jit) preamble() {
+	jc := j.Comp()
 	jc.ClearCode()
 	jc.ClearRegs()
 	jc.Asm().RegIncUse(jc.RegIdConfig.RVAR)
@@ -315,33 +415,22 @@ func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
 	jc.Stmt2(jit.ASSIGN, rvar, jc.MakeParam(8, jit.Uint64))
 	// rvar = env.Ints equivalent to rvar = &env.Ints[0]
 	jc.Stmt2(jit.ASSIGN, rvar, jit.NewExprIdx(rvar, envInts.index, jit.Uint64))
-	// compile accumulated jit expression and copy result to stack.
-	// on amd64 and arm64, in a func(env *Env) ...
-	// the return value is on the stack at [RSP+16]
-	jc.Stmt2(jit.ASSIGN, jc.MakeParam(16, e.Jit.Kind()), e.Jit)
-	var assembled bool
-	defer func() {
-		jc.ClearCode()
-		jc.ClearRegs()
-		if !assembled {
-			err := recover()
-			if jit_verbose > 0 {
-				output.Debugf("jit failed: %v", err)
-			}
+}
+
+func (j *Jit) cleanup(success *bool) {
+	jc := j.Comp()
+	jc.ClearCode()
+	jc.ClearRegs()
+	if !*success {
+		err := recover()
+		if jit_verbose > 0 {
+			output.Debugf("jit failed: %v", err)
 		}
-	}()
-	machinecode := jc.Assemble()
-	if jit_verbose > 1 {
-		output.Debugf("jit compiled:  %v", jc.Code())
-		output.Debugf("jit assembled: %v", machinecode)
 	}
-	fun := j.makeFun(kind)
-	assembled = true
-	return fun
 }
 
 func (j *Jit) makeFun(kind jit.Kind) I {
-	asm := j.c.Asm()
+	asm := j.Asm()
 	switch kind {
 	case jit.Bool:
 		var fun func(*Env) bool
@@ -405,5 +494,18 @@ func (j *Jit) makeFun(kind jit.Kind) I {
 	*/
 	default:
 		return nil
+	}
+}
+
+func (j *Jit) makeStmt() Stmt {
+	asm := j.Asm()
+	var fun func(*Env)
+	asm.Func(&fun)
+	// TODO jit-generate the following
+	return func(env *Env) (Stmt, *Env) {
+		fun(env)
+		ip := env.IP + 1
+		env.IP = ip
+		return env.Code[ip], env
 	}
 }

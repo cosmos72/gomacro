@@ -17,7 +17,7 @@
 package jit
 
 import (
-	"fmt"
+	"errors"
 	"reflect"
 
 	"github.com/cosmos72/gomacro/jit/asm"
@@ -145,9 +145,9 @@ func SizeOf(a Arg) Size {
 	return common.SizeOf(a)
 }
 
-var errMakeVarUpn = fmt.Errorf("unimplemented: jit.MakeVar with upn != 0")
-var errMakeVarIdx = fmt.Errorf("jit.MakeVar: index too large, the byte offset overflows int32")
-var errMakeVarKind = fmt.Errorf("jit.MakeVar: invalid kind")
+var errMakeVarUpn = errors.New("unimplemented: jit.MakeVar with upn != 0")
+var errMakeVarIdx = errors.New("jit.MakeVar: index too large, the byte offset overflows int32")
+var errMakeVarKind = errors.New("jit.MakeVar: invalid kind")
 
 // local variable
 func MakeVar(idx int, upn int, kind Kind, config RegIdConfig) (Mem, error) {

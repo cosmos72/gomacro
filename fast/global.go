@@ -397,6 +397,10 @@ func (va *Var) AsPlace() *Place {
 	return &Place{Var: *va}
 }
 
+func (va *Var) String() string {
+	return fmt.Sprintf("Var{%v %q %v idx=%v upn=%v}", va.Desc.Class(), va.Name, va.Type, va.Desc.Index(), va.Upn)
+}
+
 // Place represents a settable place or, equivalently, its address
 type Place struct {
 	Var

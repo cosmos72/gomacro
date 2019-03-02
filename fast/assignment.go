@@ -311,6 +311,10 @@ func (c *Comp) assign1(lhs ast.Expr, op token.Token, rhs ast.Expr, place *Place,
 // SetVar compiles an assignment to a variable:
 // 'variable op constant' and 'variable op expression'
 func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
+	if stmt := c.Jit.SetVar(va, op, init); stmt != nil {
+		c.append(stmt)
+		return
+	}
 	c.setVar(va, op, init)
 }
 

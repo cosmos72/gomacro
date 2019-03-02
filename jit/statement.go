@@ -135,7 +135,13 @@ func (c *Comp) Stmt2(inst Inst2, tdst Expr, tsrc Expr) {
 	// evaluate left-hand side first
 	dst, dsoft := c.Expr(tdst)
 	checkAssignable(dst)
-	src, ssoft := c.expr(tsrc, dst)
+	var dto Expr
+	if inst == ASSIGN {
+		// we can overwrite dst early
+		// only if it's a plain ASSIGN
+		dto = dst
+	}
+	src, ssoft := c.expr(tsrc, dto)
 	c.code.Inst2(inst, dst, src)
 	c.freeTempReg(dsoft)
 	if ssoft.id != dsoft.id {
