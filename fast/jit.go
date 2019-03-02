@@ -37,12 +37,6 @@ type jitField struct {
 	index jit.Const
 }
 
-func makeJitField(offset uintptr, kind jit.Kind) jitField {
-	return jitField{
-		index: jit.ConstUintptr(offset / uintptr(kind.Size())),
-	}
-}
-
 var (
 	jit_verbose int  = 0
 	jit_enabled bool = false
@@ -85,6 +79,12 @@ func jitExtractEnvFields() {
 	}
 	envCode = makeJitField(f.Offset, jit.Uintptr)
 	envOk = true
+}
+
+func makeJitField(offset uintptr, kind jit.Kind) jitField {
+	return jitField{
+		index: jit.ConstUintptr(offset / uintptr(kind.Size())),
+	}
 }
 
 func jitCheckSupported() {
@@ -205,8 +205,14 @@ func (j *Jit) Cast(e *Expr, t xr.Type, xe *Expr) *Expr {
 
 // if supported, set e.Jit to jit expression that will compute *xe
 // always returns e.
-// unimplemented.
-func (j *Jit) Deref(e *Expr) *Expr {
+func (j *Jit) Deref(e *Expr, xe *Expr) *Expr {
+	if j != nil && e.Jit == nil && xe.Jit != nil {
+		kind := jit.Kind(e.Type.Elem().Kind())
+		if kind.Size() != 0 {
+			e.Jit = jit.NewExprIdx(xe.Jit, jit.ConstUint64(0), kind)
+			output.Debugf("jit deref: %v", e.Jit)
+		}
+	}
 	return e
 }
 
