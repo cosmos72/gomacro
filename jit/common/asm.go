@@ -22,6 +22,7 @@ type Asm struct {
 	softRegs      SoftRegIds
 	save          Save
 	regIds        RegIds
+	initialRegIds RegIds
 	arch          Arch
 	pool          *MemPool
 	cache         Cache
@@ -85,6 +86,7 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	asm.pool = nil
 	asm.cache = nil
 	arch.Init(asm, saveStart, saveEnd)
+	asm.initialRegIds.Copy(&asm.regIds)
 	arch.Prologue(asm)
 	return asm
 }
@@ -95,6 +97,12 @@ func (asm *Asm) Code() MachineCode {
 
 func (asm *Asm) ClearCode() *Asm {
 	asm.code.Bytes = nil
+	return asm
+}
+
+// forget all allocated registers
+func (asm *Asm) ClearRegs() *Asm {
+	asm.regIds.Copy(&asm.initialRegIds)
 	return asm
 }
 

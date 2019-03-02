@@ -24,6 +24,7 @@ import (
 
 type Inst1 uint8 // unary statement operator
 type Inst2 uint8 // binary statement operator
+type Inst3 uint8 // ternary statement operator
 
 const (
 	INC  = Inst1(asm.INC)  // ++
@@ -45,6 +46,7 @@ const (
 	AND_NOT_ASSIGN = Inst2(asm.AND_NOT2)
 	LAND_ASSIGN    = Inst2(asm.LAND2)
 	LOR_ASSIGN     = Inst2(asm.LOR2)
+	IDX_ASSIGN     = Inst3(asm.SETIDX) // a[b] = val
 )
 
 var inst1name = map[Inst1]string{
@@ -69,6 +71,10 @@ var inst2name = map[Inst2]string{
 	AND_NOT_ASSIGN: "&^=",
 	LAND_ASSIGN:    "&&=",
 	LOR_ASSIGN:     "||=",
+}
+
+var inst3name = map[Inst3]string{
+	IDX_ASSIGN: "[]=",
 }
 
 // =======================================================
@@ -121,6 +127,33 @@ func (inst Inst2) String() string {
 	s, ok := inst2name[inst]
 	if !ok {
 		s = fmt.Sprintf("Inst2(%d)", uint8(inst))
+	}
+	return s
+}
+
+// =======================================================
+
+func (inst Inst3) Valid() bool {
+	_, ok := inst3name[inst]
+	return ok
+}
+
+func (inst Inst3) Validate() {
+	if !inst.Valid() {
+		errorf("unknown Inst3: %v", inst)
+	}
+}
+
+// convert to asm.Op3
+func (inst Inst3) Asm() asm.Op3 {
+	inst.Validate()
+	return asm.Op3(inst)
+}
+
+func (inst Inst3) String() string {
+	s, ok := inst3name[inst]
+	if !ok {
+		s = fmt.Sprintf("Inst3(%d)", uint8(inst))
 	}
 	return s
 }

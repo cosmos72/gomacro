@@ -176,8 +176,8 @@ const (
 	LAND3    = Op3(LAND2)
 	LOR3     = Op3(LOR2)
 
-	GETIDX = Op3(token.LBRACK) // val = a[b]
-	SETIDX = Op3(token.RBRACK) // a[b] = val
+	GETIDX = Op3(token.LBRACK) // a[b] -> val
+	SETIDX = Op3(token.RBRACK) // a[b] <- val
 )
 
 var op3Name = map[Op3]string{

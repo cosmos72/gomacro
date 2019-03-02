@@ -148,6 +148,10 @@ const (
 	// Op4
 )
 
+func ConstInt(val int) Const {
+	return common.ConstInt(val)
+}
+
 func ConstInt8(val int8) Const {
 	return common.ConstInt8(val)
 }
@@ -164,6 +168,10 @@ func ConstInt64(val int64) Const {
 	return common.ConstInt64(val)
 }
 
+func ConstUint(val uint) Const {
+	return common.ConstUint(val)
+}
+
 func ConstUint8(val uint8) Const {
 	return common.ConstUint8(val)
 }
@@ -178,6 +186,10 @@ func ConstUint32(val uint32) Const {
 
 func ConstUint64(val uint64) Const {
 	return common.ConstUint64(val)
+}
+
+func ConstUintptr(val uintptr) Const {
+	return common.ConstUintptr(val)
 }
 
 func ConstInterface(ival interface{}, t reflect.Type) (Const, error) {

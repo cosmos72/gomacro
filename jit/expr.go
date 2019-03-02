@@ -55,6 +55,10 @@ func NewExpr2(op Op2, x Expr, y Expr) *Expr2 {
 	return &Expr2{x, y, op, x.Kind()}
 }
 
+func NewExprIdx(x Expr, y Expr, kind Kind) *Expr2 {
+	return &Expr2{x, y, IDX, kind}
+}
+
 // implement Expr interface
 func (e *Expr1) Kind() Kind {
 	return e.K

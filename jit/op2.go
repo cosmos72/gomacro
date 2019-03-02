@@ -48,6 +48,7 @@ const (
 		LEQ     = Op2(common.LEQ3)
 		GEQ     = Op2(common.GEQ3)
 	*/
+	IDX = Op2(common.GETIDX) // a[b]
 )
 
 var op2name = map[Op2]string{
@@ -72,6 +73,7 @@ var op2name = map[Op2]string{
 		LEQ    :"<=",
 		GEQ    :">=",
 	*/
+	IDX: "[]",
 }
 
 // =======================================================

@@ -53,6 +53,13 @@ func (c *Code) Inst2(inst Inst2, src Expr, dst Expr) *Code {
 	return c
 }
 
+func (c *Code) Inst3(inst Inst3, src Expr, dst Expr, darg Expr) *Code {
+	asrc, adst, adarg := asmArg(src), asmArg(dst), asmArg(darg)
+	// asm.SETIDX arguments are dst, doffset, src
+	*c = append(*c, inst.Asm(), adst, adarg, asrc)
+	return c
+}
+
 // ALLOC/FREE
 func (c *Code) SoftReg(op asm.Op2Misc, id SoftRegId, kind Kind) SoftReg {
 	*c = append(*c, op, id, kind)

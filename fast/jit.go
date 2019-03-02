@@ -32,34 +32,50 @@ type Jit struct {
 	c jit.Comp
 }
 
+type jitField struct {
+	index jit.Const
+	kind  jit.Kind
+}
+
+func makeJitField(offset uintptr, kind jit.Kind) jitField {
+	return jitField{
+		index: jit.ConstUintptr(offset / uintptr(kind.Size())),
+		kind:  kind,
+	}
+}
+
 var (
 	JIT_VERBOSE int
 
-	// offset of Env struct fields
-	envInts int32 = -1 // offset of Env.Ints
-	envIP   int32 = -1 // offset of Env.IP
-	envCode int32 = -1 // offset of Env.Code
+	envInts jitField // description of Env.Ints struct field
+	envIP   jitField // description of Env.IP   struct field
+	envCode jitField // description of Env.Code struct field
 	envOk   bool
 )
 
 func init() {
 	JIT_VERBOSE, _ = strconv.Atoi(os.Getenv("GOMACRO_JIT_V"))
+	// JIT_VERBOSE = 2
+
+	var sizeofUintptr = uintptr(jit.Uintptr.Size())
 
 	f, ok := r.TypeOf((*Env)(nil)).Elem().FieldByName("Ints")
-	if !ok || f.Offset != uintptr(int32(f.Offset)) {
+	if !ok || f.Offset%sizeofUintptr != 0 {
 		return
 	}
-	envInts = int32(f.Offset)
+	envInts = makeJitField(f.Offset, jit.Uintptr)
+
 	f, ok = r.TypeOf((*Env)(nil)).Elem().FieldByName("IP")
-	if !ok || f.Offset != uintptr(int32(f.Offset)) {
+	if !ok || f.Offset%f.Type.Size() != 0 {
 		return
 	}
-	envIP = int32(f.Offset)
+	envIP = makeJitField(f.Offset, jit.Kind(f.Type.Kind()))
+
 	f, ok = r.TypeOf((*Env)(nil)).Elem().FieldByName("Code")
-	if !ok || f.Offset != uintptr(int32(f.Offset)) {
+	if !ok || f.Offset%sizeofUintptr != 0 {
 		return
 	}
-	envCode = int32(f.Offset)
+	envCode = makeJitField(f.Offset, jit.Uintptr)
 	envOk = true
 
 	// stmtNop = jitMakeInterpNop()
@@ -68,34 +84,30 @@ func init() {
 
 func jitMakeInterpNop() Stmt {
 	jc := jit.New()
-	r := jc.Asm().RegAlloc(jit.Uint64)
-	s := jc.Asm().RegAlloc(jit.Uint64)
-	renv := jc.Asm().RegAlloc(jit.Uint64)
-	renvid := renv.RegId()
+	renv := jc.AllocSoftReg(jit.Uint64)
+	s := jc.AllocSoftReg(jit.Uintptr)
+	t := jc.AllocSoftReg(envIP.kind)
 	// on amd64 and arm64, in a func(env *Env) ...
 	// the parameter env is on the stack at [RSP+8]
-	env := jit.MakeParam(8, jit.Uint64, jc.RegIdConfig)
-	// copy env from stack to renv register
-	jc.Stmt2(jit.ASSIGN, renv, env)
-	// copy env.IP to r
-	mip := jit.MakeMem(envIP, renvid, jit.Uint64)
-	jc.Stmt2(jit.ASSIGN, r, mip)
-	// increment r
-	jc.Stmt1(jit.INC, r)
-	// copy r to env.IP
-	jc.Stmt2(jit.ASSIGN, mip, r)
-	// multiply r by sizeof(Stmt)
-	jc.Stmt2(jit.MUL_ASSIGN, r, jit.MakeConst(8, jit.Uint64))
-	// copy &env.Code[0] to s
-	jc.Stmt2(jit.ASSIGN, s, jit.MakeMem(envCode, renvid, jit.Uint64))
-	// add r (== env.IP) to s (== &env.Code[0]) to get &env.Code[env.IP]
-	jc.Stmt2(jit.ADD_ASSIGN, s, r)
-	// dereference s to get env.Code[env.IP]
-	jc.Stmt2(jit.ASSIGN, s, jit.MakeMem(0, s.RegId(), jit.Uint64))
-	// copy env from renv register to stack
-	jc.Stmt2(jit.ASSIGN, jit.MakeParam(24, jit.Uint64, jc.RegIdConfig), renv)
-	// copy env.Code[env.IP] from s register to stack
-	jc.Stmt2(jit.ASSIGN, jit.MakeParam(16, jit.Uint64, jc.RegIdConfig), s)
+	// renv = stack[env_param]
+	jc.Stmt2(jit.ASSIGN, renv, jc.MakeParam(8, jit.Uint64))
+	// t = env.IP
+	jc.Stmt2(jit.ASSIGN, t, jit.NewExprIdx(renv, envIP.index, envIP.kind))
+	// t++
+	jc.Stmt1(jit.INC, t)
+	// env.IP = t
+	jc.Stmt3(jit.IDX_ASSIGN, renv, envIP.index, t)
+	// s = env.Code
+	jc.Stmt2(jit.ASSIGN, s, jit.NewExprIdx(renv, envCode.index, jit.Uintptr))
+	// s = s[t] i.e. s = env.Code[t] i.e. s = env.Code[env.IP+1]
+	jc.Stmt2(jit.ASSIGN, s, jit.NewExprIdx(s, t, jit.Uintptr))
+	// stack[env_result] = renv
+	jc.Stmt2(jit.ASSIGN, jc.MakeParam(24, jit.Uint64), renv)
+	// stack[stmt_result] = s, with s == env.Code[env.IP+1]
+	jc.Stmt2(jit.ASSIGN, jc.MakeParam(16, jit.Uint64), s)
+	jc.FreeSoftReg(t)
+	jc.FreeSoftReg(s)
+	jc.FreeSoftReg(renv)
 	var f func(*Env) (Stmt, *Env)
 	jc.Func(&f)
 	return f
@@ -276,26 +288,23 @@ func (j *Jit) Fun(e *Expr) *Expr {
 func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
 	jc := j.c
 	jc.ClearCode()
+	jc.ClearRegs()
+	jc.Asm().RegIncUse(jc.RegIdConfig.RVAR)
 	// on amd64 and arm64, in a func(env *Env) ...
 	// the parameter env is on the stack at [RSP+8]
-	env := jit.MakeParam(8, jit.Uint64, jc.RegIdConfig)
-	rvarid := jc.RegIdConfig.RVAR
-	rvar := jit.MakeReg(rvarid, jit.Uint64)
-	// copy env from stack to RVAR
-	jc.Stmt2(jit.ASSIGN, rvar, env)
-	// copy &env.Ints[0] to RVAR
-	jc.Stmt2(jit.ASSIGN, rvar, jit.MakeMem(envInts, rvarid, jit.Uint64))
-	// compile accumulated jit expression
-	val, softval := jc.Expr(e.Jit)
-	// copy result to stack.
+	rvar := jit.MakeReg(jc.RegIdConfig.RVAR, jit.Uint64)
+	// env = stack[env_param]
+	jc.Stmt2(jit.ASSIGN, rvar, jc.MakeParam(8, jit.Uint64))
+	// rvar = env.Ints equivalent to rvar = &env.Ints[0]
+	jc.Stmt2(jit.ASSIGN, rvar, jit.NewExprIdx(rvar, envInts.index, jit.Uint64))
+	// compile accumulated jit expression and copy result to stack.
 	// on amd64 and arm64, in a func(env *Env) ...
 	// the return value is on the stack at [RSP+16]
-	mret := jit.MakeParam(16, val.Kind(), jc.RegIdConfig)
-	jc.Stmt2(jit.ASSIGN, mret, val)
-	jc.FreeSoftReg(softval)
+	jc.Stmt2(jit.ASSIGN, jc.MakeParam(16, e.Jit.Kind()), e.Jit)
 	var assembled bool
 	defer func() {
 		jc.ClearCode()
+		jc.ClearRegs()
 		if !assembled {
 			err := recover()
 			if JIT_VERBOSE > 0 {

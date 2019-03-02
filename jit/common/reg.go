@@ -117,6 +117,20 @@ type RegIds struct {
 	rlo, rhi RegId
 }
 
+func (rs *RegIds) Copy(other *RegIds) {
+	if rs == other {
+		return
+	}
+	rs.inuse = make(map[RegId]uint32)
+	rs.first = other.first
+	rs.curr = other.curr
+	rs.rlo = other.rlo
+	rs.rhi = other.rhi
+	for id, use := range other.inuse {
+		rs.inuse[id] = use
+	}
+}
+
 func (rs *RegIds) IsUsed(id RegId) bool {
 	return id.Valid() && rs.inuse[id] != 0
 }

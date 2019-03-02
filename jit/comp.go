@@ -100,6 +100,14 @@ func (c *Comp) ClearCode() {
 	}
 }
 
+// forget all allocated registers
+func (c *Comp) ClearRegs() {
+	c.nextSoftReg = 0
+	if c.asm != nil {
+		c.asm.ClearRegs()
+	}
+}
+
 // return assembler
 func (c *Comp) Asm() *Asm {
 	if c.asm == nil {
@@ -160,6 +168,10 @@ func checkAssignable(e Expr) {
 	default:
 		errorf("cannot assign to %v", e)
 	}
+}
+
+func (c *Comp) MakeParam(off int32, kind Kind) Mem {
+	return MakeParam(off, kind, c.RegIdConfig)
 }
 
 func (c *Comp) MakeVar(idx int, upn int, kind Kind) Mem {

@@ -39,6 +39,15 @@ type Stmt2 struct {
 	Inst Inst2
 }
 
+// ternary statement X Y Inst Z,
+// for example X[Y] = Z
+type Stmt3 struct {
+	Dst  Expr
+	DArg Expr
+	Src  Expr
+	Inst Inst3
+}
+
 // N-ary assignment
 // a,b,c... = p,q,r...
 type StmtN struct {
@@ -54,12 +63,19 @@ func NewStmt2(inst Inst2, dst Expr, src Expr) *Stmt2 {
 	return &Stmt2{dst, src, inst}
 }
 
+func NewStmt3(inst Inst3, dst Expr, darg Expr, src Expr) *Stmt3 {
+	return &Stmt3{dst, darg, src, inst}
+}
+
 func NewStmtN(dst []Expr, src []Expr) *StmtN {
 	return &StmtN{dst, src}
 }
 
 // implement Stmt interface
 func (t *Stmt1) stmt() {
+}
+
+func (t *Stmt3) stmt() {
 }
 
 func (t *Stmt2) stmt() {
@@ -81,6 +97,10 @@ func (t *Stmt2) String() string {
 	return fmt.Sprintf("%v %v %v;", t.Dst, t.Inst, t.Src)
 }
 
+func (t *Stmt3) String() string {
+	return fmt.Sprintf("%v %v %v %v;", t.Dst, t.DArg, t.Inst, t.Src)
+}
+
 // compile statement
 func (c *Comp) Stmt(t Stmt) {
 	switch t := t.(type) {
@@ -88,6 +108,8 @@ func (c *Comp) Stmt(t Stmt) {
 		c.Stmt1(t.Inst, t.Dst)
 	case *Stmt2:
 		c.Stmt2(t.Inst, t.Dst, t.Src)
+	case *Stmt3:
+		c.Stmt3(t.Inst, t.Dst, t.DArg, t.Src)
 	case *StmtN:
 		c.StmtN(t.Dst, t.Src)
 	default:
@@ -116,6 +138,18 @@ func (c *Comp) Stmt2(inst Inst2, tdst Expr, tsrc Expr) {
 	if ssoft.id != dsoft.id {
 		c.FreeSoftReg(ssoft)
 	}
+}
+
+// compile ternary statement
+func (c *Comp) Stmt3(inst Inst3, tdst Expr, tdarg Expr, tsrc Expr) {
+	// evaluate left-hand side first
+	dst, dsoft := c.Expr(tdst)
+	darg, dasoft := c.Expr(tdarg)
+	src, ssoft := c.Expr(tsrc)
+	c.code.Inst3(inst, dst, darg, src)
+	c.FreeSoftReg(dsoft)
+	c.FreeSoftReg(dasoft)
+	c.FreeSoftReg(ssoft)
 }
 
 // compile n-ary statement

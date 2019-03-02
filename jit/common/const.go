@@ -96,6 +96,10 @@ func MakeConst(val int64, kind Kind) Const {
 	return Const{val: val, kind: kind}
 }
 
+func ConstInt(val int) Const {
+	return Const{val: int64(val), kind: Int}
+}
+
 func ConstInt8(val int8) Const {
 	return Const{val: int64(val), kind: Int8}
 }
@@ -112,6 +116,10 @@ func ConstInt64(val int64) Const {
 	return Const{val: val, kind: Int64}
 }
 
+func ConstUint(val uint) Const {
+	return Const{val: int64(val), kind: Uint}
+}
+
 func ConstUint8(val uint8) Const {
 	return Const{val: int64(val), kind: Uint8}
 }
@@ -126,6 +134,10 @@ func ConstUint32(val uint32) Const {
 
 func ConstUint64(val uint64) Const {
 	return Const{val: int64(val), kind: Uint64}
+}
+
+func ConstUintptr(val uintptr) Const {
+	return Const{val: int64(val), kind: Uintptr}
 }
 
 var constInterfaceFail = fmt.Errorf("unsupported jit constant kind")
