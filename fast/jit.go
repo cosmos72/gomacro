@@ -113,40 +113,6 @@ func jitCheckSupported() {
 	// stmtNop = jitMakeInterpNop()
 }
 
-func jitMakeInterpNop() Stmt {
-	jc := jit.New()
-	renv := jc.NewSoftReg(jit.Uint64)
-	s := jc.NewSoftReg(jit.Uint64)
-	t := jc.NewSoftReg(jit.Uint64)
-	// on amd64 and arm64, in a func(env *Env) ...
-	// the parameter env is on the stack at [RSP+8]
-	source := jit.Source{
-		// renv = stack[env_param]
-		jit.ASSIGN, renv, jc.MakeParam(8, jit.Uint64),
-		// t = env.IP
-		jit.ASSIGN, t, jit.NewExprIdx(renv, envIP.index, jit.Uint64),
-		// t++
-		jit.INC, t,
-		// env.IP = t
-		jit.IDX_ASSIGN, renv, envIP.index, t,
-		// s = env.Code
-		jit.ASSIGN, s, jit.NewExprIdx(renv, envCode.index, jit.Uint64),
-		// s = s[t] i.e. s = env.Code[t] i.e. s = env.Code[env.IP+1]
-		jit.ASSIGN, s, jit.NewExprIdx(s, t, jit.Uintptr),
-		// stack[env_result] = renv
-		jit.ASSIGN, jc.MakeParam(24, jit.Uint64), renv,
-		// stack[stmt_result] = s, with s == env.Code[env.IP+1]
-		jit.ASSIGN, jc.MakeParam(16, jit.Uint64), s,
-		jit.FREE, renv,
-		jit.FREE, s,
-		jit.FREE, t,
-	}
-	jc.Compile(source)
-	var f func(*Env) (Stmt, *Env)
-	jc.Func(&f)
-	return f
-}
-
 func NewJit() *Jit {
 	if !jit_enabled {
 		return nil
@@ -299,7 +265,6 @@ func (j *Jit) IntSymbol(e *Expr, idx int, upn int) *Expr {
 }
 
 // if supported, return a jit-compiled statement that will perform va OP= init
-// TODO: not yet implemented
 func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 	if jit_verbose > 2 && j != nil {
 		output.Debugf("jit to compile assignment: %v %v %v with e.Jit = %v", va, op, init, init.Jit)
@@ -337,10 +302,21 @@ func (j *Jit) MakeVar(va *Var) (jit.Mem, error) {
 // return nil on failure
 // TODO: optimize
 func (j *Jit) AsStmt(e *Expr) Stmt {
-	// if possible, replace e.Fun a jit-compiled equivalent function.
-	j.Fun(e)
-	// caller will use the normal funAsStmt() route to convert to statement
-	return nil
+	if j == nil || e.Jit == nil {
+		return nil
+	}
+	var success bool
+
+	j.preamble()
+	defer j.cleanup(&success)
+
+	// compile accumulated jit expression and discard the result.
+	jc := j.Comp()
+	jc.Stmt1(jit.NOP, e.Jit)
+
+	stmt := j.makeStmt()
+	success = true
+	return stmt
 }
 
 // if supported, replace e.Fun with a jit-compiled equivalent function.
@@ -349,15 +325,17 @@ func (j *Jit) Fun(e *Expr) *Expr {
 	if jit_verbose > 2 && j != nil {
 		output.Debugf("jit to compile expr: %v with e.Jit = %v", e, e.Jit)
 	}
-	if j != nil && e.Jit != nil {
-		kind := jit.Kind(e.Type.Kind())
-		if kind.Size() != 0 {
-			fun := j.fun0(e, kind)
-			if fun != nil {
-				e.Fun = fun
-				e.Jit = nil // in case we are invoked again on the same Expr
-			}
-		}
+	if j == nil || e.Jit == nil {
+		return e
+	}
+	kind := jit.Kind(e.Type.Kind())
+	if kind.Size() == 0 {
+		return e
+	}
+	fun := j.fun0(e, kind)
+	if fun != nil {
+		e.Fun = fun
+		e.Jit = nil // in case we are invoked again on the same Expr
 	}
 	return e
 }
@@ -374,10 +352,9 @@ func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
 	// the return value is on the stack at [RSP+16]
 	jc := j.Comp()
 	jc.Stmt2(jit.ASSIGN, jc.MakeParam(16, e.Jit.Kind()), e.Jit)
-	machinecode := jc.Assemble()
 	if jit_verbose > 1 {
 		output.Debugf("jit compiled:  %v", jc.Code())
-		output.Debugf("jit assembled: %v", machinecode)
+		output.Debugf("jit assembled: %v", jc.Assemble())
 	}
 	fun := j.makeFun(kind)
 	success = true
@@ -393,11 +370,7 @@ func (j *Jit) stmt0(t jit.Stmt) Stmt {
 
 	jc := j.Comp()
 	jc.Stmt(t)
-	machinecode := jc.Assemble()
-	if jit_verbose > 1 {
-		output.Debugf("jit compiled:  %v", jc.Code())
-		output.Debugf("jit assembled: %v", machinecode)
-	}
+
 	stmt := j.makeStmt()
 	success = true
 	return stmt
@@ -430,63 +403,63 @@ func (j *Jit) cleanup(success *bool) {
 }
 
 func (j *Jit) makeFun(kind jit.Kind) I {
-	asm := j.Asm()
+	jc := j.Comp()
 	switch kind {
 	case jit.Bool:
 		var fun func(*Env) bool
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Int:
 		var fun func(*Env) int
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Int8:
 		var fun func(*Env) int8
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Int16:
 		var fun func(*Env) int16
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Int32:
 		var fun func(*Env) int32
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Int64:
 		var fun func(*Env) int64
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Uint:
 		var fun func(*Env) uint
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Uint8:
 		var fun func(*Env) uint8
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Uint16:
 		var fun func(*Env) uint16
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Uint32:
 		var fun func(*Env) uint32
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Uint64:
 		var fun func(*Env) uint64
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Uintptr:
 		var fun func(*Env) uintptr
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Float32:
 		var fun func(*Env) float32
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	case jit.Float64:
 		var fun func(*Env) float64
-		asm.Func(&fun)
+		jc.Func(&fun)
 		return fun
 	/*
 		case jit.Complex64:
@@ -498,14 +471,49 @@ func (j *Jit) makeFun(kind jit.Kind) I {
 }
 
 func (j *Jit) makeStmt() Stmt {
-	asm := j.Asm()
-	var fun func(*Env)
-	asm.Func(&fun)
-	// TODO jit-generate the following
-	return func(env *Env) (Stmt, *Env) {
-		fun(env)
-		ip := env.IP + 1
-		env.IP = ip
-		return env.Code[ip], env
+	// jit-generate the following
+	/*
+		func(env *Env) (Stmt, *Env) {
+			fun(env)
+			ip := env.IP + 1
+			env.IP = ip
+			return env.Code[ip], env
+		}
+	*/
+
+	jc := j.Comp()
+	renv := jc.NewSoftReg(jit.Uint64)
+	s := jc.NewSoftReg(jit.Uint64)
+	t := jc.NewSoftReg(jit.Uint64)
+	// on amd64 and arm64, in a func(env *Env) ...
+	// the parameter env is on the stack at [RSP+8]
+	source := jit.Source{
+		// renv = stack[env_param]
+		jit.ASSIGN, renv, jc.MakeParam(8, jit.Uint64),
+		// t = env.IP
+		jit.ASSIGN, t, jit.NewExprIdx(renv, envIP.index, jit.Uint64),
+		// t++
+		jit.INC, t,
+		// env.IP = t
+		jit.IDX_ASSIGN, renv, envIP.index, t,
+		// s = env.Code
+		jit.ASSIGN, s, jit.NewExprIdx(renv, envCode.index, jit.Uint64),
+		// s = s[t] i.e. s = env.Code[t] i.e. s = env.Code[env.IP+1]
+		jit.ASSIGN, s, jit.NewExprIdx(s, t, jit.Uintptr),
+		// stack[env_result] = renv
+		jit.ASSIGN, jc.MakeParam(24, jit.Uint64), renv,
+		// stack[stmt_result] = s, with s == env.Code[env.IP+1]
+		jit.ASSIGN, jc.MakeParam(16, jit.Uint64), s,
+		jit.FREE, renv,
+		jit.FREE, s,
+		jit.FREE, t,
 	}
+	jc.Compile(source)
+	if jit_verbose > 1 {
+		output.Debugf("jit compiled:  %v", jc.Code())
+		output.Debugf("jit assembled: %v", jc.Assemble())
+	}
+	var f func(*Env) (Stmt, *Env)
+	jc.Func(&f)
+	return f
 }
