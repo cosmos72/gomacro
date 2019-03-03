@@ -246,8 +246,15 @@ func (j *Jit) BinaryExpr(e *Expr, op token.Token, xe *Expr, ye *Expr) *Expr {
 // if supported, set e.Jit to jit expression that will read local variable
 // always returns e.
 func (j *Jit) Symbol(e *Expr) *Expr {
-	if j != nil && e.Jit == nil && e.Sym != nil {
-		e.Jit = j.ReadSymbol(e.Sym)
+	if j == nil || e.Jit != nil || e.Sym == nil || e.Sym.Desc.Class() != IntBind {
+		return e
+	}
+	sym := e.Sym
+	if sym.Upn == 0 {
+		mem, err := jit.MakeVar(sym.Desc.Index(), jit.Kind(sym.Type.Kind()), j.RegIdConfig())
+		if err == nil {
+			e.Jit = mem
+		}
 	}
 	return e
 }
@@ -282,22 +289,6 @@ func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 		}
 		return j.stmt0(jit.NewStmt2(inst, jvar, init.Jit))
 	*/
-}
-
-func (j *Jit) ReadSymbol(sym *Symbol) jit.Expr {
-	if j == nil || sym == nil || sym.Desc.Class() != IntBind {
-		return nil
-	}
-	if sym.Upn == 0 {
-		rvar := jit.MakeReg(j.RegIdConfig().RVAR, jit.Uintptr)
-		idx := sym.Desc.Index() // index in uint64 slice Env.Ints[]
-		kind := jit.Kind(sym.Type.Kind())
-		size := int(kind.Size())
-		if size != 0 && idx*8%size == 0 {
-			return jit.NewExprIdx(rvar, jit.ConstInt(idx*8/size), kind)
-		}
-	}
-	return nil
 }
 
 // if supported, return a jit-compiled Stmt that will evaluate Expr.
