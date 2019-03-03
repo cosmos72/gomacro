@@ -28,10 +28,9 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
-func (c *Comp) placeShlConst(place *Place, val I) {
+func (c *Comp) placeShlConst(place *Place, val I) Stmt {
 	if isLiteralNumber(val, 0) {
-		c.placeForSideEffects(place)
-		return
+		return c.placeForSideEffects(place)
 	}
 
 	{
@@ -114,11 +113,10 @@ func (c *Comp) placeShlConst(place *Place, val I) {
 		if ret == nil {
 			c.Errorf("invalid operator %s= on <%v>", token.SHL, place.Type)
 		}
-
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) placeShlExpr(place *Place, fun I) {
+func (c *Comp) placeShlExpr(place *Place, fun I) Stmt {
 	var ret Stmt
 	lhsfun := place.Fun
 	keyfun := place.MapKey
@@ -512,13 +510,11 @@ func (c *Comp) placeShlExpr(place *Place, fun I) {
 	if ret == nil {
 		c.Errorf("invalid operator %s= on <%v>", token.SHL, place.Type)
 	}
-
-	c.append(ret)
+	return ret
 }
-func (c *Comp) placeShrConst(place *Place, val I) {
+func (c *Comp) placeShrConst(place *Place, val I) Stmt {
 	if isLiteralNumber(val, 0) {
-		c.placeForSideEffects(place)
-		return
+		return c.placeForSideEffects(place)
 	}
 
 	{
@@ -601,11 +597,10 @@ func (c *Comp) placeShrConst(place *Place, val I) {
 		if ret == nil {
 			c.Errorf("invalid operator %s= on <%v>", token.SHR, place.Type)
 		}
-
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) placeShrExpr(place *Place, fun I) {
+func (c *Comp) placeShrExpr(place *Place, fun I) Stmt {
 	var ret Stmt
 	lhsfun := place.Fun
 	keyfun := place.MapKey
@@ -999,16 +994,14 @@ func (c *Comp) placeShrExpr(place *Place, fun I) {
 	if ret == nil {
 		c.Errorf("invalid operator %s= on <%v>", token.SHR, place.Type)
 	}
-
-	c.append(ret)
+	return ret
 }
-func (c *Comp) placeQuoPow2(place *Place, val I) bool {
+func (c *Comp) placeQuoPow2(place *Place, val I) Stmt {
 	if isLiteralNumber(val, 0) {
 		c.Errorf("division by %v <%v>", val, r.TypeOf(val))
-		return false
+		return nil
 	} else if isLiteralNumber(val, 1) {
-		c.placeForSideEffects(place)
-		return true
+		return c.placeForSideEffects(place)
 	}
 
 	ypositive := true
@@ -1028,16 +1021,16 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 	case r.Uint:
 		y = yv.Uint()
 	default:
-		return false
+		return nil
 	}
 	if !isPowerOfTwo(y) {
-		return false
+		return nil
 	}
 
 	shift := integerLen(y) - 1
 
 	if !ypositive {
-		return false
+		return nil
 	}
 
 	var roundup int64
@@ -1132,8 +1125,7 @@ func (c *Comp) placeQuoPow2(place *Place, val I) bool {
 		if ret == nil {
 			c.Errorf("invalid operator %s= on <%v>", token.QUO, place.Type)
 		}
-
-		c.append(ret)
+		return ret
 	}
-	return true
+
 }

@@ -155,6 +155,14 @@ func (j *Jit) Log(e *Expr) {
 	}
 }
 
+// return true if e can be jit-compiled
+func (j *Jit) Can(e *Expr) bool {
+	if j != nil && e.Jit == nil && e.Const() {
+		j.Const(e)
+	}
+	return e.Jit != nil
+}
+
 // if supported, set e.Jit to jit constant == e.Lit.Value
 // always returns e.
 func (j *Jit) Const(e *Expr) *Expr {
@@ -167,9 +175,9 @@ func (j *Jit) Const(e *Expr) *Expr {
 			c, err := jit.ConstInterface(e.Lit.Value, e.Lit.Type.ReflectType())
 			if err == nil {
 				e.Jit = c
-				j.Log(e)
 			}
 		}
+		j.Log(e)
 	}
 	return e
 }
@@ -177,12 +185,9 @@ func (j *Jit) Const(e *Expr) *Expr {
 // if supported, set e.Jit to jit expression that will compute xe
 // always returns e.
 func (j *Jit) Identity(e *Expr, xe *Expr) *Expr {
-	if j != nil && e.Jit == nil {
-		j.Const(xe)
-		if xe.Jit != nil {
-			e.Jit = xe.Jit
-			j.Log(e)
-		}
+	if e.Jit == nil && j.Can(xe) {
+		e.Jit = xe.Jit
+		j.Log(e)
 	}
 	return e
 }
@@ -190,14 +195,11 @@ func (j *Jit) Identity(e *Expr, xe *Expr) *Expr {
 // if supported, set e.Jit to jit expression that will compute t(xe)
 // always returns e.
 func (j *Jit) Cast(e *Expr, t xr.Type, xe *Expr) *Expr {
-	if j != nil && e.Jit == nil {
-		j.Const(xe)
-		if xe.Jit != nil {
-			jop, err := jit.KindOp1(t.Kind())
-			if err == nil {
-				e.Jit = jit.NewExpr1(jop, xe.Jit)
-				j.Log(e)
-			}
+	if e.Jit == nil && j.Can(xe) {
+		jop, err := jit.KindOp1(t.Kind())
+		if err == nil {
+			e.Jit = jit.NewExpr1(jop, xe.Jit)
+			j.Log(e)
 		}
 	}
 	return e
@@ -219,14 +221,11 @@ func (j *Jit) Deref(e *Expr, xe *Expr) *Expr {
 // if supported, set e.Jit to jit expression that will compute op xe
 // always returns e.
 func (j *Jit) UnaryExpr(e *Expr, op token.Token, xe *Expr) *Expr {
-	if j != nil && e.Jit == nil {
-		j.Const(xe)
-		if xe.Jit != nil {
-			jop, err := jit.TokenOp1(op)
-			if err == nil {
-				e.Jit = jit.NewExpr1(jop, xe.Jit)
-				j.Log(e)
-			}
+	if e.Jit == nil && j.Can(xe) {
+		jop, err := jit.TokenOp1(op)
+		if err == nil {
+			e.Jit = jit.NewExpr1(jop, xe.Jit)
+			j.Log(e)
 		}
 	}
 	return e
@@ -235,15 +234,11 @@ func (j *Jit) UnaryExpr(e *Expr, op token.Token, xe *Expr) *Expr {
 // if supported, set e.Jit to jit expression that will compute xe op ye
 // always returns e.
 func (j *Jit) BinaryExpr(e *Expr, op token.Token, xe *Expr, ye *Expr) *Expr {
-	if j != nil && e.Jit == nil {
-		j.Const(xe)
-		j.Const(ye)
-		if xe.Jit != nil && ye.Jit != nil {
-			jop, err := jit.TokenOp2(op)
-			if err == nil {
-				e.Jit = jit.NewExpr2(jop, xe.Jit, ye.Jit)
-				j.Log(e)
-			}
+	if e.Jit == nil && j.Can(xe) && j.Can(ye) {
+		jop, err := jit.TokenOp2(op)
+		if err == nil {
+			e.Jit = jit.NewExpr2(jop, xe.Jit, ye.Jit)
+			j.Log(e)
 		}
 	}
 	return e
@@ -251,17 +246,9 @@ func (j *Jit) BinaryExpr(e *Expr, op token.Token, xe *Expr, ye *Expr) *Expr {
 
 // if supported, set e.Jit to jit expression that will access local variable
 // always returns e.
-// currently not supported, needs access to env.Vals[idx]
-// which is a reflect.Value
-func (j *Jit) Symbol(e *Expr, idx int, upn int) *Expr {
-	return e
-}
-
-// if supported, set e.Jit to jit expression that will access local variable
-// always returns e.
-func (j *Jit) IntSymbol(e *Expr, idx int, upn int) *Expr {
-	if j != nil && e.Jit == nil {
-		jvar, err := jit.MakeVar(idx, upn, jit.Kind(e.Type.Kind()), j.RegIdConfig())
+func (j *Jit) Symbol(e *Expr) *Expr {
+	if j != nil && e.Jit == nil && e.Sym != nil {
+		jvar, err := j.MakeSymbol(e.Sym)
 		if err == nil {
 			e.Jit = jvar
 			j.Log(e)
@@ -272,13 +259,17 @@ func (j *Jit) IntSymbol(e *Expr, idx int, upn int) *Expr {
 
 // if supported, return a jit-compiled statement that will perform va OP= init
 func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
-	if jit_verbose > 2 && j != nil {
-		output.Debugf("jit to compile assignment: %v %v %v with e.Jit = %v", va, op, init, init.Jit)
-	}
-	if j == nil || init.Jit == nil {
+	if j == nil {
 		return nil
 	}
-	jvar, err := j.MakeVar(va)
+	j.Can(init)
+	if jit_verbose > 2 {
+		output.Debugf("jit to compile assignment: %v %v %v with e.Jit = %v", va, op, init, init.Jit)
+	}
+	if !j.Can(init) {
+		return nil
+	}
+	jvar, err := j.MakeSymbol(va.AsSymbol())
 	if err != nil {
 		if jit_verbose > 0 {
 			output.Debugf("jit failed: %v", err)
@@ -295,18 +286,17 @@ func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 	return j.stmt0(jit.NewStmt2(inst, jvar, init.Jit))
 }
 
-var errMakeVarClass = errors.New("unimplemented: jit.MakeVar with class != IntBind")
+var errMakeVarClass = errors.New("unimplemented: jit.MakeSymbol with class != IntBind")
 
-func (j *Jit) MakeVar(va *Var) (jit.Mem, error) {
-	if va.Desc.Class() != IntBind {
+func (j *Jit) MakeSymbol(sym *Symbol) (jit.Mem, error) {
+	if j == nil || sym == nil || sym.Desc.Class() != IntBind {
 		return jit.Mem{}, errMakeVarClass
 	}
-	return jit.MakeVar(va.Desc.Index(), va.Upn, jit.Kind(va.Type.Kind()), j.RegIdConfig())
+	return jit.MakeVar(sym.Desc.Index(), sym.Upn, jit.Kind(sym.Type.Kind()), j.RegIdConfig())
 }
 
 // if supported, return a jit-compiled Stmt that will evaluate Expr.
 // return nil on failure
-// TODO: optimize
 func (j *Jit) AsStmt(e *Expr) Stmt {
 	if j == nil || e.Jit == nil {
 		return nil

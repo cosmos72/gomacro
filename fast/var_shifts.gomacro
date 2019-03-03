@@ -283,7 +283,7 @@ import (
 		switch t.Kind() {
 			~,@caselist
 		}
-		c.append(ret)
+		return ret
 	}
 }
 
@@ -303,12 +303,12 @@ import (
 		switch t.Kind() {
 			~,@caselist
 		}
-		c.append(ret)
+		return ret
 	}
 }
 
 // varShlConst compiles 'variable <<= constant'
-func (c *Comp) varShlConst(va *Var, val I) {
+func (c *Comp) varShlConst(va *Var, val I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -319,13 +319,13 @@ func (c *Comp) varShlConst(va *Var, val I) {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
 	}
 	if isLiteralNumber(val, 0) {
-		return
+		return nil
 	}
 	setplaces_depth_const; token.SHL; {int; uint; nil}
 }
 
 // varShlExpr compiles 'variable <<= expression'
-func (c *Comp) varShlExpr(va *Var, function I) {
+func (c *Comp) varShlExpr(va *Var, function I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -340,7 +340,7 @@ func (c *Comp) varShlExpr(va *Var, function I) {
 }
 
 // varShrConst compiles 'variable >>= constant'
-func (c *Comp) varShrConst(va *Var, val I) {
+func (c *Comp) varShrConst(va *Var, val I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -351,13 +351,13 @@ func (c *Comp) varShrConst(va *Var, val I) {
 		c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
 	}
 	if isLiteralNumber(val, 0) {
-		return
+		return nil
 	}
 	setplaces_depth_const; token.SHR; {int; uint; nil}
 }
 
 // varShrExpr compiles 'variable >>= expression'
-func (c *Comp) varShrExpr(va *Var, function I) {
+func (c *Comp) varShrExpr(va *Var, function I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()

@@ -241,13 +241,13 @@ import (
 }
 
 // varSetZero compiles 'variable = 0'
-func (c *Comp) varSetZero(va *Var) {
+func (c *Comp) varSetZero(va *Var) Stmt {
 	zero := xr.Zero(va.Type).Interface()
-	c.varSetConst(va, zero)
+	return c.varSetConst(va, zero)
 }
 
 // varSetConst compiles 'name = constant'
-func (c *Comp) varSetConst(va *Var, val I) {
+func (c *Comp) varSetConst(va *Var, val I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -268,11 +268,11 @@ func (c *Comp) varSetConst(va *Var, val I) {
 	default:        setplaces_const; -1
 	case c.Depth-1: setplaces_const; -2
 	}
-	c.append(ret)
+	return ret
 }
 
 // varSetExpr compiles 'name = expression'
-func (c *Comp) varSetExpr(va *Var, e *Expr) {
+func (c *Comp) varSetExpr(va *Var, e *Expr) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -287,5 +287,5 @@ func (c *Comp) varSetExpr(va *Var, e *Expr) {
 	default:        setplaces_expr; -1
 	case c.Depth-1: setplaces_expr; -2
 	}
-	c.append(ret)
+	return ret
 }

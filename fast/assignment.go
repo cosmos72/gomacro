@@ -311,11 +311,19 @@ func (c *Comp) assign1(lhs ast.Expr, op token.Token, rhs ast.Expr, place *Place,
 // SetVar compiles an assignment to a variable:
 // 'variable op constant' and 'variable op expression'
 func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
-	if stmt := c.Jit.SetVar(va, op, init); stmt != nil {
-		c.append(stmt)
+	// c.setVar() has the side effect of converting
+	// RHS untyped constants to the correct type,
+	// also needed by c.Jit.SetVar() below
+	stmt := c.setVar(va, op, init)
+	if stmt == nil {
+		// optimized away.
 		return
 	}
-	c.setVar(va, op, init)
+	if jstmt := c.Jit.SetVar(va, op, init); jstmt != nil {
+		// prefer jit-compiled statement
+		stmt = jstmt
+	}
+	c.append(stmt)
 }
 
 // SetPlace compiles an assignment to a place:
@@ -325,7 +333,10 @@ func (c *Comp) SetPlace(place *Place, op token.Token, init *Expr) {
 		c.SetVar(&place.Var, op, init)
 		return
 	}
-	c.setPlace(place, op, init)
+	// c.setPlace() has the side effect of converting
+	// RHS untyped constants to the correct type
+	stmt := c.setPlace(place, op, init)
+	c.append(stmt)
 }
 
 // LookupVar compiles the left-hand-side of an assignment, in case it's an identifier (i.e. a variable name)
@@ -418,9 +429,9 @@ func (c *Comp) placeOrAddress(in ast.Expr, opt PlaceOption, t xr.Type) *Place {
 
 // placeForSideEffects compiles the left-hand-side of a do-nothing assignment,
 // as for example *addressOfInt() += 0, in order to apply its side effects
-func (c *Comp) placeForSideEffects(place *Place) {
+func (c *Comp) placeForSideEffects(place *Place) Stmt {
 	if place.IsVar() {
-		return
+		return nil
 	}
 	var ret Stmt
 	fun := place.Fun
@@ -442,5 +453,5 @@ func (c *Comp) placeForSideEffects(place *Place) {
 			return env.Code[env.IP], env
 		}
 	}
-	c.append(ret)
+	return ret
 }

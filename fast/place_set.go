@@ -28,12 +28,12 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
-func (c *Comp) placeSetZero(place *Place) {
+func (c *Comp) placeSetZero(place *Place) Stmt {
 	rt := place.Type.ReflectType()
 	zero := r.Zero(rt).Interface()
-	c.placeSetConst(place, zero)
+	return c.placeSetConst(place, zero)
 }
-func (c *Comp) placeSetConst(place *Place, val I) {
+func (c *Comp) placeSetConst(place *Place, val I) Stmt {
 	rt := place.Type.ReflectType()
 	v := r.ValueOf(val)
 	if reflect.Type(v) == nil {
@@ -53,8 +53,7 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.append(ret)
-		return
+		return ret
 	}
 	switch reflect.Category(rt.Kind()) {
 	case r.Bool:
@@ -142,10 +141,9 @@ func (c *Comp) placeSetConst(place *Place, val I) {
 			}
 		}
 	}
-
-	c.append(ret)
+	return ret
 }
-func (c *Comp) placeSetExpr(place *Place, fun I) {
+func (c *Comp) placeSetExpr(place *Place, fun I) Stmt {
 	rt := place.Type.ReflectType()
 	lhs := place.Fun
 	var ret Stmt
@@ -164,8 +162,7 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			env.IP++
 			return env.Code[env.IP], env
 		}
-		c.append(ret)
-		return
+		return ret
 	}
 	switch rt.Kind() {
 	case r.Bool:
@@ -427,5 +424,5 @@ func (c *Comp) placeSetExpr(place *Place, fun I) {
 			}
 		}
 	}
-	c.append(ret)
+	return ret
 }

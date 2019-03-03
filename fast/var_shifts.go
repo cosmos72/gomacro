@@ -29,7 +29,7 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
-func (c *Comp) varShlConst(va *Var, val I) {
+func (c *Comp) varShlConst(va *Var, val I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -41,7 +41,7 @@ func (c *Comp) varShlConst(va *Var, val I) {
 	}
 
 	if isLiteralNumber(val, 0) {
-		return
+		return nil
 	}
 	{
 		val := r.ValueOf(val).Uint()
@@ -1497,10 +1497,10 @@ func (c *Comp) varShlConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varShlExpr(va *Var, function I) {
+func (c *Comp) varShlExpr(va *Var, function I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -2965,10 +2965,10 @@ func (c *Comp) varShlExpr(va *Var, function I) {
 			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHL, t, t2)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varShrConst(va *Var, val I) {
+func (c *Comp) varShrConst(va *Var, val I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -2980,7 +2980,7 @@ func (c *Comp) varShrConst(va *Var, val I) {
 	}
 
 	if isLiteralNumber(val, 0) {
-		return
+		return nil
 	}
 	{
 		val := r.ValueOf(val).Uint()
@@ -4436,10 +4436,10 @@ func (c *Comp) varShrConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varShrExpr(va *Var, function I) {
+func (c *Comp) varShrExpr(va *Var, function I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -5904,7 +5904,7 @@ func (c *Comp) varShrExpr(va *Var, function I) {
 			c.Errorf(`invalid operator %s= between <%v> and <%v>`, token.SHR, t, t2)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
 func asFunUint8(fun I) func(*Env) uint8 {

@@ -31,9 +31,9 @@ import (
 	"github.com/cosmos72/gomacro/base/reflect"
 )
 
-func (c *Comp) varAddConst(va *Var, val I) {
+func (c *Comp) varAddConst(va *Var, val I) Stmt {
 	if isLiteralNumber(val, 0) || val == "" {
-		return
+		return nil
 	}
 
 	{
@@ -2118,10 +2118,10 @@ func (c *Comp) varAddConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.ADD, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varAddExpr(va *Var, fun I) {
+func (c *Comp) varAddExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -4183,11 +4183,11 @@ func (c *Comp) varAddExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.ADD, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varSubConst(va *Var, val I) {
+func (c *Comp) varSubConst(va *Var, val I) Stmt {
 	if isLiteralNumber(val, 0) {
-		return
+		return nil
 	}
 
 	{
@@ -6191,10 +6191,10 @@ func (c *Comp) varSubConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.SUB, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varSubExpr(va *Var, fun I) {
+func (c *Comp) varSubExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -8176,15 +8176,13 @@ func (c *Comp) varSubExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.SUB, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varMulConst(va *Var, val I) {
+func (c *Comp) varMulConst(va *Var, val I) Stmt {
 	if isLiteralNumber(val, 0) {
-
-		c.varSetZero(va)
-		return
+		return c.varSetZero(va)
 	} else if isLiteralNumber(val, 1) {
-		return
+		return nil
 	}
 
 	{
@@ -10188,10 +10186,10 @@ func (c *Comp) varMulConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.MUL, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varMulExpr(va *Var, fun I) {
+func (c *Comp) varMulExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -12173,15 +12171,15 @@ func (c *Comp) varMulExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.MUL, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varQuoPow2(va *Var, val I) bool {
+func (c *Comp) varQuoPow2(va *Var, val I) Stmt {
 	t := va.Type
 	if isLiteralNumber(val, 0) {
 		c.Errorf("division by %v <%v>", val, t)
-		return false
+		return nil
 	} else if isLiteralNumber(val, 1) {
-		return true
+		return nil
 	}
 
 	ypositive := true
@@ -12200,10 +12198,10 @@ func (c *Comp) varQuoPow2(va *Var, val I) bool {
 	case r.Uint:
 		y = yv.Uint()
 	default:
-		return false
+		return nil
 	}
 	if !isPowerOfTwo(y) {
-		return false
+		return nil
 	}
 
 	shift := integerLen(y) - 1
@@ -13481,16 +13479,20 @@ func (c *Comp) varQuoPow2(va *Var, val I) bool {
 		}
 
 	}
-	if ret == nil {
-		return false
+	return ret
+}
+func (c *Comp) varQuoConst(va *Var, val I) Stmt {
+	if isLiteralNumber(val, 0) {
+		c.Errorf("division by %v <%T>", val, val)
+		return nil
+	} else if isLiteralNumber(val, 1) {
+		return nil
+	} else if isLiteralNumber(val, -1) {
+		return c.varMulConst(va, val)
 	}
 
-	c.append(ret)
-	return true
-}
-func (c *Comp) varQuoConst(va *Var, val I) {
-	if c.varQuoPow2(va, val) {
-		return
+	if stmt := c.varQuoPow2(va, val); stmt != nil {
+		return stmt
 	}
 
 	{
@@ -15494,10 +15496,10 @@ func (c *Comp) varQuoConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.QUO, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varQuoExpr(va *Var, fun I) {
+func (c *Comp) varQuoExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -17479,18 +17481,16 @@ func (c *Comp) varQuoExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.QUO, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varRemConst(va *Var, val I) {
+func (c *Comp) varRemConst(va *Var, val I) Stmt {
 	t := va.Type
 	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, 0) {
 			c.Errorf("division by %v <%v>", val, t)
-			return
+			return nil
 		} else if isLiteralNumber(val, 1) {
-
-			c.varSetZero(va)
-			return
+			return c.varSetZero(va)
 		}
 	}
 
@@ -18963,10 +18963,10 @@ func (c *Comp) varRemConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.REM, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varRemExpr(va *Var, fun I) {
+func (c *Comp) varRemExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -20424,17 +20424,15 @@ func (c *Comp) varRemExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.REM, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varAndConst(va *Var, val I) {
+func (c *Comp) varAndConst(va *Var, val I) Stmt {
 	t := va.Type
 	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
-			return
+			return nil
 		} else if isLiteralNumber(val, 0) {
-
-			c.varSetZero(va)
-			return
+			return c.varSetZero(va)
 		}
 	}
 
@@ -21907,10 +21905,10 @@ func (c *Comp) varAndConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.AND, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varAndExpr(va *Var, fun I) {
+func (c *Comp) varAndExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -23368,12 +23366,12 @@ func (c *Comp) varAndExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.AND, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varOrConst(va *Var, val I) {
+func (c *Comp) varOrConst(va *Var, val I) Stmt {
 	t := va.Type
 	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
-		return
+		return nil
 	}
 
 	{
@@ -24845,10 +24843,10 @@ func (c *Comp) varOrConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.OR, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varOrExpr(va *Var, fun I) {
+func (c *Comp) varOrExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -26306,12 +26304,12 @@ func (c *Comp) varOrExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.OR, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varXorConst(va *Var, val I) {
+func (c *Comp) varXorConst(va *Var, val I) Stmt {
 	t := va.Type
 	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) && isLiteralNumber(val, 0) {
-		return
+		return nil
 	}
 
 	{
@@ -27783,10 +27781,10 @@ func (c *Comp) varXorConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.XOR, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varXorExpr(va *Var, fun I) {
+func (c *Comp) varXorExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -29244,17 +29242,15 @@ func (c *Comp) varXorExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.XOR, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) varAndnotConst(va *Var, val I) {
+func (c *Comp) varAndnotConst(va *Var, val I) Stmt {
 	t := va.Type
 	if reflect.IsCategory(t.Kind(), r.Int, r.Uint) {
 		if isLiteralNumber(val, -1) {
-
-			c.varSetZero(va)
-			return
+			return c.varSetZero(va)
 		} else if isLiteralNumber(val, 0) {
-			return
+			return nil
 		}
 	}
 
@@ -30727,10 +30723,10 @@ func (c *Comp) varAndnotConst(va *Var, val I) {
 			c.Errorf(`invalid operator %s= on <%v>`, token.AND_NOT, t)
 
 		}
-		c.append(ret)
+		return ret
 	}
 }
-func (c *Comp) varAndnotExpr(va *Var, fun I) {
+func (c *Comp) varAndnotExpr(va *Var, fun I) Stmt {
 	t := va.Type
 	upn := va.Upn
 	index := va.Desc.Index()
@@ -32188,9 +32184,9 @@ func (c *Comp) varAndnotExpr(va *Var, fun I) {
 		c.Errorf(`invalid operator %s= on <%v>`, token.AND_NOT, t)
 
 	}
-	c.append(ret)
+	return ret
 }
-func (c *Comp) setVar(va *Var, op token.Token, init *Expr) {
+func (c *Comp) setVar(va *Var, op token.Token, init *Expr) Stmt {
 	t := va.Type
 	var shift bool
 	var err interface{} = ""
@@ -32225,12 +32221,12 @@ func (c *Comp) setVar(va *Var, op token.Token, init *Expr) {
 	}
 	if err != nil {
 		c.Errorf("incompatible types in assignment: %v %s %v%v", t, op, init.Type, err)
-		return
+		return nil
 	}
 	class := va.Desc.Class()
 	if class != VarBind && class != IntBind {
 		c.Errorf("invalid operator %s on %v", op, class)
-		return
+		return nil
 	}
 	index := va.Desc.Index()
 	if index == NoIndex {
@@ -32238,11 +32234,10 @@ func (c *Comp) setVar(va *Var, op token.Token, init *Expr) {
 			c.Errorf("invalid operator %s on _", op)
 		}
 
-		if !init.Const() {
-			c.append(init.AsStmt(c))
+		if init.Const() {
+			return nil
 		}
-
-		return
+		return init.AsStmt(c)
 	}
 	if init.Const() {
 		rt := t.ReflectType()
@@ -32257,61 +32252,59 @@ func (c *Comp) setVar(va *Var, op token.Token, init *Expr) {
 		}
 		switch op {
 		case token.ASSIGN:
-			c.varSetConst(va, val)
+			return c.varSetConst(va, val)
 		case token.ADD, token.ADD_ASSIGN:
-			c.varAddConst(va, val)
+			return c.varAddConst(va, val)
 		case token.SUB, token.SUB_ASSIGN:
-			c.varSubConst(va, val)
+			return c.varSubConst(va, val)
 		case token.MUL, token.MUL_ASSIGN:
-			c.varMulConst(va, val)
+			return c.varMulConst(va, val)
 		case token.QUO, token.QUO_ASSIGN:
-			c.varQuoConst(va, val)
+			return c.varQuoConst(va, val)
 		case token.REM, token.REM_ASSIGN:
-			c.varRemConst(va, val)
+			return c.varRemConst(va, val)
 		case token.AND, token.AND_ASSIGN:
-			c.varAndConst(va, val)
+			return c.varAndConst(va, val)
 		case token.OR, token.OR_ASSIGN:
-			c.varOrConst(va, val)
+			return c.varOrConst(va, val)
 		case token.XOR, token.XOR_ASSIGN:
-			c.varXorConst(va, val)
+			return c.varXorConst(va, val)
 		case token.SHL, token.SHL_ASSIGN:
-			c.varShlConst(va, val)
+			return c.varShlConst(va, val)
 		case token.SHR, token.SHR_ASSIGN:
-			c.varShrConst(va, val)
+			return c.varShrConst(va, val)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
-			c.varAndnotConst(va, val)
-		default:
-			c.Errorf("invalid operator %s", op)
+			return c.varAndnotConst(va, val)
 		}
 	} else {
 		fun := init.Fun
 		switch op {
 		case token.ASSIGN:
-			c.varSetExpr(va, init)
+			return c.varSetExpr(va, init)
 		case token.ADD, token.ADD_ASSIGN:
-			c.varAddExpr(va, fun)
+			return c.varAddExpr(va, fun)
 		case token.SUB, token.SUB_ASSIGN:
-			c.varSubExpr(va, fun)
+			return c.varSubExpr(va, fun)
 		case token.MUL, token.MUL_ASSIGN:
-			c.varMulExpr(va, fun)
+			return c.varMulExpr(va, fun)
 		case token.QUO, token.QUO_ASSIGN:
-			c.varQuoExpr(va, fun)
+			return c.varQuoExpr(va, fun)
 		case token.REM, token.REM_ASSIGN:
-			c.varRemExpr(va, fun)
+			return c.varRemExpr(va, fun)
 		case token.AND, token.AND_ASSIGN:
-			c.varAndExpr(va, fun)
+			return c.varAndExpr(va, fun)
 		case token.OR, token.OR_ASSIGN:
-			c.varOrExpr(va, fun)
+			return c.varOrExpr(va, fun)
 		case token.XOR, token.XOR_ASSIGN:
-			c.varXorExpr(va, fun)
+			return c.varXorExpr(va, fun)
 		case token.SHL, token.SHL_ASSIGN:
-			c.varShlExpr(va, fun)
+			return c.varShlExpr(va, fun)
 		case token.SHR, token.SHR_ASSIGN:
-			c.varShrExpr(va, fun)
+			return c.varShrExpr(va, fun)
 		case token.AND_NOT, token.AND_NOT_ASSIGN:
-			c.varAndnotExpr(va, fun)
-		default:
-			c.Errorf("invalid operator %s", op)
+			return c.varAndnotExpr(va, fun)
 		}
 	}
+	c.Errorf("invalid operator %s", op)
+	return nil
 }
