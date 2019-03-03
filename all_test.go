@@ -533,6 +533,7 @@ var testcases = []TestCase{
 	TestCase{A, "set_expr_6", "v6 = 1/v6;        v6", 1 / float32(0.12345678901234), nil},                          // v6 is declared float32
 	TestCase{A, "set_expr_7", "v7 = v7 * v7;     v7", -complex64(0.98765432109) * complex64(0.98765432109), nil},   // v7 is declared complex64
 	TestCase{A, "set_expr_8", "v8 = v8 * v8;     v8", -complex128(0.98765432109) * complex128(0.98765432109), nil}, // v8 is declared complex64
+	TestCase{A, "set_expr_9", `v9 := 0; { a := 1; { b := a+1; { c := b+1; { v9 = c+1 } } } }; v9`, int(4), nil},
 
 	TestCase{A, "add_2", "v2 += 255;    v2", uint8(1), nil}, // overflow
 	TestCase{A, "add_3", "v3 += 536;    v3", uint16(60000)%7 + 536, nil},

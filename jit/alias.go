@@ -151,7 +151,6 @@ var errMakeVarKind = errors.New("jit.MakeVar: invalid kind")
 
 // local variable. only supports upn == 0
 func MakeVar(idx int, kind Kind, config RegIdConfig) (Mem, error) {
-	// TODO support fast.Env local variables with upn > 0
 	var mem Mem
 	if kind.Size() == 0 {
 		return mem, errMakeVarKind

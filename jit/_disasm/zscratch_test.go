@@ -56,7 +56,7 @@ func TestAmd64Shift2(t *testing.T) {
 	var c jit.Comp
 	for _, archid := range [...]asm.ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archid)
-		m := c.MakeVar(0, 0, jit.Uint16)
+		m := c.MakeVar(0, jit.Uint16)
 		c.Compile(jit.Source{
 			jit.SHR_ASSIGN, m, jit.NewExpr2(jit.SHR, m, _5),
 		})
@@ -69,5 +69,20 @@ func TestAmd64Collatz(t *testing.T) {
 	PrintDisasm(t, asm.MachineCode{
 		asm.AMD64,
 		HexToBinary("488b742408488b7618486b1e0348ffc34889df48d1ef48893e488b7c24084c8b4f3849ffc14c894f384c8b47404f8b04c848897c24184c89442410"),
+	})
+}
+
+func TestAmd64Symbol(t *testing.T) {
+	PrintDisasm(t, asm.MachineCode{
+		asm.AMD64,
+		HexToBinary("488b742408488b7618488b7c2408488b5f30488b5b18488b3b48897c2410"),
+	})
+}
+
+func TestAmd64Defer3(t *testing.T) {
+	PrintDisasm(t, asm.MachineCode{
+		asm.AMD64,
+		HexToBinary("488b742408488b7618c7462000000000c3" +
+			"488b742408488b7618488b7c2408488b5f30488b5b30488b5b184c8b442408498b7830488b7f18488b3f48897b404c8b4424084d8b503849ffc24d8950384d8b48404f8b0cd14c894424184c894c2410c3"),
 	})
 }

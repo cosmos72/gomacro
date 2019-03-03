@@ -430,7 +430,8 @@ func (arch Amd64) op2ConstMem(asm *Asm, op Op2, c Const, m Mem) Amd64 {
 	dlo, dhi := lohiId(dregid)
 	offlen, offbit := offlen(m, dregid)
 	cval := c.Val()
-	switch SizeOf(m) {
+	size := SizeOf(m)
+	switch size {
 	case 1:
 		if dhi == 0 {
 			asm.Bytes(0x80, offbit|op_|dlo)
@@ -476,9 +477,9 @@ func (arch Amd64) op2ConstMem(asm *Asm, op Op2, c Const, m Mem) Amd64 {
 		asm.Int32(m.Offset())
 	}
 
-	if cval == int64(int8(cval)) {
+	if size == 1 || cval == int64(int8(cval)) {
 		asm.Int8(int8(cval))
-	} else if SizeOf(m) == 2 {
+	} else if size == 2 {
 		asm.Int16(int16(cval))
 	} else {
 		asm.Int32(int32(cval))

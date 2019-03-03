@@ -372,6 +372,10 @@ func (sym *Symbol) AsVar(opt PlaceOption) *Var {
 	return sym.Bind.AsVar(sym.Upn, opt)
 }
 
+func (sym *Symbol) String() string {
+	return fmt.Sprintf("Symbol{%v %q %v idx=%v upn=%v}", sym.Desc.Class(), sym.Name, sym.Type, sym.Desc.Index(), sym.Upn)
+}
+
 // Var represents a settable variable
 type Var struct {
 	// when Var is embedded in other structs that represent non-identifiers,

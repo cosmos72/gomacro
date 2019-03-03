@@ -40,10 +40,11 @@ var (
 	jit_verbose int  = 0
 	jit_enabled bool = false
 
-	envInts jitField // description of Env.Ints struct field
-	envIP   jitField // description of Env.IP   struct field
-	envCode jitField // description of Env.Code struct field
-	envOk   bool
+	envInts  jitField // description of Env.Ints struct field
+	envIP    jitField // description of Env.IP   struct field
+	envCode  jitField // description of Env.Code struct field
+	envOuter jitField // description of Env.Outerstruct field
+	envOk    bool
 )
 
 func init() {
@@ -77,6 +78,13 @@ func jitExtractEnvFields() {
 		return
 	}
 	envCode = makeJitField(f.Offset, jit.Uintptr)
+
+	f, ok = tenv.FieldByName("Outer")
+	if !ok || f.Offset%sizeofUintptr != 0 {
+		return
+	}
+	envOuter = makeJitField(f.Offset, jit.Uintptr)
+
 	envOk = true
 }
 
@@ -250,45 +258,131 @@ func (j *Jit) Symbol(e *Expr) *Expr {
 		return e
 	}
 	sym := e.Sym
+	idx := sym.Desc.Index()
+	kind := jit.Kind(sym.Type.Kind())
+	size := int(kind.Size())
+	if size == 0 || idx*8%size != 0 {
+		// unaligned memory. not supported.
+		return e
+	}
 	if sym.Upn == 0 {
-		mem, err := jit.MakeVar(sym.Desc.Index(), jit.Kind(sym.Type.Kind()), j.RegIdConfig())
+		mem, err := jit.MakeVar(idx, kind, j.RegIdConfig())
 		if err == nil {
 			e.Jit = mem
 		}
+		return e
 	}
+	// on amd64 and arm64, in a func(env *Env) ...
+	// the parameter env is on the stack at [RSP+8]
+	// env = stack[env_param]
+	var env jit.Expr = j.Comp().MakeParam(8, jit.Uintptr)
+	for i := 0; i < sym.Upn; i++ {
+		// env = env.Outer
+		env = jit.NewExprIdx(env, envOuter.index, jit.Uintptr)
+	}
+	// binds = env.Ints equivalent to &env.Ints[0]
+	binds := jit.NewExprIdx(env, envInts.index, jit.Uintptr)
+	// binds[index]
+	e.Jit = jit.NewExprIdx(binds, jit.ConstInt(idx*8/size), kind)
 	return e
 }
 
 // if supported, return a jit-compiled statement that will perform va OP= init
 func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
-	return nil
-	/*
-		if j == nil {
+	if j == nil {
+		return nil
+	}
+	if !j.Can(init) {
+		return nil
+	}
+	if va.Type.Kind() != init.Type.Kind() {
+		output.Debugf("jit SetVar: mismatched kinds %v != %v",
+			va.Type.Kind(), init.Type.Kind())
+		return nil
+	}
+	if va.Upn != 0 {
+		return j.setvarupn(va, op, init)
+	}
+	inst, err := jit.TokenInst2(op)
+	if err != nil {
+		if jit_verbose > 0 {
+			output.Debugf("jit SetVar: TokenInst2 failed: %v", err)
 			return nil
 		}
-		j.Can(init)
-		if jit_verbose > 2 {
-			output.Debugf("jit to compile assignment: %v %v %v with e.Jit = %v", va, op, init, init.Jit)
+	}
+	mem, err := jit.MakeVar(va.Desc.Index(), jit.Kind(va.Type.Kind()), j.RegIdConfig())
+	if err != nil {
+		if jit_verbose > 0 {
+			output.Debugf("jit SetVar: MakeVar failed: %v", err)
 		}
-		if !j.Can(init) {
-			return nil
-		}
-		jvar, soft, err := j.SettableSymbol(va.AsSymbol())
-		if err != nil {
-			if jit_verbose > 0 {
-				output.Debugf("jit failed: %v", err)
-				return nil
+		return nil
+	}
+	ret := j.stmt0(jit.NewStmt2(inst, mem, init.Jit))
+	output.Debugf("jit SetVar compiled  to: %v", j.Code())
+	output.Debugf("jit SetVar assembled to: %v", j.Asm().Code())
+	return ret
+}
+
+func (j *Jit) setvarupn(va *Var, op token.Token, init *Expr) Stmt {
+	idx := va.Desc.Index()
+	kind := jit.Kind(va.Type.Kind())
+	size := int(kind.Size())
+	if size == 0 || idx*8%size != 0 {
+		if jit_verbose > 0 {
+			if size == 0 {
+				output.Debugf("jit setvarupn: unsupported kind: %v", kind)
+			} else {
+				output.Debugf("jit setvarupn: unaligned variable: %v", va)
 			}
 		}
-		inst, err := jit.TokenInst2(op)
-		if err != nil {
-			if jit_verbose > 0 {
-				output.Debugf("jit failed: %v", err)
-				return nil
-			}
+		return nil
+	}
+	index := jit.ConstInt(idx * 8 / size)
+
+	// on amd64 and arm64, in a func(env *Env) ...
+	// the parameter env is on the stack at [RSP+8]
+	// env = stack[env_param]
+	jc := j.Comp()
+	var env jit.Expr = jc.MakeParam(8, jit.Uintptr)
+	for i := 0; i < va.Upn; i++ {
+		// env = env.Outer
+		env = jit.NewExprIdx(env, envOuter.index, jit.Uintptr)
+	}
+	// binds = env.Ints equivalent to &env.Ints[0]
+	binds := jit.NewExprIdx(env, envInts.index, jit.Uintptr)
+
+	if op == token.ASSIGN {
+		// binds[index] = init
+		ret := j.stmt0(jit.NewStmt3(jit.IDX_ASSIGN, binds, index, init.Jit))
+		output.Debugf("jit setvarupn source    is: %v %v %v", va, op, init.Jit)
+		output.Debugf("jit setvarupn compiled  to: %v", j.Code())
+		output.Debugf("jit setvarupn assembled to: %v", j.Asm().Code())
+		return ret
+	}
+
+	op = tokenWithoutAssign(op)
+	inst, err := jit.TokenOp2(op)
+	if err != nil {
+		if jit_verbose > 0 {
+			output.Debugf("jit setvarupn: TokenInst2 failed: %v", err)
 		}
-		return j.stmt0(jit.NewStmt2(inst, jvar, init.Jit))
-	*/
+		return nil
+	}
+	// softbinds = binds
+	softbinds := jc.NewSoftReg(jit.Uintptr)
+	stmt1 := jit.NewStmt2(jit.ASSIGN, binds, softbinds)
+	// value = softbinds[index] OP init
+	value := jit.NewExpr2(
+		inst,
+		jit.NewExprIdx(softbinds, index, kind),
+		init.Jit)
+	// softbinds[index] = value
+	stmt2 := jit.NewStmt3(jit.IDX_ASSIGN, softbinds, index, value)
+	ret := j.stmt0(stmt1, stmt2)
+	output.Debugf("jit setvarupn source    is: %v %v %v", va, op, init.Jit)
+	output.Debugf("jit setvarupn compiled  to: %v", j.Code())
+	output.Debugf("jit setvarupn assembled to: %v", j.Asm().Code())
+	return ret
 }
 
 // if supported, return a jit-compiled Stmt that will evaluate Expr.
@@ -354,14 +448,16 @@ func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
 }
 
 // implementation of Jit.Stmt
-func (j *Jit) stmt0(t jit.Stmt) Stmt {
+func (j *Jit) stmt0(ts ...jit.Stmt) Stmt {
 	var success bool
 
 	j.preamble()
 	defer j.cleanup(&success)
 
 	jc := j.Comp()
-	jc.Stmt(t)
+	for _, t := range ts {
+		jc.Stmt(t)
+	}
 
 	stmt := j.makeStmt()
 	success = true
@@ -383,9 +479,11 @@ func (j *Jit) preamble() {
 }
 
 func (j *Jit) cleanup(success *bool) {
-	jc := j.Comp()
-	jc.ClearCode()
-	jc.ClearRegs()
+	/*
+		jc := j.Comp()
+		jc.ClearCode()
+		jc.ClearRegs()
+	*/
 	if !*success {
 		err := recover()
 		if jit_verbose > 0 {
@@ -463,6 +561,16 @@ func (j *Jit) makeFun(kind jit.Kind) I {
 }
 
 func (j *Jit) makeStmt() Stmt {
+	/*
+		var fun func(*Env)
+		j.Comp().Func(&fun)
+		return func(env *Env) (Stmt, *Env) {
+			fun(env)
+			ip := env.IP + 1
+			env.IP = ip
+			return env.Code[ip], env
+		}
+	*/
 	// jit-generate the following
 	/*
 		func(env *Env) (Stmt, *Env) {
