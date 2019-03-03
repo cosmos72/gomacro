@@ -149,13 +149,10 @@ var errMakeVarUpn = errors.New("unimplemented: jit.MakeVar with upn != 0")
 var errMakeVarIdx = errors.New("jit.MakeVar: index too large, the byte offset overflows int32")
 var errMakeVarKind = errors.New("jit.MakeVar: invalid kind")
 
-// local variable
-func MakeVar(idx int, upn int, kind Kind, config RegIdConfig) (Mem, error) {
+// local variable. only supports upn == 0
+func MakeVar(idx int, kind Kind, config RegIdConfig) (Mem, error) {
 	// TODO support fast.Env local variables with upn > 0
 	var mem Mem
-	if upn != 0 {
-		return mem, errMakeVarUpn
-	}
 	if kind.Size() == 0 {
 		return mem, errMakeVarKind
 	}

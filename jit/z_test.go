@@ -105,11 +105,11 @@ func TestCompileStmt1(t *testing.T) {
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
 
-		m1 := c.MakeVar(0, 0, Uint64)
-		m2 := c.MakeVar(1, 0, Uint32)
-		m3 := c.MakeVar(2, 0, Uint8)
-		m3w := c.MakeVar(2, 0, Uint16)
-		m4w := c.MakeVar(3, 0, Uint16)
+		m1 := c.MakeVar(0, Uint64)
+		m2 := c.MakeVar(1, Uint32)
+		m3 := c.MakeVar(2, Uint8)
+		m3w := c.MakeVar(2, Uint16)
+		m4w := c.MakeVar(3, Uint16)
 
 		source := Source{
 			INC, m1, // m1++

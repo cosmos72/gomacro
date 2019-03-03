@@ -167,8 +167,8 @@ func (c *Comp) MakeParam(off int32, kind Kind) Mem {
 	return MakeParam(off, kind, c.RegIdConfig)
 }
 
-func (c *Comp) MakeVar(idx int, upn int, kind Kind) Mem {
-	mem, err := MakeVar(idx, upn, kind, c.RegIdConfig)
+func (c *Comp) MakeVar(idx int, kind Kind) Mem {
+	mem, err := MakeVar(idx, kind, c.RegIdConfig)
 	if err != nil {
 		panic(err)
 	}

@@ -17,7 +17,6 @@
 package fast
 
 import (
-	"errors"
 	"go/token"
 	"os"
 	r "reflect"
@@ -244,55 +243,61 @@ func (j *Jit) BinaryExpr(e *Expr, op token.Token, xe *Expr, ye *Expr) *Expr {
 	return e
 }
 
-// if supported, set e.Jit to jit expression that will access local variable
+// if supported, set e.Jit to jit expression that will read local variable
 // always returns e.
 func (j *Jit) Symbol(e *Expr) *Expr {
 	if j != nil && e.Jit == nil && e.Sym != nil {
-		jvar, err := j.MakeSymbol(e.Sym)
-		if err == nil {
-			e.Jit = jvar
-			j.Log(e)
-		}
+		e.Jit = j.ReadSymbol(e.Sym)
 	}
 	return e
 }
 
 // if supported, return a jit-compiled statement that will perform va OP= init
 func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
-	if j == nil {
-		return nil
-	}
-	j.Can(init)
-	if jit_verbose > 2 {
-		output.Debugf("jit to compile assignment: %v %v %v with e.Jit = %v", va, op, init, init.Jit)
-	}
-	if !j.Can(init) {
-		return nil
-	}
-	jvar, err := j.MakeSymbol(va.AsSymbol())
-	if err != nil {
-		if jit_verbose > 0 {
-			output.Debugf("jit failed: %v", err)
+	return nil
+	/*
+		if j == nil {
 			return nil
 		}
-	}
-	inst, err := jit.TokenInst2(op)
-	if err != nil {
-		if jit_verbose > 0 {
-			output.Debugf("jit failed: %v", err)
+		j.Can(init)
+		if jit_verbose > 2 {
+			output.Debugf("jit to compile assignment: %v %v %v with e.Jit = %v", va, op, init, init.Jit)
+		}
+		if !j.Can(init) {
 			return nil
 		}
-	}
-	return j.stmt0(jit.NewStmt2(inst, jvar, init.Jit))
+		jvar, soft, err := j.SettableSymbol(va.AsSymbol())
+		if err != nil {
+			if jit_verbose > 0 {
+				output.Debugf("jit failed: %v", err)
+				return nil
+			}
+		}
+		inst, err := jit.TokenInst2(op)
+		if err != nil {
+			if jit_verbose > 0 {
+				output.Debugf("jit failed: %v", err)
+				return nil
+			}
+		}
+		return j.stmt0(jit.NewStmt2(inst, jvar, init.Jit))
+	*/
 }
 
-var errMakeVarClass = errors.New("unimplemented: jit.MakeSymbol with class != IntBind")
-
-func (j *Jit) MakeSymbol(sym *Symbol) (jit.Mem, error) {
+func (j *Jit) ReadSymbol(sym *Symbol) jit.Expr {
 	if j == nil || sym == nil || sym.Desc.Class() != IntBind {
-		return jit.Mem{}, errMakeVarClass
+		return nil
 	}
-	return jit.MakeVar(sym.Desc.Index(), sym.Upn, jit.Kind(sym.Type.Kind()), j.RegIdConfig())
+	if sym.Upn == 0 {
+		rvar := jit.MakeReg(j.RegIdConfig().RVAR, jit.Uintptr)
+		idx := sym.Desc.Index() // index in uint64 slice Env.Ints[]
+		kind := jit.Kind(sym.Type.Kind())
+		size := int(kind.Size())
+		if size != 0 && idx*8%size == 0 {
+			return jit.NewExprIdx(rvar, jit.ConstInt(idx*8/size), kind)
+		}
+	}
+	return nil
 }
 
 // if supported, return a jit-compiled Stmt that will evaluate Expr.
