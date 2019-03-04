@@ -252,7 +252,7 @@ func (env *Env) freeEnv4Func() {
 func (env *Env) freeEnv(run *Run) {
 	// DebugCallStack Debugf("FreeEnv(%p->%p), calldepth: %d->%d", env, caller, env.CallDepth, caller.CallDepth)
 	if env.UsedByClosure {
-		// in use, cannot recycle
+		// output.Debugf("freeEnv: used by closure, cannot reuse: %p %+v", env, env)
 		return
 	}
 	n := run.PoolSize

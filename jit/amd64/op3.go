@@ -16,6 +16,12 @@
 
 package amd64
 
+import (
+	"os"
+
+	"github.com/cosmos72/gomacro/base/output"
+)
+
 // ============================================================================
 // tree-arg instruction
 
@@ -34,8 +40,12 @@ func (arch Amd64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Amd64 {
 	case SETIDX, GETIDX:
 		assert(a.Kind().Size() == 8)
 	default:
-		assert(a.Kind() == dst.Kind())
-		assert(b.Kind() == dst.Kind())
+		if a.Kind() != dst.Kind() || b.Kind() != dst.Kind() {
+			output.Debugf("Amd64.op3: expecting a, b, dst to have the same kind: %v %v, %v, %v", op, a, b, dst)
+			os.Exit(1)
+			// assert(a.Kind() == dst.Kind())
+			// assert(b.Kind() == dst.Kind())
+		}
 	}
 	// validate dst
 	switch dst.(type) {

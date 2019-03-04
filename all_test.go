@@ -37,13 +37,16 @@ import (
 	xr "github.com/cosmos72/gomacro/xreflect"
 )
 
+var _ sync.WaitGroup
+var _ time.Duration
+
 type TestFor int
 
 const (
 	S TestFor = 1 << iota // set option OptDebugSleepOnSwitch
 	C                     // test for classic interpreter
 	F                     // test for fast interpreter
-	U                     // test for fast interpreter, returning untyped constant
+	U                     // test returns untyped constant (relevant only for fast interpreter)
 	A = C | F             // test for both interpreters
 )
 
@@ -347,7 +350,6 @@ var testcases = []TestCase{
 	TestCase{A, "expr_xor", "0x1f ^ 0xf1", 0x1f ^ 0xf1, nil},
 	TestCase{A, "expr_arith", "((1+2)*3^4|99)%112", ((1+2)*3 ^ 4 | 99) % 112, nil},
 	TestCase{A, "expr_shift", "7<<(10>>1)", 7 << (10 >> 1), nil},
-
 	TestCase{A, "complex_1", "7i", 7i, nil},
 	TestCase{A, "complex_2", "0.5+1.75i", 0.5 + 1.75i, nil},
 	TestCase{A, "complex_3", "1i * 2i", 1i * 2i, nil},
@@ -355,7 +357,7 @@ var testcases = []TestCase{
 	TestCase{A, "const_1", "const c1 = 11; c1", 11, nil},
 	TestCase{A, "const_2", "const c2 = 0xff&555+23/12.2; c2", 0xff&555 + 23/12.2, nil},
 
-	// the classic interpreter is not accurate in this cases... missing exact arithmetic on constants
+	// the classic interpreter is not accurate in these cases... missing exact arithmetic on constants
 	TestCase{C, "const_3", "const c3 = 0.1+0.2; c3", float64(0.1) + float64(0.2), nil},
 	TestCase{C, "const_4", "const c4 = c3/3; c4", (float64(0.1) + float64(0.2)) / 3, nil},
 
@@ -417,7 +419,6 @@ var testcases = []TestCase{
 	TestCase{A, "var_shift_8", "v3 << v3 >> v2", uint16(12) << 12 >> uint8(7), nil},
 	TestCase{A, "var_shift_9", "v3 << 0", uint16(12), nil},
 	TestCase{A, "var_shift_overflow", "v3 << 13", uint16(32768), nil},
-
 	// test division by constant power-of-two
 	TestCase{C, "var_div_1", "v3 = 11; v3 / 2", uint64(11) / 2, nil}, // classic interpreter is not type-accurate here
 	TestCase{C, "var_div_2", "v3 = 63; v3 / 8", uint64(63) / 8, nil},
@@ -597,9 +598,9 @@ var testcases = []TestCase{
 	TestCase{A, "fibonacci", fibonacci_source_string + "; fibonacci(13)", 233, nil},
 	TestCase{A, "function_literal", "adder := func(a,b int) int { return a+b }; adder(-7,-9)", -16, nil},
 
-	TestCase{F, "y_combinator_1", "type F func(F); var f F; &f", new(xr.Forward), nil},     // xr.Forward is contagious
-	TestCase{F, "y_combinator_2", "func Y(f F) { /*f(f)*/ }; Y", func(xr.Forward) {}, nil}, // avoid the infinite recursion, only check the types
-	TestCase{F, "y_combinator_3", "Y(Y)", nil, none},                                       // also check actual invokations
+	TestCase{F, "y_combinator_1", "type F func(F); var f F; &f", new(xr.Forward), nil}, // xr.Forward is contagious
+	TestCase{F, "y_combinator_2", "func Y(f F) { }; Y", func(xr.Forward) {}, nil},      // avoid the infinite recursion, only check the types
+	TestCase{F, "y_combinator_3", "Y(Y)", nil, none},                                   // also check actual invokations
 	TestCase{F, "y_combinator_4", "f=Y; f(Y)", nil, none},
 	TestCase{F, "y_combinator_5", "Y(f)", nil, none},
 	TestCase{F, "y_combinator_6", "f(f)", nil, none},
@@ -746,8 +747,8 @@ var testcases = []TestCase{
 	TestCase{A, "literal_struct_address", `&Pair{1,"2"}`, &Pair{A: 1, B: "2"}, nil},
 
 	TestCase{A, "named_func_type_1", `import "context"
-      _, cancel := context.WithCancel(context.Background())
-      cancel()`, nil, none},
+		         _, cancel := context.WithCancel(context.Background())
+		         cancel()`, nil, none},
 
 	TestCase{A, "method_decl_1", `func (p *Pair) SetA(a rune) { p.A = a }; nil`, nil, nil},
 	TestCase{A, "method_decl_2", `func (p Pair) SetAV(a rune) { p.A = a }; nil`, nil, nil},
@@ -820,6 +821,7 @@ var testcases = []TestCase{
 			}()
 		}
 		test_defer_1(); vi`, 1, nil},
+	// classic does not fully support named return types
 	TestCase{F, "defer_2", `
 		func test_defer_2() (x int) {
 			defer func() {
@@ -827,8 +829,28 @@ var testcases = []TestCase{
 			}()
 		}
 		test_defer_2()`, 2, nil},
-	TestCase{A, "defer_3", "v = 0; func testdefer(x uint32) { if x != 0 { defer func() { v = x }() } }; testdefer(29); v", uint32(29), nil},
-	TestCase{A, "defer_4", "v = 12; testdefer(0); v", uint32(12), nil},
+	TestCase{A, "defer_3", `
+		v = 0
+		func test_defer_3(x uint32) {
+			if x != 0 {
+				defer func(y uint32) {
+					 v = y
+				}(x)
+			}
+		}
+		test_defer_3(3); v`, uint32(3), nil},
+	TestCase{A, "defer_4", "v = 4; test_defer_3(0); v", uint32(4), nil},
+	TestCase{A, "defer_5", `
+		v = 0
+		func test_defer_5(x uint32) {
+			if x != 0 {
+				defer func() {
+					 v = x
+				}()
+			}
+		}
+		test_defer_5(5); v`, uint32(5), nil},
+	TestCase{A, "defer_6", "v = 6; test_defer_5(0); v", uint32(6), nil},
 	TestCase{A, "recover_1", `var vpanic interface{}
 		func test_recover(rec bool, panick interface{}) {
 			defer func() {

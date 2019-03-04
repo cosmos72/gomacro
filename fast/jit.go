@@ -110,13 +110,29 @@ func jitCheckSupported() {
 		jit_enabled = false
 		return
 	}
-	if !jit_enabled && os.Getenv("GOMACRO_JIT") == "" {
+	s := os.Getenv("GOMACRO_JIT")
+	if s == "" {
+		// leave default value of jit_enabled
 		if jit_verbose > 0 {
-			output.Debugf("Jit: not enabled with environment variable GOMACRO_JIT")
+			if jit_enabled {
+				output.Debugf("Jit: enabled by default, environment variable GOMACRO_JIT is not set")
+			} else {
+				output.Debugf("Jit: disabled by default, environment variable GOMACRO_JIT is not set")
+			}
 		}
 		return
 	}
-	jit_enabled = true
+	// set jit_enabled from environment variable GOMACRO_JIT:
+	// 0 = disable, anything else = enable
+	i, _ := strconv.Atoi(s)
+	jit_enabled = i != 0
+	if jit_verbose > 0 {
+		if jit_enabled {
+			output.Debugf("Jit: enabled with environment variable GOMACRO_JIT")
+		} else {
+			output.Debugf("Jit: disabled with environment variable GOMACRO_JIT")
+		}
+	}
 	// stmtNop = jitMakeInterpNop()
 }
 
@@ -284,6 +300,7 @@ func (j *Jit) Symbol(e *Expr) *Expr {
 	binds := jit.NewExprIdx(env, envInts.index, jit.Uintptr)
 	// binds[index]
 	e.Jit = jit.NewExprIdx(binds, jit.ConstInt(idx*8/size), kind)
+	// output.Debugf("jit Symbol %v => e.Jit = %v, kind = %v", sym, e.Jit, kind)
 	return e
 }
 

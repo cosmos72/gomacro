@@ -300,11 +300,7 @@ func (c *Comp) assign1(lhs ast.Expr, op token.Token, rhs ast.Expr, place *Place,
 	c.Pos = lhs.Pos()
 	// c.Debugf("compiling assign1 at [% 3d] %s: %v // %T", c.Pos, c.Fileset.Position(c.Pos), lhs, lhs)
 
-	if place.IsVar() {
-		c.SetVar(&place.Var, op, init)
-	} else {
-		c.SetPlace(place, op, init)
-	}
+	c.SetPlace(place, op, init)
 	panicking = false
 }
 
@@ -315,6 +311,7 @@ func (c *Comp) SetVar(va *Var, op token.Token, init *Expr) {
 	// RHS untyped constants to the correct type,
 	// also needed by c.Jit.SetVar() below
 	stmt := c.setVar(va, op, init)
+	// c.Debugf("Comp.SetVar: %v %v %v", va, op, init)
 	if stmt == nil {
 		// optimized away.
 		return
