@@ -18,6 +18,8 @@ package jit
 
 import (
 	"fmt"
+
+	"github.com/cosmos72/gomacro/base/output"
 )
 
 // subset of Arg interface
@@ -123,6 +125,7 @@ func (c *Comp) expr(e Expr, dst Expr) (Expr, SoftReg) {
 // compile unary expression
 func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 	dsoft, _ := dst.(SoftReg)
+	var tofree SoftReg
 	var dto Expr
 	if dsoft.Valid() {
 		// forward the request to write into dsoft
@@ -134,6 +137,16 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 			dsoft = SoftReg{ssoft.id, e.K}
 		} else {
 			dsoft = c.newTempReg(e.K)
+			tofree = dsoft
+		}
+		dst = dsoft
+	} else if dst != nil && dst.Kind() != e.K {
+		// do not trust the kind of provided dst
+		if dsoft.Valid() {
+			dsoft = SoftReg{dsoft.id, e.K}
+		} else {
+			dsoft = c.newTempReg(e.K)
+			tofree = dsoft
 		}
 		dst = dsoft
 	}
@@ -145,7 +158,7 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 		// copy dsoft to the requested destination
 		// and free it
 		c.code.Inst2(ASSIGN, dst, dsoft)
-		c.freeTempReg(dsoft)
+		c.freeTempReg(tofree)
 		dsoft = SoftReg{}
 	}
 	return dst, dsoft
@@ -153,7 +166,10 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 
 // compile binary expression
 func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
+	output.Debugf("jit.Comp.expr2: e = %v, dst = %v", e, dst)
+	output.Debugf("\twith x.kind = %v, y.kind = %v, e.kind = %v", e.X.Kind(), e.Y.Kind(), e.Kind())
 	dsoft, _ := dst.(SoftReg)
+	var tofree SoftReg
 	var dto Expr
 	if dsoft.Valid() {
 		// forward the request to write into dst
@@ -168,8 +184,17 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 			dsoft = SoftReg{soft2.id, e.K}
 		} else {
 			dsoft = c.newTempReg(e.K)
+			tofree = dsoft
 		}
 		dst = dsoft
+	} else if dst != nil && dst.Kind() != e.K {
+		// do not trust the kind of provided dst
+		if dsoft.Valid() {
+			dsoft = SoftReg{dsoft.id, e.K}
+		} else {
+			dsoft = c.newTempReg(e.K)
+			tofree = dsoft
+		}
 	}
 	c.code.Op2(e.Op, src1, src2, dst)
 	if soft1.id != dsoft.id {
@@ -182,7 +207,7 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 		// copy dsoft to the requested destination
 		// and free it
 		c.code.Inst2(ASSIGN, dst, dsoft)
-		c.freeTempReg(dsoft)
+		c.freeTempReg(tofree)
 		dsoft = SoftReg{}
 	}
 	return dst, dsoft

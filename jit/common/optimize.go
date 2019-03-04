@@ -40,6 +40,17 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 			return true
 		}
 	}
+	// more optimizations on MOV dst, dst
+	if op == MOV && src.Kind().Size() == dst.Kind().Size() {
+		switch src := src.(type) {
+		case Reg:
+			dst, ok := dst.(Reg)
+			return ok && src.RegId() == dst.RegId()
+		case Mem:
+			dst, ok := dst.(Mem)
+			return ok && src.RegId() == dst.RegId() && src.Offset() == dst.Offset()
+		}
+	}
 	c, ok := src.(Const)
 	if !ok {
 		return false

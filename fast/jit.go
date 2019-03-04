@@ -29,7 +29,9 @@ import (
 
 // jit.Comp wrapper
 type Jit struct {
-	c jit.Comp
+	c               jit.Comp
+	lastCode        jit.Code
+	lastMachineCode jit.MachineCode
 }
 
 type jitField struct {
@@ -113,25 +115,14 @@ func jitCheckSupported() {
 	s := os.Getenv("GOMACRO_JIT")
 	if s == "" {
 		// leave default value of jit_enabled
-		if jit_verbose > 0 {
-			if jit_enabled {
-				output.Debugf("Jit: enabled by default, environment variable GOMACRO_JIT is not set")
-			} else {
-				output.Debugf("Jit: disabled by default, environment variable GOMACRO_JIT is not set")
-			}
-		}
 		return
 	}
 	// set jit_enabled from environment variable GOMACRO_JIT:
 	// 0 = disable, anything else = enable
 	i, _ := strconv.Atoi(s)
 	jit_enabled = i != 0
-	if jit_verbose > 0 {
-		if jit_enabled {
-			output.Debugf("Jit: enabled with environment variable GOMACRO_JIT")
-		} else {
-			output.Debugf("Jit: disabled with environment variable GOMACRO_JIT")
-		}
+	if jit_enabled && jit_verbose > 0 {
+		output.Debugf("Jit: enabled with environment variable GOMACRO_JIT")
 	}
 	// stmtNop = jitMakeInterpNop()
 }
@@ -143,8 +134,7 @@ func NewJit() *Jit {
 	arch := jit.Archs[jit.ARCH_ID]
 	var j Jit
 	j.InitArch(arch)
-	// tell jit compiler we need register RVAR
-	j.Asm().RegIncUse(arch.RegIdConfig().RVAR)
+	j.preamble() // before first use
 	if jit_verbose > 0 {
 		output.Debugf("Jit supported and enabled")
 	}
@@ -153,6 +143,8 @@ func NewJit() *Jit {
 
 func (j *Jit) InitArch(arch jit.Arch) *Jit {
 	j.c.InitArch(arch)
+	j.lastCode = nil
+	j.lastMachineCode = jit.MachineCode{}
 	return j
 }
 
@@ -164,8 +156,12 @@ func (j *Jit) Asm() *jit.Asm {
 	return j.c.Asm()
 }
 
-func (j *Jit) Code() jit.Code {
-	return j.c.Code()
+func (j *Jit) LastCode() jit.Code {
+	return j.lastCode
+}
+
+func (j *Jit) LastMachineCode() jit.MachineCode {
+	return j.lastMachineCode
 }
 
 func (j *Jit) RegIdConfig() jit.RegIdConfig {
@@ -334,9 +330,12 @@ func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 		}
 		return nil
 	}
-	ret := j.stmt0(jit.NewStmt2(inst, mem, init.Jit))
-	output.Debugf("jit SetVar compiled  to: %v", j.Code())
-	output.Debugf("jit SetVar assembled to: %v", j.Asm().Code())
+	// output.Debugf("jit SetVar on %v", va)
+	// output.Debugf("jit SetVar to compile:  %v %v %v", mem, op, init.Jit)
+	j.Comp().Stmt2(inst, mem, init.Jit)
+	// output.Debugf("jit SetVar compiled  to: %v", j.Comp().Code())
+	ret := j.stmt0()
+	// output.Debugf("jit SetVar assembled to: %v", j.LastMachineCode())
 	return ret
 }
 
@@ -371,9 +370,9 @@ func (j *Jit) setvarupn(va *Var, op token.Token, init *Expr) Stmt {
 	if op == token.ASSIGN {
 		// binds[index] = init
 		ret := j.stmt0(jit.NewStmt3(jit.IDX_ASSIGN, binds, index, init.Jit))
-		output.Debugf("jit setvarupn source    is: %v %v %v", va, op, init.Jit)
-		output.Debugf("jit setvarupn compiled  to: %v", j.Code())
-		output.Debugf("jit setvarupn assembled to: %v", j.Asm().Code())
+		// output.Debugf("jit setvarupn source    is: %v %v %v", va, op, init.Jit)
+		// output.Debugf("jit setvarupn compiled  to: %v", j.LastCode())
+		// output.Debugf("jit setvarupn assembled to: %v", j.LastMachineCode())
 		return ret
 	}
 
@@ -396,9 +395,9 @@ func (j *Jit) setvarupn(va *Var, op token.Token, init *Expr) Stmt {
 	// softbinds[index] = value
 	stmt2 := jit.NewStmt3(jit.IDX_ASSIGN, softbinds, index, value)
 	ret := j.stmt0(stmt1, stmt2)
-	output.Debugf("jit setvarupn source    is: %v %v %v", va, op, init.Jit)
-	output.Debugf("jit setvarupn compiled  to: %v", j.Code())
-	output.Debugf("jit setvarupn assembled to: %v", j.Asm().Code())
+	// output.Debugf("jit setvarupn source    is: %v %v %v", va, op, init.Jit)
+	// output.Debugf("jit setvarupn compiled  to: %v", j.LastCode())
+	// output.Debugf("jit setvarupn assembled to: %v", j.LastMachineCode())
 	return ret
 }
 
@@ -410,7 +409,6 @@ func (j *Jit) AsStmt(e *Expr) Stmt {
 	}
 	var success bool
 
-	j.preamble()
 	defer j.cleanup(&success)
 
 	// compile accumulated jit expression and discard the result.
@@ -447,7 +445,6 @@ func (j *Jit) Fun(e *Expr) *Expr {
 func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
 	var success bool
 
-	j.preamble()
 	defer j.cleanup(&success)
 
 	// compile accumulated jit expression and copy result to stack.
@@ -468,7 +465,6 @@ func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
 func (j *Jit) stmt0(ts ...jit.Stmt) Stmt {
 	var success bool
 
-	j.preamble()
 	defer j.cleanup(&success)
 
 	jc := j.Comp()
@@ -483,8 +479,9 @@ func (j *Jit) stmt0(ts ...jit.Stmt) Stmt {
 
 func (j *Jit) preamble() {
 	jc := j.Comp()
-	jc.ClearCode()
-	jc.ClearRegs()
+	// caller may have compiled some code already, do not clear it
+	// jc.ClearCode()
+	// jc.ClearRegs()
 	jc.Asm().RegIncUse(jc.RegIdConfig.RVAR)
 	// on amd64 and arm64, in a func(env *Env) ...
 	// the parameter env is on the stack at [RSP+8]
@@ -496,11 +493,18 @@ func (j *Jit) preamble() {
 }
 
 func (j *Jit) cleanup(success *bool) {
-	/*
-		jc := j.Comp()
-		jc.ClearCode()
-		jc.ClearRegs()
-	*/
+	jc := j.Comp()
+
+	// save them before clearing
+	j.lastCode = jc.Code()
+	j.lastMachineCode = jc.Asm().Code() // not jc.Assemble(), may panic again
+
+	jc.ClearCode()
+	jc.ClearRegs()
+
+	// reinit for next use
+	j.preamble()
+
 	if !*success {
 		err := recover()
 		if jit_verbose > 0 {
@@ -578,7 +582,8 @@ func (j *Jit) makeFun(kind jit.Kind) I {
 }
 
 func (j *Jit) makeStmt() Stmt {
-	/*
+	if false {
+		// use a closure instead of jit-compiling the epilogue
 		var fun func(*Env)
 		j.Comp().Func(&fun)
 		return func(env *Env) (Stmt, *Env) {
@@ -587,8 +592,8 @@ func (j *Jit) makeStmt() Stmt {
 			env.IP = ip
 			return env.Code[ip], env
 		}
-	*/
-	// jit-generate the following
+	}
+	// jit-compile the following
 	/*
 		func(env *Env) (Stmt, *Env) {
 			fun(env)

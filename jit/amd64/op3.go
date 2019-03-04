@@ -18,6 +18,7 @@ package amd64
 
 import (
 	"os"
+	"runtime/debug"
 
 	"github.com/cosmos72/gomacro/base/output"
 )
@@ -42,6 +43,7 @@ func (arch Amd64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Amd64 {
 	default:
 		if a.Kind() != dst.Kind() || b.Kind() != dst.Kind() {
 			output.Debugf("Amd64.op3: expecting a, b, dst to have the same kind: %v %v, %v, %v", op, a, b, dst)
+			debug.PrintStack()
 			os.Exit(1)
 			// assert(a.Kind() == dst.Kind())
 			// assert(b.Kind() == dst.Kind())
