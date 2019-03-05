@@ -128,7 +128,7 @@ Almost complete.
 
 The main limitations and missing features are:
 
-* freely importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux and Mac OS X.
+* importing 3<sup>rd</sup> party libraries at runtime currently only works on Linux and Mac OS X.
   On other systems as Windows, Android and *BSD it is cumbersome and requires recompiling - see [Importing packages](#importing-packages).
 * some corner cases using interpreted interfaces, as interface -> interface type assertions and type switches, are not implemented yet.
 * goto can only jump backward, not forward
