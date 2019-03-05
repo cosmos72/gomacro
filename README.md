@@ -435,7 +435,7 @@ from the same author.
 Building a Go interpreter that supports Lisp-like macros,
 allows to embed all these code-generation activities
 into regular Go source code, without the need for external programs
-(except for the intepreter itself).
+(except for the interpreter itself).
 
 As a free bonus, we get support for Eval()
 
