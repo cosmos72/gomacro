@@ -31,6 +31,7 @@ type (
 	Asm         = common.Asm
 	AsmCode     = common.AsmCode
 	Const       = common.Const
+	Expr        = common.Expr
 	Kind        = common.Kind
 	MachineCode = common.MachineCode
 	Mem         = common.Mem
@@ -39,7 +40,9 @@ type (
 	RegIdConfig = common.RegIdConfig
 	Save        = common.Save
 	Size        = common.Size
+	SoftReg     = common.SoftReg
 	SoftRegId   = common.SoftRegId
+	SoftRegs    = common.SoftRegs
 )
 
 const (
@@ -76,6 +79,12 @@ const (
 
 	// RegId
 	NoRegId = common.NoRegId
+
+	// SoftRegId
+	FirstSoftRegId = common.FirstSoftRegId
+	LastSoftRegId  = common.LastSoftRegId
+	FirstTempRegId = common.FirstTempRegId
+	LastTempRegId  = common.LastTempRegId
 )
 
 // map[ArchId]Arch is a handle, changes effect common.Archs
@@ -141,8 +150,12 @@ func MakeReg(id RegId, kind Kind) Reg {
 	return common.MakeReg(id, kind)
 }
 
-func SizeOf(a Arg) Size {
-	return common.SizeOf(a)
+func MakeSoftReg(id SoftRegId, kind Kind) SoftReg {
+	return common.MakeSoftReg(id, kind)
+}
+
+func SizeOf(e Expr) Size {
+	return common.SizeOf(e)
 }
 
 var errMakeVarUpn = errors.New("unimplemented: jit.MakeVar with upn != 0")

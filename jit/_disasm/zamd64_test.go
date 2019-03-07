@@ -211,17 +211,19 @@ func TestAmd64SoftReg(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Amd64{})
 
-	var a, b, c SoftRegId = 0, 1, 2
+	a := MakeSoftReg(0, Uint64)
+	b := MakeSoftReg(1, Uint64)
+	c := MakeSoftReg(2, Uint64)
 	asm.Assemble(
-		ALLOC, a, Uint64,
-		ALLOC, b, Uint64,
-		ALLOC, c, Uint64,
+		ALLOC, a,
+		ALLOC, b,
+		ALLOC, c,
 		MOV, ConstUint64(1), a,
 		MOV, ConstUint64(2), b,
 		ADD3, a, b, c,
-		FREE, a, Uint64,
-		FREE, b, Uint64,
-		FREE, c, Uint64,
+		FREE, a,
+		FREE, b,
+		FREE, c,
 	).Epilogue()
 	PrintDisasm(t, asm.Code())
 }
@@ -255,19 +257,21 @@ func TestAmd64DivB(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Amd64{})
 
-	var sa, sb SoftRegId = 0, 1
+	sa := MakeSoftReg(0, Int64)
+	sb := MakeSoftReg(1, Int64)
+
 	ma := MakeMem(8, RSP, Int64)
 	mb := MakeMem(16, RSP, Int64)
 	mret := MakeMem(24, RSP, Int64)
 
 	asm.Assemble( //
-		ALLOC, sa, Int64,
-		ALLOC, sb, Int64,
+		ALLOC, sa,
+		ALLOC, sb,
 		MOV, ma, sa,
 		MOV, mb, sb,
 		DIV3, sa, sb, mret,
-		FREE, sa, Int64,
-		FREE, sb, Int64,
+		FREE, sa,
+		FREE, sb,
 	)
 
 	PrintDisasm(t, asm.Code())

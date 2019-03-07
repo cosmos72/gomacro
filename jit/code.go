@@ -63,9 +63,9 @@ func (c *Code) Inst3(inst Inst3, dst Expr, darg Expr, src Expr) *Code {
 }
 
 // ALLOC/FREE
-func (c *Code) SoftReg(op asm.Op2Misc, id SoftRegId, kind Kind) SoftReg {
-	*c = append(*c, op, id, kind)
-	return SoftReg{id, kind}
+func (c *Code) SoftReg(op asm.Op1Misc, s SoftReg) *Code {
+	*c = append(*c, op, s)
+	return c
 }
 
 func asmArg(e Expr) AsmCode {
@@ -73,7 +73,7 @@ func asmArg(e Expr) AsmCode {
 	case AsmCode:
 		return e
 	case SoftReg:
-		return e.id
+		return e
 	case *Expr1, *Expr2:
 		errorf("internal error: cannot assemble %T, must be compiled first: %v", e, e)
 	default:

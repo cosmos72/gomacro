@@ -31,7 +31,7 @@ func errorf(format string, args ...interface{}) {
 	panic(errors.New(errorPrefix + fmt.Sprintf(format, args...)))
 }
 
-var assertError = errors.New("amd64 assembler internal error, assertion failed")
+var assertError = errors.New("amd64 assembler error, assertion failed")
 
 func assert(flag bool) {
 	if !flag {

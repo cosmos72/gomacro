@@ -29,6 +29,7 @@ type (
 	Asm         = common.Asm
 	AsmCode     = common.AsmCode // symbolic assembly code
 	Const       = common.Const
+	Expr        = common.Expr
 	Kind        = common.Kind
 	MachineCode = common.MachineCode // assembled machine code
 	Mem         = common.Mem
@@ -39,13 +40,15 @@ type (
 	Save        = common.Save
 	SaveSlot    = common.SaveSlot
 	Size        = common.Size
+	SoftReg     = common.SoftReg
 	SoftRegId   = common.SoftRegId
-	SoftRegIds  = common.SoftRegIds
+	SoftRegs    = common.SoftRegs
 
 	Op0     = common.Op0
 	Op1     = common.Op1
-	Op2     = common.Op2
+	Op1Misc = common.Op1Misc
 	Op2Misc = common.Op2Misc
+	Op2     = common.Op2
 	Op3     = common.Op3
 	Op4     = common.Op4
 )
@@ -85,6 +88,12 @@ const (
 	// RegId
 	NoRegId = common.NoRegId
 
+	// SoftRegId
+	FirstSoftRegId = common.FirstSoftRegId
+	LastSoftRegId  = common.LastSoftRegId
+	FirstTempRegId = common.FirstTempRegId
+	LastTempRegId  = common.LastTempRegId
+
 	// Op0
 	BAD = common.BAD
 	NOP = common.NOP
@@ -96,6 +105,14 @@ const (
 	DEC  = common.DEC
 	NOT1 = common.NOT1
 	NEG1 = common.NEG1
+
+	// Op1Misc
+	ALLOC = common.ALLOC
+	FREE  = common.FREE
+
+	// Op2Misc
+	PUSH = common.PUSH
+	POP  = common.POP
 
 	// Op2
 	ADD2     = common.ADD2
@@ -119,12 +136,6 @@ const (
 	// XCHG = common.XCHG
 	NEG2 = common.NEG2
 	NOT2 = common.NOT2
-
-	// Op2Misc
-	ALLOC = common.ALLOC
-	FREE  = common.FREE
-	PUSH  = common.PUSH
-	POP   = common.POP
 
 	// Op3
 	ADD3     = common.ADD3
@@ -199,6 +210,7 @@ func ConstInterface(ival interface{}, t reflect.Type) (Const, error) {
 func MakeConst(val int64, kind Kind) Const {
 	return common.MakeConst(val, kind)
 }
+
 func MakeMem(off int32, id RegId, kind Kind) Mem {
 	return common.MakeMem(off, id, kind)
 }
@@ -207,8 +219,12 @@ func MakeReg(id RegId, kind Kind) Reg {
 	return common.MakeReg(id, kind)
 }
 
-func SizeOf(a Arg) Size {
-	return common.SizeOf(a)
+func MakeSoftReg(id SoftRegId, kind Kind) SoftReg {
+	return common.MakeSoftReg(id, kind)
+}
+
+func SizeOf(e Expr) Size {
+	return common.SizeOf(e)
 }
 
 func New() *Asm {

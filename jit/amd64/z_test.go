@@ -24,17 +24,17 @@ func TestSoftRegId(t *testing.T) {
 	var asm Asm
 	asm.InitArch(Amd64{})
 
-	var a, b, c SoftRegId = 0, 1, 2
+	var a, b, c SoftReg = MakeSoftReg(0, Uint64), MakeSoftReg(1, Uint64), MakeSoftReg(2, Uint64)
 	code := []AsmCode{
-		ALLOC, a, Uint64,
-		ALLOC, b, Uint64,
-		ALLOC, c, Uint64,
+		ALLOC, a,
+		ALLOC, b,
+		ALLOC, c,
 		MOV, ConstUint64(1), a,
 		MOV, ConstUint64(2), b,
 		ADD3, a, b, c,
-		FREE, a, Uint64,
-		FREE, b, Uint64,
-		FREE, c, Uint64,
+		FREE, a,
+		FREE, b,
+		FREE, c,
 		RET,
 	}
 	asm.Assemble(code...)

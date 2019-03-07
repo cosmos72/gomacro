@@ -8,7 +8,7 @@
  *     file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
  *
- * op2misc.go
+ * opmisc.go
  *
  *  Created on Jan 27, 2019
  *      Author Massimiliano Ghilardi
@@ -30,20 +30,33 @@ const (
 func (*SaveSlot) asmcode() {
 }
 
+type Op1Misc uint8
 type Op2Misc uint8
 
 const (
-	ALLOC Op2Misc = 1 // allocate soft register
-	FREE  Op2Misc = 2 // free soft register
-	PUSH  Op2Misc = 3
-	POP   Op2Misc = 4
+	ALLOC Op1Misc = 1 // allocate soft register
+	FREE  Op1Misc = 2 // free soft register
+
+	PUSH Op2Misc = 3
+	POP  Op2Misc = 4
 )
 
-var op2MiscName = map[Op2Misc]string{
+var op1MiscName = map[Op1Misc]string{
 	ALLOC: "ALLOC",
 	FREE:  "FREE",
-	PUSH:  "PUSH",
-	POP:   "POP",
+}
+
+var op2MiscName = map[Op2Misc]string{
+	PUSH: "PUSH",
+	POP:  "POP",
+}
+
+func (op Op1Misc) String() string {
+	s, ok := op1MiscName[op]
+	if !ok {
+		s = fmt.Sprintf("Op1Misc(%d)", int(op))
+	}
+	return s
 }
 
 func (op Op2Misc) String() string {
@@ -55,21 +68,32 @@ func (op Op2Misc) String() string {
 }
 
 // implement AsmCode interface
+func (op Op1Misc) asmcode() {
+}
+
 func (op Op2Misc) asmcode() {
 }
 
-func (asm *Asm) Op2Misc(op Op2Misc, arg1 interface{}, arg2 interface{}) *Asm {
+func (asm *Asm) Op1Misc(op Op1Misc, arg1 AsmCode) *Asm {
 	switch op {
 	case ALLOC:
-		asm.Alloc(arg1.(SoftRegId), arg2.(Kind))
+		asm.Alloc(arg1.(SoftReg))
 	case FREE:
-		asm.Free(arg1.(SoftRegId)) // arg2 not used
+		asm.Free(arg1.(SoftReg))
+	default:
+		errorf("unknown Op1Misc: %v %v", op, arg1)
+	}
+	return asm
+}
+
+func (asm *Asm) Op2Misc(op Op2Misc, arg1 AsmCode, arg2 AsmCode) *Asm {
+	switch op {
 	case PUSH:
 		asm.Push(arg1.(Reg), arg2.(*SaveSlot))
 	case POP:
 		asm.Pop(arg1.(Reg), arg2.(*SaveSlot))
 	default:
-		errorf("unknown Op2Misc operation: %v %v %v", op, arg1, arg2)
+		errorf("unknown Op2Misc: %v %v %v", op, arg1, arg2)
 	}
 	return asm
 }

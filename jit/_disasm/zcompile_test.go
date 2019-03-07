@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	t0 SoftRegId = FirstTempRegId + iota
+	t0 = SoftReg(FirstTempRegId+iota)<<8 | SoftReg(Uint64)
 	t1
 )
 
@@ -58,7 +58,7 @@ func TestCompileExpr1(t *testing.T) {
 		t.Log("expr: ", e)
 
 		expected := Code{
-			asm.ALLOC, t0, Uint64,
+			asm.ALLOC, t0,
 			asm.NOT2, r, t0,
 			asm.NEG2, t0, t0,
 		}
@@ -95,12 +95,12 @@ func TestCompileExpr2(t *testing.T) {
 		t.Log("expr: ", e)
 
 		expected := Code{
-			asm.ALLOC, t0, Uint64,
+			asm.ALLOC, t0,
 			asm.MUL3, c7, r1, t0,
-			asm.ALLOC, t1, Uint64,
+			asm.ALLOC, t1,
 			asm.SUB3, c9, r2, t1,
 			asm.ADD3, t0, t1, t0,
-			asm.FREE, t1, asm.Uint64,
+			asm.FREE, t1,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {
@@ -118,6 +118,9 @@ func TestCompileExpr2(t *testing.T) {
 
 func TestCompileExpr3(t *testing.T) {
 	var c Comp
+
+	t0 := MakeSoftReg(FirstTempRegId, Int64)
+
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
 
@@ -135,7 +138,7 @@ func TestCompileExpr3(t *testing.T) {
 		t.Log("expr: ", e)
 
 		expected := Code{
-			asm.ALLOC, t0, Int64,
+			asm.ALLOC, t0,
 			asm.DIV3, m, c_2, t0,
 			asm.AND_NOT3, t0, m, t0,
 		}
@@ -199,19 +202,21 @@ func TestCompileStmt1(t *testing.T) {
 
 func TestCompileStmt2(t *testing.T) {
 	var c Comp
+
 	_7 := MakeConst(7, Int64)
 	_5 := MakeConst(5, Int64)
+	t0 := MakeSoftReg(FirstTempRegId, Int64)
+
 	for _, archId := range []ArchId{asm.AMD64, asm.ARM64} {
 		c.InitArchId(archId)
-		sreg0 := c.NewSoftReg(Int64)
-		sreg1 := c.NewSoftReg(Int64)
-		s0, s1 := sreg0.Id(), sreg1.Id()
+		s0 := c.NewSoftReg(Int64)
+		s1 := c.NewSoftReg(Int64)
 
 		source := Source{
-			ASSIGN, sreg0,
+			ASSIGN, s0,
 			NewExpr2(SUB,
-				NewExpr2(MUL, sreg1, _7),
-				NewExpr2(DIV, sreg1, _5),
+				NewExpr2(MUL, s1, _7),
+				NewExpr2(DIV, s1, _5),
 			),
 		}
 		c.Compile(source)
@@ -220,13 +225,13 @@ func TestCompileStmt2(t *testing.T) {
 		t.Log("source:", source)
 
 		expected := Code{
-			asm.ALLOC, s0, Int64,
-			asm.ALLOC, s1, Int64,
+			asm.ALLOC, s0,
+			asm.ALLOC, s1,
 			asm.MUL3, s1, _7, s0,
-			asm.ALLOC, t0, Int64,
+			asm.ALLOC, t0,
 			asm.DIV3, s1, _5, t0,
 			asm.SUB3, s0, t0, s0,
-			asm.FREE, t0, Int64,
+			asm.FREE, t0,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {

@@ -33,6 +33,7 @@ type (
 	Asm         = common.Asm
 	AsmCode     = common.AsmCode // symbolic assembly code
 	Const       = common.Const
+	Expr        = common.Expr
 	Kind        = common.Kind
 	MachineCode = common.MachineCode // assembled machine code
 	Mem         = common.Mem
@@ -43,13 +44,15 @@ type (
 	Save        = common.Save
 	SaveSlot    = common.SaveSlot
 	Size        = common.Size
+	SoftReg     = common.SoftReg
 	SoftRegId   = common.SoftRegId
-	SoftRegIds  = common.SoftRegIds
+	SoftRegs    = common.SoftRegs
 
 	Op0     = common.Op0
 	Op1     = common.Op1
-	Op2     = common.Op2
+	Op1Misc = common.Op1Misc
 	Op2Misc = common.Op2Misc
+	Op2     = common.Op2
 	Op3     = common.Op3
 	Op4     = common.Op4
 )
@@ -89,6 +92,12 @@ const (
 	// RegId
 	NoRegId = common.NoRegId
 
+	// SoftRegId
+	FirstSoftRegId = common.FirstSoftRegId
+	LastSoftRegId  = common.LastSoftRegId
+	FirstTempRegId = common.FirstTempRegId
+	LastTempRegId  = common.LastTempRegId
+
 	// Op0
 	BAD = common.BAD // invalid instruction, guaranteed to signal exception
 	NOP = common.NOP
@@ -124,11 +133,13 @@ const (
 	NEG2 = common.NEG2
 	NOT2 = common.NOT2
 
-	// Op2Misc
+	// Op1Misc
 	ALLOC = common.ALLOC
 	FREE  = common.FREE
-	PUSH  = common.PUSH
-	POP   = common.POP
+
+	// Op2Misc
+	PUSH = common.PUSH
+	POP  = common.POP
 
 	// Op3
 	ADD3     = common.ADD3
@@ -203,8 +214,12 @@ func MakeReg(id RegId, kind Kind) Reg {
 	return common.MakeReg(id, kind)
 }
 
-func SizeOf(a Arg) Size {
-	return common.SizeOf(a)
+func MakeSoftReg(id SoftRegId, kind Kind) SoftReg {
+	return common.MakeSoftReg(id, kind)
+}
+
+func SizeOf(e Expr) Size {
+	return common.SizeOf(e)
 }
 
 func New() *Asm {

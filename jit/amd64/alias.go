@@ -29,6 +29,7 @@ type (
 	Asm         = common.Asm
 	AsmCode     = common.AsmCode // symbolic assembly code
 	Const       = common.Const
+	Expr        = common.Expr
 	Kind        = common.Kind
 	MachineCode = common.MachineCode // assembled machine code
 	Mem         = common.Mem
@@ -39,13 +40,15 @@ type (
 	Save        = common.Save
 	SaveSlot    = common.SaveSlot
 	Size        = common.Size
+	SoftReg     = common.SoftReg
 	SoftRegId   = common.SoftRegId
-	SoftRegIds  = common.SoftRegIds
+	SoftRegs    = common.SoftRegs
 
 	Op0     = common.Op0
 	Op1     = common.Op1
-	Op2     = common.Op2
+	Op1Misc = common.Op1Misc
 	Op2Misc = common.Op2Misc
+	Op2     = common.Op2
 	Op3     = common.Op3
 	Op4     = common.Op4
 )
@@ -84,6 +87,12 @@ const (
 
 	// RegId
 	NoRegId = common.NoRegId
+
+	// SoftRegId
+	FirstSoftRegId = common.FirstSoftRegId
+	LastSoftRegId  = common.LastSoftRegId
+	FirstTempRegId = common.FirstTempRegId
+	LastTempRegId  = common.LastTempRegId
 
 	// Op0
 	BAD = common.BAD
@@ -210,14 +219,18 @@ func MakeReg(id RegId, kind Kind) Reg {
 	return common.MakeReg(id, kind)
 }
 
-func New() *Asm {
-	return common.NewArch(Amd64{})
+func MakeSoftReg(id SoftRegId, kind Kind) SoftReg {
+	return common.MakeSoftReg(id, kind)
 }
 
-func SizeOf(a Arg) Size {
-	return common.SizeOf(a)
+func SizeOf(e Expr) Size {
+	return common.SizeOf(e)
 }
 
 func log2uint(n uint64) (uint8, bool) {
 	return common.Log2Uint(n)
+}
+
+func New() *Asm {
+	return common.NewArch(Amd64{})
 }

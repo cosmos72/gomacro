@@ -144,7 +144,7 @@ func (c *Comp) Stmt2(inst Inst2, tdst Expr, tsrc Expr) {
 	src, ssoft := c.expr(tsrc, dto)
 	c.code.Inst2(inst, dst, src)
 	c.freeTempReg(dsoft)
-	if ssoft.id != dsoft.id {
+	if ssoft.Id() != dsoft.Id() {
 		c.freeTempReg(ssoft)
 	}
 }

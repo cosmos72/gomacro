@@ -18,15 +18,7 @@ package jit
 
 import (
 	"fmt"
-
-	"github.com/cosmos72/gomacro/base/output"
 )
-
-// subset of Arg interface
-type Expr interface {
-	Kind() Kind
-	Const() bool
-}
 
 // unary expression OP X
 type Expr1 struct {
@@ -134,7 +126,7 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 	src, ssoft := c.expr(e.X, dto)
 	if dst == nil {
 		if ssoft.Valid() {
-			dsoft = SoftReg{ssoft.id, e.K}
+			dsoft = MakeSoftReg(ssoft.Id(), e.K)
 		} else {
 			dsoft = c.newTempReg(e.K)
 			tofree = dsoft
@@ -143,7 +135,7 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 	} else if dst != nil && dst.Kind() != e.K {
 		// do not trust the kind of provided dst
 		if dsoft.Valid() {
-			dsoft = SoftReg{dsoft.id, e.K}
+			dsoft = MakeSoftReg(dsoft.Id(), e.K)
 		} else {
 			dsoft = c.newTempReg(e.K)
 			tofree = dsoft
@@ -151,7 +143,7 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 		dst = dsoft
 	}
 	c.code.Op1(e.Op, src, dst)
-	if ssoft.id != dsoft.id {
+	if ssoft.Id() != dsoft.Id() {
 		c.freeTempReg(ssoft)
 	}
 	if dsoft.Valid() && dsoft != dst {
@@ -159,15 +151,15 @@ func (c *Comp) expr1(e *Expr1, dst Expr) (Expr, SoftReg) {
 		// and free it
 		c.code.Inst2(ASSIGN, dst, dsoft)
 		c.freeTempReg(tofree)
-		dsoft = SoftReg{}
+		dsoft = MakeSoftReg(0, Invalid)
 	}
 	return dst, dsoft
 }
 
 // compile binary expression
 func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
-	output.Debugf("jit.Comp.expr2: e = %v, dst = %v", e, dst)
-	output.Debugf("\twith x.kind = %v, y.kind = %v, e.kind = %v", e.X.Kind(), e.Y.Kind(), e.Kind())
+	// output.Debugf("jit.Comp.expr2: e = %v, dst = %v", e, dst)
+	// output.Debugf("\twith x.kind = %v, y.kind = %v, e.kind = %v", e.X.Kind(), e.Y.Kind(), e.Kind())
 	dsoft, _ := dst.(SoftReg)
 	var tofree SoftReg
 	var dto Expr
@@ -179,9 +171,9 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 	src2, soft2 := c.Expr(e.Y)
 	if dst == nil {
 		if soft1.Valid() {
-			dsoft = SoftReg{soft1.id, e.K}
+			dsoft = MakeSoftReg(soft1.Id(), e.K)
 		} else if soft2.Valid() && e.Op.IsCommutative() {
-			dsoft = SoftReg{soft2.id, e.K}
+			dsoft = MakeSoftReg(soft2.Id(), e.K)
 		} else {
 			dsoft = c.newTempReg(e.K)
 			tofree = dsoft
@@ -190,17 +182,17 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 	} else if dst != nil && dst.Kind() != e.K {
 		// do not trust the kind of provided dst
 		if dsoft.Valid() {
-			dsoft = SoftReg{dsoft.id, e.K}
+			dsoft = MakeSoftReg(dsoft.Id(), e.K)
 		} else {
 			dsoft = c.newTempReg(e.K)
 			tofree = dsoft
 		}
 	}
 	c.code.Op2(e.Op, src1, src2, dst)
-	if soft1.id != dsoft.id {
+	if soft1.Id() != dsoft.Id() {
 		c.freeTempReg(soft1)
 	}
-	if soft2.id != dsoft.id {
+	if soft2.Id() != dsoft.Id() {
 		c.freeTempReg(soft2)
 	}
 	if dsoft.Valid() && dsoft != dst {
@@ -208,7 +200,7 @@ func (c *Comp) expr2(e *Expr2, dst Expr) (Expr, SoftReg) {
 		// and free it
 		c.code.Inst2(ASSIGN, dst, dsoft)
 		c.freeTempReg(tofree)
-		dsoft = SoftReg{}
+		dsoft = MakeSoftReg(0, Invalid)
 	}
 	return dst, dsoft
 }

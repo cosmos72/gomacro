@@ -19,7 +19,7 @@ package common
 type Asm struct {
 	code          MachineCode
 	nextSoftRegId SoftRegId // first available soft register
-	softRegs      SoftRegIds
+	softRegs      SoftRegs
 	save          Save
 	regIds        RegIds
 	initialRegIds RegIds
@@ -72,8 +72,8 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	config := arch.RegIdConfig()
 	asm.arch = arch
 	asm.code = MachineCode{ArchId: id}
-	asm.nextSoftRegId = 0
-	asm.softRegs = make(SoftRegIds)
+	asm.nextSoftRegId = FirstSoftRegId
+	asm.softRegs = make(SoftRegs)
 	s := asm.save
 	s.start, s.next, s.end = saveStart, saveStart, saveEnd
 	s.reg = Reg{config.RSP, Uint64}
@@ -157,8 +157,8 @@ func (asm *Asm) Int64(val int64) *Asm {
 // convert AsmCode to Arg
 func (asm *Asm) Arg(x AsmCode) Arg {
 	switch x := x.(type) {
-	case SoftRegId:
-		return asm.SoftRegId(x)
+	case SoftReg:
+		return x.Arg(asm)
 	case Arg:
 		return x
 	default:
@@ -167,43 +167,35 @@ func (asm *Asm) Arg(x AsmCode) Arg {
 	}
 }
 
-// convert SoftRegId to Arg
-func (asm *Asm) SoftRegId(s SoftRegId) Arg {
-	a := asm.softRegs[s]
-	if a == nil {
-		errorf("soft register %v not allocated", s)
-	}
-	return a
-}
-
 // allocate a SoftRegId
-func (asm *Asm) Alloc(s SoftRegId, kind Kind) Arg {
-	var a Arg
+func (asm *Asm) Alloc(s SoftReg) Arg {
+	var rm regIdOrMem
+	kind := s.Kind()
 	if r := asm.TryRegAlloc(kind); r.Valid() {
-		a = r
-	} else {
-		idx := asm.save.Alloc()
-		if idx == InvalidSlot {
-			errorf("no free register, and save area is full. Cannot allocate soft register %v", s)
-		}
-		a = MakeMem(int32(idx)*8, asm.save.reg.id, kind)
+		rm.regId = r.RegId()
+		asm.softRegs[s.Id()] = rm
+		return r
 	}
-	asm.softRegs[s] = a
-	return a
+	idx := asm.save.Alloc()
+	if idx == InvalidSlot {
+		errorf("no free register, and save area is full. Cannot allocate soft register %v", s)
+	}
+	rm.off = int32(idx) * 8
+	rm.regId = asm.save.reg.id
+	rm.ismem = true
+	return MakeMem(rm.off, rm.regId, kind)
 }
 
-func (asm *Asm) Free(s SoftRegId) {
-	a := asm.softRegs[s]
-	if a == nil {
+func (asm *Asm) Free(s SoftReg) {
+	id := s.Id()
+	rm, ok := asm.softRegs[id]
+	if !ok {
 		errorf("cannot free unallocated soft register %v", s)
 	}
-	switch a := a.(type) {
-	case Reg:
-		asm.RegFree(a)
-	case Mem:
-		asm.save.Free(SaveSlot(a.off / 8))
-	default:
-		errorf("soft register %v is mapped to unknown type %T, expecting Reg or Mem", s, a)
+	if rm.ismem {
+		asm.save.Free(SaveSlot(rm.off / 8))
+	} else {
+		asm.RegFree(MakeReg(rm.regId, s.Kind()))
 	}
-	delete(asm.softRegs, s)
+	delete(asm.softRegs, id)
 }

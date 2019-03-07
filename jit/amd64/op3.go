@@ -17,10 +17,7 @@
 package amd64
 
 import (
-	"os"
-	"runtime/debug"
-
-	"github.com/cosmos72/gomacro/base/output"
+	"errors"
 )
 
 // ============================================================================
@@ -32,6 +29,8 @@ func (arch Amd64) Op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) *Asm {
 	return asm
 }
 
+var op3KindError = errors.New("Amd64.op3: arguments a, b, dst must have the same kind")
+
 func (arch Amd64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Amd64 {
 	// validate kinds
 	switch op {
@@ -42,9 +41,7 @@ func (arch Amd64) op3(asm *Asm, op Op3, a Arg, b Arg, dst Arg) Amd64 {
 		assert(a.Kind().Size() == 8)
 	default:
 		if a.Kind() != dst.Kind() || b.Kind() != dst.Kind() {
-			output.Debugf("Amd64.op3: expecting a, b, dst to have the same kind: %v %v, %v, %v", op, a, b, dst)
-			debug.PrintStack()
-			os.Exit(1)
+			panic(op3KindError)
 			// assert(a.Kind() == dst.Kind())
 			// assert(b.Kind() == dst.Kind())
 		}

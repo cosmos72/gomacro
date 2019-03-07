@@ -100,7 +100,7 @@ var inst3name = map[Inst3]string{
 	IDX_ASSIGN: "[]=",
 }
 
-var misc2name = map[Inst1Misc]string{
+var misc1name = map[Inst1Misc]string{
 	ALLOC: "ALLOC",
 	FREE:  "FREE",
 }
@@ -199,7 +199,7 @@ func (inst Inst3) String() string {
 // =======================================================
 
 func (inst Inst1Misc) Valid() bool {
-	_, ok := misc2name[inst]
+	_, ok := misc1name[inst]
 	return ok
 }
 
@@ -209,14 +209,14 @@ func (inst Inst1Misc) Validate() {
 	}
 }
 
-// convert to asm.Op2Misc
-func (inst Inst1Misc) Asm() asm.Op2Misc {
+// convert to asm.Op1Misc
+func (inst Inst1Misc) Asm() asm.Op1Misc {
 	inst.Validate()
-	return asm.Op2Misc(inst)
+	return asm.Op1Misc(inst)
 }
 
 func (inst Inst1Misc) String() string {
-	s, ok := misc2name[inst]
+	s, ok := misc1name[inst]
 	if !ok {
 		s = fmt.Sprintf("Inst1Misc(%d)", uint8(inst))
 	}

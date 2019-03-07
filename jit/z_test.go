@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	t0 SoftRegId = FirstTempRegId + iota
+	t0 SoftReg = SoftReg(FirstTempRegId+iota)<<8 | SoftReg(Uint64)
 	t1
 )
 
@@ -54,7 +54,7 @@ func TestExpr1(t *testing.T) {
 	t.Logf("expr: %v", e)
 	actual := c.code
 	expected := Code{
-		asm.ALLOC, t0, Uint64,
+		asm.ALLOC, t0,
 		asm.NOT2, r, t0,
 		asm.NEG2, t0, t0,
 	}
@@ -83,12 +83,12 @@ func TestExpr2(t *testing.T) {
 
 		actual := c.code
 		expected := Code{
-			asm.ALLOC, t0, Uint64,
+			asm.ALLOC, t0,
 			asm.MUL3, c7, r1, t0,
-			asm.ALLOC, t1, Uint64,
+			asm.ALLOC, t1,
 			asm.SUB3, c9, r2, t1,
 			asm.ADD3, t0, t1, t0,
-			asm.FREE, t1, asm.Uint64,
+			asm.FREE, t1,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {
@@ -147,7 +147,6 @@ func TestCompileStmt2(t *testing.T) {
 		c.InitArchId(archId)
 		s0 := c.NewSoftReg(Uint64)
 		s1 := c.NewSoftReg(Uint64)
-		sid0, sid1 := s0.Id(), s1.Id()
 
 		stmt := NewStmt2(ASSIGN, s0,
 			NewExpr1(NEG,
@@ -157,10 +156,10 @@ func TestCompileStmt2(t *testing.T) {
 		actual := c.Code()
 		t.Logf("stmt: %v", stmt)
 		expected := Code{
-			asm.ALLOC, sid0, asm.Uint64,
-			asm.ALLOC, sid1, asm.Uint64,
-			asm.MUL3, sid1, _7, sid0,
-			asm.NEG2, sid0, sid0,
+			asm.ALLOC, s0,
+			asm.ALLOC, s1,
+			asm.MUL3, s1, _7, s0,
+			asm.NEG2, s0, s0,
 		}
 
 		if i := CompareCode(actual, expected); i >= 0 {

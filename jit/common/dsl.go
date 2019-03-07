@@ -33,6 +33,9 @@ func (asm *Asm) Op(args ...AsmCode) int {
 	case Op1:
 		asm.Op1(op, asm.Arg(args[1]))
 		n = 1
+	case Op1Misc:
+		asm.Op1Misc(op, args[1])
+		n = 1
 	case Op2Misc:
 		asm.Op2Misc(op, args[1], args[2])
 		n = 2
@@ -46,7 +49,7 @@ func (asm *Asm) Op(args ...AsmCode) int {
 		asm.Op4(op, asm.Arg(args[1]), asm.Arg(args[2]), asm.Arg(args[3]), asm.Arg(args[4]))
 		n = 4
 	default:
-		errorf("syntax error: expecting Op0,Op1,Op2,Op3,Op4 or Op2Misc [args], found %v // %T", op, op)
+		errorf("syntax error: expecting Op0,Op1,Op1Misc,Op2Misc,Op2,Op3 or Op4 [args], found %v // %T", op, op)
 	}
 	return n
 }

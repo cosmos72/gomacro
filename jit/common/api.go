@@ -39,6 +39,12 @@ type Arg interface {
 	asmcode()
 }
 
+// subset of Arg interface
+type Expr interface {
+	Kind() Kind
+	Const() bool
+}
+
 // memory area where spill registers can be saved
 type Save struct {
 	reg              Reg      // points to memory area
@@ -46,10 +52,10 @@ type Save struct {
 	bitmap           []bool   // bitmap of used/free indexes
 }
 
-func SizeOf(a Arg) Size {
-	size := a.Kind().Size()
+func SizeOf(e Expr) Size {
+	size := e.Kind().Size()
 	if size == 0 {
-		errorf("unsupported register/memory kind: %v", a.Kind())
+		errorf("unknown kind: %v", e.Kind())
 	}
 	return size
 }

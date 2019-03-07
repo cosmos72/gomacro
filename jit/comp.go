@@ -66,7 +66,7 @@ func (c *Comp) InitArch(arch Arch) *Comp {
 	}
 	c.code = nil
 	c.toassemble = 0
-	c.nextSoftReg = 0
+	c.nextSoftReg = FirstSoftRegId
 	c.nextTempReg = FirstTempRegId
 	c.arch = arch
 	c.RegIdConfig = arch.RegIdConfig()
@@ -109,8 +109,8 @@ func (c *Comp) ClearCode() {
 
 // forget all allocated registers
 func (c *Comp) ClearRegs() {
-	c.nextSoftReg = 0
-	c.nextTempReg = 0
+	c.nextSoftReg = FirstSoftRegId
+	c.nextTempReg = FirstTempRegId
 	if c.asm != nil {
 		c.asm.ClearRegs()
 	}
