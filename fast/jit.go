@@ -289,7 +289,7 @@ func (j *Jit) Symbol(e *Expr) *Expr {
 		mem, err := jit.MakeVar(idx, kind, j.RegIdConfig())
 		if err != nil {
 			if jit_verbose > 0 {
-				output.Debugf("jit symbol %v failed: ", sym, err)
+				output.Debugf("jit symbol %v failed: %v", sym, err)
 			}
 		} else {
 			e.Jit = mem
@@ -323,12 +323,27 @@ func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 	if !j.Can(init) {
 		return nil
 	}
-	if va.Type.Kind() != init.Type.Kind() {
-		output.Debugf("jit setvar: mismatched kinds %v != %v",
-			va.Type.Kind(), init.Type.Kind())
-		return nil
-	}
 	op_assign := tokenWithAssign(op)
+	vkind := jit.Kind(va.Type.Kind())
+	ekind := jit.Kind(init.Type.Kind())
+	switch op_assign {
+	case token.SHL_ASSIGN, token.SHR_ASSIGN:
+		if vkind.IsFloat() || ekind.Signed() {
+			if jit_verbose > 0 {
+				output.Debugf("jit setvar: invalid kinds for shift: %v %v %v",
+					vkind, op, ekind)
+			}
+			return nil
+		}
+	default:
+		if vkind != ekind {
+			if jit_verbose > 0 {
+				output.Debugf("jit setvar: mismatched kinds: %v %v %v",
+					vkind, op, ekind)
+				return nil
+			}
+		}
+	}
 	if jit_verbose > 2 {
 		output.Debugf("jit setvar:     %v %v %v", va, op_assign, init.Jit)
 	}
@@ -605,7 +620,7 @@ func (j *Jit) makeFun(kind jit.Kind) I {
 }
 
 func (j *Jit) makeStmt() Stmt {
-	if true {
+	if false {
 		// use a closure instead of jit-compiling the epilogue
 		var fun func(*Env)
 		j.Comp().Func(&fun)
