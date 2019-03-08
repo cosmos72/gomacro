@@ -139,32 +139,48 @@ func (c *Comp) BinaryExprUntyped(node *ast.BinaryExpr, x UntypedLit, y UntypedLi
 	}
 }
 
+var tokenRemoveAssign = map[token.Token]token.Token{
+	token.ADD_ASSIGN:     token.ADD,
+	token.SUB_ASSIGN:     token.SUB,
+	token.MUL_ASSIGN:     token.MUL,
+	token.QUO_ASSIGN:     token.QUO,
+	token.REM_ASSIGN:     token.REM,
+	token.AND_ASSIGN:     token.AND,
+	token.OR_ASSIGN:      token.OR,
+	token.XOR_ASSIGN:     token.XOR,
+	token.SHL_ASSIGN:     token.SHL,
+	token.SHR_ASSIGN:     token.SHR,
+	token.AND_NOT_ASSIGN: token.AND_NOT,
+}
+
+var tokenAddAssign = map[token.Token]token.Token{
+	token.ADD:     token.ADD_ASSIGN,
+	token.SUB:     token.SUB_ASSIGN,
+	token.MUL:     token.MUL_ASSIGN,
+	token.QUO:     token.QUO_ASSIGN,
+	token.REM:     token.REM_ASSIGN,
+	token.AND:     token.AND_ASSIGN,
+	token.OR:      token.OR_ASSIGN,
+	token.XOR:     token.XOR_ASSIGN,
+	token.SHL:     token.SHL_ASSIGN,
+	token.SHR:     token.SHR_ASSIGN,
+	token.AND_NOT: token.AND_NOT_ASSIGN,
+}
+
 func tokenWithoutAssign(op token.Token) token.Token {
-	switch op {
-	case token.ADD_ASSIGN:
-		op = token.ADD
-	case token.SUB_ASSIGN:
-		op = token.SUB
-	case token.MUL_ASSIGN:
-		op = token.MUL
-	case token.QUO_ASSIGN:
-		op = token.QUO
-	case token.REM_ASSIGN:
-		op = token.REM
-	case token.AND_ASSIGN:
-		op = token.AND
-	case token.OR_ASSIGN:
-		op = token.OR
-	case token.XOR_ASSIGN:
-		op = token.XOR
-	case token.SHL_ASSIGN:
-		op = token.SHL
-	case token.SHR_ASSIGN:
-		op = token.SHR
-	case token.AND_NOT_ASSIGN:
-		op = token.AND_NOT
+	ret, ok := tokenRemoveAssign[op]
+	if !ok {
+		ret = op
 	}
-	return op
+	return ret
+}
+
+func tokenWithAssign(op token.Token) token.Token {
+	ret, ok := tokenAddAssign[op]
+	if !ok {
+		ret = op
+	}
+	return ret
 }
 
 var warnUntypedShift, warnUntypedShift2 = true, true

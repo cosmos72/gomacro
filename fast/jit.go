@@ -170,7 +170,11 @@ func (j *Jit) RegIdConfig() jit.RegIdConfig {
 
 func (j *Jit) Log(e *Expr) {
 	if jit_verbose > 2 {
-		output.Debugf("jit expr: %+v => %v", e, e.Jit)
+		if e.Const() {
+			output.Debugf("jit const:      %+v => %v", e, e.Jit)
+		} else {
+			output.Debugf("jit expr:       %+v => %v", e, e.Jit)
+		}
 	}
 }
 
@@ -179,7 +183,11 @@ func (j *Jit) Can(e *Expr) bool {
 	if j != nil && e.Jit == nil && e.Const() {
 		j.Const(e)
 	}
-	return e.Jit != nil
+	ret := e.Jit != nil
+	if !ret && jit_verbose > 0 {
+		output.Debugf("jit could compile expr: %v", e)
+	}
+	return ret
 }
 
 // if supported, set e.Jit to jit constant == e.Lit.Value
@@ -279,8 +287,15 @@ func (j *Jit) Symbol(e *Expr) *Expr {
 	}
 	if sym.Upn == 0 {
 		mem, err := jit.MakeVar(idx, kind, j.RegIdConfig())
-		if err == nil {
+		if err != nil {
+			if jit_verbose > 0 {
+				output.Debugf("jit symbol %v failed: ", sym, err)
+			}
+		} else {
 			e.Jit = mem
+			if jit_verbose > 2 {
+				output.Debugf("jit symbol:     %v => %v", e, e.Jit)
+			}
 		}
 		return e
 	}
@@ -309,33 +324,37 @@ func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 		return nil
 	}
 	if va.Type.Kind() != init.Type.Kind() {
-		output.Debugf("jit SetVar: mismatched kinds %v != %v",
+		output.Debugf("jit setvar: mismatched kinds %v != %v",
 			va.Type.Kind(), init.Type.Kind())
 		return nil
+	}
+	if jit_verbose > 2 {
+		output.Debugf("jit setvar:     %v %v %v", va, op, init.Jit)
 	}
 	if va.Upn != 0 {
 		return j.setvarupn(va, op, init)
 	}
+	op = tokenWithAssign(op)
 	inst, err := jit.TokenInst2(op)
 	if err != nil {
 		if jit_verbose > 0 {
-			output.Debugf("jit SetVar: TokenInst2 failed: %v", err)
+			output.Debugf("jit setvar: TokenInst2(%v) failed: %v", op, err)
 			return nil
 		}
 	}
 	mem, err := jit.MakeVar(va.Desc.Index(), jit.Kind(va.Type.Kind()), j.RegIdConfig())
 	if err != nil {
 		if jit_verbose > 0 {
-			output.Debugf("jit SetVar: MakeVar failed: %v", err)
+			output.Debugf("jit setvar: MakeVar failed: %v", err)
 		}
 		return nil
 	}
-	// output.Debugf("jit SetVar on %v", va)
-	// output.Debugf("jit SetVar to compile:  %v %v %v", mem, op, init.Jit)
+	// output.Debugf("jit setvar on %v", va)
+	// output.Debugf("jit setvar to compile:  %v %v %v", mem, op, init.Jit)
 	j.Comp().Stmt2(inst, mem, init.Jit)
-	// output.Debugf("jit SetVar compiled  to: %v", j.Comp().Code())
+	// output.Debugf("jit setvar compiled  to: %v", j.Comp().Code())
 	ret := j.stmt0()
-	// output.Debugf("jit SetVar assembled to: %v", j.LastMachineCode())
+	// output.Debugf("jit setvar assembled to: %v", j.LastMachineCode())
 	return ret
 }
 
@@ -380,7 +399,7 @@ func (j *Jit) setvarupn(va *Var, op token.Token, init *Expr) Stmt {
 	inst, err := jit.TokenOp2(op)
 	if err != nil {
 		if jit_verbose > 0 {
-			output.Debugf("jit setvarupn: TokenInst2 failed: %v", err)
+			output.Debugf("jit setvarupn: TokenOp2(%v) failed: %v", op, err)
 		}
 		return nil
 	}
@@ -424,13 +443,16 @@ func (j *Jit) AsStmt(e *Expr) Stmt {
 // always returns e.
 func (j *Jit) Fun(e *Expr) *Expr {
 	if jit_verbose > 2 && j != nil {
-		output.Debugf("jit to compile expr: %v with e.Jit = %v", e, e.Jit)
+		output.Debugf("jit to compile: %v with e.Jit = %v", e, e.Jit)
 	}
 	if j == nil || e.Jit == nil {
 		return e
 	}
 	kind := jit.Kind(e.Type.Kind())
 	if kind.Size() == 0 {
+		if jit_verbose > 0 {
+			output.Debugf("jit failed to compile: e.Jit = %v has unsupported kind %v", e.Jit, kind)
+		}
 		return e
 	}
 	fun := j.fun0(e, kind)
@@ -452,10 +474,6 @@ func (j *Jit) fun0(e *Expr, kind jit.Kind) I {
 	// the return value is on the stack at [RSP+16]
 	jc := j.Comp()
 	jc.Stmt2(jit.ASSIGN, jc.MakeParam(16, e.Jit.Kind()), e.Jit)
-	if jit_verbose > 1 {
-		output.Debugf("jit compiled:  %v", jc.Code())
-		output.Debugf("jit assembled: %v", jc.Assemble())
-	}
 	fun := j.makeFun(kind)
 	success = true
 	return fun
@@ -505,10 +523,15 @@ func (j *Jit) cleanup(success *bool) {
 	// reinit for next use
 	j.preamble()
 
-	if !*success {
+	if *success {
+		if jit_verbose > 1 {
+			output.Debugf("jit compiled:   %v", j.lastCode)
+			output.Debugf("jit assembled:  %v", j.lastMachineCode)
+		}
+	} else {
 		err := recover()
 		if jit_verbose > 0 {
-			output.Debugf("jit failed: %v", err)
+			output.Debugf("jit failed:     %v", err)
 		}
 	}
 }
@@ -582,7 +605,7 @@ func (j *Jit) makeFun(kind jit.Kind) I {
 }
 
 func (j *Jit) makeStmt() Stmt {
-	if false {
+	if true {
 		// use a closure instead of jit-compiling the epilogue
 		var fun func(*Env)
 		j.Comp().Func(&fun)
@@ -632,8 +655,8 @@ func (j *Jit) makeStmt() Stmt {
 	}
 	jc.Compile(source)
 	if jit_verbose > 1 {
-		output.Debugf("jit compiled:  %v", jc.Code())
-		output.Debugf("jit assembled: %v", jc.Assemble())
+		output.Debugf("jit compiled:   %v", jc.Code())
+		output.Debugf("jit assembled:  %v", jc.Assemble())
 	}
 	var f func(*Env) (Stmt, *Env)
 	jc.Func(&f)
