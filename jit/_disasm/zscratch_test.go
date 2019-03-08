@@ -87,9 +87,9 @@ func TestAmd64Defer3(t *testing.T) {
 	})
 }
 
-func TestAmd64For(t *testing.T) {
+func TestAmd64ForNested(t *testing.T) {
 	PrintDisasm(t, asm.MachineCode{
 		asm.AMD64,
-		HexToBinary("488b742408488b761848ff06c3"),
+		HexToBinary("488b742408488b7618488b7c2408488b5f30488b5b30488b5b30488b5b18488b3b48ffc748893bc3"),
 	})
 }

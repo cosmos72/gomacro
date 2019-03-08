@@ -328,17 +328,17 @@ func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 			va.Type.Kind(), init.Type.Kind())
 		return nil
 	}
+	op_assign := tokenWithAssign(op)
 	if jit_verbose > 2 {
-		output.Debugf("jit setvar:     %v %v %v", va, op, init.Jit)
+		output.Debugf("jit setvar:     %v %v %v", va, op_assign, init.Jit)
 	}
 	if va.Upn != 0 {
 		return j.setvarupn(va, op, init)
 	}
-	op = tokenWithAssign(op)
-	inst, err := jit.TokenInst2(op)
+	inst, err := jit.TokenInst2(op_assign)
 	if err != nil {
 		if jit_verbose > 0 {
-			output.Debugf("jit setvar: TokenInst2(%v) failed: %v", op, err)
+			output.Debugf("jit setvar: TokenInst2(%v) failed: %v", op_assign, err)
 			return nil
 		}
 	}
@@ -350,7 +350,7 @@ func (j *Jit) SetVar(va *Var, op token.Token, init *Expr) Stmt {
 		return nil
 	}
 	// output.Debugf("jit setvar on %v", va)
-	// output.Debugf("jit setvar to compile:  %v %v %v", mem, op, init.Jit)
+	// output.Debugf("jit setvar to compile:  %v %v %v", mem, op_assign, init.Jit)
 	j.Comp().Stmt2(inst, mem, init.Jit)
 	// output.Debugf("jit setvar compiled  to: %v", j.Comp().Code())
 	ret := j.stmt0()
@@ -405,7 +405,7 @@ func (j *Jit) setvarupn(va *Var, op token.Token, init *Expr) Stmt {
 	}
 	// softbinds = binds
 	softbinds := jc.NewSoftReg(jit.Uintptr)
-	stmt1 := jit.NewStmt2(jit.ASSIGN, binds, softbinds)
+	stmt1 := jit.NewStmt2(jit.ASSIGN, softbinds, binds)
 	// value = softbinds[index] OP init
 	value := jit.NewExpr2(
 		inst,

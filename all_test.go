@@ -47,6 +47,7 @@ const (
 	C                     // test for classic interpreter
 	F                     // test for fast interpreter
 	U                     // test returns untyped constant (relevant only for fast interpreter)
+	Z                     // temporary override: run only these tests, on fast interpreter only
 	A = C | F             // test for both interpreters
 )
 
@@ -58,12 +59,25 @@ type TestCase struct {
 	results []interface{}
 }
 
+var foundZ bool
+
+func init() {
+	for i := range testcases {
+		if testcases[i].testfor&Z != 0 {
+			foundZ = true
+		}
+	}
+}
+
 func TestClassic(t *testing.T) {
+	if foundZ {
+		t.Skip("one or more tests marked with 'Z' i.e. run only those and only on fast interpreter")
+	}
 	ir := classic.New()
 	// ir.Options |= OptDebugCallStack | OptDebugPanicRecover
-	for _, test := range testcases {
+	for i := range testcases {
+		test := testcases[i]
 		if test.testfor&C != 0 {
-			test := test
 			t.Run(test.name, func(t *testing.T) { test.classic(t, ir) })
 		}
 	}
@@ -71,9 +85,9 @@ func TestClassic(t *testing.T) {
 
 func TestFast(t *testing.T) {
 	ir := fast.New()
-	for _, test := range testcases {
-		if test.testfor&F != 0 {
-			test := test
+	for i := range testcases {
+		test := testcases[i]
+		if test.testfor&F != 0 && (!foundZ || test.testfor&Z != 0) {
 			t.Run(test.name, func(t *testing.T) { test.fast(t, ir) })
 		}
 	}
@@ -522,14 +536,14 @@ var testcases = []TestCase{
 	TestCase{A, "set_const_3", "v3 = 60000;   v3", uint16(60000), nil},
 	TestCase{A, "set_const_4", "v  = 987;      v", uint32(987), nil},
 	TestCase{A, "set_const_5", `vs = "8y57r"; vs`, "8y57r", nil},
-	TestCase{A, "set_const_6", "v6 = 0.12345678901234; v6", float32(0.12345678901234), nil}, // v6 is declared float32
-	TestCase{A, "set_const_7", "v7 = 0.98765432109i; v7", complex64(0.98765432109i), nil},   // v7 is declared complex64
-	TestCase{A, "set_const_8", "v8 = 0.98765432109i; v8", complex128(0.98765432109i), nil},  // v8 is declared complex128
+	TestCase{A, "set_const_6", "v6 = 0.12345678901234; v6", float32(0.12345678901234), nil},  // v6 is declared float32
+	TestCase{A, "set_const_7", "v7 = 0.98765432109i;   v7", complex64(0.98765432109i), nil},  // v7 is declared complex64
+	TestCase{A, "set_const_8", "v8 = 0.98765432109i;   v8", complex128(0.98765432109i), nil}, // v8 is declared complex128
 
 	TestCase{A, "set_expr_1", "v1 = v1 == v1;    v1", true, nil},
-	TestCase{A, "set_expr_2", "v2 -= 7;      v2", uint8(2), nil},
-	TestCase{A, "set_expr_3", "v3 %= 7;      v3", uint16(60000) % 7, nil},
-	TestCase{A, "set_expr_4", "v  = v * 10;      v", uint32(9870), nil},
+	TestCase{A, "set_expr_2", "v2 -= 7;          v2", uint8(2), nil},
+	TestCase{A, "set_expr_3", "v3 %= 7;          v3", uint16(60000) % 7, nil},
+	TestCase{A, "set_expr_4", "v  = v * 10;       v", uint32(9870), nil},
 	TestCase{A, "set_expr_5", `vs = vs + "iuh";  vs`, "8y57riuh", nil},
 	TestCase{A, "set_expr_6", "v6 = 1/v6;        v6", 1 / float32(0.12345678901234), nil},                          // v6 is declared float32
 	TestCase{A, "set_expr_7", "v7 = v7 * v7;     v7", -complex64(0.98765432109) * complex64(0.98765432109), nil},   // v7 is declared complex64
@@ -558,10 +572,10 @@ var testcases = []TestCase{
 	TestCase{A, "for_3", "k", 2, nil},
 	TestCase{A, "for_nested", `x := 0
 		{
-			n1, n2, n3 := 2, 3, 5
+			var n1, n2, n3 = 2, 3, 5
 			for i := 0; i < n1; i++ {
-				for k := 0; k < n2; k++ {
-					for j := 0; j < n3; j++ {
+				for j := 0; j < n2; j++ {
+					for k := 0; k < n3; k++ {
 						x++
 					}
 				}

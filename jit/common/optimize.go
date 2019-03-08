@@ -139,6 +139,11 @@ func (asm *Asm) Optimize2(op Op2, src Arg, dst Arg) bool {
 			asm.Op1(NEG1, dst)
 			return true
 		}
+	case MOV:
+		if n == 0 {
+			asm.Zero(dst)
+			return true
+		}
 	}
 	return false
 }
