@@ -34,11 +34,11 @@ type Op1Misc uint8
 type Op2Misc uint8
 
 const (
-	ALLOC Op1Misc = 1 // allocate soft register
-	FREE  Op1Misc = 2 // free soft register
+	ALLOC Op1Misc = 0x01 // allocate soft register
+	FREE  Op1Misc = 0x02 // free soft register
 
-	PUSH Op2Misc = 3
-	POP  Op2Misc = 4
+	PUSH Op2Misc = 0x20
+	POP  Op2Misc = 0x21
 )
 
 var op1MiscName = map[Op1Misc]string{

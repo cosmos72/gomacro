@@ -1211,6 +1211,19 @@ var testcases = []TestCase{
 	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
 		[]int{3, 2, 1}, nil},
 
+	TestCase{F, "template_func_curry", `
+	    template[A,B,C] func Curry(f func(a A, b B) C) func (A) func(B) C {
+			return func (a A) func (B) C {
+				return func (b B) C {
+					return f(a, b)
+				}
+			}
+		}
+		template[T] func add2(a,b T) T { return a+b }
+		Curry#[int,int,int](add2#[int])(2)(3)
+	`,
+		5, nil},
+
 	TestCase{F, "recursive_template_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, none},
 	TestCase{F, "recursive_template_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
 	TestCase{F, "recursive_template_func_3", `count#[uint32](2,3)`, uint32(5), nil},

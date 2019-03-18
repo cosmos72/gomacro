@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"unsafe"
 )
 
 type Const struct {
@@ -138,6 +139,12 @@ func ConstUint64(val uint64) Const {
 
 func ConstUintptr(val uintptr) Const {
 	return Const{val: int64(val), kind: Uintptr}
+}
+
+// guaranteed to work only if val points to non-Go memory,
+// as for example C/C++ memory
+func ConstPointer(val *uint8) Const {
+	return Const{val: int64(uintptr(unsafe.Pointer(val))), kind: Ptr}
 }
 
 var constInterfaceFail = fmt.Errorf("unsupported jit constant kind")

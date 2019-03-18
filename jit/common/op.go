@@ -59,6 +59,7 @@ const (
 	DEC  = Op1(token.DEC)     // --
 	NEG1 = Op1(token.VAR + 1) // - // avoid conflict between NEG2 and SUB2
 	NOT1 = Op1(token.VAR + 2) // ^ // avoid conflict between NOT2 and XOR2
+	JMP  = Op1(token.GOTO)
 )
 
 var op1Name = map[Op1]string{
@@ -67,6 +68,14 @@ var op1Name = map[Op1]string{
 	DEC:  "DEC",
 	NOT1: "NOT1",
 	NEG1: "NEG1",
+	/* JMP:
+	 * if argument is signed integer constant N
+	 *    => jump forward or backward N assembly instructions
+	 *       (each instruction includes its arguments)
+	 * if argument is pointer constant
+	 *    => jump to absolute address
+	 */
+	JMP: "JMP",
 }
 
 func (op Op1) String() string {
@@ -108,11 +117,11 @@ const (
 	CAST = Op2(token.TYPE)   // somewhat arbitrary choice
 
 	LEA2 = Op2(token.ARROW) // amd64 only. somewhat arbitrary choice
-	// CMP  = ??
 	// XCHG = ??
 	// two-arg versions of NOT1, NEG1 above
-	NEG2 = Op2(NEG1)
-	NOT2 = Op2(NOT1)
+	NEG2  = Op2(NEG1)
+	NOT2  = Op2(NOT1)
+	JMPIF = Op2(JMP)
 )
 
 var op2Name = map[Op2]string{
@@ -136,10 +145,10 @@ var op2Name = map[Op2]string{
 	MOV:  "MOV",
 	CAST: "CAST",
 	LEA2: "LEA2",
-	// CMP:  "CMP",
 	// XCHG: "XCHG",
-	NEG2: "NEG2",
-	NOT2: "NOT2",
+	NEG2:  "NEG2",
+	NOT2:  "NOT2",
+	JMPIF: "JMPIF",
 }
 
 func (op Op2) String() string {

@@ -55,6 +55,10 @@ func (code MachineCode) MemArea() MemArea {
 	return MemArea{}
 }
 
+func (area MemArea) Addr() *uint8 {
+	return nil
+}
+
 func (area MemArea) Size() int {
 	return 0
 }

@@ -18,7 +18,6 @@ package common
 
 type Asm struct {
 	code          MachineCode
-	nextSoftRegId SoftRegId // first available soft register
 	softRegs      SoftRegs
 	save          Save
 	regIds        RegIds
@@ -26,6 +25,9 @@ type Asm struct {
 	arch          Arch
 	pool          *MemPool
 	cache         Cache
+	// map from indexes in code[] of 32-bit relative jumps offsets to be filled,
+	// to absolute jump address
+	jump map[int]uintptr
 }
 
 func New(id ArchId) *Asm {
@@ -72,7 +74,6 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	config := arch.RegIdConfig()
 	asm.arch = arch
 	asm.code = MachineCode{ArchId: id}
-	asm.nextSoftRegId = FirstSoftRegId
 	asm.softRegs = make(SoftRegs)
 	s := asm.save
 	s.start, s.next, s.end = saveStart, saveStart, saveEnd
@@ -85,6 +86,7 @@ func (asm *Asm) InitArch2(arch Arch, saveStart SaveSlot, saveEnd SaveSlot) *Asm 
 	asm.regIds.rhi = config.RHi
 	asm.pool = nil
 	asm.cache = nil
+	asm.jump = nil
 	arch.Init(asm, saveStart, saveEnd)
 	asm.initialRegIds.Copy(&asm.regIds)
 	arch.Prologue(asm)
@@ -103,6 +105,16 @@ func (asm *Asm) ClearCode() *Asm {
 // forget all allocated registers
 func (asm *Asm) ClearRegs() *Asm {
 	asm.regIds.Copy(&asm.initialRegIds)
+	return asm
+}
+
+// mark the last assembled 32 bits
+// as a relative jump destination to be set to 'dst'
+func (asm *Asm) AddJump(dst uintptr) *Asm {
+	if asm.jump == nil {
+		asm.jump = make(map[int]uintptr)
+	}
+	asm.jump[len(asm.code.Bytes)-4] = dst
 	return asm
 }
 

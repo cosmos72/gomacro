@@ -49,6 +49,13 @@ func NewMemPool(size int) *MemPool {
 	return &MemPool{bytes, 0}
 }
 
+func (pool *MemPool) Addr() *uint8 {
+	if pool.Size() <= 0 {
+		return nil
+	}
+	return &pool.bytes[pool.offset]
+}
+
 func (pool *MemPool) Size() int {
 	if pool == nil {
 		return 0

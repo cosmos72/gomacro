@@ -339,3 +339,23 @@ func TestAmd64DivD(t *testing.T) {
 		}
 	}
 }
+
+func TestAmd64Jmp(t *testing.T) {
+	var asm Asm
+	asm.InitArch(Amd64{})
+
+	asm.Assemble(NOP)
+	mem1 := asm.Mmap()
+
+	// works only on Unix systems:
+	// on Windows, MemArea is not []byte
+
+	asm.ClearCode()
+	asm.Assemble( //
+		JMP, ConstPointer(&mem1[0]),
+	)
+	PrintDisasm(t, asm.Code())
+
+	mem2 := asm.Mmap()
+	PrintDisasm(t, MachineCode{asm.ArchId(), mem2})
+}

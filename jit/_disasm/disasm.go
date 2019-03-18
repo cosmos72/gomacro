@@ -18,6 +18,7 @@ package disasm
 
 import (
 	"testing"
+	"unsafe"
 
 	"github.com/bnagy/gapstone"
 	. "github.com/cosmos72/gomacro/jit"
@@ -49,7 +50,11 @@ func Disasm(code asm.MachineCode) ([]gapstone.Instruction, error) {
 	if err != nil {
 		return nil, err
 	}
-	return engine.Disasm(code.Bytes, 0x10000, 0)
+	address := uint64(0x10000)
+	if len(code.Bytes) != 0 {
+		address = uint64(uintptr(unsafe.Pointer(&code.Bytes[0])))
+	}
+	return engine.Disasm(code.Bytes, address, 0)
 }
 
 func PrintDisasm(t *testing.T, code asm.MachineCode) {

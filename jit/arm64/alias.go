@@ -105,6 +105,7 @@ const (
 	DEC  = common.DEC
 	NOT1 = common.NOT1
 	NEG1 = common.NEG1
+	JMP  = common.JMP
 
 	// Op1Misc
 	ALLOC = common.ALLOC
@@ -134,8 +135,9 @@ const (
 	CAST     = common.CAST
 	// CMP  = common.CMP
 	// XCHG = common.XCHG
-	NEG2 = common.NEG2
-	NOT2 = common.NOT2
+	NEG2  = common.NEG2
+	NOT2  = common.NOT2
+	JMPIF = common.JMPIF
 
 	// Op3
 	ADD3     = common.ADD3
@@ -201,6 +203,12 @@ func ConstUint64(val uint64) Const {
 
 func ConstUintptr(val uintptr) Const {
 	return common.ConstUintptr(val)
+}
+
+// guaranteed to work only if val points to non-Go memory,
+// as for example C/C++ memory
+func ConstPointer(val *uint8) Const {
+	return common.ConstPointer(val)
 }
 
 func ConstInterface(ival interface{}, t reflect.Type) (Const, error) {

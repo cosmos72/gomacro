@@ -134,6 +134,12 @@ func ConstUintptr(val uintptr) Const {
 	return common.ConstUintptr(val)
 }
 
+// guaranteed to work only if val points to non-Go memory,
+// as for example C/C++ memory
+func ConstPointer(val *uint8) Const {
+	return common.ConstPointer(val)
+}
+
 func ConstInterface(ival interface{}, t reflect.Type) (Const, error) {
 	return common.ConstInterface(ival, t)
 }

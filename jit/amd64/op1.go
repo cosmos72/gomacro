@@ -21,8 +21,8 @@ package amd64
 
 var op1Val = [256]uint8{
 	ZERO: 0x08,
-	NOT1:  0x10,
-	NEG1:  0x18,
+	NOT1: 0x10,
+	NEG1: 0x18,
 	INC:  0x20,
 	DEC:  0x28,
 }
@@ -42,6 +42,9 @@ func (arch Amd64) Op1(asm *Asm, op Op1, a Arg) *Asm {
 }
 
 func (arch Amd64) op1(asm *Asm, op Op1, a Arg) Amd64 {
+	if op == JMP {
+		return arch.jmp(asm, a)
+	}
 	switch a := a.(type) {
 	case Reg:
 		arch.op1Reg(asm, op, a)
@@ -153,4 +156,18 @@ func (arch Amd64) zeroReg(asm *Asm, dst Reg) Amd64 {
 // zero a memory location
 func (arch Amd64) zeroMem(asm *Asm, dst Mem) Amd64 {
 	return arch.movConstMem(asm, MakeConst(0, dst.Kind()), dst)
+}
+
+func (arch Amd64) jmp(asm *Asm, dst Arg) Amd64 {
+	c, ok := dst.(Const)
+	if !ok {
+		errorf("JMP destination must be a constant: %v %v", JMP, dst)
+	}
+	if dst.Kind() != Ptr {
+		errorf("unimplemented: relative jump: %v %v", JMP, dst)
+	}
+	asm.Byte(0xE9)
+	asm.Int32(0) // adjusted later by Asm.link()
+	asm.AddJump(uintptr(c.Val()))
+	return arch
 }

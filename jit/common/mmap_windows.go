@@ -94,6 +94,13 @@ func NewMemPool(size int) *MemPool {
 	return &MemPool{intptr(addr), poolsize, 0}
 }
 
+func (pool *MemPool) Addr() int {
+	if pool == nil {
+		return nil
+	}
+	return pool.ptr.uint8(pool.offset)
+}
+
 func (pool *MemPool) Size() int {
 	if pool == nil {
 		return 0
