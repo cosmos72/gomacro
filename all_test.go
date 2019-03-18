@@ -1206,13 +1206,21 @@ var testcases = []TestCase{
 				ret[i] = trans(slice[i])
 			}
 			return ret
-		}`, nil, none,
+		}
+		func stringLen(s string) int { return len(s) }`, nil, none,
 	},
-	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, func(s string) int { return len(s) })`,
+	TestCase{F, "template_func_8", `Transform#[string,int]([]string{"abc","xy","z"}, stringLen)`,
 		[]int{3, 2, 1}, nil},
+	TestCase{F, "template_func_9", `template[A,B,C] func SwapArgs(f func(A, B) C) func(B,A) C {
+			return func (b B, a A) C {
+				return f(a, b)
+			}
+		}
+		SwapArgs#[float64,float64,float64](func (a float64, b float64) float64 { return a/b })(2.0, 3.0)
+    `, 1.5, nil},
 
 	TestCase{F, "template_func_curry", `
-	    template[A,B,C] func Curry(f func(a A, b B) C) func (A) func(B) C {
+	    template[A,B,C] func Curry(f func(A, B) C) func(A) func(B) C {
 			return func (a A) func (B) C {
 				return func (b B) C {
 					return f(a, b)
@@ -1223,6 +1231,31 @@ var testcases = []TestCase{
 		Curry#[int,int,int](add2#[int])(2)(3)
 	`,
 		5, nil},
+
+	TestCase{F, "template_func_lift_1", `
+	    template[A,B] func Lift1(trans func(A) B) func([]A) []B {
+			return func(slice []A) []B {
+				ret := make([]B, len(slice))
+				for i := range slice {
+					ret[i] = trans(slice[i])
+				}
+				return ret
+			}
+		}
+		Lift1#[string,int](stringLen)([]string{"a","bc","def"})
+	`,
+		[]int{1, 2, 3}, nil},
+
+	TestCase{F, "template_func_lift_2", `
+	    // quite a convoluted test
+	    template[A,B] func Lift2(trans func(A) B) func([]A) []B {
+			return Curry#[func(A)B, []A, []B](
+				SwapArgs#[[]A, func(A)B, []B](Transform#[A,B]),
+			)(trans)
+		}
+		Lift2#[string,int](stringLen)([]string{"xy","z",""})
+	`,
+		[]int{2, 1, 0}, nil},
 
 	TestCase{F, "recursive_template_func_1", `template[T] func count(a, b T) T { if a <= 0 { return b }; return count#[T](a-1,b+1) }`, nil, none},
 	TestCase{F, "recursive_template_func_2", `count#[uint16]`, func(uint16, uint16) uint16 { return 0 }, nil},
