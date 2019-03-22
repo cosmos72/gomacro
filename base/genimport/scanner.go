@@ -61,7 +61,7 @@ func un(o *Output) {
 
 func traverseType(o *Output, name string, in types.Type, visitor TypeVisitor) {
 	for {
-		defer un(trace(o, "traverseType", name, in))
+		// defer un(trace(o, "traverseType", name, in))
 
 		if !visitor(name, in) {
 			return
