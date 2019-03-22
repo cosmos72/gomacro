@@ -61,7 +61,7 @@ func un(o *Output) {
 
 func traverseType(o *Output, name string, in types.Type, visitor TypeVisitor) {
 	for {
-		// defer un(trace(o, "traverseType", name, r.TypeOf(in)))
+		defer un(trace(o, "traverseType", name, in))
 
 		if !visitor(name, in) {
 			return
@@ -70,20 +70,29 @@ func traverseType(o *Output, name string, in types.Type, visitor TypeVisitor) {
 		case *types.Basic:
 			break
 		case *types.Named:
-			u := t.Underlying()
-			if in != u {
-				name = t.Obj().Name()
-				in = u
-				continue
+			// we are only interested in types visible in interface method declarations:
+			// to use a named type we do not need to import the packages used by it.
+			if false {
+				u := t.Underlying()
+				if in != u {
+					name = t.Obj().Name()
+					in = u
+					continue
+				}
 			}
 		case *types.Signature:
-			if recv := t.Recv(); recv != nil {
-				u := recv.Type()
-				// the receiver is often the interface containing this signature...
-				// avoid infinite recursion!
-				if in != u {
-					if _, ok := u.(*types.Interface); !ok {
-						traverseType(o, recv.Name(), u, visitor)
+			// we are only interested in types visible in interface method declarations:
+			// the receiver is omitted by Go interface{ ... } syntax
+			// and thus we do not need to import its package
+			if false {
+				if recv := t.Recv(); recv != nil {
+					u := recv.Type()
+					// the receiver is often the interface containing this signature...
+					// avoid infinite recursion!
+					if in != u {
+						if _, ok := u.(*types.Interface); !ok {
+							traverseType(o, recv.Name(), u, visitor)
+						}
 					}
 				}
 			}
