@@ -94,7 +94,7 @@ func NewMemPool(size int) *MemPool {
 	return &MemPool{intptr(addr), poolsize, 0}
 }
 
-func (pool *MemPool) Addr() int {
+func (pool *MemPool) Addr() *uint8 {
 	if pool == nil {
 		return nil
 	}
